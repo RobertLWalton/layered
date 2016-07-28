@@ -284,7 +284,7 @@ or address:
 
 These are the \key{built in number types}:
 \begin{indpar}
-{\em builtin-number-type-name}
+{\em builtin-number-type-name}\label{BUILTIN-NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}cl}
     ::= & \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
                     $|$ \TT{uns128} \\
@@ -556,19 +556,19 @@ that has enumeration values:
     \TT{is}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
     \{ \TT{without implicit conversion} \}\QMARK \\
-    \{ \TT{without comparison operators} \}\QMARK
     \end{tabular}
 \end{center}
 where
 \begin{center}
 \begin{tabular}{rrl}
 \emkey{base-enum-type-name}
-    & ::= & {\em enum-direction}\QMARK{}~~~{\em builtin-integer-type-name} \\
+    & ::= & {\em builtin-integer-type-name} \\
     & $|$ & {\em enum-direction}\QMARK{}~~~{\em defined-enum-type-name} \\
 \emkey{enum-direction}
     & ::= & \TT{next} $|$ \TT{previous} \\
 \emkey{builtin-integer-type-name}
-    & ::= & {\em builtin-number-type-name} naming an integer type \\
+    & ::= & {\em builtin-number-type-name}%
+            \,$^{\pagref{BUILTIN-NUMBER-TYPE-NAME}}$ naming an integer type \\
 \emkey{enum-range}
     & ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
     & $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
@@ -580,9 +580,8 @@ where
 \end{tabular}
 \end{center}
 
-Here {\em first-enum} and {\em last-enum} are integer values assigned
-to the newly defined enum type (and not integer values assigned to
-base enum type values).
+Here {\em first-enum} and {\em last-enum} are compile time integer
+values assigned to the newly defined enum type.
 {\em First-enum} must be less than or equal to {\em last-enum}.
 If {\em last-enum} is not given, it is assumed to be the maximum
 value permitted by the base enumeration type according to rules given
@@ -617,19 +616,64 @@ would return a value below the {\em first-enum} value in a range.
 It is also an error if for a given type the same value is returned
 by some \TT{next~enum} and also by some \TT{previous~enum}.
 
-Within a linked load the process is the same, but the values assigned
-to a constant may differ from those assigned during compilation,
-so that all such assignments for a given type within a linked load
-will be distinct.  The assignments occur when the code containing
-the statements is linked, not when that code is executed.
+An enumeration type declaration maps values of the enumeration type
+E it is defining onto values of its base type.
 
-Within a compilation module, all assignments to an enumeration type
-are done in the same order during linking as during compilation.
-Thus values assigned within the same module can be assumed to be
-in the same order at compile and link times.  Also,
-compile and link values
-can be assumed to be the same if all values of the enumeration type
-are assigned in the same compilation module.
+The \key{underlying type} of a type \TT{T} is \TT{T} itself if
+\TT{T} is a builtin integer type or \TT{void}, and is the underlying
+type of the base type of \TT{T} if \TT{T} is a defined type
+(see \pagref{UNDERLYING-TYPE}).
+Thus every enumeration type \TT{E} has an underlying integer
+type \TT{I}.  Given these, the following are defined:
+
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}{\tt (I i-value) = \ttkey{integer of}
+			( E e-value )} \\
+Returns the integer associated with the \TT{e-value} by the
+`\TT{with enum range}' clause in the definition of \TT{E},
+if \TT{E} is an enumeration type.  Returns the \TT{e-value}
+itself if \TT{E} is a builtin integer type.
+\end{indpar}
+
+If an enumeration type \TT{E} has an integer base type \TT{I}
+then `\TT{integer of ( e-value )}' returns the same value as
+the implicit conversion `\TT{I ( e-value )}'.
+
+The value returned by this function may be different than
+the value returned by implicit conversion of the \TT{e-value} to type \TT{I},
+assuming the later is defined, i.e., that `\TT{without implicit conversion}'
+clauses were omitted from the definitions.
+
+If an enumeration type declaration has no {\em enum-direction}, the
+intergers in the {\em enum-range}
+
+TBD
+
+If \TT{B} is the base
+type of \TT{E}, then
+\begin{center}
+\TT{I(e-value) == I(B(e-value))} which may not equal \TT{integer of (e-value)}
+\end{center}
+This is exemplified by:
+\begin{indpar}\begin{verbatim}
+type E1 is int32 with enum range [1 .. 20]
+E1 C1 = previous enum
+    // Now integer of (C1) == 20 == int32(C1)
+type E2 is previous E1 with enum range [1 .. 10]
+    // E2(1) ---> E1(19) and E2(10) ---> E1(9)
+E2 C2 = next enum 
+    // Now integer of (C2) == 1,
+    // integer of ( E1(C2) ) == 19 = int32(C2)
+type E3 is previous E2 with enum range [1 .. 5]
+    // E3(1) ---> E2(10) ---> E1(9)
+    // E3(5) ---> E2(6)  ---> E1(14)
+E3 C3 = next enum 
+    // Now integer of (C3) == 1,
+    // integer of ( E2(C3) ) == 10,
+    // integer of ( E1(E2(C3)) ) = 9 = int32(C3)
+\end{verbatim}\end{indpar}
+
+TBD
 
 The {\em enum-range} given in an enum declaration statement
 is mapped to a subrange of the
@@ -648,8 +692,6 @@ and mapped to the values
 of \TT{X} beginning with \TT{n} and ending with \TT{m}, so the order
 of values of \TT{X} is always the same as their order when they
 are viewed as values of \TT{Y}.
-
-TBD
 
 Builtin integer types are treated as enum types with enum range
 equal to the integer type value range.  Thus we have for example:
@@ -678,50 +720,7 @@ The implicit conversion is \underline{not} defined if the
 `\TT{without implicit conversion}' option is given in the
 enumeration type definition.
 
-The \key{underlying type} of a type \TT{T} is \TT{T} itself if
-\TT{T} is a builtin integer type or \TT{void}, and is the underlying
-type of the base type of \TT{T} if \TT{T} is a defined type
-(see \pagref{UNDERLYING-TYPE}).
-Thus every enumeration type \TT{E} has an underlying integer
-type \TT{I}.  Given these, the following are defined:
-
-\begin{indpar}[0.5in]
-\hspace*{-0.3in}{\tt (I i-value) = \ttkey{integer of}
-			( E e-value )} \\
-Returns the integer associated with the \TT{e-value} by the
-`\TT{with enum range}' clause in the definition of \TT{E},
-if \TT{E} is an enumeration type.  Returns the \TT{e-value}
-itself if \TT{E} is a builtin integer type.
-\end{indpar}
-
-The value returned by this function may be different than
-the value returned by implicit conversion of the \TT{e-value} to type \TT{I},
-assuming the later is defined, i.e., that `\TT{without implicit conversion}'
-clauses were omitted from the definitions.  If \TT{B} is the base
-type of \TT{E}, then
-\begin{center}
-\TT{I(e-value) == I(B(e-value))} which may not equal \TT{integer of (e-value)}
-\end{center}
-This is exemplified by:
-\begin{indpar}\begin{verbatim}
-type E1 is int32 with enum range [1 .. 20]
-E1 C1 = previous enum
-    // Now integer of (C1) == 20 == int32(C1)
-type E2 is previous E1 with enum range [1 .. 10]
-    // E2(1) ---> E1(19) and E2(10) ---> E1(9)
-E2 C2 = next enum 
-    // Now integer of (C2) == 1,
-    // integer of ( E1(C2) ) == 19 = int32(C2)
-type E3 is previous E2 with enum range [1 .. 5]
-    // E3(1) ---> E2(10) ---> E1(9)
-    // E3(5) ---> E2(6)  ---> E1(14)
-E3 C3 = next enum 
-    // Now integer of (C3) == 1,
-    // integer of ( E2(C3) ) == 10,
-    // integer of ( E1(E2(C3)) ) = 9 = int32(C3)
-\end{verbatim}\end{indpar}
-
-The following are uiltin enumeration types:
+The following are builtin enumeration types:
 \begin{indpar}
 \TT{type~type~is unswrd with enum [0~..]} \\
 \TT{type~missing~is next enum // 0} \\
@@ -742,6 +741,20 @@ unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
 `\TT{integer of}' functions above
 can be used to find the integer values of any
 enumeration constant.
+
+Within a linked load the process is the same, but the values assigned
+to a constant may differ from those assigned during compilation,
+so that all such assignments for a given type within a linked load
+will be distinct.  The assignments occur when the code containing
+the statements is linked, not when that code is executed.
+
+Within a compilation module, all assignments to an enumeration type
+are done in the same order during linking as during compilation.
+Thus values assigned within the same module can be assumed to be
+in the same order at compile and link times.  Also,
+compile and link values
+can be assumed to be the same if all values of the enumeration type
+are assigned in the same compilation module.
 
 \subsection{Enumeration Sets}
 \label{Enumeration-Sets}

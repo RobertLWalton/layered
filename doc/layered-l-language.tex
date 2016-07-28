@@ -748,35 +748,15 @@ type E2 is previous E1 with enum range [1 .. 10]
     // Now enumeration offset of (E2) == 9
 E2 C2 = next enum 
     // Now range value of (C2) == 1,
-    // range value of ( E1(C2) ) == 19 = int32(C2)
-type E3 is previous E2 with enum range [1 .. 5]
-    // E3(1) ---> E2(10) ---> E1(9)
-    // E3(5) ---> E2(6)  ---> E1(14)
+    // Now range value of ( E1(C2) ) == 10 = int32(C2)
+type E3 is next E2 with enum range [1 .. 5]
+    // Now enumeration offset of (E2) == 11
 E3 C3 = next enum 
     // Now range value of (C3) == 1,
-    // range value of ( E2(C3) ) == 10,
-    // range value of ( E1(E2(C3)) ) = 9 = int32(C3)
+    // range value of ( E2(C3) ) == 2,
+    // range value of ( E1(E2(C3)) ) = 11 = int32(C3)
 \end{verbatim}\end{indpar}
 
-TBD
-
-The {\em enum-range} given in an enum declaration statement
-is mapped to a subrange of the
-base enumeration type.  More specifically,
-\begin{center}
-\TT{type X is next Y with enum [m~...~n]}
-\end{center}
-allocates
-the next ~\TT{n - m + 1}~ values of \TT{Y} as per `\TT{next enum}'
-applied to the type \TT{Y} (not the type \TT{X}),
-and maps them to the values
-of \TT{X} beginning with \TT{m} and ending with \TT{n}.
-If `\TT{next}' is replaced by `\TT{previous}', the action is the
-same but the values of \TT{Y} are allocate as per `\TT{previous enum}'
-and mapped to the values
-of \TT{X} beginning with \TT{n} and ending with \TT{m}, so the order
-of values of \TT{X} is always the same as their order when they
-are viewed as values of \TT{Y}.
 
 The following are builtin enumeration types:
 \begin{indpar}
@@ -797,22 +777,24 @@ are given unspecified `\TT{type}' enumeration values.
 Similarly builtin qualifiers, such as `\TT{mem}', are given
 unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
 `\TT{range value of}' functions above
-can be used to find the integer values of any
+can be used to find the integer values associated with any
 enumeration constant.
 
-Within a linked load the process is the same, but the values assigned
-to a constant may differ from those assigned during compilation,
-so that all such assignments for a given type within a linked load
-will be distinct.  The assignments occur when the code containing
-the statements is linked, not when that code is executed.
+Enumeration values are assigned within a compilation module in
+the order that {\em enum-assignments} are compiled.
+When the module is linked, enumeration values are assigned
+in the same manner and order, but the values themselves may
+differ because the assignments of an enumeration type made
+before the module is processed may differ between when the
+module is compiled and when it is linked.
 
-Within a compilation module, all assignments to an enumeration type
+However, within a compilation module, all assignments to an enumeration type
 are done in the same order during linking as during compilation.
 Thus values assigned within the same module can be assumed to be
 in the same order at compile and link times.  Also,
 compile and link values
-can be assumed to be the same if all values of the enumeration type
-are assigned in the same compilation module.
+can be assumed to be the same if \underline{all} values of the enumeration type
+are assigned in the a single compilation module.
 
 \subsection{Enumeration Sets}
 \label{Enumeration-Sets}

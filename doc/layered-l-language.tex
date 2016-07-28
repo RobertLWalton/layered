@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 27, 2016
+July 28, 2016
  
 \end{center}
 
@@ -562,13 +562,15 @@ where
 \begin{center}
 \begin{tabular}{rrl}
 \emkey{base-enum-type-name}
-    & ::= & {\em builtin-integer-type-name} \\
+    & ::= & {\em integer-base-type-name} \\
     & $|$ & {\em enum-direction}\QMARK{}~~~{\em defined-enum-type-name} \\
 \emkey{enum-direction}
     & ::= & \TT{next} $|$ \TT{previous} \\
-\emkey{builtin-integer-type-name}
+\emkey{integer-base-type-name}
     & ::= & {\em builtin-number-type-name}%
             \,$^{\pagref{BUILTIN-NUMBER-TYPE-NAME}}$ naming an integer type \\
+    & $|$ & {\em defined-type-name} with integer underlying type
+            (see \pagref{UNDERLYING-TYPE}) \\
 \emkey{enum-range}
     & ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
     & $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
@@ -616,61 +618,144 @@ would return a value below the {\em first-enum} value in a range.
 It is also an error if for a given type the same value is returned
 by some \TT{next~enum} and also by some \TT{previous~enum}.
 
-An enumeration type declaration maps values of the enumeration type
-E it is defining onto values of its base type.
+An enumeration type is a defined type with integer base type and
+extra apparatus provided by the range which provides a special
+mechanism for assigning enumeration type values.
+Given an enumeration type \TT{E} with its base type \TT{B}
+the following conversions are defined:
+\begin{center}
+\begin{tabular}{rl}
+{\TT B} & \TT{(} {\em \TT{E}-value} \TT{)} \\
+\TT{*UNCHECKED*} \TT{B}
+	& \TT{(} {\em \TT{E}-value} \TT{)} \\
+\TT{*UNCHECKED*} \TT{E}
+	& \TT{(} {\em \TT{B}-value} \TT{)} \\
+\end{tabular}
+\end{center}
+These conversions actually do nothing but change the type of the
+value.  The first two have identical effect.  The first is an implicit
+conversion, and is only defined if the
+`\TT{without implicit conversion}' option is \underline{not} given in the
+enumeration type definition.
 
-The \key{underlying type} of a type \TT{T} is \TT{T} itself if
-\TT{T} is a builtin integer type or \TT{void}, and is the underlying
-type of the base type of \TT{T} if \TT{T} is a defined type
-(see \pagref{UNDERLYING-TYPE}).
+If the base type of an enumeration type is a builtin integer type,
+the integer value corresponding to {\em first-enum} is {\em first-enum}
+itself, and similarly for {\em last-enum}.  Thus the following
+example:
+\begin{indpar}\begin{verbatim}
+type E is int32 with enum range [1 .. 20]
+E C1 = next enum
+    // Now int32 (C1) == 1
+E C2 = next enum
+    // Now int32 (C2) == 2
+E C3 = previous enum
+    // Now int32 (C3) == 20
+E C4 = previous enum
+    // Now int32 (C4) == 19
+\end{verbatim}\end{indpar}
+
+The \key{underlying type}\label{UNDERLYING-TYPE}
+of a type \TT{T} is \TT{T} itself if
+\TT{T} is builtin, and is the underlying
+type of the base type of \TT{T} if \TT{T} is a defined type.
 Thus every enumeration type \TT{E} has an underlying integer
-type \TT{I}.  Given these, the following are defined:
+type \TT{I}.  As long as the `\TT{without implicit conversion}'
+option is \underline{not} used, a value of an enumeration type
+can always be implicitly converted to a value of its underlying
+type.  Thus the following example:
 
-\begin{indpar}[0.5in]
-\hspace*{-0.3in}{\tt (I i-value) = \ttkey{integer of}
-			( E e-value )} \\
-Returns the integer associated with the \TT{e-value} by the
-`\TT{with enum range}' clause in the definition of \TT{E},
-if \TT{E} is an enumeration type.  Returns the \TT{e-value}
-itself if \TT{E} is a builtin integer type.
+Given these, the following are defined:
+\begin{indpar}\begin{verbatim}
+type D is int32
+type E is D with enum range [1 .. 20]
+E C1 = next enum
+    // Now int32 (C1) == 1
+E C3 = previous enum
+    // Now int32 (C3) == 20
+\end{verbatim}\end{indpar}
+
+If the base type of an enumeration type is another enumeration type,
+the map from values of the first enumeration type to underlying
+integer values consists of addining a constant, called the
+`\key{enumeration offset}', which is determined as follows:
+
+\begin{indpar}
+\begin{itemlist}
+\item[\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}~~%
+    \TT{is}~~{\em builtin-integer-type-name} \ldots{}] ~\\
+The enumeration offset of the defined enumeration type equals 0.
+\item[\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}~~%
+    \TT{is}~~{\em non-builtin-integer-type-name} \ldots{}] ~\\
+The enumeration offset of the defined enumeration type equals
+the enumeration offset of its base type.
+\item[\TT{type} {\em qualifier-name}\STAR{}]
+              \begin{tabular}[t]{@{}l@{}}
+              {\em defined-enum-type-name}~~\TT{is}~~%
+              \TT{next}~~{\em base-defined-enum-type-name} \\
+	      \TT{with enum range [}
+	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
+	      \end{tabular} \\
+Has the effect of compiling the statements:
+\begin{center}
+\begin{tabular}{l}
+{\em base-defined-enum-type-name} \TT{V0~~=~~next enum} \\
+{\em base-defined-enum-type-name} \TT{V1~~=~~next enum} \\
+{\em base-defined-enum-type-name} \TT{V2~~=~~next enum} \\
+\ldots\ldots\ldots \\
+{\em base-defined-enum-type-name} \TT{V$n$~~=~~next enum} \\
+\end{tabular}
+\end{center}
+where $n$ = {\em last-enum} - {\em first-enum}, and assigning
+the enumeration offset of the defined enumeration type so that if
+\begin{center}
+{\em defined-enum-type-name} \TT{V~~=~~next enum} \\
+\end{center}
+were the first statement compiled later that assigns a
+{\em defined-enum-type-name} enumeration value,
+and \TT{I} is the underlying builtin integer type of both enum
+types, then \TT{I(V) = I(V0)}.  Here \TT{V} stands for a manufactured
+word lexeme distinct from any other lexemes in the program.
+\item[\TT{type} {\em qualifier-name}\STAR{}]
+              \begin{tabular}[t]{@{}l@{}}
+              {\em defined-enum-type-name}~~\TT{is}~~%
+              \TT{previous}~~{\em defined-enum-type-name} \\
+	      \TT{with enum range [}
+	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
+	      \end{tabular} \\
+Ditto with every `\TT{next}' replaced by `\TT{previous}'.
+\end{itemlist}
 \end{indpar}
 
-If an enumeration type \TT{E} has an integer base type \TT{I}
-then `\TT{integer of ( e-value )}' returns the same value as
-the implicit conversion `\TT{I ( e-value )}'.
+The following are also defined:
 
-The value returned by this function may be different than
-the value returned by implicit conversion of the \TT{e-value} to type \TT{I},
-assuming the later is defined, i.e., that `\TT{without implicit conversion}'
-clauses were omitted from the definitions.
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}\ttkey{range value of}
+			\TT{( E} e-value \TT{)} \\
+Returns \TT{I ( e-value )}~~\TT{-}~~the enumeration offset of \TT{E}.
+\\[1ex]
+\hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}\ttkey{enumeration offset of}
+			\TT{( type E )} \\
+Returns the enumeration offset of \TT{E}.
+\end{indpar}
 
-If an enumeration type declaration has no {\em enum-direction}, the
-intergers in the {\em enum-range}
-
-TBD
-
-If \TT{B} is the base
-type of \TT{E}, then
-\begin{center}
-\TT{I(e-value) == I(B(e-value))} which may not equal \TT{integer of (e-value)}
-\end{center}
-This is exemplified by:
+The above is examplified by:
 \begin{indpar}\begin{verbatim}
 type E1 is int32 with enum range [1 .. 20]
+    // Now enumeration offset of (E1) == 0
 E1 C1 = previous enum
-    // Now integer of (C1) == 20 == int32(C1)
+    // Now range value of (C1) == 20 == int32(C1)
 type E2 is previous E1 with enum range [1 .. 10]
-    // E2(1) ---> E1(19) and E2(10) ---> E1(9)
+    // Now enumeration offset of (E2) == 9
 E2 C2 = next enum 
-    // Now integer of (C2) == 1,
-    // integer of ( E1(C2) ) == 19 = int32(C2)
+    // Now range value of (C2) == 1,
+    // range value of ( E1(C2) ) == 19 = int32(C2)
 type E3 is previous E2 with enum range [1 .. 5]
     // E3(1) ---> E2(10) ---> E1(9)
     // E3(5) ---> E2(6)  ---> E1(14)
 E3 C3 = next enum 
-    // Now integer of (C3) == 1,
-    // integer of ( E2(C3) ) == 10,
-    // integer of ( E1(E2(C3)) ) = 9 = int32(C3)
+    // Now range value of (C3) == 1,
+    // range value of ( E2(C3) ) == 10,
+    // range value of ( E1(E2(C3)) ) = 9 = int32(C3)
 \end{verbatim}\end{indpar}
 
 TBD
@@ -693,33 +778,6 @@ of \TT{X} beginning with \TT{n} and ending with \TT{m}, so the order
 of values of \TT{X} is always the same as their order when they
 are viewed as values of \TT{Y}.
 
-Builtin integer types are treated as enum types with enum range
-equal to the integer type value range.  Thus we have for example:
-\begin{indpar}\begin{verbatim}
-type non negative int32 is previous int32 with enum range [0 .. 20]
-\end{verbatim}\end{indpar}
-
-
-The conversions
-\begin{center}
-\begin{tabular}{rl}
-{\em base-enum-type-name}
-	& \TT{(} {\em defined-enum-type-value} \TT{)} \\
-\TT{*UNCHECKED*} {\em base-enum-type-name}
-	& \TT{(} {\em defined-enum-type-value} \TT{)} \\
-\TT{*UNCHECKED*} {\em defined-enum-type-name}
-	& \TT{(} {\em base-enum-type-value} \TT{)} \\
-\end{tabular}
-\end{center}
-may be used to convert between enumeration values and their base enumeration
-values.
-It is an error if the result of one of these conversions is outside
-the range of the result enumeration type.
-
-The implicit conversion is \underline{not} defined if the
-`\TT{without implicit conversion}' option is given in the
-enumeration type definition.
-
 The following are builtin enumeration types:
 \begin{indpar}
 \TT{type~type~is unswrd with enum [0~..]} \\
@@ -738,7 +796,7 @@ Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified `\TT{type}' enumeration values.
 Similarly builtin qualifiers, such as `\TT{mem}', are given
 unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
-`\TT{integer of}' functions above
+`\TT{range value of}' functions above
 can be used to find the integer values of any
 enumeration constant.
 
@@ -916,16 +974,17 @@ This is done automatically for the following functions:
 \hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
 Returns the base type \TT{B} of the type \TT{T}.  For defined
-types this is the associated builtin type.  For builtin types, it is
+types this is the associated base type.  For builtin types, it is
 \TT{T} itself.
 
 \hspace*{-0.3in}{\tt (type U) = \ttkey{underlying type of}
-			( type T )}\label{UNDERLYING-TYPE} \\
-Returns \TT{T} if \TT{T} is a builtin integer type or \TT{void}.
-Otherwise returns 
+			( type T )}
+Returns \TT{T} if \TT{T} is a builtin type.
+Otherwise if \TT{T} is a defined type,
 \begin{center}
 \TT{underlying type of ( base type of ( T ) )}
 \end{center}
+is returned.  See \pagref{UNDERLYING-TYPE}.
 
 \hspace*{-0.3in}{\tt (unsadr size) = \ttkey{size of}
 			( type T )} \\

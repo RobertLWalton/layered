@@ -891,33 +891,88 @@ given in the function call, must be in the give set of
 types, where types are values of the enumeration type `\TT{type}'
 (see Section~\itemref{TYPE-VALUES}).
 
-The following are builtin enumeration set types:
+Enumeration sets can be stored in variables of enumeration set
+types, which can be declared by:
+\begin{center}
+\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-set-type-name}
+    \TT{is set of } {\em base-enum-type-name} \\
+\end{center}
+
+The information about enumeration set types can be determined by:
+
 \begin{indpar}
-\TT{type~}\ttkey{types}\TT{~is~}\ldots{} \\
-\TT{type~}\ttkey{qualifiers}\TT{~is~}\ldots{}
+\hspace*{-0.3in}{\tt bool = \ttkey{is enumeration set type}
+			( type T )} \\
+Returns \TT{true} if \TT{T} is an enumeration set type and \TT{false}
+otherwise.
+
+\hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
+			( type T )} \\
+Returns the base type \TT{B} of an enumeration set type \TT{T}.
 \end{indpar}
 
-The underlying type of all the elements of an enumeration set must be
-the same, and this is the underlying type of the set.
-If $x$ and $y$ are enumeration set types and $e$ is an enumeration value
-and all have the same underlying type, then the following operations
-are defined if the result exists:
-\begin{center}
-\begin{tabular}{l@{\hspace*{0.5in}}p{4.0in}}
-$x$ \TT{+} $y$	& The union of $x$ and $y$. \\
-$x$ \TT{*} $y$	& The intersection of $x$ and $y$. \\
-$x$ \TT{-} $y$	& The set difference of $x$ minus $y$. \\
-$e$ \TT{in} $x$	& \TT{true} if $e$ is in the set $x$,
-                  and otherwise \TT{false}. \\
-$e$ \TT{+} $x$	& The union of $\{e\}$ and $x$. \\
-$x$ \TT{+} $e$	& Ditto. \\
-$x$ \TT{-} $e$	& The set $x$ with $e$ deleted. \\
-\end{tabular}
-\end{center}
-Note that if the result is an enumeration set, it cannot exist
-if it would have no common enumeration type:
-see \pagref{COMMON-ENUMERATION-TYPE}.  If it result does not
-exist, the operation producing it is in error.
+The following are builtin enumeration set types:
+\begin{indpar}
+\TT{type~}\ttkey{types}\TT{~is set of type} \\
+\TT{type~}\ttkey{qualifiers}\TT{~is set of qualifier}
+\end{indpar}
+
+An enumeration set constant is an enumeration set whose base type 
+is its common enumeration type, even if this enumeration set type has not been
+declared and is not builtin.
+
+The following operations on enumeration sets are builtin:
+
+\begin{indpar}
+\hspace*{-0.3in}{\tt (S union) = (type S, S op1)
+                        "\ttmkey{+}{enumeration set union}" ( S op2 )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (S union) = (S op1)
+                        "\ttmkey{+}{enumeration set union}"
+			( type S, S op2 )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+Returns the union of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt (S intersection) = (type S, S op1)
+                        "\ttmkey{*}{enumeration set intersection}" ( S op2 )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (S intersection) = (S op1)
+                        "\ttmkey{*}{enumeration set intersection}"
+			( type S, S op2 )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+Returns the intersection of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt (S difference) = (type S, S op1)
+                        "\ttmkey{+}{enumeration set difference}" ( S op2 )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+Returns the set difference of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt bool = (E e)
+                        \ttmkey{in}{enumeration set} ( type S, S s )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+Returns \TT{true} if \TT{e} is an element of the set \TT{s}, and
+\TT{false} otherwise.
+
+\hspace*{-0.3in}{\tt (S union) = (E e)
+                        "\ttmkey{+}{enumeration set union}" ( type S, S s )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+Returns union of \{\TT{e}\} and \TT{s}.
+
+\hspace*{-0.3in}{\tt (S union) = (type S, S s)
+                        "\ttmkey{+}{enumeration set union}" ( E e )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+Returns union of \{\TT{e}\} and \TT{s}.
+
+\hspace*{-0.3in}{\tt (S difference) = (type S, S s)
+                        "\ttmkey{-}{enumeration set union}" ( E e )} \\
+\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+Returns the set difference of \TT{s} and \{\TT{e}\}.
+
+\end{indpar}
 
 \subsection{Type Values}
 \label{TYPE-VALUES}

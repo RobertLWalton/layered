@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 28, 2016
+July 30, 2016
  
 \end{center}
 
@@ -998,16 +998,24 @@ type \TT{T2} if and only if an inline function with prototype:
 is defined.  In this case we say the \TT{T1} is \mkey{more specific}{types}
 than \TT{T2}, or \TT{T2} is \mkey{more general}{types} than \TT{T1}, or
 \begin{center}
-\TT{T1~~>~~T2}
+\TT{T1~~-{}-{}->~~T2}
 \end{center}%
 \label{CONVERSION-RELATION}
-The transitive closure of the \TT{>} relation between types is
+
+The transitive closure of the \TT{-{}-{}->} relation between types is
 required to be a partial order,
-or equivalently, the directed graph
-\begin{center}
-\TT{T1 ---> T2} ~~~~~ if and only if ~~~~~ \TT{T1~~>~~T2}
-\end{center}
-is required to be acyclic.
+or equivalently, the directed graph with an edge from \TT{T1} to
+\TT{T2} iff \TT{T1~-{}-{}->~T2} is required to be acyclic.
+In addition, two different paths from one type to another are
+required to produce the same result.  For example:
+\begin{indpar}\begin{verbatim}
+int16 v1 = ...
+int32 v2 = v1
+float64 v3 = v2
+float64 v4 = v1
+// Given the two implicit conversion paths v1 ---> v2 ---> v3
+// and v1 ---> v4, necessarily v3 == v4.
+\end{verbatim}\end{indpar}
 
 Functions can be overloaded based on the number and types
 of their arguments and also on the values of arguments that
@@ -1023,7 +1031,8 @@ This is done automatically for the following functions:
 \hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
 			( type T )} \\
 Returns the base type \TT{B} of the type \TT{T}.  For defined
-types this is the associated base type.  For builtin types, it is
+types this is the associated base type from the defined type's
+declaration.  For builtin types, it is
 \TT{T} itself.
 
 \hspace*{-0.3in}{\tt (type U) = \ttkey{underlying type of}
@@ -1058,38 +1067,27 @@ These are defined only for number types and enumeration types,
 and for enumeration types the values returned are the limits of
 the type's {\em enum-range}.
 
-\hspace*{-0.3in}{\tt (T value) = \ttkey{min assigned of}
+\hspace*{-0.3in}{\tt (T value) = \ttkey{min unassigned of}
 			( type T )} \\
-\hspace*{-0.3in}{\tt (T value) = \ttkey{max assigned of}
+\hspace*{-0.3in}{\tt (T value) = \ttkey{max unassigned of}
 			( type T )} \\
-Returns the minimum or maximum values actually assigned to an
+Returns the minimum or maximum values not yet assigned to an
 enumeration type \TT{T} by an {\em enum-assignment}.  Values
 assigned by unchecked conversions are not considered.  If
-no values have been assigned, {\em first-enum} is returned as
-one of the assigned values and the other assigned value is such
-that the difference of assigned values is \TT{-1}.
-In any case the maximum assigned value minus the minimum assigned value
-plus \TT{1} is the number of assigned values.
+no values have been assigned, the enumeration value corresponding
+to {\em first-enum} is returned by `\TT{min unassigned of}'
+and the enumeration value corresponding
+to {\em last-enum} is returned by `\TT{max unassigned of}'.
 It is a compile time error if \TT{T} is not an enumeration type.
 
 These values may change when more code is compiled or linked.
 You may only assume that constants of type \TT{T} whose values have
 already been compiled or linked are within
-the range given by these values.
-
-\hspace*{-0.3in}{\tt (int8 s, U c) = \ttkey{coefficients of}
-			( type T )} \\
-\TT{T} must be an enumeration or builtin integer
-type with underlying type \TT{U}.
-Then for every value \TT{v} of type \TT{T}:
+ranges bounded by these values, i.e., in the ranges:
 \begin{center}
-\TT{U(v) == s * integer of (v) + c}
+\TT{[ min of (T), min unassigned of (T) )} \\
+\TT{( max unassigned of (T), max of (T) ]} \\
 \end{center}
-which is guarenteed to be within the range of \TT{U} (else the
-enumeration type declarations involved would be in error).  It is
-always true that \TT{s} equals \TT{+1} or \TT{-1}.  For builtin
-integer types \TT{U} and \TT{T} are the same, \TT{s == +1},
-and \TT{c == 0}.
 
 \hspace*{-0.3in}{\tt (T value) = \ttkey{default value of}
 			( type T )} \\

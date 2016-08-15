@@ -1126,7 +1126,7 @@ that are before {\em variable-names}.  Some introductory examples are:
 \begin{indpar}\begin{verbatim}
 qualifier fee
 required qualifier fie
-fee int32 result = F ( fee fie int32 value ):
+function fee int32 result = F ( fee fie int32 value ):
     // Declares function F that computes a result of type
     // int32 from a value of type int32 and qualifier fie.
     // Requires call argument to have qualifier fie, but
@@ -1142,7 +1142,7 @@ int32 y1 = F ( x1 )          // Legal; x1 has required fie.
 int32 y2 = F ( x2 )          // Illegal; x2 does not have
                              // required fie.
 protected prohibited qualifier fo
-fo int32 result = G ( int32 value ):
+function fo int32 result = G ( int32 value ):
     // Declares function G that computes a result of type
     // int32 from a value of type int32 that does NOT have
     // qualifier fo, which is prohibited.  Attaches fo, which
@@ -1548,9 +1548,9 @@ No Direct Conversions rule does \underline{not} apply.
 As an example, consider the code:
 \begin{indpar}\begin{verbatim}
 // Prototypes of builtin "+" operator:
-prototype int64 result = ( int64 argument 1 )
+function int64 result = ( int64 argument 1 )
                      "+" ( int64 argument 2)
-prototype float64 result = ( float64 argument 1 )
+function float64 result = ( float64 argument 1 )
                        "+" ( float64 argument 2)
 int64 x = ...
 int64 y = ...
@@ -1580,9 +1580,9 @@ float64 t = tmp x + tmp y
 Consider the code:
 \begin{indpar}\begin{verbatim}
 // Prototypes of builtin "+" operator:
-prototype int32 result = ( int32 argument 1 )
+function int32 result = ( int32 argument 1 )
                      "+" ( int32 argument 2)
-prototype float64 result = ( float64 argument 1 )
+function float64 result = ( float64 argument 1 )
                        "+" ( float64 argument 2)
 int32 x = ...
 int32 y = ...
@@ -1894,7 +1894,8 @@ same subblock.
 
 An example is:
 \begin{indpar}\begin{verbatim}
-float64 result = max ( float64 x, float64 y, float64 z ):
+function float64 result =
+        max ( float64 x, float64 y, float64 z ):
     result = if:
         default:
             result = NaN
@@ -2247,7 +2248,7 @@ a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
 If a variable \TT{v} not in the {\em result-variable-list}
 is set by an {\em argument-assignment-statement},
 `\TT{next v}' can be set by a `\TT{do}' subblock {\em statement}, but
-this will be a new variable whose value will not be available during
+this will be a new variable whose value may not be available during
 the compilation.
 
 When the compile-and-run assignment statement is executed, the compiled
@@ -2280,17 +2281,17 @@ are used to embed assembler instructions in compiled code:
 
 The variables, those produced by the {\em argument-assignment-statements},
 the {\em argument-variable-declarations},
-and the result variables, are placed in registers
-and their names become register names for the assembler instructions.
+and the result variables, are placed in machine registers
+and their names become machine register names for the assembler instructions.
 Assembler instructions are only permitted to reference these
-registers, but load and store assembler instructions may be used.
+machine registers, but load and store assembler instructions may be used.
 The assembler instructions are written in the syntax of one of the
 target machine assemblers.
 
 The variables may have additional qualifiers which
-are names of registers or groups of registers.  In this case
-the variables will be allocated to the specified registers or
-register groups.  Otherwise they will be allocated to target
+are names of machine registers or groups of machine registers.  In this case
+the variables will be allocated to the specified machine registers or
+machine register groups.  Otherwise they will be allocated to target
 machine specified register groups based on variable type.
 
 The {\em argument-variable-declarations} list intermediate
@@ -2348,8 +2349,7 @@ in the same smallest containing block.
 The scope of a name consists of statements and subblocks.
 By the last rule, a name may not be
 redeclared in a subblock that is in the name's scope.
-A corollary of this is that `\TT{next v}'
-cannot be declared in a subblock that is in the scope
+So `\TT{next v}' cannot be declared in a subblock that is inside the scope
 of `\TT{v}'.
 
 \section{Inline Functions}
@@ -2366,7 +2366,7 @@ Inline function declarations have the form:
 \begin{indpar}
 \emkey{function-declaration}
     ::= \begin{tabular}[t]{l}
-        {\em function-prototype}\TT{:} \\
+        \ttkey{function} {\em function-prototype}\TT{:} \\
 	~~~~ {\em statement}\STAR{} \\
 	\end{tabular}
 \\[1ex]
@@ -2446,7 +2446,7 @@ after it in the {\em argument-variable-list},
 or of any result variable.  For example:
 
 \begin{indpar}\begin{verbatim}
-( T result ) = add ( type T, T v1, T v2 ):
+function ( T result ) = add ( type T, T v1, T v2 ):
     result = v1 + v2
 
 // Example usage
@@ -2469,7 +2469,7 @@ as in:
 types signed-integer-types =
     {{ int8, int16, int32, int64, int128 }}
 
-( T result ) = add ( type T, T v1, T v2 )
+function ( T result ) = add ( type T, T v1, T v2 )
     [[ T in signed-integer-types ]]:
     result = v1 + v2
 \end{verbatim}\end{indpar}
@@ -2485,7 +2485,7 @@ after it in the {\em argument-variable-list}, and it can be
 used to compute qualifiers of either argument or result variables.
 For example:
 \begin{indpar}\begin{verbatim}
-( Qr pointer result ) =
+function ( Qr pointer result ) =
     increment ( qualfiers Q, Q pointer value )
     [[ Qr is Q & {{ stack }} ]]:
     . . . . . . . . . .
@@ -2507,7 +2507,7 @@ at compile time.
 Since they are inline, functions can use abbreviation arguments as function
 names.  An example is:
 \begin{indpar}\begin{verbatim}
-( T r1, T r2 ) =
+function ( T r1, T r2 ) =
         sort2 ( type T, T x, T y, abbreviation less-than ):
     if:
         less-than ( x, y ):
@@ -2518,7 +2518,7 @@ names.  An example is:
 // Function that is like < except it makes a NaN less than
 // a non-NaN ( < is false if either argument is NaN ).
 //
-bool r = less-than-float64 ( float64 x, float64 y )
+function bool r = less-than-float64 ( float64 x, float64 y ):
     r = if:
         is-NaN ( x ): r = true
         x < y:        r = true
@@ -2534,7 +2534,7 @@ However, as names in a function block are resolved in the context
 of the function block declaration, and not in the context of a
 call, the following fails:
 \begin{indpar}\begin{verbatim}
-( T r1, T r2 ) = sort2 ( type T, T x, T y ):
+function ( T r1, T r2 ) = sort2 ( type T, T x, T y ):
     if:
         less-than ( x, y ):
             r1 = x; r2 = y
@@ -2544,7 +2544,7 @@ call, the following fails:
 // Function that is like < except it makes a NaN less than
 // a non-NaN ( < is false if either argument is NaN ).
 //
-bool r = less-than-float64 ( float64 x, float64 y )
+function bool r = less-than-float64 ( float64 x, float64 y ):
     r = if:
         is-NaN ( x ): r = true
         x < y:        r = true
@@ -2619,7 +2619,7 @@ An example is:
 \begin{indpar}\begin{verbatim}
 generic min-max functions ( type T ):
     include:
-        T result = min ( T x, T y ):
+        function T result = min ( T x, T y ):
             result = if:
                 x <= y:
                     result = x
@@ -2627,7 +2627,7 @@ generic min-max functions ( type T ):
                     result = y
                 else
                     result = NaN
-        T result = max ( T x, T y ):
+        function T result = max ( T x, T y ):
             result = - min ( -x, -y )
 
 min-max functions ( int64 )
@@ -2687,12 +2687,12 @@ type pointer pair is void
 
 // Function to allocate a vector of n T's to the stack.
 //
-( stack pointer pair pp,
-  unsadr pp.begin,
-  unsadr pp.end,
-  mem adr pp.begin.base,
-  *UNCHECKED* adr pp.begin.base.adr,
-  type pp.type ) =
+function ( stack pointer pair pp,
+           unsadr pp.begin,
+           unsadr pp.end,
+           mem adr pp.begin.base,
+           *UNCHECKED* adr pp.begin.base.adr,
+           type pp.type ) =
         allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
     pp.type = T
@@ -2705,8 +2705,8 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
-( mem pp.type out,
-  *UNCHECKED* out.adr ) =
+function ( mem pp.type out,
+           *UNCHECKED* out.adr ) =
         "*" ( stack pointer pair pp,
               type pp.type,
               unsadr pp.begin,
@@ -2722,12 +2722,12 @@ type pointer pair is void
 // Prefix operator to dereference a pointer pair to
 // write memory.
 //
-"*" ( stack pointer pair pp,
-      type pp.type,
-      unsadr pp.begin,
-      unsadr pp.end,
-      adr pp.begin.base )
-        ( pp.type in ):
+function "*" ( stack pointer pair pp,
+               type pp.type,
+               unsadr pp.begin,
+               unsadr pp.end,
+               adr pp.begin.base )
+             ( pp.type in ):
     if:
         pp.begin < pp.end:
             adr destination = pp.begin + pp.begin.base
@@ -2739,12 +2739,12 @@ type pointer pair is void
 // Prefix operator to increment the begin pointer of a
 // pointer pair.  Note the result is a NEW pointer pair.
 //
-( stack pointer pair pp2,
-  unsadr pp2.begin,
-  unsadr pp2.end,
-  mem adr pp2.base,
-  *UNCHECKED* adr pp2.base.adr,
-  type pp2.type ) =
+function ( stack pointer pair pp2,
+           unsadr pp2.begin,
+           unsadr pp2.end,
+           mem adr pp2.base,
+           *UNCHECKED* adr pp2.base.adr,
+           type pp2.type ) =
         "++" ( stack pointer pair pp,
                type pp.type,
                unsadr pp.begin,
@@ -2757,12 +2757,12 @@ type pointer pair is void
 
 // Assignment operator for pointer pairs.
 //
-( stack pointer pair pp2,
-  unsadr pp2.begin,
-  unsadr pp2.end,
-  mem adr pp2.base,
-  *UNCHECKED* adr pp2.base.adr,
-  type pp2.type )
+function ( stack pointer pair pp2,
+           unsadr pp2.begin,
+           unsadr pp2.end,
+           mem adr pp2.base,
+           *UNCHECKED* adr pp2.base.adr,
+           type pp2.type )
         = ( stack pointer pair pp,
             type pp.type,
             unsadr pp.begin,
@@ -2830,7 +2830,7 @@ Also, if all result variables are cluster members, then calls
 using the prototypes will have no explicit result variables,
 but will create new members of existing clusters.  For example:
 \begin{indpar}\begin{verbatim}
-( bool v.nonneg ) = test sign ( int32 v ):
+function ( bool v.nonneg ) = test sign ( int32 v ):
     if:
         v >= 0:
             v.nonneg = true
@@ -3614,7 +3614,7 @@ The extended syntax is:
 \begin{indpar}
 \emkey{function-declaration}
     ::= \begin{tabular}[t]{l}
-        {\em function-prototype}\TT{:} \\
+        \ttkey{function} {\em function-prototype}\TT{:} \\
 	~~~~ {\em statement}\STAR{} \\
 	\end{tabular}
 \\[1ex]

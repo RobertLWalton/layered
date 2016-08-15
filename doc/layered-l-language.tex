@@ -1664,6 +1664,9 @@ float64 tmp s = tmp x + tmp y   // Only float64 "+" matches.
 float64 s = tmp s
 \end{verbatim}\end{indpar}
 
+[Though it is untraditional, it might be worth considering
+using the `least specific' matching instead of the `most specific'.]
+
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
@@ -1693,7 +1696,8 @@ assignment statements:
     \end{tabular}
 \end{indpar}
 
-This allocates new variables of the given {\em variable-names}, types,
+An assignment statement
+allocates new variables with the given {\em variable-names}, types,
 and qualifiers
 to the stack and stores values from the {\em expression} in the variables
 ({\em qualifiers} are described in section \itemref{QUALIFIERS}).
@@ -1770,7 +1774,7 @@ float64 m = 1.7
 int32 i = m             // Illegal: undefined implicit
                         // conversion
 *UNCHECKED* int32 j = m // *UNCHECKED* conversion used:
-                        // now j == 1
+                        // now j == 2 (round to nearest)
 \end{verbatim}\end{indpar}
 
 \subsection{Block Assignment Statements}
@@ -1808,7 +1812,8 @@ variable has been assigned a value by a previous one of these
 Variables allocated in the block are not visible outside the
 block.  They may \underline{not} have the same name as a variable
 \TT{v} visible outside the block,  and they may \underline{not}
-have the name `\TT{next v}' where  \TT{v} is visible outside the block.
+have the name `\TT{next v}' where  \TT{v} is a block result
+variable or is otherwise visible outside the block.
 
 An example of a {\em block-assignment-statement} is:
 \begin{indpar}\begin{verbatim}
@@ -2002,8 +2007,8 @@ When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
 
 The stack (\itemref{STACK-MANAGEMENT})
-of a loop iteration subblock may be deallocated when the
-iteration subblock finishes executing.
+of a loop iteration may be deallocated after the
+iteration finishes executing.
 However, deallocation of some of these stacks may be deferred by
 an implementation, which may allow debuggers to look at them
 in some circumstances.
@@ -2059,7 +2064,7 @@ are used to call out-of-line functions:
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
-and its type \TT{T} must have the \TT{adr} type as its base type.
+and its type \TT{T} must have the \TT{adr} type as its underlying type.
 The values of the variables created by the {\em argument-assignment-statements}
 are the arguments to the function.
 The results of the function call are stored in the
@@ -2069,12 +2074,14 @@ A call assignment must have the \TT{*UNCHECKED*} option
 unless \TT{T} is declared by an out-of-line
 function type declaration described below.  If there is no
 such declaration, the arguments are presented to the out-of-line
-function in the order they are listed in the {\em call-assigment-statement}.
+function in the order they are listed in the {\em call-assigment-statement},
 unless the \TT{*REVERSE*} option is given, in which case this order
 is reversed.
 
-If there is an out-of-line function declaration, the \TT{*UNCHECKED*}
-and \TT{*REVERSE*} options are ignored and have no effect.
+If there is an out-of-line function type declaration, arguments in the
+call are matched by name to arguments in the type declaration,
+and then ordered as per the type declaration.  In this case
+the \TT{*UNCHECKED*} and \TT{*REVERSE*} options are ignored and have no effect.
 
 Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
 is executed automatically
@@ -2120,7 +2127,8 @@ for the function.
 Then a call assignment block is type-checked by matching
 the variable names in the call assignment block
 to those in the prototype.  Thus in this case the order of variables
-in the call block does not matter as their values will be
+in the call block does not matter as they will be matched by
+variable name to the prototpye and then their values will be
 reordered according to the prototype.  Also, in this case
 a call block argument
 may be of different
@@ -2166,8 +2174,7 @@ out-of-line function will only be callable
 at compile time.
 
 A function type may be declared multiple times.  All these declarations
-must be identical except for ordering of options and qualifiers
-and names of argument variables.
+must be identical except for ordering of options and qualifiers.
 
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options

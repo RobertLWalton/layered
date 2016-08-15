@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 30, 2016
+August 15, 2016
  
 \end{center}
 
@@ -1113,8 +1113,11 @@ do not have a compile time value.
 Variables may be qualified by \skey{qualifier}s, which preceed the
 type when a variable is declared.  There are four builtin qualifiers
 described in Section~\itemref{BUILTIN-QUALIFIERS} that have special
-effects: \TT{mem}, \TT{stack}, \TT{*UNCHECKED*}, and \TT{trace}.
-Other qualifiers may be defined, and are typically used to add an
+effects: \TT{mem}, \TT{stack}, \TT{*UNCHECKED*}, and \TT{global}.
+There is also a builtin method for defining trace qualifiers which
+have special effects.
+Other qualifiers that have no special effects
+may be defined, and are typically used to add an
 additional layer of type checking that is somewhat orthogonal to
 types.
 
@@ -1183,7 +1186,7 @@ prototype variable must \underline{not} have the prohibited qualifier.
 
 A qualifier \underline{can} be both required and prohibited.
 Given a function prototype variable with such a qualifier,
-a matching call variable must always have to have the qualifier,
+a matching call variable must always have the qualifier,
 and given a function prototype variable without such a qualifier,
 a matching call variable must never have the qualifier.
 
@@ -1205,7 +1208,7 @@ as `\TT{fo}' is protected.  `\TT{fee}' and `\TT{fie}' can be attached
 to any variable, as they are \underline{not} protected.
 
 Inherited qualifiers affect cluster variables and their behavior is
-specified on page~\pagref{INHERITED-QUALIFIER}. 
+specified on page~\pageref{INHERITED-QUALIFIER}. 
 
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
@@ -1320,11 +1323,13 @@ For example:
 name ni = `i'
 abbreviation nj = `j'
 abbreviation nnj = `nj'
-int32 nj = 5       // Legal: same as j = 5
-int32 ni = 6       // Illegal variable overlay: same as ni = 6.
+int32 nj = 5       // Legal: nj => j; same as j = 5
+int32 i = 6        // Legal: has no abbreviation
+int32 ni = 6       // Illegal variable overlay;
+                   //     ni => i; same as i = 6
 next nj = 6        // Legal variable overlay:
-                   //       same as next j = 6
-int32 r = nnj      // Legal: same as r = j (nnj => nj => j)
+                   //     nj => j; same as next j = 6
+int32 r = nnj      // Legal: nnj => nj => j; same as r = j 
 abbreviation "+.+" = `+'
 int32 i = ( 4 ) +.+ ( 5 )
     // Legal; ( 4 ) "+" ( 5 ) which is what 4 + 5 becomes
@@ -1361,17 +1366,18 @@ type \TT{T-src} to values of type \TT{T-des}.
 
 An ordering is induced on types by implicit conversions.  Let
 \TT{T1}$\succ$\TT{T2} mean that there is an implicit conversion from
-values of type \TT{T1} to values of type \TT{T2}.  Let \TT{T1~=>~T2}
+values of type \TT{T1} to values of type \TT{T2}.  Let \TT{T1~-{}-{}->~T2}
 be the transitive closure of \TT{T1}$\succ$\TT{T2}, which means
 that a value of type \TT{T1} may be converted to a value
 of type \TT{T2} by applying zero or more implicit conversions.
 Then we \underline{require}
-that \TT{T1~=>~T2} be a partial order, which means that:
+that \TT{T1~-{}-{}->~T2} be a partial order, which means that:
 \begin{itemize}
-\item \TT{T1~=>~T2} is reflexive.  \TT{T1~>=~T1}.
-\item \TT{T1~=>~T2} is transitive.  \TT{T1~>=~T2} and \TT{T2~>=~T3}
-imply that \TT{T1~=>~T3}.
-\item \TT{T1~=>~T2} is anti-symmetric.  \TT{T1~>=~T2} and \TT{T2~>=~T1}
+\item \TT{-{}-{}->} is reflexive: \TT{T1~-{}-{}->~T1}.
+\item \TT{-{}-{}->} is transitive: \TT{T1~-{}-{}->~T2} and \TT{T2~-{}-{}->~T3}
+imply that \TT{T1~-{}-{}->~T3}.
+\item \TT{-{}-{}->} is anti-symmetric:
+\TT{T1~-{}-{}->~T2} and \TT{T2~-{}-{}->~T1}
 imply that \TT{T1~==~T2}.
 \end{itemize}
 
@@ -1390,7 +1396,7 @@ prototype:
 \end{center}
 Or equivalently, there is an implicit conversion function defined
 whose argument is of type \TT{T1} and whose result is of type \TT{T2}.
-Then \TT{T1~=>~T2} if and only if there is a (possibly zero length)
+Then \TT{T1~-{}-{}->~T2} if and only if there is a (possibly zero length)
 path in this graph from \TT{T1} to \TT{T2}.
 
 In addition we \underline{require} that all paths
@@ -1399,8 +1405,10 @@ So, for example, if one can implicitly convert a \TT{T1} value directly to
 either a \TT{T2} or \TT{T3} value, and one can implicitly convert
 a \TT{T2} value to a \TT{T3} value, then converting a \TT{T1} value
 to a \TT{T2} value and then converting that to a \TT{T3} value
-gives the same resulting value as converting the \TT{T1} value
+must give the same resulting value as converting the \TT{T1} value
 directly to a \TT{T3} value.
+
+User defined implicit conversions are assumed to obey these rules.
 
 Various builtin implied conversions are described
 in this document.
@@ -1448,20 +1456,22 @@ executed according to the following rules:
 \begin{enumerate}
 \item If there is a protected qualifier \TT{Q} in \TT{QS-src}, it
 is automatically added to \TT{QS-des}.
-\item If there is a required qualifier \TT{Q} in \TT{QS-src}, it
-must also be in \TT{QS-des} (or also be a protected qualifier).
-\item If there is a prohibited qualifier \TT{Q} in \TT{QS-des}, it
+\item If there is a required qualifier \TT{Q} in \TT{QS-des}, it
 must also be in \TT{QS-src}.
-\item If \TT{T-src} and \TT{T-des} are not the same and \TT{T1~=>T2},
+\item If there is a prohibited qualifier \TT{Q} not in \TT{QS-des}, it
+must also not be in \TT{QS-src}.
+\item If \TT{T-src} and \TT{T-des} are not the same
+and \TT{T-src~-{}-{}->T-des},
 meaning that an implicit conversions are defined that convert values
-of type \TT{T1} to values of type \TT{T2}, these conversions are
+of type \TT{T-src} to values of type \TT{T-des}, these conversions are
 applied to \TT{v-src} to produce the value of \TT{v-des}.
 The conversions are invoked with \TT{QS == QS-src}.
 \item
 \label{DIRECT-CONVERSION-ASSIGMENTS}
-If \TT{T-src} and \TT{T-des} are not the same and \TT{T1~=>T2}
+If \TT{T-src} and \TT{T-des} are not the same and \TT{T-src~-{}-{}->T-des}
 \underline{is false}, but a directed conversion exists from
-\TT{QS-src T-src} to \TT{QS-des T-des}, that conversion is applied.
+\TT{QS-src T-src} to \TT{QS-des T-des}, that conversion is applied
+if only one such conversion is applicable.
 \end{enumerate}
 
 
@@ -1558,7 +1568,6 @@ computed by first converting \TT{x} and \TT{y} to \TT{float64}
 values and then adding, so overflows will not exist.  The last
 statement of the above code is equivalent to:
 \begin{indpar}\begin{verbatim}
-// Prototypes of builtin "+" operator:
 *UNCHECKED* float64 tmp x = x  // Direct conversion allowed.
 *UNCHECKED* float64 tmp y = y  // Direct conversion allowed.
 float64 t = tmp x + tmp y
@@ -1582,7 +1591,9 @@ float64 s = x + y
 
 Here \TT{s} is computed by
 \begin{indpar}\begin{verbatim}
-int32 tmp s = x + y
+int32 tmp x = x
+int32 tmp y = y
+int32 tmp s = tmp x + tmp y
 float64 s = tmp s
 \end{verbatim}\end{indpar}
 using an implicit conversion of the result of \TT{"+"}.
@@ -1590,7 +1601,8 @@ But why not compute it by
 \begin{indpar}\begin{verbatim}
 float64 tmp x = x
 float64 tmp y = y
-float64 s = tmp x + tmp y
+float64 tmp s = tmp x + tmp y
+float64 s = tmp s
 \end{verbatim}\end{indpar}
 using implicit conversions of the arguments of \TT{"+"}?
 
@@ -1614,20 +1626,20 @@ T tmp s = tmp x + tmp y
 float64 s = tmp s
 \end{verbatim}\end{indpar}
 where \TT{T} is either \TT{int32} or \TT{float64}.  It is possible
-that different subexpression/prototype matches introduces different
+that different subexpression/prototype matches introduce different
 sets of temporary variables, but such cases are anomalies caused by
 poor name choices, and are treated as compilation errors.
 
-In this case we prefer \TT{T == ins32} because \TT{ins32 => float64},
+In this case we prefer \TT{T == ins32} because \TT{ins32 -{}-{}-> float64},
 as per the implicit conversion ordering of types introduced in
 Section~\itemref{IMPLIED-CONVERSIONS}.
 
 In general, we have a set of temporary variables \TT{tmp$_i$}
 and for each matching $j$ an assigment of types
 \TT{tmp$_i$~$\mapsto$~T$_{j,i}$}.  We say that a matching $j$ is
-\mkey{more specific}{matching}
-than a matching $k$ if and only if \TT{T$_{j,i}$~=>~T$_{k,i}$}
-for every $i$.  A matching is \mkey{most specific} if it is
+\mkey{more specific}{type matching}
+than a matching $k$ if and only if \TT{T$_{j,i}$~-{}-{}->~T$_{k,i}$}
+for every $i$.  A matching is \mkey{most specific}{type matching} if it is
 more specific than every other matching.  If there is a most
 specific matching, it is chosen; otherwise the statement is
 ambiguous and its compilation is in error.
@@ -1643,7 +1655,7 @@ which because of the directed conversion compiles as
 float64 direct tmp x = x
 float64 s = direct tmp x + y
 \end{verbatim}\end{indpar}
-which has only one matching
+and then the last statement has only one matching
 \begin{indpar}\begin{verbatim}
 float64 tmp x = direct tmp x    // Only implict conversions
                                 // allowed.

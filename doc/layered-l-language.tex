@@ -878,7 +878,7 @@ Enumeration set values are used in logical expressions that
 condition function lookup.  For example,
 \begin{indpar}\begin{verbatim}
 T v = signed max ( type T, T v1, T v2 )
-      [[ T in {{ int8, int16, int32, int64, int128 }} ]]:
+      [[ T is in {{ int8, int16, int32, int64, int128 }} ]]:
     . . . . . . . . . . .
 \end{verbatim}\end{indpar}
 
@@ -1916,6 +1916,58 @@ is a \TT{NaN}, none of the non-\TT{default} {\em conditional-expressions}
 will be true, and the \TT{default} will be evaluated to set
 the \TT{result} to a \TT{NaN}.
 
+There are a couple of special rules applying to conditionals:%
+\label{CONDITIONAL-SPECIAL-RULES}
+
+\begin{indpar}
+A subblock not compiled because the compiler can determine its
+condition will never be true is not checked for compile errors.
+\end{indpar}
+
+For example, if a {\em conditional-assigment-statement}
+contained
+\begin{indpar}\begin{verbatim}
+    if T is in floating-types:
+        result = NaN
+\end{verbatim}\end{indpar}
+where \TT{T} is a type known at compile time,
+then if \TT{T} is not a floating
+point number type, `\TT{result = NaN}' will not compile
+and will not be checked for compile time errors.
+
+
+A second special rule is:
+
+\begin{indpar}
+Missing `\TT{else}'s do not cause compile errors, though they
+may cause warnings if the compiler cannot prove they will never
+be needed.  They will cause run time errors if needed at run time.
+\end{indpar}
+
+For example, the {\em conditional-assignment-statement}:
+\begin{indpar}\begin{verbatim}
+    result =:
+        if:
+            x <= y:
+                result = x
+            y <= x:
+                result = y
+            T is in floating-types:
+                result = NaN
+\end{verbatim}\end{indpar}
+where \TT{T} is the type of \TT{x} and \TT{y} will work as
+follows.  If \TT{T} is not a floating point type, then a
+warning message will be issued and an implicit `\TT{else}'
+clause that is a fatal error at run time will be compiled, unless the
+compiler can prove that an `\TT{else}' is not needed because
+for values of type \TT{T} it is
+true that either `\TT{x~<=~y}' or `\TT{y~<=~x}' (which
+the compiler will be able to do for integer types).  If
+\TT{T} is a floating point type, the compiler will be able
+to prove that an `\TT{else}' is not needed, as the last condition
+is always true.
+
+
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
@@ -2421,7 +2473,9 @@ function block are in effect changed so they will not conflict
 with names the call is within scope of.  Also, names not declared
 in the function block but used in the block are resolved
 in the context of the function block declaration itself,
-and not in the context of a call to the function.
+and not in the context of a call to the function.\footnote{
+Because L-Language is a single assignment language, all such
+names are the names of constants.}
 
 A function call without any {\em result-variable-list}
 is just like a function call with an empty
@@ -2456,8 +2510,8 @@ int32 y = ...
 int32 z = add ( int32, x, y )
 \end{verbatim}\end{indpar}
 
-Type arguments can be implied, e.g., the first argument \TT{T}
-in a call to `\TT{add}' as in:
+A type argument can be implied if it is the type of another argument
+after it in the argument list, or the type of a result.  For example:
 
 \begin{indpar}\begin{verbatim}
 int32 z = add ( x, y )
@@ -2470,7 +2524,7 @@ types signed-integer-types =
     {{ int8, int16, int32, int64, int128 }}
 
 function ( T result ) = add ( type T, T v1, T v2 )
-    [[ T in signed-integer-types ]]:
+    [[ T is in signed-integer-types ]]:
     result = v1 + v2
 \end{verbatim}\end{indpar}
 
@@ -2486,12 +2540,12 @@ used to compute qualifiers of either argument or result variables.
 For example:
 \begin{indpar}\begin{verbatim}
 function ( Qr pointer result ) =
-    increment ( qualfiers Q, Q pointer value )
-    [[ Qr is Q & {{ stack }} ]]:
+    increment ( qualfiers Qs, Qs pointer value )
+    [[ Qr is Qs & {{ stack }} ]]:
     . . . . . . . . . .
 \end{verbatim}\end{indpar}
 
-Here \TT{Q} denotes the qualifiers of the `\TT{value}' argument
+Here \TT{Qs} denotes the qualifiers of the `\TT{value}' argument
 and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
 
@@ -2617,7 +2671,7 @@ Generic declarations have the form:
 
 An example is:
 \begin{indpar}\begin{verbatim}
-generic min-max functions ( type T ):
+generic min-max functions ( type T )
     include:
         function T result = min ( T x, T y ):
             result = if:
@@ -2625,7 +2679,7 @@ generic min-max functions ( type T ):
                     result = x
                 y <= x:
                     result = y
-                else
+                T is in floating-types:
                     result = NaN
         function T result = max ( T x, T y ):
             result = - min ( -x, -y )
@@ -2636,7 +2690,10 @@ int64 v = min ( u, -1,000,000 )
 int64 w = max ( u, 1,000,000 )
 \end{verbatim}\end{indpar}
 
-
+The special conditional assignment statement
+rules described on page \pageref{CONDITIONAL-SPECIAL-RULES}
+are applied here to enable \TT{T} to be any integer or
+floating point number type.
 
 \section{Clusters}
 \label{CLUSTERS}
@@ -2660,7 +2717,7 @@ of the cluster.  Two variable names with different base variable names
 belong to different clusters.
 
 Variables in clusters are thus organized into trees, with clusters
-that have different bases being disjoint.  Any variable in a cluster
+that have different bases being in disjoint trees.  Any variable in a cluster
 can be considered
 as the \mkey{root}{of subcluster} of a subtree of cluster members, and
 the subtree is called a \key{subcluster}.
@@ -2683,7 +2740,7 @@ type pointer pair is void
     //                         is added to the offsets
     //   *UNCHECKED* adr pp.begin.base.adr is the address of
     //                                     pp.begin.base
-    //   type pp.type is type of element
+    //   type pp.type is type of elements pointed at
 
 // Function to allocate a vector of n T's to the stack.
 //
@@ -2698,7 +2755,8 @@ function ( stack pointer pair pp,
     pp.type = T
     unsadr length = size of ( T ) * n
     pp.begin = allocate to stack ( length )
-        // This sets pp.begin.base and pp.begin.base.adr.
+        // This also sets pp.begin.base and
+        // pp.begin.base.adr.
     pp.end = pp.begin + length
 
 
@@ -2706,7 +2764,7 @@ function ( stack pointer pair pp,
 // memory.
 //
 function ( mem pp.type out,
-           *UNCHECKED* out.adr ) =
+           *UNCHECKED* adr out.adr ) =
         "*" ( stack pointer pair pp,
               type pp.type,
               unsadr pp.begin,
@@ -2775,7 +2833,7 @@ function ( stack pointer pair pp2,
 
 // Example usage:
 //
-    ... out-of-line function header ...
+function ...
 
     // Vector of 2 int32's is allocated and the elements
     // are set equal to 100 and 101.
@@ -2849,7 +2907,7 @@ Cluster members may only be created as function call results.
 
 A cluster member may be explicitly passed as a result variable
 or argument if it is the root of a subcluster that is being
-created or used.  The matching prototype variable will
+created or used.  The matching prototype variable must
 be a cluster root, and \underline{not} a cluster member,
 within the prototype.
 
@@ -2869,7 +2927,7 @@ is allocated and
 assigned a value, the root \TT{v} will also be automatically
 assigned as its value the value read from RAM address \TT{v.adr}.
 It is an error in this case to explicitly assign a value to \TT{v}.
-This is how \TT{out.} gets its value from
+This is how \TT{out} gets its value from
 \TT{out.adr}, and how \TT{pp.begin.base} gets its value from
 \TT{pp.begin.base.adr}.
 

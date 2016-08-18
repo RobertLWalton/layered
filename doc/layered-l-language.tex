@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 15, 2016
+August 18, 2016
  
 \end{center}
 
@@ -1664,8 +1664,16 @@ float64 tmp s = tmp x + tmp y   // Only float64 "+" matches.
 float64 s = tmp s
 \end{verbatim}\end{indpar}
 
+Note the effect of the most specific rule on expressions such as
+`\TT{(x~==~y)~==~z}' where \TT{x}, \TT{y}, and \TT{z} are of type
+\TT{bool} and \TT{==} produces `comparison results' as
+on page \pageref{COMPARISON-RESULTS}.  The most specific rule
+prevents the comparison result produced by `\TT{(x~==~y)}'
+from being implicitly converted to a \TT{bool}.
+
 [Though it is untraditional, it might be worth considering
-using the `least specific' matching instead of the `most specific'.]
+using the `least specific' matching instead of the `most specific'.
+But this would cause problems for `comparison results'.]
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -2947,6 +2955,51 @@ the member variables in the cluster or subcluster.  This is not done
 for non-inherited qualifiers.
 
 The `\TT{stack}' qualifier is inherited.
+
+A last example of the use of clusters is the implementation of
+comparison operators so that
+\begin{center}
+\TT{(x~<~y)~<~z}
+\end{center}
+is the same as
+\begin{center}
+\TT{(x~<~y) AND (y~<~z)}
+\end{center}
+where \TT{y}, if it is an expression,
+is not evaluated twice:\label{COMPARISON-RESULTS}
+\begin{indpar}\begin{verbatim}
+type comparison result is void
+    // if cr is a comparison result then:
+    //   bool cr.value is the result of the comparison
+    //   type cr.type is the type of the values compared
+    //   cr.type last is the last value compared
+
+// Comparison result of x < y where x and y are type T.
+//
+function ( comparison result cr, bool cr.value,
+           type cr.type, T cr.last ) =
+        ( type T, T first ) "<" ( T last ):
+    cr.type = T
+    cr.last = last
+    cr.value = first less than last
+
+// Comparison result of x < y where x is a comparison result.
+//
+function ( comparison result cr, bool cr.value, type cr.type,
+           T cr.last ) =
+         ( comparison result cf, bool cf.value, type cf.type,
+           cf.type cf.last ) "<" ( cf.type last ):
+    cr.type = cf.type
+    cr.last = last
+    cr.value = cf.last less than last
+
+// Implicit conversion of comparison result to bool.
+//
+function ( Qs bool result ) =
+    ( qualifiers Qs, QS comparison result cr,
+      bool cr.value, type cr.type, cr.type cr.last ):
+    result = cr.value
+\end{verbatim}\end{indpar}
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}

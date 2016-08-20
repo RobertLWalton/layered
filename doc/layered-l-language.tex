@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 18, 2016
+August 20, 2016
  
 \end{center}
 
@@ -3038,6 +3038,16 @@ variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.  It is called a `\key{RAM cache variable}'.
 
+However, if the value of the RAM address is available in another
+variable, \TT{v} will be loaded from the other variable.
+For example:
+\begin{indpar}\begin{verbatim}
+    mem int32 w
+    adr w.adr = ...
+    mem int32 v
+    adr v.adr = w.adr	// v = w will be implicitly executed
+\end{verbatim}\end{indpar}
+
 Because \TT{mem} is a protected qualifier, \TT{v} and the required
 members of the cluster of which \TT{v} is a root
 must be created as matches to result variables of a function.
@@ -3072,8 +3082,10 @@ passed as an argument to a function that does not expect a
 \begin{indpar}\begin{verbatim}
 stack adr sa = ...
 adr ta = ...
-function adr result = F ( adr arg )
-function adr result = G ( stack adr arg )
+function adr result = F ( adr arg ):
+    . . . . . . . . . .
+function adr result = G ( stack adr arg ):
+    . . . . . . . . . .
 adr xa = F ( sa ) // Illegal; F's arg does not have
                   // stack qualifier.
 adr ya = G ( sa ) // Legal; G's arg has stack qualifier.
@@ -3096,7 +3108,7 @@ assignment, the value assigned need only be convertable to the type
 of the variable by an unchecked conversion, instead of by a checked
 conversion.
 
-The lexeme \TT{*UNCHECKED*} lexeme is also used as the initial part some
+The \TT{*UNCHECKED*} lexeme is also used as the initial part some
 names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement.
 
 \subsection{Trace Qualifiers}
@@ -3145,6 +3157,17 @@ value in the \TT{Q}-stack is popped.  There is a \TT{Q}-stack
 associated with every process and every global area.
 Using functions in the
 subroutine library (see TBD), these \TT{Q}-stacks can be read.
+
+While a value may be pushed into a stack more than once,
+a value will not be pushed if the compiler can prove it is already
+in the stack.  Thus given the definitions above, in
+\begin{indpar}\begin{verbatim}
+T v = ...
+T w = v
+\end{verbatim}\end{indpar}
+the first statement may push the value of \TT{v} to the \TT{Q} stack
+but the second statement will not push the value of \TT{w} on
+the grounds that it is already in the stack.
 
 \subsection{The Reload Statement}
 \label{THE-RELOAD-COMMAND}

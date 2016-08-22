@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 20, 2016
+August 22, 2016
  
 \end{center}
 
@@ -3183,20 +3183,25 @@ is used subsequently, statements to recompute the variable value
 may be inserted automatically into the code at the point of the
 \TT{reload} statement.
 
+As a special case, if a variable that is declared to be out-of-date,
+\TT{v}, has the `\TT{mem}' qualifier, and is the base of
+a cluster that causes \TT{v} to be loaded from memory
+(as per Section~\itemref{THE-MEM-QUALIFIER}), then if \TT{v} is declared
+to be out-of-date, recomputing \TT{v} means that the necessary members
+of the cluster headed by \TT{v} must first be recomputed, and then \TT{v}
+must be reloaded from RAM.  The possibility that software cache
+variables (with the \TT{mem} qualifier) will become out-of-date because
+the RAM locations they cache have changed is the reason the `\TT{reload}'
+statement exists.
+
+The statement `\TT{reload mem}' can be used to declare all
+variables that act as software caches of memory to be out-of-date.
+Or a qualifier \TT{Q} can be attached to some \TT{mem} variables
+and `\TT{reload Q}' can be used to declare just these to be out-of-date.
+
 Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
-
-As a special case, if a variable to be reloaded
-\TT{v} has the `\TT{mem}' qualifier and is the base of
-a cluster that causes \TT{v} to be loaded from memory
-(as per Section~\itemref{THE-MEM-QUALIFIER}), then the value
-in RAM is assumed to have changed, and \TT{v} is declared to be out-of-date.
-After the necessary members of the \TT{v} cluster have been recomputed,
-\TT{v} is reloaded from RAM.
-
-Thus the statement `\TT{reload mem}' can be used to declare all
-variables that act as software caches of memory to be out of date.
 
 If a variable \TT{v} was originally computed by
 an {\em assignment-statement}

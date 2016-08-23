@@ -3231,7 +3231,8 @@ Specifically, memory needs to be addressed.  This is done by either
 of the following methods of specifying a RAM address:
 \begin{enumerate}
 \item
-A variable \TT{va} of type \TT{adr} with either of the qualifiers
+An `\key{address variable} \TT{va}
+of type \TT{adr} with either of the qualifiers
 \TT{mem} or \TT{*UNCHECKED*} that contains the RAM address.
 If \TT{va} has qualifier \TT{mem} it must recursively be
 the root of a subcluster obeying
@@ -3242,7 +3243,7 @@ variables, etc.
 
 
 \item
-A variable \TT{vo} of type \TT{intadr} or \TT{unsadr} and
+An `\key{address variable}' \TT{vo} of type \TT{intadr} or \TT{unsadr} and
 qualifier \TT{*UNCHECKED*}, and
 a variable \TT{vo.base} of type \TT{adr} and qualifier \TT{mem}
 or \TT{*UNCHECKED*}.
@@ -3284,9 +3285,9 @@ to the RAM address in the {\em destin\-ation-\EOL variable}.
 The number of bytes copied is in the {\em length-variable},
 which must be of the \TT{unsadr} type.
 
-If the source address is less than the destination address,
+If the source address is greater than the destination address,
 the bytes are copied in ascending address order.  If the
-source address is greater than the destination address,
+source address is less than the destination address,
 bytes are copied in descending address order.  If the two
 addresses are equal, bytes may or may not be copied.  The effect of
 all this is to copy regions of memory correctly even if they
@@ -3320,7 +3321,7 @@ statement that executes a sequence of specialized instructions:
 \begin{indpar}
 \emkey{atomic-memory-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \TT{uns32 result = }\ttkey{*ATOMIC*} \TT{:} \\
+        \TT{( uns32 count, adr bad address ) = }\ttkey{*ATOMIC*} \TT{:} \\
 	\TT{~~~~}{\em lock-instruction}\STAR{} \\
 	\TT{~~~~}{\em compare-instruction}\STAR{} \\
 	\TT{~~~~}{\em write-instruction}\STAR{} \\
@@ -3375,10 +3376,18 @@ were the instruction actually executed.  In particular, if any
 piece of memory is paged out or not in RAM, the dry-run fails.
 \end{indpar}
 
-The `\TT{result}' value returned by the {\em atomic-memory-statement}
+The `\TT{count}' value returned by the {\em atomic-memory-statement}
 equals \TT{0} if the statement succeeds, or is the number of the
 first failed instruction in the statement block if the statement
-fails.
+fails (the first instruction is number \TT{1}).
+The `\TT{bad address}' value is \TT{0} unless the block
+fails because of a memory fault, in which case the `\TT{bad address}'
+value is set to the faulting address.  One usually deals with a faulting
+address by reading it with a normal instruction if it is a read fault,
+or writing it with a normal instruction that does not change its
+value if it is a write fault (this may require a compare and set
+assembly instruction),
+and then retrying the \TT{*ATOMIC*} block.
 
 Interrupts of all kinds are disabled during the execution of an
 {\em atomic-memory-statement} so the statement will execute as
@@ -3391,7 +3400,10 @@ when they actually write data.
 A system may put restrictions of the size of the value in
 a {\em length-variable}, and on the number of instructions
 in an \TT{*ATOMIC*} block, in order to ensure that interrupts
-are not disabled for very long.
+are not disabled for very long.  Violation of these restrictions
+causes a \TT{*ATOMIC*} block instruction fault that is distinct
+from \TT{*ATOMIC*} block failures described above (such violations
+are not recoverable).
 
 \section{Stack Management}
 \label{STACK-MANAGEMENT}
@@ -3433,11 +3445,12 @@ of a {\em call-assignment-statement},
 {\em compile-time-assignment-statement},
 may \underline{not} have the `\TT{stack}' qualifier.
 
-Stacks of loop subblocks are free, and
+Stacks of loop iteration subblocks are free, and
 variables in the {\em result-variable-list}
 and iteration variables
 of a {\em loop-assignment-statement} may not have the `\TT{stack}'
-qualifier.
+qualifier.  However, stacks of loop `\TT{initially}' and `\TT{finally}'
+subblocks are not free.
 
 Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
 but are never deallocated and make no use of the `\TT{stack}'

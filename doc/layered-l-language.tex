@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 22, 2016
+August 23, 2016
  
 \end{center}
 
@@ -3199,6 +3199,9 @@ variables that act as software caches of memory to be out-of-date.
 Or a qualifier \TT{Q} can be attached to some \TT{mem} variables
 and `\TT{reload Q}' can be used to declare just these to be out-of-date.
 
+Note that variables computed from out-of-date variables are \underline{not}
+declared to be out-of-date.
+
 Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
@@ -3218,6 +3221,20 @@ even if other subblocks of the conditional statement do involve such.
 
 If an out-of-date variable value is not used after the \TT{reload} statement,
 it is not recomputed.
+
+The `\TT{reload Q}' statement behaves like an executable statement but
+it has some unusual properties when it is executed inside a heavily
+nested subblock.  First, it declares out-of-date any variable with
+qualifier \TT{Q} that is visible in its subblock \underline{and any
+containing block}.
+Second, it will recompute any variable in its subblock
+\underline{or any containing block} that may be used after the
+`\TT{reload Q}' statement executes.
+Third, when it recomputes variables, it overwrites
+the place the variable is stored, rather than allocating a new
+place as would a `\TT{next~}{\em variable-name}' expression.
+These properties allow `\TT{reload Q}' to appear in an inline
+or conditional subblock.
 
 \section{Memory Write Statements}
 \label{MEMORY-WRITE-STATEMENTS}
@@ -3471,7 +3488,9 @@ the stack address.  To accommodate this builtin memory read-write
 functions will not only accept an \TT{adr} value as a RAM address,
 but also accept a RAM address consisting of an \TT{unsadr}
 offset within the stack and a stack base address that is itself
-stored in RAM.  See Section~\itemref{THE-MEM-QUALIFIER} for details.
+stored in RAM.  See Sections~\itemref{THE-MEM-QUALIFIER}
+and \itemref{MEMORY-WRITE-STATEMENTS}
+for details.
 
 There are a couple of situations in which free stacks move.
 
@@ -3558,7 +3577,7 @@ containing block \TT{B}
 is changed from abnormal to normal.  This means
 that \TT{B}'s containing block \TT{C} will resume when the now
 normally terminating block \TT{B} finishes terminating.
-However, \TT{B} will not execute anything but \TT{*UNWIND*}
+However, \TT{B} will not execute anything but enabled \TT{*UNWIND*}
 subblocks, as it is still terminating.
 
 Machine errors, i.e. memory segment faults, invoke callable functions
@@ -3647,6 +3666,9 @@ byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 Free stacks are always allocated on a \TT{64} byte boundary.
 
+The `\TT{allocate to stack}' inline functions execute a
+`\TT{reload mem}' statement.
+
 
 \subsection{Global Areas}
 \label{GLOBAL-AREAS}
@@ -3729,6 +3751,9 @@ instead of the \TT{stack} qualifier.  The \TT{global} qualifier
 is a protected, inherited qualifier
 with \underline{none} of the special `\TT{stack}'
 qualifier properties, and normally has no effect on code.
+
+The `\TT{allocate to global}' inline functions execute a
+`\TT{reload mem}' statement.
 
 Global areas are run time by default.
 The code of a run time

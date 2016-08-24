@@ -2149,7 +2149,8 @@ call are matched by name to arguments in the type declaration,
 and then ordered as per the type declaration.  In this case
 the \TT{*UNCHECKED*} and \TT{*REVERSE*} options are ignored and have no effect.
 
-Normally a `\TT{reload mem}' statement (see \itemref{THE-RELOAD-COMMAND})
+Normally a `\TT{reload mem, mem dependent}'
+statement (see \itemref{THE-RELOAD-COMMAND})
 is executed automatically
 upon returning from the called function, but the
 \ttkey{*NO-RELOAD*} option suppresses this.
@@ -3178,9 +3179,13 @@ the grounds that it is already in the stack.
 \label{THE-RELOAD-COMMAND}
 
 The reload statement has the syntax:
-\begin{center}
-\ttkey{reload} {\em qualifier-name} \{ \TT{,} {\em qualifier-name} \}\STAR{}
-\end{center}
+\begin{indpar}
+\emkey{reload-statement} ::=
+    \ttkey{reload} {\em qualifiers} \{ \TT{,} {\em qualifiers} \}\STAR{} \\
+\emkey{qualifiers} ::= {\em qualifier} $|$ {\em qualifier-set} \\
+\emkey{qualifier} ::= {\em expression} evaluating to a qualifier \\
+\emkey{qualifier-set} ::= {\em expression} evaluating to a qualifier set
+\end{indpar}
 
 This statement declares the values of all variables with the designated
 qualifiers to be out-of-date and unusable.  If any of these variables
@@ -3192,49 +3197,50 @@ As a special case, if a variable that is declared to be out-of-date,
 \TT{v}, has the `\TT{mem}' qualifier, and is the base of
 a cluster that causes \TT{v} to be loaded from memory
 (as per Section~\itemref{THE-MEM-QUALIFIER}), then if \TT{v} is declared
-to be out-of-date, recomputing \TT{v} means that the necessary members
-of the cluster headed by \TT{v} must first be recomputed, and then \TT{v}
-must be reloaded from RAM.  The possibility that software cache
+to be out-of-date, recomputing \TT{v} just means that \TT{v}
+is reloaded from RAM.  The possibility that software cache
 variables (with the \TT{mem} qualifier) will become out-of-date because
-the RAM locations they cache have changed is the reason the `\TT{reload}'
+the RAM locations they cache have changed is the reason the \TT{reload}
 statement exists.
 
-The statement `\TT{reload mem}' can be used to declare all
-variables that act as software caches of memory to be out-of-date.
-Or a qualifier \TT{Q} can be attached to some \TT{mem} variables
-and `\TT{reload Q}' can be used to declare just these to be out-of-date.
+The statement
+\begin{center}
+\TT{reload mem, mem dependent}
+\end{center}
+is commonly used to declare all
+variables that act as software caches of memory, and all variables
+that should be updated when the caches are updated, to be out-of-date.
 
 Note that variables computed from out-of-date variables are \underline{not}
 declared to be out-of-date.
+
+If an out-of-date variable value is not used after the \TT{reload} statement,
+it is not recomputed.
 
 Variable values are recomputed in the same order as they were
 originally computed.  How each variable is recomputed depends upon
 how it was originally computed.
 
 If a variable \TT{v} was originally computed by
-an {\em assignment-statement}
+a {\em simple-assignment-statement}
 of the form `{\em type} \TT{v =} {\em expression}', then if
-no input to {\em expression} is out-of-date, \TT{v} is not out-of-date.
-Otherwise if all the inputs that are out-of-date can be recomputed,
-\TT{v} is recomputed.  However, \TT{v} is not recomputed if this
-recompuation requires evaluation of loops or out-of-line calls or
-writes to RAM;
-but it will be recomputed if evaluation can be done with a conditional
-statement subblock that does not involve loops or out-of-line calls or
-writes to RAM,
-even if other subblocks of the conditional statement do involve such.
+no input to {\em expression} has been recomputed, \TT{v} does not
+need to be recomputed.  Otherwise \TT{v} is recomputed by re-executing
+the assignment statement.
 
-If an out-of-date variable value is not used after the \TT{reload} statement,
-it is not recomputed.
+If a variable without a \TT{mem} qualifier needs to be
+recomputed and was computed by other than
+a {\em simple-assigment-statement}, it is a compile error if the
+variable is marked out-of-date.
 
-The `\TT{reload Q}' statement behaves like an executable statement but
+The \TT{reload} statement behaves like an executable statement but
 it has some unusual properties when it is executed inside a heavily
 nested subblock.  First, it declares out-of-date any variable with
-qualifier \TT{Q} that is visible in its subblock \underline{and any
+the given quailiers that is visible in its subblock \underline{and any
 containing block}.
-Second, it will recompute any variable in its subblock
+Second, it will recompute any out-of-date variable in its subblock
 \underline{or any containing block} that may be used after the
-`\TT{reload Q}' statement executes.
+\TT{reload} statement executes.
 Third, when it recomputes variables, it overwrites
 the place the variable is stored, rather than allocating a new
 place as would a `\TT{next~}{\em variable-name}' expression.
@@ -3676,7 +3682,7 @@ at an address which is a multiple of \TT{A}\,.
 Free stacks are always allocated on a \TT{64} byte boundary.
 
 The `\TT{allocate to stack}' inline functions execute a
-`\TT{reload mem}' statement.
+`\TT{reload mem, mem dependent}' statement.
 
 
 \subsection{Global Areas}
@@ -3764,7 +3770,10 @@ with \underline{none} of the special `\TT{stack}'
 qualifier properties, and normally has no effect on code.
 
 The `\TT{allocate to global}' inline functions execute a
-`\TT{reload mem}' statement.
+\begin{center}
+\TT{reload mem, mem dependent}
+\end{center}
+statement.
 
 Global areas are run time by default.
 The code of a run time

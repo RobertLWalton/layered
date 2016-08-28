@@ -2534,6 +2534,10 @@ after it in the argument list, or the type of a result.  For example:
 int32 z = add ( x, y )
 \end{verbatim}\end{indpar}
 
+If there are several such arguments or results which have the implied
+type, the type implied is the actual type of the first such actual argument,
+or if there are no such arguments, the first such actual result.
+
 Conditions can be written at the end of a {\em function-prototype},
 as in:
 \begin{indpar}\begin{verbatim}
@@ -2566,10 +2570,15 @@ Here \TT{Qs} denotes the qualifiers of the `\TT{value}' argument
 and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
 
-Arguments of type `\TT{qualifiers}' may be implied if they
-denote the qualifiers of a given argument appearing later in the
-argument list.  So in the above,
-the \TT{Q} argument may be implied.
+An argument \TT{Qs} of type `\TT{qualifiers}' may be implied if it
+denotes the qualifiers of a some argument appearing later in the
+argument list, or of some result.
+An argument or result that implies the value of \TT{Qs}
+cannot have any other qualifiers.  If there are several such
+arguments or results with \TT{Qs} as their qualifiers,
+the implied value of \TT{Qs} will be the actual qualifiers of the
+first such actual argument, or the first such actual result if
+there are no such arguments.
 
 If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
 but are given explicitly instead, their values must be available
@@ -3881,7 +3890,8 @@ The extended syntax is:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em call-compile-time-logical-expression} \\
     $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression} \\
-    $|$ & {\em pattern-name} \TT{is} \\
+    $|$ & {\em variable-name} ~ \ttkey{defaults to} ~ {\em expression} \\
+    $|$ & {\em pattern-name} ~ \TT{is} \\
         & ~~~~~~~~
           {\em alternative-name} \{ \TT{|} {\em alternative-name} \}\PLUS{}
     \end{tabular}
@@ -3927,10 +3937,13 @@ each {\em function-term} must be different from the sequence of
 {\em pattern-names} in any other {\em function-term} of the
 {\em function-pattern}.
 
-Within the body of a function, cluster variables with
-{\em function-pattern} {\em variable-names} a bases can be used
-are used when the variables appear in a replicatable pattern.
-If \TT{V} is a variable name in a replicatable pattern, then:
+Within the body of a function, {\em variable-arguments}
+in omittable or repeatable {\em pattern-terms} become bases of
+clusters whose members describe whether the variable was omitted
+or repeated in the unfolded {\em pattern}.
+
+If \TT{V} is the name of a repeatable variable (that may also
+be omittable), then:
 
 \begin{indpar}[0.5in]
 
@@ -3947,13 +3960,25 @@ The index $i$ may be computed at run time, and has the range
 $T$ is the type of the variable given in the {\em pattern-term}.
 It is an error to use an index value that is out of range.
 
-TBD Implied arguments.
-
-TBD Conversion functions.
-
-TBD Operator syntax.
 
 \end{indpar}
+
+If \TT{V} is the name of a variable that may be omitted but not
+repeated, then:
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.3in}{\tt bool V.\ttmkey{present}{of {\tt variable name}} } \\
+True if the variable is present, and false if not.
+
+\end{indpar}
+
+In addition, if a variable can be omitted but not repeated, a default expression
+must be given for the variable in a `\ttkey{defaults to}'
+{\em qualifying-expression}.  If the variable is omitted, this
+expression will be used at run time to compute the variable's value.
+
+TBD Operator syntax: x "+" y.
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

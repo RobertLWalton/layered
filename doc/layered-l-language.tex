@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 28, 2016
+August 29, 2016
  
 \end{center}
 
@@ -1251,10 +1251,10 @@ variables and functions.
 \emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
 \emkey{member-subscript} ::= \TT{[}{\em member-index-list}\TT{]} \\
-\emkey{member-index-list} \begin{tabular}[t]{@{}rl}
-    ::= & {\em member-index} \\
-    $|$ & {\em member-index} \TT{,} {\em member-index-list}
-    \end{tabular} \\
+\emkey{member-index-list}
+    ::= {\em member-index-range} \{ \TT{,} {\em member-index-range} \}\STAR{} \\
+\emkey{member-index-range} ::= {\em member-index}
+		$|$ {\em member-index}~~\TT{..}~~{\em member-index} \\
 \emkey{member-index} ::= \begin{tabular}[t]{l}
                          {\em integer-expression} \\{}
 	                 [Must be compile-time when variable allocated.]
@@ -1280,6 +1280,28 @@ is split into
 \end{center}
 However, `\TT{.1}' is not a legal {\em name-item} and so cannot
 be part of a {\em name}.
+
+If a {\em name} contains a {\em member-index-range} of the form
+\TT{I~..~J}, the name actually names a set of variables in which
+the {\em member-index-range} is replaced by \TT{I}, \TT{I+1},
+\TT{I+2}, \ldots, \TT{J}.  The set is called a `\key{slice}'.\label{SLICE}
+\TT{I}$\leq$\TT{J} is required.
+A slice can be treated as a single variable.  Other slices may
+overlay it.  For example:
+\begin{indpar}\begin{verbatim}
+uns8 string[0 .. 5] = .....   // Allocate slice.
+..... string[0] .....         // Read one variable of slice.
+..... string[1 .. 5] .....    // Read subslice of slice.
+..... string[0 .. 3] .....    // Read a different subslice.
+\end{verbatim}\end{indpar}
+
+One can also assembly slices into a larger slice.  For example:
+\begin{indpar}\begin{verbatim}
+float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
+..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
+\end{verbatim}\end{indpar}
 
 A variable of type \ttkey{name} can store a {\em name}.
 Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
@@ -3021,6 +3043,21 @@ function ( Qs bool result ) =
     result = cr.value
 \end{verbatim}\end{indpar}
 
+Cluster variables can be grouped into `\skey{slice}s', see
+\pagref{SLICE}.  A slice can be treated allocated and passed
+as an argument as if it were a single variable.  When cluster
+variables or slices containing {\em member-indexes} are allocated,
+the {\em member-indexes} must be defined at compile time.
+When these variables or slices are read, the
+{\em member-indexes} can be run time.
+
+TBD:
+If a cluster base \TT{B} with a member \TT{B.M}
+is used to create a variable `\TT{next B}',
+then `\TT{next B.M}' is \underline{not} a member of `\TT{next B}'.
+Instead one must use `\TT{next B.M}' to allocate the corresponding
+member of `\TT{next B}'. [Does this work?]
+
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
@@ -3953,7 +3990,7 @@ pattern.  This is the number of times the {\em pattern-term} containing
 the variable appears.  It is \TT{1} if the term is neither
 replicated or omitted, and \TT{0} if it is ommitted.
 
-\hspace*{-0.3in}{\tt $T$ V.\ttmkey{[$i$]}{of {\tt variable name}} } \\
+\hspace*{-0.3in}{\tt $T$ V\ttmkey{[$i$]}{of {\tt variable name}} } \\
 The value of the $i$+1'st occurance of \TT{V} in the unfolded pattern.
 The index $i$ may be computed at run time, and has the range
 \TT{0~..~V.count-1}.

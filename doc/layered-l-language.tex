@@ -2906,7 +2906,7 @@ function ...
             next ppf2 = ++ ppf2
         finally:
             sum = partial sum
-\end{verbatim}\end{indpar}
+\end{verbatim}\end{indpar}\label{NEXT-CLUSTER-BASE-EXAMPLE}
 
 Note that although the functions defining operations on a pointer pairs
 are a long winded, usage of pointer pairs is compact and easy.
@@ -3051,12 +3051,48 @@ the {\em member-indexes} must be defined at compile time.
 When these variables or slices are read, the
 {\em member-indexes} can be run time.
 
-TBD:
-If a cluster base \TT{B} with a member \TT{B.M}
-is used to create a variable `\TT{next B}',
-then `\TT{next B.M}' is \underline{not} a member of `\TT{next B}'.
-Instead one must use `\TT{next B.M}' to allocate the corresponding
-member of `\TT{next B}'. [Does this work?]
+If \TT{V} is a variable that is a base of a cluster,
+`\TT{next V}' is a new variable that is a base of a \underline{different}
+cluster.  The inline code that allocates `\TT{next V}' may copy
+members of the cluster rooted at \TT{V} to members of the cluster
+rooted at `\TT{next V}', and these copies will be done not by an
+instruction but by just a renaming.  An example is the line
+\begin{indpar}\begin{verbatim}
+next ppf2 = ++ ppf2
+\end{verbatim}\end{indpar}
+in the `\TT{loop}' example on page \pageref{NEXT-CLUSTER-BASE-EXAMPLE}.
+
+A cluster member cannot be made into a `\TT{next}' variable.
+If \TT{V} has a cluster member \TT{V.M}, `\TT{next V.M}' is \underline{not}
+a permitted name.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+type sequence is void
+    // if seq is a sequence,
+    // seq.count is the number of its elements
+    // seq.type is the type of the elements
+    // seq[0 .. seq.count - 1] are the elements
+
+// Function to rotate the sequence right 1 position.
+//
+( sequence rseq, unsadr rseq.count, type rseq.type,
+                 seq.type rseq[0 .. seq.count - 1] )
+    = right rotate ( sequence seq, unsadr seq.count,
+                     type seq.type,
+                     seq.type seq[0 .. seq.count - 1]:
+    rseq[1 .. seq.count - 1] = seq[0 .. seq.count - 2]
+    rseq[0] = seq[seq.count - 1]
+    rseq.count = seq.count
+    rseq.type  = seq.type
+
+// Example usage
+//
+    sequence s = ...
+    next s = rotate ( s )
+\end{verbatim}\end{indpar}
+The `\TT{rotate}' function executes no instructions but merely
+renames members.
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
@@ -3102,7 +3138,7 @@ For example:
     mem int32 w
     adr w.adr = ...
     mem int32 v
-    adr v.adr = w.adr	// v = w will be implicitly executed
+    adr v.adr = w.adr   // v = w will be implicitly executed
 \end{verbatim}\end{indpar}
 
 Because \TT{mem} is a protected qualifier, \TT{v} and the required

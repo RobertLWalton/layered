@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 29, 2016
+August 30, 2016
  
 \end{center}
 
@@ -3092,7 +3092,11 @@ type sequence is void
     next s = rotate ( s )
 \end{verbatim}\end{indpar}
 The `\TT{rotate}' function executes no instructions but merely
-renames members.
+renames members.  Its \TT{seq.count} and \TT{seq.type} arguments
+can be used in expressions that specify the types and member indices
+of results and of arguments later in the argument list.  A call's actual
+\TT{seq.count} and \TT{seq.type} arguments must be compile time values
+in order to be so used.
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}

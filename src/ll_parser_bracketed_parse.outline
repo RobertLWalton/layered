@@ -1,0 +1,551 @@
+// Layered Languages Bracketed Subexpression
+// Parse Function Outline
+//
+// File:	ll_parser_bracketed_parse.outline
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Tue Oct 18 05:02:25 EDT 2016
+//
+// The authors have placed this program in the public
+// domain; they make no warranty and accept no liability
+// for this program.
+//
+// Outline of parse_bracketed_subexpression executable
+// code.
+//
+// This detailed code outline makes it easier to explain
+// a complex function and verify its correctness.
+//
+// The outline omits tracing code, code to read more
+// input, and code to set .position attributes.
+//
+// IMPORTANT: This code assumes EVERY comment is
+// immediately followed by a line break or end of file.
+//
+// Arguments:
+//
+// 	parser
+// 	    Current parser.
+// 	selectors
+// 	    Current parser selectors.
+// 	current
+// 	    Next token to parse.
+// 	indent
+// 	    Current paragraph indent.
+// 	line_sep
+// 	    Line separator if enabled to be found.
+// 	    NULL_STUB if disabled.
+// 	typed_data
+// 	    After reading a typed opening, the parse
+// 	    function allocates a typed_data structure
+// 	    to the stack, sets its typed_opening member
+// 	    to the typed opening, and calls itself
+// 	    recursively with the typed_data structure
+// 	    as an argument.  Other calls to the parse
+// 	    function have a NULL typed_data argument.
+// 	line_variables
+// 	    To parse a sequence of logical lines (e.g.,
+// 	    an indented paragraph), the parse function
+// 	    allocates a line_variables structure to the
+// 	    stack, initializes it, and then makes a
+// 	    series of recursive calls to itself each
+// 	    parsing one logical line.  The recursive
+// 	    calls update the line_variables structure.
+// 	    This argument is non-NULL if and only if
+// 	    the parse function is being asked to parse
+// 	    a logical line.
+// 	bracket_stack_p
+// 	    Top bracket stack entry.  NULL if empty
+// 	    stack.
+//
+// Return Value:
+//
+// 	position
+//
+//   if typed_data != NULL
+//     initialize typed_data structure:
+//         saved_selectors = selectors argument
+//         middle_count = attr_count = 0
+//         start_previous = current->previous
+//         elements = attributes = NULL_STUB
+//         end_position = MISSING_POSITION
+//         subtype = TYPED_OPENING
+//         type = MISSING
+//         has_mark_type = false
+//     selectors argument selector bits =
+//         typed_opening->attr_selectors
+//         | ALWAYS_SELECTOR
+//         (option bits left unchanged)
+//
+//   indentation_mark indentation_found = NULL_STUB
+//   at_start = true
+//
+//   loop:
+//
+//     skip line break, comment, and indent_before_
+//          comment tokens; if a blank line is
+//          skipped, set parser->at_head = true
+//
+//     if we skipped some tokens:
+//
+//        current_indent = indent of current token if
+//            this is indent token or to 0 if current
+//            token is end of file
+//
+//        delete what has been skipped, but print a
+//            WARNING message if any comment deleted had
+//            less indent than the current_indent, using
+//            indent_before_comment tokens to determine
+//            comment indent
+//
+//     if indentation_found != NONE:
+//        // Indentation was found below, but we
+//        // deferred processing it until we could skip
+//        // stuff as above to discover paragraph inden-
+//        // tation; current is first indent or eof
+//        // token following the indentation mark.
+//
+//        compute new_selectors from current selectors
+//                and indentation_found
+//
+//        if paragraph has some lines (i.e., current is
+//           an indent token whose indent is greater
+//           than the indent argument):
+//
+//           paragraph_indent = current->indent
+//	     remove current (indent) token
+//
+//           loop to parse paragraph lines:
+//
+//		 current = current->next
+//
+//               // Move to end of paragraph line.
+//               //
+//               parse_bracketed_subexpression with
+//                   paragraph_indent, new_selectors,
+//                   indentation_found->line_sep
+//                     if new_selectors & EALSEP,
+//                   bracket stack
+//                     if new_selectors & EAOCLOSING;
+//                   remember if line ended by line
+//                            separator
+//
+//               if bracket stack top closed:
+//                   require that there was no line
+//                           ending separator and
+//                           adjust end of line to
+//                           just before closing tokens
+//                           (bracket or indent or
+//                            end of file)
+//
+//               if line is not empty or line separator
+//                       ended line:
+//                  compact line found
+//                           with new_selectors,
+//                          .initiator = LOGICAL_LINE,
+//                          .terminator = line separator
+//                             if found, else <LF>,
+//                          token type = BRACKETING,
+//                          token value_type =
+//                              LOGICAL_LINE
+//
+//               if separator found, continue loop to
+//                  next paragraph line
+//
+//               end loop if top of bracket stack
+//                   closed, or current is end-of-file
+//
+//		 require that current is indent token
+//
+//               end loop if current has has indent less
+//                   than paragraph_indent
+//
+//	         remove current (indent) token
+//               loop to get next paragraph line
+//
+//           // Compact paragraph lines into a
+//           // paragraph.
+//           //
+//           if bracket stack top closed:
+//              adjust end of paragraph to just before
+//              closing tokens
+//
+//           remove indentation mark (from just before
+//                  paragraph lines)
+//
+//           compact paragraph lines with new_selectors,
+//                   .initiator =
+//                       indentation_found->label,
+//                   .terminator = INDENTED_PARAGRAPH,
+//                   token type = BRACKETING,
+//                   token value_type =
+//                       indentation_found->label,
+//
+//           at_start = false
+//
+//	     if bracket stack top closed
+//	          return MISSING_POSITION
+//	     indentation_found = NONE
+// 	 
+//     // Continuation after any indented paragraph,
+//     // or if there was no indented paragraph.
+//     // Current is NOT a line-break, comment, or
+//     // indent-before-comment.
+//
+//     if current is indent or end-of-file:
+//
+//        if ( ( ! at_start and parser->at_head )
+//               or current is eof)
+//             and selectors & EAPBREAK:
+//	     return PARAGRAPH_END
+//
+//        else if current is end-of-file:
+//           return MISSING_POSITION
+//
+//        else if current->indent is at or before indent
+//                argument, and selectors & EALEINDENT:
+//              return MISSING_POSITION
+//
+//        if current->indent is before indent argument,
+//                    and selectors & EALTINDENT:
+//           return MISSING_POSITION
+//
+//        delete current indent token
+//
+//     // Continue with non-comment, non-line-break,
+//     // non-indent, non-indent-before-comment, non-eof
+//     // token.
+//     //
+//     parser->at_head = false
+//
+//     if current is quoted string:
+//        if ! at_start and current->previous is quoted
+//                          string:
+//           merge quoted strings
+//        current = current->next
+//        at_start = false
+//        iterate top level loop
+//    
+//     lookup key in bracket pass bracket table
+//
+//     loop to refine key until it is selected:
+//
+//       if key == NONE:
+//
+//         if at_start and
+//                     typed_data argument != NULL
+//                     and current is mark:
+//            selectors = saved selectors
+//            type = current->value
+//            has_mark_type = true
+//            current->type = TYPE
+//            ++ attr_count
+//
+//         current = current->next
+//         at_start = false
+//         iterate top level loop
+//
+//       if key is selected opening bracket or typed
+//              opening:
+//
+//          compute new_selectors from existing
+//                  selectors and key
+//
+//          create new bracket stack entry with opening
+//                 bracket = key
+//          if new_selectors & EAOCLOSING
+//             push new entry into existing bracket
+//                  stack
+//          else
+//             create new bracket stack with new entry
+//                    as its only entry
+//
+//	    if key is opening bracket:
+//
+//            parse_bracketed_subexpression with
+//              new_selectors,
+//              new or existing bracket stack,
+//              indent argument,
+//              line_sep argument
+//                  if new_selectors & EALSEP,
+//	        set separator_found = result
+//
+//	    else if key is typed opening:
+//
+//            parse_bracketed_subexpression with
+//              new_selectors,
+//              new or existing bracket stack,
+//              indent argument,
+//              line_sep argument
+//                  if new_selectors & EALSEP,
+//              typed_data contining typed opening
+//	        set separator_found = result
+//
+//	      if typed_data.has_mark_type:
+//
+//	            type_token = first token of
+//	                         subexpression
+//	            if subexpression does not end
+//	               with a mark, print error message
+//	               and insert typed_token->value
+//	               at end of subexpression
+//	            else if subexpression ends with
+//	               a mark that differs from
+//	               type_token->value, reset
+//	               type_token->value to a label
+//	               whose whose components are the
+//	               marks at the beginning and end
+//	               of the subexpression
+//
+//	            if the subexpression has more then
+//	               one token and ends with a mark,
+//	               delete the ending mark
+//
+//	            if the subexpression now has more
+//	               than one token, set
+//	               tdata.elements = type_token->next
+//
+//	      else if typed_data.middle_count is odd,
+//	              insert missing typed middle at
+//	              end of subexpression, set
+//	              typed_data.elements if it is
+//	              NULL_STUB, and print error message
+//
+//	      else:
+//
+//		  // Subexpression finishing that
+//		  // is logically done by TYPED_
+//		  // CLOSING but is instead done
+//		  // here because TYPED_CLOSING may
+//		  // be missing and thus be inserted
+//		  // below to correct its being missing.
+//		  //
+//	          // Note TYPED_ATTR_BEGIN can only
+//	          // happen here if typed attribute
+//	          // beginning was AFTER an attribute,
+//	          // as if it is after a beginning type,
+//		  // typed_data.subtype is set to TYPED_
+//		  // ATTR_SEP instead.
+//
+//	          if typed_data.subtype == TYPED_
+//	             OPENING and subexpression is
+//	             not empty, collect subexpression
+//	             into a single token with label
+//	             value and token type = TYPE
+//
+//	          else if typed_data.subtype =
+//	                  TYPED_ATTR_BEGIN:
+//
+//	               if subexpression end type label
+//	                  is empty, print error message
+//	               else make end type label, check
+//	                    if it matches beginning type
+//	                    label, and if not print
+//	                    error message, but in any
+//	                    case delete end type label
+//		  else finish any unfinished attribute
+//		       at end of subexpression and move
+//		       any attributes after elements to
+//		       just before elements
+//
+//          if closing was found that did not match
+//             top of closing stack, or logical line
+//             end was found, print error message and
+//             adjust end of subexpression to just
+//             before any found closing
+//          else remove closing bracket
+//
+//          remove opening bracket
+//
+//          if key is opening bracket:
+//
+//             call opening bracket reformatter if
+//                  any, and if none or if compaction
+//                  requested by reformatter:
+//             compact subexpression with
+//                     new_selectors,
+//                     .initiator = key opening,
+//                     .terminator = key closing,
+//                     token type = BRACKETING,
+//                     token value_type = key opening
+//
+//          else if key is typed opening:
+//              
+//               compact subexpression with attributes
+//                       taken from tokens before
+//                       typed_data.elements (those with
+//                       token types TYPE, ATTR_...) and
+//                       elements taken from typed_
+//                       data.element on;
+//                       token type =
+//                             PREFIX if .type attribute
+//                             is present, typed_data.
+//                             middle_count == 0, and
+//                             typed_data.has_mark_type
+//                             is false,
+//                             else BRACKETING if .type
+//                             is the only attribute,
+//                             else BRACKETED
+//                       token value_type = .type
+//                             attribute value if token
+//                             type is PREFIX, else
+//                             MISSING
+//
+//    		  delete tokens from which attributes
+//    		         were taken
+//	    at_start = false
+//
+//          if closing bracket was found that did
+//                     not match top of closing stack,
+//                     or logical line end found:
+//               return separator_found
+//          else
+//            iterate top level loop
+//
+//       if key is closing bracket in bracket stack
+//          that matches the closing bracket of an
+//          entry in the bracket stack:
+//
+//          close bracket stack entry that matches key
+//          close all higher stack entries indicating
+//            that their closing brackets were not found
+//          return MISSING_POSITION
+//
+//       if key is selected indentation mark and
+//              current is end of file or line break
+//              or comment:
+//          indentation_found = key
+//          iterate top level loop
+//          // See above for indented paragraph
+//          // processing.
+//
+//       if key is line separator matching line_sep
+//              argument and selectors & EALSEP:
+//          remove line separator
+//          return end position of removed separator
+//
+//       if key is typed middle matching typed_middle
+//              component of typed_opening component
+//              of a non-missing typed_data argument
+//              and typed_data->has_mark_type is false:
+//
+//          remove typed middle key
+//
+//          if typed_data->middle_count is even:
+//             if there is no previous typed key in the
+//                subexpression and there are tokens
+//                between the typed opening and the
+//                typed middle, make these tokens into a
+//                label and replace them with a TYPE
+//                token having the label as token value
+//	       else finish any unfinished attribute just
+//	            before typed middle and move any
+//	            attributes after elements to just
+//	            before elements
+//	       selectors argument =
+//	           typed_data->saved_selectors
+//
+//          else if typed_data->middle_count is odd:
+//             selectors argument =
+//                   typed_data->typed_opening
+//                             ->attr_selectors
+//                 | ALWAYS_SELECTOR
+//             if typed_data->elements == NULL and
+//                there are elements before typed
+//                middle, set typed_data->elements to
+//                point at the first of these
+//
+//          ++ typed_data->middle_count
+//
+//          iterate top level loop
+//
+//       if key is typed attribute begin matching typed_
+//              attr_begin component of typed_opening
+//              component of a non-missing typed_data
+//              argument, and typed_data->middle_count
+//              is even, and typed_data->has_mark_type
+//              is false:
+//
+//          if there is no previous typed key in the
+//             subexpression and there are tokens
+//             between the typed opening and the typed
+//             attribute begin, make these tokens into a
+//             label and replace them with a TYPE token
+//             having the label as token value; then
+//             remove the typed attribute begin key
+//
+//	     else if typed_data->middle_count > 0 and
+//	          there are tokens between the previous
+//	          typed middle and the typed attribute
+//	          begin, finish any unfinished attribute
+//	          just before the typed attribute begin
+//	          and move any attributes after elements
+//	          to just before elements; then remove
+//	          the typed attribute begin key
+//
+//	     else announce typed attribute begin to be a
+//	          a punctuation error that is ignored,
+//	          and remove it
+//
+//       if key is typed attribute equal matching typed_
+//              attr_equal component of typed_opening
+//              component of a non-missing typed_data
+//              argument, and typed_data->middle_count
+//              is even, and typed_data->has_mark_type
+//              is false:
+//
+//          if there is a previous typed key in the sub-
+//             expression that is a typed middle, typed
+//             attribute separator, or typed attribute
+//             negator, and there are tokens between
+//             this previous typed key and the typed
+//             attribute equal, make these tokens into
+//             an attribute label and optional following
+//             flags, and replace them with an ATTR_
+//             LABEL token optionally followed by an
+//             ATTR_FLAGS token; then remove the typed
+//             attribute equal key
+//
+//	     else announce typed attribute equal to be a
+//	          a punctuation error that is ignored,
+//	          and remove it
+//
+//       if key is typed attribute separator matching
+//              typed_attr_sep component of typed_
+//              opening component of a non-missing
+//              typed_data argument, and typed_data->
+//              middle_count is even, and typed_data->
+//              has_mark_type is false:
+//
+//          if there is a previous typed key in the sub-
+//             expression that is a typed middle, typed
+//             attribute separator, or typed attribute
+//             equal, or typed attribute negator, finish
+//	       any unfinished attribute just before the
+//	       typed attribute separator and remove the
+//	       typed attribute separator key
+//
+//	     else announce typed attribute separator to
+//	          be a a punctuation error that is
+//	          ignored, and remove it
+//
+//       if key is typed attribute negator matching
+//              typed_attr_negator component of typed_
+//              opening component of a non-missing
+//              typed_data argument, and typed_data->
+//              middle_count is even, and typed_data->
+//              has_mark_type is false:
+//
+//          if there is a previous typed key in the sub-
+//             expression that is a typed middle or
+//             typed attribute separator, and there are
+//             NO tokens between this previous key and
+//             the typed attribute negator, remove the
+//             typed attribute negator
+//
+//	     else announce typed attribute negator to
+//	          be a a punctuation error that is
+//	          ignored, and remove it
+//
+//       // reject key
+//       //
+//       iterate loop to refine key

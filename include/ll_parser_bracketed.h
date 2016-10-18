@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 22 02:11:00 EDT 2016
+// Date:	Tue Oct 18 05:11:09 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -485,11 +485,13 @@ struct typed_data
 	// the .type attribute.
     ll::parser::token start_previous;
 	// start_previous->next is the first token after
-	// the last key, or the first token of the typed
-	// bracketed subexpression if no key found yet.
-	// Since this token can be changed after
-	// start_previous has been saved, it cannot be
-	// directly saved.
+	// the last key, or the first token after the
+	// typed opening of the typed bracketed sub-
+	// expression if no key found yet.  Since this
+	// start_previous->next token can be changed
+	// after start_previous has been saved, the
+	// start_previous->next token cannot be directly
+	// saved.
     ll::parser::token elements;
         // First token of elements, or NULL_STUB if
 	// there are no elements.

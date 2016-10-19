@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 19 04:16:28 EDT 2016
+// Date:	Wed Oct 19 11:50:37 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,9 @@
 //
 //   indentation_mark indentation_found = NULL_STUB
 //   at_start = true
+//       // I.e., the current token has no predecessor
+//       // input to or created by parse_bracketed_
+//       // subexpression
 //
 //   loop:
 //
@@ -200,37 +203,40 @@
 //	          return MISSING_POSITION
 //	     indentation_found = NULL_STUB
 // 	 
-// TBD
-//
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
 //     // Current is NOT a line-break, comment, or
 //     // indent-before-comment.
 //
-//     if current is indent or end-of-file:
+//     if current is end-of-file:
 //
-//        if ( ( ! at_start and parser->at_head )
-//               or current is eof)
-//             and selectors & EAPBREAK:
+//        return PARAGRAPH_END
+//		     if and selectors & EAPBREAK
+//		 MISSING_POSITION
+//		     otherwise
+//
+//     else if current is indent:
+//
+//        if ( ! at_start and parser->at_head )
 //	     return PARAGRAPH_END
-//
-//        else if current is end-of-file:
-//           return MISSING_POSITION
 //
 //        else if current->indent is at or before indent
 //                argument, and selectors & EALEINDENT:
 //              return MISSING_POSITION
 //
-//        if current->indent is before indent argument,
-//                    and selectors & EALTINDENT:
+//        else if current->indent is before indent
+//                argument, and selectors & EALTINDENT:
 //           return MISSING_POSITION
 //
+//        // next token is part of continuation line
+//        //
 //        delete current indent token
 //
-//     // Continue with non-comment, non-line-break,
-//     // non-indent, non-indent-before-comment, non-eof
-//     // token.
-//     //
+//     assert indentation_found == NULL_STUB
+//     assert current token is NOT end of file, comment,
+//            indent before comment, indent, or
+//            line break
+//
 //     parser->at_head = false
 //
 //     if current is quoted string:
@@ -250,12 +256,19 @@
 //         if at_start and
 //                     typed_data argument != NULL
 //                     and current is mark:
+//
+//            // Current is mark at beginning of
+//            // typed bracketed subexpression:
+//            // turn current into TYPE token.
+//            //
 //            selectors = saved selectors
 //            type = current->value
 //            has_mark_type = true
 //            current->type = TYPE
 //            ++ attr_count
 //
+//         // Move to next token.
+//         //
 //         current = current->next
 //         at_start = false
 //         iterate top level loop

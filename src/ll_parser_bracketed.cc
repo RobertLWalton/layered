@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 18 04:37:53 EDT 2016
+// Date:	Wed Oct 19 11:53:56 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1652,22 +1652,17 @@ min::position BRA::parse_bracketed_subexpression
 	// has been processed, or if there was no
 	// indented paragraph.
 	//
-	if ( current->type == LEXSTD::indent_t
-	     ||
-	     current->type == LEXSTD::end_of_file_t )
+	if ( current->type == LEXSTD::end_of_file_t )
+	    return selectors & PAR::EAPBREAK_OPT ?
+		   BRA::PARAGRAPH_END :
+		   min::MISSING_POSITION;
+	else if ( current->type == LEXSTD::indent_t )
 	{
-	    if ( ( ( parser->at_head && ! at_start )
-		   ||
-		      current->type
-		   == LEXSTD::end_of_file_t )
+	    if ( ( parser->at_head && ! at_start )
 	         &&
 		 (   selectors
 		   & PAR::EAPBREAK_OPT ) )
 		    return BRA::PARAGRAPH_END;
-
-	    else if (    current->type
-	              == LEXSTD::end_of_file_t )
-		return min::MISSING_POSITION;
 
 	    // Truncate subexpression if current token
 	    // indent is at or before indent argument.
@@ -1705,10 +1700,8 @@ min::position BRA::parse_bracketed_subexpression
 	}
 
 	// Continue with non-comment, non-line-break,
-	// non-eof token.
+	// non-eof, non-indent token.
 	//
-	parser->at_head = false;
-
 	MIN_REQUIRE
 	    ( indentation_found == min::NULL_STUB );
 	MIN_REQUIRE
@@ -1723,6 +1716,7 @@ min::position BRA::parse_bracketed_subexpression
 	      &&
 	      current->type != LEXSTD::line_break_t );
 
+	parser->at_head = false;
 
 	// Process quoted strings.
 	//
@@ -1782,6 +1776,10 @@ min::position BRA::parse_bracketed_subexpression
 	    // active because of the bracket_stack or
 	    // line_sep arguments.
 	    //
+	    // Note closing brackets and line selectors
+	    // have all selectors on and selectors has
+	    // the ALWAYS_SELECTOR on.
+	    //
 	    if ( root == min::NULL_STUB )
 	    {
 	        // No active bracket table entry found.
@@ -1792,6 +1790,11 @@ min::position BRA::parse_bracketed_subexpression
 		     &&
 		     current->type == LEXSTD::mark_t )
 		{
+		    // Current is mark at begining of
+		    // typed bracketed subexpresson.
+		    //
+		    // Turn current into TYPE token.
+		    //
 		    selectors =
 		        typed_data->saved_selectors;
 		    typed_data->type = current->value;
@@ -1800,6 +1803,8 @@ min::position BRA::parse_bracketed_subexpression
 		    ++ typed_data->attr_count;
 		}
 
+		// Move to next token.
+		//
 		current = key_first->next;
 		at_start = false;
 		break;

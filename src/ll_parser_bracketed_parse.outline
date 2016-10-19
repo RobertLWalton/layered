@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 18 05:02:25 EDT 2016
+// Date:	Wed Oct 19 04:16:28 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,6 +87,8 @@
 //
 //     if we skipped some tokens:
 //
+//	  assert that current is indent or end of file
+//
 //        current_indent = indent of current token if
 //            this is indent token or to 0 if current
 //            token is end of file
@@ -97,15 +99,18 @@
 //            indent_before_comment tokens to determine
 //            comment indent
 //
-//     if indentation_found != NONE:
+//     if indentation_found != NULL_STUB:
 //        // Indentation was found below, but we
 //        // deferred processing it until we could skip
 //        // stuff as above to discover paragraph inden-
-//        // tation; current is first indent or eof
-//        // token following the indentation mark.
+//        // tation.
+//
+//        assert that current is indent or eof token
+//            // This is first indent or eof following
+//            // indentation mark.
 //
 //        compute new_selectors from current selectors
-//                and indentation_found
+//                and indentation_found->new_selectors
 //
 //        if paragraph has some lines (i.e., current is
 //           an indent token whose indent is greater
@@ -114,16 +119,25 @@
 //           paragraph_indent = current->indent
 //	     remove current (indent) token
 //
+//	     allocate and initialize line_variables:
+//	         paragraph_master = 0
+//	         line_master = 0
+//	         paragraph_header = MISSING
+//	         line_header = MISSING
+//	         header_selectors = new_selectors
+//	         line_selectors = new_selectors
+//	         instructions = 0
+//
 //           loop to parse paragraph lines:
 //
-//		 current = current->next
-//
-//               // Move to end of paragraph line.
+//               // Move to end of paragraph line and
+//               // replace current token by result.
 //               //
 //               parse_bracketed_subexpression with
-//                   paragraph_indent, new_selectors,
+//                   new_selectors, paragraph_indent,
 //                   indentation_found->line_sep
 //                     if new_selectors & EALSEP,
+//                   line_variables,
 //                   bracket stack
 //                     if new_selectors & EAOCLOSING;
 //                   remember if line ended by line
@@ -134,8 +148,8 @@
 //                           ending separator and
 //                           adjust end of line to
 //                           just before closing tokens
-//                           (bracket or indent or
-//                            end of file)
+//                           (bracket, indent, end of
+//                            file, etc )
 //
 //               if line is not empty or line separator
 //                       ended line:
@@ -184,8 +198,10 @@
 //
 //	     if bracket stack top closed
 //	          return MISSING_POSITION
-//	     indentation_found = NONE
+//	     indentation_found = NULL_STUB
 // 	 
+// TBD
+//
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
 //     // Current is NOT a line-break, comment, or

@@ -1,9 +1,9 @@
-// Layered Languages Bracketed Subexpression
-// Parse Function Outline
+// Layered Languages Bracketed Subexpression Parse
+// Function Outline
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 19 11:50:37 EDT 2016
+// Date:	Wed Oct 19 19:33:32 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,11 +37,11 @@
 // 	typed_data
 // 	    After reading a typed opening, the parse
 // 	    function allocates a typed_data structure
-// 	    to the stack, sets its typed_opening member
-// 	    to the typed opening, and calls itself
-// 	    recursively with the typed_data structure
-// 	    as an argument.  Other calls to the parse
-// 	    function have a NULL typed_data argument.
+// 	    to the stack, initializes it, and calls
+// 	    itself recursively with the typed_data
+// 	    structure as an argument.  Other calls to
+// 	    the parse function have a NULL typed_data
+// 	    argument.
 // 	line_variables
 // 	    To parse a sequence of logical lines (e.g.,
 // 	    an indented paragraph), the parse function
@@ -60,21 +60,6 @@
 // Return Value:
 //
 // 	position
-//
-//   if typed_data != NULL
-//     initialize typed_data structure:
-//         saved_selectors = selectors argument
-//         middle_count = attr_count = 0
-//         start_previous = current->previous
-//         elements = attributes = NULL_STUB
-//         end_position = MISSING_POSITION
-//         subtype = TYPED_OPENING
-//         type = MISSING
-//         has_mark_type = false
-//     selectors argument selector bits =
-//         typed_opening->attr_selectors
-//         | ALWAYS_SELECTOR
-//         (option bits left unchanged)
 //
 //   indentation_mark indentation_found = NULL_STUB
 //   at_start = true
@@ -288,11 +273,16 @@
 //             create new bracket stack with new entry
 //                    as its only entry
 //
+//	    allocate new typed data, tdata, to stack,
+//		     for use only if key is typed
+//		     opening
+//
 //	    if key is opening bracket:
 //
 //            parse_bracketed_subexpression with
 //              new_selectors,
-//              new or existing bracket stack,
+//              new or existing bracket stack
+//                  as per EAOCLOSING above,
 //              indent argument,
 //              line_sep argument
 //                  if new_selectors & EALSEP,
@@ -300,16 +290,30 @@
 //
 //	    else if key is typed opening:
 //
+//            initialize tdata typed_data structure:
+//		  typed_opening = key
+//		  saved_selectors = new_selectors
+//		  middle_count = attr_count = 0
+//		  start_previous = current->previous
+//		  elements = attributes = NULL_STUB
+//		  end_position = MISSING_POSITION
+//		  subtype = TYPED_OPENING
+//		  type = MISSING
+//		  has_mark_type = false
+//
+//
 //            parse_bracketed_subexpression with
-//              new_selectors,
+//              selectors from key->attr_selectors
+//                  plus ALWAYS_SELECTOR, and selector
+//                  options from new_selectors
 //              new or existing bracket stack,
 //              indent argument,
 //              line_sep argument
 //                  if new_selectors & EALSEP,
-//              typed_data contining typed opening
+//              tdata contining typed opening
 //	        set separator_found = result
 //
-//	      if typed_data.has_mark_type:
+//	      if tdata.has_mark_type:
 //
 //	            type_token = first token of
 //	                         subexpression
@@ -333,10 +337,10 @@
 //	               than one token, set
 //	               tdata.elements = type_token->next
 //
-//	      else if typed_data.middle_count is odd,
+//	      else if tdata.middle_count is odd,
 //	              insert missing typed middle at
 //	              end of subexpression, set
-//	              typed_data.elements if it is
+//	              tdata.elements if it is
 //	              NULL_STUB, and print error message
 //
 //	      else:
@@ -352,16 +356,16 @@
 //	          // happen here if typed attribute
 //	          // beginning was AFTER an attribute,
 //	          // as if it is after a beginning type,
-//		  // typed_data.subtype is set to TYPED_
+//		  // tdata.subtype is set to TYPED_
 //		  // ATTR_SEP instead.
 //
-//	          if typed_data.subtype == TYPED_
-//	             OPENING and subexpression is
-//	             not empty, collect subexpression
-//	             into a single token with label
-//	             value and token type = TYPE
+//	          if tdata.subtype == TYPED_OPENING and
+//	             subexpression is not empty, collect
+//	             subexpression into a single token
+//	             with label value and token type =
+//	             TYPE
 //
-//	          else if typed_data.subtype =
+//	          else if tdata.subtype =
 //	                  TYPED_ATTR_BEGIN:
 //
 //	               if subexpression end type label
@@ -401,16 +405,18 @@
 //              
 //               compact subexpression with attributes
 //                       taken from tokens before
-//                       typed_data.elements (those with
+//                       tdata.elements (those with
 //                       token types TYPE, ATTR_...) and
 //                       elements taken from typed_
 //                       data.element on;
 //                       token type =
-//                             PREFIX if .type attribute
-//                             is present, typed_data.
-//                             middle_count == 0, and
-//                             typed_data.has_mark_type
-//                             is false,
+//                             PREFIX if
+//                                .type attribute is
+//                                      present,
+//                                tdata.middle_count
+//                                      == 0, and
+//                                tdata.has_mark_type
+//                                      is false,
 //                             else BRACKETING if .type
 //                             is the only attribute,
 //                             else BRACKETED

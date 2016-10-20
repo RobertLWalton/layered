@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 19 11:53:56 EDT 2016
+// Date:	Thu Oct 20 05:25:33 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1223,31 +1223,13 @@ min::position BRA::parse_bracketed_subexpression
 	  BRA::line_variables * line_variables,
 	  BRA::bracket_stack * bracket_stack_p )
 {
+    // Note: if typed_data != NULL, selectors are those
+    // for scanning type and attributes, and selectors
+    // for scanning elements are in typed_data->saved_
+    // selectors.
+
     BRA::bracketed_pass pass =
         (BRA::bracketed_pass) parser->pass_stack;
-
-    // If the subexpression we are scanning is a typed
-    // bracketed subexpression, initialize typed_data.
-    //
-    if ( typed_data != NULL )
-    {
-	typed_data->saved_selectors = selectors;
-	typed_data->middle_count = 0;
-	typed_data->attr_count = 0;
-	typed_data->start_previous = current->previous;
-	typed_data->elements = min::NULL_STUB;
-	typed_data->attributes = min::NULL_STUB;
-	typed_data->end_position =
-	    min::MISSING_POSITION;
-	typed_data->subtype = BRA::TYPED_OPENING;
-	typed_data->type = min::MISSING();
-	typed_data->has_mark_type = false;
-
-	selectors &= PAR::ALL_OPT;
-	selectors |= typed_data->typed_opening
-	                       ->attr_selectors
-		   | PAR::ALWAYS_SELECTOR;
-    }
 
     BRA::indentation_mark indentation_found =
         min::NULL_STUB;
@@ -1878,10 +1860,31 @@ min::position BRA::parse_bracketed_subexpression
 		{
 		    tdata.typed_opening =
 			(BRA::typed_opening) root;
+		    tdata.saved_selectors =
+		        new_selectors;
+		    tdata.middle_count = 0;
+		    tdata.attr_count = 0;
+		    tdata.start_previous =
+		        current->previous;
+		    tdata.elements = min::NULL_STUB;
+		    tdata.attributes = min::NULL_STUB;
+		    tdata.end_position =
+			min::MISSING_POSITION;
+		    tdata.subtype = BRA::TYPED_OPENING;
+		    tdata.type = min::MISSING();
+		    tdata.has_mark_type = false;
+
+		    TAB::flags tselectors =
+		        new_selectors;
+		    tselectors &= PAR::ALL_OPT;
+		    tselectors
+		        |= tdata.typed_opening
+				   ->attr_selectors
+		        | PAR::ALWAYS_SELECTOR;
 
 		    separator_found =
 			PARSE_BRA_SUBEXP
-			  ( parser, new_selectors,
+			  ( parser, tselectors,
 			    current, indent,
 			      new_selectors
 			    & PAR::EALSEP_OPT  ?
@@ -2197,7 +2200,7 @@ min::position BRA::parse_bracketed_subexpression
 		}
 		else // if (    subtype
 		     //      == BRA::TYPED_OPENING )
-		{ 
+		{
 		    PAR::attr attributes
 			[tdata.attr_count];
 		    PAR::token elements =

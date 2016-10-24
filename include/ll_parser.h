@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 16 05:23:29 EST 2016
+// Date:	Mon Oct 24 01:52:59 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -255,7 +255,7 @@ struct token_struct
 	//	    token.
 	//
 	//	PURELIST
-	//	    PURELIST tokens have no attirubte.
+	//	    PURELIST tokens have no attributes.
 	//	    If `compact' is asked to compact a
 	//	    list whose only element is a PURE-
 	//	    LIST token, it will add attributes
@@ -1624,7 +1624,7 @@ void put_error_operator_after
 // and otherwise to BRACKETED if the type argument is
 // as BRACKETING.
 //
-// An exception to the above is made if if the tokens to
+// An exception to the above is made if the tokens to
 // be put in the new expression consist of just a single
 // token, m != 0, and either the single token is of
 // PURELIST type, or the single token is of BRACKETABLE

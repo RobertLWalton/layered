@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 20 05:25:33 EDT 2016
+// Date:	Mon Oct 24 12:27:03 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1895,6 +1895,14 @@ min::position BRA::parse_bracketed_subexpression
 			    NULL,
 			    & cstack );
 
+		    // We do typed bracketed subexpres-
+		    // sion finishing here that is
+		    // logically done by TYPED_CLOSING,
+		    // but is instead done here because
+		    // the TYPED_CLOSING may be missing
+		    // and thus be inserted below to
+		    // correct its being missing.
+
 		    PAR::token next =
 		        cstack.closing_first;
 		    if ( next == min::NULL_STUB )
@@ -1936,15 +1944,14 @@ min::position BRA::parse_bracketed_subexpression
 				    min::new_lab_gen
 					 ( v, 2 );
 			    }
-			    if (    type_token
-				 != next->previous )
-			    {
-			      PAR::free
+			    MIN_REQUIRE
+			        (    type_token
+				  != next->previous );
+			    PAR::free
 			        ( PAR::remove
 				    ( first_ref(parser),
 				      next->previous )
 				);
-			    }
 			}
 			if (    type_token
 			     != next->previous )
@@ -1973,14 +1980,6 @@ min::position BRA::parse_bracketed_subexpression
 		    }
 		    else
 		    {
-		        // Subexpression finishing that
-		        // is logically done by TYPED_
-		        // CLOSING but is instead done
-		        // here because TYPED_CLOSING
-			// may be missing and thus be
-			// inserted below to correct
-			// its being missing.
-
 	                // Note TYPED_ATTR_BEGIN can
 			// only happen here if typed
 			// attribute beginning was AFTER

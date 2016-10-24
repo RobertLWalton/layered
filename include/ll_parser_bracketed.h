@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 18 05:11:09 EDT 2016
+// Date:	Mon Oct 24 01:45:41 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -511,8 +511,8 @@ struct typed_data
         // Subtype of last key found.
     min::gen type;
         // If typed_opening is followed immediately by a
-	// mark, the value of that mark.  If it is
-	// followed by another type label, the value of
+	// mark, the value of that mark.  If it is fol-
+	// lowed by a non-mark type label, the value of
 	// that type label.  MISSING otherwise.
     bool has_mark_type;
         // True if and only if typed_opening is followed
@@ -521,6 +521,24 @@ struct typed_data
 
 // Special token types used during typed bracketed
 // subexpression parse.
+//
+// The parse_bracketed_subexpression function, when
+// asked to parse a typed bracketed subexpression
+// (i.e., when passed a non-NULL typed_data argument),
+// returns a list of tokens whose initial segment
+// has the temporary token types below, and whose final
+// segment are the elements of the list and have other
+// token types.
+//
+// The order of the initial segment tokens is given by:
+//
+//     initial_segment ::= TYPE? attribute*
+//
+//     attribute
+//         ::= ATTR_LABEL ATTR_FLAGS? ATTR_VALUE
+//           | ATTR_LABEL ATTR_FLAGS? ATTR_MULTIVALUE
+//           | ATTR_TRUE ATTR_FLAGS?
+//           | ATTR_FALSE ATTR_FLAGS?
 //
 // TEMPORARY_TT is in ll::parser
 //
@@ -604,6 +622,8 @@ void push_header
 
 typedef min::packed_vec_insptr<int32>
         indentation_offset_stack;
+    // Type of stack of indentation_offset values saved
+    // by current parser blocks.
 
 struct bracketed_pass_struct;
 typedef min::packed_struct_updptr<bracketed_pass_struct>
@@ -686,15 +706,16 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // line following the line of the first.  Any subexpres-
 // sion terminating line separator is also deleted.
 // Sub-subexpressions are identified and each is replac-
-// ed by a single BRACKETED, BRACKETABLE, or DERIVED,
-// PURELIST, or PREFIX token.  If the typed_data argu-
+// ed by a single BRACKETED, BRACKETABLE, PURELIST,
+// PREFIX, or DERIVED token.  If the typed_data argu-
 // ment is not NULL, tokens representing attibute labels
 // and values are modified and given temporary token
-// types as per ll_parsing_bracketed.h.  If the line_
-// data argument is not NULL, a PREFIX token that is
-// a copy of the default line_prefix may be inserted
-// at the beginning of a line and used by the prefix
-// parsing pass to return a BRACKETED MIN object.
+// types as given above with the typed_data definition.
+// If the line_variables argument is not NULL, a PREFIX
+// token that is a copy of the default line_prefix may
+// be inserted at the beginning of a line and used by
+// the prefix parsing pass to return a BRACKETED MIN
+// object.
 //
 // It is assumed that there are always more tokens
 // available via parser->input until an end-of-file
@@ -703,11 +724,11 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // is always a token immediately after the recognized
 // subexpression.  This token is returned as the updated
 // `current' argument value to mark the end of the
-// recognized subexpression.  If this token is a hori-
-// zontal before non-comment token, no lexemes beyond
-// the lexeme of this token have been read, so the
-// lexical analyser can be reconfigured to read the
-// non-blank portion of the current line.
+// recognized subexpression.  If this token is an indent
+// token, no lexemes beyond the lexeme of this token
+// have been read, so the lexical analyser can be
+// reconfigured to read the non-blank portion of the
+// current line.
 //
 // The token list, beginning with the initial value of
 // `current', is edited by this function.  The caller
@@ -747,17 +768,16 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // closing ANY bracket stack entries, depending upon
 // parsing option settings.  The sequence of tokens
 // between the initial value of current->previous and
-// the final value of token is called the returned token
-// sequence, and may or may not be empty.  Given this,
-// a return without any closed bracket stack entries may
-// be caused by the following:
+// the final value of current is called the returned
+// token sequence, and may or may not be empty.  Given
+// this, a return without any closed bracket stack
+// entries may be caused by the following:
 //
-//   (1) An end file; `current' is an end of file token.
-//       If the EAPBREAK (end at pargraph break) option
-//       is on, PARAGRAPH_END is returned; else MISSING_
-//       POSITION is returned.  The returned token
-//       sequence may be empty.  `current' is the end of
-//       file token.
+//   (1) An end file.  If the EAPBREAK (end at paragraph
+//       break) option is on, PARAGRAPH_END is returned;
+//       else MISSING_POSITION is returned.  The return-
+//       ed token sequence may be empty.  `current' is
+//       the end of file token.
 //
 //   (2) If a blank line is encountered when the
 //       returned token sequence is NOT empty, and the
@@ -787,7 +807,7 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //       separator is deleted, and `current' is set to
 //       immediately after its previous position.
 //
-// Closing brackets are only recognized if their
+// Closing brackets are recognized if and only if their
 // corresponding opening brackets are in the bracket
 // stack.  Prefix separators are recognized as closing
 // subexpressions only if a prefix separator with the
@@ -796,22 +816,27 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //
 // This function calls itself recursively if it finds
 // an opening bracket, or an indentation mark, or a
-// prefix separator at the beginning of the subexpres-
-// sion.  The `selectors' argument determines which
-// opening bracket and indentation mark definitions are
-// active.  The `selectors' argument has no affect on
-// closing bracket or line separator recognition.
+// subexpression beginning prefix separator.  The
+// `selectors' argument determines which opening bracket
+// and indentation mark definitions are active.  The
+// `selectors' argument has no affect on closing bracket
+// or line separator recognition.
 //
 // If the subexpression is a typed bracketed subexpres-
-// sion, the `typed_data' argument is not NULL, and
+// sion, the `typed_data' argument is not NULL and
 // contains the typed_opening that prefixes the sub-
-// expression.  In this case typed_data->typed_opening->
-// attr_selectors is used in place of the selectors
-// argument before the first typed_middle corresponding
-// to the typed_opening, while scanning type and
-// attribute labels and attribute values.  Then this
-// selectors value is switched with the selectors
-// argument by each typed_middle.  Selectors have no
+// expression, `current' is the first token after this
+// typed_opening, the normal selectors have been saved
+// in typed_data->saved_selectors and the non-option
+// part of the normal selectors has been replaced by
+// typed_data->typed_opening->attr_selectors in the
+// selectors argument.  The selectors argument and
+// typed_data->saved_selectors are switched by every
+// typed_middle corresponding to the typed_opening
+// scanned while scanning the subexpression, so the
+// selectors argument with attr_selectors is used to
+// scan types and attributes, and saved_selectors is
+// used to scan list elements.  Selectors have no
 // affect on recognition of keys such as typed_middle
 // and typed_attr_....
 //
@@ -821,10 +846,10 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // that started the sub-subexpression, and either the
 // reformatter or a subsequence call to `compact' wraps
 // all the tokens of the sub-subexpression into a single
-// BRACKETED, BRACKATABLE, PURELIST, DERIVED, or PREFIX
-// token (even if this is an empty list).  It also
-// converts string tokens (quoted strings and numerics)
-// in the result as per `convert_token'.  If the
+// BRACKETED, BRACKATABLE, PURELIST, PREFIX, or DERIVED
+// token (even if this is an empty list).  `Compact'
+// also converts string tokens (quoted strings and num-
+// erics) in the result as per `convert_token'.  If the
 // opening_bracket is not a typed_opening, the resulting
 // MIN object is given the opening and closing brackets
 // as its .initiator and .terminator, and is NOT given
@@ -842,7 +867,8 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // subexpressions and have min::LOGICAL_LINE() as their
 // .initiator and "\n" or the line ending line separator
 // as their .terminator.  Inner lists that would be
-// empty a "\n" .terminator are deleted.
+// empty but for their .initiator and .terminator are
+// deleted.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme

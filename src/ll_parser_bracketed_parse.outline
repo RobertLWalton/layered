@@ -3,11 +3,13 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 19 19:33:32 EDT 2016
+// Date:	Mon Oct 24 12:27:57 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
+//
+//	vi:filetype=cpp
 //
 // Outline of parse_bracketed_subexpression executable
 // code.
@@ -301,6 +303,7 @@
 //		  type = MISSING
 //		  has_mark_type = false
 //
+//	      is_mark_prefix = false
 //
 //            parse_bracketed_subexpression with
 //              selectors from key->attr_selectors
@@ -313,45 +316,60 @@
 //              tdata contining typed opening
 //	        set separator_found = result
 //
+//	      // We do typed bracketed subexpression
+//	      // finishing here that is logically done
+//	      // by TYPED_CLOSING, but is instead done
+//	      // here because the TYPED_CLOSING may be
+//	      // missing and thus be inserted below to
+//	      // correct its being missing.
+//
 //	      if tdata.has_mark_type:
 //
 //	            type_token = first token of
 //	                         subexpression
-//	            if subexpression does not end
-//	               with a mark, print error message
-//	               and insert typed_token->value
-//	               at end of subexpression
-//	            else if subexpression ends with
-//	               a mark that differs from
-//	               type_token->value, reset
-//	               type_token->value to a label
-//	               whose whose components are the
-//	               marks at the beginning and end
-//	               of the subexpression
 //
-//	            if the subexpression has more then
-//	               one token and ends with a mark,
-//	               delete the ending mark
+//	            if subexpression has only one token,
+//	               its mark type, set is_mark_prefix
+//	               to true
+//
+//	            else if subexpression does not end
+//	               with a mark, print error message
+//	               that says typed_token->value has
+//	               been inserted at end of sub-
+//	               expression (but do not actually
+//	               insert anything)
+//
+//	            else if subexpression ends with
+//	               a mark:
+//
+//	               if the mark differs from type_
+//	                  token->value, reset type_
+//	                  token->value to a label
+//	                  whose whose components are the
+//	                  marks at the beginning and end
+//	                  of the subexpression
+//
+//	               delete the subexpression ending
+//	                      mark (which cannot be the
+//	                      type_token)
 //
 //	            if the subexpression now has more
 //	               than one token, set
 //	               tdata.elements = type_token->next
 //
-//	      else if tdata.middle_count is odd,
-//	              insert missing typed middle at
-//	              end of subexpression, set
-//	              tdata.elements if it is
-//	              NULL_STUB, and print error message
+//	      else if tdata.middle_count is odd, print
+//	              error message saying missing typed
+//	              middle at end of subexpression has
+//	              been inserted (but do not actually
+//	              insert anything), and if there
+//	              are subexpression elements after
+//	              the last typed middle and
+//	              tdata.elements is NULL_STUB, set
+//	              tdata.elements to token after last
+//	              middle
 //
 //	      else:
 //
-//		  // Subexpression finishing that
-//		  // is logically done by TYPED_
-//		  // CLOSING but is instead done
-//		  // here because TYPED_CLOSING may
-//		  // be missing and thus be inserted
-//		  // below to correct its being missing.
-//		  //
 //	          // Note TYPED_ATTR_BEGIN can only
 //	          // happen here if typed attribute
 //	          // beginning was AFTER an attribute,

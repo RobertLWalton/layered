@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 12:27:03 EDT 2016
+// Date:	Tue Oct 25 02:26:24 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -836,9 +836,9 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 // If `first' == `next' (and therefore the label is
 // empty), a new first token is made and inserted before
 // `next', and the `first' argument is updated to point
-// at the new token, and the position is set to the
-// empty string just before `next'.  This is the only
-// case where `first' is updated.
+// at the new token, and the new token position is set
+// to the empty string just before `next'.  This is the
+// only case where `first' is updated.
 //
 static void make_label
     ( PAR::parser parser,
@@ -1991,11 +1991,8 @@ min::position BRA::parse_bracketed_subexpression
 		        if ( (    tdata.subtype
 			       == BRA::TYPED_OPENING
 			       ||
-			       (    tdata.subtype
-			         == BRA::TYPED_MIDDLE
-				 &&
-				  tdata.middle_count % 2
-				 == 0 ) )
+			          tdata.subtype
+			       == BRA::TYPED_MIDDLE )
 			     &&
 			        tdata.start_previous
 				          ->next

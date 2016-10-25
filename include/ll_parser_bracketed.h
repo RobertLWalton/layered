@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 01:45:41 EDT 2016
+// Date:	Tue Oct 25 02:33:10 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -532,13 +532,17 @@ struct typed_data
 //
 // The order of the initial segment tokens is given by:
 //
-//     initial_segment ::= TYPE? attribute*
+//     initial_segment ::= attribute*
 //
 //     attribute
-//         ::= ATTR_LABEL ATTR_FLAGS? ATTR_VALUE
+//         ::= TYPE
+//           | ATTR_LABEL ATTR_FLAGS? ATTR_VALUE
 //           | ATTR_LABEL ATTR_FLAGS? ATTR_MULTIVALUE
 //           | ATTR_TRUE ATTR_FLAGS?
 //           | ATTR_FALSE ATTR_FLAGS?
+//
+// Note the TYPE token need not be first in the initial
+// segment.
 //
 // TEMPORARY_TT is in ll::parser
 //

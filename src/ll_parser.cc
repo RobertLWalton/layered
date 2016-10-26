@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 16 05:32:53 EST 2016
+// Date:	Tue Oct 25 19:30:34 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2082,6 +2082,8 @@ void PAR::parse_warn
 	  const min::op & message8,
 	  const char * message9 )
 {
+    ++ parser->warning_count;
+
     if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
          == 0 )
         return;

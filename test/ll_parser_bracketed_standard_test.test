@@ -159,8 +159,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 21: missing closing bracket [< "}" "}" >] inserted
-       before ")":
+ERROR: in line 21: missing closing bracket `} }' inserted before `)':
      (x + {{ y z )
                  ^
 BRACKETED EXPRESSION:
@@ -923,7 +922,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 56: missing closing bracket "}" inserted before ")":
+ERROR: in line 56: missing closing bracket `}' inserted before `)':
 ({)
   ^
 PURELIST EXPRESSION:
@@ -1055,7 +1054,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
 ERROR: in line 60: missing attribute label:
 ({P2:)
      ^
-ERROR: in line 60: missing closing bracket "}" inserted before ")":
+ERROR: in line 60: missing closing bracket `}' inserted before `)':
 ({P2:)
      ^
 PREFIX EXPRESSION:
@@ -1104,7 +1103,7 @@ ERROR: in line 61: unexpected punctuation ":" found; deleted and
   ^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 61: missing closing bracket "}" inserted before ")":
+ERROR: in line 61: missing closing bracket `}' inserted before `)':
 ({:)
    ^
 PURELIST EXPRESSION:
@@ -1185,7 +1184,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
 ERROR: in line 63: missing "|"; inserted before:
 ({M: f = F|1 2 3)
                 ^
-ERROR: in line 63: missing closing bracket "}" inserted before ")":
+ERROR: in line 63: missing closing bracket `}' inserted before `)':
 ({M: f = F|1 2 3)
                 ^
 BRACKETED EXPRESSION:
@@ -1231,7 +1230,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line 64: missing closing bracket "}" inserted before ")":
+ERROR: in line 64: missing closing bracket `}' inserted before `)':
 ({N: f = F|1 2 3|g = G)
                       ^
 BRACKETED EXPRESSION:
@@ -1281,7 +1280,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
 ERROR: in line 65: missing attribute value:
 ({K: f = F|1 2 3|g =)
                     ^
-ERROR: in line 65: missing closing bracket "}" inserted before ")":
+ERROR: in line 65: missing closing bracket `}' inserted before `)':
 ({K: f = F|1 2 3|g =)
                     ^
 BRACKETED EXPRESSION:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 02:41:19 EDT 2016
+// Date:	Wed Oct 26 06:53:10 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1088,8 +1088,8 @@ static void type_warn
 //
 // Label may be followed by flags which are in bracketed
 // subexpression token just before `next'.  This token
-// is marked ATTR_FLAGS.  Attribute label token is marked
-// ATT_LABEL.
+// is marked ATTR_FLAGS.  Attribute label token is
+// marked ATT_LABEL.
 //
 // If label made, set typed_data->attributes if that is
 // NULL_STUB and increment typed_data->attr_count.
@@ -1948,10 +1948,10 @@ min::position BRA::parse_bracketed_subexpression
 			                 ->type
 			          != LEXSTD::mark_t )
 			    ::missing_error
-			        ( parser, next, "",
-				  min::pgen_quote
+			        ( parser, next, "`",
+				  min::pgen_never_quote
 				    ( tdata.type ),
-				  " at end of"
+				  "' at end of"
 				  " typed bracketed"
 				  " expression;"
 				  " inserted before" );
@@ -1988,12 +1988,12 @@ min::position BRA::parse_bracketed_subexpression
 		    if ( tdata.middle_count % 2 == 1 )
 		    {
 			missing_error
-			    ( parser, next, "",
-			      min::pgen_quote
+			    ( parser, next, "`",
+			      min::pgen_never_quote
 			          ( tdata.typed_opening
 				      ->typed_middle
 				      ->label ),
-			      "; inserted before" );
+			      "'; inserted before" );
 			if (    tdata.elements
 			     == min::NULL_STUB
 			     &&
@@ -2062,14 +2062,17 @@ min::position BRA::parse_bracketed_subexpression
 				    ( parser,
 				      next->previous
 				          ->position,
-				      "beginning type ",
-				      min::pgen_quote
+				      "beginning type"
+				      " `",
+				      min::
+				        pgen_never_quote
 				        ( tdata.type ),
-				      " != end type ",
-				      min::pgen_quote
+				      "' != end type `",
+				      min::
+				        pgen_never_quote
 				        ( next->previous
 					      ->value ),
-				      "; end type"
+				      "'; end type"
 				      " ignored"
 				    );
 				PAR::free
@@ -2145,12 +2148,12 @@ min::position BRA::parse_bracketed_subexpression
 		        PAR::parse_error
 			    ( parser, position,
 			      "missing closing"
-			      " bracket ",
-			      min::pgen_quote
+			      " bracket `",
+			      min::pgen_never_quote
 			          ( opening_bracket->
 			            closing_bracket->
 				        label ),
-			      " inserted just before"
+			      "' inserted just before"
 			      " here" );
 		    }
 		}

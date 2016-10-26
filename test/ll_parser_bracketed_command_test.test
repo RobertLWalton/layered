@@ -382,11 +382,11 @@ parser test ( ` ) ' )
 parser test ( ` ) ' )
               ^
 ======= END TEST
-ERROR: in line 90: missing closing bracket "'" inserted just before
+ERROR: in line 90: missing closing bracket `'' inserted just before
        here:
 )
 ^
-ERROR: in line 90: missing closing bracket ")" inserted just before
+ERROR: in line 90: missing closing bracket `)' inserted just before
        here:
 )
 ^
@@ -620,7 +620,7 @@ parser test:
             goodbye ) there
             ^^^^^^^
 ======= END TEST
-ERROR: in line 142: missing closing bracket ")" inserted just before
+ERROR: in line 142: missing closing bracket `)' inserted just before
        here:
         ) end
         ^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 00:50:28 EDT 2016
+// Date:	Wed Oct 26 02:41:19 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2124,18 +2124,19 @@ min::position BRA::parse_bracketed_subexpression
 		        position.end =
 			    tdata.end_position;
 
-		    if ( next->value != min::MISSING() )
+		    if ( min::is_name ( next->value ) )
 		        PAR::parse_error
 			    ( parser, next->position,
 			      "missing closing"
-			      " bracket ",
-			      min::pgen_quote
+			      " bracket `",
+			      min::pgen_never_quote
 			          ( opening_bracket->
 			            closing_bracket->
 				        label ),
-			      " inserted before ",
-			      min::pgen_quote
-			          ( next->value ) );
+			      "' inserted before `",
+			      min::pgen_never_quote
+			          ( next->value ),
+			      "'" );
 		    else
 		    {
 			min::phrase_position position =

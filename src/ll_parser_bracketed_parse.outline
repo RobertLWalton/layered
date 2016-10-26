@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 12:27:57 EDT 2016
+// Date:	Wed Oct 26 01:58:57 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -377,9 +377,11 @@
 //		  // tdata.subtype is set to TYPED_
 //		  // ATTR_SEP instead.
 //
-//	          if tdata.subtype == TYPED_OPENING and
-//	             subexpression is not empty, collect
-//	             subexpression into a single token
+//	          if tdata.subtype == TYPED_OPENING or
+//	             TYPED_MIDDLE, and there are sub-
+//	             expression tokens after the TYPED_
+//	             OPENING or TYPED_MIDDLE, collect
+//	             these tokens into a single token
 //	             with label value and token type =
 //	             TYPE
 //
@@ -388,11 +390,19 @@
 //
 //	               if subexpression end type label
 //	                  is empty, print error message
-//	               else make end type label, check
-//	                    if it matches beginning type
-//	                    label, and if not print
-//	                    error message, but in any
-//	                    case delete end type label
+//	               else make end TYPE token from
+//	                    label and:
+//	                 if there is no beginning
+//	                    type, move end TYPE token
+//	                    to before elements if any
+//	                 else if end TYPE token matches
+//	                    beginning type, delete
+//	                    end TYPE token
+//	                 else announce type mismatch
+//	                      error indicating end type
+//	                      ignored and delete end
+//	                      type
+//
 //		  else finish any unfinished attribute
 //		       at end of subexpression and move
 //		       any attributes after elements to

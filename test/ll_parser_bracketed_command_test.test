@@ -368,7 +368,7 @@ parser test ( ```
 ''' )
 ^^^
 ======= END TEST
-ERROR: in line 88: missing closing bracket "'" inserted before ")":
+ERROR: in line 88: missing closing bracket `'' inserted before `)':
 parser test ( ` ) ' )
                 ^
 ======= TEST: parser test (`') "'" ")"

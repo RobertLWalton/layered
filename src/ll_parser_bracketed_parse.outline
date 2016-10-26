@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 01:58:57 EDT 2016
+// Date:	Wed Oct 26 07:18:43 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -412,7 +412,7 @@
 //             top of closing stack, or logical line
 //             end was found, print error message and
 //             adjust end of subexpression to just
-//             before any found closing
+//             before any non-matching found closing
 //          else remove closing bracket
 //
 //          remove opening bracket

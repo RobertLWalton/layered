@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 02:33:10 EDT 2016
+// Date:	Wed Oct 26 07:12:38 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -502,11 +502,15 @@ struct typed_data
     min::position end_position;
         // End position of typed bracketed subexpres-
 	// sion, or min::MISSING_POSITION if not
-	// determined yet.  Used to determine the end
-	// of a typed bracketed subexpression that
-	// is ended prematurely by the closing
-	// bracket of a containing expression, or
-	// the end of a logical line.
+	// determined yet.  Set to the end of a token
+	// that is being moved from the end of the
+	// subexpression to some previous place in the
+	// subexpression.  Also set to the end of a
+	// key that is about to be removed.  Used to
+	// determine the real end of a typed bracketed
+	// subexpression when that is ended prematurely
+	// by the closing bracket of a containing
+	// expression, or the end of a logical line.
     min::uns32 subtype;
         // Subtype of last key found.
     min::gen type;
@@ -910,10 +914,14 @@ struct bracket_stack
 	// then if first != next, these entries are the
 	// first token of the closing bracket that
 	// closed this entry, and the next token AFTER
-	// this bracket, but if first == next, the
+	// this bracket.  But if first == next, the
 	// closing bracket that terminated this entry
 	// was missing and should be inserted just
-	// before next.
+	// before next.  In this last case, where first
+	// and next are not NULL_STUB, then they are
+	// both the first token of the closing bracket
+	// that closed this entry (which does NOT match
+	// the entry opening bracket).
 	//
 	// Otherwise if prefix_type != MISSING, then if
 	// first != next, these entries are the single

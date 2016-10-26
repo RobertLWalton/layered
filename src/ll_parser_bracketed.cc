@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 06:53:10 EDT 2016
+// Date:	Wed Oct 26 07:19:28 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2118,6 +2118,16 @@ min::position BRA::parse_bracketed_subexpression
 			next = cstack.closing_next;
 		    position.end =
 			  next->previous->position.end;
+
+		    // Because tokens in a typed
+		    // bracketed subexpression have been
+		    // rearranged, the original next->
+		    // previous may have been moved or
+		    // removed, and so cannot be used
+		    // for the end position.  Tdata.end_
+		    // position records the true end of
+		    // the subexpression in this case.
+		    // 
 		    if ( subtype == BRA::TYPED_OPENING
 		         &&
 			 tdata.end_position

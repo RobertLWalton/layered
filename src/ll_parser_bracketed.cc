@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 02:26:24 EDT 2016
+// Date:	Wed Oct 26 00:50:28 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1060,8 +1060,36 @@ inline void make_type_label
     }
 }
 
+// Warn that `TYPE:' should be before first attribute.
+//
+static void type_warn 
+	( PAR::parser parser,
+	  BRA::typed_data * typed_data,
+	  PAR::token next )
+{
+    PAR::token start = typed_data->start_previous->next;
+    min::phrase_position pos =
+	{ start->position.begin,
+	  next->previous->position.end };
+    if ( start == next )
+	pos.end = next->position.begin;
+	// pos.begin already equals this in this
+	// case.
+    min::gen beg = typed_data->typed_opening
+		 ->typed_attr_begin->label;
+    PAR::parse_warn ( parser, pos,
+		      "`TYPE",
+		      min::pgen_never_quote ( beg ),
+		      "' should be before here" );
+}
+
 // Make attribute label.  Return true if label made and
 // false if no label made because its missing.
+//
+// Label may be followed by flags which are in bracketed
+// subexpression token just before `next'.  This token
+// is marked ATTR_FLAGS.  Attribute label token is marked
+// ATT_LABEL.
 //
 // If label made, set typed_data->attributes if that is
 // NULL_STUB and increment typed_data->attr_count.
@@ -1071,13 +1099,10 @@ inline bool make_attribute_label
 	  BRA::typed_data * typed_data,
 	  PAR::token next )
 {
+    min::uns32 subtype = typed_data->subtype;
     PAR::token start = typed_data->start_previous->next;
-    if ( start == next )
-    {
-	missing_error
-	    ( parser, next, "attribute label" );
-	return false;
-    }
+    if ( subtype == BRA::TYPED_OPENING )
+        type_warn ( parser, typed_data, next );
 
     if ( start == next )
     {
@@ -1115,6 +1140,7 @@ inline bool make_attribute_label
 // attribute or do not produce a new attribute.
 //
 // If typed_data indicates there are no attributes
+// (e.g., we are immediately after a typed middle)
 // do nothing.
 //
 inline void finish_attribute

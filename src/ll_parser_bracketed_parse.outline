@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 07:18:43 EDT 2016
+// Date:	Thu Oct 27 07:34:15 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -410,10 +410,20 @@
 //
 //          if closing was found that did not match
 //             top of closing stack, or logical line
-//             end was found, print error message and
-//             adjust end of subexpression to just
-//             before any non-matching found closing
-//          else remove closing bracket
+//             end was found:
+//                 print error message 
+//                 if non-matching closing was found,
+//                    adjust end of subexpression to
+//                    just before that closing
+//                 if subexpression is typed bracketed,
+//                    and end of subexpression found
+//                    above was before tdata.end_
+//                    position, set end of subexpression
+//                    to tdata.end_position
+//
+//          else remove closing bracket, setting end
+//               of subexpression to end of closing
+//               bracket
 //
 //          remove opening bracket
 //
@@ -424,10 +434,13 @@
 //                  requested by reformatter:
 //             compact subexpression with
 //                     new_selectors,
-//                     .initiator = key opening,
-//                     .terminator = key closing,
+//                     .initiator =
+//                         key opening bracket,
+//                     .terminator =
+//                         key closing bracket,
 //                     token type = BRACKETING,
-//                     token value_type = key opening
+//                     token value_type =
+//                         key opening bracket
 //
 //          else if key is typed opening:
 //              
@@ -446,7 +459,8 @@
 //                                tdata.has_mark_type
 //                                      is false,
 //                             else BRACKETING if .type
-//                             is the only attribute,
+//                             is the only attribute or
+//                             there are no attributes,
 //                             else BRACKETED
 //                       token value_type = .type
 //                             attribute value if token
@@ -455,6 +469,7 @@
 //
 //    		  delete tokens from which attributes
 //    		         were taken
+//
 //	    at_start = false
 //
 //          if closing bracket was found that did

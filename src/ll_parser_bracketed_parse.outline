@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 27 07:34:15 EDT 2016
+// Date:	Thu Oct 27 15:08:13 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -486,6 +486,8 @@
 //          close bracket stack entry that matches key
 //          close all higher stack entries indicating
 //            that their closing brackets were not found
+//            and their subexpressions terminated just
+//            before the first token of key
 //          return MISSING_POSITION
 //
 //       if key is selected indentation mark and

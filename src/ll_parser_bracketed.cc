@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 07:19:28 EDT 2016
+// Date:	Thu Oct 27 07:40:41 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2341,9 +2341,14 @@ min::position BRA::parse_bracketed_subexpression
 		    // their values are protected from
 		    // the garbage collector by compact.
 		    //
-		    if ( first_equals_elements )
-		        first = elements;
-		    else while ( first != elements )
+		    // Compact deletes the elements and
+		    // inserts a new token before `next'
+		    // containing the compacted sub-
+		    // expression, setting `elements'
+		    // to point at that token.
+		    //
+		    if ( ! first_equals_elements )
+		    do
 		    {
 		        first = first->next;
 			PAR::free
@@ -2351,8 +2356,9 @@ min::position BRA::parse_bracketed_subexpression
 				( first_ref(parser),
 				  first->previous ) );
 		    }
+		    while ( first != elements );
 
-		    value_type_ref(first) = type;
+		    value_type_ref(elements) = type;
 		}
 
 		// Come here after compacting.

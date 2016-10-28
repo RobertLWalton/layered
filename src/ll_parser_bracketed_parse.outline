@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 27 20:25:26 EDT 2016
+// Date:	Fri Oct 28 04:08:51 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,7 +18,8 @@
 // a complex function and verify its correctness.
 //
 // The outline omits tracing code, code to read more
-// input, and code to set .position attributes.
+// input, code to update typed_data->end_position, and
+// code to set .position attributes.
 //
 // IMPORTANT: This code assumes EVERY comment is
 // immediately followed by a line break or end of file.
@@ -418,8 +419,7 @@
 //                 if subexpression is typed bracketed,
 //                    and end of subexpression found
 //                    above was before tdata.end_
-//                    position, set end of subexpression
-//                    to tdata.end_position
+//                    position
 //
 //          else remove closing bracket, setting end
 //               of subexpression to end of closing
@@ -509,7 +509,7 @@
 //              nent of a non-NULL typed_data argument
 //              and typed_data->has_mark_type is false:
 //
-//          remove typed middle key
+//          remove typed middle or double middle key
 //
 //          if typed_data->middle_count is even:
 //             if there is no previous typed key after
@@ -518,7 +518,9 @@
 //                opening and the typed middle, make
 //                these tokens into a label and replace
 //                them with a TYPE token having the
-//                label as token value
+//                label as token value; if TYPE token is
+//                after elements, move it to before
+//                elements
 //	       else if there is some key in the subex-
 //	            pression after the typed opening,
 //	            finish any unfinished attribute just
@@ -536,7 +538,7 @@
 //
 //          ++ typed_data->middle_count
 //
-//          if key was TYPED_DOUBLE_MIDDLE:
+//          if key was typed double middle
 //              ++ typed_data->middle_count
 //              iterate top level loop
 //
@@ -558,22 +560,26 @@
 //              is even, and typed_data->has_mark_type
 //              is false:
 //
-//          if there is no previous typed key in the
-//             subexpression and there are tokens
-//             between the typed opening and the typed
-//             attribute begin, make these tokens into a
-//             label and replace them with a TYPE token
-//             having the label as token value; then
-//             remove the typed attribute begin key
+//          if there is no previous typed key after the
+//             typed opening in the subexpression and
+//             there are tokens between the typed
+//             opening and the typed attribute begin,
+//             make these tokens into a label and
+//             replace them with a TYPE token having
+//             the label as token value; then remove the
+//             typed attribute begin key and set typed_
+//             data->subtype = TYPED_ATTR_SEP; then
+//             iterate top level loop
 //
 //	     else if typed_data->middle_count > 0 and
 //	          there are tokens between the previous
 //	          typed middle and the typed attribute
-//	          begin, finish any unfinished attribute
-//	          just before the typed attribute begin
-//	          and move any attributes after elements
-//	          to just before elements; then remove
-//	          the typed attribute begin key
+//	          begin, remove the typed attribute
+//	          begin key, finish any unfinished
+//	          attribute just before the typed attri-
+//	          bute begin, and move any attributes
+//	          after elements to just before ele-
+//	          ments; then iterate to top level loop
 //
 //	     else announce typed attribute begin to be a
 //	          a punctuation error that is ignored,
@@ -596,7 +602,15 @@
 //             flags, and replace them with an ATTR_
 //             LABEL token optionally followed by an
 //             ATTR_FLAGS token; then remove the typed
-//             attribute equal key
+//             attribute equal key and iterate to top
+//             level loop
+//
+//           else if there is no previous typed key in
+//                the subexpression after the typed
+//                opening, and there are tokens between
+//                the typed opening and the typed attri-
+//                bute equal, do ditto, but also issue a
+//                warning that the type is missing
 //
 //	     else announce typed attribute equal to be a
 //	          a punctuation error that is ignored,
@@ -614,8 +628,17 @@
 //             attribute separator, or typed attribute
 //             equal, or typed attribute negator, finish
 //	       any unfinished attribute just before the
-//	       typed attribute separator and remove the
-//	       typed attribute separator key
+//	       typed attribute separator, remove the
+//	       typed attribute separator key, and
+//	       iterate to top level loop
+//
+//           else if there is no previous typed key in
+//                the subexpression after the typed
+//                opening, and there are tokens between
+//                the typed opening and the typed attri-
+//                bute separator, do ditto, but also
+//                issue a warning that the type is
+//                missing
 //
 //	     else announce typed attribute separator to
 //	          be a a punctuation error that is
@@ -633,12 +656,22 @@
 //             typed attribute separator, and there are
 //             NO tokens between this previous key and
 //             the typed attribute negator, remove the
-//             typed attribute negator
+//             typed attribute negator, set typed_data->
+//             subtype = TYPED_ATTR_NEGATOR, and iterate
+//             to top level loop
 //
-//	     else announce typed attribute negator to
-//	          be a a punctuation error that is
-//	          ignored, and remove it
+//           else if there is no previous typed key in
+//                the subexpression after the typed
+//                opening, and there are NO tokens
+//                between the typed opening and the
+//                typed attribute negator, do ditto,
+//                but also issue a warning that the type
+//                is missing
+//
+//	     else do nothing (key will be rejected)
 //
 //       // reject key
 //       //
-//       iterate loop to refine key
+//       iterate loop to refine key by checking if there
+//               is a shorter key or accepting token
+//               as a non-key if no key found

@@ -9,8 +9,9 @@
 \usepackage[T1]{fontenc}
 \usepackage{times}
 \usepackage{makeidx}
-\usepackage{pictex}
-\usepackage{upquote}
+% \usepackage{pictex} (obsolete? not available under CentOS 7)
+\usepackage{upquote} % (imported to local directory
+                     % ; not available under CentOS 7)
     % Modifies \verb and \verbatim to print ' with
     % the Computer Modern Typewrite font.
     % Also includes the textcomp package.
@@ -231,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 16, 2016
+October 29, 2016
  
 \end{center}
 
@@ -1903,9 +1904,9 @@ The `\TT{goto}', `\TT{call}', and `\TT{return}' instruction components
 \section{Parsing}
 
 The layered languages parser attempts to promote human efficiency
-both by standardizing many aspects of syntax and my permitting
+both by standardizing many aspects of syntax and by permitting
 substantial additions to syntax.  Humans reason
-syntactically, and therefore new types of data and algorithm often
+syntactically, and therefore new types of data and algorithm
 need to be supported by new syntax.  But this new syntax needs to
 integrate with the old syntax, so the goal of the parser is to make
 possible syntactic additions that integrate well with existing syntax.

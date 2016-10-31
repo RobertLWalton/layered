@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 29, 2016
+October 31, 2016
  
 \end{center}
 
@@ -4302,8 +4302,55 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
-\subsubsection{Paragraph and Line Headers}
-\label{PARAGRAPH-AND-LINE-HEADERS}
+\subsubsection{Prefix Definitions}
+\label{PREFIX-DEFINITIONS}
+
+Unlike brackets and indentation marks, prefixes types do {\bf not}
+have to be defined in order to be used.  But a prefix type can be defined
+so that it has special effects on parsing.  For this purpose
+a `\key{prefix type}' is referred to as just a `\key{prefix}'.
+
+The general syntax of {\em parser-prefix-commands} is:
+
+\begin{indpar}
+\emkey{parser-prefix-command}%
+\label{PARSER-PREFIX-COMMAND}
+\\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{parser}%
+          \ttindex{parser define prefix}%
+	  \ttindex{previx!parser define}
+	  \begin{tabular}[t]{@{}l@{}}
+	  \TT{define prefix} {\em prefix-name} \\
+	  {\em parsing-selectors} \\
+	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
+	  {}[ \TT{with prefix level} {\em prefix-level} ] \\
+	  {}[ \TT{with implied subprefix} {\em prefix-name} ] \\
+	  {}[ \TT{with end at options} {\em end-at-options} ] \\
+	  {}[ \TT{with lexical master} {\em lexical-master} ] \\
+	  \end{tabular} \\
+    $|$ & \ttikey{parser undefine prefix}{prefix!parser undefine}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\em prefix-name} \\
+	  {\em parsing-selectors} \\
+	  \end{tabular} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{prefix-name} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{prefix-level} ::= {\em unsigned-integer}
+\\[0.5ex]
+\emkey{lexical-master} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{end-at-options} ::= {\em parser-flag-spec}
+	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+
+\label{PREFIX-DEFINITIONS}
+\end{indpar}
+
+\subsubsection{Implicit and Lexical Prefixes}
+\label{IMPLICIT-AND-LEXICAL-PREFIXES}
 
 A \key{paragraph header} is a prefix separator that begins
 an unindented paragraph.  A \key{line header} is a prefix

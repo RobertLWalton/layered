@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 31, 2016
+November 1, 2016
  
 \end{center}
 
@@ -4305,10 +4305,10 @@ is just alternate syntax for
 \subsubsection{Prefix Definitions}
 \label{PREFIX-DEFINITIONS}
 
-Unlike brackets and indentation marks, prefixes types do {\bf not}
-have to be defined in order to be used.  But a prefix type can be defined
-so that it has special effects on parsing.  For this purpose
-a `\key{prefix type}' is referred to as just a `\key{prefix}'.
+Unlike brackets and indentation marks, prefix separator types do {\bf not}
+have to be defined in order to be used.  But a prefix separator type
+can be defined so that it has special effects on parsing.  For this purpose
+a `\key{prefix separator type}' is referred to as just a `\key{prefix}'.
 
 The general syntax of {\em parser-prefix-commands} is:
 
@@ -4325,8 +4325,8 @@ The general syntax of {\em parser-prefix-commands} is:
 	  \TT{define prefix} {\em prefix-name} \\
 	  {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
-	  {}[ \TT{with prefix level} {\em prefix-level} ] \\
-	  {}[ \TT{with implied subprefix} {\em prefix-name} ] \\
+	  {}[ \TT{with group} {\em prefix-separator-group} ] \\
+	  {}[ \TT{with implied subprefix} {\em typed-prefix-separator} ] \\
 	  {}[ \TT{with end at options} {\em end-at-options} ] \\
 	  {}[ \TT{with lexical master} {\em lexical-master} ] \\
 	  \end{tabular} \\
@@ -4339,7 +4339,7 @@ The general syntax of {\em parser-prefix-commands} is:
 \\[0.5ex]
 \emkey{prefix-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{prefix-level} ::= {\em unsigned-integer}
+\emkey{prefix-separator-group} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{lexical-master} ::= {\em quoted-name}
 \\[0.5ex]

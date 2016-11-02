@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 1, 2016
+November 2, 2016
  
 \end{center}
 
@@ -4218,7 +4218,7 @@ Some examples are:
 The general syntax of a typed prefix separator is:
 
 \begin{indpar}[0.1in]
-\emkey{typed-prefix-separator}
+\emkey{typed-prefix-separator}\label{TYPED-PREFIX-SEPARATOR}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em typed-opening}~~~{\em type-label}~~~%
           {\em opening-attributes}\QMARK{}~~~{\em typed-closing} \\
@@ -4274,7 +4274,7 @@ The {\em prefix-0-list} in this example is equivalent to:
 The general syntax of a prefix-n list is:
 
 \begin{indpar}[0.1in]
-\emkey{prefix-n-list}
+\emkey{prefix-n-list}\label{PREFIX-N-LIST}
     \begin{tabular}[t]{@{}rl}
     ::= & \{ {\em prefix-n} {\em prefix-(n+1)-list} \}\PLUS{} \\
     $|$ & {\em simple-element-list} \\
@@ -4286,7 +4286,8 @@ The general syntax of a prefix-n list is:
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
       All the {\em prefix-n}'s in a given {\em prefix-n-list} must
-      have the same type (i.e., \TT{.type} attribute).
+      have the same type (i.e., \TT{.type} attribute), or
+      same prefix group (see \pagref{PREFIX-GROUP}).
       \end{minipage}
 \end{indpar}
 
@@ -4325,8 +4326,8 @@ The general syntax of {\em parser-prefix-commands} is:
 	  \TT{define prefix} {\em prefix-name} \\
 	  {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
-	  {}[ \TT{with group} {\em prefix-separator-group} ] \\
-	  {}[ \TT{with implied subprefix} {\em typed-prefix-separator} ] \\
+	  {}[ \TT{with group} {\em prefix-group} ] \\
+	  {}[ \TT{with implied subprefix} {\em implied-subprefix} ] \\
 	  {}[ \TT{with end at options} {\em end-at-options} ] \\
 	  {}[ \TT{with lexical master} {\em lexical-master} ] \\
 	  \end{tabular} \\
@@ -4339,18 +4340,57 @@ The general syntax of {\em parser-prefix-commands} is:
 \\[0.5ex]
 \emkey{prefix-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{prefix-separator-group} ::= {\em quoted-name}
+\emkey{prefix-group} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{implied-subprefix} ::= {\em typed-prefix-separator}
+				~~~~~ [see \pagref{TYPED-PREFIX-SEPARATOR}]
 \\[0.5ex]
 \emkey{lexical-master} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 
-\label{PREFIX-DEFINITIONS}
 \end{indpar}
 
-\subsubsection{Implicit and Lexical Prefixes}
-\label{IMPLICIT-AND-LEXICAL-PREFIXES}
+The components special to this definition are:
+
+\begin{indpar}[0.4in]
+
+\hspace*{-0.2in}\ttkey{prefix-group}\label{PREFIX-GROUP}\\
+If the \TT{.type} attribute of a prefix has a prefix definition
+with a non-missing {\em prefix-group}, the {\em prefix-group} is
+said to be the group of the prefix.  Prefixes whose \TT{.type}
+has no prefix definition, or whose prefix definition has a
+missing {\em prefix-group}, are said to have no group.
+
+In an expression of the form:
+\begin{center}
+\{ {\em prefix-n} {\em prefix-(n+1)-list} \}\PLUS{}
+\end{center}
+the {\em prefix-n}'s do not have to all have the same \TT{.type}
+attribute if they all have the same group (which implies that
+they all have some group).
+
+The groups `\TT{paragraph}' and `\TT{line}' are special:
+see \itemref{PARAGRAPH-AND-LINE-HEADERS}.
+\\[2ex]
+\hspace*{-0.2in}\ttkey{implied-prefix}\\
+If a prefix has a type with a prefix type definition that has
+a non-missing {\em implied-prefix}, a copy of the {\em implied-prefix}
+is inserted after the prefix, unless the first thing after the
+prefix is a prefix with the same \TT{.type} attribute or group as the
+{\em implied-prefix}.
+\\[2ex]
+\hspace*{-0.2in}\ttkey{lexical-master}\\
+    TBD
+\\[2ex]
+\hspace*{-0.2in}\ttkey{at-end-options}\\
+    TBD
+
+\end{indpar}
+
+\subsubsection{Paragraph and Line Headers}
+\label{PARAGRAPH-AND-LINE-HEADERS}
 
 A \key{paragraph header} is a prefix separator that begins
 an unindented paragraph.  A \key{line header} is a prefix

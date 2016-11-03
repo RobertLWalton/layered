@@ -4327,9 +4327,9 @@ The general syntax of {\em parser-prefix-commands} is:
 	  {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  {}[ \TT{with group} {\em prefix-group} ] \\
-	  {}[ \TT{with implied subprefix} {\em implied-subprefix} ] \\
-	  {}[ \TT{with end at options} {\em end-at-options} ] \\
+	  {}[ \TT{with implied subprefix} {\em implied-prefix} ] \\
 	  {}[ \TT{with lexical master} {\em lexical-master} ] \\
+	  {}[ \TT{with end at options} {\em end-at-options} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine prefix}{prefix!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -4342,7 +4342,7 @@ The general syntax of {\em parser-prefix-commands} is:
 \\[0.5ex]
 \emkey{prefix-group} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{implied-subprefix} ::= {\em typed-prefix-separator}
+\emkey{implied-prefix} ::= {\em typed-prefix-separator}\label{IMPLIED-PREFIX}
 				~~~~~ [see \pagref{TYPED-PREFIX-SEPARATOR}]
 \\[0.5ex]
 \emkey{lexical-master} ::= {\em quoted-name}
@@ -4356,7 +4356,7 @@ The components special to this definition are:
 
 \begin{indpar}[0.4in]
 
-\hspace*{-0.2in}\ttkey{prefix-group}\label{PREFIX-GROUP}\\
+\hspace*{-0.2in}\ttmkey{group}{in prefix definition}\label{PREFIX-GROUP}\\
 If the \TT{.type} attribute of a prefix has a prefix definition
 with a non-missing {\em prefix-group}, the {\em prefix-group} is
 said to be the group of the prefix.  Prefixes whose \TT{.type}
@@ -4374,20 +4374,20 @@ they all have some group).
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{PARAGRAPH-AND-LINE-HEADERS}.
 \\[2ex]
-\hspace*{-0.2in}\ttkey{implied-prefix}\\
+\hspace*{-0.2in}\ttmkey{implied subprefix}{in prefix definition}\\
 If a prefix has a type with a prefix type definition that has
 a non-missing {\em implied-prefix}, a copy of the {\em implied-prefix}
 is inserted after the prefix, unless the first thing after the
 prefix is a prefix with the same \TT{.type} attribute or group as the
 {\em implied-prefix}.
 \\[2ex]
-\hspace*{-0.2in}\ttkey{lexical-master}\\
+\hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
 If the prefix group is `\TT{paragraph}' or `\TT{line}', this parameter
 may be used to set the lexical master, which determines how lexemes
 are scanned, at the beginning of a logical
 line.  See \itemref{PARAGRAPH-AND-LINE-HEADERS}.
 \\[2ex]
-\hspace*{-0.2in}\ttkey{at-end-options}\\
+\hspace*{-0.2in}\ttmkey{at end options}{in prefix definition}\\
 If the prefix group is `\TT{paragraph}' or `\TT{line}', this parameter
 may be used to set the at-end options, which determine when a logical
 line ends, at the beginning of a logical
@@ -4501,10 +4501,36 @@ a blank line and that follows a logical line.
 Here a \key{comment line} is a line that contains nothing
 but a single comment.
 
-At the beginning of each logical line, the lexical scanner master table
-index is reset to the value of a context variable as described below.
-The lexical scanner may then produce two special types of lexeme at
-the beginning of the logical line:
+A logical line in paragrph beginning position may begin with a
+typed prefix separator that has the `\TT{paragraph}' group.
+This is called the paragraph header of the paragraph the logical
+line begins, and may be followed by a typed prefix separator that has
+the `\TT{line}' group, which will be the line header of the logical
+line.
+
+Any logical line may begin with a typed prefix separator that
+has the `\TT{line}' group, which will be the line header of that logical line.
+
+Paragraph headers and line headers may also be
+specified by special header lexemes.  A `\key{header lexeme}' is a
+special lexeme that is mapped by a {\em header-lexeme-definition}
+to a {\em typed-prefix-separator}, a copy of which replaces the
+header lexeme in the input.
+
+The parse context includes an `\mkey{implied header}{in parser context}'
+that may be missing or may be an {\em implied-prefix}
+(see \pagref{IMPLIED-PREFIX}).  If not missing, it (i.e., its prefix type
+definition) must have either the `\TT{paragraph}' or `\TT{line}' group.
+If the parser implied header has `\TT{paragraph}' group, it is
+called the parser `\mkey{implied paragraph header}{of parser}',
+and if its prefix type has a defined implicit subprefix, that must have
+the `\TT{line}' group and is called the parser
+`\mkey{implied line header}{of parser}'.  Otherwise if the implied header
+has `\TT{line}' group, then it is the implied line header, and
+the implied paragraph header is said to be missing.
+
+Each logical line begins the a line indent token.  When this is read,
+the lexical scanner master table index is reset as follows:
 
 \begin{center}
 \begin{tabular}{l}

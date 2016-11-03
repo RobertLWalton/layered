@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 2, 2016
+November 3, 2016
  
 \end{center}
 
@@ -4382,10 +4382,16 @@ prefix is a prefix with the same \TT{.type} attribute or group as the
 {\em implied-prefix}.
 \\[2ex]
 \hspace*{-0.2in}\ttkey{lexical-master}\\
-    TBD
+If the prefix group is `\TT{paragraph}' or `\TT{line}', this parameter
+may be used to set the lexical master, which determines how lexemes
+are scanned, at the beginning of a logical
+line.  See \itemref{PARAGRAPH-AND-LINE-HEADERS}.
 \\[2ex]
 \hspace*{-0.2in}\ttkey{at-end-options}\\
-    TBD
+If the prefix group is `\TT{paragraph}' or `\TT{line}', this parameter
+may be used to set the at-end options, which determine when a logical
+line ends, at the beginning of a logical
+line.  See \itemref{PARAGRAPH-AND-LINE-HEADERS}.
 
 \end{indpar}
 
@@ -4445,13 +4451,16 @@ All this assumes there are appropriate entries in the parser's
 header table for `\TT{itemize}', `\TT{item}', `\TT{table}',
 `\TT{line}', and `\TT{row}', and that the lexical scanner has
 been programmed to produce special header lexemes in certain
-contexts.  To be specific about the latter, the scanner at top level must
-produce header lexemes labeled `\TT{table}' and `\TT{line}' upon
-seeing `\TT{====}' at the beginning of logical line following
-a blank line, and then for the remaining logical lines within this
-`\TT{table}' unindented paragraph, produce a header lexeme labeled
-`\TT{row}' for lines beginning with `\TT{|}' and a header lexeme
-labeled `\TT{line}' for lines beginning with `\TT{-}' or `\TT{=}'.
+contexts.  To be specific about the latter, the lexical scanner
+at top level, upon seeing `\TT{====}' at the beginning of logical
+line following a blank line,
+must produce a header lexeme that maps
+to the headers `\TT{table}' and `\TT{line}'.
+Then for the remaining logical lines within this
+`\TT{table}' unindented paragraph, the scanner must
+produce header lexemes that map to
+`\TT{row}' for lines beginning with `\TT{|}' and
+`\TT{line}' for lines beginning with `\TT{-}' or `\TT{=}'.
 
 The above example might be used to generate the output:
 

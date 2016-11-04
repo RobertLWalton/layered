@@ -4582,23 +4582,54 @@ a blank line and that follows a logical line.
 Here a \key{comment line} is a line that contains nothing
 but a single comment.
 
-A logical line in paragrph beginning position may begin with a
+A logical line in paragraph beginning position may begin with a
 typed prefix separator that has the `\TT{paragraph}' group.
-This is called the paragraph header of the paragraph the logical
+This is called the \key{paragraph header} of the paragraph the logical
 line begins, and may be followed by a typed prefix separator that has
-the `\TT{line}' group, which will be the line header of the logical
+the `\TT{line}' group, which will be the \key{line header} of the logical
 line.
 
 Any logical line may begin with a typed prefix separator that
-has the `\TT{line}' group, which will be the line header of that logical line.
+has the `\TT{line}' group, which will be the \key{line header}
+of that logical line.
 
 Paragraph headers and line headers may also be
-specified by special header lexemes.  A `\key{header lexeme}' is a
-special lexeme that is mapped by a {\em header-lexeme-definition}
-to a {\em typed-prefix-separator}, a copy of which replaces the
-header lexeme in the input.
+specified by prefix lexemes or implicitly
+by an `\mkey{implied paragraph header}{in parser context}'
+and an `\mkey{implied line header}{in parser context} that
+are part of the parser context.
 
-The parse context includes an `\mkey{implied header}{in parser context}'
+When an indentation mark is recognized, it sets the implied
+paragraph header to a {\em typed-prefix-separator} or to the
+missing value.  Whenever
+the implied paragraph header is set, the implied line header
+is set to the \TT{implied subprefix} parameter of the implied
+paragraph header, which may be missing, or to the missing value
+if the implied paragraph header is set to missing.
+
+It is in error if the implied paragraph header is set to a
+{\em typed-prefix-separator} which is not in the `\TT{paragraph}'
+group.  Similarly, it is in error if the implied line header is set to a
+{\em typed-prefix-separator} which is not in the `\TT{line}' group.
+
+If the first thing after the indent token of a logical line
+in paragraph beginning position is not a {\em typed-prefix-separator}
+with `\TT{paragraph}' group, or a {\em prefix-lexeme} that is replaced
+by such, then a copy of the implied paragraph header is inserted just
+after the indent token, unless the implied paragraph header is missing.
+
+If the first thing after a paragraph header (either explicit, a
+{\em prefix-lexeme} replacement, or a copy of the implicit paragraph
+header) is not a {\em typed-prefix-separator}
+with `\TT{line}' group, or a {\em prefix-lexeme} that is replaced
+by such, then a copy of the implied line header is inserted just
+after the paragraph header, unless the implied line header is missing.
+Similarly for the first thing after the indent token that begins
+a logical line \underline{not} in paragraph beginning position.
+
+TBD
+
+The parse context includes an `\mkey{implied header}'
 that may be missing or may be an {\em implied-prefix}
 (see \pagref{IMPLIED-PREFIX}).  If not missing, it (i.e., its prefix type
 definition) must have either the `\TT{paragraph}' or `\TT{line}' group.

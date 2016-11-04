@@ -2573,7 +2573,7 @@ and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
-\emkey{parser-flag-list}
+\emkey{parser-flag-list}\label{PARSER-FLAG-LIST}
     ::= \TT{[ ]}  $|$ \TT{[} {\em parser-flag}
           \{ \TT{,} {\em parser-flag} \}\,\STAR{} \TT{]}
 \\[0.0ex]
@@ -4329,7 +4329,7 @@ The general syntax of {\em parser-prefix-commands} is:
 	  {}[ \TT{with group} {\em prefix-group} ] \\
 	  {}[ \TT{with implied subprefix} {\em implied-prefix} ] \\
 	  {}[ \TT{with lexical master} {\em lexical-master} ] \\
-	  {}[ \TT{with end at options} {\em end-at-options} ] \\
+	  {}[ \TT{with options} {\em prefix-options} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine prefix}{prefix!parser undefine}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -4347,14 +4347,32 @@ The general syntax of {\em parser-prefix-commands} is:
 \\[0.5ex]
 \emkey{lexical-master} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{end-at-options} ::= {\em parser-flag-spec}
-	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+\emkey{prefix-options}
+    \begin{tabular}[t]{rl}
+    ::= & {\em parser-flag-list} ~~~~~ [see \pagref{PARSER-FLAG-LIST}] \\
+    ::= & \TT{[} {\em prefix-option} \{ \TT{,} {\em prefix-option} \TT{]}
+    \end{tabular}
+\\[0.5ex]
+\emkey{prefix-option}
+    \begin{tabular}[t]{rl@{~~~~~}l}
+    ::= & {\em end-at-option}   & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
+    $|$ & \TT{only once}
+    \end{tabular}
 
 \end{indpar}
 
 The components special to this definition are:
 
 \begin{indpar}[0.4in]
+
+\hspace*{-0.2in}\ttmkey{parsing selectors}{in prefix definition}\\
+The elements of the {\em prefix-(n+1)-list} following a {\em prefix-n}
+are parsed using the parsing selectors as they were at the beginning
+of the containing {\em prefix-n-list} as modified by any \TT{parsing selectors}
+found in a prefix definition of the type of the {\em prefix-n}.  These modified
+selectors are also used to parse any subsequent {\em prefix-n} in the list
+(and so the modifications should the chosen so they do not affect parsing of
+prefixes).
 
 \hspace*{-0.2in}\ttmkey{group}{in prefix definition}\label{PREFIX-GROUP}\\
 If the \TT{.type} attribute of a prefix has a prefix definition
@@ -4382,17 +4400,51 @@ prefix is a prefix with the same \TT{.type} attribute or group as the
 {\em implied-prefix}.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
-If the prefix group is `\TT{paragraph}' or `\TT{line}', this parameter
-may be used to set the lexical master, which determines how lexemes
-are scanned, at the beginning of a logical
-line.  See \itemref{PARAGRAPH-AND-LINE-HEADERS}.
-\\[2ex]
-\hspace*{-0.2in}\ttmkey{at end options}{in prefix definition}\\
-If the prefix group is `\TT{paragraph}' or `\TT{line}', this parameter
-may be used to set the at-end options, which determine when a logical
-line ends, at the beginning of a logical
-line.  See \itemref{PARAGRAPH-AND-LINE-HEADERS}.
+If a prefix is a substitution for a {\em prefix-lexeme}
+(see \pagref{PREFIX-LEXEME}), the lexical master,
+which determines how lexemes are scanned, will be reset to this
+value immediately after the {\em prefix-lexeme}, unless this
+value is missing, in which case the lexical master will be reset
+to its value at the beginning of the containing logical line.
 
+For an implied paragraph or line header, this parameter is used to
+set the lexical master immediatly after the indent lexeme
+that begins a logical line.  See \pagref{LEXICAL-MASTER-FOR-LOGICAL-LINE}.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{options}{in prefix definition}\\
+If a prefix with this type is a paragraph or line header, the `end-at'
+options (see \pagref{PARSING-END-AT-OPTIONS-1}) in this parameter are
+used to determine when a logical line ends.
+See \itemref{PARAGRAPH-AND-LINE-HEADERS}.
+
+The `\TT{only once}' option, if set for the type of a paragraph or line
+header prefix, prevents the prefix from becoming the implicit paragraph
+or line header (which would then be implied for subsequent paragraphs
+or lines that had not explicit header prefix of their own).
+
+\end{indpar}
+
+A `\emkey{prefix-lexeme}' is a special kind of lexeme that can be
+mapped to a {\em typed-prefix-separator} by the following
+parser commands:
+
+\begin{indpar}[0.1in]
+\emkey{parser-prefix-lexeme-command}%
+\label{PARSER-PREFIX-LEXEME-COMMAND} \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttikey{parser define}{define prefix lexeme}
+	  \ttikey{prefix lexeme}{parser define}
+	  {\em prefix-lexeme-name} \TT{as} {\em typed-prefix-separator} \\
+    $|$ & \ttikey{parser undefine}{undefine prefix lexeme}
+	  \ttikey{prefix lexeme}{parser undefine}
+	  {\em lexeme-name}
+    \end{tabular}
+\label{PREFIX-LEXEME-DEFINITION}
+\\[0.5ex]
+\emkey{prefix-lexeme-name} ::= {\em quoted-name}
+\\[0.5ex]
+{\em typed-prefix-separator} ::= see \pagref{TYPED-PREFIX-SEPARATOR}
 \end{indpar}
 
 \subsubsection{Paragraph and Line Headers}

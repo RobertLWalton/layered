@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 4, 2016
+November 5, 2016
  
 \end{center}
 
@@ -4356,7 +4356,6 @@ The general syntax of {\em parser-prefix-commands} is:
 \emkey{prefix-option}
     \begin{tabular}[t]{rl@{~~~~~}l}
     ::= & {\em end-at-option}   & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
-    $|$ & \TT{only once}
     \end{tabular}
 
 \end{indpar}
@@ -4417,12 +4416,6 @@ parameter, if set for the type of a paragraph or line header prefix,
 determine when a logical line ends.
 See \pagref{PREFIX-HEADER-END-AT-OPTIONS}.
 
-The `\TT{only once}' option, if set for the type of a paragraph or line
-header prefix, prevents the prefix from becoming the implicit paragraph
-or line header (which would then be implied for subsequent paragraphs
-or lines that had no explicit header prefix of their own).
-See \pagref{PREFIX-HEADER-ONLY-ONCE-OPTION}.
-
 \end{indpar}
 
 A {\em typed-prefix-separator} can appear in or be inserted in
@@ -4437,7 +4430,8 @@ copies of implicit typed prefix separators, e.g., `\TT{implicit subprefix}'es
 \end{tabular}
 \end{center}
 
-A `\emkey{prefix-lexeme}' is a special kind of lexeme that can be
+A `\emkey{prefix-lexeme}'\label{PREFIX-LEXEME}
+is a special kind of lexeme that can be
 mapped to a {\em typed-prefix-separator} by the following
 parser commands:
 
@@ -4599,13 +4593,76 @@ by an `\mkey{implied paragraph header}{in parser context}'
 and an `\mkey{implied line header}{in parser context} that
 are part of the parser context.
 
-When an indentation mark is recognized, it sets the implied
-paragraph header to a {\em typed-prefix-separator} or to the
-missing value.  Whenever
-the implied paragraph header is set, the implied line header
-is set to the \TT{implied subprefix} parameter of the implied
-paragraph header, which may be missing, or to the missing value
-if the implied paragraph header is set to missing.
+While parsing an indented paragraph, the parser maintains the
+following `\skey{line variable}s'\label{LINE-VARIABLES}:
+
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttmkey{implied paragraph header}{line variable}\\
+    If this value is not missing and no explicit paragraph header
+    is found at the beginning of a logical line in
+    paragraph beginning position, a copy of this
+    implied paragraph header variable is inserted.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{line header}{line variable}\\
+    If this value is not missing and no explicit line header
+    is found after a paragraph header or at the beginning of
+    a logical line \underline{not} in
+    paragraph beginning position, a copy of this
+    implied line header variable is inserted.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
+    The parsing selectors are reset to this value just after the
+    indent that begins a logical in paragraph beginning position.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{line selectors}{line variable}\\
+    The parsing selectors are reset to this value just after the
+    indent that begins a logical \underline{not}
+    in paragraph beginning position.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
+    The parsing options are reset to this value just after the
+    indent that begins a logical in paragraph beginning position.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{line options}{line variable}\\
+    The parsing options are reset to this value just after the
+    indent that begins a logical \underline{not}
+    in paragraph beginning position.
+\\[2ex]
+\hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
+    The lexical master is reset to this value just after the
+    indent that begins a logical in paragraph beginning position.
+\\[1ex]
+\hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
+    The lexical master is reset to this value just after the
+    indent that begins a logical \underline{not}
+    in paragraph beginning position.
+
+\end{indpar}
+
+When an indentation mark is recognized, it sets the above variables
+to values given in the definition of the indentation mark.
+
+Whenever an explicit (non-implied) paragraph header is recognized,
+the implied paragraph header is reset to a copy of the explicit
+paragraph header.   
+Whenever an explicit (non-implied) line header is recognized,
+the implied line header is reset to a copy of the explicit
+line header.   
+
+Whenever the implicit paragraph header is set, the implicit line
+header is set to the `\TT{implied subprefix}' of the new implicit
+paragraph header, which may be missing.  The paragraph selectors,
+options, and lexical master are then set according to values
+given by the new implied paragraph header.  However, if any of these
+values would be missing, they are reset to the values they were
+inititially given by the indentation mark that began the indented
+paragraph.
+
+Whenever the implicit line header is set, the line selectors,
+options, and lexical master are then set according to values
+given by the new implied line header.  However, if any of these
+values would be missing, they are reset to the values of the
+paragraph slectors, options, or lexical master.
 
 It is in error if the implied paragraph header is set to a
 {\em typed-prefix-separator} which is not in the `\TT{paragraph}'
@@ -4613,43 +4670,34 @@ group.  Similarly, it is in error if the implied line header is set to a
 {\em typed-prefix-separator} which is not in the `\TT{line}' group.
 
 If the first thing after the indent token of a logical line
-in paragraph beginning position is not a {\em typed-prefix-separator}
+in paragraph beginning position is a {\em typed-prefix-separator}
 with `\TT{paragraph}' group, or a {\em prefix-lexeme} that is replaced
-by such, then a copy of the implied paragraph header is inserted just
-after the indent token, unless the implied paragraph header is missing.
+by such, then the implied paragraph header is set to a copy of this
+{\em typed-prefix-separator}.
+Otherwise a copy of the implied paragraph
+header is inserted just after the indent token, unless the
+implied paragraph header is missing.
 
 If the first thing after a paragraph header (either explicit, a
 {\em prefix-lexeme} replacement, or a copy of the implicit paragraph
-header) is not a {\em typed-prefix-separator}
+header) is a {\em typed-prefix-separator}
 with `\TT{line}' group, or a {\em prefix-lexeme} that is replaced
-by such, then a copy of the implied line header is inserted just
+by such, then the implied line header is set to a copy of this
+{\em typed-prefix-separator}.  Otherwise
+a copy of the implied line header is inserted just
 after the paragraph header, unless the implied line header is missing.
 Similarly for the first thing after the indent token that begins
 a logical line \underline{not} in paragraph beginning position.
 
+When the indent beginning a logical line in paragraph beginning position
+is read, then the selectors, options, and lexical master are set to
+their line variable paragraph values.
+When the indent beginning a logical line \underline{not}
+in paragraph beginning position
+is read, then the selectors, options, and lexical master are set to
+their line variable line values.
+
 TBD
-
-The parse context includes an `\mkey{implied header}'
-that may be missing or may be an {\em implied-prefix}
-(see \pagref{IMPLIED-PREFIX}).  If not missing, it (i.e., its prefix type
-definition) must have either the `\TT{paragraph}' or `\TT{line}' group.
-If the parser implied header has `\TT{paragraph}' group, it is
-called the parser `\mkey{implied paragraph header}{of parser}',
-and if its prefix type has a defined implicit subprefix, that must have
-the `\TT{line}' group and is called the parser
-`\mkey{implied line header}{of parser}'.  Otherwise if the implied header
-has `\TT{line}' group, then it is the implied line header, and
-the implied paragraph header is said to be missing.
-
-Each logical line begins the a line indent token.  When this is read,
-the lexical scanner master table index is reset as follows:
-
-\begin{center}
-\begin{tabular}{l}
-\key{paragraph header lexeme} \\
-\key{line header lexeme} \\
-\end{tabular}
-\end{center}
 
 The lexical scanner produces these \skey{header lexeme}s by looking
 at the first non-whitespace characters of the logical line.  But no
@@ -4661,298 +4709,7 @@ characters will be skipped over while producing these header lexemes.
 In short, the scanner will peek ahead but not read ahead when
 producing header lexemes.
 
-If the logical line is in paragraph beginning position, a paragraph header
-lexeme followed by a line header lexeme may be produced, or either or
-both may be omitted.  If the logical line is not in
-paragraph beginning position, only a line header lexeme may be produced.
-In any case, header lexemes can only be produced at the beginning of
-a logical line and at most one of each type can be produced.
-Also, if either is produced, the logical line may not begin with a typed
-prefix separator opening bracket (e.g., may not begin with `\TT{\{}').
-
-After resetting the the lexical scanner master table index,
-the parser reads the beginning of the logical line and looks for
-headers.  If the line begins with lexical headers, the line cannot contain
-bracketed headers.  If the line does not begin with lexical headers,
-the parser looks for bracketed headers which may or may not be present.
-If neither are present, the parser uses context variables as described
-below to optionally insert implied headers.
-
-Lexical headers have a value that is looked up in the parser's
-\key{header table}.  If there is no selected entry with
-this value, then the lexical header is ignored as if it did not
-exist.  Similarly the type of any prefix separator that might be
-a bracketed header is looked up, and if there is no selected entry with
-this type, then the prefix separator is treated as a non-header.
-
-The parser algorithm that does all this is called
-the \key{line beginning algorithm}.  This algorithm makes use
-of context variables called the \skey{line variable}s.
-
-When a bracketed or lexical paragraph header is recognized as
-having a selected header table entry, the line
-variables are reset according to values in that table entry.
-Similarly when a bracketed or lexical line header is recognized as
-having a selected header table entry, some of the line
-variables are reset according to values in that table entry.
-
-We next list the \skey{line variable}s\label{LINE-VARIABLES}, and after that
-spell out the line beginning algorithm in detail.
-
-\begin{indpar}[0.4in]
-
-\hspace*{-0.2in}\ttmkey{paragraph master}{line variable}\\
-\hspace*{-0.2in}\ttmkey{line master}{line variable}\\
-    The lexical scanner master index is reset to one of these values
-    at the beginning of a logical line.  If the line is in paragraph
-    beginning position, the paragraph master is used.  Otherwise
-    the line master is used.
-\\[2ex]
-\hspace*{-0.2in}\ttmkey{paragraph header}{line variable}\\
-    If this value is not missing
-    and no bracketed or lexical paragraph header is found at the
-    beginning of a logical line that is in paragraph beginning position,
-    then a \TT{PREFIX} token whose value is a
-    copy of this paragraph header variable is inserted
-    at the beginning of the logical line.
-\\[1ex]
-\hspace*{-0.2in}\ttmkey{line header}{line variable}\\
-    If this value is not missing
-    and no bracketed or lexical line header is found where one
-    might occur,
-    then a \TT{PREFIX} token whose value is a
-    copy of this line header variable is inserted
-    where the line header would otherwise be.
-\\[2ex]
-\hspace*{-0.2in}\ttmkey{header selectors}{line variable}\\
-    Parsing selectors determined by the paragraph header and used
-    as the current parsing selectors to parse headers in the paragraph.
-    Also the default value for the line selectors below.
-\\[1ex]
-\hspace*{-0.2in}\ttmkey{header options}{line variable}\\
-    Parsing options determined by the paragraph header and used
-    as the current parsing options to parse headers in the paragraph.
-    Also the default value for the line options below.
-\\[2ex]
-\hspace*{-0.2in}\ttmkey{line selectors}{line variable}\\
-    Parsing selectors determined by the paragraph and line headers and used
-    as the current parsing selectors to parse the \underline{non-header}
-    portions of lines in the paragraph.  These default to the header
-    selectors.
-\\[1ex]
-\hspace*{-0.2in}\ttmkey{line options}{line variable}\\
-    Parsing options determined by the paragraph and line headers and used
-    as the current parsing options to parse the \underline{non-header} portions
-    of lines in the paragraph.  These default to the header
-    options.
-\\[1ex]
-\hspace*{-0.2in}\ttmkey{instruction}{line variable}\\
-    An instruction specifying what to do at the beginning of a
-    logical line.  Currently this contains only one optional
-    command: `\key{paragraph reset}'.
-
-\end{indpar}
-
-The line variables are initialized according to the
-indentation mark that introduced the indented paragraph.  For
-top level the paragraph master is the parser's default
-master, the line master is \TT{0}, the headers are missing,
-the selectors and options
-are the parser's default selectors and options,
-and there are no instructions.  By convention, if the
-lexical scanner master index is \TT{0}, the lexical scanner
-will never produce header lexemes.
-
-In addition to the line variables, there are selectors
-set by the indentation mark, which do not change while parsing
-the indented paragraph, and which are used to select paragraph
-header entries in the parser's header table.
-We will call these the \key{paragraph
-selectors}.  For top level these are the parser's default selectors.
-
-At the start of the \key{line beginning algorithm} the parser is
-at the beginning of a logical line, and none of the lexemes in
-the line have been scanned.
-
-The \key{line beginning algorithm}\label{LINE-BEGINNING-ALGORITHM}
-is then as follows:
-
-\begin{enumerate}
-
-\item If the logical line is at the beginning of its indented paragraph,
-or if the logical line is in paragraph beginning position and
-the instruction variable value contains the paragraph reset command,
-then reset all the line variables as specified by the indentation
-mark the introduced the indented paragraph.  In particular, all
-selector and option line variables are reset by modifying the
-selectors and options in effect when the indentation mark was found
-by the selector and option changes associated with the indentation mark:
-see the parser indentation mark command on
-\pagref{PARSER-INDENTATION-MARK-COMMAND}.  This means that the paragraph
-selectors, header selectors, and line selectors are all set to the same
-value, and the header and line options are set to the same value.
-
-\item Set the lexical scanner master index to the paragraph lexical
-master if the logical line is in paragraph beginning position,
-or to the line master otherwise.
-
-Note that a logical line is preceeded by an indent lexeme, and
-the parser suspends lexical scanning after an indent lexeme is
-scanned, in order to allow the lexical scanner master table index
-to be reset before the first lexeme of the logical line is scanned.
-
-\item Scan the lexemes of the logical line (through the next indent
-or end-of-file lexeme).
-
-\item If the first lexeme of the logical line is not a header lexeme,
-skip to Step~\ref{BRACKETED-HEADER-SCAN}.
-
-\item
-If the first lexeme of the logical line
-is a paragraph header lexeme:
-
-\begin{enumerate}
-
-\item
-If the logical line is in paragraph beginning position,
-look up the lexeme string value (which is not part of the
-input, but is generated by the lexical scanner) in the parser's
-header table.  If a table entry marked as a paragraph header is found
-that is selected by the paragraph selectors, reset all the
-line variables according to values in the table entry
-(see below for details).
-
-Then if the paragraph header variable value is not missing,
-replace the paragraph header lexeme
-by a \TT{PREFIX} lexeme whose value is a copy of the
-paragraph header variable value (which may have just been changed).
-Else if the paragraph header variable value is missing, just
-discard the paragraph header lexeme.
-
-\item
-Else if the logical
-line is \underline{not} in paragraph beginning position,
-announce an error, and discard the paragraph header lexeme.
-
-\end{enumerate}
-
-\item
-If the first lexeme of the logical line
-is \underline{not} a paragraph header lexeme and the logical
-line is in paragraph beginning position, and if the paragraph
-header variable value is not missing, insert a \TT{PREFIX}
-lexeme at the beginning of the logical line whose value is a copy of the
-paragraph header variable value.
-
-\item
-If the first lexeme of the logical line was a paragraph header
-lexeme and the second is a line header lexeme, or if the
-first lexeme was a line header lexeme,
-look up the line header lexeme's string value (which is not part of the
-input, but is generated by the lexical scanner) in the parser's
-header table.
-
-If a table entry marked as a line header is found
-that is selected by the header selectors, reset the
-line header, line selectors, and line options
-line variables according to values in the table entry
-(see below for details).
-If no such entry is found, reset the line selectors and options
-from the header selectors and options.
-
-Then if the line header variable value is not missing,
-replace the line header lexeme
-by a \TT{PREFIX} lexeme whose value is a copy of the
-line header variable value (which may have just been changed).
-Else if the line header variable value is missing, just
-discard the line header lexeme.
-
-\item
-If no line header lexeme was found in the previous step,
-skip to Step~\ref{INSERT-LINE-HEADER}.
-
-Else skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
-
-\item \label{BRACKETED-HEADER-SCAN}
-We come to this step only if there are no header lexemes.
-
-Parse the beginning of the logical line and produce the first
-token.
-
-If this is \underline{not} a \TT{PREFIX} token,
-skip to Step~\ref{INSERT-PARAGRAPH-HEADER} if the logical
-line is in paragraph beginning position, or
-skip to Step~\ref{INSERT-LINE-HEADER} otherwise.
-
-If the line is not in paragraph beginning position,
-skip to Step~\ref{LINE-HEADER-LOOKUP}.
-
-Look up the type of the \TT{PREFIX} token value
-in the parser's header table.
-Accept an entry if it has
-paragraph header type and is selected by the paragraph selectors.
-
-If the result of this lookup is \underline{not} an accepted entry,
-skip to Step~\ref{INSERT-PARAGRAPH-HEADER}.
-
-Else reset all the
-line variables from values in this entry (see details
-below), then reset the paragraph header variable to the copy of
-the value of the \TT{PREFIX} token.
-Lastly go to Step~\ref{LINE-HEADER-SCAN}.
-
-\item \label{INSERT-PARAGRAPH-HEADER}
-
-If the paragraph header variable value is not missing,
-insert a \TT{PREFIX} token containing a copy of the paragraph header
-variable value at the beginning of the logical line.
-This becomes the paragraph header token for that line.
-
-Then if there is a \TT{PREFIX} token that was not accepted
-as a paragraph header in Step~\ref{BRACKETED-HEADER-SCAN},
-skip to Step~\ref{LINE-HEADER-LOOKUP}.
-Else (if no \TT{PREFIX} token at all was found
-in Step~\ref{BRACKETED-HEADER-SCAN}),
-skip to Step~\ref{INSERT-LINE-HEADER}.
-
-\item \label{LINE-HEADER-SCAN}
-Parse the beginning of the yet-unparsed
-part of the logical line and produce the next token.
-If this token is \underline{not} a \TT{PREFIX} token,
-skip to Step~\ref{INSERT-LINE-HEADER}.
-
-\item \label{LINE-HEADER-LOOKUP}
-Look up the type of the value of the \TT{PREFIX} token
-previously found that was not accepted as a paragraph
-header in the parser's header table.  Accept a table entry if it has
-line header type and is selected by the header selectors.
-
-If an entry was accepted, reset the line header
-line variable to a copy of the value of the token,
-reset the line selectors and line options
-line variables from the values in the
-accepted entry (see below for details),
-and skip to Step~\ref{TERMINATE-LINE-BEGINNING}.
-
-\item \label{INSERT-LINE-HEADER}
-
-If the line header variable value is not missing,
-insert a \TT{PREFIX} token containing a copy of the line header variable value
-at the beginning of the logical line.  This becomes the line header
-token for that line.
-
-Copy the header selectors and options to the line selectors and options.
-
-\item \label{TERMINATE-LINE-BEGINNING}
-Terminate the line beginning algorithm, and finish the parse
-of the logical line using the line selectors and line options.
-
-
-\end{enumerate}
-
-
-Parser header table entries are defined and undefined by
-{\em parser-header-commands}:
+TBD
 
 \begin{indpar}[0.1in]
 \emkey{parser-header-command}%

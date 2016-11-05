@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 05:47:28 EDT 2015
+// Date:	Sat Nov  5 12:54:00 EDT 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,55 +41,60 @@ namespace ll { namespace lexeme
 // `ID' == 0 always, but this is never returned to the
 // user.  The pctype can be used to tell whether the
 // program is in proper endianhood or needs endianhood
-// conversion.  initial_table_ID[n] is the ID of the
-// initial master table number n; for most programs,
-// n == 0 is the only permitted value, and it is the
-// default.
+// conversion.
 //
-// The lexeme types are 0 .. max_type.  The program
-// header is followed by a vector of max_type+1 uns32
-// values which are offsets of type names.  This vector
-// is followed by a vector of max_type+1 char values
-// that are printable type codes.  This vector is
-// followed by the type names as NUL terminated UTF-8
-// character strings.  Given type t then
+// The master tables are given indices 0 .. max_master.
+// The lexeme types are 0 .. max_type.
 //
-//      const char * type_codes =
-//          (const char *)
-//          ! & program[program_header + max_type + 1];
-//      char type_code_of_t = type_codes[t];
+// The program header proper (of length program_header_
+// length) is followed in order by:
 //
-//	uns32 offset = program[program_header_length+t];
-//	const char * type_name_of_t =
-//	    offset == 0 ? NULL :
-//	        (const char *) ! & program[0] + offset;
+//     a vector of max_master+1 uns32 master table IDs
+//       for master tables 0 through max_master
+//     a vector of max_master+1 uns32 name offsets for
+//       master tables 0 through max_master
+//     a vector of max_type+1 uns32 name offsets for
+//       types 0 through max_type
+//     a vector of max_type+1 char type codes (i.e.,
+//       short names) for types 0 through max_type
+//     a list of all the master table and type names
+//       whose offsets are given just above; these names
+//       are UTF-8 NUL terminated character strings.
 //
-// computes the type code and type name corresponding to
-// t.
+// Name offsets are in characters (not uns32's).
 //
-// If a type name is missing its offset is 0.  If a type
-// code is missing, it is 0.  If no type names or codes
-// were given, max_type may be 0, and there will be one
-// 0 offset and one 0 char type code.
+// The default master table always has master table
+// index 0.  There is always at least one master table.
+//
+// If a name is missing its offset is 0.  If a type code
+// is missing, it is 0.
+//
+// If no type names or type codes are given, max_type is
+// 0, and type 0 has missing name and type code.
 //
 // program[component_length] is the first location after
-// the program header, i.e., after the type name
-// strings.  The type name UTF-8 strings therefore
-// occupy component_length - program_header_length - 1
-// - max_type uns32 elements.
+// the complete program header, i.e., after the name
+// strings.
 //
 struct program_header {
     uns32 pctype;		// == PROGRAM
     uns32 line_number;
-    uns32 initial_table_ID
-		[ll::lexeme::MAX_INITIAL_TABLES];
-    	// Initial master table IDs.  Default is
-	// initial_table_ID[0].
+    uns32 max_master;
     uns32 max_type;
     uns32 component_length;
 };
 const uns32 program_header_length =
     4 + ll::lexeme::MAX_INITIAL_TABLES;
+
+// Returns max_master from program header.
+//
+inline min::uns32 max_master
+	( ll::lexeme::program program )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    return php->max_master;
+}
 
 // Returns max_type from program header.
 //
@@ -101,20 +106,36 @@ inline min::uns32 max_type
     return php->max_type;
 }
 
-// Returns pointer to type name of type t, or if none,
-// returns min::ptr<const char)>().  The last includes
-// the case where t > max_type of the program header.
+// Returns pointer to ID of master m, or if none,
+// returns min::ptr<min::uns32>().  The last includes
+// the case where m > max_master of the program header.
 //
-inline min::ptr<const char> type_name
-	( ll::lexeme::program program, uns32 t )
+inline min::ptr<min::uns32> master_ID
+	( ll::lexeme::program program, uns32 m )
 {
     min::ptr<program_header> php =
         ll::lexeme::ptr<program_header> ( program, 0 );
-    min::uns32 max_type = php->max_type;
-    if ( t > max_type )
+    min::uns32 max_master = php->max_master;
+    if ( m > max_master )
+        return min::ptr<min::uns32>();
+    return program[program_header_length + m];
+}
+
+// Returns pointer to name of master m, or if none,
+// returns min::ptr<const char>().  The last includes
+// the case where m > max_master of the program header.
+//
+inline min::ptr<const char> master_name
+	( ll::lexeme::program program, uns32 m )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_master = php->max_master;
+    if ( m > max_master )
         return min::ptr<const char>();
     min::uns32 offset =
-        program[program_header_length + t];
+        program[program_header_length + max_master + 1
+	                              + m];
     if ( offset == 0 )
 	return min::ptr<const char>();
     else
@@ -123,18 +144,95 @@ inline min::ptr<const char> type_name
 	       + offset;
 }
 
-// Returns pointer to type codes of a program.
+// Returns pointer to type name of type t, or if none,
+// returns min::ptr<const char>().  The last includes
+// the case where t > max_type of the program header.
+//
+inline min::ptr<const char> type_name
+	( ll::lexeme::program program, uns32 t )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_master = php->max_master;
+    min::uns32 max_type = php->max_type;
+    if ( t > max_type )
+        return min::ptr<const char>();
+    min::uns32 offset =
+        program[  program_header_length
+	        + 2 * (max_master + 1 ) +  t];
+    if ( offset == 0 )
+	return min::ptr<const char>();
+    else
+	return   ll::lexeme::ptr<const char>
+	             ( program, 0 )
+	       + offset;
+}
+
+// Returns pointer to vector of type codes of a program.
 //
 inline min::ptr<const char> type_codes
 	( ll::lexeme::program program )
 {
     min::ptr<program_header> php =
         ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_master = php->max_master;
     min::uns32 max_type = php->max_type;
     return ll::lexeme::ptr<const char>
 	       ( program,
 		   program_header_length
+		 + 2 * ( max_master + 1 )
 		 + max_type + 1 );
+}
+
+// Given a master table name, return the index of the
+// master table, or NOT_FOUND if none found.  It is
+// assumed that no two master tables have the same
+// name.
+//
+const uns32 NOT_FOUND = 0xFFFFFFFF;
+inline uns32 master_index
+	( ll::lexeme::program program, const char name )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_master = php->max_master;
+    min::ptr<const char> base =
+        ll::lexeme::ptr<const char> ( program, 0 );
+    for ( uns32 m = 0; m < max_master; ++ m )
+    {
+	min::uns32 offset =
+	    program[program_header_length + max_master
+	                                  + 1 + m];
+	if ( offset == 0 ) continue;
+	if ( strcmp ( name, ! ( base + offset ) ) == 0 )
+	    return m;
+    }
+    return NOT_FOUND;
+}
+
+// Given a type name, return the type, or NOT_FOUND if
+// none found.  It is assumed that no two types have the
+// same name.
+//
+inline uns32 type
+	( ll::lexeme::program program, const char name )
+{
+    min::ptr<program_header> php =
+        ll::lexeme::ptr<program_header> ( program, 0 );
+    min::uns32 max_master = php->max_master;
+    min::uns32 max_type = php->max_type;
+    min::ptr<const char> base =
+        ll::lexeme::ptr<const char> ( program, 0 );
+    for ( uns32 t = 0; t < max_type; ++ t )
+    {
+	min::uns32 offset =
+	    program[program_header_length
+	            +2 * (  max_master + 1 ) + t];
+	if ( offset == 0 ) continue;
+	if ( strcmp ( name, ! ( base + offset ) ) == 0 )
+	    return t;
+    }
+    return NOT_FOUND;
 }
 
 // A (lexical) table consists of just a header which

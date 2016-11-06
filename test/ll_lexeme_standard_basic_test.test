@@ -1,34 +1,36 @@
        ###: PROGRAM
-            Initial Table ID[0]:####
+            Max Master: 0
+                 0:        102 MAIN
             Max Type: 19
-                 1: WORD
-                 2: NATURAL
-                 3: NUMERIC
-                 4: MARK
-                 5: QUOTED_STRING
-                 6: SEPARATOR
-                 7: COMMENT
-                 8: HORIZONTAL_SPACE
-                 9: INDENT_BEFORE_COMMENT
-                10: INDENT
-                11: LINE_BREAK
-                12: END_OF_FILE
-                13: PREMATURE_END_OF_STRING
-                14: PREMATURE_END_OF_FILE
-                15: MISPLACED_VERTICAL
-                16: ILLEGAL_CONTROL
-                17: UNRECOGNIZED_CHARACTER
-                18: UNRECOGNIZED_ESCAPE
-                19: MISPLACED_HORIZONTAL
+                 0: ?
+                 1: w WORD
+                 2: n NATURAL
+                 3: # NUMERIC
+                 4: m MARK
+                 5: q QUOTED_STRING
+                 6: s SEPARATOR
+                 7: c COMMENT
+                 8: h HORIZONTAL_SPACE
+                 9: I INDENT_BEFORE_COMMENT
+                10: i INDENT
+                11: b LINE_BREAK
+                12: e END_OF_FILE
+                13: S PREMATURE_END_OF_STRING
+                14: F PREMATURE_END_OF_FILE
+                15: V MISPLACED_VERTICAL
+                16: C ILLEGAL_CONTROL
+                17: U UNRECOGNIZED_CHARACTER
+                18: E UNRECOGNIZED_ESCAPE
+                19: H MISPLACED_HORIZONTAL
     ######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
             ####: OUTPUT(14), GOTO(####)
-    ######: TABLE
+   #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
             #####: OUTPUT(14), GOTO(####)
-    ######: TABLE
+   #######: TABLE
             Mode: NONE
             Dispatcher ID: ####
             ####: GOTO(####)

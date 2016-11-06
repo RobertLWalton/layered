@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 29 04:31:43 EDT 2015
+// Date:	Sun Nov  6 04:04:37 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -113,7 +113,8 @@ lex	//        of the same character type (ordinary,
 lex	//        u, U, or L).
 lex
 cc	    NDL::begin_program
-cc		( type_names, type_codes, MAX_TYPE );
+cc		( NULL, 0,
+cc	          type_names, type_codes, MAX_TYPE );
 cc
 cc	    uns32 whitespace;
 cc	    NDL::new_table ( whitespace, whitespace_t );

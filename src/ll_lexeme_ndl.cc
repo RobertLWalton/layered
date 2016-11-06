@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  6 16:26:35 EDT 2015
+// Date:	Sun Nov  6 03:58:12 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -217,7 +217,9 @@ inline min::ref<instruction> current_instruction
 // --- ---------
 
 void LEXNDL::begin_program
-	( const char * const * type_names,
+	( const char * const * master_names,
+	  uns32 max_master,
+	  const char * const * type_names,
 	  const char * type_codes,
 	  uns32 max_type )
 {
@@ -237,6 +239,7 @@ void LEXNDL::begin_program
 
     LEX::create_program
         ( LEXNDL::line,
+	  master_names, max_master,
 	  type_names, type_codes, max_type );
 }
 

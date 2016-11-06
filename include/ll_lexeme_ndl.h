@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 10 03:55:40 EDT 2015
+// Date:	Sun Nov  6 03:51:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,6 +51,10 @@
 //      using ll::lexeme::ndl::OTHERS;
 //      using ll::lexeme::ndl::uns32;
 //
+//	const uns32 max_master = ...
+//	const char * const master_names[max_master+1] =
+//	    { "xxx", "yyy", ..., NULL, "zzz", ... };
+//
 //	const uns32 max_type = ...
 //	const char * const type_names[max_type+1] =
 //	    { "xxx", "yyy", ..., NULL, "zzz", ... };
@@ -58,17 +62,25 @@
 //	    "xy...?z...";
 //
 //	NDL::begin_program
-//	    ( type_names, type_codes, max_type );
+//	    ( master_names, max_master,
+//	      type_names, type_codes, max_type );
 //	<declaration>*
 //	<table-definition>*
 //	NDL::end_program();
+//
+//   // master_names[m] is the printable name of MASTER
+//   // table with index (not ID) m, where m <=
+//   // max_master.  One can omit master_names and
+//   // max_master arguments to NDL::begin_program if
+//   // one wants to print numbers instead of names to
+//   // identify MASTER tables.
 //
 //   // type_names[t] is the printable name of <type-
 //   // name> t (see below), where t <= max_type.  One
 //   // can omit the type_names, type_codes, and
 //   // max_type arguments to NDL::begin_program if
-//   // one wants to print numbers instead of names
-//   // for <type-name>s and not use type codes.
+//   // one wants to print numbers instead of names to
+//   // identify types, and not use type codes.
 //
 //   <declaration> := <table-declaration>
 //		    | <atom-pattern-declaration>
@@ -343,9 +355,11 @@ namespace ll { namespace lexeme { namespace ndl {
     // all of the below must have void return type.
 
     void begin_program
-	    ( const char * const * type_names,
-	      const char * type_codes,
-	      uns32 max_type );
+	    ( const char * const * master_names = NULL,
+	      uns32 max_master = 0,
+	      const char * const * type_names = NULL,
+	      const char * type_codes = NULL,
+	      uns32 max_type = 0 );
     void end_program ( void );
 
     void new_table

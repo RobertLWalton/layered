@@ -1,27 +1,29 @@
        ###: PROGRAM
-            Initial Table ID[0]:####
+            Max Master: 0
+                 0: 90
             Max Type: 16
-                 1: WORD
-                 2: NATURAL_NUMBER
-                 3: NUMBER
-                 4: MARK
-                 5: QUOTED_STRING
-                 6: SEPARATOR
-                 7: COMMENT
-                 8: HORIZONTAL_SPACE
-                 9: LINE_BREAK
-                10: END_OF_FILE
-                11: PREMATURE_END_OF_LINE
-                12: PREMATURE_END_OF_FILE
-                13: MISPLACED_CHARACTER
-                14: MISPLACED_SPACE
-                15: MISPLACED_CONTROL_CHARACTER
-                16: UNRECOGNIZED_ESCAPE_SEQUENCE
-   #######: TABLE
+                 0: ?
+                 1: w WORD
+                 2: n NATURAL_NUMBER
+                 3: # NUMBER
+                 4: m MARK
+                 5: q QUOTED_STRING
+                 6: s SEPARATOR
+                 7: c COMMENT
+                 8: h HORIZONTAL_SPACE
+                 9: b LINE_BREAK
+                10: e END_OF_FILE
+                11: L PREMATURE_END_OF_LINE
+                12: F PREMATURE_END_OF_FILE
+                13: C MISPLACED_CHARACTER
+                14: S MISPLACED_SPACE
+                15: X MISPLACED_CONTROL_CHARACTER
+                16: U UNRECOGNIZED_ESCAPE_SEQUENCE
+    ######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
             #####: OUTPUT(10)
-   #######: TABLE
+    ######: TABLE
             Mode: WORD
             Dispatcher ID: #####
             #####: RETURN
@@ -63,11 +65,11 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(11), GOTO(####)
+            #####: OUTPUT(11), GOTO(###)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(12), GOTO(####)
+            #####: OUTPUT(12), GOTO(###)
    #######: TABLE
             Mode: ATOM
             Dispatcher ID: #####
@@ -246,7 +248,7 @@
             <1EE80>-<1EE89> <1EE8B>-<1EE9B> <1EEA1>-<1EEA3>
             <1EEA5>-<1EEA9> <1EEAB>-<1EEBB> <20000> <2A6D6> <2A700>
             <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: CALL(####)
+                ####: CALL(###)
                 Dispatcher ID: ####
             0-9 <660>-<669> <6F0>-<6F9> <7C0>-<7C9> <966>-<96F>
             <9E6>-<9EF> <0A66>-<0A6F> <0AE6>-<0AEF> <0B66>-<0B6F>
@@ -412,7 +414,7 @@
             <1EE80>-<1EE89> <1EE8B>-<1EE9B> <1EEA1>-<1EEA3>
             <1EEA5>-<1EEA9> <1EEAB>-<1EEBB> <20000> <2A6D6> <2A700>
             <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: CALL(####)
+                ####: CALL(###)
                 Dispatcher ID: ####
    #######: DISPATCHER
             Max CType: 0
@@ -569,7 +571,7 @@
             <1EEA4> <1EEAA> <1EEBC>-<1FFFF> <20001>-<2A6D5>
             <2A6D7>-<2A6FF> <2A701>-<2B733> <2B735>-<2B73F>
             <2B741>-<2B81C> <2B81E>-<2F7FF> <2FA1E>-<30000>
-                #####: OUTPUT(13)
+                ####: OUTPUT(13)
                 Dispatcher ID: #####
             /
                 ####: CALL(####)
@@ -719,7 +721,7 @@
             <1EE80>-<1EE89> <1EE8B>-<1EE9B> <1EEA1>-<1EEA3>
             <1EEA5>-<1EEA9> <1EEAB>-<1EEBB> <20000> <2A6D6> <2A700>
             <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: CALL(####)
+                ####: CALL(###)
                 Dispatcher ID: ####
             '
                 ####: OUTPUT(6)
@@ -1721,7 +1723,7 @@
             Ctype Map Size: 76
             K
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER

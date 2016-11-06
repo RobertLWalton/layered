@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 03:25:26 EST 2015
+// Date:	Sun Nov  6 04:00:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -193,6 +193,8 @@ namespace ll { namespace lexeme {
     //
     void create_program
 	    ( uns32 line_number = 0,
+	      const char * const * master_names = NULL,
+	      uns32 max_master = 0,
 	      const char * const * type_names = NULL,
 	      const char * type_codes = NULL,
 	      uns32 max_type = 0,
@@ -759,7 +761,6 @@ namespace ll { namespace lexeme {
     };
 
     const uns32 return_stack_size = 32;
-    const uns32 MAX_INITIAL_TABLES = 16;
     struct scanner_struct
     {
         const uns32 control;
@@ -827,7 +828,7 @@ namespace ll { namespace lexeme {
 	// Initial_table specifies the initial table of
 	// the program.  Defaults to 0.  Most programs
 	// have only one initial table specified by 0.
-	// Range 0 ..  MAX_INITIAL_TABLES-1.
+	// Range 0 ..  program->max_master.
 	//
 	uns32 initial_table;
 

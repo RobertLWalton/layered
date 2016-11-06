@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  7 15:37:23 EDT 2015
+// Date:	Sun Nov  6 03:48:54 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -153,12 +153,10 @@ uns32 LEX::create_table
     // First master table becomes the default initial
     // table of the program.
     //
-    if ( php->initial_table_ID[0] == 0
-         &&
-	 mode == MASTER )
-    {
-	php->initial_table_ID[0] = ID;
-    }
+    min::ptr<min::uns32> IDp =
+        LEXDATA::master_ID_ptr ( program, 0 );
+    if ( * IDp == 0 && mode == MASTER )
+	 * IDp = ID;
 
     return ID;
 }
@@ -173,6 +171,8 @@ uns32 LEX::table_mode
 
 void LEX::create_program
 	( uns32 line_number,
+	  const char * const * master_names,
+	  uns32 max_master,
 	  const char * const * type_names,
 	  const char * type_codes,
 	  uns32 max_type,
@@ -200,21 +200,44 @@ void LEX::create_program
     program_header h;
     h.pctype = PROGRAM;
     h.line_number = line_number;
-    memset ( h.initial_table_ID, 0,
-             sizeof ( h.initial_table_ID ) );
+    h.max_master = max_master;
     h.max_type = max_type;
     h.component_length = 0;
     PUSH ( h, program_header_length );
 
+    min::push ( program, max_master + 1 );
+    uns32 master_names_offset = ID + program->length;
+    min::push ( program, max_master + 1 );
+    uns32 type_names_offset = ID + program->length;
     min::push ( program, max_type + 1 );
+    uns32 type_codes_offset = ID + program->length;
     uns32 type_codes_length =
         ::round32 ( max_type + 1 );
     min::push ( program, type_codes_length );
-    uns32 type_codes_offset = program_header_length
-                            + max_type + 1;
-    uns32 length = type_codes_offset
-                 + type_codes_length;
+    uns32 length = program->length;
     uns32 origin = sizeof ( uns32 ) * length;
+
+    for ( uns32 m = 0; m <= max_master; ++ m )
+    {
+	if (    master_names == NULL
+	     || master_names[m] == NULL )
+	{
+	    program[master_names_offset + m] = 0;
+	    continue;
+	}
+	program[master_names_offset + m] = origin;
+
+	uns32 next_origin =
+	    origin + strlen ( master_names[m] ) + 1;
+	uns32 next_length = ::round32 ( next_origin );
+	min::push ( program, next_length - length );
+
+	strcpy ( (char *) ! & program[ID] + origin,
+	         master_names[m] );
+	origin = next_origin;
+	length = next_length;
+    }
+
     for ( uns32 t = 0; t <= max_type; ++ t )
     {
         ((char *) ! & program[type_codes_offset])[t] =
@@ -223,11 +246,10 @@ void LEX::create_program
 	if (    type_names == NULL
 	     || type_names[t] == NULL )
 	{
-	    program[ID + program_header_length + t] = 0;
+	    program[type_names_offset + t] = 0;
 	    continue;
 	}
-	program[ID + program_header_length + t] =
-	    origin;
+	program[type_names_offset + t] = origin;
 
 	uns32 next_origin =
 	    origin + strlen ( type_names[t] ) + 1;
@@ -1731,23 +1753,22 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 		<< min::eol;
 	    return SCAN_ERROR;
 	}
-	else if (    scanner->initial_table
-	          >= LEX::MAX_INITIAL_TABLES )
+	else if (   scanner->initial_table
+	          > LEXDATA::max_master
+		        ( scanner->program) )
 	{
 	    min::init ( min::error_message )
 	        << "LEXICAL SCANNER ERROR:"
-		   " initial_table >="
-		   " MAX_INITIAL_TABLES"
+		   " initial_table >"
+		   " max_master ( program )"
 		<< min::eol;
 	    return SCAN_ERROR;
 	}
 
-	min::ptr<program_header> php =
-	    LEX::ptr<program_header>
-		( scanner->program, 0 );
 	scanner->current_table_ID =
-	    php->initial_table_ID
-	        [scanner->initial_table];
+	    * LEXDATA::master_ID_ptr
+	        ( scanner->program,
+		  scanner->initial_table );
 
 	if ( scanner->current_table_ID == 0 )
 	{
@@ -2780,27 +2801,54 @@ uns32 LEX::print_program_component
 	        << "PROGRAM" << min::eol;
 	min::ptr<program_header> php =
 	    LEX::ptr<program_header> ( program, ID );
-	for ( unsigned i = 0;
-	      i < LEX::MAX_INITIAL_TABLES; ++ i )
+
+	printer << min::indent << "Max Master: "
+	    << php->max_master << min::eol;
+	for ( uns32 m = 0; m <= php->max_master; ++ m )
 	{
-	    uns32 ID = php->initial_table_ID[i];
-	    if ( ID == 0 ) continue;
+	    uns32 masterID =
+	        program[ID+program_header_length+m];
+	    uns32 name_offset =
+	        program[ID+program_header_length
+		          +php->max_master+1+m];
+	    if ( masterID == 0 && name_offset == 0 )
+	        continue;
 	    printer << min::indent
-	            << "Initial Table ID[" << i << "]:"
-		    << pID ( ID, program )
-		    << min::eol;
+	            << m << ": " << min::right ( 8 )
+	            << masterID;
+	    if ( name_offset != 0 )
+		printer << min::right ( 10 ) << " "
+			<<   min::ptr<char> ( php )
+			   + name_offset;
+	    printer << min::eol;
 	}
+
 	printer << min::indent << "Max Type: "
 	    << php->max_type << min::eol;
+	uns32 type_names_offset =
+	    ID + program_header_length
+	       + 2 * ( php->max_master + 1 );
+	min::ptr<const char> type_codes =
+	    LEX::ptr<const char>
+	        ( program, 
+	          type_names_offset + php->max_type
+		                    + 1 );
 	for ( uns32 t = 0; t <= php->max_type; ++ t )
 	{
-	    uns32 offset =
-	        program[ID+program_header_length+t];
-	    if ( offset == 0 ) continue;
+	    uns32 name_offset =
+	        program[type_names_offset+t];
+	    char type_code = type_codes[t];
+	    if ( name_offset == 0 && type_code == 0 )
+	        continue;
 	    printer << min::indent
 	            << t << ": " << min::right ( 8 )
-	            << min::ptr<char> ( php ) + offset
-		    << min::eol;
+		    << ( type_code == 0 ? ' '
+		                        : type_code );
+	    if ( name_offset != 0 )
+		printer << min::left ( 2 )
+			<<   min::ptr<char> ( php )
+			   + name_offset;
+	    printer << min::eol;
 	}
 	length = php->component_length;
 	break;

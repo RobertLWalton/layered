@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 00:41:00 EST 2015
+// Date:	Sun Nov  6 04:50:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,10 @@
 namespace ll { namespace lexeme { namespace standard {
 
     using ll::lexeme::uns32;
+
+    extern const char * const master_names[1];
+        // There is one master table with index 0 and
+	// name "MAIN".
 
     // Lexeme Types
 

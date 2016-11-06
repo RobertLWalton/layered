@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  5 12:54:00 EDT 2016
+// Date:	Sun Nov  6 04:09:37 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,8 +83,7 @@ struct program_header {
     uns32 max_type;
     uns32 component_length;
 };
-const uns32 program_header_length =
-    4 + ll::lexeme::MAX_INITIAL_TABLES;
+const uns32 program_header_length = 5;
 
 // Returns max_master from program header.
 //
@@ -110,7 +109,7 @@ inline min::uns32 max_type
 // returns min::ptr<min::uns32>().  The last includes
 // the case where m > max_master of the program header.
 //
-inline min::ptr<min::uns32> master_ID
+inline min::ptr<min::uns32> master_ID_ptr
 	( ll::lexeme::program program, uns32 m )
 {
     min::ptr<program_header> php =
@@ -118,7 +117,7 @@ inline min::ptr<min::uns32> master_ID
     min::uns32 max_master = php->max_master;
     if ( m > max_master )
         return min::ptr<min::uns32>();
-    return program[program_header_length + m];
+    return program + program_header_length + m;
 }
 
 // Returns pointer to name of master m, or if none,
@@ -191,7 +190,8 @@ inline min::ptr<const char> type_codes
 //
 const uns32 NOT_FOUND = 0xFFFFFFFF;
 inline uns32 master_index
-	( ll::lexeme::program program, const char name )
+	( ll::lexeme::program program,
+	  const char * name )
 {
     min::ptr<program_header> php =
         ll::lexeme::ptr<program_header> ( program, 0 );
@@ -215,7 +215,8 @@ inline uns32 master_index
 // same name.
 //
 inline uns32 type
-	( ll::lexeme::program program, const char name )
+	( ll::lexeme::program program,
+	  const char * name )
 {
     min::ptr<program_header> php =
         ll::lexeme::ptr<program_header> ( program, 0 );

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 27 04:59:15 EDT 2015
+// Date:	Sun Nov  6 04:39:20 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -124,7 +124,8 @@ static void create_program_1 ( void )
     LEX::uns8 ctype_map2[128] = { 0 };
 
     LEX::create_program
-        ( __LINE__, type_names, NULL, MAX_TYPE );
+        ( __LINE__, NULL, 0,
+	  type_names, NULL, MAX_TYPE );
 
     LEX::create_table ( __LINE__, MASTER );
 
@@ -254,7 +255,8 @@ static void create_program_1 ( void )
 static void create_program_2 ( void )
 {
     LEX::create_program
-        ( __LINE__, type_names, NULL, MAX_TYPE );
+        ( __LINE__, NULL, 0,
+	  type_names, NULL, MAX_TYPE );
     uns32 master =
         LEX::create_table ( __LINE__, MASTER );
 

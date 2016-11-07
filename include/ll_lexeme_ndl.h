@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 03:51:19 EST 2016
+// Date:	Sun Nov  6 21:00:28 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,7 +87,8 @@
 //
 //   <table-declaration> ::=
 //       uns32 <table-name>;
-//	 NDL::new_table ( <table-name>, [<mode>] );
+//	 NDL::new_table
+//	     ( <table-name> [,<mode> [,<index>]] );
 //
 //   <table-name> ::= C++ variable name
 //	// Tables must be declared first to avoid
@@ -363,7 +364,9 @@ namespace ll { namespace lexeme { namespace ndl {
     void end_program ( void );
 
     void new_table
-        ( uns32 & table_name, uns32 mode = NONE );
+        ( uns32 & table_name,
+	  uns32 mode = NONE,
+	  uns32 index = NONE );
 
     void begin_atom_pattern
 	( uns32 & atom_pattern_name,

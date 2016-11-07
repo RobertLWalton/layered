@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 03:58:12 EST 2016
+// Date:	Sun Nov  6 21:00:14 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -257,13 +257,13 @@ void LEXNDL::end_program ( void )
 }
 
 void LEXNDL::new_table
-	( uns32 & table_name, uns32 mode )
+	( uns32 & table_name, uns32 mode, uns32 index )
 {
     FUNCTION ( "new_table" );
     ASSERT ( state == INSIDE_PROGRAM,
              "new_table() misplaced" );
     table_name =
-        LEX::create_table ( LEXNDL::line, mode );
+        LEX::create_table ( LEXNDL::line, mode, index );
 }
 
 // Push a new dispatcher and instruction on the

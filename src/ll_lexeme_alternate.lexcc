@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_alternate.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 04:04:22 EST 2016
+// Date:	Sun Nov  6 21:04:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -133,7 +133,7 @@ cc		( NULL, 0,
 cc	          type_names, type_codes, MAX_TYPE );
 cc
 cc	    uns32 main;
-cc	    NDL::new_table ( main, MASTER );
+cc	    NDL::new_table ( main, MASTER, 0 );
 cc
 cc	    uns32 word;
 cc	    NDL::new_table ( word, word_t );

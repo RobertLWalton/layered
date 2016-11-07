@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 03:48:54 EST 2016
+// Date:	Sun Nov  6 20:56:54 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -129,7 +129,8 @@ inline min::uns32 round32 ( min::uns32 length )
 
 uns32 LEX::create_table
 	( uns32 line_number,
-	  uns32 mode, LEX::program program )
+	  uns32 mode, uns32 index,
+	  LEX::program program )
 {
     min::ptr<program_header> php =
 	LEX::ptr<program_header> ( program, 0 );
@@ -150,13 +151,17 @@ uns32 LEX::create_table
     h.instruction_ID = 0;
     PUSH ( h, table_header_length );
 
-    // First master table becomes the default initial
-    // table of the program.
-    //
-    min::ptr<min::uns32> IDp =
-        LEXDATA::master_ID_ptr ( program, 0 );
-    if ( * IDp == 0 && mode == MASTER )
-	 * IDp = ID;
+    MIN_REQUIRE ( mode == MASTER || index == NONE );
+    if ( mode == MASTER && index != NONE )
+    {
+	min::ptr<min::uns32> IDp =
+	    LEXDATA::master_ID_ptr ( program, 0 );
+	MIN_ASSERT
+	    ( * IDp == 0,
+	      "master table index already assigned"
+	      " an ID" );
+	* IDp = ID;
+    }
 
     return ID;
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 04:39:20 EST 2016
+// Date:	Sun Nov  6 21:03:17 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -127,7 +127,7 @@ static void create_program_1 ( void )
         ( __LINE__, NULL, 0,
 	  type_names, NULL, MAX_TYPE );
 
-    LEX::create_table ( __LINE__, MASTER );
+    LEX::create_table ( __LINE__, MASTER, 0 );
 
     uns32 atable1 =
         LEX::create_table ( __LINE__, SYMBOL );
@@ -258,7 +258,7 @@ static void create_program_2 ( void )
         ( __LINE__, NULL, 0,
 	  type_names, NULL, MAX_TYPE );
     uns32 master =
-        LEX::create_table ( __LINE__, MASTER );
+        LEX::create_table ( __LINE__, MASTER, 0 );
 
     // Create atom table for \ooo octal
     // character representations.

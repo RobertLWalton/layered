@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 04:05:15 EST 2016
+// Date:	Sun Nov  6 21:05:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,7 +95,7 @@ cc		( master_names, 0,
 cc	          type_names, type_codes, MAX_TYPE );
 cc
 cc	    uns32 begin_line;
-cc	    NDL::new_table ( begin_line, MASTER );
+cc	    NDL::new_table ( begin_line, MASTER, 0 );
 cc	    uns32 within_line;
 cc	    NDL::new_table ( within_line, MASTER );
 cc

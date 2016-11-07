@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_c++.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 04:04:37 EST 2016
+// Date:	Sun Nov  6 21:05:21 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -162,7 +162,7 @@ cc	    uns32 string_literal;
 cc	    NDL::new_table ( string_literal, NONE );
 cc
 cc	    uns32 initial;
-cc	    NDL::new_table ( initial, MASTER );
+cc	    NDL::new_table ( initial, MASTER, 0 );
 cc	    uns32 pp_beginning;
 cc	    NDL::new_table ( pp_beginning, MASTER );
 cc	    uns32 pp_include;

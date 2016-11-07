@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 04:00:06 EST 2016
+// Date:	Sun Nov  6 11:55:05 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -182,14 +182,25 @@ namespace ll { namespace lexeme {
     // the end of the program.  If program does not
     // exist (it equals NULL_STUB), it is created.
     //
-    // The header contains a map of lexeme types to type
-    // names that is used for printouts.  Lexeme type
-    // t maps to name type_names[t].  This may be NULL
-    // if t is not used.
+    // The header contains a map of master table indices
+    // to master table ID's and another map to master
+    // table names used for printouts.  An entry in the
+    // ID map is set by create_table.  The names map is
+    // set by the master_names argument: index m maps to
+    // master_names[m].  This may be NULL if not used.
     //
-    // If type_names is NULL, no type names are given.
-    // If max_type != 0, all lexeme types are required
-    // to be <= max_type.
+    // The max_master argument must be >= the master
+    // table index for any index mapped to an ID or a
+    // name.
+    //
+    // The header contains a map of lexeme types to type
+    // names used for printouts, and a separate map to
+    // type codes, which are 1 character short names
+    // used for printouts.  Lexeme type t maps to
+    // type_names[t] and type_codes[t].  These may be
+    // NULL and 0 respectively if not used.
+    //
+    // The max_type argument must be 0 or >= every type.
     //
     void create_program
 	    ( uns32 line_number = 0,
@@ -223,12 +234,17 @@ namespace ll { namespace lexeme {
     // its ID.  The mode may be MASTER or ATOM or the
     // type of a lexeme table.
     //
-    // The first MASTER table created after a create_
-    // program becomes the initial table of the program.
+    // If index is given, the mode must be MASTER, and
+    // the index is the master table index which is
+    // mapped to the ID of the table; i.e., the entry
+    // in the program header map of master table indices
+    // to IDs is set to map the index to the ID of the
+    // newly created table.  See create_program.
     //
     uns32 create_table
 	    ( uns32 line_number,
 	      uns32 mode = ll::lexeme::NONE,
+	      uns32 index = ll::lexeme::NONE,
 	      ll::lexeme::program program =
 	          default_program );
 

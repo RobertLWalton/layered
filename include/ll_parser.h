@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 01:52:59 EDT 2016
+// Date:	Tue Nov  8 02:13:59 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,6 +85,9 @@ namespace ll { namespace parser {
 	selector,	// selector
 	selectors,	// selectors
 	options,	// options
+	lexical,	// lexical
+	master,		// master
+	implied,	// implied
 	reformatter_lexeme,
 			// reformatter
 	context_lexeme,	// context

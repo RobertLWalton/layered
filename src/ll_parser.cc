@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 19:30:34 EDT 2016
+// Date:	Tue Nov  8 02:16:21 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,6 +80,9 @@ min::locatable_gen PAR::pass_lexeme;
 min::locatable_gen PAR::selector;
 min::locatable_gen PAR::selectors;
 min::locatable_gen PAR::options;
+min::locatable_gen PAR::lexical;
+min::locatable_gen PAR::master;
+min::locatable_gen PAR::implied;
 min::locatable_gen PAR::reformatter_lexeme;
 min::locatable_gen PAR::context_lexeme;
 min::locatable_gen PAR::default_lexeme;
@@ -179,6 +182,9 @@ static void initialize ( void )
     PAR::selector = min::new_str_gen ( "selector" );
     PAR::selectors = min::new_str_gen ( "selectors" );
     PAR::options = min::new_str_gen ( "options" );
+    PAR::lexical = min::new_str_gen ( "lexical" );
+    PAR::master = min::new_str_gen ( "master" );
+    PAR::implied = min::new_str_gen ( "implied" );
     PAR::reformatter_lexeme =
         min::new_str_gen ( "reformatter" );
     PAR::context_lexeme =
@@ -854,6 +860,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		( PAR::top_level, PAR::semicolon,
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
+		  min::MISSING(), LEX::MISSING,
 		  bracketed_pass->bracket_table );
 
 	BRA::push_brackets

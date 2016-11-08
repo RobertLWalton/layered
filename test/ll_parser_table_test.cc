@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 13 03:43:16 EDT 2015
+// Date:	Tue Nov  8 04:42:20 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,9 +16,11 @@
 // Usage and Setup
 // ----- --- -----
 
+# include <ll_lexeme.h>
 # include <ll_parser_table.h>
 # include <ll_parser.h>
 # include <ll_parser_bracketed.h>
+# define LEX ll::lexeme
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
@@ -101,6 +103,7 @@ int main ( int argc, const char * argv[] )
 	  TAB::ALL_FLAGS,
 	  0, pp,
 	  TAB::new_flags ( 2 ),
+	  min::MISSING(), LEX::MISSING,
 	  bracket_table );
     BRA::indentation_mark imark =
         (BRA::indentation_mark)

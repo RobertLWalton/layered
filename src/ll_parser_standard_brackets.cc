@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 19 02:24:21 EST 2016
+// Date:	Tue Nov  8 04:41:01 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,10 +16,12 @@
 // Usage and Setup
 // ----- --- -----
 
+# include <ll_lexeme.h>
 # include <ll_parser_table.h>
 # include <ll_parser.h>
 # include <ll_parser_bracketed.h>
 # include <ll_parser_standard.h>
+# define LEX ll::lexeme
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
@@ -215,6 +217,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	                     PAR::ALL_EA_OPT
 			   - PAR::DEFAULT_EA_OPT,
 			   0 ),
+	  min::MISSING(), LEX::MISSING,
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets

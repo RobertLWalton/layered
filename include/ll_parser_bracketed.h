@@ -143,10 +143,10 @@ struct indentation_mark_struct :
 
     const ll::parser::bracketed::line_sep line_sep;
 
+    min::gen implied_paragraph_header;
+
     uns32 lexical_master;
         // ll::lexeme::MISSING if missing.
-
-    min::gen implied_paragraph_header;
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -188,6 +188,10 @@ ll::parser::bracketed::indentation_mark
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
+	  min::gen implied_paragraph_header,
+	      // May be min::MISSING()
+	  min::uns32 lexical_master,
+	      // May be ll::lexeme::MISSING
 	  ll::parser::table::key_table bracket_table );
 
 // Typed Brackets

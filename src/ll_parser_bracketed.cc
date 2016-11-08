@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 19:53:39 EST 2016
+// Date:	Tue Nov  8 01:58:51 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,12 +25,14 @@
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
+# include <ll_lexeme_program_data.h>
 # include <ll_parser.h>
 # include <ll_parser_command.h>
 # include <ll_parser_bracketed.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
+# define LEXDATA ll::lexeme::program_data
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define COM ll::parser::command
@@ -217,6 +219,8 @@ BRA::indentation_mark
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
+	  min::gen implied_paragraph_header,
+	  min::uns32 lexical_master,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::indentation_mark> imark
@@ -226,6 +230,9 @@ BRA::indentation_mark
     imark->block_level = block_level;
     imark->position = position;
     imark->new_selectors = new_selectors;
+    implied_paragraph_header_ref(imark) =
+        implied_paragraph_header;
+    imark->lexical_master = lexical_master;
     TAB::push ( bracket_table, (TAB::root) imark );
 
     if ( separator_label != min::MISSING() )
@@ -3806,6 +3813,9 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
+	min::uns32 lexical_master = LEX::MISSING;
+	min::locatable_gen implied_paragraph_header
+	    ( min::MISSING() );
 	while ( i < size && vp[i] == PAR::with )
 	{
 	    ++ i;
@@ -3857,6 +3867,82 @@ static min::gen bracketed_pass_command
 			  " (modifier) list after" );
 	    }
 	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PAR::lexical
+		 &&
+		 vp[i+1] == PAR::master )
+	    {
+		i += 2;
+		if ( i >= size
+		     ||
+                        PAR::get_attribute
+		            ( vp[i], min::dot_type )
+                     != PAR::doublequote )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected quoted string"
+			  " after" );
+
+		min::obj_vec_ptr ep = vp[i];
+		if ( min::size_of ( ep ) != 1 )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "malformed quoted string" );
+
+		min::str_ptr sp = ep[0];
+		++ i;
+
+		LEX::program program =
+		    parser->scanner->program;
+
+		min::uns32 max_master =
+		    LEXDATA::max_master ( program );
+		min::ptr<const char> nullp;
+		for ( min::uns32 m = 0; m <= max_master;
+		                        ++ m )
+		{
+		    min::ptr<const char> name =
+			LEXDATA::master_name
+			    ( program, m );
+		    if ( name != nullp
+		         &&
+			    min::strcmp ( ! name, sp )
+		         == 0 )
+		    {
+		        lexical_master = m;
+			break;
+		    }
+		}
+		if ( lexical_master == LEX::MISSING )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "quoted string does NOT name"
+			  " a lexical master" );
+	    }
+	    else
+	    if ( i + 2 < size
+		 &&
+		 vp[i] == PAR::implied
+		 &&
+		 vp[i+1] == PAR::paragraph_lexeme
+		 &&
+		 vp[i+2] == PAR::header_lexeme )
+	    {
+		i += 3;
+		if ( i >= size
+		     ||
+                        PAR::get_attribute
+		            ( vp[i], min::dot_type )
+                     == min::MISSING() )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected prefix separator"
+			  " after" );
+		implied_paragraph_header = vp[i];
+		++ i;
+	    }
+	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `parsing selectors'"
@@ -3890,6 +3976,8 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
+	      implied_paragraph_header,
+	      lexical_master,
 	      bracketed_pass->bracket_table );
 
 	break;

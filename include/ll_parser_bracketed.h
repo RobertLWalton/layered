@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 26 07:12:38 EDT 2016
+// Date:	Mon Nov  7 19:45:23 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,6 +142,11 @@ struct indentation_mark_struct :
     ll::parser::table::new_flags new_selectors;
 
     const ll::parser::bracketed::line_sep line_sep;
+
+    uns32 lexical_master;
+        // ll::lexeme::MISSING if missing.
+
+    min::gen implied_paragraph_header;
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -150,6 +155,8 @@ MIN_REF ( min::gen, label,
           ll::parser::bracketed::indentation_mark )
 MIN_REF ( ll::parser::bracketed::line_sep,
           line_sep,
+          ll::parser::bracketed::indentation_mark )
+MIN_REF ( min::gen, implied_paragraph_header,
           ll::parser::bracketed::indentation_mark )
 
 struct line_sep_struct : 

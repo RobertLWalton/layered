@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 27 07:40:41 EDT 2016
+// Date:	Mon Nov  7 19:53:39 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -174,6 +174,11 @@ BRA::opening_bracket
 // Indentation Marks
 // ----------- -----
 
+static min::uns32 indentation_mark_gen_disp[] = {
+    min::DISP ( & BRA::indentation_mark_struct::label ),
+    min::DISP ( & BRA::indentation_mark_struct
+                     ::implied_paragraph_header ),
+    min::DISP_END };
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::next ),
     min::DISP ( & BRA::indentation_mark_struct
@@ -184,7 +189,7 @@ static min::packed_struct_with_base
 	<BRA::indentation_mark_struct, TAB::root_struct>
     indentation_mark_type
 	( "ll::parser::table::indentation_mark_type",
-	  TAB::root_gen_disp,
+	  ::indentation_mark_gen_disp,
 	  ::indentation_mark_stub_disp );
 const min::uns32 & BRA::INDENTATION_MARK =
     indentation_mark_type.subtype;

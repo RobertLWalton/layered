@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 11:55:05 EST 2016
+// Date:	Mon Nov  7 19:50:03 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -227,7 +227,8 @@ namespace ll { namespace lexeme {
 	//
         MASTER		= 0xFFFFFFFE,
 	ATOM		= 0xFFFFFFFD,
-        NONE		= 0xFFFFFFFC
+        NONE		= 0xFFFFFFFC,
+        MISSING		= 0xFFFFFFFC
     };
 
     // Create the table with the given mode and return

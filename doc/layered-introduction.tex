@@ -232,7 +232,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 5, 2016
+November 9, 2016
  
 \end{center}
 
@@ -3516,10 +3516,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {\em indentation-name} {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  {}[ \TT{with parsing options} {\em end-at-options} ] \\
-	  {}[ \TT{with paragraph master} {\em master-index} ] \\
-	  {}[ \TT{with line master} {\em master-index} ] \\
-	  {}[ \TT{with paragraph header} {\em header} ] \\
-	  {}[ \TT{with line header} {\em header} ] \\
+	  {}[ \TT{with implied paragraph header} {\em header} ] \\
+	  {}[ \TT{with lexical master} {\em master-name} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3545,11 +3543,10 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
-\emkey{master-index} ::= unsigned integer
-	~~~~~ [see \pagref{LINE-VARIABLES} ]
+\emkey{master-name} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{header} ::= MIN object with \TT{.type} and no elements
-	~~~~~ [see \pagref{LINE-VARIABLES}]
+        (i.e., a prefix separator: see \pagref{LINE-VARIABLES})
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
@@ -3589,11 +3586,9 @@ is the {\em indentation-mark} that introduced the paragraph,
 and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
 A paragraph may be empty (have no paragraph lines).
 
-The {\em master-index} and {\em header} parameters
-(see \pagref{LINE-VARIABLES}) are used in the
-line beginning algorithm (see \pagref{LINE-BEGINNING-ALGORITHM})
-to generate implied unindented paragraph
-headers and line headers.
+The \TT{implied paragraph header} and \TT{lexical master} parameters
+are used to initialize line variables (see \pagref{LINE-VARIABLES})
+that affect the parsing of paragraphs and lines.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
@@ -4406,15 +4401,23 @@ value immediately after the {\em prefix-lexeme}, unless this
 value is missing, in which case the lexical master will be reset
 to its value at the beginning of the containing logical line.
 
-For an implied paragraph or line header, this parameter is used to
-set the lexical master immediatly after the indent lexeme
-that begins a logical line.  See \pagref{LEXICAL-MASTER-FOR-LOGICAL-LINE}.
+When an implied paragraph or line header is set to a prefix
+with this type, this parameter is used to
+set the paragraph or line lexical master line variable
+(see \pagref{LINE-VARIABLES}),
+which in turn set the lexical scanner master table
+immediately after the indent lexeme
+that begins a logical line (see \pagref{SETTINGS-AFTER-INDENT}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{options}{in prefix definition}\\
-The `end-at' options (see \pagref{PARSING-END-AT-OPTIONS-1}) in this
-parameter, if set for the type of a paragraph or line header prefix,
-determine when a logical line ends.
-See \pagref{PREFIX-HEADER-END-AT-OPTIONS}.
+When an implied paragraph or line header is set to a prefix
+with this type, this parameter is used to
+set the paragraph or line options line variable
+(see \pagref{LINE-VARIABLES}),
+which in turn set the parser
+`end-at' options (see \pagref{PARSING-END-AT-OPTIONS-1})
+immediately after the indent lexeme
+that begins a logical line (see \pagref{SETTINGS-AFTER-INDENT}).
 
 \end{indpar}
 
@@ -4466,8 +4469,8 @@ If the type of any prefix has a non-missing `\ttkey{implicit subprefix}'
 parameter, then a copy of the value of this parameter is inserted
 after the prefix, unless it would be inserted before another prefix
 with the same \TT{.type} attribute or prefix group.  Implicit
-header prefixes can also be inserted as per
-\pagref{IMPLICIT-HEADER-PREFIX-INSERTION}.
+header prefixes can also be inserted via line variables
+(see \pagref{LINE-VARIABLES}).
 
 After a {\em prefix-lexeme} is replaced by a {\em typed-prefix-separator}
 the lexical master is reset, and this can change how lexemes are
@@ -4476,11 +4479,11 @@ type has a non-missing `\ttkey{lexical master}'
 parameter, that is used.  Otherwise
 the lexical master at the beginning of the logical line is used.
 The lexical master can also be reset at the beginning of a logical line
-by header prefixes as per
-\pagref{IMPLICIT-HEADER-PREFIX-LEXICAL-MASTERS}.
+by line variables set when a implied header is set by a prefix lexeme, as per
+\pagref{SETTING-IMPLICIT-HEADER}.
 
 The `\TT{options}' parameter of a prefix type table entry is only used
-by header prefixes: see \pagref{HEADER-PREFIX-OPTIONS}.
+to set line variables: see \pagref{LINE-VARIABLES}.
 
 \subsubsection{Paragraph and Line Headers}
 \label{PARAGRAPH-AND-LINE-HEADERS}
@@ -4603,7 +4606,7 @@ following `\skey{line variable}s'\label{LINE-VARIABLES}:
     paragraph beginning position, a copy of this
     implied paragraph header variable is inserted.
 \\[1ex]
-\hspace*{-0.2in}\ttmkey{line header}{line variable}\\
+\hspace*{-0.2in}\ttmkey{implied line header}{line variable}\\
     If this value is not missing and no explicit line header
     is found after a paragraph header or at the beginning of
     a logical line \underline{not} in
@@ -4649,7 +4652,8 @@ Whenever an explicit (non-implied) line header is recognized,
 the implied line header is reset to a copy of the explicit
 line header.   
 
-Whenever the implicit paragraph header is set, the implicit line
+Whenever the implicit paragraph header is set%
+\label{SETTING-IMPLICIT-HEADER}, the implicit line
 header is set to the `\TT{implied subprefix}' of the new implicit
 paragraph header, which may be missing.  The paragraph selectors,
 options, and lexical master are then set according to values
@@ -4662,7 +4666,7 @@ Whenever the implicit line header is set, the line selectors,
 options, and lexical master are then set according to values
 given by the new implied line header.  However, if any of these
 values would be missing, they are reset to the values of the
-paragraph slectors, options, or lexical master.
+paragraph selectors, options, or lexical master.
 
 It is in error if the implied paragraph header is set to a
 {\em typed-prefix-separator} which is not in the `\TT{paragraph}'
@@ -4691,7 +4695,7 @@ a logical line \underline{not} in paragraph beginning position.
 
 When the indent beginning a logical line in paragraph beginning position
 is read, then the selectors, options, and lexical master are set to
-their line variable paragraph values.
+their line variable paragraph values.\label{SETTINGS-AFTER-INDENT}
 When the indent beginning a logical line \underline{not}
 in paragraph beginning position
 is read, then the selectors, options, and lexical master are set to

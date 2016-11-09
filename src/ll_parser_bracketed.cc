@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 01:58:51 EST 2016
+// Date:	Wed Nov  9 10:55:42 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3529,6 +3529,37 @@ static min::gen bracketed_pass_command
 			  parser->
 			      selector_name_table,
 			  parser, true );
+		}
+
+		min::gen header =
+		    indentation_mark->
+		        implied_paragraph_header;
+		if ( header != min::MISSING() )
+		    parser->printer
+			<< min::indent
+			<< "with implied paragraph"
+			   " header "
+			<< min::pgen ( header );
+
+		min::uns32 master =
+		    indentation_mark->
+		        lexical_master;
+		if ( master != LEX::MISSING )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with lexical master ";
+		    min::ptr<const char> name =
+			LEXDATA::master_name
+			    ( parser->scanner->program,
+			      master );
+		    min::ptr<const char> nullp;
+		    if ( name != nullp )
+		        parser->printer
+			    << "\"" << name << "\"";
+		    else
+		        parser->printer << master;
+
 		}
 	    }
 	    else if ( subtype == BRA::HEADER )

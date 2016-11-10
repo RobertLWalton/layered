@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  9 10:55:42 EST 2016
+// Date:	Wed Nov  9 21:10:21 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,7 @@
 //	Untyped Brackets
 //	Indentation Marks
 //	Typed Brackets
-//	Header Table Entries
+//	Prefix Table
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Parse Bracketed Subexpression Function
@@ -590,52 +590,51 @@ BRA::typed_opening
     return opening;
 }
 
-// Header Table Entries
-// ------ ----- -------
+// Prefix Table
+// ------ -----
 
-static min::uns32 header_gen_disp[] = {
-    min::DISP ( & BRA::header_struct::label ),
+static min::uns32 prefix_gen_disp[] = {
+    min::DISP ( & BRA::prefix_struct::label ),
+    min::DISP ( & BRA::prefix_struct::group ),
+    min::DISP ( & BRA::prefix_struct
+                     ::implied_subprefix ),
     min::DISP_END };
 
-static min::uns32 header_stub_disp[] = {
-    min::DISP ( & BRA::header_struct::next ),
+static min::uns32 prefix_stub_disp[] = {
+    min::DISP ( & BRA::prefix_struct::next ),
     min::DISP_END };
 
 static min::packed_struct_with_base
-	<BRA::header_struct, TAB::root_struct>
-    header_type ( "ll::parser::bracketed::header_type",
-	        ::header_gen_disp,
-	        ::header_stub_disp );
-const min::uns32 & BRA::HEADER = ::header_type.subtype;
+	<BRA::prefix_struct, TAB::root_struct>
+    prefix_type ( "ll::parser::bracketed::prefix_type",
+	        ::prefix_gen_disp,
+	        ::prefix_stub_disp );
+const min::uns32 & BRA::PREFIX = ::prefix_type.subtype;
 
-void BRA::push_header
-	( min::gen header_label,
+void BRA::push_prefix
+	( min::gen prefix_label,
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  TAB::new_flags new_selectors,
-	  min::gen paragraph_header,
-	  min::gen line_header,
-	  min::uns32 paragraph_master,
-	  min::uns32 line_master,
-	  TAB::flags instructions,
-	  TAB::key_table header_table )
+	  min::gen group,
+	  min::gen implied_subprefix,
+	  min::uns32 lexical_master,
+	  TAB::key_table prefix_table )
 {
-    min::locatable_var<BRA::header> header
-        ( ::header_type.new_stub() );
+    min::locatable_var<BRA::prefix> prefix
+        ( ::prefix_type.new_stub() );
 
-    label_ref(header) = header_label;
-    header->selectors = selectors;
-    header->block_level = block_level;
-    header->position = position;
-    header->new_selectors = new_selectors;
-    paragraph_header_ref(header) = header_label;
-    line_header_ref(header) = header_label;
-    header->paragraph_master = paragraph_master;
-    header->line_master = line_master;
-    header->instructions = instructions;
+    label_ref(prefix) = prefix_label;
+    prefix->selectors = selectors;
+    prefix->block_level = block_level;
+    prefix->position = position;
+    prefix->new_selectors = new_selectors;
+    group_ref(prefix) = group;
+    implied_subprefix_ref(prefix) = implied_subprefix;
+    prefix->lexical_master = lexical_master;
 
-    TAB::push ( header_table, (TAB::root) header );
+    TAB::push ( prefix_table, (TAB::root) prefix );
 }
 
 // Bracketed Subexpression Pass
@@ -662,7 +661,7 @@ static min::uns32 bracketed_pass_stub_disp[] =
     min::DISP ( & BRA::bracketed_pass_struct
                      ::bracket_table ),
     min::DISP ( & BRA::bracketed_pass_struct
-                     ::header_table ),
+                     ::prefix_table ),
     min::DISP_END
 };
 
@@ -720,8 +719,8 @@ static void bracketed_pass_reset
         (BRA::bracketed_pass) pass;
     TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
-    TAB::key_table header_table =
-        bracketed_pass->header_table;
+    TAB::key_table prefix_table =
+        bracketed_pass->prefix_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
@@ -730,7 +729,7 @@ static void bracketed_pass_reset
         ( bracket_table, 0,
 	  collected_key_prefixes, collected_entries );
     TAB::end_block
-        ( header_table, 0,
+        ( prefix_table, 0,
 	  collected_key_prefixes, collected_entries );
     bracketed_pass->indentation_offset = 2;
 }
@@ -762,8 +761,8 @@ static min::gen bracketed_pass_end_block
         (BRA::bracketed_pass) pass;
     TAB::key_table bracket_table =
         bracketed_pass->bracket_table;
-    TAB::key_table header_table =
-        bracketed_pass->header_table;
+    TAB::key_table prefix_table =
+        bracketed_pass->prefix_table;
 
     min::uns64 collected_entries,
                collected_key_prefixes;
@@ -776,7 +775,7 @@ static min::gen bracketed_pass_end_block
         ( bracket_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
     TAB::end_block
-        ( header_table, block_level - 1,
+        ( prefix_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
     bracketed_pass->indentation_offset =
@@ -814,7 +813,7 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
     bracketed_pass->indentation_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 1024 );
-    header_table_ref(bracketed_pass) =
+    prefix_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 1024 );
     indentation_offset_stack_ref(bracketed_pass) =
         ::indentation_offset_stack_type.new_stub ( 16 );
@@ -2989,7 +2988,7 @@ enum definition_type
     { BRACKET,
       INDENTATION_MARK,
       TYPED_BRACKET,
-      HEADER };
+      PREFIX };
 
 static min::gen bracketed_pass_command
 	( PAR::parser parser,
@@ -3011,8 +3010,6 @@ static min::gen bracketed_pass_command
         // define, undefine, or print.
     definition_type type;
         // Type of command (see above).
-    min::gen kind = min::MISSING();
-        // Kind of header, if it is a header.
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
@@ -3101,8 +3098,8 @@ static min::gen bracketed_pass_command
     {
         if ( vp[i] == ::bracket )
 	    type = ::BRACKET;
-	else if ( vp[i] == PAR::header_lexeme )
-	    type = ::HEADER;
+	else if ( vp[i] == PAR::prefix_lexeme )
+	    type = ::PREFIX;
 	else
 	    return min::FAILURE();
 
@@ -3139,19 +3136,12 @@ static min::gen bracketed_pass_command
 	max_names = 4;
 	i += 2;
     }
-    else if ( ( vp[i] == PAR::paragraph_lexeme
-		||
-		vp[i] == PAR::line_lexeme )
-	       &&
-	       i + 1 < size
-	       &&
-	       vp[i+1] == PAR::header_lexeme )
+    else if ( vp[i] == PAR::prefix_lexeme )
     {
-	type = ::HEADER;
-	kind = vp[i];
+	type = ::PREFIX;
 	min_names = 1;
 	max_names = 1;
-	i += 2;
+	++ i;
     }
     else
         return min::FAILURE();
@@ -3240,7 +3230,7 @@ static min::gen bracketed_pass_command
 	TAB::key_table_iterator it
 	    ( type == ::BRACKET ?
 	      bracketed_pass->bracket_table :
-	      bracketed_pass->header_table );
+	      bracketed_pass->prefix_table );
 	while ( true )
 	{
 	    TAB::root root = it.next();
@@ -3259,7 +3249,7 @@ static min::gen bracketed_pass_command
 		 &&
 		 subtype != BRA::INDENTATION_MARK
 		 &&
-		 subtype != BRA::HEADER )
+		 subtype != BRA::PREFIX )
 		continue;
 
 	    ++ count;
@@ -3562,34 +3552,26 @@ static min::gen bracketed_pass_command
 
 		}
 	    }
-	    else if ( subtype == BRA::HEADER )
+	    else if ( subtype == BRA::PREFIX )
 	    {
-		BRA::header header = (BRA::header) root;
-		min::uns32 keep =
-		    ( header->instructions
-		      & BRA::LINE_HEADER ?
-		      BRA::LINE_KEEP :
-		      BRA::PARAGRAPH_KEEP );
+		BRA::prefix prefix = (BRA::prefix) root;
 
 		parser->printer
-		    << ( header->instructions
-		         & BRA::LINE_HEADER ?
-			 "line" : "paragraph" )
-		    << " header "
+		    << "prefix "
 		    << min::pgen_quote
-		           ( header->label );
+		           ( prefix->label );
 
 		parser->printer
 		    << " " << min::set_break;
 
 		COM::print_flags
-		    ( header->selectors,
+		    ( prefix->selectors,
 		      PAR::ALL_SELECTORS,
 		      parser->selector_name_table,
 		      parser );
 
 		TAB::new_flags new_selectors =
-		    header->new_selectors;
+		    prefix->new_selectors;
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
@@ -3606,10 +3588,55 @@ static min::gen bracketed_pass_command
 			  parser, true );
 		}
 
-		if ( header->instructions & keep )
+		min::gen group = prefix->group;
+		if ( group != min::MISSING() )
 		    parser->printer
-		        << min::indent
-			<< "with keep";
+			<< min::indent
+			<< "with group "
+			<< min::pgen ( group );
+
+		min::gen subprefix =
+		    prefix->implied_subprefix;
+		if ( subprefix != min::MISSING() )
+		    parser->printer
+			<< min::indent
+			<< "with implied subprefix "
+			<< min::pgen ( subprefix );
+
+		min::uns32 master =
+		    prefix->lexical_master;
+		if ( master != LEX::MISSING )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with lexical master ";
+		    min::ptr<const char> name =
+			LEXDATA::master_name
+			    ( parser->scanner->program,
+			      master );
+		    min::ptr<const char> nullp;
+		    if ( name != nullp )
+		        parser->printer
+			    << "\"" << name << "\"";
+		    else
+		        parser->printer << master;
+
+		}
+
+		if ( TAB::all_flags ( new_selectors )
+		     &
+		     PAR::ALL_OPT )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with parsing"
+			   " options ";
+		    COM::print_new_flags
+			( new_selectors,
+			  PAR::ALL_OPT,
+			  parser->selector_name_table,
+			  parser, true );
+		}
 	    }
 	    else
 	    {
@@ -3963,9 +3990,8 @@ static min::gen bracketed_pass_command
 		i += 3;
 		if ( i >= size
 		     ||
-                        PAR::get_attribute
-		            ( vp[i], min::dot_type )
-                     == min::MISSING() )
+		     !  PAR::is_prefix_separator
+		            ( vp[i] ) )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
 			  "expected prefix separator"
@@ -4281,12 +4307,14 @@ static min::gen bracketed_pass_command
 
 	break;
     }
-    case ::HEADER:
+    case ::PREFIX:
     {
 	TAB::new_flags new_selectors;
-	min::uns32 instructions =
-	    ( kind == PAR::paragraph_lexeme ? 0 :
-	      BRA::LINE_HEADER );
+	TAB::new_flags new_options;
+	min::locatable_gen group ( min::MISSING() );
+	min::locatable_gen implied_subprefix
+	    ( min::MISSING() );
+	min::uns32 lexical_master = LEX::MISSING;
 
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -4314,29 +4342,114 @@ static min::gen bracketed_pass_command
 			  "expected bracketed selector"
 			  " modifier list after" );
 	    }
-	    else if ( i < size
-		      &&
-		      vp[i] == PAR::keep_lexeme )
+	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PAR::parsing
+		 &&
+		 vp[i+1] == PAR::options )
+	    {
+		i += 2;
+		min::gen result =
+		    COM::scan_new_flags
+			( vp, i, new_options,
+			  PAR::ALL_OPT,
+	                  parser->selector_name_table,
+			  parser->
+			    selector_group_name_table,
+			  parser, true );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::FAILURE() )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed options"
+			  " (modifier) list after" );
+	    }
+	    else
+	    if ( vp[i] == PAR::group )
 	    {
 		++ i;
-		min::uns32 keep =
-		    ( kind == PAR::paragraph_lexeme ?
-		      BRA::PARAGRAPH_KEEP :
-		      BRA::LINE_KEEP );
+		if ( i >= size )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected group name"
+			  " after" );
+		group = vp[i];
+		++ i;
+	    }
+	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PAR::implied
+		 &&
+		 vp[i+1] == PAR::subprefix )
+	    {
+		i += 2;
+		if ( i >= size
+		     ||
+		     !  PAR::is_prefix_separator
+		            ( vp[i] ) )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected prefix separator"
+			  " after" );
+		implied_subprefix = vp[i];
+		++ i;
+	    }
+	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PAR::lexical
+		 &&
+		 vp[i+1] == PAR::master )
+	    {
+		i += 2;
+		if ( i >= size
+		     ||
+                        PAR::get_attribute
+		            ( vp[i], min::dot_type )
+                     != PAR::doublequote )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected quoted string"
+			  " after" );
 
-		if ( i == size )
-		    instructions |= keep;
-		else if ( i < size )
+		min::obj_vec_ptr ep = vp[i];
+		if ( min::size_of ( ep ) != 1 )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "malformed quoted string" );
+
+		min::str_ptr sp = ep[0];
+		++ i;
+
+		LEX::program program =
+		    parser->scanner->program;
+
+		min::uns32 max_master =
+		    LEXDATA::max_master ( program );
+		min::ptr<const char> nullp;
+		for ( min::uns32 m = 0; m <= max_master;
+		                        ++ m )
 		{
-		    if ( vp[i] == PAR::yes_lexeme )
-			instructions |= keep;
-		    else if ( vp[i] != PAR::no_lexeme )
+		    min::ptr<const char> name =
+			LEXDATA::master_name
+			    ( program, m );
+		    if ( name != nullp
+		         &&
+			    min::strcmp ( ! name, sp )
+		         == 0 )
 		    {
-			instructions |= keep;
-		    	-- i;
+		        lexical_master = m;
+			break;
 		    }
-		    ++ i;
 		}
+		if ( lexical_master == LEX::MISSING )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "quoted string does NOT name"
+			  " a lexical master" );
 	    }
 	    else
 		return PAR::parse_error
@@ -4349,16 +4462,22 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
 
-	BRA::push_header
+	new_selectors.or_flags |=
+	    new_options.or_flags;
+	new_selectors.not_flags |=
+	    new_options.not_flags;
+	new_selectors.xor_flags |=
+	    new_options.xor_flags;
+
+	BRA::push_prefix
 	    ( name[0], selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
-	      min::MISSING(),
-	      min::MISSING(),
-	      0, 0,
-	      instructions,
-	      bracketed_pass->header_table );
+	      group,
+	      implied_subprefix,
+	      lexical_master,
+	      bracketed_pass->prefix_table );
 	break;
     }
     default:
@@ -4376,7 +4495,7 @@ static min::gen bracketed_pass_command
 	        ( name[0],
 		  type == ::BRACKET ?
 		  bracketed_pass->bracket_table :
-		  bracketed_pass->header_table );
+		  bracketed_pass->prefix_table );
 
 	min::uns32 count = 0;
 
@@ -4464,7 +4583,7 @@ static min::gen bracketed_pass_command
 
 		break;
 	    }
-	    case ::HEADER:
+	    case ::PREFIX:
 	    {
 		// Here to suppress warning message.
 		//

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 02:13:59 EST 2016
+// Date:	Thu Nov 10 03:09:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,9 +85,11 @@ namespace ll { namespace parser {
 	selector,	// selector
 	selectors,	// selectors
 	options,	// options
+	group,		// group
 	lexical,	// lexical
 	master,		// master
 	implied,	// implied
+	subprefix,	// subprefix
 	reformatter_lexeme,
 			// reformatter
 	context_lexeme,	// context
@@ -1725,6 +1727,11 @@ ll::parser::token find_separator
 // otherwise.
 //
 min::gen get_attribute ( min::gen v, min::gen label );
+
+// Return true iff v is an object with no elements and
+// a .type attribute that is a min string or label.
+//
+bool is_prefix_separator ( min::gen v );
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the

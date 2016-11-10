@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 02:16:21 EST 2016
+// Date:	Thu Nov 10 03:11:17 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,9 +80,11 @@ min::locatable_gen PAR::pass_lexeme;
 min::locatable_gen PAR::selector;
 min::locatable_gen PAR::selectors;
 min::locatable_gen PAR::options;
+min::locatable_gen PAR::group;
 min::locatable_gen PAR::lexical;
 min::locatable_gen PAR::master;
 min::locatable_gen PAR::implied;
+min::locatable_gen PAR::subprefix;
 min::locatable_gen PAR::reformatter_lexeme;
 min::locatable_gen PAR::context_lexeme;
 min::locatable_gen PAR::default_lexeme;
@@ -182,9 +184,11 @@ static void initialize ( void )
     PAR::selector = min::new_str_gen ( "selector" );
     PAR::selectors = min::new_str_gen ( "selectors" );
     PAR::options = min::new_str_gen ( "options" );
+    PAR::group = min::new_str_gen ( "group" );
     PAR::lexical = min::new_str_gen ( "lexical" );
     PAR::master = min::new_str_gen ( "master" );
     PAR::implied = min::new_str_gen ( "implied" );
+    PAR::subprefix = min::new_str_gen ( "subprefix" );
     PAR::reformatter_lexeme =
         min::new_str_gen ( "reformatter" );
     PAR::context_lexeme =
@@ -1959,6 +1963,19 @@ min::gen PAR::get_attribute
 	return min::MISSING();
     else
     	return result;
+}
+
+bool PAR::is_prefix_separator ( min::gen v )
+{
+    if ( ! min::is_obj ( v ) ) return false;
+    min::obj_vec_ptr vp ( v );
+    if ( min::size_of ( vp ) != 0 ) return false;
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, min::dot_type );
+    min::gen result = min::get ( ap );
+    return min::is_str ( result )
+           ||
+	   min::is_lab ( result );
 }
 
 min::gen PAR::scan_name_string_label

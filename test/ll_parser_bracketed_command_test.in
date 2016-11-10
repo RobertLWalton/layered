@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 16 05:29:51 EST 2016
+// Date:	Thu Nov 10 03:22:38 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -141,20 +141,17 @@ parser test:
 	    hi there
 	) end
 
-parser print header ""
-parser define paragraph header "X" [code]
+parser print prefix ""
+parser define prefix "X" [code]
        with parsing selectors [code, math]
-parser define line header "Y" [code]
+parser define prefix "Y" [code]
        with parsing selectors [+ text]
-       with keep
-parser define paragraph header "Z" [math]
+       with group ajax
+parser define prefix "Z" [math]
        with parsing selectors [code]
-       with keep no
-parser define line header "W" [math]
-       with parsing selectors [code]
-       with keep yes
-parser print header ""
-parser print header "X"
+       with lexical master "MAIN"
+parser print prefix ""
+parser print prefix "X"
 
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
        [code, text, math, parser]

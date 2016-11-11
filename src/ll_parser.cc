@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 03:11:17 EST 2016
+// Date:	Thu Nov 10 18:55:14 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1863,6 +1863,65 @@ void PAR::compact
 	PAR::value_ref(first) = exp;
 	first->position = position;
     }
+
+    PAR::trace_subexpression
+        ( parser, first, trace_flags );
+}
+
+void PAR::compact_prefix_separator
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  PAR::table::flags selectors,
+	  PAR::token first,
+	  PAR::token next,
+	  const min::phrase_position position,
+	  TAB::flags trace_flags )
+{
+    if ( first->next != next )
+    {
+	PAR::token current = first->next;
+
+	PAR::execute_pass_parse
+	     ( parser, pass, selectors,
+	       current, next );
+
+	min::phrase_position position =
+	    { first->position.begin,
+	      next->previous->position.end };
+
+	min::obj_vec_insptr vp
+	    ( first->value );
+	min::attr_insptr ap ( vp );
+
+	min::locate
+	    ( ap, min::dot_position );
+	min::phrase_position_vec_insptr
+	    pos = min::get ( ap );
+	pos->position = position;
+
+	while ( current != next )
+	{
+	    if (    current->string
+		 != min::NULL_STUB )
+		PAR::convert_token
+		    ( current );
+
+	    min::attr_push(vp) =
+		current->value;
+	    min::push ( pos ) =
+		current->position;
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref
+			    (parser),
+			current->previous ) );
+	}
+    }
+
+    first->position = position;
+    first->type = PAR::BRACKETED;
 
     PAR::trace_subexpression
         ( parser, first, trace_flags );

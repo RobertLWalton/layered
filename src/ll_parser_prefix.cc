@@ -130,10 +130,10 @@ PAR::pass PRE::new_pass ( PAR::parser parser )
 // ------ ----- --------
 
 static void prefix_parse ( PAR::parser parser,
-		         PAR::pass pass,
-		         TAB::flags selectors,
-		         PAR::token & first,
-		         PAR::token next )
+		           PAR::pass pass,
+		           TAB::flags selectors,
+		           PAR::token & first,
+		           PAR::token next )
 {
     PRE::prefix_pass prefix_pass =
         (PRE::prefix_pass) pass;
@@ -211,55 +211,16 @@ static void prefix_parse ( PAR::parser parser,
 		    min::pop(prefix_stack).first;
 		j = prefix_stack->length;
 
-		PAR::token first = prefix->next;
+		min::phrase_position position =
+		    { prefix->position.begin,
+		      current->previous
+			     ->position.end };
 
-		if ( first != current )
-		{
-		    PAR::execute_pass_parse
-			 ( parser, pass->next,
-			   selectors,
-			   first, current );
+		PAR::compact_prefix_separator
+		    ( parser, pass, selectors,
+		      prefix, current,
+		      position, trace_flags );
 
-		    min::phrase_position position =
-			{ prefix->position.begin,
-			  current->previous
-			         ->position.end };
-
-		    min::obj_vec_insptr vp
-		    	( prefix->value );
-		    min::attr_insptr ap ( vp );
-
-		    min::locate
-		        ( ap, min::dot_position );
-		    min::phrase_position_vec_insptr
-		        pos = min::get ( ap );
-		    pos->position = position;
-
-		    while ( first != current )
-		    {
-			if (    first->string
-			     != min::NULL_STUB )
-			    PAR::convert_token
-			        ( first );
-
-			min::attr_push(vp) =
-			    first->value;
-			min::push ( pos ) =
-			    first->position;
-
-			first = first->next;
-			PAR::free
-			    ( PAR::remove
-				  ( PAR::first_ref
-				        (parser),
-				    first->previous ) );
-		    }
-		    prefix->position = position;
-		}
-
-		prefix->type = PAR::BRACKETED;
-		PAR::trace_subexpression
-		    ( parser, prefix, trace_flags );
 	    }
 	}
 

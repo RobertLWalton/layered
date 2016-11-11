@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 03:09:57 EST 2016
+// Date:	Thu Nov 10 18:54:56 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1676,6 +1676,26 @@ void compact
 	  min::uns32 m = 0,
 	  ll::parser::attr * attributes = NULL,
 	  min::uns32 n = 0 );
+
+
+// Given an expression beginning with first and ending
+// just before next, in which the first token is a
+// PREFIX token, add the non-first tokens to the first
+// token value as elements.  Execute pass->next on
+// the list of non-first elements before doing this, and
+// then convert any non-first element tokens with
+// strings to tokens with values of .type <Q> or #.
+// Lastly remove non-first element tokens, but leave
+// both the first and the next tokens.
+//
+void compact_prefix_separator
+	( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token first,
+	  ll::parser::token next,
+	  const min::phrase_position position,
+	  ll::parser::table::flags trace_flags );
 
 // The following function prints TRACE_SUBEXPRESSION_...
 // tracing information for a token that has just been

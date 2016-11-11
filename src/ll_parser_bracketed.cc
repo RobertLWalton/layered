@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  9 21:10:21 EST 2016
+// Date:	Fri Nov 11 05:25:36 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -695,20 +695,6 @@ static void bracketed_pass_place
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
     bracketed_pass->trace_subexpressions =
         1ull << index;
-
-    if (    PAR::find_on_pass_stack
-                ( parser, PAR::prefix_lexeme )
-         == min::NULL_STUB )
-    {
-	PAR::new_pass prefix_new_pass =
-	    PAR::find_new_pass ( PAR::prefix_lexeme );
-        PAR::pass prefix_pass =
-	    ( * prefix_new_pass ) ( parser );
-	PAR::place_after
-	    ( parser, (PAR::pass) prefix_pass,
-	              (PAR::pass) bracketed_pass );
-	prefix_pass->selectors = PAR::PREFIX_SELECTOR;
-    }
 }
 
 static void bracketed_pass_reset
@@ -2370,6 +2356,128 @@ min::position BRA::parse_bracketed_subexpression
 		    while ( first != elements );
 
 		    value_type_ref(elements) = type;
+
+		    if ( elements->type == PAR::PREFIX )
+		    {
+			PAR::token prefix = elements;
+			MIN_REQUIRE
+			    ( prefix->next == next );
+
+			for ( BRA::bracket_stack * p =
+				  bracket_stack_p;
+
+			      p != NULL
+			      &&
+			         p->prefix_type
+			      != min::MISSING();
+
+			      p = p->previous )
+			{
+			    if (    p->prefix_type
+			         == type )
+			    {
+				p->closing_first =
+				    prefix;
+				p->closing_next =
+				    prefix->next;
+
+				for ( BRA::bracket_stack
+				        * q =
+					  bracket_stack_p;
+				      q != p;
+				      q = q->previous )
+				    q->closing_first =
+					q->closing_next =
+					    prefix;
+
+				return separator_found;
+			    }
+			}
+
+			if ( ! at_start )
+			{
+			    PAR::parse_error
+			      ( parser,
+				prefix->position,
+				"prefix separator of"
+				" type `",
+				min::pgen_never_quote
+				  ( type ),
+				"' not at beginning of"
+				" subexpression;"
+				" ignored"
+			      );
+			    PAR::free
+			      ( PAR::remove
+				( first_ref(parser),
+				  next->previous )
+			      );
+			}
+			else if
+			    (    cstack.closing_next
+		              == cstack.closing_first )
+			{
+			    // Found a closing bracket
+			    // that is not ours or
+			    // logical line end.
+			    // Kick to caller.
+			    //
+			    prefix->type =
+			        PAR::BRACKETED;
+			    return separator_found;
+			}
+			else
+			{
+			    // Start new subexpression
+			    // that begins with a prefix
+			    // separator.
+			    //
+			    cstack.opening_bracket =
+				min::NULL_STUB;
+			    cstack.prefix_type = type;
+
+			    while ( true )
+			    {
+				cstack.closing_first =
+				    min::NULL_STUB;
+				cstack.closing_next =
+				    min::NULL_STUB;
+				separator_found =
+				  PARSE_BRA_SUBEXP
+				    ( parser,
+				      new_selectors,
+				      current, indent,
+					new_selectors
+				      & PAR::EALSEP_OPT  ?
+					line_sep :
+					(BRA::line_sep)
+					min::NULL_STUB,
+				      NULL, NULL,
+				      & cstack );
+
+				next =
+				  cstack.closing_first;
+				if (    next
+				     == min::NULL_STUB )
+				    next = current;
+				compact_prefix_separator
+				  ( parser, pass->next,
+			            new_selectors,
+			            prefix, next,
+			            trace_flags );
+				if ( cstack
+				       .closing_first
+				     ==
+				     cstack
+				       .closing_next )
+				    return
+				        separator_found;
+				prefix =
+				    cstack
+				      .closing_first;
+			    }
+			}
+		    }
 		}
 
 		// Come here after compacting.

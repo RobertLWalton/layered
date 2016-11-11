@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 04:41:01 EST 2016
+// Date:	Fri Nov 11 17:46:26 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -113,9 +113,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
     parser->selectors &= PAR::ALL_OPT;
     parser->selectors |= code | prefix
                        | PAR::ALWAYS_SELECTOR;
-    PAR::pass prefix_pass =
-        PAR::find_on_pass_stack ( parser, prefix_name );
-    prefix_pass->selectors = prefix;
 
     min::uns32 block_level =
         PAR::block_level ( parser );

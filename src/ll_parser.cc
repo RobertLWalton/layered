@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 18:55:14 EST 2016
+// Date:	Fri Nov 11 05:19:22 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1874,20 +1874,17 @@ void PAR::compact_prefix_separator
 	  PAR::table::flags selectors,
 	  PAR::token first,
 	  PAR::token next,
-	  const min::phrase_position position,
 	  TAB::flags trace_flags )
 {
     if ( first->next != next )
     {
+	first->position.end =
+	    next->previous->position.end;
 	PAR::token current = first->next;
 
 	PAR::execute_pass_parse
 	     ( parser, pass, selectors,
 	       current, next );
-
-	min::phrase_position position =
-	    { first->position.begin,
-	      next->previous->position.end };
 
 	min::obj_vec_insptr vp
 	    ( first->value );
@@ -1897,7 +1894,7 @@ void PAR::compact_prefix_separator
 	    ( ap, min::dot_position );
 	min::phrase_position_vec_insptr
 	    pos = min::get ( ap );
-	pos->position = position;
+	pos->position = first->position;
 
 	while ( current != next )
 	{
@@ -1920,7 +1917,6 @@ void PAR::compact_prefix_separator
 	}
     }
 
-    first->position = position;
     first->type = PAR::BRACKETED;
 
     PAR::trace_subexpression

@@ -30,8 +30,7 @@ parser print context "":
 parser print trace:
     [ + warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
-      - subexpression lines, - keys, - bracketed subexpressions,
-      - prefix subexpressions ]
+      - subexpression lines, - keys, - bracketed subexpressions ]
 parser trace [+ parser input]
 WORD: "parser": line 19:
 parser print trace
@@ -51,8 +50,7 @@ parser trace [- parser input]
 parser print trace:
     [ + warnings, + parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
-      - subexpression lines, - keys, - bracketed subexpressions,
-      - prefix subexpressions ]
+      - subexpression lines, - keys, - bracketed subexpressions ]
 WORD: "parser": line 20:
 parser trace [- parser input]
 ^^^^^^
@@ -84,8 +82,7 @@ parser trace [- parser input]
 parser print trace:
     [ + warnings, - parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
-      - subexpression lines, - keys, - bracketed subexpressions,
-      - prefix subexpressions ]
+      - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":
     block standard: default [prefix, code]
                             options [end at le indent,

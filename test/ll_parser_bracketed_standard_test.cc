@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  4 18:50:17 EST 2016
+// Date:	Fri Nov 11 17:53:01 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,14 +37,8 @@ int main ( int argc, const char * argv[] )
 	PAR::default_parser->pass_stack;
     min::locatable_gen prefix
         ( min::new_str_gen ( "prefix" ) );
-    PRE::prefix_pass prefix_pass =
-	(PRE::prefix_pass)
-        PAR::find_on_pass_stack
-	    ( PAR::default_parser, prefix );
     PAR::default_parser->trace_flags |=
         bracketed_pass->trace_subexpressions
-	+
-	prefix_pass->trace_subexpressions
 	+
 	PAR::TRACE_SUBEXPRESSION_ELEMENTS
 	+

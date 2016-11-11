@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 18:54:56 EST 2016
+// Date:	Fri Nov 11 05:19:39 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1685,8 +1685,12 @@ void compact
 // the list of non-first elements before doing this, and
 // then convert any non-first element tokens with
 // strings to tokens with values of .type <Q> or #.
-// Lastly remove non-first element tokens, but leave
-// both the first and the next tokens.
+// The end position of the expanded PREFIX token is
+// updated to equal the end position of next->previous,
+// and the type of the PREFIX token is changed to
+// BRACKETED.  Lastly non-first element tokens are
+// removed, but both the first and the next tokens are
+// not.
 //
 void compact_prefix_separator
 	( ll::parser::parser parser,
@@ -1694,7 +1698,6 @@ void compact_prefix_separator
 	  ll::parser::table::flags selectors,
 	  ll::parser::token first,
 	  ll::parser::token next,
-	  const min::phrase_position position,
 	  ll::parser::table::flags trace_flags );
 
 // The following function prints TRACE_SUBEXPRESSION_...

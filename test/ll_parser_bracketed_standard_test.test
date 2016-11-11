@@ -1066,14 +1066,6 @@ PREFIX EXPRESSION:
 ({P2:)
  ^^^^
 BRACKETED EXPRESSION:
-    {P2||P2}
-@76 =:
-          .type = "P2"
-          .position[H] = {}
-    line 60:
-({P2:)
- ^^^^
-BRACKETED EXPRESSION:
     ({P2||P2})
 @77 = @76:
           .terminator = ")"
@@ -2693,6 +2685,14 @@ PREFIX EXPRESSION:
     line 107:
     {s} And another.
     ^^^
+BRACKETED EXPRESSION:
+    {s|This is a sentence "."|s}
+@172 = This is a sentence ".":
+           .type = "s"
+           .position[H] = {}
+    line 106:
+{p} {s} This is a sentence.
+    ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
@@ -2705,6 +2705,24 @@ PREFIX EXPRESSION:
     line 108:
   {p} {s} And a new {foo} paragraph.
   ^^^
+BRACKETED EXPRESSION:
+    {s|And another "."|s}
+@173 = And another ".":
+           .type = "s"
+           .position[H] = {}
+    line 107:
+    {s} And another.
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
+@171 = @172 @173:
+           .type = "p"
+           .position[H] = {}
+    lines 106-107:
+{p} {s} This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s} And another.
+^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
@@ -2729,34 +2747,8 @@ PREFIX EXPRESSION:
     line 108:
   {p} {s} And a new {foo} paragraph.
                     ^^^^^
-BRACKETED EXPRESSION:
-    {s|This is a sentence "."|s}
-@172 = This is a sentence ".":
-           .type = "s"
-           .position[H] = {}
-    line 106:
-{p} {s} This is a sentence.
-    ^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {s|And another "."|s}
-@173 = And another ".":
-           .type = "s"
-           .position[H] = {}
-    line 107:
-    {s} And another.
-    ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
-@171 = @172 @173:
-           .type = "p"
-           .position[H] = {}
-    lines 106-107:
-{p} {s} This is a sentence.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {s} And another.
-^^^^^^^^^^^^^^^^^^^^
-ERROR: in line 108: prefix token not at beginning of phrase; deleted and
-       ignored:
+ERROR: in line 108: prefix separator of type `foo' not at beginning of
+       subexpression; ignored:
   {p} {s} And a new {foo} paragraph.
                     ^^^^^
 BRACKETED EXPRESSION:

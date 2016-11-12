@@ -125,6 +125,9 @@
 \newcommand{\ttbkey}[1]{\TT{[#1]}\index{[]@{\tt [#1]}}}
 \newcommand{\ttbmkey}[2]{\TT{[#1]}\index{[]@{\tt [#1]}!#2}}
 
+\newcommand{\ttsvkey}[1]{\TT{[\$~#1~\$]}\index{#1@{\tt [\$~#1~\$]}}}
+\newcommand{\ttsvmkey}[2]{\TT{[\$~#1~\$]}\index{#1@{\tt [\$~#1~\$]}!#2}}
+
 \newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
 \newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
 
@@ -232,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 10, 2016
+November 12, 2016
  
 \end{center}
 
@@ -2920,18 +2923,21 @@ partial lexeme matching.
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
-\hspace*{-0.2in}logical lines, which may end with any line break,
-    or with a line break not followed by an indented line,
-    or with a line break followed by a counter-indented line,
-    or with a line separator (e.g.~`\TT{,}'),
-    or with any blank line, or with the closing bracket
-    (e.g., `\TT{)}') of
-    a bracketed expression that contains the logical line \\
-\hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
-    and bracketed subexpressions \\
 \hspace*{-0.2in}indentation marks (e.g.~`\TT{:}')
     and line separators (e.g.~`\TT{;}'),
     indented paragraphs, and indented paragraph logical lines \\
+\hspace*{-0.2in}logical lines, which may end with any line break,
+    or with a line break not followed by an indented line,
+    or with a line break followed by a counter-indented line,
+    or with a line separator (e.g.~`\TT{;}'),
+    or with any blank line, or with the closing bracket
+    (e.g., `\TT{)}') of
+    a bracketed expression that contains the logical line \\
+\hspace*{-0.2in}unindented paragraphs
+    which are just logical lines ended by a blank line or
+    the end of a containing indented paragraph \\
+\hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
+    and bracketed subexpressions \\
 \hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
       and typed bracketed subexpressions \\
 \hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
@@ -2972,8 +2978,8 @@ The bracketed parser pass has its own symbol table containing:
       and typed middles (e.g.~`\TT{|}')
 \end{indpar}
 
-There is also a separate symbol table for each typed opening:
-see Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}.
+The bracketed parser pass also has separate symbol tables
+for prefix types and prefix lexemes: see \itemref{PREFIX-DEFINITIONS}.
 
 In bracketed subexpression recognition, 
 multi-lexeme keys in the bracketed pass symbol table
@@ -2981,12 +2987,6 @@ are not recognized in the
 input if their lexemes are not all on the same physical line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
-
-However the separate symbol table for a typed opening is used
-during a second pass over the typed subexpression or prefix,
-and so keys in that table are recognized if their lexemes
-are not all on the same physical line: again
-see Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS} for details.
 
 Like other parser passes, the bracketed subexpression recognition pass uses
 parsing selectors and parsing options.
@@ -3002,18 +3002,87 @@ may be changed by an indentation mark
 or a pargraph header prefix separator
 (see Section~\itemref{TYPED-PREFIX-SEPARATORS}).
 
-In general, the bracketed subexpression recognizer converts
+Syntactically a {\em bracketed-subexpression} may take many forms:
+
+\begin{indpar}[0.1in]
+\emkey{bracketed-subexpression}
+    \begin{tabular}[t]{@{}rll@{}}
+    ::= & {\em untyped-bracketed-subexpression}
+        & see \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS} \\
+    $|$ & {\em indented-paragraph-subexpression}
+	& see \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS} \\
+    $|$ & {\em typed-bracketed-subexpression}
+        & see \itemref{TYPED-BRACKETED-SUBEXPRESSIONS} \\
+    $|$ & {\em typed-prefix-separator}
+	& see \itemref{TYPED-PREFIX-SEPARATORS} \\
+    $|$ & {\em prefix-n-list}
+	& see \pagref{PREFIX-N-LIST} in \itemref{TYPED-PREFIX-SEPARATORS} \\
+    $|$ & implied paragraph and line headers
+	& see \itemref{PARAGRAPH-AND-LINE-HEADERS} \\
+    \end{tabular}
+\end{indpar}
+
+However, some of these forms can only be recognized in particular
+contexts, e.g., {\em indented-para\-graph-subexpressions} can only be
+recognized if they begin at the end of a line.
+See the indicated sections for details.
+
+The parser commands specific to the bracketed subexpression recognizer
+are similarly divided:
+
+\begin{indpar}[0.1in]
+\emkey{parser-bracketed-command}
+    \begin{tabular}[t]{@{}rll@{}}
+    ::= & {\em parser-untyped-bracket-command}
+        & see \pagref{PARSER-UNTYPED-BRACKET-COMMAND} \\
+    $|$ & {\em parser-indentation-mark-command}
+        & see \pagref{PARSER-INDENTATION-MARK-COMMAND} \\
+    $|$ & {\em parser-typed-bracket-command}
+        & see \pagref{PARSER-TYPED-BRACKET-COMMAND} \\
+    $|$ & {\em parser-prefix-command}
+        & see \pagref{PARSER-PREFIX-COMMAND} \\
+    $|$ & {\em parser-prefix-lexeme-command}
+        & see \pagref{PARSER-PREFIX-LEXEME-COMMAND} \\
+    $|$ & {\em parser-print-bracket-command}
+        & see \pagref{PARSER-PRINT-BRACKET-COMMAND} \\
+    \end{tabular}
+\label{PARSER-BRACKETED-COMMAND}
+\end{indpar}
+
+The following subsections first describe the output of the
+bracketed subexpression parser pass and then describe
+the different kinds of
+{\em bracketed-subexpressions} and their related
+{\em parser-bracketed-commands}.
+
+\subsubsection{Bracketed Subexpression Parser Pass Output}
+\label{BRACKETED-SUBEXPRESSION-PARSER-PASS-OUTPUT}
+
+The bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
-are MIN objects with attributes determined by the brackets
-and elements dermined by tokens between the brackets.
-For untyped brackets the only
-syntax attributes are \TT{.initiator}, \TT{.terminator}, and
-\TT{.separator}, and the
-only non-syntax attribute is the \TT{.position} attribute.
-For typed brackets
-the only syntax attributes are \TT{.type} and \TT{.separator}, but arbitrary
-non-syntax attributes may be encoded within the typed brackets,
-in addition to the \TT{.position} attribute.
+are MIN objects, or into \TT{DERIVED} tokens whose values are
+MIN non-objects, such as labels or special values.
+
+For {\em untyped-bracketed-subexpressions}
+the brackets become the `\skey{syntax attribute}s'
+\TT{.ini\-ti\-ator} (e.g. `\TT{(}') and \TT{.terminator} (e.g., `\TT{)}'),
+an additional syntax attribute \TT{.separator} (e.g., `\TT{,}')
+may be added, and the `\key{non-syntax attribute}' is \TT{.position}.
+
+{\em Indented-paragraph-subexpressions} are similar, with the
+{\em indentation-mark} (e.g., `\TT{:}') being the \TT{.ini\-ti\-ator} and
+the special value `\ttsvkey{INDENTED\_PARAGRAPH}' being the
+\TT{.term\-i\-na\-tor}.  There is no \TT{.separator}.  The elements
+are logical lines which are also similar with \TT{.initiator}
+being the special value `\ttsvkey{LOGICAL\_LINE}' and \TT{.terminator}
+being the line separator (e.g., `\TT{;}') if there is one
+or \TT{"<LF>"} otherwise.
+
+For typed brackets the attributes are
+the syntax attributes \TT{.type} and \TT{.separator},
+the non-syntax attribute is \TT{.position},
+and in addition
+arbitrary non-syntax attributes may be encoded within the typed brackets.
 
 Sub-subexpressions may occur among the list of tokens that determine either the
 object elements or the value of a non-syntax attribute.
@@ -3108,47 +3177,6 @@ This is not considered to be a syntax attribute.
 The output of the parser is a sequence of \TT{BRACKETED} tokens,
 one per top level logical line.  For each of these tokens,
 its `\TT{value}' encodes its logical line.
-
-Syntactically a {\em bracketed-subexpression} takes one of several forms:
-
-\begin{indpar}[0.1in]
-\emkey{bracketed-subexpression}
-    \begin{tabular}[t]{@{}rll@{}}
-    ::= & {\em untyped-bracketed-subexpression}
-        & see \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS} \\
-    $|$ & {\em indented-paragraph-subexpression}
-	& see \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS} \\
-    $|$ & {\em typed-bracketed-subexpression}
-        & see \itemref{TYPED-BRACKETED-SUBEXPRESSIONS} \\
-    $|$ & {\em prefixed-subexpression}
-	& see \itemref{TYPED-PREFIX-SEPARATORS} \\
-    \end{tabular}
-\end{indpar}
-
-However, some of these forms can only be recognized in particular
-contexts, e.g., {\em indented-para\-graph-subexpressions} can only be
-recognized if they begin at the end of a line and are the last
-element in their containing expression.
-See the indicated sections for details.
-
-The parser commands specific to the bracketed subexpression recognizer
-are further divided into those specific to the different kinds of subexpression
-recognized by this recognizer:
-
-\begin{indpar}[0.1in]
-\emkey{parser-bracketed-command}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em parser-untyped-bracket-command} \\
-    $|$ & {\em parser-indentation-mark-command} \\
-    $|$ & {\em parser-typed-bracket-command} \\
-    $|$ & {\em parser-print-bracket-command} \\
-    \end{tabular}
-\label{PARSER-BRACKETED-COMMAND}
-\end{indpar}
-
-The following subsections describe the different kinds of
-{\em bracketed-subexpressions} and the {\em parser-bracketed-commands}
-that control their recognition.
 
 \subsubsection{Untyped Bracketed Subexpressions}
 \label{UNTYPED-BRACKETED-SUBEXPRESSIONS}

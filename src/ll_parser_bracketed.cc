@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 05:25:36 EST 2016
+// Date:	Sat Nov 12 00:00:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2445,9 +2445,9 @@ min::position BRA::parse_bracketed_subexpression
 				separator_found =
 				  PARSE_BRA_SUBEXP
 				    ( parser,
-				      new_selectors,
+				      selectors,
 				      current, indent,
-					new_selectors
+					selectors
 				      & PAR::EALSEP_OPT  ?
 					line_sep :
 					(BRA::line_sep)
@@ -2462,7 +2462,7 @@ min::position BRA::parse_bracketed_subexpression
 				    next = current;
 				compact_prefix_separator
 				  ( parser, pass->next,
-			            new_selectors,
+			            selectors,
 			            prefix, next,
 			            trace_flags );
 				if ( cstack

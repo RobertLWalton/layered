@@ -18,25 +18,28 @@ parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
                                          ^^^
 ======= END TEST
-======= TEST: parser test ({}, x, y, {}, z, {}, {})
+======= TEST: parser test ({}, x, {|y 4|}, {}, z, {}, {})
 ------- line 12:
-parser test (, x, y,, z,,)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser test (, x, y 4,, z,,)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 12:
-parser test (, x, y,, z,,)
-            ^^^^^^^^^^^^^^
+parser test (, x, y 4,, z,,)
+            ^^^^^^^^^^^^^^^^
 ------- line 12:
-parser test (, x, y,, z,,)
+parser test (, x, y 4,, z,,)
              ^
 ------- line 12:
-parser test (, x, y,, z,,)
-                    ^
+parser test (, x, y 4,, z,,)
+                  ^^^
 ------- line 12:
-parser test (, x, y,, z,,)
-                        ^
+parser test (, x, y 4,, z,,)
+                      ^
 ------- line 12:
-parser test (, x, y,, z,,)
-                         ^
+parser test (, x, y 4,, z,,)
+                          ^
+------- line 12:
+parser test (, x, y 4,, z,,)
+                           ^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "=", .terminator = ")", .initiator =

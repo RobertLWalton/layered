@@ -3087,16 +3087,45 @@ may themselves the MIN objects, as when brackets are nested.  The
 elements of indented paragraphs are always logical lines.
 
 If MIN object X has just one element that is a MIN object Y,
-X has not attributes other than \TT{.type}, \TT{.initiator},
+X has no attributes other than \TT{.type}, \TT{.initiator},
 and \TT{.terminator}, and Y does not have any of these three
 attributes, then X and Y are merged to get a new object with
-the attributes of both and the elements of Y.  This is implemented
+the attributes of both X and Y and the elements of Y.  This is implemented
 by having the bracketed subexpression parser give the token type
 \TT{BRACKATABLE} to Y as a temporary token type indicating that Y
 does not have any \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 attribute.  Then when X is formed, the knowledge of the structure
 of X and the \TT{BRACKATABLE} type of Y permit the two objects
 to be merged.
+
+Consider the example:
+\begin{center}
+\tt ( x, y 5, 8, w, p )
+\end{center}
+
+The token sequence
+\begin{center}
+\tt x "," y 5 "," 8 "," w "," p
+\end{center}
+is converted by the operator pass to
+\begin{center}
+\tt \{"": .separator = "," | x  \{| y 5 |\} 8 w p |\}
+\end{center}
+where \TT{""} denotes a missing \TT{.type}.  This is a \TT{BRACKATABLE}
+token.  If we denote it by Y,
+then the full expression is
+\begin{center}
+\tt \{"": .initiator = "(", .terminator = ")" | Y |\}
+\end{center}
+and the above rule merges the attributes into Y to get
+\begin{center}
+\tt
+\{"": \begin{tabular}[t]{l}
+      .initiator = "(", .terminator = ")", .separator = "," \\
+      | x  \{| y 5 |\} 8 w p |\}
+      \end{tabular}
+\end{center}
+as the value of a \TT{BRACKETED} token.
 
 Sub-subexpressions may occur among the list of tokens that determine either the
 object elements or the value of a non-syntax attribute.

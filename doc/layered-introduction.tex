@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 12, 2016
+November 13, 2016
  
 \end{center}
 
@@ -3060,29 +3060,43 @@ the different kinds of
 
 The bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
-are MIN objects, or into \TT{DERIVED} tokens whose values are
-MIN non-objects, such as labels or special values.
+are MIN objects, or into \TT{DERIVED} tokens whose values can
+be other things such as labels or special values.
 
-For {\em untyped-bracketed-subexpressions}
-the brackets become the `\skey{syntax attribute}s'
-\TT{.ini\-ti\-ator} (e.g. `\TT{(}') and \TT{.terminator} (e.g., `\TT{)}'),
-an additional syntax attribute \TT{.separator} (e.g., `\TT{,}')
-may be added, and the `\key{non-syntax attribute}' is \TT{.position}.
-
+For {\em untyped-bracketed-subexpressions} that are \underline{not}
+reformatted, the brackets become the
+\TT{.ini\-ti\-ator} (e.g. `\TT{(}') and \TT{.terminator} (e.g., `\TT{)}').
 {\em Indented-paragraph-subexpressions} are similar, with the
 {\em indentation-mark} (e.g., `\TT{:}') being the \TT{.ini\-ti\-ator} and
 the special value `\ttsvkey{INDENTED\_PARAGRAPH}' being the
-\TT{.term\-i\-na\-tor}.  There is no \TT{.separator}.  The elements
-are logical lines which are also similar with \TT{.initiator}
-being the special value `\ttsvkey{LOGICAL\_LINE}' and \TT{.terminator}
-being the line separator (e.g., `\TT{;}') if there is one
+\TT{.term\-i\-na\-tor}.  The elements of an indented paragraph are
+logical lines, whose \TT{.initiator}
+is the special value `\ttsvkey{LOGICAL\_LINE}' and whose \TT{.terminator}
+is the line separator (e.g., `\TT{;}') if there is one,
 or \TT{"<LF>"} otherwise.
 
-For typed brackets the attributes are
-the syntax attributes \TT{.type} and \TT{.separator},
-the non-syntax attribute is \TT{.position},
-and in addition
-arbitrary non-syntax attributes may be encoded within the typed brackets.
+For {\em typed-bracketed-subexpressions} there is \underline{no}
+\TT{.initiator} or \TT{.terminator}, but there is usually a \TT{.type}
+attribute.  {\em Prefix-n-lists} are just an alternate form of
+{\em typed-bracketed-subexpressions}, and paragraphs and logical
+lines with implied headers are just an alternate form of
+{\em prefix-n-lists}.
+
+The elements of a MIN object are the values of sub-subexpressions and
+may themselves the MIN objects, as when brackets are nested.  The
+elements of indented paragraphs are always logical lines.
+
+If MIN object X has just one element that is a MIN object Y,
+X has not attributes other than \TT{.type}, \TT{.initiator},
+and \TT{.terminator}, and Y does not have any of these three
+attributes, then X and Y are merged to get a new object with
+the attributes of both and the elements of Y.  This is implemented
+by having the bracketed subexpression parser give the token type
+\TT{BRACKATABLE} to Y as a temporary token type indicating that Y
+does not have any \TT{.type}, \TT{.initiator}, or \TT{.terminator}
+attribute.  Then when X is formed, the knowledge of the structure
+of X and the \TT{BRACKATABLE} type of Y permit the two objects
+to be merged.
 
 Sub-subexpressions may occur among the list of tokens that determine either the
 object elements or the value of a non-syntax attribute.

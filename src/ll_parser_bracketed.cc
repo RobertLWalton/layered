@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 12 00:00:27 EST 2016
+// Date:	Sun Nov 13 00:25:55 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2362,6 +2362,20 @@ min::position BRA::parse_bracketed_subexpression
 			PAR::token prefix = elements;
 			MIN_REQUIRE
 			    ( prefix->next == next );
+			BRA::bracketed_pass bpass =
+			    (BRA::bracketed_pass) pass;
+			TAB::key_table prefix_table =
+			    bpass->prefix_table;
+			TAB::root proot =
+			    TAB::find
+				( type, selectors,
+					prefix_table );
+			min::gen group =
+			    (    proot
+			      == min::NULL_STUB ?
+			      min::MISSING() :
+			      ((BRA::prefix) proot )
+				  -> group );
 
 			for ( BRA::bracket_stack * p =
 				  bracket_stack_p;
@@ -2374,7 +2388,13 @@ min::position BRA::parse_bracketed_subexpression
 			      p = p->previous )
 			{
 			    if (    p->prefix_type
-			         == type )
+			         == type
+				 ||
+				 (    p->prefix_group
+				   == group
+				   &&
+				      min::MISSING()
+				   != group ) )
 			    {
 				p->closing_first =
 				    prefix;
@@ -2382,13 +2402,13 @@ min::position BRA::parse_bracketed_subexpression
 				    prefix->next;
 
 				for ( BRA::bracket_stack
-				        * q =
-					  bracket_stack_p;
+				      * q =
+					bracket_stack_p;
 				      q != p;
 				      q = q->previous )
 				    q->closing_first =
-					q->closing_next =
-					    prefix;
+					q->closing_next
+					    = prefix;
 
 				return separator_found;
 			    }
@@ -2435,6 +2455,7 @@ min::position BRA::parse_bracketed_subexpression
 			    cstack.opening_bracket =
 				min::NULL_STUB;
 			    cstack.prefix_type = type;
+			    cstack.prefix_group = group;
 
 			    while ( true )
 			    {
@@ -2448,7 +2469,8 @@ min::position BRA::parse_bracketed_subexpression
 				      selectors,
 				      current, indent,
 					selectors
-				      & PAR::EALSEP_OPT  ?
+				      & PAR::
+				          EALSEP_OPT ?
 					line_sep :
 					(BRA::line_sep)
 					min::NULL_STUB,

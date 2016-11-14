@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 13, 2016
+November 14, 2016
  
 \end{center}
 
@@ -3063,22 +3063,26 @@ subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
 are MIN objects, or into \TT{DERIVED} tokens whose values can
 be other things such as labels or special values.
 
+The final output of the parser is a sequence of \TT{BRACKETED} tokens,
+one per top level logical line.  For each of these tokens,
+its `\TT{value}' is a MIN object that encodes its logical line.
+
 For {\em untyped-bracketed-subexpressions} that are \underline{not}
 reformatted, the brackets become the
 \TT{.ini\-ti\-ator} (e.g. `\TT{(}') and \TT{.terminator} (e.g., `\TT{)}').
 {\em Indented-paragraph-subexpressions} are similar, with the
 {\em indentation-mark} (e.g., `\TT{:}') being the \TT{.ini\-ti\-ator} and
-the special value `\ttsvkey{INDENTED\_PARAGRAPH}' being the
+the special value `\ttsvkey{IN\-DEN\-TED\_\EOL PARAGRAPH}' being the
 \TT{.term\-i\-na\-tor}.  The elements of an indented paragraph are
 logical lines, whose \TT{.initiator}
-is the special value `\ttsvkey{LOGICAL\_LINE}' and whose \TT{.terminator}
+is the special value `\ttsvkey{LOGICAL\_LINE}' and whose \TT{.term\-i\-na\-tor}
 is the line separator (e.g., `\TT{;}') if there is one,
 or \TT{"<LF>"} otherwise.
 
 For {\em typed-bracketed-subexpressions} there is \underline{no}
 \TT{.initiator} or \TT{.terminator}, but there is usually a \TT{.type}
 attribute.  {\em Prefix-n-lists} are just an alternate form of
-{\em typed-bracketed-subexpressions}, and paragraphs and logical
+{\em typed-bracketed-sub\-ex\-pres\-sions}, and paragraphs and logical
 lines with implied headers are just an alternate form of
 {\em prefix-n-lists}.
 
@@ -3107,7 +3111,8 @@ The token sequence
 \begin{center}
 \tt x "," y 5 "," 8 "," w "," p
 \end{center}
-is converted by the operator pass to
+is converted by the standard operator (see \itemref{OPERATOR-PARSING-PASS})
+to
 \begin{center}
 \tt \{"": .separator = "," | x  \{| y 5 |\} 8 w p |\}
 \end{center}
@@ -3125,44 +3130,51 @@ and the above rule merges the attributes into Y to get
       | x  \{| y 5 |\} 8 w p |\}
       \end{tabular}
 \end{center}
-as the value of a \TT{BRACKETED} token.
+as the \TT{value} of a \TT{BRACKETED} token.
 
-Sub-subexpressions may occur among the list of tokens that determine either the
-object elements or the value of a non-syntax attribute.
-Before their containing object is formed,
-these are reduced by the parser to \TT{BACKETED} or \TT{BRACKETABLE} tokens
-with a MIN object \TT{value}, or to \TT{DERIVED} tokens with a non-MIN-object
-\TT{value} (e.g., a label).
-Quoted string lexemes must be handled
-differently because they have no token \TT{value}.  These are
-represented by MIN objects
-that have the \TT{.type} attribute \TT{"<Q>"}
-and that have a single
-element which is a MIN string equal as a character string to the
-\TT{string} of the quoted string token being represented.
+In the process of forming a MIN object, some tokens must be converted to
+object elements.  If these tokens have MIN values, their values are used.
+But for quoted string and numeric lexemes, there is a token \TT{string}
+but no token \TT{value}.  Such tokens are converted to a MIN object
+whose \TT{.type} is \TT{"<Q>"} for a quoted string or \TT{\#} for
+a numeric, and whose single element is a MIN string equal to the
+token \TT{string}.
 
-For example, the line
-\begin{indpar}\begin{verbatim}
-parser test (x 5 "foo")
-\end{verbatim}\end{indpar}
-causes the parser to output a \TT{BRACKETED} token whose \TT{value} is
-\begin{indpar}\begin{verbatim}
-{"": .initiator = [$ LOGICAL_LINE $], .terminator = "<LF>"|
-     parser test {"": .initiator = "(", .terminator = ")"|
-                      x 5 {"<Q>"|foo|} |} |}
-\end{verbatim}\end{indpar}
-where a MIN object is represented by
+Note that natural numbers, consisting of just digits
+with no leading zeros, are not numeric lexemes, and have MIN string
+values equal to the lexeme (the string of digits).  This allows
+arbitrarily long natural numbers to be used in names.
+
+Thus for example, the parser input
 \begin{center}
-\TT{\{} {\em type}\TT{:}
-        {\em attribute-name} \TT{=} {\em attribute-value}\TT{,} \ldots \TT{|}
-	{\em element} \ldots \TT{|\}}
+\tt \{| 98765432109876543210 "HELLO" 3.4 |\}
+\end{center}
+produces a \TT{BRACKETED} token whose \TT{value} is a MIN object with
+\underline{no} attributes and with the three elements that
+can be represented as:
+\begin{center}
+\begin{tabular}{lll}
+\TT{98765432109876543210}	& MIN string	& from natural number token \\
+\TT{\{"<Q>"| HELLO |\}}		& MIN object	& from quoted string token \\
+\TT{\{\# 3.4 \#\}} or \TT{\{\#| 3.4 |\}}
+				& MIN object	& from numeric token \\
+\end{tabular}
 \end{center}
 
-and a MIN string is represented by its character sequence, optionally
-quoted with \TT{"}'s.
+{\em Untyped-bracketed-subexpressions} may be reformatted to
+produce tokens of \TT{DERIVED} type with \TT{values} that may be
+MIN labels or special values.  Examples are:
+\begin{center}
+\begin{tabular}{ll}
+\TT{[\$ LOGICAL\_LINE \$]}	& MIN special \TT{LOGICAL\_LINE} value \\
+\TT{[< A B 5 >]}	& MIN label with three components, \TT{A}, \TT{B},
+			  and \TT{"5"} \\
+			& (this last a MIN string and not a MIN number) \\
+\end{tabular}
+\end{center}
 
-The MIN object that is the value of a \TT{BRACKETED} token and
-represents a subexpression may have the following `\skey{syntax attribute}s':
+The following is a review of the standard MIN object attributes
+mentioned above:
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttdmkey{type}{subexpression attribute}\\
@@ -3173,7 +3185,8 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
        & the {\em type-label} of a typed bracketed subexpression, \\
     or & \TT{""} for a typed bracketed subexpression with no
          {\em type-label}, \\
-    or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme.
+    or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme. \\
+    or & \TT{\#} if the MIN object represents a numeric lexeme. \\
     \end{tabular}
     \end{center}
 \medskip
@@ -3211,15 +3224,12 @@ represents a subexpression may have the following `\skey{syntax attribute}s':
 
 \end{indpar}
 
-In addition to the attributes just given, a MIN object may have
+In addition to the attributes just given, a MIN object that is
+the value of a \TT{BRACKETED} token will have
 a \ttdmkey{position}{of MIN object} attribute that is a
 \TT{min::\EOL phrase\_\EOL position\_\EOL vec} giving the positions
 of the lexemes which the MIN object and its elements represent.
-This is not considered to be a syntax attribute.
-
-The output of the parser is a sequence of \TT{BRACKETED} tokens,
-one per top level logical line.  For each of these tokens,
-its `\TT{value}' encodes its logical line.
+This is a hidden attribute that is not (normally) printed.
 
 \subsubsection{Untyped Bracketed Subexpressions}
 \label{UNTYPED-BRACKETED-SUBEXPRESSIONS}

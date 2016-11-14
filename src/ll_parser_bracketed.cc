@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 00:25:55 EST 2016
+// Date:	Sun Nov 13 20:19:01 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2370,12 +2370,13 @@ min::position BRA::parse_bracketed_subexpression
 			    TAB::find
 				( type, selectors,
 					prefix_table );
-			min::gen group =
-			    (    proot
-			      == min::NULL_STUB ?
-			      min::MISSING() :
-			      ((BRA::prefix) proot )
-				  -> group );
+			min::gen group = min::MISSING();
+			if ( proot != min::NULL_STUB )
+			{
+			    BRA::prefix p =
+			      (BRA::prefix) proot;
+			    group = p->group;
+			}
 
 			for ( BRA::bracket_stack * p =
 				  bracket_stack_p;
@@ -2457,6 +2458,26 @@ min::position BRA::parse_bracketed_subexpression
 			    cstack.prefix_type = type;
 			    cstack.prefix_group = group;
 
+			    TAB::flags prefix_selectors
+			        = selectors;
+			    if (    proot
+			         != min::NULL_STUB )
+			    {
+				BRA::prefix p =
+				  (BRA::prefix) proot;
+				prefix_selectors |=
+				    p->new_selectors
+					.or_flags;
+				prefix_selectors &= ~
+				    p->new_selectors
+					.not_flags;
+				prefix_selectors ^=
+				    p->new_selectors
+					.xor_flags;
+				prefix_selectors |=
+				  PAR::ALWAYS_SELECTOR;
+			    }
+
 			    while ( true )
 			    {
 				cstack.closing_first =
@@ -2466,9 +2487,9 @@ min::position BRA::parse_bracketed_subexpression
 				separator_found =
 				  PARSE_BRA_SUBEXP
 				    ( parser,
-				      selectors,
+				      prefix_selectors,
 				      current, indent,
-					selectors
+					prefix_selectors
 				      & PAR::
 				          EALSEP_OPT ?
 					line_sep :
@@ -2484,7 +2505,7 @@ min::position BRA::parse_bracketed_subexpression
 				    next = current;
 				compact_prefix_separator
 				  ( parser, pass->next,
-			            selectors,
+			            prefix_selectors,
 			            prefix, next,
 			            trace_flags );
 				if ( cstack
@@ -2497,6 +2518,46 @@ min::position BRA::parse_bracketed_subexpression
 				prefix =
 				    cstack
 				      .closing_first;
+
+				if (    prefix->
+				          value_type
+				     != type )
+				{
+				    proot =
+				      TAB::find
+					( prefix->
+					    value_type,
+					  selectors,
+					  prefix_table
+					);
+				    MIN_REQUIRE
+				      (    proot
+					!= min::
+					   NULL_STUB );
+				    BRA::prefix p =
+				      (BRA::prefix)
+				      proot;
+				    MIN_REQUIRE
+				      (    p->group
+					== group );
+				    type = prefix->
+				             value_type;
+				    prefix_selectors =
+				        selectors;
+				    prefix_selectors |=
+					p->new_selectors
+					    .or_flags;
+				    prefix_selectors
+				                    &= ~
+					p->new_selectors
+					    .not_flags;
+				    prefix_selectors ^=
+					p->new_selectors
+					    .xor_flags;
+				    prefix_selectors |=
+				      PAR::
+				        ALWAYS_SELECTOR;
+				}
 			    }
 			}
 		    }

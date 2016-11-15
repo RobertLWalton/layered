@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 14, 2016
+November 15, 2016
  
 \end{center}
 
@@ -3571,7 +3571,7 @@ The general syntax is:
     ~~~~~ [e.g., `\TT{;}']
 \end{indpar}
 
-{\em Paragraph-lines} are Logical lines that end according to
+{\em Paragraph-lines} are logical lines that end according to
 the setting of the end-at options;
 See~\pagref{PARSING-END-AT-OPTIONS-1}.  The setting of these options can be
 controlled by the specification of the {\em indentation-mark}.
@@ -3606,12 +3606,11 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\em indentation-name} \\
+	  {\em indentation-mark} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser define indentation offset}{define indentation offset}
 	  {\em indentation-offset}  \\
-    $|$ & \ttikey{parser print indentation offset}{define indentation offset} \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
@@ -3628,10 +3627,10 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
-\emkey{master-name} ::= {\em quoted-name}
-\\[0.5ex]
 \emkey{header} ::= MIN object with \TT{.type} and no elements
         (i.e., a prefix separator: see \pagref{LINE-VARIABLES})
+\\[0.5ex]
+\emkey{master-name} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
@@ -3639,8 +3638,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 The {\em line-separator} may be used to end
 paragraph lines, as long as the \TT{end at line sepa\-ra\-tor}
 (\pagref{END-AT-LINE-SEPARATOR}) option permits.  Standardly
-line separators are only recognized outside subexpressions
-(untyped bracketed, typed bracketed, prefix list, or indented subparagraph)
+line separators are only recognized outside explicitly
+bracketed subexpressions (untyped bracketed or typed bracketed)
 in the paragraph.
 
 Each paragraph line is converted to a MIN object whose elements are
@@ -4851,7 +4850,10 @@ and \TT{keep} parameters are permitted and used for line headers.
 `\TT{with keep}' without a following {\em yes-or-no} defaults to `\TT{yes}',
 while the absence of any `\TT{with keep}' defaults to `\TT{no}'.
 
-\subsubsection{The Print Bracket and Header Commands}
+\subsubsection{Bracketed Parser Print Commands}
+\label{BRACKETED-PARSER-PRINT-COMMANDS}
+
+TBD
 
 A {\em parser-print-bracket-command} has the syntax:
 
@@ -4863,6 +4865,7 @@ A {\em parser-print-bracket-command} has the syntax:
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser print bracket}{parser print bracket}
 	  {\em partial-name} \\
+    $|$ & \ttikey{parser print indentation offset}{define indentation offset} \\
     \end{tabular}
 \end{indpar}
 

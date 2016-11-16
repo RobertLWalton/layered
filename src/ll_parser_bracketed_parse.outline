@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 04:08:51 EDT 2016
+// Date:	Wed Nov 16 01:14:34 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -469,6 +469,100 @@
 //
 //    		  delete tokens from which attributes
 //    		         were taken
+//
+//    		  if token type == PREFIX:
+//
+//    		      find token .type entry in
+//    		           bracketed pass prefix table
+//    		      group = group of entry found or
+//    		              MISSING if no entry or
+//    		              entry group is MISSING
+//    		      search bracket stack for entry
+//                           with prefix_type == token
+//                           type or non-MISSING
+//                           prefix_group == group;
+//                           stop search at first
+//                           entry with prefix_type
+//                           MISSING
+//                    if entry found:
+//          		  close bracket stack entry
+//          		        specifying PREFIX
+//          		        token as closing
+//          		        token
+//                        close all higher stack entries
+//                              indicating that prefixes
+//                              with their type/group
+//                              were not found
+//                        return separator_found
+//
+//                    if not at_start:
+//                        announce PREFIX token is in
+//                            error and delete it
+//
+//                    else if bracket stack not closed
+//                         by PREFIX token's typed
+//                         opening closing bracket:
+//                       set token type to BRACKETED
+//                       return separator_found
+//
+//                    else:
+//                        // Start new subexpression
+//                        // beginning with the PREFIX
+//                        // token
+//
+//                        pop bracket stack and push
+//                            new entry with prefix_type
+//                            = PREFIX .type and prefix_
+//                            group = group
+//                        prefix_selectors = selectors
+//                        if PREFIX token .type entry
+//                           found above in the
+//    		             bracketed pass prefix table
+//			     adjust prefix_selectors
+//			     according to new_selectors
+//			     in the entry setting
+//			     ALWAYS_SELECTOR on
+//			  loop:
+//                            parse_bracketed_subexpr
+//                              with prefix_selectors,
+//                              bracket stack,
+//                              indent argument,
+//                              line_sep argument
+//                                if prefix_selectors
+//                                   & EALSEP,
+//	                        set separator_found =
+//	                          result
+//
+//	                      compact_prefix_separator
+//	                        with prefix_separators
+//
+//	                      if bracket stack not
+//	                         closed by another
+//	                         PREFIX token with same
+//	                         .type or group as the
+//	                         current PREFIX token:
+//	                           return
+//	                             separator_found
+//
+//	                      make PREFIX token that
+//	                           closed bracket stack
+//	                           the current PREFIX
+//	                           token
+//
+//	                      if .type of current PREFIX
+//	                         token == .type of
+//	                         previous current PREFIX
+//	                         token, iterate loop
+//
+//	                      find entry for new .type
+//	                        in bracketed pass prefix
+//	                        table (entry must exist
+//	                        because .types have the
+//	                        same group), recompute
+//	                        prefix_selectors from
+//	                        the new entry
+//
+//			      iterate loop
 //
 //	    at_start = false
 //

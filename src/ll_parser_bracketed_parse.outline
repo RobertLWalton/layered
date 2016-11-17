@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 16 01:14:34 EST 2016
+// Date:	Thu Nov 17 03:09:50 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -479,14 +479,14 @@
 //    		              entry group is MISSING
 //    		      search bracket stack for entry
 //                           with prefix_type == token
-//                           type or non-MISSING
+//                           .type or non-MISSING
 //                           prefix_group == group;
 //                           stop search at first
 //                           entry with prefix_type
 //                           MISSING
 //                    if entry found:
 //          		  close bracket stack entry
-//          		        specifying PREFIX
+//          		        and specify PREFIX
 //          		        token as closing
 //          		        token
 //                        close all higher stack entries

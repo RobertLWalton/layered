@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 20:19:01 EST 2016
+// Date:	Thu Nov 17 03:14:29 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2540,8 +2540,10 @@ min::position BRA::parse_bracketed_subexpression
 				    MIN_REQUIRE
 				      (    p->group
 					== group );
-				    type = prefix->
-				             value_type;
+				    cstack.prefix_type =
+				        type =
+				          prefix->
+				            value_type;
 				    prefix_selectors =
 				        selectors;
 				    prefix_selectors |=

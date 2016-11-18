@@ -3763,7 +3763,7 @@ The basic form is
 \TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~
     \TT{|my type\}} \\
 \end{center}
-from which various parts can be omitted.  Some or all of the
+from which various parts can be omitted or moved.  Some or all of the
 attributes can be moved to the end.
 The attribute value `\TT{= TRUE}' can be omitted (as in
 `\TT{my option}'), and the attribute value `\TT{= FALSE}' can be represented
@@ -3782,6 +3782,20 @@ If omitted from both
 beginning and end, the type is missing, but there can still be
 attributes.  Also \TT{""} may be used as a type label to denote
 a missing type.
+
+For example, the following are equivalent:
+\begin{center}
+\TT{\{my option|a b c|no your option\}} \\
+\TT{\{no your option|a b c|my option\}} \\
+\TT{\{my option:~your option = FALSE |a b c|\}}
+\end{center}
+
+where the \TT{.type} is `\TT{my option}',
+and the following is in error because it has a different type name
+at the end than it does at the beginning:
+\begin{center}
+\TT{\{my option|a b c|your option\}} \\
+\end{center}
 
 An attribute value may be a bracketed subexpression, or a sequence
 of one or more words, naturals, numerics, and quoted strings, each

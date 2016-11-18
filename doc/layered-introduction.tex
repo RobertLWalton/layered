@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 15, 2016
+November 18, 2016
  
 \end{center}
 
@@ -3660,8 +3660,7 @@ This rule allows physical lines such as
 \tt This logical line is followed by an empty logical line;
 \end{center}
 to represent a single paragraph line, instead of two paragraph lines
-the second of which is empty.  There is no other way of creating
-an empty logical line within a paragraph, and all paragraph lines
+the second of which is empty.  Therefore all paragraph lines
 are non-empty.
 
 The paragraph as a whole is converted to a MIN object whose elements
@@ -3671,8 +3670,8 @@ and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
 A paragraph may be empty (have no paragraph lines).
 
 The \TT{implied paragraph header} and \TT{lexical master} parameters
-are used to initialize line variables (see \pagref{LINE-VARIABLES})
-that affect the parsing of paragraphs and lines.
+are used to initialize line variables
+that affect the parsing of paragraphs and lines: see \pagref{LINE-VARIABLES}.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
@@ -3686,7 +3685,8 @@ is greater than the current indent.  Here $N$ is called the
 changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
 end of the block.  The indentation offsets of the current blocks
-can be printed by the \TT{parser print indentation offset} command.
+can be printed by the \TT{parser print indentation offset} command:
+see \pagref{PARSER-PRINT-BRACKET-COMMAND}.
 
 When an {\em indentation-mark} is recognized, the current parsing
 selector set, parsing options, and line separator are saved in a stack.
@@ -3704,7 +3704,8 @@ a paragraph line.
 
 \ikey{Top level parsing}{top level parsing}
 of a file recognizes paragraph lines as if the whole
-file were a paragraph, and forms each line into a MIN object.  However,
+file were an indented paragraph, and forms each line into a MIN object.
+However,
 these are \underline{not} combined into a paragraph MIN object, but
 are instead processed as they are produced.  In particular, if they
 are parser commands, they are processed by the parser to make

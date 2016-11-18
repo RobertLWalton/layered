@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 12 00:10:10 EST 2016
+// Date:	Fri Nov 18 00:57:10 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -110,3 +110,23 @@ And one more {| |b["A", 201,202, [5]]: t}
     {s} And another.
   {p} {s} And a new {foo} paragraph.
 parser print bracket ""
+
+// Documentation checks
+
+{my type|a b c|}
+{|a b c|my type}
+{my type|a b c|my type}
+{my type||}
+{||my type}
+{my type: my attribute = 5, my option = TRUE| a b c |}
+{my type: my attribute = 5, your option = FALSE| a b c |my type}
+{my type: my attribute = 5| a b c |your option = FALSE: my type}
+{my attribute = 5| a b c |my option = TRUE: my type}
+{my type| a b c |attribute = 5, my option: my type}
+{| a b c |attribute = 5, my option: my type}
+{|a b c|}
+{||}
+{}
+{my attribute = 5, no your option|a b c|}
+{"": my attribute = 5, no your option|a b c|""}
+{* a b c *}

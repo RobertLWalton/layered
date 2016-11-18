@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 18 00:57:10 EST 2016
+// Date:	Fri Nov 18 05:30:24 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -130,3 +130,6 @@ parser print bracket ""
 {my attribute = 5, no your option|a b c|}
 {"": my attribute = 5, no your option|a b c|""}
 {* a b c *}
+{my option| a b c |no your option}
+{no your option| a b c |my option}
+{my option| a b c |your option}

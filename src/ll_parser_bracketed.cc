@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 18 01:23:54 EST 2016
+// Date:	Fri Nov 18 06:04:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1037,23 +1037,44 @@ inline void make_type_label
     PAR::token start = typed_data->start_previous->next;
     if ( start == next )
     {
-	missing_error ( parser, next, "type" );
+	::missing_error ( parser, next, "type" );
 	return;
     }
 
     ::make_label ( parser, start, next );
 
-    start->type = BRA::TYPE;
-    typed_data->type = start->value;
-    ++ typed_data->attr_count;
-
-    if ( typed_data->elements != min::NULL_STUB )
+    if ( typed_data->type == min::MISSING() )
     {
-	typed_data->end_position =
-	    next->previous->position.end;
-	PAR::move_to_before
-	    ( parser, typed_data->elements,
-	      next->previous, next );
+	start->type = BRA::TYPE;
+	typed_data->type = start->value;
+	++ typed_data->attr_count;
+
+	if ( typed_data->elements != min::NULL_STUB )
+	{
+	    typed_data->end_position =
+		next->previous->position.end;
+	    PAR::move_to_before
+		( parser, typed_data->elements,
+		  next->previous, next );
+	}
+    }
+    else
+    {
+	if ( typed_data->type != start->value )
+	    PAR::parse_error
+		( parser, start->position,
+		  "beginning type `",
+		  min::pgen_never_quote
+		    ( typed_data->type ),
+		  "' != end type `",
+		  min::pgen_never_quote
+		    ( start->value ),
+		  "'; end type ignored"
+		);
+
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    start ) );
     }
 }
 
@@ -2001,57 +2022,11 @@ min::position BRA::parse_bracketed_subexpression
 			}
 		        else if (    tdata.subtype
 			          == BRA::
-				     TYPED_ATTR_BEGIN
-				  &&
-				     tdata.type
-				  == min::MISSING() )
+				     TYPED_ATTR_BEGIN )
 			{
 			    ::make_type_label
 			        ( parser, & tdata,
 				  next );
-			}
-		        else if (    tdata.subtype
-			          == BRA::
-				     TYPED_ATTR_BEGIN )
-			{
-			    PAR::token start =
-			        tdata.start_previous
-				    ->next;
-			    if ( start == next )
-			        ::missing_error
-				    ( parser, next,
-				      "type" );
-			    else
-			    {
-				::make_label
-				    ( parser, start,
-				      next );
-				if (    next->previous
-				            ->value
-				     != tdata.type )
-				  PAR::parse_error
-				    ( parser,
-				      next->previous
-				          ->position,
-				      "beginning type"
-				      " `",
-				      min::
-				        pgen_never_quote
-				        ( tdata.type ),
-				      "' != end type `",
-				      min::
-				        pgen_never_quote
-				        ( next->previous
-					      ->value ),
-				      "'; end type"
-				      " ignored"
-				    );
-				PAR::free
-				  ( PAR::remove
-				    ( first_ref(parser),
-				      next->previous )
-				  );
-			    }
 			}
 		        else if (    tdata.subtype
 			          != BRA::TYPED_OPENING

@@ -3647,3 +3647,88 @@ BRACKETED EXPRESSION:
     line 132:
 {* a b c *}
 ^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "no"
+     OF SUBTYPE ll::parser::table::typed_attr_negator_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {my option: no your option|a b c|my option}
+@231 = a b c:
+           .type = [< "my" "option" >]
+           no your option
+           .position[H] = {}
+    line 133:
+{my option| a b c |no your option}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {my option: no your option|a b c|my option}
+@232 = @231:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 133:
+{my option| a b c |no your option}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "no"
+     OF SUBTYPE ll::parser::table::typed_attr_negator_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {my option: no your option|a b c|my option}
+@233 = a b c:
+           .type = [< "my" "option" >]
+           no your option
+           .position[H] = {}
+    line 134:
+{no your option| a b c |my option}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {my option: no your option|a b c|my option}
+@234 = @233:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 134:
+{no your option| a b c |my option}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line 135: beginning type `my option' != end type `your
+       option'; end type ignored:
+{my option| a b c |your option}
+                   ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {my option|a b c|my option}
+@235 = a b c:
+           .type = [< "my" "option" >]
+           .position[H] = {}
+    line 135:
+{my option| a b c |your option}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {my option|a b c|my option}
+@236 = @235:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 135:
+{my option| a b c |your option}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 01:41:33 EST 2015
+// Date:	Sat Nov 19 02:24:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1691,6 +1691,7 @@ static min::gen oper_pass_command
 		              indent_t )
 	          + ( 1ull << LEXSTD::
 		              premature_end_of_file_t )
+	          + ( 1ull << LEXSTD::start_of_file_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),
 
 	            ( 1ull << LEXSTD::

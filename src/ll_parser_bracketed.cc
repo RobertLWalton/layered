@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 18 18:53:46 EST 2016
+// Date:	Sat Nov 19 02:21:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3314,6 +3314,7 @@ static min::gen bracketed_pass_command
 			  indent_t ) \
 	      + ( 1ull << LEXSTD:: \
 		          premature_end_of_file_t ) \
+	      + ( 1ull << LEXSTD::start_of_file_t ) \
 	      + ( 1ull << LEXSTD::end_of_file_t ), \
 	    \
 	        ( 1ull << LEXSTD:: \
@@ -4414,6 +4415,8 @@ static min::gen bracketed_pass_command
 		      + (    1ull
 		          << LEXSTD::
 			     premature_end_of_file_t )
+		      + (    1ull
+		          << LEXSTD::start_of_file_t )
 		      + (    1ull
 		          << LEXSTD::end_of_file_t ),
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 03:22:38 EST 2016
+// Date:	Sat Nov 19 02:26:23 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -149,7 +149,7 @@ parser define prefix "Y" [code]
        with group ajax
 parser define prefix "Z" [math]
        with parsing selectors [code]
-       with lexical master "MAIN"
+       with lexical master "START"
 parser print prefix ""
 parser print prefix "X"
 

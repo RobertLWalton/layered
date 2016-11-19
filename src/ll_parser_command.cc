@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:22:58 EST 2015
+// Date:	Sat Nov 19 02:24:04 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,6 +143,7 @@ min::gen COM::scan_names
 		              indent_t )
 		  + ( 1ull << LEXSTD::
 		              premature_end_of_file_t )
+		  + ( 1ull << LEXSTD::start_of_file_t )
 		  + ( 1ull << LEXSTD::end_of_file_t ),
 
 		    ( 1ull << LEXSTD::
@@ -832,6 +833,7 @@ static min::gen execute_selectors
 			  indent_t )
 	      + ( 1ull << LEXSTD::
 		          premature_end_of_file_t )
+	      + ( 1ull << LEXSTD::start_of_file_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),
 
 		( 1ull << LEXSTD::
@@ -963,6 +965,7 @@ static min::gen execute_context
 			  indent_t )
 	      + ( 1ull << LEXSTD::
 		          premature_end_of_file_t )
+	      + ( 1ull << LEXSTD::start_of_file_t )
 	      + ( 1ull << LEXSTD::end_of_file_t ),
 
 		( 1ull << LEXSTD::

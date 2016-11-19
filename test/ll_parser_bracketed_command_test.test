@@ -695,7 +695,7 @@ parser define prefix "Y" [code]
        with group ajax
 parser define prefix "Z" [math]
        with parsing selectors [code]
-       with lexical master "MAIN"
+       with lexical master "START"
 parser print prefix "":
     block standard: prefix "X" [code]
                     with parsing selectors [code, math]
@@ -704,7 +704,7 @@ parser print prefix "":
                     with group ajax
     block standard: prefix "Z" [math]
                     with parsing selectors [code]
-                    with lexical master "MAIN"
+                    with lexical master "START"
 parser print prefix "X":
     block standard: prefix "X" [code]
                     with parsing selectors [code, math]

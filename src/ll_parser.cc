@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 05:19:22 EST 2016
+// Date:	Sat Nov 19 01:51:02 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1050,11 +1050,15 @@ void PAR::parse ( PAR::parser parser )
     }
 
     // Go to the first indent_t or end_of_file_t token.
+    // Delete skipped tokens except for start of file
+    // token.
     //
     parser->input->add_tokens
 	( parser, parser->input );
     PAR::token current = parser->first;
     MIN_REQUIRE ( current != NULL_STUB );
+    MIN_REQUIRE
+        ( current->type == LEXSTD::start_of_file_t );
     while ( current->type != LEXSTD::indent_t
             &&
 	    current->type != LEXSTD::end_of_file_t )
@@ -1067,9 +1071,11 @@ void PAR::parse ( PAR::parser parser )
 		          != parser->first );
 	}
 	current = current->next;
-	PAR::free
-	    ( PAR::remove ( first_ref(parser),
-			    current->previous ) );
+	if (    current->previous->type
+	     != LEXSTD::start_of_file_t )
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				current->previous ) );
     }
 
     // Top level loop.
@@ -1162,10 +1168,7 @@ void PAR::parse ( PAR::parser parser )
 	    }
 	}
 
-	PAR::token previous =
-	    ( current == parser->first ?
-	      (PAR::token) min::NULL_STUB :
-	      current->previous );
+	PAR::token previous = current->previous;
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
@@ -1175,10 +1178,7 @@ void PAR::parse ( PAR::parser parser )
 		        ->line_sep,
 		  NULL,
 		  & line_variables );
-
-	PAR::token first =
-	    ( previous == min::NULL_STUB ?
-	      parser->first : previous->next );
+	PAR::token first = previous->next;
 
         // If subexpression is not empty, or separator
 	// found, compact it.

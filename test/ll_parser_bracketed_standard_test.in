@@ -36,8 +36,8 @@ Ditto with separator:
 
 // The following are encoded in
 //     ll_parser_bracketed_standard_test.cc
-// define bracket "<+" .. "+> [math]
-// define bracket "<-" .. "-> [text]
+// define bracket "<+" .. "+>" [math]
+// define bracket "<-" .. "->" [text]
 This tests selector changes --- <+ x +> <- y ->
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
 
@@ -145,3 +145,9 @@ parser print bracket ""
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
           | a b c |}
 {my type: y = {* ,, *} | a b c |}
+
+{| "A" "B" |}
+{+ 1 2 3 +}
+{"+"| 1 2 3 |"+"}
+{< 1 2 3 >}
+{"<" ">"| 1 2 3 |"<" ">"}

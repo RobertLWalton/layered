@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 02:21:38 EST 2016
+// Date:	Sat Nov 19 02:44:51 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1257,11 +1257,10 @@ min::position BRA::parse_bracketed_subexpression
 	// line and current->previous token is the last
 	// token of an indentation mark.
 
-    bool at_start = true;
-        // At start of subexpression where prefix
-	// separator is legal and combining a quoted
-	// string with a previous quoted string is
-	// NOT allowed.
+    PAR::token start_previous = current->previous;
+        // If current == start_previous->next, we are
+	// at start of subexpression where prefix
+	// separator is legal, etc.
 
     TAB::flags trace_flags = parser->trace_flags;
     if ( trace_flags & pass->trace_subexpressions )
@@ -1634,8 +1633,6 @@ min::position BRA::parse_bracketed_subexpression
 	    value_type_ref(first) =
 		indentation_found->label;
 
-	    at_start = false;
-
 	    // Terminate subexpression if closing
 	    // bracket was found during indentation
 	    // processing.
@@ -1660,7 +1657,9 @@ min::position BRA::parse_bracketed_subexpression
 		   min::MISSING_POSITION;
 	else if ( current->type == LEXSTD::indent_t )
 	{
-	    if ( ( parser->at_head && ! at_start )
+	    if ( ( parser->at_head
+	           &&
+		   start_previous->next != current )
 	         &&
 		 (   selectors
 		   & PAR::EAPBREAK_OPT ) )
@@ -1726,7 +1725,7 @@ min::position BRA::parse_bracketed_subexpression
 	{
 	    ensure_next ( parser, current );
 
-	    if ( ! at_start
+	    if (    start_previous->next != current
 	         &&
 		    current->previous->type
 		 == LEXSTD::quoted_string_t )
@@ -1750,10 +1749,7 @@ min::position BRA::parse_bracketed_subexpression
 			  current->previous ) );
 	    }
 	    else
-	    {
 		current = current->next;
-		at_start = false;
-	    }
 
 	    continue;
 	}
@@ -1786,7 +1782,7 @@ min::position BRA::parse_bracketed_subexpression
 	    {
 	        // No active bracket table entry found.
 
-		if ( at_start
+		if ( start_previous->next == current
 		     &&
 		     typed_data != NULL
 		     &&
@@ -1808,7 +1804,6 @@ min::position BRA::parse_bracketed_subexpression
 		// Move to next token.
 		//
 		current = key_first->next;
-		at_start = false;
 		break;
 	    }
 
@@ -2366,7 +2361,8 @@ min::position BRA::parse_bracketed_subexpression
 			    }
 			}
 
-			if ( ! at_start )
+			if (    start_previous->next
+			     != prefix )
 			{
 			    PAR::parse_error
 			      ( parser,
@@ -2517,8 +2513,6 @@ min::position BRA::parse_bracketed_subexpression
 		}
 
 		// Come here after compacting.
-
-		at_start = false;
 
 		if (    cstack.closing_next
 		     == cstack.closing_first )

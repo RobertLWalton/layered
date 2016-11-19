@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 18 06:21:51 EST 2016
+// Date:	Fri Nov 18 18:35:06 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -134,6 +134,14 @@ parser print bracket ""
 {no your option| a b c |my option}
 {my option| a b c |your option}
 {+ +}
+
 {my attribute = {* a b c, d e, f *} ||}
 {my attribute = {* *} ||}
 {my attribute = {* , *} ||}
+
+{my type: x = 5, y = "5" | a b c |}
+{my type: x = 5 tomatoes, y = [< 5 tomatoes >]
+          | a b c |}
+{my type: x = {* A, B *}, y = {* , "A",, B, *}
+          | a b c |}
+{my type: y = {* ,, *} | a b c |}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 18 06:04:57 EST 2016
+// Date:	Fri Nov 18 18:53:46 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1180,7 +1180,9 @@ inline void finish_attribute
 	        min::new_str_gen
 		    ( "OMITTED ATTRIBUTE VALUE" );
 	}
-	else if ( start->next == next )
+	else if ( start->next == next
+	          &&
+		  start->string == min::NULL_STUB )
 	{
 	    min::gen initiator =
 		typed_data

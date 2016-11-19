@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 02:44:51 EST 2016
+// Date:	Sat Nov 19 07:03:03 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1725,23 +1725,37 @@ min::position BRA::parse_bracketed_subexpression
 	{
 	    ensure_next ( parser, current );
 
-	    if (    start_previous->next != current
-	         &&
+	    if ( start_previous->next != current
+		 &&
 		    current->previous->type
+		 == LEXSTD::mark_t
+		 &&
+		    current->previous->value
+		 == PAR::number_sign
+	         &&
+	         start_previous->next->next != current
+		 &&
+		    current->previous->previous->type
 		 == LEXSTD::quoted_string_t )
 	    {
-	        // Merge current and current->previous,
-		// which are both quoted strings within
-		// the subexpression.
+	        // Merge current into current->previous
+		// ->previous, and delete current and
+		// current->previous.
 		//
 	        min::push
 		    ( (PAR::string_insptr)
-		          current->previous->string,
+		          current->previous->previous
+			                   ->string,
 		      current->string->length,
 		      min::begin_ptr_of
 		          ( current->string ) );
-		current->previous->position.end =
+		current->previous->previous
+		        ->position.end =
 		    current->position.end;
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous ) );
 		current = current->next;
 		PAR::free
 		    ( PAR::remove

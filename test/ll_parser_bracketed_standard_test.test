@@ -4148,17 +4148,19 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PURELIST EXPRESSION:
-    {|"AB"|}
-@260 = @261:
+    {|"A" "B"|}
+@260 = @261 @262:
            .position[H] = {}
-@261 = AB:
+@261 = A:
+           .type = "<Q>"
+@262 = B:
            .type = "<Q>"
     line 149:
 {| "A" "B" |}
 ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    "AB"
-@260 = @261:
+    "A" "B"
+@260 = @261 @262:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = {}
@@ -4171,7 +4173,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {+ 1 2 3 +}
-@262 = 1 2 3:
+@263 = 1 2 3:
            .type = "+"
            .position[H] = {}
     line 150:
@@ -4179,7 +4181,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {+ 1 2 3 +}
-@263 = @262:
+@264 = @263:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
@@ -4196,7 +4198,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {+ 1 2 3 +}
-@264 = 1 2 3:
+@265 = 1 2 3:
            .type = "+"
            .position[H] = {}
     line 151:
@@ -4204,7 +4206,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {+ 1 2 3 +}
-@265 = @264:
+@266 = @265:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
@@ -4217,7 +4219,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {< 1 2 3 >}
-@266 = 1 2 3:
+@267 = 1 2 3:
            .type = [< "<" ">" >]
            .position[H] = {}
     line 152:
@@ -4225,7 +4227,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {< 1 2 3 >}
-@267 = @266:
+@268 = @267:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
@@ -4241,16 +4243,16 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {<> 1 2 3 <>}
-@268 = 1 2 3:
-           .type = "<>"
+    {< 1 2 3 >}
+@269 = 1 2 3:
+           .type = [< "<" ">" >]
            .position[H] = {}
     line 153:
 {"<" ">"| 1 2 3 |"<" ">"}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {<> 1 2 3 <>}
-@269 = @268:
+    {< 1 2 3 >}
+@270 = @269:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]

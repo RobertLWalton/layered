@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 00:25:29 EST 2016
+// Date:	Sat Nov 19 02:31:29 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -740,12 +740,8 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // should save `current->previous' before calling this
 // function, so it and `current' as returned by this
 // function can be used to delimit the subexpression.
-// Note that in the case of the top level call, there
-// may be no `current->previous', and parser->first will
-// be the first token of the returned subexpression.
-// For non-top-level calls, there is always an indenta-
-// tion mark, opening bracket, or prefix separator
-// before the initial value of `current'.
+// `current->previous' always exists as the start
+// of file token is always present.
 //
 // The `bracket_stack' argument specifies bracketed or
 // prefix separator subexpressions that need to be

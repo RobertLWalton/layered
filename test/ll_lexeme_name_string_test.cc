@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 21 03:27:10 EST 2015
+// Date:	Sat Nov 19 01:53:52 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@ const min::uns64 ignored_types =
       ( 1ull << LEXSTD::horizontal_space_t )
     + ( 1ull << LEXSTD::indent_before_comment_t )
     + ( 1ull << LEXSTD::indent_t )
+    + ( 1ull << LEXSTD::start_of_file_t )
     + ( 1ull << LEXSTD::end_of_file_t )
     + ( 1ull << LEXSTD::premature_end_of_file_t );
 const min::uns64 end_types =

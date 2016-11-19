@@ -1,3 +1,6 @@
+START_OF_FILE: line 1:
+// Layered Languages Standard Lexical Analyzer Test Data
+^
 INDENT_BEFORE_COMMENT: line 1:
 // Layered Languages Standard Lexical Analyzer Test Data
 ^

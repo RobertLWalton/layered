@@ -33,10 +33,10 @@ parser print bracket "<+"
 parser trace [ + subexpression lines,
                + subexpression elements]
 parser test "abc"
-            "def"
+            # "def"
 parser test:
 	"abc"
-	"def"
+	# "def"
 
 parser test <+ hi there +> <+ hi [embedded] there +>
 parser define bracket "[X" ... "X]" [code, operator 1]

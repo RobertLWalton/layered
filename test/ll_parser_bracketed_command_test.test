@@ -70,31 +70,31 @@ parser trace [ + subexpression lines,
 ------- lines 35-36:
 parser test "abc"
 ^^^^^^^^^^^^^^^^^
-            "def"
-^^^^^^^^^^^^^^^^^
+            # "def"
+^^^^^^^^^^^^^^^^^^^
 ------- lines 35-36:
 parser test "abc"
             ^^^^^
-            "def"
-^^^^^^^^^^^^^^^^^
+            # "def"
+^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test:
                   "abc"
-                  "def"
+                  # "def"
 ------- lines 37-39:
 parser test:
 ^^^^^^^^^^^^
         "abc"
 ^^^^^^^^^^^^^
-        "def"
-^^^^^^^^^^^^^
+        # "def"
+^^^^^^^^^^^^^^^
 ------- lines 37-39:
 parser test:
            ^
         "abc"
 ^^^^^^^^^^^^^
-        "def"
-^^^^^^^^^^^^^
+        # "def"
+^^^^^^^^^^^^^^^
 ------- line 38:
         "abc"
         ^^^^^
@@ -102,11 +102,11 @@ parser test:
         "abc"
         ^^^^^
 ------- line 39:
-        "def"
-        ^^^^^
+        # "def"
+        ^^^^^^^
 ------- line 39:
-        "def"
-        ^^^^^
+        # "def"
+          ^^^^^
 ======= END TEST
 ======= TEST: parser test <+ hi there +> <+ hi "[" embedded "]" there +>
 ------- line 41:

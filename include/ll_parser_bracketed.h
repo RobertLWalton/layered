@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 02:31:29 EST 2016
+// Date:	Sun Nov 20 10:57:45 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -626,10 +626,40 @@ void push_prefix
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
-typedef min::packed_vec_insptr<int32>
-        indentation_offset_stack;
-    // Type of stack of indentation_offset values saved
-    // by current parser blocks.
+struct block_struct
+    // Saves bracketed pass information for a block.
+{
+    min::int32 indentation_offset;
+        // Saved indentation offset.
+
+    min::gen concatenator;
+        // Saved concatenator.
+};
+
+typedef min::packed_vec_insptr
+            <ll::parser::bracketed::block_struct>
+	block_stack;
+
+// Initialize a block stack with given max_length
+// and length = 0.
+//
+void init_block_stack
+    ( min::ref<ll::parser::bracketed::block_stack>
+	  block_stack,
+      min::uns32 max_length = 64 );
+
+inline void push_block
+	( ll::parser::bracketed::block_stack
+	      block_stack,
+	  min::int32 indentation_offset,
+	  min::gen concatenator )
+{
+    ll::parser::bracketed::block_struct b =
+        { indentation_offset, concatenator };
+    min::push ( block_stack ) = b;
+    min::unprotected::acc_write_update
+        ( block_stack, concatenator );
+}
 
 struct bracketed_pass_struct;
 typedef min::packed_struct_updptr<bracketed_pass_struct>
@@ -658,11 +688,25 @@ struct bracketed_pass_struct
 	// tion check computations are signed, but is
 	// always >= 0.  Defaults to 2.
 
-    const ll::parser::bracketed
-                    ::indentation_offset_stack
-            indentation_offset_stack;
-	// Stack of indentation_offset values saved by
-	// current parser blocks.
+    min::gen concatenator;
+        // Token value of token used to concatenate
+	// two quoted strings during logical line
+	// parsing (e.g., #).  Token must have a
+	// `value', e.g., be word, separator, or mark.
+	// May also take the values:
+	//
+	//   min::DISABLED()
+	//     Quoted strings are never concatenated.
+	//
+	//   min::ENABLED()
+	//     Consecutive quoted strings in a logical
+	//     line are concatenated (without any
+	//     intervening mark).
+
+    const ll::parser::bracketed::block_stack
+            block_stack;
+	// Stack of values saved by current parser
+	// blocks.
 
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `bracketed subexpressions'
@@ -680,9 +724,10 @@ MIN_REF ( ll::parser::table::key_table, bracket_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::table::key_table, prefix_table,
           ll::parser::bracketed::bracketed_pass )
-MIN_REF ( ll::parser::bracketed
-                    ::indentation_offset_stack,
-          indentation_offset_stack,
+MIN_REF ( min::gen, concatenator,
+          ll::parser::bracketed::bracketed_pass )
+MIN_REF ( ll::parser::bracketed::block_stack,
+          block_stack,
           ll::parser::bracketed::bracketed_pass )
 
 // Return a new bracketed subexpression pass.

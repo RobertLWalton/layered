@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 07:03:03 EST 2016
+// Date:	Sun Nov 20 11:17:36 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -640,10 +640,26 @@ void BRA::push_prefix
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
-static min::packed_vec<min::int32>
-    indentation_offset_stack_type
-        ( "ll::parser::bracketed"
-	    "::indentation_offset_stack_type" );
+static min::uns32 block_struct_gen_disp[] =
+{
+    min::DISP ( & BRA::block_struct::concatenator ),
+    min::DISP_END
+};
+
+static min::packed_vec<BRA::block_struct>
+    block_stack_type
+        ( "ll::parser::bracketed::block_stack_type",
+	  ::block_struct_gen_disp );
+
+void BRA::init_block_stack
+	( min::ref<BRA::block_stack> block_stack,
+	  min::uns32 max_length )
+{
+    if ( block_stack == min::NULL_STUB )
+        block_stack =
+	     ::block_stack_type
+	         .new_stub ( max_length );
+}
 
 static min::uns32 bracketed_pass_gen_disp[] =
 {
@@ -717,7 +733,11 @@ static void bracketed_pass_reset
     TAB::end_block
         ( prefix_table, 0,
 	  collected_key_prefixes, collected_entries );
+    min::pop ( bracketed_pass->block_stack,
+	       bracketed_pass->block_stack->length );
     bracketed_pass->indentation_offset = 2;
+    BRA::concatenator_ref ( bracketed_pass ) =
+        PAR::number_sign;
 }
 
 static min::gen bracketed_pass_begin_block
@@ -729,9 +749,10 @@ static min::gen bracketed_pass_begin_block
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) pass;
 
-    min::push ( bracketed_pass->
-                    indentation_offset_stack ) =
-	bracketed_pass->indentation_offset;
+    BRA::push_block
+	( bracketed_pass->block_stack,
+	  bracketed_pass->indentation_offset,
+	  bracketed_pass->concatenator );
 
     return min::SUCCESS();
 }
@@ -764,10 +785,12 @@ static min::gen bracketed_pass_end_block
         ( prefix_table, block_level - 1,
 	  collected_key_prefixes, collected_entries );
 
+    BRA::block_struct b =
+        min::pop ( bracketed_pass->block_stack );
     bracketed_pass->indentation_offset =
-        min::pop
-	    ( bracketed_pass->
-	          indentation_offset_stack );
+        b.indentation_offset;
+    concatenator_ref ( bracketed_pass ) =
+        b.concatenator;
 
     return min::SUCCESS();
 }
@@ -796,13 +819,15 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
         ::bracketed_pass_end_block;
     bracketed_pass->parser_command =
         ::bracketed_pass_command;
-    bracketed_pass->indentation_offset = 2;
     bracket_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 1024 );
     prefix_table_ref(bracketed_pass) =
 	TAB::create_key_table ( 1024 );
-    indentation_offset_stack_ref(bracketed_pass) =
-        ::indentation_offset_stack_type.new_stub ( 16 );
+    BRA::init_block_stack
+        ( BRA::block_stack_ref(bracketed_pass), 16 );
+    bracketed_pass->indentation_offset = 2;
+    BRA::concatenator_ref ( bracketed_pass ) =
+        PAR::number_sign;
 
     return (PAR::pass) bracketed_pass;
 }
@@ -1731,7 +1756,7 @@ min::position BRA::parse_bracketed_subexpression
 		 == LEXSTD::mark_t
 		 &&
 		    current->previous->value
-		 == PAR::number_sign
+		 == pass->concatenator
 	         &&
 	         start_previous->next->next != current
 		 &&
@@ -3198,8 +3223,7 @@ static min::gen bracketed_pass_command
 	        bracketed_pass->indentation_offset; 
 	    for ( min::uns32 i =
 	              bracketed_pass->
-		          indentation_offset_stack->
-			      length;
+		          block_stack->length;
 		  0 <= i; -- i )
 	    {
 	        min::gen block_name =
@@ -3216,9 +3240,9 @@ static min::gen bracketed_pass_command
 
 		if ( i == 0 ) break;
 
-		offset =
-		    bracketed_pass->
-		        indentation_offset_stack[i-1];
+		BRA::block_struct b =
+		    bracketed_pass->block_stack[i-1];
+		offset = b.indentation_offset;
 	    }
 
 	    parser->printer << min::eom;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 05:19:39 EST 2016
+// Date:	Mon Nov 21 07:20:20 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,7 +104,9 @@ namespace ll { namespace parser {
 	dotdotdot,	// ...
 	yes_lexeme,	// yes
 	no_lexeme,	// no
-	keep_lexeme;	// keep
+	keep_lexeme,	// keep
+	enabled_lexeme,	// enabled
+	disabled_lexeme;// disabled
 
     extern min::gen_format name_format;
         // Same as min::default_gen_format except

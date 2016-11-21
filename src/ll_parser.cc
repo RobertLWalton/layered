@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 01:51:02 EST 2016
+// Date:	Mon Nov 21 07:20:54 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,6 +99,8 @@ min::locatable_gen PAR::dotdotdot;
 min::locatable_gen PAR::yes_lexeme;
 min::locatable_gen PAR::no_lexeme;
 min::locatable_gen PAR::keep_lexeme;
+min::locatable_gen PAR::enabled_lexeme;
+min::locatable_gen PAR::disabled_lexeme;
 
 static min::locatable_gen warnings;
 static min::locatable_gen parser_input;
@@ -206,6 +208,8 @@ static void initialize ( void )
     PAR::yes_lexeme = min::new_str_gen ( "yes" );
     PAR::no_lexeme = min::new_str_gen ( "no" );
     PAR::keep_lexeme = min::new_str_gen ( "keep" );
+    PAR::enabled_lexeme = min::new_str_gen ( "enabled" );
+    PAR::disabled_lexeme = min::new_str_gen ( "disabled" );
 
     ::warnings = min::new_str_gen ( "warnings" );
     ::parser_input =

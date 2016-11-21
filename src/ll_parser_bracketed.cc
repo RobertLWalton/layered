@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 20 19:11:55 EST 2016
+// Date:	Mon Nov 21 07:35:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,6 +60,8 @@ static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
 static min::locatable_gen offset;
+static min::locatable_gen string_lexeme;
+static min::locatable_gen concatenator;
 static min::locatable_gen top;
 
 static void initialize ( void )
@@ -88,6 +90,9 @@ static void initialize ( void )
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
     ::offset = min::new_str_gen ( "offset" );
+    ::string_lexeme = min::new_str_gen ( "string" );
+    ::concatenator =
+        min::new_str_gen ( "concatenator" );
     ::top = min::new_str_gen ( "top" );
 }
 static min::initializer initializer ( ::initialize );
@@ -642,7 +647,8 @@ void BRA::push_prefix
 
 static min::uns32 block_struct_gen_disp[] =
 {
-    min::DISP ( & BRA::block_struct::concatenator ),
+    min::DISP ( & BRA::block_struct
+                     ::string_concatenator ),
     min::DISP_END
 };
 
@@ -736,7 +742,7 @@ static void bracketed_pass_reset
     min::pop ( bracketed_pass->block_stack,
 	       bracketed_pass->block_stack->length );
     bracketed_pass->indentation_offset = 2;
-    BRA::concatenator_ref ( bracketed_pass ) =
+    BRA::string_concatenator_ref ( bracketed_pass ) =
         PAR::number_sign;
 }
 
@@ -752,7 +758,7 @@ static min::gen bracketed_pass_begin_block
     BRA::push_block
 	( bracketed_pass->block_stack,
 	  bracketed_pass->indentation_offset,
-	  bracketed_pass->concatenator );
+	  bracketed_pass->string_concatenator );
 
     return min::SUCCESS();
 }
@@ -789,8 +795,8 @@ static min::gen bracketed_pass_end_block
         min::pop ( bracketed_pass->block_stack );
     bracketed_pass->indentation_offset =
         b.indentation_offset;
-    concatenator_ref ( bracketed_pass ) =
-        b.concatenator;
+    string_concatenator_ref ( bracketed_pass ) =
+        b.string_concatenator;
 
     return min::SUCCESS();
 }
@@ -826,7 +832,7 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
     BRA::init_block_stack
         ( BRA::block_stack_ref(bracketed_pass), 16 );
     bracketed_pass->indentation_offset = 2;
-    BRA::concatenator_ref ( bracketed_pass ) =
+    BRA::string_concatenator_ref ( bracketed_pass ) =
         PAR::number_sign;
 
     return (PAR::pass) bracketed_pass;
@@ -1750,7 +1756,7 @@ min::position BRA::parse_bracketed_subexpression
 	{
 	    ensure_next ( parser, current );
 	    current = current->next;
-	    min::gen concat = pass->concatenator;
+	    min::gen concat = pass->string_concatenator;
 
 	    if ( concat == min::DISABLED() )
 	        continue;
@@ -1773,7 +1779,7 @@ min::position BRA::parse_bracketed_subexpression
 		     != LEXSTD::quoted_string_t )
 		    continue;
 
-		// Remove concatenator token.
+		// Remove string_concatenator token.
 		//
 		PAR::free
 		    ( PAR::remove
@@ -3214,6 +3220,40 @@ static min::gen bracketed_pass_command
     if ( i >= size )
         return min::FAILURE();
 
+#   define SCAN_NAME(variable, partial_name_ok) \
+        variable = \
+	  PAR::scan_name_string_label \
+	    ( vp, i, parser, \
+	    \
+	        ( 1ull << LEXSTD::mark_t ) \
+	      + ( 1ull << LEXSTD::separator_t ) \
+	      + ( 1ull << LEXSTD::word_t ) \
+	      + ( 1ull << LEXSTD::natural_t ) \
+	      + ( 1ull << LEXSTD::numeric_t ), \
+	    \
+		( 1ull << LEXSTD:: \
+			  horizontal_space_t ) \
+	      + ( 1ull << LEXSTD:: \
+			  indent_before_comment_t ) \
+	      + ( 1ull << LEXSTD:: \
+			  indent_t ) \
+	      + ( 1ull << LEXSTD:: \
+		          premature_end_of_file_t ) \
+	      + ( 1ull << LEXSTD::start_of_file_t ) \
+	      + ( 1ull << LEXSTD::end_of_file_t ), \
+	    \
+	        ( 1ull << LEXSTD:: \
+		          premature_end_of_file_t ) \
+	      + ( 1ull << LEXSTD::end_of_file_t ), \
+	      partial_name_ok ); \
+	\
+	if ( variable == min::ERROR() ) \
+	    return min::ERROR(); \
+	else if ( variable == min::MISSING() ) \
+	    return PAR::parse_error \
+	        ( parser, ppvec[i-1], \
+		  "expected quoted name after" );
+
     if ( vp[i] == ::indentation
          &&
 	 i + 1 < size
@@ -3284,6 +3324,95 @@ static min::gen bracketed_pass_command
 	return min::SUCCESS();
     }
 
+    if ( vp[i] == ::string_lexeme
+         &&
+	 i + 1 < size
+	 &&
+	 vp[i+1] == ::concatenator )
+    {
+        if ( command == PAR::print )
+	{
+	    if ( i + 2 < size )
+		return PAR::parse_error
+		    ( parser, ppvec[i+1],
+		      "unexpected stuff after" );
+
+	    COM::print_command ( vp, parser );
+	    parser->printer
+		<< ":" << min::eol
+		<< min::bom << min::no_auto_break
+		<< min::set_indent ( 4 );
+
+	    min::gen concat =
+	        bracketed_pass->string_concatenator; 
+	    for ( min::uns32 i =
+	              bracketed_pass->
+		          block_stack->length;
+		  0 <= i; -- i )
+	    {
+	        min::gen block_name =
+		    ( i == 0 ?
+		      (min::gen) PAR::top_level :
+		      (&parser->block_stack[i-1])
+		          ->name );
+
+	        parser->printer << min::indent
+		                << "block "
+				<< min::pgen_name
+				     ( block_name )
+				<< ": ";
+		if ( concat == min::ENABLED() )
+		    parser->printer << "enabled";
+		else if ( concat == min::DISABLED() )
+		    parser->printer << "disabled";
+		else
+		    parser->printer
+			<< min::pgen_quote ( concat );
+
+		if ( i == 0 ) break;
+
+		BRA::block_struct b =
+		    bracketed_pass->block_stack[i-1];
+		concat = b.string_concatenator;
+	    }
+
+	    parser->printer << min::eom;
+	    return COM::PRINTED;
+	}
+	else if ( command != PAR::define )
+	    return min::FAILURE();
+
+	else if ( i + 2 >= size )
+	    return PAR::parse_error
+		( parser, ppvec[i+1],
+		  "expected string concatenator"
+		  " after" );
+
+	i += 2;
+	min::locatable_gen concat = vp[i];
+	if ( concat == PAR::enabled_lexeme )
+	    concat = min::ENABLED();
+	else if ( concat == PAR::disabled_lexeme )
+	    concat = min::DISABLED();
+	else
+	{
+	    SCAN_NAME ( concat, false );
+	    if ( min::is_lab ( concat ) )
+		return PAR::parse_error
+		    ( parser, ppvec[i+2],
+		      "too many components" );
+	}
+
+	if ( i + 1 < size )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "unexpected stuff after" );
+
+	bracketed_pass->string_concatenator = concat;
+
+	return min::SUCCESS();
+    }
+
     if ( command == PAR::print )
     {
         if ( vp[i] == ::bracket )
@@ -3340,40 +3469,6 @@ static min::gen bracketed_pass_command
     //
     min::locatable_gen name[max_names+1];
     unsigned number_of_names = 0;
-
-#   define SCAN_NAME(variable, partial_name_ok) \
-        variable = \
-	  PAR::scan_name_string_label \
-	    ( vp, i, parser, \
-	    \
-	        ( 1ull << LEXSTD::mark_t ) \
-	      + ( 1ull << LEXSTD::separator_t ) \
-	      + ( 1ull << LEXSTD::word_t ) \
-	      + ( 1ull << LEXSTD::natural_t ) \
-	      + ( 1ull << LEXSTD::numeric_t ), \
-	    \
-		( 1ull << LEXSTD:: \
-			  horizontal_space_t ) \
-	      + ( 1ull << LEXSTD:: \
-			  indent_before_comment_t ) \
-	      + ( 1ull << LEXSTD:: \
-			  indent_t ) \
-	      + ( 1ull << LEXSTD:: \
-		          premature_end_of_file_t ) \
-	      + ( 1ull << LEXSTD::start_of_file_t ) \
-	      + ( 1ull << LEXSTD::end_of_file_t ), \
-	    \
-	        ( 1ull << LEXSTD:: \
-		          premature_end_of_file_t ) \
-	      + ( 1ull << LEXSTD::end_of_file_t ), \
-	      partial_name_ok ); \
-	\
-	if ( variable == min::ERROR() ) \
-	    return min::ERROR(); \
-	else if ( variable == min::MISSING() ) \
-	    return PAR::parse_error \
-	        ( parser, ppvec[i-1], \
-		  "expected quoted name after" );
 
     while ( true )
     {

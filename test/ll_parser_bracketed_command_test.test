@@ -772,3 +772,79 @@ parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
 parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser begin block 1
+parser print string concatenator:
+    block block 1: "#"
+    block standard: "#"
+    block TOP LEVEL: "#"
+======= TEST: parser test "AB"
+------- line 180:
+parser test "A" # "B"
+^^^^^^^^^^^^^^^^^^^^^
+------- line 180:
+parser test "A" # "B"
+            ^^^^^^^^^
+======= END TEST
+======= TEST: parser test "A" "B"
+------- line 181:
+parser test "A" "B"
+^^^^^^^^^^^^^^^^^^^
+------- line 181:
+parser test "A" "B"
+            ^^^
+------- line 181:
+parser test "A" "B"
+                ^^^
+======= END TEST
+parser define string concatenator enabled
+parser print string concatenator:
+    block block 1: enabled
+    block standard: "#"
+    block TOP LEVEL: "#"
+======= TEST: parser test "A" # "B"
+------- line 184:
+parser test "A" # "B"
+^^^^^^^^^^^^^^^^^^^^^
+------- line 184:
+parser test "A" # "B"
+            ^^^
+------- line 184:
+parser test "A" # "B"
+                  ^^^
+======= END TEST
+======= TEST: parser test "AB"
+------- line 185:
+parser test "A" "B"
+^^^^^^^^^^^^^^^^^^^
+------- line 185:
+parser test "A" "B"
+            ^^^^^^^
+======= END TEST
+parser define string concatenator disabled
+parser print string concatenator:
+    block block 1: disabled
+    block standard: "#"
+    block TOP LEVEL: "#"
+======= TEST: parser test "A" # "B"
+------- line 188:
+parser test "A" # "B"
+^^^^^^^^^^^^^^^^^^^^^
+------- line 188:
+parser test "A" # "B"
+            ^^^
+------- line 188:
+parser test "A" # "B"
+                  ^^^
+======= END TEST
+======= TEST: parser test "A" "B"
+------- line 189:
+parser test "A" "B"
+^^^^^^^^^^^^^^^^^^^
+------- line 189:
+parser test "A" "B"
+            ^^^
+------- line 189:
+parser test "A" "B"
+                ^^^
+======= END TEST
+parser end block 1

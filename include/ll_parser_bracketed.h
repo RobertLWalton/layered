@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 07:37:09 EST 2016
+// Date:	Mon Nov 21 12:40:48 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -688,7 +688,7 @@ struct bracketed_pass_struct
 	// tion check computations are signed, but is
 	// always >= 0.  Defaults to 2.
 
-    min::gen string_concatenator;
+    const min::gen string_concatenator;
         // Token value of token used to concatenate
 	// two quoted strings during logical line
 	// parsing (e.g., #).  Token must have a

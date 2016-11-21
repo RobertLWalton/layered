@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 02:26:23 EST 2016
+// Date:	Mon Nov 21 12:39:28 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -174,3 +174,17 @@ parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
 parser test (T1{T}T1 A B C)
 parser test (T2{T}T2 A B C)
 parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+
+parser begin block 1
+parser print string concatenator
+parser test "A" # "B"
+parser test "A" "B"
+parser define string concatenator enabled
+parser print string concatenator
+parser test "A" # "B"
+parser test "A" "B"
+parser define string concatenator disabled
+parser print string concatenator
+parser test "A" # "B"
+parser test "A" "B"
+parser end block 1

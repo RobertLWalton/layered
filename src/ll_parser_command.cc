@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 02:24:04 EST 2016
+// Date:	Mon Nov 21 12:39:39 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1519,5 +1519,10 @@ min::gen COM::parser_execute_command
     else if ( result == COM::PRINTED )
         result = min::SUCCESS();
 
-    return result;
+    else if ( result == min::FAILURE() )
+	return PAR::parse_error
+	    ( parser, ppvec->position,
+	      "parser command not recognized" );
+    else
+        return result;
 }

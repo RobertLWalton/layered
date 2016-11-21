@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 07:35:07 EST 2016
+// Date:	Mon Nov 21 12:40:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3408,7 +3408,8 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i],
 		  "unexpected stuff after" );
 
-	bracketed_pass->string_concatenator = concat;
+	BRA::string_concatenator_ref
+	    ( bracketed_pass ) = concat;
 
 	return min::SUCCESS();
     }

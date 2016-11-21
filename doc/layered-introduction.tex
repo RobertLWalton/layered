@@ -2951,12 +2951,13 @@ The bracketed subexpression recognition pass recognizes:
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
-consecutive quoted strings if they are in the same
-logical line.  Thus if logical lines end with a line break
+quoted strings if they are in the same logical line and are
+separatored by the quoted string concatenator (e.g., `\TT{\#}').
+Thus if logical lines end with a line break
 but permit indented continuation lines, then
 \begin{indpar}\begin{verbatim}
 "This is a longer sentence"
-    " than we would like."
+    # " than we would like."
 "And this is a second sentence."
 \end{verbatim}\end{indpar}
 is equivalent to
@@ -2967,11 +2968,32 @@ is equivalent to
 This is useful for
 breaking long quoted string lexemes across physical line boundaries.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \TT{"<" "LF" ">"} is
+between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
+
+The concatenator can be changed by the parser command:
+\begin{indpar}[0.1in]
+\emkey{parser-string-concatenator-command}%
+\label{PARSER-STRING_CONCATENATOR-COMMAND} ::= \\
+\hspace*{3em} \ttikey{parser define string concatenator}%
+                     {define string concatenator}
+	  ~ {\em string-concatenator}
+\\[0.5ex]
+\emkey{string-concatenator} ::= {\em quoted-name} with a single component
+		     $|$ \TT{disabled} $|$ \TT{enabled}
+\end{indpar}
+
+If the {\em string-concatenator} is `\TT{disabled}' quoted strings
+are never concatenated.  If it is `\TT{enabled}', consecutive
+quoted strings are concatenated; that is, no concatenator lexeme
+needs to be placed between the strings.
+
+The current string concatenator
+can be printed by the \TT{parser print string concatenator} command:
+see \pagref{PARSER-PRINT-BRACKET-COMMAND}.
 
 The bracketed parser pass has its own symbol table containing:
 \begin{indpar}[0.5in]
@@ -3617,8 +3639,6 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \end{tabular} \\
     $|$ & \ttikey{parser define indentation offset}{define indentation offset}
 	  {\em indentation-offset}  \\
-    $|$ & \ttikey{parser define concatenator}{define concatenator}
-	  {\em concatenator}  \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
@@ -3641,9 +3661,6 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{master-name} ::= {\em quoted-name}
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
-\\[0.5ex]
-\emkey{concatenator} ::= {\em quoted-name} with a single component
-		     $|$ \TT{disabled} $|$ \TT{enabled}
 \end{indpar}
 
 The {\em line-separator} may be used to end
@@ -4895,7 +4912,9 @@ A {\em parser-print-bracket-command} has the syntax:
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser print bracket}{parser print bracket}
 	  {\em partial-name} \\
-    $|$ & \ttikey{parser print indentation offset}{define indentation offset} \\
+    $|$ & \ttikey{parser print indentation offset}{print indentation offset} \\
+    $|$ & \ttikey{parser print string concatenator}%
+                 {print string concatenator} \\
     \end{tabular}
 \end{indpar}
 

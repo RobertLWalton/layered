@@ -943,9 +943,11 @@ a form feed.
 \emkey{natural-number} :::= {\em ASCII-digit}\PLUS{} not beginning with \TT{0}
                      $|$ \TT{0}
 \\[0.5ex]
-\emkey{numeric} :::= {\em middle-lexeme} containing a {\em digit}
-                     before any {\em letter}, but \underline{not} a
-		     {\em natural-number}
+\emkey{numeric} :::= \begin{tabular}[t]{l}
+                     {\em middle-lexeme} containing a {\em digit}
+                         before any {\em letter}, \\
+		     but \underline{not} a {\em natural-number}
+		     \end{tabular}
 \\[0.5ex]
 \emkey{number} :::= {\em natural-number} $|$ {\em numeric}
 \\[0.5ex]
@@ -995,9 +997,12 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 \begin{boxedfigure}[!p]
 \begin{indpar}
 \emkey{name} ::= 
+        \begin{tabular}[t]{l}
+	\{ {\em word} $|$ {\em natural-number}
+	              $|$ {\em quoted-string} \}\STAR{} \\
+	{\em word} \\
 	\{ {\em word} $|$ {\em natural-number} $|$ {\em quoted-string} \}\STAR{}
-	{\em word}
-	\{ {\em word} $|$ {\em natural-number} $|$ {\em quoted-string} \}\STAR{}
+	\end{tabular}
 \\[0.3ex]
 \emkey{lexical-program} ::=
         \begin{tabular}[t]{@{}l@{}}
@@ -1065,7 +1070,7 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	$|$ & \TT{"}{\em cpat-name}\TT{"} \\
 	$|$ & \TT{(} {\em cpat-expression} \TT{)}
 	\end{tabular}
-\\[2.0ex]
+\\[1.0ex]
 \emkey{lexical-table-definition} ::=
         \begin{tabular}[t]{@{}l@{}}
 	\TT{begin} {\em lexical-table-name}
@@ -1115,29 +1120,29 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 \emkey{instruction-component}
         \begin{tabular}[t]{@{}rl@{}}
 	::= & \TT{accept} \\
-	$|$ & \TT{match} {\em atom-table-name} \\
-	$|$ & \TT{keep} {\em natural-number} \\
-	$|$ & \TT{translate to} {\em translation-string} \\
-	$|$ & \TT{translate hex}
-			{\em natural-number} {\em natural-number} \\
-	$|$ & \TT{translate oct}
-			{\em natural-number} {\em natural-number} \\
-	$|$ & \TT{translate name}
-			{\em natural-number} {\em natural-number} \\
-	$|$ & \TT{require} {\em atom-pattern} \\
-	$|$ & \TT{error} {\em type-name} \\
-	$|$ & \TT{output} {\em type-name} \\
-	$|$ & \TT{output} \TT{none} \\
-	$|$ & \TT{goto} {\em master-table-name} \\
-	$|$ & \TT{goto} {\em lexeme-table-name} \\
-	$|$ & \TT{goto} {\em sublexeme-table-name} \\
-	$|$ & \TT{call} {\em lexeme-table-name} \\
-	$|$ & \TT{call} {\em sublexeme-table-name} \\
+	$|$ & \TT{match} ~ {\em atom-table-name} \\
+	$|$ & \TT{keep} ~ {\em natural-number} \\
+	$|$ & \TT{translate to} ~ {\em translation-string} \\
+	$|$ & \TT{translate hex} ~
+			{\em natural-number} ~ {\em natural-number} \\
+	$|$ & \TT{translate oct} ~
+			{\em natural-number} ~ {\em natural-number} \\
+	$|$ & \TT{translate name} ~
+			{\em natural-number} ~ {\em natural-number} \\
+	$|$ & \TT{require} ~ {\em atom-pattern} \\
+	$|$ & \TT{error} ~ {\em type-name} \\
+	$|$ & \TT{output} ~ {\em type-name} \\
+	$|$ & \TT{output} ~ \TT{none} \\
+	$|$ & \TT{goto} ~ {\em master-table-name} \\
+	$|$ & \TT{goto} ~ {\em lexeme-table-name} \\
+	$|$ & \TT{goto} ~ {\em sublexeme-table-name} \\
+	$|$ & \TT{call} ~ {\em lexeme-table-name} \\
+	$|$ & \TT{call} ~ {\em sublexeme-table-name} \\
 	$|$ & \TT{return} \\
 	$|$ & \TT{fail} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{type-name} ::= {\em name} except \TT{scan error} or \TT{none}
+\emkey{type-name} ::= {\em name} except ~ \TT{scan error} ~ or ~ \TT{none}
 \\[0.3ex]
 \emkey{atom-table-name} ::= {\em lexical-table-name}
 \\[0.3ex]
@@ -1987,7 +1992,8 @@ A token has the following components:
 		  quoted string and numeric whose tokens
 		  have a \TT{string} equal
 		  to the lexeme translation string,
-		  and comment, indent, line break, and end of file
+		  and comment, indent, line break, start of file,
+		  and end of file
 		  whose tokens have neither
 		  \TT{value} nor \TT{string}.
 		  Standardly non-indent, non-line-break
@@ -3805,8 +3811,8 @@ at the end than it does at the beginning:
 
 An attribute value may be a bracketed subexpression, or a sequence
 of one or more words, natural-numbers, numerics, and quoted strings, each
-representing a MIN string (note natural-numbers represent MIN strings and
-\underline{not} MIN numbers).  In the latter case, if there is only
+representing a MIN string.
+In the latter case, if there is only
 one element in the sequence, the MIN string it represents is the
 attribute value, but if there is more than one element, the elements
 are concatenanted into a label and that label is the attribute value.
@@ -3818,8 +3824,10 @@ The exception is that when the brackets are `\TT{\{*~*\}}',
 the comma
 separated elements of the bracketed subexpression are each a
 distinct value of the attribute, which has a multi-set of values.
-Elements must be single bracketed subexpressions, or sequences of
+Elements must be single bracketed subexpressions,
 words, natural-numbers, numerics, and quoted strings that are made into
+MIN strings, or sequences of words, natural-numbers, numerics, and
+quoted strings that are made into
 labels.  Missing elements, as indicated by the commas, are ignored,
 If there are no values, as in `\TT{\{* *\}}' or `\TT{\{* , *\}}',
 the attribute is not set.
@@ -5093,28 +5101,28 @@ The syntax of operator definitions is:
 	    \begin{tabular}[t]{@{}l@{}}
 	    \TT{define operator}
 	        \begin{tabular}[t]{l}
-		{\em operator-name} {\em parsing-selectors} \\
-		{\em operator-flag} {\em operator-flag}\,\STAR{} \\
+		{\em operator-name} ~ {\em parsing-selectors} \\
+		{\em operator-flag} ~ {\em operator-flag}\,\STAR{} \\
 		\end{tabular} \\
-	    \TT{with precedence} {\em precedence} \\
-	    {}[ \TT{with} {\em reformatter-name} \TT{reformatter}
-			  {\em reformatter-arguments} ] \\
+	    \TT{with precedence} ~ {\em precedence} \\
+	    {}[ \TT{with} ~ {\em reformatter-name} ~ \TT{reformatter}
+			  ~ {\em reformatter-arguments} ] \\
 	    \end{tabular} \\
     $|$ & \TT{parser}\ttindex{parser undefine operator}~%
 	    \begin{tabular}[t]{@{}l@{}}
 	    \TT{undefine operator}
 	        \begin{tabular}[t]{l}
-		{\em operator-name} {\em parsing-selectors} \\
-		{\em operator-flag} {\em operator-flag}\,\STAR{} \\
+		{\em operator-name} ~ {\em parsing-selectors} \\
+		{\em operator-flag} ~ {\em operator-flag}\,\STAR{} \\
 		\end{tabular} \\
-	    \TT{with precedence} {\em precedence} \\
+	    \TT{with precedence} ~ {\em precedence} \\
 	    \end{tabular} \\
     \end{tabular}
 \\[1ex]
 \emkey{operator-name} \begin{tabular}[t]{rl}
 		    ::= & {\em simple-operator-name} \\
-		    $|$ & \TT{bracket} {\em bracket-name} \\
-		    $|$ & \TT{indentation mark} {\em indentation-mark-name}
+		    $|$ & \TT{bracket} ~ {\em bracket-name} \\
+		    $|$ & \TT{indentation mark} ~ {\em indentation-mark-name}
 		    \end{tabular}
 \\[1ex]
 {\em simple-operator-name} ::= {\em quoted-name} \\[1ex]
@@ -5126,7 +5134,7 @@ The syntax of operator definitions is:
                     $|$ \ttmkey{nofix}{operator flag}
                     $|$ \ttmkey{afix}{operator flag}
 	\\[1ex]
-\emkey{precedence} ::= {\em sign-option} {\em natural-number}
+\emkey{precedence} ::= {\em sign-option} ~ {\em natural-number}
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \TT{+} $|$ \TT{-}
 	\\[1ex]
@@ -5408,7 +5416,7 @@ expression to refer to this value.  An example is
 Here the temporary has been used to avoid computing \TT{y + 3}
 more than once.
 
-The {\em decimal-naturals} in {\em temporaries} must be assigned so no
+The {\em natural-numbers} in {\em temporaries} must be assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
 With these things in mind, the reformatters are:

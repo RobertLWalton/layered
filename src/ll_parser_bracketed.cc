@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 20 11:17:36 EST 2016
+// Date:	Sun Nov 20 19:11:55 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1749,47 +1749,61 @@ min::position BRA::parse_bracketed_subexpression
 	if ( current->type == LEXSTD::quoted_string_t )
 	{
 	    ensure_next ( parser, current );
+	    current = current->next;
+	    min::gen concat = pass->concatenator;
 
-	    if ( start_previous->next != current
-		 &&
-		    current->previous->type
-		 == LEXSTD::mark_t
-		 &&
-		    current->previous->value
-		 == pass->concatenator
-	         &&
-	         start_previous->next->next != current
-		 &&
-		    current->previous->previous->type
-		 == LEXSTD::quoted_string_t )
+	    if ( concat == min::DISABLED() )
+	        continue;
+
+	    if (    start_previous->next
+	         == current->previous )
+	        continue;
+
+	    if ( concat != min::ENABLED() )
 	    {
-	        // Merge current into current->previous
-		// ->previous, and delete current and
-		// current->previous.
-		//
-	        min::push
-		    ( (PAR::string_insptr)
-		          current->previous->previous
-			                   ->string,
-		      current->string->length,
-		      min::begin_ptr_of
-		          ( current->string ) );
-		current->previous->previous
-		        ->position.end =
-		    current->position.end;
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  current->previous ) );
-		current = current->next;
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  current->previous ) );
-	    }
-	    else
-		current = current->next;
+	        if (    current->previous->previous
+		               ->value
+		     != concat )
+		    continue;
+		if (    start_previous->next
+		     == current->previous->previous )
+		    continue;
+		if (    current->previous->previous
+		               ->previous->type
+		     != LEXSTD::quoted_string_t )
+		    continue;
 
+		// Remove concatenator token.
+		//
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous
+			         ->previous ) );
+	    }
+	    else if (    current->previous->previous
+	                        ->type
+		      != LEXSTD::quoted_string_t )
+	        continue;
+
+	    // Merge current->previous into current->
+	    // previous->previous, and delete current->
+	    // previous.
+	    //
+	    min::push
+		( (PAR::string_insptr)
+		      current->previous->previous
+				       ->string,
+		  current->previous->string->length,
+		  min::begin_ptr_of
+		      ( current->previous->string ) );
+	    current->previous->previous
+		    ->position.end =
+		current->previous->position.end;
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      current->previous ) );
 	    continue;
 	}
 

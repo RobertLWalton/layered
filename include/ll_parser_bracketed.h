@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 20 10:57:45 EST 2016
+// Date:	Mon Nov 21 07:37:09 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -632,8 +632,8 @@ struct block_struct
     min::int32 indentation_offset;
         // Saved indentation offset.
 
-    min::gen concatenator;
-        // Saved concatenator.
+    min::gen string_concatenator;
+        // Saved string_concatenator.
 };
 
 typedef min::packed_vec_insptr
@@ -652,13 +652,13 @@ inline void push_block
 	( ll::parser::bracketed::block_stack
 	      block_stack,
 	  min::int32 indentation_offset,
-	  min::gen concatenator )
+	  min::gen string_concatenator )
 {
     ll::parser::bracketed::block_struct b =
-        { indentation_offset, concatenator };
+        { indentation_offset, string_concatenator };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
-        ( block_stack, concatenator );
+        ( block_stack, string_concatenator );
 }
 
 struct bracketed_pass_struct;
@@ -688,7 +688,7 @@ struct bracketed_pass_struct
 	// tion check computations are signed, but is
 	// always >= 0.  Defaults to 2.
 
-    min::gen concatenator;
+    min::gen string_concatenator;
         // Token value of token used to concatenate
 	// two quoted strings during logical line
 	// parsing (e.g., #).  Token must have a
@@ -724,7 +724,7 @@ MIN_REF ( ll::parser::table::key_table, bracket_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::table::key_table, prefix_table,
           ll::parser::bracketed::bracketed_pass )
-MIN_REF ( min::gen, concatenator,
+MIN_REF ( min::gen, string_concatenator,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::bracketed::block_stack,
           block_stack,

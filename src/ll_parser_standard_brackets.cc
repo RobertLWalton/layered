@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 17:46:26 EST 2016
+// Date:	Tue Nov 22 02:42:40 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,8 +35,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
 
-    min::locatable_gen prefix_name
-        ( min::new_str_gen ( "prefix" ) );
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
     min::locatable_gen math_name
@@ -52,10 +50,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen typed_bracketed_name
         ( min::new_lab_gen ( "typed", "bracketed" ) );
 
-    TAB::flags prefix =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table,
-	      prefix_name );
     TAB::flags code =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, code_name );
@@ -111,8 +105,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::push ( multivalue_arguments ) = comma;
 
     parser->selectors &= PAR::ALL_OPT;
-    parser->selectors |= code | prefix
-                       | PAR::ALWAYS_SELECTOR;
+    parser->selectors |= code | PAR::ALWAYS_SELECTOR;
 
     min::uns32 block_level =
         PAR::block_level ( parser );

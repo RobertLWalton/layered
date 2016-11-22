@@ -14,7 +14,7 @@ parser print selector "":
     block TOP LEVEL: data
     block TOP LEVEL: parser
 parser print context "":
-    block standard: default [prefix, code]
+    block standard: default [code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -84,7 +84,7 @@ parser print trace:
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":
-    block standard: default [prefix, code]
+    block standard: default [code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 20, 2016
+November 22, 2016
  
 \end{center}
 
@@ -2986,13 +2986,13 @@ The concatenator can be changed by the parser command:
 		     $|$ \TT{disabled} $|$ \TT{enabled}
 \end{indpar}
 
-If the {\em string-concatenator} is `\TT{disabled}' quoted strings
+If {\em string-concatenator} is `\TT{disabled}', quoted strings
 are never concatenated.  If it is `\TT{enabled}', consecutive
 quoted strings are concatenated; that is, no concatenator lexeme
 needs to be placed between the strings.
 
 The current string concatenator
-can be printed by the \TT{parser print string concatenator} command:
+can be printed by the \TT{parser print string con\-cat\-e\-na\-tor} command:
 see \pagref{PARSER-PRINT-BRACKET-COMMAND}.
 
 The bracketed parser pass has its own symbol table containing:
@@ -3901,10 +3901,10 @@ and from any flag character lexeme by commas.  Some examples
 are:
 \begin{center}
 \begin{tabular}{l}
-\TT{\{.position[H] = (3,4)|A B C|\}} \\
-\TT{\{.position[H,65] = (3,4)|A B C|\}} \\
-\TT{\{.position[65] = (3,4)|A B C|\}} \\
-\TT{\{.position[65,H,256] = (3,4)|A B C|\}} \\
+\TT{\{.format[H] = (3,4)|A B C|\}} \\
+\TT{\{.format[H,65] = (3,4)|A B C|\}} \\
+\TT{\{.format[65] = (3,4)|A B C|\}} \\
+\TT{\{.format[65,H,256] = (3,4)|A B C|\}} \\
 \end{tabular}
 \end{center}
 
@@ -4092,11 +4092,11 @@ attributes as in:
 \end{center}
 
 During the scanning of typed subexpression {\em attribute-lists}
-parsing selectors are standardly set to just `\TT{data}' and
-`\TT{prefix}', while during the scanning of typed subexpression
+parsing selectors are standardly set to just `\TT{data}',
+while during the scanning of typed subexpression
 {\em element-lists} parsing selectors are standardly
 those of the subexpression context.
-Duing both scans options are standardly set to those of the
+During both scans options are standardly set to those of the
 context less the `\TT{end at line separator}' option.
 
 If two {\em typed-middles} with no intervening space

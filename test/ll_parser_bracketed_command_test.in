@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 12:39:28 EST 2016
+// Date:	Tue Nov 22 02:43:49 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -188,3 +188,17 @@ parser print string concatenator
 parser test "A" # "B"
 parser test "A" "B"
 parser end block 1
+
+parser begin block 1
+parser define typed bracket "8" ... "|" ... "|" ... "9"
+       [code, text, math, parser]
+       with element selectors [data, prefix]
+       with attribute selectors [data, code]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser test [8 my type: my attr = 99 9]
+parser end block 1
+parser test [8 my type: my attr = 99 9]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 18 18:35:06 EST 2016
+// Date:	Tue Nov 22 02:44:08 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -146,8 +146,12 @@ parser print bracket ""
           | a b c |}
 {my type: y = {* ,, *} | a b c |}
 
-{| "A" "B" |}
 {+ 1 2 3 +}
 {"+"| 1 2 3 |"+"}
 {< 1 2 3 >}
 {"<" ">"| 1 2 3 |"<" ">"}
+
+{x: y[+Y]}
+{x: y[1,Y]}
+{x: y[+,62]}
+{x: y[62,1]}

@@ -8,7 +8,7 @@ parser print selector "":
 parser print pass:
     top
 parser print context "":
-    block standard: default [prefix, code]
+    block standard: default [code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]

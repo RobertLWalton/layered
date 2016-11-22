@@ -710,12 +710,12 @@ parser print prefix "X":
                     with parsing selectors [code, math]
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
        [code, text, math, parser]
-       with element selectors [data, prefix]
+       with element selectors [data]
        with attribute selectors [data]
        with attributes "::" ... "==" ... "#"
 parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
        [code, text, math, parser]
-       with element selectors [data, prefix]
+       with element selectors [data]
        with attribute selectors [data, code]
        with attributes "::" ... "==" ... "#"
        with attribute negator "NO"
@@ -772,27 +772,37 @@ parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
 parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
+       [code, text, math, parser]
+======= TEST: parser test (T2 "{" T "}" T2 A B C)
+------- line 179:
+parser test (T2{T}T2 A B C)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 179:
+parser test (T2{T}T2 A B C)
+            ^^^^^^^^^^^^^^^
+======= END TEST
 parser begin block 1
 parser print string concatenator:
     block block 1: "#"
     block standard: "#"
     block TOP LEVEL: "#"
 ======= TEST: parser test "AB"
-------- line 180:
+------- line 183:
 parser test "A" # "B"
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 180:
+------- line 183:
 parser test "A" # "B"
             ^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test "A" "B"
-------- line 181:
+------- line 184:
 parser test "A" "B"
 ^^^^^^^^^^^^^^^^^^^
-------- line 181:
+------- line 184:
 parser test "A" "B"
             ^^^
-------- line 181:
+------- line 184:
 parser test "A" "B"
                 ^^^
 ======= END TEST
@@ -802,21 +812,21 @@ parser print string concatenator:
     block standard: "#"
     block TOP LEVEL: "#"
 ======= TEST: parser test "A" # "B"
-------- line 184:
+------- line 187:
 parser test "A" # "B"
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 184:
+------- line 187:
 parser test "A" # "B"
             ^^^
-------- line 184:
+------- line 187:
 parser test "A" # "B"
                   ^^^
 ======= END TEST
 ======= TEST: parser test "AB"
-------- line 185:
+------- line 188:
 parser test "A" "B"
 ^^^^^^^^^^^^^^^^^^^
-------- line 185:
+------- line 188:
 parser test "A" "B"
             ^^^^^^^
 ======= END TEST
@@ -826,24 +836,24 @@ parser print string concatenator:
     block standard: "#"
     block TOP LEVEL: "#"
 ======= TEST: parser test "A" # "B"
-------- line 188:
+------- line 191:
 parser test "A" # "B"
 ^^^^^^^^^^^^^^^^^^^^^
-------- line 188:
+------- line 191:
 parser test "A" # "B"
             ^^^
-------- line 188:
+------- line 191:
 parser test "A" # "B"
                   ^^^
 ======= END TEST
 ======= TEST: parser test "A" "B"
-------- line 189:
+------- line 192:
 parser test "A" "B"
 ^^^^^^^^^^^^^^^^^^^
-------- line 189:
+------- line 192:
 parser test "A" "B"
             ^^^
-------- line 189:
+------- line 192:
 parser test "A" "B"
                 ^^^
 ======= END TEST
@@ -851,7 +861,7 @@ parser end block 1
 parser begin block 1
 parser define typed bracket "8" ... "|" ... "|" ... "9"
        [code, text, math, parser]
-       with element selectors [data, prefix]
+       with element selectors [data]
        with attribute selectors [data, code]
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
@@ -859,22 +869,22 @@ parser define typed bracket "8" ... "|" ... "|" ... "9"
        with attribute multivalue initiator "{*"
        with prefix separators allowed
 ======= TEST: parser test [{my type: my attr = "99"||my type}]
-------- line 202:
+------- line 205:
 parser test [8 my type: my attr = 99 9]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 202:
+------- line 205:
 parser test [8 my type: my attr = 99 9]
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 202:
+------- line 205:
 parser test [8 my type: my attr = 99 9]
              ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
 ======= TEST: parser test [8 my type ":" my attr = 99 9]
-------- line 204:
+------- line 207:
 parser test [8 my type: my attr = 99 9]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 204:
+------- line 207:
 parser test [8 my type: my attr = 99 9]
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

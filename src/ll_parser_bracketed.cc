@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 12:40:06 EST 2016
+// Date:	Tue Nov 22 06:37:37 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4782,9 +4782,9 @@ static min::gen bracketed_pass_command
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
 	        ( name[0],
-		  type == ::BRACKET ?
-		  bracketed_pass->bracket_table :
-		  bracketed_pass->prefix_table );
+		     type == ::PREFIX ? 
+		  bracketed_pass->prefix_table :
+		  bracketed_pass->bracket_table );
 
 	min::uns32 count = 0;
 

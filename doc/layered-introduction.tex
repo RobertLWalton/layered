@@ -4743,12 +4743,17 @@ following `\skey{line variable}s'\label{LINE-VARIABLES}:
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
     The lexical master is reset to this value just after the
     indent that begins a logical in paragraph beginning position.
+
+    The lexical master is also reset to this value just after
+    a prefix lexeme that is replaced by a paragraph header.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
     The lexical master is reset to this value just after the
     indent that begins a logical \underline{not}
     in paragraph beginning position.
 
+    The lexical master is also reset to this value just after
+    a prefix lexeme that is replaced by a line header.
 \end{indpar}
 
 The prefix definition of a header consists of the set of values
@@ -4819,6 +4824,25 @@ in paragraph beginning position
 is read, then the selectors, options, and lexical master are set to
 their line variable line values.
 
+The parser assumes that the lexical scanner is set up to obey
+the following rules:
+\begin{enumerate}
+\item The lexical master named `\ttmkey{normal}{lexical master}'
+may be used to scan lexemes in the normal, non-special, way.
+
+\item A lexical master that is a \TT{paragraph lexical master}
+or \TT{line lexical master}
+will jump to the `\TT{normal}' lexical master if the first thing after
+an indent is the beginning of a {\em typed-opening} (e.g., the
+first character is `\TT{\{}').
+
+\item A lexical master that is a \TT{paragraph lexical master}
+may deliver a prefix lexeme that is to be mapped to a paragraph header
+at the beginning of its scan.  After doing this, if it is done,
+the lexical master will jump to the \TT{line lexical master}.
+
+\end{enumerate}
+
 TBD
 
 The lexical scanner produces these \skey{header lexeme}s by looking
@@ -4832,57 +4856,6 @@ In short, the scanner will peek ahead but not read ahead when
 producing header lexemes.
 
 TBD
-
-\begin{indpar}[0.1in]
-\emkey{parser-header-command}%
-\label{PARSER-HEADER-COMMAND} \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define header}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em header-kind} \TT{header}
-	  {\em header-name} {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
-	  {}[ \TT{with parsing options} {\em end-at-options} ] \\
-	  {}[ \TT{with paragraph master} {\em master-index} ] \\
-	  {}[ \TT{with line master} {\em master-index} ] \\
-	  {}[ \TT{with paragraph header} {\em header} ] \\
-	  {}[ \TT{with line header} {\em header} ] \\
-	  {}[ \TT{with keep} {\em yes-or-no}\QMARK{} ] \\
-	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine}{undefine header}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em header-kind} \TT{header}
-	  {\em header-name} \\
-	  {\em parsing-selectors} \\
-	  \end{tabular} \\
-    \end{tabular}
-\label{HEADER-DEFINITION}
-\\[0.5ex]
-\emkey{header-kind} ::= \TT{paragraph} $|$ \TT{line}
-\\[0.5ex]
-\emkey{header-name} ::= {\em quoted-name}
-\\[0.5ex]
-\emkey{new-selectors} ::= {\em parser-flag-spec}
-\\[0.5ex]
-\emkey{end-at-options} ::= {\em parser-flag-spec}
-	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
-\\[0.5ex]
-\emkey{master-index} ::= unsigned integer
-	~~~~~ [see \pagref{LINE-VARIABLES}]
-\\[0.5ex]
-\emkey{header} ::= MIN object with \TT{.type} and no elements
-	~~~~~ [see \pagref{LINE-VARIABLES}]
-\\[0.5ex]
-\emkey{yes-or-no} ::= \TT{yes} $|$ \TT{no} 
-\end{indpar}
-
-All parameters are permitted and used for paragraph headers,
-but only the \TT{selectors}, \TT{options}, \TT{line header},
-and \TT{keep} parameters are permitted and used for line headers.
-
-`\TT{with keep}' without a following {\em yes-or-no} defaults to `\TT{yes}',
-while the absence of any `\TT{with keep}' defaults to `\TT{no}'.
 
 \subsubsection{Bracketed Parser Print Commands}
 \label{BRACKETED-PARSER-PRINT-COMMANDS}

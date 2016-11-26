@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 24, 2016
+November 26, 2016
  
 \end{center}
 
@@ -2394,17 +2394,17 @@ end of file).
 Details on paragraph headers are given in
 Section~\itemref{PARAGRAPH-AND-LINE-HEADERS}.
 
-\subsection{Parser Symbol Table}
-\label{PARSER-SYMBOL-TABLE}
+\subsection{Parser Symbol Tables}
+\label{PARSER-SYMBOL-TABLES}
 
 Sequences of lexemes encoded as tokens are looked up in
 \skey{parser symbol table}s.
 A parser symbol table is conceptually a stack of
 \skey{parser definition}s.
 
-In fact, there are different
-symbol tables for different parser passes, as each pass
-looks up only pass specific definitions.
+There are different symbol tables for different parser passes, as each pass
+looks up only pass specific definitions.  Some passes have more than
+one symbol table.
 
 Each parser definition has the following
 components:
@@ -2926,6 +2926,7 @@ latter, not just an initial subsequence.  There is \underline{no}
 partial lexeme matching.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
+\label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
@@ -4594,14 +4595,26 @@ by line variables set when a implied header is set by a prefix lexeme, as per
 The `\TT{options}' parameter of a prefix type table entry is only used
 to set line variables: see \pagref{LINE-VARIABLES}.
 
-\subsubsection{Paragraph and Line Headers}
-\label{PARAGRAPH-AND-LINE-HEADERS}
+\subsubsection{Unindented Paragraphs}
+\label{UNINDENTED-PARAGRAPHS}
 
-A \key{paragraph header} is a prefix separator that begins
-an unindented paragraph.  A \key{line header} is a prefix
-separator that begins a logical line.
-Unindented paragraphs are contained in indented paragraphs.
-The \key{top level} is treated as an indented paragraph with indentation \TT{0}.
+A `\key{paragraph separator}' is a maximal sequence of consecutive blank lines
+in an indented paragraph, assuming that comment lines (lines
+containing only a comment) are completely ignored.
+Paragraph separators separate the logical lines in an indented
+paragraph into `\skey{unindented paragraph}s'.
+
+A typed prefix separator which has the `\TT{paragraph}' group can only 
+appear at the very beginning of an unindented paragraph, and is called
+the `\key{paragraph header}' of that paragraph.
+
+A typed prefix separator which has the `\TT{line}' group can only 
+appear at the very beginning of a logical line paragraph, or immediately
+after a paragraph header that begins the line, and is called
+the `\key{line header}' of that line.
+
+Paragraph headers and line headers may be implied or be the
+result of special lexeme replacement.
 
 Consider the example:
 \begin{indpar}\begin{verbatim}
@@ -4623,29 +4636,29 @@ a potato
 \end{verbatim}\end{indpar}
 
 Here there are 3 unindented paragraphs inside the top level indented
-paragraph.  The first unindented paragraph has bracketed
+paragraph.  The first unindented paragraph has
 paragraph header `\TT{\{itemize\}}' and line headers `\TT{\{item\}}'
 for each of its logical lines.  The second has the same headers but
 they are implied.  The third unindented paragraph has lexical headers:
-the first line begins with `\TT{====}' which causes
+the first line begins with `\TT{====}' which causes the
 \begin{center}
 \TT{\{table\}\EOL\{line\}}
 \end{center}
-to be inserted at this line's beginning,
-and in subsequent lines `\TT{|}' inserts `\TT{\{row\}}'
-and both `\TT{-}' and `\TT{=}' insert `\TT{\{line\}}'.
+paragraph header and line header to be inserted at this line's beginning,
+and in subsequent lines `\TT{|}' inserts `\TT{\{row\}}' line headers
+and both `\TT{-}' and `\TT{=}' insert `\TT{\{line\}}' line headers.
 All this assumes there are appropriate entries in the parser's
 header table for `\TT{itemize}', `\TT{item}', `\TT{table}',
 `\TT{line}', and `\TT{row}', and that the lexical scanner has
-been programmed to produce special header lexemes in certain
+been programmed to produce special lexemes in certain
 contexts.  To be specific about the latter, the lexical scanner
 at top level, upon seeing `\TT{====}' at the beginning of logical
 line following a blank line,
-must produce a header lexeme that maps
-to the headers `\TT{table}' and `\TT{line}'.
+must produce a special lexeme that maps
+to `\TT{table}' and a second special lexeme that maps to `\TT{line}'.
 Then for the remaining logical lines within this
 `\TT{table}' unindented paragraph, the scanner must
-produce header lexemes that map to
+produce special lexemes that map to
 `\TT{row}' for lines beginning with `\TT{|}' and
 `\TT{line}' for lines beginning with `\TT{-}' or `\TT{=}'.
 
@@ -4680,80 +4693,42 @@ The above example might be used to generate the output:
 \end{indpar}
 
 
-A logical line that begins an unindented paragraph is said to be
-in \key{paragraph beginning position}.
-This means it is the first logical line of an indented paragraph,
-or is after a sequence of blank and comment lines that contains
-a blank line and that follows a logical line.
-Here a \key{comment line} is a line that contains nothing
-but a single comment.
-
-A logical line in paragraph beginning position may begin with a
-typed prefix separator that has the `\TT{paragraph}' group.
-This is called the \key{paragraph header} of the paragraph the logical
-line begins, and may be followed by a typed prefix separator that has
-the `\TT{line}' group, which will be the \key{line header} of the logical
-line.
-
-Any logical line may begin with a typed prefix separator that
-has the `\TT{line}' group, which will be the \key{line header}
-of that logical line.
-
-Paragraph headers and line headers may also be
-specified by prefix lexemes or implicitly
-by an `\mkey{implied paragraph header}{in parser context}'
-and an `\mkey{implied line header}{in parser context} that
-are part of the parser context.
-
 While parsing an indented paragraph, the parser maintains the
 following `\skey{line variable}s'\label{LINE-VARIABLES}:
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttmkey{implied paragraph header}{line variable}\\
     If this value is not missing and no explicit paragraph header
-    is found at the beginning of a logical line in
-    paragraph beginning position, a copy of this
-    implied paragraph header variable is inserted.
+    is found at the beginning of an unindented paragraph,
+    a copy of this implied paragraph header variable value is inserted.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{implied line header}{line variable}\\
     If this value is not missing and no explicit line header
-    is found after a paragraph header or at the beginning of
-    a logical line \underline{not} in
-    paragraph beginning position, a copy of this
-    implied line header variable is inserted.
+    at the beginning of a logical line or just after a paragraph
+    header, a copy of this
+    implied line header variable value is inserted.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
     The parsing selectors are reset to this value just after the
-    indent that begins a logical in paragraph beginning position.
+    indent token that begins an unindented paragraph.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line variable}\\
     The parsing selectors are reset to this value just after the
-    indent that begins a logical \underline{not}
-    in paragraph beginning position.
+    indent token that begins a logical line that is not the
+    first logical line of an unindented paragraph.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
     The parsing options are reset to this value just after the
-    indent that begins a logical in paragraph beginning position.
-\\[1ex]
-\hspace*{-0.2in}\ttmkey{line options}{line variable}\\
-    The parsing options are reset to this value just after the
-    indent that begins a logical \underline{not}
-    in paragraph beginning position.
+    indent token that begins an unindented paragraph.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
     The lexical master is reset to this value just after the
-    indent that begins a logical in paragraph beginning position.
-
-    The lexical master is also reset to this value just after
-    a prefix lexeme that is replaced by a paragraph header.
+    indent token that begins an unindented paragraph.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
     The lexical master is reset to this value just after the
-    indent that begins a logical \underline{not}
-    in paragraph beginning position.
-
-    The lexical master is also reset to this value just after
-    a prefix lexeme that is replaced by a line header.
+    indent token that begins a logical line that is not the
+    first logical line of an unindented paragraph.
 \end{indpar}
 
 The prefix definition of a header consists of the set of values
@@ -4762,8 +4737,8 @@ for the header's \TT{.type}.
 See \itemref{PREFIX-DEFINITIONS}.
 
 An explicit paragraph header is a typed prefix separator that
-occurs at the beginning of a logical line in paragraph beginning
-position, and that has a prefix definition whose \TT{group} equals
+occurs at the beginning of an unindented paragraph,
+and that has a prefix definition whose \TT{group} equals
 `\TT{paragraph}'.
 
 An explicit line header is a typed prefix separator that
@@ -4772,7 +4747,7 @@ occurs at the beginning of \underline{any} logical line,
 and that has a prefix definition whose \TT{group} equals
 `\TT{line}'.
 
-Replacements for prefix lexemes are treated
+Replacements for special lexemes are treated
 as if they were given explicitly in the input, and may be explicit
 paragraph or line headers.
 
@@ -4784,20 +4759,19 @@ the \TT{implied paragraph header} is reset to a copy of the
 explicit paragraph header.
 
 Whenever the \TT{implied paragraph header} is reset, the values
-set by any prefix definition command (see \pagref{PARSER-PREFIX-COMMAND})
-for its {\tt .type} are used to reset the \TT{paragraph selectors},
+set by any prefix definition
+are used to reset the \TT{paragraph selectors},
 \TT{paragraph options}, \TT{paragraph lexical master}, and
-\TT{implied line header}.  This last is set to the command's
-\TT{implied subheader} prefix definition value.
+\TT{implied line header}.
 If there is no prefix definition (no active prefix symbol table
 entry for the \TT{implied paragraph header} {\tt.type}),
 all these variables are reset to missing.
 
 Similarly whenever the \TT{implied line header} is reset, the values
-set by any prefix definition command (see \pagref{PARSER-PREFIX-COMMAND})
+set by any prefix definition
 for its {\tt .type} are used to reset the \TT{line selectors},
 \TT{line options}, and \TT{line lexical master}.  If the \TT{implied
-line header} is missing, or its \TT{.type} has
+line header} is set to missing, or its \TT{.type} has
 no active prefix definition,
 all these variables are reset to missing.
 
@@ -4806,12 +4780,12 @@ It is in error if the implied paragraph header is set to a
 group.  Similarly, it is in error if the implied line header is set to a
 {\em typed-prefix-separator} which is not in the `\TT{line}' group.
 
-If the first thing after the indent token of a logical line
-in paragraph beginning position is not an explicit paragraph header,
+If the first thing after the indent token beginning an unindented
+paragraph is not an explicit paragraph header,
 and the \TT{implicit paragaraph header} is not missing, a copy
 of the \TT{implicit paragraph header} is inserted at the beginning of
 the logical line.  If the first thing after any explicit or inserted
-paragraph header, or at the beginning of a line in which there
+paragraph header, or at the beginning of a logical line in which there
 is neither an explicit or inserted paragraph header, is not a line
 header, and the \TT{implicit line header} is not missing, a copy
 of the \TT{implicit line header} is inserted at that point.

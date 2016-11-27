@@ -77,17 +77,8 @@
 
 % End \tableofcontents surgery.
 
-\newsavebox{\LAQUOTEBOX}
-\begin{lrbox}{\LAQUOTEBOX}
-{\tt \guillemotleft}
-\end{lrbox}
-\newcommand{\LAQUOTE}{\usebox{\LAQUOTEBOX}}
-
-\newsavebox{\RAQUOTEBOX}
-\begin{lrbox}{\RAQUOTEBOX}
-{\tt \guillemotright}
-\end{lrbox}
-\newcommand{\RAQUOTE}{\usebox{\RAQUOTEBOX}}
+\newcommand{\RESERVE}[1][0.3in]%
+    {\par\rule[-#1]{0in}{#1}\vspace{-#1}\par}
 
 \newcommand{\CN}[2]%	Change Notice.
     {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
@@ -235,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 26, 2016
+November 27, 2016
  
 \end{center}
 
@@ -2392,7 +2383,7 @@ contains the unindented paragraph ends (this can be at an
 end of file).
 
 Details on paragraph headers are given in
-Section~\itemref{PARAGRAPH-AND-LINE-HEADERS}.
+Section~\itemref{UNINDENTED-PARAGRAPHS}.
 
 \subsection{Parser Symbol Tables}
 \label{PARSER-SYMBOL-TABLES}
@@ -3047,7 +3038,7 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
     $|$ & {\em prefix-n-list}
 	& see \pagref{PREFIX-N-LIST} in \itemref{TYPED-PREFIX-SEPARATORS} \\
     $|$ & implied paragraph and line headers
-	& see \itemref{PARAGRAPH-AND-LINE-HEADERS} \\
+	& see \itemref{UNINDENTED-PARAGRAPHS} \\
     \end{tabular}
 \end{indpar}
 
@@ -3071,7 +3062,7 @@ are similarly divided:
     $|$ & {\em parser-prefix-command}
         & see \pagref{PARSER-PREFIX-COMMAND} \\
     $|$ & {\em parser-prefix-lexeme-command}
-        & see \pagref{PARSER-PREFIX-LEXEME-COMMAND} \\
+        & see \pagref{PARSER-MAPPED-LEXEME-COMMAND} \\
     $|$ & {\em parser-print-bracket-command}
         & see \pagref{PARSER-PRINT-BRACKET-COMMAND} \\
     \end{tabular}
@@ -4521,18 +4512,13 @@ they all have some group).
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{UNINDENTED-PARAGRAPHS}.
-\\[2ex]
+\RESERVE[0.6in]
 \hspace*{-0.2in}\ttmkey{options}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{implied subheader}{in prefix definition}\\
 For prefixes that are \TT{.types} of implied paragraph 
 or implied line header lexemes, these values may be used
 to set line variables: see \pagref{LINE-VARIABLES}.
-
-For prefixes that are values in a mapped lexeme table entry,
-the \TT{lexical master} value may be used to set the mapped lexeme
-table entry \TT{lexical master} value in some cases:
-see \pagref{TBD}.
 
 \end{indpar}
 
@@ -4570,38 +4556,73 @@ Entries in this symbol table are managed by
 \\[0.5ex]
 \emkey{mapped-lexeme-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{token-type} ::= {\em quoted-name}
+\emkey{token-type} ::= \TT{BRACKETED} $|$ \TT{BRACKATABLE}
+                   $|$ \TT{PURELIST} $|$ \TT{PREFIX} $|$ \TT{DERIVED}
 \\[0.5ex]
-\emkey{token-value} ::= TBD
+\emkey{token-value}
+    \begin{tabular}[t]{rl}
+    ::= & {\em quoted-string} \\
+    $|$ & {\em typed-bracketed-subexpression} \\
+    $|$ & {\em typed-prefix-separator} \\
+    $|$ & {\em untyped-bracketed-subexpression} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{lexical-master} ::= {\em quoted-name}
 \end{indpar}
 
-When a {\em prefix-lexeme} is returned by the lexical scanner,
-it has a name that is looked up in the parser stack managed by the
-the above commands, and if found, is replaced by a copy of
-the {\em typed-prefix-separator} found in the table entry.  If
-not found, the {\em prefix-lexeme} is announced as an error.
+If a \TT{parser define mapped lexeme} command gives no token
+type, the type is missing.  Similarly if no lexical master is
+given, the lexical master is missing.
 
-If the type of any prefix has a non-missing `\ttkey{implicit subprefix}'
-parameter, then a copy of the value of this parameter is inserted
-after the prefix, unless it would be inserted before another prefix
-with the same \TT{.type} attribute or prefix group.  Implicit
-header prefixes can also be inserted via line variables
-(see \pagref{LINE-VARIABLES}).
+When the bracketed subexpression parser first sees a lexeme in
+its token, the parser looks up the lexeme in the mapped lexeme
+symbol table, selecting entries active according to the current
+parser selectors.  If an entry is found, it is used to replace
+the lexeme's token by another token, with token type and token
+value taken from the table entry.  The lexical master is also
+changed to the value in the table entry before scanning more
+lexemes.
 
-After a {\em prefix-lexeme} is replaced by a {\em typed-prefix-separator}
-the lexical master is reset, and this can change how lexemes are
-scanned following the {\em prefix-lexeme}.  If the replacement prefix
-type has a non-missing `\ttkey{lexical master}'
-parameter, that is used.  Otherwise
-the lexical master at the beginning of the logical line is used.
-The lexical master can also be reset at the beginning of a logical line
-by line variables set when a implied header is set by a prefix lexeme, as per
-\pagref{SETTING-IMPLICIT-HEADER}.
+More specifically, if the token type of the mapped lexeme
+symbol table entry is not missing, the token containing
+the mapped lexeme is modified to have that token type and a copy of
+the entry's token value.  An entry token value
+given as a {\em quoted-string} represents a MIN string token
+value (and \underline{not} a MIN object of \TT{"<Q>"} \TT{.type}).
+If instead the token type is missing and the mapped lexeme
+containing token is deleted.
 
-The `\TT{options}' parameter of a prefix type table entry is only used
-to set line variables: see \pagref{LINE-VARIABLES}.
+After processing the mapped lexeme containing token, the lexical
+master is changed to that of the table entry, unless that is missing.
+
+Note that some rules must be followed concerning table entries:
+
+\begin{enumerate}
+\item The token type is \TT{DERIVED} if and only if the token value
+is not a MIN object (e.g., is `\TT{[\$~MISSING~\$]}').
+\item If the token type is \TT{PREFIX}, the token value is
+a MIN object with a \TT{.type} attribute but \underline{no} elements.
+\item If the token type is \TT{PURELIST}, the token value is
+a MIN object with no attributes, but possibly with elements.
+\item If the token type is \TT{BRACKETABLE}, the token value is
+a MIN object with \TT{.type}, \TT{.ini\-ti\-a\-tor}, or \TT{.terminator}
+attributes.
+\end{enumerate}
+
+A mapped lexeme is called a `\key{header lexeme}' if it is only
+produced by looking
+at the first non-whitespace characters of a logical line and does
+not actually consume any of the characters it looks at.
+So for example, if the
+line begins with `\TT{========}', a header lexeme indicating
+a table paragraph might be produced, followed by a header lexeme
+indicating a table line, but none of the line beginning `\TT{=}'
+characters will be skipped over while producing these header lexemes.
+In short, the scanner will peek ahead but not read ahead when
+producing header lexemes.  Header lexemes are usually mapped
+to paragraph or line header \TT{PREFIX} tokens described in the
+next section.
+
 
 \subsubsection{Unindented Paragraphs}
 \label{UNINDENTED-PARAGRAPHS}
@@ -4791,9 +4812,10 @@ group.  Similarly, it is in error if the implied line header is set to a
 If the first thing after the indent token beginning an unindented
 paragraph is not an explicit paragraph header,
 and the \TT{implicit paragaraph header} is not missing, a copy
-of the \TT{implicit paragraph header} is inserted at the beginning of
+of the \TT{im\-pli\-cit paragraph header} is inserted at the beginning of
 the logical line.  If the first thing after any explicit or inserted
-paragraph header, or at the beginning of a logical line in which there
+paragraph header on a logical line that contains lexemes after
+the paragraph header, or at the beginning of a logical line in which there
 is neither an explicit or inserted paragraph header, is not a line
 header, and the \TT{implicit line header} is not missing, a copy
 of the \TT{implicit line header} is inserted at that point.
@@ -4812,32 +4834,47 @@ the following rules:
 \item The lexical master named `\ttmkey{normal}{lexical master}'
 may be used to scan lexemes in the normal, non-special, way.
 
-\item A lexical master that is a \TT{paragraph lexical master}
-or \TT{line lexical master}
+\item A lexical master that is a ~ \TT{paragraph lexical master}
+~ or ~ \TT{line lexical master} ~
 will jump to the `\TT{normal}' lexical master if the first thing after
 an indent is the beginning of a {\em typed-opening} (e.g., the
 first character is `\TT{\{}').
 
-\item A lexical master that is a \TT{paragraph lexical master}
-may deliver a prefix lexeme that is to be mapped to a paragraph header
-at the beginning of its scan.  After doing this, if it is done,
-the lexical master will jump to the \TT{line lexical master}.
-
 \end{enumerate}
 
-TBD
+During parsing of an unindented paragraph logical lines are
+used only to place headers, and are not used to format output.
+Thus an unindented paragraph presents as a paragraph header
+followed by lines each beginning with a line header, and
+this is reformatted according to the rules of {\em prefix-n-lists}
+(see \itemref{TYPED-PREFIX-SEPARATORS}) to become a single
+MIN object whose attributes come from the paragraph header
+and whose elements are single MIN objects each representing
+a logical line whose attributes come from the line's line header
+and whose elements arrise from the rest of the logical line.
 
-The lexical scanner produces these \skey{header lexeme}s by looking
-at the first non-whitespace characters of the logical line.  But no
-line characters are actually consumed.  So for example, if the
-line begins with `\TT{========}', a pargraph header lexeme indicating
-a table paragraph might be produced, followed by a line header lexeme
-indication a table line, but none of the line beginning `\TT{=}'
-characters will be skipped over while producing these header lexemes.
-In short, the scanner will peek ahead but not read ahead when
-producing header lexemes.
+Thus for the example at the beginning of this section the
+indented paragraph elements are not logical lines but rather
+the MIN objects:
+\begin{indpar}\begin{verbatim}
+{itemize: indent = 5em, mark = "*" |
+    {item: | 1 chicken |}
+    {item: | 1 tablespoon olive oil |}
+    {item: | 1 tablespoon paprika |} |}
 
-TBD
+{itemize: indent = 5em, mark = "*" |
+    {item: a potato |}
+    {item: 1 tablespoon butter |} |}
+
+{table: |
+    {line: | ============= |}
+    {row: "|" 1 chicken "|" |}
+    {line: | ------------- |}
+    {row: | "|" 1 tablespoon olive oil "|" |}
+    {line: | - |}
+    {row: | "|" 1 tablespoon paprika |}
+    {line: | = |} |}
+\end{verbatim}\end{indpar}
 
 \subsubsection{Bracketed Parser Print Commands}
 \label{BRACKETED-PARSER-PRINT-COMMANDS}

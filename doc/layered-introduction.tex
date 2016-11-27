@@ -4520,53 +4520,61 @@ attribute if they all have the same group (which implies that
 they all have some group).
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
-see \itemref{PARAGRAPH-AND-LINE-HEADERS}.
+see \itemref{UNINDENTED-PARAGRAPHS}.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{options}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{implied subheader}{in prefix definition}\\
-Used only for prefixes that are \TT{.types} of implied paragraph 
-or implied line header lexemes.  For these prefixes, used
-to set line variables (see \pagref{LINE-VARIABLES})
+For prefixes that are \TT{.types} of implied paragraph 
+or implied line header lexemes, these values may be used
+to set line variables: see \pagref{LINE-VARIABLES}.
+
+For prefixes that are values in a mapped lexeme table entry,
+the \TT{lexical master} value may be used to set the mapped lexeme
+table entry \TT{lexical master} value in some cases:
+see \pagref{TBD}.
 
 \end{indpar}
 
-A {\em typed-prefix-separator} can appear in or be inserted in
-the parser input by three different methods:
+\subsubsection{Mapped Lexemes}
+\label{MAPPED-LEXEMES}
 
-\begin{center}
-\begin{tabular}{l}
-explicit bracketed subexpressions,
-		   as per Section~\itemref{TYPED-PREFIX-SEPARATORS} \\
-replacements for prefix lexemes  \\
-copies of implicit typed prefix separators, e.g., `\TT{implicit subprefix}'es
-\end{tabular}
-\end{center}
-
-A `\emkey{prefix-lexeme}'\label{PREFIX-LEXEME}
-is a special kind of lexeme that can be
-mapped to a {\em typed-prefix-separator} by the following
-parser commands:
+A `\key{mapped-lexeme}'
+is a special kind of lexeme that can be mapped to different
+type of token by a `\key{mapped lexeme symbol table}' entry.
+Entries in this symbol table are managed by
+{\em parser-mapped-lexeme-commands}:
 
 \begin{indpar}[0.1in]
-\emkey{parser-prefix-lexeme-command}%
-\label{PARSER-PREFIX-LEXEME-COMMAND} \\
+\emkey{parser-mapped-lexeme-command}%
+\label{PARSER-MAPPED-LEXEME-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define prefix lexeme} ~
-          \begin{tabular}[t]{@{}l}
-	  \ttikey{prefix lexeme}{parser define} \\
-	  {\em prefix-lexeme-name} \TT{as} {\em typed-prefix-separator} \\
+    ::= & \ttikey{parser define}{define mapped lexeme} ~
+	  \ttikey{mapped lexeme}{parser define} ~ {\em mapped-lexeme-name} \\
+    ::= & \TT{parser}%
+          \ttindex{parser define mapped lexeme}%
+	  \ttindex{mapped lexeme!parser define}
+	  \begin{tabular}[t]{@{}l@{}}
+	  \TT{define mapped lexeme} {\em mapped-lexeme-name} \\
+	  {\em parsing-selectors} \\
+	  {}[ \TT{with token type} ~ {\em token-type} ] \\
+	  {}[ \TT{with token value} ~ {\em token-value} ] \\
+	  {}[ \TT{with lexical master} ~ {\em lexical-master} ] \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine}{undefine prefix lexeme} ~
-	  \ttikey{prefix lexeme}{parser undefine} ~
-	  {\em prefix-lexeme-name}
+    $|$ & \ttikey{parser undefine}{undefine mapped lexeme} ~
+	  \ttikey{mapped lexeme}{parser undefine} ~
+	  {\em mapped-lexeme-name}
     \end{tabular}
-\label{PREFIX-LEXEME-DEFINITION}
+\label{MAPPED-LEXEME-DEFINITION}
 \\[0.5ex]
-\emkey{prefix-lexeme-name} ::= {\em quoted-name}
+\emkey{mapped-lexeme-name} ::= {\em quoted-name}
 \\[0.5ex]
-{\em typed-prefix-separator} ::= see \pagref{TYPED-PREFIX-SEPARATOR}
+\emkey{token-type} ::= {\em quoted-name}
+\\[0.5ex]
+\emkey{token-value} ::= TBD
+\\[0.5ex]
+\emkey{lexical-master} ::= {\em quoted-name}
 \end{indpar}
 
 When a {\em prefix-lexeme} is returned by the lexical scanner,

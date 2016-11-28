@@ -275,7 +275,7 @@ to segregate code into small inline library functions that are not
 type checkable, while code that uses these functions is
 strongly type checkable.
 
-\key{Distrubuted Modularity}~~~~ 
+\key{Distributed Modularity}~~~~ 
 Enhancements made by non-communicating users can be fit together
 without too much labor.
 \end{indpar}
@@ -308,7 +308,7 @@ and attempts to be \key{human efficient} by supporting algorithms
 that people can readily understand and hopefully quickly
 learn to mimic.\footnote{A possibly non-verifiable goal.}
 
-The standard scanner also tries to promote `\key{distrubuted modularity}',
+The standard scanner also tries to promote `\key{distributed modularity}',
 meaning that enhancements made by non-communicating users are
 more likely to fit together.
 
@@ -323,10 +323,10 @@ of input stream UNICODE 32-bit characters with
 corresponding consecutive position values.
 
 The \mkey{line number}{of input character} of a character is 1 plus the
-number of {\em line-feeds} preceeding the character.
+number of {\em line-feeds} preceding the character.
 The \mkey{byte offset}{of input character} of a character is the number
 of bytes before the character but after the first {\em line-feed}
-preceeding the character, or after the beginning of input if there
+preceding the character, or after the beginning of input if there
 is no such {\em line-feed}.  The first line in a file has line number \TT{1}
 and the first character in a line has byte offset \TT{0}.
 
@@ -335,7 +335,7 @@ The standard scanner also computes an
 for each input character.  This
 is the sum of the columns taken by all the
 characters before the character and after
-the first {\em line-feed} preceeding the
+the first {\em line-feed} preceding the
 character, or after the beginning of input if there is no such {\em line-feed}.
 The first character in a line has indent \TT{0}.
 
@@ -726,7 +726,7 @@ Two kinds of {\em horizontal-space} are given special distinction:
 \end{indpar}
 
 These \skey{indent lexeme}s are unique in that they can be empty
-(have no characters).  The are used to commumicate the indent of
+(have no characters).  The are used to communicate the indent of
 the first character after the indent lexeme to the parser.
 If a parser is using line indentation to
 determine when a logical line ends (see \itemref{LOGICAL-LINES}),
@@ -1388,7 +1388,7 @@ The special character pattern name
 \TT{<{repeat}>}%
 \index{repeat@{\tt <repeat>}}%
 \label{<REPEAT>}
-can be used in an atom pattern to match zero or more occurences of
+can be used in an atom pattern to match zero or more occurrences of
 the previous character pattern.  There must be a previous character
 pattern.  That pattern can be \TT{<others>}.
 The number of repetitions is the maximum number of characters in
@@ -1402,7 +1402,7 @@ hexadecimal escape sequence.
 The special character pattern name
 \TT{<{repeat-$N$}>}%
 \index{repeat-N@{\tt <repeat-$N$>}}%
-is similar but matches zero through $N$ occurences of the previous
+is similar but matches zero through $N$ occurrences of the previous
 character pattern, where $N$ is a sequence of {\em ASCII-digits}
 not beginning with \TT{0}.
 
@@ -1625,7 +1625,7 @@ which would translate the atom `\TT{<LF>}' to a line feed.
 Note that UNICODE names consist of ASCII upper case letters and
 digits, with a letter being first.
 In addition to standard UNICODE character names, \TT{NL} is
-recoginized as the name of the line feed character,
+recognized as the name of the line feed character,
 \TT{Q} is recognized as the name of the \TT{"} character,
 and \TT{UUC} is recognized as the name of the
 `\key{Unknown UNICODE Character}' that replaces erroneous
@@ -2346,7 +2346,7 @@ Top level parsing behaves as if input were in an indented paragraph
 with \TT{0} paragraph indent.
 
 A more detailed description of indented paragraphs is given
-in \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS}.
+in \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}.
 
 An \key{unindented paragraph}
 begins with explicit or implicit \skey{paragraph header},
@@ -2670,7 +2670,7 @@ The {\em block-name} merely serves as an error check; it is
 not possible to have one `\TT{parser end}' command end more than
 one parser block.
 
-The parser has serveral sets of \emkey{parser-flags}\index{flags!parser}:
+The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
 parsing selectors 	& 48 bits	& \pagref{PARSING-SELECTORS} \\
@@ -3029,7 +3029,7 @@ In addition the bracketed subexpression recognition pass maintains
 the parser current paragraph indent, which indicates how much
 lines in the current paragraph should be indented.  This indent
 may be changed by an indentation mark
-(see \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS}).
+(see \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}).
 
 Syntactically a {\em bracketed-subexpression} may take many forms:
 
@@ -3039,7 +3039,7 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
     ::= & {\em untyped-bracketed-subexpression}
         & see \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS} \\
     $|$ & {\em indented-paragraph-subexpression}
-	& see \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS} \\
+	& see \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS} \\
     $|$ & {\em typed-bracketed-subexpression}
         & see \itemref{TYPED-BRACKETED-SUBEXPRESSIONS} \\
     $|$ & {\em typed-prefix-separator}
@@ -3129,10 +3129,10 @@ and \TT{.terminator}, and Y does not have any of these three
 attributes, then X and Y are merged to get a new object with
 the attributes of both X and Y and the elements of Y.  This is implemented
 by having the bracketed subexpression parser give the token type
-\TT{BRACKATABLE} to Y as a temporary token type indicating that Y
+\TT{BRACKETABLE} to Y as a temporary token type indicating that Y
 does not have any \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 attribute.  Then when X is formed, the knowledge of the structure
-of X and the \TT{BRACKATABLE} type of Y permit the two objects
+of X and the \TT{BRACKETABLE} type of Y permit the two objects
 to be merged.
 
 Consider the example:
@@ -3149,7 +3149,7 @@ to
 \begin{center}
 \tt \{"": .separator = "," | x  \{| y 5 |\} 8 w p |\}
 \end{center}
-where \TT{""} denotes a missing \TT{.type}.  This is a \TT{BRACKATABLE}
+where \TT{""} denotes a missing \TT{.type}.  This is a \TT{BRACKETABLE}
 token.  If we denote it by Y,
 then the full expression is
 \begin{center}
@@ -3531,7 +3531,7 @@ are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.
 
 \subsubsection{Indented Paragraph Subexpressions}
-\label{INDENTED-PARAGRAPH-SUBEXPRESIONS}
+\label{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
 
 The following is an example
 \key{indented paragraph subexpression}
@@ -3806,7 +3806,7 @@ The type can be omitted from the beginning unless it is followed by
 a single attribute with omitted \TT{TRUE} value, as such an attribute
 will be mistaken for the type (i.e., in \TT{\{X|\ldots|\}}, \TT{X} is
 a type label and \underline{not} an attribute label).
-The type can be omitted from the end unless it is preceeded
+The type can be omitted from the end unless it is preceded
 by a single attribute with omitted \TT{TRUE} value, as such an attribute
 will be mistaken for the type.
 (i.e., in \TT{\{|\ldots|X\}}, \TT{X} is
@@ -3837,7 +3837,7 @@ representing a MIN string.
 In the latter case, if there is only
 one element in the sequence, the MIN string it represents is the
 attribute value, but if there is more than one element, the elements
-are concatenanted into a label and that label is the attribute value.
+are concatenated into a label and that label is the attribute value.
 
 If, on the other hand, the attribute value is a bracketed subexpression,
 the value of that subexpression is the attribute value, with one exception.
@@ -4271,7 +4271,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
 
-Here the `\TT{with prefix separators allowed}' option premits the use of
+Here the `\TT{with prefix separators allowed}' option permits the use of
 the typed brackets for {\em typed-prefix-separators} described in
 Section \itemref{TYPED-PREFIX-SEPARATORS}.
 
@@ -4360,8 +4360,8 @@ The general syntax of a typed prefix separator is:
 \emkey{attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
 \end{indpar}
 
-The `\TT{with prefix separators allowed}' option to a
-{\em parser-typed-backet-command} (see \pagref{PARSER-TYPED-BRACKET-COMMAND})
+The ~ `\TT{with prefix separators allowed}' ~ option to a
+{\em parser-typed-bracket-command} (see \pagref{PARSER-TYPED-BRACKET-COMMAND})
 enables use of the command
 defined punctuation to construct {\em typed-prefix-separators}.
 
@@ -4456,7 +4456,7 @@ The general syntax of {\em parser-prefix-commands} is:
     \begin{tabular}[t]{rl}
     ::= & \TT{parser}%
           \ttindex{parser define prefix}%
-	  \ttindex{previx!parser define}
+	  \ttindex{prefix!parser define}
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{define prefix} {\em prefix-name} \\
 	  {\em parsing-selectors} \\
@@ -4569,7 +4569,7 @@ Entries in this symbol table are managed by
 \\[0.5ex]
 \emkey{mapped-lexeme-name} ::= {\em quoted-name}
 \\[0.5ex]
-\emkey{token-type} ::= \TT{BRACKETED} $|$ \TT{BRACKATABLE}
+\emkey{token-type} ::= \TT{BRACKETED} $|$ \TT{BRACKETABLE}
                    $|$ \TT{PURELIST} $|$ \TT{PREFIX} $|$ \TT{DERIVED}
 \\[0.5ex]
 \emkey{token-value}
@@ -4824,7 +4824,7 @@ group.  Similarly, it is in error if the implied line header is set to a
 
 If the first thing after the indent token beginning an unindented
 paragraph is not an explicit paragraph header,
-and the \TT{implicit paragaraph header} is not missing, a copy
+and the \TT{implicit paragraph header} is not missing, a copy
 of the \TT{im\-pli\-cit paragraph header} is inserted at the beginning of
 the logical line.  If the first thing after any explicit or inserted
 paragraph header on a logical line that contains lexemes after
@@ -4864,7 +4864,7 @@ this is reformatted according to the rules of {\em prefix-n-lists}
 MIN object whose attributes come from the paragraph header
 and whose elements are single MIN objects each representing
 a logical line whose attributes come from the line's line header
-and whose elements arrise from the rest of the logical line.
+and whose elements arise from the rest of the logical line.
 
 Thus for the example at the beginning of this section the
 indented paragraph elements are not logical lines but rather
@@ -6665,7 +6665,7 @@ the lexical program for that scheme are:
 \begin{indpar}
 \begin{verbatim}
 // This lexical analyzer was the original
-// layered lanugage standard lexical analyzer,
+// layered language standard lexical analyzer,
 // but was replaced in that role.
 
 // This file was automatically generated from
@@ -6719,7 +6719,7 @@ begin alternate lexical program;
               //
               // Also . not surrounded by digits
 	      //        and not both followed by
-	      //        a letter and preceeded
+	      //        a letter and preceded
 	      //        by a non-mark character
               //      / not surrounded by digits
               //        or followed by /

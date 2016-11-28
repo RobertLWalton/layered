@@ -2560,16 +2560,17 @@ and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.6ex]
-\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em number} \}\STAR{}
+\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em natural-number}
+            \}\STAR{}
 \\[0.0ex]
-\emkey{quoted-name-component} ::=
-    {\em word} $|$ {\em mark} $|$ {\em separator} $|$ {\em natural-number}
+\emkey{key}\label{KEY}
+    ::= \{ {\em separator} $|$ {\em mark} $|$ {\em word}
+                           $|$ {\em natural-number} \}\PLUS{}
 \\[0.0ex]
-\emkey{quoted-name} ::=
-    \TT{"}{\em quoted-name-component}
-           {\em quoted-name-component}\,\STAR{}\TT{"}
+\emkey{quoted-key}\label{QUOTED-KEY}
+    :::= \TT{"}{\em key}\TT{"}
 \\[0.0ex]
-\emkey{partial-name} ::= {\em quoted-name}
+\emkey{partial-name} ::= {\em quoted-key}
 \\[0.6ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
@@ -2627,7 +2628,9 @@ and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
     $|$ & \ttkey{parser print context} {\em partial-name} \\
     \end{tabular}
 \\[0.0ex]
-\emkey{context-name} ::= {\em quoted-name}
+\emkey{context-name} ::= {\em quoted-key}
+\\[0.0ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \label{PARSER-CONTEXT-COMMAND}
 
 \medskip
@@ -2645,7 +2648,7 @@ themselves parsed before they are executed.
 Parser commands begin with the word `\ttmkey{parser}{in parser command}'.
 Parser commands make use of {\em simple-names} that are just a {\em word}
 optionally followed by a sequence of {\em words} and/or {\em natural-numbers},
-and {\em quoted-names}, that are arbitrary sequences of {\em word},
+and {\em quoted-keys}, that are arbitrary sequences of {\em word},
 {\em mark}, {\em separator}, and {\em natural-number} lexemes enclosed
 in quotation marks to form a {\em quoted-string} lexeme.
 This embedding of lexemes in a {\em quoted-string} lexeme
@@ -2877,7 +2880,7 @@ and an example is
 \end{center}
 The {\em type}, `\TT{bracket}' in the example, identifies the parser pass into
 whose symbol tables entries are to be pushed.  The {\em name},
-`\TT{"("~...~")"}' in the example, gives {\em quoted-names} that become
+`\TT{"("~...~")"}' in the example, gives {\em quoted-keys} that become
 the entry labels.  The {\em selectors},
 `\TT{[operator, text]}' in the example, specify the selector set of
 the entries to be pushed.
@@ -2982,8 +2985,10 @@ The concatenator can be changed by the parser command:
                      {define string concatenator}
 	  ~ {\em string-concatenator}
 \\[0.5ex]
-\emkey{string-concatenator} ::= {\em quoted-name} with a single component
+\emkey{string-concatenator} ::= {\em quoted-key} with a single component
 		     $|$ \TT{disabled} $|$ \TT{enabled}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \end{indpar}
 
 If {\em string-concatenator} is `\TT{disabled}', quoted strings
@@ -3290,8 +3295,7 @@ The general syntax is:
 \\[0.5ex]
 \emkey{opening-bracket} ::=
    \begin{tabular}[t]{@{}l}
-   \{ {\em mark} $|$ {\em separator} \}\PLUS{}
-    ~~~~~ [e.g., `\TT{(}' or `\TT{[<}'] \\
+   {\em key} ~~~~~ [e.g., `\TT{(}' or `\TT{[<}'] \\
     as defined by a
     {\em parser-untyped-bracket-command}
     (\pagref{PARSER-UNTYPED-BRACKET-COMMAND})
@@ -3299,6 +3303,8 @@ The general syntax is:
 \\[0.5ex]
 \emkey{closing-bracket} ::= ditto
     ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
+\\[0.5ex]
+\emkey{key} ::= see \pagref{KEY}
 \\[0.5ex]
 \emkey{element-list} ::= {\em prefix-0-list}
 \label{ELEMENT-LIST}
@@ -3368,9 +3374,11 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 			 {\em closing-bracket}
 \label{BRACKET-NAME}
 \\[0.5ex]
-\emkey{opening-bracket} ::= {\em quoted-name}
+\emkey{opening-bracket} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{closing-bracket} ::= {\em quoted-name}
+\emkey{closing-bracket} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
@@ -3594,8 +3602,7 @@ The general syntax is:
 \\[0.5ex]
 \emkey{indentation-mark} ::=
    \begin{tabular}[t]{@{}l}
-   \{ {\em mark} $|$ {\em separator} \}\PLUS{}
-    ~~~~~ [e.g., `\TT{:}'] \\
+   {\em key} ~~~~~ [e.g., `\TT{:}'] \\
     as defined by a
     {\em parser-indentation-mark-command}
     (\pagref{PARSER-INDENTATION-MARK-COMMAND})
@@ -3651,10 +3658,12 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{indentation-name} ::= {\em indentation-mark}
 	[ \TT{...} {\em line-separator} ]
 \\[0.5ex]
-\emkey{indentation-mark} ::= {\em quoted-name}
+\emkey{indentation-mark} ::= {\em quoted-key}
 \label{INDENTATION-MARK-NAME}
 \\[0.5ex]
-\emkey{line-separator} ::= {\em quoted-name}
+\emkey{line-separator} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
@@ -3664,7 +3673,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{header} ::= MIN object with \TT{.type} and no elements
         (i.e., a prefix separator: see \pagref{LINE-VARIABLES})
 \\[0.5ex]
-\emkey{master-name} ::= {\em quoted-name}
+\emkey{master-name} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
@@ -4025,9 +4034,7 @@ The general syntax is:
 \\[0.5ex]
 \emkey{typed-opening} ::=
    \begin{tabular}[t]{@{}l}
-   \{ {\em mark} $|$ {\em separator} $|$ {\em word}
-                 $|$ {\em natural-number} \}\PLUS{}
-    ~~~~~ [e.g., `\TT{\{}'] \\
+   {\em key} ~~~~~ [e.g., `\TT{\{}'] \\
     as defined by a {\em parser-typed-bracket-command}
     (\pagref{PARSER-TYPED-BRACKET-COMMAND})
     \end{tabular}
@@ -4238,11 +4245,13 @@ The general syntax of {\em parser-typed-bracket-commands} is:
     $|$ & {\em typed-opening} \TT{...} {\em typed-closing} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{typed-opening} ::= {\em quoted-name}
+\emkey{typed-opening} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-middle} ::= {\em quoted-name}
+\emkey{typed-middle} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-closing} ::= {\em quoted-name}
+\emkey{typed-closing} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{typed-element-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
@@ -4257,17 +4266,17 @@ The general syntax of {\em parser-typed-bracket-commands} is:
      \TT{...} {\em typed-attribute-equal}
      \TT{...} {\em typed-attribute-separator}
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= {\em quoted-name}
+\emkey{typed-attribute-begin} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-attribute-equal} ::= {\em quoted-name}
+\emkey{typed-attribute-equal} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-attribute-separator} ::= {\em quoted-name}
+\emkey{typed-attribute-separator} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-attribute-negator} ::= {\em quoted-name}
+\emkey{typed-attribute-negator} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-attribute-flags-opening} ::= {\em quoted-name}
+\emkey{typed-attribute-flags-opening} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-opening} ::= {\em quoted-name}
+\emkey{typed-attribute-multivalue-opening} ::= {\em quoted-key}
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
@@ -4474,14 +4483,16 @@ The general syntax of {\em parser-prefix-commands} is:
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{prefix-name} ::= {\em quoted-name}
+\emkey{prefix-name} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{prefix-group} ::= {\em quoted-name}
+\emkey{prefix-group} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{implied-prefix} ::= {\em typed-prefix-separator}\label{IMPLIED-PREFIX}
 				~~~~~ [see \pagref{TYPED-PREFIX-SEPARATOR}]
 \\[0.5ex]
-\emkey{lexical-master} ::= {\em quoted-name}
+\emkey{lexical-master} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{prefix-options}
     \begin{tabular}[t]{rl}
@@ -4568,7 +4579,9 @@ Entries in this symbol table are managed by
     \end{tabular}
 \label{MAPPED-LEXEME-DEFINITION}
 \\[0.5ex]
-\emkey{mapped-lexeme-name} ::= {\em quoted-name}
+\emkey{mapped-lexeme-name} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{token-type} ::= \TT{BRACKETED} $|$ \TT{BRACKETABLE}
                    $|$ \TT{PURELIST} $|$ \TT{PREFIX} $|$ \TT{DERIVED}
@@ -4581,7 +4594,7 @@ Entries in this symbol table are managed by
     $|$ & {\em untyped-bracketed-subexpression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{lexical-master} ::= {\em quoted-name}
+\emkey{lexical-master} ::= {\em quoted-key}
 \end{indpar}
 
 If a \TT{parser define mapped lexeme} command gives no token
@@ -5141,7 +5154,7 @@ The syntax of operator definitions is:
 		    $|$ & \TT{indentation mark} ~ {\em indentation-mark-name}
 		    \end{tabular}
 \\[1ex]
-{\em simple-operator-name} ::= {\em quoted-name} \\[1ex]
+{\em simple-operator-name} ::= {\em quoted-key} \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
 {\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
 \emkey{operator-flag} ::= \ttmkey{prefix}{operator flag}
@@ -5161,7 +5174,7 @@ The syntax of operator definitions is:
 			          & ~~~~ \{ \TT{,} {\em reformatter-argument}
 				         \}\STAR{} \TT{)} \\
 			      \end{tabular} \\
-\emkey{reformatter-argument} ::= {\em quoted-name}
+\emkey{reformatter-argument} ::= {\em quoted-key}
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression

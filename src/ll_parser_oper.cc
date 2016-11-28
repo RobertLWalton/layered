@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 02:24:57 EST 2016
+// Date:	Mon Nov 28 07:34:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1680,8 +1680,7 @@ static min::gen oper_pass_command
 	            ( 1ull << LEXSTD::mark_t )
 	          + ( 1ull << LEXSTD::separator_t )
 	          + ( 1ull << LEXSTD::word_t )
-	          + ( 1ull << LEXSTD::natural_t )
-	          + ( 1ull << LEXSTD::numeric_t ),
+	          + ( 1ull << LEXSTD::natural_t ),
 
 		    ( 1ull << LEXSTD::
 			      horizontal_space_t )

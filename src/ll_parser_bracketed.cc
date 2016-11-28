@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 06:57:07 EST 2016
+// Date:	Mon Nov 28 13:23:08 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,6 +168,12 @@ BRA::opening_bracket
     closing->position = position;
 
     opening->new_selectors = new_selectors;
+    opening->new_selectors.or_flags &=
+        ~ PAR::EALSEP_OPT;
+    opening->new_selectors.not_flags |=
+        PAR::EALSEP_OPT;
+    opening->new_selectors.xor_flags &=
+        ~ PAR::EALSEP_OPT;
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
         reformatter_arguments;
@@ -4139,6 +4145,15 @@ static min::gen bracketed_pass_command
 	    new_options.not_flags;
 	new_selectors.xor_flags |=
 	    new_options.xor_flags;
+
+	if ( new_selectors.or_flags & PAR::EALSEP_OPT )
+	    PAR::parse_warn
+	        ( parser, ppvec->position,
+		  "`+ end at line separator' ignored" );
+	if ( new_selectors.xor_flags & PAR::EALSEP_OPT )
+	    PAR::parse_warn
+	        ( parser, ppvec->position,
+		  "`^ end at line separator' ignored" );
 
 	BRA::push_brackets
 	    ( name[0], name[1],

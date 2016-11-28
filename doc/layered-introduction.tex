@@ -3053,7 +3053,7 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
 	& see \pagref{PREFIX-N-LIST} in \itemref{TYPED-PREFIX-SEPARATORS} \\
     $|$ & implied paragraph and line headers
 	& see \itemref{UNINDENTED-PARAGRAPHS} \\
-    $|$ & mapped lexeme replacements
+    $|$ & mapped lexemes
 	& see \itemref{MAPPED-LEXEMES} \\
     $|$ & {\em unindented-paragraphs}
 	& see \itemref{UNINDENTED-PARAGRAPHS} \\
@@ -3301,7 +3301,7 @@ The general syntax is:
     (\pagref{PARSER-UNTYPED-BRACKET-COMMAND})
     \end{tabular}
 \\[0.5ex]
-\emkey{closing-bracket} ::= ditto
+\emkey{closing-bracket} ::= {\em key}
     ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
 \\[0.5ex]
 \emkey{key} ::= see \pagref{KEY}
@@ -3318,18 +3318,24 @@ The general syntax is:
 \emkey{simple-element-list} ::= {\em element}\STAR{}
 \label{SIMPLE-ELEMENT-LIST}
 \\[0.5ex]
-\emkey{element} ::= {\em word} $|$ {\em number} $|$ {\em mark} $|$
-                    {\em separator} $|$ {\em quoted-string} $|$
-		    {\em bracketed-subexpression}
+\emkey{element}
+    \begin{tabular}[t]{rl}
+    ::= & {\em word} $|$ {\em number} $|$ {\em mark} $|$
+                    {\em separator} $|$ {\em quoted-string} \\
+    $|$ & {\em untyped-bracketed-subexpression} \\
+    $|$ & {\em indented-paragraph-subexpression} \\
+    $|$ & {\em typed-bracketed-subexpression} \\
+    $|$ & {\em typed-prefix-separator} \\
+    \end{tabular}
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
       An {\em untyped-bracketed-subexpression} {\em element-list}
       is normally terminated by the expression's {\em closing-bracket}.
       It may be abnormally terminated by an outer
       {\em bracketed-subexpression's}
-      {\em closing-bracket}, {\em typed-middle}, {\em typed-closing},
+      {\em closing-bracket}, {\em typed-closing},
       or {\em non-continuation-line-break}, but \underline{not}
-      by a {\em line-separator}.
+      by a {\em line-separator} or {\em typed-middle}.
       \end{minipage}
 \end{indpar}
 
@@ -3355,23 +3361,23 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
     \begin{tabular}[t]{rll}
     ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
                                     {bracket!parser define}
-		    {\em bracket-name} {\em selectors}} \\
+		    ~ {\em bracket-name} ~ {\em selectors}} \\
 	& \hspace*{3em} & [ \TT{with parsing selectors}
-	                    {\em new-selectors} ] \\
+	                    ~ {\em new-selectors} ] \\
         &               & [ \TT{with parsing options}
-	                    {\em end-at-options} ] \\
+	                    ~ {\em end-at-options} ] \\
         &               & [ \TT{with}
-			    {\em reformatter-name}
-			    \TT{reformatter}
-			    {\em reformatter-arguments} ] \\
+			    ~ {\em reformatter-name}
+			    ~ \TT{reformatter}
+			    ~ {\em reformatter-arguments} ] \\
     $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
                                     {bracket!parser undefine}
-		    {\em bracket-name} {\em selectors}} \\
+		    ~ {\em bracket-name} ~ {\em selectors}} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em opening-bracket}
-			 \ttmkey{...}{in {\em bracket-name}}
-			 {\em closing-bracket}
+			 ~ \ttmkey{...}{in {\em bracket-name}}
+			 ~ {\em closing-bracket}
 \label{BRACKET-NAME}
 \\[0.5ex]
 \emkey{opening-bracket} ::= {\em quoted-key}
@@ -3420,7 +3426,7 @@ bracket definition contains {\em new-selectors},
 a new set is computed by modifying the saved set
 according to the {\em new-selectors}.
 Similarly if the bracket definition contains {\em end-at-options},
-these become the new end-at options.
+these are used to compute a new set of end-at options.
 The saved selector set and options are restored after the {\em closing-bracket}
 is recognized.  However {\em closing-bracket}
 recognition does not depend
@@ -3608,7 +3614,7 @@ The general syntax is:
     (\pagref{PARSER-INDENTATION-MARK-COMMAND})
     \end{tabular}
 \\[0.5ex]
-\emkey{line-separator} ::= ditto
+\emkey{line-separator} ::= {\em key}
     ~~~~~ [e.g., `\TT{;}']
 \end{indpar}
 
@@ -4039,40 +4045,40 @@ The general syntax is:
     (\pagref{PARSER-TYPED-BRACKET-COMMAND})
     \end{tabular}
 \\[0.5ex]
-\emkey{typed-middle} ::= ditto
+\emkey{typed-middle} ::= {\em key}
     ~~~~~ [e.g., `\TT{|}']
 \\[0.5ex]
-\emkey{typed-closing} ::= ditto
+\emkey{typed-closing} ::= {\em key}
     ~~~~~ [e.g., `\TT{\}}']
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= ditto
+\emkey{typed-attribute-begin} ::= {\em key}
     ~~~~~ [e.g., `\TT{:}']
 \\[0.5ex]
-\emkey{typed-attribute-separator} ::= ditto
+\emkey{typed-attribute-separator} ::= {\em key}
     ~~~~~ [e.g., `\TT{,}']
 \\[0.5ex]
-\emkey{typed-attribute-equal} ::= ditto
+\emkey{typed-attribute-equal} ::= {\em key}
     ~~~~~ [e.g., `\TT{=}']
 \\[0.5ex]
-\emkey{typed-attribute-negator} ::= ditto
+\emkey{typed-attribute-negator} ::= {\em key}
     ~~~~~ [e.g., `\TT{no}']
 \\[0.5ex]
-\emkey{typed-attribute-flags-opening} ::= ditto
+\emkey{typed-attribute-flags-opening} ::= {\em key}
     ~~~~~ [e.g., `\TT{[}']
 \\[0.5ex]
-\emkey{typed-attribute-flags-separator} ::= ditto
+\emkey{typed-attribute-flags-separator} ::= {\em key}
     ~~~~~ [e.g., `\TT{,}']
 \\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= ditto
+\emkey{typed-attribute-flags-closing} ::= {\em key}
     ~~~~~ [e.g., `\TT{]}']
 \\[0.5ex]
-\emkey{attribute-multivalue-opening} ::= ditto
+\emkey{attribute-multivalue-opening} ::= {\em key}
     ~~~~~ [e.g., `\TT{\{*}']
 \\[0.5ex]
-\emkey{attribute-multivalue-separator} ::= ditto
+\emkey{attribute-multivalue-separator} ::= {\em key}
     ~~~~~ [e.g., `\TT{,}']
 \\[0.5ex]
-\emkey{attribute-multivalue-closing} ::= ditto
+\emkey{attribute-multivalue-closing} ::= {\em key}
     ~~~~~ [e.g., `\TT{*\}}']
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=

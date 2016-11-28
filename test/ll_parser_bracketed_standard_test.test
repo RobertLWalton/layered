@@ -3151,7 +3151,6 @@ parser print bracket "":
     block standard: bracket "{" ... "|" ... "|" ... "}"
                     // "||" is also allowed.
                     [data, code, math, text]
-                    with parsing options [- end at line separator]
                     with attribute selectors [data]
                     with attributes ":" ... "=" ... ","
                     with attribute negator "no"
@@ -3160,7 +3159,9 @@ parser print bracket "":
                     with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [math]
+                    with parsing options [- end at line separator]
     block standard: bracket "<-" ... "->" [text]
+                    with parsing options [- end at line separator]
     block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                     [data, code, math, text]
                     with parsing selectors [data]
@@ -4421,3 +4422,61 @@ BRACKETED EXPRESSION:
         line 157:
 {x: y[62,1]}
 ^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line 159: missing closing bracket `)' inserted before `}':
+{x: y = (z + w, v| m n |}
+                        ^
+BRACKETED EXPRESSION:
+    (z + w "," v "|" m n "|")
+@283 = z + w "," v "|" m n "|":
+           .terminator = ")"
+           .initiator = "("
+           .position[H] = {}
+    line 159:
+{x: y = (z + w, v| m n |}
+        ^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {x: y = (z + w "," v "|" m n "|")||x}
+@284 =:
+           .type = "x"
+           y = (z + w "," v "|" m n "|")
+           .position[H] = {}
+        line 159:
+{x: y = (z + w, v| m n |}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {x: y = (z + w "," v "|" m n "|")||x}
+@284 =:
+           .type = "x"
+           y = (z + w "," v "|" m n "|")
+           .position[H] = {}
+        line 159:
+{x: y = (z + w, v| m n |}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {x: y = (z + w "," v "|" m n "|")||x}
+@285 = @284:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+        line 159:
+{x: y = (z + w, v| m n |}
+^^^^^^^^^^^^^^^^^^^^^^^^^

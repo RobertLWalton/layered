@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 12:39:39 EST 2016
+// Date:	Mon Nov 28 06:58:00 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -132,8 +132,7 @@ min::gen COM::scan_names
 		    ( 1ull << LEXSTD::mark_t )
 		  + ( 1ull << LEXSTD::separator_t )
 		  + ( 1ull << LEXSTD::word_t )
-		  + ( 1ull << LEXSTD::natural_t )
-		  + ( 1ull << LEXSTD::numeric_t ),
+		  + ( 1ull << LEXSTD::natural_t ),
 
 		    ( 1ull << LEXSTD::
 			      horizontal_space_t )
@@ -822,8 +821,7 @@ static min::gen execute_selectors
 		( 1ull << LEXSTD::mark_t )
 	      + ( 1ull << LEXSTD::separator_t )
 	      + ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::natural_t )
-	      + ( 1ull << LEXSTD::numeric_t ),
+	      + ( 1ull << LEXSTD::natural_t ),
 
 		( 1ull << LEXSTD::
 			  horizontal_space_t )
@@ -954,8 +952,7 @@ static min::gen execute_context
 		( 1ull << LEXSTD::mark_t )
 	      + ( 1ull << LEXSTD::separator_t )
 	      + ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::natural_t )
-	      + ( 1ull << LEXSTD::numeric_t ),
+	      + ( 1ull << LEXSTD::natural_t ),
 
 		( 1ull << LEXSTD::
 			  horizontal_space_t )
@@ -1523,6 +1520,6 @@ min::gen COM::parser_execute_command
 	return PAR::parse_error
 	    ( parser, ppvec->position,
 	      "parser command not recognized" );
-    else
-        return result;
+
+    return result;
 }

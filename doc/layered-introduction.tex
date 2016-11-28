@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 27, 2016
+November 28, 2016
  
 \end{center}
 
@@ -3097,8 +3097,10 @@ are MIN objects, or into \TT{DERIVED} tokens whose values can
 be other things such as labels or special values.
 
 The final output of the parser is a sequence of \TT{BRACKETED} tokens,
-one per top level logical line.  For each of these tokens,
-its `\TT{value}' is a MIN object that encodes its logical line.
+one per top level logical line or unindented paragraph.
+For each of these tokens,
+its `\TT{value}' is a MIN object that encodes its logical line or
+unindented paragraph.
 
 For {\em untyped-bracketed-subexpressions} that are \underline{not}
 reformatted, the brackets become the
@@ -3115,13 +3117,13 @@ or \TT{"<LF>"} otherwise.
 For {\em typed-bracketed-subexpressions} there is \underline{no}
 \TT{.initiator} or \TT{.terminator}, but there is usually a \TT{.type}
 attribute.  {\em Prefix-n-lists} are just an alternate form of
-{\em typed-bracketed-sub\-ex\-pres\-sions}, and paragraphs and logical
-lines with implied headers are just an alternate form of
-{\em prefix-n-lists}.
+{\em typed-bracketed-sub\-ex\-pres\-sions}, and unindented paragraphs
+are just an alternate form of {\em prefix-n-lists}.
 
 The elements of a MIN object are the values of sub-subexpressions and
 may themselves the MIN objects, as when brackets are nested.  The
-elements of indented paragraphs are always logical lines.
+elements of indented paragraphs are always logical lines or
+unindented paragraphs.
 
 If MIN object X has just one element that is a MIN object Y,
 X has no attributes other than \TT{.type}, \TT{.initiator},
@@ -3144,7 +3146,8 @@ The token sequence
 \begin{center}
 \tt x "," y 5 "," 8 "," w "," p
 \end{center}
-is converted by the standard operator (see \itemref{OPERATOR-PARSING-PASS})
+is converted by the standard operator pass
+(see \itemref{OPERATOR-PARSING-PASS})
 to
 \begin{center}
 \tt \{"": .separator = "," | x  \{| y 5 |\} 8 w p |\}
@@ -3173,7 +3176,7 @@ whose \TT{.type} is \TT{"<Q>"} for a quoted string or \TT{\#} for
 a numeric, and whose single element is a MIN string equal to the
 token \TT{string}.
 
-Note that natural-numbers, consisting of just digits
+Note that natural-numbers, consisting of just decimal digits
 with no leading zeros, are not numeric lexemes, and have MIN string
 values equal to the lexeme (the string of digits).  This allows
 arbitrarily long natural-numbers to be used in names.
@@ -3212,7 +3215,6 @@ mentioned above:
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttdmkey{type}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    or a MIN special value,
     that equals
     \begin{center}
     \begin{tabular}{ll}
@@ -3254,7 +3256,6 @@ mentioned above:
 \medskip
 \hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
-    or a MIN special value,
     that equals
     the operator (e.g., \TT{","}) that acts as a
     separator in a subexpression.

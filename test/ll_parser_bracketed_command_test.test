@@ -44,6 +44,7 @@ parser define bracket "(" ... ")" [code, math, text]
 parser define bracket "[" ... "]" [code, math, text]
 parser print bracket "[":
     block standard: bracket "[" ... "]" [code, text, math]
+                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "[" ... "]" [parser]
                      with parsing options [- end at line separator]
 parser define indentation mark ":" ... ";" [code, math, text]
@@ -64,6 +65,7 @@ parser print bracket "<+":
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
+                    with parsing options [- end at line separator]
 parser trace [ + subexpression lines,
                + subexpression elements]
 ======= TEST: parser test "abcdef"
@@ -311,7 +313,9 @@ parser print bracket "":
     block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
                     [code, operator 1]
                     with parsing selectors [- code, + operator 1]
+                    with parsing options [- end at line separator]
     block standard: bracket "(" ... ")" [code, text, math]
+                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "(" ... ")" [parser]
                      with parsing options [- end at line separator]
     block standard: indentation mark ":" ... ";" [code, text, math]
@@ -319,17 +323,21 @@ parser print bracket "":
                                           end at line separator,
                                           end at outer closing]
     block standard: bracket "[" ... "]" [code, text, math]
+                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "[" ... "]" [parser]
                      with parsing options [- end at line separator]
     block standard: bracket "`" ... "'" [code]
+                    with parsing options [- end at line separator]
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
                     with parsing options []
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
+                    with parsing options [- end at line separator]
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
+                    with parsing options [- end at line separator]
     block standard: indentation mark [< "+" ":" >] ... "::" [code]
                     with parsing options [end at le indent,
                                           end at line separator,

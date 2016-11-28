@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 04:42:20 EST 2016
+// Date:	Mon Nov 28 13:32:01 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,7 +79,7 @@ int main ( int argc, const char * argv[] )
 	  closing_parenthesis,
 	  64,
 	  0, pp,
-	  TAB::new_flags(2,4,8),
+	  TAB::new_flags(32,34,38),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracket_table );
 
@@ -94,15 +94,16 @@ int main ( int argc, const char * argv[] )
     ASSERT ( oparen->closing_bracket == cparen );
     ASSERT ( cparen->opening_bracket == oparen );
     ASSERT ( oparen->selectors == 64 );
-    ASSERT ( oparen->new_selectors.or_flags == 2 );
-    ASSERT ( oparen->new_selectors.not_flags == 4 );
-    ASSERT ( oparen->new_selectors.xor_flags == 8 );
+    ASSERT ( oparen->new_selectors.or_flags == 32 );
+    ASSERT (    oparen->new_selectors.not_flags
+             == ( 34 | PAR::EALSEP_OPT ) );
+    ASSERT ( oparen->new_selectors.xor_flags == 38 );
 
     BRA::push_indentation_mark
         ( colon, semicolon,
 	  TAB::ALL_FLAGS,
 	  0, pp,
-	  TAB::new_flags ( 2 ),
+	  TAB::new_flags ( 32 ),
 	  min::MISSING(), LEX::MISSING,
 	  bracket_table );
     BRA::indentation_mark imark =
@@ -111,7 +112,7 @@ int main ( int argc, const char * argv[] )
 		    TAB::ALL_FLAGS,
 	            bracket_table ); 
 
-    ASSERT ( imark->new_selectors.or_flags == 2 );
+    ASSERT ( imark->new_selectors.or_flags == 32 );
     ASSERT ( imark->new_selectors.not_flags == 0 );
     ASSERT ( imark->new_selectors.xor_flags == 0 );
 

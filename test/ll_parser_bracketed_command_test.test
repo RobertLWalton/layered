@@ -888,3 +888,12 @@ parser test [8 my type: my attr = 99 9]
 parser test [8 my type: my attr = 99 9]
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser begin block 1
+parser define bracket "[0" ... "0]" [code]
+       with special reformatter
+======= TEST: parser test [$ LOGICAL_LINE $]
+------- line 212:
+parser test [0 LOGICAL_LINE 0]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
+parser end block 1

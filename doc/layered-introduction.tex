@@ -2284,7 +2284,7 @@ level this is just \TT{0}.  An indented paragraph changes the current
 indent to the indent of the first indent token within the indented
 paragraph (this is the indent of the first non-comment graphic character
 in the paragraph).  See
-Section~\itemref{PARAGRAPHS} for more detail.
+\itemref{PARAGRAPHS} for more detail.
 
 Note that in applying the above comments and lines containing
 just a comment are ignored.  Thus a `blank line' means any sequence
@@ -2346,7 +2346,7 @@ Top level parsing behaves as if input were in an indented paragraph
 with \TT{0} paragraph indent.
 
 A more detailed description of indented paragraphs is given
-in Section~\itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS}.
+in \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS}.
 
 An \key{unindented paragraph}
 begins with explicit or implicit \skey{paragraph header},
@@ -2383,7 +2383,7 @@ contains the unindented paragraph ends (this can be at an
 end of file).
 
 Details on paragraph headers are given in
-Section~\itemref{UNINDENTED-PARAGRAPHS}.
+\itemref{UNINDENTED-PARAGRAPHS}.
 
 \subsection{Parser Symbol Tables}
 \label{PARSER-SYMBOL-TABLES}
@@ -2921,9 +2921,9 @@ partial lexeme matching.
 
 The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
-\hspace*{-0.2in}indentation marks (e.g.~`\TT{:}')
-    and line separators (e.g.~`\TT{;}'),
-    indented paragraphs, and indented paragraph logical lines \\
+\hspace*{-0.2in}indented paragraphs, consisting of a line-ending
+    indentation mark (e.g.~`\TT{:}') followed by a sequence of
+    indented logical lines \\
 \hspace*{-0.2in}logical lines, which may end with any line break,
     or with a line break not followed by an indented line,
     or with a line break followed by a counter-indented line,
@@ -2931,20 +2931,28 @@ The bracketed subexpression recognition pass recognizes:
     or with any blank line, or with the closing bracket
     (e.g., `\TT{)}') of
     a bracketed expression that contains the logical line \\
-\hspace*{-0.2in}unindented paragraphs
-    which are just logical lines ended by a blank line or
-    the end of a containing indented paragraph \\
+\hspace*{-0.2in}unindented paragraphs,
+    which are sequences of logical lines with the same indentation
+    ended by a blank line or the end of a containing indented paragraph,
+    where each logical line begins with a line header and
+    the whole unindented paragraph begins with a paragraph
+    header \\
 \hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
 \hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
-      and typed bracketed subexpressions \\
+    and typed bracketed subexpressions \\
 \hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
-      and prefix lists
+    and prefix lists \\
+\hspace*{-0.2in}paragraph and line headers, which are special typed prefix
+    separators \\
+\hspace*{-0.2in}mapped lexemes, which are special lexemes typically
+    produced at the beginning of a logical line that are mapped onto
+    paragraph or line headers
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
 quoted strings if they are in the same logical line and are
-separatored by the quoted string concatenator (e.g., `\TT{\#}').
+separated by the quoted string concatenator (e.g., `\TT{\#}').
 Thus if logical lines end with a line break
 but permit indented continuation lines, then
 \begin{indpar}\begin{verbatim}
@@ -2985,9 +2993,10 @@ needs to be placed between the strings.
 
 The current string concatenator
 can be printed by the \TT{parser print string con\-cat\-e\-na\-tor} command:
-see \pagref{PARSER-PRINT-BRACKET-COMMAND}.
+see \pagref{BRACKETED-PARSER-PRINT-COMMAND}.
 
-The bracketed parser pass has its own symbol table containing:
+The bracketed parser pass has several symbol tables.  The bracketed
+symbol table contains:
 \begin{indpar}[0.5in]
 \hspace*{-0.2in}opening brackets (e.g.~`\TT{(}') and their
     corresponding closing brackets (e.g.~`\TT{)}') \\
@@ -2998,11 +3007,13 @@ The bracketed parser pass has its own symbol table containing:
       and typed middles (e.g.~`\TT{|}')
 \end{indpar}
 
-The bracketed parser pass also has separate symbol tables
-for prefix types and prefix lexemes: see \itemref{PREFIX-DEFINITIONS}.
+The bracketed parser pass also has a symbol table
+for prefixes
+(see \itemref{PREFIX-DEFINITIONS})
+and a symbol table for mapped prefix lexemes (see \itemref{MAPPED-LEXEMES}).
 
 In bracketed subexpression recognition, 
-multi-lexeme keys in the bracketed pass symbol table
+multi-lexeme keys in the bracketed symbol table
 are not recognized in the
 input if their lexemes are not all on the same physical line.
 This is different from other parser passes, which are executed
@@ -3018,9 +3029,7 @@ In addition the bracketed subexpression recognition pass maintains
 the parser current paragraph indent, which indicates how much
 lines in the current paragraph should be indented.  This indent
 may be changed by an indentation mark
-(see Section~\itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS})
-or a pargraph header prefix separator
-(see Section~\itemref{TYPED-PREFIX-SEPARATORS}).
+(see \itemref{INDENTED-PARAGRAPH-SUBEXPRESIONS}).
 
 Syntactically a {\em bracketed-subexpression} may take many forms:
 
@@ -3038,6 +3047,10 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
     $|$ & {\em prefix-n-list}
 	& see \pagref{PREFIX-N-LIST} in \itemref{TYPED-PREFIX-SEPARATORS} \\
     $|$ & implied paragraph and line headers
+	& see \itemref{UNINDENTED-PARAGRAPHS} \\
+    $|$ & mapped lexeme replacements
+	& see \itemref{MAPPED-LEXEMES} \\
+    $|$ & {\em unindented-paragraphs}
 	& see \itemref{UNINDENTED-PARAGRAPHS} \\
     \end{tabular}
 \end{indpar}
@@ -3061,10 +3074,10 @@ are similarly divided:
         & see \pagref{PARSER-TYPED-BRACKET-COMMAND} \\
     $|$ & {\em parser-prefix-command}
         & see \pagref{PARSER-PREFIX-COMMAND} \\
-    $|$ & {\em parser-prefix-lexeme-command}
+    $|$ & {\em parser-mapped-lexeme-command}
         & see \pagref{PARSER-MAPPED-LEXEME-COMMAND} \\
-    $|$ & {\em parser-print-bracket-command}
-        & see \pagref{PARSER-PRINT-BRACKET-COMMAND} \\
+    $|$ & {\em bracketed-parser-print-command}
+        & see \pagref{BRACKETED-PARSER-PRINT-COMMAND} \\
     \end{tabular}
 \label{PARSER-BRACKETED-COMMAND}
 \end{indpar}
@@ -3370,7 +3383,7 @@ are sometimes called `\key{untyped brackets}'
 to distinguish them from typed brackets
 such as `\TT{\{b|}' and `\TT{|b\}}'
 in which the type, in this case `\TT{b}',
-is arbitrary.  See Section~\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+is arbitrary.  See \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
 for a description of typed brackets.
 
 In the absence of a reformatter,
@@ -3706,7 +3719,7 @@ changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
 end of the block.  The indentation offsets of the current blocks
 can be printed by the \TT{parser print indentation offset} command:
-see \pagref{PARSER-PRINT-BRACKET-COMMAND}.
+see \pagref{BRACKETED-PARSER-PRINT-COMMAND}.
 
 When an {\em indentation-mark} is recognized, the current parsing
 selector set, parsing options, and line separator are saved in a stack.
@@ -4165,7 +4178,7 @@ which specifies
 that {\em typed-bracketed-subexpressions} with the give {\em typed-opening}
 and no elements \\
 are to be treated as {\em typed-prefix-separators}
-(see Section~\itemref{TYPED-PREFIX-SEPARATORS}).
+(see \itemref{TYPED-PREFIX-SEPARATORS}).
 \end{tabular}
 \end{center}
 
@@ -4881,15 +4894,19 @@ the MIN objects:
 
 TBD
 
-A {\em parser-print-bracket-command} has the syntax:
+A {\em bracketed-parser-print-command} has the syntax:
 
 \begin{indpar}
-\emkey{parser-print-bracket-command}%
-\label{PARSER-PRINT-BRACKET-COMMAND}
+\emkey{bracketed-parser-print-command}%
+\label{BRACKETED-PARSER-PRINT-COMMAND}
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
     ::= & \ttikey{parser print bracket}{parser print bracket}
+	  {\em partial-name} \\
+    $|$ & \ttikey{parser print prefix}{parser print prefix}
+	  {\em partial-name} \\
+    $|$ & \ttikey{parser print mapped lexeme}{parser print mapped lexeme}
 	  {\em partial-name} \\
     $|$ & \ttikey{parser print indentation offset}{print indentation offset} \\
     $|$ & \ttikey{parser print string concatenator}%

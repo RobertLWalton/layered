@@ -884,7 +884,7 @@ BRACKETED EXPRESSION:
           .type = "t"
           b[A,201,202]
           .position[H] = {}
-        line 54:
+    line 54:
 And one more {| |b["A", 201,202, [5]]: t}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -893,7 +893,7 @@ BRACKETED EXPRESSION:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-        line 54:
+    line 54:
 And one more {| |b["A", 201,202, [5]]: t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2099,7 +2099,7 @@ BRACKETED EXPRESSION:
            m = "1"
            n = "2"
            .position[H] = {}
-        line 85:
+    line 85:
 {T: m = 1| |n = 2}
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2108,7 +2108,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 85:
+    line 85:
 {T: m = 1| |n = 2}
 ^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2130,7 +2130,7 @@ BRACKETED EXPRESSION:
            m = "1"
            n = "2"
            .position[H] = {}
-        line 86:
+    line 86:
 {T: m = 1||n = 2}
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2139,7 +2139,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 86:
+    line 86:
 {T: m = 1||n = 2}
 ^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2163,7 +2163,7 @@ BRACKETED EXPRESSION:
            m = "1"
            n = "2"
            .position[H] = {}
-        line 87:
+    line 87:
 {T: m = 1||n = 2||}
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2172,7 +2172,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 87:
+    line 87:
 {T: m = 1||n = 2||}
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2242,7 +2242,7 @@ BRACKETED EXPRESSION:
            m = "1"
            n = "2"
            .position[H] = {}
-        line 90:
+    line 90:
 {T: m = 1 || n = 2: T }
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2251,7 +2251,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 90:
+    line 90:
 {T: m = 1 || n = 2: T }
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2265,7 +2265,7 @@ BRACKETED EXPRESSION:
 @145 =:
            .position[H] = {}
            m = "1"
-        line 91:
+    line 91:
 {m = 1}
 ^^^^^^^
 BRACKETED EXPRESSION:
@@ -2274,7 +2274,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 91:
+    line 91:
 {m = 1}
 ^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2299,7 +2299,7 @@ BRACKETED EXPRESSION:
            m = "1"
            n = "2"
            .position[H] = {}
-        line 92:
+    line 92:
 {: m = 1, n = 2}
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2308,7 +2308,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 92:
+    line 92:
 {: m = 1, n = 2}
 ^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2325,7 +2325,7 @@ BRACKETED EXPRESSION:
            m
            n = "2"
            .position[H] = {}
-        line 93:
+    line 93:
 {m, n = 2}
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2334,7 +2334,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 93:
+    line 93:
 {m, n = 2}
 ^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -2625,7 +2625,7 @@ BRACKETED EXPRESSION:
            y = [$ NONE $]
            z = [$ MISSING $]
            .position[H] = {}
-        line 105:
+    line 105:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2634,7 +2634,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 105:
+    line 105:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
@@ -3792,7 +3792,7 @@ BRACKETED EXPRESSION:
 @240 =:
            .position[H] = {}
            my attribute = [< "a" "b" "c" >], [< "d" "e" >], "f"
-        line 138:
+    line 138:
 {my attribute = {* a b c, d e, f *} ||}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -3801,7 +3801,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 138:
+    line 138:
 {my attribute = {* a b c, d e, f *} ||}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -4257,7 +4257,7 @@ PREFIX EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 154:
+    line 154:
 {x: y[+Y]}
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4266,7 +4266,7 @@ BRACKETED EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 154:
+    line 154:
 {x: y[+Y]}
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4275,7 +4275,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 154:
+    line 154:
 {x: y[+Y]}
 ^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -4305,7 +4305,7 @@ PREFIX EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 155:
+    line 155:
 {x: y[1,Y]}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4314,7 +4314,7 @@ BRACKETED EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 155:
+    line 155:
 {x: y[1,Y]}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4323,7 +4323,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 155:
+    line 155:
 {x: y[1,Y]}
 ^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -4353,7 +4353,7 @@ PREFIX EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 156:
+    line 156:
 {x: y[+,62]}
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4362,7 +4362,7 @@ BRACKETED EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 156:
+    line 156:
 {x: y[+,62]}
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4371,7 +4371,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 156:
+    line 156:
 {x: y[+,62]}
 ^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -4401,7 +4401,7 @@ PREFIX EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 157:
+    line 157:
 {x: y[62,1]}
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4410,7 +4410,7 @@ BRACKETED EXPRESSION:
            .type = "x"
            y[+Y]
            .position[H] = {}
-        line 157:
+    line 157:
 {x: y[62,1]}
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4419,7 +4419,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 157:
+    line 157:
 {x: y[62,1]}
 ^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
@@ -4459,7 +4459,7 @@ PREFIX EXPRESSION:
            .type = "x"
            y = (z + w "," v "|" m n "|")
            .position[H] = {}
-        line 159:
+    line 159:
 {x: y = (z + w, v| m n |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4468,7 +4468,7 @@ BRACKETED EXPRESSION:
            .type = "x"
            y = (z + w "," v "|" m n "|")
            .position[H] = {}
-        line 159:
+    line 159:
 {x: y = (z + w, v| m n |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -4477,6 +4477,282 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-        line 159:
+    line 159:
 {x: y = (z + w, v| m n |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the line before the outer paragraph
+@286 = the line before the outer paragraph:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 161:
+the line before the outer paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED EXPRESSION:
+    the first line of the outer paragraph
+@287 = the first line of the outer paragraph:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 163:
+    the first line of the outer paragraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the second line of the outer paragraph which is continued on this
+        indented line
+@288 = the second line of the outer paragraph which is continued on this
+               indented line:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines 164-165:
+    the second line of the outer paragraph which
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED EXPRESSION:
+    the first line of the inner paragraph
+@289 = the first line of the inner paragraph:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 167:
+       the first line of the inner paragraph
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    (that begins with a horizontal tab)
+@290 = that begins with a horizontal tab:
+           .terminator = ")"
+           .initiator = "("
+           .position[H] = {}
+    line 170:
+           (that begins with a horizontal tab)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the second line of the inner paragraph which is continued on this
+        indented line (that begins with a horizontal tab)
+@291 = the second line of the inner paragraph which is continued on this
+               indented line @290:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines 168-170:
+       the second line of the inner paragraph which
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           (that begins with a horizontal tab)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
+              first line of the inner paragraph|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
+              second line of the inner paragraph which is continued on
+              this indented line (that begins with a horizontal tab)|}|}
+@292 = @289 @291:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = {}
+           .initiator = ":"
+    lines 166-170:
+    an inner paragraph:
+                      ^
+       the first line of the inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the second line of the inner paragraph which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           (that begins with a horizontal tab)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    an inner paragraph:
+        the first line of the inner paragraph
+        the second line of the inner paragraph which is continued on
+            this indented line (that begins with a horizontal tab)
+@293 = an inner paragraph @292:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines 166-170:
+    an inner paragraph:
+    ^^^^^^^^^^^^^^^^^^^
+       the first line of the inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the second line of the inner paragraph which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           (that begins with a horizontal tab)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the first line of the outer paragraph after the inner paragraph
+@294 = the first line of the outer paragraph after the inner paragraph:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines 171-172:
+    the first line of the outer paragraph after the
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"||}
+@295 =:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = {}
+           .initiator = ":"
+    line 173:
+    another inner paragraph, but one with zero lines:
+                                                    ^
+BRACKETED EXPRESSION:
+    another inner paragraph "," but one with zero lines:
+@296 = another inner paragraph "," but one with zero lines @295:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 173:
+    another inner paragraph, but one with zero lines:
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the last line of the outer paragraph
+@297 = the last line of the outer paragraph:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 174:
+    the last line of the outer paragraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
+              first line of the outer paragraph|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
+              second line of the outer paragraph which is continued on
+              this indented line|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|an
+              inner paragraph
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|the first line of the inner
+                        paragraph|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|the second line of the inner
+                        paragraph which is continued on this indented
+                        line (that begins with a horizontal tab)|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
+              first line of the outer paragraph after the inner
+              paragraph|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              another inner paragraph "," but one with zero lines
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"||}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
+              last line of the outer paragraph|}|}
+@298 = @287 @288 @293 @294 @296 @297:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = {}
+           .initiator = ":"
+    lines 162-174:
+this is the outer paragraph:
+                           ^
+    the first line of the outer paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the second line of the outer paragraph which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    an inner paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^
+       the first line of the inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the second line of the inner paragraph which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           (that begins with a horizontal tab)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the first line of the outer paragraph after the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^
+    another inner paragraph, but one with zero lines:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the last line of the outer paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    this is the outer paragraph:
+        the first line of the outer paragraph
+        the second line of the outer paragraph which is continued on
+            this indented line
+        an inner paragraph:
+            the first line of the inner paragraph
+            the second line of the inner paragraph which is continued on
+                this indented line (that begins with a horizontal tab)
+        the first line of the outer paragraph after the inner paragraph
+        another inner paragraph "," but one with zero lines:
+        the last line of the outer paragraph
+@299 = this is the outer paragraph @298:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines 162-174:
+this is the outer paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the first line of the outer paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the second line of the outer paragraph which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    an inner paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^
+       the first line of the inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the second line of the inner paragraph which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           is continued on this indented line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           (that begins with a horizontal tab)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the first line of the outer paragraph after the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        inner paragraph
+^^^^^^^^^^^^^^^^^^^^^^^
+    another inner paragraph, but one with zero lines:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the last line of the outer paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the line after the outer paragraph
+@300 = the line after the outer paragraph:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line 175:
+the line after the outer paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

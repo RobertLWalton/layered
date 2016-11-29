@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 13:23:08 EST 2016
+// Date:	Tue Nov 29 04:01:02 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1678,7 +1678,7 @@ min::position BRA::parse_bracketed_subexpression
 		return min::MISSING_POSITION;
 
 	    // Otherwise fall through to process
-	    // line break at current that is after
+	    // indent or eof at current that is after
 	    // indented lines.
 	    //
 	    indentation_found = min::NULL_STUB;

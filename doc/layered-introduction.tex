@@ -3447,6 +3447,12 @@ matter what, even with a spurious ), until
     ) // End of () bracketed subexpression
 \end{verbatim}\end{indpar}
 
+The `\TT{- end at line separator}' option is always implied
+by `\TT{parser define bra\-cket}', and if the options
+`\TT{+ end at line separator}' or
+`\TT{\textasciicircum end at line separa\-tor}' are given, they
+are ignored and warning messages are output.
+
 Several reformatters are provided that change the MIN value
 represented by an {\em untyped-bracketed-subexpression}:
 
@@ -3457,6 +3463,8 @@ represented by an {\em untyped-bracketed-subexpression}:
 \begin{indpar}[0.5em]
 Requires that the expression element values be MIN strings or
 numbers or labels.
+Elements derived from {\em quoted-string} or {\em numeric}
+lexemes are considered to be the strings represented by the lexemes.
 
 The subexpression is converted to a \TT{DERIVED}
 token whose \TT{value} is the value of the single element
@@ -3487,10 +3495,11 @@ numbers, labels, bracketed subexpressions, or equal to the
 The subexpression is divided into components by {\em separator}
 tokens and is converted to a \TT{BRACKETED}
 token whose \TT{value} is a list with one element for each
-of non-missing component.  A component may consist of
-either a single MIN object or a list of strings, numbers, and
-labels which is converted into a MIN string if there is only
-one token in the component and into a MIN label otherwise.
+non-missing component.  A component must be a single MIN object,
+string, number, or label, except that a list of more than one
+string, number, and label valued tokens is converted to a MIN label.
+Components derived from {\em quoted-string} or {\em numeric}
+lexemes are considered to be the strings represented by the lexemes.
 The \TT{BRACKETED} result token gets the {\em separator} as its
 \TT{.separator} attribute, and the opening and closing brackets
 as its \TT{.initiator} and \TT{.terminator} attributes.
@@ -3508,38 +3517,27 @@ limitation).
 The definitions
 \begin{indpar}\begin{verbatim}
 parser define bracket "(" ... ")" [parser]
-       with parsing options [- end at line separator]
 parser define bracket "[" ... "]" [parser]
-       with parsing options [- end at line separator]
 \end{verbatim}\end{indpar}
 are builtin.
 
 The definitions
 \begin{indpar}\begin{verbatim}
 parser define bracket "(" ... ")" [code, math, text, data]
-       with parsing options [- end at line separator]
 parser define bracket "[" ... "]" [code, math, text, data]
-       with parsing options [- end at line separator]
 parser define bracket "{{" ... "}}" [code, math, text]
        with parsing selectors [ + math, - code, - text]
-       with parsing options [- end at line separator]
 parser define bracket "{{" ... "}}" [data]
-       with parsing options [- end at line separator]
 parser define bracket "`" ... "'" [code, math, text]
        with parsing selectors [ + text, - code, - math]
-       with parsing options [- end at line separator]
 parser define bracket "`" ... "'" [data]
-       with parsing options [- end at line separator]
 parser define bracket "[<" ... ">]" [code, math, text, data]
        with parsing selectors [data]
-       with parsing options [- end at line separator]
        with label reformatter
 parser define bracket "[$" ... "$]" [code, math, text, data]
        with parsing selectors [data]
-       with parsing options [- end at line separator]
        with separator reformatter
 parser define bracket "{*" ... "*}" [data]
-       with parsing options [- end at line separator]
        with multivalue reformatter ( "," )
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of

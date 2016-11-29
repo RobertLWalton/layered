@@ -3601,9 +3601,12 @@ The general syntax is:
 \emkey{paragraph-line} ::= logical line, possibly ended by
                            a {\em line-separator}
 \\[0.5ex]
-\emkey{paragraph-end} ::=
-             beginning of a line whose indent is less than
-			  the paragraph indent
+\emkey{paragraph-end}
+    \begin{tabular}[t]{rl}
+    ::= & beginning of a line whose indent is less than
+			  the paragraph indent \\
+    $|$ & end of file
+    \end{tabular}
 \\[0.5ex]
 \emkey{indentation-mark} ::=
    {\em key} ~~~ [e.g., `\TT{:}', ~ as per
@@ -3627,11 +3630,11 @@ parser command, and may have
 an associated {\em line-separator} supplied by that definition.
 An example is
 \begin{center}
-\TT{define indentation mark ":"~...~";" [operator]} \ldots
+\TT{define indentation mark ":"~...~";" [code]} \ldots
 \end{center}
 which specifies `\TT{:}' to be an {\em indentation-mark}
 with `\TT{;}' as its corresponding {\em line-separator}
-and `\TT{operator}' as the sole definition selector.
+and `\TT{code}' as the sole definition selector.
 
 The general syntax of {\em parser-indentation-mark-commands} is:
 
@@ -3651,7 +3654,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\em indentation-mark} \\
+	  {\em indentation-name} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser define indentation offset}{define indentation offset}
@@ -3684,8 +3687,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 
 The {\em line-separator} may be used to end
 paragraph lines, as long as the \TT{end at line sepa\-ra\-tor}
-(\pagref{END-AT-LINE-SEPARATOR}) option permits.  Standardly
-line separators are only recognized outside explicitly
+(\pagref{END-AT-LINE-SEPARATOR}) option permits.
+Line separators are only recognized outside explicitly
 bracketed subexpressions (untyped bracketed or typed bracketed)
 in the paragraph.
 

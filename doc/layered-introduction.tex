@@ -3294,15 +3294,16 @@ The general syntax is:
 	{\em opening-bracket} {\em element-list} {\em closing-bracket}
 \\[0.5ex]
 \emkey{opening-bracket} ::=
-   \begin{tabular}[t]{@{}l}
-   {\em key} ~~~~~ [e.g., `\TT{(}' or `\TT{[<}'] \\
-    as defined by a
+   {\em key} ~~~ [e.g., `\TT{(}' or `\TT{[<}', ~
+    as per
     {\em parser-untyped-bracket-command}
-    (\pagref{PARSER-UNTYPED-BRACKET-COMMAND})
-    \end{tabular}
+    \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{closing-bracket} ::= {\em key}
-    ~~~~~ [e.g., `\TT{)}' or `\TT{>]}']
+\emkey{closing-bracket} ::=
+   {\em key} ~~~ [e.g., `\TT{)}' or `\TT{>]}', ~
+    as per
+    {\em parser-untyped-bracket-command}
+    \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{key} ::= see \pagref{KEY}
 \\[0.5ex]
@@ -3602,18 +3603,17 @@ The general syntax is:
 \\[0.5ex]
 \emkey{paragraph-end} ::=
              beginning of a line whose indent is less than
-			  the current indent
+			  the paragraph indent
 \\[0.5ex]
 \emkey{indentation-mark} ::=
-   \begin{tabular}[t]{@{}l}
-   {\em key} ~~~~~ [e.g., `\TT{:}'] \\
-    as defined by a
+   {\em key} ~~~ [e.g., `\TT{:}', ~ as per
     {\em parser-indentation-mark-command}
-    (\pagref{PARSER-INDENTATION-MARK-COMMAND})
-    \end{tabular}
+    \pagref{PARSER-INDENTATION-MARK-COMMAND}]
 \\[0.5ex]
-\emkey{line-separator} ::= {\em key}
-    ~~~~~ [e.g., `\TT{;}']
+\emkey{line-separator} ::=
+   {\em key} ~~~ [e.g., `\TT{;}', ~ as per
+    {\em parser-indentation-mark-command}
+    \pagref{PARSER-INDENTATION-MARK-COMMAND}]
 \end{indpar}
 
 {\em Paragraph-lines} are logical lines that end according to
@@ -4036,48 +4036,49 @@ The general syntax is:
 \\[0.5ex]
 \emkey{value} ::= {\em label} $|$ {\em bracketed-subexpression}
 \\[0.5ex]
-\emkey{typed-opening} ::=
-   \begin{tabular}[t]{@{}l}
-   {\em key} ~~~~~ [e.g., `\TT{\{}'] \\
-    as defined by a {\em parser-typed-bracket-command}
-    (\pagref{PARSER-TYPED-BRACKET-COMMAND})
-    \end{tabular}
+\emkey{typed-opening} ::= {\em key} ~~~ [e.g., `\TT{\{}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-middle} ::= {\em key}
-    ~~~~~ [e.g., `\TT{|}']
+\emkey{typed-middle} ::= {\em key} ~~~ [e.g., `\TT{|}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-closing} ::= {\em key}
-    ~~~~~ [e.g., `\TT{\}}']
+\emkey{typed-closing} ::= {\em key} ~~~ [e.g., `\TT{\}}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= {\em key}
-    ~~~~~ [e.g., `\TT{:}']
+\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g., `\TT{:}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-separator} ::= {\em key}
-    ~~~~~ [e.g., `\TT{,}']
+\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g., `\TT{,}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-equal} ::= {\em key}
-    ~~~~~ [e.g., `\TT{=}']
+\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g., `\TT{=}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-negator} ::= {\em key}
-    ~~~~~ [e.g., `\TT{no}']
+\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g., `\TT{no}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-flags-opening} ::= {\em key}
-    ~~~~~ [e.g., `\TT{[}']
+\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g., `\TT{[}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-flags-separator} ::= {\em key}
-    ~~~~~ [e.g., `\TT{,}']
+\emkey{typed-attribute-flags-separator} ::= {\em key} ~~~ [e.g., `\TT{,}']
 \\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em key}
-    ~~~~~ [e.g., `\TT{]}']
+\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g., `\TT{]}']
 \\[0.5ex]
-\emkey{attribute-multivalue-opening} ::= {\em key}
-    ~~~~~ [e.g., `\TT{\{*}']
+\emkey{attribute-multivalue-opening} ::= {\em key} ~~~ [e.g., `\TT{\{*}', ~
+    as per {\em parser-typed-bracket-command}
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{attribute-multivalue-separator} ::= {\em key}
-    ~~~~~ [e.g., `\TT{,}']
+\emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g., `\TT{,}']
 \\[0.5ex]
-\emkey{attribute-multivalue-closing} ::= {\em key}
-    ~~~~~ [e.g., `\TT{*\}}']
+\emkey{attribute-multivalue-closing} ::= {\em key} ~~~ [e.g., `\TT{*\}}']
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=
     \begin{tabular}[t]{@{}l}

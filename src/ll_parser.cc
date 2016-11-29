@@ -208,8 +208,10 @@ static void initialize ( void )
     PAR::yes_lexeme = min::new_str_gen ( "yes" );
     PAR::no_lexeme = min::new_str_gen ( "no" );
     PAR::keep_lexeme = min::new_str_gen ( "keep" );
-    PAR::enabled_lexeme = min::new_str_gen ( "enabled" );
-    PAR::disabled_lexeme = min::new_str_gen ( "disabled" );
+    PAR::enabled_lexeme =
+        min::new_str_gen ( "enabled" );
+    PAR::disabled_lexeme =
+        min::new_str_gen ( "disabled" );
 
     ::warnings = min::new_str_gen ( "warnings" );
     ::parser_input =

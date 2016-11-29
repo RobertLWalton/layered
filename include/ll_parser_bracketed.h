@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 13:24:27 EST 2016
+// Date:	Tue Nov 29 10:24:21 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -460,6 +460,10 @@ MIN_REF ( ll::parser::bracketed::typed_opening,
           ll::parser::bracketed
 	            ::typed_attr_negator )
 
+// Push entry into bracket table.  EALSEP_OPT is set
+// in element_selectors.not_flags and cleared from
+// element_selectors.{or,xor}_flags.
+//
 ll::parser::bracketed::typed_opening
     push_typed_brackets
 	( min::gen typed_opening,

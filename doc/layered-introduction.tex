@@ -3598,12 +3598,17 @@ The general syntax is:
 \emkey{indented-paragraph-subexpression} ::=
 	\begin{tabular}[t]{@{}l}
 	{\em indentation-mark} {\em line-break} \\
-	~~~~ {\em paragraph-line}\STAR{} \\
+	~~~~ \{ {\em paragraph-line}
+	     $|$ {\em unindented-paragraph} \}\STAR{} \\
 	{\em paragraph-end}
 	\end{tabular}
 \\[0.5ex]
 \emkey{paragraph-line} ::= logical line, possibly ended by
                            a {\em line-separator}
+\\[0.5ex]
+{\em logical-line} ::= see \itemref{LOGICAL-LINES}
+\\[0.5ex]
+{\em unindented-paragraph} ::= see \itemref{UNINDENTED-PARAGRAPHS}
 \\[0.5ex]
 \emkey{paragraph-end}
     \begin{tabular}[t]{rl}
@@ -3627,6 +3632,11 @@ The general syntax is:
 the setting of the end-at options;
 See~\pagref{PARSING-END-AT-OPTIONS-1}.  The setting of these options can be
 controlled by the specification of the {\em indentation-mark}.
+{\em Un\-in\-den\-ted-paragraphs} are sequences of logical lines between
+blank lines or the ends of the containing indented paragraph, where
+the first logical line of the unindented paragraph begins with a
+paragraph header:
+see \itemref{UNINDENTED-PARAGRAPHS} for details.
 
 An {\em indentation-mark} is specified by a
 \ttikey{parser define indentation mark}{indentation mark!parser define}
@@ -3717,15 +3727,25 @@ to represent a single paragraph line, instead of two paragraph lines
 the second of which is empty.  Therefore all paragraph lines
 are non-empty.
 
+A logical line that follows a blank line or the indented paragraph
+beginning and itself begins with a paragraph header begins
+an unindented paragraph.  The unindented paragraph ends with the
+next blank line or the end of the containing indented paragraph.
+Unindented paragraphs become a single MIN object whose \TT{.type}
+and attributes
+are taken from the paragraph header and whose elements are
+the logical lines in the unindented paragraph.
+
 The paragraph as a whole is converted to a MIN object whose elements
-are the paragraph lines, whose \TT{.initiator} attribute
+are the paragraph lines or unindented paragraphs,
+whose \TT{.initiator} attribute
 is the {\em indentation-mark} that introduced the paragraph,
 and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
-A paragraph may be empty (have no paragraph lines).
+A paragraph may be empty (have no paragraph lines or unindented paragraphs).
 
 The \TT{implied paragraph header} and \TT{lexical master} parameters
 are used to initialize line variables
-that affect the parsing of paragraphs and lines: see \pagref{LINE-VARIABLES}.
+that affect the parsing of unindented paragraphs: see \pagref{LINE-VARIABLES}.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,

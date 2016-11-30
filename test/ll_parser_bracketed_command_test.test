@@ -1,9 +1,32 @@
 parser print bracket "":
-    block TOP LEVEL: bracket "(" ... ")" [parser]
+    block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
                      with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "[" ... "]" [parser]
+                     with label reformatter
+    block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                      with parsing options [- end at line separator]
+                     with multivalue reformatter ( "," )
+    block TOP LEVEL: bracket "(" ... ")" [data]
+                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket "[" ... "]" [data]
+                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket "`" ... "'" [data]
+                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
+                     // "||" is also allowed.
+                     [data]
+                     with parsing options [- end at line separator]
+                     with attribute selectors [data]
+                     with attributes ":" ... "=" ... ","
+                     with attribute negator "no"
+                     with attribute flags initiator "["
+                     with attribute multivalue initiator [< "{" "*" >]
+                     with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+    block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+                     with parsing options [- end at line separator]
+                     with special reformatter
 ERROR: in line 13: too few quoted names in:
 parser define bracket "[+"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30,7 +53,6 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: prefix
     block TOP LEVEL: data
-    block TOP LEVEL: parser
 parser print context "default":
     block standard: default [code]
                             options [end at le indent,
@@ -43,10 +65,16 @@ parser print context "default":
 parser define bracket "(" ... ")" [code, math, text]
 parser define bracket "[" ... "]" [code, math, text]
 parser print bracket "[":
+    block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+                     with parsing options [- end at line separator]
+                     with label reformatter
     block standard: bracket "[" ... "]" [code, text, math]
                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "[" ... "]" [parser]
+    block TOP LEVEL: bracket "[" ... "]" [data]
                      with parsing options [- end at line separator]
+    block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+                     with parsing options [- end at line separator]
+                     with special reformatter
 parser define indentation mark ":" ... ";" [code, math, text]
 parser print bracket ":":
     block standard: indentation mark ":" ... ";" [code, text, math]
@@ -310,13 +338,19 @@ parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with parsing options []
 parser print bracket "":
+    block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+                     with parsing options [- end at line separator]
+                     with label reformatter
+    block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                     with parsing options [- end at line separator]
+                     with multivalue reformatter ( "," )
     block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
                     [code, operator 1]
                     with parsing selectors [- code, + operator 1]
                     with parsing options [- end at line separator]
     block standard: bracket "(" ... ")" [code, text, math]
                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "(" ... ")" [parser]
+    block TOP LEVEL: bracket "(" ... ")" [data]
                      with parsing options [- end at line separator]
     block standard: indentation mark ":" ... ";" [code, text, math]
                     with parsing options [end at le indent,
@@ -324,10 +358,24 @@ parser print bracket "":
                                           end at outer closing]
     block standard: bracket "[" ... "]" [code, text, math]
                     with parsing options [- end at line separator]
-    block TOP LEVEL: bracket "[" ... "]" [parser]
+    block TOP LEVEL: bracket "[" ... "]" [data]
                      with parsing options [- end at line separator]
     block standard: bracket "`" ... "'" [code]
                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket "`" ... "'" [data]
+                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+                     with parsing options [- end at line separator]
+    block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
+                     // "||" is also allowed.
+                     [data]
+                     with parsing options [- end at line separator]
+                     with attribute selectors [data]
+                     with attributes ":" ... "=" ... ","
+                     with attribute negator "no"
+                     with attribute flags initiator "["
+                     with attribute multivalue initiator [< "{" "*" >]
+                     with prefix separators allowed
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
                     with parsing options []
@@ -342,6 +390,9 @@ parser print bracket "":
                     with parsing options [end at le indent,
                                           end at line separator,
                                           end at outer closing]
+    block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+                     with parsing options [- end at line separator]
+                     with special reformatter
 ======= TEST: parser test (```")"''')
 ------- line 84:
 parser test ( ``` ) ''' )
@@ -717,12 +768,12 @@ parser print prefix "X":
     block standard: prefix "X" [code]
                     with parsing selectors [code, math]
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
-       [code, text, math, parser]
+       [code, text, math, data]
        with element selectors [data]
        with attribute selectors [data]
        with attributes "::" ... "==" ... "#"
 parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
-       [code, text, math, parser]
+       [code, text, math, data]
        with element selectors [data]
        with attribute selectors [data, code]
        with attributes "::" ... "==" ... "#"
@@ -781,7 +832,7 @@ parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
-       [code, text, math, parser]
+       [code, text, math, data]
 ======= TEST: parser test (T2 "{" T "}" T2 A B C)
 ------- line 179:
 parser test (T2{T}T2 A B C)
@@ -868,7 +919,7 @@ parser test "A" "B"
 parser end block 1
 parser begin block 1
 parser define typed bracket "8" ... "|" ... "|" ... "9"
-       [code, text, math, parser]
+       [code, text, math, data]
        with element selectors [data]
        with attribute selectors [data, code]
        with attributes ":" ... "=" ... ","

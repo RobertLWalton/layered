@@ -2,7 +2,6 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: prefix
     block TOP LEVEL: data
-    block TOP LEVEL: parser
 parser define selector my selector
 ERROR: in line 13: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
@@ -12,7 +11,6 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: prefix
     block TOP LEVEL: data
-    block TOP LEVEL: parser
 parser print context "":
     block standard: default [code]
                             options [end at le indent,
@@ -22,7 +20,7 @@ parser print context "":
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -92,16 +90,16 @@ parser print context "":
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
     block TOP LEVEL: parser test []
 parser define context "default"
-       with parsing selectors [parser, my selector]
+       with parsing selectors [data, my selector]
        with parsing options [default options]
 parser print context "":
-    block standard: default [parser, my selector]
+    block standard: default [data, my selector]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -109,7 +107,7 @@ parser print context "":
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -126,7 +124,7 @@ parser print context "":
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -171,21 +169,23 @@ parser test [ x <+ y +> z {|4|w} m (n (p)) ]
 ======= END TEST
 parser begin special
 parser define context "parser test special"
-       with parsing selectors [parser]
+       with parsing selectors [data]
        with parsing options [default options]
 parser print context "parser<SP>test<SP>special":
-    block special: parser test special [parser]
+    block special: parser test special [data]
                                        options [end at le indent,
                                                 end at line separator,
                                                 end at outer closing]
-======= TEST: parser test special
-                  [x <+ y +> z "{" "|" 4 "|" w "}" m (n (p))]
+======= TEST: parser test special [x <+ y +> z {w|4|w} m (n (p))]
 ------- line 51:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line 51:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line 51:
+parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
+                                  ^^^^^^
 ------- line 51:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                                            ^^^^^^^
@@ -212,7 +212,7 @@ parser print context "parser<SP>test<SP>special":
 parser print context "parser<SP>test":
     block TOP LEVEL: parser test []
 parser print context "parser":
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]

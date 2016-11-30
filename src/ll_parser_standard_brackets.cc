@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 13:43:02 EST 2016
+// Date:	Tue Nov 29 23:25:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,8 +47,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( "label" ) );
     min::locatable_gen special_name
         ( min::new_str_gen ( "special" ) );
-    min::locatable_gen typed_bracketed_name
-        ( min::new_lab_gen ( "typed", "bracketed" ) );
 
     TAB::flags code =
         1ull << TAB::find_name
@@ -88,21 +86,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
 
     min::locatable_gen opening_brace_star
         ( min::new_lab_gen ( "{", "*" ) );
-    min::locatable_gen closing_star_brace
-        ( min::new_lab_gen ( "*", "}" ) );
 
     min::locatable_gen double_vbar
         ( min::new_str_gen ( "||" ) );
-
-    min::locatable_gen multivalue
-        ( min::new_str_gen ( "multivalue" ) );
-    min::locatable_gen comma
-        ( min::new_str_gen ( "," ) );
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        multivalue_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( multivalue_arguments ) = comma;
 
     parser->selectors &= PAR::ALL_OPT;
     parser->selectors |= code | PAR::ALWAYS_SELECTOR;
@@ -134,27 +120,11 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
-        ( opening_double_brace,
-          closing_double_brace,
-	  data,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
         ( opening_quote,
           closing_quote,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( text, code + math, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
-        ( opening_quote,
-          closing_quote,
-	  data,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
@@ -178,17 +148,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PAR::find_reformatter
 	      ( special_name, BRA::reformatter_stack ),
 	  min::NULL_STUB,
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
-        ( opening_brace_star,
-          closing_star_brace,
-	  data,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
-	  PAR::find_reformatter
-	      ( multivalue,
-	        BRA::reformatter_stack ),
-	  multivalue_arguments,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark

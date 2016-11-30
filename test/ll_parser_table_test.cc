@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 13:32:01 EST 2016
+// Date:	Wed Nov 30 00:15:46 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,17 +57,15 @@ int main ( int argc, const char * argv[] )
     min::locatable_gen closing_parenthesis;
     closing_parenthesis = min::new_str_gen ( ")" );
 
-    min::locatable_gen opening_brace;
-    opening_brace = min::new_str_gen ( "{" );
-    min::locatable_gen closing_brace;
-    closing_brace = min::new_str_gen ( "}" );
+    min::locatable_gen opening_triple_angle;
+    opening_triple_angle = min::new_str_gen ( "<<<" );
 
     min::locatable_gen colon;
     colon = min::new_str_gen ( ":" );
     min::locatable_gen semicolon;
     semicolon = min::new_str_gen ( ";" );
 
-    ASSERT (    TAB::find ( opening_brace,
+    ASSERT (    TAB::find ( opening_triple_angle,
 		            TAB::ALL_FLAGS,
     			    bracket_table )
 	     == min::NULL_STUB );

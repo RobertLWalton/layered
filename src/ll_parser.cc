@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 13:40:37 EST 2016
+// Date:	Tue Nov 29 22:50:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -793,11 +793,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			min::MISSING() ) );
 
 	MIN_REQUIRE
-	    (    PAR::PARSER_SELECTOR
-	      == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			PAR::parser_lexeme ) );
-	MIN_REQUIRE
 	    (    PAR::DATA_SELECTOR
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
@@ -839,11 +834,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::top_level_position,
 	      TAB::new_flags
 	          (   PAR::DEFAULT_OPT
-		    + PAR::PARSER_SELECTOR
+		    + PAR::DATA_SELECTOR
 		    + PAR::ALWAYS_SELECTOR,
 		      TAB::ALL_FLAGS
 		    - PAR::DEFAULT_OPT
-		    - PAR::PARSER_SELECTOR
+		    - PAR::DATA_SELECTOR
 		    - PAR::ALWAYS_SELECTOR,
 		    0 ),
 	      parser->context_table );
@@ -873,10 +868,57 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  min::MISSING(), LEX::MISSING,
 		  bracketed_pass->bracket_table );
 
+	min::locatable_gen label_name
+	    ( min::new_str_gen ( "label" ) );
+	min::locatable_gen special_name
+	    ( min::new_str_gen ( "special" ) );
+
+	min::locatable_gen opening_double_brace
+	    ( min::new_lab_gen ( "{", "{" ) );
+	min::locatable_gen closing_double_brace
+	    ( min::new_lab_gen ( "}", "}" ) );
+
+	min::locatable_gen opening_quote
+	    ( min::new_str_gen ( "`" ) );
+	min::locatable_gen closing_quote
+	    ( min::new_str_gen ( "'" ) );
+
+	min::locatable_gen opening_square_angle
+	    ( min::new_lab_gen ( "[", "<" ) );
+	min::locatable_gen angle_closing_square
+	    ( min::new_lab_gen ( ">", "]" ) );
+
+	min::locatable_gen opening_square_dollar
+	    ( min::new_lab_gen ( "[", "$" ) );
+	min::locatable_gen dollar_closing_square
+	    ( min::new_lab_gen ( "$", "]" ) );
+
+	min::locatable_gen no
+	    ( min::new_str_gen ( "no" ) );
+
+	min::locatable_gen opening_brace_star
+	    ( min::new_lab_gen ( "{", "*" ) );
+	min::locatable_gen closing_star_brace
+	    ( min::new_lab_gen ( "*", "}" ) );
+
+	min::locatable_gen double_vbar
+	    ( min::new_str_gen ( "||" ) );
+
+	min::locatable_gen multivalue
+	    ( min::new_str_gen ( "multivalue" ) );
+	min::locatable_gen comma
+	    ( min::new_str_gen ( "," ) );
+	min::locatable_var
+		<min::packed_vec_insptr<min::gen> >
+	    multivalue_arguments
+		( min::gen_packed_vec_type
+		      .new_stub ( 1 ) );
+	min::push ( multivalue_arguments ) = comma;
+
 	BRA::push_brackets
 	    ( PAR::left_parenthesis,
 	      PAR::right_parenthesis,
-	      PAR::PARSER_SELECTOR,
+	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      min::NULL_STUB, min::NULL_STUB,
@@ -884,10 +926,80 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	BRA::push_brackets
 	    ( PAR::left_square, PAR::right_square,
-	      PAR::PARSER_SELECTOR,
+	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      min::NULL_STUB, min::NULL_STUB,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( opening_double_brace,
+	      closing_double_brace,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      min::NULL_STUB, min::NULL_STUB,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( opening_quote,
+	      closing_quote,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      min::NULL_STUB, min::NULL_STUB,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( opening_brace_star,
+	      closing_star_brace,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      PAR::find_reformatter
+		  ( multivalue,
+		    BRA::reformatter_stack ),
+	      multivalue_arguments,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( opening_square_angle,
+	      angle_closing_square,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      PAR::find_reformatter
+		  ( label_name,
+		    BRA::reformatter_stack ),
+	      min::NULL_STUB,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( opening_square_dollar,
+	      dollar_closing_square,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      PAR::find_reformatter
+		  ( special_name,
+		    BRA::reformatter_stack ),
+	      min::NULL_STUB,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_typed_brackets
+	    ( PAR::left_curly,
+	      PAR::vbar,
+	      double_vbar,
+	      PAR::right_curly,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      PAR::DATA_SELECTOR,
+	      PAR::colon, PAR::equal, PAR::comma, no,
+	      PAR::left_square,
+	      min::standard_attr_flag_parser,
+	      opening_brace_star,
+	      true,
 	      bracketed_pass->bracket_table );
 
 	if ( define_standard )

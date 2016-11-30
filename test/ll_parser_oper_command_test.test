@@ -4,7 +4,6 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: prefix
     block TOP LEVEL: data
-    block TOP LEVEL: parser
 parser print pass:
     top
 parser print context "":
@@ -16,7 +15,7 @@ parser print context "":
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [parser]
+    block TOP LEVEL: parser [data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -33,7 +32,6 @@ parser print selector "":
     block standard: code
     block TOP LEVEL: prefix
     block TOP LEVEL: data
-    block TOP LEVEL: parser
 parser print operator "":
     not found
 parser begin block

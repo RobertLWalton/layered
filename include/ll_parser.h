@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 07:20:20 EST 2016
+// Date:	Tue Nov 29 22:50:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1023,9 +1023,8 @@ enum {
 
     // Builtin selectors:
     //
-    PARSER_SELECTOR			= 1ull << 17,
-    DATA_SELECTOR			= 1ull << 18,
-    PREFIX_SELECTOR			= 1ull << 19,
+    DATA_SELECTOR			= 1ull << 17,
+    PREFIX_SELECTOR			= 1ull << 18,
 };
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;

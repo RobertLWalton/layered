@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 31 02:27:06 EDT 2015
+// Date:	Tue Nov 29 22:54:09 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -22,7 +22,7 @@ parser print trace
 
 parser print context ""
 parser define context "default"
-       with parsing selectors [parser, my selector]
+       with parsing selectors [data, my selector]
        with parsing options [default options]
 parser print context ""
 parser define context "default"
@@ -45,7 +45,7 @@ parser test [ x <+ y +> z {|4|w} m (n (p)) ]
 
 parser begin special
 parser define context "parser test special"
-       with parsing selectors [parser]
+       with parsing selectors [data]
        with parsing options [default options]
 parser print context "parser test special"
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]

@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 29, 2016
+November 30, 2016
  
 \end{center}
 
@@ -3515,10 +3515,18 @@ limitation).
 
 
 
-The definitions
+The definitions\label{UNTYPED-BRACKET-BULITINS}
 \begin{indpar}\begin{verbatim}
-parser define bracket "(" ... ")" [parser]
-parser define bracket "[" ... "]" [parser]
+parser define bracket "(" ... ")" [data]
+parser define bracket "[" ... "]" [data]
+parser define bracket "{{" ... "}}" [data]
+parser define bracket "`" ... "'" [data]
+parser define bracket "[<" ... ">]" [data]
+       with label reformatter
+parser define bracket "{*" ... "*}" [data]
+       with multivalue reformatter ( "," )
+parser define bracket "[$" ... "$]" [data]
+       with special reformatter
 \end{verbatim}\end{indpar}
 are builtin.
 
@@ -3528,18 +3536,14 @@ parser define bracket "(" ... ")" [code, math, text, data]
 parser define bracket "[" ... "]" [code, math, text, data]
 parser define bracket "{{" ... "}}" [code, math, text]
        with parsing selectors [ + math, - code, - text]
-parser define bracket "{{" ... "}}" [data]
 parser define bracket "`" ... "'" [code, math, text]
        with parsing selectors [ + text, - code, - math]
-parser define bracket "`" ... "'" [data]
 parser define bracket "[<" ... ">]" [code, math, text, data]
        with parsing selectors [data]
        with label reformatter
 parser define bracket "[$" ... "$]" [code, math, text, data]
        with parsing selectors [data]
-       with separator reformatter
-parser define bracket "{*" ... "*}" [data]
-       with multivalue reformatter ( "," )
+       with special reformatter
 \end{verbatim}\end{indpar}
 are included by the standard parser at the beginning of
 its `\TT{standard}' parser block.
@@ -4293,33 +4297,42 @@ Here the `\TT{with prefix separators allowed}' option permits the use of
 the typed brackets for {\em typed-prefix-separators} described in
 Section \itemref{TYPED-PREFIX-SEPARATORS}.
 
-The definitions
+The definition
 \begin{indpar}\begin{verbatim}
 parser define typed bracket "{" ... "|" ... "|" ... "}"
-                    [code, math, text, data]
+                    [data]
        // there are no element selectors
-       with parsing options [- end at line separator]
        with attribute selectors [data]
        with prefix separators allowed
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
        with attribute flags initiator "["
        with attribute multivalue initiator "{*"
-parser define bracket "[" ... "]" [code, math, text, data]
-       with parsing options [- end at line separator]
-parser define bracket "{*" ... "*}" [data]
-       with parsing options [- end at line separator]
-       with multivalue reformatter ( "," )
 \end{verbatim}\end{indpar}
-are included by the standard parser at the beginning of
+
+is builtin.  The definition
+
+\begin{indpar}\begin{verbatim}
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+                    [code, math, text, data]
+       // there are no element selectors
+       with attribute selectors [data]
+       with prefix separators allowed
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+\end{verbatim}\end{indpar}
+
+is included by the standard parser at the beginning of
 its `\TT{standard}' parser block.  Since there are no
-{\em element-selectors} in the typed bracket definition,
+{\em element-selectors} in either typed bracket definition,
 the parsing selectors
 for the {\em element-list} of a {\em typed-bracketed-subexpression}
 recognized by this definition are the same as the parsing selectors
 just outside the typed bracketed subexpression.
 The untyped bracket definitions for `\TT{[\ldots]}' and
-`\TT{\{*\ldots*\}}' and the operator definition for `\TT{,}',
+`\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BULITINS},
 all with the `\TT{data}' selector, are used to parse
 attribute flags and multivalue lists.
 

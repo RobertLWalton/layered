@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 22 03:08:31 EST 2016
+// Date:	Tue Nov 29 22:57:03 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -154,12 +154,12 @@ parser print prefix ""
 parser print prefix "X"
 
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
-       [code, text, math, parser]
+       [code, text, math, data]
        with element selectors [data]
        with attribute selectors [data]
        with attributes "::" ... "==" ... "#"
 parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
-       [code, text, math, parser]
+       [code, text, math, data]
        with element selectors [data]
        with attribute selectors [data, code]
        with attributes "::" ... "==" ... "#"
@@ -175,7 +175,7 @@ parser test (T1{T}T1 A B C)
 parser test (T2{T}T2 A B C)
 parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
 parser undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
-       [code, text, math, parser]
+       [code, text, math, data]
 parser test (T2{T}T2 A B C)
 
 parser begin block 1
@@ -194,7 +194,7 @@ parser end block 1
 
 parser begin block 1
 parser define typed bracket "8" ... "|" ... "|" ... "9"
-       [code, text, math, parser]
+       [code, text, math, data]
        with element selectors [data]
        with attribute selectors [data, code]
        with attributes ":" ... "=" ... ","

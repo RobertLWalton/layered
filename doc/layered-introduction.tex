@@ -4536,14 +4536,14 @@ The general syntax of {\em parser-prefix-commands} is:
 \emkey{lexical-master} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{prefix-options}
-    \begin{tabular}[t]{rl}
-    ::= & {\em parser-flag-list} ~~~~~ [see \pagref{PARSER-FLAG-LIST}] \\
-    ::= & \TT{[} {\em prefix-option} \{ \TT{,} {\em prefix-option} \TT{]}
-    \end{tabular}
+    ::= \TT{[]}
+    $|$ \TT{[} {\em prefix-option}
+               \{ \TT{,} {\em prefix-option} \}\STAR{} \TT{]}
 \\[0.5ex]
 \emkey{prefix-option}
     \begin{tabular}[t]{rl@{~~~~~}l}
-    ::= & {\em end-at-option}   & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
+    ::= & {\em end-at-option} & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
+    $|$ & \ttkey{sticky}
     \end{tabular}
 
 \end{indpar}
@@ -4579,7 +4579,7 @@ they all have some group).
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{UNINDENTED-PARAGRAPHS}.
 \RESERVE[0.6in]
-\hspace*{-0.2in}\ttmkey{options}{in prefix definition}\\
+\hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{implied subheader}{in prefix definition}\\
 For prefixes that are \TT{.types} of implied paragraph 

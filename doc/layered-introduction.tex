@@ -4704,6 +4704,15 @@ producing header lexemes.  Header lexemes are usually mapped
 to paragraph or line header \TT{PREFIX} tokens described in the
 next section.
 
+\subsubsection{Headed Lines}
+\label{HEADED-LINES}
+A `\key{headed line}'
+is a logical line that begins with a typed prefix separator
+in the `\TT{line}' group.  Separators in this group are only
+allowed at the beginning of logical lines.  The parser's output
+for a headed line is a MIN object with \TT{.type} and attributes
+taken from the prefix separator beginning the line and elements
+taken from the rest of the line.
 
 \subsubsection{Unindented Paragraphs}
 \label{UNINDENTED-PARAGRAPHS}

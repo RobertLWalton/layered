@@ -2383,7 +2383,7 @@ contains the unindented paragraph ends (this can be at an
 end of file).
 
 Details on paragraph headers are given in
-\itemref{UNINDENTED-PARAGRAPHS}.
+\itemref{HEADED-PARAGRAPHS}.
 
 \subsection{Parser Symbol Tables}
 \label{PARSER-SYMBOL-TABLES}
@@ -3052,11 +3052,13 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
     $|$ & {\em prefix-n-list}
 	& see \pagref{PREFIX-N-LIST} in \itemref{TYPED-PREFIX-SEPARATORS} \\
     $|$ & implied paragraph and line headers
-	& see \itemref{UNINDENTED-PARAGRAPHS} \\
+	& see \itemref{HEADED-PARAGRAPHS} \\
     $|$ & mapped lexemes
 	& see \itemref{MAPPED-LEXEMES} \\
-    $|$ & {\em unindented-paragraphs}
-	& see \itemref{UNINDENTED-PARAGRAPHS} \\
+    $|$ & {\em headed-lines}
+	& see \itemref{HEADED-LINES} \\
+    $|$ & {\em headed-paragraphs}
+	& see \itemref{HEADED-PARAGRAPHS} \\
     \end{tabular}
 \end{indpar}
 
@@ -3598,8 +3600,7 @@ The general syntax is:
 \emkey{indented-paragraph-subexpression} ::=
 	\begin{tabular}[t]{@{}l}
 	{\em indentation-mark} {\em line-break} \\
-	~~~~ \{ {\em paragraph-line}
-	     $|$ {\em unindented-paragraph} \}\STAR{} \\
+	~~~~ {\em paragraph-line}\STAR{} \\
 	{\em paragraph-end}
 	\end{tabular}
 \\[0.5ex]
@@ -3607,8 +3608,6 @@ The general syntax is:
                            a {\em line-separator}
 \\[0.5ex]
 {\em logical-line} ::= see \itemref{LOGICAL-LINES}
-\\[0.5ex]
-{\em unindented-paragraph} ::= see \itemref{UNINDENTED-PARAGRAPHS}
 \\[0.5ex]
 \emkey{paragraph-end}
     \begin{tabular}[t]{rl}
@@ -3632,11 +3631,9 @@ The general syntax is:
 the setting of the end-at options;
 See~\pagref{PARSING-END-AT-OPTIONS-1}.  The setting of these options can be
 controlled by the specification of the {\em indentation-mark}.
-{\em Un\-in\-den\-ted-paragraphs} are sequences of logical lines between
-blank lines or the ends of the containing indented paragraph, where
-the first logical line of the unindented paragraph begins with a
-paragraph header:
-see \itemref{UNINDENTED-PARAGRAPHS} for details.
+
+{\em Paragraph-lines} may be headed lines (see \itemref{HEADED-LINES})
+or may be grouped into headed paragraphs (see \itemref{HEADED-PARAGRAPHS}).
 
 An {\em indentation-mark} is specified by a
 \ttikey{parser define indentation mark}{indentation mark!parser define}
@@ -4577,7 +4574,7 @@ attribute if they all have the same group (which implies that
 they all have some group).
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
-see \itemref{UNINDENTED-PARAGRAPHS}.
+see \itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}.
 
 \hspace*{-0.2in}\ttmkey{implied subprefix}{in prefix definition} \\
 If the first thing in the {\em prefix-(n+1)-list}
@@ -4706,34 +4703,53 @@ next section.
 
 \subsubsection{Headed Lines}
 \label{HEADED-LINES}
-A `\key{headed line}'
-is a logical line that begins with a typed prefix separator
-in the `\TT{line}' group.  Separators in this group are only
-allowed at the beginning of logical lines.  The parser's output
-for a headed line is a MIN object with \TT{.type} and attributes
-taken from the prefix separator beginning the line and elements
-taken from the rest of the line.
 
-\subsubsection{Unindented Paragraphs}
-\label{UNINDENTED-PARAGRAPHS}
+A `\key{line header}' is a typed prefix separator that has
+the `\TT{line}' group.  Line headers may only
+appear at the beginning of a logical line, or immediately
+after a paragraph header (see \itemref{HEADED-PARAGRAPHS}).
 
-A `\key{paragraph separator}' is a maximal sequence of consecutive blank lines
-in an indented paragraph, assuming that comment lines (lines
-containing only a comment) are completely ignored.
-Paragraph separators separate the logical lines in an indented
-paragraph into `\skey{unindented paragraph}s'.
+A `\key{headed line}' is a logical line that begins with line header.
+The parser's output
+for a headed line is a MIN object whose \TT{.type} and attributes
+are taken from the line header and whose elements are
+taken from the rest of the line.  This output has \underline{no}
+\TT{.initiator} or \TT{.terminator}, unlike the parser's output
+for a logical line that has no line header.
 
-A typed prefix separator which has the `\TT{paragraph}' group can only 
-appear at the very beginning of an unindented paragraph, and is called
-the `\key{paragraph header}' of that paragraph.
+\subsubsection{Headed Paragraphs}
+\label{HEADED-PARAGRAPHS}
 
-A typed prefix separator which has the `\TT{line}' group can only 
-appear at the very beginning of a logical line paragraph, or immediately
-after a paragraph header that begins the line, and is called
-the `\key{line header}' of that line.
+A `\key{paragraph header}' is a typed prefix separator that has
+the `\TT{paragraph}' group.  Paragraph headers may only
+appear at the beginning of a logical line that is either the
+first logical line of an indented paragraph, or that follows
+a blank line in the indented paragraph, with intervening
+comment lines allowed.
 
-Paragraph headers and line headers may be implied or be the
-result of special lexeme replacement.
+A `\key{headed paragraph}' is a logical line that begins with paragraph header,
+plus all the following logical lines up until the headed paragraph end.
+A headed paragraph may ended by any blank line, or only by blank lines
+that are immediately followed by another (non-implicit) paragraph header.
+A headed paragraph is always ended by the end of its
+containing indented paragraph.
+
+The parser's output for a headed paragraph is a MIN object 
+whose \TT{.type} and attributes are taken from the paragraph header
+and whose elements are the logical lines in the headed paragraph.
+If the first logical line of the headed paragraph contains only
+the paragraph header, it is omitted from the list of elements
+(so there is no blank logical line).  The logical lines that
+are headed paragraph elements may or may not themselves have
+line headers.
+
+The indentation mark of an indented paragraph sets an
+\TT{implied paragraph header} line variable to either have
+a missing value or to have a paragraph header value.  If the value of
+this variable is not missing and a logical line beginning is
+encountered that is not part of some previous headed paragraph,
+a copy of this variable's value is inserted at the beginning of
+taht logical line.
 
 Consider the example:
 \begin{indpar}\begin{verbatim}

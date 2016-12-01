@@ -4717,6 +4717,14 @@ taken from the rest of the line.  This output has \underline{no}
 \TT{.initiator} or \TT{.terminator}, unlike the parser's output
 for a logical line that has no line header.
 
+The indentation mark of an indented paragraph sets an
+\TT{implied line header} variable to either have
+a missing value or to have a line header value.  If the value of
+this variable is not missing and a logical line with no line header
+is encountered,
+a copy of this variable's value is inserted at the beginning of
+that logical line.  See \itemref{LINE-VARIABLES} for details.
+
 \subsubsection{Headed Paragraphs}
 \label{HEADED-PARAGRAPHS}
 
@@ -4744,12 +4752,12 @@ are headed paragraph elements may or may not themselves have
 line headers.
 
 The indentation mark of an indented paragraph sets an
-\TT{implied paragraph header} line variable to either have
+\TT{implied paragraph header} variable to either have
 a missing value or to have a paragraph header value.  If the value of
 this variable is not missing and a logical line beginning is
 encountered that is not part of some previous headed paragraph,
 a copy of this variable's value is inserted at the beginning of
-taht logical line.
+that logical line.  See \itemref{LINE-VARIABLES} for details.
 
 Consider the example:
 \begin{indpar}\begin{verbatim}
@@ -4827,17 +4835,27 @@ The above example might be used to generate the output:
 
 \end{indpar}
 
+\subsubsection{Line Variables}
+\label{LINE-VARIABLES}
+
+
 
 While parsing an indented paragraph, the parser maintains the
-following `\skey{line variable}s'\label{LINE-VARIABLES}:
+following `\skey{line variable}s':
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttmkey{implied paragraph header}{line variable}\\
+    May be missing or set equal to a paragraph header.
+
     If this value is not missing and no explicit paragraph header
-    is found at the beginning of an unindented paragraph,
+    is found at the beginning of a logical line that is immediately
+    preceded by a blank line or the beginning of the containing
+    indented paragraph (which comment lines possibly intervening),
     a copy of this implied paragraph header variable value is inserted.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{implied line header}{line variable}\\
+    May be missing or set equal to a line header.
+
     If this value is not missing and no explicit line header
     at the beginning of a logical line or just after a paragraph
     header, a copy of this

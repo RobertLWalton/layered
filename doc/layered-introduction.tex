@@ -78,7 +78,7 @@
 % End \tableofcontents surgery.
 
 \newcommand{\RESERVE}[1][0.3in]%
-    {\par\rule[-#1]{0in}{#1}\vspace{-#1}\par}
+    {\par\rule[-#1]{0in}{#1}\vspace*{-#1}\vspace*{-\parsep}\par}
 
 \newcommand{\CN}[2]%	Change Notice.
     {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 30, 2016
+December 1, 2016
  
 \end{center}
 
@@ -4578,10 +4578,23 @@ they all have some group).
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{UNINDENTED-PARAGRAPHS}.
-\RESERVE[0.6in]
+
+\hspace*{-0.2in}\ttmkey{implied subprefix}{in prefix definition} \\
+If the first thing in the {\em prefix-(n+1)-list}
+following a {\em prefix-n} is not a prefix in the same group
+as the {\em prefix-n}'s \TT{implied subprefix} (and that is not
+missing), then a copy of
+the \TT{implied subprefix} is prepended to the {\em prefix-(n+1)-list}.
+In this case, the copied prefix must not attempt to change
+the parsing selectors.
+
+For prefixes that are \TT{.types} of implied paragraph 
+line header lexemes, this value may be used
+to set the \TT{implied line header}: see \pagref{LINE-VARIABLES}.
+
+\RESERVE[0.4in]
 \hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
-\hspace*{-0.2in}\ttmkey{implied subheader}{in prefix definition}\\
 For prefixes that are \TT{.types} of implied paragraph 
 or implied line header lexemes, these values may be used
 to set line variables: see \pagref{LINE-VARIABLES}.

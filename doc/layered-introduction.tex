@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 1, 2016
+December 2, 2016
  
 \end{center}
 
@@ -4540,7 +4540,7 @@ The general syntax of {\em parser-prefix-commands} is:
 \emkey{prefix-option}
     \begin{tabular}[t]{rl@{~~~~~}l}
     ::= & {\em end-at-option} & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
-    $|$ & \ttkey{sticky}
+    $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
     \end{tabular}
 
 \end{indpar}
@@ -4835,6 +4835,28 @@ The above example might be used to generate the output:
 
 \end{indpar}
 
+For this example the indented paragraph elements produced are
+the MIN objects:
+\begin{indpar}\begin{verbatim}
+{itemize: indent = 5em, mark = "*" |
+    {item: | 1 chicken |}
+    {item: | 1 tablespoon olive oil |}
+    {item: | 1 tablespoon paprika |} |}
+
+{itemize: indent = 5em, mark = "*" |
+    {item: a potato |}
+    {item: 1 tablespoon butter |} |}
+
+{table: |
+    {line: | ============= |}
+    {row: "|" 1 chicken "|" |}
+    {line: | ------------- |}
+    {row: | "|" 1 tablespoon olive oil "|" |}
+    {line: | - |}
+    {row: | "|" 1 tablespoon paprika |}
+    {line: | = |} |}
+\end{verbatim}\end{indpar}
+
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}
 
@@ -4920,32 +4942,49 @@ header} to a value given in the definition of the indentation mark.
 
 Whenever an explicit (non-implied) paragraph header is recognized,
 the \TT{implied paragraph header} is reset to a copy of the
-explicit paragraph header.
+explicit paragraph header, with the following exceptions.  If
+the explicit header has a definition with the \TT{sticky} option,
+the \TT{implied paragraph header} is not reset.  If
+the explicit header has a definition with the \TT{continuing}
+option, the \TT{implied paragraph header} is reset to missing.
+
+Whenever an explicit (non-implied) line header is recognized,
+the \TT{implied line header} is reset to a copy of the
+explicit line header, with the following exceptions.  If
+the explicit header has a definition with the \TT{sticky} option,
+the \TT{implied line header} is not reset.
 
 Whenever the \TT{implied paragraph header} is reset, the values
-set by any prefix definition
+set by its prefix definition
 are used to reset the \TT{paragraph selectors},
-\TT{paragraph options}, \TT{paragraph lexical master}, and
-\TT{implied line header}.
+\TT{paragraph options}, \TT{paragraph lexi\-cal master}, and
+\TT{implied line header}.  The \TT{implied line header} is set
+to the value of the definition's \TT{implied subprefix}.
 If there is no prefix definition (no active prefix symbol table
-entry for the \TT{implied paragraph header} {\tt.type}),
+entry for the \TT{implied paragraph header} \TT{.type}),
 all these variables are reset to missing.
 
 Similarly whenever the \TT{implied line header} is reset, the values
 set by any prefix definition
-for its {\tt .type} are used to reset the \TT{line selectors},
-\TT{line options}, and \TT{line lexical master}.  If the \TT{implied
+for its {\tt .type} are used to reset the \TT{line selectors}
+and \TT{line lexical master}.  If the \TT{implied
 line header} is set to missing, or its \TT{.type} has
 no active prefix definition,
 all these variables are reset to missing.
 
-It is in error if the implied paragraph header is set to a
-{\em typed-prefix-separator} which is not in the `\TT{paragraph}'
-group.  Similarly, it is in error if the implied line header is set to a
-{\em typed-prefix-separator} which is not in the `\TT{line}' group.
+\TT{Paragraph selectors} and \TT{line selectors}
+are computed by starting with
+the parsing selectors set by the indentation mark of the
+containing indented paragraph and applying the changes indicated
+by the paragraph or line header definition \TT{line selectors}.
 
-If the first thing after the indent token beginning an unindented
-paragraph is not an explicit paragraph header,
+It is in error if the \TT{implied paragraph header} is set to a
+{\em typed-prefix-separator} which is not in a paragraph header,
+or if the \TT{implied line header} is set to a
+{\em typed-prefix-separator} which is not a line header.
+
+If the first thing after the indent token beginning a logical line
+in paragraph beginning position is not an explicit paragraph header,
 and the \TT{implicit paragraph header} is not missing, a copy
 of the \TT{im\-pli\-cit paragraph header} is inserted at the beginning of
 the logical line.  If the first thing after any explicit or inserted
@@ -4960,8 +4999,12 @@ is read, then the selectors, options, and lexical master are set to
 their line variable paragraph values.\label{SETTINGS-AFTER-INDENT}
 When the indent beginning a logical line \underline{not}
 in paragraph beginning position
-is read, then the selectors, options, and lexical master are set to
+is read, then the selectors and lexical master are set to
 their line variable line values.
+
+It is an error if an implied header is inserted that would change
+the current parsing selectors.  This can only happen if an
+implied line header is inserted just after a paragraph header.
 
 The parser assumes that the lexical scanner is set up to obey
 the following rules:
@@ -4977,39 +5020,6 @@ first character is `\TT{\{}').
 
 \end{enumerate}
 
-During parsing of an unindented paragraph logical lines are
-used only to place headers, and are not used to format output.
-Thus an unindented paragraph presents as a paragraph header
-followed by lines each beginning with a line header, and
-this is reformatted according to the rules of {\em prefix-n-lists}
-(see \itemref{TYPED-PREFIX-SEPARATORS}) to become a single
-MIN object whose attributes come from the paragraph header
-and whose elements are single MIN objects each representing
-a logical line whose attributes come from the line's line header
-and whose elements arise from the rest of the logical line.
-
-Thus for the example at the beginning of this section the
-indented paragraph elements are not logical lines but rather
-the MIN objects:
-\begin{indpar}\begin{verbatim}
-{itemize: indent = 5em, mark = "*" |
-    {item: | 1 chicken |}
-    {item: | 1 tablespoon olive oil |}
-    {item: | 1 tablespoon paprika |} |}
-
-{itemize: indent = 5em, mark = "*" |
-    {item: a potato |}
-    {item: 1 tablespoon butter |} |}
-
-{table: |
-    {line: | ============= |}
-    {row: "|" 1 chicken "|" |}
-    {line: | ------------- |}
-    {row: | "|" 1 tablespoon olive oil "|" |}
-    {line: | - |}
-    {row: | "|" 1 tablespoon paprika |}
-    {line: | = |} |}
-\end{verbatim}\end{indpar}
 
 \subsubsection{Bracketed Parser Print Commands}
 \label{BRACKETED-PARSER-PRINT-COMMANDS}

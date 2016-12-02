@@ -4845,3 +4845,17 @@ BRACKETED EXPRESSION:
     line 175:
 the line after the outer paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED EXPRESSION:
+    This logical line is followed by an empty logical line;
+@301 = This logical line is followed by an empty logical line:
+           .terminator = ";"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = {}
+    line 177:
+This logical line is followed by an empty logical line;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

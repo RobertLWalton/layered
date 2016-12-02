@@ -3703,7 +3703,21 @@ Line separators are only recognized outside explicitly
 bracketed subexpressions (untyped bracketed or typed bracketed)
 in the paragraph.
 
-Each paragraph line is converted to a MIN object whose elements are
+\ikey{Empty logical lines}{empty logical line} with no ending
+{\em line-separator} are always ignored as if they did not exist%
+\label{NON-EMPTY-PARAGRAPH-LINE-RULE}.
+This rule allows physical lines such as
+\begin{center}
+\tt This logical line is followed by an empty logical line;
+\end{center}
+to represent a single paragraph line, instead of two paragraph lines
+the second of which is empty.  All paragraph lines
+are non-empty.
+
+A paragraph line may be a headed line (that has a line header:
+see \itemref{HEADED-LINES})
+or be part of a headed paragraph (see: \itemref{HEADED-PARAGRAPHS}).
+Any other paragraph line is converted to a MIN object whose elements are
 the components of the line, treated as subexpression components, except for
 any {\em line-separator} that ends the line.  This
 object is given a \TT{.initiator} attribute value
@@ -3713,28 +3727,21 @@ it is given a \TT{.terminator} attribute equal to the
 {\em line-separator}, and otherwise it is given a
 \TT{.terminator} attribute equal to \TT{"<LF>"}.
 
-However, an \key{empty logical line} with no ending
-{\em line-separator} is ignored as if it did not exist%
-\label{NON-EMPTY-PARAGRAPH-LINE-RULE}.
-This rule allows physical lines such as
-\begin{center}
-\tt This logical line is followed by an empty logical line;
-\end{center}
-to represent a single paragraph line, instead of two paragraph lines
-the second of which is empty.  Therefore all paragraph lines
-are non-empty.
+Headed lines are converted to a MIN object with attributes
+(including \TT{.type}) taken from their line header and
+elements taken from the rest of the logical line.  See
+\itemref{HEADED-LINES} for details.
 
-A logical line that follows a blank line or the indented paragraph
-beginning and itself begins with a paragraph header begins
-an unindented paragraph.  The unindented paragraph ends with the
-next blank line or the end of the containing indented paragraph.
-Unindented paragraphs become a single MIN object whose \TT{.type}
-and attributes
-are taken from the paragraph header and whose elements are
-the logical lines in the unindented paragraph.
+A headed paragraph is converted to a single MIN object
+that becomes an element in the indented paragraph.
+This MIN object has attributes (including \TT{.type})
+taken from its paragraph header and
+elements that are the logical lines belonging to the headed paragraph.
+See \itemref{HEADED-LINES} for details.
 
 The paragraph as a whole is converted to a MIN object whose elements
-are the paragraph lines or unindented paragraphs,
+are the MIN objects produced by paragraph lines outside headed
+paragraphs and headed paragraphs,
 whose \TT{.initiator} attribute
 is the {\em indentation-mark} that introduced the paragraph,
 and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
@@ -3765,6 +3772,8 @@ Then a new selector set and new options are computed by modifying the saved set
 according to the {\em new-selectors} and the saved options according
 to the {\em end-at-options} in the indentation mark definition,
 and a new line separator is set according to that definition.
+A new set of line variables is computed for use in parsing the
+indented paragraph, as per \itemref{LINE-VARIABLES}.
 The saved selector set, options, and line separator
 are restored after the end of paragraph is recognized.
 Note that if no {\em new-selectors} are given, the selectors
@@ -3784,7 +3793,8 @@ modifications in the parser tables.  Also, the initial
 \key{top level current indent}\index{current indent!top level}
 is set to \TT{0}, and an error is announced if the first non-comment,
 non-line-break, non-end-of-file
-lexeme in the file has non-zero indent.
+lexeme in the file has non-zero indent.  The top level line
+variables are all set to missing.
 
 Comments are ignored when determining line indentation, but may
 cause errors to be announced.  A comment is considered to be in error
@@ -4939,6 +4949,9 @@ paragraph or line headers.
 
 When an indentation mark is recognized, it sets the \TT{implied paragraph
 header} to a value given in the definition of the indentation mark.
+If this value is missing, the indentation mark sets both
+\TT{lexical master} line variables to the \TT{lexical master}
+given in the definition of the indentation mark.
 
 Whenever an explicit (non-implied) paragraph header is recognized,
 the \TT{implied paragraph header} is reset to a copy of the

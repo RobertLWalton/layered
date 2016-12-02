@@ -4839,6 +4839,9 @@ The above example might be used to generate the output:
 \label{LINE-VARIABLES}
 
 
+A logical line is said to be in `\key{paragraph beginning position}'
+if it follows a blank line or the beginning of its containing
+indented paragraph, with comment lines possibly intervening.
 
 While parsing an indented paragraph, the parser maintains the
 following `\skey{line variable}s':
@@ -4848,10 +4851,9 @@ following `\skey{line variable}s':
     May be missing or set equal to a paragraph header.
 
     If this value is not missing and no explicit paragraph header
-    is found at the beginning of a logical line that is immediately
-    preceded by a blank line or the beginning of the containing
-    indented paragraph (which comment lines possibly intervening),
-    a copy of this implied paragraph header variable value is inserted.
+    is found at the beginning of a logical line in paragraph beginning
+    position, a copy of this implied paragraph header variable value
+    is inserted at the beginning of the logical line.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{implied line header}{line variable}\\
     May be missing or set equal to a line header.
@@ -4860,28 +4862,37 @@ following `\skey{line variable}s':
     at the beginning of a logical line or just after a paragraph
     header, a copy of this
     implied line header variable value is inserted.
+    However, no line header copy is inserted after a paragraph header
+    that is the only element in its logical line.
+
+    If a copy of the \TT{implied paragraph header} is to be inserted
+    at the beginning of a logical line, this is done before any
+    copy of the \TT{implied line header}.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
     The parsing selectors are reset to this value just after the
-    indent token that begins an unindented paragraph.
+    indent token that begins a logical line in paragraph beginning
+    position.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line selectors}{line variable}\\
     The parsing selectors are reset to this value just after the
-    indent token that begins a logical line that is not the
-    first logical line of an unindented paragraph.
+    indent token that begins a logical line that is \underline{not}
+    in paragraph beginning position.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
     The parsing options are reset to this value just after the
-    indent token that begins an unindented paragraph.
+    indent token that begins a logical line in paragraph beginning
+    position.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
     The lexical master is reset to this value just after the
-    indent token that begins an unindented paragraph.
+    indent token that begins a logical line in paragraph beginning
+    position.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
     The lexical master is reset to this value just after the
-    indent token that begins a logical line that is not the
-    first logical line of an unindented paragraph.
+    indent token that begins a logical line that is \underline{not}
+    in paragraph beginning position.
 \end{indpar}
 
 The prefix definition of a header consists of the set of values

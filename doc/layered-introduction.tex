@@ -3368,7 +3368,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 	& \hspace*{3em} & [ \TT{with parsing selectors}
 	                    ~ {\em new-selectors} ] \\
         &               & [ \TT{with parsing options}
-	                    ~ {\em end-at-options} ] \\
+	                    ~ {\em bracket-options} ] \\
         &               & [ \TT{with}
 			    ~ {\em reformatter-name}
 			    ~ \TT{reformatter}
@@ -3391,7 +3391,8 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
-\emkey{end-at-options} ::= {\em parser-flag-spec}
+\emkey{bracket-options} ::= {\em parser-flag-spec}
+	~ except ~ `\TT{end at line separator}'
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 
 \end{indpar}
@@ -3688,8 +3689,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
-\emkey{header} ::= MIN object with \TT{.type} and no elements
-        (i.e., a prefix separator: see \pagref{LINE-VARIABLES})
+\emkey{header} ::= {\em paragraph-header} ~~~ [see \itemref{HEADED-PARAGRAPHS}]
 \\[0.5ex]
 \emkey{master-name} ::= {\em quoted-key}
 \\[0.5ex]
@@ -3701,7 +3701,8 @@ paragraph lines, as long as the \TT{end at line sepa\-ra\-tor}
 (\pagref{END-AT-LINE-SEPARATOR}) option permits.
 Line separators are only recognized outside explicitly
 bracketed subexpressions (untyped bracketed or typed bracketed)
-in the paragraph.
+in the paragraph.  Line separators may not be used in headed lines
+or headed paragraphs.
 
 \ikey{Empty logical lines}{empty logical line} with no ending
 {\em line-separator} are always ignored as if they did not exist%
@@ -3717,9 +3718,10 @@ are non-empty.
 A paragraph line may be a headed line (that has a line header:
 see \itemref{HEADED-LINES})
 or be part of a headed paragraph (see: \itemref{HEADED-PARAGRAPHS}).
-Any other paragraph line is converted to a MIN object whose elements are
+Any other paragraph line is converted to a MIN object that becomes an
+element of the indented paragraph.  The elements of this object are
 the components of the line, treated as subexpression components, except for
-any {\em line-separator} that ends the line.  This
+any {\em line-separator} that ends the line.  The
 object is given a \TT{.initiator} attribute value
 equal to \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 If it ends with a {\em line-separator},
@@ -3741,15 +3743,15 @@ See \itemref{HEADED-LINES} for details.
 
 The paragraph as a whole is converted to a MIN object whose elements
 are the MIN objects produced by paragraph lines outside headed
-paragraphs and headed paragraphs,
-whose \TT{.initiator} attribute
+paragraphs and headed paragraphs.
+The \TT{.initiator} attribute of this paragraph MIN object
 is the {\em indentation-mark} that introduced the paragraph,
-and whose \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
-A paragraph may be empty (have no paragraph lines or unindented paragraphs).
+and the \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
+A paragraph may be empty (have no paragraph lines or object elements).
 
 The \TT{implied paragraph header} and \TT{lexical master} parameters
 are used to initialize line variables
-that affect the parsing of unindented paragraphs: see \pagref{LINE-VARIABLES}.
+that affect the parsing of indented paragraphs: see \pagref{LINE-VARIABLES}.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
@@ -3763,13 +3765,14 @@ is greater than the current indent.  Here $N$ is called the
 changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
 end of the block.  The indentation offsets of the current blocks
-can be printed by the \TT{parser print indentation offset} command:
-see \pagref{BRACKETED-PARSER-PRINT-COMMAND}.
+can be printed by the \TT{parser print indentation offset} command
+(\pagref{BRACKETED-PARSER-PRINT-COMMAND}).
 
 When an {\em indentation-mark} is recognized, the current parsing
 selector set, parsing options, and line separator are saved in a stack.
-Then a new selector set and new options are computed by modifying the saved set
-according to the {\em new-selectors} and the saved options according
+Then a new selector set and new options are computed by modifying
+the saved selector set
+according to the {\em new-selectors} and modifying the saved options according
 to the {\em end-at-options} in the indentation mark definition,
 and a new line separator is set according to that definition.
 A new set of line variables is computed for use in parsing the
@@ -3784,7 +3787,8 @@ a paragraph line.
 
 \ikey{Top level parsing}{top level parsing}
 of a file recognizes paragraph lines as if the whole
-file were an indented paragraph, and forms each line into a MIN object.
+file were an indented paragraph, and forms each line or headed
+paragraph into a MIN object.
 However,
 these are \underline{not} combined into a paragraph MIN object, but
 are instead processed as they are produced.  In particular, if they
@@ -3794,7 +3798,7 @@ modifications in the parser tables.  Also, the initial
 is set to \TT{0}, and an error is announced if the first non-comment,
 non-line-break, non-end-of-file
 lexeme in the file has non-zero indent.  The top level line
-variables are all set to missing.
+variables (\itemref{LINE-VARIABLES}) are all set to missing.
 
 Comments are ignored when determining line indentation, but may
 cause errors to be announced.  A comment is considered to be in error
@@ -4256,7 +4260,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  {}[ \TT{with attribute selectors}
 	      {\em typed-attribute-selectors} ] \\
 	  {}[ \TT{with parsing options}
-	      {\em end-at-options} ] \\
+	      {\em bracket-options} ] \\
 	  {}[ \TT{with prefix separators allowed} ] \\
 	  {}[ \TT{with attributes} {\em typed-attribute-punctuation} ] \\
 	  {}[ \TT{with attribute negator} {\em typed-attribute-negator} ] \\
@@ -4294,7 +4298,8 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{typed-element-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
-\emkey{end-at-options} ::= {\em parser-flag-spec}
+\emkey{bracket-options} ::= {\em parser-flag-spec}
+	~ except ~ `\TT{end at line separator}'
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
@@ -4549,7 +4554,8 @@ The general syntax of {\em parser-prefix-commands} is:
 \\[0.5ex]
 \emkey{prefix-option}
     \begin{tabular}[t]{rl@{~~~~~}l}
-    ::= & {\em end-at-option} & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
+    ::= & {\em end-at-option} ~ except ~ `\TT{end at line separator}'
+        & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
     $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
     \end{tabular}
 

@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 2, 2016
+December 3, 2016
  
 \end{center}
 
@@ -3489,7 +3489,8 @@ token whose \TT{value} is the special value named.
 \end{indpar}
 
 \ttmkey{multivalue}{reformatter} \TT{(} {\em separator} \TT{)}
-	\hfill e.g.:~\ttmkey{\{*~*\}}{reformatting}
+	\hfill e.g.:~\ttmkey{\{*~*\}}{reformatting}%
+	\label{MULTIVALUE-REFORMATTER}
 
 \begin{indpar}[0.5em]
 Requires that the expression element values be MIN strings,
@@ -3833,6 +3834,8 @@ where \ldots{} denotes a list of elements:
 \TT{\{my attribute = 5|} ~~~\ldots~~~
     \TT{|my option = TRUE: my type\}} \\
 \TT{\{my type|} ~~~\ldots~~~
+    \TT{|my attribute = 5, my option\}} \\
+\TT{\{my type|} ~~~\ldots~~~
     \TT{|my attribute = 5, my option: my type\}} \\
 \TT{\{|} ~~~\ldots~~~ \TT{|my attribute = 5, my option: my type\}} \\
 \TT{\{|} ~~~\ldots~~~ \TT{|\}} \\
@@ -3954,15 +3957,18 @@ and it contains some combination of the 64 flag characters:
 \end{tabular}
 \end{center}
 More flags can be represented by natural number flag indices
-greater than \TT{64} which are separated from each other
-and from any flag character lexeme by commas.  Some examples
-are:
+(e.g., \TT{64}) which are separated from each other
+and from any flag character by commas.  These commas may be
+separate lexemes (e.g., trailing separators, as in `\TT{*,~64}' )
+or may be embedded inside lexemes (as in `\TT{*,64}').  Flag
+characters can be separated from each other by commas, which are
+ignored (as in `\TT{*,/}' or `\TT{*,~/}').  Some examples are:
 \begin{center}
 \begin{tabular}{l}
 \TT{\{.format[H] = (3,4)|A B C|\}} \\
-\TT{\{.format[H,65] = (3,4)|A B C|\}} \\
-\TT{\{.format[65] = (3,4)|A B C|\}} \\
-\TT{\{.format[65,H,256] = (3,4)|A B C|\}} \\
+\TT{\{.format[H,64] = (3,4)|A B C|\}} \\
+\TT{\{.format[64] = (3,4)|A B C|\}} \\
+\TT{\{.format[64,H, 256] = (3,4)|A B C|\}} \\
 \end{tabular}
 \end{center}
 
@@ -4107,17 +4113,23 @@ The general syntax is:
     as per {\em parser-typed-bracket-command}
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-flags-separator} ::= {\em key} ~~~ [e.g., `\TT{,}']
+\emkey{typed-attribute-flags-separator} :::= \TT{,} ~~~ [cannot be changed]
 \\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g., `\TT{]}']
+\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g., `\TT{]}', ~
+    as per {\em parser-untyped-bracket-command}
+    \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{attribute-multivalue-opening} ::= {\em key} ~~~ [e.g., `\TT{\{*}', ~
     as per {\em parser-typed-bracket-command}
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g., `\TT{,}']
+\emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g., `\TT{,}', ~
+    as per \TT{multivalue} reformatter
+    \pagref{MULTIVALUE-REFORMATTER}]
 \\[0.5ex]
-\emkey{attribute-multivalue-closing} ::= {\em key} ~~~ [e.g., `\TT{*\}}']
+\emkey{attribute-multivalue-closing} ::= {\em key} ~ [e.g., `\TT{*\}}', ~
+    as per {\em parser-untyped-bracket-command}
+    \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=
     \begin{tabular}[t]{@{}l}

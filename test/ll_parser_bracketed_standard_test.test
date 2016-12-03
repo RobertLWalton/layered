@@ -3831,6 +3831,35 @@ BRACKETED EXPRESSION:
 ^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {+  +}
+@@@@ =:
+           .type = "+"
+           .position[H] = {}
+    line ###:
+{+}
+^^^
+BRACKETED EXPRESSION:
+    {+  +}
+@@@@ =:
+           .type = "+"
+           .position[H] = {}
+    line ###:
+{+}
+^^^
+BRACKETED EXPRESSION:
+    {+  +}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{+}
+^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "{" "*" >]

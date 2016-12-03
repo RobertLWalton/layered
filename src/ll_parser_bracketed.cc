@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 29 10:22:47 EST 2016
+// Date:	Fri Dec  2 19:39:16 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -860,7 +860,9 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 // a label containing these tokens.  Convert quoted
 // string and numeric tokens to strings.  Announce
 // non-name components as errors and replace their
-// values with "ERRONEOUS-LABEL-COMPONENT".
+// values with "ERRONEOUS-LABEL-COMPONENT".  If
+// allow_sublabels is false, also treat components
+// that are themselves labels as errors.
 //
 // If there are 0 label components, make an empty label,
 // and if there is exactly 1 component, use the value of
@@ -883,7 +885,8 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 static void make_label
     ( PAR::parser parser,
       PAR::token & first,
-      PAR::token next )
+      PAR::token next,
+      bool allow_sublabels = false )
 {
     min::unsptr count = 0;
     min::phrase_position position =
@@ -924,7 +927,9 @@ static void make_label
 	    break;
 
 	case PAR::DERIVED:
-	    if ( min::is_lab ( t->value ) )
+	    if ( min::is_lab ( t->value ) 
+	         &&
+		 allow_sublabels )
 	        continue;
 
 	default:
@@ -3021,7 +3026,7 @@ static bool label_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    ::make_label ( parser, first, next );
+    ::make_label ( parser, first, next, true );
     first->position = position;
 
     PAR::trace_subexpression

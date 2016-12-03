@@ -3328,7 +3328,6 @@ The general syntax is:
     $|$ & {\em untyped-bracketed-subexpression} \\
     $|$ & {\em indented-paragraph-subexpression} \\
     $|$ & {\em typed-bracketed-subexpression} \\
-    $|$ & {\em typed-prefix-separator} \\
     \end{tabular}
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
@@ -4046,9 +4045,9 @@ The general syntax is:
     but \underline{not} {\em mark} or {\em separator} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{type-label} ::= {\em label}
+\emkey{type-label} ::= {\em label}\label{TYPE-LABEL}
 \\[0.5ex]
-\emkey{type-mark} ::= {\em mark}
+\emkey{type-mark} ::= {\em mark}\label{TYPE-MARK}
 \\[0.5ex]
 \emkey{attribute-label} ::= {\em label} {\em attribute-flags}\QMARK{}
 \\[0.5ex]
@@ -4423,7 +4422,7 @@ Some examples are:
 \TT{\{my type: my attribute = 5, your option = FALSE\}} \\
 \TT{\{my type: my attribute = 5, my option\}} \\
 \TT{\{my type: my attribute = 5, not your option\}} \\
-\TT{\{*\}} \\
+\TT{\{+\}} \\
 \end{center}
 
 The general syntax of a typed prefix separator is:
@@ -4434,10 +4433,16 @@ The general syntax of a typed prefix separator is:
     ::= & {\em typed-opening}~~~{\em type-label}~~~%
           {\em opening-attributes}\QMARK{}~~~{\em typed-closing} \\
     $|$ & {\em typed-opening}~~~{\em type-mark}~~~{\em typed-closing} \\
-    \end{tabular} \\
+    \end{tabular}
+\\[0.5em]
 \emkey{opening-attributes}
-    ::= {\em typed-attribute-begin}~~~{\em attribute-list} \\
+    ::= {\em typed-attribute-begin}~~~{\em attribute-list}
+\\[0.5em]
 \emkey{attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
+\\[0.5em]
+\emkey{type-label} ::= see \pagref{TYPE-LABEL}
+\\[0.5em]
+\emkey{type-mark} ::= see \pagref{TYPE-MARK}
 \end{indpar}
 
 The ~ `\TT{with prefix separators allowed}' ~ option to a
@@ -4476,9 +4481,9 @@ Text	& Separator &  Syntactic Category
 
 The {\em prefix-0-list} in this example is equivalent to:
 \begin{indpar}\begin{verbatim}
-{|  {p|  {s| This is a sentence . |}
-         {s| And another . |} |}
-    {p|  {s| And a new paragraph . |} |} |}
+{|  {p|  {s| This is a sentence "." |}
+         {s| And another "." |} |}
+    {p|  {s| And a new paragraph "." |} |} |}
              // `{foo}' deleted
 \end{verbatim}\end{indpar}
 

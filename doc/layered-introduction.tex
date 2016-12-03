@@ -3958,24 +3958,23 @@ and it contains some combination of the 64 flag characters:
 \end{center}
 More flags can be represented by natural number flag indices
 (e.g., \TT{64}) which are separated from each other
-and from any flag character by commas.  These commas may be
-separate lexemes (e.g., trailing separators, as in `\TT{*,~64}' )
-or may be embedded inside lexemes (as in `\TT{*,64}').  Flag
-characters can be separated from each other by commas, which are
-ignored (as in `\TT{*,/}' or `\TT{*,~/}').  Some examples are:
+and from any flag character by comma separators.
+Multiple non-number flag lexemes, separated by comma separators,
+can also be used.  Some examples are:
 \begin{center}
 \begin{tabular}{l}
-\TT{\{.format[H] = (3,4)|A B C|\}} \\
-\TT{\{.format[H,64] = (3,4)|A B C|\}} \\
-\TT{\{.format[64] = (3,4)|A B C|\}} \\
-\TT{\{.format[64,H, 256] = (3,4)|A B C|\}} \\
+\TT{\{my attribute [H] = (3,4)|A B C|\}} \\
+\TT{\{my attribute [H, 64] = (3,4)|A B C|\}} \\
+\TT{\{my attribute [64] = (3,4)|A B C|\}} \\
+\TT{\{my attribute [64, HJ, 256] = (3,4)|A B C|\}} \\
+\TT{\{my attribute [64, H, J, 256] = (3,4)|A B C|\}} \\
 \end{tabular}
 \end{center}
 
 The 64 flag characters listed above are associated with flag
 indices \TT{0} through \TT{63} in order: `\TT{*}' is associated
 with index \TT{0} and `\TT{Z}' with index \TT{63}.
-Thus `\TT{[+Y]}', `\TT{[1,Y]}', `\TT{[+,62]}', and `\TT{[62,1]}'
+Thus `\TT{[+Y]}', `\TT{[1,~Y]}', `\TT{[+,~62]}', and `\TT{[62,~1]}'
 are equivalent as attribute flag specifiers.
 
 

@@ -3,7 +3,7 @@ parser print selector "":
     block TOP LEVEL: prefix
     block TOP LEVEL: data
 parser define selector my selector
-ERROR: in line 13: extraneous stuff after:
+ERROR: in line ##: extraneous stuff after:
 parser define selector operator 1 ++ extra stuff
                                 ^
 parser print selector "":
@@ -30,50 +30,50 @@ parser print trace:
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser trace [+ parser input]
-WORD: "parser": line 19:
+WORD: "parser": line ##:
 parser print trace
 ^^^^^^
-WORD: "print": line 19:
+WORD: "print": line ##:
 parser print trace
        ^^^^^
-WORD: "trace": line 19:
+WORD: "trace": line ##:
 parser print trace
              ^^^^^
-LINE_BREAK: line 19:
+LINE_BREAK: line ##:
 parser print trace
                   ^
-INDENT: line 20:
+INDENT: line ##:
 parser trace [- parser input]
 ^
 parser print trace:
     [ + warnings, + parser input, - parser output, + parser commands,
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
-WORD: "parser": line 20:
+WORD: "parser": line ##:
 parser trace [- parser input]
 ^^^^^^
-WORD: "trace": line 20:
+WORD: "trace": line ##:
 parser trace [- parser input]
        ^^^^^
-SEPARATOR: "[": line 20:
+SEPARATOR: "[": line ##:
 parser trace [- parser input]
              ^
-MARK: "-": line 20:
+MARK: "-": line ##:
 parser trace [- parser input]
               ^
-WORD: "parser": line 20:
+WORD: "parser": line ##:
 parser trace [- parser input]
                 ^^^^^^
-WORD: "input": line 20:
+WORD: "input": line ##:
 parser trace [- parser input]
                        ^^^^^
-SEPARATOR: "]": line 20:
+SEPARATOR: "]": line ##:
 parser trace [- parser input]
                             ^
-LINE_BREAK: line 20:
+LINE_BREAK: line ##:
 parser trace [- parser input]
                              ^
-INDENT: line 21:
+INDENT: line ##:
 parser print trace
 ^
 parser trace [- parser input]
@@ -134,14 +134,14 @@ parser print context "":
 ======= END TEST
 parser trace [+ subexpression lines]
 ======= TEST:
-------- line 35:
+------- line ##:
 parser test [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
 ======= TEST:
-@1 = parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")"
+@@ = parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")"
              ")" "]":
          .terminator = "<LF>"
          .position[H] = {}
@@ -150,7 +150,7 @@ parser trace [+ subexpression details]
 parser trace [+ subexpression elements]
 ======= TEST: parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n
                   "(" p ")" ")" "]"
-@2 = parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")"
+@@ = parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")"
              ")" "]":
          .terminator = "<LF>"
          .position[H] = {}
@@ -163,7 +163,7 @@ parser trace [- subexpression details]
 parser trace [+ subexpression lines]
 ======= TEST: parser test "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n
                   "(" p ")" ")" "]"
-------- line 44:
+------- line ##:
 parser test [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
@@ -177,19 +177,19 @@ parser print context "parser<SP>test<SP>special":
                                                 end at line separator,
                                                 end at outer closing]
 ======= TEST: parser test special [x <+ y +> z {w|4|w} m (n (p))]
-------- line 51:
+------- line ##:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 51:
+------- line ##:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 51:
+------- line ##:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                                   ^^^^^^
-------- line 51:
+------- line ##:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                                            ^^^^^^^
-------- line 51:
+------- line ##:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
                                               ^^^
 ======= END TEST
@@ -219,7 +219,7 @@ parser print context "parser":
     block TOP LEVEL: parser test []
 ======= TEST: parser test special "[" x <+ y +> z "{" "|" 4 "|" w "}" m
                   "(" n "(" p ")" ")" "]"
-------- line 57:
+------- line ##:
 parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

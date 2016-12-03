@@ -4186,13 +4186,16 @@ untyped bracketed subexpression, the {\em typed-closing}
 of a containing typed bracketed subexpression with a different
 {\em typed-closing}, the end of the logical line
 containing the typed bracketed subexpression,
-or an end of file.
+or an end of file.  However, the end must be enabled by the
+parsing options (e.g., a {\em closing-bracket} cannot pre-maturely
+end a subexpression if `\TT{end at outer closing}' is not a parsing
+option).
 
 When a {\em typed-opening} is recognized, the current parsing
 selector set and options are saved in a stack and
 a new selector set and new options are computed by modifying the saved set
 and options
-according to {\em element-selectors} and {\em end-at-options}
+according to {\em element-selectors} and {\em bracket-options}
 associated with the {\em typed-opening}
 (see the \TT{parser define typed bracket}
 command below).  The modified selector set and options become the current
@@ -4214,7 +4217,7 @@ parser command.  An example is:
 \TT{parser define typed bracket "\{"~...~"|"~...~"|"~...~"\}"} \\
 \TT{~~~~[text]~} \\
 \TT{~~~~with element selectors [- data]} \\
-\TT{~~~~with parsing options [- end at line separator]} \\
+\TT{~~~~with parsing options [- end at outer closing]} \\
 \TT{~~~~with attribute selectors [data]} \\
 \TT{~~~~with attributes ":"~...~"="~...~","} \\
 \TT{~~~~with attribute negator "no"} \\
@@ -4229,9 +4232,9 @@ which specifies
 `\TT{\{}' to be a {\em typed-opening} \\
 `\TT{|}' to be a {\em typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
-`\TT{text}' to be the sole definition selector \\
+`\TT{code}' to be the sole definition selector \\
 `\TT{[- data]}' to be the {\em element-selectors} \\
-`\TT{[- end at line separator]}' to be the {\em end-at-options} \\
+`\TT{[- end at outer closing]}' to be the {\em bracket-options} \\
 `\TT{[data]}' to be the {\em attribute-selectors} \\
 `\TT{:}' to be the {\em typed-attribute-begin} \\
 `\TT{=}' to be the {\em typed-attribute-equal} \\
@@ -4346,13 +4349,14 @@ The definition
 \begin{indpar}\begin{verbatim}
 parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [data]
+       // `||' abbreviates `| |'
        // there are no element selectors
        with attribute selectors [data]
-       with prefix separators allowed
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
        with attribute flags initiator "["
        with attribute multivalue initiator "{*"
+       with prefix separators allowed
 \end{verbatim}\end{indpar}
 
 is builtin.  The definition
@@ -4360,13 +4364,14 @@ is builtin.  The definition
 \begin{indpar}\begin{verbatim}
 parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [code, math, text, data]
+       // `||' abbreviates `| |'
        // there are no element selectors
        with attribute selectors [data]
-       with prefix separators allowed
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
        with attribute flags initiator "["
        with attribute multivalue initiator "{*"
+       with prefix separators allowed
 \end{verbatim}\end{indpar}
 
 is included by the standard parser at the beginning of

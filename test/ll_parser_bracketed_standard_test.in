@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  2 12:37:49 EST 2016
+// Date:	Sat Dec  3 01:03:20 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -122,6 +122,7 @@ parser print bracket ""
 {my type: my attribute = 5, your option = FALSE| a b c |my type}
 {my type: my attribute = 5| a b c |your option = FALSE: my type}
 {my attribute = 5| a b c |my option = TRUE: my type}
+{my type| a b c |attribute = 5, my option}
 {my type| a b c |attribute = 5, my option: my type}
 {| a b c |attribute = 5, my option: my type}
 {|a b c|}

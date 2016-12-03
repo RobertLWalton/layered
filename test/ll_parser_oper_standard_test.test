@@ -1,56 +1,56 @@
 ======= TEST: parser test [x (y) z {{u, v, w}} m (n (p))]
-------- line 11:
+------- line ##:
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 11:
+------- line ##:
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 11:
+------- line ##:
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
                 ^^^^^
-------- line 11:
+------- line ##:
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
                         ^^^^^^^^^^^
-------- line 11:
+------- line ##:
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
                                       ^^^^^^^
-------- line 11:
+------- line ##:
 parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
                                          ^^^
 ======= END TEST
 ======= TEST: parser test ({}, x, {|y 4|}, {}, z, {}, {})
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
             ^^^^^^^^^^^^^^^^
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
              ^
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
                   ^^^
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
                       ^
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
                           ^
-------- line 12:
+------- line ##:
 parser test (, x, y 4,, z,,)
                            ^
 ======= END TEST
 ======= TEST: parser test
                   {"": .operator = "=", .terminator = ")", .initiator =
                        "("|= x {"": .operator = "+="|+= y z|}|}
-------- line 13:
+------- line ##:
 parser test ( x = y += z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 13:
+------- line ##:
 parser test ( x = y += z )
             ^^^^^^^^^^^^^^
-------- line 13:
+------- line ##:
 parser test ( x = y += z )
                   ^^^^^^
 ======= END TEST
@@ -58,29 +58,29 @@ parser test ( x = y += z )
                   {"": .operator = "=", .terminator = [< "}" "}" >],
                        .initiator = [< "{" "{" >]|= x1
                        {"": .operator = "+="|+= y2 z|}|}
-------- line 14:
+------- line ##:
 parser test {{ x1 = y2 += z }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 14:
+------- line ##:
 parser test {{ x1 = y2 += z }}
             ^^^^^^^^^^^^^^^^^^
-------- line 14:
+------- line ##:
 parser test {{ x1 = y2 += z }}
                     ^^^^^^^
 ======= END TEST
 ======= TEST: parser test
                   {{{"": .operator = "="|= x1 y2|},
                     {"": .operator = "+="|+= z2 z5|}}}
-------- line 15:
+------- line ##:
 parser test {{ x1 = y2, z2 += z5 }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 15:
+------- line ##:
 parser test {{ x1 = y2, z2 += z5 }}
             ^^^^^^^^^^^^^^^^^^^^^^^
-------- line 15:
+------- line ##:
 parser test {{ x1 = y2, z2 += z5 }}
                ^^^^^^^
-------- line 15:
+------- line ##:
 parser test {{ x1 = y2, z2 += z5 }}
                         ^^^^^^^^
 ======= END TEST
@@ -91,22 +91,22 @@ parser test {{ x1 = y2, z2 += z5 }}
                             {"": .operator = "$"|$ 0 y|}|}
                        {"": .operator = "<"|< {"": .operator = "$"|$ 0|}
                             z|}|}
-------- line 16:
+------- line ##:
 parser test {{ x < y < z }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 16:
+------- line ##:
 parser test {{ x < y < z }}
             ^^^^^^^^^^^^^^^
-------- line 16:
+------- line ##:
 parser test {{ x < y < z }}
                ^^^^^
-------- line 16:
+------- line ##:
 parser test {{ x < y < z }}
                    ^
-------- line 16:
+------- line ##:
 parser test {{ x < y < z }}
                    ^^^^^
-------- line 16:
+------- line ##:
 parser test {{ x < y < z }}
                    ^
 ======= END TEST
@@ -115,13 +115,13 @@ parser test {{ x < y < z }}
                        "["|= x
                        {"": .operator = "<", .terminator = ")",
                             .initiator = "("|< y z|}|}
-------- line 17:
+------- line ##:
 parser test [ x = ( y < z ) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 17:
+------- line ##:
 parser test [ x = ( y < z ) ]
             ^^^^^^^^^^^^^^^^^
-------- line 17:
+------- line ##:
 parser test [ x = ( y < z ) ]
                   ^^^^^^^^^
 ======= END TEST
@@ -133,43 +133,43 @@ parser test [ x = ( y < z ) ]
                                  {"": .operator = "$"|$ 1 y|}|}
                             {"": .operator = "<"|<
                                  {"": .operator = "$"|$ 1|} z|}|}|}
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
             ^^^^^^^^^^^^^^^^^
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
                   ^^^^^^^^^
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
                   ^^^^^
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
                       ^
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
                       ^^^^^
-------- line 18:
+------- line ##:
 parser test [ x = w < y < z ]
                       ^
 ======= END TEST
 ======= TEST: parser test
                   {t: f = (m ";" n ";" p), e, no d, b = (a, b, c)|1 2
                       3|t}
-------- line 19:
+------- line ##:
 parser test {|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 19:
+------- line ##:
 parser test {|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 ======= TEST: parser test {X: Y = {* "A", "B", "C" *}|1 2 3|X}
-------- line 20:
+------- line ##:
 parser test {X: Y = {* A, B, C *} | 1 2 3 |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line 20:
+------- line ##:
 parser test {X: Y = {* A, B, C *} | 1 2 3 |}
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST

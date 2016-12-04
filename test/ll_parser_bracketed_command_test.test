@@ -15,7 +15,6 @@ parser print bracket "":
                      with attribute negator "no"
                      with attribute flags initiator "["
                      with attribute multivalue initiator [< "{" "*" >]
-                     with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                      with special reformatter
@@ -43,7 +42,6 @@ parser print selector "":
     block standard: math
     block standard: text
     block standard: code
-    block TOP LEVEL: prefix
     block TOP LEVEL: data
 parser print context "default":
     block standard: default [code]
@@ -351,7 +349,6 @@ parser print bracket "":
                      with attribute negator "no"
                      with attribute flags initiator "["
                      with attribute multivalue initiator [< "{" "*" >]
-                     with prefix separators allowed
     block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
                     [code]
                     with parsing options []
@@ -727,7 +724,9 @@ parser define prefix "Y" [code]
        with group ajax
 parser define prefix "Z" [math]
        with parsing selectors [code]
+       with implied subprefix {X: y = 5, z = hi there}
        with lexical master "START"
+       with parsing options [end at line break]
 parser print prefix "":
     block standard: prefix "X" [code]
                     with parsing selectors [code, math]
@@ -736,7 +735,10 @@ parser print prefix "":
                     with group ajax
     block standard: prefix "Z" [math]
                     with parsing selectors [code]
+                    with implied subprefix
+                    {X: y = "5", z = [< "hi" "there" >]||X}
                     with lexical master "START"
+                    with parsing options [end at line break]
 parser print prefix "X":
     block standard: prefix "X" [code]
                     with parsing selectors [code, math]

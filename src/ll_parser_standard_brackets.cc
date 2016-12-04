@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 29 23:25:41 EST 2016
+// Date:	Sun Dec  4 05:13:11 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,7 +166,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PAR::vbar,
 	  double_vbar,
 	  PAR::right_curly,
-	  code + math + text + data,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  data,

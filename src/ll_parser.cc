@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 29 22:50:07 EST 2016
+// Date:	Sun Dec  4 05:29:45 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -797,11 +797,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::data_lexeme ) );
-	MIN_REQUIRE
-	    (    PAR::PREFIX_SELECTOR
-	      == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			PAR::prefix_lexeme ) );
 
 	PAR::selector_group_name_table_ref(parser) =
 	    TAB::create_key_table ( 32 );
@@ -999,7 +994,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::left_square,
 	      min::standard_attr_flag_parser,
 	      opening_brace_star,
-	      true,
+	      false,
 	      bracketed_pass->bracket_table );
 
 	if ( define_standard )

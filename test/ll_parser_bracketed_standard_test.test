@@ -3147,18 +3147,13 @@ parser print bracket "":
     block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                     [data, code, math, text]
                     with parsing selectors [data]
-                    with parsing options [- end at line separator]
                     with label reformatter
     block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
-                     with parsing options [- end at line separator]
                      with label reformatter
     block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                     with parsing options [- end at line separator]
                      with multivalue reformatter ( "," )
     block standard: bracket "(" ... ")" [data, code, math, text]
-                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "(" ... ")" [data]
-                     with parsing options [- end at line separator]
     block standard: indentation mark ":" ... ";" [code]
                     with parsing options [- end at line break,
                                           + end at le indent,
@@ -3167,24 +3162,17 @@ parser print bracket "":
                                           + end at line separator,
                                           + end at outer closing]
     block standard: bracket "[" ... "]" [data, code, math, text]
-                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "[" ... "]" [data]
-                     with parsing options [- end at line separator]
     block standard: bracket "`" ... "'" [code, math, text]
                     with parsing selectors [- code, - math, + text]
-                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket "`" ... "'" [data]
-                     with parsing options [- end at line separator]
     block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                     [code, math, text]
                     with parsing selectors [- code, + math, - text]
-                    with parsing options [- end at line separator]
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                     with parsing options [- end at line separator]
     block standard: bracket "{" ... "|" ... "|" ... "}"
                     // "||" is also allowed.
                     [data, code, math, text]
-                    with parsing options [- end at line separator]
                     with attribute selectors [data]
                     with attributes ":" ... "=" ... ","
                     with attribute negator "no"
@@ -3194,7 +3182,6 @@ parser print bracket "":
     block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
                      // "||" is also allowed.
                      [data]
-                     with parsing options [- end at line separator]
                      with attribute selectors [data]
                      with attributes ":" ... "=" ... ","
                      with attribute negator "no"
@@ -3203,16 +3190,12 @@ parser print bracket "":
                      with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [math]
-                    with parsing options [- end at line separator]
     block standard: bracket "<-" ... "->" [text]
-                    with parsing options [- end at line separator]
     block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                     [data, code, math, text]
                     with parsing selectors [data]
-                    with parsing options [- end at line separator]
                     with special reformatter
     block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
-                     with parsing options [- end at line separator]
                      with special reformatter
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type

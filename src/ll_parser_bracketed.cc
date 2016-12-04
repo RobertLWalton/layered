@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  2 19:39:16 EST 2016
+// Date:	Sun Dec  4 01:55:52 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -647,6 +647,12 @@ void BRA::push_prefix
     prefix->block_level = block_level;
     prefix->position = position;
     prefix->new_selectors = new_selectors;
+    prefix->new_selectors.or_flags &=
+        ~ PAR::EALSEP_OPT;
+    prefix->new_selectors.not_flags |=
+        PAR::EALSEP_OPT;
+    prefix->new_selectors.xor_flags &=
+        ~ PAR::EALSEP_OPT;
     group_ref(prefix) = group;
     implied_subprefix_ref(prefix) = implied_subprefix;
     prefix->lexical_master = lexical_master;
@@ -3567,6 +3573,9 @@ static min::gen bracketed_pass_command
 		<< min::pgen_name ( block_name )
 		<< ": " << min::save_indent;
 
+	    TAB::flags ALL_BUT_LSEP =
+	        PAR::ALL_OPT & ~ PAR::EALSEP_OPT;
+
 	    if ( subtype == BRA::OPENING_BRACKET
 		 ||
 		 subtype == BRA::TYPED_OPENING )
@@ -3647,7 +3656,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::ALL_OPT )
+		     ALL_BUT_LSEP )
 		{
 		    parser->printer
 			<< min::indent
@@ -3655,7 +3664,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::ALL_OPT,
+			  ALL_BUT_LSEP,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -3928,7 +3937,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::ALL_OPT )
+		     ALL_BUT_LSEP )
 		{
 		    parser->printer
 			<< min::indent
@@ -3936,7 +3945,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::ALL_OPT,
+			  ALL_BUT_LSEP,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -4790,6 +4799,15 @@ static min::gen bracketed_pass_command
 	    new_options.not_flags;
 	new_selectors.xor_flags |=
 	    new_options.xor_flags;
+
+	if ( new_options.or_flags & PAR::EALSEP_OPT )
+	    PAR::parse_warn
+	        ( parser, ppvec->position,
+		  "`+ end at line separator' ignored" );
+	if ( new_options.xor_flags & PAR::EALSEP_OPT )
+	    PAR::parse_warn
+	        ( parser, ppvec->position,
+		  "`^ end at line separator' ignored" );
 
 	BRA::push_prefix
 	    ( name[0], selectors,

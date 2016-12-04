@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  4 01:55:52 EST 2016
+// Date:	Sun Dec  4 17:42:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2462,8 +2462,10 @@ min::position BRA::parse_bracketed_subexpression
 				( first_ref(parser),
 				  next->previous )
 			      );
+			    prefix = min::NULL_STUB;
 			}
-			else if
+
+			if
 			    (    cstack.closing_next
 		              == cstack.closing_first )
 			{
@@ -2472,12 +2474,19 @@ min::position BRA::parse_bracketed_subexpression
 			    // logical line end.
 			    // Kick to caller.
 			    //
-			    prefix->type =
-			        PAR::BRACKETED;
+			    if (    prefix
+			         != min::NULL_STUB )
+				prefix->type =
+				    PAR::BRACKETED;
 			    return separator_found;
 			}
-			else
+
+			if ( prefix != min::NULL_STUB )
 			{
+			    MIN_REQUIRE
+			        (    prefix->next
+			          == current );
+
 			    // Start new subexpression
 			    // that begins with a prefix
 			    // separator.

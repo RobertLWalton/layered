@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 3, 2016
+December 4, 2016
  
 \end{center}
 
@@ -4348,13 +4348,13 @@ The definition
 parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [data]
        // `||' abbreviates `| |'
-       // there are no element selectors
+       // there are NO ELEMENT SELECTORS
        with attribute selectors [data]
        with attributes ":" ... "=" ... ","
        with attribute negator "no"
        with attribute flags initiator "["
        with attribute multivalue initiator "{*"
-       with prefix separators allowed
+       // WITHOUT prefix separators allowed
 \end{verbatim}\end{indpar}
 
 is builtin.  The definition
@@ -4363,7 +4363,7 @@ is builtin.  The definition
 parser define typed bracket "{" ... "|" ... "|" ... "}"
                     [code, math, text, data]
        // `||' abbreviates `| |'
-       // there are no element selectors
+       // there are NO ELEMENT SELECTORS
        with attribute selectors [data]
        with attributes ":" ... "=" ... ","
        with attribute negator "no"

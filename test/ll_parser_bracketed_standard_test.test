@@ -3172,7 +3172,7 @@ parser print bracket "":
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
     block standard: bracket "{" ... "|" ... "|" ... "}"
                     // "||" is also allowed.
-                    [data, code, math, text]
+                    [code, math, text]
                     with attribute selectors [data]
                     with attributes ":" ... "=" ... ","
                     with attribute negator "no"
@@ -3187,7 +3187,6 @@ parser print bracket "":
                      with attribute negator "no"
                      with attribute flags initiator "["
                      with attribute multivalue initiator [< "{" "*" >]
-                     with prefix separators allowed
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [math]
     block standard: bracket "<-" ... "->" [text]

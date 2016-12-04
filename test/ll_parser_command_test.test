@@ -1,6 +1,5 @@
 parser print selector "":
     block standard: code
-    block TOP LEVEL: prefix
     block TOP LEVEL: data
 parser define selector my selector
 ERROR: in line ##: extraneous stuff after:
@@ -9,7 +8,6 @@ parser define selector operator 1 ++ extra stuff
 parser print selector "":
     block standard: my selector
     block standard: code
-    block TOP LEVEL: prefix
     block TOP LEVEL: data
 parser print context "":
     block standard: default [code]

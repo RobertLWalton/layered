@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  4 17:42:06 EST 2016
+// Date:	Sun Dec  4 22:39:28 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1333,6 +1333,12 @@ min::position BRA::parse_bracketed_subexpression
 
     while ( true )
     {
+	// Variables used by CREATED_PREFIX code block.
+	//
+	PAR::token prefix;
+	min::position separator_found;
+	bool premature_closing;
+
         // Skip comments, line breaks, and indent before
 	// comments, so that either nothing is skipped
 	// OR current is an indent or end-of-file.
@@ -1515,7 +1521,7 @@ min::position BRA::parse_bracketed_subexpression
 		{
 		    PAR::token previous =
 		        current->previous;
-		    min::position separator_found =
+		    separator_found =
 		      BRA::
 		       parse_bracketed_subexpression
 			    ( parser,
@@ -1934,7 +1940,6 @@ min::position BRA::parse_bracketed_subexpression
 		    opening_bracket;
 
 		PAR::token previous = current->previous;
-		min::position separator_found;
 		BRA::typed_data tdata;
 		bool is_mark_prefix = false;
 		if ( subtype == BRA::OPENING_BRACKET )
@@ -2387,219 +2392,11 @@ min::position BRA::parse_bracketed_subexpression
 
 		    if ( elements->type == PAR::PREFIX )
 		    {
-			PAR::token prefix = elements;
-			MIN_REQUIRE
-			    ( prefix->next == next );
-			BRA::bracketed_pass bpass =
-			    (BRA::bracketed_pass) pass;
-			TAB::key_table prefix_table =
-			    bpass->prefix_table;
-			TAB::root proot =
-			    TAB::find
-				( type, selectors,
-					prefix_table );
-			min::gen group = min::MISSING();
-			if ( proot != min::NULL_STUB )
-			{
-			    BRA::prefix p =
-			      (BRA::prefix) proot;
-			    group = p->group;
-			}
-
-			for ( BRA::bracket_stack * p =
-				  bracket_stack_p;
-
-			      p != NULL
-			      &&
-			         p->prefix_type
-			      != min::MISSING();
-
-			      p = p->previous )
-			{
-			    if (    p->prefix_type
-			         == type
-				 ||
-				 (    p->prefix_group
-				   == group
-				   &&
-				      min::MISSING()
-				   != group ) )
-			    {
-				p->closing_first =
-				    prefix;
-				p->closing_next =
-				    prefix->next;
-
-				for ( BRA::bracket_stack
-				      * q =
-					bracket_stack_p;
-				      q != p;
-				      q = q->previous )
-				    q->closing_first =
-					q->closing_next
-					    = prefix;
-
-				return separator_found;
-			    }
-			}
-
-			if (    start_previous->next
-			     != prefix )
-			{
-			    PAR::parse_error
-			      ( parser,
-				prefix->position,
-				"prefix separator of"
-				" type `",
-				min::pgen_never_quote
-				  ( type ),
-				"' not at beginning of"
-				" subexpression;"
-				" ignored"
-			      );
-			    PAR::free
-			      ( PAR::remove
-				( first_ref(parser),
-				  next->previous )
-			      );
-			    prefix = min::NULL_STUB;
-			}
-
-			if
+			prefix = elements;
+			premature_closing =
 			    (    cstack.closing_next
-		              == cstack.closing_first )
-			{
-			    // Found a closing bracket
-			    // that is not ours or
-			    // logical line end.
-			    // Kick to caller.
-			    //
-			    if (    prefix
-			         != min::NULL_STUB )
-				prefix->type =
-				    PAR::BRACKETED;
-			    return separator_found;
-			}
-
-			if ( prefix != min::NULL_STUB )
-			{
-			    MIN_REQUIRE
-			        (    prefix->next
-			          == current );
-
-			    // Start new subexpression
-			    // that begins with a prefix
-			    // separator.
-			    //
-			    cstack.opening_bracket =
-				min::NULL_STUB;
-			    cstack.prefix_type = type;
-			    cstack.prefix_group = group;
-
-			    TAB::flags prefix_selectors
-			        = selectors;
-			    if (    proot
-			         != min::NULL_STUB )
-			    {
-				BRA::prefix p =
-				  (BRA::prefix) proot;
-				prefix_selectors |=
-				    p->new_selectors
-					.or_flags;
-				prefix_selectors &= ~
-				    p->new_selectors
-					.not_flags;
-				prefix_selectors ^=
-				    p->new_selectors
-					.xor_flags;
-				prefix_selectors |=
-				  PAR::ALWAYS_SELECTOR;
-			    }
-
-			    while ( true )
-			    {
-				cstack.closing_first =
-				    min::NULL_STUB;
-				cstack.closing_next =
-				    min::NULL_STUB;
-				separator_found =
-				  PARSE_BRA_SUBEXP
-				    ( parser,
-				      prefix_selectors,
-				      current, indent,
-					prefix_selectors
-				      & PAR::
-				          EALSEP_OPT ?
-					line_sep :
-					(BRA::line_sep)
-					min::NULL_STUB,
-				      NULL, NULL,
-				      & cstack );
-
-				next =
-				  cstack.closing_first;
-				if (    next
-				     == min::NULL_STUB )
-				    next = current;
-				compact_prefix_separator
-				  ( parser, pass->next,
-			            prefix_selectors,
-			            prefix, next,
-			            trace_flags );
-				if ( cstack
-				       .closing_first
-				     ==
-				     cstack
-				       .closing_next )
-				    return
-				        separator_found;
-				prefix =
-				    cstack
-				      .closing_first;
-
-				if (    prefix->
-				          value_type
-				     != type )
-				{
-				    proot =
-				      TAB::find
-					( prefix->
-					    value_type,
-					  selectors,
-					  prefix_table
-					);
-				    MIN_REQUIRE
-				      (    proot
-					!= min::
-					   NULL_STUB );
-				    BRA::prefix p =
-				      (BRA::prefix)
-				      proot;
-				    MIN_REQUIRE
-				      (    p->group
-					== group );
-				    cstack.prefix_type =
-				        type =
-				          prefix->
-				            value_type;
-				    prefix_selectors =
-				        selectors;
-				    prefix_selectors |=
-					p->new_selectors
-					    .or_flags;
-				    prefix_selectors
-				                    &= ~
-					p->new_selectors
-					    .not_flags;
-				    prefix_selectors ^=
-					p->new_selectors
-					    .xor_flags;
-				    prefix_selectors |=
-				      PAR::
-				        ALWAYS_SELECTOR;
-				}
-			    }
-			}
+		              == cstack.closing_first );
+			goto CREATED_PREFIX;
 		    }
 		}
 
@@ -2678,7 +2475,7 @@ min::position BRA::parse_bracketed_subexpression
 		      (   selectors
 		        & PAR::EALSEP_OPT ) )
 	    {
-		min::position separator_found =
+		separator_found =
 		    current->previous->position.end;
 		PAR::remove
 		    ( parser, current, root->label );
@@ -3023,6 +2820,182 @@ min::position BRA::parse_bracketed_subexpression
 	}
 
 	// Loop to next token.
+	//
+	continue;
+
+CREATED_PREFIX:
+
+	// Come here when PREFIX token has been created.
+	//
+	// Input variables:
+	//
+	//     prefix
+	//         The prefix token.
+	//     separator_found
+	//         Specifies separator found right after
+	//         prefix token, if any.
+	//     premature_closing
+	//         True if premature closing forced the
+	//         end of the prefix token.
+
+	BRA::bracketed_pass bpass =
+	    (BRA::bracketed_pass) pass;
+	TAB::key_table prefix_table =
+	    bpass->prefix_table;
+	min::gen prefix_type = prefix->value_type;
+	TAB::root proot = TAB::find
+			    ( prefix_type, selectors,
+			      prefix_table );
+	min::gen group = min::MISSING();
+	if ( proot != min::NULL_STUB )
+	{
+	    BRA::prefix p = (BRA::prefix) proot;
+	    group = p->group;
+	}
+
+	for ( BRA::bracket_stack * p = bracket_stack_p;
+
+	         p != NULL
+	      && p->prefix_type != min::MISSING();
+
+	      p = p->previous )
+	{
+	    if ( p->prefix_type == prefix_type
+		 ||
+		 ( p->prefix_group == group
+		   &&
+		   min::MISSING() != group ) )
+	    {
+		p->closing_first = prefix;
+		p->closing_next = prefix->next;
+
+		for ( BRA::bracket_stack
+		          * q = bracket_stack_p;
+		      q != p;
+		      q = q->previous )
+		    q->closing_first =
+			q->closing_next = prefix;
+
+		return separator_found;
+	    }
+	}
+
+	if ( start_previous->next != prefix )
+	{
+	    PAR::parse_error
+	      ( parser,
+		prefix->position,
+		"prefix separator of type `",
+		min::pgen_never_quote ( prefix_type ),
+		"' not at beginning of subexpression;"
+		" ignored"
+	      );
+	    PAR::token next = prefix->next;
+	    PAR::free ( PAR::remove
+			    ( first_ref(parser),
+			      next->previous ) );
+	    prefix = min::NULL_STUB;
+	}
+
+	if ( premature_closing )
+	{
+	    // Found a closing bracket
+	    // that is not ours or
+	    // logical line end.
+	    // Kick to caller.
+	    //
+	    if ( prefix != min::NULL_STUB )
+		prefix->type = PAR::BRACKETED;
+	    return separator_found;
+	}
+
+	if ( prefix != min::NULL_STUB )
+	{
+	    MIN_REQUIRE ( prefix->next == current );
+
+	    // Start new subexpression
+	    // that begins with a prefix
+	    // separator.
+	    //
+	    BRA::bracket_stack cstack
+		(   selectors
+		  & PAR::EAOCLOSING_OPT  ?
+		  bracket_stack_p : NULL );
+	    cstack.prefix_type = prefix_type;
+	    cstack.prefix_group = group;
+
+	    TAB::flags prefix_selectors = selectors;
+	    if ( proot != min::NULL_STUB )
+	    {
+		BRA::prefix p = (BRA::prefix) proot;
+		prefix_selectors |=
+		    p->new_selectors.or_flags;
+		prefix_selectors &= ~
+		    p->new_selectors.not_flags;
+		prefix_selectors ^=
+		    p->new_selectors.xor_flags;
+		prefix_selectors |=
+		  PAR::ALWAYS_SELECTOR;
+	    }
+
+	    while ( true )
+	    {
+		cstack.closing_first = min::NULL_STUB;
+		cstack.closing_next = min::NULL_STUB;
+		separator_found =
+		    BRA::parse_bracketed_subexpression
+		      ( parser, prefix_selectors,
+		        current, indent,
+			  prefix_selectors
+		        & PAR::EALSEP_OPT ?
+			  line_sep :
+			  (BRA::line_sep)
+			      min::NULL_STUB,
+		        NULL, NULL, & cstack );
+
+		PAR::token next = cstack.closing_first;
+		if ( next == min::NULL_STUB )
+		    next = current;
+		compact_prefix_separator
+		  ( parser, pass->next,
+		    prefix_selectors,
+		    prefix, next, trace_flags );
+
+		if (    cstack.closing_first
+		     == cstack.closing_next )
+		    return separator_found;
+		prefix = cstack.closing_first;
+
+		if ( prefix->value_type != prefix_type )
+		{
+		    proot = TAB::find
+			        ( prefix->value_type,
+			          selectors,
+			          prefix_table );
+		    MIN_REQUIRE
+		        ( proot != min::NULL_STUB );
+		    BRA::prefix p = (BRA::prefix) proot;
+		    MIN_REQUIRE ( p->group == group );
+		    cstack.prefix_type = prefix_type =
+		        prefix->value_type;
+		    prefix_selectors = selectors;
+		    prefix_selectors |=
+			p->new_selectors.or_flags;
+		    prefix_selectors &= ~
+			p->new_selectors.not_flags;
+		    prefix_selectors ^=
+			p->new_selectors.xor_flags;
+		    prefix_selectors |=
+		        PAR::ALWAYS_SELECTOR;
+		}
+	    }
+
+	}
+
+	// Loop to next token.
+	//
+	continue;
+
     }
 
     MIN_ABORT ( "SHOULD NOT COME HERE" );

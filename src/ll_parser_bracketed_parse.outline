@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 17 03:09:50 EST 2016
+// Date:	Mon Dec  5 00:08:05 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,7 +70,7 @@
 //       // input to or created by parse_bracketed_
 //       // subexpression
 //
-//   loop:
+//   loop to find next token:
 //
 //     skip line break, comment, and indent_before_
 //          comment tokens; if a blank line is
@@ -271,7 +271,7 @@
 //                 bracket = key
 //          if new_selectors & EAOCLOSING
 //             push new entry into existing bracket
-//                  stack
+//                  stack to create new bracket stack
 //          else
 //             create new bracket stack with new entry
 //                    as its only entry
@@ -284,8 +284,7 @@
 //
 //            parse_bracketed_subexpression with
 //              new_selectors,
-//              new or existing bracket stack
-//                  as per EAOCLOSING above,
+//              new bracket stack
 //              indent argument,
 //              line_sep argument
 //                  if new_selectors & EALSEP,
@@ -310,7 +309,7 @@
 //              selectors from key->attr_selectors
 //                  plus ALWAYS_SELECTOR, and selector
 //                  options from new_selectors
-//              new or existing bracket stack,
+//              new bracket stack,
 //              indent argument,
 //              line_sep argument
 //                  if new_selectors & EALSEP,
@@ -471,98 +470,15 @@
 //    		         were taken
 //
 //    		  if token type == PREFIX:
-//
-//    		      find token .type entry in
-//    		           bracketed pass prefix table
-//    		      group = group of entry found or
-//    		              MISSING if no entry or
-//    		              entry group is MISSING
-//    		      search bracket stack for entry
-//                           with prefix_type == token
-//                           .type or non-MISSING
-//                           prefix_group == group;
-//                           stop search at first
-//                           entry with prefix_type
-//                           MISSING
-//                    if entry found:
-//          		  close bracket stack entry
-//          		        and specify PREFIX
-//          		        token as closing
-//          		        token
-//                        close all higher stack entries
-//                              indicating that prefixes
-//                              with their type/group
-//                              were not found
-//                        return separator_found
-//
-//                    if not at_start:
-//                        announce PREFIX token is in
-//                            error and delete it
-//
-//                    else if bracket stack not closed
-//                         by PREFIX token's typed
-//                         opening closing bracket:
-//                       set token type to BRACKETED
-//                       return separator_found
-//
-//                    else:
-//                        // Start new subexpression
-//                        // beginning with the PREFIX
-//                        // token
-//
-//                        pop bracket stack and push
-//                            new entry with prefix_type
-//                            = PREFIX .type and prefix_
-//                            group = group
-//                        prefix_selectors = selectors
-//                        if PREFIX token .type entry
-//                           found above in the
-//    		             bracketed pass prefix table
-//			     adjust prefix_selectors
-//			     according to new_selectors
-//			     in the entry setting
-//			     ALWAYS_SELECTOR on
-//			  loop:
-//                            parse_bracketed_subexpr
-//                              with prefix_selectors,
-//                              bracket stack,
-//                              indent argument,
-//                              line_sep argument
-//                                if prefix_selectors
-//                                   & EALSEP,
-//	                        set separator_found =
-//	                          result
-//
-//	                      compact_prefix_separator
-//	                        with prefix_separators
-//
-//	                      if bracket stack not
-//	                         closed by another
-//	                         PREFIX token with same
-//	                         .type or group as the
-//	                         current PREFIX token:
-//	                           return
-//	                             separator_found
-//
-//	                      make PREFIX token that
-//	                           closed bracket stack
-//	                           the current PREFIX
-//	                           token
-//
-//	                      if .type of current PREFIX
-//	                         token == .type of
-//	                         previous current PREFIX
-//	                         token, iterate loop
-//
-//	                      find entry for new .type
-//	                        in bracketed pass prefix
-//	                        table (entry must exist
-//	                        because .types have the
-//	                        same group), recompute
-//	                        prefix_selectors from
-//	                        the new entry
-//
-//			      iterate loop
+//		      goto CREATED_PREFIX with
+//		          prefix = the prefix token
+//		          separator_found from parse
+//		              of prefix token
+//		          premature_closing = true
+//		              iff bracket stack not
+//		              closed by PREFIX token's
+//		              typed opening's closing
+//		              bracket
 //
 //	    at_start = false
 //
@@ -769,3 +685,93 @@
 //       iterate loop to refine key by checking if there
 //               is a shorter key or accepting token
 //               as a non-key if no key found
+//
+//  iterate loop to find next token
+//
+//  CREATED_PREFIX:
+//
+//    // Input variables:
+//    //
+//    // prefix = the prefix token
+//    // separator_found from parse of prefix token
+//    // premature_closing = true iff bracket stack not
+//    //   closed by PREFIX token's typed opening's
+//    //   closing bracket during parse of prefix
+//    //   token
+//
+//    find token .type entry in bracketed pass prefix
+//         table
+//    group = group of entry found or MISSING if no
+//            entry or entry group is MISSING
+//    search bracket stack for entry with
+//           prefix_type == token.type
+//           or non-MISSING prefix_group == group;
+//           stop search at first entry with MISSING
+//                prefix_type
+//    if entry found:
+//       close bracket stack entry and specify PREFIX
+//             token as closing token
+//       close all higher stack entries indicating that
+//             prefixes with their type/group were not
+//             found
+//       return separator_found
+//
+//    if not at_start:
+//       announce PREFIX token is in error and delete it
+//
+//    if premature_closing
+//       set PREFIX token type to BRACKETED if PREFIX
+//           token not deleted
+//       return separator_found
+//
+//    if PREFIX token has not been deleted:
+//       // Start new subexpression // beginning with
+//       // the PREFIX token
+//
+//       create new bracket stack entry with
+//              prefix_type = PREFIX .type
+//              and prefix_group = group
+//       if new_selectors & EAOCLOSING
+//          push new entry into existing bracket stack
+//               to create new bracket stack
+//       else
+//          create new bracket stack with new entry
+//                 as its only entry
+//
+//       prefix_selectors = selectors
+//       if PREFIX token .type entry found above in the
+//    	    bracketed pass prefix table:
+//    	    adjust prefix_selectors according to
+//    	           new_selectors in the entry setting
+//    	           ALWAYS_SELECTOR on
+//
+//	 loop to find subexpression headed by prefix:
+//
+//         parse_bracketed_subexpression
+//           with prefix_selectors, bracket stack,
+//                indent argument,
+//                line_sep argument if prefix_selectors
+//                                   & EALSEP,
+//	     set separator_found = result
+//
+//	   compact_prefix_separator
+//	     with prefix_separators
+//
+//	   if bracket stack not closed by another PREFIX
+//	              token with same .type or group as
+//	              the current PREFIX token:
+//	      return separator_found
+//
+//	   prefix = PREFIX token that closed bracket
+//	            stack
+//
+//	   if .type of prefix != .type of previous
+//	                         prefix:
+//	     find entry for new .type in bracketed pass
+//	          prefix table (entry must exist because
+//	          .types have the same group), and
+//	          recompute prefix_selectors from the
+//	          new entry
+//
+//	   iterate loop to find subexpression headed by
+//	           prefix

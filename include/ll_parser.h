@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  4 05:32:25 EST 2016
+// Date:	Tue Dec  6 03:25:12 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -220,8 +220,9 @@ enum // Token types (see below).
     BRACKETABLE		= 0xFFFFFFFD,
     PURELIST		= 0xFFFFFFFC,
     PREFIX		= 0xFFFFFFFB,
-    OPERATOR		= 0xFFFFFFFA,
-    DERIVED		= 0xFFFFFFF9,
+    IMPLIED_PREFIX	= 0xFFFFFFFA,
+    OPERATOR		= 0xFFFFFFF9,
+    DERIVED		= 0xFFFFFFF8,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
@@ -276,6 +277,17 @@ struct token_struct
 	//	    .initiator, no .terminator, and
 	//	    no elements.  The MIN value may have
 	//	    other properties.
+	//
+	//	IMPLIED_PREFIX
+	//	    For use as implied subprefix separa-
+	//	    tors.  These are the same as PREFIX
+	//	    tokens except: before elements are
+	//	    added the token must be upgraded to
+	//	    PREFIX by replacing its value by a
+	//	    copy of the value; and if there are
+	//	    NO elements, the token is to be
+	//	    completely deleted as if it never
+	//	    existed.
 	//
 	// For recognized operators:
 	//
@@ -1691,6 +1703,12 @@ void compact
 // BRACKETED.  Lastly non-first element tokens are
 // removed, but both the first and the next tokens are
 // not.
+//
+// If on the other hand the first token is an IMPLIED_
+// PREFIX token, then if there are some elements, the
+// value of this token is replaced by a copy before
+// it is used, but if there are no elements, the first
+// token is deleted and nothing else is done.
 //
 void compact_prefix_separator
 	( ll::parser::parser parser,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  4 05:29:45 EST 2016
+// Date:	Tue Dec  6 03:47:59 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1989,7 +1989,17 @@ void PAR::compact_prefix_separator
 	  PAR::token next,
 	  TAB::flags trace_flags )
 {
-    if ( first->next != next )
+    if ( first->next == next )
+    {
+	if ( first->type == PAR::IMPLIED_PREFIX )
+	{
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				first ) );
+	    return;
+	}
+    }
+    else
     {
 	first->position.end =
 	    next->previous->position.end;
@@ -1999,8 +2009,21 @@ void PAR::compact_prefix_separator
 	     ( parser, pass, selectors,
 	       current, next );
 
+
 	min::obj_vec_insptr vp
 	    ( first->value );
+
+	if ( first->type == PAR::IMPLIED_PREFIX )
+	{
+	    min::uns32 unused_size = 0;
+	    for ( PAR::token t = first->next;
+	          t != next; t = t->next )
+	        ++ unused_size;
+	    PAR::value_ref(first) =
+	        min::copy ( vp, unused_size );
+	    vp = first->value;
+	}
+
 	min::attr_insptr ap ( vp );
 
 	min::locate

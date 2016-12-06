@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  4 22:39:28 EST 2016
+// Date:	Mon Dec  5 18:43:09 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1536,9 +1536,7 @@ min::position BRA::parse_bracketed_subexpression
 			          min::NULL_STUB,
 			      NULL,
 			      & line_variables,
-				new_selectors
-			      & PAR::EAOCLOSING_OPT  ?
-			      bracket_stack_p : NULL );
+			      bracket_stack_p );
 		    PAR::token first = previous->next;
 		    PAR::token next = current;
 
@@ -1933,9 +1931,7 @@ min::position BRA::parse_bracketed_subexpression
 		new_selectors |= PAR::ALWAYS_SELECTOR;
 
 		BRA::bracket_stack cstack
-		    (   new_selectors
-		      & PAR::EAOCLOSING_OPT  ?
-		      bracket_stack_p : NULL );
+		    ( bracket_stack_p );
 		cstack.opening_bracket =
 		    opening_bracket;
 
@@ -2419,6 +2415,10 @@ min::position BRA::parse_bracketed_subexpression
 		BRA::closing_bracket closing_bracket =
 		    (BRA::closing_bracket) root;
 
+		if ( line_variables == NULL
+		     ||
+		       selectors
+		     & PAR::EAOCLOSING_OPT )
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;
@@ -2444,6 +2444,10 @@ min::position BRA::parse_bracketed_subexpression
 
 			return min::MISSING_POSITION;
 		    }
+		    else if ( ! (   selectors
+		                  & PAR::EAOCLOSING_OPT
+				) )
+		        break;
 		}
 
 		// Closing bracket does not match any
@@ -2918,9 +2922,7 @@ CREATED_PREFIX:
 	    // separator.
 	    //
 	    BRA::bracket_stack cstack
-		(   selectors
-		  & PAR::EAOCLOSING_OPT  ?
-		  bracket_stack_p : NULL );
+		( bracket_stack_p );
 	    cstack.prefix_type = prefix_type;
 	    cstack.prefix_group = group;
 

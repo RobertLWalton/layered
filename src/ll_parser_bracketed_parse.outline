@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  5 00:08:05 EST 2016
+// Date:	Mon Dec  5 18:27:44 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -130,7 +130,6 @@
 //                     if new_selectors & EALSEP,
 //                   line_variables,
 //                   bracket stack
-//                     if new_selectors & EAOCLOSING;
 //                   remember if line ended by line
 //                            separator
 //
@@ -269,12 +268,8 @@
 //
 //          create new bracket stack entry with opening
 //                 bracket = key
-//          if new_selectors & EAOCLOSING
-//             push new entry into existing bracket
-//                  stack to create new bracket stack
-//          else
-//             create new bracket stack with new entry
-//                    as its only entry
+//          push new entry into existing bracket
+//               stack to create new bracket stack
 //
 //	    allocate new typed data, tdata, to stack,
 //		     for use only if key is typed
@@ -489,10 +484,12 @@
 //          else
 //            iterate top level loop
 //
-//       if key is closing bracket in bracket stack
-//          that matches the closing bracket of an
-//          entry in the bracket stack:
-//
+//       if key is closing bracket, and line_variables
+//              is missing or selectors & EAOCLOSING,
+//              and closing bracket matches the closing
+//              bracket of the first entry of the
+//              bracket stack, or of any entry if
+//              selectors & EAOCLOSING:
 //          close bracket stack entry that matches key
 //          close all higher stack entries indicating
 //            that their closing brackets were not found
@@ -708,7 +705,7 @@
 //           or non-MISSING prefix_group == group;
 //           stop search at first entry with MISSING
 //                prefix_type
-//    if entry found:
+//    if bracket stack entry found:
 //       close bracket stack entry and specify PREFIX
 //             token as closing token
 //       close all higher stack entries indicating that
@@ -719,24 +716,20 @@
 //    if not at_start:
 //       announce PREFIX token is in error and delete it
 //
-//    if premature_closing
+//    if premature_closing:
 //       set PREFIX token type to BRACKETED if PREFIX
-//           token not deleted
+//           token was not deleted
 //       return separator_found
 //
-//    if PREFIX token has not been deleted:
-//       // Start new subexpression // beginning with
+//    if PREFIX token was not deleted:
+//       // Start new subexpression beginning with
 //       // the PREFIX token
 //
 //       create new bracket stack entry with
-//              prefix_type = PREFIX .type
+//              prefix_type = PREFIX token .type
 //              and prefix_group = group
-//       if new_selectors & EAOCLOSING
-//          push new entry into existing bracket stack
-//               to create new bracket stack
-//       else
-//          create new bracket stack with new entry
-//                 as its only entry
+//       push new entry into existing bracket stack
+//            to create new bracket stack
 //
 //       prefix_selectors = selectors
 //       if PREFIX token .type entry found above in the
@@ -748,14 +741,14 @@
 //	 loop to find subexpression headed by prefix:
 //
 //         parse_bracketed_subexpression
-//           with prefix_selectors, bracket stack,
+//           with prefix_selectors, new bracket stack,
 //                indent argument,
 //                line_sep argument if prefix_selectors
 //                                   & EALSEP,
 //	     set separator_found = result
 //
 //	   compact_prefix_separator
-//	     with prefix_separators
+//	     with prefix_selectors
 //
 //	   if bracket stack not closed by another PREFIX
 //	              token with same .type or group as

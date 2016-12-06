@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  5 18:43:09 EST 2016
+// Date:	Tue Dec  6 11:22:03 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2847,15 +2847,14 @@ CREATED_PREFIX:
 	TAB::key_table prefix_table =
 	    bpass->prefix_table;
 	min::gen prefix_type = prefix->value_type;
-	TAB::root proot = TAB::find
-			    ( prefix_type, selectors,
-			      prefix_table );
-	min::gen group = min::MISSING();
-	if ( proot != min::NULL_STUB )
-	{
-	    BRA::prefix p = (BRA::prefix) proot;
-	    group = p->group;
-	}
+	BRA::prefix prefix_entry =
+	    (BRA::prefix)
+	    TAB::find ( prefix_type, selectors,
+			prefix_table );
+	min::gen group =
+	    ( prefix_entry != min::NULL_STUB ?
+	      prefix_entry->group :
+	      min::MISSING() );
 
 	for ( BRA::bracket_stack * p = bracket_stack_p;
 
@@ -2866,7 +2865,9 @@ CREATED_PREFIX:
 	{
 	    if ( p->prefix_type == prefix_type
 		 ||
-		 ( p->prefix_group == group
+		 ( p->prefix_entry != min::NULL_STUB
+		   &&
+		   p->prefix_entry->group == group
 		   &&
 		   min::MISSING() != group ) )
 	    {
@@ -2924,18 +2925,17 @@ CREATED_PREFIX:
 	    BRA::bracket_stack cstack
 		( bracket_stack_p );
 	    cstack.prefix_type = prefix_type;
-	    cstack.prefix_group = group;
+	    cstack.prefix_entry = prefix_entry;
 
 	    TAB::flags prefix_selectors = selectors;
-	    if ( proot != min::NULL_STUB )
+	    if ( prefix_entry != min::NULL_STUB )
 	    {
-		BRA::prefix p = (BRA::prefix) proot;
 		prefix_selectors |=
-		    p->new_selectors.or_flags;
+		  prefix_entry->new_selectors.or_flags;
 		prefix_selectors &= ~
-		    p->new_selectors.not_flags;
+		  prefix_entry->new_selectors.not_flags;
 		prefix_selectors ^=
-		    p->new_selectors.xor_flags;
+		  prefix_entry->new_selectors.xor_flags;
 		prefix_selectors |=
 		  PAR::ALWAYS_SELECTOR;
 	    }
@@ -2970,23 +2970,27 @@ CREATED_PREFIX:
 
 		if ( prefix->value_type != prefix_type )
 		{
-		    proot = TAB::find
-			        ( prefix->value_type,
-			          selectors,
-			          prefix_table );
-		    MIN_REQUIRE
-		        ( proot != min::NULL_STUB );
-		    BRA::prefix p = (BRA::prefix) proot;
-		    MIN_REQUIRE ( p->group == group );
+		    prefix_entry = (BRA::prefix)
+		        TAB::find ( prefix->value_type,
+			            selectors,
+			            prefix_table );
+		    MIN_REQUIRE (    prefix_entry
+		                  != min::NULL_STUB );
+		    MIN_REQUIRE (    prefix_entry->group
+		                  == group );
 		    cstack.prefix_type = prefix_type =
 		        prefix->value_type;
+		    cstack.prefix_entry = prefix_entry;
 		    prefix_selectors = selectors;
 		    prefix_selectors |=
-			p->new_selectors.or_flags;
+			prefix_entry->
+			    new_selectors.or_flags;
 		    prefix_selectors &= ~
-			p->new_selectors.not_flags;
+			prefix_entry->
+			    new_selectors.not_flags;
 		    prefix_selectors ^=
-			p->new_selectors.xor_flags;
+			prefix_entry->
+			    new_selectors.xor_flags;
 		    prefix_selectors |=
 		        PAR::ALWAYS_SELECTOR;
 		}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  6 11:21:48 EST 2016
+// Date:	Wed Dec  7 01:43:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -603,6 +603,9 @@ struct prefix_struct
     ll::parser::table::new_flags new_selectors;
     min::gen group;
     min::gen implied_subprefix;
+    min::gen implied_subprefix_type;
+        // This is just a cache of the .type of
+	// the implied prefix, or MISSING if none.
     min::uns32 lexical_master;
 };
 
@@ -613,6 +616,8 @@ MIN_REF ( min::gen, label,
 MIN_REF ( min::gen, group,
           ll::parser::bracketed::prefix )
 MIN_REF ( min::gen, implied_subprefix,
+          ll::parser::bracketed::prefix )
+MIN_REF ( min::gen, implied_subprefix_type,
           ll::parser::bracketed::prefix )
 
 // Create a prefix definition entry with given
@@ -627,6 +632,7 @@ void push_prefix
 	  ll::parser::table::new_flags new_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
+	  min::gen implied_subprefix_type,
 	  min::uns32 lexical_master,
 	  ll::parser::table::key_table prefix_table );
 

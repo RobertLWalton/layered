@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 01:08:06 EST 2016
+// Date:	Thu Dec  8 02:47:56 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,40 +47,10 @@ static min::initializer initializer ( ::initialize );
 // Parser Command Functions
 // ------ ------- ---------
 
-min::gen COM::scan_simple_name
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value )
-{
-    min::uns32 j = i;
-    min::uns32 s = min::size_of ( vp );
-    min::uns64 accepted_types = 1ull << LEXSTD::word_t;
-
-    while ( i < s )
-    {
-	min::uns32 t =
-	    LEXSTD::lexical_type_of ( vp[i] );
-	if ( ( ( 1ull << t ) & accepted_types )
-	     &&
-	     vp[i] != end_value )
-	    ++ i;
-	else
-	    break;
-	accepted_types |= 1ull << LEXSTD::natural_t
-	               |  1ull << LEXSTD::numeric_t;
-    }
-
-    if ( i == j ) return min::MISSING();
-    else if ( i == j + 1 ) return vp[j];
-
-    min::gen elements[i-j];
-    memcpy ( elements, & vp[j], sizeof ( elements ) );
-    return min::new_lab_gen ( elements, i - j );
-}
-
-min::gen COM::scan_names
+min::gen COM::scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,
           min::ref< min::packed_vec_ptr<min::gen> >
-	      name_vec,
+	      arg_vec,
 	  ll::parser::parser parser )
 {
     if ( i >= min::size_of ( vp ) )
@@ -110,38 +80,25 @@ min::gen COM::scan_names
 
     min::packed_vec_insptr<min::gen> names =
         (const min::stub *)
-	(min::packed_vec_ptr<min::gen>) name_vec;
+	(min::packed_vec_ptr<min::gen>) arg_vec;
     if ( names == min::NULL_STUB )
     {
 	names = 
 	    min::gen_packed_vec_type.new_stub ( 10 );
-	name_vec = names;
+	arg_vec = names;
     }
     else
-        min::pop ( names, name_vec->length );
+        min::pop ( names, arg_vec->length );
     
     min::uns32 s = min::size_of ( subvp );
     min::uns32 j = 0;
     min::locatable_gen name;
     while ( j < s )
     {
-        name = PAR::scan_quoted_key
+        name = PAR::scan_quoted_key_or_simple_name
 	           ( subvp, j, parser );
 
 	if ( name == min::ERROR() ) return min::ERROR();
-
-	if ( name == min::MISSING() )
-	{
-            name = COM::scan_simple_name ( subvp, j );
-
-	    if ( name == min::MISSING() )
-	    {
-
-		return PAR::parse_error
-		    ( parser, ppvec[j],
-		      "expected name instead of" );
-	    }
-	}
 
 	min::push ( names ) = name;
 
@@ -270,7 +227,7 @@ static bool scan_flag
 
     min::uns32 ibegin = i;
     min::locatable_gen flag_name
-        ( COM::scan_simple_name ( vp, i ) );
+        ( PAR::scan_simple_name ( vp, i ) );
     if ( flag_name == min::MISSING() )
     {
 	PAR::parse_error
@@ -604,7 +561,7 @@ static min::gen execute_pass
     if ( vp[1] != PAR::print )
     {
 	min::uns32 begini = i;
-	name = COM::scan_simple_name ( vp, i );
+	name = PAR::scan_simple_name ( vp, i );
 	if ( name == min::MISSING() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
@@ -643,7 +600,7 @@ static min::gen execute_pass
 	{
 	    ++ i;
 	    min::uns32 begini = i;
-	    name2 = COM::scan_simple_name ( vp, i );
+	    name2 = PAR::scan_simple_name ( vp, i );
 	    if ( name2 == min::MISSING() )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
@@ -785,7 +742,7 @@ static min::gen execute_selectors
     min::locatable_gen name;
     if ( vp[1] == PAR::define )
     {
-	name = COM::scan_simple_name ( vp, i );
+	name = PAR::scan_simple_name ( vp, i );
 	if ( name == min::MISSING() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
@@ -1330,7 +1287,7 @@ static min::gen execute_begin
 {
     min::uns32 i = 2;
     min::locatable_gen name
-        ( COM::scan_simple_name ( vp, i ) );
+        ( PAR::scan_simple_name ( vp, i ) );
     if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser,
@@ -1353,7 +1310,7 @@ static min::gen execute_end
 {
     min::uns32 i = 2;
     min::locatable_gen name
-        ( COM::scan_simple_name ( vp, i ) );
+        ( PAR::scan_simple_name ( vp, i ) );
     if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser,

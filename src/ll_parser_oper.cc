@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 07:34:57 EST 2016
+// Date:	Thu Dec  8 01:52:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1927,7 +1927,7 @@ static min::gen oper_pass_command
 	{
 	    min::uns32 j = i;
 	    min::locatable_gen name
-	      ( COM::scan_simple_name
+	      ( PAR::scan_simple_name
 	          ( vp, j, PAR::reformatter_lexeme ) );
 	    if (    j < size
 		 && vp[j] == PAR::reformatter_lexeme )
@@ -1978,7 +1978,7 @@ static min::gen oper_pass_command
 
 		i = j + 1;
 
-		name = COM::scan_names
+		name = COM::scan_args
 		    ( vp, i, reformatter_arguments,
 		          parser );
 		if ( name == min::ERROR() )

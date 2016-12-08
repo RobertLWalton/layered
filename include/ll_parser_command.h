@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 12 20:23:46 EST 2016
+// Date:	Thu Dec  8 01:50:55 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,47 +51,30 @@ void misspell_warning
 	  min::gen what_is,
 	  min::gen should_be );
 
-// Given an object vector pointer vp pointing at an
-// expression, and an index i of an element in the
-// vector, then if vp[i] is a word not equal to
-// end_value, increment i until i >= size of vp or vp[i]
-// is not a word or number or is equal to end_value.
-//
-// If i has been incremented at least once, make and
-// return a label from the elements scanned over.  If
-// there is only 1 element, return just that element.
-// If there is more than one, return the MIN label
-// containing the elements.  If there are no elements,
-// return min::MISSING().
-//
-min::gen scan_simple_name
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value = min::MISSING() );
-
 // If vp[i] is a ()-bracketed subexpression, treat it
-// as a name list, store the specified set of names in
-// the name vector, increment i, and return min::
-// SUCCESS().  If it is not a ()-bracketed subexpres-
-// sion, just return min::FAILURE().  If it is a
-// ()-bracketed subexpression with an error, print error
-// messages to parser->printer, increment i, and return
-// min::ERROR().
+// as an argument list, store the specified set of
+// arguments in the arg_vec vector, increment i, and
+// return min::SUCCESS().  If it is not a ()-bracketed
+// subexpression, just return min::FAILURE().  If it is
+// a ()-bracketed subexpression with an error, print
+// error messages to parser->printer, increment i, and
+// return min::ERROR().
 //
-// A name may be a simple name or a quoted name, and
-// names are separated by commas.  It is assumed that
-// the ()-bracketed subexpression does NOT have a
+// An argument may be a simple name or a quoted name,
+// and arguments are separated by commas.  It is assumed
+// that the ()-bracketed subexpression does NOT have a
 // separator and any commas are simply elements of the
 // subexpression.
 //
-// If min::FAILURE() is not returned, name_vec is
-// created if it does not exist, initially emptied if it
-// does exists, and has any successfully scanned names
-// pushed into it.
+// If min::FAILURE() is not returned, arg_vec is created
+// if it does not exist, emptied if it does exists, and
+// then any successfully scanned arguments are pushed
+// into it.
 //
-min::gen scan_names
+min::gen scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,
           min::ref< min::packed_vec_ptr<min::gen> >
-	      name_vec,
+	      arg_vec,
 	  ll::parser::parser parser );
 
 // If vp[i] is a []-bracketed subexpression, treat it

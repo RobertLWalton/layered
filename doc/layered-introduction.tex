@@ -3391,6 +3391,17 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \emkey{bracket-options} ::= {\em parser-flag-spec}
 	~ except ~ `\TT{end at line separator}'
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+\\[0.5ex]
+\emkey{reformatter-name}\label{REFORMATTER-NAME} ::=
+    {\em simple-name} not containing `\TT{reformatter}'
+\\[0.5ex]
+\emkey{reformatter-arguments}\label{REFORMATTER-ARGUMENTS}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em empty} $|$ \TT{()} \\
+    $|$ & \TT{(} {\em reformatter-argument}
+          \{ \TT{,} {\em reformatter-argument} \}\STAR{} \TT{)} \\
+    \end{tabular} \\
+\emkey{reformatter-argument} ::= {\em quoted-key} $|$ {\em simple-name}
 
 \end{indpar}
 
@@ -5324,14 +5335,8 @@ The syntax of operator definitions is:
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \TT{+} $|$ \TT{-}
 	\\[1ex]
-\emkey{reformatter-name} ::= {\em simple-name } \\
-\emkey{reformatter-arguments} \begin{tabular}[t]{@{}rl}
-			      ::= & {\em empty} $|$ \TT{()} \\
-			      $|$ & \TT{(} {\em reformatter-argument} \\
-			          & ~~~~ \{ \TT{,} {\em reformatter-argument}
-				         \}\STAR{} \TT{)} \\
-			      \end{tabular} \\
-\emkey{reformatter-argument} ::= {\em quoted-key}
+\emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
+\emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression

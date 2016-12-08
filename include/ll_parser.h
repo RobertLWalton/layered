@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 00:59:56 EST 2016
+// Date:	Thu Dec  8 01:50:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1823,20 +1823,45 @@ min::gen scan_name_string_label
       min::uns64 end_types,
       bool empty_name_ok = false );
 
-// Ditto with scan types set for quoted key.
+// Ditto with scan types set for quoted key.  In
+// addition, prints `badly formed quoted key' error
+// message when returning min::ERROR().  Returns
+// min::MISSING() if quoted key missing but not in
+// error.
 //
-inline min::gen scan_quoted_key
+min::gen scan_quoted_key
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser,
+      bool empty_name_ok = false );
+
+// Given an object vector pointer vp pointing at an
+// expression, and an index i of an element in the
+// vector, then if vp[i] is a word not equal to
+// end_value, increment i until i >= size of vp or vp[i]
+// is not a word or number or is equal to end_value.
+//
+// If i has been incremented at least once, make and
+// return a label from the elements scanned over.  If
+// there is only 1 element, return just that element.
+// If there is more than one, return the MIN label
+// containing the elements.  If there are no elements,
+// return min::MISSING().
+//
+min::gen scan_simple_name
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value = min::MISSING() );
+
+// If vp[i] is a quoted string, scan it as per scan_
+// quoted_key and increment i by 1.  Otherwise call
+// scan_simple_name as above.  Returns min::ERROR()
+// if error message printed.  It is an error if
+// vp[i] is not a quoted string and does not begin
+// a simple name.  min::MISSING() is NEVER returned.
+//
+min::gen scan_quoted_key_or_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::parser parser,
-	  bool empty_name_ok = false )
-{
-    return scan_name_string_label
-	( vp, i, parser,
-	  QUOTED_KEY_SCAN_MASK,
-	  IGNORED_SCAN_MASK,
-	  END_SCAN_MASK,
-	  empty_name_ok );
-}
+	  min::gen end_value = min::MISSING() );
 
 // Skip n tokens.
 //

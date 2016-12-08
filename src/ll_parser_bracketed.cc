@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 01:00:41 EST 2016
+// Date:	Thu Dec  8 01:52:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1302,6 +1302,11 @@ min::position BRA::parse_bracketed_subexpression
 	  BRA::line_variables * line_variables,
 	  BRA::bracket_stack * bracket_stack_p )
 {
+
+#   define PARSE_BRA_SUBEXP \
+	   BRA::parse_bracketed_subexpression
+	   // To avoid a too long line
+
     // Note: if typed_data != NULL, selectors are those
     // for scanning type and attributes, and selectors
     // for scanning elements are in typed_data->saved_
@@ -1533,7 +1538,7 @@ CREATED_PREFIX:
 		    cstack.closing_next =
 		        min::NULL_STUB;
 		    separator_found =
-			BRA::parse_bracketed_subexpression
+			PARSE_BRA_SUBEXP
 			  ( parser, prefix_selectors,
 			    current, indent,
 			      prefix_selectors
@@ -2174,10 +2179,6 @@ NO_IMPLIED_PREFIX:
 	    {
 		BRA::opening_bracket opening_bracket =
 		    (BRA::opening_bracket) root;
-
-#		define PARSE_BRA_SUBEXP \
-		   BRA::parse_bracketed_subexpression
-		   // To avoid a too long line
 
 		TAB::flags new_selectors = selectors;
 		new_selectors |=
@@ -4128,7 +4129,7 @@ static min::gen bracketed_pass_command
 	    {
 		min::uns32 j = i;
 		min::locatable_gen name
-		  ( COM::scan_simple_name
+		  ( PAR::scan_simple_name
 			( vp, j,
 			  PAR::reformatter_lexeme ) );
 		if (    j < size
@@ -4152,7 +4153,7 @@ static min::gen bracketed_pass_command
 
 		    i = j + 1;
 
-		    name = COM::scan_names
+		    name = COM::scan_args
 			( vp, i, reformatter_arguments,
 			      parser );
 		    if ( name == min::ERROR() )

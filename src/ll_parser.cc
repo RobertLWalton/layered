@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  6 03:47:59 EST 2016
+// Date:	Thu Dec  8 01:50:16 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2213,6 +2213,95 @@ min::gen PAR::scan_name_string_label
 	( name_scanner_ref ( parser ),
 	  accepted_types, ignored_types, end_types,
 	  empty_name_ok );
+}
+
+min::gen PAR::scan_simple_name
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value )
+{
+    min::uns32 j = i;
+    min::uns32 s = min::size_of ( vp );
+    min::uns64 accepted_types = 1ull << LEXSTD::word_t;
+
+    while ( i < s )
+    {
+	min::uns32 t =
+	    LEXSTD::lexical_type_of ( vp[i] );
+	if ( ( ( 1ull << t ) & accepted_types )
+	     &&
+	     vp[i] != end_value )
+	    ++ i;
+	else
+	    break;
+	accepted_types |= 1ull << LEXSTD::natural_t
+	               |  1ull << LEXSTD::numeric_t;
+    }
+
+    if ( i == j ) return min::MISSING();
+    else if ( i == j + 1 ) return vp[j];
+
+    min::gen elements[i-j];
+    memcpy ( elements, & vp[j], sizeof ( elements ) );
+    return min::new_lab_gen ( elements, i - j );
+}
+
+min::gen PAR::scan_quoted_key
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::parser parser,
+	  bool empty_name_ok )
+{
+    min::gen result =
+        PAR::scan_name_string_label
+	    ( vp, i, parser,
+	      PAR::QUOTED_KEY_SCAN_MASK,
+	      PAR::IGNORED_SCAN_MASK,
+	      PAR::END_SCAN_MASK,
+	      empty_name_ok );
+
+    if ( result != min::ERROR() ) return result;
+
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, min::dot_position );
+    min::phrase_position_vec ppvec = min::get ( ap );
+    MIN_ASSERT ( ppvec != min::NULL_STUB,
+                 ".position attribute missing" );
+    MIN_ASSERT ( ppvec->file == parser->input_file,
+                 ".position attribute value file is"
+		 " not the same as parser input_file" );
+
+    return PAR::parse_error
+               ( parser, ppvec[i],
+	         "badly formed quoted key" );
+}
+
+min::gen PAR::scan_quoted_key_or_simple_name
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::parser parser,
+	  min::gen end_value )
+{
+    min::gen result =
+        PAR::scan_quoted_key ( vp, i, parser );
+    if ( result != min::MISSING() ) return result;
+
+    result = PAR::scan_simple_name ( vp, i, end_value );
+
+    if ( result != min::MISSING() ) return result;
+
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, min::dot_position );
+    min::phrase_position_vec ppvec = min::get ( ap );
+    MIN_ASSERT ( i > 0,
+                 "position at beginning of vector" );
+    MIN_ASSERT ( ppvec != min::NULL_STUB,
+                 ".position attribute missing" );
+    MIN_ASSERT ( ppvec->file == parser->input_file,
+                 ".position attribute value file is"
+		 " not the same as parser input_file" );
+
+    return PAR::parse_error
+               ( parser, ppvec[i-1],
+	         "expected quoted key or simple name"
+		 " after" );
 }
 
 void PAR::convert_token ( PAR::token token )

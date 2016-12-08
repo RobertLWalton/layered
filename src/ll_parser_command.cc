@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 28 06:58:00 EST 2016
+// Date:	Thu Dec  8 01:08:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,30 +125,8 @@ min::gen COM::scan_names
     min::locatable_gen name;
     while ( j < s )
     {
-        name =
-	    ( PAR::scan_name_string_label
-		( subvp, j, parser,
-
-		    ( 1ull << LEXSTD::mark_t )
-		  + ( 1ull << LEXSTD::separator_t )
-		  + ( 1ull << LEXSTD::word_t )
-		  + ( 1ull << LEXSTD::natural_t ),
-
-		    ( 1ull << LEXSTD::
-			      horizontal_space_t )
-		  + ( 1ull << LEXSTD::
-		              indent_before_comment_t )
-		  + ( 1ull << LEXSTD::
-		              indent_t )
-		  + ( 1ull << LEXSTD::
-		              premature_end_of_file_t )
-		  + ( 1ull << LEXSTD::start_of_file_t )
-		  + ( 1ull << LEXSTD::end_of_file_t ),
-
-		    ( 1ull << LEXSTD::
-		              premature_end_of_file_t )
-		  + ( 1ull << LEXSTD::end_of_file_t )
-		) );
+        name = PAR::scan_quoted_key
+	           ( subvp, j, parser );
 
 	if ( name == min::ERROR() ) return min::ERROR();
 
@@ -815,29 +793,9 @@ static min::gen execute_selectors
     }
     else /* if vp[1] == PAR::print */
     {
-	name = PAR::scan_name_string_label
-	    ( vp, i, parser,
-
-		( 1ull << LEXSTD::mark_t )
-	      + ( 1ull << LEXSTD::separator_t )
-	      + ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::natural_t ),
-
-		( 1ull << LEXSTD::
-			  horizontal_space_t )
-	      + ( 1ull << LEXSTD::
-			  indent_before_comment_t )
-	      + ( 1ull << LEXSTD::
-			  indent_t )
-	      + ( 1ull << LEXSTD::
-		          premature_end_of_file_t )
-	      + ( 1ull << LEXSTD::start_of_file_t )
-	      + ( 1ull << LEXSTD::end_of_file_t ),
-
-		( 1ull << LEXSTD::
-		          premature_end_of_file_t )
-	      + ( 1ull << LEXSTD::end_of_file_t ),
-	      true /* empty name ok */ );
+	name = PAR::scan_quoted_key
+		   ( vp, i, parser,
+		     true /* empty name OK */ );
 
 	if ( name == min::ERROR() )
 	    return min::ERROR();
@@ -946,29 +904,8 @@ static min::gen execute_context
 
     min::uns32 i = 3;
     min::locatable_gen name
-	( PAR::scan_name_string_label
-	    ( vp, i, parser,
-
-		( 1ull << LEXSTD::mark_t )
-	      + ( 1ull << LEXSTD::separator_t )
-	      + ( 1ull << LEXSTD::word_t )
-	      + ( 1ull << LEXSTD::natural_t ),
-
-		( 1ull << LEXSTD::
-			  horizontal_space_t )
-	      + ( 1ull << LEXSTD::
-			  indent_before_comment_t )
-	      + ( 1ull << LEXSTD::
-			  indent_t )
-	      + ( 1ull << LEXSTD::
-		          premature_end_of_file_t )
-	      + ( 1ull << LEXSTD::start_of_file_t )
-	      + ( 1ull << LEXSTD::end_of_file_t ),
-
-		( 1ull << LEXSTD::
-		          premature_end_of_file_t )
-	      + ( 1ull << LEXSTD::end_of_file_t ),
-		vp[1] == PAR::print ) );
+	( PAR::scan_quoted_key
+	    ( vp, i, parser, vp[1] == PAR::print ) );
 
     if ( name == min::ERROR() )
 	return min::ERROR();

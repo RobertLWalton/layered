@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  7 02:23:24 EST 2016
+// Date:	Thu Dec  8 01:00:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3317,29 +3317,8 @@ static min::gen bracketed_pass_command
 
 #   define SCAN_NAME(variable, partial_name_ok) \
         variable = \
-	  PAR::scan_name_string_label \
-	    ( vp, i, parser, \
-	    \
-	        ( 1ull << LEXSTD::mark_t ) \
-	      + ( 1ull << LEXSTD::separator_t ) \
-	      + ( 1ull << LEXSTD::word_t ) \
-	      + ( 1ull << LEXSTD::natural_t ), \
-	    \
-		( 1ull << LEXSTD:: \
-			  horizontal_space_t ) \
-	      + ( 1ull << LEXSTD:: \
-			  indent_before_comment_t ) \
-	      + ( 1ull << LEXSTD:: \
-			  indent_t ) \
-	      + ( 1ull << LEXSTD:: \
-		          premature_end_of_file_t ) \
-	      + ( 1ull << LEXSTD::start_of_file_t ) \
-	      + ( 1ull << LEXSTD::end_of_file_t ), \
-	    \
-	        ( 1ull << LEXSTD:: \
-		          premature_end_of_file_t ) \
-	      + ( 1ull << LEXSTD::end_of_file_t ), \
-	      partial_name_ok ); \
+	  PAR::scan_quoted_key \
+	    ( vp, i, parser, partial_name_ok ); \
 	\
 	if ( variable == min::ERROR() ) \
 	    return min::ERROR(); \
@@ -4653,26 +4632,9 @@ static min::gen bracketed_pass_command
 	    double_middle =
 		( LEX::scan_name_string
 		    ( name_scanner_ref ( parser ),
-			( 1ull << LEXSTD::mark_t )
-		      + ( 1ull << LEXSTD::separator_t )
-		      + ( 1ull << LEXSTD::word_t )
-		      + ( 1ull << LEXSTD::natural_t ),
-
-		      + ( 1ull << LEXSTD::indent_t )
-		      + (    1ull
-		          << LEXSTD::
-			     premature_end_of_file_t )
-		      + (    1ull
-		          << LEXSTD::start_of_file_t )
-		      + (    1ull
-		          << LEXSTD::end_of_file_t ),
-
-			(    1ull
-			  << LEXSTD:: 
-			     premature_end_of_file_t ) 
-		      + ( 1ull << LEXSTD::
-		                  end_of_file_t ),
-
+		      PAR::QUOTED_KEY_SCAN_MASK,
+		      PAR::IGNORED_SCAN_MASK,
+		      PAR::END_SCAN_MASK,
 		      false ) );
 
 	    if ( ! min::is_str ( double_middle ) )

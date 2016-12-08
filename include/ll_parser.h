@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  7 02:28:44 EST 2016
+// Date:	Thu Dec  8 00:59:56 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 # define LL_PARSER_H
 
 # include <ll_lexeme.h>
+# include <ll_lexeme_standard.h>
 # include <ll_parser_table.h>
 
 namespace ll { namespace parser {
@@ -1774,6 +1775,27 @@ min::gen get_attribute ( min::gen v, min::gen label );
 //
 bool is_prefix_separator ( min::gen v );
 
+// Scan type masks:
+//
+const min::uns64 QUOTED_KEY_SCAN_MASK =
+      ( 1ull << ll::lexeme::standard::mark_t )
+    + ( 1ull << ll::lexeme::standard::separator_t )
+    + ( 1ull << ll::lexeme::standard::word_t )
+    + ( 1ull << ll::lexeme::standard::natural_t );
+const min::uns64 IGNORED_SCAN_MASK =
+      ( 1ull << ll::lexeme::standard::horizontal_space_t )
+    + ( 1ull << ll::lexeme::standard
+                          ::indent_before_comment_t )
+    + ( 1ull << ll::lexeme::standard::indent_t )
+    + ( 1ull << ll::lexeme::standard
+                          ::premature_end_of_file_t )
+    + ( 1ull << ll::lexeme::standard::start_of_file_t )
+    + ( 1ull << ll::lexeme::standard::end_of_file_t );
+const min::uns64 END_SCAN_MASK =
+      ( 1ull << ll::lexeme::standard
+                          ::premature_end_of_file_t )
+    + ( 1ull << ll::lexeme::standard::end_of_file_t );
+
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
 // object attribute vector, then if the element is
@@ -1794,12 +1816,27 @@ bool is_prefix_separator ( min::gen v );
 // initializes it to its default.
 //
 min::gen scan_name_string_label
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser,
+      min::uns64 accepted_types,
+      min::uns64 ignored_types,
+      min::uns64 end_types,
+      bool empty_name_ok = false );
+
+// Ditto with scan types set for quoted key.
+//
+inline min::gen scan_quoted_key
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::parser parser,
-	  min::uns64 accepted_types,
-	  min::uns64 ignored_types,
-	  min::uns64 end_types,
-	  bool empty_name_ok = false );
+	  bool empty_name_ok = false )
+{
+    return scan_name_string_label
+	( vp, i, parser,
+	  QUOTED_KEY_SCAN_MASK,
+	  IGNORED_SCAN_MASK,
+	  END_SCAN_MASK,
+	  empty_name_ok );
+}
 
 // Skip n tokens.
 //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 05:06:42 EST 2016
+// Date:	Fri Dec  9 06:05:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,8 @@ min::locatable_gen PAR::ealtindent;
 min::locatable_gen PAR::eapbreak;
 min::locatable_gen PAR::ealsep;
 min::locatable_gen PAR::eaoclosing;
+min::locatable_gen PAR::sticky;
+min::locatable_gen PAR::continuing;
 min::locatable_gen PAR::other_ea_opt;
 min::locatable_gen PAR::default_opt;
 min::locatable_gen PAR::other_selectors;
@@ -151,7 +153,8 @@ static void initialize ( void )
     PAR::eaoclosing =
     	min::new_lab_gen
 	    ( "end", "at", "outer", "closing" );
-
+    PAR::sticky = min::new_str_gen ( "sticky" );
+    PAR::continuing = min::new_str_gen ( "continuing" );
 
     PAR::other_ea_opt =
         min::new_lab_gen ( "other", "end", "at",
@@ -779,6 +782,16 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PAR::eaoclosing ) );
+	MIN_REQUIRE
+	    (    PAR::STICKY_OPT
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::sticky ) );
+	MIN_REQUIRE
+	    (    PAR::CONTINUING_OPT
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::continuing ) );
 
 	while ( parser->selector_name_table->length
 	        < 16 )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 06:12:19 EST 2016
+// Date:	Fri Dec  9 06:10:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3625,9 +3625,6 @@ static min::gen bracketed_pass_command
 		<< min::pgen_name ( block_name )
 		<< ": " << min::save_indent;
 
-	    TAB::flags ALL_BUT_LSEP =
-	        PAR::ALL_OPT & ~ PAR::EALSEP_OPT;
-
 	    if ( subtype == BRA::OPENING_BRACKET
 		 ||
 		 subtype == BRA::TYPED_OPENING )
@@ -3708,7 +3705,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     ALL_BUT_LSEP )
+		     PAR::ALL_BRACKET_OPT )
 		{
 		    parser->printer
 			<< min::indent
@@ -3716,7 +3713,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( new_selectors,
-			  ALL_BUT_LSEP,
+			  PAR::ALL_BRACKET_OPT,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -3989,7 +3986,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     ALL_BUT_LSEP )
+		     PAR::ALL_PREFIX_OPT )
 		{
 		    parser->printer
 			<< min::indent
@@ -3997,7 +3994,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( new_selectors,
-			  ALL_BUT_LSEP,
+			  PAR::ALL_PREFIX_OPT,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -4112,7 +4109,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_OPT,
+			  PAR::ALL_BRACKET_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -4284,7 +4281,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_OPT,
+			  PAR::ALL_EA_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -4459,7 +4456,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_OPT,
+			  PAR::ALL_BRACKET_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -4698,7 +4695,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_OPT,
+			  PAR::ALL_PREFIX_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -4715,13 +4712,13 @@ static min::gen bracketed_pass_command
 	    if ( vp[i] == PAR::group )
 	    {
 		++ i;
-		if ( i >= size )
-		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "expected group name"
-			  " after" );
-		group = vp[i];
-		++ i;
+		min::phrase_position position
+		    = ppvec[i];
+		group = PAR::scan_name
+		          ( vp, i, parser, PAR::with );
+		if ( group == min::ERROR() )
+		    return min::ERROR();
+		position.end = (& ppvec[i-1])->end;
 	    }
 	    else
 	    if ( i + 1 < size

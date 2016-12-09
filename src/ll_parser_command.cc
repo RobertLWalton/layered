@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 02:47:56 EST 2016
+// Date:	Thu Dec  8 06:12:01 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,8 +95,7 @@ min::gen COM::scan_args
     min::locatable_gen name;
     while ( j < s )
     {
-        name = PAR::scan_quoted_key_or_simple_name
-	           ( subvp, j, parser );
+        name = PAR::scan_name ( subvp, j, parser );
 
 	if ( name == min::ERROR() ) return min::ERROR();
 

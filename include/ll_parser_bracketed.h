@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  7 01:43:47 EST 2016
+// Date:	Fri Dec  9 05:11:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -150,7 +150,7 @@ struct indentation_mark_struct :
     min::gen implied_paragraph_header;
 
     uns32 lexical_master;
-        // ll::lexeme::MISSING if missing.
+        // ll::lexeme::MISSING_MASTER if missing.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -195,7 +195,7 @@ ll::parser::bracketed::indentation_mark
 	  min::gen implied_paragraph_header,
 	      // May be min::MISSING()
 	  min::uns32 lexical_master,
-	      // May be ll::lexeme::MISSING
+	      // May be ll::lexeme::MISSING_MASTER
 	  ll::parser::table::key_table bracket_table );
 
 // Typed Brackets
@@ -607,6 +607,7 @@ struct prefix_struct
         // This is just a cache of the .type of
 	// the implied prefix, or MISSING if none.
     min::uns32 lexical_master;
+        // ll::lexeme::MISSING_MASTER if missing.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -634,6 +635,7 @@ void push_prefix
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
 	  min::uns32 lexical_master,
+	      // May be ll::lexeme::MISSING_MASTER
 	  ll::parser::table::key_table prefix_table );
 
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 20:56:54 EST 2016
+// Date:	Fri Dec  9 05:11:53 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,7 @@
 //	Data
 //	Program Construction
 //	Scanner Closures
-//	Scanning
+//	Scanner
 //	Printing
 //	Printing Programs
 //	Name String Scanning
@@ -47,6 +47,11 @@ using namespace LEX::program_data;
 // Data
 // ----
 
+static uns32 scanner_gen_disp[] =
+    { min::DISP ( & LEX::scanner_struct
+                       ::lexical_master_table ),
+      min::DISP_END };
+
 static uns32 scanner_stub_disp[] =
     { min::DISP ( & LEX::scanner_struct::program ),
       min::DISP ( & LEX::scanner_struct::input_buffer ),
@@ -64,7 +69,8 @@ static uns32 scanner_stub_disp[] =
 
 static min::packed_struct<LEX::scanner_struct>
    scanner_type ( "ll::lexeme::scanner_type",
-	          NULL, ::scanner_stub_disp );
+	          ::scanner_gen_disp,
+	          ::scanner_stub_disp );
 
 static min::packed_vec<char>
     char_vec_type ( "ll::lexeme::char_vec_type" );
@@ -948,8 +954,8 @@ static void initialize ()
 static min::initializer initializer ( ::initialize );
 
 
-// Scanning
-// --------
+// Scanner
+// -------
 
 // Return true if table_ID is in return_stack.
 //
@@ -1016,6 +1022,31 @@ void LEX::init_program
     init ( scanner );
     program_ref(scanner) = program;
     scanner->initial_table = initial_table;
+
+    min::uns32 max_master =
+	LEXDATA::max_master ( program );
+    lexical_master_table_ref(scanner) =
+        min::new_obj_gen
+	    ( 5 * ( max_master + 1 ),
+	      5 * ( max_master + 1 ) );
+    min::obj_vec_insptr vp
+        ( scanner->lexical_master_table );
+    min::attr_insptr ap ( vp );
+
+    min::ptr<const char> nullp;
+    min::locatable_gen name, index;
+    for ( min::uns32 m = 0; m <= max_master; ++ m )
+    {
+	min::ptr<const char> namep =
+	    LEXDATA::master_name ( program, m );
+	if ( namep != nullp )
+	{
+	    name = min::new_name_gen ( namep );
+	    index = min::new_num_gen ( m );
+	    min::locate ( ap, name );
+	    min::set ( ap, index );
+	}
+    }
 }
 
 void LEX::init_input_file
@@ -2085,6 +2116,21 @@ static min::printer scan_error
 	<< min::reserve ( length )
 	<< pinput ( scanner, next, next + length )
 	<< ": " << min::reserve ( 20 );
+}
+
+min::uns32 LEX::lexical_master_index
+	( min::gen lexical_master_name,
+	  ll::lexeme::scanner scanner )
+{
+    min::obj_vec_ptr vp = scanner->lexical_master_table;
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, lexical_master_name );
+    min::gen index = min::get ( ap );
+
+    if ( ! min::is_num ( index ) )
+        return LEX::MISSING_MASTER;
+    else
+        return min::int_of ( index );
 }
 
 // Printing

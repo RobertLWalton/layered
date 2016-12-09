@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 01:52:19 EST 2016
+// Date:	Thu Dec  8 06:12:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3898,7 +3898,7 @@ static min::gen bracketed_pass_command
 		min::uns32 master =
 		    indentation_mark->
 		        lexical_master;
-		if ( master != LEX::MISSING )
+		if ( master != LEX::MISSING_MASTER )
 		{
 		    parser->printer
 			<< min::indent
@@ -3969,7 +3969,7 @@ static min::gen bracketed_pass_command
 
 		min::uns32 master =
 		    prefix->lexical_master;
-		if ( master != LEX::MISSING )
+		if ( master != LEX::MISSING_MASTER )
 		{
 		    parser->printer
 			<< min::indent
@@ -4244,7 +4244,7 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
-	min::uns32 lexical_master = LEX::MISSING;
+	min::uns32 lexical_master = LEX::MISSING_MASTER;
 	min::locatable_gen implied_paragraph_header
 	    ( min::MISSING() );
 	while ( i < size && vp[i] == PAR::with )
@@ -4305,51 +4305,28 @@ static min::gen bracketed_pass_command
 		 vp[i+1] == PAR::master )
 	    {
 		i += 2;
-		if ( i >= size
-		     ||
-                        PAR::get_attribute
-		            ( vp[i], min::dot_type )
-                     != PAR::doublequote )
+		min::phrase_position position
+		    = ppvec[i];
+		min::locatable_gen master_name
+		    ( PAR::scan_name
+		        ( vp, i, parser, PAR::with ) );
+		if ( master_name == min::ERROR() )
+		    return min::ERROR();
+		position.end = (& ppvec[i-1])->end;
+
+		lexical_master =
+		    LEX::lexical_master_index
+		        ( master_name,
+			  parser->scanner );
+		if (    lexical_master
+		     == LEX::MISSING_MASTER )
 		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "expected quoted string"
-			  " after" );
-
-		min::obj_vec_ptr ep = vp[i];
-		if ( min::size_of ( ep ) != 1 )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "malformed quoted string" );
-
-		min::str_ptr sp = ep[0];
-		++ i;
-
-		LEX::program program =
-		    parser->scanner->program;
-
-		min::uns32 max_master =
-		    LEXDATA::max_master ( program );
-		min::ptr<const char> nullp;
-		for ( min::uns32 m = 0; m <= max_master;
-		                        ++ m )
-		{
-		    min::ptr<const char> name =
-			LEXDATA::master_name
-			    ( program, m );
-		    if ( name != nullp
-		         &&
-			    min::strcmp ( ! name, sp )
-		         == 0 )
-		    {
-		        lexical_master = m;
-			break;
-		    }
-		}
-		if ( lexical_master == LEX::MISSING )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "quoted string does NOT name"
-			  " a lexical master" );
+			( parser, position,
+			  "`",
+			  min::pgen_quote
+			      ( master_name ),
+			  "' does NOT name a lexical"
+			  " master" );
 	    }
 	    else
 	    if ( i + 2 < size
@@ -4682,7 +4659,7 @@ static min::gen bracketed_pass_command
 	    ( min::MISSING() );
 	min::locatable_gen implied_subprefix_type
 	    ( min::MISSING() );
-	min::uns32 lexical_master = LEX::MISSING;
+	min::uns32 lexical_master = LEX::MISSING_MASTER;
 
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -4789,51 +4766,28 @@ static min::gen bracketed_pass_command
 		 vp[i+1] == PAR::master )
 	    {
 		i += 2;
-		if ( i >= size
-		     ||
-                        PAR::get_attribute
-		            ( vp[i], min::dot_type )
-                     != PAR::doublequote )
+		min::phrase_position position
+		    = ppvec[i];
+		min::locatable_gen master_name
+		    ( PAR::scan_name
+		        ( vp, i, parser, PAR::with ) );
+		if ( master_name == min::ERROR() )
+		    return min::ERROR();
+		position.end = (& ppvec[i-1])->end;
+
+		lexical_master =
+		    LEX::lexical_master_index
+		        ( master_name,
+			  parser->scanner );
+		if (    lexical_master
+		     == LEX::MISSING_MASTER )
 		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "expected quoted string"
-			  " after" );
-
-		min::obj_vec_ptr ep = vp[i];
-		if ( min::size_of ( ep ) != 1 )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "malformed quoted string" );
-
-		min::str_ptr sp = ep[0];
-		++ i;
-
-		LEX::program program =
-		    parser->scanner->program;
-
-		min::uns32 max_master =
-		    LEXDATA::max_master ( program );
-		min::ptr<const char> nullp;
-		for ( min::uns32 m = 0; m <= max_master;
-		                        ++ m )
-		{
-		    min::ptr<const char> name =
-			LEXDATA::master_name
-			    ( program, m );
-		    if ( name != nullp
-		         &&
-			    min::strcmp ( ! name, sp )
-		         == 0 )
-		    {
-		        lexical_master = m;
-			break;
-		    }
-		}
-		if ( lexical_master == LEX::MISSING )
-		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "quoted string does NOT name"
-			  " a lexical master" );
+			( parser, position,
+			  "`",
+			  min::pgen_quote
+			      ( master_name ),
+			  "' does NOT name a lexical"
+			  " master" );
 	    }
 	    else
 		return PAR::parse_error

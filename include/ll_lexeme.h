@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 19:50:03 EST 2016
+// Date:	Fri Dec  9 04:36:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -849,6 +849,14 @@ namespace ll { namespace lexeme {
 	//
 	uns32 initial_table;
 
+	// Map of lexical master names to lexical master
+	// indices.  An object whose attribute names are
+	// the names and whose corresponding attribute
+	// values are the indices.  Initialized when
+	// scanner program is (re)set.
+	//
+	const min::gen lexical_master_table;
+
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
 	// vector, increasing the length of the buffer
@@ -957,6 +965,8 @@ namespace ll { namespace lexeme {
 
     MIN_REF ( ll::lexeme::program, program,
               ll::lexeme::scanner )
+    MIN_REF ( min::gen, lexical_master_table,
+              ll::lexeme::scanner )
     MIN_REF ( ll::lexeme::input, input,
               ll::lexeme::scanner )
     MIN_REF ( min::file, input_file,
@@ -1061,6 +1071,15 @@ namespace ll { namespace lexeme {
             ( uns32 & first, uns32 & next,
 	      ll::lexeme::scanner scanner =
 	          default_scanner );
+
+    // Return index of a lexical master given the name
+    // of the master.  Return MISSING_MASTER if none.
+    //
+    const uns32 MISSING_MASTER = 0xFFFFFFFF;
+    uns32 lexical_master_index
+	    ( min::gen lexical_master_name,
+              ll::lexeme::scanner scanner =
+		  default_scanner );
 } }
 
 // Printing

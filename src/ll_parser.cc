@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 01:50:16 EST 2016
+// Date:	Fri Dec  9 05:06:42 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -860,7 +860,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		( PAR::top_level, PAR::semicolon,
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
-		  min::MISSING(), LEX::MISSING,
+		  min::MISSING(), LEX::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	min::locatable_gen label_name
@@ -2274,7 +2274,7 @@ min::gen PAR::scan_quoted_key
 	         "badly formed quoted key" );
 }
 
-min::gen PAR::scan_quoted_key_or_simple_name
+min::gen PAR::scan_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::parser parser,
 	  min::gen end_value )

@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 8, 2016
+December 9, 2016
  
 \end{center}
 
@@ -3701,6 +3701,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{header} ::= {\em paragraph-header} ~~~ [see \itemref{HEADED-PARAGRAPHS}]
 \\[0.5ex]
 \emkey{master-name} ::= {\em quoted-key}
+                    $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
 \emkey{indentation-offset} ::= unsigned integer
 \end{indpar}
@@ -4557,7 +4558,7 @@ The general syntax of {\em parser-prefix-commands} is:
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  {}[ \TT{with group} {\em prefix-group} ] \\
 	  {}[ \TT{with implied subprefix} {\em implied-prefix} ] \\
-	  {}[ \TT{with lexical master} {\em lexical-master} ] \\
+	  {}[ \TT{with lexical master} {\em master-name} ] \\
 	  {}[ \TT{with parsing options} {\em prefix-options} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine prefix}{prefix!parser undefine}
@@ -4576,7 +4577,8 @@ The general syntax of {\em parser-prefix-commands} is:
 \emkey{implied-prefix} ::= {\em typed-prefix-separator}\label{IMPLIED-PREFIX}
 				~~~~~ [see \pagref{TYPED-PREFIX-SEPARATOR}]
 \\[0.5ex]
-\emkey{lexical-master} ::= {\em quoted-key}
+\emkey{master-name} ::= {\em quoted-key}
+                    $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
 \emkey{prefix-options}
     ::= \TT{[]}

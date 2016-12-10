@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 06:05:07 EST 2016
+// Date:	Sat Dec 10 00:04:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -823,7 +823,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root
-	    ( PAR::other_selectors, PAR::ALL_SELECTORS,
+	    ( PAR::other_selectors,
+	      PAR::COMMAND_SELECTORS,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 

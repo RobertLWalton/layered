@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 06:12:01 EST 2016
+// Date:	Fri Dec  9 23:39:56 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -132,23 +132,23 @@ min::gen COM::scan_args
 // NULL_STUB, indicating that it is empty.
 //
 // If the flag is preceded by an operator, +, -, or ^,
-// then if allows_flag_modifier_list is true, the
+// then if allow_flag_modifier_list is true, the
 // found flag set is OR'ed into the associated component
 // of new_flags or group_new_flags, i.e., into the
 // or_flags, not_flags, or xor_flags component, and
 // allow_flag_list is set to false.  It is an error if
-// there is an operator and allows_flag_modifier_list
+// there is an operator and allow_flag_modifier_list
 // is false.
-//
-// It is an error if a named flag is not in allowed_
-// flags, but flags in named flag group need not be
-// in allowed flags.
 //
 // If the flag is NOT preceeded by an operator, then if
 // allows_flag_list is true, the found flag set is
 // OR'ed into the or_flags component, and allow_flag_
 // modifier_list is set to false.  Is it an error if
 // there is NO operator and allows_flag_list is false.
+//
+// It is an error if a named flag is not in allowed_
+// flags, but flags in named flag group need not be
+// in allowed flags.
 //
 // On errors an error message is printed and false
 // is returned.  Otherwise true is returned.
@@ -384,7 +384,7 @@ static min::gen scan_new_flags
 	| new_flags.not_flags
 	| new_flags.xor_flags;
 
-    mask = ~ mask;
+    mask = ~ mask & allowed_flags;
 
     new_flags.or_flags |=
         new_group_flags.or_flags & mask;
@@ -469,7 +469,7 @@ void COM::print_new_flags
 	TAB::flags suppress =
 	    ( is_flag_list ?
 	        nf.not_flags | ~ allowed_flags :
-	        TAB::ALL_FLAGS & ~ all_flags );
+	        ~ all_flags );
 
 	bool first = true;
 	for ( min::unsptr i = 0;
@@ -581,7 +581,7 @@ static min::gen execute_pass
     {
 	min::gen result = COM::scan_flags
 		    ( vp, i, selectors,
-		      PAR::ALL_SELECTORS,
+		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser->selector_group_name_table,
 		      parser );
@@ -677,7 +677,7 @@ static min::gen execute_pass
 		parser->printer << " ";
 		COM::print_flags
 		    ( pass->selectors,
-		      PAR::ALL_SELECTORS,
+		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser );
 	    }
@@ -909,8 +909,8 @@ static min::gen execute_context
 
 
 		COM::print_flags
-		    ( flags & ~ PAR::ALWAYS_SELECTOR,
-		      PAR::ALL_SELECTORS,
+		    ( flags,
+		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser );
 
@@ -966,7 +966,7 @@ static min::gen execute_context
 
 		COM::print_new_flags
 		    ( context->new_selectors,
-		      PAR::ALL_SELECTORS,
+		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser, true );
 
@@ -1019,14 +1019,14 @@ static min::gen execute_context
 	    if ( name == PAR::default_lexeme )
 		result = COM::scan_flags
 		    ( vp, i, selectors,
-		      PAR::ALL_SELECTORS,
+		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser->selector_group_name_table,
 		      parser );
 	    else
 		result = COM::scan_new_flags
 		    ( vp, i, new_selectors,
-		      PAR::ALL_SELECTORS,
+		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser->selector_group_name_table,
 		      parser, true );

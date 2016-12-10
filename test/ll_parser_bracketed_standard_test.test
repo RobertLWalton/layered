@@ -3155,12 +3155,9 @@ parser print bracket "":
     block standard: bracket "(" ... ")" [data, code, math, text]
     block TOP LEVEL: bracket "(" ... ")" [data]
     block standard: indentation mark ":" ... ";" [code]
-                    with parsing options [- end at line break,
-                                          + end at le indent,
-                                          - end at lt indent,
-                                          - end at paragraph break,
-                                          + end at line separator,
-                                          + end at outer closing]
+                    with parsing options [end at le indent,
+                                          end at line separator,
+                                          end at outer closing]
     block standard: bracket "[" ... "]" [data, code, math, text]
     block TOP LEVEL: bracket "[" ... "]" [data]
     block standard: bracket "`" ... "'" [code, math, text]

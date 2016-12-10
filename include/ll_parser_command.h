@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 01:50:55 EST 2016
+// Date:	Fri Dec  9 23:31:15 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,8 +84,12 @@ min::gen scan_args
 // subexpression, just return min::FAILURE().
 // If it is a []-bracketed subexpression with an error,
 // print error messages to parser->printer, increment i,
-// and return min::ERROR().  It is an error if any flag
-// is not an allowed_flag.
+// and return min::ERROR().
+//
+// It is an error if any flag is not an allowed_flags.
+// It is NOT an error if a flag group contains a flag
+// not in allowed_flags.  However, only bits for flags
+// in allowed_flags are set in flags.
 //
 // It is assumed that the []-bracketed subexpression
 // does NOT have a separator and any comma separators
@@ -102,8 +106,12 @@ min::gen scan_flags
 // Ditto but scan a flag modifier list into new_flags
 // instead of a flag list into flags.  If allow_flag_
 // list is true, accept either a flag modifier list or a
-// flag list (encode the latter by setting or_flags =
-// flags, not_flags = ~ flags, xor_flags = 0).
+// flag list.  A flag list is encoded by setting
+// or_flags = flags, not_flags = ~flags & allowed_flags,
+// and xor_flags = 0).
+//
+// Only bits in allowed_flags are set in or_flags,
+// not_flags, and xor_flags.
 //
 min::gen scan_new_flags
 	( min::obj_vec_ptr & vp, min::uns32 & i,

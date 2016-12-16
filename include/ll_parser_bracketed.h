@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 05:11:07 EST 2016
+// Date:	Fri Dec 16 05:58:02 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -147,7 +147,7 @@ struct indentation_mark_struct :
 
     const ll::parser::bracketed::line_sep line_sep;
 
-    min::gen implied_paragraph_header;
+    min::gen implied_header;
 
     uns32 lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
@@ -160,7 +160,7 @@ MIN_REF ( min::gen, label,
 MIN_REF ( ll::parser::bracketed::line_sep,
           line_sep,
           ll::parser::bracketed::indentation_mark )
-MIN_REF ( min::gen, implied_paragraph_header,
+MIN_REF ( min::gen, implied_header,
           ll::parser::bracketed::indentation_mark )
 
 struct line_sep_struct : 
@@ -192,7 +192,7 @@ ll::parser::bracketed::indentation_mark
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
 	      & new_selectors,
-	  min::gen implied_paragraph_header,
+	  min::gen implied_header,
 	      // May be min::MISSING()
 	  min::uns32 lexical_master,
 	      // May be ll::lexeme::MISSING_MASTER

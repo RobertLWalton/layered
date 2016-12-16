@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 00:04:07 EST 2016
+// Date:	Fri Dec 16 05:53:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2154,22 +2154,6 @@ PAR::token PAR::find_separator
     return first;
 }
 
-min::gen PAR::get_attribute
-	( min::gen v, min::gen label )
-{
-    if ( ! min::is_obj ( v ) ) return min::MISSING();
-    min::obj_vec_ptr vp ( v );
-    min::attr_ptr ap ( vp );
-    min::locate ( ap, label );
-    min::gen result = min::get ( ap );
-    if ( result == min::NONE()
-         ||
-	 result == min::MULTI_VALUED() )
-	return min::MISSING();
-    else
-    	return result;
-}
-
 bool PAR::is_prefix_separator ( min::gen v )
 {
     if ( ! min::is_obj ( v ) ) return false;
@@ -2196,7 +2180,7 @@ min::gen PAR::scan_name_string_label
 
     min::gen element = vp[i];
 
-    if (    get_attribute ( element, min::dot_type )
+    if (    min::get ( element, min::dot_type )
          != PAR::doublequote )
         return min::MISSING();
 

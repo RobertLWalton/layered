@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 00:17:40 EST 2016
+// Date:	Fri Dec 16 05:55:13 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1776,14 +1776,6 @@ ll::parser::token find_separator
 	  ll::parser::token next,
 	  min::gen * separator,
 	  min::uns32 n );
-
-// Given a min::gen value v, return the value of the
-// attribute with the given label of v if v is an object
-// with an attribute of the given label whose value is
-// not missing or multi-valued, or return min::MISSING()
-// otherwise.
-//
-min::gen get_attribute ( min::gen v, min::gen label );
 
 // Return true iff v is an object with no elements and
 // a .type attribute that is a min string or label.

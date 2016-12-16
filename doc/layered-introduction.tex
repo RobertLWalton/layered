@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 9, 2016
+December 10, 2016
  
 \end{center}
 
@@ -3670,7 +3670,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {\em indentation-name} {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
 	  {}[ \TT{with parsing options} {\em end-at-options} ] \\
-	  {}[ \TT{with implied paragraph header} {\em header} ] \\
+	  {}[ \TT{with implied header} {\em header} ] \\
 	  {}[ \TT{with lexical master} {\em master-name} ] \\
 	  \end{tabular} \\
     $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
@@ -3698,7 +3698,9 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
 \\[0.5ex]
-\emkey{header} ::= {\em paragraph-header} ~~~ [see \itemref{HEADED-PARAGRAPHS}]
+\emkey{header} ::= {\em typed-prefix-separator}
+                   (\pagref{TYPED-PREFIX-SEPARATOR}) with `\TT{paragraph}'
+                   or `\TT{line}' \TT{.type} (\pagref{HEADED-LINES})
 \\[0.5ex]
 \emkey{master-name} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'

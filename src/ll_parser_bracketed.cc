@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 00:04:18 EST 2016
+// Date:	Fri Dec 16 05:51:46 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -190,7 +190,7 @@ BRA::opening_bracket
 static min::uns32 indentation_mark_gen_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::label ),
     min::DISP ( & BRA::indentation_mark_struct
-                     ::implied_paragraph_header ),
+                     ::implied_header ),
     min::DISP_END };
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::next ),
@@ -230,7 +230,7 @@ BRA::indentation_mark
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
-	  min::gen implied_paragraph_header,
+	  min::gen implied_header,
 	  min::uns32 lexical_master,
 	  TAB::key_table bracket_table )
 {
@@ -241,8 +241,7 @@ BRA::indentation_mark
     imark->block_level = block_level;
     imark->position = position;
     imark->new_selectors = new_selectors;
-    implied_paragraph_header_ref(imark) =
-        implied_paragraph_header;
+    implied_header_ref(imark) = implied_header;
     imark->lexical_master = lexical_master;
     TAB::push ( bracket_table, (TAB::root) imark );
 
@@ -3884,12 +3883,11 @@ static min::gen bracketed_pass_command
 
 		min::gen header =
 		    indentation_mark->
-		        implied_paragraph_header;
+		        implied_header;
 		if ( header != min::MISSING() )
 		    parser->printer
 			<< min::indent
-			<< "with implied paragraph"
-			   " header "
+			<< "with implied header "
 			<< min::pgen ( header );
 
 		min::uns32 master =
@@ -4233,7 +4231,7 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
 	min::uns32 lexical_master = LEX::MISSING_MASTER;
-	min::locatable_gen implied_paragraph_header
+	min::locatable_gen implied_header
 	    ( min::MISSING() );
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -4321,8 +4319,6 @@ static min::gen bracketed_pass_command
 		 &&
 		 vp[i] == PAR::implied
 		 &&
-		 vp[i+1] == PAR::paragraph_lexeme
-		 &&
 		 vp[i+2] == PAR::header_lexeme )
 	    {
 		i += 3;
@@ -4334,7 +4330,18 @@ static min::gen bracketed_pass_command
 			( parser, ppvec[i-1],
 			  "expected prefix separator"
 			  " after" );
-		implied_paragraph_header = vp[i];
+		min::gen header_type =
+		    min::get ( vp[i], min::dot_type );
+		if ( header_type != PAR::line_lexeme
+		     &&
+		        header_type
+		     != PAR::paragraph_lexeme )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "implied header does NOT have"
+			  " `line' or `paragraph'"
+			  " .type" );
+		implied_header = vp[i];
 		++ i;
 	    }
 	    else
@@ -4372,7 +4379,7 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
-	      implied_paragraph_header,
+	      implied_header,
 	      lexical_master,
 	      bracketed_pass->bracket_table );
 
@@ -4727,9 +4734,8 @@ static min::gen bracketed_pass_command
 			  "implied subprefix should be"
 			  " prefix separator" );
 		implied_subprefix_type =
-		    PAR::get_attribute
-			( implied_subprefix,
-			  min::dot_type );
+		    min::get ( implied_subprefix,
+			       min::dot_type );
 		if ( ! min::is_name
 		           ( implied_subprefix_type ) )
 		    return PAR::parse_error

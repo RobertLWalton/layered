@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 00:04:33 EST 2016
+// Date:	Fri Dec 16 05:52:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1900,7 +1900,7 @@ static min::gen oper_pass_command
 	    min::gen pg = min::MISSING();
 	    if ( i < size )
 	    {
-		if (    PAR::get_attribute
+		if (    min::get
 		            ( vp[i], min::dot_type )
 		     == PAR::number_sign )
 		{

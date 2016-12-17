@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 05:51:46 EST 2016
+// Date:	Sat Dec 17 02:12:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -923,7 +923,7 @@ static void make_label
 
 	case LEXSTD::word_t:
 	case LEXSTD::natural_t:
-	    continue;
+	    break;
 
 	case LEXSTD::quoted_string_t:
 	case LEXSTD::numeric_t:
@@ -940,20 +940,17 @@ static void make_label
 	    if ( min::is_lab ( t->value ) 
 	         &&
 		 allow_sublabels )
-	        continue;
+	        break;
 
 	default:
 	    PAR::parse_error
 	        ( parser, t->position,
-		  "subexpression ",
-		  min::pgen_quote ( t->value ),
-		  " illegal for label element;"
-		  " changed to"
-		  " ERRONEOUS-LABEL-COMPONENT" );
+		  "not a legal label element `",
+		  min::pgen_never_quote ( t->value ),
+		  "'; ignored" );
 
 	    t->type = PAR::DERIVED;
-	    value_ref(t) = min::new_str_gen
-	        ( "ERRONEOUS-LABEL-COMPONENT" );
+	    value_ref(t) = min::NONE();
 	}
     }
 
@@ -963,29 +960,32 @@ static void make_label
 	put_before ( PAR::first_ref(parser),
 	             next, first );
 	PAR::value_ref(first) = min::empty_lab;
+	return;
     }
-    else if ( count != 1 )
-    {
-	min::gen vec[count];
-	min::unsptr i = 0;
-	for ( PAR::token t = first; t != next;
-			 t = t->next )
-	    vec[i++] = t->value;
-	MIN_REQUIRE ( i == count );
-	PAR::value_ref(first) =
-	    min::new_lab_gen ( vec, count );
 
-	// Don't deallocate tokens until their values
-	// have been put in gc protected label.
-	//
-	for ( PAR::token t = first->next; t != next; )
-	{
-	    t = t->next;
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      t->previous ) );
-	}
+    min::gen vec[count];
+    min::unsptr i = 0;
+    for ( PAR::token t = first; t != next; t = t->next )
+    {
+	if ( t->value != min::NONE() )
+	    vec[i++] = t->value;
+    }
+    if ( i == 1 )
+	PAR::value_ref(first) = vec[0];
+    else
+	PAR::value_ref(first) =
+	    min::new_lab_gen ( vec, i );
+
+    // Don't deallocate tokens until their values
+    // have been put in gc protected label.
+    //
+    for ( PAR::token t = first->next; t != next; )
+    {
+	t = t->next;
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  t->previous ) );
     }
 
     first->type = PAR::DERIVED;
@@ -1225,18 +1225,19 @@ inline void finish_attribute
 	if ( start == next )
 	{
 	    missing_error ( parser, next,
-	                    "attribute value" );
+	                    "attribute value;"
+			    " attribute ignored" );
 	    start = PAR::new_token ( BRA::ATTR_VALUE );
 	    put_before ( PAR::first_ref(parser),
 			 next, start );
+	    // Position needed to determine end of
+	    // typed bracketed expression.
 	    min::phrase_position pos =
 	        { typed_data->end_position,
 	          typed_data->end_position };
 		// Position recorded by ATTR_EQUAL.
 	    start->position = pos;
-	    PAR::value_ref(start) =
-	        min::new_str_gen
-		    ( "OMITTED ATTRIBUTE VALUE" );
+	    PAR::value_ref(start) = min::NONE();
 	}
 	else if ( start->next == next
 	          &&
@@ -1252,6 +1253,20 @@ inline void finish_attribute
 		  initiator != min::MISSING() ?
 		  BRA::ATTR_MULTIVALUE :
 		  BRA::ATTR_VALUE );
+
+	    if ( start->type == BRA::ATTR_VALUE
+	         &&
+		 ! min::is_attr_legal ( start->value ) )
+	    {
+		PAR::parse_error
+		  ( parser,
+		    start->position,
+		    "not a legal attribute value `",
+		    min::pgen_never_quote
+		        ( start->value ),
+		    "'; attribute ignored" );
+		PAR::value_ref(start) = min::NONE();
+	    }
 	}
 	else
 	{
@@ -2587,8 +2602,20 @@ NO_IMPLIED_PREFIX:
 			}
 		        else if (    t->type
 			          == BRA::ATTR_VALUE )
-			    attributes[i-1].value =
-			        t->value;
+			{
+			    // min::is_attr_legal
+			    //     ( t->value )
+			    // checked when token made
+			    // and if false token value
+			    // replaced by NONE.
+			    //
+			    if (    t->value
+			         == min::NONE() )
+			        -- i;
+			    else
+				attributes[i-1].value =
+				    t->value;
+			}
 		        else if (    t->type
 			          == BRA::
 				     ATTR_MULTIVALUE )

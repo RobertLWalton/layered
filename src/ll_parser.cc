@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 05:53:47 EST 2016
+// Date:	Sat Dec 17 01:46:24 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1322,9 +1322,6 @@ void PAR::parse ( PAR::parser parser )
 	    attributes[n++] =
 		PAR::attr ( min::dot_initiator,
 	                    min::LOGICAL_LINE() );
-	    attributes[n++] =
-		PAR::attr ( min::dot_terminator,
-	                    PAR::new_line );
 
 	    if ( separator_found )
 	    {
@@ -1341,6 +1338,10 @@ void PAR::parse ( PAR::parser parser )
 				terminator );
 		position.end = separator_found;
 	    }
+	    else
+		attributes[n++] =
+		    PAR::attr ( min::dot_terminator,
+	                        PAR::new_line );
 
 	    min::gen g = first->value;
 	    bool maybe_parser_command =
@@ -1848,9 +1849,27 @@ static void set_attr_multivalue
     min::unsptr n =
 	min::attr_size_of ( vp );
     min::gen values[n];
+    min::unsptr m = 0;
     for ( min::unsptr i = 0; i < n; ++ i )
-	values[i] = min::attr ( vp, i );
-    min::set ( expap, values, n );
+    {
+	min::gen value = min::attr ( vp, i );
+	if ( min::is_attr_legal ( value ) )
+	    values[m++] = value;
+	else
+	{
+	    min::attr_ptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    min::phrase_position_vec_insptr pos =
+		min::get ( ap );
+	    min::phrase_position position = pos[i];
+	    PAR::parse_error
+		( parser, position,
+		  "not a legal attribute value `",
+		   min::pgen_never_quote ( value ),
+		   "'; ignored" );
+	}
+    }
+    min::set ( expap, values, m );
 }
 
 void PAR::compact
@@ -1951,8 +1970,19 @@ void PAR::compact
 	for ( PAR::token current = first;
 	      current != next; )
 	{
-	    min::attr_push(expvp) = current->value;
-	    min::push ( pos ) = current->position;
+	    if ( min::is_attr_legal ( current->value ) )
+	    {
+		min::attr_push(expvp) = current->value;
+		min::push ( pos ) = current->position;
+	    }
+	    else
+	        PAR::parse_error
+		    ( parser, current->position,
+		      "not a legal object element"
+		      " value; `",
+		      min::pgen_never_quote
+		          ( current->value ),
+		      "'; ignored" );
 
 	    current = current->next;
 	    PAR::free
@@ -2053,10 +2083,19 @@ void PAR::compact_prefix_separator
 		PAR::convert_token
 		    ( current );
 
-	    min::attr_push(vp) =
-		current->value;
-	    min::push ( pos ) =
-		current->position;
+	    if ( min::is_attr_legal ( current->value ) )
+	    {
+		min::attr_push(vp) = current->value;
+		min::push ( pos ) = current->position;
+	    }
+	    else
+	        PAR::parse_error
+		    ( parser, current->position,
+		      "not a legal object element"
+		      " value; `",
+		      min::pgen_never_quote
+		          ( current->value ),
+		      "'; ignored" );
 
 	    current = current->next;
 	    PAR::free

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 00:53:19 EST 2016
+// Date:	Sat Dec 17 02:59:35 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -102,10 +102,14 @@ And one more {| |b["A", 201,202, [5]]: t}
 [< hi >]
 [< >]
 [< [$ MISSING $] >]
-{ x = 1, y = [$ ENABLED $], z = [$ MISSING $] }
+{ x = 1, y = [$ NONE $], z = [$ MISSING $] }
+{ x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
+{ x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
+         z 22 = 33 }
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 {X} a b c; {X}{Y} f g; {X} h k
+{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
 {p} {s} This is a sentence.
     {s} And another.
   {p} {s} And a new {foo} paragraph.

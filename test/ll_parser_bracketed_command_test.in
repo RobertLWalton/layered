@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 17 22:59:13 EST 2016
+// Date:	Sat Dec 17 23:44:20 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -229,4 +229,37 @@ parser begin block 1
 parser define bracket "[0" ... "0]" [code]
        with special reformatter
 parser test [0 LOGICAL_LINE 0]
+parser end block 1
+
+parser begin block 1
+parser define prefix "P1" [code, text]
+       with parsing selectors [text]
+       with group P
+       with implied subprefix {S1}
+       with parsing options [end at paragraph break]
+parser define prefix "P2" [code, text]
+       with parsing selectors [text]
+       with group P
+       with implied subprefix {S1}
+       with parsing options [end at paragraph break]
+parser define prefix "S1" [text]
+       with group S
+parser define prefix "S2" [text]
+       with group S
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+
+parser print prefix ""
+
+parser test:
+    {P1} Hi there.
+    {P2} Bye.
+
 parser end block 1

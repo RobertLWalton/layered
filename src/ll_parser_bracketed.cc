@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 17 02:12:07 EST 2016
+// Date:	Sun Dec 18 01:18:43 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4230,8 +4230,8 @@ static min::gen bracketed_pass_command
 	}
 	if ( i < size )
 	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected `with' after" );
+		( parser, ppvec[i],
+		  "expected `with' before" );
 
 	new_selectors.or_flags |=
 	    new_options.or_flags;

@@ -937,3 +937,77 @@ parser test [0 LOGICAL_LINE 0]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
+parser begin block 1
+parser define prefix "P1" [code, text]
+       with parsing selectors [text]
+       with group P
+       with implied subprefix {S1}
+       with parsing options [end at paragraph break]
+parser define prefix "P2" [code, text]
+       with parsing selectors [text]
+       with group P
+       with implied subprefix {S1}
+       with parsing options [end at paragraph break]
+parser define prefix "S1" [text]
+       with group S
+parser define prefix "S2" [text]
+       with group S
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser print prefix "":
+    block block 1: prefix "S1" [text]
+                   with group S
+    block block 1: prefix "S2" [text]
+                   with group S
+    block block 1: prefix "P1" [code, text]
+                   with parsing selectors [text]
+                   with group P
+                   with implied subprefix {S1||S1}
+                   with parsing options [end at paragraph break]
+    block block 1: prefix "P2" [code, text]
+                   with parsing selectors [text]
+                   with group P
+                   with implied subprefix {S1||S1}
+                   with parsing options [end at paragraph break]
+======= TEST: parser test:
+                  {P1|{S1|Hi there "."|S1}|P1} {P2|{S1|Bye "."|S1}|P2}
+------- lines ###-###:
+parser test:
+^^^^^^^^^^^^
+    {P1} Hi there.
+^^^^^^^^^^^^^^^^^^
+    {P2} Bye.
+^^^^^^^^^^^^^
+------- lines ###-###:
+parser test:
+           ^
+    {P1} Hi there.
+^^^^^^^^^^^^^^^^^^
+    {P2} Bye.
+^^^^^^^^^^^^^
+------- lines ###-###:
+    {P1} Hi there.
+    ^^^^^^^^^^^^^^
+    {P2} Bye.
+^^^^^^^^^^^^^
+------- line ###:
+    {P1} Hi there.
+    ^^^^^^^^^^^^^^
+------- line ###:
+    {P1} Hi there.
+        ^^^^^^^^^^
+------- line ###:
+    {P2} Bye.
+    ^^^^^^^^^
+------- line ###:
+    {P2} Bye.
+        ^^^^^
+======= END TEST
+parser end block 1

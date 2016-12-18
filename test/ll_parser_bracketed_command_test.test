@@ -134,6 +134,7 @@ parser test <+ hi there +> <+ hi [embedded] there +>
 parser test <+ hi there +> <+ hi [embedded] there +>
                            ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser begin block 1
 parser define bracket "[X" ... "X]" [code, operator 1]
        with parsing selectors [- code, + operator 1]
 ======= TEST: parser test [a [b c] c] [X a "[" b c "]" d X]
@@ -244,6 +245,7 @@ parser test this is a paragraph +:
 parser test  <X| hi there |X>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser end block 1
 ERROR: in line ##: unrecognized flag/option name:
 parser trace [+ foo]
                 ^^^
@@ -319,6 +321,7 @@ WARNING: in line ##: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
+parser begin block 1
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with parsing options []
@@ -327,9 +330,6 @@ parser print bracket "":
                      with label reformatter
     block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                      with multivalue reformatter ( "," )
-    block standard: bracket [< "[" "X" >] ... [< "X" "]" >]
-                    [code, operator 1]
-                    with parsing selectors [- code, + operator 1]
     block standard: bracket "(" ... ")" [code, text, math]
     block TOP LEVEL: bracket "(" ... ")" [data]
     block standard: indentation mark ":" ... ";" [code, text, math]
@@ -338,7 +338,7 @@ parser print bracket "":
                                           end at outer closing]
     block standard: bracket "[" ... "]" [code, text, math]
     block TOP LEVEL: bracket "[" ... "]" [data]
-    block standard: bracket "`" ... "'" [code]
+    block block 1: bracket "`" ... "'" [code]
     block TOP LEVEL: bracket "`" ... "'" [data]
     block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
     block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
@@ -349,18 +349,14 @@ parser print bracket "":
                      with attribute negator "no"
                      with attribute flags initiator "["
                      with attribute multivalue initiator [< "{" "*" >]
-    block standard: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
-                    [code]
-                    with parsing options []
+    block block 1: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
+                   [code]
+                   with parsing options []
     block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
     block standard: bracket "<+" ... "+>" [code, operator 1]
                     with parsing selectors [^ code, - math,
                                             + operator 1]
-    block standard: indentation mark [< "+" ":" >] ... "::" [code]
-                    with parsing options [end at le indent,
-                                          end at line separator,
-                                          end at outer closing]
     block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                      with special reformatter
 ======= TEST: parser test (```")"''')
@@ -442,7 +438,7 @@ parser test ( `
                         {"": .terminator = "<LF>", .initiator =
                              [$ LOGICAL_LINE $]|Second line of indented
                              paragraph "."|}|})
-------- lines ##-##:
+------- lines ###-###:
 parser test ( An indented paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 ```This logical line continues on no
@@ -455,7 +451,7 @@ matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
               ) // End of () bracketed subexpression
 ^^^^^^^^^^^^^^^
-------- lines ##-##:
+------- lines ###-###:
 parser test ( An indented paragraph:
             ^^^^^^^^^^^^^^^^^^^^^^^^
                 ```This logical line continues on no
@@ -468,7 +464,7 @@ matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
               ) // End of () bracketed subexpression
 ^^^^^^^^^^^^^^^
-------- lines ##-##:
+------- lines ###-###:
 parser test ( An indented paragraph:
                                    ^
                 ```This logical line continues on no
@@ -479,29 +475,31 @@ matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 Second line of indented paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ##-##:
+------- lines ###-###:
                 ```This logical line continues on no
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     the following is encountered- '''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ##-##:
+------- lines ###-###:
                 ```This logical line continues on no
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     the following is encountered- '''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
                 Second line of indented paragraph.
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser end block 1
+parser begin block 1
 ======= TEST: parser test ["?" MISSING "?"]
-------- line ##:
+------- line ###:
 parser test [? MISSING ?]
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
 parser test [? MISSING ?]
             ^^^^^^^^^^^^^
 ======= END TEST
@@ -530,6 +528,7 @@ parser test [@ x 1 @ y 2 @ w @ z 3 @]
 parser test [@ x 1 @ y 2 @ w @ z 3 @]
             ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser end block 1
 parser begin block 1
 parser define indentation offset 4
 parser print indentation offset:
@@ -543,7 +542,9 @@ WARNING: in line ###: lexeme indent 2 too near paragraph indent 0:
   line with indent 2
   ^
 parser end block 1
+parser begin block 1
 parser print indentation offset:
+    block block 1: 2
     block standard: 2
     block TOP LEVEL: 2
 WARNING: in line ###: lexeme indent 1 too near paragraph indent 0:
@@ -715,6 +716,8 @@ parser test:
         ) end
         ^^^^^
 ======= END TEST
+parser end block 1
+parser begin block 1
 parser print prefix "":
     not found
 parser define prefix "X" [code]
@@ -728,20 +731,21 @@ parser define prefix "Z" [math]
        with lexical master "START"
        with parsing options [end at line break]
 parser print prefix "":
-    block standard: prefix "X" [code]
-                    with parsing selectors [code, math]
-    block standard: prefix "Y" [code]
-                    with parsing selectors [+ text]
-                    with group ajax
-    block standard: prefix "Z" [math]
-                    with parsing selectors [code]
-                    with implied subprefix
-                    {X: y = "5", z = [< "hi" "there" >]||X}
-                    with lexical master "START"
-                    with parsing options [end at line break]
+    block block 1: prefix "X" [code]
+                   with parsing selectors [code, math]
+    block block 1: prefix "Y" [code]
+                   with parsing selectors [+ text]
+                   with group ajax
+    block block 1: prefix "Z" [math]
+                   with parsing selectors [code]
+                   with implied subprefix
+                   {X: y = "5", z = [< "hi" "there" >]||X}
+                   with lexical master "START"
+                   with parsing options [end at line break]
 parser print prefix "X":
-    block standard: prefix "X" [code]
-                    with parsing selectors [code, math]
+    block block 1: prefix "X" [code]
+                   with parsing selectors [code, math]
+parser end block 1
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
        [code, text, math, data]
        with element selectors [data]
@@ -756,6 +760,8 @@ parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
        with attribute flags initiator "("
        with attribute multivalue initiator "[@"
        with prefix separators allowed
+parser define bracket "[@" ... "@]" [code]
+       with multivalue reformatter ( "@" )
 ======= TEST: parser test {T: x = "5", y = "6"|A B C|T}
 ------- line ###:
 parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1

@@ -4581,8 +4581,8 @@ static min::gen bracketed_pass_command
 	}
 	if ( i < size )
 	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected `with' after" );
+		( parser, ppvec[i],
+		  "expected `with' before" );
 
 	if (    TAB::all_flags
 	            ( new_attribute_selectors )

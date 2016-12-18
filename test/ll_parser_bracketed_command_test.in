@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  4 05:33:00 EST 2016
+// Date:	Sat Dec 17 22:59:13 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -37,8 +37,9 @@ parser test "abc"
 parser test:
 	"abc"
 	# "def"
-
 parser test <+ hi there +> <+ hi [embedded] there +>
+
+parser begin block 1
 parser define bracket "[X" ... "X]" [code, operator 1]
        with parsing selectors [- code, + operator 1]
 parser test [ a [ b c ] c ] [X a [ b c ] d X]
@@ -52,31 +53,38 @@ parser test this is a paragraph +:
     line 2a:: line 2b; line 2c
     last line
 parser test  <X| hi there |X>
+parser end block 1
+
 parser trace [+ foo]
 parser trace [+ parser commands]
 parser trace [- parser commands]
 parser trace [+ parser commands]
 parser trace [+ warnings]
+
 parser begin block 1
 parser define bracket "<*" ... "*>" [code]
 parser test <* hi there A *>
 parser end block x
 parser test <* hi there B *>
 parser end block 1
+
 parser test <* hi there C *>
 parser end block 1
 parser define bracket "<|" ... "|>" [code]
 parser test <| hi there D |>
+
 parser begin block 1
 parser undefine bracket "<|" ... "|>" [code]
 parser test <| hi there E |>
 parser undefine bracket "<|" ... "|>" [code]
 parser end block 1
+
 parser test <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
 parser test <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
 
+parser begin block 1
 parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with parsing options []
@@ -95,7 +103,9 @@ matter what, even with a spurious ), until
     the following is encountered- '''
                 Second line of indented paragraph.
 	      ) // End of () bracketed subexpression
+parser end block 1
 
+parser begin block 1
 parser test [? MISSING ?]
 parser define bracket "[?" ... "?]" [code]
        with special reformatter
@@ -104,6 +114,7 @@ parser test [@ x 1 @ y 2 @ w @ z 3 @]
 parser define bracket "[@" ... "@]" [code]
        with multivalue reformatter ( "@" )
 parser test [@ x 1 @ y 2 @ w @ z 3 @]
+parser end block 1
 
 parser begin block 1
 parser define indentation offset 4
@@ -116,6 +127,7 @@ third line with indent 0
     line with indent 4
 parser end block 1
 
+parser begin block 1
 parser print indentation offset
 first line with indent 0
  line with indent 1
@@ -140,7 +152,9 @@ parser test:
 	    goodbye there
 	    hi there
 	) end
+parser end block 1
 
+parser begin block 1
 parser print prefix ""
 parser define prefix "X" [code]
        with parsing selectors [code, math]
@@ -154,6 +168,7 @@ parser define prefix "Z" [math]
        with parsing options [end at line break]
 parser print prefix ""
 parser print prefix "X"
+parser end block 1
 
 parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
        [code, text, math, data]
@@ -169,6 +184,8 @@ parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
        with attribute flags initiator "("
        with attribute multivalue initiator "[@"
        with prefix separators allowed
+parser define bracket "[@" ... "@]" [code]
+       with multivalue reformatter ( "@" )
 
 parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
 parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]

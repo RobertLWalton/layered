@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 17 23:44:20 EST 2016
+// Date:	Sun Dec 18 02:03:40 EST 2016
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -240,7 +240,10 @@ parser define prefix "P1" [code, text]
 parser define prefix "P2" [code, text]
        with parsing selectors [text]
        with group P
-       with implied subprefix {S1}
+       with implied subprefix {S2}
+       with parsing options [end at paragraph break]
+parser define prefix "P3" [code, text]
+       with group P
        with parsing options [end at paragraph break]
 parser define prefix "S1" [text]
        with group S
@@ -261,5 +264,11 @@ parser print prefix ""
 parser test:
     {P1} Hi there.
     {P2} Bye.
+    {P3} And some more.
+
+parser test:
+    {P1} First sentence. {S2} Second sentence.
+    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P3} {S2} Fifth Sentence.
 
 parser end block 1

@@ -949,6 +949,7 @@ parser define prefix "P2" [code, text]
        with implied subprefix {S2}
        with parsing options [end at paragraph break]
 parser define prefix "P3" [code, text]
+       with parsing selectors [text]
        with group P
        with parsing options [end at paragraph break]
 parser define prefix "S1" [text]
@@ -980,6 +981,7 @@ parser print prefix "":
                    with implied subprefix {S2||S2}
                    with parsing options [end at paragraph break]
     block block 1: prefix "P3" [code, text]
+                   with parsing selectors [text]
                    with group P
                    with parsing options [end at paragraph break]
 ======= TEST: parser test:
@@ -1026,37 +1028,48 @@ parser test:
     {P3} And some more.
     ^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+ERROR: in line ###: prefix separator of type `XX' not at beginning of
+       subexpression; ignored:
+    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
+                              ^^^^
 ======= TEST: parser test:
                   {P1|{S1|First sentence "."|S1}
                       {S2|Second sentence "."|S2}|P1}
-                      {P2|{S1|Third Sentence "."|S1}
+                      {P2|{S1|Third sentence "."|S1}
                           {S2|Fourth sentence "."|S2}|P2}
-                      {P3|{S2|Fifth Sentence "."|S2}|P3}
+                      {P3|{S2|Fifth sentence "." Sixth sentence "."|S2}
+                          {S1|{XX|Seventh sentence "."|XX}|S1}|P3}
 ------- lines ###-###:
 parser test:
 ^^^^^^^^^^^^
     {P1} First sentence. {S2} Second sentence.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P2} {S1} Third sentence. {S2} Fourth sentence.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {P3} {S2} Fifth Sentence.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         {S1} {XX} Seventh sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
 parser test:
            ^
     {P1} First sentence. {S2} Second sentence.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P2} {S1} Third sentence. {S2} Fourth sentence.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {P3} {S2} Fifth Sentence.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         {S1} {XX} Seventh sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
     {P1} First sentence. {S2} Second sentence.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P2} {S1} Third sentence. {S2} Fourth sentence.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {P3} {S2} Fifth Sentence.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         {S1} {XX} Seventh sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     {P1} First sentence. {S2} Second sentence.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1067,19 +1080,27 @@ parser test:
     {P1} First sentence. {S2} Second sentence.
                          ^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P2} {S1} Third sentence. {S2} Fourth sentence.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P2} {S1} Third sentence. {S2} Fourth sentence.
          ^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    {P2} {S1} Third Sentence. {S2} Fourth sentence.
+    {P2} {S1} Third sentence. {S2} Fourth sentence.
                               ^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         {S1} {XX} Seventh sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    {P3} {S2} Fifth Sentence.
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    {P3} {S2} Fifth Sentence.
-         ^^^^^^^^^^^^^^^^^^^^
+         {S1} {XX} Seventh sentence.
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+         {S1} {XX} Seventh sentence.
+              ^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1

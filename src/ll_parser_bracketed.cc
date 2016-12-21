@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 18 01:18:43 EST 2016
+// Date:	Wed Dec 21 03:55:20 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1275,6 +1275,9 @@ inline void finish_attribute
 	    start->type = BRA::ATTR_VALUE;
 	}
     }
+    else MIN_ASSERT ( subtype == BRA::TYPED_MIDDLE,
+                      "unrecognized subtype in"
+		      " finish_attribute" );
 }
 
 // If end of non-first attibute group, move it to

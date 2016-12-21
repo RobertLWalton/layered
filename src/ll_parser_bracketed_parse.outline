@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 20 03:46:16 EST 2016
+// Date:	Wed Dec 21 02:42:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,8 +21,72 @@
 // input, code to update typed_data->end_position, and
 // code to set .position attributes.
 //
-// IMPORTANT: This code assumes EVERY comment is
-// immediately followed by a line break or end of file.
+// make_label(first,next):
+//     Collect all the tokens from first through next->
+//     previous into a single label token.  Print
+//     error messages for tokens that cannot be part
+//     of a label, and warning messages for separators
+//     and marks that are not quoted.  If there are
+//     no tokens, create a new token `first' and
+//     give it the empty label.
+//
+// make_type_label(typed_data,next):
+//     Make a label as per make_label from the tokens
+//     start = typed_data->start_previous->next through
+//     next->previous.  If there are no such, just
+//     output an error message and return. Otherwise
+//     if typed_data->type is MISSING (there was not
+//     previous TYPE token), set start->type = TYPE
+//     and move the token if necessary so it is before
+//     typed_data->elements.  If on the other hand
+//     typed_data->type is not missing, check that
+//     it equals the new label, print an error message
+//     if not, and in any case delete the new label
+//     token.
+//
+// make_attribute_label(typed_data,next):
+//     Make a label as per make_label from the tokens
+//     start = typed_data->start_previous->next through
+//     next->previous.  If there are no such, just
+//     output an error message and return.  If there
+//     are 2 or more tokens and the last is a bracketed
+//     subexpression with typed_data->typed_opening->
+//     typed_attr_flags_initiator as its .initiator,
+//     do NOT make it part of the label, but instead
+//     give it the ATTR_FLAGS token type.  After making
+//     the label token give it the ATTR_LABEL token
+//     type.
+//
+// finish_attribute(typed_data,next):
+//     Examime typed_data->subtype (the subtype of the
+//     last key found).  If it is TYPED_OPENING, TYPED_
+//     ATTR_SEP, TYPED_ATTR_NEGATOR, or TYPED_MIDDLE,
+//     make_attribute_label(typed_data,next) and give
+//     the resulting token the type ATTR_FALSE if the
+//     subtype above was TYPED_ATTR_NEGATOR and ATTR_
+//     TRUE otherwise.  However, do not do anything
+//     if the subtype examined was TYPED_MIDDLE and
+//     there are no tokens between the TYPED_MIDDLE
+//     token and `next'.
+//
+//     If instead the subtype is TYPED_ATTR_EQUAL,
+//     collect the tokens between start = typed_data->
+//     start_previous->next and next->previous into a
+//     token that is to be the attribute value.  If
+//     there are no tokens to collect, make a token and
+//     give it the type ATTR_VALUE and and the value
+//     NONE (the attribute will be deleted later), and
+//     print an error message.  If there is one token to
+//     collect, and it is a bracketed subexpression with
+//     .initiator equal to typed_data->typed_opening->
+//     typed_attr_multivalue_initiator, give it the
+//     token type ATTR_MULTIVALUE.  Otherwise give it
+//     the token type ATTR_VALUE, and if its value does
+//     NOT satisfy min::is_attr_legal, print an error
+//     message and change its value to NONE (the attri-
+//     bute will be deleted later).
+//
+// parse_bracketed_subexpression(...)
 //
 // Arguments:
 //
@@ -63,6 +127,9 @@
 // Return Value:
 //
 // 	position
+//
+// IMPORTANT: This code assumes EVERY comment is
+// immediately followed by a line break or end of file.
 //
 // indentation_mark indentation_found = NULL_STUB
 // at_start = true

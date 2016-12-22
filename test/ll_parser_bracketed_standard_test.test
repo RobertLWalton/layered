@@ -2802,10 +2802,9 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": x = "1", = "11", y 55 = "77", z 22 = "33"||}
+    {"": x = "1", y 55 = "77", z 22 = "33"||}
 @@@@ =:
            x = "1"
-           = "11"
            y 55 = "77"
            z 22 = "33"
            .position[H] = {}
@@ -2815,7 +2814,7 @@ BRACKETED EXPRESSION:
          z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1", = "11", y 55 = "77", z 22 = "33"||}
+    {"": x = "1", y 55 = "77", z 22 = "33"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = {}

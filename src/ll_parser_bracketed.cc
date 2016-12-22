@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 21 03:55:20 EST 2016
+// Date:	Thu Dec 22 04:10:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2552,6 +2552,7 @@ NO_IMPLIED_PREFIX:
 		    min::unsptr i = 0;
 		    min::uns32 token_type =
 		        PAR::BRACKETING;
+		    bool skip = false;	
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
 		    {
@@ -2568,41 +2569,65 @@ NO_IMPLIED_PREFIX:
 				t->value;
 			    type = t->value;
 			    ++ i;
+			    skip = false;
 			}
 		        else if (    t->type
 			          == BRA::ATTR_LABEL )
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    attributes[i].name =
-			        t->value;
 			    token_type = PAR::BRACKETED;
-			    ++ i;
+			    if (    t->value
+			         == min::empty_lab )
+			        skip = true;
+			    else
+			    {
+				attributes[i].name =
+				    t->value;
+				++ i;
+				skip = false;
+			    }
 			}
 		        else if (    t->type
 			          == BRA::ATTR_TRUE )
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    attributes[i].name =
-			        t->value;
-			    attributes[i].value =
-			        min::TRUE;
 			    token_type = PAR::BRACKETED;
-			    ++ i;
+			    if (    t->value
+			         == min::empty_lab )
+			        skip = true;
+			    else
+			    {
+				attributes[i].name =
+				    t->value;
+				attributes[i].value =
+				    min::TRUE;
+				++ i;
+				skip = false;
+			    }
 			}
 		        else if (    t->type
 			          == BRA::ATTR_FALSE )
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    attributes[i].name =
-			        t->value;
-			    attributes[i].value =
-			        min::FALSE;
 			    token_type = PAR::BRACKETED;
-			    ++ i;
+			    if (    t->value
+			         == min::empty_lab )
+			        skip = true;
+			    else
+			    {
+				attributes[i].name =
+				    t->value;
+				attributes[i].value =
+				    min::FALSE;
+				++ i;
+				skip = false;
+			    }
 			}
+			else if ( skip )
+			    /* Do nothing */;
 		        else if (    t->type
 			          == BRA::ATTR_VALUE )
 			{

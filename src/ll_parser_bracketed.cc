@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 22 04:10:47 EST 2016
+// Date:	Fri Dec 23 01:23:25 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -957,6 +957,7 @@ static void make_label
     if ( count == 0 )
     {
 	first = PAR::new_token ( PAR::DERIVED );
+	first->position = position;
 	put_before ( PAR::first_ref(parser),
 	             next, first );
 	PAR::value_ref(first) = min::empty_lab;
@@ -1147,25 +1148,20 @@ inline void make_type_label
 // If label made, set typed_data->attributes if that is
 // NULL_STUB and increment typed_data->attr_count.
 //
-inline bool make_attribute_label
+inline void make_attribute_label
 	( PAR::parser parser,
 	  BRA::typed_data * typed_data,
 	  PAR::token next )
 {
     PAR::token start = typed_data->start_previous->next;
 
-    if ( start == next )
-    {
-	missing_error
-	    ( parser, next, "attribute label" );
-	return false;
-    }
-
     min::gen initiator =
         typed_data->typed_opening
 	          ->typed_attr_flags_initiator;
 
-    if ( next->previous != start
+    if ( next != start
+         &&
+	 next->previous != start
          &&
 	 next->previous->value_type == initiator
 	 &&
@@ -1182,8 +1178,6 @@ inline bool make_attribute_label
 	typed_data->attributes = start;
 
     ++ typed_data->attr_count;
-
-    return true;
 }
 
 // Finish attribute.  On error either generate error
@@ -1211,9 +1205,8 @@ inline void finish_attribute
 	   &&
 	   start != next ) )
     {
-        if ( ! ::make_attribute_label
-	           ( parser, typed_data, next ) )
-	    return;
+        ::make_attribute_label
+	           ( parser, typed_data, next );
 
 	typed_data->start_previous->next->type =
 	    ( subtype == BRA::TYPED_ATTR_NEGATOR ?
@@ -2563,13 +2556,27 @@ NO_IMPLIED_PREFIX:
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    attributes[i].name =
-				min::dot_type;
-			    attributes[i].value =
-				t->value;
-			    type = t->value;
-			    ++ i;
-			    skip = false;
+			    if (    t->value
+			         == min::empty_lab )
+			    {
+			        PAR::parse_error
+				    ( parser,
+				      t->position,
+				      "empty type"
+				      " label;"
+				      " ignored" );
+			        skip = true;
+			    }
+			    else
+			    {
+				attributes[i].name =
+				    min::dot_type;
+				attributes[i].value =
+				    t->value;
+				type = t->value;
+				++ i;
+				skip = false;
+			    }
 			}
 		        else if (    t->type
 			          == BRA::ATTR_LABEL )
@@ -2579,7 +2586,16 @@ NO_IMPLIED_PREFIX:
 			    token_type = PAR::BRACKETED;
 			    if (    t->value
 			         == min::empty_lab )
+			    {
+			        PAR::parse_error
+				    ( parser,
+				      t->position,
+				      "empty attribute"
+				      " label;"
+				      " attribute"
+				      " ignored" );
 			        skip = true;
+			    }
 			    else
 			    {
 				attributes[i].name =
@@ -2596,7 +2612,16 @@ NO_IMPLIED_PREFIX:
 			    token_type = PAR::BRACKETED;
 			    if (    t->value
 			         == min::empty_lab )
+			    {
+			        PAR::parse_error
+				    ( parser,
+				      t->position,
+				      "empty attribute"
+				      " label;"
+				      " attribute"
+				      " ignored" );
 			        skip = true;
+			    }
 			    else
 			    {
 				attributes[i].name =
@@ -2615,7 +2640,16 @@ NO_IMPLIED_PREFIX:
 			    token_type = PAR::BRACKETED;
 			    if (    t->value
 			         == min::empty_lab )
+			    {
+			        PAR::parse_error
+				    ( parser,
+				      t->position,
+				      "empty attribute"
+				      " label;"
+				      " attribute"
+				      " ignored" );
 			        skip = true;
+			    }
 			    else
 			    {
 				attributes[i].name =
@@ -2926,11 +2960,7 @@ NO_IMPLIED_PREFIX:
 		        current->previous->position.end;
 		        
 		    if (    typed_data->subtype
-		         == BRA::TYPED_OPENING
-			 &&
-			    key_first
-			 != typed_data->start_previous
-			              ->next )
+		         == BRA::TYPED_OPENING )
 		    {
 			::make_type_label
 			    ( parser, typed_data,
@@ -2991,22 +3021,17 @@ NO_IMPLIED_PREFIX:
 		    typed_data->end_position =
 		        current->previous->position.end;
 		        
-		    if ( (    typed_data->subtype
-		           == BRA::TYPED_OPENING
-			   ||
-		              typed_data->subtype
-		           == BRA::TYPED_MIDDLE
-			   ||
-		              typed_data->subtype
-		           == BRA::TYPED_ATTR_SEP
-			   ||
-		              typed_data->subtype
-		           == BRA::TYPED_ATTR_NEGATOR
-			 )
-			 &&
-			    key_first
-			 != typed_data->start_previous
-			              ->next )
+		    if (    typed_data->subtype
+		         == BRA::TYPED_OPENING
+			 ||
+		            typed_data->subtype
+		         == BRA::TYPED_MIDDLE
+			 ||
+		            typed_data->subtype
+		         == BRA::TYPED_ATTR_SEP
+			 ||
+		            typed_data->subtype
+		         == BRA::TYPED_ATTR_NEGATOR )
 		    {
 			::make_attribute_label
 			    ( parser, typed_data,

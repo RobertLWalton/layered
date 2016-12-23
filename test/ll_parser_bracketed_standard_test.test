@@ -1017,7 +1017,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: missing attribute label:
+ERROR: in line ##: empty attribute label; attribute ignored:
 {P:}
    ^
 PREFIX EXPRESSION:
@@ -1053,10 +1053,10 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: missing attribute label:
+ERROR: in line ##: missing closing bracket `}' inserted before `)':
 ({P2:)
      ^
-ERROR: in line ##: missing closing bracket `}' inserted before `)':
+ERROR: in line ##: empty attribute label; attribute ignored:
 ({P2:)
      ^
 PREFIX EXPRESSION:
@@ -1091,13 +1091,15 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-ERROR: in line ##: unexpected punctuation ":" found; deleted and
-       ignored:
+ERROR: in line ##: missing type:
 ({:)
   ^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
+({:)
+   ^
+ERROR: in line ##: empty attribute label; attribute ignored:
 ({:)
    ^
 PURELIST EXPRESSION:
@@ -2309,8 +2311,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-ERROR: in line ##: unexpected punctuation ":" found; deleted and
-       ignored:
+ERROR: in line ##: missing type:
 {: m = 1, n = 2}
  ^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
@@ -2801,6 +2802,9 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ###: empty attribute label; attribute ignored:
+{ x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
+                               ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": x = "1", y 55 = "77", z 22 = "33"||}
 @@@@ =:
@@ -2824,6 +2828,46 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
          z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ###: empty attribute label; attribute ignored:
+{ x = 1, y 55 = 77, = 11, z 22 = 33 }
+                    ^
+BRACKETED EXPRESSION:
+    {"": x = "1", y 55 = "77", z 22 = "33"||}
+@@@@ =:
+           x = "1"
+           y 55 = "77"
+           z 22 = "33"
+           .position[H] = {}
+    line ###:
+{ x = 1, y 55 = 77, = 11, z 22 = 33 }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": x = "1", y 55 = "77", z 22 = "33"||}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{ x = 1, y 55 = 77, = 11, z 22 = 33 }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"

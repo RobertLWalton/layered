@@ -2868,6 +2868,47 @@ BRACKETED EXPRESSION:
     line ###:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "$" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "$" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [$ NONE $]
+@(NONE) = [$ NONE $]
+    line ###:
+{[$ NONE $]: x = 1}
+ ^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+ERROR: in line ###: not a legal label element `NONE'; ignored:
+{[$ NONE $]: x = 1}
+ ^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ###: empty type label; ignored:
+{[$ NONE $]: x = 1}
+ ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": x = "1"||}
+@@@@ =:
+           x = "1"
+           .position[H] = {}
+    line ###:
+{[$ NONE $]: x = 1}
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": x = "1"||}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{[$ NONE $]: x = 1}
+^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"

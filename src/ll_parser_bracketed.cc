@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 01:23:25 EST 2016
+// Date:	Fri Dec 23 17:47:42 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -869,15 +869,14 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 // Given the token sequence from `first' to `next', make
 // a label containing these tokens.  Convert quoted
 // string and numeric tokens to strings.  Announce
-// non-name components as errors and replace their
-// values with "ERRONEOUS-LABEL-COMPONENT".  If
+// non-name components as errors and ignore them.  If
 // allow_sublabels is false, also treat components
 // that are themselves labels as errors.
 //
-// If there are 0 label components, make an empty label,
-// and if there is exactly 1 component, use the value of
-// that component as the label, rather than making a
-// label.
+// If there are 0 non-erroneous label components, make
+// an empty label, and if there is exactly 1 component,
+// use the value of that component as the label, rather
+// than making a label.
 //
 // All tokens but the first are removed, and the type
 // of the first token is set to DERIVED, the label is
@@ -1086,7 +1085,16 @@ static void punctuation_error
 	    ( parser, next, label );
 }
 
-// Make type label.
+// Make type label.  If no label tokens, just print
+// missing type error message.  Otherwise if typed_data
+// ->type is MISSING, set new label token type to
+// TYPE, increment typed_data->attr_count, and move
+// token to before typed_data->elements if that is not
+// NULL_STUB. 
+//
+// If typed_data->type is NOT MISSING, check that it
+// equals new label, and print error message if not.
+// Then in any case delete the new label token.
 //
 inline void make_type_label
 	( PAR::parser parser,
@@ -1137,16 +1145,15 @@ inline void make_type_label
     }
 }
 
-// Make attribute label.  Return true if label made and
-// false if no label made because its missing.
+// Make attribute label.
 //
 // Label may be followed by flags which are in bracketed
 // subexpression token just before `next'.  This token
 // is marked ATTR_FLAGS.  Attribute label token is
 // marked ATT_LABEL.
 //
-// If label made, set typed_data->attributes if that is
-// NULL_STUB and increment typed_data->attr_count.
+// Set typed_data->attributes if that is NULL_STUB and
+// increment typed_data->attr_count.
 //
 inline void make_attribute_label
 	( PAR::parser parser,

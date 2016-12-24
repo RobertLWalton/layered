@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 03:01:57 EST 2016
+// Date:	Sat Dec 24 04:20:23 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -141,10 +141,13 @@
 // This must be guaranteed by the lexical analyzer.
 //
 // indentation_mark indentation_found = NULL_STUB
-// at_start = true
-//     // I.e., the current token has no predecessor
-//     // input to or created by parse_bracketed_
-//     // subexpression
+// start_previous = current->previous
+//     // If current == start_previous->next, current
+//     // is at the beginning of the subexpression
+//     // begin parsed.  Tokens may be removed from or
+//     // added to the beginning of the subexpression,
+//     // so one cannot simply save the initial current
+//     // value.
 //
 // loop to find next token:
 //
@@ -154,13 +157,13 @@
 //
 //	   prefix
 //	       The prefix token at the head of the
-//	       prefix-n-list that is to be created, its
-//	       elements having been parsed and its end
-//	       determined.
+//	       prefix-n-list that is to be created.  The
+//	       prefix-n-list's elements have not yet
+//	       been parsed.
 //	   separator_found
 //	       Result of parse_bracketed_subexpression
 //	       that parsed the prefix token, or MISSING_
-//	       SEPARATOR if prefix token was copied from
+//	       POSITION if prefix token was copied from
 //	       an implied subprefix or implied header.
 //	   premature_closing
 //	       True if parse_bracketed_subexpression
@@ -168,6 +171,10 @@
 //	       separator encoded in that token was
 //	       terminated abnormally by an outer closing
 //	       bracket or logical line end.
+//
+//     NOTE: If prefix was not terminated abnormally,
+//           premature_closing is false and separator_
+//           found is MISSING_POSITION.
 //
 //     if not first loop iteration, or if bracket stack
 //            head does not exist or has a missing
@@ -184,14 +191,7 @@
 //
 // CREATED_PREFIX:
 //
-//     // Input variables:
-//     //
-//     //    prefix = the prefix token
-//     //    separator_found from parse of prefix token
-//     //    premature_closing = true iff bracket stack
-//     //        not closed by PREFIX token's typed
-//     //        opening's closing bracket during parse
-//     //	 of prefix token
+//     // For input variables see NEXT_TOKEN above.
 //
 //     find token .type entry in bracketed pass prefix
 //          table

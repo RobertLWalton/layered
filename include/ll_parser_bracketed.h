@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 05:58:02 EST 2016
+// Date:	Sat Dec 24 03:33:24 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -511,13 +511,19 @@ struct typed_data
 	// after start_previous has been saved, the
 	// start_previous->next token cannot be directly
 	// saved.
+    min::uns32 subtype;
+        // Subtype of last key found.
     ll::parser::token elements;
         // First token of elements, or NULL_STUB if
 	// there are no elements.
     ll::parser::token attributes;
-        // First token of the list of attributes after
-	// the last typed opening or middle, or NULL_
-	// STUB if none.
+        // First token of the list of attributes found
+	// so far that have not been moved to before
+	// the subexpression elements.  Set when NULL_
+	// STUB and an attribute label is found.  Reset
+	// to NULL_STUB when the attributes in the list
+	// are moved to before the subexpression
+	// elements.
     min::position end_position;
         // End position of typed bracketed subexpres-
 	// sion, or min::MISSING_POSITION if not
@@ -530,8 +536,6 @@ struct typed_data
 	// subexpression when that is ended prematurely
 	// by the closing bracket of a containing
 	// expression, or the end of a logical line.
-    min::uns32 subtype;
-        // Subtype of last key found.
     min::gen type;
         // If typed_opening is followed immediately by a
 	// mark, the value of that mark.  If it is fol-

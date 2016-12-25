@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 12:23:45 EST 2016
+// Date:	Sat Dec 24 18:51:11 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,9 +235,9 @@
 //         // Start new subexpression beginning with
 //         // the PREFIX token
 //
-//         create new bracket stack entry with
-//                prefix_type = PREFIX token .type
-//                and prefix_group = group
+//         create new bracket stack entry E with
+//                E.prefix_type = PREFIX token .type
+//                and E.prefix_entry = prefix_entry
 //         push new entry into existing bracket stack
 //              to create new bracket stack
 //
@@ -256,7 +256,7 @@
 //                 indent argument,
 //                 line_sep argument if prefix_selectors
 //                                      & EALSEP,
-//	       set separator_found = result
+//	           set separator_found = result
 //
 //	       compact_prefix_separator
 //	         with prefix_selectors
@@ -272,14 +272,17 @@
 //
 //	       if .type of prefix != .type of previous
 //	                              prefix:
-//	           find entry for new .type in bracketed
-//	           pass prefix table (entry must exist
-//	           because .types have the same group),
-//	           and recompute prefix_selectors from
-//	           the new entry
+//	           find entry E for new .type in
+//	           bracketed pass prefix table (entry
+//	           must exist because .types have the
+//	           same group), recompute prefix_selec-
+//	           tors E, and set bracket stack top
+//	           entry prefix_type = new .type and
+//	           bracket stack top entry prefix_entry
+//	           to E
 //
-//	       iterate loop to find subexpression headed
-//	               by prefix
+//	       iterate loop to find prefix-n-list
+//	               subexpression headed by prefix
 //	    
 // NO_IMPLIED_PREFIX:
 //

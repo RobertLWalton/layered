@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 02:22:48 EST 2016
+// Date:	Sun Dec 25 05:36:00 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -325,7 +325,8 @@
 //            than the indent argument):
 //
 //             paragraph_indent = current->indent
-//             remove current (indent) token
+//             remove current (indent) token and set
+//                    current to following token
 //
 //	       allocate and initialize line_variables:
 //	           paragraph_master = 0
@@ -347,8 +348,7 @@
 //                       if new_selectors & EALSEP,
 //                     line_variables,
 //                     bracket stack
-//                     remember if line ended by line
-//                              separator
+//                     set separator_found = result
 //
 //                 if bracket stack top closed:
 //                     require that there was no line
@@ -372,7 +372,7 @@
 //                                 LOGICAL_LINE
 //
 //                 if separator found, continue loop to
-//                    next paragraph line
+//                    parse next paragraph line
 //
 //                 end loop if top of bracket stack
 //                     closed, or current is end-of-file
@@ -382,9 +382,10 @@
 //                 end loop if current has has indent
 //                     less than paragraph_indent
 //
-//	           remove current (indent) token
-//                 iterate loop to get and parse next
-//                         paragraph line
+//	           remove current (indent) token and
+//	                  set current to next token
+//                 iterate loop to parse next paragraph
+//                         line
 //
 //         // Compact paragraph lines into a
 //         // paragraph.
@@ -403,8 +404,6 @@
 //             token type = BRACKETING,
 //             token value_type =
 //                       indentation_found->label
-//
-//         at_start = false
 //
 //	   if bracket stack top closed
 //	        return MISSING_POSITION

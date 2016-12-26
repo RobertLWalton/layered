@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 05:36:00 EST 2016
+// Date:	Sun Dec 25 22:46:48 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -423,7 +423,9 @@
 //
 //     else if current is indent:
 //
-//         if ! at_start and parser->at_head:
+//         if not at beginning of subexpression
+//                   and parser->at_head
+//                   and selectors & EAPBREAK:
 //	       return PARAGRAPH_END
 //
 //         else if current->indent is at or before
@@ -437,7 +439,8 @@
 //
 //         // next token is part of continuation line
 //         //
-//         delete current indent token
+//         remove current (indent) token and set
+//                current to following token
 //
 //     assert indentation_found == NULL_STUB
 //     assert current token is NOT end of file, comment,
@@ -447,18 +450,39 @@
 //     parser->at_head = false
 //
 //     if current is quoted string:
-//         if ! at_start and current->previous is quoted
-//                           string:
-//             merge quoted strings
-//         current = current->next
-//         at_start = false
+//	   concat = bracketed pass concatenator
+//
+//	   current = current->next
+//
+//	   if concat == DISABLED:
+//	       iterate loop to find next token
+//	   if current->previous at beginning of
+//	                           subexpression:
+//	       iterate loop to find next token
+//
+//	   if concat == ENABLED and we are NOT after a
+//	                quoted string that is itself
+//	       iterate loop to find next token
+//	                after a quoted string:
+//	   else if concat != ENABLED:
+//	       check whether we are now just after a
+//	             quoted string that is after a
+//	             token equal to concat that is
+//	             after a quoted string
+//	       if no:
+//	          iterate loop to find next token
+//	       if yes: 
+//	          remove token equal to concat
+//
+//	   merge previous 2 tokens (both quoted strings)
 //         iterate loop to find next token
 //    
 //     lookup key in bracket pass bracket table
 //
-//     loop to refine key until it is selected:
+//     loop to refine key until it is selected or not
+//             found:
 //
-//         if key == NONE:
+//         if key not found:
 //
 //             if at_start and
 //                         typed_data argument != NULL
@@ -932,8 +956,7 @@
 //
 //         // reject key
 //         //
-//         iterate loop to refine key by checking if
-//                 there is a shorter key or accepting
-//                 token as a non-key if no key found
+//         iterate loop to refine key until it is
+//                 selected or not found
 //
 //     iterate loop to find next token

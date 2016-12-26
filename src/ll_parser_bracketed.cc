@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 17:47:42 EST 2016
+// Date:	Mon Dec 26 10:47:30 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2550,8 +2550,6 @@ NO_IMPLIED_PREFIX:
 		        elements = next;
 		    min::gen type = min::MISSING();
 		    min::unsptr i = 0;
-		    min::uns32 token_type =
-		        PAR::BRACKETING;
 		    bool skip = false;	
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
@@ -2590,7 +2588,6 @@ NO_IMPLIED_PREFIX:
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    token_type = PAR::BRACKETED;
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -2616,7 +2613,6 @@ NO_IMPLIED_PREFIX:
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    token_type = PAR::BRACKETED;
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -2644,7 +2640,6 @@ NO_IMPLIED_PREFIX:
 			{
 			    MIN_REQUIRE
 			      ( i < tdata.attr_count );
-			    token_type = PAR::BRACKETED;
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -2680,7 +2675,10 @@ NO_IMPLIED_PREFIX:
 			    //
 			    if (    t->value
 			         == min::NONE() )
+			    {
 			        -- i;
+				skip = true;
+			    }
 			    else
 				attributes[i-1].value =
 				    t->value;
@@ -2696,6 +2694,15 @@ NO_IMPLIED_PREFIX:
 			        t->value;
 		    }
 
+		    min::uns32 token_type =
+		        i == 0 ?
+			    PAR::BRACKETING :
+			i == 1
+			&&
+			   attributes[0].name
+			== min::dot_type ?
+			    PAR::BRACKETING :
+			    PAR::BRACKETED;
 		    if ( type != min::MISSING()
 		         &&
 			 tdata.middle_count == 0
@@ -2720,6 +2727,8 @@ NO_IMPLIED_PREFIX:
 			  token_type,
 			  i, attributes, 1 );
 
+		    value_type_ref(elements) = type;
+
 		    // We delay deleting tokens until
 		    // their values are protected from
 		    // the garbage collector by compact.
@@ -2740,8 +2749,6 @@ NO_IMPLIED_PREFIX:
 				  first->previous ) );
 		    }
 		    while ( first != elements );
-
-		    value_type_ref(elements) = type;
 
 		    if ( elements->type == PAR::PREFIX )
 		    {

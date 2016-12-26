@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 07:12:05 EST 2016
+// Date:	Mon Dec 26 10:16:44 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -717,21 +717,94 @@
 //                 // with typed_data.elements which is
 //                 // NULL_STUB if there are no
 //                 // elements).
-// TBD
+//
+//                 // By an attribute label token we
+//                 // mean a token of type TYPE or
+//                 // ATTR_{LABEL,TRUE,FALSE}.
+//
+//		   loop through special attribute tokens
+//		                making a list of attri-
+//		                butes to be handed to
+//		                the compact function:
+//
+//		       for TYPE token:
+//		           if token->value is empty str:
+//		               do nothing
+//		           else if token->value is empty
+//		                   label:
+//		               print missing type error
+//		                     message
+//		               skip to next attribute
+//		                    label token
+//		           else add to the attribute
+//		                list a .type attribute
+//		                with value token->value
+//
+//		       for ATTR_LABEL token:
+//		           if token->value is empty
+//		                     label:
+//		               print missing type error
+//		                     message
+//		               skip to next attribute
+//		                    label token
+//		           else add to the attribute
+//		                list an attribute with
+//		                token->value name and
+//		                yet unspecified value 
+//
+//		       for ATTR_TRUE token:
+//		           if token->value is empty
+//		                     label:
+//		               print missing type error
+//		                     message
+//		               skip to next attribute
+//		                    label token
+//		           else add to the attribute
+//		                list an attribute with
+//		                token->value name and
+//		                min::TRUE value
+//
+//		       for ATTR_FALSE token:
+//		           ditto but with min::FALSE
+//		                 attribute value
+//
+//		       for ATTR_VALUE token:
+//		           if token->value is NONE:
+//		                delete last item of
+//		                   attribute list
+//		               skip to next attribute
+//		                    label token
+//		           else install token->value
+//		                as value of last attri-
+//		                bute in attribute list
+//
+//		       for ATTR_MULTIVALUE token:
+//		           install token->value
+//		                as value of last attri-
+//		                bute in attribute list
+//
+//		       for ATTR_FLAGS token:
+//		           install token->value
+//		                as flags of last attri-
+//		                bute in attribute list
+//
 //                 compact subexpression with attributes
-//                         taken from tokens before
-//                         tdata.elements (those with
-//                         token types TYPE, ATTR_...)
-//                         and elements taken from
-//                         typed_data.element on;
+//                         taken attribute list formed
+//                         above and elements taken from
+//                         typed_data.elements to end
+//                         of subexpression;
 //                         token type =
 //                               PREFIX if
-//                                  .type attribute is
+//                                  .type attribute
+//                                        value is
 //                                        present,
 //                                  tdata.middle_count
 //                                        == 0, and
-//                                  tdata.has_mark_type
-//                                        is false,
+//                                  either tdata
+//                                        .has_mark_type
+//                                        is false or
+//                                        or is_mark_
+//                                           prefix
 //                               else BRACKETING if
 //                               .type is the only
 //                               attribute or there are
@@ -742,14 +815,18 @@
 //                               token type is PREFIX,
 //                               else MISSING
 //
-//    		   delete tokens from which attributes
-//    		          were taken
+//    		   delete special attribute tokens
+//    		       // Delayed until after attribute
+//    		       // list has been passed to
+//    		       // compact function as attribute
+//    		       // list members are not protected
+//    		       // from GC.
 //
-//    		   if token type == PREFIX:
+//    		   if compacted token type == PREFIX:
 //		       goto CREATED_PREFIX with
-//		           prefix = the prefix token
+//		           prefix = the compacted token
 //		           separator_found from parse
-//		               of prefix token
+//		               of subexpression
 //		           premature_closing = true
 //		               iff bracket stack not
 //		               closed by PREFIX token's
@@ -763,6 +840,8 @@
 //                 return separator_found
 //             else:
 //                 iterate loop to find next token
+//
+// TBD
 //
 //         if key is closing bracket, and line_variables
 //                is missing or selectors & EAOCLOSING,

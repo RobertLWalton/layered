@@ -2870,6 +2870,78 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    [abc]
+@@@@ = abc:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = {}
+    line ###:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+           ^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "$" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "$" "]" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+DERIVED EXPRESSION:
+    [$ NONE $]
+@(NONE) = [$ NONE $]
+    line ###:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+                   ^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+ERROR: in line ###: not a legal attribute value `NONE'; attribute
+       ignored:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+                   ^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    [def]
+@@@@ = def:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = {}
+    line ###:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+                                ^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {"": x = "55", z[def] = "88"||}
+@@@@ =:
+           x = "55"
+           z[def] = "88"
+           .position[H] = {}
+    line ###:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": x = "55", z[def] = "88"||}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "$" "]" >]

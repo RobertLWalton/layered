@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 01:41:08 EST 2016
+// Date:	Mon Dec 26 02:35:42 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -588,8 +588,9 @@
 //
 //	               else if subexpression ends with
 //	                       a mark:
-//	                   if the mark differs from
-//	                          type_token->value:
+//	                   if that mark differs from
+//	                          tdata.type (== type_
+//	                          token->value):
 //	                       reset type_token->value
 //	                             to a label whose
 //	                             components are the
@@ -644,44 +645,20 @@
 //	               OR if tdata.subtype =
 //	                       TYPED_ATTR_BEGIN:
 //
-//	                   if there are NO subexpres-
-//	                            sion tokens after
-//	                            TYPED_OPENING,
-//	                            TYPED_MIDDLE,
-//	                            or TYPED_ATTR_
-//	                            BEGIN:
-//	                       print an error message
-//	                             indicating the
-//	                             type is missing
+//			    make_type_label
+//			        ( tdata,
+//			          token after
+//			                subexpression )
 //
-//			   else:
-//	                       collect these tokens
-//	                           into a single token
-//	                           with value being the
-//	                           label made from the
-//	                           tokens and type =
-//	                           TYPE
-//
-//	                       if there is no beginning
-//	                                type:
-//	                           move end TYPE token
-//	                                to before ele-
-//	                                ments if any
-//	                       else if end TYPE token
-//	                               matches
-//	                               beginning type:
-//	                           delete end TYPE token
-//	                       else announce type mis-
-//	                            match error indica
-//	                            ting end type
-//	                            ignored and delete
-//	                            end TYPE token
-//
-//		       else finish any unfinished
-//		            attribute at end of subex-
-//		            pression and move any
-//		            attributes after elements
-//		            to just before elements
+//		       else:
+//		           finish_attribute
+//			        ( tdata,
+//			          token after
+//			                subexpression )
+//		           move_attributes
+//			        ( tdata,
+//			          token after
+//			                subexpression )
 //
 //             if closing was found that did not match
 //                        top of closing stack, or
@@ -691,9 +668,7 @@
 //                      adjust end of subexpression to
 //                      just before that closing
 //
-//             else remove closing bracket, setting end
-//                  of subexpression to end of closing
-//                  bracket
+//             else remove closing bracket
 //
 //             remove opening bracket
 //

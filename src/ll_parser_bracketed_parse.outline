@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 02:35:42 EST 2016
+// Date:	Mon Dec 26 07:12:05 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -89,6 +89,15 @@
 //     the value NONE (and token type ATTR_VALUE, the
 //     attribute will be deleted later when its contain-
 //     ing subexpression is compacted).
+//
+// move_attributes(typed_data,next):
+//     If there are attributes after the last typed
+//     middle (typed_data->attributes != NULL_STUB) and
+//     there are elements (typed_data->elements != NULL_
+//     STUB), move the attributes to just before the
+//     elements.  The attributes to be moved are all the
+//     tokens from typed_data->attributes through
+//     next->previous.
 //
 // parse_bracketed_subexpression(...)
 //
@@ -609,22 +618,31 @@
 //	                   tdata.elements =
 //	                       type_token->next
 //
-//	           else if tdate.has_mark_type is false
+//	           else if tdata.has_mark_type is false
 //	                   and tdata.middle_count is
 //	                   odd:
+//	               // Because middle_count is odd
+//	               // the last recognized key is
+//	               // a typed middle.
+//
 //	               print error message saying mis-
 //	                     sing typed middle at end
 //	                     of subexpression has been
 //	                     inserted (but do not
-//	                     actually insert anything),
-//	                     and if there are subex-
-//	                     pression elements after
-//	                     the last typed middle and
-//	                     tdata.elements is NULL_
-//	                     STUB, set tdata.elements
-//	                     to token after last middle
+//	                     actually insert anything)
 //
-//	           else if tdate.has_mark_type is false
+//	               if there are subexpression ele-
+//	                        ments after the last key
+//	                        (the typed middle) and
+//	                        there were no subexpres-
+//	                        sion elements before
+//	                        this typed middle
+//	                        (tdata.elements is NULL_
+//	                        STUB)
+//	                   tdata.elements =
+//	                       token after last key
+//
+//	           else if tdata.has_mark_type is false
 //	                   and tdata.middle_count is
 //	                   even:
 //
@@ -675,20 +693,31 @@
 //             if key is opening bracket:
 //
 //                 call opening bracket reformatter if
-//                      any, and if none or if compac-
-//                      tion requested by reformatter:
-//                 compact subexpression with
-//                     new_selectors,
-//                     .initiator =
-//                         key opening bracket,
-//                     .terminator =
-//                         key closing bracket,
-//                     token type = BRACKETING,
-//                     token value_type =
-//                         key opening bracket
+//                              any, and if none or if
+//                              compaction requested by
+//                              reformatter:
+//                     compact subexpression with
+//                         new_selectors,
+//                         .initiator =
+//                             key opening bracket,
+//                         .terminator =
+//                             key closing bracket,
+//                         token type = BRACKETING,
+//                         token value_type =
+//                             key opening bracket
 //
 //             else if key is typed opening:
 //              
+//                 // At this point the subexpression
+//                 // consists of special attribute
+//                 // tokens (with token types TYPE,
+//                 // ATTR_{LABEL,VALUE,TRUE,FALSE,
+//                 // FLAGS,MULTIVALUE) followed by
+//                 // subexpression elements (beginning
+//                 // with typed_data.elements which is
+//                 // NULL_STUB if there are no
+//                 // elements).
+// TBD
 //                 compact subexpression with attributes
 //                         taken from tokens before
 //                         tdata.elements (those with

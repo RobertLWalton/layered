@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 18:37:50 EST 2016
+// Date:	Tue Dec 27 04:45:05 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -926,8 +926,6 @@
 //
 //             iterate loop to find next token
 //
-// TBD
-//
 //         if key is typed attribute begin matching
 //                typed_attr_begin component of typed_
 //                opening component of a non-missing
@@ -937,12 +935,10 @@
 //
 //             if there is no previous typed key after
 //                      the typed opening in the
-//                      subexpression and there are
-//                      tokens between the typed opening
-//                      and the typed attribute begin:
-//                 make these tokens into a label and
-//                      replace them with a TYPE token
-//                      having the label as token value
+//                      subexpression:
+//                 make_type_label
+//                     ( typed_data,
+//                       token after typed middle )
 //                 remove the typed attribute begin key
 //                 typed_data->subtype = TYPED_ATTR_SEP
 //
@@ -951,11 +947,14 @@
 //	               previous typed middle and the
 //	               typed attribute begin:
 //	           remove the typed attribute begin key
-//	           finish any unfinished attribute just
-//	                  before the typed attribute
-//	                  begin
-//	           move any attributes after elements to
-//	                just before elements
+//		   finish_attribute
+//		       ( typed_data,
+//		         token after subexpression )
+//		   move_attributes
+//		       ( typed_data,
+//		         token after subexpression )
+//                 typed_data->subtype =
+//                     TYPED_ATTR_BEGIN
 //
 //	       else:
 //	           announce typed attribute begin to be
@@ -972,21 +971,17 @@
 //                middle_count is even, and typed_
 //                data->has_mark_type is false:
 //
-//             if there is a previous typed key in the
-//                      subexpression that is a typed
-//                      middle, typed attribute separa-
-//                      tor, or typed attribute negator,
-//                      and there are tokens between
-//                      this previous typed key and the
-//                      typed attribute equal:
-//                 make these tokens into an attribute
-//                      label and optional following
-//                      flags
-//                 replace these tokens with an ATTR_
-//                         LABEL token optionally
-//                         followed by an ATTR_FLAGS
-//                         token
+//             if there is no previous typed key in the
+//                      subexpression, or the previous
+//                      typed key is a typed middle,
+//                      typed attribute separator, or
+//                      typed attribute negator:
+//                 make_attribute_label
+//                     ( typed_data,
+//                       token after typed middle )
 //                 remove the typed attribute equal key
+//                 typed_data->subtype =
+//                     TYPED_ATTR_EQUAL
 //
 //	       else:
 //	           announce typed attribute equal to be
@@ -1002,14 +997,15 @@
 //                middle_count is even, and typed_data->
 //                has_mark_type is false:
 //
-//             if there is a previous typed key in the
-//                      subexpression that is a typed
-//                      middle, typed attribute separa-
-//                      tor, or typed attribute equal,
-//                      or typed attribute negator:
-//                 finish any unfinished attribute just
-//                        before the typed attribute
-//                        separator
+//             if there is no previous typed key in the
+//                      subexpression, or the previous
+//                      typed key is a typed middle,
+//                      typed attribute separator, typed
+//                      attribute equal, or typed attri-
+//                      bute negator:
+//		   finish_attribute
+//		       ( typed_data,
+//		         token after subexpression )
 //                 remove the typed attribute separator
 //                        key
 //
@@ -1026,12 +1022,14 @@
 //                middle_count is even, and typed_data->
 //                has_mark_type is false:
 //
-//             if there is a previous typed key in the
-//                      subexpression that is a typed
-//                      middle or typed attribute
-//                      separator, and there are NO
-//                      tokens between this previous key
-//                      and the typed attribute negator:
+//             if there is no previous typed key in the
+//                      subexpression, or the previous
+//                      typed key is a typed middle or
+//                      typed attribute separator, and
+//                      if the typed attribute negator
+//                      immediately follows the subex-
+//                      pression beginning or previous
+//                      typed key:
 //                 remove the typed attribute negator
 //                 typed_data->subtype =
 //                     TYPED_ATTR_NEGATOR

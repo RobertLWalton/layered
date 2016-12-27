@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 10:16:44 EST 2016
+// Date:	Mon Dec 26 18:37:50 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -841,10 +841,8 @@
 //             else:
 //                 iterate loop to find next token
 //
-// TBD
-//
 //         if key is closing bracket, and line_variables
-//                is missing or selectors & EAOCLOSING,
+//                is NULL or selectors & EAOCLOSING,
 //                and closing bracket matches the
 //                closing bracket of the first entry of
 //                the bracket stack, or of any entry if
@@ -887,27 +885,26 @@
 //                          are tokens between the typed
 //                          opening and the typed
 //                          middle:
-//                     make these tokens into a label
-//                     and replace them with a TYPE
-//                     token having the label as token
-//                     value; if TYPE token is after
-//                     elements, move it to before
-//                     elements
+//                     make_type_label
+//                         ( typed_data,
+//                           token after typed middle )
 //	           else if there is some key in the
 //	                   subexpression after the typed
 //	                   opening:
-//	               finish any unfinished attribute
-//	               just before the typed middle and
-//	               move any attributes after ele-
-//	               ments to just before elements
+//		       finish_attribute
+//			   ( tdata,
+//			     token after subexpression )
+//		       move_attributes
+//		           ( tdata,
+//			     token after subexpression )
 //
-//              else if typed_data->middle_count is odd:
-//                  if typed_data->elements == NULL and
-//                           there are elements before
-//                           typed middle:
-//                      set typed_data->elements to
-//                          point at the first of these
-//                          elements
+//              else if typed_data->middle_count is odd
+//                      and typed_data->elements == NULL
+//                      and there are elements between
+//                          previous typed middle and
+//                          current typed middle:
+//                  typed_data->elements = first token
+//                      after previous typed middle
 //
 //	       typed_data->subtype = TYPED_MIDDLE
 //
@@ -928,6 +925,8 @@
 //                    | ALWAYS_SELECTOR
 //
 //             iterate loop to find next token
+//
+// TBD
 //
 //         if key is typed attribute begin matching
 //                typed_attr_begin component of typed_

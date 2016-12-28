@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 27 04:45:05 EST 2016
+// Date:	Tue Dec 27 23:56:12 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,42 +62,72 @@
 //     the label token give it the ATTR_LABEL token
 //     type and increment typed_data->attr_count.
 //
+//     Note that attributes with empty labels will
+//     cause an error message and be otherwise ignored
+//     in code below.
+//
 // finish_attribute(typed_data,next):
+//     Let start = typed_data->start_previous->next.
+//
 //     Examine typed_data->subtype (the subtype of the
 //     last key found).  If it is TYPED_OPENING, TYPED_
 //     ATTR_SEP, TYPED_ATTR_NEGATOR, or TYPED_MIDDLE,
 //     make_attribute_label(typed_data,next) and give
 //     the resulting token the type ATTR_FALSE if the
 //     subtype above was TYPED_ATTR_NEGATOR and ATTR_
-//     TRUE otherwise.  However, do not do anything
-//     if the subtype examined was TYPED_MIDDLE and
-//     there are no tokens between the TYPED_MIDDLE
-//     token and `next'.
+//     TRUE otherwise.  However, as an exception, do
+//     not do anything if the subtype examined was
+//     TYPED_MIDDLE and there are no tokens between
+//     the TYPED_MIDDLE token and `next' (i.e., start
+//     == next).
 //
-//     If instead the subtype is TYPED_ATTR_EQUAL,
-//     collect the tokens between start = typed_data->
-//     start_previous->next and next->previous into a
-//     label token as per make_label and give that token
-//     the ATTR_VALUE type.  However, if there is only
-//     one token to collect and it is a bracketed
-//     subexpression with .initiator equal to typed_data
-//     ->typed_opening->typed_attr_multivalue_initiator,
-//     just give it the ATTR_MULTIVALUE token type.  And
-//     if there is only one token to collect and it has
-//     a value illegal in the sense of min::is_attr_
-//     legal, print an error message and give the token
-//     the value NONE (and token type ATTR_VALUE, the
-//     attribute will be deleted later when its contain-
-//     ing subexpression is compacted).
+//     Note that attributes with empty labels will
+//     cause an error message and be otherwise ignored
+//     in code below.
+//
+//     If instead the subtype is TYPED_ATTR_EQUAL:
+//         if start == next (there are no tokens to
+//                           make into a value):
+//             output error message that attribute
+//                    value is missing and attribute
+//                    is ignored
+//             create a new token before next of
+//                    token type ATTR_VALUE and
+//                    value NONE (this will cause
+//                    attribute to be ignored in code
+//                    below)
+//         else if start->next == next (there is just a
+//                 single token in the value)
+//                 and token->string == NULL_STUB
+//                 (the token is not a quoted string
+//                  or numeric):
+//            if the single token has .initiator ==
+//                   typed_data->typed_opening
+//                   ->typed_attr_multivalue_initiator:
+//               token->type = ATTR_MULTIVALUE
+//            else:
+//               token->type = ATTR_VALUE
+//               if is_attr_legal ( token value ) is
+//                                false:
+//                  output error message saying value
+//                         is not legal and attribute
+//                         is ignored
+//                  token->value = NONE (this will cause
+//                      attribute to be ignored in code
+//                      below)
+//         else:
+//             make_label ( start, next )
+//             start->type = ATTR_VALUE
 //
 // move_attributes(typed_data,next):
 //     If there are attributes after the last typed
-//     middle (typed_data->attributes != NULL_STUB) and
-//     there are elements (typed_data->elements != NULL_
-//     STUB), move the attributes to just before the
-//     elements.  The attributes to be moved are all the
-//     tokens from typed_data->attributes through
-//     next->previous.
+//     middle (typed_data->attributes != NULL_STUB and
+//     typed_data->middle_count != 0) and there are
+//     elements (typed_data->elements != NULL_STUB),
+//     move the attributes to just before the elements.
+//     The attributes to be moved are all the tokens
+//     from typed_data->attributes through next->
+//     previous.
 //
 // parse_bracketed_subexpression(...)
 //

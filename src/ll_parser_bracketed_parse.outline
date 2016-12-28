@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 27 23:56:12 EST 2016
+// Date:	Wed Dec 28 05:41:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -182,6 +182,9 @@
 // immediately followed by a line break or end of file.
 // This must be guaranteed by the lexical analyzer.
 //
+// bracketed_pass = parser->pass_stack
+//     // Bracketed pass; always the first pass in the
+//     // pass stack.
 // indentation_mark indentation_found = NULL_STUB
 // start_previous = current->previous
 //     // If current == start_previous->next, current
@@ -189,13 +192,17 @@
 //     // begin parsed.  Tokens may be removed from or
 //     // added to the beginning of the subexpression,
 //     // so one cannot simply save the initial current
-//     // value.
+//     // value.  There always is a current->previous,
+//     // as the start-of-file token is never removed
+//     // from the input.
 //
 // loop to find next token:
 //
-// NEXT_TOKEN:
+//     // Note: we come here only on the first time
+//     // through the loop, and on subsequent times
+//     // we go to NEXT_TOKEN or PREFIX_FOUND.
 //
-//     // Variables used by CREATED_PREFIX code block:
+//     // Variables used by PREFIX_FOUND code block:
 //
 //	   prefix
 //	       The prefix token at the head of the
@@ -208,7 +215,7 @@
 //	       POSITION if prefix token was copied from
 //	       an implied subprefix or implied header.
 //	   premature_closing
-//	       True if parse_bracketed_subexpression
+//	       True iff parse_bracketed_subexpression
 //	       parsed the prefix token and the prefix
 //	       separator encoded in that token was
 //	       terminated abnormally by an outer closing
@@ -218,25 +225,26 @@
 //           premature_closing is false and separator_
 //           found is MISSING_POSITION.
 //
-//     if not first loop iteration, or if bracket stack
-//            head does not exist or has a missing
-//            implied prefix:
-//         go to NO_IMPLIED_PREFIX
+//     if top bracket stack entry does not exist or its
+//            prefix_entry does not exist or that has
+//            a MISSING implied_subprefix:
+//         go to NEXT_TOKEN
 //
-//     Insert IMPLIED_PREFIX token before current
-//     token.  Value of new token is implied_prefix
-//     of top bracket stack entry.
+//     Insert IMPLIED_PREFIX token before current token.
+//            Value of new token is implied_prefix of
+//            prefix_entry of top bracket stack entry.
 //
 //     prefix = new IMPLIED_PREFIX token
 //     separator_found = MISSING_SEPARATOR
 //     premature_closing = false
 //
-// CREATED_PREFIX:
+// PREFIX_FOUND:
 //
-//     // For input variables see NEXT_TOKEN above.
+//     // For input variables beginning of find-next-
+//     // token loop above.
 //
 //     prefix_entry = prefix token .type entry in
-//          bracketed pass prefix table, or NULL_STUB
+//          bracketed_pass prefix_table, or NULL_STUB
 //          if none
 //     group = prefix_entry->group or MISSING if
 //             prefix_entry == NULL_STUB
@@ -251,9 +259,9 @@
 //     if bracket stack entry found:
 //
 //         if prefix token type is IMPLIED_PREFIX:
-//             announce error (implied prefix has same
-//             type or group as previous prefix in
-//             same subexpression)
+//             announce error: implied prefix has same
+//                 type or group as previous prefix in
+//                 same subexpression
 //             delete prefix token
 //             go to NEXT_TOKEN
 //
@@ -265,8 +273,9 @@
 //         return separator_found
 //
 //     if prefix not first token of subexpression:
-//         announce PREFIX token is in error and delete
-//         it
+//         announce PREFIX token is in error and is
+//                  being ignored
+//         delete prefix token
 //
 //     if premature_closing:
 //         set PREFIX token type to BRACKETED if PREFIX
@@ -275,7 +284,7 @@
 //
 //     if PREFIX token was not deleted:
 //         // Start new subexpression beginning with
-//         // the PREFIX token
+//         // the PREFIX token.
 //
 //         create new bracket stack entry E with
 //                E.prefix_type = PREFIX token .type
@@ -315,20 +324,18 @@
 //	       if .type of prefix != .type of previous
 //	                              prefix:
 //	           find entry E for new .type in
-//	           bracketed pass prefix table (entry
+//	           bracketed_pass prefix_table (entry
 //	           must exist because .types have the
 //	           same group), recompute prefix_selec-
-//	           tors E, and set bracket stack top
-//	           entry prefix_type = new .type and
-//	           bracket stack top entry prefix_entry
-//	           to E
+//	           tors from selectors argument and E,
+//	           and set bracket stack top entry
+//	           prefix_type = new .type and bracket
+//	           stack top entry prefix_entry to E
 //
 //	       iterate loop to find prefix-n-list
 //	               subexpression headed by prefix
 //
-//     iterate loop to find next token
-//	    
-// NO_IMPLIED_PREFIX:
+// NEXT_TOKEN:
 //
 //     skip line break, comment, and indent_before_
 //          comment tokens; if a blank line is
@@ -492,7 +499,7 @@
 //     parser->at_head = false
 //
 //     if current is quoted string:
-//	   concat = bracketed pass concatenator
+//	   concat = bracketed_pass->concatenator
 //
 //	   current = current->next
 //
@@ -519,7 +526,7 @@
 //	   merge previous 2 tokens (both quoted strings)
 //         iterate loop to find next token
 //    
-//     lookup key in bracket pass bracket table
+//     lookup key in bracketed_pass bracket table
 //
 //     loop to refine key until it is selected or not
 //             found:
@@ -853,7 +860,7 @@
 //    		       // from GC.
 //
 //    		   if compacted token type == PREFIX:
-//		       goto CREATED_PREFIX with
+//		       goto PREFIX_FOUND with
 //		           prefix = the compacted token
 //		           separator_found from parse
 //		               of subexpression

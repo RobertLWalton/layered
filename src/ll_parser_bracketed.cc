@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 10:47:30 EST 2016
+// Date:	Wed Dec 28 05:53:49 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1187,8 +1187,8 @@ inline void make_attribute_label
     ++ typed_data->attr_count;
 }
 
-// Finish attribute.  On error either generate error
-// attribute or do not produce a new attribute.
+// Finish attribute.  On error either generate an attri-
+// bute with value NONE which will be deleted later.
 //
 // If typed_data indicates there are no attributes
 // (e.g., we are immediately after a typed middle)
@@ -1329,8 +1329,10 @@ min::position BRA::parse_bracketed_subexpression
     // for scanning elements are in typed_data->saved_
     // selectors.
 
-    BRA::bracketed_pass pass =
+    BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
+	// First pass in pass_stack is always the
+	// bracketed pass.
 
     BRA::indentation_mark indentation_found =
         min::NULL_STUB;
@@ -1344,7 +1346,8 @@ min::position BRA::parse_bracketed_subexpression
 	// separator is legal, etc.
 
     TAB::flags trace_flags = parser->trace_flags;
-    if ( trace_flags & pass->trace_subexpressions )
+    if (   trace_flags
+         & bracketed_pass->trace_subexpressions )
     {
 	trace_flags &=
 	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
@@ -1358,33 +1361,26 @@ min::position BRA::parse_bracketed_subexpression
     else
         trace_flags = 0;
 
-    bool first_time = true;
     while ( true )
     {
 
-NEXT_TOKEN:
-
-	// Variables used by CREATED_PREFIX code block.
+	// Variables used by PREFIX_FOUND code block.
 	//
 	PAR::token prefix;
 	min::position separator_found;
 	bool premature_closing;
 
-	if ( ! first_time )
-	    goto NO_IMPLIED_PREFIX;
-	else
 	{
-	    first_time = false;
 	    if ( bracket_stack_p == NULL )
-	        goto NO_IMPLIED_PREFIX;
+	        goto NEXT_TOKEN;
 	    BRA::prefix p =
 	        bracket_stack_p->prefix_entry;
 	    if ( p == min::NULL_STUB )
-	        goto NO_IMPLIED_PREFIX;
+	        goto NEXT_TOKEN;
 	    min::gen implied_prefix =
 	        p->implied_subprefix;
 	    if ( implied_prefix == min::MISSING() )
-	        goto NO_IMPLIED_PREFIX;
+	        goto NEXT_TOKEN;
 
 	    prefix = PAR::new_token
 	                 ( PAR::IMPLIED_PREFIX );
@@ -1403,10 +1399,10 @@ NEXT_TOKEN:
 	    premature_closing = false;
 	}
 
-	// Code above jumps to NO_IMPLIED_PREFIX
-	// or created implied prefix and comes here.
+	// Code above either jumps to NEXT_TOKEN or
+	// creates implied prefix and comes here.
 
-CREATED_PREFIX:
+PREFIX_FOUND:
 
 	// Come here when PREFIX token has been created.
 	// (This is like a nested inline function, but
@@ -1424,10 +1420,8 @@ CREATED_PREFIX:
 	//         end of the prefix token.
 	//
 	{
-	    BRA::bracketed_pass bpass =
-		(BRA::bracketed_pass) pass;
 	    TAB::key_table prefix_table =
-		bpass->prefix_table;
+		bracketed_pass->prefix_table;
 	    min::gen prefix_type = prefix->value_type;
 	    BRA::prefix prefix_entry =
 		(BRA::prefix)
@@ -1570,7 +1564,7 @@ CREATED_PREFIX:
 		    if ( next == min::NULL_STUB )
 			next = current;
 		    compact_prefix_separator
-		      ( parser, pass->next,
+		      ( parser, bracketed_pass->next,
 			prefix_selectors,
 			prefix, next, trace_flags );
 
@@ -1616,11 +1610,7 @@ CREATED_PREFIX:
 	    }
 	}
 
-	// Loop to next token.
-
-	continue;
-
-NO_IMPLIED_PREFIX:
+NEXT_TOKEN:
 
         // Skip comments, line breaks, and indent before
 	// comments, so that either nothing is skipped
@@ -1752,7 +1742,7 @@ NO_IMPLIED_PREFIX:
 	    PAR::token mark_end = current->previous;
 	        // Last token of indentation mark.
 	    min::int32 indentation_offset =
-		pass->indentation_offset;
+		bracketed_pass->indentation_offset;
 
 	    // Scan lines of paragraph.  Current will
 	    // become the first line break or end of
@@ -1883,7 +1873,7 @@ NO_IMPLIED_PREFIX:
 
 			PAR::compact
 			    ( parser,
-			      pass->next,
+			      bracketed_pass->next,
 			      new_selectors,
 			      first, next,
 			      position,
@@ -1964,7 +1954,7 @@ NO_IMPLIED_PREFIX:
 		        min::INDENTED_PARAGRAPH() ) };
 
 	    PAR::compact
-		( parser, pass->next,
+		( parser, bracketed_pass->next,
 		  new_selectors,
 		  first, next, position,
 		  trace_flags,
@@ -2016,7 +2006,8 @@ NO_IMPLIED_PREFIX:
 		int32 rindent =
 		    relative_indent
 			( parser,
-			  pass->indentation_offset,
+			  bracketed_pass->
+			      indentation_offset,
 			  current, indent );
 		if ( rindent < 0 )
 		    return min::MISSING_POSITION;
@@ -2066,28 +2057,29 @@ NO_IMPLIED_PREFIX:
 	{
 	    ensure_next ( parser, current );
 	    current = current->next;
-	    min::gen concat = pass->string_concatenator;
+	    min::gen concat =
+	        bracketed_pass->string_concatenator;
 
 	    if ( concat == min::DISABLED() )
-	        continue;
+	        goto NEXT_TOKEN;
 
 	    if (    start_previous->next
 	         == current->previous )
-	        continue;
+	        goto NEXT_TOKEN;
 
 	    if ( concat != min::ENABLED() )
 	    {
 	        if (    current->previous->previous
 		               ->value
 		     != concat )
-		    continue;
+		    goto NEXT_TOKEN;
 		if (    start_previous->next
 		     == current->previous->previous )
-		    continue;
+		    goto NEXT_TOKEN;
 		if (    current->previous->previous
 		               ->previous->type
 		     != LEXSTD::quoted_string_t )
-		    continue;
+		    goto NEXT_TOKEN;
 
 		// Remove string_concatenator token.
 		//
@@ -2100,7 +2092,7 @@ NO_IMPLIED_PREFIX:
 	    else if (    current->previous->previous
 	                        ->type
 		      != LEXSTD::quoted_string_t )
-	        continue;
+	        goto NEXT_TOKEN;
 
 	    // Merge current->previous into current->
 	    // previous->previous, and delete current->
@@ -2120,7 +2112,7 @@ NO_IMPLIED_PREFIX:
 		( PAR::remove
 		    ( first_ref(parser),
 		      current->previous ) );
-	    continue;
+	    goto NEXT_TOKEN;
 	}
 
 	// If lookup key in bracket table.
@@ -2132,7 +2124,8 @@ NO_IMPLIED_PREFIX:
 	TAB::root root =
 	    find_entry ( parser, current, key_prefix,
 			 selectors,
-			 pass->bracket_table );
+			 bracketed_pass->
+			     bracket_table );
 	while ( true )
 	{
 	    // Each iteration of this loop examines the
@@ -2503,7 +2496,8 @@ NO_IMPLIED_PREFIX:
 			       reformatter->
 			       reformatter_function )
 			     ( parser,
-			       (PAR::pass) pass,
+			       (PAR::pass)
+			           bracketed_pass,
 			       new_selectors,
 			       first, next, position,
 			       trace_flags,
@@ -2528,7 +2522,8 @@ NO_IMPLIED_PREFIX:
 					      label ) };
 
 			PAR::compact
-			    ( parser, pass->next,
+			    ( parser,
+			      bracketed_pass->next,
 			      new_selectors,
 			      first, next, position,
 			      trace_flags,
@@ -2720,7 +2715,7 @@ NO_IMPLIED_PREFIX:
 		    bool first_equals_elements =
 		        ( first == elements );
 		    PAR::compact
-			( parser, pass->next,
+			( parser, bracketed_pass->next,
 			  new_selectors,
 			  elements, next, position,
 			  trace_flags,
@@ -2756,7 +2751,7 @@ NO_IMPLIED_PREFIX:
 			premature_closing =
 			    (    cstack.closing_next
 		              == cstack.closing_first );
-			goto CREATED_PREFIX;
+			goto PREFIX_FOUND;
 		    }
 		}
 
@@ -3179,7 +3174,8 @@ NO_IMPLIED_PREFIX:
 	}
 
 	// Loop to next token.
-
+	//
+	goto NEXT_TOKEN;
     }
 
     MIN_ABORT ( "SHOULD NOT COME HERE" );

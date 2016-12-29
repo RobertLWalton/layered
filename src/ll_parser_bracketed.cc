@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 04:57:15 EST 2016
+// Date:	Thu Dec 29 07:06:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2859,24 +2859,21 @@ NEXT_TOKEN:
 	    {
 		if ( typed_data != NULL
 		     &&
-		     (    (TAB::root)
+		        root
+		     == (    subtype
+			   == BRA::TYPED_MIDDLE ?
+		          (TAB::root)
 		          typed_data->typed_opening
-			            ->typed_middle
-		       == root
-		       ||
+			            ->typed_middle :
 		          (TAB::root)
 		          typed_data->
 			      typed_opening->
-			      typed_double_middle
-		       == root )
+			      typed_double_middle )
 		     &&
 		     ! typed_data->has_mark_type )
 		{
 		    typed_data->end_position =
 		        current->previous->position.end;
-		        
-		    PAR::remove ( parser, current,
-			          root->label );
 
 		    if (    typed_data->middle_count % 2
 		         == 0 )
@@ -2887,20 +2884,20 @@ NEXT_TOKEN:
 			        typed_data
 				    ->start_previous
 				    ->next
-			     != current )
+			     != key_first )
 			    ::make_type_label
 			        ( parser, typed_data,
-				  current );
+				  key_first );
 		        else if (    typed_data->subtype
 			          != BRA::TYPED_OPENING
 				)
 			{
 			    ::finish_attribute
 				( parser, typed_data,
-				  current );
+				  key_first );
 			    ::move_attributes
 				( parser, typed_data,
-				  current );
+				  key_first );
 			}
 		    }
 		    else // if
@@ -2913,19 +2910,19 @@ NEXT_TOKEN:
 			        typed_data
 				    ->start_previous
 				    ->next
-			     != current )
+			     != key_first )
 			    typed_data->elements =
 			        typed_data
 				    ->start_previous
 				    ->next;
 		    }
 
+		    PAR::remove ( parser, current,
+			          root->label );
 		    typed_data->subtype =
 			BRA::TYPED_MIDDLE;
-
 		    typed_data->start_previous =
 		        current->previous;
-
 		    ++ typed_data->middle_count;
 
 		    if (    subtype
@@ -2998,15 +2995,15 @@ NEXT_TOKEN:
 			             ->start_previous
 				     ->next )
 		    {
+			::finish_attribute
+			    ( parser, typed_data,
+			      key_first );
+			::move_attributes
+			    ( parser, typed_data,
+			      key_first );
 			PAR::remove
 			    ( parser, current,
 			      root->label );
-			::finish_attribute
-			    ( parser, typed_data,
-			      current );
-			::move_attributes
-			    ( parser, typed_data,
-			      current );
 			typed_data->subtype =
 			    BRA::TYPED_ATTR_BEGIN;
 			typed_data->start_previous =

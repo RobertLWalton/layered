@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 01:29:59 EST 2016
+// Date:	Thu Dec 29 04:50:30 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -599,7 +599,6 @@
 //		       type = MISSING
 //		       has_mark_type = false
 //
-//
 //                 parse_bracketed_subexpression with
 //                     selectors from key->attr_
 //                         selectors plus ALWAYS_
@@ -621,8 +620,10 @@
 //	           // its being missing.
 //
 //	           if tdata.has_mark_type:
+//
 //	               type_token = first token of
-//	                            after bracket
+//	                            subexpression after
+//	                            opening bracket
 //
 //	               if subexpression has only one
 //	                       token (its mark type):
@@ -681,7 +682,8 @@
 //	                        (tdata.elements is NULL_
 //	                        STUB)
 //	                   tdata.elements =
-//	                       token after last key
+//	                       token after last key (the
+//	                       typed middle)
 //
 //	           else if tdata.has_mark_type is false
 //	                   and tdata.middle_count is
@@ -702,14 +704,15 @@
 //	                       after the TYPED_OPENING
 //	                       or TYPED_MIDDLE
 //	               OR if tdata.subtype =
-//	                       TYPED_ATTR_BEGIN:
+//	                           TYPED_ATTR_BEGIN:
 //
 //			    make_type_label
 //			        ( tdata,
 //			          token after
 //			                subexpression )
 //
-//		       else:
+//		       else if tdata.subtype !=
+//		                     TYPED_OPENING:
 //		           finish_attribute
 //			        ( tdata,
 //			          token after
@@ -720,12 +723,13 @@
 //			                subexpression )
 //
 //             if closing was found that did not match
-//                        top of closing stack, or
-//                        logical line end was found:
-//                 print error message 
-//                 if non-matching closing was found:
+//                        our closing bracket:
+//                 if non-matching closing bracket was
+//                                 found:
 //                      adjust end of subexpression to
-//                      just before that closing
+//                             just before that closing
+//                 print error message indicating our
+//                       closing bracket was inserted
 //
 //             else remove closing bracket
 //
@@ -753,7 +757,7 @@
 //                 // consists of special attribute
 //                 // tokens (with token types TYPE,
 //                 // ATTR_{LABEL,VALUE,TRUE,FALSE,
-//                 // FLAGS,MULTIVALUE) followed by
+//                 // FLAGS,MULTIVALUE}) followed by
 //                 // subexpression elements (beginning
 //                 // with typed_data.elements which is
 //                 // NULL_STUB if there are no
@@ -790,8 +794,8 @@
 //		                    label token
 //		           else add to the attribute
 //		                list an attribute with
-//		                token->value name and
-//		                yet unspecified value 
+//		                name = token->value and
+//		                value yet unspecified
 //
 //		       for ATTR_TRUE token:
 //		           if token->value is empty
@@ -802,12 +806,12 @@
 //		                    label token
 //		           else add to the attribute
 //		                list an attribute with
-//		                token->value name and
-//		                min::TRUE value
+//		                name = token->value and
+//		                value = min::TRUE
 //
 //		       for ATTR_FALSE token:
-//		           ditto but with min::FALSE
-//		                 attribute value
+//		           ditto but with value =
+//		                 min::FALSE
 //
 //		       for ATTR_VALUE token:
 //		           if token->value is NONE:
@@ -846,11 +850,15 @@
 //                                        is false or
 //                                        or is_mark_
 //                                           prefix
+//                                  key has prefix_sep-
+//                                      arators_allowed
+//                                      true
 //                               else BRACKETING if
-//                               .type is the only
-//                               attribute or there are
-//                               no attributes, else
-//                               BRACKETED
+//                                    .type is the only
+//                                     attribute
+//                                     or there are
+//                                     no attributes
+//                               else BRACKETED
 //                         token value_type = .type
 //                               attribute value if
 //                               token type is PREFIX,
@@ -874,10 +882,8 @@
 //		               typed opening's closing
 //		               bracket
 //
-//             if closing bracket was found that did
-//                        not match top of closing
-//                        stack, or logical line end
-//                        found:
+//             if closing bracket matching key's closing
+//                        bracket NOT found:
 //                 return separator_found
 //             else:
 //                 iterate loop to find next token
@@ -889,7 +895,7 @@
 //                the bracket stack, or of any entry if
 //                selectors & EAOCLOSING:
 //             close bracket stack entry that matches
-//                   key
+//                   key, indicating key closed entry
 //             close all higher stack entries indicating
 //                   that their closing brackets were
 //                   not found and their subexpressions

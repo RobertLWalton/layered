@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 02:23:42 EST 2016
+// Date:	Thu Dec 29 04:57:15 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2285,6 +2285,9 @@ NEXT_TOKEN:
 			PAR::token type_token =
 			    previous->next;
 			MIN_REQUIRE
+			    (    type_token->type
+			      == BRA::TYPE );
+			MIN_REQUIRE
 			    (    type_token->value
 			      == tdata.type );
 			if (    type_token
@@ -2333,6 +2336,9 @@ NEXT_TOKEN:
 		    else
 		    if ( tdata.middle_count % 2 == 1 )
 		    {
+		        MIN_REQUIRE
+			    (    tdata.subtype
+			      == BRA::TYPED_MIDDLE );
 			missing_error
 			    ( parser, next, "`",
 			      min::pgen_never_quote
@@ -2811,7 +2817,7 @@ NEXT_TOKEN:
 		        break;
 		}
 
-		// Closing bracket does not match any
+		// Closing bracket does not match a
 		// bracket stack entry; reject key.
 	    }
 	    else if ( subtype == BRA::INDENTATION_MARK )

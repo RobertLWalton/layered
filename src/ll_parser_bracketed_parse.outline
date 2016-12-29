@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 28 05:41:19 EST 2016
+// Date:	Thu Dec 29 00:14:09 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -351,7 +351,7 @@
 //
 //         delete what has been skipped, but print a
 //             WARNING message if any comment deleted
-//             had less indent than the current_indent,
+//             had less indent than current_indent,
 //             using indent_before_comment tokens to
 //             determine comment indent
 //
@@ -388,8 +388,7 @@
 //
 //             loop to parse paragraph lines:
 //
-//                 // Move to end of paragraph line and
-//                 // replace current token by result.
+//                 // Move to end of paragraph line.
 //                 //
 //                 parse_bracketed_subexpression with
 //                     new_selectors, paragraph_indent,
@@ -420,24 +419,28 @@
 //                             token value_type =
 //                                 LOGICAL_LINE
 //
-//                 if separator found, continue loop to
-//                    parse next paragraph line
+//                 if separator found:
+//                     continue loop to parse next
+//                              paragraph line
 //
-//                 end loop if top of bracket stack
-//                     closed, or current is end-of-file
+//                 else if top of bracket stack closed,
+//                         or current is end-of-file:
+//                     end loop that parses paragraph
+//                         lines
 //
 //	           require that current is indent token
 //
-//                 end loop if current has has indent
-//                     less than paragraph_indent
+//                 if current has indent less than
+//                                paragraph_indent:
+//                     end loop that parses paragraph
+//                         lines
 //
 //	           remove current (indent) token and
 //	                  set current to next token
 //                 iterate loop to parse next paragraph
 //                         line
 //
-//         // Compact paragraph lines into a
-//         // paragraph.
+//         // Compact paragraph lines into a paragraph.
 //         //
 //         if bracket stack top closed:
 //              adjust end of paragraph to just before
@@ -454,8 +457,8 @@
 //             token value_type =
 //                       indentation_found->label
 //
-//	   if bracket stack top closed
-//	        return MISSING_POSITION
+//	   if bracket stack top closed:
+//	       return MISSING_POSITION
 //	   indentation_found = NULL_STUB
 // 	 
 //     // Continuation after any indented paragraph,

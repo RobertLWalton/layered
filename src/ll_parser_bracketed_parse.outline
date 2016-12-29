@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 00:14:09 EST 2016
+// Date:	Thu Dec 29 01:29:59 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -502,8 +502,8 @@
 //     parser->at_head = false
 //
 //     if current is quoted string:
-//	   concat = bracketed_pass->concatenator
 //
+//	   concat = bracketed_pass->concatenator
 //	   current = current->next
 //
 //	   if concat == DISABLED:
@@ -514,8 +514,9 @@
 //
 //	   if concat == ENABLED and we are NOT after a
 //	                quoted string that is itself
-//	       iterate loop to find next token
 //	                after a quoted string:
+//	       iterate loop to find next token
+//
 //	   else if concat != ENABLED:
 //	       check whether we are now just after a
 //	             quoted string that is after a

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 28 05:53:49 EST 2016
+// Date:	Thu Dec 29 02:23:42 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2131,14 +2131,16 @@ NEXT_TOKEN:
 	    // Each iteration of this loop examines the
 	    // found entry to see if it is a selected
 	    // opening bracket or indentation mark, or a
-	    // not necessarily selected closing bracket
-	    // or line separator that matches a symbol
-	    // active because of the bracket_stack or
-	    // line_sep arguments.
+	    // not necessarily selected closing bracket,
+	    // line separator, or typed bracketed punc-
+	    // tuation mark that matches a symbol active
+	    // because of the bracket_stack or line_sep
+	    // arguments.
 	    //
-	    // Note closing brackets and line selectors
+	    // Note closing brackets, line selectors,
+	    // and typed bracketed punctuation marks
 	    // have all selectors on and selectors has
-	    // the ALWAYS_SELECTOR on.
+	    // ALWAYS_SELECTOR on.
 	    //
 	    if ( root == min::NULL_STUB )
 	    {

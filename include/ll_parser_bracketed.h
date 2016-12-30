@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 03:33:24 EST 2016
+// Date:	Fri Dec 30 18:10:33 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1034,32 +1034,33 @@ struct line_variables
     // containing the line.  These are also referred
     // to as the paragraph selectors.
 
-    min::uns32 paragraph_master;
-    min::uns32 line_master;
+    min::locatable_gen implied_paragraph_header;
+        // Default header for paragraph with no explicit
+	// paragraph header.  May be MISSING.  Initially
+	// set according to indentation mark implied
+	// header.
+    min::locatable_gen implied_line_header;
+        // Default header for line with no explicit
+	// line header.  May be MISSING.  Initially
+	// set according to indentation mark implied
+	// header.
+
+    min::uns32 paragraph_lexical_master;
+    min::uns32 line_lexical_master;
         // Lexical master table index to be used to
 	// scan a logical line in paragraph beginning
 	// or non-paragraph beginning position,
-	// respectively.  Default to 0.
+	// respectively.  May be zero.  Set according
+	// to indentation mark lexical master and
+	// implied header.
 
-    min::locatable_gen paragraph_header;
-        // Default header for paragraph with no
-	// explicit bracketed or lexical header.
-	// Defaults to MISSING.
-    min::locatable_gen line_header;
-        // Default header for line with no
-	// explicit bracketed or lexical header.
-	// Defaults to MISSING.
-
-    ll::parser::table::flags header_selectors;
-        // Selectors and options set by paragraph
-	// header.  Defaults to paragraph selectors.
+    ll::parser::table::flags paragraph_selectors;
     ll::parser::table::flags line_selectors;
-        // Selectors and options set by line header.
-	// Defaults to header selectors.
-
-    min::uns32 instructions;
-        // Optional line beginning algorithm instruc-
-	// tions (e.g. PARAGRAPH_KEEP).  Defaults to 0.
+        // Selectors and options set at beginning
+	// of a logical line in paragraph beginning
+	// or non-paragraph beginning position,
+	// respectively.  Defaults to selectors
+	// specified by indentation mark.
 };
 
 min::position parse_bracketed_subexpression

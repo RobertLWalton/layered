@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 07:06:19 EST 2016
+// Date:	Fri Dec 30 18:12:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1778,17 +1778,18 @@ NEXT_TOKEN:
 		// Loop to parse paragraph lines.
 		//
 		BRA::line_variables line_variables;
-		line_variables.paragraph_master = 0;
-		line_variables.line_master = 0;
-		line_variables.paragraph_header =
+		line_variables
+		        .implied_paragraph_header =
 		    min::MISSING();
-		line_variables.line_header =
+		line_variables.implied_line_header =
 		    min::MISSING();
-		line_variables.header_selectors =
+		line_variables
+		    .paragraph_lexical_master = 0;
+		line_variables.line_lexical_master = 0;
+		line_variables.paragraph_selectors =
 		    new_selectors;
 		line_variables.line_selectors =
 		    new_selectors;
-		line_variables.instructions = 0;
 
 		while ( true )
 		{

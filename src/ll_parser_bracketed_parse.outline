@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 07:34:40 EST 2016
+// Date:	Fri Dec 30 02:49:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -535,6 +535,10 @@
 //     loop to refine key until it is selected or not
 //             found:
 //
+//         // Note: In the following the type of the
+//         // key is determined by checking object
+//         // subtype min::packed_subtype_of ( key ).
+//
 //         if key not found:
 //
 //             if at beginning of subexpression
@@ -916,6 +920,12 @@
 //             remove line separator
 //             return end position of removed separator
 //
+//         // Note: In the following the type of the
+//         // previous key is determined by checking the
+//         // value of typed_data->subtype.  If this is
+//         // TYPED_OPENING no previous key in the
+//         // subexpression has been (previously) found.
+//
 //         if key is typed middle matching typed_middle
 //                component of typed_opening component
 //                of a non-NULL typed_data argument,
@@ -924,6 +934,7 @@
 //                is false:
 //
 //             if typed_data->middle_count is even:
+//
 //                 if there is no previous typed key
 //                          after the typed opening in
 //                          the subexpression and there
@@ -947,6 +958,7 @@
 //                      and there are elements between
 //                          previous typed middle and
 //                          current typed middle key:
+//
 //                  typed_data->elements = first token
 //                      after previous typed middle
 //
@@ -987,6 +999,8 @@
 //			 first token of key )
 //                 remove the typed attribute begin key
 //                 typed_data->subtype = TYPED_ATTR_SEP
+//	           typed_data->start_previous =
+//	               current->previous
 //
 //	       else if typed_data->middle_count > 0 and
 //	               there are tokens between the
@@ -1001,6 +1015,8 @@
 //	           remove the typed attribute begin key
 //                 typed_data->subtype =
 //                     TYPED_ATTR_BEGIN
+//	           typed_data->start_previous =
+//	               current->previous
 //
 //	       else:
 //	           announce typed attribute begin to be
@@ -1020,14 +1036,18 @@
 //             if there is no previous typed key in the
 //                      subexpression, or the previous
 //                      typed key is a typed middle,
-//                      typed attribute separator, or
-//                      typed attribute negator:
+//                      typed attribute separator,
+//                      typed attribute negator, or
+//                      typed attribute begin that is
+//                      before any typed middle:
 //                 make_attribute_label
 //                     ( typed_data,
 //                       first token of key )
 //                 remove the typed attribute equal key
 //                 typed_data->subtype =
 //                     TYPED_ATTR_EQUAL
+//	           typed_data->start_previous =
+//	               current->previous
 //
 //	       else:
 //	           announce typed attribute equal to be
@@ -1047,13 +1067,18 @@
 //                      subexpression, or the previous
 //                      typed key is a typed middle,
 //                      typed attribute separator, typed
-//                      attribute equal, or typed attri-
-//                      bute negator:
+//                      attribute equal, typed attribute
+//                      negator, or typed attribute
+//                      begin that is before any typed
+//                      middle:
 //		   finish_attribute
 //		       ( typed_data,
 //		         first token of key )
 //                 remove the typed attribute separator
 //                        key
+//                 typed_data->subtype = TYPED_ATTR_SEP
+//	           typed_data->start_previous =
+//	               current->previous
 //
 //	       else announce typed attribute separator
 //	            to be a a punctuation error that is
@@ -1070,22 +1095,29 @@
 //
 //             if there is no previous typed key in the
 //                      subexpression, or the previous
-//                      typed key is a typed middle or
-//                      typed attribute separator, and
-//                      if the typed attribute negator
+//                      typed key is a typed middle,
+//                      typed attribute separator, or
+//                      typed attribute begin that is
+//                      before any typed middle
+//                      and if
+//                      the typed attribute negator
 //                      immediately follows the subex-
 //                      pression beginning or previous
 //                      typed key:
 //                 remove the typed attribute negator
 //                 typed_data->subtype =
 //                     TYPED_ATTR_NEGATOR
+//	           typed_data->start_previous =
+//	               current->previous
+//
 //                 iterate loop to find next token
 //
 //	       else do nothing (key will be rejected)
 //
 //         // reject key
 //         //
-//         iterate loop to refine key until it is
+//         iterate loop to refine key (by trying to
+//                 find next shorter key) until it is
 //                 selected or not found
 //
 //     iterate loop to find next token

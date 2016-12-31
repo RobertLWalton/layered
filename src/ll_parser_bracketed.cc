@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 30 18:12:41 EST 2016
+// Date:	Fri Dec 30 23:06:25 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -191,6 +191,8 @@ static min::uns32 indentation_mark_gen_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::label ),
     min::DISP ( & BRA::indentation_mark_struct
                      ::implied_header ),
+    min::DISP ( & BRA::indentation_mark_struct
+                     ::implied_header_type ),
     min::DISP_END };
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::next ),
@@ -242,6 +244,8 @@ BRA::indentation_mark
     imark->position = position;
     imark->new_selectors = new_selectors;
     implied_header_ref(imark) = implied_header;
+    implied_header_type_ref(imark) =
+        min::get ( implied_header, min::dot_type );
     imark->lexical_master = lexical_master;
     TAB::push ( bracket_table, (TAB::root) imark );
 
@@ -1784,12 +1788,98 @@ NEXT_TOKEN:
 		line_variables.implied_line_header =
 		    min::MISSING();
 		line_variables
-		    .paragraph_lexical_master = 0;
-		line_variables.line_lexical_master = 0;
+		    .paragraph_lexical_master =
+		         indentation_found->
+			     lexical_master;
+		line_variables.line_lexical_master =
+		         indentation_found->
+			     lexical_master;
 		line_variables.paragraph_selectors =
 		    new_selectors;
 		line_variables.line_selectors =
 		    new_selectors;
+
+		min::gen implied_header =
+		    indentation_found->implied_header;
+		min::gen implied_header_type =
+		    indentation_found->
+		        implied_header_type;
+		while (    implied_header
+		        != min::MISSING() )
+		{
+		    TAB::key_table prefix_table =
+			bracketed_pass->prefix_table;
+		    BRA::prefix header_entry =
+			(BRA::prefix)
+			TAB::find ( implied_header_type,
+			            new_selectors,
+				    prefix_table );
+		    min::gen group =
+			(    header_entry
+			  != min::NULL_STUB ?
+			  header_entry->group :
+			  min::MISSING() );
+		    if (    group
+		         == PAR::paragraph_lexeme )
+		    {
+		        if ( line_variables
+			       .implied_paragraph_header
+			     != min::MISSING() )
+			{
+			    PAR::parse_error
+			      ( parser,
+				current->position,
+				"implied header of type"
+				" `",
+				min::pgen_never_quote
+				  ( implied_header_type
+				  ),
+				"' does not have `line'"
+				" group; cannot be"
+				" inserted before" );
+			    break;
+			}
+			line_variables
+			    .implied_paragraph_header =
+			        implied_header;
+			implied_header =
+			    header_entry->
+			        implied_subprefix;
+			implied_header_type =
+			    header_entry->
+			        implied_subprefix_type;
+		    }
+		    else if (    group
+		              == PAR::line_lexeme )
+		    {
+			line_variables
+			    .implied_line_header =
+			        implied_header;
+			break;
+		    }
+		    else
+		    {
+			PAR::parse_error
+			  ( parser,
+			    current->position,
+			    "implied header of type"
+			    " `",
+			    min::pgen_never_quote
+			      ( implied_header_type
+			      ),
+			    "' does not have ",
+			    min::pnop,
+			    line_variables.
+			        implied_paragraph_header
+				!= min::MISSING() ?
+				"`line'" :
+				"`paragraph' or `line'",
+			    min::pnop,
+			    " group; cannot be"
+			    " inserted before" );
+			break;
+		    }
+		}
 
 		while ( true )
 		{
@@ -4426,17 +4516,6 @@ static min::gen bracketed_pass_command
 			( parser, ppvec[i-1],
 			  "expected prefix separator"
 			  " after" );
-		min::gen header_type =
-		    min::get ( vp[i], min::dot_type );
-		if ( header_type != PAR::line_lexeme
-		     &&
-		        header_type
-		     != PAR::paragraph_lexeme )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "implied header does NOT have"
-			  " `line' or `paragraph'"
-			  " .type" );
 		implied_header = vp[i];
 		++ i;
 	    }

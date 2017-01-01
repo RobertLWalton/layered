@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 30 18:14:07 EST 2016
+// Date:	Sat Dec 31 12:09:17 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1215,6 +1215,8 @@ void PAR::parse ( PAR::parser parser )
     line_variables.implied_line_header = min::MISSING();
     line_variables.paragraph_lexical_master = 0;
     line_variables.line_lexical_master = 0;
+    line_variables.paragraph_prefix = min::NULL_STUB;
+    line_variables.line_prefix = min::NULL_STUB;
     line_variables.paragraph_selectors =
         parser->selectors;
     line_variables.line_selectors = parser->selectors;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 30 23:06:25 EST 2016
+// Date:	Sat Dec 31 18:59:46 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1782,11 +1782,13 @@ NEXT_TOKEN:
 		// Loop to parse paragraph lines.
 		//
 		BRA::line_variables line_variables;
+
 		line_variables
 		        .implied_paragraph_header =
 		    min::MISSING();
 		line_variables.implied_line_header =
 		    min::MISSING();
+
 		line_variables
 		    .paragraph_lexical_master =
 		         indentation_found->
@@ -1794,6 +1796,12 @@ NEXT_TOKEN:
 		line_variables.line_lexical_master =
 		         indentation_found->
 			     lexical_master;
+
+		line_variables.paragraph_prefix =
+		    min::NULL_STUB;
+		line_variables.line_prefix =
+		    min::NULL_STUB;
+
 		line_variables.paragraph_selectors =
 		    new_selectors;
 		line_variables.line_selectors =
@@ -1804,6 +1812,8 @@ NEXT_TOKEN:
 		min::gen implied_header_type =
 		    indentation_found->
 		        implied_header_type;
+		TAB::flags header_selectors =
+		    new_selectors;
 		while (    implied_header
 		        != min::MISSING() )
 		{
@@ -1812,36 +1822,51 @@ NEXT_TOKEN:
 		    BRA::prefix header_entry =
 			(BRA::prefix)
 			TAB::find ( implied_header_type,
-			            new_selectors,
+			            header_selectors,
 				    prefix_table );
-		    min::gen group =
-			(    header_entry
-			  != min::NULL_STUB ?
-			  header_entry->group :
-			  min::MISSING() );
-		    if (    group
-		         == PAR::paragraph_lexeme )
+		    min::gen group = min::MISSING();
+		    if ( header_entry != min::NULL_STUB )
 		    {
-		        if ( line_variables
-			       .implied_paragraph_header
-			     != min::MISSING() )
-			{
-			    PAR::parse_error
-			      ( parser,
-				current->position,
-				"implied header of type"
-				" `",
-				min::pgen_never_quote
-				  ( implied_header_type
-				  ),
-				"' does not have `line'"
-				" group; cannot be"
-				" inserted before" );
-			    break;
-			}
+		        group = header_entry->group;
+			header_selectors |=
+			    header_entry->
+			        new_selectors.or_flags;
+			header_selectors &= ~
+			    header_entry->
+			        new_selectors.not_flags;
+			header_selectors ^=
+			    header_entry->
+			        new_selectors.xor_flags;
+		        header_selectors |=
+			    PAR::ALWAYS_SELECTOR;
+		    }
+		    if (    group
+		         == PAR::paragraph_lexeme
+			 &&
+			 line_variables
+			     .implied_paragraph_header
+			 == min::MISSING() )
+		    {
 			line_variables
 			    .implied_paragraph_header =
 			        implied_header;
+			line_variables
+			    .paragraph_lexical_master =
+			        header_entry->
+				    lexical_master;
+			line_variables
+			    .line_lexical_master =
+			        header_entry->
+				    lexical_master;
+			line_variables
+			    .paragraph_prefix =
+			        header_entry;
+			line_variables
+			    .paragraph_selectors =
+			        header_selectors;
+			line_variables
+			    .line_selectors =
+			        header_selectors;
 			implied_header =
 			    header_entry->
 			        implied_subprefix;
@@ -1855,6 +1880,16 @@ NEXT_TOKEN:
 			line_variables
 			    .implied_line_header =
 			        implied_header;
+			line_variables
+			    .line_lexical_master =
+			        header_entry->
+				    lexical_master;
+			line_variables
+			    .line_prefix =
+			        header_entry;
+			line_variables
+			    .line_selectors =
+			        header_selectors;
 			break;
 		    }
 		    else

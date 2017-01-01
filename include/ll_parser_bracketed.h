@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 30 22:50:50 EST 2016
+// Date:	Sat Dec 31 18:58:49 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1059,6 +1059,14 @@ struct line_variables
 	// respectively.  May be zero.  Set according
 	// to indentation mark lexical master and
 	// implied header.
+
+    min::locatable_var<ll::parser::bracketed::prefix>
+        paragraph_prefix;
+    min::locatable_var<ll::parser::bracketed::prefix>
+        line_prefix;
+        // Bracketed pass prefix table entries for
+	// implied_{paragraph,line}_header, or NULL_
+	// STUB.
 
     ll::parser::table::flags paragraph_selectors;
     ll::parser::table::flags line_selectors;

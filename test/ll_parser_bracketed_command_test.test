@@ -1104,3 +1104,68 @@ parser test:
               ^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
+parser begin block 1
+parser define indentation mark "::" ... ";" [code]
+       with implied header {p}
+ERROR: in line ###: implied header of type `p' does not have `paragraph'
+       or `line' group; cannot be inserted before:
+    with one line
+    ^^^^
+======= TEST: parser test this is the indented paragraph 1::
+                  with one line
+------- lines ###-###:
+parser test this is the indented paragraph 1::
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with one line
+^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 1::
+                                            ^^
+    with one line
+^^^^^^^^^^^^^^^^^
+------- line ###:
+    with one line
+    ^^^^^^^^^^^^^
+======= END TEST
+parser define prefix "p" [code]
+       with group paragraph
+======= TEST: parser test this is the indented paragraph 2::
+                  with one line
+------- lines ###-###:
+parser test this is the indented paragraph 2::
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with one line
+^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 2::
+                                            ^^
+    with one line
+^^^^^^^^^^^^^^^^^
+------- line ###:
+    with one line
+    ^^^^^^^^^^^^^
+======= END TEST
+parser define prefix "p" [code]
+       with group paragraph
+       with implied subprefix {l}
+ERROR: in line ###: implied header of type `l' does not have `line'
+       group; cannot be inserted before:
+    with one line
+    ^^^^
+======= TEST: parser test this is the indented paragraph 3::
+                  with one line
+------- lines ###-###:
+parser test this is the indented paragraph 3::
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with one line
+^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 3::
+                                            ^^
+    with one line
+^^^^^^^^^^^^^^^^^
+------- line ###:
+    with one line
+    ^^^^^^^^^^^^^
+======= END TEST
+parser end block 1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 31 18:59:46 EST 2016
+// Date:	Sun Jan  1 01:02:21 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4536,13 +4536,13 @@ static min::gen bracketed_pass_command
 			  " master" );
 	    }
 	    else
-	    if ( i + 2 < size
+	    if ( i + 1 < size
 		 &&
 		 vp[i] == PAR::implied
 		 &&
-		 vp[i+2] == PAR::header_lexeme )
+		 vp[i+1] == PAR::header_lexeme )
 	    {
-		i += 3;
+		i += 2;
 		if ( i >= size
 		     ||
 		     !  PAR::is_prefix_separator
@@ -4557,8 +4557,10 @@ static min::gen bracketed_pass_command
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
-		      "expected `parsing selectors'"
-		      " or `parsing options' after" );
+		      "expected `parsing selectors',"
+		      " `parsing options', `implied"
+		      " header', or `lexical master'"
+		      " after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error

@@ -1386,6 +1386,55 @@ min::position BRA::parse_bracketed_subexpression
 	min::gen group;
 	TAB::flags prefix_selectors;
 
+	if ( line_variables != NULL )
+	{
+	    min::gen implied_header;
+	    if (    line_variables->
+	                implied_paragraph_header
+		 != min::MISSING() )
+	    {
+	        implied_header = line_variables->
+		    implied_paragraph_header;
+		prefix_entry = line_variables->
+		    paragraph_prefix_entry;
+		prefix_selectors = line_variables->
+		    paragraph_selectors;
+	        
+	    }
+	    else if (    line_variables->
+	                     implied_line_header
+		 != min::MISSING() )
+	    {
+	        implied_header = line_variables->
+		    implied_line_header;
+		prefix_entry = line_variables->
+		    line_prefix_entry;
+		prefix_selectors = line_variables->
+		    line_selectors;
+	    }
+	    else
+	        goto NEXT_TOKEN;
+
+	    MIN_REQUIRE
+	        ( prefix_entry != min::NULL_STUB );
+	    group = prefix_entry->group;
+
+	    prefix = PAR::new_token
+	                 ( PAR::IMPLIED_PREFIX );
+	    PAR::put_before
+	        ( PAR::first_ref(parser),
+		  current, prefix );
+	    PAR::value_ref(prefix) = implied_header;
+	    PAR::value_type_ref(prefix) =
+	        prefix_entry->label;
+	    prefix->position.begin =
+	        start_previous->position.end;
+	    prefix->position.end =
+	        current->position.begin;
+
+	    goto PREFIX_PARSE;
+	}
+	else
 	{
 	    if ( bracket_stack_p == NULL )
 	        goto NEXT_TOKEN;
@@ -1835,9 +1884,9 @@ NEXT_TOKEN:
 		         indentation_found->
 			     lexical_master;
 
-		line_variables.paragraph_prefix =
+		line_variables.paragraph_prefix_entry =
 		    min::NULL_STUB;
-		line_variables.line_prefix =
+		line_variables.line_prefix_entry =
 		    min::NULL_STUB;
 
 		line_variables.paragraph_selectors =
@@ -1898,7 +1947,7 @@ NEXT_TOKEN:
 			        header_entry->
 				    lexical_master;
 			line_variables
-			    .paragraph_prefix =
+			    .paragraph_prefix_entry =
 			        header_entry;
 			line_variables
 			    .paragraph_selectors =
@@ -1924,7 +1973,7 @@ NEXT_TOKEN:
 			        header_entry->
 				    lexical_master;
 			line_variables
-			    .line_prefix =
+			    .line_prefix_entry =
 			        header_entry;
 			line_variables
 			    .line_selectors =

@@ -1108,9 +1108,9 @@ parser begin block 1
 parser define indentation mark "::" ... ";" [code]
        with implied header {p}
 ERROR: in line ###: implied header of type `p' does not have `paragraph'
-       or `line' group; cannot be inserted before:
+       or `line' group; cannot begin lines with indent:
     with one line
-    ^^^^
+    ^
 ======= TEST: parser test this is the indented paragraph 1::
                   with one line
 ------- lines ###-###:
@@ -1130,7 +1130,7 @@ parser test this is the indented paragraph 1::
 parser define prefix "p" [code]
        with group paragraph
 ======= TEST: parser test this is the indented paragraph 2::
-                  with one line
+                  {p|with one line|p}
 ------- lines ###-###:
 parser test this is the indented paragraph 2::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1141,31 +1141,99 @@ parser test this is the indented paragraph 2::
                                             ^^
     with one line
 ^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
+parser test this is the indented paragraph 2::
+                                              ^
     with one line
-    ^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 2::
+                                              ^
+    with one line
+^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser define prefix "p" [code]
        with group paragraph
        with implied subprefix {l}
 ERROR: in line ###: implied header of type `l' does not have `line'
-       group; cannot be inserted before:
-    with one line
-    ^^^^
+       group; cannot begin lines with indent:
+    with a first line
+    ^
 ======= TEST: parser test this is the indented paragraph 3::
-                  with one line
+                  {p|{l|with a first line|l}|p}
+                  and a second line
 ------- lines ###-###:
 parser test this is the indented paragraph 3::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    with one line
-^^^^^^^^^^^^^^^^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
 parser test this is the indented paragraph 3::
                                             ^^
-    with one line
-^^^^^^^^^^^^^^^^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 3::
+                                              ^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 3::
+                                              ^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with one line
-    ^^^^^^^^^^^^^
+    ^^^^
+------- line ###:
+    and a second line
+    ^^^^^^^^^^^^^^^^^
+======= END TEST
+parser define prefix "l" [code]
+       with group line
+======= TEST: parser test this is the indented paragraph 4::
+                  {p|{l|with a first line|l}|p}
+                  {l|and a second line|l}
+------- lines ###-###:
+parser test this is the indented paragraph 4::
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 4::
+                                            ^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 4::
+                                              ^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 4::
+                                              ^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with one line
+    ^^^^
+------- lines ###-###:
+    with a first line
+                     ^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    with a first line
+                     ^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1

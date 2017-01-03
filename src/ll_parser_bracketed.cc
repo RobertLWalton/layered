@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  2 05:28:00 EST 2017
+// Date:	Tue Jan  3 02:28:10 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1391,7 +1391,9 @@ min::position BRA::parse_bracketed_subexpression
 	    min::gen implied_header;
 	    if (    line_variables->
 	                implied_paragraph_header
-		 != min::MISSING() )
+		 != min::MISSING()
+		 &&
+		 parser->at_head )
 	    {
 	        implied_header = line_variables->
 		    implied_paragraph_header;
@@ -1982,9 +1984,12 @@ NEXT_TOKEN:
 		    }
 		    else
 		    {
+			min::phrase_position pos =
+			    { current->position.begin,
+			      current->position.begin };
 			PAR::parse_error
 			  ( parser,
-			    current->position,
+			    pos,
 			    "implied header of type"
 			    " `",
 			    min::pgen_never_quote
@@ -1998,12 +2003,13 @@ NEXT_TOKEN:
 				"`line'" :
 				"`paragraph' or `line'",
 			    min::pnop,
-			    " group; cannot be"
-			    " inserted before" );
+			    " group; cannot begin lines"
+			    " with indent" );
 			break;
 		    }
 		}
 
+		parser->at_head = true;
 		while ( true )
 		{
 		    PAR::token previous =

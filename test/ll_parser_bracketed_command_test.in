@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  1 00:53:31 EST 2017
+// Date:	Tue Jan  3 02:48:31 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -288,5 +288,11 @@ parser define prefix "p" [code]
        with group paragraph
        with implied subprefix {l}
 parser test this is the indented paragraph 3::
-    with one line
+    with a first line
+    and a second line
+parser define prefix "l" [code]
+       with group line
+parser test this is the indented paragraph 4::
+    with a first line
+    and a second line
 parser end block 1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 05:55:13 EST 2016
+// Date:	Tue Jan  3 02:41:52 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1181,9 +1181,10 @@ struct parser_struct
 
     bool at_head;
         // Set true when parser initialized and when
-	// a blank line is encountered.  Set false by
-	// the first token of a non-comment, non-blank
-	// line.  Unchanged by comment lines.
+	// a blank line is encountered or at the
+	// beginning of an indented paragraph.  Set
+	// false by the first token of a non-comment,
+	// non-blank line.  Unchanged by comment lines.
 
     uns64 error_count;
     uns64 warning_count;

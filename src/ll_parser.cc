@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  2 19:37:02 EST 2017
+// Date:	Wed Jan  4 04:00:22 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2030,7 +2030,7 @@ void PAR::compact
         ( parser, first, trace_flags );
 }
 
-void PAR::compact_prefix_separator
+bool PAR::compact_prefix_separator
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::flags selectors,
@@ -2045,7 +2045,7 @@ void PAR::compact_prefix_separator
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
 				first ) );
-	    return;
+	    return false;
 	}
     }
     else
@@ -2115,6 +2115,8 @@ void PAR::compact_prefix_separator
 
     PAR::trace_subexpression
         ( parser, first, trace_flags );
+
+    return true;
 }
 
 void PAR::internal::trace_subexpression

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  3 02:41:52 EST 2017
+// Date:	Wed Jan  4 03:53:56 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -315,9 +315,10 @@ struct token_struct
 
     const min::gen value_type;
         // For a BRACKETED token, the .initiator of its
-	// MIN value, if any.  For a PREFIX or IMPLIED_
-	// PREFIX token, the .type of its MIN value, if
-	// any.  Otherwise MISSING.
+	// MIN value, if any, or the prefix group of its
+	// .type, if that is `line' or `paragraph'.  For
+	// a PREFIX or IMPLIED_PREFIX token, the .type
+	// of its MIN value, if any.  Otherwise MISSING.
 
     const ll::parser::string string;
         // Character string for lexeme types that have
@@ -1727,7 +1728,10 @@ void compact
 // it is used, but if there are no elements, the first
 // token is deleted and nothing else is done.
 //
-void compact_prefix_separator
+// Returns false if first token was deleted and true if
+// first token was remade into a BRACKETED token.
+//
+bool compact_prefix_separator
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
 	  ll::parser::table::flags selectors,

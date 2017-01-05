@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  4 04:00:22 EST 2017
+// Date:	Thu Jan  5 11:50:56 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2061,6 +2061,9 @@ bool PAR::compact_prefix_separator
 
 	min::obj_vec_insptr vp
 	    ( first->value );
+	min::locatable_var
+		<min::phrase_position_vec_insptr>
+	    pos;
 
 	if ( first->type == PAR::IMPLIED_PREFIX )
 	{
@@ -2071,14 +2074,21 @@ bool PAR::compact_prefix_separator
 	    PAR::value_ref(first) =
 	        min::copy ( vp, unused_size );
 	    vp = first->value;
+
+	    min::init ( pos, parser->input_file,
+	                first->position, 0 );
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    min::set ( ap, min::new_stub_gen ( pos ) );
+	    min::set_flag
+	        ( ap, min::standard_attr_hide_flag );
 	}
-
-	min::attr_insptr ap ( vp );
-
-	min::locate
-	    ( ap, min::dot_position );
-	min::phrase_position_vec_insptr
+	else
+	{
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
 	    pos = min::get ( ap );
+	}
 	pos->position = first->position;
 
 	while ( current != next )

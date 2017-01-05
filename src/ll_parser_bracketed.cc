@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  4 04:04:03 EST 2017
+// Date:	Thu Jan  5 07:35:27 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2065,9 +2065,21 @@ NEXT_TOKEN:
 		    // is not empty or has a
 		    // separator.
 		    //
-		    if ( first != next
-			 ||
-			 separator_found )
+		    if ( separator_found
+		         ||
+			 ( first != next
+			   &&
+			   ( first->next != next
+			     ||
+			     (    first->value_type
+			       != PAR::paragraph_lexeme
+			       &&
+			          first->value_type
+			       != PAR::line_lexeme
+			     )
+			   )
+			 )
+		       )
 		    {
 			min::phrase_position
 			    position;

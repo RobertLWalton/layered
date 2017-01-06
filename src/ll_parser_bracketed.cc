@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  5 07:35:27 EST 2017
+// Date:	Fri Jan  6 03:46:23 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2025,8 +2025,6 @@ NEXT_TOKEN:
 		{
 		    PAR::token previous =
 		        current->previous;
-	            line_variables.state =
-		        BRA::NO_IMPLIED_HEADERS;
 		    separator_found =
 		      BRA::
 		       parse_bracketed_subexpression

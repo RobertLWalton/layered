@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  2 19:36:04 EST 2017
+// Date:	Fri Jan  6 03:43:50 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1023,23 +1023,6 @@ inline bool is_closed ( ll::parser::bracketed
            && p->closing_first != min::NULL_STUB;
 }
 
-// Line parsing states:
-//
-enum {
-    // Values for `line_variables.state'.
-    //
-    // Tells what preceeds `current' when parse_bracket-
-    // ed_subexpression is called with a non-NULL line_
-    // variables argument.  Either no implied headers,
-    // or an implied paragraph header, or an implied
-    // line header with possible preceeding implied
-    // paragraph header.
-    //
-    NO_IMPLIED_HEADERS,
-    IMPLIED_PARAGRAPH_HEADER,
-    IMPLIED_LINE_HEADER
-};
-
 struct line_variables
     // This can ONLY appear IN THE STACK as it contains
     // locatable_gen elements.
@@ -1086,8 +1069,6 @@ struct line_variables
 	// or non-paragraph beginning position,
 	// respectively.  Defaults to selectors
 	// specified by indentation mark.
-
-    min::uns8 state;
 };
 
 min::position parse_bracketed_subexpression

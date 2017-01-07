@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  5 11:50:56 EST 2017
+// Date:	Sat Jan  7 06:01:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1210,18 +1210,38 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
 
     BRA::line_variables line_variables;
-    line_variables.implied_paragraph_header =
-        min::MISSING();
-    line_variables.implied_line_header = min::MISSING();
-    line_variables.paragraph_lexical_master = 0;
-    line_variables.line_lexical_master = 0;
-    line_variables.paragraph_prefix_entry =
-        min::NULL_STUB;
-    line_variables.line_prefix_entry =
-        min::NULL_STUB;
+
+    line_variables.paragraph_lexical_master =
+        LEX::MISSING_MASTER;
     line_variables.paragraph_selectors =
         parser->selectors;
-    line_variables.line_selectors = parser->selectors;
+    line_variables.paragraph_implied_header =
+        min::MISSING();
+    line_variables.paragraph_header_entry =
+        min::NULL_STUB;
+    line_variables.paragraph_header_selectors =
+        parser->selectors;
+
+    line_variables.line_lexical_master =
+        line_variables.paragraph_lexical_master;
+    line_variables.line_implied_header =
+        line_variables.paragraph_implied_header;
+    line_variables.line_header_entry =
+        line_variables.paragraph_header_entry;
+    line_variables.line_header_selectors =
+        line_variables.paragraph_header_selectors;
+
+    line_variables.lexical_master =
+        line_variables.paragraph_lexical_master;
+    line_variables.selectors =
+        line_variables.paragraph_selectors;
+    line_variables.implied_header =
+        line_variables.paragraph_implied_header;
+    line_variables.header_entry =
+        line_variables.paragraph_header_entry;
+    line_variables.header_selectors =
+        line_variables.paragraph_header_selectors;
+
 
     while ( true )
     {

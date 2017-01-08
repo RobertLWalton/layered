@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  7 05:23:23 EST 2017
+// Date:	Sun Jan  8 02:31:38 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1056,17 +1056,18 @@ struct line_variables
     ll::parser::bracketed::prefix header_entry;
         // The prefix table entry associated with the
 	// implied_header, as found using the selectors
-	// member above, or NULL_STUB if the implied_
-	// header is MISSING.  This is a cache and can
-	// be recomputed from implied_header and
-	// selectors above.
+	// member above.  NOT USED if implied_header
+	// is MISSING.  This is a cache and can be
+	// recomputed from implied_header and selectors
+	// above.
     ll::parser::table::flags header_selectors;
-        // `selectors' above modified by the
-	// new_selectors member of the header_entry.
-	// Used to parse the prefix-n-list headed by
-	// the implied_header if that is not MISSING.
-	// This is a cache and can be recomputed from
-	// header_entry and selectors above.
+        // `selectors' above modified by the new_selec-
+	// tors member of the header_entry.  Used to
+	// parse the prefix-n-list headed by the
+	// implied_header if that is not MISSING.  NOT
+	// USED if implied_header is MISSING.  This is
+	// a cache and can be recomputed from header_
+	// entry and selectors above.
 
     // Data set by the indentation_mark that introduced
     // the indented paragraph, or by an explicit
@@ -1074,8 +1075,8 @@ struct line_variables
     // has a sticky flag.  This data is copied to the
     // logical line data above at the beginning of a
     // logical line in paragraph beginning position
-    // unless the continuing flag is set in `selectors'
-    // above.
+    // unless the `continuing' flag in `selectors' above
+    // is set.
     //
     min::uns32 paragraph_lexical_master;
     ll::parser::table::flags paragraph_selectors;

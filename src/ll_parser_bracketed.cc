@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan  7 06:07:37 EST 2017
+// Date:	Sun Jan  8 02:08:39 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1383,7 +1383,7 @@ min::position BRA::parse_bracketed_subexpression
 	//
 	min::gen prefix_type;
 	BRA::prefix prefix_entry;
-	min::gen group;
+	min::gen prefix_group;
 	TAB::flags prefix_selectors;
 
 	if ( line_variables != NULL )
@@ -1399,7 +1399,7 @@ min::position BRA::parse_bracketed_subexpression
 	        line_variables->header_selectors;
 	    MIN_REQUIRE
 	        ( prefix_entry != min::NULL_STUB );
-	    group = prefix_entry->group;
+	    prefix_group = prefix_entry->group;
 
 	    prefix = PAR::new_token
 	                 ( PAR::IMPLIED_PREFIX );
@@ -1486,7 +1486,7 @@ PREFIX_FOUND:
 		(BRA::prefix)
 		TAB::find ( prefix_type, selectors,
 			    prefix_table );
-	    group =
+	    prefix_group =
 		( prefix_entry != min::NULL_STUB ?
 		  prefix_entry->group :
 		  min::MISSING() );
@@ -1503,9 +1503,11 @@ PREFIX_FOUND:
 		     ||
 		     ( p->prefix_entry != min::NULL_STUB
 		       &&
-		       p->prefix_entry->group == group
+		          p->prefix_entry->group
+		       == prefix_group
 		       &&
-		       min::MISSING() != group ) )
+		          min::MISSING()
+		       != prefix_group ) )
 		{
 		    if (    prefix->type
 			 == PAR::IMPLIED_PREFIX )
@@ -1590,7 +1592,7 @@ PREFIX_PARSE:
 	//     prefix_entry
 	//         The prefix_table entry of the prefix
 	//         token .type (NULL_STUB if none).
-	//     group
+	//     prefix_group
 	//         The group of the prefix_entry, or
 	//         MISSING if prefix_entry is NULL_STUB.
 	//     prefix_selectors
@@ -1628,6 +1630,95 @@ PREFIX_PARSE:
 
 	    while ( true )
 	    {
+	        if (    prefix_group
+		     == PAR::paragraph_lexeme
+		     &&
+		     line_variables != NULL
+		     &&
+		        prefix->type
+		     != PAR::IMPLIED_PREFIX )
+		{
+		    line_variables->lexical_master =
+		        prefix_entry->lexical_master;
+		    line_variables->selectors =
+		        prefix_selectors;
+		    line_variables->implied_header =
+		        min::MISSING();
+		    line_variables->header_entry =
+		        min::NULL_STUB;
+			// Just for safety.
+
+		    min::gen implied_header =
+		        prefix_entry->implied_subprefix;
+		    if (     implied_header
+		          != min::MISSING() )
+		    {
+			min::gen header_type =
+			    prefix_entry->
+				implied_subprefix_type;
+			TAB::key_table prefix_table =
+			    bracketed_pass->
+			        prefix_table;
+			BRA::prefix header_entry =
+			    (BRA::prefix)
+			    TAB::find
+				( header_type,
+				  prefix_selectors,
+				  prefix_table );
+			if (    prefix_entry
+			     != min::NULL_STUB
+			     &&
+			        prefix_entry->group
+			     == PAR::line_lexeme )
+			{
+			    TAB::flags
+			            header_selectors =
+				prefix_selectors;
+			    header_selectors |=
+				header_entry->
+				    new_selectors
+				        .or_flags;
+			    header_selectors &= ~
+				header_entry->
+				    new_selectors
+				        .not_flags;
+			    header_selectors ^=
+				header_entry->
+				    new_selectors
+				        .xor_flags;
+			    header_selectors |=
+				PAR::ALWAYS_SELECTOR;
+			    line_variables->
+			            implied_header =
+				implied_header;
+			    line_variables->
+			            header_entry =
+				header_entry;
+			    line_variables->
+				    header_selectors =
+				header_selectors;
+			}
+			else
+			{
+			    PAR::parse_error
+			      ( parser,
+				prefix->position,
+				"implied_subprefix of"
+				" paragraph header of"
+				" type `",
+				min::pgen_never_quote
+				  ( prefix_type ),
+				"' has type `",
+				min::pgen_never_quote
+				  ( header_type ),
+				"' which does not have"
+				" `line' group;"
+				" implied_subprefix"
+				" not implied" );
+			}
+		    }
+		}
+
 		cstack.closing_first =
 		    min::NULL_STUB;
 		cstack.closing_next =
@@ -1651,17 +1742,19 @@ PREFIX_PARSE:
 		         ( parser, bracketed_pass->next,
 		           prefix_selectors,
 		           prefix, next,
-			   trace_flags )
-		     &&
-		     ( group == PAR::line_lexeme
-		       ||
-		       group == PAR::paragraph_lexeme )
-		   )
-		    PAR::value_type_ref ( prefix ) =
-		        group;
-		else
-		    PAR::value_type_ref ( prefix ) =
-		        min::MISSING();
+			   trace_flags ) )
+		{
+		    if (    prefix_group
+		         == PAR::line_lexeme
+		         ||
+		            prefix_group
+			 == PAR::paragraph_lexeme )
+			PAR::value_type_ref ( prefix ) =
+			    prefix_group;
+		    else
+			PAR::value_type_ref ( prefix ) =
+			    min::MISSING();
+		}
 
 		if (    cstack.closing_first
 		     == cstack.closing_next )
@@ -1684,9 +1777,9 @@ PREFIX_PARSE:
 			  != min::NULL_STUB );
 		    MIN_REQUIRE
 			(    prefix_entry->group
-			  == group );
+			  == prefix_group );
 		    cstack.prefix_type =
-			prefix_type =
+		    prefix_type =
 			prefix->value_type;
 		    cstack.prefix_entry =
 			prefix_entry;
@@ -1887,18 +1980,14 @@ NEXT_TOKEN:
 		line_variables
 		    .paragraph_header_entry =
 		        min::NULL_STUB;
-		line_variables
-		    .paragraph_header_selectors =
-		        new_selectors;
+			// Just for safety.
 
 		line_variables.line_lexical_master =
 		    LEX::MISSING_MASTER;
 		line_variables.line_implied_header =
 		    min::MISSING();
 		line_variables.line_header_entry =
-		    min::NULL_STUB;
-		line_variables.line_header_selectors =
-		    new_selectors;
+		    min::NULL_STUB; // Just for safety.
 
 		// If H = indentation_mark->
 		//            implied_header,

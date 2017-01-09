@@ -1017,13 +1017,13 @@ parser test:
     ^^^^^^^^^^^^^^
 ------- line ###:
     {P1} Hi there.
-        ^^^^^^^^^^
+         ^^^^^^^^^
 ------- line ###:
     {P2} Bye.
     ^^^^^^^^^
 ------- line ###:
     {P2} Bye.
-        ^^^^^
+         ^^^^
 ------- line ###:
     {P3} And some more.
     ^^^^^^^^^^^^^^^^^^^
@@ -1075,7 +1075,7 @@ parser test:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     {P1} First sentence. {S2} Second sentence.
-        ^^^^^^^^^^^^^^^^
+         ^^^^^^^^^^^^^^^
 ------- line ###:
     {P1} First sentence. {S2} Second sentence.
                          ^^^^^^^^^^^^^^^^^^^^^
@@ -1141,11 +1141,9 @@ parser test this is the indented paragraph 2::
                                             ^^
     with one line
 ^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-parser test this is the indented paragraph 2::
-                                              ^
+------- line ###:
     with one line
-^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^
 ======= END TEST
 parser define prefix "p" [code]
        with group paragraph
@@ -1171,11 +1169,9 @@ parser test this is the indented paragraph 3::
 ^^^^^^^^^^^^^^^^^^^^^
     and a second line
 ^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-parser test this is the indented paragraph 3::
-                                              ^
+------- line ###:
     with a first line
-^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
@@ -1207,26 +1203,119 @@ parser test this is the indented paragraph 4::
 ^^^^^^^^^^^^^^^^^^^^^
     and a third line with [ HI THERE ] embedded
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-parser test this is the indented paragraph 4::
-                                              ^
-    with a first line
-^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
-------- lines ###-###:
+------- line ###:
     with a first line
-                     ^
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
     and a second line
-^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-    and a second line
-                     ^
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
     and a third line with [ HI THERE ] embedded
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     and a third line with [ HI THERE ] embedded
                           ^^^^^^^^^^^^
+======= END TEST
+parser end block 1
+parser begin block 1
+parser define indentation mark "::" ... ";" [code]
+       with implied header {p1}
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser define prefix "p1" [code]
+       with group paragraph
+       with implied subprefix {l1}
+parser define prefix "l1" [code]
+       with group line
+parser define prefix "p2" [code]
+       with group paragraph
+       with implied subprefix {l2}
+parser define prefix "l2" [code]
+       with group line
+======= TEST: parser test this is the indented paragraph 5::
+                  {p1|{l1|with a first line|l1}|p1}
+                  {l1|and a second line with [HI THERE] embedded|l1}
+                  {p2|{l2|and a first subparagraph|l2}|p2}
+                  {l2|with a second line of its own|l2}
+                  {p1|{l1|and a second subparagraph|l1}|p1}
+                  {l1|with a second line of its own|l1}
+------- lines ###-###:
+parser test this is the indented paragraph 5::
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line with [HI THERE] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p2}and a first subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    and a second subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 5::
+                                            ^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line with [HI THERE] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p2}and a first subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    and a second subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a first line
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a first line
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a second line with [HI THERE] embedded
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a second line with [HI THERE] embedded
+                           ^^^^^^^^^^
+------- line ###:
+    {p2}and a first subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    {p2}and a first subparagraph
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a second line of its own
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a second subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a second subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a second line of its own
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1

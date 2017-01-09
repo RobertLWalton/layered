@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  8 02:08:39 EST 2017
+// Date:	Mon Jan  9 01:40:42 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1410,7 +1410,7 @@ min::position BRA::parse_bracketed_subexpression
 	    PAR::value_type_ref(prefix) =
 	        prefix_entry->label;
 	    prefix->position.begin =
-	        start_previous->position.end;
+	        current->position.begin;
 	    prefix->position.end =
 	        current->position.begin;
 
@@ -1450,7 +1450,7 @@ min::position BRA::parse_bracketed_subexpression
 	    PAR::value_type_ref(prefix) =
 	        p->implied_subprefix_type;
 	    prefix->position.begin =
-	        start_previous->position.end;
+	        current->position.begin;
 	    prefix->position.end =
 	        current->position.begin;
 
@@ -1665,10 +1665,10 @@ PREFIX_PARSE:
 				( header_type,
 				  prefix_selectors,
 				  prefix_table );
-			if (    prefix_entry
+			if (    header_entry
 			     != min::NULL_STUB
 			     &&
-			        prefix_entry->group
+			        header_entry->group
 			     == PAR::line_lexeme )
 			{
 			    TAB::flags

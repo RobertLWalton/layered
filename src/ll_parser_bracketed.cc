@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  9 01:40:42 EST 2017
+// Date:	Tue Jan 10 02:46:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1544,6 +1544,36 @@ PREFIX_FOUND:
 		}
 	    }
 
+	    // Special case to handle explicit paragraph
+	    // prefix following an implied line prefix,
+	    // provided the implied line prefix does not
+	    // follow any paragraph prefix.  To enforce
+	    // this last, this code must follow the code
+	    // immediately above.
+	    //
+	    if ( prefix_group == PAR::paragraph_lexeme
+	         &&
+		 prefix->type != PAR::IMPLIED_PREFIX
+		 &&
+		    prefix->previous->type
+		 == PAR::IMPLIED_PREFIX
+		 &&
+		 bracket_stack_p != NULL
+		 &&
+		    bracket_stack_p->prefix_entry
+		 != min::NULL_STUB
+		 &&
+		    bracket_stack_p->prefix_entry
+		                   ->group
+		 == PAR::line_lexeme )
+	    {
+		bracket_stack_p->closing_first =
+		    prefix;
+		bracket_stack_p->closing_next =
+		    prefix->next;
+		return separator_found;
+	    }
+
 	    if ( start_previous->next != prefix )
 	    {
 		PAR::parse_error
@@ -1775,9 +1805,24 @@ PREFIX_PARSE:
 		    MIN_REQUIRE
 			(    prefix_entry
 			  != min::NULL_STUB );
-		    MIN_REQUIRE
-			(    prefix_entry->group
-			  == prefix_group );
+		    if (    prefix_entry->group
+			 != prefix_group )
+		    {
+		        // Special case where line
+			// IMPLIED_PREFIX is immediately
+			// followed by paragraph
+			// explicit prefix.
+			//
+		        MIN_REQUIRE
+			    (    prefix_group
+			      == PAR::line_lexeme );
+		        MIN_REQUIRE
+			    (    prefix_entry->group
+			      == PAR::paragraph_lexeme
+			    );
+			prefix_group =
+			    prefix_entry->group;
+		    }
 		    cstack.prefix_type =
 		    prefix_type =
 			prefix->value_type;

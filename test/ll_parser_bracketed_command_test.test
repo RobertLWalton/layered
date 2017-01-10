@@ -1245,10 +1245,13 @@ parser define prefix "l2" [code]
 ======= TEST: parser test this is the indented paragraph 5::
                   {p1|{l1|with a first line|l1}|p1}
                   {l1|and a second line with [HI THERE] embedded|l1}
-                  {p2|{l2|and a first subparagraph|l2}|p2}
+                  {p2|{l2|and a second subparagraph|l2}|p2}
                   {l2|with a second line of its own|l2}
-                  {p1|{l1|and a second subparagraph|l1}|p1}
+                  {p1|{l1|and a third subparagraph|l1}|p1}
                   {l1|with a second line of its own|l1}
+                  {p2|{l2|and a fourth subparagraph started without in a
+                          previous blank line|l2}|p2}
+                  {l2|with a second line of its own|l2}
 ------- lines ###-###:
 parser test this is the indented paragraph 5::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1258,14 +1261,20 @@ parser test this is the indented paragraph 5::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-    {p2}and a first subparagraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2}and a second subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-    and a second subparagraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a third subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2} and a fourth subparagraph started
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         without in a previous blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
@@ -1277,14 +1286,20 @@ parser test this is the indented paragraph 5::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-    {p2}and a first subparagraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2}and a second subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-    and a second subparagraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a third subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2} and a fourth subparagraph started
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         without in a previous blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
@@ -1300,20 +1315,33 @@ parser test this is the indented paragraph 5::
     and a second line with [HI THERE] embedded
                            ^^^^^^^^^^
 ------- line ###:
-    {p2}and a first subparagraph
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2}and a second subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    {p2}and a first subparagraph
-        ^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2}and a second subparagraph
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a second line of its own
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    and a second subparagraph
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a third subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    and a second subparagraph
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a third subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a second line of its own
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    {p2} and a fourth subparagraph started
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         without in a previous blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    {p2} and a fourth subparagraph started
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         without in a previous blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a second line of its own
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

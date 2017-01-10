@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 02:46:24 EST 2017
+// Date:	Tue Jan 10 04:27:56 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2200,9 +2200,20 @@ NEXT_TOKEN:
 		}
 
 		parser->at_head = true;
+		line_variables.selectors = ~
+		    PAR::CONTINUING_OPT;
+		    // line_variables.paragraph_header_
+		    // selectors is installed as line_
+		    // variables.selectors just after
+		    // implicit paragraph header is
+		    // inserted.
 		while ( true )
 		{
-		    if ( parser->at_head )
+		    if ( parser->at_head
+		         &&
+		         ! ( line_variables.selectors
+			     &
+			     PAR::CONTINUING_OPT ) )
 		    {
 			line_variables.lexical_master =
 			  line_variables

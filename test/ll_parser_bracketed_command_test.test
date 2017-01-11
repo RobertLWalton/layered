@@ -1454,3 +1454,41 @@ parser test this is the indented paragraph 6::
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
+parser begin block 1
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser define prefix "p1" [code]
+       with group paragraph
+       with implied subprefix {l1}
+parser define prefix "l1" [code]
+       with group line
+parser trace [+ parser output]
+BRACKETED EXPRESSION:
+    {p1|{l1|this is a paragraph|l1}|p1}
+    line ###:
+{p1} this is a paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and a line|l1}
+    line ###:
+and a line
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line outside the paragraph
+    line ###:
+and another line outside the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    parser trace [- parser output]
+    line ###:
+parser trace [- parser output]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser trace [- parser output]
+parser end block 1

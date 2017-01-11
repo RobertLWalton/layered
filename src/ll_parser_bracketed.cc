@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 12:40:29 EST 2017
+// Date:	Wed Jan 11 05:43:22 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1463,7 +1463,10 @@ min::position BRA::parse_bracketed_subexpression
 	}
 
 	// Code above either jumps to NEXT_TOKEN or
-	// creates implied prefix and comes here.
+	// creates implied prefix and jumps to
+	// PREFIX_PARSE for implied prefixes created
+	// by line variables or comes here for implied
+	// prefixes NOT create by line variables.
 
 PREFIX_FOUND:
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 02:42:41 EST 2017
+// Date:	Tue Jan 10 19:48:23 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -331,5 +331,25 @@ parser test this is the indented paragraph 5::
     with a second line of its own
     {p2} and a fourth subparagraph started
          without in a previous blank line
+    with a second line of its own
+
+parser define prefix "p3" [code]
+       with group paragraph
+       with implied subprefix {l3}
+       with parsing options [+ continuing]
+parser define prefix "l3" [code]
+       with group line
+parser print prefix "p3"
+parser test this is the indented paragraph 6::
+    with a first line
+    and a second line with [HI THERE] embedded
+
+    {p3}and a second subparagraph
+    with a second line of its own
+
+    and a third line after a blank line
+    and a fourth line
+
+    {p2} and a third subparagraph
     with a second line of its own
 parser end block 1

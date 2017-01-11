@@ -1346,4 +1346,111 @@ parser test this is the indented paragraph 5::
     with a second line of its own
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
+parser define prefix "p3" [code]
+       with group paragraph
+       with implied subprefix {l3}
+       with parsing options [+ continuing]
+parser define prefix "l3" [code]
+       with group line
+parser print prefix "p3":
+    block block 1: prefix "p3" [code]
+                   with group paragraph
+                   with implied subprefix {l3||l3}
+                   with parsing options [+ continuing]
+======= TEST: parser test this is the indented paragraph 6::
+                  {p1|{l1|with a first line|l1}|p1}
+                  {l1|and a second line with [HI THERE] embedded|l1}
+                  {p3|{l3|and a second subparagraph|l3}|p3}
+                  {l3|with a second line of its own|l3}
+                  {l3|and a third line after a blank line|l3}
+                  {l3|and a fourth line|l3}
+                  {p2|{l2|and a third subparagraph|l2}|p2}
+                  {l2|with a second line of its own|l2}
+------- lines ###-###:
+parser test this is the indented paragraph 6::
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line with [HI THERE] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p3}and a second subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    and a third line after a blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a fourth line
+^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p2} and a third subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+parser test this is the indented paragraph 6::
+                                            ^^
+    with a first line
+^^^^^^^^^^^^^^^^^^^^^
+    and a second line with [HI THERE] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p3}and a second subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    and a third line after a blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a fourth line
+^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p2} and a third subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a first line
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a first line
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a second line with [HI THERE] embedded
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a second line with [HI THERE] embedded
+                           ^^^^^^^^^^
+------- line ###:
+    {p3}and a second subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    {p3}and a second subparagraph
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a second line of its own
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a third line after a blank line
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    and a fourth line
+    ^^^^^^^^^^^^^^^^^
+------- line ###:
+    {p2} and a third subparagraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    {p2} and a third subparagraph
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a second line of its own
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END TEST
 parser end block 1

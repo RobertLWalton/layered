@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 04:27:56 EST 2017
+// Date:	Tue Jan 10 12:40:29 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1414,17 +1414,21 @@ min::position BRA::parse_bracketed_subexpression
 	    prefix->position.end =
 	        current->position.begin;
 
-	    line_variables->lexical_master =
-		line_variables->line_lexical_master;
-	    line_variables->selectors =
-		line_variables->
-		    paragraph_header_selectors;
-	    line_variables->implied_header =
-		line_variables->line_implied_header;
-	    line_variables->header_entry =
-		line_variables->line_header_entry;
-	    line_variables->header_selectors =
-		line_variables->line_header_selectors;
+	    if ( prefix_group == PAR::paragraph_lexeme )
+	    {
+		line_variables->lexical_master =
+		    line_variables->line_lexical_master;
+		line_variables->selectors =
+		    line_variables->
+			paragraph_header_selectors;
+		line_variables->implied_header =
+		    line_variables->line_implied_header;
+		line_variables->header_entry =
+		    line_variables->line_header_entry;
+		line_variables->header_selectors =
+		    line_variables->
+		        line_header_selectors;
+	    }
 
 	    goto PREFIX_PARSE;
 	}
@@ -5317,8 +5321,12 @@ static min::gen bracketed_pass_command
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
-		      "expected `parsing selectors'"
-		      " or `keep' after" );
+		      "expected `parsing selectors',"
+		      " `parsing options',"
+		      " `parsing options',"
+		      " `group',"
+		      " `implied subprefix',"
+		      " or `lexical master' after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error

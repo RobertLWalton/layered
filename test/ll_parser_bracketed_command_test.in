@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 10 19:48:23 EST 2017
+// Date:	Wed Jan 11 05:54:54 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -352,4 +352,27 @@ parser test this is the indented paragraph 6::
 
     {p2} and a third subparagraph
     with a second line of its own
+parser end block 1
+
+parser begin block 1
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser define prefix "p1" [code]
+       with group paragraph
+       with implied subprefix {l1}
+parser define prefix "l1" [code]
+       with group line
+parser trace [+ parser output]
+{p1} this is a paragraph
+and a line
+
+and another line outside the paragraph
+parser trace [- parser output]
 parser end block 1

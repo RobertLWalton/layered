@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  8 02:34:36 EST 2017
+// Date:	Wed Jan 11 05:46:41 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1227,6 +1227,11 @@ void PAR::parse ( PAR::parser parser )
     line_variables.header_entry =
         min::NULL_STUB;  // Just for safety.
 
+    parser->at_head = true;
+    line_variables.selectors = ~ PAR::CONTINUING_OPT;
+	// line_variables.paragraph_header_selectors are
+	// installed as line_variables.selectors just
+	// after implicit paragraph header is inserted.
     while ( true )
     {
         if (   parser->error_count
@@ -1277,10 +1282,34 @@ void PAR::parse ( PAR::parser parser )
 	}
 	first_lexeme = false;
 
+	if ( parser->at_head
+	     &&
+	     ! ( line_variables.selectors
+		 &
+		 PAR::CONTINUING_OPT ) )
+	{
+	    line_variables.lexical_master =
+	      line_variables
+		.paragraph_lexical_master;
+	    line_variables.selectors =
+	      line_variables
+		.paragraph_selectors;
+	    line_variables.implied_header =
+	      line_variables
+		.paragraph_implied_header;
+	    line_variables.header_entry =
+	      line_variables
+		.paragraph_header_entry;
+	    line_variables
+		.header_selectors =
+	      line_variables
+		.paragraph_header_selectors;
+	}
+
 	// Get subexpression.  First is the first token
 	// of the subexpression.
 
-	TAB::flags selectors = parser->selectors;
+	TAB::flags selectors = line_variables.selectors;
 	{
 	    PAR::token current_save = current;
 	    TAB::key_prefix prefix =
@@ -1314,12 +1343,43 @@ void PAR::parse ( PAR::parser parser )
 		        ->line_sep,
 		  NULL,
 		  & line_variables );
+
 	PAR::token first = previous->next;
+	bool maybe_parser_command = false;
+	min::uns32 error_count_save =
+	    parser->error_count;
+	TAB::flags trace_flags =
+	    parser->trace_flags;
+	if ( ( parser->output == NULL_STUB )
+	      &&
+	      (   trace_flags
+		& PAR::TRACE_PARSER_OUTPUT ) )
+	{
+	     trace_flags &=
+		   PAR::TRACE_SUBEXPRESSION_ELEMENTS
+		 + PAR::TRACE_SUBEXPRESSION_DETAILS
+		 + PAR::TRACE_SUBEXPRESSION_LINES;
+	    if ( trace_flags == 0 )
+		trace_flags =
+		  PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+	}
+	else
+	    trace_flags = 0;
 
         // If subexpression is not empty, or separator
 	// found, compact it.
 	//
-	if ( first != current || separator_found )
+	if ( separator_found
+	     ||
+	     ( first != current
+	       &&
+	       ( first->next != current
+	         ||
+		 (    first->value_type
+		   != PAR::paragraph_lexeme
+		   &&
+		      first->value_type
+		   != PAR::line_lexeme ) ) ) )
 	{
 
 	    min::phrase_position position =
@@ -1353,29 +1413,8 @@ void PAR::parse ( PAR::parser parser )
 	                        PAR::new_line );
 
 	    min::gen g = first->value;
-	    bool maybe_parser_command =
+	    maybe_parser_command =
 	        ( g == PAR::parser_lexeme );
-
-	    min::uns32 error_count_save =
-	        parser->error_count;
-
-	    TAB::flags trace_flags =
-	        parser->trace_flags;
-	    if ( ( parser->output == NULL_STUB )
-		  &&
-		  (   trace_flags
-		    & PAR::TRACE_PARSER_OUTPUT ) )
-	    {
-		 trace_flags &=
-		       PAR::TRACE_SUBEXPRESSION_ELEMENTS
-		     + PAR::TRACE_SUBEXPRESSION_DETAILS
-		     + PAR::TRACE_SUBEXPRESSION_LINES;
-		if ( trace_flags == 0 )
-		    trace_flags =
-		      PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-	    }
-	    else
-	        trace_flags = 0;
 
 	    PAR::compact
 		( parser, parser->pass_stack->next,
@@ -1383,34 +1422,41 @@ void PAR::parse ( PAR::parser parser )
 		  first, current, position,
 		  trace_flags, PAR::BRACKETING,
 		  n, attributes );
-
-	    min::gen result = min::FAILURE();
-	    if (    parser->error_count
-	         != error_count_save )
-		result = min::ERROR();
-	    else if ( maybe_parser_command )
-	    {
-	        min::obj_vec_ptr vp
-		    ( current->previous->value );
-		if ( vp != NULL_STUB )
-		    result =
-		      COM::parser_execute_command
-			( vp, parser );
-	    }
-
-	    if ( result == min::FAILURE() )
-	    {
-		++ parser->finished_tokens;
-	        if ( parser->output != NULL )
-		    (* parser->output->remove_tokens)
-		        ( parser, parser->output );
-	    }
-	    else
-		PAR::free
-		    ( PAR::remove
-			( PAR::first_ref ( parser ),
-			  current->previous ) );
+	    trace_flags = 0;
+	        // Suppress double tracing.
 	}
+
+	if ( first == current ) continue;
+
+	min::gen result = min::FAILURE();
+	if (    parser->error_count
+	     != error_count_save )
+	    result = min::ERROR();
+	else if ( maybe_parser_command )
+	{
+	    min::obj_vec_ptr vp
+		( current->previous->value );
+	    if ( vp != NULL_STUB )
+		result =
+		  COM::parser_execute_command
+		    ( vp, parser );
+	}
+
+	if ( result == min::FAILURE() )
+	{
+	    ++ parser->finished_tokens;
+	    if ( parser->output != NULL_STUB )
+		(* parser->output->remove_tokens)
+		    ( parser, parser->output );
+	    else
+	        trace_subexpression
+		    ( parser, first, trace_flags );
+	}
+	else
+	    PAR::free
+		( PAR::remove
+		    ( PAR::first_ref ( parser ),
+		      current->previous ) );
     }
 
     for ( PAR::pass pass = parser->pass_stack;

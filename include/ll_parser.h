@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  4 03:53:56 EST 2017
+// Date:	Wed Jan 11 05:08:40 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1741,7 +1741,8 @@ bool compact_prefix_separator
 
 // The following function prints TRACE_SUBEXPRESSION_...
 // tracing information for a token that has just been
-// created by the `compact' function or a reformatter.
+// created by the `compact' function or a reformatter
+// or is about to be output.
 //
 namespace internal {
     void trace_subexpression

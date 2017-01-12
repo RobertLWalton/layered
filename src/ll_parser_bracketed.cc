@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 12 03:00:17 EST 2017
+// Date:	Thu Jan 12 03:14:08 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1753,6 +1753,37 @@ PREFIX_PARSE:
 				" implied_subprefix"
 				" not implied" );
 			}
+		    }
+
+		    if (   line_variables->selectors
+		         & PAR::STICKY_OPT )
+		    {
+			line_variables->
+			        line_lexical_master =
+			    line_variables->
+			        lexical_master;
+			line_variables->
+			        line_implied_header =
+			    line_variables->
+			        implied_header;
+			line_variables->
+			        line_header_entry =
+			    line_variables->
+			        header_entry;
+			line_variables->
+			        line_header_selectors =
+			    line_variables->
+			        header_selectors;
+
+			line_variables->
+			    paragraph_implied_header =
+			  prefix->value;
+			line_variables->
+			    paragraph_header_entry =
+			  prefix_entry;
+			line_variables->
+			    paragraph_header_selectors =
+			  prefix_selectors;
 		    }
 		}
 

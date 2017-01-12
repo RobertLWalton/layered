@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 11 05:43:22 EST 2017
+// Date:	Thu Jan 12 03:00:17 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1615,6 +1615,22 @@ PREFIX_FOUND:
 	        goto NEXT_TOKEN;
 	}
 
+	prefix_selectors = selectors;
+	if ( prefix_entry != min::NULL_STUB )
+	{
+	    prefix_selectors |=
+	      prefix_entry->
+		  new_selectors.or_flags;
+	    prefix_selectors &= ~
+	      prefix_entry->
+		  new_selectors.not_flags;
+	    prefix_selectors ^=
+	      prefix_entry->
+		  new_selectors.xor_flags;
+	    prefix_selectors |=
+	      PAR::ALWAYS_SELECTOR;
+	}
+
 PREFIX_PARSE:
 
 	// Come here when ready to parse prefix-n-list
@@ -1648,22 +1664,6 @@ PREFIX_PARSE:
 		( bracket_stack_p );
 	    cstack.prefix_type = prefix_type;
 	    cstack.prefix_entry = prefix_entry;
-
-	    prefix_selectors = selectors;
-	    if ( prefix_entry != min::NULL_STUB )
-	    {
-		prefix_selectors |=
-		  prefix_entry->
-		      new_selectors.or_flags;
-		prefix_selectors &= ~
-		  prefix_entry->
-		      new_selectors.not_flags;
-		prefix_selectors ^=
-		  prefix_entry->
-		      new_selectors.xor_flags;
-		prefix_selectors |=
-		  PAR::ALWAYS_SELECTOR;
-	    }
 
 	    while ( true )
 	    {

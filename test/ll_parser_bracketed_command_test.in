@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 11 05:54:54 EST 2017
+// Date:	Sun Jan 15 02:05:06 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -369,10 +369,25 @@ parser define prefix "p1" [code]
        with implied subprefix {l1}
 parser define prefix "l1" [code]
        with group line
+parser define prefix "p2" [code]
+       with group paragraph
+       with implied subprefix {l2}
+       with parsing options [+ continuing]
+parser define prefix "l2" [code]
+       with group line
+parser print prefix ""
 parser trace [+ parser output]
-{p1} this is a paragraph
+{p1} this is a first paragraph
 and a line
 
-and another line outside the paragraph
+and another line outside the first paragraph
+{p2} this is a second paragraph
+and a line
+
+and another line outside the second paragraph
+{p1} this is a third paragraph
+and a line
+
+and another line outside the third paragraph
 parser trace [- parser output]
 parser end block 1

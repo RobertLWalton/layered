@@ -733,9 +733,11 @@ the enumeration offset of the defined enumeration type so that if
 were the first statement compiled later that assigns a
 {\em defined-enum-type-name} enumeration value,
 and \TT{I} is the underlying builtin integer type of both enum
-types, then \TT{I(V) = I(V0)}.  Here \TT{V} stands for a manufactured
-word lexeme prefix that makes the names \TT{V\ldots}
-distinct from any other lexemes in the program.
+types, then \TT{I(V) = I(V0)}.  Here
+\begin{center}
+\TT{enumeration offset of (}{\em defined-enum-type-name}\TT{)} \\
+\TT{=~I(V0)~-~}{\em first-enum}
+\end{center}
 \item[\TT{type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
               {\em defined-enum-type-name}~~\TT{is}~~%
@@ -743,7 +745,11 @@ distinct from any other lexemes in the program.
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
 	      \end{tabular} \\
-Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}'.
+Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
+\begin{center}
+\TT{enumeration offset of (}{\em defined-enum-type-name}\TT{)} \\
+\TT{=~I(V0)~-~}{\em last-enum}
+\end{center}
 \end{itemlist}
 \end{indpar}
 
@@ -756,7 +762,7 @@ Returns:~~\TT{I( e-value )}~\TT{-}~the enumeration offset of \TT{E}.
 \\[1ex]
 \hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}\ttkey{enumeration offset of}
 			\TT{( type E )} \\
-Returns the enumeration offset of \TT{E}.
+Returns the enumeration offset of \TT{E} (see above).
 \end{indpar}
 
 The above is examplified by:
@@ -781,13 +787,12 @@ E3 C4 = next enum
     // range value of ( E1(E2(C4)) ) = 11 = int32(C4)
 \end{verbatim}\end{indpar}
 
-Note that as long as implicit conversions from enumeration
-types to their base types are defined (i.e., as long as
-`\TT{without implicit conversion}' is not used), enumeration
-type values can be compared.
-The comparison will convert the values to integers of their
-underlying type and compare the resulting integers.
-Such comparisons may not be meaningful.
+Comparison and subtraction of enumeration values of the same
+type are defined, and are equivalent to comparing or
+subtracting the unchecked conversion of these values to
+integers.  Two enumeration values of different types
+may be compared or subtracted if they can be implicitly
+converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
 \begin{indpar}
@@ -804,7 +809,8 @@ The following are builtin enumeration types:
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
-are given unspecified `\TT{type}' enumeration values.
+are given unspecified (i.e., implementation dependent)
+`\TT{type}' enumeration values.
 Similarly builtin qualifiers, such as `\TT{mem}', are given
 unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
 `\TT{range value of}' functions above

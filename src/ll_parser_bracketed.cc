@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 03:11:58 EST 2017
+// Date:	Mon Jan 16 10:39:42 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1598,6 +1598,67 @@ PREFIX_FOUND:
 				  next->previous ) );
 		prefix = min::NULL_STUB;
 	    }
+	    else
+	    if ( prefix_group == PAR::paragraph_lexeme
+		 &&
+		 prefix->type == PAR::IMPLIED_PREFIX )
+	    {
+	        MIN_REQUIRE ( bracket_stack_p != NULL );
+		PAR::parse_error
+		  ( parser,
+		    prefix->position,
+		    "IMPLIED prefix separator of type"
+		    " `",
+		    min::pgen_never_quote
+		        ( prefix_type ),
+		    "' implied by prefix separator of"
+		    " type `",
+		    min::pgen_never_quote
+		      ( bracket_stack_p->prefix_type ),
+		    "' has `paragraph' group; ignored"
+		  );
+		PAR::token next = prefix->next;
+		PAR::free ( PAR::remove
+				( first_ref(parser),
+				  next->previous ) );
+		prefix = min::NULL_STUB;
+	    }
+	    else
+	    if ( prefix_group == PAR::line_lexeme
+		 &&
+		 prefix->type == PAR::IMPLIED_PREFIX )
+	    {
+	        MIN_REQUIRE ( bracket_stack_p != NULL );
+	        MIN_REQUIRE
+		    (    bracket_stack_p->prefix_entry
+		      != min::NULL_STUB );
+		if (    bracket_stack_p->prefix_entry
+		                       ->group
+			!= PAR::paragraph_lexeme )
+		{
+		    PAR::parse_error
+		      ( parser,
+			prefix->position,
+			"prefix separator of type `",
+			min::pgen_never_quote
+			    ( prefix_type ),
+			"' has `line' group and is"
+			" IMPLIED by prefix separator"
+			" of type `",
+			min::pgen_never_quote
+			  ( bracket_stack_p->
+			        prefix_type ),
+			"' that does NOT have"
+			" `paragraph' group; ignored"
+		      );
+		    PAR::token next = prefix->next;
+		    PAR::free
+		        ( PAR::remove
+			    ( first_ref(parser),
+			      next->previous ) );
+		    prefix = min::NULL_STUB;
+		}
+	    }
 
 	    if ( premature_closing )
 	    {
@@ -1614,6 +1675,14 @@ PREFIX_FOUND:
 	    if ( prefix == min::NULL_STUB )
 	        goto NEXT_TOKEN;
 	}
+
+	if ( prefix_group == PAR::paragraph_lexeme
+	     &&
+	     prefix->type != PAR::IMPLIED_PREFIX
+	     &&
+	     line_variables != NULL )
+	    selectors =
+	        line_variables->paragraph_selectors;
 
 	prefix_selectors = selectors;
 	if ( prefix_entry != min::NULL_STUB )
@@ -1858,8 +1927,13 @@ PREFIX_PARSE:
 			    (    prefix_entry->group
 			      == PAR::paragraph_lexeme
 			    );
+		        MIN_REQUIRE
+			    ( line_variables != NULL );
 			prefix_group =
 			    prefix_entry->group;
+			selectors =
+			    line_variables->
+			        paragraph_selectors;
 		    }
 		    cstack.prefix_type =
 		    prefix_type =

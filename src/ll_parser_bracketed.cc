@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 12 03:14:08 EST 2017
+// Date:	Mon Jan 16 03:11:58 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5367,12 +5367,21 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
 
-	new_selectors.or_flags |=
-	    new_options.or_flags;
-	new_selectors.not_flags |=
-	    new_options.not_flags;
-	new_selectors.xor_flags |=
-	    new_options.xor_flags;
+	if ( group == PAR::paragraph_lexeme )
+	{
+	    new_selectors.or_flags |=
+		new_options.or_flags;
+	    new_selectors.not_flags |=
+		new_options.not_flags;
+	    new_selectors.xor_flags |=
+		new_options.xor_flags;
+	}
+	else if ( TAB::all_flags ( new_options ) != 0 )
+	    PAR::parse_error
+		( parser, ppvec->position,
+		  "`with options' not allowed for"
+		  " prefix unless prefix group is"
+		  " `paragraph'; options ignored" );
 
 	BRA::push_prefix
 	    ( name[0], selectors,

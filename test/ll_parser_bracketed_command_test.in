@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 15 02:05:06 EST 2017
+// Date:	Mon Jan 16 03:14:46 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -234,22 +234,22 @@ parser end block 1
 parser begin block 1
 parser define prefix "P1" [code, text]
        with parsing selectors [text]
-       with group P
+       with group paragraph
        with implied subprefix {S1}
        with parsing options [end at paragraph break]
 parser define prefix "P2" [code, text]
        with parsing selectors [text]
-       with group P
+       with group paragraph
        with implied subprefix {S2}
        with parsing options [end at paragraph break]
 parser define prefix "P3" [code, text]
        with parsing selectors [text]
-       with group P
+       with group paragraph
        with parsing options [end at paragraph break]
 parser define prefix "S1" [text]
-       with group S
+       with group line
 parser define prefix "S2" [text]
-       with group S
+       with group line
 parser define typed bracket "{" ... "|" ... "|" ... "}"
        [code, text, math]
        // no element selectors

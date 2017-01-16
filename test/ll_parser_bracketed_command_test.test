@@ -725,6 +725,18 @@ parser define prefix "X" [code]
 parser define prefix "Y" [code]
        with parsing selectors [+ text]
        with group ajax
+ERROR: in lines ###-###: `with options' not allowed for prefix unless
+       prefix group is `paragraph'; options ignored:
+parser define prefix "Z" [math]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       with parsing selectors [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       with implied subprefix {X: y = 5, z = hi there}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       with lexical master "START"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       with parsing options [end at line break]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser define prefix "Z" [math]
        with parsing selectors [code]
        with implied subprefix {X: y = 5, z = hi there}
@@ -741,7 +753,6 @@ parser print prefix "":
                    with implied subprefix
                    {X: y = "5", z = [< "hi" "there" >]||X}
                    with lexical master "START"
-                   with parsing options [end at line break]
 parser print prefix "X":
     block block 1: prefix "X" [code]
                    with parsing selectors [code, math]
@@ -940,22 +951,22 @@ parser end block 1
 parser begin block 1
 parser define prefix "P1" [code, text]
        with parsing selectors [text]
-       with group P
+       with group paragraph
        with implied subprefix {S1}
        with parsing options [end at paragraph break]
 parser define prefix "P2" [code, text]
        with parsing selectors [text]
-       with group P
+       with group paragraph
        with implied subprefix {S2}
        with parsing options [end at paragraph break]
 parser define prefix "P3" [code, text]
        with parsing selectors [text]
-       with group P
+       with group paragraph
        with parsing options [end at paragraph break]
 parser define prefix "S1" [text]
-       with group S
+       with group line
 parser define prefix "S2" [text]
-       with group S
+       with group line
 parser define typed bracket "{" ... "|" ... "|" ... "}"
        [code, text, math]
        // no element selectors
@@ -967,22 +978,22 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
        with prefix separators allowed
 parser print prefix "":
     block block 1: prefix "S1" [text]
-                   with group S
+                   with group line
     block block 1: prefix "S2" [text]
-                   with group S
+                   with group line
     block block 1: prefix "P1" [code, text]
                    with parsing selectors [text]
-                   with group P
+                   with group paragraph
                    with implied subprefix {S1||S1}
                    with parsing options [end at paragraph break]
     block block 1: prefix "P2" [code, text]
                    with parsing selectors [text]
-                   with group P
+                   with group paragraph
                    with implied subprefix {S2||S2}
                    with parsing options [end at paragraph break]
     block block 1: prefix "P3" [code, text]
                    with parsing selectors [text]
-                   with group P
+                   with group paragraph
                    with parsing options [end at paragraph break]
 ======= TEST: parser test:
                   {P1|{S1|Hi there "."|S1}|P1} {P2|{S2|Bye "."|S2}|P2}
@@ -1469,26 +1480,77 @@ parser define prefix "p1" [code]
        with implied subprefix {l1}
 parser define prefix "l1" [code]
        with group line
+parser define prefix "p2" [code]
+       with group paragraph
+       with implied subprefix {l2}
+       with parsing options [+ continuing]
+parser define prefix "l2" [code]
+       with group line
+parser print prefix "":
+    block block 1: prefix "l1" [code]
+                   with group line
+    block block 1: prefix "l2" [code]
+                   with group line
+    block block 1: prefix "p1" [code]
+                   with group paragraph
+                   with implied subprefix {l1||l1}
+    block block 1: prefix "p2" [code]
+                   with group paragraph
+                   with implied subprefix {l2||l2}
+                   with parsing options [+ continuing]
 parser trace [+ parser output]
 BRACKETED EXPRESSION:
-    {p1|{l1|this is a paragraph|l1}|p1}
+    {p1|{l1|this is a first paragraph|l1}|p1}
     line ###:
-{p1} this is a paragraph
-^^^^^^^^^^^^^^^^^^^^^^^^
+{p1} this is a first paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {l1|and a line|l1}
     line ###:
 and a line
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    and another line outside the paragraph
+    and another line outside the first paragraph
     line ###:
-and another line outside the paragraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+and another line outside the first paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    parser trace [- parser output]
+    {p2|{l2|this is a second paragraph|l2}|p2}
+    line ###:
+{p2} this is a second paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l2|and a line|l2}
+    line ###:
+and a line
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l2|and another line outside the second paragraph|l2}
+    line ###:
+and another line outside the second paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p1|{l1|this is a third paragraph|l1}|p1}
+    line ###:
+{p1} this is a third paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and a line|l1}
+    line ###:
+and a line
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and another line outside the third paragraph|l1}
+    line ###:
+and another line outside the third paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|parser trace [- parser output]|l1}
     line ###:
 parser trace [- parser output]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-parser trace [- parser output]
+BRACKETED EXPRESSION:
+    {l1|parser end block 1|l1}
+    line ###:
 parser end block 1
+^^^^^^^^^^^^^^^^^^

@@ -1486,6 +1486,9 @@ parser define prefix "p2" [code]
        with parsing options [+ continuing]
 parser define prefix "l2" [code]
        with group line
+parser define prefix "p3" [code]
+       with group paragraph
+       with parsing options [+ continuing]
 parser print prefix "":
     block block 1: prefix "l1" [code]
                    with group line
@@ -1497,6 +1500,9 @@ parser print prefix "":
     block block 1: prefix "p2" [code]
                    with group paragraph
                    with implied subprefix {l2||l2}
+                   with parsing options [+ continuing]
+    block block 1: prefix "p3" [code]
+                   with group paragraph
                    with parsing options [+ continuing]
 parser trace [+ parser output]
 BRACKETED EXPRESSION:
@@ -1540,17 +1546,44 @@ BRACKETED EXPRESSION:
 and a line
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {l1|and another line outside the third paragraph|l1}
+    and another line outside the third paragraph
     line ###:
 and another line outside the third paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {l1|parser trace [- parser output]|l1}
+    {p3|this is a fourth paragraph|p3}
+    line ###:
+{p3} this is a fourth paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and a line
+    line ###:
+and a line
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line outside the fourth paragraph
+    line ###:
+and another line outside the fourth paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p1|{l1|this is a fifth paragraph|l1}|p1}
+    line ###:
+{p1} this is a fifth paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and a line|l1}
+    line ###:
+and a line
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line outside the fifth paragraph
+    line ###:
+and another line outside the fifth paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    parser trace [- parser output]
     line ###:
 parser trace [- parser output]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|parser end block 1|l1}
-    line ###:
+parser trace [- parser output]
 parser end block 1
-^^^^^^^^^^^^^^^^^^

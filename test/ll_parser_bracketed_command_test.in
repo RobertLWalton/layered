@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 03:14:46 EST 2017
+// Date:	Mon Jan 16 10:14:51 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -375,6 +375,9 @@ parser define prefix "p2" [code]
        with parsing options [+ continuing]
 parser define prefix "l2" [code]
        with group line
+parser define prefix "p3" [code]
+       with group paragraph
+       with parsing options [+ continuing]
 parser print prefix ""
 parser trace [+ parser output]
 {p1} this is a first paragraph
@@ -389,5 +392,13 @@ and another line outside the second paragraph
 and a line
 
 and another line outside the third paragraph
+{p3} this is a fourth paragraph
+and a line
+
+and another line outside the fourth paragraph
+{p1} this is a fifth paragraph
+and a line
+
+and another line outside the fifth paragraph
 parser trace [- parser output]
 parser end block 1

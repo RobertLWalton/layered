@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 10:39:42 EST 2017
+// Date:	Tue Jan 17 00:07:22 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1530,6 +1530,8 @@ PREFIX_FOUND:
 			    " previous active prefix"
 			    " separator; not inserted"
 			  );
+			MIN_REQUIRE
+			    ( ! premature_closing );
 			PAR::token next = prefix->next;
 			PAR::free
 			    ( PAR::remove
@@ -1581,6 +1583,7 @@ PREFIX_FOUND:
 		return separator_found;
 	    }
 
+	    PAR::token prefix_next = prefix->next;
 	    if ( start_previous->next != prefix )
 	    {
 		PAR::parse_error
@@ -1592,73 +1595,84 @@ PREFIX_FOUND:
 		    "' not at beginning of"
 		    " subexpression; ignored"
 		  );
-		PAR::token next = prefix->next;
-		PAR::free ( PAR::remove
-				( first_ref(parser),
-				  next->previous ) );
 		prefix = min::NULL_STUB;
 	    }
 	    else
-	    if ( prefix_group == PAR::paragraph_lexeme
-		 &&
-		 prefix->type == PAR::IMPLIED_PREFIX )
+	    if ( prefix_group == PAR::paragraph_lexeme )
 	    {
-	        MIN_REQUIRE ( bracket_stack_p != NULL );
-		PAR::parse_error
-		  ( parser,
-		    prefix->position,
-		    "IMPLIED prefix separator of type"
-		    " `",
-		    min::pgen_never_quote
-		        ( prefix_type ),
-		    "' implied by prefix separator of"
-		    " type `",
-		    min::pgen_never_quote
-		      ( bracket_stack_p->prefix_type ),
-		    "' has `paragraph' group; ignored"
-		  );
-		PAR::token next = prefix->next;
-		PAR::free ( PAR::remove
-				( first_ref(parser),
-				  next->previous ) );
-		prefix = min::NULL_STUB;
-	    }
-	    else
-	    if ( prefix_group == PAR::line_lexeme
-		 &&
-		 prefix->type == PAR::IMPLIED_PREFIX )
-	    {
-	        MIN_REQUIRE ( bracket_stack_p != NULL );
-	        MIN_REQUIRE
-		    (    bracket_stack_p->prefix_entry
-		      != min::NULL_STUB );
-		if (    bracket_stack_p->prefix_entry
-		                       ->group
-			!= PAR::paragraph_lexeme )
-		{
+	        if (    prefix->type
+		     == PAR::IMPLIED_PREFIX )
+	        {
+		    MIN_REQUIRE
+		        ( bracket_stack_p != NULL );
 		    PAR::parse_error
 		      ( parser,
 			prefix->position,
 			"prefix separator of type `",
 			min::pgen_never_quote
 			    ( prefix_type ),
-			"' has `line' group and is"
-			" IMPLIED by prefix separator"
+			"' IMPLIED by prefix separator"
 			" of type `",
 			min::pgen_never_quote
 			  ( bracket_stack_p->
 			        prefix_type ),
-			"' that does NOT have"
-			" `paragraph' group; ignored"
+			"' has `paragraph' group;"
+			" ignored"
 		      );
-		    PAR::token next = prefix->next;
-		    PAR::free
-		        ( PAR::remove
-			    ( first_ref(parser),
-			      next->previous ) );
 		    prefix = min::NULL_STUB;
 		}
+		else
+		if ( line_variables == NULL )
+	        {
+		    PAR::parse_error
+		      ( parser,
+			prefix->position,
+			"explicit prefix separator of"
+			" type `",
+			min::pgen_never_quote
+			    ( prefix_type ),
+			"' has `paragraph' group but is"
+			" not at logical line top"
+			" level; ignored"
+		      );
+		    prefix = min::NULL_STUB;
+		}
+
 	    }
+	    else
+	    if ( prefix_group == PAR::line_lexeme
+	         &&
+		 line_variables == NULL
+	         &&
+		 ( bracket_stack_p == NULL
+		   ||
+		      bracket_stack_p->prefix_entry
+		   == min::NULL_STUB
+		   ||
+		      bracket_stack_p->prefix_entry
+		                     ->group
+		   != PAR::paragraph_lexeme ) )
+	    {
+		PAR::parse_error
+		  ( parser,
+		    prefix->position,
+		    "prefix separator of type `",
+		    min::pgen_never_quote
+			( prefix_type ),
+		    "' has `line' group, is not at"
+		    " logical line to level, and is not"
+		    " immediately beneath a prefix"
+		    " separator of `paragraph' group;"
+		    " ignored"
+		  );
+		prefix = min::NULL_STUB;
+	    }
+
+	    if ( prefix == min::NULL_STUB )
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  prefix_next->previous ) );
 
 	    if ( premature_closing )
 	    {

@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 15, 2017
+January 17, 2017
  
 \end{center}
 
@@ -753,7 +753,8 @@ Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
 \end{itemlist}
 \end{indpar}
 
-The following are also defined:
+The following are also defined, where \TT{I} is the underlying
+integer type of \TT{E}:
 
 \begin{indpar}[0.5in]
 \hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}\ttkey{range value of}
@@ -788,7 +789,29 @@ E3 C4 = next enum
 \end{verbatim}\end{indpar}
 
 Comparison and subtraction of enumeration values of the same
-type are defined, and are equivalent to comparing or
+type are defined:
+
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}\TT{(B} bool-value\TT{)~~=~~}
+			\TT{( E} e-value-1 \TT{)}
+			\ttmkey{"<"}{of enumeration values}
+			\TT{( E} e-value-2 \TT{)} \\
+Ditto for 
+\ttmkey{">"}{of enumeration values},
+\ttmkey{"<="}{of enumeration values},
+\ttmkey{">="}{of enumeration values},
+\ttmkey{"=="}{of enumeration values}, and
+\ttmkey{"~="}{of enumeration values}.
+\\[1ex]
+\hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}
+			\TT{( E} e-value-1 \TT{)}
+			\ttmkey{"-"}{of enumeration values}
+			\TT{( E} e-value-2 \TT{)} \\
+returns \TT{I(}e-value-1\TT{) - I(}e-value-2\TT{)} where \TT{I}
+is the underlying integer type of \TT{E}.
+\end{indpar}
+
+These are equivalent to comparing or
 subtracting the unchecked conversion of these values to
 integers.  Two enumeration values of different types
 may be compared or subtracted if they can be implicitly

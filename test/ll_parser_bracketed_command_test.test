@@ -1587,3 +1587,149 @@ parser trace [- parser output]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser trace [- parser output]
 parser end block 1
+parser begin block 1
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser define prefix "p1" [code]
+       with group paragraph
+       with implied subprefix {l1}
+parser define prefix "l1" [code]
+       with group line
+parser define prefix "p2" [code]
+       with group paragraph
+       with implied subprefix {l2}
+       with parsing options [+ sticky]
+parser define prefix "l2" [code]
+       with group line
+parser define prefix "p3" [code]
+       with group paragraph
+       with parsing options [+ sticky]
+parser trace [+ parser output]
+BRACKETED EXPRESSION:
+    this is paragraph 1
+    line ###:
+this is paragraph 1
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p1|{l1|this is paragraph 2|l1}|p1}
+    line ###:
+{p1} this is paragraph 2
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and another line|l1}
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    this is paragraph 3
+    line ###:
+this is paragraph 3
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p2|{l2|this is paragraph 4|l2}|p2}
+    line ###:
+{p2} this is paragraph 4
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l2|and another line|l2}
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p2|{l2|this is paragraph 5|l2}|p2}
+    line ###:
+this is paragraph 5
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l2|and another line|l2}
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p1|{l1|this is paragraph 6|l1}|p1}
+    line ###:
+{p1} this is paragraph 6
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and another line|l1}
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p2|{l2|this is paragraph 7|l2}|p2}
+    line ###:
+this is paragraph 7
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l2|and another line|l2}
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p3|this is paragraph 8|p3}
+    line ###:
+{p3} this is paragraph 8
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p3|this is paragraph 9|p3}
+    line ###:
+this is paragraph 9
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p1|{l1|this is paragraph 10|l1}|p1}
+    line ###:
+{p1} this is paragraph 10
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and another line|l1}
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p3|this is paragraph 11|p3}
+    line ###:
+this is paragraph 11
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and another line
+    line ###:
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p3|parser trace [- parser output]|p3}
+    line ###:
+parser trace [- parser output]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    parser end block 1
+    line ###:
+parser end block 1
+^^^^^^^^^^^^^^^^^^
+parser end block 1

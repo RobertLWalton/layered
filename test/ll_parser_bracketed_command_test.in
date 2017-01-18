@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 10:14:51 EST 2017
+// Date:	Wed Jan 18 01:07:32 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -400,5 +400,66 @@ and another line outside the fourth paragraph
 and a line
 
 and another line outside the fifth paragraph
+parser trace [- parser output]
+parser end block 1
+
+parser begin block 1
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser define prefix "p1" [code]
+       with group paragraph
+       with implied subprefix {l1}
+parser define prefix "l1" [code]
+       with group line
+parser define prefix "p2" [code]
+       with group paragraph
+       with implied subprefix {l2}
+       with parsing options [+ sticky]
+parser define prefix "l2" [code]
+       with group line
+parser define prefix "p3" [code]
+       with group paragraph
+       with parsing options [+ sticky]
+parser trace [+ parser output]
+this is paragraph 1
+and another line
+
+{p1} this is paragraph 2
+and another line
+
+this is paragraph 3
+and another line
+
+{p2} this is paragraph 4
+and another line
+
+this is paragraph 5
+and another line
+
+{p1} this is paragraph 6
+and another line
+
+this is paragraph 7
+and another line
+
+{p3} this is paragraph 8
+and another line
+
+this is paragraph 9
+and another line
+
+{p1} this is paragraph 10
+and another line
+
+this is paragraph 11
+and another line
+
 parser trace [- parser output]
 parser end block 1

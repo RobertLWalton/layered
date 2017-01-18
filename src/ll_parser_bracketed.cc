@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 17 00:07:22 EST 2017
+// Date:	Wed Jan 18 01:07:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1867,6 +1867,25 @@ PREFIX_PARSE:
 			line_variables->
 			    paragraph_header_selectors =
 			  prefix_selectors;
+
+			// The following causes compact_
+			// prefix_separator to make a
+			// copy of prefix->value, so
+			// paragraph_implied_header
+			// remains unchanged.
+			//
+			// Changing prefix->type to
+			// IMPLIED_PREFIX does no harm
+			// as at this point prefix is
+			// the first thing in the
+			// logical line and we can
+			// pretend it was implied.
+			//
+			MIN_REQUIRE
+			    (    start_previous->next
+			      == prefix );
+			prefix->type =
+			    PAR::IMPLIED_PREFIX;
 		    }
 		}
 

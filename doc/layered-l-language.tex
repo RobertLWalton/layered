@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 17, 2017
+January 18, 2017
  
 \end{center}
 
@@ -950,7 +950,7 @@ types, which can be declared by:
 The information about enumeration set types can be determined by:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt bool = \ttkey{is enumeration set type}
+\hspace*{-0.3in}{\tt (bool test) = \ttkey{is enumeration set type}
 			( type T )} \\
 Returns \TT{true} if \TT{T} is an enumeration set type and \TT{false}
 otherwise.
@@ -970,55 +970,52 @@ An enumeration set constant is an enumeration set whose base type
 is its common enumeration type, even if this enumeration set type has not been
 declared and is not builtin.
 
-The following operations on enumeration sets are builtin:
+Given an enumeration set type \TT{S1} with base type \TT{B1} and
+an enumeration set type \TT{S2} with base type \TT{B2}, the following
+conversions are defined:
+\begin{center}
+\begin{tabular}{rl@{~~~~~}l}
+{\TT S2} & \TT{(} {\em \TT{S1}-value} \TT{)}
+    & if implicit conversion from \TT{B1} to \TT{B2} is defined \\
+\TT{*UNCHECKED*} \TT{S2}
+	& \TT{(} {\em \TT{S1}-value} \TT{)}
+    & if \TT{*UNCHECKED*} conversion from \TT{B1} to \TT{B2} is defined \\
+\end{tabular}
+\end{center}
+These conversions actually do nothing but change the type of the
+value.
+
+If \TT{S} is an enumeration set type with base type \TT{B}, the following
+operations are builtin:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt (S union) = (type S, S op1)
-                        "\ttmkey{+}{enumeration set union}" ( S op2 )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
 \hspace*{-0.3in}{\tt (S union) = (S op1)
-                        "\ttmkey{+}{enumeration set union}"
-			( type S, S op2 )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+                        "\ttmkey{+}{enumeration set union}" ( S op2 )} \\
 Returns the union of \TT{op1} and \TT{op2}.
 
-\hspace*{-0.3in}{\tt (S intersection) = (type S, S op1)
-                        "\ttmkey{*}{enumeration set intersection}" ( S op2 )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
 \hspace*{-0.3in}{\tt (S intersection) = (S op1)
-                        "\ttmkey{*}{enumeration set intersection}"
-			( type S, S op2 )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+                        "\ttmkey{*}{enumeration set intersection}" ( S op2 )} \\
 Returns the intersection of \TT{op1} and \TT{op2}.
 
-\hspace*{-0.3in}{\tt (S difference) = (type S, S op1)
-                        "\ttmkey{+}{enumeration set difference}" ( S op2 )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (S difference) = (S op1)
+                        "\ttmkey{-}{enumeration set difference}" ( S op2 )} \\
 Returns the set difference of \TT{op1} and \TT{op2}.
 
-\hspace*{-0.3in}{\tt bool = (E e)
-                        \ttmkey{in}{enumeration set} ( type S, S s )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
-\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (bool test) = (B e)
+                        \ttmkey{in}{enumeration set} ( S s )} \\
 Returns \TT{true} if \TT{e} is an element of the set \TT{s}, and
 \TT{false} otherwise.
 
-\hspace*{-0.3in}{\tt (S union) = (E e)
-                        "\ttmkey{+}{enumeration set union}" ( type S, S s )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
-\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (S union) = (B e)
+                        "\ttmkey{+}{enumeration set union}" ( S s )} \\
 Returns union of \{\TT{e}\} and \TT{s}.
 
-\hspace*{-0.3in}{\tt (S union) = (type S, S s)
-                        "\ttmkey{+}{enumeration set union}" ( E e )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
-\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (S union) = (S s)
+                        "\ttmkey{+}{enumeration set union}" ( B e )} \\
 Returns union of \{\TT{e}\} and \TT{s}.
 
-\hspace*{-0.3in}{\tt (S difference) = (type S, S s)
-                        "\ttmkey{-}{enumeration set union}" ( E e )} \\
-\hspace*{0.3in}{\tt [[ is enumeration set type ( S ) ]]} \\
-\hspace*{0.3in}{\tt [[ E = base type of ( S ) ]]} \\
+\hspace*{-0.3in}{\tt (S difference) = (S s)
+                        "\ttmkey{-}{enumeration set union}" ( B e )} \\
 Returns the set difference of \TT{s} and \{\TT{e}\}.
 
 \end{indpar}

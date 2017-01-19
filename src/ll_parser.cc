@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 11 05:46:41 EST 2017
+// Date:	Thu Jan 19 06:24:37 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1322,6 +1322,7 @@ void PAR::parse ( PAR::parser parser )
 		PAR::context context =
 		    (PAR::context) prefix->first;
 		MIN_REQUIRE ( context != NULL_STUB );
+		selectors = parser->selectors;
 		selectors |=
 		    context->new_selectors.or_flags;
 		selectors &= ~
@@ -1330,6 +1331,25 @@ void PAR::parse ( PAR::parser parser )
 		    context->new_selectors.xor_flags;
 		selectors |=
 		    PAR::ALWAYS_SELECTOR;
+
+		line_variables
+		    .paragraph_lexical_master =
+		line_variables.line_lexical_master =
+		line_variables.lexical_master =
+		    LEX::MISSING_MASTER;
+		line_variables.paragraph_selectors =
+		line_variables.selectors =
+		    parser->selectors;
+		line_variables
+		    .paragraph_implied_header =
+		line_variables.line_implied_header =
+		line_variables.implied_header =
+		    min::MISSING();
+		line_variables
+		    .paragraph_header_entry =
+		line_variables.line_header_entry =
+		line_variables.header_entry =
+		    min::NULL_STUB;  // Just for safety.
 	    }
 	}
 

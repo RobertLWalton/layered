@@ -1723,13 +1723,110 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p3|parser trace [- parser output]|p3}
+    parser trace [- parser output]
     line ###:
 parser trace [- parser output]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    parser end block 1
-    line ###:
+parser trace [- parser output]
 parser end block 1
-^^^^^^^^^^^^^^^^^^
+parser begin block 1
+parser define typed bracket "{" ... "|" ... "|" ... "}"
+       [code, text, math]
+       // no element selectors
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "{*"
+       with prefix separators allowed
+parser define prefix "p" [code]
+       with group paragraph
+       with implied subprefix {l1}
+parser define prefix "l1" [code]
+       with group line
+parser define prefix "l2" [code]
+       with group line
+parser define prefix "x" [code]
+       with implied subprefix {l}
+parser trace [+ parser output]
+BRACKETED EXPRESSION:
+    {l1|this is a line|l1}
+    line ###:
+{l1} this is a line
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{l1|this is a paragraph line|l1}|p}
+    line ###:
+{p} this is a paragraph line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and a second paragraph line|l1}
+    line ###:
+and a second paragraph line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l2|and a third paragraph line|l2}
+    line ###:
+{l2}and a third paragraph line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1|and a fourth paragraph line|l1}
+    line ###:
+and a fourth paragraph line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And another paragraph
+    line ###:
+And another paragraph
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    with one extra line "."
+    line ###:
+with one extra line.
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {x|{l|implied "`" l1 "'" prefix in error|l}|x}
+    line ###:
+{x} implied `l1' prefix in error
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {l1||l1} {l2|a stray line|l2}
+    line ###:
+{l1}{l2} a stray line
+^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: prefix separator of type `l2' has `line' group, is
+       not at logical line to level, and is not immediately beneath a
+       prefix separator of `paragraph' group; ignored:
+{x}{l2} another stray line
+   ^^^^
+BRACKETED EXPRESSION:
+    {x|{l|another stray line|l}|x}
+    line ###:
+{x}{l2} another stray line
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: prefix separator of type `l2' has `line' group, is
+       not at logical line to level, and is not immediately beneath a
+       prefix separator of `paragraph' group; ignored:
+({l2} a third stray)
+ ^^^^
+BRACKETED EXPRESSION:
+    (a third stray)
+    line ###:
+({l2} a third stray)
+^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: explicit prefix separator of type `p' has
+       `paragraph' group but is not at logical line top level; ignored:
+({p} a fourth stray)
+ ^^^
+BRACKETED EXPRESSION:
+    (a fourth stray)
+    line ###:
+({p} a fourth stray)
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    parser trace [- parser output]
+    line ###:
+parser trace [- parser output]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+parser trace [- parser output]
 parser end block 1

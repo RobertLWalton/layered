@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 11:25:43 EST 2017
+// Date:	Thu Jan 19 18:39:43 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -486,15 +486,19 @@ parser define prefix "l2" [code]
 parser define prefix "x" [code]
        with implied subprefix {l}
 parser trace [+ parser output]
-{x} implied `l1' prefix in error
 {l1} this is a line
 {p} this is a paragraph line
 and a second paragraph line
 {l2}and a third paragraph line
 and a fourth paragraph line
 
+And another paragraph
+with one extra line.
+
+{x} implied `l1' prefix in error
 {l1}{l2} a stray line
 {x}{l2} another stray line
 ({l2} a third stray)
+({p} a fourth stray)
 parser trace [- parser output]
 parser end block 1

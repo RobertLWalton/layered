@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 18, 2017
+January 19, 2017
  
 \end{center}
 
@@ -2809,15 +2809,20 @@ The standard parser also sets the top level selector set to
 `\TT{[code]}'.  Note that the actions of the standard parser can be
 canceled by a `\TT{parser end standard}' command.
 
-If a top level line begins with a \emkey{context-name}, the top level
-selector set is modified according to a {\em parser-flag-spec}
-associated with the {\em context-name}.  There are two builtin
+If a top level logical line begins with a \emkey{context-name}, the top level
+selector set is reset to the default selectors (selectors of the default
+context, initially empty at the beginning of the input file), and the
+selectors used to parse the rest of the logical line are these
+modified according to a {\em parser-flag-spec}
+associated with the {\em context-name}.
+
+There are two builtin
 {\em context-names} used by parser commands:
 \begin{center}
 \begin{tabular}{ll}
 \em Context-Name & \em Parser-Flag-Spec \\
 \hline
-\ttkey{parser}  & \tt [parser] \\
+\ttkey{parser}  & \tt [data] \\
 \ttkey{parser test}  & none
 \end{tabular}
 \end{center}

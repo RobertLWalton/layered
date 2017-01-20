@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 01:07:49 EST 2017
+// Date:	Fri Jan 20 02:13:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1498,6 +1498,12 @@ PREFIX_FOUND:
 		  prefix_entry->group :
 		  min::MISSING() );
 
+	    if ( ( prefix_group != PAR::paragraph_lexeme
+	           &&
+		   prefix_group != PAR::line_lexeme )
+		 ||
+		     prefix->previous->type
+		 == PAR::IMPLIED_PREFIX )
 	    for ( BRA::bracket_stack * p =
 	                 bracket_stack_p;
 
@@ -1584,20 +1590,6 @@ PREFIX_FOUND:
 	    }
 
 	    PAR::token prefix_next = prefix->next;
-	    if ( start_previous->next != prefix )
-	    {
-		PAR::parse_error
-		  ( parser,
-		    prefix->position,
-		    "prefix separator of type `",
-		    min::pgen_never_quote
-		        ( prefix_type ),
-		    "' not at beginning of"
-		    " subexpression; ignored"
-		  );
-		prefix = min::NULL_STUB;
-	    }
-	    else
 	    if ( prefix_group == PAR::paragraph_lexeme )
 	    {
 	        if (    prefix->type
@@ -1608,7 +1600,8 @@ PREFIX_FOUND:
 		    PAR::parse_error
 		      ( parser,
 			prefix->position,
-			"prefix separator of type `",
+			"implied prefix separator of"
+			" type `",
 			min::pgen_never_quote
 			    ( prefix_type ),
 			"' IMPLIED by prefix separator"
@@ -1622,7 +1615,9 @@ PREFIX_FOUND:
 		    prefix = min::NULL_STUB;
 		}
 		else
-		if ( line_variables == NULL )
+		if ( line_variables == NULL
+		     ||
+	             start_previous->next != prefix )
 	        {
 		    PAR::parse_error
 		      ( parser,
@@ -1632,8 +1627,8 @@ PREFIX_FOUND:
 			min::pgen_never_quote
 			    ( prefix_type ),
 			"' has `paragraph' group but is"
-			" not at logical line top"
-			" level; ignored"
+			" not at beginning of a logical"
+			" line; ignored"
 		      );
 		    prefix = min::NULL_STUB;
 		}
@@ -1642,28 +1637,48 @@ PREFIX_FOUND:
 	    else
 	    if ( prefix_group == PAR::line_lexeme
 	         &&
-		 line_variables == NULL
-	         &&
-		 ( bracket_stack_p == NULL
+	         ( start_previous->next != prefix
 		   ||
-		      bracket_stack_p->prefix_entry
-		   == min::NULL_STUB
-		   ||
-		      bracket_stack_p->prefix_entry
-		                     ->group
-		   != PAR::paragraph_lexeme ) )
+		   ( line_variables == NULL
+	             &&
+		     ( bracket_stack_p == NULL
+		       ||
+		          bracket_stack_p->prefix_entry
+		       == min::NULL_STUB
+		       ||
+		          bracket_stack_p->prefix_entry
+		                         ->group
+		       != PAR::paragraph_lexeme ) ) ) )
+	    {
+		PAR::parse_error
+		  ( parser,
+		    prefix->position,
+		       prefix->type
+		    == PAR::IMPLIED_PREFIX ?
+		        "implied " : "explicit ",
+		    min::pnop,
+		    "prefix separator of type `",
+		    min::pgen_never_quote
+			( prefix_type ),
+		    "' has `line' group but is not at"
+		    " beginning of logical line or"
+		    " immediately after a prefix"
+		    " separator of `paragraph' group;"
+		    " ignored"
+		  );
+		prefix = min::NULL_STUB;
+	    }
+	    else
+	    if ( start_previous->next != prefix )
 	    {
 		PAR::parse_error
 		  ( parser,
 		    prefix->position,
 		    "prefix separator of type `",
 		    min::pgen_never_quote
-			( prefix_type ),
-		    "' has `line' group, is not at"
-		    " logical line to level, and is not"
-		    " immediately beneath a prefix"
-		    " separator of `paragraph' group;"
-		    " ignored"
+		        ( prefix_type ),
+		    "' not at beginning of"
+		    " subexpression; ignored"
 		  );
 		prefix = min::NULL_STUB;
 	    }
@@ -1817,24 +1832,6 @@ PREFIX_PARSE:
 			    line_variables->
 				    header_selectors =
 				header_selectors;
-			}
-			else
-			{
-			    PAR::parse_error
-			      ( parser,
-				prefix->position,
-				"implied_subprefix of"
-				" paragraph header of"
-				" type `",
-				min::pgen_never_quote
-				  ( prefix_type ),
-				"' has type `",
-				min::pgen_never_quote
-				  ( header_type ),
-				"' which does not have"
-				" `line' group;"
-				" implied_subprefix"
-				" not implied" );
 			}
 		    }
 

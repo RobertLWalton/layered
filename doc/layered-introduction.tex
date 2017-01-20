@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 19, 2017
+January 20, 2017
  
 \end{center}
 
@@ -4639,13 +4639,6 @@ following a {\em prefix-n} is not a prefix in the same group
 as the {\em prefix-n}'s \TT{implied subprefix} (and that is not
 missing), then a copy of
 the \TT{implied subprefix} is prepended to the {\em prefix-(n+1)-list}.
-In this case, the copied prefix must not attempt to change
-the parsing selectors.
-
-For prefixes that are \TT{.types} of implied paragraph 
-header lexemes, this value may be used
-to set the \TT{line implied header} line variable:
-see \pagref{LINE-VARIABLES}.
 
 \hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that
@@ -4656,8 +4649,8 @@ see \pagref{LINE-VARIABLES}.
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
 For prefixes with the `\TT{paragraph}' group, this is used to
 set the \TT{paragraph\_lexi\-cal\_\EOL header} line variable.
-For prefixes with the `\TT{line}' group, this is
-used to set the \TT{options} line variable.
+For prefixes with the `\TT{line}' group, this may be
+used to set the \TT{lexical\_header} line variable.
 See \pagref{LINE-VARIABLES}.
 
 \end{indpar}
@@ -4771,11 +4764,11 @@ next section.
 A `\key{line header}' is a typed prefix separator that has
 the `\TT{line}' group.  Line headers may only
 appear at the beginning of a logical line, or immediately
-after a paragraph header (see \itemref{HEADED-PARAGRAPHS}).
+after a paragraph header, which itself must begin a logical
+line: see \itemref{HEADED-PARAGRAPHS}.
 
-A `\key{headed line}' is a logical line that begins with line header,
-or is the part of a logical line after a line beginning
-`paragraph header' (see~\itemref{HEADED-PARAGRAPHS}).
+A `\key{headed line}' is a line header and the part of a logical
+line that follows the line header.
 The parser's output
 for a headed line is a MIN object whose \TT{.type} and attributes
 are taken from the line header and whose elements are
@@ -4783,39 +4776,32 @@ taken from the rest of the line.  This output has \underline{no}
 \TT{.initiator} or \TT{.terminator}, unlike the parser's output
 for a logical line that has no line header.
 
-The indentation mark of an indented paragraph sets an
-\TT{implied line header} variable to either have
-a missing value or to have a line header value.  If the value of
-this variable is not missing and a logical line with no line header
-is encountered,
-a copy of this variable's value is inserted at the beginning of
-that logical line.  See \itemref{LINE-VARIABLES} for details.
+Line headers may be implied by the \TT{implied subprefix}
+of a paragraph header (see \itemref{PREFIX-DEFINITIONS})
+or by line variables (see \itemref{LINE-VARIABLES}).
 
 \subsubsection{Headed Paragraphs}
 \label{HEADED-PARAGRAPHS}
 
 A `\key{paragraph header}' is a typed prefix separator that has
 the `\TT{paragraph}' group.  Paragraph headers may only
-appear at the beginning of a logical line that is either the
-first logical line of an indented paragraph, or that follows
-a blank line in the indented paragraph, with intervening
-comment lines allowed.
+appear at the beginning of a logical line.
 
 A `\key{headed paragraph}' is a logical line that begins with paragraph header,
 plus all the following logical lines up until the headed paragraph end.
-A headed paragraph may ended by any blank line, or only by blank lines
-that are immediately followed by another (non-implicit) paragraph header.
-A headed paragraph is always ended by the end of its
-containing indented paragraph.
+A headed paragraph may be ended by a blank line (unless the paragraph
+is `continuing'), by a logical line
+beginning with another (non-implicit) paragraph header, or by the end
+of its containing indented paragraph.
 
 The parser's output for a headed paragraph is a MIN object 
 whose \TT{.type} and attributes are taken from the paragraph header
 and whose elements are the logical lines in the headed paragraph.
 If the first logical line of the headed paragraph contains only
 the paragraph header, it is omitted from the list of elements
-(so there is no blank logical line).  The logical lines that
-are headed paragraph elements may or may not themselves have
-line headers.
+(so there is no blank logical line).
+
+TBD
 
 The indentation mark of an indented paragraph sets an
 \TT{implied paragraph header} variable to either have

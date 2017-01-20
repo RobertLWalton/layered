@@ -237,19 +237,6 @@ parser define prefix "P1" [code, text]
        with group paragraph
        with implied subprefix {S1}
        with parsing options [end at paragraph break]
-parser define prefix "P2" [code, text]
-       with parsing selectors [text]
-       with group paragraph
-       with implied subprefix {S2}
-       with parsing options [end at paragraph break]
-parser define prefix "P3" [code, text]
-       with parsing selectors [text]
-       with group paragraph
-       with parsing options [end at paragraph break]
-parser define prefix "S1" [text]
-       with group line
-parser define prefix "S2" [text]
-       with group line
 parser define typed bracket "{" ... "|" ... "|" ... "}"
        [code, text, math]
        // no element selectors
@@ -263,15 +250,12 @@ parser define typed bracket "{" ... "|" ... "|" ... "}"
 parser print prefix ""
 
 parser test:
-    {P1} Hi there.
-    {P2} Bye.
-    {P3} And some more.
+    {P1}
+    Hi there.
+    {S1}Bye.
+    {S1}And some more.
 
-parser test:
-    {P1} First sentence. {S2} Second sentence.
-    {P2} {S1} Third sentence. {S2} Fourth sentence.
-    {P3} {S2} Fifth sentence. {XX} Sixth sentence.
-         {S1} {XX} Seventh sentence.
+    And another paragraph.
 
 parser end block 1
 
@@ -484,7 +468,7 @@ parser define prefix "l1" [code]
 parser define prefix "l2" [code]
        with group line
 parser define prefix "x" [code]
-       with implied subprefix {l}
+       with implied subprefix {l1}
 parser trace [+ parser output]
 {l1} this is a line
 {p} this is a paragraph line
@@ -494,6 +478,9 @@ and a fourth paragraph line
 
 And another paragraph
 with one extra line.
+
+{l1} This is a line {l2} and continuation.
+{p} This is a paragraph {p} and continuation.
 
 {x} implied `l1' prefix in error
 {l1}{l2} a stray line

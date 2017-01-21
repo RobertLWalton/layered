@@ -4964,26 +4964,31 @@ paragraph header is inserted:
 \begin{enumerate}
 
 \item
+The prefix definition of the paragraph header is found using
+the \TT{selectors} in effect at the time the paragraph header
+was parsed.  As the paragraph header must be at the beginning
+of a logical line, these selectors will be the selectors at the
+beginning of the line modified by implied paragraph or line
+headers inserted at the beginning of the logical line (these
+implied headers will then be discarded once an explicit
+paragraph header is found).
+The prefix definition must exist and have `\TT{paragraph}' group,
+else the paragraph header would not be a paragraph header.
+
+\item
 The \TT{selectors}, \TT{options}, and \TT{lexical master}
 line variables are initialized by setting them to the
 values of the selectors, options, and lexical master
-set for the indented paragraph (e.g., by the intentation
+set for the indented paragraph (i.e., by the intentation
 mark definition and the context in which the indentation mark
 was found).
-
-\item
-The prefix definition of the paragraph header is found using
-the \TT{selectors} line variable.
-It must exist and have `\TT{paragraph}' group,
-else the paragraph header would not be a paragraph header.
 
 \item
 The \TT{selectors} and \TT{options} line variables
 are modified by the paragraph
 prefix definition \TT{parsing selectors} and \TT{parsing options}.
 The \TT{lexical master} line variable is reset to the
-value of \TT{lexical master} in the paragraph prefix definition if
-the latter is not \TT{MISSING}.
+value of \TT{lexical master} in the paragraph prefix definition.
 
 \item
 If the \TT{options} line variable now has the `\TT{sticky}' option flag and the
@@ -5011,14 +5016,21 @@ the `\TT{line}' group.  If yes, then:
 The \TT{selectors} and \TT{options} line variables are modified by the line
 prefix definition \TT{parsing selectors} and \TT{parsing options}.
 The \TT{lexical master} line variable is reset to the
-value of \TT{lexical master} in the line prefix definition if
-the latter is not \TT{MISSING}.
+value of \TT{lexical master} in the line prefix definition.
 
 \item
 \TT{implied prefix} line variable is set to a copy of the paragraph header
 definition's the \TT{implied subprefix}.
 
 \end{enumerate}
+
+\item
+The current parsing selectors and options are set to the values
+of the \TT{selectors} and \TT{options} line variables for the
+purpose of parsing the remainder of the logical line.  If the
+\TT{implied header} line variable is not missing, a copy of
+the \TT{implied header} is inserted at the beginning of this
+logical line remainder.
 
 \end{enumerate}
 

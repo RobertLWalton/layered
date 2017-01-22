@@ -1072,10 +1072,6 @@ parser test this is the indented paragraph 2::
 parser define prefix "p" [code]
        with group paragraph
        with implied subprefix {l}
-ERROR: in line ###: implied header of type `l' does not have `line'
-       group; cannot begin lines with indent:
-    with a first line
-    ^
 ======= TEST: parser test this is the indented paragraph 3::
                   {p|{l|with a first line|l}|p}
                   and a second line

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 20 02:13:24 EST 2017
+// Date:	Sun Jan 22 02:58:07 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2157,24 +2157,24 @@ NEXT_TOKEN:
 
 		line_variables
 		    .paragraph_lexical_master =
-		        LEX::MISSING_MASTER;
+		line_variables.line_lexical_master =
+		        indentation_found->
+			    lexical_master;
 		line_variables
 		    .paragraph_selectors =
+		line_variables
+		    .paragraph_header_selectors =
+		          // Doubles as line_selectors.
 		        new_selectors;
 		line_variables
 		    .paragraph_implied_header =
+		line_variables.line_implied_header =
 		        min::MISSING();
 		line_variables
 		    .paragraph_header_entry =
+		line_variables.line_header_entry =
 		        min::NULL_STUB;
 			// Just for safety.
-
-		line_variables.line_lexical_master =
-		    LEX::MISSING_MASTER;
-		line_variables.line_implied_header =
-		    min::MISSING();
-		line_variables.line_header_entry =
-		    min::NULL_STUB; // Just for safety.
 
 		// If H = indentation_mark->
 		//            implied_header,
@@ -2232,13 +2232,13 @@ NEXT_TOKEN:
 			      .paragraph_implied_header
 			 == min::MISSING() )
 		    {
-			line_variables
-			    .paragraph_lexical_master =
-			        header_entry->
-				    lexical_master;
 			// line_variables
-			//    .paragraph_selectors =
-			//        new_selectors;
+			//   .paragraph_selectors =
+			//     new_selectors;
+			// line_variables
+			//   .paragraph_lexical_master =
+			//     indentation_found->
+			//       lexical_master;
 			//        // Set above.
 			line_variables
 			  .paragraph_implied_header =
@@ -2250,32 +2250,24 @@ NEXT_TOKEN:
 			  .paragraph_header_selectors =
 			    header_selectors;
 
+			if (    header_entry->
+			            lexical_master
+			     != LEX::MISSING_MASTER )
+			    line_variables
+				.line_lexical_master =
+				    header_entry->
+					lexical_master;
+
 			implied_header =
 			    header_entry->
 			        implied_subprefix;
 			implied_header_type =
 			    header_entry->
 			        implied_subprefix_type;
-
-			// The following is for the case
-			// where implied_header is now
-			// MISSING or implied_header_
-			// type is now not `line'.  In
-			// these cases line_implied_
-			// header will be MISSING.
-			//
-			line_variables
-			    .line_lexical_master =
-			  line_variables
-			    .paragraph_lexical_master;
 		    }
 		    else if (    group
 		              == PAR::line_lexeme )
 		    {
-			line_variables
-			    .line_lexical_master =
-			        header_entry->
-				    lexical_master;
 			line_variables
 			    .line_implied_header =
 			        implied_header;
@@ -2291,14 +2283,15 @@ NEXT_TOKEN:
 			       .paragraph_implied_header
 			  == min::MISSING() )
 			{
-			  line_variables
-			   .paragraph_lexical_master =
-			      line_variables
-			        .line_lexical_master;
 			  // line_variables
 			  //    .paragraph_selectors =
 			  //        new_selectors;
-			  //        // Set above.
+			  // line_variables
+			  //    .paragraph_lexical_
+			  //               master =
+			  //        indentation_found->
+			  //            lexical_master;
+			  //    // Set above.
 			  line_variables
 			   .paragraph_implied_header =
 			      line_variables
@@ -2315,6 +2308,9 @@ NEXT_TOKEN:
 			break;
 		    }
 		    else
+		    if (    line_variables
+			      .paragraph_implied_header
+			 == min::MISSING() )
 		    {
 			min::phrase_position pos =
 			    { current->position.begin,
@@ -2327,18 +2323,14 @@ NEXT_TOKEN:
 			    min::pgen_never_quote
 			      ( implied_header_type
 			      ),
-			    "' does not have ",
-			    min::pnop,
-			    line_variables.
-			        paragraph_implied_header
-				!= min::MISSING() ?
-				"`line'" :
-				"`paragraph' or `line'",
-			    min::pnop,
+			    "' does not have"
+			    " `paragraph' or `line'"
 			    " group; cannot begin lines"
 			    " with indent" );
 			break;
 		    }
+		    else
+		        break;
 		}
 
 		parser->at_head = true;

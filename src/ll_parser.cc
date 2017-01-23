@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 06:24:37 EST 2017
+// Date:	Mon Jan 23 02:42:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1353,7 +1353,7 @@ void PAR::parse ( PAR::parser parser )
 	    }
 	}
 
-	PAR::token previous = current->previous;
+	line_variables.previous = current->previous;
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
@@ -1364,7 +1364,8 @@ void PAR::parse ( PAR::parser parser )
 		  NULL,
 		  & line_variables );
 
-	PAR::token first = previous->next;
+	PAR::token first =
+	    line_variables.previous->next;
 	bool maybe_parser_command = false;
 	min::uns32 error_count_save =
 	    parser->error_count;

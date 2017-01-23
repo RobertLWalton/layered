@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  8 02:31:38 EST 2017
+// Date:	Mon Jan 23 02:39:56 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1037,6 +1037,9 @@ struct line_variables
     // by such a call to parse_bracketed_subpexression
     // for use in subsequent parsing.
 {
+    ll::parser::token previous;
+        // Token just before logical line.
+
     // Logical line data, used to parse one logical
     // line.  Can be modified by an explicit paragraph
     // header found at the beginning of the line, but

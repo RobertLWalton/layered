@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 22 02:58:07 EST 2017
+// Date:	Mon Jan 23 02:44:16 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1386,7 +1386,8 @@ min::position BRA::parse_bracketed_subexpression
 	min::gen prefix_group;
 	TAB::flags prefix_selectors;
 
-	if ( line_variables != NULL )
+	if (    start_previous
+	     == line_variables->previous )
 	{
 	    min::gen implied_header =
 	        line_variables->implied_header;
@@ -1615,9 +1616,8 @@ PREFIX_FOUND:
 		    prefix = min::NULL_STUB;
 		}
 		else
-		if ( line_variables == NULL
-		     ||
-	             start_previous->next != prefix )
+		if (    line_variables->previous->next
+		     != prefix )
 	        {
 		    PAR::parse_error
 		      ( parser,
@@ -1637,18 +1637,17 @@ PREFIX_FOUND:
 	    else
 	    if ( prefix_group == PAR::line_lexeme
 	         &&
-	         ( start_previous->next != prefix
+	            line_variables->previous->next
+		 != prefix
+		 &&
+		 ( bracket_stack_p == NULL
 		   ||
-		   ( line_variables == NULL
-	             &&
-		     ( bracket_stack_p == NULL
-		       ||
-		          bracket_stack_p->prefix_entry
-		       == min::NULL_STUB
-		       ||
-		          bracket_stack_p->prefix_entry
-		                         ->group
-		       != PAR::paragraph_lexeme ) ) ) )
+		      bracket_stack_p->prefix_entry
+		   == min::NULL_STUB
+		   ||
+		      bracket_stack_p->prefix_entry
+		                     ->group
+		   != PAR::paragraph_lexeme ) )
 	    {
 		PAR::parse_error
 		  ( parser,
@@ -1709,7 +1708,8 @@ PREFIX_FOUND:
 	     &&
 	     prefix->type != PAR::IMPLIED_PREFIX
 	     &&
-	     line_variables != NULL )
+	        line_variables->previous
+	     == start_previous )
 	    selectors =
 	        line_variables->paragraph_selectors;
 
@@ -1768,7 +1768,8 @@ PREFIX_PARSE:
 	        if (    prefix_group
 		     == PAR::paragraph_lexeme
 		     &&
-		     line_variables != NULL
+	                line_variables->previous
+		     == start_previous
 		     &&
 		        prefix->type
 		     != PAR::IMPLIED_PREFIX )
@@ -1899,7 +1900,8 @@ PREFIX_PARSE:
 			  line_sep :
 			  (BRA::line_sep)
 			      min::NULL_STUB,
-			NULL, NULL, & cstack );
+			NULL,
+			line_variables, & cstack );
 
 		PAR::token next =
 		    cstack.closing_first;
@@ -1958,7 +1960,9 @@ PREFIX_PARSE:
 			      == PAR::paragraph_lexeme
 			    );
 		        MIN_REQUIRE
-			    ( line_variables != NULL );
+			    (    line_variables->
+			             previous
+			      == start_previous );
 			prefix_group =
 			    prefix_entry->group;
 			selectors =
@@ -2367,7 +2371,7 @@ NEXT_TOKEN:
 			    .paragraph_header_selectors;
 		    }
 
-		    PAR::token previous =
+		    line_variables.previous =
 		        current->previous;
 		    separator_found =
 		      BRA::
@@ -2385,7 +2389,8 @@ NEXT_TOKEN:
 			      NULL,
 			      & line_variables,
 			      bracket_stack_p );
-		    PAR::token first = previous->next;
+		    PAR::token first =
+		        line_variables.previous->next;
 		    PAR::token next = current;
 
 		    if ( BRA::is_closed
@@ -2811,8 +2816,7 @@ NEXT_TOKEN:
 				(BRA::line_sep)
 				min::NULL_STUB,
 			    NULL,
-			    NULL,
-			    & cstack );
+			    line_variables, & cstack );
 		}
 		else // if (    subtype
 		     //      == BRA::TYPED_OPENING )
@@ -2851,8 +2855,7 @@ NEXT_TOKEN:
 				(BRA::line_sep)
 				min::NULL_STUB,
 			    & tdata,
-			    NULL,
-			    & cstack );
+			    line_variables, & cstack );
 
 		    // We do typed bracketed subexpres-
 		    // sion finishing here that is
@@ -3369,7 +3372,8 @@ NEXT_TOKEN:
 		BRA::closing_bracket closing_bracket =
 		    (BRA::closing_bracket) root;
 
-		if ( line_variables == NULL
+		if (    line_variables->previous
+		     != start_previous
 		     ||
 		       selectors
 		     & PAR::EAOCLOSING_OPT )

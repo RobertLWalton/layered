@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 23 02:39:56 EST 2017
+// Date:	Mon Jan 23 06:23:30 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1025,17 +1025,12 @@ inline bool is_closed ( ll::parser::bracketed
 
 struct line_variables
     //
-    // WARNING: this structure exists during line pars-
-    // ing and ASSUMES that the parser tables are not
-    // modified DURING line parsing.  Breaking this
-    // assumption breaks the garbage collector.
+    // The line_variables structure contains information
+    // about the current logical line being parsed.
     //
-    // A non-NULL line_variables pointer argument is
-    // passed to parse_bracketed_subexpression ONLY if
-    // the latter is being asked to delimit a logical
-    // line.  The data in line_variables can be modified
-    // by such a call to parse_bracketed_subpexression
-    // for use in subsequent parsing.
+    // WARNING: this ASSUMES that the parser tables are
+    // not modified DURING logical line parsing.  Break-
+    // ing this assumption breaks the garbage collector.
 {
     ll::parser::token previous;
         // Token just before logical line.

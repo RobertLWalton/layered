@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 23 02:44:16 EST 2017
+// Date:	Mon Jan 23 06:29:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2377,7 +2377,7 @@ NEXT_TOKEN:
 		      BRA::
 		       parse_bracketed_subexpression
 			    ( parser,
-			      new_selectors,
+			      line_variables.selectors,
 			      current,
 			      paragraph_indent,
 				new_selectors

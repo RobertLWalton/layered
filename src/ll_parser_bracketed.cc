@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:05:49 EST 2017
+// Date:	Wed Jan 25 00:44:46 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1617,7 +1617,10 @@ PREFIX_FOUND:
 		}
 		else
 		if (    line_variables->previous->next
-		     != prefix )
+		     != prefix
+		     ||
+		     ! line_variables->
+		           at_paragraph_beginning )
 	        {
 		    PAR::parse_error
 		      ( parser,
@@ -1628,7 +1631,8 @@ PREFIX_FOUND:
 			    ( prefix_type ),
 			"' has `paragraph' group but is"
 			" not at beginning of a logical"
-			" line; ignored"
+			" line that is in paragraph"
+			" beginning position; ignored"
 		      );
 		    prefix = min::NULL_STUB;
 		}
@@ -2374,12 +2378,8 @@ NEXT_TOKEN:
 		    line_variables.previous =
 		        current->previous;
 		    line_variables
-		        .at_paragraph_beginning =
-			  (    current->previous->type
-			    == LEXSTD::indent_t
-			    &&
-			    parser->
-			      at_paragraph_beginning );
+		           .at_paragraph_beginning =
+			parser->at_paragraph_beginning;
 		    separator_found =
 		      BRA::
 		       parse_bracketed_subexpression

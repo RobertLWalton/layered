@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:05:31 EST 2017
+// Date:	Wed Jan 25 00:44:35 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1355,10 +1355,7 @@ void PAR::parse ( PAR::parser parser )
 
 	line_variables.previous = current->previous;
 	line_variables.at_paragraph_beginning =
-	    (    current->previous->type
-	      == LEXSTD::indent_t
-	      &&
-	      parser->at_paragraph_beginning );
+	      parser->at_paragraph_beginning;
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,

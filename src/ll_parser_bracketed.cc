@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:44:46 EST 2017
+// Date:	Wed Jan 25 06:17:02 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1708,15 +1708,6 @@ PREFIX_FOUND:
 	        goto NEXT_TOKEN;
 	}
 
-	if ( prefix_group == PAR::paragraph_lexeme
-	     &&
-	     prefix->type != PAR::IMPLIED_PREFIX
-	     &&
-	        line_variables->previous
-	     == start_previous )
-	    selectors =
-	        line_variables->paragraph_selectors;
-
 	prefix_selectors = selectors;
 	if ( prefix_entry != min::NULL_STUB )
 	{
@@ -1778,6 +1769,74 @@ PREFIX_PARSE:
 		        prefix->type
 		     != PAR::IMPLIED_PREFIX )
 		{
+		    // Come here if explicit paragraph
+		    // header found and is at beginning
+		    // of logical line, but with
+		    // possible implied line headers
+		    // having been previously inserted
+		    // and deleted, possible incorrect
+		    // setting of selectors to something
+		    // other than paragraph_selectors
+		    // because of a CONTINUING flag, and
+		    // possible incorrect prefix_entry
+		    // because of incorrect selectors.
+		    //
+		    // Fix things up.
+
+		    selectors =
+			line_variables->
+			    paragraph_selectors;
+		    TAB::key_table prefix_table =
+			bracketed_pass->prefix_table;
+		    BRA::prefix new_prefix_entry =
+			(BRA::prefix)
+			TAB::find
+			    ( prefix_type,
+			      selectors,
+			      prefix_table );
+		    if (    new_prefix_entry
+			 == min::NULL_STUB
+			 ||
+			    new_prefix_entry->group
+			 != PAR::paragraph_lexeme )
+			PAR::parse_error
+			  ( parser,
+			    prefix->position,
+			    "prefix separator of"
+			    " type `",
+			    min::pgen_never_quote
+				( prefix_type ),
+			    "' has `paragraph' group"
+			    " after selectors modified"
+			    " by implied headers, but"
+			    " does not have `paragraph'"
+			    " group before this"
+			    " modification; continuing"
+			    " with prefix definition"
+			    " located by INCORRECT"
+			    " modified selectors"
+			  );
+		    else if (    new_prefix_entry
+			      != prefix_entry )
+		    {
+			prefix_entry =
+			    new_prefix_entry;
+			cstack.prefix_entry =
+			    prefix_entry;
+		    }
+		    prefix_selectors = selectors;
+		    prefix_selectors |=
+		        prefix_entry->
+			    new_selectors.or_flags;
+		    prefix_selectors &= ~
+		        prefix_entry->
+			    new_selectors.not_flags;
+		    prefix_selectors ^=
+		        prefix_entry->
+			    new_selectors.xor_flags;
+		    prefix_selectors |=
+		        PAR::ALWAYS_SELECTOR;
+
 		    line_variables->lexical_master =
 		        prefix_entry->lexical_master;
 		    line_variables->selectors =

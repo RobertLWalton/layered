@@ -1704,8 +1704,8 @@ BRACKETED EXPRESSION:
 {l1} This is a line {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
-       `paragraph' group but is not at beginning of a logical line;
-       ignored:
+       `paragraph' group but is not at beginning of a logical line that
+       is in paragraph beginning position; ignored:
 {p} This is a paragraph {p} and continuation.
                         ^^^
 BRACKETED EXPRESSION:
@@ -1759,8 +1759,8 @@ BRACKETED EXPRESSION:
 ({l2} a third stray)
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
-       `paragraph' group but is not at beginning of a logical line;
-       ignored:
+       `paragraph' group but is not at beginning of a logical line that
+       is in paragraph beginning position; ignored:
 ({p} a fourth stray)
  ^^^
 BRACKETED EXPRESSION:
@@ -1768,6 +1768,16 @@ BRACKETED EXPRESSION:
     line ###:
 ({p} a fourth stray)
 ^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: explicit prefix separator of type `p' has
+       `paragraph' group but is not at beginning of a logical line that
+       is in paragraph beginning position; ignored:
+{p} and a fifth stray
+^^^
+BRACKETED EXPRESSION:
+    and a fifth stray
+    line ###:
+{p} and a fifth stray
+    ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     parser trace [- parser output]
     line ###:

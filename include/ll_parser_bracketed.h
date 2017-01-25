@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:01:24 EST 2017
+// Date:	Wed Jan 25 00:45:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1036,10 +1036,9 @@ struct line_variables
         // Token just before logical line.
     bool at_paragraph_beginning;
         // True iff logical line is in paragraph
-	// beginning position.  I.e., is preceeded by
-	// an indent token and parser->at_paragraph_
-	// beginning is true at the beginning of the
-	// logical line.
+	// beginning position.  I.e., parser->
+	// at_paragraph_beginning is true at the
+	// beginning of the logical line.
 
     // Logical line data, used to parse one logical
     // line.  Can be modified by an explicit paragraph

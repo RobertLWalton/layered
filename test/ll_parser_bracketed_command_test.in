@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 18:39:43 EST 2017
+// Date:	Wed Jan 25 00:50:27 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -364,22 +364,27 @@ parser define prefix "p3" [code]
        with parsing options [+ continuing]
 parser print prefix ""
 parser trace [+ parser output]
+
 {p1} this is a first paragraph
 and a line
 
 and another line outside the first paragraph
+
 {p2} this is a second paragraph
 and a line
 
 and another line outside the second paragraph
+
 {p1} this is a third paragraph
 and a line
 
 and another line outside the third paragraph
+
 {p3} this is a fourth paragraph
 and a line
 
 and another line outside the fourth paragraph
+
 {p1} this is a fifth paragraph
 and a line
 
@@ -471,6 +476,7 @@ parser define prefix "x" [code]
        with implied subprefix {l1}
 parser trace [+ parser output]
 {l1} this is a line
+
 {p} this is a paragraph line
 and a second paragraph line
 {l2}and a third paragraph line
@@ -480,6 +486,7 @@ And another paragraph
 with one extra line.
 
 {l1} This is a line {l2} and continuation.
+
 {p} This is a paragraph {p} and continuation.
 
 {x} implied `l1' prefix in error
@@ -487,5 +494,6 @@ with one extra line.
 {x}{l2} another stray line
 ({l2} a third stray)
 ({p} a fourth stray)
+{p} and a fifth stray
 parser trace [- parser output]
 parser end block 1

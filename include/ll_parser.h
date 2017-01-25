@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 11 05:08:40 EST 2017
+// Date:	Wed Jan 25 00:04:48 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1180,9 +1180,9 @@ struct parser_struct
 	// the input is called.   Tokens may be dele-
 	// ted from the list or replaced in the list.
 
-    bool at_head;
-        // Set true when parser initialized and when
-	// a blank line is encountered or at the
+    bool at_paragraph_beginning;
+        // Set true when parser initialized, when
+	// a blank line is encountered, or at the
 	// beginning of an indented paragraph.  Set
 	// false by the first token of a non-comment,
 	// non-blank line.  Unchanged by comment lines.

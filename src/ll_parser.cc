@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 23 02:42:14 EST 2017
+// Date:	Wed Jan 25 00:05:31 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -693,7 +693,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
     {
         parser = ::parser_type.new_stub();
 	first_ref(parser) = min::NULL_STUB;
-	parser->at_head = false;
+	parser->at_paragraph_beginning = false;
 	parser->error_count = 0;
 	parser->warning_count = 0;
 	parser->max_error_count = 100;
@@ -1053,7 +1053,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	    ( * pass->reset ) ( parser, pass );
     }
 
-    parser->at_head = false;
+    parser->at_paragraph_beginning = false;
     parser->error_count = 0;
     parser->warning_count = 0;
     parser->max_error_count = 100;
@@ -1227,7 +1227,7 @@ void PAR::parse ( PAR::parser parser )
     line_variables.header_entry =
         min::NULL_STUB;  // Just for safety.
 
-    parser->at_head = true;
+    parser->at_paragraph_beginning = true;
     line_variables.selectors = ~ PAR::CONTINUING_OPT;
 	// line_variables.paragraph_header_selectors are
 	// installed as line_variables.selectors just
@@ -1282,7 +1282,7 @@ void PAR::parse ( PAR::parser parser )
 	}
 	first_lexeme = false;
 
-	if ( parser->at_head
+	if ( parser->at_paragraph_beginning
 	     &&
 	     ! ( line_variables.selectors
 		 &
@@ -1354,6 +1354,11 @@ void PAR::parse ( PAR::parser parser )
 	}
 
 	line_variables.previous = current->previous;
+	line_variables.at_paragraph_beginning =
+	    (    current->previous->type
+	      == LEXSTD::indent_t
+	      &&
+	      parser->at_paragraph_beginning );
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,

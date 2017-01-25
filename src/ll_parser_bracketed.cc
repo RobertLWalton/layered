@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 23 06:29:49 EST 2017
+// Date:	Wed Jan 25 00:05:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2019,7 +2019,7 @@ NEXT_TOKEN:
 	    if ( previous_t == LEXSTD::line_break_t
 	         &&
 		 t == LEXSTD::line_break_t )
-		parser->at_head = true;
+		parser->at_paragraph_beginning = true;
 	}
 
 	// Delete what has been skipped.
@@ -2337,7 +2337,7 @@ NEXT_TOKEN:
 		        break;
 		}
 
-		parser->at_head = true;
+		parser->at_paragraph_beginning = true;
 		line_variables.selectors = ~
 		    PAR::CONTINUING_OPT;
 		    // line_variables.paragraph_header_
@@ -2347,7 +2347,7 @@ NEXT_TOKEN:
 		    // inserted.
 		while ( true )
 		{
-		    if ( parser->at_head
+		    if ( parser->at_paragraph_beginning
 		         &&
 		         ! ( line_variables.selectors
 			     &
@@ -2373,6 +2373,13 @@ NEXT_TOKEN:
 
 		    line_variables.previous =
 		        current->previous;
+		    line_variables
+		        .at_paragraph_beginning =
+			  (    current->previous->type
+			    == LEXSTD::indent_t
+			    &&
+			    parser->
+			      at_paragraph_beginning );
 		    separator_found =
 		      BRA::
 		       parse_bracketed_subexpression
@@ -2580,7 +2587,7 @@ NEXT_TOKEN:
 		   min::MISSING_POSITION;
 	else if ( current->type == LEXSTD::indent_t )
 	{
-	    if ( ( parser->at_head
+	    if ( ( parser->at_paragraph_beginning
 	           &&
 		   start_previous->next != current )
 	         &&
@@ -2641,7 +2648,7 @@ NEXT_TOKEN:
 	      &&
 	      current->type != LEXSTD::line_break_t );
 
-	parser->at_head = false;
+	parser->at_paragraph_beginning = false;
 
 	// Process quoted strings.
 	//

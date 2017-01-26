@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 06:17:02 EST 2017
+// Date:	Thu Jan 26 01:31:32 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1785,7 +1785,8 @@ PREFIX_PARSE:
 
 		    selectors =
 			line_variables->
-			    paragraph_selectors;
+			    indentation_selectors;
+			    // == paragraph_selectors.
 		    TAB::key_table prefix_table =
 			bracketed_pass->prefix_table;
 		    BRA::prefix new_prefix_entry =
@@ -2030,7 +2031,8 @@ PREFIX_PARSE:
 			    prefix_entry->group;
 			selectors =
 			    line_variables->
-			        paragraph_selectors;
+			        indentation_selectors;
+			    // == paragraph_selectors.
 		    }
 		    cstack.prefix_type =
 		    prefix_type =
@@ -2223,22 +2225,22 @@ NEXT_TOKEN:
 		BRA::line_variables line_variables;
 
 		line_variables
-		    .paragraph_lexical_master =
+		    .indentation_lexical_master =
 		line_variables.line_lexical_master =
 		        indentation_found->
 			    lexical_master;
 		line_variables
-		    .paragraph_selectors =
+		    .indentation_selectors =
 		line_variables
 		    .paragraph_header_selectors =
 		          // Doubles as line_selectors.
 		        new_selectors;
 		line_variables
-		    .paragraph_implied_header =
+		    .indentation_implied_header =
 		line_variables.line_implied_header =
 		        min::MISSING();
 		line_variables
-		    .paragraph_header_entry =
+		    .indentation_header_entry =
 		line_variables.line_header_entry =
 		        min::NULL_STUB;
 			// Just for safety.
@@ -2296,26 +2298,27 @@ NEXT_TOKEN:
 		         == PAR::paragraph_lexeme
 			 &&
 			    line_variables
-			      .paragraph_implied_header
+			     .indentation_implied_header
 			 == min::MISSING() )
 		    {
 			// line_variables
-			//   .paragraph_selectors =
+			//   .indentation_selectors =
 			//     new_selectors;
 			// line_variables
-			//   .paragraph_lexical_master =
-			//     indentation_found->
-			//       lexical_master;
-			//        // Set above.
+			//   .indentation_lexical_master
+			//     = indentation_found->
+			//         lexical_master;
+			//   // Set above.
+			//
 			line_variables
-			  .paragraph_implied_header =
+			  .indentation_implied_header =
 			    implied_header;
 			line_variables
-			  .paragraph_header_entry =
+			  .indentation_header_entry =
 			    header_entry;
 			line_variables
-			  .paragraph_header_selectors =
-			    header_selectors;
+			  .indentation_header_selectors
+			    = header_selectors;
 
 			if (    header_entry->
 			            lexical_master
@@ -2347,28 +2350,29 @@ NEXT_TOKEN:
 
 			if (
 			     line_variables
-			       .paragraph_implied_header
+			     .indentation_implied_header
 			  == min::MISSING() )
 			{
 			  // line_variables
-			  //    .paragraph_selectors =
+			  //    .indentation_selectors =
 			  //        new_selectors;
 			  // line_variables
-			  //    .paragraph_lexical_
+			  //    .indentation_lexical_
 			  //               master =
 			  //        indentation_found->
 			  //            lexical_master;
 			  //    // Set above.
 			  line_variables
-			   .paragraph_implied_header =
+			   .indentation_implied_header =
 			      line_variables
 			        .line_implied_header;
 			  line_variables
-			   .paragraph_header_entry =
+			   .indentation_header_entry =
 			      line_variables
 			        .line_header_entry;
 			  line_variables
-			   .paragraph_header_selectors =
+			   .indentation_header_selectors
+			      =
 			      line_variables
 			        .line_header_selectors;
 			}
@@ -2376,7 +2380,7 @@ NEXT_TOKEN:
 		    }
 		    else
 		    if (    line_variables
-			      .paragraph_implied_header
+			     .indentation_implied_header
 			 == min::MISSING() )
 		    {
 			min::phrase_position pos =
@@ -2400,6 +2404,19 @@ NEXT_TOKEN:
 		        break;
 		}
 
+		line_variables
+		    .paragraph_implied_header =
+		        line_variables
+			  .indentation_implied_header;
+		line_variables
+		    .paragraph_header_entry =
+		        line_variables
+			  .indentation_header_entry;
+		line_variables
+		    .paragraph_header_selectors =
+		        line_variables
+			  .indentation_header_selectors;
+
 		parser->at_paragraph_beginning = true;
 		line_variables.selectors = ~
 		    PAR::CONTINUING_OPT;
@@ -2418,10 +2435,13 @@ NEXT_TOKEN:
 		    {
 			line_variables.lexical_master =
 			  line_variables
-			    .paragraph_lexical_master;
+			    .indentation_lexical_master;
+			    // == .paragraph_lexical
+			    //              _master
 			line_variables.selectors =
 			  line_variables
-			    .paragraph_selectors;
+			    .indentation_selectors;
+			    // == .paragraph_selectors
 			line_variables.implied_header =
 			  line_variables
 			    .paragraph_implied_header;

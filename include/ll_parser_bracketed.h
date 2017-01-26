@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:45:24 EST 2017
+// Date:	Thu Jan 26 01:17:26 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1073,16 +1073,32 @@ struct line_variables
 	// entry and selectors above.
 
     // Data set by the indentation_mark that introduced
-    // the indented paragraph, or by an explicit
-    // paragraph header in the indented paragraph that
-    // has a sticky flag.  This data is copied to the
-    // logical line data above at the beginning of a
-    // logical line in paragraph beginning position
-    // unless the `continuing' flag in `selectors' above
-    // is set.
+    // the indented paragraph.  This data is copied to
+    // the paragraph data below at the beginning of the
+    // indented paragraph or when an explicit paragraph
+    // header WITHOUT the STICKY flag is encountered.
     //
-    min::uns32 paragraph_lexical_master;
-    ll::parser::table::flags paragraph_selectors;
+    min::uns32
+        indentation_lexical_master;
+    ll::parser::table::flags
+        indentation_selectors;
+    min::gen indentation_implied_header;
+    ll::parser::bracketed::prefix
+        indentation_header_entry;
+    ll::parser::table::flags
+        indentation_header_selectors;
+
+    // Data copied from indentation data above or set by
+    // an explicit header with the STICKY flag.  This
+    // data is copied to the logical line data above at
+    // the beginning of a logical line in paragraph
+    // beginning position unless the CONTINUING flag in
+    // `selectors' above is set.
+    //
+    // min::uns32 paragraph_lexical_master;
+    //      This == indentation_lexical_master above.
+    // ll::parser::table::flags paragraph_selectors;
+    //      This == indentation_selectors above.
     min::gen paragraph_implied_header;
     ll::parser::bracketed::prefix
         paragraph_header_entry;

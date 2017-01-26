@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:44:35 EST 2017
+// Date:	Thu Jan 26 01:27:32 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1211,17 +1211,19 @@ void PAR::parse ( PAR::parser parser )
 
     BRA::line_variables line_variables;
 
-    line_variables.paragraph_lexical_master =
+    line_variables.indentation_lexical_master =
     line_variables.line_lexical_master =
     line_variables.lexical_master =
         LEX::MISSING_MASTER;
-    line_variables.paragraph_selectors =
+    line_variables.indentation_selectors =
     line_variables.selectors =
         parser->selectors;
+    line_variables.indentation_implied_header =
     line_variables.paragraph_implied_header =
     line_variables.line_implied_header =
     line_variables.implied_header =
         min::MISSING();
+    line_variables.indentation_header_entry =
     line_variables.paragraph_header_entry =
     line_variables.line_header_entry =
     line_variables.header_entry =
@@ -1290,10 +1292,12 @@ void PAR::parse ( PAR::parser parser )
 	{
 	    line_variables.lexical_master =
 	      line_variables
-		.paragraph_lexical_master;
+		.indentation_lexical_master;
+		// == .paragraph_lexical_master.
 	    line_variables.selectors =
 	      line_variables
-		.paragraph_selectors;
+		.indentation_selectors;
+		// == .paragraph_selectors.
 	    line_variables.implied_header =
 	      line_variables
 		.paragraph_implied_header;
@@ -1333,18 +1337,22 @@ void PAR::parse ( PAR::parser parser )
 		    PAR::ALWAYS_SELECTOR;
 
 		line_variables
-		    .paragraph_lexical_master =
+		    .indentation_lexical_master =
 		line_variables.line_lexical_master =
 		line_variables.lexical_master =
 		    LEX::MISSING_MASTER;
-		line_variables.paragraph_selectors =
+		line_variables.indentation_selectors =
 		line_variables.selectors =
 		    parser->selectors;
+		line_variables
+		    .indentation_implied_header =
 		line_variables
 		    .paragraph_implied_header =
 		line_variables.line_implied_header =
 		line_variables.implied_header =
 		    min::MISSING();
+		line_variables
+		    .indentation_header_entry =
 		line_variables
 		    .paragraph_header_entry =
 		line_variables.line_header_entry =

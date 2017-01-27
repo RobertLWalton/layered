@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 01:27:32 EST 2017
+// Date:	Fri Jan 27 04:22:53 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1210,30 +1210,28 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
 
     BRA::line_variables line_variables;
+    BRA::line_data & line_data = line_variables.current;
 
-    line_variables.indentation_lexical_master =
-    line_variables.line_lexical_master =
-    line_variables.lexical_master =
+    line_data.lexical_master =
         LEX::MISSING_MASTER;
-    line_variables.indentation_selectors =
-    line_variables.selectors =
+    line_data.selectors =
         parser->selectors;
-    line_variables.indentation_implied_header =
-    line_variables.paragraph_implied_header =
-    line_variables.line_implied_header =
-    line_variables.implied_header =
+    line_data.implied_header =
         min::MISSING();
-    line_variables.indentation_header_entry =
-    line_variables.paragraph_header_entry =
-    line_variables.line_header_entry =
-    line_variables.header_entry =
+    line_data.header_entry =
         min::NULL_STUB;  // Just for safety.
+    line_variables.paragraph =
+    line_variables.implied_paragraph =
+    line_variables.indentation_paragraph =
+    line_variables.indentation_implied_paragraph =
+        line_variables.current;
 
     parser->at_paragraph_beginning = true;
-    line_variables.selectors = ~ PAR::CONTINUING_OPT;
-	// line_variables.paragraph_header_selectors are
-	// installed as line_variables.selectors just
-	// after implicit paragraph header is inserted.
+    line_variables.current.selectors =
+        ~ PAR::CONTINUING_OPT;
+	// line_variables.current.selectors are replaced
+	// by line_variables.paragraph.selectors near
+	// beginning of loop.
     while ( true )
     {
         if (   parser->error_count
@@ -1286,34 +1284,17 @@ void PAR::parse ( PAR::parser parser )
 
 	if ( parser->at_paragraph_beginning
 	     &&
-	     ! ( line_variables.selectors
+	     ! ( line_variables.current.selectors
 		 &
 		 PAR::CONTINUING_OPT ) )
-	{
-	    line_variables.lexical_master =
-	      line_variables
-		.indentation_lexical_master;
-		// == .paragraph_lexical_master.
-	    line_variables.selectors =
-	      line_variables
-		.indentation_selectors;
-		// == .paragraph_selectors.
-	    line_variables.implied_header =
-	      line_variables
-		.paragraph_implied_header;
-	    line_variables.header_entry =
-	      line_variables
-		.paragraph_header_entry;
-	    line_variables
-		.header_selectors =
-	      line_variables
-		.paragraph_header_selectors;
-	}
+	    line_variables.current =
+	        line_variables.paragraph;
 
 	// Get subexpression.  First is the first token
 	// of the subexpression.
 
-	TAB::flags selectors = line_variables.selectors;
+	TAB::flags selectors =
+	    line_variables.current.selectors;
 	{
 	    PAR::token current_save = current;
 	    TAB::key_prefix prefix =
@@ -1335,29 +1316,6 @@ void PAR::parse ( PAR::parser parser )
 		    context->new_selectors.xor_flags;
 		selectors |=
 		    PAR::ALWAYS_SELECTOR;
-
-		line_variables
-		    .indentation_lexical_master =
-		line_variables.line_lexical_master =
-		line_variables.lexical_master =
-		    LEX::MISSING_MASTER;
-		line_variables.indentation_selectors =
-		line_variables.selectors =
-		    parser->selectors;
-		line_variables
-		    .indentation_implied_header =
-		line_variables
-		    .paragraph_implied_header =
-		line_variables.line_implied_header =
-		line_variables.implied_header =
-		    min::MISSING();
-		line_variables
-		    .indentation_header_entry =
-		line_variables
-		    .paragraph_header_entry =
-		line_variables.line_header_entry =
-		line_variables.header_entry =
-		    min::NULL_STUB;  // Just for safety.
 	    }
 	}
 
@@ -1465,6 +1423,13 @@ void PAR::parse ( PAR::parser parser )
 	    result = min::ERROR();
 	else if ( maybe_parser_command )
 	{
+	    line_variables.current =
+	    line_variables.paragraph =
+		line_variables.indentation_paragraph;
+	    line_variables.implied_paragraph =
+		line_variables
+		    .indentation_implied_paragraph;
+
 	    min::obj_vec_ptr vp
 		( current->previous->value );
 	    if ( vp != NULL_STUB )

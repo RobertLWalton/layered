@@ -1582,12 +1582,12 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p2|{l2|this is paragraph 7|l2}|p2}
+    this is paragraph 7
     line ###:
 this is paragraph 7
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {l2|and another line|l2}
+    and another line
     line ###:
 and another line
 ^^^^^^^^^^^^^^^^
@@ -1622,7 +1622,7 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p3|this is paragraph 11|p3}
+    this is paragraph 11
     line ###:
 this is paragraph 11
 ^^^^^^^^^^^^^^^^^^^^

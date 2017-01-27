@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 01:31:32 EST 2017
+// Date:	Fri Jan 27 07:19:56 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1389,15 +1389,17 @@ min::position BRA::parse_bracketed_subexpression
 	if (    start_previous
 	     == line_variables->previous )
 	{
+	    BRA::line_data & line_data =
+	        line_variables->current;
 	    min::gen implied_header =
-	        line_variables->implied_header;
+	        line_data.implied_header;
 	    if ( implied_header == min::MISSING() )
 	        goto NEXT_TOKEN;
 
 	    prefix_entry =
-	        line_variables->header_entry;
+	        line_data.header_entry;
 	    prefix_selectors =
-	        line_variables->header_selectors;
+	        line_data.header_selectors;
 	    MIN_REQUIRE
 	        ( prefix_entry != min::NULL_STUB );
 	    prefix_group = prefix_entry->group;
@@ -1416,20 +1418,8 @@ min::position BRA::parse_bracketed_subexpression
 	        current->position.begin;
 
 	    if ( prefix_group == PAR::paragraph_lexeme )
-	    {
-		line_variables->lexical_master =
-		    line_variables->line_lexical_master;
-		line_variables->selectors =
-		    line_variables->
-			paragraph_header_selectors;
-		line_variables->implied_header =
-		    line_variables->line_implied_header;
-		line_variables->header_entry =
-		    line_variables->line_header_entry;
-		line_variables->header_selectors =
-		    line_variables->
-		        line_header_selectors;
-	    }
+		line_variables->current =
+		    line_variables->implied_paragraph;
 
 	    goto PREFIX_PARSE;
 	}
@@ -1784,9 +1774,8 @@ PREFIX_PARSE:
 		    // Fix things up.
 
 		    selectors =
-			line_variables->
-			    indentation_selectors;
-			    // == paragraph_selectors.
+			line_variables->paragraph
+			               .selectors;
 		    TAB::key_table prefix_table =
 			bracketed_pass->prefix_table;
 		    BRA::prefix new_prefix_entry =
@@ -1838,13 +1827,15 @@ PREFIX_PARSE:
 		    prefix_selectors |=
 		        PAR::ALWAYS_SELECTOR;
 
-		    line_variables->lexical_master =
+		    BRA::line_data & line_data =
+		        line_variables->current;
+		    line_data.lexical_master =
 		        prefix_entry->lexical_master;
-		    line_variables->selectors =
+		    line_data.selectors =
 		        prefix_selectors;
-		    line_variables->implied_header =
+		    line_data.implied_header =
 		        min::MISSING();
-		    line_variables->header_entry =
+		    line_data.header_entry =
 		        min::NULL_STUB;
 			// Just for safety.
 
@@ -1888,52 +1879,37 @@ PREFIX_PARSE:
 				        .xor_flags;
 			    header_selectors |=
 				PAR::ALWAYS_SELECTOR;
-			    line_variables->
-			            implied_header =
+			    line_data.implied_header =
 				implied_header;
-			    line_variables->
-			            header_entry =
+			    line_data.header_entry =
 				header_entry;
-			    line_variables->
-				    header_selectors =
+			    line_data.header_selectors =
 				header_selectors;
 			}
 		    }
 
-		    if (   line_variables->selectors
+		    if (   line_variables->current
+		                          .selectors
 		         & PAR::STICKY_OPT )
 		    {
 			line_variables->
-			        line_lexical_master =
-			    line_variables->
-			        lexical_master;
-			line_variables->
-			        line_implied_header =
-			    line_variables->
-			        implied_header;
-			line_variables->
-			        line_header_entry =
-			    line_variables->
-			        header_entry;
-			line_variables->
-			        line_header_selectors =
-			    line_variables->
-			        header_selectors;
+			        implied_paragraph =
+			    line_variables->current;
 
 			line_variables->
-			    paragraph_implied_header =
+			    paragraph.implied_header =
 			  prefix->value;
 			line_variables->
-			    paragraph_header_entry =
+			    paragraph.header_entry =
 			  prefix_entry;
 			line_variables->
-			    paragraph_header_selectors =
+			    paragraph.header_selectors =
 			  prefix_selectors;
 
 			// The following causes compact_
 			// prefix_separator to make a
 			// copy of prefix->value, so
-			// paragraph_implied_header
+			// paragraph.implied_header
 			// remains unchanged.
 			//
 			// Changing prefix->type to
@@ -1948,6 +1924,16 @@ PREFIX_PARSE:
 			      == prefix );
 			prefix->type =
 			    PAR::IMPLIED_PREFIX;
+		    }
+		    else
+		    {
+			line_variables->paragraph =
+			    line_variables->
+			        indentation_paragraph;
+			line_variables->
+				implied_paragraph =
+			    line_variables->
+			  indentation_implied_paragraph;
 		    }
 		}
 
@@ -2030,9 +2016,8 @@ PREFIX_PARSE:
 			prefix_group =
 			    prefix_entry->group;
 			selectors =
-			    line_variables->
-			        indentation_selectors;
-			    // == paragraph_selectors.
+			    line_variables->paragraph
+			                   .selectors;
 		    }
 		    cstack.prefix_type =
 		    prefix_type =
@@ -2223,25 +2208,24 @@ NEXT_TOKEN:
 		// Loop to parse paragraph lines.
 		//
 		BRA::line_variables line_variables;
+		BRA::line_data & paragraph_data =
+		    line_variables
+		        .indentation_paragraph;
+		BRA::line_data & implied_data =
+		    line_variables
+		        .indentation_implied_paragraph;
 
-		line_variables
-		    .indentation_lexical_master =
-		line_variables.line_lexical_master =
-		        indentation_found->
-			    lexical_master;
-		line_variables
-		    .indentation_selectors =
-		line_variables
-		    .paragraph_header_selectors =
-		          // Doubles as line_selectors.
+		paragraph_data.lexical_master =
+		implied_data.lexical_master =
+		    indentation_found->lexical_master;
+		paragraph_data.selectors =
+		implied_data.selectors =
 		        new_selectors;
-		line_variables
-		    .indentation_implied_header =
-		line_variables.line_implied_header =
+		paragraph_data.implied_header =
+		implied_data.implied_header =
 		        min::MISSING();
-		line_variables
-		    .indentation_header_entry =
-		line_variables.line_header_entry =
+		paragraph_data.header_entry =
+		implied_data.header_entry =
 		        min::NULL_STUB;
 			// Just for safety.
 
@@ -2297,36 +2281,23 @@ NEXT_TOKEN:
 		    if (    group
 		         == PAR::paragraph_lexeme
 			 &&
-			    line_variables
-			     .indentation_implied_header
+			    paragraph_data
+			        .implied_header
 			 == min::MISSING() )
 		    {
-			// line_variables
-			//   .indentation_selectors =
-			//     new_selectors;
-			// line_variables
-			//   .indentation_lexical_master
-			//     = indentation_found->
-			//         lexical_master;
-			//   // Set above.
-			//
-			line_variables
-			  .indentation_implied_header =
+			paragraph_data.implied_header =
 			    implied_header;
-			line_variables
-			  .indentation_header_entry =
+			paragraph_data.header_entry =
 			    header_entry;
-			line_variables
-			  .indentation_header_selectors
+			paragraph_data.header_selectors
 			    = header_selectors;
 
 			if (    header_entry->
 			            lexical_master
 			     != LEX::MISSING_MASTER )
-			    line_variables
-				.line_lexical_master =
-				    header_entry->
-					lexical_master;
+			    implied_data.lexical_master
+			        = header_entry->
+				      lexical_master;
 
 			implied_header =
 			    header_entry->
@@ -2338,49 +2309,35 @@ NEXT_TOKEN:
 		    else if (    group
 		              == PAR::line_lexeme )
 		    {
-			line_variables
-			    .line_implied_header =
+			implied_data.implied_header =
 			        implied_header;
-			line_variables
-			    .line_header_entry =
+			implied_data.header_entry =
 			        header_entry;
-			line_variables
-			    .line_header_selectors =
+			implied_data.header_selectors =
 			        header_selectors;
 
-			if (
-			     line_variables
-			     .indentation_implied_header
-			  == min::MISSING() )
+			if (    paragraph_data
+			            .implied_header
+			     == min::MISSING() )
 			{
-			  // line_variables
-			  //    .indentation_selectors =
-			  //        new_selectors;
-			  // line_variables
-			  //    .indentation_lexical_
-			  //               master =
-			  //        indentation_found->
-			  //            lexical_master;
-			  //    // Set above.
-			  line_variables
-			   .indentation_implied_header =
-			      line_variables
-			        .line_implied_header;
-			  line_variables
-			   .indentation_header_entry =
-			      line_variables
-			        .line_header_entry;
-			  line_variables
-			   .indentation_header_selectors
-			      =
-			      line_variables
-			        .line_header_selectors;
+			  paragraph_data
+			   .implied_header =
+			      implied_data
+			        .implied_header;
+			  paragraph_data
+			   .header_entry =
+			      implied_data
+			        .header_entry;
+			  paragraph_data
+			   .header_selectors =
+			      implied_data
+			        .header_selectors;
 			}
 			break;
 		    }
 		    else
-		    if (    line_variables
-			     .indentation_implied_header
+		    if (    paragraph_data
+			        .implied_header
 			 == min::MISSING() )
 		    {
 			min::phrase_position pos =
@@ -2404,55 +2361,30 @@ NEXT_TOKEN:
 		        break;
 		}
 
-		line_variables
-		    .paragraph_implied_header =
-		        line_variables
-			  .indentation_implied_header;
-		line_variables
-		    .paragraph_header_entry =
-		        line_variables
-			  .indentation_header_entry;
-		line_variables
-		    .paragraph_header_selectors =
-		        line_variables
-			  .indentation_header_selectors;
+		line_variables.paragraph =
+		    line_variables
+		        .indentation_paragraph;
+		line_variables.implied_paragraph =
+		    line_variables
+		        .indentation_implied_paragraph;
 
 		parser->at_paragraph_beginning = true;
-		line_variables.selectors = ~
+		line_variables.current.selectors = ~
 		    PAR::CONTINUING_OPT;
-		    // line_variables.paragraph_header_
-		    // selectors is installed as line_
-		    // variables.selectors just after
-		    // implicit paragraph header is
-		    // inserted.
+		    // line_variables.current.selectors
+		    // is replaced by line_variables.
+		    // paragraph.selectors at beginning
+		    // of loop.
 		while ( true )
 		{
 		    if ( parser->at_paragraph_beginning
 		         &&
-		         ! ( line_variables.selectors
+		         ! ( line_variables.current
+			                   .selectors
 			     &
 			     PAR::CONTINUING_OPT ) )
-		    {
-			line_variables.lexical_master =
-			  line_variables
-			    .indentation_lexical_master;
-			    // == .paragraph_lexical
-			    //              _master
-			line_variables.selectors =
-			  line_variables
-			    .indentation_selectors;
-			    // == .paragraph_selectors
-			line_variables.implied_header =
-			  line_variables
-			    .paragraph_implied_header;
-			line_variables.header_entry =
-			  line_variables
-			    .paragraph_header_entry;
-			line_variables
-			    .header_selectors =
-			  line_variables
-			    .paragraph_header_selectors;
-		    }
+			line_variables.current =
+			    line_variables.paragraph;
 
 		    line_variables.previous =
 		        current->previous;
@@ -2463,7 +2395,8 @@ NEXT_TOKEN:
 		      BRA::
 		       parse_bracketed_subexpression
 			    ( parser,
-			      line_variables.selectors,
+			      line_variables.current
+			                    .selectors,
 			      current,
 			      paragraph_indent,
 				new_selectors

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 01:17:26 EST 2017
+// Date:	Fri Jan 27 03:37:29 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1023,6 +1023,37 @@ inline bool is_closed ( ll::parser::bracketed
            && p->closing_first != min::NULL_STUB;
 }
 
+struct line_data
+{
+    // Data used to initialize parsing of a logical
+    // line.
+
+    min::uns32 lexical_master;
+        // The lexical master to be set at the start of
+	// the line, or MISSING_MASTER if none.
+    ll::parser::table::flags selectors;
+        // The selectors to be set at the beginning of
+	// the line.
+    min::gen implied_header;
+        // The header implied at the start of the line,
+	// or MISSING if none.
+    ll::parser::bracketed::prefix header_entry;
+        // The prefix table entry associated with the
+	// implied_header, as found using the selectors
+	// member above.  NOT USED if implied_header
+	// is MISSING.  This is a cache and can be
+	// recomputed from implied_header and selectors
+	// above.
+    ll::parser::table::flags header_selectors;
+        // `selectors' above modified by the new_selec-
+	// tors member of the header_entry.  Used to
+	// parse the prefix-n-list headed by the
+	// implied_header if that is not MISSING.  NOT
+	// USED if implied_header is MISSING.  This is
+	// a cache and can be recomputed from header_
+	// entry and selectors above.
+};
+
 struct line_variables
     //
     // The line_variables structure contains information
@@ -1040,88 +1071,39 @@ struct line_variables
 	// at_paragraph_beginning is true at the
 	// beginning of the logical line.
 
-    // Logical line data, used to parse one logical
-    // line.  Can be modified by an explicit paragraph
-    // header found at the beginning of the line, but
-    // the modification will only affect subsequent
-    // logical lines.
+    // Logical line data, used to parse next logical
+    // line.  Reset from paragraph data before being
+    // used for line in paragraph beginning position
+    // unless CONTINUING flag in current.selectors is
+    // on.  Reset by explicit paragraph header.
     //
-    min::uns32 lexical_master;
-        // The lexical master to be set at the start of
-	// the next logical line, or MISSING_MASTER if
-	// none.
-    ll::parser::table::flags selectors;
-        // The selectors to be used to parse the next
-	// logical line.
-    min::gen implied_header;
-        // The header implied at the start of the next
-	// logical line, or MISSING if none.
-    ll::parser::bracketed::prefix header_entry;
-        // The prefix table entry associated with the
-	// implied_header, as found using the selectors
-	// member above.  NOT USED if implied_header
-	// is MISSING.  This is a cache and can be
-	// recomputed from implied_header and selectors
-	// above.
-    ll::parser::table::flags header_selectors;
-        // `selectors' above modified by the new_selec-
-	// tors member of the header_entry.  Used to
-	// parse the prefix-n-list headed by the
-	// implied_header if that is not MISSING.  NOT
-	// USED if implied_header is MISSING.  This is
-	// a cache and can be recomputed from header_
-	// entry and selectors above.
+    line_data current;
 
-    // Data set by the indentation_mark that introduced
-    // the indented paragraph.  This data is copied to
-    // the paragraph data below at the beginning of the
-    // indented paragraph or when an explicit paragraph
-    // header WITHOUT the STICKY flag is encountered.
+    // Logical line data copied to `current' just before
+    // the later is used for a logical line in paragraph
+    // beginning position.  Reset by explicit paragraph
+    // header (copied from indentation_paragraph if the
+    // explicit paragraph header does NOT have STICKY
+    // flag).
     //
-    min::uns32
-        indentation_lexical_master;
-    ll::parser::table::flags
-        indentation_selectors;
-    min::gen indentation_implied_header;
-    ll::parser::bracketed::prefix
-        indentation_header_entry;
-    ll::parser::table::flags
-        indentation_header_selectors;
+    line_data paragraph;
 
-    // Data copied from indentation data above or set by
-    // an explicit header with the STICKY flag.  This
-    // data is copied to the logical line data above at
-    // the beginning of a logical line in paragraph
-    // beginning position unless the CONTINUING flag in
-    // `selectors' above is set.
+    // Logical line data copied to `current' just after
+    // implied paragraph header is inserted at beginning
+    // of a logical line.  This data can be derived from
+    // the paragraph line data above, and is therefore
+    // a cache of that.
     //
-    // min::uns32 paragraph_lexical_master;
-    //      This == indentation_lexical_master above.
-    // ll::parser::table::flags paragraph_selectors;
-    //      This == indentation_selectors above.
-    min::gen paragraph_implied_header;
-    ll::parser::bracketed::prefix
-        paragraph_header_entry;
-    ll::parser::table::flags paragraph_header_selectors;
+    line_data implied_paragraph;
 
-    // Data set by the indentation_mark that introduced
-    // the indented paragraph, or by an explicit
-    // paragraph header in the indented paragraph.  This
-    // data is copied to the logical line data above
-    // just after in implicit paragraph header is
-    // inserted.  It is in effect a cache of data that
-    // can be computed from the paragraph data
-    // immediately above, starting with the paragraph_
-    // header_entry and using its implied_subprefix,
-    // lexical_master, and new_selectors (combined with
-    // paragraph_header_selectors above).
+    // Values of paragraph and implied_paragraph data at
+    // beginning of current indented paragraph.  Used to
+    // reset paragraph and implied_paragraph data when
+    // an explicit paragraph header WITHOUT the STICKY
+    // flag is found.
     //
-    min::uns32 line_lexical_master;
-    // ll::parser::table::flags line_selectors;
-    //     This == paragraph_header_selectors above.
-    min::gen line_implied_header;
-    ll::parser::bracketed::prefix line_header_entry;
-    ll::parser::table::flags line_header_selectors;
+    line_data indentation_paragraph;
+    line_data indentation_implied_paragraph;
 };
 
 min::position parse_bracketed_subexpression

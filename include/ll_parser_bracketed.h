@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 27 03:37:29 EST 2017
+// Date:	Sat Jan 28 00:06:42 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1070,6 +1070,9 @@ struct line_variables
 	// beginning position.  I.e., parser->
 	// at_paragraph_beginning is true at the
 	// beginning of the logical line.
+    ll::parser::bracketed::line_sep line_sep;
+        // Line separator that can end the logical line
+	// if EALSEP_OPT is set, or NULL_STUB if none.
 
     // Logical line data, used to parse next logical
     // line.  Reset from paragraph data before being
@@ -1111,8 +1114,6 @@ min::position parse_bracketed_subexpression
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & current,
 	  min::int32 indent,
-	  ll::parser::bracketed::line_sep
-	      line_sep,
 	  ll::parser::bracketed::typed_data
 	      * typed_data,
 	  ll::parser::bracketed::line_variables

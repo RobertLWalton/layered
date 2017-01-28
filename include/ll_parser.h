@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 25 00:04:48 EST 2017
+// Date:	Sat Jan 28 11:49:20 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1707,6 +1707,20 @@ void compact
 	  ll::parser::attr * attributes = NULL,
 	  min::uns32 n = 0 );
 
+// Compact logical line, giving it the min::LOGICAL_LINE
+// .initiator and either the "<NL>" .terminator if
+// separator_found is false, or the line_sep->label
+// .terminator otherwise.
+//
+void compact_logical_line
+	( ll::parser::parser parser,
+	  ll::parser::pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  const min::position & separator_found,
+	  ll::parser::table::root line_sep,
+	  ll::parser::table::flags trace_flags );
 
 // Given an expression beginning with first and ending
 // just before next, in which the first token is a

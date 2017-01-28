@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 28 00:08:44 EST 2017
+// Date:	Sat Jan 28 13:01:45 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1951,6 +1951,36 @@ PREFIX_PARSE:
 		    cstack.closing_first;
 		if ( next == min::NULL_STUB )
 		    next = current;
+
+		if (    prefix_group
+		     == PAR::paragraph_lexeme
+		     &&
+		     ( ( prefix_selectors
+		         &
+			 (   PAR::EALBREAK_OPT
+			   + PAR::EALEINDENT_OPT
+			   + PAR::EALTINDENT_OPT
+			   + PAR::EALSEP_OPT ) )
+		       != 0 )
+		     &&
+		     prefix->next != next
+		     &&
+		     ( prefix->next->next != next
+		       ||
+		          prefix->next->value_type
+		       != PAR::line_lexeme ) )
+		{
+		    PAR::token first = prefix->next;
+		    PAR::compact_logical_line
+		        ( parser, bracketed_pass->next,
+		          prefix_selectors,
+		          first, next,
+			  separator_found,
+			  (TAB::root)
+			  line_variables->line_sep,
+			  trace_flags );
+		}
+
 		if ( compact_prefix_separator
 		         ( parser, bracketed_pass->next,
 		           prefix_selectors,
@@ -2418,8 +2448,11 @@ NEXT_TOKEN:
 		    }
 
 		    // Compact line subsubexp if it
-		    // is not empty or has a
-		    // separator.
+		    // is has a separator or it is not
+		    // empty and not a single element
+		    // subsubexp whose element has
+		    // prefix group `paragraph' or
+		    // `line'.
 		    //
 		    if ( separator_found
 		         ||
@@ -2436,55 +2469,16 @@ NEXT_TOKEN:
 			   )
 			 )
 		       )
-		    {
-			min::phrase_position
-			    position;
-			position.begin =
-			    first->position.begin;
-			position.end =
-			    next->previous
-				->position.end;
-
-			PAR::attr attributes[2];
-			unsigned n = 0;
-			attributes[n++] =
-			    PAR::attr
-			      ( min::dot_initiator,
-				min::LOGICAL_LINE() );
-
-			if ( separator_found )
-			{
-			    min::gen terminator =
-			      indentation_found
-			      ->line_sep->label;
-
-			    attributes[n++] =
-				PAR::attr
-				  ( min::
-				    dot_terminator,
-				    terminator );
-			    position.end =
-				separator_found;
-			}
-			else
-			    attributes[n++] =
-				PAR::attr
-				  ( min::dot_terminator,
-				    PAR::new_line );
-
-			PAR::compact
+			PAR::compact_logical_line
 			    ( parser,
 			      bracketed_pass->next,
 			      new_selectors,
 			      first, next,
-			      position,
-			      trace_flags,
-			      PAR::BRACKETING,
-			      n, attributes );
-
-			value_type_ref(first) =
-			    min::LOGICAL_LINE();
-		    }
+			      separator_found,
+			      (TAB::root)
+			      indentation_found->
+			          line_sep,
+			      trace_flags );
 
 		    // See if there are more lines
 		    // in the paragraph.

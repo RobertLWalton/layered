@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 28 00:08:13 EST 2017
+// Date:	Sat Jan 28 13:00:13 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1371,47 +1371,18 @@ void PAR::parse ( PAR::parser parser )
 		      first->value_type
 		   != PAR::line_lexeme ) ) ) )
 	{
-
-	    min::phrase_position position =
-	        { first->position.begin,
-	          current->previous->position.end };
-
-	    PAR::attr attributes[2];
-	    unsigned n = 0;
-	    attributes[n++] =
-		PAR::attr ( min::dot_initiator,
-	                    min::LOGICAL_LINE() );
-
-	    if ( separator_found )
-	    {
-	        // If subexpression ends with an inden-
-		// tation separator (e.g., `;'), delete
-		// the separator from the subexpression
-		// and make it into the terminator.
-		//
-		min::gen terminator =
-		    parser->top_level_indentation_mark
-			     ->line_sep->label;
-		attributes[n++] =
-		    PAR::attr ( min::dot_terminator,
-				terminator );
-		position.end = separator_found;
-	    }
-	    else
-		attributes[n++] =
-		    PAR::attr ( min::dot_terminator,
-	                        PAR::new_line );
-
-	    min::gen g = first->value;
 	    maybe_parser_command =
-	        ( g == PAR::parser_lexeme );
-
-	    PAR::compact
+	        ( first->value == PAR::parser_lexeme );
+	    PAR::compact_logical_line
 		( parser, parser->pass_stack->next,
 	          selectors,
-		  first, current, position,
-		  trace_flags, PAR::BRACKETING,
-		  n, attributes );
+		  first, current,
+		  separator_found,
+	          (TAB::root)
+		  parser->top_level_indentation_mark
+	                ->line_sep,
+		  trace_flags );
+
 	    trace_flags = 0;
 	        // Suppress double tracing.
 	}
@@ -2075,6 +2046,44 @@ void PAR::compact
 
     PAR::trace_subexpression
         ( parser, first, trace_flags );
+}
+
+void PAR::compact_logical_line
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  PAR::table::flags selectors,
+	  PAR::token & first, PAR::token next,
+          const min::position & separator_found,
+	  TAB::root line_sep,
+	  TAB::flags trace_flags )
+{
+    min::phrase_position position =
+	{ first->position.begin,
+	  next->previous->position.end };
+
+    PAR::attr attributes[2];
+    unsigned n = 0;
+    attributes[n++] =
+	PAR::attr ( min::dot_initiator,
+		    min::LOGICAL_LINE() );
+
+    if ( separator_found )
+    {
+	attributes[n++] =
+	    PAR::attr ( min::dot_terminator,
+			line_sep->label );
+	position.end = separator_found;
+    }
+    else
+	attributes[n++] =
+	    PAR::attr ( min::dot_terminator,
+			PAR::new_line );
+
+    PAR::compact
+	( parser, pass, selectors,
+	  first, next, position,
+	  trace_flags, PAR::BRACKETING,
+	  n, attributes );
 }
 
 bool PAR::compact_prefix_separator

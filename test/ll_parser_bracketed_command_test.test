@@ -954,6 +954,10 @@ parser define prefix "P1" [code, text]
        with group paragraph
        with implied subprefix {S1}
        with parsing options [end at paragraph break]
+parser define prefix "P2" [code, text]
+       with parsing selectors [text]
+       with group paragraph
+       with parsing options [end at paragraph break]
 parser define typed bracket "{" ... "|" ... "|" ... "}"
        [code, text, math]
        // no element selectors
@@ -969,10 +973,16 @@ parser print prefix "":
                    with group paragraph
                    with implied subprefix {S1||S1}
                    with parsing options [end at paragraph break]
+    block block 1: prefix "P2" [code, text]
+                   with parsing selectors [text]
+                   with group paragraph
+                   with parsing options [end at paragraph break]
 ======= TEST: parser test:
                   {P1|{S1|Hi there "."|S1} {S1|Bye "."|S1}
                       {S1|And some more "."|S1}|P1}
                   And another paragraph "."
+                  {P2|And a third paragraph that is continued over three
+                      lines "."|P2}
 ------- lines ###-###:
 parser test:
 ^^^^^^^^^^^^
@@ -988,6 +998,14 @@ parser test:
 ^
     And another paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {P2} And a third paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    that is continued
+^^^^^^^^^^^^^^^^^^^^^
+    over three lines.
+^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
 parser test:
            ^
@@ -1003,6 +1021,14 @@ parser test:
 ^
     And another paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {P2} And a third paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    that is continued
+^^^^^^^^^^^^^^^^^^^^^
+    over three lines.
+^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
     {P1}
     ^^^^
@@ -1026,6 +1052,13 @@ parser test:
 ------- line ###:
     And another paragraph.
     ^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    {P2} And a third paragraph
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    that is continued
+^^^^^^^^^^^^^^^^^^^^^
+    over three lines.
+^^^^^^^^^^^^^^^^^^^^^
 ======= END TEST
 parser end block 1
 parser begin block 1
@@ -1054,7 +1087,8 @@ parser test this is the indented paragraph 1::
 parser define prefix "p" [code]
        with group paragraph
 ======= TEST: parser test this is the indented paragraph 2::
-                  {p|with one line|p}
+                  {p|{"": .terminator = "<LF>", .initiator =
+                          [$ LOGICAL_LINE $]|with one line|}|p}
 ------- lines ###-###:
 parser test this is the indented paragraph 2::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1068,12 +1102,16 @@ parser test this is the indented paragraph 2::
 ------- line ###:
     with one line
     ^^^^^^^^^^^^^
+------- line ###:
+    with one line
+    ^^^^^^^^^^^^^
 ======= END TEST
 parser define prefix "p" [code]
        with group paragraph
        with implied subprefix {l}
 ======= TEST: parser test this is the indented paragraph 3::
-                  {p|{l|with a first line|l}|p}
+                  {p|{"": .terminator = "<LF>", .initiator =
+                          [$ LOGICAL_LINE $]|{l|with a first line|l}|}|p}
                   and a second line
 ------- lines ###-###:
 parser test this is the indented paragraph 3::
@@ -1089,6 +1127,9 @@ parser test this is the indented paragraph 3::
 ^^^^^^^^^^^^^^^^^^^^^
     and a second line
 ^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    with a first line
+    ^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
@@ -1460,7 +1501,8 @@ BRACKETED EXPRESSION:
 and another line outside the third paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p3|this is a fourth paragraph|p3}
+    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
+             is a fourth paragraph|}|p3}
     line ###:
 {p3} this is a fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1592,7 +1634,8 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p3|this is paragraph 8|p3}
+    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
+             is paragraph 8|}|p3}
     line ###:
 {p3} this is paragraph 8
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1602,7 +1645,8 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p3|this is paragraph 9|p3}
+    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
+             is paragraph 9|}|p3}
     line ###:
 this is paragraph 9
 ^^^^^^^^^^^^^^^^^^^

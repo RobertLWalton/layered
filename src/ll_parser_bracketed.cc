@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 27 07:19:56 EST 2017
+// Date:	Sat Jan 28 00:08:44 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1318,7 +1318,6 @@ min::position BRA::parse_bracketed_subexpression
 	  TAB::flags selectors,
 	  PAR::token & current,
 	  min::int32 indent,
-	  BRA::line_sep line_sep,
 	  BRA::typed_data * typed_data,
 	  BRA::line_variables * line_variables,
 	  BRA::bracket_stack * bracket_stack_p )
@@ -1945,11 +1944,6 @@ PREFIX_PARSE:
 		    PARSE_BRA_SUBEXP
 		      ( parser, prefix_selectors,
 			current, indent,
-			  prefix_selectors
-			& PAR::EALSEP_OPT ?
-			  line_sep :
-			  (BRA::line_sep)
-			      min::NULL_STUB,
 			NULL,
 			line_variables, & cstack );
 
@@ -2368,6 +2362,8 @@ NEXT_TOKEN:
 		    line_variables
 		        .indentation_implied_paragraph;
 
+		line_variables.line_sep =
+		    indentation_found->line_sep;
 		parser->at_paragraph_beginning = true;
 		line_variables.current.selectors = ~
 		    PAR::CONTINUING_OPT;
@@ -2399,12 +2395,6 @@ NEXT_TOKEN:
 			                    .selectors,
 			      current,
 			      paragraph_indent,
-				new_selectors
-			      & PAR::EALSEP_OPT  ?
-			      indentation_found
-				  ->line_sep :
-			      (BRA::line_sep)
-			          min::NULL_STUB,
 			      NULL,
 			      & line_variables,
 			      bracket_stack_p );
@@ -2829,11 +2819,6 @@ NEXT_TOKEN:
 			PARSE_BRA_SUBEXP
 			  ( parser, new_selectors,
 			    current, indent,
-			      new_selectors
-			    & PAR::EALSEP_OPT  ?
-				line_sep :
-				(BRA::line_sep)
-				min::NULL_STUB,
 			    NULL,
 			    line_variables, & cstack );
 		}
@@ -2868,11 +2853,6 @@ NEXT_TOKEN:
 			PARSE_BRA_SUBEXP
 			  ( parser, tselectors,
 			    current, indent,
-			      new_selectors
-			    & PAR::EALSEP_OPT  ?
-				line_sep :
-				(BRA::line_sep)
-				min::NULL_STUB,
 			    & tdata,
 			    line_variables, & cstack );
 
@@ -3451,7 +3431,8 @@ NEXT_TOKEN:
 	    }
 	    else if ( subtype == BRA::LINE_SEP
 	              &&
-                      line_sep == (BRA::line_sep) root
+                         line_variables->line_sep
+		      == (BRA::line_sep) root
 		      &&
 		      (   selectors
 		        & PAR::EALSEP_OPT ) )

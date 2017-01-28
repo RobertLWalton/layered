@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 27 04:22:53 EST 2017
+// Date:	Sat Jan 28 00:08:13 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1322,13 +1322,14 @@ void PAR::parse ( PAR::parser parser )
 	line_variables.previous = current->previous;
 	line_variables.at_paragraph_beginning =
 	      parser->at_paragraph_beginning;
+	line_variables.line_sep =
+	    parser->top_level_indentation_mark
+	          ->line_sep;
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
 		  current,
 		  0,
-		  parser->top_level_indentation_mark
-		        ->line_sep,
 		  NULL,
 		  & line_variables );
 

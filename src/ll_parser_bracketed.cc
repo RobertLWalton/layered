@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 28 13:01:45 EST 2017
+// Date:	Mon Jan 30 12:25:36 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2472,13 +2472,33 @@ NEXT_TOKEN:
 			PAR::compact_logical_line
 			    ( parser,
 			      bracketed_pass->next,
-			      new_selectors,
+			      line_variables.current
+			                    .selectors,
 			      first, next,
 			      separator_found,
 			      (TAB::root)
 			      indentation_found->
 			          line_sep,
 			      trace_flags );
+
+		    if ( parser->at_paragraph_beginning
+		         &&
+		            line_variables
+			        .last_paragraph
+		         != min::NULL_STUB
+			 &&
+			 ! ( line_variables.current
+			                   .selectors
+			     &
+			     PAR::CONTINUING_OPT ) )
+		    {
+		        PAR::compact_paragraph
+			    ( parser,
+			      first, next,
+			      trace_flags );
+			line_variables.last_paragraph
+			    = min::NULL_STUB;
+		    }
 
 		    // See if there are more lines
 		    // in the paragraph.

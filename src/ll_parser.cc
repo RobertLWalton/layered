@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 28 13:00:13 EST 2017
+// Date:	Mon Jan 30 02:42:09 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2183,6 +2183,58 @@ bool PAR::compact_prefix_separator
         ( parser, first, trace_flags );
 
     return true;
+}
+
+void PAR::compact_paragraph
+	( PAR::parser parser,
+	  PAR::token & first, PAR::token next,
+	  TAB::flags trace_flags )
+{
+    MIN_REQUIRE
+        ( first->value_type == PAR::paragraph_lexeme );
+    if ( first->next == next ) return;
+
+    min::phrase_position position =
+	{ first->position.begin,
+	  next->previous->position.end };
+
+    min::obj_vec_insptr vp ( first->value);
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, min::dot_position );
+    min::phrase_position_vec_insptr ppvec =
+        (min::phrase_position_vec_insptr)
+	min::get ( ap );
+    MIN_REQUIRE ( ppvec != min::NULL_STUB );
+
+    ppvec->position = position;
+
+    PAR::token current = first->next;
+    while ( current != next )
+    {
+	if ( current->value_type == PAR::line_lexeme
+	     ||
+	     current->value_type == min::LOGICAL_LINE()
+	   )
+	{
+	    min::attr_push(vp) = current->value;
+	    min::push(ppvec) = current->position;
+	}
+	else
+	    PAR::parse_error
+		( parser, current->position,
+		  " value; `",
+		  min::pgen_never_quote
+		      ( current->value ),
+		  "' does not have LOGICAL_LINE"
+		  " .initiator or .type with `line'"
+		  " group; ignored" );
+
+	current = current->next;
+	PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref(parser),
+		    current->previous ) );
+    }
 }
 
 void PAR::internal::trace_subexpression

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 28 11:49:20 EST 2017
+// Date:	Mon Jan 30 00:37:15 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1750,6 +1750,21 @@ bool compact_prefix_separator
 	  ll::parser::pass pass,
 	  ll::parser::table::flags selectors,
 	  ll::parser::token first,
+	  ll::parser::token next,
+	  ll::parser::table::flags trace_flags );
+
+// Compact a paragraph after each line has been parsed.
+// The first token value has a .type with `paragraph'
+// group, and 0 or 1 elements.  The element, if it
+// exists, and the other tokens, have .type with `line'
+// group or are logical lines with LOGICAL_LINE
+// .initiator.  All token values but the first are
+// appended to the vector of elements of the first
+// token.
+//
+void compact_paragraph
+	( ll::parser::parser parser,
+	  ll::parser::token & first,
 	  ll::parser::token next,
 	  ll::parser::table::flags trace_flags );
 

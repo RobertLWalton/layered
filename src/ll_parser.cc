@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 02:42:09 EST 2017
+// Date:	Tue Jan 31 04:02:09 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2084,6 +2084,9 @@ void PAR::compact_logical_line
 	  first, next, position,
 	  trace_flags, PAR::BRACKETING,
 	  n, attributes );
+
+    PAR::value_type_ref(first) =
+        min::LOGICAL_LINE();
 }
 
 bool PAR::compact_prefix_separator
@@ -2207,6 +2210,7 @@ void PAR::compact_paragraph
     MIN_REQUIRE ( ppvec != min::NULL_STUB );
 
     ppvec->position = position;
+    first->position = position;
 
     PAR::token current = first->next;
     while ( current != next )

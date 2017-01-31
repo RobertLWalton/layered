@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 12:25:36 EST 2017
+// Date:	Tue Jan 31 13:22:04 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1558,6 +1558,8 @@ PREFIX_FOUND:
 	    //
 	    if ( prefix_group == PAR::paragraph_lexeme
 	         &&
+		 line_variables->at_paragraph_beginning
+	         &&
 		 prefix->type != PAR::IMPLIED_PREFIX
 		 &&
 		    prefix->previous->type
@@ -1765,7 +1767,7 @@ PREFIX_PARSE:
 		    // having been previously inserted
 		    // and deleted, possible incorrect
 		    // setting of selectors to something
-		    // other than paragraph_selectors
+		    // other than paragraph.selectors
 		    // because of a CONTINUING flag, and
 		    // possible incorrect prefix_entry
 		    // because of incorrect selectors.
@@ -2202,6 +2204,12 @@ NEXT_TOKEN:
 	    // become the first line break or end of
 	    // file after the paragraph.
 	    //
+	    BRA::line_variables line_variables;
+	    line_variables.last_paragraph =
+	        min::NULL_STUB;
+		// Only component used after paragraph
+		// ends.
+
 	    // First be sure paragraph has some
 	    // lines.
 	    //
@@ -2231,7 +2239,6 @@ NEXT_TOKEN:
 
 		// Loop to parse paragraph lines.
 		//
-		BRA::line_variables line_variables;
 		BRA::line_data & paragraph_data =
 		    line_variables
 		        .indentation_paragraph;
@@ -2481,6 +2488,35 @@ NEXT_TOKEN:
 			          line_sep,
 			      trace_flags );
 
+		    if (    first->value_type
+		         == PAR::paragraph_lexeme )
+		    {
+		        if ( line_variables
+			         .last_paragraph
+		             != min::NULL_STUB )
+			    PAR::compact_paragraph
+				( parser,
+				  line_variables
+				      .last_paragraph,
+				  first,
+				  trace_flags );
+
+			if ( parser->
+			         at_paragraph_beginning
+			     &&
+			     ! ( line_variables
+			             .current.selectors
+			         &
+			         PAR::CONTINUING_OPT ) )
+			    line_variables
+			            .last_paragraph
+				= min::NULL_STUB;
+			else
+			    line_variables
+			            .last_paragraph
+				= first;
+		    }
+		    else
 		    if ( parser->at_paragraph_beginning
 		         &&
 		            line_variables
@@ -2494,7 +2530,9 @@ NEXT_TOKEN:
 		    {
 		        PAR::compact_paragraph
 			    ( parser,
-			      first, next,
+			      line_variables
+			          .last_paragraph,
+			      next,
 			      trace_flags );
 			line_variables.last_paragraph
 			    = min::NULL_STUB;
@@ -2536,10 +2574,19 @@ NEXT_TOKEN:
 		}
 	    }
 
-	    // Compact paragraph lines into a
-	    // paragraph.
-	    //
-	    PAR::token first = mark_end->next;
+	    if (    line_variables.last_paragraph
+		 != min::NULL_STUB )
+	    {
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables
+			  .last_paragraph,
+		      current,
+		      trace_flags );
+		line_variables.last_paragraph =
+		    min::NULL_STUB;
+	    }
+
 	    PAR::token next = current;
 	    if ( BRA::is_closed
 		     ( bracket_stack_p ) )
@@ -2551,6 +2598,11 @@ NEXT_TOKEN:
 		next = bracket_stack_p
 			  ->closing_first;
 	    }
+
+	    // Compact paragraph lines into a
+	    // paragraph.
+	    //
+	    PAR::token first = mark_end->next;
 	    min::phrase_position position;
 	    position.begin =
 		PAR::remove

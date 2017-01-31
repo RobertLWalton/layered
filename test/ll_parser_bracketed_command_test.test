@@ -1111,8 +1111,9 @@ parser define prefix "p" [code]
        with implied subprefix {l}
 ======= TEST: parser test this is the indented paragraph 3::
                   {p|{"": .terminator = "<LF>", .initiator =
-                          [$ LOGICAL_LINE $]|{l|with a first line|l}|}|p}
-                  and a second line
+                          [$ LOGICAL_LINE $]|{l|with a first line|l}|}
+                     {"": .terminator = "<LF>", .initiator =
+                          [$ LOGICAL_LINE $]|and a second line|}|p}
 ------- lines ###-###:
 parser test this is the indented paragraph 3::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1127,9 +1128,11 @@ parser test this is the indented paragraph 3::
 ^^^^^^^^^^^^^^^^^^^^^
     and a second line
 ^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     with a first line
     ^^^^^^^^^^^^^^^^^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
@@ -1143,9 +1146,8 @@ parser test this is the indented paragraph 3::
 parser define prefix "l" [code]
        with group line
 ======= TEST: parser test this is the indented paragraph 4::
-                  {p|{l|with a first line|l}|p}
-                  {l|and a second line|l}
-                  {l|and a third line with [HI THERE] embedded|l}
+                  {p|{l|with a first line|l} {l|and a second line|l}
+                     {l|and a third line with [HI THERE] embedded|l}|p}
 ------- lines ###-###:
 parser test this is the indented paragraph 4::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1164,9 +1166,13 @@ parser test this is the indented paragraph 4::
 ^^^^^^^^^^^^^^^^^^^^^
     and a third line with [ HI THERE ] embedded
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     with a first line
     ^^^^^^^^^^^^^^^^^
+    and a second line
+^^^^^^^^^^^^^^^^^^^^^
+    and a third line with [ HI THERE ] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
@@ -1203,16 +1209,21 @@ parser define prefix "p2" [code]
        with implied subprefix {l2}
 parser define prefix "l2" [code]
        with group line
+ERROR: in line ###: explicit prefix separator of type `p2' has
+       `paragraph' group but is not at beginning of a logical line that
+       is in paragraph beginning position; ignored:
+    {p2} and a fourth subparagraph started
+    ^^^^
 ======= TEST: parser test this is the indented paragraph 5::
-                  {p1|{l1|with a first line|l1}|p1}
-                  {l1|and a second line with [HI THERE] embedded|l1}
-                  {p2|{l2|and a second subparagraph|l2}|p2}
-                  {l2|with a second line of its own|l2}
-                  {p1|{l1|and a third subparagraph|l1}|p1}
-                  {l1|with a second line of its own|l1}
-                  {p2|{l2|and a fourth subparagraph started without in a
-                          previous blank line|l2}|p2}
-                  {l2|with a second line of its own|l2}
+                  {p1|{l1|with a first line|l1}
+                      {l1|and a second line with [HI THERE] embedded|l1}|p1}
+                  {p2|{l2|and a second subparagraph|l2}
+                      {l2|with a second line of its own|l2}|p2}
+                  {p1|{l1|and a third subparagraph|l1}
+                      {l1|with a second line of its own|l1}
+                      {l1|and a fourth subparagraph started without in a
+                          previous blank line|l1}
+                      {l1|with a second line of its own|l1}|p1}
 ------- lines ###-###:
 parser test this is the indented paragraph 5::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1263,9 +1274,11 @@ parser test this is the indented paragraph 5::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     with a first line
     ^^^^^^^^^^^^^^^^^
+    and a second line with [HI THERE] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
@@ -1275,18 +1288,28 @@ parser test this is the indented paragraph 5::
 ------- line ###:
     and a second line with [HI THERE] embedded
                            ^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     {p2}and a second subparagraph
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     {p2}and a second subparagraph
         ^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a second line of its own
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     and a third subparagraph
     ^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p2} and a fourth subparagraph started
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         without in a previous blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     and a third subparagraph
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1296,11 +1319,6 @@ parser test this is the indented paragraph 5::
 ------- lines ###-###:
     {p2} and a fourth subparagraph started
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-         without in a previous blank line
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-    {p2} and a fourth subparagraph started
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
          without in a previous blank line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
@@ -1319,14 +1337,14 @@ parser print prefix "p3":
                    with implied subprefix {l3||l3}
                    with parsing options [+ continuing]
 ======= TEST: parser test this is the indented paragraph 6::
-                  {p1|{l1|with a first line|l1}|p1}
-                  {l1|and a second line with [HI THERE] embedded|l1}
-                  {p3|{l3|and a second subparagraph|l3}|p3}
-                  {l3|with a second line of its own|l3}
-                  {l3|and a third line after a blank line|l3}
-                  {l3|and a fourth line|l3}
-                  {p2|{l2|and a third subparagraph|l2}|p2}
-                  {l2|with a second line of its own|l2}
+                  {p1|{l1|with a first line|l1}
+                      {l1|and a second line with [HI THERE] embedded|l1}|p1}
+                  {p3|{l3|and a second subparagraph|l3}
+                      {l3|with a second line of its own|l3}
+                      {l3|and a third line after a blank line|l3}
+                      {l3|and a fourth line|l3}|p3}
+                  {p2|{l2|and a third subparagraph|l2}
+                      {l2|with a second line of its own|l2}|p2}
 ------- lines ###-###:
 parser test this is the indented paragraph 6::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1377,9 +1395,11 @@ parser test this is the indented paragraph 6::
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     with a first line
     ^^^^^^^^^^^^^^^^^
+    and a second line with [HI THERE] embedded
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     with a first line
     ^^^^^^^^^^^^^^^^^
@@ -1389,9 +1409,17 @@ parser test this is the indented paragraph 6::
 ------- line ###:
     and a second line with [HI THERE] embedded
                            ^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     {p3}and a second subparagraph
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    and a third line after a blank line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and a fourth line
+^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     {p3}and a second subparagraph
         ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1404,9 +1432,11 @@ parser test this is the indented paragraph 6::
 ------- line ###:
     and a fourth line
     ^^^^^^^^^^^^^^^^^
-------- line ###:
+------- lines ###-###:
     {p2} and a third subparagraph
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    with a second line of its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     {p2} and a third subparagraph
          ^^^^^^^^^^^^^^^^^^^^^^^^

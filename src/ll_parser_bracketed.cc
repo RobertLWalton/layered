@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 13:22:04 EST 2017
+// Date:	Wed Feb  1 05:06:23 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2488,6 +2488,9 @@ NEXT_TOKEN:
 			          line_sep,
 			      trace_flags );
 
+		    // Compact prefix paragraph if
+		    // necessary.
+		    //
 		    if (    first->value_type
 		         == PAR::paragraph_lexeme )
 		    {
@@ -2539,7 +2542,7 @@ NEXT_TOKEN:
 		    }
 
 		    // See if there are more lines
-		    // in the paragraph.
+		    // in the indented paragraph.
 		    //
 		    if ( separator_found )
 			continue;
@@ -2574,6 +2577,9 @@ NEXT_TOKEN:
 		}
 	    }
 
+	    // Compact prefix paragraph at end of
+	    // indented paragraph.
+	    //
 	    if (    line_variables.last_paragraph
 		 != min::NULL_STUB )
 	    {

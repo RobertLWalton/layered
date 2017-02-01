@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 04:02:09 EST 2017
+// Date:	Wed Feb  1 07:17:46 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1210,6 +1210,7 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
 
     BRA::line_variables line_variables;
+    line_variables.last_paragraph = min::NULL_STUB;
     BRA::line_data & line_data = line_variables.current;
 
     line_data.lexical_master =
@@ -1389,6 +1390,48 @@ void PAR::parse ( PAR::parser parser )
 
 	if ( first == current ) continue;
 
+	// Compact prefix paragraph if necessary.
+	//
+	if (    first->value_type
+	     == PAR::paragraph_lexeme )
+	{
+	    if ( line_variables.last_paragraph
+		 != min::NULL_STUB )
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables.last_paragraph,
+		      first,
+		      trace_flags );
+
+	    if ( parser->at_paragraph_beginning
+		 &&
+		 ! ( line_variables.current.selectors
+		     &
+		     PAR::CONTINUING_OPT ) )
+		line_variables.last_paragraph
+		    = min::NULL_STUB;
+	    else
+		line_variables.last_paragraph = first;
+	}
+	else
+	if ( parser->at_paragraph_beginning
+	     &&
+		line_variables.last_paragraph
+	     != min::NULL_STUB
+	     &&
+	     ! ( line_variables.current.selectors
+		 &
+		 PAR::CONTINUING_OPT ) )
+	{
+	    PAR::compact_paragraph
+		( parser,
+		  line_variables.last_paragraph,
+		  current,
+		  trace_flags );
+	    line_variables.last_paragraph
+		= min::NULL_STUB;
+	}
+
 	min::gen result = min::FAILURE();
 	if (    parser->error_count
 	     != error_count_save )
@@ -1418,7 +1461,8 @@ void PAR::parse ( PAR::parser parser )
 		    ( parser, parser->output );
 	    else
 	        trace_subexpression
-		    ( parser, first, trace_flags );
+		    ( parser, current->previous,
+		      trace_flags );
 	}
 	else
 	    PAR::free

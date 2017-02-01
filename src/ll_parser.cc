@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  1 07:17:46 EST 2017
+// Date:	Wed Feb  1 14:03:12 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1388,32 +1388,10 @@ void PAR::parse ( PAR::parser parser )
 	        // Suppress double tracing.
 	}
 
-	if ( first == current ) continue;
+	PAR::token output = min::NULL_STUB;
 
 	// Compact prefix paragraph if necessary.
 	//
-	if (    first->value_type
-	     == PAR::paragraph_lexeme )
-	{
-	    if ( line_variables.last_paragraph
-		 != min::NULL_STUB )
-		PAR::compact_paragraph
-		    ( parser,
-		      line_variables.last_paragraph,
-		      first,
-		      trace_flags );
-
-	    if ( parser->at_paragraph_beginning
-		 &&
-		 ! ( line_variables.current.selectors
-		     &
-		     PAR::CONTINUING_OPT ) )
-		line_variables.last_paragraph
-		    = min::NULL_STUB;
-	    else
-		line_variables.last_paragraph = first;
-	}
-	else
 	if ( parser->at_paragraph_beginning
 	     &&
 		line_variables.last_paragraph
@@ -1423,14 +1401,43 @@ void PAR::parse ( PAR::parser parser )
 		 &
 		 PAR::CONTINUING_OPT ) )
 	{
-	    PAR::compact_paragraph
-		( parser,
-		  line_variables.last_paragraph,
-		  current,
-		  trace_flags );
+	    output = line_variables.last_paragraph;
 	    line_variables.last_paragraph
 		= min::NULL_STUB;
+	    PAR::compact_paragraph
+		( parser,
+		  output, current,
+		  trace_flags );
 	}
+	else if ( first == current )
+	    continue;
+	else if (    first->value_type
+	          == PAR::paragraph_lexeme )
+	{
+	    if ( line_variables.last_paragraph
+		 != min::NULL_STUB )
+	    {
+		output = line_variables.last_paragraph;
+		line_variables.last_paragraph
+		    = min::NULL_STUB;
+		PAR::compact_paragraph
+		    ( parser,
+		      output, first,
+		      trace_flags );
+	    }
+
+	    if ( ! parser->at_paragraph_beginning
+		 ||
+		 ( line_variables.current.selectors
+		   &
+		   PAR::CONTINUING_OPT ) )
+		line_variables.last_paragraph = first;
+	}
+	else
+	    output = current->previous;
+
+	if ( output == min::NULL_STUB )
+	    continue;
 
 	min::gen result = min::FAILURE();
 	if (    parser->error_count
@@ -1446,7 +1453,7 @@ void PAR::parse ( PAR::parser parser )
 		    .indentation_implied_paragraph;
 
 	    min::obj_vec_ptr vp
-		( current->previous->value );
+		( output->value );
 	    if ( vp != NULL_STUB )
 		result =
 		  COM::parser_execute_command
@@ -1461,14 +1468,14 @@ void PAR::parse ( PAR::parser parser )
 		    ( parser, parser->output );
 	    else
 	        trace_subexpression
-		    ( parser, current->previous,
+		    ( parser, output,
 		      trace_flags );
 	}
 	else
 	    PAR::free
 		( PAR::remove
 		    ( PAR::first_ref ( parser ),
-		      current->previous ) );
+		      output ) );
     }
 
     for ( PAR::pass pass = parser->pass_stack;

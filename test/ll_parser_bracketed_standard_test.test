@@ -3576,17 +3576,6 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^
   {p} {s} And a new {foo} paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    parser print bracket ""
-@@@@ = parser print bracket @@@@:
-           .terminator = "<LF>"
-           .position[H] = {}
-           .initiator = [$ LOGICAL_LINE $]
-@@@@ = "":
-           .type = "<Q>"
-    line ###:
-parser print bracket ""
-^^^^^^^^^^^^^^^^^^^^^^^
 parser print bracket "":
     block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                     [data, code, math, text]

@@ -1486,13 +1486,10 @@ parser print prefix "":
                    with parsing options [+ continuing]
 parser trace [+ parser output]
 BRACKETED EXPRESSION:
-    {p1|{l1|this is a first paragraph|l1}|p1}
-    line ###:
+    {p1|{l1|this is a first paragraph|l1} {l1|and a line|l1}|p1}
+    lines ###-###:
 {p1} this is a first paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and a line|l1}
-    line ###:
 and a line
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1501,28 +1498,22 @@ BRACKETED EXPRESSION:
 and another line outside the first paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p2|{l2|this is a second paragraph|l2}|p2}
-    line ###:
+    {p2|{l2|this is a second paragraph|l2} {l2|and a line|l2}
+        {l2|and another line outside the second paragraph|l2}|p2}
+    lines ###-###:
 {p2} this is a second paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l2|and a line|l2}
-    line ###:
 and a line
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l2|and another line outside the second paragraph|l2}
-    line ###:
+<BLANK-LINE>
+^
 and another line outside the second paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p1|{l1|this is a third paragraph|l1}|p1}
-    line ###:
+    {p1|{l1|this is a third paragraph|l1} {l1|and a line|l1}|p1}
+    lines ###-###:
 {p1} this is a third paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and a line|l1}
-    line ###:
 and a line
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1532,28 +1523,25 @@ and another line outside the third paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is a fourth paragraph|}|p3}
-    line ###:
+             is a fourth paragraph|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and a
+             line|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+             another line outside the fourth paragraph|}|p3}
+    lines ###-###:
 {p3} this is a fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and a line
-    line ###:
 and a line
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line outside the fourth paragraph
-    line ###:
+<BLANK-LINE>
+^
 and another line outside the fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p1|{l1|this is a fifth paragraph|l1}|p1}
-    line ###:
+    {p1|{l1|this is a fifth paragraph|l1} {l1|and a line|l1}|p1}
+    lines ###-###:
 {p1} this is a fifth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and a line|l1}
-    line ###:
 and a line
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1561,11 +1549,6 @@ BRACKETED EXPRESSION:
     line ###:
 and another line outside the fifth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    parser trace [- parser output]
-    line ###:
-parser trace [- parser output]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser trace [- parser output]
 parser end block 1
 parser begin block 1
@@ -1604,13 +1587,10 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 2|l1}|p1}
-    line ###:
+    {p1|{l1|this is paragraph 2|l1} {l1|and another line|l1}|p1}
+    lines ###-###:
 {p1} this is paragraph 2
 ^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and another line|l1}
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1624,33 +1604,24 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p2|{l2|this is paragraph 4|l2}|p2}
-    line ###:
+    {p2|{l2|this is paragraph 4|l2} {l2|and another line|l2}|p2}
+    lines ###-###:
 {p2} this is paragraph 4
 ^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l2|and another line|l2}
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p2|{l2|this is paragraph 5|l2}|p2}
-    line ###:
+    {p2|{l2|this is paragraph 5|l2} {l2|and another line|l2}|p2}
+    lines ###-###:
 this is paragraph 5
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l2|and another line|l2}
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 6|l1}|p1}
-    line ###:
+    {p1|{l1|this is paragraph 6|l1} {l1|and another line|l1}|p1}
+    lines ###-###:
 {p1} this is paragraph 6
 ^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and another line|l1}
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1665,34 +1636,29 @@ and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 8|}|p3}
-    line ###:
+             is paragraph 8|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+             another line|}|p3}
+    lines ###-###:
 {p3} this is paragraph 8
 ^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 9|}|p3}
-    line ###:
+             is paragraph 9|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+             another line|}|p3}
+    lines ###-###:
 this is paragraph 9
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 10|l1}|p1}
-    line ###:
+    {p1|{l1|this is paragraph 10|l1} {l1|and another line|l1}|p1}
+    lines ###-###:
 {p1} this is paragraph 10
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and another line|l1}
-    line ###:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1705,11 +1671,6 @@ BRACKETED EXPRESSION:
     line ###:
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    parser trace [- parser output]
-    line ###:
-parser trace [- parser output]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser trace [- parser output]
 parser end block 1
 parser begin block 1
@@ -1738,23 +1699,17 @@ BRACKETED EXPRESSION:
 {l1} this is a line
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{l1|this is a paragraph line|l1}|p}
-    line ###:
+    {p|{l1|this is a paragraph line|l1}
+       {l1|and a second paragraph line|l1}
+       {l2|and a third paragraph line|l2}
+       {l1|and a fourth paragraph line|l1}|p}
+    lines ###-###:
 {p} this is a paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and a second paragraph line|l1}
-    line ###:
 and a second paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l2|and a third paragraph line|l2}
-    line ###:
 {l2}and a third paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|and a fourth paragraph line|l1}
-    line ###:
 and a fourth paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1852,10 +1807,5 @@ BRACKETED EXPRESSION:
     line ###:
 {p} and a fifth stray
     ^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    parser trace [- parser output]
-    line ###:
-parser trace [- parser output]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser trace [- parser output]
 parser end block 1

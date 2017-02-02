@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  1 14:03:12 EST 2017
+// Date:	Thu Feb  2 03:34:10 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1339,23 +1339,6 @@ void PAR::parse ( PAR::parser parser )
 	bool maybe_parser_command = false;
 	min::uns32 error_count_save =
 	    parser->error_count;
-	TAB::flags trace_flags =
-	    parser->trace_flags;
-	if ( ( parser->output == NULL_STUB )
-	      &&
-	      (   trace_flags
-		& PAR::TRACE_PARSER_OUTPUT ) )
-	{
-	     trace_flags &=
-		   PAR::TRACE_SUBEXPRESSION_ELEMENTS
-		 + PAR::TRACE_SUBEXPRESSION_DETAILS
-		 + PAR::TRACE_SUBEXPRESSION_LINES;
-	    if ( trace_flags == 0 )
-		trace_flags =
-		  PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-	}
-	else
-	    trace_flags = 0;
 
         // If subexpression is not empty, or separator
 	// found, compact it.
@@ -1382,37 +1365,15 @@ void PAR::parse ( PAR::parser parser )
 	          (TAB::root)
 		  parser->top_level_indentation_mark
 	                ->line_sep,
-		  trace_flags );
-
-	    trace_flags = 0;
-	        // Suppress double tracing.
+		  0 );
 	}
 
 	PAR::token output = min::NULL_STUB;
 
 	// Compact prefix paragraph if necessary.
 	//
-	if ( parser->at_paragraph_beginning
-	     &&
-		line_variables.last_paragraph
-	     != min::NULL_STUB
-	     &&
-	     ! ( line_variables.current.selectors
-		 &
-		 PAR::CONTINUING_OPT ) )
-	{
-	    output = line_variables.last_paragraph;
-	    line_variables.last_paragraph
-		= min::NULL_STUB;
-	    PAR::compact_paragraph
-		( parser,
-		  output, current,
-		  trace_flags );
-	}
-	else if ( first == current )
-	    continue;
-	else if (    first->value_type
-	          == PAR::paragraph_lexeme )
+	if (    first->value_type
+	     == PAR::paragraph_lexeme )
 	{
 	    if ( line_variables.last_paragraph
 		 != min::NULL_STUB )
@@ -1423,7 +1384,7 @@ void PAR::parse ( PAR::parser parser )
 		PAR::compact_paragraph
 		    ( parser,
 		      output, first,
-		      trace_flags );
+		      0 );
 	    }
 
 	    if ( ! parser->at_paragraph_beginning
@@ -1432,8 +1393,30 @@ void PAR::parse ( PAR::parser parser )
 		   &
 		   PAR::CONTINUING_OPT ) )
 		line_variables.last_paragraph = first;
+	    else
+		output = first;
 	}
-	else
+	else if ( parser->at_paragraph_beginning
+	          &&
+		     line_variables.last_paragraph
+	          != min::NULL_STUB
+	          &&
+	          ! ( line_variables.current.selectors
+		      &
+		      PAR::CONTINUING_OPT ) )
+	{
+	    output = line_variables.last_paragraph;
+	    line_variables.last_paragraph
+		= min::NULL_STUB;
+	    PAR::compact_paragraph
+		( parser,
+		  output, current,
+		  0 );
+	}
+	else if ( first == current )
+	    continue;
+	else if (    line_variables.last_paragraph
+	          == min::NULL_STUB )
 	    output = current->previous;
 
 	if ( output == min::NULL_STUB )
@@ -1459,6 +1442,24 @@ void PAR::parse ( PAR::parser parser )
 		  COM::parser_execute_command
 		    ( vp, parser );
 	}
+
+	TAB::flags trace_flags =
+	    parser->trace_flags;
+	if ( ( parser->output == NULL_STUB )
+	      &&
+	      (   trace_flags
+		& PAR::TRACE_PARSER_OUTPUT ) )
+	{
+	     trace_flags &=
+		   PAR::TRACE_SUBEXPRESSION_ELEMENTS
+		 + PAR::TRACE_SUBEXPRESSION_DETAILS
+		 + PAR::TRACE_SUBEXPRESSION_LINES;
+	    if ( trace_flags == 0 )
+		trace_flags =
+		  PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+	}
+	else
+	    trace_flags = 0;
 
 	if ( result == min::FAILURE() )
 	{

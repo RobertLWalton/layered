@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  1 14:01:37 EST 2017
+// Date:	Thu Feb  2 13:57:01 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -830,7 +830,7 @@ static min::gen bracketed_pass_end_block
 static min::gen bracketed_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  min::obj_vec_ptr & vp,
+	  min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec );
 
 PAR::pass BRA::new_pass ( PAR::parser parser )
@@ -4045,7 +4045,7 @@ enum definition_type
 static min::gen bracketed_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  min::obj_vec_ptr & vp,
+	  min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec )
 {
     BRA::bracketed_pass bracketed_pass =
@@ -4055,7 +4055,7 @@ static min::gen bracketed_pass_command
 
     // Scan keywords before names.
     //
-    unsigned i = 1;
+    unsigned i = i0;
         // vp[i] is next lexeme or subexpression to
 	// scan in the define/undefine expression.
     min::gen command = vp[i];

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 23:31:15 EST 2016
+// Date:	Thu Feb  2 13:45:53 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -159,19 +159,18 @@ void print_flags
 	  ll::parser::parser parser );
 
 // Given a vector pointer vp to an expression, test if
-// the expression is a parser command.  Do nothing but
-// return min::FAILURE() if no.  If yes, process the
-// command, and if there is no error return ll::parser::
-// command::PRINTED if the command was printed (as by
-// the `parser print ...' commands) or min::SUCCESS()
-// otherwise, but if there is an error, print an
-// error message to parser->printer and return min::
-// ERROR().  Note that only expressions that begin with
-// `parser' can be parser commands.
+// the subexpression vp[i0 ..] is a parser command.  Do
+// nothing but return min::FAILURE() if no.  If yes,
+// process the command, and if there is no error return
+// ll::parser::command::PRINTED if the command was
+// printed (as by the `parser print ...' commands) or
+// min::SUCCESS() otherwise, but if there is an error,
+// print an error message to parser->printer and return
+// min::ERROR().  Note that vp[0 .. i0-1] is ignored.
 //
 extern min::locatable_gen PRINTED;
 min::gen parser_execute_command
-	( min::obj_vec_ptr & vp,
+	( min::obj_vec_ptr & vp, min::uns32 i0,
 	  ll::parser::parser parser );
 
 // Print the command stored in vp.  No min::eol or other

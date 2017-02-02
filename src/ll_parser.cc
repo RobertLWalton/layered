@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 03:34:10 EST 2017
+// Date:	Thu Feb  2 13:50:23 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1440,7 +1440,7 @@ void PAR::parse ( PAR::parser parser )
 	    if ( vp != NULL_STUB )
 		result =
 		  COM::parser_execute_command
-		    ( vp, parser );
+		    ( vp, 1, parser );
 	}
 
 	TAB::flags trace_flags =

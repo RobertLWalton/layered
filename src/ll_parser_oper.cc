@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 05:52:27 EST 2016
+// Date:	Thu Feb  2 13:57:15 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -230,7 +230,7 @@ static void oper_parse ( PAR::parser parser,
 static min::gen oper_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  min::obj_vec_ptr & vp,
+	  min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec );
 
 PAR::pass OP::new_pass ( PAR::parser parser )
@@ -1617,7 +1617,7 @@ void static print_op
 static min::gen oper_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
-	  min::obj_vec_ptr & vp,
+	  min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec )
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
@@ -1631,7 +1631,7 @@ static min::gen oper_pass_command
     bool indentation_mark = false;
         // True if indentation mark, false if not.
 
-    min::uns32 i = 1;
+    min::uns32 i = i0;
         // vp[i] is next lexeme or subexpression to
 	// scan in the define/undefine expression.
 

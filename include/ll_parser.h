@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 00:37:15 EST 2017
+// Date:	Thu Feb  2 13:47:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -711,9 +711,9 @@ namespace pass_function {
     // Function called (if not NULL) to execute a parser
     // command, other than `parser begin/end block ...',
     // that may require action by a pass.  Examples are
-    // `parser define/undefine ...'.  Vp points at the
-    // command, ppvec is the phrase position vector of
-    // vp.
+    // `parser define/undefine ...'.  Vp[i0 ..] contains
+    // the command, vp[0 .. i0-1] is ignored, and ppvec
+    // is the phrase position vector of vp.
     //
     // Return min::SUCCESS() on success, min::FAILURE()
     // if command was not recognized, and min::ERROR()
@@ -724,7 +724,7 @@ namespace pass_function {
     typedef min::gen ( * parser_command )
 	    ( ll::parser::parser parser,
 	      ll::parser::pass pass,
-	      min::obj_vec_ptr & vp,
+	      min::obj_vec_ptr & vp, min::uns32 i0,
 	      min::phrase_position_vec ppvec );
 
     // Function called (if not NULL) by `parser begin

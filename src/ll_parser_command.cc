@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 13:50:47 EST 2017
+// Date:	Thu Feb  2 18:27:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1034,7 +1034,7 @@ static min::gen execute_context
 		return min::ERROR();
 	    else if ( result == min::FAILURE() )
 		return PAR::parse_error
-		    ( parser, ppvec[1],
+		    ( parser, ppvec[i-1],
 		      "expected bracketed selector"
 		      " (modifier) list after" );
 	    else MIN_REQUIRE
@@ -1247,9 +1247,9 @@ static min::gen execute_trace
 	}
 	parser->printer << " ]" << min::eom;
 
-        if ( min::size_of ( vp ) > 3 )
+        if ( min::size_of ( vp ) > i0 + 2 )
 	    return PAR::parse_error
-	        ( parser, ppvec[2],
+	        ( parser, ppvec[i0 + 1],
 		  "extraneous stuff after" );
 
 	return COM::PRINTED;
@@ -1290,7 +1290,7 @@ static min::gen execute_begin
     if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser,
-	      ppvec[1],
+	      ppvec[i0],
 	      "expected block name after" );
     if ( i != min::size_of ( vp ) )
         return PAR::parse_error
@@ -1313,7 +1313,7 @@ static min::gen execute_end
     if ( name == min::MISSING() )
 	return PAR::parse_error
 	    ( parser,
-	      ppvec[1],
+	      ppvec[i0],
 	      "expected block name after" );
     min::uns32 size = min::size_of ( vp );
     if ( i != size )

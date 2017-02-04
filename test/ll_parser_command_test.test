@@ -12,15 +12,15 @@ parser print selector "":
     block TOP LEVEL: data
     block TOP LEVEL: TOP LEVEL
 parser print context "":
-    block standard: default [code]
+    block standard: default [TOP LEVEL, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
-    block TOP LEVEL: default []
+    block TOP LEVEL: default [TOP LEVEL]
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [data]
+    block TOP LEVEL: parser [TOP LEVEL, data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -82,15 +82,15 @@ parser print trace:
       - subexpression elements, - subexpression details,
       - subexpression lines, - keys, - bracketed subexpressions ]
 parser print context "":
-    block standard: default [code]
+    block standard: default [TOP LEVEL, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
-    block TOP LEVEL: default []
+    block TOP LEVEL: default [TOP LEVEL]
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [data]
+    block TOP LEVEL: parser [TOP LEVEL, data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -103,11 +103,11 @@ parser print context "":
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
-    block TOP LEVEL: default []
+    block TOP LEVEL: default [TOP LEVEL]
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [data]
+    block TOP LEVEL: parser [TOP LEVEL, data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -120,11 +120,11 @@ parser print context "":
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
-    block TOP LEVEL: default []
+    block TOP LEVEL: default [TOP LEVEL]
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [data]
+    block TOP LEVEL: parser [TOP LEVEL, data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -202,7 +202,7 @@ parser print context "default":
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
-    block TOP LEVEL: default []
+    block TOP LEVEL: default [TOP LEVEL]
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
@@ -212,7 +212,7 @@ parser print context "parser<SP>test<SP>special":
 parser print context "parser<SP>test":
     block TOP LEVEL: parser test []
 parser print context "parser":
-    block TOP LEVEL: parser [data]
+    block TOP LEVEL: parser [TOP LEVEL, data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]

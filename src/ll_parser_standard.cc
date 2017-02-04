@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 22 02:40:06 EST 2016
+// Date:	Sat Feb  4 11:07:53 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,5 +44,6 @@ void PARSTD::init_block ( PAR::parser parser )
           1ull << TAB::find_name
 	      ( parser->selector_name_table,
 	        code_name )
+	| PAR::TOP_LEVEL_SELECTOR
 	| PAR::ALWAYS_SELECTOR;
 }

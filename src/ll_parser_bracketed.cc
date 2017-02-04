@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 13:57:01 EST 2017
+// Date:	Sat Feb  4 02:27:34 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,12 +168,12 @@ BRA::opening_bracket
     closing->position = position;
 
     opening->new_selectors = new_selectors;
-    opening->new_selectors.or_flags &=
-        ~ PAR::EALSEP_OPT;
+    opening->new_selectors.or_flags &= ~
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     opening->new_selectors.not_flags |=
-        PAR::EALSEP_OPT;
-    opening->new_selectors.xor_flags &=
-        ~ PAR::EALSEP_OPT;
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+    opening->new_selectors.xor_flags &= ~
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
         reformatter_arguments;
@@ -243,6 +243,12 @@ BRA::indentation_mark
     imark->block_level = block_level;
     imark->position = position;
     imark->new_selectors = new_selectors;
+    imark->new_selectors.or_flags &= ~
+        PAR::TOP_LEVEL_SELECTOR;
+    imark->new_selectors.not_flags |=
+        PAR::TOP_LEVEL_SELECTOR;
+    imark->new_selectors.xor_flags &= ~
+        PAR::TOP_LEVEL_SELECTOR;
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
         min::get ( implied_header, min::dot_type );
@@ -464,12 +470,12 @@ BRA::typed_opening
     closing->position = position;
 
     opening->new_selectors = element_selectors;
-    opening->new_selectors.or_flags &=
-        ~ PAR::EALSEP_OPT;
+    opening->new_selectors.or_flags &= ~
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     opening->new_selectors.not_flags |=
-        PAR::EALSEP_OPT;
-    opening->new_selectors.xor_flags &=
-        ~ PAR::EALSEP_OPT;
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+    opening->new_selectors.xor_flags &= ~
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     opening->attr_selectors = attr_selectors;
 
     reformatter_ref(opening) = min::NULL_STUB;
@@ -653,12 +659,12 @@ void BRA::push_prefix
     prefix->block_level = block_level;
     prefix->position = position;
     prefix->new_selectors = new_selectors;
-    prefix->new_selectors.or_flags &=
-        ~ PAR::EALSEP_OPT;
+    prefix->new_selectors.or_flags &= ~
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     prefix->new_selectors.not_flags |=
-        PAR::EALSEP_OPT;
-    prefix->new_selectors.xor_flags &=
-        ~ PAR::EALSEP_OPT;
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+    prefix->new_selectors.xor_flags &= ~
+        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     group_ref(prefix) = group;
     implied_subprefix_ref(prefix) = implied_subprefix;
     implied_subprefix_type_ref(prefix) =

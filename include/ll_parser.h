@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 13:47:24 EST 2017
+// Date:	Sat Feb  4 02:05:56 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1049,7 +1049,8 @@ enum {
 
     // Builtin selectors:
     //
-    DATA_SELECTOR			= 1ull << 17,
+    TOP_LEVEL_SELECTOR			= 1ull << 17,
+    DATA_SELECTOR			= 1ull << 18,
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR
@@ -1490,6 +1491,29 @@ void push_reformatter
 
 // Parser Functions
 // ------ ---------
+
+// Compute new_flags that set the selectors to the
+// selectors argument, turning on these and the ALWAYS_
+// SELECTOR and turning off all other selectors.
+//
+inline ll::parser::table::new_flags parsing_selectors
+        ( ll::parser::table::flags selectors )
+{
+    return ll::parser::table::new_flags
+        (   selectors
+	  | ll::parser::ALWAYS_SELECTOR,
+	    ll::parser::COMMAND_SELECTORS
+	  & ~ selectors, 0 );
+}
+
+// Ditto for options.
+//
+inline ll::parser::table::new_flags parsing_options
+        ( ll::parser::table::flags options )
+{
+    return ll::parser::table::new_flags
+        ( options, ll::parser::ALL_OPT & ~ options, 0 );
+}
 
 // Begin/end a parser block with the given name.  Return
 // min::SUCCESS() on success and min::ERROR() if an

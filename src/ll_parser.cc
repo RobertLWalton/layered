@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 07:02:31 EST 2017
+// Date:	Sat Feb  4 10:45:28 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -103,6 +103,8 @@ min::locatable_gen PAR::no_lexeme;
 min::locatable_gen PAR::keep_lexeme;
 min::locatable_gen PAR::enabled_lexeme;
 min::locatable_gen PAR::disabled_lexeme;
+min::locatable_gen PAR::parser_colon;
+min::locatable_gen PAR::parser_test_colon;
 
 static min::locatable_gen warnings;
 static min::locatable_gen parser_input;
@@ -215,6 +217,10 @@ static void initialize ( void )
         min::new_str_gen ( "enabled" );
     PAR::disabled_lexeme =
         min::new_str_gen ( "disabled" );
+    PAR::parser_colon =
+        min::new_lab_gen ( "parser", ":" );
+    PAR::parser_test_colon =
+        min::new_lab_gen ( "parser", "test", ":" );
 
     ::warnings = min::new_str_gen ( "warnings" );
     ::parser_input =
@@ -835,6 +841,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      parser->selector_group_name_table );
 
 	parser->selectors = PAR::DEFAULT_OPT
+	                  + PAR::TOP_LEVEL_SELECTOR
 	                  + PAR::ALWAYS_SELECTOR;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();
@@ -850,10 +857,12 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      TAB::new_flags
 	          (   PAR::DEFAULT_OPT
 		    + PAR::DATA_SELECTOR
+		    + PAR::TOP_LEVEL_SELECTOR
 		    + PAR::ALWAYS_SELECTOR,
 		      TAB::ALL_FLAGS
 		    - PAR::DEFAULT_OPT
 		    - PAR::DATA_SELECTOR
+		    - PAR::TOP_LEVEL_SELECTOR
 		    - PAR::ALWAYS_SELECTOR,
 		    0 ),
 	      parser->context_table );
@@ -883,16 +892,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  min::MISSING(), LEX::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
-	min::locatable_gen parser_colon_name
-	    ( min::new_lab_gen
-	        ( "PARSER", ":" ) );
-	min::locatable_gen parser_test_colon_name
-	    ( min::new_lab_gen
-	        ( "PARSER", "TEST", ":" ) );
-
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( parser_colon_name, PAR::semicolon,
+		( PAR::parser_colon, PAR::semicolon,
 	          PAR::TOP_LEVEL_SELECTOR,
 		  0, PAR::top_level_position,
 		  PAR::parsing_selectors
@@ -902,7 +904,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( parser_test_colon_name,
+		( PAR::parser_test_colon,
 		  PAR::semicolon,
 	          PAR::TOP_LEVEL_SELECTOR,
 		  0, PAR::top_level_position,

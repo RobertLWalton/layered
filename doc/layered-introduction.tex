@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 21, 2017
+February 4, 2017
  
 \end{center}
 
@@ -2500,11 +2500,10 @@ The following parsing selectors are builtin:
 
 \begin{indpar}[0.5in]
 
-\hspace*{-0.2in}\ttmkey{parser}{parser selector} \\
-    If this is on when a top level logical line is parsed, the line
-    is treated as a parser command.  This selector is
-    also used as a symbol table entry selector to ensure
-    that the line is parsed appropriately for a parser command.
+\hspace*{-0.2in}\ttmkey{top level}{top level selector} \\
+    This is on when a top level logical line is parsed, and off
+    when indented paragraph logical lines or a bracketed
+    subexpression is parsed.
 
 \hspace*{-0.2in}\ttmkey{data}{parser selector} \\
     This selects symbol table entries that parse raw data.  Is
@@ -2791,7 +2790,7 @@ are executed, any text placed after the words `\TT{parser test}' will
 be parsed and the resulting printout will indicate the details of that
 parse.
 
-The only builtin selector names are `\TT{parser}' and `\TT{data}'.
+The only builtin selector names are `\TT{top level}' and `\TT{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \TT{parser define selector} {\em selector}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 13:50:23 EST 2017
+// Date:	Sat Feb  4 07:02:31 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -806,6 +806,12 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			min::MISSING() ) );
 
 	MIN_REQUIRE
+	    (    PAR::TOP_LEVEL_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PAR::top_level ) );
+
+	MIN_REQUIRE
 	    (    PAR::DATA_SELECTOR
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
@@ -873,6 +879,33 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    BRA::push_indentation_mark
 		( PAR::top_level, PAR::semicolon,
 		  0, 0, PAR::top_level_position,
+		  TAB::new_flags ( 0, 0, 0 ),
+		  min::MISSING(), LEX::MISSING_MASTER,
+		  bracketed_pass->bracket_table );
+
+	min::locatable_gen parser_colon_name
+	    ( min::new_lab_gen
+	        ( "PARSER", ":" ) );
+	min::locatable_gen parser_test_colon_name
+	    ( min::new_lab_gen
+	        ( "PARSER", "TEST", ":" ) );
+
+	top_level_indentation_mark_ref(parser) =
+	    BRA::push_indentation_mark
+		( parser_colon_name, PAR::semicolon,
+	          PAR::TOP_LEVEL_SELECTOR,
+		  0, PAR::top_level_position,
+		  PAR::parsing_selectors
+		      ( PAR::DATA_SELECTOR ),
+		  min::MISSING(), LEX::MISSING_MASTER,
+		  bracketed_pass->bracket_table );
+
+	top_level_indentation_mark_ref(parser) =
+	    BRA::push_indentation_mark
+		( parser_test_colon_name,
+		  PAR::semicolon,
+	          PAR::TOP_LEVEL_SELECTOR,
+		  0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  min::MISSING(), LEX::MISSING_MASTER,
 		  bracketed_pass->bracket_table );

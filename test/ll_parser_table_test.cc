@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 30 00:15:46 EST 2016
+// Date:	Sat Feb  4 07:05:50 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,7 +94,8 @@ int main ( int argc, const char * argv[] )
     ASSERT ( oparen->selectors == 64 );
     ASSERT ( oparen->new_selectors.or_flags == 32 );
     ASSERT (    oparen->new_selectors.not_flags
-             == ( 34 | PAR::EALSEP_OPT ) );
+             == ( 34 | PAR::EALSEP_OPT
+	             | PAR::TOP_LEVEL_SELECTOR ) );
     ASSERT ( oparen->new_selectors.xor_flags == 38 );
 
     BRA::push_indentation_mark
@@ -111,7 +112,8 @@ int main ( int argc, const char * argv[] )
 	            bracket_table ); 
 
     ASSERT ( imark->new_selectors.or_flags == 32 );
-    ASSERT ( imark->new_selectors.not_flags == 0 );
+    ASSERT (    imark->new_selectors.not_flags
+             == PAR::TOP_LEVEL_SELECTOR );
     ASSERT ( imark->new_selectors.xor_flags == 0 );
 
     if ( failed_count > 0 )

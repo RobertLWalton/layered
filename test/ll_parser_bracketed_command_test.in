@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 04:35:34 EST 2017
+// Date:	Sun Feb  5 07:20:11 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -219,16 +219,19 @@ parser test:
 
 parser begin block 1
 parser print string concatenator
-parser test "A" # "B"
-parser test "A" "B"
+parser test:
+    "A" # "B"
+    "A" "B"
 parser define string concatenator enabled
 parser print string concatenator
-parser test "A" # "B"
-parser test "A" "B"
+parser test:
+    "A" # "B"
+    "A" "B"
 parser define string concatenator disabled
 parser print string concatenator
-parser test "A" # "B"
-parser test "A" "B"
+parser test:
+    "A" # "B"
+    "A" "B"
 parser end block 1
 
 parser begin block 1
@@ -241,14 +244,17 @@ parser define typed bracket "8" ... "|" ... "|" ... "9"
        with attribute flags initiator "["
        with attribute multivalue initiator "{*"
        with prefix separators allowed
-parser test [8 my type: my attr = 99 9]
+parser test:
+    [8 my type: my attr = 99 9]
 parser end block 1
-parser test [8 my type: my attr = 99 9]
+parser test:
+    [8 my type: my attr = 99 9]
 
 parser begin block 1
 parser define bracket "[0" ... "0]" [code]
        with special reformatter
-parser test [0 LOGICAL_LINE 0]
+parser test:
+    [0 LOGICAL_LINE 0]
 parser end block 1
 
 parser begin block 1
@@ -290,24 +296,28 @@ parser end block 1
 parser begin block 1
 parser define indentation mark "::" ... ";" [code]
        with implied header {p}
-parser test this is the indented paragraph 1::
-    with one line
+parser test:
+    this is the indented paragraph 1::
+        with one line
 parser define prefix "p" [code]
        with group paragraph
-parser test this is the indented paragraph 2::
-    with one line
+parser test:
+    this is the indented paragraph 2::
+	with one line
 parser define prefix "p" [code]
        with group paragraph
        with implied subprefix {l}
-parser test this is the indented paragraph 3::
-    with a first line
-    and a second line
+parser test:
+    this is the indented paragraph 3::
+	with a first line
+	and a second line
 parser define prefix "l" [code]
        with group line
-parser test this is the indented paragraph 4::
-    with a first line
-    and a second line
-    and a third line with [ HI THERE ] embedded
+parser test:
+    this is the indented paragraph 4::
+	with a first line
+	and a second line
+	and a third line with [ HI THERE ] embedded
 parser end block 1
 
 parser begin block 1
@@ -332,18 +342,19 @@ parser define prefix "p2" [code]
        with implied subprefix {l2}
 parser define prefix "l2" [code]
        with group line
-parser test this is the indented paragraph 5::
-    with a first line
-    and a second line with [HI THERE] embedded
+parser test:
+    this is the indented paragraph 5::
+	with a first line
+	and a second line with [HI THERE] embedded
 
-    {p2}and a second subparagraph
-    with a second line of its own
+	{p2}and a second subparagraph
+	with a second line of its own
 
-    and a third subparagraph
-    with a second line of its own
-    {p2} and a fourth subparagraph started
-         without in a previous blank line
-    with a second line of its own
+	and a third subparagraph
+	with a second line of its own
+	{p2} and a fourth subparagraph started
+	     without in a previous blank line
+	with a second line of its own
 
 parser define prefix "p3" [code]
        with group paragraph
@@ -352,18 +363,19 @@ parser define prefix "p3" [code]
 parser define prefix "l3" [code]
        with group line
 parser print prefix "p3"
-parser test this is the indented paragraph 6::
-    with a first line
-    and a second line with [HI THERE] embedded
+parser test:
+    this is the indented paragraph 6::
+	with a first line
+	and a second line with [HI THERE] embedded
 
-    {p3}and a second subparagraph
-    with a second line of its own
+	{p3}and a second subparagraph
+	with a second line of its own
 
-    and a third line after a blank line
-    and a fourth line
+	and a third line after a blank line
+	and a fourth line
 
-    {p2} and a third subparagraph
-    with a second line of its own
+	{p2} and a third subparagraph
+	with a second line of its own
 parser end block 1
 
 parser begin block 1

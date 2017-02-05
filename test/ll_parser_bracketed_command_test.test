@@ -262,69 +262,69 @@ parser trace [+ parser commands]
 parser trace [+ warnings]
 parser begin block 1
 parser define bracket "<*" ... "*>" [code]
-======= TEST: parser test <* hi there A *>
+======= PARSER TEST: <* hi there A *>
+======= line ##:
+    <* hi there A *>
+    ^^^^^^^^^^^^^^^^
 ------- line ##:
-parser test <* hi there A *>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test <* hi there A *>
-            ^^^^^^^^^^^^^^^^
-======= END TEST
+    <* hi there A *>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 ERROR: in line ##: innermost block name does not match `block x':
 parser end block x
 ^^^^^^^^^^^^^^^^^^
-======= TEST: parser test <* hi there B *>
+======= PARSER TEST: <* hi there B *>
+======= line ##:
+    <* hi there B *>
+    ^^^^^^^^^^^^^^^^
 ------- line ##:
-parser test <* hi there B *>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test <* hi there B *>
-            ^^^^^^^^^^^^^^^^
-======= END TEST
+    <* hi there B *>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser end block 1
-======= TEST: parser test <* hi there C *>
-------- line ##:
-parser test <* hi there C *>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+======= PARSER TEST: <* hi there C *>
+======= line ##:
+    <* hi there C *>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 ERROR: in line ##: innermost block name does not match `block 1':
 parser end block 1
 ^^^^^^^^^^^^^^^^^^
 parser define bracket "<|" ... "|>" [code]
-======= TEST: parser test < |hi there D| >
+======= PARSER TEST: < |hi there D| >
+======= line ##:
+    <| hi there D |>
+    ^^^^^^^^^^^^^^^^
 ------- line ##:
-parser test <| hi there D |>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test <| hi there D |>
-            ^^^^^^^^^^^^^^^^
-======= END TEST
+    <| hi there D |>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser begin block 1
 parser undefine bracket "<|" ... "|>" [code]
-======= TEST: parser test < "|" hi there E "|" >
-------- line ##:
-parser test <| hi there E |>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+======= PARSER TEST: < "|" hi there E "|" >
+======= line ##:
+    <| hi there E |>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 WARNING: in line ##: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 parser undefine bracket "<|" ... "|>" [code]
 parser end block 1
-======= TEST: parser test < |hi there F| >
+======= PARSER TEST: < |hi there F| >
+======= line ##:
+    <| hi there F |>
+    ^^^^^^^^^^^^^^^^
 ------- line ##:
-parser test <| hi there F |>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test <| hi there F |>
-            ^^^^^^^^^^^^^^^^
-======= END TEST
+    <| hi there F |>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser undefine bracket "<|" ... "|>" [code]
-======= TEST: parser test < "|" hi there F "|" >
-------- line ##:
-parser test <| hi there F |>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+======= PARSER TEST: < "|" hi there F "|" >
+======= line ##:
+    <| hi there F |>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 WARNING: in line ##: undefine found no definition:
 parser undefine bracket "<|" ... "|>" [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -388,54 +388,53 @@ parser print bracket "":
     block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                      with parsing selectors [- TOP LEVEL]
                      with special reformatter
-======= TEST: parser test (```")"''')
-------- line ##:
-parser test ( ``` ) ''' )
-^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test ( ``` ) ''' )
-            ^^^^^^^^^^^^^
-------- line ##:
-parser test ( ``` ) ''' )
-              ^^^^^^^^^
-======= END TEST
-======= TEST: parser test (```")"''')
-------- lines ##-##:
-parser test ( ```
-^^^^^^^^^^^^^^^^^
+======= PARSER TEST: (```")"''')
+======= line ###:
+    ( ``` ) ''' )
+    ^^^^^^^^^^^^^
+------- line ###:
+    ( ``` ) ''' )
+    ^^^^^^^^^^^^^
+------- line ###:
+    ( ``` ) ''' )
+      ^^^^^^^^^
+======= PARSER TEST: (```")"''')
+======= lines ###-###:
+    ( ```
+    ^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines ##-##:
-parser test ( ```
-            ^^^^^
+------- lines ###-###:
+    ( ```
+    ^^^^^
 )
 ^
 ''' )
 ^^^^^
-------- lines ##-##:
-parser test ( ```
-              ^^^
+------- lines ###-###:
+    ( ```
+      ^^^
 )
 ^
 ''' )
 ^^^
-======= END TEST
-ERROR: in line ##: missing closing bracket `'' inserted before `)':
-parser test ( ` ) ' )
-                ^
-======= TEST: parser test (`') "'" ")"
-------- line ##:
-parser test ( ` ) ' )
-^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test ( ` ) ' )
-            ^^^^^
-------- line ##:
-parser test ( ` ) ' )
-              ^
-======= END TEST
+======= END PARSER TEST(S)
+ERROR: in line ###: missing closing bracket `'' inserted before `)':
+    ( ` ) ' )
+        ^
+======= PARSER TEST: (`') "'" ")"
+======= line ###:
+    ( ` ) ' )
+    ^^^^^^^^^
+------- line ###:
+    ( ` ) ' )
+    ^^^^^
+------- line ###:
+    ( ` ) ' )
+      ^
+======= END PARSER TEST(S)
 ERROR: in line ###: missing closing bracket `'' inserted just before
        here:
 )
@@ -444,32 +443,32 @@ ERROR: in line ###: missing closing bracket `)' inserted just before
        here:
 )
 ^
-======= TEST: parser test (`')
-------- line ##:
-parser test ( `
-^^^^^^^^^^^^^^^
-------- line ##:
-parser test ( `
-            ^^^
-------- line ##:
-parser test ( `
-              ^
-======= END TEST
-======= TEST: parser test
-                  (An indented paragraph
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .terminator = "<LF>", .initiator =
-                             [$ LOGICAL_LINE $]|
-                             ```This logical line continues on no matter
-                                what "," even with a spurious ")" ","
-                                until the following is encountered-'''|}
-                        {"": .terminator = "<LF>", .initiator =
-                             [$ LOGICAL_LINE $]|Second line of indented
-                             paragraph "."|}|})
-------- lines ###-###:
-parser test ( An indented paragraph:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: (`')
+======= line ###:
+    ( `
+    ^^^
+------- line ###:
+    ( `
+    ^^^
+------- line ###:
+    ( `
+      ^
+======= END PARSER TEST(S)
+======= PARSER TEST: (An indented paragraph
+                      {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                           .initiator = ":"|
+                           {"": .terminator = "<LF>", .initiator =
+                                [$ LOGICAL_LINE $]|
+                                ```This logical line continues on no
+                                   matter what "," even with a spurious
+                                   ")" "," until the following is
+                                   encountered-'''|}
+                           {"": .terminator = "<LF>", .initiator =
+                                [$ LOGICAL_LINE $]|Second line of
+                                indented paragraph "."|}|})
+======= lines ###-###:
+    ( An indented paragraph:
+    ^^^^^^^^^^^^^^^^^^^^^^^^
                 ```This logical line continues on no
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
@@ -481,8 +480,8 @@ matter what, even with a spurious ), until
               ) // End of () bracketed subexpression
 ^^^^^^^^^^^^^^^
 ------- lines ###-###:
-parser test ( An indented paragraph:
-            ^^^^^^^^^^^^^^^^^^^^^^^^
+    ( An indented paragraph:
+    ^^^^^^^^^^^^^^^^^^^^^^^^
                 ```This logical line continues on no
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
@@ -494,8 +493,8 @@ matter what, even with a spurious ), until
               ) // End of () bracketed subexpression
 ^^^^^^^^^^^^^^^
 ------- lines ###-###:
-parser test ( An indented paragraph:
-                                   ^
+    ( An indented paragraph:
+                           ^
                 ```This logical line continues on no
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
@@ -521,7 +520,7 @@ matter what, even with a spurious ), until
 ------- line ###:
                 Second line of indented paragraph.
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+======= END PARSER TEST(S)
 parser end block 1
 parser begin block 1
 ======= TEST: parser test ["?" MISSING "?"]

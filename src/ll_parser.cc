@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 10:45:28 EST 2017
+// Date:	Sat Feb  4 18:22:46 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1361,6 +1361,8 @@ void PAR::parse ( PAR::parser parser )
 	line_variables.line_sep =
 	    parser->top_level_indentation_mark
 	          ->line_sep;
+	bool maybe_parser_command = 
+	    ( current->value == PAR::parser_lexeme );
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
@@ -1371,7 +1373,6 @@ void PAR::parse ( PAR::parser parser )
 
 	PAR::token first =
 	    line_variables.previous->next;
-	bool maybe_parser_command = false;
 	min::uns32 error_count_save =
 	    parser->error_count;
 
@@ -1390,8 +1391,6 @@ void PAR::parse ( PAR::parser parser )
 		      first->value_type
 		   != PAR::line_lexeme ) ) ) )
 	{
-	    maybe_parser_command =
-	        ( first->value == PAR::parser_lexeme );
 	    PAR::compact_logical_line
 		( parser, parser->pass_stack->next,
 	          selectors,
@@ -1470,12 +1469,22 @@ void PAR::parse ( PAR::parser parser )
 		line_variables
 		    .indentation_implied_paragraph;
 
-	    min::obj_vec_ptr vp
-		( output->value );
-	    if ( vp != NULL_STUB )
-		result =
-		  COM::parser_execute_command
-		    ( vp, 1, parser );
+	    min::obj_vec_ptr vp ( output->value );
+	    if ( vp != min::NULL_STUB )
+	    {
+	        if ( min::size_of ( vp ) == 1
+		     &&
+		        min::get ( vp[0],
+			           min::dot_initiator )
+		     == PAR::parser_test_colon )
+		    result =
+		        COM::parser_test_execute_command
+			    ( parser, vp[0] );
+		else
+		    result =
+		      COM::parser_execute_command
+			( vp, 1, parser );
+	    }
 	}
 
 	TAB::flags trace_flags =

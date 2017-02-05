@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 18:27:14 EST 2017
+// Date:	Sun Feb  5 01:56:10 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1209,6 +1209,86 @@ static min::gen execute_test
     if ( flags & TRACE_ANY )
 	parser->printer
 	    << "======= END TEST" << min::eol;
+
+    return COM::PRINTED;
+}
+
+min::gen COM::parser_test_execute_command
+	( PAR::parser parser,
+	  min::gen indented_paragraph )
+{
+    const min::uns64 TRACE_ANY =
+	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	+ PAR::TRACE_SUBEXPRESSION_DETAILS
+	+ PAR::TRACE_SUBEXPRESSION_LINES;
+    const min::uns64 TRACE_E_OR_D =
+	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	+ PAR::TRACE_SUBEXPRESSION_DETAILS;
+
+    TAB::flags flags = parser->trace_flags;
+    flags &= TRACE_ANY;
+    if ( flags == 0 )
+	flags = PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+
+    min::obj_vec_ptr vp ( indented_paragraph );
+    min::phrase_position_vec ppvec =
+        min::position_of ( vp );
+    MIN_ASSERT ( ppvec != min::NULL_STUB,
+                 "missing .position attribute" );
+
+    min::uns32 size = min::size_of ( vp );
+    if ( size == 0 ) return COM::PRINTED;
+
+    for ( min::uns32 i = 0; i < size; ++ i )
+    {
+
+	if ( ( flags & TRACE_E_OR_D ) || i == 0 )
+	    parser->printer
+		<< min::bol
+		<< min::save_print_format
+		<< min::no_auto_break
+		<< "======= PARSER TEST: "
+		<< min::restore_print_format;
+
+	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
+	    parser->printer
+		<< min::bom
+		<< min::adjust_indent ( 4 )
+		<< min::set_gen_format
+		   ( parser->subexpression_gen_format )
+		<< min::pgen ( vp[i] )
+		<< min::eom
+		<< min::flush_id_map;
+
+	if (   flags
+	     & PAR::TRACE_SUBEXPRESSION_DETAILS )
+	    min::print_mapped
+		( parser->printer,  vp[i] );
+
+	if ( flags & PAR::TRACE_SUBEXPRESSION_LINES )
+	{
+	    min::obj_vec_ptr subvp ( vp[i] );
+	    if ( subvp == min::NULL_STUB ) continue;
+
+	    parser->printer
+		<< min::bol
+		<< "======= "
+		<< min::bom
+		<< min::pline_numbers
+		       ( ppvec->file, ppvec[i] )
+		<< ":" << min::eom;
+
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file, ppvec[i] );
+
+	    ::execute_test_scan
+		( subvp, parser->printer );
+	}
+    }
+
+    parser->printer
+	<< "======= END PARSER TEST(S)" << min::eol;
 
     return COM::PRINTED;
 }

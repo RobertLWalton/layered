@@ -3630,10 +3630,10 @@ parser print bracket "":
                      with attribute negator "no"
                      with attribute flags initiator "["
                      with attribute multivalue initiator [< "{" "*" >]
-    block TOP LEVEL: indentation mark [< "PARSER" ":" >] ... ";"
+    block TOP LEVEL: indentation mark [< "parser" ":" >] ... ";"
                      [TOP LEVEL]
                      with parsing selectors [data]
-    block TOP LEVEL: indentation mark [< "PARSER" "TEST" ":" >] ... ";"
+    block TOP LEVEL: indentation mark [< "parser" "test" ":" >] ... ";"
                      [TOP LEVEL]
                      with parsing selectors [- TOP LEVEL]
     block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []

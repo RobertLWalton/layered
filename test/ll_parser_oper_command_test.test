@@ -7,15 +7,15 @@ parser print selector "":
 parser print pass:
     top
 parser print context "":
-    block standard: default [code]
+    block standard: default [TOP LEVEL, code]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
-    block TOP LEVEL: default []
+    block TOP LEVEL: default [TOP LEVEL]
                              options [end at le indent,
                                       end at line separator,
                                       end at outer closing]
-    block TOP LEVEL: parser [data]
+    block TOP LEVEL: parser [TOP LEVEL, data]
                             options [end at le indent,
                                      end at line separator,
                                      end at outer closing]
@@ -830,35 +830,16 @@ parser test ( foo bar <-- )
 parser test ( foo bar <-- )
                          ^
 ======= END TEST
-======= TEST: parser test:
-                  {"": .operator = "<--", .terminator = "<LF>",
-                       .initiator = [$ LOGICAL_LINE $]|<-- {|foo bar|}
-                       {|boo bat|}
-                       {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                            .initiator = ":"|
-                            {"": .terminator = "<LF>", .initiator =
-                                 [$ LOGICAL_LINE $]|fee fie fo fum|}
-                            {"": .terminator = "<LF>", .initiator =
-                                 [$ LOGICAL_LINE $]|he ha ho hum|}|}|}
-------- lines ###-###:
-parser test:
-^^^^^^^^^^^^
-    foo bar <-- boo bat:
-^^^^^^^^^^^^^^^^^^^^^^^^
-        fee fie fo fum
-^^^^^^^^^^^^^^^^^^^^^^
-        he ha ho hum
-^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-parser test:
-           ^
-    foo bar <-- boo bat:
-^^^^^^^^^^^^^^^^^^^^^^^^
-        fee fie fo fum
-^^^^^^^^^^^^^^^^^^^^^^
-        he ha ho hum
-^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
+======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|<--
+                          {|foo bar|} {|boo bat|}
+                          {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                               .initiator = ":"|
+                               {"": .terminator = "<LF>", .initiator =
+                                    [$ LOGICAL_LINE $]|fee fie fo fum|}
+                               {"": .terminator = "<LF>", .initiator =
+                                    [$ LOGICAL_LINE $]|he ha ho hum|}|}|}
+======= lines ###-###:
     foo bar <-- boo bat:
     ^^^^^^^^^^^^^^^^^^^^
         fee fie fo fum
@@ -884,7 +865,7 @@ parser test:
 ------- line ###:
         he ha ho hum
         ^^^^^^^^^^^^
-======= END TEST
+======= END PARSER TEST(S)
 parser print operator "":
     block standard: operator "*" [code, math]
                     infix

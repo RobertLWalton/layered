@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 13:45:53 EST 2017
+// Date:	Sat Feb  4 18:28:11 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -157,6 +157,14 @@ void print_flags
 	  ll::parser::table::flags allowed_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser );
+
+// Given an object that is the result of parsing an
+// `parser test:' indented paragraph, print appropriate
+// output.
+//
+min::gen parser_test_execute_command
+	( ll::parser::parser parser,
+	  min::gen indented_paragraph );
 
 // Given a vector pointer vp to an expression, test if
 // the subexpression vp[i0 ..] is a parser command.  Do

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 02:54:04 EST 2017
+// Date:	Sun Feb  5 04:35:34 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -119,14 +119,17 @@ matter what, even with a spurious ), until
 parser end block 1
 
 parser begin block 1
-parser test [? MISSING ?]
+parser test:
+    [? MISSING ?]
 parser define bracket "[?" ... "?]" [code]
        with special reformatter
-parser test [? MISSING ?]
-parser test [@ x 1 @ y 2 @ w @ z 3 @]
+parser test:
+    [? MISSING ?]
+    [@ x 1 @ y 2 @ w @ z 3 @]
 parser define bracket "[@" ... "@]" [code]
        with multivalue reformatter ( "@" )
-parser test [@ x 1 @ y 2 @ w @ z 3 @]
+parser test:
+    [@ x 1 @ y 2 @ w @ z 3 @]
 parser end block 1
 
 parser begin block 1
@@ -142,12 +145,14 @@ parser end block 1
 
 parser begin block 1
 parser print indentation offset
+parser trace [+ parser output, - subexpression elements]
 first line with indent 0
  line with indent 1
 second line with indent 0
   line with indent 2
 third line with indent 0
     line with indent 4
+parser trace [- parser output, + subexpression elements]
 
 parser test:
 	well ( hello:
@@ -200,15 +205,17 @@ parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
 parser define bracket "[@" ... "@]" [code]
        with multivalue reformatter ( "@" )
 
-parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
-parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
-                | A B C |T}T2
-parser test (T1{T}T1 A B C)
-parser test (T2{T}T2 A B C)
-parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+parser test:
+    T1{ T:: x == 5 # y == 6 | A B C |T}T1
+    T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @] | A B C |T}T2
+    (T1{T}T1 A B C)
+    (T2{T}T2 A B C)
+    T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+    T2{T:: X # NO Y | A B | NO Z # W | C D | }T2
 parser undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
        [code, text, math, data]
-parser test (T2{T}T2 A B C)
+parser test:
+    (T2{T}T2 A B C)
 
 parser begin block 1
 parser print string concatenator

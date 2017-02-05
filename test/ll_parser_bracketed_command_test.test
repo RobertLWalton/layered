@@ -523,39 +523,38 @@ matter what, even with a spurious ), until
 ======= END PARSER TEST(S)
 parser end block 1
 parser begin block 1
-======= TEST: parser test ["?" MISSING "?"]
+======= PARSER TEST: ["?" MISSING "?"]
+======= line ###:
+    [? MISSING ?]
+    ^^^^^^^^^^^^^
 ------- line ###:
-parser test [? MISSING ?]
-^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-parser test [? MISSING ?]
-            ^^^^^^^^^^^^^
-======= END TEST
+    [? MISSING ?]
+    ^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser define bracket "[?" ... "?]" [code]
        with special reformatter
-======= TEST: parser test [$ MISSING $]
+======= PARSER TEST: [$ MISSING $]
+======= line ###:
+    [? MISSING ?]
+    ^^^^^^^^^^^^^
+======= PARSER TEST: [@ x 1 @ y 2 @ w @ z 3 @]
+======= line ###:
+    [@ x 1 @ y 2 @ w @ z 3 @]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-parser test [? MISSING ?]
-^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
-======= TEST: parser test [@ x 1 @ y 2 @ w @ z 3 @]
-------- line ###:
-parser test [@ x 1 @ y 2 @ w @ z 3 @]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-parser test [@ x 1 @ y 2 @ w @ z 3 @]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+    [@ x 1 @ y 2 @ w @ z 3 @]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser define bracket "[@" ... "@]" [code]
        with multivalue reformatter ( "@" )
-======= TEST: parser test [@ [< x 1 >] @ [< y 2 >] @ w @ [< z 3 >] @]
+======= PARSER TEST: [@ [< x 1 >] @ [< y 2 >] @ w @ [< z 3 >] @]
+======= line ###:
+    [@ x 1 @ y 2 @ w @ z 3 @]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-parser test [@ x 1 @ y 2 @ w @ z 3 @]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-parser test [@ x 1 @ y 2 @ w @ z 3 @]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+    [@ x 1 @ y 2 @ w @ z 3 @]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser end block 1
 parser begin block 1
 parser define indentation offset 4
@@ -575,9 +574,26 @@ parser print indentation offset:
     block block 1: 2
     block standard: 2
     block TOP LEVEL: 2
+parser trace [+ parser output, - subexpression elements]
 WARNING: in line ###: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^
+BRACKETED EXPRESSION: lines ###-###:
+first line with indent 0
+^^^^^^^^^^^^^^^^^^^^^^^^
+ line with indent 1
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION: lines ###-###:
+second line with indent 0
+^^^^^^^^^^^^^^^^^^^^^^^^^
+  line with indent 2
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION: lines ###-###:
+third line with indent 0
+^^^^^^^^^^^^^^^^^^^^^^^^
+    line with indent 4
+^^^^^^^^^^^^^^^^^^^^^^
+parser trace [- parser output, + subexpression elements]
 ======= PARSER TEST: well
                          (hello
                           {"": .terminator = [$ INDENTED_PARAGRAPH $],
@@ -737,66 +753,65 @@ parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
        with prefix separators allowed
 parser define bracket "[@" ... "@]" [code]
        with multivalue reformatter ( "@" )
-======= TEST: parser test {T: x = "5", y = "6"|A B C|T}
+======= PARSER TEST: {T: x = "5", y = "6"|A B C|T}
+======= line ###:
+    T1{ T:: x == 5 # y == 6 | A B C |T}T1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    T1{ T:: x == 5 # y == 6 | A B C |T}T1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {T: x[+-] = "5", y = {* "6", "7" *}|A B C|T}
+======= line ###:
+    T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @] | A B C |T}T2
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-parser test T1{ T:: x == 5 # y == 6 | A B C |T}T1
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
-======= TEST: parser test {T: x[+-] = "5", y = {* "6", "7" *}|A B C|T}
-------- lines ###-###:
-parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                | A B C |T}T2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-parser test T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                | A B C |T}T2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
-======= TEST: parser test ({T||T} A B C)
+    T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @] | A B C |T}T2
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: ({T||T} A B C)
+======= line ###:
+    (T1{T}T1 A B C)
+    ^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T1{T}T1 A B C)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (T1{T}T1 A B C)
+    ^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T1{T}T1 A B C)
-            ^^^^^^^^^^^^^^^
+    (T1{T}T1 A B C)
+     ^^^^^^^
+======= PARSER TEST: ({T|A B C|T})
+======= line ###:
+    (T2{T}T2 A B C)
+    ^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T1{T}T1 A B C)
-             ^^^^^^^
-======= END TEST
-======= TEST: parser test ({T|A B C|T})
+    (T2{T}T2 A B C)
+    ^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T2{T}T2 A B C)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (T2{T}T2 A B C)
+     ^^^^^^^^^^^^^
+======= PARSER TEST: {T: NO Z, X, W, NO Y|A B C D|T}
+======= line ###:
+    T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T2{T}T2 A B C)
-            ^^^^^^^^^^^^^^^
+    T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {T: X, no Y, no Z, W|A B C D|T}
+======= line ###:
+    T2{T:: X # NO Y | A B | NO Z # W | C D | }T2
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T2{T}T2 A B C)
-             ^^^^^^^^^^^^^
-======= END TEST
-======= TEST: parser test {T: NO Z, X, W, NO Y|A B C D|T}
-------- line ###:
-parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-parser test T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+    T2{T:: X # NO Y | A B | NO Z # W | C D | }T2
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
        [code, text, math, data]
-======= TEST: parser test (T2 "{" T "}" T2 A B C)
+======= PARSER TEST: (T2 "{" T "}" T2 A B C)
+======= line ###:
+    (T2{T}T2 A B C)
+    ^^^^^^^^^^^^^^^
 ------- line ###:
-parser test (T2{T}T2 A B C)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-parser test (T2{T}T2 A B C)
-            ^^^^^^^^^^^^^^^
-======= END TEST
+    (T2{T}T2 A B C)
+    ^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser begin block 1
 parser print string concatenator:
     block block 1: "#"

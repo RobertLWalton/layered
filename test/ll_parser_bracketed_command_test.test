@@ -108,155 +108,151 @@ parser print bracket "<+":
                                             + operator 1]
 parser trace [ + subexpression lines,
                + subexpression elements]
-======= TEST: parser test "abcdef"
+======= PARSER TEST: "abcdef"
+======= lines ##-##:
+    "abc"
+    ^^^^^
+        # "def"
+^^^^^^^^^^^^^^^
 ------- lines ##-##:
-parser test "abc"
-^^^^^^^^^^^^^^^^^
-            # "def"
-^^^^^^^^^^^^^^^^^^^
-------- lines ##-##:
-parser test "abc"
-            ^^^^^
-            # "def"
-^^^^^^^^^^^^^^^^^^^
-======= END TEST
+    "abc"
+    ^^^^^
+        # "def"
+^^^^^^^^^^^^^^^
 ======= PARSER TEST: "abc"
 ======= line ##:
-        "abc"
-        ^^^^^
+    "abc"
+    ^^^^^
 ------- line ##:
-        "abc"
-        ^^^^^
+    "abc"
+    ^^^^^
 ======= PARSER TEST: # "def"
 ======= line ##:
-        # "def"
-        ^^^^^^^
+    # "def"
+    ^^^^^^^
 ------- line ##:
-        # "def"
-          ^^^^^
+    # "def"
+      ^^^^^
+======= PARSER TEST: <+ hi there +> <+ hi "[" embedded "]" there +>
+======= line ##:
+    <+ hi there +> <+ hi [embedded] there +>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    <+ hi there +> <+ hi [embedded] there +>
+    ^^^^^^^^^^^^^^
+------- line ##:
+    <+ hi there +> <+ hi [embedded] there +>
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
-======= TEST: parser test <+ hi there +> <+ hi "[" embedded "]" there +>
-------- line ##:
-parser test <+ hi there +> <+ hi [embedded] there +>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-parser test <+ hi there +> <+ hi [embedded] there +>
-            ^^^^^^^^^^^^^^
-------- line ##:
-parser test <+ hi there +> <+ hi [embedded] there +>
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
 parser begin block 1
 parser define bracket "[X" ... "X]" [code, operator 1]
        with parsing selectors [- code, + operator 1]
-======= TEST: parser test [a [b c] c] [X a "[" b c "]" d X]
+======= PARSER TEST: [a [b c] c] [X a "[" b c "]" d X]
+======= line ##:
+    [ a [ b c ] c ] [X a [ b c ] d X]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ##:
-parser test [ a [ b c ] c ] [X a [ b c ] d X]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [ a [ b c ] c ] [X a [ b c ] d X]
+    ^^^^^^^^^^^^^^^
 ------- line ##:
-parser test [ a [ b c ] c ] [X a [ b c ] d X]
-            ^^^^^^^^^^^^^^^
+    [ a [ b c ] c ] [X a [ b c ] d X]
+        ^^^^^^^
 ------- line ##:
-parser test [ a [ b c ] c ] [X a [ b c ] d X]
-                ^^^^^^^
-------- line ##:
-parser test [ a [ b c ] c ] [X a [ b c ] d X]
-                            ^^^^^^^^^^^^^^^^^
-======= END TEST
-======= TEST: parser test this is a paragraph +:
-                  line #
-                  line {# 2a #} "::" line {# 2b #}; line {# 2c #}
-                  last line
-------- lines ##-##:
-parser test this is a paragraph +:
+    [ a [ b c ] c ] [X a [ b c ] d X]
+                    ^^^^^^^^^^^^^^^^^
+======= PARSER TEST: this is a paragraph +:
+                         line #
+                         line {# 2a #} "::" line {# 2b #}; line {# 2c #}
+                         last line
+======= lines ##-##:
+    this is a paragraph +:
+    ^^^^^^^^^^^^^^^^^^^^^^
+        line #
+^^^^^^^^^^^^^^
+        line #a:: line #b; line #c
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    line #
-^^^^^^^^^^
-    line #a:: line #b; line #c
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    last line
-^^^^^^^^^^^^^
+        last line
+^^^^^^^^^^^^^^^^^
 ------- lines ##-##:
-parser test this is a paragraph +:
-                                 ^
-    line #
-^^^^^^^^^^
-    line #a:: line #b; line #c
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    last line
-^^^^^^^^^^^^^
-------- line ##:
-    line #
-    ^^^^^^
-------- line ##:
-    line #a:: line #b; line #c
-    ^^^^^^^^^^^^^^^^^^
-------- line ##:
-    line #a:: line #b; line #c
-         ^^
-------- line ##:
-    line #a:: line #b; line #c
-                   ^^
-------- line ##:
-    line #a:: line #b; line #c
-                       ^^^^^^^
-------- line ##:
-    line #a:: line #b; line #c
-                            ^^
-------- line ##:
-    last line
-    ^^^^^^^^^
-======= END TEST
-parser define indentation mark "+:" ... "::" [code]
-======= TEST: parser test this is a paragraph+:
-                  line #
-                  line {# 2a #}:: line {# 2b #} ";" line {# 2c #}
-                  last line
-------- lines ##-##:
-parser test this is a paragraph +:
+    this is a paragraph +:
+                         ^
+        line #
+^^^^^^^^^^^^^^
+        line #a:: line #b; line #c
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    line #
-^^^^^^^^^^
-    line #a:: line #b; line #c
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    last line
-^^^^^^^^^^^^^
-------- lines ##-##:
-parser test this is a paragraph +:
+        last line
+^^^^^^^^^^^^^^^^^
+------- line ##:
+        line #
+        ^^^^^^
+------- line ##:
+        line #a:: line #b; line #c
+        ^^^^^^^^^^^^^^^^^^
+------- line ##:
+        line #a:: line #b; line #c
+             ^^
+------- line ##:
+        line #a:: line #b; line #c
+                       ^^
+------- line ##:
+        line #a:: line #b; line #c
+                           ^^^^^^^
+------- line ##:
+        line #a:: line #b; line #c
                                 ^^
-    line #
-^^^^^^^^^^
-    line #a:: line #b; line #c
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    last line
-^^^^^^^^^^^^^
 ------- line ##:
-    line #
-    ^^^^^^
+        last line
+        ^^^^^^^^^
+======= END PARSER TEST(S)
+parser define indentation mark "+:" ... "::" [code]
+======= PARSER TEST: this is a paragraph+:
+                         line #
+                         line {# 2a #}:: line {# 2b #} ";" line {# 2c #}
+                         last line
+======= lines ##-##:
+    this is a paragraph +:
+    ^^^^^^^^^^^^^^^^^^^^^^
+        line #
+^^^^^^^^^^^^^^
+        line #a:: line #b; line #c
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        last line
+^^^^^^^^^^^^^^^^^
+------- lines ##-##:
+    this is a paragraph +:
+                        ^^
+        line #
+^^^^^^^^^^^^^^
+        line #a:: line #b; line #c
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        last line
+^^^^^^^^^^^^^^^^^
 ------- line ##:
-    line #a:: line #b; line #c
-    ^^^^^^^^^
+        line #
+        ^^^^^^
 ------- line ##:
-    line #a:: line #b; line #c
-         ^^
+        line #a:: line #b; line #c
+        ^^^^^^^^^
 ------- line ##:
-    line #a:: line #b; line #c
-              ^^^^^^^^^^^^^^^^
+        line #a:: line #b; line #c
+             ^^
 ------- line ##:
-    line #a:: line #b; line #c
-                   ^^
+        line #a:: line #b; line #c
+                  ^^^^^^^^^^^^^^^^
 ------- line ##:
-    line #a:: line #b; line #c
-                            ^^
+        line #a:: line #b; line #c
+                       ^^
 ------- line ##:
-    last line
-    ^^^^^^^^^
-======= END TEST
-======= TEST: parser test <X "|" hi there "|" X>
+        line #a:: line #b; line #c
+                                ^^
 ------- line ##:
-parser test  <X| hi there |X>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= END TEST
+        last line
+        ^^^^^^^^^
+======= PARSER TEST: <X "|" hi there "|" X>
+======= line ##:
+    <X| hi there |X>
+    ^^^^^^^^^^^^^^^^
+======= END PARSER TEST(S)
 parser end block 1
 ERROR: in line ##: unrecognized flag/option name:
 parser trace [+ foo]
@@ -440,11 +436,11 @@ parser test ( ` ) ' )
 parser test ( ` ) ' )
               ^
 ======= END TEST
-ERROR: in line ##: missing closing bracket `'' inserted just before
+ERROR: in line ###: missing closing bracket `'' inserted just before
        here:
 )
 ^
-ERROR: in line ##: missing closing bracket `)' inserted just before
+ERROR: in line ###: missing closing bracket `)' inserted just before
        here:
 )
 ^

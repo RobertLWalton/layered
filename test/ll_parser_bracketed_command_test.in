@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 28 10:11:08 EST 2017
+// Date:	Sun Feb  5 02:33:22 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -32,27 +32,29 @@ parser print bracket "<+"
 
 parser trace [ + subexpression lines,
                + subexpression elements]
-parser test "abc"
-            # "def"
 parser test:
-	"abc"
-	# "def"
-parser test <+ hi there +> <+ hi [embedded] there +>
+    "abc"
+        # "def"
+    "abc"
+    # "def"
+    <+ hi there +> <+ hi [embedded] there +>
 
 parser begin block 1
 parser define bracket "[X" ... "X]" [code, operator 1]
        with parsing selectors [- code, + operator 1]
-parser test [ a [ b c ] c ] [X a [ b c ] d X]
-parser test this is a paragraph +:
-    line 1
-    line 2a:: line 2b; line 2c
-    last line
+parser test:
+    [ a [ b c ] c ] [X a [ b c ] d X]
+    this is a paragraph +:
+	line 1
+	line 2a:: line 2b; line 2c
+	last line
 parser define indentation mark "+:" ... "::" [code]
-parser test this is a paragraph +:
-    line 1
-    line 2a:: line 2b; line 2c
-    last line
-parser test  <X| hi there |X>
+parser test:
+    this is a paragraph +:
+	line 1
+	line 2a:: line 2b; line 2c
+	last line
+    <X| hi there |X>
 parser end block 1
 
 parser trace [+ foo]

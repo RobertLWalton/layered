@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 02:33:22 EST 2017
+// Date:	Sun Feb  5 02:54:04 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -65,25 +65,32 @@ parser trace [+ warnings]
 
 parser begin block 1
 parser define bracket "<*" ... "*>" [code]
-parser test <* hi there A *>
+parser test:
+    <* hi there A *>
 parser end block x
-parser test <* hi there B *>
+parser test:
+    <* hi there B *>
 parser end block 1
 
-parser test <* hi there C *>
+parser test:
+    <* hi there C *>
 parser end block 1
 parser define bracket "<|" ... "|>" [code]
-parser test <| hi there D |>
+parser test:
+    <| hi there D |>
 
 parser begin block 1
 parser undefine bracket "<|" ... "|>" [code]
-parser test <| hi there E |>
+parser test:
+    <| hi there E |>
 parser undefine bracket "<|" ... "|>" [code]
 parser end block 1
 
-parser test <| hi there F |>
+parser test:
+    <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
-parser test <| hi there F |>
+parser test:
+    <| hi there F |>
 parser undefine bracket "<|" ... "|>" [code]
 
 parser begin block 1
@@ -91,15 +98,19 @@ parser define bracket "`" ... "'" [code]
 parser define bracket "```" ... "'''" [code]
        with parsing options []
 parser print bracket ""
-parser test ( ``` ) ''' )
-parser test ( ```
+parser test:
+    ( ``` ) ''' )
+    ( ```
 )
 ''' )
-parser test ( ` ) ' )
-parser test ( `
+parser test:
+    ( ` ) ' )
+parser test:
+    ( `
 )
 ' )
-parser test ( An indented paragraph:
+parser test:
+    ( An indented paragraph:
 		```This logical line continues on no
 matter what, even with a spurious ), until
     the following is encountered- '''

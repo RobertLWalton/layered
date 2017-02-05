@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 29 22:54:09 EST 2016
+// Date:	Sun Feb  5 02:23:53 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -26,22 +26,28 @@ parser define context "default"
        with parsing options [default options]
 parser print context ""
 parser define context "default"
-       with parsing selectors [code]
+       with parsing selectors [TOP LEVEL, code]
        with parsing options [default options]
 parser print context ""
 
-parser test [ x <+ y +> z {|4|w} m (n (p)) ]
+parser test:
+    [ x <+ y +> z {|4|w} m (n (p)) ]
 parser trace [+ subexpression lines]
-parser test [ x <+ y +> z {|4|w} m (n (p)) ]
+parser test:
+    [ x <+ y +> z {|4|w} m (n (p)) ]
 parser trace [- subexpression lines]
 parser trace [+ subexpression details]
-parser test [ x <+ y +> z {|4|w} m (n (p)) ]
+parser test:
+    [ x <+ y +> z {|4|w} m (n (p)) ]
 parser trace [+ subexpression elements]
-parser test [ x <+ y +> z {|4|w} m (n (p)) ]
+parser test:
+    [ x <+ y +> z {|4|w} m (n (p)) ]
 parser trace [- subexpression details]
-parser test [ x <+ y +> z {|4|w} m (n (p)) ]
+parser test:
+    [ x <+ y +> z {|4|w} m (n (p)) ]
 parser trace [+ subexpression lines]
-parser test [ x <+ y +> z {|4|w} m (n (p)) ]
+parser test:
+    [ x <+ y +> z {|4|w} m (n (p)) ]
 
 parser begin special
 parser define context "parser test special"

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 11:11:08 EST 2017
+// Date:	Mon Feb  6 11:47:54 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -207,38 +207,40 @@ parser test:
 parser:
     end block 1
 
-parser begin block 1
-parser print prefix ""
-parser define prefix "X" [code]
-       with parsing selectors [code, math]
-parser define prefix "Y" [code]
-       with parsing selectors [+ text]
-       with group ajax
-parser define prefix "Z" [math]
-       with parsing selectors [code]
-       with implied subprefix {X: y = 5, z = hi there}
-       with lexical master "START"
-       with parsing options [end at line break]
-parser print prefix ""
-parser print prefix "X"
-parser end block 1
+parser:
+    begin block 1
+    print prefix ""
+    define prefix "X" [code]
+        with parsing selectors [code, math]
+    define prefix "Y" [code]
+        with parsing selectors [+ text]
+        with group ajax
+    define prefix "Z" [math]
+        with parsing selectors [code]
+        with implied subprefix {X: y = 5, z = hi there}
+        with lexical master "START"
+        with parsing options [end at line break]
+    print prefix ""
+    print prefix "X"
+    end block 1
 
-parser define typed bracket "T1{" ... "|" ... "|" ... "}T1"
-       [code, text, math, data]
-       with element selectors [data]
-       with attribute selectors [data]
-       with attributes "::" ... "==" ... "#"
-parser define typed bracket "T2{" ... "|" ... "|" ... "}T2"
-       [code, text, math, data]
-       with element selectors [data]
-       with attribute selectors [data, code]
-       with attributes "::" ... "==" ... "#"
-       with attribute negator "NO"
-       with attribute flags initiator "("
-       with attribute multivalue initiator "[@"
-       with prefix separators allowed
-parser define bracket "[@" ... "@]" [code]
-       with multivalue reformatter ( "@" )
+parser:
+    define typed bracket "T1{" ... "|" ... "|" ... "}T1"
+        [code, text, math, data]
+        with element selectors [data]
+        with attribute selectors [data]
+        with attributes "::" ... "==" ... "#"
+    define typed bracket "T2{" ... "|" ... "|" ... "}T2"
+        [code, text, math, data]
+        with element selectors [data]
+        with attribute selectors [data, code]
+        with attributes "::" ... "==" ... "#"
+        with attribute negator "NO"
+        with attribute flags initiator "("
+        with attribute multivalue initiator "[@"
+        with prefix separators allowed
+    define bracket "[@" ... "@]" [code]
+        with multivalue reformatter ( "@" )
 
 parser test:
     T1{ T:: x == 5 # y == 6 | A B C |T}T1
@@ -247,72 +249,82 @@ parser test:
     (T2{T}T2 A B C)
     T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
     T2{T:: X # NO Y | A B | NO Z # W | C D | }T2
-parser undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
-       [code, text, math, data]
+parser:
+    undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
+        [code, text, math, data]
 parser test:
     (T2{T}T2 A B C)
 
-parser begin block 1
-parser print string concatenator
+parser:
+    begin block 1
+    print string concatenator
 parser test:
     "A" # "B"
     "A" "B"
-parser define string concatenator enabled
-parser print string concatenator
+parser:
+    define string concatenator enabled
+    print string concatenator
 parser test:
     "A" # "B"
     "A" "B"
-parser define string concatenator disabled
-parser print string concatenator
+parser:
+    define string concatenator disabled
+    print string concatenator
 parser test:
     "A" # "B"
     "A" "B"
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
-parser define typed bracket "8" ... "|" ... "|" ... "9"
-       [code, text, math, data]
-       with element selectors [data]
-       with attribute selectors [data, code]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags initiator "["
-       with attribute multivalue initiator "{*"
-       with prefix separators allowed
+parser:
+    begin block 1
+    define typed bracket "8" ... "|" ... "|" ... "9"
+        [code, text, math, data]
+        with element selectors [data]
+        with attribute selectors [data, code]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
 parser test:
     [8 my type: my attr = 99 9]
-parser end block 1
+parser:
+    end block 1
 parser test:
     [8 my type: my attr = 99 9]
 
-parser begin block 1
-parser define bracket "[0" ... "0]" [code]
-       with special reformatter
+parser:
+    begin block 1
+    define bracket "[0" ... "0]" [code]
+        with special reformatter
 parser test:
     [0 LOGICAL_LINE 0]
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
-parser define prefix "P1" [code, text]
-       with parsing selectors [text]
-       with group paragraph
-       with implied subprefix {S1}
-       with parsing options [end at paragraph break]
-parser define prefix "P2" [code, text]
-       with parsing selectors [text]
-       with group paragraph
-       with parsing options [end at paragraph break]
-parser define typed bracket "{" ... "|" ... "|" ... "}"
-       [code, text, math]
-       // no element selectors
-       with attribute selectors [data]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags initiator "["
-       with attribute multivalue initiator "{*"
-       with prefix separators allowed
+parser:
+    begin block 1
+    define prefix "P1" [code, text]
+        with parsing selectors [text]
+        with group paragraph
+        with implied subprefix {S1}
+        with parsing options [end at paragraph break]
+    define prefix "P2" [code, text]
+        with parsing selectors [text]
+        with group paragraph
+        with parsing options [end at paragraph break]
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no element selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
 
-parser print prefix ""
+    print prefix ""
 
 parser test:
     {P1}
@@ -326,57 +338,64 @@ parser test:
     that is continued
     over three lines.
 
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
-parser define indentation mark "::" ... ";" [code]
-       with implied header {p}
+parser:
+    begin block 1
+    define indentation mark "::" ... ";" [code]
+        with implied header {p}
 parser test:
     this is the indented paragraph 1::
         with one line
-parser define prefix "p" [code]
-       with group paragraph
+parser:
+    define prefix "p" [code]
+        with group paragraph
 parser test:
     this is the indented paragraph 2::
 	with one line
-parser define prefix "p" [code]
-       with group paragraph
-       with implied subprefix {l}
+parser:
+    define prefix "p" [code]
+        with group paragraph
+        with implied subprefix {l}
 parser test:
     this is the indented paragraph 3::
 	with a first line
 	and a second line
-parser define prefix "l" [code]
-       with group line
+parser:
+    define prefix "l" [code]
+        with group line
 parser test:
     this is the indented paragraph 4::
 	with a first line
 	and a second line
 	and a third line with [ HI THERE ] embedded
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
-parser define indentation mark "::" ... ";" [code]
-       with implied header {p1}
-parser define typed bracket "{" ... "|" ... "|" ... "}"
-       [code, text, math]
-       // no element selectors
-       with attribute selectors [data]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags initiator "["
-       with attribute multivalue initiator "{*"
-       with prefix separators allowed
-parser define prefix "p1" [code]
-       with group paragraph
-       with implied subprefix {l1}
-parser define prefix "l1" [code]
-       with group line
-parser define prefix "p2" [code]
-       with group paragraph
-       with implied subprefix {l2}
-parser define prefix "l2" [code]
-       with group line
+parser:
+    begin block 1
+    define indentation mark "::" ... ";" [code]
+        with implied header {p1}
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no element selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
+    define prefix "p1" [code]
+        with group paragraph
+        with implied subprefix {l1}
+    define prefix "l1" [code]
+        with group line
+    define prefix "p2" [code]
+        with group paragraph
+        with implied subprefix {l2}
+    define prefix "l2" [code]
+        with group line
 parser test:
     this is the indented paragraph 5::
 	with a first line
@@ -391,13 +410,14 @@ parser test:
 	     without in a previous blank line
 	with a second line of its own
 
-parser define prefix "p3" [code]
-       with group paragraph
-       with implied subprefix {l3}
-       with parsing options [+ continuing]
-parser define prefix "l3" [code]
-       with group line
-parser print prefix "p3"
+parser:
+    define prefix "p3" [code]
+        with group paragraph
+        with implied subprefix {l3}
+        with parsing options [+ continuing]
+    define prefix "l3" [code]
+        with group line
+    print prefix "p3"
 parser test:
     this is the indented paragraph 6::
 	with a first line
@@ -411,34 +431,36 @@ parser test:
 
 	{p2} and a third subparagraph
 	with a second line of its own
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
-parser define typed bracket "{" ... "|" ... "|" ... "}"
-       [code, text, math]
-       // no element selectors
-       with attribute selectors [data]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags initiator "["
-       with attribute multivalue initiator "{*"
-       with prefix separators allowed
-parser define prefix "p1" [code]
-       with group paragraph
-       with implied subprefix {l1}
-parser define prefix "l1" [code]
-       with group line
-parser define prefix "p2" [code]
-       with group paragraph
-       with implied subprefix {l2}
-       with parsing options [+ continuing]
-parser define prefix "l2" [code]
-       with group line
-parser define prefix "p3" [code]
-       with group paragraph
-       with parsing options [+ continuing]
-parser print prefix ""
-parser trace [+ parser output]
+parser:
+    begin block 1
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no element selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
+    define prefix "p1" [code]
+        with group paragraph
+        with implied subprefix {l1}
+    define prefix "l1" [code]
+        with group line
+    define prefix "p2" [code]
+        with group paragraph
+        with implied subprefix {l2}
+        with parsing options [+ continuing]
+    define prefix "l2" [code]
+        with group line
+    define prefix "p3" [code]
+        with group paragraph
+        with parsing options [+ continuing]
+    print prefix ""
+    trace [+ parser output]
 
 {p1} this is a first paragraph
 and a line
@@ -464,34 +486,36 @@ and another line outside the fourth paragraph
 and a line
 
 and another line outside the fifth paragraph
-parser trace [- parser output]
-parser end block 1
+parser:
+    trace [- parser output]
+    end block 1
 
-parser begin block 1
-parser define typed bracket "{" ... "|" ... "|" ... "}"
-       [code, text, math]
-       // no element selectors
-       with attribute selectors [data]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags initiator "["
-       with attribute multivalue initiator "{*"
-       with prefix separators allowed
-parser define prefix "p1" [code]
-       with group paragraph
-       with implied subprefix {l1}
-parser define prefix "l1" [code]
-       with group line
-parser define prefix "p2" [code]
-       with group paragraph
-       with implied subprefix {l2}
-       with parsing options [+ sticky]
-parser define prefix "l2" [code]
-       with group line
-parser define prefix "p3" [code]
-       with group paragraph
-       with parsing options [+ sticky]
-parser trace [+ parser output]
+parser:
+    begin block 1
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no element selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
+    define prefix "p1" [code]
+        with group paragraph
+        with implied subprefix {l1}
+    define prefix "l1" [code]
+        with group line
+    define prefix "p2" [code]
+        with group paragraph
+        with implied subprefix {l2}
+        with parsing options [+ sticky]
+    define prefix "l2" [code]
+        with group line
+    define prefix "p3" [code]
+        with group paragraph
+        with parsing options [+ sticky]
+    trace [+ parser output]
 this is paragraph 1
 and another line
 
@@ -525,31 +549,33 @@ and another line
 this is paragraph 11
 and another line
 
-parser trace [- parser output]
-parser end block 1
+parser:
+    trace [- parser output]
+    end block 1
 
 this is a test line
 
-parser begin block 1
-parser define typed bracket "{" ... "|" ... "|" ... "}"
-       [code, text, math]
-       // no element selectors
-       with attribute selectors [data]
-       with attributes ":" ... "=" ... ","
-       with attribute negator "no"
-       with attribute flags initiator "["
-       with attribute multivalue initiator "{*"
-       with prefix separators allowed
-parser define prefix "p" [code]
-       with group paragraph
-       with implied subprefix {l1}
-parser define prefix "l1" [code]
-       with group line
-parser define prefix "l2" [code]
-       with group line
-parser define prefix "x" [code]
-       with implied subprefix {l1}
-parser trace [+ parser output]
+parser:
+    begin block 1
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no element selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
+    define prefix "p" [code]
+        with group paragraph
+        with implied subprefix {l1}
+    define prefix "l1" [code]
+        with group line
+    define prefix "l2" [code]
+        with group line
+    define prefix "x" [code]
+        with implied subprefix {l1}
+    trace [+ parser output]
 {l1} this is a line
 
 {p} this is a paragraph line
@@ -570,5 +596,6 @@ with one extra line.
 ({l2} a third stray)
 ({p} a fourth stray)
 {p} and a fifth stray
-parser trace [- parser output]
-parser end block 1
+parser:
+    trace [- parser output]
+    end block 1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 01:30:16 EST 2017
+// Date:	Mon Feb  6 11:13:11 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2632,7 +2632,7 @@ min::gen PAR::parse_error
 	  const min::op & message8,
 	  const char * message9 )
 {
-    parser->printer << min::bom
+    parser->printer << min::bol << min::bom
                     << min::set_indent ( 7 )
 	            << "ERROR: in "
 		    << min::pline_numbers
@@ -2668,7 +2668,7 @@ void PAR::parse_warn
          == 0 )
         return;
 
-    parser->printer << min::bom
+    parser->printer << min::bol << min::bom
                     << min::set_indent ( 9 )
 	            << "WARNING: in "
 		    << min::pline_numbers

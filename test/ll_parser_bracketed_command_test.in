@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 06:43:28 EST 2017
+// Date:	Mon Feb  6 11:11:08 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,28 +11,33 @@
 parser:
 	print bracket ""
 
-parser define bracket "[+"
-parser define bracket "[+" ...
-parser print context "default"
-parser define selector text
-parser define selector code
-parser define selector math
-parser define selector operator 1
-parser print selector ""
-parser print context "default"
-parser define bracket "(" ... ")" [code, math, text]
-parser define bracket "[" ... "]" [code, math, text]
-parser print bracket "["
-parser define indentation mark ":" ... ";" [code, math, text]
-parser print bracket ":"
-parser define bracket "[+" ... "+]" [text, operator 2]
-parser define bracket "<+" ... "+>" [text + operator]
-parser define bracket "<+" ... "+>" [code, operator 1]
-       with parsing selectors [^ code, - math, + operator 1]
-parser print bracket "<+"
+parser:
+    define bracket "[+"
+    define bracket "[+" ...
+    print context "default"
+    define selector text
+    define selector code
+    define selector math
+    define selector operator 1
+    print selector ""
+    print context "default"
 
-parser trace [ + subexpression lines,
-               + subexpression elements]
+    define bracket "(" ... ")" [code, math, text]
+    define bracket "[" ... "]" [code, math, text]
+    print bracket "["
+
+    define indentation mark ":" ... ";" [code, math, text]
+    print bracket ":"
+
+    define bracket "[+" ... "+]" [text, operator 2]
+    define bracket "<+" ... "+>" [text + operator]
+    define bracket "<+" ... "+>" [code, operator 1]
+        with parsing selectors [^ code, - math, + operator 1]
+    print bracket "<+"
+
+parser:
+    trace [ + subexpression lines,
+            + subexpression elements]
 parser test:
     "abc"
         # "def"
@@ -40,65 +45,80 @@ parser test:
     # "def"
     <+ hi there +> <+ hi [embedded] there +>
 
-parser begin block 1
-parser define bracket "[X" ... "X]" [code, operator 1]
-       with parsing selectors [- code, + operator 1]
+parser:
+    begin block 1
+    define bracket "[X" ... "X]" [code, operator 1]
+        with parsing selectors [- code, + operator 1]
 parser test:
     [ a [ b c ] c ] [X a [ b c ] d X]
     this is a paragraph +:
 	line 1
 	line 2a:: line 2b; line 2c
 	last line
-parser define indentation mark "+:" ... "::" [code]
+parser:
+    define indentation mark "+:" ... "::" [code]
 parser test:
     this is a paragraph +:
 	line 1
 	line 2a:: line 2b; line 2c
 	last line
     <X| hi there |X>
-parser end block 1
+parser:
+    end block 1
 
-parser trace [+ foo]
-parser trace [+ parser commands]
-parser trace [- parser commands]
-parser trace [+ parser commands]
-parser trace [+ warnings]
+parser:
+    trace [+ foo]
+    trace [+ parser commands]
+    trace [- parser commands]
+    trace [+ parser commands]
+    trace [+ warnings]
 
-parser begin block 1
-parser define bracket "<*" ... "*>" [code]
+parser:
+    begin block 1
+    define bracket "<*" ... "*>" [code]
 parser test:
     <* hi there A *>
-parser end block x
+parser:
+    end block x
 parser test:
     <* hi there B *>
-parser end block 1
+parser:
+    end block 1
 
 parser test:
     <* hi there C *>
-parser end block 1
-parser define bracket "<|" ... "|>" [code]
+parser:
+    end block 1
+
+parser:
+    define bracket "<|" ... "|>" [code]
 parser test:
     <| hi there D |>
 
-parser begin block 1
-parser undefine bracket "<|" ... "|>" [code]
+parser:
+    begin block 1
+    undefine bracket "<|" ... "|>" [code]
 parser test:
     <| hi there E |>
-parser undefine bracket "<|" ... "|>" [code]
-parser end block 1
+parser:
+    undefine bracket "<|" ... "|>" [code]
+    end block 1
 
 parser test:
     <| hi there F |>
-parser undefine bracket "<|" ... "|>" [code]
+parser:
+    undefine bracket "<|" ... "|>" [code]
 parser test:
     <| hi there F |>
-parser undefine bracket "<|" ... "|>" [code]
+parser:
+    undefine bracket "<|" ... "|>" [code]
 
-parser begin block 1
-parser define bracket "`" ... "'" [code]
-parser define bracket "```" ... "'''" [code]
-       with parsing options []
-parser print bracket ""
+parser:
+    begin block 1
+    define bracket "`" ... "'" [code]
+    define bracket "```" ... "'''" [code]
+        with parsing options []
+    print bracket ""
 parser test:
     ( ``` ) ''' )
     ( ```
@@ -117,43 +137,56 @@ matter what, even with a spurious ), until
     the following is encountered- '''
                 Second line of indented paragraph.
 	      ) // End of () bracketed subexpression
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
+parser:
+    begin block 1
 parser test:
     [? MISSING ?]
-parser define bracket "[?" ... "?]" [code]
-       with special reformatter
+parser:
+    define bracket "[?" ... "?]" [code]
+        with special reformatter
 parser test:
     [? MISSING ?]
     [@ x 1 @ y 2 @ w @ z 3 @]
-parser define bracket "[@" ... "@]" [code]
-       with multivalue reformatter ( "@" )
+parser:
+    define bracket "[@" ... "@]" [code]
+        with multivalue reformatter ( "@" )
 parser test:
     [@ x 1 @ y 2 @ w @ z 3 @]
-parser end block 1
+parser:
+    end block 1
 
-parser begin block 1
-parser define indentation offset 4
-parser print indentation offset
+parser:
+    begin block 1
+    define indentation offset 4
+    print indentation offset
+
 first line with indent 0
  line with indent 1
 second line with indent 0
   line with indent 2
 third line with indent 0
     line with indent 4
-parser end block 1
 
-parser begin block 1
-parser print indentation offset
-parser trace [+ parser output, - subexpression elements]
+parser:
+    end block 1
+
+parser:
+    begin block 1
+    print indentation offset
+    trace [+ parser output, - subexpression elements]
+
 first line with indent 0
  line with indent 1
 second line with indent 0
   line with indent 2
 third line with indent 0
     line with indent 4
-parser trace [- parser output, + subexpression elements]
+
+parser:
+    trace [- parser output, + subexpression elements]
 
 parser test:
 	well ( hello:
@@ -171,7 +204,8 @@ parser test:
 	    goodbye there
 	    hi there
 	) end
-parser end block 1
+parser:
+    end block 1
 
 parser begin block 1
 parser print prefix ""

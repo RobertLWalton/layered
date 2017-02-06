@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 10:46:31 EST 2017
+// Date:	Sun Feb  5 23:32:28 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -635,6 +635,10 @@ void init
 	      ( ll::parser::parser parser,
 	        ll::parser::output output ) = NULL );
 
+extern min::locatable_gen PRINTED;
+    // Return value for parser_command functions:
+    // see below.
+
 namespace pass_function {
 
     // Function called (if not NULL) when the pass is
@@ -718,9 +722,12 @@ namespace pass_function {
     // the command, vp[0 .. i0-1] is ignored, and ppvec
     // is the phrase position vector of vp.
     //
-    // Return min::SUCCESS() on success, min::FAILURE()
-    // if command was not recognized, and min::ERROR()
-    // if an error message was printed.  Increment
+    // Return min::SUCCESS() on success if the command
+    // was not printed, ll::parser::PRINTED on success
+    // if the command printed itself (along with other
+    // things), min::FAILURE() if command was not
+    // recognized, and min::ERROR() if an error message
+    // (including the command) was printed.  Increment
     // parser->warning/error_count on printing an error/
     // warning message.
     //

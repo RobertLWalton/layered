@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 18:22:46 EST 2017
+// Date:	Sun Feb  5 23:28:36 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -105,6 +105,8 @@ min::locatable_gen PAR::enabled_lexeme;
 min::locatable_gen PAR::disabled_lexeme;
 min::locatable_gen PAR::parser_colon;
 min::locatable_gen PAR::parser_test_colon;
+
+min::locatable_gen PAR::PRINTED;
 
 static min::locatable_gen warnings;
 static min::locatable_gen parser_input;
@@ -221,6 +223,8 @@ static void initialize ( void )
         min::new_lab_gen ( "parser", ":" );
     PAR::parser_test_colon =
         min::new_lab_gen ( "parser", "test", ":" );
+
+    PAR::PRINTED = min::new_special_gen ( 0 );
 
     ::warnings = min::new_str_gen ( "warnings" );
     ::parser_input =
@@ -1477,9 +1481,11 @@ void PAR::parse ( PAR::parser parser )
 		        min::get ( vp[0],
 			           min::dot_initiator )
 		     == PAR::parser_test_colon )
-		    result =
-		        COM::parser_test_execute_command
-			    ( parser, vp[0] );
+		{
+		    COM::parser_test_execute_command
+			( parser, vp[0] );
+		    result = min::SUCCESS();
+		}
 		else
 		    result =
 		      COM::parser_execute_command

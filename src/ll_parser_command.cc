@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 01:56:10 EST 2017
+// Date:	Sun Feb  5 23:26:46 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,14 +32,12 @@
 
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
-min::locatable_gen COM::PRINTED;
 static min::locatable_gen top;
 
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
     ::trace = min::new_str_gen ( "trace" );
-    COM::PRINTED = min::new_special_gen ( 0 );
     ::top = min::new_str_gen ( "top" );
 }
 static min::initializer initializer ( ::initialize );
@@ -686,7 +684,7 @@ static min::gen execute_pass
 	}
 	parser->printer << min::eom;
 
-	return COM::PRINTED;
+	return PAR::PRINTED;
     }
     else if ( vp[i0] == PAR::define )
     {
@@ -837,7 +835,7 @@ static min::gen execute_selectors
 	                    << "not found";
 	parser->printer << min::eom;
 
-	return COM::PRINTED;
+	return PAR::PRINTED;
     }
 
     return min::SUCCESS();
@@ -996,7 +994,7 @@ static min::gen execute_context
 			    << "not found";
 
 	parser->printer << min::eom;
-	return COM::PRINTED;
+	return PAR::PRINTED;
     }
 
     TAB::new_flags new_selectors;
@@ -1209,11 +1207,10 @@ static min::gen execute_test
     if ( flags & TRACE_ANY )
 	parser->printer
 	    << "======= END TEST" << min::eol;
-
-    return COM::PRINTED;
+    return PAR::PRINTED;
 }
 
-min::gen COM::parser_test_execute_command
+void COM::parser_test_execute_command
 	( PAR::parser parser,
 	  min::gen indented_paragraph )
 {
@@ -1237,7 +1234,7 @@ min::gen COM::parser_test_execute_command
                  "missing .position attribute" );
 
     min::uns32 size = min::size_of ( vp );
-    if ( size == 0 ) return COM::PRINTED;
+    if ( size == 0 ) return;
 
     for ( min::uns32 i = 0; i < size; ++ i )
     {
@@ -1289,8 +1286,6 @@ min::gen COM::parser_test_execute_command
 
     parser->printer
 	<< "======= END PARSER TEST(S)" << min::eol;
-
-    return COM::PRINTED;
 }
 
 // Execute Trace
@@ -1332,7 +1327,7 @@ static min::gen execute_trace
 	        ( parser, ppvec[i0 + 1],
 		  "extraneous stuff after" );
 
-	return COM::PRINTED;
+	return PAR::PRINTED;
     }
 
     TAB::new_flags new_flags;
@@ -1484,7 +1479,7 @@ min::gen COM::parser_execute_command
 	min::print_phrase_lines
 	    ( parser->printer,
 	      ppvec->file, ppvec->position, 0 );
-    else if ( result == COM::PRINTED )
+    else if ( result == PAR::PRINTED )
         result = min::SUCCESS();
 
     else if ( result == min::FAILURE() )
@@ -1493,4 +1488,110 @@ min::gen COM::parser_execute_command
 	      "parser command not recognized" );
 
     return result;
+}
+
+void COM::parser_execute_command
+	( PAR::parser parser,
+	  min::gen indented_paragraph )
+{
+    min::obj_vec_ptr ipvp ( indented_paragraph );
+    min::phrase_position_vec ipppvec =
+        min::position_of ( ipvp );
+    MIN_ASSERT ( ipppvec != min::NULL_STUB,
+                 "missing .position attribute" );
+
+    min::uns32 ipsize = min::size_of ( ipvp );
+    if ( ipsize == 0 ) return;
+
+    for ( min::uns32 i = 0; i < ipsize; ++ i )
+    {
+	min::obj_vec_ptr vp ( vp[i] );
+	if ( vp == min::NULL_STUB )
+	{
+	    PAR::parse_error
+		( parser, ipppvec[i],
+		  "parser command not recognized" );
+	    continue;
+	}
+	min::phrase_position_vec ppvec =
+	    min::position_of ( vp );
+	MIN_ASSERT ( ppvec != min::NULL_STUB,
+		     "missing .position attribute" );
+
+	min::uns32 size = min::size_of ( vp );
+	if ( size == 0 )
+	{
+	    PAR::parse_error
+		( parser, ipppvec[i],
+		  "empty parser command" );
+	    continue;
+	}
+
+	min::gen result = min::FAILURE();
+
+	if ( size >= 2
+	     &&
+	     vp[1] == PAR::pass_lexeme )
+	    result = ::execute_pass
+			( vp, 0, ppvec, parser );
+	else if ( size >= 2
+		  &&
+		  vp[1] == PAR::selector )
+	    result = ::execute_selectors
+			( vp, 0, ppvec, parser );
+	else if ( size >= 2
+		  &&
+		  vp[1] == PAR::context_lexeme )
+	    result = ::execute_context
+			( vp, 0, ppvec, parser );
+	else if ( vp[0] == ::trace
+		  &&
+		  ( size == 1
+		    ||
+		    min::is_obj ( vp[1] ) ) )
+	    result = ::execute_trace
+			( vp, 0, ppvec, parser );
+	else if ( size >= 2
+		  &&
+		  vp[0] == PAR::print
+		  &&
+		  vp[1] == ::trace )
+	    result = ::execute_trace
+			( vp, 0, ppvec, parser );
+	else if ( vp[0] == PAR::begin )
+	    result = ::execute_begin
+			( vp, 0, ppvec, parser );
+	else if ( vp[0] == PAR::end )
+	    result = ::execute_end
+			( vp, 0, ppvec, parser );
+
+	// As long as command is unrecognized (i.e.,
+	// result == FAILURE) call pass parser_command
+	// functions.
+	//
+	for ( PAR::pass pass = parser->pass_stack;
+	      result == min::FAILURE()
+	      &&
+	      pass != NULL;
+	      pass = pass->next )
+	{
+	    if ( pass->parser_command != NULL )
+		result = (* pass->parser_command )
+		    ( parser, pass, vp, 0, ppvec );
+	}
+
+	if ( result == min::SUCCESS()
+	     &&
+	     (   parser->trace_flags
+	       & PAR::TRACE_PARSER_COMMANDS ) )
+	    min::print_phrase_lines
+		( parser->printer,
+		  ppvec->file, ppvec->position, 0 );
+
+	else if ( result == min::FAILURE() )
+	    PAR::parse_error
+		( parser, ipppvec[i],
+		  "parser command not recognized" );
+
+    }
 }

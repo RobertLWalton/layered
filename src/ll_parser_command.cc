@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 01:24:40 EST 2017
+// Date:	Mon Feb  6 06:37:34 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -525,6 +525,7 @@ void COM::print_command
 
     min::uns32 size = min::size_of ( vp );
 
+    parser->printer << min::indent;
     for ( min::uns32 i = 0; i < size; ++ i )
     {
 	parser->printer
@@ -656,9 +657,9 @@ static min::gen execute_pass
     {
         COM::print_command ( vp, parser );
 	parser->printer
-	    << ":" << min::eol
+	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::set_indent ( 4 );
+	    << min::adjust_indent ( 4 );
 
 	PAR::pass pass = parser->pass_stack;
 	if ( pass == min::NULL_STUB )
@@ -792,9 +793,9 @@ static min::gen execute_selectors
     {
         COM::print_command ( vp, parser );
 	parser->printer
-	    << ":" << min::eol
+	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::set_indent ( 4 );
+	    << min::adjust_indent ( 4 );
 	int count = 0;
 
 	TAB::name_table t =
@@ -878,9 +879,9 @@ static min::gen execute_context
 
         COM::print_command ( vp, parser );
 	parser->printer
-	    << ":" << min::eol
+	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::set_indent ( 4 );
+	    << min::adjust_indent ( 4 );
 
 	int count = 0;
 
@@ -1126,7 +1127,8 @@ static void execute_test_scan
         min::obj_vec_ptr subvp ( vp[i] );
 	if ( subvp == min::NULL_STUB ) continue;
 	printer
-	    << min::bom << min::set_indent ( 8 )
+	    << min::bom
+	    << min::adjust_indent ( 8 )
 	    << "------- "
 	    << min::pline_numbers
 	          ( ppvec->file, ppvec[i])
@@ -1303,11 +1305,11 @@ static min::gen execute_trace
 	    parser->trace_flag_name_table;
 
 	parser->printer
-	    << "parser print trace:" << min::eol
+	    << "parser print trace:" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::set_indent ( 4 ) << min::indent
+	    << min::adjust_indent ( 4 ) << min::indent
 	    << "["
-	    << min::set_indent ( 6 ) << min::indent;
+	    << min::adjust_indent ( 2 ) << min::indent;
 
 	TAB::flags trace_flags = parser->trace_flags;
 	for ( unsigned j = 0; j < t->length; ++ j )
@@ -1418,6 +1420,7 @@ min::gen COM::parser_execute_command
 
     min::gen result = min::FAILURE();
 
+    parser->printer << min::bol << min::bom;
     if ( vp[i0] == PAR::test )
         result = ::execute_test
 	    ( vp, ppvec, parser );
@@ -1487,6 +1490,7 @@ min::gen COM::parser_execute_command
 	    ( parser, ppvec->position,
 	      "parser command not recognized" );
 
+    parser->printer << min::eom;
     return result;
 }
 
@@ -1501,10 +1505,16 @@ void COM::parser_execute_command
                  "missing .position attribute" );
 
     min::uns32 ipsize = min::size_of ( ipvp );
+    if ( ipsize == 0 ) return;
+
+    parser->printer << min::bol << min::bom
+                    << min::adjust_indent ( 4 )
+                    << "PARSER: "
+		    << min::indent;
 
     for ( min::uns32 i = 0; i < ipsize; ++ i )
     {
-	min::obj_vec_ptr vp ( vp[i] );
+	min::obj_vec_ptr vp ( ipvp[i] );
 	if ( vp == min::NULL_STUB )
 	{
 	    PAR::parse_error
@@ -1593,4 +1603,6 @@ void COM::parser_execute_command
 		  "parser command not recognized" );
 
     }
+
+    parser->printer << min::eom;
 }

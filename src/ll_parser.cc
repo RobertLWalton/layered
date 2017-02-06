@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 23:28:36 EST 2017
+// Date:	Mon Feb  6 01:30:16 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1476,17 +1476,25 @@ void PAR::parse ( PAR::parser parser )
 	    min::obj_vec_ptr vp ( output->value );
 	    if ( vp != min::NULL_STUB )
 	    {
-	        if ( min::size_of ( vp ) == 1
-		     &&
-		        min::get ( vp[0],
-			           min::dot_initiator )
-		     == PAR::parser_test_colon )
+	        if ( min::size_of ( vp ) == 1 )
 		{
-		    COM::parser_test_execute_command
-			( parser, vp[0] );
+		    min::gen initiator =
+		        min::get ( vp[0],
+			           min::dot_initiator );
 		    result = min::SUCCESS();
+
+		    if (    initiator
+		         == PAR::parser_test_colon )
+			COM::parser_test_execute_command
+			    ( parser, vp[0] );
+		    else if (    initiator
+		              == PAR::parser_colon )
+			COM::parser_execute_command
+			    ( parser, vp[0] );
+		    else
+			result = min::FAILURE();
 		}
-		else
+		if ( result == min::FAILURE() )
 		    result =
 		      COM::parser_execute_command
 			( vp, 1, parser );

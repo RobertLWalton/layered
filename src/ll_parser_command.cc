@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 23:26:46 EST 2017
+// Date:	Mon Feb  6 01:24:40 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1501,7 +1501,6 @@ void COM::parser_execute_command
                  "missing .position attribute" );
 
     min::uns32 ipsize = min::size_of ( ipvp );
-    if ( ipsize == 0 ) return;
 
     for ( min::uns32 i = 0; i < ipsize; ++ i )
     {
@@ -1590,7 +1589,7 @@ void COM::parser_execute_command
 
 	else if ( result == min::FAILURE() )
 	    PAR::parse_error
-		( parser, ipppvec[i],
+		( parser, ppvec->position,
 		  "parser command not recognized" );
 
     }

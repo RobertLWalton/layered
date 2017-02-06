@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 06:37:34 EST 2017
+// Date:	Mon Feb  6 11:13:22 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1510,7 +1510,7 @@ void COM::parser_execute_command
     parser->printer << min::bol << min::bom
                     << min::adjust_indent ( 4 )
                     << "PARSER: "
-		    << min::indent;
+		    << min::eol;
 
     for ( min::uns32 i = 0; i < ipsize; ++ i )
     {

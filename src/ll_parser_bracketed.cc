@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 23:36:57 EST 2017
+// Date:	Mon Feb  6 07:21:43 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4108,9 +4108,9 @@ static min::gen bracketed_pass_command
 
 	    COM::print_command ( vp, parser );
 	    parser->printer
-		<< ":" << min::eol
+		<< ":" << min::indent
 		<< min::bom << min::no_auto_break
-		<< min::set_indent ( 4 );
+		<< min::adjust_indent ( 4 );
 
 	    min::int32 offset =
 	        bracketed_pass->indentation_offset; 
@@ -4178,9 +4178,9 @@ static min::gen bracketed_pass_command
 
 	    COM::print_command ( vp, parser );
 	    parser->printer
-		<< ":" << min::eol
+		<< ":" << min::indent
 		<< min::bom << min::no_auto_break
-		<< min::set_indent ( 4 );
+		<< min::adjust_indent ( 4 );
 
 	    min::gen concat =
 	        bracketed_pass->string_concatenator; 
@@ -4347,9 +4347,9 @@ static min::gen bracketed_pass_command
 	COM::print_command ( vp, parser );
 
 	parser->printer
-	    << ":" << min::eol
+	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::set_indent ( 4 );
+	    << min::adjust_indent ( 4 );
 
 	int count = 0;
 

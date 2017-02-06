@@ -1,38 +1,39 @@
-parser print bracket "":
-    block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
-                     with parsing selectors [- TOP LEVEL]
-                     with label reformatter
-    block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                     with parsing selectors [- TOP LEVEL]
-                     with multivalue reformatter ( "," )
-    block TOP LEVEL: bracket "(" ... ")" [data]
-                     with parsing selectors [- TOP LEVEL]
-    block TOP LEVEL: bracket "[" ... "]" [data]
-                     with parsing selectors [- TOP LEVEL]
-    block TOP LEVEL: bracket "`" ... "'" [data]
-                     with parsing selectors [- TOP LEVEL]
-    block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                     with parsing selectors [- TOP LEVEL]
-    block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
-                     // "||" is also allowed.
-                     [data]
-                     with parsing selectors [- TOP LEVEL]
-                     with attribute selectors [data]
-                     with attributes ":" ... "=" ... ","
-                     with attribute negator "no"
-                     with attribute flags initiator "["
-                     with attribute multivalue initiator [< "{" "*" >]
-    block TOP LEVEL: indentation mark [< "parser" ":" >] ... ";"
-                     [TOP LEVEL]
-                     with parsing selectors [data]
-    block TOP LEVEL: indentation mark [< "parser" "test" ":" >] ... ";"
-                     [TOP LEVEL]
-                     with parsing selectors [- TOP LEVEL]
-    block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
-                     with parsing selectors [- TOP LEVEL]
-    block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
-                     with parsing selectors [- TOP LEVEL]
-                     with special reformatter
+PARSER:
+    print bracket "":
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with label reformatter
+        block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with multivalue reformatter ( "," )
+        block TOP LEVEL: bracket "(" ... ")" [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket "[" ... "]" [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket "`" ... "'" [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
+                         // "||" is also allowed.
+                         [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with attribute selectors [data]
+                         with attributes ":" ... "=" ... ","
+                         with attribute negator "no"
+                         with attribute flags initiator "["
+                         with attribute multivalue initiator [< "{" "*" >]
+        block TOP LEVEL: indentation mark [< "parser" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block TOP LEVEL: indentation mark [< "parser" "test" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with special reformatter
 ERROR: in line ##: too few quoted names in:
 parser define bracket "[+"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

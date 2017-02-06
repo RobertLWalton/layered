@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 23:37:08 EST 2017
+// Date:	Mon Feb  6 07:41:37 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -465,7 +465,7 @@ static void oper_parse ( PAR::parser parser,
 		{
 		    parser->printer
 			<< min::bom
-			<< min::set_indent ( 7 )
+			<< min::adjust_indent ( 7 )
 			<< "OPERATOR "
 			<< min::pgen_quote
 			       ( current->value )
@@ -1738,9 +1738,9 @@ static min::gen oper_pass_command
 	COM::print_command ( vp, parser );
 
 	parser->printer
-	    << ":" << min::eol
+	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::set_indent ( 4 );
+	    << min::adjust_indent ( 4 );
 
 	int count = 0;
 

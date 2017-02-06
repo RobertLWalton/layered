@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  2 13:57:15 EST 2017
+// Date:	Sun Feb  5 23:37:08 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1787,7 +1787,7 @@ static min::gen oper_pass_command
 	                    << "not found";
 	parser->printer << min::eom;
 
-    	return COM::PRINTED;
+    	return PAR::PRINTED;
     }
 
     // Scan selectors.

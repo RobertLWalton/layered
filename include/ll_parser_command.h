@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 18:28:11 EST 2017
+// Date:	Sun Feb  5 23:25:55 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,11 +158,19 @@ void print_flags
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser );
 
-// Given an object that is the result of parsing an
+// Given an object that is the result of parsing a
 // `parser test:' indented paragraph, print appropriate
-// output.
+// output
 //
-min::gen parser_test_execute_command
+void parser_test_execute_command
+	( ll::parser::parser parser,
+	  min::gen indented_paragraph );
+
+// Given an object that is the result of parsing a
+// `parser:' indented paragraph, execute the parser
+// commands in the paragraph.
+//
+void parser_execute_command
 	( ll::parser::parser parser,
 	  min::gen indented_paragraph );
 
@@ -176,7 +184,6 @@ min::gen parser_test_execute_command
 // print an error message to parser->printer and return
 // min::ERROR().  Note that vp[0 .. i0-1] is ignored.
 //
-extern min::locatable_gen PRINTED;
 min::gen parser_execute_command
 	( min::obj_vec_ptr & vp, min::uns32 i0,
 	  ll::parser::parser parser );

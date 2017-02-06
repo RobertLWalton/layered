@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 02:27:34 EST 2017
+// Date:	Sun Feb  5 23:36:57 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4139,7 +4139,7 @@ static min::gen bracketed_pass_command
 	    }
 
 	    parser->printer << min::eom;
-	    return COM::PRINTED;
+	    return PAR::PRINTED;
 	}
 	else if ( command != PAR::define )
 	    return min::FAILURE();
@@ -4216,7 +4216,7 @@ static min::gen bracketed_pass_command
 	    }
 
 	    parser->printer << min::eom;
-	    return COM::PRINTED;
+	    return PAR::PRINTED;
 	}
 	else if ( command != PAR::define )
 	    return min::FAILURE();
@@ -4778,7 +4778,7 @@ static min::gen bracketed_pass_command
 	                    << "not found";
 	parser->printer << min::eom;
 
-        return COM::PRINTED;
+        return PAR::PRINTED;
     }
 
     TAB::flags selectors;

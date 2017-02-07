@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 11:13:22 EST 2017
+// Date:	Tue Feb  7 03:37:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -858,16 +858,6 @@ static min::gen execute_context
 	return min::FAILURE();
 
     min::uns32 i = i0 + 2;
-    min::locatable_gen name
-	( PAR::scan_quoted_key
-	    ( vp, i, parser, vp[i0] == PAR::print ) );
-
-    if ( name == min::ERROR() )
-	return min::ERROR();
-    else if ( name == min::MISSING() )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected quoted name after" );
 
     if ( vp[i0] == PAR::print )
     {
@@ -883,116 +873,48 @@ static min::gen execute_context
 	    << min::bom << min::no_auto_break
 	    << min::adjust_indent ( 4 );
 
-	int count = 0;
-
-	if ( min::is_subsequence
-		 ( name, PAR::default_lexeme ) >= 0 )
+	TAB::flags flags = parser->selectors;
+	for ( min::uns32 i =
+		  parser->block_stack->length;
+	      ; -- i )
 	{
-	    TAB::flags flags = parser->selectors;
-	    for ( min::uns32 i =
-	              parser->block_stack->length;
-		  0 <= i; -- i )
-	    {
-	        min::gen block_name =
-		    ( i == 0 ?
-		      (min::gen) PAR::top_level :
-		      (&parser->block_stack[i-1])
-		          ->name );
+	    min::gen block_name =
+		( i == 0 ?
+		  (min::gen) PAR::top_level :
+		  (&parser->block_stack[i-1])
+		      ->name );
 
-	        parser->printer << min::indent
-		                << "block "
-				<< min::pgen_name
-				     ( block_name )
-				<< ": default "
-				<< min::save_indent;
-
-
-		COM::print_flags
-		    ( flags,
-		      PAR::COMMAND_SELECTORS,
-		      parser->selector_name_table,
-		      parser );
-
-		parser->printer
-		    << " "
-		    << min::set_break
-		    << "options ";
-		COM::print_flags
-		    ( flags,
-		      PAR::ALL_OPT,
-		      parser->selector_name_table,
-		      parser );
-
-		parser->printer << min::restore_indent;
-
-		++ count;
-
-		if ( i == 0 ) break;
-
-		flags = (&parser->block_stack[i-1])
-			    ->saved_selectors;
-	    }
-	}
-
-	{
-	    TAB::key_table_iterator it
-	        ( parser->context_table );
-	    while ( true )
-	    {
-	        TAB::root root = it.next();
-		if ( root == min::NULL_STUB ) break;
-		PAR::context context =
-		    (PAR::context) root;
-		MIN_REQUIRE
-		    ( context != min::NULL_STUB );
-
-		if ( min::is_subsequence
-		         ( name, context->label ) < 0 )
-		    continue;
-
-		min::gen block_name =
-		    PAR::block_name
-			( parser,
-			  context->block_level );
-		parser->printer
-		    << min::indent
-		    << "block "
-		    << min::pgen_name ( block_name )
-		    << ": "
-		    << min::pgen_name ( context->label )
-		    << " "
-		    << min::save_indent;
-
-		COM::print_new_flags
-		    ( context->new_selectors,
-		      PAR::COMMAND_SELECTORS,
-		      parser->selector_name_table,
-		      parser, true );
-
-		if ( TAB::all_flags
-		         ( context->new_selectors )
-		     &
-		     PAR::ALL_OPT )
-		{
-		    parser->printer
-		        << " "
-			<< min::set_break
-		        << "options ";
-		    COM::print_new_flags
-			( context->new_selectors,
-			  PAR::ALL_OPT,
-			  parser->selector_name_table,
-			  parser, true );
-		}
-		parser->printer << min::restore_indent;
-
-		++ count;
-	    }
-	}
-
-	if ( count == 0 )
 	    parser->printer << min::indent
-			    << "not found";
+			    << "block "
+			    << min::pgen_name
+				 ( block_name )
+			    << ": "
+			    << min::save_indent;
+
+
+	    parser->printer << min::indent
+	                    << " selectors ";
+	    COM::print_flags
+		( flags,
+		  PAR::COMMAND_SELECTORS,
+		  parser->selector_name_table,
+		  parser );
+
+	    parser->printer << min::indent
+	                    << " options ";
+	    COM::print_flags
+		( flags,
+		  PAR::ALL_OPT,
+		  parser->selector_name_table,
+		  parser );
+
+	    parser->printer << min::restore_indent;
+
+	    if ( i == 0 ) break;
+
+	    flags = (&parser->block_stack[i-1])
+			->saved_selectors;
+	}
 
 	parser->printer << min::eom;
 	return PAR::PRINTED;
@@ -1015,20 +937,12 @@ static min::gen execute_context
 	{
 	    i += 2;
 	    min::gen result;
-	    if ( name == PAR::default_lexeme )
-		result = COM::scan_flags
-		    ( vp, i, selectors,
-		      PAR::COMMAND_SELECTORS,
-		      parser->selector_name_table,
-		      parser->selector_group_name_table,
-		      parser );
-	    else
-		result = COM::scan_new_flags
-		    ( vp, i, new_selectors,
-		      PAR::COMMAND_SELECTORS,
-		      parser->selector_name_table,
-		      parser->selector_group_name_table,
-		      parser, true );
+	    result = COM::scan_flags
+		( vp, i, selectors,
+		  PAR::COMMAND_SELECTORS,
+		  parser->selector_name_table,
+		  parser->selector_group_name_table,
+		  parser );
 	    if ( result == min::ERROR() )
 		return min::ERROR();
 	    else if ( result == min::FAILURE() )
@@ -1048,20 +962,12 @@ static min::gen execute_context
 	{
 	    i += 2;
 	    min::gen result;
-	    if ( name == PAR::default_lexeme )
-		result = COM::scan_flags
-		    ( vp, i, options,
-		      PAR::ALL_OPT,
-		      parser->selector_name_table,
-		      parser->selector_group_name_table,
-		      parser );
-	    else
-		result = COM::scan_new_flags
-		    ( vp, i, new_options,
-		      PAR::ALL_OPT,
-		      parser->selector_name_table,
-		      parser->selector_group_name_table,
-		      parser, true );
+	    result = COM::scan_flags
+		( vp, i, options,
+		  PAR::ALL_OPT,
+		  parser->selector_name_table,
+		  parser->selector_group_name_table,
+		  parser );
 	    if ( result == min::ERROR() )
 		return min::ERROR();
 	    else if ( result == min::FAILURE() )
@@ -1084,24 +990,7 @@ static min::gen execute_context
 	    ( parser, ppvec[i-1],
 	      "expected `with' after" );
 
-    if ( name == PAR::default_lexeme )
-        parser->selectors = selectors | options;
-    else
-    {
-	min::phrase_position pp;
-	pp.begin = (&ppvec[0])->begin;
-	pp.end = (&ppvec[i-1])->end;
-	new_selectors.or_flags |=
-	    new_options.or_flags;
-	new_selectors.not_flags |=
-	    new_options.not_flags;
-	new_selectors.xor_flags |=
-	    new_options.xor_flags;
-
-	PAR::push_context
-	    ( name, 0, PAR::block_level ( parser ), pp,
-	      new_selectors, parser->context_table );
-    }
+    parser->selectors = selectors | options;
 
     if ( i < size )
         return PAR::parse_error

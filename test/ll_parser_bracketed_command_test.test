@@ -41,15 +41,15 @@ ERROR: in line ##: too few quoted names in:
 ERROR: in line ##: expected quoted name after:
     define bracket "[+" ...
                         ^^^
-    print context "default":
-        block standard: default [TOP LEVEL, code]
-                                options [end at le indent,
-                                         end at line separator,
-                                         end at outer closing]
-        block TOP LEVEL: default [TOP LEVEL]
-                                 options [end at le indent,
-                                          end at line separator,
-                                          end at outer closing]
+    print context:
+        block standard:  selectors [TOP LEVEL, code]
+                         options [end at le indent,
+                                  end at line separator,
+                                  end at outer closing]
+        block TOP LEVEL:  selectors [TOP LEVEL]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing]
     define selector text
     define selector code
     define selector math
@@ -61,15 +61,15 @@ ERROR: in line ##: expected quoted name after:
         block standard: code
         block TOP LEVEL: data
         block TOP LEVEL: TOP LEVEL
-    print context "default":
-        block standard: default [TOP LEVEL, code]
-                                options [end at le indent,
-                                         end at line separator,
-                                         end at outer closing]
-        block TOP LEVEL: default [TOP LEVEL]
-                                 options [end at le indent,
-                                          end at line separator,
-                                          end at outer closing]
+    print context:
+        block standard:  selectors [TOP LEVEL, code]
+                         options [end at le indent,
+                                  end at line separator,
+                                  end at outer closing]
+        block TOP LEVEL:  selectors [TOP LEVEL]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing]
     define bracket "(" ... ")" [code, math, text]
     define bracket "[" ... "]" [code, math, text]
     print bracket "[":

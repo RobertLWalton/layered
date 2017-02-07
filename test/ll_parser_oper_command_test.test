@@ -7,20 +7,15 @@ PARSER:
         block TOP LEVEL: TOP LEVEL
     print pass:
         top
-    print context "":
-        block standard: default [TOP LEVEL, code]
-                                options [end at le indent,
-                                         end at line separator,
-                                         end at outer closing]
-        block TOP LEVEL: default [TOP LEVEL]
-                                 options [end at le indent,
-                                          end at line separator,
-                                          end at outer closing]
-        block TOP LEVEL: parser [TOP LEVEL, data]
-                                options [end at le indent,
-                                         end at line separator,
-                                         end at outer closing]
-        block TOP LEVEL: parser test []
+    print context:
+        block standard:  selectors [TOP LEVEL, code]
+                         options [end at le indent,
+                                  end at line separator,
+                                  end at outer closing]
+        block TOP LEVEL:  selectors [TOP LEVEL]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing]
     print pass:
         top
         operator [code, math]

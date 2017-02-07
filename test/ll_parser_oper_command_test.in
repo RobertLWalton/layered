@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 01:24:38 EST 2017
+// Date:	Tue Feb  7 03:29:50 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 parser:
     print selector ""
     print pass
-    print context ""
+    print context
     define pass operator [code, math] after top
     print pass
     trace [+ parser commands, + warnings ]

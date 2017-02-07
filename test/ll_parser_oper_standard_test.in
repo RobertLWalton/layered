@@ -2,19 +2,20 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 10:10:27 EST 2016
+// Date:	Tue Feb  7 01:28:26 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-parser test [ x ( y ) z {{u, v, w}} m (n (p)) ]
-parser test (, x, y 4,, z,,)
-parser test ( x = y += z )
-parser test {{ x1 = y2 += z }}
-parser test {{ x1 = y2, z2 += z5 }}
-parser test {{ x < y < z }}
-parser test [ x = ( y < z ) ]
-parser test [ x = w < y < z ]
-parser test {|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
-parser test {X: Y = {* A, B, C *} | 1 2 3 |}
+parser test:
+    [ x ( y ) z {{u, v, w}} m (n (p)) ]
+    (, x, y 4,, z,,)
+    ( x = y += z )
+    {{ x1 = y2 += z }}
+    {{ x1 = y2, z2 += z5 }}
+    {{ x < y < z }}
+    [ x = ( y < z ) ]
+    [ x = w < y < z ]
+    {|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
+    {X: Y = {* A, B, C *} | 1 2 3 |}

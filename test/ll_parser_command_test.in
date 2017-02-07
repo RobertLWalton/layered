@@ -2,23 +2,28 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 02:23:53 EST 2017
+// Date:	Tue Feb  7 02:01:30 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-parser print selector ""
-parser define selector my selector
-parser define selector operator 1 ++ extra stuff
-parser print selector ""
-parser print context ""
+parser:
+    print selector ""
+    define selector my selector
+    define selector operator 1 ++ extra stuff
+    print selector ""
+    print context ""
 
-parser print trace
-parser trace [+ parser input]
-parser print trace
-parser trace [- parser input]
-parser print trace
+    print trace
+
+parser:
+    trace [+ parser input]
+parser:
+    print trace
+parser:
+    trace [- parser input]
+    print trace
 
 parser print context ""
 parser define context "default"
@@ -32,32 +37,24 @@ parser print context ""
 
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser trace [+ subexpression lines]
+parser:
+    trace [+ subexpression lines]
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser trace [- subexpression lines]
-parser trace [+ subexpression details]
+parser:
+    trace [- subexpression lines]
+    trace [+ subexpression details]
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser trace [+ subexpression elements]
+parser:
+    trace [+ subexpression elements]
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser trace [- subexpression details]
+parser:
+    trace [- subexpression details]
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser trace [+ subexpression lines]
+parser:
+    trace [+ subexpression lines]
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-
-parser begin special
-parser define context "parser test special"
-       with parsing selectors [data]
-       with parsing options [default options]
-parser print context "parser test special"
-parser test special [ x <+ y +> z {|4|w} m (n (p)) ]
-parser print context "default"
-parser end special
-parser print context "parser test special"
-parser print context "parser test"
-parser print context "parser"
-parser test special [ x <+ y +> z {|4|w} m (n (p)) ]

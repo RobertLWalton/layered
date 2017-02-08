@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 4, 2017
+February 8, 2017
  
 \end{center}
 
@@ -277,7 +277,9 @@ strongly type checkable.
 
 \key{Distributed Modularity}~~~~ 
 Enhancements made by non-communicating users can be fit together
-without too much labor.
+without too much labor.\footnote{Solutions like using regular
+expressions for lexical analysis and LL parsers do not appear to
+meet this criteria.}
 \end{indpar}
 
 \section{Tutorial Introduction to the L-Language}
@@ -310,7 +312,8 @@ learn to mimic.\footnote{A possibly non-verifiable goal.}
 
 The standard scanner also tries to promote `\key{distributed modularity}',
 meaning that enhancements made by non-communicating users are
-more likely to fit together.
+more likely to fit together.\footnote{Regular expression grammars are
+too unruly to meet this criterion.}
 
 The standard scanner operates on an input stream of 32-bit
 UNICODE characters.  Each character is associated with
@@ -1908,7 +1911,8 @@ substantial additions to syntax.  Humans reason
 syntactically, and therefore new types of data and algorithm
 need to be supported by new syntax.  But this new syntax needs to
 integrate with the old syntax, so the goal of the parser is to make
-possible syntactic additions that integrate well with existing syntax.
+possible syntactic additions that integrate well with existing syntax.%
+\footnote{General LL parsers are too unruly to meet his criterion.}
 
 The parser is a sequence of passes each of which operates on a list
 of tokens.  A token is either a lexeme, a subexpression, or an operator.
@@ -1920,18 +1924,28 @@ recognizes:
 possible indented continuation lines, or by logical line separators
 (e.g.~`\TT{;}'), or by blank lines.  Note that logical
 lines terminated by blank lines are also called non-indented paragraphs.
-\item Typed separated subexpressions that are introduced by 
-`typed prefix separators' such as
-`\TT{\{s\}}'.
-\item Bracketed subexpressions bounded by brackets
-such as `\TT{(}' and `\TT{)}'.
-\item Typed bracketed subexpressions bounded by typed brackets
-such as `\TT{\{b|}' and `\TT{|b\}}'.
 \item Indented paragraphs, introduced by line-ending
 indentation marks such as `\TT{:}', and terminated by the end of indentation.
 An indented paragraph is a part of a logical
 line, typically at the end of its containing logical line,
 and in turn of contains logical lines of its own.
+
+The top level is considered to be its own indented paragraph whose
+indentation mark is the file beginning and which ends at the file end.
+\item Bracketed subexpressions bounded by brackets
+such as `\TT{(}' and `\TT{)}'.
+\item Typed bracketed subexpressions bounded by typed brackets
+such as `\TT{\{b|}' and `\TT{|b\}}'.
+\item Typed separated subexpressions that are introduced by 
+`typed prefix separators' such as `\TT{\{s\}}'.
+These are converted to typed bracketed subexpressions.
+\item Headed lines, that are logical lines which begin with
+a typed prefix separator that has the `\TT{line}' prefix group.
+These are converted to typed bracketed subexpressions.
+\item Headed paragraphs, that are groups of logical lines
+beginning with
+a typed prefix separator that has the `\TT{paragraph}' prefix group.
+These are converted to typed bracketed subexpressions.
 \end{itemize}
 
 The non-top-level passes
@@ -1943,7 +1957,7 @@ subexpressions bounded by operators.
 Prefix separators, brackets, and indentation marks
 can be used to change syntax, so, for example,
 the syntax within a \TT{\{p\}} paragraph may differ from the
-the syntax within a \TT{\{code\}} paragraph, and
+the syntax within a \TT{\{code\}} paragraph,
 the syntax within a \TT{[ ]} bracketed subexpression may differ from
 the syntax within a \TT{` '} bracketed subexpression, and
 the syntax within a `\TT{:}' introduced indented paragraph may differ
@@ -1968,6 +1982,7 @@ A token has the following components:
         	          \ttmkey{BRACKETED}{token type} \\
         	          \ttmkey{BRACKETABLE}{token type} \\
         	          \ttmkey{PREFIX}{token type} \\
+        	          \ttmkey{IMPLIED\_PREFIX}{token type} \\
         	          \ttmkey{DERIVED}{token type} \\[1ex]
 			  \end{tabular}
 \\[1ex]
@@ -2056,6 +2071,15 @@ A token has the following components:
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
+		& An \TT{IMPLIED\_PREFIX} token is a prefix token that
+		  was inserted as an implied header
+                  (see \itemref{LINE-VARIABLES}).  It is just like
+		  a \TT{PREFIX} token except that it is deleted and
+		  ignored if it heads a {\em prefix-n-list} with zero
+		  elements.
+\end{tabular}
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
 		& A \TT{DERIVED} token is a non-lexeme that which has
 		  a token \TT{value} that is \underline{not} a MIN object.
 		  For example, a label or special value
@@ -2091,14 +2115,22 @@ A token has the following components:
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value\_type}{of token}
+		& This token component can be computed from other
+		  token components, and exists purely to optimize finding
+		  the \TT{.initiator}, \TT{.type}, or header group
+		  of the token \TT{value}.
+\\[1ex]
 		& For a \TT{BRACKETED} token, the \TT{.initiator}
-		  of the token \TT{value} if there is one.  For a
+		  of the token \TT{value} if there is one.  Also,
+		  as special cases, for \TT{BRACKETED} tokens that
+		  are paragraph or line headers
+		  (\itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}),
+		  the group of the
+		  token \TT{value} \TT{.type}, which will be either
+		  `\TT{paragraph}' or `\TT{line}' (these tokens have
+		  no \TT{.initiator}).  For a
 		  \TT{PREFIX} token, the \TT{.type} of the token
 		  \TT{value} if there is one.  Otherwise \TT{MISSING}.
-\\[1ex]
-		& Since this token component can be computed from other
-		  token components, it exists purely to optimize finding
-		  either a \TT{.type} or \TT{.initiator} during parsing.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}

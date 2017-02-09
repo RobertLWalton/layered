@@ -620,13 +620,17 @@ third line with indent 0
 ^^^^^^^^^^^^^^^^^^^^^^
 PARSER:
     trace [- parser output, + subexpression elements]
+ERROR: in line ###: missing closing bracket `)' inserted just before
+       here:
+        hi there
+        ^
 ======= PARSER TEST: well
                          (hello
                           {"": .terminator = [$ INDENTED_PARAGRAPH $],
                                .initiator = ":"|
                                {"": .terminator = "<LF>", .initiator =
-                                    [$ LOGICAL_LINE $]|goodbye|}|})
-                         there
+                                    [$ LOGICAL_LINE $]|goodbye ")"
+                                    there|}|})
 ======= lines ###-###:
         well ( hello:
         ^^^^^^^^^^^^^
@@ -636,15 +640,15 @@ PARSER:
         well ( hello:
              ^^^^^^^^
                 goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
         well ( hello:
                     ^
                 goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
                 goodbye ) there
-                ^^^^^^^
+                ^^^^^^^^^^^^^^^
 ======= PARSER TEST: hi there
 ======= line ###:
         hi there
@@ -654,8 +658,9 @@ PARSER:
                       {"": .terminator = [$ INDENTED_PARAGRAPH $],
                            .initiator = ":"|
                            {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|goodbye|}|}) there hi
-                         there ")" end
+                                [$ LOGICAL_LINE $]|goodbye ")" there|}
+                           {"": .terminator = "<LF>", .initiator =
+                                [$ LOGICAL_LINE $]|hi there|}|}) end
 ======= lines ###-###:
         ( hello:
         ^^^^^^^^
@@ -669,15 +674,24 @@ PARSER:
         ( hello:
         ^^^^^^^^
             goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
+          ) end
+^^^^^^^^^^^
 ------- lines ###-###:
         ( hello:
                ^
             goodbye ) there
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            hi there
+^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
             goodbye ) there
-            ^^^^^^^
+            ^^^^^^^^^^^^^^^
+------- line ###:
+            hi there
+            ^^^^^^^^
 ======= END PARSER TEST(S)
 ERROR: in line ###: missing closing bracket `)' inserted just before
        here:

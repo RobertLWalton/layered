@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 30 12:25:25 EST 2017
+// Date:	Thu Feb  9 13:53:18 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -954,75 +954,6 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //
 extern const min::position PARAGRAPH_END;
 
-struct bracket_stack
-{
-    // Either opening_bracket != NULL_STUB or prefix_
-    // type != MISSING.
-
-    ll::parser::bracketed
-              ::opening_bracket opening_bracket;
-        // If not NULL_STUB, this identifies the opening
-	// bracket whose recognition made this entry.
-
-    min::gen prefix_type;
-    ll::parser::bracketed::prefix prefix_entry;
-        // If prefix_type is not MISSING, this is the
-	// .type of the prefix separator whose recogni-
-	// tion made this entry, and the prefix_entry
-	// is its entry in the prefix table, or
-	// min::NULL_STUB if none.
-
-    ll::parser::token closing_first, closing_next;
-        // If these are NULL_STUB, this entry is open.
-	// The bracketed subexpression may be closed
-	// anyway by a non-indented line or end of file.
-	//
-	// Otherwise if opening_bracket != NULL_STUB,
-	// then if first != next, these entries are the
-	// first token of the closing bracket that
-	// closed this entry, and the next token AFTER
-	// this bracket.  But if first == next, the
-	// closing bracket that terminated this entry
-	// was missing and should be inserted just
-	// before next.  In this last case, where first
-	// and next are not NULL_STUB, then they are
-	// both the first token of the closing bracket
-	// that closed this entry (which does NOT match
-	// the entry opening bracket).
-	//
-	// Otherwise if prefix_type != MISSING, then if
-	// first != next, these entries are the single
-	// PREFIX token that closed this entry and the
-	// next token AFTER this PREFIX token, but if
-	// first == next, this entry was closed by
-	// something other than a PREFIX token with
-	// matching prefix_type (it may be closed by a
-	// closing_bracket or a PREFIX token that
-	// matches a stack entry farther from the top of
-	// the stack).
-
-    ll::parser::bracketed::bracket_stack * previous;
-        // Previous entry in stack.  Stack is NULL
-	// terminated.
-
-    bracket_stack
-	    ( ll::parser::bracketed
-	                ::bracket_stack * previous )
-        : opening_bracket ( min::NULL_STUB ),
-	  prefix_type ( min::MISSING() ),
-	  prefix_entry ( min::NULL_STUB ),
-          closing_first ( min::NULL_STUB ),
-          closing_next ( min::NULL_STUB ),
-	  previous ( previous ) {}
-};
-
-inline bool is_closed ( ll::parser::bracketed
-                                  ::bracket_stack * p )
-{
-    return    p != NULL
-           && p->closing_first != min::NULL_STUB;
-}
-
 struct line_data
 {
     // Data used to initialize parsing of a logical
@@ -1112,6 +1043,81 @@ struct line_variables
     line_data indentation_paragraph;
     line_data indentation_implied_paragraph;
 };
+
+struct bracket_stack
+{
+    // Either opening_bracket != NULL_STUB or prefix_
+    // type != MISSING.
+
+    ll::parser::bracketed
+              ::opening_bracket opening_bracket;
+        // If not NULL_STUB, this identifies the opening
+	// bracket whose recognition made this entry.
+
+    min::gen prefix_type;
+    ll::parser::bracketed::prefix prefix_entry;
+        // If prefix_type is not MISSING, this is the
+	// .type of the prefix separator whose recogni-
+	// tion made this entry, and the prefix_entry
+	// is its entry in the prefix table, or
+	// min::NULL_STUB if none.
+
+    ll::parser::bracketed::line_variables *
+	    line_variables;
+        // Line variables at time opening bracket
+	// or prefix described above was found.
+
+    ll::parser::token closing_first, closing_next;
+        // If these are NULL_STUB, this entry is open.
+	// The bracketed subexpression may be closed
+	// anyway by a non-indented line or end of file.
+	//
+	// Otherwise if opening_bracket != NULL_STUB,
+	// then if first != next, these entries are the
+	// first token of the closing bracket that
+	// closed this entry, and the next token AFTER
+	// this bracket.  But if first == next, the
+	// closing bracket that terminated this entry
+	// was missing and should be inserted just
+	// before next.  In this last case, where first
+	// and next are not NULL_STUB, then they are
+	// both the first token of the closing bracket
+	// that closed this entry (which does NOT match
+	// the entry opening bracket).
+	//
+	// Otherwise if prefix_type != MISSING, then if
+	// first != next, these entries are the single
+	// PREFIX token that closed this entry and the
+	// next token AFTER this PREFIX token, but if
+	// first == next, this entry was closed by
+	// something other than a PREFIX token with
+	// matching prefix_type (it may be closed by a
+	// closing_bracket or a PREFIX token that
+	// matches a stack entry farther from the top of
+	// the stack).
+
+    ll::parser::bracketed::bracket_stack * previous;
+        // Previous entry in stack.  Stack is NULL
+	// terminated.
+
+    bracket_stack
+	    ( ll::parser::bracketed
+	                ::bracket_stack * previous )
+        : opening_bracket ( min::NULL_STUB ),
+	  prefix_type ( min::MISSING() ),
+	  prefix_entry ( min::NULL_STUB ),
+          line_variables ( NULL ),
+          closing_first ( min::NULL_STUB ),
+          closing_next ( min::NULL_STUB ),
+	  previous ( previous ) {}
+};
+
+inline bool is_closed ( ll::parser::bracketed
+                                  ::bracket_stack * p )
+{
+    return    p != NULL
+           && p->closing_first != min::NULL_STUB;
+}
 
 min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,

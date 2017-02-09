@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 07:21:43 EST 2017
+// Date:	Thu Feb  9 03:36:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3451,11 +3451,6 @@ NEXT_TOKEN:
 		BRA::closing_bracket closing_bracket =
 		    (BRA::closing_bracket) root;
 
-		if (    line_variables->previous
-		     != start_previous
-		     ||
-		       selectors
-		     & PAR::EAOCLOSING_OPT )
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;

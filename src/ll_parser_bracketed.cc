@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 03:36:49 EST 2017
+// Date:	Thu Feb  9 03:46:38 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1354,6 +1354,15 @@ min::position BRA::parse_bracketed_subexpression
 	// at start of subexpression where prefix
 	// separator is legal, etc.
 
+    bool parsing_logical_line =
+        ( line_variables->previous == start_previous );
+	// True iff we are parsing a logical line and
+	// NOT a bracketed (e.g.with `( )') subexpres-
+	// sion inside a logical line.  (bracketed_
+	// stack_p may still be non-NULL if the logical
+	// line is itself inside a bracketed subexpres-
+	// sion.)
+
     TAB::flags trace_flags = parser->trace_flags;
     if (   trace_flags
          & bracketed_pass->trace_subexpressions )
@@ -1391,8 +1400,7 @@ min::position BRA::parse_bracketed_subexpression
 	min::gen prefix_group;
 	TAB::flags prefix_selectors;
 
-	if (    start_previous
-	     == line_variables->previous )
+	if ( parsing_logical_line )
 	{
 	    BRA::line_data & line_data =
 	        line_variables->current;
@@ -1760,23 +1768,22 @@ PREFIX_PARSE:
 	        if (    prefix_group
 		     == PAR::paragraph_lexeme
 		     &&
-	                line_variables->previous
-		     == start_previous
+	             parsing_logical_line
 		     &&
 		        prefix->type
 		     != PAR::IMPLIED_PREFIX )
 		{
 		    // Come here if explicit paragraph
-		    // header found and is at beginning
-		    // of logical line, but with
-		    // possible implied line headers
-		    // having been previously inserted
-		    // and deleted, possible incorrect
-		    // setting of selectors to something
-		    // other than paragraph.selectors
-		    // because of a CONTINUING flag, and
-		    // possible incorrect prefix_entry
-		    // because of incorrect selectors.
+		    // header found in a logical line,
+		    // but with possible implied line
+		    // headers having been previously
+		    // inserted and deleted, possible
+		    // incorrect setting of selectors
+		    // to something other than
+		    // paragraph.selectors because of
+		    // a CONTINUING flag, and possible
+		    // incorrect prefix_entry because
+		    // of incorrect selectors.
 		    //
 		    // Fix things up.
 
@@ -3451,6 +3458,10 @@ NEXT_TOKEN:
 		BRA::closing_bracket closing_bracket =
 		    (BRA::closing_bracket) root;
 
+		if ( ! parsing_logical_line
+		     ||
+		       selectors
+		     & PAR::EAOCLOSING_OPT )
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 14:03:54 EST 2017
+// Date:	Thu Feb  9 21:42:08 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3098,9 +3098,9 @@ NEXT_TOKEN:
 		    // before which closing bracket
 		    // should be inserted.
 		    //
-		    if (   cstack.closing_next
+		    if (   cstack.closing_first
 			 != min::NULL_STUB )
-			next = cstack.closing_next;
+			next = cstack.closing_first;
 		    position.end =
 			  next->previous->position.end;
 
@@ -3122,7 +3122,26 @@ NEXT_TOKEN:
 		        position.end =
 			    tdata.end_position;
 
-		    if ( min::is_name ( next->value ) )
+		    if (   cstack.closing_first
+			 == min::NULL_STUB )
+		    {
+			min::phrase_position pos =
+			    position;
+			pos.begin = position.end;
+		        PAR::parse_error
+			    ( parser, pos,
+			      "missing closing"
+			      " bracket `",
+			      min::pgen_never_quote
+			          ( opening_bracket->
+			            closing_bracket->
+				        label ),
+			      "' inserted at end of"
+			      " logical line that"
+			      " ends here" );
+		    }
+		    else if ( min::is_name
+		                  ( next->value ) )
 		        PAR::parse_error
 			    ( parser, next->position,
 			      "missing closing"

@@ -452,14 +452,14 @@ ERROR: in line ###: missing closing bracket `'' inserted before `)':
     ( ` ) ' )
       ^
 ======= END PARSER TEST(S)
-ERROR: in line ###: missing closing bracket `'' inserted just before
-       here:
-)
-^
-ERROR: in line ###: missing closing bracket `)' inserted just before
-       here:
-)
-^
+ERROR: in line ###: missing closing bracket `'' inserted at end of
+       logical line that ends here:
+    ( `
+       ^
+ERROR: in line ###: missing closing bracket `)' inserted at end of
+       logical line that ends here:
+    ( `
+       ^
 ======= PARSER TEST: (`')
 ======= line ###:
     ( `
@@ -620,10 +620,10 @@ third line with indent 0
 ^^^^^^^^^^^^^^^^^^^^^^
 PARSER:
     trace [- parser output, + subexpression elements]
-ERROR: in line ###: missing closing bracket `)' inserted just before
-       here:
-        hi there
-        ^
+ERROR: in line ###: missing closing bracket `)' inserted at end of
+       logical line that ends here:
+                goodbye ) there
+                               ^
 ======= PARSER TEST: well
                          (hello
                           {"": .terminator = [$ INDENTED_PARAGRAPH $],
@@ -693,10 +693,10 @@ ERROR: in line ###: missing closing bracket `)' inserted just before
             hi there
             ^^^^^^^^
 ======= END PARSER TEST(S)
-ERROR: in line ###: missing closing bracket `)' inserted just before
-       here:
-        ) end
-        ^
+ERROR: in line ###: missing closing bracket `)' inserted at end of
+       logical line that ends here:
+            hi there
+                    ^
 ======= PARSER TEST: (hello
                       {"": .terminator = [$ INDENTED_PARAGRAPH $],
                            .initiator = ":"|

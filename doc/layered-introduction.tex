@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 8, 2017
+February 11, 2017
  
 \end{center}
 
@@ -2224,11 +2224,6 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}:
 \item Any blank line. This is called a `\key{paragraph break}'.
 \item A line separator, e.g.~`\TT{;}'.
 \item The end of file.
-\item Just before a closing bracket (e.g.~`\TT{)}") of a
-bracketed subexpression containing the logical line.  The closing
-bracket is called an `\key{outer closing}'.  This is
-an abnormal way to terminate a logical line, and is a parsing
-error, but the line is terminated nonetheless.
 \end{itemize}
 
 \begin{boxedfigure}[!p]
@@ -2286,17 +2281,18 @@ error, but the line is terminated nonetheless.
 \hspace*{-0.2in}\ttmkey{end at outer closing}{parser option} \\
     This parser option allows a bracketed subexpression or
     indented paragraph to be
-    ended by the closing bracket of a containing bracketed subexpression.
+    ended by the closing bracket of a containing bracketed subexpression
+    in the same logical line.
     E.g., in `\TT{[x(y]}' the `\TT{]}' is permitted to end the
     subexpression `\TT{(y}' by automatically inserting a `\TT{)}'
     before the `\TT{]}', while also announcing an error.
 
-    If this option is off or is turned off by an opening bracket
-    or indentation mark or prefix separator,
-    no closing bracket outer to the bracketed
-    subexpression, indented paragraph, or prefix list will
-    be recognized anywhere in the the bracketed subexpression,
-    indented paragraph, or prefix list.
+    If this option is off, the only closing bracket that will be
+    recognized is that of the innermost open bracketed expression.
+    Also, a bracketed subexpression that contains an indented paragraph
+    will contain logical lines, but these contained logical lines
+    can never contain the closing bracket of the subexpression.
+
 
 \end{indpar}
 

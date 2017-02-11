@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 21:42:08 EST 2017
+// Date:	Sat Feb 11 02:12:07 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1511,8 +1511,11 @@ PREFIX_FOUND:
 	    for ( BRA::bracket_stack * p =
 	                 bracket_stack_p;
 
-		     p != NULL
-		  && p->prefix_type != min::MISSING();
+		  p != NULL
+		  &&
+		  p->prefix_type != min::MISSING()
+		  &&
+		  p->line_variables == line_variables;
 
 		  p = p->previous )
 	    {
@@ -1769,8 +1772,6 @@ PREFIX_PARSE:
 	        if (    prefix_group
 		     == PAR::paragraph_lexeme
 		     &&
-	             parsing_logical_line
-		     &&
 		        prefix->type
 		     != PAR::IMPLIED_PREFIX )
 		{
@@ -1787,6 +1788,9 @@ PREFIX_PARSE:
 		    // of incorrect selectors.
 		    //
 		    // Fix things up.
+
+		    MIN_REQUIRE
+		        ( parsing_logical_line );
 
 		    selectors =
 			line_variables->paragraph
@@ -3480,10 +3484,6 @@ NEXT_TOKEN:
 		BRA::closing_bracket closing_bracket =
 		    (BRA::closing_bracket) root;
 
-		if ( ! parsing_logical_line
-		     ||
-		       selectors
-		     & PAR::EAOCLOSING_OPT )
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
 		      p != NULL

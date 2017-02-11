@@ -5611,3 +5611,173 @@ BRACKETED EXPRESSION:
     line ###:
 {T: a = 1 | X | b = 2 | Y | c = 3, d = 4 | Z | }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {x||x}
+@@@@ =:
+           .type = "x"
+           .position[H] = {}
+    line ###:
+{x} this is a line:
+^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {x||x}
+@@@@ =:
+           .type = "x"
+           .position[H] = {}
+    line ###:
+         has an {x} unrecognized because it
+                ^^^
+ERROR: in line ###: prefix separator of type `x' not at beginning of
+       subexpression; ignored:
+         has an {x} unrecognized because it
+                ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {x||x}
+@@@@ =:
+           .type = "x"
+           .position[H] = {}
+    line ###:
+         the outer `{x}'
+                    ^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "'"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {x||x}
+@@@@ =:
+           .type = "x"
+           .position[H] = {}
+    line ###:
+         the outer `{x}'
+                    ^^^
+BRACKETED EXPRESSION:
+    `{x||x}'
+@@@@ = @@@@:
+           .terminator = "'"
+           .initiator = "`"
+           .position[H] = {}
+    line ###:
+         the outer `{x}'
+                   ^^^^^
+BRACKETED EXPRESSION:
+    with an indented paragraph that has an unrecognized because it is
+        not in the same logical line as the outer `{x||x}'
+@@@@ = with an indented paragraph that has an unrecognized because it is
+               not in the same logical line as the outer @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+    with an indented paragraph that
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         has an {x} unrecognized because it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         is not in the same logical line as
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         the outer `{x}'
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|with
+              an indented paragraph that has an unrecognized because it
+              is not in the same logical line as the outer `{x||x}'|}|}
+@@@@ = @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = {}
+           .initiator = ":"
+    lines ###-###:
+{x} this is a line:
+                  ^
+    with an indented paragraph that
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         has an {x} unrecognized because it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         is not in the same logical line as
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         the outer `{x}'
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {x||x}
+@@@@ =:
+           .type = "x"
+           .position[H] = {}
+    line ###:
+  but this {x} is
+           ^^^
+BRACKETED EXPRESSION:
+    {x|this is a line
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                 with an indented paragraph that has an unrecognized
+                 because it is not in the same logical line as the outer
+                 `{x||x}'|}|} but this|x}
+@@@@ = this is a line @@@@ but this:
+           .type = "x"
+           .position[H] = {}
+    lines ###-###:
+{x} this is a line:
+^^^^^^^^^^^^^^^^^^^
+    with an indented paragraph that
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         has an {x} unrecognized because it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         is not in the same logical line as
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         the outer `{x}'
+^^^^^^^^^^^^^^^^^^^^^^^^
+  but this {x} is
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {x|is|x}
+@@@@ = is:
+           .type = "x"
+           .position[H] = {}
+    line ###:
+  but this {x} is
+           ^^^^^^
+BRACKETED EXPRESSION:
+    {x|this is a line
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                 with an indented paragraph that has an unrecognized
+                 because it is not in the same logical line as the outer
+                 `{x||x}'|}|} but this|x} {x|is|x}
+@@@@ = @@@@ @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{x} this is a line:
+^^^^^^^^^^^^^^^^^^^
+    with an indented paragraph that
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         has an {x} unrecognized because it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         is not in the same logical line as
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         the outer `{x}'
+^^^^^^^^^^^^^^^^^^^^^^^^
+  but this {x} is
+^^^^^^^^^^^^^^^^^

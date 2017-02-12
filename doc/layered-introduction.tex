@@ -2237,13 +2237,14 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}:
 \vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at paragraph break}{parser option} \\
     This parser option causes a blank line to end a logical line.
-    Whether or not lines that are not indented as much as the
-    current indent also end logical lines is controlled by other
-    options, but if not, a logical line is the same as a unindented paragraph
-    where unindented paragraphs are separated by blank lines.
-
     If this option is not present, blank lines have no affect
     on parsed input.
+
+    This option is most often used with an implied paragraph header
+    (\itemref{LINE-VARIABLES})
+    to turn sequences of lines between blank lines into headed paragraphs
+    (\itemref{HEADED-PARAGRAPHS}).
+    
 
 \vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at le indent}{parser option} \\
@@ -2368,11 +2369,44 @@ where \TT{@} represents the subexpression
 ```This is a quoted paragraph is inside a logical line!'''
 \end{verbatim}\end{indpar}
 
+As another example, if the indentation mark `\TT{:}' does not
+change the top level line ending options, but
+the prefix separator \TT{\{p\}} changes these
+options so that only a blank line or the beginning of a
+line indented less than the current indent terminate a logical line,
+then:
+\begin{indpar}\begin{verbatim}
+This logical line contains:
+    {p} This is a headed paragraph
+    in the indented paragraph.
+
+    {p}
+    And this is a second
+    headed paragraph.
+This is the next logical line.
+\end{verbatim}\end{indpar}
+
+is parsed to the logical line containing an indented paragraph
+whose sole elements are:
+\begin{indpar}\small\begin{verbatim}
+{p|This is a headed paragraph in the indented paragraph "."|p}
+\end{verbatim}\end{indpar}
+
+and
+
+\begin{indpar}\begin{verbatim}
+{p|This is a second headed paragraph "."|p}
+\end{verbatim}\end{indpar}
+
+Note that a closing bracket or prefix separator can \underline{not}
+force the end of a logical line.
+
 \subsection{Paragraphs}
 \label{PARAGRAPHS}
 
-There are two kinds of \skey{paragraph}s: indented and unindented.
-Paragraphs consist of sequences of logical lines.
+There are two kinds of \skey{paragraph}s: indented and headed.
+Paragraphs consist of sequences of logical lines, or in the case
+of some headed paragraphs, of a single logical line.
 
 An \key{indented paragraph} begins with an indentation mark at the
 end of a physical line, and is logically the last thing in the

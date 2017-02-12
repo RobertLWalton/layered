@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 11, 2017
+February 12, 2017
  
 \end{center}
 
@@ -2420,7 +2420,7 @@ end of file before any indent token, the indented paragraph is
 empty and contains no logical lines.
 
 The current indent during the duration of an indented paragraph is
-also referred to as the \key{paragraph indent} of that paragraph.
+also referred to as the \key{paragraph indent} of that indented paragraph.
 The paragraph ends with the first indent token that has a smaller
 indent (first non-blank, non-comment line with smaller indent),
 or with an end of file.
@@ -2428,10 +2428,10 @@ or with an end of file.
 Top level parsing behaves as if input were in an indented paragraph
 with \TT{0} paragraph indent.
 
-A more detailed description of indented paragraphs is given
+Details on indented paragraphs is given
 in \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}.
 
-An \key{unindented paragraph}
+An \key{headed paragraph}
 begins with explicit or implicit \skey{paragraph header},
 which is a prefix separator such as the `\TT{\{p\}}'s in
 \begin{indpar}\begin{verbatim}
@@ -2448,25 +2448,30 @@ as a paragraph header.  A paragraph header must appear at the
 beginning of a logical line that is itself either at the
 beginning of an indented paragraph or just after a blank line
 that follows another logical line.
-
-While an indented paragraph is being scanned, there is a
-`\key{default paragraph header}', which if
-not \TT{MISSING}, is inserted at the beginning of
-any logical line where a paragraph header can appear but does
-not appear.
-There is also a `\key{paragraph head scanner}' lexical
-master table index, which when not \TT{0} specifies a special
-lexical scan performed at the beginning of the logical
-line that can identify implicit paragraph headers based on
-the first characters in the logical line.
-
-An unindented paragraph ends with the next blank line that
+A headed paragraph ends with the next blank line that
 follows a logical line, or when the indented paragraph that
 contains the unindented paragraph ends (this can be at an
 end of file).
 
-Details on paragraph headers are given in
+Details on headed paragraphs are given in
 \itemref{HEADED-PARAGRAPHS}.
+
+While an indented paragraph is being scanned, there is a
+`\mkey{implied header}{in line variables}' that if not \TT{MISSING}
+is inserted at the beginning of each logical line in the indented paragraph
+that does not have its own beginning header.  This implied header
+may be a paragraph header (\itemref{HEADED-PARAGRAPHS})
+or a line header (\itemref{HEADED-LINES}).
+
+There is also a `\mkey{lexical master}{in line variables}'
+table index, which when not \TT{0} specifies a special
+lexical scan performed at the beginning of each logical line.
+This special scan can introduce paragraph or line headers based on
+the first characters in the logical line (see \itemref{MAPPED-LEXEMES}).
+
+A paragraph header changes both the implied header and lexical master
+temporarily while the logical lines of the headed paragraph are being
+scanned (\itemref{LINE-VARIABLES}).
 
 \subsection{Parser Symbol Tables}
 \label{PARSER-SYMBOL-TABLES}
@@ -3850,7 +3855,7 @@ A paragraph may be empty (have no paragraph lines or object elements).
 
 The \TT{implied paragraph header} and \TT{lexical master} parameters
 are used to initialize line variables
-that affect the parsing of indented paragraphs: see \pagref{LINE-VARIABLES}.
+that affect the parsing of indented paragraphs: see \itemref{LINE-VARIABLES}.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
@@ -4726,14 +4731,14 @@ the \TT{implied subprefix} is prepended to the {\em prefix-(n+1)-list}.
 `\TT{with parsing options}' is only permitted for prefixes that
 have the `\TT{paragraph}' group.  The parsing options are
 used to set the \TT{paragraph\_options} line variable:
-see \pagref{LINE-VARIABLES}.
+see \itemref{LINE-VARIABLES}.
 
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
 For prefixes with the `\TT{paragraph}' group, this is used to
 set the \TT{paragraph\_lexi\-cal\_\EOL header} line variable.
 For prefixes with the `\TT{line}' group, this may be
 used to set the \TT{lexical\_header} line variable.
-See \pagref{LINE-VARIABLES}.
+See \itemref{LINE-VARIABLES}.
 
 \end{indpar}
 
@@ -4872,8 +4877,7 @@ appear at the beginning of a logical line.
 A `\key{headed paragraph}' is a logical line that begins with paragraph header,
 plus all the following logical lines up until the headed paragraph end.
 A headed paragraph may be ended by a blank line (unless the paragraph
-is `continuing'), by a logical line
-beginning with another (non-implicit) paragraph header, or by the end
+is `continuing'), or by the end
 of its containing indented paragraph.
 
 The parser's output for a headed paragraph is a MIN object 

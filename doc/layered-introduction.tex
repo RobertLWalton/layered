@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 12, 2017
+February 13, 2017
  
 \end{center}
 
@@ -2426,9 +2426,10 @@ indent (first non-blank, non-comment line with smaller indent),
 or with an end of file.
 
 Top level parsing behaves as if input were in an indented paragraph
-with \TT{0} paragraph indent.
+with \TT{0} paragraph indent and a fictious indentation mark named
+`\TT{TOP LEVEL}'.
 
-Details on indented paragraphs is given
+Details on indented paragraphs are given
 in \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}.
 
 An \key{headed paragraph}
@@ -2438,20 +2439,25 @@ which is a prefix separator such as the `\TT{\{p\}}'s in
 {p} This is a
 paragraph.
 
-{p} And another
+{p}
+And another
 paragraph.
 \end{verbatim}\end{indpar}
 
 The type of the paragraph header, \TT{p} in this example, must 
-appear in the parser's \key{header table}, and be marked there
-as a paragraph header.  A paragraph header must appear at the
+appear in the parser's \key{prefix table} (\itemref{PREFIX-DEFINITIONS}),
+and be marked there as a paragraph header (i.e., must have the `\TT{paragraph}'
+group).  A paragraph header must appear at the
 beginning of a logical line that is itself either at the
 beginning of an indented paragraph or just after a blank line
 that follows another logical line.
 A headed paragraph ends with the next blank line that
-follows a logical line, or when the indented paragraph that
+follows a logical line (there is an exception if the paragraph prefix table
+entry has the
+`\TT{continuing}' property), or when the indented paragraph that
 contains the unindented paragraph ends (this can be at an
 end of file).
+
 
 Details on headed paragraphs are given in
 \itemref{HEADED-PARAGRAPHS}.
@@ -2464,9 +2470,9 @@ may be a paragraph header (\itemref{HEADED-PARAGRAPHS})
 or a line header (\itemref{HEADED-LINES}).
 
 There is also a `\mkey{lexical master}{in line variables}'
-table index, which when not \TT{0} specifies a special
-lexical scan performed at the beginning of each logical line.
-This special scan can introduce paragraph or line headers based on
+table index, which when not \TT{0} specifies the
+lexical scan performed to convert a logical line into lexemes.
+This scan can introduce paragraph or line headers based on
 the first characters in the logical line (see \itemref{MAPPED-LEXEMES}).
 
 A paragraph header changes both the implied header and lexical master
@@ -2514,9 +2520,10 @@ components:
 		  one (or sometimes more) symbol tables containing
 		  definitions of types particular to the pass.
 		  For example, the bracketed subexpression recognition
-		  pass has \TT{opening bracket}, \TT{closing bracket},
-		  \TT{indentation mark}, and \TT{line separator}
-		  type definitions, among others.
+		  pass has a symbol table containing symbols of type
+		  \TT{opening bracket}, \TT{closing bracket},
+		  \TT{indentation mark}, and \TT{line separator},
+		  among others.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2539,7 +2546,7 @@ Lookup in a parser symbol table takes as input a token sequence
 that is part of a line (for the bracketed subexpression recognition pass)
 or subexpression (for other passes), and finds an active symbol table
 entry with a label whose symbols match an initial segment of the
-token sequence.  Only symbol tokens, whose lexeme types are word,
+token sequence.  Only symbol tokens, with lexeme types word,
 mark, separator, or natural-number, can match label symbols.  These are just
 the token types that have values which are MIN strings equal to the
 translation strings of their lexemes, and it is these values that
@@ -4929,7 +4936,7 @@ paragraph header and line header to be inserted at this line's beginning,
 and in subsequent lines `\TT{|}' inserts `\TT{\{row\}}' line headers
 and both `\TT{-}' and `\TT{=}' insert `\TT{\{line\}}' line headers.
 All this assumes there are appropriate entries in the parser's
-header table for `\TT{itemize}', `\TT{item}', `\TT{table}',
+prefix table for `\TT{itemize}', `\TT{item}', `\TT{table}',
 `\TT{line}', and `\TT{row}', and that the lexical scanner has
 been programmed to produce special lexemes in certain
 contexts.  To be specific about the latter, the lexical scanner

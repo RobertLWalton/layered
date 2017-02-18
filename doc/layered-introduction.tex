@@ -2137,16 +2137,16 @@ A token has the following components:
 		  the \TT{.initiator}, \TT{.type}, or header group
 		  of the token \TT{value}.
 \\[1ex]
-		& For a \TT{BRACKETED} token, the \TT{.initiator}
-		  of the token \TT{value} if there is one.  Also,
-		  as special cases, for \TT{BRACKETED} tokens that
-		  are paragraph or line headers
-		  (\itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}),
-		  the group of the
-		  token \TT{value} \TT{.type}, which will be either
-		  `\TT{paragraph}' or `\TT{line}' (these tokens have
-		  no \TT{.initiator}).  For a
-		  \TT{PREFIX} token, the \TT{.type} of the token
+		& For a \TT{BRACKETED} token whose
+		  token \TT{value} has an \TT{.ini\-tiator},
+		  the value of this \TT{.initiator}.  For a
+		  \TT{BRACKETED} token whose \TT{value} was derived
+		  from a headed line or headed paragraph
+		  (\itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS})
+		  and has a \TT{.type}
+		  with either the `\TT{paragraph}' or `\TT{line}'
+		  prefix group, the value of this prefix group.
+		  For a \TT{PREFIX} token, the \TT{.type} of the token
 		  \TT{value} if there is one.  Otherwise \TT{MISSING}.
 \end{tabular}
 \\[1ex]
@@ -2211,10 +2211,11 @@ the parser \underline{never}
 forms a single token that would represent this list, but instead
 delivers top level logical line tokens
 one at a time for subsequent
-processing.  These top level tokens appear at the
-beginning of the token stream as they are created,
-and as they are never again accessed
-by the parser, they may be removed from the token stream at any time
+processing.  These top level tokens appear in the
+the token stream as they are created,
+and never again accessed by the parser.
+They are just after the file beginning
+lexeme token, and may be removed from the token stream at any time
 by post-parser processing.
 
 \subsection{Logical Lines}

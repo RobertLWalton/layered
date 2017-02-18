@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 13, 2017
+February 18, 2017
  
 \end{center}
 
@@ -1921,32 +1921,45 @@ of tokens.  A token is either a lexeme, a subexpression, or an operator.
 The top level parser pass, the bracketed subexpression recognition pass,
 recognizes:
 \begin{itemize}
+
 \item Logical lines, terminated either by line breaks with or without
-possible indented continuation lines, or by logical line separators
+possible indented or non-indented
+continuation lines, or by logical line separators
 (e.g.~`\TT{;}'), or by blank lines.  Note that logical
-lines terminated by blank lines are also called non-indented paragraphs.
+lines with non-indented continuation lines that are
+terminated by blank lines are typically headed paragraphs.
+
 \item Indented paragraphs, introduced by line-ending
 indentation marks such as `\TT{:}', and terminated by the end of indentation.
 An indented paragraph is a part of a logical
 line, typically at the end of its containing logical line,
-and in turn of contains logical lines of its own.
+and in turn contains logical lines of its own.
 
 The top level is considered to be its own indented paragraph whose
 indentation mark is the file beginning and which ends at the file end.
+
 \item Bracketed subexpressions bounded by brackets
 such as `\TT{(}' and `\TT{)}'.
+
 \item Typed bracketed subexpressions bounded by typed brackets
 such as `\TT{\{b|}' and `\TT{|b\}}'.
+
 \item Typed separated subexpressions that are introduced by 
 `typed prefix separators' such as `\TT{\{s\}}'.
 These are converted to typed bracketed subexpressions.
+
 \item Headed lines, that are logical lines which begin with
+a `line header' that is
 a typed prefix separator that has the `\TT{line}' prefix group.
-These are converted to typed bracketed subexpressions.
+The line header may be implied.
+Headed lines are converted to typed bracketed subexpressions.
+
 \item Headed paragraphs, that are groups of logical lines
-beginning with
+that begin with a `paragraph header' that is
 a typed prefix separator that has the `\TT{paragraph}' prefix group.
+The paragraph header may be implied.
 These are converted to typed bracketed subexpressions.
+
 \end{itemize}
 
 The non-top-level passes
@@ -2024,11 +2037,11 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 		& \TT{BRACKETED} and \TT{BRACKETABLE} tokens
 		  are used to represent subexpressions, and have
-		  MIN objects at their value.
+		  MIN objects as their \TT{value}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& The value of a \TT{BRACKETED} token may have
+		& The \TT{value} of a \TT{BRACKETED} token may have
 		  any attributes, including \TT{.type},
 		  \TT{.initiator}, and \TT{.terminator}.
 \end{tabular}
@@ -2036,7 +2049,8 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 		& A \TT{BRACKETABLE} token
 		  is equivalent to (and an optimization of) a \TT{BRACKETED}
-		  token whose MIN object value does \underline{not} have
+		  token whose \TT{value} is a MIN object
+		  that does \underline{not} have
 		  a \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 		  attribute.
 		  If such a token is to become the \underline{only} element of a
@@ -2085,7 +2099,7 @@ A token has the following components:
 		  a token \TT{value} that is \underline{not} a MIN object.
 		  For example, a bracketed
 		  subexpression reformatter may
-		  produce a \TT{DERIVED} token with a value that is
+		  produce a \TT{DERIVED} token with a \TT{value} that is
 		  a MIN special value or a MIN label.
 \end{tabular}
 \\[1ex]  
@@ -2101,17 +2115,19 @@ A token has the following components:
 \ttmkey{value}{of token}
 		& The token \TT{value}, as described above.  This is
 		  a MIN string, label, special value, or object.
-		  For tokens that do not have values, this is \TT{MISSING}
+		  For tokens that do not have \TT{value}'s, this is \TT{MISSING}
 		  (but for \TT{DERIVED} type tokens the token my have
-		  a value that equals \TT{MISSING}).
+		  a \TT{value} that equals \TT{MISSING}).
 \\[1ex]
-		& Note that natural-numbers have values that are MIN
+		& Note that natural-numbers have token \TT{value}'s that are MIN
 		  strings equal to their lexemes,
 		  and are \underline{not} MIN numbers.
 		  This allows very large natural-number lexemes,
 		  and does not try to exploit the 1-1 correspondence
 		  between not-too-large natural-number lexemes and
-		  non-negative integral MIN numbers.
+		  non-negative integral MIN numbers.  It means that
+		  equal natural numbers with differing numbers of
+		  leading zeros are different symbols (see \pagref{SYMBOL}).
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2500,7 +2516,7 @@ components:
 		& A non-empty
 		  sequence of `symbols' that identifies the definition.
 \\[1ex]
-		& A \key{symbol} is a MIN string equal to the
+		& A \key{symbol}\label{SYMBOL} is a MIN string equal to the
 		  lexeme string of a word, mark, separator,
 		  or natural-number lexeme.  Quoted string and numeric
 		  lexemes are not symbols.
@@ -2521,9 +2537,8 @@ components:
 		  definitions of types particular to the pass.
 		  For example, the bracketed subexpression recognition
 		  pass has a symbol table containing symbols of type
-		  \TT{opening bracket}, \TT{closing bracket},
-		  \TT{indentation mark}, and \TT{line separator},
-		  among others.
+		  \TT{opening bracket}, \TT{indentation mark},
+		  and \TT{line separator}, among others.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -3302,7 +3317,7 @@ can be represented as:
 \end{center}
 
 {\em Untyped-bracketed-subexpressions} may be reformatted to
-produce tokens of \TT{DERIVED} type with \TT{values} that may be
+produce tokens of \TT{DERIVED} type with \TT{value}'s that may be
 MIN labels or special values.  Examples are:
 \begin{center}
 \begin{tabular}{ll}

@@ -2575,7 +2575,7 @@ components:
 		  containing the definition that made this symbol
 		  table entry.  When the parser block ends, this entry
 		  will be removed from the symbol table stack.  The top level is
-		  level 0, which outside all parser blocks.
+		  level 0, which is outside all parser blocks.
 \end{tabular}
 \end{indpar}
 
@@ -2601,9 +2601,10 @@ only after an associated non-afix operator is recognized in
 the same subexpression (see \pagref{AFIX-OPERATOR}).
 
 In the bracketed
-subexpression recognition pass matched labels may not span line boundaries.
-In later passes, line boundary tokens are no longer present, and
-matched labels can span line boundaries,
+subexpression recognition pass matched labels may not span physical
+line boundaries.
+In later passes, physical line boundary tokens are no longer present, and
+matched labels can span physical line boundaries,
 but cannot cross bracketed subexpression
 boundaries.
 
@@ -2611,19 +2612,21 @@ The context of a symbol table lookup includes a set of
 \skey{parsing selector}s.\label{PARSING-SELECTORS}
 In order to be active, a symbol table entry's set of selectors
 must have some selector in common with the parsing selectors.
-A selector set is represented as a 48-bit unsigned integer value
+A selector set is represented as a 47-bit unsigned integer value
 with the bit in
 position 1\TT{<{}<}N being on if the N+1'st selector is in the set.
-Thus there can be at most 48 distinct selectors used by any set of
-parser definitions.  For convenience, the selectors that can be
-currently used are given names that are sequences of symbols.
+Thus there can be at most 47 distinct selectors used by any set of
+parser definitions.  The selectors that can be
+currently used are given names that are sequences of symbols,
+and must be referenced by these names.
 
 The parsing selectors may change when an explicit opening bracket,
 indentation mark, or prefix separator
 is recognized, and remain changed until the associated explicit closing
 bracket, end of indented paragraph, or end of prefix separator list
 is recognized.  The parser also has top level set of selectors
-used to begin parsing.
+used to begin parsing a top level logical line, and these top level
+selectors can be changed by parsing commands.
 
 There are no other mechanisms for setting or changing the
 parsing selectors.

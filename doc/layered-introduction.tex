@@ -2643,7 +2643,7 @@ The following parsing selectors are builtin:
 \hspace*{-0.2in}\ttmkey{data}{parser selector} \\
     This selects symbol table entries that parse raw data.  Is
     it used to enable symbol table entries that parse prefix
-    separators and the type/attributes parts of typed
+    separators and the type/attribute parts of typed
     brackets.
 
 \end{indpar}
@@ -2657,8 +2657,13 @@ One selector group is also defined:
 \end{tabular}
 \end{center}
 
+For a few parser symbol tables lookup does not use a sequence
+of tokens, but instead uses a pre-scanned sequence of symbols,
+such as the type of a prefix separator.  An example of such
+a symbol table is the prefix table (\itemref{PREFIX-DEFINITIONS}).
+
 The parser symbol tables act like stacks; as new parsing
-definitions are encountered, their effects are `pushed' into the
+definitions are encountered, they are are `pushed' into the
 symbol tables.  These stacks can be popped, removing
 the parser definitions in reverse order.  When a definition
 is popped, its effects are removed from the symbol tables.
@@ -2678,18 +2683,31 @@ previous state.
 
 A parser command is a top level line that changes parser tables.
 The syntax of a parser commands in general and in particular those
-associated parser block definition, parser testing, selector definition,
-and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
+associated block definition, testing, and selector definition
+is specified in Figure~\itemref{PARSER-COMMANDS}.
 
 \begin{boxedfigure}[!p]
+\emkey{parser-paragraph}
+    \begin{tabular}[t]{@{}rlrl@{}}
+    ::= & \ttkey{parser:} \\
+    	& ~~~~{\em parser-command}\STAR{}
+    \end{tabular}
+\label{PARSER-PARAGRAPH}
+\\[0.6ex]
+\emkey{parser-test-paragraph}
+    \begin{tabular}[t]{@{}rlrl@{}}
+    ::= & \ttkey{parser test:} \\
+    	& ~~~~{\em logical-line}\STAR{}
+    \end{tabular}
+\label{PARSER-TEST-PARAGRAPH}
+\\[0.6ex]
 \emkey{parser-command}
     \begin{tabular}[t]{@{}rlrl@{}}
     ::= & {\em parser-block-command} &
-    $|$ & {\em parser-test-command} \\
+    $|$ & {\em parser-trace-command} \\
     $|$ & {\em parser-selector-command} &
-    $|$ & {\em parser-context-command} \\
-    $|$ & {\em parser-bracketed-command} &
-    $|$ & {\em parser-pass-command} \\
+    $|$ & {\em parser-bracketed-command} \\
+    $|$ & {\em parser-pass-command} &
     $|$ & {\em parser-operator-command}
     \end{tabular}
 \label{PARSER-COMMAND}
@@ -2726,19 +2744,18 @@ and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parser begin}{begin!parser block} {\em block-name} \\
-    $|$ & \ttikey{parser end}{end!parser block} {\em block-name} \\
-    $|$ & \ttikey{parser print blocks}{print!parser blocks} \\
+    ::= & \ttikey{begin}{begin!parser block} {\em block-name} \\
+    $|$ & \ttikey{end}{end!parser block} {\em block-name} \\
+    $|$ & \ttikey{print blocks}{print!parser blocks} \\
     \end{tabular}
 \label{PARSER-BLOCK-COMMAND}
 \\[0.0ex]
 \emkey{block-name} ::= {\em simple-name}
 \\[0.6ex]
-\emkey{parser-test-command}
+\emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parsing trace}{trace!parser} {\em parser-flag-spec} \\
-    $|$ & \ttikey{parser print trace}{trace!parser print} \\
-    $|$ & \ttikey{parser test}{test!parser} \ldots \\
+    ::= & \ttikey{trace}{trace!parser} {\em parser-flag-spec} \\
+    $|$ & \ttikey{print trace}{trace!parser print} \\
     \end{tabular}
 \label{PARSER-TEST-COMMAND}
 \\[0.6ex]
@@ -2754,16 +2771,6 @@ and parser contexts is specified in Figure~\itemref{PARSER-COMMANDS}.
 \emkey{selector} ::= {\em parser-flag}
 \\[0.0ex]
 \emkey{selectors} ::= {\em parser-flag-list}
-\\[0.6ex]
-\emkey{parser-context-command}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parser define context}{context!define} {\em context-name} \\
-        & ~~~ [ \TT{with parsing selectors} {\em parser-flag-spec} ] \\
-    $|$ & \ttkey{parser print context} {\em partial-name} \\
-    \end{tabular}
-\\[0.0ex]
-\emkey{context-name} ::= {\em quoted-key}
-\label{PARSER-CONTEXT-COMMAND}
 
 \medskip
 

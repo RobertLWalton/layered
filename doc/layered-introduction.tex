@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 18, 2017
+February 23, 2017
  
 \end{center}
 
@@ -2195,10 +2195,7 @@ token has been read.
 Lexemes are read by a lexical scanner which can be controlled by
 resetting the master table from which the scan of the next lexeme
 starts (see \pagref{MASTER-TABLE}).  In the parser, the master
-table from which the scan of the part of a line after its indent
-starts is called the `\key{lexical master}' of the line.  The parser
-can reset the lexical master immediately after reading the indent of
-a line.  See \itemref{LINE-VARIABLES} for details.
+can be reset at the beginning of a logical line (see \itemref{LOGICAL-LINES}).
 
 As the parser identifies subexpressions, the tokens in the
 subexpression are replaced by a single expression token (of
@@ -2225,22 +2222,31 @@ Input is parsed into a sequence of \skey{logical line}s, each of which is
 a sequence of tokens.  Once parsed, logical lines may be grouped into
 paragraphs.
 
-A logical line begins just after the first indent lexeme in the
+In the input physical lines begin with an indent lexeme token that
+contains an indentation that is the number of columns before the first
+graphic character in the physical line (which cannot be a blank line or
+line containing just a comment).
+By `\key{indent token}' we mean such
+a token and by an `\mkey{indent}{of indent token}' we mean the indentation
+of an indent token or an integer that will be compared to such.
+
+A logical line begins just after the first indent token in the
 file or the first indent token after the previous logical line.
-This indent token specifies the indentation of the logical line,
-called the `\key{line indent}'.
+The indent of this token is called the `\key{line indent}'.
 A logical line ends with one
 of the following as controlled by parser options defined in
 Figures~\itemref{PARSING-END-AT-OPTIONS-1}
 and~\itemref{PARSING-END-AT-OPTIONS-2}:
 
 \begin{itemize}
-\item An indent equal to or less than the current indent.
-\item An indent less than the current indent.
+\item An indent token with indent equal to or less than the current indent.
+\item An indent token with indent less than the current indent.
 \item Any line break.
-\item Any blank line. This is called a `\key{paragraph break}'.
+\item Any completely blank (non-comment) line.
+This is called a `\key{paragraph break}'.
 \item A line separator, e.g.~`\TT{;}'.
-\item The end of file.
+\item The end of file.  An end of file always terminates a logical line,
+regardless of option settings.
 \end{itemize}
 
 \begin{boxedfigure}[!p]
@@ -2265,7 +2271,7 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}:
 
 \vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at le indent}{parser option} \\
-    This parser option causes the beginning of a line with indent less than
+    This parser option causes an indent token with indent less than
     \underline{or equal to} the current indent to end a logical line.
     This means that logical lines can be continued by input lines
     with indent greater than the current indent, assuming other
@@ -2273,7 +2279,7 @@ and~\itemref{PARSING-END-AT-OPTIONS-2}:
 
 \vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at lt indent}{parser option} \\
-    This parser option causes the beginning of a line with indent less than
+    This parser option causes an indent token with indent less than
     the current indent to end a logical line.
     This means that logical lines can be continued by input lines
     with indent \underline{equal to} or greater
@@ -2349,9 +2355,7 @@ Two option groups are also defined:
 The above makes use of the notion of a \key{current indent}.  At top
 level this is just \TT{0}.  An indented paragraph changes the current
 indent to the indent of the first indent token within the indented
-paragraph (this is the indent of the first non-comment graphic character
-in the indented paragraph).  See
-\itemref{PARAGRAPHS} for more detail.
+paragraph.  See \itemref{PARAGRAPHS} for more detail.
 
 Note that in applying the above comments and lines containing
 just a comment are ignored.  Thus a `blank line' means any sequence
@@ -2383,14 +2387,15 @@ This logical line contains @ which is a subexpression.
 where \TT{@} represents the subexpression
 
 \begin{indpar}\begin{verbatim}
-```This is a quoted paragraph is inside a logical line!'''
+```This quoted paragraph is inside a logical line!'''
 \end{verbatim}\end{indpar}
 
 As another example, if the indentation mark `\TT{:}' does not
 change the top level line ending options, but
 the prefix separator \TT{\{p\}} changes these
-options so that only a blank line or the beginning of a
-line indented less than the current indent terminate a logical line,
+options so that only a blank line, the beginning of a
+line indented less than the current indent, or an end of file
+terminate a logical line,
 then:
 \begin{indpar}\begin{verbatim}
 This logical line contains:
@@ -2403,7 +2408,7 @@ This logical line contains:
 This is the next logical line.
 \end{verbatim}\end{indpar}
 
-is parsed to the logical line containing an indented paragraph
+is parsed to two logical lines, the first containing an indented paragraph
 whose sole elements are:
 \begin{indpar}\small\begin{verbatim}
 {p|This is a headed paragraph in the indented paragraph "."|p}
@@ -2415,8 +2420,20 @@ and
 {p|This is a second headed paragraph "."|p}
 \end{verbatim}\end{indpar}
 
-Note that a closing bracket or prefix separator can \underline{not}
-force the end of a logical line.
+Note that a closing bracket or a prefix separator can \underline{not}
+force the end of a logical line.  Subexpressions bracketed by opening
+and closing brackets must be inside a logical line.  Similarly subexpressions
+delimited by prefix separators must be inside a logical line, with the
+exception of headed paragraphs beginning with paragraph prefix separators like
+\TT{\{p\}} in the example.
+
+The master table used to scan the lexemes of a logical line
+is called the `\key{lexical master}'\label{LEXICAL-MASTER} of the line.
+This can be reset at the beginning of the logical line,
+and will be effective for all lexemes in the line after the indent token
+preceding the logical line and through and including any indent token
+that follows the logical line.
+See \itemref{LINE-VARIABLES} for more details.
 
 \subsection{Paragraphs}
 \label{PARAGRAPHS}
@@ -2426,7 +2443,7 @@ Paragraphs consist of sequences of logical lines, or in the case
 of some headed paragraphs, of a single logical line.
 
 An \key{indented paragraph} begins with an indentation mark at the
-end of a physical line, and is logically the last thing in the
+end of a physical line, and is most frequently the last thing in the
 logical line to which this physical line belongs.  The indentation
 mark resets the \key{current indent} for the duration of the indented
 paragraph to the indent of the next indent token (the indent of
@@ -2472,7 +2489,7 @@ A headed paragraph ends with the next blank line that
 follows a logical line (there is an exception if the paragraph prefix table
 entry has the
 `\TT{continuing}' property), or when the indented paragraph that
-contains the unindented paragraph ends (this can be at an
+contains the headed paragraph ends (this can be at an
 end of file).
 
 
@@ -2488,9 +2505,13 @@ or a line header (\itemref{HEADED-LINES}).
 
 There is also a `\mkey{lexical master}{in line variables}'
 table index, which when not \TT{0} specifies the
-lexical scan performed to convert a logical line into lexemes.
-This scan can introduce paragraph or line headers based on
-the first characters in the logical line (see \itemref{MAPPED-LEXEMES}).
+lexical master used to scan logical line lexemes
+(see \pagref{LEXICAL-MASTER}).
+This scan can introduce special lexemes at the beginning of the
+logical line that are based on
+the first characters in the logical line,
+and these lexemes can be mapped to paragraph or line headers
+(see \itemref{MAPPED-LEXEMES}).
 
 A paragraph header changes both the implied header and lexical master
 temporarily while the logical lines of the headed paragraph are being
@@ -3047,11 +3068,11 @@ The bracketed subexpression recognition pass recognizes:
     or with any blank line, or with the closing bracket
     (e.g., `\TT{)}') of
     a bracketed expression that contains the logical line \\
-\hspace*{-0.2in}unindented paragraphs,
+\hspace*{-0.2in}headed paragraphs,
     which are sequences of logical lines with the same indentation
     ended by a blank line or the end of a containing indented paragraph,
     where each logical line begins with a line header and
-    the whole unindented paragraph begins with a paragraph
+    the whole headed paragraph begins with a paragraph
     header \\
 \hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
@@ -3217,10 +3238,10 @@ are MIN objects, or into \TT{DERIVED} tokens whose values can
 be other things such as labels or special values.
 
 The final output of the parser is a sequence of \TT{BRACKETED} tokens,
-one per top level logical line or unindented paragraph.
+one per top level logical line or headed paragraph.
 For each of these tokens,
 its `\TT{value}' is a MIN object that encodes its logical line or
-unindented paragraph.
+headed paragraph.
 
 For {\em untyped-bracketed-subexpressions} that are \underline{not}
 reformatted, the brackets become the
@@ -3237,13 +3258,13 @@ or \TT{"<LF>"} otherwise.
 For {\em typed-bracketed-subexpressions} there is \underline{no}
 \TT{.initiator} or \TT{.terminator}, but there is usually a \TT{.type}
 attribute.  {\em Prefix-n-lists} are just an alternate form of
-{\em typed-bracketed-sub\-ex\-pres\-sions}, and unindented paragraphs
+{\em typed-bracketed-sub\-ex\-pres\-sions}, and headed paragraphs
 are just an alternate form of {\em prefix-n-lists}.
 
 The elements of a MIN object are the values of sub-subexpressions and
 may themselves the MIN objects, as when brackets are nested.  The
 elements of indented paragraphs are always logical lines or
-unindented paragraphs.
+headed paragraphs.
 
 If MIN object X has just one element that is a MIN object Y,
 X has no attributes other than \TT{.type}, \TT{.initiator},
@@ -4939,11 +4960,11 @@ a potato
 =
 \end{verbatim}\end{indpar}
 
-Here there are 3 unindented paragraphs inside the top level indented
-paragraph.  The first unindented paragraph has
+Here there are 3 headed paragraphs inside the top level indented
+paragraph.  The first headed paragraph has
 paragraph header `\TT{\{itemize\}}' and line headers `\TT{\{item\}}'
 for each of its logical lines.  The second has the same headers but
-they are implied.  The third unindented paragraph has lexical headers:
+they are implied.  The third headed paragraph has lexical headers:
 the first line begins with `\TT{====}' which causes the
 \begin{center}
 \TT{\{table\}\EOL\{line\}}
@@ -4961,7 +4982,7 @@ line following a blank line,
 must produce a special lexeme that maps
 to `\TT{table}' and a second special lexeme that maps to `\TT{line}'.
 Then for the remaining logical lines within this
-`\TT{table}' unindented paragraph, the scanner must
+`\TT{table}' headed paragraph, the scanner must
 produce special lexemes that map to
 `\TT{row}' for lines beginning with `\TT{|}' and
 `\TT{line}' for lines beginning with `\TT{-}' or `\TT{=}'.
@@ -5150,7 +5171,7 @@ for the header's \TT{.type}.
 See \itemref{PREFIX-DEFINITIONS}.
 
 An explicit paragraph header is a typed prefix separator that
-occurs at the beginning of an unindented paragraph,
+occurs at the beginning of an headed paragraph,
 and that has a prefix definition whose \TT{group} equals
 `\TT{paragraph}'.
 

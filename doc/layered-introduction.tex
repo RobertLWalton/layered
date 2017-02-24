@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 23, 2017
+February 24, 2017
  
 \end{center}
 
@@ -2683,7 +2683,7 @@ previous state.
 
 A parser command is a top level line that changes parser tables.
 The syntax of a parser commands in general and in particular those
-associated block definition, testing, and selector definition
+associated block definition, parser trace flags, and parser selectors
 is specified in Figure~\itemref{PARSER-COMMANDS}.
 
 \begin{boxedfigure}[!p]
@@ -2752,15 +2752,6 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.0ex]
 \emkey{block-name} ::= {\em simple-name}
 \\[0.6ex]
-\emkey{parser-trace-command}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{trace}{trace!parser} {\em parser-flag-spec} \\
-    $|$ & \ttikey{print trace}{trace!parser print} \\
-    \end{tabular}
-\label{PARSER-TEST-COMMAND}
-\\[0.6ex]
-\emkey{parser-trace-flag} ::= see page \pageref{PARSING-TRACE-FLAGS}
-\\[0.6ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
@@ -2771,6 +2762,17 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \emkey{selector} ::= {\em parser-flag}
 \\[0.0ex]
 \emkey{selectors} ::= {\em parser-flag-list}
+\\[0.6ex]
+\emkey{parser-trace-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \ttikey{trace}{trace!parser} {\em trace-flag-spec} \\
+    $|$ & \ttikey{print trace}{trace!parser print} \\
+    \end{tabular}
+\label{PARSER-TEST-COMMAND}
+\\[0.6ex]
+\emkey{trace-flag-spec} ::= {\em parser-flag-spec} with {\em parser-trace-flags}
+\\[0.0ex]
+\emkey{parser-trace-flag} ::= see page \pageref{PARSING-TRACE-FLAGS}
 
 \medskip
 
@@ -2779,12 +2781,19 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 
 \end{boxedfigure}
 
-A parser command is a top level input line by itself, and is
-executed by the parser itself after the command is read,
-thus affecting subsequent parsing.  Parser commands are
+Parser commands are logical lines in an indented paragraph
+whose indentation mark `\TT{parser:}' appears at the beginning
+of a top level logical line.  Parser commands are
 themselves parsed before they are executed.
 
-Parser commands begin with the word `\ttmkey{parser}{in parser command}'.
+The entire `\TT{parser:}' indented
+paragraph is parsed before any of its parser commands are executed.
+The \TT{parser:}' indentation mark sets the parser selectors
+to `\TT{[data]}', so only the `\TT{data}' selector is present when
+parser commands are parsed.  It is possible but not advisable to
+use parser commands to alter the way that input is parsed if only
+the `\TT{data}' selector is present.
+
 Parser commands make use of {\em simple-names} that are just a {\em word}
 optionally followed by a sequence of {\em words} and/or {\em natural-numbers},
 and {\em quoted-keys}, that are arbitrary sequences of {\em word},
@@ -2798,10 +2807,12 @@ Parser commands may be organized into \skey{parser-block}s of the form:%
 \label{PARSER-BLOCKS}
 \begin{center}
 \begin{tabular}{l}
-\ttmkey{parser begin}{block} {\em block-name} \\
-{\em parser-command} \\
+\TT{parser:} \\
+\TT{~~~~}\TT{begin} {\em block-name} \\
+\TT{~~~~}{\em parser-command} \\
 .~.~.~.~.~.~.~.~.~. \\
-\ttmkey{parser end}{block} {\em block-name} \\
+\TT{parser:} \\
+\TT{~~~~}\TT{end} {\em block-name} \\
 \end{tabular}
 \end{center}
 
@@ -2809,14 +2820,15 @@ When a parser block ends, all changes to the parser tables made in
 the block are erased, so subsequent parsing is as if the block
 had never existed.
 The {\em block-name} merely serves as an error check; it is
-not possible to have one `\TT{parser end}' command end more than
+not possible to have one `\TT{end}' command end more than
 one parser block.
 
 The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
-parsing selectors 	& 48 bits	& \pagref{PARSING-SELECTORS} \\
-parsing end at options	& 8 bits	& \pagref{PARSING-END-AT-OPTIONS-1} \\
+parsing selectors 	& 47 bits	& \pagref{PARSING-SELECTORS} \\
+parsing end at options	& 6 bits	& \pagref{PARSING-END-AT-OPTIONS-1} \\
+parsing header options	& 2 bits	& \pagref{PARSING-HEADER-OPTIONS} \\
 parsing trace flags	& 64 bits	& \pagref{PARSING-TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
@@ -2849,21 +2861,40 @@ So for example, the flag modifier list
 \begin{center}
 \TT{[+ other end at options, - end at paragraph break]}
 \end{center}
-is equivalent to a {\em parser-flag-list} listing all end-at options
-except \TT{end at paragraph break}.  This is because the group name
+is equivalent to a {\em parser-flag-list} setting all end-at options
+except \TT{end at paragraph break} which is cleared.
+This is because the group name
 \TT{other end at options} denotes the set of all end-at options, but
 since \TT{end at paragraph break} is explicitly mentioned in this
 {\em parser-flag-modifier-list}, it is deleted from the set in this
 context.
 
+The only builtin selector names are `\TT{top level}' and `\TT{data}'.
+Other selector names must be defined by the {\em parser-selector-command}:
+\begin{center}
+    \TT{define selector} {\em selector}
+\end{center}
+When the parser block containing a selector name definition
+command ends, the selector name is erased.
+There may be at most 47 selectors defined at any one time.
+
+The \key{standard parser} creates a single initial parsing block
+named `\ttikey{standard}{parsing block}' and defines in it the selectors
+\begin{center}
+\ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
+\end{center}
+The standard parser also sets the top level selector set to
+`\TT{[code]}'.  Note that the actions of the standard parser can be
+canceled by a `\TT{end standard}' parser command.
+
 The current set of
 \skey{parsing trace flag}s\index{trace flag!parser}\index{flag!parsing trace}
-may be given or modified by the `\ttkey{parsing trace}' command.
+may be given or modified by the `\ttkey{trace}' command.
 The trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
 in Figure~\itemref{PARSING-TRACE-FLAGS}.
 
-The `\ttkey{parser print trace}' command prints the current set of
+The `\ttkey{print trace}' command prints the current set of
 parsing trace flags.
 
 \begin{boxedfigure}[!p]
@@ -2926,29 +2957,13 @@ parsing trace flags.
 \label{PARSING-TRACE-FLAGS}
 \end{boxedfigure}
 
+TBD
+
 The `\ttkey{parser test}' command just causes the parse of itself
 to be printed in detail.  Since parser commands are parsed before they
 are executed, any text placed after the words `\TT{parser test}' will
 be parsed and the resulting printout will indicate the details of that
 parse.
-
-The only builtin selector names are `\TT{top level}' and `\TT{data}'.
-Other selector names must be defined by the {\em parser-selector-command}:
-\begin{center}
-    \TT{parser define selector} {\em selector}
-\end{center}
-When the parser block containing a selector name definition
-command ends, the selector name is erased.
-There may be at most 48 selectors defined at any one time.
-
-The \key{standard parser} creates a single initial parsing block
-named `\ttikey{standard}{parsing block}' and defines in it the selectors
-\begin{center}
-\ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
-\end{center}
-The standard parser also sets the top level selector set to
-`\TT{[code]}'.  Note that the actions of the standard parser can be
-canceled by a `\TT{parser end standard}' command.
 
 If a top level logical line begins with a \emkey{context-name}, the top level
 selector set is reset to the default selectors (selectors of the default
@@ -4739,6 +4754,7 @@ The general syntax of {\em parser-prefix-commands} is:
     ::= & {\em end-at-option} ~ except ~ `\TT{end at line separator}'
         & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
     $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
+          \label{PARSING-HEADER-OPTIONS}
     \end{tabular}
 
 \end{indpar}

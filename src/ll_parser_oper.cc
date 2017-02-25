@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 07:41:37 EST 2017
+// Date:	Sat Feb 25 06:51:06 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1735,12 +1735,12 @@ static min::gen oper_pass_command
     if ( command == PAR::print )
     {
 
-	COM::print_command ( vp, parser );
+	min::uns32 indent =
+	    COM::print_command ( parser, ppvec );
 
 	parser->printer
-	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::adjust_indent ( 4 );
+	    << min::set_indent ( indent + 4 );
 
 	int count = 0;
 

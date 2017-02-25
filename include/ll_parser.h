@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 23:32:28 EST 2017
+// Date:	Sat Feb 25 01:46:28 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,6 @@
 //	Strings
 //	Tokens
 //	Parser Closures
-//	Contexts
 //	Parser
 //	Reformatters
 //	Parser Functions
@@ -40,6 +39,8 @@ namespace ll { namespace parser {
 
     extern min::locatable_gen
         top_level,	// TOP LEVEL
+	top,		// top
+	level,		// level
 	dot_oper,	// .operator
 	doublequote,	// "
 	number_sign,	// #
@@ -84,6 +85,7 @@ namespace ll { namespace parser {
 	begin,		// begin
 	end,		// end
 	print,		// print
+	block,		// block
 	pass_lexeme,	// pass
 	selector,	// selector
 	selectors,	// selectors
@@ -95,7 +97,6 @@ namespace ll { namespace parser {
 	subprefix,	// subprefix
 	reformatter_lexeme,
 			// reformatter
-	context_lexeme,	// context
 	default_lexeme,	// default
 	with,		// with
 	parsing,	// parsing
@@ -917,43 +918,6 @@ void push_new_pass ( min::gen name,
 
 } }
 
-// Contexts
-// --------
-
-namespace ll { namespace parser {
-
-// Context definition.
-//
-struct context_struct;
-typedef min::packed_struct_updptr<context_struct>
-        context;
-extern const min::uns32 & CONTEXT;
-    // Subtype of min::packed_struct<context_struct>.
-struct context_struct :
-	public ll::parser::table::root_struct
-{
-    // Packed_struct subtype is CONTEXT.
-
-    ll::parser::table::new_flags new_selectors;
-    	// New selectors associated with this context.
-
-};
-
-MIN_REF ( ll::parser::table::root, next,
-          ll::parser::context )
-MIN_REF ( min::gen, label, ll::parser::context )
-
-void push_context
-	( min::gen label,
-	  ll::parser::table::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  const ll::parser::table::new_flags
-	      & new_selectors,
-	  ll::parser::table::key_table context_table );
-
-} }
-
 // Parser
 // ------
 
@@ -1172,9 +1136,6 @@ struct parser_struct
     const min::gen prefix_separator;
         // Top level selectors and prefix_separator.
 
-    const ll::parser::table::key_table context_table;
-        // Context symbol table.
-
     const ll::parser::bracketed::indentation_mark
 	    top_level_indentation_mark;
 	// Top level indentation mark for parse
@@ -1272,9 +1233,6 @@ MIN_REF ( ll::parser::table::key_table,
 		selector_group_name_table,
           ll::parser::parser )
 MIN_REF ( min::gen, prefix_separator,
-          ll::parser::parser )
-MIN_REF ( ll::parser::table::key_table,
-		context_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::bracketed::indentation_mark,
 		top_level_indentation_mark,

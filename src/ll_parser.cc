@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  6 11:13:11 EST 2017
+// Date:	Sat Feb 25 01:47:36 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,7 +14,6 @@
 //	Strings
 //	Tokens
 //	Parser Closures
-//	Contexts
 //	Parser
 //	Reformatters
 //	Parser Functions
@@ -37,6 +36,8 @@
 # define STD ll::parser::standard
 
 min::locatable_gen PAR::top_level;
+min::locatable_gen PAR::top;
+min::locatable_gen PAR::level;
 min::locatable_gen PAR::dot_oper;
 min::locatable_gen PAR::doublequote;
 min::locatable_gen PAR::number_sign;
@@ -78,6 +79,7 @@ min::locatable_gen PAR::end;
 min::locatable_gen PAR::define;
 min::locatable_gen PAR::undefine;
 min::locatable_gen PAR::print;
+min::locatable_gen PAR::block;
 min::locatable_gen PAR::pass_lexeme;
 min::locatable_gen PAR::selector;
 min::locatable_gen PAR::selectors;
@@ -88,7 +90,6 @@ min::locatable_gen PAR::master;
 min::locatable_gen PAR::implied;
 min::locatable_gen PAR::subprefix;
 min::locatable_gen PAR::reformatter_lexeme;
-min::locatable_gen PAR::context_lexeme;
 min::locatable_gen PAR::default_lexeme;
 min::locatable_gen PAR::with;
 min::locatable_gen PAR::parsing;
@@ -121,6 +122,8 @@ static void initialize ( void )
 {
     PAR::top_level
 	= min::new_lab_gen ( "TOP", "LEVEL" );
+    PAR::top = min::new_str_gen ( "top" );
+    PAR::level = min::new_str_gen ( "level" );
     PAR::dot_oper
 	= min::new_str_gen ( ".operator" );
 
@@ -189,6 +192,7 @@ static void initialize ( void )
     PAR::define = min::new_str_gen ( "define" );
     PAR::undefine = min::new_str_gen ( "undefine" );
     PAR::print = min::new_str_gen ( "print" );
+    PAR::block = min::new_str_gen ( "block" );
     PAR::pass_lexeme = min::new_str_gen ( "pass" );
     PAR::selector = min::new_str_gen ( "selector" );
     PAR::selectors = min::new_str_gen ( "selectors" );
@@ -200,8 +204,6 @@ static void initialize ( void )
     PAR::subprefix = min::new_str_gen ( "subprefix" );
     PAR::reformatter_lexeme =
         min::new_str_gen ( "reformatter" );
-    PAR::context_lexeme =
-        min::new_str_gen ( "context" );
     PAR::default_lexeme =
         min::new_str_gen ( "default" );
     PAR::with = min::new_str_gen ( "with" );
@@ -624,42 +626,6 @@ void PAR::push_new_pass
 	( ll::parser::new_pass_table, name );
 }
 
-// Contexts
-// --------
-
-static min::uns32 context_stub_disp[] = {
-    min::DISP ( & PAR::context_struct::next ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<PAR::context_struct, TAB::root_struct>
-    context_type
-	( "ll::parser::context_type",
-	  TAB::root_gen_disp,
-	  ::context_stub_disp );
-const min::uns32 & PAR::CONTEXT = context_type.subtype;
-
-void PAR::push_context
-	( min::gen label,
-	  ll::parser::table::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  const ll::parser::table::new_flags
-	      & new_selectors,
-	  ll::parser::table::key_table context_table )
-{
-    min::locatable_var<PAR::context> context
-        ( ::context_type.new_stub() );
-
-    label_ref(context) = label;
-    context->selectors = selectors;
-    context->block_level = block_level;
-    context->position = position;
-    context->new_selectors = new_selectors;
-
-    TAB::push ( context_table, (TAB::root) context );
-}
-
 // Parser
 // ------
 //
@@ -683,7 +649,6 @@ static min::uns32 parser_stub_disp[] =
                      ::selector_name_table ),
     min::DISP ( & PAR::parser_struct
                      ::selector_group_name_table ),
-    min::DISP ( & PAR::parser_struct::context_table ),
     min::DISP ( & PAR::parser_struct
                      ::top_level_indentation_mark ),
     min::DISP ( & PAR::parser_struct::first ),
@@ -849,38 +814,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	                  + PAR::ALWAYS_SELECTOR;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();
-
-	PAR::context_table_ref(parser) =
-	    TAB::create_key_table ( 256 );
-
-	PAR::push_context
-	    ( PAR::parser_lexeme,
-	      PAR::ALWAYS_SELECTOR,
-	      0,
-	      PAR::top_level_position,
-	      TAB::new_flags
-	          (   PAR::DEFAULT_OPT
-		    + PAR::DATA_SELECTOR
-		    + PAR::TOP_LEVEL_SELECTOR
-		    + PAR::ALWAYS_SELECTOR,
-		      TAB::ALL_FLAGS
-		    - PAR::DEFAULT_OPT
-		    - PAR::DATA_SELECTOR
-		    - PAR::TOP_LEVEL_SELECTOR
-		    - PAR::ALWAYS_SELECTOR,
-		    0 ),
-	      parser->context_table );
-
-	min::locatable_gen parser_test
-	    ( min::new_lab_gen ( "parser", "test" ) );
-
-	PAR::push_context
-	    ( parser_test,
-	      PAR::ALWAYS_SELECTOR,
-	      0,
-	      PAR::top_level_position,
-	      TAB::new_flags ( 0, 0, 0 ),
-	      parser->context_table );
 
 	BRA::bracketed_pass bracketed_pass =
 	    (BRA::bracketed_pass)
@@ -1335,29 +1268,6 @@ void PAR::parse ( PAR::parser parser )
 
 	TAB::flags selectors =
 	    line_variables.current.selectors;
-	{
-	    PAR::token current_save = current;
-	    TAB::key_prefix prefix =
-		PAR::find_key_prefix
-		    ( parser, current,
-		      parser->context_table );
-	    if ( prefix != NULL_STUB )
-	    {
-	        current = current_save;
-		PAR::context context =
-		    (PAR::context) prefix->first;
-		MIN_REQUIRE ( context != NULL_STUB );
-		selectors = parser->selectors;
-		selectors |=
-		    context->new_selectors.or_flags;
-		selectors &= ~
-		    context->new_selectors.not_flags;
-		selectors ^=
-		    context->new_selectors.xor_flags;
-		selectors |=
-		    PAR::ALWAYS_SELECTOR;
-	    }
-	}
 
 	line_variables.previous = current->previous;
 	line_variables.at_paragraph_beginning =
@@ -1494,10 +1404,6 @@ void PAR::parse ( PAR::parser parser )
 		    else
 			result = min::FAILURE();
 		}
-		if ( result == min::FAILURE() )
-		    result =
-		      COM::parser_execute_command
-			( vp, 1, parser );
 	    }
 	}
 
@@ -1653,13 +1559,6 @@ min::gen PAR::end_block
     }
 
     parser->selectors = (&b)->saved_selectors;
-
-    min::uns64 collected_entries,
-               collected_key_prefixes;
-
-    TAB::end_block
-        ( parser->context_table, block_level - 1,
-	  collected_key_prefixes, collected_entries );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;

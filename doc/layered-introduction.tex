@@ -226,7 +226,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 24, 2017
+February 25, 2017
  
 \end{center}
 
@@ -2235,8 +2235,8 @@ file or the first indent token after the previous logical line.
 The indent of this token is called the `\key{line indent}'.
 A logical line ends with one
 of the following as controlled by parser options defined in
-Figures~\itemref{PARSING-END-AT-OPTIONS-1}
-and~\itemref{PARSING-END-AT-OPTIONS-2}:
+Figures~\itemref{END-AT-OPTIONS-1}
+and~\itemref{END-AT-OPTIONS-2}:
 
 \begin{itemize}
 \item An indent token with indent equal to or less than the current indent.
@@ -2323,7 +2323,7 @@ regardless of option settings.
 \medskip
 
 \caption{\bf Parsing End-At Options: Part I}
-\label{PARSING-END-AT-OPTIONS-1}
+\label{END-AT-OPTIONS-1}
 
 \end{boxedfigure}
 
@@ -2348,7 +2348,7 @@ Two option groups are also defined:
 \medskip
 
 \caption{\bf Parsing End-At Options: Part II}
-\label{PARSING-END-AT-OPTIONS-2}
+\label{END-AT-OPTIONS-2}
 
 \end{boxedfigure}
 
@@ -2742,6 +2742,25 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \emkey{parser-flag-spec} ::= {\em parser-flag-list} $|$
                               {\em parser-flag-modifier-list}
 \\[0.6ex]
+\emkey{selector} ::= {\em parser-flag} as per \pagref{SELECTOR-NAMES}
+\\[0.0ex]
+\emkey{selectors} ::= {\em parser-flag-list}
+                      with only selector names (\pagref{SELECTOR-NAMES})
+\\[0.0ex]
+\emkey{selector-spec} ::= {\em parser-flag-spec}
+                          with only selector names (\pagref{SELECTOR-NAMES})
+\\[0.0ex]
+\emkey{end-at-option} ::= {\em parser-flag} as per \pagref{END-AT-OPTIONS-1}
+\\[0.0ex]
+\emkey{end-at-option-spec} ::= {\em parser-flag-spec}
+                          with only end at option names
+			  (\pagref{END-AT-OPTIONS-1})
+\\[0.0ex]
+\emkey{trace-flag} ::= {\em parser-flag} as per \pagref{TRACE-FLAGS}
+\\[0.0ex]
+\emkey{trace-flag-spec} ::= {\em parser-flag-spec} with only trace flag names
+			    (\pagref{TRACE-FLAGS})
+\\[0.6ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{begin}{begin!parser block} {\em block-name} \\
@@ -2758,21 +2777,13 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
     $|$ & \ttikey{parser print selector}{selector!print} {\em partial-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
-\\[0.0ex]
-\emkey{selector} ::= {\em parser-flag}
-\\[0.0ex]
-\emkey{selectors} ::= {\em parser-flag-list}
 \\[0.6ex]
 \emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttikey{trace}{trace!parser} {\em trace-flag-spec} \\
     $|$ & \ttikey{print trace}{trace!parser print} \\
     \end{tabular}
-\label{PARSER-TEST-COMMAND}
-\\[0.6ex]
-\emkey{trace-flag-spec} ::= {\em parser-flag-spec} with {\em parser-trace-flags}
-\\[0.0ex]
-\emkey{parser-trace-flag} ::= see page \pageref{PARSING-TRACE-FLAGS}
+\label{PARSER-TRACE-COMMAND}
 
 \medskip
 
@@ -2827,9 +2838,9 @@ The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
 parsing selectors 	& 47 bits	& \pagref{PARSING-SELECTORS} \\
-parsing end at options	& 6 bits	& \pagref{PARSING-END-AT-OPTIONS-1} \\
+parsing end at options	& 6 bits	& \pagref{END-AT-OPTIONS-1} \\
 parsing header options	& 2 bits	& \pagref{PARSING-HEADER-OPTIONS} \\
-parsing trace flags	& 64 bits	& \pagref{PARSING-TRACE-FLAGS} \\
+parsing trace flags	& 64 bits	& \pagref{TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
 A set of parser flags can be
@@ -2869,7 +2880,8 @@ since \TT{end at paragraph break} is explicitly mentioned in this
 {\em parser-flag-modifier-list}, it is deleted from the set in this
 context.
 
-The only builtin selector names are `\TT{top level}' and `\TT{data}'.
+The only builtin selector names\label{SELECTOR-NAMES}
+are `\TT{top level}' and `\TT{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \TT{define selector} {\em selector}
@@ -2878,13 +2890,34 @@ When the parser block containing a selector name definition
 command ends, the selector name is erased.
 There may be at most 47 selectors defined at any one time.
 
-The \key{standard parser} creates a single initial parsing block
+The top level selectors and end-at options can be reset by the parser
+command:
+\begin{center}
+    \begin{tabular}[t]{l}
+    \TT{define context} \\
+    \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
+    \TT{~~~~}[ \TT{with parsing options} {\em end-at-option-spec} ] \\
+    \end{tabular}
+\end{center}
+
+Thus the standard parser specified above begins by executing the
+equivalent of
+\begin{indpar}\begin{verbatim}
+parser:
+    begin standard
+    define selector code
+    define selector math
+    define selector text
+    define context with parsing selectors [TOP LEVEL, code]
+\end{verbatim}\end{indpar}
+
+Thus the \key{standard parser} creates a single initial parsing block
 named `\ttikey{standard}{parsing block}' and defines in it the selectors
 \begin{center}
 \ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
 \end{center}
 The standard parser also sets the top level selector set to
-`\TT{[code]}'.  Note that the actions of the standard parser can be
+`\TT{[TOP LEVEL, code]}'.  Note that the actions of the standard parser can be
 canceled by a `\TT{end standard}' parser command.
 
 The current set of
@@ -2892,7 +2925,7 @@ The current set of
 may be given or modified by the `\ttkey{trace}' command.
 The trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
-in Figure~\itemref{PARSING-TRACE-FLAGS}.
+in Figure~\itemref{TRACE-FLAGS}.
 
 The `\ttkey{print trace}' command prints the current set of
 parsing trace flags.
@@ -2954,74 +2987,11 @@ parsing trace flags.
 \bigskip
 
 \caption{\bf Parsing Trace Flags}
-\label{PARSING-TRACE-FLAGS}
+\label{TRACE-FLAGS}
 \end{boxedfigure}
 
 TBD
 
-The `\ttkey{parser test}' command just causes the parse of itself
-to be printed in detail.  Since parser commands are parsed before they
-are executed, any text placed after the words `\TT{parser test}' will
-be parsed and the resulting printout will indicate the details of that
-parse.
-
-If a top level logical line begins with a \emkey{context-name}, the top level
-selector set is reset to the default selectors (selectors of the default
-context, initially empty at the beginning of the input file), and the
-selectors used to parse the rest of the logical line are these
-modified according to a {\em parser-flag-spec}
-associated with the {\em context-name}.
-
-There are two builtin
-{\em context-names} used by parser commands:
-\begin{center}
-\begin{tabular}{ll}
-\em Context-Name & \em Parser-Flag-Spec \\
-\hline
-\ttkey{parser}  & \tt [data] \\
-\ttkey{parser test}  & none
-\end{tabular}
-\end{center}
-
-So most {\em parser-commands} are parsed with just the parser selector
-set `\TT{[parser]}',
-as {\em parser-commands} begin with the {\em context-name}
-`\TT{parser}', but the `\TT{parser test}' command is parsed with whatever
-top level selectors are normally in effect, as the longest
-{\em context-name} at the beginning of a top level line is the one that
-is recognized.  Note that these two {\em context-names} are builtin, and
-\underline{not} defined within the `\TT{standard}' parser block.  Also a
-{\em context-name} beginning a top level line is \underline{not} skipped
-by the parser, and \underline{is} included in the parser output for the line.
-
-New {\em context-names} can be defined by the {\em parser-context-command}:
-\begin{center}
-    \TT{parser define context}
-    \begin{tabular}[t]{l}
-    {\em context-name} \\{}
-    [ \TT{with parsing selectors} {\em parser-flag-spec} ]
-    \end{tabular}
-\end{center}
-If no {\em parser-flag-spec} is given, the {\em context-name} does
-not modify the top level selectors.  An example of this
-is the builtin `\TT{parser test}' {\em context-name}.
-
-The `\ttikey{default}{context-name}' {\em context-name} is special
-and refers to the top level selectors in effect when a top level
-line does \underline{not} begin with any {\em context-name}.
-When it is given as the {\em context-name}, the
-{\em parser-flag-spec} must be given and must be a
-{\em parser-flag-list}.
-
-Thus the standard parser specified above begins by executing the
-equivalent of
-\begin{indpar}\begin{verbatim}
-parser begin standard
-parser define selector code
-parser define selector math
-parser define selector text
-parser define context "default" with parsing selectors [code]
-\end{verbatim}\end{indpar}
 
 The end of a parser block erases the effects of any
 {\em parser-selector-commands} and {\em parser-context-commands}
@@ -3077,6 +3047,12 @@ The {\em partial-name} and {\em name} are both treated as sequences
 of complete lexemes, and the former can be any subsequence of the
 latter, not just an initial subsequence.  There is \underline{no}
 partial lexeme matching.
+
+The `\ttkey{parser test}' command just causes the parse of itself
+to be printed in detail.  Since parser commands are parsed before they
+are executed, any text placed after the words `\TT{parser test}' will
+be parsed and the resulting printout will indicate the details of that
+parse.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}
@@ -3551,7 +3527,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{bracket-options} ::= {\em parser-flag-spec}
 	~ except ~ `\TT{end at line separator}'
-	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{reformatter-name}\label{REFORMATTER-NAME} ::=
     {\em simple-name} not containing `\TT{reformatter}'
@@ -3800,7 +3776,7 @@ The general syntax is:
 
 {\em Paragraph-lines} are logical lines that end according to
 the setting of the end-at options;
-See~\pagref{PARSING-END-AT-OPTIONS-1}.  The setting of these options can be
+See~\pagref{END-AT-OPTIONS-1}.  The setting of these options can be
 controlled by the specification of the {\em indentation-mark}.
 
 {\em Paragraph-lines} may be headed lines (see \itemref{HEADED-LINES})
@@ -3857,7 +3833,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{new-selectors} ::= {\em parser-flag-spec}
 \\[0.5ex]
 \emkey{end-at-options} ::= {\em parser-flag-spec}
-	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{header} ::= {\em typed-prefix-separator}
                    (\pagref{TYPED-PREFIX-SEPARATOR}) with `\TT{paragraph}'
@@ -4487,7 +4463,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{bracket-options} ::= {\em parser-flag-spec}
 	~ except ~ `\TT{end at line separator}'
-	~~~~~ [see \pagref{PARSING-END-AT-OPTIONS-1}]
+	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
 \\[0.5ex]
@@ -4752,7 +4728,7 @@ The general syntax of {\em parser-prefix-commands} is:
 \emkey{prefix-option}
     \begin{tabular}[t]{rl@{~~~~~}l}
     ::= & {\em end-at-option} ~ except ~ `\TT{end at line separator}'
-        & [see \pagref{PARSING-END-AT-OPTIONS-1}] \\
+        & [see \pagref{END-AT-OPTIONS-1}] \\
     $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
           \label{PARSING-HEADER-OPTIONS}
     \end{tabular}

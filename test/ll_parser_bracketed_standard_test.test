@@ -3604,7 +3604,7 @@ parser:
     print bracket ""
 ^^^^^^^^^^^^^^^^^^^^
 PARSER:
-    print bracket "":
+    print bracket ""
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, code, math, text]
                         with parsing selectors [data]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 02:12:07 EST 2017
+// Date:	Sat Feb 25 06:50:38 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4137,11 +4137,11 @@ static min::gen bracketed_pass_command
 		    ( parser, ppvec[i+1],
 		      "unexpected stuff after" );
 
-	    COM::print_command ( vp, parser );
+	    min::uns32 indent =
+		COM::print_command ( parser, ppvec );
 	    parser->printer
-		<< ":" << min::indent
 		<< min::bom << min::no_auto_break
-		<< min::adjust_indent ( 4 );
+		<< min::set_indent ( indent + 4 );
 
 	    min::int32 offset =
 	        bracketed_pass->indentation_offset; 
@@ -4207,11 +4207,11 @@ static min::gen bracketed_pass_command
 		    ( parser, ppvec[i+1],
 		      "unexpected stuff after" );
 
-	    COM::print_command ( vp, parser );
+	    min::uns32 indent =
+		COM::print_command ( parser, ppvec );
 	    parser->printer
-		<< ":" << min::indent
 		<< min::bom << min::no_auto_break
-		<< min::adjust_indent ( 4 );
+		<< min::set_indent ( indent + 4 );
 
 	    min::gen concat =
 	        bracketed_pass->string_concatenator; 
@@ -4375,12 +4375,12 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
 
-	COM::print_command ( vp, parser );
+	min::uns32 indent =
+	    COM::print_command ( parser, ppvec );
 
 	parser->printer
-	    << ":" << min::indent
 	    << min::bom << min::no_auto_break
-	    << min::adjust_indent ( 4 );
+	    << min::set_indent ( indent + 4 );
 
 	int count = 0;
 

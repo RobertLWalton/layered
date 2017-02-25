@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 03:30:23 EST 2017
+// Date:	Sat Feb 25 01:48:17 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,7 @@ parser:
     define selector my selector
     define selector operator 1 ++ extra stuff
     print selector ""
-    print context
+    print top level
 
     print trace
 
@@ -26,15 +26,15 @@ parser:
     print trace
 
 parser:
-    print context
-    define context
+    print top level
+    define top level
         with parsing selectors [data, my selector]
         with parsing options [default options]
-    print context
-    define context
+    print top level
+    define top level
         with parsing selectors [TOP LEVEL, code]
         with parsing options [default options]
-    print context
+    print top level
 
 parser test:
     [ x <+ y +> z {|4|w} m (n (p)) ]

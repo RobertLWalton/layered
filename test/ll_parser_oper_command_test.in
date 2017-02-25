@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 03:29:50 EST 2017
+// Date:	Sat Feb 25 01:56:58 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 parser:
     print selector ""
     print pass
-    print context
+    print top level
     define pass operator [code, math] after top
     print pass
     trace [+ parser commands, + warnings ]
@@ -23,7 +23,7 @@ parser:
 // Test define and undefine
 //
 parser:
-    begin block
+    begin block BLOCK1
 parser test:
     ( x / y ^ z w )
 parser:
@@ -42,7 +42,7 @@ parser:
 parser test:
     ( x / y ^ z w )
 parser:
-    end block
+    end block BLOCK1
     print operator ""
 parser test:
     ( x / y ^ z w )

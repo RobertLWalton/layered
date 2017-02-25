@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 03:37:49 EST 2017
+// Date:	Sat Feb 25 01:41:22 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,10 +14,10 @@
 //	Parser Command Functions
 //	Execute Pass
 //	Execute Selectors
-//	Execute Context
+//	Execute Top Level
 //	Execute Test
 //	Execute Trace
-//	Execute Begin/End
+//	Execute Block
 //	Execute Command
 
 // Usage and Setup
@@ -845,19 +845,19 @@ static min::gen execute_selectors
 // Execute Context
 // ------- -------
 
-static min::gen execute_context
+static min::gen execute_top_level
 	( min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
     min::uns32 size = min::size_of ( vp );
-    MIN_REQUIRE ( size >= i0 + 2 );
+    MIN_REQUIRE ( size >= i0 + 3 );
 
     if (    vp[i0] != PAR::define
          && vp[i0] != PAR::print )
 	return min::FAILURE();
 
-    min::uns32 i = i0 + 2;
+    min::uns32 i = i0 + 3;
 
     if ( vp[i0] == PAR::print )
     {
@@ -990,7 +990,8 @@ static min::gen execute_context
 	    ( parser, ppvec[i-1],
 	      "expected `with' after" );
 
-    parser->selectors = selectors | options;
+    parser->selectors =
+        PAR::TOP_LEVEL_SELECTOR | selectors | options;
 
     if ( i < size )
         return PAR::parse_error
@@ -1026,79 +1027,6 @@ static void execute_test_scan
 	    ( printer, ppvec->file, ppvec[i] );
 	::execute_test_scan ( subvp, printer );
     }
-}
-
-static min::gen execute_test
-	( min::obj_vec_ptr & vp,
-          min::phrase_position_vec ppvec,
-	  PAR::parser parser )
-{
-    const min::uns64 TRACE_ANY =
-	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
-	+ PAR::TRACE_SUBEXPRESSION_DETAILS
-	+ PAR::TRACE_SUBEXPRESSION_LINES;
-    const min::uns64 TRACE_E_OR_D =
-	  PAR::TRACE_SUBEXPRESSION_ELEMENTS
-	+ PAR::TRACE_SUBEXPRESSION_DETAILS;
-
-    TAB::flags flags = parser->trace_flags;
-    flags &= TRACE_ANY;
-    if ( flags == 0 )
-	flags = PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-
-    if ( flags & TRACE_ANY )
-	parser->printer
-	    << min::bol
-	    << min::save_print_format
-	    << min::no_auto_break
-	    << "======= TEST: "
-	    << min::restore_print_format;
-
-    if ( flags & TRACE_E_OR_D )
-    {
-	min::gen obj =
-	    min::new_stub_gen
-	        ( (const min::stub *) vp );
-	vp = min::NULL_STUB;
-	    // Close vp so pgen can print obj.
-
-	if ( flags & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
-	    parser->printer
-	        << min::bom
-		<< min::adjust_indent ( 4 )
-		<< min::set_gen_format
-		   ( parser->subexpression_gen_format )
-		<< min::pgen ( obj )
-		<< min::eom
-		<< min::flush_id_map;
-
-	if ( flags & PAR::TRACE_SUBEXPRESSION_DETAILS )
-	    min::print_mapped ( parser->printer,  obj );
-
-	vp = obj;  // Reopen vp.
-    }
-
-    if ( flags & PAR::TRACE_SUBEXPRESSION_LINES )
-    {
-	parser->printer
-	    << min::bol
-	    << "------- "
-	    << min::bom
-	    << min::pline_numbers
-		   ( ppvec->file, ppvec->position )
-	    << ":" << min::eom;
-
-	min::print_phrase_lines
-	    ( parser->printer,
-	      ppvec->file, ppvec->position );
-	::execute_test_scan
-	    ( vp, parser->printer );
-    }
-
-    if ( flags & TRACE_ANY )
-	parser->printer
-	    << "======= END TEST" << min::eol;
-    return PAR::PRINTED;
 }
 
 void COM::parser_test_execute_command
@@ -1242,15 +1170,19 @@ static min::gen execute_trace
     return min::SUCCESS();
 }
 
-// Execute Begin/End
-// ------- ---------
+// Execute Block
+// ------- -----
 
-static min::gen execute_begin
+static min::gen execute_block
 	( min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    min::uns32 i = i0 + 1;
+    if (    vp[i0] != PAR::begin
+         && vp[i0] != PAR::end )
+	return min::FAILURE();
+
+    min::uns32 i = i0 + 2;
     min::locatable_gen name
         ( PAR::scan_simple_name ( vp, i ) );
     if ( name == min::MISSING() )
@@ -1264,124 +1196,16 @@ static min::gen execute_begin
 	      ppvec[i-1],
 	      "extraneous stuff after" );
 
-    return PAR::begin_block
-    		( parser, name, ppvec->position );
-}
-
-static min::gen execute_end
-	( min::obj_vec_ptr & vp, min::uns32 i0,
-          min::phrase_position_vec ppvec,
-	  PAR::parser parser )
-{
-    min::uns32 i = i0 + 1;
-    min::locatable_gen name
-        ( PAR::scan_simple_name ( vp, i ) );
-    if ( name == min::MISSING() )
-	return PAR::parse_error
-	    ( parser,
-	      ppvec[i0],
-	      "expected block name after" );
-    min::uns32 size = min::size_of ( vp );
-    if ( i != size )
-        return PAR::parse_error
-	    ( parser,
-	      ppvec[i-1],
-	      "extraneous stuff after" );
-
-    return PAR::end_block
-    		( parser, name, ppvec->position );
+    if ( vp[i0] == PAR::begin )
+	return PAR::begin_block
+		    ( parser, name, ppvec->position );
+    else
+	return PAR::end_block
+		    ( parser, name, ppvec->position );
 }
 
 // Execute Command
 // ------- -------
-
-min::gen COM::parser_execute_command
-	( min::obj_vec_ptr & vp, min::uns32 i0,
-	  PAR::parser parser )
-{
-    min::uns32 size = min::size_of ( vp );
-    if ( size < i0 + 1 ) return min::FAILURE();
-
-    min::phrase_position_vec ppvec =
-        min::position_of ( vp );
-    MIN_ASSERT ( ppvec != min::NULL_STUB,
-                 "missing .position attribute" );
-
-    min::gen result = min::FAILURE();
-
-    parser->printer << min::bol << min::bom;
-    if ( vp[i0] == PAR::test )
-        result = ::execute_test
-	    ( vp, ppvec, parser );
-    else if ( size >= i0 + 2
-              &&
-	      vp[i0+1] == PAR::pass_lexeme )
-	result = ::execute_pass
-		    ( vp, i0, ppvec, parser );
-    else if ( size >= i0 + 2
-              &&
-	      vp[i0+1] == PAR::selector )
-	result = ::execute_selectors
-		    ( vp, i0, ppvec, parser );
-    else if ( size >= i0 + 2
-              &&
-	      vp[i0+1] == PAR::context_lexeme )
-	result = ::execute_context
-		    ( vp, i0, ppvec, parser );
-    else if ( vp[i0] == ::trace
-	      &&
-	      ( size == i0 + 1
-	        ||
-	        min::is_obj ( vp[i0+1] ) ) )
-	result = ::execute_trace
-		    ( vp, i0, ppvec, parser );
-    else if ( size >= i0 + 2
-              &&
-	      vp[i0] == PAR::print
-	      &&
-	      vp[i0+1] == ::trace )
-	result = ::execute_trace
-		    ( vp, i0, ppvec, parser );
-    else if ( vp[i0] == PAR::begin )
-	result = ::execute_begin
-		    ( vp, i0, ppvec, parser );
-    else if ( vp[i0] == PAR::end )
-	result = ::execute_end
-		    ( vp, i0, ppvec, parser );
-
-    // As long as command is unrecognized (i.e.,
-    // result == FAILURE) call pass parser_command
-    // functions.
-    //
-    for ( PAR::pass pass = parser->pass_stack;
-          result == min::FAILURE()
-	  &&
-	  pass != NULL;
-	  pass = pass->next )
-    {
-        if ( pass->parser_command != NULL )
-	    result = (* pass->parser_command )
-	        ( parser, pass, vp, i0, ppvec );
-    }
-
-    if ( result == min::SUCCESS()
-         &&
-	 (   parser->trace_flags
-	   & PAR::TRACE_PARSER_COMMANDS ) )
-	min::print_phrase_lines
-	    ( parser->printer,
-	      ppvec->file, ppvec->position, 0 );
-    else if ( result == PAR::PRINTED )
-        result = min::SUCCESS();
-
-    else if ( result == min::FAILURE() )
-	return PAR::parse_error
-	    ( parser, ppvec->position,
-	      "parser command not recognized" );
-
-    parser->printer << min::eom;
-    return result;
-}
 
 void COM::parser_execute_command
 	( PAR::parser parser,
@@ -1429,7 +1253,12 @@ void COM::parser_execute_command
 
 	if ( size >= 2
 	     &&
-	     vp[1] == PAR::pass_lexeme )
+	     vp[1] == PAR::block )
+	    result = ::execute_block
+			( vp, 0, ppvec, parser );
+	else if ( size >= 2
+	          &&
+	          vp[1] == PAR::pass_lexeme )
 	    result = ::execute_pass
 			( vp, 0, ppvec, parser );
 	else if ( size >= 2
@@ -1437,10 +1266,12 @@ void COM::parser_execute_command
 		  vp[1] == PAR::selector )
 	    result = ::execute_selectors
 			( vp, 0, ppvec, parser );
-	else if ( size >= 2
+	else if ( size >= 3
 		  &&
-		  vp[1] == PAR::context_lexeme )
-	    result = ::execute_context
+		  vp[1] == PAR::top
+		  &&
+		  vp[2] == PAR::level )
+	    result = ::execute_top_level
 			( vp, 0, ppvec, parser );
 	else if ( vp[0] == ::trace
 		  &&
@@ -1455,12 +1286,6 @@ void COM::parser_execute_command
 		  &&
 		  vp[1] == ::trace )
 	    result = ::execute_trace
-			( vp, 0, ppvec, parser );
-	else if ( vp[0] == PAR::begin )
-	    result = ::execute_begin
-			( vp, 0, ppvec, parser );
-	else if ( vp[0] == PAR::end )
-	    result = ::execute_end
 			( vp, 0, ppvec, parser );
 
 	// As long as command is unrecognized (i.e.,

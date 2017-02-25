@@ -7,7 +7,7 @@ PARSER:
         block TOP LEVEL: TOP LEVEL
     print pass:
         top
-    print context:
+    print top level:
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
@@ -31,7 +31,7 @@ PARSER:
     print operator "":
         not found
 PARSER:
-    begin block
+    begin block BLOCK1
 ======= PARSER TEST: (x / y ^ z w)
 ======= line ##:
     ( x / y ^ z w )
@@ -44,10 +44,10 @@ PARSER:
     define operator "/" [code, math] infix
         with binary reformatter with precedence -100
     print operator "/":
-        block block: operator "/" [code, math]
-                     infix
-                     with precedence -100
-                     with binary reformatter
+        block BLOCK1: operator "/" [code, math]
+                      infix
+                      with precedence -100
+                      with binary reformatter
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
 ======= PARSER TEST: {"": .operator = "/", .terminator = ")",
@@ -68,21 +68,21 @@ PARSER:
 ======= END PARSER TEST(S)
 PARSER:
     print operator "":
-        block block: operator "/" [code, math]
-                     infix
-                     with precedence -100
-                     with binary reformatter
-        block block: operator "^" [code, math]
-                     infix
-                     with precedence 100
-                     with binary reformatter
+        block BLOCK1: operator "/" [code, math]
+                      infix
+                      with precedence -100
+                      with binary reformatter
+        block BLOCK1: operator "^" [code, math]
+                      infix
+                      with precedence 100
+                      with binary reformatter
     undefine operator "/" [code, math] infix
         with precedence -100
     print operator "/":
-        block block: operator "/" []
-                     infix
-                     with precedence -100
-                     with binary reformatter
+        block BLOCK1: operator "/" []
+                      infix
+                      with precedence -100
+                      with binary reformatter
 ======= PARSER TEST: {"": .operator = "^", .terminator = ")",
                           .initiator = "("|^ {|x / y|} {|z w|}|}
 ======= line ##:
@@ -99,7 +99,7 @@ PARSER:
               ^^^
 ======= END PARSER TEST(S)
 PARSER:
-    end block
+    end block BLOCK1
     print operator "":
         not found
 ======= PARSER TEST: (x / y ^ z w)

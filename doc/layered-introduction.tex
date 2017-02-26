@@ -2764,8 +2764,8 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttmkey{begin}{parser command} {\em block-name} \\
-    $|$ & \ttmkey{end}{parser command} {\em block-name} \\
+    ::= & \ttmkey{begin}{parser command} ~ {\em block-name} \\
+    $|$ & \ttmkey{end}{parser command} ~ {\em block-name} \\
     $|$ & \ttmkey{print blocks}{parser command} \\
     \end{tabular}
 \label{PARSER-BLOCK-COMMAND}
@@ -2774,14 +2774,14 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttmkey{define selector}{parser command} {\em selector} \\
-    $|$ & \ttmkey{print selector}{parser command} {\em partial-name} \\
+    ::= & \ttmkey{define selector}{parser command} ~ {\em selector} \\
+    $|$ & \ttmkey{print selector}{parser command} ~ {\em partial-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
 \\[0.6ex]
 \emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttmkey{trace}{parser command} {\em trace-flag-spec} \\
+    ::= & \ttmkey{trace}{parser command} ~ {\em trace-flag-spec} \\
     $|$ & \ttmkey{print trace}{parser print} \\
     \end{tabular}
 \label{PARSER-TRACE-COMMAND}
@@ -2887,7 +2887,7 @@ The only builtin selector names\label{SELECTOR-NAMES}
 are `\TT{top level}' and `\TT{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
-    \TT{define selector} {\em selector}
+    \ttmkey{define selector}{parser command} ~ {\em selector}
 \end{center}
 When the parser block containing a selector name definition
 command ends, the selector name is erased.
@@ -2895,13 +2895,15 @@ There may be at most 47 selectors defined at any one time.
 
 The top level selectors and end-at options can be reset by the parser
 command:
-\begin{center}
+\begin{indpar}[0.1in]
+\emkey{parser-top-level-command}%
+\label{PARSER-TOP-LEVEL-COMMAND} ::=
     \begin{tabular}[t]{l}
-    \TT{define context} \\
+    \ttmkey{define top level}{parser command} \\
     \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
     \TT{~~~~}[ \TT{with parsing options} {\em end-at-option-spec} ] \\
     \end{tabular}
-\end{center}
+\end{indpar}
 
 Thus the standard parser specified above begins by executing the
 equivalent of
@@ -3118,7 +3120,7 @@ being a line feed.
 The concatenator can be changed by the parser command:
 \begin{indpar}[0.1in]
 \emkey{parser-string-concatenator-command}%
-\label{PARSER-STRING_CONCATENATOR-COMMAND} ::= \\
+\label{PARSER-STRING-CONCATENATOR-COMMAND} ::= \\
 \hspace*{3em} \ttmkey{define string concatenator}{parser command}
 	  ~ {\em string-concatenator}
 \\[0.5ex]
@@ -3801,7 +3803,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \label{PARSER-INDENTATION-MARK-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{define}{define indentation mark}
+    ::= & \TT{define}\ttmindex{define indentation mark}{parser command}
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{indentation mark}
 	  {\em indentation-name} {\em parsing-selectors} \\
@@ -3810,12 +3812,12 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {}[ \TT{with implied header} {\em header} ] \\
 	  {}[ \TT{with lexical master} {\em master-name} ] \\
 	  \end{tabular} \\
-    $|$ & \ttkey{undefine indentation mark}
+    $|$ & \ttmkey{undefine indentation mark}{parser command}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em indentation-name} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
-    $|$ & \ttkey{define indentation offset}
+    $|$ & \ttmkey{define indentation offset}{parser command}
 	  {\em indentation-offset}  \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
@@ -4415,17 +4417,17 @@ The general syntax of {\em parser-typed-bracket-commands} is:
     ::= & \TT{define}%
           \ttmindex{define typed bracket}{parser command}
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{typed bracket} {\em typed-bracket-name} \\
-	  {\em parsing-selectors} \\
-	  {}[ \TT{with element selectors}
+	  \TT{typed bracket} ~ {\em typed-bracket-name}
+	                     ~ {\em parsing-selectors} \\
+	  {}[ \TT{with element selectors} ~
 	      {\em typed-element-selectors} ] \\
-	  {}[ \TT{with attribute selectors}
+	  {}[ \TT{with attribute selectors} ~
 	      {\em typed-attribute-selectors} ] \\
-	  {}[ \TT{with parsing options}
+	  {}[ \TT{with parsing options} ~
 	      {\em bracket-options} ] \\
 	  {}[ \TT{with prefix separators allowed} ] \\
-	  {}[ \TT{with attributes} {\em typed-attribute-punctuation} ] \\
-	  {}[ \TT{with attribute negator} {\em typed-attribute-negator} ] \\
+	  {}[ \TT{with attributes} ~ {\em typed-attribute-punctuation} ] \\
+	  {}[ \TT{with attribute negator} ~ {\em typed-attribute-negator} ] \\
 	  {}[ \TT{with} \begin{tabular}[t]{l}
 	                \TT{attribute flags initiator} \\
 	                {\em typed-attribute-flags-opening} ]
@@ -4435,7 +4437,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	                {\em typed-attribute-multivalue-opening} ]
 			\end{tabular} \\
 	  \end{tabular} \\
-    $|$ & \ttmkey{undefine typed bracket}{parser command}
+    $|$ & \ttmkey{undefine typed bracket}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
@@ -4690,19 +4692,16 @@ The general syntax of {\em parser-prefix-commands} is:
     ::= & \TT{define}%
           \ttmindex{define prefix}{parser command}
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{prefix} {\em prefix-name} \\
-	  {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
-	  {}[ \TT{with group} {\em prefix-group} ] \\
-	  {}[ \TT{with implied subprefix} {\em implied-prefix} ] \\
-	  {}[ \TT{with lexical master} {\em master-name} ] \\
-	  {}[ \TT{with parsing options} {\em prefix-options} ] \\
+	  \TT{prefix} ~ {\em prefix-name} ~ {\em parsing-selectors} \\
+	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
+	  {}[ \TT{with group} ~ {\em prefix-group} ] \\
+	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\
+	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
+	  {}[ \TT{with parsing options} ~ {\em prefix-options} ] \\
 	  \end{tabular} \\
-    $|$ & \ttmkey{undefine prefix}{parser command}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em prefix-name} \\
+    $|$ & \ttmkey{undefine prefix}{parser command} ~
+	  {\em prefix-name} ~
 	  {\em parsing-selectors} \\
-	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{prefix-name} ::= {\em quoted-key}
@@ -4805,8 +4804,8 @@ Entries in this symbol table are managed by
     ::= & \TT{define}%
           \ttmindex{define mapped lexeme}{parser command}
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{mapped lexeme} {\em mapped-lexeme-name} \\
-	  {\em parsing-selectors} \\
+	  \TT{mapped lexeme} {\em mapped-lexeme-name} ~
+	                     {\em parsing-selectors} \\
 	  {}[ \TT{with token type} ~ {\em token-type} ] \\
 	  {}[ \TT{with token value} ~ {\em token-value} ] \\
 	  {}[ \TT{with lexical master} ~ {\em lexical-master} ] \\

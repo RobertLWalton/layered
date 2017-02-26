@@ -104,33 +104,34 @@
 
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 
-\newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
-\newcommand{\ttikey}[2]{\TT{#1}\index{#2@{\tt #2}}}
-\newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
-\newcommand{\ttilkey}[3]{\TT{#1}\index{#2@{\tt #2}!#3@{\tt #3}}}
-\newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttkey}[1]{\TT{#1}\index{#1@\TT{#1}}}
+\newcommand{\ttikey}[2]{\TT{#1}\index{#2@\TT{#2}}}
+\newcommand{\ttimkey}[3]{\TT{#1}\index{#2@\TT{#1}!#3}}
+\newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@\TT{#1}!#2@\TT{#2}}}
+\newcommand{\ttilkey}[3]{\TT{#1}\index{#2@\TT{#2}!#3@\TT{#3}}}
+\newcommand{\ttmkey}[2]{\TT{#1}\index{#1@\TT{#1}!#2}}
 
-\newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
-\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
+\newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@\TT{.#1}}}
+\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@\TT{.#1}!#2}}
 
-\newcommand{\ttbkey}[1]{\TT{[#1]}\index{[]@{\tt [#1]}}}
-\newcommand{\ttbmkey}[2]{\TT{[#1]}\index{[]@{\tt [#1]}!#2}}
+\newcommand{\ttbkey}[1]{\TT{[#1]}\index{[]@\TT{[#1]}}}
+\newcommand{\ttbmkey}[2]{\TT{[#1]}\index{[]@\TT{[#1]}!#2}}
 
-\newcommand{\ttsvkey}[1]{\TT{[\$~#1~\$]}\index{#1@{\tt [\$~#1~\$]}}}
-\newcommand{\ttsvmkey}[2]{\TT{[\$~#1~\$]}\index{#1@{\tt [\$~#1~\$]}!#2}}
+\newcommand{\ttsvkey}[1]{\TT{[\$~#1~\$]}\index{#1@\TT{[\$~#1~\$]}}}
+\newcommand{\ttsvmkey}[2]{\TT{[\$~#1~\$]}\index{#1@\TT{[\$~#1~\$]}!#2}}
 
-\newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
-\newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
+\newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@\TT{<#1>}}}
+\newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@\TT{<#1>}!#2}}
 
 \newcommand{\tttbkey}[1]{{\TT {<#1|}\ldots\TT{|#1>}}%
     \index{#1@\TT{<#1|}\ldots\TT{|#1>}}}
 \newcommand{\tttbmkey}[2]{{\TT{<#1|}\ldots\TT{|#1>}}%
     \index{#1@\TT{<#1|}\ldots\TT{|#1>}!#2}}
 
-\newcommand{\ttarmkey}[2]{{\tt ->}\TT{#1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttarmkey}[2]{{\tt ->}\TT{#1}\index{#1@\TT{#1}!#2}}
 
-\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
-\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\ttindex}[1]{\index{#1@\TT{#1}}}
+\newcommand{\ttmindex}[2]{\index{#1@\TT{#1}!#2}}
 
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
@@ -226,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 25, 2017
+February 26, 2017
  
 \end{center}
 
@@ -2689,14 +2690,14 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \begin{boxedfigure}[!p]
 \emkey{parser-paragraph}
     \begin{tabular}[t]{@{}rlrl@{}}
-    ::= & \ttkey{parser:} \\
+    ::= & \TT{*PARSER*:}\index{PARSER@{\tt *PARSER*:}} \\
     	& ~~~~{\em parser-command}\STAR{}
     \end{tabular}
 \label{PARSER-PARAGRAPH}
 \\[0.6ex]
 \emkey{parser-test-paragraph}
     \begin{tabular}[t]{@{}rlrl@{}}
-    ::= & \ttkey{parser test:} \\
+    ::= & \TT{*PARSER* *TEST:}\index{parser test@{\tt *PARSER* *TEST:}} \\
     	& ~~~~{\em logical-line}\STAR{}
     \end{tabular}
 \label{PARSER-TEST-PARAGRAPH}
@@ -2737,7 +2738,7 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 	                        {\em parser-flag} \}\,\STAR{} \TT{]} \\
     \end{tabular}
 \\[0.0ex]
-\emkey{parser-flag-op} ::= \TT{+} $|$ \TT{-} $|$ \TT{\^{ }}
+\emkey{parser-flag-op} ::= \TT{+} $|$ \TT{-} $|$ \TT{\textasciicircum}
 \\[0.0ex]
 \emkey{parser-flag-spec} ::= {\em parser-flag-list} $|$
                               {\em parser-flag-modifier-list}
@@ -2763,9 +2764,9 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{begin}{begin!parser block} {\em block-name} \\
-    $|$ & \ttikey{end}{end!parser block} {\em block-name} \\
-    $|$ & \ttikey{print blocks}{print!parser blocks} \\
+    ::= & \ttmkey{begin}{parser} {\em block-name} \\
+    $|$ & \ttmkey{end}{parser} {\em block-name} \\
+    $|$ & \ttmkey{print blocks}{parser} \\
     \end{tabular}
 \label{PARSER-BLOCK-COMMAND}
 \\[0.0ex]
@@ -2773,15 +2774,15 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \\[0.6ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{parser define selector}{selector!define} {\em selector} \\
-    $|$ & \ttikey{parser print selector}{selector!print} {\em partial-name} \\
+    ::= & \ttmkey{define selector}{parser} {\em selector} \\
+    $|$ & \ttmkey{print selector}{parser} {\em partial-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
 \\[0.6ex]
 \emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttikey{trace}{trace!parser} {\em trace-flag-spec} \\
-    $|$ & \ttikey{print trace}{trace!parser print} \\
+    ::= & \ttmkey{trace}{parser} {\em trace-flag-spec} \\
+    $|$ & \ttmkey{print trace}{parser print} \\
     \end{tabular}
 \label{PARSER-TRACE-COMMAND}
 
@@ -2792,14 +2793,16 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 
 \end{boxedfigure}
 
-Parser commands are logical lines in an indented paragraph
-whose indentation mark `\TT{parser:}' appears at the beginning
-of a top level logical line.  Parser commands are
-themselves parsed before they are executed.
+Parser commands are logical lines within an indented paragraph
+that has the indentation mark `\TT{*PARSER*:}',
+where the indented paragraph is in a top level logical line by itself
+(therefore `\TT{*PARSER*:}' must appear at the beginning of a top level
+logical line).
+Parser commands are themselves parsed before they are executed.
 
-The entire `\TT{parser:}' indented
+The entire `\TT{*PARSER*:}' indented
 paragraph is parsed before any of its parser commands are executed.
-The \TT{parser:}' indentation mark sets the parser selectors
+The \TT{*PARSER*:}' indentation mark sets the parser selectors
 to `\TT{[data]}', so only the `\TT{data}' selector is present when
 parser commands are parsed.  It is possible but not advisable to
 use parser commands to alter the way that input is parsed if only
@@ -2818,11 +2821,11 @@ Parser commands may be organized into \skey{parser-block}s of the form:%
 \label{PARSER-BLOCKS}
 \begin{center}
 \begin{tabular}{l}
-\TT{parser:} \\
+\TT{*PARSER*:} \\
 \TT{~~~~}\TT{begin} {\em block-name} \\
 \TT{~~~~}{\em parser-command} \\
 .~.~.~.~.~.~.~.~.~. \\
-\TT{parser:} \\
+\TT{*PARSER*:} \\
 \TT{~~~~}\TT{end} {\em block-name} \\
 \end{tabular}
 \end{center}
@@ -2856,7 +2859,7 @@ These pairs are interpreted as follows:
 \begin{tabular}{ll}
 \TT{+} {\em parser-flag} & set the named flag \\
 \TT{-} {\em parser-flag} & clear the named flag \\
-\TT{\^{ }}{\em parser-flag} & complement (flip) the named flag \\
+\TT{\textasciicircum}{\em parser-flag} & complement (flip) the named flag \\
 \end{tabular}
 \end{center}
 
@@ -2903,7 +2906,7 @@ command:
 Thus the standard parser specified above begins by executing the
 equivalent of
 \begin{indpar}\begin{verbatim}
-parser:
+*PARSER*:
     begin standard
     define selector code
     define selector math
@@ -2912,7 +2915,7 @@ parser:
 \end{verbatim}\end{indpar}
 
 Thus the \key{standard parser} creates a single initial parsing block
-named `\ttikey{standard}{parsing block}' and defines in it the selectors
+named `\ttmkey{standard}{parsing block}' and defines in it the selectors
 \begin{center}
 \ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
 \end{center}
@@ -3116,8 +3119,7 @@ The concatenator can be changed by the parser command:
 \begin{indpar}[0.1in]
 \emkey{parser-string-concatenator-command}%
 \label{PARSER-STRING_CONCATENATOR-COMMAND} ::= \\
-\hspace*{3em} \ttikey{parser define string concatenator}%
-                     {define string concatenator}
+\hspace*{3em} \ttmkey{define string concatenator}{parser}
 	  ~ {\em string-concatenator}
 \\[0.5ex]
 \emkey{string-concatenator} ::= {\em quoted-key} with a single component
@@ -3496,8 +3498,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rll}
-    ::= & \multicolumn{2}{l}{\ttikey{parser define bracket}%
-                                    {bracket!parser define}
+    ::= & \multicolumn{2}{l}{\ttmkey{define bracket}{parser}
 		    ~ {\em bracket-name} ~ {\em selectors}} \\
 	& \hspace*{3em} & [ \TT{with parsing selectors}
 	                    ~ {\em new-selectors} ] \\
@@ -3507,8 +3508,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 			    ~ {\em reformatter-name}
 			    ~ \TT{reformatter}
 			    ~ {\em reformatter-arguments} ] \\
-    $|$ & \multicolumn{2}{l}{\ttikey{parser undefine bracket}%
-                                    {bracket!parser undefine}
+    $|$ & \multicolumn{2}{l}{\ttmkey{undefine bracket}{parser}
 		    ~ {\em bracket-name} ~ {\em selectors}} \\
     \end{tabular}
 \\[0.5ex]
@@ -3783,7 +3783,7 @@ controlled by the specification of the {\em indentation-mark}.
 or may be grouped into headed paragraphs (see \itemref{HEADED-PARAGRAPHS}).
 
 An {\em indentation-mark} is specified by a
-\ttikey{parser define indentation mark}{indentation mark!parser define}
+\ttmkey{define indentation mark}{parser}
 parser command, and may have
 an associated {\em line-separator} supplied by that definition.
 An example is
@@ -3801,7 +3801,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \label{PARSER-INDENTATION-MARK-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define indentation mark}
+    ::= & \ttikey{define}{define indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{indentation mark}
 	  {\em indentation-name} {\em parsing-selectors} \\
@@ -3810,12 +3810,12 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {}[ \TT{with implied header} {\em header} ] \\
 	  {}[ \TT{with lexical master} {\em master-name} ] \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine indentation mark}{undefine indentation mark}
+    $|$ & \ttkey{undefine indentation mark}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em indentation-name} \\
 	  {\em parsing-selectors} \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser define indentation offset}{define indentation offset}
+    $|$ & \ttkey{define indentation offset}
 	  {\em indentation-offset}  \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
@@ -4356,7 +4356,7 @@ The saved selector set and options are restored after the subexpression ending
 {\em typed-closing} is recognized.
 
 A {\em typed-opening} is specified by a
-\ttikey{parser define typed bracket}{typed bracket!parser define}
+\ttmkey{define typed bracket}{parser}
 parser command.  An example is:
 
 \begin{center}
@@ -4436,7 +4436,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	                {\em typed-attribute-multivalue-opening} ]
 			\end{tabular} \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine typed bracket}{typed bracket!parser undefine}
+    $|$ & \ttmkey{undefine typed bracket}{parser}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em typed-bracket-name} \\
 	  {\em parsing-selectors} \\
@@ -4700,7 +4700,7 @@ The general syntax of {\em parser-prefix-commands} is:
 	  {}[ \TT{with lexical master} {\em master-name} ] \\
 	  {}[ \TT{with parsing options} {\em prefix-options} ] \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine prefix}{prefix!parser undefine}
+    $|$ & \ttmkey{undefine prefix}{parser}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em prefix-name} \\
 	  {\em parsing-selectors} \\
@@ -4802,8 +4802,8 @@ Entries in this symbol table are managed by
 \label{PARSER-MAPPED-LEXEME-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define}{define mapped lexeme} ~
-	  \ttikey{mapped lexeme}{parser define} ~ {\em mapped-lexeme-name} \\
+    ::= & \ttmkey{define mapped lexeme}{parser}
+	  ~ {\em mapped-lexeme-name} \\
     ::= & \TT{parser}%
           \ttindex{parser define mapped lexeme}%
 	  \ttindex{mapped lexeme!parser define}
@@ -4814,8 +4814,7 @@ Entries in this symbol table are managed by
 	  {}[ \TT{with token value} ~ {\em token-value} ] \\
 	  {}[ \TT{with lexical master} ~ {\em lexical-master} ] \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine}{undefine mapped lexeme} ~
-	  \ttikey{mapped lexeme}{parser undefine} ~
+    $|$ & \ttmkey{undefine mapped lexeme}{parser} ~
 	  {\em mapped-lexeme-name}
     \end{tabular}
 \label{MAPPED-LEXEME-DEFINITION}
@@ -5287,15 +5286,14 @@ A {\em bracketed-parser-print-command} has the syntax:
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser print bracket}{parser print bracket}
+    ::= & \ttmkey{print bracket}{parser}
 	  {\em partial-name} \\
-    $|$ & \ttikey{parser print prefix}{parser print prefix}
+    $|$ & \ttmkey{print prefix}{parser}
 	  {\em partial-name} \\
-    $|$ & \ttikey{parser print mapped lexeme}{parser print mapped lexeme}
+    $|$ & \ttmkey{print mapped lexeme}{parser}
 	  {\em partial-name} \\
-    $|$ & \ttikey{parser print indentation offset}{print indentation offset} \\
-    $|$ & \ttikey{parser print string concatenator}%
-                 {print string concatenator} \\
+    $|$ & \ttmkey{print indentation offset}{parser} \\
+    $|$ & \ttmkey{print string concatenator}{parser} \\
     \end{tabular}
 \end{indpar}
 
@@ -5318,8 +5316,7 @@ A {\em parser-print-header-command} has the syntax:
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser print header}{parser print header}
-	  {\em partial-name} \\
+    ::= & \ttmkey{print header}{parser} {\em partial-name} \\
     \end{tabular}
 \end{indpar}
 
@@ -5357,14 +5354,14 @@ by the following parser definitions:
 \begin{indpar}
 \emkey{parser-pass-command} \\
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser define pass}{pass!parser define}
+    ::= & \ttmkey{define pass}{parser}
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em parser-pass-name} {\em parsing-selectors} \\
 	  {\em parser-pass-stack-location} \\
 	  \end{tabular} \\
-    $|$ & \ttikey{parser undefine pass}{pass!parser undefine}
+    $|$ & \ttmkey{undefine pass}{parser}
 	  {\em parser-pass-name} \\
-    $|$ & \ttikey{parser print pass}{pass!parser print}
+    $|$ & \ttmkey{print pass}{parser}
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-pass-stack-location}
@@ -5655,7 +5652,7 @@ A {\em parser-print-operator-command} has the syntax:
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttikey{parser print operator}{parser print operator}
+    ::= & \ttmkey{print operator}{parser}
 	  {\em partial-name} \\
     \end{tabular}
 \end{indpar}
@@ -5716,7 +5713,7 @@ precedence & reformatter	& type	& operator	& meaning
 5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division \\
 5200	& \ttkey{infix}		& \TT{infix}	& \TT{*}
 							& multiplication \\
-5300	& \ttkey{binary}	& \TT{infix}	& \TT{\^{ }}
+5300	& \ttkey{binary}	& \TT{infix}	& \TT{\textasciicircum}
 							& exponentiation \\
 10000	& 			& \TT{prefix}	&  \TT{-}	& minus \\
 	& 			& \TT{prefix}	&  \TT{+}	& plus \\
@@ -5949,7 +5946,7 @@ by an operand.  The subexpression is left unchanged.  Examples:
 \bigskip
 
 \ttmkey{binary}{reformatter} \hfill \NBOP{BUT NOT} ~~~ \NBOP{/}
-					           ~~~ \NBOP{\^{ }}
+					           ~~~ \NBOP{\textasciicircum}
 
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix} or \TT{infix} operators.
@@ -5961,7 +5958,7 @@ to the beginning of the expression.  Examples:
 \hspace*{2em}\begin{tabular}{lcl}
 \TT{x BUT NOT y} & $\Longrightarrow$ & \TT{BUT NOT x y} \\
 \TT{x / y} & $\Longrightarrow$ & \TT{/ x y} \\
-\TT{x \^{ } y} & $\Longrightarrow$ & \TT{\^{ } x y} \\
+\TT{x \textasciicircum y} & $\Longrightarrow$ & \TT{\textasciicircum x y} \\
 \TT{x / y / z} & $\Longrightarrow$ & error \\
 \TT{/ y} & $\Longrightarrow$ & error \\
 \TT{x /} & $\Longrightarrow$ & error \\
@@ -6966,7 +6963,7 @@ the lexical program for that scheme are:
         $|$\TT{\#}%
         $|$\TT{\$}%
         $|$\TT{\%}%
-        $|$\TT{\^{ }}%
+        $|$\TT{\textasciicircum}%
         $|$\TT{\&}%
         $|$\TT{=}%
         $|$\TT{|}%

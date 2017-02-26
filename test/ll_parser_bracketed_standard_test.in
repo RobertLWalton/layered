@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 01:58:22 EST 2017
+// Date:	Sun Feb 26 00:46:32 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -116,7 +116,7 @@ And one more {| |b["A", 201,202, [5]]: t}
 {p} {s} This is a sentence.
     {s} And another.
   {p} {s} And a new {foo} paragraph.
-parser:
+*PARSER*:
     print bracket ""
 
 // Documentation checks

@@ -2,13 +2,13 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 01:48:17 EST 2017
+// Date:	Sun Feb 26 00:12:43 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-parser:
+*PARSER*:
     print selector ""
     define selector my selector
     define selector operator 1 ++ extra stuff
@@ -17,15 +17,15 @@ parser:
 
     print trace
 
-parser:
+*PARSER*:
     trace [+ parser input]
-parser:
+*PARSER*:
     print trace
-parser:
+*PARSER*:
     trace [- parser input]
     print trace
 
-parser:
+*PARSER*:
     print top level
     define top level
         with parsing selectors [data, my selector]
@@ -36,26 +36,26 @@ parser:
         with parsing options [default options]
     print top level
 
-parser test:
+*PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser:
+*PARSER*:
     trace [+ subexpression lines]
-parser test:
+*PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser:
+*PARSER*:
     trace [- subexpression lines]
     trace [+ subexpression details]
-parser test:
+*PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser:
+*PARSER*:
     trace [+ subexpression elements]
-parser test:
+*PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser:
+*PARSER*:
     trace [- subexpression details]
-parser test:
+*PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]
-parser:
+*PARSER*:
     trace [+ subexpression lines]
-parser test:
+*PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]

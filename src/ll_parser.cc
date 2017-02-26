@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 23:22:37 EST 2017
+// Date:	Sun Feb 26 00:59:40 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,6 +104,7 @@ min::locatable_gen PAR::no_lexeme;
 min::locatable_gen PAR::keep_lexeme;
 min::locatable_gen PAR::enabled_lexeme;
 min::locatable_gen PAR::disabled_lexeme;
+min::locatable_gen PAR::star_parser;
 min::locatable_gen PAR::parser_colon;
 min::locatable_gen PAR::parser_test_colon;
 
@@ -221,10 +222,12 @@ static void initialize ( void )
         min::new_str_gen ( "enabled" );
     PAR::disabled_lexeme =
         min::new_str_gen ( "disabled" );
+    PAR::star_parser =
+        min::new_str_gen ( "*PARSER*" );
     PAR::parser_colon =
-        min::new_lab_gen ( "parser", ":" );
+        min::new_lab_gen ( "*PARSER*", ":" );
     PAR::parser_test_colon =
-        min::new_lab_gen ( "parser", "test", ":" );
+        min::new_lab_gen ( "*PARSER*", "*TEST*", ":" );
 
     PAR::PRINTED = min::new_special_gen ( 0 );
 
@@ -1279,7 +1282,7 @@ void PAR::parse ( PAR::parser parser )
 	    parser->top_level_indentation_mark
 	          ->line_sep;
 	bool maybe_parser_command = 
-	    ( current->value == PAR::parser_lexeme );
+	    ( current->value == PAR::star_parser );
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,

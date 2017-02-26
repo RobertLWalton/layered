@@ -6,7 +6,7 @@ ccb
 cccccccccccccccccccccccccccccccccccb
 //␣Author:␉Bob␣Walton␣(walton@acm.org)␤
 ccccccccccccccccccccccccccccccccccccccb
-//␣Date:␉Fri␣Dec␣␣4␣02:15:06␣EST␣2015␤
+//␣Date:␉Sun␣Feb␣26␣00:16:28␣EST␣2017␤
 cccccccccccccccccccccccccccccccccccccb
 //␤
 ccb
@@ -36,8 +36,8 @@ wwwwwwwwwwwwwwhwwwhwwwwws##sb
 mmmmmmmmmmmmmmmmmmsqqqqqwwwwwwwwwb
 .foo␣/foo␣..foo␣.=␣3/x␣x/3␣3.x␣x.3//␣comment␣<89>␣"'␤
 wwwwhwwwwhwwwwwhmmh###hwwwh###hwwwwwhwwwwwwwh####hqqb
-a(b,c)␣d{e;f}␣g[h,i]␣``foobar'␣fum'␤
-wswwwshwswwwshwswwwshsswwwwwwshwwwsb
+a(b,c)␣d{e;f}␣g[h,i]␣``foobar'␣fum'␣*PARSER*␣*TEST*:␤
+wswwwshwswwwshwswwwshsswwwwwwshwwwshwwwwwwwwhwwwwwwsb
 //␣form␣feed␣␌␤
 cccccccccccccbb
 //␣vertical␣tab␣␋␤

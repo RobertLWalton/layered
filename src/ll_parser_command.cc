@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 07:08:46 EST 2017
+// Date:	Sat Feb 25 23:46:13 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -518,21 +518,18 @@ void COM::print_flags
 	  name_table, parser, true );
 } 
 
-bool COM::command_header_printed;
-min::position COM::command_header_position;
 min::uns32 COM::print_command
 	( PAR::parser parser,
 	  min::phrase_position_vec ppvec )
 {
-    if ( ! COM::command_header_printed )
+    if (    parser->message_header.begin
+         != min::MISSING_POSITION )
     {
-	min::phrase_position ppos =
-	    { COM::command_header_position,
-	      COM::command_header_position };
 	min::print_phrase_lines
-	    ( parser->printer,
-	      ppvec->file, ppos, 0 );
-	COM::command_header_printed = true;
+	    ( parser->printer, parser->input_file,
+	      parser->message_header, 0 );
+	parser->message_header.begin =
+	    min::MISSING_POSITION;
     }
 
     return min::print_phrase_lines
@@ -1229,8 +1226,8 @@ void COM::parser_execute_command
     min::uns32 ipsize = min::size_of ( ipvp );
     if ( ipsize == 0 ) return;
 
-    COM::command_header_printed = false;
-    COM::command_header_position =
+    parser->message_header.begin =
+    parser->message_header.end =
         ipppvec->position.begin;
 
     for ( min::uns32 i = 0; i < ipsize; ++ i )
@@ -1315,9 +1312,7 @@ void COM::parser_execute_command
 	     &&
 	     (   parser->trace_flags
 	       & PAR::TRACE_PARSER_COMMANDS ) )
-	    min::print_phrase_lines
-		( parser->printer,
-		  ppvec->file, ppvec->position, 0 );
+	    COM::print_command ( parser, ppvec );
 
 	else if ( result == min::FAILURE() )
 	    PAR::parse_error
@@ -1325,4 +1320,8 @@ void COM::parser_execute_command
 		  "parser command not recognized" );
 
     }
+
+    parser->message_header.begin =
+    parser->message_header.end =
+        min::MISSING_POSITION;
 }

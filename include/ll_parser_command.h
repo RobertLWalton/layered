@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 06:43:13 EST 2017
+// Date:	Sat Feb 25 23:45:17 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,20 +188,20 @@ min::gen parser_execute_command
 	( min::obj_vec_ptr & vp, min::uns32 i0,
 	  ll::parser::parser parser );
 
-// First, if command_header_printed is false, print the
-// lines containing command_header_position and set
-// command_header_printed true.  Normally these variables
-// are initialized when a `parser:' indentation mark is
-// recognized, with command_header_position is the
-// beginning of the `parser:' indented paragraph.
+// First prints the lines delimited by parser->message_
+// header if parser->message_header.begin is not
+// MISSING_POSITION, and if it prints these lines, sets
+// parser->message_header.begin to MISSING_POSITION.
+//
+// Normally parser->message_header is set to point at
+// the first character of the `parser:' indentation mark
+// when that is recognized.
 //
 // Then print the command lines defined by ppvec->file and
 // ppvec->position, and return the column of ppvec->
 // position.begin (the indentation of command) in these
 // printed lines.
 //
-extern bool command_header_printed;
-extern min::position command_header_position;
 min::uns32 print_command
 	( ll::parser::parser parser,
 	  min::phrase_position_vec ppvec );

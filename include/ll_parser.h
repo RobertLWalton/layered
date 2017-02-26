@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 01:46:28 EST 2017
+// Date:	Sat Feb 25 23:20:36 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1175,6 +1175,14 @@ struct parser_struct
 	// even if it has not yet reached an end of
 	// file.  Default 100.
 
+    min::phrase_position message_header;
+        // Position in input_file of lines that are to
+	// be printed using min::print_phrase_lines
+	// before any error or warning message, unless
+	// message_header.begin equals MISSING_POSITION.
+	// When these lines are printed, message_header
+	// .begin is set to MISSING_POSITION.
+
     bool eof;
         // True if `input' has delivered an end-of-file
 	// token to the end of the token list, so
@@ -2015,14 +2023,22 @@ inline ll::parser::token backup
 //
 void convert_token ( ll::parser::token token );
 
-// Prints
+// First prints the lines delimited by parser->message_
+// header if parser->message_header.begin is not
+// MISSING_POSITION, and if it prints these lines, sets
+// parser->message_header.begin to MISSING_POSITION.
+//
+// Then prints
 //
 //   ERROR: in <file:line-#> <message1><message2>...:
 //     <file-lines-with-pp underscored>
 //
-// and returns min::ERROR().  Uses parser->printer
-// and parser->input_file.  Increments parser->error_
-// count.
+// and returns min::ERROR().
+//
+// Increments parser->error_count.
+//
+// Printing lines is done with min::print_phrase_lines,
+// parser->printer and parser->input_file.
 //
 min::gen parse_error
 	( ll::parser::parser parser,

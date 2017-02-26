@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 01:47:36 EST 2017
+// Date:	Sat Feb 25 23:22:37 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -672,6 +672,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	parser->error_count = 0;
 	parser->warning_count = 0;
 	parser->max_error_count = 100;
+	parser->message_header.begin =
+	parser->message_header.end =
+	    min::MISSING_POSITION;
 	parser->subexpression_gen_format =
 	    min::line_gen_format;
 
@@ -2531,6 +2534,16 @@ min::gen PAR::parse_error
 	  const min::op & message8,
 	  const char * message9 )
 {
+    if (    parser->message_header.begin
+         != min::MISSING_POSITION )
+    {
+	min::print_phrase_lines
+	    ( parser->printer, parser->input_file,
+	      parser->message_header, 0 );
+	parser->message_header.begin =
+	    min::MISSING_POSITION;
+    }
+
     parser->printer << min::bol << min::bom
                     << min::set_indent ( 7 )
 	            << "ERROR: in "
@@ -2566,6 +2579,16 @@ void PAR::parse_warn
     if ( ( parser->trace_flags & PAR::TRACE_WARNINGS )
          == 0 )
         return;
+
+    if (    parser->message_header.begin
+         != min::MISSING_POSITION )
+    {
+	min::print_phrase_lines
+	    ( parser->printer, parser->input_file,
+	      parser->message_header, 0 );
+	parser->message_header.begin =
+	    min::MISSING_POSITION;
+    }
 
     parser->printer << min::bol << min::bom
                     << min::set_indent ( 9 )

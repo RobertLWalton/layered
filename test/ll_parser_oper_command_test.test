@@ -1,4 +1,4 @@
-parser:
+*PARSER*:
     print selector ""
         block standard: text
         block standard: math
@@ -30,7 +30,7 @@ parser:
         block TOP LEVEL: TOP LEVEL
     print operator ""
         not found
-parser:
+*PARSER*:
     begin block BLOCK1
 ======= PARSER TEST: (x / y ^ z w)
 ======= line ##:
@@ -40,7 +40,7 @@ parser:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "/" [code, math] infix
         with binary reformatter with precedence -100
     print operator "/"
@@ -66,7 +66,7 @@ parser:
     ( x / y ^ z w )
               ^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     print operator ""
         block BLOCK1: operator "/" [code, math]
                       infix
@@ -98,7 +98,7 @@ parser:
     ( x / y ^ z w )
               ^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     end block BLOCK1
     print operator ""
         not found
@@ -110,7 +110,7 @@ parser:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
 ERROR: in line ##: expected `with precedence ...' after:
         with binary reformatter
                     ^^^^^^^^^^^
@@ -146,7 +146,7 @@ ERROR: in line ##: expected operator flags after:
                           ^^^^^^^^^^^^
     print operator ""
         not found
-parser:
+*PARSER*:
     define operator "=" [code, math] infix
         with precedence 1000
         with right associative reformatter
@@ -193,7 +193,7 @@ parser:
     (x = y += z w *= p q r = t v)
                              ^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "," [code, math] nofix
         with precedence 2000
         with separator reformatter ( "," )
@@ -214,7 +214,7 @@ parser:
     (x, y1, z w,, 3,)
                     ^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "BUT NOT" [code, math] infix
         with precedence 3000
         with binary reformatter
@@ -352,7 +352,7 @@ ERROR: in line ###: expected an operand after "NOT"; inserted
     (NOT NOT)
     ^^^^^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "==" [code, math] infix
         with precedence 4000
         with infix and reformatter ( "AND" )
@@ -447,7 +447,7 @@ parser:
     ( x < y <= z > w != p q =< u v )
                                ^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "+" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
@@ -518,7 +518,7 @@ parser:
     ( x < y + 5 <= z )
           ^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "/" [code, math] infix
         with precedence 5100
         with binary reformatter
@@ -586,7 +586,7 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
     ( x ^ 2 * y ^ 2 / y * z )
                       ^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "+" [code, math] prefix
         with precedence 10000
     define operator "-" [code, math] prefix
@@ -672,7 +672,7 @@ parser:
     ( + - + - x y )
               ^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "++" [code, math] postfix
         with precedence 10001
     define operator "--" [code, math] postfix
@@ -722,7 +722,7 @@ parser:
     ( x y ++ -- ++ -- )
       ^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     define operator "<--" [code] nofix
         with precedence 0
         with declare reformatter
@@ -834,7 +834,7 @@ parser:
         he ha ho hum
         ^^^^^^^^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     print operator ""
         block standard: operator "*" [code, math]
                         infix

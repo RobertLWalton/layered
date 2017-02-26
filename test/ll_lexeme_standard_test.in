@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  4 02:15:06 EST 2015
+// Date:	Sun Feb 26 00:16:28 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -17,7 +17,7 @@ a.1.2.3..b...c e5f x7+y6(5z)
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
 // form feed 
 // vertical tab 
 // carriage return 

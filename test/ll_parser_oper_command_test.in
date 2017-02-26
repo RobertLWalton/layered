@@ -2,13 +2,13 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 01:56:58 EST 2017
+// Date:	Sun Feb 26 01:07:08 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-parser:
+*PARSER*:
     print selector ""
     print pass
     print top level
@@ -22,34 +22,34 @@ parser:
 
 // Test define and undefine
 //
-parser:
+*PARSER*:
     begin block BLOCK1
-parser test:
+*PARSER* *TEST*:
     ( x / y ^ z w )
-parser:
+*PARSER*:
     define operator "/" [code, math] infix
         with binary reformatter with precedence -100
     print operator "/"
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-parser test:
+*PARSER* *TEST*:
     ( x / y ^ z w )
-parser:
+*PARSER*:
     print operator ""
     undefine operator "/" [code, math] infix
         with precedence -100
     print operator "/"
-parser test:
+*PARSER* *TEST*:
     ( x / y ^ z w )
-parser:
+*PARSER*:
     end block BLOCK1
     print operator ""
-parser test:
+*PARSER* *TEST*:
     ( x / y ^ z w )
 
 // Test erroneous defines and undefines
 //
-parser:
+*PARSER*:
     define operator "+" [code, math] infix
         with binary reformatter
     define operator "+" [code, math]
@@ -74,7 +74,7 @@ parser:
 
 // Operators are introduced lowest precedence first
 
-parser:
+*PARSER*:
     define operator "=" [code, math] infix
         with precedence 1000
         with right associative reformatter
@@ -90,17 +90,17 @@ parser:
     define operator "/=" [code, math] infix
         with precedence 1000
         with right associative reformatter
-parser test:
+*PARSER* *TEST*:
     (x = y += z w *= p q r = t v)
 
-parser:
+*PARSER*:
     define operator "," [code, math] nofix
         with precedence 2000
         with separator reformatter ( "," )
-parser test:
+*PARSER* *TEST*:
     (x, y1, z w,, 3,)
 
-parser:
+*PARSER*:
     define operator "BUT NOT" [code, math] infix
         with precedence 3000
         with binary reformatter
@@ -113,7 +113,7 @@ parser:
     define operator "NOT" [code, math] nofix
         with precedence 3100
         with unary reformatter
-parser test:
+*PARSER* *TEST*:
     (x OR y BUT NOT z AND w)
     (x OR y BUT NOT z AND w OR p)
     (NOT x y)
@@ -124,7 +124,7 @@ parser test:
     (NOT NOT x y)
     (NOT NOT)
 
-parser:
+*PARSER*:
     define operator "==" [code, math] infix
         with precedence 4000
         with infix and reformatter ( "AND" )
@@ -152,22 +152,22 @@ parser:
     define operator "=>" [code, math] infix
         with precedence 4000
         with infix and reformatter ( "AND" )
-parser test:
+*PARSER* *TEST*:
     ( x < y <= z > w != p q =< u v )
 
-parser:
+*PARSER*:
     define operator "+" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
     define operator "-" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
-parser test:
+*PARSER* *TEST*:
     ( x + y - z + w - v - u )
     ( - x + y - z )
     ( x < y + 5 <= z )
 
-parser:
+*PARSER*:
     define operator "/" [code, math] infix
         with precedence 5100
         with binary reformatter
@@ -177,34 +177,34 @@ parser:
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter
-parser test:
+*PARSER* *TEST*:
     ( x * y / z q * m p )
     ( x / y / z )
     ( x ^ 2 * y ^ 2 / y * z )
 
-parser:
+*PARSER*:
     define operator "+" [code, math] prefix
         with precedence 10000
     define operator "-" [code, math] prefix
         with precedence 10000
     define operator "@" [code, math] prefix
         with precedence 10000
-parser test:
+*PARSER* *TEST*:
     ( - x + y - z )
     ( p * - x + y - z )
     ( @ x + y - @ z )
     ( + - + - x y )
 
-parser:
+*PARSER*:
     define operator "++" [code, math] postfix
         with precedence 10001
     define operator "--" [code, math] postfix
         with precedence 10001
-parser test:
+*PARSER* *TEST*:
     ( x ++ + y - z -- )
     ( x y ++ -- ++ -- )
 
-parser:
+*PARSER*:
     define operator "<--" [code] nofix
         with precedence 0
         with declare reformatter
@@ -212,7 +212,7 @@ parser:
         with precedence 0
     define operator indentation mark ":" [code] afix
         with precedence 0
-parser test:
+*PARSER* *TEST*:
     ( foo bar <-- boo bat {{ fee fie fo fum }} )
     ( foo bar <-- {{ fee fie fo fum }} )
     ( <-- boo bat {{ fee fie fo fum }} )
@@ -221,7 +221,7 @@ parser test:
     	fee fie fo fum
 	he ha ho hum
 
-parser:
+*PARSER*:
     print operator ""
 
 // Temporary tests

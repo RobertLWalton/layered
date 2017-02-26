@@ -1,4 +1,4 @@
-parser:
+*PARSER*:
     print selector ""
         block standard: code
         block TOP LEVEL: data
@@ -26,17 +26,17 @@ ERROR: in line ##: extraneous stuff after:
           + parser commands, - subexpression elements,
           - subexpression details, - subexpression lines, - keys,
           - bracketed subexpressions ]
-parser:
+*PARSER*:
     trace [+ parser input]
-WORD: "parser": line ##:
-parser:
-^^^^^^
+WORD: "*PARSER*": line ##:
+*PARSER*:
+^^^^^^^^
 SEPARATOR: ":": line ##:
-parser:
-      ^
+*PARSER*:
+        ^
 LINE_BREAK: line ##:
-parser:
-       ^
+*PARSER*:
+         ^
 INDENT: line ##:
     print trace
 ^^^^
@@ -50,23 +50,23 @@ LINE_BREAK: line ##:
     print trace
                ^
 INDENT: line ##:
-parser:
+*PARSER*:
 ^
-parser:
+*PARSER*:
     print trace
         [ + warnings, + parser input, - parser output,
           + parser commands, - subexpression elements,
           - subexpression details, - subexpression lines, - keys,
           - bracketed subexpressions ]
-WORD: "parser": line ##:
-parser:
-^^^^^^
+WORD: "*PARSER*": line ##:
+*PARSER*:
+^^^^^^^^
 SEPARATOR: ":": line ##:
-parser:
-      ^
+*PARSER*:
+        ^
 LINE_BREAK: line ##:
-parser:
-       ^
+*PARSER*:
+         ^
 INDENT: line ##:
     trace [- parser input]
 ^^^^
@@ -107,16 +107,16 @@ LINE_BREAK: line ##:
 <BLANK-LINE>
 ^
 INDENT: line ##:
-parser:
+*PARSER*:
 ^
-parser:
+*PARSER*:
     trace [- parser input]
     print trace
         [ + warnings, - parser input, - parser output,
           + parser commands, - subexpression elements,
           - subexpression details, - subexpression lines, - keys,
           - bracketed subexpressions ]
-parser:
+*PARSER*:
     print top level
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
@@ -153,14 +153,14 @@ parser:
 ======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
                          ")" ")" "]"
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     trace [+ subexpression lines]
 ======= PARSER TEST:
 ======= line ##:
     [ x <+ y +> z {|4|w} m (n (p)) ]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     trace [- subexpression lines]
     trace [+ subexpression details]
 ======= PARSER TEST:
@@ -169,7 +169,7 @@ parser:
          .position[H] = {}
          .initiator = [$ LOGICAL_LINE $]
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     trace [+ subexpression elements]
 ======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
                          ")" ")" "]"
@@ -178,12 +178,12 @@ parser:
          .position[H] = {}
          .initiator = [$ LOGICAL_LINE $]
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     trace [- subexpression details]
 ======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
                          ")" ")" "]"
 ======= END PARSER TEST(S)
-parser:
+*PARSER*:
     trace [+ subexpression lines]
 ======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
                          ")" ")" "]"

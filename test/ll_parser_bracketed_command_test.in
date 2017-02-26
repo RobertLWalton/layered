@@ -2,16 +2,16 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 07:02:40 EST 2017
+// Date:	Sun Feb 26 01:03:46 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-parser:
+*PARSER*:
     print bracket ""
 
-parser:
+*PARSER*:
     define bracket "[+"
     define bracket "[+" ...
     print top level
@@ -35,130 +35,130 @@ parser:
         with parsing selectors [^ code, - math, + operator 1]
     print bracket "<+"
 
-parser:
+*PARSER*:
     trace [ + subexpression lines,
             + subexpression elements]
-parser test:
+*PARSER* *TEST*:
     "abc"
         # "def"
     "abc"
     # "def"
     <+ hi there +> <+ hi [embedded] there +>
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define bracket "[X" ... "X]" [code, operator 1]
         with parsing selectors [- code, + operator 1]
-parser test:
+*PARSER* *TEST*:
     [ a [ b c ] c ] [X a [ b c ] d X]
     this is a paragraph +:
 	line 1
 	line 2a:: line 2b; line 2c
 	last line
-parser:
+*PARSER*:
     define indentation mark "+:" ... "::" [code]
-parser test:
+*PARSER* *TEST*:
     this is a paragraph +:
 	line 1
 	line 2a:: line 2b; line 2c
 	last line
     <X| hi there |X>
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     trace [+ foo]
     trace [+ parser commands]
     trace [- parser commands]
     trace [+ parser commands]
     trace [+ warnings]
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define bracket "<*" ... "*>" [code]
-parser test:
+*PARSER* *TEST*:
     <* hi there A *>
-parser:
+*PARSER*:
     end block x
-parser test:
+*PARSER* *TEST*:
     <* hi there B *>
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser test:
+*PARSER* *TEST*:
     <* hi there C *>
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     define bracket "<|" ... "|>" [code]
-parser test:
+*PARSER* *TEST*:
     <| hi there D |>
 
-parser:
+*PARSER*:
     begin block BLOCK1
     undefine bracket "<|" ... "|>" [code]
-parser test:
+*PARSER* *TEST*:
     <| hi there E |>
-parser:
+*PARSER*:
     undefine bracket "<|" ... "|>" [code]
     end block BLOCK1
 
-parser test:
+*PARSER* *TEST*:
     <| hi there F |>
-parser:
+*PARSER*:
     undefine bracket "<|" ... "|>" [code]
-parser test:
+*PARSER* *TEST*:
     <| hi there F |>
-parser:
+*PARSER*:
     undefine bracket "<|" ... "|>" [code]
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define bracket "`" ... "'" [code]
     define bracket "```" ... "'''" [code]
         with parsing options []
     print bracket ""
-parser test:
+*PARSER* *TEST*:
     ( ``` ) ''' )
     ( ```
 )
 ''' )
-parser test:
+*PARSER* *TEST*:
     ( ` ) ' )
-parser test:
+*PARSER* *TEST*:
     ( `
 )
 ' )
-parser test:
+*PARSER* *TEST*:
     ( An indented paragraph:
 		```This logical line continues on no
 matter what, even with a spurious ), until
     the following is encountered- '''
                 Second line of indented paragraph.
 	      ) // End of () bracketed subexpression
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
-parser test:
+*PARSER* *TEST*:
     [? MISSING ?]
-parser:
+*PARSER*:
     define bracket "[?" ... "?]" [code]
         with special reformatter
-parser test:
+*PARSER* *TEST*:
     [? MISSING ?]
     [@ x 1 @ y 2 @ w @ z 3 @]
-parser:
+*PARSER*:
     define bracket "[@" ... "@]" [code]
         with multivalue reformatter ( "@" )
-parser test:
+*PARSER* *TEST*:
     [@ x 1 @ y 2 @ w @ z 3 @]
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define indentation offset 4
     print indentation offset
@@ -170,10 +170,10 @@ second line with indent 0
 third line with indent 0
     line with indent 4
 
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     print indentation offset
     trace [+ parser output, - subexpression elements]
@@ -185,29 +185,29 @@ second line with indent 0
 third line with indent 0
     line with indent 4
 
-parser:
+*PARSER*:
     trace [- parser output, + subexpression elements]
 
-parser test:
+*PARSER* *TEST*:
 	well ( hello:
 	        goodbye ) there
 	hi there
 
-parser test:
+*PARSER* *TEST*:
 	( hello:
 	    goodbye ) there
 	    hi there
 	  ) end
 
-parser test:
+*PARSER* *TEST*:
 	( hello:
 	    goodbye there
 	    hi there
 	) end
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     print prefix ""
     define prefix "X" [code]
@@ -224,7 +224,7 @@ parser:
     print prefix "X"
     end block BLOCK1
 
-parser:
+*PARSER*:
     define typed bracket "T1{" ... "|" ... "|" ... "}T1"
         [code, text, math, data]
         with element selectors [data]
@@ -242,41 +242,41 @@ parser:
     define bracket "[@" ... "@]" [code]
         with multivalue reformatter ( "@" )
 
-parser test:
+*PARSER* *TEST*:
     T1{ T:: x == 5 # y == 6 | A B C |T}T1
     T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @] | A B C |T}T2
     (T1{T}T1 A B C)
     (T2{T}T2 A B C)
     T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
     T2{T:: X # NO Y | A B | NO Z # W | C D | }T2
-parser:
+*PARSER*:
     undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
         [code, text, math, data]
-parser test:
+*PARSER* *TEST*:
     (T2{T}T2 A B C)
 
-parser:
+*PARSER*:
     begin block BLOCK1
     print string concatenator
-parser test:
+*PARSER* *TEST*:
     "A" # "B"
     "A" "B"
-parser:
+*PARSER*:
     define string concatenator enabled
     print string concatenator
-parser test:
+*PARSER* *TEST*:
     "A" # "B"
     "A" "B"
-parser:
+*PARSER*:
     define string concatenator disabled
     print string concatenator
-parser test:
+*PARSER* *TEST*:
     "A" # "B"
     "A" "B"
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define typed bracket "8" ... "|" ... "|" ... "9"
         [code, text, math, data]
@@ -287,23 +287,23 @@ parser:
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
         with prefix separators allowed
-parser test:
+*PARSER* *TEST*:
     [8 my type: my attr = 99 9]
-parser:
+*PARSER*:
     end block BLOCK1
-parser test:
+*PARSER* *TEST*:
     [8 my type: my attr = 99 9]
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define bracket "[0" ... "0]" [code]
         with special reformatter
-parser test:
+*PARSER* *TEST*:
     [0 LOGICAL_LINE 0]
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define prefix "P1" [code, text]
         with parsing selectors [text]
@@ -326,7 +326,7 @@ parser:
 
     print prefix ""
 
-parser test:
+*PARSER* *TEST*:
     {P1}
     Hi there.
     {S1}Bye.
@@ -338,42 +338,42 @@ parser test:
     that is continued
     over three lines.
 
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define indentation mark "::" ... ";" [code]
         with implied header {p}
-parser test:
+*PARSER* *TEST*:
     this is the indented paragraph 1::
         with one line
-parser:
+*PARSER*:
     define prefix "p" [code]
         with group paragraph
-parser test:
+*PARSER* *TEST*:
     this is the indented paragraph 2::
 	with one line
-parser:
+*PARSER*:
     define prefix "p" [code]
         with group paragraph
         with implied subprefix {l}
-parser test:
+*PARSER* *TEST*:
     this is the indented paragraph 3::
 	with a first line
 	and a second line
-parser:
+*PARSER*:
     define prefix "l" [code]
         with group line
-parser test:
+*PARSER* *TEST*:
     this is the indented paragraph 4::
 	with a first line
 	and a second line
 	and a third line with [ HI THERE ] embedded
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define indentation mark "::" ... ";" [code]
         with implied header {p1}
@@ -396,7 +396,7 @@ parser:
         with implied subprefix {l2}
     define prefix "l2" [code]
         with group line
-parser test:
+*PARSER* *TEST*:
     this is the indented paragraph 5::
 	with a first line
 	and a second line with [HI THERE] embedded
@@ -410,7 +410,7 @@ parser test:
 	     without in a previous blank line
 	with a second line of its own
 
-parser:
+*PARSER*:
     define prefix "p3" [code]
         with group paragraph
         with implied subprefix {l3}
@@ -418,7 +418,7 @@ parser:
     define prefix "l3" [code]
         with group line
     print prefix "p3"
-parser test:
+*PARSER* *TEST*:
     this is the indented paragraph 6::
 	with a first line
 	and a second line with [HI THERE] embedded
@@ -431,10 +431,10 @@ parser test:
 
 	{p2} and a third subparagraph
 	with a second line of its own
-parser:
+*PARSER*:
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
@@ -486,11 +486,11 @@ and another line outside the fourth paragraph
 and a line
 
 and another line outside the fifth paragraph
-parser:
+*PARSER*:
     trace [- parser output]
     end block BLOCK1
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
@@ -549,13 +549,13 @@ and another line
 this is paragraph 11
 and another line
 
-parser:
+*PARSER*:
     trace [- parser output]
     end block BLOCK1
 
 this is a test line
 
-parser:
+*PARSER*:
     begin block BLOCK1
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
@@ -596,6 +596,6 @@ with one extra line.
 ({l2} a third stray)
 ({p} a fourth stray)
 {p} and a fifth stray
-parser:
+*PARSER*:
     trace [- parser output]
     end block BLOCK1

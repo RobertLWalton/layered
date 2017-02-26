@@ -38,13 +38,13 @@ LINE_BREAK: line #:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 INDENT_BEFORE_COMMENT: line #:
-// Date:        Fri Dec  4 02:15:06 EST 2015
+// Date:        Sun Feb 26 00:16:28 EST 2017
 ^
 COMMENT: line #:
-// Date:        Fri Dec  4 02:15:06 EST 2015
+// Date:        Sun Feb 26 00:16:28 EST 2017
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line #:
-// Date:        Fri Dec  4 02:15:06 EST 2015
+// Date:        Sun Feb 26 00:16:28 EST 2017
                                             ^
 INDENT_BEFORE_COMMENT: line #:
 //
@@ -329,65 +329,74 @@ LINE_BREAK: line ##:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                     ^
 INDENT: line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
 ^
 WORD: "a": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
 ^
 SEPARATOR: "(": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
  ^
 WORD: "b,c": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
   ^^^
 SEPARATOR: ")": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
      ^
 WORD: "d": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
        ^
 SEPARATOR: "{": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
         ^
 WORD: "e;f": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
          ^^^
 SEPARATOR: "}": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
             ^
 WORD: "g": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
               ^
 SEPARATOR: "[": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                ^
 WORD: "h,i": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                 ^^^
 SEPARATOR: "]": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                    ^
 SEPARATOR: "`": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                      ^
 SEPARATOR: "`": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                       ^
 WORD: "foobar": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                        ^^^^^^
 SEPARATOR: "'": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                              ^
 WORD: "fum": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                                ^^^
 SEPARATOR: "'": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                                   ^
+WORD: "*PARSER*": line ##:
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
+                                    ^^^^^^^^
+WORD: "*TEST*": line ##:
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
+                                             ^^^^^^
+SEPARATOR: ":": line ##:
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
+                                                   ^
 LINE_BREAK: line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum'
-                                   ^
+a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
+                                                    ^
 INDENT_BEFORE_COMMENT: line ##:
 // form feed ␌
 ^

@@ -2683,10 +2683,17 @@ previous state.
 \subsection{Parser Commands}
 \label{PARSER-COMMANDS}
 
-A parser command is a logical line that changes parser tables.
+Parser commands are logical lines within a {\em parser-command-paragraph}
+that change parser tables.
 The syntax of a parser commands in general and in particular those
 associated block definition, parser trace flags, and parser selectors
 is specified in Figure~\itemref{PARSER-COMMAND-SYNTAX}.
+
+A {\em parser-command-paragraph} is an indented paragraph on a line by itself
+that has the indentation mark `\TT{*PARSER*:}',
+Thus `\TT{*PARSER*:}' must appear by itself in a top level
+physical line, and the indented logical lines that follow are
+{\em parser-commands}.
 
 \begin{boxedfigure}[!p]
 \emkey{parser-command-paragraph}
@@ -2723,7 +2730,7 @@ is specified in Figure~\itemref{PARSER-COMMAND-SYNTAX}.
 \emkey{quoted-key}\label{QUOTED-KEY}
     :::= \TT{"}{\em key}\TT{"}
 \\[0.0ex]
-\emkey{partial-name} ::= {\em quoted-key}
+\emkey{partial-name} ::= \TT{""} | {\em quoted-key}
 \\[0.6ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
@@ -2764,8 +2771,8 @@ is specified in Figure~\itemref{PARSER-COMMAND-SYNTAX}.
 \\[0.6ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \ttmkey{begin}{parser command} ~ {\em block-name} \\
-    $|$ & \ttmkey{end}{parser command} ~ {\em block-name} \\
+    ::= & \ttmkey{begin block}{parser command} ~ {\em block-name} \\
+    $|$ & \ttmkey{end block}{parser command} ~ {\em block-name} \\
     $|$ & \ttmkey{print blocks}{parser command} \\
     \end{tabular}
 \label{PARSER-BLOCK-COMMAND}
@@ -2796,16 +2803,8 @@ is specified in Figure~\itemref{PARSER-COMMAND-SYNTAX}.
 
 \end{boxedfigure}
 
-Parser commands are logical lines within a {\em parser-command-paragraph}.
-A {\em parser-command-paragraph} is an indented paragraph on a line by itself
-that has the indentation mark `\TT{*PARSER*:}',
-Thus `\TT{*PARSER*:}' must appear by itself in a top level
-logical line, and the indented logical lines that are follow it are
-{\em parser-commands}.
-
 A {\em parser-command-paragraph} is first completely parsed, and then
 the commands it contains are executed in order.
-
 The \TT{*PARSER*:}' indentation mark sets the parser selectors
 to `\TT{[data]}', so only the `\TT{data}' selector is present when
 parser commands are parsed.  It is possible, but not advisable, to
@@ -2813,8 +2812,9 @@ use parser commands to alter the way that input is parsed if only
 the `\TT{data}' selector is present.
 
 Parser commands make use of {\em simple-names} that are just a {\em word}
-optionally followed by a sequence of {\em words} and/or {\em natural-numbers},
-and {\em quoted-keys}, that are arbitrary sequences of {\em word},
+optionally followed by a sequence of {\em words} and/or {\em natural-numbers}.
+Parser commands also make use of
+{\em quoted-keys}, that are arbitrary sequences of {\em word},
 {\em mark}, {\em separator}, and {\em natural-number} lexemes enclosed
 in quotation marks to form a {\em quoted-string} lexeme.
 This embedding of lexemes in a {\em quoted-string} lexeme
@@ -2826,11 +2826,11 @@ Parser commands may be organized into \skey{parser-block}s of the form:%
 \begin{center}
 \begin{tabular}{l}
 \TT{*PARSER*:} \\
-\TT{~~~~}\TT{begin} {\em block-name} \\
+\TT{~~~~}\TT{begin block} {\em block-name} \\
 \TT{~~~~}{\em parser-command} \\
 .~.~.~.~.~.~.~.~.~. \\
 \TT{*PARSER*:} \\
-\TT{~~~~}\TT{end} {\em block-name} \\
+\TT{~~~~}\TT{end block} {\em block-name} \\
 \end{tabular}
 \end{center}
 
@@ -2838,7 +2838,7 @@ When a parser block ends, all changes to the parser tables made in
 the block are erased, so subsequent parsing is as if the block
 had never existed.
 The {\em block-name} merely serves as an error check; it is
-not possible to have one `\TT{end}' command end more than
+not possible to have one `\TT{end block}' command end more than
 one parser block.
 
 The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
@@ -2856,8 +2856,8 @@ specified by giving a {\em parser-flag-list} or a
 
 When a \emkey{parser-flag-modifier-list}\label{FLAG-MODIFIER-LIST}
 is used, the flag set is made by modifying the current
-flag set (trace flags or selectors) according to the
-instructions `{\em parser-flag-op} {\em parser-flag}' pairs.
+flag set (trace flags, selectors, or options) according to the
+instruction's `{\em parser-flag-op} {\em parser-flag}' pairs.
 These pairs are interpreted as follows:
 \begin{center}
 \begin{tabular}{ll}
@@ -2898,7 +2898,8 @@ Other selector names must be defined by the {\em parser-selector-command}:
 \end{center}
 When the parser block containing a selector name definition
 command ends, the selector name is erased.
-There may be at most 47 selectors defined at any one time.
+There may be at most 47 selectors, including the builtin selectors,
+defined at any one time.
 
 The top level selectors and end-at options can be reset by the
 {\em parser-selector-command}:
@@ -2915,7 +2916,15 @@ the only default selector if no `\TT{define top level}' commands
 are given.  So the \TT{TOP LEVEL} selector is always included in the
 top level selectors.
 
-Thus the standard parser specified above begins by executing the
+The \key{standard parser} creates a single initial parsing block
+named `\ttmkey{standard}{parsing block}' and defines in it the selectors
+\begin{center}
+\ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
+\end{center}
+The standard parser also sets the top level selector set to contain just
+`\TT{TOP LEVEL}' and `\TT{code}'.
+
+Thus the standard parser begins by executing the
 equivalent of
 \begin{indpar}\begin{verbatim}
 *PARSER*:
@@ -2927,18 +2936,10 @@ equivalent of
         with parsing selectors [code]
 \end{verbatim}\end{indpar}
 
-Thus the \key{standard parser} creates a single initial parsing block
-named `\ttmkey{standard}{parsing block}' and defines in it the selectors
-\begin{center}
-\ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
-\end{center}
-The standard parser also sets the top level selector set to contain just
-`\TT{TOP LEVEL}' and `\TT{code}'.
-Note that the actions of the standard parser can be
-canceled by an `\TT{end block standard}' parser command.
-
 The end of a parser block erases the effects of any
 {\em parser-selector-commands} executed during the block.
+Thus the actions of the standard parser can be
+canceled by an `\TT{end block standard}' parser command.
 
 \subsubsection{Parser Trace Commands}
 \label{PARSER-TRACE-COMMANDS}
@@ -3017,7 +3018,7 @@ The end of a parser block erases the effects of any
 \subsubsection{Parser Define/Undefine Commands}
 \label{PARSER-DEFINE/UNDEFINE-COMMANDS}
 
-In the following sections various parser `\ttkey{define}' commands
+In the following sections various parser symbol table `\ttkey{define}' commands
 are described.  These push entries into the parser symbol tables.
 The general syntax of these is
 \begin{center}
@@ -3037,7 +3038,7 @@ the entries to be pushed.
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-For parser \TT{define} commands defined in the following sections
+For each parser symbol table \TT{define} command
 there is a companion parser
 \ttkey{undefine} command that effectively undoes
 the parser \TT{define} command by clearing selector bits in
@@ -3061,7 +3062,7 @@ A {\em parser-test-paragraph} may be used to test the parser.
 It is an indented paragraph on a top level logical line by itself
 that has the indentation mark `\TT{*PARSER* *TEST:}'.
 Thus `\TT{*PARSER* *TEST:}' must appear by itself in a top level
-logical line, and the indented logical lines that follow are the
+physical line, and the indented logical lines that follow are the
 lines whose parsing is to be tested.
 
 A {\em parser-test-paragraph} is first parsed using the current top
@@ -3073,6 +3074,9 @@ trace flags:
 \TT{subexpression details} \\
 \TT{subexpression lines} \\
 \end{center}
+
+A {\em parser-test-paragraph} has no effect other than to produce
+the indicated printout.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}

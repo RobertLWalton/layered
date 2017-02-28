@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 23:46:13 EST 2017
+// Date:	Tue Feb 28 14:22:04 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -148,6 +148,10 @@ min::gen COM::scan_args
 // flags, but flags in named flag group need not be
 // in allowed flags.
 //
+// It is a duplication error if a named flag (not a
+// named group) is in found_flags.  Unduplicated named
+// flags are OR'ed to found_flags.
+//
 // On errors an error message is printed and false
 // is returned.  Otherwise true is returned.
 //
@@ -156,6 +160,7 @@ static bool scan_flag
 	  min::phrase_position_vec ppvec,
 	  TAB::new_flags & new_flags,
 	  TAB::new_flags & group_new_flags,
+	  TAB::flags & found_flags,
 	  TAB::flags allowed_flags,
 	  bool & allow_flag_list,
 	  bool & allow_flag_modifier_list,
@@ -272,6 +277,16 @@ static bool scan_flag
 	}
 	f = 1ull << j;
 	p = & new_flags;
+
+	if ( f & found_flags )
+	{
+	    PAR::parse_error
+		( parser, position,
+		  "flag/option name is duplicate" );
+	    return false;
+	}
+	else
+	    found_flags |= f;
     }
 
     if ( ( f & allowed_flags ) != f )
@@ -347,6 +362,7 @@ static min::gen scan_new_flags
     new_flags.not_flags = 0;
     new_flags.xor_flags = 0;
     TAB::new_flags new_group_flags;
+    TAB::flags found_flags = 0;
 
     min::unsptr size = min::size_of ( subvp );
     if ( size != 0 )
@@ -360,6 +376,7 @@ static min::gen scan_new_flags
 	    if ( ! ::scan_flag
 		       ( subvp, i, ppvec,
 		         new_flags, new_group_flags,
+			 found_flags,
 			 allowed_flags,
 		         allow_flag_list,
 		         allow_flag_modifier_list,
@@ -377,12 +394,7 @@ static min::gen scan_new_flags
 	}
     }
 
-    TAB::flags mask =
-    	  new_flags.or_flags
-	| new_flags.not_flags
-	| new_flags.xor_flags;
-
-    mask = ~ mask & allowed_flags;
+    TAB::flags mask = allowed_flags & ~ found_flags;
 
     new_flags.or_flags |=
         new_group_flags.or_flags & mask;
@@ -926,8 +938,6 @@ static min::gen execute_top_level
     TAB::new_flags new_selectors;
     TAB::new_flags new_options;
 	// Inited to zeroes.
-    TAB::flags selectors = 0;
-    TAB::flags options = 0;
     min::uns32 saved_i = i;
     while ( i < size && vp[i] == PAR::with )
     {
@@ -940,12 +950,12 @@ static min::gen execute_top_level
 	{
 	    i += 2;
 	    min::gen result;
-	    result = COM::scan_flags
-		( vp, i, selectors,
+	    result = COM::scan_new_flags
+		( vp, i, new_selectors,
 		  PAR::COMMAND_SELECTORS,
 		  parser->selector_name_table,
 		  parser->selector_group_name_table,
-		  parser );
+		  parser, true );
 	    if ( result == min::ERROR() )
 		return min::ERROR();
 	    else if ( result == min::FAILURE() )
@@ -965,12 +975,12 @@ static min::gen execute_top_level
 	{
 	    i += 2;
 	    min::gen result;
-	    result = COM::scan_flags
-		( vp, i, options,
+	    result = COM::scan_new_flags
+		( vp, i, new_options,
 		  PAR::ALL_OPT,
 		  parser->selector_name_table,
 		  parser->selector_group_name_table,
-		  parser );
+		  parser, true );
 	    if ( result == min::ERROR() )
 		return min::ERROR();
 	    else if ( result == min::FAILURE() )
@@ -993,8 +1003,14 @@ static min::gen execute_top_level
 	    ( parser, ppvec[i-1],
 	      "expected `with' after" );
 
-    parser->selectors =
-        PAR::TOP_LEVEL_SELECTOR | selectors | options;
+    parser->selectors |= new_selectors.or_flags
+                      |  new_options.or_flags;
+    parser->selectors &= ~ (   new_selectors.not_flags
+                             | new_options.not_flags );
+    parser->selectors ^= new_selectors.xor_flags
+                      ^  new_options.xor_flags;
+    parser->selectors |= PAR::TOP_LEVEL_SELECTOR
+                      |  PAR::ALWAYS_SELECTOR;
 
     if ( i < size )
         return PAR::parse_error

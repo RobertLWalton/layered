@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 00:59:40 EST 2017
+// Date:	Tue Feb 28 05:55:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -671,6 +671,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
     {
         parser = ::parser_type.new_stub();
 	first_ref(parser) = min::NULL_STUB;
+
+	parser->eof = false;
+	parser->finished_tokens = 0;
 	parser->at_paragraph_beginning = false;
 	parser->error_count = 0;
 	parser->warning_count = 0;
@@ -680,6 +683,12 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    min::MISSING_POSITION;
 	parser->subexpression_gen_format =
 	    min::line_gen_format;
+	parser->trace_flags = PAR::TRACE_WARNINGS;
+	parser->selectors = PAR::DEFAULT_OPT
+	                  + PAR::TOP_LEVEL_SELECTOR
+	                  + PAR::ALWAYS_SELECTOR;
+	PAR::prefix_separator_ref(parser) =
+	    min::MISSING();
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
@@ -723,7 +732,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::keys ) );
-	parser->trace_flags = PAR::TRACE_WARNINGS;
 
 	TAB::init_undefined_stack
 	    ( undefined_stack_ref(parser) );
@@ -814,12 +822,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::COMMAND_SELECTORS,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
-
-	parser->selectors = PAR::DEFAULT_OPT
-	                  + PAR::TOP_LEVEL_SELECTOR
-	                  + PAR::ALWAYS_SELECTOR;
-	PAR::prefix_separator_ref(parser) =
-	    min::MISSING();
 
 	BRA::bracketed_pass bracketed_pass =
 	    (BRA::bracketed_pass)
@@ -1008,9 +1010,6 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	    != NULL_STUB )
 	PAR::free ( token );
 
-    parser->eof = false;
-    parser->finished_tokens = 0;
-
     // Restore any block_level 0 definition selectors.
     //
     while ( parser->undefined_stack->length > 0 )
@@ -1031,10 +1030,24 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	    ( * pass->reset ) ( parser, pass );
     }
 
+
+    parser->eof = false;
+    parser->finished_tokens = 0;
     parser->at_paragraph_beginning = false;
     parser->error_count = 0;
     parser->warning_count = 0;
     parser->max_error_count = 100;
+    parser->message_header.begin =
+    parser->message_header.end =
+	min::MISSING_POSITION;
+    parser->subexpression_gen_format =
+	min::line_gen_format;
+    parser->trace_flags = PAR::TRACE_WARNINGS;
+    parser->selectors = PAR::DEFAULT_OPT
+		      + PAR::TOP_LEVEL_SELECTOR
+		      + PAR::ALWAYS_SELECTOR;
+    PAR::prefix_separator_ref(parser) =
+	min::MISSING();
 }
 
 void PAR::init_input_stream
@@ -1507,7 +1520,8 @@ min::gen PAR::begin_block
                       name,
 		      parser->selector_name_table,
                       parser->undefined_stack,
-		      parser->selectors );
+		      parser->selectors,
+		      parser->trace_flags );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
@@ -1564,8 +1578,6 @@ min::gen PAR::end_block
 	u.root->selectors = u.saved_selectors;
     }
 
-    parser->selectors = (&b)->saved_selectors;
-
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
 	  pass != NULL;
@@ -1580,6 +1592,9 @@ min::gen PAR::end_block
 	     result == min::FAILURE() )
 	    result = saved_result;
     }
+
+    parser->selectors = (&b)->saved_selectors;
+    parser->trace_flags = (&b)->saved_trace_flags;
 
     min::pop ( parser->block_stack );
 

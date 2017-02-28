@@ -197,8 +197,8 @@ min::gen parser_execute_command
 // the first character of the `parser:' indentation mark
 // when that is recognized.
 //
-// Then print the command lines defined by ppvec->file and
-// ppvec->position, and return the column of ppvec->
+// Then print the command lines defined by ppvec->file
+// and ppvec->position, and return the column of ppvec->
 // position.begin (the indentation of command) in these
 // printed lines.
 //

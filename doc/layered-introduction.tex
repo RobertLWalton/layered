@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 27, 2017
+February 28, 2017
  
 \end{center}
 
@@ -2681,26 +2681,26 @@ previous state.
 
 
 \subsection{Parser Commands}
+\label{PARSER-COMMANDS}
 
 A parser command is a logical line that changes parser tables.
 The syntax of a parser commands in general and in particular those
 associated block definition, parser trace flags, and parser selectors
-is specified in Figure~\itemref{PARSER-COMMANDS}.
+is specified in Figure~\itemref{PARSER-COMMAND-SYNTAX}.
 
 \begin{boxedfigure}[!p]
-\emkey{parser-paragraph}
+\emkey{parser-command-paragraph}
     \begin{tabular}[t]{@{}rlrl@{}}
     ::= & \TT{*PARSER*:}\index{PARSER@{\tt *PARSER*:}} \\
     	& ~~~~{\em parser-command}\STAR{}
     \end{tabular}
-\label{PARSER-PARAGRAPH}
+\label{PARSER-COMMAND-PARAGRAPH}
 \\[0.6ex]
 \emkey{parser-test-paragraph}
     \begin{tabular}[t]{@{}rlrl@{}}
     ::= & \TT{*PARSER* *TEST:}\index{parser test@{\tt *PARSER* *TEST:}} \\
     	& ~~~~{\em logical-line}\STAR{}
     \end{tabular}
-\label{PARSER-TEST-PARAGRAPH}
 \\[0.6ex]
 \emkey{parser-command}
     \begin{tabular}[t]{@{}rlrl@{}}
@@ -2792,18 +2792,19 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
 \medskip
 
 \caption{\bf Parser Command Syntax}
-\label{PARSER-COMMANDS}
+\label{PARSER-COMMAND-SYNTAX}
 
 \end{boxedfigure}
 
-Parser commands are logical lines within an indented paragraph
+Parser commands are logical lines within a {\em parser-command-paragraph}.
+A {\em parser-command-paragraph} is an indented paragraph on a line by itself
 that has the indentation mark `\TT{*PARSER*:}',
-where the indented paragraph is in a top level logical line by itself
-(therefore `\TT{*PARSER*:}' must appear at the beginning of a top level
-logical line).
-Parser commands are themselves parsed before they are executed,
-and they are executed in order as soon as their containing indented
-paragraph has been parsed.
+Thus `\TT{*PARSER*:}' must appear by itself in a top level
+logical line, and the indented logical lines that are follow it are
+{\em parser-commands}.
+
+A {\em parser-command-paragraph} is first completely parsed, and then
+the commands it contains are executed in order.
 
 The \TT{*PARSER*:}' indentation mark sets the parser selectors
 to `\TT{[data]}', so only the `\TT{data}' selector is present when
@@ -2886,6 +2887,9 @@ since \TT{end at paragraph break} is explicitly mentioned in this
 {\em parser-flag-modifier-list}, it is deleted from the set in this
 context.
 
+\subsubsection{Parser Selector Commands}
+\label{PARSER-SELECTOR-COMMANDS}
+
 The only builtin selector names\label{SELECTOR-NAMES}
 are `\TT{TOP LEVEL}' and `\TT{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
@@ -2933,6 +2937,12 @@ The standard parser also sets the top level selector set to contain just
 Note that the actions of the standard parser can be
 canceled by an `\TT{end block standard}' parser command.
 
+The end of a parser block erases the effects of any
+{\em parser-selector-commands} executed during the block.
+
+\subsubsection{Parser Trace Commands}
+\label{PARSER-TRACE-COMMANDS}
+
 The current set of
 \skey{parsing trace flag}s\index{trace flag!parser}\index{flag!parsing trace}
 may be given or modified by the {\em parser-trace-command}:
@@ -2965,26 +2975,26 @@ in Figure~\itemref{TRACE-FLAGS}.
 \hspace*{-0.2in}\ttmkey{operator subexpressions}{parsing trace flag}
     Enables tracing for the parser operator recognition pass.
 
-\hspace*{-0.2in}\ttmkey{subexpression lines}{parsing trace flag}
-    The printing of a value by the `\TT{parser output}' or
-    `\ldots{} \TT{subexpressions}' trace flags, or the
-    \TT{parser test} command, includes
-    the lines containing the value with the value producing subexpression
-    within these lines underlined.
-
 \hspace*{-0.2in}\ttmkey{subexpression elements}{parsing trace flag}
     The printing of a value by the `\TT{parser output}' or
-    `\ldots{} \TT{subexpressions}' trace flags, or the
-    \TT{parser test} command, includes
+    `\ldots{} \TT{subexpressions}' trace flags, or of a logical line
+    in a {\em parser-test-paragraph}, includes
     a direct rendition of the value with implicit brackets and
     graphic representations of non-graphic characters
     shown.  This is the default.
 
 \hspace*{-0.2in}\ttmkey{subexpression details}{parsing trace flag}
     The printing of a value by the `\TT{parser output}' or
-    `\ldots{} \TT{subexpressions}' trace flags, or the
-    \TT{parser test} command, includes
+    `\ldots{} \TT{subexpressions}' trace flags, or of a logical line
+    in a {\em parser-test-paragraph}, includes
     a detailed rendition of the value with all attributes shown.
+
+\hspace*{-0.2in}\ttmkey{subexpression lines}{parsing trace flag}
+    The printing of a value by the `\TT{parser output}' or
+    `\ldots{} \TT{subexpressions}' trace flags, or of a logical line
+    in a {\em parser-test-paragraph}, includes
+    the lines containing the value with the value producing subexpression
+    within these lines underlined.
 
 \hspace*{-0.2in}\ttmkey{keys}{parsing trace flag}
     During parsing of a subexpression by a trace-enabled parser 
@@ -3002,7 +3012,10 @@ in Figure~\itemref{TRACE-FLAGS}.
 
 
 The end of a parser block erases the effects of any
-{\em parser-selector-commands} executed during the block.
+{\em parser-trace-commands} executed during the block.
+
+\subsubsection{Parser Define/Undefine Commands}
+\label{PARSER-DEFINE/UNDEFINE-COMMANDS}
 
 In the following sections various parser `\ttkey{define}' commands
 are described.  These push entries into the parser symbol tables.
@@ -3038,30 +3051,28 @@ block containing a parser \TT{undefine} command ends, the
 effects of that command are undone by restoring the cleared
 selector bits to their previous state.
 
-TBD
+Thus the end of a parser block erases the effects of any
+parser \TT{define} and \TT{undefine} commands executed during the block.
 
-For parser \TT{define} commands defined in the following sections,
-and also for the parser \TT{define selector} and
-`\TT{define top level}' commands defined above,
-there is a companion parser
-`\ttkey{print}' command that prints the contents of the
-parser symbol table entries with the designated {\em type} and any
-{\em name} containing within it
-the {\em partial-name} supplied by the print command.
-Its syntax is
+\subsubsection{Parser Test Paragraph}
+\label{PARSER-TEST-PARAGRAPH}
+
+A {\em parser-test-paragraph} may be used to test the parser.
+It is an indented paragraph on a top level logical line by itself
+that has the indentation mark `\TT{*PARSER* *TEST:}'.
+Thus `\TT{*PARSER* *TEST:}' must appear by itself in a top level
+logical line, and the indented logical lines that follow are the
+lines whose parsing is to be tested.
+
+A {\em parser-test-paragraph} is first parsed using the current top
+level selectors, and then information about the each logical line
+of the paragraph is printed according to the setting of the
+trace flags:
 \begin{center}
-\TT{parser print} {\em type} {\em partial-name}
+\TT{subexpression elements} \\
+\TT{subexpression details} \\
+\TT{subexpression lines} \\
 \end{center}
-The {\em partial-name} and {\em name} are both treated as sequences
-of complete lexemes, and the former can be any subsequence of the
-latter, not just an initial subsequence.  There is \underline{no}
-partial lexeme matching.
-
-The `\ttkey{parser test}' command just causes the parse of itself
-to be printed in detail.  Since parser commands are parsed before they
-are executed, any text placed after the words `\TT{parser test}' will
-be parsed and the resulting printout will indicate the details of that
-parse.
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}
@@ -5277,6 +5288,23 @@ first character is `\TT{\{}').
 \label{BRACKETED-PARSER-PRINT-COMMANDS}
 
 TBD
+
+For parser \TT{define} commands defined in the following sections,
+and also for the parser \TT{define selector} and
+`\TT{define top level}' commands defined above,
+there is a companion parser
+`\ttkey{print}' command that prints the contents of the
+parser symbol table entries with the designated {\em type} and any
+{\em name} containing within it
+the {\em partial-name} supplied by the print command.
+Its syntax is
+\begin{center}
+\TT{parser print} {\em type} {\em partial-name}
+\end{center}
+The {\em partial-name} and {\em name} are both treated as sequences
+of complete lexemes, and the former can be any subsequence of the
+latter, not just an initial subsequence.  There is \underline{no}
+partial lexeme matching.
 
 The `\ttkey{print trace}' command prints the current set of
 parsing trace flags.

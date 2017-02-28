@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 26, 2017
+February 27, 2017
  
 \end{center}
 
@@ -2776,6 +2776,9 @@ is specified in Figure~\itemref{PARSER-COMMANDS}.
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttmkey{define selector}{parser command} ~ {\em selector} \\
     $|$ & \ttmkey{print selector}{parser command} ~ {\em partial-name} \\
+    $|$ & \ttmkey{define top level}{parser command} \\
+        & ~~~~~~~~\TT{with parsing selectors} ~ {\em selector-spec} \\
+        & ~~~~~~~~\TT{with parsing options} ~ {\em end-at-option-spec} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
 \\[0.6ex]
@@ -2884,7 +2887,7 @@ since \TT{end at paragraph break} is explicitly mentioned in this
 context.
 
 The only builtin selector names\label{SELECTOR-NAMES}
-are `\TT{top level}' and `\TT{data}'.
+are `\TT{TOP LEVEL}' and `\TT{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \ttmkey{define selector}{parser command} ~ {\em selector}
@@ -2893,27 +2896,31 @@ When the parser block containing a selector name definition
 command ends, the selector name is erased.
 There may be at most 47 selectors defined at any one time.
 
-The top level selectors and end-at options can be reset by the parser
-command:
-\begin{indpar}[0.1in]
-\emkey{parser-top-level-command}%
-\label{PARSER-TOP-LEVEL-COMMAND} ::=
+The top level selectors and end-at options can be reset by the
+{\em parser-selector-command}:
+\begin{center}
     \begin{tabular}[t]{l}
     \ttmkey{define top level}{parser command} \\
     \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
     \TT{~~~~}[ \TT{with parsing options} {\em end-at-option-spec} ] \\
     \end{tabular}
-\end{indpar}
+\end{center}
+
+The \TT{TOP LEVEL} selector is always set implicitly by this command, and is
+the only default selector if no `\TT{define top level}' commands
+are given.  So the \TT{TOP LEVEL} selector is always included in the
+top level selectors.
 
 Thus the standard parser specified above begins by executing the
 equivalent of
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    begin standard
+    begin block standard
     define selector code
     define selector math
     define selector text
-    define context with parsing selectors [TOP LEVEL, code]
+    define top level
+        with parsing selectors [code]
 \end{verbatim}\end{indpar}
 
 Thus the \key{standard parser} creates a single initial parsing block
@@ -2921,19 +2928,20 @@ named `\ttmkey{standard}{parsing block}' and defines in it the selectors
 \begin{center}
 \ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
 \end{center}
-The standard parser also sets the top level selector set to
-`\TT{[TOP LEVEL, code]}'.  Note that the actions of the standard parser can be
-canceled by a `\TT{end standard}' parser command.
+The standard parser also sets the top level selector set to contain just
+`\TT{TOP LEVEL}' and `\TT{code}'.
+Note that the actions of the standard parser can be
+canceled by an `\TT{end block standard}' parser command.
 
 The current set of
 \skey{parsing trace flag}s\index{trace flag!parser}\index{flag!parsing trace}
-may be given or modified by the `\ttkey{trace}' command.
-The trace flags cause trace printouts to the printer the parser uses
+may be given or modified by the {\em parser-trace-command}:
+\begin{center}
+    \ttmkey{trace}{parser command} ~ {\em trace-flag-spec}
+\end{center}
+Trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
 in Figure~\itemref{TRACE-FLAGS}.
-
-The `\ttkey{print trace}' command prints the current set of
-parsing trace flags.
 
 \begin{boxedfigure}[!p]
 
@@ -2953,9 +2961,6 @@ parsing trace flags.
 
 \hspace*{-0.2in}\ttmkey{bracketed subexpressions}{parsing trace flag}
     Enables tracing for the parser bracketed subexpression recognition pass.
-
-\hspace*{-0.2in}\ttmkey{prefix subexpressions}{parsing trace flag}
-    Enables tracing for the parser prefix separator recognition pass.
 
 \hspace*{-0.2in}\ttmkey{operator subexpressions}{parsing trace flag}
     Enables tracing for the parser operator recognition pass.
@@ -2982,7 +2987,7 @@ parsing trace flags.
     a detailed rendition of the value with all attributes shown.
 
 \hspace*{-0.2in}\ttmkey{keys}{parsing trace flag}
-    During execution of a subexpression by a trace-enabled parser 
+    During parsing of a subexpression by a trace-enabled parser 
     pass, the keys found in the pass symbol tables are printed.
     If a key is rejected after being found, a rejection message
     is also printed.
@@ -2995,22 +3000,19 @@ parsing trace flags.
 \label{TRACE-FLAGS}
 \end{boxedfigure}
 
-TBD
-
 
 The end of a parser block erases the effects of any
-{\em parser-selector-commands} and {\em parser-context-commands}
-executed during the block.
+{\em parser-selector-commands} executed during the block.
 
-In the following sections various `\ttkey{parser define}' commands
-are described.  These push entries in to the parser symbol tables.
+In the following sections various parser `\ttkey{define}' commands
+are described.  These push entries into the parser symbol tables.
 The general syntax of these is
 \begin{center}
-\TT{parser define} {\em type} {\em name} {\em selectors} \ldots 
+\TT{define} {\em type} {\em name} {\em selectors} \ldots 
 \end{center}
 and an example is
 \begin{center}
-\TT{parser define bracket "("~...~")" [operator, text]} \ldots
+\TT{define bracket "("~...~")" [operator, text]} \ldots
 \end{center}
 The {\em type}, `\TT{bracket}' in the example, identifies the parser pass into
 whose symbol tables entries are to be pushed.  The {\em name},
@@ -3022,25 +3024,27 @@ the entries to be pushed.
 The end of a parser block pops all entries pushed into parser
 symbol tables during the block.
 
-For `\TT{parser define}' commands defined in the following sections
-there is a companion
-`\ttkey{par\-ser undefine}' command that effectively undoes
-the \TT{parser define} command by clearing selector bits in
+For parser \TT{define} commands defined in the following sections
+there is a companion parser
+\ttkey{undefine} command that effectively undoes
+the parser \TT{define} command by clearing selector bits in
 the designated symbol table entries.  Its syntax is
 \begin{center}
-\TT{parser undefine} {\em type} {\em name} {\em selectors}
+\ttmkey{undefine}{parser-command} ~ {\em type} ~ {\em name} ~ {\em selectors}
 \end{center}
 and it clears the specified selector bits from \underline{all} symbol table
 entries with the same {\em type} and {\em name}.  When the
-block containing a \TT{parser undefine} command ends, the
+block containing a parser \TT{undefine} command ends, the
 effects of that command are undone by restoring the cleared
 selector bits to their previous state.
 
-For `\TT{parser define}' commands defined in the following sections,
-and also for the `\TT{parser define selector}' and
-`\TT{parser define context}' commands defined above,
-there is a companion
-`\ttkey{parser print}' command that prints the contents of the
+TBD
+
+For parser \TT{define} commands defined in the following sections,
+and also for the parser \TT{define selector} and
+`\TT{define top level}' commands defined above,
+there is a companion parser
+`\ttkey{print}' command that prints the contents of the
 parser symbol table entries with the designated {\em type} and any
 {\em name} containing within it
 the {\em partial-name} supplied by the print command.
@@ -5273,6 +5277,9 @@ first character is `\TT{\{}').
 \label{BRACKETED-PARSER-PRINT-COMMANDS}
 
 TBD
+
+The `\ttkey{print trace}' command prints the current set of
+parsing trace flags.
 
 A {\em bracketed-parser-print-command} has the syntax:
 

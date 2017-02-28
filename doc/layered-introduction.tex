@@ -3086,26 +3086,25 @@ The bracketed subexpression recognition pass recognizes:
     or with a line break not followed by an indented line,
     or with a line break followed by a counter-indented line,
     or with a line separator (e.g.~`\TT{;}'),
-    or with any blank line, or with the closing bracket
-    (e.g., `\TT{)}') of
-    a bracketed expression that contains the logical line \\
+    or with any blank line, or with an end of file \\
 \hspace*{-0.2in}headed paragraphs,
-    which are sequences of logical lines with the same indentation
-    ended by a blank line or the end of a containing indented paragraph,
-    where each logical line begins with a line header and
-    the whole headed paragraph begins with a paragraph
+    which are sequences of logical lines
+    ended by a blank line, by the next headed paragraph,
+    or by the end of a containing indented paragraph,
+    where the whole headed paragraph begins with a paragraph
     header \\
 \hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
     and bracketed subexpressions \\
 \hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
     and typed bracketed subexpressions \\
 \hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
-    and prefix lists \\
+    and prefix lists that are lists of subexpressions between
+    prefix separators \\
 \hspace*{-0.2in}paragraph and line headers, which are special typed prefix
     separators \\
 \hspace*{-0.2in}mapped lexemes, which are special lexemes typically
     produced at the beginning of a logical line that are mapped onto
-    paragraph or line headers
+    paragraph or line headers or other typed prefix separators
 \end{indpar}
 
 The bracketed subexpression recognition pass also merges
@@ -3150,11 +3149,10 @@ are never concatenated.  If it is `\TT{enabled}', consecutive
 quoted strings are concatenated; that is, no concatenator lexeme
 needs to be placed between the strings.
 
-The current string concatenator
-can be printed by the \TT{parser print string con\-cat\-e\-na\-tor} command:
-see \pagref{BRACKETED-PARSER-PRINT-COMMAND}.
+The end of a parser block erases the effects of any
+{\em define-string-concatenator-commands} executed during the block.
 
-The bracketed parser pass has several symbol tables.  The bracketed
+The bracketed parser pass has three symbol tables.  The bracketed
 symbol table contains:
 \begin{indpar}[0.5in]
 \hspace*{-0.2in}opening brackets (e.g.~`\TT{(}') and their
@@ -3227,7 +3225,9 @@ are similarly divided:
 \begin{indpar}[0.1in]
 \emkey{parser-bracketed-command}
     \begin{tabular}[t]{@{}rll@{}}
-    ::= & {\em parser-untyped-bracket-command}
+    ::= & {\em parser-string-concatenator-command}
+        & see \pagref{PARSER-STRING-CONCATENATOR-COMMAND} \\
+    $|$ & {\em parser-untyped-bracket-command}
         & see \pagref{PARSER-UNTYPED-BRACKET-COMMAND} \\
     $|$ & {\em parser-indentation-mark-command}
         & see \pagref{PARSER-INDENTATION-MARK-COMMAND} \\
@@ -5308,6 +5308,10 @@ partial lexeme matching.
 
 The `\ttkey{print trace}' command prints the current set of
 parsing trace flags.
+
+The current string concatenator
+can be printed by the \TT{parser print string con\-cat\-e\-na\-tor} command:
+see \pagref{BRACKETED-PARSER-PRINT-COMMAND}.
 
 A {\em bracketed-parser-print-command} has the syntax:
 

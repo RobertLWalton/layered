@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 28, 2017
+March 1, 2017
  
 \end{center}
 
@@ -2773,7 +2773,6 @@ physical line, and the indented logical lines that follow are
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttmkey{begin block}{parser command} ~ {\em block-name} \\
     $|$ & \ttmkey{end block}{parser command} ~ {\em block-name} \\
-    $|$ & \ttmkey{print blocks}{parser command} \\
     \end{tabular}
 \label{PARSER-BLOCK-COMMAND}
 \\[0.0ex]
@@ -2901,6 +2900,21 @@ command ends, the selector name is erased.
 There may be at most 47 selectors, including the builtin selectors,
 defined at any one time.
 
+The selector print command:
+\begin{center}
+    \ttmkey{print selector}{parser command} ~ {\em partial-name}
+\end{center}
+prints all selectors whose names contain the {\em partial-name}.
+In particular,
+\begin{center}
+    \TT{print selectors ""}
+\end{center}
+prints all selectors.
+The block in which each selector is defined is also printed.
+Here a {\em partial-name} is a sequence of lexemes that is matched
+to any subsequence of lexemes in a selector name, not just an initial
+subsequence.  There is \underline{no} matching of partial lexemes.
+
 The top level selectors and end-at options can be reset by the
 {\em parser-selector-command}:
 \begin{center}
@@ -3015,6 +3029,12 @@ in Figure~\itemref{TRACE-FLAGS}.
 The end of a parser block erases the effects of any
 {\em parser-trace-commands} executed during the block.
 
+The print command:
+\begin{center}
+    \ttmkey{print trace}{parser command}
+\end{center}
+prints the state of the current parser trace flags.
+
 \subsubsection{Parser Define/Undefine Commands}
 \label{PARSER-DEFINE/UNDEFINE-COMMANDS}
 
@@ -3085,7 +3105,8 @@ The bracketed subexpression recognition pass recognizes:
 \begin{indpar}[0.5in]
 \hspace*{-0.2in}indented paragraphs, consisting of a line-ending
     indentation mark (e.g.~`\TT{:}') followed by a sequence of
-    indented logical lines \\
+    indented logical lines, ended by a non-indented line or end
+    of file \\
 \hspace*{-0.2in}logical lines, which may end with any line break,
     or with a line break not followed by an indented line,
     or with a line break followed by a counter-indented line,
@@ -3098,12 +3119,12 @@ The bracketed subexpression recognition pass recognizes:
     where the whole headed paragraph begins with a paragraph
     header \\
 \hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
-    and bracketed subexpressions \\
+    and bracketed subexpressions, which must be inside logical lines \\
 \hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
-    and typed bracketed subexpressions \\
+    and typed bracketed subexpressions, which must be inside logical lines \\
 \hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
     and prefix lists that are lists of subexpressions between
-    prefix separators \\
+    typed prefix separators, which must be inside logical lines \\
 \hspace*{-0.2in}paragraph and line headers, which are special typed prefix
     separators \\
 \hspace*{-0.2in}mapped lexemes, which are special lexemes typically
@@ -3220,7 +3241,7 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
 
 However, some of these forms can only be recognized in particular
 contexts, e.g., {\em indented-para\-graph-subexpressions} can only be
-recognized if they begin at the end of a line.
+recognized if their beginning indentation mark is at the end of a physical line.
 See the indicated sections for details.
 
 The parser commands specific to the bracketed subexpression recognizer
@@ -3251,15 +3272,16 @@ The following subsections first describe the output of the
 bracketed subexpression parser pass and then describe
 the different kinds of
 {\em bracketed-subexpressions} and their related
-{\em parser-bracketed-commands}.
+{\em parser-bracketed-commands}.  Lastly {\em bracketed-parser-print-commands}
+are described.
 
 \subsubsection{Bracketed Subexpression Parser Pass Output}
 \label{BRACKETED-SUBEXPRESSION-PARSER-PASS-OUTPUT}
 
 The bracketed subexpression recognizer converts
 subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
-are MIN objects, or into \TT{DERIVED} tokens whose values can
-be other things such as labels or special values.
+are MIN objects, or into \TT{DERIVED} tokens whose values are
+not MIN objects (e.g., they are labels or special values).
 
 The final output of the parser is a sequence of \TT{BRACKETED} tokens,
 one per top level logical line or headed paragraph.
@@ -3272,23 +3294,32 @@ reformatted, the brackets become the
 \TT{.ini\-ti\-ator} (e.g. `\TT{(}') and \TT{.terminator} (e.g., `\TT{)}').
 {\em Indented-paragraph-subexpressions} are similar, with the
 {\em indentation-mark} (e.g., `\TT{:}') being the \TT{.ini\-ti\-ator} and
-the special value `\ttsvkey{IN\-DEN\-TED\_\EOL PARAGRAPH}' being the
+the special value
+\begin{center}
+\ttsvkey{IN\-DEN\-TED\_\EOL PARAGRAPH}
+\end{center}
+being the
 \TT{.term\-i\-na\-tor}.  The elements of an indented paragraph are
-logical lines, whose \TT{.initiator}
-is the special value `\ttsvkey{LOGICAL\_LINE}' and whose \TT{.term\-i\-na\-tor}
+logical lines, whose \TT{.in\-i\-ti\-a\-tor}
+is the special value
+\begin{center}
+\ttsvkey{LOGICAL\_LINE}
+\end{center}
+and whose \TT{.term\-i\-na\-tor}
 is the line separator (e.g., `\TT{;}') if there is one,
 or \TT{"<LF>"} otherwise.
 
 For {\em typed-bracketed-subexpressions} there is \underline{no}
 \TT{.initiator} or \TT{.terminator}, but there is usually a \TT{.type}
-attribute.  {\em Prefix-n-lists} are just an alternate form of
+attribute (a missing \TT{.type} attribute is represented by the
+\TT{""} type).  {\em Prefix-n-lists} are just an alternate form of
 {\em typed-bracketed-sub\-ex\-pres\-sions}, and headed paragraphs
 are just an alternate form of {\em prefix-n-lists}.
 
 The elements of a MIN object are the values of sub-subexpressions and
 may themselves the MIN objects, as when brackets are nested.  The
 elements of indented paragraphs are always logical lines or
-headed paragraphs.
+headed subparagraphs.
 
 If MIN object X has just one element that is a MIN object Y,
 X has no attributes other than \TT{.type}, \TT{.initiator},
@@ -3357,7 +3388,7 @@ can be represented as:
 \begin{tabular}{lll}
 \TT{98765432109876543210}	& MIN string	& from natural number token \\
 \TT{\{"<Q>"| HELLO |\}}		& MIN object	& from quoted string token \\
-\TT{\{\# 3.4 \#\}} or \TT{\{\#| 3.4 |\}}
+\TT{\{\# 3.4 \#\}} or \TT{\{"\#"| 3.4 |\}}
 				& MIN object	& from numeric token \\
 \end{tabular}
 \end{center}

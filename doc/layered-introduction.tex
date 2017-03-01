@@ -3482,7 +3482,7 @@ The general syntax is:
 
 \begin{indpar}[0.1in]
 \emkey{untyped-bracketed-subexpression} ::=
-	{\em opening-bracket} {\em element-list} {\em closing-bracket}
+	{\em opening-bracket} ~ {\em element-list} ~ {\em closing-bracket}
 \\[0.5ex]
 \emkey{opening-bracket} ::=
    {\em key} ~~~ [e.g., `\TT{(}' or `\TT{[<}', ~
@@ -3624,17 +3624,18 @@ containing the {\em untyped-bracketed-subexpression}.
 When an {\em opening-bracket} is recognized, the current parser
 selector set and options are saved in a stack.  Then if the
 bracket definition contains {\em new-selectors},
-a new set is computed by modifying the saved set
+a new selector set is computed by modifying the saved set
 according to the {\em new-selectors}.
-Similarly if the bracket definition contains {\em end-at-options},
-these are used to compute a new set of end-at options.
+Similarly if the bracket definition contains {\em bracket-options},
+these are used to compute a new set of end-at options,
+and additionally the `\TT{end at line separator}' option is turned off.
 The saved selector set and options are restored after the {\em closing-bracket}
 is recognized.  However {\em closing-bracket}
 recognition does not depend
 upon the current parser selectors, but only on previous recognition
 of an associated {\em opening-bracket}.
 
-An example using {\em end-at-options} to permit
+An example using {\em bracket-options} to permit
 \TT{`{}`{}`\ldots'{}'{}'}
 to bracket arbitrary text with arbitrary indentation is:
 \begin{indpar}\begin{verbatim}
@@ -3663,7 +3664,7 @@ represented by an {\em untyped-bracketed-subexpression}:
 
 \begin{indpar}[0.5em]
 Requires that the expression element values be MIN strings or
-numbers or labels.
+natural numbers or labels.
 Elements derived from {\em quoted-string} or {\em numeric}
 lexemes are considered to be the strings represented by the lexemes.
 

@@ -3787,7 +3787,8 @@ first non-blank, non-comment physical line after the
 line containing the indentation mark, if this indent
 is greater than the current indent.
 But if this indent is less than or equal
-to the current indent,
+to the current indent, or if there is no non-blank, non-comment
+physical line before an end of file,
 the paragraph is empty, and has no paragraph lines.
 
 At the beginning of the paragraph,
@@ -3806,14 +3807,14 @@ The general syntax is:
 	{\em paragraph-end}
 	\end{tabular}
 \\[0.5ex]
-\emkey{paragraph-line} ::= logical line, possibly ended by
+\emkey{paragraph-line} ::= {\em logical-line}, possibly ended by
                            a {\em line-separator}
 \\[0.5ex]
 {\em logical-line} ::= see \itemref{LOGICAL-LINES}
 \\[0.5ex]
 \emkey{paragraph-end}
     \begin{tabular}[t]{rl}
-    ::= & beginning of a line whose indent is less than
+    ::= & indent lexeme with indent that is less than
 			  the paragraph indent \\
     $|$ & end of file
     \end{tabular}
@@ -3856,21 +3857,18 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \label{PARSER-INDENTATION-MARK-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \TT{define}\ttmindex{define indentation mark}{parser command}
+    ::= & \TT{define}\ttmindex{define indentation mark}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{indentation mark}
-	  {\em indentation-name} {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors} {\em new-selectors} ] \\
-	  {}[ \TT{with parsing options} {\em end-at-options} ] \\
-	  {}[ \TT{with implied header} {\em header} ] \\
-	  {}[ \TT{with lexical master} {\em master-name} ] \\
+	  \TT{indentation mark} ~
+	  {\em indentation-name} ~ {\em parsing-selectors} \\
+	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
+	  {}[ \TT{with parsing options} ~ {\em end-at-options} ] \\
+	  {}[ \TT{with implied header} ~ {\em header} ] \\
+	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
 	  \end{tabular} \\
-    $|$ & \ttmkey{undefine indentation mark}{parser command}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em indentation-name} \\
-	  {\em parsing-selectors} \\
-	  \end{tabular} \\
-    $|$ & \ttmkey{define indentation offset}{parser command}
+    $|$ & \ttmkey{undefine indentation mark}{parser command} ~
+	  {\em indentation-name} ~ {\em parsing-selectors} \\
+    $|$ & \ttmkey{define indentation offset}{parser command} ~
 	  {\em indentation-offset}  \\
     \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
@@ -3886,13 +3884,17 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em parser-flag-spec}
+	~~~~~ [see \pagref{PARSING-SELECTORS}]
 \\[0.5ex]
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
 \\[0.5ex]
-\emkey{header} ::= {\em typed-prefix-separator}
-                   (\pagref{TYPED-PREFIX-SEPARATOR}) with `\TT{paragraph}'
-                   or `\TT{line}' \TT{.type} (\pagref{HEADED-LINES})
+\emkey{header} ::= \begin{tabular}[t]{l}
+                   {\em typed-prefix-separator}
+                       (\pagref{TYPED-PREFIX-SEPARATOR}) \\
+		   with `\TT{paragraph}' or `\TT{line}' group
+		       (\itemref{HEADED-LINES}, \itemref{HEADED-PARAGRAPHS}) \\
+		   \end{tabular}
 \\[0.5ex]
 \emkey{master-name} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'

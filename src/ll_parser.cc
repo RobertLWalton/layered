@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 28 05:55:49 EST 2017
+// Date:	Sat Mar  4 12:11:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2125,9 +2125,13 @@ bool PAR::compact_prefix_separator
 	  PAR::table::flags selectors,
 	  PAR::token first,
 	  PAR::token next,
+          const min::position & separator_found,
+	  TAB::root line_sep,
 	  TAB::flags trace_flags )
 {
-    if ( first->next == next )
+    if ( first->next == next
+         &&
+	 line_sep == min::NULL_STUB )
     {
 	if ( first->type == PAR::IMPLIED_PREFIX )
 	{
@@ -2160,6 +2164,8 @@ bool PAR::compact_prefix_separator
 	    for ( PAR::token t = first->next;
 	          t != next; t = t->next )
 	        ++ unused_size;
+	    if ( separator_found )
+	        unused_size += 5;
 	    PAR::value_ref(first) =
 	        min::copy ( vp, unused_size );
 	    vp = first->value;
@@ -2171,12 +2177,24 @@ bool PAR::compact_prefix_separator
 	    min::set ( ap, min::new_stub_gen ( pos ) );
 	    min::set_flag
 	        ( ap, min::standard_attr_hide_flag );
+	    if ( line_sep != min::NULL_STUB )
+	    {
+		min::locate ( ap, min::dot_terminator );
+		min::set ( ap, line_sep->label );
+		first->position.end = separator_found;
+	    }
 	}
 	else
 	{
 	    min::attr_insptr ap ( vp );
 	    min::locate ( ap, min::dot_position );
 	    pos = min::get ( ap );
+	    if ( line_sep != min::NULL_STUB )
+	    {
+		min::locate ( ap, min::dot_terminator );
+		min::set ( ap, line_sep->label );
+		first->position.end = separator_found;
+	    }
 	}
 	pos->position = first->position;
 

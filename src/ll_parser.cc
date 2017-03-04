@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  4 12:11:14 EST 2017
+// Date:	Sat Mar  4 18:24:08 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2129,9 +2129,7 @@ bool PAR::compact_prefix_separator
 	  TAB::root line_sep,
 	  TAB::flags trace_flags )
 {
-    if ( first->next == next
-         &&
-	 line_sep == min::NULL_STUB )
+    if ( first->next == next && ! separator_found )
     {
 	if ( first->type == PAR::IMPLIED_PREFIX )
 	{
@@ -2177,7 +2175,7 @@ bool PAR::compact_prefix_separator
 	    min::set ( ap, min::new_stub_gen ( pos ) );
 	    min::set_flag
 	        ( ap, min::standard_attr_hide_flag );
-	    if ( line_sep != min::NULL_STUB )
+	    if ( separator_found )
 	    {
 		min::locate ( ap, min::dot_terminator );
 		min::set ( ap, line_sep->label );
@@ -2189,7 +2187,7 @@ bool PAR::compact_prefix_separator
 	    min::attr_insptr ap ( vp );
 	    min::locate ( ap, min::dot_position );
 	    pos = min::get ( ap );
-	    if ( line_sep != min::NULL_STUB )
+	    if ( separator_found )
 	    {
 		min::locate ( ap, min::dot_terminator );
 		min::set ( ap, line_sep->label );

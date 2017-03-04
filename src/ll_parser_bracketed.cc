@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  4 04:11:46 EST 2017
+// Date:	Sat Mar  4 18:29:49 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1974,10 +1974,6 @@ PREFIX_PARSE:
 		if ( next == min::NULL_STUB )
 		    next = current;
 
-		TAB::root line_sep =
-		    separator_found ?
-			(TAB::root)
-			line_variables->line_sep :
 			(TAB::root) min::NULL_STUB;
 
 		if (    prefix_group
@@ -2003,34 +1999,29 @@ PREFIX_PARSE:
 		        ( parser, bracketed_pass->next,
 		          prefix_selectors,
 		          first, next,
-			  separator_found, line_sep,
+			  separator_found,
+			  (TAB::root)
+			  line_variables->line_sep,
 			  trace_flags );
-		    line_sep = min::NULL_STUB;
 		}
 
 		if ( compact_prefix_separator
 		         ( parser, bracketed_pass->next,
 		           prefix_selectors,
 		           prefix, next,
-			   separator_found,
 			      prefix_group
 			   == PAR::line_lexeme ?
-			       line_sep :
-			       (TAB::root)
-			       min::NULL_STUB,
+			       separator_found :
+			       min::MISSING_POSITION,
+			   (TAB::root)
+			   line_variables->line_sep,
 			   trace_flags ) )
 		{
 		    if (    prefix_group
-		         == PAR::line_lexeme )
-		    {
-			// TBD: why does't this work????????
-			// separator_found =
-			    // min::MISSING_POSITION;
-			PAR::value_type_ref ( prefix ) =
-			    prefix_group;
-		    }
-		    else if (    prefix_group
-			      == PAR::paragraph_lexeme )
+		         == PAR::line_lexeme
+			 ||
+		            prefix_group
+		         == PAR::paragraph_lexeme )
 			PAR::value_type_ref ( prefix ) =
 			    prefix_group;
 		    else

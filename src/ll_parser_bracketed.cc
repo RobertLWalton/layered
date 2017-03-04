@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 06:50:38 EST 2017
+// Date:	Sat Mar  4 04:11:46 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -659,12 +659,14 @@ void BRA::push_prefix
     prefix->block_level = block_level;
     prefix->position = position;
     prefix->new_selectors = new_selectors;
+
     prefix->new_selectors.or_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        ( PAR::TOP_LEVEL_SELECTOR /* + PAR::EALSEP_OPT */ );
     prefix->new_selectors.not_flags |=
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        ( PAR::TOP_LEVEL_SELECTOR /* + PAR::EALSEP_OPT */ );
     prefix->new_selectors.xor_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        ( PAR::TOP_LEVEL_SELECTOR /* + PAR::EALSEP_OPT */ );
+
     group_ref(prefix) = group;
     implied_subprefix_ref(prefix) = implied_subprefix;
     implied_subprefix_type_ref(prefix) =
@@ -1972,6 +1974,12 @@ PREFIX_PARSE:
 		if ( next == min::NULL_STUB )
 		    next = current;
 
+		TAB::root line_sep =
+		    separator_found ?
+			(TAB::root)
+			line_variables->line_sep :
+			(TAB::root) min::NULL_STUB;
+
 		if (    prefix_group
 		     == PAR::paragraph_lexeme
 		     &&
@@ -1995,23 +2003,34 @@ PREFIX_PARSE:
 		        ( parser, bracketed_pass->next,
 		          prefix_selectors,
 		          first, next,
-			  separator_found,
-			  (TAB::root)
-			  line_variables->line_sep,
+			  separator_found, line_sep,
 			  trace_flags );
+		    line_sep = min::NULL_STUB;
 		}
 
 		if ( compact_prefix_separator
 		         ( parser, bracketed_pass->next,
 		           prefix_selectors,
 		           prefix, next,
+			   separator_found,
+			      prefix_group
+			   == PAR::line_lexeme ?
+			       line_sep :
+			       (TAB::root)
+			       min::NULL_STUB,
 			   trace_flags ) )
 		{
 		    if (    prefix_group
-		         == PAR::line_lexeme
-		         ||
-		            prefix_group
-			 == PAR::paragraph_lexeme )
+		         == PAR::line_lexeme )
+		    {
+			// TBD: why does't this work????????
+			// separator_found =
+			    // min::MISSING_POSITION;
+			PAR::value_type_ref ( prefix ) =
+			    prefix_group;
+		    }
+		    else if (    prefix_group
+			      == PAR::paragraph_lexeme )
 			PAR::value_type_ref ( prefix ) =
 			    prefix_group;
 		    else
@@ -2481,18 +2500,15 @@ NEXT_TOKEN:
 		    // prefix group `paragraph' or
 		    // `line'.
 		    //
-		    if ( separator_found
-		         ||
-			 ( first != next
-			   &&
-			   ( first->next != next
-			     ||
-			     (    first->value_type
-			       != PAR::paragraph_lexeme
-			       &&
-			          first->value_type
-			       != PAR::line_lexeme
-			     )
+		    if ( first != next
+			 &&
+			 ( first->next != next
+			   ||
+			   (    first->value_type
+			     != PAR::paragraph_lexeme
+			     &&
+			        first->value_type
+			     != PAR::line_lexeme
 			   )
 			 )
 		       )

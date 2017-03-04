@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 01:03:46 EST 2017
+// Date:	Sat Mar  4 15:18:20 EST 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -314,6 +314,14 @@ third line with indent 0
         with parsing selectors [text]
         with group paragraph
         with parsing options [end at paragraph break]
+    define prefix "P3" [code, text]
+        with parsing selectors [text]
+        with group paragraph
+        with implied subprefix {L3}
+        with parsing options [end at paragraph break,
+	                      end at line separator]
+    define prefix "L3" [text]
+        with group line
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
         // no element selectors
@@ -337,6 +345,10 @@ third line with indent 0
     {P2} And a third paragraph
     that is continued
     over three lines.
+
+    {P3} And a fourth paragraph; with
+    line separators; and more line separators;
+    and now the end.
 
 *PARSER*:
     end block BLOCK1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 00:58:24 EST 2017
+// Date:	Sat Mar  4 12:11:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1005,7 +1005,6 @@ enum {
 		    - EALSEP_OPT,
 
     ALL_PREFIX_OPT = ALL_EA_OPT
-		   - EALSEP_OPT
                    + STICKY_OPT
 		   + CONTINUING_OPT,
 
@@ -1738,10 +1737,16 @@ void compact_logical_line
 // not.
 //
 // If on the other hand the first token is an IMPLIED_
-// PREFIX token, then if there are some elements, the
-// value of this token is replaced by a copy before
-// it is used, but if there are no elements, the first
+// PREFIX token, then if there are some elements or a
+// line_sep is not NULL_STUB, the value of this token is
+// replaced by a copy before it is used, but if there
+// are no elements and line_sep is NULL_STUB, the first
 // token is deleted and nothing else is done.
+//
+// If line_sep is not NULL_STUB, set the .terminator
+// attribute of the expanded PREFIX to line_sep->label
+// and update the end position of the expanded PREFIX
+// token to separator_found.
 //
 // Returns false if first token was deleted and true if
 // first token was remade into a BRACKETED token.
@@ -1752,6 +1757,8 @@ bool compact_prefix_separator
 	  ll::parser::table::flags selectors,
 	  ll::parser::token first,
 	  ll::parser::token next,
+	  const min::position & separator_found,
+	  ll::parser::table::root line_sep,
 	  ll::parser::table::flags trace_flags );
 
 // Compact a paragraph after each line has been parsed.

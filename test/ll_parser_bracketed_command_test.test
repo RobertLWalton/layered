@@ -987,6 +987,14 @@ ERROR: in lines ###-###: `with options' not allowed for prefix unless
         with parsing selectors [text]
         with group paragraph
         with parsing options [end at paragraph break]
+    define prefix "P3" [code, text]
+        with parsing selectors [text]
+        with group paragraph
+        with implied subprefix {L3}
+        with parsing options [end at paragraph break,
+                              end at line separator]
+    define prefix "L3" [text]
+        with group line
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
         // no element selectors
@@ -997,6 +1005,9 @@ ERROR: in lines ###-###: `with options' not allowed for prefix unless
         with attribute multivalue initiator "{*"
         with prefix separators allowed
     print prefix ""
+        block BLOCK1: prefix "L3" [text]
+                      with parsing selectors [- TOP LEVEL]
+                      with group line
         block BLOCK1: prefix "P1" [code, text]
                       with parsing selectors [text]
                       with group paragraph
@@ -1006,6 +1017,12 @@ ERROR: in lines ###-###: `with options' not allowed for prefix unless
                       with parsing selectors [text]
                       with group paragraph
                       with parsing options [end at paragraph break]
+        block BLOCK1: prefix "P3" [code, text]
+                      with parsing selectors [text]
+                      with group paragraph
+                      with implied subprefix {L3||L3}
+                      with parsing options [end at paragraph break,
+                                            end at line separator]
 ======= PARSER TEST: {P1|{S1|Hi there "."|S1} {S1|Bye "."|S1}
                          {S1|And some more "."|S1}|P1}
 ======= lines ###-###:
@@ -1041,6 +1058,35 @@ ERROR: in lines ###-###: `with options' not allowed for prefix unless
 ^^^^^^^^^^^^^^^^^^^^^
     over three lines.
 ^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {P3|{L3: .terminator = ";"|And a fourth
+                              paragraph|L3}
+                         {L3: .terminator = ";"|with line separators|L3}
+                         {L3: .terminator = ";"|and more line
+                              separators|L3}
+                         {L3|and now the end "."|L3}|P3}
+======= lines ###-###:
+    {P3} And a fourth paragraph; with
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line separators; and more line separators;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and now the end.
+^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    {P3} And a fourth paragraph; with
+         ^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    {P3} And a fourth paragraph; with
+                                 ^^^^
+    line separators; and more line separators;
+^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    line separators; and more line separators;
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    line separators; and more line separators;
+                                              ^
+    and now the end.
+^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1

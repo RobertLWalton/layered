@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 1, 2017
+March 4, 2017
  
 \end{center}
 
@@ -3310,9 +3310,10 @@ is the line separator (e.g., `\TT{;}') if there is one,
 or \TT{"<LF>"} otherwise.
 
 For {\em typed-bracketed-subexpressions} there is \underline{no}
-\TT{.initiator} or \TT{.terminator}, but there is usually a \TT{.type}
-attribute (a missing \TT{.type} attribute is represented by the
-\TT{""} type).  {\em Prefix-n-lists} are just an alternate form of
+implied \TT{.initiator} or \TT{.terminator}, though these may
+be given as explicit attributes.  There is a \TT{.type}
+attribute unless the type is represented by \TT{""}.
+{\em Prefix-n-lists} are just an alternate form of
 {\em typed-bracketed-sub\-ex\-pres\-sions}, and headed paragraphs
 are just an alternate form of {\em prefix-n-lists}.
 
@@ -3331,7 +3332,8 @@ by having the bracketed subexpression parser give the token type
 does not have any \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 attribute.  Then when X is formed, the knowledge of the structure
 of X and the \TT{BRACKETABLE} type of Y permit the two objects
-to be merged.
+to be merged.%
+\label{MERGING-BRACKATABLE-TOKENS}
 
 Consider the example:
 \begin{center}
@@ -3447,6 +3449,7 @@ mentioned above:
     or & the terminator of a logical line: \\
        & ~~~ either \TT{"<LF>"}, \\
        & ~~~ or a {\em line-separator-name} (e.g. \TT{";"}) \\
+    or & the terminator of sentence (e.g. \TT{"."}) \\
     \end{tabular}
     \end{center}
 \medskip
@@ -4958,7 +4961,7 @@ The parser's output
 for a headed line is a MIN object whose \TT{.type} and attributes
 are taken from the line header and whose elements are
 taken from the rest of the line.  This output has \underline{no}
-\TT{.initiator} or \TT{.terminator}, unlike the parser's output
+\TT{.initiator}, unlike the parser's output
 for a logical line that has no line header.
 
 Line headers may be implied by the \TT{implied subprefix}
@@ -5861,6 +5864,7 @@ but instead it produces
     .terminator = ")"
     .separator = ","
 \end{verbatim}\end{indpar}
+See \pagref{MERGING-BRACKATABLE-TOKENS} for more details.
 
 Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:

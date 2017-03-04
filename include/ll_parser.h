@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  4 12:11:24 EST 2017
+// Date:	Sat Mar  4 18:25:27 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1737,13 +1737,13 @@ void compact_logical_line
 // not.
 //
 // If on the other hand the first token is an IMPLIED_
-// PREFIX token, then if there are some elements or a
-// line_sep is not NULL_STUB, the value of this token is
+// PREFIX token, then if there are some elements or
+// separator_found is true, the value of this token is
 // replaced by a copy before it is used, but if there
-// are no elements and line_sep is NULL_STUB, the first
-// token is deleted and nothing else is done.
+// are no elements and separator_found is false, the
+// first token is deleted and nothing else is done.
 //
-// If line_sep is not NULL_STUB, set the .terminator
+// If separator_found is true, set the .terminator
 // attribute of the expanded PREFIX to line_sep->label
 // and update the end position of the expanded PREFIX
 // token to separator_found.

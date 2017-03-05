@@ -4311,56 +4311,70 @@ The general syntax is:
 	& {\em attribute-multivalue-closing} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{double-attribute-value}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em object-id} \\
+    $|$ & {\em attribute-multivalue-opening} {\em object-id}\QMARK{} \\
+        & \{ {\em attribute-multivalue-separator} {\em object-id}\QMARK{}
+	                                       \}\STAR{} \\
+	& {\em attribute-multivalue-closing} \\
+    \end{tabular}
+\\[0.5ex]
 \emkey{value} ::= {\em label} $|$ {\em bracketed-subexpression}
 \\[0.5ex]
+\emkey{object-id} ::= \begin{tabular}[t]{l}
+                      \ttmkey{@}{in object ID} {\em natural-number} \\
+		      This is a special kind of label.
+		      \end{tabular}
+\\[0.5ex]
 \emkey{typed-opening} ::= {\em key} ~~~ [e.g., `\TT{\{}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-middle} ::= {\em key} ~~~ [e.g., `\TT{|}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-closing} ::= {\em key} ~~~ [e.g., `\TT{\}}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g., `\TT{:}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g., `\TT{,}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g., `\TT{=}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g., `\TT{no}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g., `\TT{[}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-flags-separator} :::= \TT{,} ~~~ [cannot be changed]
 \\[0.5ex]
 \emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g., `\TT{]}', ~
-    as per {\em parser-untyped-bracket-command}
+    as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{attribute-multivalue-opening} ::= {\em key} ~~~ [e.g., `\TT{\{*}', ~
-    as per {\em parser-typed-bracket-command}
+    as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g., `\TT{,}', ~
-    as per \TT{multivalue} reformatter
+    as per \TT{multivalue} reformatter ~
     \pagref{MULTIVALUE-REFORMATTER}]
 \\[0.5ex]
 \emkey{attribute-multivalue-closing} ::= {\em key} ~ [e.g., `\TT{*\}}', ~
-    as per {\em parser-untyped-bracket-command}
+    as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=

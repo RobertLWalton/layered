@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 4, 2017
+March 5, 2017
  
 \end{center}
 
@@ -3810,10 +3810,14 @@ The general syntax is:
 	{\em paragraph-end}
 	\end{tabular}
 \\[0.5ex]
-\emkey{paragraph-line} ::= {\em logical-line}, possibly ended by
-                           a {\em line-separator}
+\emkey{paragraph-line} ::=
+    \begin{tabular}[t]{l}
+    {\em logical-line}, possibly ended by a {\em line-separator} \\{}
+    [May be grouped into headed paragraphs: see \itemref{HEADED-PARAGRAPHS}] \\
+    \end{tabular}
 \\[0.5ex]
 {\em logical-line} ::= see \itemref{LOGICAL-LINES}
+	~~ [Includes headed lines: see \itemref{HEADED-LINES}]
 \\[0.5ex]
 \emkey{paragraph-end}
     \begin{tabular}[t]{rl}
@@ -3910,8 +3914,7 @@ paragraph lines, as long as the \TT{end at line sepa\-ra\-tor}
 (\pagref{END-AT-LINE-SEPARATOR}) option permits.
 Line separators are only recognized outside explicitly
 bracketed subexpressions (untyped bracketed or typed bracketed)
-in the paragraph.  Line separators may not be used in headed lines
-or headed paragraphs.
+in the paragraph.
 
 \ikey{Empty logical lines}{empty logical line} with no ending
 {\em line-separator} are always ignored as if they did not exist%
@@ -3940,18 +3943,21 @@ it is given a \TT{.terminator} attribute equal to the
 
 Headed lines are converted to a MIN object with attributes
 (including \TT{.type}) taken from their line header and
-elements taken from the rest of the logical line.  See
-\itemref{HEADED-LINES} for details.
+elements taken from the rest of the logical line.  If the
+headed line is terminated by a line separator, that line
+separator becomes the \TT{.terminator} attribute of the MIN object.
+See \itemref{HEADED-LINES} for details.
 
 A headed paragraph is converted to a single MIN object
 that becomes an element in the indented paragraph.
 This MIN object has attributes (including \TT{.type})
 taken from its paragraph header and
-elements that are the logical lines belonging to the headed paragraph.
+elements that are the logical lines belonging to the headed paragraph
+(these may include headed lines).
 See \itemref{HEADED-LINES} for details.
 
-The paragraph as a whole is converted to a MIN object whose elements
-are the MIN objects produced by paragraph lines outside headed
+The indented paragraph as a whole is converted to a MIN object whose elements
+are the MIN objects produced by {\em paragraph-lines} outside headed
 paragraphs and headed paragraphs.
 The \TT{.initiator} attribute of this paragraph MIN object
 is the {\em indentation-mark} that introduced the paragraph,
@@ -3959,13 +3965,15 @@ and the \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
 A paragraph may be empty (have no paragraph lines or object elements).
 
 The \TT{implied paragraph header} and \TT{lexical master} parameters
-are used to initialize line variables
+can be used to initialize line variables
 that affect the parsing of indented paragraphs: see \itemref{LINE-VARIABLES}.
+They have no effect if they are not explicitly included in the indentation
+mark definition command.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
 but the difference is less than $N$ columns (default $N=2$),
-an error is announced.
+a parse warning message is announced.
 No corrective action is taken; the line is accepted as either ending
 the paragraph if its indent is less than the current
 indent, or continuing the current paragraph line if its indent
@@ -3973,9 +3981,7 @@ is greater than the current indent.  Here $N$ is called the
 \key{parser indentation offset}, and is a parser parameter that can be
 changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
-end of the block.  The indentation offsets of the current blocks
-can be printed by the \TT{parser print indentation offset} command
-(\pagref{BRACKETED-PARSER-PRINT-COMMAND}).
+end of the block.
 
 When an {\em indentation-mark} is recognized, the current parsing
 selector set, parsing options, and line separator are saved in a stack.
@@ -3988,11 +3994,14 @@ A new set of line variables is computed for use in parsing the
 indented paragraph, as per \itemref{LINE-VARIABLES}.
 The saved selector set, options, and line separator
 are restored after the end of paragraph is recognized.
-Note that if no {\em new-selectors} are given, the selectors
+The \TT{TOP LEVEL} selector is always turned off when parsing indented
+paragraph lines.
+Note that if no {\em new-selectors} are given, selectors
+other than \TT{TOP LEVEL}
 are not modified, if no {\em end-at-options} 
-are given, the options are not modified, and if no
+are given, options are not modified, and if no
 {\em line-separator} is given, no line separator can end
-a paragraph line.
+an indented paragraph logical line.
 
 \ikey{Top level parsing}{top level parsing}
 of a file recognizes paragraph lines as if the whole
@@ -4015,6 +4024,19 @@ if it appears on a line by itself and is less indented than the first
 following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
+
+The definitions
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define indentation mark "TOP LEVEL" ... ";" []
+        // Indentation mark definition governing top level
+        // parsing; may NOT be redefined.
+    define indentation mark "*PARSER*" ... ";" [TOP LEVEL]
+        with parsing selectors [data]
+    define indentation mark "*PARSER* *TEST*" ... ";"
+        [TOP LEVEL]
+\end{verbatim}\end{indpar}
+are builtin.
 
 The definition
 \begin{indpar}\begin{verbatim}

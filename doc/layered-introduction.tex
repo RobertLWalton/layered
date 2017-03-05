@@ -4117,16 +4117,18 @@ at the end than it does at the beginning:
 \TT{\{my option|a b c|your option\}} \\
 \end{center}
 
-An attribute value may be a bracketed subexpression, or a sequence
+A type, attribute label, or attribute value may be a label,
+which is a sequence
 of one or more words, natural-numbers, numerics, and quoted strings, each
-representing a MIN string.
-In the latter case, if there is only
+representing a MIN string.  Note that marks and separators must be quoted.
+If there is only
 one element in the sequence, the MIN string it represents is the
-attribute value, but if there is more than one element, the elements
-are concatenated into a label and that label is the attribute value.
+label, but if there is more than one element, the elements
+are concatenated into a MIN label.
 
-If, on the other hand, the attribute value is a bracketed subexpression,
-the value of that subexpression is the attribute value, with one exception.
+Attribute values may alternatively be bracketed subexpressions.
+In this case, the attribute value is the bracketed subexpression,
+with one exception.
 
 The exception is that when the brackets are `\TT{\{*~*\}}',
 the comma
@@ -4163,7 +4165,7 @@ quoted.
 Similarly if the type is a label consisting of two \underline{distinct}
 {\em mark}
 lexemes, and there are no attributes, the `\TT{|}'s may be
-omitted with the two {\em marks} being placed before and
+omitted with the two unquoted {\em marks} being placed before and
 after the elements, respectively.
 Except in these cases, type and attribute labels
 cannot contain separators or marks unless these are quoted.

@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 5, 2017
+March 9, 2017
  
 \end{center}
 
@@ -2757,12 +2757,18 @@ physical line, and the indented logical lines that follow are
 \\[0.0ex]
 \emkey{selector-spec} ::= {\em parser-flag-spec}
                           with only selector names (\pagref{SELECTOR-NAMES})
+			  \label{SELECTOR-SPEC}
+\\[0.0ex]
+\emkey{selector-flags} ::= {\em parser-flag-list}
+                          with only selector names (\pagref{SELECTOR-NAMES})
+			  \label{SELECTOR-FLAGS}
 \\[0.0ex]
 \emkey{end-at-option} ::= {\em parser-flag} as per \pagref{END-AT-OPTIONS-1}
 \\[0.0ex]
 \emkey{end-at-option-spec} ::= {\em parser-flag-spec}
                           with only end at option names
 			  (\pagref{END-AT-OPTIONS-1})
+			  \label{END-AT-OPTION-SPEC}
 \\[0.0ex]
 \emkey{trace-flag} ::= {\em parser-flag} as per \pagref{TRACE-FLAGS}
 \\[0.0ex]
@@ -3578,11 +3584,11 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{new-selectors} ::= {\em parser-flag-spec}
+\emkey{new-selectors} ::= {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
 \\[0.5ex]
-\emkey{bracket-options} ::= {\em parser-flag-spec}
+\emkey{bracket-options} ::= {\em end-at-option-spec}
 	~ except ~ `\TT{end at line separator}'
-	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
+	~~~ [see \pagref{END-AT-OPTION-SPEC}]
 \\[0.5ex]
 \emkey{reformatter-name}\label{REFORMATTER-NAME} ::=
     {\em simple-name} not containing `\TT{reformatter}'
@@ -3890,8 +3896,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{new-selectors} ::= {\em parser-flag-spec}
-	~~~~~ [see \pagref{PARSING-SELECTORS}]
+\emkey{new-selectors} ::= {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
 \\[0.5ex]
 \emkey{end-at-options} ::= {\em parser-flag-spec}
 	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
@@ -4327,59 +4332,59 @@ The general syntax is:
 		      This is a special kind of label.
 		      \end{tabular}
 \\[0.5ex]
-\emkey{typed-opening} ::= {\em key} ~~~ [e.g., `\TT{\{}', ~
+\emkey{typed-opening} ::= {\em key} ~~~ [e.g. `\TT{\{}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-middle} ::= {\em key} ~~~ [e.g., `\TT{|}', ~
+\emkey{typed-middle} ::= {\em key} ~~~ [e.g. `\TT{|}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-closing} ::= {\em key} ~~~ [e.g., `\TT{\}}', ~
+\emkey{typed-closing} ::= {\em key} ~~~ [e.g. `\TT{\}}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g., `\TT{:}', ~
+\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g. `\TT{:}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g., `\TT{,}', ~
+\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g. `\TT{,}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g., `\TT{=}', ~
+\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g. `\TT{=}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g., `\TT{no}', ~
+\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g. `\TT{no}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g., `\TT{[}', ~
+\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g. `\TT{[}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-flags-separator} :::= \TT{,} ~~~ [cannot be changed]
 \\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g., `\TT{]}', ~
+\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g. `\TT{]}'
     as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{attribute-multivalue-opening} ::= {\em key} ~~~ [e.g., `\TT{\{*}', ~
+\emkey{attribute-multivalue-opening} ::= {\em key} ~~~ [e.g. `\TT{\{*}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g., `\TT{,}', ~
+\emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g. `\TT{,}' ~
     as per \TT{multivalue} reformatter ~
     \pagref{MULTIVALUE-REFORMATTER}]
 \\[0.5ex]
-\emkey{attribute-multivalue-closing} ::= {\em key} ~ [e.g., `\TT{*\}}', ~
+\emkey{attribute-multivalue-closing} ::= {\em key} ~ [e.g. `\TT{*\}}' ~
     as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=
     \begin{tabular}[t]{@{}l}
-    {\em typed-middle}~~~{\em typed-middle} ~~~~~ [e.g., `\TT{||}'] \\
+    {\em typed-middle}~~~{\em typed-middle} ~~~~~ [e.g. `\TT{||}'] \\
     as a single lexeme (when possible): see text
     \end{tabular}
 \end{indpar}
@@ -4441,13 +4446,13 @@ When a {\em typed-opening} is recognized, the current parsing
 selector set and options are saved in a stack and
 a new selector set and new options are computed by modifying the saved set
 and options
-according to {\em element-selectors} and {\em bracket-options}
+according to the {\em typed-element-selectors} and {\em bracket-options}
 associated with the {\em typed-opening}
 (see the \TT{parser define typed bracket}
 command below).  The modified selector set and options become the current
 parsing selector set and options while scanning the {\em element-list}.
 But while scanning the type label and attributes, the
-current parsing selector set is set to the {\em attribute-selectors}
+current parsing selector set is set to the {\em typed-attribute-selectors}
 associated with the {\em typed-opening} (also see below), while the
 {\em end-at-options} remain the same as those use to scan the
 {\em element-list}.
@@ -4478,10 +4483,11 @@ which specifies
 `\TT{\{}' to be a {\em typed-opening} \\
 `\TT{|}' to be a {\em typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
-`\TT{code}' to be the sole definition selector \\
-`\TT{[- data]}' to be the {\em element-selectors} \\
+`\TT{text}' to be the sole definition selector \\
+`\TT{[- data]}' to be the {\em typed-element-selectors} \\
 `\TT{[- end at outer closing]}' to be the {\em bracket-options} \\
-`\TT{[data]}' to be the {\em attribute-selectors} \\
+~~~~~ (This does not actually have to be given explicitly as it is implied.) \\
+`\TT{[data]}' to be the {\em typed-attribute-selectors} \\
 `\TT{:}' to be the {\em typed-attribute-begin} \\
 `\TT{=}' to be the {\em typed-attribute-equal} \\
 `\TT{,}' to be the {\em typed-attribute-separator} \\
@@ -4557,13 +4563,15 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{typed-element-selectors} ::= {\em parser-flag-spec}
+\emkey{typed-element-selectors} ::= {\em selector-spec}
+	~ [see \pagref{SELECTOR-SPEC}]
 \\[0.5ex]
-\emkey{bracket-options} ::= {\em parser-flag-spec}
-	~ except ~ `\TT{end at line separator}'
-	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
+\emkey{bracket-options} ::=
+	{\em end-at-option-spec} ~ except ~ `\TT{end at line separator}' ~
+	[see \pagref{END-AT-OPTION-SPEC}]
 \\[0.5ex]
-\emkey{typed-attribute-selectors} ::= {\em parser-flag-list}
+\emkey{typed-attribute-selectors} ::= {\em selector-flags}
+	~ [see \pagref{SELECTOR-FLAGS}]
 \\[0.5ex]
 \emkey{typed-attribute-punctuation} ::= \\
     \hspace*{0.2in}
@@ -4622,7 +4630,7 @@ is builtin.  The definition
 
 is included by the standard parser at the beginning of
 its `\TT{standard}' parser block.  Since there are no
-{\em element-selectors} in either typed bracket definition,
+{\em typed-element-selectors} in either typed bracket definition,
 the parsing selectors
 for the {\em element-list} of a {\em typed-bracketed-subexpression}
 recognized by this definition are the same as the parsing selectors

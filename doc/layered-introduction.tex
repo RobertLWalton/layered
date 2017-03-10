@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 9, 2017
+March 10, 2017
  
 \end{center}
 
@@ -3525,8 +3525,18 @@ The general syntax is:
                     {\em separator} $|$ {\em quoted-string} \\
     $|$ & {\em untyped-bracketed-subexpression} \\
     $|$ & {\em indented-paragraph-subexpression} \\
-    $|$ & {\em typed-bracketed-subexpression} \\
+    $|$ & {\em typed-bracketed-subexpression}
+          that is not a {\em typed-prefix-separator} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{indented-paragraph-subexpression} ::=
+    see \pagref{INDENTED-PARAGRAPH-SUBEXPRESSION}
+\\[0.5ex]
+\emkey{typed-bracketed-subexpression} ::=
+    see \pagref{TYPED-BRACKETED-SUBEXPRESSION}
+\\[0.5ex]
+\emkey{typed-prefix-separator} ::=
+    see \pagref{TYPED-PREFIX-SEPARATOR}
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
       An {\em untyped-bracketed-subexpression} {\em element-list}
@@ -3814,7 +3824,8 @@ The general syntax is:
 	{\em indentation-mark} {\em line-break} \\
 	~~~~ {\em paragraph-line}\STAR{} \\
 	{\em paragraph-end}
-	\end{tabular}
+	\end{tabular}%
+\label{INDENTED-PARAGRAPH-SUBEXPRESSION}
 \\[0.5ex]
 \emkey{paragraph-line} ::=
     \begin{tabular}[t]{l}
@@ -4229,7 +4240,8 @@ The general syntax is:
 	$|$ & \TT{\{}~~~{\em type-mark}~~~{\em element-list}~~~%
 	                {\em type-mark}~~~\TT{\}} \\
 	$|$ & \TT{\{\}}
-	\end{tabular}
+	\end{tabular}%
+\label{TYPED-BRACKETED-SUBEXPRESSION}
 \\[0.5ex]
 \emkey{typed-elements}
 	\begin{tabular}[t]{@{}rl}
@@ -4334,7 +4346,8 @@ The general syntax is:
 \\[0.5ex]
 \emkey{typed-opening} ::= {\em key} ~~~ [e.g. `\TT{\{}' ~
     as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]%
+    \label{TYPED-OPENING}
 \\[0.5ex]
 \emkey{typed-middle} ::= {\em key} ~~~ [e.g. `\TT{|}' ~
     as per {\em parser-typed-bracket-command} ~
@@ -4342,7 +4355,8 @@ The general syntax is:
 \\[0.5ex]
 \emkey{typed-closing} ::= {\em key} ~~~ [e.g. `\TT{\}}' ~
     as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+    \pagref{PARSER-TYPED-BRACKET-COMMAND}]%
+    \label{TYPED-CLOSING}
 \\[0.5ex]
 \emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g. `\TT{:}' ~
     as per {\em parser-typed-bracket-command} ~
@@ -4579,7 +4593,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
      \TT{...} {\em typed-attribute-equal}
      \TT{...} {\em typed-attribute-separator}
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= {\em quoted-key}
+\emkey{typed-attribute-begin} ::= {\em quoted-key}\label{TYPED-ATTRIBUTE-BEGIN}
 \\[0.5ex]
 \emkey{typed-attribute-equal} ::= {\em quoted-key}
 \\[0.5ex]
@@ -4691,8 +4705,14 @@ The general syntax of a typed prefix separator is:
     $|$ & {\em typed-opening}~~~{\em type-mark}~~~{\em typed-closing} \\
     \end{tabular}
 \\[0.5em]
+\emkey{typed-opening} ::= see \pagref{TYPED-OPENING}
+\\[0.5em]
+\emkey{typed-closing} ::= see \pagref{TYPED-CLOSING}
+\\[0.5em]
 \emkey{opening-attributes}
     ::= {\em typed-attribute-begin}~~~{\em attribute-list}
+\\[0.5em]
+\emkey{typed-attribute-begin} ::= see \pagref{TYPED-ATTRIBUTE-BEGIN}
 \\[0.5em]
 \emkey{attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
 \\[0.5em]
@@ -4703,8 +4723,9 @@ The general syntax of a typed prefix separator is:
 
 The ~ `\TT{with prefix separators allowed}' ~ option to a
 {\em parser-typed-bracket-command} (see \pagref{PARSER-TYPED-BRACKET-COMMAND})
-enables use of the command
-defined punctuation to construct {\em typed-prefix-separators}.
+enables use of
+punctuation defined by the command
+to construct {\em typed-prefix-separators}.
 
 A {\em typed-prefix-separator} is converted to a MIN object which has the
 same structure as a typed bracketed subexpression with an empty list.
@@ -4721,10 +4742,11 @@ Text	& Separator &  Syntactic Category
 \tt ~~~ \{s\} And another. \\
 \tt \{p\} \{s\} And a new \{foo\} paragraph.
 \\\hline
-\tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list \\
-\tt \{s\} And another.
+\tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list
 \\\hline
 \tt This is a sentence.	& (none) & \em prefix-2-list
+\\\hline
+\tt \{s\} And another.  	& \tt \{s\} & \em prefix-1-list
 \\\hline
 \tt And another. & (none) & \em prefix-2-list
 \\\hline

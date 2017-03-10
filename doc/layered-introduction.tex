@@ -4807,7 +4807,7 @@ a `\key{prefix separator type}' is referred to as just a `\key{prefix}'.
 
 Prefix definitions are stored in the `\key{prefix table}' which is one
 of the parser symbol tables.  Entries in this table are managed
-by parser prefix commands.
+by {\em parser-prefix-commands}.
 
 The general syntax of {\em parser-prefix-commands} is:
 
@@ -4898,6 +4898,10 @@ as the {\em prefix-n}'s \TT{implied subprefix} (and that is not
 missing), then a copy of
 the \TT{implied subprefix} is prepended to the {\em prefix-(n+1)-list}.
 
+[The implementation is to prepend the implied prefix always, and
+then if it is later discovered to head a {\em prefix-(n+1)-list} with
+zero elements, delete it.]
+
 \hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that
 have the `\TT{paragraph}' group.  The parsing options are
@@ -4927,19 +4931,16 @@ Entries in this symbol table are managed by
 \label{PARSER-MAPPED-LEXEME-COMMAND} \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
-    ::= & \ttmkey{define mapped lexeme}{parser command}
-	  ~ {\em mapped-lexeme-name} \\
     ::= & \TT{define}%
           \ttmindex{define mapped lexeme}{parser command}
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{mapped lexeme} {\em mapped-lexeme-name} ~
-	                     {\em parsing-selectors} \\
-	  {}[ \TT{with token type} ~ {\em token-type} ] \\
+	  \TT{mapped lexeme} ~ {\em mapped-lexeme-name} ~
+	                       {\em parsing-selectors} \\
 	  {}[ \TT{with token value} ~ {\em token-value} ] \\
-	  {}[ \TT{with lexical master} ~ {\em lexical-master} ] \\
+	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine mapped lexeme}{parser command} ~
-	  {\em mapped-lexeme-name}
+	  {\em mapped-lexeme-name} ~ {\em parsing-selectors} \\
     \end{tabular}
 \label{MAPPED-LEXEME-DEFINITION}
 \\[0.5ex]
@@ -4947,58 +4948,41 @@ Entries in this symbol table are managed by
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{token-type} ::= \TT{BRACKETED} $|$ \TT{BRACKETABLE}
-                   $|$ \TT{PURELIST} $|$ \TT{PREFIX} $|$ \TT{DERIVED}
-\\[0.5ex]
 \emkey{token-value}
     \begin{tabular}[t]{rl}
-    ::= & {\em quoted-string} \\
-    $|$ & {\em typed-bracketed-subexpression} \\
+    ::= & {\em typed-bracketed-subexpression} \\
     $|$ & {\em typed-prefix-separator} \\
     $|$ & {\em untyped-bracketed-subexpression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{lexical-master} ::= {\em quoted-key}
+\emkey{master-name} ::= {\em quoted-key}
+                    $|$ {\em simple-name} not containing `\TT{with}'
 \end{indpar}
 
-If a \TT{parser define mapped lexeme} command gives no token
-type, the type is missing.  Similarly if no lexical master is
-given, the lexical master is missing.
+If a \TT{parser define mapped lexeme} command gives no lexical master,
+the lexical master is missing.
 
 When the bracketed subexpression parser first sees a lexeme in
 its token, the parser looks up the lexeme in the mapped lexeme
 symbol table, selecting entries active according to the current
 parser selectors.  If an entry is found, it is used to replace
-the lexeme's token by another token, with token type and token
-value taken from the table entry.  The lexical master is also
+the lexeme's token by another token, with token
+value taken from the table entry, and token type computed
+from the token value (e.g., \TT{BRACKETED}, \TT{BRACKETABLE},
+\TT{PREFIX}, etc.).  The lexical master is also
 changed to the value in the table entry before scanning more
-lexemes.
+lexemes, unless the table entry lexical master is missing.
 
-More specifically, if the token type of the mapped lexeme
-symbol table entry is not missing, the token containing
-the mapped lexeme is modified to have that token type and a copy of
-the entry's token value.  An entry token value
-given as a {\em quoted-string} represents a MIN string token
-value (and \underline{not} a MIN object of \TT{"<Q>"} \TT{.type}).
-If instead the token type is missing and the mapped lexeme
-containing token is deleted.
+If the {\em token-value} has a \TT{.type} and
+no elements, no \TT{.initiator}, and no \TT{.terminator},
+the token is given the \TT{PREFIX} token type rather
+than the \TT{BRACKETED} token type.  Note that {\em token-values}
+cannot be lexemes, quoted strings, or numerics.
 
-After processing the mapped lexeme containing token, the lexical
-master is changed to that of the table entry, unless that is missing.
-
-Note that some rules must be followed concerning table entries:
-
-\begin{enumerate}
-\item The token type is \TT{DERIVED} if and only if the token value
-is not a MIN object (e.g., is `\TT{[\$~MISSING~\$]}').
-\item If the token type is \TT{PREFIX}, the token value is
-a MIN object with a \TT{.type} attribute but \underline{no} elements.
-\item If the token type is \TT{PURELIST}, the token value is
-a MIN object with no attributes, but possibly with elements.
-\item If the token type is \TT{BRACKETABLE}, the token value is
-a MIN object with \TT{.type}, \TT{.ini\-ti\-a\-tor}, or \TT{.terminator}
-attributes.
-\end{enumerate}
+A {\em token-value} may be an {\em untyped-bracketed-expression}
+that becomes a \TT{DERIVED} label or special value upon being parsed.
+A mapped lexeme can map to such a {\em token-value}, but not to
+another lexeme.
 
 A mapped lexeme is called a `\key{header lexeme}' if it is only
 produced by looking
@@ -5012,7 +4996,7 @@ characters will be skipped over while producing these header lexemes.
 In short, the scanner will peek ahead but not read ahead when
 producing header lexemes.  Header lexemes are usually mapped
 to paragraph or line header \TT{PREFIX} tokens described in the
-next section.
+next sections.
 
 \subsubsection{Headed Lines}
 \label{HEADED-LINES}

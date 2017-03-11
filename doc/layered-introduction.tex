@@ -2791,6 +2791,7 @@ physical line, and the indented logical lines that follow are
     $|$ & \ttmkey{define top level}{parser command} \\
         & ~~~~~~~~\TT{with parsing selectors} ~ {\em selector-spec} \\
         & ~~~~~~~~\TT{with parsing options} ~ {\em end-at-option-spec} \\
+        & ~~~~~~~~\TT{with lexical master} ~ {\em master-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
 \\[0.6ex]
@@ -2928,6 +2929,7 @@ The top level selectors and end-at options can be reset by the
     \ttmkey{define top level}{parser command} \\
     \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
     \TT{~~~~}[ \TT{with parsing options} {\em end-at-option-spec} ] \\
+    \TT{~~~~}[ \TT{with lexical master} {\em master-name} ] \\
     \end{tabular}
 \end{center}
 
@@ -5076,7 +5078,7 @@ Now suppose the parser is given the definition:
         with group paragraph
         with implied subprefix {item}
 \end{verbatim}\end{indpar}
-Then when given given the input:
+with a `\TT{implied subprefix}'.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
 {itemize: indent = 5em, mark = "*"}
 1 chicken
@@ -5093,7 +5095,7 @@ Next suppose the parser is given the definition:
         with implied subprefix {item}
 	with parsing options [+ sticky]
 \end{verbatim}\end{indpar}
-Then when given given the input:
+with a `\TT{sticky}' option.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
 {itemize: indent = 5em, mark = "*"}
 1 chicken
@@ -5107,6 +5109,25 @@ the parser will produce two MIN objects, the first being as
 above and the second being:
 \begin{indpar}\begin{verbatim}
 {itemize: indent = 5em, mark = "*"|
+    {item: a potato}}
+    {item: 1 tablespoon butter}}
+\end{verbatim}\end{indpar}
+
+If instead the parser is given the definition:
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define prefix "itemize" [code, text]
+        with group paragraph
+        with implied subprefix {item}
+	with parsing options [+ continuing]
+\end{verbatim}\end{indpar}
+with a `\TT{continuing}' option, then when given the above input
+the parser would produce the single MIN object:
+\begin{indpar}\begin{verbatim}
+{itemize: indent = 5em, mark = "*"|
+    {item: 1 chicken}
+    {item: 1 tablespoon olive oil}
+    {item: 1 tablespoon paprika}
     {item: a potato}}
     {item: 1 tablespoon butter}}
 \end{verbatim}\end{indpar}

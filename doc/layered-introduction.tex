@@ -5007,17 +5007,19 @@ appear at the beginning of a logical line, or immediately
 after a paragraph header, which itself must begin a logical
 line: see \itemref{HEADED-PARAGRAPHS}.
 
-A `\key{headed line}' is a line header and the part of a logical
+A `\key{headed line}' is a line header and the part of its containing logical
 line that follows the line header.
 The parser's output
 for a headed line is a MIN object whose \TT{.type} and attributes
 are taken from the line header and whose elements are
-taken from the rest of the line.  This output has \underline{no}
+taken from the rest of the headed line.  This output has \underline{no}
 \TT{.initiator}, unlike the parser's output
-for a logical line that has no line header.
+for a logical line that has no line header whose \TT{.initiator}
+is the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 
 Line headers may be implied by the \TT{implied subprefix}
-of a paragraph header (see \itemref{PREFIX-DEFINITIONS})
+of a paragraph header (see \itemref{PREFIX-DEFINITIONS}
+and \itemref{HEADED-PARAGRAPHS})
 or by line variables (see \itemref{LINE-VARIABLES}).
 
 \subsubsection{Headed Paragraphs}
@@ -5025,17 +5027,20 @@ or by line variables (see \itemref{LINE-VARIABLES}).
 
 A `\key{paragraph header}' is a typed prefix separator that has
 the `\TT{paragraph}' group.  Paragraph headers may only
-appear at the beginning of a logical line.
+appear at the beginning of a logical line that follows a blank
+line or is at the beginning of an indented paragraph (where
+intervening comment lines are ignored).
 
 A `\key{headed paragraph}' is a logical line that begins with paragraph header,
-plus all the following logical lines up until the headed paragraph end.
+plus all the following logical or headed
+lines up until the headed paragraph end.
 A headed paragraph may be ended by a blank line (unless the paragraph
 is `continuing'), or by the end
 of its containing indented paragraph.
 
 The parser's output for a headed paragraph is a MIN object 
 whose \TT{.type} and attributes are taken from the paragraph header
-and whose elements are the logical lines in the headed paragraph.
+and whose elements are the logical or headed lines in the headed paragraph.
 If the first logical line of the headed paragraph contains only
 the paragraph header, it is omitted from the list of elements
 (so there is no blank logical line).

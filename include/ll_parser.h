@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  4 18:25:27 EST 2017
+// Date:	Sun Mar 12 03:31:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1142,6 +1142,12 @@ struct parser_struct
 	// function.
 
     // Parser state:
+    //
+    uns32 lexical_master;
+        // Last lexical master set for scanner, or
+	// ll::lexeme::MISSING_MASTER if none set.
+	// This is the lexical_master_index set
+	// (NOT the lexical table ID).
 
     const ll::parser::token first;
         // First token in token list.  The tokens are a
@@ -1489,6 +1495,27 @@ inline ll::parser::table::new_flags parsing_options
 {
     return ll::parser::table::new_flags
         ( options, ll::parser::ALL_OPT & ~ options, 0 );
+}
+
+// Get and set parser->lexical_master.  If set to a
+// non-MISSING_MASTER value, the scanner lexical_master
+// is set.
+//
+const uns32 MISSING_MASTER = ll::lexeme::MISSING_MASTER;
+inline uns32 get_lexical_master
+	( ll::parser::parser parser = default_parser )
+{
+    return parser->lexical_master;
+}
+
+inline void set_lexical_master
+	( min::uns32 lexical_master,
+	  ll::parser::parser parser = default_parser )
+{
+    parser->lexical_master = lexical_master;
+    if ( lexical_master != MISSING_MASTER )
+	ll::lexeme::set_lexical_master
+	      ( lexical_master, parser->scanner );
 }
 
 // Begin/end a parser block with the given name.  Return

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 05:11:53 EST 2016
+// Date:	Sun Mar 12 03:23:45 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2131,6 +2131,35 @@ min::uns32 LEX::lexical_master_index
         return LEX::MISSING_MASTER;
     else
         return min::int_of ( index );
+}
+
+min::gen LEX::lexical_master_name
+	( min::uns32 lexical_master_index,
+	  ll::lexeme::scanner scanner )
+{
+    LEX::program program = scanner->program;
+    min::ptr<const char> name =
+        LEXDATA::master_name
+	    ( program, lexical_master_index );
+    if ( name == min::ptr<const char>() )
+        return min::MISSING();
+    else
+        return min::new_name_gen ( name );
+}
+
+void LEX::set_lexical_master
+	( min::uns32 lexical_master_index,
+	  ll::lexeme::scanner scanner )
+{
+    LEX::program program = scanner->program;
+    min::ptr<min::uns32> master_ID_ptr =
+        LEXDATA::master_ID_ptr
+	    ( program, lexical_master_index );
+    MIN_REQUIRE
+        ( master_ID_ptr != min::ptr<min::uns32>() );
+    MIN_REQUIRE ( * master_ID_ptr != 0 );
+
+    scanner->current_table_ID = * master_ID_ptr;
 }
 
 // Printing

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 08:35:21 EDT 2017
+// Date:	Sun Mar 12 11:53:04 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1033,10 +1033,12 @@ void LEX::init_program
 	LEXDATA::max_master ( program );
     lexical_master_table_ref(scanner) =
         min::new_obj_gen
-	    ( 5 * ( max_master + 1 ),
+	    ( 10 * ( max_master + 1 ),
 	      5 * ( max_master + 1 ) );
     min::obj_vec_insptr vp
         ( scanner->lexical_master_table );
+    min::attr_push ( vp, max_master + 1 );
+
     min::attr_insptr ap ( vp );
 
     min::ptr<const char> nullp;
@@ -1051,7 +1053,10 @@ void LEX::init_program
 	    index = min::new_num_gen ( m );
 	    min::locate ( ap, name );
 	    min::set ( ap, index );
+	    vp[m] = name;
 	}
+	else
+	    vp[m] = min::MISSING();
     }
 }
 
@@ -2137,20 +2142,6 @@ min::uns32 LEX::lexical_master_index
         return LEX::MISSING_MASTER;
     else
         return min::int_of ( index );
-}
-
-min::gen LEX::lexical_master_name
-	( min::uns32 lexical_master_index,
-	  ll::lexeme::scanner scanner )
-{
-    LEX::program program = scanner->program;
-    min::ptr<const char> name =
-        LEXDATA::master_name
-	    ( program, lexical_master_index );
-    if ( name == min::ptr<const char>() )
-        return min::MISSING();
-    else
-        return min::new_name_gen ( name );
 }
 
 void LEX::set_lexical_master

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 21:00:28 EST 2016
+// Date:	Sun Mar 12 08:17:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -97,6 +97,13 @@
 //
 //   <mode> ::= MASTER | ATOM | <type-name>
 //	// Mode of table
+//
+//   <index> ::= index of MASTER table.
+//	// The table mode must be MASTER, and the index
+//	// must be at most max_master.  The table is
+//	// associated with the index m and the name
+//	// master_names[m].  No two MASTER tables may
+//	// have the same index.
 //
 //   <type-name> ::= C++ uns32 expression | NONE
 //	// The type returned by the scanner for a lexeme

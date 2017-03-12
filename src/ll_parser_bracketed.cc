@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  4 18:29:49 EST 2017
+// Date:	Sun Mar 12 08:31:03 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -661,11 +661,11 @@ void BRA::push_prefix
     prefix->new_selectors = new_selectors;
 
     prefix->new_selectors.or_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR /* + PAR::EALSEP_OPT */ );
+        PAR::TOP_LEVEL_SELECTOR;
     prefix->new_selectors.not_flags |=
-        ( PAR::TOP_LEVEL_SELECTOR /* + PAR::EALSEP_OPT */ );
+        PAR::TOP_LEVEL_SELECTOR;
     prefix->new_selectors.xor_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR /* + PAR::EALSEP_OPT */ );
+        PAR::TOP_LEVEL_SELECTOR;
 
     group_ref(prefix) = group;
     implied_subprefix_ref(prefix) = implied_subprefix;

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 03:23:45 EDT 2017
+// Date:	Sun Mar 12 08:35:21 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -160,12 +160,18 @@ uns32 LEX::create_table
     MIN_REQUIRE ( mode == MASTER || index == NONE );
     if ( mode == MASTER && index != NONE )
     {
+	MIN_ASSERT
+	    ( index <= php->max_master,
+	      "index too large (> max_master)" );
+
 	min::ptr<min::uns32> IDp =
-	    LEXDATA::master_ID_ptr ( program, 0 );
+	    LEXDATA::master_ID_ptr ( program, index );
+
 	MIN_ASSERT
 	    ( * IDp == 0,
 	      "master table index already assigned"
 	      " an ID" );
+
 	* IDp = ID;
     }
 

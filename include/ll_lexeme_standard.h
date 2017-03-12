@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 01:28:47 EST 2016
+// Date:	Sun Mar 12 08:28:44 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,9 +30,15 @@ namespace ll { namespace lexeme { namespace standard {
 
     using ll::lexeme::uns32;
 
-    extern const char * const master_names[1];
-        // There is one master table with index 0 and
-	// name "START" (of file).
+    extern const char * const master_names[2];
+        // Index  Name/Function
+	//
+	// 0	  START
+	//          Start of file.
+	//
+	// 1	  BEGIN
+	//          Any part of line after indent
+	//          lexeme.
 
     // Lexeme Types
 

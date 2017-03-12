@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 03:23:00 EDT 2017
+// Date:	Sun Mar 12 11:48:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -850,9 +850,12 @@ namespace ll { namespace lexeme {
 	uns32 initial_table;
 
 	// Map of lexical master names to lexical master
-	// indices.  An object whose attribute names are
-	// the names and whose corresponding attribute
-	// values are the indices.  Initialized when
+	// indices and vice versa.  A MIN object.  For
+	// each master index m with master name N, there
+	// is an object attribute named N with value m,
+	// and an object vector element with index m and
+	// value N.  Unused vector elements have the
+	// value min::MISSING().  Initialized when the
 	// scanner program is (re)set.
 	//
 	const min::gen lexical_master_table;
@@ -1084,10 +1087,19 @@ namespace ll { namespace lexeme {
     // Return name of lexical master given the index.
     // Return min::MISSING() if index out of range.
     //
-    min::gen lexical_master_name
+    inline min::gen lexical_master_name
 	    ( min::uns32 lexical_master_index,
               ll::lexeme::scanner scanner =
-		  default_scanner );
+		  default_scanner )
+    {
+    	min::obj_vec_ptr vp
+	    ( scanner->lexical_master_table );
+	if (    lexical_master_index
+	     >= min::size_of ( vp ) )
+	    return min::MISSING();
+	else
+	    return vp[lexical_master_index];
+    }
  
     // Set the current lexical master given the index.
     // Index must be in range.

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 04:36:38 EST 2016
+// Date:	Sun Mar 12 03:23:00 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1080,6 +1080,22 @@ namespace ll { namespace lexeme {
 	    ( min::gen lexical_master_name,
               ll::lexeme::scanner scanner =
 		  default_scanner );
+
+    // Return name of lexical master given the index.
+    // Return min::MISSING() if index out of range.
+    //
+    min::gen lexical_master_name
+	    ( min::uns32 lexical_master_index,
+              ll::lexeme::scanner scanner =
+		  default_scanner );
+ 
+    // Set the current lexical master given the index.
+    // Index must be in range.
+    //
+    void set_lexical_master
+    	    ( min::uns32 lexical_master_index,
+	      ll::lexeme::scanner scanner =
+	          default_scanner );
 } }
 
 // Printing

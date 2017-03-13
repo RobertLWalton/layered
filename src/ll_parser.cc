@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 01:11:17 EDT 2017
+// Date:	Mon Mar 13 01:57:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -835,7 +835,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		( PAR::top_level, PAR::semicolon,
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
-		  min::MISSING(), LEX::MISSING_MASTER,
+		  min::MISSING(), PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	top_level_indentation_mark_ref(parser) =
@@ -845,7 +845,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  0, PAR::top_level_position,
 		  PAR::parsing_selectors
 		      ( PAR::DATA_SELECTOR ),
-		  min::MISSING(), LEX::MISSING_MASTER,
+		  min::MISSING(), PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	top_level_indentation_mark_ref(parser) =
@@ -855,7 +855,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	          PAR::TOP_LEVEL_SELECTOR,
 		  0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
-		  min::MISSING(), LEX::MISSING_MASTER,
+		  min::MISSING(), PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	min::locatable_gen label_name

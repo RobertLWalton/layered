@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 08:31:03 EDT 2017
+// Date:	Mon Mar 13 01:44:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2355,7 +2355,7 @@ NEXT_TOKEN:
 
 			if (    header_entry->
 			            lexical_master
-			     != LEX::MISSING_MASTER )
+			     != PAR::MISSING_MASTER )
 			    implied_data.lexical_master
 			        = header_entry->
 				      lexical_master;
@@ -4697,22 +4697,19 @@ static min::gen bracketed_pass_command
 		min::uns32 master =
 		    indentation_mark->
 		        lexical_master;
-		if ( master != LEX::MISSING_MASTER )
+		if ( master != PAR::MISSING_MASTER )
 		{
+		    min::locatable_gen name
+		        ( PAR::get_master_name
+			      ( master, parser ) );
 		    parser->printer
 			<< min::indent
 			<< "with lexical master ";
-		    min::ptr<const char> name =
-			LEXDATA::master_name
-			    ( parser->scanner->program,
-			      master );
-		    min::ptr<const char> nullp;
-		    if ( name != nullp )
+		    if ( name != min::MISSING() )
 		        parser->printer
-			    << "\"" << name << "\"";
+			    << min::pgen_quote ( name );
 		    else
 		        parser->printer << master;
-
 		}
 	    }
 	    else if ( subtype == BRA::PREFIX )
@@ -4768,22 +4765,19 @@ static min::gen bracketed_pass_command
 
 		min::uns32 master =
 		    prefix->lexical_master;
-		if ( master != LEX::MISSING_MASTER )
+		if ( master != PAR::MISSING_MASTER )
 		{
+		    min::locatable_gen name
+		        ( PAR::get_master_name
+			      ( master, parser ) );
 		    parser->printer
 			<< min::indent
 			<< "with lexical master ";
-		    min::ptr<const char> name =
-			LEXDATA::master_name
-			    ( parser->scanner->program,
-			      master );
-		    min::ptr<const char> nullp;
-		    if ( name != nullp )
+		    if ( name != min::MISSING() )
 		        parser->printer
-			    << "\"" << name << "\"";
+			    << min::pgen_quote ( name );
 		    else
 		        parser->printer << master;
-
 		}
 
 		if ( TAB::all_flags ( new_selectors )
@@ -5034,7 +5028,7 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
-	min::uns32 lexical_master = LEX::MISSING_MASTER;
+	min::uns32 lexical_master = PAR::MISSING_MASTER;
 	min::locatable_gen implied_header
 	    ( min::MISSING() );
 	while ( i < size && vp[i] == PAR::with )
@@ -5105,11 +5099,10 @@ static min::gen bracketed_pass_command
 		position.end = (& ppvec[i-1])->end;
 
 		lexical_master =
-		    LEX::lexical_master_index
-		        ( master_name,
-			  parser->scanner );
+		    PAR::get_lexical_master
+		        ( master_name, parser );
 		if (    lexical_master
-		     == LEX::MISSING_MASTER )
+		     == PAR::MISSING_MASTER )
 		    return PAR::parse_error
 			( parser, position,
 			  "`",
@@ -5441,7 +5434,7 @@ static min::gen bracketed_pass_command
 	    ( min::MISSING() );
 	min::locatable_gen implied_subprefix_type
 	    ( min::MISSING() );
-	min::uns32 lexical_master = LEX::MISSING_MASTER;
+	min::uns32 lexical_master = PAR::MISSING_MASTER;
 
 	while ( i < size && vp[i] == PAR::with )
 	{
@@ -5557,11 +5550,10 @@ static min::gen bracketed_pass_command
 		position.end = (& ppvec[i-1])->end;
 
 		lexical_master =
-		    LEX::lexical_master_index
-		        ( master_name,
-			  parser->scanner );
+		    PAR::get_lexical_master
+		        ( master_name, parser );
 		if (    lexical_master
-		     == LEX::MISSING_MASTER )
+		     == PAR::MISSING_MASTER )
 		    return PAR::parse_error
 			( parser, position,
 			  "`",

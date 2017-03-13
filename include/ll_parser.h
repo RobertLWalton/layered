@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 03:31:59 EDT 2017
+// Date:	Sun Mar 12 12:11:38 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1516,6 +1516,25 @@ inline void set_lexical_master
     if ( lexical_master != MISSING_MASTER )
 	ll::lexeme::set_lexical_master
 	      ( lexical_master, parser->scanner );
+}
+
+// Find lexical master given master name and vice versa.
+// Returns MISSING_MASTER or min::MISSING() if not
+// found.
+//
+inline min::uns32 get_lexical_master
+	( min::gen master_name,
+	  ll::parser::parser parser = default_parser )
+{
+    return ll::lexeme::lexical_master_index
+        ( master_name, parser->scanner );
+}
+inline min::gen get_master_name
+	( min::uns32 lexical_master,
+	  ll::parser::parser parser = default_parser )
+{
+    return ll::lexeme::lexical_master_name
+        ( lexical_master, parser->scanner );
 }
 
 // Begin/end a parser block with the given name.  Return

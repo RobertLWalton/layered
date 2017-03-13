@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 28 04:55:25 EST 2017
+// Date:	Mon Mar 13 01:08:36 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -459,6 +459,9 @@ struct block_struct
     min::uns32 saved_undefined_stack_length;
         // Undefined_stack length when block begins.
 
+    min::uns32 saved_lexical_master;
+        // Top level lexical master when block begins.
+
     ll::parser::table::flags saved_selectors;
     	// Top level selectors when block begins.
 
@@ -485,6 +488,7 @@ inline void push_block
 	      selector_name_table,
 	  ll::parser::table::undefined_stack
 	      undefined_stack,
+	  min::uns32 lexical_master,
 	  ll::parser::table::flags selectors,
 	  ll::parser::table::flags trace_flags )
 {
@@ -492,7 +496,8 @@ inline void push_block
         { name,
 	  selector_name_table->length,
 	  undefined_stack->length,
-	  selectors, trace_flags };
+	  lexical_master, selectors,
+	  trace_flags };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );

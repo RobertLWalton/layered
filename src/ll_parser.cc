@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar  4 18:24:08 EST 2017
+// Date:	Mon Mar 13 01:11:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -687,6 +687,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	parser->selectors = PAR::DEFAULT_OPT
 	                  + PAR::TOP_LEVEL_SELECTOR
 	                  + PAR::ALWAYS_SELECTOR;
+	parser->lexical_master = PAR::MISSING_MASTER;
 	PAR::prefix_separator_ref(parser) =
 	    min::MISSING();
 
@@ -1046,6 +1047,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     parser->selectors = PAR::DEFAULT_OPT
 		      + PAR::TOP_LEVEL_SELECTOR
 		      + PAR::ALWAYS_SELECTOR;
+    parser->lexical_master = PAR::MISSING_MASTER;
     PAR::prefix_separator_ref(parser) =
 	min::MISSING();
 }
@@ -1205,7 +1207,7 @@ void PAR::parse ( PAR::parser parser )
     BRA::line_data & line_data = line_variables.current;
 
     line_data.lexical_master =
-        LEX::MISSING_MASTER;
+        parser->lexical_master;
     line_data.selectors =
         parser->selectors;
     line_data.implied_header =
@@ -1520,6 +1522,7 @@ min::gen PAR::begin_block
                       name,
 		      parser->selector_name_table,
                       parser->undefined_stack,
+		      parser->lexical_master,
 		      parser->selectors,
 		      parser->trace_flags );
 
@@ -1593,6 +1596,7 @@ min::gen PAR::end_block
 	    result = saved_result;
     }
 
+    parser->lexical_master = (&b)->saved_lexical_master;
     parser->selectors = (&b)->saved_selectors;
     parser->trace_flags = (&b)->saved_trace_flags;
 

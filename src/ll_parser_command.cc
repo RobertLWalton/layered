@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 28 14:22:04 EST 2017
+// Date:	Mon Mar 13 01:58:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -857,8 +857,8 @@ static min::gen execute_selectors
     return min::SUCCESS();
 }
 
-// Execute Context
-// ------- -------
+// Execute Top Level
+// ------- --- -----
 
 static min::gen execute_top_level
 	( min::obj_vec_ptr & vp, min::uns32 i0,
@@ -889,6 +889,8 @@ static min::gen execute_top_level
 	    << min::set_indent ( indent + 4 );
 
 	TAB::flags flags = parser->selectors;
+	min::uns32 lexical_master =
+	    parser->lexical_master;
 	for ( min::uns32 i =
 		  parser->block_stack->length;
 	      ; -- i )
@@ -923,12 +925,28 @@ static min::gen execute_top_level
 		  parser->selector_name_table,
 		  parser );
 
+	    if ( lexical_master != PAR::MISSING_MASTER )
+	    {
+		min::locatable_gen name
+		    ( PAR::get_master_name
+			  ( lexical_master, parser ) );
+		parser->printer << min::indent
+		                << " lexical master ";
+		if ( name != min::MISSING() )
+		    parser->printer
+			<< min::pgen_quote ( name );
+		else
+		    parser->printer << lexical_master;
+	    }
+
 	    parser->printer << min::restore_indent;
 
 	    if ( i == 0 ) break;
 
 	    flags = (&parser->block_stack[i-1])
 			->saved_selectors;
+	    lexical_master = (&parser->block_stack[i-1])
+			         ->saved_lexical_master;
 	}
 
 	parser->printer << min::eom;
@@ -938,6 +956,8 @@ static min::gen execute_top_level
     TAB::new_flags new_selectors;
     TAB::new_flags new_options;
 	// Inited to zeroes.
+
+    min::uns32 lexical_master = parser->lexical_master;
     min::uns32 saved_i = i;
     while ( i < size && vp[i] == PAR::with )
     {
@@ -992,6 +1012,36 @@ static min::gen execute_top_level
 	    	     ( result == min::SUCCESS() );
 	}
 	else
+	if ( i + 1 < size
+	     &&
+	     vp[i] == PAR::lexical
+	     &&
+	     vp[i+1] == PAR::master )
+	{
+	    i += 2;
+	    min::phrase_position position
+		= ppvec[i];
+	    min::locatable_gen master_name
+		( PAR::scan_name
+		    ( vp, i, parser, PAR::with ) );
+	    if ( master_name == min::ERROR() )
+		return min::ERROR();
+	    position.end = (& ppvec[i-1])->end;
+
+	    lexical_master =
+		PAR::get_lexical_master
+		    ( master_name, parser );
+	    if (    lexical_master
+		 == PAR::MISSING_MASTER )
+		return PAR::parse_error
+		    ( parser, position,
+		      "`",
+		      min::pgen_quote
+			  ( master_name ),
+		      "' does NOT name a lexical"
+		      " master" );
+	}
+	else
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected `parsing selectors'"
@@ -1011,6 +1061,7 @@ static min::gen execute_top_level
                       ^  new_options.xor_flags;
     parser->selectors |= PAR::TOP_LEVEL_SELECTOR
                       |  PAR::ALWAYS_SELECTOR;
+    parser->lexical_master = lexical_master;
 
     if ( i < size )
         return PAR::parse_error

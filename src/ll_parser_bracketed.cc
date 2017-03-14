@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 14 13:43:34 EDT 2017
+// Date:	Tue Mar 14 13:56:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3078,6 +3078,11 @@ NEXT_TOKEN:
 			}
 		    }
 		}
+
+		// Separator cannot be found inside
+		// brackets.
+		//
+		MIN_REQUIRE ( ! separator_found );
 
 		PAR::token next = current;
 		min::phrase_position position;

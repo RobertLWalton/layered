@@ -1822,7 +1822,7 @@ BRACKETED EXPRESSION:
 {l1} This is a line {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {l1: .terminator = ";"|This is a line|l1};
+    {l1: .terminator = ";"|This is a line|l1}
     line ###:
 {l1} This is a line; {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^
@@ -1832,10 +1832,15 @@ BRACKETED EXPRESSION:
 {l1} This is a line; {l2} and continuation.
                      ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {l1: .terminator = ";"|And another line|l1};
+    {l1: .terminator = ";"|And another line|l1}
     line ###:
 {l1} And another line;
 ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a last line;
+    line ###:
+And a last line;
+^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
        `paragraph' group but is not at beginning of a logical line that
        is in paragraph beginning position; ignored:

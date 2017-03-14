@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 13:53:18 EST 2017
+// Date:	Tue Mar 14 14:57:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1070,7 +1070,8 @@ struct bracket_stack
     ll::parser::token closing_first, closing_next;
         // If these are NULL_STUB, this entry is open.
 	// The bracketed subexpression may be closed
-	// anyway by a non-indented line or end of file.
+	// anyway by a non-indented line or end of file
+	// or a found separator.
 	//
 	// Otherwise if opening_bracket != NULL_STUB,
 	// then if first != next, these entries are the

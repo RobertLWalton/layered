@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 01:57:35 EDT 2017
+// Date:	Tue Mar 14 14:47:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1298,6 +1298,7 @@ void PAR::parse ( PAR::parser parser )
 	          ->line_sep;
 	bool maybe_parser_command = 
 	    ( current->value == PAR::star_parser );
+	    // An optimization.
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
@@ -1311,20 +1312,20 @@ void PAR::parse ( PAR::parser parser )
 	min::uns32 error_count_save =
 	    parser->error_count;
 
-        // If subexpression is not empty, or separator
-	// found, compact it.
+	if ( first == current ) continue;
+
+        // If subexpression is not a single element
+	// subexpression whose one element has prefix
+	// group `paragraph' or `line', compact it as
+	// a logical line.
 	//
-	if ( separator_found
+	if ( first->next != current
 	     ||
-	     ( first != current
+	     (    first->value_type
+	       != PAR::paragraph_lexeme
 	       &&
-	       ( first->next != current
-	         ||
-		 (    first->value_type
-		   != PAR::paragraph_lexeme
-		   &&
-		      first->value_type
-		   != PAR::line_lexeme ) ) ) )
+		  first->value_type
+	       != PAR::line_lexeme ) )
 	{
 	    PAR::compact_logical_line
 		( parser, parser->pass_stack->next,
@@ -1337,23 +1338,31 @@ void PAR::parse ( PAR::parser parser )
 		  0 );
 	}
 
-	PAR::token output = min::NULL_STUB;
+	// output is first token to be output.
+	// next is first token after tokens to be
+	//      output.
+	//
+	PAR::token output = first;
+	PAR::token next = first;
 
 	// Compact prefix paragraph if necessary.
 	//
 	if (    first->value_type
 	     == PAR::paragraph_lexeme )
 	{
+	    MIN_REQUIRE ( ! maybe_parser_command );
+
 	    if ( line_variables.last_paragraph
 		 != min::NULL_STUB )
 	    {
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables.last_paragraph,
+		      first,
+		      0 );
 		output = line_variables.last_paragraph;
 		line_variables.last_paragraph
 		    = min::NULL_STUB;
-		PAR::compact_paragraph
-		    ( parser,
-		      output, first,
-		      0 );
 	    }
 
 	    if ( ! parser->at_paragraph_beginning
@@ -1363,7 +1372,7 @@ void PAR::parse ( PAR::parser parser )
 		   PAR::CONTINUING_OPT ) )
 		line_variables.last_paragraph = first;
 	    else
-		output = first;
+		next = first->next;
 	}
 	else if ( parser->at_paragraph_beginning
 	          &&
@@ -1374,21 +1383,22 @@ void PAR::parse ( PAR::parser parser )
 		      &
 		      PAR::CONTINUING_OPT ) )
 	{
-	    output = line_variables.last_paragraph;
-	    line_variables.last_paragraph
-		= min::NULL_STUB;
+	    maybe_parser_command = false;
 	    PAR::compact_paragraph
 		( parser,
-		  output, current,
+		  line_variables.last_paragraph,
+		  current,
 		  0 );
+	    output = line_variables.last_paragraph;
+	    next = output->next;
+	    line_variables.last_paragraph
+		= min::NULL_STUB;
 	}
-	else if ( first == current )
-	    continue;
 	else if (    line_variables.last_paragraph
 	          == min::NULL_STUB )
-	    output = current->previous;
+	    next = output->next;
 
-	if ( output == min::NULL_STUB )
+	if ( output == next )
 	    continue;
 
 	min::gen result = min::FAILURE();
@@ -1397,6 +1407,8 @@ void PAR::parse ( PAR::parser parser )
 	    result = min::ERROR();
 	else if ( maybe_parser_command )
 	{
+	    MIN_REQUIRE ( output->next == next );
+
 	    line_variables.current =
 	    line_variables.paragraph =
 		line_variables.indentation_paragraph;
@@ -1448,20 +1460,35 @@ void PAR::parse ( PAR::parser parser )
 
 	if ( result == min::FAILURE() )
 	{
-	    ++ parser->finished_tokens;
 	    if ( parser->output != NULL_STUB )
+	    {
+	        while ( output != next )
+		{
+		    ++ parser->finished_tokens;
+		    output = output->next;
+		}
 		(* parser->output->remove_tokens)
 		    ( parser, parser->output );
+	    }
 	    else
-	        trace_subexpression
-		    ( parser, output,
-		      trace_flags );
+	    {
+	        while ( output != next )
+		{
+		    trace_subexpression
+			( parser, output,
+			  trace_flags );
+		    output = output->next;
+		}
+	    }
 	}
 	else
+	{
+	    MIN_REQUIRE ( output->next == next );
 	    PAR::free
 		( PAR::remove
 		    ( PAR::first_ref ( parser ),
 		      output ) );
+	}
     }
 
     for ( PAR::pass pass = parser->pass_stack;

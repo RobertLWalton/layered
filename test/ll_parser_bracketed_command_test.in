@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 14 13:44:45 EDT 2017
+// Date:	Tue Mar 14 14:15:12 EDT 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -612,6 +612,7 @@ with one extra line.
 {l1} This is a line {l2} and continuation.
 {l1} This is a line; {l2} and continuation.
 {l1} And another line;
+And a last line;
 
 {p} This is a paragraph {p} and continuation.
 

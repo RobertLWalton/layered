@@ -150,9 +150,65 @@ INDENT: line ##:
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing]
+    print bracket ""
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with label reformatter
+        block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with multivalue reformatter ( "," )
+        block TOP LEVEL: bracket "(" ... ")" [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket "[" ... "]" [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket "`" ... "'" [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
+                         // "||" is also allowed.
+                         [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with attribute selectors [data]
+                         with attributes ":" ... "=" ... ","
+                         with attribute negator "no"
+                         with attribute flags initiator "["
+                         with attribute multivalue initiator [< "{" "*" >]
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with special reformatter
 ======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
                          ")" ")" "]"
 ======= END PARSER TEST(S)
+*PARSER*:
+    begin block X
+    define top level
+        with parsing selectors [+ data]
+    print top level
+        block X:  selectors [TOP LEVEL, data, code]
+                  options [end at le indent, end at line separator,
+                           end at outer closing]
+        block standard:  selectors [TOP LEVEL, code]
+                         options [end at le indent,
+                                  end at line separator,
+                                  end at outer closing]
+        block TOP LEVEL:  selectors [TOP LEVEL]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing]
+======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
+                         ")" ")" "]"
+======= END PARSER TEST(S)
+*PARSER*:
+    end block X
 *PARSER*:
     trace [+ subexpression lines]
 ======= PARSER TEST:

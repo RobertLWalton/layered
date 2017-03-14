@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 01:44:19 EDT 2017
+// Date:	Tue Mar 14 13:43:34 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2469,26 +2469,17 @@ NEXT_TOKEN:
 		        line_variables.previous->next;
 		    PAR::token next = current;
 
-		    if ( BRA::is_closed
-			     ( bracket_stack_p ) )
-		    {
-			// Line was terminated by
-			// outer closing bracket,
-			// indent, or end of file.
-			// Set line end to beginning
-			// of that terminator.
-			//
-			MIN_REQUIRE
-			    ( ! separator_found );
-			next = bracket_stack_p
-				  ->closing_first;
-		    }
+		    // A logical line cannot be closed
+		    // by a closing bracket or prefix.
+		    //
+		    MIN_REQUIRE
+		        ( ! BRA::is_closed
+			        ( bracket_stack_p ) );
 
 		    // Compact line subsubexp if it
-		    // is has a separator or it is not
-		    // empty and not a single element
-		    // subsubexp whose element has
-		    // prefix group `paragraph' or
+		    // is not empty and not a single
+		    // element subsubexp whose element
+		    // has prefix group `paragraph' or
 		    // `line'.
 		    //
 		    if ( first != next
@@ -2573,12 +2564,8 @@ NEXT_TOKEN:
 		    //
 		    if ( separator_found )
 			continue;
-		    else if
-			( BRA::is_closed
-			      ( bracket_stack_p )
-			  ||
-			     current->type
-			  == LEXSTD::end_of_file_t )
+		    else if (    current->type
+			      == LEXSTD::end_of_file_t )
 			break;
 
 		    MIN_REQUIRE

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 01:58:19 EDT 2017
+// Date:	Mon Mar 13 20:27:34 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1259,10 +1259,14 @@ static min::gen execute_block
     min::locatable_gen name
         ( PAR::scan_simple_name ( vp, i ) );
     if ( name == min::MISSING() )
+    {
+	min::phrase_position p0 = ppvec[i0];
+	min::phrase_position p1 = ppvec[i0+1];
+	min::phrase_position pos = { p0.begin, p1.end };
 	return PAR::parse_error
-	    ( parser,
-	      ppvec[i0],
+	    ( parser, pos,
 	      "expected block name after" );
+    }
     if ( i != min::size_of ( vp ) )
         return PAR::parse_error
 	    ( parser,

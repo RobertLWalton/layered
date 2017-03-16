@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 14 14:47:17 EDT 2017
+// Date:	Thu Mar 16 02:31:24 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1113,6 +1113,54 @@ void PAR::init_ostream
     min::init_ostream ( printer_ref(parser), out );
 }
 
+static void init_line_data
+        ( BRA::line_variables & line_variables,
+	  PAR::parser parser )
+{
+    BRA::line_data & line_data = line_variables.current;
+
+    line_data.lexical_master = parser->lexical_master;
+    line_data.selectors = parser->selectors;
+    line_data.implied_header = min::MISSING();
+    line_data.header_entry = min::NULL_STUB;
+        // Just for safety.
+    line_variables.paragraph =
+    line_variables.implied_paragraph =
+    line_variables.indentation_paragraph =
+    line_variables.indentation_implied_paragraph =
+        line_variables.current;
+}
+
+inline bool operator ==
+	( const BRA::line_data & data1,
+	  const BRA::line_data & data2 )
+{
+    return data1.lexical_master == data2.lexical_master
+           &&
+	   data1.selectors == data2.selectors
+	   &&
+	   data1.implied_header == data2.implied_header
+	   &&
+	   data1.header_entry == data2.header_entry
+	   &&
+	      data1.header_selectors
+	   == data2.header_selectors;
+}
+
+inline bool line_data_as_inited
+        ( const BRA::line_variables & line_variables )
+{
+    return    line_variables.current
+	   == line_variables.indentation_paragraph
+	   &&
+	      line_variables.paragraph
+	   == line_variables.indentation_paragraph
+	   &&
+	      line_variables.implied_paragraph
+	   == line_variables
+	          .indentation_implied_paragraph;
+}
+
 void PAR::parse ( PAR::parser parser )
 {
     // Initialize parser parameters.
@@ -1203,22 +1251,8 @@ void PAR::parse ( PAR::parser parser )
     bool first_lexeme = true;
 
     BRA::line_variables line_variables;
+    ::init_line_data ( line_variables, parser );
     line_variables.last_paragraph = min::NULL_STUB;
-    BRA::line_data & line_data = line_variables.current;
-
-    line_data.lexical_master =
-        parser->lexical_master;
-    line_data.selectors =
-        parser->selectors;
-    line_data.implied_header =
-        min::MISSING();
-    line_data.header_entry =
-        min::NULL_STUB;  // Just for safety.
-    line_variables.paragraph =
-    line_variables.implied_paragraph =
-    line_variables.indentation_paragraph =
-    line_variables.indentation_implied_paragraph =
-        line_variables.current;
 
     parser->at_paragraph_beginning = true;
     line_variables.current.selectors =
@@ -1409,13 +1443,6 @@ void PAR::parse ( PAR::parser parser )
 	{
 	    MIN_REQUIRE ( output->next == next );
 
-	    line_variables.current =
-	    line_variables.paragraph =
-		line_variables.indentation_paragraph;
-	    line_variables.implied_paragraph =
-		line_variables
-		    .indentation_implied_paragraph;
-
 	    min::obj_vec_ptr vp ( output->value );
 	    if ( vp != min::NULL_STUB )
 	    {
@@ -1432,8 +1459,17 @@ void PAR::parse ( PAR::parser parser )
 			    ( parser, vp[0] );
 		    else if (    initiator
 		              == PAR::parser_colon )
+		    {
+		        MIN_REQUIRE
+			    ( ::line_data_as_inited
+			          ( line_variables ) );
+
 			COM::parser_execute_command
 			    ( parser, vp[0] );
+
+			::init_line_data
+			    ( line_variables, parser );
+		    }
 		    else
 			result = min::FAILURE();
 		}

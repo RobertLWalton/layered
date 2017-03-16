@@ -204,8 +204,7 @@ INDENT: line ##:
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing]
-======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
-                         ")" ")" "]"
+======= PARSER TEST: [x <+ y +> z {w|4|w} m (n (p))]
 ======= END PARSER TEST(S)
 *PARSER*:
     end block X

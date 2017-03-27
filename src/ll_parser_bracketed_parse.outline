@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 25 15:03:32 EDT 2017
+// Date:	Mon Mar 27 15:07:42 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,7 +60,9 @@
 //     do NOT make it part of the label, but instead
 //     give it the ATTR_FLAGS token type.  After making
 //     the label token give it the ATTR_LABEL token
-//     type and increment typed_data->attr_count.
+//     type, increment typed_data->attr_count, and set
+//     typed_data->attributes to point at the token if
+//     typed_data->attributes is NULL.
 //
 //     Note that attributes with empty labels will
 //     cause an error message and be otherwise ignored
@@ -128,7 +130,7 @@
 //     The attributes to be moved are all the tokens
 //     from typed_data->attributes through next->
 //     previous.
-//
+
 // parse_bracketed_subexpression(...)
 //
 // Arguments:
@@ -142,9 +144,6 @@
 // 	    proceeds.
 // 	indent
 // 	    Current paragraph indent.
-// 	line_sep
-// 	    Line separator if enabled to be found.
-// 	    NULL_STUB if disabled.
 // 	typed_data
 // 	    After reading a typed opening, the parse
 // 	    bracketed subexpression function allocates a
@@ -155,16 +154,11 @@
 // 	    pression function have a NULL typed_data
 // 	    argument.
 // 	line_variables
-// 	    To parse an indented paragraph, the parse
-// 	    bracketed subexpression function allocates
-// 	    a line_variables structure to the stack,
-// 	    initializes it, and then makes a series of
-// 	    recursive calls to itself each parsing one
-// 	    logical line.  The recursive calls update
-// 	    the line_variables structure.  This argument
-// 	    is non-NULL if and only if the parse
-// 	    bracketed subexpression function is being
-// 	    asked to parse a logical line.
+// 	    This points at the line variables being used
+// 	    to parse the current logical line.  These
+// 	    variables are updated as the parse proceeds,
+// 	    and the updated variables are used to parse
+// 	    the next logical line.
 // 	bracket_stack_p
 // 	    Top bracket stack entry.  NULL if empty
 // 	    stack.
@@ -186,6 +180,9 @@
 //     // Bracketed pass; always the first pass in the
 //     // pass stack.
 // indentation_mark indentation_found = NULL_STUB
+//     // If not NULL_STUB, current token is an end-of-
+//     // line and current->previous token is the last
+//     // token of an indentation mark.
 // start_previous = current->previous
 //     // If current == start_previous->next, current
 //     // is at the beginning of the subexpression
@@ -195,6 +192,11 @@
 //     // value.  There always is a current->previous,
 //     // as the start-of-file token is never removed
 //     // from the input.
+// parsing_logical_line =
+//         line_variables->previous == start_previous
+//     // True iff the parse_bracketed_subexpression()
+//     // was called to parse a logical line, and not
+//     // a subexpression of a logical line.
 //
 // loop to find next token:
 //
@@ -202,18 +204,23 @@
 //     // through the loop, and on subsequent times
 //     // we go to NEXT_TOKEN or PREFIX_FOUND.
 //
-//     // Variables used by PREFIX_FOUND code block:
+//     // Variables used by PREFIX_FOUND and PREFIX_
+//     // PARSE code blocks:
 //
 //	   prefix
 //	       The prefix token at the head of the
 //	       prefix-n-list that is to be created.  The
 //	       prefix-n-list's elements have not yet
 //	       been parsed.
+//
+//     // Variables used by PREFIX_FOUND code block:
+//
 //	   separator_found
 //	       Result of parse_bracketed_subexpression
 //	       that parsed the prefix token, or MISSING_
 //	       POSITION if prefix token was copied from
 //	       an implied subprefix or implied header.
+//
 //	   premature_closing
 //	       True iff parse_bracketed_subexpression
 //	       parsed the prefix token and the prefix
@@ -225,10 +232,37 @@
 //           premature_closing is false and separator_
 //           found is MISSING_POSITION.
 //
-//     if top bracket stack entry does not exist or its
-//            prefix_entry does not exist or that has
-//            a MISSING implied_subprefix:
-//         go to NEXT_TOKEN
+//     // Variables used by PREFIX_PARSE code block:
+//
+//	   prefix_type
+//	       Type of prefix.
+//
+//	   prefix_entry
+//	       Prefix table entry for type of prefix,
+//	       or NULL_STUB if none.
+//
+//	   prefix_group
+//	       prefix_entry->group, or MISSING if
+//	       prefix_entry is NULL_STUB.
+//
+//	   prefix_selectors
+//	       Selectors used in parsing the prefix-n-
+//	       list headed by the prefix.
+//
+//
+//     if parsing_logical_line:
+//         if line_variables->current.implied_header
+//                            is MISSING:
+//              go to NEXT_TOKEN
+//         prefix_entry =
+//             line_variables->current.header_entry;
+//             // Required to be != NULL_STUB.
+//         prefix_selectors =
+//             line_variables->current.header_selectors;
+//         prefix_group =
+//             prefix_entry->group
+// TBD
+//         go to PREFIX_PARSE
 //
 //     Insert IMPLIED_PREFIX token before current token.
 //            Value of new token is implied_prefix of

@@ -535,9 +535,14 @@ A declaration statement of the following form defines a type:
 \TT{type} {\em qualifier-name}\STAR{} {\em defined-type-name}
           \TT{is} {\em base-type-name}
 \end{center}
+
 Any {\em qualifiers} in the declaration are attached to every
 variable or argument declared to have the defined type (see
-section \itemref{QUALIFIERS} for more on this).
+section \itemref{QUALIFIERS} for more on {\em qualifiers}).
+
+No type name may be a prefix of another type name.
+No qualifier name may be a prefix of a type name.
+No type name may begin with `\TT{next}'.
 
 A value of a defined type may be converted to or from its base
 type by the
@@ -1230,8 +1235,8 @@ The qualifiers may be declared by:
     \end{tabular}
 \end{indpar}
 
-No qualifier name may be a prefix of another qualifier name.
-No qualifier name may begin with `\TT{next}'.
+No qualifier name may be a prefix of another qualifier name or of
+any type name.  No qualifier name may begin with `\TT{next}'.
 
 If a function prototype variable (argument or result) has
 a \key{required qualifier}, any call variable matched to this
@@ -1796,12 +1801,14 @@ assignment statements:
 An assignment statement
 allocates new variables with the given {\em variable-names}, types,
 and qualifiers
-to the stack and stores values from the {\em expression} in the variables
+to the stack and stores values from the {\em expression} in the
+assignment statement result variables
 ({\em qualifiers} are described in section \itemref{QUALIFIERS}).
 The {\em expression} produces a list of values, and this list must have
-at least as many elements as there are variables.  Each variable is
+at least as many elements as there are result variables.
+Each result variable is
 assigned its value in order.  If the {\em expression} produces
-too many values, the excess values at the end of the value list will be
+too many values, the excess values at the end of the value list are
 discarded.
 
 The value assigned to each variable
@@ -1830,7 +1837,7 @@ new variable simply becomes a compile-time alias for the old variable.
 No executable copy code is created, no new register is allocated, and no new
 value is pushed into the stack.
 
-Similarly if a variable value can be computed from previous variable
+Similarly if a variable value can be easily computed from previous variable
 values by in-line code, 
 its value may not be pushed into the stack.  Instead its
 value can be recovered at any time by repeating the computation
@@ -1841,7 +1848,7 @@ name.  Thus variables are only assigned values once.
 
 However, if an assignment statement uses the word `\TT{next}' in
 place of the {\em qualifiers} and {\em type-name}
-of a variable being assigned a value, then the named variable must
+of a result variable being assigned a value, then the named variable must
 have been previously assigned a value within the same block,
 and a new variable with the same
 name, type, and qualifiers as the previous variable is allocated,
@@ -1852,11 +1859,14 @@ Note that `\TT{next}' behaves differently for loop interation
 variables (see below) than it does for other variables.
 
 All assignment statements have a special case where there are
-no variables being assigned, the {\em variables-list} is omitted,
+no result variables being assigned, the {\em variables-list} is omitted,
 and the \TT{=} is also omitted.  In this case the
 {\em simple-assignment-statement} reduces to just an {\em expression}
 that executes for side effects (such as
 input/output or non-stack memory modification).
+However, sometimes assignment statements with no explicit
+result variables have implicit `\TT{next}' result variables:
+see \pagref{IMPLICIT-NEXT-RESULT-VARIABLES}.
 
 Some examples of {\em simple-assignment-statements} are:
 \begin{indpar}\begin{verbatim}
@@ -1891,13 +1901,13 @@ Another variant of the assignment statement is\index{block assignment}:
 where `\TT{do}' may be omitted as long as \TT{=} is not omitted.
 
 The {\em statements} in the block can include
-{\em assignment-statements} in which {\em variable-declarations}
+{\em assignment-statements} in which {\em result-variable-declarations}
 are replaced by simple {\em variable-names}
 if these variables have the same name as a variable
 in the {\em block-assignment-statement's} {\em result-variable-list}.
-These {\em statements} assign values to the variables
+These {\em statements} assign values to the result variables
 in the {\em block-assignment-statement's} {\em result-variable-list}.
-Furthermore, every variable in the
+Furthermore, every result variable in the
 {\em block-assignment-statement's} {\em result-variable-list}
 \underline{must} be assigned a value
 by exactly one of the {\em statements} in the block.
@@ -1908,9 +1918,11 @@ variable has been assigned a value by a previous one of these
 
 Variables allocated in the block are not visible outside the
 block.  They may \underline{not} have the same name as a variable
-\TT{v} visible outside the block,  and they may \underline{not}
-have the name `\TT{next v}' where  \TT{v} is a block result
-variable or is otherwise visible outside the block.
+\TT{v} that is a result variable of the block or is
+visible outside the block at the point where the block
+occurs\footnote{This is more restrictive that other block structured
+languages such as C.}, and they may \underline{not}
+have the name `\TT{next v}' for such a variable.
 
 An example of a {\em block-assignment-statement} is:
 \begin{indpar}\begin{verbatim}
@@ -1962,13 +1974,13 @@ reached, and then the {\em statements} subject to the
 first true condition (a.k.a the \key{subblock} of that condition)
 are executed, or if no condition is true, the {\em statements}
 of the `\TT{else}' subblock are executed.  Each separate subblock of
-{\em statements} must set \underline{every} variable
+{\em statements} must set \underline{every} result variable
 in the {\em condition-assignment-statement's} {\em result-variable-list} exactly
 once, with exceptions for defaults described next.
 
 A {\em conditional-assignment-statement} with a
 {\em result-variable-list} may have
-`\ttkey{default}\TT{:}' subblocks.  Each assigns one or more
+`\ttkey{default}\TT{:}' subblocks.  Each assigns one or more result
 variables in the {\em result-variable-list}.  After any non-default subblocks
 that are going to execute have executed, if there are any unset
 variables in the {\em result-variable-list},
@@ -1979,7 +1991,7 @@ only if \underline{all} of the
 \underline{not} been set yet.
 
 No two default subblocks may set the same {\em result-variable-list}
-variable.  This rule is purely to prevent overly clever code that
+result variable.  This rule is purely to prevent overly clever code that
 uses the execution of earlier default blocks to disable the
 execution of later default blocks.
 
@@ -1998,9 +2010,9 @@ function float64 result =
             result = NaN
         x => y and x => z:
             result = x
-        y => z && y => x:
+        y => z and y => x:
             result = y
-        z => y && z => x:
+        z => y and z => x:
             result = z
 \end{verbatim}\end{indpar}
 
@@ -2063,11 +2075,6 @@ the compiler will be able to do for integer types).  If
 \TT{T} is a floating point type, the compiler will be able
 to prove that an `\TT{else}' is not needed, as the last condition
 is always true.
-
-[TBD: Maybe default clauses should exist for all block style
-assignment statements and execute at the beginning, setting
-values for result variables that will be available outside
-the block if the block does not set any values itself.]
 
 
 \subsection{Loop Assignment Statements}
@@ -2292,8 +2299,10 @@ type than corresponding prototype argument if there is an implied
 conversion from the call block
 argument type to the prototype argument type,
 in which case the implied conversion will be invoked.
-Note that the conversion \underline{must be implied}, and not
-\TT{*UNCHECKED*}, even if the prototype argument has the
+Similarly a prototype result variable may be converted to
+a call block result variable by an implied conversion.
+Note that these conversions \underline{must be implied}, and not
+\TT{*UNCHECKED*}, even if the prototype argument or result variable has the
 \TT{*UNCHECKED*} qualifier.
 
 Out-of-line functions are defined by declarations of the form:
@@ -2321,7 +2330,7 @@ result variable values from the argument variable values.
 
 For the function to be callable at compile time, the
 \TT{*COMPILE-TIME*} or \TT{*COMPILE-\EOL TIME-\EOL ONLY*} options must be given.
-Then the function may not reference Global Areas that are
+Then the function may not reference Global Areas that
 do not have the same options (see Section~\itemref{GLOBAL-AREAS}).
 See Section~\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}.
 A \TT{*COMPILE-\EOL TIME*} out-of-line function will also be callable at

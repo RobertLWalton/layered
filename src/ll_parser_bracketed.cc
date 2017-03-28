@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 14 13:56:32 EDT 2017
+// Date:	Tue Mar 28 07:15:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1446,9 +1446,9 @@ min::position BRA::parse_bracketed_subexpression
 	        bracket_stack_p->prefix_entry;
 	    if ( p == min::NULL_STUB )
 	        goto NEXT_TOKEN;
-	    min::gen implied_prefix =
+	    min::gen implied_subprefix =
 	        p->implied_subprefix;
-	    if ( implied_prefix == min::MISSING() )
+	    if ( implied_subprefix == min::MISSING() )
 	        goto NEXT_TOKEN;
 
 	    prefix = PAR::new_token
@@ -1456,7 +1456,7 @@ min::position BRA::parse_bracketed_subexpression
 	    PAR::put_before
 	        ( PAR::first_ref(parser),
 		  current, prefix );
-	    PAR::value_ref(prefix) = implied_prefix;
+	    PAR::value_ref(prefix) = implied_subprefix;
 	    PAR::value_type_ref(prefix) =
 	        p->implied_subprefix_type;
 	    prefix->position.begin =

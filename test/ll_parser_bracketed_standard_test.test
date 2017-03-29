@@ -3008,7 +3008,8 @@ PREFIX EXPRESSION:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
          ^^^
 ERROR: in line ###: prefix separator of type `X' not at beginning of
-       subexpression; ignored:
+       subexpression and does not continue subexpression started by
+       another prefix with the same type or group; ignored:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
          ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "("
@@ -3057,7 +3058,8 @@ PREFIX EXPRESSION:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                            ^^^
 ERROR: in line ###: prefix separator of type `Z' not at beginning of
-       subexpression; ignored:
+       subexpression and does not continue subexpression started by
+       another prefix with the same type or group; ignored:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                            ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ")"
@@ -3543,7 +3545,8 @@ PREFIX EXPRESSION:
   {p} {s} And a new {foo} paragraph.
                     ^^^^^
 ERROR: in line ###: prefix separator of type `foo' not at beginning of
-       subexpression; ignored:
+       subexpression and does not continue subexpression started by
+       another prefix with the same type or group; ignored:
   {p} {s} And a new {foo} paragraph.
                     ^^^^^
 BRACKETED EXPRESSION:
@@ -5641,7 +5644,8 @@ PREFIX EXPRESSION:
          has an {x} unrecognized because it
                 ^^^
 ERROR: in line ###: prefix separator of type `x' not at beginning of
-       subexpression; ignored:
+       subexpression and does not continue subexpression started by
+       another prefix with the same type or group; ignored:
          has an {x} unrecognized because it
                 ^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "`"

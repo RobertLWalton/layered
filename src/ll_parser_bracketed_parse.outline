@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 29 06:54:43 EDT 2017
+// Date:	Wed Mar 29 16:09:58 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -359,70 +359,116 @@
 //             // Thus implied `line' prefix gets
 //             // empty list and will be deleted.
 //
-// TBD
+//     if prefix_group == `paragraph':
+//         if prefix->type == IMPLIED_PREFIX:
+//             announce that prefix is `paragraph'
+//                      prefix implied by previous
+//                      prefix and is thus in error
+//                      and is ignored
+//             remove prefix token
+//         else if prefix is not first token of
+//                 logical line OR logical line is
+//                 not in paragraph beginning position:
+//             announce that prefix is explicit
+//                      `paragraph' prefix not in
+//                      paragraph beginning position
+//                      and is ignored
+//             remove prefix token
 //
-//     if prefix not first token of subexpression:
-//         announce PREFIX token is in error and is
-//                  being ignored
-//         delete prefix token
+//     else if prefix_group == `line' AND prefix is
+//             NOT at beginning of current logical
+//             line AND top bracket stack entry is
+//             NOT for a `paragraph' prefix:
+//         announce that prefix is `line' prefix that
+//                  is not at the beginning of a logical
+//                  line or immediately after a
+//                  `paragraph' prefix and is ignored
+//         remove prefix token
+//
+//     else if prefix not at start subexpression being
+//             parsed by parse_bracketed_subexpression:
+//         announce that prefix is not at beginning of
+//                  subexpression and does not continue
+//                  subexpression started by another
+//                  prefix of the prefix type or group,
+//                  and is ignored
+//         remove prefix token
 //
 //     if premature_closing:
-//         set PREFIX token type to BRACKETED if PREFIX
+//         set prefix token type to BRACKETED if PREFIX
 //             token was not deleted
 //         return separator_found
+//     else if prefix token was deleted:
+//         go to NEXT_TOKEN
 //
-//     if PREFIX token was not deleted:
-//         // Start new subexpression beginning with
-//         // the PREFIX token.
+//     prefix_selectors = selectors argument
+//     if prefix_entry != NULL_STUB:
+//         modify prefix_selectors by prefix_entry->
+//                new_selectors
 //
-//         create new bracket stack entry E with
-//                E.prefix_type = PREFIX token .type
-//                and E.prefix_entry = prefix_entry
-//         push new entry into existing bracket stack
-//              to create new bracket stack
+// PREFIX_PARSE:
 //
-//         prefix_selectors = selectors
-//         if prefix_entry != NULL_STUB:
-//             adjust prefix_selectors according to
-//                    prefix_entry->new_selectors
-//                    setting ALWAYS_SELECTOR on
+//     // Start new subexpression beginning with the
+//     // prefix token.
 //
-//	   loop to find prefix-n-list subexpression
-//	           headed by prefix:
+//     // Input variables (see above for definitions):
+//     //
+//     //	prefix
+//     //	prefix_type
+//     //	prefix_entry
+//     //	prefix_group
+//     // 	prefix_selectors
 //
-//             parse_bracketed_subexpression
-//                 with prefix_selectors,
-//                 new bracket stack,
-//                 indent argument,
-//                 line_sep argument if prefix_selectors
-//                                      & EALSEP,
-//	           set separator_found = result
+// TBD
 //
-//	       compact_prefix_separator
-//	         with prefix_selectors
+//     create new bracket stack entry E with
+//            E.prefix_type = PREFIX token .type
+//            and E.prefix_entry = prefix_entry
+//     push new entry into existing bracket stack
+//          to create new bracket stack
 //
-//	       if bracket stack not closed by another
-//	                  PREFIX token with same .type
-//	                  or group as the current
-//	                  PREFIX token:
-//	           return separator_found
+//     prefix_selectors = selectors
+//     if prefix_entry != NULL_STUB:
+//         adjust prefix_selectors according to
+//                prefix_entry->new_selectors
+//                setting ALWAYS_SELECTOR on
 //
-//	       prefix = PREFIX token that closed bracket
-//	                stack
+//     loop to find prefix-n-list subexpression
+//	       headed by prefix:
 //
-//	       if .type of prefix != .type of previous
-//	                              prefix:
-//	           find entry E for new .type in
-//	           bracketed_pass prefix_table (entry
-//	           must exist because .types have the
-//	           same group), recompute prefix_selec-
-//	           tors from selectors argument and E,
-//	           and set bracket stack top entry
-//	           prefix_type = new .type and bracket
-//	           stack top entry prefix_entry to E
+//         parse_bracketed_subexpression
+//             with prefix_selectors,
+//             new bracket stack,
+//             indent argument,
+//             line_sep argument if prefix_selectors
+//                                  & EALSEP,
+//	       set separator_found = result
 //
-//	       iterate loop to find prefix-n-list
-//	               subexpression headed by prefix
+//	   compact_prefix_separator
+//	     with prefix_selectors
+//
+//	   if bracket stack not closed by another
+//	              PREFIX token with same .type
+//	              or group as the current
+//	              PREFIX token:
+//	       return separator_found
+//
+//	   prefix = PREFIX token that closed bracket
+//	            stack
+//
+//	   if .type of prefix != .type of previous
+//	                          prefix:
+//	       find entry E for new .type in
+//	       bracketed_pass prefix_table (entry
+//	       must exist because .types have the
+//	       same group), recompute prefix_selec-
+//	       tors from selectors argument and E,
+//	       and set bracket stack top entry
+//	       prefix_type = new .type and bracket
+//	       stack top entry prefix_entry to E
+//
+//	   iterate loop to find prefix-n-list
+//	           subexpression headed by prefix
 //
 // NEXT_TOKEN:
 //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 28 07:15:18 EDT 2017
+// Date:	Wed Mar 29 15:32:50 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1691,7 +1691,10 @@ PREFIX_FOUND:
 		    min::pgen_never_quote
 		        ( prefix_type ),
 		    "' not at beginning of"
-		    " subexpression; ignored"
+		    " subexpression and does not"
+		    " continue subexpression started by"
+		    " another prefix with the same type"
+		    " or group; ignored"
 		  );
 		prefix = min::NULL_STUB;
 	    }

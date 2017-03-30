@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 29 16:09:58 EDT 2017
+// Date:	Thu Mar 30 01:00:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -401,15 +401,15 @@
 //     else if prefix token was deleted:
 //         go to NEXT_TOKEN
 //
-//     prefix_selectors = selectors argument
+//     prefix_selectors = selectors
 //     if prefix_entry != NULL_STUB:
-//         modify prefix_selectors by prefix_entry->
-//                new_selectors
+//         adjust prefix_selectors according to
+//                prefix_entry->new_selectors
+//                setting ALWAYS_SELECTOR on
 //
 // PREFIX_PARSE:
 //
-//     // Start new subexpression beginning with the
-//     // prefix token.
+//     // Parse prefix-n-list headed by prefix token.
 //
 //     // Input variables (see above for definitions):
 //     //
@@ -419,22 +419,59 @@
 //     //	prefix_group
 //     // 	prefix_selectors
 //
-// TBD
-//
 //     create new bracket stack entry E with
 //            E.prefix_type = PREFIX token .type
 //            and E.prefix_entry = prefix_entry
 //     push new entry into existing bracket stack
 //          to create new bracket stack
 //
-//     prefix_selectors = selectors
-//     if prefix_entry != NULL_STUB:
-//         adjust prefix_selectors according to
-//                prefix_entry->new_selectors
-//                setting ALWAYS_SELECTOR on
-//
 //     loop to find prefix-n-list subexpression
 //	       headed by prefix:
+//
+//	   if prefix_group == `paragraph'
+//	           AND prefix->type != IMPLIED_PREFIX:
+//	       // Implied line header may have been
+//	       // inserted and deleted before this
+//	       // explicit paragraph header.  Selectors
+//	       // and prefix_entry may be incorrect.
+//	       //
+//	       selectors = line_variables->paragraph
+//	                                   .selectors
+//	       new_prefix_entry = prefix table entry
+//	           found by prefix_type and selectors
+//	       if new_prefix_entry exists and has
+//	               group != `paragraph':
+//	           announce that prefix had `paragraph'
+//	               group relative to incorrect
+//	               selectors provided by implied
+//	               header that has been deleted,
+//	               but does not have `paragraph'
+//	               group with corrected selectors;
+//	               continuing with prefix definition
+//	               located by incorrect selectors
+//	       else if new_prefix_entry != prefix_entry:
+//	       
+//		    // Fix things up.
+//
+//		    prefix_entry = new_prefix_entry
+//		    cstack top->prefix_entry =
+//		        new_prefix_entry
+//		    prefix_selectors = selectors
+//		        modified by prefix_entry
+//		        .new_selectors
+//		    line_variables->current
+//		        .lexical_master =
+//		        prefix_entry->lexical_master
+//		    line_variables->current.selectors =
+//		        prefix_selectors
+//		    line_variables->current
+//		        .implied_header = MISSING
+//
+//		    implied_header = prefix_entry->
+//		                     implied_subprefix
+//		    if implied_header != MISSING:
+//		        
+// TBD
 //
 //         parse_bracketed_subexpression
 //             with prefix_selectors,

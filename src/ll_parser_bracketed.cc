@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 31 05:23:37 EDT 2017
+// Date:	Fri Mar 31 16:06:46 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2099,7 +2099,9 @@ NEXT_TOKEN:
 
         // Skip comments, line breaks, and indent before
 	// comments, so that either nothing is skipped
-	// OR current is an indent or end-of-file.
+	// OR current is an indent or end-of-file.  If a
+	// blank line is skipped or end of file encoun-
+	// tered, set parser->at_paragraph_beginning.
 	//
 	// Comments skipped that are indented less than
 	// the indent of any following indent token are

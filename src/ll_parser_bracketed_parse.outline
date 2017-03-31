@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 30 13:31:08 EDT 2017
+// Date:	Fri Mar 31 11:12:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -430,6 +430,7 @@
 //
 //	   if prefix_group == `paragraph'
 //	           AND prefix->type != IMPLIED_PREFIX:
+//
 //	       // Implied line header may have been
 //	       // inserted and deleted before this
 //	       // explicit paragraph header.  Selectors
@@ -530,11 +531,9 @@
 //         top of bracket stack->closing_first =
 //         top of bracket stack->closing_last =
 //             NULL_STUB
-//         parse_bracketed_subexpression
-//             with prefix_selectors,
-//             new bracket stack,
-//             indent argument,
-//	       line_variables argument,
+//         parse_bracketed_subexpression with
+//             prefix_selectors, with new bracket stack,
+//             indent argument, line_variables argument;
 //	       set separator_found = result
 //
 //	   next (token after subexpression) =
@@ -553,13 +552,22 @@
 //               starting at token after prefix and
 //                        ending just before `next',
 //               with prefix_separators,
-//                    separator_found,
-//                    line_variables->line_sep
-//
-// TBD
+//               separator_found,
+//               line_variables->line_sep
 //
 //	   compact_prefix_separator
-//	     with prefix_selectors
+//	     starting at prefix token and ending with
+//	              token just before `next'
+//	     with prefix_selectors, separator_found if
+//	     prefix_group == `paragraph',
+//	     line_variables->line_sep
+//
+//	   if compact_prefix_separators produced a
+//	           MIN object stored as the prefix
+//	           token value:
+//	       prefix->value_type = prefix_group if
+//	         prefix_group == `paragraph' OR `line'
+//	         else MISSING;
 //
 //	   if bracket stack not closed by another
 //	              PREFIX token with same .type
@@ -570,16 +578,27 @@
 //	   prefix = PREFIX token that closed bracket
 //	            stack
 //
-//	   if .type of prefix != .type of previous
-//	                          prefix:
-//	       find entry E for new .type in
-//	       bracketed_pass prefix_table (entry
-//	       must exist because .types have the
-//	       same group), recompute prefix_selec-
-//	       tors from selectors argument and E,
-//	       and set bracket stack top entry
-//	       prefix_type = new .type and bracket
-//	       stack top entry prefix_entry to E
+//	   if .type of prefix (in prefix->value_type)
+//	               != .type of previous prefix
+//	                  (in prefix_type):
+//	       prefix_entry = prefix_table entry for
+//	                      .type of prefix
+//	           // Must exist as prefix must have
+//	           // a group.
+//	       if prefix_entry->group != prefix_group:
+//	           // Special case where line IMPLIED_
+//	           // PREFIX is immediately followed
+//	           // by an explicit paragraph prefix
+//	           //
+//	           prefix_group = `paragraph'
+//	           selectors = line_variables->paragraph
+//	                                      .selectors
+//
+//             top of stack->prefix_type = prefix_type =
+//                 prefix->value_type (.type of prefix)
+//             top of stack->prefix_entry = prefix_entry
+//             prefix_selectors = selectors modified by
+//                 prefix_entry->new_selectors
 //
 //	   iterate loop to find prefix-n-list
 //	           subexpression headed by prefix
@@ -643,8 +662,7 @@
 //                     new_selectors, paragraph_indent,
 //                     indentation_found->line_sep
 //                       if new_selectors & EALSEP,
-//                     line_variables,
-//                     bracket stack
+//                     line_variables, bracket stack
 //                     set separator_found = result
 //
 //                 if bracket stack top closed:

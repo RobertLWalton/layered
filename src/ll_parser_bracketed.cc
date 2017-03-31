@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 29 15:32:50 EDT 2017
+// Date:	Fri Mar 31 05:23:37 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1976,8 +1976,6 @@ PREFIX_PARSE:
 		    cstack.closing_first;
 		if ( next == min::NULL_STUB )
 		    next = current;
-
-			(TAB::root) min::NULL_STUB;
 
 		if (    prefix_group
 		     == PAR::paragraph_lexeme

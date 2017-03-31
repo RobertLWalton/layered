@@ -537,6 +537,25 @@
 //	       line_variables argument,
 //	       set separator_found = result
 //
+//	   next (token after subexpression) =
+//	        top of stack closing first if not
+//	        NULL_STUB or current token otherwise
+//
+//         if prefix_group == `paragraph' AND one of
+//                  options EALBREAK, EALEINDENT,
+//                  EALTINDENT, or EALSEP is on in
+//                  prefix_selectors AND it is NOT
+//                  true that the prefix-n-list consists
+//                  of a single element made from a
+//                  headed line (i.e., a single element
+//                  with value_type == `line' ):
+//             compact_logical_line
+//               starting at token after prefix and
+//                        ending just before `next',
+//               with prefix_separators,
+//                    separator_found,
+//                    line_variables->line_sep
+//
 // TBD
 //
 //	   compact_prefix_separator

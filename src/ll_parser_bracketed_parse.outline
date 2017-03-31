@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 31 11:12:29 EDT 2017
+// Date:	Fri Mar 31 16:03:50 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -607,7 +607,8 @@
 //
 //     skip line break, comment, and indent_before_
 //          comment tokens; if a blank line is
-//          skipped, set parser->at_head = true
+//          skipped or end of file encountered, set
+//          parser->at_paragraph_beginning = true
 //
 //     if we skipped some tokens:
 //
@@ -627,15 +628,19 @@
 //
 //         // Indentation was found below, but we
 //         // deferred processing it until we could skip
-//         // stuff as above to discover paragraph
-//         // indentation.
+//         // stuff as above to find indent token
+//         // following paragraph indentation mark.
 //
 //         assert that current is indent or eof token
 //             // This is first indent or eof following
 //             // indentation mark.
 //
-//         compute new_selectors from current selectors
-//                 and indentation_found->new_selectors
+//         new_selectors = selectors modified by
+//                 indentation_found->new_selectors
+//
+//         allocate line_variables for use in parsing
+//                  paragraph and set line_variables
+//                  .last_paragraph = NULL_STUB
 //
 //         if paragraph has some lines (i.e., current is
 //            an indent token whose indent is greater
@@ -645,7 +650,12 @@
 //             remove current (indent) token and set
 //                    current to following token
 //
-//	       allocate and initialize line_variables:
+// TBD
+//
+//	       current = current->next
+//	           // Move past indent token.
+//
+//	       initialize line_variables:
 //	           paragraph_master = 0
 //	           line_master = 0
 //	           paragraph_header = MISSING

@@ -1130,8 +1130,9 @@ ERROR: in lines ###-###: `with options' not allowed for prefix unless
     begin block BLOCK1
     define indentation mark "::" ... ";" [code]
         with implied header {p}
-ERROR: in line ###: implied header of type `p' does not have `paragraph'
-       or `line' group; cannot begin lines with indent:
+ERROR: in line ###: indentation mark implied header of type `p' does not
+       have `paragraph' or `line' group; cannot begin indented lines;
+       ignored:
         with one line
         ^
 ======= PARSER TEST: this is the indented paragraph 1::

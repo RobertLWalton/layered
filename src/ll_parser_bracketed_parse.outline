@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 31 16:03:50 EDT 2017
+// Date:	Sat Apr  1 06:31:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -685,7 +685,7 @@
 //
 //	           if group == `paragraph'
 //	                   AND first_time:
-//	               line_variables
+//	               set line_variables
 //	                   .indentation_paragraph
 //	                       .implied_header =
 //	                           implied_header
@@ -708,21 +708,71 @@
 //	               first_time =false
 //	               iterate implied_header loop
 //	                   
-// TBD		       
+//	           else if group == `line':
+//	               set line_variables
+//	                   .indentation_implied_paragraph
+//	                       .implied_header =
+//	                           implied_header
+//	                       .header_entry =
+//	                           header_entry
+//	                       .header_selectors =
+//	                           header_selectors
 //
+//		       if first_time:
+//	                   set line_variables
+//	                       .indentation_paragraph
+//	                           .implied_header =
+//	                               implied_header
+//	                           .header_entry =
+//	                               header_entry
+//	                           .header_selectors =
+//	                               header_selectors
+//	               break implied_header loop
+//	           else if first_time:
+//	               announce that indetation mark
+//	                   implied header does not have
+//	                   `paragraph' or `line' group;
+//	                   ignored
+//	               break implied_header loop
+//	           else:
+//	               // Implied subprefix of paragraph
+//	               // header is OK.
+//	               //
+//	               break implied_header loop
 //
+//             line_variables.paragraph =
+//                 line_variables.indentation_paragraph
+//             line_variables.implied_paragraph =
+//                 line_variables
+//                     .indentation_implied_paragraph
 //
+//             line_variables.line_sep =
+//                 indentation_found->line_sep
+//             parser->at_paragraph_beginning = true
+//             clear CONTINUING_OPT from
+//                 line_variables.current.selectors
 //
 //             loop to parse paragraph lines:
 //
-//                 // Move to end of paragraph line.
-//                 //
+//                 if parser->at_paragraph_beginning
+//                         AND 
+//                         line_variables.current
+//                                       .selectors
+//                         does not have the
+//                         CONTINUING_OPT flag:
+//                     line_variables.current =
+//                         line_variables.paragraph
+//
+//                 line_variables.previous =
+//                     current->previous
+//                 line_variables.at_paragraph_beginning
+//                     = parser->at_paragraph_beginning
 //                 parse_bracketed_subexpression with
-//                     new_selectors, paragraph_indent,
-//                     indentation_found->line_sep
-//                       if new_selectors & EALSEP,
+//                     line_variables.current.selectors,
+//                     paragraph_indent,
 //                     line_variables, bracket stack
 //                     set separator_found = result
+//       TBD
 //
 //                 if bracket stack top closed:
 //                     require that there was no line

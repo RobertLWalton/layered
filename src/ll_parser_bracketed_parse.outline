@@ -650,19 +650,68 @@
 //             remove current (indent) token and set
 //                    current to following token
 //
-// TBD
+//	       initialize line_variables
+//	                      .indentation_paragraph
+//	                      and
+//	                      .indentation_implied_
+//	                          paragraph:
+//	           lexical_master =
+//	               indentation_found->lexical_master
+//	           selectors = new_selectors
+//	           implied_header = MISSING
+//	           header_entry = NULL_STUB
 //
-//	       current = current->next
-//	           // Move past indent token.
+//	       // Loop to set implied headers in line_
+//	       // variables data.  Go at most 2 times
+//	       // through the loop for paragraph and
+//	       // line implied headers.
+//	       //
+//	       implied_header = indentation_found->
+//	                        implied_header
+//	       implied_header_type = indentation_found->
+//	                             implied_header_type
+//	       header_selectors = new_selectors
 //
-//	       initialize line_variables:
-//	           paragraph_master = 0
-//	           line_master = 0
-//	           paragraph_header = MISSING
-//	           line_header = MISSING
-//	           header_selectors = new_selectors
-//	           line_selectors = new_selectors
-//	           instructions = 0
+//	       first_time = true
+//	       loop while implied_header != MISSING:
+//
+//	           header_entry = prefix table entry for
+//	                          implied_header_type
+//	           group = header_entry->group
+//	                   OR MISSING if no header_entry
+//	           modify header_selectors by
+//	                  header_entry->new_selectors
+//	                  if there is a header_entry
+//
+//	           if group == `paragraph'
+//	                   AND first_time:
+//	               line_variables
+//	                   .indentation_paragraph
+//	                       .implied_header =
+//	                           implied_header
+//	                       .header_entry =
+//	                           header_entry
+//	                       .header_selectors =
+//	                           header_selectors
+//	               set line_variables.indentation_
+//	                   implied_paragraph.lexical_
+//	                   master to header_entry->
+//	                   lexical_master if the latter
+//	                   is not MISSING
+//
+//	               implied_header =
+//	                   header_entry->
+//	                       implied_subprefix
+//	               implied_header_type =
+//	                   header_entry->
+//	                       implied_subprefix_type
+//	               first_time =false
+//	               iterate implied_header loop
+//	                   
+// TBD		       
+//
+//
+//
 //
 //             loop to parse paragraph lines:
 //

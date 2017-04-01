@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 31 16:06:46 EDT 2017
+// Date:	Sat Apr  1 01:28:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2236,7 +2236,7 @@ NEXT_TOKEN:
 	    // Scan lines of paragraph.  Current will
 	    // become the first line break or end of
 	    // file after the paragraph.
-	    //
+
 	    BRA::line_variables line_variables;
 	    line_variables.last_paragraph =
 	        min::NULL_STUB;
@@ -2270,7 +2270,7 @@ NEXT_TOKEN:
 			( first_ref(parser),
 			  current->previous ) );
 
-		// Loop to parse paragraph lines.
+		// Initialize line_varables.
 		//
 		BRA::line_data & paragraph_data =
 		    line_variables
@@ -2314,6 +2314,7 @@ NEXT_TOKEN:
 		        implied_header_type;
 		TAB::flags header_selectors =
 		    new_selectors;
+		bool first_time = true;
 		while (    implied_header
 		        != min::MISSING() )
 		{
@@ -2345,9 +2346,7 @@ NEXT_TOKEN:
 		    if (    group
 		         == PAR::paragraph_lexeme
 			 &&
-			    paragraph_data
-			        .implied_header
-			 == min::MISSING() )
+			 first_time )
 		    {
 			paragraph_data.implied_header =
 			    implied_header;
@@ -2363,6 +2362,7 @@ NEXT_TOKEN:
 			        = header_entry->
 				      lexical_master;
 
+		        first_time = false;
 			implied_header =
 			    header_entry->
 			        implied_subprefix;
@@ -2380,9 +2380,7 @@ NEXT_TOKEN:
 			implied_data.header_selectors =
 			        header_selectors;
 
-			if (    paragraph_data
-			            .implied_header
-			     == min::MISSING() )
+			if ( first_time )
 			{
 			  paragraph_data
 			   .implied_header =
@@ -2400,9 +2398,7 @@ NEXT_TOKEN:
 			break;
 		    }
 		    else
-		    if (    paragraph_data
-			        .implied_header
-			 == min::MISSING() )
+		    if ( first_time )
 		    {
 			min::phrase_position pos =
 			    { current->position.begin,
@@ -2442,6 +2438,7 @@ NEXT_TOKEN:
 		    // paragraph.selectors at beginning
 		    // of loop.
 		while ( true )
+		    // Loop to parse paragraph lines.
 		{
 		    if ( parser->at_paragraph_beginning
 		         &&

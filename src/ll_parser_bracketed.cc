@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  1 06:40:57 EDT 2017
+// Date:	Sat Apr  1 14:47:44 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2513,7 +2513,7 @@ NEXT_TOKEN:
 			          line_sep,
 			      trace_flags );
 
-		    // Compact prefix paragraph if
+		    // Compact headed paragraph if
 		    // necessary.
 		    //
 		    if (    first->value_type
@@ -2598,7 +2598,12 @@ NEXT_TOKEN:
 		}
 	    }
 
-	    // Compact prefix paragraph at end of
+	    // Temporary check.
+	    //
+	    MIN_REQUIRE
+	      ( ! BRA::is_closed ( bracket_stack_p ) );
+
+	    // Compact headed paragraph at end of
 	    // indented paragraph.
 	    //
 	    if (    line_variables.last_paragraph
@@ -2614,20 +2619,8 @@ NEXT_TOKEN:
 		    min::NULL_STUB;
 	    }
 
-	    PAR::token next = current;
-	    if ( BRA::is_closed
-		     ( bracket_stack_p ) )
-	    {
-		// Paragraph was terminated by outer
-		// closing bracket.  Set paragraph end
-		// to beginning of that bracket.
-		//
-		next = bracket_stack_p
-			  ->closing_first;
-	    }
-
-	    // Compact paragraph lines into a
-	    // paragraph.
+	    // Compact indented paragraph elements into
+	    // an indented paragraph value.
 	    //
 	    PAR::token first = mark_end->next;
 	    min::phrase_position position;
@@ -2635,8 +2628,8 @@ NEXT_TOKEN:
 		PAR::remove
 		    ( parser, first,
 		      indentation_found->label );
-	    position.end = next->previous
-			       ->position.end;
+	    position.end = current->previous
+			          ->position.end;
 
 	    PAR::attr attributes[2] =
 		{ PAR::attr
@@ -2650,7 +2643,7 @@ NEXT_TOKEN:
 	    PAR::compact
 		( parser, bracketed_pass->next,
 		  new_selectors,
-		  first, next, position,
+		  first, current, position,
 		  trace_flags,
 		  PAR::BRACKETING,
 		  2, attributes );
@@ -2658,16 +2651,14 @@ NEXT_TOKEN:
 	    value_type_ref(first) =
 		indentation_found->label;
 
-	    // Terminate subexpression if closing
-	    // bracket was found during indentation
-	    // processing.
-	    // 
-	    if ( BRA::is_closed ( bracket_stack_p ) )
-		return min::MISSING_POSITION;
 
-	    // Otherwise fall through to process
-	    // indent or eof at current that is after
-	    // indented lines.
+	    // Temporary check.
+	    //
+	    MIN_REQUIRE
+	      ( ! BRA::is_closed ( bracket_stack_p ) );
+
+	    // Fall through to process indent or eof at
+	    // current that is after indented paragraph.
 	    //
 	    indentation_found = min::NULL_STUB;
 	}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  1 14:47:44 EDT 2017
+// Date:	Sun Apr  2 02:12:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2261,15 +2261,6 @@ NEXT_TOKEN:
 		min::int32 paragraph_indent =
 		    current->indent;
 
-		// Move current to beginning of line.
-		//
-		ensure_next ( parser, current );
-		current = current->next;
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  current->previous ) );
-
 		// Initialize line_varables.
 		//
 		BRA::line_data & paragraph_data =
@@ -2401,8 +2392,8 @@ NEXT_TOKEN:
 		    if ( first_time )
 		    {
 			min::phrase_position pos =
-			    { current->position.begin,
-			      current->position.begin };
+			    { current->position.end,
+			      current->position.end };
 			PAR::parse_error
 			  ( parser,
 			    pos,
@@ -2455,6 +2446,22 @@ NEXT_TOKEN:
 			     PAR::CONTINUING_OPT ) )
 			line_variables.current =
 			    line_variables.paragraph;
+
+		    // Move past indent token.  If last
+		    // logical line ended by separator,
+		    // there will be no indent token to
+		    // move past.
+		    //
+		    if (    current->type
+		         == LEXSTD::indent_t )
+		    {
+			ensure_next ( parser, current );
+			current = current->next;
+			PAR::free
+			    ( PAR::remove
+				( first_ref(parser),
+				  current->previous ) );
+		    }
 
 		    line_variables.previous =
 		        current->previous;
@@ -2588,13 +2595,6 @@ NEXT_TOKEN:
 			break;
 
 		    // Loop to get next line.
-		    //
-		    ensure_next ( parser, current );
-		    current = current->next;
-		    PAR::free
-			( PAR::remove
-			    ( first_ref(parser),
-			      current->previous ) );
 		}
 	    }
 

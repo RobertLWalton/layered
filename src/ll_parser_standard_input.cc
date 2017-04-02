@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 13 00:54:19 EST 2015
+// Date:	Sun Apr  2 02:22:40 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -171,8 +171,8 @@ static min::uns32 input_add_tokens
 	case LEX::SCAN_ERROR:
 	{
 	    printer << min::error_message;
-	    parser->eof = true;
-	    return count;
+	    type =  LEXSTD::end_of_file_t;
+	    break;
 	}
 	case LEXSTD::horizontal_space_t:
 	    continue;

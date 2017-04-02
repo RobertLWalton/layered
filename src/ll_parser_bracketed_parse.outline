@@ -647,8 +647,6 @@
 //            than the indent argument):
 //
 //             paragraph_indent = current->indent
-//             remove current (indent) token and set
-//                    current to following token
 //
 //	       initialize line_variables
 //	                      .indentation_paragraph
@@ -763,6 +761,10 @@
 //                     line_variables.current =
 //                         line_variables.paragraph
 //
+//                 if current token is indent token:
+//                     remove current token and set
+//                         current to following token
+//
 //                 line_variables.previous =
 //                     current->previous
 //                 line_variables.at_paragraph_beginning
@@ -862,8 +864,6 @@
 //                     end loop that parses paragraph
 //                         lines
 //
-//	           remove current (indent) token and
-//	                  set current to next token
 //                 iterate loop to parse next paragraph
 //                         line
 //

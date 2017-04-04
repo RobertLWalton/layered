@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  2 02:12:33 EDT 2017
+// Date:	Tue Apr  4 05:13:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2097,6 +2097,9 @@ PREFIX_PARSE:
 
 NEXT_TOKEN:
 
+	// Come here with `current' set to the next
+	// token to process.
+
         // Skip comments, line breaks, and indent before
 	// comments, so that either nothing is skipped
 	// OR current is an indent or end-of-file.  If a
@@ -2740,6 +2743,10 @@ NEXT_TOKEN:
 	//
 	if ( current->type == LEXSTD::quoted_string_t )
 	{
+	    // Check if this quoted string is to be
+	    // concatenated to a previous quoted string
+	    // and go to NEXT_TOKEN if not.
+	    //
 	    ensure_next ( parser, current );
 	    current = current->next;
 	    min::gen concat =
@@ -2842,17 +2849,19 @@ NEXT_TOKEN:
 		    //
 		    // Turn current into TYPE token.
 		    //
-		    selectors =
-		        typed_data->saved_selectors;
 		    typed_data->type = current->value;
 		    typed_data->has_mark_type = true;
 		    current->type = BRA::TYPE;
 		    ++ typed_data->attr_count;
+
+		    selectors =
+		        typed_data->saved_selectors;
 		}
 
 		// Move to next token.
 		//
-		current = key_first->next;
+		ensure_next ( parser, current );
+		current = current->next;
 		break;
 	    }
 

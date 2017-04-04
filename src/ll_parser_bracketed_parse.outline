@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  3 14:36:07 EDT 2017
+// Date:	Tue Apr  4 05:09:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -605,6 +605,9 @@
 //
 // NEXT_TOKEN:
 //
+//     // Come here with `current' set to next token
+//     // to process.
+//
 //     skip line break, comment, and indent_before_
 //          comment tokens; if a blank line is
 //          skipped or end of file encountered, set
@@ -933,37 +936,39 @@
 //
 //     parser->at_paragraph_beginning = false
 //
-//  TBD
-//
 //     if current is quoted string:
+//
+//	   // Check this quoted string is to be
+//	   // concatenated to a PREVIOUS quoted
+//	   // string and go to NEXT_TOKEN if not.
 //
 //	   concat = bracketed_pass->concatenator
 //	   current = current->next
 //
 //	   if concat == DISABLED:
-//	       iterate loop to find next token
+//	       go to NEXT_TOKEN
 //	   if current->previous at beginning of
 //	                           subexpression:
-//	       iterate loop to find next token
+//	       go to NEXT_TOKEN
 //
-//	   if concat == ENABLED and we are NOT after a
-//	                quoted string that is itself
-//	                after a quoted string:
-//	       iterate loop to find next token
-//
-//	   else if concat != ENABLED:
+//	   if concat != ENABLED:
 //	       check whether we are now just after a
 //	             quoted string that is after a
 //	             token equal to concat that is
 //	             after a quoted string
 //	       if no:
-//	          iterate loop to find next token
+//	          go to NEXT_TOKEN
 //	       if yes: 
 //	          remove token equal to concat
 //
+//	   else if concat == ENABLED and we are NOT now
+//	           after a quoted string that is itself
+//	           after a quoted string:
+//	       go to NEXT_TOKEN
+//
 //	   merge previous 2 tokens (both quoted strings)
-//         iterate loop to find next token
-//    
+//	   go to NEXT_TOKEN
+//
 //     lookup key in bracketed_pass bracket table
 //
 //     loop to refine key until it is selected or not
@@ -983,26 +988,29 @@
 //                 // typed bracketed subexpression:
 //                 // turn current into TYPE token.
 //                 //
-//                 selectors =
-//                     typed_data->saved selectors
 //                 typed_data->type = current->value
 //                 typed_data->has_mark_type = true
 //                 current->type = TYPE
 //                 ++ typed_data->attr_count
 //
+//                 selectors =
+//                     typed_data->saved selectors
+//
 //             // Move to next token.
 //             //
 //             current = current->next
-//             iterate loop to find next token
+//             go to NEXT_TOKEN
 //
 //         if key is selected opening bracket or typed
 //                opening:
 //
-//             compute new_selectors from existing
-//                     selectors and key
+//             new_selectors = selectors modified by
+//                 key->new_selectors
 //
 //             create new bracket stack entry with
 //                    opening bracket = key
+//                    line_variables =
+//                        line_variables argument
 //             push new entry into existing bracket
 //                  stack to create new bracket stack
 //
@@ -1018,8 +1026,7 @@
 //                   new_selectors,
 //                   new bracket stack
 //                   indent argument,
-//                   line_sep argument
-//                       if new_selectors & EALSEP,
+//                   line_variables argument
 //	             set separator_found = result
 //
 //	       else if key is typed opening:
@@ -1040,15 +1047,16 @@
 //                 parse_bracketed_subexpression with
 //                     selectors from key->attr_
 //                         selectors plus ALWAYS_
-//                         SELECTOR, and selector
+//                         SELECTOR, with selector
 //                         options from new_selectors
 //                     new bracket stack,
 //                     indent argument,
-//                     line_sep argument
-//                         if new_selectors & EALSEP,
-//                     tdata contining typed opening
+//                     line_variables argument,
+//                     tdata containing typed opening
 //	               set separator_found = result
 //
+//  TBD
+//    
 //	           // We do typed bracketed subexpres-
 //	           // sion finishing here that is logi-
 //	           // cally done by TYPED_CLOSING, but
@@ -1324,7 +1332,7 @@
 //                        bracket NOT found:
 //                 return separator_found
 //             else:
-//                 iterate loop to find next token
+//                 go to NEXT_TOKEN
 //
 //         if key is closing bracket, and line_variables
 //                is NULL or selectors & EAOCLOSING,
@@ -1345,7 +1353,7 @@
 //                current is end of file or line break
 //                or comment:
 //             indentation_found = key
-//             iterate loop to find next token
+//             go to NEXT_TOKEN
 //             // See above for indented paragraph
 //             // processing.
 //
@@ -1404,7 +1412,7 @@
 //
 //             if key was typed double middle:
 //                 ++ typed_data->middle_count
-//                 iterate loop to find next token
+//                 go to NEXT_TOKEN
 //
 //	       if typed_data->middle_count is NOW even:
 //	           selectors argument =
@@ -1416,7 +1424,7 @@
 //                                ->attr_selectors
 //                    | ALWAYS_SELECTOR
 //
-//             iterate loop to find next token
+//             go to NEXT_TOKEN
 //
 //         if key is typed attribute begin matching
 //                typed_attr_begin component of typed_
@@ -1458,7 +1466,7 @@
 //	               ignored
 //	           remove it
 //
-//             iterate loop to find next token
+//             go to NEXT_TOKEN
 //
 //         if key is typed attribute equal matching
 //                typed_attr_equal component of typed_
@@ -1488,7 +1496,7 @@
 //	           a punctuation error that is ignored,
 //	           and remove it
 //
-//             iterate loop to find next token
+//             go to NEXT_TOKEN
 //
 //         if key is typed attribute separator matching
 //                typed_attr_sep component of typed_
@@ -1518,7 +1526,7 @@
 //	            to be a a punctuation error that is
 //	            ignored, and remove it
 //
-//             iterate loop to find next token
+//             go to NEXT_TOKEN
 //
 //         if key is typed attribute negator matching
 //                typed_attr_negator component of typed_
@@ -1544,7 +1552,7 @@
 //	           typed_data->start_previous =
 //	               current->previous
 //
-//                 iterate loop to find next token
+//                 go to NEXT_TOKEN
 //
 //	       else do nothing (key will be rejected)
 //
@@ -1553,5 +1561,3 @@
 //         iterate loop to refine key (by trying to
 //                 find next shorter key) until it is
 //                 selected or not found
-//
-//     iterate loop to find next token

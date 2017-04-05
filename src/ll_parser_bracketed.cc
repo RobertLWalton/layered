@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  4 05:13:18 EDT 2017
+// Date:	Wed Apr  5 02:20:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3253,6 +3253,22 @@ NEXT_TOKEN:
 		else // if (    subtype
 		     //      == BRA::TYPED_OPENING )
 		{
+		    // At this point the subexpression
+		    // consists of special attribute
+		    // tokens (with token types TYPE,
+		    // ATTR_{LABEL,VALUE,TRUE,FALSE,
+		    // FLAGS,MULTIVALUE}) followed by
+		    // subexpression elements (beginning
+		    // with typed_data.elements which is
+		    // NULL_STUB if there are no
+		    // elements).
+
+
+		    // Loop through special attribute
+		    // tokens making a list of attribu-
+		    // tes to be handed to the compact
+		    // function.
+		    //
 		    PAR::attr attributes
 			[tdata.attr_count];
 		    PAR::token elements =
@@ -3262,16 +3278,17 @@ NEXT_TOKEN:
 		    min::gen type = min::MISSING();
 		    min::unsptr i = 0;
 		    bool skip = false;	
+		        // If true, skip to next
+			// attribute label.
 		    for ( PAR::token t = first;
 		          t != elements; t = t->next )
 		    {
-		        if ( t->type == BRA::TYPE
-			     &&
-			        t->value
-			     != min::empty_str )
+		        if ( t->type == BRA::TYPE )
 			{
-			    MIN_REQUIRE
-			      ( i < tdata.attr_count );
+			    if (    t->value
+			         == min::empty_str )
+			        /* Do nothing. */;
+			    else
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -3281,24 +3298,24 @@ NEXT_TOKEN:
 				      "empty type"
 				      " label;"
 				      " ignored" );
-			        skip = true;
 			    }
 			    else
 			    {
+				MIN_REQUIRE
+				 (   i
+				   < tdata.attr_count );
 				attributes[i].name =
 				    min::dot_type;
 				attributes[i].value =
 				    t->value;
 				type = t->value;
 				++ i;
-				skip = false;
 			    }
+			    skip = true;
 			}
 		        else if (    t->type
 			          == BRA::ATTR_LABEL )
 			{
-			    MIN_REQUIRE
-			      ( i < tdata.attr_count );
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -3313,6 +3330,9 @@ NEXT_TOKEN:
 			    }
 			    else
 			    {
+				MIN_REQUIRE
+				 (   i
+				   < tdata.attr_count );
 				attributes[i].name =
 				    t->value;
 				++ i;
@@ -3322,8 +3342,6 @@ NEXT_TOKEN:
 		        else if (    t->type
 			          == BRA::ATTR_TRUE )
 			{
-			    MIN_REQUIRE
-			      ( i < tdata.attr_count );
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -3338,6 +3356,9 @@ NEXT_TOKEN:
 			    }
 			    else
 			    {
+				MIN_REQUIRE
+				 (   i
+				   < tdata.attr_count );
 				attributes[i].name =
 				    t->value;
 				attributes[i].value =
@@ -3349,8 +3370,6 @@ NEXT_TOKEN:
 		        else if (    t->type
 			          == BRA::ATTR_FALSE )
 			{
-			    MIN_REQUIRE
-			      ( i < tdata.attr_count );
 			    if (    t->value
 			         == min::empty_lab )
 			    {
@@ -3365,6 +3384,9 @@ NEXT_TOKEN:
 			    }
 			    else
 			    {
+				MIN_REQUIRE
+				 (   i
+				   < tdata.attr_count );
 				attributes[i].name =
 				    t->value;
 				attributes[i].value =

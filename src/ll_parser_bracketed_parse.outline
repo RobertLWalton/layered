@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  4 10:29:52 EDT 2017
+// Date:	Wed Apr  5 01:49:04 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -316,10 +316,10 @@
 //     prefix_group = prefix_entry->group or MISSING if
 //                    prefix_entry == NULL_STUB
 //     if prefix_group is not `line' or `paragraph',
-//             OR token before prefix is IMPLIED_PREFIX:
+//             or token before prefix is IMPLIED_PREFIX:
 //         search bracket stack for bracket stack entry
 //                with entry->prefix_type == prefix_type
-//                OR entry->prefix_entry->group ==
+//                or entry->prefix_entry->group ==
 //                == non-MISSING prefix_group
 //            stop search just befor first entry with
 //                 either MISSING prefix_type or
@@ -343,9 +343,9 @@
 //         return separator_found
 //
 //     if paragraph_group == `paragraph'
-//             AND
+//             and
 //             prefix->type != IMPLIED_PREFIX
-//             AND
+//             and
 //             line_variables->at_paragraph_beginning
 //             &&
 //             top bracket stack entry is for prefix
@@ -367,7 +367,7 @@
 //                      and is ignored
 //             remove prefix token
 //         else if prefix is not first token of
-//                 logical line OR logical line is
+//                 logical line or logical line is
 //                 not in paragraph beginning position:
 //             announce that prefix is explicit
 //                      `paragraph' prefix not in
@@ -375,9 +375,9 @@
 //                      and is ignored
 //             remove prefix token
 //
-//     else if prefix_group == `line' AND prefix is
+//     else if prefix_group == `line' and prefix is
 //             NOT at beginning of current logical
-//             line AND top bracket stack entry is
+//             line and top bracket stack entry is
 //             NOT for a `paragraph' prefix:
 //         announce that prefix is `line' prefix that
 //                  is not at the beginning of a logical
@@ -429,7 +429,7 @@
 //	       headed by prefix:
 //
 //	   if prefix_group == `paragraph'
-//	           AND prefix->type != IMPLIED_PREFIX:
+//	           and prefix->type != IMPLIED_PREFIX:
 //
 //	       // Implied line header may have been
 //	       // inserted and deleted before this
@@ -540,10 +540,10 @@
 //	        top of stack closing first if not
 //	        NULL_STUB or current token otherwise
 //
-//         if prefix_group == `paragraph' AND one of
+//         if prefix_group == `paragraph' and one of
 //                  options EALBREAK, EALEINDENT,
 //                  EALTINDENT, or EALSEP is on in
-//                  prefix_selectors AND it is NOT
+//                  prefix_selectors and it is NOT
 //                  true that the prefix-n-list consists
 //                  of a single element made from a
 //                  headed line (i.e., a single element
@@ -566,7 +566,7 @@
 //	           MIN object stored as the prefix
 //	           token value:
 //	       prefix->value_type = prefix_group if
-//	         prefix_group == `paragraph' OR `line'
+//	         prefix_group == `paragraph' or `line'
 //	         else MISSING;
 //
 //	   if bracket stack not closed by another
@@ -679,13 +679,13 @@
 //	           header_entry = prefix table entry for
 //	                          implied_header_type
 //	           group = header_entry->group
-//	                   OR MISSING if no header_entry
+//	                   or MISSING if no header_entry
 //	           modify header_selectors by
 //	                  header_entry->new_selectors
 //	                  if there is a header_entry
 //
 //	           if group == `paragraph'
-//	                   AND first_time:
+//	                   and first_time:
 //	               set line_variables
 //	                   .indentation_paragraph
 //	                       .implied_header =
@@ -756,7 +756,7 @@
 //             loop to parse paragraph lines:
 //
 //                 if parser->at_paragraph_beginning
-//                         AND 
+//                         and 
 //                         line_variables.current
 //                                       .selectors
 //                         does not have the
@@ -811,7 +811,7 @@
 //		               token
 //
 //		       if parser->at_paragraph_beginning
-//		               AND
+//		               and
 //		               line_variables.current
 //		                             .selectors
 //		               does NOT have
@@ -828,10 +828,10 @@
 //
 //		   else
 //		   if parser->at_paragraph_beginning
-//		           AND
+//		           and
 //		           line_variables.last_paragraph
 //		               != NULL_STUB
-//		           AND line_variables.current
+//		           and line_variables.current
 //		                             .selectors
 //		               does NOT have
 //		               CONTINUING_OPT:
@@ -1063,12 +1063,6 @@
 //	           // thus be inserted below to correct
 //	           // its being missing.
 //
-//		   next = token after typed bracketed
-//		          subexpression, equals
-//		          top of bracketed stack
-//		          .closing_first if that not
-//		          NULL_STUB or current otherwise
-//
 //	           if tdata.has_mark_type:
 //
 //	               type_token = first token of
@@ -1140,8 +1134,6 @@
 //	                   and tdata.middle_count is
 //	                   even:
 //
-// TBD
-//
 //	               // Note TYPED_ATTR_BEGIN can
 //	               // only happen here if typed
 //	               // attribute beginning was AFTER
@@ -1156,7 +1148,7 @@
 //	                       are subexpression tokens
 //	                       after the TYPED_OPENING
 //	                       or TYPED_MIDDLE
-//	               OR if tdata.subtype =
+//	                   or if tdata.subtype ==
 //	                           TYPED_ATTR_BEGIN:
 //
 //			    make_type_label
@@ -1174,6 +1166,9 @@
 //			        ( tdata,
 //			          token after
 //			                subexpression )
+// 	       require ! separator_found
+// 	           // It must be impossible to find a
+// 	           // separator inside brackets.
 //
 //             if closing was found that did not match
 //                        our closing bracket:
@@ -1191,7 +1186,8 @@
 //             if key is opening bracket:
 //
 //                 call opening bracket reformatter if
-//                              any, and if none or if
+//                              any with new_selectors,
+//                              and if none or if
 //                              compaction requested by
 //                              reformatter:
 //                     compact subexpression with
@@ -1230,19 +1226,19 @@
 //		               do nothing
 //		           else if token->value is empty
 //		                   label:
-//		               print missing type error
-//		                     message
-//		               skip to next attribute
-//		                    label token
+//		               print empty type label
+//		                     error message
 //		           else add to the attribute
 //		                list a .type attribute
 //		                with value token->value
+//		           skip to next attribute label
+//		                   token
 //
 //		       for ATTR_LABEL token:
 //		           if token->value is empty
 //		                     label:
-//		               print missing type error
-//		                     message
+//		               print empty attribute
+//		                     label error message
 //		               skip to next attribute
 //		                    label token
 //		           else add to the attribute
@@ -1253,8 +1249,8 @@
 //		       for ATTR_TRUE token:
 //		           if token->value is empty
 //		                     label:
-//		               print missing type error
-//		                     message
+//		               print empty attribute
+//		                     label error message
 //		               skip to next attribute
 //		                    label token
 //		           else add to the attribute
@@ -1278,19 +1274,22 @@
 //
 //		       for ATTR_MULTIVALUE token:
 //		           install token->value
-//		                as value of last attri-
-//		                bute in attribute list
+//		                as multi-value of last
+//		                attribute in attribute
+//		                list
 //
 //		       for ATTR_FLAGS token:
 //		           install token->value
 //		                as flags of last attri-
 //		                bute in attribute list
 //
-//                 compact subexpression with attributes
-//                         taken attribute list formed
-//                         above and elements taken from
+//                 compact subexpression with
+//                         new_selectors,
+//                         attributes taken attribute
+//                         list formed above,
+//                         elements taken from
 //                         typed_data.elements to end
-//                         of subexpression;
+//                         of subexpression,
 //                         token type =
 //                               PREFIX if
 //                                  .type attribute
@@ -1341,20 +1340,26 @@
 //             else:
 //                 go to NEXT_TOKEN
 //
-//         if key is closing bracket, and line_variables
-//                is NULL or selectors & EAOCLOSING,
-//                and closing bracket matches the
-//                closing bracket of the first entry of
-//                the bracket stack, or of any entry if
-//                selectors & EAOCLOSING:
-//             close bracket stack entry that matches
-//                   key, indicating key closed entry
-//             close all higher stack entries indicating
-//                   that their closing brackets were
-//                   not found and their subexpressions
-//                   terminated just before the first
-//                   token of key
-//             return MISSING_POSITION
+//         if key is closing bracket:
+//             search top to bottom the portion of the
+//                    bracket stack whose entries have
+//                    line_variables equal to the
+//                    line_variables argument, but if
+//                    selectors does NOT have
+//                    EAOCLOSING, restrict search to
+//                    at most that top entry:
+//             if entry found with matching closing
+//                      bracket:
+//                 close bracket stack entry that
+//                       matches key, indicating that
+//                       the key closed the entry
+//                 close all higher stack entries
+//                       indicating that their closing
+//                       brackets were not found and
+//                       their subexpressions terminated
+//                       just before the first token of
+//                       key
+//                 return MISSING_POSITION
 //
 //         if key is selected indentation mark and
 //                current is end of file or line break
@@ -1364,10 +1369,13 @@
 //             // See above for indented paragraph
 //             // processing.
 //
-//         if key is line separator matching line_sep
-//                argument and selectors & EALSEP:
+//         if key is line separator matching
+//                line_variables argument->line_sep
+//                and selectors & EALSEP:
 //             remove line separator
 //             return end position of removed separator
+//
+// TBD
 //
 //         // Note: In the following the type of the
 //         // previous key is determined by checking the

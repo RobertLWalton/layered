@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  5 01:49:04 EDT 2017
+// Date:	Wed Apr  5 14:23:48 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1375,8 +1375,6 @@
 //             remove line separator
 //             return end position of removed separator
 //
-// TBD
-//
 //         // Note: In the following the type of the
 //         // previous key is determined by checking the
 //         // value of typed_data->subtype.  If this is
@@ -1493,10 +1491,8 @@
 //             if there is no previous typed key in the
 //                      subexpression, or the previous
 //                      typed key is a typed middle,
-//                      typed attribute separator,
-//                      typed attribute negator, or
-//                      typed attribute begin that is
-//                      before any typed middle:
+//                      typed attribute separator, or
+//                      typed attribute negator:
 //                 make_attribute_label
 //                     ( typed_data,
 //                       first token of key )
@@ -1523,11 +1519,9 @@
 //             if there is no previous typed key in the
 //                      subexpression, or the previous
 //                      typed key is a typed middle,
-//                      typed attribute separator, typed
-//                      attribute equal, typed attribute
-//                      negator, or typed attribute
-//                      begin that is before any typed
-//                      middle:
+//                      typed attribute separator,
+//                      typed attribute equal, or
+//                      typed attribute negator:
 //		   finish_attribute
 //		       ( typed_data,
 //		         first token of key )
@@ -1552,15 +1546,12 @@
 //
 //             if there is no previous typed key in the
 //                      subexpression, or the previous
-//                      typed key is a typed middle,
-//                      typed attribute separator, or
-//                      typed attribute begin that is
-//                      before any typed middle
-//                      and if
-//                      the typed attribute negator
-//                      immediately follows the subex-
-//                      pression beginning or previous
-//                      typed key:
+//                      typed key is a typed middle or
+//                      typed attribute separator,
+//                      and if the typed attribute
+//                      negator immediately follows the
+//                      subexpression beginning or
+//                      previous typed key:
 //                 remove the typed attribute negator
 //                 typed_data->subtype =
 //                     TYPED_ATTR_NEGATOR
@@ -1568,8 +1559,6 @@
 //	               current->previous
 //
 //                 go to NEXT_TOKEN
-//
-//	       else do nothing (key will be rejected)
 //
 //         // reject key
 //         //

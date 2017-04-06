@@ -1799,6 +1799,45 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "no"
+     OF SUBTYPE ll::parser::table::typed_attr_negator_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "no"
+     OF SUBTYPE ll::parser::table::typed_attr_negator_type
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+ERROR: in line ##: negator preceding attribute label that is followed by
+       `='; negator ignored:
+{T: no p|1 2 3 4|no q = 5}
+                 ^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {T: no p, q = "5"|1 2 3 4|T}
+@@@@ = 1 2 3 4:
+           no p
+           .type = "T"
+           q = "5"
+           .position[H] = {}
+    line ##:
+{T: no p|1 2 3 4|no q = 5}
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {T: no p, q = "5"|1 2 3 4|T}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = {}
+           .initiator = [$ LOGICAL_LINE $]
+    line ##:
+{T: no p|1 2 3 4|no q = 5}
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY "|"
@@ -2488,7 +2527,7 @@ BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "$" "]" >]
 DERIVED EXPRESSION:
     [$ INDENTED_PARAGRAPH $]
 @(NONE) = [$ INDENTED_PARAGRAPH $]
-    line ##:
+    line ###:
 [$ INDENTED_PARAGRAPH $]
 ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2497,7 +2536,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-    line ##:
+    line ###:
 [$ INDENTED_PARAGRAPH $]
 ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED SUBEXPRESSION PARSER FOUND SELECTED KEY [< "[" "$" >]

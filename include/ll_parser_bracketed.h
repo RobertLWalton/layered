@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 14 14:57:14 EDT 2017
+// Date:	Thu Apr  6 04:45:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -550,6 +550,10 @@ struct typed_data
     bool has_mark_type;
         // True if and only if typed_opening is followed
 	// by a mark, which becomes the type.
+    min::phrase_position negator_position;
+        // Position of last negator for error message
+	// indicating negator ignored.  Only meaningful
+	// if subtype is TYPED_ATTR_NEGATOR.
 };
 
 // Special token types used during typed bracketed

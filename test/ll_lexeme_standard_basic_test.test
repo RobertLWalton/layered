@@ -1,7 +1,7 @@
        ###: PROGRAM
             Max Master: 1
                  0:        111 START
-                 1:        121 BEGIN
+                 1:        121 DEFAULT
             Max Type: 20
                  0: ?
                  1: w WORD

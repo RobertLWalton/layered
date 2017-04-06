@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  5 02:20:33 EDT 2017
+// Date:	Thu Apr  6 04:44:41 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3777,6 +3777,21 @@ NEXT_TOKEN:
 		            typed_data->subtype
 		         == BRA::TYPED_ATTR_NEGATOR )
 		    {
+			if ( typed_data->subtype
+			     ==
+			     BRA::TYPED_ATTR_NEGATOR )
+			    PAR::parse_error
+				( parser,
+				  typed_data->
+				    negator_position,
+				  "negator preceding"
+				  " attribute label"
+				  " that is followed"
+				  " by `",
+			          min::pgen_never_quote
+			              ( root->label ),
+				  "'; negator"
+				  " ignored" );
 			::make_attribute_label
 			    ( parser, typed_data,
 			      key_first );
@@ -3880,7 +3895,11 @@ NEXT_TOKEN:
 			 == typed_data->start_previous
 			              ->next )
 		    {
-			PAR::remove
+			min::phrase_position & pos =
+			  typed_data->negator_position;
+			pos.end = current->previous
+			                 ->position.end;
+			pos.begin = PAR::remove
 			    ( parser, current,
 			      root->label );
 			typed_data->subtype =

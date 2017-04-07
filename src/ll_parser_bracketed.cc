@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  6 04:44:41 EDT 2017
+// Date:	Fri Apr  7 03:56:00 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2484,7 +2484,6 @@ NEXT_TOKEN:
 			      bracket_stack_p );
 		    PAR::token first =
 		        line_variables.previous->next;
-		    PAR::token next = current;
 
 		    // A logical line cannot be closed
 		    // by a closing bracket or prefix.
@@ -2499,9 +2498,9 @@ NEXT_TOKEN:
 		    // has prefix group `paragraph' or
 		    // `line'.
 		    //
-		    if ( first != next
+		    if ( first != current
 			 &&
-			 ( first->next != next
+			 ( first->next != current
 			   ||
 			   (    first->value_type
 			     != PAR::paragraph_lexeme
@@ -2516,7 +2515,7 @@ NEXT_TOKEN:
 			      bracketed_pass->next,
 			      line_variables.current
 			                    .selectors,
-			      first, next,
+			      first, current,
 			      separator_found,
 			      (TAB::root)
 			      indentation_found->
@@ -2570,7 +2569,7 @@ NEXT_TOKEN:
 			    ( parser,
 			      line_variables
 			          .last_paragraph,
-			      next,
+			      current,
 			      trace_flags );
 			line_variables.last_paragraph
 			    = min::NULL_STUB;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 13:52:47 EDT 2017
+// Date:	Fri Apr  7 14:47:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1241,7 +1241,9 @@ bool parse_paragraph_element
 	PAR::token first =
 	    line_variables->previous->next;
 
-	if ( first == current ) continue;
+	// Here to handle line ending line separator.
+	//
+	if ( first == current ) return false;
 
         // If subexpression is not a single element
 	// subexpression whose one element has prefix
@@ -1465,6 +1467,7 @@ void PAR::parse ( PAR::parser parser )
 		( parser, current,
 		  & line_variables, 0 );
 	PAR::token output = previous->next;
+	if ( output == current ) continue;
 
 	min::gen result = min::FAILURE();
 	if ( maybe_parser_command )

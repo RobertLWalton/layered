@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 03:56:00 EDT 2017
+// Date:	Fri Apr  7 11:13:30 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2471,12 +2471,13 @@ NEXT_TOKEN:
 		    line_variables
 		           .at_paragraph_beginning =
 			parser->at_paragraph_beginning;
+		    TAB::flags selectors =
+			line_variables.current
+			              .selectors;
 		    separator_found =
 		      BRA::
 		       parse_bracketed_subexpression
-			    ( parser,
-			      line_variables.current
-			                    .selectors,
+			    ( parser, selectors,
 			      current,
 			      paragraph_indent,
 			      NULL,
@@ -2513,8 +2514,7 @@ NEXT_TOKEN:
 			PAR::compact_logical_line
 			    ( parser,
 			      bracketed_pass->next,
-			      line_variables.current
-			                    .selectors,
+			      selectors,
 			      first, current,
 			      separator_found,
 			      (TAB::root)

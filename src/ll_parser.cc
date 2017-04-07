@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 16 02:31:24 EDT 2017
+// Date:	Fri Apr  7 13:52:47 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1161,6 +1161,173 @@ inline bool line_data_as_inited
 	          .indentation_implied_paragraph;
 }
 
+bool parse_paragraph_element
+	( PAR::parser parser,
+	  PAR::token & current,
+	  BRA::line_variables * line_variables,
+	  min::int32 paragraph_indent )
+{
+    // Special case of line with paragraph header that
+    // ended previous paragraph.
+    //
+    if (    current->value_type
+	 == PAR::paragraph_lexeme )
+    {
+        current = current->next;
+	if ( parser->at_paragraph_beginning
+	     &&
+	     ( ! ( line_variables->current.selectors
+		   &
+		   PAR::CONTINUING_OPT )
+	       ||
+	          current->type
+	       == LEXSTD::end_of_file_t ) )
+	    return false;
+	else
+	    line_variables->last_paragraph =
+	        current->previous;
+    }
+    
+    while ( true )
+    {
+	MIN_REQUIRE
+	    ( current->type != LEXSTD::end_of_file_t );
+
+	if ( parser->at_paragraph_beginning
+	     &&
+	     ! ( line_variables->current.selectors
+		 &
+		 PAR::CONTINUING_OPT ) )
+	    line_variables->current =
+	        line_variables->paragraph;
+
+	if ( current->type == LEXSTD::indent_t )
+	{
+
+	    if ( current->next == parser->first )
+	    {
+		parser->input->add_tokens
+		    ( parser, parser->input );
+		MIN_REQUIRE (    current->next
+			      != parser->first );
+	    }
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				current->previous ) );
+	}
+
+	// Get subexpression.  First is the first token
+	// of the subexpression.
+
+	TAB::flags selectors =
+	    line_variables->current.selectors;
+
+	line_variables->previous = current->previous;
+	line_variables->at_paragraph_beginning =
+	      parser->at_paragraph_beginning;
+	bool maybe_parser_command = 
+	    ( current->value == PAR::star_parser );
+	    // An optimization.
+	min::position separator_found =
+	    BRA::parse_bracketed_subexpression
+		( parser, selectors,
+		  current,
+		  paragraph_indent,
+		  NULL,
+		  line_variables );
+
+	PAR::token first =
+	    line_variables->previous->next;
+
+	if ( first == current ) continue;
+
+        // If subexpression is not a single element
+	// subexpression whose one element has prefix
+	// group `paragraph' or `line', compact it as
+	// a logical line.
+	//
+	if ( first->next != current
+	     ||
+	     (    first->value_type
+	       != PAR::paragraph_lexeme
+	       &&
+		  first->value_type
+	       != PAR::line_lexeme ) )
+	{
+	    PAR::compact_logical_line
+		( parser, parser->pass_stack->next,
+	          selectors,
+		  first, current,
+		  separator_found,
+	          (TAB::root)
+		  line_variables->line_sep,
+		  0 );
+	}
+
+	// Compact prefix paragraph if necessary.
+	//
+	if (    first->value_type
+	     == PAR::paragraph_lexeme )
+	{
+	    MIN_REQUIRE ( ! maybe_parser_command );
+
+	    if ( line_variables->last_paragraph
+		 != min::NULL_STUB )
+	    {
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables->last_paragraph,
+		      first,
+		      0 );
+		line_variables->last_paragraph
+		    = min::NULL_STUB;
+		MIN_REQUIRE ( first->next == current );
+		current = first;
+		return false;
+	    }
+
+	    if ( ! parser->at_paragraph_beginning
+		 ||
+		 ( ( line_variables->current.selectors
+		     &
+		     PAR::CONTINUING_OPT )
+		   &&
+		      current->type
+		   != LEXSTD::end_of_file_t ) )
+		line_variables->last_paragraph = first;
+	    else
+		return false;
+	}
+	else if ( parser->at_paragraph_beginning
+	          &&
+		     line_variables->last_paragraph
+	          != min::NULL_STUB
+	          &&
+	          ( ! ( line_variables->current
+		                       .selectors
+		        &
+		        PAR::CONTINUING_OPT )
+		    ||
+		       current->type
+		    == LEXSTD::end_of_file_t ) )
+	{
+	    PAR::compact_paragraph
+		( parser,
+		  line_variables->last_paragraph,
+		  current,
+		  0 );
+	    line_variables->last_paragraph
+		= min::NULL_STUB;
+	    return false;
+	}
+	else if (    line_variables->last_paragraph
+	          == min::NULL_STUB )
+	    return maybe_parser_command;
+    }
+}
+
 void PAR::parse ( PAR::parser parser )
 {
     // Initialize parser parameters.
@@ -1246,15 +1413,27 @@ void PAR::parse ( PAR::parser parser )
 				current->previous ) );
     }
 
+    if (    current->type == LEXSTD::indent_t
+         && current->indent != 0 )
+    {
+	min::phrase_position position =
+	    current->position;
+	position.begin = position.end;
+	PAR::parse_error
+	    ( parser, position,
+	      "first non-comment lexeme"
+	      " is indented" );
+    }
+
     // Top level loop.
     //
-    bool first_lexeme = true;
-
     BRA::line_variables line_variables;
     ::init_line_data ( line_variables, parser );
     line_variables.last_paragraph = min::NULL_STUB;
 
     parser->at_paragraph_beginning = true;
+    line_variables.line_sep =
+	parser->top_level_indentation_mark->line_sep;
     line_variables.current.selectors =
         ~ PAR::CONTINUING_OPT;
 	// line_variables.current.selectors are replaced
@@ -1278,171 +1457,18 @@ void PAR::parse ( PAR::parser parser )
         if ( current->type == LEXSTD::end_of_file_t )
 	    break;
 
-	// If indent token, then if first lexeme,
-	// complain if token indent is not 0, and delete
-	// it in any case.
-	//
-	if ( current->type == LEXSTD::indent_t )
-	{
-	    if ( first_lexeme && current->indent != 0 )
-	    {
-		min::phrase_position position =
-		    current->position;
-		position.begin = position.end;
-		PAR::parse_error
-		    ( parser, position,
-		      "first non-comment lexeme"
-		      " is indented" );
-	    }
-
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		MIN_REQUIRE (    current->next
-			      != parser->first );
-	    }
-
-	    current = current->next;
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-				current->previous ) );
-	}
-	first_lexeme = false;
-
-	if ( parser->at_paragraph_beginning
-	     &&
-	     ! ( line_variables.current.selectors
-		 &
-		 PAR::CONTINUING_OPT ) )
-	    line_variables.current =
-	        line_variables.paragraph;
-
-	// Get subexpression.  First is the first token
-	// of the subexpression.
-
-	TAB::flags selectors =
-	    line_variables.current.selectors;
-
-	line_variables.previous = current->previous;
-	line_variables.at_paragraph_beginning =
-	      parser->at_paragraph_beginning;
-	line_variables.line_sep =
-	    parser->top_level_indentation_mark
-	          ->line_sep;
-	bool maybe_parser_command = 
-	    ( current->value == PAR::star_parser );
-	    // An optimization.
-	min::position separator_found =
-	    BRA::parse_bracketed_subexpression
-		( parser, selectors,
-		  current,
-		  0,
-		  NULL,
-		  & line_variables );
-
-	PAR::token first =
-	    line_variables.previous->next;
 	min::uns32 error_count_save =
 	    parser->error_count;
-
-	if ( first == current ) continue;
-
-        // If subexpression is not a single element
-	// subexpression whose one element has prefix
-	// group `paragraph' or `line', compact it as
-	// a logical line.
-	//
-	if ( first->next != current
-	     ||
-	     (    first->value_type
-	       != PAR::paragraph_lexeme
-	       &&
-		  first->value_type
-	       != PAR::line_lexeme ) )
-	{
-	    PAR::compact_logical_line
-		( parser, parser->pass_stack->next,
-	          selectors,
-		  first, current,
-		  separator_found,
-	          (TAB::root)
-		  parser->top_level_indentation_mark
-	                ->line_sep,
-		  0 );
-	}
-
-	// output is first token to be output.
-	// next is first token after tokens to be
-	//      output.
-	//
-	PAR::token output = first;
-	PAR::token next = first;
-
-	// Compact prefix paragraph if necessary.
-	//
-	if (    first->value_type
-	     == PAR::paragraph_lexeme )
-	{
-	    MIN_REQUIRE ( ! maybe_parser_command );
-
-	    if ( line_variables.last_paragraph
-		 != min::NULL_STUB )
-	    {
-		PAR::compact_paragraph
-		    ( parser,
-		      line_variables.last_paragraph,
-		      first,
-		      0 );
-		output = line_variables.last_paragraph;
-		line_variables.last_paragraph
-		    = min::NULL_STUB;
-	    }
-
-	    if ( ! parser->at_paragraph_beginning
-		 ||
-		 ( line_variables.current.selectors
-		   &
-		   PAR::CONTINUING_OPT ) )
-		line_variables.last_paragraph = first;
-	    else
-		next = first->next;
-	}
-	else if ( parser->at_paragraph_beginning
-	          &&
-		     line_variables.last_paragraph
-	          != min::NULL_STUB
-	          &&
-	          ! ( line_variables.current.selectors
-		      &
-		      PAR::CONTINUING_OPT ) )
-	{
-	    maybe_parser_command = false;
-	    PAR::compact_paragraph
-		( parser,
-		  line_variables.last_paragraph,
-		  current,
-		  0 );
-	    output = line_variables.last_paragraph;
-	    next = output->next;
-	    line_variables.last_paragraph
-		= min::NULL_STUB;
-	}
-	else if (    line_variables.last_paragraph
-	          == min::NULL_STUB )
-	    next = output->next;
-
-	if ( output == next )
-	    continue;
+	PAR::token previous = current->previous;
+	bool maybe_parser_command =
+	    parse_paragraph_element
+		( parser, current,
+		  & line_variables, 0 );
+	PAR::token output = previous->next;
 
 	min::gen result = min::FAILURE();
-	if (    parser->error_count
-	     != error_count_save )
-	    result = min::ERROR();
-	else if ( maybe_parser_command )
+	if ( maybe_parser_command )
 	{
-	    MIN_REQUIRE ( output->next == next );
-
 	    min::obj_vec_ptr vp ( output->value );
 	    if ( vp != min::NULL_STUB )
 	    {
@@ -1458,7 +1484,10 @@ void PAR::parse ( PAR::parser parser )
 			COM::parser_test_execute_command
 			    ( parser, vp[0] );
 		    else if (    initiator
-		              == PAR::parser_colon )
+		              == PAR::parser_colon
+			      &&
+			         parser->error_count
+			      == error_count_save )
 		    {
 		        MIN_REQUIRE
 			    ( ::line_data_as_inited
@@ -1498,28 +1527,22 @@ void PAR::parse ( PAR::parser parser )
 	{
 	    if ( parser->output != NULL_STUB )
 	    {
-	        while ( output != next )
-		{
-		    ++ parser->finished_tokens;
-		    output = output->next;
-		}
+		++ parser->finished_tokens;
 		(* parser->output->remove_tokens)
 		    ( parser, parser->output );
 	    }
 	    else
 	    {
-	        while ( output != next )
-		{
-		    trace_subexpression
-			( parser, output,
-			  trace_flags );
-		    output = output->next;
-		}
+		trace_subexpression
+		    ( parser, output, trace_flags );
+		PAR::free
+		    ( PAR::remove
+			( PAR::first_ref ( parser ),
+			  output ) );
 	    }
 	}
 	else
 	{
-	    MIN_REQUIRE ( output->next == next );
 	    PAR::free
 		( PAR::remove
 		    ( PAR::first_ref ( parser ),

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  6 04:45:02 EDT 2017
+// Date:	Sat Apr  8 04:54:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1012,6 +1012,16 @@ struct line_variables
         // Last token whose value has a .type with
 	// group `paragraph' that has not be compacted
 	// by compact_paragraph, or NULL_STUB if none.
+    min::int32 paragraph_indent;
+        // Paragraph indentation for use in ending
+	// paragraph.
+    min::int32 indentation_offset;
+        // Value of indentation offset to be used in
+	// determining end of paragraph.
+    bool at_paragraph_end;
+        // True if current token is end of file or
+	// an indent token with indent < paragarph_
+	// indent.
 
     // Logical line data, used to parse next logical
     // line.  Reset from paragraph data before being

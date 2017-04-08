@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 21:26:29 EDT 2017
+// Date:	Sat Apr  8 05:38:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2534,17 +2534,14 @@ NEXT_TOKEN:
 		    // See if there are more lines
 		    // in the indented paragraph.
 		    //
-		    if ( separator_found )
-			continue;
-		    else if (    current->type
+		    if (    current->type
 			      == LEXSTD::end_of_file_t )
 			break;
-
-		    MIN_REQUIRE
-		        (    current->type
-			  == LEXSTD::indent_t );
-
-		    if (   PAR::relative_indent
+		    else
+		    if (    current->type
+			 == LEXSTD::indent_t
+			 &&
+		           PAR::relative_indent
 		               ( parser,
 			         indentation_offset,
 			         current,

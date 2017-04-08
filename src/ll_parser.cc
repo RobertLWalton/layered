@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 20:46:07 EDT 2017
+// Date:	Sat Apr  8 05:34:49 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1117,6 +1117,11 @@ static void init_line_data
         ( BRA::line_variables & line_variables,
 	  PAR::parser parser )
 {
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+	// First pass in pass_stack is always the
+	// bracketed pass.
+
     BRA::line_data & line_data = line_variables.current;
 
     line_data.lexical_master = parser->lexical_master;
@@ -1129,6 +1134,8 @@ static void init_line_data
     line_variables.indentation_paragraph =
     line_variables.indentation_implied_paragraph =
         line_variables.current;
+    line_variables.indentation_offset =
+	bracketed_pass->indentation_offset;
 }
 
 inline bool operator ==
@@ -1164,8 +1171,7 @@ inline bool line_data_as_inited
 bool parse_paragraph_element
 	( PAR::parser parser,
 	  PAR::token & current,
-	  BRA::line_variables * line_variables,
-	  min::int32 paragraph_indent )
+	  BRA::line_variables * line_variables )
 {
     // Special case of line with paragraph header that
     // ended previous paragraph.
@@ -1174,14 +1180,13 @@ bool parse_paragraph_element
 	 == PAR::paragraph_lexeme )
     {
         current = current->next;
-	if ( parser->at_paragraph_beginning
-	     &&
-	     ( ! ( line_variables->current.selectors
+	if ( ( parser->at_paragraph_beginning
+	       &&
+	       ! ( line_variables->current.selectors
 		   &
-		   PAR::CONTINUING_OPT )
-	       ||
-	          current->type
-	       == LEXSTD::end_of_file_t ) )
+		   PAR::CONTINUING_OPT ) )
+	     ||
+	     line_variables->at_paragraph_end )
 	    return false;
 	else
 	    line_variables->last_paragraph =
@@ -1191,7 +1196,7 @@ bool parse_paragraph_element
     while ( true )
     {
 	MIN_REQUIRE
-	    ( current->type != LEXSTD::end_of_file_t );
+	    ( ! line_variables->at_paragraph_end );
 
 	if ( parser->at_paragraph_beginning
 	     &&
@@ -1227,9 +1232,23 @@ bool parse_paragraph_element
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
 		  current,
-		  paragraph_indent,
+		  line_variables->paragraph_indent,
 		  NULL,
 		  line_variables );
+
+	line_variables->at_paragraph_end =
+	    ( current->type == LEXSTD::end_of_file_t
+	      ||
+	      ( current->type == LEXSTD::indent_t
+		&&
+		  PAR::relative_indent
+		      ( parser,
+			line_variables->
+			    indentation_offset,
+			current,
+			line_variables->
+			    paragraph_indent )
+		< 0 ) );
 
 	PAR::token first =
 	    line_variables->previous->next;
@@ -1283,30 +1302,28 @@ bool parse_paragraph_element
 		return false;
 	    }
 
-	    if ( ! parser->at_paragraph_beginning
-		 ||
-		 ( ( line_variables->current.selectors
-		     &
-		     PAR::CONTINUING_OPT )
+	    if ( ( parser->at_paragraph_beginning
 		   &&
-		      current->type
-		   != LEXSTD::end_of_file_t ) )
-		line_variables->last_paragraph = first;
-	    else
+		   ! ( line_variables->current.selectors
+		       &
+		       PAR::CONTINUING_OPT ) )
+		 ||
+		 line_variables->at_paragraph_end )
 		return false;
+	    else
+		line_variables->last_paragraph = first;
 	}
-	else if ( parser->at_paragraph_beginning
-	          &&
-		     line_variables->last_paragraph
-	          != min::NULL_STUB
-	          &&
-	          ( ! ( line_variables->current
-		                       .selectors
+	else if (    line_variables->last_paragraph
+	          == min::NULL_STUB )
+	    return maybe_parser_command;
+	else if ( ( parser->at_paragraph_beginning
+		    &&
+		    ! ( line_variables->
+		            current.selectors
 		        &
-		        PAR::CONTINUING_OPT )
-		    ||
-		       current->type
-		    == LEXSTD::end_of_file_t ) )
+		        PAR::CONTINUING_OPT ) )
+		  ||
+		  line_variables->at_paragraph_end )
 	{
 	    PAR::compact_paragraph
 		( parser,
@@ -1317,9 +1334,6 @@ bool parse_paragraph_element
 		= min::NULL_STUB;
 	    return false;
 	}
-	else if (    line_variables->last_paragraph
-	          == min::NULL_STUB )
-	    return maybe_parser_command;
     }
 }
 
@@ -1419,6 +1433,8 @@ void PAR::parse ( PAR::parser parser )
     BRA::line_variables line_variables;
     ::init_line_data ( line_variables, parser );
     line_variables.last_paragraph = min::NULL_STUB;
+    line_variables.paragraph_indent = 0;
+    line_variables.at_paragraph_end = false;
 
     parser->at_paragraph_beginning = true;
     line_variables.line_sep =
@@ -1452,7 +1468,7 @@ void PAR::parse ( PAR::parser parser )
 	bool maybe_parser_command =
 	    parse_paragraph_element
 		( parser, current,
-		  & line_variables, 0 );
+		  & line_variables );
 	PAR::token output = previous->next;
 	if ( output == current ) continue;
 

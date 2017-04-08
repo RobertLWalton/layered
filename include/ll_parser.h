@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 20:43:50 EDT 2017
+// Date:	Sat Apr  8 03:55:10 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2143,23 +2143,23 @@ inline void ensure_next
     }
 }
 
-// Return token indent - indent and warn if token
-// indent is too near indent, i.e., if the absolute
-// value returned is < indentation_offset but not 0.
-// Assert token->type == indent_t.
+// Return `token indent - paragraph_indent' and warn
+// if token indent is too near paragraph_indent, i.e.,
+// if the absolute value returned is < indentation_
+// offset but not 0.  Require token->type == indent_t.
 //
 inline min::int32 relative_indent
 	( ll::parser::parser parser,
 	  min::int32 indentation_offset,
 	  ll::parser::token token,
-	  min::int32 indent )
+	  min::int32 paragraph_indent )
 {
     MIN_REQUIRE
         (    token->type
 	  == ll::lexeme::standard::indent_t );
 
     int relative_indent =
-        (min::int32) token->indent - indent;
+        (min::int32) token->indent - paragraph_indent;
     if (    relative_indent != 0
 	 && relative_indent < indentation_offset 
 	 && relative_indent > - indentation_offset )
@@ -2167,7 +2167,8 @@ inline min::int32 relative_indent
 	char buffer[200];
 	sprintf ( buffer, "lexeme indent %d too near"
 			  " paragraph indent %d",
-			  token->indent, indent );
+			  token->indent,
+			  paragraph_indent );
 	min::phrase_position position = token->position;
 	position.begin = position.end;
 	ll::parser::parse_warn

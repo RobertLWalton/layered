@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 14:47:56 EDT 2017
+// Date:	Fri Apr  7 20:46:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1204,14 +1204,7 @@ bool parse_paragraph_element
 	if ( current->type == LEXSTD::indent_t )
 	{
 
-	    if ( current->next == parser->first )
-	    {
-		parser->input->add_tokens
-		    ( parser, parser->input );
-		MIN_REQUIRE (    current->next
-			      != parser->first );
-	    }
-
+	    PAR::ensure_next ( parser, current );
 	    current = current->next;
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
@@ -1400,13 +1393,7 @@ void PAR::parse ( PAR::parser parser )
             &&
 	    current->type != LEXSTD::end_of_file_t )
     {
-	if ( current->next == parser->first )
-	{
-	    parser->input->add_tokens
-		( parser, parser->input );
-	    MIN_REQUIRE (    current->next
-		          != parser->first );
-	}
+	PAR::ensure_next ( parser, current );
 	current = current->next;
 	if (    current->previous->type
 	     != LEXSTD::start_of_file_t )
@@ -1748,14 +1735,7 @@ TAB::key_prefix PAR::find_key_prefix
 
 	previous = key_prefix;
 
-        if ( current->next == parser->first )
-	{
-	    parser->input->add_tokens
-		( parser, parser->input);
-	    MIN_REQUIRE
-	        ( current->next != parser->first );
-	}
-
+	PAR::ensure_next ( parser, current );
 	current = current->next;
     }
 

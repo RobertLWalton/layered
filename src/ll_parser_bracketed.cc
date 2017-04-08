@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  7 11:13:30 EDT 2017
+// Date:	Fri Apr  7 21:26:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1003,57 +1003,12 @@ static void make_label
     first->type = PAR::DERIVED;
     first->position = position;
 }
-
-// Return token indent - indent and complain if token
-// indent is too near indent.  Assert token has an
-// indent.
-//
-inline min::int32 relative_indent
-	( PAR::parser parser,
-	  min::int32 indentation_offset,
-	  PAR::token token,
-	  min::int32 indent )
-{
-    MIN_REQUIRE ( token->type == LEXSTD::indent_t );
-
-    int relative_indent =
-        (min::int32) token->indent - indent;
-    if (    relative_indent != 0
-	 && relative_indent < indentation_offset 
-	 && relative_indent > - indentation_offset )
-    {
-	char buffer[200];
-	sprintf ( buffer, "lexeme indent %d too near"
-			  " paragraph indent %d",
-			  token->indent, indent );
-	min::phrase_position position = token->position;
-	position.begin = position.end;
-	PAR::parse_warn ( parser, position, buffer );
-    }
-    return relative_indent;
-}
 
 // Parse Bracketed Subexpression Function
 // ----- --------- ------------- --------
 
 // See ll_parser_bracketed_parse.outline for an outline
 // of the parse_bracketed_subexpression function.
-
-// Ensure there is a next token.
-//
-inline void ensure_next
-	( PAR::parser parser, PAR::token current )
-{
-    if ( current->next == parser->first
-         &&
-	 current->type != LEXSTD::end_of_file_t )
-    {
-	parser->input->add_tokens
-	    ( parser, parser->input );
-	MIN_REQUIRE
-	    ( current->next != parser->first );
-    }
-}
 
 // Announce `missing <message>' error with position
 // just before current.
@@ -2122,7 +2077,7 @@ NEXT_TOKEN:
 	{
 	    min::uns32 previous_t = t;
 
-	    ensure_next ( parser, current );
+	    PAR::ensure_next ( parser, current );
 	    current = current->next;
 	    t = current->type;
 
@@ -2251,7 +2206,7 @@ NEXT_TOKEN:
 	    //
 	    if ( current->type == LEXSTD::indent_t
 		 &&
-		 relative_indent
+		 PAR::relative_indent
 		     ( parser,
 		       indentation_offset,
 		       current, indent )
@@ -2458,7 +2413,8 @@ NEXT_TOKEN:
 		    if (    current->type
 		         == LEXSTD::indent_t )
 		    {
-			ensure_next ( parser, current );
+			PAR::ensure_next
+			    ( parser, current );
 			current = current->next;
 			PAR::free
 			    ( PAR::remove
@@ -2588,7 +2544,7 @@ NEXT_TOKEN:
 		        (    current->type
 			  == LEXSTD::indent_t );
 
-		    if (   relative_indent
+		    if (   PAR::relative_indent
 		               ( parser,
 			         indentation_offset,
 			         current,
@@ -2691,7 +2647,7 @@ NEXT_TOKEN:
 	             | PAR::EALTINDENT_OPT ) )
 	    {
 		int32 rindent =
-		    relative_indent
+		    PAR::relative_indent
 			( parser,
 			  bracketed_pass->
 			      indentation_offset,
@@ -2711,7 +2667,7 @@ NEXT_TOKEN:
 	    // indent-before-comment, line-break,
 	    // or end-of-file.
 	    //
-	    ensure_next ( parser, current );
+	    PAR::ensure_next ( parser, current );
 	    current = current->next;
 
 	    PAR::free
@@ -2746,7 +2702,7 @@ NEXT_TOKEN:
 	    // concatenated to a previous quoted string
 	    // and go to NEXT_TOKEN if not.
 	    //
-	    ensure_next ( parser, current );
+	    PAR::ensure_next ( parser, current );
 	    current = current->next;
 	    min::gen concat =
 	        bracketed_pass->string_concatenator;
@@ -2859,7 +2815,7 @@ NEXT_TOKEN:
 
 		// Move to next token.
 		//
-		ensure_next ( parser, current );
+		PAR::ensure_next ( parser, current );
 		current = current->next;
 		break;
 	    }

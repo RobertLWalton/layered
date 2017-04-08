@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 12:11:38 EDT 2017
+// Date:	Fri Apr  7 20:43:50 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2124,6 +2124,57 @@ void parse_warn
 	  const char * message7 = "",
 	  const min::op & message8 = min::pnop,
 	  const char * message9 = "" );
+
+// Ensure there is a next token.
+//
+inline void ensure_next
+	( ll::parser::parser parser,
+	  ll::parser::token current )
+{
+    if ( current->next == parser->first
+         &&
+	 current->type != ll::lexeme::standard
+	                            ::end_of_file_t )
+    {
+	parser->input->add_tokens
+	    ( parser, parser->input );
+	MIN_REQUIRE
+	    ( current->next != parser->first );
+    }
+}
+
+// Return token indent - indent and warn if token
+// indent is too near indent, i.e., if the absolute
+// value returned is < indentation_offset but not 0.
+// Assert token->type == indent_t.
+//
+inline min::int32 relative_indent
+	( ll::parser::parser parser,
+	  min::int32 indentation_offset,
+	  ll::parser::token token,
+	  min::int32 indent )
+{
+    MIN_REQUIRE
+        (    token->type
+	  == ll::lexeme::standard::indent_t );
+
+    int relative_indent =
+        (min::int32) token->indent - indent;
+    if (    relative_indent != 0
+	 && relative_indent < indentation_offset 
+	 && relative_indent > - indentation_offset )
+    {
+	char buffer[200];
+	sprintf ( buffer, "lexeme indent %d too near"
+			  " paragraph indent %d",
+			  token->indent, indent );
+	min::phrase_position position = token->position;
+	position.begin = position.end;
+	ll::parser::parse_warn
+	     ( parser, position, buffer );
+    }
+    return relative_indent;
+}
 
 } }
 

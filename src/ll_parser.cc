@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 05:34:49 EDT 2017
+// Date:	Sat Apr  8 11:26:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1176,28 +1176,27 @@ bool parse_paragraph_element
     // Special case of line with paragraph header that
     // ended previous paragraph.
     //
-    if (    current->value_type
-	 == PAR::paragraph_lexeme )
+    if (    line_variables->last_paragraph
+         != min::NULL_STUB )
     {
+	MIN_REQUIRE
+	  ( current == line_variables->last_paragraph );
+	MIN_REQUIRE
+	  (    current->value_type
+	    == PAR::paragraph_lexeme );
+
         current = current->next;
-	if ( ( parser->at_paragraph_beginning
-	       &&
-	       ! ( line_variables->current.selectors
-		   &
-		   PAR::CONTINUING_OPT ) )
-	     ||
-	     line_variables->at_paragraph_end )
-	    return false;
-	else
+
+	if ( line_variables->at_paragraph_end )
+	{
 	    line_variables->last_paragraph =
-	        current->previous;
+	        min::NULL_STUB;
+	    return false;
+	}
     }
     
     while ( true )
     {
-	MIN_REQUIRE
-	    ( ! line_variables->at_paragraph_end );
-
 	if ( parser->at_paragraph_beginning
 	     &&
 	     ! ( line_variables->current.selectors
@@ -1253,9 +1252,27 @@ bool parse_paragraph_element
 	PAR::token first =
 	    line_variables->previous->next;
 
-	// Here to handle line ending line separator.
+	// Here to handle line separator that
+	// superfluously ends a logical line.
 	//
-	if ( first == current ) return false;
+	if ( first == current )
+	{
+	    if ( ! line_variables->at_paragraph_end )
+	        continue;
+	    else
+	    if (    line_variables->last_paragraph
+		 != min::NULL_STUB )
+	    {
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables->last_paragraph,
+		      current,
+		      0 );
+		line_variables->last_paragraph
+		    = min::NULL_STUB;
+	    }
+	    return false;
+	}
 
         // If subexpression is not a single element
 	// subexpression whose one element has prefix
@@ -1295,10 +1312,10 @@ bool parse_paragraph_element
 		      line_variables->last_paragraph,
 		      first,
 		      0 );
-		line_variables->last_paragraph
-		    = min::NULL_STUB;
 		MIN_REQUIRE ( first->next == current );
 		current = first;
+		line_variables->last_paragraph =
+		    first;
 		return false;
 	    }
 
@@ -1457,11 +1474,6 @@ void PAR::parse ( PAR::parser parser )
 	    break;
 	}
 
-        // If end of file terminate loop.
-	//
-        if ( current->type == LEXSTD::end_of_file_t )
-	    break;
-
 	min::uns32 error_count_save =
 	    parser->error_count;
 	PAR::token previous = current->previous;
@@ -1470,7 +1482,7 @@ void PAR::parse ( PAR::parser parser )
 		( parser, current,
 		  & line_variables );
 	PAR::token output = previous->next;
-	if ( output == current ) continue;
+	if ( output == current ) break;
 
 	min::gen result = min::FAILURE();
 	if ( maybe_parser_command )

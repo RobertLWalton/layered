@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 22:11:03 EDT 2017
+// Date:	Sun Apr  9 03:20:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -862,14 +862,14 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //       after the blank line.
 //
 //   (3) If an indent token is encountered with indent
-//       == the indent argument and the EALEINDENT (end
+//       == the paragraph_indent and the EALEINDENT (end
 //       at less than or equal to indent) option is on,
 //       MISSING_POSITION is returned.  The returned
 //       token sequence may be empty.  `current' is the
 //       indent token.
 //
 //   (4) If an indent token is encountered with indent
-//       < the indent argument and the EALTINDENT (end
+//       < the paragraph_indent and the EALTINDENT (end
 //       at less than indent) option OR the EALEINDENT
 //       option is on, MISSING_POSITION is returned.
 //       The returned token sequence may be empty.
@@ -1138,7 +1138,6 @@ min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,
 	  ll::parser::table::flags selectors,
 	  ll::parser::token & current,
-	  min::int32 indent,
 	  ll::parser::bracketed::typed_data
 	      * typed_data,
 	  ll::parser::bracketed::line_variables

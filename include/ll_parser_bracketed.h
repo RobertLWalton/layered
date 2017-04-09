@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 04:54:12 EDT 2017
+// Date:	Sat Apr  8 22:11:03 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1144,6 +1144,35 @@ min::position parse_bracketed_subexpression
 	  ll::parser::bracketed::line_variables
 	      * line_variables,
 	  bracket_stack * bracket_stack_p  = NULL );
+
+// This function calls parse_bracketed_subexpression
+// to parse logical lines, headed lines, and headed
+// paragraphs that are elements of indented paragraphs
+// or top level output tokens.  One token is returned
+// each time this function is called in current->
+// previous, unless there are no more elements in the
+// paragraph (because the indented paragraph ended or
+// an end of file was encountered), in which case no
+// tokens are returned.
+//
+// Before calling this function to get the first element
+// of a paragraph (or of the top level), line_variables
+// must be allocated and initialized, and the
+// CONTINUING_OPT flag in line_variables->current
+// .selectors must be cleared.  Also current-previous
+// should be saved so it can be determined whether a
+// token was returned by this function.
+//
+// This function returns true iff the returned element
+// is a logical line constructed from tokens the first
+// of which equaled **PARSER**.  Such an element may be
+// a special parser command.
+//
+bool parse_paragraph_element
+	( ll::parser::parser parser,
+	  ll::parser::token & current,
+	  ll::parser::bracketed::line_variables
+	      * line_variables );
 
 } } }
 

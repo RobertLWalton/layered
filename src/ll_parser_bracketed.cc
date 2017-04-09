@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 21:45:23 EDT 2017
+// Date:	Sun Apr  9 03:20:55 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -938,7 +938,6 @@ bool BRA::parse_paragraph_element
 	    BRA::parse_bracketed_subexpression
 		( parser, selectors,
 		  current,
-		  line_variables->paragraph_indent,
 		  NULL,
 		  line_variables );
 
@@ -1467,7 +1466,6 @@ min::position BRA::parse_bracketed_subexpression
 	( PAR::parser parser,
 	  TAB::flags selectors,
 	  PAR::token & current,
-	  min::int32 indent,
 	  BRA::typed_data * typed_data,
 	  BRA::line_variables * line_variables,
 	  BRA::bracket_stack * bracket_stack_p )
@@ -2110,7 +2108,7 @@ PREFIX_PARSE:
 		min::position separator_found =
 		    PARSE_BRA_SUBEXP
 		      ( parser, prefix_selectors,
-			current, indent,
+			current,
 			NULL,
 			line_variables, & cstack );
 
@@ -2382,6 +2380,8 @@ NEXT_TOKEN:
 	    // become the first line break or end of
 	    // file after the paragraph.
 
+	    min::int32 previous_indent =
+	        line_variables->paragraph_indent;
 	    BRA::line_variables line_variables;
 	    line_variables.last_paragraph =
 	        min::NULL_STUB;
@@ -2396,15 +2396,10 @@ NEXT_TOKEN:
 		 PAR::relative_indent
 		     ( parser,
 		       indentation_offset,
-		       current, indent )
+		       current,
+		       previous_indent )
 		 > 0 )
 	    {
-
-		// Compute paragraph_indent for indented
-		// subparagraph.
-		//
-		min::int32 paragraph_indent =
-		    current->indent;
 
 		// Initialize line_varables.
 		//
@@ -2571,6 +2566,10 @@ NEXT_TOKEN:
 		    line_variables
 		        .indentation_implied_paragraph;
 
+		line_variables.paragraph_indent =
+		    current->indent;
+		line_variables.indentation_offset =
+		    indentation_offset;
 		line_variables.line_sep =
 		    indentation_found->line_sep;
 		parser->at_paragraph_beginning = true;
@@ -2617,15 +2616,13 @@ NEXT_TOKEN:
 		    TAB::flags selectors =
 			line_variables.current
 			              .selectors;
-		    separator_found =
+		    min::position separator_found =
 		      BRA::
 		       parse_bracketed_subexpression
 			    ( parser, selectors,
 			      current,
-			      paragraph_indent,
 			      NULL,
-			      & line_variables,
-			      bracket_stack_p );
+			      & line_variables );
 		    PAR::token first =
 		        line_variables.previous->next;
 
@@ -2730,9 +2727,11 @@ NEXT_TOKEN:
 			 &&
 		           PAR::relative_indent
 		               ( parser,
-			         indentation_offset,
+			         line_variables
+				     .indentation_offset,
 			         current,
-			         paragraph_indent )
+			         line_variables
+				     .paragraph_indent )
 		         < 0 )
 			break;
 
@@ -2824,7 +2823,8 @@ NEXT_TOKEN:
 		    return BRA::PARAGRAPH_END;
 
 	    // Truncate subexpression if current token
-	    // indent is at or before indent argument.
+	    // indent is at or before line_variables->
+	    // paragraph_indent.
 	    //
 	    if (   selectors
 	         & (   PAR::EALEINDENT_OPT
@@ -2835,7 +2835,9 @@ NEXT_TOKEN:
 			( parser,
 			  bracketed_pass->
 			      indentation_offset,
-			  current, indent );
+			  current,
+			  line_variables->
+			      paragraph_indent );
 		if ( rindent < 0 )
 		    return min::MISSING_POSITION;
 		else if ( rindent <= 0
@@ -3052,7 +3054,7 @@ NEXT_TOKEN:
 		    separator_found =
 			PARSE_BRA_SUBEXP
 			  ( parser, new_selectors,
-			    current, indent,
+			    current,
 			    NULL,
 			    line_variables, & cstack );
 		}
@@ -3086,7 +3088,7 @@ NEXT_TOKEN:
 		    separator_found =
 			PARSE_BRA_SUBEXP
 			  ( parser, tselectors,
-			    current, indent,
+			    current,
 			    & tdata,
 			    line_variables, & cstack );
 

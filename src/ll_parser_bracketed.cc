@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 05:38:07 EDT 2017
+// Date:	Sat Apr  8 21:45:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -875,8 +875,195 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 // Bracketed Subexpression Parser Functions
 // --------- ------------- ------ ---------
 
-// These are all static or inline; if any are useful
-// elsewhere they can be put in the PAR namespace.
+bool BRA::parse_paragraph_element
+	( PAR::parser parser,
+	  PAR::token & current,
+	  BRA::line_variables * line_variables )
+{
+    // Special case of line with paragraph header that
+    // ended previous paragraph.
+    //
+    if (    line_variables->last_paragraph
+         != min::NULL_STUB )
+    {
+	MIN_REQUIRE
+	  ( current == line_variables->last_paragraph );
+	MIN_REQUIRE
+	  (    current->value_type
+	    == PAR::paragraph_lexeme );
+
+        current = current->next;
+
+	if ( line_variables->at_paragraph_end )
+	{
+	    line_variables->last_paragraph =
+	        min::NULL_STUB;
+	    return false;
+	}
+    }
+    
+    while ( true )
+    {
+	if ( parser->at_paragraph_beginning
+	     &&
+	     ! ( line_variables->current.selectors
+		 &
+		 PAR::CONTINUING_OPT ) )
+	    line_variables->current =
+	        line_variables->paragraph;
+
+	if ( current->type == LEXSTD::indent_t )
+	{
+
+	    PAR::ensure_next ( parser, current );
+	    current = current->next;
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				current->previous ) );
+	}
+
+	// Get subexpression.  First is the first token
+	// of the subexpression.
+
+	TAB::flags selectors =
+	    line_variables->current.selectors;
+
+	line_variables->previous = current->previous;
+	line_variables->at_paragraph_beginning =
+	      parser->at_paragraph_beginning;
+	bool maybe_parser_command = 
+	    ( current->value == PAR::star_parser );
+	    // An optimization.
+	min::position separator_found =
+	    BRA::parse_bracketed_subexpression
+		( parser, selectors,
+		  current,
+		  line_variables->paragraph_indent,
+		  NULL,
+		  line_variables );
+
+	line_variables->at_paragraph_end =
+	    ( current->type == LEXSTD::end_of_file_t
+	      ||
+	      ( current->type == LEXSTD::indent_t
+		&&
+		  PAR::relative_indent
+		      ( parser,
+			line_variables->
+			    indentation_offset,
+			current,
+			line_variables->
+			    paragraph_indent )
+		< 0 ) );
+
+	PAR::token first =
+	    line_variables->previous->next;
+
+	// Here to handle line separator that
+	// superfluously ends a logical line.
+	//
+	if ( first == current )
+	{
+	    if ( ! line_variables->at_paragraph_end )
+	        continue;
+	    else
+	    if (    line_variables->last_paragraph
+		 != min::NULL_STUB )
+	    {
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables->last_paragraph,
+		      current,
+		      0 );
+		line_variables->last_paragraph
+		    = min::NULL_STUB;
+	    }
+	    return false;
+	}
+
+        // If subexpression is not a single element
+	// subexpression whose one element has prefix
+	// group `paragraph' or `line', compact it as
+	// a logical line.
+	//
+	if ( first->next != current
+	     ||
+	     (    first->value_type
+	       != PAR::paragraph_lexeme
+	       &&
+		  first->value_type
+	       != PAR::line_lexeme ) )
+	{
+	    PAR::compact_logical_line
+		( parser, parser->pass_stack->next,
+	          selectors,
+		  first, current,
+		  separator_found,
+	          (TAB::root)
+		  line_variables->line_sep,
+		  0 );
+	}
+
+	// Compact prefix paragraph if necessary.
+	//
+	if (    first->value_type
+	     == PAR::paragraph_lexeme )
+	{
+	    MIN_REQUIRE ( ! maybe_parser_command );
+
+	    if ( line_variables->last_paragraph
+		 != min::NULL_STUB )
+	    {
+		PAR::compact_paragraph
+		    ( parser,
+		      line_variables->last_paragraph,
+		      first,
+		      0 );
+		MIN_REQUIRE ( first->next == current );
+		current = first;
+		line_variables->last_paragraph =
+		    first;
+		return false;
+	    }
+
+	    if ( ( parser->at_paragraph_beginning
+		   &&
+		   ! ( line_variables->current.selectors
+		       &
+		       PAR::CONTINUING_OPT ) )
+		 ||
+		 line_variables->at_paragraph_end )
+		return false;
+	    else
+		line_variables->last_paragraph = first;
+	}
+	else if (    line_variables->last_paragraph
+	          == min::NULL_STUB )
+	    return maybe_parser_command;
+	else if ( ( parser->at_paragraph_beginning
+		    &&
+		    ! ( line_variables->
+		            current.selectors
+		        &
+		        PAR::CONTINUING_OPT ) )
+		  ||
+		  line_variables->at_paragraph_end )
+	{
+	    PAR::compact_paragraph
+		( parser,
+		  line_variables->last_paragraph,
+		  current,
+		  0 );
+	    line_variables->last_paragraph
+		= min::NULL_STUB;
+	    return false;
+	}
+    }
+}
+
+// The following are all static or inline; if any are
+// useful elsewhere they can be put in the PAR
+// namespace.
 
 // Given the token sequence from `first' to `next', make
 // a label containing these tokens.  Convert quoted

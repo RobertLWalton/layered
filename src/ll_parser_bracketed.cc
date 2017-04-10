@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 10 01:24:13 EDT 2017
+// Date:	Mon Apr 10 03:06:54 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -902,6 +902,8 @@ bool BRA::parse_paragraph_element
 	    return false;
 	}
     }
+    else if ( line_variables->at_paragraph_end )
+        return false;
     
     while ( true )
     {
@@ -2381,14 +2383,6 @@ NEXT_TOKEN:
 	    // become the first line break or end of
 	    // file after the paragraph.
 
-	    min::int32 previous_indent =
-	        line_variables->paragraph_indent;
-	    BRA::line_variables line_variables;
-	    line_variables.last_paragraph =
-	        min::NULL_STUB;
-		// Only component used after paragraph
-		// ends.
-
 	    // First be sure paragraph has some
 	    // lines.
 	    //
@@ -2398,12 +2392,14 @@ NEXT_TOKEN:
 		     ( parser,
 		       indentation_offset,
 		       current,
-		       previous_indent )
+		       line_variables->
+		           paragraph_indent )
 		 > 0 )
 	    {
 
 		// Initialize line_varables.
 		//
+		BRA::line_variables line_variables;
 		BRA::line_data & paragraph_data =
 		    line_variables
 		        .indentation_paragraph;
@@ -2575,6 +2571,8 @@ NEXT_TOKEN:
 		    indentation_found->line_sep;
 		parser->at_paragraph_beginning = true;
 		line_variables.at_paragraph_end = false;
+		line_variables.last_paragraph =
+		    min::NULL_STUB;
 		line_variables.current.selectors = ~
 		    PAR::CONTINUING_OPT;
 		    // line_variables.current.selectors
@@ -2584,182 +2582,15 @@ NEXT_TOKEN:
 		while ( true )
 		    // Loop to parse paragraph lines.
 		{
-		    if ( parser->at_paragraph_beginning
-		         &&
-		         ! ( line_variables.current
-			                   .selectors
-			     &
-			     PAR::CONTINUING_OPT ) )
-			line_variables.current =
-			    line_variables.paragraph;
-
-		    // Move past indent token.  If last
-		    // logical line ended by separator,
-		    // there will be no indent token to
-		    // move past.
-		    //
-		    if (    current->type
-		         == LEXSTD::indent_t )
-		    {
-			PAR::ensure_next
-			    ( parser, current );
-			current = current->next;
-			PAR::free
-			    ( PAR::remove
-				( first_ref(parser),
-				  current->previous ) );
-		    }
-
-		    line_variables.previous =
+		    PAR::token previous =
 		        current->previous;
-		    line_variables
-		           .at_paragraph_beginning =
-			parser->at_paragraph_beginning;
-		    TAB::flags selectors =
-			line_variables.current
-			              .selectors;
-		    min::position separator_found =
-		      BRA::
-		       parse_bracketed_subexpression
-			    ( parser, selectors,
-			      current,
-			      NULL,
-			      & line_variables );
-		    PAR::token first =
-		        line_variables.previous->next;
-
-		    // A logical line cannot be closed
-		    // by a closing bracket or prefix.
-		    //
-		    MIN_REQUIRE
-		        ( ! BRA::is_closed
-			        ( bracket_stack_p ) );
-
-		    // Compact line subsubexp if it
-		    // is not empty and not a single
-		    // element subsubexp whose element
-		    // has prefix group `paragraph' or
-		    // `line'.
-		    //
-		    if ( first != current
-			 &&
-			 ( first->next != current
-			   ||
-			   (    first->value_type
-			     != PAR::paragraph_lexeme
-			     &&
-			        first->value_type
-			     != PAR::line_lexeme
-			   )
-			 )
-		       )
-			PAR::compact_logical_line
-			    ( parser,
-			      bracketed_pass->next,
-			      selectors,
-			      first, current,
-			      separator_found,
-			      (TAB::root)
-			      indentation_found->
-			          line_sep,
-			      trace_flags );
-
-		    // Compact headed paragraph if
-		    // necessary.
-		    //
-		    if (    first->value_type
-		         == PAR::paragraph_lexeme )
-		    {
-		        if ( line_variables
-			         .last_paragraph
-		             != min::NULL_STUB )
-			    PAR::compact_paragraph
-				( parser,
-				  line_variables
-				      .last_paragraph,
-				  first,
-				  trace_flags );
-
-			if ( parser->
-			         at_paragraph_beginning
-			     &&
-			     ! ( line_variables
-			             .current.selectors
-			         &
-			         PAR::CONTINUING_OPT ) )
-			    line_variables
-			            .last_paragraph
-				= min::NULL_STUB;
-			else
-			    line_variables
-			            .last_paragraph
-				= first;
-		    }
-		    else
-		    if ( parser->at_paragraph_beginning
-		         &&
-		            line_variables
-			        .last_paragraph
-		         != min::NULL_STUB
-			 &&
-			 ! ( line_variables.current
-			                   .selectors
-			     &
-			     PAR::CONTINUING_OPT ) )
-		    {
-		        PAR::compact_paragraph
-			    ( parser,
-			      line_variables
-			          .last_paragraph,
-			      current,
-			      trace_flags );
-			line_variables.last_paragraph
-			    = min::NULL_STUB;
-		    }
-
-		    // See if there are more lines
-		    // in the indented paragraph.
-		    //
-		    if (    current->type
-			      == LEXSTD::end_of_file_t )
-			break;
-		    else
-		    if (    current->type
-			 == LEXSTD::indent_t
-			 &&
-		           PAR::relative_indent
-		               ( parser,
-			         line_variables
-				   .indentation_offset,
-			         current,
-			         line_variables
-				     .paragraph_indent )
-		         < 0 )
-			break;
-
-		    // Loop to get next line.
+		    parse_paragraph_element
+			( parser, current,
+			  & line_variables,
+			  trace_flags );
+		    PAR::token output = previous->next;
+		    if ( output == current ) break;
 		}
-	    }
-
-	    // Temporary check.
-	    //
-	    MIN_REQUIRE
-	      ( ! BRA::is_closed ( bracket_stack_p ) );
-
-	    // Compact headed paragraph at end of
-	    // indented paragraph.
-	    //
-	    if (    line_variables.last_paragraph
-		 != min::NULL_STUB )
-	    {
-		PAR::compact_paragraph
-		    ( parser,
-		      line_variables
-			  .last_paragraph,
-		      current,
-		      trace_flags );
-		line_variables.last_paragraph =
-		    min::NULL_STUB;
 	    }
 
 	    // Compact indented paragraph elements into
@@ -2793,7 +2624,6 @@ NEXT_TOKEN:
 
 	    value_type_ref(first) =
 		indentation_found->label;
-
 
 	    // Temporary check.
 	    //

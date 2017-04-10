@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 10 03:06:54 EDT 2017
+// Date:	Mon Apr 10 11:28:08 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -931,9 +931,6 @@ bool BRA::parse_paragraph_element
 	TAB::flags selectors =
 	    line_variables->current.selectors;
 
-	line_variables->previous = current->previous;
-	line_variables->at_paragraph_beginning =
-	      parser->at_paragraph_beginning;
 	bool maybe_parser_command = 
 	    ( current->value == PAR::star_parser );
 	    // An optimization.
@@ -1500,13 +1497,20 @@ min::position BRA::parse_bracketed_subexpression
 	// separator is legal, etc.
 
     bool parsing_logical_line =
-        ( line_variables->previous == start_previous );
+        ( bracket_stack_p == NULL );
 	// True iff we are parsing a logical line and
 	// NOT a bracketed (e.g.with `( )') subexpres-
 	// sion inside a logical line.  (bracketed_
 	// stack_p may still be non-NULL if the logical
 	// line is itself inside a bracketed subexpres-
 	// sion.)
+
+    if ( parsing_logical_line )
+    {
+	line_variables->previous = current->previous;
+	line_variables->at_paragraph_beginning =
+	      parser->at_paragraph_beginning;
+    }
 
     TAB::flags trace_flags = parser->trace_flags;
     if (   trace_flags

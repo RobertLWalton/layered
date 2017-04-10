@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  9 03:20:55 EDT 2017
+// Date:	Mon Apr 10 01:24:13 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -878,7 +878,8 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 bool BRA::parse_paragraph_element
 	( PAR::parser parser,
 	  PAR::token & current,
-	  BRA::line_variables * line_variables )
+	  BRA::line_variables * line_variables,
+	  TAB::flags trace_flags )
 {
     // Special case of line with paragraph header that
     // ended previous paragraph.
@@ -973,7 +974,7 @@ bool BRA::parse_paragraph_element
 		    ( parser,
 		      line_variables->last_paragraph,
 		      current,
-		      0 );
+		      trace_flags );
 		line_variables->last_paragraph
 		    = min::NULL_STUB;
 	    }
@@ -1000,7 +1001,7 @@ bool BRA::parse_paragraph_element
 		  separator_found,
 	          (TAB::root)
 		  line_variables->line_sep,
-		  0 );
+		  trace_flags );
 	}
 
 	// Compact prefix paragraph if necessary.
@@ -1017,7 +1018,7 @@ bool BRA::parse_paragraph_element
 		    ( parser,
 		      line_variables->last_paragraph,
 		      first,
-		      0 );
+		      trace_flags );
 		MIN_REQUIRE ( first->next == current );
 		current = first;
 		line_variables->last_paragraph =
@@ -1052,7 +1053,7 @@ bool BRA::parse_paragraph_element
 		( parser,
 		  line_variables->last_paragraph,
 		  current,
-		  0 );
+		  trace_flags );
 	    line_variables->last_paragraph
 		= min::NULL_STUB;
 	    return false;
@@ -2573,6 +2574,7 @@ NEXT_TOKEN:
 		line_variables.line_sep =
 		    indentation_found->line_sep;
 		parser->at_paragraph_beginning = true;
+		line_variables.at_paragraph_end = false;
 		line_variables.current.selectors = ~
 		    PAR::CONTINUING_OPT;
 		    // line_variables.current.selectors
@@ -2728,7 +2730,7 @@ NEXT_TOKEN:
 		           PAR::relative_indent
 		               ( parser,
 			         line_variables
-				     .indentation_offset,
+				   .indentation_offset,
 			         current,
 			         line_variables
 				     .paragraph_indent )

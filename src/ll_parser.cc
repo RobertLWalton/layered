@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 21:38:41 EDT 2017
+// Date:	Mon Apr 10 01:11:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1168,6 +1168,26 @@ inline bool line_data_as_inited
 	          .indentation_implied_paragraph;
 }
 
+inline TAB::flags output_trace_flags
+	( PAR::parser parser )
+{
+    TAB::flags trace_flags = parser->trace_flags;
+    if ( trace_flags & PAR::TRACE_PARSER_OUTPUT )
+    {
+	 trace_flags &=
+	       PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	     + PAR::TRACE_SUBEXPRESSION_DETAILS
+	     + PAR::TRACE_SUBEXPRESSION_LINES;
+	if ( trace_flags == 0 )
+	    trace_flags =
+	      PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+    }
+    else
+	trace_flags = 0;
+
+    return trace_flags;
+}
+
 void PAR::parse ( PAR::parser parser )
 {
     // Initialize parser parameters.
@@ -1259,6 +1279,9 @@ void PAR::parse ( PAR::parser parser )
 	      " is indented" );
     }
 
+    TAB::flags trace_flags =
+        ::output_trace_flags ( parser );
+
     // Top level loop.
     //
     BRA::line_variables line_variables;
@@ -1294,7 +1317,8 @@ void PAR::parse ( PAR::parser parser )
 	bool maybe_parser_command =
 	    parse_paragraph_element
 		( parser, current,
-		  & line_variables );
+		  & line_variables,
+		  0 );
 	PAR::token output = previous->next;
 	if ( output == current ) break;
 
@@ -1330,30 +1354,15 @@ void PAR::parse ( PAR::parser parser )
 
 			::init_line_data
 			    ( line_variables, parser );
+			trace_flags =
+			    ::output_trace_flags
+			        ( parser );
 		    }
 		    else
 			result = min::FAILURE();
 		}
 	    }
 	}
-
-	TAB::flags trace_flags =
-	    parser->trace_flags;
-	if ( ( parser->output == NULL_STUB )
-	      &&
-	      (   trace_flags
-		& PAR::TRACE_PARSER_OUTPUT ) )
-	{
-	     trace_flags &=
-		   PAR::TRACE_SUBEXPRESSION_ELEMENTS
-		 + PAR::TRACE_SUBEXPRESSION_DETAILS
-		 + PAR::TRACE_SUBEXPRESSION_LINES;
-	    if ( trace_flags == 0 )
-		trace_flags =
-		  PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-	}
-	else
-	    trace_flags = 0;
 
 	if ( result == min::FAILURE() )
 	{
@@ -1374,12 +1383,10 @@ void PAR::parse ( PAR::parser parser )
 	    }
 	}
 	else
-	{
 	    PAR::free
 		( PAR::remove
 		    ( PAR::first_ref ( parser ),
 		      output ) );
-	}
     }
 
     for ( PAR::pass pass = parser->pass_stack;
@@ -2162,44 +2169,53 @@ void PAR::compact_paragraph
 	{ first->position.begin,
 	  next->previous->position.end };
 
-    min::obj_vec_insptr vp ( first->value);
-    min::attr_ptr ap ( vp );
-    min::locate ( ap, min::dot_position );
-    min::phrase_position_vec_insptr ppvec =
-        (min::phrase_position_vec_insptr)
-	min::get ( ap );
-    MIN_REQUIRE ( ppvec != min::NULL_STUB );
-
-    ppvec->position = position;
-    first->position = position;
-
-    PAR::token current = first->next;
-    while ( current != next )
     {
-	if ( current->value_type == PAR::line_lexeme
-	     ||
-	     current->value_type == min::LOGICAL_LINE()
-	   )
-	{
-	    min::attr_push(vp) = current->value;
-	    min::push(ppvec) = current->position;
-	}
-	else
-	    PAR::parse_error
-		( parser, current->position,
-		  " value; `",
-		  min::pgen_never_quote
-		      ( current->value ),
-		  "' does not have LOGICAL_LINE"
-		  " .initiator or .type with `line'"
-		  " group; ignored" );
+        // Block that closes vp at its end so trace
+	// at end of function will work.
+	//
+	min::obj_vec_insptr vp ( first->value);
+	min::attr_ptr ap ( vp );
+	min::locate ( ap, min::dot_position );
+	min::phrase_position_vec_insptr ppvec =
+	    (min::phrase_position_vec_insptr)
+	    min::get ( ap );
+	MIN_REQUIRE ( ppvec != min::NULL_STUB );
 
-	current = current->next;
-	PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref(parser),
-		    current->previous ) );
+	ppvec->position = position;
+	first->position = position;
+
+	PAR::token current = first->next;
+	while ( current != next )
+	{
+	    if ( current->value_type == PAR::line_lexeme
+		 ||
+		    current->value_type
+		 == min::LOGICAL_LINE()
+	       )
+	    {
+		min::attr_push(vp) = current->value;
+		min::push(ppvec) = current->position;
+	    }
+	    else
+		PAR::parse_error
+		    ( parser, current->position,
+		      " value; `",
+		      min::pgen_never_quote
+			  ( current->value ),
+		      "' does not have LOGICAL_LINE"
+		      " .initiator or .type with `line'"
+		      " group; ignored" );
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			current->previous ) );
+	}
     }
+
+    PAR::trace_subexpression
+        ( parser, first, trace_flags );
 }
 
 void PAR::internal::trace_subexpression

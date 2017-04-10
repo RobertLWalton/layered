@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  9 03:20:18 EDT 2017
+// Date:	Sun Apr  9 20:24:31 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1162,6 +1162,9 @@ min::position parse_bracketed_subexpression
 // should be saved so it can be determined whether a
 // token was returned by this function.
 //
+// The trace_flags are passed to compact_logical_line
+// and compact_paragraph.
+//
 // This function returns true iff the returned element
 // is a logical line constructed from tokens the first
 // of which equaled **PARSER**.  Such an element may be
@@ -1171,7 +1174,8 @@ bool parse_paragraph_element
 	( ll::parser::parser parser,
 	  ll::parser::token & current,
 	  ll::parser::bracketed::line_variables
-	      * line_variables );
+	      * line_variables,
+	  ll::parser::table::flags trace_flags );
 
 } } }
 

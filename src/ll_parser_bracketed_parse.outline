@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 10 19:48:29 EDT 2017
+// Date:	Tue Apr 11 14:02:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,115 @@
 // input, code to update typed_data->end_position, and
 // code to set .position attributes.
 //
+// parse_paragraph_element
+//         (parser,current,line_variables):
+//     if line_variables->last_paragraph != NULL_STUB:
+//         // Special case where paragraph header
+//         // ended previous paragraph.  Current ==
+//         // line_variables->last_paragraph.
+//         //
+//         current = current->next
+//         if line_variables->at_paragraph_end:
+//             line_variables->last_paragraph =
+//                 NULL_STUB
+//             return false
+//     else if line_variables->at_paragraph_end:
+//         return false
+//
+//     loop to get lines of headed paragraph or just
+//             get the next line outside a headed
+//             paragraph:
+//
+//         if parser->at_paragraph_beginning and
+//                    CONTINUING_OPT is off in
+//                    line_variables->current.selectors:
+//             line_variables->current =
+//                 line_variables->paragraph
+//
+//	   if current is indent token:
+//	       move current to next token and delete
+//	            indent token
+//
+//	   selectors = line_variables->current.selectors
+//	   maybe_parser_command =
+//	       current->value == *PARSER*
+//	   separator_found =
+//	       parse_bracketed_subexpression with
+//	           selectors and line_variables
+//	   line_variables->at_paragraph_end =
+//	       current is end of file token, or
+//	       current is indent token and indent is
+//	               less than line_varibles->
+//	               paragraph_indent
+//
+//	   if parse_bracketed_subexpression did not
+//	            return any tokens
+//	       if not line_variables->at_paragraph_end:
+//	           continue loop to get lines
+//	       if line_variables->last_parargraph
+//	               != NULL_STUB:
+//	           compact paragraph from
+//	               line_variables.last_paragraph to
+//	                   just before current
+//	       return false
+//
+//	   if parse_bracketed_subexpression returned
+//	            more than one token, or returned a
+//	            single token that is neither a
+//	            headed paragraph or headed line:
+//	       compact logical line
+//               consisting of tokens returned by
+//                   parse_bracketed_subexpression,
+//               with selectors, separator_found,
+//               line_variables->line_sep
+//
+//	   if parse_bracketed_subexpression returned
+//	            a single headed paragraph token:
+//
+//	       if line_variables->last_paragraph
+//	                          != NULL_STUB:
+//	           compact paragraph from
+//	               line_variables.last_paragraph to
+//	                   just before returned token
+//	           current = returned token
+//	           line_variables->last_paragraph =
+//	               returned token
+//	           return false
+//
+//	       if parser->at_paragraph_beginning and
+//                        CONTINUING_OPT is off in
+//                        line_variables->current
+//                                       .selectors,
+//                        or if line_variables->
+//                              at_paragraph_end:
+//                 return false
+//             else:
+//                 line_variables->last_paragraph =
+//                     returned token
+//         else if line_variables->last_paragraph
+//                                 == NULL_STUB:
+//             return maybe_parser_command
+//         else if parser->at_paragraph_beginning and
+//                        CONTINUING_OPT is off in
+//                        line_variables->current
+//                                       .selectors,
+//                        or if line_variables->
+//                              at_paragraph_end:
+//	       compact paragraph from
+//	           line_variables.last_paragraph to
+//	               just before first token AFTER
+//	               tokens returned by parse_
+//	               bracketed_subexpression or the
+//	               token created by compact logical
+//	               line above
+//	       line_variables->last_paragraph =
+//	           NULL_STUB
+//	       return false
+//
+//	   iterate loop to find next line of headed
+//	           paragraph (as line_variables->
+//	           last_paragraph != NULL_STUB)
+//	                  
 // make_label(first,next):
 //     Collect all the tokens from first through next->
 //     previous into a single label token.  Print

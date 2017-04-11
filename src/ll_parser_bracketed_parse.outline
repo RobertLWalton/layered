@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  5 14:23:48 EDT 2017
+// Date:	Mon Apr 10 19:48:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,8 +142,6 @@
 // 	current
 // 	    Next token to parse.  Updated as parse
 // 	    proceeds.
-// 	indent
-// 	    Current paragraph indent.
 // 	typed_data
 // 	    After reading a typed opening, the parse
 // 	    bracketed subexpression function allocates a
@@ -193,10 +191,15 @@
 //     // as the start-of-file token is never removed
 //     // from the input.
 // parsing_logical_line =
-//         line_variables->previous == start_previous
+//         bracket_stack_p == NULL
 //     // True iff the parse_bracketed_subexpression()
 //     // was called to parse a logical line, and not
 //     // a subexpression of a logical line.
+//
+// if parsing_logical_line:
+//     line_variables->previous = current->previous
+//     line_variables->at_paragraph_beginning =
+//         parser->at_paragraph_beginning
 //
 // loop to find next token:
 //
@@ -533,7 +536,7 @@
 //             NULL_STUB
 //         parse_bracketed_subexpression with
 //             prefix_selectors, with new bracket stack,
-//             indent argument, line_variables argument;
+//             line_variables argument;
 //	       set separator_found = result
 //
 //	   next (token after subexpression) =
@@ -641,15 +644,12 @@
 //         new_selectors = selectors modified by
 //                 indentation_found->new_selectors
 //
-//         allocate line_variables for use in parsing
-//                  paragraph and set line_variables
-//                  .last_paragraph = NULL_STUB
-//
 //         if paragraph has some lines (i.e., current is
 //            an indent token whose indent is greater
 //            than the indent argument):
 //
-//             paragraph_indent = current->indent
+//             allocate line_variables for use in
+//             		parsing paragraph
 //
 //	       initialize line_variables
 //	                      .indentation_paragraph
@@ -747,12 +747,18 @@
 //                 line_variables
 //                     .indentation_implied_paragraph
 //
+//             line_variables.paragraph_indent =
+//                 current->indent
+//             line_variables.indentation_offset =
+//                 bracketed_pass->indentation_offset
 //             line_variables.line_sep =
 //                 indentation_found->line_sep
-//             parser->at_paragraph_beginning = true
+//             line_variables.last_paragraph = NULL_STUB
+//             line_variables.at_paragraph_end = false
 //             clear CONTINUING_OPT from
 //                 line_variables.current.selectors
 //
+//             parser->at_paragraph_beginning = true
 //             loop to parse paragraph lines:
 //
 //                 if parser->at_paragraph_beginning
@@ -774,7 +780,6 @@
 //                     = parser->at_paragraph_beginning
 //                 parse_bracketed_subexpression with
 //                     line_variables.current.selectors,
-//                     paragraph_indent,
 //                     line_variables, bracket stack
 //                     set separator_found = result
 //
@@ -789,7 +794,7 @@
 //                         line_variables.current
 //                                       .selectors,
 //                         separator_found,
-//                         indentation_found->line_sep
+//                         line_variables->line_sep
 //
 //		   if compacted token is prefix-0-list
 //		            with paragraph header:
@@ -852,33 +857,19 @@
 //                 // Look for more lines in indented
 //                 // paragraph.
 //
-//                 if separator found:
-//                     continue loop to parse next
-//                              paragraph line
-//
-//                 else if current is end-of-file:
+//                 if current is end-of-file:
 //                     end loop that parses paragraph
 //                         lines
 //
-//	           require that current is indent token
-//
-//                 if current has indent less than
+//                 if current is indent token and has
+//                            indent less than
+//                            line_variables->
 //                                paragraph_indent:
 //                     end loop that parses paragraph
 //                         lines
 //
 //                 iterate loop to parse next paragraph
 //                         line
-//
-//         if line_variables.last_paragraph
-//                 != NULL_STUB:
-//
-//             // Compact headed paragraph at end of
-//             // indented paragraph.
-//
-//	       compact paragraph from
-//		   line_variables.last_paragraph
-//		   to just before current token
 //
 //         remove indentation mark (from just before
 //                paragraph lines)
@@ -916,12 +907,13 @@
 //	       return PARAGRAPH_END
 //
 //         else if current->indent is at or before
-//                 indent argument,
+//                 line_variables->paragraph_indent,
 //                 and selectors & EALEINDENT:
 //             return MISSING_POSITION
 //
-//         else if current->indent is before indent
-//                 argument, and selectors & EALTINDENT:
+//         else if current->indent is before line_
+//                 variables->paragraph_indent,
+//                 and selectors & EALTINDENT:
 //             return MISSING_POSITION
 //
 //         // next token is part of continuation line
@@ -1025,7 +1017,6 @@
 //                 parse_bracketed_subexpression with
 //                   new_selectors,
 //                   new bracket stack
-//                   indent argument,
 //                   line_variables argument
 //	             set separator_found = result
 //
@@ -1050,7 +1041,6 @@
 //                         SELECTOR, with selector
 //                         options from new_selectors
 //                     new bracket stack,
-//                     indent argument,
 //                     line_variables argument,
 //                     tdata containing typed opening
 //	               set separator_found = result
@@ -1493,6 +1483,10 @@
 //                      typed key is a typed middle,
 //                      typed attribute separator, or
 //                      typed attribute negator:
+//                 if previous typed key is typed
+//                             attribute negator:
+//                     announce that negator is being
+//                              ignored
 //                 make_attribute_label
 //                     ( typed_data,
 //                       first token of key )

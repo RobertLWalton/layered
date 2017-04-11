@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 10 11:28:08 EDT 2017
+// Date:	Tue Apr 11 08:02:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2573,7 +2573,6 @@ NEXT_TOKEN:
 		    indentation_offset;
 		line_variables.line_sep =
 		    indentation_found->line_sep;
-		parser->at_paragraph_beginning = true;
 		line_variables.at_paragraph_end = false;
 		line_variables.last_paragraph =
 		    min::NULL_STUB;
@@ -2583,6 +2582,7 @@ NEXT_TOKEN:
 		    // is replaced by line_variables.
 		    // paragraph.selectors at beginning
 		    // of loop.
+		parser->at_paragraph_beginning = true;
 		while ( true )
 		    // Loop to parse paragraph lines.
 		{
@@ -2597,8 +2597,9 @@ NEXT_TOKEN:
 		}
 	    }
 
-	    // Compact indented paragraph elements into
-	    // an indented paragraph value.
+	    // Remove indentation mark and compact
+	    // indented paragraph elements into an
+	    // indented paragraph value.
 	    //
 	    PAR::token first = mark_end->next;
 	    min::phrase_position position;

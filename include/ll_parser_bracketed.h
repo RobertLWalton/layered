@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  9 20:24:31 EDT 2017
+// Date:	Mon Apr 10 20:09:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -993,18 +993,31 @@ struct line_variables
     //
     // The line_variables structure contains information
     // about the current logical line being parsed.
+    // There is one line_variables structure for each
+    // indented paragraph, and its values are used to
+    // communicate between the parses of the various
+    // logical lines, headed lines, and headed para-
+    // graphs of the indented paraagraph.
     //
     // WARNING: this ASSUMES that the parser tables are
     // not modified DURING logical line parsing.  Break-
     // ing this assumption breaks the garbage collector.
 {
+    // Variables initialized when parse_bracketed_sub-
+    // expression is called to parse a logical line
+    // (i.e., with bracketed_stack_p == NULL ):
+    //
     ll::parser::token previous;
-        // Token just before logical line.
+        // Token just before logical line.  Initialized
+	// to current->previous.
     bool at_paragraph_beginning;
         // True iff logical line is in paragraph
-	// beginning position.  I.e., parser->
-	// at_paragraph_beginning is true at the
-	// beginning of the logical line.
+	// beginning position.  Initialized to parser->
+	// at_paragraph_beginning.
+
+    // Variables that must be initialized before
+    // indented paragraph lines are parsed.
+    //
     ll::parser::bracketed::line_sep line_sep;
         // Line separator that can end the logical line
 	// if EALSEP_OPT is set, or NULL_STUB if none.
@@ -1012,6 +1025,7 @@ struct line_variables
         // Last token whose value has a .type with
 	// group `paragraph' that has not be compacted
 	// by compact_paragraph, or NULL_STUB if none.
+	// Initialized to NULL_STUB.
     min::int32 paragraph_indent;
         // Paragraph indentation for use in ending
 	// paragraph.
@@ -1021,7 +1035,7 @@ struct line_variables
     bool at_paragraph_end;
         // True if current token is end of file or
 	// an indent token with indent < paragarph_
-	// indent.
+	// indent.  Initialized to false.
 
     // Logical line data, used to parse next logical
     // line.  Reset from paragraph data before being

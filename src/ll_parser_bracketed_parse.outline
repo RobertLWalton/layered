@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 11 14:02:33 EDT 2017
+// Date:	Wed Apr 12 02:13:31 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -268,7 +268,8 @@
 // 	    the next logical line.
 // 	bracket_stack_p
 // 	    Top bracket stack entry.  NULL if empty
-// 	    stack.
+// 	    stack.  NULL if and only if we are being
+// 	    asked to parse a logical line.
 //
 // Return Value:
 //
@@ -870,115 +871,10 @@
 //             parser->at_paragraph_beginning = true
 //             loop to parse paragraph lines:
 //
-//                 if parser->at_paragraph_beginning
-//                         and 
-//                         line_variables.current
-//                                       .selectors
-//                         does not have the
-//                         CONTINUING_OPT flag:
-//                     line_variables.current =
-//                         line_variables.paragraph
-//
-//                 if current token is indent token:
-//                     remove current token and set
-//                         current to following token
-//
-//                 line_variables.previous =
-//                     current->previous
-//                 line_variables.at_paragraph_beginning
-//                     = parser->at_paragraph_beginning
-//                 parse_bracketed_subexpression with
-//                     line_variables.current.selectors,
-//                     line_variables, bracket stack
-//                     set separator_found = result
-//
-//                 require ! bracket stack top closed
-//
-//                 if line is not empty and contains
-//                         more than one element or
-//                         has a single element that
-//                         is not a prefix-0-list with
-//                         a paragraph or line header:
-//                     compact logical line with
-//                         line_variables.current
-//                                       .selectors,
-//                         separator_found,
-//                         line_variables->line_sep
-//
-//		   if compacted token is prefix-0-list
-//		            with paragraph header:
-//
-//		       // Token is first logical line of
-//		       // a headed paragraph.
-//
-//		       if line_variables.last_paragraph
-//		               != NULL_STUB:
-//
-//		           // Compact headed paragraph
-//		           // that precedes compacted
-//		           // token.
-//
-//		           compact paragraph from
-//		               line_variables.
-//		                   last_paragraph
-//		               to just before compacted
-//		               token
-//
-//		       if parser->at_paragraph_beginning
-//		               and
-//		               line_variables.current
-//		                             .selectors
-//		               does NOT have
-//		               CONTINUING_OPT:
-//
-//		           // compacted token is 1-line
-//		           // paragraph
-//		           //
-//		           line_variables.last_paragraph
-//		               = NULL_STUB
-//		       else:
-//		           line_variables.last_paragraph
-//		               = compacted token
-//
-//		   else
-//		   if parser->at_paragraph_beginning
-//		           and
-//		           line_variables.last_paragraph
-//		               != NULL_STUB
-//		           and line_variables.current
-//		                             .selectors
-//		               does NOT have
-//		               CONTINUING_OPT:
-//
-//		       // Compacted token is first
-//		       // logical line after a headed
-//		       // paragraph, but does not itself
-//		       // begin a headed paragraph.
-//
-//		       compact paragraph from
-//		           line_variables.last_paragraph
-//		           to just before compacted
-//		           token
-//		       line_variables.last_paragraph
-//		           = NULL_STUB
-//
-//
-//                 // Look for more lines in indented
-//                 // paragraph.
-//
-//                 if current is end-of-file:
-//                     end loop that parses paragraph
-//                         lines
-//
-//                 if current is indent token and has
-//                            indent less than
-//                            line_variables->
-//                                paragraph_indent:
-//                     end loop that parses paragraph
-//                         lines
-//
-//                 iterate loop to parse next paragraph
-//                         line
+//                 parse_paragraph_element with
+//                     line_variables
+//                 if no token returned end loop
+//                 iterate loop
 //
 //         remove indentation mark (from just before
 //                paragraph lines)

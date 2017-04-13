@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 10 20:09:06 EDT 2017
+// Date:	Thu Apr 13 02:54:09 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -768,37 +768,46 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // ----- --------- ------------- --------
 
 // Move `current' to the end of the current bracketed
-// subexpression, calling parser->input if more tokens
-// are needed.  Return the end position of any line
-// separator found (the line separator is deleted), or
-// PARAGRAPH_END if current token is an indent token
-// preceeded by a blank line with possible intervening
-// comment lines or an end of file, or min::MISSING_
-// POSITION otherwise.  Note that the first two returns
-// only occur if they are enabled by parsing options.
+// subexpression, calling ll::parser::ensure_next if
+// more tokens are needed.  The bracketed subexpression
+// may be a logical line, an untyped bracketed subex-
+// pression, a typed bracketes subexpression or typed
+// prefix, or a prefix-n-list.  Other bracketed subex-
+// pressions are recognized within the subexpressions
+// just listed: namely indented paragraphs, implied
+// headers, headed lines, and mapped lexemes.
 //
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
 // tions.  Line breaks, comments, indent, and indent
 // before comment tokens are deleted.  After doing this,
-// consecutive quoted strings are merged if the second
-// is in the same line as the first or in a continuation
-// line following the line of the first.  Any subexpres-
-// sion terminating line separator is also deleted.
+// quoted strings are merged within a logical line if
+// separated by a string concatenator or if consecutive
+// when no string concatenator is required.  Bracketed
+// sub-subexpressions of the subexpression being parsed
+// are converted to single tokens.  Any logical line
+// terminating line separator is deleted.
+//
+// In most cases MISSING_POSITION is returned.  If a
+// a logical line terminating line separator was
+// deleted, the position of the end of the separator
+// is returned.
+//
 // Sub-subexpressions are identified and each is replac-
-// ed by a single BRACKETED, BRACKETABLE, PURELIST,
-// PREFIX, or DERIVED token.  If the typed_data argu-
-// ment is not NULL, tokens representing attibute labels
-// and values are modified and given temporary token
-// types as given above with the typed_data definition.
-// If the line_variables argument is not NULL, a PREFIX
-// token that is a copy of the default line_prefix may
-// be inserted at the beginning of a line and used by
-// the prefix parsing pass to return a BRACKETED MIN
-// object.
+// ed by a single BRACKETED, BRACKETABLE, PURELIST, PRE-
+// FIX, or DERIVED token.  If a typed bracketed subex-
+// pression is being parsed (true iff the typed_data
+// argument is not NULL), tokens representing attibute
+// labels and values are modified and given temporary
+// token types as specified above with the typed_data
+// definition.  If a logical line is being parsed (true
+// iff the bracketed_stack_p argument is NULL), implied
+// header tokens may be inserted.
+//
+// TBD
 //
 // It is assumed that there are always more tokens
-// available via parser->input until an end-of-file
+// available via ll::parser::ensure_next until an end-of-file
 // token is encountered, and the end-of-file is never
 // part of the bracketed subexpression.  Therefore there
 // is always a token immediately after the recognized
@@ -956,8 +965,6 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // mark->line_sep' which is `;', and bracket_stack =
 // NULL.
 //
-extern const min::position PARAGRAPH_END;
-
 struct line_data
 {
     // Data used to initialize parsing of a logical

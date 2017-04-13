@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 11 08:02:23 EDT 2017
+// Date:	Thu Apr 13 02:54:54 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,9 +37,6 @@
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define BRA ll::parser::bracketed
-
-const min::position BRA::PARAGRAPH_END =
-    { 0xFFFFFFFF, 0xFFFFFFFE };
 
 static bool initialize_called = false;
 static min::locatable_gen bracket;
@@ -2646,9 +2643,7 @@ NEXT_TOKEN:
 	// indented paragraph.
 	//
 	if ( current->type == LEXSTD::end_of_file_t )
-	    return selectors & PAR::EAPBREAK_OPT ?
-		   BRA::PARAGRAPH_END :
-		   min::MISSING_POSITION;
+	    return min::MISSING_POSITION;
 	else if ( current->type == LEXSTD::indent_t )
 	{
 	    if ( ( parser->at_paragraph_beginning
@@ -2657,7 +2652,7 @@ NEXT_TOKEN:
 	         &&
 		 (   selectors
 		   & PAR::EAPBREAK_OPT ) )
-		    return BRA::PARAGRAPH_END;
+		    return min::MISSING_POSITION;
 
 	    // Truncate subexpression if current token
 	    // indent is at or before line_variables->

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 13 02:54:09 EDT 2017
+// Date:	Thu Apr 13 16:00:54 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -839,28 +839,71 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // less than the paragraph_indent always terminates a
 // logical line.
 //
+// The line_variables also contains several sets of
+// line_data which are used while parsing the line.
+// The paragraph set is copied to the current set by
+// parse_paragraph_element at the beginning of an
+// indented paragraph, or after a blank line when the
+// previous paragraph header is not CONTINUED or the
+// line after the blank line begins with an explicit
+// paragraph header.
+//
+// When parse_paragraph_element calls this function to
+// parse paragraph lines, it sets the current line_data
+// lexical master to be in effect immediately after any
+// indent token just before the logical line, and sets
+// the current line_data selectors to be in effect for
+// parsing the logical line.
+//
+// If the current line_data has an implied header, it
+// is prepended to the logical line as a prefix header,
+// and the logical line is scanned as a prefix-0-list.
+// If the line begins with an explicit header in the
+// same group as the implicit header, the implicit
+// header is deleted, using the rule that an implicit
+// header prefix-n-list must always have at least one
+// element.
+//
+// When this function encounters an active untyped
+// opening bracket, it calls itself recursively to parse
+// an untyped bracketed subexpression, and when the
+// recursive call returns, this function compacts the
+// bracketed sub-subexpression with the opening and
+// closing brackets as .initiator and .terminator.
+//
+// When this function is called (recursively) to parse
+// an untyped bracketed subexpression, the top of the
+// bracket stack contains an entry identifying the
+// opening bracket of the subexpression.  The parse
+// continues until the corresponding closing bracket is
+// found, and this is delimited in the top bracket stack
+// entry and this function returns.  If the closing
+// closing bracket is erroneously omitted, this function
+// returns as if the closing bracket existed, and
+// indicates in the top bracket stack entry where the
+// closing bracket should have been placed.  The bracket
+// stack entries below the top specify closing brackets
+// which if they occur will close the top of the stack
+// if the EAOCLOSING option is in effect.  Bracketed
+// subexpressions must be inside a logical line, so the
+// end of the logical line also closes all bracket stack
+// entries.
+//
+// Typed bracketed subexpressions are treated similarly
+// to untyped bracketed subexpressions, with the follow-
+// ing differences.  When called recursively to parse a
+// typed bracketed subexpression, the typed_data argu-
+// ment is NOT NULL, and is used during the parse and
+// also returns information to the caller.  Type and
+// attribute labels and values become special tokens
+// with types ATTR_... and are moved to the front of
+// the list of tokens returned.  When a typed opening
+// bracket is encountered and the subsequent recursive
+// call is completed, these special tokens are used to
+// set the attributes of the compacted sub-subexpres-
+// sion.
+//
 // TBD
-//
-// The line_variables also contain several sets of
-// line_data which specify the selectors to be used in
-// parsing the line, the lexical_master to be installed
-// at the beginning of the line if the line starts with
-// an indent token, and implicit headers to be inserted
-// at the beginning of the line (see below).
-//
-// TBD
-//
-// The `bracket_stack' argument specifies bracketed or
-// prefix separator subexpressions that need to be
-// closed.  When an entry in this stack is made, the
-// entry is considered to be `open'.  When a closing
-// bracket or prefix separator corresponding to one of
-// these entries is recognized, that entry, and any
-// other entries between that entry and the top of the
-// stack are marked as `closed'.  The entries toward
-// the top of the stack represent inner subexpressions,
-// so discovery of a closing bracket or prefix separator
-// can close more than one stack entry.
 //
 // A prefix separator can only close prefix separator
 // entries between the top of the stack and the topmost

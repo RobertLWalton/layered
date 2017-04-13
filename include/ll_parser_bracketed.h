@@ -804,20 +804,22 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // iff the bracketed_stack_p argument is NULL), implied
 // header tokens may be inserted.
 //
-// TBD
-//
 // It is assumed that there are always more tokens
-// available via ll::parser::ensure_next until an end-of-file
-// token is encountered, and the end-of-file is never
-// part of the bracketed subexpression.  Therefore there
-// is always a token immediately after the recognized
-// subexpression.  This token is returned as the updated
+// available via ll::parser::ensure_next until an
+// end-of-file token is encountered.  The end-of-file
+// token is never part of the bracketed subexpression,
+// so there is always a token after the subexpression.
+// Similarly the start-of-file token is assumed to be
+// present, not be part of any subexpression, and never
+// be deleted, so there is always a token before the
+// subexpression.  The token immediately after the
+// recognized subexpression is returned as the updated
 // `current' argument value to mark the end of the
 // recognized subexpression.  If this token is an indent
 // token, no lexemes beyond the lexeme of this token
 // have been read, so the lexical analyser can be
 // reconfigured to read the non-blank portion of the
-// current line.
+// following line.
 //
 // The token list, beginning with the initial value of
 // `current', is edited by this function.  The caller
@@ -826,6 +828,27 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // function can be used to delimit the subexpression.
 // `current->previous' always exists as the start
 // of file token is always present.
+//
+// This function parses a logical line if and only if
+// the bracket_stack_p argument is NULL.  When parsing
+// logical lines, the line_variables argument is used
+// to control parsing.  The logical line ends according
+// to the setting of the EAxxx_OPT options and the
+// line_variables line_sep and paragraph_indent members.
+// An end of file token or an indent token with indent
+// less than the paragraph_indent always terminates a
+// logical line.
+//
+// TBD
+//
+// The line_variables also contain several sets of
+// line_data which specify the selectors to be used in
+// parsing the line, the lexical_master to be installed
+// at the beginning of the line if the line starts with
+// an indent token, and implicit headers to be inserted
+// at the beginning of the line (see below).
+//
+// TBD
 //
 // The `bracket_stack' argument specifies bracketed or
 // prefix separator subexpressions that need to be
@@ -1010,6 +1033,34 @@ struct line_variables
     // not modified DURING logical line parsing.  Break-
     // ing this assumption breaks the garbage collector.
 {
+    // Variables that must be initialized before logical
+    // lines are parsed, and are used while parsing a
+    // logical line.
+    //
+    ll::parser::bracketed::line_sep line_sep;
+        // Line separator that can end the logical line
+	// if EALSEP_OPT is set, or NULL_STUB if none.
+    min::int32 paragraph_indent;
+        // Paragraph indentation for use in ending
+	// paragraph.
+    min::int32 indentation_offset;
+        // Value of indentation offset to be used in
+	// determining end of paragraph.
+
+    // Variables that must be initialized before
+    // indented paragraph lines are parsed, and are used
+    // by parse_parargraph_element.
+    //
+    ll::parser::token last_paragraph;
+        // Last token whose value has a .type with
+	// group `paragraph' that has not be compacted
+	// by compact_paragraph, or NULL_STUB if none.
+	// Initialized to NULL_STUB.
+    bool at_paragraph_end;
+        // True if current token is end of file or
+	// an indent token with indent < paragarph_
+	// indent.  Initialized to false.
+
     // Variables initialized when parse_bracketed_sub-
     // expression is called to parse a logical line
     // (i.e., with bracketed_stack_p == NULL ):
@@ -1021,28 +1072,6 @@ struct line_variables
         // True iff logical line is in paragraph
 	// beginning position.  Initialized to parser->
 	// at_paragraph_beginning.
-
-    // Variables that must be initialized before
-    // indented paragraph lines are parsed.
-    //
-    ll::parser::bracketed::line_sep line_sep;
-        // Line separator that can end the logical line
-	// if EALSEP_OPT is set, or NULL_STUB if none.
-    ll::parser::token last_paragraph;
-        // Last token whose value has a .type with
-	// group `paragraph' that has not be compacted
-	// by compact_paragraph, or NULL_STUB if none.
-	// Initialized to NULL_STUB.
-    min::int32 paragraph_indent;
-        // Paragraph indentation for use in ending
-	// paragraph.
-    min::int32 indentation_offset;
-        // Value of indentation offset to be used in
-	// determining end of paragraph.
-    bool at_paragraph_end;
-        // True if current token is end of file or
-	// an indent token with indent < paragarph_
-	// indent.  Initialized to false.
 
     // Logical line data, used to parse next logical
     // line.  Reset from paragraph data before being

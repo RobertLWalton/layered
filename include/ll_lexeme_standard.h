@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 08:28:44 EDT 2017
+// Date:	Thu Apr 13 08:09:03 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability

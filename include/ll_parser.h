@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  8 03:55:10 EDT 2017
+// Date:	Thu Apr 13 02:04:08 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1497,9 +1497,11 @@ inline ll::parser::table::new_flags parsing_options
         ( options, ll::parser::ALL_OPT & ~ options, 0 );
 }
 
-// Get and set parser->lexical_master.  If set to a
-// non-MISSING_MASTER value, the scanner lexical_master
-// is set.
+// Get and set parser->lexical_master.  Note the lexical
+// master gotten is the last one set by ll::parser::set_
+// lexical_master, and is often NOT the current master
+// table of the scanner, which may not have a name or
+// index.
 //
 const uns32 MISSING_MASTER = ll::lexeme::MISSING_MASTER;
 inline uns32 get_lexical_master
@@ -1513,9 +1515,8 @@ inline void set_lexical_master
 	  ll::parser::parser parser = default_parser )
 {
     parser->lexical_master = lexical_master;
-    if ( lexical_master != MISSING_MASTER )
-	ll::lexeme::set_lexical_master
-	      ( lexical_master, parser->scanner );
+    ll::lexeme::set_lexical_master
+	  ( lexical_master, parser->scanner );
 }
 
 // Find lexical master given master name and vice versa.

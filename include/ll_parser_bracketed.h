@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 13 16:00:54 EDT 2017
+// Date:	Fri Apr 14 07:08:48 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,10 +74,6 @@ struct closing_bracket_struct :
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is CLOSING_BRACKET.
-
-    const ll::parser::bracketed::opening_bracket
-          opening_bracket;
-        // The opposing bracket of the closing bracket.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -97,9 +93,6 @@ MIN_REF ( ll::parser::reformatter_arguments,
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::closing_bracket )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed::closing_bracket )
-MIN_REF ( ll::parser::bracketed::opening_bracket,
-          opening_bracket,
           ll::parser::bracketed::closing_bracket )
 
 // Push entry into bracket table.  EALSEP_OPT is set

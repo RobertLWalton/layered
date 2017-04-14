@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 04:33:27 EDT 2017
+// Date:	Fri Apr 14 07:42:27 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,8 +118,6 @@ const min::uns32 & BRA::OPENING_BRACKET =
 
 static min::uns32 closing_bracket_stub_disp[] = {
     min::DISP ( & BRA::closing_bracket_struct::next ),
-    min::DISP ( & BRA::closing_bracket_struct
-                     ::opening_bracket ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -153,7 +151,6 @@ BRA::opening_bracket
     label_ref(closing) = closing_bracket;
 
     closing_bracket_ref(opening) = closing;
-    opening_bracket_ref(closing) = opening;
 
     opening->selectors = selectors;
     closing->selectors = PAR::ALWAYS_SELECTOR;
@@ -448,23 +445,28 @@ BRA::typed_opening
     min::locatable_var<BRA::typed_opening> opening
         ( ::typed_opening_type.new_stub() );
     min::locatable_var<BRA::closing_bracket> closing
-        ( ::closing_bracket_type.new_stub() );
+        ( (BRA::closing_bracket)
+	  TAB::find ( typed_closing,
+	              PAR::ALWAYS_SELECTOR,
+		      bracket_table ) );
+
+    if ( closing == min::NULL_STUB )
+    {
+        closing = ::closing_bracket_type.new_stub();
+	label_ref(closing) = typed_closing;
+	closing->selectors = PAR::ALWAYS_SELECTOR;
+	closing->block_level = block_level;
+	closing->position = position;
+	TAB::push ( bracket_table,
+	            (TAB::root) closing );
+    }
 
     label_ref(opening) = typed_opening;
-    label_ref(closing) = typed_closing;
+    opening->selectors = selectors;
+    opening->block_level = block_level;
+    opening->position = position;
 
     closing_bracket_ref(opening) = closing;
-    opening_bracket_ref(closing) =
-        (BRA::opening_bracket) opening;
-
-    opening->selectors = selectors;
-    closing->selectors = PAR::ALWAYS_SELECTOR;
-
-    opening->block_level = block_level;
-    closing->block_level = block_level;
-
-    opening->position = position;
-    closing->position = position;
 
     opening->new_selectors = element_selectors;
     opening->new_selectors.or_flags &= ~
@@ -480,7 +482,6 @@ BRA::typed_opening
         min::NULL_STUB;
 
     TAB::push ( bracket_table, (TAB::root) opening );
-    TAB::push ( bracket_table, (TAB::root) closing );
 
     min::locatable_var<BRA::typed_middle> middle
         ( ::typed_middle_type.new_stub() );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 07:05:50 EST 2017
+// Date:	Fri Apr 14 07:10:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -90,7 +90,6 @@ int main ( int argc, const char * argv[] )
 		    TAB::ALL_FLAGS,
 	            bracket_table );
     ASSERT ( oparen->closing_bracket == cparen );
-    ASSERT ( cparen->opening_bracket == oparen );
     ASSERT ( oparen->selectors == 64 );
     ASSERT ( oparen->new_selectors.or_flags == 32 );
     ASSERT (    oparen->new_selectors.not_flags

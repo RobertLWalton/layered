@@ -1,8 +1,5 @@
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     This is a line;
 @@ = This is a line:
@@ -190,9 +187,6 @@ BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "("
 BRACKETED PARSER FOUND [code] SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
-BRACKETED PARSER FOUND [code] SELECTED KEY [< "}" "}" >]
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
 BRACKETED PARSER FOUND [code] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
@@ -237,9 +231,6 @@ This line includes
 ^^^^^^^^^^^^^^^^^^
  a token with insufficient indent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -295,12 +286,6 @@ This line starts an indented paragraph:
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "="
-     OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -353,9 +338,6 @@ Ditto with split =:
 ^^^^^^^^^^^^^^
    Fourth line.
 ^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -827,12 +809,6 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
@@ -1920,12 +1896,6 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETABLE EXPRESSION:
@@ -2003,18 +1973,6 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "]"
@@ -2080,15 +2038,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
@@ -2714,9 +2663,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
@@ -2727,9 +2673,6 @@ DERIVED EXPRESSION:
     line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
                    ^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
@@ -3246,9 +3189,6 @@ PREFIX EXPRESSION:
 ^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
@@ -3290,9 +3230,6 @@ PREFIX EXPRESSION:
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
               ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
@@ -3363,9 +3300,6 @@ PREFIX EXPRESSION:
 ^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
@@ -3417,9 +3351,6 @@ DERIVED EXPRESSION:
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
                     ^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
 ERROR: in line ###: not a legal object element value; `NONE'; ignored:
@@ -3623,12 +3554,6 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 BRACKETED PARSER FOUND [math] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED PARSER FOUND [math] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED PARSER FOUND [math] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 BRACKETED PARSER FOUND [math] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
@@ -3702,12 +3627,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -4519,12 +4438,6 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETABLE EXPRESSION:
@@ -4618,9 +4531,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
@@ -4761,9 +4671,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETABLE EXPRESSION:
@@ -4790,18 +4697,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
@@ -4871,12 +4766,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
@@ -5219,15 +5108,6 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "("
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
@@ -5285,9 +5165,6 @@ BRACKETED EXPRESSION:
 the line before the outer paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
     the first line of the outer paragraph
@@ -5311,9 +5188,6 @@ BRACKETED EXPRESSION:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         is continued on this indented line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED PARSER FOUND [code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -5409,12 +5283,6 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND [code] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [code] SELECTED KEY ","
-     OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED PARSER FOUND [code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED EXPRESSION:
@@ -5554,9 +5422,6 @@ BRACKETED EXPRESSION:
     line ###:
 the line after the outer paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
@@ -5809,9 +5674,6 @@ PREFIX EXPRESSION:
     line ###:
 {x} this is a line:
 ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
-     OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"

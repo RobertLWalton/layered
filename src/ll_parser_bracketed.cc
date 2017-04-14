@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 11:22:04 EDT 2017
+// Date:	Fri Apr 14 12:45:30 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -145,21 +145,15 @@ BRA::opening_bracket
     min::locatable_var<BRA::opening_bracket> opening
         ( ::opening_bracket_type.new_stub() );
     min::locatable_var<BRA::closing_bracket> closing
-        ( ::closing_bracket_type.new_stub() );
+        ( PAR::find
+	    ( closing_bracket, ::closing_bracket_type,
+	      block_level, position, bracket_table ) );
 
     label_ref(opening) = opening_bracket;
-    label_ref(closing) = closing_bracket;
-
     closing_bracket_ref(opening) = closing;
-
     opening->selectors = selectors;
-    closing->selectors = PAR::ALWAYS_SELECTOR;
-
     opening->block_level = block_level;
-    closing->block_level = block_level;
-
     opening->position = position;
-    closing->position = position;
 
     opening->new_selectors = new_selectors;
     opening->new_selectors.or_flags &= ~
@@ -168,12 +162,12 @@ BRA::opening_bracket
         ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
     opening->new_selectors.xor_flags &= ~
         ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
         reformatter_arguments;
 
     TAB::push ( bracket_table, (TAB::root) opening );
-    TAB::push ( bracket_table, (TAB::root) closing );
 
     return opening;
 }
@@ -205,8 +199,6 @@ const min::uns32 & BRA::INDENTATION_MARK =
 
 static min::uns32 line_sep_stub_disp[] = {
     min::DISP ( & BRA::line_sep_struct::next ),
-    min::DISP ( & BRA::line_sep_struct
-                     ::indentation_mark ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -253,15 +245,12 @@ BRA::indentation_mark
     {
 	min::locatable_var<BRA::line_sep>
 	    separator
-	    ( ::line_sep_type.new_stub() );
-	label_ref(separator) = separator_label;
-	separator->selectors = PAR::ALWAYS_SELECTOR;
-	separator->block_level = block_level;
-	separator->position = position;
-	indentation_mark_ref(separator) = imark;
+	    ( PAR::find ( separator_label,
+	                  ::line_sep_type,
+			  block_level,
+			  position,
+			  bracket_table ) );
 	line_sep_ref(imark) = separator;
-	TAB::push ( bracket_table,
-	            (TAB::root) separator );
     }
 
     return imark;
@@ -315,8 +304,6 @@ const min::uns32 & BRA::TYPED_OPENING =
 
 static min::uns32 typed_middle_stub_disp[] = {
     min::DISP ( & BRA::typed_middle_struct::next ),
-    min::DISP ( & BRA::typed_middle_struct
-                     ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -331,8 +318,6 @@ const min::uns32 & BRA::TYPED_MIDDLE =
 static min::uns32 typed_double_middle_stub_disp[] = {
     min::DISP ( & BRA::typed_double_middle_struct
                      ::next ),
-    min::DISP ( & BRA::typed_double_middle_struct
-                     ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -348,8 +333,6 @@ const min::uns32 & BRA::TYPED_DOUBLE_MIDDLE =
 static min::uns32 typed_attr_begin_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_begin_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attr_begin_struct
-                     ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -366,8 +349,6 @@ const min::uns32 & BRA::TYPED_ATTR_BEGIN =
 static min::uns32 typed_attr_equal_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_equal_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attr_equal_struct
-                     ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -385,8 +366,6 @@ static min::uns32
 	typed_attr_sep_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_sep_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attr_sep_struct
-                     ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -404,8 +383,6 @@ static min::uns32
 	typed_attr_negator_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_negator_struct
                      ::next ),
-    min::DISP ( & BRA::typed_attr_negator_struct
-                     ::typed_opening ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -453,7 +430,6 @@ BRA::typed_opening
     opening->selectors = selectors;
     opening->block_level = block_level;
     opening->position = position;
-
     closing_bracket_ref(opening) = closing;
 
     opening->new_selectors = element_selectors;
@@ -472,37 +448,24 @@ BRA::typed_opening
     TAB::push ( bracket_table, (TAB::root) opening );
 
     min::locatable_var<BRA::typed_middle> middle
-        ( ::typed_middle_type.new_stub() );
-    label_ref(middle)  = typed_middle;
+        ( PAR::find
+	    ( typed_middle, ::typed_middle_type,
+	      block_level, position, bracket_table ) );
 
     typed_middle_ref(opening)  = middle;
-    typed_opening_ref(middle)  = opening;
-
-    middle->selectors  = PAR::ALWAYS_SELECTOR;
-    middle->block_level  = block_level;
-    middle->position  = position;
-
-    TAB::push ( bracket_table, (TAB::root) middle );
 
     if ( typed_double_middle != min::MISSING() )
     {
 	min::locatable_var<BRA::typed_double_middle>
 		double_middle
-	    ( ::typed_double_middle_type.new_stub() );
-	label_ref(double_middle)
-	    = typed_double_middle;
+	    ( PAR::find
+		( typed_double_middle,
+		  ::typed_double_middle_type,
+		  block_level, position,
+		  bracket_table ) );
 
 	typed_double_middle_ref(opening)
 	    = double_middle;
-	typed_opening_ref(double_middle)
-	    = opening;
-
-	double_middle->selectors = PAR::ALWAYS_SELECTOR;
-	double_middle->block_level = block_level;
-	double_middle->position = position;
-
-	TAB::push ( bracket_table,
-	            (TAB::root) double_middle );
     }
 
     if ( typed_attr_begin != min::MISSING() )
@@ -510,25 +473,27 @@ BRA::typed_opening
 	min::locatable_var
 		<BRA::typed_attr_begin>
 	    attr_begin
-		( ::typed_attr_begin_type
-		    .new_stub() );
+		( PAR::find
+		    ( typed_attr_begin,
+		      ::typed_attr_begin_type,
+		      block_level, position,
+		      bracket_table ) );
 	min::locatable_var
 		<BRA::typed_attr_equal>
 	    attr_equal
-		( ::typed_attr_equal_type
-		    .new_stub() );
+		( PAR::find
+		    ( typed_attr_equal,
+		      ::typed_attr_equal_type,
+		      block_level, position,
+		      bracket_table ) );
 	min::locatable_var
 		<BRA::typed_attr_sep>
 	    attr_sep
-		( ::typed_attr_sep_type
-		    .new_stub() );
-
-	label_ref(attr_begin)
-	    = typed_attr_begin;
-	label_ref(attr_equal)
-	    = typed_attr_equal;
-	label_ref(attr_sep)
-	    = typed_attr_sep;
+		( PAR::find
+		    ( typed_attr_sep,
+		      ::typed_attr_sep_type,
+		      block_level, position,
+		      bracket_table ) );
 
 	typed_attr_begin_ref(opening)
 	    = attr_begin;
@@ -536,31 +501,6 @@ BRA::typed_opening
 	    = attr_equal;
 	typed_attr_sep_ref(opening)
 	    = attr_sep;
-	typed_opening_ref(attr_begin)
-	    = opening;
-	typed_opening_ref(attr_equal)
-	    = opening;
-	typed_opening_ref(attr_sep)
-	    = opening;
-
-	attr_begin->selectors    = PAR::ALWAYS_SELECTOR;
-	attr_equal->selectors    = PAR::ALWAYS_SELECTOR;
-	attr_sep->selectors 	 = PAR::ALWAYS_SELECTOR;
-
-	attr_begin->block_level  = block_level;
-	attr_equal->block_level  = block_level;
-	attr_sep->block_level 	 = block_level;
-
-	attr_begin->position     = position;
-	attr_equal->position     = position;
-	attr_sep->position 	 = position;
-
-	TAB::push ( bracket_table,
-	           (TAB::root) attr_begin );
-	TAB::push ( bracket_table,
-	           (TAB::root) attr_equal );
-	TAB::push ( bracket_table,
-	           (TAB::root) attr_sep );
     }
 
     if ( typed_attr_negator != min::MISSING() )
@@ -568,25 +508,14 @@ BRA::typed_opening
 	min::locatable_var
 		<BRA::typed_attr_negator>
 	    attr_negator
-		( ::typed_attr_negator_type
-		    .new_stub() );
-
-	label_ref(attr_negator)
-	    = typed_attr_negator;
+		( PAR::find
+		    ( typed_attr_negator,
+		      ::typed_attr_negator_type,
+		      block_level, position,
+		      bracket_table ) );
 
 	typed_attr_negator_ref(opening)
 	    = attr_negator;
-	typed_opening_ref(attr_negator)
-	    = opening;
-
-	attr_negator->selectors = PAR::ALWAYS_SELECTOR;
-
-	attr_negator->block_level = block_level;
-
-	attr_negator->position    = position;
-
-	TAB::push ( bracket_table,
-	           (TAB::root) attr_negator );
     }
 
     typed_attr_flags_initiator_ref(opening) =

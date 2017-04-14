@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 06:51:06 EST 2017
+// Date:	Fri Apr 14 11:23:03 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -344,6 +344,7 @@ static void oper_parse ( PAR::parser parser,
 		{
 		    root = TAB::find
 			( current->value_type,
+			  OP::OPER,
 			  selectors,
 			  oper_pass->
 			      oper_bracket_table );

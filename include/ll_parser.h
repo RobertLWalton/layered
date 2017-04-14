@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 13 02:04:08 EDT 2017
+// Date:	Fri Apr 14 11:37:01 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1552,6 +1552,43 @@ min::gen begin_block
 min::gen end_block
     ( ll::parser::parser parser, min::gen name,
       const min::phrase_position & position );
+
+// Find an entry with given key_label, key_type.subtype,
+// and ALWAYS_SELECTOR in the key_table, or if none,
+// make one with given block_level and position.  Return
+// entry found or made.
+//
+template <typename T>
+    inline const min::packed_struct_updptr<T> find
+	( min::gen key_label,
+	  min::packed_struct_with_base
+	      < T, ll::parser::table::root_struct >
+	      key_type,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::key_table key_table )
+{
+    typedef min::packed_struct_updptr<T> T_ptr;
+    min::locatable_var<T_ptr> key_entry
+        ( (T_ptr) ll::parser::table::find
+	      ( key_label, key_type.subtype,
+	        ll::parser::ALWAYS_SELECTOR,
+	        key_table ) );
+
+    if ( key_entry == min::NULL_STUB )
+    {
+        key_entry = key_type.new_stub();
+	label_ref(key_entry) = key_label;
+	key_entry->selectors =
+	    ll::parser::ALWAYS_SELECTOR;
+	key_entry->block_level = block_level;
+	key_entry->position = position;
+	ll::parser::table::push
+	    ( key_table,
+	      (ll::parser::table::root) key_entry );
+    }
+    return key_entry;
+}
 
 // Locate the key prefix in the key table that
 // corresponds to the longest available string of tokens

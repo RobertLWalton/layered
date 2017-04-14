@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 07:42:27 EDT 2017
+// Date:	Fri Apr 14 11:22:04 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -445,21 +445,9 @@ BRA::typed_opening
     min::locatable_var<BRA::typed_opening> opening
         ( ::typed_opening_type.new_stub() );
     min::locatable_var<BRA::closing_bracket> closing
-        ( (BRA::closing_bracket)
-	  TAB::find ( typed_closing,
-	              PAR::ALWAYS_SELECTOR,
-		      bracket_table ) );
-
-    if ( closing == min::NULL_STUB )
-    {
-        closing = ::closing_bracket_type.new_stub();
-	label_ref(closing) = typed_closing;
-	closing->selectors = PAR::ALWAYS_SELECTOR;
-	closing->block_level = block_level;
-	closing->position = position;
-	TAB::push ( bracket_table,
-	            (TAB::root) closing );
-    }
+        ( PAR::find
+	    ( typed_closing, ::closing_bracket_type,
+	      block_level, position, bracket_table ) );
 
     label_ref(opening) = typed_opening;
     opening->selectors = selectors;
@@ -1642,7 +1630,9 @@ PREFIX_FOUND:
 	    prefix_type = prefix->value_type;
 	    prefix_entry =
 		(BRA::prefix)
-		TAB::find ( prefix_type, selectors,
+		TAB::find ( prefix_type,
+			    BRA::PREFIX,
+		            selectors,
 			    prefix_table );
 	    prefix_group =
 		( prefix_entry != min::NULL_STUB ?
@@ -1951,6 +1941,7 @@ PREFIX_PARSE:
 			(BRA::prefix)
 			TAB::find
 			    ( prefix_type,
+			      BRA::PREFIX,
 			      selectors,
 			      prefix_table );
 		    if (    new_prefix_entry
@@ -2023,6 +2014,7 @@ PREFIX_PARSE:
 			    (BRA::prefix)
 			    TAB::find
 				( header_type,
+				  BRA::PREFIX,
 				  prefix_selectors,
 				  prefix_table );
 			if (    header_entry
@@ -2189,6 +2181,7 @@ PREFIX_PARSE:
 		    prefix_entry = (BRA::prefix)
 			TAB::find
 			    ( prefix->value_type,
+			      BRA::PREFIX,
 			      selectors,
 			      prefix_table );
 		    MIN_REQUIRE
@@ -2453,6 +2446,7 @@ NEXT_TOKEN:
 		    BRA::prefix header_entry =
 			(BRA::prefix)
 			TAB::find ( implied_header_type,
+				    BRA::PREFIX,
 			            header_selectors,
 				    prefix_table );
 		    min::gen group = min::MISSING();

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 01:08:36 EDT 2017
+// Date:	Fri Apr 14 11:17:13 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -293,10 +293,12 @@ ll::parser::table::key_prefix find_key_prefix
 	  bool create = false );
 
 // Return the first key table hash entry with the given
-// key and selectors, or NULL_STUB if there is none.
+// key, subtype, and a selector in common with the
+// selectors argument, or NULL_STUB if there is none.
 //
 ll::parser::table::root find
 	( min::gen key,
+	  min::uns32 subtype,
 	  ll::parser::table::flags selectors,
 	  ll::parser::table::key_table key_table );
 

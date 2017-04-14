@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 14 11:25:48 EDT 2015
+// Date:	Fri Apr 14 11:14:53 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -209,7 +209,9 @@ TAB::key_prefix TAB::find_key_prefix
 }
 
 TAB::root TAB::find
-	( min::gen key, TAB::flags selectors,
+	( min::gen key,
+	  min::uns32 subtype,
+	  TAB::flags selectors,
 	  TAB::key_table key_table )
 {
     TAB::key_prefix key_prefix =
@@ -219,7 +221,10 @@ TAB::root TAB::find
     for ( TAB::root root = key_prefix->first;
           root != NULL_STUB; root = root->next )
     {
-        if ( root->selectors & selectors )
+        if ( ( root->selectors & selectors ) != 0
+	     &&
+	        min::packed_subtype_of ( root )
+	     == subtype )
 	    return root;
     }
     return NULL_STUB;

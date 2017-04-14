@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 12:45:30 EDT 2017
+// Date:	Fri Apr 14 14:06:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1579,9 +1579,7 @@ PREFIX_FOUND:
 
 		  p != NULL
 		  &&
-		  p->prefix_type != min::MISSING()
-		  &&
-		  p->line_variables == line_variables;
+		  p->prefix_type != min::MISSING();
 
 		  p = p->previous )
 	    {
@@ -1834,7 +1832,6 @@ PREFIX_PARSE:
 		( bracket_stack_p );
 	    cstack.prefix_type = prefix_type;
 	    cstack.prefix_entry = prefix_entry;
-	    cstack.line_variables = line_variables;
 
 	    while ( true )
 	    {
@@ -2808,8 +2805,6 @@ NEXT_TOKEN:
 		    ( bracket_stack_p );
 		cstack.opening_bracket =
 		    opening_bracket;
-		cstack.line_variables =
-		    line_variables;
 
 		PAR::token previous = current->previous;
 		BRA::typed_data tdata;
@@ -3420,10 +3415,7 @@ NEXT_TOKEN:
 
 		for ( BRA::bracket_stack * p =
 			  bracket_stack_p;
-		      p != NULL
-		      &&
-		         p->line_variables
-		      == line_variables;
+		      p != NULL;
 		      p = p->previous )
 		{
 		    if (    p->opening_bracket

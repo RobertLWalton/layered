@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 12:09:37 EDT 2017
+// Date:	Fri Apr 14 14:05:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1108,11 +1108,6 @@ struct bracket_stack
 	// is its entry in the prefix table, or
 	// min::NULL_STUB if none.
 
-    ll::parser::bracketed::line_variables *
-	    line_variables;
-        // Line variables at time opening bracket
-	// or prefix described above was found.
-
     ll::parser::token closing_first, closing_next;
         // If these are NULL_STUB, this entry is open.
 	// The bracketed subexpression may be closed
@@ -1153,7 +1148,6 @@ struct bracket_stack
         : opening_bracket ( min::NULL_STUB ),
 	  prefix_type ( min::MISSING() ),
 	  prefix_entry ( min::NULL_STUB ),
-          line_variables ( NULL ),
           closing_first ( min::NULL_STUB ),
           closing_next ( min::NULL_STUB ),
 	  previous ( previous ) {}

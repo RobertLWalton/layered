@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 13 02:54:54 EDT 2017
+// Date:	Fri Apr 14 04:33:27 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2842,15 +2842,24 @@ NEXT_TOKEN:
 		min::packed_subtype_of ( root );
 
 	    if ( trace_flags & PAR::TRACE_KEYS )
+	    {
 	        parser->printer
-		    << "BRACKETED SUBEXPRESSION PARSER"
-		       " FOUND SELECTED KEY "
+		    << min::bom << min::set_indent ( 4 )
+		    << "BRACKETED "
+		    << "PARSER FOUND ";
+		COM::print_flags
+		    ( selectors,
+		      PAR::COMMAND_SELECTORS,
+		      parser->selector_name_table,
+		      parser );
+		parser->printer << " SELECTED KEY "
 		    << min::pgen_quote ( root->label )
 		    << min::indent << " OF SUBTYPE "
 		    << min::name_of_packed_subtype
 		           ( min::packed_subtype_of
 			         ( root ) )
-		    << min::eol;
+		    << min::eom;
+	    }
 
 	    if ( ( subtype == BRA::OPENING_BRACKET
 	           ||
@@ -3639,12 +3648,12 @@ NEXT_TOKEN:
 		    // == BRA::TYPED_MIDDLE.
 
 		    if (    typed_data->middle_count % 2
-		         == 0 )
+		         == 1 )
 			selectors =
 			    typed_data->saved_selectors;
 		    else // if
 		         // typed_data->middle_count % 2
-			 // == 1
+			 // == 0
 		    {
 			selectors &= PAR::ALL_OPT;
 			selectors |=

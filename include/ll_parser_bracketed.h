@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 07:08:48 EDT 2017
+// Date:	Fri Apr 14 12:09:37 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,19 +166,11 @@ struct line_sep_struct :
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is LINE_SEP.
-
-    const ll::parser::bracketed::indentation_mark
-    	    indentation_mark;
-        // The indentation_mark for which this is a
-	// separator.
 };
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::line_sep )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed::line_sep )
-MIN_REF ( ll::parser::bracketed::indentation_mark,
-          indentation_mark,
           ll::parser::bracketed::line_sep )
 
 ll::parser::bracketed::indentation_mark
@@ -309,63 +301,36 @@ struct typed_middle_struct :
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_MIDDLE.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the typed middle.
 };
 
 struct typed_double_middle_struct : 
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_DOUBLE_MIDDLE.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the typed double
-	// middle.
 };
 
 struct typed_attr_begin_struct : 
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_ATTR_BEGIN.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_begin.
 };
 
 struct typed_attr_equal_struct : 
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_ATTR_EQUAL.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_equal.
 };
 
 struct typed_attr_sep_struct : 
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_ATTR_SEP.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// separator.
 };
 
 struct typed_attr_negator_struct : 
 	public ll::parser::table::root_struct
 {
     // Packed_struct subtype is TYPED_ATTR_NEGATOR.
-
-    const ll::parser::bracketed::typed_opening
-          typed_opening;
-        // The opening bracket for the attr_
-	// negator.
 };
 
 
@@ -412,50 +377,31 @@ MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::typed_middle )
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::typed_middle )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed::typed_middle )
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::typed_double_middle )
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::typed_double_middle )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
-          ll::parser::bracketed::typed_double_middle )
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::typed_attr_begin )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed::typed_attr_begin )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
           ll::parser::bracketed::typed_attr_begin )
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::typed_attr_equal )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed::typed_attr_equal )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
           ll::parser::bracketed::typed_attr_equal )
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::typed_attr_sep )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed::typed_attr_sep )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
           ll::parser::bracketed::typed_attr_sep )
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed
 	            ::typed_attr_negator )
 MIN_REF ( min::gen, label,
-          ll::parser::bracketed
-	            ::typed_attr_negator )
-MIN_REF ( ll::parser::bracketed::typed_opening,
-          typed_opening,
           ll::parser::bracketed
 	            ::typed_attr_negator )
 

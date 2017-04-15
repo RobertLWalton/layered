@@ -3637,7 +3637,7 @@ BRACKETED EXPRESSION:
            .type = "Y"
            .position[H] = {}
     line ###:
-{T: A = {Y|hi|}|{X} ho|}
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
         ^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
@@ -3651,35 +3651,52 @@ PREFIX EXPRESSION:
            .type = "X"
            .position[H] = {}
     line ###:
-{T: A = {Y|hi|}|{X} ho|}
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
-ERROR: in line ###: prefix separator of type `X' not at beginning of
-       subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
-{T: A = {Y|hi|}|{X} ho|}
+ERROR: in line ###: prefix separator of type `X' in typed bracketed
+       subexpression; ignored:
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "}" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: A = {Y|hi|Y}|ho|T}
+    {Z||Z}
+@@@@ =:
+           .type = "Z"
+           .position[H] = {}
+    line ###:
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
+                           ^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {T: A = {Y|hi|Y}, B = {Z||Z}|ho|T}
 @@@@ = ho:
            .type = "T"
            A = {Y|hi|Y}
+           B = {Z||Z}
            .position[H] = {}
     line ###:
-{T: A = {Y|hi|}|{X} ho|}
-^^^^^^^^^^^^^^^^^^^^^^^^
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: A = {Y|hi|Y}|ho|T}
+    {T: A = {Y|hi|Y}, B = {Z||Z}|ho|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-{T: A = {Y|hi|}|{X} ho|}
-^^^^^^^^^^^^^^^^^^^^^^^^
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND
     [TOP LEVEL, code] SELECTED KEY [< "*PARSER*" ":" >]
      OF SUBTYPE ll::parser::table::indentation_mark_type

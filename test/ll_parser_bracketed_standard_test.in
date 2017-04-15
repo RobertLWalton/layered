@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 07:43:23 EDT 2017
+// Date:	Sat Apr 15 06:41:47 EDT 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -119,8 +119,7 @@ And one more {| |b["A", 201,202, [5]]: t}
   {p} {s} And a new {foo} paragraph.
 {{X} hi|ho|}
 {T|(X) ho|}
-{T: A = {Y|hi|}|{X} ho|}
-{T|{X} ho|}
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
 *PARSER*:
     print bracket ""
 

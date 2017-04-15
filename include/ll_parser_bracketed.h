@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 14:05:17 EDT 2017
+// Date:	Sat Apr 15 06:45:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -840,9 +840,42 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // bracket is encountered and the subsequent recursive
 // call is completed, these special tokens are used to
 // set the attributes of the compacted sub-subexpres-
-// sion.
+// sion.  See below for more details on the ATTR_...
+// tokens.
+//
+// When a typed bracketed subexpression is compacted,
+// if it has no elements and its opening bracket
+// (e.g. '{' with `code' selector) allows prefix
+// separators, then the compacted token is given the
+// PREFIX token type and that token is a prefix
+// separator.  If the token begins a logical line or an
+// untyped bracketed subexpression, it begins a
+// prefix-0-list sub-subexpression, which is parsed
+// by calling this function recursively with the
+// top bracket stack entry specifying the prefix
+// token.  Similarly a prefix separator at the beginning
+// of a prefix-n-list begins a prefix-(n+1)-list.
+// However, note that a prefix separator in a typed
+// bracketed subexpression is an error (but generally
+// '{' with `data' selector does not allow prefix
+// separators so prefix separators can only occur in
+// the elements list of a typed bracketed subexpres-
+// sion).
+//
+// A prefix-n-list is ended by the end of a logical
+// line or the end of any containing untyped bracketed
+// subexpression.  It is continued by discovery of
+// another prefix separator with the same .type or
+// in the same prefix group as the prefix separator
+// identified at the top of the bracket stack.  It
+// is ended by discovery of another prefix separator
+// whose .type or group is the same as the prefix
+// separator identified in bracket stack entry
+// between the next to top entry and the first non-
+// prefix bracket stack entry or bottom of stack.
 //
 // TBD
+//
 //
 // A prefix separator can only close prefix separator
 // entries between the top of the stack and the topmost

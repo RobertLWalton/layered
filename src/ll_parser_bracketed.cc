@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 14:06:35 EDT 2017
+// Date:	Sat Apr 15 06:41:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1663,6 +1663,20 @@ PREFIX_FOUND:
 	    }
 
 	    PAR::token prefix_next = prefix->next;
+	    if ( typed_data != NULL )
+	    {
+		PAR::parse_error
+		  ( parser,
+		    prefix->position,
+		    "prefix separator of type `",
+		    min::pgen_never_quote
+			( prefix_type ),
+		    "' in typed bracketed"
+		    " subexpression; ignored"
+		  );
+		prefix = min::NULL_STUB;
+	    }
+	    else
 	    if ( prefix_group == PAR::paragraph_lexeme )
 	    {
 	        if (    prefix->type

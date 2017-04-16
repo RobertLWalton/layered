@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 15 06:41:59 EDT 2017
+// Date:	Sun Apr 16 06:41:21 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,6 +18,7 @@
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Parse Bracketed Subexpression Function
+//	Bracketed Compact Functions
 //	Bracketed Reformatters
 //	Bracketed Pass Command Function
 
@@ -884,7 +885,7 @@ bool BRA::parse_paragraph_element
 	    if (    line_variables->last_paragraph
 		 != min::NULL_STUB )
 	    {
-		PAR::compact_paragraph
+		BRA::compact_paragraph
 		    ( parser,
 		      line_variables->last_paragraph,
 		      current,
@@ -908,7 +909,7 @@ bool BRA::parse_paragraph_element
 		  first->value_type
 	       != PAR::line_lexeme ) )
 	{
-	    PAR::compact_logical_line
+	    BRA::compact_logical_line
 		( parser, parser->pass_stack->next,
 	          selectors,
 		  first, current,
@@ -928,7 +929,7 @@ bool BRA::parse_paragraph_element
 	    if ( line_variables->last_paragraph
 		 != min::NULL_STUB )
 	    {
-		PAR::compact_paragraph
+		BRA::compact_paragraph
 		    ( parser,
 		      line_variables->last_paragraph,
 		      first,
@@ -963,7 +964,7 @@ bool BRA::parse_paragraph_element
 		  ||
 		  line_variables->at_paragraph_end )
 	{
-	    PAR::compact_paragraph
+	    BRA::compact_paragraph
 		( parser,
 		  line_variables->last_paragraph,
 		  current,
@@ -2073,7 +2074,7 @@ PREFIX_PARSE:
 		       != PAR::line_lexeme ) )
 		{
 		    PAR::token first = prefix->next;
-		    PAR::compact_logical_line
+		    BRA::compact_logical_line
 		        ( parser, bracketed_pass->next,
 		          prefix_selectors,
 		          first, next,
@@ -2083,7 +2084,7 @@ PREFIX_PARSE:
 			  trace_flags );
 		}
 
-		if ( compact_prefix_separator
+		if ( BRA::compact_prefix_list
 		         ( parser, bracketed_pass->next,
 		           prefix_selectors,
 		           prefix, next,
@@ -3845,6 +3846,227 @@ NEXT_TOKEN:
     }
 
     MIN_ABORT ( "SHOULD NOT COME HERE" );
+}
+
+// Bracketed Compact Functions
+// --------- ------- ---------
+
+void BRA::compact_logical_line
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  PAR::table::flags selectors,
+	  PAR::token & first, PAR::token next,
+          const min::position & separator_found,
+	  TAB::root line_sep,
+	  TAB::flags trace_flags )
+{
+    min::phrase_position position =
+	{ first->position.begin,
+	  next->previous->position.end };
+
+    PAR::attr attributes[2];
+    unsigned n = 0;
+    attributes[n++] =
+	PAR::attr ( min::dot_initiator,
+		    min::LOGICAL_LINE() );
+
+    if ( separator_found )
+    {
+	attributes[n++] =
+	    PAR::attr ( min::dot_terminator,
+			line_sep->label );
+	position.end = separator_found;
+    }
+    else
+	attributes[n++] =
+	    PAR::attr ( min::dot_terminator,
+			PAR::new_line );
+
+    PAR::compact
+	( parser, pass, selectors,
+	  first, next, position,
+	  trace_flags, PAR::BRACKETING,
+	  n, attributes );
+
+    PAR::value_type_ref(first) =
+        min::LOGICAL_LINE();
+}
+
+bool BRA::compact_prefix_list
+	( PAR::parser parser,
+	  PAR::pass pass,
+	  PAR::table::flags selectors,
+	  PAR::token first,
+	  PAR::token next,
+          const min::position & separator_found,
+	  TAB::root line_sep,
+	  TAB::flags trace_flags )
+{
+    if ( first->next == next && ! separator_found )
+    {
+	if ( first->type == PAR::IMPLIED_PREFIX )
+	{
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				first ) );
+	    return false;
+	}
+    }
+    else
+    {
+	first->position.end =
+	    next->previous->position.end;
+	PAR::token current = first->next;
+
+	PAR::execute_pass_parse
+	     ( parser, pass, selectors,
+	       current, next );
+
+
+	min::obj_vec_insptr vp
+	    ( first->value );
+	min::locatable_var
+		<min::phrase_position_vec_insptr>
+	    pos;
+
+	if ( first->type == PAR::IMPLIED_PREFIX )
+	{
+	    min::uns32 unused_size = 0;
+	    for ( PAR::token t = first->next;
+	          t != next; t = t->next )
+	        ++ unused_size;
+	    if ( separator_found )
+	        unused_size += 5;
+	    PAR::value_ref(first) =
+	        min::copy ( vp, unused_size );
+	    vp = first->value;
+
+	    min::init ( pos, parser->input_file,
+	                first->position, 0 );
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    min::set ( ap, min::new_stub_gen ( pos ) );
+	    min::set_flag
+	        ( ap, min::standard_attr_hide_flag );
+	    if ( separator_found )
+	    {
+		min::locate ( ap, min::dot_terminator );
+		min::set ( ap, line_sep->label );
+		first->position.end = separator_found;
+	    }
+	}
+	else
+	{
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    pos = min::get ( ap );
+	    if ( separator_found )
+	    {
+		min::locate ( ap, min::dot_terminator );
+		min::set ( ap, line_sep->label );
+		first->position.end = separator_found;
+	    }
+	}
+	pos->position = first->position;
+
+	while ( current != next )
+	{
+	    if (    current->string
+		 != min::NULL_STUB )
+		PAR::convert_token
+		    ( current );
+
+	    if ( min::is_attr_legal ( current->value ) )
+	    {
+		min::attr_push(vp) = current->value;
+		min::push ( pos ) = current->position;
+	    }
+	    else
+	        PAR::parse_error
+		    ( parser, current->position,
+		      "not a legal object element"
+		      " value; `",
+		      min::pgen_never_quote
+		          ( current->value ),
+		      "'; ignored" );
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref
+			    (parser),
+			current->previous ) );
+	}
+    }
+
+    first->type = PAR::BRACKETED;
+
+    PAR::trace_subexpression
+        ( parser, first, trace_flags );
+
+    return true;
+}
+
+void BRA::compact_paragraph
+	( PAR::parser parser,
+	  PAR::token & first, PAR::token next,
+	  TAB::flags trace_flags )
+{
+    MIN_REQUIRE
+        ( first->value_type == PAR::paragraph_lexeme );
+    if ( first->next == next ) return;
+
+    min::phrase_position position =
+	{ first->position.begin,
+	  next->previous->position.end };
+
+    {
+        // Block that closes vp at its end so trace
+	// at end of function will work.
+	//
+	min::obj_vec_insptr vp ( first->value);
+	min::attr_ptr ap ( vp );
+	min::locate ( ap, min::dot_position );
+	min::phrase_position_vec_insptr ppvec =
+	    (min::phrase_position_vec_insptr)
+	    min::get ( ap );
+	MIN_REQUIRE ( ppvec != min::NULL_STUB );
+
+	ppvec->position = position;
+	first->position = position;
+
+	PAR::token current = first->next;
+	while ( current != next )
+	{
+	    if ( current->value_type == PAR::line_lexeme
+		 ||
+		    current->value_type
+		 == min::LOGICAL_LINE()
+	       )
+	    {
+		min::attr_push(vp) = current->value;
+		min::push(ppvec) = current->position;
+	    }
+	    else
+		PAR::parse_error
+		    ( parser, current->position,
+		      " value; `",
+		      min::pgen_never_quote
+			  ( current->value ),
+		      "' does not have LOGICAL_LINE"
+		      " .initiator or .type with `line'"
+		      " group; ignored" );
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref(parser),
+			current->previous ) );
+	}
+    }
+
+    PAR::trace_subexpression
+        ( parser, first, trace_flags );
 }
 
 // Bracketed Reformatters

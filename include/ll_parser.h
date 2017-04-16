@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 11:37:01 EDT 2017
+// Date:	Sun Apr 16 06:37:05 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1790,75 +1790,6 @@ void compact
 	  min::uns32 m = 0,
 	  ll::parser::attr * attributes = NULL,
 	  min::uns32 n = 0 );
-
-// Compact logical line, giving it the min::LOGICAL_LINE
-// .initiator and either the "<NL>" .terminator if
-// separator_found is false, or the line_sep->label
-// .terminator otherwise.
-//
-void compact_logical_line
-	( ll::parser::parser parser,
-	  ll::parser::pass,
-	  ll::parser::table::flags selectors,
-	  ll::parser::token & first,
-	  ll::parser::token next,
-	  const min::position & separator_found,
-	  ll::parser::table::root line_sep,
-	  ll::parser::table::flags trace_flags );
-
-// Given an expression beginning with first and ending
-// just before next, in which the first token is a
-// PREFIX token, add the non-first tokens to the first
-// token value as elements.  Execute pass->next on
-// the list of non-first elements before doing this, and
-// then convert any non-first element tokens with
-// strings to tokens with values of .type <Q> or #.
-// The end position of the expanded PREFIX token is
-// updated to equal the end position of next->previous,
-// and the type of the PREFIX token is changed to
-// BRACKETED.  Lastly non-first element tokens are
-// removed, but both the first and the next tokens are
-// not.
-//
-// If on the other hand the first token is an IMPLIED_
-// PREFIX token, then if there are some elements or
-// separator_found is true, the value of this token is
-// replaced by a copy before it is used, but if there
-// are no elements and separator_found is false, the
-// first token is deleted and nothing else is done.
-//
-// If separator_found is true, set the .terminator
-// attribute of the expanded PREFIX to line_sep->label
-// and update the end position of the expanded PREFIX
-// token to separator_found.
-//
-// Returns false if first token was deleted and true if
-// first token was remade into a BRACKETED token.
-//
-bool compact_prefix_separator
-	( ll::parser::parser parser,
-	  ll::parser::pass pass,
-	  ll::parser::table::flags selectors,
-	  ll::parser::token first,
-	  ll::parser::token next,
-	  const min::position & separator_found,
-	  ll::parser::table::root line_sep,
-	  ll::parser::table::flags trace_flags );
-
-// Compact a paragraph after each line has been parsed.
-// The first token value has a .type with `paragraph'
-// group, and 0 or 1 elements.  The element, if it
-// exists, and the other tokens, have .type with `line'
-// group or are logical lines with LOGICAL_LINE
-// .initiator.  All token values but the first are
-// appended to the vector of elements of the first
-// token.
-//
-void compact_paragraph
-	( ll::parser::parser parser,
-	  ll::parser::token & first,
-	  ll::parser::token next,
-	  ll::parser::table::flags trace_flags );
 
 // The following function prints TRACE_SUBEXPRESSION_...
 // tracing information for a token that has just been

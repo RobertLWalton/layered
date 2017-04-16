@@ -17,6 +17,7 @@
 //	Prefix Table
 //	Bracketed Subexpression Pass
 //	Parse Bracketed Subexpression Function
+//	Bracketed Compact Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -805,28 +806,35 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //
 // When this function encounters an active untyped
 // opening bracket, it calls itself recursively to parse
-// an untyped bracketed subexpression, and when the
-// recursive call returns, this function compacts the
-// bracketed sub-subexpression with the opening and
-// closing brackets as .initiator and .terminator.
+// an untyped bracketed sub-subexpression, and when the
+// recursive call returns, this function first calls
+// any reformatting function that is provided for the
+// opening bracket, and then if that function requests
+// or does not exist, calls the `compact' function to
+// compact the sub-subexpression into a BRACKETED token
+// with the opening bracket as .initiator and closing
+// bracket as .terminator.
 //
 // When this function is called (recursively) to parse
 // an untyped bracketed subexpression, the top of the
-// bracket stack contains an entry identifying the
-// opening bracket of the subexpression.  The parse
-// continues until the corresponding closing bracket is
-// found, and this is delimited in the top bracket stack
-// entry and this function returns.  If the closing
-// closing bracket is erroneously omitted, this function
-// returns as if the closing bracket existed, and
-// indicates in the top bracket stack entry where the
-// closing bracket should have been placed.  The bracket
-// stack entries below the top specify closing brackets
-// which if they occur will close the top of the stack
-// if the EAOCLOSING option is in effect.  Bracketed
-// subexpressions must be inside a logical line, so the
-// end of the logical line also closes all bracket stack
-// entries.
+// bracket stack (pointed at by the bracket_stack_p
+// argument) contains an entry identifying the opening
+// bracket of the subexpression.  The parse continues
+// until the corresponding closing bracket is found,
+// and this is delimited in the top bracket stack entry
+// (via the closing_first and closing_next elements)
+// and this function returns.  If the closing bracket is
+// erroneously omitted, this function returns as if the
+// closing bracket existed, and indicates in the top
+// bracket stack entry where the closing bracket should
+// have been placed (by setting closing_first ==
+// closing_next == first token after subexpression).
+// The bracket stack entries below the top specify the
+// closing brackets which if they occur will close the
+// top of the stack if the EAOCLOSING option is in
+// effect.  Bracketed subexpressions must be inside a
+// logical line, so the end of the logical line also
+// closes all bracket stack entries.
 //
 // Typed bracketed subexpressions are treated similarly
 // to untyped bracketed subexpressions, with the follow-
@@ -840,16 +848,25 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // bracket is encountered and the subsequent recursive
 // call is completed, these special tokens are used to
 // set the attributes of the compacted sub-subexpres-
-// sion.  See below for more details on the ATTR_...
-// tokens.
+// sion.  See typed_data structure above for more
+// details on the ATTR_... token types.
 //
-// When a typed bracketed subexpression is compacted,
-// if it has no elements and its opening bracket
-// (e.g. '{' with `code' selector) allows prefix
-// separators, then the compacted token is given the
-// PREFIX token type and that token is a prefix
+// Also when parsing a typed bracketed subexpression,
+// the selectors are switched when scanning the type
+// and attributes parts to the attr_selectors provided
+// by the typed opening definition.  The selectors used
+// to parse the subexpression elements are the same
+// as for an untyped bracketed subexpression: i.e., the
+// value of the selectors argument.  The options are NOT
+// switched.
+//
+// When a typed bracketed sub-subexpression is
+// compacted, if it has no elements and its opening
+// bracket (e.g. '{' with `code' selector) allows
+// prefix separators, then the compacted token is given
+// the PREFIX token type and that token is a prefix
 // separator.  If the token begins a logical line or an
-// untyped bracketed subexpression, it begins a
+// untyped bracketed subexpression, then it begins a
 // prefix-0-list sub-subexpression, which is parsed
 // by calling this function recursively with the
 // top bracket stack entry specifying the prefix
@@ -873,125 +890,20 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // separator identified in bracket stack entry
 // between the next to top entry and the first non-
 // prefix bracket stack entry or bottom of stack.
+// Prefix-n-lists are compacted by the compact_prefix_
+// list function.
 //
-// TBD
-//
-//
-// A prefix separator can only close prefix separator
-// entries between the top of the stack and the topmost
-// bracket entry.
-//
-// A closing bracket can close prefix separator entries
-// and also bracket entries whose closing brackets are
-// missing.
-//
-// An end of file, a recognized line separator matching
-// the `line_sep' argument, a non-indented line, or a
-// blank line can cause this function to return WITHOUT
-// closing ANY bracket stack entries, depending upon
-// parsing option settings.  The sequence of tokens
-// between the initial value of current->previous and
-// the final value of current is called the returned
-// token sequence, and may or may not be empty.  Given
-// this, a return without any closed bracket stack
-// entries may be caused by the following:
-//
-//   (1) An end file.  If the EAPBREAK (end at paragraph
-//       break) option is on, PARAGRAPH_END is returned;
-//       else MISSING_POSITION is returned.  The return-
-//       ed token sequence may be empty.  `current' is
-//       the end of file token.
-//
-//   (2) If a blank line is encountered when the
-//       returned token sequence is NOT empty, and the
-//       EAPBREAK option is on, PARAGRAPH_END is
-//       returned.  `current' is the first indent token
-//       after the blank line.
-//
-//   (3) If an indent token is encountered with indent
-//       == the paragraph_indent and the EALEINDENT (end
-//       at less than or equal to indent) option is on,
-//       MISSING_POSITION is returned.  The returned
-//       token sequence may be empty.  `current' is the
-//       indent token.
-//
-//   (4) If an indent token is encountered with indent
-//       < the paragraph_indent and the EALTINDENT (end
-//       at less than indent) option OR the EALEINDENT
-//       option is on, MISSING_POSITION is returned.
-//       The returned token sequence may be empty.
-//       `current' is the indent token.
-//
-//   (5) If a line separator equal to the line_sep
-//       argument is encountered and the EALSEP (end at
-//       line separator) option is on, the end position
-//       of the line separator is returned.  The
-//       returned token sequence may be empty.  The line
-//       separator is deleted, and `current' is set to
-//       immediately after its previous position.
-//
-// Closing brackets are recognized if and only if their
-// corresponding opening brackets are in the bracket
-// stack.  Prefix separators are recognized as closing
-// subexpressions only if a prefix separator with the
-// same .type appears in the bracket stack above any
-// bracket entry in that stack.
-//
-// This function calls itself recursively if it finds
-// an opening bracket, or an indentation mark, or a
-// subexpression beginning prefix separator.  The
-// `selectors' argument determines which opening bracket
-// and indentation mark definitions are active.  The
-// `selectors' argument has no affect on closing bracket
-// or line separator recognition.
-//
-// If the subexpression is a typed bracketed subexpres-
-// sion, the `typed_data' argument is not NULL and
-// contains the typed_opening that prefixes the sub-
-// expression, `current' is the first token after this
-// typed_opening, the normal selectors have been saved
-// in typed_data->saved_selectors and the non-option
-// part of the normal selectors has been replaced by
-// typed_data->typed_opening->attr_selectors in the
-// selectors argument.  The selectors argument and
-// typed_data->saved_selectors are switched by every
-// typed_middle corresponding to the typed_opening
-// scanned while scanning the subexpression, so the
-// selectors argument with attr_selectors is used to
-// scan types and attributes, and saved_selectors is
-// used to scan list elements.  Selectors have no
-// affect on recognition of keys such as typed_middle
-// and typed_attr_....
-//
-// When this function calls itself recursively to parse
-// a bracketed sub-subexpression, upon return it calls
-// any reformatter associated with the opening_bracket
-// that started the sub-subexpression, and either the
-// reformatter or a subsequence call to `compact' wraps
-// all the tokens of the sub-subexpression into a single
-// BRACKETED, BRACKATABLE, PURELIST, PREFIX, or DERIVED
-// token (even if this is an empty list).  `Compact'
-// also converts string tokens (quoted strings and num-
-// erics) in the result as per `convert_token'.  If the
-// opening_bracket is not a typed_opening, the resulting
-// MIN object is given the opening and closing brackets
-// as its .initiator and .terminator, and is NOT given
-// a .type attribute, unless the reformatter creates its
-// own MIN object (e.g., the special reformatter creates
-// a special value).  If the opening_bracket is a
-// typed_opening, the MIN object is given a .type
-// attribute, but NO .initiator or .terminator.
-//
-// Sub-subexpressions introduced by an indentation mark
-// are converted to a list of lists.  The outer list
-// is a list of lines and has the indentation mark label
-// as its .initiator and min::INDENTED_PARAGRAPH() as
-// its .terminator.  The inner lists are paragraph line
-// subexpressions and have min::LOGICAL_LINE() as their
-// .initiator and "\n" or the line ending line separator
-// as their .terminator.  Inner lists that would be
-// empty but for their .initiator and .terminator are
-// deleted.
+// Indented paragraphs begin when an indentation
+// mark is recognized at the end of a physical line.
+// The indented paragraph has logical lines if the
+// first indent token after the indentation mark
+// is indented more than the current paragraph indent,
+// and if so, the paragraph indent is set to the
+// indent of this token.  The paragraph logical lines
+// are parsed and collected into paragraph elements
+// by the parse_paragraph_element function, and these
+// are compacted into a paragraph by the compact_
+// paragraph function.
 //
 // As line breaks are not deleted until after brackets,
 // indentation marks, etc are recognized, multi-lexeme
@@ -1000,7 +912,7 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //
 // This function is called at the top level with zero
 // indent, parser->selectors, `top_level_indentation_
-// mark->line_sep' which is `;', and bracket_stack =
+// mark->line_sep' which is `;', and bracket_stack_p =
 // NULL.
 //
 struct line_data
@@ -1235,6 +1147,79 @@ bool parse_paragraph_element
 	  ll::parser::bracketed::line_variables
 	      * line_variables,
 	  ll::parser::table::flags trace_flags );
+
+// Bracketed Compact Functions
+// --------- ------- ---------
+
+// Compact logical line, giving it the min::LOGICAL_LINE
+// .initiator and either the "<NL>" .terminator if
+// separator_found is false, or the line_sep->label
+// .terminator otherwise.
+//
+void compact_logical_line
+	( ll::parser::parser parser,
+	  ll::parser::pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  const min::position & separator_found,
+	  ll::parser::table::root line_sep,
+	  ll::parser::table::flags trace_flags );
+
+// Given an expression beginning with first and ending
+// just before next, in which the first token is a
+// PREFIX token, add the non-first tokens to the first
+// token value as elements.  Execute pass->next on
+// the list of non-first elements before doing this, and
+// then convert any non-first element tokens with
+// strings to tokens with values of .type <Q> or #.
+// The end position of the expanded PREFIX token is
+// updated to equal the end position of next->previous,
+// and the type of the PREFIX token is changed to
+// BRACKETED.  Lastly non-first element tokens are
+// removed, but both the first and the next tokens are
+// not.
+//
+// If on the other hand the first token is an IMPLIED_
+// PREFIX token, then if there are some elements or
+// separator_found is true, the value of this token is
+// replaced by a copy before it is used, but if there
+// are no elements and separator_found is false, the
+// first token is deleted and nothing else is done.
+//
+// If separator_found is true, set the .terminator
+// attribute of the expanded PREFIX to line_sep->label
+// and update the end position of the expanded PREFIX
+// token to separator_found.
+//
+// Returns false if first token was deleted and true if
+// first token was remade into a BRACKETED token.
+//
+bool compact_prefix_list
+	( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token first,
+	  ll::parser::token next,
+	  const min::position & separator_found,
+	  ll::parser::table::root line_sep,
+	  ll::parser::table::flags trace_flags );
+
+// Compact a paragraph after each line has been parsed.
+// The first token value has a .type with `paragraph'
+// group, and 0 or 1 elements.  The element, if it
+// exists, and the other tokens, have .type with `line'
+// group or are logical lines with LOGICAL_LINE
+// .initiator.  All token values but the first are
+// appended to the vector of elements of the first
+// token.
+//
+void compact_paragraph
+	( ll::parser::parser parser,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  ll::parser::table::flags trace_flags );
+
 
 } } }
 

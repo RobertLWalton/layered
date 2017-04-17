@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 12 02:13:31 EDT 2017
+// Date:	Mon Apr 17 06:55:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 //
 // parse_paragraph_element
 //         (parser,current,line_variables):
+//
 //     if line_variables->last_paragraph != NULL_STUB:
 //         // Special case where paragraph header
 //         // ended previous paragraph.  Current ==
@@ -30,10 +31,13 @@
 //         //
 //         current = current->next
 //         if line_variables->at_paragraph_end:
+//             // Paragraph header headed a 1-line
+//             // headed paragraph.
 //             line_variables->last_paragraph =
 //                 NULL_STUB
 //             return false
 //     else if line_variables->at_paragraph_end:
+//         // Return with 0 tokens.
 //         return false
 //
 //     loop to get lines of headed paragraph or just
@@ -51,6 +55,8 @@
 //	            indent token
 //
 //	   selectors = line_variables->current.selectors
+//	       // Save selectors for compact_logical_
+//	       // line.
 //	   maybe_parser_command =
 //	       current->value == *PARSER*
 //	   separator_found =
@@ -59,16 +65,16 @@
 //	   line_variables->at_paragraph_end =
 //	       current is end of file token, or
 //	       current is indent token and indent is
-//	               less than line_varibles->
+//	               less than line_variables->
 //	               paragraph_indent
 //
 //	   if parse_bracketed_subexpression did not
-//	            return any tokens
+//	            return any tokens:
 //	       if not line_variables->at_paragraph_end:
 //	           continue loop to get lines
 //	       if line_variables->last_parargraph
 //	               != NULL_STUB:
-//	           compact paragraph from
+//	           compact_paragraph from
 //	               line_variables.last_paragraph to
 //	                   just before current
 //	       return false
@@ -77,7 +83,7 @@
 //	            more than one token, or returned a
 //	            single token that is neither a
 //	            headed paragraph or headed line:
-//	       compact logical line
+//	       compact_logical_line
 //               consisting of tokens returned by
 //                   parse_bracketed_subexpression,
 //               with selectors, separator_found,
@@ -88,7 +94,7 @@
 //
 //	       if line_variables->last_paragraph
 //	                          != NULL_STUB:
-//	           compact paragraph from
+//	           compact_paragraph from
 //	               line_variables.last_paragraph to
 //	                   just before returned token
 //	           current = returned token
@@ -106,22 +112,23 @@
 //             else:
 //                 line_variables->last_paragraph =
 //                     returned token
+//
 //         else if line_variables->last_paragraph
 //                                 == NULL_STUB:
 //             return maybe_parser_command
+//
 //         else if parser->at_paragraph_beginning and
 //                        CONTINUING_OPT is off in
 //                        line_variables->current
 //                                       .selectors,
 //                        or if line_variables->
 //                              at_paragraph_end:
-//	       compact paragraph from
+//	       compact_paragraph from
 //	           line_variables.last_paragraph to
 //	               just before first token AFTER
 //	               tokens returned by parse_
-//	               bracketed_subexpression or the
-//	               token created by compact logical
-//	               line above
+//	               bracketed_subexpression or
+//	               compact_logical_line above
 //	       line_variables->last_paragraph =
 //	           NULL_STUB
 //	       return false

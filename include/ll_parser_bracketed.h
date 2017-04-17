@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 15 06:45:07 EDT 2017
+// Date:	Mon Apr 17 06:54:36 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1129,9 +1129,16 @@ min::position parse_bracketed_subexpression
 // of a paragraph (or of the top level), line_variables
 // must be allocated and initialized, and the
 // CONTINUING_OPT flag in line_variables->current
-// .selectors must be cleared.  Also current-previous
-// should be saved so it can be determined whether a
-// token was returned by this function.
+// .selectors must be cleared.  Also current->previous
+// should be saved so it can be used to determined
+// whether a token was returned by this function.
+//
+// When this function parses a logical line, it compacts
+// it with a call to compact_logical_line.
+//
+// When this function has parsed all the lines of a
+// headed paragraph, it compacts that paragraph with a
+// call to compact_paragraph.
 //
 // The trace_flags are passed to compact_logical_line
 // and compact_paragraph.
@@ -1219,7 +1226,6 @@ void compact_paragraph
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  ll::parser::table::flags trace_flags );
-
 
 } } }
 

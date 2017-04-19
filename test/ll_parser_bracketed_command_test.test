@@ -747,22 +747,22 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
     define prefix "Y" [code]
         with parsing selectors [+ text]
         with group ajax
-ERROR: in lines ###-###: `with options' not allowed for prefix unless
-       prefix group is `paragraph'; options ignored:
+ERROR: in lines ###-###: `with parsing options' not allowed for prefix
+       unless prefix group is `paragraph'; options ignored:
     define prefix "Z" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with implied subprefix {X: y = 5, z = hi there}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with lexical master "START"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing options [end at line break]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     define prefix "Z" [math]
         with parsing selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
-        with lexical master "START"
+        with lexical master "DEFAULT"
         with parsing options [end at line break]
     print prefix ""
         block BLOCK1: prefix "X" [code]
@@ -774,7 +774,7 @@ ERROR: in lines ###-###: `with options' not allowed for prefix unless
                       with parsing selectors [code]
                       with implied subprefix
                       {X: y = "5", z = [< "hi" "there" >]||X}
-                      with lexical master "START"
+                      with lexical master "DEFAULT"
     print prefix "X"
         block BLOCK1: prefix "X" [code]
                       with parsing selectors [code, math]

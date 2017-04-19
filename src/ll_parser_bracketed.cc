@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 16 06:41:21 EDT 2017
+// Date:	Wed Apr 19 03:10:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -834,6 +834,13 @@ bool BRA::parse_paragraph_element
 	if ( current->type == LEXSTD::indent_t )
 	{
 
+	    MIN_REQUIRE
+	        ( current->next == parser->first );
+	    min::uns32 lexical_master =
+	        line_variables->current.lexical_master;
+	    if ( lexical_master != PAR::MISSING_MASTER )
+		PAR::set_lexical_master
+		    ( lexical_master, parser );
 	    PAR::ensure_next ( parser, current );
 	    current = current->next;
 	    PAR::free
@@ -5763,8 +5770,8 @@ static min::gen bracketed_pass_command
 	else if ( TAB::all_flags ( new_options ) != 0 )
 	    PAR::parse_error
 		( parser, ppvec->position,
-		  "`with options' not allowed for"
-		  " prefix unless prefix group is"
+		  "`with parsing options' not allowed"
+		  " for prefix unless prefix group is"
 		  " `paragraph'; options ignored" );
 
 	BRA::push_prefix

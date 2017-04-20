@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 11:53:04 EDT 2017
+// Date:	Thu Apr 20 07:03:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,8 @@ using namespace LEX::program_data;
 static uns32 scanner_gen_disp[] =
     { min::DISP ( & LEX::scanner_struct
                        ::lexical_master_table ),
+      min::DISP ( & LEX::scanner_struct
+                       ::lexeme_type_table ),
       min::DISP_END };
 
 static uns32 scanner_stub_disp[] =
@@ -1057,6 +1059,34 @@ void LEX::init_program
 	}
 	else
 	    vp[m] = min::MISSING();
+    }
+
+    min::uns32 max_type =
+	LEXDATA::max_type ( program );
+    lexeme_type_table_ref(scanner) =
+        min::new_obj_gen
+	    ( 10 * ( max_type + 1 ),
+	      5 * ( max_type + 1 ) );
+    vp = scanner->lexeme_type_table;
+    min::attr_push ( vp, max_type + 1 );
+
+    ap = vp;
+
+    min::locatable_gen type;
+    for ( min::uns32 t = 0; t <= max_type; ++ t )
+    {
+	min::ptr<const char> namep =
+	    LEXDATA::type_name ( program, t );
+	if ( namep != nullp )
+	{
+	    name = min::new_name_gen ( namep );
+	    type = min::new_num_gen ( t );
+	    min::locate ( ap, name );
+	    min::set ( ap, type );
+	    vp[t] = name;
+	}
+	else
+	    vp[t] = min::MISSING();
     }
 }
 
@@ -2157,6 +2187,21 @@ void LEX::set_lexical_master
     MIN_REQUIRE ( * master_ID_ptr != 0 );
 
     scanner->current_table_ID = * master_ID_ptr;
+}
+
+min::uns32 LEX::lexeme_type
+	( min::gen lexeme_type_name,
+	  ll::lexeme::scanner scanner )
+{
+    min::obj_vec_ptr vp = scanner->lexeme_type_table;
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, lexeme_type_name );
+    min::gen index = min::get ( ap );
+
+    if ( ! min::is_num ( index ) )
+        return LEX::MISSING_TYPE;
+    else
+        return min::int_of ( index );
 }
 
 // Printing

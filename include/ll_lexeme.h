@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 11:48:17 EDT 2017
+// Date:	Thu Apr 20 04:45:11 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -860,6 +860,11 @@ namespace ll { namespace lexeme {
 	//
 	const min::gen lexical_master_table;
 
+	// Ditto for mapping lexeme type names to lexeme
+	// types and vice versa.
+	//
+	const min::gen lexeme_type_table;
+
 	// Closure to call to input one or more inchar
 	// elements to the end of the input buffer
 	// vector, increasing the length of the buffer
@@ -969,6 +974,8 @@ namespace ll { namespace lexeme {
     MIN_REF ( ll::lexeme::program, program,
               ll::lexeme::scanner )
     MIN_REF ( min::gen, lexical_master_table,
+              ll::lexeme::scanner )
+    MIN_REF ( min::gen, lexeme_type_table,
               ll::lexeme::scanner )
     MIN_REF ( ll::lexeme::input, input,
               ll::lexeme::scanner )
@@ -1108,6 +1115,32 @@ namespace ll { namespace lexeme {
     	    ( min::uns32 lexical_master_index,
 	      ll::lexeme::scanner scanner =
 	          default_scanner );
+
+    // Return lexeme type given the name of the lexeme
+    // type.  Return MISSING_TYPE if none.
+    //
+    const uns32 MISSING_TYPE = 0xFFFFFFFF;
+    uns32 lexeme_type
+	    ( min::gen lexeme_type_name,
+              ll::lexeme::scanner scanner =
+		  default_scanner );
+
+    // Return name of a lexeme type.  Return
+    // min::MISSING() if lexeme type out of range.
+    //
+    inline min::gen lexeme_type_name
+	    ( min::uns32 lexeme_type,
+              ll::lexeme::scanner scanner =
+		  default_scanner )
+    {
+    	min::obj_vec_ptr vp
+	    ( scanner->lexeme_type_table );
+	if (    lexeme_type
+	     >= min::size_of ( vp ) )
+	    return min::MISSING();
+	else
+	    return vp[lexeme_type];
+    }
 } }
 
 // Printing

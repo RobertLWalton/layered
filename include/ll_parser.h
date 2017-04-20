@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 16 06:37:05 EDT 2017
+// Date:	Thu Apr 20 04:03:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1031,6 +1031,10 @@ enum {
 };
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
+
+typedef min::packed_vec_insptr <ll::parser::table::root>
+    lexeme_map;
+
 struct parser_struct
 {
     uns32 control;
@@ -1088,6 +1092,11 @@ struct parser_struct
 	// the former is NULL_STUB and the latter is not
 	// NULL_STUB, and ditto for parser->scanner->
 	// printer and parser->printer.
+
+    const ll::parser::lexeme_map lexeme_map;
+	// lexeme_map[t] is the stack of lexeme map
+	// entries for lexeme type t; == NULL_STUB if
+	// no entries for t.
 
     const min::file input_file;
         // Input file used to print messages.  If a
@@ -1227,6 +1236,8 @@ MIN_REF ( ll::parser::table::name_table,
 		trace_flag_name_table,
           ll::parser::parser )
 MIN_REF ( ll::lexeme::scanner, scanner,
+          ll::parser::parser )
+MIN_REF ( ll::parser::lexeme_map, lexeme_map,
           ll::parser::parser )
 MIN_REF ( min::file, input_file,
           ll::parser::parser )

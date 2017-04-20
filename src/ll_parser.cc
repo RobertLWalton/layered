@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 16 06:39:26 EDT 2017
+// Date:	Thu Apr 20 04:04:28 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -635,6 +635,14 @@ void PAR::push_new_pass
 min::phrase_position PAR::top_level_position =
     { { 0, 0 }, { 0, 0 } };
 
+static min::uns32 lexeme_map_disp[] =
+    { 0, min::DISP_END };
+
+static min::packed_vec<TAB::root>
+    lexeme_map_type
+        ( "ll::parser::lexeme_map_type",
+	  NULL, ::lexeme_map_disp );
+
 static min::uns32 parser_stub_disp[] =
 {
     min::DISP ( & PAR::parser_struct::input ),
@@ -1226,6 +1234,10 @@ void PAR::parse ( PAR::parser parser )
 	else if ( parser->printer == NULL_STUB )
 	    MIN_ABORT
 	        ( "parser->printer not defined" );
+	
+	PAR::lexeme_map_ref(parser) =
+		::lexeme_map_type.new_stub();
+	// TBD
     }
 
     if ( parser->input->init != NULL)

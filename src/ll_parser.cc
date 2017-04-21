@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 04:04:28 EDT 2017
+// Date:	Thu Apr 20 21:13:49 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1235,9 +1235,14 @@ void PAR::parse ( PAR::parser parser )
 	    MIN_ABORT
 	        ( "parser->printer not defined" );
 	
-	PAR::lexeme_map_ref(parser) =
-		::lexeme_map_type.new_stub();
-	// TBD
+	{
+	    PAR::lexeme_map_ref(parser) =
+		    ::lexeme_map_type.new_stub();
+	    min::obj_vec_ptr vp =
+	    	parser->scanner->lexeme_type_table;
+	    min::push ( parser->lexeme_map,
+	                min::size_of ( vp ) );
+	}
     }
 
     if ( parser->input->init != NULL)

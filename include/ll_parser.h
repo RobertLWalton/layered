@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 02:32:20 EDT 2017
+// Date:	Sat Apr 22 16:50:09 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Strings
 //	Tokens
+//	Lexeme Map
 //	Parser Closures
 //	Parser
 //	Reformatters
@@ -511,6 +512,34 @@ inline ll::parser::token remove
 	return token;
     }
 }
+
+} }
+
+// Lexeme Map
+// ------ ---
+
+namespace ll { namespace parser {
+
+struct lexeme_map_entry_struct;
+typedef min::packed_struct_updptr
+     <lexeme_map_entry_struct>
+    lexeme_map_entry;
+
+struct lexeme_map_entry_struct
+    : public ll::parser::table::root_struct
+{
+    min::gen token_value;
+        // min::NONE() if token is to be discarded.
+    min::uns32 lexical_master;
+        // ll::lexeme::MISSING_MASTER if missing.
+};
+
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::lexeme_map_entry )
+MIN_REF ( min::gen, label,
+          ll::parser::lexeme_map_entry )
+MIN_REF ( min::gen, token_value,
+          ll::parser::lexeme_map_entry )
 
 } }
 

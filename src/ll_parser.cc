@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 21:13:49 EDT 2017
+// Date:	Sat Apr 22 02:49:38 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,83 +30,86 @@
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
 # define COM ll::parser::command
 # define STD ll::parser::standard
 
-min::locatable_gen PAR::top_level;
-min::locatable_gen PAR::top;
-min::locatable_gen PAR::level;
-min::locatable_gen PAR::dot_oper;
-min::locatable_gen PAR::doublequote;
-min::locatable_gen PAR::number_sign;
-min::locatable_gen PAR::new_line;
-min::locatable_gen PAR::semicolon;
-min::locatable_gen PAR::left_parenthesis;
-min::locatable_gen PAR::right_parenthesis;
-min::locatable_gen PAR::left_square;
-min::locatable_gen PAR::right_square;
-min::locatable_gen PAR::left_curly;
-min::locatable_gen PAR::right_curly;
-min::locatable_gen PAR::comma;
-min::locatable_gen PAR::colon;
-min::locatable_gen PAR::equal;
-min::locatable_gen PAR::vbar;
-min::locatable_gen PAR::ealbreak;
-min::locatable_gen PAR::ealeindent;
-min::locatable_gen PAR::ealtindent;
-min::locatable_gen PAR::eapbreak;
-min::locatable_gen PAR::ealsep;
-min::locatable_gen PAR::eaoclosing;
-min::locatable_gen PAR::sticky;
-min::locatable_gen PAR::continuing;
-min::locatable_gen PAR::other_ea_opt;
-min::locatable_gen PAR::default_opt;
-min::locatable_gen PAR::other_selectors;
-min::locatable_gen PAR::parser_lexeme;
-min::locatable_gen PAR::data_lexeme;
-min::locatable_gen PAR::prefix_lexeme;
-min::locatable_gen PAR::header_lexeme;
-min::locatable_gen PAR::line_lexeme;
-min::locatable_gen PAR::paragraph_lexeme;
-min::locatable_gen PAR::standard_lexeme;
-min::locatable_gen PAR::error_operator;
-min::locatable_gen PAR::error_operand;
-min::locatable_gen PAR::test;
-min::locatable_gen PAR::begin;
-min::locatable_gen PAR::end;
-min::locatable_gen PAR::define;
-min::locatable_gen PAR::undefine;
-min::locatable_gen PAR::print;
-min::locatable_gen PAR::block;
-min::locatable_gen PAR::pass_lexeme;
-min::locatable_gen PAR::selector;
-min::locatable_gen PAR::selectors;
-min::locatable_gen PAR::options;
-min::locatable_gen PAR::group;
-min::locatable_gen PAR::lexical;
-min::locatable_gen PAR::master;
-min::locatable_gen PAR::implied;
-min::locatable_gen PAR::subprefix;
-min::locatable_gen PAR::reformatter_lexeme;
-min::locatable_gen PAR::default_lexeme;
-min::locatable_gen PAR::with;
-min::locatable_gen PAR::parsing;
-min::locatable_gen PAR::after;
-min::locatable_gen PAR::before;
-min::locatable_gen PAR::at;
-min::locatable_gen PAR::plus;
-min::locatable_gen PAR::minus;
-min::locatable_gen PAR::dotdotdot;
-min::locatable_gen PAR::yes_lexeme;
-min::locatable_gen PAR::no_lexeme;
-min::locatable_gen PAR::keep_lexeme;
-min::locatable_gen PAR::enabled_lexeme;
-min::locatable_gen PAR::disabled_lexeme;
-min::locatable_gen PAR::star_parser;
-min::locatable_gen PAR::parser_colon;
-min::locatable_gen PAR::parser_test_colon;
+min::locatable_gen PARLEX::top_level;
+min::locatable_gen PARLEX::top;
+min::locatable_gen PARLEX::level;
+min::locatable_gen PARLEX::dot_oper;
+min::locatable_gen PARLEX::doublequote;
+min::locatable_gen PARLEX::number_sign;
+min::locatable_gen PARLEX::new_line;
+min::locatable_gen PARLEX::semicolon;
+min::locatable_gen PARLEX::left_parenthesis;
+min::locatable_gen PARLEX::right_parenthesis;
+min::locatable_gen PARLEX::left_square;
+min::locatable_gen PARLEX::right_square;
+min::locatable_gen PARLEX::left_curly;
+min::locatable_gen PARLEX::right_curly;
+min::locatable_gen PARLEX::comma;
+min::locatable_gen PARLEX::colon;
+min::locatable_gen PARLEX::equal;
+min::locatable_gen PARLEX::vbar;
+min::locatable_gen PARLEX::ealbreak;
+min::locatable_gen PARLEX::ealeindent;
+min::locatable_gen PARLEX::ealtindent;
+min::locatable_gen PARLEX::eapbreak;
+min::locatable_gen PARLEX::ealsep;
+min::locatable_gen PARLEX::eaoclosing;
+min::locatable_gen PARLEX::sticky;
+min::locatable_gen PARLEX::continuing;
+min::locatable_gen PARLEX::other_ea_opt;
+min::locatable_gen PARLEX::default_opt;
+min::locatable_gen PARLEX::other_selectors;
+min::locatable_gen PARLEX::parser;
+min::locatable_gen PARLEX::data;
+min::locatable_gen PARLEX::prefix;
+min::locatable_gen PARLEX::header;
+min::locatable_gen PARLEX::line;
+min::locatable_gen PARLEX::paragraph;
+min::locatable_gen PARLEX::standard;
+min::locatable_gen PARLEX::error_operator;
+min::locatable_gen PARLEX::error_operand;
+min::locatable_gen PARLEX::test;
+min::locatable_gen PARLEX::begin;
+min::locatable_gen PARLEX::end;
+min::locatable_gen PARLEX::define;
+min::locatable_gen PARLEX::undefine;
+min::locatable_gen PARLEX::print;
+min::locatable_gen PARLEX::block;
+min::locatable_gen PARLEX::pass;
+min::locatable_gen PARLEX::mapped;
+min::locatable_gen PARLEX::lexeme;
+min::locatable_gen PARLEX::selector;
+min::locatable_gen PARLEX::selectors;
+min::locatable_gen PARLEX::options;
+min::locatable_gen PARLEX::group;
+min::locatable_gen PARLEX::lexical;
+min::locatable_gen PARLEX::master;
+min::locatable_gen PARLEX::implied;
+min::locatable_gen PARLEX::subprefix;
+min::locatable_gen PARLEX::reformatter;
+min::locatable_gen PARLEX::default_lexeme;
+min::locatable_gen PARLEX::with;
+min::locatable_gen PARLEX::parsing;
+min::locatable_gen PARLEX::after;
+min::locatable_gen PARLEX::before;
+min::locatable_gen PARLEX::at;
+min::locatable_gen PARLEX::plus;
+min::locatable_gen PARLEX::minus;
+min::locatable_gen PARLEX::dotdotdot;
+min::locatable_gen PARLEX::yes;
+min::locatable_gen PARLEX::no;
+min::locatable_gen PARLEX::keep;
+min::locatable_gen PARLEX::enabled;
+min::locatable_gen PARLEX::disabled;
+min::locatable_gen PARLEX::star_parser;
+min::locatable_gen PARLEX::parser_colon;
+min::locatable_gen PARLEX::parser_test_colon;
 
 min::locatable_gen PAR::PRINTED;
 
@@ -121,112 +124,116 @@ static min::locatable_gen keys;
 
 static void initialize ( void )
 {
-    PAR::top_level
+    PARLEX::top_level
 	= min::new_lab_gen ( "TOP", "LEVEL" );
-    PAR::top = min::new_str_gen ( "top" );
-    PAR::level = min::new_str_gen ( "level" );
-    PAR::dot_oper
+    PARLEX::top = min::new_str_gen ( "top" );
+    PARLEX::level = min::new_str_gen ( "level" );
+    PARLEX::dot_oper
 	= min::new_str_gen ( ".operator" );
 
-    PAR::doublequote = min::new_str_gen ( "\"" );
-    PAR::number_sign = min::new_str_gen ( "#" );
-    PAR::new_line = min::new_str_gen ( "\n" );
-    PAR::semicolon = min::new_str_gen ( ";" );
-    PAR::left_parenthesis = min::new_str_gen ( "(" );
-    PAR::right_parenthesis = min::new_str_gen ( ")" );
-    PAR::left_square = min::new_str_gen ( "[" );
-    PAR::right_square = min::new_str_gen ( "]" );
-    PAR::left_curly = min::new_str_gen ( "{" );
-    PAR::right_curly = min::new_str_gen ( "}" );
-    PAR::comma = min::new_str_gen ( "," );
-    PAR::colon = min::new_str_gen ( ":" );
-    PAR::equal = min::new_str_gen ( "=" );
-    PAR::vbar = min::new_str_gen ( "|" );
+    PARLEX::doublequote = min::new_str_gen ( "\"" );
+    PARLEX::number_sign = min::new_str_gen ( "#" );
+    PARLEX::new_line = min::new_str_gen ( "\n" );
+    PARLEX::semicolon = min::new_str_gen ( ";" );
+    PARLEX::left_parenthesis = min::new_str_gen ( "(" );
+    PARLEX::right_parenthesis =
+        min::new_str_gen ( ")" );
+    PARLEX::left_square = min::new_str_gen ( "[" );
+    PARLEX::right_square = min::new_str_gen ( "]" );
+    PARLEX::left_curly = min::new_str_gen ( "{" );
+    PARLEX::right_curly = min::new_str_gen ( "}" );
+    PARLEX::comma = min::new_str_gen ( "," );
+    PARLEX::colon = min::new_str_gen ( ":" );
+    PARLEX::equal = min::new_str_gen ( "=" );
+    PARLEX::vbar = min::new_str_gen ( "|" );
 
-    PAR::ealbreak =
+    PARLEX::ealbreak =
     	min::new_lab_gen
 	    ( "end", "at", "line", "break" );
-    PAR::ealeindent =
+    PARLEX::ealeindent =
     	min::new_lab_gen
 	    ( "end", "at", "le", "indent" );
-    PAR::ealtindent =
+    PARLEX::ealtindent =
     	min::new_lab_gen
 	    ( "end", "at", "lt", "indent" );
-    PAR::eapbreak =
+    PARLEX::eapbreak =
     	min::new_lab_gen
 	    ( "end", "at", "paragraph", "break" );
-    PAR::ealsep =
+    PARLEX::ealsep =
     	min::new_lab_gen
 	    ( "end", "at", "line", "separator" );
-    PAR::eaoclosing =
+    PARLEX::eaoclosing =
     	min::new_lab_gen
 	    ( "end", "at", "outer", "closing" );
-    PAR::sticky = min::new_str_gen ( "sticky" );
-    PAR::continuing = min::new_str_gen ( "continuing" );
+    PARLEX::sticky = min::new_str_gen ( "sticky" );
+    PARLEX::continuing =
+        min::new_str_gen ( "continuing" );
 
-    PAR::other_ea_opt =
+    PARLEX::other_ea_opt =
         min::new_lab_gen ( "other", "end", "at",
 	                   "options" );
-    PAR::default_opt =
+    PARLEX::default_opt =
         min::new_lab_gen ( "default", "options" );
-    PAR::other_selectors =
+    PARLEX::other_selectors =
         min::new_lab_gen ( "other", "selectors" );
 
-    PAR::parser_lexeme = min::new_str_gen ( "parser" );
-    PAR::data_lexeme = min::new_str_gen ( "data" );
-    PAR::prefix_lexeme = min::new_str_gen ( "prefix" );
-    PAR::header_lexeme = min::new_str_gen ( "header" );
-    PAR::line_lexeme = min::new_str_gen ( "line" );
-    PAR::paragraph_lexeme =
+    PARLEX::parser = min::new_str_gen ( "parser" );
+    PARLEX::data = min::new_str_gen ( "data" );
+    PARLEX::prefix = min::new_str_gen ( "prefix" );
+    PARLEX::header = min::new_str_gen ( "header" );
+    PARLEX::line = min::new_str_gen ( "line" );
+    PARLEX::paragraph =
         min::new_str_gen ( "paragraph" );
-    PAR::standard_lexeme =
+    PARLEX::standard =
         min::new_str_gen ( "standard" );
 
-    PAR::error_operator =
+    PARLEX::error_operator =
         min::new_str_gen ( "ERROR'OPERATOR" );
-    PAR::error_operand =
+    PARLEX::error_operand =
         min::new_str_gen ( "ERROR'OPERAND" );
 
-    PAR::test = min::new_str_gen ( "test" );
-    PAR::begin = min::new_str_gen ( "begin" );
-    PAR::end = min::new_str_gen ( "end" );
-    PAR::define = min::new_str_gen ( "define" );
-    PAR::undefine = min::new_str_gen ( "undefine" );
-    PAR::print = min::new_str_gen ( "print" );
-    PAR::block = min::new_str_gen ( "block" );
-    PAR::pass_lexeme = min::new_str_gen ( "pass" );
-    PAR::selector = min::new_str_gen ( "selector" );
-    PAR::selectors = min::new_str_gen ( "selectors" );
-    PAR::options = min::new_str_gen ( "options" );
-    PAR::group = min::new_str_gen ( "group" );
-    PAR::lexical = min::new_str_gen ( "lexical" );
-    PAR::master = min::new_str_gen ( "master" );
-    PAR::implied = min::new_str_gen ( "implied" );
-    PAR::subprefix = min::new_str_gen ( "subprefix" );
-    PAR::reformatter_lexeme =
+    PARLEX::test = min::new_str_gen ( "test" );
+    PARLEX::begin = min::new_str_gen ( "begin" );
+    PARLEX::end = min::new_str_gen ( "end" );
+    PARLEX::define = min::new_str_gen ( "define" );
+    PARLEX::undefine = min::new_str_gen ( "undefine" );
+    PARLEX::print = min::new_str_gen ( "print" );
+    PARLEX::block = min::new_str_gen ( "block" );
+    PARLEX::pass = min::new_str_gen ( "pass" );
+    PARLEX::mapped = min::new_str_gen ( "mapped" );
+    PARLEX::lexeme = min::new_str_gen ( "lexeme" );
+    PARLEX::selector = min::new_str_gen ( "selector" );
+    PARLEX::selectors =
+        min::new_str_gen ( "selectors" );
+    PARLEX::options = min::new_str_gen ( "options" );
+    PARLEX::group = min::new_str_gen ( "group" );
+    PARLEX::lexical = min::new_str_gen ( "lexical" );
+    PARLEX::master = min::new_str_gen ( "master" );
+    PARLEX::implied = min::new_str_gen ( "implied" );
+    PARLEX::subprefix =
+        min::new_str_gen ( "subprefix" );
+    PARLEX::reformatter =
         min::new_str_gen ( "reformatter" );
-    PAR::default_lexeme =
+    PARLEX::default_lexeme =
         min::new_str_gen ( "default" );
-    PAR::with = min::new_str_gen ( "with" );
-    PAR::parsing = min::new_str_gen ( "parsing" );
-    PAR::after = min::new_str_gen ( "after" );
-    PAR::before = min::new_str_gen ( "before" );
-    PAR::at = min::new_str_gen ( "at" );
-    PAR::plus = min::new_str_gen ( "+" );
-    PAR::minus = min::new_str_gen ( "-" );
-    PAR::dotdotdot = min::new_str_gen ( "..." );
-    PAR::yes_lexeme = min::new_str_gen ( "yes" );
-    PAR::no_lexeme = min::new_str_gen ( "no" );
-    PAR::keep_lexeme = min::new_str_gen ( "keep" );
-    PAR::enabled_lexeme =
-        min::new_str_gen ( "enabled" );
-    PAR::disabled_lexeme =
-        min::new_str_gen ( "disabled" );
-    PAR::star_parser =
+    PARLEX::with = min::new_str_gen ( "with" );
+    PARLEX::parsing = min::new_str_gen ( "parsing" );
+    PARLEX::after = min::new_str_gen ( "after" );
+    PARLEX::before = min::new_str_gen ( "before" );
+    PARLEX::at = min::new_str_gen ( "at" );
+    PARLEX::plus = min::new_str_gen ( "+" );
+    PARLEX::minus = min::new_str_gen ( "-" );
+    PARLEX::dotdotdot = min::new_str_gen ( "..." );
+    PARLEX::yes = min::new_str_gen ( "yes" );
+    PARLEX::no = min::new_str_gen ( "no" );
+    PARLEX::keep = min::new_str_gen ( "keep" );
+    PARLEX::enabled = min::new_str_gen ( "enabled" );
+    PARLEX::disabled = min::new_str_gen ( "disabled" );
+    PARLEX::star_parser =
         min::new_str_gen ( "*PARSER*" );
-    PAR::parser_colon =
+    PARLEX::parser_colon =
         min::new_lab_gen ( "*PARSER*", ":" );
-    PAR::parser_test_colon =
+    PARLEX::parser_test_colon =
         min::new_lab_gen ( "*PARSER*", "*TEST*", ":" );
 
     PAR::PRINTED = min::new_special_gen ( 0 );
@@ -754,42 +761,42 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    (    PAR::EALBREAK_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::ealbreak ) );
+			PARLEX::ealbreak ) );
 	MIN_REQUIRE
 	    (    PAR::EALEINDENT_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::ealeindent ) );
+			PARLEX::ealeindent ) );
 	MIN_REQUIRE
 	    (    PAR::EALTINDENT_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::ealtindent ) );
+			PARLEX::ealtindent ) );
 	MIN_REQUIRE
 	    (    PAR::EAPBREAK_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::eapbreak ) );
+			PARLEX::eapbreak ) );
 	MIN_REQUIRE
 	    (    PAR::EALSEP_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::ealsep ) );
+			PARLEX::ealsep ) );
 	MIN_REQUIRE
 	    (    PAR::EAOCLOSING_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::eaoclosing ) );
+			PARLEX::eaoclosing ) );
 	MIN_REQUIRE
 	    (    PAR::STICKY_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::sticky ) );
+			PARLEX::sticky ) );
 	MIN_REQUIRE
 	    (    PAR::CONTINUING_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::continuing ) );
+			PARLEX::continuing ) );
 
 	while ( parser->selector_name_table->length
 	        < 16 )
@@ -807,27 +814,27 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    (    PAR::TOP_LEVEL_SELECTOR
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::top_level ) );
+			PARLEX::top_level ) );
 
 	MIN_REQUIRE
 	    (    PAR::DATA_SELECTOR
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PAR::data_lexeme ) );
+			PARLEX::data ) );
 
 	PAR::selector_group_name_table_ref(parser) =
 	    TAB::create_key_table ( 32 );
 
 	TAB::push_root
-	    ( PAR::other_ea_opt, PAR::ALL_EA_OPT,
+	    ( PARLEX::other_ea_opt, PAR::ALL_EA_OPT,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root
-	    ( PAR::default_opt, PAR::DEFAULT_OPT,
+	    ( PARLEX::default_opt, PAR::DEFAULT_OPT,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root
-	    ( PAR::other_selectors,
+	    ( PARLEX::other_selectors,
 	      PAR::COMMAND_SELECTORS,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
@@ -840,7 +847,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( PAR::top_level, PAR::semicolon,
+		( PARLEX::top_level, PARLEX::semicolon,
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  min::MISSING(), PAR::MISSING_MASTER,
@@ -848,7 +855,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( PAR::parser_colon, PAR::semicolon,
+		( PARLEX::parser_colon,
+		  PARLEX::semicolon,
 	          PAR::TOP_LEVEL_SELECTOR,
 		  0, PAR::top_level_position,
 		  PAR::parsing_selectors
@@ -858,8 +866,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( PAR::parser_test_colon,
-		  PAR::semicolon,
+		( PARLEX::parser_test_colon,
+		  PARLEX::semicolon,
 	          PAR::TOP_LEVEL_SELECTOR,
 		  0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
@@ -914,8 +922,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	min::push ( multivalue_arguments ) = comma;
 
 	BRA::push_brackets
-	    ( PAR::left_parenthesis,
-	      PAR::right_parenthesis,
+	    ( PARLEX::left_parenthesis,
+	      PARLEX::right_parenthesis,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
@@ -923,7 +931,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
-	    ( PAR::left_square, PAR::right_square,
+	    ( PARLEX::left_square, PARLEX::right_square,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
@@ -985,16 +993,17 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      bracketed_pass->bracket_table );
 
 	BRA::push_typed_brackets
-	    ( PAR::left_curly,
-	      PAR::vbar,
+	    ( PARLEX::left_curly,
+	      PARLEX::vbar,
 	      double_vbar,
-	      PAR::right_curly,
+	      PARLEX::right_curly,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      PAR::DATA_SELECTOR,
-	      PAR::colon, PAR::equal, PAR::comma, no,
-	      PAR::left_square,
+	      PARLEX::colon, PARLEX::equal,
+	      PARLEX::comma, PARLEX::no,
+	      PARLEX::left_square,
 	      min::standard_attr_flag_parser,
 	      opening_brace_star,
 	      false,
@@ -1353,11 +1362,11 @@ void PAR::parse ( PAR::parser parser )
 		    result = min::SUCCESS();
 
 		    if (    initiator
-		         == PAR::parser_test_colon )
+		         == PARLEX::parser_test_colon )
 			COM::parser_test_execute_command
 			    ( parser, vp[0] );
 		    else if (    initiator
-		              == PAR::parser_colon
+		              == PARLEX::parser_colon
 			      &&
 			         parser->error_count
 			      == error_count_save )
@@ -1713,7 +1722,7 @@ void PAR::put_error_operand_before
 {
     PAR::token token = new_token ( LEXSTD::word_t );
     put_before ( PAR::first_ref(parser), t, token );
-    PAR::value_ref ( token ) = PAR::error_operand;
+    PAR::value_ref ( token ) = PARLEX::error_operand;
 
     min::phrase_position position =
         { t->position.begin, t->position.begin };
@@ -1727,7 +1736,7 @@ void PAR::put_error_operand_after
     PAR::token token = new_token ( LEXSTD::word_t );
     put_before ( PAR::first_ref(parser), t->next,
                                          token );
-    PAR::value_ref ( token ) = PAR::error_operand;
+    PAR::value_ref ( token ) = PARLEX::error_operand;
 
     min::phrase_position position =
         { t->position.end, t->position.end };
@@ -1740,7 +1749,7 @@ void PAR::put_error_operator_before
 {
     PAR::token token = new_token ( PAR::OPERATOR );
     put_before ( PAR::first_ref(parser), t, token );
-    PAR::value_ref ( token ) = PAR::error_operator;
+    PAR::value_ref ( token ) = PARLEX::error_operator;
 
     min::phrase_position position =
         { t->position.begin, t->position.begin };
@@ -1754,7 +1763,7 @@ void PAR::put_error_operator_after
     PAR::token token = new_token ( PAR::OPERATOR );
     put_before ( PAR::first_ref(parser), t->next,
                                          token );
-    PAR::value_ref ( token ) = PAR::error_operator;
+    PAR::value_ref ( token ) = PARLEX::error_operator;
 
     min::phrase_position position =
         { t->position.end, t->position.end };
@@ -2125,7 +2134,7 @@ min::gen PAR::scan_name_string_label
     min::gen element = vp[i];
 
     if (    min::get ( element, min::dot_type )
-         != PAR::doublequote )
+         != PARLEX::doublequote )
         return min::MISSING();
 
     min::obj_vec_ptr ep = element;
@@ -2254,13 +2263,13 @@ void PAR::convert_token ( PAR::token token )
 
     if (    token->type
 	 == LEXSTD::quoted_string_t )
-	type = PAR::doublequote;
+	type = PARLEX::doublequote;
     else
     {
 	MIN_REQUIRE (    token->type
 		      == LEXSTD::numeric_t );
 
-	type = PAR::number_sign;
+	type = PARLEX::number_sign;
     }
 
 

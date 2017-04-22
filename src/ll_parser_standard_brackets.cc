@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 01:56:44 EDT 2017
+// Date:	Sat Apr 22 03:04:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,7 @@
 # include <ll_parser_bracketed.h>
 # include <ll_parser_standard.h>
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
@@ -95,16 +96,16 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::uns32 block_level =
         PAR::block_level ( parser );
     BRA::push_brackets
-        ( PAR::left_parenthesis,
-	  PAR::right_parenthesis,
+        ( PARLEX::left_parenthesis,
+	  PARLEX::right_parenthesis,
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
-        ( PAR::left_square,
-          PAR::right_square,
+        ( PARLEX::left_square,
+          PARLEX::right_square,
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
@@ -150,7 +151,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark
-        ( PAR::colon, PAR::semicolon,
+        ( PARLEX::colon, PARLEX::semicolon,
 	  code,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( PAR::DEFAULT_EA_OPT,
@@ -161,16 +162,17 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets
-        ( PAR::left_curly,
-	  PAR::vbar,
+        ( PARLEX::left_curly,
+	  PARLEX::vbar,
 	  double_vbar,
-	  PAR::right_curly,
+	  PARLEX::right_curly,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  data,
-	  PAR::colon, PAR::equal, PAR::comma, no,
-	  PAR::left_square,
+	  PARLEX::colon, PARLEX::equal, PARLEX::comma,
+	  PARLEX::no,
+	  PARLEX::left_square,
 	  min::standard_attr_flag_parser,
 	  opening_brace_star,
 	  true,

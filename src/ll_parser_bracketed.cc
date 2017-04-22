@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 19 03:10:26 EDT 2017
+// Date:	Sat Apr 22 03:01:45 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,7 @@
 # define LEXSTD ll::lexeme::standard
 # define LEXDATA ll::lexeme::program_data
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define BRA ll::parser::bracketed
@@ -693,7 +694,7 @@ static void bracketed_pass_reset
 	       bracketed_pass->block_stack->length );
     bracketed_pass->indentation_offset = 2;
     BRA::string_concatenator_ref ( bracketed_pass ) =
-        PAR::number_sign;
+        PARLEX::number_sign;
 }
 
 static min::gen bracketed_pass_begin_block
@@ -783,7 +784,7 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
         ( BRA::block_stack_ref(bracketed_pass), 16 );
     bracketed_pass->indentation_offset = 2;
     BRA::string_concatenator_ref ( bracketed_pass ) =
-        PAR::number_sign;
+        PARLEX::number_sign;
 
     return (PAR::pass) bracketed_pass;
 }
@@ -807,7 +808,7 @@ bool BRA::parse_paragraph_element
 	  ( current == line_variables->last_paragraph );
 	MIN_REQUIRE
 	  (    current->value_type
-	    == PAR::paragraph_lexeme );
+	    == PARLEX::paragraph );
 
         current = current->next;
 
@@ -855,7 +856,7 @@ bool BRA::parse_paragraph_element
 	    line_variables->current.selectors;
 
 	bool maybe_parser_command = 
-	    ( current->value == PAR::star_parser );
+	    ( current->value == PARLEX::star_parser );
 	    // An optimization.
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression
@@ -911,10 +912,10 @@ bool BRA::parse_paragraph_element
 	if ( first->next != current
 	     ||
 	     (    first->value_type
-	       != PAR::paragraph_lexeme
+	       != PARLEX::paragraph
 	       &&
 		  first->value_type
-	       != PAR::line_lexeme ) )
+	       != PARLEX::line ) )
 	{
 	    BRA::compact_logical_line
 		( parser, parser->pass_stack->next,
@@ -929,7 +930,7 @@ bool BRA::parse_paragraph_element
 	// Compact prefix paragraph if necessary.
 	//
 	if (    first->value_type
-	     == PAR::paragraph_lexeme )
+	     == PARLEX::paragraph )
 	{
 	    MIN_REQUIRE ( ! maybe_parser_command );
 
@@ -1502,7 +1503,7 @@ min::position BRA::parse_bracketed_subexpression
 	    prefix->position.end =
 	        current->position.begin;
 
-	    if ( prefix_group == PAR::paragraph_lexeme )
+	    if ( prefix_group == PARLEX::paragraph )
 		line_variables->current =
 		    line_variables->implied_paragraph;
 
@@ -1576,9 +1577,9 @@ PREFIX_FOUND:
 		  prefix_entry->group :
 		  min::MISSING() );
 
-	    if ( ( prefix_group != PAR::paragraph_lexeme
+	    if ( ( prefix_group != PARLEX::paragraph
 	           &&
-		   prefix_group != PAR::line_lexeme )
+		   prefix_group != PARLEX::line )
 		 ||
 		     prefix->previous->type
 		 == PAR::IMPLIED_PREFIX )
@@ -1645,7 +1646,7 @@ PREFIX_FOUND:
 	    // this last, this code must follow the code
 	    // immediately above.
 	    //
-	    if ( prefix_group == PAR::paragraph_lexeme
+	    if ( prefix_group == PARLEX::paragraph
 	         &&
 		 line_variables->at_paragraph_beginning
 	         &&
@@ -1661,7 +1662,7 @@ PREFIX_FOUND:
 		 &&
 		    bracket_stack_p->prefix_entry
 		                   ->group
-		 == PAR::line_lexeme )
+		 == PARLEX::line )
 	    {
 		bracket_stack_p->closing_first =
 		    prefix;
@@ -1685,7 +1686,7 @@ PREFIX_FOUND:
 		prefix = min::NULL_STUB;
 	    }
 	    else
-	    if ( prefix_group == PAR::paragraph_lexeme )
+	    if ( prefix_group == PARLEX::paragraph )
 	    {
 	        if (    prefix->type
 		     == PAR::IMPLIED_PREFIX )
@@ -1733,7 +1734,7 @@ PREFIX_FOUND:
 
 	    }
 	    else
-	    if ( prefix_group == PAR::line_lexeme
+	    if ( prefix_group == PARLEX::line
 	         &&
 	            line_variables->previous->next
 		 != prefix
@@ -1745,7 +1746,7 @@ PREFIX_FOUND:
 		   ||
 		      bracket_stack_p->prefix_entry
 		                     ->group
-		   != PAR::paragraph_lexeme ) )
+		   != PARLEX::paragraph ) )
 	    {
 		PAR::parse_error
 		  ( parser,
@@ -1858,7 +1859,7 @@ PREFIX_PARSE:
 	    while ( true )
 	    {
 	        if (    prefix_group
-		     == PAR::paragraph_lexeme
+		     == PARLEX::paragraph
 		     &&
 		        prefix->type
 		     != PAR::IMPLIED_PREFIX )
@@ -1896,7 +1897,7 @@ PREFIX_PARSE:
 			 == min::NULL_STUB
 			 ||
 			    new_prefix_entry->group
-			 != PAR::paragraph_lexeme )
+			 != PARLEX::paragraph )
 			PAR::parse_error
 			  ( parser,
 			    prefix->position,
@@ -1969,7 +1970,7 @@ PREFIX_PARSE:
 			     != min::NULL_STUB
 			     &&
 			        header_entry->group
-			     == PAR::line_lexeme )
+			     == PARLEX::line )
 			{
 			    TAB::flags
 			            header_selectors =
@@ -2063,7 +2064,7 @@ PREFIX_PARSE:
 		    next = current;
 
 		if (    prefix_group
-		     == PAR::paragraph_lexeme
+		     == PARLEX::paragraph
 		     &&
 		     ( ( prefix_selectors
 		         &
@@ -2078,7 +2079,7 @@ PREFIX_PARSE:
 		     ( prefix->next->next != next
 		       ||
 		          prefix->next->value_type
-		       != PAR::line_lexeme ) )
+		       != PARLEX::line ) )
 		{
 		    PAR::token first = prefix->next;
 		    BRA::compact_logical_line
@@ -2096,7 +2097,7 @@ PREFIX_PARSE:
 		           prefix_selectors,
 		           prefix, next,
 			      prefix_group
-			   == PAR::line_lexeme ?
+			   == PARLEX::line ?
 			       separator_found :
 			       min::MISSING_POSITION,
 			   (TAB::root)
@@ -2104,10 +2105,10 @@ PREFIX_PARSE:
 			   trace_flags ) )
 		{
 		    if (    prefix_group
-		         == PAR::line_lexeme
+		         == PARLEX::line
 			 ||
 		            prefix_group
-		         == PAR::paragraph_lexeme )
+		         == PARLEX::paragraph )
 			PAR::value_type_ref ( prefix ) =
 			    prefix_group;
 		    else
@@ -2145,10 +2146,10 @@ PREFIX_PARSE:
 			//
 		        MIN_REQUIRE
 			    (    prefix_group
-			      == PAR::line_lexeme );
+			      == PARLEX::line );
 		        MIN_REQUIRE
 			    (    prefix_entry->group
-			      == PAR::paragraph_lexeme
+			      == PARLEX::paragraph
 			    );
 		        MIN_REQUIRE
 			    (    line_variables->
@@ -2416,7 +2417,7 @@ NEXT_TOKEN:
 		    }
 
 		    if (    group
-		         == PAR::paragraph_lexeme
+		         == PARLEX::paragraph
 			 &&
 			 first_time )
 		    {
@@ -2443,7 +2444,7 @@ NEXT_TOKEN:
 			        implied_subprefix_type;
 		    }
 		    else if (    group
-		              == PAR::line_lexeme )
+		              == PARLEX::line )
 		    {
 			implied_data.implied_header =
 			        implied_header;
@@ -3887,7 +3888,7 @@ void BRA::compact_logical_line
     else
 	attributes[n++] =
 	    PAR::attr ( min::dot_terminator,
-			PAR::new_line );
+			PARLEX::new_line );
 
     PAR::compact
 	( parser, pass, selectors,
@@ -4020,7 +4021,7 @@ void BRA::compact_paragraph
 	  TAB::flags trace_flags )
 {
     MIN_REQUIRE
-        ( first->value_type == PAR::paragraph_lexeme );
+        ( first->value_type == PARLEX::paragraph );
     if ( first->next == next ) return;
 
     min::phrase_position position =
@@ -4045,7 +4046,7 @@ void BRA::compact_paragraph
 	PAR::token current = first->next;
 	while ( current != next )
 	{
-	    if ( current->value_type == PAR::line_lexeme
+	    if ( current->value_type == PARLEX::line
 		 ||
 		    current->value_type
 		 == min::LOGICAL_LINE()
@@ -4290,11 +4291,11 @@ static min::gen bracketed_pass_command
     unsigned min_names, max_names;
         // Minimum and maximum number of names allowed.
 
-    if ( command != PAR::define
+    if ( command != PARLEX::define
          &&
-	 command != PAR::undefine
+	 command != PARLEX::undefine
          &&
-	 command != PAR::print )
+	 command != PARLEX::print )
         return min::FAILURE();
     ++ i;
     if ( i >= size )
@@ -4318,7 +4319,7 @@ static min::gen bracketed_pass_command
 	 &&
 	 vp[i+1] == ::offset )
     {
-        if ( command == PAR::print )
+        if ( command == PARLEX::print )
 	{
 	    if ( i + 2 < size )
 		return PAR::parse_error
@@ -4340,7 +4341,7 @@ static min::gen bracketed_pass_command
 	    {
 	        min::gen block_name =
 		    ( i == 0 ?
-		      (min::gen) PAR::top_level :
+		      (min::gen) PARLEX::top_level :
 		      (&parser->block_stack[i-1])
 		          ->name );
 
@@ -4360,7 +4361,7 @@ static min::gen bracketed_pass_command
 	    parser->printer << min::eom;
 	    return PAR::PRINTED;
 	}
-	else if ( command != PAR::define )
+	else if ( command != PARLEX::define )
 	    return min::FAILURE();
 
 	else if ( i + 2 >= size
@@ -4388,7 +4389,7 @@ static min::gen bracketed_pass_command
 	 &&
 	 vp[i+1] == ::concatenator )
     {
-        if ( command == PAR::print )
+        if ( command == PARLEX::print )
 	{
 	    if ( i + 2 < size )
 		return PAR::parse_error
@@ -4410,7 +4411,7 @@ static min::gen bracketed_pass_command
 	    {
 	        min::gen block_name =
 		    ( i == 0 ?
-		      (min::gen) PAR::top_level :
+		      (min::gen) PARLEX::top_level :
 		      (&parser->block_stack[i-1])
 		          ->name );
 
@@ -4437,7 +4438,7 @@ static min::gen bracketed_pass_command
 	    parser->printer << min::eom;
 	    return PAR::PRINTED;
 	}
-	else if ( command != PAR::define )
+	else if ( command != PARLEX::define )
 	    return min::FAILURE();
 
 	else if ( i + 2 >= size )
@@ -4448,9 +4449,9 @@ static min::gen bracketed_pass_command
 
 	i += 2;
 	min::locatable_gen concat = vp[i];
-	if ( concat == PAR::enabled_lexeme )
+	if ( concat == PARLEX::enabled )
 	    concat = min::ENABLED();
-	else if ( concat == PAR::disabled_lexeme )
+	else if ( concat == PARLEX::disabled )
 	    concat = min::DISABLED();
 	else
 	{
@@ -4472,11 +4473,11 @@ static min::gen bracketed_pass_command
 	return min::SUCCESS();
     }
 
-    if ( command == PAR::print )
+    if ( command == PARLEX::print )
     {
         if ( vp[i] == ::bracket )
 	    type = ::BRACKET;
-	else if ( vp[i] == PAR::prefix_lexeme )
+	else if ( vp[i] == PARLEX::prefix )
 	    type = ::PREFIX;
 	else
 	    return min::FAILURE();
@@ -4514,7 +4515,7 @@ static min::gen bracketed_pass_command
 	max_names = 4;
 	i += 2;
     }
-    else if ( vp[i] == PAR::prefix_lexeme )
+    else if ( vp[i] == PARLEX::prefix )
     {
 	type = ::PREFIX;
 	min_names = 1;
@@ -4534,7 +4535,7 @@ static min::gen bracketed_pass_command
 	// Scan a name.
 	//
 	SCAN_NAME ( name[number_of_names],
-	            command == PAR::print );
+	            command == PARLEX::print );
 
 	++ number_of_names;
 
@@ -4545,7 +4546,7 @@ static min::gen bracketed_pass_command
 
 	if ( i >= size
 	     ||
-	     vp[i] != PAR::dotdotdot )
+	     vp[i] != PARLEX::dotdotdot )
 	    break;
 
 	++ i;
@@ -4556,7 +4557,7 @@ static min::gen bracketed_pass_command
 	    ( parser, ppvec->position,
 	      "too few quoted names in" );
 
-    if ( command == PAR::print )
+    if ( command == PARLEX::print )
     {
 	if ( i < size )
 	    return PAR::parse_error
@@ -5038,7 +5039,7 @@ static min::gen bracketed_pass_command
 	}
     }
 
-    if ( command == PAR::define ) switch ( type )
+    if ( command == PARLEX::define ) switch ( type )
     {
     case ::BRACKET:
     {
@@ -5049,14 +5050,14 @@ static min::gen bracketed_pass_command
 	min::locatable_var
 		< PAR::reformatter_arguments >
 	    reformatter_arguments ( min::NULL_STUB );
-	while ( i < size && vp[i] == PAR::with )
+	while ( i < size && vp[i] == PARLEX::with )
 	{
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::selectors )
+		 vp[i+1] == PARLEX::selectors )
 	    {
 		i += 2;
 		min::gen result =
@@ -5078,9 +5079,9 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::options )
+		 vp[i+1] == PARLEX::options )
 	    {
 		i += 2;
 		min::gen result =
@@ -5105,10 +5106,10 @@ static min::gen bracketed_pass_command
 		min::locatable_gen name
 		  ( PAR::scan_simple_name
 			( vp, j,
-			  PAR::reformatter_lexeme ) );
+			  PARLEX::reformatter ) );
 		if (    j < size
 		     &&    vp[j]
-		        == PAR::reformatter_lexeme )
+		        == PARLEX::reformatter )
 		{
 		    min::phrase_position position =
 			{ (&ppvec[i])->begin,
@@ -5212,14 +5213,14 @@ static min::gen bracketed_pass_command
 	min::uns32 lexical_master = PAR::MISSING_MASTER;
 	min::locatable_gen implied_header
 	    ( min::MISSING() );
-	while ( i < size && vp[i] == PAR::with )
+	while ( i < size && vp[i] == PARLEX::with )
 	{
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::selectors )
+		 vp[i+1] == PARLEX::selectors )
 	    {
 		i += 2;
 		min::gen result =
@@ -5241,9 +5242,9 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::options )
+		 vp[i+1] == PARLEX::options )
 	    {
 		i += 2;
 		min::gen result =
@@ -5265,16 +5266,17 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::lexical
+		 vp[i] == PARLEX::lexical
 		 &&
-		 vp[i+1] == PAR::master )
+		 vp[i+1] == PARLEX::master )
 	    {
 		i += 2;
 		min::phrase_position position
 		    = ppvec[i];
 		min::locatable_gen master_name
 		    ( PAR::scan_name
-		        ( vp, i, parser, PAR::with ) );
+		        ( vp, i, parser,
+			  PARLEX::with ) );
 		if ( master_name == min::ERROR() )
 		    return min::ERROR();
 		position.end = (& ppvec[i-1])->end;
@@ -5295,9 +5297,9 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::implied
+		 vp[i] == PARLEX::implied
 		 &&
-		 vp[i+1] == PAR::header_lexeme )
+		 vp[i+1] == PARLEX::header )
 	    {
 		i += 2;
 		if ( i >= size
@@ -5375,7 +5377,7 @@ static min::gen bracketed_pass_command
 	        ( min::MISSING() );
 	bool prefix_separators_allowed = false;
 
-	while ( i < size && vp[i] == PAR::with )
+	while ( i < size && vp[i] == PARLEX::with )
 	{
 	    ++ i;
 	    if ( i + 1 < size
@@ -5384,7 +5386,7 @@ static min::gen bracketed_pass_command
 		   ||
 		   vp[i] == ::attribute )
 		 &&
-		 vp[i+1] == PAR::selectors )
+		 vp[i+1] == PARLEX::selectors )
 	    {
 		bool is_element =
 		    ( vp[i] == ::element );
@@ -5416,9 +5418,9 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::options )
+		 vp[i+1] == PARLEX::options )
 	    {
 		i += 2;
 		min::gen result =
@@ -5477,7 +5479,7 @@ static min::gen bracketed_pass_command
 
 		if ( i >= size
 		     ||
-		     vp[i] != PAR::dotdotdot )
+		     vp[i] != PARLEX::dotdotdot )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
 			  "expected ... after" );
@@ -5487,7 +5489,7 @@ static min::gen bracketed_pass_command
 
 		if ( i >= size
 		     ||
-		     vp[i] != PAR::dotdotdot )
+		     vp[i] != PARLEX::dotdotdot )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
 			  "expected ... after" );
@@ -5499,7 +5501,7 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 2 < size
 		 &&
-		 vp[i] == PAR::prefix_lexeme
+		 vp[i] == PARLEX::prefix
 		 &&
 		 vp[i+1] == ::separators
 		 &&
@@ -5617,14 +5619,14 @@ static min::gen bracketed_pass_command
 	    ( min::MISSING() );
 	min::uns32 lexical_master = PAR::MISSING_MASTER;
 
-	while ( i < size && vp[i] == PAR::with )
+	while ( i < size && vp[i] == PARLEX::with )
 	{
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::selectors )
+		 vp[i+1] == PARLEX::selectors )
 	    {
 		i += 2;
 		min::gen result =
@@ -5646,9 +5648,9 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::parsing
+		 vp[i] == PARLEX::parsing
 		 &&
-		 vp[i+1] == PAR::options )
+		 vp[i+1] == PARLEX::options )
 	    {
 		i += 2;
 		min::gen result =
@@ -5668,13 +5670,14 @@ static min::gen bracketed_pass_command
 			  " (modifier) list after" );
 	    }
 	    else
-	    if ( vp[i] == PAR::group )
+	    if ( vp[i] == PARLEX::group )
 	    {
 		++ i;
 		min::phrase_position position
 		    = ppvec[i];
 		group = PAR::scan_name
-		          ( vp, i, parser, PAR::with );
+		          ( vp, i, parser,
+			    PARLEX::with );
 		if ( group == min::ERROR() )
 		    return min::ERROR();
 		position.end = (& ppvec[i-1])->end;
@@ -5682,9 +5685,9 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::implied
+		 vp[i] == PARLEX::implied
 		 &&
-		 vp[i+1] == PAR::subprefix )
+		 vp[i+1] == PARLEX::subprefix )
 	    {
 		i += 2;
 		if ( i >= size
@@ -5716,16 +5719,17 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == PAR::lexical
+		 vp[i] == PARLEX::lexical
 		 &&
-		 vp[i+1] == PAR::master )
+		 vp[i+1] == PARLEX::master )
 	    {
 		i += 2;
 		min::phrase_position position
 		    = ppvec[i];
 		min::locatable_gen master_name
 		    ( PAR::scan_name
-		        ( vp, i, parser, PAR::with ) );
+		        ( vp, i, parser,
+			  PARLEX::with ) );
 		if ( master_name == min::ERROR() )
 		    return min::ERROR();
 		position.end = (& ppvec[i-1])->end;
@@ -5758,7 +5762,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
 
-	if ( group == PAR::paragraph_lexeme )
+	if ( group == PARLEX::paragraph )
 	{
 	    new_selectors.or_flags |=
 		new_options.or_flags;
@@ -5789,7 +5793,7 @@ static min::gen bracketed_pass_command
     default:
 	MIN_ABORT ( "bad parser define type" );
     }
-    else /* if command == PAR::undefine */
+    else /* if command == PARLEX::undefine */
     {
 	if ( i < size )
 	    return PAR::parse_error

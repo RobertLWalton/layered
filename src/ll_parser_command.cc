@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 13 20:27:34 EDT 2017
+// Date:	Sat Apr 22 02:50:34 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,7 @@
 # include <ll_parser_command.h>
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define COM ll::parser::command
 
@@ -61,10 +62,12 @@ min::gen COM::scan_args
 
     min::attr_ptr subap ( subvp );
     min::locate ( subap, min::dot_initiator );
-    if ( min::get ( subap ) != PAR::left_parenthesis )
+    if (    min::get ( subap )
+         != PARLEX::left_parenthesis )
         return min::FAILURE();
     min::locate ( subap, min::dot_terminator );
-    if ( min::get ( subap ) != PAR::right_parenthesis )
+    if (    min::get ( subap )
+         != PARLEX::right_parenthesis )
         return min::FAILURE();
     min::locate ( subap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
@@ -101,7 +104,7 @@ min::gen COM::scan_args
 
 	if ( j < s )
 	{
-	    if ( subvp[j] != PAR::comma )
+	    if ( subvp[j] != PARLEX::comma )
 		return PAR::parse_error
 		    ( parser, ppvec[j-1],
 		      "expected `,' after" );
@@ -191,8 +194,8 @@ static bool scan_flag
 	return false;
     }
 
-    if (    vp[i] == PAR::plus
-         || vp[i] == PAR::minus
+    if (    vp[i] == PARLEX::plus
+         || vp[i] == PARLEX::minus
 	 || vp[i] == ::exclusive_or )
         op = vp[i], ++ i;
 
@@ -298,7 +301,7 @@ static bool scan_flag
 	return false;
     }
 
-    if ( op == PAR::minus )
+    if ( op == PARLEX::minus )
         p->not_flags |= f;
     else if ( op == ::exclusive_or )
         p->xor_flags |= f;
@@ -340,10 +343,10 @@ static min::gen scan_new_flags
 
     min::attr_ptr subap ( subvp );
     min::locate ( subap, min::dot_initiator );
-    if ( min::get ( subap ) != PAR::left_square )
+    if ( min::get ( subap ) != PARLEX::left_square )
         return min::FAILURE();
     min::locate ( subap, min::dot_terminator );
-    if ( min::get ( subap ) != PAR::right_square )
+    if ( min::get ( subap ) != PARLEX::right_square )
         return min::FAILURE();
     min::locate ( subap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( subap );
@@ -386,7 +389,7 @@ static min::gen scan_new_flags
 
 	    if ( i == size ) break;
 
-	    if ( subvp[i] != PAR::comma )
+	    if ( subvp[i] != PARLEX::comma )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `,' after" );
@@ -557,11 +560,11 @@ static min::gen execute_pass
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    if ( vp[i0] != PAR::define
+    if ( vp[i0] != PARLEX::define
          &&
-	 vp[i0] != PAR::undefine
+	 vp[i0] != PARLEX::undefine
          &&
-	 vp[i0] != PAR::print )
+	 vp[i0] != PARLEX::print )
 	return min::FAILURE();
 
     min::uns32 size = min::size_of ( vp );
@@ -571,7 +574,7 @@ static min::gen execute_pass
     PAR::new_pass new_pass = NULL;
     TAB::flags selectors;
     min::phrase_position name_pp;
-    if ( vp[i0] != PAR::print )
+    if ( vp[i0] != PARLEX::print )
     {
 	min::uns32 begini = i;
 	name = PAR::scan_simple_name ( vp, i );
@@ -591,7 +594,7 @@ static min::gen execute_pass
 
     PAR::pass previous = min::NULL_STUB;
     PAR::pass next = min::NULL_STUB;
-    if ( vp[i0] == PAR::define )
+    if ( vp[i0] == PARLEX::define )
     {
 	min::gen result = COM::scan_flags
 		    ( vp, i, selectors,
@@ -607,9 +610,9 @@ static min::gen execute_pass
 		  "expected parsing selectors after" );
 	else MIN_REQUIRE ( result == min::SUCCESS() );
 
-	if ( vp[i] == PAR::after
+	if ( vp[i] == PARLEX::after
 	     ||
-	     vp[i] == PAR::before )
+	     vp[i] == PARLEX::before )
 	{
 	    ++ i;
 	    min::uns32 begini = i;
@@ -640,7 +643,7 @@ static min::gen execute_pass
 		    ( parser, name2_pp,
 		      "is not on the pass stack" );
 
-	    if ( vp[begini-1] == PAR::after )
+	    if ( vp[begini-1] == PARLEX::after )
 	        previous = pass2;
 	    else
 	    {
@@ -652,9 +655,9 @@ static min::gen execute_pass
 		next = pass2;
 	    }
 	}
-	else if ( vp[i] == PAR::at
+	else if ( vp[i] == PARLEX::at
 	          &&
-		  vp[i+1] == PAR::end )
+		  vp[i+1] == PARLEX::end )
 	    i += 2;  // previous == next == NULL_STUB
 	else
 	    return PAR::parse_error
@@ -668,7 +671,7 @@ static min::gen execute_pass
 	    ( parser, ppvec[i-1],
 	      "extraneous stuff after" );
 
-    if ( vp[i0] == PAR::print )
+    if ( vp[i0] == PARLEX::print )
     {
         min::uns32 indent =
 	    COM::print_command ( parser, ppvec );
@@ -702,7 +705,7 @@ static min::gen execute_pass
 
 	return PAR::PRINTED;
     }
-    else if ( vp[i0] == PAR::define )
+    else if ( vp[i0] == PARLEX::define )
     {
         PAR::pass pass =
 	    PAR::find_on_pass_stack ( parser, name );
@@ -720,7 +723,7 @@ static min::gen execute_pass
 	else
 	    PAR::place_before ( parser, pass, next );
     }
-    else /* if vp[i0] == PAR::undefine */
+    else /* if vp[i0] == PARLEX::undefine */
     {
         PAR::pass pass =
 	    PAR::find_on_pass_stack ( parser, name );
@@ -743,9 +746,9 @@ static min::gen execute_selectors
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    if ( vp[i0] != PAR::define
+    if ( vp[i0] != PARLEX::define
          &&
-	 vp[i0] != PAR::print )
+	 vp[i0] != PARLEX::print )
 	return min::FAILURE();
 
     min::uns32 size = min::size_of ( vp );
@@ -753,7 +756,7 @@ static min::gen execute_selectors
     min::uns32 i = i0 + 2;
     min::uns32 begini = i;
     min::locatable_gen name;
-    if ( vp[i0] == PAR::define )
+    if ( vp[i0] == PARLEX::define )
     {
 	name = PAR::scan_simple_name ( vp, i );
 	if ( name == min::MISSING() )
@@ -761,7 +764,7 @@ static min::gen execute_selectors
 		( parser, ppvec[i-1],
 		  "expected simple name after" );
     }
-    else /* if vp[i0] == PAR::print */
+    else /* if vp[i0] == PARLEX::print */
     {
 	name = PAR::scan_quoted_key
 		   ( vp, i, parser,
@@ -780,7 +783,7 @@ static min::gen execute_selectors
 	    ( parser, ppvec[i-1],
 	      "extraneous stuff after" );
 
-    if ( vp[i0] == PAR::define )
+    if ( vp[i0] == PARLEX::define )
     {
 	int j = TAB::get_index
 	    ( parser->selector_name_table, name );
@@ -804,7 +807,7 @@ static min::gen execute_selectors
 		( parser->selector_name_table, name );
 	}
     }
-    else /* if vp[i0] == PAR::print */
+    else /* if vp[i0] == PARLEX::print */
     {
         min::uns32 indent =
 	    COM::print_command ( parser, ppvec );
@@ -868,13 +871,13 @@ static min::gen execute_top_level
     min::uns32 size = min::size_of ( vp );
     MIN_REQUIRE ( size >= i0 + 3 );
 
-    if (    vp[i0] != PAR::define
-         && vp[i0] != PAR::print )
+    if (    vp[i0] != PARLEX::define
+         && vp[i0] != PARLEX::print )
 	return min::FAILURE();
 
     min::uns32 i = i0 + 3;
 
-    if ( vp[i0] == PAR::print )
+    if ( vp[i0] == PARLEX::print )
     {
 
 	if ( i < size )
@@ -897,7 +900,7 @@ static min::gen execute_top_level
 	{
 	    min::gen block_name =
 		( i == 0 ?
-		  (min::gen) PAR::top_level :
+		  (min::gen) PARLEX::top_level :
 		  (&parser->block_stack[i-1])
 		      ->name );
 
@@ -959,14 +962,14 @@ static min::gen execute_top_level
 
     min::uns32 lexical_master = parser->lexical_master;
     min::uns32 saved_i = i;
-    while ( i < size && vp[i] == PAR::with )
+    while ( i < size && vp[i] == PARLEX::with )
     {
 	++ i;
 	if ( i + 1 < size
 	     &&
-	     vp[i] == PAR::parsing
+	     vp[i] == PARLEX::parsing
 	     &&
-	     vp[i+1] == PAR::selectors )
+	     vp[i+1] == PARLEX::selectors )
 	{
 	    i += 2;
 	    min::gen result;
@@ -989,9 +992,9 @@ static min::gen execute_top_level
 	else
 	if ( i + 1 < size
 	     &&
-	     vp[i] == PAR::parsing
+	     vp[i] == PARLEX::parsing
 	     &&
-	     vp[i+1] == PAR::options )
+	     vp[i+1] == PARLEX::options )
 	{
 	    i += 2;
 	    min::gen result;
@@ -1014,16 +1017,16 @@ static min::gen execute_top_level
 	else
 	if ( i + 1 < size
 	     &&
-	     vp[i] == PAR::lexical
+	     vp[i] == PARLEX::lexical
 	     &&
-	     vp[i+1] == PAR::master )
+	     vp[i+1] == PARLEX::master )
 	{
 	    i += 2;
 	    min::phrase_position position
 		= ppvec[i];
 	    min::locatable_gen master_name
 		( PAR::scan_name
-		    ( vp, i, parser, PAR::with ) );
+		    ( vp, i, parser, PARLEX::with ) );
 	    if ( master_name == min::ERROR() )
 		return min::ERROR();
 	    position.end = (& ppvec[i-1])->end;
@@ -1185,7 +1188,7 @@ static min::gen execute_trace
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    if ( vp[i0] == PAR::print )
+    if ( vp[i0] == PARLEX::print )
     {
 
 	TAB::name_table t =
@@ -1251,8 +1254,8 @@ static min::gen execute_block
           min::phrase_position_vec ppvec,
 	  PAR::parser parser )
 {
-    if (    vp[i0] != PAR::begin
-         && vp[i0] != PAR::end )
+    if (    vp[i0] != PARLEX::begin
+         && vp[i0] != PARLEX::end )
 	return min::FAILURE();
 
     min::uns32 i = i0 + 2;
@@ -1273,7 +1276,7 @@ static min::gen execute_block
 	      ppvec[i-1],
 	      "extraneous stuff after" );
 
-    if ( vp[i0] == PAR::begin )
+    if ( vp[i0] == PARLEX::begin )
 	return PAR::begin_block
 		    ( parser, name, ppvec->position );
     else
@@ -1329,24 +1332,24 @@ void COM::parser_execute_command
 
 	if ( size >= 2
 	     &&
-	     vp[1] == PAR::block )
+	     vp[1] == PARLEX::block )
 	    result = ::execute_block
 			( vp, 0, ppvec, parser );
 	else if ( size >= 2
 	          &&
-	          vp[1] == PAR::pass_lexeme )
+	          vp[1] == PARLEX::pass )
 	    result = ::execute_pass
 			( vp, 0, ppvec, parser );
 	else if ( size >= 2
 		  &&
-		  vp[1] == PAR::selector )
+		  vp[1] == PARLEX::selector )
 	    result = ::execute_selectors
 			( vp, 0, ppvec, parser );
 	else if ( size >= 3
 		  &&
-		  vp[1] == PAR::top
+		  vp[1] == PARLEX::top
 		  &&
-		  vp[2] == PAR::level )
+		  vp[2] == PARLEX::level )
 	    result = ::execute_top_level
 			( vp, 0, ppvec, parser );
 	else if ( vp[0] == ::trace
@@ -1358,7 +1361,7 @@ void COM::parser_execute_command
 			( vp, 0, ppvec, parser );
 	else if ( size >= 2
 		  &&
-		  vp[0] == PAR::print
+		  vp[0] == PARLEX::print
 		  &&
 		  vp[1] == ::trace )
 	    result = ::execute_trace

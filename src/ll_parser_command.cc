@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 02:50:34 EDT 2017
+// Date:	Sat Apr 22 16:17:49 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,6 +15,7 @@
 //	Execute Pass
 //	Execute Selectors
 //	Execute Top Level
+//	Execute Mapped Lexeme
 //	Execute Test
 //	Execute Trace
 //	Execute Block
@@ -34,12 +35,16 @@
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
 static min::locatable_gen top;
+static min::locatable_gen token;
+static min::locatable_gen value;
 
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
     ::trace = min::new_str_gen ( "trace" );
     ::top = min::new_str_gen ( "top" );
+    ::token = min::new_str_gen ( "token" );
+    ::value = min::new_str_gen ( "value" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -1074,6 +1079,157 @@ static min::gen execute_top_level
     return min::SUCCESS();
 }
 
+// Execute Mapped Lexeme
+// ------- ------ ------
+
+static min::gen execute_mapped_lexeme
+	( min::obj_vec_ptr & vp, min::uns32 i0,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 size = min::size_of ( vp );
+    MIN_REQUIRE ( size >= i0 + 3 );
+
+    min::gen command = vp[i0];
+    if (    command != PARLEX::define
+         && command != PARLEX::undefine
+         && command != PARLEX::print )
+	return min::FAILURE();
+
+    min::uns32 i = i0 + 3;
+
+    // Scan lexeme name.
+    //
+    min::locatable_gen name;
+        ( PAR::scan_quoted_key
+	    ( vp, i, parser,
+	      command == PARLEX::print ) );
+
+    if ( name == min::ERROR() )
+	return min::ERROR();
+    else if ( name == min::MISSING() )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected quoted name after" );
+
+    if ( vp[i0] == PARLEX::print )
+    {
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "unexpected stuff after" );
+
+	min::uns32 indent =
+	    COM::print_command ( parser, ppvec );
+
+	parser->printer
+	    << min::bom << min::no_auto_break
+	    << min::set_indent ( indent + 4 );
+
+	int count = 0;
+
+	for ( min::uns32 index = 0;
+	      index < parser->lexeme_map->length;
+	      ++ index )
+	for ( TAB::root root =
+		  parser->lexeme_map[index];
+	      root != min::NULL_STUB;
+	      root = root->next )
+	{
+	    if ( min::is_subsequence
+		     ( name, root->label ) < 0 )
+		continue;
+
+	    ++ count;
+
+	    min::gen block_name =
+		PAR::block_name
+		    ( parser,
+		      root->block_level );
+	    parser->printer
+		<< min::indent
+		<< "block "
+		<< min::pgen_name ( block_name )
+		<< ": " << min::save_indent;
+
+	    parser->printer << min::restore_indent
+			    << min::eol;
+	}
+
+	if ( count == 0 )
+	    parser->printer << min::indent
+	                    << "not found";
+	parser->printer << min::eom;
+
+        return PAR::PRINTED;
+
+    }
+
+    min::locatable_gen value ( min::NONE() );
+    min::uns32 lexical_master = PAR::MISSING_MASTER;
+
+    while ( i < size && vp[i] == PARLEX::with )
+    {
+	++ i;
+	if ( i + 1 < size
+	     &&
+	     vp[i] == ::token
+	     &&
+	     vp[i+1] == ::value )
+	{
+	    i += 2;
+	    if ( i >= size )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected token value after" );
+	    value = vp[i++];
+	}
+	else
+	if ( i + 1 < size
+	     &&
+	     vp[i] == PARLEX::lexical
+	     &&
+	     vp[i+1] == PARLEX::master )
+	{
+	    i += 2;
+	    min::phrase_position position
+		= ppvec[i];
+	    min::locatable_gen master_name
+		( PAR::scan_name
+		    ( vp, i, parser, PARLEX::with ) );
+	    if ( master_name == min::ERROR() )
+		return min::ERROR();
+	    position.end = (& ppvec[i-1])->end;
+
+	    lexical_master =
+		PAR::get_lexical_master
+		    ( master_name, parser );
+	    if (    lexical_master
+		 == PAR::MISSING_MASTER )
+		return PAR::parse_error
+		    ( parser, position,
+		      "`",
+		      min::pgen_quote
+			  ( master_name ),
+		      "' does NOT name a lexical"
+		      " master" );
+	}
+	else
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `token value'"
+		  " or `lexical master' after" );
+    }
+
+    if ( i < size )
+        return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "extraneous stuff after" );
+
+    return min::SUCCESS();
+}
+
+
 // Execute Test
 // ------- ----
 
@@ -1351,6 +1507,13 @@ void COM::parser_execute_command
 		  &&
 		  vp[2] == PARLEX::level )
 	    result = ::execute_top_level
+			( vp, 0, ppvec, parser );
+	else if ( size >= 3
+		  &&
+		  vp[1] == PARLEX::mapped
+		  &&
+		  vp[2] == PARLEX::lexeme )
+	    result = ::execute_mapped_lexeme
 			( vp, 0, ppvec, parser );
 	else if ( vp[0] == ::trace
 		  &&

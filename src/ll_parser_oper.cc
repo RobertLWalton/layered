@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 11:23:03 EDT 2017
+// Date:	Sat Apr 22 03:01:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,17 +27,19 @@
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define OP ll::parser::oper
+# define OPLEX ll::parser::oper::lexeme
 
-min::locatable_gen OP::dollar;
-min::locatable_gen OP::AND;
-min::locatable_gen OP::prefix;
-min::locatable_gen OP::infix;
-min::locatable_gen OP::postfix;
-min::locatable_gen OP::afix;
-min::locatable_gen OP::nofix;
+min::locatable_gen OPLEX::dollar;
+min::locatable_gen OPLEX::AND;
+min::locatable_gen OPLEX::prefix;
+min::locatable_gen OPLEX::infix;
+min::locatable_gen OPLEX::postfix;
+min::locatable_gen OPLEX::afix;
+min::locatable_gen OPLEX::nofix;
 static min::locatable_gen operator_subexpressions;
 static min::locatable_gen oper;
 static min::locatable_gen bracket;
@@ -47,13 +49,13 @@ static min::locatable_gen precedence;
 
 static void initialize ( void )
 {
-    OP::dollar  = min::new_str_gen ( "$" );
-    OP::AND     = min::new_str_gen ( "AND" );
-    OP::prefix  = min::new_str_gen ( "prefix" );
-    OP::infix   = min::new_str_gen ( "infix" );
-    OP::postfix = min::new_str_gen ( "postfix" );
-    OP::afix    = min::new_str_gen ( "afix" );
-    OP::nofix   = min::new_str_gen ( "nofix" );
+    OPLEX::dollar  = min::new_str_gen ( "$" );
+    OPLEX::AND     = min::new_str_gen ( "AND" );
+    OPLEX::prefix  = min::new_str_gen ( "prefix" );
+    OPLEX::infix   = min::new_str_gen ( "infix" );
+    OPLEX::postfix = min::new_str_gen ( "postfix" );
+    OPLEX::afix    = min::new_str_gen ( "afix" );
+    OPLEX::nofix   = min::new_str_gen ( "nofix" );
 
     ::operator_subexpressions =
         min::new_lab_gen
@@ -606,7 +608,7 @@ static void oper_parse ( PAR::parser parser,
 		if ( first_oper != min::NULL_STUB )
 		{
 		    PAR::attr attr
-			( PAR::dot_oper,
+			( PARLEX::dot_oper,
 			  first_oper->label );
 
 		    if (    first_oper->reformatter
@@ -928,7 +930,7 @@ static bool right_associative_reformatter_function
 	if ( t_is_first ) subposition = position;
 
 	PAR::attr oper_attr
-	    ( PAR::dot_oper, oper->value );
+	    ( PARLEX::dot_oper, oper->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      t, next, subposition,
@@ -1257,7 +1259,7 @@ static bool infix_and_reformatter_function
 	        PAR::new_token ( LEXSTD::separator_t );
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
-	    PAR::value_ref ( t ) = OP::dollar;
+	    PAR::value_ref ( t ) = OPLEX::dollar;
 	    t->position = before_position2;
 
 	    t = PAR::new_token ( LEXSTD::natural_t  );
@@ -1289,7 +1291,7 @@ static bool infix_and_reformatter_function
 	    // Compact new operand2 = ( $ T operand2 ).
 	    //
 	    PAR::attr oper_attr
-		( PAR::dot_oper, OP::dollar );
+		( PARLEX::dot_oper, OPLEX::dollar );
 	    t = operand2->next;
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
@@ -1320,7 +1322,7 @@ static bool infix_and_reformatter_function
 	// Compact ( op operand1 operand2 )
 	//
 	PAR::attr oper_attr
-	    ( PAR::dot_oper, op->value );
+	    ( PARLEX::dot_oper, op->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      op, next_operand1, position1,
@@ -1351,7 +1353,7 @@ static bool infix_and_reformatter_function
 	// Compact.
 	//
 	PAR::attr oper_attr
-	    ( PAR::dot_oper, and_op );
+	    ( PARLEX::dot_oper, and_op );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      first, next, position,
@@ -1426,7 +1428,7 @@ static bool sum_reformatter_function
 		{ t->position.begin,
 		  t->next->position.end };
 	    PAR::attr oper_attr
-		( PAR::dot_oper, minus_op );
+		( PARLEX::dot_oper, minus_op );
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  t, t->next->next, position,
@@ -1638,17 +1640,17 @@ static min::gen oper_pass_command
 
     min::gen command = vp[i++];
 
-    if ( command != PAR::define
+    if ( command != PARLEX::define
          &&
-	 command != PAR::undefine
+	 command != PARLEX::undefine
          &&
-	 command != PAR::print )
+	 command != PARLEX::print )
         return min::FAILURE();
 
     if ( i >= size || vp[i++] != ::oper )
         return min::FAILURE();
 
-    if ( i >= size || command == PAR::print )
+    if ( i >= size || command == PARLEX::print )
         /* Do nothing. */;
     else if ( vp[i] == ::bracket )
     {
@@ -1697,7 +1699,7 @@ static min::gen oper_pass_command
 	            ( 1ull << LEXSTD::
 		              premature_end_of_file_t )
 	          + ( 1ull << LEXSTD::end_of_file_t ),
-		  command == PAR::print );
+		  command == PARLEX::print );
 
 	if ( name[number_of_names] == min::ERROR() )
 	    return min::ERROR();
@@ -1716,7 +1718,7 @@ static min::gen oper_pass_command
 
 	if ( i >= size
 	     ||
-	     vp[i] != PAR::dotdotdot )
+	     vp[i] != PARLEX::dotdotdot )
 	    break;
 
 	++ i;
@@ -1733,7 +1735,7 @@ static min::gen oper_pass_command
     else if ( ! bracket )
         name[1] = min::MISSING();
 
-    if ( command == PAR::print )
+    if ( command == PARLEX::print )
     {
 
 	min::uns32 indent =
@@ -1818,15 +1820,15 @@ static min::gen oper_pass_command
     while ( i < size )
     {
 	min::uns32 new_oper_flag;
-        if ( vp[i] == OP::prefix )
+        if ( vp[i] == OPLEX::prefix )
 	    new_oper_flag = OP::PREFIX;
-        else if ( vp[i] == OP::infix )
+        else if ( vp[i] == OPLEX::infix )
 	    new_oper_flag = OP::INFIX;
-        else if ( vp[i] == OP::postfix )
+        else if ( vp[i] == OPLEX::postfix )
 	    new_oper_flag = OP::POSTFIX;
-        else if ( vp[i] == OP::afix )
+        else if ( vp[i] == OPLEX::afix )
 	    new_oper_flag = OP::AFIX;
-        else if ( vp[i] == OP::nofix )
+        else if ( vp[i] == OPLEX::nofix )
 	    new_oper_flag = OP::NOFIX;
 	else break;
 
@@ -1883,7 +1885,7 @@ static min::gen oper_pass_command
     min::locatable_var
     	    < PAR::reformatter_arguments >
         reformatter_arguments ( min::NULL_STUB );
-    while ( i < size && vp[i] == PAR::with )
+    while ( i < size && vp[i] == PARLEX::with )
     {
 	++ i;
 	if ( i < size
@@ -1894,16 +1896,16 @@ static min::gen oper_pass_command
 	    int sign = +1;
 	    if ( i >= size )
 		/* do nothing */;
-	    else if ( vp[i] == PAR::plus )
+	    else if ( vp[i] == PARLEX::plus )
 		sign = +1, ++ i;
-	    else if ( vp[i] == PAR::minus )
+	    else if ( vp[i] == PARLEX::minus )
 		sign = -1, ++ i;
 	    min::gen pg = min::MISSING();
 	    if ( i < size )
 	    {
 		if (    min::get
 		            ( vp[i], min::dot_type )
-		     == PAR::number_sign )
+		     == PARLEX::number_sign )
 		{
 		    min::obj_vec_ptr pvp = vp[i];
 		    if ( min::size_of ( pvp ) == 1 )
@@ -1929,9 +1931,9 @@ static min::gen oper_pass_command
 	    min::uns32 j = i;
 	    min::locatable_gen name
 	      ( PAR::scan_simple_name
-	          ( vp, j, PAR::reformatter_lexeme ) );
+	          ( vp, j, PARLEX::reformatter ) );
 	    if (    j < size
-		 && vp[j] == PAR::reformatter_lexeme )
+		 && vp[j] == PARLEX::reformatter )
 	    {
 		min::phrase_position position =
 		    { (&ppvec[i])->begin,
@@ -2021,7 +2023,7 @@ static min::gen oper_pass_command
 
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      command == PAR::define ?
+	      command == PARLEX::define ?
 	      "expected `precedence ...' or"
 	      " `... reformatter' after" :
 	      "expected `precedence ...' after" );
@@ -2037,7 +2039,7 @@ static min::gen oper_pass_command
 	      "expected `with precedence ...'"
 	      " after" );
 
-    if ( command == PAR::define )
+    if ( command == PARLEX::define )
     {
 	OP::push_oper
 	    ( name[0], name[1],
@@ -2051,7 +2053,7 @@ static min::gen oper_pass_command
 		  oper_pass->oper_table );
     }
 
-    else // if ( command == PAR::undefine )
+    else // if ( command == PARLEX::undefine )
     {
 	if ( reformatter != min::NULL_STUB )
 	    return PAR::parse_error

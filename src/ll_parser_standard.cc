@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 11:07:53 EST 2017
+// Date:	Sat Apr 22 03:04:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
 # include <ll_parser.h>
 # include <ll_parser_standard.h>
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define PARSTD ll::parser::standard
 
@@ -31,7 +32,7 @@ void PARSTD::init_block ( PAR::parser parser )
 
     min::gen result =
         PAR::begin_block
-	    ( parser, PAR::standard_lexeme,
+	    ( parser, PARLEX::standard,
 	      PAR::top_level_position );
 
     MIN_REQUIRE ( result == min::SUCCESS() );

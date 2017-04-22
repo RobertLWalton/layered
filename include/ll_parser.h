@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 04:03:12 EDT 2017
+// Date:	Sat Apr 22 02:32:20 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,87 +37,89 @@ namespace ll { namespace parser {
     using min::uns64;
     using min::NULL_STUB;
 
-    extern min::locatable_gen
-        top_level,	// TOP LEVEL
-	top,		// top
-	level,		// level
-	dot_oper,	// .operator
-	doublequote,	// "
-	number_sign,	// #
-	new_line,	// \n
-	semicolon,	// ;
-	left_parenthesis,
-			// (
-	right_parenthesis,
-			// )
-	left_square,    // [
-	right_square,   // ]
-	left_curly,     // }
-	right_curly,    // {
-	comma,		// ,
-	colon,		// :
-	equal,		// =
-	vbar,		// |
-	ealbreak,	// end at line break
-	ealeindent,	// end at le indent
-	ealtindent,	// end at lt indent
-	eapbreak,	// end at paragraph break
-	ealsep,		// end at line separator
-	eaoclosing,	// end at outer closings
-	sticky,		// sticky
-	continuing,	// continuing
-	other_ea_opt,	// other end at options
-	default_opt,	// default options
-	other_selectors, // other selectors
-	parser_lexeme,	// parser
-	data_lexeme,	// data
-	prefix_lexeme,	// prefix
-	header_lexeme,	// header
-	line_lexeme,	// line
-	paragraph_lexeme,
-			// paragraph
-	standard_lexeme,// standard
-	error_operator,	// ERROR'OPERATOR
-	error_operand,	// ERROR'OPERAND
-	define,		// define
-	undefine,	// undefine
-	test,		// test
-	begin,		// begin
-	end,		// end
-	print,		// print
-	block,		// block
-	pass_lexeme,	// pass
-	selector,	// selector
-	selectors,	// selectors
-	options,	// options
-	group,		// group
-	lexical,	// lexical
-	master,		// master
-	implied,	// implied
-	subprefix,	// subprefix
-	reformatter_lexeme,
-			// reformatter
-	default_lexeme,	// default
-	with,		// with
-	parsing,	// parsing
-	after,		// after
-	before,		// before
-	at,		// at
-	plus,		// +
-	minus,		// -
-	dotdotdot,	// ...
-	yes_lexeme,	// yes
-	no_lexeme,	// no
-	keep_lexeme,	// keep
-	enabled_lexeme,	// enabled
-	disabled_lexeme,// disabled
-	star_parser,    // *PARSER*
-	parser_colon,   // *PARSER*:
-	parser_test_colon;
-			// *PARSER* *TEST*:
+    namespace lexeme {
+
+	extern min::locatable_gen
+	    top_level,		// TOP LEVEL
+	    top,		// top
+	    level,		// level
+	    dot_oper,		// .operator
+	    doublequote,	// "
+	    number_sign,	// #
+	    new_line,		// \n
+	    semicolon,		// ;
+	    left_parenthesis,	// (
+	    right_parenthesis,	// )
+	    left_square,    	// [
+	    right_square,   	// ]
+	    left_curly,     	// }
+	    right_curly,    	// {
+	    comma,		// ,
+	    colon,		// :
+	    equal,		// =
+	    vbar,		// |
+	    ealbreak,		// end at line break
+	    ealeindent,		// end at le indent
+	    ealtindent,		// end at lt indent
+	    eapbreak,		// end at paragraph
+	    			//     break
+	    ealsep,		// end at line separator
+	    eaoclosing,		// end at outer closings
+	    sticky,		// sticky
+	    continuing,		// continuing
+	    other_ea_opt,	// other end at options
+	    default_opt,	// default options
+	    other_selectors, 	// other selectors
+	    parser,		// parser
+	    data,		// data
+	    prefix,		// prefix
+	    header,		// header
+	    line,		// line
+	    paragraph,		// paragraph
+	    standard,		// standard
+	    error_operator,	// ERROR'OPERATOR
+	    error_operand,	// ERROR'OPERAND
+	    define,		// define
+	    undefine,		// undefine
+	    test,		// test
+	    begin,		// begin
+	    end,		// end
+	    print,		// print
+	    block,		// block
+	    pass,		// pass
+	    mapped,		// mapped
+	    lexeme,		// lexeme
+	    selector,		// selector
+	    selectors,		// selectors
+	    options,		// options
+	    group,		// group
+	    lexical,		// lexical
+	    master,		// master
+	    implied,		// implied
+	    subprefix,		// subprefix
+	    reformatter,	// reformatter
+	    default_lexeme,	// default
+	    with,		// with
+	    parsing,		// parsing
+	    after,		// after
+	    before,		// before
+	    at,			// at
+	    plus,		// +
+	    minus,		// -
+	    dotdotdot,		// ...
+	    yes,		// yes
+	    no,			// no
+	    keep,		// keep
+	    enabled,		// enabled
+	    disabled,		// disabled
+	    star_parser,    	// *PARSER*
+	    parser_colon,   	// *PARSER*:
+	    parser_test_colon;	// *PARSER* *TEST*:
+
+    }
 
     extern min::gen_format name_format;
-        // Same as min::default_gen_format except
+	// Same as min::default_gen_format except
 	// that {str,lab}_{pre,post}fix are all "".
 
 namespace bracketed {
@@ -1222,7 +1224,7 @@ inline min::gen block_name
         ( block_level <= parser->block_stack->length,
 	  "block_level argument too large" );
     return block_level == 0 ?
-           (min::gen) ll::parser::top_level :
+           (min::gen) ll::parser::lexeme::top_level :
 	   (&parser->block_stack[block_level-1])->name;
 }
 

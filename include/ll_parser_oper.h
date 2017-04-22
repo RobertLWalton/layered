@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:26:32 EST 2015
+// Date:	Sat Apr 22 03:25:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,13 +27,17 @@
 
 namespace ll { namespace parser { namespace oper {
 
-extern min::locatable_gen dollar;
-extern min::locatable_gen AND;
-extern min::locatable_gen prefix;
-extern min::locatable_gen infix;
-extern min::locatable_gen postfix;
-extern min::locatable_gen afix;
-extern min::locatable_gen nofix;
+namespace lexeme {
+
+    extern min::locatable_gen
+    	dollar,		// $
+	AND,		// AND
+	prefix,		// prefix
+	infix,		// infix
+	postfix,	// postfix
+	afix,		// afix
+	nofix;		// nofix
+}
 
 extern min::locatable_var<ll::parser::reformatter>
 		reformatter_stack;

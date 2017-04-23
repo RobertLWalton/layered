@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 16:17:49 EDT 2017
+// Date:	Sun Apr 23 07:30:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1131,13 +1131,13 @@ static min::gen execute_mapped_lexeme
 	for ( min::uns32 index = 0;
 	      index < parser->lexeme_map->length;
 	      ++ index )
-	for ( TAB::root root =
+	for ( TAB::lexeme_map_entry entry =
 		  parser->lexeme_map[index];
-	      root != min::NULL_STUB;
-	      root = root->next )
+	      entry != min::NULL_STUB;
+	      entry = entry->next )
 	{
 	    if ( min::is_subsequence
-		     ( name, root->label ) < 0 )
+		     ( name, entry->label ) < 0 )
 		continue;
 
 	    ++ count;
@@ -1145,7 +1145,7 @@ static min::gen execute_mapped_lexeme
 	    min::gen block_name =
 		PAR::block_name
 		    ( parser,
-		      root->block_level );
+		      entry->block_level );
 	    parser->printer
 		<< min::indent
 		<< "block "

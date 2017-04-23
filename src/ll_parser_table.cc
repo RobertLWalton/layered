@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 11:14:53 EDT 2017
+// Date:	Sun Apr 23 04:03:54 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 //	Key Tables
 //	Undefineds
 //	Blocks
+//	Lexeme Maps
 
 // Usage and Setup
 // ----- --- -----
@@ -369,4 +370,75 @@ void TAB::init_block_stack
         block_stack =
 	     ::block_stack_type
 	         .new_stub ( max_length );
+}
+
+// Lexeme Maps
+// ------ ----
+
+static min::uns32 lexeme_map_entry_gen_disp[] = {
+    min::DISP ( & TAB::lexeme_map_entry_struct::label ),
+    min::DISP ( & TAB::lexeme_map_entry_struct
+                     ::token_value ),
+    min::DISP_END };
+
+static min::uns32 lexeme_map_entry_stub_disp[] = {
+    min::DISP ( & TAB::lexeme_map_entry_struct::next ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<TAB::lexeme_map_entry_struct, TAB::root_struct>
+    lexeme_map_entry_type 
+	( "ll::parser::table::lexeme_map_entry_type",
+	  ::lexeme_map_entry_gen_disp,
+	  ::lexeme_map_entry_stub_disp );
+
+static min::uns32 lexeme_map_disp[] =
+    { 0, min::DISP_END };
+
+static min::packed_vec<TAB::lexeme_map_entry>
+    lexeme_map_type
+        ( "ll::parser::lexeme_map_type",
+	  NULL, ::lexeme_map_disp );
+
+TAB::lexeme_map TAB::create_lexeme_map
+        ( uns32 length )
+{
+    min::packed_vec_insptr<TAB::lexeme_map_entry> map =
+        ::lexeme_map_type.new_stub();
+    min::push ( map, length );
+    return map;
+}
+
+void TAB::push_lexeme_map_entry
+	( min::gen lexeme_name,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  min::gen token_value,
+	  min::uns32 lexical_master,
+	  ll::parser::table::lexeme_map lexeme_map )
+{
+    TAB::lexeme_map_entry e =
+        ::lexeme_map_entry_type.new_stub();
+    TAB::label_ref(e) = lexeme_name;
+    e->selectors = selectors;
+    e->block_level = block_level;
+    e->position = position;
+    e->lexical_master = lexical_master,
+    TAB::token_value_ref(e) = token_value;
+    // TBD
+}
+
+// Remove from the lexeme map all entries that have
+// entry block_level > block_level argument.  Return the
+// number of entries that were removed from the table.
+// Undefined stack must be processed before this
+// function is called.
+//
+void TAB::end_block
+	( ll::parser::table::lexeme_map lexeme_map,
+          uns32 block_level,
+	  uns64 & collected_entries )
+{
+    // TBD
 }

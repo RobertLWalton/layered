@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 16:50:09 EDT 2017
+// Date:	Sun Apr 23 04:00:50 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,6 @@
 //	Usage and Setup
 //	Strings
 //	Tokens
-//	Lexeme Map
 //	Parser Closures
 //	Parser
 //	Reformatters
@@ -512,34 +511,6 @@ inline ll::parser::token remove
 	return token;
     }
 }
-
-} }
-
-// Lexeme Map
-// ------ ---
-
-namespace ll { namespace parser {
-
-struct lexeme_map_entry_struct;
-typedef min::packed_struct_updptr
-     <lexeme_map_entry_struct>
-    lexeme_map_entry;
-
-struct lexeme_map_entry_struct
-    : public ll::parser::table::root_struct
-{
-    min::gen token_value;
-        // min::NONE() if token is to be discarded.
-    min::uns32 lexical_master;
-        // ll::lexeme::MISSING_MASTER if missing.
-};
-
-MIN_REF ( ll::parser::table::root, next,
-          ll::parser::lexeme_map_entry )
-MIN_REF ( min::gen, label,
-          ll::parser::lexeme_map_entry )
-MIN_REF ( min::gen, token_value,
-          ll::parser::lexeme_map_entry )
 
 } }
 
@@ -1063,9 +1034,6 @@ enum {
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;
 
-typedef min::packed_vec_insptr <ll::parser::table::root>
-    lexeme_map;
-
 struct parser_struct
 {
     uns32 control;
@@ -1124,7 +1092,7 @@ struct parser_struct
 	// NULL_STUB, and ditto for parser->scanner->
 	// printer and parser->printer.
 
-    const ll::parser::lexeme_map lexeme_map;
+    const ll::parser::table::lexeme_map lexeme_map;
 	// lexeme_map[t] is the stack of lexeme map
 	// entries for lexeme type t; == NULL_STUB if
 	// no entries for t.
@@ -1268,7 +1236,7 @@ MIN_REF ( ll::parser::table::name_table,
           ll::parser::parser )
 MIN_REF ( ll::lexeme::scanner, scanner,
           ll::parser::parser )
-MIN_REF ( ll::parser::lexeme_map, lexeme_map,
+MIN_REF ( ll::parser::table::lexeme_map, lexeme_map,
           ll::parser::parser )
 MIN_REF ( min::file, input_file,
           ll::parser::parser )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 23 04:03:54 EDT 2017
+// Date:	Mon Apr 24 08:56:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -395,7 +395,7 @@ static min::packed_struct_with_base
 static min::uns32 lexeme_map_disp[] =
     { 0, min::DISP_END };
 
-static min::packed_vec<TAB::lexeme_map_entry>
+static min::packed_vec<TAB::root>
     lexeme_map_type
         ( "ll::parser::lexeme_map_type",
 	  NULL, ::lexeme_map_disp );
@@ -403,7 +403,7 @@ static min::packed_vec<TAB::lexeme_map_entry>
 TAB::lexeme_map TAB::create_lexeme_map
         ( uns32 length )
 {
-    min::packed_vec_insptr<TAB::lexeme_map_entry> map =
+    min::packed_vec_insptr<TAB::root> map =
         ::lexeme_map_type.new_stub();
     min::push ( map, length );
     return map;
@@ -411,6 +411,7 @@ TAB::lexeme_map TAB::create_lexeme_map
 
 void TAB::push_lexeme_map_entry
 	( min::gen lexeme_name,
+	  min::uns32 lexeme_type,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
@@ -426,7 +427,10 @@ void TAB::push_lexeme_map_entry
     e->position = position;
     e->lexical_master = lexical_master,
     TAB::token_value_ref(e) = token_value;
-    // TBD
+
+    MIN_REQUIRE ( lexeme_type < lexeme_map->length );
+    TAB::next_ref(e) = lexeme_map[lexeme_type];
+    lexeme_map[lexeme_type] = (TAB::root) e;
 }
 
 // Remove from the lexeme map all entries that have
@@ -440,5 +444,17 @@ void TAB::end_block
           uns32 block_level,
 	  uns64 & collected_entries )
 {
-    // TBD
+    for ( min::uns32 i = 0; i < lexeme_map->length;
+                            ++ i )
+    {
+        for ( TAB::root e = lexeme_map[i];
+	      e != min::NULL_STUB
+	      &&
+	      e->block_level > block_level;
+	      e = e->next )
+	{
+	    lexeme_map[i] = e->next;
+	    ++ collected_entries;
+	}
+    }
 }

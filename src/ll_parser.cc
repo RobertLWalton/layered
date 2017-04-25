@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 23 04:10:09 EDT 2017
+// Date:	Mon Apr 24 08:55:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1029,6 +1029,10 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	u.root->selectors = u.saved_selectors;
     }
 
+    min::uns64 collected_entries = 0;
+    TAB::end_block ( parser->lexeme_map, -1,
+                     collected_entries );
+
     min::pop ( parser->block_stack,
                parser->block_stack->length );
 
@@ -1522,6 +1526,11 @@ min::gen PAR::end_block
 	    min::pop ( parser->undefined_stack );
 	u.root->selectors = u.saved_selectors;
     }
+
+    min::uns64 collected_entries = 0;
+    TAB::end_block ( parser->lexeme_map,
+                     block_level - 1,
+                     collected_entries );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;

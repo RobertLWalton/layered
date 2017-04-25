@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 23 03:50:51 EDT 2017
+// Date:	Mon Apr 24 08:45:24 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -512,9 +512,6 @@ typedef min::packed_struct_updptr
      <lexeme_map_entry_struct>
     lexeme_map_entry;
 
-typedef min::packed_vec_updptr<lexeme_map_entry>
-    lexeme_map;
-
 struct lexeme_map_entry_struct
     : public ll::parser::table::root_struct
 {
@@ -531,6 +528,9 @@ MIN_REF ( min::gen, label,
 MIN_REF ( min::gen, token_value,
           ll::parser::table::lexeme_map_entry )
 
+typedef min::packed_vec_updptr<ll::parser::table::root>
+    lexeme_map;
+
 // Create a lexeme map of the given length.
 //
 ll::parser::table::lexeme_map create_lexeme_map
@@ -542,6 +542,7 @@ ll::parser::table::lexeme_map create_lexeme_map
 //
 void push_lexeme_map_entry
 	( min::gen lexeme_name,
+	  min::uns32 lexeme_type,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
@@ -550,10 +551,10 @@ void push_lexeme_map_entry
 	  ll::parser::table::lexeme_map lexeme_map );
 
 // Remove from the lexeme map all entries that have
-// entry block_level > block_level argument.  Return the
-// number of entries that were removed from the table.
-// Undefined stack must be processed before this
-// function is called.
+// entry block_level > block_level argument.  Add the
+// number of entries that were removed from the table
+// to collected_entries.  Undefined stack must be
+// processed before this function is called.
 //
 void end_block
 	( ll::parser::table::lexeme_map lexeme_map,

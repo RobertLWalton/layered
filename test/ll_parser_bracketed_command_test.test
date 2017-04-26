@@ -83,7 +83,8 @@ ERROR: in line ##: expected quoted name after:
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
-    define indentation mark ":" ... ";" [code, math, text]
+    define indentation mark ":" ... ";"
+                            [code, math, text]
     print bracket ":"
         block standard: indentation mark ":" ... ";" [code, text, math]
                         with parsing selectors [- TOP LEVEL]
@@ -103,7 +104,8 @@ ERROR: in line ##: expected `,' after:
     define bracket "<+" ... "+>" [text + operator]
                                   ^^^^
     define bracket "<+" ... "+>" [code, operator 1]
-        with parsing selectors [^ code, - math, + operator 1]
+        with parsing selectors
+             [^ code, - math, + operator 1]
     print bracket "<+"
         block standard: bracket "<+" ... "+>" [code, operator 1]
                         with parsing selectors [- TOP LEVEL, ^ code,
@@ -741,7 +743,7 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
 *PARSER*:
     begin block BLOCK1
     print prefix ""
-        not found
+        nothing found
     define prefix "X" [code]
         with parsing selectors [code, math]
     define prefix "Y" [code]
@@ -846,7 +848,8 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    undefine typed bracket "T2{" ... "|" ... "|" ... "}T2"
+    undefine typed bracket
+            "T2{" ... "|" ... "|" ... "}T2"
         [code, text, math, data]
 ======= PARSER TEST: (T2 "{" T "}" T2 A B C)
 ======= line ###:

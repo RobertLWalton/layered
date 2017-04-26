@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 04:09:34 EDT 2017
+// Date:	Wed Apr 26 02:15:51 EDT 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -77,3 +77,12 @@
     {x|{x} hi|}
 *PARSER*:
     end block X
+*PARSER*:
+    begin block X
+    define mapped lexeme "foo" [data]
+        with token value {p}
+    define mapped lexeme "PREMATURE_END_OF_FILE" [data]
+        with token value {p}
+    print mapped lexeme ""
+    end block X
+    print mapped lexeme ""

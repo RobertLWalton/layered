@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 03:01:32 EDT 2017
+// Date:	Wed Apr 26 02:11:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1787,7 +1787,7 @@ static min::gen oper_pass_command
 
 	if ( count == 0 )
 	    parser->printer << min::indent
-	                    << "not found";
+	                    << "nothing found";
 	parser->printer << min::eom;
 
     	return PAR::PRINTED;

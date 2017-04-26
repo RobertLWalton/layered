@@ -857,7 +857,7 @@ static min::gen execute_selectors
 
 	if ( count == 0 )
 	    parser->printer << min::indent
-	                    << "not found";
+	                    << "nothing found";
 	parser->printer << min::eom;
 
 	return PAR::PRINTED;
@@ -1101,7 +1101,7 @@ static min::gen execute_mapped_lexeme
 
     // Scan lexeme name.
     //
-    min::locatable_gen name;
+    min::locatable_gen name
         ( PAR::scan_quoted_key
 	    ( vp, i, parser,
 	      command == PARLEX::print ) );
@@ -1196,12 +1196,20 @@ static min::gen execute_mapped_lexeme
 
 	if ( count == 0 )
 	    parser->printer << min::indent
-	                    << "not found";
+	                    << "nothing found";
 	parser->printer << min::eom;
 
         return PAR::PRINTED;
 
     }
+
+    min::uns32 lexeme_type =
+	LEX::lexeme_type ( name, parser->scanner );
+    if ( lexeme_type == LEX::MISSING_TYPE )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1], "`",
+	      min::pgen_quote ( name ),
+	      "' does not name a lexeme type" );
 
     TAB::flags selectors;
     min::gen sresult = COM::scan_flags
@@ -1218,14 +1226,6 @@ static min::gen execute_mapped_lexeme
 	      " after" );
     else MIN_REQUIRE
              ( sresult == min::SUCCESS() );
-
-    min::uns32 lexeme_type =
-	LEX::lexeme_type ( name, parser->scanner );
-    if ( lexeme_type == LEX::MISSING_TYPE )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1], "`",
-	      min::pgen_quote ( name ),
-	      "' does not name a lexeme type" );
 
     if ( command == PARLEX::define )
     {

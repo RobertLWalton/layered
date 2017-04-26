@@ -559,8 +559,8 @@ DERIVED EXPRESSION:
     [< 1 2 >]
 @@@ = [< 1 2 >]
     line ##:
-And these are nested labels [< x [< 1 2 >] y [< a b >] >]
-                                 ^^^^^^^^^
+    [< x [< 1 2 >] y [< a b >] >]
+         ^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
@@ -569,25 +569,27 @@ DERIVED EXPRESSION:
     [< a b >]
 @@@ = [< a b >]
     line ##:
-And these are nested labels [< x [< 1 2 >] y [< a b >] >]
-                                             ^^^^^^^^^
+    [< x [< 1 2 >] y [< a b >] >]
+                     ^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< x [< 1 2 >] y [< a b >] >]
 @@@ = [< x [< 1 2 >] y [< a b >] >]
     line ##:
-And these are nested labels [< x [< 1 2 >] y [< a b >] >]
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [< x [< 1 2 >] y [< a b >] >]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 @@@ = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
           .terminator = "<LF>"
           .position[H] = {}
           .initiator = [$ LOGICAL_LINE $]
-    line ##:
-And these are nested labels [< x [< 1 2 >] y [< a b >] >]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ##-##:
+And these are nested labels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [< x [< 1 2 >] y [< a b >] >]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
@@ -2451,7 +2453,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
 DERIVED EXPRESSION:
     [$ MISSING $]
 @(NONE) = [$ MISSING $]
-    line ##:
+    line ###:
 [$ MISSING $]
 ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2460,7 +2462,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-    line ##:
+    line ###:
 [$ MISSING $]
 ^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "$" >]
@@ -3978,18 +3980,22 @@ BRACKETED EXPRESSION:
            no your option
            my attribute = "5"
            .position[H] = {}
-    line ###:
-{my type: my attribute = 5, your option = FALSE| a b c |my type}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+{my type: my attribute = 5, your option = FALSE|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    a b c |my type}
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {my type: no your option, my attribute = "5"|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-    line ###:
-{my type: my attribute = 5, your option = FALSE| a b c |my type}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+{my type: my attribute = 5, your option = FALSE|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    a b c |my type}
+^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY ":"
@@ -4013,18 +4019,22 @@ BRACKETED EXPRESSION:
            no your option
            my attribute = "5"
            .position[H] = {}
-    line ###:
-{my type: my attribute = 5| a b c |your option = FALSE: my type}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+{my type: my attribute = 5|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    a b c |your option = FALSE: my type}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {my type: no your option, my attribute = "5"|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = {}
            .initiator = [$ LOGICAL_LINE $]
-    line ###:
-{my type: my attribute = 5| a b c |your option = FALSE: my type}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+{my type: my attribute = 5|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    a b c |your option = FALSE: my type}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="

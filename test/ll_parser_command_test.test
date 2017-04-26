@@ -263,3 +263,16 @@ INDENT: line ##:
 ======= END PARSER TEST(S)
 *PARSER*:
     end block X
+*PARSER*:
+    begin block X
+ERROR: in line ##: `"foo"' does not name a lexeme type:
+    define mapped lexeme "foo" [data]
+                         ^^^^^
+    define mapped lexeme "PREMATURE_END_OF_FILE" [data]
+        with token value {p}
+    print mapped lexeme ""
+        block X: mapped lexeme "PREMATURE_END_OF_FILE" [data]
+                 with token value {p||p}
+    end block X
+    print mapped lexeme ""
+        nothing found

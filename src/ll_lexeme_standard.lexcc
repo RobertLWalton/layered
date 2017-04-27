@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  6 12:10:12 EDT 2017
+// Date:	Thu Apr 27 11:46:27 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,8 +51,8 @@ cc	min::locatable_var<LEX::program>
 cc	    LEXSTD::default_program;
 cc
 cc	const char * const
-cc		LEXSTD::master_names[2] =
-cc		    { "START", "DEFAULT" };
+cc		LEXSTD::master_names[MAX_MASTER+1] =
+cc		    { "START", "DEFAULT", "DATA-CHECK" };
 cc
 cc	const char * const
 cc		LEXSTD::type_names[MAX_TYPE+1] = {
@@ -71,6 +71,7 @@ cc	    "INDENT",
 cc	    "LINE_BREAK",
 cc	    "START_OF_FILE",
 cc	    "END_OF_FILE",
+cc	    "DATA",
 cc	    "PREMATURE_END_OF_STRING",
 cc	    "PREMATURE_END_OF_FILE",
 cc	    "MISPLACED_VERTICAL",
@@ -80,7 +81,7 @@ cc	    "UNRECOGNIZED_ESCAPE",
 cc	    "MISPLACED_HORIZONTAL" };
 cc
 cc	const char * LEXSTD::type_codes =
-cc	    "?wn#mqschIibfeSFVCUEH";
+cc	    "?wn#mqschIibfeDSFVCUEH";
 cc
 cc	void LEXSTD::init_standard_program
 cc		( void )
@@ -93,7 +94,7 @@ lex
 lex	begin standard lexical program;
 lex
 cc	    begin_program
-cc		( master_names, 1,
+cc		( master_names, MAX_MASTER,
 cc	          type_names, type_codes, MAX_TYPE );
 cc
 cc	    uns32 start_file;
@@ -102,6 +103,8 @@ cc	    uns32 begin_line;
 cc	    NDL::new_table ( begin_line, MASTER );
 cc	    uns32 within_line;
 cc	    NDL::new_table ( within_line, MASTER, 1 );
+cc	    uns32 data_check;
+cc	    NDL::new_table ( data_check, MASTER, 2 );
 cc
 cc	    uns32 horizontal_space;
 cc	    NDL::new_table ( horizontal_space );
@@ -468,6 +471,31 @@ cc
 
 lex	   goto within line;
 lex	end horizontal space sublexeme table;
+lex
+cc	    	   NDL::go ( within_line );
+cc
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin check data master table;
+lex
+cc	    NDL::begin_table ( data_check );
+cc
+
+lex	   "@"          keep 0
+lex			output data
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "@" );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( data_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto within line;
+lex	end check data master table;
 lex
 cc	    	   NDL::go ( within_line );
 cc

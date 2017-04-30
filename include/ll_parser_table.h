@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 24 08:45:24 EDT 2017
+// Date:	Sun Apr 30 06:06:01 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -517,6 +517,8 @@ struct lexeme_map_entry_struct
 {
     min::gen token_value;
         // min::NONE() if token is to be discarded.
+    min::uns32 token_type;
+        // Token type, computed from token value.
     min::uns32 lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
 };
@@ -547,6 +549,7 @@ void push_lexeme_map_entry
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  min::gen token_value,
+	  min::uns32 token_type,
 	  min::uns32 lexical_master,
 	  ll::parser::table::lexeme_map lexeme_map );
 

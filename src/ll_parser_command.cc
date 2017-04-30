@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 25 05:24:28 EDT 2017
+// Date:	Sun Apr 30 06:47:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1288,6 +1288,29 @@ static min::gen execute_mapped_lexeme
 		      " or `lexical master' after" );
 	}
 
+	min::uns32 token_type = 0;
+	if ( PAR::is_prefix_separator ( token_value ) )
+	    token_type = PAR::PREFIX;
+	else if ( min::is_obj ( token_value ) )
+	{
+	    token_type = PAR::BRACKETABLE;
+	    min::obj_vec_ptr vp ( token_value );
+	    min::attr_ptr ap ( vp );
+	    if ( ( min::locate ( ap, min::dot_type ),
+	           min::get ( ap ) != min::NONE() )
+		 ||
+	         ( min::locate
+		       ( ap, min::dot_initiator ),
+	           min::get ( ap ) != min::NONE() )
+		 ||
+	         ( min::locate
+		       ( ap, min::dot_terminator ),
+	           min::get ( ap ) != min::NONE() ) )
+	        token_type = PAR::BRACKETED;
+	}
+	else if ( token_value != min::NONE() )
+	    token_type = PAR::DERIVED;
+
 	if ( i < size )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
@@ -1296,7 +1319,8 @@ static min::gen execute_mapped_lexeme
 	    ( name, lexeme_type, selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      token_value, lexical_master,
+	      token_value, token_type,
+	      lexical_master,
 	      parser->lexeme_map );
     }
     else

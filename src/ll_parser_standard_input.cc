@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  2 02:22:40 EDT 2017
+// Date:	Thu May  4 07:30:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,7 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARSTD ll::parser::standard
+# define TAB ll::parser::table
 
 // Standard Input Parser
 // -------- ----- ------
@@ -160,8 +161,14 @@ static min::uns32 input_add_tokens
 
     min::uns32 first, next, count = 0;
     min::locatable_var<PAR::token> token;
+    TAB::lexeme_map lexeme_map = parser->lexeme_map;
+    min::uns32 lexeme_map_length = lexeme_map->length;
+    TAB::flags selectors = parser->selectors;
     while ( true )
     {
+
+SCAN_NEXT_LEXEME:
+
         min::uns32 type =
 	    LEX::scan ( first, next, scanner );
 
@@ -231,7 +238,43 @@ static min::uns32 input_add_tokens
 	    (&input_buffer[next])->indent :
 	    scanner->next_indent;
 
-	switch ( type )
+	TAB::root r =
+	    ( type < lexeme_map_length ?
+	      lexeme_map[type] :
+	      (TAB::root) min::NULL_STUB );
+
+	while ( r != min::NULL_STUB )
+	{
+	    if ( r->selectors & selectors ) break;
+	    r = r->next;
+	}
+
+	if ( r != min::NULL_STUB )
+	{
+	    TAB::lexeme_map_entry e =
+		(TAB::lexeme_map_entry) r;
+	    if (     e->lexical_master
+		  != LEX::MISSING_MASTER )
+		PAR::set_lexical_master
+		    ( e->lexical_master, parser );
+
+	    if ( e->token_value == min::NONE() )
+	    {
+		PAR::free ( token );
+		goto SCAN_NEXT_LEXEME;
+	    }
+	    else
+	    if ( ! min::is_obj ( e->token_value ) )
+		PAR::value_ref(token) =
+		    e->token_value;
+	    else
+		PAR::value_ref(token) =
+		    min::copy
+			( e->token_value, 10 );
+
+	    token->type = e->token_type;
+	}
+	else switch ( type )
 	{
 	case LEXSTD::word_t:
 	case LEXSTD::mark_t:

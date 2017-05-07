@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 26 02:11:01 EDT 2017
+// Date:	Sun May  7 06:39:40 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2722,6 +2722,19 @@ NEXT_TOKEN:
 		    ( first_ref(parser),
 		      current->previous ) );
 	    goto NEXT_TOKEN;
+	}
+
+	if ( current->type == PAR::PREFIX )
+	{
+	    prefix = current;
+
+	    PAR::ensure_next ( parser, current );
+	    current = current->next;
+
+	    separator_found = min::MISSING_POSITION;
+	    premature_closing = false;
+
+	    goto PREFIX_FOUND;
 	}
 
 	// If lookup key in bracket table.

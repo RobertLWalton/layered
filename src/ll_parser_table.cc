@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 30 06:46:39 EDT 2017
+// Date:	Sun May  7 06:57:22 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -379,6 +379,8 @@ static min::uns32 lexeme_map_entry_gen_disp[] = {
     min::DISP ( & TAB::lexeme_map_entry_struct::label ),
     min::DISP ( & TAB::lexeme_map_entry_struct
                      ::token_value ),
+    min::DISP ( & TAB::lexeme_map_entry_struct
+                     ::token_value_type ),
     min::DISP_END };
 
 static min::uns32 lexeme_map_entry_stub_disp[] = {
@@ -417,6 +419,7 @@ void TAB::push_lexeme_map_entry
 	  const min::phrase_position & position,
 	  min::gen token_value,
 	  min::uns32 token_type,
+	  min::gen token_value_type,
 	  min::uns32 lexical_master,
 	  ll::parser::table::lexeme_map lexeme_map )
 {
@@ -428,6 +431,7 @@ void TAB::push_lexeme_map_entry
     e->position = position;
     TAB::token_value_ref(e) = token_value;
     e->token_type = token_type;
+    TAB::token_value_type_ref(e) = token_value_type;
     e->lexical_master = lexical_master,
 
     MIN_REQUIRE ( lexeme_type < lexeme_map->length );

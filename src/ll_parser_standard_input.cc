@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  4 07:30:26 EDT 2017
+// Date:	Sun May  7 07:16:39 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -273,6 +273,8 @@ SCAN_NEXT_LEXEME:
 			( e->token_value, 10 );
 
 	    token->type = e->token_type;
+	    PAR::value_type_ref(token) =
+	        e->token_value_type;
 	}
 	else switch ( type )
 	{

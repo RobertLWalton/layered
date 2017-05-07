@@ -276,3 +276,35 @@ ERROR: in line ##: `"foo"' does not name a lexeme type:
     end block X
     print mapped lexeme ""
         nothing found
+*PARSER*:
+    trace [+ parser output]
+    begin block X
+    define top level
+        with lexical master DEFAULT
+BRACKETED EXPRESSION:
+    @hello there
+    line ##:
+@hello there
+^^^^^^^^^^^^
+*PARSER*:
+    define top level
+        with lexical master DATA-CHECK
+    define mapped lexeme "DATA" [code, data]
+        with token value {data}
+BRACKETED EXPRESSION:
+    {data|@hello there|data}
+    line ###:
+@hello there
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|@goodby there|data}
+    line ###:
+@goodby there
+^^^^^^^^^^^^^
+*PARSER*:
+    end block X
+BRACKETED EXPRESSION:
+    @hello there
+    line ###:
+@hello there
+^^^^^^^^^^^^

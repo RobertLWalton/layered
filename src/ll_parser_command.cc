@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 30 06:47:35 EDT 2017
+// Date:	Sun May  7 06:45:05 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1289,24 +1289,39 @@ static min::gen execute_mapped_lexeme
 	}
 
 	min::uns32 token_type = 0;
-	if ( PAR::is_prefix_separator ( token_value ) )
-	    token_type = PAR::PREFIX;
-	else if ( min::is_obj ( token_value ) )
+	min::locatable_gen token_value_type;
+
+	if ( min::is_obj ( token_value ) )
 	{
 	    token_type = PAR::BRACKETABLE;
 	    min::obj_vec_ptr vp ( token_value );
 	    min::attr_ptr ap ( vp );
-	    if ( ( min::locate ( ap, min::dot_type ),
-	           min::get ( ap ) != min::NONE() )
-		 ||
-	         ( min::locate
-		       ( ap, min::dot_initiator ),
-	           min::get ( ap ) != min::NONE() )
-		 ||
-	         ( min::locate
-		       ( ap, min::dot_terminator ),
-	           min::get ( ap ) != min::NONE() ) )
+	    min::locate ( ap, min::dot_type  );
+	    min::gen type = min::get ( ap );
+	    min::locate ( ap, min::dot_initiator  );
+	    min::gen initiator = min::get ( ap );
+	    min::locate ( ap, min::dot_terminator  );
+	    min::gen terminator = min::get ( ap );
+
+	    if ( initiator != min::NONE()
+	         ||
+		 terminator != min::NONE() )
+	    {
 	        token_type = PAR::BRACKETED;
+		token_value_type = initiator;
+	    }
+	    else if ( type != min::NONE() )
+	    {
+	        if ( min::size_of ( vp ) == 0 )
+		{
+		    token_type = PAR::PREFIX;
+		    token_value_type = type;
+		}
+		else
+		    token_type = PAR::BRACKETED;
+	    }
+	    else
+	        token_type = PAR::BRACKETABLE;
 	}
 	else if ( token_value != min::NONE() )
 	    token_type = PAR::DERIVED;
@@ -1320,6 +1335,7 @@ static min::gen execute_mapped_lexeme
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      token_value, token_type,
+	      token_value_type,
 	      lexical_master,
 	      parser->lexeme_map );
     }

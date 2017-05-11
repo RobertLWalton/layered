@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 23 04:00:50 EDT 2017
+// Date:	Thu May 11 14:44:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1092,6 +1092,9 @@ struct parser_struct
 	// NULL_STUB, and ditto for parser->scanner->
 	// printer and parser->printer.
 
+    const min::id_map id_map;
+        // Map of input ID's (as in @ID) to stubs.
+
     const ll::parser::table::lexeme_map lexeme_map;
 	// lexeme_map[t] is the stack of lexeme map
 	// entries for lexeme type t; == NULL_STUB if
@@ -1235,6 +1238,8 @@ MIN_REF ( ll::parser::table::name_table,
 		trace_flag_name_table,
           ll::parser::parser )
 MIN_REF ( ll::lexeme::scanner, scanner,
+          ll::parser::parser )
+MIN_REF ( min::id_map, id_map,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::lexeme_map, lexeme_map,
           ll::parser::parser )

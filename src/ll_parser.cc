@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 24 08:55:14 EDT 2017
+// Date:	Thu May 11 14:53:25 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -642,6 +642,13 @@ void PAR::push_new_pass
 min::phrase_position PAR::top_level_position =
     { { 0, 0 }, { 0, 0 } };
 
+static min::uns32 parser_gen_disp[] =
+{
+    min::DISP ( & PAR::parser_struct
+                     ::prefix_separator ),
+    min::DISP_END
+};
+
 static min::uns32 parser_stub_disp[] =
 {
     min::DISP ( & PAR::parser_struct::input ),
@@ -650,6 +657,8 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct
                      ::trace_flag_name_table ),
     min::DISP ( & PAR::parser_struct::scanner ),
+    min::DISP ( & PAR::parser_struct::id_map ),
+    min::DISP ( & PAR::parser_struct::lexeme_map ),
     min::DISP ( & PAR::parser_struct::input_file ),
     min::DISP ( & PAR::parser_struct::printer ),
     min::DISP ( & PAR::parser_struct::name_scanner ),
@@ -667,7 +676,8 @@ static min::uns32 parser_stub_disp[] =
 
 static min::packed_struct<PAR::parser_struct>
     parser_type ( "ll::parser::parser_type",
-                  NULL, ::parser_stub_disp );
+                  ::parser_gen_disp,
+		  ::parser_stub_disp );
 
 min::locatable_var<PAR::parser> PAR::default_parser;
 
@@ -740,6 +750,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->trace_flag_name_table,
 		        ::keys ) );
+
+	min::init ( id_map_ref ( parser ) );
 
 	TAB::init_undefined_stack
 	    ( undefined_stack_ref(parser) );

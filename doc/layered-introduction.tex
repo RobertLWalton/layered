@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 25, 2017
+May 14, 2017
  
 \end{center}
 
@@ -4828,6 +4828,9 @@ The general syntax of {\em parser-prefix-commands} is:
 	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\
 	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
 	  {}[ \TT{with parsing options} ~ {\em prefix-options} ] \\
+          {}[ \TT{with} ~ {\em reformatter-name}
+		        ~ \TT{reformatter}
+			~ {\em reformatter-arguments} ] \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine prefix}{parser command} ~
 	  {\em prefix-name} ~
@@ -4859,6 +4862,9 @@ The general syntax of {\em parser-prefix-commands} is:
     $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
           \label{PARSING-HEADER-OPTIONS}
     \end{tabular}
+\\[0.5ex]
+\emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
+\emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}
 
 \end{indpar}
 
@@ -4869,7 +4875,7 @@ The components special to this definition are:
 \hspace*{-0.2in}\ttmkey{parsing selectors}{in prefix definition}\\
 The elements of the {\em prefix-(n+1)-list} following a {\em prefix-n}
 are parsed using the parsing selectors as they were at the beginning
-of the containing {\em prefix-n-list} as modified by any \TT{parsing selectors}
+of the containing {\em prefix-n-list} as modified by any {\em new-selectors}
 found in a prefix definition of the type of the {\em prefix-n}.  These modified
 selectors are also used to parse any subsequent {\em prefix-n} in the list
 (and so the modifications should the chosen so they do not affect parsing of
@@ -4896,26 +4902,43 @@ see \itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}.
 \hspace*{-0.2in}\ttmkey{implied subprefix}{in prefix definition} \\
 If the first thing in the {\em prefix-(n+1)-list}
 following a {\em prefix-n} is not a prefix in the same group
-as the {\em prefix-n}'s \TT{implied subprefix} (and that is not
+as the {\em prefix-n}'s {\em implied-prefix} (and that is not
 missing), then a copy of
-the \TT{implied subprefix} is prepended to the {\em prefix-(n+1)-list}.
+the {\em implied-prefix} is prepended to the {\em prefix-(n+1)-list}.
 
-[The implementation is to prepend the implied prefix always, and
+[The implementation is to prepend the {\em implied-prefix} always, and
 then if it is later discovered to head a {\em prefix-(n+1)-list} with
 zero elements, delete it.]
 
 \hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that
-have the `\TT{paragraph}' group.  The parsing options are
+have the `\TT{paragraph}' group.  The {\em prefix-options} are
 used to set the \TT{paragraph\_options} line variable:
 see \itemref{LINE-VARIABLES}.
 
 \hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
-For prefixes with the `\TT{paragraph}' group, this is used to
-set the \TT{paragraph\_lexi\-cal\_\EOL header} line variable.
+For prefixes with the `\TT{paragraph}' group, the {\em master-name} is used to
+set the \TT{para\-graph\_lexi\-cal\_\EOL header} line variable.
 For prefixes with the `\TT{line}' group, this may be
 used to set the \TT{lexical\_header} line variable.
 See \itemref{LINE-VARIABLES}.
+
+\end{indpar}
+
+The following reformatters may be used to change the MIN value
+represented by a {\em prefix-n-list} headed by a defined prefix:
+
+\begin{indpar}
+
+\ttmkey{data}{reformatter}
+
+\begin{indpar}[0.5em]
+The subexpression must have the form
+\begin{center}
+TBD
+\end{center}
+TBD
+\end{indpar}
 
 \end{indpar}
 

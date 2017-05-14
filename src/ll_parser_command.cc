@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  7 06:45:05 EDT 2017
+// Date:	Sun May 14 16:15:36 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1190,6 +1190,36 @@ static min::gen execute_mapped_lexeme
 		    parser->printer << master;
 	    }
 
+	    if ( e->reformatter != min::NULL_STUB )
+	    {
+		parser->printer
+		    << min::indent
+		    << "with "
+		    << min::pgen_name
+			   ( e->reformatter->name )
+		    << " reformatter";
+
+		min::packed_vec_ptr<min::gen> args =
+		    e->reformatter_arguments;
+		if ( args != min::NULL_STUB )
+		{
+		    parser->printer
+			<< " ( " << min::set_break;
+		    for ( min::uns32 i = 0;
+			  i < args->length; ++ i )
+		    {
+			if ( i != 0 )
+			    parser->printer
+				<< ", "
+				<< min::set_break;
+			parser->printer
+			    << min::pgen_quote
+				   ( args[i] );
+		    }
+		    parser->printer << " )";
+		}
+	    }
+
 	    parser->printer << min::restore_indent
 			    << min::eol;
 	}
@@ -1232,6 +1262,10 @@ static min::gen execute_mapped_lexeme
 
 	min::locatable_gen token_value ( min::NONE() );
 	min::uns32 lexical_master = PAR::MISSING_MASTER;
+	PAR::reformatter reformatter = min::NULL_STUB;
+	min::locatable_var
+		< PAR::reformatter_arguments >
+	    reformatter_arguments ( min::NULL_STUB );
 
 	while ( i < size && vp[i] == PARLEX::with )
 	{
@@ -1281,11 +1315,91 @@ static min::gen execute_mapped_lexeme
 			  "' does NOT name a lexical"
 			  " master" );
 	    }
+	    else if ( i < size )
+	    {
+		min::uns32 j = i;
+		min::locatable_gen name
+		  ( PAR::scan_simple_name
+			( vp, j,
+			  PARLEX::reformatter ) );
+		if (    j < size
+		     &&    vp[j]
+		        == PARLEX::reformatter )
+		{
+		    min::phrase_position position =
+			{ (&ppvec[i])->begin,
+			  (&ppvec[j])->end };
+#		    define LMRS \
+		      TAB::lexeme_map_reformatter_stack
+		    reformatter =
+			PAR::find_reformatter
+			    ( name, LMRS );
+		    if ( reformatter == min::NULL_STUB )
+		    {
+			return PAR::parse_error
+			    ( parser, position,
+			      "undefined reformatter"
+			      " name" );
+		    }
+
+		    i = j + 1;
+
+		    name = COM::scan_args
+			( vp, i, reformatter_arguments,
+			      parser );
+		    if ( name == min::ERROR() )
+			return min::ERROR();
+		    if (    reformatter_arguments
+			 == min::NULL_STUB )
+		    {
+			if (   reformatter->
+			           minimum_arguments
+			     > 0 )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "reformatter"
+				      " arguments"
+				      " missing" );
+		    }
+		    else
+		    {
+			position.end =
+			    (&ppvec[i-1])->end;
+
+			if (   reformatter_arguments->
+			           length
+			     < reformatter->
+				   minimum_arguments )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "too few"
+				      " reformatter"
+				      " arguments" );
+			if (   reformatter_arguments->
+			           length
+			     > reformatter->
+				   maximum_arguments )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "too many"
+				      " reformatter"
+				      " arguments" );
+		    }
+		}
+		else
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected `token value'"
+			  " or `lexical master'"
+			  " or `... reformatter'"
+			  " after" );
+	    }
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `token value'"
-		      " or `lexical master' after" );
+		      " or `lexical master'"
+		      " or `... reformatter' after" );
 	}
 
 	min::uns32 token_type = 0;
@@ -1337,6 +1451,8 @@ static min::gen execute_mapped_lexeme
 	      token_value, token_type,
 	      token_value_type,
 	      lexical_master,
+	      reformatter,
+	      reformatter_arguments,
 	      parser->lexeme_map );
     }
     else

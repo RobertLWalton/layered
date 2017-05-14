@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 26 02:11:14 EDT 2017
+// Date:	Sun May 14 16:40:21 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2019,6 +2019,14 @@ static min::gen oper_pass_command
 
 		continue;
 	    }
+	    else
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      command == PARLEX::define ?
+		      "expected `precedence ...' or"
+		      " `... reformatter' after" :
+		      "expected `precedence ...'"
+		      " after" );
 	}
 
 	return PAR::parse_error

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  7 06:39:40 EDT 2017
+// Date:	Sun May 14 16:38:42 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5185,6 +5185,14 @@ static min::gen bracketed_pass_command
 
 		    continue;
 		}
+		else
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected"
+			  " `parsing selectors',"
+			  " `parsing options',"
+			  " or `... reformatter ...'"
+			  " after" );
 	    }
 	    else
 		return PAR::parse_error

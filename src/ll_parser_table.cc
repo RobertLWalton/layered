@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 14 16:12:44 EDT 2017
+// Date:	Mon May 15 03:50:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,7 +23,6 @@
 
 # include <ll_parser_table.h>
 # define MUP min::unprotected
-# define PAR ll::parser
 # define TAB ll::parser::table
 
 // Name Tables
@@ -244,10 +243,10 @@ void TAB::push
 
 TAB::root TAB::push_root
 	( min::gen label,
-	  ll::parser::table::flags selectors,
+	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  ll::parser::table::key_table key_table )
+	  TAB::key_table key_table )
 {
     TAB::root root = ::root_type.new_stub();
     label_ref ( root ) = label;
@@ -386,10 +385,6 @@ static min::uns32 lexeme_map_entry_gen_disp[] = {
 
 static min::uns32 lexeme_map_entry_stub_disp[] = {
     min::DISP ( & TAB::lexeme_map_entry_struct::next ),
-    min::DISP ( & TAB::lexeme_map_entry_struct
-                     ::reformatter ),
-    min::DISP ( & TAB::lexeme_map_entry_struct
-                     ::reformatter_arguments ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -419,16 +414,13 @@ TAB::lexeme_map TAB::create_lexeme_map
 void TAB::push_lexeme_map_entry
 	( min::gen lexeme_name,
 	  min::uns32 lexeme_type,
-	  ll::parser::table::flags selectors,
+	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  min::gen token_value,
 	  min::uns32 token_type,
 	  min::gen token_value_type,
 	  min::uns32 lexical_master,
-	  PAR::reformatter reformatter,
-	  PAR::reformatter_arguments
-	      reformatter_arguments,
 	  TAB::lexeme_map lexeme_map )
 {
     TAB::lexeme_map_entry e =
@@ -441,9 +433,6 @@ void TAB::push_lexeme_map_entry
     e->token_type = token_type;
     TAB::token_value_type_ref(e) = token_value_type;
     e->lexical_master = lexical_master,
-    TAB::reformatter_ref(e) = reformatter,
-    TAB::reformatter_arguments_ref(e) =
-        reformatter_arguments;
 
     MIN_REQUIRE ( lexeme_type < lexeme_map->length );
     TAB::next_ref(e) = lexeme_map[lexeme_type];
@@ -457,7 +446,7 @@ void TAB::push_lexeme_map_entry
 // function is called.
 //
 void TAB::end_block
-	( ll::parser::table::lexeme_map lexeme_map,
+	( TAB::lexeme_map lexeme_map,
           uns32 block_level,
 	  uns64 & collected_entries )
 {
@@ -475,25 +464,3 @@ void TAB::end_block
 	}
     }
 }
-
-min::locatable_var<PAR::reformatter>
-    TAB::lexeme_map_reformatter_stack
-        ( min::NULL_STUB );
-
-static void lexeme_map_reformatter_stack_initialize
-	( void )
-{
-    // TBD
-    //
-    // ::initialize();
-    //
-    // min::locatable_gen multivalue
-        // ( min::new_str_gen ( "multivalue" ) );
-    // PAR::push_reformatter
-        // ( multivalue, 0, 1, 1,
-	  // ::multivalue_reformatter_function,
-	  // BRA::reformatter_stack );
-}
-static min::initializer
-	lexeme_map_reformatter_initializer
-    ( ::lexeme_map_reformatter_stack_initialize );

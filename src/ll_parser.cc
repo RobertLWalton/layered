@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 11 14:53:25 EDT 2017
+// Date:	Mon May 15 03:20:25 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -968,7 +968,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      PAR::find_reformatter
 		  ( multivalue,
-		    BRA::reformatter_stack ),
+		    BRA::untyped_reformatter_stack ),
 	      multivalue_arguments,
 	      bracketed_pass->bracket_table );
 
@@ -980,7 +980,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      PAR::find_reformatter
 		  ( label_name,
-		    BRA::reformatter_stack ),
+		    BRA::untyped_reformatter_stack ),
 	      min::NULL_STUB,
 	      bracketed_pass->bracket_table );
 
@@ -992,7 +992,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      PAR::find_reformatter
 		  ( special_name,
-		    BRA::reformatter_stack ),
+		    BRA::untyped_reformatter_stack ),
 	      min::NULL_STUB,
 	      bracketed_pass->bracket_table );
 

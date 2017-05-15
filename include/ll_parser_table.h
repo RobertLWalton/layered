@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 14 16:10:29 EDT 2017
+// Date:	Sun May  7 06:56:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,19 +26,6 @@
 # define LL_PARSER_TABLE_H
 
 # include <min.h>
-
-namespace ll { namespace parser {
-
-    // Data defined in ll_parser.h
-    //
-    struct reformatter_struct;
-    typedef min::packed_struct_updptr
-    			<reformatter_struct>
-	    reformatter;
-    typedef min::packed_vec_ptr<min::gen>
-	    reformatter_arguments;
-
-} }
 
 namespace ll { namespace parser { namespace table {
 
@@ -520,9 +507,6 @@ inline void push_block
 // Lexeme Maps
 // ------ ----
 
-extern min::locatable_var<ll::parser::reformatter>
-		lexeme_map_reformatter_stack;
-
 struct lexeme_map_entry_struct;
 typedef min::packed_struct_updptr
      <lexeme_map_entry_struct>
@@ -539,10 +523,6 @@ struct lexeme_map_entry_struct
         // Token value_type, computed from token value.
     min::uns32 lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
-    ll::parser::reformatter reformatter;
-    ll::parser::reformatter_arguments
-            reformatter_arguments;
-        // Reformatter and arguments.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -552,11 +532,6 @@ MIN_REF ( min::gen, label,
 MIN_REF ( min::gen, token_value,
           ll::parser::table::lexeme_map_entry )
 MIN_REF ( min::gen, token_value_type,
-          ll::parser::table::lexeme_map_entry )
-MIN_REF ( ll::parser::reformatter, reformatter,
-          ll::parser::table::lexeme_map_entry )
-MIN_REF ( ll::parser::reformatter_arguments,
-          reformatter_arguments,
           ll::parser::table::lexeme_map_entry )
 
 typedef min::packed_vec_updptr<ll::parser::table::root>
@@ -581,9 +556,6 @@ void push_lexeme_map_entry
 	  min::uns32 token_type,
 	  min::gen token_value_type,
 	  min::uns32 lexical_master,
-	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
 	  ll::parser::table::lexeme_map lexeme_map );
 
 // Remove from the lexeme map all entries that have

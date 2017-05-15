@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 14 16:38:42 EDT 2017
+// Date:	Mon May 15 02:58:03 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,11 +15,12 @@
 //	Indentation Marks
 //	Typed Brackets
 //	Prefix Table
+//	Prefix Reformatters
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Parse Bracketed Subexpression Function
 //	Bracketed Compact Functions
-//	Bracketed Reformatters
+//	Untyped Bracketed Reformatters
 //	Bracketed Pass Command Function
 
 // Usage and Setup
@@ -547,6 +548,9 @@ static min::uns32 prefix_gen_disp[] = {
 
 static min::uns32 prefix_stub_disp[] = {
     min::DISP ( & BRA::prefix_struct::next ),
+    min::DISP ( & BRA::prefix_struct::reformatter ),
+    min::DISP ( & BRA::prefix_struct
+                     ::reformatter_arguments ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -566,6 +570,9 @@ void BRA::push_prefix
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
 	  min::uns32 lexical_master,
+	  ll::parser::reformatter reformatter,
+	  ll::parser::reformatter_arguments
+	      reformatter_arguments,
 	  TAB::key_table prefix_table )
 {
     min::locatable_var<BRA::prefix> prefix
@@ -589,9 +596,29 @@ void BRA::push_prefix
     implied_subprefix_type_ref(prefix) =
         implied_subprefix_type;
     prefix->lexical_master = lexical_master;
+    reformatter_ref(prefix) = reformatter;
+    reformatter_arguments_ref(prefix) =
+        reformatter_arguments;
 
     TAB::push ( prefix_table, (TAB::root) prefix );
 }
+
+// Prefix Reformatters
+// ------ ------------
+
+
+min::locatable_var<PAR::reformatter>
+    BRA::prefix_reformatter_stack ( min::NULL_STUB );
+
+static void prefix_reformatter_stack_initialize ( void )
+{
+    ::initialize();
+
+    // TBD: see untyped_reformatter_stack below.
+}
+static min::initializer prefix_reformatter_initializer
+    ( ::prefix_reformatter_stack_initialize );
+
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----
@@ -4090,8 +4117,8 @@ void BRA::compact_paragraph
         ( parser, first, trace_flags );
 }
 
-// Bracketed Reformatters
-// --------- ------------
+// Untyped Bracketed Reformatters
+// ------- --------- ------------
 
 static bool label_reformatter_function
         ( PAR::parser parser,
@@ -4242,9 +4269,9 @@ static bool multivalue_reformatter_function
 }
 
 min::locatable_var<PAR::reformatter>
-    BRA::reformatter_stack ( min::NULL_STUB );
+    BRA::untyped_reformatter_stack ( min::NULL_STUB );
 
-static void reformatter_stack_initialize ( void )
+static void untyped_reformatter_stack_initialize ( void )
 {
     ::initialize();
 
@@ -4253,24 +4280,24 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( label, 0, 0, 0,
 	  ::label_reformatter_function,
-	  BRA::reformatter_stack );
+	  BRA::untyped_reformatter_stack );
 
     min::locatable_gen special
         ( min::new_str_gen ( "special" ) );
     PAR::push_reformatter
         ( special, 0, 0, 0,
 	  ::special_reformatter_function,
-	  BRA::reformatter_stack );
+	  BRA::untyped_reformatter_stack );
 
     min::locatable_gen multivalue
         ( min::new_str_gen ( "multivalue" ) );
     PAR::push_reformatter
         ( multivalue, 0, 1, 1,
 	  ::multivalue_reformatter_function,
-	  BRA::reformatter_stack );
+	  BRA::untyped_reformatter_stack );
 }
-static min::initializer reformatter_initializer
-    ( ::reformatter_stack_initialize );
+static min::initializer untyped_reformatter_initializer
+    ( ::untyped_reformatter_stack_initialize );
 
 // Bracketed Pass Command Function
 // --------- ---- ------- --------
@@ -4989,6 +5016,38 @@ static min::gen bracketed_pass_command
 			  parser->selector_name_table,
 			  parser, true );
 		}
+
+		if (    prefix->reformatter
+		     != min::NULL_STUB )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with "
+			<< min::pgen_name
+			       ( prefix->reformatter
+			               ->name )
+			<< " reformatter";
+
+		    min::packed_vec_ptr<min::gen> args =
+			prefix->reformatter_arguments;
+		    if ( args != min::NULL_STUB )
+		    {
+			parser->printer
+			    << " ( " << min::set_break;
+			for ( min::uns32 i = 0;
+			      i < args->length; ++ i )
+			{
+			    if ( i != 0 )
+				parser->printer
+				    << ", "
+				    << min::set_break;
+			    parser->printer
+				<< min::pgen_quote
+				       ( args[i] );
+			}
+			parser->printer << " )";
+		    }
+		}
 	    }
 	    else
 	    {
@@ -5127,10 +5186,11 @@ static min::gen bracketed_pass_command
 		    min::phrase_position position =
 			{ (&ppvec[i])->begin,
 			  (&ppvec[j])->end };
+		    PAR::reformatter reformatter_stack =
+			BRA::untyped_reformatter_stack;
 		    reformatter =
 			PAR::find_reformatter
-			    ( name,
-			      BRA::reformatter_stack );
+			    ( name, reformatter_stack );
 		    if ( reformatter == min::NULL_STUB )
 		    {
 			return PAR::parse_error
@@ -5182,8 +5242,6 @@ static min::gen bracketed_pass_command
 				      " reformatter"
 				      " arguments" );
 		    }
-
-		    continue;
 		}
 		else
 		    return PAR::parse_error
@@ -5639,6 +5697,10 @@ static min::gen bracketed_pass_command
 	min::locatable_gen implied_subprefix_type
 	    ( min::MISSING() );
 	min::uns32 lexical_master = PAR::MISSING_MASTER;
+	PAR::reformatter reformatter = min::NULL_STUB;
+	min::locatable_var
+		< PAR::reformatter_arguments >
+	    reformatter_arguments ( min::NULL_STUB );
 
 	while ( i < size && vp[i] == PARLEX::with )
 	{
@@ -5768,6 +5830,90 @@ static min::gen bracketed_pass_command
 			  "' does NOT name a lexical"
 			  " master" );
 	    }
+	    else if ( i < size )
+	    {
+		min::uns32 j = i;
+		min::locatable_gen name
+		  ( PAR::scan_simple_name
+			( vp, j,
+			  PARLEX::reformatter ) );
+		if (    j < size
+		     &&    vp[j]
+		        == PARLEX::reformatter )
+		{
+		    min::phrase_position position =
+			{ (&ppvec[i])->begin,
+			  (&ppvec[j])->end };
+		    PAR::reformatter reformatter_stack =
+			BRA::prefix_reformatter_stack;
+		    reformatter =
+			PAR::find_reformatter
+			    ( name, reformatter_stack );
+		    if ( reformatter == min::NULL_STUB )
+		    {
+			return PAR::parse_error
+			    ( parser, position,
+			      "undefined reformatter"
+			      " name" );
+		    }
+
+		    i = j + 1;
+
+		    name = COM::scan_args
+			( vp, i, reformatter_arguments,
+			      parser );
+		    if ( name == min::ERROR() )
+			return min::ERROR();
+		    if (    reformatter_arguments
+			 == min::NULL_STUB )
+		    {
+			if (   reformatter->
+			           minimum_arguments
+			     > 0 )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "reformatter"
+				      " arguments"
+				      " missing" );
+		    }
+		    else
+		    {
+			position.end =
+			    (&ppvec[i-1])->end;
+
+			if (   reformatter_arguments->
+			           length
+			     < reformatter->
+				   minimum_arguments )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "too few"
+				      " reformatter"
+				      " arguments" );
+			if (   reformatter_arguments->
+			           length
+			     > reformatter->
+				   maximum_arguments )
+			    return PAR::parse_error
+				    ( parser, position,
+				      "too many"
+				      " reformatter"
+				      " arguments" );
+		    }
+		}
+		else
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected"
+			  " `parsing selectors',"
+			  " `parsing options',"
+			  " `parsing options',"
+			  " `group',"
+			  " `implied subprefix',"
+			  " or `lexical master'"
+			  " or `... reformatter ...'"
+			  " after" );
+	    }
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
@@ -5776,7 +5922,9 @@ static min::gen bracketed_pass_command
 		      " `parsing options',"
 		      " `group',"
 		      " `implied subprefix',"
-		      " or `lexical master' after" );
+		      " or `lexical master'"
+		      " or `... reformatter ...'"
+		      " after" );
 	}
 	if ( i < size )
 	    return PAR::parse_error
@@ -5808,6 +5956,8 @@ static min::gen bracketed_pass_command
 	      implied_subprefix,
 	      implied_subprefix_type,
 	      lexical_master,
+	      reformatter,
+	      reformatter_arguments,
 	      bracketed_pass->prefix_table );
 	break;
     }

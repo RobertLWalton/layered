@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 17 06:54:36 EDT 2017
+// Date:	Mon May 15 02:58:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,7 @@
 namespace ll { namespace parser { namespace bracketed {
 
 extern min::locatable_var<ll::parser::reformatter>
-		reformatter_stack;
+		untyped_reformatter_stack;
 
 
 // Untyped Brackets
@@ -562,6 +562,11 @@ struct prefix_struct
 	// the implied prefix, or MISSING if none.
     min::uns32 lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
+    ll::parser::reformatter reformatter;
+    ll::parser::reformatter_arguments
+	    reformatter_arguments;
+	// Reformater and its arguments, or (both) NULL_
+	// STUB if none.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -573,6 +578,11 @@ MIN_REF ( min::gen, group,
 MIN_REF ( min::gen, implied_subprefix,
           ll::parser::bracketed::prefix )
 MIN_REF ( min::gen, implied_subprefix_type,
+          ll::parser::bracketed::prefix )
+MIN_REF ( ll::parser::reformatter, reformatter,
+          ll::parser::bracketed::prefix )
+MIN_REF ( ll::parser::reformatter_arguments,
+	  reformatter_arguments,
           ll::parser::bracketed::prefix )
 
 // Create a prefix definition entry with given
@@ -590,7 +600,13 @@ void push_prefix
 	  min::gen implied_subprefix_type,
 	  min::uns32 lexical_master,
 	      // May be ll::lexeme::MISSING_MASTER
+	  ll::parser::reformatter reformatter,
+	  ll::parser::reformatter_arguments
+	      reformatter_arguments,
 	  ll::parser::table::key_table prefix_table );
+
+extern min::locatable_var<ll::parser::reformatter>
+    prefix_reformatter_stack;
 
 
 // Bracketed Subexpression Pass

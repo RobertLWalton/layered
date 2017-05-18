@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 27 11:46:27 EDT 2017
+// Date:	Thu May 18 16:22:24 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,7 +52,8 @@ cc	    LEXSTD::default_program;
 cc
 cc	const char * const
 cc		LEXSTD::master_names[MAX_MASTER+1] =
-cc		    { "START", "DEFAULT", "DATA-CHECK" };
+cc		    { "START", "DEFAULT",
+cc		      "DATA-CHECK", "PARAGRAPH-CHECK" };
 cc
 cc	const char * const
 cc		LEXSTD::type_names[MAX_TYPE+1] = {
@@ -72,6 +73,9 @@ cc	    "LINE_BREAK",
 cc	    "START_OF_FILE",
 cc	    "END_OF_FILE",
 cc	    "DATA",
+cc	    "RAW_DATA",
+cc	    "TABLE",
+cc	    "ROW",
 cc	    "PREMATURE_END_OF_STRING",
 cc	    "PREMATURE_END_OF_FILE",
 cc	    "MISPLACED_VERTICAL",
@@ -81,7 +85,7 @@ cc	    "UNRECOGNIZED_ESCAPE",
 cc	    "MISPLACED_HORIZONTAL" };
 cc
 cc	const char * LEXSTD::type_codes =
-cc	    "?wn#mqschIibfeDSFVCUEH";
+cc	    "?wn#mqschIibfeDRTOSFVCUEH";
 cc
 cc	void LEXSTD::init_standard_program
 cc		( void )

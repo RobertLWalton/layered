@@ -1,9 +1,10 @@
        ###: PROGRAM
-            Max Master: 2
-                 0:        118 START
-                 1:        128 DEFAULT
-                 2:        133 DATA-CHECK
-            Max Type: 21
+            Max Master: 3
+                 0:        133 START
+                 1:        143 DEFAULT
+                 2:        148 DATA-CHECK
+                 3:          0 PARAGRAPH-CHECK
+            Max Type: 24
                  0: ?
                  1: w WORD
                  2: n NATURAL
@@ -19,13 +20,16 @@
                 12: f START_OF_FILE
                 13: e END_OF_FILE
                 14: D DATA
-                15: S PREMATURE_END_OF_STRING
-                16: F PREMATURE_END_OF_FILE
-                17: V MISPLACED_VERTICAL
-                18: C ILLEGAL_CONTROL
-                19: U UNRECOGNIZED_CHARACTER
-                20: E UNRECOGNIZED_ESCAPE
-                21: H MISPLACED_HORIZONTAL
+                15: R RAW_DATA
+                16: T TABLE
+                17: O ROW
+                18: S PREMATURE_END_OF_STRING
+                19: F PREMATURE_END_OF_FILE
+                20: V MISPLACED_VERTICAL
+                21: C ILLEGAL_CONTROL
+                22: U UNRECOGNIZED_CHARACTER
+                23: E UNRECOGNIZED_ESCAPE
+                24: H MISPLACED_HORIZONTAL
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
@@ -33,11 +37,11 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
-            ####: OUTPUT(16), GOTO(####)
+            ####: OUTPUT(19), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(16), GOTO(####)
+            #####: OUTPUT(19), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -85,7 +89,7 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(15), GOTO(####)
+            #####: OUTPUT(18), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -456,7 +460,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                ####: OUTPUT(19)
+                ####: OUTPUT(22)
                 Dispatcher ID: ####
             <HT> <SP> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP>
             <3000> [repeat(INFINITY)]
@@ -634,24 +638,24 @@
                 ####: GOTO(####)
                 Dispatcher ID: ####
             <VT>-<CR> [repeat(INFINITY)]
-                ####: OUTPUT(17)
+                ####: OUTPUT(20)
                 Dispatcher ID: ####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                ####: OUTPUT(18)
+                ####: OUTPUT(21)
                 Dispatcher ID: ####
-   #######: DISPATCHER
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 527
             <HT> <SP> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP> <3000>
-                ####: ACCEPT
-                Dispatcher ID: ####
+                #####: ACCEPT
+                Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
@@ -1155,7 +1159,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: OUTPUT(19)
+                #####: OUTPUT(22)
                 Dispatcher ID: #####
             /
                 #####: GOTO(####)
@@ -1168,14 +1172,14 @@
                 #####: GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: OUTPUT(17)
+                #####: OUTPUT(20)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: OUTPUT(18)
+                #####: OUTPUT(21)
                 Dispatcher ID: #####
             (-) [ ] ` { } <0AB> <0BB> <0F3A>-<0F3D> <169B>-<169C>
             <2018>-<201F> <2039>-<203A> <2045>-<2046> <207D>-<207E>
@@ -1653,7 +1657,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(19)
+                #####: ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
             <HT> <SP>-~ <NBSP>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
             <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
@@ -1824,14 +1828,14 @@
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(17)
+                #####: ERRONEOUS_ATOM(20)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(18)
+                #####: ERRONEOUS_ATOM(21)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -3567,7 +3571,7 @@
             Ctype Map Size: 63
             >
                 #####: TRANSLATE_HEX(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(20)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(23)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
@@ -3588,14 +3592,14 @@
             Ctype Map Size: 63
             >
                 #####: TRANSLATE_NAME(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(20)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(23)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 91
             >
                 #####: TRANSLATE_NAME(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(20)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(23)
                 Dispatcher ID: #####
             0-9 A-Z [repeat(INFINITY)]
                 Dispatcher ID: #####
@@ -3777,7 +3781,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(19)
+                #####: ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
             "
                 #####: TRANSLATE_TO(0), GOTO(####)
@@ -3955,18 +3959,18 @@
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(17)
+                #####: ERRONEOUS_ATOM(20)
                 Dispatcher ID: #####
             <HT> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP>
             <3000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(21)
+                #####: ERRONEOUS_ATOM(24)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(18)
+                #####: ERRONEOUS_ATOM(21)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0

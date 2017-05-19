@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 18 16:22:24 EDT 2017
+// Date:	Fri May 19 03:23:38 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,8 +52,11 @@ cc	    LEXSTD::default_program;
 cc
 cc	const char * const
 cc		LEXSTD::master_names[MAX_MASTER+1] =
-cc		    { "START", "DEFAULT",
-cc		      "DATA-CHECK", "PARAGRAPH-CHECK" };
+cc		    { "START",
+cc		      "DEFAULT",
+cc		      "DATA-CHECK",
+cc		      "PARAGRAPH-CHECK",
+cc		      "ROW-CHECK" };
 cc
 cc	const char * const
 cc		LEXSTD::type_names[MAX_TYPE+1] = {
@@ -109,6 +112,11 @@ cc	    uns32 within_line;
 cc	    NDL::new_table ( within_line, MASTER, 1 );
 cc	    uns32 data_check;
 cc	    NDL::new_table ( data_check, MASTER, 2 );
+cc	    uns32 paragraph_check;
+cc	    NDL::new_table
+cc		( paragraph_check, MASTER, 3 );
+cc	    uns32 row_check;
+cc	    NDL::new_table ( row_check, MASTER, 4 );
 cc
 cc	    uns32 horizontal_space;
 cc	    NDL::new_table ( horizontal_space );
@@ -482,7 +490,7 @@ cc	    NDL::end_table();
 cc
 
 lex
-lex	begin check data master table;
+lex	begin data check master table;
 lex
 cc	    NDL::begin_table ( data_check );
 cc
@@ -498,8 +506,132 @@ cc		       NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc
 
+lex	   "!@"         keep 1
+lex			output raw data
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "!" );
+cc	               NDL::begin_dispatch ( "@" );
+cc		           NDL::keep ( 1 );
+cc		           NDL::output ( raw_data_t );
+cc		           NDL::go ( within_line );
+cc		       NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
 lex	   goto within line;
-lex	end check data master table;
+lex	end data check master table;
+lex
+cc	    	   NDL::go ( within_line );
+cc
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin paragraph check master table;
+lex
+cc	    NDL::begin_table ( paragraph_check );
+cc
+
+lex	   "@"          keep 0
+lex			output data
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "@" );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( data_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "!@"         keep 1
+lex			output raw data
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "!" );
+cc	               NDL::begin_dispatch ( "@" );
+cc		           NDL::keep ( 1 );
+cc		           NDL::output ( raw_data_t );
+cc		           NDL::go ( within_line );
+cc		       NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "====="      keep 0
+lex			output table
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "=" );
+cc	               NDL::REPEAT ( 4 );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( table_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "-----"      keep 0
+lex			output table
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "-" );
+cc	               NDL::REPEAT ( 4 );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( table_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto within line;
+lex	end paragraph check master table;
+lex
+cc	    	   NDL::go ( within_line );
+cc
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin row check master table;
+lex
+cc	    NDL::begin_table ( row_check );
+cc
+
+lex	   "|"          keep 0
+lex			output row
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "|" );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( row_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "====="      keep 0
+lex			output row
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "=" );
+cc	               NDL::REPEAT ( 4 );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( row_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "-----"      keep 0
+lex			output row
+lex			goto within line;
+lex
+cc	           NDL::begin_dispatch ( "-" );
+cc	               NDL::REPEAT ( 4 );
+cc		       NDL::keep ( 0 );
+cc		       NDL::output ( row_t );
+cc		       NDL::go ( within_line );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto within line;
+lex	end row check master table;
 lex
 cc	    	   NDL::go ( within_line );
 cc

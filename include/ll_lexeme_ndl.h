@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 12 08:17:32 EDT 2017
+// Date:	Fri May 19 05:37:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -165,7 +165,7 @@
 //	| NDL::REPEAT();
 //	| NDL::REPEAT ( <repeat-count> );
 //
-//   // REPEAT(n) is eqivalent to putting `<repeat n>'
+//   // REPEAT(n) is eqivalent to putting `<repeat-n>'
 //   // after an atom primary in an atom pattern.
 //   // REPEAT() is equivalent to `<repeat>' or
 //   // REPEAT(<infinity>).

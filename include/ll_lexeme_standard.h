@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 18 16:16:59 EDT 2017
+// Date:	Fri May 19 05:35:05 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,11 +49,17 @@ namespace ll { namespace lexeme { namespace standard {
 	// 3	  PARAGRAPH-CHECK
 	//	    Ditto if the special data_t, raw_
 	//	    data_t, and table_t lexemes are to
-	//	    be recognized at the current loca-
-	//	    tion, after which control passes to
-	//	    DEFAULT.
+	//	    be recognized at the current
+	//	    location, after which control passes
+	//	    to DEFAULT.
 	//
-    const uns32 MAX_MASTER			= 3;
+	// 4	  ROW-CHECK
+	//	    Ditto if the special row_t lexeme is
+	//	    to be recognized at the current
+	//	    location, after which control passes
+	//	    to DEFAULT.
+	//
+    const uns32 MAX_MASTER			= 4;
     extern const char * const master_names
     				[MAX_MASTER+1];
 

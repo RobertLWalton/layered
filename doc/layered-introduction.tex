@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 14, 2017
+May 24, 2017
  
 \end{center}
 
@@ -4820,7 +4820,7 @@ The general syntax of {\em parser-prefix-commands} is:
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
     ::= & \TT{define}%
-          \ttmindex{define prefix}{parser command}
+          \ttmindex{define prefix}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{prefix} ~ {\em prefix-name} ~ {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
@@ -4828,9 +4828,10 @@ The general syntax of {\em parser-prefix-commands} is:
 	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\
 	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
 	  {}[ \TT{with parsing options} ~ {\em prefix-options} ] \\
-          {}[ \TT{with} ~ {\em reformatter-name}
-		        ~ \TT{reformatter}
-			~ {\em reformatter-arguments} ] \\
+          {}[ \TT{with} ~ \begin{tabular}[t]{@{}l}
+	                  {\em reformatter-name} ~ \TT{reformatter} \\
+			  {\em reformatter-arguments} ] \\
+			  \end{tabular} \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine prefix}{parser command} ~
 	  {\em prefix-name} ~
@@ -5290,101 +5291,150 @@ following `\skey{line variable}s':
     a logical line.  An implied prefix is just like an explicit
     prefix except if it has no following {\em prefix-n-list} elements
     it is removed.
+
+    The type of a non-missing implied header must have a prefix
+    definition selected by the \TT{selectors} line variable that
+    has either the `\TT{paragraph}' or `\TT{line}' group.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{lexical master}{line variable}\\
     The lexical master is reset to this value just after the
     indent token that begins a logical line.
 \\[1ex]
-\hspace*{-0.2in}Note: if any of the above variables are reset
-after they have been used at the beginning of a logical line,
-they will not take affect until the next logical line.
+\hspace*{-0.2in}Note: the above line variables are called
+the `\key{current line variables}'.
+\\[1ex]
+\hspace*{-0.2in}Note: if any current line variable is reset
+after the current line varables
+have been used at the beginning of a logical line,
+the new value will not take affect until the next logical line.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph implied header}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
-    These values are copied to the \TT{selectors}, \TT{options},
-    \TT{implied header}, and \TT{lexi\-cal master} line variables
-    above just before the above variables are used for a line
+    These variables are called the `\key{paragraph line variables}'.
+
+    The paragraph line variables
+    are copied to corresponding current line variables
+    just before the current line variables are used for a line
     in paragraph beginning position, \underline{unless} the
     \TT{options} variable above (not the \TT{paragraph options})
     contains the `\TT{continuing}' option.
 \end{indpar}
 
-The line variables are recomputed as follows whenever
-an explicit paragraph header is encountered or an implicit
-paragraph header is inserted:
+An indentation mark initializes the paragraph line
+variables from the definition of the indentation mark, and these
+are copied to the current line variables at the
+beginning of the indented paragraph.  The copied paragaph
+line variables are used to process the first line of a paragraph,
+and any implicit or explicit paragraph header then resets the
+current line variables which are used to process the remaining lines
+of the paragraph.
+
+We assume that implicit paragraph and line headers
+do \underline{not} change the selectors in such a way
+as to alter the parsing of prefix separators.  If they do,
+explicit paragraph or line headers may not be unrecognized
+as prefix separators.  It is also important that prefix
+definitions cannot be changed during the parsing of a logical line.
+Lastly, it is an error noted below if a prefix at the beginning
+of a logical line has either the
+`\TT{paragraph}' or `\TT{line}' group
+when selected by selectors computed by implied
+prefixes that may occur at the beginning of the line, but does
+not have this same group when computed with selectors with some
+of the implied prefixes deleted.
+
+Line processing is as follows:
 
 \begin{enumerate}
 
-\item
-The prefix definition of the paragraph header is found using
-the \TT{selectors} in effect at the time the paragraph header
-was parsed.  As the paragraph header must be at the beginning
-of a logical line, these selectors will be the selectors at the
-beginning of the line modified by implied paragraph or line
-headers inserted at the beginning of the logical line (these
-implied headers will then be discarded once an explicit
-paragraph header is found).
-The prefix definition must exist and have `\TT{paragraph}' group,
-else the paragraph header would not be a paragraph header.
+\item If the line is in paragraph beginning position and the
+\TT{options} line variable does not have the `\TT{continuing}'
+option, the paragraph line variables are copied
+to the corresponding current line variables.
 
-\item
-The \TT{selectors}, \TT{options}, and \TT{lexical master}
-line variables are initialized by setting them to the
-values of the selectors, options, and lexical master
-set for the indented paragraph (i.e., by the intentation
-mark definition and the context in which the indentation mark
-was found).
+\item The selectors, options, and lexical master are set
+from the corresponding current line variables.
 
-\item
-The \TT{selectors} and \TT{options} line variables
-are modified by the paragraph
-prefix definition \TT{parsing selectors} and \TT{parsing options}.
-The \TT{lexical master} line variable is reset to the
-value of \TT{lexical master} in the paragraph prefix definition.
+\item If the current implied header variable is not missing,
+a copy is inserted at the beginning of the line.  The
+prefix definition for this is looked up (using selectors now
+equal to the \TT{selectors} current line variable) and used to modify
+the selectors and options used to parse the rest of the line.
 
-\item
-If the \TT{options} line variable now has the `\TT{sticky}' option flag and the
-paragraph header is explicit, then:
+The prefix definition must have either the `\TT{paragraph}' or
+`\TT{line}' group, and if it has the `\TT{paragraph}' group,
+the line must be in paragraph beginning position.
+
+If the prefix definition has the `\TT{paragraph}' group, the
+modified selectors and options, and the
+lexical master from the prefix definition, are then used to reset
+the corresponding current line variables.
+If in addition the prefix definition has an implied subheader
+that itself has a prefix definition selected by the modified
+selectors which has the `\TT{line}' group, his implied subheader
+is copied to the \TT{implied header} current line variable.
+
+The {\em prefix-0-list} headed by the inserted implied prefix
+is then parsed.  If this has no elements, it must be ended
+by an explicit prefix separator with a prefix definition
+selected by the modified selectors that has the same group
+as the inserted implied prefix (as the logical line cannot
+be empty).  In this case the inserted
+implied prefix is deleted, the current line variables are
+restored to their values just before they were reset by the
+implied header (these ara necessarily equal to the paragraph
+line variable values), and parsing continues as if the
+explicit prefix separator had been found directly.
+
+Otherwise the {\em prefix-0-list} must have elements, as the
+logical line is not empty.  In addition, the {\em prefix-0-list}
+must end at the end of the logical line, as the inserted implied
+prefix has either the `\TT{paragraph}' or `\TT{line}' group, and
+explicit prefixes with these groups cannot appear inside a
+logical line (they are ignored with an error message if they do).
+
+
+\item If the current implied header variable is missing,
+or if an empty {\em prefix-0-list} was found and deleted by the previous
+step, and if the first element of the logical line is a prefix
+whose definition looked by the \TT{selectors} current line variable
+has the `\TT{paragraph}' group, this prefix is an explicit paragraph
+header.
+
+If an empty {\em prefix-0-list} was found in the previous step,
+and the prefix that ended the list does not have a prefix definition
+with the `\TT{paragraph}' group when looked up using the
+\TT{selectors} current line variable (which must equal the
+\TT{selectors} paragraph line variable), then the prefix is
+in error and is ignored.  This error occurs because the prefix
+definition is looked up twice with different selectors, and
+the two look ups yielded a definition with the `\TT{paragraph}' group
+the first time but not the second time.
+
+Otherwise if an explicit paragraph header is found,
+its prefix definition is used to
+modify selectors and options, and these modified selectors and options and the
+lexical master from the prefix definition are then used to reset
+the corresponding current line variables.
+If in addition the prefix definition has an implied subheader
+that itself has a prefix definition selected by the modified
+selectors which has the `\TT{line}' group, his implied subheader
+is copied to the \TT{implied header} current line variable.
+
+In addition, if an explicit paragraph header is found, then:
+
 \begin{enumerate}
 
-\item
-The \TT{selectors}, \TT{options}, and \TT{lexical master} line variables
-are copied to the \TT{paragraph selectors}, \TT{paragraph options},
-and \TT{paragraph lexical master} line variables.
+\item If the \TT{options} current line variable
+now has the `\TT{sticky}' option flag, the \TT{para\-graph implicit
+header} line variable is set to a copy of the explicit paragraph header.
 
-\item
-The \TT{paragraph implied prefix} line variable
-is set to a copy of the explicit paragraph header.
+\item Otherwise the \TT{paragraph implicit header} line variable
+is reset to the value it had at the beginning of the indented paragraph.
+
 \end{enumerate}
-
-\item
-If the paragraph header prefix definition has a non-\TT{MISSING}
-\TT{implied subprefix}, the \TT{.type} of this is looked up using
-`new selectors' to see if it has an active prefix definition with
-the `\TT{line}' group.  If yes, then:
-\begin{enumerate}
-
-\item
-The \TT{selectors} and \TT{options} line variables are modified by the line
-prefix definition \TT{parsing selectors} and \TT{parsing options}.
-The \TT{lexical master} line variable is reset to the
-value of \TT{lexical master} in the line prefix definition.
-
-\item
-\TT{implied prefix} line variable is set to a copy of the paragraph header
-definition's the \TT{implied subprefix}.
-
-\end{enumerate}
-
-\item
-The current parsing selectors and options are set to the values
-of the \TT{selectors} and \TT{options} line variables for the
-purpose of parsing the remainder of the logical line.  If the
-\TT{implied header} line variable is not missing, a copy of
-the \TT{implied header} is inserted at the beginning of this
-logical line remainder.
 
 \end{enumerate}
 

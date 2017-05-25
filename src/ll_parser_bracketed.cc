@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 02:58:03 EDT 2017
+// Date:	Thu May 25 15:21:34 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1615,7 +1615,7 @@ PREFIX_FOUND:
 
 		  p != NULL
 		  &&
-		  p->prefix_type != min::MISSING();
+		  p->prefix != min::NULL_STUB;
 
 		  p = p->previous )
 	    {
@@ -1880,6 +1880,7 @@ PREFIX_PARSE:
 	    //
 	    BRA::bracket_stack cstack
 		( bracket_stack_p );
+	    cstack.prefix = prefix;
 	    cstack.prefix_type = prefix_type;
 	    cstack.prefix_entry = prefix_entry;
 
@@ -2147,7 +2148,8 @@ PREFIX_PARSE:
 		     == cstack.closing_next )
 		    return separator_found;
 
-		prefix = cstack.closing_first;
+		prefix = cstack.prefix
+		       = cstack.closing_first;
 
 		if (    prefix->value_type
 		     != prefix_type )

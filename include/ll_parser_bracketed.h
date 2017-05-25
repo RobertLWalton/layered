@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 02:58:14 EDT 2017
+// Date:	Thu May 25 15:10:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1061,12 +1061,13 @@ struct bracket_stack
         // If not NULL_STUB, this identifies the opening
 	// bracket whose recognition made this entry.
 
+    ll::parser::token prefix;
     min::gen prefix_type;
     ll::parser::bracketed::prefix prefix_entry;
-        // If prefix_type is not MISSING, this is the
-	// .type of the prefix separator whose recogni-
-	// tion made this entry, and the prefix_entry
-	// is its entry in the prefix table, or
+        // If prefix is not min::NULL_STUB, this is the
+	// prefix separator whose recognition made this
+	// entry, prefix_type is its .type, and prefix_
+	// entry is its entry in the prefix table, or
 	// min::NULL_STUB if none.
 
     ll::parser::token closing_first, closing_next;
@@ -1107,6 +1108,7 @@ struct bracket_stack
 	    ( ll::parser::bracketed
 	                ::bracket_stack * previous )
         : opening_bracket ( min::NULL_STUB ),
+          prefix ( min::NULL_STUB ),
 	  prefix_type ( min::MISSING() ),
 	  prefix_entry ( min::NULL_STUB ),
           closing_first ( min::NULL_STUB ),

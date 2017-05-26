@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 25 21:27:22 EDT 2017
+// Date:	Fri May 26 13:53:03 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -332,9 +332,15 @@ struct token_struct
     const min::gen value_type;
         // For a BRACKETED token, the .initiator of its
 	// MIN value, if any, or the prefix group of its
-	// .type, if that is `line' or `paragraph'.  For
-	// a PREFIX or IMPLIED_PREFIX token, the .type
-	// of its MIN value, if any.  Otherwise MISSING.
+	// .type, if that is `line' or `paragraph'.
+	//
+	// For a PREFIX, IMPLIED_PREFIX, or IMPLIED_
+	// HEADER token, the prefix table entry of the
+	// prefix .type found using the selectors in
+	// effect when the prefix was parsed, if any,
+	// or the .type of its MIN value otherwise.
+	//
+	// In all other cases, MISSING.
 
     const ll::parser::string string;
         // Character string for lexeme types that have

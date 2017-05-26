@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 25 15:21:34 EDT 2017
+// Date:	Thu May 25 16:40:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1479,359 +1479,405 @@ min::position BRA::parse_bracketed_subexpression
     else
         trace_flags = 0;
 
-    while ( true )
+    // Variables input to both PREFIX_FOUND and
+    // PREFIX_PARSE code blocks.
+    //
+    PAR::token prefix;
+
+    // Variables input to PREFIX_FOUND code block.
+    //
+    min::position separator_found;
+    bool premature_closing;
+
+    // Variables input to the PREFIX_PARSE code
+    // block.
+    //
+    min::gen prefix_type;
+    BRA::prefix prefix_entry;
+    min::gen prefix_group;
+    TAB::flags prefix_selectors;
+
+    if ( parsing_logical_line )
     {
+	BRA::line_data & line_data =
+	    line_variables->current;
+	min::gen implied_header =
+	    line_data.implied_header;
+	if ( implied_header == min::MISSING() )
+	    goto NEXT_TOKEN;
 
-	// Variables input to both PREFIX_FOUND and
-	// PREFIX_PARSE code blocks.
-	//
-	PAR::token prefix;
+	prefix_entry =
+	    line_data.header_entry;
+	prefix_selectors =
+	    line_data.header_selectors;
+	MIN_REQUIRE
+	    ( prefix_entry != min::NULL_STUB );
+	prefix_group = prefix_entry->group;
 
-	// Variables input to PREFIX_FOUND code block.
-	//
-	min::position separator_found;
-	bool premature_closing;
+	prefix = PAR::new_token
+		     ( PAR::IMPLIED_HEADER );
+	PAR::put_before
+	    ( PAR::first_ref(parser),
+	      current, prefix );
+	PAR::value_ref(prefix) = implied_header;
+	PAR::value_type_ref(prefix) =
+	    prefix_entry->label;
+	prefix->position.begin =
+	    current->position.begin;
+	prefix->position.end =
+	    current->position.begin;
 
-	// Variables input to the PREFIX_PARSE code
-	// block.
-	//
-	min::gen prefix_type;
-	BRA::prefix prefix_entry;
-	min::gen prefix_group;
-	TAB::flags prefix_selectors;
+	if ( prefix_group == PARLEX::paragraph )
+	    line_variables->current =
+		line_variables->implied_paragraph;
 
-	if ( parsing_logical_line )
+	goto PREFIX_PARSE;
+    }
+    else
+    {
+	if ( bracket_stack_p == NULL )
+	    goto NEXT_TOKEN;
+	BRA::prefix p =
+	    bracket_stack_p->prefix_entry;
+	if ( p == min::NULL_STUB )
+	    goto NEXT_TOKEN;
+	min::gen implied_subprefix =
+	    p->implied_subprefix;
+	if ( implied_subprefix == min::MISSING() )
+	    goto NEXT_TOKEN;
+
+	prefix = PAR::new_token
+		     ( PAR::IMPLIED_PREFIX );
+
+	if ( p->group == PARLEX::paragraph
+	     &&
+	        bracket_stack_p->prefix->type
+	     == PAR::IMPLIED_HEADER )
 	{
-	    BRA::line_data & line_data =
-	        line_variables->current;
-	    min::gen implied_header =
-	        line_data.implied_header;
-	    if ( implied_header == min::MISSING() )
-	        goto NEXT_TOKEN;
-
-	    prefix_entry =
-	        line_data.header_entry;
-	    prefix_selectors =
-	        line_data.header_selectors;
-	    MIN_REQUIRE
-	        ( prefix_entry != min::NULL_STUB );
-	    prefix_group = prefix_entry->group;
-
-	    prefix = PAR::new_token
-	                 ( PAR::IMPLIED_PREFIX );
-	    PAR::put_before
-	        ( PAR::first_ref(parser),
-		  current, prefix );
-	    PAR::value_ref(prefix) = implied_header;
-	    PAR::value_type_ref(prefix) =
-	        prefix_entry->label;
-	    prefix->position.begin =
-	        current->position.begin;
-	    prefix->position.end =
-	        current->position.begin;
-
-	    if ( prefix_group == PARLEX::paragraph )
-		line_variables->current =
-		    line_variables->implied_paragraph;
-
-	    goto PREFIX_PARSE;
-	}
-	else
-	{
-	    if ( bracket_stack_p == NULL )
-	        goto NEXT_TOKEN;
-	    BRA::prefix p =
-	        bracket_stack_p->prefix_entry;
-	    if ( p == min::NULL_STUB )
-	        goto NEXT_TOKEN;
-	    min::gen implied_subprefix =
-	        p->implied_subprefix;
-	    if ( implied_subprefix == min::MISSING() )
-	        goto NEXT_TOKEN;
-
-	    prefix = PAR::new_token
-	                 ( PAR::IMPLIED_PREFIX );
-	    PAR::put_before
-	        ( PAR::first_ref(parser),
-		  current, prefix );
-	    PAR::value_ref(prefix) = implied_subprefix;
-	    PAR::value_type_ref(prefix) =
-	        p->implied_subprefix_type;
-	    prefix->position.begin =
-	        current->position.begin;
-	    prefix->position.end =
-	        current->position.begin;
-
-	    separator_found = min::MISSING_POSITION;
-	    premature_closing = false;
+	    // IMPLIED_PREFIX could be line header
+	    // that is implied_subprefix of the
+	    // prefix entry of an implied paragraph
+	    // header.
+	    //
+	    TAB::key_table prefix_table =
+		bracketed_pass->prefix_table;
+	    BRA::prefix implied_prefix_entry =
+		(BRA::prefix)
+		TAB::find
+		    ( p->implied_subprefix_type,
+		      BRA::PREFIX,
+		      selectors,
+		      prefix_table );
+	    if (    implied_prefix_entry
+		 != min::NULL_STUB
+		 &&
+		    implied_prefix_entry->group
+		 == PARLEX::line )
+		prefix->type = PAR::IMPLIED_HEADER;
 	}
 
-	// Code above either jumps to NEXT_TOKEN or
-	// creates implied prefix and jumps to
-	// PREFIX_PARSE for implied prefixes created
-	// by line variables or comes here for implied
-	// prefixes NOT create by line variables.
+	PAR::put_before
+	    ( PAR::first_ref(parser),
+	      current, prefix );
+	PAR::value_ref(prefix) = implied_subprefix;
+	PAR::value_type_ref(prefix) =
+	    p->implied_subprefix_type;
+	prefix->position.begin =
+	    current->position.begin;
+	prefix->position.end =
+	    current->position.begin;
+
+	separator_found = min::MISSING_POSITION;
+	premature_closing = false;
+    }
+
+    // Above code either jumps to NEXT_TOKEN or
+    // creates implied prefix and jumps to
+    // PREFIX_PARSE for implied prefixes created
+    // by line variables or comes here for implied
+    // prefixes NOT create by line variables.
 
 PREFIX_FOUND:
 
-	// Come here when PREFIX token has been created.
-	// (This is like a nested inline function, but
-	// C++ does not support NESTED inlines.)
-	//
-	// Input variables:
-	//
-	//     prefix
-	//         The prefix token.
-	//     separator_found
-	//         Specifies separator found right after
-	//         prefix token, if any.
-	//     premature_closing
-	//         True if premature closing forced the
-	//         end of the prefix token.
-	//
+    // Come here when PREFIX token has been created.
+    //
+    // Input variables:
+    //
+    //     prefix
+    //         The prefix token.
+    //     separator_found
+    //         Specifies separator found right after
+    //         prefix token, if any.
+    //     premature_closing
+    //         True if premature closing forced the
+    //         end of the prefix token.
+    //
+    {
+	TAB::key_table prefix_table =
+	    bracketed_pass->prefix_table;
+	prefix_type = prefix->value_type;
+	prefix_entry =
+	    (BRA::prefix)
+	    TAB::find ( prefix_type,
+			BRA::PREFIX,
+			selectors,
+			prefix_table );
+	prefix_group =
+	    ( prefix_entry != min::NULL_STUB ?
+	      prefix_entry->group :
+	      min::MISSING() );
+	PAR::token prefix_next = prefix->next;
+	MIN_REQUIRE
+	    ( prefix_next != parser->first );
+
+	if ( ( prefix_group != PARLEX::paragraph
+	       &&
+	       prefix_group != PARLEX::line )
+	     ||
+		 prefix->previous->type
+	     == PAR::IMPLIED_HEADER )
+	for ( BRA::bracket_stack * p =
+		     bracket_stack_p;
+
+	      p != NULL
+	      &&
+	      p->prefix != min::NULL_STUB;
+
+	      p = p->previous )
 	{
-	    TAB::key_table prefix_table =
-		bracketed_pass->prefix_table;
-	    prefix_type = prefix->value_type;
-	    prefix_entry =
-		(BRA::prefix)
-		TAB::find ( prefix_type,
-			    BRA::PREFIX,
-		            selectors,
-			    prefix_table );
-	    prefix_group =
-		( prefix_entry != min::NULL_STUB ?
-		  prefix_entry->group :
+	    min::gen prefix_entry_group =
+		(    p->prefix_entry
+		  != min::NULL_STUB ?
+		  p->prefix_entry->group :
 		  min::MISSING() );
-
-	    if ( ( prefix_group != PARLEX::paragraph
-	           &&
-		   prefix_group != PARLEX::line )
+	    if ( p->prefix_type == prefix_type
 		 ||
-		     prefix->previous->type
-		 == PAR::IMPLIED_PREFIX )
-	    for ( BRA::bracket_stack * p =
-	                 bracket_stack_p;
-
-		  p != NULL
-		  &&
-		  p->prefix != min::NULL_STUB;
-
-		  p = p->previous )
+		 (    prefix_entry_group
+		   == prefix_group
+		   &&
+		      min::MISSING()
+		   != prefix_group ) )
 	    {
-		if ( p->prefix_type == prefix_type
-		     ||
-		     ( p->prefix_entry != min::NULL_STUB
-		       &&
-		          p->prefix_entry->group
-		       == prefix_group
-		       &&
-		          min::MISSING()
-		       != prefix_group ) )
-		{
-		    if (    prefix->type
-			 == PAR::IMPLIED_PREFIX )
-		    {
-			PAR::parse_error
-			  ( parser,
-			    prefix->position,
-			    "implied prefix separator"
-			    " of type `",
-			    min::pgen_never_quote
-				( prefix_type ),
-			    "' has type or group of"
-			    " previous active prefix"
-			    " separator; not inserted"
-			  );
-			MIN_REQUIRE
-			    ( ! premature_closing );
-			PAR::token next = prefix->next;
-			PAR::free
-			    ( PAR::remove
-				  ( first_ref(parser),
-				    next->previous ) );
-			goto NEXT_TOKEN;
-		    }
-		    p->closing_first = prefix;
-		    p->closing_next = prefix->next;
-
-		    for ( BRA::bracket_stack
-			      * q = bracket_stack_p;
-			  q != p;
-			  q = q->previous )
-			q->closing_first =
-			    q->closing_next = prefix;
-
-		    return separator_found;
-		}
-	    }
-
-	    // Special case to handle explicit paragraph
-	    // prefix following an implied line prefix,
-	    // provided the implied line prefix does not
-	    // follow any paragraph prefix.  To enforce
-	    // this last, this code must follow the code
-	    // immediately above.
-	    //
-	    if ( prefix_group == PARLEX::paragraph
-	         &&
-		 line_variables->at_paragraph_beginning
-	         &&
-		 prefix->type != PAR::IMPLIED_PREFIX
-		 &&
-		    prefix->previous->type
-		 == PAR::IMPLIED_PREFIX
-		 &&
-		 bracket_stack_p != NULL
-		 &&
-		    bracket_stack_p->prefix_entry
-		 != min::NULL_STUB
-		 &&
-		    bracket_stack_p->prefix_entry
-		                   ->group
-		 == PARLEX::line )
-	    {
-		bracket_stack_p->closing_first =
-		    prefix;
-		bracket_stack_p->closing_next =
-		    prefix->next;
-		return separator_found;
-	    }
-
-	    PAR::token prefix_next = prefix->next;
-	    if ( typed_data != NULL )
-	    {
-		PAR::parse_error
-		  ( parser,
-		    prefix->position,
-		    "prefix separator of type `",
-		    min::pgen_never_quote
-			( prefix_type ),
-		    "' in typed bracketed"
-		    " subexpression; ignored"
-		  );
-		prefix = min::NULL_STUB;
-	    }
-	    else
-	    if ( prefix_group == PARLEX::paragraph )
-	    {
-	        if (    prefix->type
+		if (    prefix->type
 		     == PAR::IMPLIED_PREFIX )
-	        {
-		    MIN_REQUIRE
-		        ( bracket_stack_p != NULL );
+		{
 		    PAR::parse_error
 		      ( parser,
 			prefix->position,
-			"implied prefix separator of"
-			" type `",
-			min::pgen_never_quote
-			    ( prefix_type ),
-			"' IMPLIED by prefix separator"
+			"implied prefix separator"
 			" of type `",
 			min::pgen_never_quote
-			  ( bracket_stack_p->
-			        prefix_type ),
-			"' has `paragraph' group;"
-			" ignored"
+			    ( prefix_type ),
+			"' has type or group of"
+			" previous active prefix"
+			" separator; not inserted"
 		      );
 		    prefix = min::NULL_STUB;
+		    goto FINISH_PREFIX;
 		}
-		else
-		if (    line_variables->previous->next
-		     != prefix
-		     ||
-		     ! line_variables->
-		           at_paragraph_beginning )
-	        {
+		else if (    p->prefix->type
+		          == PAR::IMPLIED_HEADER
+		          &&
+			     prefix->previous->type
+			  != PAR::IMPLIED_HEADER )
+		{
 		    PAR::parse_error
 		      ( parser,
 			prefix->position,
-			"explicit prefix separator of"
-			" type `",
+			"prefix separator"
+			" of type `",
 			min::pgen_never_quote
 			    ( prefix_type ),
-			"' has `paragraph' group but is"
-			" not at beginning of a logical"
-			" line that is in paragraph"
-			" beginning position; ignored"
+			"' has type or group of"
+			" previous implied header"
+			" but is not at beginning"
+			" of logical line; ignored"
 		      );
 		    prefix = min::NULL_STUB;
+		    goto FINISH_PREFIX;
 		}
+		p->closing_first = prefix;
+		p->closing_next = prefix->next;
 
+		for ( BRA::bracket_stack
+			  * q = bracket_stack_p;
+		      q != p;
+		      q = q->previous )
+		    q->closing_first =
+			q->closing_next = prefix;
+
+		return separator_found;
 	    }
-	    else
-	    if ( prefix_group == PARLEX::line
-	         &&
-	            line_variables->previous->next
-		 != prefix
-		 &&
-		 ( bracket_stack_p == NULL
-		   ||
-		      bracket_stack_p->prefix_entry
-		   == min::NULL_STUB
-		   ||
-		      bracket_stack_p->prefix_entry
-		                     ->group
-		   != PARLEX::paragraph ) )
+	}
+
+	// Special case to handle explicit paragraph
+	// prefix following an implied line header,
+	// provided the implied line prefix does not
+	// follow any paragraph prefix.  To enforce
+	// this last, this code must follow the code
+	// immediately above.
+	//
+	if ( prefix_group == PARLEX::paragraph
+	     &&
+	     line_variables->at_paragraph_beginning
+	     &&
+	     prefix->type != PAR::IMPLIED_PREFIX
+	     &&
+	     prefix->type != PAR::IMPLIED_HEADER
+	     &&
+		prefix->previous->type
+	     == PAR::IMPLIED_HEADER
+	     &&
+	     bracket_stack_p != NULL
+	     &&
+		bracket_stack_p->prefix_entry
+	     != min::NULL_STUB
+	     &&
+		bracket_stack_p->prefix_entry
+			       ->group
+	     == PARLEX::line )
+	{
+	    bracket_stack_p->closing_first =
+		prefix;
+	    bracket_stack_p->closing_next =
+		prefix->next;
+	    return separator_found;
+	}
+
+	if ( typed_data != NULL )
+	{
+	    PAR::parse_error
+	      ( parser,
+		prefix->position,
+		"prefix separator of type `",
+		min::pgen_never_quote
+		    ( prefix_type ),
+		"' in typed bracketed"
+		" subexpression; ignored"
+	      );
+	    prefix = min::NULL_STUB;
+	}
+	else
+	if ( prefix_group == PARLEX::paragraph )
+	{
+	    if (    prefix->type
+		 == PAR::IMPLIED_PREFIX )
 	    {
+		MIN_REQUIRE
+		    ( bracket_stack_p != NULL );
 		PAR::parse_error
 		  ( parser,
 		    prefix->position,
-		       prefix->type
-		    == PAR::IMPLIED_PREFIX ?
-		        "implied " : "explicit ",
-		    min::pnop,
-		    "prefix separator of type `",
+		    "implied prefix separator of"
+		    " type `",
 		    min::pgen_never_quote
 			( prefix_type ),
-		    "' has `line' group but is not at"
-		    " beginning of logical line or"
-		    " immediately after a prefix"
-		    " separator of `paragraph' group;"
+		    "' IMPLIED by prefix separator"
+		    " of type `",
+		    min::pgen_never_quote
+		      ( bracket_stack_p->
+			    prefix_type ),
+		    "' has `paragraph' group;"
 		    " ignored"
 		  );
 		prefix = min::NULL_STUB;
 	    }
 	    else
-	    if ( start_previous->next != prefix )
+	    if (    line_variables->previous->next
+		 != prefix
+		 ||
+		 ! line_variables->
+		       at_paragraph_beginning )
 	    {
 		PAR::parse_error
 		  ( parser,
 		    prefix->position,
-		    "prefix separator of type `",
+		    "explicit prefix separator of"
+		    " type `",
 		    min::pgen_never_quote
-		        ( prefix_type ),
-		    "' not at beginning of"
-		    " subexpression and does not"
-		    " continue subexpression started by"
-		    " another prefix with the same type"
-		    " or group; ignored"
+			( prefix_type ),
+		    "' has `paragraph' group but is"
+		    " not at beginning of a logical"
+		    " line that is in paragraph"
+		    " beginning position; ignored"
 		  );
 		prefix = min::NULL_STUB;
 	    }
 
-	    if ( prefix == min::NULL_STUB )
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  prefix_next->previous ) );
-
-	    if ( premature_closing )
-	    {
-		// Found a closing bracket
-		// that is not ours or
-		// logical line end.
-		// Kick to caller.
-		//
-		if ( prefix != min::NULL_STUB )
-		    prefix->type = PAR::BRACKETED;
-		return separator_found;
-	    }
-
-	    if ( prefix == min::NULL_STUB )
-	        goto NEXT_TOKEN;
 	}
+	else
+	if ( prefix_group == PARLEX::line
+	     &&
+		line_variables->previous->next
+	     != prefix
+	     &&
+	     ( bracket_stack_p == NULL
+	       ||
+		  bracket_stack_p->prefix_entry
+	       == min::NULL_STUB
+	       ||
+		  bracket_stack_p->prefix_entry
+				 ->group
+	       != PARLEX::paragraph ) )
+	{
+	    PAR::parse_error
+	      ( parser,
+		prefix->position,
+		   prefix->type
+		== PAR::IMPLIED_PREFIX ?
+		    "implied " : "explicit ",
+		min::pnop,
+		"prefix separator of type `",
+		min::pgen_never_quote
+		    ( prefix_type ),
+		"' has `line' group but is not at"
+		" beginning of logical line or"
+		" immediately after a prefix"
+		" separator of `paragraph' group;"
+		" ignored"
+	      );
+	    prefix = min::NULL_STUB;
+	}
+	else
+	if ( start_previous->next != prefix )
+	{
+	    PAR::parse_error
+	      ( parser,
+		prefix->position,
+		"prefix separator of type `",
+		min::pgen_never_quote
+		    ( prefix_type ),
+		"' not at beginning of"
+		" subexpression and does not"
+		" continue subexpression started by"
+		" another prefix with the same type"
+		" or group; ignored"
+	      );
+	    prefix = min::NULL_STUB;
+	}
+
+FINISH_PREFIX:
+
+	if ( prefix == min::NULL_STUB )
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      prefix_next->previous ) );
+
+	if ( premature_closing )
+	{
+	    // Found a closing bracket
+	    // that is not ours or
+	    // logical line end.
+	    // Kick to caller.
+	    //
+	    if ( prefix != min::NULL_STUB )
+		prefix->type = PAR::BRACKETED;
+	    return separator_found;
+	}
+
+	if ( prefix == min::NULL_STUB )
+	    goto NEXT_TOKEN;
 
 	prefix_selectors = selectors;
 	if ( prefix_entry != min::NULL_STUB )
@@ -1848,1845 +1894,1743 @@ PREFIX_FOUND:
 	    prefix_selectors |=
 	      PAR::ALWAYS_SELECTOR;
 	}
+    }
 
 PREFIX_PARSE:
 
-	// Come here when ready to parse prefix-n-list
-	// that is headed by the prefix.
+    // Come here when ready to parse prefix-n-list
+    // that is headed by the prefix.
+    //
+    // Input variables:
+    //
+    //     prefix
+    //         The prefix token.
+    //     prefix_type
+    //         The .type of the prefix token.
+    //     prefix_entry
+    //         The prefix_table entry of the prefix
+    //         token .type (NULL_STUB if none).
+    //     prefix_group
+    //         The group of the prefix_entry, or
+    //         MISSING if prefix_entry is NULL_STUB.
+    //     prefix_selectors
+    //         The selectors to be used in parsing
+    //         the prefix-n-list headed by the
+    //         prefix token.
+    //
+    {
+	MIN_REQUIRE ( prefix->next == current );
+
+	// Start new subexpression
+	// that begins with a prefix
+	// separator.
 	//
-	// Input variables:
-	//
-	//     prefix
-	//         The prefix token.
-	//     prefix_type
-	//         The .type of the prefix token.
-	//     prefix_entry
-	//         The prefix_table entry of the prefix
-	//         token .type (NULL_STUB if none).
-	//     prefix_group
-	//         The group of the prefix_entry, or
-	//         MISSING if prefix_entry is NULL_STUB.
-	//     prefix_selectors
-	//         The selectors to be used in parsing
-	//         the prefix-n-list headed by the
-	//         prefix token.
-	//
+	BRA::bracket_stack cstack
+	    ( bracket_stack_p );
+	cstack.prefix = prefix;
+	cstack.prefix_type = prefix_type;
+	cstack.prefix_entry = prefix_entry;
+
+	while ( true )
 	{
-	    MIN_REQUIRE ( prefix->next == current );
-
-	    // Start new subexpression
-	    // that begins with a prefix
-	    // separator.
-	    //
-	    BRA::bracket_stack cstack
-		( bracket_stack_p );
-	    cstack.prefix = prefix;
-	    cstack.prefix_type = prefix_type;
-	    cstack.prefix_entry = prefix_entry;
-
-	    while ( true )
+	    if (    prefix_group
+		 == PARLEX::paragraph
+		 &&
+		    prefix->type
+		 != PAR::IMPLIED_HEADER )
 	    {
-	        if (    prefix_group
-		     == PARLEX::paragraph
-		     &&
-		        prefix->type
-		     != PAR::IMPLIED_PREFIX )
+		// Come here if explicit paragraph
+		// header found in a logical line,
+		// but with possible implied line
+		// headers having been previously
+		// inserted and deleted, possible
+		// incorrect setting of selectors
+		// to something other than
+		// paragraph.selectors because of
+		// a CONTINUING flag, and possible
+		// incorrect prefix_entry because
+		// of incorrect selectors.
+		//
+		// Fix things up.
+
+		MIN_REQUIRE
+		    ( parsing_logical_line );
+
+		selectors =
+		    line_variables->paragraph
+				   .selectors;
+		TAB::key_table prefix_table =
+		    bracketed_pass->prefix_table;
+		BRA::prefix new_prefix_entry =
+		    (BRA::prefix)
+		    TAB::find
+			( prefix_type,
+			  BRA::PREFIX,
+			  selectors,
+			  prefix_table );
+		if (    new_prefix_entry
+		     == min::NULL_STUB
+		     ||
+			new_prefix_entry->group
+		     != PARLEX::paragraph )
+		    PAR::parse_error
+		      ( parser,
+			prefix->position,
+			"prefix separator of"
+			" type `",
+			min::pgen_never_quote
+			    ( prefix_type ),
+			"' has `paragraph' group"
+			" after selectors modified"
+			" by implied headers, but"
+			" does not have `paragraph'"
+			" group before this"
+			" modification; continuing"
+			" with prefix definition"
+			" located by INCORRECT"
+			" modified selectors"
+		      );
+		else if (    new_prefix_entry
+			  != prefix_entry )
 		{
-		    // Come here if explicit paragraph
-		    // header found in a logical line,
-		    // but with possible implied line
-		    // headers having been previously
-		    // inserted and deleted, possible
-		    // incorrect setting of selectors
-		    // to something other than
-		    // paragraph.selectors because of
-		    // a CONTINUING flag, and possible
-		    // incorrect prefix_entry because
-		    // of incorrect selectors.
-		    //
-		    // Fix things up.
+		    prefix_entry =
+			new_prefix_entry;
+		    cstack.prefix_entry =
+			prefix_entry;
+		}
+		prefix_selectors = selectors;
+		prefix_selectors |=
+		    prefix_entry->
+			new_selectors.or_flags;
+		prefix_selectors &= ~
+		    prefix_entry->
+			new_selectors.not_flags;
+		prefix_selectors ^=
+		    prefix_entry->
+			new_selectors.xor_flags;
+		prefix_selectors |=
+		    PAR::ALWAYS_SELECTOR;
 
-		    MIN_REQUIRE
-		        ( parsing_logical_line );
+		BRA::line_data & line_data =
+		    line_variables->current;
+		line_data.lexical_master =
+		    prefix_entry->lexical_master;
+		line_data.selectors =
+		    prefix_selectors;
+		line_data.implied_header =
+		    min::MISSING();
+		line_data.header_entry =
+		    min::NULL_STUB;
+		    // Just for safety.
 
-		    selectors =
-			line_variables->paragraph
-			               .selectors;
+		min::gen implied_header =
+		    prefix_entry->implied_subprefix;
+		if (     implied_header
+		      != min::MISSING() )
+		{
+		    min::gen header_type =
+			prefix_entry->
+			    implied_subprefix_type;
 		    TAB::key_table prefix_table =
-			bracketed_pass->prefix_table;
-		    BRA::prefix new_prefix_entry =
+			bracketed_pass->
+			    prefix_table;
+		    BRA::prefix header_entry =
 			(BRA::prefix)
 			TAB::find
-			    ( prefix_type,
+			    ( header_type,
 			      BRA::PREFIX,
-			      selectors,
+			      prefix_selectors,
 			      prefix_table );
-		    if (    new_prefix_entry
-			 == min::NULL_STUB
-			 ||
-			    new_prefix_entry->group
-			 != PARLEX::paragraph )
-			PAR::parse_error
-			  ( parser,
-			    prefix->position,
-			    "prefix separator of"
-			    " type `",
-			    min::pgen_never_quote
-				( prefix_type ),
-			    "' has `paragraph' group"
-			    " after selectors modified"
-			    " by implied headers, but"
-			    " does not have `paragraph'"
-			    " group before this"
-			    " modification; continuing"
-			    " with prefix definition"
-			    " located by INCORRECT"
-			    " modified selectors"
-			  );
-		    else if (    new_prefix_entry
-			      != prefix_entry )
+		    if (    header_entry
+			 != min::NULL_STUB
+			 &&
+			    header_entry->group
+			 == PARLEX::line )
 		    {
-			prefix_entry =
-			    new_prefix_entry;
-			cstack.prefix_entry =
-			    prefix_entry;
-		    }
-		    prefix_selectors = selectors;
-		    prefix_selectors |=
-		        prefix_entry->
-			    new_selectors.or_flags;
-		    prefix_selectors &= ~
-		        prefix_entry->
-			    new_selectors.not_flags;
-		    prefix_selectors ^=
-		        prefix_entry->
-			    new_selectors.xor_flags;
-		    prefix_selectors |=
-		        PAR::ALWAYS_SELECTOR;
-
-		    BRA::line_data & line_data =
-		        line_variables->current;
-		    line_data.lexical_master =
-		        prefix_entry->lexical_master;
-		    line_data.selectors =
-		        prefix_selectors;
-		    line_data.implied_header =
-		        min::MISSING();
-		    line_data.header_entry =
-		        min::NULL_STUB;
-			// Just for safety.
-
-		    min::gen implied_header =
-		        prefix_entry->implied_subprefix;
-		    if (     implied_header
-		          != min::MISSING() )
-		    {
-			min::gen header_type =
-			    prefix_entry->
-				implied_subprefix_type;
-			TAB::key_table prefix_table =
-			    bracketed_pass->
-			        prefix_table;
-			BRA::prefix header_entry =
-			    (BRA::prefix)
-			    TAB::find
-				( header_type,
-				  BRA::PREFIX,
-				  prefix_selectors,
-				  prefix_table );
-			if (    header_entry
-			     != min::NULL_STUB
-			     &&
-			        header_entry->group
-			     == PARLEX::line )
-			{
-			    TAB::flags
-			            header_selectors =
-				prefix_selectors;
-			    header_selectors |=
-				header_entry->
-				    new_selectors
-				        .or_flags;
-			    header_selectors &= ~
-				header_entry->
-				    new_selectors
-				        .not_flags;
-			    header_selectors ^=
-				header_entry->
-				    new_selectors
-				        .xor_flags;
-			    header_selectors |=
-				PAR::ALWAYS_SELECTOR;
-			    line_data.implied_header =
-				implied_header;
-			    line_data.header_entry =
-				header_entry;
-			    line_data.header_selectors =
-				header_selectors;
-			}
-		    }
-
-		    if (   line_variables->current
-		                          .selectors
-		         & PAR::STICKY_OPT )
-		    {
-			line_variables->
-			        implied_paragraph =
-			    line_variables->current;
-
-			line_variables->
-			    paragraph.implied_header =
-			  prefix->value;
-			line_variables->
-			    paragraph.header_entry =
-			  prefix_entry;
-			line_variables->
-			    paragraph.header_selectors =
-			  prefix_selectors;
-
-			// The following causes compact_
-			// prefix_separator to make a
-			// copy of prefix->value, so
-			// paragraph.implied_header
-			// remains unchanged.
-			//
-			// Changing prefix->type to
-			// IMPLIED_PREFIX does no harm
-			// as at this point prefix is
-			// the first thing in the
-			// logical line and we can
-			// pretend it was implied.
-			//
-			MIN_REQUIRE
-			    (    start_previous->next
-			      == prefix );
-			prefix->type =
-			    PAR::IMPLIED_PREFIX;
-		    }
-		    else
-		    {
-			line_variables->paragraph =
-			    line_variables->
-			        indentation_paragraph;
-			line_variables->
-				implied_paragraph =
-			    line_variables->
-			  indentation_implied_paragraph;
+			TAB::flags
+				header_selectors =
+			    prefix_selectors;
+			header_selectors |=
+			    header_entry->
+				new_selectors
+				    .or_flags;
+			header_selectors &= ~
+			    header_entry->
+				new_selectors
+				    .not_flags;
+			header_selectors ^=
+			    header_entry->
+				new_selectors
+				    .xor_flags;
+			header_selectors |=
+			    PAR::ALWAYS_SELECTOR;
+			line_data.implied_header =
+			    implied_header;
+			line_data.header_entry =
+			    header_entry;
+			line_data.header_selectors =
+			    header_selectors;
 		    }
 		}
 
-		cstack.closing_first =
+		if (   line_variables->current
+				      .selectors
+		     & PAR::STICKY_OPT )
+		{
+		    line_variables->
+			    implied_paragraph =
+			line_variables->current;
+
+		    line_variables->
+			paragraph.implied_header =
+		      prefix->value;
+		    line_variables->
+			paragraph.header_entry =
+		      prefix_entry;
+		    line_variables->
+			paragraph.header_selectors =
+		      prefix_selectors;
+
+		    // The following causes compact_
+		    // prefix_separator to make a
+		    // copy of prefix->value, so
+		    // paragraph.implied_header
+		    // remains unchanged.
+		    //
+		    // Changing prefix->type to
+		    // IMPLIED_PREFIX does no harm
+		    // as at this point prefix is
+		    // the first thing in the
+		    // logical line and we can
+		    // pretend it was implied.
+		    //
+		    MIN_REQUIRE
+			(    start_previous->next
+			  == prefix );
+		    prefix->type =
+			PAR::IMPLIED_PREFIX;
+		}
+		else
+		{
+		    line_variables->paragraph =
+			line_variables->
+			    indentation_paragraph;
+		    line_variables->
+			    implied_paragraph =
+			line_variables->
+		      indentation_implied_paragraph;
+		}
+	    }
+
+	    cstack.closing_first =
+		min::NULL_STUB;
+	    cstack.closing_next =
+		min::NULL_STUB;
+	    min::position separator_found =
+		PARSE_BRA_SUBEXP
+		  ( parser, prefix_selectors,
+		    current,
+		    NULL,
+		    line_variables, & cstack );
+
+	    PAR::token next =
+		cstack.closing_first;
+	    if ( next == min::NULL_STUB )
+		next = current;
+
+	    if (    prefix_group
+		 == PARLEX::paragraph
+		 &&
+		 ( ( prefix_selectors
+		     &
+		     (   PAR::EALBREAK_OPT
+		       + PAR::EALEINDENT_OPT
+		       + PAR::EALTINDENT_OPT
+		       + PAR::EALSEP_OPT ) )
+		   != 0 )
+		 &&
+		 prefix->next != next
+		 &&
+		 ( prefix->next->next != next
+		   ||
+		      prefix->next->value_type
+		   != PARLEX::line ) )
+	    {
+		PAR::token first = prefix->next;
+		BRA::compact_logical_line
+		    ( parser, bracketed_pass->next,
+		      prefix_selectors,
+		      first, next,
+		      separator_found,
+		      (TAB::root)
+		      line_variables->line_sep,
+		      trace_flags );
+	    }
+
+	    if ( BRA::compact_prefix_list
+		     ( parser, bracketed_pass->next,
+		       prefix_selectors,
+		       prefix, next,
+			  prefix_group
+		       == PARLEX::line ?
+			   separator_found :
+			   min::MISSING_POSITION,
+		       (TAB::root)
+		       line_variables->line_sep,
+		       trace_flags ) )
+	    {
+		if (    prefix_group
+		     == PARLEX::line
+		     ||
+			prefix_group
+		     == PARLEX::paragraph )
+		    PAR::value_type_ref ( prefix ) =
+			prefix_group;
+		else
+		    PAR::value_type_ref ( prefix ) =
+			min::MISSING();
+	    }
+
+	    if (    cstack.closing_first
+		 == cstack.closing_next )
+		return separator_found;
+
+	    prefix = cstack.prefix
+		   = cstack.closing_first;
+
+	    if (    prefix->value_type
+		 != prefix_type )
+	    {
+		TAB::key_table prefix_table =
+		    bracketed_pass->prefix_table;
+		prefix_entry = (BRA::prefix)
+		    TAB::find
+			( prefix->value_type,
+			  BRA::PREFIX,
+			  selectors,
+			  prefix_table );
+		MIN_REQUIRE
+		    (    prefix_entry
+		      != min::NULL_STUB );
+		if (    prefix_entry->group
+		     != prefix_group )
+		{
+		    // Special case where line
+		    // IMPLIED_HEADER is immediately
+		    // followed by paragraph
+		    // explicit prefix.
+		    //
+		    MIN_REQUIRE
+			(    prefix_group
+			  == PARLEX::line );
+		    MIN_REQUIRE
+			(    prefix_entry->group
+			  == PARLEX::paragraph
+			);
+		    MIN_REQUIRE
+			(    line_variables->
+				 previous
+			  == start_previous );
+		    prefix_group =
+			prefix_entry->group;
+		    selectors =
+			line_variables->paragraph
+				       .selectors;
+		}
+		cstack.prefix_type =
+		prefix_type =
+		    prefix->value_type;
+		cstack.prefix_entry =
+		    prefix_entry;
+		prefix_selectors = selectors;
+		prefix_selectors |=
+		    prefix_entry->
+			new_selectors.or_flags;
+		prefix_selectors &= ~
+		    prefix_entry->
+			new_selectors.not_flags;
+		prefix_selectors ^=
+		    prefix_entry->
+			new_selectors.xor_flags;
+		prefix_selectors |=
+		    PAR::ALWAYS_SELECTOR;
+	    }
+	}
+    }
+
+NEXT_TOKEN:
+
+    // Come here with `current' set to the next
+    // token to process.
+
+    // Skip comments, line breaks, and indent before
+    // comments, so that either nothing is skipped
+    // OR current is an indent or end-of-file.  If a
+    // blank line is skipped or end of file encoun-
+    // tered, set parser->at_paragraph_beginning.
+    //
+    // Comments skipped that are indented less than
+    // the indent of any following indent token are
+    // errors.  These errors are ignored but cause
+    // warning messages.
+    //
+    PAR::token first = current;
+    min::uns32 t = current->type;
+    while ( t == LEXSTD::line_break_t
+	    ||
+	    t == LEXSTD::comment_t
+	    ||
+	       t
+	    == LEXSTD::indent_before_comment_t )
+    {
+	min::uns32 previous_t = t;
+
+	PAR::ensure_next ( parser, current );
+	current = current->next;
+	t = current->type;
+
+	if ( previous_t == LEXSTD::line_break_t
+	     &&
+	     t == LEXSTD::line_break_t )
+	    parser->at_paragraph_beginning = true;
+	else if ( t == LEXSTD::end_of_file_t )
+	    parser->at_paragraph_beginning = true;
+    }
+
+    // Delete what has been skipped.
+    //
+    // We might issue warning for end of file not
+    // immediately preceeded by a line break, but
+    // an error message has already been issued by
+    // add_tokens.
+    //
+    if ( first != current )
+    {
+	// If we skipped, we stop at an indent
+	// or end of file.
+	//
+	MIN_REQUIRE
+	  ( t == LEXSTD::indent_t
+	    ||
+	    t == LEXSTD::end_of_file_t
+	  );
+
+	min::uns32 current_indent =
+	    t == LEXSTD::indent_t ?
+	    current->indent : 0;
+
+	// Delete tokens and find the bounds of any
+	// comments that are not indented as much
+	// as current_indent.
+	//
+	bool iic_exists = false;
+	min::phrase_position iic_position;
+	    // Data on insufficiently indented
+	    // comments.  Includes begin of first
+	    // such and end of last such.
+
+	while ( first != current )
+	{
+	    if (    first->type
+		 == LEXSTD::indent_before_comment_t
+		 &&
+		 first->indent < current_indent )
+	    {
+		MIN_REQUIRE ( first->next->type
+			      ==
+			      LEXSTD::comment_t );
+		if ( ! iic_exists )
+		{
+		    iic_exists = true;
+		    iic_position.begin =
+			first->next->position.begin;
+		}
+		iic_position.end =
+		    first->next->position.end;
+	    }
+	    first = first->next;
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				first->previous ) );
+	}
+
+	// Issue warning for any insufficiently
+	// indented comments.
+	//
+	if ( iic_exists )
+	    PAR::parse_warn
+		( parser, iic_position,
+		  "comments NOT indented"
+		   " as much as following line" );
+    }
+
+    if ( indentation_found != min::NULL_STUB )
+    {
+	// We come here to process an indented para-
+	// graph.  The indentation mark was found
+	// below but processing was deferred until
+	// after skip above could be done to move
+	// past the line break that followed the
+	// indentation mark.
+	//
+	MIN_REQUIRE
+	  ( current->type == LEXSTD::indent_t
+	    ||
+	    current->type == LEXSTD::end_of_file_t
+	  );
+
+	// Compute selectors for indented sub-
+	// paragraph.
+	//
+	TAB::flags new_selectors = selectors;
+	new_selectors |=
+	    indentation_found->new_selectors
+			     .or_flags;
+	new_selectors &= ~
+	    indentation_found->new_selectors
+			     .not_flags;
+	new_selectors ^=
+	    indentation_found->new_selectors
+			     .xor_flags;
+	new_selectors |= PAR::ALWAYS_SELECTOR;
+
+	PAR::token mark_end = current->previous;
+	    // Last token of indentation mark.
+	min::int32 indentation_offset =
+	    bracketed_pass->indentation_offset;
+
+	// Scan lines of paragraph.  Current will
+	// become the first line break or end of
+	// file after the paragraph.
+
+	// First be sure paragraph has some
+	// lines.
+	//
+	if ( current->type == LEXSTD::indent_t
+	     &&
+	     PAR::relative_indent
+		 ( parser,
+		   indentation_offset,
+		   current,
+		   line_variables->
+		       paragraph_indent )
+	     > 0 )
+	{
+
+	    // Initialize line_varables.
+	    //
+	    BRA::line_variables line_variables;
+	    BRA::line_data & paragraph_data =
+		line_variables
+		    .indentation_paragraph;
+	    BRA::line_data & implied_data =
+		line_variables
+		    .indentation_implied_paragraph;
+
+	    paragraph_data.lexical_master =
+	    implied_data.lexical_master =
+		indentation_found->lexical_master;
+	    paragraph_data.selectors =
+	    implied_data.selectors =
+		    new_selectors;
+	    paragraph_data.implied_header =
+	    implied_data.implied_header =
+		    min::MISSING();
+	    paragraph_data.header_entry =
+	    implied_data.header_entry =
 		    min::NULL_STUB;
-		cstack.closing_next =
-		    min::NULL_STUB;
-		min::position separator_found =
+		    // Just for safety.
+
+	    // If H = indentation_mark->
+	    //            implied_header,
+	    // we go through the following loop:
+	    //     0 times if H is MISSING
+	    //     1 times if H is paragraph header
+	    //                with MISSING
+	    //                implied_subprefix
+	    //     1 times if H is line header
+	    //     2 times if H is paragraph header
+	    //                with non-MISSING
+	    //                implied_subprefix
+	    //                (should be a `line'
+	    //                header)
+	    //
+	    min::gen implied_header =
+		indentation_found->implied_header;
+	    min::gen implied_header_type =
+		indentation_found->
+		    implied_header_type;
+	    TAB::flags header_selectors =
+		new_selectors;
+	    bool first_time = true;
+	    while (    implied_header
+		    != min::MISSING() )
+	    {
+		TAB::key_table prefix_table =
+		    bracketed_pass->prefix_table;
+		BRA::prefix header_entry =
+		    (BRA::prefix)
+		    TAB::find ( implied_header_type,
+				BRA::PREFIX,
+				header_selectors,
+				prefix_table );
+		min::gen group = min::MISSING();
+		if (    header_entry
+		     != min::NULL_STUB )
+		{
+		    group = header_entry->group;
+		    header_selectors |=
+			header_entry->
+			    new_selectors.or_flags;
+		    header_selectors &= ~
+			header_entry->
+			    new_selectors.not_flags;
+		    header_selectors ^=
+			header_entry->
+			    new_selectors.xor_flags;
+		    header_selectors |=
+			PAR::ALWAYS_SELECTOR;
+		}
+
+		if (    group
+		     == PARLEX::paragraph
+		     &&
+		     first_time )
+		{
+		    paragraph_data.implied_header =
+			implied_header;
+		    paragraph_data.header_entry =
+			header_entry;
+		    paragraph_data.header_selectors
+			= header_selectors;
+
+		    if (    header_entry->
+				lexical_master
+			 != PAR::MISSING_MASTER )
+			implied_data.lexical_master
+			    = header_entry->
+				  lexical_master;
+
+		    first_time = false;
+		    implied_header =
+			header_entry->
+			    implied_subprefix;
+		    implied_header_type =
+			header_entry->
+			    implied_subprefix_type;
+		}
+		else if (    group
+			  == PARLEX::line )
+		{
+		    implied_data.implied_header =
+			    implied_header;
+		    implied_data.header_entry =
+			    header_entry;
+		    implied_data.header_selectors =
+			    header_selectors;
+
+		    if ( first_time )
+		    {
+		      paragraph_data
+		       .implied_header =
+			  implied_data
+			    .implied_header;
+		      paragraph_data
+		       .header_entry =
+			  implied_data
+			    .header_entry;
+		      paragraph_data
+		       .header_selectors =
+			  implied_data
+			    .header_selectors;
+		    }
+		    break;
+		}
+		else
+		if ( first_time )
+		{
+		    min::phrase_position pos =
+			{ current->position.end,
+			  current->position.end };
+		    PAR::parse_error
+		      ( parser,
+			pos,
+			"indentation mark implied"
+			" header of type `",
+			min::pgen_never_quote
+			  ( implied_header_type
+			  ),
+			"' does not have"
+			" `paragraph' or `line'"
+			" group; cannot begin"
+			" indented lines;"
+			" ignored" );
+		    break;
+		}
+		else
+		{
+		    // Implied subprefix of
+		    // paragraph header is OK.
+		    // Do nothing with it.
+		    //
+		    break;
+		}
+	    }
+
+	    line_variables.paragraph =
+		line_variables
+		    .indentation_paragraph;
+	    line_variables.implied_paragraph =
+		line_variables
+		    .indentation_implied_paragraph;
+
+	    line_variables.paragraph_indent =
+		current->indent;
+	    line_variables.indentation_offset =
+		indentation_offset;
+	    line_variables.line_sep =
+		indentation_found->line_sep;
+	    line_variables.at_paragraph_end = false;
+	    line_variables.last_paragraph =
+		min::NULL_STUB;
+	    line_variables.current.selectors = ~
+		PAR::CONTINUING_OPT;
+		// line_variables.current.selectors
+		// is replaced by line_variables.
+		// paragraph.selectors at beginning
+		// of loop.
+	    parser->at_paragraph_beginning = true;
+	    while ( true )
+		// Loop to parse paragraph lines.
+	    {
+		PAR::token previous =
+		    current->previous;
+		parse_paragraph_element
+		    ( parser, current,
+		      & line_variables,
+		      trace_flags );
+		PAR::token output = previous->next;
+		if ( output == current ) break;
+	    }
+	}
+
+	// Remove indentation mark and compact
+	// indented paragraph elements into an
+	// indented paragraph value.
+	//
+	PAR::token first = mark_end->next;
+	min::phrase_position position;
+	position.begin =
+	    PAR::remove
+		( parser, first,
+		  indentation_found->label );
+	position.end = current->previous
+			      ->position.end;
+
+	PAR::attr attributes[2] =
+	    { PAR::attr
+		  ( min::dot_initiator,
+		    indentation_found->
+			label ),
+	      PAR::attr
+		  ( min::dot_terminator,
+		    min::INDENTED_PARAGRAPH() ) };
+
+	PAR::compact
+	    ( parser, bracketed_pass->next,
+	      new_selectors,
+	      first, current, position,
+	      trace_flags,
+	      PAR::BRACKETING,
+	      2, attributes );
+
+	value_type_ref(first) =
+	    indentation_found->label;
+
+	// Temporary check.
+	//
+	MIN_REQUIRE
+	  ( ! BRA::is_closed ( bracket_stack_p ) );
+
+	// Fall through to process indent or eof at
+	// current that is after indented paragraph.
+	//
+	indentation_found = min::NULL_STUB;
+    }
+
+    // Continuation after any indented paragraph
+    // has been processed, or if there was no
+    // indented paragraph.
+    //
+    if ( current->type == LEXSTD::end_of_file_t )
+	return min::MISSING_POSITION;
+    else if ( current->type == LEXSTD::indent_t )
+    {
+	if ( ( parser->at_paragraph_beginning
+	       &&
+	       start_previous->next != current )
+	     &&
+	     (   selectors
+	       & PAR::EAPBREAK_OPT ) )
+		return min::MISSING_POSITION;
+
+	// Truncate subexpression if current token
+	// indent is at or before line_variables->
+	// paragraph_indent.
+	//
+	if (   selectors
+	     & (   PAR::EALEINDENT_OPT
+		 | PAR::EALTINDENT_OPT ) )
+	{
+	    int32 rindent =
+		PAR::relative_indent
+		    ( parser,
+		      bracketed_pass->
+			  indentation_offset,
+		      current,
+		      line_variables->
+			  paragraph_indent );
+	    if ( rindent < 0 )
+		return min::MISSING_POSITION;
+	    else if ( rindent <= 0
+		      &&
+		      (   selectors
+			& PAR::EALEINDENT_OPT ) )
+		return min::MISSING_POSITION;
+	}
+
+	// Next is first part of continution line.
+	// Remove indent and continue with next
+	// token that is not indent, comment,
+	// indent-before-comment, line-break,
+	// or end-of-file.
+	//
+	PAR::ensure_next ( parser, current );
+	current = current->next;
+
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    current->previous ) );
+    }
+
+    // Continue with non-comment, non-line-break,
+    // non-eof, non-indent token.
+    //
+    MIN_REQUIRE
+	( indentation_found == min::NULL_STUB );
+    MIN_REQUIRE
+	( current->type != LEXSTD::end_of_file_t
+	  &&
+	     current->type
+	  != LEXSTD::indent_before_comment_t
+	  &&
+	  current->type != LEXSTD::indent_t
+	  &&
+	  current->type != LEXSTD::comment_t
+	  &&
+	  current->type != LEXSTD::line_break_t );
+
+    parser->at_paragraph_beginning = false;
+
+    // Process quoted strings.
+    //
+    if ( current->type == LEXSTD::quoted_string_t )
+    {
+	// Check if this quoted string is to be
+	// concatenated to a previous quoted string
+	// and go to NEXT_TOKEN if not.
+	//
+	PAR::ensure_next ( parser, current );
+	current = current->next;
+	min::gen concat =
+	    bracketed_pass->string_concatenator;
+
+	if ( concat == min::DISABLED() )
+	    goto NEXT_TOKEN;
+
+	if (    start_previous->next
+	     == current->previous )
+	    goto NEXT_TOKEN;
+
+	if ( concat != min::ENABLED() )
+	{
+	    if (    current->previous->previous
+			   ->value
+		 != concat )
+		goto NEXT_TOKEN;
+	    if (    start_previous->next
+		 == current->previous->previous )
+		goto NEXT_TOKEN;
+	    if (    current->previous->previous
+			   ->previous->type
+		 != LEXSTD::quoted_string_t )
+		goto NEXT_TOKEN;
+
+	    // Remove string_concatenator token.
+	    //
+	    PAR::free
+		( PAR::remove
+		    ( first_ref(parser),
+		      current->previous
+			     ->previous ) );
+	}
+	else if (    current->previous->previous
+			    ->type
+		  != LEXSTD::quoted_string_t )
+	    goto NEXT_TOKEN;
+
+	// Merge current->previous into current->
+	// previous->previous, and delete current->
+	// previous.
+	//
+	min::push
+	    ( (PAR::string_insptr)
+		  current->previous->previous
+				   ->string,
+	      current->previous->string->length,
+	      min::begin_ptr_of
+		  ( current->previous->string ) );
+	current->previous->previous
+		->position.end =
+	    current->previous->position.end;
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  current->previous ) );
+	goto NEXT_TOKEN;
+    }
+
+    if ( current->type == PAR::PREFIX )
+    {
+	prefix = current;
+
+	PAR::ensure_next ( parser, current );
+	current = current->next;
+
+	separator_found = min::MISSING_POSITION;
+	premature_closing = false;
+
+	goto PREFIX_FOUND;
+    }
+
+    // If lookup key in bracket table.
+    //
+    PAR::token key_first = current;
+	// First token of key, or == current if
+	// there is no key.
+    TAB::key_prefix key_prefix;
+    TAB::root root =
+	find_entry ( parser, current, key_prefix,
+		     selectors,
+		     bracketed_pass->
+			 bracket_table );
+    while ( true )
+    {
+	// Each iteration of this loop examines the
+	// found entry to see if it is a selected
+	// opening bracket or indentation mark, or a
+	// not necessarily selected closing bracket,
+	// line separator, or typed bracketed punc-
+	// tuation mark that matches a symbol active
+	// because of the bracket_stack or line_sep
+	// arguments.
+	//
+	// Note closing brackets, line selectors,
+	// and typed bracketed punctuation marks
+	// have all selectors on and selectors has
+	// ALWAYS_SELECTOR on.
+	//
+	if ( root == min::NULL_STUB )
+	{
+	    // No active bracket table entry found.
+
+	    if ( start_previous->next == current
+		 &&
+		 typed_data != NULL
+		 &&
+		 current->type == LEXSTD::mark_t )
+	    {
+		// Current is mark at begining of
+		// typed bracketed subexpresson.
+		//
+		// Turn current into TYPE token.
+		//
+		typed_data->type = current->value;
+		typed_data->has_mark_type = true;
+		current->type = BRA::TYPE;
+		++ typed_data->attr_count;
+
+		selectors =
+		    typed_data->saved_selectors;
+	    }
+
+	    // Move to next token.
+	    //
+	    PAR::ensure_next ( parser, current );
+	    current = current->next;
+	    break;
+	}
+
+	min::uns32 subtype =
+	    min::packed_subtype_of ( root );
+
+	if ( trace_flags & PAR::TRACE_KEYS )
+	{
+	    parser->printer
+		<< min::bom << min::set_indent ( 4 )
+		<< "BRACKETED "
+		<< "PARSER FOUND ";
+	    COM::print_flags
+		( selectors,
+		  PAR::COMMAND_SELECTORS,
+		  parser->selector_name_table,
+		  parser );
+	    parser->printer << " SELECTED KEY "
+		<< min::pgen_quote ( root->label )
+		<< min::indent << " OF SUBTYPE "
+		<< min::name_of_packed_subtype
+		       ( min::packed_subtype_of
+			     ( root ) )
+		<< min::eom;
+	}
+
+	if ( ( subtype == BRA::OPENING_BRACKET
+	       ||
+	       subtype == BRA::TYPED_OPENING ) )
+	{
+	    BRA::opening_bracket opening_bracket =
+		(BRA::opening_bracket) root;
+
+	    TAB::flags new_selectors = selectors;
+	    new_selectors |=
+		opening_bracket->new_selectors
+				.or_flags;
+	    new_selectors &= ~
+		opening_bracket->new_selectors
+				.not_flags;
+	    new_selectors ^=
+		opening_bracket->new_selectors
+				.xor_flags;
+	    new_selectors |= PAR::ALWAYS_SELECTOR;
+
+	    BRA::bracket_stack cstack
+		( bracket_stack_p );
+	    cstack.opening_bracket =
+		opening_bracket;
+
+	    PAR::token previous = current->previous;
+	    BRA::typed_data tdata;
+	    bool is_mark_prefix = false;
+	    if ( subtype == BRA::OPENING_BRACKET )
+	    {
+		separator_found =
 		    PARSE_BRA_SUBEXP
-		      ( parser, prefix_selectors,
+		      ( parser, new_selectors,
 			current,
 			NULL,
 			line_variables, & cstack );
+	    }
+	    else // if (    subtype
+		 //      == BRA::TYPED_OPENING )
+	    {
+		tdata.typed_opening =
+		    (BRA::typed_opening) root;
+		tdata.saved_selectors =
+		    new_selectors;
+		tdata.middle_count = 0;
+		tdata.attr_count = 0;
+		tdata.start_previous =
+		    current->previous;
+		tdata.elements = min::NULL_STUB;
+		tdata.attributes = min::NULL_STUB;
+		tdata.end_position =
+		    min::MISSING_POSITION;
+		tdata.subtype = BRA::TYPED_OPENING;
+		tdata.type = min::MISSING();
+		tdata.has_mark_type = false;
+
+		TAB::flags tselectors =
+		    new_selectors;
+		tselectors &= PAR::ALL_OPT;
+		tselectors
+		    |= tdata.typed_opening
+			       ->attr_selectors
+		    | PAR::ALWAYS_SELECTOR;
+
+		separator_found =
+		    PARSE_BRA_SUBEXP
+		      ( parser, tselectors,
+			current,
+			& tdata,
+			line_variables, & cstack );
+
+		// We do typed bracketed subexpres-
+		// sion finishing here that is
+		// logically done by TYPED_CLOSING,
+		// but is instead done here because
+		// the TYPED_CLOSING may be missing
+		// and thus be inserted below to
+		// correct its being missing.
 
 		PAR::token next =
 		    cstack.closing_first;
 		if ( next == min::NULL_STUB )
 		    next = current;
 
-		if (    prefix_group
-		     == PARLEX::paragraph
-		     &&
-		     ( ( prefix_selectors
-		         &
-			 (   PAR::EALBREAK_OPT
-			   + PAR::EALEINDENT_OPT
-			   + PAR::EALTINDENT_OPT
-			   + PAR::EALSEP_OPT ) )
-		       != 0 )
-		     &&
-		     prefix->next != next
-		     &&
-		     ( prefix->next->next != next
-		       ||
-		          prefix->next->value_type
-		       != PARLEX::line ) )
+		if ( tdata.has_mark_type )
 		{
-		    PAR::token first = prefix->next;
-		    BRA::compact_logical_line
-		        ( parser, bracketed_pass->next,
-		          prefix_selectors,
-		          first, next,
-			  separator_found,
-			  (TAB::root)
-			  line_variables->line_sep,
-			  trace_flags );
-		}
-
-		if ( BRA::compact_prefix_list
-		         ( parser, bracketed_pass->next,
-		           prefix_selectors,
-		           prefix, next,
-			      prefix_group
-			   == PARLEX::line ?
-			       separator_found :
-			       min::MISSING_POSITION,
-			   (TAB::root)
-			   line_variables->line_sep,
-			   trace_flags ) )
-		{
-		    if (    prefix_group
-		         == PARLEX::line
-			 ||
-		            prefix_group
-		         == PARLEX::paragraph )
-			PAR::value_type_ref ( prefix ) =
-			    prefix_group;
-		    else
-			PAR::value_type_ref ( prefix ) =
-			    min::MISSING();
-		}
-
-		if (    cstack.closing_first
-		     == cstack.closing_next )
-		    return separator_found;
-
-		prefix = cstack.prefix
-		       = cstack.closing_first;
-
-		if (    prefix->value_type
-		     != prefix_type )
-		{
-		    TAB::key_table prefix_table =
-			bracketed_pass->prefix_table;
-		    prefix_entry = (BRA::prefix)
-			TAB::find
-			    ( prefix->value_type,
-			      BRA::PREFIX,
-			      selectors,
-			      prefix_table );
+		    PAR::token type_token =
+			previous->next;
 		    MIN_REQUIRE
-			(    prefix_entry
-			  != min::NULL_STUB );
-		    if (    prefix_entry->group
-			 != prefix_group )
-		    {
-		        // Special case where line
-			// IMPLIED_PREFIX is immediately
-			// followed by paragraph
-			// explicit prefix.
-			//
-		        MIN_REQUIRE
-			    (    prefix_group
-			      == PARLEX::line );
-		        MIN_REQUIRE
-			    (    prefix_entry->group
-			      == PARLEX::paragraph
-			    );
-		        MIN_REQUIRE
-			    (    line_variables->
-			             previous
-			      == start_previous );
-			prefix_group =
-			    prefix_entry->group;
-			selectors =
-			    line_variables->paragraph
-			                   .selectors;
-		    }
-		    cstack.prefix_type =
-		    prefix_type =
-			prefix->value_type;
-		    cstack.prefix_entry =
-			prefix_entry;
-		    prefix_selectors = selectors;
-		    prefix_selectors |=
-			prefix_entry->
-			    new_selectors.or_flags;
-		    prefix_selectors &= ~
-			prefix_entry->
-			    new_selectors.not_flags;
-		    prefix_selectors ^=
-			prefix_entry->
-			    new_selectors.xor_flags;
-		    prefix_selectors |=
-			PAR::ALWAYS_SELECTOR;
-		}
-	    }
-	}
-
-NEXT_TOKEN:
-
-	// Come here with `current' set to the next
-	// token to process.
-
-        // Skip comments, line breaks, and indent before
-	// comments, so that either nothing is skipped
-	// OR current is an indent or end-of-file.  If a
-	// blank line is skipped or end of file encoun-
-	// tered, set parser->at_paragraph_beginning.
-	//
-	// Comments skipped that are indented less than
-	// the indent of any following indent token are
-	// errors.  These errors are ignored but cause
-	// warning messages.
-	//
-        PAR::token first = current;
-	min::uns32 t = current->type;
-	while ( t == LEXSTD::line_break_t
-	        ||
-		t == LEXSTD::comment_t
-		||
-	           t
-		== LEXSTD::indent_before_comment_t )
-	{
-	    min::uns32 previous_t = t;
-
-	    PAR::ensure_next ( parser, current );
-	    current = current->next;
-	    t = current->type;
-
-	    if ( previous_t == LEXSTD::line_break_t
-	         &&
-		 t == LEXSTD::line_break_t )
-		parser->at_paragraph_beginning = true;
-	    else if ( t == LEXSTD::end_of_file_t )
-		parser->at_paragraph_beginning = true;
-	}
-
-	// Delete what has been skipped.
-	//
-	// We might issue warning for end of file not
-	// immediately preceeded by a line break, but
-	// an error message has already been issued by
-	// add_tokens.
-	//
-	if ( first != current )
-	{
-	    // If we skipped, we stop at an indent
-	    // or end of file.
-	    //
-	    MIN_REQUIRE
-	      ( t == LEXSTD::indent_t
-		||
-	        t == LEXSTD::end_of_file_t
-	      );
-
-	    min::uns32 current_indent =
-	        t == LEXSTD::indent_t ?
-		current->indent : 0;
-
-	    // Delete tokens and find the bounds of any
-	    // comments that are not indented as much
-	    // as current_indent.
-	    //
-	    bool iic_exists = false;
-	    min::phrase_position iic_position;
-		// Data on insufficiently indented
-		// comments.  Includes begin of first
-		// such and end of last such.
-
-	    while ( first != current )
-	    {
-		if (    first->type
-		     == LEXSTD::indent_before_comment_t
-		     &&
-		     first->indent < current_indent )
-		{
-		    MIN_REQUIRE ( first->next->type
-		                  ==
-			          LEXSTD::comment_t );
-		    if ( ! iic_exists )
-		    {
-		        iic_exists = true;
-			iic_position.begin =
-			    first->next->position.begin;
-		    }
-		    iic_position.end =
-		        first->next->position.end;
-		}
-		first = first->next;
-		PAR::free
-		    ( PAR::remove ( first_ref(parser),
-				    first->previous ) );
-	    }
-
-	    // Issue warning for any insufficiently
-	    // indented comments.
-	    //
-	    if ( iic_exists )
-	        PAR::parse_warn
-		    ( parser, iic_position,
-		      "comments NOT indented"
-		       " as much as following line" );
-	}
-
-	if ( indentation_found != min::NULL_STUB )
-	{
-	    // We come here to process an indented para-
-	    // graph.  The indentation mark was found
-	    // below but processing was deferred until
-	    // after skip above could be done to move
-	    // past the line break that followed the
-	    // indentation mark.
-	    //
-	    MIN_REQUIRE
-	      ( current->type == LEXSTD::indent_t
-		||
-	        current->type == LEXSTD::end_of_file_t
-	      );
-
-	    // Compute selectors for indented sub-
-	    // paragraph.
-	    //
-	    TAB::flags new_selectors = selectors;
-	    new_selectors |=
-		indentation_found->new_selectors
-				 .or_flags;
-	    new_selectors &= ~
-		indentation_found->new_selectors
-				 .not_flags;
-	    new_selectors ^=
-		indentation_found->new_selectors
-				 .xor_flags;
-	    new_selectors |= PAR::ALWAYS_SELECTOR;
-
-	    PAR::token mark_end = current->previous;
-	        // Last token of indentation mark.
-	    min::int32 indentation_offset =
-		bracketed_pass->indentation_offset;
-
-	    // Scan lines of paragraph.  Current will
-	    // become the first line break or end of
-	    // file after the paragraph.
-
-	    // First be sure paragraph has some
-	    // lines.
-	    //
-	    if ( current->type == LEXSTD::indent_t
-		 &&
-		 PAR::relative_indent
-		     ( parser,
-		       indentation_offset,
-		       current,
-		       line_variables->
-		           paragraph_indent )
-		 > 0 )
-	    {
-
-		// Initialize line_varables.
-		//
-		BRA::line_variables line_variables;
-		BRA::line_data & paragraph_data =
-		    line_variables
-		        .indentation_paragraph;
-		BRA::line_data & implied_data =
-		    line_variables
-		        .indentation_implied_paragraph;
-
-		paragraph_data.lexical_master =
-		implied_data.lexical_master =
-		    indentation_found->lexical_master;
-		paragraph_data.selectors =
-		implied_data.selectors =
-		        new_selectors;
-		paragraph_data.implied_header =
-		implied_data.implied_header =
-		        min::MISSING();
-		paragraph_data.header_entry =
-		implied_data.header_entry =
-		        min::NULL_STUB;
-			// Just for safety.
-
-		// If H = indentation_mark->
-		//            implied_header,
-		// we go through the following loop:
-		//     0 times if H is MISSING
-		//     1 times if H is paragraph header
-		//                with MISSING
-		//                implied_subprefix
-		//     1 times if H is line header
-		//     2 times if H is paragraph header
-		//                with non-MISSING
-		//                implied_subprefix
-		//                (should be a `line'
-		//                header)
-		//
-		min::gen implied_header =
-		    indentation_found->implied_header;
-		min::gen implied_header_type =
-		    indentation_found->
-		        implied_header_type;
-		TAB::flags header_selectors =
-		    new_selectors;
-		bool first_time = true;
-		while (    implied_header
-		        != min::MISSING() )
-		{
-		    TAB::key_table prefix_table =
-			bracketed_pass->prefix_table;
-		    BRA::prefix header_entry =
-			(BRA::prefix)
-			TAB::find ( implied_header_type,
-				    BRA::PREFIX,
-			            header_selectors,
-				    prefix_table );
-		    min::gen group = min::MISSING();
-		    if (    header_entry
-		         != min::NULL_STUB )
-		    {
-		        group = header_entry->group;
-			header_selectors |=
-			    header_entry->
-			        new_selectors.or_flags;
-			header_selectors &= ~
-			    header_entry->
-			        new_selectors.not_flags;
-			header_selectors ^=
-			    header_entry->
-			        new_selectors.xor_flags;
-		        header_selectors |=
-			    PAR::ALWAYS_SELECTOR;
-		    }
-
-		    if (    group
-		         == PARLEX::paragraph
-			 &&
-			 first_time )
-		    {
-			paragraph_data.implied_header =
-			    implied_header;
-			paragraph_data.header_entry =
-			    header_entry;
-			paragraph_data.header_selectors
-			    = header_selectors;
-
-			if (    header_entry->
-			            lexical_master
-			     != PAR::MISSING_MASTER )
-			    implied_data.lexical_master
-			        = header_entry->
-				      lexical_master;
-
-		        first_time = false;
-			implied_header =
-			    header_entry->
-			        implied_subprefix;
-			implied_header_type =
-			    header_entry->
-			        implied_subprefix_type;
-		    }
-		    else if (    group
-		              == PARLEX::line )
-		    {
-			implied_data.implied_header =
-			        implied_header;
-			implied_data.header_entry =
-			        header_entry;
-			implied_data.header_selectors =
-			        header_selectors;
-
-			if ( first_time )
-			{
-			  paragraph_data
-			   .implied_header =
-			      implied_data
-			        .implied_header;
-			  paragraph_data
-			   .header_entry =
-			      implied_data
-			        .header_entry;
-			  paragraph_data
-			   .header_selectors =
-			      implied_data
-			        .header_selectors;
-			}
-			break;
-		    }
-		    else
-		    if ( first_time )
-		    {
-			min::phrase_position pos =
-			    { current->position.end,
-			      current->position.end };
-			PAR::parse_error
-			  ( parser,
-			    pos,
-			    "indentation mark implied"
-			    " header of type `",
-			    min::pgen_never_quote
-			      ( implied_header_type
-			      ),
-			    "' does not have"
-			    " `paragraph' or `line'"
-			    " group; cannot begin"
-			    " indented lines;"
-			    " ignored" );
-			break;
-		    }
-		    else
-		    {
-		        // Implied subprefix of
-			// paragraph header is OK.
-			// Do nothing with it.
-			//
-		        break;
-		    }
-		}
-
-		line_variables.paragraph =
-		    line_variables
-		        .indentation_paragraph;
-		line_variables.implied_paragraph =
-		    line_variables
-		        .indentation_implied_paragraph;
-
-		line_variables.paragraph_indent =
-		    current->indent;
-		line_variables.indentation_offset =
-		    indentation_offset;
-		line_variables.line_sep =
-		    indentation_found->line_sep;
-		line_variables.at_paragraph_end = false;
-		line_variables.last_paragraph =
-		    min::NULL_STUB;
-		line_variables.current.selectors = ~
-		    PAR::CONTINUING_OPT;
-		    // line_variables.current.selectors
-		    // is replaced by line_variables.
-		    // paragraph.selectors at beginning
-		    // of loop.
-		parser->at_paragraph_beginning = true;
-		while ( true )
-		    // Loop to parse paragraph lines.
-		{
-		    PAR::token previous =
-		        current->previous;
-		    parse_paragraph_element
-			( parser, current,
-			  & line_variables,
-			  trace_flags );
-		    PAR::token output = previous->next;
-		    if ( output == current ) break;
-		}
-	    }
-
-	    // Remove indentation mark and compact
-	    // indented paragraph elements into an
-	    // indented paragraph value.
-	    //
-	    PAR::token first = mark_end->next;
-	    min::phrase_position position;
-	    position.begin =
-		PAR::remove
-		    ( parser, first,
-		      indentation_found->label );
-	    position.end = current->previous
-			          ->position.end;
-
-	    PAR::attr attributes[2] =
-		{ PAR::attr
-		      ( min::dot_initiator,
-			indentation_found->
-			    label ),
-		  PAR::attr
-		      ( min::dot_terminator,
-		        min::INDENTED_PARAGRAPH() ) };
-
-	    PAR::compact
-		( parser, bracketed_pass->next,
-		  new_selectors,
-		  first, current, position,
-		  trace_flags,
-		  PAR::BRACKETING,
-		  2, attributes );
-
-	    value_type_ref(first) =
-		indentation_found->label;
-
-	    // Temporary check.
-	    //
-	    MIN_REQUIRE
-	      ( ! BRA::is_closed ( bracket_stack_p ) );
-
-	    // Fall through to process indent or eof at
-	    // current that is after indented paragraph.
-	    //
-	    indentation_found = min::NULL_STUB;
-	}
-
-	// Continuation after any indented paragraph
-	// has been processed, or if there was no
-	// indented paragraph.
-	//
-	if ( current->type == LEXSTD::end_of_file_t )
-	    return min::MISSING_POSITION;
-	else if ( current->type == LEXSTD::indent_t )
-	{
-	    if ( ( parser->at_paragraph_beginning
-	           &&
-		   start_previous->next != current )
-	         &&
-		 (   selectors
-		   & PAR::EAPBREAK_OPT ) )
-		    return min::MISSING_POSITION;
-
-	    // Truncate subexpression if current token
-	    // indent is at or before line_variables->
-	    // paragraph_indent.
-	    //
-	    if (   selectors
-	         & (   PAR::EALEINDENT_OPT
-	             | PAR::EALTINDENT_OPT ) )
-	    {
-		int32 rindent =
-		    PAR::relative_indent
-			( parser,
-			  bracketed_pass->
-			      indentation_offset,
-			  current,
-			  line_variables->
-			      paragraph_indent );
-		if ( rindent < 0 )
-		    return min::MISSING_POSITION;
-		else if ( rindent <= 0
-		          &&
-		          (   selectors
-		            & PAR::EALEINDENT_OPT ) )
-		    return min::MISSING_POSITION;
-	    }
-
-	    // Next is first part of continution line.
-	    // Remove indent and continue with next
-	    // token that is not indent, comment,
-	    // indent-before-comment, line-break,
-	    // or end-of-file.
-	    //
-	    PAR::ensure_next ( parser, current );
-	    current = current->next;
-
-	    PAR::free
-	        ( PAR::remove ( first_ref(parser),
-		                current->previous ) );
-	}
-
-	// Continue with non-comment, non-line-break,
-	// non-eof, non-indent token.
-	//
-	MIN_REQUIRE
-	    ( indentation_found == min::NULL_STUB );
-	MIN_REQUIRE
-	    ( current->type != LEXSTD::end_of_file_t
-	      &&
-	         current->type
-	      != LEXSTD::indent_before_comment_t
-	      &&
-	      current->type != LEXSTD::indent_t
-	      &&
-	      current->type != LEXSTD::comment_t
-	      &&
-	      current->type != LEXSTD::line_break_t );
-
-	parser->at_paragraph_beginning = false;
-
-	// Process quoted strings.
-	//
-	if ( current->type == LEXSTD::quoted_string_t )
-	{
-	    // Check if this quoted string is to be
-	    // concatenated to a previous quoted string
-	    // and go to NEXT_TOKEN if not.
-	    //
-	    PAR::ensure_next ( parser, current );
-	    current = current->next;
-	    min::gen concat =
-	        bracketed_pass->string_concatenator;
-
-	    if ( concat == min::DISABLED() )
-	        goto NEXT_TOKEN;
-
-	    if (    start_previous->next
-	         == current->previous )
-	        goto NEXT_TOKEN;
-
-	    if ( concat != min::ENABLED() )
-	    {
-	        if (    current->previous->previous
-		               ->value
-		     != concat )
-		    goto NEXT_TOKEN;
-		if (    start_previous->next
-		     == current->previous->previous )
-		    goto NEXT_TOKEN;
-		if (    current->previous->previous
-		               ->previous->type
-		     != LEXSTD::quoted_string_t )
-		    goto NEXT_TOKEN;
-
-		// Remove string_concatenator token.
-		//
-		PAR::free
-		    ( PAR::remove
-			( first_ref(parser),
-			  current->previous
-			         ->previous ) );
-	    }
-	    else if (    current->previous->previous
-	                        ->type
-		      != LEXSTD::quoted_string_t )
-	        goto NEXT_TOKEN;
-
-	    // Merge current->previous into current->
-	    // previous->previous, and delete current->
-	    // previous.
-	    //
-	    min::push
-		( (PAR::string_insptr)
-		      current->previous->previous
-				       ->string,
-		  current->previous->string->length,
-		  min::begin_ptr_of
-		      ( current->previous->string ) );
-	    current->previous->previous
-		    ->position.end =
-		current->previous->position.end;
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      current->previous ) );
-	    goto NEXT_TOKEN;
-	}
-
-	if ( current->type == PAR::PREFIX )
-	{
-	    prefix = current;
-
-	    PAR::ensure_next ( parser, current );
-	    current = current->next;
-
-	    separator_found = min::MISSING_POSITION;
-	    premature_closing = false;
-
-	    goto PREFIX_FOUND;
-	}
-
-	// If lookup key in bracket table.
-	//
-	PAR::token key_first = current;
-	    // First token of key, or == current if
-	    // there is no key.
-	TAB::key_prefix key_prefix;
-	TAB::root root =
-	    find_entry ( parser, current, key_prefix,
-			 selectors,
-			 bracketed_pass->
-			     bracket_table );
-	while ( true )
-	{
-	    // Each iteration of this loop examines the
-	    // found entry to see if it is a selected
-	    // opening bracket or indentation mark, or a
-	    // not necessarily selected closing bracket,
-	    // line separator, or typed bracketed punc-
-	    // tuation mark that matches a symbol active
-	    // because of the bracket_stack or line_sep
-	    // arguments.
-	    //
-	    // Note closing brackets, line selectors,
-	    // and typed bracketed punctuation marks
-	    // have all selectors on and selectors has
-	    // ALWAYS_SELECTOR on.
-	    //
-	    if ( root == min::NULL_STUB )
-	    {
-	        // No active bracket table entry found.
-
-		if ( start_previous->next == current
-		     &&
-		     typed_data != NULL
-		     &&
-		     current->type == LEXSTD::mark_t )
-		{
-		    // Current is mark at begining of
-		    // typed bracketed subexpresson.
-		    //
-		    // Turn current into TYPE token.
-		    //
-		    typed_data->type = current->value;
-		    typed_data->has_mark_type = true;
-		    current->type = BRA::TYPE;
-		    ++ typed_data->attr_count;
-
-		    selectors =
-		        typed_data->saved_selectors;
-		}
-
-		// Move to next token.
-		//
-		PAR::ensure_next ( parser, current );
-		current = current->next;
-		break;
-	    }
-
-	    min::uns32 subtype =
-		min::packed_subtype_of ( root );
-
-	    if ( trace_flags & PAR::TRACE_KEYS )
-	    {
-	        parser->printer
-		    << min::bom << min::set_indent ( 4 )
-		    << "BRACKETED "
-		    << "PARSER FOUND ";
-		COM::print_flags
-		    ( selectors,
-		      PAR::COMMAND_SELECTORS,
-		      parser->selector_name_table,
-		      parser );
-		parser->printer << " SELECTED KEY "
-		    << min::pgen_quote ( root->label )
-		    << min::indent << " OF SUBTYPE "
-		    << min::name_of_packed_subtype
-		           ( min::packed_subtype_of
-			         ( root ) )
-		    << min::eom;
-	    }
-
-	    if ( ( subtype == BRA::OPENING_BRACKET
-	           ||
-		   subtype == BRA::TYPED_OPENING ) )
-	    {
-		BRA::opening_bracket opening_bracket =
-		    (BRA::opening_bracket) root;
-
-		TAB::flags new_selectors = selectors;
-		new_selectors |=
-		    opening_bracket->new_selectors
-				    .or_flags;
-		new_selectors &= ~
-		    opening_bracket->new_selectors
-				    .not_flags;
-		new_selectors ^=
-		    opening_bracket->new_selectors
-				    .xor_flags;
-		new_selectors |= PAR::ALWAYS_SELECTOR;
-
-		BRA::bracket_stack cstack
-		    ( bracket_stack_p );
-		cstack.opening_bracket =
-		    opening_bracket;
-
-		PAR::token previous = current->previous;
-		BRA::typed_data tdata;
-		bool is_mark_prefix = false;
-		if ( subtype == BRA::OPENING_BRACKET )
-		{
-		    separator_found =
-			PARSE_BRA_SUBEXP
-			  ( parser, new_selectors,
-			    current,
-			    NULL,
-			    line_variables, & cstack );
-		}
-		else // if (    subtype
-		     //      == BRA::TYPED_OPENING )
-		{
-		    tdata.typed_opening =
-			(BRA::typed_opening) root;
-		    tdata.saved_selectors =
-		        new_selectors;
-		    tdata.middle_count = 0;
-		    tdata.attr_count = 0;
-		    tdata.start_previous =
-		        current->previous;
-		    tdata.elements = min::NULL_STUB;
-		    tdata.attributes = min::NULL_STUB;
-		    tdata.end_position =
-			min::MISSING_POSITION;
-		    tdata.subtype = BRA::TYPED_OPENING;
-		    tdata.type = min::MISSING();
-		    tdata.has_mark_type = false;
-
-		    TAB::flags tselectors =
-		        new_selectors;
-		    tselectors &= PAR::ALL_OPT;
-		    tselectors
-		        |= tdata.typed_opening
-				   ->attr_selectors
-		        | PAR::ALWAYS_SELECTOR;
-
-		    separator_found =
-			PARSE_BRA_SUBEXP
-			  ( parser, tselectors,
-			    current,
-			    & tdata,
-			    line_variables, & cstack );
-
-		    // We do typed bracketed subexpres-
-		    // sion finishing here that is
-		    // logically done by TYPED_CLOSING,
-		    // but is instead done here because
-		    // the TYPED_CLOSING may be missing
-		    // and thus be inserted below to
-		    // correct its being missing.
-
-		    PAR::token next =
-		        cstack.closing_first;
-		    if ( next == min::NULL_STUB )
-		        next = current;
-
-		    if ( tdata.has_mark_type )
-		    {
-			PAR::token type_token =
-			    previous->next;
-			MIN_REQUIRE
-			    (    type_token->type
-			      == BRA::TYPE );
-			MIN_REQUIRE
-			    (    type_token->value
-			      == tdata.type );
-			if (    type_token
-			     == next->previous )
-			    is_mark_prefix = true;
-			else if (    next->previous
-			                 ->type
-			          != LEXSTD::mark_t )
-			    ::missing_error
-			        ( parser, next, "`",
-				  min::pgen_never_quote
-				    ( tdata.type ),
-				  "' at end of"
-				  " typed bracketed"
-				  " expression;"
-				  " inserted before" );
-			else
-			{
-			    if (    next->previous
-			                ->value
-				 != tdata.type )
-			    {
-				min::gen v[2] =
-				    { tdata.type,
-				      next->previous
-					  ->value };
-				PAR::value_ref
-					(type_token) =
-				    min::new_lab_gen
-					 ( v, 2 );
-			    }
-			    MIN_REQUIRE
-			        (    type_token
-				  != next->previous );
-			    PAR::free
-			        ( PAR::remove
-				    ( first_ref(parser),
-				      next->previous )
-				);
-			}
-			if (    type_token
-			     != next->previous )
-			    tdata.elements =
-				type_token->next;
-		    }
-		    else
-		    if ( tdata.middle_count % 2 == 1 )
-		    {
-		        MIN_REQUIRE
-			    (    tdata.subtype
-			      == BRA::TYPED_MIDDLE );
-			missing_error
+			(    type_token->type
+			  == BRA::TYPE );
+		    MIN_REQUIRE
+			(    type_token->value
+			  == tdata.type );
+		    if (    type_token
+			 == next->previous )
+			is_mark_prefix = true;
+		    else if (    next->previous
+				     ->type
+			      != LEXSTD::mark_t )
+			::missing_error
 			    ( parser, next, "`",
 			      min::pgen_never_quote
-			          ( tdata.typed_opening
-				      ->typed_middle
-				      ->label ),
-			      "'; inserted before" );
-			if (    tdata.elements
-			     == min::NULL_STUB
-			     &&
-			        tdata.start_previous
-				    ->next
-			     != next )
-			    tdata.elements =
-			        tdata.start_previous
-				    ->next;
-		    }
+				( tdata.type ),
+			      "' at end of"
+			      " typed bracketed"
+			      " expression;"
+			      " inserted before" );
 		    else
 		    {
-	                // Note TYPED_ATTR_BEGIN can
-			// only happen here if typed
-			// attribute beginning was AFTER
-			// an attribute, as if it is
-			// after a beginning type,
-			// tdata.subtype is set to
-			// TYPED_ATTR_SEP instead.
-
-		        if ( (    tdata.subtype
-			       == BRA::TYPED_OPENING
-			       ||
-			          tdata.subtype
-			       == BRA::TYPED_MIDDLE )
-			     &&
-			        tdata.start_previous
-				          ->next
-			     != next )
+			if (    next->previous
+				    ->value
+			     != tdata.type )
 			{
-			    ::make_type_label
-			        ( parser, & tdata,
-				  next );
+			    min::gen v[2] =
+				{ tdata.type,
+				  next->previous
+				      ->value };
+			    PAR::value_ref
+				    (type_token) =
+				min::new_lab_gen
+				     ( v, 2 );
 			}
-		        else if (    tdata.subtype
-			          == BRA::
-				     TYPED_ATTR_BEGIN )
-			{
-			    ::make_type_label
-			        ( parser, & tdata,
-				  next );
-			}
-		        else if (    tdata.subtype
-			          != BRA::TYPED_OPENING
-				)
-			{
-			    ::finish_attribute
-				( parser, & tdata,
-				  next );
-			    ::move_attributes
-				( parser, & tdata,
-				  next );
-			}
-		    }
-		}
-
-		// Separator cannot be found inside
-		// brackets.
-		//
-		MIN_REQUIRE ( ! separator_found );
-
-		PAR::token next = current;
-		min::phrase_position position;
-		    // Arguments for compact.
-
-		if (    cstack.closing_next
-		     == cstack.closing_first )
-		{
-		    // Found a closing bracket that is
-		    // not ours, or found a line break
-		    // or end of file that terminates a
-		    // paragraph with the closing
-		    // bracket missing.
-
-		    // Compute location `next' just
-		    // before which closing bracket
-		    // should be inserted.
-		    //
-		    if (   cstack.closing_first
-			 != min::NULL_STUB )
-			next = cstack.closing_first;
-		    position.end =
-			  next->previous->position.end;
-
-		    // Because tokens in a typed
-		    // bracketed subexpression have been
-		    // rearranged, the original next->
-		    // previous may have been moved or
-		    // removed, and so cannot be used
-		    // for the end position.  Tdata.end_
-		    // position records the true end of
-		    // the subexpression in this case.
-		    // 
-		    if ( subtype == BRA::TYPED_OPENING
-		         &&
-			 tdata.end_position
-			 &&
-			   tdata.end_position
-			 > position.end )
-		        position.end =
-			    tdata.end_position;
-
-		    if (   cstack.closing_first
-			 == min::NULL_STUB )
-		    {
-			min::phrase_position pos =
-			    position;
-			pos.begin = position.end;
-		        PAR::parse_error
-			    ( parser, pos,
-			      "missing closing"
-			      " bracket `",
-			      min::pgen_never_quote
-			          ( opening_bracket->
-			            closing_bracket->
-				        label ),
-			      "' inserted at end of"
-			      " logical line that"
-			      " ends here" );
-		    }
-		    else if ( min::is_name
-		                  ( next->value ) )
-		        PAR::parse_error
-			    ( parser, next->position,
-			      "missing closing"
-			      " bracket `",
-			      min::pgen_never_quote
-			          ( opening_bracket->
-			            closing_bracket->
-				        label ),
-			      "' inserted before `",
-			      min::pgen_never_quote
-			          ( next->value ),
-			      "'" );
-		    else
-		    {
-			min::phrase_position position =
-			    next->position;
-			position.begin = position.end;
-		        PAR::parse_error
-			    ( parser, position,
-			      "missing closing"
-			      " bracket `",
-			      min::pgen_never_quote
-			          ( opening_bracket->
-			            closing_bracket->
-				        label ),
-			      "' inserted just before"
-			      " here" );
-		    }
-		}
-		else
-		{
-		    MIN_REQUIRE (    cstack.closing_next
-		                  == current );
-		    position.end =
-			current->previous->position.end;
-
-		    PAR::remove ( parser, current,
-			          cstack.opening_bracket
-			              ->closing_bracket
-				      ->label );
-		}
-
-		PAR::token first = previous->next;
-		position.begin =
-		    PAR::remove
-			( parser, first,
-			  opening_bracket->label );
-		    // At this point previous is no
-		    // longer valid.
-
-		if ( subtype == BRA::OPENING_BRACKET )
-		{
-		    if (    opening_bracket
-		                 ->reformatter
-		         == min::NULL_STUB
-		         ||
-		         ( * opening_bracket->
-			       reformatter->
-			       reformatter_function )
-			     ( parser,
-			       (PAR::pass)
-			           bracketed_pass,
-			       new_selectors,
-			       first, next, position,
-			       trace_flags,
-			       (TAB::root)
-			           opening_bracket )
-		       )
-		    {
-			// Untyped bracketed subexpres-
-			// sion without reformatter, or
-			// with reformatter requesting
-			// compaction.
-
-			PAR::attr attributes[2] =
-			    { PAR::attr
-				  ( min::dot_initiator,
-				    opening_bracket->
-					label ),
-			      PAR::attr
-				  ( min::dot_terminator,
-				    opening_bracket->
-				      closing_bracket->
-					      label ) };
-
-			PAR::compact
-			    ( parser,
-			      bracketed_pass->next,
-			      new_selectors,
-			      first, next, position,
-			      trace_flags,
-			      PAR::BRACKETING,
-			      2, attributes, 1 );
-
-			value_type_ref(first) =
-			    opening_bracket->label;
-		    }
-		}
-		else // if (    subtype
-		     //      == BRA::TYPED_OPENING )
-		{
-		    // At this point the subexpression
-		    // consists of special attribute
-		    // tokens (with token types TYPE,
-		    // ATTR_{LABEL,VALUE,TRUE,FALSE,
-		    // FLAGS,MULTIVALUE}) followed by
-		    // subexpression elements (beginning
-		    // with typed_data.elements which is
-		    // NULL_STUB if there are no
-		    // elements).
-
-
-		    // Loop through special attribute
-		    // tokens making a list of attribu-
-		    // tes to be handed to the compact
-		    // function.
-		    //
-		    PAR::attr attributes
-			[tdata.attr_count];
-		    PAR::token elements =
-		        tdata.elements;
-		    if ( elements == min::NULL_STUB )
-		        elements = next;
-		    min::gen type = min::MISSING();
-		    min::unsptr i = 0;
-		    bool skip = false;	
-		        // If true, skip to next
-			// attribute label.
-		    for ( PAR::token t = first;
-		          t != elements; t = t->next )
-		    {
-		        if ( t->type == BRA::TYPE )
-			{
-			    if (    t->value
-			         == min::empty_str )
-			        /* Do nothing. */;
-			    else
-			    if (    t->value
-			         == min::empty_lab )
-			    {
-			        PAR::parse_error
-				    ( parser,
-				      t->position,
-				      "empty type"
-				      " label;"
-				      " ignored" );
-			    }
-			    else
-			    {
-				MIN_REQUIRE
-				 (   i
-				   < tdata.attr_count );
-				attributes[i].name =
-				    min::dot_type;
-				attributes[i].value =
-				    t->value;
-				type = t->value;
-				++ i;
-			    }
-			    skip = true;
-			}
-		        else if (    t->type
-			          == BRA::ATTR_LABEL )
-			{
-			    if (    t->value
-			         == min::empty_lab )
-			    {
-			        PAR::parse_error
-				    ( parser,
-				      t->position,
-				      "empty attribute"
-				      " label;"
-				      " attribute"
-				      " ignored" );
-			        skip = true;
-			    }
-			    else
-			    {
-				MIN_REQUIRE
-				 (   i
-				   < tdata.attr_count );
-				attributes[i].name =
-				    t->value;
-				++ i;
-				skip = false;
-			    }
-			}
-		        else if (    t->type
-			          == BRA::ATTR_TRUE )
-			{
-			    if (    t->value
-			         == min::empty_lab )
-			    {
-			        PAR::parse_error
-				    ( parser,
-				      t->position,
-				      "empty attribute"
-				      " label;"
-				      " attribute"
-				      " ignored" );
-			        skip = true;
-			    }
-			    else
-			    {
-				MIN_REQUIRE
-				 (   i
-				   < tdata.attr_count );
-				attributes[i].name =
-				    t->value;
-				attributes[i].value =
-				    min::TRUE;
-				++ i;
-				skip = false;
-			    }
-			}
-		        else if (    t->type
-			          == BRA::ATTR_FALSE )
-			{
-			    if (    t->value
-			         == min::empty_lab )
-			    {
-			        PAR::parse_error
-				    ( parser,
-				      t->position,
-				      "empty attribute"
-				      " label;"
-				      " attribute"
-				      " ignored" );
-			        skip = true;
-			    }
-			    else
-			    {
-				MIN_REQUIRE
-				 (   i
-				   < tdata.attr_count );
-				attributes[i].name =
-				    t->value;
-				attributes[i].value =
-				    min::FALSE;
-				++ i;
-				skip = false;
-			    }
-			}
-			else if ( skip )
-			    /* Do nothing */;
-		        else if (    t->type
-			          == BRA::ATTR_VALUE )
-			{
-			    // min::is_attr_legal
-			    //     ( t->value )
-			    // checked when token made
-			    // and if false token value
-			    // replaced by NONE.
-			    //
-			    if (    t->value
-			         == min::NONE() )
-			    {
-			        -- i;
-				skip = true;
-			    }
-			    else
-				attributes[i-1].value =
-				    t->value;
-			}
-		        else if (    t->type
-			          == BRA::
-				     ATTR_MULTIVALUE )
-			    attributes[i-1].multivalue =
-			        t->value;
-		        else if (    t->type
-			          == BRA::ATTR_FLAGS )
-			    attributes[i-1].flags =
-			        t->value;
-		    }
-
-		    min::uns32 token_type =
-		        i == 0 ?
-			    PAR::BRACKETING :
-			i == 1
-			&&
-			   attributes[0].name
-			== min::dot_type ?
-			    PAR::BRACKETING :
-			    PAR::BRACKETED;
-		    if ( type != min::MISSING()
-		         &&
-			 tdata.middle_count == 0
-		         &&
-			 ( ! tdata.has_mark_type 
-			   ||
-			   is_mark_prefix )
-			 &&
-			 tdata.typed_opening->
-			     prefix_separators_allowed )
-		        token_type = PAR::PREFIX;
-		    else
-		        type = min::MISSING();
-
-		    bool first_equals_elements =
-		        ( first == elements );
-		    PAR::compact
-			( parser, bracketed_pass->next,
-			  new_selectors,
-			  elements, next, position,
-			  trace_flags,
-			  token_type,
-			  i, attributes, 1 );
-
-		    value_type_ref(elements) = type;
-
-		    // We delay deleting tokens until
-		    // their values are protected from
-		    // the garbage collector by compact.
-		    //
-		    // Compact deletes the elements and
-		    // inserts a new token before `next'
-		    // containing the compacted sub-
-		    // expression, setting `elements'
-		    // to point at that token.
-		    //
-		    if ( ! first_equals_elements )
-		    do
-		    {
-		        first = first->next;
+			MIN_REQUIRE
+			    (    type_token
+			      != next->previous );
 			PAR::free
 			    ( PAR::remove
 				( first_ref(parser),
-				  first->previous ) );
+				  next->previous )
+			    );
 		    }
-		    while ( first != elements );
-
-		    if ( elements->type == PAR::PREFIX )
-		    {
-			prefix = elements;
-			premature_closing =
-			    (    cstack.closing_next
-		              == cstack.closing_first );
-			goto PREFIX_FOUND;
-		    }
-		}
-
-		// Come here after compacting.
-
-		if (    cstack.closing_next
-		     == cstack.closing_first )
-		{
-		    // Found a closing bracket that is
-		    // not ours or logical line end.
-		    // Kick to caller.
-		    //
-		    return separator_found;
+		    if (    type_token
+			 != next->previous )
+			tdata.elements =
+			    type_token->next;
 		}
 		else
-		    break;
-	    }
-	    else if ( subtype == BRA::CLOSING_BRACKET )
-	    {
-		BRA::closing_bracket closing_bracket =
-		    (BRA::closing_bracket) root;
-
-		for ( BRA::bracket_stack * p =
-			  bracket_stack_p;
-		      p != NULL;
-		      p = p->previous )
+		if ( tdata.middle_count % 2 == 1 )
 		{
-		    if (    p->opening_bracket
-		         != min::NULL_STUB
+		    MIN_REQUIRE
+			(    tdata.subtype
+			  == BRA::TYPED_MIDDLE );
+		    missing_error
+			( parser, next, "`",
+			  min::pgen_never_quote
+			      ( tdata.typed_opening
+				  ->typed_middle
+				  ->label ),
+			  "'; inserted before" );
+		    if (    tdata.elements
+			 == min::NULL_STUB
 			 &&
-		            p->opening_bracket
-		             ->closing_bracket
-			 == closing_bracket )
+			    tdata.start_previous
+				->next
+			 != next )
+			tdata.elements =
+			    tdata.start_previous
+				->next;
+		}
+		else
+		{
+		    // Note TYPED_ATTR_BEGIN can
+		    // only happen here if typed
+		    // attribute beginning was AFTER
+		    // an attribute, as if it is
+		    // after a beginning type,
+		    // tdata.subtype is set to
+		    // TYPED_ATTR_SEP instead.
+
+		    if ( (    tdata.subtype
+			   == BRA::TYPED_OPENING
+			   ||
+			      tdata.subtype
+			   == BRA::TYPED_MIDDLE )
+			 &&
+			    tdata.start_previous
+				      ->next
+			 != next )
 		    {
-		        p->closing_first = key_first;
-			p->closing_next = current;
-
-			for ( BRA::bracket_stack *
-			          q = bracket_stack_p;
-			      q != p;
-			      q = q->previous )
-			    q->closing_first =
-			        q->closing_next =
-				    key_first;
-
-			return min::MISSING_POSITION;
+			::make_type_label
+			    ( parser, & tdata,
+			      next );
 		    }
-		    else if ( ! (   selectors
-		                  & PAR::EAOCLOSING_OPT
-				) )
-		        break;
-		}
-
-		// Closing bracket does not match a
-		// bracket stack entry; reject key.
-	    }
-	    else if ( subtype == BRA::INDENTATION_MARK )
-	    {
-                if (    current->type
-		     == LEXSTD::line_break_t
-		     ||
-		        current->type
-		     == LEXSTD::comment_t
-		     ||
-		        current->type
-		     == LEXSTD::end_of_file_t )
-		{
-		    indentation_found =
-			(BRA::indentation_mark) root;
-		    break;
-		}
-
-		// Indentation mark not at end of line
-		// or end of file; reject key.
-	    }
-	    else if ( subtype == BRA::LINE_SEP
-	              &&
-                         line_variables->line_sep
-		      == (BRA::line_sep) root
-		      &&
-		      (   selectors
-		        & PAR::EALSEP_OPT ) )
-	    {
-		separator_found =
-		    current->previous->position.end;
-		PAR::remove
-		    ( parser, current, root->label );
-		return separator_found ;
-	    }
-	    else if ( subtype == BRA::TYPED_MIDDLE
-		      ||
-		         subtype
-		      == BRA::TYPED_DOUBLE_MIDDLE )
-	    {
-		if ( typed_data != NULL
-		     &&
-		        root
-		     == (    subtype
-			   == BRA::TYPED_MIDDLE ?
-		          (TAB::root)
-		          typed_data->typed_opening
-			            ->typed_middle :
-		          (TAB::root)
-		          typed_data->
-			      typed_opening->
-			      typed_double_middle )
-		     &&
-		     ! typed_data->has_mark_type )
-		{
-		    typed_data->end_position =
-		        current->previous->position.end;
-
-		    if (    typed_data->middle_count % 2
-		         == 0 )
+		    else if (    tdata.subtype
+			      == BRA::
+				 TYPED_ATTR_BEGIN )
 		    {
-		        if (    typed_data->subtype
-			     == BRA::TYPED_OPENING
-			     &&
-			        typed_data
-				    ->start_previous
-				    ->next
-			     != key_first )
-			    ::make_type_label
-			        ( parser, typed_data,
-				  key_first );
-		        else if (    typed_data->subtype
-			          != BRA::TYPED_OPENING
-				)
+			::make_type_label
+			    ( parser, & tdata,
+			      next );
+		    }
+		    else if (    tdata.subtype
+			      != BRA::TYPED_OPENING
+			    )
+		    {
+			::finish_attribute
+			    ( parser, & tdata,
+			      next );
+			::move_attributes
+			    ( parser, & tdata,
+			      next );
+		    }
+		}
+	    }
+
+	    // Separator cannot be found inside
+	    // brackets.
+	    //
+	    MIN_REQUIRE ( ! separator_found );
+
+	    PAR::token next = current;
+	    min::phrase_position position;
+		// Arguments for compact.
+
+	    if (    cstack.closing_next
+		 == cstack.closing_first )
+	    {
+		// Found a closing bracket that is
+		// not ours, or found a line break
+		// or end of file that terminates a
+		// paragraph with the closing
+		// bracket missing.
+
+		// Compute location `next' just
+		// before which closing bracket
+		// should be inserted.
+		//
+		if (   cstack.closing_first
+		     != min::NULL_STUB )
+		    next = cstack.closing_first;
+		position.end =
+		      next->previous->position.end;
+
+		// Because tokens in a typed
+		// bracketed subexpression have been
+		// rearranged, the original next->
+		// previous may have been moved or
+		// removed, and so cannot be used
+		// for the end position.  Tdata.end_
+		// position records the true end of
+		// the subexpression in this case.
+		// 
+		if ( subtype == BRA::TYPED_OPENING
+		     &&
+		     tdata.end_position
+		     &&
+		       tdata.end_position
+		     > position.end )
+		    position.end =
+			tdata.end_position;
+
+		if (   cstack.closing_first
+		     == min::NULL_STUB )
+		{
+		    min::phrase_position pos =
+			position;
+		    pos.begin = position.end;
+		    PAR::parse_error
+			( parser, pos,
+			  "missing closing"
+			  " bracket `",
+			  min::pgen_never_quote
+			      ( opening_bracket->
+				closing_bracket->
+				    label ),
+			  "' inserted at end of"
+			  " logical line that"
+			  " ends here" );
+		}
+		else if ( min::is_name
+			      ( next->value ) )
+		    PAR::parse_error
+			( parser, next->position,
+			  "missing closing"
+			  " bracket `",
+			  min::pgen_never_quote
+			      ( opening_bracket->
+				closing_bracket->
+				    label ),
+			  "' inserted before `",
+			  min::pgen_never_quote
+			      ( next->value ),
+			  "'" );
+		else
+		{
+		    min::phrase_position position =
+			next->position;
+		    position.begin = position.end;
+		    PAR::parse_error
+			( parser, position,
+			  "missing closing"
+			  " bracket `",
+			  min::pgen_never_quote
+			      ( opening_bracket->
+				closing_bracket->
+				    label ),
+			  "' inserted just before"
+			  " here" );
+		}
+	    }
+	    else
+	    {
+		MIN_REQUIRE (    cstack.closing_next
+			      == current );
+		position.end =
+		    current->previous->position.end;
+
+		PAR::remove ( parser, current,
+			      cstack.opening_bracket
+				  ->closing_bracket
+				  ->label );
+	    }
+
+	    PAR::token first = previous->next;
+	    position.begin =
+		PAR::remove
+		    ( parser, first,
+		      opening_bracket->label );
+		// At this point previous is no
+		// longer valid.
+
+	    if ( subtype == BRA::OPENING_BRACKET )
+	    {
+		if (    opening_bracket
+			     ->reformatter
+		     == min::NULL_STUB
+		     ||
+		     ( * opening_bracket->
+			   reformatter->
+			   reformatter_function )
+			 ( parser,
+			   (PAR::pass)
+			       bracketed_pass,
+			   new_selectors,
+			   first, next, position,
+			   trace_flags,
+			   (TAB::root)
+			       opening_bracket )
+		   )
+		{
+		    // Untyped bracketed subexpres-
+		    // sion without reformatter, or
+		    // with reformatter requesting
+		    // compaction.
+
+		    PAR::attr attributes[2] =
+			{ PAR::attr
+			      ( min::dot_initiator,
+				opening_bracket->
+				    label ),
+			  PAR::attr
+			      ( min::dot_terminator,
+				opening_bracket->
+				  closing_bracket->
+					  label ) };
+
+		    PAR::compact
+			( parser,
+			  bracketed_pass->next,
+			  new_selectors,
+			  first, next, position,
+			  trace_flags,
+			  PAR::BRACKETING,
+			  2, attributes, 1 );
+
+		    value_type_ref(first) =
+			opening_bracket->label;
+		}
+	    }
+	    else // if (    subtype
+		 //      == BRA::TYPED_OPENING )
+	    {
+		// At this point the subexpression
+		// consists of special attribute
+		// tokens (with token types TYPE,
+		// ATTR_{LABEL,VALUE,TRUE,FALSE,
+		// FLAGS,MULTIVALUE}) followed by
+		// subexpression elements (beginning
+		// with typed_data.elements which is
+		// NULL_STUB if there are no
+		// elements).
+
+
+		// Loop through special attribute
+		// tokens making a list of attribu-
+		// tes to be handed to the compact
+		// function.
+		//
+		PAR::attr attributes
+		    [tdata.attr_count];
+		PAR::token elements =
+		    tdata.elements;
+		if ( elements == min::NULL_STUB )
+		    elements = next;
+		min::gen type = min::MISSING();
+		min::unsptr i = 0;
+		bool skip = false;	
+		    // If true, skip to next
+		    // attribute label.
+		for ( PAR::token t = first;
+		      t != elements; t = t->next )
+		{
+		    if ( t->type == BRA::TYPE )
+		    {
+			if (    t->value
+			     == min::empty_str )
+			    /* Do nothing. */;
+			else
+			if (    t->value
+			     == min::empty_lab )
 			{
-			    ::finish_attribute
-				( parser, typed_data,
-				  key_first );
-			    ::move_attributes
-				( parser, typed_data,
-				  key_first );
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "empty type"
+				  " label;"
+				  " ignored" );
+			}
+			else
+			{
+			    MIN_REQUIRE
+			     (   i
+			       < tdata.attr_count );
+			    attributes[i].name =
+				min::dot_type;
+			    attributes[i].value =
+				t->value;
+			    type = t->value;
+			    ++ i;
+			}
+			skip = true;
+		    }
+		    else if (    t->type
+			      == BRA::ATTR_LABEL )
+		    {
+			if (    t->value
+			     == min::empty_lab )
+			{
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "empty attribute"
+				  " label;"
+				  " attribute"
+				  " ignored" );
+			    skip = true;
+			}
+			else
+			{
+			    MIN_REQUIRE
+			     (   i
+			       < tdata.attr_count );
+			    attributes[i].name =
+				t->value;
+			    ++ i;
+			    skip = false;
 			}
 		    }
-		    else // if
-		         // typed_data->middle_count % 2
-			 // == 1
+		    else if (    t->type
+			      == BRA::ATTR_TRUE )
 		    {
-			if (    typed_data->elements
-			     == min::NULL_STUB
-			     &&
-			        typed_data
-				    ->start_previous
-				    ->next
-			     != key_first )
-			    typed_data->elements =
-			        typed_data
-				    ->start_previous
-				    ->next;
+			if (    t->value
+			     == min::empty_lab )
+			{
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "empty attribute"
+				  " label;"
+				  " attribute"
+				  " ignored" );
+			    skip = true;
+			}
+			else
+			{
+			    MIN_REQUIRE
+			     (   i
+			       < tdata.attr_count );
+			    attributes[i].name =
+				t->value;
+			    attributes[i].value =
+				min::TRUE;
+			    ++ i;
+			    skip = false;
+			}
 		    }
-
-		    PAR::remove ( parser, current,
-			          root->label );
-		    typed_data->subtype =
-			BRA::TYPED_MIDDLE;
-		    typed_data->start_previous =
-		        current->previous;
-		    ++ typed_data->middle_count;
-
-		    if (    subtype
-		         == BRA::TYPED_DOUBLE_MIDDLE )
+		    else if (    t->type
+			      == BRA::ATTR_FALSE )
 		    {
-			++ typed_data->middle_count;
-			break;
+			if (    t->value
+			     == min::empty_lab )
+			{
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "empty attribute"
+				  " label;"
+				  " attribute"
+				  " ignored" );
+			    skip = true;
+			}
+			else
+			{
+			    MIN_REQUIRE
+			     (   i
+			       < tdata.attr_count );
+			    attributes[i].name =
+				t->value;
+			    attributes[i].value =
+				min::FALSE;
+			    ++ i;
+			    skip = false;
+			}
 		    }
-
-		    // Do the following only if subtype
-		    // == BRA::TYPED_MIDDLE.
-
-		    if (    typed_data->middle_count % 2
-		         == 1 )
-			selectors =
-			    typed_data->saved_selectors;
-		    else // if
-		         // typed_data->middle_count % 2
-			 // == 0
+		    else if ( skip )
+			/* Do nothing */;
+		    else if (    t->type
+			      == BRA::ATTR_VALUE )
 		    {
-			selectors &= PAR::ALL_OPT;
-			selectors |=
-			      typed_data
-			          ->typed_opening
-			          ->attr_selectors
-			    | PAR::ALWAYS_SELECTOR;
+			// min::is_attr_legal
+			//     ( t->value )
+			// checked when token made
+			// and if false token value
+			// replaced by NONE.
+			//
+			if (    t->value
+			     == min::NONE() )
+			{
+			    -- i;
+			    skip = true;
+			}
+			else
+			    attributes[i-1].value =
+				t->value;
 		    }
-
-		    break;
+		    else if (    t->type
+			      == BRA::
+				 ATTR_MULTIVALUE )
+			attributes[i-1].multivalue =
+			    t->value;
+		    else if (    t->type
+			      == BRA::ATTR_FLAGS )
+			attributes[i-1].flags =
+			    t->value;
 		}
 
-		// Typed middle does not match typed_
-		// opening; reject key.
-	    }
-	    else if (    subtype
-	              == BRA::TYPED_ATTR_BEGIN )
-	    {
-		if ( typed_data != NULL
+		min::uns32 token_type =
+		    i == 0 ?
+			PAR::BRACKETING :
+		    i == 1
+		    &&
+		       attributes[0].name
+		    == min::dot_type ?
+			PAR::BRACKETING :
+			PAR::BRACKETED;
+		if ( type != min::MISSING()
 		     &&
-		        typed_data->typed_opening
-			          ->typed_attr_begin
-		     == (BRA::typed_attr_begin) root
+		     tdata.middle_count == 0
 		     &&
-		     typed_data->middle_count % 2 == 0
+		     ( ! tdata.has_mark_type 
+		       ||
+		       is_mark_prefix )
 		     &&
-		     ! typed_data->has_mark_type )
+		     tdata.typed_opening->
+			 prefix_separators_allowed )
+		    token_type = PAR::PREFIX;
+		else
+		    type = min::MISSING();
+
+		bool first_equals_elements =
+		    ( first == elements );
+		PAR::compact
+		    ( parser, bracketed_pass->next,
+		      new_selectors,
+		      elements, next, position,
+		      trace_flags,
+		      token_type,
+		      i, attributes, 1 );
+
+		value_type_ref(elements) = type;
+
+		// We delay deleting tokens until
+		// their values are protected from
+		// the garbage collector by compact.
+		//
+		// Compact deletes the elements and
+		// inserts a new token before `next'
+		// containing the compacted sub-
+		// expression, setting `elements'
+		// to point at that token.
+		//
+		if ( ! first_equals_elements )
+		do
 		{
-		    typed_data->end_position =
-		        current->previous->position.end;
-		        
+		    first = first->next;
+		    PAR::free
+			( PAR::remove
+			    ( first_ref(parser),
+			      first->previous ) );
+		}
+		while ( first != elements );
+
+		if ( elements->type == PAR::PREFIX )
+		{
+		    prefix = elements;
+		    premature_closing =
+			(    cstack.closing_next
+			  == cstack.closing_first );
+		    goto PREFIX_FOUND;
+		}
+	    }
+
+	    // Come here after compacting.
+
+	    if (    cstack.closing_next
+		 == cstack.closing_first )
+	    {
+		// Found a closing bracket that is
+		// not ours or logical line end.
+		// Kick to caller.
+		//
+		return separator_found;
+	    }
+	    else
+		break;
+	}
+	else if ( subtype == BRA::CLOSING_BRACKET )
+	{
+	    BRA::closing_bracket closing_bracket =
+		(BRA::closing_bracket) root;
+
+	    for ( BRA::bracket_stack * p =
+		      bracket_stack_p;
+		  p != NULL;
+		  p = p->previous )
+	    {
+		if (    p->opening_bracket
+		     != min::NULL_STUB
+		     &&
+			p->opening_bracket
+			 ->closing_bracket
+		     == closing_bracket )
+		{
+		    p->closing_first = key_first;
+		    p->closing_next = current;
+
+		    for ( BRA::bracket_stack *
+			      q = bracket_stack_p;
+			  q != p;
+			  q = q->previous )
+			q->closing_first =
+			    q->closing_next =
+				key_first;
+
+		    return min::MISSING_POSITION;
+		}
+		else if ( ! (   selectors
+			      & PAR::EAOCLOSING_OPT
+			    ) )
+		    break;
+	    }
+
+	    // Closing bracket does not match a
+	    // bracket stack entry; reject key.
+	}
+	else if ( subtype == BRA::INDENTATION_MARK )
+	{
+	    if (    current->type
+		 == LEXSTD::line_break_t
+		 ||
+		    current->type
+		 == LEXSTD::comment_t
+		 ||
+		    current->type
+		 == LEXSTD::end_of_file_t )
+	    {
+		indentation_found =
+		    (BRA::indentation_mark) root;
+		break;
+	    }
+
+	    // Indentation mark not at end of line
+	    // or end of file; reject key.
+	}
+	else if ( subtype == BRA::LINE_SEP
+		  &&
+		     line_variables->line_sep
+		  == (BRA::line_sep) root
+		  &&
+		  (   selectors
+		    & PAR::EALSEP_OPT ) )
+	{
+	    separator_found =
+		current->previous->position.end;
+	    PAR::remove
+		( parser, current, root->label );
+	    return separator_found ;
+	}
+	else if ( subtype == BRA::TYPED_MIDDLE
+		  ||
+		     subtype
+		  == BRA::TYPED_DOUBLE_MIDDLE )
+	{
+	    if ( typed_data != NULL
+		 &&
+		    root
+		 == (    subtype
+		       == BRA::TYPED_MIDDLE ?
+		      (TAB::root)
+		      typed_data->typed_opening
+				->typed_middle :
+		      (TAB::root)
+		      typed_data->
+			  typed_opening->
+			  typed_double_middle )
+		 &&
+		 ! typed_data->has_mark_type )
+	    {
+		typed_data->end_position =
+		    current->previous->position.end;
+
+		if (    typed_data->middle_count % 2
+		     == 0 )
+		{
 		    if (    typed_data->subtype
-		         == BRA::TYPED_OPENING )
-		    {
+			 == BRA::TYPED_OPENING
+			 &&
+			    typed_data
+				->start_previous
+				->next
+			 != key_first )
 			::make_type_label
 			    ( parser, typed_data,
 			      key_first );
-			PAR::remove
-			    ( parser, current,
-			      root->label );
-			typed_data->subtype =
-			    BRA::TYPED_ATTR_SEP;
-			typed_data->start_previous =
-			    current->previous;
-		    }
-		    else if (   typed_data->middle_count
-			      > 0
-			      &&
-				 key_first
-			      != typed_data
-			             ->start_previous
-				     ->next )
+		    else if (    typed_data->subtype
+			      != BRA::TYPED_OPENING
+			    )
 		    {
 			::finish_attribute
 			    ( parser, typed_data,
@@ -3694,206 +3638,308 @@ NEXT_TOKEN:
 			::move_attributes
 			    ( parser, typed_data,
 			      key_first );
-			PAR::remove
-			    ( parser, current,
-			      root->label );
-			typed_data->subtype =
-			    BRA::TYPED_ATTR_BEGIN;
-			typed_data->start_previous =
-			    current->previous;
 		    }
-		    else
-		        ::punctuation_error
-			    ( parser, key_first,
-			      current, root->label );
-		    break;
 		}
-
-		// Typed_attr_begin does not match
-		// typed_opening; reject key.
-	    }
-	    else if (    subtype
-	              == BRA::TYPED_ATTR_EQUAL )
-	    {
-		if ( typed_data != NULL
-		     &&
-		        typed_data->typed_opening
-			          ->typed_attr_equal
-		     == (BRA::typed_attr_equal) root
-		     &&
-		     typed_data->middle_count % 2 == 0
-		     &&
-		     ! typed_data->has_mark_type )
+		else // if
+		     // typed_data->middle_count % 2
+		     // == 1
 		{
-		    typed_data->end_position =
-		        current->previous->position.end;
-		        
-		    if (    typed_data->subtype
-		         == BRA::TYPED_OPENING
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_MIDDLE
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_ATTR_SEP
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_ATTR_NEGATOR )
-		    {
-			if ( typed_data->subtype
-			     ==
-			     BRA::TYPED_ATTR_NEGATOR )
-			    PAR::parse_error
-				( parser,
-				  typed_data->
-				    negator_position,
-				  "negator preceding"
-				  " attribute label"
-				  " that is followed"
-				  " by `",
-			          min::pgen_never_quote
-			              ( root->label ),
-				  "'; negator"
-				  " ignored" );
-			::make_attribute_label
-			    ( parser, typed_data,
-			      key_first );
-			PAR::remove
-			    ( parser, current,
-			      root->label );
-			typed_data->subtype =
-			    BRA::TYPED_ATTR_EQUAL;
-			typed_data->start_previous =
-			    current->previous;
-		    }
-		    else
-		        ::punctuation_error
-			    ( parser, key_first,
-			      current, root->label );
-		    break;
-		}
-
-		// Typed_attr_equal does not match
-		// typed_opening; reject key.
-	    }
-	    else if (    subtype
-	              == BRA::TYPED_ATTR_SEP )
-	    {
-		if ( typed_data != NULL
-		     &&
-		        typed_data->typed_opening
-			          ->typed_attr_sep
-		     == (BRA::typed_attr_sep) root
-		     &&
-		     typed_data->middle_count % 2 == 0
-		     &&
-		     ! typed_data->has_mark_type )
-		{
-		    typed_data->end_position =
-		        current->previous->position.end;
-		        
-		    if (    typed_data->subtype
-		         == BRA::TYPED_OPENING
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_MIDDLE
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_ATTR_SEP
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_ATTR_EQUAL
-			 ||
-		            typed_data->subtype
-		         == BRA::TYPED_ATTR_NEGATOR )
-		    {
-			::finish_attribute
-			    ( parser, typed_data,
-			      key_first );
-			PAR::remove
-			    ( parser, current,
-			      root->label );
-			typed_data->subtype =
-			    BRA::TYPED_ATTR_SEP;
-			typed_data->start_previous =
-			    current->previous;
-		    }
-		    else
-		        ::punctuation_error
-			    ( parser, key_first,
-			      current, root->label );
-		    break;
-		}
-
-		// Typed_attr_sep does not match
-		// typed_opening; reject key.
-	    }
-	    else if (    subtype
-	              == BRA::TYPED_ATTR_NEGATOR )
-	    {
-		if ( typed_data != NULL
-		     &&
-		        typed_data->typed_opening
-			          ->typed_attr_negator
-		     == (BRA::typed_attr_negator) root
-		     &&
-		     typed_data->middle_count % 2 == 0
-		     &&
-		     ! typed_data->has_mark_type )
-		{
-		    typed_data->end_position =
-		        current->previous->position.end;
-		        
-		    if ( (    typed_data->subtype
-			   == BRA::TYPED_OPENING
-			   ||
-			      typed_data->subtype
-		           == BRA::TYPED_ATTR_SEP
-			   ||
-			      typed_data->subtype
-			   == BRA::TYPED_MIDDLE
-			 )
+		    if (    typed_data->elements
+			 == min::NULL_STUB
 			 &&
-			    key_first
-			 == typed_data->start_previous
-			              ->next )
-		    {
-			min::phrase_position & pos =
-			  typed_data->negator_position;
-			pos.end = current->previous
-			                 ->position.end;
-			pos.begin = PAR::remove
-			    ( parser, current,
-			      root->label );
-			typed_data->subtype =
-			    BRA::TYPED_ATTR_NEGATOR;
-			typed_data->start_previous =
-			    current->previous;
-			break;
-		    }
+			    typed_data
+				->start_previous
+				->next
+			 != key_first )
+			typed_data->elements =
+			    typed_data
+				->start_previous
+				->next;
 		}
 
-		// Typed_attr_negator does not match
-		// typed_opening and appear in attribute
-		// label beginning context; reject key.
+		PAR::remove ( parser, current,
+			      root->label );
+		typed_data->subtype =
+		    BRA::TYPED_MIDDLE;
+		typed_data->start_previous =
+		    current->previous;
+		++ typed_data->middle_count;
+
+		if (    subtype
+		     == BRA::TYPED_DOUBLE_MIDDLE )
+		{
+		    ++ typed_data->middle_count;
+		    break;
+		}
+
+		// Do the following only if subtype
+		// == BRA::TYPED_MIDDLE.
+
+		if (    typed_data->middle_count % 2
+		     == 1 )
+		    selectors =
+			typed_data->saved_selectors;
+		else // if
+		     // typed_data->middle_count % 2
+		     // == 0
+		{
+		    selectors &= PAR::ALL_OPT;
+		    selectors |=
+			  typed_data
+			      ->typed_opening
+			      ->attr_selectors
+			| PAR::ALWAYS_SELECTOR;
+		}
+
+		break;
 	    }
 
-	    if ( trace_flags & PAR::TRACE_KEYS )
-	        parser->printer
-		    << "BRACKETED SUBEXPRESSION PARSER"
-		       " REJECTED KEY "
-		    << min::pgen_quote ( root->label )
-		    << min::eol;
+	    // Typed middle does not match typed_
+	    // opening; reject key.
+	}
+	else if (    subtype
+		  == BRA::TYPED_ATTR_BEGIN )
+	{
+	    if ( typed_data != NULL
+		 &&
+		    typed_data->typed_opening
+			      ->typed_attr_begin
+		 == (BRA::typed_attr_begin) root
+		 &&
+		 typed_data->middle_count % 2 == 0
+		 &&
+		 ! typed_data->has_mark_type )
+	    {
+		typed_data->end_position =
+		    current->previous->position.end;
+		    
+		if (    typed_data->subtype
+		     == BRA::TYPED_OPENING )
+		{
+		    ::make_type_label
+			( parser, typed_data,
+			  key_first );
+		    PAR::remove
+			( parser, current,
+			  root->label );
+		    typed_data->subtype =
+			BRA::TYPED_ATTR_SEP;
+		    typed_data->start_previous =
+			current->previous;
+		}
+		else if (   typed_data->middle_count
+			  > 0
+			  &&
+			     key_first
+			  != typed_data
+				 ->start_previous
+				 ->next )
+		{
+		    ::finish_attribute
+			( parser, typed_data,
+			  key_first );
+		    ::move_attributes
+			( parser, typed_data,
+			  key_first );
+		    PAR::remove
+			( parser, current,
+			  root->label );
+		    typed_data->subtype =
+			BRA::TYPED_ATTR_BEGIN;
+		    typed_data->start_previous =
+			current->previous;
+		}
+		else
+		    ::punctuation_error
+			( parser, key_first,
+			  current, root->label );
+		break;
+	    }
 
-	    root = PAR::find_next_entry
-	               ( parser, current, key_prefix,
-			 selectors, root );
+	    // Typed_attr_begin does not match
+	    // typed_opening; reject key.
+	}
+	else if (    subtype
+		  == BRA::TYPED_ATTR_EQUAL )
+	{
+	    if ( typed_data != NULL
+		 &&
+		    typed_data->typed_opening
+			      ->typed_attr_equal
+		 == (BRA::typed_attr_equal) root
+		 &&
+		 typed_data->middle_count % 2 == 0
+		 &&
+		 ! typed_data->has_mark_type )
+	    {
+		typed_data->end_position =
+		    current->previous->position.end;
+		    
+		if (    typed_data->subtype
+		     == BRA::TYPED_OPENING
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_MIDDLE
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_ATTR_SEP
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_ATTR_NEGATOR )
+		{
+		    if ( typed_data->subtype
+			 ==
+			 BRA::TYPED_ATTR_NEGATOR )
+			PAR::parse_error
+			    ( parser,
+			      typed_data->
+				negator_position,
+			      "negator preceding"
+			      " attribute label"
+			      " that is followed"
+			      " by `",
+			      min::pgen_never_quote
+				  ( root->label ),
+			      "'; negator"
+			      " ignored" );
+		    ::make_attribute_label
+			( parser, typed_data,
+			  key_first );
+		    PAR::remove
+			( parser, current,
+			  root->label );
+		    typed_data->subtype =
+			BRA::TYPED_ATTR_EQUAL;
+		    typed_data->start_previous =
+			current->previous;
+		}
+		else
+		    ::punctuation_error
+			( parser, key_first,
+			  current, root->label );
+		break;
+	    }
+
+	    // Typed_attr_equal does not match
+	    // typed_opening; reject key.
+	}
+	else if (    subtype
+		  == BRA::TYPED_ATTR_SEP )
+	{
+	    if ( typed_data != NULL
+		 &&
+		    typed_data->typed_opening
+			      ->typed_attr_sep
+		 == (BRA::typed_attr_sep) root
+		 &&
+		 typed_data->middle_count % 2 == 0
+		 &&
+		 ! typed_data->has_mark_type )
+	    {
+		typed_data->end_position =
+		    current->previous->position.end;
+		    
+		if (    typed_data->subtype
+		     == BRA::TYPED_OPENING
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_MIDDLE
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_ATTR_SEP
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_ATTR_EQUAL
+		     ||
+			typed_data->subtype
+		     == BRA::TYPED_ATTR_NEGATOR )
+		{
+		    ::finish_attribute
+			( parser, typed_data,
+			  key_first );
+		    PAR::remove
+			( parser, current,
+			  root->label );
+		    typed_data->subtype =
+			BRA::TYPED_ATTR_SEP;
+		    typed_data->start_previous =
+			current->previous;
+		}
+		else
+		    ::punctuation_error
+			( parser, key_first,
+			  current, root->label );
+		break;
+	    }
+
+	    // Typed_attr_sep does not match
+	    // typed_opening; reject key.
+	}
+	else if (    subtype
+		  == BRA::TYPED_ATTR_NEGATOR )
+	{
+	    if ( typed_data != NULL
+		 &&
+		    typed_data->typed_opening
+			      ->typed_attr_negator
+		 == (BRA::typed_attr_negator) root
+		 &&
+		 typed_data->middle_count % 2 == 0
+		 &&
+		 ! typed_data->has_mark_type )
+	    {
+		typed_data->end_position =
+		    current->previous->position.end;
+		    
+		if ( (    typed_data->subtype
+		       == BRA::TYPED_OPENING
+		       ||
+			  typed_data->subtype
+		       == BRA::TYPED_ATTR_SEP
+		       ||
+			  typed_data->subtype
+		       == BRA::TYPED_MIDDLE
+		     )
+		     &&
+			key_first
+		     == typed_data->start_previous
+				  ->next )
+		{
+		    min::phrase_position & pos =
+		      typed_data->negator_position;
+		    pos.end = current->previous
+				     ->position.end;
+		    pos.begin = PAR::remove
+			( parser, current,
+			  root->label );
+		    typed_data->subtype =
+			BRA::TYPED_ATTR_NEGATOR;
+		    typed_data->start_previous =
+			current->previous;
+		    break;
+		}
+	    }
+
+	    // Typed_attr_negator does not match
+	    // typed_opening and appear in attribute
+	    // label beginning context; reject key.
 	}
 
-	// Loop to next token.
-	//
-	goto NEXT_TOKEN;
+	if ( trace_flags & PAR::TRACE_KEYS )
+	    parser->printer
+		<< "BRACKETED SUBEXPRESSION PARSER"
+		   " REJECTED KEY "
+		<< min::pgen_quote ( root->label )
+		<< min::eol;
+
+	root = PAR::find_next_entry
+		   ( parser, current, key_prefix,
+		     selectors, root );
     }
+
+    // Loop to next token.
+    //
+    goto NEXT_TOKEN;
 
     MIN_ABORT ( "SHOULD NOT COME HERE" );
 }
@@ -3954,7 +4000,9 @@ bool BRA::compact_prefix_list
 {
     if ( first->next == next && ! separator_found )
     {
-	if ( first->type == PAR::IMPLIED_PREFIX )
+	if ( first->type == PAR::IMPLIED_PREFIX
+	     ||
+	     first->type == PAR::IMPLIED_HEADER )
 	{
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
@@ -3979,7 +4027,9 @@ bool BRA::compact_prefix_list
 		<min::phrase_position_vec_insptr>
 	    pos;
 
-	if ( first->type == PAR::IMPLIED_PREFIX )
+	if ( first->type == PAR::IMPLIED_PREFIX
+	     ||
+	     first->type == PAR::IMPLIED_HEADER )
 	{
 	    min::uns32 unused_size = 0;
 	    for ( PAR::token t = first->next;
@@ -4273,7 +4323,8 @@ static bool multivalue_reformatter_function
 min::locatable_var<PAR::reformatter>
     BRA::untyped_reformatter_stack ( min::NULL_STUB );
 
-static void untyped_reformatter_stack_initialize ( void )
+static void untyped_reformatter_stack_initialize
+	( void )
 {
     ::initialize();
 

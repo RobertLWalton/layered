@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 11 14:44:19 EDT 2017
+// Date:	Thu May 25 21:27:22 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -231,8 +231,9 @@ enum // Token types (see below).
     PURELIST		= 0xFFFFFFFC,
     PREFIX		= 0xFFFFFFFB,
     IMPLIED_PREFIX	= 0xFFFFFFFA,
-    OPERATOR		= 0xFFFFFFF9,
-    DERIVED		= 0xFFFFFFF8,
+    IMPLIED_HEADER	= 0xFFFFFFF9,
+    OPERATOR		= 0xFFFFFFF8,
+    DERIVED		= 0xFFFFFFF7,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
@@ -298,6 +299,14 @@ struct token_struct
 	//	    NO elements, the token is to be
 	//	    completely deleted as if it never
 	//	    existed.
+	//
+	//	IMPLIED_HEADER
+	//	    Implied paragraph or line header.
+	//	    Handled similarly to IMPLIED_PREFIX
+	//	    except when used for error detec-
+	//	    tion (e.g., prefix with paragraph
+	//	    group can only follow a IMPLIED_
+	//	    HEADER).
 	//
 	// For recognized operators:
 	//

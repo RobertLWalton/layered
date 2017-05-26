@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 26 14:30:01 EDT 2017
+// Date:	Fri May 26 15:29:21 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1480,7 +1480,7 @@ min::position BRA::parse_bracketed_subexpression
         trace_flags = 0;
 
     // Variables input to both PREFIX_FOUND and
-    // PREFIX_PARSE code blocks.
+    // PARSE_PREFIX_N_LIST code blocks.
     //
     PAR::token prefix;
 
@@ -1489,7 +1489,7 @@ min::position BRA::parse_bracketed_subexpression
     min::position separator_found;
     bool premature_closing;
 
-    // Variables input to the PREFIX_PARSE code
+    // Variables input to the PARSE_PREFIX_N_LIST code
     // block.
     //
     min::gen prefix_type;
@@ -1513,6 +1513,8 @@ min::position BRA::parse_bracketed_subexpression
 	MIN_REQUIRE
 	    ( prefix_entry != min::NULL_STUB );
 	prefix_group = prefix_entry->group;
+	MIN_REQUIRE
+	    ( prefix_group != min::MISSING() );
 
 	prefix = PAR::new_token
 		     ( PAR::IMPLIED_HEADER );
@@ -1531,7 +1533,7 @@ min::position BRA::parse_bracketed_subexpression
 	    line_variables->current =
 		line_variables->implied_paragraph;
 
-	goto PREFIX_PARSE;
+	goto PARSE_PREFIX_N_LIST;
     }
     else
     {
@@ -1596,7 +1598,7 @@ min::position BRA::parse_bracketed_subexpression
 
     // Above code either jumps to NEXT_TOKEN or
     // creates implied prefix and jumps to
-    // PREFIX_PARSE for implied prefixes created
+    // PARSE_PREFIX_N_LIST for implied prefixes created
     // by line variables or comes here for implied
     // prefixes NOT create by line variables.
 
@@ -1608,6 +1610,10 @@ PREFIX_FOUND:
     //
     //     prefix
     //         The prefix token.
+    //         prefix->value_type must be the .type of
+    //         the prefix token value at this point,
+    //         and will be replaced below by the prefix
+    //         entry of this .type if that exists.
     //     separator_found
     //         Specifies separator found right after
     //         prefix token, if any.
@@ -1626,12 +1632,13 @@ PREFIX_FOUND:
 			BRA::PREFIX,
 			selectors,
 			prefix_table );
-	prefix_group = min::MISSING();
+	prefix_group = prefix_type;
 	if ( prefix_entry != min::NULL_STUB )
 	{
 	    PAR::value_type_ref(prefix) =
 	        min::new_stub_gen ( prefix_entry );
-	    prefix_group = prefix_entry->group;
+	    if ( prefix_entry->group != min::MISSING() )
+		prefix_group = prefix_entry->group;
 	}
 
 	PAR::token prefix_next = prefix->next;
@@ -1653,18 +1660,7 @@ PREFIX_FOUND:
 
 	      p = p->previous )
 	{
-	    min::gen prefix_entry_group =
-		(    p->prefix_entry
-		  != min::NULL_STUB ?
-		  p->prefix_entry->group :
-		  min::MISSING() );
-	    if ( p->prefix_type == prefix_type
-		 ||
-		 (    prefix_entry_group
-		   == prefix_group
-		   &&
-		      min::MISSING()
-		   != prefix_group ) )
+	    if ( p->prefix_group == prefix_group )
 	    {
 		if (    prefix->type
 		     == PAR::IMPLIED_PREFIX )
@@ -1676,7 +1672,7 @@ PREFIX_FOUND:
 			" of type `",
 			min::pgen_never_quote
 			    ( prefix_type ),
-			"' has type or group of"
+			"' has group of"
 			" previous active prefix"
 			" separator; not inserted"
 		      );
@@ -1696,7 +1692,7 @@ PREFIX_FOUND:
 			" of type `",
 			min::pgen_never_quote
 			    ( prefix_type ),
-			"' has type or group of"
+			"' has group of"
 			" previous implied header"
 			" but is not at beginning"
 			" of logical line; ignored"
@@ -1704,10 +1700,10 @@ PREFIX_FOUND:
 		    prefix = min::NULL_STUB;
 		    goto FINISH_PREFIX;
 		}
-		else if ( (    prefix_entry_group
+		else if ( (    p->prefix_group
 		            == PARLEX::paragraph
 		            ||
-			       prefix_entry_group
+			       p->prefix_group
 			    == PARLEX::line )
 		          &&
 			     prefix->previous->type
@@ -1720,8 +1716,8 @@ PREFIX_FOUND:
 			" of type `",
 			min::pgen_never_quote
 			    ( prefix_type ),
-			"' has type of previous"
-			" line or group header;"
+			"' has group of previous"
+			" line or paragraph header;"
 			" ignored"
 		      );
 		    prefix = min::NULL_STUB;
@@ -1742,11 +1738,19 @@ PREFIX_FOUND:
 	}
 
 	// Special case to handle explicit paragraph
-	// prefix following an implied line header,
-	// provided the implied line prefix does not
-	// follow any paragraph prefix.  To enforce
-	// this last, this code must follow the code
-	// immediately above.
+	// prefix at the beginning of a logical line
+	// in paragraph beginning position that is
+	// following an implied line header that begins
+	// the logical line (i.e., if it has a preceed-
+	// ing implied paragraph header we would not
+	// get to this point because of the above code).
+	//
+	// We must pretend the explicit paragraph header
+	// terminates the prefix-0-list begun by the
+	// implied line header.
+	//
+	// To enforce this, this code must immediately
+	// follow the above code.
 	//
 	if ( prefix_group == PARLEX::paragraph
 	     &&
@@ -1761,11 +1765,7 @@ PREFIX_FOUND:
 	     &&
 	     bracket_stack_p != NULL
 	     &&
-		bracket_stack_p->prefix_entry
-	     != min::NULL_STUB
-	     &&
-		bracket_stack_p->prefix_entry
-			       ->group
+		bracket_stack_p->prefix_group
 	     == PARLEX::line )
 	{
 	    bracket_stack_p->closing_first =
@@ -1803,13 +1803,8 @@ PREFIX_FOUND:
 		    " type `",
 		    min::pgen_never_quote
 			( prefix_type ),
-		    "' IMPLIED by prefix separator"
-		    " of type `",
-		    min::pgen_never_quote
-		      ( bracket_stack_p->
-			    prefix_type ),
-		    "' has `paragraph' group;"
-		    " ignored"
+		    "' that is not an implied header"
+		    " has `paragraph' group; ignored"
 		  );
 		prefix = min::NULL_STUB;
 	    }
@@ -1844,11 +1839,7 @@ PREFIX_FOUND:
 	     &&
 	     ( bracket_stack_p == NULL
 	       ||
-		  bracket_stack_p->prefix_entry
-	       == min::NULL_STUB
-	       ||
-		  bracket_stack_p->prefix_entry
-				 ->group
+		  bracket_stack_p->prefix_group
 	       != PARLEX::paragraph ) )
 	{
 	    PAR::parse_error
@@ -1856,9 +1847,14 @@ PREFIX_FOUND:
 		prefix->position,
 		   prefix->type
 		== PAR::IMPLIED_PREFIX ?
-		    "implied " : "explicit ",
+		    "implied prefix separator" :
+		   prefix->type
+		== PAR::IMPLIED_HEADER ?
+		        // Probably impossible.
+		    "implied header" :
+		    "explicit prefix separator",
 		min::pnop,
-		"prefix separator of type `",
+		" of type `",
 		min::pgen_never_quote
 		    ( prefix_type ),
 		"' has `line' group but is not at"
@@ -1927,7 +1923,7 @@ FINISH_PREFIX:
 	}
     }
 
-PREFIX_PARSE:
+PARSE_PREFIX_N_LIST:
 
     // Come here when ready to parse prefix-n-list
     // that is headed by the prefix.
@@ -1942,8 +1938,7 @@ PREFIX_PARSE:
     //         The prefix_table entry of the prefix
     //         token .type (NULL_STUB if none).
     //     prefix_group
-    //         The group of the prefix_entry, or
-    //         MISSING if prefix_entry is NULL_STUB.
+    //         The group of the prefix.
     //     prefix_selectors
     //         The selectors to be used in parsing
     //         the prefix-n-list headed by the
@@ -1959,8 +1954,7 @@ PREFIX_PARSE:
 	BRA::bracket_stack cstack
 	    ( bracket_stack_p );
 	cstack.prefix = prefix;
-	cstack.prefix_type = prefix_type;
-	cstack.prefix_entry = prefix_entry;
+	cstack.prefix_group = prefix_group;
 
 	while ( true )
 	{
@@ -1971,60 +1965,24 @@ PREFIX_PARSE:
 		 != PAR::IMPLIED_HEADER )
 	    {
 		// Come here if explicit paragraph
-		// header found in a logical line,
-		// but with possible implied line
-		// headers having been previously
-		// inserted and deleted, possible
-		// incorrect setting of selectors
-		// to something other than
-		// paragraph.selectors because of
-		// a CONTINUING flag, and possible
-		// incorrect prefix_entry because
-		// of incorrect selectors.
+		// header found in a logical line, but
+		// with possible implied line headers
+		// having been previously inserted and
+		// deleted, and thus possible incorrect
+		// setting of selectors because of
+		// a CONTINUING flag.
 		//
 		// Fix things up.
 
 		MIN_REQUIRE
 		    ( parsing_logical_line );
+		MIN_REQUIRE
+		    (    prefix->type
+		      != PAR::IMPLIED_PREFIX );
 
 		selectors =
 		    line_variables->paragraph
 				   .selectors;
-		BRA::prefix new_prefix_entry =
-		    (BRA::prefix)
-		    min::stub_of
-		        ( prefix->value_type );
-
-		if (    new_prefix_entry
-		     == min::NULL_STUB
-		     ||
-			new_prefix_entry->group
-		     != PARLEX::paragraph )
-		    PAR::parse_error
-		      ( parser,
-			prefix->position,
-			"prefix separator of"
-			" type `",
-			min::pgen_never_quote
-			    ( prefix_type ),
-			"' has `paragraph' group"
-			" after selectors modified"
-			" by implied headers, but"
-			" does not have `paragraph'"
-			" group before this"
-			" modification; continuing"
-			" with prefix definition"
-			" located by INCORRECT"
-			" modified selectors"
-		      );
-		else if (    new_prefix_entry
-			  != prefix_entry )
-		{
-		    prefix_entry =
-			new_prefix_entry;
-		    cstack.prefix_entry =
-			prefix_entry;
-		}
 		prefix_selectors = selectors;
 		prefix_selectors |=
 		    prefix_entry->
@@ -2230,21 +2188,28 @@ PREFIX_PARSE:
 	    if (    prefix->value_type
 		 != old_prefix_value_type )
 	    {
-		prefix_entry = (BRA::prefix)
-		    min::stub_of ( prefix->value_type );
-		cstack.prefix_type =
 		prefix_type =
+		prefix_group =
+		cstack.prefix_group =
 		    prefix->value_type;
-		cstack.prefix_entry =
-		    prefix_entry;
+
+		prefix_entry =
+		    (BRA::prefix)
+		    min::stub_of ( prefix->value_type );
+
 		prefix_selectors = selectors;
 
 		if ( prefix_entry != min::NULL_STUB )
 		{
-		    cstack.prefix_type =
-		    prefix_type =
-		        prefix_entry->label;
-		    prefix_group = prefix_entry->group;
+		    prefix_type = prefix_entry->label;
+
+		    cstack.prefix_group =
+		    prefix_group =
+			(    prefix_entry->group
+		          != min::MISSING() ?
+			  prefix_entry->group :
+			  prefix_type );
+
 		    prefix_selectors |=
 			prefix_entry->
 			    new_selectors.or_flags;
@@ -2477,11 +2442,13 @@ NEXT_TOKEN:
 				BRA::PREFIX,
 				header_selectors,
 				prefix_table );
-		min::gen group = min::MISSING();
+		min::gen group = implied_header_type;
 		if (    header_entry
 		     != min::NULL_STUB )
 		{
-		    group = header_entry->group;
+		    if ( header_entry->group
+		         != min::MISSING() )
+			group = header_entry->group;
 		    header_selectors |=
 			header_entry->
 			    new_selectors.or_flags;
@@ -4141,6 +4108,8 @@ void BRA::compact_paragraph
 	PAR::token current = first->next;
 	while ( current != next )
 	{
+	    MIN_REQUIRE
+	        ( current->type != PAR::PREFIX );
 	    if ( current->value_type == PARLEX::line
 		 ||
 		    current->value_type

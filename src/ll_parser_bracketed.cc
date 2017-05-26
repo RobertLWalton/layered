@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 26 04:11:29 EDT 2017
+// Date:	Fri May 26 13:00:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1521,7 +1521,7 @@ min::position BRA::parse_bracketed_subexpression
 	      current, prefix );
 	PAR::value_ref(prefix) = implied_header;
 	PAR::value_type_ref(prefix) =
-	    prefix_entry->label;
+	    min::new_stub_gen ( prefix_entry );
 	prefix->position.begin =
 	    current->position.begin;
 	prefix->position.end =
@@ -1549,39 +1549,38 @@ min::position BRA::parse_bracketed_subexpression
 	prefix = PAR::new_token
 		     ( PAR::IMPLIED_PREFIX );
 
+	TAB::key_table prefix_table =
+	    bracketed_pass->prefix_table;
+	BRA::prefix implied_prefix_entry =
+	    (BRA::prefix)
+	    TAB::find
+		( p->implied_subprefix_type,
+		  BRA::PREFIX,
+		  selectors,
+		  prefix_table );
+
 	if ( p->group == PARLEX::paragraph
 	     &&
-	        bracket_stack_p->prefix->type
-	     == PAR::IMPLIED_HEADER )
-	{
-	    // IMPLIED_PREFIX could be line header
-	    // that is implied_subprefix of the
-	    // prefix entry of an implied paragraph
-	    // header.
-	    //
-	    TAB::key_table prefix_table =
-		bracketed_pass->prefix_table;
-	    BRA::prefix implied_prefix_entry =
-		(BRA::prefix)
-		TAB::find
-		    ( p->implied_subprefix_type,
-		      BRA::PREFIX,
-		      selectors,
-		      prefix_table );
-	    if (    implied_prefix_entry
-		 != min::NULL_STUB
-		 &&
-		    implied_prefix_entry->group
-		 == PARLEX::line )
-		prefix->type = PAR::IMPLIED_HEADER;
-	}
+	        implied_prefix_entry
+	     != min::NULL_STUB
+	     &&
+	        implied_prefix_entry->group
+	     == PARLEX::line )
+	    prefix->type = PAR::IMPLIED_HEADER;
+		// IMPLIED_PREFIX is line header
+		// that is implied_subprefix of the
+		// prefix entry of a paragraph
+		// header.
 
 	PAR::put_before
 	    ( PAR::first_ref(parser),
 	      current, prefix );
 	PAR::value_ref(prefix) = implied_subprefix;
 	PAR::value_type_ref(prefix) =
-	    p->implied_subprefix_type;
+	      p->implied_subprefix_type;
+	      // We go to PREFIX_FOUND which will
+	      // convert type to prefix entry
+	      // if possible.
 	prefix->position.begin =
 	    current->position.begin;
 	prefix->position.end =
@@ -1616,16 +1615,21 @@ PREFIX_FOUND:
 	TAB::key_table prefix_table =
 	    bracketed_pass->prefix_table;
 	prefix_type = prefix->value_type;
+	MIN_REQUIRE ( min::is_name ( prefix_type ) );
 	prefix_entry =
 	    (BRA::prefix)
 	    TAB::find ( prefix_type,
 			BRA::PREFIX,
 			selectors,
 			prefix_table );
-	prefix_group =
-	    ( prefix_entry != min::NULL_STUB ?
-	      prefix_entry->group :
-	      min::MISSING() );
+	prefix_group = min::MISSING();
+	if ( prefix_entry != min::NULL_STUB )
+	{
+	    PAR::value_type_ref(prefix) =
+	        min::new_stub_gen ( prefix_entry );
+	    prefix_group = prefix_entry->group;
+	}
+
 	PAR::token prefix_next = prefix->next;
 	MIN_REQUIRE
 	    ( prefix_next != parser->first );
@@ -1982,15 +1986,11 @@ PREFIX_PARSE:
 		selectors =
 		    line_variables->paragraph
 				   .selectors;
-		TAB::key_table prefix_table =
-		    bracketed_pass->prefix_table;
 		BRA::prefix new_prefix_entry =
 		    (BRA::prefix)
-		    TAB::find
-			( prefix_type,
-			  BRA::PREFIX,
-			  selectors,
-			  prefix_table );
+		    min::stub_of
+		        ( prefix->value_type );
+
 		if (    new_prefix_entry
 		     == min::NULL_STUB
 		     ||
@@ -2218,65 +2218,41 @@ PREFIX_PARSE:
 		 == cstack.closing_next )
 		return separator_found;
 
+	    min::gen old_prefix_value_type =
+	        prefix->value_type;
 	    prefix = cstack.prefix
 		   = cstack.closing_first;
 
 	    if (    prefix->value_type
-		 != prefix_type )
+		 != old_prefix_value_type )
 	    {
-		TAB::key_table prefix_table =
-		    bracketed_pass->prefix_table;
 		prefix_entry = (BRA::prefix)
-		    TAB::find
-			( prefix->value_type,
-			  BRA::PREFIX,
-			  selectors,
-			  prefix_table );
-		MIN_REQUIRE
-		    (    prefix_entry
-		      != min::NULL_STUB );
-		if (    prefix_entry->group
-		     != prefix_group )
-		{
-		    // Special case where line
-		    // IMPLIED_HEADER is immediately
-		    // followed by paragraph
-		    // explicit prefix.
-		    //
-		    MIN_REQUIRE
-			(    prefix_group
-			  == PARLEX::line );
-		    MIN_REQUIRE
-			(    prefix_entry->group
-			  == PARLEX::paragraph
-			);
-		    MIN_REQUIRE
-			(    line_variables->
-				 previous
-			  == start_previous );
-		    prefix_group =
-			prefix_entry->group;
-		    selectors =
-			line_variables->paragraph
-				       .selectors;
-		}
+		    min::stub_of ( prefix->value_type );
 		cstack.prefix_type =
 		prefix_type =
 		    prefix->value_type;
 		cstack.prefix_entry =
 		    prefix_entry;
 		prefix_selectors = selectors;
-		prefix_selectors |=
-		    prefix_entry->
-			new_selectors.or_flags;
-		prefix_selectors &= ~
-		    prefix_entry->
-			new_selectors.not_flags;
-		prefix_selectors ^=
-		    prefix_entry->
-			new_selectors.xor_flags;
-		prefix_selectors |=
-		    PAR::ALWAYS_SELECTOR;
+
+		if ( prefix_entry != min::NULL_STUB )
+		{
+		    cstack.prefix_type =
+		    prefix_type =
+		        prefix_entry->label;
+		    prefix_group = prefix_entry->group;
+		    prefix_selectors |=
+			prefix_entry->
+			    new_selectors.or_flags;
+		    prefix_selectors &= ~
+			prefix_entry->
+			    new_selectors.not_flags;
+		    prefix_selectors ^=
+			prefix_entry->
+			    new_selectors.xor_flags;
+		    prefix_selectors |=
+			PAR::ALWAYS_SELECTOR;
+		}
 	    }
 	}
     }

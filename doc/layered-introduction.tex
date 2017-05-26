@@ -4782,8 +4782,9 @@ The general syntax of a prefix-n list is:
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
       All the {\em prefix-n}'s in a given {\em prefix-n-list} must
-      have the same type (i.e., \TT{.type} attribute), or
-      same prefix group (see \pagref{PREFIX-GROUP}).
+      have the same group.  The group of a {\em prefix-n} is its
+      \TT{.type} attribute unless it has a prefix definition with
+      a non-missing \TT{group} member: see \pagref{PREFIX-GROUP}.
       \end{minipage}
 \end{indpar}
 
@@ -4898,32 +4899,36 @@ prefixes or the lookup of prefix table definitions).
 
 \hspace*{-0.2in}\ttmkey{group}{in prefix definition}\label{PREFIX-GROUP}\\
 If the \TT{.type} attribute of a prefix has a prefix definition
-with a non-missing {\em prefix-group}, the {\em prefix-group} is
-said to be the group of the prefix.  Prefixes whose \TT{.type}
-has no prefix definition, or whose prefix definition has a
-missing {\em prefix-group}, are said to have no group.
+with a non-missing {\em prefix-group}, this {\em prefix-group} is
+the group of the prefix.  Othersie the \TT{.type} is the group of the
+prefix.
 
 In an expression of the form:
 \begin{center}
 \{ {\em prefix-n} {\em prefix-(n+1)-list} \}\PLUS{}
 \end{center}
-the {\em prefix-n}'s do not have to all have the same \TT{.type}
-attribute if they all have the same group (which implies that
-they all have some group).
+the {\em prefix-n}'s must all have the same group.
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}.
 
 \hspace*{-0.2in}\ttmkey{implied subprefix}{in prefix definition} \\
-If the first thing in the {\em prefix-(n+1)-list}
-following a {\em prefix-n} is not a prefix in the same group
-as the {\em prefix-n}'s {\em implied-prefix} (and that is not
-missing), then a copy of
-the {\em implied-prefix} is prepended to the {\em prefix-(n+1)-list}.
+A copy of the {\em implied-prefix} is inserted immediately
+after the {\em prefix-n}, and becomes the head of a {\em prefix-(n+1)-list}.
+If this {\em prefix-(n+1)-list}  list has no elements other than
+the {\em implied-prefix}, it is deleted and ignored.
 
-[The implementation is to prepend the {\em implied-prefix} always, and
-then if it is later discovered to head a {\em prefix-(n+1)-list} with
-zero elements, delete it.]
+Thus the effect is to insert the {\em implied-prefix} after the
+{\em prefix-n} unless the logical line or bracketed expression
+containing the {\em prefix-n-list} ends after the {\em prefix-n} or
+unless an explicit prefix whose group is that
+of a preceeding prefix (including the {\em implied-prefix}) follows
+the {\em prefix-n} in the input.  However, there is one difference
+if there is an explicit prefix, and this is that the selectors
+used to parse the explicit prefix and find any associated prefix
+table definition will be those modified by the {\em implied-prefix}
+and may differ from those that would be at the same input position
+had the {\em implied-prefix} not been inserted.
 
 \hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that

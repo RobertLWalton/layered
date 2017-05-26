@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 25 16:40:12 EDT 2017
+// Date:	Fri May 26 04:11:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1692,6 +1692,29 @@ PREFIX_FOUND:
 			" previous implied header"
 			" but is not at beginning"
 			" of logical line; ignored"
+		      );
+		    prefix = min::NULL_STUB;
+		    goto FINISH_PREFIX;
+		}
+		else if ( (    prefix_entry_group
+		            == PARLEX::paragraph
+		            ||
+			       prefix_entry_group
+			    == PARLEX::line )
+		          &&
+			     prefix->previous->type
+			  != PAR::IMPLIED_HEADER )
+		{
+		    PAR::parse_error
+		      ( parser,
+			prefix->position,
+			"prefix separator"
+			" of type `",
+			min::pgen_never_quote
+			    ( prefix_type ),
+			"' has type of previous"
+			" line or group header;"
+			" ignored"
 		      );
 		    prefix = min::NULL_STUB;
 		    goto FINISH_PREFIX;

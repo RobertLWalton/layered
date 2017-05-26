@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 25, 2017
+May 26, 2017
  
 \end{center}
 
@@ -4808,10 +4808,24 @@ can be defined so that it has special effects on parsing.  For this purpose
 a `\key{prefix separator type}' is referred to as just a `\key{prefix}'.
 
 Prefix definitions are stored in the `\key{prefix table}' which is one
-of the parser symbol tables.  Entries in this table are managed
-by {\em parser-prefix-commands}.
+of the parser symbol tables.
 
-The general syntax of {\em parser-prefix-commands} is:
+When a prefix separator is parsed, its \TT{.type} is looked up
+in the prefix table using the selectors in effect at the beginning
+of the prefix separator parse.  If a table entry is found, it is
+attached to the prefix and used thereafter to provide information
+about the prefix.
+
+It is important to note that the selectors used
+in this lookup are those at the point of parsing the particular
+prefix separator, and can lead to different results for the same
+prefix \TT{.type} at different points in the input text.  In particular
+these selectors may not be those in effect at the beginning of
+the {\em prefix-n-list} containing the prefix separator.
+
+
+Entries in the prefix table are managed by {\em parser-prefix-commands}
+whose general syntax is:
 
 \begin{indpar}
 \emkey{parser-prefix-command}%
@@ -4880,7 +4894,7 @@ of the containing {\em prefix-n-list} as modified by any {\em new-selectors}
 found in a prefix definition of the type of the {\em prefix-n}.  These modified
 selectors are also used to parse any subsequent {\em prefix-n} in the list
 (and so the modifications should the chosen so they do not affect parsing of
-prefixes).
+prefixes or the lookup of prefix table definitions).
 
 \hspace*{-0.2in}\ttmkey{group}{in prefix definition}\label{PREFIX-GROUP}\\
 If the \TT{.type} attribute of a prefix has a prefix definition

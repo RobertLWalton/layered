@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 26 15:29:21 EDT 2017
+// Date:	Sat May 27 16:23:52 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -883,7 +883,10 @@ bool BRA::parse_paragraph_element
 	    line_variables->current.selectors;
 
 	bool maybe_parser_command = 
-	    ( current->value == PARLEX::star_parser );
+	    ( current->value == PARLEX::star_parser
+	      &&
+	          line_variables->last_paragraph
+	       == min::NULL_STUB );
 	    // An optimization.
 	min::position separator_found =
 	    BRA::parse_bracketed_subexpression

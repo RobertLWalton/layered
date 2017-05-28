@@ -2505,7 +2505,7 @@ may be a paragraph header (\itemref{HEADED-PARAGRAPHS})
 or a line header (\itemref{HEADED-LINES}).
 
 There is also a `\mkey{lexical master}{in line variables}'
-table index, which when not \TT{0} specifies the
+table index, which when not missing specifies the
 lexical master used to scan logical line lexemes
 (see \pagref{LEXICAL-MASTER}).
 This scan can introduce special lexemes at the beginning of the
@@ -2702,13 +2702,13 @@ physical line, and the indented logical lines that follow are
     	& ~~~~{\em parser-command}\STAR{}
     \end{tabular}
 \label{PARSER-COMMAND-PARAGRAPH}
-\\[0.6ex]
+\\[0.3ex]
 \emkey{parser-test-paragraph}
     \begin{tabular}[t]{@{}rlrl@{}}
     ::= & \TT{*PARSER* *TEST:}\index{parser test@{\tt *PARSER* *TEST:}} \\
     	& ~~~~{\em logical-line}\STAR{}
     \end{tabular}
-\\[0.6ex]
+\\[0.3ex]
 \emkey{parser-command}
     \begin{tabular}[t]{@{}rlrl@{}}
     ::= & {\em parser-block-command} &
@@ -2719,7 +2719,7 @@ physical line, and the indented logical lines that follow are
     $|$ & {\em parser-operator-command}
     \end{tabular}
 \label{PARSER-COMMAND}
-\\[0.6ex]
+\\[0.3ex]
 \emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em natural-number}
             \}\STAR{}
 \\[0.0ex]
@@ -2731,7 +2731,7 @@ physical line, and the indented logical lines that follow are
     :::= \TT{"}{\em key}\TT{"}
 \\[0.0ex]
 \emkey{partial-name} ::= \TT{""} | {\em quoted-key}
-\\[0.6ex]
+\\[0.3ex]
 \emkey{parser-flag} ::= {\em simple-name}
 \\[0.0ex]
 \emkey{parser-flag-list}\label{PARSER-FLAG-LIST}
@@ -2749,7 +2749,7 @@ physical line, and the indented logical lines that follow are
 \\[0.0ex]
 \emkey{parser-flag-spec} ::= {\em parser-flag-list} $|$
                               {\em parser-flag-modifier-list}
-\\[0.6ex]
+\\[0.3ex]
 \emkey{selector} ::= {\em parser-flag} as per \pagref{SELECTOR-NAMES}
 \\[0.0ex]
 \emkey{selectors} ::= {\em parser-flag-list}
@@ -2774,7 +2774,7 @@ physical line, and the indented logical lines that follow are
 \\[0.0ex]
 \emkey{trace-flag-spec} ::= {\em parser-flag-spec} with only trace flag names
 			    (\pagref{TRACE-FLAGS})
-\\[0.6ex]
+\\[0.3ex]
 \emkey{parser-block-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttmkey{begin block}{parser command} ~ {\em block-name} \\
@@ -2783,26 +2783,35 @@ physical line, and the indented logical lines that follow are
 \label{PARSER-BLOCK-COMMAND}
 \\[0.0ex]
 \emkey{block-name} ::= {\em simple-name}
-\\[0.6ex]
+\\[0.3ex]
 \emkey{parser-selector-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttmkey{define selector}{parser command} ~ {\em selector} \\
     $|$ & \ttmkey{print selector}{parser command} ~ {\em partial-name} \\
-    $|$ & \ttmkey{define top level}{parser command} \\
-        & ~~~~~~~~\TT{with parsing selectors} ~ {\em selector-spec} \\
-        & ~~~~~~~~\TT{with parsing options} ~ {\em end-at-option-spec} \\
-        & ~~~~~~~~\TT{with lexical master} ~ {\em master-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
-\\[0.6ex]
+\\[0.0ex]
+\emkey{parser-top-level-command} ::= \\
+\hspace*{0.3in}
+    \TT{define}\ttmindex{define top level}{parser command} ~
+    \begin{tabular}[t]{@{}l@{}}
+     \TT{top level} \\{}
+     [ \TT{with parsing selectors} ~ {\em selector-spec} ] \\{}
+     [ \TT{with parsing options} ~ {\em end-at-option-spec} ] \\{}
+     [ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
+	                \begin{tabular}[t]{@{}l@{}}
+			\TT{lexical master} \\
+			{\em master-name} ] \\
+			\end{tabular} \\
+    \end{tabular}
+\label{PARSER-TOP-LEVEL-COMMAND}
+\\[0.0ex]
 \emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttmkey{trace}{parser command} ~ {\em trace-flag-spec} \\
     $|$ & \ttmkey{print trace}{parser print} \\
     \end{tabular}
 \label{PARSER-TRACE-COMMAND}
-
-\medskip
 
 \caption{\bf Parser Command Syntax}
 \label{PARSER-COMMAND-SYNTAX}
@@ -2929,7 +2938,11 @@ The top level selectors and end-at options can be reset by the
     \ttmkey{define top level}{parser command} \\
     \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
     \TT{~~~~}[ \TT{with parsing options} {\em end-at-option-spec} ] \\
-    \TT{~~~~}[ \TT{with lexical master} {\em master-name} ] \\
+    \TT{~~~~}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
+	                \begin{tabular}[t]{@{}l@{}}
+			\TT{lexical master} \\
+			{\em master-name} ] \\
+			\end{tabular} \\
     \end{tabular}
 \end{center}
 

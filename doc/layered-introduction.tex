@@ -2464,6 +2464,9 @@ or with an end of file.
 Top level parsing behaves as if input were in an indented paragraph
 with \TT{0} paragraph indent and a fictious indentation mark named
 `\TT{TOP LEVEL}'.
+An error is announced if the first non-comment,
+non-line-break, non-end-of-file
+lexeme in the file has non-zero indent.
 
 Details on indented paragraphs are given
 in \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}.
@@ -2785,9 +2788,6 @@ physical line, and the indented logical lines that follow are
 \\[0.0ex]
 \emkey{trace-flag-spec} ::= {\em parser-flag-spec} with only trace flag names
 			    (\pagref{TRACE-FLAGS})
-\\[0.3ex]
-\emkey{master-name}\label{MASTER-NAME} ::= {\em quoted-key}
-                    $|$ {\em simple-name} not containing `\TT{with}'
 
 \caption{\bf Parser Command Syntax: Part I}
 \label{PARSER-COMMAND-SYNTAX-1}
@@ -2810,22 +2810,27 @@ physical line, and the indented logical lines that follow are
     $|$ & \ttmkey{print selector}{parser command} ~ {\em partial-name} \\
     \end{tabular}
 \label{PARSER-SELECTOR-COMMAND}
-\\[0.0ex]
+\\[0.3ex]
 \emkey{parser-top-level-command} ::= \\
-\hspace*{0.3in}
-    \TT{define}\ttmindex{define top level}{parser command} ~
-    \begin{tabular}[t]{@{}l@{}}
-     \TT{top level} \\{}
-     [ \TT{with parsing selectors} ~ {\em selector-spec} ] \\{}
-     [ \TT{with parsing options} ~ {\em end-at-option-spec} ] \\{}
-     [ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
-	                \begin{tabular}[t]{@{}l@{}}
-			\TT{lexical master} \\
-			{\em master-name} ] \\
-			\end{tabular} \\
-    \end{tabular}
+\hspace*{0.3in}\begin{tabular}{rl}
+    & \TT{define}\ttmindex{define top level}{parser command} ~
+      \begin{tabular}[t]{@{}l@{}}
+       \TT{top level} \\{}
+       [ \TT{with parsing selectors} ~ {\em selector-spec} ] \\{}
+       [ \TT{with parsing options} ~ {\em end-at-option-spec} ] \\{}
+       [ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
+	                  \begin{tabular}[t]{@{}l@{}}
+			  \TT{lexical master} \\
+			  {\em master-name} ] \\
+			  \end{tabular} \\
+      \end{tabular} \\
+$|$ & \ttmkey{print top level}{parser command} \\
+   \end{tabular}
 \label{PARSER-TOP-LEVEL-COMMAND}
-\\[0.0ex]
+\\[0.3ex]
+\emkey{master-name}\label{MASTER-NAME} ::= {\em quoted-key}
+                    $|$ {\em simple-name} not containing `\TT{with}'
+\\[0.3ex]
 \emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \ttmkey{trace}{parser command} ~ {\em trace-flag-spec} \\
@@ -3028,6 +3033,14 @@ sets both lexical master parameters to the same value.
 
 Top level implied headers are always missing and cannot be set.
 
+The top level print command:
+
+\begin{center}
+\ttmkey{print top level}{parser command}
+\end{center}
+
+prints the top level selectors and lexical masters.
+
 The standard parser executes the equivalent of
 \begin{indpar}\begin{verbatim}
 *PARSER*:
@@ -3036,13 +3049,6 @@ The standard parser executes the equivalent of
         with parsing selectors [code]
 \end{verbatim}\end{indpar}
 
-TBD
-
-Also, the initial
-\key{top level current indent}\index{current indent!top level}
-is set to \TT{0}, and an error is announced if the first non-comment,
-non-line-break, non-end-of-file
-lexeme in the file has non-zero indent.
 
 \subsubsection{Parser Trace Commands}
 \label{PARSER-TRACE-COMMANDS}

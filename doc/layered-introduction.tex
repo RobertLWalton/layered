@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 28, 2017
+May 29, 2017
  
 \end{center}
 
@@ -2526,6 +2526,12 @@ A logical line is in paragraph beginning position
 if it follows a blank line or the beginning of its containing
 indented paragraph, with comment lines possibly intervening.
 
+The default lexical master is named `\ttmkey{DEFAULT}{lexical master}'.
+It is assumed that all lexical masters check for special lexemes at
+the beginning of a logical line, and after reporting any, transfer to
+this default lexical master to scan the rest of the line and any
+subsequent lines for which lexical master names are not provided.
+
 A paragraph header changes both the implied header and lexical masters
 temporarily while the logical lines of the headed paragraph are being
 scanned (\itemref{LINE-VARIABLES}).
@@ -3977,7 +3983,11 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
 	  {}[ \TT{with parsing options} ~ {\em end-at-options} ] \\
 	  {}[ \TT{with implied header} ~ {\em header} ] \\
-	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
+          {}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
+	                  \begin{tabular}[t]{@{}l@{}}
+			  \TT{lexical master} \\
+			  {\em master-name} ] \\
+			  \end{tabular} \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine indentation mark}{parser command} ~
 	  {\em indentation-name} ~ {\em parsing-selectors} \\
@@ -4074,6 +4084,9 @@ can be used to initialize line variables
 that affect the parsing of indented paragraphs: see \itemref{LINE-VARIABLES}.
 They have no effect if they are not explicitly included in the indentation
 mark definition command.
+If `\TT{with lexical master}' is given in the `\TT{define indentation mark}'
+command, both lexical master parameters are set to the same
+{\em master-name}.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
@@ -4913,7 +4926,11 @@ whose general syntax is:
 	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
 	  {}[ \TT{with group} ~ {\em prefix-group} ] \\
 	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\
-	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
+          {}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
+	                  \begin{tabular}[t]{@{}l@{}}
+			  \TT{lexical master} \\
+			  {\em master-name} ] \\
+			  \end{tabular} \\
 	  {}[ \TT{with parsing options} ~ {\em prefix-options} ] \\
           {}[ \TT{with} ~ \begin{tabular}[t]{@{}l}
 	                  {\em reformatter-name} ~ \TT{reformatter} \\
@@ -5009,12 +5026,17 @@ have the `\TT{paragraph}' group.  The {\em prefix-options} are
 used to set the \TT{paragraph\_options} line variable:
 see \itemref{LINE-VARIABLES}.
 
-\hspace*{-0.2in}\ttmkey{lexical master}{in prefix definition}\\
-For prefixes with the `\TT{paragraph}' group, the {\em master-name} is used to
-set the \TT{para\-graph\_lexi\-cal\_\EOL header} line variable.
-For prefixes with the `\TT{line}' group, this may be
-used to set the \TT{lexical\_header} line variable.
-See \itemref{LINE-VARIABLES}.
+\hspace*{-0.2in}\ttmkey{paragraph lexical master}{in prefix definition}\\
+\hspace*{-0.2in}\ttmkey{line lexical master}{in prefix definition}\\
+For prefixes with the `\TT{paragraph}' group, these parameters are
+used to set the corresponding paragraph line variables.
+For prefixes with the `\TT{line}' group, these are used to set
+the corresponding current line variables.
+See \itemref{LINE-VARIABLES} for details.
+
+If `\TT{with lexical master}' is given in the `\TT{define prefix}'
+command, both lexical master parameters are set to the same
+{\em master-name}.
 
 \end{indpar}
 
@@ -5359,7 +5381,8 @@ the MIN objects:
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}
 
-A logical line is said to be in `\key{paragraph beginning position}'
+A logical line is said to be in
+`\key{paragraph beginning position}'\label{PARAGRAPH-BEGINNING-POSITION}
 if it follows a blank line or the beginning of its containing
 indented paragraph, with comment lines possibly intervening.
 
@@ -5390,9 +5413,14 @@ following `\skey{line variable}s':
     definition selected by the \TT{selectors} line variable that
     has either the `\TT{paragraph}' or `\TT{line}' group.
 \\[1ex]
-\hspace*{-0.2in}\ttmkey{lexical master}{line variable}\\
-    The lexical master is reset to this value just after the
-    indent token that begins a logical line.
+\hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
+\hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
+    The lexical master is reset to one of these values
+    just after the indent token that begins a logical line, unless
+    the value is missing.  The paragraph lexical master is used
+    for logical lines in paragraph beginning position
+    (\pagref{PARAGRAPH-BEGINNING-POSITION})
+    and the line lexical master is used for other logical lines.
 \\[1ex]
 \hspace*{-0.2in}Note: The above line variables are called
 the `\key{current line variables}'.
@@ -5405,7 +5433,8 @@ the new value will not take affect until the next logical line.
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph implied header}{line variable}\\
-\hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
+\hspace*{-0.2in}\ttmkey{paragraph paragraph lexical master}{line variable}\\
+\hspace*{-0.2in}\ttmkey{paragraph line lexical master}{line variable}\\
     These variables are called the `\key{paragraph line variables}'.
 
     The paragraph line variables

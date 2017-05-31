@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 14 11:39:33 EDT 2017
+// Date:	Wed May 31 05:23:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -105,7 +105,9 @@ int main ( int argc, const char * argv[] )
 	  TAB::ALL_FLAGS,
 	  0, pp,
 	  TAB::new_flags ( 32 ),
-	  min::MISSING(), LEX::MISSING,
+	  min::MISSING(),
+	  LEX::MISSING,
+	  LEX::MISSING,
 	  bracket_table );
     BRA::indentation_mark imark =
         (BRA::indentation_mark)

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 26 15:32:54 EDT 2017
+// Date:	Wed May 31 05:09:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -147,7 +147,8 @@ struct indentation_mark_struct :
         // .type of implied header, cached here.
 	// May be NONE.
 
-    uns32 lexical_master;
+    uns32 paragraph_lexical_master;
+    uns32 line_lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
 };
 
@@ -186,7 +187,8 @@ ll::parser::bracketed::indentation_mark
 	      & new_selectors,
 	  min::gen implied_header,
 	      // May be min::MISSING()
-	  min::uns32 lexical_master,
+	  min::uns32 paragraph_lexical_master,
+	  min::uns32 line_lexical_master,
 	      // May be ll::lexeme::MISSING_MASTER
 	  ll::parser::table::key_table bracket_table );
 
@@ -560,7 +562,8 @@ struct prefix_struct
     min::gen implied_subprefix_type;
         // This is just a cache of the .type of
 	// the implied prefix, or MISSING if none.
-    min::uns32 lexical_master;
+    min::uns32 paragraph_lexical_master;
+    min::uns32 line_lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
     ll::parser::reformatter reformatter;
     ll::parser::reformatter_arguments
@@ -598,7 +601,8 @@ void push_prefix
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
-	  min::uns32 lexical_master,
+	  min::uns32 paragraph_lexical_master,
+	  min::uns32 line_lexical_master,
 	      // May be ll::lexeme::MISSING_MASTER
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
@@ -641,7 +645,8 @@ inline void push_block
 	  min::gen string_concatenator )
 {
     ll::parser::bracketed::block_struct b =
-        { indentation_offset, string_concatenator };
+        { indentation_offset,
+	  string_concatenator };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, string_concatenator );
@@ -936,9 +941,13 @@ struct line_data
     // Data used to initialize parsing of a logical
     // line.
 
-    min::uns32 lexical_master;
-        // The lexical master to be set at the start of
-	// the line, or MISSING_MASTER if none.
+    min::uns32 paragraph_lexical_master;
+    min::uns32 line_lexical_master;
+        // The lexical masters to be set at the start of
+	// the line, or MISSING_MASTER if none.  The
+	// paragraph lexical master is used if the line
+	// is in paragraph beginning position, and the
+	// line lexical master is used otherwise.
     ll::parser::table::flags selectors;
         // The selectors to be set at the beginning of
 	// the line.
@@ -986,9 +995,6 @@ struct line_variables
     min::int32 paragraph_indent;
         // Paragraph indentation for use in ending
 	// paragraph.
-    min::int32 indentation_offset;
-        // Value of indentation offset to be used in
-	// determining end of paragraph.
 
     // Variables that must be initialized before
     // indented paragraph lines are parsed, and are used

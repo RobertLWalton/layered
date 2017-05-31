@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 23:45:17 EST 2017
+// Date:	Wed May 31 05:09:41 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,18 @@ void misspell_warning
 	  min::phrase_position pp,
 	  min::gen what_is,
 	  min::gen should_be );
+
+// Executes:
+// 	    parser->printer << min::indent
+//                 << "with ... lexical master ...";
+//
+// as necessary to output both lexical masters if
+// they are not PAR::MISSING_MASTER.
+//
+void print_lexical_master
+	( ll::parser::parser parser,
+	  min::uns32 paragraph_master,
+	  min::uns32 line_master );
 
 // If vp[i] is a ()-bracketed subexpression, treat it
 // as an argument list, store the specified set of

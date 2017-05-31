@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 03:22:40 EDT 2017
+// Date:	Wed May 31 05:22:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -160,7 +160,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	                     PAR::ALL_EA_OPT
 			   - PAR::DEFAULT_EA_OPT,
 			   0 ),
-	  min::MISSING(), PAR::MISSING_MASTER,
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets

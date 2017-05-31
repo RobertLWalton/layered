@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 03:20:25 EDT 2017
+// Date:	Wed May 31 05:13:01 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -642,13 +642,6 @@ void PAR::push_new_pass
 min::phrase_position PAR::top_level_position =
     { { 0, 0 }, { 0, 0 } };
 
-static min::uns32 parser_gen_disp[] =
-{
-    min::DISP ( & PAR::parser_struct
-                     ::prefix_separator ),
-    min::DISP_END
-};
-
 static min::uns32 parser_stub_disp[] =
 {
     min::DISP ( & PAR::parser_struct::input ),
@@ -676,8 +669,7 @@ static min::uns32 parser_stub_disp[] =
 
 static min::packed_struct<PAR::parser_struct>
     parser_type ( "ll::parser::parser_type",
-                  ::parser_gen_disp,
-		  ::parser_stub_disp );
+                  NULL, ::parser_stub_disp );
 
 min::locatable_var<PAR::parser> PAR::default_parser;
 
@@ -704,9 +696,10 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	parser->selectors = PAR::DEFAULT_OPT
 	                  + PAR::TOP_LEVEL_SELECTOR
 	                  + PAR::ALWAYS_SELECTOR;
-	parser->lexical_master = PAR::MISSING_MASTER;
-	PAR::prefix_separator_ref(parser) =
-	    min::MISSING();
+	parser->lexical_master =
+	parser->paragraph_lexical_master =
+	parser->line_lexical_master =
+	    PAR::MISSING_MASTER;
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
@@ -854,7 +847,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		( PARLEX::top_level, PARLEX::semicolon,
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
-		  min::MISSING(), PAR::MISSING_MASTER,
+		  min::MISSING(),
+		  PAR::MISSING_MASTER,
+		  PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	top_level_indentation_mark_ref(parser) =
@@ -865,7 +860,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  0, PAR::top_level_position,
 		  PAR::parsing_selectors
 		      ( PAR::DATA_SELECTOR ),
-		  min::MISSING(), PAR::MISSING_MASTER,
+		  min::MISSING(),
+		  PAR::MISSING_MASTER,
+		  PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	top_level_indentation_mark_ref(parser) =
@@ -875,7 +872,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	          PAR::TOP_LEVEL_SELECTOR,
 		  0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
-		  min::MISSING(), PAR::MISSING_MASTER,
+		  min::MISSING(),
+		  PAR::MISSING_MASTER,
+		  PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
 	min::locatable_gen label_name
@@ -1072,9 +1071,10 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     parser->selectors = PAR::DEFAULT_OPT
 		      + PAR::TOP_LEVEL_SELECTOR
 		      + PAR::ALWAYS_SELECTOR;
-    parser->lexical_master = PAR::MISSING_MASTER;
-    PAR::prefix_separator_ref(parser) =
-	min::MISSING();
+    parser->lexical_master =
+    parser->paragraph_lexical_master =
+    parser->line_lexical_master =
+        PAR::MISSING_MASTER;
 }
 
 void PAR::init_input_stream
@@ -1142,14 +1142,12 @@ static void init_line_data
         ( BRA::line_variables & line_variables,
 	  PAR::parser parser )
 {
-    BRA::bracketed_pass bracketed_pass =
-        (BRA::bracketed_pass) parser->pass_stack;
-	// First pass in pass_stack is always the
-	// bracketed pass.
-
     BRA::line_data & line_data = line_variables.current;
 
-    line_data.lexical_master = parser->lexical_master;
+    line_data.paragraph_lexical_master =
+        parser->paragraph_lexical_master;
+    line_data.line_lexical_master =
+        parser->line_lexical_master;
     line_data.selectors = parser->selectors;
     line_data.implied_header = min::MISSING();
     line_data.header_entry = min::NULL_STUB;
@@ -1159,15 +1157,17 @@ static void init_line_data
     line_variables.indentation_paragraph =
     line_variables.indentation_implied_paragraph =
         line_variables.current;
-    line_variables.indentation_offset =
-	bracketed_pass->indentation_offset;
 }
 
 inline bool operator ==
 	( const BRA::line_data & data1,
 	  const BRA::line_data & data2 )
 {
-    return data1.lexical_master == data2.lexical_master
+    return    data1.paragraph_lexical_master
+           == data2.paragraph_lexical_master
+           &&
+              data1.line_lexical_master
+           == data2.line_lexical_master
            &&
 	   data1.selectors == data2.selectors
 	   &&
@@ -1480,7 +1480,8 @@ min::gen PAR::begin_block
                       name,
 		      parser->selector_name_table,
                       parser->undefined_stack,
-		      parser->lexical_master,
+		      parser->paragraph_lexical_master,
+		      parser->line_lexical_master,
 		      parser->selectors,
 		      parser->trace_flags );
 
@@ -1559,7 +1560,10 @@ min::gen PAR::end_block
 	    result = saved_result;
     }
 
-    parser->lexical_master = (&b)->saved_lexical_master;
+    parser->paragraph_lexical_master =
+        (&b)->saved_paragraph_lexical_master;
+    parser->line_lexical_master =
+        (&b)->saved_line_lexical_master;
     parser->selectors = (&b)->saved_selectors;
     parser->trace_flags = (&b)->saved_trace_flags;
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 27 16:23:52 EDT 2017
+// Date:	Wed May 31 05:13:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -222,7 +222,8 @@ BRA::indentation_mark
 	  const min::phrase_position & position,
 	  const TAB::new_flags & new_selectors,
 	  min::gen implied_header,
-	  min::uns32 lexical_master,
+	  min::uns32 paragraph_lexical_master,
+	  min::uns32 line_lexical_master,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::indentation_mark> imark
@@ -241,7 +242,9 @@ BRA::indentation_mark
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
         min::get ( implied_header, min::dot_type );
-    imark->lexical_master = lexical_master;
+    imark->paragraph_lexical_master =
+        paragraph_lexical_master;
+    imark->line_lexical_master = line_lexical_master;
     TAB::push ( bracket_table, (TAB::root) imark );
 
     if ( separator_label != min::MISSING() )
@@ -569,7 +572,8 @@ void BRA::push_prefix
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
-	  min::uns32 lexical_master,
+	  min::uns32 paragraph_lexical_master,
+	  min::uns32 line_lexical_master,
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
 	      reformatter_arguments,
@@ -595,7 +599,9 @@ void BRA::push_prefix
     implied_subprefix_ref(prefix) = implied_subprefix;
     implied_subprefix_type_ref(prefix) =
         implied_subprefix_type;
-    prefix->lexical_master = lexical_master;
+    prefix->paragraph_lexical_master =
+        paragraph_lexical_master;
+    prefix->line_lexical_master = line_lexical_master;
     reformatter_ref(prefix) = reformatter;
     reformatter_arguments_ref(prefix) =
         reformatter_arguments;
@@ -849,6 +855,11 @@ bool BRA::parse_paragraph_element
     else if ( line_variables->at_paragraph_end )
         return false;
     
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+    min::int32 indentation_offset =
+	bracketed_pass->indentation_offset;
+
     while ( true )
     {
 	if ( parser->at_paragraph_beginning
@@ -865,7 +876,11 @@ bool BRA::parse_paragraph_element
 	    MIN_REQUIRE
 	        ( current->next == parser->first );
 	    min::uns32 lexical_master =
-	        line_variables->current.lexical_master;
+	        ( parser->at_paragraph_beginning ?
+	          line_variables->
+		      current.paragraph_lexical_master :
+	          line_variables->
+		      current.line_lexical_master );
 	    if ( lexical_master != PAR::MISSING_MASTER )
 		PAR::set_lexical_master
 		    ( lexical_master, parser );
@@ -902,8 +917,7 @@ bool BRA::parse_paragraph_element
 		&&
 		  PAR::relative_indent
 		      ( parser,
-			line_variables->
-			    indentation_offset,
+			indentation_offset,
 			current,
 			line_variables->
 			    paragraph_indent )
@@ -2001,8 +2015,11 @@ PARSE_PREFIX_N_LIST:
 
 		BRA::line_data & line_data =
 		    line_variables->current;
-		line_data.lexical_master =
-		    prefix_entry->lexical_master;
+		line_data.paragraph_lexical_master =
+		    prefix_entry->
+		        paragraph_lexical_master;
+		line_data.line_lexical_master =
+		    prefix_entry->line_lexical_master;
 		line_data.selectors =
 		    prefix_selectors;
 		line_data.implied_header =
@@ -2398,9 +2415,13 @@ NEXT_TOKEN:
 		line_variables
 		    .indentation_implied_paragraph;
 
-	    paragraph_data.lexical_master =
-	    implied_data.lexical_master =
-		indentation_found->lexical_master;
+	    paragraph_data.paragraph_lexical_master =
+	    implied_data.paragraph_lexical_master =
+		indentation_found->
+		    paragraph_lexical_master;
+	    paragraph_data.line_lexical_master =
+	    implied_data.line_lexical_master =
+		indentation_found->line_lexical_master;
 	    paragraph_data.selectors =
 	    implied_data.selectors =
 		    new_selectors;
@@ -2478,11 +2499,19 @@ NEXT_TOKEN:
 			= header_selectors;
 
 		    if (    header_entry->
-				lexical_master
+				paragraph_lexical_master
 			 != PAR::MISSING_MASTER )
-			implied_data.lexical_master
+			implied_data
+			       .paragraph_lexical_master
 			    = header_entry->
-				  lexical_master;
+			       paragraph_lexical_master;
+		    if (    header_entry->
+				line_lexical_master
+			 != PAR::MISSING_MASTER )
+			implied_data
+			       .line_lexical_master
+			    = header_entry->
+			       line_lexical_master;
 
 		    first_time = false;
 		    implied_header =
@@ -2559,8 +2588,6 @@ NEXT_TOKEN:
 
 	    line_variables.paragraph_indent =
 		current->indent;
-	    line_variables.indentation_offset =
-		indentation_offset;
 	    line_variables.line_sep =
 		indentation_found->line_sep;
 	    line_variables.at_paragraph_end = false;
@@ -4944,23 +4971,12 @@ static min::gen bracketed_pass_command
 			<< "with implied header "
 			<< min::pgen ( header );
 
-		min::uns32 master =
-		    indentation_mark->
-		        lexical_master;
-		if ( master != PAR::MISSING_MASTER )
-		{
-		    min::locatable_gen name
-		        ( PAR::get_master_name
-			      ( master, parser ) );
-		    parser->printer
-			<< min::indent
-			<< "with lexical master ";
-		    if ( name != min::MISSING() )
-		        parser->printer
-			    << min::pgen_quote ( name );
-		    else
-		        parser->printer << master;
-		}
+		COM::print_lexical_master
+		    ( parser,
+		      indentation_mark->
+		          paragraph_lexical_master,
+		      indentation_mark->
+		          line_lexical_master );
 	    }
 	    else if ( subtype == BRA::PREFIX )
 	    {
@@ -5013,22 +5029,10 @@ static min::gen bracketed_pass_command
 			<< "with implied subprefix "
 			<< min::pgen ( subprefix );
 
-		min::uns32 master =
-		    prefix->lexical_master;
-		if ( master != PAR::MISSING_MASTER )
-		{
-		    min::locatable_gen name
-		        ( PAR::get_master_name
-			      ( master, parser ) );
-		    parser->printer
-			<< min::indent
-			<< "with lexical master ";
-		    if ( name != min::MISSING() )
-		        parser->printer
-			    << min::pgen_quote ( name );
-		    else
-		        parser->printer << master;
-		}
+		COM::print_lexical_master
+		    ( parser,
+		      prefix->paragraph_lexical_master,
+		      prefix->line_lexical_master );
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
@@ -5317,7 +5321,10 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
-	min::uns32 lexical_master = PAR::MISSING_MASTER;
+	min::uns32 paragraph_lexical_master =
+	    PAR::MISSING_MASTER;
+	min::uns32 line_lexical_master =
+	    PAR::MISSING_MASTER;
 	min::locatable_gen implied_header
 	    ( min::MISSING() );
 	while ( i < size && vp[i] == PARLEX::with )
@@ -5388,10 +5395,11 @@ static min::gen bracketed_pass_command
 		    return min::ERROR();
 		position.end = (& ppvec[i-1])->end;
 
-		lexical_master =
+		paragraph_lexical_master =
+		line_lexical_master =
 		    PAR::get_lexical_master
 		        ( master_name, parser );
-		if (    lexical_master
+		if (    paragraph_lexical_master
 		     == PAR::MISSING_MASTER )
 		    return PAR::parse_error
 			( parser, position,
@@ -5425,7 +5433,8 @@ static min::gen bracketed_pass_command
 		    ( parser, ppvec[i-1],
 		      "expected `parsing selectors',"
 		      " `parsing options', `implied"
-		      " header', or `lexical master'"
+		      " header', or"
+		      " `... lexical master'"
 		      " after" );
 	}
 	if ( i < size )
@@ -5458,7 +5467,8 @@ static min::gen bracketed_pass_command
 	      ppvec->position,
 	      new_selectors,
 	      implied_header,
-	      lexical_master,
+	      paragraph_lexical_master,
+	      line_lexical_master,
 	      bracketed_pass->bracket_table );
 
 	break;
@@ -5724,7 +5734,10 @@ static min::gen bracketed_pass_command
 	    ( min::MISSING() );
 	min::locatable_gen implied_subprefix_type
 	    ( min::MISSING() );
-	min::uns32 lexical_master = PAR::MISSING_MASTER;
+	min::uns32 paragraph_lexical_master =
+	    PAR::MISSING_MASTER;
+	min::uns32 line_lexical_master =
+	    PAR::MISSING_MASTER;
 	PAR::reformatter reformatter = min::NULL_STUB;
 	min::locatable_var
 		< PAR::reformatter_arguments >
@@ -5845,10 +5858,11 @@ static min::gen bracketed_pass_command
 		    return min::ERROR();
 		position.end = (& ppvec[i-1])->end;
 
-		lexical_master =
+		paragraph_lexical_master =
+		line_lexical_master =
 		    PAR::get_lexical_master
 		        ( master_name, parser );
-		if (    lexical_master
+		if (    paragraph_lexical_master
 		     == PAR::MISSING_MASTER )
 		    return PAR::parse_error
 			( parser, position,
@@ -5938,7 +5952,7 @@ static min::gen bracketed_pass_command
 			  " `parsing options',"
 			  " `group',"
 			  " `implied subprefix',"
-			  " or `lexical master'"
+			  " or `... lexical master'"
 			  " or `... reformatter ...'"
 			  " after" );
 	    }
@@ -5950,7 +5964,7 @@ static min::gen bracketed_pass_command
 		      " `parsing options',"
 		      " `group',"
 		      " `implied subprefix',"
-		      " or `lexical master'"
+		      " or `... lexical master'"
 		      " or `... reformatter ...'"
 		      " after" );
 	}
@@ -5983,7 +5997,8 @@ static min::gen bracketed_pass_command
 	      group,
 	      implied_subprefix,
 	      implied_subprefix_type,
-	      lexical_master,
+	      paragraph_lexical_master,
+	      line_lexical_master,
 	      reformatter,
 	      reformatter_arguments,
 	      bracketed_pass->prefix_table );

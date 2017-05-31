@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  7 06:45:05 EDT 2017
+// Date:	Wed May 31 04:41:46 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,6 +52,56 @@ static min::initializer initializer ( ::initialize );
 // Parser Command Functions
 // ------ ------- ---------
 
+void COM::print_lexical_master
+	( PAR::parser parser,
+	  min::uns32 paragraph_master,
+	  min::uns32 line_master )
+{
+    if ( paragraph_master != PAR::MISSING_MASTER
+	 &&
+	 paragraph_master == line_master )
+    {
+	min::locatable_gen name
+	    ( PAR::get_master_name
+		  ( paragraph_master, parser ) );
+	parser->printer << min::indent
+	    << "with lexical master ";
+	if ( name != min::MISSING() )
+	    parser->printer
+		<< min::pgen_quote ( name );
+	else
+	    parser->printer << paragraph_master;
+    }
+    else
+    {
+	if ( paragraph_master != PAR::MISSING_MASTER )
+	{
+	    min::locatable_gen name
+		( PAR::get_master_name
+		      ( paragraph_master, parser ) );
+	    parser->printer << min::indent
+		<< "with paragraph lexical master ";
+	    if ( name != min::MISSING() )
+		parser->printer
+		    << min::pgen_quote ( name );
+	    else
+		parser->printer << paragraph_master;
+	}
+	if ( line_master != PAR::MISSING_MASTER )
+	{
+	    min::locatable_gen name
+		( PAR::get_master_name
+		      ( line_master, parser ) );
+	    parser->printer << min::indent
+		<< "with line lexical master ";
+	    if ( name != min::MISSING() )
+		parser->printer
+		    << min::pgen_quote ( name );
+	    else
+		parser->printer << line_master;
+	}
+    }
+}
 min::gen COM::scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,
           min::ref< min::packed_vec_ptr<min::gen> >
@@ -898,8 +948,10 @@ static min::gen execute_top_level
 	    << min::set_indent ( indent + 4 );
 
 	TAB::flags flags = parser->selectors;
-	min::uns32 lexical_master =
-	    parser->lexical_master;
+	min::uns32 paragraph_lexical_master =
+	    parser->paragraph_lexical_master;
+	min::uns32 line_lexical_master =
+	    parser->line_lexical_master;
 	for ( min::uns32 i =
 		  parser->block_stack->length;
 	      ; -- i )
@@ -934,19 +986,10 @@ static min::gen execute_top_level
 		  parser->selector_name_table,
 		  parser );
 
-	    if ( lexical_master != PAR::MISSING_MASTER )
-	    {
-		min::locatable_gen name
-		    ( PAR::get_master_name
-			  ( lexical_master, parser ) );
-		parser->printer << min::indent
-		                << " lexical master ";
-		if ( name != min::MISSING() )
-		    parser->printer
-			<< min::pgen_quote ( name );
-		else
-		    parser->printer << lexical_master;
-	    }
+	    COM::print_lexical_master
+	        ( parser,
+		  paragraph_lexical_master,
+		  line_lexical_master );
 
 	    parser->printer << min::restore_indent;
 
@@ -954,8 +997,12 @@ static min::gen execute_top_level
 
 	    flags = (&parser->block_stack[i-1])
 			->saved_selectors;
-	    lexical_master = (&parser->block_stack[i-1])
-			         ->saved_lexical_master;
+	    paragraph_lexical_master =
+	        (&parser->block_stack[i-1])
+		     ->saved_paragraph_lexical_master;
+	    line_lexical_master =
+	        (&parser->block_stack[i-1])
+		     ->saved_line_lexical_master;
 	}
 
 	parser->printer << min::eom;
@@ -1070,7 +1117,9 @@ static min::gen execute_top_level
                       ^  new_options.xor_flags;
     parser->selectors |= PAR::TOP_LEVEL_SELECTOR
                       |  PAR::ALWAYS_SELECTOR;
-    parser->lexical_master = lexical_master;
+    parser->paragraph_lexical_master =
+    parser->line_lexical_master =
+        lexical_master;
 
     if ( i < size )
         return PAR::parse_error

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 05:09:41 EDT 2017
+// Date:	Fri Jun  2 07:00:31 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,6 +62,89 @@ void print_lexical_master
 	( ll::parser::parser parser,
 	  min::uns32 paragraph_master,
 	  min::uns32 line_master );
+
+// Return true iff vp[i ...] is
+//
+//     [paragraph|line]? lexical master
+//
+inline bool is_lexical_master
+	( min::obj_vec_ptr & vp,
+	  min::uns32 i,
+	  min::uns32 size )
+{
+    if ( i + 1 >= size )
+        return false;
+    else
+    if ( vp[i] == ll::parser::lexeme::lexical )
+        return vp[i+1] == ll::parser::lexeme::master;
+    else
+    if ( i + 2 >= size )
+        return false;
+    else
+    if ( vp[i] != ll::parser::lexeme::paragraph
+         &&
+	 vp[i] != ll::parser::lexeme::line )
+        return false;
+    else
+        return vp[i+1] == ll::parser::lexeme::paragraph
+	       &&
+	       vp[i+2] == ll::parser::lexeme::line;
+}
+
+// Get lexical master if `is_lexical_master' returns
+// true.  Set {paragraph,line}_lexical master
+// accordingly.  Return min::ERROR() if error and
+// min::SUCCESS() if not.
+//
+inline min::gen get_lexical_master
+	( ll::parser::parser parser,
+	  min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppvec,
+	  min::uns32 & i,
+	  min::uns32 & paragraph_lexical_master,
+	  min::uns32 & line_lexical_master )
+{
+    min::gen ltype = vp[i];
+    if ( ltype == ll::parser::lexeme::lexical )
+        i += 2;
+    else
+        i += 3;
+
+    min::phrase_position position = ppvec[i];
+    min::locatable_gen master_name
+	( ll::parser::scan_name
+	    ( vp, i, parser,
+	      ll::parser::lexeme::with ) );
+    if ( master_name == min::ERROR() )
+	return min::ERROR();
+    position.end = (& ppvec[i-1])->end;
+
+    min::uns32 lexical_master =
+	ll::parser::get_lexical_master
+	    ( master_name, parser );
+    if (    lexical_master
+	 == ll::parser::MISSING_MASTER )
+	return ll::parser::parse_error
+	    ( parser, position,
+	      "`",
+	      min::pgen_quote
+		  ( master_name ),
+	      "' does NOT name a lexical"
+	      " master" );
+    if ( ltype == ll::parser::lexeme::line )
+	line_lexical_master =
+	    lexical_master;
+    else
+    if ( ltype == ll::parser::lexeme::paragraph )
+	paragraph_lexical_master =
+	    lexical_master;
+    else
+	line_lexical_master =
+	paragraph_lexical_master =
+	    lexical_master;
+
+    return min::SUCCESS();
+}
 
 // If vp[i] is a ()-bracketed subexpression, treat it
 // as an argument list, store the specified set of

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 04:41:46 EDT 2017
+// Date:	Fri Jun  2 07:14:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1013,7 +1013,11 @@ static min::gen execute_top_level
     TAB::new_flags new_options;
 	// Inited to zeroes.
 
-    min::uns32 lexical_master = parser->lexical_master;
+    min::uns32 paragraph_lexical_master =
+        parser->paragraph_lexical_master;
+    min::uns32 line_lexical_master =
+        parser->line_lexical_master;
+
     min::uns32 saved_i = i;
     while ( i < size && vp[i] == PARLEX::with )
     {
@@ -1068,34 +1072,15 @@ static min::gen execute_top_level
 	    	     ( result == min::SUCCESS() );
 	}
 	else
-	if ( i + 1 < size
-	     &&
-	     vp[i] == PARLEX::lexical
-	     &&
-	     vp[i+1] == PARLEX::master )
+	if ( COM::is_lexical_master
+		 ( vp, i, size ) )
 	{
-	    i += 2;
-	    min::phrase_position position
-		= ppvec[i];
-	    min::locatable_gen master_name
-		( PAR::scan_name
-		    ( vp, i, parser, PARLEX::with ) );
-	    if ( master_name == min::ERROR() )
+	    if (    COM::get_lexical_master
+		       ( parser, vp, ppvec, i,
+			 paragraph_lexical_master,
+			 line_lexical_master )
+		 == min::ERROR() )
 		return min::ERROR();
-	    position.end = (& ppvec[i-1])->end;
-
-	    lexical_master =
-		PAR::get_lexical_master
-		    ( master_name, parser );
-	    if (    lexical_master
-		 == PAR::MISSING_MASTER )
-		return PAR::parse_error
-		    ( parser, position,
-		      "`",
-		      min::pgen_quote
-			  ( master_name ),
-		      "' does NOT name a lexical"
-		      " master" );
 	}
 	else
 	    return PAR::parse_error
@@ -1118,8 +1103,9 @@ static min::gen execute_top_level
     parser->selectors |= PAR::TOP_LEVEL_SELECTOR
                       |  PAR::ALWAYS_SELECTOR;
     parser->paragraph_lexical_master =
+        paragraph_lexical_master;
     parser->line_lexical_master =
-        lexical_master;
+        line_lexical_master;
 
     if ( i < size )
         return PAR::parse_error

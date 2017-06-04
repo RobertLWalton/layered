@@ -105,6 +105,14 @@
 @goodby there
 
 *PARSER*:
+    define top level
+        with paragraph lexical master PARAGRAPH-CHECK
+
+---------
+@a paragraph
+---------
+
+*PARSER*:
     end block X
 
 @hello there

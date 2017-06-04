@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  2 07:00:31 EDT 2017
+// Date:	Sun Jun  4 03:39:50 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -86,9 +86,9 @@ inline bool is_lexical_master
 	 vp[i] != ll::parser::lexeme::line )
         return false;
     else
-        return vp[i+1] == ll::parser::lexeme::paragraph
+        return vp[i+1] == ll::parser::lexeme::lexical
 	       &&
-	       vp[i+2] == ll::parser::lexeme::line;
+	       vp[i+2] == ll::parser::lexeme::master;
 }
 
 // Get lexical master if `is_lexical_master' returns

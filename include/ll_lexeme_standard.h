@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 19 05:35:05 EDT 2017
+// Date:	Sun Jun  4 04:02:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -128,7 +128,7 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 table_t				= 16;
         // ----- or ===== at beginning of line.
     const uns32 row_t				= 17;
-        // | at beginning of line.
+        // |, -----, or ===== at beginning of line.
 
     // Erroneous Lexeme Types:
     //

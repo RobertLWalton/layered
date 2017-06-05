@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  5 03:12:02 EST 2016
+// Date:	Mon Jun  5 12:21:04 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -169,19 +169,39 @@ void init_input ( min::ref<ll::parser::parser> parser );
 void init_block ( ll::parser::parser parser );
 
 
+// Standard Parser Lexeme Map
+// -------- ------ ------ ---
+
+// Set parser->lexeme_map to map the standard set
+// of layered language special lexemes, and set
+// parser->{paragaph,line}_lexical_master to produce
+// these special lexemes at top level.
+//
+void init_lexeme_map ( ll::parser::parser parser );
+
+
 // Standard Parser Brackets
 // -------- ------ --------
 
-
-// Set the parser->bracket_table for the standard set
-// of layered language brackets and indentation marks.
+// Set the bracketed_pass->bracket_table for the
+// standard set of layered language brackets and
+// indentation marks.
 //
-// Set parser->selectors to `code + prefix'.
+// Set parser->selectors to `code + top level'.
 //
-// Set prefix pass selectors to `prefix'.
+// Note: bracketed_pass = parser->pass_stack, as it is
+// always the first pass in pass_stack.
 //
 void init_brackets ( ll::parser::parser parser );
 
+
+// Standard Prefixes
+// -------- --------
+
+// Set the bracketed_pass->bracket_table for the
+// standard set of layered language prefixes.
+//
+void init_prefixes ( ll::parser::parser parser );
 
 
 // Standard Parser Operators

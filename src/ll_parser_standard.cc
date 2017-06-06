@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 03:04:14 EDT 2017
+// Date:	Tue Jun  6 05:29:17 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,6 +19,8 @@
 # include <ll_parser_table.h>
 # include <ll_parser.h>
 # include <ll_parser_standard.h>
+# define LEX ll::lexeme
+# define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
@@ -47,4 +49,45 @@ void PARSTD::init_block ( PAR::parser parser )
 	        code_name )
 	| PAR::TOP_LEVEL_SELECTOR
 	| PAR::ALWAYS_SELECTOR;
+}
+
+void PARSTD::init_lexeme_map ( PAR::parser parser )
+{
+    min::locatable_gen paragraph_check
+        ( min::new_str_gen ( "PARAGRAPH-CHECK" ) );
+    min::locatable_gen data_check
+        ( min::new_str_gen ( "DATA-CHECK" ) );
+    parser->paragraph_lexical_master =
+        PAR::get_lexical_master
+	    ( paragraph_check, parser );
+    parser->line_lexical_master =
+        PAR::get_lexical_master
+	    ( data_check, parser );
+
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::gen data_t_name =
+        LEX::lexeme_type_name
+	    ( LEXSTD::data_t, parser->scanner );
+    min::locatable_gen data_value
+        ( min::new_obj_gen ( 10, 1 ) );
+    {
+        min::obj_vec_insptr vp ( data_value );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, PARLEX::data );
+    }
+
+    TAB::push_lexeme_map_entry
+        ( data_t_name,
+	  LEXSTD::data_t,
+	  PAR::TOP_LEVEL_SELECTOR,
+	  block_level,
+	  PAR::top_level_position,
+	  data_value,
+	  PAR::PREFIX,
+	  PARLEX::data,
+	  PAR::MISSING_MASTER,
+	  parser->lexeme_map );
 }

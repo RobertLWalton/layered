@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 24 15:22:53 EDT 2015
+// Date:	Tue Jun  6 15:12:05 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,7 +40,19 @@ namespace ll { namespace lexeme {
     // This function terminates after printing a lexeme
     // of type end_of_file_t.
     //
-    void basic_test_input ( uns32 end_of_file_t );
+    // If indent_t != 0, a current lexical master is
+    // maintained, and if it is not MISSING_MASTER, the
+    // lexical master of the scan is reset to this value
+    // after any token of indent_t type.  Initially the
+    // current lexical master is MISSING_MASTER.  Any
+    // token whose string is `<master-name>' for a
+    // valid lexical master name resets the current
+    // lexical master.  Any token whose string is
+    // `<MISSING_MASTER>' resets the current lexical
+    // master to MISSING_MASTER.
+    //
+    void basic_test_input
+	( uns32 end_of_file_t, uns32 indent_t = 0 );
 
     // Print the given input lines using the scanner
     // print mode, scan each line, and print under each

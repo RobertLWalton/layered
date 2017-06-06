@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Feb  6 07:37:31 EST 2017
+# Date:		Tue Jun  6 16:05:24 EDT 2017
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -30,6 +30,7 @@ OPTIMIZE = -O3
 
 LEXEME_PROGRAMS = ll_lexeme_basic_test \
                   ll_lexeme_standard_basic_test \
+                  ll_lexeme_standard_special_test \
                   ll_lexeme_standard_test \
                   ll_lexeme_alternate_basic_test \
                   ll_lexeme_alternate_test \
@@ -300,8 +301,16 @@ ll_lexeme_standard_basic_test.out:		\
 	    ll_lexeme_standard_basic_test \
 	    ll_lexeme_standard_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_standard_test.in \
+	${RUNENV} $* -p < ll_lexeme_standard_test.in \
 	             > $*.out
+
+ll_lexeme_standard_special_test.out:		\
+	    ll_lexeme_standard_basic_test \
+	    ll_lexeme_standard_special_test.in
+	rm -f $*.out
+	${RUNENV} ll_lexeme_standard_basic_test \
+	    < ll_lexeme_standard_special_test.in \
+	    > $*.out
 
 ll_lexeme_standard_test:		\
 		ll_lexeme_standard_test.cc \

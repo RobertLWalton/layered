@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  4 07:23:38 EST 2015
+// Date:	Tue Jun  6 15:13:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,14 +30,20 @@ using LEX::uns32;
 // Basic Input Test
 // ----- ----- ----
 
-void LEX::basic_test_input ( uns32 end_of_file_t )
+void LEX::basic_test_input
+	( uns32 end_of_file_t, uns32 indent_t )
 {
     LEX::scanner scanner = LEX::default_scanner;
     min::printer printer = scanner->printer;
+    LEX::translation_buffer translation_buffer =
+        scanner->translation_buffer;
 
     LEX::init ( erroneous_atom_ref(scanner),
                 LEX::BASIC );
 
+    uns32 lexical_master = LEX::MISSING_MASTER;
+    min::locatable_gen missing_master
+        ( min::new_str_gen ( "MISSING_MASTER" ) );
     while ( true )
     {
 	uns32 first, next;
@@ -49,14 +55,46 @@ void LEX::basic_test_input ( uns32 end_of_file_t )
 	            << min::error_message;
 	    return;
 	}
-	else
-	    printer
-	        << LEX::plexeme
-	            ( LEX::default_scanner,
-		      first, next, type )
-		<< min::eol;
+
+	printer
+	    << LEX::plexeme
+		( LEX::default_scanner,
+		  first, next, type )
+	    << min::eol;
 
 	if ( type == end_of_file_t ) break;
+
+	if (    type == indent_t
+	     && lexical_master != MISSING_MASTER )
+	    LEX::set_lexical_master
+	        ( lexical_master, scanner );
+
+	uns32 length = translation_buffer->length;
+	if ( indent_t != 0
+	     &&
+	     length > 2
+	     &&
+	     translation_buffer[0] == '<'
+	     &&
+	     translation_buffer[length-1] == '>' )
+	{
+	    min::locatable_gen master_name
+	        ( min::new_str_gen
+		    ( min::begin_ptr_of
+		      ( translation_buffer ) + 1,
+		      length - 2 ) );
+	    if ( master_name == missing_master )
+	        lexical_master = LEX::MISSING_MASTER;
+	    else
+	    {
+	        uns32 master_index =
+		    LEX::lexical_master_index
+		        ( master_name, scanner );
+		if (    master_index
+		     != LEX::MISSING_MASTER )
+		    lexical_master = master_index;
+	    }
+	}
     }
 }
 

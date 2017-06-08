@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 05:22:33 EDT 2017
+// Date:	Thu Jun  8 16:32:40 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Standard Brackets
+//	Standard Prefixes
 
 // Usage and Setup
 // ----- --- -----
@@ -181,4 +182,36 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  opening_brace_star,
 	  true,
 	  bracketed_pass->bracket_table );
+}
+
+// Standard Prefixes
+// -------- --------
+
+void PARSTD::init_prefixes ( PAR::parser parser )
+{
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+    min::locatable_gen text_name
+        ( min::new_str_gen ( "text" ) );
+    min::locatable_gen data_name
+        ( min::new_str_gen ( "data" ) );
+
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, math_name );
+    TAB::flags text =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, text_name );
+    TAB::flags data =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, data_name );
+
 }

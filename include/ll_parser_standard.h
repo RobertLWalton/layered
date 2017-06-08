@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  5 12:21:04 EDT 2017
+// Date:	Thu Jun  8 16:33:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,9 @@
 //	Usage and Setup
 //	Standard Parser Input
 //	Standard Parser Block
+//	Standard Parser Lexeme Map
 //	Standard Parser Brackets
+//	Standard Prefixes
 //	Standard Parser Operators
 
 // Usage and Setup

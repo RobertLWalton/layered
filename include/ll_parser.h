@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 05:09:02 EDT 2017
+// Date:	Sat Jun 10 17:00:11 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1342,6 +1342,24 @@ inline void init_printer
 	    ( scanner_ref(parser),
 	      printer );
 }
+
+// Create lexeme map if it does not exist.  Parser
+// scanner must be defined.
+//
+inline void init_lexeme_map
+	( ll::parser::parser parser )
+{
+    if ( parser->lexeme_map != min::NULL_STUB )
+        return;
+
+    MIN_REQUIRE ( parser->scanner != min::NULL_STUB );
+    min::obj_vec_ptr vp =
+	parser->scanner->lexeme_type_table;
+    ll::parser::lexeme_map_ref(parser) =
+	ll::parser::table::create_lexeme_map 
+	    ( min::size_of ( vp ) );
+}
+
 
 // The following initialize the parser and then call
 // the corresponding min::init_... function for

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jun  6 16:05:24 EDT 2017
+# Date:		Sat Jun 10 15:33:37 EDT 2017
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -40,6 +40,7 @@ LEXEME_PROGRAMS = ll_lexeme_basic_test \
 PARSER_PROGRAMS = ll_parser_input_test \
 	          ll_parser_table_test \
 	          ll_parser_command_test \
+		  ll_parser_lexeme_map_standard_test \
 	          ll_parser_bracketed_standard_test \
 	          ll_parser_bracketed_command_test \
 	          ll_parser_oper_standard_test \
@@ -589,6 +590,14 @@ ll_parser_input_test.out:		\
 	rm -f $*.out
 	${RUNENV} $* < ll_lexeme_standard_test.in \
 	             > $*.out
+
+ll_parser_lexeme_map_standard_test.out:		\
+	    ll_parser_input_test \
+	    ll_parser_lexeme_map_standard_test.in
+	rm -f $*.out
+	${RUNENV} ll_parser_input_test -m \
+	    < ll_parser_lexeme_map_standard_test.in \
+	    > $*.out
 
 ll_parser_table_test:		\
 		ll_parser_table_test.cc \

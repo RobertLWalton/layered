@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 03:15:03 EDT 2017
+// Date:	Sat Jun 10 17:00:01 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,8 @@ void PARSTD::init_block ( PAR::parser parser )
 
 void PARSTD::init_lexeme_map ( PAR::parser parser )
 {
+    PAR::init_lexeme_map ( parser );
+
     min::locatable_gen paragraph_check
         ( min::new_str_gen ( "PARAGRAPH-CHECK" ) );
     min::locatable_gen data_check

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  2 07:14:56 EDT 2017
+// Date:	Sat Jun 10 17:00:55 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1365,6 +1365,7 @@ static min::gen execute_mapped_lexeme
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "extraneous stuff after" );
+	PAR::init_lexeme_map ( parser );
 	TAB::push_lexeme_map_entry
 	    ( name, lexeme_type, selectors,
 	      PAR::block_level ( parser ),

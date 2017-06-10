@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 16:32:40 EDT 2017
+// Date:	Sat Jun 10 02:38:09 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -214,4 +214,109 @@ void PARSTD::init_prefixes ( PAR::parser parser )
         1ull << TAB::find_name
 	    ( parser->selector_name_table, data_name );
 
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen raw_data
+        ( min::new_lab_gen ( "raw", "data" ) );
+
+    BRA::push_prefix
+	( data_name,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + data + code + text + math,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  min::MISSING(), // group
+	  min::MISSING(), // implied_subprefix
+	  min::MISSING(), // implied_subprefix_type
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    BRA::push_prefix
+	( raw_data,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + data + code + text + math,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( data, PAR::ALL_SELECTORS ^ data, 0 ),
+	  min::MISSING(), // group
+	  min::MISSING(), // implied_subprefix
+	  min::MISSING(), // implied_subprefix_type
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    min::locatable_gen table
+        ( min::new_str_gen ( "table" ) );
+    min::locatable_gen row
+        ( min::new_str_gen ( "row" ) );
+    min::locatable_gen row_check
+        ( min::new_str_gen ( "ROW-CHECK" ) );
+    min::uns32 row_lexical_master =
+        PAR::get_lexical_master
+	    ( row_check, parser );
+    min::locatable_gen row_value
+        ( min::new_obj_gen ( 10, 1 ) );
+    {
+        min::obj_vec_insptr vp ( row_value );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, row );
+    }
+
+    BRA::push_prefix
+	( table,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + data + code + text + math,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  PARLEX::paragraph,
+	  row_value,
+	  row,
+	  PAR::MISSING_MASTER,
+	  row_lexical_master,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    BRA::push_prefix
+	( row,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + data + code + text + math,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  PARLEX::line,
+	  min::MISSING(),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    min::locatable_gen p
+        ( min::new_str_gen ( "p" ) );
+
+    BRA::push_prefix
+	( p,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + data + code + text + math,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( EAPBREAK_OPT + EALTINDENT_OPT,
+	          EALBREAK_OPT + EALEINDENT_OPT
+		+ EALSEP_OPT + EAOCLOSING_OPT , 0 ),
+	  PARLEX::paragraph,
+	  min::MISSING(),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
 }

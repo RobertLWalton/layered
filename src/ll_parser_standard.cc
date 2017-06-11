@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 17:00:01 EDT 2017
+// Date:	Sat Jun 10 22:21:53 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,11 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 {
     PAR::init_lexeme_map ( parser );
 
+    min::locatable_var<min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file,
+		PAR::top_level_position, 0 );
+
     min::locatable_gen paragraph_check
         ( min::new_str_gen ( "PARAGRAPH-CHECK" ) );
     min::locatable_gen data_check
@@ -79,6 +84,10 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	min::attr_insptr ap ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, PARLEX::data );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
     }
 
     TAB::push_lexeme_map_entry
@@ -105,6 +114,10 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	min::attr_insptr ap ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, raw_data );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
     }
 
     TAB::push_lexeme_map_entry
@@ -131,6 +144,10 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	min::attr_insptr ap ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, table );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
     }
 
     TAB::push_lexeme_map_entry
@@ -157,6 +174,10 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	min::attr_insptr ap ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, row );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
     }
 
     TAB::push_lexeme_map_entry

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  7 07:16:39 EDT 2017
+// Date:	Sat Jun 10 22:48:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,6 +59,7 @@ static void input_init
 	  PAR::input input )
 {
     LEX::init ( PAR::scanner_ref(parser) );
+    PAR::init_lexeme_map ( parser );
 }
 static void erroneous_atom_announce
 	( min::uns32 first, min::uns32 last,

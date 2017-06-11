@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 02:38:09 EDT 2017
+// Date:	Sat Jun 10 22:21:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -217,6 +217,11 @@ void PARSTD::init_prefixes ( PAR::parser parser )
     min::uns32 block_level =
         PAR::block_level ( parser );
 
+    min::locatable_var<min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file,
+		PAR::top_level_position, 0 );
+
     min::locatable_gen raw_data
         ( min::new_lab_gen ( "raw", "data" ) );
 
@@ -267,6 +272,10 @@ void PARSTD::init_prefixes ( PAR::parser parser )
 	min::attr_insptr ap ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, row );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
     }
 
     BRA::push_prefix

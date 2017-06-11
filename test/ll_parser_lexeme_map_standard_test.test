@@ -38,13 +38,13 @@ LINE_BREAK: line #:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 INDENT_BEFORE_COMMENT: line #:
-// Date:        Sat Jun 10 15:35:18 EDT 2017
+// Date:        Sun Jun 11 12:30:30 EDT 2017
 ^
 COMMENT: line #:
-// Date:        Sat Jun 10 15:35:18 EDT 2017
+// Date:        Sun Jun 11 12:30:30 EDT 2017
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line #:
-// Date:        Sat Jun 10 15:35:18 EDT 2017
+// Date:        Sun Jun 11 12:30:30 EDT 2017
                                             ^
 INDENT_BEFORE_COMMENT: line #:
 //
@@ -86,77 +86,119 @@ LINE_BREAK: line ##:
 <BLANK-LINE>
 ^
 INDENT: line ##:
-@@@ = hi there
+@@@ = data 1
 ^
 DATA: {data||data}: line ##:
-@@@ = hi there
+@@@ = data 1
 ^
 NUMERIC: "@@@": line ##:
-@@@ = hi there
+@@@ = data 1
 ^^^
 MARK: "=": line ##:
-@@@ = hi there
+@@@ = data 1
     ^
-WORD: "hi": line ##:
-@@@ = hi there
-      ^^
-WORD: "there": line ##:
-@@@ = hi there
-         ^^^^^
+WORD: "data": line ##:
+@@@ = data 1
+      ^^^^
+NATURAL: "1": line ##:
+@@@ = data 1
+           ^
 LINE_BREAK: line ##:
-@@@ = hi there
-              ^
+@@@ = data 1
+            ^
 INDENT: line ##:
-@@@ = goodbye for today:
+@@@ = data 2
 ^
 DATA: {data||data}: line ##:
-@@@ = goodbye for today:
+@@@ = data 2
 ^
 NUMERIC: "@@@": line ##:
-@@@ = goodbye for today:
+@@@ = data 2
 ^^^
 MARK: "=": line ##:
-@@@ = goodbye for today:
+@@@ = data 2
     ^
-WORD: "goodbye": line ##:
-@@@ = goodbye for today:
-      ^^^^^^^
-WORD: "for": line ##:
-@@@ = goodbye for today:
-              ^^^
-WORD: "today": line ##:
-@@@ = goodbye for today:
-                  ^^^^^
-SEPARATOR: ":": line ##:
-@@@ = goodbye for today:
-                       ^
+WORD: "data": line ##:
+@@@ = data 2
+      ^^^^
+NATURAL: "2": line ##:
+@@@ = data 2
+           ^
 LINE_BREAK: line ##:
-@@@ = goodbye for today:
-                        ^
+@@@ = data 2
+            ^
 INDENT: line ##:
-        a line
-^^^^^^^^
-WORD: "a": line ##:
-        a line
-        ^
-WORD: "line": line ##:
-        a line
-          ^^^^
+----------
+^
+MARK: "----------": line ##:
+----------
+^^^^^^^^^^
 LINE_BREAK: line ##:
-        a line
-              ^
+----------
+          ^
+LINE_BREAK: line ##:
+<BLANK-LINE>
+^
 INDENT: line ##:
-        another line
-^^^^^^^^
-WORD: "another": line ##:
-        another line
-        ^^^^^^^
-WORD: "line": line ##:
-        another line
-                ^^^^
+----------
+^
+TABLE: {table||table}: line ##:
+----------
+^
+ROW: {row||row}: line ##:
+----------
+^
+MARK: "----------": line ##:
+----------
+^^^^^^^^^^
 LINE_BREAK: line ##:
-        another line
-                    ^
+----------
+          ^
+INDENT: line ##:
+| row 1
+^
+SEPARATOR: "|": line ##:
+| row 1
+^
+WORD: "row": line ##:
+| row 1
+  ^^^
+NATURAL: "1": line ##:
+| row 1
+      ^
+LINE_BREAK: line ##:
+| row 1
+       ^
+INDENT: line ##:
+---------
+^
+MARK: "---------": line ##:
+---------
+^^^^^^^^^
+LINE_BREAK: line ##:
+---------
+         ^
+INDENT: line ##:
+@@@ = data 3
+^
+DATA: {data||data}: line ##:
+@@@ = data 3
+^
+NUMERIC: "@@@": line ##:
+@@@ = data 3
+^^^
+MARK: "=": line ##:
+@@@ = data 3
+    ^
+WORD: "data": line ##:
+@@@ = data 3
+      ^^^^
+NATURAL: "3": line ##:
+@@@ = data 3
+           ^
+LINE_BREAK: line ##:
+@@@ = data 3
+            ^
 END_OF_FILE: line ##:
 <END-OF-FILE>
 ^

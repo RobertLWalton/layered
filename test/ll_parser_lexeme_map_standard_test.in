@@ -1,0 +1,18 @@
+// Layered Languages Lexeme Map Standard Parser Test Data
+//
+// File:	ll_parser_lexeme_map_standard_test.in
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Sun Jun 11 12:30:30 EDT 2017
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+@43 = data 1
+@89 = data 2
+----------
+
+----------
+| row 1
+---------
+@12 = data 3

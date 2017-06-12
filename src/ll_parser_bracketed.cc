@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  2 07:03:33 EDT 2017
+// Date:	Mon Jun 12 16:45:21 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2172,7 +2172,28 @@ PARSE_PREFIX_N_LIST:
 		      trace_flags );
 	    }
 
-	    if ( BRA::compact_prefix_list
+	    min::phrase_position position =
+	        { prefix->position.begin,
+	          next->previous->position.end };
+	    if ( separator_found )
+	        position.end = separator_found;
+
+	    if ( ( prefix_entry == min::NULL_STUB
+	           ||
+		      prefix_entry->reformatter
+		   == min::NULL_STUB
+		   ||
+		   ( * prefix_entry->reformatter->
+		       reformatter_function )
+		     ( parser,
+		       (PAR::pass) bracketed_pass,
+		       prefix_selectors,
+		       prefix, next, position,
+		       trace_flags,
+		       (TAB::root) prefix_entry )
+	         )
+		 &&
+		 BRA::compact_prefix_list
 		     ( parser, bracketed_pass->next,
 		       prefix_selectors,
 		       prefix, next,

@@ -4,7 +4,7 @@ BRACKETED EXPRESSION:
     This is a line;
 @@ = This is a line:
          .terminator = ";"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     line ##:
 This is a line;
@@ -13,7 +13,7 @@ BRACKETED EXPRESSION:
     This is a line containing a "quoted<SP>string" "."
 @@ = This is a line containing a @@ ".":
          .terminator = "<LF>"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
 @@ = "quoted<SP>string":
          .type = "<Q>"
@@ -24,7 +24,7 @@ BRACKETED EXPRESSION:
     This is a line containing a large number 12345678901234567890 "."
 @@ = This is a line containing a large number 12345678901234567890 ".":
          .terminator = "<LF>"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This is a line containing a large number
@@ -40,7 +40,7 @@ BRACKETED EXPRESSION:
 @@ = hi there:
          .terminator = ")"
          .initiator = "("
-         .position[H] = {}
+         .position[H] = PACKED_VEC
     line ##:
      ( hi there ).
      ^^^^^^^^^^^^
@@ -49,7 +49,7 @@ BRACKETED EXPRESSION:
         "."
 @@ = This is a line containing a parenthesized subexpression @@ ".":
          .terminator = "<LF>"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This is a line containing a parenthesized subexpression
@@ -65,7 +65,7 @@ BRACKETED EXPRESSION:
 @@ = x 5 @@:
          .terminator = ")"
          .initiator = "("
-         .position[H] = {}
+         .position[H] = PACKED_VEC
 @@ = foo:
          .type = "<Q>"
     line ##:
@@ -75,7 +75,7 @@ BRACKETED EXPRESSION:
     This line contains subsubexpressions (x 5 "foo")
 @@ = This line contains subsubexpressions @@:
          .terminator = "<LF>"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     line ##:
 This line contains subsubexpressions (x 5 "foo")
@@ -93,7 +93,7 @@ BRACKETED EXPRESSION:
 @@@ = p q:
           .terminator = [< "}" "}" >]
           .initiator = [< "{" "{" >]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + `y z {{p q}}' - [ g h ]).
                ^^^^^^^
@@ -104,7 +104,7 @@ BRACKETED EXPRESSION:
 @@@ = y z @@@:
           .terminator = "'"
           .initiator = "`"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + `y z {{p q}}' - [ g h ]).
           ^^^^^^^^^^^^^
@@ -117,7 +117,7 @@ BRACKETED EXPRESSION:
 @@@ = g h:
           .terminator = "]"
           .initiator = "["
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + `y z {{p q}}' - [ g h ]).
                           ^^^^^^^
@@ -128,7 +128,7 @@ BRACKETED EXPRESSION:
 @@@ = x + @@@ - @@@:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + `y z {{p q}}' - [ g h ]).
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -137,7 +137,7 @@ BRACKETED EXPRESSION:
         (x + `y z {{p q}}' - [g h]) "."
 @@@ = This line contains more subsubexpressions @@@ ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This line contains more subsubexpressions
@@ -158,7 +158,7 @@ BRACKETED EXPRESSION:
 @@@ = y z:
           .terminator = [< "}" "}" >]
           .initiator = [< "{" "{" >]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + {{ y z )
           ^^^^^^
@@ -167,7 +167,7 @@ BRACKETED EXPRESSION:
 @@@ = x + @@@:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + {{ y z )
      ^^^^^^^^^^^^^
@@ -175,7 +175,7 @@ BRACKETED EXPRESSION:
     This line contains a missing closing bracket (x + {{y z}})
 @@@ = This line contains a missing closing bracket @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This line contains a missing closing bracket
@@ -202,7 +202,7 @@ BRACKETED EXPRESSION:
 @@@ = x + y "}" "}":
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      (x + y }}
      ^^^^^^^^^
@@ -210,7 +210,7 @@ BRACKETED EXPRESSION:
     This line contains an incorrect closing bracket (x + y "}" "}")
 @@@ = This line contains an incorrect closing bracket @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This line contains an incorrect closing bracket
@@ -224,7 +224,7 @@ BRACKETED EXPRESSION:
     This line includes a token with insufficient indent
 @@@ = This line includes a token with insufficient indent:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This line includes
@@ -237,7 +237,7 @@ BRACKETED EXPRESSION:
     First line "."
 @@@ = First line ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    First line.
@@ -246,7 +246,7 @@ BRACKETED EXPRESSION:
     Second line "."
 @@@ = Second line ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Second line.
@@ -259,7 +259,7 @@ BRACKETED EXPRESSION:
               Second line "."|}|}
 @@@ = @@@ @@@:
           .terminator = [$ INDENTED_PARAGRAPH $]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = ":"
     lines ##-##:
 This line starts an indented paragraph:
@@ -274,7 +274,7 @@ BRACKETED EXPRESSION:
         Second line "."
 @@@ = This line starts an indented paragraph @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This line starts an indented paragraph:
@@ -292,7 +292,7 @@ BRACKETED EXPRESSION:
     Third line "."
 @@@ = Third line ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Third line.
@@ -301,7 +301,7 @@ BRACKETED EXPRESSION:
     Fourth line "."
 @@@ = Fourth line ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Fourth line.
@@ -314,7 +314,7 @@ BRACKETED EXPRESSION:
               Fourth line "."|}|}
 @@@ = @@@ @@@:
           .terminator = [$ INDENTED_PARAGRAPH $]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = ":"
     lines ##-##:
 Ditto with split =:
@@ -329,7 +329,7 @@ BRACKETED EXPRESSION:
         Fourth line "."
 @@@ = Ditto with split = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 Ditto with split =:
@@ -344,7 +344,7 @@ BRACKETED EXPRESSION:
     Fifth line "."
 @@@ = Fifth line ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Fifth line.
@@ -355,7 +355,7 @@ BRACKETED EXPRESSION:
     Sixth line A;
 @@@ = Sixth line A:
           .terminator = ";"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Sixth line A; Sixth line B
@@ -364,7 +364,7 @@ BRACKETED EXPRESSION:
     Sixth line B
 @@@ = Sixth line B:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Sixth line A; Sixth line B
@@ -373,7 +373,7 @@ BRACKETED EXPRESSION:
     Seventh line "."
 @@@ = Seventh line ".":
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
    Seventh line.
@@ -390,7 +390,7 @@ BRACKETED EXPRESSION:
               Seventh line "."|}|}
 @@@ = @@@ @@@ @@@ @@@:
           .terminator = [$ INDENTED_PARAGRAPH $]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = ":"
     lines ##-##:
 Ditto with separator:
@@ -408,7 +408,7 @@ BRACKETED EXPRESSION:
         Seventh line "."
 @@@ = Ditto with separator @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 Ditto with separator:
@@ -436,7 +436,7 @@ BRACKETED EXPRESSION:
 @@@ = x:
           .terminator = "+>"
           .initiator = "<+"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
         ^^^^^^^
@@ -450,7 +450,7 @@ BRACKETED EXPRESSION:
 @@@ = @@@ <- y ->:
           .terminator = [< "}" "}" >]
           .initiator = [< "{" "{" >]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
      ^^^^^^^^^^^^^^^^^^^^
@@ -468,7 +468,7 @@ BRACKETED EXPRESSION:
 @@@ = y:
           .terminator = "->"
           .initiator = "<-"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
                                    ^^^^^^^
@@ -479,7 +479,7 @@ BRACKETED EXPRESSION:
 @@@ = <+ x +> @@@:
           .terminator = "'"
           .initiator = "`"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
      {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
                           ^^^^^^^^^^^^^^^^^
@@ -488,7 +488,7 @@ BRACKETED EXPRESSION:
         `<+ x +> <- y ->'
 @@@ = This tests selector changes --- <+ x +> <- y -> @@@ @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This tests selector changes --- <+ x +> <- y ->
@@ -509,7 +509,7 @@ BRACKETED EXPRESSION:
     This is a label [< x y hello 5.6 z >]
 @@@ = This is a label [< x y hello 5.6 z >]:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 This is a label [< x y "hello" 5.6 z >]
@@ -525,7 +525,7 @@ BRACKETED EXPRESSION:
 @@@ = y:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 This is another label [< x ( y ) z >]
                            ^^^^^
@@ -544,7 +544,7 @@ BRACKETED EXPRESSION:
     This is another label [< x z >]
 @@@ = This is another label [< x z >]:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 This is another label [< x ( y ) z >]
@@ -583,7 +583,7 @@ BRACKETED EXPRESSION:
     And these are nested labels [< x [< 1 2 >] y [< a b >] >]
 @@@ = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 And these are nested labels
@@ -602,7 +602,7 @@ BRACKETED EXPRESSION:
     {x|1 2 3|x}
 @@@ = 1 2 3:
           .type = "x"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 This line contains a typed subexpression {x|1 2 3|}
                                          ^^^^^^^^^^
@@ -610,7 +610,7 @@ BRACKETED EXPRESSION:
     This line contains a typed subexpression {x|1 2 3|x}
 @@@ = This line contains a typed subexpression @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 This line contains a typed subexpression {x|1 2 3|}
@@ -640,7 +640,7 @@ BRACKETED EXPRESSION:
           y = "6"
           z = [< "b" "c" "5" "d" >]
           w
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
     {x: w, y = 6, z = b c 5 d|1 2 3|}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -649,7 +649,7 @@ BRACKETED EXPRESSION:
         {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
 @@@ = Another typed subexpression @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 Another typed subexpression
@@ -681,7 +681,7 @@ BRACKETED EXPRESSION:
           y = "6"
           z = [< "b" "c" "5" "d" >]
           w
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
     {x: w, z = b c 5 d|1 2 3|y = 6 : x}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -690,7 +690,7 @@ BRACKETED EXPRESSION:
         {x: y = "6", z = [< "b" "c" "5" "d" >], w|1 2 3|x}
 @@@ = Yet another typed subexpression @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 Yet another typed subexpression
@@ -712,7 +712,7 @@ BRACKETED EXPRESSION:
 @@@ = ABC_,200:
           .terminator = "]"
           .initiator = "["
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                         ^^^^^^^^^^
@@ -727,7 +727,7 @@ BRACKETED EXPRESSION:
 @@@ = 1 2 3:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                                      ^^^^^^^
@@ -744,7 +744,7 @@ BRACKETED EXPRESSION:
 @@@ = +:
           .terminator = "]"
           .initiator = "["
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
                        no c[+], d[-], no f, g : t}
                            ^^^
@@ -759,7 +759,7 @@ BRACKETED EXPRESSION:
 @@@ = -:
           .terminator = "]"
           .initiator = "["
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
                        no c[+], d[-], no f, g : t}
                                  ^^^
@@ -785,7 +785,7 @@ BRACKETED EXPRESSION:
           b[ABC,200] = (1 2 3)
           g
           no c[+]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     lines ##-##:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -796,7 +796,7 @@ BRACKETED EXPRESSION:
         {t: d[-], no f, b[ABC,200] = (1 2 3), g, no c[+]|x y z|t}
 @@@ = And another- @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
@@ -826,7 +826,7 @@ BRACKETED EXPRESSION:
 @@@ = 5:
           .terminator = "]"
           .initiator = "["
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 And one more {| |b["A", 201,202, [5]]: t}
                                  ^^^
@@ -837,7 +837,7 @@ BRACKETED EXPRESSION:
 @@@ = @@@ "," @@@ "," @@@:
           .terminator = "]"
           .initiator = "["
-          .position[H] = {}
+          .position[H] = PACKED_VEC
 @@@ = A:
           .type = "<Q>"
 @@@ = 201,202:
@@ -857,7 +857,7 @@ BRACKETED EXPRESSION:
 @@@ =:
           .type = "t"
           b[A,201,202]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 And one more {| |b["A", 201,202, [5]]: t}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -865,7 +865,7 @@ BRACKETED EXPRESSION:
     And one more {t: b[A,201,202]||t}
 @@@ = And one more @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 And one more {| |b["A", 201,202, [5]]: t}
@@ -877,7 +877,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {}
 @@@ =:
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {}
 ^^
@@ -886,7 +886,7 @@ BRACKETED EXPRESSION:
 @@@ =:
           .terminator = "<LF>"
           .initiator = [$ LOGICAL_LINE $]
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {}
 ^^
@@ -902,7 +902,7 @@ ERROR: in line ##: missing closing bracket `}' inserted before `)':
 PURELIST EXPRESSION:
     {}
 @@@ =:
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({)
  ^
@@ -911,7 +911,7 @@ BRACKETED EXPRESSION:
 @@@ =:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({)
 ^^^
@@ -919,7 +919,7 @@ BRACKETED EXPRESSION:
     ()
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 ({)
@@ -937,7 +937,7 @@ BRACKETED EXPRESSION:
     {W|1 2 3|W}
 @@@ = 1 2 3:
           .type = "W"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {W|1 2 3}
 ^^^^^^^^^
@@ -945,7 +945,7 @@ BRACKETED EXPRESSION:
     {W|1 2 3|W}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {W|1 2 3}
@@ -970,7 +970,7 @@ BRACKETED EXPRESSION:
 @@@ = 1 2 3:
           p = "q"
           .type = "W"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {W|1 2|p = q|3}
 ^^^^^^^^^^^^^^^
@@ -978,7 +978,7 @@ BRACKETED EXPRESSION:
     {W: p = "q"|1 2 3|W}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {W|1 2|p = q|3}
@@ -996,7 +996,7 @@ PREFIX EXPRESSION:
     {P||P}
 @@@ =:
           .type = "P"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {P:}
 ^^^^
@@ -1004,7 +1004,7 @@ BRACKETED EXPRESSION:
     {P||P}
 @@@ =:
           .type = "P"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {P:}
 ^^^^
@@ -1012,7 +1012,7 @@ BRACKETED EXPRESSION:
     {P||P}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {P:}
@@ -1035,7 +1035,7 @@ PREFIX EXPRESSION:
     {P2||P2}
 @@@ =:
           .type = "P2"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({P2:)
  ^^^^
@@ -1044,7 +1044,7 @@ BRACKETED EXPRESSION:
 @@@ = @@@:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({P2:)
 ^^^^^^
@@ -1052,7 +1052,7 @@ BRACKETED EXPRESSION:
     ({P2||P2})
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 ({P2:)
@@ -1077,7 +1077,7 @@ ERROR: in line ##: empty attribute label; attribute ignored:
 PURELIST EXPRESSION:
     {}
 @@@ =:
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({:)
  ^^
@@ -1086,7 +1086,7 @@ BRACKETED EXPRESSION:
 @@@ =:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({:)
 ^^^^
@@ -1094,7 +1094,7 @@ BRACKETED EXPRESSION:
     ()
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 ({:)
@@ -1124,7 +1124,7 @@ BRACKETED EXPRESSION:
           .type = "P"
           f = "F"
           g = "G"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {P: f = F|1 2 3|g = G:}
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1132,7 +1132,7 @@ BRACKETED EXPRESSION:
     {P: f = "F", g = "G"|1 2 3|P}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {P: f = F|1 2 3|g = G:}
@@ -1160,7 +1160,7 @@ BRACKETED EXPRESSION:
 @@@ = 1 2 3:
           .type = "M"
           f = "F"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({M: f = F|1 2 3)
  ^^^^^^^^^^^^^^^
@@ -1169,7 +1169,7 @@ BRACKETED EXPRESSION:
 @@@ = @@@:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({M: f = F|1 2 3)
 ^^^^^^^^^^^^^^^^^
@@ -1177,7 +1177,7 @@ BRACKETED EXPRESSION:
     ({M: f = "F"|1 2 3|M})
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 ({M: f = F|1 2 3)
@@ -1207,7 +1207,7 @@ BRACKETED EXPRESSION:
           .type = "N"
           f = "F"
           g = "G"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({N: f = F|1 2 3|g = G)
  ^^^^^^^^^^^^^^^^^^^^^
@@ -1216,7 +1216,7 @@ BRACKETED EXPRESSION:
 @@@ = @@@:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({N: f = F|1 2 3|g = G)
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1224,7 +1224,7 @@ BRACKETED EXPRESSION:
     ({N: f = "F", g = "G"|1 2 3|N})
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 ({N: f = F|1 2 3|g = G)
@@ -1256,7 +1256,7 @@ BRACKETED EXPRESSION:
 @@@ = 1 2 3:
           .type = "K"
           f = "F"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({K: f = F|1 2 3|g =)
  ^^^^^^^^^^^^^^^^^^^
@@ -1265,7 +1265,7 @@ BRACKETED EXPRESSION:
 @@@ = @@@:
           .terminator = ")"
           .initiator = "("
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 ({K: f = F|1 2 3|g =)
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1273,7 +1273,7 @@ BRACKETED EXPRESSION:
     ({K: f = "F"|1 2 3|K})
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 ({K: f = F|1 2 3|g =)
@@ -1305,7 +1305,7 @@ BRACKETED EXPRESSION:
           .type = "S"
           y = "B"
           z = "C"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {S: x = A|1 2|y = B|3 4|z = C}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1313,7 +1313,7 @@ BRACKETED EXPRESSION:
     {S: x = "A", y = "B", z = "C"|1 2 3 4|S}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {S: x = A|1 2|y = B|3 4|z = C}
@@ -1347,7 +1347,7 @@ BRACKETED EXPRESSION:
           .type = "T"
           y = "B"
           z = "C"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {T: x = A|1 2|y = B|3 4|z = C: T}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1355,7 +1355,7 @@ BRACKETED EXPRESSION:
     {T: x = "A", y = "B", z = "C"|1 2 3 4|T}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = A|1 2|y = B|3 4|z = C: T}
@@ -1392,7 +1392,7 @@ BRACKETED EXPRESSION:
           .type = "T"
           y = "B"
           z = "C"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {T: x = A|1 2|y = B|3 4|z = C: S}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1400,7 +1400,7 @@ BRACKETED EXPRESSION:
     {T: x = "A", y = "B", z = "C"|1 2 3 4|T}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = A|1 2|y = B|3 4|z = C: S}
@@ -1429,7 +1429,7 @@ BRACKETED EXPRESSION:
           .type = "S"
           y = "B"
           z = "C"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
     line ##:
 {|1 2|y = B|3 4|z = C: S}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1437,7 +1437,7 @@ BRACKETED EXPRESSION:
     {S: y = "B", z = "C"|1 2 3 4|S}
 @@@ = @@@:
           .terminator = "<LF>"
-          .position[H] = {}
+          .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {|1 2|y = B|3 4|z = C: S}
@@ -1463,7 +1463,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3 4:
            y = "B"
            z = "C"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {|1 2|y = B|3 4|z = C}
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -1471,7 +1471,7 @@ BRACKETED EXPRESSION:
     {"": y = "B", z = "C"|1 2 3 4|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {|1 2|y = B|3 4|z = C}
@@ -1493,7 +1493,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = 1 2 3 4:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            y = "B"
     line ##:
 {|1 2|y = B|3 4|}
@@ -1502,7 +1502,7 @@ BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {|1 2|y = B|3 4|}
@@ -1526,7 +1526,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3 4:
            .type = "S"
            y = "B"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {S|1 2|y = B|3 4|S}
 ^^^^^^^^^^^^^^^^^^^
@@ -1534,7 +1534,7 @@ BRACKETED EXPRESSION:
     {S: y = "B"|1 2 3 4|S}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {S|1 2|y = B|3 4|S}
@@ -1556,7 +1556,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = 1 2 3 4:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            y = "B"
     line ##:
 {|1 2|y = B|3 4|""}
@@ -1565,7 +1565,7 @@ BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {|1 2|y = B|3 4|""}
@@ -1587,7 +1587,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = 1 2 3 4:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            y = "B"
     line ##:
 {""|1 2|y = B|3 4|""}
@@ -1596,7 +1596,7 @@ BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {""|1 2|y = B|3 4|""}
@@ -1616,7 +1616,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = 1 2 3 4:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            y = "B"
     line ##:
 {"": y = B|1 2 3 4|}
@@ -1625,7 +1625,7 @@ BRACKETED EXPRESSION:
     {"": y = "B"|1 2 3 4|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {"": y = B|1 2 3 4|}
@@ -1651,7 +1651,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3 4:
            y = "B"
            z = "C"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {"": y = B|1 2 3 4|z = C: ""}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1659,7 +1659,7 @@ BRACKETED EXPRESSION:
     {"": y = "B", z = "C"|1 2 3 4|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {"": y = B|1 2 3 4|z = C: ""}
@@ -1684,7 +1684,7 @@ BRACKETED EXPRESSION:
            .type = "T"
            y = "B"
            z = "C"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: y = B|1 2 3 4|z = C}
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1692,7 +1692,7 @@ BRACKETED EXPRESSION:
     {T: y = "B", z = "C"|1 2 3 4|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: y = B|1 2 3 4|z = C}
@@ -1723,7 +1723,7 @@ BRACKETED EXPRESSION:
            no q
            y
            z
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: y, no p|1 2 3 4|no q, z}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1731,7 +1731,7 @@ BRACKETED EXPRESSION:
     {T: no p, no q, y, z|1 2 3 4|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: y, no p|1 2 3 4|no q, z}
@@ -1756,7 +1756,7 @@ BRACKETED EXPRESSION:
            no p
            .type = "T"
            no q
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: no p|1 2 3 4|no q}
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -1764,7 +1764,7 @@ BRACKETED EXPRESSION:
     {T: no p, no q|1 2 3 4|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: no p|1 2 3 4|no q}
@@ -1795,7 +1795,7 @@ BRACKETED EXPRESSION:
            no p
            .type = "T"
            q = "5"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: no p|1 2 3 4|no q = 5}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1803,7 +1803,7 @@ BRACKETED EXPRESSION:
     {T: no p, q = "5"|1 2 3 4|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: no p|1 2 3 4|no q = 5}
@@ -1819,7 +1819,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {|1 2 3 4|}
 @@@@ = 1 2 3 4:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {|1 2 3 4|}
 ^^^^^^^^^^^
@@ -1828,7 +1828,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3 4:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {|1 2 3 4|}
 ^^^^^^^^^^^
@@ -1846,7 +1846,7 @@ BRACKETABLE EXPRESSION:
     {|hi|}
 @@@@ = hi:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* "hi" *}|1 2 3|}
         ^^^^^^^^^^
@@ -1856,7 +1856,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* "hi" *}|1 2 3|}
         ^^^^^^^^^^
@@ -1871,7 +1871,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3:
            x = "hi"
            .type = "T"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* "hi" *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1879,7 +1879,7 @@ BRACKETED EXPRESSION:
     {T: x = "hi"|1 2 3|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = {* "hi" *}|1 2 3|}
@@ -1904,7 +1904,7 @@ BRACKETABLE EXPRESSION:
     {|hi, there|}
 @@@@ = hi there:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* "hi",, there *}|1 2 3|}
         ^^^^^^^^^^^^^^^^^^
@@ -1914,7 +1914,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* "hi",, there *}|1 2 3|}
         ^^^^^^^^^^^^^^^^^^
@@ -1929,7 +1929,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3:
            x = "hi", "there"
            .type = "T"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* "hi",, there *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1937,7 +1937,7 @@ BRACKETED EXPRESSION:
     {T: x = {* "hi", "there" *}|1 2 3|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = {* "hi",, there *}|1 2 3|}
@@ -1959,7 +1959,7 @@ BRACKETED EXPRESSION:
 @@@@ = A B:
            .terminator = ")"
            .initiator = "("
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
            ^^^^^
@@ -1984,7 +1984,7 @@ BRACKETED EXPRESSION:
 @@@@ = C D:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
                              ^^^^^
@@ -1994,7 +1994,7 @@ BRACKETABLE EXPRESSION:
     {|(A B), [< foo bar >], [C D]|}
 @@@@ = @@@@ [< foo bar >] @@@@:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2004,7 +2004,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2019,7 +2019,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3:
            x = (A B), [< "foo" "bar" >], [C D]
            .type = "T"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2027,7 +2027,7 @@ BRACKETED EXPRESSION:
     {T: x = {* (A B), [< "foo" "bar" >], [C D] *}|1 2 3|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
@@ -2055,7 +2055,7 @@ BRACKETABLE EXPRESSION:
     {}
 @@@@ =:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* ,,, *}|1 2 3|}
         ^^^^^^^^^
@@ -2065,7 +2065,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* ,,, *}|1 2 3|}
         ^^^^^^^^^
@@ -2079,7 +2079,7 @@ BRACKETED EXPRESSION:
     {T|1 2 3|T}
 @@@@ = 1 2 3:
            .type = "T"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: x = {* ,,, *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2087,7 +2087,7 @@ BRACKETED EXPRESSION:
     {T|1 2 3|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = {* ,,, *}|1 2 3|}
@@ -2112,7 +2112,7 @@ BRACKETED EXPRESSION:
            .type = "T"
            m = "1"
            n = "2"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: m = 1| |n = 2}
 ^^^^^^^^^^^^^^^^^^
@@ -2120,7 +2120,7 @@ BRACKETED EXPRESSION:
     {T: m = "1", n = "2"||T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: m = 1| |n = 2}
@@ -2143,7 +2143,7 @@ BRACKETED EXPRESSION:
            .type = "T"
            m = "1"
            n = "2"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: m = 1||n = 2}
 ^^^^^^^^^^^^^^^^^
@@ -2151,7 +2151,7 @@ BRACKETED EXPRESSION:
     {T: m = "1", n = "2"||T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: m = 1||n = 2}
@@ -2176,7 +2176,7 @@ BRACKETED EXPRESSION:
            .type = "T"
            m = "1"
            n = "2"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: m = 1||n = 2||}
 ^^^^^^^^^^^^^^^^^^^
@@ -2184,7 +2184,7 @@ BRACKETED EXPRESSION:
     {T: m = "1", n = "2"||T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: m = 1||n = 2||}
@@ -2200,7 +2200,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {| |}
 ^^^^^
@@ -2209,7 +2209,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {| |}
 ^^^^^
@@ -2222,7 +2222,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {||}
 ^^^^
@@ -2231,7 +2231,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {||}
 ^^^^
@@ -2255,7 +2255,7 @@ BRACKETED EXPRESSION:
            .type = "T"
            m = "1"
            n = "2"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {T: m = 1 || n = 2: T }
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -2263,7 +2263,7 @@ BRACKETED EXPRESSION:
     {T: m = "1", n = "2"||T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: m = 1 || n = 2: T }
@@ -2277,7 +2277,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {"": m = "1"||}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            m = "1"
     line ##:
 {m = 1}
@@ -2286,7 +2286,7 @@ BRACKETED EXPRESSION:
     {"": m = "1"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {m = 1}
@@ -2311,7 +2311,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            m = "1"
            n = "2"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {: m = 1, n = 2}
 ^^^^^^^^^^^^^^^^
@@ -2319,7 +2319,7 @@ BRACKETED EXPRESSION:
     {"": m = "1", n = "2"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {: m = 1, n = 2}
@@ -2337,7 +2337,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            m
            n = "2"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {m, n = 2}
 ^^^^^^^^^^
@@ -2345,7 +2345,7 @@ BRACKETED EXPRESSION:
     {"": m, n = "2"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {m, n = 2}
@@ -2358,7 +2358,7 @@ BRACKETED EXPRESSION:
     {- a b c -}
 @@@@ = a b c:
            .type = "-"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {- a b c -}
 ^^^^^^^^^^^
@@ -2366,7 +2366,7 @@ BRACKETED EXPRESSION:
     {- a b c -}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {- a b c -}
@@ -2379,7 +2379,7 @@ BRACKETED EXPRESSION:
     {< a b c >}
 @@@@ = a b c:
            .type = [< "<" ">" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {< a b c >}
 ^^^^^^^^^^^
@@ -2387,7 +2387,7 @@ BRACKETED EXPRESSION:
     {< a b c >}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {< a b c >}
@@ -2404,7 +2404,7 @@ BRACKETED EXPRESSION:
     {- a b c -}
 @@@@ = a b c:
            .type = "-"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {- a b c}
 ^^^^^^^^^
@@ -2412,7 +2412,7 @@ BRACKETED EXPRESSION:
     {- a b c -}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {- a b c}
@@ -2425,7 +2425,7 @@ PREFIX EXPRESSION:
     {-  -}
 @@@@ =:
            .type = "-"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {-}
 ^^^
@@ -2433,7 +2433,7 @@ BRACKETED EXPRESSION:
     {-  -}
 @@@@ =:
            .type = "-"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ##:
 {-}
 ^^^
@@ -2441,7 +2441,7 @@ BRACKETED EXPRESSION:
     {-  -}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ##:
 {-}
@@ -2460,7 +2460,7 @@ BRACKETED EXPRESSION:
     [$ MISSING $]
 @@@@ = [$ MISSING $]:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [$ MISSING $]
@@ -2479,7 +2479,7 @@ BRACKETED EXPRESSION:
     [$ INDENTED_PARAGRAPH $]
 @@@@ = [$ INDENTED_PARAGRAPH $]:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [$ INDENTED_PARAGRAPH $]
@@ -2502,7 +2502,7 @@ BRACKETED EXPRESSION:
     [$ ERROR $]
 @@@@ = [$ ERROR $]:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [$ FOOBAR $]
@@ -2521,7 +2521,7 @@ BRACKETED EXPRESSION:
     [< hi there >]
 @@@@ = [< hi there >]:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [< hi there >]
@@ -2540,7 +2540,7 @@ BRACKETED EXPRESSION:
     hi
 @@@@ = hi:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [< hi >]
@@ -2559,7 +2559,7 @@ BRACKETED EXPRESSION:
     [< >]
 @@@@ = [< >]:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [< >]
@@ -2591,7 +2591,7 @@ BRACKETED EXPRESSION:
     [< >]
 @@@@ = [< >]:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 [< [$ MISSING $] >]
@@ -2639,7 +2639,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            x = "1"
            z = [$ MISSING $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2647,7 +2647,7 @@ BRACKETED EXPRESSION:
     {"": x = "1", z = [$ MISSING $]||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
@@ -2687,7 +2687,7 @@ BRACKETABLE EXPRESSION:
     {|1, 2|}
 @@@@ = 1 2:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
              ^^^^^^^^^^^^^^^^^^^^^^
@@ -2697,7 +2697,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
              ^^^^^^^^^^^^^^^^^^^^^^
@@ -2723,7 +2723,7 @@ BRACKETED EXPRESSION:
            x = "1"
            y = "1", "2"
            z = [$ MISSING $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2731,7 +2731,7 @@ BRACKETED EXPRESSION:
     {"": x = "1", y = {* "1", "2" *}, z = [$ MISSING $]||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
@@ -2789,7 +2789,7 @@ BRACKETED EXPRESSION:
            x = "1"
            y 55 = "77"
            z 22 = "33"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2799,7 +2799,7 @@ BRACKETED EXPRESSION:
     {"": x = "1", y 55 = "77", z 22 = "33"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
@@ -2833,7 +2833,7 @@ BRACKETED EXPRESSION:
            x = "1"
            y 55 = "77"
            z 22 = "33"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2841,7 +2841,7 @@ BRACKETED EXPRESSION:
     {"": x = "1", y 55 = "77", z 22 = "33"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
@@ -2861,7 +2861,7 @@ BRACKETED EXPRESSION:
 @@@@ = abc:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
            ^^^^^
@@ -2892,7 +2892,7 @@ BRACKETED EXPRESSION:
 @@@@ = def:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
                                 ^^^^^
@@ -2905,7 +2905,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            x = "55"
            z[def] = "88"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2913,7 +2913,7 @@ BRACKETED EXPRESSION:
     {"": x = "55", z[def] = "88"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
@@ -2946,7 +2946,7 @@ BRACKETED EXPRESSION:
     {"": x = "1"||}
 @@@@ =:
            x = "1"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {[$ NONE $]: x = 1}
 ^^^^^^^^^^^^^^^^^^^
@@ -2954,7 +2954,7 @@ BRACKETED EXPRESSION:
     {"": x = "1"||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {[$ NONE $]: x = 1}
@@ -2969,7 +2969,7 @@ PREFIX EXPRESSION:
     {W||W}
 @@@@ =:
            .type = "W"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
  ^^^
@@ -2981,7 +2981,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
          ^^^
@@ -3000,7 +3000,7 @@ PREFIX EXPRESSION:
     {Y||Y}
 @@@@ =:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                   ^^^
@@ -3010,7 +3010,7 @@ BRACKETED EXPRESSION:
     {Y|6 7|Y}
 @@@@ = 6 7:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                   ^^^^^^^
@@ -3019,7 +3019,7 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .terminator = ")"
            .initiator = "("
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                  ^^^^^^^^^
@@ -3031,7 +3031,7 @@ PREFIX EXPRESSION:
     {Z||Z}
 @@@@ =:
            .type = "Z"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                            ^^^
@@ -3046,7 +3046,7 @@ BRACKETED EXPRESSION:
     {W|2 3 4 5 ({Y|6 7|Y})|W}
 @@@@ = 2 3 4 5 @@@@:
            .type = "W"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
  ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3055,7 +3055,7 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .terminator = ")"
            .initiator = "("
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3063,7 +3063,7 @@ BRACKETED EXPRESSION:
     ({W|2 3 4 5 ({Y|6 7|Y})|W})
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
@@ -3076,7 +3076,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 ^^^
@@ -3088,7 +3088,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
           ^^^
@@ -3096,7 +3096,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
 ^^^^^^^^^
@@ -3108,7 +3108,7 @@ PREFIX EXPRESSION:
     {Y||Y}
 @@@@ =:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
              ^^^
@@ -3120,7 +3120,7 @@ PREFIX EXPRESSION:
     {Y||Y}
 @@@@ =:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                      ^^^
@@ -3128,7 +3128,7 @@ BRACKETED EXPRESSION:
     {Y|d e|Y}
 @@@@ = d e:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
              ^^^^^^^
@@ -3140,7 +3140,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                              ^^^
@@ -3148,7 +3148,7 @@ BRACKETED EXPRESSION:
     {Y|f g|Y}
 @@@@ = f g:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                      ^^^^^^^
@@ -3156,7 +3156,7 @@ BRACKETED EXPRESSION:
     {X|{Y|d e|Y} {Y|f g|Y}|X}
 @@@@ = @@@@ @@@@:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
           ^^^^^^^^^^^^^^^^^^
@@ -3164,7 +3164,7 @@ BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = h k:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
                              ^^^^^^^
@@ -3172,7 +3172,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X} {X|{Y|d e|Y} {Y|f g|Y}|X} {X|h k|X}
 @@@@ = @@@@ @@@@ @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
@@ -3185,7 +3185,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
 ^^^
@@ -3195,7 +3195,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
 ^^^^^^^^^
@@ -3203,7 +3203,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X};
 @@@@ = @@@@:
            .terminator = ";"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
@@ -3216,7 +3216,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
            ^^^
@@ -3228,7 +3228,7 @@ PREFIX EXPRESSION:
     {Y||Y}
 @@@@ =:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
               ^^^
@@ -3238,7 +3238,7 @@ BRACKETED EXPRESSION:
     {Y|f g|Y}
 @@@@ = f g:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
               ^^^^^^^
@@ -3246,7 +3246,7 @@ BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X}
 @@@@ = @@@@:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
            ^^^^^^^^^^
@@ -3254,7 +3254,7 @@ BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X};
 @@@@ = @@@@:
            .terminator = ";"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
@@ -3267,7 +3267,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^
@@ -3275,7 +3275,7 @@ BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = h k:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
                        ^^^^^^^
@@ -3283,7 +3283,7 @@ BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c; {X}{Y} f g; {X} h k
@@ -3296,7 +3296,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
 ^^^
@@ -3306,7 +3306,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
 ^^^^^^^^^
@@ -3314,7 +3314,7 @@ BRACKETED EXPRESSION:
     {X|a b c|X};
 @@@@ = @@@@:
            .terminator = ";"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
@@ -3327,7 +3327,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
            ^^^
@@ -3339,7 +3339,7 @@ PREFIX EXPRESSION:
     {Y||Y}
 @@@@ =:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
               ^^^
@@ -3362,7 +3362,7 @@ BRACKETED EXPRESSION:
     {Y|f g|Y}
 @@@@ = f g:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
               ^^^^^^^^^^^^^^^^^^
@@ -3370,7 +3370,7 @@ BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X}
 @@@@ = @@@@:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
            ^^^^^^^^^^^^^^^^^^^^^
@@ -3378,7 +3378,7 @@ BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X};
 @@@@ = @@@@:
            .terminator = ";"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
@@ -3391,7 +3391,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
                                   ^^^
@@ -3399,7 +3399,7 @@ BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = h k:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
                                   ^^^^^^^
@@ -3407,7 +3407,7 @@ BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
@@ -3420,7 +3420,7 @@ PREFIX EXPRESSION:
     {p||p}
 @@@@ =:
            .type = "p"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {p} {s} This is a sentence.
 ^^^
@@ -3432,7 +3432,7 @@ PREFIX EXPRESSION:
     {s||s}
 @@@@ =:
            .type = "s"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {p} {s} This is a sentence.
     ^^^
@@ -3444,7 +3444,7 @@ PREFIX EXPRESSION:
     {s||s}
 @@@@ =:
            .type = "s"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
     {s} And another.
     ^^^
@@ -3452,7 +3452,7 @@ BRACKETED EXPRESSION:
     {s|This is a sentence "."|s}
 @@@@ = This is a sentence ".":
            .type = "s"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {p} {s} This is a sentence.
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -3464,7 +3464,7 @@ PREFIX EXPRESSION:
     {p||p}
 @@@@ =:
            .type = "p"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   {p} {s} And a new {foo} paragraph.
   ^^^
@@ -3472,7 +3472,7 @@ BRACKETED EXPRESSION:
     {s|And another "."|s}
 @@@@ = And another ".":
            .type = "s"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
     {s} And another.
     ^^^^^^^^^^^^^^^^
@@ -3480,7 +3480,7 @@ BRACKETED EXPRESSION:
     {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
 @@@@ = @@@@ @@@@:
            .type = "p"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 {p} {s} This is a sentence.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3494,7 +3494,7 @@ PREFIX EXPRESSION:
     {s||s}
 @@@@ =:
            .type = "s"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   {p} {s} And a new {foo} paragraph.
       ^^^
@@ -3506,7 +3506,7 @@ PREFIX EXPRESSION:
     {foo||foo}
 @@@@ =:
            .type = "foo"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   {p} {s} And a new {foo} paragraph.
                     ^^^^^
@@ -3519,7 +3519,7 @@ BRACKETED EXPRESSION:
     {s|And a new paragraph "."|s}
 @@@@ = And a new paragraph ".":
            .type = "s"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   {p} {s} And a new {foo} paragraph.
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3527,7 +3527,7 @@ BRACKETED EXPRESSION:
     {p|{s|And a new paragraph "."|s}|p}
 @@@@ = @@@@:
            .type = "p"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   {p} {s} And a new {foo} paragraph.
   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3536,7 +3536,7 @@ BRACKETED EXPRESSION:
         {p|{s|And a new paragraph "."|s}|p}
 @@@@ = @@@@ @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 {p} {s} This is a sentence.
@@ -3568,7 +3568,7 @@ BRACKETED EXPRESSION:
 @@@@ = X "}" hi "|" ho "|" "}":
            .terminator = [< "}" "}" >]
            .initiator = [< "{" "{" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {{X} hi|ho|}
 ^^^^^^^^^^^^
@@ -3576,7 +3576,7 @@ BRACKETED EXPRESSION:
     {{X "}" hi "|" ho "|" "}"}}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {{X} hi|ho|}
@@ -3594,7 +3594,7 @@ BRACKETED EXPRESSION:
 @@@@ = X:
            .terminator = ")"
            .initiator = "("
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T|(X) ho|}
    ^^^
@@ -3606,7 +3606,7 @@ BRACKETED EXPRESSION:
     {T|(X) ho|T}
 @@@@ = @@@@ ho:
            .type = "T"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T|(X) ho|}
 ^^^^^^^^^^^
@@ -3614,7 +3614,7 @@ BRACKETED EXPRESSION:
     {T|(X) ho|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T|(X) ho|}
@@ -3637,7 +3637,7 @@ BRACKETED EXPRESSION:
     {Y|hi|Y}
 @@@@ = hi:
            .type = "Y"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
         ^^^^^^^
@@ -3651,7 +3651,7 @@ PREFIX EXPRESSION:
     {X||X}
 @@@@ =:
            .type = "X"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
@@ -3674,7 +3674,7 @@ BRACKETED EXPRESSION:
     {Z||Z}
 @@@@ =:
            .type = "Z"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                            ^^^
@@ -3686,7 +3686,7 @@ BRACKETED EXPRESSION:
            .type = "T"
            A = {Y|hi|Y}
            B = {Z||Z}
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3694,7 +3694,7 @@ BRACKETED EXPRESSION:
     {T: A = {Y|hi|Y}, B = {Z||Z}|ho|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
@@ -3706,7 +3706,7 @@ BRACKETED EXPRESSION:
     print bracket ""
 @@@@ = print bracket @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
 @@@@ = "":
            .type = "<Q>"
@@ -3720,7 +3720,7 @@ BRACKETED EXPRESSION:
               print bracket ""|}|}
 @@@@ = @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [< "*PARSER*" ":" >]
     lines ###-###:
 *PARSER*:
@@ -3813,7 +3813,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = a b c:
            .type = [< "my" "type" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type|a b c|}
 ^^^^^^^^^^^^^^^^
@@ -3821,7 +3821,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type|a b c|}
@@ -3838,7 +3838,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = a b c:
            .type = [< "my" "type" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {|a b c|my type}
 ^^^^^^^^^^^^^^^^
@@ -3846,7 +3846,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {|a b c|my type}
@@ -3863,7 +3863,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = a b c:
            .type = [< "my" "type" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type|a b c|my type}
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -3871,7 +3871,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type|a b c|my type}
@@ -3886,7 +3886,7 @@ BRACKETED EXPRESSION:
     {my type||my type}
 @@@@ =:
            .type = [< "my" "type" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type||}
 ^^^^^^^^^^^
@@ -3894,7 +3894,7 @@ BRACKETED EXPRESSION:
     {my type||my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type||}
@@ -3909,7 +3909,7 @@ BRACKETED EXPRESSION:
     {my type||my type}
 @@@@ =:
            .type = [< "my" "type" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {||my type}
 ^^^^^^^^^^^
@@ -3917,7 +3917,7 @@ BRACKETED EXPRESSION:
     {my type||my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {||my type}
@@ -3944,7 +3944,7 @@ BRACKETED EXPRESSION:
            .type = [< "my" "type" >]
            my attribute = "5"
            my option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: my attribute = 5, my option = TRUE| a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3952,7 +3952,7 @@ BRACKETED EXPRESSION:
     {my type: my attribute = "5", my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type: my attribute = 5, my option = TRUE| a b c |}
@@ -3979,7 +3979,7 @@ BRACKETED EXPRESSION:
            .type = [< "my" "type" >]
            no your option
            my attribute = "5"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 {my type: my attribute = 5, your option = FALSE|
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3989,7 +3989,7 @@ BRACKETED EXPRESSION:
     {my type: no your option, my attribute = "5"|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 {my type: my attribute = 5, your option = FALSE|
@@ -4018,7 +4018,7 @@ BRACKETED EXPRESSION:
            .type = [< "my" "type" >]
            no your option
            my attribute = "5"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 {my type: my attribute = 5|
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4028,7 +4028,7 @@ BRACKETED EXPRESSION:
     {my type: no your option, my attribute = "5"|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 {my type: my attribute = 5|
@@ -4055,7 +4055,7 @@ BRACKETED EXPRESSION:
            .type = [< "my" "type" >]
            my attribute = "5"
            my option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = 5| a b c |my option = TRUE: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4063,7 +4063,7 @@ BRACKETED EXPRESSION:
     {my type: my attribute = "5", my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my attribute = 5| a b c |my option = TRUE: my type}
@@ -4086,7 +4086,7 @@ BRACKETED EXPRESSION:
            attribute = "5"
            .type = [< "my" "type" >]
            my option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type| a b c |attribute = 5, my option}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4094,7 +4094,7 @@ BRACKETED EXPRESSION:
     {my type: attribute = "5", my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type| a b c |attribute = 5, my option}
@@ -4119,7 +4119,7 @@ BRACKETED EXPRESSION:
            attribute = "5"
            .type = [< "my" "type" >]
            my option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type| a b c |attribute = 5, my option: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4127,7 +4127,7 @@ BRACKETED EXPRESSION:
     {my type: attribute = "5", my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type| a b c |attribute = 5, my option: my type}
@@ -4152,7 +4152,7 @@ BRACKETED EXPRESSION:
            .type = [< "my" "type" >]
            attribute = "5"
            my option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {| a b c |attribute = 5, my option: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4160,7 +4160,7 @@ BRACKETED EXPRESSION:
     {my type: attribute = "5", my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {| a b c |attribute = 5, my option: my type}
@@ -4176,7 +4176,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {|a b c|}
 @@@@ = a b c:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {|a b c|}
 ^^^^^^^^^
@@ -4185,7 +4185,7 @@ BRACKETED EXPRESSION:
 @@@@ = a b c:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {|a b c|}
 ^^^^^^^^^
@@ -4198,7 +4198,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {||}
 ^^^^
@@ -4207,7 +4207,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {||}
 ^^^^
@@ -4218,7 +4218,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 PURELIST EXPRESSION:
     {}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {}
 ^^
@@ -4227,7 +4227,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {}
 ^^
@@ -4250,7 +4250,7 @@ BRACKETED EXPRESSION:
 @@@@ = a b c:
            no your option
            my attribute = "5"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = 5, no your option|a b c|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4258,7 +4258,7 @@ BRACKETED EXPRESSION:
     {"": no your option, my attribute = "5"|a b c|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my attribute = 5, no your option|a b c|}
@@ -4284,7 +4284,7 @@ BRACKETED EXPRESSION:
 @@@@ = a b c:
            no your option
            my attribute = "5"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {"": my attribute = 5, no your option|a b c|""}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4292,7 +4292,7 @@ BRACKETED EXPRESSION:
     {"": no your option, my attribute = "5"|a b c|}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {"": my attribute = 5, no your option|a b c|""}
@@ -4305,7 +4305,7 @@ BRACKETED EXPRESSION:
     {+ a b c +}
 @@@@ = a b c:
            .type = "+"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {+ a b c +}
 ^^^^^^^^^^^
@@ -4313,7 +4313,7 @@ BRACKETED EXPRESSION:
     {+ a b c +}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {+ a b c +}
@@ -4333,7 +4333,7 @@ BRACKETED EXPRESSION:
 @@@@ = a b c:
            .type = [< "my" "option" >]
            no your option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my option| a b c |no your option}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4341,7 +4341,7 @@ BRACKETED EXPRESSION:
     {my option: no your option|a b c|my option}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my option| a b c |no your option}
@@ -4361,7 +4361,7 @@ BRACKETED EXPRESSION:
 @@@@ = a b c:
            .type = [< "my" "option" >]
            no your option
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {no your option| a b c |my option}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4369,7 +4369,7 @@ BRACKETED EXPRESSION:
     {my option: no your option|a b c|my option}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {no your option| a b c |my option}
@@ -4390,7 +4390,7 @@ BRACKETED EXPRESSION:
     {my option|a b c|my option}
 @@@@ = a b c:
            .type = [< "my" "option" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my option| a b c |your option}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4398,7 +4398,7 @@ BRACKETED EXPRESSION:
     {my option|a b c|my option}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my option| a b c |your option}
@@ -4411,7 +4411,7 @@ BRACKETED EXPRESSION:
     {+  +}
 @@@@ =:
            .type = "+"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {+ +}
 ^^^^^
@@ -4419,7 +4419,7 @@ BRACKETED EXPRESSION:
     {+  +}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {+ +}
@@ -4432,7 +4432,7 @@ PREFIX EXPRESSION:
     {+  +}
 @@@@ =:
            .type = "+"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {+}
 ^^^
@@ -4440,7 +4440,7 @@ BRACKETED EXPRESSION:
     {+  +}
 @@@@ =:
            .type = "+"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {+}
 ^^^
@@ -4448,7 +4448,7 @@ BRACKETED EXPRESSION:
     {+  +}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {+}
@@ -4471,7 +4471,7 @@ BRACKETABLE EXPRESSION:
     {|[< a b c >], [< d e >], f|}
 @@@@ = [< a b c >] [< d e >] f:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* a b c, d e, f *} ||}
                 ^^^^^^^^^^^^^^^^^^^
@@ -4481,7 +4481,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* a b c, d e, f *} ||}
                 ^^^^^^^^^^^^^^^^^^^
@@ -4492,7 +4492,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {"": my attribute = {* [< "a" "b" "c" >], [< "d" "e" >], "f" *}||}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            my attribute = [< "a" "b" "c" >], [< "d" "e" >], "f"
     line ###:
 {my attribute = {* a b c, d e, f *} ||}
@@ -4501,7 +4501,7 @@ BRACKETED EXPRESSION:
     {"": my attribute = {* [< "a" "b" "c" >], [< "d" "e" >], "f" *}||}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my attribute = {* a b c, d e, f *} ||}
@@ -4518,7 +4518,7 @@ BRACKETABLE EXPRESSION:
     {}
 @@@@ =:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* *} ||}
                 ^^^^^
@@ -4528,7 +4528,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* *} ||}
                 ^^^^^
@@ -4539,7 +4539,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* *} ||}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4547,7 +4547,7 @@ BRACKETED EXPRESSION:
     {}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my attribute = {* *} ||}
@@ -4567,7 +4567,7 @@ BRACKETABLE EXPRESSION:
     {}
 @@@@ =:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* , *} ||}
                 ^^^^^^^
@@ -4577,7 +4577,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* , *} ||}
                 ^^^^^^^
@@ -4588,7 +4588,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED EXPRESSION:
     {}
 @@@@ =:
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my attribute = {* , *} ||}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4596,7 +4596,7 @@ BRACKETED EXPRESSION:
     {}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my attribute = {* , *} ||}
@@ -4623,7 +4623,7 @@ BRACKETED EXPRESSION:
            x = "5"
            .type = [< "my" "type" >]
            y = "5"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: x = 5, y = "5" | a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4631,7 +4631,7 @@ BRACKETED EXPRESSION:
     {my type: x = "5", y = "5"|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type: x = 5, y = "5" | a b c |}
@@ -4669,7 +4669,7 @@ BRACKETED EXPRESSION:
            x = [< "5" "tomatoes" >]
            .type = [< "my" "type" >]
            y = [< "5" "tomatoes" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 {my type: x = 5 tomatoes, y = [< 5 tomatoes >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4680,7 +4680,7 @@ BRACKETED EXPRESSION:
               c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 {my type: x = 5 tomatoes, y = [< 5 tomatoes >]
@@ -4704,7 +4704,7 @@ BRACKETABLE EXPRESSION:
     {|A, B|}
 @@@@ = A B:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
               ^^^^^^^^^^
@@ -4714,7 +4714,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
               ^^^^^^^^^^
@@ -4742,7 +4742,7 @@ BRACKETABLE EXPRESSION:
     {|A, B|}
 @@@@ = A B:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
                               ^^^^^^^^^^^^^^^^
@@ -4752,7 +4752,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
                               ^^^^^^^^^^^^^^^^
@@ -4768,7 +4768,7 @@ BRACKETED EXPRESSION:
            x = "A", "B"
            .type = [< "my" "type" >]
            y = "A", "B"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4778,7 +4778,7 @@ BRACKETED EXPRESSION:
     {my type: x = {* "A", "B" *}, y = {* "A", "B" *}|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
@@ -4805,7 +4805,7 @@ BRACKETABLE EXPRESSION:
     {}
 @@@@ =:
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: y = {* ,, *} | a b c |}
               ^^^^^^^^
@@ -4815,7 +4815,7 @@ BRACKETED EXPRESSION:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: y = {* ,, *} | a b c |}
               ^^^^^^^^
@@ -4829,7 +4829,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = a b c:
            .type = [< "my" "type" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {my type: y = {* ,, *} | a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4837,7 +4837,7 @@ BRACKETED EXPRESSION:
     {my type|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {my type: y = {* ,, *} | a b c |}
@@ -4850,7 +4850,7 @@ BRACKETED EXPRESSION:
     {+ 1 2 3 +}
 @@@@ = 1 2 3:
            .type = "+"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {+ 1 2 3 +}
 ^^^^^^^^^^^
@@ -4858,7 +4858,7 @@ BRACKETED EXPRESSION:
     {+ 1 2 3 +}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {+ 1 2 3 +}
@@ -4875,7 +4875,7 @@ BRACKETED EXPRESSION:
     {+ 1 2 3 +}
 @@@@ = 1 2 3:
            .type = "+"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {"+"| 1 2 3 |"+"}
 ^^^^^^^^^^^^^^^^^
@@ -4883,7 +4883,7 @@ BRACKETED EXPRESSION:
     {+ 1 2 3 +}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {"+"| 1 2 3 |"+"}
@@ -4896,7 +4896,7 @@ BRACKETED EXPRESSION:
     {< 1 2 3 >}
 @@@@ = 1 2 3:
            .type = [< "<" ">" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {< 1 2 3 >}
 ^^^^^^^^^^^
@@ -4904,7 +4904,7 @@ BRACKETED EXPRESSION:
     {< 1 2 3 >}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {< 1 2 3 >}
@@ -4921,7 +4921,7 @@ BRACKETED EXPRESSION:
     {< 1 2 3 >}
 @@@@ = 1 2 3:
            .type = [< "<" ">" >]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {"<" ">"| 1 2 3 |"<" ">"}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4929,7 +4929,7 @@ BRACKETED EXPRESSION:
     {< 1 2 3 >}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {"<" ">"| 1 2 3 |"<" ">"}
@@ -4947,7 +4947,7 @@ BRACKETED EXPRESSION:
 @@@@ = +Y:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[+Y]}
      ^^^^
@@ -4958,7 +4958,7 @@ PREFIX EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[+Y]}
 ^^^^^^^^^^
@@ -4967,7 +4967,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[+Y]}
 ^^^^^^^^^^
@@ -4975,7 +4975,7 @@ BRACKETED EXPRESSION:
     {x: y[+Y]||x}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {x: y[+Y]}
@@ -4993,7 +4993,7 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
 @@@@ = 1,Y:
            .type = "#"
     line ###:
@@ -5006,7 +5006,7 @@ PREFIX EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[1,Y]}
 ^^^^^^^^^^^
@@ -5015,7 +5015,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[1,Y]}
 ^^^^^^^^^^^
@@ -5023,7 +5023,7 @@ BRACKETED EXPRESSION:
     {x: y[+Y]||x}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {x: y[1,Y]}
@@ -5041,7 +5041,7 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
 @@@@ = +,62:
            .type = "#"
     line ###:
@@ -5054,7 +5054,7 @@ PREFIX EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[+,62]}
 ^^^^^^^^^^^^
@@ -5063,7 +5063,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[+,62]}
 ^^^^^^^^^^^^
@@ -5071,7 +5071,7 @@ BRACKETED EXPRESSION:
     {x: y[+Y]||x}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {x: y[+,62]}
@@ -5089,7 +5089,7 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .terminator = "]"
            .initiator = "["
-           .position[H] = {}
+           .position[H] = PACKED_VEC
 @@@@ = 62,1:
            .type = "#"
     line ###:
@@ -5102,7 +5102,7 @@ PREFIX EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[62,1]}
 ^^^^^^^^^^^^
@@ -5111,7 +5111,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .type = "x"
            y[+Y]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y[62,1]}
 ^^^^^^^^^^^^
@@ -5119,7 +5119,7 @@ BRACKETED EXPRESSION:
     {x: y[+Y]||x}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {x: y[62,1]}
@@ -5151,7 +5151,7 @@ BRACKETED EXPRESSION:
 @@@@ = z + w "," v "|" m n "|":
            .terminator = ")"
            .initiator = "("
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y = (z + w, v| m n |}
         ^^^^^^^^^^^^^^^^
@@ -5160,7 +5160,7 @@ PREFIX EXPRESSION:
 @@@@ =:
            .type = "x"
            y = (z + w "," v "|" m n "|")
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y = (z + w, v| m n |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5169,7 +5169,7 @@ BRACKETED EXPRESSION:
 @@@@ =:
            .type = "x"
            y = (z + w "," v "|" m n "|")
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x: y = (z + w, v| m n |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5177,7 +5177,7 @@ BRACKETED EXPRESSION:
     {x: y = (z + w "," v "|" m n "|")||x}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {x: y = (z + w, v| m n |}
@@ -5186,7 +5186,7 @@ BRACKETED EXPRESSION:
     the line before the outer paragraph
 @@@@ = the line before the outer paragraph:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 the line before the outer paragraph
@@ -5197,7 +5197,7 @@ BRACKETED EXPRESSION:
     the first line of the outer paragraph
 @@@@ = the first line of the outer paragraph:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
     the first line of the outer paragraph
@@ -5208,7 +5208,7 @@ BRACKETED EXPRESSION:
 @@@@ = the second line of the outer paragraph which is continued on this
                indented line:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
     the second line of the outer paragraph which
@@ -5221,7 +5221,7 @@ BRACKETED EXPRESSION:
     the first line of the inner paragraph
 @@@@ = the first line of the inner paragraph:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
        the first line of the inner paragraph
@@ -5235,7 +5235,7 @@ BRACKETED EXPRESSION:
 @@@@ = that begins with a horizontal tab:
            .terminator = ")"
            .initiator = "("
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
            (that begins with a horizontal tab)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5245,7 +5245,7 @@ BRACKETED EXPRESSION:
 @@@@ = the second line of the inner paragraph which is continued on this
                indented line @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
        the second line of the inner paragraph which
@@ -5263,7 +5263,7 @@ BRACKETED EXPRESSION:
               this indented line (that begins with a horizontal tab)|}|}
 @@@@ = @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
     an inner paragraph:
@@ -5283,7 +5283,7 @@ BRACKETED EXPRESSION:
             this indented line (that begins with a horizontal tab)
 @@@@ = an inner paragraph @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
     an inner paragraph:
@@ -5300,7 +5300,7 @@ BRACKETED EXPRESSION:
     the first line of the outer paragraph after the inner paragraph
 @@@@ = the first line of the outer paragraph after the inner paragraph:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
     the first line of the outer paragraph after the
@@ -5316,7 +5316,7 @@ BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"||}
 @@@@ =:
            .terminator = [$ INDENTED_PARAGRAPH $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = ":"
     line ###:
     another inner paragraph, but one with zero lines:
@@ -5325,7 +5325,7 @@ BRACKETED EXPRESSION:
     another inner paragraph "," but one with zero lines:
 @@@@ = another inner paragraph "," but one with zero lines @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
     another inner paragraph, but one with zero lines:
@@ -5334,7 +5334,7 @@ BRACKETED EXPRESSION:
     the last line of the outer paragraph
 @@@@ = the last line of the outer paragraph:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
     the last line of the outer paragraph
@@ -5368,7 +5368,7 @@ BRACKETED EXPRESSION:
               last line of the outer paragraph|}|}
 @@@@ = @@@@ @@@@ @@@@ @@@@ @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
 this is the outer paragraph:
@@ -5411,7 +5411,7 @@ BRACKETED EXPRESSION:
         the last line of the outer paragraph
 @@@@ = this is the outer paragraph @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this is the outer paragraph:
@@ -5444,7 +5444,7 @@ BRACKETED EXPRESSION:
     the line after the outer paragraph
 @@@@ = the line after the outer paragraph:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 the line after the outer paragraph
@@ -5455,7 +5455,7 @@ BRACKETED EXPRESSION:
     This logical line is followed by an empty logical line;
 @@@@ = This logical line is followed by an empty logical line:
            .terminator = ";"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 This logical line is followed by an empty logical line;
@@ -5492,7 +5492,7 @@ BRACKETED EXPRESSION:
            a = "1"
            b = "2"
            c = "3"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2, c = 3, d = 4 | X Y Z |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5500,7 +5500,7 @@ BRACKETED EXPRESSION:
     {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T: a = 1, b = 2, c = 3, d = 4 | X Y Z |}
@@ -5535,7 +5535,7 @@ BRACKETED EXPRESSION:
            a = "1"
            b = "2"
            c = "3"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2, c = 3 | X Y Z | d = 4 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5543,7 +5543,7 @@ BRACKETED EXPRESSION:
     {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T: a = 1, b = 2, c = 3 | X Y Z | d = 4 }
@@ -5580,7 +5580,7 @@ BRACKETED EXPRESSION:
            a = "1"
            b = "2"
            c = "3"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2 | X Y | c = 3 | Z | d = 4 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5588,7 +5588,7 @@ BRACKETED EXPRESSION:
     {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T: a = 1, b = 2 | X Y | c = 3 | Z | d = 4 }
@@ -5627,7 +5627,7 @@ BRACKETED EXPRESSION:
            a = "1"
            b = "2"
            c = "3"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5635,7 +5635,7 @@ BRACKETED EXPRESSION:
     {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | }
@@ -5676,7 +5676,7 @@ BRACKETED EXPRESSION:
            a = "1"
            b = "2"
            c = "3"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {T: a = 1 | X | b = 2 | Y | c = 3, d = 4 | Z | }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5684,7 +5684,7 @@ BRACKETED EXPRESSION:
     {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
 {T: a = 1 | X | b = 2 | Y | c = 3, d = 4 | Z | }
@@ -5697,7 +5697,7 @@ PREFIX EXPRESSION:
     {x||x}
 @@@@ =:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
 {x} this is a line:
 ^^^
@@ -5711,7 +5711,7 @@ PREFIX EXPRESSION:
     {x||x}
 @@@@ =:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
          has an {x} unrecognized because it
                 ^^^
@@ -5730,7 +5730,7 @@ PREFIX EXPRESSION:
     {x||x}
 @@@@ =:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
          the outer `{x}'
                     ^^^
@@ -5740,7 +5740,7 @@ BRACKETED EXPRESSION:
     {x||x}
 @@@@ =:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
          the outer `{x}'
                     ^^^
@@ -5749,7 +5749,7 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .terminator = "'"
            .initiator = "`"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
          the outer `{x}'
                    ^^^^^
@@ -5759,7 +5759,7 @@ BRACKETED EXPRESSION:
 @@@@ = with an indented paragraph that has an unrecognized because it is
                not in the same logical line as the outer @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
     with an indented paragraph that
@@ -5777,7 +5777,7 @@ BRACKETED EXPRESSION:
               is not in the same logical line as the outer `{x||x}'|}|}
 @@@@ = @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
 {x} this is a line:
@@ -5798,7 +5798,7 @@ PREFIX EXPRESSION:
     {x||x}
 @@@@ =:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   but this {x} is
            ^^^
@@ -5811,7 +5811,7 @@ BRACKETED EXPRESSION:
                  `{x||x}'|}|} but this|x}
 @@@@ = this is a line @@@@ but this:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     lines ###-###:
 {x} this is a line:
 ^^^^^^^^^^^^^^^^^^^
@@ -5829,7 +5829,7 @@ BRACKETED EXPRESSION:
     {x|is|x}
 @@@@ = is:
            .type = "x"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
     line ###:
   but this {x} is
            ^^^^^^
@@ -5842,7 +5842,7 @@ BRACKETED EXPRESSION:
                  `{x||x}'|}|} but this|x} {x|is|x}
 @@@@ = @@@@ @@@@:
            .terminator = "<LF>"
-           .position[H] = {}
+           .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 {x} this is a line:

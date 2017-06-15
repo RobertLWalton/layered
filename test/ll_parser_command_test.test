@@ -221,7 +221,7 @@ INDENT: line ##:
 ======= PARSER TEST:
 @@ = "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")" ")" "]":
          .terminator = "<LF>"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
 ======= END PARSER TEST(S)
 *PARSER*:
@@ -230,7 +230,7 @@ INDENT: line ##:
                          ")" ")" "]"
 @@ = "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")" ")" "]":
          .terminator = "<LF>"
-         .position[H] = {}
+         .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
 ======= END PARSER TEST(S)
 *PARSER*:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 02:01:42 EDT 2017
+// Date:	Thu Jun 15 17:16:57 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,10 +21,23 @@
 # include <ll_parser.h>
 # include <ll_parser_prefix.h>
 # define MUP min::unprotected
+# define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define PRE ll::parser::prefix
+
+static bool initialize_called = false;
+static min::locatable_gen equals;
+
+static void initialize ( void )
+{
+    if ( initialize_called ) return;
+    initialize_called = true;
+
+    ::equals = min::new_str_gen ( "=" );
+}
+static min::initializer initializer ( ::initialize );
 
 // Prefix Table
 // ------ -----
@@ -105,11 +118,43 @@ void PRE::push_prefix
 min::locatable_var<PAR::reformatter>
     PRE::prefix_reformatter_stack ( min::NULL_STUB );
 
+static bool data_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    MIN_REQUIRE ( first != next );
+    if ( first->next == next ) return true;
+    if ( first->next->next == next ) return true;
+    if ( first->next->next->next == next ) return true;
+
+    if ( first->next->value != ::equals ) return true;
+    if ( first->next->type != LEXSTD::numeric_t )
+        return true;
+
+    PAR::trace_subexpression
+	( parser, first, trace_flags );
+
+    return true;
+}
+
 static void prefix_reformatter_stack_initialize ( void )
 {
-    // ::initialize();
+    ::initialize();
 
     // TBD: see untyped_reformatter_stack below.
+
+    min::locatable_gen label
+        ( min::new_str_gen ( "data" ) );
+    PAR::push_reformatter
+        ( label, 0, 0, 0,
+	  ::data_reformatter_function,
+	  PRE::prefix_reformatter_stack );
 }
 static min::initializer prefix_reformatter_initializer
     ( ::prefix_reformatter_stack_initialize );

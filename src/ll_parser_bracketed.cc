@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 12 16:45:21 EDT 2017
+// Date:	Thu Jun 15 01:43:55 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,8 +14,6 @@
 //	Untyped Brackets
 //	Indentation Marks
 //	Typed Brackets
-//	Prefix Table
-//	Prefix Reformatters
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Parse Bracketed Subexpression Function
@@ -31,6 +29,7 @@
 # include <ll_parser.h>
 # include <ll_parser_command.h>
 # include <ll_parser_bracketed.h>
+# include <ll_parser_prefix.h>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
@@ -39,6 +38,7 @@
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define COM ll::parser::command
+# define PRE ll::parser::prefix
 # define BRA ll::parser::bracketed
 
 static bool initialize_called = false;
@@ -536,95 +536,6 @@ BRA::typed_opening
 
     return opening;
 }
-
-// Prefix Table
-// ------ -----
-
-static min::uns32 prefix_gen_disp[] = {
-    min::DISP ( & BRA::prefix_struct::label ),
-    min::DISP ( & BRA::prefix_struct::group ),
-    min::DISP ( & BRA::prefix_struct
-                     ::implied_subprefix ),
-    min::DISP ( & BRA::prefix_struct
-                     ::implied_subprefix_type ),
-    min::DISP_END };
-
-static min::uns32 prefix_stub_disp[] = {
-    min::DISP ( & BRA::prefix_struct::next ),
-    min::DISP ( & BRA::prefix_struct::reformatter ),
-    min::DISP ( & BRA::prefix_struct
-                     ::reformatter_arguments ),
-    min::DISP_END };
-
-static min::packed_struct_with_base
-	<BRA::prefix_struct, TAB::root_struct>
-    prefix_type ( "ll::parser::bracketed::prefix_type",
-	        ::prefix_gen_disp,
-	        ::prefix_stub_disp );
-const min::uns32 & BRA::PREFIX = ::prefix_type.subtype;
-
-void BRA::push_prefix
-	( min::gen prefix_label,
-	  TAB::flags selectors,
-	  min::uns32 block_level,
-	  const min::phrase_position & position,
-	  TAB::new_flags new_selectors,
-	  min::gen group,
-	  min::gen implied_subprefix,
-	  min::gen implied_subprefix_type,
-	  min::uns32 paragraph_lexical_master,
-	  min::uns32 line_lexical_master,
-	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
-	  TAB::key_table prefix_table )
-{
-    min::locatable_var<BRA::prefix> prefix
-        ( ::prefix_type.new_stub() );
-
-    label_ref(prefix) = prefix_label;
-    prefix->selectors = selectors;
-    prefix->block_level = block_level;
-    prefix->position = position;
-    prefix->new_selectors = new_selectors;
-
-    prefix->new_selectors.or_flags &= ~
-        PAR::TOP_LEVEL_SELECTOR;
-    prefix->new_selectors.not_flags |=
-        PAR::TOP_LEVEL_SELECTOR;
-    prefix->new_selectors.xor_flags &= ~
-        PAR::TOP_LEVEL_SELECTOR;
-
-    group_ref(prefix) = group;
-    implied_subprefix_ref(prefix) = implied_subprefix;
-    implied_subprefix_type_ref(prefix) =
-        implied_subprefix_type;
-    prefix->paragraph_lexical_master =
-        paragraph_lexical_master;
-    prefix->line_lexical_master = line_lexical_master;
-    reformatter_ref(prefix) = reformatter;
-    reformatter_arguments_ref(prefix) =
-        reformatter_arguments;
-
-    TAB::push ( prefix_table, (TAB::root) prefix );
-}
-
-// Prefix Reformatters
-// ------ ------------
-
-
-min::locatable_var<PAR::reformatter>
-    BRA::prefix_reformatter_stack ( min::NULL_STUB );
-
-static void prefix_reformatter_stack_initialize ( void )
-{
-    ::initialize();
-
-    // TBD: see untyped_reformatter_stack below.
-}
-static min::initializer prefix_reformatter_initializer
-    ( ::prefix_reformatter_stack_initialize );
-
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----
@@ -1510,7 +1421,7 @@ min::position BRA::parse_bracketed_subexpression
     // block.
     //
     min::gen prefix_type;
-    BRA::prefix prefix_entry;
+    PRE::prefix prefix_entry;
     min::gen prefix_group;
     TAB::flags prefix_selectors;
 
@@ -1558,8 +1469,8 @@ min::position BRA::parse_bracketed_subexpression
 	    goto NEXT_TOKEN;
 	if ( bracket_stack_p->prefix == min::NULL_STUB )
 	    goto NEXT_TOKEN;
-	BRA::prefix p =
-	    (BRA::prefix)
+	PRE::prefix p =
+	    (PRE::prefix)
 	    min::stub_of
 	        ( bracket_stack_p->prefix->value_type );
 	if ( p == min::NULL_STUB )
@@ -1574,11 +1485,11 @@ min::position BRA::parse_bracketed_subexpression
 
 	TAB::key_table prefix_table =
 	    bracketed_pass->prefix_table;
-	BRA::prefix implied_prefix_entry =
-	    (BRA::prefix)
+	PRE::prefix implied_prefix_entry =
+	    (PRE::prefix)
 	    TAB::find
 		( p->implied_subprefix_type,
-		  BRA::PREFIX,
+		  PRE::PREFIX,
 		  selectors,
 		  prefix_table );
 
@@ -1644,9 +1555,9 @@ PREFIX_FOUND:
 	prefix_type = prefix->value_type;
 	MIN_REQUIRE ( min::is_name ( prefix_type ) );
 	prefix_entry =
-	    (BRA::prefix)
+	    (PRE::prefix)
 	    TAB::find ( prefix_type,
-			BRA::PREFIX,
+			PRE::PREFIX,
 			selectors,
 			prefix_table );
 	prefix_group = prefix_type;
@@ -2039,11 +1950,11 @@ PARSE_PREFIX_N_LIST:
 		    TAB::key_table prefix_table =
 			bracketed_pass->
 			    prefix_table;
-		    BRA::prefix header_entry =
-			(BRA::prefix)
+		    PRE::prefix header_entry =
+			(PRE::prefix)
 			TAB::find
 			    ( header_type,
-			      BRA::PREFIX,
+			      PRE::PREFIX,
 			      prefix_selectors,
 			      prefix_table );
 		    if (    header_entry
@@ -2193,7 +2104,7 @@ PARSE_PREFIX_N_LIST:
 		       (TAB::root) prefix_entry )
 	         )
 		 &&
-		 BRA::compact_prefix_list
+		 PRE::compact_prefix_list
 		     ( parser, bracketed_pass->next,
 		       prefix_selectors,
 		       prefix, next,
@@ -2235,7 +2146,7 @@ PARSE_PREFIX_N_LIST:
 		    prefix->value_type;
 
 		prefix_entry =
-		    (BRA::prefix)
+		    (PRE::prefix)
 		    min::stub_of ( prefix->value_type );
 
 		prefix_selectors = selectors;
@@ -2481,10 +2392,10 @@ NEXT_TOKEN:
 	    {
 		TAB::key_table prefix_table =
 		    bracketed_pass->prefix_table;
-		BRA::prefix header_entry =
-		    (BRA::prefix)
+		PRE::prefix header_entry =
+		    (PRE::prefix)
 		    TAB::find ( implied_header_type,
-				BRA::PREFIX,
+				PRE::PREFIX,
 				header_selectors,
 				prefix_table );
 		min::gen group = implied_header_type;
@@ -4009,125 +3920,6 @@ void BRA::compact_logical_line
         min::LOGICAL_LINE();
 }
 
-bool BRA::compact_prefix_list
-	( PAR::parser parser,
-	  PAR::pass pass,
-	  PAR::table::flags selectors,
-	  PAR::token first,
-	  PAR::token next,
-          const min::position & separator_found,
-	  TAB::root line_sep,
-	  TAB::flags trace_flags )
-{
-    if ( first->next == next && ! separator_found )
-    {
-	if ( first->type == PAR::IMPLIED_PREFIX
-	     ||
-	     first->type == PAR::IMPLIED_HEADER )
-	{
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-				first ) );
-	    return false;
-	}
-    }
-    else
-    {
-	first->position.end =
-	    next->previous->position.end;
-	PAR::token current = first->next;
-
-	PAR::execute_pass_parse
-	     ( parser, pass, selectors,
-	       current, next );
-
-
-	min::obj_vec_insptr vp
-	    ( first->value );
-	min::locatable_var
-		<min::phrase_position_vec_insptr>
-	    pos;
-
-	if ( first->type == PAR::IMPLIED_PREFIX
-	     ||
-	     first->type == PAR::IMPLIED_HEADER )
-	{
-	    min::uns32 unused_size = 0;
-	    for ( PAR::token t = first->next;
-	          t != next; t = t->next )
-	        ++ unused_size;
-	    if ( separator_found )
-	        unused_size += 5;
-	    PAR::value_ref(first) =
-	        min::copy ( vp, unused_size );
-	    vp = first->value;
-
-	    min::init ( pos, parser->input_file,
-	                first->position, 0 );
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    min::set ( ap, min::new_stub_gen ( pos ) );
-	    min::set_flag
-	        ( ap, min::standard_attr_hide_flag );
-	    if ( separator_found )
-	    {
-		min::locate ( ap, min::dot_terminator );
-		min::set ( ap, line_sep->label );
-		first->position.end = separator_found;
-	    }
-	}
-	else
-	{
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    pos = min::get ( ap );
-	    if ( separator_found )
-	    {
-		min::locate ( ap, min::dot_terminator );
-		min::set ( ap, line_sep->label );
-		first->position.end = separator_found;
-	    }
-	}
-	pos->position = first->position;
-
-	while ( current != next )
-	{
-	    if (    current->string
-		 != min::NULL_STUB )
-		PAR::convert_token
-		    ( current );
-
-	    if ( min::is_attr_legal ( current->value ) )
-	    {
-		min::attr_push(vp) = current->value;
-		min::push ( pos ) = current->position;
-	    }
-	    else
-	        PAR::parse_error
-		    ( parser, current->position,
-		      "not a legal object element"
-		      " value; `",
-		      min::pgen_never_quote
-		          ( current->value ),
-		      "'; ignored" );
-
-	    current = current->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref
-			    (parser),
-			current->previous ) );
-	}
-    }
-
-    first->type = PAR::BRACKETED;
-
-    PAR::trace_subexpression
-        ( parser, first, trace_flags );
-
-    return true;
-}
-
 void BRA::compact_paragraph
 	( PAR::parser parser,
 	  PAR::token & first, PAR::token next,
@@ -4711,7 +4503,7 @@ static min::gen bracketed_pass_command
 		 &&
 		 subtype != BRA::INDENTATION_MARK
 		 &&
-		 subtype != BRA::PREFIX )
+		 subtype != PRE::PREFIX )
 		continue;
 
 	    ++ count;
@@ -4999,9 +4791,9 @@ static min::gen bracketed_pass_command
 		      indentation_mark->
 		          line_lexical_master );
 	    }
-	    else if ( subtype == BRA::PREFIX )
+	    else if ( subtype == PRE::PREFIX )
 	    {
-		BRA::prefix prefix = (BRA::prefix) root;
+		PRE::prefix prefix = (PRE::prefix) root;
 
 		parser->printer
 		    << "prefix "
@@ -5866,7 +5658,7 @@ static min::gen bracketed_pass_command
 			{ (&ppvec[i])->begin,
 			  (&ppvec[j])->end };
 		    PAR::reformatter reformatter_stack =
-			BRA::prefix_reformatter_stack;
+			PRE::prefix_reformatter_stack;
 		    reformatter =
 			PAR::find_reformatter
 			    ( name, reformatter_stack );
@@ -5968,7 +5760,7 @@ static min::gen bracketed_pass_command
 		  " for prefix unless prefix group is"
 		  " `paragraph'; options ignored" );
 
-	BRA::push_prefix
+	PRE::push_prefix
 	    ( name[0], selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,

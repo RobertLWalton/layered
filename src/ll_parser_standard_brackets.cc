@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 22:21:35 EDT 2017
+// Date:	Thu Jun 15 01:52:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,6 +24,7 @@
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
+# define PRE ll::parser::prefix
 # define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
 
@@ -225,7 +226,7 @@ void PARSTD::init_prefixes ( PAR::parser parser )
     min::locatable_gen raw_data
         ( min::new_lab_gen ( "raw", "data" ) );
 
-    BRA::push_prefix
+    PRE::push_prefix
 	( data_name,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
@@ -240,7 +241,7 @@ void PARSTD::init_prefixes ( PAR::parser parser )
 	  min::NULL_STUB,
 	  bracketed_pass->prefix_table );
 
-    BRA::push_prefix
+    PRE::push_prefix
 	( raw_data,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
@@ -278,7 +279,7 @@ void PARSTD::init_prefixes ( PAR::parser parser )
 	    ( ap, min::standard_attr_hide_flag );
     }
 
-    BRA::push_prefix
+    PRE::push_prefix
 	( table,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
@@ -293,7 +294,7 @@ void PARSTD::init_prefixes ( PAR::parser parser )
 	  min::NULL_STUB,
 	  bracketed_pass->prefix_table );
 
-    BRA::push_prefix
+    PRE::push_prefix
 	( row,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
@@ -311,7 +312,7 @@ void PARSTD::init_prefixes ( PAR::parser parser )
     min::locatable_gen p
         ( min::new_str_gen ( "p" ) );
 
-    BRA::push_prefix
+    PRE::push_prefix
 	( p,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,

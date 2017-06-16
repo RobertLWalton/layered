@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 17:16:57 EDT 2017
+// Date:	Fri Jun 16 05:52:21 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -131,11 +131,44 @@ static bool data_reformatter_function
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
-    if ( first->next->next->next == next ) return true;
 
     if ( first->next->value != ::equals ) return true;
     if ( first->next->type != LEXSTD::numeric_t )
         return true;
+
+    min::str_ptr sp ( first->next->value );
+    MIN_REQUIRE ( sp );
+    min::unsptr i =
+        ( sp[0] == '@' ? 1 :
+          ( sp[0] == '!' && sp[1] == '@' ) ? 2 :
+	  0 );
+    if ( i == 0 ) return true;
+    if ( sp[i] == '0' ) return true;
+    min::uns32 ID;
+    if ( ! min::strto ( ID, sp, i, 10 ) )
+        return true;
+    if ( sp[i] != 0 ) return true;
+
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->next  ) );
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->next  ) );
+
+    min::locatable_gen attributes ( min::MISSING() );
+    if ( next->previous != first
+         &&
+	 next->previous->value_type == PARLEX::colon )
+    {
+        attributes = next->previous->value;
+	PAR::free ( PAR::remove ( first_ref(parser),
+			          next->previous  ) );
+    }
+
+    PRE::compact_prefix_list
+        ( parser, pass, selectors, first, next,
+	  min::MISSING_POSITION, min::NULL_STUB,
+	  trace_flags, true );
+        
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );
@@ -171,19 +204,20 @@ bool PRE::compact_prefix_list
 	  PAR::token next,
           const min::position & separator_found,
 	  TAB::root line_sep,
-	  TAB::flags trace_flags )
+	  TAB::flags trace_flags,
+	  bool dont_delete )
 {
-    if ( first->next == next && ! separator_found )
+    if (    first->next == next
+         && ! separator_found
+	 && ! dont_delete
+	 && ( first->type == PAR::IMPLIED_PREFIX
+	      ||
+	      first->type == PAR::IMPLIED_HEADER ) )
     {
-	if ( first->type == PAR::IMPLIED_PREFIX
-	     ||
-	     first->type == PAR::IMPLIED_HEADER )
-	{
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-				first ) );
-	    return false;
-	}
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    first ) );
+	return false;
     }
     else
     {

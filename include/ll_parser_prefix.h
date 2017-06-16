@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 01:34:09 EDT 2017
+// Date:	Fri Jun 16 05:52:31 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,11 +112,12 @@ extern min::locatable_var<ll::parser::reformatter>
 // not.
 //
 // If on the other hand the first token is an IMPLIED_
-// PREFIX token, then if there are some elements or
-// separator_found is true, the value of this token is
-// replaced by a copy before it is used, but if there
-// are no elements and separator_found is false, the
-// first token is deleted and nothing else is done.
+// PREFIX token, then if there are some elements, or
+// separator_found is true, or dont_delete is true, the
+// value of this token is replaced by a copy before it
+// is used, but if there are no elements, separator_
+// found is false, and dont_delete is false, the first
+// token is deleted and nothing else is done.
 //
 // If separator_found is true, set the .terminator
 // attribute of the expanded PREFIX to line_sep->label
@@ -134,7 +135,8 @@ bool compact_prefix_list
 	  ll::parser::token next,
 	  const min::position & separator_found,
 	  ll::parser::table::root line_sep,
-	  ll::parser::table::flags trace_flags );
+	  ll::parser::table::flags trace_flags,
+	  bool dont_delete = false );
 
 } } }
 

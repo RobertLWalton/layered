@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 16 05:52:21 EDT 2017
+// Date:	Sat Jun 17 16:00:48 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -128,19 +128,28 @@ static bool data_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
+    PRE::prefix prefix_entry = (PRE::prefix) entry;
+    PAR::reformatter_arguments args =
+        prefix_entry->reformatter_arguments;
+    MIN_REQUIRE ( args->length == 2 );
+
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
 
-    if ( first->next->value != ::equals ) return true;
+    if ( first->next->value != args[1] ) return true;
     if ( first->next->type != LEXSTD::numeric_t )
         return true;
+
+    min::str_ptr argsp ( args[0] );
+    char expl = argsp[0];
+    char at   = argsp[1];
 
     min::str_ptr sp ( first->next->value );
     MIN_REQUIRE ( sp );
     min::unsptr i =
-        ( sp[0] == '@' ? 1 :
-          ( sp[0] == '!' && sp[1] == '@' ) ? 2 :
+        ( sp[0] == at ? 1 :
+          ( sp[0] == expl && sp[1] == at ) ? 2 :
 	  0 );
     if ( i == 0 ) return true;
     if ( sp[i] == '0' ) return true;
@@ -168,7 +177,16 @@ static bool data_reformatter_function
         ( parser, pass, selectors, first, next,
 	  min::MISSING_POSITION, min::NULL_STUB,
 	  trace_flags, true );
-        
+
+    if ( attributes != min::MISSING() )
+    {
+        min::obj_vec_ptr paragraph ( attributes );
+	for ( min::uns32 i = 0;
+	      i < min::size_of ( paragraph ); ++ i )
+        {
+	    min::obj_vec_ptr line ( paragraph[i] );
+	}
+    }
 
     PAR::trace_subexpression
 	( parser, first, trace_flags );

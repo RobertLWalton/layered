@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 17:00:11 EDT 2017
+// Date:	Thu Jun 22 12:02:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1967,6 +1967,15 @@ min::gen scan_quoted_key
 // return min::MISSING().
 //
 min::gen scan_simple_name
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value = min::MISSING() );
+
+// Like scan_simple_name but accepts words, numbers,
+// numerics, and quoted strings as name components.
+// Replaces numerics and quoted strings by their values
+// (which are MIN strings).
+//
+min::gen scan_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::gen end_value = min::MISSING() );
 

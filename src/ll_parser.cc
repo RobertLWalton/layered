@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 15:46:24 EDT 2017
+// Date:	Thu Jun 22 12:02:00 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2202,6 +2202,54 @@ min::gen PAR::scan_simple_name
     min::gen elements[i-j];
     memcpy ( elements, & vp[j], sizeof ( elements ) );
     return min::new_lab_gen ( elements, i - j );
+}
+
+min::gen PAR::scan_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value )
+{
+    min::uns32 initial_i = i;
+    min::uns32 s = min::size_of ( vp );
+    min::uns64 accepted_types =
+          1ull << LEXSTD::word_t
+	| 1ull << LEXSTD::natural_t
+	| 1ull << LEXSTD::numeric_t;
+
+    min::gen elements[s];
+
+    while ( i < s )
+    {
+	if ( vp[i] == end_value )
+	    break;
+	else if ( min::is_obj ( vp[i] ) )
+	{
+	    min::obj_vec_ptr evp ( vp[i] );
+	    if ( min::size_of ( evp ) != 1 ) break;
+	    min::attr_ptr eap ( evp );
+	    min::locate ( eap, min::dot_type );
+	    min::gen type = min::get ( eap );
+	    if ( type != PARLEX::doublequote
+	         &&
+		 type != PARLEX::number_sign )
+	        break;
+	    elements[i] = evp[0];
+	}
+	else
+	{
+	    min::uns32 t =
+		LEXSTD::lexical_type_of ( vp[i] );
+	    if ( ( 1ull << t ) & accepted_types )
+	        elements[i] = vp[i];
+	    else
+	        break;
+	}
+	++ i;
+    }
+
+    if ( i == initial_i ) return min::MISSING();
+    else if ( i == initial_i + 1 ) return elements[0];
+
+    return min::new_lab_gen ( elements, i - initial_i );
 }
 
 min::gen PAR::scan_quoted_key

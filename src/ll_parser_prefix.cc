@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 17 16:00:48 EDT 2017
+// Date:	Thu Jun 22 06:19:00 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -137,7 +137,8 @@ static bool data_reformatter_function
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
 
-    if ( first->next->value != args[1] ) return true;
+    if ( first->next->next->value != args[1] )
+        return true;
     if ( first->next->type != LEXSTD::numeric_t )
         return true;
 
@@ -185,6 +186,36 @@ static bool data_reformatter_function
 	      i < min::size_of ( paragraph ); ++ i )
         {
 	    min::obj_vec_ptr line ( paragraph[i] );
+	    min::uns32 lsize = min::size_of ( line );
+	    min::uns32 j = 0;
+	    min::locatable_gen name
+	        ( PAR::scan_simple_name
+		      ( line, j, args[1] ) );
+	    if (    j == 0
+	         || (    j < lsize
+		      && line[j] != args[1] ) )
+	    {
+	        min::attr_ptr ap ( paragraph );
+		min::locate ( ap, min::dot_position );
+		min::phrase_position_vec_insptr ppvec =
+		    (min::phrase_position_vec_insptr)
+		    min::get ( ap );
+		if ( j == 0 )
+		    PAR::parse_error
+			( parser, ppvec[i],
+			  "line does not begin with a"
+			  " simple name;"
+			  " line ignored" );
+		else
+		    PAR::parse_error
+			( parser, ppvec[i],
+			  "after simple name `",
+			  min::pgen_never_quote
+			      ( args[1] ),
+			  "' was expected but not"
+			  " found; line ignored" );
+		continue;
+	    }
 	}
     }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 22 06:19:00 EDT 2017
+// Date:	Thu Jun 22 16:33:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -189,31 +189,46 @@ static bool data_reformatter_function
 	    min::uns32 lsize = min::size_of ( line );
 	    min::uns32 j = 0;
 	    min::locatable_gen name
-	        ( PAR::scan_simple_name
+	        ( PAR::scan_label
 		      ( line, j, args[1] ) );
-	    if (    j == 0
-	         || (    j < lsize
-		      && line[j] != args[1] ) )
+	    if ( name == min::MISSING() )
 	    {
-	        min::attr_ptr ap ( paragraph );
-		min::locate ( ap, min::dot_position );
-		min::phrase_position_vec_insptr ppvec =
-		    (min::phrase_position_vec_insptr)
-		    min::get ( ap );
-		if ( j == 0 )
-		    PAR::parse_error
-			( parser, ppvec[i],
-			  "line does not begin with a"
-			  " simple name;"
-			  " line ignored" );
-		else
-		    PAR::parse_error
-			( parser, ppvec[i],
-			  "after simple name `",
-			  min::pgen_never_quote
-			      ( args[1] ),
-			  "' was expected but not"
-			  " found; line ignored" );
+		min::phrase_position_vec ppvec =
+		    min::position_of ( paragraph );
+		PAR::parse_error
+		    ( parser, ppvec[i],
+		      "line does not begin with an"
+		      " attribute label;"
+		      " line ignored" );
+		continue;
+	    }
+
+	    min::gen flags = min::MISSING();
+
+	    const char * message =
+	        "after attribute label `";
+	    if ( j < lsize && min::is_obj ( line[j] ) )
+	    {
+	        min::obj_vec_ptr fvp ( line[j] );
+		min::attr_ptr fap ( fvp );
+		min::locate ( fap, min::dot_initiator );
+		if ( min::get ( fap ) == args[2] )
+		    flags = line[j++];
+		message =
+		    "after attribute label flags `";
+	    }
+
+	    if ( j < lsize && line[j] != args[1] )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		PAR::parse_error
+		    ( parser, ppvec[j],
+		      message,
+		      min::pgen_never_quote
+			  ( args[1] ),
+		      "' was expected but not"
+		      " found; line ignored" );
 		continue;
 	    }
 	}

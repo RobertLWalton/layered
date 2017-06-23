@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 22 12:02:00 EDT 2017
+// Date:	Fri Jun 23 16:19:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1778,12 +1778,11 @@ void PAR::put_error_operator_after
     token->position = position;
 }
 
-static void set_attr_flags
+void PAR::set_attr_flags
 	( PAR::parser parser,
-	  min::attr_insptr expap,
+	  min::attr_insptr & ap,
 	  min::gen flags,
-	  const min::flag_parser * flag_parser
-	      = min::standard_attr_flag_parser )
+	  const min::flag_parser * flag_parser )
 {
     min::obj_vec_insptr vp ( flags );
 
@@ -1813,7 +1812,7 @@ static void set_attr_flags
 	    len = min::parse_flags
 		( flags, text_buffer, flag_parser );
 	    for ( min::unsptr j = 0; j < len; ++ j )
-		min::set_flag ( expap, flags[j] );
+		min::set_flag ( ap, flags[j] );
 
 	    if ( text_buffer[0] != 0 )
 	    {
@@ -1831,7 +1830,8 @@ static void set_attr_flags
 		parse_error ( parser, position,
 			      buffer,
 			      min::pgen_quote
-				  ( flags_text ) );
+				  ( flags_text ),
+			      "; bad flag(s) ignored" );
 	    }
 	}
 	else
@@ -1843,15 +1843,16 @@ static void set_attr_flags
 	    min::phrase_position position = pos[i];
 	    PAR::parse_error
 		( parser, position,
-		  "bad flags specifier ",
-		   min::pgen_quote ( flags_text ) );
+		  "bad flags specifier `",
+		   min::pgen_quote ( flags_text ),
+		   "'; ignored" );
 	}
     }
 }
 
-static void set_attr_multivalue
+void PAR::set_attr_multivalue
 	( PAR::parser parser,
-	  min::attr_insptr expap,
+	  min::attr_insptr & ap,
 	  min::gen multivalue )
 {
     min::obj_vec_ptr vp ( multivalue );
@@ -1878,7 +1879,7 @@ static void set_attr_multivalue
 		   "'; ignored" );
 	}
     }
-    min::set ( expap, values, m );
+    min::set ( ap, values, m );
 }
 
 void PAR::compact
@@ -1921,12 +1922,13 @@ void PAR::compact
 	         == min::MISSING() )
 		min::set ( ap, attributes->value );
 	    else
-	        ::set_attr_multivalue
+	        PAR::set_attr_multivalue
 		    ( parser, ap,
 		      attributes->multivalue );
 	    if ( attributes->flags != min::MISSING() )
-	        ::set_attr_flags ( parser, ap,
-		                   attributes->flags );
+	        PAR::set_attr_flags
+		    ( parser, ap,
+		      attributes->flags );
 	    ++ attributes;
 	}
 	first->type = PAR::BRACKETED;
@@ -2013,12 +2015,13 @@ void PAR::compact
 	         == min::MISSING() )
 		min::set ( expap, attributes->value );
 	    else
-	        ::set_attr_multivalue
+	        PAR::set_attr_multivalue
 		    ( parser, expap,
 		      attributes->multivalue );
 	    if ( attributes->flags != min::MISSING() )
-	        ::set_attr_flags ( parser, expap,
-		                   attributes->flags );
+	        PAR::set_attr_flags
+		    ( parser, expap,
+		      attributes->flags );
 	    ++ attributes;
 	}
 

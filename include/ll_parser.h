@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 22 12:02:12 EDT 2017
+// Date:	Fri Jun 23 15:14:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1760,6 +1760,29 @@ void put_error_operator_after
 	( ll::parser::parser parser,
 	  ll::parser::token t );
 
+
+// Given an attribute pointer ap located at an attribute
+// and a bracketed expression `flags' containing attri-
+// bute flags, set the designated flags of the attri-
+// bute.
+//
+void set_attr_flags
+	( ll::parser::parser parser,
+	  min::attr_insptr & ap,
+	  min::gen flags,
+	  const min::flag_parser * flag_parser
+	      = min::standard_attr_flag_parser );
+
+// Given an attribute pointer ap located at an attribute
+// and a bracketed expression `multivalue' containing
+// multiple attribute value, set the designated values
+// of the attribute.
+//
+void set_attr_multivalue
+	( ll::parser::parser parser,
+	  min::attr_insptr & ap,
+	  min::gen multivalue );
+
 // First, invokes the given pass, if that is not NULL_
 // STUB, on the expression consisting of the tokens
 // beginning with `first' and ending just before `next'.
@@ -1968,7 +1991,7 @@ min::gen scan_quoted_key
 //
 min::gen scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value = min::MISSING() );
+	  min::gen end_value = min::NONE() );
 
 // Like scan_simple_name but accepts words, numbers,
 // numerics, and quoted strings as name components.
@@ -1977,7 +2000,7 @@ min::gen scan_simple_name
 //
 min::gen scan_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value = min::MISSING() );
+	  min::gen end_value = min::NONE() );
 
 // If vp[i] is a quoted string, scan it as per scan_
 // quoted_key and increment i by 1.  Otherwise call
@@ -1989,7 +2012,7 @@ min::gen scan_label
 min::gen scan_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::parser parser,
-	  min::gen end_value = min::MISSING() );
+	  min::gen end_value = min::NONE() );
 
 // Skip n tokens.
 //

@@ -773,7 +773,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: bad flag(s) "_" in "ABC_,200":
+ERROR: in line ##: bad flag(s) "_" in "ABC_,200"; bad flag(s) ignored:
 And another- {| x y z |b[ABC_,200] = (1 2 3),
                          ^^^^^^^^
 BRACKETED EXPRESSION:
@@ -849,7 +849,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: bad flags specifier [5]:
+ERROR: in line ##: bad flags specifier `[5]'; ignored:
 And one more {| |b["A", 201,202, [5]]: t}
                                  ^^^
 BRACKETED EXPRESSION:

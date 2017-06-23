@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 22 16:33:56 EDT 2017
+// Date:	Fri Jun 23 16:38:28 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -181,6 +181,9 @@ static bool data_reformatter_function
 
     if ( attributes != min::MISSING() )
     {
+        min::obj_vec_insptr fvp ( first->value );
+	min::attr_insptr fap ( fvp );
+
         min::obj_vec_ptr paragraph ( attributes );
 	for ( min::uns32 i = 0;
 	      i < min::size_of ( paragraph ); ++ i )
@@ -231,6 +234,83 @@ static bool data_reformatter_function
 		      " found; line ignored" );
 		continue;
 	    }
+
+	    min::locatable_gen value ( min::TRUE );
+	    bool is_multivalue = false;
+
+	    if ( j + 1 == lsize )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		PAR::parse_error
+		    ( parser, ppvec[j],
+		      "after `",
+		      min::pgen_never_quote
+			  ( args[1] ),
+		      "' argument value was expected"
+		      " but not found; line ignored" );
+		continue;
+	    }
+	    else if ( j + 2 == lsize )
+	    {
+	        ++ j;
+		value = line[j++];
+		if ( min::is_obj ( value ) )
+		{
+		    min::obj_vec_ptr vvp ( value );
+		    min::attr_ptr vap ( vvp );
+		    min::locate
+		        ( vap, min::dot_initiator );
+		    is_multivalue =
+			( min::get ( vap ) == args[3] );
+		}
+	    }
+	    else if ( j + 2 < lsize )
+	    {
+		int j0 = j ++;
+		value = PAR::scan_label ( line, j );
+		if ( value == min::MISSING() )
+		{
+		    min::phrase_position_vec ppvec =
+			min::position_of ( line );
+		    PAR::parse_error
+			( parser, ppvec[j0],
+			  "after `",
+			  min::pgen_never_quote
+			      ( args[1] ),
+			  "' attribute value (label or"
+			  " single bracketed"
+			  " subexpression) was"
+			  " expected but none found;"
+			  " line ignored" );
+		    continue;
+		}
+		else if ( j < lsize )
+		{
+		    min::phrase_position_vec ppvec =
+			min::position_of ( line );
+		    min::phrase_position pos =
+		        { (&ppvec[j])->begin,
+			  (&ppvec[lsize-1])->end };
+		    PAR::parse_error
+			( parser, pos,
+			  "extra stuff at end of line;"
+			  " line ignored" );
+		    continue;
+		}
+	    }
+
+	    min::locate ( fap, name );
+
+	    if ( ! is_multivalue )    
+		min::set ( fap, value );
+	    else
+	        PAR::set_attr_multivalue
+		    ( parser, fap, value );
+
+	    if ( flags != min::MISSING() )
+	        PAR::set_attr_flags
+		    ( parser, fap, flags );
 	}
     }
 

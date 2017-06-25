@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 23 16:38:28 EDT 2017
+// Date:	Sun Jun 25 06:41:10 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -312,6 +312,16 @@ static bool data_reformatter_function
 	        PAR::set_attr_flags
 		    ( parser, fap, flags );
 	}
+    }
+
+    min::id_map id_map = parser->id_map;
+    if (    ID >= id_map->length
+         || id_map[ID] == min::NULL_STUB )
+        min::insert
+	    ( id_map, min::stub_of ( first->value),
+	      ID );
+    else
+    {
     }
 
     PAR::trace_subexpression

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 25 06:41:10 EDT 2017
+// Date:	Tue Jul  4 13:48:09 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -314,6 +314,9 @@ static bool data_reformatter_function
 	}
     }
 
+    PAR::trace_subexpression
+	( parser, first, trace_flags );
+
     min::id_map id_map = parser->id_map;
     if (    ID >= id_map->length
          || id_map[ID] == min::NULL_STUB )
@@ -322,10 +325,29 @@ static bool data_reformatter_function
 	      ID );
     else
     {
+        const min::stub * previous = id_map[ID];
+	if (    min::type_of ( previous )
+	     == min::PREALLOCATED )
+	{
+	    const min::stub * value =
+	        min::stub_of ( first->value );
+	    min::stub_swap ( previous, value );
+	}
+	else
+	{
+	    char buffer[300];
+	    sprintf ( buffer, "%c%d defined previously;"
+	                      " new definition ignored",
+			      at, ID );
+	    PAR::parse_error
+		( parser, first->position,
+		  buffer );
+	}
     }
 
-    PAR::trace_subexpression
-	( parser, first, trace_flags );
+    first = first->next;
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->previous ) );
 
     return true;
 }

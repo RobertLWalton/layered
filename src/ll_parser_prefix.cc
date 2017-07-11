@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  4 13:48:09 EDT 2017
+// Date:	Tue Jul 11 07:12:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,16 +143,15 @@ static bool data_reformatter_function
         return true;
 
     min::str_ptr argsp ( args[0] );
-    char expl = argsp[0];
-    char at   = argsp[1];
+    char IDchar   = argsp[0];
 
     min::str_ptr sp ( first->next->value );
     MIN_REQUIRE ( sp );
-    min::unsptr i =
-        ( sp[0] == at ? 1 :
-          ( sp[0] == expl && sp[1] == at ) ? 2 :
-	  0 );
-    if ( i == 0 ) return true;
+    min::unsptr i = 0;
+    min::unsptr splen = min::strlen ( sp );
+    while ( i < splen && sp[i] != IDchar ) ++ i;
+    ++ i;
+    if ( i >= splen ) return true;
     if ( sp[i] == '0' ) return true;
     min::uns32 ID;
     if ( ! min::strto ( ID, sp, i, 10 ) )
@@ -190,17 +189,25 @@ static bool data_reformatter_function
         {
 	    min::obj_vec_ptr line ( paragraph[i] );
 	    min::uns32 lsize = min::size_of ( line );
+
+	    if ( lsize == 0 ) continue;
 	    min::uns32 j = 0;
+	    bool has_negator = false;
+	    if ( line[0] == args[2] )
+	    {
+	        ++ j;
+		has_negator = true;
+	    }
 	    min::locatable_gen name
-	        ( PAR::scan_label
-		      ( line, j, args[1] ) );
+		( PAR::scan_label ( line, j, args[1] ) );
 	    if ( name == min::MISSING() )
 	    {
 		min::phrase_position_vec ppvec =
 		    min::position_of ( paragraph );
 		PAR::parse_error
 		    ( parser, ppvec[i],
-		      "line does not begin with an"
+		      "line does not begin with a"
+		      " (possibly negated)"
 		      " attribute label;"
 		      " line ignored" );
 		continue;
@@ -215,7 +222,7 @@ static bool data_reformatter_function
 	        min::obj_vec_ptr fvp ( line[j] );
 		min::attr_ptr fap ( fvp );
 		min::locate ( fap, min::dot_initiator );
-		if ( min::get ( fap ) == args[2] )
+		if ( min::get ( fap ) == args[3] )
 		    flags = line[j++];
 		message =
 		    "after attribute label flags `";
@@ -235,9 +242,27 @@ static bool data_reformatter_function
 		continue;
 	    }
 
-	    min::locatable_gen value ( min::TRUE );
-	    bool is_multivalue = false;
+	    if ( j < lsize && has_negator )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		PAR::parse_error
+		    ( parser,
+		      ppvec[0],
+		      "negator preceding"
+		      " attribute label"
+		      " that is followed"
+		      " by `",
+		      min::pgen_never_quote
+			  ( args[1] ),
+		      "'; negator"
+		      " ignored" );
+	    }
 
+	    min::locatable_gen value
+	        ( has_negator ? min::FALSE
+		              : min::TRUE );
+	    bool is_multivalue = false;
 	    if ( j + 1 == lsize )
 	    {
 		min::phrase_position_vec ppvec =
@@ -262,7 +287,7 @@ static bool data_reformatter_function
 		    min::locate
 		        ( vap, min::dot_initiator );
 		    is_multivalue =
-			( min::get ( vap ) == args[3] );
+			( min::get ( vap ) == args[4] );
 		}
 	    }
 	    else if ( j + 2 < lsize )
@@ -338,7 +363,7 @@ static bool data_reformatter_function
 	    char buffer[300];
 	    sprintf ( buffer, "%c%d defined previously;"
 	                      " new definition ignored",
-			      at, ID );
+			      IDchar, ID );
 	    PAR::parse_error
 		( parser, first->position,
 		  buffer );
@@ -356,12 +381,10 @@ static void prefix_reformatter_stack_initialize ( void )
 {
     ::initialize();
 
-    // TBD: see untyped_reformatter_stack below.
-
     min::locatable_gen label
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( label, 0, 0, 0,
+        ( label, 0, 5, 5,
 	  ::data_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 }

@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 29, 2017
+July 11, 2017
  
 \end{center}
 
@@ -4358,7 +4358,8 @@ The general syntax is:
 \emkey{attribute-list}\label{ATTRIBUTE-LIST} ::= {\em attribute}~~~%
 	\{ {\em typed-attribute-separator}~~~{\em attribute} \}\STAR{}
 \\[0.5ex]
-\emkey{attribute} \begin{tabular}[t]{@{}rl}
+\emkey{attribute}\label{ATTRIBUTE}
+                  \begin{tabular}[t]{@{}rl}
                   ::= & {\em attribute-label}~~~%
 	                {\em typed-attribute-equal}~~~%
 			{\em single-attribute-value} \\
@@ -4409,19 +4410,19 @@ The general syntax is:
 \emkey{single-attribute-value}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em value} \\
-    $|$ & {\em attribute-multivalue-opening} {\em value}\QMARK{} \\
-        & \{ {\em attribute-multivalue-separator} {\em value}\QMARK{}
+    $|$ & {\em typed-attribute-multivalue-opening} {\em value}\QMARK{} \\
+        & \{ {\em typed-attribute-multivalue-separator} {\em value}\QMARK{}
 	                                       \}\STAR{} \\
-	& {\em attribute-multivalue-closing} \\
+	& {\em typed-attribute-multivalue-closing} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{double-attribute-value}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em object-id} \\
-    $|$ & {\em attribute-multivalue-opening} {\em object-id}\QMARK{} \\
-        & \{ {\em attribute-multivalue-separator} {\em object-id}\QMARK{}
+    $|$ & {\em typed-attribute-multivalue-opening} {\em object-id}\QMARK{} \\
+        & \{ {\em typed-attribute-multivalue-separator} {\em object-id}\QMARK{}
 	                                       \}\STAR{} \\
-	& {\em attribute-multivalue-closing} \\
+	& {\em typed-attribute-multivalue-closing} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{value} ::= {\em label} $|$ {\em bracketed-subexpression}
@@ -4471,15 +4472,15 @@ The general syntax is:
     as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{attribute-multivalue-opening} ::= {\em key} ~~~ [e.g. `\TT{\{*}' ~
+\emkey{typed-attribute-multivalue-opening} ::= {\em key} ~~~ [e.g. `\TT{\{*}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{attribute-multivalue-separator} ::= {\em key} ~~~ [e.g. `\TT{,}' ~
+\emkey{typed-attribute-multivalue-separator} ::= {\em key} ~~~ [e.g. `\TT{,}' ~
     as per \TT{multivalue} reformatter ~
     \pagref{MULTIVALUE-REFORMATTER}]
 \\[0.5ex]
-\emkey{attribute-multivalue-closing} ::= {\em key} ~ [e.g. `\TT{*\}}' ~
+\emkey{typed-attribute-multivalue-closing} ::= {\em key} ~ [e.g. `\TT{*\}}' ~
     as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
@@ -5046,13 +5047,49 @@ represented by a {\em prefix-n-list} headed by a defined prefix:
 \begin{indpar}
 
 \ttmkey{data}{reformatter}
+        \TT{(} {\em ID-sign}\TT{,} {\em equal-sign}\TT{,} {\em negator}\TT{,} 
+	       {\em flags-opening}\TT{,} {\em multivalue-opening} \TT{)}
+	\label{DATAT-REFORMATTER}
+
 
 \begin{indpar}[0.5em]
-The subexpression must have the form
+The subexpression must be a MIN value of the form:
 \begin{center}
-TBD
+\TT{\{data|} {\em ID} ~ {\em equal-sign} ~ {\em element}\STAR{}
+     ~ {\em attribute-indented-paragraph}\QMARK{} \TT{|\}}
 \end{center}
-TBD
+where
+\begin{indpar}
+\emmkey{ID}{in \TT{data} reformatter} :::=
+    {\em prefix-character}\STAR{} ~ {\em ID-character} ~
+    {\em non-zero-digit} ~ {\em digit}\STAR{}
+\\[0.5ex]
+\emmkey{prefix-character}{in \TT{data} reformatter} ::=
+    any character allowed in a {\em numeric} lexeme
+\\[0.5ex]
+\emmkey{ID-character}{in \TT{data} reformatter} ::=
+    first character of the {\em ID-sign} reformatter argument
+    (must be ASCII)
+\\[0.5ex]
+\emmkey{element}{in \TT{data} reformatter} ::=
+    MIN object element
+\\[0.5ex]
+\emmkey{attribute-indented-paragraph}{in \TT{data} reformatter} ::=
+    \hspace{0.5in}
+    \begin{tabular}[t]{ll}
+    & \TT{:} \\
+    {\em attribute-line}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emmkey{attribute-line}{in \TT{data} reformatter} ::=
+    {\em attribute} (\pagref{ATTRIBUTE}) as a logical line where:
+\begin{indpar}[0.5in]
+{\em typed-attribute-equal} ::= {\em equal-sign} \\
+{\em typed-attribute-negator} ::= {\em negator} \\
+{\em typed-attribute-flags-opening} ::= {\em flags-opening} \\
+{\em typed-attribute-multivalue-opening} ::= {\em multivalue-opening}
+\end{indpar}
+\end{indpar}
 \end{indpar}
 
 \end{indpar}
@@ -5433,8 +5470,14 @@ the new value will not take affect until the next logical line.
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph implied header}{line variable}\\
-\hspace*{-0.2in}\ttmkey{paragraph paragraph lexical master}{line variable}\\
-\hspace*{-0.2in}\ttmkey{paragraph line lexical master}{line variable}\\
+\hspace*{-0.2in}\TT{paragraph paragraph lexical master}
+                \index{paragraph paragraph@\TT{paragraph paragraph}!
+		      lexical master@\TT{lexical master}!
+		      line variable}\\
+\hspace*{-0.2in}\TT{paragraph line lexical master}
+                \index{paragraph line@\TT{paragraph line}!
+		      lexical master@\TT{lexical master}!
+		      line variable}\\
     These variables are called the `\key{paragraph line variables}'.
 
     The paragraph line variables

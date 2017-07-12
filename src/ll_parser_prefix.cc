@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 11 07:12:14 EDT 2017
+// Date:	Wed Jul 12 04:30:46 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -374,7 +374,7 @@ static bool data_reformatter_function
     PAR::free ( PAR::remove ( first_ref(parser),
 			      first->previous ) );
 
-    return true;
+    return false;
 }
 
 static void prefix_reformatter_stack_initialize ( void )

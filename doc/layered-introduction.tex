@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 11, 2017
+July 12, 2017
  
 \end{center}
 
@@ -5055,14 +5055,14 @@ represented by a {\em prefix-n-list} headed by a defined prefix:
 \begin{indpar}[0.5em]
 The subexpression must be a MIN value of the form:
 \begin{center}
-\TT{\{data|} {\em ID} ~ {\em equal-sign} ~ {\em element}\STAR{}
+\TT{\{data|} {\em ID} ~ {\em equal-sign} ~ {\em element-list}
      ~ {\em attribute-indented-paragraph}\QMARK{} \TT{|\}}
 \end{center}
 where
 \begin{indpar}
 \emmkey{ID}{in \TT{data} reformatter} :::=
     {\em prefix-character}\STAR{} ~ {\em ID-character} ~
-    {\em non-zero-digit} ~ {\em digit}\STAR{}
+    {\em ID-number}
 \\[0.5ex]
 \emmkey{prefix-character}{in \TT{data} reformatter} ::=
     any character allowed in a {\em numeric} lexeme
@@ -5071,8 +5071,9 @@ where
     first character of the {\em ID-sign} reformatter argument
     (must be ASCII)
 \\[0.5ex]
-\emmkey{element}{in \TT{data} reformatter} ::=
-    MIN object element
+\emkey{ID-number} ::= {\em non-zero-digit} ~ {\em digit}\STAR{}
+\\[0.5ex]
+\emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
 \emmkey{attribute-indented-paragraph}{in \TT{data} reformatter} ::=
     \hspace{0.5in}
@@ -5090,6 +5091,23 @@ where
 {\em typed-attribute-multivalue-opening} ::= {\em multivalue-opening}
 \end{indpar}
 \end{indpar}
+
+The effect of reformatting is to define the object whose identifier
+is `{\em ID-character} {\em ID-number}'.  The object has the
+elements given in the {\em element-list} and the attributes given
+in the {\em attribute-indented-paragraph}.  These are formatted
+in the same manner as for {\em typed-bracketed-subexpressions}
+(see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
+
+The \TT{\{data| \ldots{} |\}} expression itself is deleted from
+the input and can have no effect other than that just mentioned.
+Any failure of the \TT{\{data| \ldots{} |\}} expression to begin
+with the prescribed first two elements results in the reformatter doing nothing
+and the expression \underline{not} being deleted.  However
+syntax errors in an {\em attribute-indented-paragraph} result in
+parsing error messages indicating per-{\em attribute-line}
+fixups.
+
 \end{indpar}
 
 \end{indpar}

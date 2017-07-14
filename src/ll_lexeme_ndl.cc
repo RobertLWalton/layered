@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 21:00:14 EST 2016
+// Date:	Fri Jul 14 05:07:20 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -331,7 +331,7 @@ static uns32 pop_instruction_group ( uns32 line_number )
 	        LEX::translate_to_length
 		    ( (&ci)->operation );
 
-        min::ptr<uns32> translation_vector =
+        min::ptr<Uchar> translation_vector =
 	    LEX::NULL_TV();
 	uns32 length = uns32_stack->length;
 	MIN_REQUIRE ( translate_to_length <= length );
@@ -644,7 +644,7 @@ void LEXNDL::sub_chars ( const char * ASCII_chars )
     internal_add_sub_chars ( ASCII_chars, true );
 }
 
-void LEXNDL::add_char ( uns32 c )
+void LEXNDL::add_char ( Uchar c )
 {
     FUNCTION ( "add_char" );
     ASSERT ( state == INSIDE_TABLE
@@ -665,7 +665,7 @@ void LEXNDL::add_char ( uns32 c )
     ctype_map[c] = t;
 }
 
-void LEXNDL::sub_char ( uns32 c )
+void LEXNDL::sub_char ( Uchar c )
 {
     FUNCTION ( "sub_char" );
     ASSERT ( state == INSIDE_TABLE
@@ -853,13 +853,13 @@ void LEXNDL::translate_to
 	( const char * translation_string )
 {
     uns32 length = strlen ( translation_string );
-    uns32 buffer[length];
+    Uchar buffer[length];
     for ( uns32 i = 0; i < length; ++ i )
         buffer[i] = (uns8) translation_string[i];
     LEXNDL::translate_to ( length, buffer );
 }
 void LEXNDL::translate_to
-	( uns32 n, const uns32 * translation_string )
+	( uns32 n, const Uchar * translation_string )
 {
     FUNCTION ( "translate_to" );
     ASSERT ( state == INSIDE_TABLE,

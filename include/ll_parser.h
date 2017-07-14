@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 23 15:14:33 EDT 2017
+// Date:	Fri Jul 14 04:17:41 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@ namespace ll { namespace parser {
     using min::int32;
     using min::uns64;
     using min::NULL_STUB;
+    using min::Uchar;
 
     namespace lexeme {
 
@@ -157,9 +158,9 @@ namespace ll { namespace parser {
 // unreferenceable.
 
 struct string_struct;
-typedef min::packed_vec_ptr<uns32,string_struct>
+typedef min::packed_vec_ptr<Uchar,string_struct>
         string;
-typedef min::packed_vec_insptr<uns32,string_struct>
+typedef min::packed_vec_insptr<Uchar,string_struct>
         string_insptr;
 struct string_struct
 {
@@ -185,10 +186,10 @@ MIN_REF ( ll::parser::string_insptr, next,
 // Allocate a new string and return a pointer to it.
 //
 ll::parser::string new_string
-	( uns32 n, min::ptr<const min::uns32> s );
+	( uns32 n, min::ptr<const min::Uchar> s );
 
 inline ll::parser::string new_string
-	( uns32 n, const uns32 * s )
+	( uns32 n, const Uchar * s )
 {
     return ll::parser::new_string
         ( n, min::new_ptr ( s ) );

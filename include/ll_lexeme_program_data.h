@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 04:09:37 EST 2016
+// Date:	Fri Jul 14 04:35:59 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,7 +61,7 @@ namespace ll { namespace lexeme
 //       whose offsets are given just above; these names
 //       are UTF-8 NUL terminated character strings.
 //
-// Name offsets are in characters (not uns32's).
+// Name offsets are in 8-bit characters (not uns32's).
 //
 // The default master table always has master table
 // index 0.  There is always at least one master table.
@@ -306,8 +306,7 @@ struct map_element {
 const uns32 map_element_length = 3;
 
 // Instruction.  If operation includes TRANSLATE_TO(n)
-// this is followed by the n uns32 characters of the
-// translation.
+// this is followed by the n Uchars of the translation.
 //
 struct instruction_header {
     uns32 pctype;	    // == INSTRUCTION

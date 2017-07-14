@@ -2,7 +2,8 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 04:45:11 EDT 2017
+// Date:	Fri Jul 14 04:27:22 EDT 2017
+//
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,6 +39,7 @@ namespace ll { namespace lexeme {
     using min::uns8;
     using min::uns32;
     using min::uns64;
+    using min::Uchar;
 
     // (const min::stub *) NULL value.
     //
@@ -95,12 +97,12 @@ namespace ll { namespace lexeme {
 	    // the min::IS_HSPACE or min::IS_GRAPHIC
 	    // flags do not change the indent.
 
-	uns32	character;
+	Uchar	character;
     };
 
     typedef min::packed_vec_insptr<inchar>
             input_buffer;
-    typedef min::packed_vec_insptr<uns32>
+    typedef min::packed_vec_insptr<Uchar>
             translation_buffer;
 
     struct scanner_struct;
@@ -289,12 +291,12 @@ namespace ll { namespace lexeme {
     //
     inline min::ptr<uns32> NULL_TV ( void )
     {
-        return min::ptr<uns32>();
+        return min::ptr<Uchar>();
     }
     uns32 create_instruction
 	    ( uns32 line_number,
 	      uns32 operation,
-	      min::ptr<uns32> translation_vector =
+	      min::ptr<Uchar> translation_vector =
 	          NULL_TV(),
 	      uns32 atom_table_ID = 0,
 	      uns32 require_dispatcher_ID = 0,
@@ -1056,7 +1058,7 @@ namespace ll { namespace lexeme {
 	    ( min::ref<ll::lexeme::scanner> scanner,
               min::file input_file );
 
-    // Scan the input and return the next lexeme or
+    // Scan the input and return the next lexeme type or
     // SCAN_ERROR.
     //
     // When a lexeme is returned, the first and next
@@ -1156,8 +1158,8 @@ namespace ll { namespace lexeme {
     //       << min::restore_print_format
     //
     struct pgraphic {
-        uns32 c;
-	pgraphic ( uns32 c ) : c ( c ) {}
+        Uchar c;
+	pgraphic ( Uchar c ) : c ( c ) {}
     };
 
     // printer << pmode ( program, m ) prints the mode

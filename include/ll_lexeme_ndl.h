@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_ndl.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 19 05:37:18 EDT 2017
+// Date:	Fri Jul 14 04:58:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,7 @@
 //      using ll::lexeme::ndl::NONE;
 //      using ll::lexeme::ndl::OTHERS;
 //      using ll::lexeme::ndl::uns32;
+//      using ll::lexeme::ndl::Uchar;
 //
 //	const uns32 max_master = ...
 //	const char * const master_names[max_master+1] =
@@ -138,7 +139,7 @@
 //      // List of ASCII characters to be added to or
 //      // subtracted from dispatcher character set.
 //
-//   <UNICODE-char> ::= uns32 character code
+//   <UNICODE-char> ::= Uchar character code
 //      // Unicode character to be added to or subtract-
 //      // ed from dispatcher character set.  Must be
 //      // < 256 (i.e., LATIN1 or ASCII).
@@ -270,7 +271,7 @@
 //   <ascii-translation-string> ::=
 //         C++ const char * string
 //   <UNICODE-translation-string> ::=
-//         C++ const uns32 * string
+//         C++ const Uchar * string
 //
 //   <require-component> ::=
 //	  NDL::require ( <atom-pattern-name> );
@@ -346,6 +347,7 @@
 namespace ll { namespace lexeme { namespace ndl {
 
     using ll::lexeme::uns32;
+    using ll::lexeme::Uchar;
     using ll::lexeme::MASTER;
     using ll::lexeme::ATOM;
     using ll::lexeme::NONE;
@@ -383,8 +385,8 @@ namespace ll { namespace lexeme { namespace ndl {
 
     void add_chars ( const char * ASCII_chars );
     void sub_chars ( const char * ASCII_chars );
-    void add_char ( uns32 c );
-    void sub_char ( uns32 c );
+    void add_char ( Uchar c );
+    void sub_char ( Uchar c );
     void add_category ( const char * category );
     void sub_category ( const char * category );
 
@@ -405,7 +407,7 @@ namespace ll { namespace lexeme { namespace ndl {
     void translate_to
         ( const char * translation_string );
     void translate_to
-        ( uns32 n, const uns32 * translation_string );
+        ( uns32 n, const Uchar * translation_string );
     void translate_oct ( uns32 m, uns32 n );
     void translate_hex ( uns32 m, uns32 n );
     void translate_name ( uns32 m, uns32 n );

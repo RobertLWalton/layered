@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 07:03:17 EDT 2017
+// Date:	Fri Jul 14 04:40:36 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,8 @@ static min::packed_vec<char>
     char_vec_type ( "ll::lexeme::char_vec_type" );
 static min::packed_vec<LEX::uns32>
     uns32_vec_type ( "ll::lexeme::uns32_vec_type" );
+static min::packed_vec<LEX::Uchar>
+    Uchar_vec_type ( "ll::lexeme::Uchar_vec_type" );
 static min::packed_vec<LEX::inchar>
     inchar_vec_type ( "ll::lexeme::inchar_vec_type" );
 static min::packed_struct<LEX::input_struct>
@@ -328,7 +330,7 @@ uns32 LEX::create_dispatcher
 uns32 LEX::create_instruction
 	( uns32 line_number,
 	  uns32 operation,
-	  min::ptr<uns32> translation_vector,
+	  min::ptr<Uchar> translation_vector,
 	  uns32 atom_table_ID,
 	  uns32 require_dispatcher_ID,
 	  uns32 else_instruction_ID,
@@ -815,7 +817,7 @@ static bool default_input_get
 	const char * beginp = ! & file->buffer[offset];
 	const char * endp = beginp + length;
 	const char * p = beginp;
-	uns32 unicode =
+	Uchar unicode =
 	    min::utf8_to_unicode ( p, endp );
 	uns32 bytes_read = p - beginp;
 	MIN_REQUIRE ( length >= bytes_read );
@@ -998,7 +1000,7 @@ void LEX::init ( min::ref<LEX::scanner> scanner )
 	LEX::input_buffer_ref(scanner) =
 	    inchar_vec_type.new_gen();
 	LEX::translation_buffer_ref(scanner) =
-	    uns32_vec_type.new_gen();
+	    Uchar_vec_type.new_gen();
 	scanner->initial_table = 0;
     }
     else
@@ -1232,7 +1234,7 @@ static uns32 print_instruction
 // add translation of atom to translation buffer.
 //
 inline uns32 get_ctype
-	( uns32 c,
+	( Uchar c,
 	  LEX::scanner scanner,
 	  LEX::program program,
 	  uns32 dispatcher_ID,
@@ -1356,7 +1358,7 @@ static uns32 scan_atom
 	MIN_REQUIRE
 	    (   scanner->next + length
 	      < input_buffer->length );
-	uns32 c =
+	Uchar c =
 	    (&input_buffer[scanner->next + length])
 	                ->character;
 	++ length;
@@ -1554,7 +1556,7 @@ static uns32 scan_atom
 			break;
 		    }
 		    tc <<= 4;
-		    uns32 d =
+		    Uchar d =
 			(&input_buffer[p++])->character;
 		    if ( '0' <= d && d <= '9' )
 			tc += d - '0';
@@ -1577,7 +1579,7 @@ static uns32 scan_atom
 			break;
 		    }
 		    tc <<= 3;
-		    uns32 d =
+		    Uchar d =
 			(&input_buffer[p++])->character;
 		    if ( '0' <= d && d <= '7' )
 			tc += d - '0';
@@ -1649,7 +1651,7 @@ static uns32 scan_atom
 		    break;
 		}
 
-		uns32 c = translation_buffer
+		Uchar c = translation_buffer
 			      [tnext + tlength];
 		++ tlength;
 
@@ -1757,7 +1759,7 @@ static uns32 scan_atom
 		min::push
 		    ( translation_buffer,
 		      translate_to_length,
-		      min::ptr<const uns32>
+		      min::ptr<const Uchar>
 		          ( ihp + 1 ) );
 	}
 	else if ( ! ( op & (   MATCH
@@ -2736,7 +2738,7 @@ struct pclist {
     min::printer printer;
     bool empty;
 
-    uns32 c1, c2;
+    Uchar c1, c2;
         // If not empty then the range c1-c2 (or just c1
 	// if c1 == c2) needs to be printed.  This is
 	// delayed to allow c2 to grow.
@@ -2771,7 +2773,7 @@ struct pclist {
     // Add c to the list of characters printed.  Must be
     // called in order of increasing c.
     //
-    void add ( uns32 c )
+    void add ( Uchar c )
     {
 	MIN_REQUIRE ( empty || this->c2 < c );
 
@@ -2862,7 +2864,7 @@ static uns32 print_cooked_dispatcher
 	    continue;
 
 	pclist pcl ( printer );
-	for ( min::Uchar c = 0;
+	for ( Uchar c = 0;
 	      c < min::unicode::index_size; ++ c )
 	{
 	    uns32 cindex = min::Uindex ( c );

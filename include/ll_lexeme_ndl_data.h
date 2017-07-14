@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_ndl_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  2 20:49:42 EDT 2015
+// Date:	Fri Jul 14 05:09:08 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,7 @@ namespace ll { namespace lexeme
 
     using ll::lexeme::uns8;
     using ll::lexeme::uns32;
+    using ll::lexeme::Uchar;
 
     // Various things are pushed into and popped from
     // the following stacks:

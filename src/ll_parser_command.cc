@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 14 21:57:53 EDT 2017
+// Date:	Fri Jul 14 22:24:01 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1519,6 +1519,11 @@ static min::gen execute_ID_character
 	min::strcpy ( buffer, sp );
 	const char * p = buffer, * endp = buffer + slen;
 	ID_character = min::utf8_to_unicode ( p, endp );
+	if ( ID_character == min::NO_UCHAR )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "quoted string contains incomplete"
+		  " UTF-8 character" );
 	if ( * p != 0 )
 	    return PAR::parse_error
 		( parser, ppvec[i],
@@ -1827,7 +1832,7 @@ void COM::parser_execute_command
 		  vp[1] == PARLEX::ID
 		  &&
 		  vp[2] == PARLEX::character )
-	    result = ::execute_mapped_lexeme
+	    result = ::execute_ID_character
 			( vp, 0, ppvec, parser );
 	else if ( vp[0] == ::trace
 		  &&

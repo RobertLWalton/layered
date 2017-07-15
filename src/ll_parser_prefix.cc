@@ -199,7 +199,8 @@ static bool data_reformatter_function
 		has_negator = true;
 	    }
 	    min::locatable_gen name
-		( PAR::scan_label ( line, j, args[1] ) );
+		( PAR::scan_label
+		      ( line, j, args[1] ) );
 	    if ( name == min::MISSING() )
 	    {
 		min::phrase_position_vec ppvec =

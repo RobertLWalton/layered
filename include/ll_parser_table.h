@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 04:39:30 EDT 2017
+// Date:	Fri Jul 14 20:40:20 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -469,6 +469,9 @@ struct block_struct
 
     ll::parser::table::flags saved_trace_flags;
     	// Top level trace flags when block begins.
+
+    ll::parser::table::flags saved_ID_character;
+    	// ID_character when block begins.
 };
 
 typedef min::packed_vec_insptr
@@ -493,7 +496,8 @@ inline void push_block
 	  min::uns32 paragraph_lexical_master,
 	  min::uns32 line_lexical_master,
 	  ll::parser::table::flags selectors,
-	  ll::parser::table::flags trace_flags )
+	  ll::parser::table::flags trace_flags,
+	  min::Uchar ID_character )
 {
     ll::parser::table::block_struct b =
         { name,
@@ -501,7 +505,7 @@ inline void push_block
 	  undefined_stack->length,
 	  paragraph_lexical_master,
 	  line_lexical_master,
-	  selectors, trace_flags };
+	  selectors, trace_flags, ID_character };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );

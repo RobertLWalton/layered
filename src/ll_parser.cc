@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 23 16:19:26 EDT 2017
+// Date:	Fri Jul 14 21:52:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,6 +110,8 @@ min::locatable_gen PARLEX::disabled;
 min::locatable_gen PARLEX::star_parser;
 min::locatable_gen PARLEX::parser_colon;
 min::locatable_gen PARLEX::parser_test_colon;
+min::locatable_gen PARLEX::ID;
+min::locatable_gen PARLEX::character;
 
 min::locatable_gen PAR::PRINTED;
 
@@ -235,6 +237,9 @@ static void initialize ( void )
         min::new_lab_gen ( "*PARSER*", ":" );
     PARLEX::parser_test_colon =
         min::new_lab_gen ( "*PARSER*", "*TEST*", ":" );
+    PARLEX::ID = min::new_str_gen ( "ID" );
+    PARLEX::character =
+        min::new_str_gen ( "character" );
 
     PAR::PRINTED = min::new_special_gen ( 0 );
 
@@ -745,6 +750,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		        ::keys ) );
 
 	min::init ( id_map_ref ( parser ) );
+	parser->ID_character = min::NO_UCHAR;
 
 	TAB::init_undefined_stack
 	    ( undefined_stack_ref(parser) );
@@ -1475,7 +1481,8 @@ min::gen PAR::begin_block
 		      parser->paragraph_lexical_master,
 		      parser->line_lexical_master,
 		      parser->selectors,
-		      parser->trace_flags );
+		      parser->trace_flags,
+		      parser->ID_character );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
@@ -1558,6 +1565,7 @@ min::gen PAR::end_block
         (&b)->saved_line_lexical_master;
     parser->selectors = (&b)->saved_selectors;
     parser->trace_flags = (&b)->saved_trace_flags;
+    parser->ID_character = (&b)->saved_ID_character;
 
     min::pop ( parser->block_stack );
 

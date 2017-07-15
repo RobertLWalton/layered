@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 14 21:59:46 EDT 2017
+// Date:	Sat Jul 15 04:52:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -530,6 +530,37 @@ inline ll::parser::token remove
     }
 }
 
+// Given a token value, return the token type and token
+// value_type appropriate to that token value.  This
+// is as follows:
+//
+//     If the token value is an object with either an
+//     .initiator or a .terminator, the token type is
+//     BRACKETED and the token value_type is the
+//     .initiator.
+//
+//     Otherwise if the token value is an object with
+//     a .type and NO elements, the token type is PREFIX
+//     and the token value_type is the .type.
+//
+//     Otherwise if the token value is an object with a
+//     .type and SOME elements, the token type is
+//     BRACKETED and the token value type is MISSING.
+//
+//     Otherwise if the token value is an object, the
+//     token type is BRACKATABLE and the token value
+//     type is MISSING.
+//
+//     Otherwise if the token value is not NONE, the
+//     token type is DERIVED and the token value type is
+//     MISSING.
+//
+//     Otherwise if the token value is NONE, the token
+//     type is 0 and the token value type is MISSING.
+//
+min::uns32 find_token_type 
+	( min::ref<min::gen> value_type,
+	  min::gen value );
 } }
 
 // Parser Closures

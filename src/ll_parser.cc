@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 14 21:52:19 EDT 2017
+// Date:	Sat Jul 15 07:01:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -456,6 +456,49 @@ void PAR::set_max_token_free_list_size ( int n )
         min::deallocate ( token );
 	-- ::number_free_tokens;
     }
+}
+
+min::uns32 PAR::find_token_type 
+	( min::ref<min::gen> value_type,
+	  min::gen value )
+{
+    value_type = min::MISSING();
+
+    if ( min::is_obj ( value ) )
+    {
+	min::obj_vec_ptr vp ( value );
+	min::attr_ptr ap ( vp );
+	min::locate ( ap, min::dot_type  );
+	min::gen type = min::get ( ap );
+	min::locate ( ap, min::dot_initiator  );
+	min::gen initiator = min::get ( ap );
+	min::locate ( ap, min::dot_terminator  );
+	min::gen terminator = min::get ( ap );
+
+	if ( initiator != min::NONE()
+	     ||
+	     terminator != min::NONE() )
+	{
+	    value_type = initiator;
+	    return PAR::BRACKETED;
+	}
+	else if ( type != min::NONE() )
+	{
+	    if ( min::size_of ( vp ) == 0 )
+	    {
+		value_type = type;
+		return PAR::PREFIX;
+	    }
+	    else
+		return PAR::BRACKETED;
+	}
+	else
+	    return PAR::BRACKETABLE;
+    }
+    else if ( value != min::NONE() )
+	return PAR::DERIVED;
+    else
+	return 0;
 }
 
 // Parser Closures

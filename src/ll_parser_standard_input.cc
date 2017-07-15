@@ -69,6 +69,8 @@ static void erroneous_atom_announce
 void PARSTD::init_input
 	( min::ref<PAR::parser> parser )
 {
+    MIN_REQUIRE ( parser->scanner == min::NULL_STUB );
+
     PAR::init ( PARSTD::input,
                 ::input_add_tokens,
 		::input_init );
@@ -164,6 +166,7 @@ static min::uns32 input_add_tokens
     min::locatable_var<PAR::token> token;
     TAB::lexeme_map lexeme_map = parser->lexeme_map;
     min::uns32 lexeme_map_length = lexeme_map->length;
+    min::Uchar ID_character = parser->ID_character;
     TAB::flags selectors = parser->selectors;
     while ( true )
     {
@@ -290,8 +293,57 @@ SCAN_NEXT_LEXEME:
 		  translation_buffer->length );
 	    break;
 	}
-	case LEXSTD::quoted_string_t:
 	case LEXSTD::numeric_t:
+	{
+	    min::uns32 length =
+	        translation_buffer->length;
+	    if (    length >= 2
+	         &&    translation_buffer[0]
+		    == ID_character
+		 &&
+		 ( translation_buffer[1] != '0'
+		   ||
+		   length == 2 ) )
+	    {
+	        min::uns32 ID = 0;
+		min::uns32 i = 1;
+		const min::uns32 ID_limit =
+		    ( 0xFFFFFFFF - 9 ) / 10;
+		for ( ; i < length; ++ i )
+		{
+		    min::Uchar c =
+		        translation_buffer[i];
+		    if ( c < '0' || '9' < c ) break;
+		    if ( ID > ID_limit ) break;
+		    ID = 10 * ID + ( c - '0' );
+		}
+		if ( i == length )
+		{
+		    // numeric token has the right
+		    // format.
+		    //
+		    min::id_map id_map = parser->id_map;
+		    if (    ID >= id_map->length
+			 || id_map[ID] == min::NULL_STUB )
+		    {
+		        const min::stub * s =
+			  min::new_preallocated_stub();
+			min::insert ( id_map, s, ID );
+		    }
+		    PAR::value_ref(token) =
+		        min::new_stub_gen ( id_map[ID] );
+		    token->type = PAR::find_token_type
+		    	( PAR::value_type_ref(token),
+			  token->value );
+		    PAR::string_ref(token) =
+			PAR::free_string
+			    ( token->string );
+		    break;
+		}
+		// else fall through
+	    }
+	}
+	case LEXSTD::quoted_string_t:
 	{
 	    int length = translation_buffer->length;
 	    PAR::string_ref(token) =

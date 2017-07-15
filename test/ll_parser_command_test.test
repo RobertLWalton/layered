@@ -308,3 +308,22 @@ BRACKETED EXPRESSION:
     line ###:
 @hello there
 ^^^^^^^^^^^^
+*PARSER*:
+    begin block X
+    define ID character "@"
+    begin block Y
+    define ID character disabled
+    print ID character
+        block Y: disabled
+        block X: `@'
+        block standard: disabled
+        block TOP LEVEL: disabled
+    end block Y
+    print ID character
+        block X: `@'
+        block standard: disabled
+        block TOP LEVEL: disabled
+    end block X
+    print ID character
+        block standard: disabled
+        block TOP LEVEL: disabled

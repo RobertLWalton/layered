@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 16:33:35 EDT 2017
+// Date:	Sat Jul 15 04:40:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,6 +142,35 @@ extern min::locatable_var<ll::parser::input>
 // that are strings and not numbers, in spite of the 1-1
 // correspondence between natural lexeme numbers and
 // strings.
+//
+// This closure function also looks up each token type
+// in the parser lexeme_map and if found does the
+// following:
+//
+//     (1) Resets the lexical master to the lexeme
+//         map entry lexical_master if that is not
+//         ll::lexeme::MISSING_MASTER.
+//
+//     (2) Deletes the token and does nothing else if
+//         the lexical map entry token value is
+//         min::NONE().
+//
+//     (3) Resets the token value from the lexeme map
+//         entry.
+//
+// Lastly this closure function replaces numeric tokens
+// that consist of the parser ID_character (if that is
+// not NO_UCHAR) followed by digits with no high order
+// zeros.  The ID defined by the digits is looked up in
+// the parser id_map, and if found, the token value is
+// replaced by the found value.  If not found, a PRE-
+// ALLOCATED stub is created and installed for the ID
+// in the id_map and as the token value.
+//
+// Whenever the token value is reset according to the
+// parser lexeme_map or id_map, the token type and
+// value_type are reset as per the ll::parser::find_
+// token_type function.
 //
 // This init_input function may only be called if parser
 // or parser->scanner is NULL_STUB.  This function

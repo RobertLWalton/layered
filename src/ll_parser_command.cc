@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 17:00:55 EDT 2017
+// Date:	Fri Jul 14 21:57:53 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 //	Execute Selectors
 //	Execute Top Level
 //	Execute Mapped Lexeme
+//	Execute ID Character
 //	Execute Test
 //	Execute Trace
 //	Execute Block
@@ -1418,6 +1419,124 @@ static min::gen execute_mapped_lexeme
 }
 
 
+// Execute ID Character
+// ------- -- ---------
+
+static min::gen execute_ID_character
+	( min::obj_vec_ptr & vp, min::uns32 i0,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    min::uns32 size = min::size_of ( vp );
+    MIN_REQUIRE ( size >= i0 + 3 );
+
+    min::gen command = vp[i0];
+
+    min::uns32 i = i0 + 3;
+
+    if ( command == PARLEX::print )
+    {
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "unexpected stuff after" );
+
+	min::uns32 indent =
+	    COM::print_command ( parser, ppvec );
+
+	parser->printer
+	    << min::bom << min::no_auto_break
+	    << min::set_indent ( indent + 4 );
+
+	min::Uchar ID_character = parser->ID_character;
+	for ( min::uns32 i =
+		  parser->block_stack->length;
+	      0 <= i; -- i )
+	{
+	    min::gen block_name =
+		( i == 0 ?
+		  (min::gen) PARLEX::top_level :
+		  (&parser->block_stack[i-1])
+		      ->name );
+
+	    parser->printer << min::indent
+			    << "block "
+			    << min::pgen_name
+				 ( block_name )
+			    << ": ";
+	    if ( ID_character == min::NO_UCHAR )
+		parser->printer << "disabled";
+	    else
+		parser->printer
+		    << "`"
+		    << min::punicode ( ID_character )
+		    << "'";
+
+	    if ( i == 0 ) break;
+
+	    TAB::block_struct b =
+		parser->block_stack[i-1];
+	    ID_character = b.saved_ID_character;
+	}
+
+	parser->printer << min::eom;
+	return PAR::PRINTED;
+    }
+
+    else if ( command != PARLEX::define )
+	return min::FAILURE();
+
+    else if ( i >= size )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected ID character after" );
+
+    min::Uchar ID_character;
+    if ( vp[i] == PARLEX::disabled )
+	ID_character = min::NO_UCHAR;
+    else
+    {
+	if (    min::get ( vp[i], min::dot_type )
+	     != PARLEX::doublequote )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "expected quoted string" );
+
+	min::obj_vec_ptr svp = vp[i];
+	if ( min::size_of ( svp ) != 1 )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "expected quoted string" );
+
+	min::str_ptr sp = svp[0];
+	min::unsptr slen = min::strlen ( sp );
+	if ( slen > 20 )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "quoted string must have ONLY ONE"
+		  " unicode character" );
+	char buffer[21];
+	min::strcpy ( buffer, sp );
+	const char * p = buffer, * endp = buffer + slen;
+	ID_character = min::utf8_to_unicode ( p, endp );
+	if ( * p != 0 )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "quoted string must have ONLY ONE"
+		  " unicode character" );
+    }
+
+    if ( i + 1 < size )
+	return PAR::parse_error
+	    ( parser, ppvec[i],
+	      "unexpected stuff after" );
+
+    parser->ID_character = ID_character;
+
+    return min::SUCCESS();
+}
+
+
 // Execute Test
 // ------- ----
 
@@ -1701,6 +1820,13 @@ void COM::parser_execute_command
 		  vp[1] == PARLEX::mapped
 		  &&
 		  vp[2] == PARLEX::lexeme )
+	    result = ::execute_mapped_lexeme
+			( vp, 0, ppvec, parser );
+	else if ( size >= 3
+		  &&
+		  vp[1] == PARLEX::ID
+		  &&
+		  vp[2] == PARLEX::character )
 	    result = ::execute_mapped_lexeme
 			( vp, 0, ppvec, parser );
 	else if ( vp[0] == ::trace

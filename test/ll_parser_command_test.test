@@ -327,3 +327,38 @@ BRACKETED EXPRESSION:
     print ID character
         block standard: disabled
         block TOP LEVEL: disabled
+*PARSER*:
+    begin block X
+    define ID character "@"
+    define top level
+        with lexical master DATA-CHECK
+    define mapped lexeme "DATA" [TOP LEVEL]
+        with token value {data}
+    define prefix "data" [TOP LEVEL]
+        with parsing selectors [data]
+        with data reformatter ( "=", "not", "[", "{*" )
+BRACKETED EXPRESSION:
+    {data|{|`hello there {|Bob|}'|}|data}
+    line ###:
+@@
+^^
+BRACKETED EXPRESSION:
+    {data|{|Bob|}|data}
+    line ###:
+@@
+^^
+BRACKETED EXPRESSION:
+    I said {|`hello there {|Bob|}'|}
+    line ###:
+I said @@
+^^^^^^^^^
+*PARSER*:
+    print prefix ""
+        block X: prefix "data" [TOP LEVEL]
+                 with parsing selectors [data]
+                 with data reformatter ( "=", "not", "[",
+                 [< "{" "*" >] )
+    print mapped lexeme ""
+        block X: mapped lexeme "DATA" [TOP LEVEL]
+                 with token value {data||data}
+    end block X

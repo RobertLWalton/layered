@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 12, 2017
+July 16, 2017
  
 \end{center}
 
@@ -4339,7 +4339,7 @@ The general syntax is:
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
-\emkey{opening-type-and-attributes}
+\emkey{opening-type-and-attributes}\label{OPENING-TYPE-AND-ATTRIBUTES}
 	\begin{tabular}[t]{@{}rl}
 	::= & {\em type-label} \\
         $|$ & {\em attribute-list} but not {\em attribute-label} \\
@@ -5047,7 +5047,7 @@ represented by a {\em prefix-n-list} headed by a defined prefix:
 \begin{indpar}
 
 \ttmkey{data}{reformatter}
-        \TT{(} {\em ID-sign}\TT{,} {\em equal-sign}\TT{,} {\em negator}\TT{,} 
+        \TT{(} {\em equal-sign}\TT{,} {\em negator}\TT{,} 
 	       {\em flags-opening}\TT{,} {\em multivalue-opening} \TT{)}
 	\label{DATAT-REFORMATTER}
 
@@ -5055,30 +5055,22 @@ represented by a {\em prefix-n-list} headed by a defined prefix:
 \begin{indpar}[0.5em]
 The subexpression must be a MIN value of the form:
 \begin{center}
-\TT{\{data|} {\em ID} ~ {\em equal-sign} ~ {\em element-list}
-     ~ {\em attribute-indented-paragraph}\QMARK{} \TT{|\}}
+\TT{\{data} {\em prefix-attributes}\QMARK{} \TT{|}
+            {\em ID} ~ {\em equal-sign} ~ {\em element-list}
+     ~ {\em indented-attributes}\QMARK{} \TT{|\}}
 \end{center}
 where
 \begin{indpar}
-\emmkey{ID}{in \TT{data} reformatter} :::=
-    {\em prefix-character}\STAR{} ~ {\em ID-character} ~
-    {\em ID-number}
+\emkey{prefix-attributes} ::= {\em attribute-type-begin} ~ {\em attribute-list}
+			      ~~~ (see \pagref{OPENING-TYPE-AND-ATTRIBUTES})
 \\[0.5ex]
-\emmkey{prefix-character}{in \TT{data} reformatter} ::=
-    any character allowed in a {\em numeric} lexeme
-\\[0.5ex]
-\emmkey{ID-character}{in \TT{data} reformatter} ::=
-    first character of the {\em ID-sign} reformatter argument
-    (must be ASCII)
-\\[0.5ex]
-\emkey{ID-number} ::= {\em non-zero-digit} ~ {\em digit}\STAR{}
+\emkey{ID} ::= ID for preallocated stub (see \pagref{ID})
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
-\emmkey{attribute-indented-paragraph}{in \TT{data} reformatter} ::=
-    \hspace{0.5in}
-    \begin{tabular}[t]{ll}
-    & \TT{:} \\
+\emmkey{indented-attributes}{in \TT{data} reformatter} ::=
+    \begin{tabular}[t]{l}
+    ~~~~~~~~~~\TT{:} {\em end-of-physical-line} \\
     {\em attribute-line}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
@@ -5093,13 +5085,19 @@ where
 \end{indpar}
 
 The effect of reformatting is to define the object whose identifier
-is `{\em ID-character} {\em ID-number}'.  The object has the
+is {\em ID}.  The object has the
 elements given in the {\em element-list} and the attributes given
-in the {\em attribute-indented-paragraph}.  These are formatted
+in the {\em prefix-attributes} and {\em indented-attributes}.
+The {\em prefix-attributes} are parsed when the `\TT{data}' 
+{\em prefix-separator} or {\em typed-bracketed-subexpression} is parsed,
+before this reformatter is invoked.
+The {\em indented-attributes} are parsed by this \TT{data} reformatter
+using its arguments, and
+are formatted
 in the same manner as for {\em typed-bracketed-subexpressions}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
-The \TT{\{data| \ldots{} |\}} expression itself is deleted from
+The \TT{\{data \ldots{}|\ldots{}|\}} expression itself is deleted from
 the input and can have no effect other than that just mentioned.
 Any failure of the \TT{\{data| \ldots{} |\}} expression to begin
 with the prescribed first two elements results in the reformatter doing nothing
@@ -5110,6 +5108,47 @@ fixups.
 
 \end{indpar}
 
+\end{indpar}
+
+\subsubsection{IDs}
+\label{IDS}
+
+A numeric lexeme that consists of an {\em ID-character}
+followed by digits with no leading zeros denotes an `\key{ID}'
+that points to an object or a long string.  In the case of an object,
+the object may not yet be defined, and is represented by
+a `\key{preallocated stub}' that will be filled in later.
+The string must have been previously defined.
+
+The specific form of an ID is:
+
+\begin{indpar}
+
+\emmkey{ID}{in \TT{data} reformatter}\label{ID} :::=
+    {\em ID-character} ~ {\em ID-number}
+\\[0.5ex]
+\emmkey{ID-character}{in \TT{data} reformatter} ::=
+    a unicode character that is a parser parameter (see below)
+\\[0.5ex]
+\emkey{ID-number} ::= {\em non-zero-digit} ~ {\em digit}\STAR{}
+
+\end{indpar}
+
+The {\em ID-number} identifies the particular object or long
+string that is pointed at.
+
+The {\em ID-character} is a parser parameter definable by
+\begin{indpar}[0.1in]
+\emkey{parser-ID-character-command}%
+\label{PARSER-ID-CHARACTER-COMMAND} ::= \\
+\hspace*{3em} \ttmkey{define ID character}{parser command}
+	  ~ {\em ID-character-representative}
+\\[0.5ex]
+\emkey{ID-character-representative} ::=
+     {\em quoted-character} $|$ \TT{disabled}
+\\[0.5ex]
+\emkey{quoted-character} ::=
+    {\em quoted-string} with exactly one {\em character-representative}.
 \end{indpar}
 
 \subsubsection{Mapped Lexemes}

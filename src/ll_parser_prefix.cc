@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 12 04:30:46 EDT 2017
+// Date:	Sun Jul 16 06:23:54 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -131,7 +131,7 @@ static bool data_reformatter_function
     PRE::prefix prefix_entry = (PRE::prefix) entry;
     PAR::reformatter_arguments args =
         prefix_entry->reformatter_arguments;
-    MIN_REQUIRE ( args->length == 2 );
+    MIN_REQUIRE ( args->length == 4 );
 
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
@@ -139,24 +139,13 @@ static bool data_reformatter_function
 
     if ( first->next->next->value != args[1] )
         return true;
-    if ( first->next->type != LEXSTD::numeric_t )
+    if ( first->next->type != PAR::DERIVED
+         &&
+	    min::type_of ( first->next->value )
+	 != min::PREALLOCATED )
         return true;
 
-    min::str_ptr argsp ( args[0] );
-    char IDchar   = argsp[0];
-
-    min::str_ptr sp ( first->next->value );
-    MIN_REQUIRE ( sp );
-    min::unsptr i = 0;
-    min::unsptr splen = min::strlen ( sp );
-    while ( i < splen && sp[i] != IDchar ) ++ i;
-    ++ i;
-    if ( i >= splen ) return true;
-    if ( sp[i] == '0' ) return true;
-    min::uns32 ID;
-    if ( ! min::strto ( ID, sp, i, 10 ) )
-        return true;
-    if ( sp[i] != 0 ) return true;
+    min::locatable_gen ID_gen ( first->next->value );
 
     PAR::free ( PAR::remove ( first_ref(parser),
 			      first->next  ) );
@@ -223,7 +212,7 @@ static bool data_reformatter_function
 	        min::obj_vec_ptr fvp ( line[j] );
 		min::attr_ptr fap ( fvp );
 		min::locate ( fap, min::dot_initiator );
-		if ( min::get ( fap ) == args[3] )
+		if ( min::get ( fap ) == args[2] )
 		    flags = line[j++];
 		message =
 		    "after attribute label flags `";
@@ -288,7 +277,7 @@ static bool data_reformatter_function
 		    min::locate
 		        ( vap, min::dot_initiator );
 		    is_multivalue =
-			( min::get ( vap ) == args[4] );
+			( min::get ( vap ) == args[3] );
 		}
 	    }
 	    else if ( j + 2 < lsize )
@@ -343,33 +332,10 @@ static bool data_reformatter_function
     PAR::trace_subexpression
 	( parser, first, trace_flags );
 
-    min::id_map id_map = parser->id_map;
-    if (    ID >= id_map->length
-         || id_map[ID] == min::NULL_STUB )
-        min::insert
-	    ( id_map, min::stub_of ( first->value),
-	      ID );
-    else
-    {
-        const min::stub * previous = id_map[ID];
-	if (    min::type_of ( previous )
-	     == min::PREALLOCATED )
-	{
-	    const min::stub * value =
-	        min::stub_of ( first->value );
-	    min::stub_swap ( previous, value );
-	}
-	else
-	{
-	    char buffer[300];
-	    sprintf ( buffer, "%c%d defined previously;"
-	                      " new definition ignored",
-			      IDchar, ID );
-	    PAR::parse_error
-		( parser, first->position,
-		  buffer );
-	}
-    }
+    const min::stub * ID_stub = min::stub_of ( ID_gen );
+    const min::stub * value_stub =
+        min::stub_of ( first->value );
+    min::stub_swap ( ID_stub, value_stub );
 
     first = first->next;
     PAR::free ( PAR::remove ( first_ref(parser),

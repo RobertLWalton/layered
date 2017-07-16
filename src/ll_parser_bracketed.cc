@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 01:43:55 EDT 2017
+// Date:	Sun Jul 16 16:31:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2089,6 +2089,8 @@ PARSE_PREFIX_N_LIST:
 	    if ( separator_found )
 	        position.end = separator_found;
 
+	    min::gen old_prefix_value_type =
+	        prefix->value_type;
 	    if ( ( prefix_entry == min::NULL_STUB
 	           ||
 		      prefix_entry->reformatter
@@ -2132,8 +2134,6 @@ PARSE_PREFIX_N_LIST:
 		 == cstack.closing_next )
 		return separator_found;
 
-	    min::gen old_prefix_value_type =
-	        prefix->value_type;
 	    prefix = cstack.prefix
 		   = cstack.closing_first;
 

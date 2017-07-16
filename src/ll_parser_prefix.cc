@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 06:23:54 EDT 2017
+// Date:	Sun Jul 16 16:08:35 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -132,12 +132,10 @@ static bool data_reformatter_function
     PAR::reformatter_arguments args =
         prefix_entry->reformatter_arguments;
     MIN_REQUIRE ( args->length == 4 );
-
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
-
-    if ( first->next->next->value != args[1] )
+    if ( first->next->next->value != args[0] )
         return true;
     if ( first->next->type != PAR::DERIVED
          &&
@@ -167,9 +165,19 @@ static bool data_reformatter_function
 	  min::MISSING_POSITION, min::NULL_STUB,
 	  trace_flags, true );
 
+    {
+	min::obj_vec_insptr fvp ( first->value );
+	min::attr_insptr fap ( fvp );
+
+	// Remove .type.
+	//
+	min::locate ( fap, min::dot_type );
+	min::set ( fap, min::NONE() );
+    }
+
     if ( attributes != min::MISSING() )
     {
-        min::obj_vec_insptr fvp ( first->value );
+	min::obj_vec_insptr fvp ( first->value );
 	min::attr_insptr fap ( fvp );
 
         min::obj_vec_ptr paragraph ( attributes );
@@ -182,14 +190,14 @@ static bool data_reformatter_function
 	    if ( lsize == 0 ) continue;
 	    min::uns32 j = 0;
 	    bool has_negator = false;
-	    if ( line[0] == args[2] )
+	    if ( line[0] == args[1] )
 	    {
 	        ++ j;
 		has_negator = true;
 	    }
 	    min::locatable_gen name
 		( PAR::scan_label
-		      ( line, j, args[1] ) );
+		      ( line, j, args[0] ) );
 	    if ( name == min::MISSING() )
 	    {
 		min::phrase_position_vec ppvec =
@@ -218,7 +226,7 @@ static bool data_reformatter_function
 		    "after attribute label flags `";
 	    }
 
-	    if ( j < lsize && line[j] != args[1] )
+	    if ( j < lsize && line[j] != args[0] )
 	    {
 		min::phrase_position_vec ppvec =
 		    min::position_of ( line );
@@ -226,7 +234,7 @@ static bool data_reformatter_function
 		    ( parser, ppvec[j],
 		      message,
 		      min::pgen_never_quote
-			  ( args[1] ),
+			  ( args[0] ),
 		      "' was expected but not"
 		      " found; line ignored" );
 		continue;
@@ -244,7 +252,7 @@ static bool data_reformatter_function
 		      " that is followed"
 		      " by `",
 		      min::pgen_never_quote
-			  ( args[1] ),
+			  ( args[0] ),
 		      "'; negator"
 		      " ignored" );
 	    }
@@ -261,7 +269,7 @@ static bool data_reformatter_function
 		    ( parser, ppvec[j],
 		      "after `",
 		      min::pgen_never_quote
-			  ( args[1] ),
+			  ( args[0] ),
 		      "' argument value was expected"
 		      " but not found; line ignored" );
 		continue;
@@ -292,7 +300,7 @@ static bool data_reformatter_function
 			( parser, ppvec[j0],
 			  "after `",
 			  min::pgen_never_quote
-			      ( args[1] ),
+			      ( args[0] ),
 			  "' attribute value (label or"
 			  " single bracketed"
 			  " subexpression) was"
@@ -351,7 +359,7 @@ static void prefix_reformatter_stack_initialize ( void )
     min::locatable_gen label
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( label, 0, 5, 5,
+        ( label, 0, 4, 4,
 	  ::data_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 }

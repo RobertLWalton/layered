@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 22:48:18 EDT 2017
+// Date:	Sun Jul 16 22:09:40 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -324,14 +324,16 @@ SCAN_NEXT_LEXEME:
 		    //
 		    min::id_map id_map = parser->id_map;
 		    if (    ID >= id_map->length
-			 || id_map[ID] == min::NULL_STUB )
+			 ||    id_map[ID]
+			    == min::NULL_STUB )
 		    {
 		        const min::stub * s =
 			  min::new_preallocated_stub();
 			min::insert ( id_map, s, ID );
 		    }
 		    PAR::value_ref(token) =
-		        min::new_stub_gen ( id_map[ID] );
+		        min::new_stub_gen
+			    ( id_map[ID] );
 		    token->type = PAR::find_token_type
 		    	( PAR::value_type_ref(token),
 			  token->value );

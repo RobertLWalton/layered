@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 16:08:35 EDT 2017
+// Date:	Sun Jul 16 22:08:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -165,21 +165,16 @@ static bool data_reformatter_function
 	  min::MISSING_POSITION, min::NULL_STUB,
 	  trace_flags, true );
 
-    {
-	min::obj_vec_insptr fvp ( first->value );
-	min::attr_insptr fap ( fvp );
+    min::obj_vec_insptr fvp ( first->value );
+    min::attr_insptr fap ( fvp );
 
-	// Remove .type.
-	//
-	min::locate ( fap, min::dot_type );
-	min::set ( fap, min::NONE() );
-    }
+    // Remove .type.
+    //
+    min::locate ( fap, min::dot_type );
+    min::set ( fap, min::NONE() );
 
     if ( attributes != min::MISSING() )
     {
-	min::obj_vec_insptr fvp ( first->value );
-	min::attr_insptr fap ( fvp );
-
         min::obj_vec_ptr paragraph ( attributes );
 	for ( min::uns32 i = 0;
 	      i < min::size_of ( paragraph ); ++ i )
@@ -337,13 +332,36 @@ static bool data_reformatter_function
 	}
     }
 
+    if ( attr_size_of ( fvp ) == 1
+         &&
+	 min::is_obj ( fvp[0] ) )
+    {
+        min::attr_info info[2];
+	min::unsptr n = min::get_attrs ( info, 2, fap );
+	if ( n == 0
+	     ||
+	     ( n == 1
+	       &&
+	       info[0].name == min::dot_position
+	       &&
+	       info[0].reverse_attr_count == 0
+	     ) )
+
+	    PAR::value_ref(first) = fvp[0];
+    }
+
+    // Must close fvp before trace_subexpression or
+    // stub_swap.
+    //
+    fvp = min::NULL_STUB;
+
     PAR::trace_subexpression
 	( parser, first, trace_flags );
 
     const min::stub * ID_stub = min::stub_of ( ID_gen );
     const min::stub * value_stub =
         min::stub_of ( first->value );
-    min::stub_swap ( ID_stub, value_stub );
+    MUP::stub_swap ( ID_stub, value_stub );
 
     first = first->next;
     PAR::free ( PAR::remove ( first_ref(parser),

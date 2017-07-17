@@ -338,7 +338,7 @@ BRACKETED EXPRESSION:
         with parsing selectors [data]
         with data reformatter ( "=", "not", "[", "{*" )
 BRACKETED EXPRESSION:
-    {data|{|`hello there {|Bob|}'|}|data}
+    {data|`hello there {|Bob|}'|data}
     line ###:
 @@
 ^^
@@ -348,7 +348,7 @@ BRACKETED EXPRESSION:
 @@
 ^^
 BRACKETED EXPRESSION:
-    I said {|`hello there {|Bob|}'|}
+    I said `hello there {|Bob|}'
     line ###:
 I said @@
 ^^^^^^^^^

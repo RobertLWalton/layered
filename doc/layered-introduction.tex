@@ -5097,6 +5097,18 @@ are formatted
 in the same manner as for {\em typed-bracketed-subexpressions}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
+As a special case, if there is only one element and no attributes
+except \TT{.position}, and if the only element is an object,
+then this only element becomes the value assigned to {\em ID}
+in place of the list containing just this element.  E.g.,
+\begin{center}
+\TT{@5 = ( a b c )}
+\end{center}
+sets \TT{@5} to \TT{(a b c)} and \underline{not} \TT{\{|(a b c)|\}}.
+However
+\TT{@5 = Bill}
+sets \TT{@5} to \TT{\{|Bill|\}} and \underline{not} \TT{Bill}.
+
 The \TT{\{data \ldots{}|\ldots{}|\}} expression itself is deleted from
 the input and can have no effect other than that just mentioned.
 Any failure of the \TT{\{data| \ldots{} |\}} expression to begin

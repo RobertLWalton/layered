@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 22:08:12 EDT 2017
+// Date:	Wed Jul 19 05:16:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -138,9 +138,9 @@ static bool data_reformatter_function
     if ( first->next->next->value != args[0] )
         return true;
     if ( first->next->type != PAR::DERIVED
-         &&
-	    min::type_of ( first->next->value )
-	 != min::PREALLOCATED )
+         ||
+	 !  min::is_preallocated
+	        ( first->next->value ) )
         return true;
 
     min::locatable_gen ID_gen ( first->next->value );
@@ -332,9 +332,7 @@ static bool data_reformatter_function
 	}
     }
 
-    if ( attr_size_of ( fvp ) == 1
-         &&
-	 min::is_obj ( fvp[0] ) )
+    if ( min::size_of ( fvp ) == 1 )
     {
         min::attr_info info[2];
 	min::unsptr n = min::get_attrs ( info, 2, fap );
@@ -358,10 +356,24 @@ static bool data_reformatter_function
     PAR::trace_subexpression
 	( parser, first, trace_flags );
 
-    const min::stub * ID_stub = min::stub_of ( ID_gen );
-    const min::stub * value_stub =
-        min::stub_of ( first->value );
-    MUP::stub_swap ( ID_stub, value_stub );
+    if ( min::is_obj ( first->value ) )
+    {
+	const min::stub * ID_stub = min::stub_of ( ID_gen );
+	const min::stub * value_stub =
+	    min::stub_of ( first->value );
+	MUP::stub_swap ( ID_stub, value_stub );
+    }
+    else
+    {
+        min::uns32 ID =
+	    min::id_of_preallocated ( ID_gen );
+	min::id_map map = parser->id_map;
+	MIN_REQUIRE ( ID < map->length );
+	MIN_REQUIRE ( map[ID] == ID_gen );
+	MIN_REQUIRE
+	    ( map->hash_table == min::NULL_STUB );
+	min::insert ( map, first->value, ID );
+    }
 
     first = first->next;
     PAR::free ( PAR::remove ( first_ref(parser),

@@ -338,20 +338,10 @@ BRACKETED EXPRESSION:
         with parsing selectors [data]
         with data reformatter ( "=", "not", "[", "{*" )
 BRACKETED EXPRESSION:
-    {data|`hello there {|Bob|}'|data}
+    {data|PREALLOCATED(4) said `hello there Jack'|data}
     line ###:
-@@
-^^
-BRACKETED EXPRESSION:
-    {data|{|Bob|}|data}
-    line ###:
-@@
-^^
-BRACKETED EXPRESSION:
-    I said `hello there {|Bob|}'
-    line ###:
-I said @@
-^^^^^^^^^
+@@ said @@
+^^^^^^^^^^
 *PARSER*:
     print prefix ""
         block X: prefix "data" [TOP LEVEL]

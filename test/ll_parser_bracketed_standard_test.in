@@ -204,3 +204,21 @@ This logical line is followed by an empty logical line;
   but this {x} is	 
 
 @ this is some data
+!@ this is some raw data
+
+!!@ this is something else
+
+======================
+| this is a row |
+======================
+
+@5 = A B C
+@6 = 1 2 3 :
+	foo = P
+	fum = Q R T
+	fee = @5
+	foe = @7
+	fie = @8
+@7 = {|Z|}
+@8 = XYZ
+@6

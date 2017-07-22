@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 01:59:26 EDT 2017
+// Date:	Sat Jul 22 05:36:46 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 //	Standard Parser Lexeme Map
 //	Standard Parser Brackets
 //	Standard Prefixes
+//	Standard ID Character
 //	Standard Parser Operators
 
 // Usage and Setup
@@ -233,6 +234,14 @@ void init_brackets ( ll::parser::parser parser );
 // standard set of layered language prefixes.
 //
 void init_prefix ( ll::parser::parser parser );
+
+// Standard ID Character
+// -------- -- ---------
+
+// Set the parser->ID_character to the standard ID
+// character.
+//
+void init_ID_character ( ll::parser::parser parser );
 
 
 // Standard Parser Operators

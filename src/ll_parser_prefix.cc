@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 07:47:29 EDT 2017
+// Date:	Sat Jul 22 16:17:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -395,15 +395,305 @@ static bool data_reformatter_function
     return false;
 }
 
+static bool paragraph_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    parser->printer << "PARAGRAPH REFORMATTER" << min::eol;
+    PRE::prefix prefix_entry = (PRE::prefix) entry;
+    PAR::reformatter_arguments args =
+        prefix_entry->reformatter_arguments;
+    for ( min::uns32 i = 0; i < args->length; ++ i )
+	parser->printer << "PARAGRAPH ARGUMENT "
+	                << min::pgen ( args[i] ) << min::eol;
+    return false;
+
+    MIN_REQUIRE ( args->length == 4 );
+    MIN_REQUIRE ( first != next );
+    if ( first->next == next ) return true;
+    if ( first->next->next == next ) return true;
+    if ( first->next->next->value != args[0] )
+        return true;
+    if ( first->next->type != PAR::DERIVED
+         ||
+	 !  min::is_preallocated
+	        ( first->next->value ) )
+        return true;
+
+    min::position end_position =
+        next->previous->position.end;
+
+    min::locatable_gen ID_gen ( first->next->value );
+
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->next  ) );
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->next  ) );
+
+    min::locatable_gen attributes ( min::MISSING() );
+    if ( next->previous != first
+         &&
+	 next->previous->value_type == PARLEX::colon )
+    {
+        attributes = next->previous->value;
+	PAR::free ( PAR::remove ( first_ref(parser),
+			          next->previous  ) );
+    }
+
+    PRE::compact_prefix_list
+        ( parser, pass, selectors, first, next,
+	  min::MISSING_POSITION, min::NULL_STUB,
+	  trace_flags, true );
+
+    min::obj_vec_insptr fvp ( first->value );
+    min::attr_insptr fap ( fvp );
+
+    // Remove .type.
+    //
+    min::locate ( fap, min::dot_type );
+    min::set ( fap, min::NONE() );
+
+    if ( attributes != min::MISSING() )
+    {
+        {
+	    first->position.end = end_position;
+	    min::locate ( fap, min::dot_position );
+	    min::phrase_position_vec_insptr ppvec =
+		min::phrase_position_vec_insptr
+		    ( min::get ( fap ) );
+	    ppvec->position.end = end_position;
+	}
+
+        min::obj_vec_ptr paragraph ( attributes );
+	for ( min::uns32 i = 0;
+	      i < min::size_of ( paragraph ); ++ i )
+        {
+	    min::obj_vec_ptr line ( paragraph[i] );
+	    min::uns32 lsize = min::size_of ( line );
+
+	    if ( lsize == 0 ) continue;
+	    min::uns32 j = 0;
+	    bool has_negator = false;
+	    if ( line[0] == args[1] )
+	    {
+	        ++ j;
+		has_negator = true;
+	    }
+	    min::locatable_gen name
+		( PAR::scan_label
+		      ( line, j, args[0] ) );
+	    if ( name == min::MISSING() )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( paragraph );
+		PAR::parse_error
+		    ( parser, ppvec[i],
+		      "line does not begin with a"
+		      " (possibly negated)"
+		      " attribute label;"
+		      " line ignored" );
+		continue;
+	    }
+
+	    min::gen flags = min::MISSING();
+
+	    const char * message =
+	        "after attribute label `";
+	    if ( j < lsize && min::is_obj ( line[j] ) )
+	    {
+	        min::obj_vec_ptr fvp ( line[j] );
+		min::attr_ptr fap ( fvp );
+		min::locate ( fap, min::dot_initiator );
+		if ( min::get ( fap ) == args[2] )
+		    flags = line[j++];
+		message =
+		    "after attribute label flags `";
+	    }
+
+	    if ( j < lsize && line[j] != args[0] )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		PAR::parse_error
+		    ( parser, ppvec[j],
+		      message,
+		      min::pgen_never_quote
+			  ( args[0] ),
+		      "' was expected but not"
+		      " found; line ignored" );
+		continue;
+	    }
+
+	    if ( j < lsize && has_negator )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		PAR::parse_error
+		    ( parser,
+		      ppvec[0],
+		      "negator preceding"
+		      " attribute label"
+		      " that is followed"
+		      " by `",
+		      min::pgen_never_quote
+			  ( args[0] ),
+		      "'; negator"
+		      " ignored" );
+	    }
+
+	    min::locatable_gen value
+	        ( has_negator ? min::FALSE
+		              : min::TRUE );
+	    bool is_multivalue = false;
+	    if ( j + 1 == lsize )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		PAR::parse_error
+		    ( parser, ppvec[j],
+		      "after `",
+		      min::pgen_never_quote
+			  ( args[0] ),
+		      "' argument value was expected"
+		      " but not found; line ignored" );
+		continue;
+	    }
+	    else if ( j + 2 == lsize )
+	    {
+	        ++ j;
+		value = line[j++];
+		if ( min::is_obj ( value ) )
+		{
+		    min::obj_vec_ptr vvp ( value );
+		    min::attr_ptr vap ( vvp );
+		    min::locate
+		        ( vap, min::dot_initiator );
+		    is_multivalue =
+			( min::get ( vap ) == args[3] );
+		}
+	    }
+	    else if ( j + 2 < lsize )
+	    {
+		int j0 = j ++;
+		value = PAR::scan_label ( line, j );
+		if ( value == min::MISSING() )
+		{
+		    min::phrase_position_vec ppvec =
+			min::position_of ( line );
+		    PAR::parse_error
+			( parser, ppvec[j0],
+			  "after `",
+			  min::pgen_never_quote
+			      ( args[0] ),
+			  "' attribute value (label or"
+			  " single bracketed"
+			  " subexpression) was"
+			  " expected but none found;"
+			  " line ignored" );
+		    continue;
+		}
+		else if ( j < lsize )
+		{
+		    min::phrase_position_vec ppvec =
+			min::position_of ( line );
+		    min::phrase_position pos =
+		        { (&ppvec[j])->begin,
+			  (&ppvec[lsize-1])->end };
+		    PAR::parse_error
+			( parser, pos,
+			  "extra stuff at end of line;"
+			  " line ignored" );
+		    continue;
+		}
+	    }
+
+	    min::locate ( fap, name );
+
+	    if ( ! is_multivalue )    
+		min::set ( fap, value );
+	    else
+	        PAR::set_attr_multivalue
+		    ( parser, fap, value );
+
+	    if ( flags != min::MISSING() )
+	        PAR::set_attr_flags
+		    ( parser, fap, flags );
+	}
+    }
+
+    if ( min::size_of ( fvp ) == 1 )
+    {
+        min::attr_info info[2];
+	min::unsptr n = min::get_attrs ( info, 2, fap );
+	if ( n == 0
+	     ||
+	     ( n == 1
+	       &&
+	       info[0].name == min::dot_position
+	       &&
+	       info[0].reverse_attr_count == 0
+	     ) )
+
+	    PAR::value_ref(first) = fvp[0];
+    }
+
+    // Must close fvp before trace_subexpression or
+    // stub_swap.
+    //
+    fvp = min::NULL_STUB;
+
+    PAR::trace_subexpression
+	( parser, first, trace_flags );
+
+    if ( min::is_obj ( first->value ) )
+    {
+	const min::stub * ID_stub =
+	    min::stub_of ( ID_gen );
+	const min::stub * value_stub =
+	    min::stub_of ( first->value );
+	MUP::stub_swap ( ID_stub, value_stub );
+    }
+    else
+    {
+        min::uns32 ID =
+	    min::id_of_preallocated ( ID_gen );
+	min::id_map map = parser->id_map;
+	MIN_REQUIRE ( ID < map->length );
+	MIN_REQUIRE ( map[ID] == ID_gen );
+	MIN_REQUIRE
+	    ( map->hash_table == min::NULL_STUB );
+	min::insert ( map, first->value, ID );
+    }
+
+    first = first->next;
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->previous ) );
+
+    return false;
+}
+
 static void prefix_reformatter_stack_initialize ( void )
 {
     ::initialize();
 
-    min::locatable_gen label
+    min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( label, 0, 4, 4,
+        ( data_name, 0, 4, 4,
 	  ::data_reformatter_function,
+	  PRE::prefix_reformatter_stack );
+
+    min::locatable_gen paragraph_name
+        ( min::new_str_gen ( "paragraph" ) );
+    PAR::push_reformatter
+        ( paragraph_name, 0, 2, 100,
+	  ::paragraph_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 }
 static min::initializer prefix_reformatter_initializer

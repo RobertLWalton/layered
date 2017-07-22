@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 07:15:07 EDT 2017
+// Date:	Sat Jul 22 16:14:22 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2347,6 +2347,7 @@ min::gen PAR::scan_name
         PAR::scan_quoted_key ( vp, i, parser );
     if ( result != min::MISSING() ) return result;
 
+    min::uns32 original_i = i;
     result = PAR::scan_simple_name ( vp, i, end_value );
 
     if ( result != min::MISSING() ) return result;
@@ -2354,8 +2355,6 @@ min::gen PAR::scan_name
     min::attr_ptr ap ( vp );
     min::locate ( ap, min::dot_position );
     min::phrase_position_vec ppvec = min::get ( ap );
-    MIN_ASSERT ( i > 0,
-                 "position at beginning of vector" );
     MIN_ASSERT ( ppvec != min::NULL_STUB,
                  ".position attribute missing" );
     MIN_ASSERT ( ppvec->file == parser->input_file,
@@ -2363,9 +2362,9 @@ min::gen PAR::scan_name
 		 " not the same as parser input_file" );
 
     return PAR::parse_error
-               ( parser, ppvec[i-1],
+               ( parser, ppvec[original_i],
 	         "expected quoted key or simple name"
-		 " after" );
+		 " at" );
 }
 
 void PAR::convert_token ( PAR::token token )

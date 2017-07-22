@@ -222,3 +222,16 @@ This logical line is followed by an empty logical line;
 @7 = {|Z|}
 @8 = XYZ
 @6
+
+*PARSER*:
+    begin block X
+    define prefix "G" [TOP LEVEL]
+	with parsing selectors [+ code]
+        with paragraph reformatter ( A, B, C )
+        with implied subprefix {H}
+    print prefix "G"
+
+{G}ONE TWO THREE
+
+*PARSER*:
+    end block X

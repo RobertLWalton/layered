@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 01:58:05 EDT 2017
+// Date:	Sat Jul 22 07:15:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1067,6 +1067,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    PARSTD::init_lexeme_map ( parser );
 	    PARSTD::init_brackets ( parser );
 	    PARSTD::init_prefix ( parser );
+	    PARSTD::init_ID_character ( parser );
 	    PARSTD::init_oper ( parser );
 	}
     }
@@ -2272,6 +2273,7 @@ min::gen PAR::scan_label
 	| 1ull << LEXSTD::numeric_t;
 
     min::gen elements[s];
+    min::uns32 j = 0;
 
     while ( i < s )
     {
@@ -2288,14 +2290,14 @@ min::gen PAR::scan_label
 	         &&
 		 type != PARLEX::number_sign )
 	        break;
-	    elements[i] = evp[0];
+	    elements[j++] = evp[0];
 	}
 	else
 	{
 	    min::uns32 t =
 		LEXSTD::lexical_type_of ( vp[i] );
 	    if ( ( 1ull << t ) & accepted_types )
-	        elements[i] = vp[i];
+	        elements[j++] = vp[i];
 	    else
 	        break;
 	}
@@ -2304,8 +2306,7 @@ min::gen PAR::scan_label
 
     if ( i == initial_i ) return min::MISSING();
     else if ( i == initial_i + 1 ) return elements[0];
-
-    return min::new_lab_gen ( elements, i - initial_i );
+    return min::new_lab_gen ( elements, j );
 }
 
 min::gen PAR::scan_quoted_key

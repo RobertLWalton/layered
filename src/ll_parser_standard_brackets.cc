@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 01:57:32 EDT 2017
+// Date:	Sat Jul 22 07:47:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Standard Brackets
 //	Standard Prefixes
+//	Standard ID Character
 
 // Usage and Setup
 // ----- --- -----
@@ -226,6 +227,17 @@ void PARSTD::init_prefix ( PAR::parser parser )
     min::locatable_gen raw_data
         ( min::new_lab_gen ( "raw", "data" ) );
 
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        data_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 4 ) );
+    min::push ( data_arguments ) = PARLEX::equal;
+    min::push ( data_arguments ) = PARLEX::no;
+    min::push ( data_arguments ) = PARLEX::left_square;
+    min::locatable_gen left_curly_star
+        ( min::new_lab_gen ( "{", "*" ) );
+    min::push ( data_arguments ) = left_curly_star;
+
     PRE::push_prefix
 	( data_name,
 	    PAR::TOP_LEVEL_SELECTOR
@@ -237,8 +249,10 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::MISSING(), // implied_subprefix_type
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
-	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  PAR::find_reformatter
+	      ( data_name,
+	        PRE::prefix_reformatter_stack ),
+	  data_arguments,
 	  bracketed_pass->prefix_table );
 
     PRE::push_prefix
@@ -329,4 +343,12 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::NULL_STUB,
 	  min::NULL_STUB,
 	  bracketed_pass->prefix_table );
+}
+
+// Standard ID Character
+// -------- -- ---------
+
+void PARSTD::init_ID_character ( PAR::parser parser )
+{
+    parser->ID_character = '@';
 }

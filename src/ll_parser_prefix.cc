@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 19 05:16:32 EDT 2017
+// Date:	Sat Jul 22 07:47:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,6 +143,9 @@ static bool data_reformatter_function
 	        ( first->next->value ) )
         return true;
 
+    min::position end_position =
+        next->previous->position.end;
+
     min::locatable_gen ID_gen ( first->next->value );
 
     PAR::free ( PAR::remove ( first_ref(parser),
@@ -175,6 +178,15 @@ static bool data_reformatter_function
 
     if ( attributes != min::MISSING() )
     {
+        {
+	    first->position.end = end_position;
+	    min::locate ( fap, min::dot_position );
+	    min::phrase_position_vec_insptr ppvec =
+		min::phrase_position_vec_insptr
+		    ( min::get ( fap ) );
+	    ppvec->position.end = end_position;
+	}
+
         min::obj_vec_ptr paragraph ( attributes );
 	for ( min::uns32 i = 0;
 	      i < min::size_of ( paragraph ); ++ i )

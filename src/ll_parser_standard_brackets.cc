@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 01:52:33 EDT 2017
+// Date:	Sat Jul 22 01:57:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,7 +188,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 // Standard Prefixes
 // -------- --------
 
-void PARSTD::init_prefixes ( PAR::parser parser )
+void PARSTD::init_prefix ( PAR::parser parser )
 {
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;

@@ -358,7 +358,8 @@ static bool data_reformatter_function
 
     if ( min::is_obj ( first->value ) )
     {
-	const min::stub * ID_stub = min::stub_of ( ID_gen );
+	const min::stub * ID_stub =
+	    min::stub_of ( ID_gen );
 	const min::stub * value_stub =
 	    min::stub_of ( first->value );
 	MUP::stub_swap ( ID_stub, value_stub );

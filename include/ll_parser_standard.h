@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 15 04:40:29 EDT 2017
+// Date:	Sat Jul 22 01:59:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -232,7 +232,7 @@ void init_brackets ( ll::parser::parser parser );
 // Set the bracketed_pass->bracket_table for the
 // standard set of layered language prefixes.
 //
-void init_prefixes ( ll::parser::parser parser );
+void init_prefix ( ll::parser::parser parser );
 
 
 // Standard Parser Operators

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 15 07:01:02 EDT 2017
+// Date:	Sat Jul 22 01:58:05 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
 # define COM ll::parser::command
-# define STD ll::parser::standard
+# define PARSTD ll::parser::standard
 
 min::locatable_gen PARLEX::top_level;
 min::locatable_gen PARLEX::top;
@@ -1063,9 +1063,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	if ( define_standard )
 	{
-	    STD::init_block ( parser );
-	    STD::init_brackets ( parser );
-	    STD::init_oper ( parser );
+	    PARSTD::init_block ( parser );
+	    PARSTD::init_lexeme_map ( parser );
+	    PARSTD::init_brackets ( parser );
+	    PARSTD::init_prefix ( parser );
+	    PARSTD::init_oper ( parser );
 	}
     }
 }

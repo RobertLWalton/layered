@@ -3412,139 +3412,6 @@ BRACKETED EXPRESSION:
     line ###:
 {X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
                                   ^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {p||p}
-@@@@ =:
-           .type = "p"
-           .position[H] = PACKED_VEC
-    line ###:
-{p} {s} This is a sentence.
-^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {s||s}
-@@@@ =:
-           .type = "s"
-           .position[H] = PACKED_VEC
-    line ###:
-{p} {s} This is a sentence.
-    ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {s||s}
-@@@@ =:
-           .type = "s"
-           .position[H] = PACKED_VEC
-    line ###:
-    {s} And another.
-    ^^^
-BRACKETED EXPRESSION:
-    {s|This is a sentence "."|s}
-@@@@ = This is a sentence ".":
-           .type = "s"
-           .position[H] = PACKED_VEC
-    line ###:
-{p} {s} This is a sentence.
-    ^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {p||p}
-@@@@ =:
-           .type = "p"
-           .position[H] = PACKED_VEC
-    line ###:
-  {p} {s} And a new {foo} paragraph.
-  ^^^
-BRACKETED EXPRESSION:
-    {s|And another "."|s}
-@@@@ = And another ".":
-           .type = "s"
-           .position[H] = PACKED_VEC
-    line ###:
-    {s} And another.
-    ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
-@@@@ = @@@@ @@@@:
-           .type = "p"
-           .position[H] = PACKED_VEC
-    lines ###-###:
-{p} {s} This is a sentence.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {s} And another.
-^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {s||s}
-@@@@ =:
-           .type = "s"
-           .position[H] = PACKED_VEC
-    line ###:
-  {p} {s} And a new {foo} paragraph.
-      ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {foo||foo}
-@@@@ =:
-           .type = "foo"
-           .position[H] = PACKED_VEC
-    line ###:
-  {p} {s} And a new {foo} paragraph.
-                    ^^^^^
-ERROR: in line ###: prefix separator of type `foo' not at beginning of
-       subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
-  {p} {s} And a new {foo} paragraph.
-                    ^^^^^
-BRACKETED EXPRESSION:
-    {s|And a new paragraph "."|s}
-@@@@ = And a new paragraph ".":
-           .type = "s"
-           .position[H] = PACKED_VEC
-    line ###:
-  {p} {s} And a new {foo} paragraph.
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{s|And a new paragraph "."|s}|p}
-@@@@ = @@@@:
-           .type = "p"
-           .position[H] = PACKED_VEC
-    line ###:
-  {p} {s} And a new {foo} paragraph.
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{s|This is a sentence "."|s} {s|And another "."|s}|p}
-        {p|{s|And a new paragraph "."|s}|p}
-@@@@ = @@@@ @@@@:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
-{p} {s} This is a sentence.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {s} And another.
-^^^^^^^^^^^^^^^^^^^^
-  {p} {s} And a new {foo} paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [math] SELECTED KEY "}"
@@ -5857,3 +5724,20 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^
   but this {x} is
 ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|@ this is some data|data}
+@@@@ = @ this is some data:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@ this is some data
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|@ this is some data|data}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+@ this is some data
+^^^^^^^^^^^^^^^^^^^

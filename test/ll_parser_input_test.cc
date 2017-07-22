@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 14:55:07 EDT 2017
+// Date:	Sat Jul 22 01:58:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,7 +36,7 @@ int main ( int argc, const char * argv[] )
 	    PARSTD::init_lexeme_map
 		( PAR::default_parser );
         else if ( strcmp ( argv[1], "-p" ) == 0 )
-	    PARSTD::init_prefixes
+	    PARSTD::init_prefix
 		( PAR::default_parser );
 	else
 	{

@@ -5938,18 +5938,22 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {data|{"": fie = PREALLOCATED(8), foe = {|Z|}, fee = {|A B C|},
                fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}|data}
-@@@@ = {"": fie = PREALLOCATED(8), foe = {|Z|}, fee = {|A B C|}, fum =
-            [< "Q" "R" "T" >], foo = "P"|1 2 3|}:
+@@@@ = @@@@:
            .position[H] = PACKED_VEC
            .type = "data"
+@@@@ = 1 2 3:
+           fie = PREALLOCATED(8)
+           foe = {|Z|}
+           fee = {|A B C|}
+           fum = [< "Q" "R" "T" >]
+           foo = "P"
+           .position[H] = PACKED_VEC
     line ###:
 @@
 ^^
 BRACKETED EXPRESSION:
-    {data|{"": fie = PREALLOCATED(8), foe = {|Z|}, fee = {|A B C|},
-               fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}|data}
-@@@@ = {data|{"": fie = PREALLOCATED(8), foe = {|Z|}, fee = {|A B C|},
-                  fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}|data}:
+    {data|@@@@|data}
+@@@@ = {data|@@@@|data}:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]

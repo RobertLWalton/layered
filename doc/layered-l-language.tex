@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 27, 2017
+September 6, 2017
  
 \end{center}
 
@@ -2542,11 +2542,11 @@ Inline function declarations have the form:
     $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
             \TT{=} {\em input-variable-list} \\
     $|$ & {\em function-prototype}
-          \TT{[[} {\em qualifying-expression} \TT{]]} \\
+          \TT{[[} {\em conditioning-expression} \TT{]]} \\
     $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
     \end{tabular}
 \\[1ex]
-\emkey{qualifying-expression}
+\emkey{conditioning-expression}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em call-compile-time-logical-expression} \\
     $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression} \\
@@ -2573,18 +2573,19 @@ is in effect replaced by a {\em block-assignment-statement}
 (Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
 with the {\em function-declaration's} {\em result-variable-list} becoming the 
 {\em result-variable-list} of the {\em block-assignment-statement} and the
-{\em function-declaration's} subblock {\em statements} becoming the 
+{\em function-declaration's} {\em statements} becoming the 
 {\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
 Actual argument values from the function call are assigned to variables in
 the definition {\em argument-variable-list}.  The values produced in
 the {\em result-variable-list's} variables become the values of the
 function call when it is used as part of an {\em expression}.
 
-When this is done, the names declared by {\em statements} in the
+When this is done, the prototype names and names
+declared by {\em statements} in the
 function block are in effect changed so they will not conflict
 with names the call is within scope of.  Also, names not declared
 in the function block but used in the block are resolved
-in the context of the function block declaration itself,
+in the scope of the function declaration itself,
 and not in the context of a call to the function.\footnote{
 Because L-Language is a single assignment language, all such
 names are the names of constants.}
@@ -2608,8 +2609,12 @@ argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
 An argument or return variable can have the `\TT{type}' type.
 If an argument variable has type `\TT{type}', its value can be used as the
 type of other argument variables that are
-after it in the {\em argument-variable-list},
-or of any result variable.  For example:
+after it in its {\em argument-variable-list},
+or of any argument in any other {\em argument-variable-list}
+(a function prototype can have more than one {\em argument-variable-list}:
+see \itemref{FUNCTION-PROTOTYPES-AND-CALLS})
+or any
+result variable.  For example:
 
 \begin{indpar}\begin{verbatim}
 function ( T result ) = add ( type T, T v1, T v2 ):
@@ -2622,18 +2627,22 @@ int32 y = ...
 int32 z = add ( int32, x, y )
 \end{verbatim}\end{indpar}
 
-A type argument can be implied if it is the type of another argument
-after it in the argument list, or the type of a result.  For example:
+A `\TT{type}' argument can be implied if it is the type of another argument
+after it in the argument list, or the type of
+any argument in any other {\em argument-variable-list}
+or any result variable.  For example:
 
 \begin{indpar}\begin{verbatim}
 int32 z = add ( x, y )
 \end{verbatim}\end{indpar}
 
 If there are several such arguments or results which have the implied
-type, the type implied is the actual type of the first such actual argument,
-or if there are no such arguments, the first such actual result.
+type, the type implied is the actual type of the leftmost such
+actual argument, or if there are no such arguments,
+the leftmost such actual result.
 
-Conditions can be written at the end of a {\em function-prototype},
+{\em Conditioning-expressions}
+can be written at the end of a {\em function-prototype},
 as in:
 \begin{indpar}\begin{verbatim}
 types signed-integer-types =
@@ -2666,14 +2675,18 @@ and \TT{Qr} is just an abbreviation of the more complex
 qualifiers-valued expression defined by `\TT{[[ Qr is~}\ldots\TT{]]}'.
 
 An argument \TT{Qs} of type `\TT{qualifiers}' may be implied if it
-denotes the qualifiers of a some argument appearing later in the
+denotes the qualifiers of a some argument appearing
+after it in its {\em argument-variable-list},
+or of any argument in any other {\em argument-variable-list}
+or any result variable.
 argument list, or of some result.
 An argument or result that implies the value of \TT{Qs}
-cannot have any other qualifiers.  If there are several such
-arguments or results with \TT{Qs} as their qualifiers,
-the implied value of \TT{Qs} will be the actual qualifiers of the
-first such actual argument, or the first such actual result if
-there are no such arguments.
+cannot have any other qualifiers.
+If there are several such arguments or results with \TT{Qs}
+as their qualifiers,
+the implied value of \TT{Qs} is the actual qualifiers of the leftmost such
+actual argument, or if there are no such arguments,
+the leftmost such actual result.
 
 If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
 but are given explicitly instead, their values must be available
@@ -2695,6 +2708,7 @@ function ( T r1, T r2 ) =
 //
 function bool r = less-than-float64 ( float64 x, float64 y ):
     r = if:
+        is-NaN ( y ): r = false
         is-NaN ( x ): r = true
         x < y:        r = true
         else:         r = false
@@ -2721,6 +2735,7 @@ function ( T r1, T r2 ) = sort2 ( type T, T x, T y ):
 //
 function bool r = less-than-float64 ( float64 x, float64 y ):
     r = if:
+        is-NaN ( y ): r = false
         is-NaN ( x ): r = true
         x < y:        r = true
         else:         r = false
@@ -2784,10 +2799,10 @@ Generic declarations have the form:
 	    {\em argument-variable-list}\QMARK{} \\
     $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
     $|$ & {\em generic-prototype}
-          \TT{[[} {\em qualifying-expression} \TT{]]} \\
+          \TT{[[} {\em conditioning-expression} \TT{]]} \\
     \end{tabular}
 \\[1ex]
-{\em qualifying-expression} ::= see \pagref{QUALIFYING-EXPRESSION}
+{\em conditioning-expression} ::= see \pagref{QUALIFYING-EXPRESSION}
 \end{indpar}
 
 An example is:
@@ -3968,7 +3983,7 @@ introduced in Section~\itemref{INLINE-FUNCTIONS}.   Here we replace
 {\em function-name} {\em argument-variable-list}\QMARK{}
 \end{center}
 by `{\em function-pattern}'.  We also add to the set of possible
-{\em qualifying-expressions}.
+{\em conditioning-expressions}.
 
 The extended syntax is:
 
@@ -3985,7 +4000,7 @@ The extended syntax is:
     $|$ & {\em function-pattern} \\
     $|$ & {\em function-pattern} \TT{=} {\em input-variable-list} \\
     $|$ & {\em function-prototype}
-          \TT{[[} {\em qualifying-expression} \TT{]]} \\
+          \TT{[[} {\em conditioning-expression} \TT{]]} \\
     \end{tabular}
 \\[1ex]
 \emkey{result-variable-list} ::= see \pagref{RESULT-VARIABLE-LIST}
@@ -4036,7 +4051,7 @@ The extended syntax is:
 \\[0.5ex]
 \emkey{argument-separator} ::= \TT{,} $|$ \TT{;}
 \\[1ex]
-\emkey{qualifying-expression}\label{QUALIFYING-EXPRESSION}
+\emkey{conditioning-expression}\label{QUALIFYING-EXPRESSION}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em call-compile-time-logical-expression} \\
     $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression} \\
@@ -4059,7 +4074,7 @@ contains `\TT{...}', and deleted only if its {\em function-term-modifier}
 contains `\TT{?}'.
 
 Any {\em pattern-name} that has
-{\em alternative-names} specified by a {\em qualifying-expression}
+{\em alternative-names} specified by a {\em conditioning-expression}
 are replaced by one of its {\em alternative-names}.
 
 If any {\em function-term} has the form
@@ -4125,7 +4140,7 @@ True if the variable is present, and false if not.
 
 In addition, if a variable can be omitted but not repeated, a default expression
 must be given for the variable in a `\ttkey{defaults to}'
-{\em qualifying-expression}.  If the variable is omitted, this
+{\em conditioning-expression}.  If the variable is omitted, this
 expression will be used at run time to compute the variable's value.
 
 TBD Operator syntax: x "+" y.

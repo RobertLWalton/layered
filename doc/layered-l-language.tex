@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 11, 2017
+October 14, 2017
  
 \end{center}
 
@@ -872,16 +872,16 @@ for enumeration set and list constants is:
 \emkey{enum-set-constant}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{\{\{~\}\}} \\
-    $|$ &\TT{\{\{} {\em enum-set-item}
-                   \{ \TT{,} {\em enum-set-item} \}\STAR{} \TT{\}\}} \\
+    $|$ &\TT{\{\{} {\em enum-item}
+                   \{ \TT{,} {\em enum-item} \}\STAR{} \TT{\}\}} \\
     \end{tabular} \\
 \emkey{enum-list-constant}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{[[~]]} \\
-    $|$ &\TT{[[} {\em enum-set-item}
-                   \{ \TT{,} {\em enum-set-item} \}\STAR{} \TT{]]} \\
+    $|$ &\TT{[[} {\em enum-item}
+                   \{ \TT{,} {\em enum-item} \}\STAR{} \TT{]]} \\
     \end{tabular} \\
-\emkey{enum-set-item}
+\emkey{enum-item}
     ::= {\em enum-value} $|$ {\em enum-range} \\
 \emkey{enum-range}
     \begin{tabular}[t]{@{}cl}
@@ -906,8 +906,8 @@ It is an error
 if this cannot be done because some of the types have no implicit
 conversion defined for them, or if after implict conversion the
 common type is not a defined enumeration type.
-Importantly, note that the common type cannot be a builtin integer
-type.
+Note that the common type can be an integer type if all
+{\em enum-values} are implicitly convertable to integer values.
 
 An {\em enum-range} designates the two values given and all
 values in between.
@@ -937,7 +937,7 @@ X X20 is next enum
 // == {{ X1, X2, X5, X10 .. X20 }}
 \end{verbatim}\end{indpar}
 
-The order in which value are given in an {\em enum-list-constant}
+The order in which values are given in an {\em enum-list-constant}
 does matter, and ranges are not combined.  Thus in the above
 example `{\tt [[X1 x2]] != [[X2 X1]]}'.
 
@@ -991,8 +991,10 @@ The following are builtin enumeration set types:
 \TT{type~}\ttkey{qualifiers}\TT{~is set of qualifier}
 \end{indpar}
 
-An enumeration set constant is an enumeration set whose base type 
-is its common enumeration type, even if this enumeration set type has not been
+An enumeration set or list constant is an enumeration set or list
+whose base type 
+is its common enumeration type, even if this enumeration set or list
+type has not been
 declared and is not builtin.
 
 Given an enumeration set or list type \TT{T1} with base type \TT{B1} and

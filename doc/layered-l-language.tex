@@ -871,15 +871,15 @@ for enumeration set and list constants is:
 \begin{indpar}
 \emkey{enum-set-constant}
     \begin{tabular}[t]{@{}cl}
-    ::= &\TT{\{\{~\}\}} \\
-    $|$ &\TT{\{\{} {\em enum-item}
-                   \{ \TT{,} {\em enum-item} \}\STAR{} \TT{\}\}} \\
+    ::= &\TT{\{~\}} \\
+    $|$ &\TT{\{} {\em enum-item}
+                   \{ \TT{,} {\em enum-item} \}\STAR{} \TT{\}} \\
     \end{tabular} \\
 \emkey{enum-list-constant}
     \begin{tabular}[t]{@{}cl}
-    ::= &\TT{[[~]]} \\
-    $|$ &\TT{[[} {\em enum-item}
-                   \{ \TT{,} {\em enum-item} \}\STAR{} \TT{]]} \\
+    ::= &\TT{[~]} \\
+    $|$ &\TT{[} {\em enum-item}
+                   \{ \TT{,} {\em enum-item} \}\STAR{} \TT{]} \\
     \end{tabular} \\
 \emkey{enum-item}
     ::= {\em enum-value} $|$ {\em enum-range} \\
@@ -933,19 +933,19 @@ X X20 is next enum
 
 // Then:
 //
-//    {{ X1, X5, X2, X10 .. X16, X19 .. X20, X15 .. X18 }}
-// == {{ X1, X2, X5, X10 .. X20 }}
+//    { X1, X5, X2, X10 .. X16, X19 .. X20, X15 .. X18 }
+// == { X1, X2, X5, X10 .. X20 }
 \end{verbatim}\end{indpar}
 
 The order in which values are given in an {\em enum-list-constant}
 does matter, and ranges are not combined.  Thus in the above
-example `{\tt [[X1 x2]] != [[X2 X1]]}'.
+example `{\tt [X1 x2] != [X2 X1]}'.
 
 Enumeration set and list values are used in logical expressions that
 condition function lookup.  For example,
 \begin{indpar}\begin{verbatim}
 T v = signed max ( type T, T v1, T v2 )
-      [* T is in {{ int8, int16, int32, int64, int128 }} *]:
+      [* T is in { int8, int16, int32, int64, int128 } *]:
     . . . . . . . . . . .
 \end{verbatim}\end{indpar}
 
@@ -2703,7 +2703,7 @@ can be written at the end of a {\em function-prototype},
 as in:
 \begin{indpar}\begin{verbatim}
 types signed-integer-types =
-    {{ int8, int16, int32, int64, int128 }}
+    { int8, int16, int32, int64, int128 }
 
 function ( T result ) = add ( type T, T v1, T v2 )
     [* T is in signed-integer-types *]:
@@ -2723,7 +2723,7 @@ For example:
 \begin{indpar}\begin{verbatim}
 function ( Qr pointer result ) =
     increment ( qualfiers Qs, Qs pointer value )
-    [* Qr is Qs & {{ stack }} *]:
+    [* Qr is Qs & { stack } *]:
     . . . . . . . . . .
 \end{verbatim}\end{indpar}
 

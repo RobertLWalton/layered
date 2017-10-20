@@ -5960,3 +5960,185 @@ BRACKETED EXPRESSION:
     line ###:
 @@
 ^^
+BRACKETED PARSER FOUND
+    [TOP LEVEL, code] SELECTED KEY [< "*PARSER*" ":" >]
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED EXPRESSION:
+    begin block X
+@@@@ = begin block X:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    begin block X
+    ^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    [TOP LEVEL]
+@@@@ = TOP LEVEL:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+    define prefix "G" [TOP LEVEL]
+                      ^^^^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    [+ code]
+@@@@ = + code:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+        with parsing selectors [+ code]
+                               ^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    (A "," B "," C)
+@@@@ = A "," B "," C:
+           .terminator = ")"
+           .initiator = "("
+           .position[H] = PACKED_VEC
+    line ###:
+        with paragraph reformatter ( A, B, C )
+                                   ^^^^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {H||H}
+@@@@ =:
+           .type = "H"
+           .position[H] = PACKED_VEC
+    line ###:
+        with implied subprefix {H}
+                               ^^^
+BRACKETED EXPRESSION:
+    define prefix "G" [TOP LEVEL] with parsing selectors [+ code] with
+        paragraph reformatter (A "," B "," C) with implied subprefix
+        {H||H}
+@@@@ = define prefix "G" [TOP LEVEL] with parsing selectors [+ code]
+               with paragraph reformatter (A "," B "," C) with implied
+               subprefix {H||H}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+    define prefix "G" [TOP LEVEL]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [+ code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with paragraph reformatter ( A, B, C )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {H}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    print prefix "G"
+@@@@ = print prefix "G":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    print prefix "G"
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< "*PARSER*" ":" >]|@@@@ @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = [< "*PARSER*" ":" >]
+    lines ###-###:
+*PARSER*:
+^^^^^^^^^
+    begin block X
+^^^^^^^^^^^^^^^^^
+    define prefix "G" [TOP LEVEL]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [+ code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with paragraph reformatter ( A, B, C )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {H}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    print prefix "G"
+^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    print prefix "G"
+        block X: prefix "G" [TOP LEVEL]
+                 with parsing selectors [- TOP LEVEL, + code]
+                 with implied subprefix {H||H}
+                 with paragraph reformatter ( "A", "B", "C" )
+BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {G||G}
+@@@@ =:
+           .type = "G"
+           .position[H] = PACKED_VEC
+    line ###:
+{G}ONE TWO THREE
+^^^
+BRACKETED EXPRESSION:
+    {H|ONE TWO THREE|H}
+@@@@ = ONE TWO THREE:
+           .type = "H"
+           .position[H] = PACKED_VEC
+    line ###:
+{G}ONE TWO THREE
+   ^^^^^^^^^^^^^
+PARAGRAPH REFORMATTER
+PARAGRAPH ARGUMENT A
+PARAGRAPH ARGUMENT B
+PARAGRAPH ARGUMENT C
+BRACKETED EXPRESSION:
+    {G||G} {H|ONE TWO THREE|H}
+@@@@ = {G||G} {H|ONE TWO THREE|H}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{G}ONE TWO THREE
+^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND
+    [TOP LEVEL, code] SELECTED KEY [< "*PARSER*" ":" >]
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED EXPRESSION:
+    end block X
+@@@@ = end block X:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    end block X
+    ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< "*PARSER*" ":" >]|@@@@|}
+@@@@ = @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = [< "*PARSER*" ":" >]
+    lines ###-###:
+*PARSER*:
+^^^^^^^^^
+    end block X
+^^^^^^^^^^^^^^^

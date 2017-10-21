@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 16, 2017
+October 21, 2017
  
 \end{center}
 
@@ -5098,16 +5098,22 @@ in the same manner as for {\em typed-bracketed-subexpressions}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
 As a special case, if there is only one element and no attributes
-except \TT{.position}, and if the only element is an object,
+except \TT{.position},
 then this only element becomes the value assigned to {\em ID}
 in place of the list containing just this element.  E.g.,
 \begin{center}
-\TT{@5 = ( a b c )}
+\TT{@5 = ( a b c )} ~~and~~ \TT{@5 = \{| ( a b c ) |\}}
 \end{center}
-sets \TT{@5} to \TT{(a b c)} and \underline{not} \TT{\{|(a b c)|\}}.
-However
-\TT{@5 = Bill}
-sets \TT{@5} to \TT{\{|Bill|\}} and \underline{not} \TT{Bill}.
+give different results whereas
+\begin{center}
+\TT{@5 =  a b c} ~~and~~ \TT{@5 = \{| a b c |\}}
+\end{center}
+give the same result.  Also
+\begin{center}
+\TT{@5 = Bill} ~~and~~ \TT{@5 = \{| Bill |\}}
+\end{center}
+produce different results, with the first setting \TT{@5} to a string
+and the second setting it to an object with one element.
 
 The \TT{\{data \ldots{}|\ldots{}|\}} expression itself is deleted from
 the input and can have no effect other than that just mentioned.

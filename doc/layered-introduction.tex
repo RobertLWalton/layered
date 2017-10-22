@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 21, 2017
+October 22, 2017
  
 \end{center}
 
@@ -3673,7 +3673,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
         &               & [ \TT{with}
 			    ~ {\em reformatter-name}
 			    ~ \TT{reformatter}
-			    ~ {\em reformatter-arguments} ] \\
+			    ~ {\em reformatter-arguments}\QMARK{} ] \\
     $|$ & \multicolumn{2}{l}{\ttmkey{undefine bracket}{parser command}
 		    ~ {\em bracket-name} ~ {\em selectors}} \\
     \end{tabular}
@@ -3700,11 +3700,13 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{reformatter-arguments}\label{REFORMATTER-ARGUMENTS}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em empty} $|$ \TT{()} \\
+    ::= & \TT{()} \\
     $|$ & \TT{(} {\em reformatter-argument}
           \{ \TT{,} {\em reformatter-argument} \}\STAR{} \TT{)} \\
     \end{tabular} \\
 \emkey{reformatter-argument} ::= {\em quoted-key} $|$ {\em simple-name}
+			     $|$ {\em argument-sublist} \\
+\emkey{argument-sublist} ::= {\em reformatter-arguments}
 
 \end{indpar}
 
@@ -4935,7 +4937,7 @@ whose general syntax is:
 	  {}[ \TT{with parsing options} ~ {\em prefix-options} ] \\
           {}[ \TT{with} ~ \begin{tabular}[t]{@{}l}
 	                  {\em reformatter-name} ~ \TT{reformatter} \\
-			  {\em reformatter-arguments} ] \\
+			  {\em reformatter-arguments}\QMARK{} ] \\
 			  \end{tabular} \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine prefix}{parser command} ~
@@ -5940,7 +5942,7 @@ The syntax of operator definitions is:
 		\end{tabular} \\
 	    \TT{with precedence} ~ {\em precedence} \\
 	    {}[ \TT{with} ~ {\em reformatter-name} ~ \TT{reformatter}
-			  ~ {\em reformatter-arguments} ] \\
+			  ~ {\em reformatter-arguments}\QMARK{} ] \\
 	    \end{tabular} \\
     $|$ & \TT{undefine}\ttmindex{parser undefine operator}{parser command}
 	   ~\begin{tabular}[t]{@{}l@{}}

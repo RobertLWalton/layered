@@ -6003,20 +6003,36 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "("
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    (A "," B "," C)
-@@@@ = A "," B "," C:
+    (B1 "," B2)
+@@@@ = B1 "," B2:
            .terminator = ")"
            .initiator = "("
            .position[H] = PACKED_VEC
     line ###:
-        with paragraph reformatter ( A, B, C )
-                                   ^^^^^^^^^^^
+        with paragraph reformatter ( A, (B1, B2), C )
+                                        ^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    (A "," (B1 "," B2) "," C)
+@@@@ = A "," (B1 "," B2) "," C:
+           .terminator = ")"
+           .initiator = "("
+           .position[H] = PACKED_VEC
+    line ###:
+        with paragraph reformatter ( A, (B1, B2), C )
+                                   ^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -6031,11 +6047,11 @@ BRACKETED EXPRESSION:
                                ^^^
 BRACKETED EXPRESSION:
     define prefix "G" [TOP LEVEL] with parsing selectors [+ code] with
-        paragraph reformatter (A "," B "," C) with implied subprefix
-        {H||H}
+        paragraph reformatter (A "," (B1 "," B2) "," C) with implied
+        subprefix {H||H}
 @@@@ = define prefix "G" [TOP LEVEL] with parsing selectors [+ code]
-               with paragraph reformatter (A "," B "," C) with implied
-               subprefix {H||H}:
+               with paragraph reformatter (A "," (B1 "," B2) "," C) with
+               implied subprefix {H||H}:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -6044,8 +6060,8 @@ BRACKETED EXPRESSION:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [+ code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with paragraph reformatter ( A, B, C )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with paragraph reformatter ( A, (B1, B2), C )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with implied subprefix {H}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -6073,8 +6089,8 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [+ code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with paragraph reformatter ( A, B, C )
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with paragraph reformatter ( A, (B1, B2), C )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with implied subprefix {H}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     print prefix "G"
@@ -6084,7 +6100,7 @@ BRACKETED EXPRESSION:
         block X: prefix "G" [TOP LEVEL]
                  with parsing selectors [- TOP LEVEL, + code]
                  with implied subprefix {H||H}
-                 with paragraph reformatter ( "A", "B", "C" )
+                 with paragraph reformatter ( "A", {|B1 B2|}, "C" )
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -6107,7 +6123,7 @@ BRACKETED EXPRESSION:
    ^^^^^^^^^^^^^
 PARAGRAPH REFORMATTER
 PARAGRAPH ARGUMENT A
-PARAGRAPH ARGUMENT B
+PARAGRAPH ARGUMENT {|B1 B2|}
 PARAGRAPH ARGUMENT C
 BRACKETED EXPRESSION:
     {G||G} {H|ONE TWO THREE|H}

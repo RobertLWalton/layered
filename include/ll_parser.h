@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 15 04:52:06 EDT 2017
+// Date:	Sun Oct 22 04:07:11 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1510,6 +1510,10 @@ typedef min::packed_vec_ptr<min::gen>
     // Argument list for a reformatter.  Contained in
     // the key table entry that specifies the
     // reformatter.
+    //
+    // Arguments that are argument-sublists are
+    // represented as objects that just have elements
+    // and have no .initiator, .terminator, or .type.
 
 struct reformatter_struct;
 typedef min::packed_struct_updptr<reformatter_struct>

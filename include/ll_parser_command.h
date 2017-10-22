@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  4 03:39:50 EDT 2017
+// Date:	Sun Oct 22 03:51:26 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -155,16 +155,18 @@ inline min::gen get_lexical_master
 // error messages to parser->printer, increment i, and
 // return min::ERROR().
 //
-// An argument may be a simple name or a quoted name,
-// and arguments are separated by commas.  It is assumed
-// that the ()-bracketed subexpression does NOT have a
+// An argument may be a simple name, a quoted name, or
+// a ()-parenthesized argument sublist.  Arguments are
+// separated by commas.  It is assumed that the
+// ()-bracketed subexpression does NOT have a
 // separator and any commas are simply elements of the
-// subexpression.
+// subexpression (ditto for argument sublists).
 //
 // If min::FAILURE() is not returned, arg_vec is created
 // if it does not exist, emptied if it does exists, and
 // then any successfully scanned arguments are pushed
-// into it.
+// into it.  If min::ERROR() is returned, arg_vec is
+// undefined.
 //
 min::gen scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,

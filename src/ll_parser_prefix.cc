@@ -405,13 +405,15 @@ static bool paragraph_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    parser->printer << "PARAGRAPH REFORMATTER" << min::eol;
+    parser->printer << "PARAGRAPH REFORMATTER"
+                    << min::eol;
     PRE::prefix prefix_entry = (PRE::prefix) entry;
     PAR::reformatter_arguments args =
         prefix_entry->reformatter_arguments;
     for ( min::uns32 i = 0; i < args->length; ++ i )
 	parser->printer << "PARAGRAPH ARGUMENT "
-	                << min::pgen ( args[i] ) << min::eol;
+	                << min::pgen ( args[i] )
+			<< min::eol;
     return false;
 
     MIN_REQUIRE ( args->length == 4 );

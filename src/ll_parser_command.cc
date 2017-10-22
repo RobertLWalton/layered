@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 15 04:54:45 EDT 2017
+// Date:	Sun Oct 22 03:29:49 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -153,11 +153,47 @@ min::gen COM::scan_args
     min::locatable_gen name;
     while ( j < s )
     {
-        name = PAR::scan_name ( subvp, j, parser );
+	if ( min::is_obj ( subvp[j] ) )
+	{
+	    min::locatable_var
+		    < min::packed_vec_ptr<min::gen> >
+	        elements ( min::NULL_STUB );
+	    min::gen result =
+	        COM::scan_args
+		    ( subvp, j, elements, parser );
+	    if ( result == min::ERROR() )
+	        return min::ERROR();
+	    else if ( result == min::SUCCESS() )
+	    {
+		min::locatable_gen arglist
+		    ( min::new_obj_gen
+		         ( elements->length ) );
+		min::obj_vec_insptr argvp  ( arglist );
+		MIN_STACK_COPY
+		    ( min::gen, argcopy,
+		      elements->length,
+		      min::begin_ptr_of ( elements )
+		    );
+		min::attr_push
+		    ( argvp,
+		      elements->length, argcopy );
+		min::push ( names ) = arglist;
+		goto NEXT_ARG;
+	    }
+	    // else if result == min::FAILURE()
+	    // drop through to try name.
+	}
 
-	if ( name == min::ERROR() ) return min::ERROR();
+	{
+	    name = PAR::scan_name ( subvp, j, parser );
 
-	min::push ( names ) = name;
+	    if ( name == min::ERROR() )
+	        return min::ERROR();
+
+	    min::push ( names ) = name;
+	}
+
+NEXT_ARG:
 
 	if ( j < s )
 	{

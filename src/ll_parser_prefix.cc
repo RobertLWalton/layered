@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 16:17:02 EDT 2017
+// Date:	Tue Oct 24 10:21:47 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -228,9 +228,11 @@ static bool data_reformatter_function
 		min::attr_ptr fap ( fvp );
 		min::locate ( fap, min::dot_initiator );
 		if ( min::get ( fap ) == args[2] )
+		{
 		    flags = line[j++];
-		message =
-		    "after attribute label flags `";
+		    message =
+			"after attribute label flags `";
+		}
 	    }
 
 	    if ( j < lsize && line[j] != args[0] )
@@ -344,6 +346,10 @@ static bool data_reformatter_function
 	}
     }
 
+    // If value has one element and no attributes (other
+    // than .position) then replace the value by its
+    // sole element.
+    //
     if ( min::size_of ( fvp ) == 1 )
     {
         min::attr_info info[2];

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Jun 15 02:09:14 EDT 2017
+# Date:		Mon Oct 30 03:00:09 EDT 2017
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -28,28 +28,25 @@ WFLAGS = -Wall -Wno-char-subscripts
 #
 OPTIMIZE = -O3
 
-LEXEME_PROGRAMS = ll_lexeme_basic_test \
-                  ll_lexeme_standard_basic_test \
-                  ll_lexeme_standard_special_test \
-                  ll_lexeme_standard_test \
-                  ll_lexeme_alternate_basic_test \
-                  ll_lexeme_alternate_test \
-                  ll_lexeme_name_string_test \
-		  ll_lexeme_c++_test
+LEXEME_TESTS = ll_lexeme_basic_test \
+               ll_lexeme_standard_basic_test \
+               ll_lexeme_standard_special_test \
+               ll_lexeme_standard_test \
+               ll_lexeme_alternate_basic_test \
+               ll_lexeme_alternate_test \
+               ll_lexeme_name_string_test \
+	       ll_lexeme_c++_test
 
-PARSER_PROGRAMS = ll_parser_input_test \
-	          ll_parser_table_test \
-	          ll_parser_command_test \
-		  ll_parser_lexeme_map_standard_test \
-	          ll_parser_bracketed_standard_test \
-	          ll_parser_bracketed_command_test \
-	          ll_parser_oper_standard_test \
-	          ll_parser_oper_command_test
+PARSER_TESTS = ll_parser_input_test \
+	       ll_parser_table_test \
+	       ll_parser_command_test \
+	       ll_parser_lexeme_map_standard_test \
+	       ll_parser_bracketed_standard_test \
+	       ll_parser_bracketed_command_test \
+	       ll_parser_prefix_command_test \
+	       ll_parser_oper_standard_test \
+	       ll_parser_oper_command_test
 
-PROGRAMS = ${LEXEME_PROGRAMS} ${PARSER_PROGRAMS}
-
-LEXEME_TESTS = ${LEXEME_PROGRAMS}
-PARSER_TESTS = ${PARSER_PROGRAMS}
 TESTS = ${LEXEME_TESTS} ${PARSER_TESTS}
 
 MIN_H =	${MIN}/include/min.h \
@@ -106,9 +103,9 @@ lexeme_diff:	${LEXEME_TESTS:=.diff}
 parser_diff:	${PARSER_TESTS:=.diff}
 diff:		${TESTS:=.diff}
 
-out:		${PROGRAMS:=.out}
+out:		${TESTS:=.out}
 
-test:		${PROGRAMS:=.test}
+test:		${TESTS:=.test}
 
 
 %.test:	%.out Makefile
@@ -673,6 +670,13 @@ ll_parser_bracketed_command_test.out:	\
 	    ll_parser_command_test \
 		< $*.in > $*.out
 
+ll_parser_prefix_command_test.out:	\
+	    ll_parser_command_test \
+	    ll_parser_prefix_command_test.in
+	rm -f $*.out
+	${RUNENV} \
+	    ll_parser_command_test < $*.in > $*.out
+
 ll_parser_oper_standard_test:		\
 	    ll_parser_oper_standard_test.cc \
 	    ${PARSER_O} \
@@ -708,7 +712,7 @@ ll_parser_oper_command_test.out:	\
 	    ll_parser_oper_command_test < $*.in > $*.out
 
 clean:
-	rm -f ${PROGRAMS} ${PROGRAMS:=.out} *.o \
+	rm -f ${TESTS} ${TESTS:=.out} *.o \
 	      ll_lexeme_standard.cc \
 	      ll_lexeme_standard.lex \
 	      ll_lexeme_c++.cc \

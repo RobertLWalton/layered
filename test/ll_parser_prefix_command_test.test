@@ -1,0 +1,30 @@
+*PARSER*:
+    trace [+ parser output]
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code]
+        // no element selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+        with prefix separators allowed
+*PARSER*:
+    begin block X
+    define prefix "G" [TOP LEVEL]
+        with parsing selectors [+ code]
+        with sentence reformatter ( A, (B1, B2), C )
+        with implied subprefix {H}
+    print prefix "G"
+        block X: prefix "G" [TOP LEVEL]
+                 with parsing selectors [- TOP LEVEL, + code]
+                 with implied subprefix {H||H}
+                 with sentence reformatter ( "A", {|B1 B2|}, "C" )
+SENTENCE REFORMATTER
+SENTENCE ARGUMENT A
+SENTENCE ARGUMENT {|B1 B2|}
+SENTENCE ARGUMENT C
+BRACKETED EXPRESSION:
+    {G||G} {H|ONE TWO THREE|H}
+*PARSER*:
+    end block X

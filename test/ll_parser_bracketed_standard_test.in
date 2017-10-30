@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 22 03:55:03 EDT 2017
+// Date:	Mon Oct 30 02:23:07 EDT 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -222,16 +222,3 @@ This logical line is followed by an empty logical line;
 @7 = {|Z|}
 @8 = XYZ
 @6
-
-*PARSER*:
-    begin block X
-    define prefix "G" [TOP LEVEL]
-	with parsing selectors [+ code]
-        with paragraph reformatter ( A, (B1, B2), C )
-        with implied subprefix {H}
-    print prefix "G"
-
-{G}ONE TWO THREE
-
-*PARSER*:
-    end block X

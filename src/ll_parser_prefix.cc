@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 24 10:21:47 EDT 2017
+// Date:	Mon Oct 30 02:23:16 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -401,7 +401,7 @@ static bool data_reformatter_function
     return false;
 }
 
-static bool paragraph_reformatter_function
+static bool sentence_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -411,13 +411,13 @@ static bool paragraph_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    parser->printer << "PARAGRAPH REFORMATTER"
+    parser->printer << "SENTENCE REFORMATTER"
                     << min::eol;
     PRE::prefix prefix_entry = (PRE::prefix) entry;
     PAR::reformatter_arguments args =
         prefix_entry->reformatter_arguments;
     for ( min::uns32 i = 0; i < args->length; ++ i )
-	parser->printer << "PARAGRAPH ARGUMENT "
+	parser->printer << "SENTENCE ARGUMENT "
 	                << min::pgen ( args[i] )
 			<< min::eol;
     return false;
@@ -697,11 +697,11 @@ static void prefix_reformatter_stack_initialize ( void )
 	  ::data_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 
-    min::locatable_gen paragraph_name
-        ( min::new_str_gen ( "paragraph" ) );
+    min::locatable_gen sentence_name
+        ( min::new_str_gen ( "sentence" ) );
     PAR::push_reformatter
-        ( paragraph_name, 0, 2, 100,
-	  ::paragraph_reformatter_function,
+        ( sentence_name, 0, 2, 100,
+	  ::sentence_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 }
 static min::initializer prefix_reformatter_initializer

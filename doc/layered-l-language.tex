@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 14, 2017
+October 31, 2017
  
 \end{center}
 
@@ -876,6 +876,7 @@ for enumeration set and list constants is:
                    \{ \TT{,} {\em enum-item} \}\STAR{} \TT{\}} \\
     \end{tabular} \\
 \emkey{enum-list-constant}
+\label{ENUM-LIST-CONSTANT}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{[~]} \\
     $|$ &\TT{[} {\em enum-item}
@@ -939,7 +940,7 @@ X X20 is next enum
 
 The order in which values are given in an {\em enum-list-constant}
 does matter, and ranges are not combined.  Thus in the above
-example `{\tt [X1 x2] != [X2 X1]}'.
+example `\TT{[X1 X2] != [X2 X1]}' and `\TT{[X1 X1] != [X1]}'.
 
 Enumeration set and list values are used in logical expressions that
 condition function lookup.  For example,
@@ -1349,13 +1350,13 @@ of type `\TT{qualifier}', and this value can be used at both
 compile and run time to test whether two `\TT{qualifier}'s are
 equal.
 
-\section{Names and Abbreviations}
-\label{NAMES-AND-ABBREVIATIONS}
+\section{Names}
+\label{NAMES}
 
 A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
 
-\begin{indpar}\label{NAMES}
+\begin{indpar}
 \emkey{name} ::= {\em name-component} {\em member-selector}\STAR{} \\
 \emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
 \emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
@@ -1370,15 +1371,8 @@ variables and functions.
     \end{tabular} \\
 \emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
-\emkey{member-subscript} ::= \TT{[}{\em member-index-list}\TT{]} \\
-\emkey{member-index-list}
-    ::= {\em member-index-range} \{ \TT{,} {\em member-index-range} \}\STAR{} \\
-\emkey{member-index-range} ::= {\em member-index}
-		$|$ {\em member-index}~~\TT{..}~~{\em member-index} \\
-\emkey{member-index} ::= \begin{tabular}[t]{l}
-                         {\em integer-expression} \\{}
-	                 [Must be compile-time when variable allocated.]
-			 \end{tabular}
+\emkey{member-subscript} ::= {\em enum-list-constant} with at most 32 elements
+                             ~~~ [see \pagref{ENUM-LIST-CONSTANT}]
 \end{indpar}
 
 [We have not yet defined lexemes.  Roughly, separators are single
@@ -1439,6 +1433,9 @@ name n = n1 + n2  // n now = `jill .daughter[3]'
 {\em Variable-names}, {\em type-names}, {\em qualifier-names},
 {\em function-names}, etc.~are {\em names}.
 
+\subsection{Abbreviations}
+\label{ABBREVIATIONS}
+
 An `\ttkey{abbreviation}' is name that is replaced in code by its value.
 More specifically,
 \begin{indpar}
@@ -1490,6 +1487,128 @@ This does \underline{not} mean the value of every abbreviation
 variable must be compile-time, as such a variable may be computed
 at run-time and then used in a `\TT{compile-and-run}' assignment
 statement: see Section~\itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}.
+
+\subsection{Name Sets and Lists}
+\label{NAME-SETS-AND-LISTS}
+
+An \key{name set} is a set of names.
+An \key{name list} is a list of names.  The syntax
+for name set and list constants is:
+\begin{indpar}
+\emkey{name-set-constant}
+    \begin{tabular}[t]{@{}cl}
+    ::= &\TT{\{~\}} \\
+    $|$ &\TT{\{} {\em name-value}
+                   \{ \TT{,} {\em name-value} \}\STAR{} \TT{\}} \\
+    \end{tabular} \\
+\emkey{name-list-constant}
+\label{NAME-LIST-CONSTANT}
+    \begin{tabular}[t]{@{}cl}
+    ::= &\TT{[~]} \\
+    $|$ &\TT{[} {\em name-value}
+                   \{ \TT{,} {\em name-value} \}\STAR{} \TT{]} \\
+    \end{tabular} \\
+\emkey{name-value} ::= {\em compile-time-name-expression}
+\end{indpar}
+
+The order in which names are given in a {\em name-set-constant}
+does not matter, and duplicate names in the set are eliminated.
+Thus
+\begin{center}
+`\TT{\{`X1' `X2'\} = \{`X2 `X1'\}}'\\
+and\\
+`\TT{\{`X1' `X1'\} = \{`X1'\}}'.
+\end{center}
+
+The order in which values are given in an {\em name-list-constant}
+does matter, and duplicates are not combined.
+Thus
+\begin{center}
+`\TT{[`X1' `X2'] != [`X2 `X1']}'\\
+and\\
+`\TT{[`X1' `X1'] != [`X1']}'.
+\end{center}
+
+Name set and list values are used in code expansions.
+For example,
+\begin{indpar}\begin{verbatim}
+include for n in [`x[1]', `x[2]', `x[3]' ]:
+    int n = 0
+\end{verbatim}\end{indpar}
+
+Name sets and lists can be stored in variables of the builtin name set
+or list types:
+\begin{center}
+\TT{type name set is} \ldots \\
+\TT{type name list is} \ldots
+\end{center}
+
+If \TT{S} is an name set type, the following operations are builtin:
+
+\begin{indpar}
+\hspace*{-0.3in}{\tt (S union) = (S op1)
+                        "\ttmkey{+}{name set union}" ( S op2 )} \\
+Returns the union of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt (S intersection) = (S op1)
+                        "\ttmkey{*}{name set intersection}" ( S op2 )} \\
+Returns the intersection of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt (S difference) = (S op1)
+                        "\ttmkey{-}{name set difference}" ( S op2 )} \\
+Returns the set difference of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt (bool test) = (name e)
+                        \ttmkey{in}{name set} (S s)} \\
+Returns \TT{true} if \TT{e} is an element of the set \TT{s}, and
+\TT{false} otherwise.
+
+\hspace*{-0.3in}{\tt (S union) = (name e)
+                        "\ttmkey{+}{name set union}" (S s)} \\
+Returns union of \{\TT{e}\} and \TT{s}.
+
+\hspace*{-0.3in}{\tt (S union) = (S s)
+                        "\ttmkey{+}{name set union}" (name e)} \\
+Returns union of \{\TT{e}\} and \TT{s}.
+
+\hspace*{-0.3in}{\tt (S difference) = (S s)
+                        "\ttmkey{-}{name set union}" (name e)} \\
+Returns the set difference of \TT{s} and \{\TT{e}\}.
+
+\end{indpar}
+
+If \TT{L} is an name list type, the following operations are builtin:
+
+\begin{indpar}
+\hspace*{-0.3in}{\tt (L concatenation) = (L op1)
+		    "\ttmkey{+}{name list concatenation}" (L op2)} \\
+Returns the concatenation of \TT{op1} and \TT{op2}.
+
+\hspace*{-0.3in}{\tt (L difference) = (L op1)
+                        "\ttmkey{-}{name set difference}" (L op2)} \\
+Returns the list made by removing all elements from \TT{op1} that
+appear anywhere in \TT{op2}.
+
+\hspace*{-0.3in}{\tt (bool test) = (name e)
+                        \ttmkey{in}{name list} (L op)} \\
+Returns \TT{true} if \TT{e} is an element of the list \TT{op}, and
+\TT{false} otherwise.
+
+\hspace*{-0.3in}{\tt (L concatenation) = (name e)
+                        "\ttmkey{+}{name list prepend}" (L op)} \\
+Returns the list made by prepending \TT{e} to \TT{op}.
+
+\hspace*{-0.3in}{\tt (L concatenation) = (L op)
+                        "\ttmkey{+}{name list append}" (name e)} \\
+Returns the list made by appending \TT{e} to \TT{op}.
+
+\hspace*{-0.3in}{\tt (L difference) = (L s)
+                        "\ttmkey{-}{name list remove}" (name e)} \\
+Returns the list made by removing the all occurences of
+\TT{e} in \TT{op}.
+
+\end{indpar}
+
 
 \section{Conversions}
 \label{CONVERSIONS}

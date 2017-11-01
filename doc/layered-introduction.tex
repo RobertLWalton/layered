@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 23, 2017
+November 1, 2017
  
 \end{center}
 
@@ -5131,7 +5131,7 @@ fixups.
 \end{indpar}
 
 \ttmkey{sentence}{reformatter}
-        \TT{(} {\em terminator-list}\TT{,} {\em extender-list} \TT{)}
+        \TT{(} {\em terminator-list} \TT{)}
 	\label{SENTENCE-REFORMATTER}
 
 \begin{indpar}[0.5em]
@@ -5141,21 +5141,17 @@ where
 \emkey{terminator-list} ::=
     \TT{()}
     $|$ \TT{(} {\em terminator} \{ \TT{,} {\em terminator} \}\STAR{} \TT{)}
-\\[0.5ex]
-\emkey{extender-list} ::=
-    \TT{()}
-    $|$ \TT{(} {\em extender} \{ \TT{,} {\em extender} \}\STAR{} \TT{)}
 \end{indpar}
 
 
 The subexpression must be a MIN value of the form:
 \begin{center}
 \TT{\{}{\em prefix} {\em prefix-attributes}\QMARK{} \TT{|}
-            {\em lement-list}  \TT{|\}}
+            {\em element-list}  \TT{|\}}
 \end{center}
 where
 \begin{indpar}
-\emkey{prefix} ::= the prefix, e.g., `\TT{p}'
+\emkey{prefix} ::= the prefix, e.g., `\TT{s}'
 \\[0.5ex]
 \emkey{prefix-attributes} ::= {\em attribute-type-begin} ~ {\em attribute-list}
 			      ~~~ (see \pagref{OPENING-TYPE-AND-ATTRIBUTES})
@@ -5165,15 +5161,25 @@ where
 
 The {\em element-list} is parsed according to the rules:
 \begin{indpar}
-\emkey{element-list} ::= {\em sentence-term}
-			 \{ {\em sentence-prefix-list}
-			    {\em sentence-term} \}\STAR{}
+\emkey{element-list} ::= {\em sentence}\STAR{} {\em phrase}
 \\[0.5ex]
-\emkey{sentence-term} ::= {\em sentence-element}\STAR{}
-			 \{ {\em sentence-terminator}
-			    {\em sentence-element}\STAR{} \}\STAR{}
-\emkey{element-list} ::= see \pagref{ELEMENT-LIST}
+\emkey{sentence} ::= {\em phrase} {\em terminator}
+\\[0.5ex]
+\emkey{phrase} ::= {\em phrase-element}\STAR{}
+\\[0.5ex]
+\emkey{phrase-element} ::= {\em element} other than {\em terminator}
 \end{indpar}
+
+The \TT{sentence} reformatter converts the subexpression to a sequence
+of subexpressions, one for each {\em sentence} and one for any
+non-empty final {\em phrase}.  Each of these subexpressions has
+as elements the {\em phrase-elements}
+of the corresponding {\em sentence} or {\em phrase},
+and has as attributes copies of the attributes
+of the original subexpression.
+In addition, each subexpression corresponding to a {\em sentence}
+has a \TT{.terminator} attribute equal to the {\em terminator}
+of the {\em sentence}.
 
 
 

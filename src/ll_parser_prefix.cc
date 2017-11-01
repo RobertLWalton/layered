@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 30 02:23:16 EDT 2017
+// Date:	Wed Nov  1 06:22:00 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -700,7 +700,7 @@ static void prefix_reformatter_stack_initialize ( void )
     min::locatable_gen sentence_name
         ( min::new_str_gen ( "sentence" ) );
     PAR::push_reformatter
-        ( sentence_name, 0, 2, 100,
+        ( sentence_name, 0, 1, 1,
 	  ::sentence_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 }

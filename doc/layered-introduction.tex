@@ -6855,469 +6855,440 @@ re-point $C$ to the token after $C$, and iterate the loop.
 
 begin standard lexical program;
 
-"<ascii-char>" = "<0>-<7F>"  [ASCII Character]
+"<horizontal>" = "<UNICODE-CATEGORY-Zs>"
+               | "<HT>";
 
-// NON_ASCII_LETTERS, NON_ASCII_COMBINING_
-// CHARACTERS, NON_ASCII_CONTROL_CHARACTERS are
-// defined in ll_lexeme_non_ascii_characters.h.
+"<misplaced-horizontal>" =
+          "<horizontal>"
+        & ~ "<SP>";
 
-"<non-ascii-letter>" = NON_ASCII_LETTERS
+"<vertical>" = "<CR>" | "<VT>" | "<FF>"
 
-"<non-ascii-combining-char>" =
-    NON_ASCII_COMBINING_CHARACTERS
+"<graphic>" = "<UNICODE-CATEGORY-L>"
+            | "<UNICODE-CATEGORY-M>"
+            | "<UNICODE-CATEGORY-N>"
+            | "<UNICODE-CATEGORY-P>"
+            | "<UNICODE-CATEGORY-S>"
 
-"<non-ascii-control-char>" =
-    NON_ASCII_CONTROL_CHARACTERS
+"<non-/-graphic>" = "<graphic> & ~ "/";
 
-"<ascii-letter>" = "a-z" | "A-Z";
+"<control>" = "<UNICODE-CATEGORY-C>"
+            | "<UNICODE-CATEGORY-Z>"
 
-"<digit>" = "0-9";
+"<illegal-control>" = "<control>"
+                    & ~ "<horizontal>"
+                    & ~ "<vertical>"
+                    & ~ "<LF>"
 
-"<hex-digit>" = "0-9" | "A-F";
+"<isolated-separator>"
+        = "<UNICODE-CATEGORY-Ps>"
+        | "<UNICODE-CATEGORY-Pi>"
+        | "<UNICODE-CATEGORY-Pe>"
+        | "<UNICODE-CATEGORY-Pf>"
 
-"<non-digit>" = ~ "<digit>";
+"<repeating-separator>" = "|"
 
-"<letter>" = "<ascii-letter>"
-           | "<non-ascii-letter>"
+"<separator>"
+        = "<isolated-separator>"
+        | "<repeating-separator>"
 
-"<non-ascii-word-char>" =
-      "<non-ascii-letter>"
-    | "<non-ascii-combining-char>"
+"<leading>"
+        = "`"
+        | "<0A1>"  // Inverted !
+        | "<0BF>"  // Inverted ?
 
-// Context sensitive character classifications,
-// e.g., classifying ' as a word character if it
-// is followed by a letter, cannot be included
-// in character pattern definitions, but are
-// noted in comments.  They are accounted for
-// by separate lexeme table entries below.
+"<trailing>"
+        = "'" | "!" | "?" | "." | ":"
+        | "," | ";"
 
-"<non-letter>" = ~ "<letter>";
+"<letter>" = "<UNICODE-CATEGORY-L>"
 
-"<mark-char>" = "+" | "-" | "*" | "~" | "@"
-              | "#" | "$" | "%" | "^" | "&"
-              | "=" | "|" | ">" | "_" | "!"
-              | "?" | ":";
-              //
-              // Also . not followed by a digit
-              //      / not surrounded by digits
-              //        or followed by /
-              //      < not beginning escaped
-              //        hex character
+"<digit>" = "<UNICODE-CATEGORY-Nd>"
 
-"<non-slash-char>" = ~ "/";
+"<non-ASCII-digit>" = "<digit> & ~ "0-9"
 
-"<separator-char>" = "(" | ")" | "[" | "]"
-                   | "{" | "}" | ";" | "`";
-              //
-              // Also , not surrounded by digits
-              //      ' not followed by a letter
+"<mark>" = (   "<UNICODE-CATEGORY-P>"
+             | "<UNICODE-CATEGORY-S>"
+             | "<UNICODE-CATEGORY-M>"
+             | "<UNICODE-CATEGORY-N>" )
+         & ~ "<digit>"
+         & ~ "<separator>"
+         & ~ "<Q>"
 
-"<misplaced-space-char>" =
-        "<CR>" | "<VT>" | "<FF>"
+"<middle>" =   "<graphic>"
+           & ~ "<trailing>"
+           & ~ "<separator>"
+           & ~ "<Q>"
 
-"<ascii-control-char>" = "<0>-<1F>" | "<7F>"
+"<mark-middle>" = "<mark>" & ~ "<trailing>"
 
-"<control-char>" = "<ascii-control-char>"
-                 | "<non-ascii-control-char>"
+"<directly-quotable>" = (     "<graphic>"
+                          & ~ "<"
+                          & ~ "<Q>" )
+                      | "<SP>"
 
-"<control-char-except-CR-LF>" =
-    "<control-char>" & ~ "<CR>" & ~ "<LF>"
-
-"<horizontal-space-char>" = " " | "<HT>";
-
-"<escape-char>" = "A-Z" | "0-9" | "-";
+"<escape>" = "A-Z" | "0-9"
 
 
-begin main master table;
+begin start file master table;
+   output start file goto begin line
+end start file master table;
 
-   // Unrecognized characters or escapes, etc,
-   // outside quoted strings are output as
-   // lexemes, and can separate other lexemes.
-   // If these are treated by post-processing
-   // in the same manner as horizontal space,
-   // they could be replaced by horizontal space
-   // without changing the semantics of the
-   // output.
-   //
-   // Inside quoted strings, unrecognized
-   // escapes are treated as erroneous atoms,
-   // translated to "", and ignored.  The
-   // lexemes output would be the same if they
-   // were removed.
 
-   // Whitespace is separated out into 4 types
-   // of lexemes:
-   //
-   //   `space'
-   //       single spaces and horizontal tabs
-   //   `line break'
-   //       linefeeds, carriage returns, form
-   //       feeds, and vertical tabs, with at
-   //       least one line feed
-   //   `misplaced space'
-   //       ditto but with no line feed
-   //   `comments'
-   //       `//' up to just before next line
-   //        break, misplaced space, or (pre-
-   //        mature) end of file
-   //
-   "//" call comment;
-   "/"  call mark;
+begin begin line master table;
 
-   "<horizontal-space-char>"
-        call horizontal space;
+   "<horizontal><repeat>//"
+                keep 1
+                output indent before comment
+                goto horizontal space
+   "<horizontal><repeat>/"
+                keep 1
+                output indent
+                goto horizontal space
+   "<horizontal><repeat><non-/-graphic>"
+                keep 1
+                output indent
+                goto horizontal space
+   "<horizontal><repeat>"
+                output horizontal space
 
-   "<LF>" call line break;
-   "<misplaced-space-char>"
-        call misplaced space;
+   "//" keep 0
+        output indent before comment
+        goto within line
+   "/"  keep 0
+        output indent
+        goto within line
+   "<non-/-graphic>"
+        keep 0
+        output indent
+        goto within line
 
-   "<letter>" call word;
+   "<LF>" goto line break
 
-   "'<letter>" call word;
-   "'" output separator;
+   "<vertical><repeat><LF>" goto line break
+   "<vertical><repeat>"
+                output misplaced vertical
 
-  "<" "<digit>"
-          match escaped hex char
-          require "<non-ascii-letter>"
-          call word
-     else match escaped hex char
-          require "<ascii-char>"
-          output ascii escape seq
-     else match escaped hex char
-          output non letter escape seq
-     else keep 1 call mark;
-   "<" call mark;
+   "<illegal-control><repeat>"
+        output illegal control
 
-   "<mark-char>" call mark;
+   "<others><repeat>"
+        error unrecognized character
 
-   "<digit>" keep 0 call natural number;
-             // We keep 0 so natural number can
-             // recognize <digit>,<digit> etc.
+   output premature end of file goto end of file
+        // End of file not following a line
+        // break
+end begin line master table;
 
-   ".<digit>" keep 1 call number;
-              // We keep 1 so number can recog-
-              // nize <digit>,<digit> etc.
-   "." call mark;
 
-   "<separator-char>" output separator;
+begin horizontal space sublexeme table;
 
-   "," output separator;
+   "<horizontal>" accept;
 
-   "<Q>" translate to "" call quoted string;
+   goto within line;
+end horizontal space sublexeme table;
 
-   "<others>" output misplaced char;
 
-   output end of file;
+begin data check master table;
 
-end main master table;
+   "@"          keep 0
+                output data
+                goto within line;
+
+   "!@"         keep 1
+                output raw data
+                goto within line;
+
+   goto within line;
+end data check master table;
+
+
+begin paragraph check master table;
+
+   "@"          keep 0
+                output data
+                goto within line;
+
+   "!@"         keep 1
+                output raw data
+                goto within line;
+
+   "====="      keep 0
+                output table
+                goto row check;
+
+   "-----"      keep 0
+                output table
+                goto row check;
+
+   goto within line;
+end paragraph check master table;
+
+
+begin row check master table;
+
+   "|"          keep 0
+                output row
+                goto within line;
+
+   "====="      keep 0
+                output row
+                goto within line;
+
+   "-----"      keep 0
+                output row
+                goto within line;
+
+   goto within line;
+end row check master table;
+
+
+begin within line master table;
+
+   "//" goto comment;
+   "/"  goto mark;
+
+   "<horizontal><repeat>"
+        output horizontal space;
+
+   "<LF>" goto line break
+
+   "<vertical><repeat><LF>" goto line break
+   "<vertical><repeat>"
+                output misplaced vertical
+
+   "<illegal-control><repeat>"
+        output illegal control
+
+   "<isolated-separator>" output separator;
+   "`" output separator;
+   "|<repeat>" output separator;
+   "<0A1><repeat>" output separator;
+        // Inverted !
+   "<0BF><repeat>" output separator;
+        // Inverted ?
+
+   "<trailing><repeat><letter>"
+                output word
+                goto finish middle;
+   "<trailing><repeat><digit>"
+                output numeric
+                goto finish middle;
+   "<trailing><repeat><mark-middle>"
+                goto mark
+   "<trailing><repeat>"
+                keep 0
+                goto separator;
+
+   "<letter>" output word goto finish middle;
+
+   "0" goto leading zero;
+
+   "1-9" goto natural;
+
+   "<non-ASCII-digit>" output numeric
+                       goto finish middle;
+
+   "<mark-middle>" goto mark;
+
+   "<Q>" translate to "" goto quoted string;
+
+   "<others><repeat>"
+        error unrecognized character
+
+   output premature end of file goto end of file
+        // End of file not following a line
+        // break
+end within line master table;
 
 
 // The below tables are entered from the master
-// table with the first zero, one, or two
-// characters scanned.
-
+// table with the first atom scanned, unless
+// otherwise indicated.
 
 begin comment lexeme table;
 
-   "<LF>" keep 0 return;
-   "<misplaced-space-char>" keep 0 return;
+   "<graphic>" accept
+   "<horizontal>" accept
 
-   "<others>" accept;
-
-   goto premature end of file;
-
+   "<LF>" keep 0 goto within line
+   "<vertical><repeat><LF>" keep 0
+                            goto within line
+   "<vertical><repeat>"
+        error mispaced vertical
+   "<illegal-control><repeat>"
+        error illegal control
+   "<others><repeat>"
+        error unrecognized character
+   goto within line
+      // which will output premature end of file
 end comment lexeme table;
-
-
-begin horizontal space lexeme table;
-
-   "<horizontal-space-char>" accept;
-
-   return;
-
-end horizontal space lexeme table;
-
-
-begin misplaced space lexeme table;
-
-   "<LF>" goto line break;
-
-   "<misplaced-space-char>" accept;
-
-   return;
-
-end misplaced space lexeme table;
 
 
 begin line break lexeme table;
 
-   "<LF>" accept;
-   "<misplaced-space-char>" accept;
+   "<vertical>" accept;
 
-   return;
+   "<others>" keep 0 goto begin line
 
+    goto end of file
 end line break lexeme table;
 
 
-begin word lexeme table;
+begin separator lexeme table;
+    // First atom is not scanned; next lexeme
+    // must be a trailing separator if it has
+    // the syntax of such.
 
-   "<letter>" accept;
-   "<non-ascii-combining-char>" accept;
+   "!<repeat>" goto finish separators
+   "?<repeat>" goto finish separators
+   ".<repeat>" goto finish separators
+   ":<repeat>" goto finish separators
+   "'" goto finish separators
+   "," goto finish separators
+   ";" goto finish separators
 
-   "'<letter>" accept;
+   output NONE goto within line;
+end separator lexeme table;
 
-    "<" "<digit>"
-              match escaped hex char
-              require "<non-ascii-word-char>"
-         else keep 0 return;
 
-   return;
+begin finish separators master table;
+    // Come here to end lexeme when next lexeme
+    // must be a trailing separator if it has
+    // the syntax of such.
 
-end word lexeme table;
+   goto separator;
+end finish separators master table;
+
+
+begin finish middle sublexeme table;
+    // Come here when type of middle lexeme has
+    // been set by an `output' instruction.
+
+   "<middle>" accept;
+
+   "<trailing><repeat><middle>" accept;
+   "<trailing><repeat>"
+        keep 0 goto finish separators;
+
+   goto within line;
+end finish middle sublexeme table;
 
 
 begin mark lexeme table;
+    // Middle lexeme with no letter or digit yet
+    // scanned.  Will be mark if none found.
 
-   "<mark-char>" accept;
-   "<non-ascii-combining-char>" accept;
+   "<letter>" output word goto finish middle;
 
-   ".<digit>" keep 0 return;
-   "." accept;
+   "<digit>" output numeric goto finish middle;
 
-   "//" keep 0 return;
-   "/" accept;
+   "<mark-middle>" accept;
 
-    "<" "<digit>"
-          match escaped hex char
-          require "<non-ascii-combining-char>"
-      else
-          match escaped hex char
-          keep 0 return;
-      else
-          keep 1;
-    "<" accept;
+   "<trailing><repeat><letter>"
+                output word
+                goto finish middle;
+   "<trailing><repeat><digit>"
+                output numeric
+                goto finish middle;
+   "<trailing><repeat><mark-middle>" accept;
+   "<trailing><repeat>"
+        keep 0 goto finish separators;
 
-   return;
-
+   goto within line;
 end mark lexeme table;
 
 
-begin natural number lexeme table;
+begin leading zero sublexeme table;
+
+   "<middle>"
+        output numeric goto finish middle
+   "<trailing><repeat><middle>"
+        output numeric goto finish middle;
+   "<trailing><repeat>"
+        output natural keep 0
+        goto finish separators
+
+   output natural goto within line;
+end leading zero sublexeme table;
 
 
-   // In order to recognize , and / surrounded
-   // by digits as number atoms, entries to this
-   // table upon recognizing "X<digit>" must do
-   // a `keep 1' so the digit will be left to be
-   // recognized by <digit>/<digit> etc.
+begin natural lexeme table;
 
-   // Alternatively we could have a separate
-   // table for the state where the last atom
-   // ended with a digit.
+   "0-9" accept;
 
-   "<digit>:<digit>" keep 2 goto number;
-   "<digit>/<digit>" keep 2 goto number;
-   "<digit>,<digit>" keep 2 goto number;
-   "<digit>" accept;
+   "<non-ASCII-digit>" output numeric
+                       goto finish middle;
+   "<letter>"          output numeric
+                       goto finish middle;
+   "<mark-middle>"     output numeric
+                       goto finish middle;
 
-   ".<digit>" keep 1 goto number;
+   "<trailing><repeat><middle>"
+        output numeric goto finish middle;
+   "<trailing><repeat>"
+        keep 0 goto finish separators;
 
-   return;
-
-end natural number lexeme table;
-
-
-begin number lexeme table;
-
-   // See note on , and / in `natural number'
-   // table above.
-
-   "<digit>:<digit>" keep 2;
-   "<digit>/<digit>" keep 2;
-   "<digit>,<digit>" keep 2;
-   "<digit>" accept;
-
-   ".<digit>" keep 1;
-
-   return;
-
-end number lexeme table;
+   goto within line;
+end natural lexeme table;
 
 
 begin quoted string lexeme table;
 
-    "<Q>" translate to "" return;
+    "<Q>" translate to "" goto within line;
             // End quoted string.
 
-    "<" match escaped char
-        else match unrecognized escape seq
-             error unrecognized escape seq
-             translate to ""
-        else accept;
+    "<" "<0-9>" ">"
+        translate hex 1 1
+    "<" "<0-9><escape><repeat>" ">"
+        translate hex 1 1
+        else error unrecognized escape
+             translate to "<UUC>"
+    "<" "<A-Z>" ">"
+             translate name 1 1
+        else error unrecognized escape
+             translate to "<UUC>"
+    "<" "<A-Z><escape><repeat>" ">"
+           translate name 1 1
+        else error unrecognized escape
+             translate to "<UUC>"
+    "<"
+        accept;
 
-    "<LF>"
-        keep 0 goto premature end of line;
 
-    "<CR><LF>"
-        keep 0 goto premature end of line;
-    "<CR>"
-        error misplaced control char
-        translate to "";
+    "<directly-quotable>" accept;
 
-    "<control-char-except-CR-LF>"
-        error misplaced control char
-        translate to "";
+   "<LF>"
+        keep 0 goto premature end of string
+   "<vertical><repeat><LF>"
+        keep 0 goto premature end of string
+   "<vertical><repeat>"
+        error mispaced vertical
+    "<misplaced-horizontal><repeat>"
+        error misplaced horizontal
+   "<illegal-control><repeat>"
+        error illegal control
+   "<others><repeat>"
+        error unrecognized character
 
-    "<others>" accept;
-
-    goto premature end of file;
-
+    goto premature end of string;
 end quoted string lexeme table;
 
 
-begin escaped char atom table;
+begin premature end of string master table;
 
-    "<" "ACK" ">" translate to "<ACK>";
-    "<" "BEL" ">" translate to "<BEL>";
-    "<" "BS" ">" translate to "<BS>";
-    "<" "CAN" ">" translate to "<CAN>";
-    "<" "CR" ">" translate to "<CR>";
-    "<" "DC1" ">" translate to "<DC1>";
-    "<" "DC2" ">" translate to "<DC2>";
-    "<" "DC3" ">" translate to "<DC3>";
-    "<" "DC4" ">" translate to "<DC4>";
-    "<" "DEL" ">" translate to "<DEL>";
-    "<" "DLE" ">" translate to "<DLE>";
-    "<" "EM" ">" translate to "<EM>";
-    "<" "ENQ" ">" translate to "<ENQ>";
-    "<" "EOT" ">" translate to "<EOT>";
-    "<" "ESC" ">" translate to "<ESC>";
-    "<" "ETB" ">" translate to "<ETB>";
-    "<" "ETX" ">" translate to "<ETX>";
-    "<" "FF" ">" translate to "<FF>";
-    "<" "FS" ">" translate to "<FS>";
-    "<" "GS" ">" translate to "<GS>";
-    "<" "HT" ">" translate to "<HT>";
-    "<" "LF" ">" translate to "<LF>";
-    "<" "NAK" ">" translate to "<NAK>";
-    "<" "NL" ">" translate to "<NL>";
-    "<" "NUL" ">" translate to "<NUL>";
-    "<" "Q" ">" translate to "<Q>";
-    "<" "RS" ">" translate to "<RS>";
-    "<" "SI" ">" translate to "<SI>";
-    "<" "SO" ">" translate to "<SO>";
-    "<" "SOH" ">" translate to "<SOH>";
-    "<" "SP" ">" translate to "<SP>";
-    "<" "STX" ">" translate to "<STX>";
-    "<" "SUB" ">" translate to "<SUB>";
-    "<" "SYN" ">" translate to "<SYN>";
-    "<" "US" ">" translate to "<US>";
-    "<" "VT" ">" translate to "<VT>";
-
-    "<" "<digit>" match escaped hex char
-            else fail;
-
-    fail;
-
-end escaped char atom table;
+    output premature end of string
+    goto within line;
+end premature end of string master table;
 
 
-begin escaped hex char atom table;
-
-    "<" "<digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit>"
-       "<hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit><hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit><hex-digit>"
-       "<hex-digit><hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit><hex-digit>"
-       "<hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit><hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit><hex-digit>" ">"
-              translate hex 1 1;
-    "<" "<digit>" ">" translate hex 1 1;
-
-    fail;
-
-end escaped hex char atom table;
+begin end of file master table;
+    output end of file goto stop
+end end of file master table;
 
 
-begin unrecognized escape seq atom table;
-
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char><escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>"
-        "<escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char><escape-char>" ">";
-    "<" "<escape-char><escape-char>"
-        "<escape-char>" ">";
-    "<" "<escape-char><escape-char>" ">";
-    "<" "<escape-char>" ">";
-
-    fail;
-
-end unrecognized escape seq atom table;
-
-
-begin premature end of line master table;
-
-    output premature end of line goto main;
-
-end premature end of line master table;
-
-
-begin premature end of file master table;
-
-    output premature end of file goto main;
-
-end premature end of file master table;
+begin stop master table;
+end stop master table;
 
 
 end standard lexical program;
@@ -7548,34 +7519,15 @@ the lexical program for that scheme are:
 
 begin alternate lexical program;
 
-"<ascii-char>" = "<0>-<7F>"  [ASCII Character]
-
-// NON_ASCII_LETTERS, NON_ASCII_COMBINING_
-// CHARACTERS, NON_ASCII_CONTROL_CHARACTERS are
-// defined in ll_lexeme_non_ascii_characters.h.
-
-"<non-ascii-letter>" = NON_ASCII_LETTERS
-
-"<non-ascii-combining-char>" =
-    NON_ASCII_COMBINING_CHARACTERS
-
-"<non-ascii-control-char>" =
-    NON_ASCII_CONTROL_CHARACTERS
-
-"<ascii-letter>" = "a-z" | "A-Z";
-
-"<digit>" = "0-9";
+"<digit>" = "<UNICODE-CATEGORY-Nd>"
 
 "<hex-digit>" = "0-9" | "A-F";
 
 "<non-digit>" = ~ "<digit>";
 
-"<letter>" = "<ascii-letter>"
-           | "<non-ascii-letter>"
+"<letter>" = "<UNICODE-CATEGORY-L>"
 
-"<non-ascii-word-char>" =
-      "<non-ascii-letter>"
-    | "<non-ascii-combining-char>"
+"<combining-character>" = "<UNICODE-CATEGORY-M>"
 
 // Context sensitive character classifications,
 // e.g., classifying ' as a word character if it
@@ -7589,12 +7541,12 @@ begin alternate lexical program;
 "<mark-char>" = "+" | "-" | "*" | "~" | "@"
               | "#" | "$" | "%" | "^" | "&"
               | "=" | "<" | ">" | "_" | "!"
-	      | "?" ;
+              | "?" ;
               //
               // Also . not surrounded by digits
-	      //        and not both followed by
-	      //        a letter and preceded
-	      //        by a non-mark character
+              //        and not both followed by
+              //        a letter and preceeded
+              //        by a non-mark character
               //      / not surrounded by digits
               //        or followed by /
 
@@ -7605,17 +7557,14 @@ begin alternate lexical program;
               //
               // Also , not surrounded by digits
               //      ' not followed by a letter
-	      //        or a digit
-	      //      | (possibly repeated)
-	      //      : (possibly repeated)
+              //        or a digit
+              //      | (possibly repeated)
+              //      : (possibly repeated)
 
 "<misplaced-space-char>" =
         "<CR>" | "<VT>" | "<FF>"
 
-"<ascii-control-char>" = "<0>-<1F>" | "<7F>"
-
-"<control-char>" = "<ascii-control-char>"
-                 | "<non-ascii-control-char>"
+"<control-char>" = "<UNICODE-CATEGORY-C>"
 
 "<control-char-except-CR-LF>" =
     "<control-char>" & ~ "<CR>" & ~ "<LF>"
@@ -7691,7 +7640,7 @@ begin main master table;
 
    "<Q>" translate to "" call quoted string;
 
-   "<others>" output misplaced char;
+   "<other>" output misplaced char;
 
    output end of file;
 
@@ -7708,7 +7657,7 @@ begin comment lexeme table;
    "<LF>" keep 0 return;
    "<misplaced-space-char>" keep 0 return;
 
-   "<others>" accept;
+   "<other>" accept;
 
    goto premature end of file;
 
@@ -7748,7 +7697,7 @@ end line break lexeme table;
 begin word lexeme table;
 
    "<letter>" accept;
-   "<non-ascii-combining-char>" accept;
+   "<combining-char>" accept;
 
    "'<letter>" accept;
 
@@ -7761,7 +7710,7 @@ begin mark lexeme table;
 
    "<mark-char>" accept;
    "." accept;
-   "<non-ascii-combining-char>" accept;
+   "<combining-char>" accept;
 
    "//" keep 0 return;
    "/" accept;
@@ -7840,7 +7789,7 @@ begin quoted string lexeme table;
         error misplaced control char
         translate to "<UUC>";
 
-    "<others>" accept;
+    "<other>" accept;
 
     goto premature end of file;
 
@@ -7972,18 +7921,15 @@ begin c++ lexical program;
 
 "<ascii-letter>" = "a-z" | "A-Z";
 
-"<letter>" = "<ascii-letter>"
-           | "<non-ascii-letter>
+"<letter>" = "<UNICODE-CATEGORY-L>"
 
-// <non-ascii-letter> ::= UNICODE character in
-// one of the code ranges designated in
-// NON_ASCII_LETTERS in ll_lexeme_non_ascii_
-// characters.h.
+"<non-ascii-letter>" =   "<letter>"
+                     & ~ <ascii-letter>
 
-// <combining-char> ::= UNICODE character in
-// one of the code ranges designated in
-// NON_ASCII_COMBINING_CHARACTERS in ll_lexeme_
-// non_ascii_characters.h.
+"<ascii-character>" =   "<00-3F>"
+
+// <non-spacing-combining-char> ::=
+//         "<UNICODE-CATEGORY-Mn>"
 
 // Universal characters are only permitted in
 // identifiers, character literals, and string
@@ -7994,13 +7940,13 @@ begin c++ lexical program;
 
 "<identifier-non-digit>" = "_" | "<letter>";
 
-"<identifier-char>" = "<identifier-non-digit>"
-                    | "<digit>"
-                    | "<combining_char>"
+"<identifier-char>" =
+      "<identifier-non-digit>"
+    | "<digit>"
+    | "<non-spacing-combining_char>"
 
 "<non-ascii-identifier-char>" =
-          "<non-ascii-letter>"
-        | "<combining_char>"
+      "<identifier-char>" & ~ <ascii-char>
 
 // Because `u', `U', or `L' can start a char-
 // acter or string literal, we must define:
@@ -8030,8 +7976,6 @@ begin c++ lexical program;
 "<sign>" = "+" | "-" ;
 
 "<u_U>" = "u" | "U" ;
-
-"<ascii-char>" = "<0>-<7F>"  [ASCII Character]
 
 
 // C/C++ preprocessing is hereafter abbreviated
@@ -8232,7 +8176,7 @@ begin "/*" comment lexeme table;
     "*/" return;
     "*" accept;
 
-    "<others>" accept;
+    "<other>" accept;
 
     translate_to "*/"
     goto premature end of file;
@@ -8244,7 +8188,7 @@ begin "//" comment lexeme table;
 
     "<NL>" keep 0 return;
 
-    "<others>" accept;
+    "<other>" accept;
 
     goto premature end of file;
 
@@ -8258,7 +8202,7 @@ begin bracketed header name lexeme table;
     "<NL>"
         keep 0 goto premature newline;
 
-    "<others>" accept;
+    "<other>" accept;
 
     goto premature end of file;
 
@@ -8276,7 +8220,7 @@ begin quoted header name lexeme table;
     "<NL>"
         keep 0 goto premature newline;
 
-    "<others>" accept;
+    "<other>" accept;
 
     goto premature end of file;
 
@@ -8357,7 +8301,7 @@ begin normal master table;
 
     "<NL>" output newline goto initial;
 
-    "<others>" output misplaced char;
+    "<other>" output misplaced char;
 
     output end of file;
 
@@ -8413,8 +8357,7 @@ begin identifier lexeme table;
     "<digit>" accept;
 
     "\<u_U>" match universal char
-             require
-                 "<non-ascii-identifier-char>"
+             require "<non-ascii-letter>"
         else keep 0 return
 
     return;
@@ -8607,7 +8550,7 @@ begin char literal sublexeme table;
     "\" match escaped char
         // match should always succeed
 
-    "<others>" accept
+    "<other>" accept
 
     goto premature end of file
 
@@ -8623,7 +8566,7 @@ begin string literal sublexeme table;
     "\" match escaped char
         // match should always succeed
 
-    "<others>" accept
+    "<other>" accept
 
     goto premature end of file
 
@@ -8720,7 +8663,7 @@ begin escaped char atom table;
         error ill formed escape
         translate to "";
 
-"\<others>" error ill formed escape
+"\<other>" error ill formed escape
            translate to "";
 
 "\" error ill formed escape

@@ -218,12 +218,12 @@ lex
 lex	"<mark-char>" = "+" | "-" | "*" | "~" | "@"
 lex	              | "#" | "$" | "%" | "^" | "&"
 lex	              | "=" | "<" | ">" | "_" | "!"
-lex		      | "?" ;
+lex	              | "?" ;
 lex	              //
 lex	              // Also . not surrounded by digits
-lex		      //        and not both followed by
-lex		      //        a letter and preceeded
-lex		      //        by a non-mark character
+lex	              //        and not both followed by
+lex	              //        a letter and preceeded
+lex	              //        by a non-mark character
 lex	              //      / not surrounded by digits
 lex	              //        or followed by /
 lex
@@ -239,9 +239,9 @@ lex	                   | "{" | "}" | ";" | "`";
 lex	              //
 lex	              // Also , not surrounded by digits
 lex	              //      ' not followed by a letter
-lex		      //        or a digit
-lex		      //      | (possibly repeated)
-lex		      //      : (possibly repeated)
+lex	              //        or a digit
+lex	              //      | (possibly repeated)
+lex	              //      : (possibly repeated)
 lex
 cc	    const char * separator_char = "()[]{};`";
 cc

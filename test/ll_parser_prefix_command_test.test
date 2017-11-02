@@ -12,19 +12,18 @@
         with prefix separators allowed
 *PARSER*:
     begin block X
-    define prefix "s" [TOP LEVEL]
+    define prefix "p" [TOP LEVEL]
+        with parsing options [end at paragraph break]
+        with group paragraph
         with parsing selectors [+ text, - code]
+    define prefix "s" [text]
         with sentence reformatter
              ( (".", ";", ":", "?", "!" ) )
     print prefix "s"
-        block X: prefix "s" [TOP LEVEL]
-                 with parsing selectors [- TOP LEVEL, - code, + text]
+        block X: prefix "s" [text]
+                 with parsing selectors [- TOP LEVEL]
                  with sentence reformatter ( {|"." ";" ":" "?" "!"|} )
-SENTENCE REFORMATTER
-SENTENCE ARGUMENT {|"." ";" ":" "?" "!"|}
 BRACKETED EXPRESSION:
-    {s||s} This is a sentence "." A phrase;
-BRACKETED EXPRESSION:
-    and a question "?"
+    {s|This is a sentence "." A phrase ";" and a question "?"|s}
 *PARSER*:
     end block X

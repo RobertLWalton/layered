@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 1, 2017
+November 2, 2017
  
 \end{center}
 
@@ -4133,9 +4133,10 @@ in error.
 The definitions
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define indentation mark "TOP LEVEL" ... ";" []
+    define indentation mark "TOP LEVEL" []
         // Indentation mark definition governing top level
-        // parsing; may NOT be redefined.
+        // parsing.  May NOT be redefined.  Has NO line
+        // separator.
     define indentation mark "*PARSER*" ... ";" [TOP LEVEL]
         with parsing selectors [data]
     define indentation mark "*PARSER* *TEST*" ... ";"

@@ -1,9 +1,10 @@
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED EXPRESSION:
-    This is a line;
-@@ = This is a line:
-         .terminator = ";"
+    This is a line ";"
+@@ = This is a line ";":
+         .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     line ##:
@@ -3169,26 +3170,73 @@ PREFIX EXPRESSION:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f g; {X} h k
+{X} a b c
 ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f g; {X} h k
+{X} a b c
 ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {X|a b c|X};
+    {X|a b c|X}
 @@@@ = {X|a b c|X}:
-           .terminator = ";"
+           .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-{X} a b c; {X}{Y} f g; {X} h k
+{X} a b c
+^^^^^^^^^
+BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {X||X}
+@@@@ =:
+           .type = "X"
+           .position[H] = PACKED_VEC
+    line ###:
+{X}{Y} f g
+^^^
+BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {Y||Y}
+@@@@ =:
+           .type = "Y"
+           .position[H] = PACKED_VEC
+    line ###:
+{X}{Y} f g
+   ^^^
+BRACKETED EXPRESSION:
+    {Y|f g|Y}
+@@@@ = f g:
+           .type = "Y"
+           .position[H] = PACKED_VEC
+    line ###:
+{X}{Y} f g
+   ^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|f g|Y}|X}
+@@@@ = {Y|f g|Y}:
+           .type = "X"
+           .position[H] = PACKED_VEC
+    line ###:
+{X}{Y} f g
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X|{Y|f g|Y}|X}
+@@@@ = {X|{Y|f g|Y}|X}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{X}{Y} f g
 ^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
@@ -3200,67 +3248,16 @@ PREFIX EXPRESSION:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-           ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {Y||Y}
-@@@@ =:
-           .type = "Y"
-           .position[H] = PACKED_VEC
-    line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-              ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED EXPRESSION:
-    {Y|f g|Y}
-@@@@ = f g:
-           .type = "Y"
-           .position[H] = PACKED_VEC
-    line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-              ^^^^^^^
-BRACKETED EXPRESSION:
-    {X|{Y|f g|Y}|X}
-@@@@ = {Y|f g|Y}:
-           .type = "X"
-           .position[H] = PACKED_VEC
-    line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-           ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {X|{Y|f g|Y}|X};
-@@@@ = {X|{Y|f g|Y}|X}:
-           .terminator = ";"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-           ^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
-     OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {X||X}
-@@@@ =:
-           .type = "X"
-           .position[H] = PACKED_VEC
-    line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-                       ^^^
+{X} h k
+^^^
 BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = h k:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-                       ^^^^^^^
+{X} h k
+^^^^^^^
 BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = {X|h k|X}:
@@ -3268,8 +3265,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-{X} a b c; {X}{Y} f g; {X} h k
-                       ^^^^^^^
+{X} h k
+^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -3280,27 +3277,25 @@ PREFIX EXPRESSION:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
+{X} a b c
 ^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
 BRACKETED EXPRESSION:
     {X|a b c|X}
 @@@@ = a b c:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
+{X} a b c
 ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {X|a b c|X};
+    {X|a b c|X}
 @@@@ = {X|a b c|X}:
-           .terminator = ";"
+           .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-^^^^^^^^^^
+{X} a b c
+^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -3311,8 +3306,8 @@ PREFIX EXPRESSION:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-           ^^^
+{X}{Y} f [$ NONE $] g
+^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -3323,8 +3318,8 @@ PREFIX EXPRESSION:
            .type = "Y"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-              ^^^
+{X}{Y} f [$ NONE $] g
+   ^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
@@ -3333,38 +3328,36 @@ DERIVED EXPRESSION:
     [$ NONE $]
 @@ = [$ NONE $]
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-                    ^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
+{X}{Y} f [$ NONE $] g
+         ^^^^^^^^^^
 ERROR: in line ###: not a legal object element value; `NONE'; ignored:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-                    ^^^^^^^^^^
+{X}{Y} f [$ NONE $] g
+         ^^^^^^^^^^
 BRACKETED EXPRESSION:
     {Y|f g|Y}
 @@@@ = f g:
            .type = "Y"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-              ^^^^^^^^^^^^^^^^^^
+{X}{Y} f [$ NONE $] g
+   ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {X|{Y|f g|Y}|X}
 @@@@ = {Y|f g|Y}:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-           ^^^^^^^^^^^^^^^^^^^^^
+{X}{Y} f [$ NONE $] g
+^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {X|{Y|f g|Y}|X};
+    {X|{Y|f g|Y}|X}
 @@@@ = {X|{Y|f g|Y}|X}:
-           .terminator = ";"
+           .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-           ^^^^^^^^^^^^^^^^^^^^^^
+{X}{Y} f [$ NONE $] g
+^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
@@ -3375,16 +3368,16 @@ PREFIX EXPRESSION:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-                                  ^^^
+{X} h k
+^^^
 BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = h k:
            .type = "X"
            .position[H] = PACKED_VEC
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-                                  ^^^^^^^
+{X} h k
+^^^^^^^
 BRACKETED EXPRESSION:
     {X|h k|X}
 @@@@ = {X|h k|X}:
@@ -3392,8 +3385,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
-                                  ^^^^^^^
+{X} h k
+^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [math] SELECTED KEY "}"
@@ -3633,7 +3626,7 @@ BRACKETED EXPRESSION:
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
         block standard: bracket "<+" ... "+>" [math]
                         with parsing selectors [- TOP LEVEL]
@@ -5174,10 +5167,23 @@ BRACKETED EXPRESSION:
     line ###:
     the last line of the outer paragraph
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [code] SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED EXPRESSION:
+    this logical line is followed by an empty logical line;
+@@@@ = this logical line is followed by an empty logical line:
+           .terminator = ";"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+    this logical line is followed by an empty logical
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         line;
+^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
-         @@@@ @@@@ @@@@ @@@@ @@@@|}
-@@@@ = @@@@ @@@@ @@@@ @@@@ @@@@ @@@@:
+         @@@@ @@@@ @@@@ @@@@ @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@ @@@@ @@@@ @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = ":"
@@ -5208,6 +5214,10 @@ this is the outer paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     the last line of the outer paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    this logical line is followed by an empty logical
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         line;
+^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     this is the outer paragraph:
         the first line of the outer paragraph
@@ -5220,6 +5230,7 @@ BRACKETED EXPRESSION:
         the first line of the outer paragraph after the inner paragraph
         another inner paragraph "," but one with zero lines:
         the last line of the outer paragraph
+        this logical line is followed by an empty logical line;
 @@@@ = this is the outer paragraph @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -5251,6 +5262,10 @@ this is the outer paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     the last line of the outer paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    this logical line is followed by an empty logical
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         line;
+^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     the line after the outer paragraph
 @@@@ = the line after the outer paragraph:
@@ -5260,17 +5275,6 @@ BRACKETED EXPRESSION:
     line ###:
 the line after the outer paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ";"
-     OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED EXPRESSION:
-    This logical line is followed by an empty logical line;
-@@@@ = This logical line is followed by an empty logical line:
-           .terminator = ";"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    line ###:
-This logical line is followed by an empty logical line;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY ":"

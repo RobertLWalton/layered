@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 30 02:23:07 EDT 2017
+// Date:	Thu Nov  2 02:23:49 EDT 2017
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -113,8 +113,12 @@ And one more {| |b["A", 201,202, [5]]: t}
 {[$ NONE $]: x = 1}
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 {X} a b c {X}{Y} d e {Y} f g {X} h k
-{X} a b c; {X}{Y} f g; {X} h k
-{X} a b c; {X}{Y} f [$ NONE $] g; {X} h k
+{X} a b c
+{X}{Y} f g
+{X} h k
+{X} a b c
+{X}{Y} f [$ NONE $] g
+{X} h k
 {{X} hi|ho|}
 {T|(X) ho|}
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
@@ -186,9 +190,10 @@ this is the outer paragraph:
         inner paragraph
     another inner paragraph, but one with zero lines:
     the last line of the outer paragraph
+    this logical line is followed by an empty logical
+         line;
 the line after the outer paragraph
 
-This logical line is followed by an empty logical line;
 
 {T: a = 1, b = 2, c = 3, d = 4 | X Y Z |}
 {T: a = 1, b = 2, c = 3 | X Y Z | d = 4 }

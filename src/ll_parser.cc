@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 16:14:22 EDT 2017
+// Date:	Thu Nov  2 01:54:52 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -893,7 +893,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( PARLEX::top_level, PARLEX::semicolon,
+		( PARLEX::top_level, min::MISSING(),
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  min::MISSING(),
@@ -901,30 +901,28 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
 
-	top_level_indentation_mark_ref(parser) =
-	    BRA::push_indentation_mark
-		( PARLEX::parser_colon,
-		  PARLEX::semicolon,
-	          PAR::TOP_LEVEL_SELECTOR,
-		  0, PAR::top_level_position,
-		  PAR::parsing_selectors
-		      ( PAR::DATA_SELECTOR ),
-		  min::MISSING(),
-		  PAR::MISSING_MASTER,
-		  PAR::MISSING_MASTER,
-		  bracketed_pass->bracket_table );
+	BRA::push_indentation_mark
+	    ( PARLEX::parser_colon,
+	      PARLEX::semicolon,
+	      PAR::TOP_LEVEL_SELECTOR,
+	      0, PAR::top_level_position,
+	      PAR::parsing_selectors
+		  ( PAR::DATA_SELECTOR ),
+	      min::MISSING(),
+	      PAR::MISSING_MASTER,
+	      PAR::MISSING_MASTER,
+	      bracketed_pass->bracket_table );
 
-	top_level_indentation_mark_ref(parser) =
-	    BRA::push_indentation_mark
-		( PARLEX::parser_test_colon,
-		  PARLEX::semicolon,
-	          PAR::TOP_LEVEL_SELECTOR,
-		  0, PAR::top_level_position,
-		  TAB::new_flags ( 0, 0, 0 ),
-		  min::MISSING(),
-		  PAR::MISSING_MASTER,
-		  PAR::MISSING_MASTER,
-		  bracketed_pass->bracket_table );
+	BRA::push_indentation_mark
+	    ( PARLEX::parser_test_colon,
+	      PARLEX::semicolon,
+	      PAR::TOP_LEVEL_SELECTOR,
+	      0, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      min::MISSING(),
+	      PAR::MISSING_MASTER,
+	      PAR::MISSING_MASTER,
+	      bracketed_pass->bracket_table );
 
 	min::locatable_gen label_name
 	    ( min::new_str_gen ( "label" ) );

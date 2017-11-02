@@ -16,6 +16,7 @@
         with parsing options [end at paragraph break]
         with group paragraph
         with parsing selectors [+ text, - code]
+        with implied subprefix {s}
     define prefix "s" [text]
         with sentence reformatter
              ( (".", ";", ":", "?", "!" ) )
@@ -23,7 +24,10 @@
         block X: prefix "s" [text]
                  with parsing selectors [- TOP LEVEL]
                  with sentence reformatter ( {|"." ";" ":" "?" "!"|} )
+SENTENCE REFORMATTER
+SENTENCE ARGUMENT {|"." ";" ":" "?" "!"|}
 BRACKETED EXPRESSION:
-    {s|This is a sentence "." A phrase ";" and a question "?"|s}
+    {p|{s|This is a sentence ":" an add-on "." A phrase ";" and a
+          question "?"|s}|p}
 *PARSER*:
     end block X

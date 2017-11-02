@@ -156,7 +156,7 @@ cc		( stop, MASTER );
 cc
 
 lex	"<horizontal>" = "<UNICODE-CATEGORY-Zs>"
-lex		       | "<HT>";
+lex	               | "<HT>";
 lex
 cc	# define HORIZONTAL \
 cc	           NDL::add_category ( "Zs" ); \
@@ -164,8 +164,8 @@ cc	           NDL::add_char ( '\t' )
 cc
 
 lex	"<misplaced-horizontal>" =
-lex		  "<horizontal>"
-lex		& ~ "<SP>";
+lex	          "<horizontal>"
+lex	        & ~ "<SP>";
 lex
 cc	# define MISPLACED_HORIZONTAL \
 cc	           NDL::add_category ( "Zs" ); \
@@ -179,10 +179,10 @@ cc	    const char * vertical = "\r\v\f";
 cc
 
 lex	"<graphic>" = "<UNICODE-CATEGORY-L>"
-lex		    | "<UNICODE-CATEGORY-M>"
-lex		    | "<UNICODE-CATEGORY-N>"
-lex		    | "<UNICODE-CATEGORY-P>"
-lex		    | "<UNICODE-CATEGORY-S>"
+lex	            | "<UNICODE-CATEGORY-M>"
+lex	            | "<UNICODE-CATEGORY-N>"
+lex	            | "<UNICODE-CATEGORY-P>"
+lex	            | "<UNICODE-CATEGORY-S>"
 lex
 cc	# define GRAPHIC \
 cc	           NDL::add_category ( "L" ); \
@@ -200,13 +200,13 @@ cc	           NDL::sub_char ( '/' )
 cc
 
 lex	"<control>" = "<UNICODE-CATEGORY-C>"
-lex		    | "<UNICODE-CATEGORY-Z>"
+lex	            | "<UNICODE-CATEGORY-Z>"
 lex
 
 lex	"<illegal-control>" = "<control>"
-lex			    & ~ "<horizontal>"
-lex			    & ~ "<vertical>"
-lex			    & ~ "<LF>"
+lex	                    & ~ "<horizontal>"
+lex	                    & ~ "<vertical>"
+lex	                    & ~ "<LF>"
 lex
 cc	# define ILLEGAL_CONTROL \
 cc	           NDL::add_category ( "C" ); \
@@ -217,7 +217,7 @@ cc	           NDL::sub_chars ( "\t\n" )
 cc
 
 lex	"<isolated-separator>"
-lex		= "<UNICODE-CATEGORY-Ps>"
+lex	        = "<UNICODE-CATEGORY-Ps>"
 lex	        | "<UNICODE-CATEGORY-Pi>"
 lex	        | "<UNICODE-CATEGORY-Pe>"
 lex	        | "<UNICODE-CATEGORY-Pf>"
@@ -238,12 +238,12 @@ lex	"<repeating-separator>" = "|"
 lex
 
 lex	"<separator>"
-lex		= "<isolated-separator>"
-lex		| "<repeating-separator>"
+lex	        = "<isolated-separator>"
+lex	        | "<repeating-separator>"
 lex
 
 lex	"<leading>"
-lex		= "`"
+lex	        = "`"
 lex	        | "<0A1>"  // Inverted !
 lex	        | "<0BF>"  // Inverted ?
 lex
@@ -252,8 +252,8 @@ cc	    //     // Unused
 cc
 
 lex	"<trailing>"
-lex		= "'" | "!" | "?" | "." | ":"
-lex		| "," | ";"
+lex	        = "'" | "!" | "?" | "." | ":"
+lex	        | "," | ";"
 lex
 cc	    const char * trailing = "'!?.:,;";
 cc
@@ -272,18 +272,18 @@ lex	"<non-ASCII-digit>" = "<digit> & ~ "0-9"
 lex
 
 lex	"<mark>" = (   "<UNICODE-CATEGORY-P>"
-lex		     | "<UNICODE-CATEGORY-S>"
-lex		     | "<UNICODE-CATEGORY-M>"
-lex		     | "<UNICODE-CATEGORY-N>" )
-lex		 & ~ "<digit>"
-lex		 & ~ "<separator>"
-lex		 & ~ "<Q>"
+lex	             | "<UNICODE-CATEGORY-S>"
+lex	             | "<UNICODE-CATEGORY-M>"
+lex	             | "<UNICODE-CATEGORY-N>" )
+lex	         & ~ "<digit>"
+lex	         & ~ "<separator>"
+lex	         & ~ "<Q>"
 lex
 
 lex	"<middle>" =   "<graphic>"
-lex		   & ~ "<trailing>"
-lex		   & ~ "<separator>"
-lex		   & ~ "<Q>"
+lex	           & ~ "<trailing>"
+lex	           & ~ "<separator>"
+lex	           & ~ "<Q>"
 lex
 cc	# define MIDDLE \
 cc	           GRAPHIC; \
@@ -306,9 +306,9 @@ cc	           NDL::sub_chars ( trailing )
 cc
 
 lex	"<directly-quotable>" = (     "<graphic>"
-lex				  & ~ "<"
-lex				  & ~ "<Q>" )
-lex			      | "<SP>"
+lex	                          & ~ "<"
+lex	                          & ~ "<Q>" )
+lex	                      | "<SP>"
 lex
 cc	# define DIRECTLY_QUOTABLE \
 cc	           GRAPHIC; \
@@ -342,19 +342,19 @@ cc	    NDL::begin_table ( begin_line );
 cc
 
 lex	   "<horizontal><repeat>//"
-lex			keep 1
-lex			output indent before comment
-lex			goto horizontal space
+lex	                keep 1
+lex	                output indent before comment
+lex	                goto horizontal space
 lex	   "<horizontal><repeat>/"
-lex			keep 1
-lex			output indent
-lex			goto horizontal space
+lex	                keep 1
+lex	                output indent
+lex	                goto horizontal space
 lex	   "<horizontal><repeat><non-/-graphic>"
-lex			keep 1
-lex			output indent
-lex			goto horizontal space
+lex	                keep 1
+lex	                output indent
+lex	                goto horizontal space
 lex	   "<horizontal><repeat>"
-lex			output horizontal space
+lex	                output horizontal space
 lex
 cc		   NDL::begin_dispatch();
 cc		      HORIZONTAL;
@@ -385,15 +385,15 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "//" keep 0
-lex		output indent before comment
-lex		goto within line	
+lex	        output indent before comment
+lex	        goto within line
 lex	   "/"  keep 0
-lex		output indent
-lex		goto within line	
+lex	        output indent
+lex	        goto within line
 lex	   "<non-/-graphic>"
-lex		keep 0
-lex		output indent
-lex		goto within line
+lex	        keep 0
+lex	        output indent
+lex	        goto within line
 lex
 cc		   NDL::begin_dispatch ( "/" );
 cc		      NDL::begin_dispatch ( "/" );
@@ -422,7 +422,7 @@ cc
 
 lex	   "<vertical><repeat><LF>" goto line break
 lex	   "<vertical><repeat>"
-lex			output misplaced vertical
+lex	                output misplaced vertical
 lex
 cc		   NDL::begin_dispatch ( vertical );
 cc		      NDL::REPEAT();
@@ -446,7 +446,7 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<others><repeat>"
-lex		error unrecognized character
+lex	        error unrecognized character
 lex
 cc	    	   NDL::begin_dispatch ( OTHERS );
 cc		      NDL::REPEAT();
@@ -456,8 +456,8 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   output premature end of file goto end of file
-lex		// End of file not following a line
-lex		// break
+lex	        // End of file not following a line
+lex	        // break
 lex	end begin line master table;
 lex
 cc		   NDL::output
@@ -496,8 +496,8 @@ cc	    NDL::begin_table ( data_check );
 cc
 
 lex	   "@"          keep 0
-lex			output data
-lex			goto within line;
+lex	                output data
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "@" );
 cc		       NDL::keep ( 0 );
@@ -507,8 +507,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "!@"         keep 1
-lex			output raw data
-lex			goto within line;
+lex	                output raw data
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "!" );
 cc	               NDL::begin_dispatch ( "@" );
@@ -534,8 +534,8 @@ cc	    NDL::begin_table ( paragraph_check );
 cc
 
 lex	   "@"          keep 0
-lex			output data
-lex			goto within line;
+lex	                output data
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "@" );
 cc		       NDL::keep ( 0 );
@@ -545,8 +545,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "!@"         keep 1
-lex			output raw data
-lex			goto within line;
+lex	                output raw data
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "!" );
 cc	               NDL::begin_dispatch ( "@" );
@@ -558,8 +558,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "====="      keep 0
-lex			output table
-lex			goto row check;
+lex	                output table
+lex	                goto row check;
 lex
 cc	           NDL::begin_dispatch ( "=" );
 cc	               NDL::REPEAT ( 4 );
@@ -570,8 +570,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "-----"      keep 0
-lex			output table
-lex			goto row check;
+lex	                output table
+lex	                goto row check;
 lex
 cc	           NDL::begin_dispatch ( "-" );
 cc	               NDL::REPEAT ( 4 );
@@ -596,8 +596,8 @@ cc	    NDL::begin_table ( row_check );
 cc
 
 lex	   "|"          keep 0
-lex			output row
-lex			goto within line;
+lex	                output row
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "|" );
 cc		       NDL::keep ( 0 );
@@ -607,8 +607,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "====="      keep 0
-lex			output row
-lex			goto within line;
+lex	                output row
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "=" );
 cc	               NDL::REPEAT ( 4 );
@@ -619,8 +619,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "-----"      keep 0
-lex			output row
-lex			goto within line;
+lex	                output row
+lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "-" );
 cc	               NDL::REPEAT ( 4 );
@@ -676,7 +676,7 @@ cc
 
 lex	   "<vertical><repeat><LF>" goto line break
 lex	   "<vertical><repeat>"
-lex			output misplaced vertical
+lex	                output misplaced vertical
 lex
 cc		   NDL::begin_dispatch ( vertical );
 cc		      NDL::REPEAT();
@@ -703,9 +703,9 @@ lex	   "<isolated-separator>" output separator;
 lex	   "`" output separator;
 lex	   "|<repeat>" output separator;
 lex	   "<0A1><repeat>" output separator;
-lex		// Inverted !
+lex	        // Inverted !
 lex	   "<0BF><repeat>" output separator;
-lex		// Inverted ?
+lex	        // Inverted ?
 lex
 cc	    	   NDL::begin_dispatch();
 cc		      ISOLATED_SEPARATOR;
@@ -732,16 +732,16 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<trailing><repeat><letter>"
-lex			output word
-lex			goto finish middle;
+lex	                output word
+lex	                goto finish middle;
 lex	   "<trailing><repeat><digit>"
-lex			output numeric
-lex			goto finish middle;
+lex	                output numeric
+lex	                goto finish middle;
 lex	   "<trailing><repeat><mark-middle>"
-lex			goto mark
+lex	                goto mark
 lex	   "<trailing><repeat>"
-lex			keep 0
-lex			goto separator;
+lex	                keep 0
+lex	                goto separator;
 lex
 cc	           NDL::begin_dispatch ( trailing );
 cc	    	       NDL::REPEAT();
@@ -792,7 +792,7 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<non-ASCII-digit>" output numeric
-lex			       goto finish middle;
+lex	                       goto finish middle;
 lex
 cc	    	   NDL::begin_dispatch();
 cc		      NDL::add_category ( Digit );
@@ -819,7 +819,7 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<others><repeat>"
-lex		error unrecognized character
+lex	        error unrecognized character
 lex
 cc	    	   NDL::begin_dispatch ( OTHERS );
 cc		      NDL::REPEAT();
@@ -829,8 +829,8 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   output premature end of file goto end of file
-lex		// End of file not following a line
-lex		// break
+lex	        // End of file not following a line
+lex	        // break
 lex	end within line master table;
 lex
 cc		   NDL::output
@@ -862,13 +862,13 @@ cc
 
 lex	   "<LF>" keep 0 goto within line
 lex	   "<vertical><repeat><LF>" keep 0
-lex				    goto within line
+lex	                            goto within line
 lex	   "<vertical><repeat>"
-lex		error mispaced vertical
+lex	        error mispaced vertical
 lex	   "<illegal-control><repeat>"
-lex		error illegal control
+lex	        error illegal control
 lex	   "<others><repeat>"
-lex		error unrecognized character
+lex	        error unrecognized character
 cc		   NDL::begin_dispatch ( "\n" );
 cc		       NDL::keep ( 0 );
 cc		       NDL::go ( within_line );
@@ -1022,7 +1022,7 @@ cc
 
 lex	   "<trailing><repeat><middle>" accept;
 lex	   "<trailing><repeat>"
-lex		keep 0 goto finish separators;
+lex	        keep 0 goto finish separators;
 lex
 cc	           NDL::begin_dispatch ( trailing );
 cc	    	       NDL::REPEAT();
@@ -1079,14 +1079,14 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<trailing><repeat><letter>"
-lex			output word
-lex			goto finish middle;
+lex	                output word
+lex	                goto finish middle;
 lex	   "<trailing><repeat><digit>"
-lex			output numeric
-lex			goto finish middle;
+lex	                output numeric
+lex	                goto finish middle;
 lex	   "<trailing><repeat><mark-middle>" accept;
 lex	   "<trailing><repeat>"
-lex		keep 0 goto finish separators;
+lex	        keep 0 goto finish separators;
 lex
 cc	           NDL::begin_dispatch ( trailing );
 cc	    	       NDL::REPEAT();
@@ -1128,12 +1128,12 @@ cc	    NDL::begin_table ( leading_zero );
 cc
 
 lex	   "<middle>"
-lex		output numeric goto finish middle
+lex	        output numeric goto finish middle
 lex	   "<trailing><repeat><middle>"
-lex		output numeric goto finish middle;
+lex	        output numeric goto finish middle;
 lex	   "<trailing><repeat>"
-lex		output natural keep 0
-lex		goto finish separators
+lex	        output natural keep 0
+lex	        goto finish separators
 lex
 cc	    	   NDL::begin_dispatch();
 cc		      MIDDLE;
@@ -1178,11 +1178,11 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<non-ASCII-digit>" output numeric
-lex			       goto finish middle;
+lex	                       goto finish middle;
 lex	   "<letter>"          output numeric
-lex			       goto finish middle;
+lex	                       goto finish middle;
 lex	   "<mark-middle>"     output numeric
-lex			       goto finish middle;
+lex	                       goto finish middle;
 lex
 cc	    	   NDL::begin_dispatch();
 cc		      NDL::add_category ( Letter );
@@ -1195,9 +1195,9 @@ cc	    	   NDL::end_dispatch();
 cc
 
 lex	   "<trailing><repeat><middle>"
-lex		output numeric goto finish middle;
+lex	        output numeric goto finish middle;
 lex	   "<trailing><repeat>"
-lex		keep 0 goto finish separators;
+lex	        keep 0 goto finish separators;
 lex
 cc	           NDL::begin_dispatch ( trailing );
 cc	    	       NDL::REPEAT();
@@ -1235,13 +1235,13 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	    "<" "<0-9>" ">"
-lex		translate hex 1 1
+lex	        translate hex 1 1
 lex	    "<" "<0-9><escape><repeat>" ">"
 lex	        translate hex 1 1
 lex	        else error unrecognized escape
 lex	             translate to "<UUC>"
 lex	    "<" "<A-Z>" ">"
-lex		     translate name 1 1
+lex	             translate name 1 1
 lex	        else error unrecognized escape
 lex	             translate to "<UUC>"
 lex	    "<" "<A-Z><escape><repeat>" ">"
@@ -1311,17 +1311,17 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<LF>"
-lex		keep 0 goto premature end of string
+lex	        keep 0 goto premature end of string
 lex	   "<vertical><repeat><LF>"
-lex		keep 0 goto premature end of string
+lex	        keep 0 goto premature end of string
 lex	   "<vertical><repeat>"
-lex		error mispaced vertical
+lex	        error mispaced vertical
 lex	    "<misplaced-horizontal><repeat>"
 lex	        error misplaced horizontal
 lex	   "<illegal-control><repeat>"
-lex		error illegal control
+lex	        error illegal control
 lex	   "<others><repeat>"
-lex		error unrecognized character
+lex	        error unrecognized character
 lex
 cc		   NDL::begin_dispatch ( "\n" );
 cc		       NDL::keep ( 0 );

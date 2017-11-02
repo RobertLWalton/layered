@@ -209,7 +209,7 @@ cc
 lex	"<letter>" = "<UNICODE-CATEGORY-L>"
 lex
 lex	"<non-ascii-letter>" =   "<letter>"
-lex			     & ~ <ascii-letter>
+lex	                     & ~ <ascii-letter>
 lex
 cc	   uns32 non_ascii_letter;
 cc	   NDL::begin_atom_pattern ( non_ascii_letter );

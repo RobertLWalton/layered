@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  1 06:22:00 EDT 2017
+// Date:	Thu Nov  2 06:23:13 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -420,7 +420,7 @@ static bool sentence_reformatter_function
 	parser->printer << "SENTENCE ARGUMENT "
 	                << min::pgen ( args[i] )
 			<< min::eol;
-    return false;
+    return true;
 
     MIN_REQUIRE ( args->length == 4 );
     MIN_REQUIRE ( first != next );

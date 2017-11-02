@@ -29,7 +29,7 @@
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [- TOP LEVEL]
@@ -399,7 +399,7 @@ WARNING: in line ###: undefine found no definition:
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] ... ";" []
+        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
         block standard: bracket "<+" ... "+>" [code, operator 1]
                         with parsing selectors [- TOP LEVEL, ^ code,
@@ -1826,24 +1826,24 @@ BRACKETED EXPRESSION:
 {l1} This is a line {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {l1: .terminator = ";"|This is a line|l1}
+    {l1|This is a line|l1}
     line ###:
-{l1} This is a line; {l2} and continuation.
-^^^^^^^^^^^^^^^^^^^^
+{l1} This is a line
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {l2|and continuation "."|l2}
     line ###:
-{l1} This is a line; {l2} and continuation.
-                     ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1: .terminator = ";"|And another line|l1}
-    line ###:
-{l1} And another line;
+{l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    And a last line;
+    {l1|And another line "."|l1}
     line ###:
-And a last line;
+{l1} And another line.
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a last line "."
+    line ###:
+And a last line.
 ^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
        `paragraph' group but is not at beginning of a logical line that

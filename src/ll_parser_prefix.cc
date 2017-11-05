@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 01:22:31 EDT 2017
+// Date:	Sun Nov  5 05:43:13 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -427,8 +427,6 @@ static bool sentence_reformatter_function
     min::obj_vec_ptr argvp ( args[0] );
     min::unsptr arglen = min::size_of ( argvp );
 
-    return true;
-
     for ( PAR::token t = first->next; t != next;
                                       t = t->next )
     {
@@ -442,27 +440,33 @@ static bool sentence_reformatter_function
 
 	min::position separator_found =
 	    t->position.end;
-	PAR::token new_first = min::NULL_STUB;
+	PAR::token next_first = min::NULL_STUB;
 	if ( t->next != next )
 	{
-	    new_first =
-		PAR::new_token ( first->type );
-	    put_before ( PAR::first_ref(parser),
-			 t->next, new_first );
-	    new_first->position.begin =
-	    new_first->position.end =
+	    next_first = t;
+	    next_first->position.begin =
+	    next_first->position.end =
 		separator_found;
-	    PAR::value_ref(new_first) =
+	    PAR::value_ref(next_first) =
 		first->value;
+	    PAR::value_type_ref(next_first) =
+		first->value_type;
 	    first->type = PAR::IMPLIED_PREFIX;
 	}
+
 	PRE::compact_prefix_list
-	    ( parser, pass, selectors, first,
-	      t->next,
+	    ( parser, pass, selectors, first, t,
 	      separator_found, argvp[i],
 	      trace_flags, true );
-	first = new_first;
-	if ( first != min::NULL_STUB ) t = first;
+
+	first = next_first;
+	if ( first == min::NULL_STUB )
+	{
+	    PAR::free
+		( PAR::remove ( first_ref(parser),
+				t ) );
+	    break;
+	}
     }
     return first != min::NULL_STUB;
 }

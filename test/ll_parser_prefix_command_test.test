@@ -27,7 +27,9 @@
 SENTENCE REFORMATTER
 SENTENCE ARGUMENT {|"." ";" ":" "?" "!"|}
 BRACKETED EXPRESSION:
-    {p|{s|This is a sentence ":" an add-on "." A phrase ";" and a
-          question "?"|s}|p}
+    {p|{s: .terminator = ":"|This is a sentence|s}
+       {s: .terminator = "."|an add-on|s}
+       {s: .terminator = ";"|A phrase|s}
+       {s: .terminator = "?"|and a question|s}|p}
 *PARSER*:
     end block X

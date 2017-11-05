@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 16:31:19 EDT 2017
+// Date:	Sun Nov  5 01:21:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2114,8 +2114,11 @@ PARSE_PREFIX_N_LIST:
 		       == PARLEX::line ?
 			   separator_found :
 			   min::MISSING_POSITION,
-		       (TAB::root)
-		       line_variables->line_sep,
+		          line_variables->line_sep
+		       != min::NULL_STUB ?
+		          line_variables->line_sep
+			                ->label :
+			  min::MISSING(),
 		       trace_flags ) )
 	    {
 		if (    prefix_group

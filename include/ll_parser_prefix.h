@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 16 05:52:31 EDT 2017
+// Date:	Sun Nov  5 01:16:22 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,7 +120,7 @@ extern min::locatable_var<ll::parser::reformatter>
 // token is deleted and nothing else is done.
 //
 // If separator_found is true, set the .terminator
-// attribute of the expanded PREFIX to line_sep->label
+// attribute of the expanded PREFIX to separator
 // and update the end position of the expanded PREFIX
 // token to separator_found.
 //
@@ -134,7 +134,7 @@ bool compact_prefix_list
 	  ll::parser::token first,
 	  ll::parser::token next,
 	  const min::position & separator_found,
-	  ll::parser::table::root line_sep,
+	  min::gen separator,
 	  ll::parser::table::flags trace_flags,
 	  bool dont_delete = false );
 

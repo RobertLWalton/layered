@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 31, 2017
+November 10, 2017
  
 \end{center}
 
@@ -1357,7 +1357,9 @@ A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
 
 \begin{indpar}
-\emkey{name} ::= {\em name-component} {\em member-selector}\STAR{} \\
+\emkey{name} ::= {\em initial-name-component} {\em member-selector}\STAR{} \\
+\emkey{initial-name-component} ::=
+    {\em name-component} \underline{not} beginning with `\TT{.}' \\
 \emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
 \emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
 \emkey{name-component} ::=
@@ -2665,33 +2667,6 @@ but may use visible inline functions, out-of-line functions
 that have been declared to be compile-time, and global areas
 that have been declared to be compile-time.
 
-\section{Scopes}
-\label{SCOPES}
-
-A \key{declaration} is a statement the defines a name which
-can be referenced in code.  Assignment statements also
-introduce the names of their result variables, and serve
-as declarations of these result variables.
-
-Declarations are statements in blocks.  A declaration has
-a \key{scope}, that is the set of statements in which any
-name defined by the declaration is recognized.  The scope
-of a declaration begins just after the declaration itself, and
-lasts to the end of smallest block containing the declaration.
-The scope of a name is the scope of the declaration that defines
-it.
-
-Two different declarations of the same name may \underline{not}
-have overlapping scope, except when the second declaration is
-for `\TT{next} {\em variable-name}' and both declarations are
-in the same smallest containing block.
-
-The scope of a name consists of statements and subblocks.
-By the last rule, a name may not be
-redeclared in a subblock that is in the name's scope.
-So `\TT{next v}' cannot be declared in a subblock that is inside the scope
-of `\TT{v}'.
-
 \section{Inline Functions}
 \label{INLINE-FUNCTIONS}
 
@@ -3006,6 +2981,33 @@ The special conditional assignment statement
 rules described on page \pageref{CONDITIONAL-SPECIAL-RULES}
 are applied here to enable \TT{T} to be any integer or
 floating point number type.
+
+\section{Scopes}
+\label{SCOPES}
+
+A \key{declaration} is a statement the defines a name which
+can be referenced in code.  Assignment statements also
+introduce the names of their result variables, and serve
+as declarations of these result variables.
+
+Declarations are statements in blocks.  A declaration has
+a \key{scope}, that is the set of statements in which any
+name defined by the declaration is recognized.  The scope
+of a declaration begins just after the declaration itself, and
+lasts to the end of smallest block containing the declaration.
+The scope of a name is the scope of the declaration that defines
+it.
+
+Two different declarations of the same name may \underline{not}
+have overlapping scope, except when the second declaration is
+for `\TT{next} {\em variable-name}' and both declarations are
+in the same smallest containing block.
+
+The scope of a name consists of statements and subblocks.
+By the last rule, a name may not be
+redeclared in a subblock that is in the name's scope.
+So `\TT{next v}' cannot be declared in a subblock that is inside the scope
+of `\TT{v}'.
 
 \section{Clusters}
 \label{CLUSTERS}

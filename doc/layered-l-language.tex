@@ -2982,19 +2982,59 @@ rules described on page \pageref{CONDITIONAL-SPECIAL-RULES}
 are applied here to enable \TT{T} to be any integer or
 floating point number type.
 
-\section{Scopes}
-\label{SCOPES}
+\section{Scopes and Modules}
+\label{SCOPES-AND-MODULES}
 
 A \key{declaration} is a statement the defines a name which
-can be referenced in code.  Assignment statements also
+can be referenced in code.  {\em Function-declarations}
+and {\em generic-declarations} are declarations.
+Assignment statements also
 introduce the names of their result variables, and serve
 as declarations of these result variables.
 
-Declarations are statements in blocks.  A declaration has
+Code is organized into two kinds of files: \skey{module}s
+and \skey{module extender}s.  Names shared
+between modules begin with {\em module-abbreviations}
+that designate the module in which the name is declared.
+Such names are called `\key{external}'.
+
+External names can only be declared in module files, and
+never in module extender files.
+When names are used, the {\em module-abbreviation} may
+be omitted if the declaration defining the name can be
+unambiguously determined.
+
+\subsection{Scope}
+\label{SCOPE}
+
+Declarations are statements. A declaration has
 a \key{scope}, that is the set of statements in which any
 name defined by the declaration is recognized.  The scope
-of a declaration begins just after the declaration itself, and
+of a declaration that is inside a block
+begins just after the declaration itself, and
 lasts to the end of smallest block containing the declaration.
+A name declared inside a block must \underline{not} begin with
+a {\em module-abbreviation}.
+
+A declaration not inside a block is said to be `\key{top level}'.
+If a top level declaration \underline{begins} with a
+{\em module-abbreviation}, the declaration is `\key{external}'.
+Other top level declarations are `\key{internal}'.
+External declarations are said to be `skey{export}{ed}' to
+other modules.
+
+The scope of a top level declaration includes the statements
+after the declaration in the declaration's containing module.
+For an internal declaration, this is the entire scope of
+the declaration.
+
+The scope of an external top level declaration also includes
+all modules that import the module containing the declaration.
+Note that the {\em module-abbreviation} used to name the
+module in an importing module may differ from the {\em module-abbreviation}
+used to name the module in the exporting module.
+
+
 The scope of a name is the scope of the declaration that defines
 it.
 
@@ -3007,7 +3047,37 @@ The scope of a name consists of statements and subblocks.
 By the last rule, a name may not be
 redeclared in a subblock that is in the name's scope.
 So `\TT{next v}' cannot be declared in a subblock that is inside the scope
-of `\TT{v}'.
+of `\TT{v}'.  Also by the last rule, `\TT{next v}' cannot be used
+at top level.
+
+\subsection{Modules}
+\label{MODULES}
+
+A module is a file that begins with a {\em module-declaration}:
+
+\begin{indpar}
+\emkey{module-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em simple-module-declaration} \\
+    $|$ & {\em simple-module-declaration}\TT{:} \\
+	& \TT{~~~~}{\em import-clause}\STAR{} \\
+    \end{tabular} \\
+\emkey{simple-module-declaration} ::= \TT{module} \TT{`}{\em module-name}\TT{'}
+        \TT{as} {\em module-abbreviation} \\
+\emkey{module-name} ::= \TT{name} \\
+\emkey{module-abbreviation} ::= \TT{word} not containing any `\TT{.}'s \\
+\emkey{import-clause} ::= \TT{import} \TT{`}{\em module-name}\TT{'}
+        \TT{as} {\em module-abbreviation}
+\end{indpar}
+
+A {\em module-name} is transcribed to a file name by replacing any
+spaces between words and numbers by `\TT{\_}', omitting other spaces,
+and replacing any `\TT{\_}'s by `\TT{\_\_}'.
+The transcribed {\em module-name} of a {\em module-declaration} must match the
+non-extension part of the name of the file containing the
+{\em module-declaration}, relative to one of several directories
+specified separately to the compiler.
+
 
 \section{Clusters}
 \label{CLUSTERS}

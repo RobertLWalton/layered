@@ -3053,20 +3053,20 @@ at top level.
 \subsection{Modules}
 \label{MODULES}
 
-A module is a file that begins with a {\em module-declaration}:
+A \key{module} is a file that begins with a {\em module-declaration}:
 
 \begin{indpar}
 \emkey{module-declaration}
     \begin{tabular}[t]{rl}
     ::= & {\em simple-module-declaration} \\
     $|$ & {\em simple-module-declaration}\TT{:} \\
-	& \TT{~~~~}{\em import-clause}\STAR{} \\
+	& \TT{~~~~}{\em module-import-clause}\STAR{} \\
     \end{tabular} \\
 \emkey{simple-module-declaration} ::= \TT{module} \TT{`}{\em module-name}\TT{'}
         \TT{as} {\em module-abbreviation} \\
 \emkey{module-name} ::= \TT{name} \\
 \emkey{module-abbreviation} ::= \TT{word} not containing any `\TT{.}'s \\
-\emkey{import-clause} ::= \TT{import} \TT{`}{\em module-name}\TT{'}
+\emkey{module-import-clause} ::= \TT{import} \TT{`}{\em module-name}\TT{'}
         \TT{as} {\em module-abbreviation}
 \end{indpar}
 
@@ -3077,6 +3077,82 @@ The transcribed {\em module-name} of a {\em module-declaration} must match the
 non-extension part of the name of the file containing the
 {\em module-declaration}, relative to one of several directories
 specified separately to the compiler.
+
+The module declared by a {\em module-declaration} is within the scope
+of the external declarations of modules imported by the
+{\em module-declaration}.  The {\em module-abbreviations} used in this
+module to refer to these names are those associated with the
+{\em module-names} by the {\em module-import-clauses}
+in the {\em module-declaration}.
+The scope of these {\em module-abbreviations} is just the module
+begun by the {\em module-declaration}, and not any other module.
+In otherwords, {\em module-abbreviations} are always internal, and
+never external.
+Therefore the abbreviation for a given {\em module-name}
+may be different in different modules.
+
+
+A \key{module extender}
+is a file that begins with an {\em extender-declaration}:
+
+\begin{indpar}
+\emkey{extender-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em simple-extender-declaration} \\
+    $|$ & {\em simple-extender-declaration}\TT{:} \\
+	& \TT{~~~~}{\em module-import-clause}\STAR{} \\
+    \end{tabular} \\
+\emkey{simple-extender-declaration} ::= \TT{extender}
+        \TT{`}{\em module-name}\TT{'}
+        \TT{as} {\em module-abbreviation}
+\end{indpar}
+
+A module extender must have an associated module with the
+same {\em module-name} (but usually a different extension).
+The {\em module-abbreviations} associated with this name
+by the extender and by the module proper must match.
+
+The code in the extender is compiled as if it were appended
+to the code in the module proper, but with additions to
+the imported modules made by the {\em module-import-clauses} of
+the {\em extender-declaration}.
+
+A module extender may not contain external declarations.
+Its purpose is to provide out of line function code.
+
+[Global variable initialization?].
+
+If we consider the conceptual directed graph whose nodes
+are modules and whose arrows connect each module to the
+modules it or its extenders import, then this graph
+\underline{must be acyclic}.
+
+\subsection{Contexts}
+\label{CONTEXTS}
+
+A \key{context} is a set of module name/abbreviation pairs.
+A {\em module-declaration} defines a context in which the
+code of the module is compiled, and similarly an
+{\em extender-declaration} defines a context in which the
+code of the module extender is compiled.
+
+Contexts can also be computed and code compiled at run time
+can be compiled in a computed context.  The only expression
+that can be used to compute a new context is:
+
+\begin{indpar}
+\emkey{context-constant}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{new context:} \\
+	& \TT{~~~~}{\em context-import-clause}\STAR{} \\
+    \end{tabular} \\
+\emkey{context-import-clause}
+    \begin{tabular}[t]{rl}
+    ::= & {\em module-import-clause} \\
+    $|$ & \TT{import} {\em context-expression} \\
+    $|$ & \TT{import current} \\
+    \end{tabular}
+\end{indpar}
 
 
 \section{Clusters}

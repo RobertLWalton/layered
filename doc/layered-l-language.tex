@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 10, 2017
+November 12, 2017
  
 \end{center}
 
@@ -3002,7 +3002,7 @@ External names can only be declared in module files, and
 never in module extender files.
 When names are used, the {\em module-abbreviation} may
 be omitted if the declaration defining the name can be
-unambiguously determined.
+unambiguously determined and is a function declaration.
 
 \subsection{Scope}
 \label{SCOPE}
@@ -3013,15 +3013,30 @@ name defined by the declaration is recognized.  The scope
 of a declaration that is inside a block
 begins just after the declaration itself, and
 lasts to the end of smallest block containing the declaration.
-A name declared inside a block must \underline{not} begin with
-a {\em module-abbreviation}.
+A name declared inside a block may not be external and
+must \underline{not} begin with a {\em module-abbreviation}.
 
 A declaration not inside a block is said to be `\key{top level}'.
-If a top level declaration \underline{begins} with a
-{\em module-abbreviation}, the declaration is `\key{external}'.
-Other top level declarations are `\key{internal}'.
-External declarations are said to be `skey{export}{ed}' to
+If a result variable name in a top level declaration \underline{begins} with
+the {\em module-abbreviation} of the containing module,
+the name is `\key{external}'.
+If the part of a function or generic prototype that is after any \TT{=}
+in a declaration begins with the {\em module-abbreviation} of the
+containing module, the declaration
+is said to be external.
+Other top level names and declarations are `\key{internal}'.
+External names and declarations are said to be `skey{export}{ed}' to
 other modules.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+module `my own module' as mom
+mom x = ...
+function int32 y = mom my external function ( int32 x )
+function int32 y = my internal function ( int32 x )
+function int32 y = mom ( int32 x ) another external function
+function int32 y = ( int32 x ) another internal function
+\end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
 
 The scope of a top level declaration includes the statements
 after the declaration in the declaration's containing module.
@@ -3033,7 +3048,6 @@ all modules that import the module containing the declaration.
 Note that the {\em module-abbreviation} used to name the
 module in an importing module may differ from the {\em module-abbreviation}
 used to name the module in the exporting module.
-
 
 The scope of a name is the scope of the declaration that defines
 it.
@@ -3049,6 +3063,17 @@ redeclared in a subblock that is in the name's scope.
 So `\TT{next v}' cannot be declared in a subblock that is inside the scope
 of `\TT{v}'.  Also by the last rule, `\TT{next v}' cannot be used
 at top level.
+
+When a function declaration is used, the {\em module-abbreviation}
+following any \TT{=} may be omitted if the function declaration is
+the only function declaration within scope that matches the usage.
+Thus given the above example and
+\begin{indpar}\begin{verbatim}
+int32 z1 = mom 5 another external function
+int32 z2 = 5 another external function
+\end{verbatim}\end{indpar}
+both statements are correct if there is no other function declaration
+in scope to match the function usage in the second of these statements.
 
 \subsection{Modules}
 \label{MODULES}
@@ -3073,6 +3098,11 @@ A \key{module} is a file that begins with a {\em module-declaration}:
 A {\em module-name} is transcribed to a file name by replacing any
 spaces between words and numbers by `\TT{\_}', omitting other spaces,
 and replacing any `\TT{\_}'s by `\TT{\_\_}'.
+For example, the name
+\begin{center}
+`\TT{fee / fie foe fum}'
+\end{center}
+transcribes to `\TT{fee/fie\_foe\_fum}'.
 The transcribed {\em module-name} of a {\em module-declaration} must match the
 non-extension part of the name of the file containing the
 {\em module-declaration}, relative to one of several directories
@@ -3081,7 +3111,7 @@ specified separately to the compiler.
 The module declared by a {\em module-declaration} is within the scope
 of the external declarations of modules imported by the
 {\em module-declaration}.  The {\em module-abbreviations} used in this
-module to refer to these names are those associated with the
+module to refer to these declarations are those associated with the
 {\em module-names} by the {\em module-import-clauses}
 in the {\em module-declaration}.
 The scope of these {\em module-abbreviations} is just the module
@@ -3153,6 +3183,8 @@ that can be used to compute a new context is:
     $|$ & \TT{import current} \\
     \end{tabular}
 \end{indpar}
+
+TBD
 
 
 \section{Clusters}

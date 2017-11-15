@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_program_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 14 04:35:59 EDT 2017
+// Date:	Wed Nov 15 05:19:17 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -204,7 +204,7 @@ inline uns32 master_index
 	    program[program_header_length + max_master
 	                                  + 1 + m];
 	if ( offset == 0 ) continue;
-	if ( strcmp ( name, ! ( base + offset ) ) == 0 )
+	if ( strcmp ( name, ~ ( base + offset ) ) == 0 )
 	    return m;
     }
     return NOT_FOUND;
@@ -230,7 +230,7 @@ inline uns32 type
 	    program[program_header_length
 	            +2 * (  max_master + 1 ) + t];
 	if ( offset == 0 ) continue;
-	if ( strcmp ( name, ! ( base + offset ) ) == 0 )
+	if ( strcmp ( name, ~ ( base + offset ) ) == 0 )
 	    return t;
     }
     return NOT_FOUND;

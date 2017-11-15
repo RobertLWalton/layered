@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 14 04:40:36 EDT 2017
+// Date:	Wed Nov 15 05:19:47 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -253,7 +253,7 @@ void LEX::create_program
 	uns32 next_length = ::round32 ( next_origin );
 	min::push ( program, next_length - length );
 
-	strcpy ( (char *) ! & program[ID] + origin,
+	strcpy ( (char *) ~ & program[ID] + origin,
 	         master_names[m] );
 	origin = next_origin;
 	length = next_length;
@@ -261,7 +261,7 @@ void LEX::create_program
 
     for ( uns32 t = 0; t <= max_type; ++ t )
     {
-        ((char *) ! & program[type_codes_offset])[t] =
+        ((char *) ~ & program[type_codes_offset])[t] =
 	    ( type_codes != NULL ?  type_codes[t] : 0 );
 
 	if (    type_names == NULL
@@ -277,7 +277,7 @@ void LEX::create_program
 	uns32 next_length = ::round32 ( next_origin );
 	min::push ( program, next_length - length );
 
-	strcpy ( (char *) ! & program[ID] + origin,
+	strcpy ( (char *) ~ & program[ID] + origin,
 	         type_names[t] );
 	origin = next_origin;
 	length = next_length;
@@ -318,11 +318,11 @@ uns32 LEX::create_dispatcher
 	           - dispatcher_header_length );
 
     if ( ctype_map_size != 0 )
-	memcpy ( ! & program[  ID
+	memcpy ( ~ & program[  ID
 			     + dispatcher_header_length
 			     +   map_element_length
 			       * ( max_ctype + 1 )],
-		 ! ctype_map, ctype_map_size );    
+		 ~ ctype_map, ctype_map_size );    
 
     return ID;
 }
@@ -807,14 +807,14 @@ static bool default_input_get
 	add_eol = false;
     }
     else
-        length = ::strlen ( ! & file->buffer[offset] );
+        length = ::strlen ( ~ & file->buffer[offset] );
 
     LEX::input_buffer input_buffer =
         scanner->input_buffer;
 
     while ( length != 0 )
     {
-	const char * beginp = ! & file->buffer[offset];
+	const char * beginp = ~ & file->buffer[offset];
 	const char * endp = beginp + length;
 	const char * p = beginp;
 	Uchar unicode =
@@ -1902,8 +1902,8 @@ uns32 LEX::scan ( uns32 & first, uns32 & next,
 	// down, eliminating characters in lexemes
 	// already returned.
 	//
-        memmove ( ! & input_buffer[0],
-	          ! & input_buffer[scanner->next],
+        memmove ( ~ & input_buffer[0],
+	          ~ & input_buffer[scanner->next],
 		    (   input_buffer->length
 		      - scanner->next )
 		  * sizeof ( LEX::inchar ) );

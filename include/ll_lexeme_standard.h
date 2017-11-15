@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  4 04:02:59 EDT 2017
+// Date:	Wed Nov 15 05:21:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -210,7 +210,7 @@ namespace ll { namespace lexeme { namespace standard {
 	min::unsptr len = min::strlen ( sp );
 	min::Uchar buffer[len];
 	min::Uchar * bp = buffer;
-	const char * p = ! min::begin_ptr_of ( sp );
+	const char * p = ~ min::begin_ptr_of ( sp );
 	min::unsptr n =
 	    min::utf8_to_unicode
 	        ( bp, bp + len, p, p + len );

@@ -3032,7 +3032,7 @@ External names and declarations in the file with this
 {\em module-abbreviation} are `\skey{export}{ed}' to
 other modules.
 External names and declaration usages in the file with other
-{\em module-abbreviations} are `\skey{imported}{ed}' from other
+{\em module-abbreviations} are `\skey{import}{ed}' from other
 modules.
 
 An example is:
@@ -3045,9 +3045,15 @@ mom int32 x = ...
 function int32 y = mom my external function ( int32 x )
 function int32 y = my internal function ( int32 x )
 int32 y = my external function ( x )
-int32 z  = x + y        // Uses standard + operator.
 int32 zg = gom x + y    // Uses gom's + operator.
+int32 zg = std x + y    // Uses builtin std's + operator.
+int32 z  = x + y        // Ambiguous: either std + operator
+                        // or gom's + operator.
 \end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
+
+There is a builtin standard module with abbreviation `\TT{std}'
+that is always implicitly imported.  The standard module defines
+the builtin language operators and functions.
 
 The scope of a top level declaration includes the statements
 after the declaration in the declaration's containing module.
@@ -3055,9 +3061,10 @@ For an internal declaration, this is the entire scope of
 the declaration.
 
 The scope of an external top level declaration also includes
-all modules that import the module containing the declaration.
+all modules and bodies that import the module containing the declaration.
 Note that the {\em module-abbreviation} used to name the
-module in an importing module may differ from the {\em module-abbreviation}
+module in an importing module or body
+may differ from the {\em module-abbreviation}
 used to name the module in the exporting module.
 
 The scope of a name is the scope of the declaration that defines
@@ -3078,13 +3085,13 @@ at top level.
 When a function declaration is used, the {\em module-abbreviation}
 following any \TT{=} may be omitted if the function declaration is
 the only function declaration within scope that matches the usage.
-Thus given the above example and
+Thus in the context of the above example the lines:
 \begin{indpar}\begin{verbatim}
-int32 z1 = mom 5 another external function
-int32 z2 = 5 another external function
+int32 y = mom my external function ( x )
+int32 y = my external function ( x )
 \end{verbatim}\end{indpar}
-both statements are correct if there is no other function declaration
-in scope to match the function usage in the second of these statements.
+are equivalent provided no imported module defines `\TT{my external function}'
+with one \TT{int32} argument.
 
 \subsection{Modules}
 \label{MODULES}

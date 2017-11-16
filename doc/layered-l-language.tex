@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 12, 2017
+November 16, 2017
  
 \end{center}
 
@@ -2985,21 +2985,21 @@ floating point number type.
 \section{Scopes and Modules}
 \label{SCOPES-AND-MODULES}
 
-A \key{declaration} is a statement the defines a name which
-can be referenced in code.  {\em Function-declarations}
+A \key{declaration} is a statement the defines names that
+can be referenced in code.  {\em Function-declara\-tions}
 and {\em generic-declarations} are declarations.
 Assignment statements also
 introduce the names of their result variables, and serve
 as declarations of these result variables.
 
 Code is organized into two kinds of files: \skey{module}s
-and \skey{module extender}s.  Names shared
+and \ikey{bodies}{body}.  Names shared
 between modules begin with {\em module-abbreviations}
 that designate the module in which the name is declared.
 Such names are called `\key{external}'.
 
 External names can only be declared in module files, and
-never in module extender files.
+never in body files.
 When names are used, the {\em module-abbreviation} may
 be omitted if the declaration defining the name can be
 unambiguously determined and is a function declaration.
@@ -3007,9 +3007,9 @@ unambiguously determined and is a function declaration.
 \subsection{Scope}
 \label{SCOPE}
 
-Declarations are statements. A declaration has
+A declaration statement has
 a \key{scope}, that is the set of statements in which any
-name defined by the declaration is recognized.  The scope
+names defined by the declaration is recognized.  The scope
 of a declaration that is inside a block
 begins just after the declaration itself, and
 lasts to the end of smallest block containing the declaration.
@@ -3023,19 +3023,30 @@ the name is `\key{external}'.
 If the part of a function or generic prototype that is after any \TT{=}
 in a declaration begins with the {\em module-abbreviation} of the
 containing module, the declaration
-is said to be external.
+is external.
 Other top level names and declarations are `\key{internal}'.
-External names and declarations are said to be `skey{export}{ed}' to
+
+A module contained within a module file has a {\em module-abbreviation}
+effective within the file.
+External names and declarations in the file with this
+{\em module-abbreviation} are `\skey{export}{ed}' to
 other modules.
+External names and declaration usages in the file with other
+{\em module-abbreviations} are `\skey{imported}{ed}' from other
+modules.
 
 An example is:
 \begin{indpar}\begin{verbatim}
-module `my own module' as mom
-mom x = ...
+module `my own module' as mom:
+    import `George's own module' as gom
+    // gom contains:
+    //    int32 z = gom (int32 x) "+" (int32 y)
+mom int32 x = ...
 function int32 y = mom my external function ( int32 x )
 function int32 y = my internal function ( int32 x )
-function int32 y = mom ( int32 x ) another external function
-function int32 y = ( int32 x ) another internal function
+int32 y = my external function ( x )
+int32 z  = x + y        // Uses standard + operator.
+int32 zg = gom x + y    // Uses gom's + operator.
 \end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
 
 The scope of a top level declaration includes the statements

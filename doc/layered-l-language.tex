@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 16, 2017
+November 17, 2017
  
 \end{center}
 
@@ -3037,8 +3037,8 @@ modules.
 
 An example is:
 \begin{indpar}\begin{verbatim}
-module `my own module' as mom:
-    import `George's own module' as gom
+module "my_own_module" as mom:
+    import "George's_own_module" as gom
     // gom contains:
     //    int32 z = gom (int32 x) "+" (int32 y)
 mom int32 x = ...
@@ -3062,9 +3062,9 @@ the declaration.
 
 The scope of an external top level declaration also includes
 all modules and bodies that import the module containing the declaration.
-Note that the {\em module-abbreviation} used to name the
+Note that the module abbreviation used to name the
 module in an importing module or body
-may differ from the {\em module-abbreviation}
+may differ from the module abbreviation
 used to name the module in the exporting module.
 
 The scope of a name is the scope of the declaration that defines
@@ -3105,23 +3105,16 @@ A \key{module} is a file that begins with a {\em module-declaration}:
     $|$ & {\em simple-module-declaration}\TT{:} \\
 	& \TT{~~~~}{\em module-import-clause}\STAR{} \\
     \end{tabular} \\
-\emkey{simple-module-declaration} ::= \TT{module} \TT{`}{\em module-name}\TT{'}
+\emkey{simple-module-declaration} ::= \TT{module} {\em module-name}
         \TT{as} {\em module-abbreviation} \\
-\emkey{module-name} ::= \TT{name} \\
+\emkey{module-name} ::= {\em quoted-string} \\
 \emkey{module-abbreviation} ::= \TT{word} not containing any `\TT{.}'s \\
 \emkey{module-import-clause} ::= \TT{import} \TT{`}{\em module-name}\TT{'}
         \TT{as} {\em module-abbreviation}
 \end{indpar}
 
-A {\em module-name} is transcribed to a file name by replacing any
-spaces between words and numbers by `\TT{\_}', omitting other spaces,
-and replacing any `\TT{\_}'s by `\TT{\_\_}'.
-For example, the name
-\begin{center}
-`\TT{fee / fie foe fum}'
-\end{center}
-transcribes to `\TT{fee/fie\_foe\_fum}'.
-The transcribed {\em module-name} of a {\em module-declaration} must match the
+A {\em module-name} is a UNIX file name without its final extension.
+The {\em module-name} of a {\em module-declaration} must match the
 non-extension part of the name of the file containing the
 {\em module-declaration}, relative to one of several directories
 specified separately to the compiler.
@@ -3139,6 +3132,20 @@ never external.
 Therefore the abbreviation for a given {\em module-name}
 may be different in different modules.
 
+Several imported modules may be given the same module abbreviation,
+but imported module abbreviations must not be the same as the
+importing module abbreviation.
+
+The UNIX wildcards `\TT{*}' and `\TT{?}' can be used in the
+{\em import-clause} {\em module-name} to name multiple modules
+in a single {\em import-clause}.  These wildcards cannot be
+used in the {\em module-name} of the {\em simple-module-declaration}.
+
+
+\subsection{Bodies}
+\label{BODIES}
+
+TBD
 
 A \key{module extender}
 is a file that begins with an {\em extender-declaration}:

@@ -2575,14 +2575,19 @@ and lastly runs the block:
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 		~\ttkey{compile-and-run} \TT{:} \\
 	\TT{~~~~}{\em argument-assignment-statement}\STAR{} \\
-	\TT{~~~~do:} \\
+	\TT{~~~~do} \{ \TT{in} {\em context-expression} \}\QMARK{} \TT{:} \\
 	\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
 
 The variable values are set by the {\em argument-assignment-statements}.
 Then the `\TT{do}' subblock {\em statements} are compiled, using
-the variable values to optimize the compilation.  Then the
+the variable values to optimize the compilation.
+If the `\TT{in} {\em context-expression}' clause is given, the
+compilation is in the context given by the clause, instead of the
+current context: see \itemref{CONTEXTS}.
+
+Then the
 compiled code is executed.  The variables in the {\em result-variable-list}
 may be set by either {\em argument-assignment-statements} or
 `\TT{do}' subblock {\em statements} as for
@@ -2595,13 +2600,58 @@ the compilation.
 
 When the compile-and-run assignment statement is executed, the compiled
 code will be saved in a table indexed by the values of the
-variables set by the {\em argument-assignment-statements}.  When the
+variables set by the {\em argument-assignment-statements} and the context
+used in compilation.  When the
 compile-and-run assignment statement is re-executed, if these
-variables have the same value they had during a previous execution,
+variables have the same values they had during a previous execution,
+and if the same context is being used,
 the compilation will be bypassed and the previously compiled code used.
 This optimization is required, but such previously compiled code
 may be discarded if it has not been used in a long time.
 
+
+\subsection{Compile-Time Assignment Statements}
+\label{COMPILE-TIME-ASSIGNMENT-STATEMENTS}
+
+\ikey{Compile-time assignment statements}{compile-time assignment statement}
+run only once, when they are compiled, and produce variable values
+at compile time:
+
+\begin{indpar}
+\emkey{compile-time-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
+	    ~~~ \ttkey{compile-time:} \\
+	\TT{~~~~}{\em statement}\STAR{}
+	\end{tabular}
+\end{indpar}
+
+A compile-time block has its own stack, which is freed when the
+block finishes executing.
+
+Compile time blocks may only use compile time variables and values,
+but may use visible inline functions, out-of-line functions
+that have been declared to be compile-time, and global areas
+that have been declared to be compile-time.
+
+\subsection{Deferred Assignment Statements}
+\label{DEFERRED-ASSIGNMENT-STATEMENTS}
+
+\ikey{Deferred assignment statements}{deferred assignment statement}
+can only be used in global areas (\itemref{GLOBAL-AREAS}).  They
+specify that assigment of the result variables is deferred.
+
+\begin{indpar}
+\emkey{deferred-assignment-statement} ::=  \\
+\hspace*{0.5in}{\em result-variable-list} \TT{=} \ttkey{deferred}
+\end{indpar}
+
+When a variable assignment is deferred, the variable must be
+reassigned later in the compilation or loading of the program.
+The variable thus appears in many assignment statements, all
+within the same global area (but usually not in the same global
+block or some code file), and all but the last of these assignments
+are deferred.  See bodies: \itemref{BODIES}.
 
 \subsection{Assembly Assignment Statements}
 \label{ASSEMBLY-ASSIGNMENT-STATEMENTS}
@@ -2642,30 +2692,6 @@ are given initial values.  Unlike normal code, values of variables
 of an {\em assembly-assignment-statement} can be overwritten by the
 {\em assembler-instructions}, and there is no check to be sure that
 result variables receive any value.
-
-\subsection{Compile-Time Assignment Statements}
-\label{COMPILE-TIME-ASSIGNMENT-STATEMENTS}
-
-\ikey{Compile-time assignment statements}{compile-time assignment statement}
-run only once, when they are compiled, and produce variable values
-at compile time:
-
-\begin{indpar}
-\emkey{compile-time-assignment-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-	    ~~~ \ttkey{compile-time:} \\
-	\TT{~~~~}{\em statement}\STAR{}
-	\end{tabular}
-\end{indpar}
-
-A compile-time block has its own stack, which is freed when the
-block finishes executing.
-
-Compile time blocks may only use compile time variables and values,
-but may use visible inline functions, out-of-line functions
-that have been declared to be compile-time, and global areas
-that have been declared to be compile-time.
 
 \section{Inline Functions}
 \label{INLINE-FUNCTIONS}
@@ -2988,6 +3014,7 @@ floating point number type.
 A \key{declaration} is a statement the defines names that
 can be referenced in code.  {\em Function-declara\-tions}
 and {\em generic-declarations} are declarations.
+{\em Global-blocks} are declarations.
 Assignment statements also
 introduce the names of their result variables, and serve
 as declarations of these result variables.
@@ -3141,46 +3168,58 @@ The UNIX wildcards `\TT{*}' and `\TT{?}' can be used in the
 in a single {\em import-clause}.  These wildcards cannot be
 used in the {\em module-name} of the {\em simple-module-declaration}.
 
+If we consider the conceptual directed graph whose nodes
+are modules and whose arrows connect each module to the
+modules it imports, then this graph \underline{must be acyclic}.
+
 
 \subsection{Bodies}
 \label{BODIES}
 
-TBD
-
-A \key{module extender}
-is a file that begins with an {\em extender-declaration}:
+A \key{body}
+is a file that begins with an {\em body-declaration}:
 
 \begin{indpar}
-\emkey{extender-declaration}
+\emkey{body-declaration}
     \begin{tabular}[t]{rl}
-    ::= & {\em simple-extender-declaration} \\
-    $|$ & {\em simple-extender-declaration}\TT{:} \\
-	& \TT{~~~~}{\em module-import-clause}\STAR{} \\
+    ::= & {\em simple-body-declaration} \\
+    $|$ & {\em simple-body-declaration}\TT{:} \\
+	& \TT{~~~~}{\em body-clause}\STAR{} \\
     \end{tabular} \\
-\emkey{simple-extender-declaration} ::= \TT{extender}
-        \TT{`}{\em module-name}\TT{'}
-        \TT{as} {\em module-abbreviation}
+\emkey{simple-body-declaration} ::= \TT{body} {\em body-name} \\
+\emkey{body-name} ::= {\em quoted-string} \\
+\emkey{body-clause} ::= {\em module-import-clause}
+                    $|$ {\em body-after-clause} \\
+\emkey{body-after-clause} ::= \TT{after} {\em body-name}
 \end{indpar}
 
-A module extender must have an associated module with the
-same {\em module-name} (but usually a different extension).
-The {\em module-abbreviations} associated with this name
-by the extender and by the module proper must match.
+A \key{body} is just like a module except it has no
+abbreviation or external declarations
+and cannot export names or declarations.
 
-The code in the extender is compiled as if it were appended
-to the code in the module proper, but with additions to
-the imported modules made by the {\em module-import-clauses} of
-the {\em extender-declaration}.
+A body contains out of line function code and assignments
+for deferred global variables.
 
-A module extender may not contain external declarations.
-Its purpose is to provide out of line function code.
-
-[Global variable initialization?].
+Global variables in exported global areas must be declared
+in modules, but their assignment may be deferred to a body
+or another module.
 
 If we consider the conceptual directed graph whose nodes
-are modules and whose arrows connect each module to the
-modules it or its extenders import, then this graph
-\underline{must be acyclic}.
+are modules and bodies and whose arrows connect each module or body to the
+modules it imports and bodies it is after,
+then this graph \underline{must be acyclic}.
+Modules and bodies are compiled in an order consistent with the partial
+order implied by this graph.  They are also loaded in such an order.
+
+When a body is loaded, the statements in it are effectively executed
+in order.  Global area assignment statements, including those of
+deferred variables declared in modules, are executed in order.
+Out of line code is defined when it is encountered.
+
+When a body is compiles statements that execute at compile time
+are executed in the same order.
+
+
 
 \subsection{Contexts}
 \label{CONTEXTS}
@@ -3188,15 +3227,21 @@ modules it or its extenders import, then this graph
 A \key{context} is a set of module name/abbreviation pairs.
 A {\em module-declaration} defines a context in which the
 code of the module is compiled, and similarly an
-{\em extender-declaration} defines a context in which the
-code of the module extender is compiled.
+{\em body-declaration} defines a context in which the
+code of the body is compiled.
 
-Contexts can also be computed and code compiled at run time
-can be compiled in a computed context.  The only expression
-that can be used to compute a new context is:
+Contexts can also be computed, stored in variables and
+passed as arguments, and code in a \TT{com\-pile-\EOL and-\EOL run}
+assignment statement
+(\pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS})
+can be compiled in a computed context.  Contexts have the type:
+\begin{indpar}
+\TT{type~}\ttkey{context}\TT{~is adr}
+\end{indpar}
+The only expression that can be used to compute a new context is:
 
 \begin{indpar}
-\emkey{context-constant}
+\emkey{context-expression}
     \begin{tabular}[t]{rl}
     ::= & \TT{new context:} \\
 	& \TT{~~~~}{\em context-import-clause}\STAR{} \\
@@ -3209,7 +3254,11 @@ that can be used to compute a new context is:
     \end{tabular}
 \end{indpar}
 
-TBD
+A {\em context-expression} in a {\em context-import-clause}
+is evaluated to a context all of whose pairs are then included
+in the new context.  The name `\TT{current}' can be used as
+a context expression to denote the context of the module or
+body containing `\TT{new context}' expression.
 
 
 \section{Clusters}

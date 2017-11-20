@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 19, 2017
+November 20, 2017
  
 \end{center}
 
@@ -3311,9 +3311,8 @@ the subtree is called a \key{subcluster}.
 The main feature of clusters and subclusters
 is that members are passed to or returned
 from functions implicitly when their the root variable is named
-explicitly.  Furthermore, cluster members \underline{cannot}
-be passed explicitly, and cannot be created except as results
-of function calls.
+explicitly.  Furthermore, non-root cluster members \underline{cannot}
+be created except as results of function calls.
 
 For example:
 \begin{indpar}\begin{verbatim}
@@ -3322,10 +3321,10 @@ type pointer pair is void
     //   unsadr pp.begin is the offset of the first element
     //   unsadr pp.end is the offset just AFTER the
     //                 last element
-    //   mem adr pp.begin.base is the base address that
-    //                         is added to the offsets
-    //   *UNCHECKED* adr pp.begin.base.adr is the address of
-    //                                     pp.begin.base
+    //   mem adr pp.base is the base address that
+    //                   is added to the offsets
+    //   *UNCHECKED* adr pp.base.adr is the address of
+    //                                  pp.base
     //   type pp.type is type of elements pointed at
 
 // Function to allocate a vector of n T's to the stack.
@@ -3333,17 +3332,19 @@ type pointer pair is void
 function ( stack pointer pair pp,
            unsadr pp.begin,
            unsadr pp.end,
-           mem adr pp.begin.base,
-           *UNCHECKED* adr pp.begin.base.adr,
+           mem adr pp.base,
+           *UNCHECKED* adr pp.base.adr,
            type pp.type ) =
         allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
     pp.type = T
     unsadr length = size of ( T ) * n
-    pp.begin = allocate to stack ( length )
-        // This also sets pp.begin.base and
-        // pp.begin.base.adr.
+    pp = allocate to stack ( length )
+        // This sets pp.offset, pp.base and
+        // pp.base.adr.
+    pp.begin = pp.offset
     pp.end = pp.begin + length
+        // pp.offset is not returned to caller
 
 
 // Prefix operator to dereference a pointer pair to read
@@ -3355,27 +3356,10 @@ function ( mem pp.type out,
               type pp.type,
               unsadr pp.begin,
               unsadr pp.end,
-              *UNCHECKED* adr pp.begin.base ):
+              *UNCHECKED* adr pp.base ):
     if:
         pp.begin < pp.end:
             out.adr = pp.begin + pp.begin.base
-        else:
-            fatal error
-                ( "Deferencing empty pointer pair." )
-
-// Prefix operator to dereference a pointer pair to
-// write memory.
-//
-function "*" ( stack pointer pair pp,
-               type pp.type,
-               unsadr pp.begin,
-               unsadr pp.end,
-               adr pp.begin.base )
-             ( pp.type in ):
-    if:
-        pp.begin < pp.end:
-            adr destination = pp.begin + pp.begin.base
-            *WRITE* in destination
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
@@ -3384,34 +3368,25 @@ function "*" ( stack pointer pair pp,
 // pointer pair.  Note the result is a NEW pointer pair.
 //
 function ( stack pointer pair pp2,
-           unsadr pp2.begin,
-           unsadr pp2.end,
-           mem adr pp2.base,
-           *UNCHECKED* adr pp2.base.adr,
-           type pp2.type ) =
+           unsadr pp2.begin )
         "++" ( stack pointer pair pp,
-               type pp.type,
-               unsadr pp.begin,
-               unsadr pp.end,
-               *UNCHECKED* adr pp.base.adr ):
+               unsadr pp.begin )
       pp2.begin = pp.begin + size of ( pp.type )
-      pp2.end = pp.end
-      pp2.base.adr = pp.base.adr
-      pp2.type = pp.type
 
 // Assignment operator for pointer pairs.
 //
-function ( stack pointer pair pp2,
+function ( Q pointer pair pp2,
            unsadr pp2.begin,
            unsadr pp2.end,
            mem adr pp2.base,
            *UNCHECKED* adr pp2.base.adr,
            type pp2.type )
-        = ( stack pointer pair pp,
+        = ( qualifiers Q,
+	    Q pointer pair pp,
             type pp.type,
             unsadr pp.begin,
             unsadr pp.end,
-            adr pp.base.adr ):
+            *UNCHECKED* adr pp.base.adr ):
       pp2.begin = pp.begin
       pp2.end = pp.end
       pp2.base.adr = pp.base.adr
@@ -3425,9 +3400,9 @@ function ...
     // are set equal to 100 and 101.
     //
     pointer pair pp = allocate to stack ( int32, 2 )
-    * pp = 100
+    next ( * pp ) = 100
     next pp = ++ pp
-    * pp = 101
+    next ( * pp ) = 101
     . . . .
     // Vector of 1000 float64's is summed.
     //
@@ -3453,13 +3428,13 @@ of a cluster.
 Cluster member names may be used as prototype parameter
 names, with the root of these names also being a prototype
 parameter.  This specifies that the parameters are related
-by being in the same cluster.
-
-When this is done for prototype arguments, the cluster root must
-also be an argument, and the cluster member values
-will be derived from the root, and \underline{must}
-be omitted in calls.  If the cluster members named as arguments
-in the function prototype do not exist,
+by being in the same cluster.  The arguments with member names
+\underline{must} not be given explicit values by function calls,
+they must be omitted in the call itself, as they will be given
+the values taken from members of the root value given in the call.
+If the cluster members named as arguments
+in the function prototype do not have corresponding members of the
+root value given in the call,
 the function prototype does not match the call.
 
 When this is done for prototype results, the cluster root must similarly
@@ -3501,7 +3476,11 @@ A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
 as cluster and subcluster roots.
 
-In the above example `\TT{mem}' and `\TT{stack} are special builtin qualifiers
+The `\TT{qualifiers Q}' argument to the assignment operation
+is assigned by implication to qualifiers of the `TT{pointer pair}'
+argument, and these qualifiers are added to the result.
+
+In the above example `\TT{mem}' is a special builtin qualifier
 which can be applied to variables.
 See \itemref{BUILTIN-QUALIFIERS}.
 
@@ -3580,7 +3559,7 @@ function ( Qs bool result ) =
 \end{verbatim}\end{indpar}
 
 Cluster variables can be grouped into `\skey{slice}s', see
-\pagref{SLICE}.  A slice can be treated allocated and passed
+\pagref{SLICE}.  A slice can be allocated and passed
 as an argument as if it were a single variable.  When cluster
 variables or slices containing {\em member-indexes} are allocated,
 the {\em member-indexes} must be defined at compile time.
@@ -3588,15 +3567,10 @@ When these variables or slices are read, the
 {\em member-indexes} can be run time.
 
 If \TT{V} is a variable that is a base of a cluster,
-`\TT{next V}' is a new variable that is a base of a \underline{different}
-cluster.  The inline code that allocates `\TT{next V}' may copy
-members of the cluster rooted at \TT{V} to members of the cluster
-rooted at `\TT{next V}', and these copies will be done not by an
-instruction but by just a renaming.  An example is the line
-\begin{indpar}\begin{verbatim}
-next ppf2 = ++ ppf2
-\end{verbatim}\end{indpar}
-in the `\TT{loop}' example on page \pageref{NEXT-CLUSTER-BASE-EXAMPLE}.
+`\TT{next V}' is a new variable, but the member of a cluster rooted
+at \TT{V} is not changed unless
+the inline code that assigned a value to `\TT{next V}'
+also assigned a value to that member.
 
 A cluster member cannot be made into a `\TT{next}' variable.
 If \TT{V} has a cluster member \TT{V.M}, `\TT{next V.M}' is \underline{not}
@@ -4278,25 +4252,26 @@ the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
 ( stack unsadr offset, \\
-~~mem adr offset.base, \\
-~~*UNCHECKED* adr offset.base.adr  ) = \\
+~~stack mem adr base, \\
+~~*UNCHECKED* adr base.adr  ) = \\
 ~~~~\ttkey{allocate to stack} ( unsadr N ) \\
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
 Here `\TT{offset}' is the offset of the \TT{N} bytes within the
-stack, `\TT{offset.base}' is the base address of the stack, and
-stack, `\TT{offset.base.adr}' is the address of where this
+stack, `\TT{base}' is the base address of the stack, and
+stack, `\TT{base.adr}' is the address of where this
 base address is stored in RAM.  The first and last of these
-are fixed but `\TT{offset.base}' may change when the stack is
+are fixed but `\TT{base}' may change when the stack is
 moved.
 
-The returned values are a cluster: see Section~\itemref{CLUSTERS}.
-Also used are the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER})
+The returned values use
+the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER})
 and `\TT{*UNCHECKED*}' qualifier (see \itemref{THE-UNCHECKED-QUALIFIER}).
 
 The memory is freed when the free stack to which it is allocated
-is freed.  The memory containing the \TT{offset.base} value is
-also freed at this time.  The inherited `\TT{stack}' qualifier is used to
+is freed (\itemref{STACK-MANAGEMENT}).
+The memory containing the \TT{base} value may also be
+freed at this time.  The inherited `\TT{stack}' qualifier is used to
 ensure that addresses of these values cannot survive the free stack:
 see \itemref{THE-STACK-QUALIFIER}.
 
@@ -4306,8 +4281,8 @@ If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
 ( stack unsadr offset, \\
-~~mem adr offset.base, \\
-~~*UNCHECKED* adr offset.base.adr  ) = \\
+~~stack mem adr base, \\
+~~*UNCHECKED* adr base.adr  ) = \\
 ~~~~\ttkey{allocate to stack} ( unsadr N, unsadr O, unsadr A ) \\
 \end{tabular}\end{indpar}
 

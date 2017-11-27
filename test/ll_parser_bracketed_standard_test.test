@@ -11,8 +11,8 @@ BRACKETED EXPRESSION:
 This is a line;
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a "quoted<SP>string" "."
-@@ = This is a line containing a "quoted<SP>string" ".":
+    This is a line containing a "quoted string" "."
+@@ = This is a line containing a "quoted string" ".":
          .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]

@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 20, 2017
+November 29, 2017
  
 \end{center}
 
@@ -2043,8 +2043,8 @@ and the \TT{=} is also omitted.  In this case the
 that executes for side effects (such as
 input/output or non-stack memory modification).
 However, sometimes assignment statements with no explicit
-result variables have implicit `\TT{next}' result variables:
-see \pagref{IMPLICIT-NEXT-RESULT-VARIABLES}.
+result variables have implied `\TT{next}' result variables:
+see \pagref{IMPLIED-NEXT-VARIABLES}.
 
 Some examples of {\em simple-assignment-statements} are:
 \begin{indpar}\begin{verbatim}
@@ -2941,6 +2941,45 @@ like
 for a particular types \TT{T1} and \TT{T2}
 and binary operator \TT{"}{\em operator}\TT{"}.
 
+{\em Result-variable-declarations} in a {\em function-prototype}
+can have the form `\TT{next~v}' where \TT{v} is a {\em variable-name}.%
+In this case \TT{v} must be the name of
+an argument in an {\em argument-variable-declaration} of
+the prototype.
+When the function is called, no actual result variable corresponding
+to the prototype `\TT{next v}' is given.
+If the actual argument for the prototype argument \TT{v} is itself
+a variable name \TT{w}, then `\TT{next w}' is treated as the actual
+result variable name corresponding to the prototype `\TT{next v}'.
+If the actual argument corresponding to \TT{v}
+is \underline{not} itself a variable name, the result corresponding
+to the prototype `\TT{next v}' is discarded.
+
+Both the prototype `\TT{next v}' and the implied actual `\TT{next w}'
+are called \key{implied next variables}.\label{IMPLIED-NEXT-VARIABLES}
+
+The following is an example:
+
+\begin{indpar}\begin{verbatim}
+function (next i, bool over)
+        inc ( min::uns32 i, min::uns32 limit ):
+    next i = i + 1
+    over = i > limit
+
+uns32 x = 100
+inc ( x )                   // sets next x to 101,
+                            // discards over
+bool b = inc ( x, 102 )     // sets next x to 102,
+                            // b to false
+next b = inc ( x, 102 )     // sets next x to 103,
+                            // next b to true
+next b = inc ( x - 3, 102 ) // discards next i = 101,
+                            // sets next b to false
+inc ( x - 3, 102 )          // discards next i = 101
+                            // and over
+\end{verbatim}\end{indpar}
+
+
 
 \section{Includes}
 \label{INCLUDES}
@@ -2961,7 +3000,8 @@ input.  The statement has the form:
     \end{tabular}
 \end{indpar}
 
-The compile time code contains \skey{include block}s that generate
+The {\em include-assignment-statement} is executed at
+compile time code and contains \skey{include block}s that generate
 the code that replaces the {\em include-statement}.  These have
 the syntax:
 
@@ -2970,7 +3010,7 @@ the syntax:
         \begin{tabular}[t]{l}
 	\ttkey{include}\TT{:} \\
 	~~~~~ {\em statement}\STAR{}
-	\end{tabular} \\
+	\end{tabular}
 \end{indpar}
 
 When executed at compile time the {\em include-block} statements
@@ -2982,21 +3022,6 @@ are substituted for.  The compile time code executed by an
 {\em include-statement} may execute many {\em include-blocks},
 and the statements produced by these are concatenated in the
 order of block execution.
-
-
-A \key{generic} is like an inline function except that:
-\begin{enumerate}
-\item All the arguments in a generic call must have compile-time values.
-\item The generic call has no result variables.
-\item The code in the generic block runs at compile-time and
-      assigns its variables compile-time values.
-\item There is an extra `\TT{include}' block consisting of
-      statements that replace the generic call
-      in the code that contains the call.  These included statements may
-      contain the names of call arguments and computed block variables,
-      including abbreviations, and these are replaced
-      in the included statements by their values.
-\end{enumerate}
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -3351,7 +3376,9 @@ function ( stack pointer pair pp,
 // memory.
 //
 function ( mem pp.type out,
-           *UNCHECKED* adr out.adr ) =
+           *UNCHECKED* unsadr out.offset,
+           mem adr out.base,
+           *UNCHECKED* adr out.base.adr ) =
         "*" ( stack pointer pair pp,
               type pp.type,
               unsadr pp.begin,
@@ -3359,19 +3386,19 @@ function ( mem pp.type out,
               *UNCHECKED* adr pp.base ):
     if:
         pp.begin < pp.end:
-            out.adr = pp.begin + pp.begin.base
+            out.offset   = pp.begin
+            out.base.adr = pp.base.adr
         else:
             fatal error
                 ( "Deferencing empty pointer pair." )
 
 // Prefix operator to increment the begin pointer of a
-// pointer pair.  Note the result is a NEW pointer pair.
+// pointer pair.
 //
-function ( stack pointer pair pp2,
-           unsadr pp2.begin )
+function ( next pp.begin )
         "++" ( stack pointer pair pp,
                unsadr pp.begin )
-      pp2.begin = pp.begin + size of ( pp.type )
+      next pp.begin = pp.begin + size of ( pp.type )
 
 // Assignment operator for pointer pairs.
 //
@@ -3382,7 +3409,7 @@ function ( Q pointer pair pp2,
            *UNCHECKED* adr pp2.base.adr,
            type pp2.type )
         = ( qualifiers Q,
-	    Q pointer pair pp,
+            Q pointer pair pp,
             type pp.type,
             unsadr pp.begin,
             unsadr pp.end,
@@ -3401,7 +3428,7 @@ function ...
     //
     pointer pair pp = allocate to stack ( int32, 2 )
     next ( * pp ) = 100
-    next pp = ++ pp
+    ++ pp
     next ( * pp ) = 101
     . . . .
     // Vector of 1000 float64's is summed.
@@ -3414,7 +3441,7 @@ function ...
             pointer pair ppf2 = ppf
         while ppf2.begin < ppf2.end:
             next partial sum = partial sum + * ppf2
-            next ppf2 = ++ ppf2
+            ++ ppf2
         finally:
             sum = partial sum
 \end{verbatim}\end{indpar}\label{NEXT-CLUSTER-BASE-EXAMPLE}
@@ -3435,7 +3462,8 @@ the values taken from members of the root value given in the call.
 If the cluster members named as arguments
 in the function prototype do not have corresponding members of the
 root value given in the call,
-the function prototype does not match the call.
+the function prototype does not match the call unless the prototype
+member has a default (see \pagref{DEFAULTS-TO} ).
 
 When this is done for prototype results, the cluster root must similarly
 be a either a result or argument, and the designated
@@ -3476,8 +3504,14 @@ A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
 as cluster and subcluster roots.
 
+Cluster roots and members may be implied next variable
+(see \pagref{IMPLIED-NEXT-VARIABLES}).  Some members of a cluster
+may be next variables while other members of the same cluster are
+not.  The variables of a cluster are independent of each other
+in this respect.
+
 The `\TT{qualifiers Q}' argument to the assignment operation
-is assigned by implication to qualifiers of the `TT{pointer pair}'
+is assigned by implication to qualifiers of the `\TT{pointer pair}'
 argument, and these qualifiers are added to the result.
 
 In the above example `\TT{mem}' is a special builtin qualifier
@@ -3487,14 +3521,21 @@ See \itemref{BUILTIN-QUALIFIERS}.
 The `\TT{mem}' qualifier\label{MEM}
 has the special property that given a variable
 \TT{v} of qualifier \TT{mem}, then if \TT{v} is allocated,
-and \TT{v.adr} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
-is allocated and
-assigned a value, the root \TT{v} will also be automatically
-assigned as its value the value read from RAM address \TT{v.adr}.
+and \TT{v.base} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
+is allocated and assigned a value
+and \TT{v.offset} of type \TT{unsadr} and qualifier \TT{*UNCHECKED*}
+is allocated and assigned a value, then
+the root \TT{v} is automatically
+assigned the value located at the RAM address \TT{v.base + v.offset}.
 It is an error in this case to explicitly assign a value to \TT{v}.
 This is how \TT{out} gets its value from
-\TT{out.adr}, and how \TT{pp.begin.base} gets its value from
-\TT{pp.begin.base.adr}.
+\TT{out.base}, and \TT{out.offset}.
+
+Similarly if \TT{v.adr} is allocated an assigned a value, then
+the root \TT{v} is automatically
+assigned the value located at the RAM address \TT{v.adr}.
+This is how \TT{out.base} and \TT{pp.base} get their values from
+\TT{out.base.adr} and \TT{pp.base.adr} respectively.
 
 For details on the `\TT{mem}' qualifier see \itemref{THE-MEM-QUALIFIER}.
 
@@ -3512,6 +3553,34 @@ the member variables in the cluster or subcluster.  This is not done
 for non-inherited qualifiers.
 
 The `\TT{stack}' qualifier is inherited.
+
+Another example of a cluster with implied next variables is:
+\begin{indpar}\begin{verbatim}
+type sequence is void
+    // if seq is a sequence,
+    // seq.count is the number of its elements
+    // seq.type is the type of the elements
+    // seq[0 .. seq.count - 1] are the elements
+
+// Function to rotate the sequence right 1 position.
+//
+( next seq.count, next seq[0 .. seq.count - 1] )
+    = right rotate ( sequence seq, unsadr seq.count,
+                     type seq.type,
+                     seq.type seq[0 .. seq.count - 1]:
+    next seq[1 .. seq.count - 1] = seq[0 .. seq.count - 2]
+    next seq[0] = seq[seq.count - 1]
+
+// Example usage
+//
+    sequence s = ...
+    rotate ( s )
+\end{verbatim}\end{indpar}
+Here the \TT{seq.count} and \TT{seq.type} arguments
+specify types and member indices
+of results and of arguments later in the argument list.  A call's actual
+\TT{seq.count} and \TT{seq.type} arguments must be compile time values
+in order to be so used.
 
 A last example of the use of clusters is the implementation of
 comparison operators so that
@@ -3566,48 +3635,6 @@ the {\em member-indexes} must be defined at compile time.
 When these variables or slices are read, the
 {\em member-indexes} can be run time.
 
-If \TT{V} is a variable that is a base of a cluster,
-`\TT{next V}' is a new variable, but the member of a cluster rooted
-at \TT{V} is not changed unless
-the inline code that assigned a value to `\TT{next V}'
-also assigned a value to that member.
-
-A cluster member cannot be made into a `\TT{next}' variable.
-If \TT{V} has a cluster member \TT{V.M}, `\TT{next V.M}' is \underline{not}
-a permitted name.
-
-An example is:
-\begin{indpar}\begin{verbatim}
-type sequence is void
-    // if seq is a sequence,
-    // seq.count is the number of its elements
-    // seq.type is the type of the elements
-    // seq[0 .. seq.count - 1] are the elements
-
-// Function to rotate the sequence right 1 position.
-//
-( sequence rseq, unsadr rseq.count, type rseq.type,
-                 seq.type rseq[0 .. seq.count - 1] )
-    = right rotate ( sequence seq, unsadr seq.count,
-                     type seq.type,
-                     seq.type seq[0 .. seq.count - 1]:
-    rseq[1 .. seq.count - 1] = seq[0 .. seq.count - 2]
-    rseq[0] = seq[seq.count - 1]
-    rseq.count = seq.count
-    rseq.type  = seq.type
-
-// Example usage
-//
-    sequence s = ...
-    next s = rotate ( s )
-\end{verbatim}\end{indpar}
-The `\TT{rotate}' function executes no instructions but merely
-renames members.  Its \TT{seq.count} and \TT{seq.type} arguments
-can be used in expressions that specify the types and member indices
-of results and of arguments later in the argument list.  A call's actual
-\TT{seq.count} and \TT{seq.type} arguments must be compile time values
-in order to be so used.
-
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
@@ -3646,6 +3673,36 @@ variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.  It is called a `\key{RAM cache variable}'.
 
+An example is:
+
+\begin{indpar}\begin{verbatim}
+// In C/C++:
+//     struct foo_struct { int a, b, c }
+//     typedef foo_struct * foo
+//
+// Here a cluster foo, foo.a, foo.b, foo.c
+// where foo is an address.
+//
+type foo is adr
+function ( *UNCHECKED* adr x.base,
+           mem int32 x.a, *UNCHECKED* x.a.offset,
+           mem int32 x.b, *UNCHECKED* x.b.offset,
+           mem int32 x.c, *UNCHECKED* x.c.offset )
+        = "*" ( foo x ):
+    x.base = x
+    x.a.offset = 0
+    x.b.offset = 4
+    x.c.offset = 8
+
+// Usage:
+//
+foo z = ...      // assign adr to z
+* z              // Assign to z.base, z.a.offset, ...
+... z.a ...      // Use z.a
+next z.a = ...   // Write z.a
+
+\end{verbatim}\end{indpar}
+
 If a RAM cache variable is not used, it will not actually be loaded
 from RAM.  If two RAM cache variables are explicitely given the
 same address, the two variables will be treated as the same variable
@@ -3675,6 +3732,10 @@ Because \TT{mem} is a protected qualifier, \TT{v} and the required
 members of the cluster of which \TT{v} is a root
 must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
+
+There is a special constant \TT{NULL} of type \TT{adr} that
+references a block of 4,096 bytes of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced.
 
 
 \subsection{The Stack Qualifier}
@@ -4572,7 +4633,9 @@ True if the variable is present, and false if not.
 
 In addition, if a variable can be omitted but not repeated, a default expression
 must be given for the variable in a `\ttkey{defaults to}'
-{\em conditioning-expression}.  If the variable is omitted, this
+{\em conditioning-expression}.%
+\label{DEFAULTS-TO}
+If the variable is omitted, this
 expression will be used at run time to compute the variable's value.
 
 TBD Operator syntax: x "+" y.

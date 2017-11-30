@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 29, 2017
+November 30, 2017
  
 \end{center}
 
@@ -3868,11 +3868,12 @@ The reload statement has the syntax:
 This statement declares the values of all variables with the designated
 qualifiers to be out-of-date and unusable.  If any of these variables
 is used subsequently, statements to recompute the variable value
-may be inserted automatically into the code at the point of the
-\TT{reload} statement.
+will be inserted automatically into the code at the point of the
+\TT{reload} statement.  If this is not possible the compilation will
+be in error.
 
 As a special case, if a variable that is declared to be out-of-date,
-\TT{v}, has the `\TT{mem}' qualifier, and is the base of
+\TT{v}, has the `\TT{mem}' qualifier, and is in
 a cluster that causes \TT{v} to be loaded from memory
 (as per Section~\itemref{THE-MEM-QUALIFIER}), then if \TT{v} is declared
 to be out-of-date, recomputing \TT{v} just means that \TT{v}
@@ -3909,12 +3910,12 @@ the assignment statement.
 If a variable without a \TT{mem} qualifier needs to be
 recomputed and was computed by other than
 a {\em simple-assigment-statement}, it is a compile error if the
-variable is marked out-of-date.
+variable is marked out-of-date and later used.
 
 The \TT{reload} statement behaves like an executable statement but
-it has some unusual properties when it is executed inside a heavily
+it has some unusual properties when it is executed inside a
 nested subblock.  First, it declares out-of-date any variable with
-the given quailiers that is visible in its subblock \underline{and any
+the given qualifiers that is visible in its subblock \underline{and any
 containing block}.
 Second, it will recompute any out-of-date variable in its subblock
 \underline{or any containing block} that may be used after the

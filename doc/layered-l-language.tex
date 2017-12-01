@@ -3473,7 +3473,7 @@ but will be automatically created.
 Note that when this is done any qualifiers on the omitted cluster
 members will be set by the prototypes.
 
-Also, if all result variables are cluster members, then calls
+If all result variables are cluster members, then calls
 using the prototypes will have no explicit result variables,
 but will create new members of existing clusters.  For example:
 \begin{indpar}\begin{verbatim}
@@ -3492,23 +3492,37 @@ test sign ( y )
 // and y.nonneg exits and is false.
 \end{verbatim}\end{indpar}
 
-Cluster members may only be created as function call results.
-
-A cluster member may be explicitly passed as a result variable
-or argument if it is the root of a subcluster that is being
-created or used.  The matching prototype variable must
-be a cluster root, and \underline{not} a cluster member,
-within the prototype.
+The special type \TT{ANY-TYPE} can be used as the type of a prototype result
+variable that is the root of a cluster in the prototype but which
+is not being assigned a value by the function.  The actual result
+variable in a call to the function can have any type.  The
+`\TT{allocate to stack}' builtin function uses \TT{ANY-TYPE} as the type of its
+result variable (see \pagref{ALLOCATE-TO-STACK}).
 
 A variable of \TT{void} type has no actual value
 and must not be assigned one.  Such variables are only useful
 as cluster and subcluster roots.
+
 
 Cluster roots and members may be implied next variable
 (see \pagref{IMPLIED-NEXT-VARIABLES}).  Some members of a cluster
 may be next variables while other members of the same cluster are
 not.  The variables of a cluster are independent of each other
 in this respect.
+
+Cluster members may only be created as function call results.
+A {\em result-declaration} of the form `\TT{next} {\em v}' where
+{\em v} denotes a cluster member or root can only be used in
+a function result prototype: 
+see \pagref{IMPLIED-NEXT-VARIABLES}.
+
+A cluster member may be explicitly passed as a result variable
+or argument if it is the root of a subcluster that is being
+created or used.  The matching prototype variable must
+be a cluster root, and \underline{not} a cluster member,
+within the prototype.  If the cluster member being passed is a
+result variable, its matching prototype variable declaration must have the
+type \TT{void} or \TT{ANY-TYPE} or be a `\TT{next ...}' result.
 
 The `\TT{qualifiers Q}' argument to the assignment operation
 is assigned by implication to qualifiers of the `\TT{pointer pair}'
@@ -4324,11 +4338,11 @@ memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( T result, \\
-~~stack unsadr result.offset, \\
+( ANY-TYPE result, \\
+~~stack *UNCHECKED* unsadr result.offset, \\
 ~~stack mem adr result.base, \\
 ~~*UNCHECKED* adr result.base.adr  ) = \\
-~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
+~~~~\ttkey{allocate to stack} ( unsadr N ) \\
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
 Here `\TT{result.offset}' is the offset of the \TT{N} bytes within the
@@ -4354,12 +4368,11 @@ The memory allocated is always aligned on an \TT{8} byte boundary.
 If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( T result, \\
-~~stack unsadr result.offset, \\
+( ANY-TYPE result, \\
+~~stack *UNCHECKED* unsadr result.offset, \\
 ~~stack mem adr result.base, \\
 ~~*UNCHECKED* adr result.base.adr  ) = \\
-~~~~\ttkey{allocate to stack} \\
-~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
+~~~~\ttkey{allocate to stack} ( unsadr N, unsadr O, unsadr A ) \\
 \end{tabular}\end{indpar}
 
 where \TT{A} must be a power of \TT{2} not greater than \TT{64}.
@@ -4434,13 +4447,15 @@ will incure a runtime error, typically a segmentation fault.
 Memory within a global area can be allocated by:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( global unsadr offset, \\
-~~mem adr offset.base, \\
-~~*UNCHECKED* adr offset.base.adr  ) = \\
+( ANY-TYPE result, \\
+~~global *UNCHECKED* unsadr result.offset, \\
+~~mem adr result.offset.base, \\
+~~global *UNCHECKED* adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} ( unsadr N ) \\[1ex]
-( global unsadr offset, \\
-~~mem adr offset.base, \\
-~~*UNCHECKED* adr offset.base.adr  ) = \\
+( ANY-TYPE result, \\
+~~global *UNCHECKED* unsadr result.offset, \\
+~~mem adr result.offset.base, \\
+~~global *UNCHECKED* adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} ( unsadr N, unsadr O, unsadr A ) \\
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
 

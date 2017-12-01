@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 30, 2017
+December 1, 2017
  
 \end{center}
 
@@ -3683,12 +3683,13 @@ An example is:
 // Here a cluster foo, foo.a, foo.b, foo.c
 // where foo is an address.
 //
-type foo is adr
-function ( *UNCHECKED* adr x.base,
+type foo is void
+type foo_ptr is adr
+function ( foo x, *UNCHECKED* adr x.base,
            mem int32 x.a, *UNCHECKED* x.a.offset,
            mem int32 x.b, *UNCHECKED* x.b.offset,
            mem int32 x.c, *UNCHECKED* x.c.offset )
-        = "*" ( foo x ):
+        = "*" ( foo_ptr x ):
     x.base = x
     x.a.offset = 0
     x.b.offset = 4
@@ -3696,8 +3697,8 @@ function ( *UNCHECKED* adr x.base,
 
 // Usage:
 //
-foo z = ...      // assign adr to z
-* z              // Assign to z.base, z.a.offset, ...
+foo_ptr zp = ... // assign adr to zp
+foo z = * zp     // Assign to z.base, z.a.offset, ...
 ... z.a ...      // Use z.a
 next z.a = ...   // Write z.a
 
@@ -3733,7 +3734,8 @@ members of the cluster of which \TT{v} is a root
 must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
 
-There is a special constant \TT{NULL} of type \TT{adr} that
+There is a special function of zero arguments, \TT{NULL}, of result
+type \TT{adr}, that
 references a block of 4,096 bytes of virtual memory that is
 inaccessible and will cause a segmentation fault if referenced.
 
@@ -3957,6 +3959,11 @@ the rules of Section~\itemref{THE-MEM-QUALIFIER}.
 
 \end{enumerate}
 
+An address variable may be the member \TT{v.adr} or \TT{v.offset}
+of a cluster with RAM cache variable \TT{v}.  In this case the
+address variable is said to be the `\mkey{address}{of RAM cache variable}'
+of the RAM cache variable \TT{v}.
+
 \subsection{Single Value Write Statements}
 \label{SINGLE-VALUE-WRITE-STATEMENTS}
 
@@ -3968,7 +3975,9 @@ The form of a single valued write statement is:
 \end{indpar}
 
 The value in the {\em value-variable} is written to the RAM address
-in the {\em address-variable}.
+in the {\em address-variable}.  If the {\em address-variable} is the
+address of a RAM cache variable \TT{v}, the write statement does
+\underline{not} update \TT{v} or create `\TT{next v}'.
 
 \subsection{Memory Copy Statements}
 \label{MEMORY-COPY-STATEMENTS}
@@ -4060,13 +4069,15 @@ successfully or when it fails, all locks gotten are released in
 reverse order.
 
 \hspace*{-0.2in}{\em \bf Compare-Instruction}.
-The {\em compare-variable} is a RAM cache variable (which need
-not have the \TT{mem} qualifier).  The compare
+The compare
 instruction reads the value at the {\em address-variable} designated
 address and compares
 it to the value of the {\em compare-variable}.  The instruction
 succeeds if the values are equal, and fails otherwise.
 
+The {\em compare-variable} may be a RAM cache variable whose
+address is the {\em address-variable}.  The RAM cache variable
+is not changed even if the value read does not match its value.
 
 \hspace*{-0.2in}{\em \bf Write-Instructions}.
 These do what they normally do, except they are all dry-run 
@@ -4097,7 +4108,7 @@ they page fault.  This is the reason for the dry-run of the
 {\em write-instructions}, to be sure they will not fail
 when they actually write data.
 
-A system may put restrictions of the size of the value in
+A system may put restrictions on the size of the value in
 a {\em length-variable}, and on the number of instructions
 in an \TT{*ATOMIC*} block, in order to ensure that interrupts
 are not disabled for very long.  Violation of these restrictions
@@ -4172,7 +4183,7 @@ functions will not only accept an \TT{adr} value as a RAM address,
 but also accept a RAM address consisting of an \TT{unsadr}
 offset within the stack and a stack base address that is itself
 stored in RAM.  See Sections~\itemref{THE-MEM-QUALIFIER}
-and \itemref{MEMORY-WRITE-STATEMENTS}
+and \itemref{STACK-MEMORY-ALLOCATION}
 for details.
 
 There are a couple of situations in which free stacks move.
@@ -4313,17 +4324,18 @@ memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( stack unsadr offset, \\
-~~stack mem adr base, \\
-~~*UNCHECKED* adr base.adr  ) = \\
-~~~~\ttkey{allocate to stack} ( unsadr N ) \\
+( T result, \\
+~~stack unsadr result.offset, \\
+~~stack mem adr result.base, \\
+~~*UNCHECKED* adr result.base.adr  ) = \\
+~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
-Here `\TT{offset}' is the offset of the \TT{N} bytes within the
-stack, `\TT{base}' is the base address of the stack, and
-stack, `\TT{base.adr}' is the address of where this
+Here `\TT{result.offset}' is the offset of the \TT{N} bytes within the
+stack, `\TT{result.base}' is the base address of the stack, and
+stack, `\TT{result.base.adr}' is the address of where this
 base address is stored in RAM.  The first and last of these
-are fixed but `\TT{base}' may change when the stack is
+are fixed but `\TT{result.base}' may change when the stack is
 moved.
 
 The returned values use
@@ -4342,10 +4354,12 @@ The memory allocated is always aligned on an \TT{8} byte boundary.
 If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( stack unsadr offset, \\
-~~stack mem adr base, \\
-~~*UNCHECKED* adr base.adr  ) = \\
-~~~~\ttkey{allocate to stack} ( unsadr N, unsadr O, unsadr A ) \\
+( T result, \\
+~~stack unsadr result.offset, \\
+~~stack mem adr result.base, \\
+~~*UNCHECKED* adr result.base.adr  ) = \\
+~~~~\ttkey{allocate to stack} \\
+~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
 \end{tabular}\end{indpar}
 
 where \TT{A} must be a power of \TT{2} not greater than \TT{64}.

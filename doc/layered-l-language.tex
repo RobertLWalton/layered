@@ -158,7 +158,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 1, 2017
+December 2, 2017
  
 \end{center}
 
@@ -4378,8 +4378,8 @@ byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 Free stacks are always allocated on a \TT{64} byte boundary.
 
-The `\TT{allocate to stack}' inline functions execute a
-`\TT{reload mem, mem dependent}' statement.
+The `\TT{allocate to stack}' inline functions may move stackes and
+therefore executes a `\TT{reload mem, mem dependent}' statement.
 
 
 \subsection{Global Areas}
@@ -4464,6 +4464,9 @@ Here \TT{A} must a power of \TT{2} not greater than \TT{64}.
 Global areas are allocated on a \TT{64} byte boundary and
 may be moved during execution.
 
+Global area variables \underline{cannot} be written to, but memory allocated
+by `\TT{allocate to global}' can be.
+
 The `\TT{allocate to global}' function plays the same role for
 global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
@@ -4472,7 +4475,8 @@ is a protected, inherited qualifier
 with \underline{none} of the special `\TT{stack}'
 qualifier properties, and normally has no effect on code.
 
-The `\TT{allocate to global}' inline functions execute a
+The `\TT{allocate to global}' inline functions may move
+global areas and threfore executes a
 \begin{center}
 \TT{reload mem, mem dependent}
 \end{center}
@@ -4584,22 +4588,24 @@ The extended syntax is:
         & ~~~~~~~~
           {\em alternative-name} \{ \TT{|} {\em alternative-name} \}\PLUS{}
     \end{tabular}
+\\[0.5ex]
+\emkey{alternative-name} ::= {\em name} see \pagref{NAMES}
 \end{indpar}
 
 Matching a function call to a {\em function-pattern} begins as follows.
-The {\em function-pattern} is changed to by omitting some
+The {\em function-pattern} is changed by omitting some
 {\em function-terms}, replicating others, and reordering the resulting
 list of {\em function-terms}.
 However, the first {\em function-term}
 in the {\em function-pattern} is never deleted or moved in the ordering.
 
-A {\em function-term} may be replacated only if its {\em function-term-modifier}
+A {\em function-term} may be replicated only if its {\em function-term-modifier}
 contains `\TT{...}', and deleted only if its {\em function-term-modifier}
 contains `\TT{?}'.
 
 Any {\em pattern-name} that has
 {\em alternative-names} specified by a {\em conditioning-expression}
-are replaced by one of its {\em alternative-names}.
+is replaced by one of its {\em alternative-names}.
 
 If any {\em function-term} has the form
 \begin{center}
@@ -4622,7 +4628,7 @@ while the remaining parts of {\em argu\-ment-variable-lists}
 must match as described below.
 
 To make the unfolded pattern unique, the sequence of {\em pattern-names}
-each {\em function-term} must be different from the sequence of
+in each {\em function-term} must be different from the sequence of
 {\em pattern-names} in any other {\em function-term} of the
 {\em function-pattern}.
 
@@ -4640,7 +4646,7 @@ be omittable), then:
 Number of of times the variable name \TT{V} appears in the unfolded
 pattern.  This is the number of times the {\em pattern-term} containing
 the variable appears.  It is \TT{1} if the term is neither
-replicated or omitted, and \TT{0} if it is ommitted.
+replicated or omitted, and \TT{0} if it is omitted.
 
 \hspace*{-0.3in}{\tt $T$ V\ttmkey{[$i$]}{of {\tt variable name}} } \\
 The value of the $i$+1'st occurance of \TT{V} in the unfolded pattern.
@@ -4666,10 +4672,17 @@ In addition, if a variable can be omitted but not repeated, a default expression
 must be given for the variable in a `\ttkey{defaults to}'
 {\em conditioning-expression}.%
 \label{DEFAULTS-TO}
-If the variable is omitted, this
-expression will be used at run time to compute the variable's value.
+If the variable \TT{V} is omitted, this
+expression will be used at run time to compute the variable's value,
+and `\TT{V.present}' will be set to `\TT{true}'.
+
+\section{Operators}
+\label{OPERATORS}
 
 TBD Operator syntax: x "+" y.
+
+\section{Lexemes}
+\label{LEXEMES}
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

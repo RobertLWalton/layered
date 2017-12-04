@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 2, 2017
+December 4, 2017
  
 \end{center}
 
@@ -663,6 +663,9 @@ the following character classes:
     :::= & {\em line-feed} $|$ {\em carriage-return} \\
     $|$ & {\em form-feed} $|$ {\em vertical-tab}
     \end{tabular}
+\\
+\emkey{space-character} ::= {\em horizontal-space-character}
+                        $|$ {\em vertical-space-character}
 \\[1ex]
 \emkey{graphic-character} :::= characters in UNICODE categories
                               \TT{L}, \TT{M}, \TT{N}, \TT{P}, and \TT{S}
@@ -704,11 +707,10 @@ the following character classes:
 	\end{tabular}
 \end{indpar}
 
-Lexemes may be separated by {\em white-space}, which
-is a sequence of white-space characters (single space, horizontal tab, form
-feed, etc.), but is not itself a lexeme:
+Lexemes that do not contain {\em space-characters}
+may be separated by {\em white-space} lexemes:
 \begin{indpar}
-\emkey{white-space} ::= {\em horizontal-space} $|$ {\em vertical-space}
+\emkey{white-space} ::= {\em space-character}\PLUS{}
 \\[0.3ex]
 \emkey{horizontal-space} :::= {\em horizontal-space-character}\PLUS{}
 \\[0.3ex]
@@ -730,8 +732,8 @@ Two kinds of {\em horizontal-space} are given special distinction:
 	\end{tabular}
 \end{indpar}
 
-These \skey{indent lexeme}s are unique in that they can be empty
-(have no characters).  The are used to communicate the indent of
+These are \skey{indent lexeme}s.  They have no characters,
+but are used to communicate the indent of
 the first character after the indent lexeme to the parser.
 If a parser is using line indentation to
 determine when a logical line ends (see \itemref{LOGICAL-LINES}),
@@ -748,10 +750,11 @@ One kind of {\em vertical-space} is given special distinction:
 	\end{tabular}
 \end{indpar}
 
-Non-indent, non-line-break {\em whitespace-space} lexemes, such as occur
-in the middle of text or code, are usually ignored
-by the parser, though they are still used during lexical scanning
-to separate other lexemes.
+This is the {\em line-break} lexeme.
+
+A non-indent, non-line-break {\em white-space}, such as occurs
+in the middle of text or code outside comments, is a lexeme but is
+usually discarded by the parser.
 
 {\em Horizontal-\EOL space-\EOL characters}\label{ILLEGAL-CHARACTERS}
 other than single

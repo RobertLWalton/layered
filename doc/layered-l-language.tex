@@ -806,11 +806,8 @@ but in this case it is not necessary (or desirable) to make `\TT{round}'
 an abbreviation because its module can be implied in a function call
 (see `module deficient' on \pagref{MODULE-DEFICIENT}).
 
-\section{Data}
-\label{DATA}
-
-\section{Types}
-\label{TYPES}
+\section{Data Types}
+\label{DATA-TYPES-TYPES}
 
 The basic builtin types are the number types and the \TT{void} type.
 All defined types are subtypes of these types.
@@ -1792,133 +1789,8 @@ of type \TT{T1} can be implicitly converted to values of type \TT{T2}
 For all these functions it is a compile time error if their arguments
 do not have a compile time value.
 
-\section{Qualifiers}
-\label{QUALIFIERS}
-
-Variables may be qualified by \skey{qualifier}s, which preceed the
-type when a variable is declared.  There are four builtin qualifiers
-described in Section~\itemref{BUILTIN-QUALIFIERS} that have special
-effects: \TT{mem}, \TT{stack}, \TT{*UNCHECKED*}, and \TT{global}.
-There is also a builtin method for defining trace qualifiers which
-have special effects.
-Other qualifiers that have no special effects
-may be defined, and are typically used to add an
-additional layer of type checking that is somewhat orthogonal to
-types.
-
-Syntactically {\em qualifier-names} immediately preceed the {\em type-names}
-that are before {\em variable-names}.  Some introductory examples are:
-\begin{indpar}\begin{verbatim}
-qualifier fee
-required qualifier fie
-function fee int32 result = F ( fee fie int32 value ):
-    // Declares function F that computes a result of type
-    // int32 from a value of type int32 and qualifier fie.
-    // Requires call argument to have qualifier fie, but
-    // not fee.
-    //
-    ... [Function body omitted] ...
-
-// Example usage:
-//
-fie int32 x1 = ...
-fee int32 x2 = ...
-int32 y1 = F ( x1 )          // Legal; x1 has required fie.
-int32 y2 = F ( x2 )          // Illegal; x2 does not have
-                             // required fie.
-protected prohibited qualifier fo
-function fo int32 result = G ( int32 value ):
-    // Declares function G that computes a result of type
-    // int32 from a value of type int32 that does NOT have
-    // qualifier fo, which is prohibited.  Attaches fo, which
-    // is also protected, to the result.
-    //
-    ... [Function body omitted] ...
-
-fee int32 y3 = G ( x1 )      // Legal; y3 also acquires fo.
-fee int32 y4 = G ( y3 )      // Illegal; y3 has implied
-                             // qualifier fo.
-fo  int32 y5 = 9             // Illegal; fo is protected.
-fo  int32 y6 = y3            // Legal; y3 has implied fo.
-\end{verbatim}\end{indpar}
-
-The qualifiers may be declared by:
-\begin{indpar}
-\emkey{qualifier-declaration}
-    \begin{tabular}[t]{rl}
-    ::= & {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
-           {\em defined-qualifier-name} \\
-    $|$ & {\em trace-qualifier-declaration}
-    	  ~~~ [see \pagref{TRACE-QUALIFIERS}]
-    \end{tabular} \\
-\emkey{qualifier-attribute}
-    \begin{tabular}[t]{rl}
-    ::= & \ttkey{required} \\
-    $|$ & \ttkey{prohibited} \\
-    $|$ & \ttkey{protected} \\
-    $|$ & \ttkey{inherited} \\
-    \end{tabular}
-\end{indpar}
-
-No qualifier name may be a prefix of another qualifier name or of
-any type name.  No qualifier name may begin with `\TT{next}'.
-
-If a function prototype variable (argument or result) has
-a \key{required qualifier}, any call variable matched to this
-prototype variable must have the required qualifier.
-
-If a function prototype variable (argument or result)
-does \underline{not}
-have a \key{prohibited qualifier}, any call variable matched to this
-prototype variable must \underline{not} have the prohibited qualifier.
-
-A qualifier \underline{can} be both required and prohibited.
-Given a function prototype variable with such a qualifier,
-a matching call variable must always have the qualifier,
-and given a function prototype variable without such a qualifier,
-a matching call variable must never have the qualifier.
-
-If a function prototype result variable has a \key{protected
-qualifier}, any call variable matched to this
-prototype variable will be given the protected qualifier
-(if it does not already have it).  Furthermore, no variable
-may have a protected qualifier unless it is matched to
-a function result variable with the qualifier.
-
-In the above example, 
-any call variable matched to the argument of \TT{F}
-must have the `\TT{fie}' qualifier, which is required.
-Any call variable matched to the argument of \TT{G}
-must \underline{not} have the `\TT{fo}' qualifier, which is prohibited.
-The `\TT{fo}' qualifier can only be placed on a variable that is
-the result of a function like \TT{G} which attaches it to its result,
-as `\TT{fo}' is protected.  `\TT{fee}' and `\TT{fie}' can be attached
-to any variable, as they are \underline{not} protected.
-
-Inherited qualifiers affect cluster variables and their behavior is
-specified on page~\pageref{INHERITED-QUALIFIER}. 
-
-The builtin qualifiers are in effect declared by:
-\begin{indpar}
-\TT{protected~qualifier~}\ttkey{mem} \\
-\TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
-\TT{required qualifier~}\ttkey{*UNCHECKED*} \\
-\TT{protected~inherited~qualifier~}\ttkey{global}
-\end{indpar}
-
-The type `\ttkey{qualifier}' is a builtin enumeration type implicitly
-declared after the manner of
-\begin{indpar}
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
-\TT{qualifier}~\ttkey{missing}\TT{~is next enum // 0}
-\end{indpar}
-Each qualifier is associated with a unique enumeration value
-of type `\TT{qualifier}', and this value can be used at both
-compile and run time to test whether two `\TT{qualifier}'s are
-equal.
-
-\section{Names}
-\label{NAMES}
+\subsection{The Name Type}
+\label{THE-NAME-TYPE}
 
 A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
@@ -2177,6 +2049,132 @@ Returns the list made by removing the all occurences of
 \TT{e} in \TT{op}.
 
 \end{indpar}
+
+
+\section{Qualifiers}
+\label{QUALIFIERS}
+
+Variables may be qualified by \skey{qualifier}s, which preceed the
+type when a variable is declared.  There are four builtin qualifiers
+described in Section~\itemref{BUILTIN-QUALIFIERS} that have special
+effects: \TT{mem}, \TT{stack}, \TT{*UNCHECKED*}, and \TT{global}.
+There is also a builtin method for defining trace qualifiers which
+have special effects.
+Other qualifiers that have no special effects
+may be defined, and are typically used to add an
+additional layer of type checking that is somewhat orthogonal to
+types.
+
+Syntactically {\em qualifier-names} immediately preceed the {\em type-names}
+that are before {\em variable-names}.  Some introductory examples are:
+\begin{indpar}\begin{verbatim}
+qualifier fee
+required qualifier fie
+function fee int32 result = F ( fee fie int32 value ):
+    // Declares function F that computes a result of type
+    // int32 from a value of type int32 and qualifier fie.
+    // Requires call argument to have qualifier fie, but
+    // not fee.
+    //
+    ... [Function body omitted] ...
+
+// Example usage:
+//
+fie int32 x1 = ...
+fee int32 x2 = ...
+int32 y1 = F ( x1 )          // Legal; x1 has required fie.
+int32 y2 = F ( x2 )          // Illegal; x2 does not have
+                             // required fie.
+protected prohibited qualifier fo
+function fo int32 result = G ( int32 value ):
+    // Declares function G that computes a result of type
+    // int32 from a value of type int32 that does NOT have
+    // qualifier fo, which is prohibited.  Attaches fo, which
+    // is also protected, to the result.
+    //
+    ... [Function body omitted] ...
+
+fee int32 y3 = G ( x1 )      // Legal; y3 also acquires fo.
+fee int32 y4 = G ( y3 )      // Illegal; y3 has implied
+                             // qualifier fo.
+fo  int32 y5 = 9             // Illegal; fo is protected.
+fo  int32 y6 = y3            // Legal; y3 has implied fo.
+\end{verbatim}\end{indpar}
+
+The qualifiers may be declared by:
+\begin{indpar}
+\emkey{qualifier-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
+           {\em defined-qualifier-name} \\
+    $|$ & {\em trace-qualifier-declaration}
+    	  ~~~ [see \pagref{TRACE-QUALIFIERS}]
+    \end{tabular} \\
+\emkey{qualifier-attribute}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{required} \\
+    $|$ & \ttkey{prohibited} \\
+    $|$ & \ttkey{protected} \\
+    $|$ & \ttkey{inherited} \\
+    \end{tabular}
+\end{indpar}
+
+No qualifier name may be a prefix of another qualifier name or of
+any type name.  No qualifier name may begin with `\TT{next}'.
+
+If a function prototype variable (argument or result) has
+a \key{required qualifier}, any call variable matched to this
+prototype variable must have the required qualifier.
+
+If a function prototype variable (argument or result)
+does \underline{not}
+have a \key{prohibited qualifier}, any call variable matched to this
+prototype variable must \underline{not} have the prohibited qualifier.
+
+A qualifier \underline{can} be both required and prohibited.
+Given a function prototype variable with such a qualifier,
+a matching call variable must always have the qualifier,
+and given a function prototype variable without such a qualifier,
+a matching call variable must never have the qualifier.
+
+If a function prototype result variable has a \key{protected
+qualifier}, any call variable matched to this
+prototype variable will be given the protected qualifier
+(if it does not already have it).  Furthermore, no variable
+may have a protected qualifier unless it is matched to
+a function result variable with the qualifier.
+
+In the above example, 
+any call variable matched to the argument of \TT{F}
+must have the `\TT{fie}' qualifier, which is required.
+Any call variable matched to the argument of \TT{G}
+must \underline{not} have the `\TT{fo}' qualifier, which is prohibited.
+The `\TT{fo}' qualifier can only be placed on a variable that is
+the result of a function like \TT{G} which attaches it to its result,
+as `\TT{fo}' is protected.  `\TT{fee}' and `\TT{fie}' can be attached
+to any variable, as they are \underline{not} protected.
+
+Inherited qualifiers affect cluster variables and their behavior is
+specified on page~\pageref{INHERITED-QUALIFIER}. 
+
+The builtin qualifiers are in effect declared by:
+\begin{indpar}
+\TT{protected~qualifier~}\ttkey{mem} \\
+\TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
+\TT{required qualifier~}\ttkey{*UNCHECKED*} \\
+\TT{protected~inherited~qualifier~}\ttkey{global}
+\end{indpar}
+
+The type `\ttkey{qualifier}' is a builtin enumeration type implicitly
+declared after the manner of
+\begin{indpar}
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
+\TT{qualifier}~\ttkey{missing}\TT{~is next enum // 0}
+\end{indpar}
+Each qualifier is associated with a unique enumeration value
+of type `\TT{qualifier}', and this value can be used at both
+compile and run time to test whether two `\TT{qualifier}'s are
+equal.
 
 
 \section{Conversions}

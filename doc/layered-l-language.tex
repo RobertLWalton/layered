@@ -852,8 +852,10 @@ or address:
 \end{tabular}
 
 \begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\ttkey{unswrd}		& unsigned integer & size of machine word \\
-\ttkey{intwrd}		& signed integer & size of machine word \\
+\ttkey{unswrd}		& unsigned integer & size of integer register \\
+\ttkey{intwrd}		& signed integer & size of integer register \\
+\ttkey{floatwrd}	& floating point number & size of floating point
+                                                          register \\
 \end{tabular}
 \end{indpar}
 
@@ -866,8 +868,8 @@ These are the \key{built in number types}:
     $|$ & \TT{int8} $|$ \TT{int16} $|$ \TT{int32} $|$ \TT{int64}
                     $|$ \TT{int128} \\
     $|$ & \TT{float16} $|$ \TT{float32} $|$ \TT{float64} $|$ \TT{float128} \\
-    $|$ & \TT{unsadr} $|$ \TT{intadr} $|$ \TT{adr}
-                      $|$ \TT{unswrd} $|$ \TT{intwrd} \\
+    $|$ & \TT{unsadr} $|$ \TT{intadr} $|$ \TT{adr} \\
+    $|$ & \TT{unswrd} $|$ \TT{intwrd} $|$ \TT{floatwrd}\\
     \end{tabular}
 \end{indpar}
 

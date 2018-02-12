@@ -105,6 +105,7 @@
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
 
+\newcommand{\TMP}{\$}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -158,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 2, 2017
+February 12, 2018
  
 \end{center}
 
@@ -241,6 +242,572 @@ multi-file source code in a well-ordered and type-safe manner.
 
 \end{enumerate}
 
+
+\section{Lexemes}
+\label{LEXEMES}
+
+An L-Language source file is a sequence of bytes that is a UTF-8 encoding
+of a sequence of UNICODE characters.  This is scanned into a sequence
+of \skey{lexeme}s.
+
+Unless otherwise specified, the term `\key{character}' in this
+document means a 32-bit UNICODE character.
+
+Lexemes are defined in terms of
+the following character classes:
+
+\begin{indpar}
+\emkey{horizontal-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & characters in UNICODE category \TT{Zs} \\
+         & (includes single space) \\
+    $|$  & {\em horizontal-tab-character}
+    \end{tabular}
+\\
+\emkey{vertical-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & {\em line-feed} $|$ {\em carriage-return} \\
+    $|$ & {\em form-feed} $|$ {\em vertical-tab}
+    \end{tabular}
+\\
+\emkey{space-character} ::= {\em horizontal-space-character}
+                        $|$ {\em vertical-space-character}
+\\[1ex]
+\emkey{graphic-character} :::= characters in UNICODE categories
+                              \TT{L}, \TT{M}, \TT{N}, \TT{P}, and \TT{S}
+\\
+\emkey{control-character} :::=
+	characters in UNICODE categories \TT{C} and \TT{Z}
+\\[1ex]
+\emkey{isolated-separating-character} :::=
+    \begin{tabular}[t]{l}
+    characters in UNICODE categories \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
+    and \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
+    \end{tabular}
+\\
+\emkey{separating-character} :::= \TT{|} $|$ {\em isolated-separating-character}
+\\[1ex]
+\emkey{leading-separator-character} :::=
+	\TT{`} $|$ \TT{\textexclamdown} $|$ \TT{\textquestiondown}
+\\
+\emkey{trailing-separator-character} :::=
+	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:}
+	       $|$ \TT{,} $|$ \TT{;}
+\\[1ex]
+\emkey{quoting-character} :::= \TT{"}
+\\[1ex]
+\emkey{letter} :::=
+    characters in UNICODE category \TT{L}
+\\
+\emkey{decimal-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+\\
+\emkey{digit} :::=
+    characters in UNICODE category \TT{Nd}
+    (includes {\em decimal-digits})
+\\
+\emkey{lexical-item-character} :::=
+	\begin{tabular}[t]{l}
+        {\em graphic-character} other than \\
+	{\em separating-character} or \TT{"}
+	\end{tabular}
+\end{indpar}
+
+Comments may be placed at the ends of lines:
+\begin{indpar}
+\emkey{comment} :::=
+    \TT{//} {\em comment-character}\,$^\star$
+\\[1ex]
+\emkey{comment-character} :::= {\em graphic-character}
+                          $|$ {\em horizontal-space-character}
+\label{COMMENT}
+\end{indpar}
+
+Lexemes may be separated by {\em white-space}, which
+is a sequence of {\em space-characters},
+but, with some exceptions mentioned just below, is not itself a lexeme:
+\begin{indpar}
+\emkey{white-space} :::= {\em space-character}\PLUS{}
+\\[0.3ex]
+\emkey{horizontal-space} :::= {\em horizontal-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{vertical-space} :::= {\em vertical-space-character}\PLUS{}
+\end{indpar}
+
+One kind of {\em horizontal-space} is given special distinction:
+\begin{indpar}
+\emkey{indent} ::=
+	\begin{tabular}[t]{l}
+        {\em horizontal-space} just before the first \\
+	{\em graphic} character on a line
+	\end{tabular}
+\end{indpar}
+
+The \skey{indent lexeme}s have no characters, but
+do have an \mkey{indent}{of indent lexeme}, which is the indent of
+the graphic character after the indent lexeme.
+The \mkey{indent}{of character} of a character is the number
+of columns that precede the character in the character's physical line.
+Indent lexemes are used to form logical lines and blocks
+(\itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}).
+
+One kind of {\em vertical-space} is given special distinction:
+\begin{indpar}
+\emkey{line-break} ::=
+	\begin{tabular}[t]{l}
+        {\em vertical-space} containing exactly one {\em line-feed}
+	\end{tabular}
+\end{indpar}
+
+This is the {\em line-break} lexeme.
+
+A non-{\em indent}, non-{\em line-break} {\em white-space}, such as occurs
+in the middle of text or code outside comments, is discarded and not treated
+as a lexeme.  Such {\em white-space} may be used to separate lexemes.
+
+{\em Horizontal-\EOL space-\EOL characters}\label{ILLEGAL-CHARACTERS}
+other than single
+space are illegal inside {\em quoted-string} lexemes (defined below).
+{\em Vertical-space} that has \underline{no} {\em line-feeds} is
+illegal (see below).
+{\em Control-characters} not in {\em white-space} are illegal.
+Characters that have no UNICODE category are {\em unrecognized-characters}
+and are illegal:
+\begin{indpar}
+\emkey{misplaced-horizontal-space-character} :::=
+    \begin{tabular}[t]{l}
+    {\em horizontal-space-character}, other than \\ single space
+    \end{tabular}
+\\[0.3ex]
+\emkey{misplaced-vertical-space-character} :::= {\em vertical-space-character}
+	other than {\em line-feed}
+\\[0.3ex]
+\emkey{illegal-control-character} :::=
+    \begin{tabular}[t]{l}
+    {\em control-character},
+    but \underline{not} a {\em horizontal-space-character} \\
+    or {\em vertical-space-character}
+    \end{tabular}
+\\[0.3ex]
+\emkey{unrecognized-character} :::=
+    \begin{tabular}[t]{l}
+    character with no UNICODE category or \\
+    with a category other than
+    \TT{L}, \TT{M}, \TT{N}, \TT{P}, \TT{S}, \TT{C}, or \TT{Z}
+    \end{tabular}
+\end{indpar}
+
+Sequences of these characters generate warning messages,
+but are otherwise like {\em horizontal-space}:
+\begin{indpar}
+\emkey{misplaced-horizontal} :::=
+    {\em misplaced-horizontal-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{misplaced-vertical} :::=
+    {\em misplaced-vertical-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{illegal-control} :::= {\em illegal-control-character}\PLUS{}
+\\[0.3ex]
+\emkey{unrecognized} :::= {\em unrecognized-character}\PLUS{}
+\end{indpar}
+
+{\em Misplaced-horizontal} only exists inside a {\em quoted-string},
+but the other three sequences can appear anywhere.  When they occur,
+these strings generate warning messages, but otherwise they behave
+like {\em horizontal-space}.  Specifically, outside {\em quoted-strings}
+and {\em comments} these sequences can be used to separate other lexemes,
+just as {\em horizontal-space} can be used,
+whereas inside {\em quoted-strings} and
+{\em comments} these sequences do nothing aside from generating
+warning messages.
+
+\begin{boxedfigure}[!p]
+\begin{indpar}
+
+\emkey{lexeme}
+        \begin{tabular}[t]{rl}
+	::= & {\em word} $|$ {\em mark} $|$ {\em number} $|$
+	      {\em separator} $|$ {\em quoted-string} $|$ {\em indent} \\
+	$|$ & {\em line-break} $|$
+	      {\em comment} $|$ {\em end-of-file}
+	\end{tabular}
+\label{LEXEME}
+\\[1ex]
+\emkey{strict-separator} :::= {\em isolated-separating-character} $|$
+                              \TT{|}\PLUS{}
+\\[0.5ex]
+\emkey{leading-separator} :::=
+	\TT{`}\PLUS{} $|$ 
+	\TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
+\\[0.5ex]
+\emkey{trailing-separator} :::= \TT{'}\PLUS{} $|$
+				   \TT{!}\PLUS{} $|$
+				   \TT{?}\PLUS{} $|$
+				   \TT{.}\PLUS{} $|$
+				   \TT{:}\PLUS{} $|$
+				   \TT{;} $|$
+				   \TT{,}
+\\[0.5ex]
+\emkey{separator}
+    ::= {\em strict-separator} 
+    $|$ {\em leading-separator}
+    $|$ {\em trailing-separator}
+\\[1ex]
+\emkey{quoted-string} :::=
+    \TT{"} {\em character-representative}\,\STAR{} \TT{"}
+\\[0.3ex]
+\emkey{character-representative}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em graphic-character} other than \TT{"} \\
+	$|$ & {\em single-space-character} \\
+	$|$ & {\em special-character-representative} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{special-character-representative} :::=
+    \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
+\\[1ex]
+\emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
+                       not beginning with \TT{//}
+\\[0.5ex]
+\emkey{lexical-item} :::= {\em leading-separator}\STAR{}
+			  {\em middle-lexeme}\QMARK{}
+                          {\em trailing-separator}\STAR{}
+\\[0.5ex]
+\emkey{middle-lexeme} :::= 
+	{\em lexical-item}
+	\begin{tabular}[t]{@{}l@{}}
+	not beginning with a {\em leading-separator-character} \\
+	or ending with a {\em trailing-separator-character} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{number} \begin{tabular}[t]{rl}
+    ::= & {\em middle-lexeme} with a {\em digit} before any {\em letter} \\
+    $|$ & {\em middle-lexeme} with a {\em digit} immediately after
+                               a `\TT{+}' or `\TT{-}' \\
+    $|$ & {\em middle-lexeme} with a `\TT{\#}' and also a {\em letter}
+				or {\em digit}
+	\end{tabular}
+\\[0.5ex]
+\emkey{natural-number}\label{NATURAL-NUMBER}
+	:::= {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
+\\[0.5ex]
+\emkey{word} :::= {\em middle-lexeme} containing a {\em letter} that is not
+                  a {\em number}
+\\[0.5ex]
+\emkey{mark} :::= {\em middle-lexeme} that is not a {\em word} or
+		  {\em number}
+
+\end{indpar}
+\caption{L-Langauge Program Lexemes}
+\label{L-LANGUAGE-PROGRAM-LEXEMES}
+\end{boxedfigure}
+
+The lexemes in a L-Language program are specified in
+Figure~\itemref{L-LANGUAGE-PROGRAM-LEXEMES}.  This specification assumes there
+are no illegal characters in the input; see page \pageref{ILLEGAL-CHARACTERS}
+above to account for such characters.
+
+The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
+that define lexemes or parts of lexemes whose syntactic elements are
+character sequences that must \underline{not} be separated by {\em white-space}.
+The symbol `\ttmkey{::=}{in syntax equation}'
+is used in syntax equations that define sequences of lexemes that may
+and sometimes must be separated by {\em white-space}.
+
+There is a special \emkey{end-of-file} lexeme that occurs only at the
+end of a file.
+
+Files are scanned into sequences of lexemes which are then divided
+into logical lines as per \itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}.
+After each logical line is formed,
+{\em indent}, {\em comment},
+{\em line-break}, and {\em end-of-file} lexemes are deleted
+from the logical line.
+
+\ikey{Quoted string lexemes}{quoted strings!concatenated}
+separated by the `\TT{\#}' mark
+are glued together if they are in the
+same logical line.  Thus
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence" #
+    " than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+This is useful for
+breaking long quoted string lexemes across line continuations.
+But there is an important case where there is not an exact equivalence
+between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+\underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
+quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
+and \TT{>}.  The latter is a 1-character quoted string, the character
+being a line feed.
+
+A special {\em character-representative} can consist of
+a UNICODE character name surrounded by angle brackets.  Examples are
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
+\tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
+represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
+the `\key{unknown UNICODE character}' which in turn is used to represent
+illegal UTF-8 character encodings.
+
+A special {\em character-representative} can also consist of
+a hexadecimal UNICODE character code, which must begin with a digit.
+Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
+a form feed.
+
+The definition of a {\em middle-lexeme} is unusual: it is what is left over
+after removing {\em leading-separators} and {\em trailing-separators}
+from a {\em lexical-item}.  The lexical scan first scans a
+{\em lexical-item}, and then removes
+{\em leading-separators} and {\em trailing-separators} from it.
+Also {\em trailing-separators} are removed
+from the end of a {\em lexical-item} by a right-to-left scan, and not
+the usual left-to-right scan which is used for everything else.
+Thus the {\em lexical-item}
+`\TT{\textquestiondown 4,987?,{},::}' yields the
+{\em leading-separator} `\TT{\textquestiondown}',
+the {\em middle-lexeme} `\TT{4,987}',
+and the four {\em trailing-separators} `\TT{?}',
+`\TT{,}' `\TT{,}' and `\TT{::}'.
+
+\section{Logical Lines, Blocks, and Statements}
+\label{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}
+
+Each non-blank physical line begins with an {\em indent} lexeme
+that is followed by a
+lexeme that is not an {\em indent}, {\em line-break}, or
+{\em end-of-file}.
+
+Lexemes are organized into \skey{logical line}s.  A logical line
+begins immediately after an {\em indent} lexeme, and the
+\mkey{indent}{of logical line} of the logical line is the
+indent of this {\em indent} lexeme (i.e., the indent of the
+first graphic character of the logical line).
+
+A logical line ends with the next {\em indent} lexeme whose indent
+is not greater than the indent of the logical line, or with an
+{\em end-of-file}.  Thus physical
+lines with indent greater than that of the current logical line
+are \skey{continuation line}s for that logical line.
+
+A code file is a sequence of `\key{top level}' logical lines that
+are required to have indent \TT{0}.
+
+A logical line may end with a \key{block} that is itself a sequence of
+logical lines that have indents greater than the indent of the
+logical line containing the block.
+The block is introduced by a `\TT{:}' at the end
+of a physical line.  If the first {\em indent} lexeme after the
+`\TT{:}' has an indent that is \underline{not} greater than the indent
+of the logical line containing the `\TT{:}', the block is empty.
+Otherwise the indent of this {\em indent} lexeme becomes the
+\mkey{indent}{of block} of the block and the indent of all the
+logical lines in the block.  The first logical line of the block
+starts immediately after this {\em indent} lexeme.
+The block ends just before the first
+logical line with lesser indent than the block indent, or the end of file.
+More specifically, the last logical line of the block ends with an
+{\em indent} whose indent is less than the block indent, or with an
+{\em end-of-file}.
+
+Examples are:
+\begin{indpar}\begin{verbatim}
+this is a top level logical line ending with a block:
+    this is the first line of the block
+    this is the
+         second line of the block
+    this is the third line of the block:
+        this is the first line of a subblock
+        this is the second line
+                of the subblock:
+            this is the only line of a sub-subblock
+        this is the third line of the subblock
+    this is the fourth line
+            of the block:
+        this is the only line of the second subblock
+      this line has erroneous indent as its indent
+           is less that the second subblock indent
+           but greater than the indent of the line
+           that contains the second subblock
+    this is the fifth line of the block
+         and it ends with an empty subblock:
+this is the second top level
+     logical line
+\end{verbatim}\end{indpar}
+
+A warning message is output if the indents of any two
+consecutive logical lines differ by more than \TT{0} and
+less than \TT{2} columns, in order to better detect
+indentation mistakes.
+
+{\em Line-break} lexemes are effectively ignored.  A sequence
+of {\em line-break} lexemes is followed by an {\em indent}
+or {\em end-of-file} which is not ignored.
+Blank physical lines are represented by sequences of
+more than one {\em line-break} lexeme, and are effectively
+ignored.
+
+A logical line that contains {\em comments}, but no
+lexemes other than {\em comments}, {\em line-breaks}, {\em indents}
+and a possible {\em end-of-file}, is
+a `\key{comment line}', and is ignored.
+
+It is an error to begin non-comment logical lines with
+a {\em comment}.
+{\em Comments} can be used freely in the middle of or at the
+end of any logical line, or at the beginning of a comment line.
+
+It is an error for the first logical line of a file
+to have an indent that is greater than \TT{0}, the top level
+indent.
+
+It is an error for a block to be in the middle of a logical
+line.  This means that the first {\em indent} following the
+block must have an indent no greater than that of the logical
+line containing the block.
+
+Examples are:
+\begin{indpar}\begin{verbatim}
+// this is a logical line that is a single comment
+
+// this is a logical line that has two
+    // comments
+
+this is a logical line // with a comment
+     // and another comment
+     with three comments // and a last comment
+
+this is a logical line ending with a block:
+     First line of the block
+     Second line of the block
+// Comment that ends block, but is in error because
+
+    it begins a logical line that this continues
+
+this is a logical line with a block:
+     First line of the block
+     Second line of the block
+  but the block is in error because it is before
+  this continuation of the logical line that contains
+  the block
+
+this is a logical line ending with a block:
+        First line of the block
+        Second line of the block
+  // comments that end the block, but are in error,
+  // because they continue the logical line
+  // containing the block
+\end{verbatim}\end{indpar}
+
+After a logical line
+has been formed, any {\em indent},
+{\em comment}, {\em line-break}, and {\em end-of-file}
+lexemes in the logical line
+are removed from the logical line.  If the result is
+empty, i.e., the logical line is a comment line, it is discarded.
+Otherwise the
+modified logical line becomes a L-Langauge `\emkey{statement}'.
+
+Therefore a file is a sequence of top-level statements.
+
+Since a logical line can end with a block that itself consists
+of a sequence of logical lines, a statement can end with
+a block that itself consists of a sequence of statements.
+
+
+\section{Names}
+\label{NAMES}
+
+A \key{name} is a sequence of lexemes used to name things like
+variables and functions.
+
+\begin{indpar}
+\emkey{name}\label{NAME} ::=
+    {\em initial-name-item} {\em continuing-name-item}\STAR{} \\
+\emkey{initial-name-item} ::= {\em name-item} other than {\em natural-number} \\
+\emkey{continuing-name-item} ::= {\em name-item} not containing `\TT{.}' \\
+\emkey{name-item}\label{NAME-ITEM}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} containing no `\TT{.}' following a character
+                     that is not a `\TT{.}' \\
+        & [see text about splitting words with embedded `\TT{.}'s] \\
+    $|$ & {\em natural-number} \\
+    $|$ & {\em quoted-mark} not containing `\TT{.}'s \\
+    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
+    \end{tabular} \\
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
+\end{indpar}
+
+{\em Words} containing embedded `\TT{.}'s are split into
+{\em name-items} which can only contain `\TT{.}'s at their beginning.
+Thus
+\begin{center}
+\TT{bills.wife.1.weight..size}
+\end{center}
+is split into
+\begin{center}
+\TT{bills~~~.wife~~~.1~~~.weight~~~~..size}
+\end{center}
+However, `\TT{.1}' is not a legal {\em name-item} and so cannot
+be part of a legal {\em name}.
+
+Name items beginning with more than one beginning `\TT{.}' are reserved
+for use by systems and compilers (e.g., \TT{..size} in the example).
+
+Names can be computed at compile time or run time:
+see~\itemref{STRING-AND-NAME-TYPES}.
+One name can be used to abbreviate another:
+see~\itemref{ABBREVIATIONS-AND-GENERICS}.
+A name may begin with a {\em word} that is a {\em module-abbreviation}
+that designates a code module: see~\itemref{MODULES}.
+
+Words ending with `\TT{\TMP$n$}', where $n$ is a {\em natural-number}, are
+reserved for use by the compiler and may not be used in names by the
+L-Langauge user.  For example, names of the form \TT{T\TMP$n$} are used as
+temporary variables introduced during compilation.
+
+A {\em name} may be an abbreviation for another name.  Such abbreviations
+can be introduced by statements of the form
+\begin{center}
+{\em abbreviation-name} \TT{-{}-{}->} \TT{`}{\em replacement-name}\TT{'}
+\end{center}
+See the sections on abbreviations
+(\itemref{ABBREVIATIONS-AND-GENERICS})
+and name types
+(\itemref{STRING-AND-NAME-TYPES})
+for more details.
+
+The builtin names in this document are implicitly in the
+\TT{"standard"} module whose {\em module-abbreviation} is `\TT{std}'.
+See the section on modules (\itemref{MODULES}) for details.
+For example the name `\TT{bool}' of the boolean data type is actually a builtin
+abbreviation defined by:
+\begin{center}
+\TT{bool {-{}-{}->} `std bool'}
+\end{center}
+and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
+
+Similarly a builtin function such as:
+\begin{center}
+\TT{float$x$ r = round ( float$x$}{\em -value}\TT{ )} \\
+\end{center}
+actually has the function prototype (\pagref{FUNCTION-PROTOTYPE}):
+\begin{center}
+\TT{function std float$x$ r = std round ( std float$x$ value )} \\
+\end{center}
+so its proper name is `\TT{std round}' and not `\TT{round}',
+but in this case it is not necessary (or desirable) to make `\TT{round}'
+an abbreviation because its module can be implied in a function call
+(see `module deficient' on \pagref{MODULE-DEFICIENT}).
+
+\section{Data}
+\label{DATA}
 
 \section{Types}
 \label{TYPES}
@@ -4680,9 +5247,6 @@ and `\TT{V.present}' will be set to `\TT{true}'.
 \label{OPERATORS}
 
 TBD Operator syntax: x "+" y.
-
-\section{Lexemes}
-\label{LEXEMES}
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

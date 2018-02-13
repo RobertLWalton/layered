@@ -904,7 +904,16 @@ the following abbreviations are builtin:
 \end{tabular}
 \end{indpar}
 
-TBD
+Here we use abbreviation statements of the form
+\begin{center}
+{\em abbreviation-name}~~\TT{--->}~~\TT{`}{\em replacement-name}\TT{'}
+\end{center}
+to specify that whenever the {\em abbreviation-name} occurs it is to be
+replaced by the {\em replacement-name}.  See \itemref{ABBREVIATIONS} for
+more abbreviation details. 
+
+In this document we will use these abbreviations as the
+`\skey{builtin number type}s':
 
 \begin{indpar}
 {\em builtin-number-type-name}\label{BUILTIN-NUMBER-TYPE-NAME}
@@ -918,6 +927,8 @@ TBD
     $|$ & \TT{unswrd} $|$ \TT{intwrd} $|$ \TT{floatwrd}\\
     \end{tabular}
 \end{indpar}
+
+\subsubsection{Integer Number Types}
 
 The \mkey{size}{of number}
 of a number is the number of its bits.  Numbers can have
@@ -933,23 +944,6 @@ A \key{signed integer} of size $S$ is a two's complement integer
 of size $S$ and range from $-2^{S-1}$ to $+2^{S-1}-1$.
 This represents the integer $I$ in the given range
 by the unsigned $S$-bit integer equal to $I~\mbox{modulo}~2^S$.
-
-A \key{floating point number} of size $S$ is a floating point number
-represented according to the IEEE 754 standard.  The sizes of exponents
-and mantissas for various floating point number sizes are as follows:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}r@{~~~~~~}r}
-                   &              &              &             & \bf Maximum \\
-\bf Floating Point & \bf Exponent & \bf Mantissa & \bf Decimal & \bf Decimal\\
-\bf Number Size    & \bf Size     & \bf Size     & \bf Digits  & \bf Exponent
-\\[2ex]
-16 bits & 5 bits & 10 bits & 3.31 & 4.51 \\
-32 bits & 8 bits & 23 bits & 7.22 & 38.23 \\
-64 bits & 11 bits & 52 bits & 15.95 & 307.95 \\
-128 bits & 15 bits & 112 bits & 34.02 & 4931.77 \\
-\end{tabular}
-\end{center}
 
 An \key{address} holds a RAM byte address.
 An address is a 32-bit or 64-bit signed or unsigned integer whose size
@@ -981,15 +975,55 @@ However, as it is unlikely that there will ever be an allocated memory region
 that includes address 0 in its interior, it makes no significant difference
 whether we consider addresses to be unsigned or signed.}
 
+\subsubsection{Floating Point Number Types}
+
+A \key{floating point number} of size $S$ is a floating point number
+represented according to the IEEE 754 standard.  The sizes of exponents
+and mantissas for various floating point number sizes are as follows:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}r@{~~~~~~}r}
+                   &              &              &             & \bf Maximum \\
+\bf Floating Point & \bf Exponent & \bf Mantissa & \bf Decimal & \bf Decimal\\
+\bf Number Size    & \bf Size     & \bf Size     & \bf Digits  & \bf Exponent
+\\[2ex]
+16 bits & 5 bits & 10 bits & 3.31 & 4.51 \\
+32 bits & 8 bits & 23 bits & 7.22 & 38.23 \\
+64 bits & 11 bits & 52 bits & 15.95 & 307.95 \\
+128 bits & 15 bits & 112 bits & 34.02 & 4931.77 \\
+\end{tabular}
+\end{center}
+
+There are also three special floating point values:
+\TT{+Inf} denoting positive infinity,
+\TT{-Inf} denoting negative infinity,
+and \TT{NaN} denoting `\key{not-a-number}' which is a value produced
+when, for example, \TT{0} is divided by \TT{0}.
+In this document \ttkey{NaN} denotes the particular non-signaling
+not-a-number value
+produced by arithmetic operations that cannot produce a number.
+Floating point variables can store many other not-a-number values.
+
+\subsubsection{Number Conversion Functions}
+
+In the following we specify builtin conversion functions using
+function prototypes of the form:
+\begin{center}
+\TT{function $T1$ r = std $F$ ( $T2$ v )} \\
+\end{center}
+This says that if you apply the function $F$ to the value \TT{v} which
+is of type $T2$, the function will return a value \TT{r} of type $T2$.
+See \itemref{INLINE-FUNCTIONS} for more function prototype details.
+
 The following builtin conversion functions are defined:
 
 \begin{indpar}
-\TT{function uns$x$~~~r = std uns$x$~~~( uns$y$ $v$ )} \\
-\TT{function int$x$~~~r = std int$x$~~~( uns$y$ $v$ )} \\
-\TT{function float$x$~r = std float$x$~( uns$y$ $v$ )} \\
-\TT{function int$x$~~~r = std int$x$~~~( int$y$ $v$ )} \\
-\TT{function float$x$~r = std float$x$~( int$y$ $v$ )} \\
-\TT{function float$x$~r = std float$x$~( float$y$ $v$ )}
+\TT{function uns$x$~~~r = std uns$x$~~~( uns$y$ v )} \\
+\TT{function int$x$~~~r = std int$x$~~~( uns$y$ v )} \\
+\TT{function float$x$~r = std float$x$~( uns$y$ v )} \\
+\TT{function int$x$~~~r = std int$x$~~~( int$y$ v )} \\
+\TT{function float$x$~r = std float$x$~( int$y$ v )} \\
+\TT{function float$x$~r = std float$x$~( float$y$ v )}
 
 for any $x\geq y$ for which the types are builtin
 \begin{indpar}
@@ -998,10 +1032,10 @@ the value when it is converted to the new type.  These conversions
 can be \ikey{implied}{implicit conversion}.
 \end{indpar}
 
-\TT{function uns$x$~~~r = std mod~~~( uns$y$ $v$ )} \\
-\TT{function uns$x$~~~r = std mod~~~( int$y$ $v$ )} \\
-\TT{function int$x$~~~r = std mod~~~( uns$y$ $v$ )} \\
-\TT{function int$x$~~~r = std mod~~~( int$y$ $v$ )}
+\TT{function uns$x$~~~r = std mod~~~( uns$y$ v )} \\
+\TT{function uns$x$~~~r = std mod~~~( int$y$ v )} \\
+\TT{function int$x$~~~r = std mod~~~( uns$y$ v )} \\
+\TT{function int$x$~~~r = std mod~~~( int$y$ v )}
 \ttindex{mod}
 
 for any $x$ and $y$ for which the types are builtin
@@ -1011,15 +1045,15 @@ These functions return a value equal to the argument
 modulo $2^x$.
 \end{indpar}
 
-\TT{function uns$x$~~~~~r = std nearest~~~( uns$y$ $v$ )} \\
-\TT{function uns$x$~~~~~r = std nearest~~~( int$y$ $v$ )} \\
-\TT{function uns$x$~~~~~r = std nearest~~~( float$y$ $v$ )} \\
-\TT{function int$x$~~~~~r = std nearest~~~( uns$y$ $v$ )} \\
-\TT{function int$x$~~~~~r = std nearest~~~( int$y$ $v$ )} \\
-\TT{function int$x$~~~~~r = std nearest~~~( float$y$ $v$ )} \\
-\TT{function float$x$~~~r = std nearest~~~( uns$y$ $v$ )} \\
-\TT{function float$x$~~~r = std nearest~~~( int$y$ $v$ )} \\
-\TT{function float$x$~~~r = std nearest~~~( float$y$ $v$ )}
+\TT{function uns$x$~~~~~r = std nearest~~~( uns$y$ v )} \\
+\TT{function uns$x$~~~~~r = std nearest~~~( int$y$ v )} \\
+\TT{function uns$x$~~~~~r = std nearest~~~( float$y$ v )} \\
+\TT{function int$x$~~~~~r = std nearest~~~( uns$y$ v )} \\
+\TT{function int$x$~~~~~r = std nearest~~~( int$y$ v )} \\
+\TT{function int$x$~~~~~r = std nearest~~~( float$y$ v )} \\
+\TT{function float$x$~~~r = std nearest~~~( uns$y$ v )} \\
+\TT{function float$x$~~~r = std nearest~~~( int$y$ v )} \\
+\TT{function float$x$~~~r = std nearest~~~( float$y$ v )}
 \ttindex{nearest}
 
 for any $x$ and $y$ for which the types are builtin
@@ -1047,9 +1081,9 @@ Floating point numbers can be converted to integer valued floating point
 numbers via:
 
 \begin{indpar}
-\TT{function float$x$~~~r = std round~~~~~( float$x$ $v$ )} \\
-\TT{function float$x$~~~r = std ceiling~~~( float$x$ $v$ )} \\
-\TT{function float$x$~~~r = std floor~~~~~( float$x$ $v$ )} \\
+\TT{function float$x$~~~r = std round~~~~~( float$x$ v )} \\
+\TT{function float$x$~~~r = std ceiling~~~( float$x$ v )} \\
+\TT{function float$x$~~~r = std floor~~~~~( float$x$ v )} \\
 
 for any $x$ for which the types are builtin
 \begin{indpar}
@@ -1059,77 +1093,30 @@ round up, and round down respectively.
 \end{indpar}
 
 
+\subsubsection{Unchecked Number Conversions}
+
+The following \underline{unchecked} conversion functions are defined.
+Note that here \TT{*UNCHECKED*} is a qualifier; see \itemref{QUALIFIERS}
+for qualifier details.
+
+\begin{indpar}
+\TT{function *UNCHECKED* uns$x$~~~r = uns$x$ ( int$x$ v )} \\
+\TT{function *UNCHECKED* uns$x$~~~r = uns$x$ ( float$x$ v )} \\
+\TT{function *UNCHECKED* int$x$~~~r = uns$x$ ( uns$x$ v )} \\
+\TT{function *UNCHECKED* int$x$~~~r = uns$x$ ( float$x$ v )} \\
+\TT{function *UNCHECKED* float$x$~r = uns$x$ ( uns$x$ v )} \\
+\TT{function *UNCHECKED* float$x$~r = uns$x$ ( int$x$ v )}
+
+for any $x$ for which the types are builtin
+\begin{indpar}
+These functions just return the $x$-bit value of \TT{v}
+unchanged except for giving it a different type.
+\end{indpar}
+\end{indpar}
+
+\subsubsection{Numeric Constants}
+
 TBD
-
-The following \underline{unchecked}
-conversion operator is defined provided $t2$ is known at compile time:
-\begin{center}
-
-\TT{*UNCHECKED*~}$t2$~~\TT{(} ~~ $t1${\em -value} ~~\TT{)}%
-\label{<<**}
-
-for any two builtin number types $t1$ and $t2$.
-
-\end{center}
-
-\TT{*UNCHECKED*} conversions sometimes use rounding and exception flags.  The
-L-Language assumes the hardware is set to `\key{round to nearest}'
-and all exceptions are masked.%
-\footnote{`round to nearest' not only affects
-only rounding, but also affects the results of converting values
-too large to fit in a target; `round to nearest' produces \TT{+Inf}
-or \TT{-Inf} whereas other rounding modes sometimes produce minimum or
-maximum numeric values.}  If there are two equally near values, the one with
-the zero low order bit is chosen.
-\TT{+Inf}, \TT{-Inf}, and \TT{NaN}
-are considered to be numbers representable in floating point formats.
-All kinds of \TT{NaN} are considered to be identical.
-
-
-The \TT{*UNCHECKED*} conversion operator is defined as follows:%
-\begin{itemize}
-\item The implicit conversion `$t2$ \TT{(} $t1${\em -value} \TT{)}'
-if that is defined.
-\item $t2$ is a floating point type,
-and the $t1$-value is a number within the range of values representable
-by a $t2$ value.
-The result is the $t1$-value rounded to the nearest $t2$-value.
-\item $t2$ is a floating point type,
-and the $t1$-value is a number outside the range of values representable
-by a $t2$ value.
-The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
-according to the sign of the $t1$-value.
-The floating point \mkey{overflow}{floating point flag} flag is set.
-\item $t2$ is a floating point type,
-and the $t1$-value is a floating point quiet \TT{NaN}.
-The result is a floating point quiet \TT{NaN}.  No floating point
-flags are set.  Quiet \TT{NaN}s are generated by arithmetic operations
-which cannot generate a number or signed infinity,
-such as divide by zero.
-\item $t2$ is a floating point type,
-and the $t1$-value is a floating point signalling \TT{NaN}.
-The result is a floating point quiet \TT{NaN}.
-The floating point \mkey{invalid operation}{floating point flag} flag is set.
-Signalling \TT{NaN}s are \underline{never} output by hardware instructions,
-and must be specially constructed by software.
-\item $t2$ and $t1$ are integer types and the $t1$-value is too large
-to be represented as a $t2$ value.
-The result is the $t2$ value that
-equals modulo $2^n$ the $t1$-value, where $n$ is the
-number of bits in a $t2$ value.
-\item $t2$ is an integer type and $t1$ is a floating point type, and
-the $t1$-value rounded to the nearest integer
-can be represented as a $t2$ value,
-the result is this rounded $t1$-value.
-\item $t2$ is an integer type and $t1$ is a floating point type,
-the $t1$-value cannot be represented as a $t2$ value because its
-absolute value is too large, or because it is not a number but is
-\TT{+Inf}, \TT{-Inf}, or a \TT{NaN}.  The result is undefined, but
-the floating point \mkey{invalid operation}{floating point flag} flag is set.%
-\footnote{In this situation,
-Intel hardware sets the invalid operation flag and
-\underline{not} the numeric overflow flag.}
-\end{itemize}
 
 Numeric constants are treated as if they had their own type,
 \key{numeric-constant}.\footnote{Otherwise we would have problems

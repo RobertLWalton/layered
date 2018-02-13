@@ -821,45 +821,91 @@ four kinds, unsigned integer, signed integer, floating point number,
 or address:
 
 \begin{indpar}
-\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\bf Name & \bf Kind & \bf Length \\[2ex]
-\ttkey{uns8}		& unsigned integer & 8 bits \\
-\ttkey{uns16}		& unsigned integer & 16 bits \\
-\ttkey{uns32}		& unsigned integer & 32 bits \\
-\ttkey{uns64}		& unsigned integer & 64 bits \\
-\ttkey{uns128}		& unsigned integer & 128 bits
+\begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\bf Name & \bf Kind & \bf Size \\[2ex]
+\TT{std}~~~\ttkey{uns1}		& unsigned integer & 1 bits \\
+\TT{std}~~~\ttkey{uns8}		& unsigned integer & 8 bits \\
+\TT{std}~~~\ttkey{uns16}	& unsigned integer & 16 bits \\
+\TT{std}~~~\ttkey{uns32}	& unsigned integer & 32 bits \\
+\TT{std}~~~\ttkey{uns64}	& unsigned integer & 64 bits \\
+\TT{std}~~~\ttkey{uns128}	& unsigned integer & 128 bits
 \end{tabular}
 
-\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\ttkey{int8}		& signed integer & 8 bits \\
-\ttkey{int16}		& signed integer & 16 bits \\
-\ttkey{int32}		& signed integer & 32 bits \\
-\ttkey{int64}		& signed integer & 64 bits \\
-\ttkey{int128}		& signed integer & 128 bits
+\begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\TT{std}~~~\ttkey{int8}		& signed integer & 8 bits \\
+\TT{std}~~~\ttkey{int16}	& signed integer & 16 bits \\
+\TT{std}~~~\ttkey{int32}	& signed integer & 32 bits \\
+\TT{std}~~~\ttkey{int64}	& signed integer & 64 bits \\
+\TT{std}~~~\ttkey{int128}	& signed integer & 128 bits
 \end{tabular}
 
-\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\ttkey{float16}		& IEEE floating point number & 16 bits \\
-\ttkey{float32}		& IEEE floating point number & 32 bits \\
-\ttkey{float64}		& IEEE floating point number & 64 bits \\
-\ttkey{float128}	& IEEE floating point number & 128 bits
+\begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\TT{std}~~~\ttkey{float16}	& IEEE floating point number & 16 bits \\
+\TT{std}~~~\ttkey{float32}	& IEEE floating point number & 32 bits \\
+\TT{std}~~~\ttkey{float64}	& IEEE floating point number & 64 bits \\
+\TT{std}~~~\ttkey{float128}	& IEEE floating point number & 128 bits
 \end{tabular}
 
-\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\ttkey{unsadr}		& unsigned integer & size of address \\
-\ttkey{intadr}		& signed integer & size of address \\
-\ttkey{adr}		& signed or unsigned integer & size of address \\
+\begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\TT{std}~~~\ttkey{unsadr}	& unsigned integer & size of address \\
+\TT{std}~~~\ttkey{intadr}	& signed integer & size of address \\
+\TT{std}~~~\ttkey{adr}		& signed or unsigned integer
+                                & size of address \\
 \end{tabular}
 
-\begin{tabular}{p{1in}@{~~~~~~}p{2in}@{~~~~~~}l}
-\ttkey{unswrd}		& unsigned integer & size of integer register \\
-\ttkey{intwrd}		& signed integer & size of integer register \\
-\ttkey{floatwrd}	& floating point number & size of floating point
-                                                          register \\
+\begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\TT{std}~~~\ttkey{unswrd}	& unsigned integer & size of integer register \\
+\TT{std}~~~\ttkey{intwrd}	& signed integer & size of integer register \\
+\TT{std}~~~\ttkey{floatwrd}	& floating point number & size of floating
+\end{tabular}
+
+\end{indpar}
+
+These are the \key{built in number types}.
+
+Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
+module to which builtin types and functions belong.  For convenience
+the following abbreviations are builtin:
+\begin{indpar}
+\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
+\TT{uns1} & \TT{`std~}\ttkey{uns1}\TT{'} \\
+\TT{uns8} & \TT{`std~}\ttkey{uns8}\TT{'} \\
+\TT{uns16} & \TT{`std~}\ttkey{uns16}\TT{'} \\
+\TT{uns32} & \TT{`std~}\ttkey{uns32}\TT{'} \\
+\TT{uns64} & \TT{`std~}\ttkey{uns64}\TT{'} \\
+\TT{uns128} & \TT{`std~}\ttkey{uns128}\TT{'} \\
+\end{tabular}
+
+\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
+\TT{int8} & \TT{`std~}\ttkey{int8}\TT{'} \\
+\TT{int16} & \TT{`std~}\ttkey{int16}\TT{'} \\
+\TT{int32} & \TT{`std~}\ttkey{int32}\TT{'} \\
+\TT{int64} & \TT{`std~}\ttkey{int64}\TT{'} \\
+\TT{int128} & \TT{`std~}\ttkey{int128}\TT{'} \\
+\end{tabular}
+
+\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
+\TT{float16} & \TT{`std~}\ttkey{float16}\TT{'} \\
+\TT{float32} & \TT{`std~}\ttkey{float32}\TT{'} \\
+\TT{float64} & \TT{`std~}\ttkey{float64}\TT{'} \\
+\TT{float128} & \TT{`std~}\ttkey{float128}\TT{'} \\
+\end{tabular}
+
+\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
+\TT{unsadr} & \TT{`std~}\ttkey{unsadr}\TT{'} \\
+\TT{intadr} & \TT{`std~}\ttkey{intadr}\TT{'} \\
+\TT{adr} & \TT{`std~}\ttkey{adr}\TT{'} \\
+\end{tabular}
+
+\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
+\TT{unswrd} & \TT{`std~}\ttkey{unswrd}\TT{'} \\
+\TT{intwrd} & \TT{`std~}\ttkey{intwrd}\TT{'} \\
+\TT{floatwrd} & \TT{`std~}\ttkey{floatwrd}\TT{'} \\
 \end{tabular}
 \end{indpar}
 
-These are the \key{built in number types}:
+TBD
+
 \begin{indpar}
 {\em builtin-number-type-name}\label{BUILTIN-NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}cl}
@@ -873,22 +919,22 @@ These are the \key{built in number types}:
     \end{tabular}
 \end{indpar}
 
-The \mkey{length}{of number}
+The \mkey{size}{of number}
 of a number is the number of its bits.  Numbers can have
-different lengths: for example, unsigned integers can have
-lengths of 8, 16, 32, 64, or 128 bits.
+different sizes: for example, unsigned integers can have
+sizes of 1, 8, 16, 32, 64, or 128 bits.
 
 Numbers are stored in registers or in random access memory (RAM).
 
-An \key{unsigned integer} of length $L$ is a binary integer with
-$L$ binary digits (\skey{bit}s) and range from $0$ to $2^L-1$.
+An \key{unsigned integer} of size $S$ is a binary integer with
+$S$ binary digits (\skey{bit}s) and range from $0$ to $2^S-1$.
 
-A \key{signed integer} of length $L$ is a two's complement integer
-of length $L$ and range from $-2^{L-1}$ to $+2^{L-1}-1$.
+A \key{signed integer} of size $S$ is a two's complement integer
+of size $S$ and range from $-2^{S-1}$ to $+2^{S-1}-1$.
 This represents the integer $I$ in the given range
-by the unsigned $L$-bit integer equal to $I~\mbox{modulo}~2^L$.
+by the unsigned $S$-bit integer equal to $I~\mbox{modulo}~2^S$.
 
-A \key{floating point number} of length $L$ is a floating point number
+A \key{floating point number} of size $S$ is a floating point number
 represented according to the IEEE 754 standard.  The sizes of exponents
 and mantissas for various floating point number sizes are as follows:
 
@@ -935,24 +981,43 @@ However, as it is unlikely that there will ever be an allocated memory region
 that includes address 0 in its interior, it makes no significant difference
 whether we consider addresses to be unsigned or signed.}
 
-The following \underline{implicit} conversion operators are defined:
-\begin{center}
+The following builtin conversion functions are defined:
 
-\begin{tabular}{r@{~}l}
-\TT{uns}$x$ & \TT{(} \TT{uns}$y${\em -value} \TT{)} \\
-\TT{int}$x$ & \TT{(} \TT{uns}$y${\em -value} \TT{)} \\
-\TT{float}$x$ & \TT{(} \TT{uns}$y${\em -value} \TT{)} \\
-\TT{int}$x$ & \TT{(} \TT{int}$y${\em -value} \TT{)} \\
-\TT{float}$x$ & \TT{(} \TT{int}$y${\em -value} \TT{)} \\
-\TT{float}$x$ & \TT{(} \TT{float}$y${\em -value} \TT{)} \\
-\end{tabular}
+\begin{indpar}
+\TT{function uns$x$~~~r = std uns$x$~~~( uns$y$ $v$ )} \\
+\TT{function int$x$~~~r = std int$x$~~~( uns$y$ $v$ )} \\
+\TT{function float$x$~r = std float$x$~( uns$y$ $v$ )} \\
+\TT{function int$x$~~~r = std int$x$~~~( int$y$ $v$ )} \\
+\TT{function float$x$~r = std float$x$~( int$y$ $v$ )} \\
+\TT{function float$x$~r = std float$x$~( float$y$ $v$ )}
 
 where $x>y$
+\begin{indpar}
+For these conversion functions, no information is lost from
+the value when it is converted to the new type.  These functions
+can be \ikey{implied}{implicit conversion} in approprate
+circumstances.
+\end{indpar}
+\end{indpar}
+
+TBD
+
+The following builtin conversion functions lose information
+for some values:
+\begin{center}
+
+\begin{tabular}{l}
+\TT{function uns$x$~~~r = std mod~~~( uns$y$ $v$ )} \\
+\TT{function int$x$~~~r = std int$x$~~~( uns$y$ $v$ )} \\
+\TT{function float$x$~r = std float$x$~( uns$y$ $v$ )} \\
+\TT{function int$x$~~~r = std int$x$~~~( int$y$ $v$ )} \\
+\TT{function float$x$~r = std float$x$~( int$y$ $v$ )} \\
+\TT{function float$x$~r = std float$x$~( float$y$ $v$ )} \\
+\end{tabular}
+
+for any $x$ and $y$.
 
 \end{center}
-
-For all these implicit conversions no information is lost from
-the value when it is converted to the new type.
 
 The following \underline{unchecked}
 conversion operator is defined provided $t2$ is known at compile time:
@@ -1697,7 +1762,7 @@ of their arguments and also on the values of arguments that
 are known at compile time.  Thus different functions with
 the common prototype
 \begin{center}
-\TT{(unsadr length) = size of ( type T )}
+\TT{(unsadr size) = size of ( type T )}
 \end{center}
 may be defined for different values of \TT{T}.  
 This is done automatically for the following functions:
@@ -2229,7 +2294,7 @@ prototype:
 \end{center}
 Or equivalently, there is an implicit conversion function defined
 whose argument is of type \TT{T1} and whose result is of type \TT{T2}.
-Then \TT{T1~-{}-{}->~T2} if and only if there is a (possibly zero length)
+Then \TT{T1~-{}-{}->~T2} if and only if there is a (possibly zero size)
 path in this graph from \TT{T1} to \TT{T2}.
 
 In addition we \underline{require} that all paths
@@ -3930,12 +3995,12 @@ function ( stack pointer pair pp,
         allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
     pp.type = T
-    unsadr length = size of ( T ) * n
-    pp = allocate to stack ( length )
+    unsadr size = size of ( T ) * n
+    pp = allocate to stack ( size )
         // This sets pp.offset, pp.base and
         // pp.base.adr.
     pp.begin = pp.offset
-    pp.end = pp.begin + length
+    pp.end = pp.begin + size
         // pp.offset is not returned to caller
 
 

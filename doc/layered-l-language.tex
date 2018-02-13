@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 12, 2018
+February 13, 2018
  
 \end{center}
 
@@ -991,33 +991,75 @@ The following builtin conversion functions are defined:
 \TT{function float$x$~r = std float$x$~( int$y$ $v$ )} \\
 \TT{function float$x$~r = std float$x$~( float$y$ $v$ )}
 
-where $x>y$
+for any $x\geq y$ for which the types are builtin
 \begin{indpar}
 For these conversion functions, no information is lost from
-the value when it is converted to the new type.  These functions
-can be \ikey{implied}{implicit conversion} in approprate
-circumstances.
+the value when it is converted to the new type.  These conversions
+can be \ikey{implied}{implicit conversion}.
+\end{indpar}
+
+\TT{function uns$x$~~~r = std mod~~~( uns$y$ $v$ )} \\
+\TT{function uns$x$~~~r = std mod~~~( int$y$ $v$ )} \\
+\TT{function int$x$~~~r = std mod~~~( uns$y$ $v$ )} \\
+\TT{function int$x$~~~r = std mod~~~( int$y$ $v$ )}
+\ttindex{mod}
+
+for any $x$ and $y$ for which the types are builtin
+
+\begin{indpar}
+These functions return a value equal to the argument
+modulo $2^x$.
+\end{indpar}
+
+\TT{function uns$x$~~~~~r = std nearest~~~( uns$y$ $v$ )} \\
+\TT{function uns$x$~~~~~r = std nearest~~~( int$y$ $v$ )} \\
+\TT{function uns$x$~~~~~r = std nearest~~~( float$y$ $v$ )} \\
+\TT{function int$x$~~~~~r = std nearest~~~( uns$y$ $v$ )} \\
+\TT{function int$x$~~~~~r = std nearest~~~( int$y$ $v$ )} \\
+\TT{function int$x$~~~~~r = std nearest~~~( float$y$ $v$ )} \\
+\TT{function float$x$~~~r = std nearest~~~( uns$y$ $v$ )} \\
+\TT{function float$x$~~~r = std nearest~~~( int$y$ $v$ )} \\
+\TT{function float$x$~~~r = std nearest~~~( float$y$ $v$ )}
+\ttindex{nearest}
+
+for any $x$ and $y$ for which the types are builtin
+
+\begin{indpar}
+These functions round the argument to the nearest value (ties to even)
+of the result type if the result must have less precision than the argument.
+If the value overflows the result type, the result is \TT{+Inf} or \TT{+Inf}
+for floating point results, and the largest or smallest possible result
+value for integer results.
+\end{indpar}
+
+\end{indpar}
+
+Note the difference between \TT{mod} and \TT{nearest} when applied to
+integers outside the range of the target type:
+\begin{center}
+\begin{tabular}{l}
+\TT{uns8 ( mod ( 257 ) ) == 1} \\
+\TT{uns8 ( nearest ( 257 ) ) == 255} \\
+\end{tabular}
+\end{center}
+
+Floating point numbers can be converted to integer valued floating point
+numbers via:
+
+\begin{indpar}
+\TT{function float$x$~~~r = std round~~~~~( float$x$ $v$ )} \\
+\TT{function float$x$~~~r = std ceiling~~~( float$x$ $v$ )} \\
+\TT{function float$x$~~~r = std floor~~~~~( float$x$ $v$ )} \\
+
+for any $x$ for which the types are builtin
+\begin{indpar}
+These functions round to nearest (ties to even),
+round up, and round down respectively.
 \end{indpar}
 \end{indpar}
+
 
 TBD
-
-The following builtin conversion functions lose information
-for some values:
-\begin{center}
-
-\begin{tabular}{l}
-\TT{function uns$x$~~~r = std mod~~~( uns$y$ $v$ )} \\
-\TT{function int$x$~~~r = std int$x$~~~( uns$y$ $v$ )} \\
-\TT{function float$x$~r = std float$x$~( uns$y$ $v$ )} \\
-\TT{function int$x$~~~r = std int$x$~~~( int$y$ $v$ )} \\
-\TT{function float$x$~r = std float$x$~( int$y$ $v$ )} \\
-\TT{function float$x$~r = std float$x$~( float$y$ $v$ )} \\
-\end{tabular}
-
-for any $x$ and $y$.
-
-\end{center}
 
 The following \underline{unchecked}
 conversion operator is defined provided $t2$ is known at compile time:

@@ -1083,7 +1083,7 @@ numbers via:
 \begin{indpar}
 \TT{function float$x$~~~r = std round~~~~~( float$x$ v )} \\
 \TT{function float$x$~~~r = std ceiling~~~( float$x$ v )} \\
-\TT{function float$x$~~~r = std floor~~~~~( float$x$ v )} \\
+\TT{function float$x$~~~r = std floor~~~~~( float$x$ v )}
 
 for any $x$ for which the types are builtin
 \begin{indpar}
@@ -1114,68 +1114,115 @@ unchanged except for giving it a different type.
 \end{indpar}
 \end{indpar}
 
-\subsubsection{Numeric Constants}
+\subsubsection{Number Constants}
+\label{NUMBER-CONSTANTS}
 
-TBD
+A \key{number-constant} is a {\em number} lexeme with specific syntax
+that is used to denote a number.  The syntax is:
 
-Numeric constants are treated as if they had their own type,
-\key{numeric-constant}.\footnote{Otherwise we would have problems
-representing \TT{256}.  If we used \TT{uns16} we could not implicitly
-convert to \TT{int16}, and if we used \TT{int16} we could not implicitly
-convert to \TT{uns16}.}  The values \TT{+Inf}, \TT{-Inf}, and \TT{NaN}
-are considered to be numeric constants.
-The implicit conversion:
-\begin{center}
-$t2$ \TT{(} {\em numeric-constant} \TT{)}
-\end{center}
-is defined when $t2$ is known at compile time and either:
-\begin{itemize}
-\item No information about the size, sign, and
-precision of the number is lost by representing the number
-as a $t2$ type value.  This will always be true if $t2$ is
-floating point and the numeric constant is \TT{+Inf}, \TT{-Inf},
-or \TT{NaN}.
-\item $t2$ is a floating point type,
-and the {\em numeric-constant} is a number (i.e., not
-\TT{+Inf}, \TT{-Inf}, or \TT{NaN})
-within the range of values representable
-by a $t2$ value.  The result is the {\em numeric-constant} rounded to
-the nearest representable $t2$ value.
-\end{itemize}
+\begin{indpar}
+\emkey{number-constant}
+    \begin{tabular}[t]{@{}cl}
+    :::= & {\em decimal-constant} \\
+    $|$ & {\em binary-constant} \\
+    $|$ & {\em hexadecimal-constant} \\
+    $|$ & \TT{+Inf}\index{Inf@\TT{+Inf}}
+          ~$|$~ \TT{-Inf}\index{Inf@\TT{-Inf}}
+          ~$|$~ \ttkey{NaN}
+    \end{tabular}
+\\[0.5ex]
+\emkey{sign} :::= \TT{+} $|$ \TT{-} \\
+\emkey{exponent} :::=
+	\{ \TT{e} $|$ \TT{E} \} {\em sign}\QMARK{} {\em dit}\PLUS{}
+\\[0.5ex]
+\emkey{decimal-constant} ::: = {\em sign}\QMARK{} {\em decimal-integer}
+				{\em decimal-fraction}\QMARK{}
+				{\em exponent}\QMARK{}
+\\[0.5ex]
+\emkey{decimal-integer}
+    \begin{tabular}[t]{@{}cl}
+    :::= & {\em dit}\PLUS{} \\
+     $|$ & {\em dit}
+           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{} \\
+     $|$ & {\em dit} {\em dit}
+           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{} \\
+     $|$ & {\em dit} {\em dit} {\em dit}
+           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{} \\
+    \end{tabular} \\
+\emkey{decimal-fraction} :::= \TT{.} {\em dit}\PLUS{} \\
+\emkey{dit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+ \\[0.5ex]
+\emkey{binary-constant} ::: = {\em sign}\QMARK{} \TT{B\#} {\em binary-integer}
+				{\em binary-fraction}\QMARK{} \TT{\#}
+				{\em exponent}\QMARK{}
+\\[0.5ex]
+\emkey{binary-integer}
+    \begin{tabular}[t]{@{}cl}
+    :::= & {\em bit}\PLUS{} \\
+     $|$ & {\em bit}
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+     $|$ & {\em bit} {\em bit}
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+     $|$ & {\em bit} {\em bit} {\em bit}
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+     $|$ & {\em bit} {\em bit} {\em bit} {\em bit}
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+    \end{tabular} \\
+\emkey{binary-fraction} :::= \TT{.} {\em bit}\PLUS{} \\
+\emkey{bit} :::= \TT{0} $|$ \TT{1}
+ \\[0.5ex]
+\emkey{hexadecimal-constant} ::: = {\em sign}\QMARK{} \TT{X\#} {\em hexadecimal-integer}
+				{\em hexadecimal-fraction}\QMARK{} \TT{\#}
+				{\em exponent}\QMARK{}
+\\[0.5ex]
+\emkey{hexadecimal-integer}
+    \begin{tabular}[t]{@{}cl}
+    :::= & {\em hit}\PLUS{} \\
+     $|$ & {\em hit}
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+     $|$ & {\em hit} {\em hit}
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+     $|$ & {\em hit} {\em hit} {\em hit}
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+     $|$ & {\em hit} {\em hit} {\em hit} {\em hit}
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+    \end{tabular} \\
+\emkey{hexadecimal-fraction} :::= \TT{.} {\em hit}\PLUS{} \\
+\emkey{hit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+	     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+	     $|$ \TT{a} $|$ \TT{b} $|$ \TT{c} $|$ \TT{d} $|$ \TT{e} $|$ \TT{f}
+	     $|$ \TT{A} $|$ \TT{B} $|$ \TT{C} $|$ \TT{D} $|$ \TT{E} $|$ \TT{F}
+\end{indpar}
 
-The \underline{unchecked} conversion:
-\begin{center}
-\TT{*UNCHECKED*} $t2$ \TT{(} {\em numeric-constant} \TT{)}
-\end{center}
-is defined if $t2$ is known at compile time
-and one of the following cases applies:
-\begin{itemize}
-\item The implicit conversion `$t2$ \TT{(} {\em numeric-constant} \TT{)}'
-if that is defined.
-\item $t2$ is a floating point type,
-and the {\em numeric-constant} is a number
-outside the range of values representable
-by a $t2$ value.
-The result is plus infinity, \TT{+Inf}, or minus infinity, \TT{-Inf},
-according to the sign of the {\em numeric-constant}.
-\item $t2$ is an integer type, the {\em numeric-constant}
-has a fractional part, and
-the {\em numeric-constant} rounded toward the nearest integer
-can be represented as a $t2$ value,
-the result is this rounded {\em numeric-constant}.
-\item $t2$ is an integer type
-and the {\em numeric-constant} is an integer
-outside the range of values representable
-by a $t2$ value.
-The result is the $t2$ value that
-equals modulo $2^n$ the {\em numeric-constant}, where $n$ is the
-number of bits in a $t2$ value.
-\item $t2$ is an integer type,
-and the {\em numeric-constant} is floating point and
-outside the range of values representable
-by a $t2$ value.
-A compile error is signalled.
-\end{itemize}
+The integer part of decimal constants may have commas
+every 3 digits, and the integer part of binary and hexadecimal constants
+may have commas every 4 digits.
+If there is a decimal point, there must be at least one fraction digit.
+
+\TT{NaN} denotes a canonical non-signaling NaN such
+at that produced by hardware on the target machine.
+\TT{+Inf} denotes positive infinity; \TT{-Inf} denotes negative infinity.
+
+{\em Number-constants} have no type.  They can be converted to
+values of number type as follows.
+
+A {\em number-constant} can be implicitly converted to any number
+type that can represent the number exactly.
+
+A {\em number-constant} can be implicitly converted to any
+floating point number type.  If it is too large, it is converted to
+\TT{+Inf}, and if it is too small, it is converted to \TT{-Inf}.
+If it cannot be represented exactly, it is rounded (ties to even).
+
+A {\em number-constant} can be explicitly converted to any number
+type by the \TT{mod} or \TT{nearest} functions.  It may be explicitly
+converted by \TT{uns$x$}, \TT{int$x$}, or \TT{float$x$} functions only
+if it may be implicitly converted to the desired type.
+
+{\em Number-constants} are compile time values and can be combined by
+the standard operators to produce compile time values
+(see \itemref{COMPILE-TIME-EVALUATION}).
 
 \subsection{The Void Type}
 \label{THE-VOID-TYPE}

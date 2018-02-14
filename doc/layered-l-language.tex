@@ -757,8 +757,55 @@ is split into
 However, `\TT{.1}' is not a legal {\em name-item} and so cannot
 be part of a legal {\em name}.
 
-Name items beginning with more than one beginning `\TT{.}' are reserved
+The L-Language uses several subcategories of names:
+
+\begin{indpar}
+\emkey{type-name} ::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{qualifier-name} ::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{variable-base} ::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{variable-name} ::= {\em variable-base} {\em member-selector}\STAR{} \\
+\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript } \\
+\emkey{member-name} ::= \begin{tabular}[t]{@{}l@{}}
+                        {\em name} beginning with a `\TT{.}', \\
+			but not containing a {\em quoted-mark}
+			    or {\em quoted-separator}
+			\end{tabular} \\
+\emkey{member-subscript} ::= see \pagref{MEMBER-SUBSCRIPT} \\
+\emkey{term-name} ::= {\em name}
+
+where
+\begin{enumerate}
+\item A {\em type-name} may not be an initial segment of another
+{\em type-name}, of a {\em variable-base}, or of a {\em term-name}
+unless the latter follows an \TT{=} or {\em prototype-argument-list}
+in a {\em function-prototype}.
+\item A {\em qualifier-name} may not be an initial segment of another
+{\em qualifier-name}, of a {\em type-name}, of a {\em variable-base},
+or of a {\em term-name}.
+\item
+{\em Name-items} ending with `\TT{\TMP$n$}',
+where $n$ is a {\em natural-number}, are
+reserved for use by the compiler.
+\item
+{\em Name-items} beginning with `\TT{..}' (possibly followed by more
+`\TT{.}'s) are reserved
 for use by systems and compilers (e.g., \TT{..size} in the example).
+\end{enumerate}
+\end{indpar}
+
+The first two rules are required because the syntax
+\begin{center}
+{\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
+\end{center}
+is used in {\em variable-declarations} that may begin {\em statements}
+and in {\em prototype-argument-declarations}.  Also, a
+{\em function-call} beginning with a {\em term-name}
+may also begin a {\em statement}.
+The third rule is because the compiler generates names like \TT{T\TMP$n$}
+for temporary variables and \TT{B\TMP$n$} for compiler created blocks.
 
 Names can be computed at compile time or run time:
 see~\itemref{STRING-AND-NAME-TYPES}.
@@ -766,11 +813,6 @@ One name can be used to abbreviate another:
 see~\itemref{ABBREVIATIONS-AND-GENERICS}.
 A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULES}.
-
-Words ending with `\TT{\TMP$n$}', where $n$ is a {\em natural-number}, are
-reserved for use by the compiler and may not be used in names by the
-L-Langauge user.  For example, names of the form \TT{T\TMP$n$} are used as
-temporary variables introduced during compilation.
 
 A {\em name} may be an abbreviation for another name.  Such abbreviations
 can be introduced by statements of the form

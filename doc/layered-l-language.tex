@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 13, 2018
+February 14, 2018
  
 \end{center}
 
@@ -1237,35 +1237,50 @@ in fact it is assigning values to cluster members.
 \subsection{Defined Types}
 \label{DEFINED-TYPES}
 
-A declaration statement of the following form defines a type:
-\begin{center}
+A declaration statement of the following form defines a type by
+specifying its {\em type-name}:
+\begin{indpar}
+\emkey{defined-type-declaration} ::=
 \TT{type} {\em qualifier-name}\STAR{} {\em defined-type-name}
-          \TT{is} {\em base-type-name}
-\end{center}
+          \TT{is} {\em base-type-name} \\
+{\em qualifier-name} ::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{defined-type-name} ::= {\em type-name} \\
+\emkey{base-type-name} ::= {\em type-name} \\
+\emkey{type-name} ::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+{\em name} ::= see \pagref{NAME}
+\end{indpar}
 
 Any {\em qualifiers} in the declaration are attached to every
 variable or argument declared to have the defined type (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
 
-No type name may be a prefix of another type name.
+No {\em type-name} may be a prefix of another {\em type-name}, a
+{\em variable-name}, or the first {\em term-name} of a 
+{\em function-prototype} if that {\em term-name} does not
+follow an \TT{=} sign or {\em argument-list} in the prototype.
 No qualifier name may be a prefix of a type name.
 No type name may begin with `\TT{next}'.
 
 A value of a defined type may be converted to or from its base
 type by the
 \underline{unchecked}
-operations:
-\begin{center}
-\begin{tabular}{r@{~}l}
-\TT{*UNCHECKED*} {\em base-type-name}
-	& \TT{(} {\em defined-type-value} \TT{)}\\
-\TT{*UNCHECKED*} {\em defined-type-name}
-	& \TT{(} {\em base-type-value} \TT{)}\\
-\end{tabular}\label{DEFINED-TYPE-UNCHECKED-CONVERSION}
-\end{center}
-These operators do not change the actual value, but merely its
-compile-time type.  Implied conversions in one direction only
-may be defined as desired.
+builtin functions:
+\begin{indpar}
+\TT{function *UNCHECKED* $B$ r = $B$ ( $D$ v )} \\
+\TT{function *UNCHECKED* $D$ r = $D$ ( $B$ v )} \\
+
+where $B$ is the {\em base-type-name} used to define
+the {\em derived-type-name} $D$
+
+\begin{indpar}
+These functions do not change the actual value, but merely its
+compile-time type.  Using these unchecked conversions,
+implied conversions in one direction only
+may be defined as desired: see \itemref{IMPLIED-CONVERSIONS}.
+\end{indpar}
+\end{indpar}\label{DEFINED-TYPE-UNCHECKED-CONVERSION}
 
 
 \subsection{Enumeration Values}

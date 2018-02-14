@@ -760,15 +760,20 @@ be part of a legal {\em name}.
 The L-Language uses several subcategories of names:
 
 \begin{indpar}
-\emkey{type-name} ::= {\em name} not containing a `\TT{.}',
+\emkey{type-name}\label{TYPE-NAME}
+	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
-\emkey{qualifier-name} ::= {\em name} not containing a `\TT{.}',
+\emkey{qualifier-name}\label{QUALIFIER-NAME}
+	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
-\emkey{variable-base} ::= {\em name} not containing a `\TT{.}',
+\emkey{variable-base-name}\label{VARIABLE-BASE-NAME}
+	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
-\emkey{variable-name} ::= {\em variable-base} {\em member-selector}\STAR{} \\
+\emkey{variable-name}\label{VARIABLE-NAME}
+	::= {\em variable-base-name} {\em member-selector}\STAR{} \\
 \emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript } \\
-\emkey{member-name} ::= \begin{tabular}[t]{@{}l@{}}
+\emkey{member-name}\label{MEMBER-NAME}
+	::= \begin{tabular}[t]{@{}l@{}}
                         {\em name} beginning with a `\TT{.}', \\
 			but not containing a {\em quoted-mark}
 			    or {\em quoted-separator}
@@ -779,12 +784,15 @@ The L-Language uses several subcategories of names:
 where
 \begin{enumerate}
 \item A {\em type-name} may not be an initial segment of another
-{\em type-name}, of a {\em variable-base}, or of a {\em term-name}
+{\em type-name}, of a {\em variable-base-name}, or of a {\em term-name}
 unless the latter follows an \TT{=} or {\em prototype-argument-list}
 in a {\em function-prototype}.
 \item A {\em qualifier-name} may not be an initial segment of another
-{\em qualifier-name}, of a {\em type-name}, of a {\em variable-base},
+{\em qualifier-name}, of a {\em type-name}, of a {\em variable-base-name},
 or of a {\em term-name}.
+\item
+A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
+may not begin with the word `\TT{next}' or `\TT{previous}'.
 \item
 {\em Name-items} ending with `\TT{\TMP$n$}',
 where $n$ is a {\em natural-number}, are
@@ -801,10 +809,12 @@ The first two rules are required because the syntax
 {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
 \end{center}
 is used in {\em variable-declarations} that may begin {\em statements}
-and in {\em prototype-argument-declarations}.  Also, a
+and in {\em prototype-argument-declara\-tions}.  Also, a
 {\em function-call} beginning with a {\em term-name}
 may also begin a {\em statement}.
-The third rule is because the compiler generates names like \TT{T\TMP$n$}
+The third rule is because {\em variable-declarations} are prefaced by
+`\TT{next}' and `\TT{previous}' with special meanting in certain contexts.
+The fourth rule is because the compiler generates names like \TT{T\TMP$n$}
 for temporary variables and \TT{B\TMP$n$} for compiler created blocks.
 
 Names can be computed at compile time or run time:
@@ -1214,7 +1224,9 @@ that is used to denote a number.  The syntax is:
 \emkey{binary-fraction} :::= \TT{.} {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
  \\[0.5ex]
-\emkey{hexadecimal-constant} ::: = {\em sign}\QMARK{} \TT{X\#} {\em hexadecimal-integer}
+\emkey{hexadecimal-constant} :::= \\
+\hspace*{0.5in}
+    {\em sign}\QMARK{} \TT{X\#} {\em hexadecimal-integer}
 				{\em hexadecimal-fraction}\QMARK{} \TT{\#}
 				{\em exponent}\QMARK{}
 \\[0.5ex]
@@ -1285,13 +1297,10 @@ specifying its {\em type-name}:
 \emkey{defined-type-declaration} ::=
 \TT{type} {\em qualifier-name}\STAR{} {\em defined-type-name}
           \TT{is} {\em base-type-name} \\
-{\em qualifier-name} ::= {\em name} not containing a `\TT{.}',
-			 {\em quoted-mark}, or {\em quoted-separator} \\
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME} \\
 \emkey{defined-type-name} ::= {\em type-name} \\
 \emkey{base-type-name} ::= {\em type-name} \\
-\emkey{type-name} ::= {\em name} not containing a `\TT{.}',
-			 {\em quoted-mark}, or {\em quoted-separator} \\
-{\em name} ::= see \pagref{NAME}
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
 \end{indpar}
 
 Any {\em qualifiers} in the declaration are attached to every
@@ -1311,7 +1320,7 @@ type by the
 builtin functions:
 \begin{indpar}
 \TT{function *UNCHECKED* $B$ r = $B$ ( $D$ v )} \\
-\TT{function *UNCHECKED* $D$ r = $D$ ( $B$ v )} \\
+\TT{function *UNCHECKED* $D$ r = $D$ ( $B$ v )}
 
 where $B$ is the {\em base-type-name} used to define
 the {\em derived-type-name} $D$
@@ -1339,37 +1348,34 @@ constants of its enumeration type that are being linked together.
 
 A declaration statement of the following form defines an \key{enumeration type}
 that has enumeration values:
-\begin{center}
-\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}
-    \begin{tabular}[t]{l}
-    \TT{is}~~~{\em base-enum-type-name} \\
+\begin{indpar}
+\emkey{enum-type-declaration} ::= \\
+\hspace*{0.5in}
+    \TT{type} {\em qualifier-name}\STAR{}
+    \begin{tabular}[t]{@{}l@{}}
+    {\em enum-type-name} \TT{is}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
     \{ \TT{without implicit conversion} \}\QMARK \\
     \end{tabular}
-\end{center}
-where
-\begin{center}
-\begin{tabular}{rrl}
+\\[0.5ex]
 \emkey{base-enum-type-name}
-    & ::= & {\em integer-base-type-name} \\
-    & $|$ & {\em enum-direction}\QMARK{}~~~{\em defined-enum-type-name} \\
-\emkey{enum-direction}
-    & ::= & \TT{next} $|$ \TT{previous} \\
-\emkey{integer-base-type-name}
-    & ::= & {\em builtin-number-type-name}%
+    \begin{tabular}[t]{rl}
+    ::= & {\em integer-type-name} \\
+    $|$ & {\em enum-direction}\QMARK{}~~~{\em enum-type-name} \\
+    \end{tabular} \\
+\emkey{enum-direction} ::= \TT{next} $|$ \TT{previous} \\
+\emkey{integer-type-name}
+    ::= {\em builtin-number-type-name}%
             \,$^{\pagref{BUILTIN-NUMBER-TYPE-NAME}}$ naming an integer type \\
-    & $|$ & {\em defined-type-name} with integer underlying type
-            (see \pagref{UNDERLYING-TYPE}) \\
 \emkey{enum-range}
-    & ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
-    & $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
-    & $|$ & \TT{[} \TT{..} {\em last-enum} \TT{]} \\
-\emkey{first-enum}
-    & ::= & {\em compile-time-integer-expression} \\
-\emkey{last-enum}
-    & ::= & {\em compile-time-integer-expression} \\
-\end{tabular}
-\end{center}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
+    $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
+    $|$ & \TT{[} \TT{..} {\em last-enum} \TT{]} \\
+    \end{tabular} \\
+\emkey{first-enum} ::= {\em compile-time-integer-expression} \\
+\emkey{last-enum} ::= {\em compile-time-integer-expression}
+\end{indpar}
 
 Here {\em first-enum} and {\em last-enum} are compile time integer
 values assigned to the newly defined enum type.
@@ -1383,9 +1389,10 @@ value permitted by the base enumeration type.
 Enumeration values can be assigned by declaration statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
-    ::= {\em enum-type-name} {\em constant-name} \TT{is} \TT{next enum} \\
-\emkey{enum-assignment}
-    ::= {\em enum-type-name} {\em constant-name} \TT{is} \TT{previous enum}
+    \begin{tabular}[t]{rl}
+    ::= & {\em enum-type-name} ~ {\em constant-name}\TT{ is next enum} \\
+    $|$ & {\em enum-type-name} ~ {\em constant-name}\TT{ is previous enum}
+    \end{tabular}
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
@@ -1410,24 +1417,21 @@ by some \TT{next~enum} and also by some \TT{previous~enum}.
 An enumeration type is a defined type with integer base type and
 extra apparatus provided by the range which provides a special
 mechanism for assigning enumeration type values.
-Given an enumeration type \TT{E} with its base type \TT{B}
+Given an enumeration type $E$ with its base type $B$
 the following conversions are defined:
-\begin{center}
-\begin{tabular}{rl}
-{\TT B} & \TT{(} {\em \TT{E}-value} \TT{)} \\
-\TT{*UNCHECKED*} \TT{B}
-	& \TT{(} {\em \TT{E}-value} \TT{)} \\
-\TT{*UNCHECKED*} \TT{E}
-	& \TT{(} {\em \TT{B}-value} \TT{)} \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\TT{function $B$ r = $B$ ( $E$ v )} \\
+\TT{function *UNCHECKED* $B$ r = $B$ ( $E$ v )} \\
+\TT{function *UNCHECKED* $E$ r = $E$ ( $B$ v )}
+\begin{indpar}
 These conversions actually do nothing but change the type of the
 value.  The first two have identical effect.  The first is an implicit
 conversion, and is only defined if the
 `\TT{without implicit conversion}' option is \underline{not} given in the
 enumeration type definition.  The last two conversions are the
-\TT{*UNCHECKED*} conversions defined for all defined types
-(see \pagref{DEFINED-TYPE-UNCHECKED-CONVERSION}).
+\TT{*UNCHECKED*} conversions defined for all enum types.
+\end{indpar}
+\end{indpar}
 
 If the base type of an enumeration type is a builtin integer type,
 the integer value corresponding to {\em first-enum} is {\em first-enum}
@@ -1446,11 +1450,12 @@ E C4 = previous enum
 \end{verbatim}\end{indpar}
 
 The \key{underlying type}\label{UNDERLYING-TYPE}
-of a type \TT{T} is \TT{T} itself if
-\TT{T} is builtin, and is the underlying
-type of the base type of \TT{T} if \TT{T} is a defined type.
-Thus every enumeration type \TT{E} has an underlying integer
-type \TT{I}.  As long as the `\TT{without implicit conversion}'
+of a type $T$ is $T$ itself if
+$T$ is builtin, and is the underlying
+type of the base type of $T$ if $T$ is a defined type or an
+enumeration type.
+Thus every enumeration type $E$ has an underlying integer
+type $I$.  As long as the `\TT{without implicit conversion}'
 option is \underline{not} used, a value of an enumeration type
 can always be implicitly converted to a value of its underlying
 type.  Thus the following example:
@@ -1466,73 +1471,78 @@ E C3 = previous enum
 If the base type of an enumeration type is another enumeration type,
 the map from values of the first enumeration type to underlying
 integer values consists of adding a constant, called the
-`\key{enumeration offset}', which is determined as follows:
+`\key{enumeration offset}', and the
+following are defined, where \TT{I} is the underlying
+integer type of \TT{E}:
+
+\begin{indpar}
+\TT{function $I$ r = enumeration offset of ( type E )}
+\begin{indpar}
+Returns the enumeration offset of \TT{E}.
+\end{indpar}
+\TT{function $I$ r = range value of ( $E$ v )}
+\begin{indpar}
+Returns \TT{$I$ ( v ) - enumeration offset of ( $E$ )}.
+\end{indpar}
+
+\end{indpar}
+
+The enumeration offset of an {\em enum-type-name} is more specifically
+defined for the following cases:
 
 \begin{indpar}
 \begin{itemlist}
-\item[\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}~~%
+\item[\TT{type} {\em qualifier-name}\STAR{} {\em enum-type-name}~~%
     \TT{is}~~{\em builtin-integer-type-name} \ldots{}] ~\\
-The enumeration offset of the defined enumeration type equals 0.
-\item[\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-type-name}~~%
-    \TT{is}~~{\em non-builtin-integer-type-name} \ldots{}] ~\\
-The enumeration offset of the defined enumeration type equals
-the enumeration offset of its base type.
+The enumeration offset of the {\em enum-type-name} equals \TT{0}.
 \item[\TT{type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
-              {\em defined-enum-type-name}~~\TT{is}~~%
-              \TT{next}~~{\em base-defined-enum-type-name} \\
+              {\em enum-type-name}~~\TT{is}~~%
+              \TT{next}~~{\em base-enum-type-name} \\
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
 	      \end{tabular} \\
 Has the effect of compiling the statements:
 \begin{center}
 \begin{tabular}{l}
-{\em base-defined-enum-type-name} \TT{V0~~=~~next enum} \\
-{\em base-defined-enum-type-name} \TT{V1~~=~~next enum} \\
-{\em base-defined-enum-type-name} \TT{V2~~=~~next enum} \\
+{\em base-enum-type-name} \TT{~V0~~=~~next enum} \\
+{\em base-enum-type-name} \TT{~V1~~=~~next enum} \\
+{\em base-enum-type-name} \TT{~V2~~=~~next enum} \\
 \ldots\ldots\ldots \\
-{\em base-defined-enum-type-name} \TT{V$n$~~=~~next enum} \\
+{\em base-enum-type-name} \TT{~V$n$~~=~~next enum} \\
 \end{tabular}
 \end{center}
-where $n$ = {\em last-enum} - {\em first-enum}, and assigning
-the enumeration offset of the defined enumeration type so that if
+where $n$ = {\em last-enum} - {\em first-enum}.
+If $I$ is the underlying integer type of the {\em base-enum-type-name},
+and thence also of {\em enum-type-name}, then
 \begin{center}
-{\em defined-enum-type-name} \TT{V~~=~~next enum} \\
+\TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
+\TT{=~$I$(V0)~-~}{\em first-enum}
 \end{center}
-were the first statement compiled later that assigns a
-{\em defined-enum-type-name} enumeration value,
-and \TT{I} is the underlying builtin integer type of both enum
-types, then \TT{I(V) = I(V0)}.  Here
+Therefore if implicit conversions are allowed, the first statement of the form
 \begin{center}
-\TT{enumeration offset of (}{\em defined-enum-type-name}\TT{)} \\
-\TT{=~I(V0)~-~}{\em first-enum}
+{\em enum-type-name} \TT{~V~~=~~next enum} \\
 \end{center}
+compiled after the {\em enum-type-declaration} will make
+\TT{$I$(V) == $I$(V0)}, and the first statement of the form
+\begin{center}
+{\em enum-type-name} \TT{~V~~=~~previous enum} \\
+\end{center}
+compiled after the {\em enum-type-declaration} will make
+\TT{$I$(V) == $I$(V$n$)}.
 \item[\TT{type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
-              {\em defined-enum-type-name}~~\TT{is}~~%
-              \TT{previous}~~{\em defined-enum-type-name} \\
+              {\em enum-type-name}~~\TT{is}~~%
+              \TT{previous}~~{\em enum-type-name} \\
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
 	      \end{tabular} \\
 Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
 \begin{center}
-\TT{enumeration offset of (}{\em defined-enum-type-name}\TT{)} \\
-\TT{=~I(V0)~-~}{\em last-enum}
+\TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
+\TT{=~$I$(V0)~-~}{\em last-enum}
 \end{center}
 \end{itemlist}
-\end{indpar}
-
-The following are also defined, where \TT{I} is the underlying
-integer type of \TT{E}:
-
-\begin{indpar}[0.5in]
-\hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}\ttkey{range value of}
-			\TT{( E} e-value \TT{)} \\
-Returns:~~\TT{I( e-value )}~\TT{-}~the enumeration offset of \TT{E}.
-\\[1ex]
-\hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}\ttkey{enumeration offset of}
-			\TT{( type E )} \\
-Returns the enumeration offset of \TT{E} (see above).
 \end{indpar}
 
 The above is examplified by:
@@ -1557,47 +1567,42 @@ E3 C4 = next enum
     // range value of ( E1(E2(C4)) ) = 11 = int32(C4)
 \end{verbatim}\end{indpar}
 
-Comparison and subtraction of enumeration values of the same
-type are defined:
+If $E$ is an enumeration type with underlying
+type $I$, the following comparison and subtraction
+of values of type $E$ are defined as if implicit conversion
+of $E$ values to $I$ values were allowed (even if they
+are not):
 
-\begin{indpar}[0.5in]
-\hspace*{-0.3in}\TT{(B} bool-value\TT{)~~=~~}
-			\TT{( E} e-value-1 \TT{)}
-			\ttmkey{"<"}{of enumeration values}
-			\TT{( E} e-value-2 \TT{)} \\
-Ditto for 
-\ttmkey{">"}{of enumeration values},
-\ttmkey{"<="}{of enumeration values},
-\ttmkey{">="}{of enumeration values},
-\ttmkey{"=="}{of enumeration values}, and
-\ttmkey{"~="}{of enumeration values}.
-\\[1ex]
-\hspace*{-0.3in}\TT{(I} i-value\TT{)~~=~~}
-			\TT{( E} e-value-1 \TT{)}
-			\ttmkey{"-"}{of enumeration values}
-			\TT{( E} e-value-2 \TT{)} \\
-returns \TT{I(}e-value-1\TT{) - I(}e-value-2\TT{)} where \TT{I}
-is the underlying integer type of \TT{E}.
+\begin{indpar}
+\TT{function bool r = ( $E$ v1 ) "$cop$" ( $E$ v1 )}
+
+where $cop$ is \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}.
+\begin{indpar}
+Returns \TT{$I$(v1) "$cop$" $I$(v2)}.
 \end{indpar}
 
-These are equivalent to comparing or
-subtracting the unchecked conversion of these values to
-integers.  Two enumeration values of different types
+\TT{function $I$ r = ( $E$ v1 ) "-" ( $E$ v1 )}
+\begin{indpar}
+Returns \TT{$I$(v1) "-" $I$(v2)}.
+\end{indpar}
+\end{indpar}
+
+Two enumeration values of different types
 may be compared or subtracted if they can be implicitly
 converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
 \begin{indpar}
-\TT{type~type~is unswrd with enum [0~..]} \\
-\TT{type~missing~is next enum // 0} \\
-\TT{type~type~is next enum // 1}
+\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
+\TT{type~}\ttmkey{missing}{type}\TT{~is next enum // 0} \\
+\TT{type~}\ttkey{type}\TT{~is next enum // 1}
 \\[1ex]
-\TT{type~qualifier~is unswrd with enum [0~..]} \\
-\TT{qualifier~missing~is next enum // 0}
+\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
+\TT{qualifier~}\ttmkey{missing}{qualifier}\TT{~is next enum // 0}
 \\[1ex]
 \TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
-\TT{bool}~\ttkey{false}\TT{~is next enum // 0} \\
-\TT{bool}~\ttkey{true}\TT{~~is next enum // 1}
+\TT{bool~}\ttkey{false}\TT{~is next enum // 0} \\
+\TT{bool~}\ttkey{true}\TT{~~is next enum // 1}
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
@@ -1610,13 +1615,12 @@ can be used to find the integer values associated with any
 enumeration constant, but unspecified builtin values may differ from
 one compilation or linking to the next.
 
-Enumeration values are assigned within a compilation module in
+Enumeration values are assigned within a compilation in
 the order that {\em enum-assignments} are compiled.
-When the module is linked, enumeration values are assigned
-in the same manner and order, but the values themselves may
-differ because the assignments of an enumeration type made
-before the module is processed may differ between when the
-module is compiled and when it is linked.
+Enumeration values are assigned during linking according to the order
+that modules containing the {\em enum-assignments} are linked.
+The link and compile values assigned by an {\em enum-assignment}
+may differ.
 
 However, within a compilation module, all assignments to an enumeration type
 are done in the same order during linking as during compilation.
@@ -1726,9 +1730,9 @@ types, where types are values of the enumeration type `\TT{type}'
 Enumeration sets and lists can be stored in variables of enumeration set
 or list types, which can be declared by:
 \begin{center}
-\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-set-type-name}
+\TT{type} {\em qualifier-name}\STAR{} {\em enum-set-type-name}
     \TT{is set of } {\em base-enum-type-name} \\
-\TT{type} {\em qualifier-name}\STAR{} {\em defined-enum-list-type-name}
+\TT{type} {\em qualifier-name}\STAR{} {\em enum-list-type-name}
     \TT{is list of } {\em base-enum-type-name} \\
 \end{center}
 

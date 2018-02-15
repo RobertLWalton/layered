@@ -2406,13 +2406,13 @@ may have a protected qualifier unless it is matched to
 a function result variable with the qualifier.
 
 In the above example, 
-any call variable matched to the argument of \TT{F}
-must have the `\TT{fie}' qualifier, which is required.
-Any call variable matched to the argument of \TT{G}
-must \underline{not} have the `\TT{fo}' qualifier, which is prohibited.
-The `\TT{fo}' qualifier can only be placed on a variable that is
-the result of a function like \TT{G} which attaches it to its result,
-as `\TT{fo}' is protected.  `\TT{fee}' and `\TT{fie}' can be attached
+any call variable matched to the argument of {\tt F}
+must have the `{\tt fie}' qualifier, which is required.
+Any call variable matched to the argument of {\tt G}
+must \underline{not} have the `{\tt fo}' qualifier, which is prohibited.
+The `{\tt fo}' qualifier can only be placed on a variable that is
+the result of a function like {\tt G} which attaches it to its result,
+as `{\tt fo}' is protected.  `{\tt fee}' and `{\tt fie}' can be attached
 to any variable, as they are \underline{not} protected.
 
 Inherited qualifiers affect cluster variables and their behavior is
@@ -2420,17 +2420,17 @@ specified on page~\pageref{INHERITED-QUALIFIER}.
 
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
-\TT{protected~qualifier~}\ttkey{mem} \\
-\TT{prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
-\TT{required qualifier~}\ttkey{*UNCHECKED*} \\
-\TT{protected~inherited~qualifier~}\ttkey{global}
+{\tt protected~qualifier~}\ttkey{mem} \\
+{\tt prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
+{\tt required qualifier~}\ttkey{*UNCHECKED*} \\
+{\tt protected~inherited~qualifier~}\ttkey{global}
 \end{indpar}
 
 The type `\ttkey{qualifier}' is a builtin enumeration type implicitly
 declared after the manner of
 \begin{indpar}
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
-\TT{qualifier}~\ttkey{missing}\TT{~is next enum // 0}
+{\tt type~}\ttkey{qualifier}{\tt ~is unswrd with enum [0~..]} \\
+{\tt qualifier~}\ttmkey{missing}{qualifier}{\tt ~is next enum // 0}
 \end{indpar}
 Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both

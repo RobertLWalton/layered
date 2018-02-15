@@ -919,40 +919,40 @@ Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
 module to which builtin types and functions belong.  For convenience
 the following abbreviations are builtin:
 \begin{indpar}
-\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
-\TT{uns1} & \TT{`std~}\ttkey{uns1}\TT{'} \\
-\TT{uns8} & \TT{`std~}\ttkey{uns8}\TT{'} \\
-\TT{uns16} & \TT{`std~}\ttkey{uns16}\TT{'} \\
-\TT{uns32} & \TT{`std~}\ttkey{uns32}\TT{'} \\
-\TT{uns64} & \TT{`std~}\ttkey{uns64}\TT{'} \\
-\TT{uns128} & \TT{`std~}\ttkey{uns128}\TT{'} \\
+\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\ttkey{uns1} & {\tt `std~uns1'} \\
+\ttkey{uns8} & {\tt `std~uns8'} \\
+\ttkey{uns16} & {\tt `std~uns16'} \\
+\ttkey{uns32} & {\tt `std~uns32'} \\
+\ttkey{uns64} & {\tt `std~uns64'} \\
+\ttkey{uns128} & {\tt `std~uns128'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
-\TT{int8} & \TT{`std~}\ttkey{int8}\TT{'} \\
-\TT{int16} & \TT{`std~}\ttkey{int16}\TT{'} \\
-\TT{int32} & \TT{`std~}\ttkey{int32}\TT{'} \\
-\TT{int64} & \TT{`std~}\ttkey{int64}\TT{'} \\
-\TT{int128} & \TT{`std~}\ttkey{int128}\TT{'} \\
+\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\ttkey{int8} & {\tt `std~int8'} \\
+\ttkey{int16} & {\tt `std~int16'} \\
+\ttkey{int32} & {\tt `std~int32'} \\
+\ttkey{int64} & {\tt `std~int64'} \\
+\ttkey{int128} & {\tt `std~int128'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
-\TT{float16} & \TT{`std~}\ttkey{float16}\TT{'} \\
-\TT{float32} & \TT{`std~}\ttkey{float32}\TT{'} \\
-\TT{float64} & \TT{`std~}\ttkey{float64}\TT{'} \\
-\TT{float128} & \TT{`std~}\ttkey{float128}\TT{'} \\
+\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\ttkey{float16} & {\tt `std~float16'} \\
+\ttkey{float32} & {\tt `std~float32'} \\
+\ttkey{float64} & {\tt `std~float64'} \\
+\ttkey{float128} & {\tt `std~float128'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
-\TT{unsadr} & \TT{`std~}\ttkey{unsadr}\TT{'} \\
-\TT{intadr} & \TT{`std~}\ttkey{intadr}\TT{'} \\
-\TT{adr} & \TT{`std~}\ttkey{adr}\TT{'} \\
+\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\ttkey{unsadr} & {\tt `std~unsadr'} \\
+\ttkey{intadr} & {\tt `std~intadr'} \\
+\ttkey{adr} & {\tt `std~adr'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\TT{~--->~}}l}
-\TT{unswrd} & \TT{`std~}\ttkey{unswrd}\TT{'} \\
-\TT{intwrd} & \TT{`std~}\ttkey{intwrd}\TT{'} \\
-\TT{floatwrd} & \TT{`std~}\ttkey{floatwrd}\TT{'} \\
+\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\ttkey{unswrd} & {\tt `std~unswrd'} \\
+\ttkey{intwrd} & {\tt `std~intwrd'} \\
+\ttkey{floatwrd} & {\tt `std~floatwrd'} \\
 \end{tabular}
 \end{indpar}
 
@@ -1061,7 +1061,7 @@ Floating point variables can store many other not-a-number values.
 In the following we specify builtin conversion functions using
 function prototypes of the form:
 \begin{center}
-\TT{function $T1$ r = std $F$ ( $T2$ v )} \\
+{\tt function $T1$ r = std $F$ ( $T2$ v )} \\
 \end{center}
 This says that if you apply the function $F$ to the value \TT{v} which
 is of type $T2$, the function will return a value \TT{r} of type $T2$.
@@ -1070,12 +1070,12 @@ See \itemref{INLINE-FUNCTIONS} for more function prototype details.
 The following builtin conversion functions are defined:
 
 \begin{indpar}
-\TT{function uns$x$~~~r = std uns$x$~~~( uns$y$ v )} \\
-\TT{function int$x$~~~r = std int$x$~~~( uns$y$ v )} \\
-\TT{function float$x$~r = std float$x$~( uns$y$ v )} \\
-\TT{function int$x$~~~r = std int$x$~~~( int$y$ v )} \\
-\TT{function float$x$~r = std float$x$~( int$y$ v )} \\
-\TT{function float$x$~r = std float$x$~( float$y$ v )}
+{\tt function uns$x$~~~r = std~}\ttkey{uns$x$}{\tt ~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std~}\ttkey{int$x$}{\tt ~~~( uns$y$ v )} \\
+{\tt function float$x$~r = std~}\ttkey{float$x$}{\tt ~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std~}\ttkey{int$x$}{\tt ~~~( int$y$ v )} \\
+{\tt function float$x$~r = std~}\ttkey{float$x$}{\tt ~( int$y$ v )} \\
+{\tt function float$x$~r = std~}\ttkey{float$x$}{\tt ~( float$y$ v )}
 
 for any $x\geq y$ for which the types are builtin
 \begin{indpar}
@@ -1084,10 +1084,10 @@ the value when it is converted to the new type.  These conversions
 can be \ikey{implied}{implicit conversion}.
 \end{indpar}
 
-\TT{function uns$x$~~~r = std mod~~~( uns$y$ v )} \\
-\TT{function uns$x$~~~r = std mod~~~( int$y$ v )} \\
-\TT{function int$x$~~~r = std mod~~~( uns$y$ v )} \\
-\TT{function int$x$~~~r = std mod~~~( int$y$ v )}
+{\tt function uns$x$~~~r = std~}\ttkey{mod}{\tt ~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~r = std~}\ttkey{mod}{\tt ~~~( int$y$ v )} \\
+{\tt function int$x$~~~r = std~}\ttkey{mod}{\tt ~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std~}\ttkey{mod}{\tt ~~~( int$y$ v )}
 \ttindex{mod}
 
 for any $x$ and $y$ for which the types are builtin
@@ -1097,15 +1097,15 @@ These functions return a value equal to the argument
 modulo $2^x$.
 \end{indpar}
 
-\TT{function uns$x$~~~~~r = std nearest~~~( uns$y$ v )} \\
-\TT{function uns$x$~~~~~r = std nearest~~~( int$y$ v )} \\
-\TT{function uns$x$~~~~~r = std nearest~~~( float$y$ v )} \\
-\TT{function int$x$~~~~~r = std nearest~~~( uns$y$ v )} \\
-\TT{function int$x$~~~~~r = std nearest~~~( int$y$ v )} \\
-\TT{function int$x$~~~~~r = std nearest~~~( float$y$ v )} \\
-\TT{function float$x$~~~r = std nearest~~~( uns$y$ v )} \\
-\TT{function float$x$~~~r = std nearest~~~( int$y$ v )} \\
-\TT{function float$x$~~~r = std nearest~~~( float$y$ v )}
+{\tt function uns$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( int$y$ v )} \\
+{\tt function uns$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( float$y$ v )} \\
+{\tt function int$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( uns$y$ v )} \\
+{\tt function int$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( int$y$ v )} \\
+{\tt function int$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( float$y$ v )} \\
+{\tt function float$x$~~~r = std~}\ttkey{nearest}{\tt ~~~( uns$y$ v )} \\
+{\tt function float$x$~~~r = std~}\ttkey{nearest}{\tt ~~~( int$y$ v )} \\
+{\tt function float$x$~~~r = std~}\ttkey{nearest}{\tt ~~~( float$y$ v )}
 \ttindex{nearest}
 
 for any $x$ and $y$ for which the types are builtin
@@ -1124,8 +1124,8 @@ Note the difference between \TT{mod} and \TT{nearest} when applied to
 integers outside the range of the target type:
 \begin{center}
 \begin{tabular}{l}
-\TT{uns8 ( mod ( 257 ) ) == 1} \\
-\TT{uns8 ( nearest ( 257 ) ) == 255} \\
+{\tt uns8 ( mod ( 257 ) ) == 1} \\
+{\tt uns8 ( nearest ( 257 ) ) == 255} \\
 \end{tabular}
 \end{center}
 
@@ -1133,9 +1133,9 @@ Floating point numbers can be converted to integer valued floating point
 numbers via:
 
 \begin{indpar}
-\TT{function float$x$~~~r = std round~~~~~( float$x$ v )} \\
-\TT{function float$x$~~~r = std ceiling~~~( float$x$ v )} \\
-\TT{function float$x$~~~r = std floor~~~~~( float$x$ v )}
+{\tt function float$x$~~~r = std~}\ttkey{round}{\tt ~~~~~( float$x$ v )} \\
+{\tt function float$x$~~~r = std~}\ttkey{ceiling}{\tt ~~~( float$x$ v )} \\
+{\tt function float$x$~~~r = std~}\ttkey{floor}{\tt ~~~~~( float$x$ v )}
 
 for any $x$ for which the types are builtin
 \begin{indpar}
@@ -1152,12 +1152,18 @@ Note that here \TT{*UNCHECKED*} is a qualifier; see \itemref{QUALIFIERS}
 for qualifier details.
 
 \begin{indpar}
-\TT{function *UNCHECKED* uns$x$~~~r = uns$x$ ( int$x$ v )} \\
-\TT{function *UNCHECKED* uns$x$~~~r = uns$x$ ( float$x$ v )} \\
-\TT{function *UNCHECKED* int$x$~~~r = uns$x$ ( uns$x$ v )} \\
-\TT{function *UNCHECKED* int$x$~~~r = uns$x$ ( float$x$ v )} \\
-\TT{function *UNCHECKED* float$x$~r = uns$x$ ( uns$x$ v )} \\
-\TT{function *UNCHECKED* float$x$~r = uns$x$ ( int$x$ v )}
+{\tt function \TT{*UNCHECKED*} uns$x$~~~r =~}%
+	\ttmkey{uns$x$}{conversion function}{\tt ~~~( int$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} uns$x$~~~r =~}%
+	\ttmkey{uns$x$}{conversion function}{\tt ~~~( float$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} int$x$~~~r =~}%
+	\ttmkey{int$x$}{conversion function}{\tt ~~~( uns$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} int$x$~~~r =~}%
+	\ttmkey{int$x$}{conversion function}{\tt ~~~( float$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} float$x$~r =~}%
+	\ttmkey{float$x$}{conversion function}{\tt ~( uns$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} float$x$~r =~}%
+	\ttmkey{float$x$}{conversion function}{\tt ~( int$x$ v )}
 
 for any $x$ for which the types are builtin
 \begin{indpar}
@@ -1319,8 +1325,8 @@ type by the
 \underline{unchecked}
 builtin functions:
 \begin{indpar}
-\TT{function *UNCHECKED* $B$ r = $B$ ( $D$ v )} \\
-\TT{function *UNCHECKED* $D$ r = $D$ ( $B$ v )}
+{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $D$ v )} \\
+{\tt function \TT{*UNCHECKED*} $D$ r = $D$ ( $B$ v )}
 
 where $B$ is the {\em base-type-name} used to define
 the {\em derived-type-name} $D$
@@ -1420,9 +1426,9 @@ mechanism for assigning enumeration type values.
 Given an enumeration type $E$ with its base type $B$
 the following conversions are defined:
 \begin{indpar}
-\TT{function $B$ r = $B$ ( $E$ v )} \\
-\TT{function *UNCHECKED* $B$ r = $B$ ( $E$ v )} \\
-\TT{function *UNCHECKED* $E$ r = $E$ ( $B$ v )}
+{\tt function $B$ r = $B$ ( $E$ v )} \\
+{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $E$ v )} \\
+{\tt function \TT{*UNCHECKED*} $E$ r = $E$ ( $B$ v )}
 \begin{indpar}
 These conversions actually do nothing but change the type of the
 value.  The first two have identical effect.  The first is an implicit
@@ -1472,17 +1478,17 @@ If the base type of an enumeration type is another enumeration type,
 the map from values of the first enumeration type to underlying
 integer values consists of adding a constant, called the
 `\key{enumeration offset}', and the
-following are defined, where \TT{I} is the underlying
-integer type of \TT{E}:
+following are defined, where $I$ is the underlying
+integer type of enumeration type $E$:
 
 \begin{indpar}
-\TT{function $I$ r = enumeration offset of ( type E )}
+{\tt function $I$ r =~}\ttkey{enumeration offset of}{\tt ~( type E )}
 \begin{indpar}
 Returns the enumeration offset of \TT{E}.
 \end{indpar}
-\TT{function $I$ r = range value of ( $E$ v )}
+{\tt function $I$ r =~}\ttkey{range value of}{\tt ~( $E$ v )}
 \begin{indpar}
-Returns \TT{$I$ ( v ) - enumeration offset of ( $E$ )}.
+Returns ~~ {\tt $I$~( v ) - enumeration offset of ( $E$ )}.
 \end{indpar}
 
 \end{indpar}
@@ -1574,16 +1580,19 @@ of $E$ values to $I$ values were allowed (even if they
 are not):
 
 \begin{indpar}
-\TT{function bool r = ( $E$ v1 ) "$cop$" ( $E$ v1 )}
+{\tt function bool r = ( $E$ v1 ) "$cop$" ( $E$ v1 )}
 
-where $cop$ is \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}.
+where $cop$ is
+\ttmkey{<}{of enum values}, \ttmkey{<=}{of enum values},
+\ttmkey{==}{of enum values}, \ttmkey{!=}{of enum values},
+\ttmkey{>=}{of enum values}, or \ttmkey{>}{of enum values}.
 \begin{indpar}
-Returns \TT{$I$(v1) "$cop$" $I$(v2)}.
+Returns {\tt $I$(v1) "$cop$" $I$(v2)}.
 \end{indpar}
 
-\TT{function $I$ r = ( $E$ v1 ) "-" ( $E$ v1 )}
+{\tt function $I$ r = ( $E$ v1 ) "\ttmkey{-}{of enum values}" ( $E$ v1 )}
 \begin{indpar}
-Returns \TT{$I$(v1) "-" $I$(v2)}.
+Returns {\tt $I$(v1) "-" $I$(v2)}.
 \end{indpar}
 \end{indpar}
 
@@ -1593,16 +1602,16 @@ converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
 \begin{indpar}
-\TT{type~}\ttkey{type}\TT{~is unswrd with enum [0~..]} \\
-\TT{type~}\ttmkey{missing}{type}\TT{~is next enum // 0} \\
-\TT{type~}\ttkey{type}\TT{~is next enum // 1}
+{\tt type~}\ttkey{type}{\tt ~is unswrd with enum [0~..]} \\
+{\tt type~}\ttmkey{missing}{type}{\tt ~is next enum // 0} \\
+{\tt type~}\ttkey{type}{\tt ~is next enum // 1}
 \\[1ex]
-\TT{type~}\ttkey{qualifier}\TT{~is unswrd with enum [0~..]} \\
-\TT{qualifier~}\ttmkey{missing}{qualifier}\TT{~is next enum // 0}
+{\tt type~}\ttkey{qualifier}{\tt ~is unswrd with enum [0~..]} \\
+{\tt qualifier~}\ttmkey{missing}{qualifier}{\tt ~is next enum // 0}
 \\[1ex]
-\TT{type~}\ttkey{bool}\TT{~is unswrd with enum [0~..~1]} \\
-\TT{bool~}\ttkey{false}\TT{~is next enum // 0} \\
-\TT{bool~}\ttkey{true}\TT{~~is next enum // 1}
+{\tt type~}\ttkey{bool}{\tt ~is unswrd with enum [0~..~1]} \\
+{\tt bool~}\ttkey{false}{\tt ~is next enum // 0} \\
+{\tt bool~}\ttkey{true}{\tt ~~is next enum // 1}
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
@@ -1729,20 +1738,24 @@ types, where types are values of the enumeration type `\TT{type}'
 
 Enumeration sets and lists can be stored in variables of enumeration set
 or list types, which can be declared by:
-\begin{center}
-\TT{type} {\em qualifier-name}\STAR{} {\em enum-set-type-name}
-    \TT{is set of } {\em base-enum-type-name} \\
-\TT{type} {\em qualifier-name}\STAR{} {\em enum-list-type-name}
-    \TT{is list of } {\em base-enum-type-name} \\
-\end{center}
+\begin{indpar}
+\emkey{enum-set-type-declaration} ::= \\
+\hspace*{0.5in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-set-type-name}
+		\TT{is set of } {\em element-enum-type-name}
+\\[0.5ex]
+\emkey{enum-list-type-declaration} ::= \\
+\hspace*{0.5in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-list-type-name}
+    \TT{is list of } {\em element-enum-type-name} \\
+\end{indpar}
 
 The information about enumeration set and list types can be determined by:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt (bool test) = \ttkey{is enumeration set type}
-			( type T )} \\
-Returns \TT{true} if \TT{T} is an enumeration set type and \TT{false}
+{\tt function bool r = \ttkey{is enumeration set type} ( type T )}
+\begin{indpar}
+Returns \TT{true} if {\tt T} is an enumeration set type and \TT{false}
 otherwise.
+\end{indpar}
 
 \hspace*{-0.3in}{\tt (bool test) = \ttkey{is enumeration list type}
 			( type T )} \\

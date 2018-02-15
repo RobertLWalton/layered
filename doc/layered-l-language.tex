@@ -1609,7 +1609,10 @@ The following are builtin enumeration types:
 {\tt type~}\ttkey{qualifier}{\tt ~is unswrd with enum [0~..]} \\
 {\tt qualifier~}\ttmkey{missing}{qualifier}{\tt ~is next enum // 0}
 \\[1ex]
-{\tt type~}\ttkey{bool}{\tt ~is unswrd with enum [0~..~1]} \\
+{\tt type~}\ttkey{bool}\begin{tabular}[t]{@{}l@{}}
+                       {\tt ~is unswrd with enum [0~..~1]} \\
+                       {\tt ~without implicit conversion} \\
+		       \end{tabular} \\
 {\tt bool~}\ttkey{false}{\tt ~is next enum // 0} \\
 {\tt bool~}\ttkey{true}{\tt ~~is next enum // 1}
 \end{indpar}
@@ -2049,6 +2052,30 @@ of type {\tt T1} can be implicitly converted to values of type {\tt T2}
 
 For all these functions it is a compile time error if their arguments
 do not have a compile time value.
+
+\subsection{The String Type}
+\label{THE-STRING-TYPE}
+
+A `\key{string}' is a vector of 32-bit UNICODE characters.
+It is defined as a derived type:
+\begin{indpar}
+{\tt type~}\ttkey{string}{\tt ~is adr}
+\end{indpar}
+and {\em quoted-string} lexemes are constants of \TT{string} type
+whose characters are those represented by the lexemes with
+the addition of a \TT{NUL} character (code \TT{0}) at the end.
+
+Strings are read-only, and their characters cannot be changed.
+When computed at compile time, they cannot be garbage collected.
+They may or may not be implemented at run-time, and if they are,
+will have library implementation dependent memory allocation
+schemes.
+
+Strings can be accessed by `\skey{string pointer}s' which are
+also derived types.  A string pointer does not have a value
+but is instead a basis for a cluster of variables that
+can exist only in the local memory of a frame: see
+\itemref{CLUSTERS}.
 
 \subsection{The Name Type}
 \label{THE-NAME-TYPE}

@@ -159,7 +159,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 14, 2018
+February 15, 2018
  
 \end{center}
 
@@ -1426,7 +1426,7 @@ mechanism for assigning enumeration type values.
 Given an enumeration type $E$ with its base type $B$
 the following conversions are defined:
 \begin{indpar}
-{\tt function $B$ r = $B$ ( $E$ v )} \\
+{\tt function ~~~~~~~~~~~ $B$ r = $B$ ( $E$ v )} \\
 {\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $E$ v )} \\
 {\tt function \TT{*UNCHECKED*} $E$ r = $E$ ( $B$ v )}
 \begin{indpar}
@@ -1740,12 +1740,12 @@ Enumeration sets and lists can be stored in variables of enumeration set
 or list types, which can be declared by:
 \begin{indpar}
 \emkey{enum-set-type-declaration} ::= \\
-\hspace*{0.5in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-set-type-name}
+\hspace*{0.2in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-set-type-name}
 		\TT{is set of } {\em element-enum-type-name}
 \\[0.5ex]
 \emkey{enum-list-type-declaration} ::= \\
-\hspace*{0.5in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-list-type-name}
-    \TT{is list of } {\em element-enum-type-name} \\
+\hspace*{0.2in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-list-type-name}
+    \TT{is list of } {\em element-enum-type-name}
 \end{indpar}
 
 The information about enumeration set and list types can be determined by:
@@ -1757,110 +1757,143 @@ Returns \TT{true} if {\tt T} is an enumeration set type and \TT{false}
 otherwise.
 \end{indpar}
 
-\hspace*{-0.3in}{\tt (bool test) = \ttkey{is enumeration list type}
-			( type T )} \\
-Returns \TT{true} if \TT{T} is an enumeration list type and \TT{false}
+{\tt function bool r = \ttkey{is enumeration list type} ( type T )}
+\begin{indpar}
+Returns \TT{true} if {\tt T} is an enumeration list type and \TT{false}
 otherwise.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (type B) = \ttkey{base type of}
-			( type T )} \\
-Returns the base type \TT{B} of an enumeration set or list type \TT{T}.
+{\tt function type r = \ttkey{element type of} ( type T )}
+\begin{indpar}
+Returns the element type of an enumeration set or list type {\tt T}.
+For a set or list constant, this is the common enumeration type.
+\end{indpar}
+
 \end{indpar}
 
 The following are builtin enumeration set types:
 \begin{indpar}
-\TT{type~}\ttkey{types}\TT{~is set of type} \\
-\TT{type~}\ttkey{qualifiers}\TT{~is set of qualifier}
+{\tt type~}\ttkey{types}{\tt ~is set of type} \\
+{\tt type~}\ttkey{qualifiers}{\tt ~is set of qualifier}
 \end{indpar}
 
 An enumeration set or list constant is an enumeration set or list
-whose base type 
+whose element type 
 is its common enumeration type, even if this enumeration set or list
 type has not been
 declared and is not builtin.
 
-Given an enumeration set or list type \TT{T1} with base type \TT{B1} and
-an enumeration set or list type \TT{T2} with base type \TT{B2}, the following
+Given an enumeration set or list type $T1$ with base type $B1$ and
+an enumeration set or list type $T2$ with base type $B2$, the following
 conversions are defined:
-\begin{center}
-\begin{tabular}{rl@{~~~~~}l}
-{\TT T2} & \TT{(} {\em \TT{T1}-value} \TT{)}
-    & if implicit conversion from \TT{B1} to \TT{B2} is defined \\
-\TT{*UNCHECKED*} \TT{T2}
-	& \TT{(} {\em \TT{T1}-value} \TT{)}
-    & if \TT{*UNCHECKED*} conversion from \TT{B1} to \TT{B2} is defined \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+{\tt function ~~~~~~~~~~~ $T2$ r = ( $T1$ v )}
+\begin{indpar}
+    Defined as an implicit conversion \underline{but only if}
+    an implicit conversion from $B1$ to $B2$ is defined
+\end{indpar}
+{\tt function \TT{*UNCHECKED*} $T2$ r = ( $T1$ v )}
+\begin{indpar}
+    Defined as an \TT{*UNCHECKED} explicit conversion \underline{but only if}
+    an \TT{*UNCHECKED*} explicit conversion from $B1$ to $B2$ is defined
+\end{indpar}
+\end{indpar}
 A set type can only be converted to a set type, and a list type can
 only be converted to a list type.
 These conversions actually do nothing but change the type of the
 value.
 
-If \TT{S} is an enumeration set type with base type \TT{B}, the following
-operations are builtin:
+If $S$ is an enumeration set type with element type $E$, the following
+builtin functions are builtin:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt (S union) = (S op1)
-                        "\ttmkey{+}{enumeration set union}" ( S op2 )} \\
-Returns the union of \TT{op1} and \TT{op2}.
+{\tt function $S$ r =
+    ($S$ v1) "\ttmkey{+}{enumeration set union}" ( $S$ v2 )}
+\begin{indpar}
+Returns the union of {\tt v1} and {\tt v2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S intersection) = (S op1)
-                        "\ttmkey{*}{enumeration set intersection}" ( S op2 )} \\
-Returns the intersection of \TT{op1} and \TT{op2}.
+{\tt function $S$ r =
+    ($S$ v1) "\ttmkey{*}{enumeration set intersection}" ( $S$ v2 )}
+\begin{indpar}
+Returns the intersection of {\tt v1} and {\tt v2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S difference) = (S op1)
-                        "\ttmkey{-}{enumeration set difference}" ( S op2 )} \\
-Returns the set difference of \TT{op1} and \TT{op2}.
+{\tt function $S$ r =
+    ($S$ v1) "\ttmkey{-}{enumeration set difference}" ( $S$ v2 )}
+\begin{indpar}
+Returns the set difference of {\tt v1} and {\tt v2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (bool test) = (B e)
-                        \ttmkey{in}{enumeration set} (S s)} \\
-Returns \TT{true} if \TT{e} is an element of the set \TT{s}, and
+{\tt function bool r =
+    ($E$ e) \ttmkey{in}{enumeration set} ($S$ s)}
+\begin{indpar}
+Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S union) = (B e)
-                        "\ttmkey{+}{enumeration set union}" (S s)} \\
-Returns union of \{\TT{e}\} and \TT{s}.
+{\tt function $S$ r =
+    ($E$ e) "\ttmkey{+}{enumeration set union}" ($S$ s)}
+\begin{indpar}
+Returns union of \{{\tt e}\} and {\tt s}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S union) = (S s)
-                        "\ttmkey{+}{enumeration set union}" (B e)} \\
-Returns union of \{\TT{e}\} and \TT{s}.
+{\tt function $S$ r =
+    ($S$ s) "\ttmkey{+}{enumeration set union}" ($E$ e)}
+\begin{indpar}
+Returns union of \{{\tt e}\} and {\tt s}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S difference) = (S s)
-                        "\ttmkey{-}{enumeration set union}" (B e)} \\
-Returns the set difference of \TT{s} and \{\TT{e}\}.
+{\tt function $S$ r =
+    ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
+\begin{indpar}
+Returns the set difference of {\tt s} and \{{\tt e}\}.
+\end{indpar}
 
 \end{indpar}
 
-If \TT{L} is an enumeration list type with base type \TT{B}, the following
-operations are builtin:
+If $L$ is an enumeration list type with element type $E$, the following
+functions are builtin:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt (L concatenation) = (L op1)
-		    "\ttmkey{+}{enumeration list concatenation}" (L op2)} \\
-Returns the concatenation of \TT{op1} and \TT{op2}.
+{\tt function $L$ r = ($L$ v1)
+		    "\ttmkey{+}{enumeration list concatenation}" ($L$ v2)}
+\begin{indpar}
+Returns the concatenation of {\tt v1} and {\tt v2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L difference) = (L op1)
-                        "\ttmkey{-}{enumeration set difference}" (L op2)} \\
-Returns the list made by removing all elements from \TT{op1} that
-appear anywhere in \TT{op2}.
+{\tt function $L$ r = ($L$ v1)
+                        "\ttmkey{-}{enumeration set difference}" ($L$ v2)}
+\begin{indpar}
+Returns the list made by removing all elements from {\tt v1} that
+appear anywhere in {\tt v2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (bool test) = (B e)
-                        \ttmkey{in}{enumeration list} (L op)} \\
-Returns \TT{true} if \TT{e} is an element of the list \TT{op}, and
+{\tt function bool r = ($E$ e)
+                        \ttmkey{in}{enumeration list} ($L$ v)}
+\begin{indpar}
+Returns \TT{true} if {\tt e} is an element of the list {\tt v}, and
 \TT{false} otherwise.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L concatenation) = (B e)
-                        "\ttmkey{+}{enumeration list prepend}" (L op)} \\
-Returns the list made by prepending \TT{e} to \TT{op}.
+{\tt function $L$ r = ($E$ e)
+                        "\ttmkey{+}{enumeration list prepend}" ($L$ v)}
+\begin{indpar}
+Returns the list made by prepending {\tt e} to {\tt v}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L concatenation) = (L op)
-                        "\ttmkey{+}{enumeration list append}" (B e)} \\
-Returns the list made by appending \TT{e} to \TT{op}.
+{\tt function $L$ r = ($L$ v)
+                        "\ttmkey{+}{enumeration list append}" ($E$ e)}
+\begin{indpar}
+Returns the list made by appending {\tt e} to {\tt v}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L difference) = (L s)
-                        "\ttmkey{-}{enumeration list remove}" (B e)} \\
+{\tt function $L$ r = ($L$ s)
+                        "\ttmkey{-}{enumeration list remove}" ($E$ e)}
+\begin{indpar}
 Returns the list made by removing the all occurences of
-\TT{e} in \TT{op}.
+{\tt e} in {\tt v}.
+\end{indpar}
 
 \end{indpar}
 

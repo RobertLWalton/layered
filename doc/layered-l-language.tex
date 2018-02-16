@@ -106,6 +106,7 @@
 \newcommand{\CLOSE}{{$\}$}}
 
 \newcommand{\TMP}{\$}
+\newcommand{\ABV}{-{}-{}->}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -159,7 +160,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 15, 2018
+February 16, 2018
  
 \end{center}
 
@@ -827,7 +828,7 @@ that designates a code module: see~\itemref{MODULES}.
 A {\em name} may be an abbreviation for another name.  Such abbreviations
 can be introduced by statements of the form
 \begin{center}
-{\em abbreviation-name} \TT{-{}-{}->} \TT{`}{\em replacement-name}\TT{'}
+{\em abbreviation-name} \TT{\ABV} \TT{`}{\em replacement-name}\TT{'}
 \end{center}
 See the sections on abbreviations
 (\itemref{ABBREVIATIONS-AND-GENERICS})
@@ -841,7 +842,7 @@ See the section on modules (\itemref{MODULES}) for details.
 For example the name `\TT{bool}' of the boolean data type is actually a builtin
 abbreviation defined by:
 \begin{center}
-\TT{bool {-{}-{}->} `std bool'}
+\TT{bool {\ABV} `std bool'}
 \end{center}
 and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
 
@@ -919,7 +920,7 @@ Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
 module to which builtin types and functions belong.  For convenience
 the following abbreviations are builtin:
 \begin{indpar}
-\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
 \ttkey{uns1} & {\tt `std~uns1'} \\
 \ttkey{uns8} & {\tt `std~uns8'} \\
 \ttkey{uns16} & {\tt `std~uns16'} \\
@@ -928,7 +929,7 @@ the following abbreviations are builtin:
 \ttkey{uns128} & {\tt `std~uns128'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
 \ttkey{int8} & {\tt `std~int8'} \\
 \ttkey{int16} & {\tt `std~int16'} \\
 \ttkey{int32} & {\tt `std~int32'} \\
@@ -936,20 +937,20 @@ the following abbreviations are builtin:
 \ttkey{int128} & {\tt `std~int128'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
 \ttkey{float16} & {\tt `std~float16'} \\
 \ttkey{float32} & {\tt `std~float32'} \\
 \ttkey{float64} & {\tt `std~float64'} \\
 \ttkey{float128} & {\tt `std~float128'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
 \ttkey{unsadr} & {\tt `std~unsadr'} \\
 \ttkey{intadr} & {\tt `std~intadr'} \\
 \ttkey{adr} & {\tt `std~adr'} \\
 \end{tabular}
 
-\begin{tabular}{p{0.8in}@{\tt ~--->~}l}
+\begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
 \ttkey{unswrd} & {\tt `std~unswrd'} \\
 \ttkey{intwrd} & {\tt `std~intwrd'} \\
 \ttkey{floatwrd} & {\tt `std~floatwrd'} \\
@@ -958,7 +959,7 @@ the following abbreviations are builtin:
 
 Here we use abbreviation statements of the form
 \begin{center}
-{\em abbreviation-name}~~\TT{--->}~~\TT{`}{\em replacement-name}\TT{'}
+{\em abbreviation-name}~~\TT{\ABV}~~\TT{`}{\em replacement-name}\TT{'}
 \end{center}
 to specify that whenever the {\em abbreviation-name} occurs it is to be
 replaced by the {\em replacement-name}.  See \itemref{ABBREVIATIONS} for
@@ -1061,7 +1062,7 @@ Floating point variables can store many other not-a-number values.
 In the following we specify builtin conversion functions using
 function prototypes of the form:
 \begin{center}
-{\tt function $T1$ r = std $F$ ( $T2$ v )} \\
+\tt function $T1$ r = std $F$ ( $T2$ v )
 \end{center}
 This says that if you apply the function $F$ to the value \TT{v} which
 is of type $T2$, the function will return a value \TT{r} of type $T2$.
@@ -1070,24 +1071,24 @@ See \itemref{INLINE-FUNCTIONS} for more function prototype details.
 The following builtin conversion functions are defined:
 
 \begin{indpar}
-{\tt function uns$x$~~~r = std~}\ttkey{uns$x$}{\tt ~~~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std~}\ttkey{int$x$}{\tt ~~~( uns$y$ v )} \\
-{\tt function float$x$~r = std~}\ttkey{float$x$}{\tt ~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std~}\ttkey{int$x$}{\tt ~~~( int$y$ v )} \\
-{\tt function float$x$~r = std~}\ttkey{float$x$}{\tt ~( int$y$ v )} \\
-{\tt function float$x$~r = std~}\ttkey{float$x$}{\tt ~( float$y$ v )}
+{\tt function uns$x$~~~r = std \ttkey{uns$x$}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std \ttkey{int$x$}~~~( uns$y$ v )} \\
+{\tt function float$x$~r = std \ttkey{float$x$}~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std \ttkey{int$x$}~~~( int$y$ v )} \\
+{\tt function float$x$~r = std \ttkey{float$x$}~( int$y$ v )} \\
+{\tt function float$x$~r = std \ttkey{float$x$}~( float$y$ v )}
 
 for any $x\geq y$ for which the types are builtin
 \begin{indpar}
 For these conversion functions, no information is lost from
 the value when it is converted to the new type.  These conversions
-can be \ikey{implied}{implicit conversion}.
+can be \ikey{implied}{implied conversion}.
 \end{indpar}
 
-{\tt function uns$x$~~~r = std~}\ttkey{mod}{\tt ~~~( uns$y$ v )} \\
-{\tt function uns$x$~~~r = std~}\ttkey{mod}{\tt ~~~( int$y$ v )} \\
-{\tt function int$x$~~~r = std~}\ttkey{mod}{\tt ~~~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std~}\ttkey{mod}{\tt ~~~( int$y$ v )}
+{\tt function uns$x$~~~r = std \ttkey{mod}~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~r = std \ttkey{mod}~~~( int$y$ v )} \\
+{\tt function int$x$~~~r = std \ttkey{mod}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std \ttkey{mod}~~~( int$y$ v )}
 \ttindex{mod}
 
 for any $x$ and $y$ for which the types are builtin
@@ -1097,15 +1098,15 @@ These functions return a value equal to the argument
 modulo $2^x$.
 \end{indpar}
 
-{\tt function uns$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( uns$y$ v )} \\
-{\tt function uns$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( int$y$ v )} \\
-{\tt function uns$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( float$y$ v )} \\
-{\tt function int$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( uns$y$ v )} \\
-{\tt function int$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( int$y$ v )} \\
-{\tt function int$x$~~~~~r = std~}\ttkey{nearest}{\tt ~~~( float$y$ v )} \\
-{\tt function float$x$~~~r = std~}\ttkey{nearest}{\tt ~~~( uns$y$ v )} \\
-{\tt function float$x$~~~r = std~}\ttkey{nearest}{\tt ~~~( int$y$ v )} \\
-{\tt function float$x$~~~r = std~}\ttkey{nearest}{\tt ~~~( float$y$ v )}
+{\tt function uns$x$~~~~~r = std \ttkey{nearest}~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
+{\tt function uns$x$~~~~~r = std \ttkey{nearest}~~~( float$y$ v )} \\
+{\tt function int$x$~~~~~r = std \ttkey{nearest}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
+{\tt function int$x$~~~~~r = std \ttkey{nearest}~~~( float$y$ v )} \\
+{\tt function float$x$~~~r = std \ttkey{nearest}~~~( uns$y$ v )} \\
+{\tt function float$x$~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
+{\tt function float$x$~~~r = std \ttkey{nearest}~~~( float$y$ v )}
 \ttindex{nearest}
 
 for any $x$ and $y$ for which the types are builtin
@@ -1133,9 +1134,9 @@ Floating point numbers can be converted to integer valued floating point
 numbers via:
 
 \begin{indpar}
-{\tt function float$x$~~~r = std~}\ttkey{round}{\tt ~~~~~( float$x$ v )} \\
-{\tt function float$x$~~~r = std~}\ttkey{ceiling}{\tt ~~~( float$x$ v )} \\
-{\tt function float$x$~~~r = std~}\ttkey{floor}{\tt ~~~~~( float$x$ v )}
+{\tt function float$x$~~~r = std \ttkey{round}~~~~~( float$x$ v )} \\
+{\tt function float$x$~~~r = std \ttkey{ceiling}~~~( float$x$ v )} \\
+{\tt function float$x$~~~r = std \ttkey{floor}~~~~~( float$x$ v )}
 
 for any $x$ for which the types are builtin
 \begin{indpar}
@@ -1152,18 +1153,18 @@ Note that here \TT{*UNCHECKED*} is a qualifier; see \itemref{QUALIFIERS}
 for qualifier details.
 
 \begin{indpar}
-{\tt function \TT{*UNCHECKED*} uns$x$~~~r =~}%
-	\ttmkey{uns$x$}{conversion function}{\tt ~~~( int$x$ v )} \\
-{\tt function \TT{*UNCHECKED*} uns$x$~~~r =~}%
-	\ttmkey{uns$x$}{conversion function}{\tt ~~~( float$x$ v )} \\
-{\tt function \TT{*UNCHECKED*} int$x$~~~r =~}%
-	\ttmkey{int$x$}{conversion function}{\tt ~~~( uns$x$ v )} \\
-{\tt function \TT{*UNCHECKED*} int$x$~~~r =~}%
-	\ttmkey{int$x$}{conversion function}{\tt ~~~( float$x$ v )} \\
-{\tt function \TT{*UNCHECKED*} float$x$~r =~}%
-	\ttmkey{float$x$}{conversion function}{\tt ~( uns$x$ v )} \\
-{\tt function \TT{*UNCHECKED*} float$x$~r =~}%
-	\ttmkey{float$x$}{conversion function}{\tt ~( int$x$ v )}
+{\tt function \TT{*UNCHECKED*} uns$x$~~~r =~%
+	\ttmkey{uns$x$}{conversion function}~~~( int$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} uns$x$~~~r =~%
+	\ttmkey{uns$x$}{conversion function}~~~( float$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} int$x$~~~r =~%
+	\ttmkey{int$x$}{conversion function}~~~( uns$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} int$x$~~~r =~%
+	\ttmkey{int$x$}{conversion function}~~~( float$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} float$x$~r =~%
+	\ttmkey{float$x$}{conversion function}~( uns$x$ v )} \\
+{\tt function \TT{*UNCHECKED*} float$x$~r =~%
+	\ttmkey{float$x$}{conversion function}~( int$x$ v )}
 
 for any $x$ for which the types are builtin
 \begin{indpar}
@@ -1361,7 +1362,7 @@ that has enumeration values:
     \begin{tabular}[t]{@{}l@{}}
     {\em enum-type-name} \TT{is}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
-    \{ \TT{without implicit conversion} \}\QMARK \\
+    \{ \TT{without implied conversion} \}\QMARK \\
     \end{tabular}
 \\[0.5ex]
 \emkey{base-enum-type-name}
@@ -1431,9 +1432,9 @@ the following conversions are defined:
 {\tt function \TT{*UNCHECKED*} $E$ r = $E$ ( $B$ v )}
 \begin{indpar}
 These conversions actually do nothing but change the type of the
-value.  The first two have identical effect.  The first is an implicit
+value.  The first two have identical effect.  The first is an implied
 conversion, and is only defined if the
-`\TT{without implicit conversion}' option is \underline{not} given in the
+`\TT{without implied conversion}' option is \underline{not} given in the
 enumeration type definition.  The last two conversions are the
 \TT{*UNCHECKED*} conversions defined for all enum types.
 \end{indpar}
@@ -1461,7 +1462,7 @@ $T$ is builtin, and is the underlying
 type of the base type of $T$ if $T$ is a defined type or an
 enumeration type.
 Thus every enumeration type $E$ has an underlying integer
-type $I$.  As long as the `\TT{without implicit conversion}'
+type $I$.  As long as the `\TT{without implied conversion}'
 option is \underline{not} used, a value of an enumeration type
 can always be implicitly converted to a value of its underlying
 type.  Thus the following example:
@@ -1482,11 +1483,11 @@ following are defined, where $I$ is the underlying
 integer type of enumeration type $E$:
 
 \begin{indpar}
-{\tt function $I$ r =~}\ttkey{enumeration offset of}{\tt ~( type E )}
+{\tt function $I$ r = \ttkey{enumeration offset of}~( type E )}
 \begin{indpar}
 Returns the enumeration offset of \TT{E}.
 \end{indpar}
-{\tt function $I$ r =~}\ttkey{range value of}{\tt ~( $E$ v )}
+{\tt function $I$ r = \ttkey{range value of}~( $E$ v )}
 \begin{indpar}
 Returns ~~ {\tt $I$~( v ) - enumeration offset of ( $E$ )}.
 \end{indpar}
@@ -1511,11 +1512,11 @@ The enumeration offset of the {\em enum-type-name} equals \TT{0}.
 Has the effect of compiling the statements:
 \begin{center}
 \begin{tabular}{l}
-{\em base-enum-type-name} \TT{~V0~~=~~next enum} \\
-{\em base-enum-type-name} \TT{~V1~~=~~next enum} \\
-{\em base-enum-type-name} \TT{~V2~~=~~next enum} \\
+{\em base-enum-type-name} {\tt ~V0~~=~~next enum} \\
+{\em base-enum-type-name} {\tt ~V1~~=~~next enum} \\
+{\em base-enum-type-name} {\tt ~V2~~=~~next enum} \\
 \ldots\ldots\ldots \\
-{\em base-enum-type-name} \TT{~V$n$~~=~~next enum} \\
+{\em base-enum-type-name} {\tt ~V$n$~~=~~next enum} \\
 \end{tabular}
 \end{center}
 where $n$ = {\em last-enum} - {\em first-enum}.
@@ -1523,19 +1524,19 @@ If $I$ is the underlying integer type of the {\em base-enum-type-name},
 and thence also of {\em enum-type-name}, then
 \begin{center}
 \TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
-\TT{=~$I$(V0)~-~}{\em first-enum}
+{\tt =~$I$(V0)~-~}{\em first-enum}
 \end{center}
-Therefore if implicit conversions are allowed, the first statement of the form
+Therefore if implied conversions are allowed, the first statement of the form
 \begin{center}
 {\em enum-type-name} \TT{~V~~=~~next enum} \\
 \end{center}
 compiled after the {\em enum-type-declaration} will make
-\TT{$I$(V) == $I$(V0)}, and the first statement of the form
+{\tt $I$(V) == $I$(V0)}, and the first statement of the form
 \begin{center}
 {\em enum-type-name} \TT{~V~~=~~previous enum} \\
 \end{center}
 compiled after the {\em enum-type-declaration} will make
-\TT{$I$(V) == $I$(V$n$)}.
+{\tt $I$(V) == $I$(V$n$)}.
 \item[\TT{type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
               {\em enum-type-name}~~\TT{is}~~%
@@ -1546,7 +1547,7 @@ compiled after the {\em enum-type-declaration} will make
 Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
 \begin{center}
 \TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
-\TT{=~$I$(V0)~-~}{\em last-enum}
+{\tt =~$I$(V0)~-~}{\em last-enum}
 \end{center}
 \end{itemlist}
 \end{indpar}
@@ -1575,7 +1576,7 @@ E3 C4 = next enum
 
 If $E$ is an enumeration type with underlying
 type $I$, the following comparison and subtraction
-of values of type $E$ are defined as if implicit conversion
+of values of type $E$ are defined as if implied conversion
 of $E$ values to $I$ values were allowed (even if they
 are not):
 
@@ -1601,20 +1602,20 @@ may be compared or subtracted if they can be implicitly
 converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
-\begin{indpar}
-{\tt type~}\ttkey{type}{\tt ~is unswrd with enum [0~..]} \\
-{\tt type~}\ttmkey{missing}{type}{\tt ~is next enum // 0} \\
-{\tt type~}\ttkey{type}{\tt ~is next enum // 1}
+\begin{indpar} \tt
+type~\ttkey{type}~is unswrd with enum [0~..] \\
+type~\ttmkey{missing}{type}~is next enum // 0 \\
+type~\ttkey{type}~is next enum // 1
 \\[1ex]
-{\tt type~}\ttkey{qualifier}{\tt ~is unswrd with enum [0~..]} \\
-{\tt qualifier~}\ttmkey{missing}{qualifier}{\tt ~is next enum // 0}
+type~\ttkey{qualifier}~is unswrd with enum [0~..] \\
+qualifier~\ttmkey{missing}{qualifier}~is next enum // 0
 \\[1ex]
-{\tt type~}\ttkey{bool}\begin{tabular}[t]{@{}l@{}}
-                       {\tt ~is unswrd with enum [0~..~1]} \\
-                       {\tt ~without implicit conversion} \\
+type~\ttkey{bool}\begin{tabular}[t]{@{}l@{}}
+                       ~is unswrd with enum [0~..~1] \\
+                       ~without implied conversion \\
 		       \end{tabular} \\
-{\tt bool~}\ttkey{false}{\tt ~is next enum // 0} \\
-{\tt bool~}\ttkey{true}{\tt ~~is next enum // 1}
+bool~\ttkey{false}~is next enum // 0 \\
+bool~\ttkey{true}~~is next enum // 1
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
@@ -1675,7 +1676,7 @@ for enumeration set and list constants is:
 
 If the {\em enum-values} in an {\em enum-set-constant} or
 {\em enum-list-constant} have different
-enumeration types, implicit conversions from these to their base types
+enumeration types, implied conversions from these to their base types
 are inserted until all have the same defined enumeration type,
 which is called the
 `\key{common enumeration type}'\label{COMMON-ENUMERATION-TYPE}
@@ -1684,7 +1685,7 @@ This is the most specific least general type to which all the set
 or list
 values can be converted (see \pagref{CONVERSION-RELATION}).
 It is an error
-if this cannot be done because some of the types have no implicit
+if this cannot be done because some of the types have no implied
 conversion defined for them, or if after implict conversion the
 common type is not a defined enumeration type.
 Note that the common type can be an integer type if all
@@ -1734,7 +1735,7 @@ defines a function that takes only signed integer type
 arguments, and not unsigned integer type arguments.
 The logical expression inside \TT{[*~*]} must be satisfied
 for the function definition to match a function call, and
-the type argument \TT{T}, which is implicit and need not be
+the type argument \TT{T}, which is implied and need not be
 given in the function call, must be in the give set of
 types, where types are values of the enumeration type `\TT{type}'
 (see Section~\itemref{TYPE-VALUES}).
@@ -1792,8 +1793,8 @@ conversions are defined:
 \begin{indpar}
 {\tt function ~~~~~~~~~~~ $T2$ r = ( $T1$ v )}
 \begin{indpar}
-    Defined as an implicit conversion \underline{but only if}
-    an implicit conversion from $B1$ to $B2$ is defined
+    Defined as an implied conversion \underline{but only if}
+    an implied conversion from $B1$ to $B2$ is defined
 \end{indpar}
 {\tt function \TT{*UNCHECKED*} $T2$ r = ( $T1$ v )}
 \begin{indpar}
@@ -1905,10 +1906,11 @@ Returns the list made by removing the all occurences of
 
 The type `\TT{type}' is a builtin enumeration type declared
 by the builtin equivalent of:
-\begin{indpar}
-{\tt type~}\ttkey{type}{\tt ~is unswrd with enum [0~..]} \\
-{\tt type~}\ttkey{missing}{\tt ~is next enum // 0} \\
-{\tt type~}\ttkey{type}{\tt ~is next enum // 1}
+\begin{indpar} \tt
+type \ttkey{std type} is unswrd with enum [0~..] \\
+type \ttkey{std missing type} is next enum // 0 \\
+type \ttkey{std type} is next enum // 1 \\
+\ttkey{type} \ABV `std type' 
 \end{indpar}
 Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
@@ -1923,15 +1925,15 @@ type $T2$ if and only if an inline function with prototype:
 is defined.  In this case we say the $T1$ is \mkey{more specific}{types}
 than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
 \begin{center}
-{\tt $T1$~~-{}-{}->~~$T2$}
+{\tt $T1$~~\ABV~~$T2$}
 \end{center}%
 \label{CONVERSION-RELATION}
 
-The transitive closure of the \TT{-{}-{}->} relation between types is
+The transitive closure of the \TT{\ABV} relation between types is
 required to be a partial order,
 or equivalently, the directed graph whose nodes are types
 which has an edge from $T1$ to
-$T2$ if and only if \TT{$T1$~-{}-{}->~$T2$} is required to be acyclic.
+$T2$ if and only if \TT{$T1$~\ABV~$T2$} is required to be acyclic.
 In addition, two different paths from one type to another are
 required to produce the same result.  For example:
 \begin{indpar}\begin{verbatim}
@@ -1939,7 +1941,7 @@ int16 v1 = ...
 int32 v2 = v1
 float64 v3 = v2
 float64 v4 = v1
-// Given the two implicit conversion paths v1 ---> v2 ---> v3
+// Given the two implied conversion paths v1 ---> v2 ---> v3
 // and v1 ---> v4, necessarily v3 == v4.
 \end{verbatim}\end{indpar}
 
@@ -2058,9 +2060,9 @@ do not have a compile time value.
 
 A `\key{character}' is a 32-bit UNICODE character.  It is
 defined as the derived type:
-\begin{indpar}
-{\tt type~}\ttkey{std character}{\tt ~is uns32} \\
-\ttkey{character}{\tt ~-{}-{}->~`std character'}
+\begin{indpar} \tt
+type~\ttkey{std character}~is uns32 \\
+\ttkey{character}~\ABV~`std character'
 \end{indpar}
 
 A character constant has the syntax:
@@ -2072,7 +2074,7 @@ A character constant has the syntax:
 This constant has type \TT{character} and value equal to the
 single character represented.
 
-The following conversions are defined:
+The following conversions are builtin:
 
 \begin{indpar}
 
@@ -2086,12 +2088,14 @@ Returns the character with UNICODE character code equal to {\tt c}.
 Returns the UNICODE character code of the character {\tt c}.
 \end{indpar}
 
-{\tt QS uns32 r = std ( qualifiers QS, QS \ttkey{character} c )}
+{\tt function QS uns32 r = std ( qualifiers QS, QS \ttkey{character} c )}
 \begin{indpar}
-Implicit conversion of character {\tt c} to its UNICODE character code.
+Implied conversion (\pagref{IMPLIED-CONVERSIONS})
+of character {\tt c} to its UNICODE character code.
 
-Because of this conversion,
-characters can be compared with \TT{<}, \TT{<=}, etc.
+Because of this implied conversion,
+characters can be compared using \TT{<}, \TT{<=}, \TT{==},
+\TT{!=}, \TT{>=}, or \TT{>}.
 \end{indpar}
 
 \end{indpar}
@@ -2526,20 +2530,20 @@ exists with prototype:
 then this function defines an implied conversion from values of
 type \TT{T-src} to values of type \TT{T-des}.
 
-An ordering is induced on types by implicit conversions.  Let
-\TT{T1}$\succ$\TT{T2} mean that there is an implicit conversion from
-values of type \TT{T1} to values of type \TT{T2}.  Let \TT{T1~-{}-{}->~T2}
+An ordering is induced on types by implied conversions.  Let
+\TT{T1}$\succ$\TT{T2} mean that there is an implied conversion from
+values of type \TT{T1} to values of type \TT{T2}.  Let \TT{T1~\ABV~T2}
 be the transitive closure of \TT{T1}$\succ$\TT{T2}, which means
 that a value of type \TT{T1} may be converted to a value
-of type \TT{T2} by applying zero or more implicit conversions.
+of type \TT{T2} by applying zero or more implied conversions.
 Then we \underline{require}
-that \TT{T1~-{}-{}->~T2} be a partial order, which means that:
+that \TT{T1~\ABV~T2} be a partial order, which means that:
 \begin{itemize}
-\item \TT{-{}-{}->} is reflexive: \TT{T1~-{}-{}->~T1}.
-\item \TT{-{}-{}->} is transitive: \TT{T1~-{}-{}->~T2} and \TT{T2~-{}-{}->~T3}
-imply that \TT{T1~-{}-{}->~T3}.
-\item \TT{-{}-{}->} is anti-symmetric:
-\TT{T1~-{}-{}->~T2} and \TT{T2~-{}-{}->~T1}
+\item \TT{\ABV} is reflexive: \TT{T1~\ABV~T1}.
+\item \TT{\ABV} is transitive: \TT{T1~\ABV~T2} and \TT{T2~\ABV~T3}
+imply that \TT{T1~\ABV~T3}.
+\item \TT{\ABV} is anti-symmetric:
+\TT{T1~\ABV~T2} and \TT{T2~\ABV~T1}
 imply that \TT{T1~==~T2}.
 \end{itemize}
 
@@ -2548,7 +2552,7 @@ if values of type \TT{T1} can be implicitly converted to
 values of a different type type \TT{T2}, then values of type \TT{T2}
 \underline{cannot} be implicitly converted to values of type \TT{T1}.
 
-We define the \key{implicit conversion graph} to be the directed
+We define the \key{implied conversion graph} to be the directed
 graph whose nodes are types and which has an arrow from \TT{T1} to
 \TT{T2} if and only if there is an inline function defined with
 prototype:
@@ -2556,9 +2560,9 @@ prototype:
 \TT{QS T-des} {\em result-variable}%
     ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
 \end{center}
-Or equivalently, there is an implicit conversion function defined
+Or equivalently, there is an implied conversion function defined
 whose argument is of type \TT{T1} and whose result is of type \TT{T2}.
-Then \TT{T1~-{}-{}->~T2} if and only if there is a (possibly zero size)
+Then \TT{T1~\ABV~T2} if and only if there is a (possibly zero size)
 path in this graph from \TT{T1} to \TT{T2}.
 
 In addition we \underline{require} that all paths
@@ -2570,14 +2574,14 @@ to a \TT{T2} value and then converting that to a \TT{T3} value
 must give the same resulting value as converting the \TT{T1} value
 directly to a \TT{T3} value.
 
-User defined implicit conversions are assumed to obey these rules.
+User defined implied conversions are assumed to obey these rules.
 
 Various builtin implied conversions are described
 in this document.
 
-Note that \TT{T1~--->~T2} does \underline{not} imply that every
+Note that \TT{T1~\ABV~T2} does \underline{not} imply that every
 value of type \TT{T1} can be fully represented by a value of type
-\TT{T2}.  For example, an implicit conversion \TT{T1~--->~bool}
+\TT{T2}.  For example, an implied conversion \TT{T1~\ABV~bool}
 might be introduced to map all non-missing \TT{T1} values to \TT{true}
 and any missing \TT{T1} value to \TT{false}.
 
@@ -2629,14 +2633,14 @@ must also be in \TT{QS-src}.
 \item If there is a prohibited qualifier \TT{Q} not in \TT{QS-des}, it
 must also not be in \TT{QS-src}.
 \item If \TT{T-src} and \TT{T-des} are not the same
-and \TT{T-src~-{}-{}->~T-des},
-meaning that an implicit conversions are defined that convert values
+and \TT{T-src~\ABV~T-des},
+meaning that an implied conversions are defined that convert values
 of type \TT{T-src} to values of type \TT{T-des}, these conversions are
 applied to \TT{v-src} to produce the value of \TT{v-des}.
 The conversions are invoked with \TT{QS == QS-src}.
 \item
 \label{DIRECT-CONVERSION-ASSIGMENTS}
-If \TT{T-src} and \TT{T-des} are not the same and \TT{T-src~-{}-{}->~T-des}
+If \TT{T-src} and \TT{T-des} are not the same and \TT{T-src~\ABV~T-des}
 \underline{is false}, but a directed conversion exists from
 \TT{QS-src T-src} to \TT{QS-des T-des}, that conversion is applied
 if only one such conversion is applicable.
@@ -2678,7 +2682,7 @@ The first is:
 \begin{indpar}
 \ikey{No Direct Conversions.}{no direct conversions} Direct
 conversions from one temporary variable to another temporary variable are not
-allowed.  Only implicit conversions are allowed.
+allowed.  Only implied conversions are allowed.
 \end{indpar}
 Thus in the assignment conversions between two temporary
 variables that are introduced by compilation,
@@ -2764,7 +2768,7 @@ int32 tmp y = y
 int32 tmp s = tmp x + tmp y
 float64 s = tmp s
 \end{verbatim}\end{indpar}
-using an implicit conversion of the result of \TT{"+"}.
+using an implied conversion of the result of \TT{"+"}.
 But why not compute it by
 \begin{indpar}\begin{verbatim}
 float64 tmp x = x
@@ -2772,7 +2776,7 @@ float64 tmp y = y
 float64 tmp s = tmp x + tmp y
 float64 s = tmp s
 \end{verbatim}\end{indpar}
-using implicit conversions of the arguments of \TT{"+"}?
+using implied conversions of the arguments of \TT{"+"}?
 
 The answer is the
 \begin{indpar}
@@ -2798,15 +2802,15 @@ that different subexpression/prototype matches introduce different
 sets of temporary variables, but such cases are anomalies caused by
 poor name choices, and are treated as compilation errors.
 
-In this case we prefer \TT{T == ins32} because \TT{ins32 -{}-{}-> float64},
-as per the implicit conversion ordering of types introduced in
+In this case we prefer \TT{T == ins32} because \TT{ins32 \ABV float64},
+as per the implied conversion ordering of types introduced in
 Section~\itemref{IMPLIED-CONVERSIONS}.
 
 In general, we have a set of temporary variables \TT{tmp$_i$}
 and for each matching $j$ an assigment of types
 \TT{tmp$_i$~$\mapsto$~T$_{j,i}$}.  We say that a matching $j$ is
 \mkey{more specific}{type matching}
-than a matching $k$ if and only if \TT{T$_{j,i}$~-{}-{}->~T$_{k,i}$}
+than a matching $k$ if and only if \TT{T$_{j,i}$~\ABV~T$_{k,i}$}
 for every $i$.  A matching is \mkey{most specific}{type matching} if it is
 more specific than every other matching.  If there is a most
 specific matching, it is chosen; otherwise the statement is
@@ -2952,7 +2956,7 @@ int32 z = 257
 *UNCHECKED* int8 u = z  // *UNCHECKED* conversion used:
                         // Now u == 1
 float64 m = 1.7
-int32 i = m             // Illegal: undefined implicit
+int32 i = m             // Illegal: undefined implied
                         // conversion
 *UNCHECKED* int32 j = m // *UNCHECKED* conversion used:
                         // now j == 2 (round to nearest)
@@ -3140,7 +3144,7 @@ For example, the {\em conditional-assignment-statement}:
 \end{verbatim}\end{indpar}
 where \TT{T} is the type of \TT{x} and \TT{y} will work as
 follows.  If \TT{T} is not a floating point type, then a
-warning message will be issued and an implicit `\TT{else}'
+warning message will be issued and an implied `\TT{else}'
 clause that is a fatal error at run time will be compiled, unless the
 compiler can prove that an `\TT{else}' is not needed because
 for values of type \TT{T} it is
@@ -4523,7 +4527,7 @@ function ( comparison result cr, bool cr.value, type cr.type,
     cr.last = last
     cr.value = cf.last less than last
 
-// Implicit conversion of comparison result to bool.
+// Implied conversion of comparison result to bool.
 //
 function ( Qs bool result ) =
     ( qualifiers Qs, QS comparison result cr,

@@ -456,7 +456,7 @@ warning messages.
 \emkey{quoted-string} :::=
     \TT{"} {\em character-representative}\,\STAR{} \TT{"}
 \\[0.3ex]
-\emkey{character-representative}
+\emkey{character-representative}\label{CHARACTER-REPRESENTATIVE}
 	\begin{tabular}[t]{@{}rl@{}}
 	::= & {\em graphic-character} other than \TT{"} \\
 	$|$ & {\em single-space-character} \\
@@ -547,7 +547,7 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-A special {\em character-representative} can consist of
+A \emkey{special-character-representative} can consist of
 a UNICODE character name surrounded by angle brackets.  Examples are
 \TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
 \tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
@@ -555,7 +555,7 @@ represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
 the `\key{unknown UNICODE character}' which in turn is used to represent
 illegal UTF-8 character encodings.
 
-A special {\em character-representative} can also consist of
+A {\em special-character-representative} can also consist of
 a hexadecimal UNICODE character code, which must begin with a digit.
 Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
 a form feed.
@@ -2052,6 +2052,49 @@ of type {\tt T1} can be implicitly converted to values of type {\tt T2}
 
 For all these functions it is a compile time error if their arguments
 do not have a compile time value.
+
+\subsection{The Character Type}
+\label{THE-CHARACTER-TYPE}
+
+A `\key{character}' is a 32-bit UNICODE character.  It is
+defined as the derived type:
+\begin{indpar}
+{\tt type~}\ttkey{std character}{\tt ~is uns32} \\
+\ttkey{character}{\tt ~-{}-{}->~`std character'}
+\end{indpar}
+
+A character constant has the syntax:
+\begin{indpar}
+\emkey{character-constant} :::= \TT{C"}{\em character-representative}\TT{"} \\
+{\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
+\end{indpar}
+
+This constant has type \TT{character} and value equal to the
+single character represented.
+
+The following conversions are defined:
+
+\begin{indpar}
+
+{\tt function character r = std character ( uns32 c )}
+\begin{indpar}
+Returns the character with UNICODE character code equal to {\tt c}.
+\end{indpar}
+
+{\tt function uns32 r = std code ( character c )}
+\begin{indpar}
+Returns the UNICODE character code of the character {\tt c}.
+\end{indpar}
+
+\TT{QS uns32 r = std ( qualifiers QS, QS character c )}
+\begin{indpar}
+Implicit conversion of character {\tt c} to its UNICODE character code.
+
+Because of this conversion,
+characters can be compared with \TT{<}, \TT{<=}, etc.
+\end{indpar}
+
+\end{indpar}
 
 \subsection{The String Type}
 \label{THE-STRING-TYPE}

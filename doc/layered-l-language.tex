@@ -485,8 +485,6 @@ warning messages.
     ::= & {\em middle-lexeme} with a {\em digit} before any {\em letter} \\
     $|$ & {\em middle-lexeme} with a {\em digit} immediately after
                                a `\TT{+}' or `\TT{-}' \\
-    $|$ & {\em middle-lexeme} with a `\TT{\#}' and also a {\em letter}
-				or {\em digit}
 	\end{tabular}
 \\[0.5ex]
 \emkey{natural-number}\label{NATURAL-NUMBER}
@@ -1182,7 +1180,7 @@ that is used to denote a number.  The syntax is:
 \begin{indpar}
 \emkey{number-constant}
     \begin{tabular}[t]{@{}cl}
-    :::= & {\em decimal-constant} \\
+    ::= & {\em decimal-constant} \\
     $|$ & {\em binary-constant} \\
     $|$ & {\em hexadecimal-constant} \\
     $|$ & \TT{+Inf}\index{Inf@\TT{+Inf}}
@@ -1194,9 +1192,23 @@ that is used to denote a number.  The syntax is:
 \emkey{exponent} :::=
 	\{ \TT{e} $|$ \TT{E} \} {\em sign}\QMARK{} {\em dit}\PLUS{}
 \\[0.5ex]
-\emkey{decimal-constant} ::: = {\em sign}\QMARK{} {\em decimal-integer}
-				{\em decimal-fraction}\QMARK{}
-				{\em exponent}\QMARK{}
+\emkey{decimal-constant} \begin{tabular}[t]{@{}rl@{}}
+                         ::= & {\em decimal-lexeme} \\
+			 $|$ & {\em decimal-body-lexeme} ~ {\em exponent} \\
+			 $|$ & {\em decimal-constant-prefix} ~
+			       {\em decimal-quoted-body} ~
+			       {\em exponent}\QMARK{}
+			 \end{tabular}
+\\[0.5ex]
+\emkey{decimal-lexeme} :::= {\em decimal-body-lexeme} ~ {\em exponent}\QMARK{}
+\\[0.5ex]
+\emkey{decimal-body-lexeme} :::= {\em sign}\QMARK{} ~ {\em decimal-integer} ~
+				 {\em decimal-fraction}\QMARK{}
+\\[0.5ex]
+\emkey{decimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{D}
+\\[0.5ex]
+\emkey{decimal-quoted-body} :::= \TT{"} {\em decimal-integer} ~
+				 {\em decimal-fraction}\QMARK{} \TT{"}
 \\[0.5ex]
 \emkey{decimal-integer}
     \begin{tabular}[t]{@{}cl}
@@ -1212,9 +1224,14 @@ that is used to denote a number.  The syntax is:
 \emkey{dit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
                      $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
  \\[0.5ex]
-\emkey{binary-constant} ::: = {\em sign}\QMARK{} \TT{B\#} {\em binary-integer}
-				{\em binary-fraction}\QMARK{} \TT{\#}
-				{\em exponent}\QMARK{}
+\emkey{binary-constant} ::= {\em binary-constant-prefix} ~
+                              {\em binary-quoted-body} ~
+			      {\em exponent}\QMARK{}
+\\[0.5ex]
+\emkey{binary-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{B}
+\\[0.5ex]
+\emkey{binary-quoted-body} :::= \TT{"} {\em binary-integer} ~
+				{\em binary-fraction}\QMARK{} \TT{"}
 \\[0.5ex]
 \emkey{binary-integer}
     \begin{tabular}[t]{@{}cl}
@@ -1231,11 +1248,14 @@ that is used to denote a number.  The syntax is:
 \emkey{binary-fraction} :::= \TT{.} {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
  \\[0.5ex]
-\emkey{hexadecimal-constant} :::= \\
-\hspace*{0.5in}
-    {\em sign}\QMARK{} \TT{X\#} {\em hexadecimal-integer}
-				{\em hexadecimal-fraction}\QMARK{} \TT{\#}
-				{\em exponent}\QMARK{}
+\emkey{hexadecimal-constant} ::= {\em hexadecimal-constant-prefix} ~
+                                 {\em hexadecimal-quoted-body} ~
+			         {\em exponent}\QMARK{}
+\\[0.5ex]
+\emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{B}
+\\[0.5ex]
+\emkey{hexadecimal-quoted-body} :::= \TT{"} {\em hexadecimal-integer} ~
+				     {\em hexadecimal-fraction}\QMARK{} \TT{"}
 \\[0.5ex]
 \emkey{hexadecimal-integer}
     \begin{tabular}[t]{@{}cl}
@@ -1301,9 +1321,10 @@ in fact it is assigning values to cluster members.
 A declaration statement of the following form defines a type by
 specifying its {\em type-name}:
 \begin{indpar}
-\emkey{defined-type-declaration} ::=
-\TT{type} {\em qualifier-name}\STAR{} {\em defined-type-name}
-          \TT{is} {\em base-type-name} \\
+\emkey{defined-type-declaration} ::= \\
+\hspace*{0.5in}
+\TT{define type} {\em qualifier-name}\STAR{} {\em defined-type-name}
+          \TT{as} {\em base-type-name} \\
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME} \\
 \emkey{defined-type-name} ::= {\em type-name} \\
 \emkey{base-type-name} ::= {\em type-name} \\
@@ -1358,9 +1379,9 @@ that has enumeration values:
 \begin{indpar}
 \emkey{enum-type-declaration} ::= \\
 \hspace*{0.5in}
-    \TT{type} {\em qualifier-name}\STAR{}
+    \TT{define type} {\em qualifier-name}\STAR{}
     \begin{tabular}[t]{@{}l@{}}
-    {\em enum-type-name} \TT{is}~~~{\em base-enum-type-name} \\
+    {\em enum-type-name} \TT{as}~~~{\em base-enum-type-name} \\
     \TT{with enum range}~~~{\em enum-range} \\
     \{ \TT{without implied conversion} \}\QMARK \\
     \end{tabular}
@@ -1445,7 +1466,7 @@ the integer value corresponding to {\em first-enum} is {\em first-enum}
 itself, and similarly for {\em last-enum}.  Thus the following
 example:
 \begin{indpar}\begin{verbatim}
-type E is int32 with enum range [1 .. 20]
+define type E as int32 with enum range [1 .. 20]
 E C1 = next enum
     // Now int32 (C1) == 1
 E C2 = next enum
@@ -1467,8 +1488,8 @@ option is \underline{not} used, a value of an enumeration type
 can always be implicitly converted to a value of its underlying
 type.  Thus the following example:
 \begin{indpar}\begin{verbatim}
-type D is int32
-type E is D with enum range [1 .. 20]
+define type D as int32
+define type E as D with enum range [1 .. 20]
 E C1 = next enum
     // Now int32 (C1) == 1
 E C3 = previous enum
@@ -1554,11 +1575,11 @@ Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
 
 The above is examplified by:
 \begin{indpar}\begin{verbatim}
-type E1 is int32 with enum range [1 .. 20]
+define type E1 as int32 with enum range [1 .. 20]
     // Now enumeration offset of (E1) == 0
 E1 C1 = previous enum
     // Now range value of (C1) == 20 == int32(C1)
-type E2 is previous E1 with enum range [1 .. 10]
+define type E2 as previous E1 with enum range [1 .. 10]
     // Now enumeration offset of (E2) == 9
 E2 C2 = next enum 
     // Now range value of (C2) == 1,
@@ -1566,7 +1587,7 @@ E2 C2 = next enum
 E2 C3 = previous enum 
     // Now range value of (C3) == 10,
     // Now range value of ( E1(C3) ) == 19 = int32(C3)
-type E3 is next E2 with enum range [1 .. 5]
+define type E3 as next E2 with enum range [1 .. 5]
     // Now enumeration offset of (E3) == 10
 E3 C4 = next enum 
     // Now range value of (C4) == 1,
@@ -1603,7 +1624,7 @@ converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
 \begin{indpar} \tt
-type~\ttkey{type}~is unswrd with enum [0~..] \\
+define type~\ttkey{type}~as unswrd with enum [0~..] \\
 type~\ttmkey{missing}{type}~is next enum // 0 \\
 type~\ttkey{type}~is next enum // 1
 \\[1ex]
@@ -1707,7 +1728,7 @@ the values between one integer and the next integer are to be included
 in the set.}
 Thus
 \begin{indpar}\begin{verbatim}
-type X is uns8 with enum range [1 .. 20]
+define type X as uns8 with enum range [1 .. 20]
 X X1 is next enum
 X X2 is next enum
 . . . . . . . . . .
@@ -1744,12 +1765,18 @@ Enumeration sets and lists can be stored in variables of enumeration set
 or list types, which can be declared by:
 \begin{indpar}
 \emkey{enum-set-type-declaration} ::= \\
-\hspace*{0.2in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-set-type-name}
-		\TT{is set of } {\em element-enum-type-name}
+\hspace*{0.2in} \TT{define type}
+		\begin{tabular}[t]{@{}l@{}}
+                {\em qualifier-name}\STAR{} {\em enum-set-type-name} \\
+		\TT{as set of } {\em element-enum-type-name}
+		\end{tabular}
 \\[0.5ex]
 \emkey{enum-list-type-declaration} ::= \\
-\hspace*{0.2in} \TT{type} {\em qualifier-name}\STAR{} {\em enum-list-type-name}
-    \TT{is list of } {\em element-enum-type-name}
+\hspace*{0.2in} \TT{define type}
+		\begin{tabular}[t]{@{}l@{}}
+                {\em qualifier-name}\STAR{} {\em enum-list-type-name} \\
+		\TT{as list of } {\em element-enum-type-name}
+		\end{tabular}
 \end{indpar}
 
 The information about enumeration set and list types can be determined by:
@@ -1777,8 +1804,8 @@ For a set or list constant, this is the common enumeration type.
 
 The following are builtin enumeration set types:
 \begin{indpar}
-{\tt type~}\ttkey{types}{\tt ~is set of type} \\
-{\tt type~}\ttkey{qualifiers}{\tt ~is set of qualifier}
+{\tt define type~}\ttkey{types}{\tt ~as set of type} \\
+{\tt define type~}\ttkey{qualifiers}{\tt ~as set of qualifier}
 \end{indpar}
 
 An enumeration set or list constant is an enumeration set or list
@@ -1907,7 +1934,7 @@ Returns the list made by removing the all occurences of
 The type `\TT{type}' is a builtin enumeration type declared
 by the builtin equivalent of:
 \begin{indpar} \tt
-type \ttkey{std type} is unswrd with enum [0~..] \\
+define type \ttkey{std type} as unswrd with enum [0~..] \\
 type \ttkey{std missing type} is next enum // 0 \\
 type \ttkey{std type} is next enum // 1 \\
 \ttkey{type} \ABV `std type' 
@@ -2061,7 +2088,7 @@ do not have a compile time value.
 A `\key{character}' is a 32-bit UNICODE character.  It is
 defined as the derived type:
 \begin{indpar} \tt
-type~\ttkey{std character}~is uns32 \\
+define type~\ttkey{std character}~as uns32 \\
 \ttkey{character}~\ABV~`std character'
 \end{indpar}
 
@@ -2105,8 +2132,8 @@ characters can be compared using \TT{<}, \TT{<=}, \TT{==},
 
 A `\key{string}' is a vector of 32-bit UNICODE characters.
 It is defined as a derived type:
-\begin{indpar}
-{\tt type~}\ttkey{string}{\tt ~is adr}
+\begin{indpar} \tt
+\tt define type \ttkey{string} as adr
 \end{indpar}
 and {\em quoted-string} lexemes are constants of \TT{string} type
 whose characters are those represented by the lexemes with
@@ -2438,9 +2465,10 @@ fo  int32 y6 = y3            // Legal; y3 has implied fo.
 
 The qualifiers may be declared by:
 \begin{indpar}
-\emkey{qualifier-declaration}
+\emkey{qualifier-declaration} \\
+\hspace*{0.5in}
     \begin{tabular}[t]{rl}
-    ::= & {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
+    ::= & \TT{define} {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
            {\em defined-qualifier-name} \\
     $|$ & {\em trace-qualifier-declaration}
     	  ~~~ [see \pagref{TRACE-QUALIFIERS}]

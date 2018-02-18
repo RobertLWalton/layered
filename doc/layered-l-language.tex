@@ -160,7 +160,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 16, 2018
+February 18, 2018
  
 \end{center}
 
@@ -856,6 +856,92 @@ so its proper name is `\TT{std round}' and not `\TT{round}',
 but in this case it is not necessary (or desirable) to make `\TT{round}'
 an abbreviation because its module can be implied in a function call
 (see `module deficient' on \pagref{MODULE-DEFICIENT}).
+
+\subsection{Variable Names}
+
+TBD
+
+A \key{name} is a sequence of lexemes used to name things like
+variables and functions.
+
+\begin{indpar}
+\emkey{name} ::= {\em initial-name-component} {\em member-selector}\STAR{} \\
+\emkey{initial-name-component} ::=
+    {\em name-component} \underline{not} beginning with `\TT{.}' \\
+\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
+\emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
+\emkey{name-component} ::=
+    {\em name-item} {\em continuing-name-item}\STAR{} \\
+\emkey{continuing-name-item} := {\em name-item} not containing `\TT{.}' \\
+\emkey{name-item} \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} with no embedded or ending `\TT{.}'s \\
+        & [see text about splitting words with embedded `\TT{.}'s] \\
+    $|$ & {\em quoted-mark} with no embedded or ending `\TT{.}'s \\
+    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
+    \end{tabular} \\
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
+\emkey{member-subscript} ::= {\em enum-list-constant} with at most 32 elements
+                             ~~~ [see \pagref{ENUM-LIST-CONSTANT}]
+\end{indpar}
+
+[We have not yet defined lexemes.  Roughly, separators are single
+characters such as `\TT{(}' `\TT{)}' and `\TT{,}', marks are lexemes
+that are not separators and do not contain letters or digits,
+words are lexemes that contain a letter before any digit, and
+numerics are lexemes that contain a digit before any letter.
+Marks, words, and numerics cannot contain \TT{"} or begin with \TT{//}.]
+
+{\em Words} containing embedded `\TT{.}'s are split into
+{\em name-items} which can only contain `\TT{.}'s at their beginning.
+Thus
+\begin{center}
+\TT{bills.wife.1.weight}
+\end{center}
+is split into
+\begin{center}
+\TT{bills~~~.wife~~~.1~~~.weight}
+\end{center}
+However, `\TT{.1}' is not a legal {\em name-item} and so cannot
+be part of a {\em name}.
+
+If a {\em name} contains a {\em member-index-range} of the form
+\TT{I~..~J}, the name actually names a set of variables in which
+the {\em member-index-range} is replaced by \TT{I}, \TT{I+1},
+\TT{I+2}, \ldots, \TT{J}.  The set is called a `\key{slice}'.\label{SLICE}
+\TT{I}$\leq$\TT{J} is required.
+A slice can be treated as a single variable.  Other slices may
+overlay it.  For example:
+\begin{indpar}\begin{verbatim}
+uns8 string[0 .. 5] = .....   // Allocate slice.
+..... string[0] .....         // Read one variable of slice.
+..... string[1 .. 5] .....    // Read subslice of slice.
+..... string[0 .. 3] .....    // Read a different subslice.
+\end{verbatim}\end{indpar}
+
+One can also assemble slices into a larger slice.  For example:
+\begin{indpar}\begin{verbatim}
+float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
+..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
+\end{verbatim}\end{indpar}
+
+A variable of type \ttkey{name} can store a {\em name}.
+Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
+Two \TT{name} values can be
+concatenated by the \TT{+} operator if the second begins with
+a {\em member-selector}.  An
+example is:
+\begin{indpar}\begin{verbatim}
+name n1 = `jill'
+name n2 = `.daughter[3]'
+name n = n1 + n2  // n now = `jill .daughter[3]'
+                  // or equivalently `jill.daughter[3]'
+\end{verbatim}\end{indpar}
+
+{\em Variable-names}, {\em type-names}, {\em qualifier-names},
+{\em function-names}, etc.~are {\em names}.
 
 \section{Data Types}
 \label{DATA-TYPES-TYPES}
@@ -1980,7 +2066,7 @@ the common prototype
 {\tt function unsadr r = size of ( type T )}
 \end{center}
 may be defined for different values of {\tt T}.  
-With this in minde, the folloiwing builtin functions may be
+With this in mind, the following compile-time builtin functions may be
 defined automatically:
 
 \begin{indpar}
@@ -2079,9 +2165,6 @@ of type {\tt T1} can be implicitly converted to values of type {\tt T2}
 
 \end{indpar}
 
-For all these functions it is a compile time error if their arguments
-do not have a compile time value.
-
 \subsection{The Character Type}
 \label{THE-CHARACTER-TYPE}
 
@@ -2101,13 +2184,15 @@ A character constant has the syntax:
 This constant has type \TT{character} and value equal to the
 single character represented.
 
-The following conversions are builtin:
+The following functions are builtin:
 
 \begin{indpar}
 
 {\tt function character r = std \ttkey{character} ( uns32 c )}
 \begin{indpar}
 Returns the character with UNICODE character code equal to {\tt c}.
+No check is made that {\tt c} is a legal UNICODE character code
+or is non-zero.
 \end{indpar}
 
 {\tt function uns32 r = std \ttkey{code} ( character c )}
@@ -2125,116 +2210,178 @@ characters can be compared using \TT{<}, \TT{<=}, \TT{==},
 \TT{!=}, \TT{>=}, or \TT{>}.
 \end{indpar}
 
+{\tt function character r = std \ttmkey{NUL}{character value}}
+\begin{indpar}
+Returns \TT{C"<0>"},
+the character with UNICODE code \TT{0} that is conventionally
+used to represent the missing \TT{character} value.
+\end{indpar}
+
 \end{indpar}
 
 \subsection{The String Type}
 \label{THE-STRING-TYPE}
 
-A `\key{string}' is a vector of 32-bit UNICODE characters.
+A `\key{string}' is a vector of characters, that is,
+of 32-bit UNICODE characters.
 It is defined as a derived type:
 \begin{indpar} \tt
-\tt define type \ttkey{string} as adr
+define type \ttkey{std string} as adr \\
+\ttkey{string} \ABV `std string'
 \end{indpar}
-and {\em quoted-string} lexemes are constants of \TT{string} type
-whose characters are those represented by the lexemes with
+
+A {\em quoted-string} lexeme is a constant of \TT{string} type
+whose characters are those represented by the lexeme with
 the addition of a \TT{NUL} character (code \TT{0}) at the end.
 
 Strings are read-only, and their characters cannot be changed.
-When computed at compile time, they cannot be garbage collected.
-They may or may not be implemented at run-time, and if they are,
+Strings are implemented at compile time, but when
+computed at compile time, they might not be garbage collectable.
+
+Strings may or may not be implemented at run-time, and if they are,
 will have library implementation dependent memory allocation
 schemes.
 
-Strings can be accessed by `\skey{string pointer}s' which are
-also derived types.  A string pointer does not have a value
-but is instead a basis for a cluster of variables that
-can exist only in the local memory of a frame: see
-\itemref{CLUSTERS}.
+The following are builtin functions involving strings that
+are always implemented at compile time:
+
+\begin{indpar}
+
+{\tt function string r =
+    std \ttmkey{string}{of character} ( character c )}
+\begin{indpar}
+Returns the string containing the single character {\tt c}.
+\end{indpar}
+
+{\tt function string r =
+    std \ttmkey{string}{of integer} ( int128 i )}
+\begin{indpar}
+Returns the string that is the decimal integer representation of
+the integer {\tt i}.  The value returned contains no high order
+zeros.  Non-negative values have no sign.
+\end{indpar}
+
+{\tt function string r =
+    std ( string s1 ) "\ttmkey{+}{of strings}" ( string s2 )}
+\begin{indpar}
+Returns the concatenation of {\tt s1} and {\tt s2}.
+\end{indpar}
+
+{\tt function bool r =
+    std ( string s1 ) "\ttmkey{==}{of strings}" ( string s2 )} \\
+{\tt function bool r =
+    std ( string s1 ) "\ttmkey{!=}{of strings}" ( string s2 )}
+\begin{indpar}
+Returns whether {\tt s1} and {\tt s2} are equal or not.
+\end{indpar}
+
+{\tt function string r = std \ttmkey{null}{string value}}
+\begin{indpar}
+Returns a particular zero length \TT{string} that is conventionally
+used to represent the missing \TT{string} value.
+Although the string is of zero length, it does have one character:
+the \TT{NUL} character at its end.
+\end{indpar}
+
+{\tt function unswrd r = std \ttmkey{length of}{string} ( string s )}
+\begin{indpar}
+Returns the length of {\tt s}, the number of characters in {\tt s}
+\underline{not counting} the \TT{NUL} character at the end.
+\end{indpar}
+
+{\tt function character r = std ( string s ) \TT{[} unswrd i \TT{]}}%
+\ttmindex{[]}{of string}
+\begin{indpar}
+Returns the {\tt i+1}'st character of {\tt s}.
+
+It is a programming error if {\tt i > length of ( s )}.
+
+If {\tt i == length of ( s )}
+the \TT{NUL} at the end of the string is returned.
+\end{indpar}
+
+\end{indpar}
 
 \subsection{The Name Type}
 \label{THE-NAME-TYPE}
 
-A \key{name} is a sequence of lexemes used to name things like
-variables and functions.
+A `\key{name}' value is a vector of strings.  If the value is
+a legal name as defined in Section~\itemref{NAMES}, the
+strings are its {\em name-items} with a \TT{null} string appended.
+Note that {\em natural-number} {\em name-items} are represented
+by strings of digits and not by integers.
 
-\begin{indpar}
-\emkey{name} ::= {\em initial-name-component} {\em member-selector}\STAR{} \\
-\emkey{initial-name-component} ::=
-    {\em name-component} \underline{not} beginning with `\TT{.}' \\
-\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
-\emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
-\emkey{name-component} ::=
-    {\em name-item} {\em continuing-name-item}\STAR{} \\
-\emkey{continuing-name-item} := {\em name-item} not containing `\TT{.}' \\
-\emkey{name-item} \begin{tabular}[t]{@{}rl}
-    ::= & {\em word} with no embedded or ending `\TT{.}'s \\
-        & [see text about splitting words with embedded `\TT{.}'s] \\
-    $|$ & {\em quoted-mark} with no embedded or ending `\TT{.}'s \\
-    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
-    \end{tabular} \\
-\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
-\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
-\emkey{member-subscript} ::= {\em enum-list-constant} with at most 32 elements
-                             ~~~ [see \pagref{ENUM-LIST-CONSTANT}]
+The \TT{name} type is is defined as a derived type:
+\begin{indpar} \tt
+define type \ttkey{std name} as adr \\
+\ttkey{name} \ABV `std name'
 \end{indpar}
 
-[We have not yet defined lexemes.  Roughly, separators are single
-characters such as `\TT{(}' `\TT{)}' and `\TT{,}', marks are lexemes
-that are not separators and do not contain letters or digits,
-words are lexemes that contain a letter before any digit, and
-numerics are lexemes that contain a digit before any letter.
-Marks, words, and numerics cannot contain \TT{"} or begin with \TT{//}.]
+A sequence of {\em name-items} in \TT{`~'} quotes is a \TT{name}
+constant whose strings are the {\em name-items}
+with the \TT{null} string appended:
+\begin{indpar}
+\emkey{name-constant} :::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
+{\em name-item} ::= see \pagref{NAME-ITEM}
+\end{indpar}
 
-{\em Words} containing embedded `\TT{.}'s are split into
-{\em name-items} which can only contain `\TT{.}'s at their beginning.
-Thus
-\begin{center}
-\TT{bills.wife.1.weight}
-\end{center}
-is split into
-\begin{center}
-\TT{bills~~~.wife~~~.1~~~.weight}
-\end{center}
-However, `\TT{.1}' is not a legal {\em name-item} and so cannot
-be part of a {\em name}.
+Name values are read-only, and their elements cannot be changed.
+Name values are implemented at compile time, but when
+computed at compile time, they might not be garbage collectable.
 
-If a {\em name} contains a {\em member-index-range} of the form
-\TT{I~..~J}, the name actually names a set of variables in which
-the {\em member-index-range} is replaced by \TT{I}, \TT{I+1},
-\TT{I+2}, \ldots, \TT{J}.  The set is called a `\key{slice}'.\label{SLICE}
-\TT{I}$\leq$\TT{J} is required.
-A slice can be treated as a single variable.  Other slices may
-overlay it.  For example:
-\begin{indpar}\begin{verbatim}
-uns8 string[0 .. 5] = .....   // Allocate slice.
-..... string[0] .....         // Read one variable of slice.
-..... string[1 .. 5] .....    // Read subslice of slice.
-..... string[0 .. 3] .....    // Read a different subslice.
-\end{verbatim}\end{indpar}
+Name values may or may not be implemented at run-time, and if they are,
+will have library implementation dependent memory allocation
+schemes.
 
-One can also assemble slices into a larger slice.  For example:
-\begin{indpar}\begin{verbatim}
-float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
-float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
-float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
-..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
-\end{verbatim}\end{indpar}
+The following are builtin functions involving name values that
+are always implemented at compile time:
 
-A variable of type \ttkey{name} can store a {\em name}.
-Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
-Two \TT{name} values can be
-concatenated by the \TT{+} operator if the second begins with
-a {\em member-selector}.  An
-example is:
-\begin{indpar}\begin{verbatim}
-name n1 = `jill'
-name n2 = `.daughter[3]'
-name n = n1 + n2  // n now = `jill .daughter[3]'
-                  // or equivalently `jill.daughter[3]'
-\end{verbatim}\end{indpar}
+\begin{indpar}
 
-{\em Variable-names}, {\em type-names}, {\em qualifier-names},
-{\em function-names}, etc.~are {\em names}.
+{\tt function name r = \ttmkey{name}{of string} ( string s )}
+\begin{indpar}
+Returns the name containing just {\tt s} as its only {\em name-item}.
+A \TT{null} is appended to the end of the name.
+No check is made that {\tt s} is a legal {\em name-item}.
+\end{indpar}
+
+{\tt function name r = ( name n1 ) "\ttmkey{+}{of names}" ( name n2 )}
+\begin{indpar}
+Returns the concatenation of {\tt n1} and {\tt n2}.
+\end{indpar}
+
+{\tt function bool r = ( name n1 ) "\ttmkey{==}{of names}" ( name n2 )} \\
+{\tt function bool r = ( name n1 ) "\ttmkey{!=}{of names}" ( name n2 )}
+\begin{indpar}
+Returns whether {\tt n1} and {\tt n2} are equal or not.
+\end{indpar}
+
+{\tt function name r = std \ttmkey{null}{name value}}
+\begin{indpar}
+Returns a particular zero length \TT{name} that is conventionally
+used to represent the missing \TT{name} value.
+Although the name is of zero length, it does have one string,
+the \TT{null} string at its end.
+\end{indpar}
+
+{\tt function unswrd r = std \ttmkey{length of}{name} ( name n )}
+\begin{indpar}
+Returns the length of {\tt n}, the number of strings in {\tt n}
+\underline{not counting} the \TT{null} string at the end.
+\end{indpar}
+
+{\tt function string r = std ( name n ) \TT{[} unswrd i \TT{]}}%
+\ttmindex{[]}{of string}
+\begin{indpar}
+Returns the {\tt i+1}'st string of {\tt n}.
+
+It is a programming error if {\tt i > length of ( n )}.
+
+If {\tt i == length of ( n )}
+the \TT{null} at the end of the name is returned.
+\end{indpar}
+
+\end{indpar}
 
 \subsection{Abbreviations}
 \label{ABBREVIATIONS}
@@ -5709,6 +5856,10 @@ Others can be defined by users.
 How can dynamically initialized locations be static.
 
 Indirect address protocol.
+
+Define `compile-time function' as a function that can only be
+called at compile-time.
+
 \label{INDIRECT-ADDRESS-PROTOCOL}
 
 Threads.

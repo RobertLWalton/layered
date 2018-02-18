@@ -1847,7 +1847,8 @@ given in the function call, must be in the give set of
 types, where types are values of the enumeration type `\TT{type}'
 (see Section~\itemref{TYPE-VALUES}).
 
-Enumeration sets and lists can be stored in variables of enumeration set
+At compile-time
+enumeration sets and lists can be stored in variables of enumeration set
 or list types, which can be declared by:
 \begin{indpar}
 \emkey{enum-set-type-declaration} ::= \\
@@ -1865,7 +1866,8 @@ or list types, which can be declared by:
 		\end{tabular}
 \end{indpar}
 
-The information about enumeration set and list types can be determined by:
+The information about enumeration set and list types can be determined
+at compile-time by:
 
 \begin{indpar}
 {\tt function bool r = \ttkey{is enumeration set type} ( type T )}
@@ -1921,7 +1923,7 @@ These conversions actually do nothing but change the type of the
 value.
 
 If $S$ is an enumeration set type with element type $E$, the following
-builtin functions are builtin:
+functions are defined at compile-time:
 
 \begin{indpar}
 {\tt function $S$ r =
@@ -1970,7 +1972,7 @@ Returns the set difference of {\tt s} and \{{\tt e}\}.
 \end{indpar}
 
 If $L$ is an enumeration list type with element type $E$, the following
-functions are builtin:
+functions are defined at compile-time:
 
 \begin{indpar}
 {\tt function $L$ r = ($L$ v1)
@@ -2014,6 +2016,12 @@ Returns the list made by removing the all occurences of
 
 \end{indpar}
 
+An implementation is not required to implement run-time enumeration
+set and list variables.  If an implementation does
+not implement run-time enumeration set and list variables,
+enumeration set and list values computed at compile-time may
+not be garbage collectable during the compilation.
+
 \subsection{Type Values}
 \label{TYPE-VALUES}
 
@@ -2029,6 +2037,14 @@ Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
 compile and run time to test whether two `\TT{type}'s are
 equal.
+
+New types are declared by statements of the form:
+\begin{center}
+\tt define type {\em type-name} \ldots{}
+\end{center}
+The {\em type-name} of a type can be used (1) before a {\em variable-name}
+in a declaration, (2) as the name of an enumeration value in an
+expression, or (3) as the name of a function in a {\em function-call}.
 
 Values of one type $T1$ can be converted implicitly to another
 type $T2$ if and only if an inline function with prototype:
@@ -2235,15 +2251,9 @@ whose characters are those represented by the lexeme with
 the addition of a \TT{NUL} character (code \TT{0}) at the end.
 
 Strings are read-only, and their characters cannot be changed.
-Strings are implemented at compile time, but when
-computed at compile time, they might not be garbage collectable.
 
-Strings may or may not be implemented at run-time, and if they are,
-will have library implementation dependent memory allocation
-schemes.
-
-The following are builtin functions involving strings that
-are always implemented at compile time:
+String variables and values are implemented at compile-time.
+The following are compile-time functions involving strings:
 
 \begin{indpar}
 
@@ -2302,6 +2312,12 @@ the \TT{NUL} at the end of the string is returned.
 
 \end{indpar}
 
+An implementation is not required to implement run-time string
+variables.  If an implementation does
+not implement run-time string variables,
+string values computed at compile-time may
+not be garbage collectable during the compilation.
+
 \subsection{The Name Type}
 \label{THE-NAME-TYPE}
 
@@ -2326,15 +2342,9 @@ with the \TT{null} string appended:
 \end{indpar}
 
 Name values are read-only, and their elements cannot be changed.
-Name values are implemented at compile time, but when
-computed at compile time, they might not be garbage collectable.
 
-Name values may or may not be implemented at run-time, and if they are,
-will have library implementation dependent memory allocation
-schemes.
-
-The following are builtin functions involving name values that
-are always implemented at compile time:
+Name variables and values are implemented at compile-time.
+The following are compile-time functions involving names:
 
 \begin{indpar}
 
@@ -2382,6 +2392,12 @@ the \TT{null} at the end of the name is returned.
 \end{indpar}
 
 \end{indpar}
+
+An implementation is not required to implement run-time name
+variables.  If an implementation does
+not implement run-time name variables,
+name values computed at compile-time may
+not be garbage collectable during the compilation.
 
 \subsection{Abbreviations}
 \label{ABBREVIATIONS}

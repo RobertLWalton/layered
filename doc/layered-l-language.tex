@@ -160,7 +160,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 18, 2018
+February 19, 2018
  
 \end{center}
 
@@ -860,57 +860,94 @@ for temporary variables and \TT{B\TMP$n$} for compiler created blocks.
 \subsection{Abbreviations}
 \label{ABBREVIATIONS}
 
-An `\ttkey{abbreviation}' is name that is replaced in code by its value.
-More specifically,
-\begin{indpar}
-\TT{type~}\ttkey{abbreviation}\TT{~is name}
-\end{indpar}
-is builtin, and given
-\begin{center}
-\TT{abbreviation V = `N'}
-\end{center}
-for any variable \TT{V} and name \TT{N}, any occurrance of
-the name \TT{V} as an \underline{initial} subname of
-a name in code within the scope of \TT{V} is replace by \TT{N} during
-compilation.  Here a `\key{subname}' is a sequence of {\em name-components}
-and {\em member-subscripts} within a name (i.e., a subname cannot
-contain a \underline{partial} {\em name-component}),
-and an `\key{initial subname}' is a subname that begins at the beginning
-of the name that contains it.
-If there is more than one replaceable initial subname
-in a name, the longest is replaced.  After replacement, the complete name is
-reinspected for possible additional abbreviations: that is, abbreviation
-replacement in names is recursive.  However, abbreviation replacement
-is done after other parsing; abbreviations may replace operators, but
-only after the operators have been used to insert implied parentheses.
+An \key{abbreviation} is a {\em name} that is replaced
+by another {\em name} everywhere it occurs in code outside name constants.
+Replacement occurs after expressions are parsed.
 
+Abbreviations are declared by:
+\begin{indpar}
+\emkey{abbreviation-declaration}\label{ABBREVIATION-DECLARATION}
+    ::= {\em abbreviation} ~ \ttkey{-{}-{}->} ~ {\em abbreviation-replacement}
+\\[1ex]
+\emkey{abbreviation} ::= {\em name} ~~~~~ [see \pagref{NAME}]
+\\[1ex]
+\emkey{abbreviation-replacement} ::= \\
+\hspace*{0.5in}
+    {\em expression} that evaluates at compile time to a \TT{name};
+    see \itemref{THE-NAME-TYPE}
+\end{indpar}
+
+The most common {\em abbreviation-replacement} is a {\em name-constant}:
+
+\begin{indpar}
+\emkey{name-constant} :::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
+{\em name-item} ::= see \pagref{NAME-ITEM}
+\end{indpar}
+
+Abbreviation is recursive: an {\em abbreviation-replacement} can
+itself be an abbreviation.
+Abbreviation loops are possible and result in compile errors when
+the abbreviation is used.
 For example:
-\begin{indpar}[0.1in]\begin{verbatim}
-abbreviation ni = `i'
-abbreviation nj = `j'
-abbreviation nnj = `nj'
-int32 nj = 5       // Legal: nj => j; same as j = 5
-int32 i = 6        // Legal: has no abbreviation
-int32 ni = 6       // Illegal variable overlay;
-                   //     ni => i; same as i = 6
-next nj = 6        // Legal variable overlay:
-                   //     nj => j; same as next j = 6
-int32 r = nnj      // Legal: nnj => nj => j; same as r = j 
-abbreviation "+.+" = `+'
-int32 i = ( 4 ) +.+ ( 5 )
-    // Legal; ( 4 ) "+" ( 5 ) which is what 4 + 5 becomes
-    // after parsing.  However, 4 +.+ 5 will be illegal as
-    // the parser will not treat +.+ as an operator, will
-    // not insert implied parentheses, and therefore post-
-    // parsing will not recognize +.+ as a name.
+\begin{indpar}\begin{verbatim}
+    X ---> `Y'
+    int64 X = 5       // Same as: int64 Y = 5
+    Y ---> `Z'
+    int64 X = 5       // Same as: int64 Z = 5
+    Z ---> `X'
+    int64 X = 5       // Compile error replacing X.
 \end{verbatim}\end{indpar}
 
-If an abbreviation is referenced in code being compiled, the value
-of the abbreviation variable must be available to the compilation.
-This does \underline{not} mean the value of every abbreviation
-variable must be compile-time, as such a variable may be computed
-at run-time and then used in a `\TT{compile-and-run}' assignment
-statement: see Section~\itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}.
+Abbreviation replacement occurs after expressions are parsed, hence
+the following example:
+\begin{indpar}\begin{verbatim}
+    foo ---> "+"
+    int64 y = (5) foo (7)
+        // OK: right side same as (5) "+" (7)
+        // and is a function call.
+    int64 x = 5 foo 7
+        // Compile error: 5 "+" 7 is not function call
+        // as arguments are not parenthesized.
+\end{verbatim}\end{indpar}
+
+Abbreviation replacement occurs before
+{\em module-abbreviations} (see \pagref{MODULE-ABBREVIATION}) are
+mapped onto modules.  Thus a name beginning with a
+{\em module-abbreviation} can be either an abbreviation or an
+abbreviation replacement.  There are a number of builtin
+abbreviations exemplifying this, for example:
+\begin{indpar}\begin{verbatim}
+int32 ---> `std int32'
+bool  ---> `std bool'
+\end{verbatim}\end{indpar}
+
+If the {\em abbreviation-replacement} is a type name in the
+context of the abbreviation, the abbreviation is marked as a type
+name. 
+If the {\em abbreviation-replacement} is a qualifier name in the
+context of the abbreviation, the abbreviation is marked as a qualifier
+name.
+Thus a variable declaration of the
+form
+\begin{center}
+{\em qualifier-name}\STAR{} ~ {\em type-name} ~ {\em variable-name}
+\end{center}
+will work when {\em qualifier-names} and {\em type-names} are
+{\em abbreviations}.
+\begin{indpar}\begin{verbatim}
+int32 ---> `std int32'
+    // Builtin type abbreviation
+*UNCHECKED*  ---> `std *UNCHECKED*'
+    // Builtin qualifier abbreviation
+*UNCHECKED* int32 x 1 = 99
+    // Same as: std *UNCHECKED* std int32 x 1 = 99
+\end{verbatim}\end{indpar}
+
+Abbreviations are never external (\pagref{EXTERNAL}),%
+\label{ABBREVIATIONS-ARE-NOT-EXTERNAL}
+even if they begin with a {\em module-abbreviation}.
+They do have scope like other declarations, but their scope
+never extends beyond the file in which they are declared.
 
 \section{Data Types}
 \label{DATA-TYPES-TYPES}
@@ -1303,9 +1340,10 @@ that is used to denote a number.  The syntax is:
 \emkey{binary-fraction} :::= \TT{.} {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
  \\[0.5ex]
-\emkey{hexadecimal-constant} ::= {\em hexadecimal-constant-prefix} ~
-                                 {\em hexadecimal-quoted-body} ~
-			         {\em exponent}\QMARK{}
+\emkey{hexadecimal-constant} ::= \\
+\hspace*{0.5in}{\em hexadecimal-constant-prefix} ~
+               {\em hexadecimal-quoted-body} ~
+	       {\em exponent}\QMARK{}
 \\[0.5ex]
 \emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{B}
 \\[0.5ex]

@@ -756,7 +756,48 @@ is split into
 However, `\TT{.1}' is not a legal {\em name-item} and so cannot
 be part of a legal {\em name}.
 
-The L-Language uses several subcategories of names:
+Names can be computed at compile time:
+see~\itemref{THE-NAME-TYPE}.
+One name can be used to abbreviate another:
+see~\itemref{ABBREVIATIONS}.
+A name may begin with a {\em word} that is a {\em module-abbreviation}
+that designates a code module: see~\itemref{MODULES}.
+
+A {\em name} may be an abbreviation for another name.  Such abbreviations
+can be introduced by statements of the form
+\begin{center}
+{\em abbreviation-name} \TT{\ABV} \TT{`}{\em replacement-name}\TT{'}
+\end{center}
+See the section on abbreviations
+(\itemref{ABBREVIATIONS})
+for more details.
+
+The builtin names in this document are implicitly in the
+\TT{"standard"} module whose {\em module-abbreviation} is `\TT{std}'.
+See the section on modules (\itemref{MODULES}) for details.
+For example the name `\TT{bool}' of the boolean data type is actually a builtin
+abbreviation defined by:
+\begin{center}
+\TT{bool {\ABV} `std bool'}
+\end{center}
+and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
+
+Similarly a builtin function such as:
+\begin{center}
+\TT{float$x$ r = round ( float$x$}{\em -value}\TT{ )} \\
+\end{center}
+actually has the function prototype (\pagref{FUNCTION-PROTOTYPE}):
+\begin{center}
+\TT{function std float$x$ r = std round ( std float$x$ value )} \\
+\end{center}
+so its proper name is `\TT{std round}' and not `\TT{round}',
+but in this case it is not necessary (or desirable) to make `\TT{round}'
+an abbreviation because its module can be implied in a function call
+(see `module deficient' on \pagref{MODULE-DEFICIENT}).
+
+\subsection{Kinds of Names}
+
+The L-Language uses several kinds of names:
 
 \begin{indpar}
 \emkey{type-name}\label{TYPE-NAME}
@@ -816,46 +857,60 @@ The third rule is because {\em variable-declarations} are prefaced by
 The fourth rule is because the compiler generates names like \TT{T\TMP$n$}
 for temporary variables and \TT{B\TMP$n$} for compiler created blocks.
 
-Names can be computed at compile time or run time:
-see~\itemref{STRING-AND-NAME-TYPES}.
-One name can be used to abbreviate another:
-see~\itemref{ABBREVIATIONS-AND-GENERICS}.
-A name may begin with a {\em word} that is a {\em module-abbreviation}
-that designates a code module: see~\itemref{MODULES}.
+\subsection{Abbreviations}
+\label{ABBREVIATIONS}
 
-A {\em name} may be an abbreviation for another name.  Such abbreviations
-can be introduced by statements of the form
+An `\ttkey{abbreviation}' is name that is replaced in code by its value.
+More specifically,
+\begin{indpar}
+\TT{type~}\ttkey{abbreviation}\TT{~is name}
+\end{indpar}
+is builtin, and given
 \begin{center}
-{\em abbreviation-name} \TT{\ABV} \TT{`}{\em replacement-name}\TT{'}
+\TT{abbreviation V = `N'}
 \end{center}
-See the sections on abbreviations
-(\itemref{ABBREVIATIONS-AND-GENERICS})
-and name types
-(\itemref{STRING-AND-NAME-TYPES})
-for more details.
+for any variable \TT{V} and name \TT{N}, any occurrance of
+the name \TT{V} as an \underline{initial} subname of
+a name in code within the scope of \TT{V} is replace by \TT{N} during
+compilation.  Here a `\key{subname}' is a sequence of {\em name-components}
+and {\em member-subscripts} within a name (i.e., a subname cannot
+contain a \underline{partial} {\em name-component}),
+and an `\key{initial subname}' is a subname that begins at the beginning
+of the name that contains it.
+If there is more than one replaceable initial subname
+in a name, the longest is replaced.  After replacement, the complete name is
+reinspected for possible additional abbreviations: that is, abbreviation
+replacement in names is recursive.  However, abbreviation replacement
+is done after other parsing; abbreviations may replace operators, but
+only after the operators have been used to insert implied parentheses.
 
-The builtin names in this document are implicitly in the
-\TT{"standard"} module whose {\em module-abbreviation} is `\TT{std}'.
-See the section on modules (\itemref{MODULES}) for details.
-For example the name `\TT{bool}' of the boolean data type is actually a builtin
-abbreviation defined by:
-\begin{center}
-\TT{bool {\ABV} `std bool'}
-\end{center}
-and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
+For example:
+\begin{indpar}[0.1in]\begin{verbatim}
+abbreviation ni = `i'
+abbreviation nj = `j'
+abbreviation nnj = `nj'
+int32 nj = 5       // Legal: nj => j; same as j = 5
+int32 i = 6        // Legal: has no abbreviation
+int32 ni = 6       // Illegal variable overlay;
+                   //     ni => i; same as i = 6
+next nj = 6        // Legal variable overlay:
+                   //     nj => j; same as next j = 6
+int32 r = nnj      // Legal: nnj => nj => j; same as r = j 
+abbreviation "+.+" = `+'
+int32 i = ( 4 ) +.+ ( 5 )
+    // Legal; ( 4 ) "+" ( 5 ) which is what 4 + 5 becomes
+    // after parsing.  However, 4 +.+ 5 will be illegal as
+    // the parser will not treat +.+ as an operator, will
+    // not insert implied parentheses, and therefore post-
+    // parsing will not recognize +.+ as a name.
+\end{verbatim}\end{indpar}
 
-Similarly a builtin function such as:
-\begin{center}
-\TT{float$x$ r = round ( float$x$}{\em -value}\TT{ )} \\
-\end{center}
-actually has the function prototype (\pagref{FUNCTION-PROTOTYPE}):
-\begin{center}
-\TT{function std float$x$ r = std round ( std float$x$ value )} \\
-\end{center}
-so its proper name is `\TT{std round}' and not `\TT{round}',
-but in this case it is not necessary (or desirable) to make `\TT{round}'
-an abbreviation because its module can be implied in a function call
-(see `module deficient' on \pagref{MODULE-DEFICIENT}).
+If an abbreviation is referenced in code being compiled, the value
+of the abbreviation variable must be available to the compilation.
+This does \underline{not} mean the value of every abbreviation
+variable must be compile-time, as such a variable may be computed
+at run-time and then used in a `\TT{compile-and-run}' assignment
+statement: see Section~\itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}.
 
 \section{Data Types}
 \label{DATA-TYPES-TYPES}
@@ -2312,61 +2367,6 @@ variables.  If an implementation does
 not implement run-time name variables,
 name values computed at compile-time may
 not be garbage collectable during the compilation.
-
-\subsection{Abbreviations}
-\label{ABBREVIATIONS}
-
-An `\ttkey{abbreviation}' is name that is replaced in code by its value.
-More specifically,
-\begin{indpar}
-\TT{type~}\ttkey{abbreviation}\TT{~is name}
-\end{indpar}
-is builtin, and given
-\begin{center}
-\TT{abbreviation V = `N'}
-\end{center}
-for any variable \TT{V} and name \TT{N}, any occurrance of
-the name \TT{V} as an \underline{initial} subname of
-a name in code within the scope of \TT{V} is replace by \TT{N} during
-compilation.  Here a `\key{subname}' is a sequence of {\em name-components}
-and {\em member-subscripts} within a name (i.e., a subname cannot
-contain a \underline{partial} {\em name-component}),
-and an `\key{initial subname}' is a subname that begins at the beginning
-of the name that contains it.
-If there is more than one replaceable initial subname
-in a name, the longest is replaced.  After replacement, the complete name is
-reinspected for possible additional abbreviations: that is, abbreviation
-replacement in names is recursive.  However, abbreviation replacement
-is done after other parsing; abbreviations may replace operators, but
-only after the operators have been used to insert implied parentheses.
-
-For example:
-\begin{indpar}[0.1in]\begin{verbatim}
-abbreviation ni = `i'
-abbreviation nj = `j'
-abbreviation nnj = `nj'
-int32 nj = 5       // Legal: nj => j; same as j = 5
-int32 i = 6        // Legal: has no abbreviation
-int32 ni = 6       // Illegal variable overlay;
-                   //     ni => i; same as i = 6
-next nj = 6        // Legal variable overlay:
-                   //     nj => j; same as next j = 6
-int32 r = nnj      // Legal: nnj => nj => j; same as r = j 
-abbreviation "+.+" = `+'
-int32 i = ( 4 ) +.+ ( 5 )
-    // Legal; ( 4 ) "+" ( 5 ) which is what 4 + 5 becomes
-    // after parsing.  However, 4 +.+ 5 will be illegal as
-    // the parser will not treat +.+ as an operator, will
-    // not insert implied parentheses, and therefore post-
-    // parsing will not recognize +.+ as a name.
-\end{verbatim}\end{indpar}
-
-If an abbreviation is referenced in code being compiled, the value
-of the abbreviation variable must be available to the compilation.
-This does \underline{not} mean the value of every abbreviation
-variable must be compile-time, as such a variable may be computed
-at run-time and then used in a `\TT{compile-and-run}' assignment
-statement: see Section~\itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}.
 
 \subsection{Name Sets and Lists}
 \label{NAME-SETS-AND-LISTS}

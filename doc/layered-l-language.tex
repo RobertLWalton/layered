@@ -857,92 +857,6 @@ but in this case it is not necessary (or desirable) to make `\TT{round}'
 an abbreviation because its module can be implied in a function call
 (see `module deficient' on \pagref{MODULE-DEFICIENT}).
 
-\subsection{Variable Names}
-
-TBD
-
-A \key{name} is a sequence of lexemes used to name things like
-variables and functions.
-
-\begin{indpar}
-\emkey{name} ::= {\em initial-name-component} {\em member-selector}\STAR{} \\
-\emkey{initial-name-component} ::=
-    {\em name-component} \underline{not} beginning with `\TT{.}' \\
-\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
-\emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
-\emkey{name-component} ::=
-    {\em name-item} {\em continuing-name-item}\STAR{} \\
-\emkey{continuing-name-item} := {\em name-item} not containing `\TT{.}' \\
-\emkey{name-item} \begin{tabular}[t]{@{}rl}
-    ::= & {\em word} with no embedded or ending `\TT{.}'s \\
-        & [see text about splitting words with embedded `\TT{.}'s] \\
-    $|$ & {\em quoted-mark} with no embedded or ending `\TT{.}'s \\
-    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
-    \end{tabular} \\
-\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
-\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
-\emkey{member-subscript} ::= {\em enum-list-constant} with at most 32 elements
-                             ~~~ [see \pagref{ENUM-LIST-CONSTANT}]
-\end{indpar}
-
-[We have not yet defined lexemes.  Roughly, separators are single
-characters such as `\TT{(}' `\TT{)}' and `\TT{,}', marks are lexemes
-that are not separators and do not contain letters or digits,
-words are lexemes that contain a letter before any digit, and
-numerics are lexemes that contain a digit before any letter.
-Marks, words, and numerics cannot contain \TT{"} or begin with \TT{//}.]
-
-{\em Words} containing embedded `\TT{.}'s are split into
-{\em name-items} which can only contain `\TT{.}'s at their beginning.
-Thus
-\begin{center}
-\TT{bills.wife.1.weight}
-\end{center}
-is split into
-\begin{center}
-\TT{bills~~~.wife~~~.1~~~.weight}
-\end{center}
-However, `\TT{.1}' is not a legal {\em name-item} and so cannot
-be part of a {\em name}.
-
-If a {\em name} contains a {\em member-index-range} of the form
-\TT{I~..~J}, the name actually names a set of variables in which
-the {\em member-index-range} is replaced by \TT{I}, \TT{I+1},
-\TT{I+2}, \ldots, \TT{J}.  The set is called a `\key{slice}'.\label{SLICE}
-\TT{I}$\leq$\TT{J} is required.
-A slice can be treated as a single variable.  Other slices may
-overlay it.  For example:
-\begin{indpar}\begin{verbatim}
-uns8 string[0 .. 5] = .....   // Allocate slice.
-..... string[0] .....         // Read one variable of slice.
-..... string[1 .. 5] .....    // Read subslice of slice.
-..... string[0 .. 3] .....    // Read a different subslice.
-\end{verbatim}\end{indpar}
-
-One can also assemble slices into a larger slice.  For example:
-\begin{indpar}\begin{verbatim}
-float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
-float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
-float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
-..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
-\end{verbatim}\end{indpar}
-
-A variable of type \ttkey{name} can store a {\em name}.
-Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
-Two \TT{name} values can be
-concatenated by the \TT{+} operator if the second begins with
-a {\em member-selector}.  An
-example is:
-\begin{indpar}\begin{verbatim}
-name n1 = `jill'
-name n2 = `.daughter[3]'
-name n = n1 + n2  // n now = `jill .daughter[3]'
-                  // or equivalently `jill.daughter[3]'
-\end{verbatim}\end{indpar}
-
-{\em Variable-names}, {\em type-names}, {\em qualifier-names},
-{\em function-names}, etc.~are {\em names}.
-
 \section{Data Types}
 \label{DATA-TYPES-TYPES}
 
@@ -3037,6 +2951,968 @@ from being implicitly converted to a \TT{bool}.
 [Though it is untraditional, it might be worth considering
 using the `least specific' matching instead of the `most specific'.
 But this would cause problems for `comparison results'.]
+
+\section{Expressions}
+\label{EXPRESSIONS}
+
+TBD
+
+Expressions compute values and appear inside statements where a value is needed.
+
+SAFE expressions are compiled into simpler expressions by introducing
+new variables, called `\skey{temporary variable}s'.  For example, in:
+\begin{indpar}\begin{verbatim}
+int32 x = ...
+int64 y = 34,587 + 5 * x
+\end{verbatim}\end{indpar}
+the second statement is compiled to:
+\begin{indpar}\begin{verbatim}
+int64 T$1 = 34,587
+int64 T$2 = 5
+int64 T$3 = x
+int64 T$4 = T$2 * T$3
+int64 y = T$1 + T$4
+\end{verbatim}\end{indpar}
+The statements in this last code are statements of SAFE-AL, the
+SAFE Assembly Language.
+Operators in SAFE-AL only appear in statements that contain just
+one operator and some variables, and do not contain subexpressions
+or constants.
+The variables \TT{T\TMP\ldots{}} are temporary variables.
+
+\subsection{Variable Names}
+
+TBD
+
+A \key{name} is a sequence of lexemes used to name things like
+variables and functions.
+
+\begin{indpar}
+\emkey{name} ::= {\em initial-name-component} {\em member-selector}\STAR{} \\
+\emkey{initial-name-component} ::=
+    {\em name-component} \underline{not} beginning with `\TT{.}' \\
+\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
+\emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
+\emkey{name-component} ::=
+    {\em name-item} {\em continuing-name-item}\STAR{} \\
+\emkey{continuing-name-item} := {\em name-item} not containing `\TT{.}' \\
+\emkey{name-item} \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} with no embedded or ending `\TT{.}'s \\
+        & [see text about splitting words with embedded `\TT{.}'s] \\
+    $|$ & {\em quoted-mark} with no embedded or ending `\TT{.}'s \\
+    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
+    \end{tabular} \\
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
+\emkey{member-subscript} ::= {\em enum-list-constant} with at most 32 elements
+                             ~~~ [see \pagref{ENUM-LIST-CONSTANT}]
+\end{indpar}
+
+[We have not yet defined lexemes.  Roughly, separators are single
+characters such as `\TT{(}' `\TT{)}' and `\TT{,}', marks are lexemes
+that are not separators and do not contain letters or digits,
+words are lexemes that contain a letter before any digit, and
+numerics are lexemes that contain a digit before any letter.
+Marks, words, and numerics cannot contain \TT{"} or begin with \TT{//}.]
+
+{\em Words} containing embedded `\TT{.}'s are split into
+{\em name-items} which can only contain `\TT{.}'s at their beginning.
+Thus
+\begin{center}
+\TT{bills.wife.1.weight}
+\end{center}
+is split into
+\begin{center}
+\TT{bills~~~.wife~~~.1~~~.weight}
+\end{center}
+However, `\TT{.1}' is not a legal {\em name-item} and so cannot
+be part of a {\em name}.
+
+If a {\em name} contains a {\em member-index-range} of the form
+\TT{I~..~J}, the name actually names a set of variables in which
+the {\em member-index-range} is replaced by \TT{I}, \TT{I+1},
+\TT{I+2}, \ldots, \TT{J}.  The set is called a `\key{slice}'.\label{SLICE}
+\TT{I}$\leq$\TT{J} is required.
+A slice can be treated as a single variable.  Other slices may
+overlay it.  For example:
+\begin{indpar}\begin{verbatim}
+uns8 string[0 .. 5] = .....   // Allocate slice.
+..... string[0] .....         // Read one variable of slice.
+..... string[1 .. 5] .....    // Read subslice of slice.
+..... string[0 .. 3] .....    // Read a different subslice.
+\end{verbatim}\end{indpar}
+
+One can also assemble slices into a larger slice.  For example:
+\begin{indpar}\begin{verbatim}
+float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
+..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
+\end{verbatim}\end{indpar}
+
+A variable of type \ttkey{name} can store a {\em name}.
+Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
+Two \TT{name} values can be
+concatenated by the \TT{+} operator if the second begins with
+a {\em member-selector}.  An
+example is:
+\begin{indpar}\begin{verbatim}
+name n1 = `jill'
+name n2 = `.daughter[3]'
+name n = n1 + n2  // n now = `jill .daughter[3]'
+                  // or equivalently `jill.daughter[3]'
+\end{verbatim}\end{indpar}
+
+{\em Variable-names}, {\em type-names}, {\em qualifier-names},
+{\em function-names}, etc.~are {\em names}.
+
+\subsection{Expression Syntax}
+
+The operators that can appear in an expression in approximate
+precedence order (lowest precedence first) are:
+
+\begin{center}
+
+\begin{tabular}{c}
+\TT{if ~ else} \\
+selection operators
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{c}
+\TT{and ~ or} \\
+\TT{not} \\
+logical operators
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{c}
+\TT{== ~ != ~ > ~ >= ~ < ~ <=} \\
+comparison operators
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{c}
+\TT{+ ~ -} \\
+summation operators
+\\[2ex]
+\TT{* ~ / ~ div ~ mod ~ rem } \\
+product operators
+\end{tabular}
+~~~~~
+\begin{tabular}{c}
+\TT{\& ~ | ~ \textasciicircum{} ~ <{}< ~ >{}>} \\
+\TT{!} \\
+bitwise operators
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{c}
+\TT{() ~ [] ~ }{\em element-selector} \\
+data operators
+\end{tabular}
+
+\end{center}
+
+\begin{indpar}
+
+However precedence is only a rough guide to the syntax of SAFE
+operators.  Also there is no unary \TT{-} operator.
+
+Two operators are said to be mixed in an expression if neither is
+inside a parenthesized subexpression that does not contain the other.
+The logical operators other than `\TT{not}' cannot be mixed with
+each other, and similarly for the product operators and the
+bitwise operators other than \TT{!} (bitwise complement).  Bitwise
+operators cannot be mixed with summation and product operators.
+
+The precise syntax of expressions is:
+
+\emkey{expression}\label{EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & {\em selection-expression} \\
+    $|$ & {\em logical-expression} \\
+    $|$ & {\em comparison-expression} \\
+    $|$ & {\em bitop-expression} \\
+    $|$ & {\em summation-expression} \\
+    $|$ & {\em product-expression} \\
+    $|$ & {\em data-expression} \\
+    $|$ & {\em call-expression} \\
+    $|$ & {\em subexpression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{selection-expression}\label{SELECTION-EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & {\em selection-operand} \TT{if} {\em logical-expression} \TT{else} \\
+	& ~~~~~ \{ {\em selection-operand} \TT{if} {\em logical-expression}
+	           \TT{else} \}\STAR{} \\
+	& ~~~~~ {\em selection-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{selection-operand}\label{SELECTION-OPERAND}
+    \begin{tabular}[t]{rl}
+    ::= & {\em bitop-expression} $|$ {\em summation-expression}
+                                 $|$ {\em product-expression} \\
+    $|$ & {\em data-expression} $|$ {\em call-expression}
+                                $|$ {\em subexpression}
+    \end{tabular}
+\\[0.5ex]
+\emkey{logical-expression}\label{LOGICAL-EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & \TT{not}\QMARK{} ~  {\em logical-operand} \\
+    $|$ & \TT{not}\QMARK{} ~ {\em logical-operand}
+         \{ \TT{and} ~ \TT{not}\QMARK{} ~ {\em logical-operand} \}\PLUS{} \\
+    $|$ & \TT{not}\QMARK{} ~ {\em logical-operand}
+         \{ \TT{or} ~ \TT{not}\QMARK{} ~ {\em logical-operand} \}\PLUS{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{logical-operand}\label{LOGICAL-OPERAND}
+    \begin{tabular}[t]{rl}
+    ::= & {\em comparison-expression} $|$ {\em data-expression} \\
+    $|$ & {\em call-expression} $|$ {\em subexpression}
+    \end{tabular}
+\\[0.5ex]
+\emkey{comparison-expression}\label{COMPARISON-EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & {\em comparison-operand}
+	  \{ {\em comparison-operator} ~ {\em comparison-operand} \}\PLUS{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{comparison-operator}\label{COMPARISON-OPERATOR} ::=
+    \TT{==} $|$ \TT{!=} $|$ \TT{>} $|$ \TT{>=} $|$ \TT{<} $|$ \TT{<=}
+\\[0.5ex]
+\emkey{comparison-operand}\label{COMPARISON-OPERAND}
+    \begin{tabular}[t]{rl}
+    ::= & {\em bitop-expression} $|$ {\em summation-expression}
+                                 $|$ {\em product-expression} \\
+    $|$ & {\em data-expression} $|$ {\em call-expression}
+                                $|$ {\em subexpression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{bitop-expression}\label{BITOP-EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & \TT{!} {\em bitop-operand} \\
+    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
+         \{ \TT{\&} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
+    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
+         \{ \TT{|} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
+    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
+         \{ \TT{\textasciicircum}
+	    ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
+    $|$ & {\em bitop-operand}
+         \{ {\em shift-operator} ~ {\em bitop-operand} \}\PLUS{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ {\em >{}>}
+\\[0.5ex]
+\emkey{bitop-operand}\label{BITOP-OPERAND} ::=
+    {\em data-expression} $|$ {\em call-expression} $|$ {\em subexpression}
+\\[0.5ex]
+\emkey{summation-expression}\label{SUMMATION-EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & {\em sign}\QMARK{} ~  {\em summation-operand} ~
+         \{ {\em sign} ~ {\em summation-operand} \}\PLUS{} \\
+    $|$ & {\em sign} ~ {\em summation-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{sign}\label{SIGN} ::= \TT{+} $|$ \TT{-}
+\\[0.5ex]
+\emkey{summation-operand}\label{SUMMATION-OPERAND}
+    \begin{tabular}[t]{rl}
+    ::= & {\em product-expression} $|$ {\em data-expression}
+                                 $|$ {\em call-expression} \\
+    $|$ & {\em subexpression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{product-expression}\label{PRODUCT-EXPRESSION} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & {\em product-operand} ~ \{ \TT{*} ~ {\em product-operand} \}\PLUS{} \\
+    $|$ & {\em product-operand} ~ \TT{/} ~ {\em product-operand} \\
+    $|$ & {\em product-operand} ~ \TT{div} ~ {\em product-operand} \\
+    $|$ & {\em product-operand} ~ \TT{mod} ~ {\em product-operand} \\
+    $|$ & {\em product-operand} ~ \TT{rem} ~ {\em product-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{product-operand}\label{PRODUCT-OPERAND} ::=
+    {\em data-expression} $|$ {\em call-expression} $|$ {\em subexpression}
+\\[0.5ex]
+\emkey{data-expression}\label{DATA-EXPRESSION}
+    \begin{tabular}[t]{rl}
+    ::= & {\em constant} \\
+    $|$ & {\em variable-name} \\
+    $|$ & {\em data-primary} ~ {\em selector}\PLUS{} \\
+    $|$ & {\em type-name} ~ \TT{(} {\em expression} \TT{)} \\
+    $|$ & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
+    \end{tabular}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\\[0.5ex]
+\emkey{constant}\label{CONSTANT} ::=
+    {\em number} $|$ {\em quoted-string} $|$ {\em quoted-name}
+\\[0.5ex]
+\emkey{quoted-name}\label{QUOTED-NAME} ::= \TT{`} {\em name} \TT{'}
+\\[0.5ex]
+\emkey{data-primary}\label{DATA-PRIMARY} ::=
+	{\em variable-name} $|$ {\em subexpression}
+\\[0.5ex]
+\emkey{selector} ::= {\em element-selector} $|$ {\em subscripts}
+\\[0.5ex]
+\emkey{element-selector} :::= \TT{.} {\em element-name}
+\\[0.5ex]
+{\em element-name} :::= see \pagref{ELEMENT-NAME}
+\\[0.5ex]
+\emkey{subscripts} ::= \TT{[} {\em expression}
+		      \{ \TT{,} {\em expression} \}\STAR{} \TT{]}
+\\[0.5ex]
+\emkey{variable-name}\label{VARIABLE-NAME} ::=
+    \begin{tabular}[t]{l}
+    {\em name} ~~~~~ [see \pagref{NAME}] \\
+    \underline{not} containing
+	`\TT{.}',~ {\em quoted-marks},~ or {\em quoted-separators}
+    \end{tabular}
+\\[0.5ex]
+\emkey{call-expression}\label{CALL-EXPRESSION} ::=
+	{\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
+\\[0.5ex]
+\emkey{subexpression}\label{SUBEXPRESSION} ::= \TT{(} {\em expression} \TT{)}
+
+\begin{itemize}
+\item
+A {\em type-name} should not be in initial segment of a {\em variable-name}
+(see Type Name Rule, \pagref{TYPE-NAME-RULE}).
+\item
+A {\em function-call} may be a {\em data-primary} only if it is
+parenthesized.
+\item
+Variable names ending with `\TT{\TMP}' followed by digits are
+reserved for use by the compiler and system and cannot be declared
+in SAFE code.
+\end{itemize}
+\end{indpar}
+
+\subsection{Expression Semantics}
+
+Expressions provide standard operators on numbers plus logical and
+memory reference operators.
+
+\subsubsection{Expression Typing}
+
+SAFE uses a top-down method of assigning types to operator arguments.
+Generally given the statement
+\begin{center}
+$T$ $v$ ~ \TT{=} ~ $e1$ ~ $op1$ ~ $e2$ ~ $op2$ ~ \ldots{}
+\end{center}
+where $T$ is a type of a variable $v$, where $e1$, $e2$, \ldots{} are
+subexpressions, and where $op1$, $op2$, \ldots{} are operators with the
+same precedence (e.g., all are either \TT{+} or \TT{-}), then
+all the subexpression values are implicitly converted to type $T$
+before the operations are done.  Here $T$ is called the `\key{target type}'
+of the expressions $e1$, $e2$, \ldots{}.
+
+An example is:
+
+\begin{indpar}\begin{verbatim}
+float64 w = 1.5
+int64 x = 9,568
+uns64 y1 = 0xFF00
+uns32 y2 = 0xFF00
+int64 z1 = x + y1
+    // Compile error:
+    //     y1 is not implicitly convertible to int64
+int64 z2 = x + y2
+    // OK, y2 IS implicitly convertible to int64
+int64 z3 = x + y2 * w
+    // Compile error:
+    //     Target type of y2 * w is int64,
+    //     hence target type of y2 is int64 with is OK,
+    //     and target type of w is int64, but w is not
+    //     implicitly convertiable to int64
+\end{verbatim}\end{indpar}
+
+The target type of an expression is usually provided by the
+type of the variable being set by an assignment statement, or in the
+case of function arguments, by the argument type specified in the
+function prototype.
+
+The target type of a {\em logical-expression} or a {\em comparison-expression}
+must be \TT{bool}.
+
+In some cases the target type is specified by special rules.  The
+target type of {\em comparison-operands} is specified by special
+rules given in \itemref{COMPARISON-EXPRESSIONS}.
+
+Some special rules
+make use of the `\key{natural type}'\label{NATURAL-TYPE}
+that some subexpressions have, provided this is not a number type.
+The natural type of a variable is its type.  The natural
+type of a vector element reference expression is the type of the
+vector element, unless that type is a number type of size not
+equal to a power of \TT{2}, in which case the natural type is
+the number type with size rounded up to a power of \TT{2}.
+The natural type of an expression of the
+form `\TT{$T$ ( \ldots{} )}' where $T$ is a type name is $T$.
+No other expression has a natural type.  In particular,
+{\em function-calls} do not have a natural type, even if
+they have a unique unambiguous result type.
+
+If there is no target type because an expression is being used
+as an assignment statement with no result variables, then
+the expression is in error and will not be compiled.
+The only exception to this rule
+is evaluation of function calls.  If a function call has no
+result variables, there may be greater ambiguity because the
+type of the first result variable cannot be used to discard function
+prototypes (see `conversion deficient', \pagref{CONVERSION-DEFICIENT}),
+but if there is no ambiguity for a particular
+function call, that call will be compiled.
+
+\subsubsection{Evaluation Order}
+\label{EVALUATION-ORDER}
+
+Where binary operators of the same precedence appear outside
+parentheses in an expression, they are evaluated left to right.
+This is, they are left associative.  For example,
+`\TT{x <{}< s1 >{}> s2}' is
+equivalent to `\TT{(x <{}< s1) >{}> s2}'.
+
+For logical operators such as `\TT{and}', `\TT{or}', and
+`\TT{\ldots{}~if~\ldots{}~else~\ldots{}}' the value of the expression
+may be determined before all the operands have been evaluated.
+In this case the unnecessary operands are never evaluated.
+For example, if in `\TT{$e1$~and~$e2$}' the subexpression $e1$
+evaluates to \TT{false}, the subexpression $e2$ is never evaluated.
+Furthermore, if $e1$ evaluates at compile-time to \TT{false},
+$e2$ is not even compiled, and any compile errors it contains
+are not detected.  Similarly if in `\TT{$e1$~if~$b$~else~$e2$}' the
+conditioning expression $b$ evaluates to \TT{true}, $e2$ is
+never evaluated, and if $b$ evaluates to \TT{true} at compile
+time, $e2$ is never compiled.  However all subexpressions are parsed and
+parsing errors are detected.
+
+\subsubsection{Logical Expressions}
+
+In logical expressions the `\TT{not}' operator is moved inside
+`\TT{and}' and `\TT{or}' operators before further evaluation.
+Also double negations are deleted.
+
+The target type for logical expressions is always \TT{bool}.
+
+Logical expressions are evaluated from left to right and
+if the value of the entire expression is discovered before all
+the subexpressions are evaluated, evaluation of later subexpressions is
+skipped, as per \itemref{EVALUATION-ORDER}.
+
+\subsubsection{Comparison Expressions}
+\label{COMPARISON-EXPRESSIONS}
+
+The target type for comparison expressions is always \TT{bool}.
+
+There is no given target type for operands of comparison operators.
+So the target type of these must be specified by rules.
+
+For numeric operands of comparison operators
+the target type is the first type
+in the following sequence that is such that all operands
+can be implicitly converted to that type:
+\begin{center}
+\TT{unshw} ~ \TT{inthw} ~ \TT{unsmax} ~ \TT{intmax}
+           ~ \TT{floathw} ~ \TT{floatmax}
+\end{center}
+
+An example assuming:
+
+
+\begin{indpar}\begin{verbatim}
+unshw ---> `uns32'
+inthw ---> `int32'
+floathw ---> `float32'
+unsmax ---> `uns64'
+intmax ---> `int64'
+floatmax ---> `float32'
+\end{verbatim}\end{indpar}
+
+where `\TT{-{}-{}->}' means `abbreviates'
+(see \pagref{ABBREVIATION-DECLARATION}) is: 
+
+\begin{indpar}\begin{verbatim}
+int64 x = 9,568
+uns64 y1 = 0xFF00
+uns32 y2 = 0xFF00
+bool z1 = x < y1
+    // Compile error:
+    //     x and y1 cannot be implicitly converted
+    //     to the same target type
+bool z1 = x < y2
+    // OK, x and y2 are implicitly convertible to
+    // intmax (int64)
+\end{verbatim}\end{indpar}
+
+Non-numeric comparison operators use the
+natural type (\pagref{NATURAL-TYPE}) of all their operands that
+have natural type, provided all these types are the same and
+the natural type is not \TT{bool}.  Then all operands that do
+not have a natural type are evaluated with this type as their
+target type.
+For example, given the expression `\TT{v == NULL}', where \TT{v}
+has a pointer type $T$, \TT{NULL}, which has no natural type, will be
+evaluated with target type $T$.
+
+Comparison expressions are evaluated from left to right and are
+true if and only if all the comparisons are true.  Middle
+arguments are shared between two comparison operators.
+An example is:
+
+\begin{indpar}\begin{verbatim}
+int64 x = 9,568
+uns16 y1 = 0xFF00
+uns32 y2 = 0xFF01
+bool z1 = x < y1 < y2
+    // x, y1, y2 are all converted to int64.
+    // y2 is only converted if x < y1 is true.
+bool z2 = x < y1 and y1 < y2
+    // y1 is converted to int64 to compare it with x
+    // and then if x < y1 is true, y1 is separately
+    // converted to uns32 to compare it with y2.
+\end{verbatim}\end{indpar}
+
+As per \itemref{EVALUATION-ORDER}, if a comparison evaluates
+to \TT{false}, operands following those of the comparison
+are not evaluated.
+
+Note that a comparison operator may not have a negation that is
+also simply a comparison operator, e.g., \TT{>=} may not be the
+negation of \TT{<}.  For example, both return \TT{false} if an
+operand is \TT{NaN}.  For this reason `\TT{x < y}' and
+\TT{`not ( x < y )}' are treated as semantically different
+expressions.
+
+\subsubsection{Integer Arithmetic Expressions}
+
+If an integer arithmetic operator is being evaluated with
+operand and target type \TT{uns$x$} or \TT{int$x$}, the
+exact arithmetic results is computed and truncated to
+$x$ bits, i.e., is taken modulo $2^x$ before being presented
+as the result.
+
+An exception to this is made for integer division operations.
+If the divisor is zero, the results are undefined.  If the
+target type is \TT{int$x$}, the dividend is $-2^{x-1}$, and
+the divisor is $-1$, the result is undefined.  In both these
+cases the result may be a program terminating error.
+
+The bitwise operators are:
+\begin{center}
+\begin{tabular}{ll}
+\TT{\&}	& bitwise AND \\
+\TT{|}	& bitwise OR \\
+\TT{!}	& bitwise complement \\
+\TT{<{}<}	& bitwise shift left \\
+\TT{>{}>}	& bitwise shift right \\
+\end{tabular}
+\end{center}
+
+In `\TT{v >{}> s}' and `\TT{v <{}< s}', \TT{v} is converted to the
+target type which may be any integer type $T$, but \TT{s} is converted
+to \TT{unshw} and only its low order $x$ bits are used as the
+shift amount, where $x$ is the size of $T$.
+In other words, the shift amount is \TT{s mod 2$^x$}.
+
+The integer division operators are:
+\begin{center}
+\begin{tabular}{ll}
+\TT{div}	& quotient rounded towards zero \\
+\TT{mod}	& modulo; remainder when quotient is rounded
+                  toward negative infinity \\
+\TT{rem}	& remainder when quotient is rounded toward zero \\
+\end{tabular}
+\end{center}
+
+The operator \TT{/} is strictly floating point.
+
+\subsubsection{Floating Point Arithmetic Expressions}
+\label{FLOATING-POINT-ARITHMETIC-EXPRESSIONS}
+
+There is a `\key{floating point error register}' that holds
+floating point error flags that may be set by floating point
+arithmetic and comparison operations.  These flags are `\key{sticky}', in that
+operations may set them but may never clear them.  There are also
+special builtin functions to manipulate these flags
+(\itemref{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}).
+
+The flags with the operation results when the flags are set are:
+\begin{indpar}
+\mkey{Invalid Operand}{floating point error flag}
+\begin{indpar}
+Set upon one of the following:
+\begin{center}
+\begin{tabular}{l}
+Compare operand is a \TT{NaN}. \\
+Adding \TT{+Inf} and \TT{-Inf}. \\
+Subtracting \TT{+Inf} from \TT{+Inf}. \\
+Subtracting \TT{-Inf} from \TT{-Inf}. \\
+Multiplying \TT{0} by \TT{+Inf} or \TT{-Inf}. \\
+Dividing \TT{+Inf} or \TT{-Inf} by \TT{+Inf} or \TT{-Inf}. \\
+Dividing \TT{0} by \TT{0}. \\
+\end{tabular}
+\end{center}
+
+Except for compares, the result is \TT{NaN}.
+For compares, the result is \TT{false}.
+\end{indpar}
+
+\mkey{Divide By Zero}{floating point error flag}
+\begin{indpar}
+Set by a floating point division with a \TT{+0} or
+\TT{-0} divisor and a non-zero dividend.
+
+The result is \TT{+Inf} if both operands have the
+same sign and \TT{-Inf} if they have opposite signs.
+\end{indpar}
+
+\mkey{Result Overflow}{floating point error flag}
+\begin{indpar}
+Set if result has magnitude too large to store in a target type value.
+
+If the result is positive, \TT{+Inf} is stored, and if negative,
+\TT{-Inf} is stored.
+\end{indpar}
+
+\mkey{Result Underflow}{floating point error flag}
+\begin{indpar}
+Set if the result is too small to be stored, even as a denormalized
+number, in a target type value.
+
+The result is stored as \TT{+0} if it is positive and as
+\TT{-0} if it is negative.
+\end{indpar}
+
+\mkey{Result Inexact}{floating point error flag}
+\begin{indpar}
+Set if result cannot be exactly stored in a target type value.
+This happens frequently and is not normally considered a
+real error.
+
+The result is rounded to the nearest value, with ties to even.
+\end{indpar}
+\end{indpar}
+
+Except for compares, \TT{NaN} operands cause \TT{NaN} results and
+do \underline{not} set the invalid operand flag.
+
+Results may be denormalized numbers.  Except for compares,
+when an operand to an arithmetic operation is a denormalized
+number, it is treated as zero.
+
+\subsection{Operator Semantics}
+
+The following evaluation rules are applied in the order given.
+
+For example, `\TT{not ( x > y and z )}' is evaluated by applying
+the rule that rewrites it to `\TT{not x > y or not z}' instead of
+the rules that evaluated `\TT{x > y and z}' first and then complement
+the result.
+
+Parentheses are inserted by the parser to separate operators of
+differing precedence before these rules are applied.
+
+Comparison operators, and the
+arithmetic operators, summation, product, and bitwise, 
+may be overloaded by functions that apply them to non-numeric
+types other than \TT{bool}.
+If $T$ is such a type, these functions must have prototypes
+of the forms
+\begin{indpar}
+\TT{function bool r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
+\begin{indpar}
+where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
+\end{indpar}
+
+\TT{function $T$ r = ( $T$ $v1$ ) "$op$ ( unshw $v2$ )}
+\begin{indpar}
+where $op$ is one of \TT{<{}<} or \TT{>{}>}
+\end{indpar}
+
+\TT{function $T$ r = "$op$" ( $T$ $v1$ )}
+\begin{indpar}
+where $op$ is one of \TT{-} or \TT{!}
+\end{indpar}
+
+\TT{function $T$ r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
+\begin{indpar}
+where $op$ is one of
+    \TT{+}, \TT{-}, \TT{\&}, \TT{|}, \TT{\textasciicircum},
+    \TT{*}, \TT{/}, \TT{div}, \TT{mod}, \TT{rem}
+\end{indpar}
+\end{indpar}
+
+
+The selection operator (\TT{if/else}) and the logical
+operators (\TT{not}, \TT{and}, \TT{or}) may \underline{not}
+be overloaded.
+
+\medskip
+
+\TT{$e1$ if $b1$ else $e2$ if $b2$ \ldots{} else $e$}
+\hfill [{\em selection-expression}]
+\begin{indpar}
+$b1$ is evaluated first.  If it is \TT{true}, $e1$ is evaluated and its
+value is returned.  If it is \TT{false}, $e1$ is \underline{not}
+evaluated, and instead $b2$ is evaluated.  If that is \TT{true}
+$e2$ is evaluated and its value is returned.  But if $b2$ is \TT{false}
+evaluation of the {\em selection-expression} continues.  If none of
+the $bI$ evaluate to \TT{true}, $e$ is evaluated and returned as the result.
+
+The target type of each $bI$ is \TT{bool} and the target type of each
+$eI$ is the target type of the {\em selection-expression}.
+Only one of the $eI$ is evaluated.  If any $bI$ is a compile time
+\TT{false} value, the associated $eI$ is not compiled or checked
+for compile errors.
+\end{indpar}
+
+\TT{not ( $b1$ and $b2$ and \ldots{} )}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+The expression is replaced by
+\TT{( ( not $b1$ ) or ( not $b2$ ) or \ldots{} )}.
+\end{indpar}
+
+\TT{not ( $b1$ or $b2$ or \ldots{} )}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+The expression is replaced by
+\TT{( ( not $b1$ ) and ( not $b2$ ) and \ldots{} )}.
+\end{indpar}
+
+\TT{not ( not $b1$ )}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+The expression is replaced by $b1$.
+\end{indpar}
+
+\TT{$b1$ and $b2$ and \ldots{}}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+The $bI$ are evaluated left to right until one evaluates to
+\TT{false} or none do.  If one evaluates to \TT{false},
+\TT{false} is returned as the value of the {\em logical-expression}
+and the remaining $bI$ are not evaluated.
+Otherwise \TT{true} is returned.
+
+The target type of all the $bI$ is \TT{bool}.  If any $bI$ is a
+compile time \TT{false} value, the remaining $bI$ are not compiled
+or checked for compile errors.
+\end{indpar}
+
+\TT{$b1$ or $b2$ or \ldots{}}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+The $bI$ are evaluated left to right until one evaluates to
+\TT{true} or none do.  If one evaluates to \TT{true},
+\TT{true} is returned as the value of the {\em logical-expression}
+and the remaining $bI$ are not evaluated.
+Otherwise \TT{false} is returned.
+
+The target type of all the $bI$ is \TT{bool}.  If any $bI$ is a
+compile time \TT{true} value, the remaining $bI$ are not compiled
+or checked for compile errors.
+\end{indpar}
+
+\TT{not $e1$ $cop1$ $e2$ $cop2$ $e3$ \ldots{}}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+where the $copI$ are comparison operators chosen from the list
+\TT{==}, \TT{!=}, \TT{>}. \TT{>=}, \TT{<}, or \TT{<=}.
+
+First $e1$ and $e2$ are evaluated.  Then `$e1$ $cop1$ $e2$'
+is evaluated, and if it is \TT{false},
+\TT{true} is returned as the value of the {\em logical-expression}.
+Otherwise $e3$ and `$e2$ $cop2$ $e3$' are evaluated, and if the latter
+evaluated to \TT{false},
+\TT{true} is returned as the value of the {\em logical-expression}.
+This continues until a comparison evaluates to \TT{false} or all
+evaluate to \TT{true}.  In the latter case, \TT{false} is returned as
+the value of the {\em logical-expression}.
+
+No $eI$ is evaluated more than once, though the value of some $eI$
+may be used more than once.
+
+The target type $T$ of the expressions $eI$ is selected as
+per \itemref{COMPARISON-EXPRESSIONS}.
+\end{indpar}
+
+\TT{not $b$}
+\hfill [{\em logical-expression}]
+\begin{indpar}
+$b$ is evaluated.  If it returns \TT{true}, \TT{false} is
+returned as the value of the {\em logical-expression}.
+Otherwise \TT{true} is returned.
+
+The target type of the $b$ is \TT{bool}.
+\end{indpar}
+
+\TT{$e1$ $cop1$ $e2$ $cop2$ $e3$ \ldots{}}
+\hfill [{\em comparison-expression}]
+\begin{indpar}
+where the $copI$ are comparison operators chosen from the list
+\TT{==}, \TT{!=}, \TT{>}. \TT{>=}, \TT{<}, or \TT{<=}.
+
+First $e1$ and $e2$ are evaluated.  Then `$e1$ $cop1$ $e2$'
+is evaluated, and if it is \TT{false},
+\TT{false} is returned as the value of the {\em comparison-expression}.
+Otherwise $e3$ and `$e2$ $cop2$ $e3$' are evaluated, and if the latter
+evaluated to \TT{false},
+\TT{false} is returned as the value of the {\em comparison-expression}.
+This continues until a comparison evaluates to \TT{false} or all
+evaluate to \TT{true}.  In the latter case, \TT{true} is returned as
+the value of the {\em comparison-expression}.
+
+No $eI$ is evaluated more than once, though the value of some $eI$
+may be used more than once.
+
+The target type $T$ of the expressions $eI$ is selected as
+per \itemref{COMPARISON-EXPRESSIONS}.
+\end{indpar}
+
+\TT{! $e1$}
+\hfill [{\em bitop-expression}] \\
+\TT{$e1$ $bop$ $e2$ $bop$ $e3$ \ldots{}}
+\hfill [{\em bitop-expression}]
+\begin{indpar}
+where the $bop$ is a bitop operator chosen from the list
+\TT{\&}, \TT{|}.
+
+The $eI$ are evaluated left to right.
+Each operator is evaluated as soon as its operands have
+been evaluated, so the operators (other than \TT{!}) are
+also evaluated left to right.
+
+The target type of the $eI$ is the target type of the
+{\em bitop-expression} and must \underline{not} be floating
+point number type.
+\end{indpar}
+
+\TT{$e1$ $shop1$ $e2$ $shop2$ $e3$ \ldots{}}
+\hfill [{\em bitop-expression}]
+\begin{indpar}
+where the $shopI$ are bitop operators chosen from the list
+\TT{<{}<}, \TT{>{}>}.
+
+Each operator is evaluated as soon as its operands have
+been evaluated, so the operators are
+also evaluated left to right.
+
+The target type of $e1$ is the target type of the
+{\em bitop-expression} and must \underline{not} be floating
+point number type.
+The target type of $e2$, $e3$, \ldots{} is \TT{unshw}.
+If $T$ is an integer type of size $x$,
+the value of the shift for $shopI$
+is $e(I+1)$ is taken modulo $2^x$.
+\end{indpar}
+
+\TT{$sop1$\QMARK{} $e1$ $sop2$ $e2$ $sop3$ $e3$ \ldots{}}
+\hfill [{\em summation-expression}]
+\begin{indpar}
+where $sopI$ are summation operators chosen from the list
+\TT{+} or \TT{-}.
+
+The $eI$ are evaluated left to right.
+Each operator is evaluated as soon as its operands have
+been evaluated, so the operators are
+also evaluated left to right.
+
+The target type of the $eI$ is the target type of the
+{\em summation-expression}.
+\end{indpar}
+
+\TT{$e1$ * $e2$ * $e3$ \ldots{}}
+\hfill [{\em product-expression}] \\
+\TT{$e1$ $dop$ $e2$}
+\hfill [{\em product-expression}]
+\begin{indpar}
+where the $dop$ is a divide operator chosen from the list
+\TT{/}, \TT{div}, \TT{mod}, \TT{rem}.
+
+The $eI$ are evaluated left to right.
+Each operator is evaluated as soon as its operands have
+been evaluated, so the operators are
+also evaluated left to right.
+
+The target type $T$ of the $eI$ is the target type of the
+{\em product-expression}.  For \TT{div} and \TT{rem}, $T$ may
+\underline{not} be a floating point number type.
+For \TT{/}, $T$ may \underline{not} be an integer type.
+If $T$ is an integer type, it must have size at least 32 bits.
+
+\end{indpar}
+
+\TT{$v$ {\em selector}\PLUS{}}
+\hfill [{\em data-expression}] \\
+\TT{( $e$ ) {\em selector}\PLUS{}}
+\hfill [{\em data-expression}]
+\begin{indpar}
+These reference selected elements of tuples and vectors:
+see \pagref{GET-TUPLE-ELEMENT} and \pagref{SET-TUPLE-ELEMENT}.
+
+These {\em data-expressions} have a natural type that must be
+implicitly convertible to the target type of the {\em data-expression}.
+For this purpose, the implicit conversions of \itemref{NUMBER-TYPES}
+are extended to integer types whose size is not a power of two.
+
+These expressions can also be used on the left side of an
+\TT{=} sign.  In this case any number stored in the selected
+element must either be implicitly convertable to the natural
+type of the element, or be representable in the natural type.
+E.g., an \TT{uns32} number may be stored in an \TT{uns13} element
+if the number's actual value is less than $2^{13}$, and it is
+a program error if this is not the case.
+\end{indpar}
+
+\TT{$ma$ ( $e1$ $op1$ $e2$ $op2$ \ldots{} )}
+\hfill [{\em data-expression}]
+\label{MODULE-ABBREVIATION-SEMANTICS}
+\begin{indpar}
+where $ma$ is a {\em module-abbreviation}.
+
+$ma$ is prefixed to the unparenthesized
+operators whenever they are used according to the above
+rules.
+
+For example,
+\begin{center}
+\begin{tabular}{c}
+\TT{$ma$ ( x + ( y1 + y2 ) + ( z1 * z2 ) )} \\
+becomes \\
+\TT{$ma$ x + ( y1 + y2 ) ) + ( z1 * z2 )}
+\end{tabular}
+\end{center}
+
+Since the parser places parentheses implicitly, in `\TT{$ma$($e$)}'
+only the lowest precedence operators in $e$ are affected.
+Thus the pre-parser expression
+\begin{center}
+\TT{$ma$ ( x + ( y1 + y2 ) + z1 * z2 )} \\
+\end{center}
+is equivalent to the above example.
+
+\end{indpar}
+
+\TT{$T$ ( $e$ )}
+\hfill [{\em data-expression}]
+\begin{indpar}
+where $T$ is a {\em type-name}.
+
+If the {\em data-expression} can be treated as a call to a
+user defined function named $T$, it is evaluated as such.
+
+Otherwise $e$ is evaluated with target type $T$ and the result is implcitly
+converted to the target type of the {\em data-expression}.
+\end{indpar}
+
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}

@@ -2575,45 +2575,63 @@ types.
 Syntactically {\em qualifier-names} immediately preceed the {\em type-names}
 that are before {\em variable-names}.  Some introductory examples are:
 \begin{indpar}\begin{verbatim}
-qualifier fee
-required qualifier fie
-function fee int32 result = F ( fee fie int32 value ):
+required qualifier fee
+prohibited qualifier fie
+function int32 result = F ( fee int32 value ):
     // Declares function F that computes a result of type
-    // int32 from a value of type int32 and qualifier fie.
-    // Requires call argument to have qualifier fie, but
-    // not fee.
+    // int32 from a value of type int32 and qualifier fee.
+    // Requires call argument to have qualifier fee, but
+    // prohibits the argument from having qualifier fie.
     //
     ... [Function body omitted] ...
 
 // Example usage:
 //
-fie int32 x1 = ...
+int32 x1 = ...
 fee int32 x2 = ...
-int32 y1 = F ( x1 )          // Legal; x1 has required fie.
-int32 y2 = F ( x2 )          // Illegal; x2 does not have
-                             // required fie.
-protected prohibited qualifier fo
+fie int32 x3 = ...
+int32 y1 = F ( x1 )          // Illegal; x1 does not have
+                             // required fee.
+int32 y2 = F ( x2 )          // Legal; x2 has required fee.
+int32 y3 = F ( x3 )          // Illegal; x3 has prohibited
+                             // fie.
+fee int32 y4 = x1            // Illegal; x1 does not have
+                             // required fee.
+fee int32 y5 = x2            // Legal; x2 has required fee.
+int32 y6 = x3                // Illegal; x3 has prohibited
+                             // fie but y6 does not.
+fie int32 y7 = x3            // Legal; x3 has prohibited
+                             // fie but so does y7.
+
+protected required qualifier foo
 function fo int32 result = G ( int32 value ):
     // Declares function G that computes a result of type
-    // int32 from a value of type int32 that does NOT have
-    // qualifier fo, which is prohibited.  Attaches fo, which
-    // is also protected, to the result.
+    // int32 from a value of type int32.  Attaches fo, which
+    // is protected, to the result.
     //
     ... [Function body omitted] ...
 
-fee int32 y3 = G ( x1 )      // Legal; y3 also acquires fo.
-fee int32 y4 = G ( y3 )      // Illegal; y3 has implied
+function int32 result = H ( fo int32 value ):
+    ... [Function body omitted] ...
+
+fee int32 z1 = G ( x1 )      // Legal; z1 also acquires fo.
+fee int32 z2 = H ( z1 )      // Legal; z1 has implied
                              // qualifier fo.
-fo  int32 y5 = F ( x1 )      // Illegal; fo is protected, ans
+fo  int32 z3 = F ( x1 )      // Illegal; fo is protected, and
                              // F does not have fo on its
                              // prototype result variable.
-fo  int32 y5 = 9             // Illegal; fo is protected,
-                             // and 9 has no qualifiers.
-fo  int32 y6 = G ( x1 )      // Legal; G gives y7 the
+fo  int32 z4 = G ( x1 )      // Legal; G gives z4 the
                              // protected fo qualifier so its
-                             // OK for y7 to have that
-                             // qualifier.
-fo  int32 y7 = y3            // Legal; y3 has implied fo.
+                             // OK for z4 to have that
+                             // qualifier explicitly.
+
+fo  int32 z5 = x1            // Illegal, x1 does NOT have
+                             // protected qualifier fo.
+fo  int32 z6 = y7            // Legal, y7 has protected
+                             // qualifier fo.
+int32 z7 = y7                // Legal, y7 has protected
+                             // qualifier fo, so z7
+                             // acquires fo.
 \end{verbatim}\end{indpar}
 
 The qualifiers may be declared by:
@@ -2621,7 +2639,7 @@ The qualifiers may be declared by:
 \emkey{qualifier-declaration} \\
 \hspace*{0.5in}
     \begin{tabular}[t]{rl}
-    ::= & \TT{define} {\em qualifier-attribute}\STAR{} \ttkey{qualifier}
+    ::= & \TT{define} {\em qualifier-attribute}\PLUS{} \ttkey{qualifier}
            {\em defined-qualifier-name} \\
     $|$ & {\em trace-qualifier-declaration}
     	  ~~~ [see \pagref{TRACE-QUALIFIERS}]
@@ -2651,8 +2669,9 @@ does \underline{not}
 have a \key{prohibited qualifier}, any call variable matched to this
 prototype variable must \underline{not} have the prohibited qualifier.
 
-A qualifier \underline{can} be both required and prohibited.
-Given a function prototype variable with such a qualifier,
+A qualifier \underline{must} be required or prohibited or both.
+Given a function prototype variable with a qualifier that is
+both required and prohibited,
 a matching call variable must always have the qualifier,
 and given a function prototype variable without such a qualifier,
 a matching call variable must never have the qualifier.

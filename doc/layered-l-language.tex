@@ -2456,74 +2456,97 @@ include for n in [`x[1]', `x[2]', `x[3]' ]:
 
 Name sets and lists can be stored in variables of the builtin name set
 or list types:
-\begin{center}
-\TT{type name set is} \ldots \\
-\TT{type name list is} \ldots
-\end{center}
+\begin{indpar}
+{\tt define type \ttkey{name set} is adr} \\
+{\tt define type \ttkey{name list} is adr}
+\end{indpar}
 
-If \TT{S} is an name set type, the following operations are builtin:
+The following \TT{name set} functions are buitin:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt (S union) = (S op1)
-                        "\ttmkey{+}{name set union}" ( S op2 )} \\
-Returns the union of \TT{op1} and \TT{op2}.
+{\tt name set r = (name set s1)
+                        "\ttmkey{+}{name set union}" ( name set s2 )} \\
+\begin{indpar}
+Returns the union of {\tt s1} and {\tt s2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S intersection) = (S op1)
-                        "\ttmkey{*}{name set intersection}" ( S op2 )} \\
-Returns the intersection of \TT{op1} and \TT{op2}.
+{\tt name set r = ( name set s1 )
+                        "\ttmkey{*}{name set intersection}" ( name set s2 )} \\
+\begin{indpar}
+Returns the intersection of {\tt s1} and {\tt s2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S difference) = (S op1)
-                        "\ttmkey{-}{name set difference}" ( S op2 )} \\
-Returns the set difference of \TT{op1} and \TT{op2}.
+{\tt name set r = ( name set s1 )
+                        "\ttmkey{-}{name set difference}" ( name set s2 )} \\
+\begin{indpar}
+Returns the set difference of {\tt s1} and {\tt s2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (bool test) = (name e)
-                        \ttmkey{in}{name set} (S s)} \\
-Returns \TT{true} if \TT{e} is an element of the set \TT{s}, and
+{\tt bool r = (name e) \ttmkey{in}{name set} ( name set s )} \\
+\begin{indpar}
+Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S union) = (name e)
-                        "\ttmkey{+}{name set union}" (S s)} \\
-Returns union of \{\TT{e}\} and \TT{s}.
+{\tt name set r = (name n) "\ttmkey{+}{name set union}" ( name set s )} \\
+\begin{indpar}
+Returns union of \{{\tt n}\} and {\tt s}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S union) = (S s)
-                        "\ttmkey{+}{name set union}" (name e)} \\
-Returns union of \{\TT{e}\} and \TT{s}.
+{\tt name set r = ( name set s )
+                        "\ttmkey{+}{name set union}" (name n)} \\
+\begin{indpar}
+Returns union of \{{\tt n}\} and {\tt s}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (S difference) = (S s)
-                        "\ttmkey{-}{name set union}" (name e)} \\
-Returns the set difference of \TT{s} and \{\TT{e}\}.
+{\tt name set r = ( name set s )
+                        "\ttmkey{-}{name set union}" (name n)} \\
+\begin{indpar}
+Returns the set difference of {\tt s} and \{{\tt n}\}.
+\end{indpar}
 
 \end{indpar}
 
-If \TT{L} is an name list type, the following operations are builtin:
+The following \TT{name list} functions are buitin:
 
 \begin{indpar}
-\hspace*{-0.3in}{\tt (L concatenation) = (L op1)
-		    "\ttmkey{+}{name list concatenation}" (L op2)} \\
-Returns the concatenation of \TT{op1} and \TT{op2}.
+{\tt name list r = (name list ls1)
+		    "\ttmkey{+}{name list concatenation}" (name list ls2)} \\
+\begin{indpar}
+Returns the concatenation of {\tt ls1} and {\tt ls2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L difference) = (L op1)
-                        "\ttmkey{-}{name set difference}" (L op2)} \\
-Returns the list made by removing all elements from \TT{op1} that
-appear anywhere in \TT{op2}.
+{\tt name list r = (name list ls1)
+                        "\ttmkey{-}{name set difference}" (name list ls2)} \\
+\begin{indpar}
+Returns the list made by removing all elements from {\tt ls1} that
+appear anywhere in {\tt ls2}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (bool test) = (name e)
-                        \ttmkey{in}{name list} (L op)} \\
-Returns \TT{true} if \TT{e} is an element of the list \TT{op}, and
+{\tt bool r = (name n) \ttmkey{in}{name list} (name list ls)} \\
+\begin{indpar}
+Returns \TT{true} if {\tt n} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L concatenation) = (name e)
-                        "\ttmkey{+}{name list prepend}" (L op)} \\
-Returns the list made by prepending \TT{e} to \TT{op}.
+{\tt name list r = (name n)
+                        "\ttmkey{+}{name list prepend}" (name list ls)} \\
+\begin{indpar}
+Returns the list made by prepending {\tt n} to {\tt ls}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L concatenation) = (L op)
-                        "\ttmkey{+}{name list append}" (name e)} \\
-Returns the list made by appending \TT{e} to \TT{op}.
+{\tt name list r = (name list ls)
+                        "\ttmkey{+}{name list append}" (name n)} \\
+\begin{indpar}
+Returns the list made by appending {\tt n} to {\tt ls}.
+\end{indpar}
 
-\hspace*{-0.3in}{\tt (L difference) = (L s)
-                        "\ttmkey{-}{name list remove}" (name e)} \\
+{\tt name list r = (name list s)
+                        "\ttmkey{-}{name list remove}" (name n)} \\
+\begin{indpar}
 Returns the list made by removing the all occurences of
-\TT{e} in \TT{op}.
+{\tt n} in {\tt ls}.
+\end{indpar}
 
 \end{indpar}
 

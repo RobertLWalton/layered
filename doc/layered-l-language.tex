@@ -2727,8 +2727,33 @@ expression, or (3) as the name of a function in a {\em function-call}.
 \section{Conversions}
 \label{CONVERSIONS}
 
-Conversions of a value of one data type \TT{T-src} to a value of another
-data type \TT{T-des} play a very important role in a typed language.
+Conversions of a value of one data type $T1$ to a value of another
+data type $T2$ play a very important role in a typed language.
+For example:
+\begin{indpar}\begin{verbatim}
+int64 x = y + 1,000 * z
+    // Compiles to:
+    //   int64 T$1 = y            // Conversion
+    //   int64 T$2 = 1,000        // Conversion
+    //   int64 T$3 = z            // Conversion
+    //   int64 T$4 = T$2 "*" T$3  // Function call (of "*")
+    //   int64 x = T$1 "+" T$4    // Function call (of "+")
+\end{verbatim}\end{indpar}
+
+Here the {\tt T\$\ldots} variables are temporary variables
+introduced by the compiler, and {\tt int64} is the type
+of these because being the type of {\tt x} it becomes the
+`target type' of the expression and its subexpressions
+(see \itemref{EXPRESSION-TYPING} for more on target types).
+
+A \key{conversion} is a simple assignment statement whose
+right side is a variable or a constant.  Conversions are
+executed by functions with prototypes of the form:
+\begin{center} \tt
+function \ldots{}~$T2$ r = ( \ldots{}~$T1$ v )
+\end{center}
+
+where `\ldots{}' denotes information about qualifiers.
 
 \subsection{Implied Conversions}
 \label{IMPLIED-CONVERSIONS}
@@ -3407,6 +3432,7 @@ Expressions provide standard operators on numbers plus logical and
 memory reference operators.
 
 \subsubsection{Expression Typing}
+\label{EXPRESSION-TYPING}
 
 SAFE uses a top-down method of assigning types to operator arguments.
 Generally given the statement

@@ -2465,42 +2465,42 @@ The following \TT{name set} functions are buitin:
 
 \begin{indpar}
 {\tt name set r = (name set s1)
-                        "\ttmkey{+}{name set union}" ( name set s2 )} \\
+                        "\ttmkey{+}{name set union}" ( name set s2 )}
 \begin{indpar}
 Returns the union of {\tt s1} and {\tt s2}.
 \end{indpar}
 
 {\tt name set r = ( name set s1 )
-                        "\ttmkey{*}{name set intersection}" ( name set s2 )} \\
+                        "\ttmkey{*}{name set intersection}" ( name set s2 )}
 \begin{indpar}
 Returns the intersection of {\tt s1} and {\tt s2}.
 \end{indpar}
 
 {\tt name set r = ( name set s1 )
-                        "\ttmkey{-}{name set difference}" ( name set s2 )} \\
+                        "\ttmkey{-}{name set difference}" ( name set s2 )}
 \begin{indpar}
 Returns the set difference of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt bool r = (name e) \ttmkey{in}{name set} ( name set s )} \\
+{\tt bool r = (name e) \ttmkey{in}{name set} ( name set s )}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt name set r = (name n) "\ttmkey{+}{name set union}" ( name set s )} \\
+{\tt name set r = (name n) "\ttmkey{+}{name set union}" ( name set s )}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
 {\tt name set r = ( name set s )
-                        "\ttmkey{+}{name set union}" (name n)} \\
+                        "\ttmkey{+}{name set union}" (name n)}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
 {\tt name set r = ( name set s )
-                        "\ttmkey{-}{name set union}" (name n)} \\
+                        "\ttmkey{-}{name set union}" (name n)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt n}\}.
 \end{indpar}
@@ -2511,38 +2511,38 @@ The following \TT{name list} functions are buitin:
 
 \begin{indpar}
 {\tt name list r = (name list ls1)
-		    "\ttmkey{+}{name list concatenation}" (name list ls2)} \\
+		    "\ttmkey{+}{name list concatenation}" (name list ls2)}
 \begin{indpar}
 Returns the concatenation of {\tt ls1} and {\tt ls2}.
 \end{indpar}
 
 {\tt name list r = (name list ls1)
-                        "\ttmkey{-}{name set difference}" (name list ls2)} \\
+                        "\ttmkey{-}{name set difference}" (name list ls2)}
 \begin{indpar}
 Returns the list made by removing all elements from {\tt ls1} that
 appear anywhere in {\tt ls2}.
 \end{indpar}
 
-{\tt bool r = (name n) \ttmkey{in}{name list} (name list ls)} \\
+{\tt bool r = (name n) \ttmkey{in}{name list} (name list ls)}
 \begin{indpar}
 Returns \TT{true} if {\tt n} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
 \end{indpar}
 
 {\tt name list r = (name n)
-                        "\ttmkey{+}{name list prepend}" (name list ls)} \\
+                        "\ttmkey{+}{name list prepend}" (name list ls)}
 \begin{indpar}
 Returns the list made by prepending {\tt n} to {\tt ls}.
 \end{indpar}
 
 {\tt name list r = (name list ls)
-                        "\ttmkey{+}{name list append}" (name n)} \\
+                        "\ttmkey{+}{name list append}" (name n)}
 \begin{indpar}
 Returns the list made by appending {\tt n} to {\tt ls}.
 \end{indpar}
 
 {\tt name list r = (name list s)
-                        "\ttmkey{-}{name list remove}" (name n)} \\
+                        "\ttmkey{-}{name list remove}" (name n)}
 \begin{indpar}
 Returns the list made by removing the all occurences of
 {\tt n} in {\tt ls}.

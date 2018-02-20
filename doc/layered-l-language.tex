@@ -160,7 +160,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 19, 2018
+February 20, 2018
  
 \end{center}
 
@@ -819,17 +819,22 @@ The L-Language uses several kinds of names:
 			    or {\em quoted-separator}
 			\end{tabular} \\
 \emkey{member-subscript} ::= see \pagref{MEMBER-SUBSCRIPT} \\
-\emkey{term-name} ::= {\em name}
+\emkey{function-term-name} ::= {\em name} \\
+\emkey{function-initial-term-name} ::=
+    \begin{tabular}[t]{@{}l@{}}
+    {\em function-term-name} that can appear \\
+    at the beginning of a {\em function-call};
+    see \pagref{INITIAL-FUNCTION-TERM-NAME}
+    \end{tabular}
 
 where
 \begin{enumerate}
 \item A {\em type-name} may not be an initial segment of another
-{\em type-name}, of a {\em variable-base-name}, or of a {\em term-name}
-unless the latter follows an \TT{=} or {\em prototype-argument-list}
-in a {\em function-prototype}.
+{\em type-name}, of a {\em variable-base-name},
+or of an {\em function-initial-term-name}.
 \item A {\em qualifier-name} may not be an initial segment of another
-{\em qualifier-name}, of a {\em type-name}, of a {\em variable-base-name},
-or of a {\em term-name}.
+{\em qualifier-name}, of a {\em type-name},
+or of a {\em function-initial-term-name}.
 \item
 A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
 may not begin with the word `\TT{next}' or `\TT{previous}'.
@@ -840,7 +845,7 @@ reserved for use by the compiler.
 \item
 {\em Name-items} beginning with `\TT{..}' (possibly followed by more
 `\TT{.}'s) are reserved
-for use by systems and compilers (e.g., \TT{..size} in the example).
+for use by systems and compilers (e.g., \TT{..size} in the last example).
 \end{enumerate}
 \end{indpar}
 
@@ -850,7 +855,7 @@ The first two rules are required because the syntax
 \end{center}
 is used in {\em variable-declarations} that may begin {\em statements}
 and in {\em prototype-argument-declara\-tions}.  Also, a
-{\em function-call} beginning with a {\em term-name}
+{\em function-call} beginning with a {\em function-intial-term-name}
 may also begin a {\em statement}.
 The third rule is because {\em variable-declarations} are prefaced by
 `\TT{next}' and `\TT{previous}' with special meanting in certain contexts.
@@ -1429,8 +1434,8 @@ variable or argument declared to have the defined type (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
 
 No {\em type-name} may be a prefix of another {\em type-name}, a
-{\em variable-name}, or the first {\em term-name} of a 
-{\em function-prototype} if that {\em term-name} does not
+{\em variable-name}, or the first {\em function-term-name} of a 
+{\em function-prototype} if that {\em function-term-name} does not
 follow an \TT{=} sign or {\em argument-list} in the prototype.
 No qualifier name may be a prefix of a type name.
 No type name may begin with `\TT{next}'.
@@ -2038,7 +2043,9 @@ by the builtin equivalent of:
 define type \ttkey{std type} as unswrd with enum [0~..] \\
 type \ttkey{std missing type} is next enum // 0 \\
 type \ttkey{std type} is next enum // 1 \\
-\ttkey{type} \ABV `std type' 
+function std type r = std \ttmkey{missing}{type}: \\
+\hspace*{3em}r = std missing type \\
+\ttkey{type} \ABV `std type'
 \end{indpar}
 Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
@@ -2464,42 +2471,42 @@ or list types:
 The following \TT{name set} functions are buitin:
 
 \begin{indpar}
-{\tt name set r = (name set s1)
+{\tt function name set r = (name set s1)
                         "\ttmkey{+}{name set union}" ( name set s2 )}
 \begin{indpar}
 Returns the union of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt name set r = ( name set s1 )
+{\tt function name set r = ( name set s1 )
                         "\ttmkey{*}{name set intersection}" ( name set s2 )}
 \begin{indpar}
 Returns the intersection of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt name set r = ( name set s1 )
+{\tt function name set r = ( name set s1 )
                         "\ttmkey{-}{name set difference}" ( name set s2 )}
 \begin{indpar}
 Returns the set difference of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt bool r = (name e) \ttmkey{in}{name set} ( name set s )}
+{\tt function bool r = (name e) \ttmkey{in}{name set} ( name set s )}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt name set r = (name n) "\ttmkey{+}{name set union}" ( name set s )}
+{\tt function name set r = (name n) "\ttmkey{+}{name set union}" ( name set s )}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
-{\tt name set r = ( name set s )
+{\tt function name set r = ( name set s )
                         "\ttmkey{+}{name set union}" (name n)}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
-{\tt name set r = ( name set s )
+{\tt function name set r = ( name set s )
                         "\ttmkey{-}{name set union}" (name n)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt n}\}.
@@ -2510,38 +2517,38 @@ Returns the set difference of {\tt s} and \{{\tt n}\}.
 The following \TT{name list} functions are buitin:
 
 \begin{indpar}
-{\tt name list r = (name list ls1)
+{\tt function name list r = (name list ls1)
 		    "\ttmkey{+}{name list concatenation}" (name list ls2)}
 \begin{indpar}
 Returns the concatenation of {\tt ls1} and {\tt ls2}.
 \end{indpar}
 
-{\tt name list r = (name list ls1)
-                        "\ttmkey{-}{name set difference}" (name list ls2)}
+{\tt function name list r = (name list ls1)
+                        "\ttmkey{-}{name list difference}" (name list ls2)}
 \begin{indpar}
 Returns the list made by removing all elements from {\tt ls1} that
 appear anywhere in {\tt ls2}.
 \end{indpar}
 
-{\tt bool r = (name n) \ttmkey{in}{name list} (name list ls)}
+{\tt function bool r = (name n) \ttmkey{in}{name list} (name list ls)}
 \begin{indpar}
 Returns \TT{true} if {\tt n} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt name list r = (name n)
+{\tt function name list r = (name n)
                         "\ttmkey{+}{name list prepend}" (name list ls)}
 \begin{indpar}
 Returns the list made by prepending {\tt n} to {\tt ls}.
 \end{indpar}
 
-{\tt name list r = (name list ls)
+{\tt function name list r = (name list ls)
                         "\ttmkey{+}{name list append}" (name n)}
 \begin{indpar}
 Returns the list made by appending {\tt n} to {\tt ls}.
 \end{indpar}
 
-{\tt name list r = (name list s)
+{\tt function name list r = (name list s)
                         "\ttmkey{-}{name list remove}" (name n)}
 \begin{indpar}
 Returns the list made by removing the all occurences of
@@ -2597,8 +2604,16 @@ function fo int32 result = G ( int32 value ):
 fee int32 y3 = G ( x1 )      // Legal; y3 also acquires fo.
 fee int32 y4 = G ( y3 )      // Illegal; y3 has implied
                              // qualifier fo.
-fo  int32 y5 = 9             // Illegal; fo is protected.
-fo  int32 y6 = y3            // Legal; y3 has implied fo.
+fo  int32 y5 = F ( x1 )      // Illegal; fo is protected, ans
+                             // F does not have fo on its
+                             // prototype result variable.
+fo  int32 y5 = 9             // Illegal; fo is protected,
+                             // and 9 has no qualifiers.
+fo  int32 y6 = G ( x1 )      // Legal; G gives y7 the
+                             // protected fo qualifier so its
+                             // OK for y7 to have that
+                             // qualifier.
+fo  int32 y7 = y3            // Legal; y3 has implied fo.
 \end{verbatim}\end{indpar}
 
 The qualifiers may be declared by:
@@ -2617,11 +2632,15 @@ The qualifiers may be declared by:
     $|$ & \ttkey{prohibited} \\
     $|$ & \ttkey{protected} \\
     $|$ & \ttkey{inherited} \\
-    \end{tabular}
+    \end{tabular} \\
+\emkey{defined-qualifier-name} ::= {\em qualifier-name} \\
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \end{indpar}
 
-No qualifier name may be a prefix of another qualifier name or of
-any type name.  No qualifier name may begin with `\TT{next}'.
+No {\em qualifier-name} may be a prefix of another {\em qualifier-name},
+or of any {\em type-name}, or of any {\em function-initial-term-name}.
+No qualifier name may begin with `\TT{next}'
+or `\TT{previous}'.
 
 If a function prototype variable (argument or result) has
 a \key{required qualifier}, any call variable matched to this
@@ -2666,16 +2685,24 @@ The builtin qualifiers are in effect declared by:
 {\tt protected~inherited~qualifier~}\ttkey{global}
 \end{indpar}
 
-The type `\ttkey{qualifier}' is a builtin enumeration type implicitly
-declared after the manner of
-\begin{indpar}
-{\tt type~}\ttkey{qualifier}{\tt ~is unswrd with enum [0~..]} \\
-{\tt qualifier~}\ttmkey{missing}{qualifier}{\tt ~is next enum // 0}
+The type `\TT{qualifier}' is a builtin enumeration type declared
+by:
+\begin{indpar} \tt
+define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
+qualifier \ttkey{std missing qualifier} is next enum // 0 \\
+function std qualifier r = std \ttmkey{missing}{qualifier}: \\
+\hspace*{3em}r = std missing qualifier \\
+\ttkey{qualifier} \ABV `std qualifier'
 \end{indpar}
 Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both
 compile and run time to test whether two `\TT{qualifier}'s are
 equal.
+
+The {\em qualifier-name} of a qualifier
+can be used (1) before a {\em type-name}
+in a declaration, (2) as the name of an enumeration value in an
+expression, or (3) as the name of a function in a {\em function-call}.
 
 
 \section{Conversions}

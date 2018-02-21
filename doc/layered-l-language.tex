@@ -887,7 +887,8 @@ Abbreviations are declared by:
 The most common {\em abbreviation-replacement} is a {\em name-constant}:
 
 \begin{indpar}
-\emkey{name-constant} :::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
+\emkey{name-constant}
+    ::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
 {\em name-item} ::= see \pagref{NAME-ITEM}
 \end{indpar}
 
@@ -1277,7 +1278,7 @@ A \key{number-constant} is a {\em number} lexeme with specific syntax
 that is used to denote a number.  The syntax is:
 
 \begin{indpar}
-\emkey{number-constant}
+\emkey{number-constant}\label{NUMBER-CONSTANT}
     \begin{tabular}[t]{@{}cl}
     ::= & {\em decimal-constant} \\
     $|$ & {\em binary-constant} \\
@@ -1771,14 +1772,13 @@ An \key{enumeration set} is a set of enumeration values.
 An \key{enumeration list} is a list of enumeration values.  The syntax
 for enumeration set and list constants is:
 \begin{indpar}
-\emkey{enum-set-constant}
+\emkey{enum-set-constant}\label{ENUM-SET-CONSTANT}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{\{~\}} \\
     $|$ &\TT{\{} {\em enum-item}
                    \{ \TT{,} {\em enum-item} \}\STAR{} \TT{\}} \\
     \end{tabular} \\
-\emkey{enum-list-constant}
-\label{ENUM-LIST-CONSTANT}
+\emkey{enum-list-constant}\label{ENUM-LIST-CONSTANT}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{[~]} \\
     $|$ &\TT{[} {\em enum-item}
@@ -2209,7 +2209,8 @@ define type~\ttkey{std character}~as uns32 \\
 
 A character constant has the syntax:
 \begin{indpar}
-\emkey{character-constant} :::= \TT{C"}{\em character-representative}\TT{"} \\
+\emkey{character-constant}\label{CHARACTER-CONSTANT}
+    :::= \TT{C"}{\em character-representative}\TT{"} \\
 {\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
 \end{indpar}
 
@@ -2264,7 +2265,13 @@ define type \ttkey{std string} as adr \\
 
 A {\em quoted-string} lexeme is a constant of \TT{string} type
 whose characters are those represented by the lexeme with
-the addition of a \TT{NUL} character (code \TT{0}) at the end.
+the addition of a \TT{NUL} character (code \TT{0}) at the end:
+\begin{indpar}
+\emkey{string-constant}\label{STRING-CONSTANT}
+    :::= \TT{"}{\em character-representative}\TT{"} \\
+{\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
+\end{indpar}
+
 
 Strings are read-only, and their characters cannot be changed.
 
@@ -2353,7 +2360,8 @@ A sequence of {\em name-items} in \TT{`~'} quotes is a \TT{name}
 constant whose strings are the {\em name-items}
 with the \TT{null} string appended:
 \begin{indpar}
-\emkey{name-constant} :::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
+\emkey{name-constant}\label{NAME-CONSTANT}
+    ::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
 {\em name-item} ::= see \pagref{NAME-ITEM}
 \end{indpar}
 
@@ -2422,14 +2430,13 @@ An \key{name set} is a set of names.
 An \key{name list} is a list of names.  The syntax
 for name set and list constants is:
 \begin{indpar}
-\emkey{name-set-constant}
+\emkey{name-set-constant}\label{NAME-SET-CONSTANT}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{\{~\}} \\
     $|$ &\TT{\{} {\em name-value}
                    \{ \TT{,} {\em name-value} \}\STAR{} \TT{\}} \\
     \end{tabular} \\
-\emkey{name-list-constant}
-\label{NAME-LIST-CONSTANT}
+\emkey{name-list-constant}\label{NAME-LIST-CONSTANT}
     \begin{tabular}[t]{@{}cl}
     ::= &\TT{[~]} \\
     $|$ &\TT{[} {\em name-value}
@@ -2959,32 +2966,28 @@ comparison operators
 
 \medskip
 
-\begin{tabular}{c}
+\begin{tabular}[t]{c}
 \TT{+ ~ -} \\
 summation operators
 \\[2ex]
 \TT{* ~ / ~ div ~ mod ~ rem } \\
 product operators
+\\[2ex]
+\TT{\textasciicircum} \\
+exponent operator
 \end{tabular}
 ~~~~~
-\begin{tabular}{c}
-\TT{\& ~ | ~ \textasciicircum{} ~ <{}< ~ >{}>} \\
+\begin{tabular}[t]{c}
+\TT{\& ~ | ~ xor ~ <{}< ~ >{}>} \\
 \TT{!} \\
 bitwise operators
-\end{tabular}
-
-\medskip
-
-\begin{tabular}{c}
-\TT{() ~ [] ~ }{\em element-selector} \\
-data operators
 \end{tabular}
 
 \end{center}
 
 \begin{indpar}
 
-However precedence is only a rough guide to the syntax of SAFE
+However precedence is only a rough guide to the syntax of L-Language
 operators.  Also there is no unary \TT{-} operator.
 
 Two operators are said to be mixed in an expression if neither is
@@ -3004,8 +3007,8 @@ The precise syntax of expressions is:
     $|$ & {\em bitop-expression} \\
     $|$ & {\em summation-expression} \\
     $|$ & {\em product-expression} \\
+    $|$ & {\em exponent-expression} \\
     $|$ & {\em data-expression} \\
-    $|$ & {\em call-expression} \\
     $|$ & {\em subexpression} \\
     \end{tabular}
 \\[0.5ex]
@@ -3021,8 +3024,8 @@ The precise syntax of expressions is:
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-expression} $|$ {\em summation-expression}
                                  $|$ {\em product-expression} \\
-    $|$ & {\em data-expression} $|$ {\em call-expression}
-                                $|$ {\em subexpression}
+    $|$ & {\em exponent-expression} $|$ {\em data-expression}
+                                    $|$ {\em subexpression}
     \end{tabular}
 \\[0.5ex]
 \emkey{logical-expression}\label{LOGICAL-EXPRESSION} ::= \\
@@ -3037,7 +3040,7 @@ The precise syntax of expressions is:
 \emkey{logical-operand}\label{LOGICAL-OPERAND}
     \begin{tabular}[t]{rl}
     ::= & {\em comparison-expression} $|$ {\em data-expression} \\
-    $|$ & {\em call-expression} $|$ {\em subexpression}
+    $|$ & {\em subexpression}
     \end{tabular}
 \\[0.5ex]
 \emkey{comparison-expression}\label{COMPARISON-EXPRESSION} ::= \\
@@ -3053,8 +3056,8 @@ The precise syntax of expressions is:
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-expression} $|$ {\em summation-expression}
                                  $|$ {\em product-expression} \\
-    $|$ & {\em data-expression} $|$ {\em call-expression}
-                                $|$ {\em subexpression} \\
+    $|$ & {\em exponent-expression} $|$ {\em data-expression}
+                                    $|$ {\em subexpression}
     \end{tabular}
 \\[0.5ex]
 \emkey{bitop-expression}\label{BITOP-EXPRESSION} ::= \\
@@ -3065,16 +3068,16 @@ The precise syntax of expressions is:
     $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
          \{ \TT{|} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
     $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{\textasciicircum}
+         \{ \TT{xor}
 	    ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
     $|$ & {\em bitop-operand}
          \{ {\em shift-operator} ~ {\em bitop-operand} \}\PLUS{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ {\em >{}>}
+\emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ \TT{>{}>}
 \\[0.5ex]
 \emkey{bitop-operand}\label{BITOP-OPERAND} ::=
-    {\em data-expression} $|$ {\em call-expression} $|$ {\em subexpression}
+    {\em data-expression} $|$ {\em subexpression}
 \\[0.5ex]
 \emkey{summation-expression}\label{SUMMATION-EXPRESSION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
@@ -3087,9 +3090,8 @@ The precise syntax of expressions is:
 \\[0.5ex]
 \emkey{summation-operand}\label{SUMMATION-OPERAND}
     \begin{tabular}[t]{rl}
-    ::= & {\em product-expression} $|$ {\em data-expression}
-                                 $|$ {\em call-expression} \\
-    $|$ & {\em subexpression} \\
+    ::= & {\em product-expression} $|$ {\em exponent-expression} \\
+    $|$ & {\em data-expression} $|$ {\em subexpression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{product-expression}\label{PRODUCT-EXPRESSION} ::= \\
@@ -3102,60 +3104,45 @@ The precise syntax of expressions is:
     \end{tabular}
 \\[0.5ex]
 \emkey{product-operand}\label{PRODUCT-OPERAND} ::=
-    {\em data-expression} $|$ {\em call-expression} $|$ {\em subexpression}
+    {\em exponent-expression} $|$
+    {\em data-expression} $|$ {\em subexpression}
+\\[0.5ex]
+\emkey{exponent-expression}\label{EXPONENT-EXPRESSION}
+    ::= {\em exponent-operand} ~ \TT{\textasciicircum} ~ {\em exponent-operand}
+\\[0.5ex]
+\emkey{exponent-operand}\label{PRODUCT-OPERAND} ::=
+    {\em data-expression} $|$ {\em subexpression}
 \\[0.5ex]
 \emkey{data-expression}\label{DATA-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em constant} \\
     $|$ & {\em variable-name} \\
-    $|$ & {\em data-primary} ~ {\em selector}\PLUS{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{constant}\label{CONSTANT}
+    \begin{tabular}[t]{@{}rll@{}}
+    ::= & {\em number-constant} & [see \pagref{NUMBER-CONSTANT}] \\
+    $|$ & {\em enum-set-constant} & [see \pagref{ENUM-SET-CONSTANT}] \\
+    $|$ & {\em enum-list-constant} & [see \pagref{ENUM-LIST-CONSTANT}] \\
+    $|$ & {\em character-constant} & [see \pagref{CHARACTER-CONSTANT}] \\
+    $|$ & {\em string-constant} & [see \pagref{STRING-CONSTANT}] \\
+    $|$ & {\em name-constant} & [see \pagref{NAME-CONSTANT}] \\
+    $|$ & {\em name-set-constant} & [see \pagref{NAME-SET-CONSTANT}] \\
+    $|$ & {\em name-list-constant} & [see \pagref{NAME-LIST-CONSTANT}] \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+\emkey{subexpression}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}] \\
     $|$ & {\em type-name} ~ \TT{(} {\em expression} \TT{)} \\
     $|$ & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
+    $|$ & \TT{(} {\em expression} \TT{)} \\
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
-\\[0.5ex]
-\emkey{constant}\label{CONSTANT} ::=
-    {\em number} $|$ {\em quoted-string} $|$ {\em quoted-name}
-\\[0.5ex]
-\emkey{quoted-name}\label{QUOTED-NAME} ::= \TT{`} {\em name} \TT{'}
-\\[0.5ex]
-\emkey{data-primary}\label{DATA-PRIMARY} ::=
-	{\em variable-name} $|$ {\em subexpression}
-\\[0.5ex]
-\emkey{selector} ::= {\em element-selector} $|$ {\em subscripts}
-\\[0.5ex]
-\emkey{element-selector} :::= \TT{.} {\em element-name}
-\\[0.5ex]
-{\em element-name} :::= see \pagref{ELEMENT-NAME}
-\\[0.5ex]
-\emkey{subscripts} ::= \TT{[} {\em expression}
-		      \{ \TT{,} {\em expression} \}\STAR{} \TT{]}
-\\[0.5ex]
-\emkey{variable-name}\label{VARIABLE-NAME} ::=
-    \begin{tabular}[t]{l}
-    {\em name} ~~~~~ [see \pagref{NAME}] \\
-    \underline{not} containing
-	`\TT{.}',~ {\em quoted-marks},~ or {\em quoted-separators}
-    \end{tabular}
-\\[0.5ex]
-\emkey{call-expression}\label{CALL-EXPRESSION} ::=
-	{\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
-\\[0.5ex]
-\emkey{subexpression}\label{SUBEXPRESSION} ::= \TT{(} {\em expression} \TT{)}
 
-\begin{itemize}
-\item
-A {\em type-name} should not be in initial segment of a {\em variable-name}
-(see Type Name Rule, \pagref{TYPE-NAME-RULE}).
-\item
-A {\em function-call} may be a {\em data-primary} only if it is
-parenthesized.
-\item
-Variable names ending with `\TT{\TMP}' followed by digits are
-reserved for use by the compiler and system and cannot be declared
-in SAFE code.
-\end{itemize}
 \end{indpar}
 
 \subsection{Expression Semantics}
@@ -3166,7 +3153,7 @@ memory reference operators.
 \subsubsection{Expression Typing}
 \label{EXPRESSION-TYPING}
 
-SAFE uses a top-down method of assigning types to operator arguments.
+L-Language uses a top-down method of assigning types to operator arguments.
 Generally given the statement
 \begin{center}
 $T$ $v$ ~ \TT{=} ~ $e1$ ~ $op1$ ~ $e2$ ~ $op2$ ~ \ldots{}

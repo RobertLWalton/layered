@@ -2891,59 +2891,30 @@ where \ldots{} is an optional list of result variables for the
 
 \subsection{Variable Names}
 
-TBD
-
-A \key{name} is a sequence of lexemes used to name things like
-variables and functions.
+A {\em variable-name} names a variable that is allocated to
+the current function frame by an {\em assignment-statement}.
+The syntax is:
 
 \begin{indpar}
-\emkey{name} ::= {\em initial-name-component} {\em member-selector}\STAR{} \\
-\emkey{initial-name-component} ::=
-    {\em name-component} \underline{not} beginning with `\TT{.}' \\
-\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript} \\
-\emkey{member-name} := {\em name-component} beginning with `\TT{.}' \\
-\emkey{name-component} ::=
-    {\em name-item} {\em continuing-name-item}\STAR{} \\
-\emkey{continuing-name-item} := {\em name-item} not containing `\TT{.}' \\
-\emkey{name-item} \begin{tabular}[t]{@{}rl}
-    ::= & {\em word} with no embedded or ending `\TT{.}'s \\
-        & [see text about splitting words with embedded `\TT{.}'s] \\
-    $|$ & {\em quoted-mark} with no embedded or ending `\TT{.}'s \\
-    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
-    \end{tabular} \\
-\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
-\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
-\emkey{member-subscript} ::= {\em enum-list-constant} with at most 32 elements
-                             ~~~ [see \pagref{ENUM-LIST-CONSTANT}]
+\emkey{variable-name}
+	::= {\em variable-base-name} {\em member-selector}\STAR{} \\
+\emkey{variable-base-name}
+	::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript } \\
+\emkey{member-name}\label{MEMBER-NAME}
+	::= \begin{tabular}[t]{@{}l@{}}
+                        {\em name} beginning with a `\TT{.}', \\
+			but not containing a {\em quoted-mark}
+			    or {\em quoted-separator}
+			\end{tabular} \\
+\emkey{member-subscript}\label{MEMBER=SUBSCRIPT}
+    ::= {\em enum-list-constant} \\
+{\em enum-list-constant} ::= see \pagref{ENUM-LIST-CONSTANT} \\
+{\em name} ::= see \pagref{NAME}
 \end{indpar}
 
-[We have not yet defined lexemes.  Roughly, separators are single
-characters such as `\TT{(}' `\TT{)}' and `\TT{,}', marks are lexemes
-that are not separators and do not contain letters or digits,
-words are lexemes that contain a letter before any digit, and
-numerics are lexemes that contain a digit before any letter.
-Marks, words, and numerics cannot contain \TT{"} or begin with \TT{//}.]
-
-{\em Words} containing embedded `\TT{.}'s are split into
-{\em name-items} which can only contain `\TT{.}'s at their beginning.
-Thus
-\begin{center}
-\TT{bills.wife.1.weight}
-\end{center}
-is split into
-\begin{center}
-\TT{bills~~~.wife~~~.1~~~.weight}
-\end{center}
-However, `\TT{.1}' is not a legal {\em name-item} and so cannot
-be part of a {\em name}.
-
-If a {\em name} contains a {\em member-index-range} of the form
-\TT{I~..~J}, the name actually names a set of variables in which
-the {\em member-index-range} is replaced by \TT{I}, \TT{I+1},
-\TT{I+2}, \ldots, \TT{J}.  The set is called a `\key{slice}'.\label{SLICE}
-\TT{I}$\leq$\TT{J} is required.
-A slice can be treated as a single variable.  Other slices may
-overlay it.  For example:
+Some examples that use {\em member-subscripts} are:
 \begin{indpar}\begin{verbatim}
 uns8 string[0 .. 5] = .....   // Allocate slice.
 ..... string[0] .....         // Read one variable of slice.
@@ -2958,22 +2929,6 @@ float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
 float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
 ..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
 \end{verbatim}\end{indpar}
-
-A variable of type \ttkey{name} can store a {\em name}.
-Constants of type `\TT{name}' are made by \TT{`~'} quoting a {\em name}.
-Two \TT{name} values can be
-concatenated by the \TT{+} operator if the second begins with
-a {\em member-selector}.  An
-example is:
-\begin{indpar}\begin{verbatim}
-name n1 = `jill'
-name n2 = `.daughter[3]'
-name n = n1 + n2  // n now = `jill .daughter[3]'
-                  // or equivalently `jill.daughter[3]'
-\end{verbatim}\end{indpar}
-
-{\em Variable-names}, {\em type-names}, {\em qualifier-names},
-{\em function-names}, etc.~are {\em names}.
 
 \subsection{Expression Syntax}
 

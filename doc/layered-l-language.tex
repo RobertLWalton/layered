@@ -105,8 +105,10 @@
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
 
-\newcommand{\TMP}{\$}
-\newcommand{\ABV}{-{}-{}->}
+\newcommand{\TMP}{\$}			% Compiler Temporary
+\newcommand{\ABV}{-{}-{}->}		% Abbreviates
+\newcommand{\CNV}{\longrightarrow}	% Converts to
+\newcommand{\TCNV}{\Longrightarrow}	% Transitive closure
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -160,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 20, 2018
+February 21, 2018
  
 \end{center}
 
@@ -2746,81 +2748,89 @@ of these because being the type of {\tt x} it becomes the
 `target type' of the expression and its subexpressions
 (see \itemref{EXPRESSION-TYPING} for more on target types).
 
-A \key{conversion} is a simple assignment statement whose
-right side is a variable or a constant.  Conversions are
+An \key{implied conversion} is a simple assignment statement whose
+right side is a variable or a constant.
+
+\subsection{Implied Conversion Functions}
+\label{IMPLIED-CONVERSION-FUNCTIONS}
+
+Implied conversions are
 executed by functions with prototypes of the form:
 \begin{center} \tt
 function \ldots{}~$T2$ r = ( \ldots{}~$T1$ v )
 \end{center}
-
 where `\ldots{}' denotes information about qualifiers.
 
-\subsection{Implied Conversions}
-\label{IMPLIED-CONVERSIONS}
-
-Particularly important are \skey{implied conversion}s.  If an inline function
-exists with prototype:
-\begin{center}
-\TT{QS T-des} {\em result-variable}%
-    ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
+An implied conversion function that copies qualifiers from the
+argument has the form:
+\begin{center} \tt
+function Qs $T2$ r = (qualifiers Qs, Qs $T1$ v )
 \end{center}
-then this function defines an implied conversion from values of
-type \TT{T-src} to values of type \TT{T-des}.
+
+Here the {\tt Qs} argument may be implied as the list of
+qualifiers of the actual argument.
+
+Implied conversion functions are only called by implied conversions, that
+is, by simple assignment statements whose right side is
+a variable or constant.  The parentheses that would normally
+surround the {\em function-call} argument may be omitted
+in this case.
+
+\subsection{The Conversion Graph}
+\label{THE-CONVERSION-GRAPH}
 
 An ordering is induced on types by implied conversions.  Let
-\TT{T1}$\succ$\TT{T2} mean that there is an implied conversion from
-values of type \TT{T1} to values of type \TT{T2}.  Let \TT{T1~\ABV~T2}
-be the transitive closure of \TT{T1}$\succ$\TT{T2}, which means
-that a value of type \TT{T1} may be converted to a value
-of type \TT{T2} by applying zero or more implied conversions.
+$T1\CNV T2$ mean that there is an implied conversion from
+values of type $T1$ to values of type $T2$.  Let $T1~\TCNV~T2$
+be the transitive closure of $T1\CNV T2$, which means
+that a value of type $T1$ may be converted to a value
+of type $T2$ by applying zero or more implied conversions.
 Then we \underline{require}
-that \TT{T1~\ABV~T2} be a partial order, which means that:
+that $T1\TCNV T2$ be a partial order, which means that:
 \begin{itemize}
-\item \TT{\ABV} is reflexive: \TT{T1~\ABV~T1}.
-\item \TT{\ABV} is transitive: \TT{T1~\ABV~T2} and \TT{T2~\ABV~T3}
-imply that \TT{T1~\ABV~T3}.
-\item \TT{\ABV} is anti-symmetric:
-\TT{T1~\ABV~T2} and \TT{T2~\ABV~T1}
-imply that \TT{T1~==~T2}.
+\item $\TCNV$ is reflexive: $T1\TCNV T1$.
+\item $\TCNV$ is transitive: $T1\TCNV T2$ and $T2\TCNV T3$
+imply that $T1\TCNV T3$.
+\item $\TCNV$ is anti-symmetric:
+$T1\TCNV T2$ and $T2\TCNV T1$
+imply that $T1 = T2$.
 \end{itemize}
 
-Importantly, we \underline{require} that
-if values of type \TT{T1} can be implicitly converted to
-values of a different type type \TT{T2}, then values of type \TT{T2}
-\underline{cannot} be implicitly converted to values of type \TT{T1}.
+Importantly, the anti-symmetric rules \underline{requires} that
+if values of type $T1$ can be implicitly converted to
+values of a different type type $T2$, then values of type $T2$
+\underline{cannot} be implicitly converted to values of type $T1$.
+
+It is a compiler error for an implicit conversion function
+prototype to cause $\TCNV$ to violate the anti-symmetric rule.
 
 We define the \key{implied conversion graph} to be the directed
-graph whose nodes are types and which has an arrow from \TT{T1} to
-\TT{T2} if and only if there is an inline function defined with
-prototype:
-\begin{center}
-\TT{QS T-des} {\em result-variable}%
-    ~~\TT{=}~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)}
-\end{center}
+graph whose nodes are types and which has an arrow from $T1$ to
+$T2$ if and only if $T1\CNV T2$.
 Or equivalently, there is an implied conversion function defined
-whose argument is of type \TT{T1} and whose result is of type \TT{T2}.
-Then \TT{T1~\ABV~T2} if and only if there is a (possibly zero size)
-path in this graph from \TT{T1} to \TT{T2}.
+whose argument is of type $T1$ and whose result is of type $T2$.
+Then $T1\TCNV T2$ if and only if there is a (possibly zero size)
+path in this graph from $T1$ to $T2$.
 
-In addition we \underline{require} that all paths
-from \TT{T1} to \TT{T2} give the same result.
-So, for example, if one can implicitly convert a \TT{T1} value directly to
-either a \TT{T2} or \TT{T3} value, and one can implicitly convert
-a \TT{T2} value to a \TT{T3} value, then converting a \TT{T1} value
-to a \TT{T2} value and then converting that to a \TT{T3} value
-must give the same resulting value as converting the \TT{T1} value
-directly to a \TT{T3} value.
-
-User defined implied conversions are assumed to obey these rules.
+It is a good idea if that all paths
+from $T1$ to $T2$ give the same result, though we do not require
+this.
+This means, for example, that
+if one can implicitly convert a $T1$ value directly to
+either a $T2$ or $T3$ value, and one can implicitly convert
+a $T2$ value to a $T3$ value, then converting a $T1$ value
+to a $T2$ value and then converting that to a $T3$ value
+must give the same resulting value as converting the $T1$ value
+directly to a $T3$ value.
 
 Various builtin implied conversions are described
 in this document.
 
-Note that \TT{T1~\ABV~T2} does \underline{not} imply that every
-value of type \TT{T1} can be fully represented by a value of type
-\TT{T2}.  For example, an implied conversion \TT{T1~\ABV~bool}
-might be introduced to map all non-missing \TT{T1} values to \TT{true}
-and any missing \TT{T1} value to \TT{false}.
+Note that $T1\CNV T2$ does \underline{not} imply that every
+value of type $T1$ can be fully represented by a value of type
+$T2$.  For example, an implied conversion $T1\CNV bool$
+might be introduced to map all non-missing $T1$ values to \TT{true}
+and any missing $T1$ value to \TT{false}.
 
 \subsection{Directed Conversions}
 \label{DIRECTED-CONVERSIONS}

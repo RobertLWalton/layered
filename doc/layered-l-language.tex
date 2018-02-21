@@ -2754,8 +2754,7 @@ right side is a variable or a constant.
 \subsection{Implied Conversion Functions}
 \label{IMPLIED-CONVERSION-FUNCTIONS}
 
-Implied conversions are
-executed by functions with prototypes of the form:
+Implied conversions are defined by function prototypes of the form:
 \begin{center} \tt
 function \ldots{}~$T2$ r = ( \ldots{}~$T1$ v )
 \end{center}
@@ -2832,295 +2831,63 @@ $T2$.  For example, an implied conversion $T1\CNV bool$
 might be introduced to map all non-missing $T1$ values to \TT{true}
 and any missing $T1$ value to \TT{false}.
 
-\subsection{Directed Conversions}
-\label{DIRECTED-CONVERSIONS}
+\subsection{Qualifier Conversions}
+\label{QUALIFIER-CONVERSIONS}
 
-In addition to applied conversions, \skey{directed conversion}s may
-be defined by inline functions with the prototypes that constrain
-the qualifiers involved.  An example is
-\begin{center}
-\TT{QS-des T-des} {\em result-variable}%
-    ~~\TT{=}~~\TT{( QS-src T-src} {\em source-variable} \TT{)}
-\end{center}
-where \TT{QS-src} and \TT{QS-des} are explicit lists of qualifiers.
-Another example is
-\begin{center}
-\begin{tabular}{l}
-\TT{QS *UNCHECKED* T-des} {\em result-variable} ~~\TT{=} \\
-~~~~~~~~~~~~~~~\TT{( qualifiers QS, QS T-src} {\em source-variable} \TT{)} \\
-\end{tabular}
-\end{center}
-which defines an \TT{*UNCHECKED*} conversion.
-
-Various builtin \TT{*UNCHECKED*} conversions are described
-in this document.
-
-\subsection{Conversion Assignments}
-\label{CONVERSION-ASSIGNMENTS}
-
-Assignment of the value of one variable \TT{v-src} to another
-variable \TT{v-des} is a \emkey{conversion-assignment-statement} if
-the types or qualifiers of \TT{v-des} and \TT{v-src} differ:
-\begin{center}
-\begin{tabular}{l}
-\TT{QS-src T-src v-src = ...} \\
-\TT{QS-des T-des v-des = v-src} \\
-\end{tabular}
-\end{center}
-
-where \TT{QS-}$xxx$ are the qualifiers of \TT{v-}$xxx$ and
-\TT{T-}$xxx$ is the type of \TT{v-}$xxx$.  Such statements are
-executed according to the following rules:
+A simple assignment statement with variable or constant right
+side that has the same type as the result variable on the left
+side is a \key{qualifier conversion}.  These are builtin and
+obey the following rules:
 
 \begin{enumerate}
-\item If there is a protected qualifier \TT{Q} in \TT{QS-src}, it
-is automatically added to \TT{QS-des}.
-\item If there is a required qualifier \TT{Q} in \TT{QS-des}, it
-must also be in \TT{QS-src}.
-\item If there is a prohibited qualifier \TT{Q} not in \TT{QS-des}, it
-must also not be in \TT{QS-src}.
-\item If \TT{T-src} and \TT{T-des} are not the same
-and \TT{T-src~\ABV~T-des},
-meaning that an implied conversions are defined that convert values
-of type \TT{T-src} to values of type \TT{T-des}, these conversions are
-applied to \TT{v-src} to produce the value of \TT{v-des}.
-The conversions are invoked with \TT{QS == QS-src}.
-\item
-\label{DIRECT-CONVERSION-ASSIGMENTS}
-If \TT{T-src} and \TT{T-des} are not the same and \TT{T-src~\ABV~T-des}
-\underline{is false}, but a directed conversion exists from
-\TT{QS-src T-src} to \TT{QS-des T-des}, that conversion is applied
-if only one such conversion is applicable.
+\item If there is a protected qualifier $Q$ on the right side, it
+is automatically added to the left side.
+\item If there is a required qualifier $Q$ on the left side, it
+must also be on the right side.
+\item If there is a prohibited qualifier $Q$ not on the left side, it
+must also not be on the right side.
 \end{enumerate}
 
+Note that constants are considered to not have any qualifiers.
+Also the case where the qualifiers and both side are the same,
+as well as the types, is considered to be a `qualifier conversion'
+even though nothing is actually converted.
 
-\subsection{Temporary Variables}
-\label{TEMPORARY-VARIABLES}
 
-Consider the code:
+\subsection{Explicit Conversions}
+\label{EXPLICIT-CONVERSIONS}
 
-\begin{center}
-\begin{tabular}{l}
-\TT{prototype QS-F-result T-F-result F-result =} \\
-\TT{~~~~~~~~~~F ( QS-F-argument T-F-argument F-argument)} \\
-\TT{prototype QS-G-result T-G-result G-result =} \\
-\TT{~~~~~~~~~~G ( QS-G-argument T-G-argument G-argument)} \\
-\TT{QS-src T-src v-src = ...} \\
-\TT{QS-des T-des v-des = F ( G ( v-src ) )} \\
-\end{tabular}
+In addition to implied conversions there are `\skey{explicit conversion}s'
+defined by function prototypes of the form:
+\begin{center} \tt
+function \ldots{}~$T2$ r = $T2$ ( \ldots{}~$T1$ v )
 \end{center}
+where `\ldots{}' denotes information about qualifiers.
+Here $T2$ is used as the name of a function that performs the
+conversion.
 
-This is compiled by introducing temporary variables \TT{tmp-}$xxx$:
-
-\begin{center}
-\begin{tabular}{l}
-\TT{QS-src T-src v-src = ...} \\
-\TT{QS-G-argument T-G-argument tmp-G-argument = v-src} \\
-\TT{QS-G-result T-G-result tmp-G-result = G ( tmp-G-argument )} \\
-\TT{QS-F-argument T-F-argument tmp-F-argument = tmp-G-result} \\
-\TT{QS-F-result T-F-result tmp-F-result = F ( tmp-F-argument )} \\
-\TT{QS-des T-des v-des = tmp-F-result} \\
-\end{tabular}
-\end{center}
-
-There are two special rules applied to this situation.
-
-The first is:
-\begin{indpar}
-\ikey{No Direct Conversions.}{no direct conversions} Direct
-conversions from one temporary variable to another temporary variable are not
-allowed.  Only implied conversions are allowed.
-\end{indpar}
-Thus in the assignment conversions between two temporary
-variables that are introduced by compilation,
-Rule~\ref{DIRECT-CONVERSION-ASSIGMENTS}
-of Section~\itemref{CONVERSION-ASSIGNMENTS} is \underline{not}
-applicable.  Examples involving the No Direct Conversions Rule
-are given in the Directing Conversions Section~\itemref{DIRECTING-CONVERSIONS}.
-
-The second special rule applies if the functions, \TT{F} and \TT{G}
-in the above code, have more than one definition, and therefore more
-than one prototype.
-This is the Conversion Disambiguation Rule described in
-Section~\itemref{CONVERSION-DISAMBIGUATION}.
-
-\subsection{Directing Conversions}
-\label{DIRECTING-CONVERSIONS}
-
-A \key{directing conversion} is an expression of the form:
-\begin{center}
-{\em qualifier}\STAR{} {\em type}\QMARK{} \TT{(} {\em subexpression} \TT{)}
-\end{center}
-
-in which at least one {\em qualifier} or the {\em type} is present.
-The result of the directing expression is the value of the
-temporary variable \TT{tmp} in:
-\begin{center}
-{\em qualifier}\STAR{} {\em type} \TT{tmp =} {\em subexpression}
-~~~ [direct conversion allowed]
-\end{center}
-where if {\em type} was not given in the directing expression,
-the type of the {\em subexpression} is used.  In this assignment,
-direct conversions \underline{are allowed}; that is, the
-No Direct Conversions rule does \underline{not} apply.
-
-As an example, consider the code:
-\begin{indpar}\begin{verbatim}
-// Prototypes of builtin "+" operator:
-function int64 result = ( int64 argument 1 )
-                     "+" ( int64 argument 2)
-function float64 result = ( float64 argument 1 )
-                       "+" ( float64 argument 2)
-int64 x = ...
-int64 y = ...
-*UNCHECKED* float64 s = x + y
-float64 t = *UNCHECKED* float64 ( x )
-          + *UNCHECKED* float64 ( y )
-\end{verbatim}\end{indpar}
-
-Here there are two definitions of \TT{"+"}, one for \TT{int64}
-values and one for \TT{float64} values.
-\TT{s} is computed by adding \TT{x} and \TT{y} as \TT{int64}
-values, which has the disadvantage that if the result overflows,
-it will be truncated to 64 bits.  \TT{t} on the other hand is
-computed by first converting \TT{x} and \TT{y} to \TT{float64}
-values and then adding, so overflows will not exist.  The last
-statement of the above code is equivalent to:
-\begin{indpar}\begin{verbatim}
-*UNCHECKED* float64 tmp x = x  // Direct conversion allowed.
-*UNCHECKED* float64 tmp y = y  // Direct conversion allowed.
-float64 t = tmp x + tmp y
-\end{verbatim}\end{indpar}
-
-
-\subsection{Conversion Disambiguation}
-\label{CONVERSION-DISAMBIGUATION}
-
-Consider the code:
-\begin{indpar}\begin{verbatim}
-// Prototypes of builtin "+" operator:
-function int32 result = ( int32 argument 1 )
-                     "+" ( int32 argument 2)
-function float64 result = ( float64 argument 1 )
-                       "+" ( float64 argument 2)
-int32 x = ...
-int32 y = ...
-float64 s = x + y
-\end{verbatim}\end{indpar}
-
-Here \TT{s} is computed by
-\begin{indpar}\begin{verbatim}
-int32 tmp x = x
-int32 tmp y = y
-int32 tmp s = tmp x + tmp y
-float64 s = tmp s
-\end{verbatim}\end{indpar}
-using an implied conversion of the result of \TT{"+"}.
-But why not compute it by
-\begin{indpar}\begin{verbatim}
-float64 tmp x = x
-float64 tmp y = y
-float64 tmp s = tmp x + tmp y
-float64 s = tmp s
-\end{verbatim}\end{indpar}
-using implied conversions of the arguments of \TT{"+"}?
-
-The answer is the
-\begin{indpar}
-\ikey{Conversion Disambiguation.}{conversion disambiguation}%
-\index{disambiguation!conversion} Roughly, delaying conversions is
-preferred.  For a precise specification of this rule, see text.
-\end{indpar}
-
-In general, the first compilation step after parsing a statement
-is to match its subexpressions to function prototypes and introduce
-temporary variables as per Section~\itemref{TEMPORARY-VARIABLES}.
-There may be many ways to match subexpressions to function prototypes,
-but usually these all introduce the same temporary variables.
-So in the above example, the code becomes
-\begin{indpar}\begin{verbatim}
-T tmp x = x
-T tmp y = y
-T tmp s = tmp x + tmp y
-float64 s = tmp s
-\end{verbatim}\end{indpar}
-where \TT{T} is either \TT{int32} or \TT{float64}.  It is possible
-that different subexpression/prototype matches introduce different
-sets of temporary variables, but such cases are anomalies caused by
-poor name choices, and are treated as compilation errors.
-
-In this case we prefer \TT{T == ins32} because \TT{ins32 \ABV float64},
-as per the implied conversion ordering of types introduced in
-Section~\itemref{IMPLIED-CONVERSIONS}.
-
-In general, we have a set of temporary variables \TT{tmp$_i$}
-and for each matching $j$ an assigment of types
-\TT{tmp$_i$~$\mapsto$~T$_{j,i}$}.  We say that a matching $j$ is
-\mkey{more specific}{type matching}
-than a matching $k$ if and only if \TT{T$_{j,i}$~\ABV~T$_{k,i}$}
-for every $i$.  A matching is \mkey{most specific}{type matching} if it is
-more specific than every other matching.  If there is a most
-specific matching, it is chosen; otherwise the statement is
-ambiguous and its compilation is in error.
-
-As a last example, consider
-\begin{indpar}\begin{verbatim}
-int32 x = ...
-int32 y = ...
-float64 s = float64 ( x ) + y
-\end{verbatim}\end{indpar}
-which because of the directed conversion compiles as
-\begin{indpar}\begin{verbatim}
-float64 direct tmp x = x
-float64 s = direct tmp x + y
-\end{verbatim}\end{indpar}
-and then the last statement has only one matching
-\begin{indpar}\begin{verbatim}
-float64 tmp x = direct tmp x    // Only implict conversions
-                                // allowed.
-float64 tmp y = y               // Ditto.
-float64 tmp s = tmp x + tmp y   // Only float64 "+" matches.
-float64 s = tmp s
-\end{verbatim}\end{indpar}
-
-Note the effect of the most specific rule on expressions such as
-`\TT{(x~==~y)~==~z}' where \TT{x}, \TT{y}, and \TT{z} are of type
-\TT{bool} and \TT{==} produces `comparison results' as
-on page \pageref{COMPARISON-RESULTS}.  The most specific rule
-prevents the comparison result produced by `\TT{(x~==~y)}'
-from being implicitly converted to a \TT{bool}.
-
-[Though it is untraditional, it might be worth considering
-using the `least specific' matching instead of the `most specific'.
-But this would cause problems for `comparison results'.]
+A type $T2$ may be implicitly convertable to type $T1$ while
+$T1$ is explicitly convertable to $T2$.
 
 \section{Expressions}
 \label{EXPRESSIONS}
 
-TBD
-
 Expressions compute values and appear inside statements where a value is needed.
+For example, in a {\em simple-assignment-statement} of the form
+\begin{indpar}
+{\em qualifier-name}\STAR{} ~ {\em type-name} ~ {\em variable-name}
+	~ {\tt =} ~ {\em expression}
+\end{indpar}
+the {\em expression} computes a value to store in the variable.
 
-SAFE expressions are compiled into simpler expressions by introducing
-new variables, called `\skey{temporary variable}s'.  For example, in:
-\begin{indpar}\begin{verbatim}
-int32 x = ...
-int64 y = 34,587 + 5 * x
-\end{verbatim}\end{indpar}
-the second statement is compiled to:
-\begin{indpar}\begin{verbatim}
-int64 T$1 = 34,587
-int64 T$2 = 5
-int64 T$3 = x
-int64 T$4 = T$2 * T$3
-int64 y = T$1 + T$4
-\end{verbatim}\end{indpar}
-The statements in this last code are statements of SAFE-AL, the
-SAFE Assembly Language.
-Operators in SAFE-AL only appear in statements that contain just
-one operator and some variables, and do not contain subexpressions
-or constants.
-The variables \TT{T\TMP\ldots{}} are temporary variables.
+The parser parses {\em expressions} and converts code into statements
+that have no {\em expressions} except for {\em variable-names}
+and for {\em function-calls} in statements of the form
+\begin{indpar}
+\ldots{} ~ {\tt =} ~{\em function-call}
+\end{indpar}
+where \ldots{} is an optional list of result variables for the
+{\em function-call}.
 
 \subsection{Variable Names}
 

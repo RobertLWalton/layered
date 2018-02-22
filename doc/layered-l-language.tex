@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 21, 2018
+February 22, 2018
  
 \end{center}
 
@@ -1010,9 +1010,21 @@ or address:
 \TT{std}~~~\ttkey{floatwrd}	& floating point number & size of floating
 \end{tabular}
 
+\begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
+\TT{std}~~~\ttkey{unsmax}	& unsigned integer & max implemented size \\
+\TT{std}~~~\ttkey{intmax}	& signed integer & max implemented size \\
+\TT{std}~~~\ttkey{floatmax}	& floating point number & max implemented size
+\end{tabular}
+
 \end{indpar}
 
-These are the \key{built in number types}.
+These are the \key{built in number types}.  The \TT{\ldots{}wrd} types
+are the sizes that execute fastest, while the \TT{\ldots{}max} types
+may be larger sizes for which all arithmetic operations are implemented.
+Copying and conversion of values is always implemented for
+\underline{all}
+number types, regardless of implementation, except for implementations
+that do not implement \underline{any} floating point types.
 
 Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
 module to which builtin types and functions belong.  For convenience
@@ -1053,6 +1065,12 @@ the following abbreviations are builtin:
 \ttkey{intwrd} & {\tt `std~intwrd'} \\
 \ttkey{floatwrd} & {\tt `std~floatwrd'} \\
 \end{tabular}
+
+\begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
+\ttkey{unsmax} & {\tt `std~unsmax'} \\
+\ttkey{intmax} & {\tt `std~intmax'} \\
+\ttkey{floatmax} & {\tt `std~floatmax'} \\
+\end{tabular}
 \end{indpar}
 
 Here we use abbreviation statements of the form
@@ -1069,13 +1087,14 @@ In this document we will use these abbreviations as the
 \begin{indpar}
 {\em builtin-number-type-name}\label{BUILTIN-NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}cl}
-    ::= & \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
+    ::= & \TT{uns1} $|$ \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
                     $|$ \TT{uns128} \\
     $|$ & \TT{int8} $|$ \TT{int16} $|$ \TT{int32} $|$ \TT{int64}
                     $|$ \TT{int128} \\
     $|$ & \TT{float16} $|$ \TT{float32} $|$ \TT{float64} $|$ \TT{float128} \\
     $|$ & \TT{unsadr} $|$ \TT{intadr} $|$ \TT{adr} \\
-    $|$ & \TT{unswrd} $|$ \TT{intwrd} $|$ \TT{floatwrd}\\
+    $|$ & \TT{unswrd} $|$ \TT{intwrd} $|$ \TT{floatwrd}  \\
+    $|$ & \TT{unsmax} $|$ \TT{intmax} $|$ \TT{floatmax}  \\
     \end{tabular}
 \end{indpar}
 
@@ -1458,7 +1477,7 @@ the {\em derived-type-name} $D$
 These functions do not change the actual value, but merely its
 compile-time type.  Using these unchecked conversions,
 implied conversions in one direction only
-may be defined as desired: see \itemref{IMPLIED-CONVERSIONS}.
+may be defined as desired: see \itemref{IMPLIED-CONVERSION-FUNCTIONS}.
 \end{indpar}
 \end{indpar}\label{DEFINED-TYPE-UNCHECKED-CONVERSION}
 
@@ -2235,7 +2254,7 @@ Returns the UNICODE character code of the character {\tt c}.
 
 {\tt function QS uns32 r = std ( qualifiers QS, QS \ttkey{character} c )}
 \begin{indpar}
-Implied conversion (\pagref{IMPLIED-CONVERSIONS})
+Implied conversion (\pagref{IMPLIED-CONVERSION-FUNCTIONS})
 of character {\tt c} to its UNICODE character code.
 
 Because of this implied conversion,
@@ -2909,19 +2928,19 @@ The syntax is:
 	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
 \emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript } \\
-\emkey{member-name}\label{MEMBER-NAME}
+\emkey{member-name}
 	::= \begin{tabular}[t]{@{}l@{}}
                         {\em name} beginning with a `\TT{.}', \\
 			but not containing a {\em quoted-mark}
 			    or {\em quoted-separator}
 			\end{tabular} \\
-\emkey{member-subscript}\label{MEMBER=SUBSCRIPT}
+\emkey{member-subscript}\label{MEMBER-SUBSCRIPT}
     ::= {\em enum-list-constant} \\
 {\em enum-list-constant} ::= see \pagref{ENUM-LIST-CONSTANT} \\
 {\em name} ::= see \pagref{NAME}
 \end{indpar}
 
-Some examples that use {\em member-subscripts} are:
+Some examples that use {\em member-subscripts} are:\label{SLICE}
 \begin{indpar}\begin{verbatim}
 uns8 string[0 .. 5] = .....   // Allocate slice.
 ..... string[0] .....         // Read one variable of slice.
@@ -3110,7 +3129,7 @@ The precise syntax of expressions is:
 \emkey{exponent-expression}\label{EXPONENT-EXPRESSION}
     ::= {\em exponent-operand} ~ \TT{\textasciicircum} ~ {\em exponent-operand}
 \\[0.5ex]
-\emkey{exponent-operand}\label{PRODUCT-OPERAND} ::=
+\emkey{exponent-operand}\label{EXPONENT-OPERAND} ::=
     {\em data-expression} $|$ {\em subexpression}
 \\[0.5ex]
 \emkey{data-expression}\label{DATA-EXPRESSION}
@@ -3136,7 +3155,8 @@ The precise syntax of expressions is:
 \emkey{subexpression}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}] \\
-    $|$ & {\em type-name} ~ \TT{(} {\em expression} \TT{)} \\
+    $|$ & {\em qualifier-name}\STAR{} ~ {\em type-name}
+          ~ \TT{(} {\em expression} \TT{)} \\
     $|$ & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
     $|$ & \TT{(} {\em expression} \TT{)} \\
     \end{tabular}
@@ -3144,6 +3164,12 @@ The precise syntax of expressions is:
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 
 \end{indpar}
+
+Note that strictly binary operators such as \TT{mod} can also
+be used as function names, as in
+\begin{center}
+{\tt uns8 x = mod ( 257 )}
+\end{center}
 
 \subsection{Expression Semantics}
 
@@ -3228,8 +3254,8 @@ function call, that call will be compiled.
 Where binary operators of the same precedence appear outside
 parentheses in an expression, they are evaluated left to right.
 This is, they are left associative.  For example,
-`\TT{x <{}< s1 >{}> s2}' is
-equivalent to `\TT{(x <{}< s1) >{}> s2}'.
+`{\tt x <{}< s1 >{}> s2}' is
+equivalent to `{\tt (x <{}< s1) >{}> s2}'.
 
 For logical operators such as `\TT{and}', `\TT{or}', and
 `\TT{\ldots{}~if~\ldots{}~else~\ldots{}}' the value of the expression
@@ -3271,17 +3297,17 @@ the target type is the first type
 in the following sequence that is such that all operands
 can be implicitly converted to that type:
 \begin{center}
-\TT{unshw} ~ \TT{inthw} ~ \TT{unsmax} ~ \TT{intmax}
-           ~ \TT{floathw} ~ \TT{floatmax}
+\TT{unswrd} ~ \TT{intwrd} ~ \TT{unsmax} ~ \TT{intmax}
+           ~ \TT{floatwrd} ~ \TT{floatmax}
 \end{center}
 
 An example assuming:
 
 
 \begin{indpar}\begin{verbatim}
-unshw ---> `uns32'
-inthw ---> `int32'
-floathw ---> `float32'
+unswrd ---> `uns32'
+intwrd ---> `int32'
+floatwrd ---> `float32'
 unsmax ---> `uns64'
 intmax ---> `int64'
 floatmax ---> `float32'
@@ -3309,8 +3335,8 @@ the least type in the type partial ordering
 of section~\itemref{THE-CONVERSION-GRAPH} to which all the natural
 types are convertable.  It is a compile error if this type does
 not exist, or if it is \TT{bool} and no operand natural type was \TT{bool}.
-For example, given the expression `\TT{v == missing}', where \TT{v}
-is of `\TT{qualifier} type, \TT{missing}, which has no natural type, will be
+For example, given the expression `{\tt v == missing}', where \TT{v}
+is of `\TT{qualifier}' type, {\tt missing}, which has no natural type, will be
 evaluated with `\TT{qualifier}' target type.
 
 Comparison expressions are evaluated from left to right and are
@@ -3338,8 +3364,8 @@ are not evaluated.
 Note that a comparison operator may not have a negation that is
 also simply a comparison operator, e.g., \TT{>=} may not be the
 negation of \TT{<}.  For example, both return \TT{false} if an
-operand is \TT{NaN}.  For this reason `\TT{x < y}' and
-\TT{`not ( x < y )}' are treated as semantically different
+operand is \TT{NaN}.  For this reason `{\tt x < y}' and
+`{\tt not ( x < y )}' are treated as semantically different
 expressions.
 
 \subsubsection{Integer Arithmetic Expressions}
@@ -3359,19 +3385,20 @@ cases the result may be a program terminating error.
 The bitwise operators are:
 \begin{center}
 \begin{tabular}{ll}
-\TT{\&}	& bitwise AND \\
-\TT{|}	& bitwise OR \\
-\TT{!}	& bitwise complement \\
+\TT{\&}		& bitwise AND \\
+\TT{|}		& bitwise OR \\
+\TT{xor}	& bitwise EXCLUSIVE OR \\
+\TT{!}		& bitwise complement \\
 \TT{<{}<}	& bitwise shift left \\
 \TT{>{}>}	& bitwise shift right \\
 \end{tabular}
 \end{center}
 
-In `\TT{v >{}> s}' and `\TT{v <{}< s}', \TT{v} is converted to the
-target type which may be any integer type $T$, but \TT{s} is converted
-to \TT{unshw} and only its low order $x$ bits are used as the
+In `{\tt v >{}> s}' and `{\tt v <{}< s}', {\tt v} is converted to the
+target type which may be any integer type $T$, but {\tt s} is converted
+to \TT{unswrd} and only its low order $x$ bits are used as the
 shift amount, where $x$ is the size of $T$.
-In other words, the shift amount is \TT{s mod 2$^x$}.
+In other words, the shift amount is {\tt s mod 2$^x$}.
 
 The integer division operators are:
 \begin{center}
@@ -3489,7 +3516,7 @@ of the forms
 where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
 \end{indpar}
 
-{\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( unshw $v2$ )}
+{\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( unswrd $v2$ )}
 \begin{indpar}
 where $op$ is one of \TT{<{}<} or \TT{>{}>}
 \end{indpar}
@@ -3585,10 +3612,12 @@ or checked for compile errors.
 where the $copI$ are comparison operators chosen from the list
 \TT{==}, \TT{!=}, \TT{>}. \TT{>=}, \TT{<}, or \TT{<=}.
 
-First $e1$ and $e2$ are evaluated.  Then `$e1$ $cop1$ $e2$'
+First $e1$ and $e2$ are evaluated.  Then the function
+call `{\tt $e1$ "$cop1$" $e2$}'
 is evaluated, and if it is \TT{false},
 \TT{true} is returned as the value of the {\em logical-expression}.
-Otherwise $e3$ and `$e2$ $cop2$ $e3$' are evaluated, and if the latter
+Otherwise $e3$ and the function call `{\tt $e2$ "$cop2$" $e3$}'
+are evaluated, and if the latter
 evaluated to \TT{false},
 \TT{true} is returned as the value of the {\em logical-expression}.
 This continues until a comparison evaluates to \TT{false} or all
@@ -3647,9 +3676,9 @@ where the $bop$ is a bitop operator chosen from the list
 \TT{\&}, \TT{|}, \TT{xor}
 
 The $eI$ are evaluated left to right.
-Each operator is evaluated as the function call
-`{\tt "!" $e1$}' or the function call
-`{\tt $eI$ "$bop$" $e(I+1)$}' as soon as its operands have
+Each function call
+`{\tt "!" $e1$}' or
+`{\tt $eI$ "$bop$" $e(I+1)$}' is evaluated as soon as its operands have
 been evaluated, so the operators (other than \TT{!}) are
 also evaluated left to right.
 
@@ -3664,15 +3693,15 @@ point number type.
 where the $shopI$ are bitop operators chosen from the list
 \TT{<{}<}, \TT{>{}>}.
 
-Each operator is evaluated as the function call
-`{\tt $eI$ "$shopI$" $e(I+1)$}' as soon as its operands have
+Each function call
+`{\tt $eI$ "$shopI$" $e(I+1)$}' is evaluated as soon as its operands have
 been evaluated, so the operators are
 also evaluated left to right.
 
 The target type of $e1$ is the target type of the
 {\em bitop-expression} and must \underline{not} be floating
 point number type.
-The target type of $e2$, $e3$, \ldots{} is \TT{unshw}.
+The target type of $e2$, $e3$, \ldots{} is \TT{unswrd}.
 If $T$ is an integer type of size $x$,
 the value of the shift for $shopI$
 is $e(I+1)$ is taken modulo $2^x$.
@@ -3685,9 +3714,9 @@ where $sopI$ are summation operators chosen from the list
 \TT{+} or \TT{-}.
 
 The $eI$ are evaluated left to right.
-Each operator is evaluated as the function call
-`{\tt "$sop1$" $e1$}' or the function call
-`{\tt $eI$ "$sop(I+1)$" $e(I+1)$}' as soon as its operands have
+Each function call
+`{\tt "$sop1$" $e1$}' or
+`{\tt $eI$ "$sop(I+1)$" $e(I+1)$}' is evaluated as soon as its operands have
 been evaluated, so the operators are
 also evaluated left to right.
 
@@ -3704,9 +3733,9 @@ where the $dop$ is a divide operator chosen from the list
 \TT{/}, \TT{div}, \TT{mod}, \TT{rem}.
 
 The $eI$ are evaluated left to right.
-Each operator is evaluated as the function call
-`{\tt "$eI$ "*" $e)I+1)$}' or the function call
-`{\tt $eI$ "$dop(I+1)$" $e(I+1)$}' as soon as its operands have
+Each function call
+`{\tt "$eI$ "*" $e)I+1)$}' or
+`{\tt $eI$ "$dop(I+1)$" $e(I+1)$}' is evaluated as soon as its operands have
 been evaluated, so the operators are
 also evaluated left to right.
 
@@ -3722,8 +3751,9 @@ If $T$ is an integer type, it must have size at least 32 bits.
 \hfill [{\em exponential-expression}]
 \begin{indpar}
 The $eI$ are evaluated left to right.
-The operator is evaluated as the function call
-`{\tt $eI$ "\textasciicircum" $e(I+1)$}' as soon as its operands have
+The the function call
+`{\tt $eI$ "\textasciicircum" $e(I+1)$}' is evaluated
+as soon as its operands have
 been evaluated.
 
 The target type $T$ of the $eI$ is the target type of the
@@ -3731,10 +3761,8 @@ The target type $T$ of the $eI$ is the target type of the
 
 \end{indpar}
 
-TBD
-
 \TT{$ma$ ( $e1$ $op1$ $e2$ $op2$ \ldots{} )}
-\hfill [{\em data-expression}]
+\hfill [{\em subexpression}]
 \label{MODULE-ABBREVIATION-SEMANTICS}
 \begin{indpar}
 where $ma$ is a {\em module-abbreviation}.
@@ -3746,9 +3774,9 @@ rules.
 For example,
 \begin{center}
 \begin{tabular}{c}
-\TT{$ma$ ( x + ( y1 + y2 ) + ( z1 * z2 ) )} \\
+{\tt $ma$ ( x + ( y1 + y2 ) + ( z1 * z2 ) )} \\
 becomes \\
-\TT{$ma$ x + ( y1 + y2 ) ) + ( z1 * z2 )}
+{\tt $ma$ x + ( y1 + y2 ) ) + ( z1 * z2 )}
 \end{tabular}
 \end{center}
 
@@ -3756,22 +3784,24 @@ Since the parser places parentheses implicitly, in `\TT{$ma$($e$)}'
 only the lowest precedence operators in $e$ are affected.
 Thus the pre-parser expression
 \begin{center}
-\TT{$ma$ ( x + ( y1 + y2 ) + z1 * z2 )} \\
+{\tt $ma$ ( x + ( y1 + y2 ) + z1 * z2 )} \\
 \end{center}
 is equivalent to the above example.
 
 \end{indpar}
 
-\TT{$T$ ( $e$ )}
-\hfill [{\em data-expression}]
+\TT{$Qs$ $T$ ( $e$ )}
+\hfill [{\em subexpression}]
 \begin{indpar}
-where $T$ is a {\em type-name}.
+where $Qs$ are zero or more {\em qualifier-names} and $T$ is a {\em type-name}.
 
-If the {\em data-expression} can be treated as a call to a
-user defined function named $T$, it is evaluated as such.
+If the {\em subexpression} can be treated as a call to a
+user defined function named $T$, it is evaluated as such with
+target type `$Qs$ $T$'.
 
-Otherwise $e$ is evaluated with target type $T$ and the result is implcitly
-converted to the target type of the {\em data-expression}.
+Otherwise $e$ is evaluated with target type `$Qs$ $T$'
+and the result is implcitly
+converted to the target type of the {\em subexpression}.
 \end{indpar}
 
 

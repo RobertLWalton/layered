@@ -3287,8 +3287,7 @@ intmax ---> `int64'
 floatmax ---> `float32'
 \end{verbatim}\end{indpar}
 
-where `\TT{-{}-{}->}' means `abbreviates'
-(see \pagref{ABBREVIATION-DECLARATION}) is: 
+is:
 
 \begin{indpar}\begin{verbatim}
 int64 x = 9,568
@@ -3303,15 +3302,16 @@ bool z1 = x < y2
     // intmax (int64)
 \end{verbatim}\end{indpar}
 
-Non-numeric comparison operators use the
-natural type (\pagref{NATURAL-TYPE}) of all their operands that
-have natural type, provided all these types are the same and
-the natural type is not \TT{bool}.  Then all operands that do
-not have a natural type are evaluated with this type as their
-target type.
-For example, given the expression `\TT{v == NULL}', where \TT{v}
-has a pointer type $T$, \TT{NULL}, which has no natural type, will be
-evaluated with target type $T$.
+Non-numeric comparison operators require that one or more of
+the operands have a natural type (\pagref{NATURAL-TYPE}),
+and use as the target type
+the least type in the type partial ordering
+of section~\itemref{THE-CONVERSION-GRAPH} to which all the natural
+types are convertable.  It is a compile error if this type does
+not exist, or if it is \TT{bool} and no operand natural type was \TT{bool}.
+For example, given the expression `\TT{v == missing}', where \TT{v}
+is of `\TT{qualifier} type, \TT{missing}, which has no natural type, will be
+evaluated with `\TT{qualifier}' target type.
 
 Comparison expressions are evaluated from left to right and are
 true if and only if all the comparisons are true.  Middle
@@ -3383,7 +3383,9 @@ The integer division operators are:
 \end{tabular}
 \end{center}
 
-The operator \TT{/} is strictly floating point.
+The operator \TT{/} is strictly floating point.  The operator
+\TT{\textasciicircum} is \underline{not} builtin and must be
+defined by library code.
 
 \subsubsection{Floating Point Arithmetic Expressions}
 \label{FLOATING-POINT-ARITHMETIC-EXPRESSIONS}
@@ -3458,6 +3460,10 @@ do \underline{not} set the invalid operand flag.
 Results may be denormalized numbers.  Except for compares,
 when an operand to an arithmetic operation is a denormalized
 number, it is treated as zero.
+
+The operator
+\TT{\textasciicircum} is \underline{not} builtin and must be
+defined by library code.
 
 \subsection{Operator Semantics}
 

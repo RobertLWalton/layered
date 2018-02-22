@@ -3804,69 +3804,101 @@ and the result is implcitly
 converted to the target type of the {\em subexpression}.
 \end{indpar}
 
-
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
-Code is executed in blocks, which are described in more detail
-below, and block executions have stacks that contain \underline{all}
-their variables.
-These variables are allocated and their values are computed by
-assignment statements:
+Variables are allocated to the current function frame
+and are also given their values by assignment statements.
+After the assignment statement allocating a variable,
+the value of the variable cannot be changed.  However,
+a new variable of the same name can be allocated via
+the `\TT{next}' construction which we describe below.
 
+Assignment statements have the syntax:
 \begin{indpar}
-\emkey{simple-assignment-statement}
+\emkey{assignment-statement}
     ::= \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-        {\em expression}
+    		{\em assignment-right-side}
 \\[0.5ex]
 \emkey{result-variable-list}\label{RESULT-VARIABLE-LIST}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-declaration} \\
-    $|$ & \TT{(~}{\em result-variable-declaration} \\
-        & ~~~~~~~~~~
-	  \{ \TT{,} {\em result-variable-declaration} \}\STAR{} \TT{)} \\
-    \end{tabular}
+    ::= {\em result-variable-declaration}
+	  \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
 \\[0.5ex]
 \emkey{result-variable-declaration}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
-    $|$ & \ttkey{next} {\em variable-name}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em qualifier-name}\STAR{}~{\em type-name}~{\em variable-name} \\
+    $|$ & \ttkey{next} {\em variable-name} \\
+    $|$ & {\em deferred-result-variable}
+    		& [see \pagref{DEFERRED-RESULT-VARIABLE}] \\
+    $|$ & {\em iteration-result-variable}
+    		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+\emkey{assignment-right-side}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em expression-list}
+    		& [see \pagref{EXPRESSION-LIST}] \\
+    $|$ & {\em function-call}
+    		& [see \pagref{FUNCTION-CALL}] \\
+    $|$ & {\em subblock}
+	        & [see kinds of assignment statement below] \\
     \end{tabular}
 \end{indpar}
 
-An assignment statement
-allocates new variables with the given {\em variable-names}, types,
-and qualifiers
-to the stack and stores values from the {\em expression} in the
-assignment statement result variables
-({\em qualifiers} are described in section \itemref{QUALIFIERS}).
-The {\em expression} produces a list of values, and this list must have
+where the {\em assignment-right-side}
+depends on the kind of assignment statement.
+The kinds of assignment statements are:
+\begin{indpar}
+\emkey{assignment-statement}
+    \begin{tabular}[t]{rll}
+    ::= & {\em simple-assignment-statement}
+	& \itemref{SIMPLE-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em block-assignment-statement}
+	& \itemref{BLOCK-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em conditional-assignment-statement}
+	& \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em loop-assignment-statement}
+	& \itemref{LOOP-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em call-assignment-statement}
+	& \itemref{CALL-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em out-of-line-assignment-statement}
+	& \itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em compile-and-run-assignment-statement}
+	& \itemref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em compile-time-assignment-statement}
+	& \itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em assembly-assignment-statement}
+	& \itemref{ASSEMBLY-ASSIGNMENT-STATEMENTS} \\
+    $|$ & {\em function-call}
+	& \itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES} \\
+    \end{tabular}
+\end{indpar}
+
+If an {\em assignment-statement} has \skey{result variable}s with given
+{\em variable-names} and {\em variable-types}, these are allocated
+to the current function frame, and
+values produced by evaluating the {\em assign\-ment-right-side} are stored in
+these variables.
+The {\em assignment-right-side} produces a list of values,
+and this list must have
 at least as many elements as there are result variables.
-Each result variable is
-assigned its value in order.  If the {\em expression} produces
+Result variables are assigned their values in parallel, after the
+{\em assignment-right-side} has been completely evaluated.
+If the {\em assignment-right-side} produces
 too many values, the excess values at the end of the value list are
 discarded.
 
-The value assigned to each variable
-must be implicitly convertable to the variable's type, unless
-the variable has the \TT{*UNCHECKED*} qualifier, in which case
-the value must be convertable by unchecked conversion to the
-variable's type.
-
-The {\em expression} may only input values that are constants or are
-the values of other variables in the same function execution
-stack (including
-arguments passed to the function execution).  In particular,
-no input can come \underline{directly}
-from RAM memory outside the function execution stack
-(but see \pagref{MEM} and Section~\itemref{THE-MEM-QUALIFIER}
-for ways to load RAM values into stack variables).
-See Section~\itemref{STACK-MANAGEMENT} for more information about stacks.
-
-Implicitly when a variable value is set this way, the value is first
-computed in a register, then stored in the stack, and for some time
+When a variable value is set, the value is implicitly first
+computed in a register, then stored in the current function
+frame, and for some time
 afterwards the value is left in the register which becomes a cache
-on the stack value.  This cacheing is hidden from the programmer.
+on the frame value.  This cacheing is hidden from the programmer.
 
 If a variable value is copied from another variable, usually the
 new variable simply becomes a compile-time alias for the old variable.
@@ -3875,53 +3907,140 @@ value is pushed into the stack.
 
 Similarly if a variable value can be easily computed from previous variable
 values by in-line code, 
-its value may not be pushed into the stack.  Instead its
+its value may not be stored into the function frame.  Instead its
 value can be recovered at any time by repeating the computation
 of the variable from the other values.
 
-Two variables in the same block of code may not have the same
-name.  Thus variables are only assigned values once.
+The value assigned to each result variable must be implicitly convertible to
+the variable's type.  In some cases the type of a result variable is
+the target type of an {\em expression} in a {\em assignment-right-side}
+that is an {\em expression-list}
+(\itemref{SIMPLE-ASSIGNMENT-STATEMENTS}).
+In some cases the result variable type is matched to
+the type of a {\em function-prototype} result variable
+for a {\em function-call} that is the {\em assignment-right-side}
+(\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+
+The code of a function is organized into blocks.
+Two variables allocated in the same block of code may not have the same
+name, even if one is allocated in a subblock of the block allocating
+the other.
+Thus variables are only assigned values once within a function.
 
 However, if an assignment statement uses the word `\TT{next}' in
-place of the {\em qualifiers} and {\em type-name}
+place of the {\em qualifier-names} and {\em type-name}
 of a result variable being assigned a value, then the named variable must
-have been previously assigned a value within the same block,
+have been previously assigned a value within the same smallest containing block,
 and a new variable with the same
-name, type, and qualifiers as the previous variable is allocated,
-and the new variable supercedes the previous variable in subsequent code within
-the block.
+name and type as the previous variable is allocated,
+and the new variable supersedes the previous variable
+in subsequent code within the block.
 
-Note that `\TT{next}' behaves differently for loop interation
-variables (see below) than it does for other variables.
+See the example in \itemref{SIMPLE-ASSIGNMENT-STATEMENTS}, and
+the more detailed discussion in 
+\itemref{BLOCK-ASSIGNMENT-STATEMENTS}.
 
-All assignment statements have a special case where there are
-no result variables being assigned, the {\em variables-list} is omitted,
-and the \TT{=} is also omitted.  In this case the
-{\em simple-assignment-statement} reduces to just an {\em expression}
-that executes for side effects (such as
-input/output or non-stack memory modification).
-However, sometimes assignment statements with no explicit
+Note that `\TT{next}' behaves differently when it used as part of
+the name of
+a {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
+or an {\em iteration-result-variable} (\pagref{ITERATION-RESULT-VARIABLE}).
+
+The {\em result-variables} may be completely omitted in most forms
+of {\em assignment-statements}.  Because these statements still have
+the form and semantics of statements that could have result variables,
+we call them `{\em assignment-statements}' even thought they allocate
+and assign no result variables.
+
+Sometimes assignment statements with no explicit
 result variables have implied `\TT{next}' result variables:
 see \pagref{IMPLIED-NEXT-VARIABLES}.
+
+There are also statements that have the form:
+\begin{center}
+{\em function-call} ~ \TT{=} ~ {\em expression-list}
+\end{center}
+which are syntactic sugar for {\em function-call}
+in which the {\em expression-list} has been made into a function argument
+list and there are no result variables.
+{\em Function-calls} \underline{cannot} be used as result variables.
+See \itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}.
+
+\subsection{Simple Assignment Statements}
+\label{SIMPLE-ASSIGNMENT-STATEMENTS}
+
+The simplest \skey{assignment statement}s have the syntax:
+
+\begin{indpar}
+\emkey{simple-assignment-statement}
+    ::= {\em result-variable-list} \TT{=} {\em expression-list}
+\\[0.5ex]
+\emkey{expression-list}\label{EXPRESSION-LIST}
+    ::= {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
+\end{indpar}
+
+If there is more than one {\em expression} in the {\em expression-list},
+or if there is a single {\em expression} that is \underline{not}
+a {\em function-call},
+then each {\em expression} produces a single value, and the list of these
+values is the list of values assigned to the list of result variables.
+The {\em expressions} are evaluated in left to
+right order, and all the {\em expressions} are evaluated before any of
+the result variables are given values.
+
+There must be at least as many {\em expressions} as there are result
+variables.  If there are too many {\em expressions}, the values of the
+extra {\em expressions} are discarded, and these extra {\em expressions} 
+may be completely or partly optimized away, never compiled, and never executed.
+See section \itemref{OPTIMIZATION}.
+However function calls are never optimized away, although if they are
+to inline functions, the function body code that replaces the function
+call may be optimized away.
+
+An {\em expression} may only input values that are constants,
+the values of variables in the same function execution
+frame (including arguments passed to the function execution), 
+or the values of global variables.  In particular,
+no input can come \underline{directly}
+from RAM memory outside the current function execution frame or
+global memory,
+but see \pagref{MEM} and Section~\itemref{THE-MEM-QUALIFIER}
+for ways to load RAM values into function frame variables.
+See Section~\itemref{STACK-MANAGEMENT} for more information about
+function frames.
+
+If the {\em expression-list} is a single {\em expression} that
+is a {\em function-call}, the {\em function-call}
+itself returns a list of values, and this list of values is used.
+
+The value assigned to each result variable must be implicitly convertible to
+the variable's type.
+In the case that an {\em expression} is producing
+only a single value, the type of its associated result variable is the target
+type of the {\em expression}.  If there is only one {\em expression}
+and that is a {\em function-call}, the types the result variables
+are matched to the types of the {\em function-prototype} result
+variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
 
 Some examples of {\em simple-assignment-statements} are:
 \begin{indpar}\begin{verbatim}
 int32 x = 1
-int32 y = x + 1
+int32 y = x + 1         // y == 2
 next x = 10 * x         // Now x == 10
-next y = x + 1          // Now y == 11
-int32 z = 257
-*UNCHECKED* int8 u = z  // *UNCHECKED* conversion used:
-                        // Now u == 1
-float64 m = 1.7
-int32 i = m             // Illegal: undefined implied
-                        // conversion
-*UNCHECKED* int32 j = m // *UNCHECKED* conversion used:
-                        // now j == 2 (round to nearest)
+next y = x + y          // Now y == 12
+int32 z = 256 + y       // z == 268
+int8 u = z              // ILLEGAL!  Undefined implicit
+                        // conversion from int32 to int8.
+int8 v = mod ( z )      // Now v == 12
+int8 w = v + 257        // ILLEGAL!  Constant out of range
+                        // of target type int8.
+float32 m = 1.7
+int64 i = m             // ILLEGAL!  Undefined implicit
+                        // conversion from float32 to int64.
+int32 j = nearest ( m ) // now j == 2 (round to nearest)
 \end{verbatim}\end{indpar}
 
 \subsection{Block Assignment Statements}
-\label{BlOCK-ASSIGNMENT-STATEMENTS}
+\label{BLOCK-ASSIGNMENT-STATEMENTS}
 
 Another variant of the assignment statement is\index{block assignment}:
 
@@ -3929,71 +4048,173 @@ Another variant of the assignment statement is\index{block assignment}:
 \emkey{block-assignment-statement}
     ::= \begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-	\ttkey{do}\QMARK{} \TT{:} \\
+	\{ \ttkey{do} {\em block-name}\QMARK{} \}\QMARK{} \TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{}
 	\end{tabular}
+\\
+\emkey{block-name} ::=
+    \begin{tabular}[t]{l}
+    {\em name} ~~~~~ [see \pagref{NAME}] \\
+    \underline{not} containing
+	`\TT{.}',~ {\em quoted-marks},~ or {\em quoted-separators}
+    \end{tabular}
 \end{indpar}
 
-where `\TT{do}' may be omitted as long as \TT{=} is not omitted.
+where `\TT{do} {\em block-name}\QMARK{}'
+may be omitted as long as \TT{=} is not omitted.
 
-The {\em statements} in the block can include
-{\em assignment-statements} in which {\em result-variable-declara\-tions}
-are replaced by simple {\em variable-names}
-if these variables have the same name as a variable
-in the {\em block-assignment-statement's} {\em result-variable-list}.
-These {\em statements} assign values to the result variables
-in the {\em block-assignment-statement's} {\em result-variable-list}.
-Furthermore, every result variable in the
-{\em block-assignment-statement's} {\em result-variable-list}
-\underline{must} be assigned a value
-by exactly one of the {\em statements} in the block.
-Also the value of one of these variables cannot
-be input to any of the {\em statements} in the block until the
-variable has been assigned a value by a previous one of these
-{\em statements}.
+The {\em statements} within the {\em block-assignment-statement}
+comprise a `\key{block}' of code.
 
-Variables allocated in the block are not visible outside the
-block.  They may \underline{not} have the same name as a variable
-\TT{v} that is a result variable of the block or is
-visible outside the block at the point where the block
-occurs\footnote{This is more restrictive that other block structured
-languages such as C.}, and they may \underline{not}
-have the name `\TT{next v}' for such a variable.
+Any result variables in a {\em block-assignment-statement}
+are called `\skey{deferred variable}s' because they do not
+immediately get a value.  They are assigned values by
+{\em assignment-statements} within the block
+in which {\em result-variable-declara\-tions}
+include {\em deferred-result-variables}.
+\begin{indpar}
+\emkey{deferred-result-variable}\label{DEFERRED-RESULT-VARIABLE} ::=
+    {\em variable-name} $|$ \TT{next} ~ {\em variable-name}
+\end{indpar}
+{\em Assignment-statements} that set {\em deferred-result-variables}
+are called `\skey{deferred assignment}s'.
+
+The code must be such that every deferred variable is given a value
+by at most one deferred assignment, and if not a `\TT{next}' variable,
+is given a value by a deferred assignment before the variable is read.
+
+A variable allocated within the block is not visible outside the
+block, but may \underline{not} have the same name as any variable
+allocated outside the block that is visible in the block
+(this includes the block's deferred variables).\footnote{
+This is more restrictive than other block structured
+languages such as C.}.  The name `{\tt next v}' \underline{cannot}
+be given a value inside the block if {\tt v} is a variable allocated
+outside the block, except for the case that `{\tt next v}' is a
+block result variable.  In this last case, the name `{\tt v}' used
+inside the block before `{\tt next v}' is assigned a value refers
+to the value of `{\tt v}' at the beginning of the block, and the
+name `{\tt v}' used inside the block after `{\tt next v}' is assigned
+a value refers to the value assigned to `{\tt next v}'.  See
+the following example.
 
 An example of a {\em block-assignment-statement} is:
 \begin{indpar}\begin{verbatim}
 int32 x = 1
 float64 y = 1.67
-int64 z, *UNCHECKED* uns8 w, next x =:
+int64 z, uns8 w, next x =:
 
     z = 16,777,216   // Legal, z is result variable
-    x = 265          // Illegal, x is NOT result variable
-    float64 y = 2.6  // Illegal, y is visible outside block
+    x = 265          // ILLEGAL, x is NOT result variable
+    float64 y = 2.6  // ILLEGAL, y is visible outside block
     uns8 v = 55      // Legal, v is NOT visible outside block
-    next x = 266     // Legal, next x is result variable,
+    next x = 265 + x // Legal, next x is result variable,
                      //        now x == 266
-    next y = 2.6     // Illegal, y is visible outside block
+    next y = 2.6     // ILLEGAL, y is visible outside block
                      //          and next y is not result
                      //          variable
-    w = x            // Legal, sets w to 10 as x is now 266
-                     //        and w is *UNCHECKED*
+    w = mod ( x )    // Legal, sets w to 10 as x is now 266
 \end{verbatim}\end{indpar}
+
+An exit statement may be used to jump from within a block to
+the end of the block:
+
+\begin{indpar}
+\emkey{exit-statement} ::=
+        \ttkey{exit} ~ {\em block-name}\QMARK{} ~
+	    \{ \TT{if} ~ {\em condition-expression} \}\QMARK{}
+\end{indpar}
+
+If the {\em block-name} is not given, the smallest block containing
+the {\em exit-statement} is exited.
+
+The block exit may be conditional.  The compiler checks that
+every one of the block's deferred variables is given a value
+by a deferred assignment statement, no matter whether conditional
+exits are taken or not.  However, if a {\em block-name} is given
+and the block being exited is not the smallest block containing
+the exit statement, the deferred variables of this smallest
+block need not be given values.
+
+Examples of {\em exit-statements} are:
+
+\begin{indpar}\begin{verbatim}
+int32 x = 1
+int32 y = 1
+bool v = do BLOCK1:
+    // sets v = ( x <= 10 or y >= 10 )
+    //
+    do BLOCK2:
+        exit BLOCK2 if ( x > 10 )
+        v = true
+        exit BLOCK1
+    do BLOCK3:
+        exit BLOCK3 if ( y < 10 )
+        v = true
+        exit BLOCK1
+    v = false
+
+next v = do BLOCK1:
+    // attempts to set next v = ( x <= 20 or y >= 20 )
+    next v = true
+    exit BLOCK1 if x <= 20
+    exit BLOCK1 if y >= 20
+    next v = false          // ILLEGAL: next v set twice
+\end{verbatim}\end{indpar}
+
+SAFE parses all code, but does not compile statements that
+cannot be reached from the beginning of the current top level
+statement (e.g., out-of-line function declaration).  Because
+of unconditional \TT{exit} statements, or \TT{exit} statements
+whose conditions evaluate to \TT{true} at compile time,
+some statements will be unreachable and will not be compiled.
+Unreachable statements are not checked for non-parsing compile
+errors.
+
+For example, the code
+\begin{indpar}\begin{verbatim}
+int32 x = 1
+int32 y = 1
+int32 z = do BLOCK1:
+    do BLOCK2:
+        exit BLOCK2 if ( x > 10 )
+        z = 55
+        exit BLOCK1
+    do BLOCK3:
+        exit BLOCK3 if ( y < 10 )
+        z = "hot dog"    // Illegal conversion
+        exit BLOCK1
+    z = "cold dog"       // Illegal conversion
+\end{verbatim}\end{indpar}
+
+becomes after eliminating unreachable statements:
+\begin{indpar}\begin{verbatim}
+int32 x = 1
+int32 y = 1
+int32 z = do BLOCK1:
+    do BLOCK2:
+        exit BLOCK2 if false
+        z = 55
+        exit BLOCK1
+    do BLOCK3:
+        exit BLOCK3
+\end{verbatim}\end{indpar}
+
+and therefore has no compiler errors.
+
 
 \subsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
 \ikey{Conditional assignment statements}{conditional assignment}
-are similar to block assignment statements:
+are syntactic sugar for block assignment statements
+with exits (\pagref{BLOCK-ASSIGNMENT-STATEMENTS}).
+Conditional assignment statements have the syntax:
 
 \begin{indpar}
 \emkey{conditional-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
-	\TT{~~~~}\ttkey{default}\TT{:} \\
-	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}\TT{default:} \\
-	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 	\TT{~~~~}{\em condition-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}{\em condition-expression}\TT{:} \\
@@ -4009,30 +4230,11 @@ until either one evaluates to true or the `\TT{else}' condition is
 reached, and then the {\em statements} subject to the
 first true condition (a.k.a the \key{subblock} of that condition)
 are executed, or if no condition is true, the {\em statements}
-of the `\TT{else}' subblock are executed.  Each separate subblock of
-{\em statements} must set \underline{every} result variable
-in the {\em condition-assignment-statement's} {\em result-variable-list} exactly
-once, with exceptions for defaults described next.
+of the `\TT{else}' subblock are executed.
 
-A {\em conditional-assignment-statement} with a
-{\em result-variable-list} may have
-`\ttkey{default}\TT{:}' subblocks.  Each assigns one or more result
-variables in the {\em result-variable-list}.  After any non-default subblocks
-that are going to execute have executed, if there are any unset
-variables in the {\em result-variable-list},
-enabled default subblocks are executed
-in order.  A default subblock is enabled if and
-only if \underline{all} of the
-{\em result-variable-list} variables set by the default subblock have
-\underline{not} been set yet.
-
-No two default subblocks may set the same {\em result-variable-list}
-result variable.  This rule is purely to prevent overly clever code that
-uses the execution of earlier default blocks to disable the
-execution of later default blocks.
-
-Every variable in the {\em result-variable-list} \underline{must} be set by some
-single subblock that executes.  A variable in the
+Every variable in the {\em result-variable-list} \underline{must} be set by the
+single subblock that executes, unless that subblock exits a block
+that contains the {\em conditional-assignment-statement}.  A variable in the
 {\em result-variable-list} cannot be read by a subblock {\em statement}
 unless it is set by a previous {\em statement} in the
 same subblock.
@@ -4042,76 +4244,70 @@ An example is:
 function float64 result =
         max ( float64 x, float64 y, float64 z ):
     result = if:
-        default:
-            result = NaN
-        x => y and x => z:
+        y <= x => z:
             result = x
-        y => z and y => x:
+        z <= y => x:
             result = y
-        z => y and z => x:
+        y <= z => x:
             result = z
+        else:
+            result = NaN
 \end{verbatim}\end{indpar}
 
 where \TT{NaN} means `\key{not-a-number}' and is the missing
-value for \TT{float64} variables.  \TT{x~=>~y} is true if
-and only if neither \TT{x} nor \TT{y} is a \TT{NaN} and
-\TT{x} is equal to or greater than \TT{y}.  Thus if any of
-\TT{x}, \TT{y}, or \TT{z} in the above conditional assignment
-is a \TT{NaN}, none of the non-\TT{default} {\em conditional-expressions}
-will be true, and the \TT{default} will be evaluated to set
-the \TT{result} to a \TT{NaN}.
+value for \TT{float64} variables.  {\tt x~=>~y} is true if
+and only if neither {\tt x} nor {\tt y} is a \TT{NaN} and
+{\tt x} is equal to or greater than {\tt y}.  Thus if any of
+{\tt x}, {\tt y}, or {\tt z} in the above conditional assignment
+is a \TT{NaN}, none of the {\em conditional-expressions}
+will be \TT{true}, and the \TT{else} subblock will be evaluated to set
+the {\tt result} to a \TT{NaN}.
 
-There are a couple of special rules applying to conditionals:%
-\label{CONDITIONAL-SPECIAL-RULES}
+There are a couple of special rules applying to
+{\em conditional-assignment=statements}:\label{CONDITIONAL-SPECIAL-RULES}
 
 \begin{indpar}
-A subblock not compiled because the compiler can determine its
-condition will never be true is not checked for compile errors.
+If some of the {\em conditional-expressions} can be computed at compile
+time, subblocks that the compiler determines cannot execute are not
+compiled or checked for compiler errors (but the subblocks are parsed
+and checked for parsing errors).
+
+Specifically, if a {\em conditional-expression} evaluates to \TT{true}
+at compile time, subblocks beyond that of this {\em conditional-expression}
+are not compiled.  And if a remaining {\em conditional-expression}
+evaluates to \TT{false} at compile time, the subblock of this
+{\em conditional-expression} is not compiled.
 \end{indpar}
 
-For example, if a {\em conditional-assigment-statement}
+For example, if a {\em conditional-assignment-statement}
 contained
 \begin{indpar}\begin{verbatim}
-    if T is in floating-types:
+    if x >= 1,000,000:
         result = NaN
 \end{verbatim}\end{indpar}
-where \TT{T} is a type known at compile time,
-then if \TT{T} is not a floating
-point number type, `\TT{result = NaN}' will not compile
+where {\tt x} is a variable with value known at compile time
+that is less than {\tt 1,000,000}, then
+`{\tt result = NaN}' will not compile
 and will not be checked for compile time errors.
 
 
 A second special rule is:
 
 \begin{indpar}
-Missing `\TT{else}'s do not cause compile errors, though they
-may cause warnings if the compiler cannot prove they will never
-be needed.  They will cause run time errors if needed at run time.
+Missing `\TT{else}'s do not cause compile errors,
+but will cause run time errors if needed at run time.
 \end{indpar}
 
 For example, the {\em conditional-assignment-statement}:
 \begin{indpar}\begin{verbatim}
-    result =:
-        if:
-            x <= y:
-                result = x
-            y <= x:
-                result = y
-            T is in floating-types:
-                result = NaN
+    result = if:
+        x <= y:
+            result = x
+        y <= x:
+            result = y
 \end{verbatim}\end{indpar}
-where \TT{T} is the type of \TT{x} and \TT{y} will work as
-follows.  If \TT{T} is not a floating point type, then a
-warning message will be issued and an implied `\TT{else}'
-clause that is a fatal error at run time will be compiled, unless the
-compiler can prove that an `\TT{else}' is not needed because
-for values of type \TT{T} it is
-true that either `\TT{x~<=~y}' or `\TT{y~<=~x}' (which
-the compiler will be able to do for integer types).  If
-\TT{T} is a floating point type, the compiler will be able
-to prove that an `\TT{else}' is not needed, as the last condition
-is always true.
-
+will suffer a run-time error if {\tt x} or {\tt y} are
+a floating point \TT{NaN} at run-time.
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -4145,7 +4341,8 @@ The general syntax of loop assignment statements is:
 	          \ttkey{loop:} \\
 	\TT{~~~~}\ttkey{initially}\TT{:} \\
 	\TT{~~~~~~~~~}{\em assignment-statement}\STAR{} \\
-	\TT{~~~~}\ttkey{while} {\em condition-expression}\TT{:} \\
+	\TT{~~~~}\{ \ttkey{while} $|$ \ttkey{until} \}
+	         {\em condition-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ttkey{finally}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
@@ -4153,79 +4350,94 @@ The general syntax of loop assignment statements is:
 \end{indpar}
 
 This is somewhat like the conditional assignment statement
-except the `\TT{while}' subblock is iterated and there are iteration
+except the `\TT{while}' or `\TT{until}'
+subblock is iterated and there are iteration
 variables defined by the `\TT{initially}' subblock.
+
+The `\TT{initially}' subblock is call the `\key{initialization subblock}',
+the `\TT{while/until}' subblock is call the `\key{iteration subblock}',
+and the `\TT{finally}' subblock is call the `\key{finalization subblock}'.
 
 The \skey{iteration variable}s are the
 {\em result-variables} of the
-{\em assignment-statements} executed by the `\ttkey{initially}' subblock.
+{\em assignment-statements} executed by the initialization subblock.
 Each iteration of the loop gives these variables new values using
-`\TT{next v}' to refer to the next value of \TT{v}, where \TT{v}
-is an iteration variable.  In the example `\TT{i}' and
-`\TT{partial sum}' are iteration variables.
+`{\tt next v}' to refer to the next value of {\tt v}, where {\tt v}
+is an iteration variable.  In the example `{\tt i}' and
+`{\tt partial sum}' are iteration variables.
 
-The iteration subblock is qualified by `\ttkey{while}'
-{\em condition-expression}' and only executes if the
-{\em condition-expression} evaluates to true.  Then
-for every iteration variable \TT{v}
-it must set the variable `\TT{next v}' or `\TT{next next v}',
-as indicated below.
+An iteration subblock qualified by `\ttkey{while}'
+{\em condition-expression}' only executes if the
+{\em condition-expression} evaluates to \TT{true},
+whereas an iteration subblock qualified by `\ttkey{until}'
+{\em condition-ex\-pres\-sion}' only executes if the
+{\em condition-expression} evaluates to \TT{false}.
 
-Lastly, when
-the {\em condition-expression} evaluates to false, the
-subblock qualified by `\ttkey{finally}'
+Lastly, when the {\em condition-expression} evaluates so the iteration
+subblock is not executed, the finalization subblock
 executes, and it must set all the variables in the
 loop statement's {\em result-variable-list}.  At this point the loop stops
 executing.
 
-Loops are always in effect unravelled so multiple copies of
-the `\TT{while}' subblock exist at one time.
-`\TT{next v}' refers to \TT{v} in the
-next iteration of the loop, which exists simultaneously with
-the current iteration.  `\TT{next next v}' refers to \TT{v}
-in the next iteration to the next iteration of the loop, which
-also exists simultaneously with the current iteration.
+Loops are always in effect unraveled so multiple copies of
+the iteration subblock exist at one time.
 
-For a given iteration variable \TT{v},
-either the `\TT{initially}' subblock sets \TT{v}
-and the `\TT{while}' subblock sets `\TT{next v}',
-or the `\TT{initially}' subblock sets both \TT{v} and `\TT{next v}'
-and the `\TT{while}' subblock sets `\TT{next next v}'.
-Values of `\TT{next v}' and `\TT{next next v}' may be stored in
-the stack memory of an iteration that will never be executed.
+Within the initialization and iteration subblocks assignment
+statements may set iteration variables in adjacent subblocks
+using the following syntax for assignment statement result variables:
+\begin{indpar}
+\emkey{iteration-result-variable}\label{ITERATION-RESULT-VARIABLE} ::=
+    \ttmkey{next}{iteration result variable}~{\em variable-name}
+     $|$ \ttmkey{next next}{iteration result variable}~{\em variable-name}
+\end{indpar}
+{\em Assignment-statements} that set {\em iteration-result-variables}
+are called `\skey{iteration assignment}s'.
 
-The \TT{finally} subblock executes at the end using the iteration
-variable values that would be used for an additional iteration,
-were such an iteration to exist.
+Let {\tt v} be an iteration variable.  After it is set in the initialization
+subblock, `{\tt v}' refers to the value of the variable in both
+the initialization subblock and the first iteration.
+`{\tt next v}' refers to the value of the variable in the second
+iteration.  In order to prevent confusion, `{\tt v}' cannot
+be used in the initialization subblock after `{\tt next v}' has
+been assigned, `{\tt next v}' cannot be used in the subblock
+except as a result variable when it is assigned, and
+`{\tt next next v}' cannot be used in the initialization subblock.
+
+Within the iteration
+subblock, `{\tt v}' refers to the value of the variable in the
+current iteration, `{\tt next v}' refers to the value of the variable
+in the next iteration, and `{\tt next next v}' refers to the
+value of the variable in the next iteration after the next iteration.
+In order to prevent confusion, `{\tt v}' cannot
+be used in the iteration subblock after `{\tt next v}' or
+`{\tt next next v}' has been assigned,
+and `{\tt next v}' and `{\tt next next v}'
+cannot be used in the subblock
+except as a result variables when they are assigned.
+
+Within the finalization
+subblock, `{\tt v}' refers to the value the variable would have
+for an additional iteration if such an iteration existed.
+Within the finalization subblock `{\tt next v}' and
+`{\tt next next v}' cannot be used.
+
+For a given iteration variable {\tt v},
+either the initialization subblock sets {\tt v}
+and the iteration subblock sets `{\tt next v}',
+or the initialization subblock sets both {\tt v} and `{\tt next v}'
+and the iteration subblock sets `{\tt next next v}'.
 
 There are always at least 4 iterations of the loop with variables
-simultaneously in the current execution frame stack: the current iteration,
+simultaneously in the current function frame: the current iteration,
 the previous iteration (if any), and the next two iterations.
 When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
 
-The stack (\itemref{STACK-MANAGEMENT})
-of a loop iteration may be deallocated after the
-iteration finishes executing.
-However, deallocation of some of these stacks may be deferred by
-an implementation, which may allow debuggers to look at them
-in some circumstances.
+Code in an initialization or iteration subblock cannot set
+deferred variables outside the subblock (including loop block
+result variables), or contain \TT{exit} statements that have
+not block label.
 
-Any iteration variable \TT{v} \underline{cannot} be referenced
-within either the `\TT{initially}' or `\TT{while}' blocks
-after `\TT{next v}' has been assigned in the block.
-However `\TT{next v}' can be referenced.
-
-Similarly `\TT{next v}' cannot be referenced
-after `\TT{next next v}' has been assigned in the block.
-However `\TT{next next v}' can be referenced.
-
-These rules exist to reduce confusion with the non-iteration
-case where the forbidden references have a very different meaning.%
-\footnote{Perhaps we should use `\TT{new v}' for non-iteration
-variables, forbid `\TT{new v}' for iteration variables, and
-allow unrestricted access to \TT{v} and `\TT{next v}' after the
-latter is assigned.}
 
 
 \subsection{Call Assignment Statements}

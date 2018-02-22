@@ -3469,9 +3469,9 @@ defined by library code.
 
 The following evaluation rules are applied in the order given.
 
-For example, `\TT{not ( x > y and z )}' is evaluated by applying
-the rule that rewrites it to `\TT{not x > y or not z}' instead of
-the rules that evaluated `\TT{x > y and z}' first and then complement
+For example, `{\tt not ( x > y and z )}' is evaluated by applying
+the rule that rewrites it to `{\tt not x > y or not z}' instead of
+the rules that evaluated `{\tt x > y and z}' first and then complement
 the result.
 
 Parentheses are inserted by the parser to separate operators of
@@ -3484,26 +3484,26 @@ types other than \TT{bool}.
 If $T$ is such a type, these functions must have prototypes
 of the forms
 \begin{indpar}
-\TT{function bool r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
+{\tt function bool r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
 where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
 \end{indpar}
 
-\TT{function $T$ r = ( $T$ $v1$ ) "$op$ ( unshw $v2$ )}
+{\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( unshw $v2$ )}
 \begin{indpar}
 where $op$ is one of \TT{<{}<} or \TT{>{}>}
 \end{indpar}
 
-\TT{function $T$ r = "$op$" ( $T$ $v1$ )}
+{\tt function $T$ r = "$op$" ( $T$ $v1$ )}
 \begin{indpar}
 where $op$ is one of \TT{-} or \TT{!}
 \end{indpar}
 
-\TT{function $T$ r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
+{\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
 where $op$ is one of
-    \TT{+}, \TT{-}, \TT{\&}, \TT{|}, \TT{\textasciicircum},
-    \TT{*}, \TT{/}, \TT{div}, \TT{mod}, \TT{rem}
+    \TT{+}, \TT{-}, \TT{\&}, \TT{|}, \TT{xor},
+    \TT{*}, \TT{/}, \TT{div}, \TT{mod}, \TT{rem}, \TT{\textasciicircum}
 \end{indpar}
 \end{indpar}
 
@@ -3618,10 +3618,12 @@ The target type of the $b$ is \TT{bool}.
 where the $copI$ are comparison operators chosen from the list
 \TT{==}, \TT{!=}, \TT{>}. \TT{>=}, \TT{<}, or \TT{<=}.
 
-First $e1$ and $e2$ are evaluated.  Then `$e1$ $cop1$ $e2$'
+First $e1$ and $e2$ are evaluated.  Then the function call
+`{\tt $e1$ "$cop1$" $e2$}'
 is evaluated, and if it is \TT{false},
 \TT{false} is returned as the value of the {\em comparison-expression}.
-Otherwise $e3$ and `$e2$ $cop2$ $e3$' are evaluated, and if the latter
+Otherwise $e3$ and the function call `{\tt $e2$ "$cop2$" $e3$}'
+are evaluated, and if the latter
 evaluated to \TT{false},
 \TT{false} is returned as the value of the {\em comparison-expression}.
 This continues until a comparison evaluates to \TT{false} or all
@@ -3632,7 +3634,8 @@ No $eI$ is evaluated more than once, though the value of some $eI$
 may be used more than once.
 
 The target type $T$ of the expressions $eI$ is selected as
-per \itemref{COMPARISON-EXPRESSIONS}.
+per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
+function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
 \end{indpar}
 
 \TT{! $e1$}
@@ -3641,10 +3644,12 @@ per \itemref{COMPARISON-EXPRESSIONS}.
 \hfill [{\em bitop-expression}]
 \begin{indpar}
 where the $bop$ is a bitop operator chosen from the list
-\TT{\&}, \TT{|}.
+\TT{\&}, \TT{|}, \TT{xor}
 
 The $eI$ are evaluated left to right.
-Each operator is evaluated as soon as its operands have
+Each operator is evaluated as the function call
+`{\tt "!" $e1$}' or the function call
+`{\tt $eI$ "$bop$" $e(I+1)$}' as soon as its operands have
 been evaluated, so the operators (other than \TT{!}) are
 also evaluated left to right.
 
@@ -3659,7 +3664,8 @@ point number type.
 where the $shopI$ are bitop operators chosen from the list
 \TT{<{}<}, \TT{>{}>}.
 
-Each operator is evaluated as soon as its operands have
+Each operator is evaluated as the function call
+`{\tt $eI$ "$shopI$" $e(I+1)$}' as soon as its operands have
 been evaluated, so the operators are
 also evaluated left to right.
 
@@ -3679,7 +3685,9 @@ where $sopI$ are summation operators chosen from the list
 \TT{+} or \TT{-}.
 
 The $eI$ are evaluated left to right.
-Each operator is evaluated as soon as its operands have
+Each operator is evaluated as the function call
+`{\tt "$sop1$" $e1$}' or the function call
+`{\tt $eI$ "$sop(I+1)$" $e(I+1)$}' as soon as its operands have
 been evaluated, so the operators are
 also evaluated left to right.
 
@@ -3696,7 +3704,9 @@ where the $dop$ is a divide operator chosen from the list
 \TT{/}, \TT{div}, \TT{mod}, \TT{rem}.
 
 The $eI$ are evaluated left to right.
-Each operator is evaluated as soon as its operands have
+Each operator is evaluated as the function call
+`{\tt "$eI$ "*" $e)I+1)$}' or the function call
+`{\tt $eI$ "$dop(I+1)$" $e(I+1)$}' as soon as its operands have
 been evaluated, so the operators are
 also evaluated left to right.
 
@@ -3708,27 +3718,20 @@ If $T$ is an integer type, it must have size at least 32 bits.
 
 \end{indpar}
 
-\TT{$v$ {\em selector}\PLUS{}}
-\hfill [{\em data-expression}] \\
-\TT{( $e$ ) {\em selector}\PLUS{}}
-\hfill [{\em data-expression}]
+\TT{$e1$ \textasciicircum{} $e2$}
+\hfill [{\em exponential-expression}]
 \begin{indpar}
-These reference selected elements of tuples and vectors:
-see \pagref{GET-TUPLE-ELEMENT} and \pagref{SET-TUPLE-ELEMENT}.
+The $eI$ are evaluated left to right.
+The operator is evaluated as the function call
+`{\tt $eI$ "\textasciicircum" $e(I+1)$}' as soon as its operands have
+been evaluated.
 
-These {\em data-expressions} have a natural type that must be
-implicitly convertible to the target type of the {\em data-expression}.
-For this purpose, the implicit conversions of \itemref{NUMBER-TYPES}
-are extended to integer types whose size is not a power of two.
+The target type $T$ of the $eI$ is the target type of the
+{\em exponential-expression}.
 
-These expressions can also be used on the left side of an
-\TT{=} sign.  In this case any number stored in the selected
-element must either be implicitly convertable to the natural
-type of the element, or be representable in the natural type.
-E.g., an \TT{uns32} number may be stored in an \TT{uns13} element
-if the number's actual value is less than $2^{13}$, and it is
-a program error if this is not the case.
 \end{indpar}
+
+TBD
 
 \TT{$ma$ ( $e1$ $op1$ $e2$ $op2$ \ldots{} )}
 \hfill [{\em data-expression}]

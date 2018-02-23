@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 22, 2018
+February 23, 2018
  
 \end{center}
 
@@ -3821,18 +3821,24 @@ Assignment statements have the syntax:
     		{\em assignment-right-side}
 \\[0.5ex]
 \emkey{result-variable-list}\label{RESULT-VARIABLE-LIST}
-    ::= {\em result-variable-declaration}
-	  \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
+    ::= {\em result-variable}
+	  \{ \TT{,} {\em result-variable} \}\STAR{}
 \\[0.5ex]
-\emkey{result-variable-declaration}
+\emkey{result-variable}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em qualifier-name}\STAR{}~{\em type-name}~{\em variable-name} \\
-    $|$ & \ttkey{next} {\em variable-name} \\
+    ::= & {\em result-variable-declaration} \\
+    $|$ & {\em next-variable-declaration} \\
     $|$ & {\em deferred-result-variable}
     		& [see \pagref{DEFERRED-RESULT-VARIABLE}] \\
     $|$ & {\em iteration-result-variable}
     		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
     \end{tabular}
+\\[0.5ex]
+\emkey{result-variable-declaration}
+    ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em variable-name}
+\\[0.5ex]
+\emkey{next-variable-declaration}
+    ::= \ttkey{next}~{\em variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
@@ -3880,9 +3886,9 @@ The kinds of assignment statements are:
     \end{tabular}
 \end{indpar}
 
-If an {\em assignment-statement} has \skey{result variable}s with given
-{\em variable-names} and {\em variable-types}, these are allocated
-to the current function frame, and
+If an {\em assignment-statement} has {\em result-variable-declarations}
+that give {\em variable-names} with types and qualifiers,
+these result variables are allocated to the current function frame, and
 values produced by evaluating the {\em assign\-ment-right-side} are stored in
 these variables.
 The {\em assignment-right-side} produces a list of values,
@@ -3927,12 +3933,13 @@ name, even if one is allocated in a subblock of the block allocating
 the other.
 Thus variables are only assigned values once within a function.
 
-However, if an assignment statement uses the word `\TT{next}' in
+However, if an assignment statement has a {\em next-variable-declaration}
+that uses the word `\TT{next}' in
 place of the {\em qualifier-names} and {\em type-name}
 of a result variable being assigned a value, then the named variable must
 have been previously assigned a value within the same smallest containing block,
-and a new variable with the same
-name and type as the previous variable is allocated,
+and a new variable with the same qualifiers, type, and name
+as the previous variable is allocated,
 and the new variable supersedes the previous variable
 in subsequent code within the block.
 
@@ -4467,21 +4474,20 @@ are used to call out-of-line functions:
 \\[1ex]
 \emkey{argument-assignment-statement} ::=
     \begin{tabular}[t]{l}
-    {\em assignment-statement} in which \\
-    `\TT{next} {\em variable-name}' \\
-    is not a result variable
+    {\em assignment-statement} in which all {\em result-variables} \\
+    are {\em result-variable-declarations}
     \end{tabular}
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
-and its type \TT{T} must have the \TT{adr} type as its underlying type.
+and its type $T$ must have the \TT{adr} type as its underlying type.
 The values of the variables created by the {\em argument-assignment-statements}
 are the arguments to the function.
 The results of the function call are stored in the
 {\em result-variable-list} variables.
 
 A call assignment must have the \TT{*UNCHECKED*} option
-unless \TT{T} is declared by an out-of-line
+unless $T$ is declared by an out-of-line
 function type declaration described below.  If there is no
 such declaration, the arguments are presented to the out-of-line
 function in the order they are listed in the {\em call-assigment-statement},
@@ -4491,13 +4497,15 @@ is reversed.
 If there is an out-of-line function type declaration, arguments in the
 call are matched by name to arguments in the type declaration,
 and then ordered as per the type declaration.  In this case
-the \TT{*UNCHECKED*} and \TT{*REVERSE*} options are ignored and have no effect.
+the \TT{*REVERSE*} option is not permitted.
 
 Normally a `\TT{reload mem, mem dependent}'
 statement (see \itemref{THE-RELOAD-COMMAND})
 is executed automatically
 upon returning from the called function, but the
 \ttkey{*NO-RELOAD*} option suppresses this.
+If the \TT{*NO-RELOAD*} is given, the \TT{*UNCHECKED*} option must
+also be given.
 
 If the \TT{*COMPILE-TIME*} option is given, the call
 will be made at compile time only if the argument values are available
@@ -4526,8 +4534,7 @@ An out-of-line function type declaration has the form:
 \\[0.5ex]
 \emkey{function-declaration-option}
 	\begin{tabular}[t]{rl}
-	::= & \ttkey{*NO-RELOAD*} \\
-	$|$ & \ttkey{*COMPILE-TIME*} \\
+	::= & \ttkey{*COMPILE-TIME*} \\
 	$|$ & \ttkey{*COMPILE-TIME-ONLY*}
 	\end{tabular}
 \end{indpar}
@@ -4549,9 +4556,6 @@ argument type to the prototype argument type,
 in which case the implied conversion will be invoked.
 Similarly a prototype result variable may be converted to
 a call block result variable by an implied conversion.
-Note that these conversions \underline{must be implied}, and not
-\TT{*UNCHECKED*}, even if the prototype argument or result variable has the
-\TT{*UNCHECKED*} qualifier.
 
 Out-of-line functions are defined by declarations of the form:
 

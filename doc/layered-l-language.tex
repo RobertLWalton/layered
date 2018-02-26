@@ -2681,12 +2681,17 @@ The qualifiers may be declared by:
     \end{tabular} \\
 \emkey{defined-qualifier-name} ::= {\em qualifier-name} \\
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
-\end{indpar}
 
+where
+\begin{enumerate}
+\item
 No {\em qualifier-name} may be a prefix of another {\em qualifier-name},
 or of any {\em type-name}, or of any {\em initial-function-term-name}.
+\item
 No qualifier name may begin with `\TT{next}'
 or `\TT{previous}'.
+\end{enumerate}
+\end{indpar}
 
 If a function prototype variable (argument or result) has
 a \key{required qualifier}, any call variable matched to this
@@ -4777,6 +4782,12 @@ function.  Note that inline functions cannot be called recursively.
 The syntax is:
 
 \begin{indpar}
+\emkey{function-declaration}\label{FUNCTION-DECLARATION}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype} \TT{:} \\
+	\TT{~~~~~}{\em statement}\PLUS{}
+	\end{tabular}
+\\[2ex]
 \emkey{function-prototype}\label{FUNCTION-PROTOTYPE}
     \begin{tabular}[t]{@{}rl}
     ::= & \ttkey{function} ~
@@ -4863,12 +4874,6 @@ The syntax is:
 \emkey{type-conditioner}\label{TYPE-CONDITIONER}
     ::= \TT{type} {\em variable-name} \TT{=} {\em expression}
 \\[2ex]
-\emkey{function-declaration}\label{FUNCTION-DECLARATION}
-    ::= \begin{tabular}[t]{l}
-        {\em function-prototype} \TT{:} \\
-	\TT{~~~~~}{\em statement}\PLUS{}
-	\end{tabular}
-\\[2ex]
 \emkey{function-call}\label{FUNCTION-CALL}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
@@ -4924,6 +4929,157 @@ follow an {\em argument-declaration} with a {\em default-value}.
 
 \end{itemize}
 \end{indpar}
+
+A {\em function-call} with a {\em result-variable-list}
+is in effect replaced by a {\em block-assignment-statement}
+(Section~\itemref{BLOCK-ASSIGNMENT-STATEMENTS})
+with the {\em function-declaration's} {\em result-variable-list} becoming the 
+{\em result-variable-list} of the {\em block-assignment-statement} and the
+{\em function-declaration's} {\em statements} becoming the 
+{\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
+Actual argument values from the function call are assigned to variables in
+the {\em function-declaration's} {\em argument-lists}.  The values produced in
+the declaration's {\em result-variable-list's} variables
+become the values of the {\em function-call}.
+
+A function call without any {\em result-variable-list}
+is just like a function call with an empty
+{\em result-variable-list}.
+
+A function call with an {\em input-variable-list} is just syntactic
+sugar for a function call with neither a {\em result-variable-list}
+or {\em input-variable-list}.  Specifically
+\begin{center}
+{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
+is syntactic sugar for \\
+{\tt F(a1,a2,...)~"="~(b1,b2,...)} \\
+\end{center}
+
+in which a term with \TT{"="} as its {\em function-term-name} is
+placed at the end of the function call.
+
+The context (\pagref{CONTEXT})
+in which the replacing block {\em statements} are executed
+is the context of the {\em function-declaration}, and
+\underline{not} the context of the {\em function-call}.
+
+All the names declared in the block replacing the {\em function-call}
+have the word \TT{C\$$n$} prepended to them to make them unique,
+where $n$ is a natural number unique to the {\em function-call}.
+But names used and not declared in the replacing block are
+resolved in the context of the {\em function-declaration}.
+
+An {\em argument-declaration} can be a {\em type-argument-declaration}
+of the form `{\tt type T}' for some {\em variable-name} {\tt T}.
+This makes {\tt T} into a {\em type-name} within the {\em function-declaration}
+containing the {\em type-argument-declaration}.  Also it allows the
+actual value of {\tt T} to be implied by a {\em function-call}.
+If an explicit value of {\tt T} is given in the call, that is used.
+Otherwise if {\tt T} is the type of a prototype result variable, and there
+is a corresponding {\em function-call} result variable, the type of
+that result variable is assigned as the value of {\tt T}.  Otherwise
+if {\tt T} is the type of some prototype argument variables, and
+the actual values of some of those variables in the call have
+natural types (\pagref{NATURAL-TYPE}), {\tt T} is assigned the least
+upper bound (\pagref{LEAST-UPPER-BOUND}) of these types (if there
+is no least upper bound the {\em function-prototype} does not
+match the {\em function-call}).
+
+
+For example,
+\begin{indpar}\begin{verbatim}
+function ( T result ) = add ( type T, T v1, T v2 ):
+    result = v1 + v2
+
+// Example usage
+//
+int32 x = ...
+int32 y = ...
+int32 z = add ( int32, x, y )  // T is explicitly given
+next z = add ( x, y )          // T = uns32 is implied
+\end{verbatim}\end{indpar}
+
+An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
+of the form `{\tt qualifiers Qs}' for some {\em variable-name} {\tt Qs}.
+This makes {\tt Qs} into a {\em qualifier-name}
+within the {\em function-declaration}
+containing the {\em type-argument-declaration}.  Note that {\tt Qs}
+is used like a {\em qualifier-name}, but its value is a set of
+zero or more qualifiers.
+
+The actual value of {\tt Qs} to be implied by a {\em function-call}.
+If an explicit value of {\tt Qs} is given in the call, that is used.
+Otherwise if {\tt Qs} is the given as a qualifier of a prototype
+result variable, and there is a corresponding {\em function-call}
+result variable, the qualifiers of that call result variable are
+assigned as the value of {\tt Qs}.  Otherwise
+if {\tt Qs} is given as the qualifiers of some prototype argument variables,
+and the actual values of some of those variables in the call have
+natural types (\pagref{NATURAL-TYPE}), {\tt Qs} is assigned the union
+of the qualifiers for these actual values.
+
+TBD
+
+For example,
+\begin{indpar}\begin{verbatim}
+define required protected qualifier in-range
+function ( Qs in-range T result ) =
+        check ( qualifiers Qs, type T, T v ):
+    if:
+        v < 0:
+	    error
+	v > 100:
+	    error
+	else:
+	    result = v
+
+function F ( in-range v ):
+    ... function body omitted ...
+
+// Example usage
+//
+int32 x = ...
+int32 y = check ( x )
+F ( x )    // Illegal, x does not have protected in-range
+F ( y )    // Legal, y has protected in-range
+\end{verbatim}\end{indpar}
+
+If an argument variable has type `\TT{qualifiers}',
+its value is a set of qualifiers,
+it can be used to denote the qualifiers of any variable
+after it in the {\em argument-variable-list}, and it can be
+used to compute qualifiers of either argument or result variables.
+For example:
+\begin{indpar}\begin{verbatim}
+function ( Qr pointer result ) =
+    increment ( qualfiers Qs, Qs pointer value )
+    [* Qr is Qs & { stack } *]:
+    . . . . . . . . . .
+\end{verbatim}\end{indpar}
+
+Here \TT{Qs} denotes the qualifiers of the `\TT{value}' argument
+and \TT{Qr} is just an abbreviation of the more complex
+qualifiers-valued expression defined by `\TT{[* Qr is~}\ldots\TT{*]}'.
+
+An argument \TT{Qs} of type `\TT{qualifiers}' may be implied if it
+denotes the qualifiers of a some argument appearing
+after it in its {\em argument-variable-list},
+or of any argument in any other {\em argument-variable-list}
+or any result variable.
+argument list, or of some result.
+An argument or result that implies the value of \TT{Qs}
+cannot have any other qualifiers.
+If there are several such arguments or results with \TT{Qs}
+as their qualifiers,
+the implied value of \TT{Qs} is the actual qualifiers of the leftmost such
+actual argument, or if there are no such arguments,
+the leftmost such actual result.
+
+If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
+but are given explicitly instead, their values must be available
+at compile time.
+
+TBD
 
 The body of an inline function is parsed, but it is not checked for
 errors before the function is called.  When the function is called,
@@ -5164,130 +5320,7 @@ mymod PV p = NULL
     // type mymod PV is chosen.
 \end{verbatim}\end{indpar}
 
-\section{Inline Functions}
-\label{INLINE-FUNCTIONS}
-
-Most functions are inline.  An inline function can call an out-of-line
-function by using
-a call assignment statement (\itemref{CALL-ASSIGNMENT-STATEMENTS})
-or the out-of-line assignment statement
-(\itemref{OUT-OF-LINE-ASSIGNMENT-STATEMENTS}).
-
-Inline function declarations have the form:
-
-\begin{indpar}
-\emkey{function-declaration}
-    ::= \begin{tabular}[t]{l}
-        \ttkey{function} {\em function-prototype}\TT{:} \\
-	~~~~ {\em statement}\STAR{} \\
-	\end{tabular}
-\\[1ex]
-\emkey{function-prototype}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-list} \TT{=} {\em function-name}
-	    {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{} \\
-    $|$ & {\em function-name} {\em argument-variable-list}\QMARK{}
-            \TT{=} {\em input-variable-list} \\
-    $|$ & {\em function-prototype}
-          \TT{[*} {\em conditioning-expression} \TT{*]} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
-    \end{tabular}
-\\[1ex]
-\emkey{conditioning-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em call-compile-time-logical-expression} \\
-    $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression} \\
-    $|$ & {\em other} as per Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
-    \end{tabular}
-\\[1ex]
-\emkey{result-variable-list} ::= see \pagref{RESULT-VARIABLE-LIST} \\
-\\[1ex]
-\emkey{argument-variable-list}\label{ARGUMENT-VARIABLE-LIST}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \TT{(~}{\em argument-variable-declaration} \\
-        & ~~~~~~~~~~
-	  \{ \TT{,} {\em argument-variable-declaration} \}\STAR{} \TT{)} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{argument-variable-declaration}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
-    \end{tabular}
-\end{indpar}
-
-A function call with a {\em result-variable-list}
-is in effect replaced by a {\em block-assignment-statement}
-(Section~\itemref{BlOCK-ASSIGNMENT-STATEMENTS})
-with the {\em function-declaration's} {\em result-variable-list} becoming the 
-{\em result-variable-list} of the {\em block-assignment-statement} and the
-{\em function-declaration's} {\em statements} becoming the 
-{\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
-Actual argument values from the function call are assigned to variables in
-the definition {\em argument-variable-list}.  The values produced in
-the {\em result-variable-list's} variables become the values of the
-function call when it is used as part of an {\em expression}.
-
-When this is done, the prototype names and names
-declared by {\em statements} in the
-function block are in effect changed so they will not conflict
-with names the call is within scope of.  Also, names not declared
-in the function block but used in the block are resolved
-in the scope of the function declaration itself,
-and not in the context of a call to the function.\footnote{
-Because L-Language is a single assignment language, all such
-names are the names of constants.}
-
-A function call without any {\em result-variable-list}
-is just like a function call with an empty
-{\em result-variable-list}.
-
-A function call with an {\em input-variable-list} is just syntactic
-sugar for a function call with neither a {\em result-variable-list}
-or {\em input-variable-list}.  Specifically
-\begin{center}
-\TT{F(a1,a2,...)~=~(b1,b2,...)} \\
-is syntactic sugar for \\
-\TT{F(a1,a2,...)(b1,b2,...)} \\
-\end{center}
-
-where use is made of the fact that a function can have multiple
-argument lists (Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
-
-An argument or return variable can have the `\TT{type}' type.
-If an argument variable has type `\TT{type}', its value can be used as the
-type of other argument variables that are
-after it in its {\em argument-variable-list},
-or of any argument in any other {\em argument-variable-list}
-(a function prototype can have more than one {\em argument-variable-list}:
-see \itemref{FUNCTION-PROTOTYPES-AND-CALLS})
-or any
-result variable.  For example:
-
-\begin{indpar}\begin{verbatim}
-function ( T result ) = add ( type T, T v1, T v2 ):
-    result = v1 + v2
-
-// Example usage
-//
-int32 x = ...
-int32 y = ...
-int32 z = add ( int32, x, y )
-\end{verbatim}\end{indpar}
-
-A `\TT{type}' argument can be implied if it is the type of another argument
-after it in the argument list, or the type of
-any argument in any other {\em argument-variable-list}
-or any result variable.  For example:
-
-\begin{indpar}\begin{verbatim}
-int32 z = add ( x, y )
-\end{verbatim}\end{indpar}
-
-If there are several such arguments or results which have the implied
-type, the type implied is the actual type of the leftmost such
-actual argument, or if there are no such arguments,
-the leftmost such actual result.
+XXXX
 
 {\em Conditioning-expressions}
 can be written at the end of a {\em function-prototype},
@@ -5304,41 +5337,6 @@ function ( T result ) = add ( type T, T v1, T v2 )
 which would define `\TT{add}' only for signed integer types.
 The conditions must be evaluatable whenever a call to the
 function is compiled.
-
-If an argument variable has type `\TT{qualifiers}',
-its value is a set of qualifiers,
-it can be used to denote the qualifiers of any variable
-after it in the {\em argument-variable-list}, and it can be
-used to compute qualifiers of either argument or result variables.
-For example:
-\begin{indpar}\begin{verbatim}
-function ( Qr pointer result ) =
-    increment ( qualfiers Qs, Qs pointer value )
-    [* Qr is Qs & { stack } *]:
-    . . . . . . . . . .
-\end{verbatim}\end{indpar}
-
-Here \TT{Qs} denotes the qualifiers of the `\TT{value}' argument
-and \TT{Qr} is just an abbreviation of the more complex
-qualifiers-valued expression defined by `\TT{[* Qr is~}\ldots\TT{*]}'.
-
-An argument \TT{Qs} of type `\TT{qualifiers}' may be implied if it
-denotes the qualifiers of a some argument appearing
-after it in its {\em argument-variable-list},
-or of any argument in any other {\em argument-variable-list}
-or any result variable.
-argument list, or of some result.
-An argument or result that implies the value of \TT{Qs}
-cannot have any other qualifiers.
-If there are several such arguments or results with \TT{Qs}
-as their qualifiers,
-the implied value of \TT{Qs} is the actual qualifiers of the leftmost such
-actual argument, or if there are no such arguments,
-the leftmost such actual result.
-
-If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
-but are given explicitly instead, their values must be available
-at compile time.
 
 Since they are inline, functions can use abbreviation arguments as function
 names.  An example is:

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 25, 2018
+February 26, 2018
  
 \end{center}
 
@@ -4788,6 +4788,7 @@ The syntax is:
     $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
                            ~ {\em function-pattern} ~ \TT{=} \\
         & \TT{~~~~~}{\em input-variable-list} \\
+    $|$ & {\em function-prototype} \TT{[*} {\em conditioner} \TT{*]}
     \end{tabular}
 \\[0.5ex]
 \emkey{prototype-result-variable-list} ::= \\
@@ -4836,13 +4837,33 @@ The syntax is:
     ::= {\em type-name} {\em variable-name}
         \{ \TT{?=} {\em default-value} \}\QMARK{}
 \\[0.5ex]
+\emkey{qualifiers-argument-declaration} ::= \TT{qualifiers} {\em variable-name}
+\\[0.5ex]
+\emkey{type-argument-declaration} ::= \TT{type} {\em variable-name}
+\\[0.5ex]
 \emkey{default-value} ::= \TT{??} $|$ {\em expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+\emkey{conditioner}\label{CONDITIONER}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em logical-conditioner} \\
+    $|$ & {\em qualifiers-conditioner} \\
+    $|$ & {\em type-conditioner} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{logical-conditioner}\label{LOGICAL-CONDITIONER}
+    ::= {\em logical-expression}
+\\[0.5ex]
+\emkey{qualifiers-conditioner}\label{QUALIFIERS-CONDITIONER}
+    ::= \TT{qualifiers} {\em variable-name} \TT{=} {\em expression}
+\\[0.5ex]
+\emkey{type-conditioner}\label{TYPE-CONDITIONER}
+    ::= \TT{type} {\em variable-name} \TT{=} {\em expression}
 \\[2ex]
 \emkey{function-declaration}\label{FUNCTION-DECLARATION}
     ::= \begin{tabular}[t]{l}
-        \{ \ttkey{out of line} \}\QMARK{} ~ {\em function-prototype} \TT{:} \\
+        {\em function-prototype} \TT{:} \\
 	\TT{~~~~~}{\em statement}\PLUS{}
 	\end{tabular}
 \\[2ex]
@@ -4895,10 +4916,6 @@ follow an {\em argument-declaration} with a {\em default-value}.
 
 \end{itemize}
 \end{indpar}
-
-A function is inline unless a {\em function-prototype}
-for the function precedes the {\em function-declaration} in a compilation, or
-the {\em function-declaration} begins with `\TT{out of line}'.
 
 The body of an inline function is parsed, but it is not checked for
 errors before the function is called.  When the function is called,

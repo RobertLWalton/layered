@@ -822,10 +822,10 @@ The L-Language uses several kinds of names:
 			\end{tabular} \\
 \emkey{member-subscript} ::= see \pagref{MEMBER-SUBSCRIPT} \\
 \emkey{function-term-name} ::= {\em name} \\
-\emkey{function-initial-term-name} ::=
+\emkey{initial-function-term-name} ::=
     \begin{tabular}[t]{@{}l@{}}
     {\em function-term-name} that can appear \\
-    at the beginning of a {\em function-call};
+    at the beginning of a {\em statement};
     see \pagref{INITIAL-FUNCTION-TERM-NAME}
     \end{tabular}
 
@@ -833,10 +833,10 @@ where
 \begin{enumerate}
 \item A {\em type-name} may not be an initial segment of another
 {\em type-name}, of a {\em variable-base-name},
-or of an {\em function-initial-term-name}.
+or of an {\em initial-function-term-name}.
 \item A {\em qualifier-name} may not be an initial segment of another
 {\em qualifier-name}, of a {\em type-name},
-or of a {\em function-initial-term-name}.
+or of a {\em initial-function-term-name}.
 \item
 A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
 may not begin with the word `\TT{next}' or `\TT{previous}'.
@@ -2684,7 +2684,7 @@ The qualifiers may be declared by:
 \end{indpar}
 
 No {\em qualifier-name} may be a prefix of another {\em qualifier-name},
-or of any {\em type-name}, or of any {\em function-initial-term-name}.
+or of any {\em type-name}, or of any {\em initial-function-term-name}.
 No qualifier name may begin with `\TT{next}'
 or `\TT{previous}'.
 
@@ -4823,6 +4823,8 @@ The syntax is:
     \begin{tabular}[t]{@{}l@{}}
     first {\em function-term-name} in any {\em function-pattern} \\
     that does not begin with a {\em prototype-argument-list} \\
+    and does not follow an \TT{=} in the {\em function-prototype} \\
+    (an {\em initial-function-term-name} may begin a {\em statement}) \\
     \end{tabular}
 \\[0.5ex]
 \emkey{prototype-argument-list}
@@ -4898,10 +4900,8 @@ A {\em function-prototype} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em function-prototype}.
 \item
-The first {\em function-term-name} of a {\em function-prototype}
-should not have a {\em type-name} as an initial segment
-unless it is preceded by a \TT{=} in
-the {\em function-prototype}
+An {\em initial-function-term-name}
+must not have a {\em qualifier-name} or {\em type-name} as an initial segment.
 (see Type Name Rule, \pagref{TYPE-NAME-RULE}).
 \item
 \TT{"="} cannot be used as a {\em function-term-name}
@@ -4909,6 +4909,14 @@ in a {\em function-prototype}.
 \item
 All the {\em variable-names} in a {\em function-prototype} must
 be distinct.
+\item
+The {\em variable-name} in a {\em qualifiers-argument-declaration}
+or a {\em qualifiers-conditioner} is treated as a {\em qualifier-name}
+within the {\em function-prototype}.
+\item
+The {\em variable-name} in a {\em type-argument-declaration}
+or a {\em type-conditioner} is treated as a {\em type-name}
+within the {\em function-prototype}.
 \item
 In a {\em prototype-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 23, 2018
+February 25, 2018
  
 \end{center}
 
@@ -784,19 +784,19 @@ abbreviation defined by:
 \end{center}
 and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
 
-Similarly a builtin function such as:
+
+Similarly the  builtin function such as \TT{round} as used in:
 \begin{center}
-\TT{float$x$ r = round ( float$x$}{\em -value}\TT{ )} \\
+{\tt float$x$ r = round ( float$x$ v )} \\
 \end{center}
 actually has the function prototype (\pagref{FUNCTION-PROTOTYPE}):
 \begin{center}
-\TT{function std float$x$ r = std round ( std float$x$ value )} \\
+{\tt function std float$x$ r = std round ( std float$x$ v )} \\
 \end{center}
 so its proper name is `\TT{std round}' and not `\TT{round}',
 but in this case it is not necessary (or desirable) to make `\TT{round}'
 an abbreviation because its module can be implied in a function call
 (see `module deficient' on \pagref{MODULE-DEFICIENT}).
-
 \subsection{Kinds of Names}
 
 The L-Language uses several kinds of names:
@@ -4016,8 +4016,8 @@ See Section~\itemref{STACK-MANAGEMENT} for more information about
 function frames.
 
 If the {\em expression-list} is a single {\em expression} that
-is a {\em function-call}, the {\em function-call}
-itself returns a list of values, and this list of values is used.
+is a {\em function-call} which returns a list of values,
+this list of values is used.
 
 The value assigned to each result variable must be implicitly convertible to
 the variable's type.
@@ -4766,6 +4766,378 @@ are given initial values.  Unlike normal code, values of variables
 of an {\em assembly-assignment-statement} can be overwritten by the
 {\em assembler-instructions}, and there is no check to be sure that
 result variables receive any value.
+
+\section{Function Prototypes and Calls}
+\label{FUNCTION-PROTOTYPES-AND-CALLS}
+
+Inline functions are declared by {\em function-declarations}
+that contain a {\em function-prototype} and the code body of the
+function.  Note that inline functions cannot be called recursively.
+
+The syntax is:
+
+\begin{indpar}
+\emkey{function-prototype}\label{FUNCTION-PROTOTYPE}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \ttkey{function} ~
+          {\em prototype-result-variable-list} ~ \TT{=} \\
+        & \TT{~~~~~}{\em module-abbreviation}\QMARK{}
+	                ~ {\em function-pattern} \\
+    $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
+                           ~ {\em function-pattern} \\
+    $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
+                           ~ {\em function-pattern} ~ \TT{=} \\
+        & \TT{~~~~~}{\em input-variable-list} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{prototype-result-variable-list} ::= \\
+\hspace*{0.5in}
+    {\em result-variable-declaration}
+    \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
+\\[0.5ex]
+{\em result-variable-declaration} ::= see \pagref{RESULT-VARIABLE-DECLARATION}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\\[0.5ex]
+\emkey{input-variable-list}
+    ::= {\em first-input-argument-declaration}
+                 \{ \TT{,} {\em argument-declaration} \}\STAR{}
+\\[0.5ex]
+\emkey{first-input-argument-declaration} ::= {\em argument-declaration}
+	without a {\em default-value}
+\\[0.5ex]
+\emkey{function-pattern}\label{FUNCTION-PATTERN}
+    ::= {\em first-prototype-term} ~ {\em prototype-term}\STAR{}
+\\[0.5ex]
+\emkey{first-prototype-term} ::= {\em prototype-argument-list}\STAR{} ~
+				{\em prototype-term}
+\\[0.5ex]
+\emkey{prototype-term}
+    ::= {\em function-term-name} ~ {\em prototype-argument-list}\PLUS{}
+\\[0.5ex]
+\emkey{function-term-name} ::= {\em name} \underline{not} containing `\TT{.}'
+                                ~~~~~ [see \pagref{NAMES}]
+\\[0.5ex]
+\emkey{initial-function-term-name}\label{INITIAL-FUNCTION-TERM-NAME} ::=
+    \begin{tabular}[t]{@{}l@{}}
+    first {\em function-term-name} in any {\em function-pattern} \\
+    that does not begin with a {\em prototype-argument-list} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{prototype-argument-list}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \TT{(} {\em argument-declaration}
+                 \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em argument-declaration}
+                 \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{]} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{argument-declaration}
+    ::= {\em type-name} {\em variable-name}
+        \{ \TT{?=} {\em default-value} \}\QMARK{}
+\\[0.5ex]
+\emkey{default-value} ::= \TT{??} $|$ {\em expression}
+\\[0.5ex]
+{\em expression} ::= see \pagref{EXPRESSION}
+\\[2ex]
+\emkey{function-declaration}\label{FUNCTION-DECLARATION}
+    ::= \begin{tabular}[t]{l}
+        \{ \ttkey{out of line} \}\QMARK{} ~ {\em function-prototype} \TT{:} \\
+	\TT{~~~~~}{\em statement}\PLUS{}
+	\end{tabular}
+\\[2ex]
+\emkey{function-call}\label{FUNCTION-CALL}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
+          ~ {\em call-term}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{first-call-term} ::= {\em call-argument-list}\STAR{}
+				{\em call-term}
+\\[0.5ex]
+\emkey{call-term}
+    ::= {\em function-term-name} {\em call-argument-list}\STAR{}
+\\[1ex]
+\emkey{call-argument-list}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \TT{(} {\em actual-argument}
+                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em actual-argument}
+                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
+    $|$ & \TT{()} $|$ \TT{[]} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{actual-argument} ::= {\em expression}
+\\[0.5ex]
+{\em expression} ::= see \pagref{EXPRESSION}
+
+\begin{itemize}
+\item
+A {\em function-prototype} {\em function-term-name} must not be
+an initial segment of any other {\em function-term-name}
+in the same {\em function-prototype}.
+\item
+The first {\em function-term-name} of a {\em function-prototype}
+should not have a {\em type-name} as an initial segment
+unless it is preceded by a \TT{=} in
+the {\em function-prototype}
+(see Type Name Rule, \pagref{TYPE-NAME-RULE}).
+\item
+\TT{"="} cannot be used as a {\em function-term-name}
+in a {\em function-prototype}.
+\item
+All the {\em variable-names} in a {\em function-prototype} must
+be distinct.
+\item
+In a {\em prototype-argument-list} or {\em input-variable-list}
+an {\em argument-declaration} with no {\em de\-fault-value} cannot
+follow an {\em argument-declaration} with a {\em default-value}.
+
+\end{itemize}
+\end{indpar}
+
+A function is inline unless a {\em function-prototype}
+for the function precedes the {\em function-declaration} in a compilation, or
+the {\em function-declaration} begins with `\TT{out of line}'.
+
+The body of an inline function is parsed, but it is not checked for
+errors before the function is called.  When the function is called,
+compile time values passed as arguments may cause parts of the body
+to never be compiled or checked for compilation errors.  If a function
+is never called, it may contain code that would have compilation errors
+were the function called, such as calls to non-existent functions.
+
+\subsection{Matching Function Calls to Prototypes}
+\label{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}
+
+To compile a {\em function-call} it must be matched to a
+single {\em function-prototype}.  If it matches more than one
+{\em function-prototype}, the call is ambiguous and is a compilation error
+
+The matching algorithm, given a {\em function-call} and a
+{\em function prototype}, is as follows:
+
+\begin{enumerate}
+
+\item
+If the {\em function-call} is in a statement of the form
+\begin{center}
+{\em function-call} ~ \TT{=} ~ {\em expression-list}
+\end{center}
+the {\em function-prototype} must be of the form
+\begin{center}
+{\tt function} ~ {\em function-pattern} ~ {\tt =} ~ {\em input-variable-list} \\
+\end{center}
+and the following will be done:
+\begin{enumerate}
+\item `\TT{=}' will be treated in the following as if it were the
+{\em function-term-name} \TT{"="}.
+\item{\em expression-list} is parenthesized.
+\item {\em input-variable-list} is parenthesized.
+\end{enumerate}
+
+For example, the prototype
+\begin{center}
+\tt function F ( int64 i ) = int32 x, int32 y
+\end{center}
+behaves as if it were
+\begin{center}
+\tt function F ( int64 i ) "=" ( int32 x, int32 y )
+\end{center}
+and the assignment statement
+\begin{center}
+\tt F ( i ) = x, y
+\end{center}
+behaves as if it were the function call with no result variables
+\begin{center}
+\tt F ( i ) "=" ( x, y )
+\end{center}
+
+\item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
+If the {\em function-call} is in a statement of the form
+\begin{center}
+{\tt $TC1$ $VC1$, $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
+\end{center}
+the {\em function-prototype} must be of the form
+\begin{center}
+{\tt function $TR1$ $VR1$, $TR2$ $VR2$, \ldots{}~=~}{\em function-pattern}
+\end{center}
+with at least as many result variables in the prototype as in
+the {\em function-call} statement.  The statement is then
+replaced by:
+\begin{indpar}
+{\tt $TR1$ $tmp1$, $TR2$ $tmp2$, \ldots{}~=~}{\em function-call} \\
+{\tt $TC1$ $VC1$ = $tmp1$} \\
+{\tt $TC2$ $VC2$ = $tmp2$} \\
+\ldots\ldots\ldots\ldots
+\end{indpar}
+If any of the `{\tt $TCI$ $VC1$ = $tmpI$}' statements cannot be
+compiled because $TRI$ is not implicitly convertible
+to $TCI$, the match fails.  Note that extra prototype result variables
+are never used and are ultimately ignored.
+
+If $TR1$ and $TC1$ are not equal (but $TR1$ values are implicitly
+convertible to $TC1$ values), the match is marked
+`\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
+and will be disallowed later
+if there is another match that is not conversion deficient.
+Note that only the first result variable is considered by this rule.
+
+\item If the {\em function-call} has no result variables, the
+{\em function-prototype} must have no result variables.
+
+\item If the {\em function-call} begins with a {\em module-abbreviation}
+(see \pagref{MODULE-ABBREVIATION}), the {\em function-prototype}
+must begin with a {\em module-abbreviation}, and the two
+{\em module-abbreviations} must reference the same module file
+(see \itemref{MODULES}).
+
+\item If the {\em function-call} does \underline{not} begin
+with a {\em module-abbreviation}, but the {\em function-prototype}
+does begin with a {\em module-abbreviation}, the match is marked
+as `\key{module deficient}'\label{MODULE-DEFICIENT},
+and will be disallowed later if there is
+another match that is not module deficient.
+
+\item
+The {\em function-term-names} in the {\em function-call} are matched to
+{\em function-term-names} in the {\em function-prototype} by a left to right
+scan of the {\em function-call}.  Since {\em function-term-names} in the
+{\em function-prototype} cannot be initial segments of each other,
+this match will be unique even if argument lists are missing
+from the {\em function-call}.  If this {\em function-term-name} match
+cannot be made, the match fails.
+
+\item The first {\em function-term-name} in the {\em function-call}
+must match the first {\em function-term-name} in the {\em function-prototype},
+else the match fails.
+
+\item The {\em call-terms} after the first in the {\em function-call}
+are reordered so the {\em function-term-names} in the {\em function-call},
+taken in order, are a subsequence of the {\em function-term-names} in the
+{\em function-prototype}.
+If this cannot be done, the match fails.
+
+\item\label{ADD-TERMS}
+If some of the prototype {\em function-term-names} are missing from the call,
+new {\em call-terms} without argument lists
+are inserted in the call to match the missing
+{\em prototype-terms}.  At this point there is a 1-1 correspondence
+between {\em call-terms} and {\em prototype-terms}.
+
+\item
+If some of the {\em prototype-terms} have argument lists that
+are missing in the matching {\em call-terms}, empty argument lists
+with the same type of bracket, \TT{()} or \TT{[]}, are inserted.
+If this cannot be done \underline{unambiguously}
+so each {\em prototype-term} argument
+list is matched to an argument list of the associated {\em call-term}
+that has the same type of bracket, then the match fails.
+
+\item
+If some of the actual argument lists are too short, they are extended
+by adding the {\em default-values} of their matching prototype
+arguments.  As a special case, if a {\em default-value} is `\TT{??}',
+the actual {\em default-value} used is \TT{true} if the {\em function-term-name}
+appeared in the original function call and was not added in
+Step~\ref{ADD-TERMS} above, or is \TT{false} if the {\em function-term-name}
+did not appear in the original function call, but was added in
+Step~\ref{ADD-TERMS}.
+If any of the arguments that
+need to be inserted do not have {\em default-values}, the match
+fails.
+
+Otherwise the revised function call is referred to as the
+`\mkey{unfolded}{function call}' {\em function-call}.
+
+The unfolded {\em function-call} now matches
+the {\em function-prototype} in {\em function-term-names},
+location and number of argument lists, type of bracket, i.e. \TT{()} or
+\TT{[]} for each argument list, and number of arguments in each
+list.
+
+\item If the unfolded {\em function-call} has {\em actual-argument}
+expressions $e1$, $e2$, \ldots{} read from left to right
+(including {\em default-values}),
+and the {\em function-prototype} has (non-result)
+{\em argument-declarations} `$T1$ $v1$', `$T2$ $v2$', \ldots{}
+read from left to right, then the statement containing the
+revised {\em function-call} is replace by:
+\begin{indpar}
+{\tt $T1$ $tmp1$ = $e1$} \\
+{\tt $T2$ $tmp2$ = $e2$} \\
+\ldots\ldots\ldots\ldots \\
+statement containing {\em function-call}
+with each {\em actual-argument} $eI$ replaced by $tmpI$
+\end{indpar}
+
+If all the statements `{\tt $TI$ $tmpI$ = $eI$}' can be compiled
+without error, the match succeeds.
+
+If any of the statements `{\tt $TI$ $tmpI$ = $eI$}' cannot be compiled
+for a reason other then an ambiguity error, the match fails.
+
+Otherwise the match is `\key{ambiguity deficient}' (and will be
+rejected later, possibly for another reason).
+
+
+\end{enumerate}
+
+The first step in compiling a {\em function-call} is to compute the
+set of matches of that call.  Then the following is done in order:
+
+\begin{enumerate}
+
+\item If there is any match that is not conversion deficient, then
+all conversion deficient matches are discarded.
+
+\item If there is any remaining match that is not module deficient, then
+all module deficient matches are discarded.
+
+\item Let $e1$, $e2$, \ldots{}~be the argument expressions of
+the not-unfolded original {\em function-call}, read from left to right.
+If there are two matches $X$ and $Y$ such that
+$TX1$, $TX2$, \ldots{}~are the types of the $X$ prototype argument
+variables assigned to $e1$, $e2$, \ldots{}~in order, and
+$TY1$, $TY2$, \ldots{}~are the types of the $Y$ argument
+variables assigned to $e1$, $e2$, \ldots{}~in order,
+and values of type
+$TXi$ are implicitly convertible to values of type $TYi$ for
+every $i$,
+then the $Y$ match is discarded.
+
+\item If after discarding matches as above, there are no matches,
+the {\em function-call} is `\key{unmatched}' and cannot be compiled.
+
+\item If after discarding matches as above, there is a match left
+with an ambiguity deficiency,
+the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
+
+\item If after discarding matches as above, there is more than one
+match left,
+the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
+
+\item Otherwise there is just one match left, and that
+match has no ambiguity deficiency.  That match
+is accepted and used to compile the {\em function-call}.
+\end{enumerate}
+
+As an application of these rules consider the example:
+\begin{indpar}\begin{verbatim}
+// mymod is module abbreviation of current module.
+//
+type mymod T is packed tuple:
+    int32 x
+    int32 y
+type mymod PV is pointer to vector of mymod T
+type mymod PE is pointer to mymod T
+mymod PV p = NULL
+    // Of the many NULL functions, only one has
+    // result type mymod PV.  Another with
+    // result type mymod PE is conversion deficient.
+    // Both are module deficient.  So the one with
+    // type mymod PV is chosen.
+\end{verbatim}\end{indpar}
 
 \section{Inline Functions}
 \label{INLINE-FUNCTIONS}

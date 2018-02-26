@@ -1978,7 +1978,7 @@ Returns the set difference of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function bool r =
-    ($E$ e) \ttmkey{in}{enumeration set} ($S$ s)}
+    ($E$ e) \ttmkey{is in}{enumeration set} ($S$ s)}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
@@ -5009,77 +5009,142 @@ zero or more qualifiers.
 
 The actual value of {\tt Qs} to be implied by a {\em function-call}.
 If an explicit value of {\tt Qs} is given in the call, that is used.
-Otherwise if {\tt Qs} is the given as a qualifier of a prototype
-result variable, and there is a corresponding {\em function-call}
+Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
+of a prototype result variable, and there is a corresponding {\em function-call}
 result variable, the qualifiers of that call result variable are
 assigned as the value of {\tt Qs}.  Otherwise
-if {\tt Qs} is given as the qualifiers of some prototype argument variables,
+if {\tt Qs} is given as the \underline{only} qualifier
+of some prototype argument variables,
 and the actual values of some of those variables in the call have
 natural types (\pagref{NATURAL-TYPE}), {\tt Qs} is assigned the union
 of the qualifiers for these actual values.
 
-TBD
 
 For example,
 \begin{indpar}\begin{verbatim}
-define required protected qualifier in-range
-function ( Qs in-range T result ) =
-        check ( qualifiers Qs, type T, T v ):
+define required protected required qualifier in-range
+define required prohibited qualifier ouch
+function Qs in-range T r =
+        check ( qualifiers Qs, type T, Qs T v ):
     if:
         v < 0:
-	    error
-	v > 100:
-	    error
-	else:
-	    result = v
+            error "argument < 0"
+        v > 100:
+            error "argument > 100"
+        else:
+            result = v
 
 function F ( in-range v ):
     ... function body omitted ...
 
 // Example usage
 //
-int32 x = ...
-int32 y = check ( x )
+ouch int32 x = ...
+ouch int32 y1 = check ( x )
+           // Legal: check prototype becomes:
+           //   ouch in-range r = check ( ouch int32 v )
+           // so argument can have qualifier ouch,
+           // and y1 must have qualifier ouch.
+int32 y2 = check ( x )
+           // Illegal, result `ouch in-range r' cannot
+           // be converted to y2 which has no `ouch'
+           // qualifer.
 F ( x )    // Illegal, x does not have protected in-range
-F ( y )    // Legal, y has protected in-range
+F ( y1 )   // Legal, y1 has protected in-range
 \end{verbatim}\end{indpar}
 
-If an argument variable has type `\TT{qualifiers}',
-its value is a set of qualifiers,
-it can be used to denote the qualifiers of any variable
-after it in the {\em argument-variable-list}, and it can be
-used to compute qualifiers of either argument or result variables.
-For example:
+{\em Conditioners} can be written at the end of a {\em function-prototype},
+as in:
 \begin{indpar}\begin{verbatim}
-function ( Qr pointer result ) =
-    increment ( qualfiers Qs, Qs pointer value )
-    [* Qr is Qs & { stack } *]:
-    . . . . . . . . . .
+types signed-integer-types =
+    { int8, int16, int32, int64, int128 }
+
+function ( T result ) = add ( type T, T v1, T v2 )
+    [* T is in signed-integer-types *]:
+    result = v1 + v2
 \end{verbatim}\end{indpar}
 
-Here \TT{Qs} denotes the qualifiers of the `\TT{value}' argument
-and \TT{Qr} is just an abbreviation of the more complex
-qualifiers-valued expression defined by `\TT{[* Qr is~}\ldots\TT{*]}'.
+which would define `\TT{add}' only for signed integer types.
+Here the conditioner is a {\em logical-expression} that must
+be evaluatable whenever a call to the function is compiled.
 
-An argument \TT{Qs} of type `\TT{qualifiers}' may be implied if it
-denotes the qualifiers of a some argument appearing
-after it in its {\em argument-variable-list},
-or of any argument in any other {\em argument-variable-list}
-or any result variable.
-argument list, or of some result.
-An argument or result that implies the value of \TT{Qs}
-cannot have any other qualifiers.
-If there are several such arguments or results with \TT{Qs}
-as their qualifiers,
-the implied value of \TT{Qs} is the actual qualifiers of the leftmost such
-actual argument, or if there are no such arguments,
-the leftmost such actual result.
+Another example is:
+\begin{indpar}\begin{verbatim}
+function Qs2 T r = inc ( qualifiers Qs1, type T, Qs1 T v )
+    [* qualifiers Qs2 = Qs1 - { stack } *]:
+    return v + 1
+\end{verbatim}\end{indpar}
 
-If `\TT{type}' or `\TT{qualifiers}' arguments can be implied
-but are given explicitly instead, their values must be available
-at compile time.
+which returns {\tt v+1} with the same qualifiers as {\tt v}
+except for the `{\tt stack}' qualifier which is removed.
+Here the rightside of the {\em qualifiers-conditioner}
+must be evaluatable whenever the function is compiled.
 
-TBD
+A third example is:
+\begin{indpar}\begin{verbatim}
+function ( T r1, T r2 ) =
+        sort2 ( type T, T x, T y, name less-than )
+        [* lt ---> less-than *]
+    if:
+        lt ( x, y ):
+            r1 = x; r2 = y
+        else
+            r1 = y; r2 = x
+
+// Function that is like < except it makes a NaN less than
+// a non-NaN ( < is false if either argument is NaN ).
+//
+function bool r = less-than-float64 ( float64 x, float64 y ):
+    if:
+        is-NaN ( y ):
+            r = false
+        is-NaN ( x ):
+            r = true
+        x < y:
+            r = true
+        else:
+            r = false
+
+float64 b1 = 5.37857
+float64 b2 = 5.37289
+( float64 c1, float64 c2 ) =
+    sort2 ( b1, b2, `less-than-float64' )
+\end{verbatim}\end{indpar}
+
+Here the name of a function, {\tt `less-than-float64'}, is
+passed as an argument and used by an {\em abbreviation-conditioner}.
+
+Note, however, that as names in a function block are resolved in the context
+of the function block declaration, and not in the context of a
+call, the following fails:
+\begin{indpar}\begin{verbatim}
+function ( T r1, T r2 ) = sort2 ( type T, T x, T y ):
+    if:
+        less-than ( x, y ):
+            r1 = x; r2 = y
+        else
+            r1 = y; r2 = x
+
+// Function that is like < except it makes a NaN less than
+// a non-NaN ( < is false if either argument is NaN ).
+//
+function bool r = less-than ( float64 x, float64 y ):
+    if:
+        is-NaN ( y ):
+            r = false
+        is-NaN ( x ):
+            r = true
+        x < y:
+            r = true
+        else:
+            r = false
+
+float64 b1 = 5.37857
+float64 b2 = 5.37289
+( float64 c1, float64 c2 ) = sort2 ( b1, b2  )
+    // Illegal because `less-than' in sort2 declaration
+    // was not defined when sort2 was declared.
+\end{verbatim}\end{indpar}
 
 The body of an inline function is parsed, but it is not checked for
 errors before the function is called.  When the function is called,
@@ -5319,136 +5384,6 @@ mymod PV p = NULL
     // Both are module deficient.  So the one with
     // type mymod PV is chosen.
 \end{verbatim}\end{indpar}
-
-XXXX
-
-{\em Conditioning-expressions}
-can be written at the end of a {\em function-prototype},
-as in:
-\begin{indpar}\begin{verbatim}
-types signed-integer-types =
-    { int8, int16, int32, int64, int128 }
-
-function ( T result ) = add ( type T, T v1, T v2 )
-    [* T is in signed-integer-types *]:
-    result = v1 + v2
-\end{verbatim}\end{indpar}
-
-which would define `\TT{add}' only for signed integer types.
-The conditions must be evaluatable whenever a call to the
-function is compiled.
-
-Since they are inline, functions can use abbreviation arguments as function
-names.  An example is:
-\begin{indpar}\begin{verbatim}
-function ( T r1, T r2 ) =
-        sort2 ( type T, T x, T y, abbreviation less-than ):
-    if:
-        less-than ( x, y ):
-            r1 = x; r2 = y
-        else
-            r1 = y; r2 = x
-
-// Function that is like < except it makes a NaN less than
-// a non-NaN ( < is false if either argument is NaN ).
-//
-function bool r = less-than-float64 ( float64 x, float64 y ):
-    r = if:
-        is-NaN ( y ): r = false
-        is-NaN ( x ): r = true
-        x < y:        r = true
-        else:         r = false
-
-float64 b1 = 5.37857
-float64 b2 = 5.37289
-( float64 c1, float64 c2 ) =
-    sort2 ( b1, b2, `less-than-float64' )
-\end{verbatim}\end{indpar}
-
-However, as names in a function block are resolved in the context
-of the function block declaration, and not in the context of a
-call, the following fails:
-\begin{indpar}\begin{verbatim}
-function ( T r1, T r2 ) = sort2 ( type T, T x, T y ):
-    if:
-        less-than ( x, y ):
-            r1 = x; r2 = y
-        else
-            r1 = y; r2 = x
-
-// Function that is like < except it makes a NaN less than
-// a non-NaN ( < is false if either argument is NaN ).
-//
-function bool r = less-than-float64 ( float64 x, float64 y ):
-    r = if:
-        is-NaN ( y ): r = false
-        is-NaN ( x ): r = true
-        x < y:        r = true
-        else:         r = false
-
-float64 b1 = 5.37857
-float64 b2 = 5.37289
-( float64 c1, float64 c2 ) = sort2 ( b1, b2  )
-    // Illegal because `less-than' in function block is
-    // not defined when function block was declared.
-\end{verbatim}\end{indpar}
-
-More complex {\em function-prototypes} can be written:
-see Function Prototypes and Calls, \itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
-In particular, implied conversions have the prototype:
-\begin{center}
-\TT{Q T2} {\em result-variable}%
-    ~~\TT{=}~~\TT{( qualifiers Q, Q T1} {\em source-variable} \TT{)}
-\end{center}
-for particular types \TT{T1} and \TT{T2}, and binary operators have prototypes
-like
-\begin{center}
-\TT{T1} {\em result-variable}%
-    ~~\TT{=}~~\TT{( T2} {\em argument-variable-1} \TT{)}
-    ~~\TT{"}{\em operator}\TT{"}~~\TT{( T2} {\em argument-variable-2} \TT{)}
-\end{center}
-for a particular types \TT{T1} and \TT{T2}
-and binary operator \TT{"}{\em operator}\TT{"}.
-
-{\em Result-variable-declarations} in a {\em function-prototype}
-can have the form `\TT{next~v}' where \TT{v} is a {\em variable-name}.%
-In this case \TT{v} must be the name of
-an argument in an {\em argument-variable-declaration} of
-the prototype.
-When the function is called, no actual result variable corresponding
-to the prototype `\TT{next v}' is given.
-If the actual argument for the prototype argument \TT{v} is itself
-a variable name \TT{w}, then `\TT{next w}' is treated as the actual
-result variable name corresponding to the prototype `\TT{next v}'.
-If the actual argument corresponding to \TT{v}
-is \underline{not} itself a variable name, the result corresponding
-to the prototype `\TT{next v}' is discarded.
-
-Both the prototype `\TT{next v}' and the implied actual `\TT{next w}'
-are called \key{implied next variables}.\label{IMPLIED-NEXT-VARIABLES}
-
-The following is an example:
-
-\begin{indpar}\begin{verbatim}
-function (next i, bool over)
-        inc ( min::uns32 i, min::uns32 limit ):
-    next i = i + 1
-    over = i > limit
-
-uns32 x = 100
-inc ( x )                   // sets next x to 101,
-                            // discards over
-bool b = inc ( x, 102 )     // sets next x to 102,
-                            // b to false
-next b = inc ( x, 102 )     // sets next x to 103,
-                            // next b to true
-next b = inc ( x - 3, 102 ) // discards next i = 101,
-                            // sets next b to false
-inc ( x - 3, 102 )          // discards next i = 101
-                            // and over
-\end{verbatim}\end{indpar}
-
-
 
 \section{Includes}
 \label{INCLUDES}

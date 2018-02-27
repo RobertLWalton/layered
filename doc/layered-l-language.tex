@@ -5341,45 +5341,71 @@ location and number of argument lists, type of bracket, i.e. \TT{()} or
 \TT{[]} for each argument list, and number of arguments in each
 list.
 
+Note that since default values are evaluated in the context of
+the {\em function-declaration}, if they can be evaluated at compile-time,
+they will already have been evaluated and are constants at this point.
+
+\item
+The {\em conditioners} in the {\em function-prototype} are evaluated
+in order.  If any of the expressions in them do not have compile-time
+values, the match fails.  If any {\em logical-conditioner} evaluates
+to \TT{false}, the match fails.
+
 \item If the unfolded {\em function-call} has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
 (including {\em default-values}),
 and the {\em function-prototype} has (non-result)
-{\em argument-declarations} `$T1$ $v1$', `$T2$ $v2$', \ldots{}
-read from left to right, then the statement containing the
+{\em argument-declarations} `$Qs1$ $T1$ $v1$', `$Qs2$ $T2$ $v2$', \ldots{}
+read from left to right, where the $Qs\ldots$ are possibly empty
+qualifier sets and the $T\ldots$ are types,
+then the statement containing the
 revised {\em function-call} is replace by:
 \begin{indpar}
-{\tt $T1$ $tmp1$ = $e1$} \\
-{\tt $T2$ $tmp2$ = $e2$} \\
+{\tt $Qs1$ $T1$ $tmp1$ = $e1$} \\
+{\tt $Qs2$ $T2$ $tmp2$ = $e2$} \\
 \ldots\ldots\ldots\ldots \\
 statement containing {\em function-call}
 with each {\em actual-argument} $eI$ replaced by $tmpI$
+\end{indpar}
+
+If all the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' can be compiled
+without error, the match succeeds.
+
+If any of the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' cannot be compiled
+for a reason other than an ambiguity error, the match fails.
+
+Otherwise the match is `\key{ambiguity deficient}' (and will be
+rejected later, possibly for another reason).
 
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
 If the {\em function-call} is in a statement of the form
 \begin{center}
-{\tt $TC1$ $VC1$, $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
+{\tt $QCs1$ $TC1$ $VC1$, $QCs2$ $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
 \end{center}
+with at least one result variable,
 the {\em function-prototype} must be of the form
 \begin{center}
-{\tt function $TR1$ $VR1$, $TR2$ $VR2$, \ldots{}~=~}{\em function-pattern}
+{\tt function $QRs1$ $TR1$ $VR1$, $QRs2$ $TR2$ $VR2$,
+     \ldots{}~=~}{\em function-pattern}
 \end{center}
 with at least as many result variables in the prototype as in
 the {\em function-call} statement.  The statement is then
 replaced by:
 \begin{indpar}
-{\tt $TR1$ $tmp1$, $TR2$ $tmp2$, \ldots{}~=~}{\em function-call} \\
-{\tt $TC1$ $VC1$ = $tmp1$} \\
-{\tt $TC2$ $VC2$ = $tmp2$} \\
+{\tt $QRs1$ $TR1$ $tmp1$, $QRs2$ $TR2$ $tmp2$,
+    \ldots{}~=~}{\em function-call} \\
+{\tt $QCs1$ $TC1$ $VC1$ = $tmp1$} \\
+{\tt $QCs2$ $TC2$ $VC2$ = $tmp2$} \\
 \ldots\ldots\ldots\ldots
 \end{indpar}
-If any of the `{\tt $TCI$ $VC1$ = $tmpI$}' statements cannot be
-compiled because $TRI$ is not implicitly convertible
-to $TCI$, the match fails.  Note that extra prototype result variables
+If any of the `{\tt $QCsI$ $TCI$ $VC1$ = $tmpI$}' statements cannot be
+compiled because $QRsI$ $TRI$ is not implicitly convertible
+to $QCsI$ $TCI$, the match fails.  Note that extra prototype result variables
 are never used and are ultimately ignored.
 
-If $TR1$ and $TC1$ are not equal (but $TR1$ values are implicitly
-convertible to $TC1$ values), the match is marked
+If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not equal
+(but $QRs1$ $TR1$ values are implicitly
+convertible to $QCs1$ $TC1$ values), the match is marked
 `\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
 and will be disallowed later
 if there is another match that is not conversion deficient.
@@ -5387,19 +5413,9 @@ Note that only the first result variable is considered by this rule.
 
 \item If the {\em function-call} has no result variables, the
 {\em function-prototype} must have no result variables.
-\end{indpar}
-
-If all the statements `{\tt $TI$ $tmpI$ = $eI$}' can be compiled
-without error, the match succeeds.
-
-If any of the statements `{\tt $TI$ $tmpI$ = $eI$}' cannot be compiled
-for a reason other then an ambiguity error, the match fails.
-
-Otherwise the match is `\key{ambiguity deficient}' (and will be
-rejected later, possibly for another reason).
-
 
 \end{enumerate}
+
 
 The first step in compiling a {\em function-call} is to compute the
 set of matches of that call.  Then the following is done in order:

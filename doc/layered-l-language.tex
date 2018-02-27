@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 26, 2018
+February 27, 2018
  
 \end{center}
 
@@ -2089,15 +2089,15 @@ type $T2$ if and only if an inline function with prototype:
 is defined.  In this case we say the $T1$ is \mkey{more specific}{types}
 than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
 \begin{center}
-{\tt $T1$~~\ABV~~$T2$}
+{\tt $T1~~\CNV~~T2$}
 \end{center}%
 \label{CONVERSION-RELATION}
 
-The transitive closure of the \TT{\ABV} relation between types is
+The transitive closure of the $\CNV$ relation between types is
 required to be a partial order,
 or equivalently, the directed graph whose nodes are types
 which has an edge from $T1$ to
-$T2$ if and only if \TT{$T1$~\ABV~$T2$} is required to be acyclic.
+$T2$ if and only if \TT{$T1~\CNV~T2$} is required to be acyclic.
 In addition, two different paths from one type to another are
 required to produce the same result.  For example:
 \begin{indpar}\begin{verbatim}
@@ -2108,6 +2108,12 @@ float64 v4 = v1
 // Given the two implied conversion paths v1 ---> v2 ---> v3
 // and v1 ---> v4, necessarily v3 == v4.
 \end{verbatim}\end{indpar}
+
+If for a set of types $\{T1,T2,\ldots\}$ there is a unique
+type $T$ such that $T1\TCNV T$, $T2\TCNV T$, \ldots{}, where
+$\TCNV$ is the transitive closure of $\CNV$, then
+$T$ is called the `\key{least upper bound}'\label{LEAST-UPPER-BOUND}
+of the set of types.
 
 Functions can be overloaded based on the number and types
 of their arguments and also on the values of arguments that
@@ -3336,9 +3342,9 @@ bool z1 = x < y2
 Non-numeric comparison operators require that one or more of
 the operands have a natural type (\pagref{NATURAL-TYPE}),
 and use as the target type
-the least type in the type partial ordering
-of section~\itemref{THE-CONVERSION-GRAPH} to which all the natural
-types are convertable.  It is a compile error if this type does
+the least upper bound (\pagref{LEAST-UPPER-BOUND})
+of all these natural types.
+It is a compile error if this least upper bound does
 not exist, or if it is \TT{bool} and no operand natural type was \TT{bool}.
 For example, given the expression `{\tt v == missing}', where \TT{v}
 is of `\TT{qualifier}' type, {\tt missing}, which has no natural type, will be
@@ -5002,7 +5008,7 @@ next z = add ( x, y )          // T = uns32 is implied
 An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
 of the form `{\tt qualifiers Qs}' for some {\em variable-name} {\tt Qs}.
 This makes {\tt Qs} into a {\em qualifier-name}
-within the {\em function-declaration}
+within the {\em function-de\-clar\-a\-tion}
 containing the {\em type-argument-declaration}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
@@ -5065,7 +5071,7 @@ function ( T result ) = add ( type T, T v1, T v2 )
 \end{verbatim}\end{indpar}
 
 which would define `\TT{add}' only for signed integer types.
-Here the conditioner is a {\em logical-expression} that must
+Here the conditioner is a {\em logical-ex\-pres\-sion} that must
 be evaluatable whenever a call to the function is compiled.
 
 Another example is:
@@ -5199,39 +5205,6 @@ behaves as if it were the function call with no result variables
 \tt F ( i ) "=" ( x, y )
 \end{center}
 
-\item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
-If the {\em function-call} is in a statement of the form
-\begin{center}
-{\tt $TC1$ $VC1$, $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
-\end{center}
-the {\em function-prototype} must be of the form
-\begin{center}
-{\tt function $TR1$ $VR1$, $TR2$ $VR2$, \ldots{}~=~}{\em function-pattern}
-\end{center}
-with at least as many result variables in the prototype as in
-the {\em function-call} statement.  The statement is then
-replaced by:
-\begin{indpar}
-{\tt $TR1$ $tmp1$, $TR2$ $tmp2$, \ldots{}~=~}{\em function-call} \\
-{\tt $TC1$ $VC1$ = $tmp1$} \\
-{\tt $TC2$ $VC2$ = $tmp2$} \\
-\ldots\ldots\ldots\ldots
-\end{indpar}
-If any of the `{\tt $TCI$ $VC1$ = $tmpI$}' statements cannot be
-compiled because $TRI$ is not implicitly convertible
-to $TCI$, the match fails.  Note that extra prototype result variables
-are never used and are ultimately ignored.
-
-If $TR1$ and $TC1$ are not equal (but $TR1$ values are implicitly
-convertible to $TC1$ values), the match is marked
-`\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
-and will be disallowed later
-if there is another match that is not conversion deficient.
-Note that only the first result variable is considered by this rule.
-
-\item If the {\em function-call} has no result variables, the
-{\em function-prototype} must have no result variables.
-
 \item If the {\em function-call} begins with a {\em module-abbreviation}
 (see \pagref{MODULE-ABBREVIATION}), the {\em function-prototype}
 must begin with a {\em module-abbreviation}, and the two
@@ -5281,6 +5254,72 @@ list is matched to an argument list of the associated {\em call-term}
 that has the same type of bracket, then the match fails.
 
 \item
+The first of the following rules that is applicable is applied,
+and then this is done repeatedly until none of the following
+rules apply:
+
+\begin{enumerate}
+
+\item
+If a prototype argument list begins with a {\em type-argument-declaration}
+and the matching actual argument list begins with an
+actual argument that is a compile time value that is a type,
+the {\em variable-name} of the {\em type-argument-declaration}
+is given this value and the {\em type-argument-declaration}.
+Otherwise this rule does not apply.
+
+If this rule applies, the {\em type-argument-declaration}
+is removed from the beginning of its argument list.
+
+\item
+If a prototype argument list begins with a {\em type-argument-declaration}
+(and the previous rule does not apply)
+then the type argument is implied.  If the {\em variable-name}
+in the {\em type-argument-declaration} is used as the {\em type-name}
+of a prototype result variable with a matching actual result,
+the type of the actual result is assigned as the value of the
+{\em variable-name}.  Otherwise if the {\em variable-name}
+is used as the {\em type-name} of several arguments whose matching
+actual arguments have natural types, and the set of these types
+has a least upper bound, this least upper bound is assigned as the
+value of the {\em variable-name}.
+Otherwise this rule does not apply.
+
+If this rule applies, the {\em type-argument-declaration}
+is removed from the beginning of its argument list.
+
+\item
+If a prototype argument list begins with a {\em qualifiers-argument-declaration}
+and the matching actual argument list begins with an
+actual argument that is a compile time value that is a qualifiers set,
+the {\em variable-name} of the {\em qualifiers-argument-declaration}
+is given this value.
+Otherwise this rule does not apply.
+
+If this rule applies, the {\em qualifiers-argument-declaration}
+is removed from the beginning of its argument list.
+
+
+\item
+If a prototype argument list begins with a {\em qualifiers-argument-declaration}
+(and the previous rule does not apply)
+then the qualifiers argument is implied.  If the {\em variable-name}
+in the {\em qualifiers-argument-declaration} is used as the sole
+{\em qualifier-name} of a prototype result variable with a matching
+actual result, the qualifiers of the actual result is assigned as the
+value of the {\em variable-name}.  Otherwise if the {\em variable-name}
+is used as the sole {\em qualifier-name} of several arguments whose matching
+actual arguments have natural types, and the union of the sets of qualifiers
+of these arguments is assigned as the
+value of the {\em variable-name}.
+Otherwise this rule does not apply.
+
+If this rule applies, the {\em type-argument-declaration}
+is removed from the beginning of its argument list.
+
+\end{enumerate}
+
+\item
 If some of the actual argument lists are too short, they are extended
 by adding the {\em default-values} of their matching prototype
 arguments.  As a special case, if a {\em default-value} is `\TT{??}',
@@ -5315,6 +5354,39 @@ revised {\em function-call} is replace by:
 \ldots\ldots\ldots\ldots \\
 statement containing {\em function-call}
 with each {\em actual-argument} $eI$ replaced by $tmpI$
+
+\item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
+If the {\em function-call} is in a statement of the form
+\begin{center}
+{\tt $TC1$ $VC1$, $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
+\end{center}
+the {\em function-prototype} must be of the form
+\begin{center}
+{\tt function $TR1$ $VR1$, $TR2$ $VR2$, \ldots{}~=~}{\em function-pattern}
+\end{center}
+with at least as many result variables in the prototype as in
+the {\em function-call} statement.  The statement is then
+replaced by:
+\begin{indpar}
+{\tt $TR1$ $tmp1$, $TR2$ $tmp2$, \ldots{}~=~}{\em function-call} \\
+{\tt $TC1$ $VC1$ = $tmp1$} \\
+{\tt $TC2$ $VC2$ = $tmp2$} \\
+\ldots\ldots\ldots\ldots
+\end{indpar}
+If any of the `{\tt $TCI$ $VC1$ = $tmpI$}' statements cannot be
+compiled because $TRI$ is not implicitly convertible
+to $TCI$, the match fails.  Note that extra prototype result variables
+are never used and are ultimately ignored.
+
+If $TR1$ and $TC1$ are not equal (but $TR1$ values are implicitly
+convertible to $TC1$ values), the match is marked
+`\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
+and will be disallowed later
+if there is another match that is not conversion deficient.
+Note that only the first result variable is considered by this rule.
+
+\item If the {\em function-call} has no result variables, the
+{\em function-prototype} must have no result variables.
 \end{indpar}
 
 If all the statements `{\tt $TI$ $tmpI$ = $eI$}' can be compiled

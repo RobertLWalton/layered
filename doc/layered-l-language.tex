@@ -5254,6 +5254,11 @@ list is matched to an argument list of the associated {\em call-term}
 that has the same type of bracket, then the match fails.
 
 \item
+If the prototype has cluster member arguments or result variables,
+these must be implied, and they are added to the {\em function-call}
+at this point.  See \pagref{CLUSTER-ARGUMENTS} for details.
+
+\item
 The first of the following rules that is applicable is applied,
 and then this is done repeatedly until none of the following
 rules apply:
@@ -6994,185 +6999,6 @@ block code will be re-executed in the run time environment when the
 file containing it is linked, and might produce different stack contents
 for the area than the compile time version of the area.
 
-\section{Function Prototypes and Calls}
-\label{FUNCTION-PROTOTYPES-AND-CALLS}
-
-In this section we elaborate on the {\em function-prototypes} that were
-introduced in Section~\itemref{INLINE-FUNCTIONS}.   Here we replace
-\begin{center}
-{\em function-name} {\em argument-variable-list}\QMARK{}
-\end{center}
-by `{\em function-pattern}'.  We also add to the set of possible
-{\em conditioning-expressions}.
-
-The extended syntax is:
-
-\begin{indpar}
-\emkey{function-declaration}
-    ::= \begin{tabular}[t]{l}
-        \ttkey{function} {\em function-prototype}
-	    \{ \TT{:} {\em block} \}\QMARK{} \\
-	\end{tabular}
-\\[1ex]
-\emkey{function-prototype}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em result-variable-list} \TT{=} {\em function-pattern} \\
-    $|$ & {\em function-pattern} \\
-    $|$ & {\em function-pattern} \TT{=} {\em input-variable-list} \\
-    $|$ & {\em function-prototype}
-          \TT{[*} {\em conditioning-expression} \TT{*]} \\
-    \end{tabular}
-\\[1ex]
-\emkey{result-variable-list} ::= see \pagref{RESULT-VARIABLE-LIST}
-\\[1ex]
-\emkey{function-pattern}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em first-function-term}
-          \{ \TT{\textasciitilde} {\em function-term} \}\STAR{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{first-function-term} ::= {\em argument-variable-list}\STAR{}
-				{\em function-term}
-\\[0.5ex]
-\emkey{function-term}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em pattern-name} \\
-        & ~~ \{ {\em argument-variable-list}\PLUS{}
-	        {\em pattern-name} \}\STAR{}  \\
-        & ~~ {\em argument-variable-list}\STAR{}
-	     {\em function-term-modifier}\QMARK{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{function-term-modifier} ::= \TT{?} $|$ \TT{...} $|$ \TT{...~?}
-\\[0.5ex]
-\emkey{pattern-name} ::= {\em name} see \pagref{NAMES}
-\\[1ex]
-\emkey{argument-variable-list}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em opening-argument-bracket}~~~%
-          {\em argument-variable-declaration} \\
-	& \{ {\em argument-separator}~~~%
-	     {\em argument-variable-declaration} \}\STAR{} \\
-	& \{ {\em argument-separator}
-	     \TT{...} \}\QMARK{} \\
-	& {\em closing-argument-bracket} \\
-	& [{\em argument-brackets} must match] \\
-	& [{\em argument-separators} must all be the same] \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{argument-variable-declaration}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{opening-argument-bracket} ::= \TT{(} $|$ \TT{[} $|$ \TT{\{}
-\\[0.5ex]
-\emkey{closing-argument-bracket} ::= \TT{)} $|$ \TT{]} $|$ \TT{\}}
-\\[0.5ex]
-\emkey{argument-separator} ::= \TT{,} $|$ \TT{;}
-\\[1ex]
-\emkey{conditioning-expression}\label{QUALIFYING-EXPRESSION}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em call-compile-time-logical-expression} \\
-    $|$ & {\em abbreviation-name} \TT{is} {\em call-compile-time-expression} \\
-    $|$ & {\em variable-name} ~ \ttkey{defaults to} ~ {\em expression} \\
-    $|$ & {\em pattern-name} ~ \TT{is} \\
-        & ~~~~~~~~
-          {\em alternative-name} \{ \TT{|} {\em alternative-name} \}\PLUS{}
-    \end{tabular}
-\\[0.5ex]
-\emkey{alternative-name} ::= {\em name} see \pagref{NAMES}
-\end{indpar}
-
-Matching a function call to a {\em function-pattern} begins as follows.
-The {\em function-pattern} is changed by omitting some
-{\em function-terms}, replicating others, and reordering the resulting
-list of {\em function-terms}.
-However, the first {\em function-term}
-in the {\em function-pattern} is never deleted or moved in the ordering.
-
-A {\em function-term} may be replicated only if its {\em function-term-modifier}
-contains `\TT{...}', and deleted only if its {\em function-term-modifier}
-contains `\TT{?}'.
-
-Any {\em pattern-name} that has
-{\em alternative-names} specified by a {\em conditioning-expression}
-is replaced by one of its {\em alternative-names}.
-
-If any {\em function-term} has the form
-\begin{center}
-{\em pattern-name} \TT{( bool } {\em variable-name} \TT{) ?}
-\end{center}
-the term may be replaced by either
-`{\em pattern-name}' or `\TT{no} {\em pattern-name}', in which
-cases the variable will be assigned the values \TT{true} or \TT{false}
-respectively.
-
-Then the `\TT{\textasciitilde}'s and {\em function-term-modifiers} are deleted.
-The result is called the `\key{unfolded}' pattern.
-
-At this point the function call and the unfolded pattern must match,
-in that
-{\em pattern-names} must match exactly, any `\TT{no}' introduced
-in the unfolded pattern must match exactly,
-{\em opening/\EOL closing-argument-brackets} must match exactly,
-while the remaining parts of {\em argu\-ment-variable-lists}
-must match as described below.
-
-To make the unfolded pattern unique, the sequence of {\em pattern-names}
-in each {\em function-term} must be different from the sequence of
-{\em pattern-names} in any other {\em function-term} of the
-{\em function-pattern}.
-
-Within the body of a function, {\em variable-arguments}
-in omittable or repeatable {\em pattern-terms} become bases of
-clusters whose members describe whether the variable was omitted
-or repeated in the unfolded {\em pattern}.
-
-If \TT{V} is the name of a repeatable variable (that may also
-be omittable), then:
-
-\begin{indpar}[0.5in]
-
-\hspace*{-0.3in}{\tt unsadr V.\ttmkey{count}{of {\tt variable name}} } \\
-Number of of times the variable name \TT{V} appears in the unfolded
-pattern.  This is the number of times the {\em pattern-term} containing
-the variable appears.  It is \TT{1} if the term is neither
-replicated or omitted, and \TT{0} if it is omitted.
-
-\hspace*{-0.3in}{\tt $T$ V\ttmkey{[$i$]}{of {\tt variable name}} } \\
-The value of the $i$+1'st occurance of \TT{V} in the unfolded pattern.
-The index $i$ may be computed at run time, and has the range
-\TT{0~..~V.count-1}.
-$T$ is the type of the variable given in the {\em pattern-term}.
-It is an error to use an index value that is out of range.
-
-
-\end{indpar}
-
-If \TT{V} is the name of a variable that may be omitted but not
-repeated, then:
-
-\begin{indpar}[0.5in]
-
-\hspace*{-0.3in}{\tt bool V.\ttmkey{present}{of {\tt variable name}} } \\
-True if the variable is present, and false if not.
-
-\end{indpar}
-
-In addition, if a variable can be omitted but not repeated, a default expression
-must be given for the variable in a `\ttkey{defaults to}'
-{\em conditioning-expression}.%
-\label{DEFAULTS-TO}
-If the variable \TT{V} is omitted, this
-expression will be used at run time to compute the variable's value,
-and `\TT{V.present}' will be set to `\TT{true}'.
-
-\section{Operators}
-\label{OPERATORS}
-
-TBD Operator syntax: x "+" y.
-
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}
 
@@ -7276,6 +7102,48 @@ Indirect address protocol.
 
 Define `compile-time function' as a function that can only be
 called at compile-time.
+
+Add `\TT{no} {\em function-term}' as a way of saying
+`{\em function-term} \TT{( false )}'.
+
+If \TT{V} is the name of a repeatable variable (that may also
+be omittable), then:
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.3in}{\tt unsadr V.\ttmkey{count}{of {\tt variable name}} } \\
+Number of of times the variable name \TT{V} appears in the unfolded
+pattern.  This is the number of times the {\em pattern-term} containing
+the variable appears.  It is \TT{1} if the term is neither
+replicated or omitted, and \TT{0} if it is omitted.
+
+\hspace*{-0.3in}{\tt $T$ V\ttmkey{[$i$]}{of {\tt variable name}} } \\
+The value of the $i$+1'st occurance of \TT{V} in the unfolded pattern.
+The index $i$ may be computed at run time, and has the range
+\TT{0~..~V.count-1}.
+$T$ is the type of the variable given in the {\em pattern-term}.
+It is an error to use an index value that is out of range.
+
+
+\end{indpar}
+
+If \TT{V} is the name of a variable that may be omitted but not
+repeated, then:
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.3in}{\tt bool V.\ttmkey{present}{of {\tt variable name}} } \\
+True if the variable is present, and false if not.
+
+\end{indpar}
+
+In addition, if a variable can be omitted but not repeated, a default expression
+must be given for the variable in a `\ttkey{defaults to}'
+{\em conditioning-expression}.%
+\label{DEFAULTS-TO}
+If the variable \TT{V} is omitted, this
+expression will be used at run time to compute the variable's value,
+and `\TT{V.present}' will be set to `\TT{true}'.
 
 \label{INDIRECT-ADDRESS-PROTOCOL}
 

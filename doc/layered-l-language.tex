@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 27, 2018
+February 28, 2018
  
 \end{center}
 
@@ -956,6 +956,317 @@ Abbreviations are never external (\pagref{EXTERNAL}),%
 even if they begin with a {\em module-abbreviation}.
 They do have scope like other declarations, but their scope
 never extends beyond the file in which they are declared.
+
+
+\section{Program Organization}
+\label{PROGRAM-ORGANIZATION}
+
+Code is organized into two kinds of files: \skey{module}s
+and \ikey{bodies}{body}.  These files consist of a sequence
+of \skey{declaration}s:
+\begin{indpar}
+\emkey{declaration}
+    \begin{tabular}[t]{rll}
+    ::= & {\em derived-type-declaration}
+        & [see \pagref{DERIVED-TYPE-DECLARATION}] \\
+    $|$ & {\em tuple-type-declaration }
+        & [see \pagref{TUPLE-TYPE-DECLARATION}] \\
+    $|$ & {\em pointer-type-declaration }
+        & [see \pagref{POINTER-TYPE-DECLARATION}] \\
+    $|$ & {\em function-declaration }
+        & [see \pagref{FUNCTION-DECLARATION}] \\
+    $|$ & {\em abbreviation-declaration }
+        & [see \pagref{ABBREVIATION-DECLARATION}] \\
+    $|$ & {\em generic-declaration }
+        & [see \pagref{GENERIC-DECLARATION}] \\
+    $|$ & {\em assignment-statement }
+        & [see \itemref{ASSIGNMENT-STATEMENTS}] \\
+    \end{tabular}
+\end{indpar}
+
+Declarations declare names.  An {\em assignment-statement}
+is also a {\em declaration} of its result variables.
+
+Names shared between modules begin with {\em module-abbreviations}
+that designate the module in which the name is declared.
+Such names are called `\key{external}'.\label{EXTERNAL}
+External names can only be declared in module files, and
+never in body files.
+
+As an exception, abbreviations are never external, even if
+they begin with a module name (\pagref{ABBREVIATIONS-ARE-NOT-EXTERNAL}).
+
+In function and generic calls the
+{\em module-abbreviation} may be omitted
+if the {\em function-prototype} matching the call
+can be unambiguously determined: see
+`module deficient' on \pagref{MODULE-DEFICIENT}.
+This may not be done
+for other names (e.g., external types, external variables).
+
+An example is:
+\begin{indpar}\begin{verbatim}
+module "lib/math" as math
+
+type math complex is tuple of float64[2]
+
+function math complex r =
+    math ( math complex a1 ) "+" ( math complex a2 ):
+    r = math complex ( a1[0] + a2[0], a1[1] + a2[1] )
+
+---------------------------------------------
+module "my-module" as mine
+    import "lib/math" as math
+
+.............................
+math complex x = math complex ( 1, 0 )
+math complex y = complex ( 0, 1 )
+    // The second `complex' in each line is a function name
+    // so `math' may be omitted.
+math complex z = x + y
+    // Parses to `math complex z = ( (x) "+" (y) )'.  Could
+    // also be `math complex z = math ( x + y )' which would
+    // be compiled to `math complex z = ( math (x) "+" (y) )'
+\end{verbatim}\end{indpar}
+
+\subsection{Modules}
+\label{MODULES}
+
+A \key{module} is a file that begins with a {\em module-declaration}:
+
+\begin{indpar}
+\emkey{module-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em simple-module-declaration} \\
+    $|$ & {\em simple-module-declaration}\TT{:} \\
+	& \TT{~~~~}{\em import-clause}\STAR{} \\
+    \end{tabular} \\
+\emkey{simple-module-declaration} ::= \TT{module} {\em module-file}
+        \TT{as} {\em module-abbreviation} \\
+\emkey{module-file} ::= {\em quoted-string} \\
+\emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
+	::= \TT{word} not containing any `\TT{.}'s \\
+\emkey{import-clause}\label{IMPORT-CLAUSE} ::= \TT{import} {\em module-file}
+        \TT{as} {\em module-abbreviation}
+
+\begin{itemize}
+
+\item
+In a {\em module-declaration} all {\em module-abbreviations} must be
+distinct, and all {\em module-files} must be distinct.
+\end{itemize}
+\end{indpar}
+
+A {\em module-file} is a UNIX file name without its final extension.
+The {\em module-file} of a {\em module-declaration} must match the
+non-extension part of the name of the file containing the
+{\em module-declaration}, relative to one of several directories
+specified separately to the compiler.
+
+The conceptual directed graph whose nodes are modules and whose
+arrows connect each module to the modules it imports is called
+the `\key{module graph}'.\label{MODULE-GRAPH}
+This graph \underline{must be acyclic}.
+
+The module \TT{"standard"}\index{standard@\TT{"standard"}} with
+module abbreviation \ttkey{std} contains the builtin types and
+their functions.  The {\em import-clause}
+\begin{center}
+{\tt import }\TT{"standard"}\ttindex{standard@\TT{"standard"}}{\tt{}
+    as \ttkey{std}}
+\end{center}
+is implied in every {\em module-declaration} and
+{\em body-declaration} (see \itemref{BODIES}).
+
+When a type is declared, functions with arguments or result
+values of that type are automatically declared.  For example,
+the declaration
+\begin{center}
+{\tt define type $T1$ is $T2$}
+\end{center}
+automatically declares
+\begin{center}
+\begin{tabular}{l}
+{\tt function bool r = ( $T1$ x ) "==" ( $T1$ y ):} \\
+{\tt ~~~~r = ( $T2$ ( x ) ) "==" ( $T2$  ( y ) )}
+\end{tabular}
+\end{center}
+
+If the declared type begins with module abbreviation $ma$, the function
+will also be given this module abbreviation.  Thus if $T1$ begins with
+$ma$, the function will be
+\begin{center}
+\begin{tabular}{l}
+{\tt function bool r = $ma$ ( $T1$ x ) "==" ( $T1$ y ):} \\
+{\tt ~~~~r = ( $T2$ ( x ) ) "==" ( $T2$  ( y ) )}
+\end{tabular}
+\end{center}
+
+
+\subsection{Scope}
+\label{SCOPE}
+
+A {\em declaration} has a \key{scope},
+that is the set of statements in which any
+names defined by the {\em declaration}
+are recognized.  The scope of a {\em declaration}
+begins just after the {\em declaration}
+itself, and
+lasts to the end of smallest block containing the {\em declaration},
+or until the end of the file containing the {\em declaration} if
+the {\em declaration} is not inside any subblock.
+
+The scope of a {\em name}, {\em function-prototype},
+or {\em generic-prototype} is the scope of the declaration that defines it.
+
+Two different declarations of the same name may \underline{not}
+have overlapping scope, except when the second declaration is
+for `\TT{next} {\em variable-name}' and both declarations are
+in the same smallest containing block.
+
+The scope of a name consists of statements and subblocks.
+By the last rule, a name may not be
+redeclared in a subblock that is in the name's scope.
+So `\TT{next v}' cannot be declared in a subblock if `\TT{v}' was
+declared outside the subblock and the entire subblock is within
+the scope of `\TT{v}', so the smallest containing subblock of
+`\TT{v}' is not the same as the smallest containing subblock of
+`\TT{next v}'.
+
+The \key{context}\label{CONTEXT} of a statement is the set of declarations
+whose scope the statement is in.
+
+When a function call to an inline function is compiled, or the
+default expressions of function prototype are compiled,
+the context of the compilation is \underline{not} the current context but
+rather the context of the inline function declaration or of the function
+prototype containing the default expression.
+
+A declaration not inside a block is said to be `\key{top level}'.
+
+A top level assignment statement may not include references to
+out-of-line functions or to inline functions that in turn include
+references to out-of-line functions.  This implies that all code needed
+to initialize a top level variable will be initialized before the
+variable is initialized.
+
+A top level declaration
+may \underline{not} have `\TT{next} {\em variable-name}' as
+a result variable.
+
+The name or the pattern of the prototype
+declared by a top level declaration in a module may begin with
+the {\em module-abbreviation} of the module.  In this case the
+name or prototype is `\key{external}', and its scope is extended
+to include modules and bodies that import the declaring module.
+All other names and prototypes declared in the module are `\key{internal}',
+and these names and the patterns of these prototypes may not begin
+with any {\em module-abbreviation}.
+
+Any name or prototype declared to be external in an imported module is
+said to be `\key{imported}'.  Imported names can be used only if they begin
+with the {\em module-abbreviation} that references the module in which
+they are declared.  Imported prototypes may be used by calls beginning with
+the {\em module-abbreviation} that references the module in which
+they are declared, or if there is no ambiguity the {\em module-abbreviation}
+may be omitted from the calls according to 
+the module deficiency rules of
+section~\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+module "my_own_module" as mom:
+    // `import "standard" as std' is implied
+    import "George's_own_module" as gom
+    // gom contains:
+    //    function int32 z = gom ( int32 x ) "+" ( int32 y )
+
+int32 mom my external constant = ...
+int32 my internal constant = ...
+
+function int32 y = mom my external function ( int32 x )
+function int32 y = my internal function ( int32 x )
+
+function int32 z = my inline function ( int32 x, int32 y ):
+    int32 z1 = gom ( x + y )
+        // Uses gom's + operator.
+        // Compiles as as `gom (x) "+" (y)'.
+    int32 z2 = std ( x + y )
+        // Uses builtin std's + operator.
+        // Compiles as as `std (x) "+" (y)'.
+    z  = z1 + z2 
+        // Compiles as `z = ( (x) "+" (y) )'.
+        // Compile error, ambiguous: both std + operator
+        // and gom's + operator match the call to "+".
+\end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
+
+\subsection{Bodies}
+\label{BODIES}
+
+A \key{body}
+is a file that begins with an {\em body-declaration}:
+
+\begin{indpar}
+\emkey{body-declaration} ::=
+    \begin{tabular}[t]{l}
+    \TT{body }{\em body-name}\TT{ of }{\em module-name}\TT{:} \\
+    \TT{~~~~}{\em import-clause}\STAR{} \\
+    \TT{~~~~}{\em after-clause}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{body-name} ::= {\em quoted-string}
+\\[0.5ex]
+{\em import-clause} ::= see \pagref{IMPORT-CLAUSE}
+\\[0.5ex]
+{\em after-clause} ::= \TT{initialize after }{\em body-name}
+\end{indpar}
+
+A \key{body} is an extension of the module named in the first
+line of the {\em body-declaration}.  The body cannot itself
+declare any external names.  It can provide out-of-line
+declarations for functions whose prototype as included in the
+module it extends.  It can also declare internal names that
+are used in these functions, and provide for the module
+initialization code that may call out-of-line functions (unlike
+code in the module file proper).
+
+A body implicitly imports the module it extends.  Within the
+body that module has the same {\em module-abbreviation} that it
+had in the module's own file.  The other modules imported in the
+module's own file are \underline{not} implicitly imported
+to the body.  The body must import whatever other modules it uses
+explicitly.
+
+The {\em after-clauses} name other bodies that extend the same
+module, and control initialization: see \itemref{PROGRAM-INITIALIZATION}.
+
+\subsection{Program Initialization}
+\label{PROGRAM-INITIALIZATION}
+
+Modules must be initialized.  A module is initialized after every
+module that it imports is initialized.  Otherwise the order of
+initializing modules is indeterminate.  Because the module graph
+(\pagref{MODULE-GRAPH}) is acyclic, it is always possible to
+initialize imported modules before the importing module.
+
+A module is initialized by executing assignment statements
+in the module file, and then initializing
+body files that extend the module.  A body file is initialized
+by executing the assignment statements in the body file.
+Note that some of these assignment statements may not have
+result variables.
+
+Unless specified by {\em after-clauses}, the order of initializing the
+body files that extend a particular module is indeterminate.
+An `\TT{initialized after "$B1$"}' clause for module \TT{"$B2$"} causes
+\TT{"$B2$"} to be initialized after \TT{"$B1$"}.
+
+Each module has a `\key{body graph}'\label{BODY-GRAPH}
+whose nodes are bodies that extend
+the module and whose arrows connect each body to the bodies it
+initializes after.  This graph must be acyclic.
+
+
 
 \section{Data Types}
 \label{DATA-TYPES-TYPES}

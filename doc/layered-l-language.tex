@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 28, 2018
+March 1, 2018
  
 \end{center}
 
@@ -1135,7 +1135,7 @@ $ma$, the function will be
 
 A {\em declaration} has a \key{scope},
 that is the set of statements in which any
-names defined by the {\em declaration}
+names or function prototypes defined by the {\em declaration}
 are recognized.  The scope of a {\em declaration}
 begins just after the {\em declaration}
 itself, and
@@ -1143,13 +1143,15 @@ lasts to the end of smallest block containing the {\em declaration},
 or until the end of the file containing the {\em declaration} if
 the {\em declaration} is not inside any subblock.
 
-The scope of a {\em name}, {\em function-prototype},
-or {\em generic-prototype} is the scope of the declaration that defines it.
+The scope of a {\em name} or {\em function-prototype}
+is the scope of the declaration that defines it.
 
 Two different declarations of the same name may \underline{not}
 have overlapping scope, except when the second declaration is
 for `\TT{next} {\em variable-name}' and both declarations are
 in the same smallest containing block.
+(`\TT{next v}' is a new variable with the same name and type
+as `\TT{v}': see \pagref{NEXT}.)
 
 The scope of a name consists of statements and subblocks.
 By the last rule, a name may not be
@@ -1211,8 +1213,10 @@ module "my_own_module" as mom:
 int32 mom my external constant = ...
 int32 my internal constant = ...
 
-function int32 y = mom my external function ( int32 x )
-function int32 y = my internal function ( int32 x )
+function int32 y = mom my external function ( int32 x ):
+    ... function body omitted ...
+function int32 y = my internal function ( int32 x ):
+    ... function body omitted ...
 
 function int32 z = my inline function ( int32 x, int32 y ):
     int32 z1 = gom ( x + y )
@@ -1521,7 +1525,7 @@ function prototypes of the form:
 \end{center}
 This says that if you apply the function $F$ to the value \TT{v} which
 is of type $T2$, the function will return a value \TT{r} of type $T2$.
-See \itemref{INLINE-FUNCTIONS} for more function prototype details.
+See \itemref{FUNCTION-PROTOTYPES-AND-CALLS} for more function prototype details.
 
 The following builtin conversion functions are defined:
 
@@ -4283,7 +4287,7 @@ the other.
 Thus variables are only assigned values once within a function.
 
 However, if an assignment statement has a {\em next-variable-declaration}
-that uses the word `\TT{next}' in
+that uses the word `\TT{next}'\label{NEXT} in
 place of the {\em qualifier-names} and {\em type-name}
 of a result variable being assigned a value, then the named variable must
 have been previously assigned a value within the same smallest containing block,
@@ -4800,7 +4804,8 @@ not block label.
 \label{CALL-ASSIGNMENT-STATEMENTS}
 
 Note that functions are most commonly inline, and not out-of-line.
-Inline functions are described later in Section~\itemref{INLINE-FUNCTIONS}.
+Inline functions are described later
+in Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
 
 \ikey{Call assignment statements}{call assignment}
 are used to call out-of-line functions:

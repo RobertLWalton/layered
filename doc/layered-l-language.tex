@@ -967,18 +967,28 @@ of \skey{declaration}s:
 \begin{indpar}
 \emkey{declaration}
     \begin{tabular}[t]{rll}
-    ::= & {\em derived-type-declaration}
-        & [see \pagref{DERIVED-TYPE-DECLARATION}] \\
-    $|$ & {\em tuple-type-declaration }
-        & [see \pagref{TUPLE-TYPE-DECLARATION}] \\
-    $|$ & {\em pointer-type-declaration }
-        & [see \pagref{POINTER-TYPE-DECLARATION}] \\
+    ::= & {\em module-declaration}
+        & [see \pagref{MODULE-DECLARATION}] \\
+    $|$ & {\em body-declaration}
+        & [see \pagref{BODY-DECLARATION}] \\
+    $|$ & {\em defined-type-declaration}
+        & [see \pagref{DEFINED-TYPE-DECLARATION}] \\
+    $|$ & {\em enum-type-declaration}
+        & [see \pagref{ENUM-TYPE-DECLARATION}] \\
+    $|$ & {\em enum-set-type-declaration}
+        & [see \pagref{ENUM-SET-TYPE-DECLARATION}] \\
+    $|$ & {\em enum-list-type-declaration}
+        & [see \pagref{ENUM-LIST-TYPE-DECLARATION}] \\
+    $|$ & {\em qualifier-declaration }
+        & [see \pagref{QUALIFIER-DECLARATION}] \\
+    $|$ & {\em function-type-declaration }
+        & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
     $|$ & {\em function-declaration }
         & [see \pagref{FUNCTION-DECLARATION}] \\
+    $|$ & {\em out-of-line-function-declaration }
+        & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
     $|$ & {\em abbreviation-declaration }
         & [see \pagref{ABBREVIATION-DECLARATION}] \\
-    $|$ & {\em generic-declaration }
-        & [see \pagref{GENERIC-DECLARATION}] \\
     $|$ & {\em assignment-statement }
         & [see \itemref{ASSIGNMENT-STATEMENTS}] \\
     \end{tabular}
@@ -991,12 +1001,14 @@ Names shared between modules begin with {\em module-abbreviations}
 that designate the module in which the name is declared.
 Such names are called `\key{external}'.\label{EXTERNAL}
 External names can only be declared in module files, and
-never in body files.
+never in body files.  External names cannot be declared inside
+statement blocks, but must be declared at `top level' outside
+blocks.
 
 As an exception, abbreviations are never external, even if
 they begin with a module name (\pagref{ABBREVIATIONS-ARE-NOT-EXTERNAL}).
 
-In function and generic calls the
+In inline function calls the
 {\em module-abbreviation} may be omitted
 if the {\em function-prototype} matching the call
 can be unambiguously determined: see
@@ -1008,11 +1020,20 @@ An example is:
 \begin{indpar}\begin{verbatim}
 module "lib/math" as math
 
-type math complex is tuple of float64[2]
+define type math complex is void
+    // Given `math complex x', x[0] it the real part of a
+    // complex number and x[1] is the imaginary part.
 
-function math complex r =
-    math ( math complex a1 ) "+" ( math complex a2 ):
-    r = math complex ( a1[0] + a2[0], a1[1] + a2[1] )
+function math complex r, float64 r[0], float64 r[1] =
+    math complex ( float64 real, float64 imaginary ):
+    r[0] = real
+    r[1] = imaginary
+
+function math complex r, float64 r[0], float64 r[1] =
+    math ( math complex a1, float64 a1[0], float64 a1[1] )
+    "+"  ( math complex a2, float64 a2[0], float64 a2[1] ):
+    r[0] = a1[0] + a2[0]
+    r[1] = a1[1] + a2[1]
 
 ---------------------------------------------
 module "my-module" as mine
@@ -1022,11 +1043,17 @@ module "my-module" as mine
 math complex x = math complex ( 1, 0 )
 math complex y = complex ( 0, 1 )
     // The second `complex' in each line is a function name
-    // so `math' may be omitted.
-math complex z = x + y
-    // Parses to `math complex z = ( (x) "+" (y) )'.  Could
-    // also be `math complex z = math ( x + y )' which would
-    // be compiled to `math complex z = ( math (x) "+" (y) )'
+    // so `math' may be omitted.  In this case the function
+    // prototype that applies is selected by the y result
+    // variable type.
+math complex z1 = x + y
+    // Parses to `math complex z1 = ( (x) "+" (y) )'.
+    // Standard "+" does not apply because it does not match
+    // result type.  `math' module abbreviator is implied so
+    // that `math' module "+" applies.
+math complex z2 = math ( x + y )
+    // Parses to `math complex z2 = ( math (x) "+" (y) )'.
+    // 1math' module abbreviator is explicit and NOT implied.
 \end{verbatim}\end{indpar}
 
 \subsection{Modules}
@@ -1035,7 +1062,7 @@ math complex z = x + y
 A \key{module} is a file that begins with a {\em module-declaration}:
 
 \begin{indpar}
-\emkey{module-declaration}
+\emkey{module-declaration}\label{MODULE-DECLARATION}
     \begin{tabular}[t]{rl}
     ::= & {\em simple-module-declaration} \\
     $|$ & {\em simple-module-declaration}\TT{:} \\
@@ -1207,7 +1234,7 @@ A \key{body}
 is a file that begins with an {\em body-declaration}:
 
 \begin{indpar}
-\emkey{body-declaration} ::=
+\emkey{body-declaration}\label{BODY-DECLARATION} ::=
     \begin{tabular}[t]{l}
     \TT{body }{\em body-name}\TT{ of }{\em module-name}\TT{:} \\
     \TT{~~~~}{\em import-clause}\STAR{} \\
@@ -1752,7 +1779,7 @@ in fact it is assigning values to cluster members.
 A declaration statement of the following form defines a type by
 specifying its {\em type-name}:
 \begin{indpar}
-\emkey{defined-type-declaration} ::= \\
+\emkey{defined-type-declaration}\label{DEFINED-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
 \TT{define type} {\em qualifier-name}\STAR{} {\em defined-type-name}
           \TT{as} {\em base-type-name} \\
@@ -1782,7 +1809,7 @@ builtin functions:
 {\tt function \TT{*UNCHECKED*} $D$ r = $D$ ( $B$ v )}
 
 where $B$ is the {\em base-type-name} used to define
-the {\em derived-type-name} $D$
+the {\em defined-type-name} $D$
 
 \begin{indpar}
 These functions do not change the actual value, but merely its
@@ -1808,7 +1835,7 @@ constants of its enumeration type that are being linked together.
 A declaration statement of the following form defines an \key{enumeration type}
 that has enumeration values:
 \begin{indpar}
-\emkey{enum-type-declaration} ::= \\
+\emkey{enum-type-declaration}\label{ENUM-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
     \TT{define type} {\em qualifier-name}\STAR{}
     \begin{tabular}[t]{@{}l@{}}
@@ -2195,14 +2222,14 @@ At compile-time
 enumeration sets and lists can be stored in variables of enumeration set
 or list types, which can be declared by:
 \begin{indpar}
-\emkey{enum-set-type-declaration} ::= \\
+\emkey{enum-set-type-declaration}\label{ENUM-SET-TYPE-DECLARATION} ::= \\
 \hspace*{0.2in} \TT{define type}
 		\begin{tabular}[t]{@{}l@{}}
                 {\em qualifier-name}\STAR{} {\em enum-set-type-name} \\
 		\TT{as set of } {\em element-enum-type-name}
 		\end{tabular}
 \\[0.5ex]
-\emkey{enum-list-type-declaration} ::= \\
+\emkey{enum-list-type-declaration}\label{ENUM-LIST-TYPE-DECLARATION} ::= \\
 \hspace*{0.2in} \TT{define type}
 		\begin{tabular}[t]{@{}l@{}}
                 {\em qualifier-name}\STAR{} {\em enum-list-type-name} \\
@@ -2981,7 +3008,7 @@ int32 z7 = y7                // Legal, y7 has protected
 
 The qualifiers may be declared by:
 \begin{indpar}
-\emkey{qualifier-declaration} \\
+\emkey{qualifier-declaration}\label{QUALIFIER-DECLARATION} \\
 \hspace*{0.5in}
     \begin{tabular}[t]{rl}
     ::= & \TT{define} {\em qualifier-attribute}\PLUS{} \ttkey{qualifier}
@@ -4840,7 +4867,7 @@ available at compile time.
 An out-of-line function type declaration has the form:
 
 \begin{indpar}
-\emkey{function-type-declaration} ::= \\
+\emkey{function-type-declaration}\label{FUNCTION-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function type}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
@@ -4882,7 +4909,8 @@ a call block result variable by an implied conversion.
 Out-of-line functions are defined by declarations of the form:
 
 \begin{indpar}
-\emkey{out-of-line-function-declaration} ::= \\
+\emkey{out-of-line-function-declaration}%
+\label{OUT-OF-LINE-FUNCTION-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
@@ -6023,7 +6051,6 @@ modules it imports, then this graph \underline{must be acyclic}.
 
 
 \subsection{Bodies}
-\label{BODIES}
 
 A \key{body}
 is a file that begins with an {\em body-declaration}:

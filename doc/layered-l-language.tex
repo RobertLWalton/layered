@@ -4965,7 +4965,6 @@ Out-of-line functions may also be declared by:
 
 This is equivalent to defining a function type with a hidden name
 and then defining {\em function-name} to be a function of that type.
-result variable values from the argument variable values.
 
 For the function to be callable at compile time, the
 \TT{*COMPILE-TIME*} or \TT{*COMPILE-\EOL TIME-\EOL ONLY*} options must be given.
@@ -4984,7 +4983,8 @@ may alter the call linkage used.
 
 An \key{out-of-line assignment statement} is like a combination of
 a {\em call-assignment-statement} with
-an {\em out-of-line-function-declaration}:
+an {\em out-of-line-function-declaration} for a function
+specific to the call:
 
 \begin{indpar}
 \emkey{out-of-line-assignment-statement} ::= \\
@@ -5000,8 +5000,8 @@ an {\em out-of-line-function-declaration}:
 
 An {\em out-of-line-function-declaration} is constructed from this statement
 by replacing the `\TT{out-\EOL of-\EOL line}' keyword by
-an internally generated {\em function-type-name}
-and {\em function-name}, and converting each {\em argument-assignment-statement}
+an internally generated
+{\em function-name}, and converting each {\em argument-assignment-statement}
 to an {\em argument-variable-declaration}.
 
 Then this statement is executed as a {\em call-assign\-ment-statement}

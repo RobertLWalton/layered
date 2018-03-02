@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 1, 2018
+March 2, 2018
  
 \end{center}
 
@@ -4834,7 +4834,9 @@ are used to call out-of-line functions:
 \end{indpar}
 
 The {\em function-expression} evaluates to a function to be called,
-and its type $T$ must have the \TT{adr} type as its underlying type.
+and must have a natural type (\pagref{NATURAL-TYPE})
+$T$ that has \TT{adr} as its underlying type.
+
 The values of the variables created by the {\em argument-assignment-statements}
 are the arguments to the function.
 The results of the function call are stored in the
@@ -4895,7 +4897,7 @@ An out-of-line function type declaration has the form:
 
 This makes \TT{adr} the base type of the new
 defined type, and declares the prototype
-for the function.
+for the out-of-line function.
 Then a call assignment block is type-checked by matching
 the variable names in the call assignment block
 to those in the prototype.  Thus in this case the order of variables
@@ -4911,7 +4913,41 @@ in which case the implied conversion will be invoked.
 Similarly a prototype result variable may be converted to
 a call block result variable by an implied conversion.
 
-Out-of-line functions are defined by declarations of the form:
+A function type may be declared multiple times.  All these declarations
+must be identical except for ordering of options and qualifiers.
+
+Out-of-line functions may be declared by
+an assignment statement of the form:
+\begin{indpar}
+\emkey{out-of-line-function-deferred-assignment}%
+\label{OUT-OF-LINE-FUNCTION-DEFERRED-ASSIGNMENT} ::= \\
+\hspace*{0.5in}{\em function-type-name}~{\em function-name} \TT{=}
+    \ttmkey{deferred}{function}
+\end{indpar}
+
+The {\em function-name} is referred to as a `\key{deferred function}'.
+This specifies that the body of the out-of-line function
+with the given {\em function-name} will be provided later
+during program initialization.  It is an error to call an uninitialized
+out-of-line function.
+
+An out-of-line function may be declared by
+an assignment statement of the form:
+\begin{indpar}
+\emkey{out-of-line-function-assignment}%
+\label{OUT-OF-LINE-FUNCTION-ASSIGNMENT} ::= \\
+\hspace*{0.5in}{\em function-type}~~{\em function-name} \TT{=:} \\
+\hspace*{1.0in}{\em statement}\STAR{}
+\end{indpar}
+
+The argument and result variable names used by the {\em statements}
+are those given in the {\em function-type} declaration.
+If the {\em function-name} is deferred, the {\em function-type}
+name given in the {\em out-of-line-function-deferred-assignment}
+and that given in the {\em out-of-line-function-assignment}
+must be identical.
+
+Out-of-line functions may also be declared by:
 
 \begin{indpar}
 \emkey{out-of-line-function-declaration}%
@@ -4919,34 +4955,25 @@ Out-of-line functions are defined by declarations of the form:
 \hspace*{0.5in}\begin{tabular}[t]{l}
 		\TT{function}
 		    \{ {\em result-variable-list } \TT{=} \}\QMARK{} \\
-		\TT{~~~~~~~~}{\em function-declaration-option}\STAR{} \\
-		\TT{~~~~~~~~}{\em function-type-name} ~~
-		             {\em function-name}\TT{:} \\
+		\TT{~~~~~~~~}{\em function-declaration-option}\STAR{}
+		             ~ {\em function-name}\TT{:} \\
 		\TT{~~~~}{\em argument-variable-declaration}\STAR{} \\
 		\TT{~~~~do:} \\
 		\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}\label{OUT-OF-LINE-FUNCTIONS}
 
-This defines {\em function-name} to be both a compile-time and run-time
-constant (with different values at compile and run time) of type
-{\em function-type-name} and also declares {\em function-type-name}
-after the manner of a {\em function-type-declaration}.  When the function
-is called, the {\em statements} of its `\TT{do}' subblock execute to produce the
+This is equivalent to defining a function type with a hidden name
+and then defining {\em function-name} to be a function of that type.
 result variable values from the argument variable values.
 
 For the function to be callable at compile time, the
 \TT{*COMPILE-TIME*} or \TT{*COMPILE-\EOL TIME-\EOL ONLY*} options must be given.
-Then the function may not reference Global Areas that
-do not have the same options (see Section~\itemref{GLOBAL-AREAS}).
 See Section~\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}.
 A \TT{*COMPILE-\EOL TIME*} out-of-line function will also be callable at
 run time, but a \TT{*COMPILE-\EOL TIME-\EOL ONLY*}
 out-of-line function will only be callable
 at compile time.
-
-A function type may be declared multiple times.  All these declarations
-must be identical except for ordering of options and qualifiers.
 
 Normally the standard call linkage for the computer environment of
 the program is used.  Other implementation specific call options

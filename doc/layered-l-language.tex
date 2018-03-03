@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 2, 2018
+March 3, 2018
  
 \end{center}
 
@@ -962,7 +962,15 @@ never extends beyond the file in which they are declared.
 \label{PROGRAM-ORGANIZATION}
 
 Code is organized into two kinds of files: \skey{module}s
-and \ikey{bodies}{body}.  These files consist of a sequence
+and \ikey{bodies}{body}.  There is a one-to-one correspondence
+between modules and module files.  Each body file is associated
+with a particular module, the `\key{module of the body}',
+and extends that module.  A module
+may zero or more body files.
+A module file and all its body files together form
+an `\key{extended module}'.
+
+Module and body files consist of a sequence
 of \skey{declaration}s:
 \begin{indpar}
 \emkey{declaration}
@@ -1091,7 +1099,7 @@ non-extension part of the name of the file containing the
 specified separately to the compiler.
 
 The conceptual directed graph whose nodes are modules and whose
-arrows connect each module to the modules it imports is called
+arrows connect each module to the modules it or its bodies import is called
 the `\key{module graph}'.\label{MODULE-GRAPH}
 This graph \underline{must be acyclic}.
 
@@ -1178,6 +1186,14 @@ out-of-line functions or to inline functions that in turn include
 references to out-of-line functions.  This implies that all code needed
 to initialize a top level variable will be initialized before the
 variable is initialized.
+
+However a top level assignment statement may have a
+\key{deferred value} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}) indicating
+that the value will not be assigned until later.  The statement
+assigning the value must be in the same extended module
+as the deferred assignment statement, but may be in a separate body
+of that module, and may use out-of-line functions in that module or in modules
+imported by that module.
 
 A top level declaration
 may \underline{not} have `\TT{next} {\em variable-name}' as
@@ -1280,10 +1296,11 @@ initializing modules is indeterminate.  Because the module graph
 (\pagref{MODULE-GRAPH}) is acyclic, it is always possible to
 initialize imported modules before the importing module.
 
-A module is initialized by executing assignment statements
+A module is initialized by executing top level assignment statements
 in the module file, and then initializing
 body files that extend the module.  A body file is initialized
-by executing the assignment statements in the body file.
+by executing top level assignment statements in the body file.
+Top level statements in a file are executed in order.
 Note that some of these assignment statements may not have
 result variables.
 
@@ -1297,7 +1314,10 @@ whose nodes are bodies that extend
 the module and whose arrows connect each body to the bodies it
 initializes after.  This graph must be acyclic.
 
-
+{\em Deferred-assignment-statements} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS})
+and {\em out-of-line-function-deferred-assignments}
+(\pagref{OUT-OF-LINE-FUNCTION-DEFERRED-ASSIGNMENT}) must be executed
+before statements initializing their variables or functions.
 
 \section{Data Types}
 \label{DATA-TYPES-TYPES}
@@ -4489,11 +4509,11 @@ If the {\em block-name} is not given, the smallest block containing
 the {\em exit-statement} is exited.
 
 The block exit may be conditional.  The compiler checks that
-every one of the block's deferred variables is given a value
+every one of the block's deferred result variables is given a value
 by a deferred assignment statement, no matter whether conditional
 exits are taken or not.  However, if a {\em block-name} is given
 and the block being exited is not the smallest block containing
-the exit statement, the deferred variables of this smallest
+the exit statement, the deferred result variables of this smallest
 block need not be given values.
 
 Examples of {\em exit-statements} are:
@@ -4794,7 +4814,7 @@ When the third iteration of the loop starts, the first
 iteration can be discarded, and so forth.
 
 Code in an initialization or iteration subblock cannot set
-deferred variables outside the subblock (including loop block
+deferred result variables outside the subblock (including loop block
 result variables), or contain \TT{exit} statements that have
 not block label.
 
@@ -4803,7 +4823,7 @@ not block label.
 \subsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}
 
-Note that functions are most commonly inline, and not out-of-line.
+Note that most functions are inline, and not out-of-line.
 Inline functions are described later
 in Section~\itemref{FUNCTION-PROTOTYPES-AND-CALLS}.
 
@@ -4929,7 +4949,7 @@ The {\em function-name} is referred to as a `\key{deferred function}'.
 This specifies that the body of the out-of-line function
 with the given {\em function-name} will be provided later
 during program initialization.  It is an error to call an uninitialized
-out-of-line function.
+deferred function.
 
 An out-of-line function may be declared by
 an assignment statement of the form:
@@ -4945,7 +4965,9 @@ are those given in the {\em function-type} declaration.
 If the {\em function-name} is deferred, the {\em function-type}
 name given in the {\em out-of-line-function-deferred-assignment}
 and that given in the {\em out-of-line-function-assignment}
-must be identical.
+must be identical.  It is an error if the statement initializing
+a deferred function is not in the same extended module as the function's
+{\em out-of-line-deferred-assignment}.
 
 Out-of-line functions may also be declared by:
 
@@ -5094,20 +5116,23 @@ that have been declared to be compile-time.
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
 
 \ikey{Deferred assignment statements}{deferred assignment statement}
-can only be used in global areas (\itemref{GLOBAL-AREAS}).  They
-specify that assigment of the result variables is deferred.
+specifies that assigment of its result variables is deferred until later:
 
 \begin{indpar}
 \emkey{deferred-assignment-statement} ::=  \\
 \hspace*{0.5in}{\em result-variable-list} \TT{=} \ttkey{deferred}
 \end{indpar}
 
-When a variable assignment is deferred, the variable must be
-reassigned later in the compilation or loading of the program.
-The variable thus appears in many assignment statements, all
-within the same global area (but usually not in the same global
-block or some code file), and all but the last of these assignments
-are deferred.  See bodies: \itemref{BODIES}.
+
+The result variables of 
+a {\em deferred-assignment-statement} are called `mkey{deferred}{variable}'.
+
+A {\em deferred-assignment-statement} must be top level.
+The statement that assigns its values later must be an assignment
+statement with identical {\em result-variable-list}
+that is in the same extended module as the {\em deferred-assignment-statement}.
+It is a program error to read a deferred variable before it has
+been assigned a value.
 
 \subsection{Assembly Assignment Statements}
 \label{ASSEMBLY-ASSIGNMENT-STATEMENTS}

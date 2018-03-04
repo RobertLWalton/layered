@@ -1161,22 +1161,6 @@ the {\em declaration} is not inside any subblock.
 The scope of a {\em name} or {\em function-prototype}
 is the scope of the declaration that defines it.
 
-Two different declarations of the same name may \underline{not}
-have overlapping scope, except when the second declaration is
-for `\TT{next} {\em variable-name}' and both declarations are
-in the same smallest containing block.
-(`\TT{next v}' is a new variable with the same name and type
-as `\TT{v}': see \pagref{NEXT}.)
-
-The scope of a name consists of statements and subblocks.
-By the last rule, a name may not be
-redeclared in a subblock that is in the name's scope.
-So `\TT{next v}' cannot be declared in a subblock if `\TT{v}' was
-declared outside the subblock and the entire subblock is within
-the scope of `\TT{v}', so the smallest containing subblock of
-`\TT{v}' is not the same as the smallest containing subblock of
-`\TT{next v}'.
-
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
 
@@ -1187,6 +1171,46 @@ rather the context of the inline function declaration or of the function
 prototype containing the default expression.
 
 A declaration not inside a block is said to be `\key{top level}'.
+
+If two different declarations of the same name have overlapping
+overlapping scope, one of these scopes must include the other,
+and the declaration with the smaller scope is said to 
+`\mkey{hide}{declaration}' the other declaration.
+Such hiding is a compiler error unless the smaller scope
+is inside one of the following kinds of statements, and
+the larger scope includes the whole statement:
+\begin{center}
+\begin{tabular}{ll}
+{\em function-type-declaration}
+    & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
+{\em out-of-line-function-declaration}
+    & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
+{\em function-declaration}
+    & [see \pagref{FUNCTION-DECLARATION}] \\
+{\em block-assignment-statement} with \TT{in context} option
+    & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
+{\em compile-and-run-assignment-statement} with \TT{in context} option
+    & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
+\end{tabular}
+\end{center}
+
+As an exception to the last rule, the declaration with the
+smaller scope may be an assignment statement declaring
+a variable name `\TT{next} {\tt v}' when the declaration
+with the larger scope is an assignment statement
+declaring `{\tt v}', and the two declarations have the
+same smallest containing block (see \pagref{NEXT}).
+
+By the last rule,
+`\TT{next} {\tt v}' cannot be declared in a block $B$ if `{\tt v}' was
+declared outside $B$ and $B$ is completely within
+the scope of `{\tt v}', so the smallest containing block of
+`{\tt v}' is not the same as the smallest containing block of
+`\TT{next} {\tt v}'.
+
+A top level declaration
+may \underline{not} have `\TT{next} {\em variable-name}' as
+a result variable.
 
 A top level assignment statement may not include references to
 out-of-line functions or to inline functions that in turn include
@@ -1201,10 +1225,6 @@ assigning the value must be in the same extended module
 as the deferred assignment statement, but may be in a separate body
 of that module, and may use out-of-line functions in that module or in modules
 imported by that module.
-
-A top level declaration
-may \underline{not} have `\TT{next} {\em variable-name}' as
-a result variable.
 
 The name or the pattern of the prototype
 declared by a top level declaration in a module may begin with
@@ -5987,62 +6007,6 @@ The special conditional assignment statement
 rules described on page \pageref{CONDITIONAL-SPECIAL-RULES}
 are applied here to enable \TT{T} to be any integer or
 floating point number type.
-
-\section{Scopes and Modules}
-
-
-\subsection{Modules}
-
-
-Several imported modules may be given the same module abbreviation,
-but imported module abbreviations must not be the same as the
-importing module abbreviation.
-
-The POSIX wildcards `\TT{*}' and `\TT{?}' can be used in the
-{\em import-clause} {\em module-name} to name multiple modules
-in a single {\em import-clause}.  These wildcards cannot be
-used in the {\em module-name} of the {\em simple-module-declaration}.
-
-
-
-\subsection{Contexts}
-\label{CONTEXTS}
-
-A \key{context} is a set of module name/abbreviation pairs.
-A {\em module-declaration} defines a context in which the
-code of the module is compiled, and similarly an
-{\em body-declaration} defines a context in which the
-code of the body is compiled.
-
-Contexts can also be computed, stored in variables and
-passed as arguments, and code in a \TT{com\-pile-\EOL and-\EOL run}
-assignment statement
-(\pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS})
-can be compiled in a computed context.  Contexts have the type:
-\begin{indpar}
-\TT{type~}\ttkey{context}\TT{~is adr}
-\end{indpar}
-The only expression that can be used to compute a new context is:
-
-\begin{indpar}
-\emkey{context-expression}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{new context:} \\
-	& \TT{~~~~}{\em context-import-clause}\STAR{} \\
-    \end{tabular} \\
-\emkey{context-import-clause}
-    \begin{tabular}[t]{rl}
-    ::= & {\em module-import-clause} \\
-    $|$ & \TT{import} {\em context-expression} \\
-    $|$ & \TT{import current} \\
-    \end{tabular}
-\end{indpar}
-
-A {\em context-expression} in a {\em context-import-clause}
-is evaluated to a context all of whose pairs are then included
-in the new context.  The name `\TT{current}' can be used as
-a context expression to denote the context of the module or
-body containing `\TT{new context}' expression.
 
 
 \section{Clusters}

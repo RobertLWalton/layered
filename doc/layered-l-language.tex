@@ -1170,19 +1170,19 @@ the context of the compilation is \underline{not} the current context but
 rather the context of the inline function declaration or of the function
 prototype containing the default expression.
 
-A declaration not inside a block is said to be `\key{top level}'.
-
 If two different declarations of the same name have overlapping
 overlapping scope, one of these scopes must include the other,
 and the declaration with the smaller scope is said to 
-`\mkey{hide}{declaration}' the other declaration.
+`\mkey{hide}{declaration}'\label{HIDE} the other declaration.
 Such hiding is a compiler error unless the smaller scope
-is inside one of the following kinds of statements, and
+is within one of the following kinds of statements, and
 the larger scope includes the whole statement:
 \begin{center}
 \begin{tabular}{ll}
 {\em function-type-declaration}
     & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
+{\em out-of-line-function-assignment}
+    & [see \pagref{OUT-OF-LINE-FUNCTION-ASSIGNMENT}] \\
 {\em out-of-line-function-declaration}
     & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
 {\em function-declaration}
@@ -1199,7 +1199,9 @@ smaller scope may be an assignment statement declaring
 a variable name `\TT{next} {\tt v}' when the declaration
 with the larger scope is an assignment statement
 declaring `{\tt v}', and the two declarations have the
-same smallest containing block (see \pagref{NEXT}).
+same smallest containing block.
+Within the smaller scope `{\tt v}' refers to the
+`\TT{next} {\tt v}' declaration: see \pagref{NEXT}.
 
 By the last rule,
 `\TT{next} {\tt v}' cannot be declared in a block $B$ if `{\tt v}' was
@@ -1207,6 +1209,16 @@ declared outside $B$ and $B$ is completely within
 the scope of `{\tt v}', so the smallest containing block of
 `{\tt v}' is not the same as the smallest containing block of
 `\TT{next} {\tt v}'.
+
+{\em Function-prototypes} cannot hide each other.  If the
+current scope contains two declarations whose prototypes
+both match a {\em function-call}, the call is ambiguous and
+in error, even if the scope of one declaration is within
+a subblock of the scope of the other.
+As a consequence, it is unwise to place function declarations
+within assignment statements that have the `\TT{in context}' option.
+
+A declaration not inside a block is said to be `\key{top level}'.
 
 A top level declaration
 may \underline{not} have `\TT{next} {\em variable-name}' as
@@ -1220,11 +1232,13 @@ variable is initialized.
 
 However a top level assignment statement may have a
 \key{deferred value} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}) indicating
-that the value will not be assigned until later.  The statement
-assigning the value must be in the same extended module
+that its result variable values will not be assigned until later.
+The statement
+assigning the values must be in the same extended module
 as the deferred assignment statement, but may be in a separate body
 of that module, and may use out-of-line functions in that module or in modules
-imported by that module.
+imported by that module.  It is a programming error to access the
+result variable values before they are assigned.
 
 The name or the pattern of the prototype
 declared by a top level declaration in a module may begin with
@@ -4505,6 +4519,12 @@ compiled in its context (\pagref{CONTEXT}),
 but if `\TT{in context} {\em context-expression}'
 is given, it is compiled in the context given by the
 {\em context-expression}.
+If the {\em context-expression}
+specifies a context other than the context of the
+{\em block-assignment-statement}, the result variable names
+and names declared within the block {\em statements}
+are permitted to hide (\pagref{HIDE})
+names in the specified context.
 
 Any result variables in a {\em block-assignment-statement}
 are called `\skey{deferred variable}s' because they do not
@@ -4993,6 +5013,11 @@ in which case the implied conversion will be invoked.
 Similarly a prototype result variable may be converted to
 a call block result variable by an implied conversion.
 
+The result and argument variables in a 
+{\em function-type-declaration} are permitted to hide (\pagref{HIDE})
+names in the context of the declaration, but the {\em defined-type-name}
+may not.
+
 A function type may be declared multiple times.  All these declarations
 must be identical except for ordering of options and qualifiers.
 
@@ -5022,6 +5047,12 @@ an assignment statement of the form:
 
 The argument and result variable names used by the {\em statements}
 are those given in the {\em function-type} declaration.
+Thes names
+and names declared within the {\em statements} of the assignment,
+are permitted to hide (\pagref{HIDE})
+names in the context of the assignment, but the {\em function-name}
+may not.
+
 If the {\em function-name} is deferred, the {\em function-type}
 name given in the {\em out-of-line-function-deferred-assignment}
 and that given in the {\em out-of-line-function-assignment}
@@ -5047,6 +5078,12 @@ Out-of-line functions may also be declared by:
 
 This is equivalent to defining a function type with a hidden name
 and then defining {\em function-name} to be a function of that type.
+The result and argument variables in a
+{\em out-of-line-function-declaration},
+and names declared within the {\em statements} of the declaration,
+are permitted to hide (\pagref{HIDE})
+names in the context of the declaration, but the {\em function-name}
+may not.
 
 For the function to be callable at compile time, the
 \TT{*COMPILE-TIME*} or \TT{*COMPILE-\EOL TIME-\EOL ONLY*} options must be given.
@@ -5130,6 +5167,12 @@ compiled in its context (\pagref{CONTEXT}),
 but if `\TT{in context} {\em context-expression}'
 is given, it is compiled in the context given by the
 {\em context-expres\-sion}.
+If the {\em context-expression}
+specifies a context other than the context of the
+{\em compile-and-run-assignment-statement}, the result variable names
+and names declared within the block {\em statements}
+are permitted to hide (\pagref{HIDE})
+names in the specified context.
 
 Then the
 compiled code is executed.  The variables in the {\em result-variable-list}
@@ -5398,12 +5441,20 @@ follow an {\em argument-declaration} with a {\em default-value}.
 \end{itemize}
 \end{indpar}
 
+The result and argument variables in a
+{\em function-declaration},
+and names declared within the {\em statements} of the declaration,
+are permitted to hide (\pagref{HIDE})
+names in the context of the declaration.
+
 A {\em function-call} with a {\em result-variable-list}
 is in effect replaced by a {\em block-assignment-statement}
-(Section~\itemref{BLOCK-ASSIGNMENT-STATEMENTS})
-with the {\em function-declaration's} {\em result-variable-list} becoming the 
-{\em result-variable-list} of the {\em block-assignment-statement} and the
-{\em function-declaration's} {\em statements} becoming the 
+with an `\TT{in context}' option specifying the context of the
+{\em function-declaration}
+(Section~\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+The {\em function-declaration's} {\em result-variable-list} becomes the 
+{\em result-variable-list} of the {\em block-as\-sign\-ment-statement} and the
+{\em function-declaration's} {\em statements} become the 
 {\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
 Actual argument values from the function call are assigned to variables in
 the {\em function-declaration's} {\em argument-lists}.  The values produced in
@@ -5425,11 +5476,6 @@ is syntactic sugar for \\
 
 in which a term with \TT{"="} as its {\em function-term-name} is
 placed at the end of the function call.
-
-The context (\pagref{CONTEXT})
-in which the replacing block {\em statements} are executed
-is the context of the {\em function-declaration}, and
-\underline{not} the context of the {\em function-call}.
 
 All the names declared in the block replacing the {\em function-call}
 have the word \TT{C\$$n$} prepended to them to make them unique,

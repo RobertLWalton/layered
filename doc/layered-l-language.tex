@@ -4455,10 +4455,12 @@ int32 j = nearest ( m ) // now j == 2 (round to nearest)
 Another variant of the assignment statement is\index{block assignment}:
 
 \begin{indpar}
-\emkey{block-assignment-statement}
-    ::= \begin{tabular}[t]{l}
+\emkey{block-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-	\{ \ttkey{do} {\em block-name}\QMARK{} \}\QMARK{} \TT{:} \\
+	\{ \ttkey{do} {\em block-name}\QMARK{}
+	              \{ \ttkey{in context} {\em context-expression} \}\QMARK{}
+	              \}\QMARK{} \TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{}
 	\end{tabular}
 \\
@@ -4466,15 +4468,21 @@ Another variant of the assignment statement is\index{block assignment}:
     \begin{tabular}[t]{l}
     {\em name} ~~~~~ [see \pagref{NAME}] \\
     \underline{not} containing
-	`\TT{.}',~ {\em quoted-marks},~ or {\em quoted-separators}
+	`\TT{.}',~ {\em quoted-marks},~ or {\em quoted-separators} \\
     \end{tabular}
 \end{indpar}
 
-where `\TT{do} {\em block-name}\QMARK{}'
+where `\TT{do} {\em block-name}\QMARK{}
+	              \{ \TT{in context} {\em context-expression} \}\QMARK{}'
 may be omitted as long as \TT{=} is not omitted.
 
 The {\em statements} within the {\em block-assignment-statement}
-comprise a `\key{block}' of code.
+comprise a `\key{block}' of code.  Normally these statements
+are compiled in the context (\pagref{CONTEXT}) of the
+{\em block-assignment-statement}, but if `\TT{in context }{\tt c}'
+is given, they are compiled in context `{\tt c}' with the
+{\em block-assignment-statement} result variables appended
+to that context.
 
 Any result variables in a {\em block-assignment-statement}
 are called `\skey{deferred variable}s' because they do not
@@ -5083,7 +5091,9 @@ and lastly runs the block:
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 		~\ttkey{compile-and-run} \TT{:} \\
 	\TT{~~~~}{\em argument-assignment-statement}\STAR{} \\
-	\TT{~~~~do} \{ \TT{in} {\em context-expression} \}\QMARK{} \TT{:} \\
+	\TT{~~~~do} {\em block-name}\QMARK{}
+	              \{ \ttkey{in context} {\em context-expression} \}\QMARK{}
+	              \TT{:} \\
 	\TT{~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
@@ -5091,8 +5101,9 @@ and lastly runs the block:
 The variable values are set by the {\em argument-assignment-statements}.
 Then the `\TT{do}' subblock {\em statements} are compiled, using
 the variable values to optimize the compilation.
-If the `\TT{in} {\em context-expression}' clause is given, the
-compilation is in the context given by the clause, instead of the
+If the `\TT{in context} {\em context-expression}' clause is given, the
+compilation is in the context given by the clause, with the
+result variables appended, instead of the
 current context: see \itemref{CONTEXTS}.
 
 Then the

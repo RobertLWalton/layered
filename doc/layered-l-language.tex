@@ -786,8 +786,11 @@ and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
 
 
 Similarly the  builtin function such as \TT{round} as used in:
-\begin{center}
-{\tt float$x$ r = round ( float$x$ v )} \\
+\begin{center} \tt
+\begin{tabular}{l}
+float$x$ v = \ldots{} \\
+float$x$ r = round ( v ) \\
+\end{tabular}
 \end{center}
 actually has the function prototype (\pagref{FUNCTION-PROTOTYPE}):
 \begin{center}
@@ -835,10 +838,12 @@ The L-Language uses several kinds of names:
 
 where
 \begin{enumerate}
-\item A {\em type-name} may not be an initial segment of
+\item A {\em type-name} should not be an initial segment of
+a {\em variable-base-name} or of
 an {\em initial-function-term-name}.
 \item A {\em qualifier-name} may not be an initial segment
 of a {\em type-name},
+of of a {\em variable-base-name},
 or of a {\em initial-function-term-name}.
 \item
 A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
@@ -854,14 +859,41 @@ for use by systems and compilers (e.g., \TT{..size} in the last example).
 \end{enumerate}
 \end{indpar}
 
-The first two rules are required because the syntax
+The first two rules are not enforced as such.  Instead the parser
+parses statements into abstract syntax trees that contain
+sequences of names, without separating the names in each sequence.
+Then as a first step in compilation after parsing,
+any name sequence that might be of the form
 \begin{center}
 {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
 \end{center}
-is used in {\em variable-declarations} that may begin {\em statements}
-and in {\em prototype-argument-declara\-tions}.  Also, a
-{\em function-call} beginning with a {\em function-intial-term-name}
-may also begin a {\em statement}.
+is scanned left to right to first remove any {\em qualifier-names}
+and then a {\em type-name}, leaving a non-empty {\em variable-name}.
+At any point, if several suitable {\em names} match the
+beginning of the remaining part of the name sequence, the longest
+is choosen.  If this process succeeds without backup, the name
+sequence is of the above form.  Otherwise it is not -- there is
+no backup.  If the process does not suceed, in some
+cases the name sequence may still be a single {\em variable-name}
+by itself, and in other cases it might be a sequence of one or
+more {\em function-term-names}.
+Also the {\em qualifier-name} and {\em type-name}
+candidates are those of the current scope (\pagref{SCOPE}).
+
+Name sequences that might be of the above form can only occur at
+the beginning of a statement or as a {\em result-variable-declaration}
+or an {\em argument-declaration} in a {\em function-prototype}.
+
+In addition, non-empty name sequences of the form
+\begin{center}
+{\em qualifier-name}\STAR{} {\em type-name}\QMARK{}
+\end{center}
+may appear in abstract tree subexpressions of the form
+\begin{center}
+{\em name-sequance} {\tt (~\ldots{}~)}
+\end{center}
+and are treated similarly.
+
 The third rule is because {\em variable-declarations} are prefaced by
 `\TT{next}' and `\TT{previous}' with special meanting in certain contexts.
 The fourth rule is because the compiler generates names like \TT{T\TMP$n$}
@@ -980,15 +1012,15 @@ For example:
 \label{PROGRAM-ORGANIZATION}
 
 Code is organized into two kinds of files: \skey{module}s
-and \ikey{bodies}{body}.  There is a one-to-one correspondence
-between modules and module files.  Each body file is associated
+and \ikey{bodies}{body}.
+Each body is associated
 with a particular module, the `\key{module of the body}',
 and extends that module.  A module
-may have zero or more body files.
-A module file and all its body files together form
+may have zero or more bodies.
+A module and all its bodies together form
 an `\key{extended module}'.
 
-Module and body files consist of a sequence
+Module and bodies consist of a sequence
 of \skey{declaration}s:
 \begin{indpar}
 \emkey{declaration}
@@ -1020,14 +1052,21 @@ of \skey{declaration}s:
     \end{tabular}
 \end{indpar}
 
-Declarations declare names.  An {\em assignment-statement}
-is also a {\em declaration} of its result variables.
+Declarations declare {\em names} and {\em function-prototypes}.
+An {\em assignment-statement} is also a {\em declaration} of
+its result variable {\em names}.
 
-Names shared between modules begin with {\em module-abbreviations}
+{\em Names} shared between modules begin with {\em module-abbreviations}
 that designate the module in which the name is declared.
 Such names are called `\key{external}'.\label{EXTERNAL}
-External names can only be declared in module files, and
-never in body files.  External names cannot be declared inside
+Similarly the pattern of a {\em function-prototype}
+(\pagref{FUNCTION-PROTOTYPE})
+may begin with the {\em module-abbreviation} of the module in
+which the prototype is declared,
+and such prototypes are `\key{external}'.
+
+External names and prototypes can only be declared in modules, and
+never in bodies.  External names and prototypes cannot be declared inside
 statement blocks, but must be declared at `top level' outside
 blocks.
 
@@ -1111,9 +1150,9 @@ distinct, and all {\em module-names} must be distinct.
 \end{itemize}
 \end{indpar}
 
-A {\em module-name} is a POSIX file name without its final extension.
+A {\em module-name} is a POSIX file name.
 The {\em module-name} of a {\em module-declaration} must match the
-non-extension part of the name of the file containing the
+name of the file containing the
 {\em module-declaration}, relative to one of several directories
 specified separately to the compiler.
 
@@ -1130,7 +1169,7 @@ This graph \underline{must be acyclic}.
 
 The module \TT{"standard"}\index{standard@\TT{"standard"}} with
 module abbreviation \ttkey{std} is builtin and contains the builtin types and
-their functions.  The {\em import-clause}
+functions.  The {\em import-clause}
 \begin{center}
 {\tt import }\TT{"standard"}\ttindex{standard@\TT{"standard"}}{\tt{}
     as \ttkey{std}}
@@ -1188,8 +1227,8 @@ the context of the compilation is \underline{not} the current context but
 rather the context of the inline function declaration or of the function
 prototype containing the default expression.
 
-If two different declarations of the same name have overlapping
-overlapping scope, one of these scopes must include the other,
+If two different declarations of the same {\em name} have overlapping
+scope, one of these scopes must include the other,
 and the declaration with the smaller scope is said to 
 `\mkey{hide}{declaration}'\label{HIDE} the other declaration.
 Such hiding is a compiler error unless the smaller scope
@@ -1255,8 +1294,8 @@ The statement
 assigning the values must be in the same extended module
 as the deferred assignment statement, but may be in a separate body
 of that module, and may use out-of-line functions in that module or in modules
-imported by that module.  It is a programming error to access the
-result variable values before they are assigned.
+imported by that module.  It is a programming error to access
+deferred result variable values before they are assigned.
 
 The name or the pattern of the prototype
 declared by a top level declaration in a module may begin with
@@ -1320,8 +1359,11 @@ Thus in the context of the above example the lines:
 int32 y = mom my external function ( x )
 int32 y = my external function ( x )
 \end{verbatim}\end{indpar}
-are equivalent if no imported module defines `\TT{my external function}'
-with an \TT{int32} result and one \TT{int32} argument.
+are equivalent if no imported module with abbreviation $ma$
+contains the {\em function-prototype}:
+\begin{center}
+\tt function int32 r = $ma$ my external function ( int32 v )
+\end{center}
 
 \subsection{Bodies}
 \label{BODIES}
@@ -1344,20 +1386,20 @@ is a file that begins with an {\em body-declaration}:
 {\em after-clause} ::= \TT{initialize after }{\em body-name}
 \end{indpar}
 
-A {\em body-name} is a POSIX file name without its final extension.
-The {\em body-name} of a {\em body-de\-clar\-a\-tion} must match the
-non-extension part of the name of the file containing the
+A {\em body-name} is a POSIX file name.
+The {\em body-name} of a {\em body-declaration} must match the
+name of the file containing the
 {\em body-declaration}, relative to one of several directories
 specified separately to the compiler.
 
 A \key{body} is an extension of the module named in the first
 line of the {\em body-declaration}.  The body cannot itself
 declare any external names.  It can provide out-of-line
-declarations for functions whose prototype as included in the
-module it extends.  It can also declare internal names that
-are used in these functions, and provide for the module
-initialization code that may call out-of-line functions (unlike
-code in the module file proper).
+assignments for variables and out-of-line functions deferred in the
+module it extends, and can call out-of-line functions in variable
+assignments.
+It can also declare internal names and functions used in the
+body.
 
 A body implicitly imports the module it extends.  Within the
 body that module has the same {\em module-abbreviation} that it
@@ -1380,14 +1422,15 @@ initialize imported modules before the importing module.
 
 A module is initialized by executing top level assignment statements
 in the module file, and then initializing
-body files that extend the module.  A body file is initialized
-by executing top level assignment statements in the body file.
+bodies that extend the module.  A body is initialized
+by executing top level assignment statements in the body.
 Top level statements in a file are executed in order.
 Note that some of these assignment statements may not have
 result variables.
 
+A module is initialized before any bodies that extend it.
 Unless specified by {\em after-clauses}, the order of initializing the
-body files that extend a particular module is indeterminate.
+bodies that extend a module is indeterminate.
 An `\TT{initialized after "$B1$"}' clause for module \TT{"$B2$"} causes
 \TT{"$B2$"} to be initialized after \TT{"$B1$"}.
 

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 4, 2018
+March 5, 2018
  
 \end{center}
 
@@ -797,11 +797,15 @@ so its proper name is `\TT{std round}' and not `\TT{round}',
 but in this case it is not necessary (or desirable) to make `\TT{round}'
 an abbreviation because its module can be implied in a function call
 (see `module deficient' on \pagref{MODULE-DEFICIENT}).
+
 \subsection{Kinds of Names}
+\label{KINDS-OF-NAMES}
 
 The L-Language uses several kinds of names:
 
 \begin{indpar}
+\emkey{module-abbreviation}
+	::= \TT{word} not containing any `\TT{.}'s \\
 \emkey{type-name}\label{TYPE-NAME}
 	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
@@ -831,11 +835,10 @@ The L-Language uses several kinds of names:
 
 where
 \begin{enumerate}
-\item A {\em type-name} may not be an initial segment of another
-{\em type-name}, of a {\em variable-base-name},
-or of an {\em initial-function-term-name}.
-\item A {\em qualifier-name} may not be an initial segment of another
-{\em qualifier-name}, of a {\em type-name},
+\item A {\em type-name} may not be an initial segment of
+an {\em initial-function-term-name}.
+\item A {\em qualifier-name} may not be an initial segment
+of a {\em type-name},
 or of a {\em initial-function-term-name}.
 \item
 A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
@@ -892,63 +895,44 @@ The most common {\em abbreviation-replacement} is a {\em name-constant}:
 {\em name-item} ::= see \pagref{NAME-ITEM}
 \end{indpar}
 
-Abbreviation is recursive: an {\em abbreviation-replacement} can
-itself be an abbreviation.
-Abbreviation loops are possible and result in compile errors when
-the abbreviation is used.
-For example:
-\begin{indpar}\begin{verbatim}
-    X ---> `Y'
-    int64 X = 5       // Same as: int64 Y = 5
-    Y ---> `Z'
-    int64 X = 5       // Same as: int64 Z = 5
-    Z ---> `X'
-    int64 X = 5       // Compile error replacing X.
-\end{verbatim}\end{indpar}
+The only {\em names}
+that can be abbreviated are {\em qualifier-names},
+{\em type-names}, {\em variable-base-names}, and
+{\em member-names}.
+{\em Module-abbreviations} and
+{\em function-term-names} \underline{cannot} be abbreviated.
 
-Abbreviation replacement occurs after expressions are parsed, hence
-the following example:
-\begin{indpar}\begin{verbatim}
-    foo ---> "+"
-    int64 y = (5) foo (7)
-        // OK: right side same as (5) "+" (7)
-        // and is a function call.
-    int64 x = 5 foo 7
-        // Compile error: 5 "+" 7 is not function call
-        // as arguments are not parenthesized.
-\end{verbatim}\end{indpar}
+If the replacement name of an {\em abbreviation} is a {\em qualifier-name}
+in the context of the {\em abbreviation-declaration},
+the {\em abbreviation} becomes a {\em qualifier-name}, and
+must have they syntax of a {\em qualifier-name}.
+Similarly, if the replacement name of an {\em abbreviation} is a {\em type-name}
+in the context of the {\em abbreviation-declaration},
+the {\em abbreviation} becomes a {\em type-name}, and
+must have they syntax of a {\em type-name}.
+In other cases, the {\em abbreviation} must have the syntax of
+a {\em variable-base-name} if its replacement does, and the syntax of
+a {\em member-name} if its replacement does.
 
-Abbreviation replacement occurs before
-{\em module-abbreviations} (see \pagref{MODULE-ABBREVIATION}) are
-mapped onto modules.  Thus a name beginning with a
-{\em module-abbreviation} can be either an abbreviation or an
-abbreviation replacement.  There are a number of builtin
-abbreviations exemplifying this, for example:
-\begin{indpar}\begin{verbatim}
-int32 ---> `std int32'
-bool  ---> `std bool'
-\end{verbatim}\end{indpar}
+The rules in \itemref{KINDS-OF-NAMES}
+apply to {\em abbreviations}.  In particular the rules regarding
+{\em qualifier-names} and {\em type-names} apply to {\em abbreviations}
+that are such.
 
-If the {\em abbreviation-replacement} is a type name in the
-context of the abbreviation, the abbreviation is marked as a type
-name. 
-If the {\em abbreviation-replacement} is a qualifier name in the
-context of the abbreviation, the abbreviation is marked as a qualifier
-name.
-Thus a variable declaration of the
-form
-\begin{center}
-{\em qualifier-name}\STAR{} ~ {\em type-name} ~ {\em variable-name}
-\end{center}
-will work when {\em qualifier-names} and {\em type-names} are
-{\em abbreviations}.
+Abbreviation replacement occurs after
+{\em qualifier-names},
+{\em type-names}, {\em variable-base-names}, and
+{\em member-names} have been identified.
+
+Thus the following example:
 \begin{indpar}\begin{verbatim}
-int32 ---> `std int32'
-    // Builtin type abbreviation
-*UNCHECKED*  ---> `std *UNCHECKED*'
-    // Builtin qualifier abbreviation
-*UNCHECKED* int32 x 1 = 99
-    // Same as: std *UNCHECKED* std int32 x 1 = 99
+    x 1 ---> `x'
+    .foo ---> `.fee'
+    int64 y = x 1 .foo + 10
+        // Same as: std int64 y = (x.fee) "+" (10)
+    y 1 ---> `y'
+    bool z = y 1 is in { 1 .. 100 }
+        // Same as: std bool z = std (y) is in ({ 1 .. 100 })
 \end{verbatim}\end{indpar}
 
 Abbreviations are never external (\pagref{EXTERNAL}),%
@@ -956,6 +940,40 @@ Abbreviations are never external (\pagref{EXTERNAL}),%
 even if they begin with a {\em module-abbreviation}.
 They do have scope like other declarations, but their scope
 never extends beyond the file in which they are declared.
+
+Some examples are:
+\begin{indpar}\begin{verbatim}
+int32 ---> `std int32'
+    // Builtin type abbreviation
+*UNCHECKED*  ---> `std *UNCHECKED*'
+    // Builtin qualifier abbreviation
+*UNCHECKED* int32 x 1 = 99
+    // Same as: std *UNCHECKED* std int32 x 1 = 99
+.foo ---> `fee'
+    // Illegal: `fee' does not begin with `.'.
+"+" ---> `std int64'
+    // Illegal: `"+"' is not allowed as a type name.
+std ---> `std *UNCHECKED*'
+    // Illegal: `std' would be a qualifier name that is
+    // an initial segment of the type name `std uns64'.
+int64 unsigned ---> `uns64'
+int64 unsigned z = 9 + 7
+    // Legal, same as: std uns64 z = (9) "+" (7)
+\end{verbatim}\end{indpar}
+
+Abbreviation is recursive: an {\em abbreviation-replacement} can
+itself be an abbreviation.
+Abbreviation loops are possible and result in compile errors when
+the abbreviation is used.
+For example:
+\begin{indpar}\begin{verbatim}
+    X ---> `Y'
+    int64 X = 5       // Same as: std int64 Y = 5
+    Y ---> `Z'
+    int64 X = 5       // Same as: std int64 Z = 5
+    Z ---> `X'
+    int64 X = 5       // Compile error replacing X.
+\end{verbatim}\end{indpar}
 
 
 \section{Program Organization}

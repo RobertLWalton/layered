@@ -951,7 +951,7 @@ that are such.
 Abbreviation replacement occurs after
 {\em qualifier-names},
 {\em type-names}, {\em variable-base-names}, and
-{\em member-names} have been identified.
+{\em member-names} have been identified by the compiler.
 
 Thus the following example:
 \begin{indpar}\begin{verbatim}
@@ -967,7 +967,7 @@ Thus the following example:
 Abbreviations are never external (\pagref{EXTERNAL}),%
 \label{ABBREVIATIONS-ARE-NOT-EXTERNAL}
 even if they begin with a {\em module-abbreviation}.
-They do have scope like other declarations, but their scope
+They do have scope (\pagref{SCOPE}) like other declarations, but their scope
 never extends beyond the file in which they are declared.
 
 Some examples are:
@@ -1017,7 +1017,7 @@ may have zero or more bodies.
 A module and all its bodies together form
 an `\key{extended module}'.
 
-Module and bodies consist of a sequence
+Modules and bodies consist of a sequence
 of \skey{declaration}s:
 \begin{indpar}
 \emkey{declaration}
@@ -1077,14 +1077,14 @@ if the {\em function-prototype} matching the call
 can be unambiguously determined: see
 `module deficient' on \pagref{MODULE-DEFICIENT}.
 This may not be done
-for other names (e.g., external types, external variables).
+for names (e.g., external types, external variables).
 
 An example is:
 \begin{indpar}\begin{verbatim}
 module "lib/math" as math
 
 define type math complex as void
-    // Given `math complex x', x[0] it the real part of a
+    // Given `math complex x', x[0] is the real part of a
     // complex number and x[1] is the imaginary part.
 
 function math complex r, float64 r[0], float64 r[1] =
@@ -1116,7 +1116,8 @@ math complex z1 = x + y
     // that `math' module "+" applies.
 math complex z2 = math ( x + y )
     // Parses to `math complex z2 = ( math (x) "+" (y) )'.
-    // 1math' module abbreviator is explicit and NOT implied.
+    // `math' module abbreviator for "+" is explicit and
+    // NOT implied.
 \end{verbatim}\end{indpar}
 
 \subsection{Modules}
@@ -1210,7 +1211,7 @@ begins just after the {\em declaration}
 itself, and
 lasts to the end of smallest block containing the {\em declaration},
 or until the end of the file containing the {\em declaration} if
-the {\em declaration} is not inside any subblock.
+the {\em declaration} is not inside any block.
 
 The scope of a {\em name} or {\em function-prototype}
 is the scope of the declaration that defines it.
@@ -1269,7 +1270,7 @@ current scope contains two declarations whose prototypes
 both match a {\em function-call}, the call is ambiguous and
 in error, even if the scope of one declaration is within
 a subblock of the scope of the other.
-As a consequence, it is unwise to place function declarations
+As a consequence, it may be unwise to place function declarations
 within assignment statements that have the `\TT{in context}' option.
 
 A declaration not inside a block is said to be `\key{top level}'.
@@ -1278,7 +1279,7 @@ A top level declaration
 may \underline{not} have `\TT{next} {\em variable-name}' as
 a result variable.
 
-A top level assignment statement may not include references to
+A top level assignment statement in a module may not include references to
 out-of-line functions or to inline functions that in turn include
 references to out-of-line functions.  This implies that all code needed
 to initialize a top level variable will be initialized before the
@@ -1289,9 +1290,10 @@ However a top level assignment statement may have a
 that its result variable values will not be assigned until later.
 The statement
 assigning the values must be in the same extended module
-as the deferred assignment statement, but may be in a separate body
-of that module, and may use out-of-line functions in that module or in modules
-imported by that module.  It is a programming error to access
+as the deferred assignment statement, but may be in a body
+of that module, and if it is in a body,
+may use out-of-line functions.
+It is a programming error to access
 deferred result variable values before they are assigned.
 
 The name or the pattern of the prototype
@@ -1391,11 +1393,11 @@ specified separately to the compiler.
 
 A \key{body} is an extension of the module named in the first
 line of the {\em body-declaration}.  The body cannot itself
-declare any external names.  It can provide out-of-line
+declare any external names.  It can provide
 assignments for variables and out-of-line functions deferred in the
-module it extends, and can call out-of-line functions in variable
+module it extends, and can call out-of-line functions in these
 assignments.
-It can also declare internal names and functions used in the
+It can also declare internal names and functions used only in the
 body.
 
 A body implicitly imports the module it extends.  Within the
@@ -1440,6 +1442,61 @@ initializes after.  This graph must be acyclic.
 and {\em out-of-line-function-deferred-assignments}
 (\pagref{OUT-OF-LINE-FUNCTION-DEFERRED-ASSIGNMENT}) must be executed
 before statements initializing their variables or functions.
+
+\subsection{Parsing}
+
+The parser converts each statement to an abstract syntax tree,
+using the language syntax equations and the {\em parser-clauses}
+of the current module's {\em module-declaration} and for a body
+also the body's {\em body-declaration}.  The abstract syntax
+tree of a statement can be represented by inserting implied
+parentheses into the statement.
+
+For example, the statement
+\begin{center}
+\tt int64 x 1 = y 5 b + sin (w) * cos z
+\end{center}
+becomes the abstract syntax tree represented by
+\begin{center}
+\tt (int64 x 1) = ((y 5 b) "+" ((sin (w)) "*" (cos z)))
+\end{center}
+Operators in the original statement are replaced by quoted
+versions of the operators in our representation of the abstract
+syntax tree, e.g., {\tt +} is replaced by {\tt "+"}, so that
+the operators become {\em function-term-names}.
+
+The parser does not process {\em result-declarations} or
+{\em argument-declarations}.  Thus
+\begin{center}
+\tt function int64 r = ( int64 a 1 ) "+" ( int64 a 2 )
+\end{center}
+becomes
+\begin{center}
+\tt function (int64 r) = (( int64 a 1 ) "+" ( int64 a 2 ))
+\end{center}
+Since the parser has only syntax information available to
+it, the parser does not know what are the {\em qualifier-names}
+and {\em type-names} in a given scope, and in fact the parse
+has no notion of scope.
+
+The parser does know about {\em module-abbrevations} and
+converts a statement of the form:
+\begin{center}
+{\em module-abbreviation} {\tt (~\ldots~)}
+\end{center}
+to
+\begin{center}
+{\tt (~}{\em module-abbreviation}{\tt ~\ldots~)}
+\end{center}
+after parsing `{\tt \ldots}'.  Thus if $ma$ is a {\em module-abbreviation},
+\begin{center}
+\tt int64 x 1 = $ma$ ( y 5 b + sin (w) * cos z )
+\end{center}
+becomes the abstract syntax tree represented by
+\begin{center}
+\tt (int64 x 1) = ($ma$ (y 5 b) "+" ((sin (w)) "*" (cos z)))
+\end{center}
+
 
 \section{Data Types}
 \label{DATA-TYPES-TYPES}
@@ -4361,7 +4418,7 @@ Assignment statements have the syntax:
     		& [see \pagref{EXPRESSION-LIST}] \\
     $|$ & {\em function-call}
     		& [see \pagref{FUNCTION-CALL}] \\
-    $|$ & {\em subblock}
+    $|$ & {\em block}
 	        & [see kinds of assignment statement below] \\
     \end{tabular}
 \end{indpar}

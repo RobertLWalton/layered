@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 5, 2018
+March 6, 2018
  
 \end{center}
 
@@ -837,17 +837,18 @@ The L-Language uses several kinds of names:
     \end{tabular}
 
 where
-\begin{enumerate}
+\begin{enumerate}\label{NAME-RULES}
 \item A {\em type-name} should not be an initial segment of
 a {\em variable-base-name} or of
 an {\em initial-function-term-name}.
-\item A {\em qualifier-name} may not be an initial segment
+\item A {\em qualifier-name} should not be an initial segment
 of a {\em type-name},
-of of a {\em variable-base-name},
-or of a {\em initial-function-term-name}.
+of a {\em variable-base-name},
+or of an {\em initial-function-term-name}.
 \item
 A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
-may not begin with the word `\TT{next}' or `\TT{previous}'.
+may not begin with the word `\TT{next}' or `\TT{previous}' or
+end with the word `\TT{is}', `\TT{as}', `\TT{with}', or `\TT{without}.
 \item
 {\em Name-items} ending with `\TT{\TMP$n$}',
 where $n$ is a {\em natural-number}, are
@@ -894,10 +895,6 @@ may appear in abstract tree subexpressions of the form
 \end{center}
 and are treated similarly.
 
-The third rule is because {\em variable-declarations} are prefaced by
-`\TT{next}' and `\TT{previous}' with special meanting in certain contexts.
-The fourth rule is because the compiler generates names like \TT{T\TMP$n$}
-for temporary variables and \TT{B\TMP$n$} for compiler created blocks.
 
 \subsection{Abbreviations}
 \label{ABBREVIATIONS}
@@ -1086,7 +1083,7 @@ An example is:
 \begin{indpar}\begin{verbatim}
 module "lib/math" as math
 
-define type math complex is void
+define type math complex as void
     // Given `math complex x', x[0] it the real part of a
     // complex number and x[1] is the imaginary part.
 
@@ -1181,7 +1178,7 @@ When a type is declared, functions with arguments or result
 values of that type are automatically declared.  For example,
 the declaration
 \begin{center}
-{\tt define type $T1$ is $T2$}
+{\tt define type $T1$ as $T2$}
 \end{center}
 automatically declares
 \begin{center}
@@ -2025,9 +2022,13 @@ Enumeration values can be assigned by declaration statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
     \begin{tabular}[t]{rl}
-    ::= & {\em enum-type-name} ~ {\em constant-name}\TT{ is next enum} \\
-    $|$ & {\em enum-type-name} ~ {\em constant-name}\TT{ is previous enum}
+    ::= & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ is next enum} \\
+    $|$ & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ is previous enum}
     \end{tabular}
+\\[0.5ex]
+\emkey{enum-constant-name} ::= {\em variable-name}
+\\[0.5ex]
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
@@ -2127,12 +2128,12 @@ defined for the following cases:
 
 \begin{indpar}
 \begin{itemlist}
-\item[\TT{type} {\em qualifier-name}\STAR{} {\em enum-type-name}~~%
-    \TT{is}~~{\em builtin-integer-type-name} \ldots{}] ~\\
+\item[\TT{define type} {\em qualifier-name}\STAR{} {\em enum-type-name}~~%
+    \TT{as}~~{\em builtin-integer-type-name} \ldots{}] ~\\
 The enumeration offset of the {\em enum-type-name} equals \TT{0}.
-\item[\TT{type} {\em qualifier-name}\STAR{}]
+\item[\TT{define type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
-              {\em enum-type-name}~~\TT{is}~~%
+              {\em enum-type-name}~~\TT{as}~~%
               \TT{next}~~{\em base-enum-type-name} \\
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
@@ -2165,9 +2166,9 @@ compiled after the {\em enum-type-declaration} will make
 \end{center}
 compiled after the {\em enum-type-declaration} will make
 {\tt $I$(V) == $I$(V$n$)}.
-\item[\TT{type} {\em qualifier-name}\STAR{}]
+\item[\TT{define type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
-              {\em enum-type-name}~~\TT{is}~~%
+              {\em enum-type-name}~~\TT{as}~~%
               \TT{previous}~~{\em enum-type-name} \\
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
@@ -2231,19 +2232,27 @@ converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
 \begin{indpar} \tt
-define type~\ttkey{type}~as unswrd with enum [0~..] \\
-type~\ttmkey{missing}{type}~is next enum // 0 \\
-type~\ttkey{type}~is next enum // 1
+define type~\ttkey{std type}~as unswrd with enum [0~..] \\
+\ttkey{type} ---> `std type' \\
+type~\ttkey{std missing type}~is next enum // 0 \\
+function std type r = \ttmkey{std missing}{type}: \\
+\hspace*{0in}~~~~r = std missing type
 \\[1ex]
-type~\ttkey{qualifier}~is unswrd with enum [0~..] \\
-qualifier~\ttmkey{missing}{qualifier}~is next enum // 0
+define type~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
+\ttkey{qualifier} ---> `std qualifier' \\
+qualifier~\ttkey{std missing qualifier}~is next enum // 0 \\
+function std qualifier r = \ttmkey{std missing}{qualifier}: \\
+\hspace*{0in}~~~~r = std missing qualifier
 \\[1ex]
-type~\ttkey{bool}\begin{tabular}[t]{@{}l@{}}
-                       ~is unswrd with enum [0~..~1] \\
-                       ~without implied conversion \\
-		       \end{tabular} \\
-bool~\ttkey{false}~is next enum // 0 \\
-bool~\ttkey{true}~~is next enum // 1
+define type~\ttkey{std bool}\begin{tabular}[t]{@{}l@{}}
+                            ~as unswrd with enum [0~..~1] \\
+                            ~without implied conversion \\
+		            \end{tabular} \\
+\ttkey{bool} ---> `std bool' \\
+bool~\ttkey{std false}~is next enum // 0 \\
+\ttkey{false} ---> `std false' \\
+bool~\ttkey{std true}~~is next enum // 1 \\
+\ttkey{true} ---> `std true'
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
@@ -2411,9 +2420,11 @@ For a set or list constant, this is the common enumeration type.
 \end{indpar}
 
 The following are builtin enumeration set types:
-\begin{indpar}
-{\tt define type~}\ttkey{types}{\tt ~as set of type} \\
-{\tt define type~}\ttkey{qualifiers}{\tt ~as set of qualifier}
+\begin{indpar} \tt
+define type \ttkey{std types} as set of type \\
+\ttkey{types} ---> `std types' \\
+define type \ttkey{std qualifiers} as set of qualifier \\
+\ttkey{qualifiers} ---> `std qualifiers'
 \end{indpar}
 
 An enumeration set or list constant is an enumeration set or list
@@ -2553,7 +2564,7 @@ type \ttkey{std missing type} is next enum // 0 \\
 type \ttkey{std type} is next enum // 1 \\
 function std type r = std \ttmkey{missing}{type}: \\
 \hspace*{3em}r = std missing type \\
-\ttkey{type} \ABV `std type'
+\ttkey{type} \ABV{} `std type'
 \end{indpar}
 Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
@@ -2772,7 +2783,7 @@ of 32-bit UNICODE characters.
 It is defined as a derived type:
 \begin{indpar} \tt
 define type \ttkey{std string} as adr \\
-\ttkey{string} \ABV `std string'
+\ttkey{string} \ABV{} `std string'
 \end{indpar}
 
 A {\em quoted-string} lexeme is a constant of \TT{string} type
@@ -2865,7 +2876,7 @@ by strings of digits and not by integers.
 The \TT{name} type is is defined as a derived type:
 \begin{indpar} \tt
 define type \ttkey{std name} as adr \\
-\ttkey{name} \ABV `std name'
+\ttkey{name} \ABV{} `std name'
 \end{indpar}
 
 A sequence of {\em name-items} in \TT{`~'} quotes is a \TT{name}
@@ -2985,8 +2996,8 @@ include for n in [`x[1]', `x[2]', `x[3]' ]:
 Name sets and lists can be stored in variables of the builtin name set
 or list types:
 \begin{indpar}
-{\tt define type \ttkey{name set} is adr} \\
-{\tt define type \ttkey{name list} is adr}
+{\tt define type \ttkey{name set} as adr} \\
+{\tt define type \ttkey{name list} as adr}
 \end{indpar}
 
 The following \TT{name set} functions are buitin:
@@ -3237,7 +3248,7 @@ define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
 qualifier \ttkey{std missing qualifier} is next enum // 0 \\
 function std qualifier r = std \ttmkey{missing}{qualifier}: \\
 \hspace*{3em}r = std missing qualifier \\
-\ttkey{qualifier} \ABV `std qualifier'
+\ttkey{qualifier} \ABV{} `std qualifier'
 \end{indpar}
 Each qualifier is associated with a unique enumeration value
 of type `\TT{qualifier}', and this value can be used at both
@@ -5478,8 +5489,8 @@ an initial segment of any other {\em function-term-name}
 in the same {\em function-prototype}.
 \item
 An {\em initial-function-term-name}
-must not have a {\em qualifier-name} or {\em type-name} as an initial segment.
-(see Type Name Rule, \pagref{TYPE-NAME-RULE}).
+should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
+(see Type Name Rule, \pagref{NAME-RULES}).
 \item
 \TT{"="} cannot be used as a {\em function-term-name}
 in a {\em function-prototype}.
@@ -5512,10 +5523,10 @@ A {\em function-call} with a {\em result-variable-list}
 is in effect replaced by a {\em block-assignment-statement}
 with an `\TT{in context}' option specifying the context of the
 {\em function-declaration}
-(Section~\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
-The {\em function-declaration's} {\em result-variable-list} becomes the 
+(\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+The {\em result-variable-list} of the {\em function-declaration} becomes the
 {\em result-variable-list} of the {\em block-as\-sign\-ment-statement} and the
-{\em function-declaration's} {\em statements} become the 
+{\em statements} of the {\em function-declaration} become the 
 {\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
 Actual argument values from the function call are assigned to variables in
 the {\em function-declaration's} {\em argument-lists}.  The values produced in
@@ -6030,6 +6041,8 @@ match has no ambiguity deficiency.  That match
 is accepted and used to compile the {\em function-call}.
 \end{enumerate}
 
+TBD
+
 As an application of these rules consider the example:
 \begin{indpar}\begin{verbatim}
 // mymod is module abbreviation of current module.
@@ -6153,7 +6166,7 @@ be created except as results of function calls.
 
 For example:
 \begin{indpar}\begin{verbatim}
-type pointer pair is void
+define type pointer pair as void
     // if pp is a pointer pair then:
     //   unsadr pp.begin is the offset of the first element
     //   unsadr pp.end is the offset just AFTER the
@@ -6376,7 +6389,7 @@ The `\TT{stack}' qualifier is inherited.
 
 Another example of a cluster with implied next variables is:
 \begin{indpar}\begin{verbatim}
-type sequence is void
+define type sequence as void
     // if seq is a sequence,
     // seq.count is the number of its elements
     // seq.type is the type of the elements
@@ -6414,7 +6427,7 @@ is the same as
 where \TT{y}, if it is an expression,
 is not evaluated twice:\label{COMPARISON-RESULTS}
 \begin{indpar}\begin{verbatim}
-type comparison result is void
+define type comparison result as void
     // if cr is a comparison result then:
     //   bool cr.value is the result of the comparison
     //   type cr.type is the type of the values compared
@@ -6503,8 +6516,8 @@ An example is:
 // Here a cluster foo, foo.a, foo.b, foo.c
 // where foo is an address.
 //
-type foo is void
-type foo_ptr is adr
+define type foo as void
+define type foo_ptr as adr
 function ( foo x, *UNCHECKED* adr x.base,
            mem int32 x.a, *UNCHECKED* x.a.offset,
            mem int32 x.b, *UNCHECKED* x.b.offset,
@@ -6648,7 +6661,7 @@ defines a type you want to trace.  An example in which the
 qualifier is \TT{Q} and the type is \TT{T} is:
 \begin{indpar}\begin{verbatim}
 trace qualifier Q with base type adr
-type Q T is adr
+define type Q T as adr
 \end{verbatim}\end{indpar}
 which causes all values of type \TT{T} in the stack to be
 traced.

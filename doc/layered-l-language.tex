@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 6, 2018
+March 7, 2018
  
 \end{center}
 
@@ -3707,13 +3707,16 @@ The precise syntax of expressions is:
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
 \emkey{primary}\label{PRIMARY}
-    ::= {\em argument-list}\STAR{}
-          \begin{tabular}[t]{l}
-          {\em primary-item}\PLUS{}\\
-	  \{ {\em argument-list}\PLUS{}
-	     {\em primary-item}\PLUS{} \}\STAR{} \\
-	  {\em argument-list}\STAR{} \\
-          \end{tabular}
+    \begin{tabular}[t]{rl}
+    ::= & {\em argument-list}\STAR{}
+	      \begin{tabular}[t]{l}
+	      {\em primary-item}\PLUS{}\\
+	      \{ {\em argument-list}\PLUS{}
+		 {\em primary-item}\PLUS{} \}\STAR{} \\
+	      {\em argument-list}\STAR{} \\
+	      \end{tabular} \\
+    $|$ & {\em bracketed-constant}
+    \end{tabular}
 \\[0.5ex]
 \emkey{primary-item}\label{PRIMARY-ITEM}
     ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
@@ -3725,13 +3728,77 @@ The precise syntax of expressions is:
     $|$ & \TT{[ ]} \\
     $|$ & \TT{[} {\em expression} \{ \TT{,} {\em expression} \}\STAR{} \TT{]} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{bracketed-constant}\label{BRACKETED-CONSTANT}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{[ ]} \\
+    $|$ & \TT{[} {\em range}
+          \{ \TT{,} {\em range} \}\STAR{} \TT{]} \\
+    $|$ & \TT{\{ \}} \\
+    $|$ & \TT{\{} {\em range}
+          \{ \TT{,} {\em range} \}\STAR{} \TT{\}} \\
+    $|$ & \TT{`} {\em name-item}\STAR{} \TT{'}
+    \end{tabular}
+\\[0.5ex]
+\emkey{range}\label{RANGE}
+    \begin{tabular}[t]{rl}
+    ::= & {\em expression} \\
+    $|$ & {\em expression} \TT{..} {\em expression} \\
+    $|$ & {\em expression} \TT{..} \\
+    $|$ & \TT{..} {\em expression} \\
+    \end{tabular}
 \end{indpar}
 
 Note that strictly binary operators such as \TT{mod} can also
-be used as function names, as in
+be used as function names in {\em primaries}, as in
 \begin{center}
 {\tt uns8 x = mod ( 257 )}
 \end{center}
+
+It is the compiler, and not the parser, that analyzes {\em primaries},
+because knowledge of the {\em names} in scope is required.  To the
+compiler, a {\em primary} has the following syntax:
+\begin{indpar}
+\emkey{primary}\label{COMPILER-PRIMARY}
+    \begin{tabular}[t]{rl@{\hspace*{0.4in}}l}
+    ::= & {\em constant} \\
+    $|$ & {\em variable-name} 		& [see \pagref{VARIABLE-NAME}] \\
+    $|$ & {\em variable-declaration} \\
+    $|$ & {\em qualifier-conversion} \\
+    $|$ & {\em type-conversion} \\
+    $|$ & {\em function-call}		& [see \pagref{FUNCTION-CALL}] \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{constant}\label{CONSTANT}
+    \begin{tabular}[t]{rl@{\hspace*{0.5in}}l}
+    ::= & {\em number-constant} 	& [see \pagref{NUMBER-CONSTANT}] \\
+    $|$ & {\em character-constant} 	& [see \pagref{CHARACTER-CONSTANT}]  \\
+    $|$ & {\em string-constant} 	& [see \pagref{STRING-CONSTANT}]  \\
+    $|$ & {\em name-constant} 		& [see \pagref{NAME-CONSTANT}]  \\
+    $|$ & {\em enum-set-constant}	& [see \pagref{ENUM-SET-CONSTANT}]  \\
+    $|$ & {\em enum-list-constant}	& [see \pagref{ENUM-LIST-CONSTANT}]  \\
+    $|$ & {\em name-set-constant}	& [see \pagref{NAME-SET-CONSTANT}]  \\
+    $|$ & {\em name-list-constant}	& [see \pagref{NAME-LIST-CONSTANT}]  \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{variable-declaration} ::= {\em qualifier-name}\STAR{}
+                                 {\em type-name} {\em variable-name}
+\\[0.5ex]
+\emkey{qualifier-conversion}
+    ::= {\em qualifier-name}\PLUS{} \TT{(} {\em expression} \TT{)}
+\\[0.5ex]
+\emkey{type-conversion}
+    ::= {\em qualifier-name}\STAR{} {\em type-name}
+        \TT{(} {\em expression} \TT{)}
+\end{indpar}
+
+If the {\em primary} is not a {\em constant}, the compiler
+checks the scope to see if it is a {\em variable-declaration},
+{\em variable-name}, {\em qualifier-conversion}, or
+{\em type-conversion}.  If it is none of these, the
+compiler applies the {\em function-call} matching rules of
+\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}
+to match the {\em primary} to a {\em function-prototype}.
 
 \subsection{Expression Semantics}
 

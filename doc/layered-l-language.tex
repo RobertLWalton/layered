@@ -3593,8 +3593,8 @@ The precise syntax of expressions is:
     $|$ & {\em summation-expression} \\
     $|$ & {\em product-expression} \\
     $|$ & {\em exponent-expression} \\
-    $|$ & {\em data-expression} \\
     $|$ & {\em subexpression} \\
+    $|$ & {\em primary} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{selection-expression}\label{SELECTION-EXPRESSION} ::= \\
@@ -3609,8 +3609,8 @@ The precise syntax of expressions is:
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-expression} $|$ {\em summation-expression}
                                  $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em data-expression}
-                                    $|$ {\em subexpression}
+    $|$ & {\em exponent-expression} $|$ {\em subexpression}
+                                    $|$ {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{logical-expression}\label{LOGICAL-EXPRESSION} ::= \\
@@ -3624,8 +3624,8 @@ The precise syntax of expressions is:
 \\[0.5ex]
 \emkey{logical-operand}\label{LOGICAL-OPERAND}
     \begin{tabular}[t]{rl}
-    ::= & {\em comparison-expression} $|$ {\em data-expression} \\
-    $|$ & {\em subexpression}
+    ::= & {\em comparison-expression} $|$ {\em subexpression} \\
+    $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{comparison-expression}\label{COMPARISON-EXPRESSION} ::= \\
@@ -3641,8 +3641,8 @@ The precise syntax of expressions is:
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-expression} $|$ {\em summation-expression}
                                  $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em data-expression}
-                                    $|$ {\em subexpression}
+    $|$ & {\em exponent-expression} $|$ {\em subexpression}
+                                    $|$ {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{bitop-expression}\label{BITOP-EXPRESSION} ::= \\
@@ -3662,7 +3662,7 @@ The precise syntax of expressions is:
 \emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ \TT{>{}>}
 \\[0.5ex]
 \emkey{bitop-operand}\label{BITOP-OPERAND} ::=
-    {\em data-expression} $|$ {\em subexpression}
+    {\em subexpression} $|$ {\em primary}
 \\[0.5ex]
 \emkey{summation-expression}\label{SUMMATION-EXPRESSION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
@@ -3676,7 +3676,7 @@ The precise syntax of expressions is:
 \emkey{summation-operand}\label{SUMMATION-OPERAND}
     \begin{tabular}[t]{rl}
     ::= & {\em product-expression} $|$ {\em exponent-expression} \\
-    $|$ & {\em data-expression} $|$ {\em subexpression} \\
+    $|$ & {\em subexpression} $|$ {\em primary} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{product-expression}\label{PRODUCT-EXPRESSION} ::= \\
@@ -3690,45 +3690,41 @@ The precise syntax of expressions is:
 \\[0.5ex]
 \emkey{product-operand}\label{PRODUCT-OPERAND} ::=
     {\em exponent-expression} $|$
-    {\em data-expression} $|$ {\em subexpression}
+    {\em subexpression} $|$ {\em primary}
 \\[0.5ex]
 \emkey{exponent-expression}\label{EXPONENT-EXPRESSION}
     ::= {\em exponent-operand} ~ \TT{\textasciicircum} ~ {\em exponent-operand}
 \\[0.5ex]
 \emkey{exponent-operand}\label{EXPONENT-OPERAND} ::=
-    {\em data-expression} $|$ {\em subexpression}
-\\[0.5ex]
-\emkey{data-expression}\label{DATA-EXPRESSION}
-    \begin{tabular}[t]{rl}
-    ::= & {\em constant} \\
-    $|$ & {\em variable-name} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{constant}\label{CONSTANT}
-    \begin{tabular}[t]{@{}rll@{}}
-    ::= & {\em number-constant} & [see \pagref{NUMBER-CONSTANT}] \\
-    $|$ & {\em enum-set-constant} & [see \pagref{ENUM-SET-CONSTANT}] \\
-    $|$ & {\em enum-list-constant} & [see \pagref{ENUM-LIST-CONSTANT}] \\
-    $|$ & {\em character-constant} & [see \pagref{CHARACTER-CONSTANT}] \\
-    $|$ & {\em string-constant} & [see \pagref{STRING-CONSTANT}] \\
-    $|$ & {\em name-constant} & [see \pagref{NAME-CONSTANT}] \\
-    $|$ & {\em name-set-constant} & [see \pagref{NAME-SET-CONSTANT}] \\
-    $|$ & {\em name-list-constant} & [see \pagref{NAME-LIST-CONSTANT}] \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+    {\em subexpression} $|$ {\em primary}
 \\[0.5ex]
 \emkey{subexpression}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}] \\
-    $|$ & {\em qualifier-name}\STAR{} ~ {\em type-name}
-          ~ \TT{(} {\em expression} \TT{)} \\
-    $|$ & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
+    \begin{tabular}[t]{rl}
+    ::= & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
     $|$ & \TT{(} {\em expression} \TT{)} \\
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
-
+\\[0.5ex]
+\emkey{primary}\label{PRIMARY}
+    ::= {\em argument-list}\STAR{}
+          \begin{tabular}[t]{l}
+          {\em primary-item}\PLUS{}\\
+	  \{ {\em argument-list}\PLUS{}
+	     {\em primary-item}\PLUS{} \}\STAR{} \\
+	  {\em argument-list}\STAR{} \\
+          \end{tabular}
+\\[0.5ex]
+\emkey{primary-item}\label{PRIMARY-ITEM}
+    ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
+\\[0.5ex]
+\emkey{argument-list}\label{ARGUMENT-LIST}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{( )} \\
+    $|$ & \TT{(} {\em expression} \{ \TT{,} {\em expression} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[ ]} \\
+    $|$ & \TT{[} {\em expression} \{ \TT{,} {\em expression} \}\STAR{} \TT{]} \\
+    \end{tabular}
 \end{indpar}
 
 Note that strictly binary operators such as \TT{mod} can also

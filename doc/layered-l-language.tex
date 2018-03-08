@@ -3593,6 +3593,7 @@ The precise syntax of expressions is:
     $|$ & {\em summation-expression} \\
     $|$ & {\em product-expression} \\
     $|$ & {\em exponent-expression} \\
+    $|$ & {\em mark-expression} \\
     $|$ & {\em subexpression} \\
     $|$ & {\em primary} \\
     \end{tabular}
@@ -3609,8 +3610,8 @@ The precise syntax of expressions is:
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-expression} $|$ {\em summation-expression}
                                  $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em subexpression}
-                                    $|$ {\em primary}
+    $|$ & {\em exponent-expression} $|$ {\em mark-expression} \\
+    $|$ & {\em subexpression} $|$ {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{logical-expression}\label{LOGICAL-EXPRESSION} ::= \\
@@ -3641,8 +3642,8 @@ The precise syntax of expressions is:
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-expression} $|$ {\em summation-expression}
                                  $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em subexpression}
-                                    $|$ {\em primary}
+    $|$ & {\em exponent-expression} $|$ {\em mark-expression} \\
+    $|$ & {\em subexpression} $|$ {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{bitop-expression}\label{BITOP-EXPRESSION} ::= \\
@@ -3662,7 +3663,7 @@ The precise syntax of expressions is:
 \emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ \TT{>{}>}
 \\[0.5ex]
 \emkey{bitop-operand}\label{BITOP-OPERAND} ::=
-    {\em subexpression} $|$ {\em primary}
+    {\em mark-expression} $|$ {\em subexpression} $|$ {\em primary}
 \\[0.5ex]
 \emkey{summation-expression}\label{SUMMATION-EXPRESSION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
@@ -3675,7 +3676,8 @@ The precise syntax of expressions is:
 \\[0.5ex]
 \emkey{summation-operand}\label{SUMMATION-OPERAND}
     \begin{tabular}[t]{rl}
-    ::= & {\em product-expression} $|$ {\em exponent-expression} \\
+    ::= & {\em product-expression} $|$ {\em exponent-expression}
+                                   $|$ {\em mark-expression} \\
     $|$ & {\em subexpression} $|$ {\em primary} \\
     \end{tabular}
 \\[0.5ex]
@@ -3689,13 +3691,27 @@ The precise syntax of expressions is:
     \end{tabular}
 \\[0.5ex]
 \emkey{product-operand}\label{PRODUCT-OPERAND} ::=
-    {\em exponent-expression} $|$
+    {\em exponent-expression} $|$ {\em mark-expression} $|$
     {\em subexpression} $|$ {\em primary}
 \\[0.5ex]
 \emkey{exponent-expression}\label{EXPONENT-EXPRESSION}
     ::= {\em exponent-operand} ~ \TT{\textasciicircum} ~ {\em exponent-operand}
 \\[0.5ex]
 \emkey{exponent-operand}\label{EXPONENT-OPERAND} ::=
+    {\em mark-expression} $|$ {\em subexpression} $|$ {\em primary}
+\\[0.5ex]
+\emkey{mark-expression}\label{EXPONENT-OPERAND} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & \{ {\em mark-operand} ~ {\em mark-operator} \}\PLUS{}
+	  {\em mark-operand}\QMARK{} \\
+    $|$ & \{ {\em mark-operator} ~ {\em mark-operand} \}\PLUS{}
+	  {\em mark-operator}\QMARK{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{mark-operator}\label{MARK-OPERATOR} ::=
+    {\em mark} that is not otherwise mentioned in these syntax equations
+\\[0.5ex]
+\emkey{mark-operand}\label{MARK-OPERAND} ::=
     {\em subexpression} $|$ {\em primary}
 \\[0.5ex]
 \emkey{subexpression}

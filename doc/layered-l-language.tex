@@ -1459,9 +1459,10 @@ before statements initializing their variables or functions.
 \subsection{Parsing}
 
 The parser converts each statement to an abstract syntax tree,
-using the language syntax equations and the {\em parser-clauses}
-of the current module's {\em module-declaration} and for a body
-also the body's {\em body-declaration}.  The abstract syntax
+using the language syntax equations and the {\em module-abbreviations}
+and {\em parser-clauses}
+of the current module's {\em module-declaration} or body's
+{\em body-declaration}.  The abstract syntax
 tree of a statement can be represented by inserting implied
 parentheses into the statement.
 
@@ -1473,12 +1474,16 @@ becomes the abstract syntax tree represented by
 \begin{center}
 \tt (int64 x 1) = ((y 5 b) "+" ((sin (w)) "*" (cos z)))
 \end{center}
+Note that the abstract tree representation is not legal
+program code as it has parentheses around the result
+variable declaration `{\tt int64 x 1}'.
+
 Operators in the original statement are replaced by quoted
-versions of the operators in our representation of the abstract
+versions of the operators in the abstract
 syntax tree, e.g., {\tt +} is replaced by {\tt "+"}, so that
 the operators become {\em function-term-names}.
 
-The parser does not process {\em result-declarations} or
+The parser does not process {\em result-variable-declarations} or
 {\em argument-declarations}.  Thus
 \begin{center}
 \tt function int64 r = ( int64 a 1 ) "+" ( int64 a 2 )
@@ -1487,9 +1492,11 @@ becomes
 \begin{center}
 \tt function (int64 r) = (( int64 a 1 ) "+" ( int64 a 2 ))
 \end{center}
-Since the parser has only syntax information available to
-it, the parser does not know what are the {\em qualifier-names}
-and {\em type-names} in a given scope, and in fact the parse
+
+Since the parser has only syntax information and {\em module-abbreviations}
+available to
+it, the parser does not know the {\em qualifier-names}
+and {\em type-names} in a given scope, and in fact the parser
 has no notion of scope.
 
 The parser does know about {\em module-abbrevations} and
@@ -1509,6 +1516,22 @@ becomes the abstract syntax tree represented by
 \begin{center}
 \tt (int64 x 1) = ($ma$ (y 5 b) "+" ((sin (w)) "*" (cos z)))
 \end{center}
+
+According to the syntax of expressions (\itemref{EXPRESSION-SYNTAX}),
+the parser does not insert parentheses that make operators
+left associative.  Thus
+\begin{center}
+\tt int64 w 1 = x 2 + y 3 + z 4 
+\end{center}
+becomes the abstract syntax tree represented by
+\begin{center}
+\tt (int64 w 1) = ((x 2) "+" (y 3) "+" (z 4))
+\end{center}
+and \underline{not}
+\begin{center}
+\tt (int64 w 1) = ( ( (x 2) "+" (y 3) ) "+" (z 4))
+\end{center}
+The compiler and not the parser handles binary operator associativity.
 
 
 \section{Data Types}
@@ -3541,6 +3564,7 @@ float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
 \end{verbatim}\end{indpar}
 
 \subsection{Expression Syntax}
+\label{EXPRESSION-SYNTAX}
 
 The operators that can appear in an expression in approximate
 precedence order (lowest precedence first) are:
@@ -4497,7 +4521,7 @@ Assignment statements have the syntax:
     		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
     \end{tabular}
 \\[0.5ex]
-\emkey{result-variable-declaration}
+\emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
     ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em variable-name}
 \\[0.5ex]
 \emkey{next-variable-declaration}
@@ -5404,7 +5428,7 @@ Then the
 compiled code is executed.  The variables in the {\em result-variable-list}
 may be set by either {\em argument-assignment-statements} or
 `\TT{do}' subblock {\em statements} as for
-a block assignment statement (see \itemref{BlOCK-ASSIGNMENT-STATEMENTS}).
+a block assignment statement (see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 If a variable \TT{v} not in the {\em result-variable-list}
 is set by an {\em argument-assignment-statement},
 `\TT{next v}' can be set by a `\TT{do}' subblock {\em statement}, but

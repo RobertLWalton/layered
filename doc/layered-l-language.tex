@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 8, 2018
+March 10, 2018
  
 \end{center}
 
@@ -5580,13 +5580,13 @@ The syntax is:
 	without a {\em default-value}
 \\[0.5ex]
 \emkey{function-pattern}\label{FUNCTION-PATTERN}
-    ::= {\em first-prototype-term} ~ {\em prototype-term}\STAR{}
+    ::= {\em first-pattern-term} ~ {\em pattern-term}\STAR{}
 \\[0.5ex]
-\emkey{first-prototype-term} ::= {\em prototype-argument-list}\STAR{} ~
-				{\em prototype-term}
+\emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{} ~
+				{\em pattern-term}
 \\[0.5ex]
-\emkey{prototype-term}
-    ::= {\em function-term-name} ~ {\em prototype-argument-list}\PLUS{}
+\emkey{pattern-term}
+    ::= {\em function-term-name} ~ {\em pattern-argument-list}\PLUS{}
 \\[0.5ex]
 \emkey{function-term-name} ::= {\em name} \underline{not} containing `\TT{.}'
                                 ~~~~~ [see \pagref{NAMES}]
@@ -5594,12 +5594,12 @@ The syntax is:
 \emkey{initial-function-term-name}\label{INITIAL-FUNCTION-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l@{}}
     first {\em function-term-name} in any {\em function-pattern} \\
-    that does not begin with a {\em prototype-argument-list} \\
+    that does not begin with a {\em pattern-argument-list} \\
     and does not follow an \TT{=} in the {\em function-prototype} \\
     (an {\em initial-function-term-name} may begin a {\em statement}) \\
     \end{tabular}
 \\[0.5ex]
-\emkey{prototype-argument-list}
+\emkey{pattern-argument-list}
     \begin{tabular}[t]{@{}rl}
     ::= & \TT{(} {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
@@ -5654,11 +5654,18 @@ The syntax is:
     $|$ & \TT{[} {\em actual-argument}
                  \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
     $|$ & \TT{()} $|$ \TT{[]} \\
+    $|$ & {\em primary-argument}
     \end{tabular}
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+\emkey{primary-argument} ::= {\em primary-item} $|$ {\em bracketed-constant}
+\\[0.5ex]
+{\em primary-item} ::= see \pagref{PRIMARY-ITEM}
+\\[0.5ex]
+{\em bracketed-constant} ::= see \pagref{BRACKETED-CONSTANT}
 
 \begin{itemize}
 \item
@@ -5684,7 +5691,7 @@ The {\em variable-name} in a {\em type-argument-declaration}
 or a {\em type-conditioner} is treated as a {\em type-name}
 within the {\em function-prototype}.
 \item
-In a {\em prototype-argument-list} or {\em input-variable-list}
+In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
 
@@ -5925,7 +5932,10 @@ single {\em function-prototype}.  If it matches more than one
 {\em function-prototype}, the call is ambiguous and is a compilation error
 
 The matching algorithm, given a {\em function-call} and a
-{\em function prototype}, is as follows:
+{\em function-prototype}, matches the {\em function-call}
+to the {\em function-pattern} in the {\em function-prototype},
+and matches any target variables to the {\em prototype-result-variable-list}
+of the {\em function-prototype}.  The algorithm is as follows:
 
 \begin{enumerate}
 
@@ -5964,52 +5974,67 @@ behaves as if it were the function call with no result variables
 \end{center}
 
 \item If the {\em function-call} begins with a {\em module-abbreviation}
-(see \pagref{MODULE-ABBREVIATION}), the {\em function-prototype}
+(see \pagref{MODULE-ABBREVIATION}), the {\em function-pattern}
 must begin with a {\em module-abbreviation}, and the two
 {\em module-abbreviations} must reference the same {\em module-name}
-(i.e., module file, see \itemref{MODULES}).
+(i.e., module file, see \itemref{MODULES}), else the
+call-prototype match fails.
 
 \item If the {\em function-call} does \underline{not} begin
-with a {\em module-abbreviation}, but the {\em function-prototype}
+with a {\em module-abbreviation}, but the {\em function-pattern}
 does begin with a {\em module-abbreviation}, the match is marked
 as `\key{module deficient}'\label{MODULE-DEFICIENT},
 and will be disallowed later if there is
 another match that is not module deficient.
 
 \item
-The {\em function-term-names} in the {\em function-call} are matched to
-{\em function-term-names} in the {\em function-prototype} by a left to right
-scan of the {\em function-call}.  Since {\em function-term-names} in the
-{\em function-prototype} cannot be initial segments of each other,
-this match will be unique even if argument lists are missing
-from the {\em function-call}.  If this {\em function-term-name} match
-cannot be made, the match fails.
-
-\item The first {\em function-term-name} in the {\em function-call}
-must match the first {\em function-term-name} in the {\em function-prototype},
-else the match fails.
+The {\em function-term-names} in the {\em function-call} are located by
+matching segments of the {\em func\-tion-call} to
+{\em function-term-names} in the {\em function-prototype}.
+If a {\em function-term-name} matches more than one segment,
+the call-prototype match fails.  If the first {\em function-term-name}
+in the {\em function-pattern} does not match any segment,
+or does not match the first matched segment, the call-prototype match fails.
+(Note that {\em function-term-names} in the {\em function-pattern}
+cannot be initial segments of each other, but unparenthesized
+single-lexeme
+{\em variable-names} may appear in the {\em function-call} and be
+mistaken for parts of {\em function-term-names}.)
 
 \item The {\em call-terms} after the first in the {\em function-call}
 are reordered so the {\em function-term-names} in the {\em function-call},
 taken in order, are a subsequence of the {\em function-term-names} in the
-{\em function-prototype}.
-If this cannot be done, the match fails.
+{\em function-pattern}.
+If this cannot be done, the call-prototype match fails.
+(Note that {\em call-terms} other than the first all begin with
+{\em function-term-names}.)
 
 \item\label{ADD-TERMS}
-If some of the prototype {\em function-term-names} are missing from the call,
+If some of the {\em function-term-names} in the {\em function-pattern}
+are missing from the call,
 new {\em call-terms} without argument lists
 are inserted in the call to match the missing
-{\em prototype-terms}.  At this point there is a 1-1 correspondence
-between {\em call-terms} and {\em prototype-terms}.
+{\em pattern-terms}.  At this point there is a 1-1 ordered correspondence
+between {\em call-terms} and {\em pattern-terms}.
 
 \item
-If some of the {\em prototype-terms} have argument lists that
-are missing in the matching {\em call-terms}, empty argument lists
-with the same type of bracket, \TT{()} or \TT{[]}, are inserted.
-If this cannot be done \underline{unambiguously}
-so each {\em prototype-term} argument
-list is matched to an argument list of the associated {\em call-term}
-that has the same type of bracket, then the match fails.
+If some of the {\em pattern-terms} have argument lists that
+have a single parenthesized argument, the parentheses may be omitted
+in the {\em function-call} if the actual argument is a single lexeme
+{\em primary-item} or a {\em bracketed-constant}.
+Also {\em argument-lists}
+may be completely omitted in the {\em function-call}.  At this point
+missing parentheses and missing {\em argument-lists} are added to
+each {\em call-term} to make it match the corresponding
+{\em pattern-term}.
+The {\em argument-lists} added are empty and have the same type of
+bracket, \TT{()} or \TT{[]}, as the {\em pattern-term}
+{\em argument-lists} they match.
+
+If this cannot be done \underline{uniquely}
+so each {\em pattern-term} {\em argument-list}
+is matched to a {\em call-term} {\em argument-list}
+that has the same type of bracket, then the call-prototype match fails.
 
 \item
 If the prototype has cluster member arguments or result variables,
@@ -6111,8 +6136,9 @@ they will already have been evaluated and are constants at this point.
 \item
 The {\em conditioners} in the {\em function-prototype} are evaluated
 in order.  If any of the expressions in them do not have compile-time
-values, the match fails.  If any {\em logical-conditioner} evaluates
-to \TT{false}, the match fails.
+values, the call-prototype match fails.
+If any {\em logical-conditioner} evaluates
+to \TT{false}, the call-prototype match fails.
 
 \item If the unfolded {\em function-call} has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
@@ -6135,7 +6161,7 @@ If all the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' can be compiled
 without error, the match succeeds.
 
 If any of the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' cannot be compiled
-for a reason other than an ambiguity error, the match fails.
+for a reason other than an ambiguity error, the call-prototype match fails.
 
 Otherwise the match is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
@@ -6163,7 +6189,8 @@ replaced by:
 \end{indpar}
 If any of the `{\tt $QCsI$ $TCI$ $VC1$ = $tmpI$}' statements cannot be
 compiled because $QRsI$ $TRI$ is not implicitly convertible
-to $QCsI$ $TCI$, the match fails.  Note that extra prototype result variables
+to $QCsI$ $TCI$, the call-prototype match fails.
+Note that extra prototype result variables
 are never used and are ultimately ignored.
 
 If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not equal

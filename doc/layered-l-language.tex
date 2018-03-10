@@ -5560,7 +5560,7 @@ The syntax is:
     $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
                            ~ {\em function-pattern} ~ \TT{=} \\
         & \TT{~~~~~}{\em input-variable-list} \\
-    $|$ & {\em function-prototype} \TT{[*} {\em conditioner} \TT{*]}
+    $|$ & {\em function-prototype} \TT{[|} {\em conditioner} \TT{|]}
     \end{tabular}
 \\[0.5ex]
 \emkey{prototype-result-variable-list} ::= \\
@@ -5586,7 +5586,7 @@ The syntax is:
 				{\em pattern-term}
 \\[0.5ex]
 \emkey{pattern-term}
-    ::= {\em function-term-name} ~ {\em pattern-argument-list}\PLUS{}
+    ::= {\em function-term-name} ~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
 \emkey{function-term-name} ::= {\em name} \underline{not} containing `\TT{.}'
                                 ~~~~~ [see \pagref{NAMES}]
@@ -5599,7 +5599,10 @@ The syntax is:
     (an {\em initial-function-term-name} may begin a {\em statement}) \\
     \end{tabular}
 \\[0.5ex]
-\emkey{pattern-argument-list}
+\emkey{pattern-argument-list} ::= {\em regular-argument-list}
+                              $|$ {\em qualifiers-type-argument-list}
+\\[0.5ex]
+\emkey{regular-argument-list}
     \begin{tabular}[t]{@{}rl}
     ::= & \TT{(} {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
@@ -5609,13 +5612,25 @@ The syntax is:
 \\[0.5ex]
 \emkey{argument-declaration}
     ::= {\em type-name} {\em variable-name}
-        \{ \TT{?=} {\em default-value} \}\QMARK{}
+        \{ \TT{?} {\em default-value}\QMARK{} \}\QMARK{}
 \\[0.5ex]
-\emkey{qualifiers-argument-declaration} ::= \TT{qualifiers} {\em variable-name}
+\emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{type-argument-declaration} ::= \TT{type} {\em variable-name}
+\emkey{qualifiers-type-argument-list} ::= \\
+\hspace*{0.2in}\TT{(|} {\em qualifiers-type-argument-declaration}
+	 \{ \TT{,} {\em qualifiers-type-argument-declaration} \}\STAR{} \TT{|)}
 \\[0.5ex]
-\emkey{default-value} ::= \TT{??} $|$ {\em expression}
+\emkey{qualifiers-type-argument-declaration} ::= \\
+\hspace*{0.2in}{\em qualifiers-argument-declaration}
+               $|$ {\em type-argument-declaration}
+\\[0.5ex]
+\emkey{qualifiers-argument-declaration} ::= \\
+\hspace*{0.2in}\TT{qualifiers} {\em variable-name}
+               \{ \TT{?} {\em default-value} \}\QMARK{}
+\\[0.5ex]
+\emkey{type-argument-declaration} ::= \\
+\hspace*{0.2in}\TT{type} {\em variable-name}
+               \{ \TT{?} {\em default-value} \}\QMARK{}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -5661,9 +5676,11 @@ The syntax is:
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
-\emkey{primary-argument} ::= {\em primary-item} $|$ {\em bracketed-constant}
+\emkey{primary-argument} ::= {\em primary-item}\PLUS{}
+                         $|$ {\em bracketed-constant}
 \\[0.5ex]
-{\em primary-item} ::= see \pagref{PRIMARY-ITEM}
+{\em primary-item} ::= {\em word} $|$ {\em number}
+                   $|$ {\em quoted-string} ~~~~~ [see \pagref{PRIMARY-ITEM}]
 \\[0.5ex]
 {\em bracketed-constant} ::= see \pagref{BRACKETED-CONSTANT}
 

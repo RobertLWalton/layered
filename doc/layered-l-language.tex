@@ -5935,7 +5935,10 @@ The matching algorithm, given a {\em function-call} and a
 {\em function-prototype}, matches the {\em function-call}
 to the {\em function-pattern} in the {\em function-prototype},
 and matches any target variables to the {\em prototype-result-variable-list}
-of the {\em function-prototype}.  The algorithm is as follows:
+of the {\em function-prototype}.  There may be one or more target
+variables of known types, or a single target variable of unknown
+type, or no target variables (as in a {\em function-call} that is
+a {\em statement} by itself).  The algorithm is as follows:
 
 \begin{enumerate}
 
@@ -6037,7 +6040,8 @@ is matched to a {\em call-term} {\em argument-list}
 that has the same type of bracket, then the call-prototype match fails.
 
 \item
-If the prototype has cluster member arguments or result variables,
+If the {\em function-prototype}
+has cluster member arguments or result variables,
 these must be implied, and they are added to the {\em function-call}
 at this point.  See \pagref{CLUSTER-ARGUMENTS} for details.
 
@@ -6049,22 +6053,27 @@ rules apply:
 \begin{enumerate}
 
 \item
-If a prototype argument list begins with a {\em type-argument-declaration}
+If a {\em function-pattern}
+{\em argument-list} begins with a {\em type-argument-declaration}
+(an {\em argu\-ment-declaration} of the form `{\tt type }{\em variable-name}')
 and the matching actual argument list begins with an
 actual argument that is a compile time value that is a type,
 the {\em variable-name} of the {\em type-argument-declaration}
-is given this value and the {\em type-argument-declaration}.
+is given this value.
 Otherwise this rule does not apply.
 
-If this rule applies, the {\em type-argument-declaration}
-is removed from the beginning of its argument list.
+If this rule applies, the type value given to the {\em variable-name}
+is substituted for the {\em variable-name} throughout the
+{\em function-prototype}.
 
 \item
-If a prototype argument list begins with a {\em type-argument-declaration}
-(and the previous rule does not apply)
+If a {\em function-pattern}
+{\em argument-list} begins with a {\em type-argument-declaration}
+and the previous rule does not apply,
 then the type argument is implied.  If the {\em variable-name}
 in the {\em type-argument-declaration} is used as the {\em type-name}
-of a prototype result variable with a matching actual result,
+of a prototype result variable with a matching actual result that
+has a known type,
 the type of the actual result is assigned as the value of the
 {\em variable-name}.  Otherwise if the {\em variable-name}
 is used as the {\em type-name} of several arguments whose matching
@@ -6074,27 +6083,38 @@ value of the {\em variable-name}.
 Otherwise this rule does not apply.
 
 If this rule applies, the {\em type-argument-declaration}
-is removed from the beginning of its argument list.
+is removed from the beginning of its {\em function-pattern}
+{\em argument-list}, and
+the type value given to the {\em variable-name}
+is substituted for the {\em variable-name} throughout the
+{\em function-prototype}.
 
 \item
-If a prototype argument list begins with a {\em qualifiers-argument-declaration}
+If a {\em function-pattern}
+{\em argument-list} begins with a {\em qualifiers-argument-declaration}
+(an {\em argu\-ment-declaration} of the form
+`{\tt qualifiers }{\em variable-name}'),
 and the matching actual argument list begins with an
 actual argument that is a compile time value that is a qualifiers set,
 the {\em variable-name} of the {\em qualifiers-argument-declaration}
 is given this value.
 Otherwise this rule does not apply.
 
-If this rule applies, the {\em qualifiers-argument-declaration}
-is removed from the beginning of its argument list.
+If this rule applies, the list of qualifiers given as a value
+to the {\em variable-name}
+is substituted for the {\em variable-name} throughout the
+{\em function-prototype}.
 
 
 \item
-If a prototype argument list begins with a {\em qualifiers-argument-declaration}
-(and the previous rule does not apply)
+If a {\em function-pattern}
+{\em argument-list} begins with a {\em qualifiers-argument-declaration}
+and the previous rule does not apply,
 then the qualifiers argument is implied.  If the {\em variable-name}
 in the {\em qualifiers-argument-declaration} is used as the sole
 {\em qualifier-name} of a prototype result variable with a matching
-actual result, the qualifiers of the actual result is assigned as the
+actual result with known qualifiers,
+the qualifiers of the actual result is assigned as the
 value of the {\em variable-name}.  Otherwise if the {\em variable-name}
 is used as the sole {\em qualifier-name} of several arguments whose matching
 actual arguments have natural types, and the union of the sets of qualifiers
@@ -6102,13 +6122,18 @@ of these arguments is assigned as the
 value of the {\em variable-name}.
 Otherwise this rule does not apply.
 
-If this rule applies, the {\em type-argument-declaration}
-is removed from the beginning of its argument list.
+If this rule applies, the {\em qualifiers-argument-declaration}
+is removed from the beginning of its {\em function-pattern}
+{\em argument-list}, and
+the list of qualifiers given as a value
+to the {\em variable-name}
+is substituted for the {\em variable-name} throughout the
+{\em function-prototype}.
 
 \end{enumerate}
 
 \item
-If some of the actual argument lists are too short, they are extended
+If some of the actual argument lists are now too short, they are extended
 by adding the {\em default-values} of their matching prototype
 arguments.  As a special case, if a {\em default-value} is `\TT{??}',
 the actual {\em default-value} used is \TT{true} if the {\em function-term-name}
@@ -6140,6 +6165,17 @@ values, the call-prototype match fails.
 If any {\em logical-conditioner} evaluates
 to \TT{false}, the call-prototype match fails.
 
+If the value assigned to the {\em variable-name} of a
+{\em type-conditioner} is not a type, the call-prototype match fails.
+Otherwise this type value is substituted for the {\em variable-name}
+throughout the {\em function-prototype}.
+
+If the value assigned to the {\em variable-name} of a
+{\em qualifiers-conditioner} is not a (possibly empty) list of
+qualifiers, the call-prototype match fails.
+Otherwise this qualifiers list value is substituted for the {\em variable-name}
+throughout the {\em function-prototype}.
+
 \item If the unfolded {\em function-call} has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
 (including {\em default-values}),
@@ -6157,13 +6193,12 @@ statement containing {\em function-call}
 with each {\em actual-argument} $eI$ replaced by $tmpI$
 \end{indpar}
 
-If all the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' can be compiled
-without error, the match succeeds.
+If any the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' cannot be compiled
+for reasons other than an ambiguity error, the call-prototype match fails.
 
 If any of the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' cannot be compiled
-for a reason other than an ambiguity error, the call-prototype match fails.
-
-Otherwise the match is `\key{ambiguity deficient}' (and will be
+because of an ambiguity error, the call-prototype match
+is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
 
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}

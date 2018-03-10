@@ -5668,7 +5668,9 @@ The syntax is:
                  \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
     $|$ & \TT{[} {\em actual-argument}
                  \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
-    $|$ & \TT{()} $|$ \TT{[]} \\
+    $|$ & \TT{(|} {\em actual-argument}
+                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{|)} \\
+    $|$ & \TT{()} $|$ \TT{[]} $|$ \TT{(|~|)} \\
     $|$ & {\em primary-argument}
     \end{tabular}
 \\[0.5ex]
@@ -6017,7 +6019,6 @@ in the {\em function-pattern} does not match any segment,
 or does not match the first matched segment, the call-prototype match fails.
 (Note that {\em function-term-names} in the {\em function-pattern}
 cannot be initial segments of each other, but unparenthesized
-single-lexeme
 {\em variable-names} may appear in the {\em function-call} and be
 mistaken for parts of {\em function-term-names}.)
 
@@ -6040,15 +6041,15 @@ between {\em call-terms} and {\em pattern-terms}.
 \item
 If some of the {\em pattern-terms} have argument lists that
 have a single parenthesized argument, the parentheses may be omitted
-in the {\em function-call} if the actual argument is a single lexeme
-{\em primary-item} or a {\em bracketed-constant}.
+in the {\em function-call} if the actual argument is a sequence of
+{\em primary-items} or a {\em bracketed-constant}.
 Also {\em argument-lists}
 may be completely omitted in the {\em function-call}.  At this point
 missing parentheses and missing {\em argument-lists} are added to
 each {\em call-term} to make it match the corresponding
 {\em pattern-term}.
 The {\em argument-lists} added are empty and have the same type of
-bracket, \TT{()} or \TT{[]}, as the {\em pattern-term}
+bracket, \TT{()}, \TT{[]}, or \TT{(|~|)}, as the {\em pattern-term}
 {\em argument-lists} they match.
 
 If this cannot be done \underline{uniquely}
@@ -6063,117 +6064,126 @@ these must be implied, and they are added to the {\em function-call}
 at this point.  See \pagref{CLUSTER-ARGUMENTS} for details.
 
 \item
-The first of the following rules that is applicable is applied,
-and then this is done repeatedly until none of the following
-rules apply:
-
-\begin{enumerate}
-
-\item
-If a {\em function-pattern}
-{\em argument-list} begins with a {\em type-argument-declaration}
-(an {\em argu\-ment-declaration} of the form `{\tt type }{\em variable-name}')
-and the matching actual argument list begins with an
-actual argument that is a compile time value that is a type,
-the {\em variable-name} of the {\em type-argument-declaration}
-is given this value.
-Otherwise this rule does not apply.
-
-If this rule applies, the type value given to the {\em variable-name}
-is substituted for the {\em variable-name} throughout the
-{\em function-prototype}.
-
-\item
-If a {\em function-pattern}
-{\em argument-list} begins with a {\em type-argument-declaration}
-and the previous rule does not apply,
-then the type argument is implied.  If the {\em variable-name}
-in the {\em type-argument-declaration} is used as the {\em type-name}
-of a prototype result variable with a matching actual result that
-has a known type,
-the type of the actual result is assigned as the value of the
-{\em variable-name}.  Otherwise if the {\em variable-name}
-is used as the {\em type-name} of several arguments whose matching
-actual arguments have natural types, and the set of these types
-has a least upper bound, this least upper bound is assigned as the
-value of the {\em variable-name}.
-Otherwise this rule does not apply.
-
-If this rule applies, the {\em type-argument-declaration}
-is removed from the beginning of its {\em function-pattern}
-{\em argument-list}, and
-the type value given to the {\em variable-name}
-is substituted for the {\em variable-name} throughout the
-{\em function-prototype}.
-
-\item
-If a {\em function-pattern}
-{\em argument-list} begins with a {\em qualifiers-argument-declaration}
-(an {\em argu\-ment-declaration} of the form
-`{\tt qualifiers }{\em variable-name}'),
-and the matching actual argument list begins with an
-actual argument that is a compile time value that is a qualifiers set,
-the {\em variable-name} of the {\em qualifiers-argument-declaration}
-is given this value.
-Otherwise this rule does not apply.
-
-If this rule applies, the list of qualifiers given as a value
-to the {\em variable-name}
-is substituted for the {\em variable-name} throughout the
-{\em function-prototype}.
-
-
-\item
-If a {\em function-pattern}
-{\em argument-list} begins with a {\em qualifiers-argument-declaration}
-and the previous rule does not apply,
-then the qualifiers argument is implied.  If the {\em variable-name}
-in the {\em qualifiers-argument-declaration} is used as the sole
-{\em qualifier-name} of a prototype result variable with a matching
-actual result with known qualifiers,
-the qualifiers of the actual result is assigned as the
-value of the {\em variable-name}.  Otherwise if the {\em variable-name}
-is used as the sole {\em qualifier-name} of several arguments whose matching
-actual arguments have natural types, and the union of the sets of qualifiers
-of these arguments is assigned as the
-value of the {\em variable-name}.
-Otherwise this rule does not apply.
-
-If this rule applies, the {\em qualifiers-argument-declaration}
-is removed from the beginning of its {\em function-pattern}
-{\em argument-list}, and
-the list of qualifiers given as a value
-to the {\em variable-name}
-is substituted for the {\em variable-name} throughout the
-{\em function-prototype}.
-
-\end{enumerate}
-
-\item
-If some of the actual argument lists are now too short, they are extended
-by adding the {\em default-values} of their matching prototype
-arguments.  As a special case, if a {\em default-value} is `\TT{??}',
-the actual {\em default-value} used is \TT{true} if the {\em function-term-name}
+If some of the {\em call-argument-lists} are now too short, they are extended
+by adding the {\em default-values} from
+their matching {\em pattern-argument-lists}.
+As a special case, if an {\em argument-declaration} ends in
+`\TT{?}' but has no {\em default-value}, then the actual
+{\em default-value} used is \TT{true} if the {\em function-term-name}
 appeared in the original function call and was not added in
 Step~\ref{ADD-TERMS} above, or is \TT{false} if the {\em function-term-name}
 did not appear in the original function call, but was added in
 Step~\ref{ADD-TERMS}.
-If any of the arguments that
-need to be inserted do not have {\em default-values}, the match
-fails.
 
-Otherwise the revised function call is referred to as the
+If any of the arguments that need to be inserted in a
+{\em regular-argument-list} do not have {\em default-values},
+the call-prototype match fails.
+
+The modified {\em function-call} now matches
+the {\em function-pattern} in {\em function-term-names},
+location and number of {\em argument-lists}, type of bracket, i.e. \TT{()},
+\TT{[]}, or \TT{(|~|)} for each {\em argument-list}.  The number of
+arguments also match for \TT{()} and \TT{[]} {\em argument-lists},
+and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
+is not greater than the number of arguments in the corresponding
+{em pattern-argument-list}.
+
+\item
+If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
+{\em qualifiers-type-argument-list} has a corresponding
+actual argument, the actual argument expression
+is evaluated with the `\TT{qualifiers}' target type,
+and must have a compile time value which is a list of qualifiers, else
+the call-prototype match fails.  If the match does not fail,
+the list of qualifiers becomes the value of the {\em variable-name}
+in the {\em qualifiers-argument-declaration} and
+is substituted for the {\em variable-name} throughout the rest of the
+{\em function-prototype}.
+
+\item
+If any {\em type-argument-declaration} in a {\em function-pattern}
+{\em qualifiers-type-argument-list} has a corresponding
+actual argument, the actual argument expression
+is evaluated with the `\TT{type}' target type,
+and must have a compile time value which is a type, else
+the call-prototype match fails.  If the match does not fail,
+the type value becomes the value of the {\em variable-name}
+in the {\em type-argument-declaration} and
+is substituted for the {\em variable-name} throughout the rest of the
+{\em function-prototype}.
+
+\item
+If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
+{\em qualifiers-type-argument-list} does \underline{not} have
+a corresponding actual argument, the value of the
+{\em variable-name} in the {\em qualifiers-argument-declaration}
+is implied.
+
+If the {\em variable-name} in the {\em qualifiers-argument-declaration}
+is used as the sole {\em qualifier-name} of prototype result variables
+with a matching actual results with known type and qualifiers,
+the qualifiers of the leftmost such actual result is assigned as the
+value of the {\em variable-name}.
+
+Otherwise if the {\em variable-name}
+is used as the sole {\em qualifier-name} of several arguments whose matching
+actual arguments have natural types, the qualifiers of the leftmost
+of these arguments is assigned as the
+value of the {\em variable-name}.
+
+If no value can be assigned to the {\em variable-name} by these rules,
+the call-prototype match fails.
+
+If a value is assigned,
+the list of qualifiers that is the assigned value
+is added as an actual argument
+in the {\em call-argument-list} that corresponds
+to the {\em qualifiers-argument-declaration}, and
+is substituted for the {\em variable-name} throughout the rest of the
+{\em function-prototype}.
+
+\item
+If any {\em type-argument-declaration} in a {\em function-pattern}
+{\em qualifiers-type-argument-list} does \underline{not} have
+a corresponding actual argument, the value of the
+{\em variable-name} in the {\em type-argument-declaration}
+is implied.
+
+If the {\em variable-name} in the {\em type-argument-declaration}
+is used as the {\em type-name} of prototype result variables
+with a matching actual results with known type and qualifiers,
+the type of the leftmost such actual result is assigned as the
+value of the {\em variable-name}.
+
+Otherwise if the {\em variable-name}
+is used the sole {\em type-name} of several arguments whose matching
+actual arguments have natural types, the type of the leftmost
+of these arguments is assigned as the
+value of the {\em variable-name}.
+
+If no value can be assigned to the {\em variable-name} by these rules,
+the call-prototype match fails.
+
+If a value is assigned,
+the type that is the assigned value is added as an actual argument
+in the {\em call-argument-list} that corresponds
+to the {\em type-argument-declaration}, and
+is substituted for the {\em variable-name} throughout the rest of the
+{\em function-prototype}.
+
+\item
+The modified {\em function-call} now matches the {\em function-pattern}
+precisely in {\em function-term-names},
+location and number of {\em argument-lists}, type of bracket, i.e. \TT{()},
+\TT{[]}, or \TT{(|~|)} for each {\em argument-list}, and number of
+arguments in each {\em argument-list}.
+This modified function call is referred to as the
 `\mkey{unfolded}{function call}' {\em function-call}.
 
-The unfolded {\em function-call} now matches
-the {\em function-prototype} in {\em function-term-names},
-location and number of argument lists, type of bracket, i.e. \TT{()} or
-\TT{[]} for each argument list, and number of arguments in each
-list.
-
-Note that since default values are evaluated in the context of
-the {\em function-declaration}, if they can be evaluated at compile-time,
-they will already have been evaluated and are constants at this point.
+If any actual argument value needs to be a compile-time value in what
+follows, the actual argument expression can be compiled at this
+time with its target value taken from the corresponding
+{\em function-pattern} {\em argument-declaration}.
 
 \item
 The {\em conditioners} in the {\em function-prototype} are evaluated

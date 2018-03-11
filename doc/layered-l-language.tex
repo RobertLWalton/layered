@@ -5707,11 +5707,19 @@ be distinct.
 \item
 The {\em variable-name} in a {\em qualifiers-argument-declaration}
 or a {\em qualifiers-conditioner} is treated as a {\em qualifier-name}
-within the {\em function-prototype}.
+within the {\em function-prototype}.  The value of the
+{\em variable-name} must be computable at compile-time when the
+function is called.  A {\em qualifiers-argument-declaration}
+can be inside `\TT{()}' or `\TT{[]}' bracketed {\em argument-lists},
+as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
 \item
 The {\em variable-name} in a {\em type-argument-declaration}
 or a {\em type-conditioner} is treated as a {\em type-name}
-within the {\em function-prototype}.
+within the {\em function-prototype}.  The value of the
+{\em variable-name} must be computable at compile-time when the
+function is called.  A {\em type-argument-declaration}
+can be inside `\TT{()}' or `\TT{[]}' bracketed {\em argument-lists},
+as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
 \item
 In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot

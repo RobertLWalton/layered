@@ -3915,17 +3915,20 @@ rules given in \itemref{COMPARISON-EXPRESSIONS}.
 
 Some special rules
 make use of the `\key{natural type}'\label{NATURAL-TYPE}
-that some subexpressions have, provided this is not a number type.
-The natural type of a variable is its type.  The natural
-type of a vector element reference expression is the type of the
-vector element, unless that type is a number type of size not
-equal to a power of \TT{2}, in which case the natural type is
-the number type with size rounded up to a power of \TT{2}.
+that some subexpressions have.
+The natural type of a variable is its type.
 The natural type of an expression of the
-form `\TT{$T$ ( \ldots{} )}' where $T$ is a type name is $T$.
-No other expression has a natural type.  In particular,
-{\em function-calls} do not have a natural type, even if
-they have a unique unambiguous result type.
+form `\TT{$Qs$ $T$ ( \ldots{} )}' where $Qs$ is a list of qualifiers
+and $T$ is a type name is $T$.
+The natural type of a {\em function-call} is the type found by matching
+the call to {\em function-prototypes}
+(\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}), if an unambiguous
+match can be found under the assumption that
+the call has a result variable of unknown type.
+No other expression has a natural type.
+
+When an expression has a natural type, it also has natural qualifiers
+that are found with the natural type.
 
 If there is no target type because an expression is being used
 as an assignment statement with no result variables, then
@@ -6182,7 +6185,7 @@ If the {\em function-call} is in a statement of the form
 \begin{center}
 {\tt $QCs1$ $TC1$ $VC1$, $QCs2$ $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
 \end{center}
-with at least one result variable,
+with at least one result variable of known type,
 the {\em function-prototype} must be of the form
 \begin{center}
 {\tt function $QRs1$ $TR1$ $VR1$, $QRs2$ $TR2$ $VR2$,
@@ -6212,8 +6215,17 @@ and will be disallowed later
 if there is another match that is not conversion deficient.
 Note that only the first result variable is considered by this rule.
 
+\item If the {\em function-call} has one result variable of
+unknown type, {\em function-prototype} must have result variables
+else the call-prototype match fails.
+The type and qualifiers of the first
+{\em function-prototype} result variable become the natural
+type and qualifiers of the {\em function-call} expression if
+the match ultimately is accepted according to the rules below.
+
 \item If the {\em function-call} has no result variables, the
-{\em function-prototype} must have no result variables.
+{\em function-prototype} must have no result variables,
+else the call-prototype match fails.
 
 \end{enumerate}
 

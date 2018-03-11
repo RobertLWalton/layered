@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 10, 2018
+March 11, 2018
  
 \end{center}
 
@@ -2455,14 +2455,14 @@ example `\TT{[X1 X2] != [X2 X1]}' and `\TT{[X1 X1] != [X1]}'.
 Enumeration set and list values are used in logical expressions that
 condition function lookup.  For example,
 \begin{indpar}\begin{verbatim}
-T v = signed max ( type T, T v1, T v2 )
-      [* T is in { int8, int16, int32, int64, int128 } *]:
+T v = signed max (| type T |) ( T v1, T v2 )
+      [| T is in { int8, int16, int32, int64, int128 } |]:
     . . . . . . . . . . .
 \end{verbatim}\end{indpar}
 
 defines a function that takes only signed integer type
 arguments, and not unsigned integer type arguments.
-The logical expression inside \TT{[*~*]} must be satisfied
+The logical expression inside \TT{[|~|]} must be satisfied
 for the function definition to match a function call, and
 the type argument \TT{T}, which is implied and need not be
 given in the function call, must be in the give set of
@@ -2674,8 +2674,8 @@ expression, or (3) as the name of a function in a {\em function-call}.
 
 Values of one type $T1$ can be converted implicitly to another
 type $T2$ if and only if an inline function with prototype:
-\begin{indpar}
-{\tt function Q $T2$ r = ( qualifiers Q, Q $T1$ v )}
+\begin{indpar} \tt
+function rQs $T2$ r = (| qualifiers Qs |) ( Qs $T1$ v )
 \end{indpar}
 is defined.  In this case we say the $T1$ is \mkey{more specific}{types}
 than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
@@ -3396,11 +3396,14 @@ where `\ldots{}' denotes information about qualifiers.
 An implied conversion function that copies qualifiers from the
 argument has the form:
 \begin{center} \tt
-function Qs $T2$ r = (qualifiers Qs, Qs $T1$ v )
+function rQs $T2$ r = (| qualifiers Qs |) ( Qs $T1$ v )
 \end{center}
 
 Here the {\tt Qs} argument may be implied as the list of
-qualifiers of the actual argument.
+qualifiers of the actual argument.  {\tt rQs} is set equal to
+{\tt Qs}, but only \underline{after} the value of {\tt Qs} has
+been found by implication: see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}
+for more details.
 
 Implied conversion functions are only called by implied conversions, that
 is, by simple assignment statements whose right side is
@@ -5760,62 +5763,63 @@ But names used and not declared in the replacing block are
 resolved in the context of the {\em function-declaration}.
 
 An {\em argument-declaration} can be a {\em type-argument-declaration}
-of the form `{\tt type T}' for some {\em variable-name} {\tt T}.
+which has the form `{\tt type T}' for some {\em variable-name} {\tt T}
+in an argument list with `\TT{(|~|)}' brackets.
 This makes {\tt T} into a {\em type-name} within the {\em function-declaration}
-containing the {\em type-argument-declaration}.  Also it allows the
+containing the {\em type-argument-declaration}.  It also allows the
 actual value of {\tt T} to be implied by a {\em function-call}.
 If an explicit value of {\tt T} is given in the call, that is used.
 Otherwise if {\tt T} is the type of a prototype result variable, and there
-is a corresponding {\em function-call} result variable, the type of
-that result variable is assigned as the value of {\tt T}.  Otherwise
+is a corresponding {\em function-call} result variable with a known type,
+the type of the leftmost such result variable
+is assigned as the value of {\tt T}.  Otherwise
 if {\tt T} is the type of some prototype argument variables, and
 the actual values of some of those variables in the call have
-natural types (\pagref{NATURAL-TYPE}), {\tt T} is assigned the least
-upper bound (\pagref{LEAST-UPPER-BOUND}) of these types (if there
-is no least upper bound the {\em function-prototype} does not
-match the {\em function-call}).
+natural types (\pagref{NATURAL-TYPE}), {\tt T} is assigned the type of
+the leftmost of these actual values.
 
 
 For example,
 \begin{indpar}\begin{verbatim}
-function ( T result ) = add ( type T, T v1, T v2 ):
+function ( T result ) = add (| type T |) ( T v1, T v2 ):
     result = v1 + v2
 
 // Example usage
 //
 int32 x = ...
 int32 y = ...
-int32 z = add ( int32, x, y )  // T is explicitly given
-next z = add ( x, y )          // T = uns32 is implied
+int32 z = add (| int32 |) ( x, y )  // T is explicitly given
+next z = add ( x, y )               // T = uns32 is implied
 \end{verbatim}\end{indpar}
 
 An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
-of the form `{\tt qualifiers Qs}' for some {\em variable-name} {\tt Qs}.
+which has the form `{\tt qualifiers Qs}' for some {\em variable-name} {\tt Qs}
+in an argument list with `\TT{(|~|)}' brackets.
 This makes {\tt Qs} into a {\em qualifier-name}
 within the {\em function-de\-clar\-a\-tion}
 containing the {\em type-argument-declaration}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
 
-The actual value of {\tt Qs} to be implied by a {\em function-call}.
+The actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit value of {\tt Qs} is given in the call, that is used.
 Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
 of a prototype result variable, and there is a corresponding {\em function-call}
-result variable, the qualifiers of that call result variable are
+result variable with known type,
+the qualifiers of the leftmost such call result variable are
 assigned as the value of {\tt Qs}.  Otherwise
 if {\tt Qs} is given as the \underline{only} qualifier
 of some prototype argument variables,
 and the actual values of some of those variables in the call have
-natural types (\pagref{NATURAL-TYPE}), {\tt Qs} is assigned the union
-of the qualifiers for these actual values.
-
+natural types (\pagref{NATURAL-TYPE}), {\tt Qs} is assigned the qualifiers
+of the leftmost of these actual values.
 
 For example,
 \begin{indpar}\begin{verbatim}
 define required protected required qualifier in-range
 define required prohibited qualifier ouch
 function Qs in-range T r =
-        check ( qualifiers Qs, type T, Qs T v ):
+        check (| qualifiers Qs, type T |) ( Qs T v ):
     if:
         v < 0:
             error "argument < 0"
@@ -5835,22 +5839,25 @@ ouch int32 y1 = check ( x )
            //   ouch in-range r = check ( ouch int32 v )
            // so argument can have qualifier ouch,
            // and y1 must have qualifier ouch.
+           // Also y1 is given protected qualifier
+           // `in-range'.
 int32 y2 = check ( x )
            // Illegal, result `ouch in-range r' cannot
            // be converted to y2 which has no `ouch'
            // qualifer.
-F ( x )    // Illegal, x does not have protected in-range
-F ( y1 )   // Legal, y1 has protected in-range
+F ( x )    // Illegal, x does not have required in-range
+F ( y1 )   // Legal, y1 has required in-range
 \end{verbatim}\end{indpar}
 
-{\em Conditioners} can be written at the end of a {\em function-prototype},
+{\em Conditioners} bracketed by `\TT{[|~|]}'
+can be written at the end of a {\em function-prototype},
 as in:
 \begin{indpar}\begin{verbatim}
 types signed-integer-types =
     { int8, int16, int32, int64, int128 }
 
-function ( T result ) = add ( type T, T v1, T v2 )
-    [* T is in signed-integer-types *]:
+function ( T result ) = add (| type T |) ( T v1, T v2 )
+    [| T is in signed-integer-types |]:
     result = v1 + v2
 \end{verbatim}\end{indpar}
 
@@ -5860,8 +5867,8 @@ be evaluatable whenever a call to the function is compiled.
 
 Another example is:
 \begin{indpar}\begin{verbatim}
-function Qs2 T r = inc ( qualifiers Qs1, type T, Qs1 T v )
-    [* qualifiers Qs2 = Qs1 - { stack } *]:
+function Qs2 T r = inc (| qualifiers Qs1, type T |) ( Qs1 T v )
+    [| qualifiers Qs2 = Qs1 - { stack } |]:
     return v + 1
 \end{verbatim}\end{indpar}
 
@@ -5869,72 +5876,6 @@ which returns {\tt v+1} with the same qualifiers as {\tt v}
 except for the `{\tt stack}' qualifier which is removed.
 Here the rightside of the {\em qualifiers-conditioner}
 must be evaluatable whenever the function is compiled.
-
-A third example is:
-\begin{indpar}\begin{verbatim}
-function ( T r1, T r2 ) =
-        sort2 ( type T, T x, T y, name less-than )
-        [* lt ---> less-than *]
-    if:
-        lt ( x, y ):
-            r1 = x; r2 = y
-        else
-            r1 = y; r2 = x
-
-// Function that is like < except it makes a NaN less than
-// a non-NaN ( < is false if either argument is NaN ).
-//
-function bool r = less-than-float64 ( float64 x, float64 y ):
-    if:
-        is-NaN ( y ):
-            r = false
-        is-NaN ( x ):
-            r = true
-        x < y:
-            r = true
-        else:
-            r = false
-
-float64 b1 = 5.37857
-float64 b2 = 5.37289
-( float64 c1, float64 c2 ) =
-    sort2 ( b1, b2, `less-than-float64' )
-\end{verbatim}\end{indpar}
-
-Here the name of a function, {\tt `less-than-float64'}, is
-passed as an argument and used by an {\em abbreviation-conditioner}.
-
-Note, however, that as names in a function block are resolved in the context
-of the function block declaration, and not in the context of a
-call, the following fails:
-\begin{indpar}\begin{verbatim}
-function ( T r1, T r2 ) = sort2 ( type T, T x, T y ):
-    if:
-        less-than ( x, y ):
-            r1 = x; r2 = y
-        else
-            r1 = y; r2 = x
-
-// Function that is like < except it makes a NaN less than
-// a non-NaN ( < is false if either argument is NaN ).
-//
-function bool r = less-than ( float64 x, float64 y ):
-    if:
-        is-NaN ( y ):
-            r = false
-        is-NaN ( x ):
-            r = true
-        x < y:
-            r = true
-        else:
-            r = false
-
-float64 b1 = 5.37857
-float64 b2 = 5.37289
-( float64 c1, float64 c2 ) = sort2 ( b1, b2  )
-    // Illegal because `less-than' in sort2 declaration
-    // was not defined when sort2 was declared.
-\end{verbatim}\end{indpar}
 
 The body of an inline function is parsed, but it is not checked for
 errors before the function is called.  When the function is called,
@@ -6664,7 +6605,7 @@ define type sequence as void
 
 // Function to rotate the sequence right 1 position.
 //
-( next seq.count, next seq[0 .. seq.count - 1] )
+next seq.count, next seq[0 .. seq.count - 1]
     = right rotate ( sequence seq, unsadr seq.count,
                      type seq.type,
                      seq.type seq[0 .. seq.count - 1]:
@@ -6702,17 +6643,17 @@ define type comparison result as void
 
 // Comparison result of x < y where x and y are type T.
 //
-function ( comparison result cr, bool cr.value,
-           type cr.type, T cr.last ) =
-        ( type T, T first ) "<" ( T last ):
+function comparison result cr, bool cr.value,
+         type cr.type, T cr.last =
+        (| type T |) ( T first ) "<" ( T last ):
     cr.type = T
     cr.last = last
     cr.value = first less than last
 
 // Comparison result of x < y where x is a comparison result.
 //
-function ( comparison result cr, bool cr.value, type cr.type,
-           T cr.last ) =
+function comparison result cr, bool cr.value, type cr.type,
+         T cr.last =
          ( comparison result cf, bool cf.value, type cf.type,
            cf.type cf.last ) "<" ( cf.type last ):
     cr.type = cf.type
@@ -6721,9 +6662,9 @@ function ( comparison result cr, bool cr.value, type cr.type,
 
 // Implied conversion of comparison result to bool.
 //
-function ( Qs bool result ) =
-    ( qualifiers Qs, QS comparison result cr,
-      bool cr.value, type cr.type, cr.type cr.last ):
+function Qs bool result =
+    (| qualifiers Qs |) ( QS comparison result cr,
+    bool cr.value, type cr.type, cr.type cr.last ):
     result = cr.value
 \end{verbatim}\end{indpar}
 
@@ -6785,10 +6726,10 @@ An example is:
 //
 define type foo as void
 define type foo_ptr as adr
-function ( foo x, *UNCHECKED* adr x.base,
-           mem int32 x.a, *UNCHECKED* x.a.offset,
-           mem int32 x.b, *UNCHECKED* x.b.offset,
-           mem int32 x.c, *UNCHECKED* x.c.offset )
+function foo x, *UNCHECKED* adr x.base,
+         mem int32 x.a, *UNCHECKED* x.a.offset,
+         mem int32 x.b, *UNCHECKED* x.b.offset,
+         mem int32 x.c, *UNCHECKED* x.c.offset
         = "*" ( foo_ptr x ):
     x.base = x
     x.a.offset = 0
@@ -7424,12 +7365,12 @@ memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( T result, \\
-~~stack *UNCHECKED* unsadr result.offset, \\
-~~stack mem adr result.base, \\
-~~*UNCHECKED* adr result.base.adr  ) = \\
+function T result, \\
+~~~~~~~~~stack *UNCHECKED* unsadr result.offset, \\
+~~~~~~~~~stack mem adr result.base, \\
+~~~~~~~~~*UNCHECKED* adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
-~~~~~~~~[* underlying type of T == void *]
+~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
 Here `\TT{result.offset}' is the offset of the \TT{N} bytes within the
@@ -7455,13 +7396,13 @@ The memory allocated is always aligned on an \TT{8} byte boundary.
 If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
-( T result, \\
-~~stack *UNCHECKED* unsadr result.offset, \\
-~~stack mem adr result.base, \\
-~~*UNCHECKED* adr result.base.adr  ) = \\
+function T result, \\
+~~~~~~~~~stack *UNCHECKED* unsadr result.offset, \\
+~~~~~~~~~stack mem adr result.base, \\
+~~~~~~~~~*UNCHECKED* adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
-~~~~~~~~[* underlying type of T == void *]
+~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}
 
 where \TT{A} must be a power of \TT{2} not greater than \TT{64}.
@@ -7541,7 +7482,7 @@ Memory within a global area can be allocated by:
 ~~mem adr result.offset.base, \\
 ~~global *UNCHECKED* adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} ( type T, unsadr N ) \\
-~~~~~~~~[* underlying type of T == void *]
+~~~~~~~~[| underlying type of T == void |]
 \\[1ex]
 ( T result, \\
 ~~global *UNCHECKED* unsadr result.offset, \\
@@ -7549,7 +7490,7 @@ Memory within a global area can be allocated by:
 ~~global *UNCHECKED* adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
-~~~~~~~~[* underlying type of T == void *]
+~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
 
 Here \TT{A} must a power of \TT{2} not greater than \TT{64}.

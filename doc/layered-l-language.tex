@@ -836,6 +836,9 @@ The L-Language uses several kinds of names:
 			    or {\em quoted-separator}
 			\end{tabular} \\
 \emkey{member-subscript} ::= see \pagref{MEMBER-SUBSCRIPT} \\
+\emkey{block-name}\label{BLOCK-NAME}
+	::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
 \emkey{function-term-name} ::= {\em name} \\
 \emkey{initial-function-term-name} ::=
     \begin{tabular}[t]{@{}l@{}}
@@ -1278,6 +1281,13 @@ declared outside $B$ and $B$ is completely within
 the scope of `{\tt v}', so the smallest containing block of
 `{\tt v}' is not the same as the smallest containing block of
 `\TT{next} {\tt v}'.
+
+In a {\em statement} that ends with a block,
+any result variable names or block names declared by
+the part of the statement before that block are declared
+outside the block (\pagref{BLOCK-ASSIGNMENT-STATEMENTS}).
+{\em Block-names} follow the same rules as other {\em names},
+and can hide or be hidden by other kinds of {\em names}.
 
 {\em Function-prototypes} cannot hide each other.  If the
 current scope contains two declarations whose prototypes
@@ -5908,7 +5918,8 @@ be evaluatable whenever a call to the function is compiled.
 
 Another example is:
 \begin{indpar}\begin{verbatim}
-function Qs2 T r = inc (| qualifiers Qs1, type T |) ( Qs1 T v )
+function Qs2 T r = inc (| qualifiers Qs1, type T |)
+                       ( Qs1 T v )
     [| qualifiers Qs2 = Qs1 - { stack } |]:
     return v + 1
 \end{verbatim}\end{indpar}

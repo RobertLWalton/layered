@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 11, 2018
+March 12, 2018
  
 \end{center}
 
@@ -845,10 +845,11 @@ The L-Language uses several kinds of names:
     \end{tabular}
 
 where
-\begin{enumerate}\label{NAME-RULES}
+\begin{enumerate}
 \item A {\em type-name} should not be an initial segment of
 a {\em variable-base-name} or of
 an {\em initial-function-term-name}.
+\label{NAME-RULES}
 \item A {\em qualifier-name} should not be an initial segment
 of a {\em type-name},
 of a {\em variable-base-name},
@@ -5586,7 +5587,10 @@ The syntax is:
 	without a {\em default-value}
 \\[0.5ex]
 \emkey{function-pattern}\label{FUNCTION-PATTERN}
-    ::= {\em first-pattern-term} ~ {\em pattern-term}\STAR{}
+    \begin{tabular}[t]{rl}
+    ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
+    $|$ & {\em pattern-argument-list}\PLUS{}
+    \end{tabular}
 \\[0.5ex]
 \emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{} ~
 				{\em pattern-term}
@@ -5594,7 +5598,7 @@ The syntax is:
 \emkey{pattern-term}
     ::= {\em function-term-name} ~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{function-term-name} ::= {\em name} \underline{not} containing `\TT{.}'
+\emkey{function-term-name} ::= {\em name}
                                 ~~~~~ [see \pagref{NAMES}]
 \\[0.5ex]
 \emkey{initial-function-term-name}\label{INITIAL-FUNCTION-TERM-NAME} ::=
@@ -5648,7 +5652,7 @@ The syntax is:
     \end{tabular}
 \\[0.5ex]
 \emkey{logical-conditioner}\label{LOGICAL-CONDITIONER}
-    ::= {\em logical-expression}
+    ::= {\em logical-expression} ~~~~~ [see \pagref{LOGICAL-EXPRESSION}]
 \\[0.5ex]
 \emkey{qualifiers-conditioner}\label{QUALIFIERS-CONDITIONER}
     ::= \TT{qualifiers} {\em variable-name} \TT{=} {\em expression}
@@ -5694,6 +5698,11 @@ The syntax is:
 
 \begin{itemize}
 \item
+A {\em function-pattern} must have either a {\em function-term-name}
+or a `\TT{[]}' bracketed {\em pattern-argument-list}, unless it
+has the special form required of an implied conversion
+(\pagref{IMPLIED-CONVERSION-FUNCTIONS}).
+\item
 A {\em function-prototype} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em function-prototype}.
@@ -5710,7 +5719,7 @@ be distinct.
 \item
 The {\em variable-name} in a {\em qualifiers-argument-declaration}
 or a {\em qualifiers-conditioner} is treated as a {\em qualifier-name}
-within the {\em function-prototype}.  The value of the
+within the rest of the {\em function-prototype}.  The value of the
 {\em variable-name} must be computable at compile-time when the
 function is called.  A {\em qualifiers-argument-declaration}
 can be inside `\TT{()}' or `\TT{[]}' bracketed {\em argument-lists},
@@ -5718,7 +5727,7 @@ as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
 \item
 The {\em variable-name} in a {\em type-argument-declaration}
 or a {\em type-conditioner} is treated as a {\em type-name}
-within the {\em function-prototype}.  The value of the
+within the rest of the {\em function-prototype}.  The value of the
 {\em variable-name} must be computable at compile-time when the
 function is called.  A {\em type-argument-declaration}
 can be inside `\TT{()}' or `\TT{[]}' bracketed {\em argument-lists},
@@ -5727,6 +5736,9 @@ as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
 In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
+A {\em pattern-argument-list} that ends with `\TT{?}' is considered
+to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
+
 
 \end{itemize}
 \end{indpar}
@@ -5767,27 +5779,42 @@ is syntactic sugar for \\
 in which a term with \TT{"="} as its {\em function-term-name} is
 placed at the end of the function call.
 
-All the names declared in the block replacing the {\em function-call}
-have the word \TT{C\$$n$} prepended to them to make them unique,
-where $n$ is a natural number unique to the {\em function-call}.
-But names used and not declared in the replacing block are
-resolved in the context of the {\em function-declaration}.
+{\em Call-terms} correspond to {\em pattern-terms}.  {\em Call-terms}
+other than the first may be in a different order than their matching
+{\em pattern-terms}.  {\em Call-terms} other than the first may be
+omitted, and if omitted, will be inserted with empty {\em call-argument-lists}.
+{\em Call-argument-lists} may be omitted, and if omitted, empty
+lists will be inserted if this can be done unambiguously.
+
+{\em Actual-arguments} may be omitted at the end of a {\em call-argument-list}
+if their corresponding
+{\em argu\-ment-declaration} contains a {\em default-value}.
+The {\em default-value} will be used as the actual argument
+for such an omitted actual argument.
+
+If the {\em argument-declaration} ends in `\TT{?}'\label{BOOL-DEFAULT}
+with no explicit {\em default-value}, the
+argument must have \TT{bool} type and the
+{\em default-value} is taken to be \TT{true} if the
+corresponding {\em call-term} was originally present, and \TT{false} if the
+{\em call-term} was originally omitted and automatically inserted.
 
 An {\em argument-declaration} can be a {\em type-argument-declaration}
-which has the form `{\tt type T}' for some {\em variable-name} {\tt T}
-in an argument list with `\TT{(|~|)}' brackets.
+which has the form `{\tt type T}' for some {\em variable-name} {\tt T}.
 This makes {\tt T} into a {\em type-name} within the {\em function-declaration}
-containing the {\em type-argument-declaration}.  It also allows the
-actual value of {\tt T} to be implied by a {\em function-call}.
+containing the {\em type-argument-declaration}.
+If the {\em type-argument-declaration} is
+in an argument list with `\TT{(|~|)}' brackets,
+the actual value of {\tt T} can be implied by a {\em function-call}.
 If an explicit value of {\tt T} is given in the call, that is used.
 Otherwise if {\tt T} is the type of a prototype result variable, and there
 is a corresponding {\em function-call} result variable with a known type,
 the type of the leftmost such result variable
 is assigned as the value of {\tt T}.  Otherwise
-if {\tt T} is the type of some prototype argument variables, and
-the actual values of some of those variables in the call have
-natural types (\pagref{NATURAL-TYPE}), {\tt T} is assigned the type of
-the leftmost of these actual values.
+if {\tt T} is the type of a prototype argument variable, and
+the {\em actual-argument} corresponding to the variable in the call has
+a natural type (\pagref{NATURAL-TYPE}), {\tt T} is assigned the natural type
+corresponding to the leftmost such variable in the prototype.
 
 
 For example,
@@ -5804,15 +5831,17 @@ next z = add ( x, y )               // T = uns32 is implied
 \end{verbatim}\end{indpar}
 
 An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
-which has the form `{\tt qualifiers Qs}' for some {\em variable-name} {\tt Qs}
-in an argument list with `\TT{(|~|)}' brackets.
+which for some {\em variable-name} {\tt Qs}
+has the form `{\tt qualifiers Qs}'.
 This makes {\tt Qs} into a {\em qualifier-name}
 within the {\em function-de\-clar\-a\-tion}
 containing the {\em type-argument-declaration}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
 
-The actual value of {\tt Qs} may be implied by a {\em function-call}.
+If the {\em qalifiers-argument-declaraiont} is
+in an argument list with `\TT{(|~|)}' brackets,
+the actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit value of {\tt Qs} is given in the call, that is used.
 Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
 of a prototype result variable, and there is a corresponding {\em function-call}
@@ -5820,10 +5849,11 @@ result variable with known type,
 the qualifiers of the leftmost such call result variable are
 assigned as the value of {\tt Qs}.  Otherwise
 if {\tt Qs} is given as the \underline{only} qualifier
-of some prototype argument variables,
-and the actual values of some of those variables in the call have
-natural types (\pagref{NATURAL-TYPE}), {\tt Qs} is assigned the qualifiers
-of the leftmost of these actual values.
+of a prototype argument variable,
+and the {\em actual-argument} corresponding to the
+variable has a natural type (\pagref{NATURAL-TYPE}),
+{\tt Qs} is assigned the qualifiers of the natural type corresponding
+to the leftmost such variable in the prototype.
 
 For example,
 \begin{indpar}\begin{verbatim}
@@ -6019,7 +6049,7 @@ at this point.  See \pagref{CLUSTER-ARGUMENTS} for details.
 If some of the {\em call-argument-lists} are now too short, they are extended
 by adding the {\em default-values} from
 their matching {\em pattern-argument-lists}.
-As a special case, if an {\em argument-declaration} ends in
+As a special case, if an {\em argument-de\-clar\-a\-tion} ends in
 `\TT{?}' but has no {\em default-value}, then the actual
 {\em default-value} used is \TT{true} if the {\em function-term-name}
 appeared in the original function call and was not added in
@@ -6068,7 +6098,7 @@ is substituted for the {\em variable-name} throughout the rest of the
 If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
 {\em qualifiers-type-argument-list} does \underline{not} have
 a corresponding actual argument, the value of the
-{\em variable-name} in the {\em qualifiers-argument-declaration}
+{\em variable-name} in the {\em qual\-i\-fiers-argument-declaration}
 is implied.
 
 If the {\em variable-name} in the {\em qualifiers-argument-declaration}

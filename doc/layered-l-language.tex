@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 12, 2018
+March 13, 2018
  
 \end{center}
 
@@ -5795,6 +5795,28 @@ other than the first may be in a different order than their matching
 omitted, and if omitted, will be inserted with empty {\em call-argument-lists}.
 {\em Call-argument-lists} may be omitted, and if omitted, empty
 lists will be inserted if this can be done unambiguously.
+If a {\em pattern-argument-list} has \TT{()} brackets and a single
+argument, and the corresponding {\em call-argument-list} has a single
+{\em actual-argument} that is just a {\em name} or {\em constant},
+the \TT{()} parentheses may be omitted in the {\em function-call}
+if there is no ambiguity involving {\em function-term-names}.
+
+Examples are:
+\begin{indpar}\begin{verbatim}
+function int32 r = fee ( int32 x ) fie ( int32 y ) foe ( int32 z ):
+    ... function body omitted ...
+
+int32 b 1 = ...
+int32 c 2 = ...
+int32 d 3 = ...
+int32 f = fee ( b 1 ) foe ( c 2 ) fie ( d 3 )
+    // Call same as = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
+int32 f = fee ( b 1 ) foe ( c 2 )
+    // Call same as = fee ( b 1 ) fie () foe ( c 2 )
+    // Erroneous: actual argument missing
+int32 f = fee b 1 foe c 2 fie d 3
+    // Call same as = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
+\end{verbatim}\end{indpar}
 
 {\em Actual-arguments} may be omitted at the end of a {\em call-argument-list}
 if their corresponding
@@ -5808,6 +5830,23 @@ argument must have \TT{bool} type and the
 {\em default-value} is taken to be \TT{true} if the
 corresponding {\em call-term} was originally present, and \TT{false} if the
 {\em call-term} was originally omitted and automatically inserted.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+int32 B = ...
+int32 C = ...
+context fooC = current context
+function int32 r = foo ( int32 x, int32 y ? B + C, bool z ? )
+    ... function body omitted ...
+
+int32 b 1 = ...
+int32 f = foo ( b 1 )
+    // Call same as:
+    //     int32 tmp y, bool tmp z = do in context fooC:
+    //         tmp y = B + C
+    //         tmp z = false
+    //     int32 f = foo ( b 1, tmp y, tmp z )
+\end{verbatim}\end{indpar}
 
 An {\em argument-declaration} can be a {\em type-argument-declaration}
 which has the form `{\tt type T}' for some {\em variable-name} {\tt T}.
@@ -5829,7 +5868,7 @@ corresponding to the leftmost such variable in the prototype.
 
 For example,
 \begin{indpar}\begin{verbatim}
-function ( T result ) = add (| type T |) ( T v1, T v2 ):
+function T result = add (| type T |) ( T v1, T v2 ):
     result = v1 + v2
 
 // Example usage
@@ -5907,7 +5946,7 @@ as in:
 types signed-integer-types =
     { int8, int16, int32, int64, int128 }
 
-function ( T result ) = add (| type T |) ( T v1, T v2 )
+function T result = add (| type T |) ( T v1, T v2 )
     [| T is in signed-integer-types |]:
     result = v1 + v2
 \end{verbatim}\end{indpar}

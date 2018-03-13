@@ -5803,19 +5803,23 @@ if there is no ambiguity involving {\em function-term-names}.
 
 Examples are:
 \begin{indpar}\begin{verbatim}
-function int32 r = fee ( int32 x ) fie ( int32 y ) foe ( int32 z ):
+function int32 r =
+        fee ( int32 x ) fie ( int32 y ) foe ( int32 z ):
     ... function body omitted ...
 
 int32 b 1 = ...
 int32 c 2 = ...
 int32 d 3 = ...
 int32 f = fee ( b 1 ) foe ( c 2 ) fie ( d 3 )
-    // Call same as = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
-int32 f = fee ( b 1 ) foe ( c 2 )
-    // Call same as = fee ( b 1 ) fie () foe ( c 2 )
+    // Same as:
+    //   int32 f = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
+int32 g = fee ( b 1 ) foe ( c 2 )
+    // Same as:
+    //   int32 g = fee ( b 1 ) fie () foe ( c 2 )
     // Erroneous: actual argument missing
-int32 f = fee b 1 foe c 2 fie d 3
-    // Call same as = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
+int32 h = fee b 1 foe c 2 fie d 3
+    // Same as:
+    //   int32 h = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
 \end{verbatim}\end{indpar}
 
 {\em Actual-arguments} may be omitted at the end of a {\em call-argument-list}

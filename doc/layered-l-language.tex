@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 13, 2018
+March 14, 2018
  
 \end{center}
 
@@ -5989,10 +5989,11 @@ single {\em function-prototype}.  If it matches more than one
 The matching algorithm, given a {\em function-call} and a
 {\em function-prototype}, matches the {\em function-call}
 to the {\em function-pattern} in the {\em function-prototype},
-and matches any target variables to the {\em prototype-result-variable-list}
-of the {\em function-prototype}.  There may be one or more target
-variables of known types, or a single target variable of unknown
-type, or no target variables (as in a {\em function-call} that is
+and matches any call result variables to
+the {\em prototype-result-variable-list}
+of the {\em function-prototype}.  The call may have one or more result
+variables of known types, or a single result variable of unknown
+type, or no result variables (as in a {\em function-call} that is
 a {\em statement} by itself).  The algorithm is as follows:
 
 \begin{enumerate}
@@ -6064,7 +6065,8 @@ taken in order, are a subsequence of the {\em function-term-names} in the
 {\em function-pattern}.
 If this cannot be done, the call-prototype match fails.
 (Note that {\em call-terms} other than the first all begin with
-{\em function-term-names}.)
+a {\em function-term-name} and extend until the next {\em function-term-name}
+or the end of the {\em function-call}.)
 
 \item\label{ADD-TERMS}
 If some of the {\em function-term-names} in the {\em function-pattern}
@@ -6103,7 +6105,7 @@ at this point.  See \pagref{CLUSTER-ARGUMENTS} for details.
 If some of the {\em call-argument-lists} are now too short, they are extended
 by adding the {\em default-values} from
 their matching {\em pattern-argument-lists}.
-As a special case, if an {\em argument-de\-clar\-a\-tion} ends in
+As a special case, if a prototype {\em arg\-u\-ment-de\-clar\-a\-tion} ends in
 `\TT{?}' but has no {\em default-value}, then the actual
 {\em default-value} used is \TT{true} if the {\em function-term-name}
 appeared in the original function call and was not added in
@@ -6124,14 +6126,21 @@ and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
 is not greater than the number of arguments in the corresponding
 {em pattern-argument-list}.
 
+Note that any {\em default-values} inserted in the {\em function-call}
+are evaluated in the context of the {\em function-prototype}.  For
+matching purposes, this is relevant only if the {\em default-values}
+are {\em expressions} with compile-time values, and such a
+{\em default-value} can be replaced by a constant when the
+{\em function-prototype} is first compiled.
+
 \item
 If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
 {\em qualifiers-type-argument-list} has a corresponding
 actual argument, the actual argument expression
 is evaluated with the `\TT{qualifiers}' target type,
-and must have a compile time value which is a list of qualifiers, else
+and must have a compile time value which is a set of qualifiers, else
 the call-prototype match fails.  If the match does not fail,
-the list of qualifiers becomes the value of the {\em variable-name}
+the set of qualifiers becomes the value of the {\em variable-name}
 in the {\em qualifiers-argument-declaration} and
 is substituted for the {\em variable-name} throughout the rest of the
 {\em function-prototype}.
@@ -6156,13 +6165,15 @@ a corresponding actual argument, the value of the
 is implied.
 
 If the {\em variable-name} in the {\em qualifiers-argument-declaration}
-is used as the sole {\em qualifier-name} of prototype result variables
+is used as the \underline{sole} {\em qualifier-name}
+of prototype result variables
 with a matching actual results with known type and qualifiers,
 the qualifiers of the leftmost such actual result is assigned as the
 value of the {\em variable-name}.
 
 Otherwise if the {\em variable-name}
-is used as the sole {\em qualifier-name} of several arguments whose matching
+is used as the \underline{sole} {\em qualifier-name}
+of several arguments whose matching
 actual arguments have natural types, the qualifiers of the leftmost
 of these arguments is assigned as the
 value of the {\em variable-name}.
@@ -6171,7 +6182,7 @@ If no value can be assigned to the {\em variable-name} by these rules,
 the call-prototype match fails.
 
 If a value is assigned,
-the list of qualifiers that is the assigned value
+the set of qualifiers that is the assigned value
 is added as an actual argument
 in the {\em call-argument-list} that corresponds
 to the {\em qualifiers-argument-declaration}, and
@@ -6187,12 +6198,12 @@ is implied.
 
 If the {\em variable-name} in the {\em type-argument-declaration}
 is used as the {\em type-name} of prototype result variables
-with a matching actual results with known type and qualifiers,
+with a matching actual results with known type,
 the type of the leftmost such actual result is assigned as the
 value of the {\em variable-name}.
 
 Otherwise if the {\em variable-name}
-is used the sole {\em type-name} of several arguments whose matching
+is used the {\em type-name} of several arguments whose matching
 actual arguments have natural types, the type of the leftmost
 of these arguments is assigned as the
 value of the {\em variable-name}.
@@ -6217,9 +6228,11 @@ This modified function call is referred to as the
 `\mkey{unfolded}{function call}' {\em function-call}.
 
 If any actual argument value needs to be a compile-time value in what
-follows, the actual argument expression can be compiled at this
-time with its target value taken from the corresponding
+follows, the actual argument expression is compiled at this
+time with its target type taken from the corresponding
 {\em function-pattern} {\em argument-declaration}.
+If the result is not a compile-time value, the call-prototype
+match fails.
 
 \item
 The {\em conditioners} in the {\em function-prototype} are evaluated
@@ -6234,9 +6247,9 @@ Otherwise this type value is substituted for the {\em variable-name}
 throughout the {\em function-prototype}.
 
 If the value assigned to the {\em variable-name} of a
-{\em qualifiers-conditioner} is not a (possibly empty) list of
+{\em qualifiers-conditioner} is not a (possibly empty) set of
 qualifiers, the call-prototype match fails.
-Otherwise this qualifiers list value is substituted for the {\em variable-name}
+Otherwise this qualifiers set value is substituted for the {\em variable-name}
 throughout the {\em function-prototype}.
 
 \item If the unfolded {\em function-call} has {\em actual-argument}
@@ -6256,10 +6269,20 @@ statement containing {\em function-call}
 with each {\em actual-argument} $eI$ replaced by $tmpI$
 \end{indpar}
 
-If any the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' cannot be compiled
+If any $eI$ a {\em default-value}, then in the above
+\begin{indpar}
+{\tt $QsI$ $TI$ $tmpI$ = $eI$}
+\end{indpar}
+is replaced by
+\begin{indpar}
+{\tt $QsI$ $TI$ $tmpI$ = do in context }{\em prototype-context}{\tt :} \\
+\hspace*{0.5in}{\tt $tmpI$ = $eI$}
+\end{indpar}
+
+If any the statements `{\tt $QsI$ $TI$ $tmpI$ = \ldots}' cannot be compiled
 for reasons other than an ambiguity error, the call-prototype match fails.
 
-If any of the statements `{\tt $QsI$ $TI$ $tmpI$ = $eI$}' cannot be compiled
+If any of the statements `{\tt $QsI$ $TI$ $tmpI$ = \ldots}' cannot be compiled
 because of an ambiguity error, the call-prototype match
 is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
@@ -6267,7 +6290,7 @@ rejected later, possibly for another reason).
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
 If the {\em function-call} is in a statement of the form
 \begin{center}
-{\tt $QCs1$ $TC1$ $VC1$, $QCs2$ $TC2$ $VR2$, \ldots{}~=~}{\em function-call}
+{\tt $QCs1$ $TC1$ $VC1$, $QCs2$ $TC2$ $VC2$, \ldots{}~=~}{\em function-call}
 \end{center}
 with at least one result variable of known type,
 the {\em function-prototype} must be of the form
@@ -6300,7 +6323,7 @@ if there is another match that is not conversion deficient.
 Note that only the first result variable is considered by this rule.
 
 \item If the {\em function-call} has one result variable of
-unknown type, {\em function-prototype} must have result variables
+unknown type, the {\em function-prototype} must have result variables
 else the call-prototype match fails.
 The type and qualifiers of the first
 {\em function-prototype} result variable become the natural
@@ -6340,12 +6363,12 @@ then the $Y$ match is discarded.
 \item If after discarding matches as above, there are no matches,
 the {\em function-call} is `\key{unmatched}' and cannot be compiled.
 
-\item If after discarding matches as above, there is a match left
-with an ambiguity deficiency,
-the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
-
 \item If after discarding matches as above, there is more than one
 match left,
+the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
+
+\item If the remaining match has
+an ambiguity deficiency,
 the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
 
 \item Otherwise there is just one match left, and that

@@ -1259,9 +1259,9 @@ the larger scope includes the whole statement:
     & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
 {\em function-declaration}
     & [see \pagref{FUNCTION-DECLARATION}] \\
-{\em block-assignment-statement} with \TT{in context} option
+{\em block-assignment-statement} with context option
     & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
-{\em compile-and-run-assignment-statement} with \TT{in context} option
+{\em compile-and-run-assignment-statement} with context option
     & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
 \end{tabular}
 \end{center}
@@ -1295,7 +1295,7 @@ both match a {\em function-call}, the call is ambiguous and
 in error, even if the scope of one declaration is within
 a subblock of the scope of the other.
 As a consequence, it may be unwise to place function declarations
-within assignment statements that have the `\TT{in context}' option.
+within assignment statements that have the context option.
 
 A declaration not inside a block is said to be `\key{top level}'.
 
@@ -4760,7 +4760,7 @@ Another variant of the assignment statement is\index{block assignment}:
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{} \\
 	\TT{~~~~}\{ \ttkey{do} {\em block-name}\QMARK{}
-	              \{ \ttkey{in context} {\em context-expression} \}\QMARK{}
+	              \{ \TT{(} {\em context-expression} \TT{)} \}\QMARK{}
 	              \}\QMARK{} \TT{:} \\
 	\TT{~~~~~~~~}{\em statement}\STAR{}
 	\end{tabular}
@@ -4774,24 +4774,22 @@ Another variant of the assignment statement is\index{block assignment}:
 \end{indpar}
 
 where `\TT{do} {\em block-name}\QMARK{}
-	              \{ \TT{in context} {\em context-expression} \}\QMARK{}'
+	              \{ \TT{(} {\em context-expression} \TT{)} \}\QMARK{}'
 may be omitted as long as \TT{=} is not omitted.
 
 The {\em statements} within the {\em block-assignment-statement}
 comprise a `\key{block}' of code.
 
-Normally the
-{\em block-assignment-statement} is
-compiled in its context (\pagref{CONTEXT}),
-but if `\TT{in context} {\em context-expression}'
-is given, it is compiled in the context given by the
-{\em context-expression}.
-If the {\em context-expression}
-specifies a context other than the context of the
-{\em block-assignment-statement}, the result variable names
-and names declared within the block {\em statements}
-are permitted to hide (\pagref{HIDE})
-names in the specified context.
+Unless `\TT{(} {\em context-expression} \TT{)}' is given,
+a {\em block-assignment-statement} is
+compiled in the current context (\pagref{CONTEXT}),
+and {\em names} declared within the block are \underline{not} permitted
+to hide (\pagref{HIDE}) {\em names} declared before the block.
+But if `\TT{(} {\em context-expression} \TT{)}' is given,
+the {\em block-assignment-statement} is
+compiled in the context given by {\em context-expression},
+and names declared within the block
+are permitted to hide names in the specified context.
 
 Any result variables in a {\em block-assignment-statement}
 are called `\skey{deferred variable}s' because they do not
@@ -5416,7 +5414,7 @@ and lastly runs the block:
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{} \\
 	\TT{~~~~}\ttkey{compile-and-run}
-		 \{ \ttkey{in context} {\em context-expression} \}\QMARK{}
+		 \{ {(} {\em context-expression} \TT{)} \}\QMARK{}
 		 \TT{:} \\
 	\TT{~~~~~~~}{\em argument-assignment-statement}\STAR{} \\
 	\TT{~~~~~~~do} {\em block-name}\QMARK{} \TT{:} \\
@@ -5431,7 +5429,7 @@ the variable values to optimize the compilation.
 Normally the
 {\em compile-and-run-assignment-statement} is
 compiled in its context (\pagref{CONTEXT}),
-but if `\TT{in context} {\em context-expression}'
+but if `\TT{(} {\em context-expression} \TT{)}'
 is given, it is compiled in the context given by the
 {\em context-expres\-sion}.
 If the {\em context-expression}
@@ -5760,12 +5758,12 @@ names in the context of the declaration.
 
 A {\em function-call} with a {\em result-variable-list}
 is replaced by a {\em block-assignment-statement}
-with an `\TT{in context}' option specifying the context of the
+with an context option specifying the context of the
 {\em function-declaration}
 (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 The result and argument variables in the {\em function-declaration}
 are effectively replaced by compiler generated temporary variable names to
-avoid conflicts, and variables declared inside the
+avoid conflicts, and variables declared inside the replacing
 {\em block-assignment-statement} are permitted to hide variables outside
 the statement (\pagref{HIDE}).  The values of the argument temporary
 variables are computed before the block and the values of the result
@@ -5848,7 +5846,7 @@ function int32 r = foo ( int32 x, int32 y ? B + C, bool z ? )
 int32 b 1 = ...
 int32 f = foo ( b 1 )
     // Call has same effect as:
-    //     int32 tmp y, bool tmp z = do in context fooC:
+    //     int32 tmp y, bool tmp z = do ( fooC ):
     //         tmp y = B + C
     //         tmp z = false
     //     int32 f = foo ( b 1, tmp y, tmp z )
@@ -6280,7 +6278,7 @@ If any $eI$ a {\em default-value}, then in the above
 \end{indpar}
 is replaced by
 \begin{indpar}
-{\tt $QsI$ $TI$ $tmpI$ = do in context }{\em prototype-context}{\tt :} \\
+{\tt $QsI$ $TI$ $tmpI$ = do ( }{\em prototype-context}{\tt ~):} \\
 \hspace*{0.5in}{\tt $tmpI$ = $eI$}
 \end{indpar}
 

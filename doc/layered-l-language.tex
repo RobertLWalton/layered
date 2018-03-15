@@ -6052,7 +6052,7 @@ another match that is not module deficient.
 \item
 The {\em function-term-names} in the {\em function-call} are located by
 matching segments of the {\em func\-tion-call} to
-{\em function-term-names} in the {\em function-prototype}.
+{\em function-term-names} in the {\em function-pattern}.
 If a {\em function-term-name} matches more than one segment,
 the call-prototype match fails.  If the first {\em function-term-name}
 in the {\em function-pattern} does not match any segment,
@@ -6117,13 +6117,13 @@ did not appear in the original function call, but was added in
 Step~\ref{ADD-TERMS}.
 
 If any of the arguments that need to be inserted in a
-{\em regular-argument-list} do not have {\em default-values},
-the call-prototype match fails.
+{\em call-argument-list} matched to a {\em regular-argument-list}
+do not have {\em default-values}, the call-prototype match fails.
 
 The modified {\em function-call} now matches
 the {\em function-pattern} in {\em function-term-names},
-location and number of {\em argument-lists}, type of bracket, i.e. \TT{()},
-\TT{[]}, or \TT{(|~|)} for each {\em argument-list}.  The number of
+location and number of {\em argument-lists}, and type of bracket (\TT{()},
+\TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  The number of
 arguments also match for \TT{()} and \TT{[]} {\em argument-lists},
 and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
 is not greater than the number of arguments in the corresponding
@@ -6132,8 +6132,8 @@ is not greater than the number of arguments in the corresponding
 Note that any {\em default-values} inserted in the {\em function-call}
 are evaluated in the context of the {\em function-prototype}.  For
 matching purposes, this is relevant only if the {\em default-values}
-are {\em expressions} with compile-time values, and such a
-{\em default-value} can be replaced by a constant when the
+are {\em expressions} with compile-time values, and such
+{\em default-values} can be replaced by constants when the
 {\em function-prototype} is first compiled.
 
 \item
@@ -6258,10 +6258,9 @@ throughout the {\em function-prototype}.
 \item If the unfolded {\em function-call} has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
 (including {\em default-values}),
-and the {\em function-prototype} has (non-result)
+and the {\em function-pattern} has
 {\em argument-declarations} `$Qs1$ $T1$ $v1$', `$Qs2$ $T2$ $v2$', \ldots{}
-read from left to right, where the $Qs\ldots$ are possibly empty
-qualifier sets and the $T\ldots$ are types,
+read from left to right,
 then the statement containing the
 revised {\em function-call} is replace by:
 \begin{indpar}
@@ -6272,7 +6271,14 @@ statement containing {\em function-call}
 with each {\em actual-argument} $eI$ replaced by $tmpI$
 \end{indpar}
 
-If any $eI$ a {\em default-value}, then in the above
+Here the $Qs\ldots$ are possibly empty qualifier sets,
+the $T\ldots$ are types, the $v\ldots$ are argument variable
+names, and the $tmp\ldots$ are
+\skey{temporary variable name}s (names of the form \TT{T\$}$n$
+for a natural number $n$ manufactured by the compiler and
+guaranteed to a unique among all {\em names}.)
+
+If any $eI$ is a {\em default-value}, then in the above
 \begin{indpar}
 {\tt $QsI$ $TI$ $tmpI$ = $eI$}
 \end{indpar}
@@ -6293,12 +6299,12 @@ rejected later, possibly for another reason).
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
 If the {\em function-call} is in a statement of the form
 \begin{center}
-{\tt $QCs1$ $TC1$ $VC1$, $QCs2$ $TC2$ $VC2$, \ldots{}~=~}{\em function-call}
+{\tt $QCs1$ $TC1$ $vc1$, $QCs2$ $TC2$ $vc2$, \ldots{}~=~}{\em function-call}
 \end{center}
 with at least one result variable of known type,
 the {\em function-prototype} must be of the form
 \begin{center}
-{\tt function $QRs1$ $TR1$ $VR1$, $QRs2$ $TR2$ $VR2$,
+{\tt function $QRs1$ $TR1$ $vr1$, $QRs2$ $TR2$ $vr2$,
      \ldots{}~=~}{\em function-pattern}
 \end{center}
 with at least as many result variables in the prototype as in
@@ -6307,11 +6313,11 @@ replaced by:
 \begin{indpar}
 {\tt $QRs1$ $TR1$ $tmp1$, $QRs2$ $TR2$ $tmp2$,
     \ldots{}~=~}{\em function-call} \\
-{\tt $QCs1$ $TC1$ $VC1$ = $tmp1$} \\
-{\tt $QCs2$ $TC2$ $VC2$ = $tmp2$} \\
+{\tt $QCs1$ $TC1$ $vc1$ = $tmp1$} \\
+{\tt $QCs2$ $TC2$ $vc2$ = $tmp2$} \\
 \ldots\ldots\ldots\ldots
 \end{indpar}
-If any of the `{\tt $QCsI$ $TCI$ $VC1$ = $tmpI$}' statements cannot be
+If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
 compiled because $QRsI$ $TRI$ is not implicitly convertible
 to $QCsI$ $TCI$, the call-prototype match fails.
 Note that extra prototype result variables
@@ -6330,7 +6336,8 @@ unknown type, the {\em function-prototype} must have result variables
 else the call-prototype match fails.
 The type and qualifiers of the first
 {\em function-prototype} result variable become the natural
-type and qualifiers of the {\em function-call} expression if
+type and qualifiers (\pagref{NATURAL_TYPE})
+of the {\em function-call} expression if
 the match ultimately is accepted according to the rules below.
 
 \item If the {\em function-call} has no result variables, the
@@ -6377,26 +6384,9 @@ the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
 \item Otherwise there is just one match left, and that
 match has no ambiguity deficiency.  That match
 is accepted and used to compile the {\em function-call}.
+
 \end{enumerate}
 
-TBD
-
-As an application of these rules consider the example:
-\begin{indpar}\begin{verbatim}
-// mymod is module abbreviation of current module.
-//
-type mymod T is packed tuple:
-    int32 x
-    int32 y
-type mymod PV is pointer to vector of mymod T
-type mymod PE is pointer to mymod T
-mymod PV p = NULL
-    // Of the many NULL functions, only one has
-    // result type mymod PV.  Another with
-    // result type mymod PE is conversion deficient.
-    // Both are module deficient.  So the one with
-    // type mymod PV is chosen.
-\end{verbatim}\end{indpar}
 
 \section{Includes}
 \label{INCLUDES}
@@ -6418,7 +6408,7 @@ input.  The statement has the form:
 \end{indpar}
 
 The {\em include-assignment-statement} is executed at
-compile time code and contains \skey{include block}s that generate
+compile time and contains \skey{include block}s that generate
 the code that replaces the {\em include-statement}.  These have
 the syntax:
 
@@ -6450,7 +6440,10 @@ function min-max functions ( type T )
                     result = x
                 y <= x:
                     result = y
-                T is in floating-types:
+                (T) is in floating-types:
+                        // Parenthesize T to prevent compiler
+                        // from treating it as the beginning
+                        // of a result variable declaration.
                     result = NaN
         function T result = max ( T x, T y ):
             result = - min ( -x, -y )
@@ -6465,6 +6458,12 @@ The special conditional assignment statement
 rules described on page \pageref{CONDITIONAL-SPECIAL-RULES}
 are applied here to enable \TT{T} to be any integer or
 floating point number type.
+
+Note that variables of type `\TT{type}' with compile-time
+values behave as {\em type-names} in the included code.
+Similarly variables of types `\TT{qualifier}',
+`\TT{qualifier-set}', and `\TT{qualifier-\EOL list}' behave
+as {\em qualifier-names}.
 
 
 \section{Clusters}

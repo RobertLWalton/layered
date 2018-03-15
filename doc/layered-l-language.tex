@@ -5608,8 +5608,7 @@ The syntax is:
 \emkey{pattern-term}
     ::= {\em function-term-name} ~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{function-term-name} ::= {\em name}
-                                ~~~~~ [see \pagref{NAMES}]
+\emkey{function-term-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \\[0.5ex]
 \emkey{initial-function-term-name}\label{INITIAL-FUNCTION-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l@{}}
@@ -5631,7 +5630,7 @@ The syntax is:
     \end{tabular}
 \\[0.5ex]
 \emkey{argument-declaration}
-    ::= {\em type-name} {\em variable-name}
+    ::= {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
         \{ \TT{?} {\em default-value}\QMARK{} \}\QMARK{}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
@@ -5696,8 +5695,6 @@ The syntax is:
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[0.5ex]
-{\em expression} ::= see \pagref{EXPRESSION}
-\\[0.5ex]
 \emkey{primary-argument} ::= {\em primary-item}\PLUS{}
                          $|$ {\em bracketed-constant}
 \\[0.5ex]
@@ -5709,7 +5706,7 @@ The syntax is:
 \begin{itemize}
 \item
 A {\em function-pattern} must have either a {\em function-term-name}
-or at least two {\em pattern-argument-lists} that have either `\TT{()}'
+or at least two {\em pattern-argu\-ment-lists} that have either `\TT{()}'
 or `\TT{[]}' brackets, unless it
 has the special form required of an implied conversion
 (\pagref{IMPLIED-CONVERSION-FUNCTIONS}).

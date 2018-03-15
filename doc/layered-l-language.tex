@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 14, 2018
+March 15, 2018
  
 \end{center}
 
@@ -852,7 +852,7 @@ where
 \item A {\em type-name} should not be an initial segment of
 a {\em variable-base-name} or of
 an {\em initial-function-term-name}.
-\label{NAME-RULES}
+\label{TYPE-NAME-RULE}
 \item A {\em qualifier-name} should not be an initial segment
 of a {\em type-name},
 of a {\em variable-base-name},
@@ -5634,7 +5634,7 @@ The syntax is:
     ::= {\em type-name} {\em variable-name}
         \{ \TT{?} {\em default-value}\QMARK{} \}\QMARK{}
 \\[0.5ex]
-\emkey{default-value} ::= {\em expression}
+\emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[0.5ex]
 \emkey{qualifiers-type-argument-list} ::= \\
 \hspace*{0.2in}\TT{(|} {\em qualifiers-type-argument-declaration}
@@ -5652,8 +5652,6 @@ The syntax is:
 \hspace*{0.2in}\TT{type} {\em variable-name}
                \{ \TT{?} {\em default-value} \}\QMARK{}
 \\[0.5ex]
-{\em expression} ::= see \pagref{EXPRESSION}
-\\[0.5ex]
 \emkey{conditioner}\label{CONDITIONER}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em logical-conditioner} \\
@@ -5669,7 +5667,9 @@ The syntax is:
 \\[0.5ex]
 \emkey{type-conditioner}\label{TYPE-CONDITIONER}
     ::= \TT{type} {\em variable-name} \TT{=} {\em expression}
-\\[2ex]
+\\[0.5ex]
+{\em expression} ::= see \pagref{EXPRESSION}
+\\[4ex]
 \emkey{function-call}\label{FUNCTION-CALL}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
@@ -5694,7 +5694,7 @@ The syntax is:
     $|$ & {\em primary-argument}
     \end{tabular}
 \\[0.5ex]
-\emkey{actual-argument} ::= {\em expression}
+\emkey{actual-argument} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -5709,7 +5709,8 @@ The syntax is:
 \begin{itemize}
 \item
 A {\em function-pattern} must have either a {\em function-term-name}
-or a `\TT{[]}' bracketed {\em pattern-argument-list}, unless it
+or at least two {\em pattern-argument-lists} that have either `\TT{()}'
+or `\TT{[]}' brackets, unless it
 has the special form required of an implied conversion
 (\pagref{IMPLIED-CONVERSION-FUNCTIONS}).
 \item
@@ -5719,12 +5720,13 @@ in the same {\em function-prototype}.
 \item
 An {\em initial-function-term-name}
 should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
-(see Type Name Rule, \pagref{NAME-RULES}).
+(see Rule \ref{TYPE-NAME-RULE} on \pagref{TYPE-NAME-RULE}).
 \item
 \TT{"="} cannot be used as a {\em function-term-name}
 in a {\em function-prototype}.
 \item
-All the {\em variable-names} in a {\em function-prototype} must
+All the result and argument {\em variable-names}
+in a {\em function-prototype} must
 be distinct.
 \item
 The {\em variable-name} in a {\em qualifiers-argument-declaration}
@@ -5760,18 +5762,21 @@ are permitted to hide (\pagref{HIDE})
 names in the context of the declaration.
 
 A {\em function-call} with a {\em result-variable-list}
-is in effect replaced by a {\em block-assignment-statement}
+is replaced by a {\em block-assignment-statement}
 with an `\TT{in context}' option specifying the context of the
 {\em function-declaration}
 (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
-The {\em result-variable-list} of the {\em function-declaration} becomes the
-{\em result-variable-list} of the {\em block-as\-sign\-ment-statement} and the
-{\em statements} of the {\em function-declaration} become the 
-{\em block-\EOL assign\-ment-\EOL state\-ment's} subblock {\em statements}.
-Actual argument values from the function call are assigned to variables in
-the {\em function-declaration's} {\em argument-lists}.  The values produced in
-the declaration's {\em result-variable-list's} variables
-become the values of the {\em function-call}.
+The result and argument variables in the {\em function-declaration}
+are effectively replaced by compiler generated temporary variable names to
+avoid conflicts, and variables declared inside the
+{\em block-assignment-statement} are permitted to hide variables outside
+the statement (\pagref{HIDE}).  The values of the argument temporary
+variables are computed before the block and the values of the result
+temporary variables are assigned to the {\em function-call} result
+variables after the block.\footnote{This can be implemented by using
+two nested blocks instead of one block without actually replacing
+variable names in the {\em function-declaration} by temporary variable
+names.}
 
 A function call without any {\em result-variable-list}
 is just like a function call with an empty
@@ -5781,7 +5786,7 @@ A function call with an {\em input-variable-list} is just syntactic
 sugar for a function call with neither a {\em result-variable-list}
 or {\em input-variable-list}.  Specifically
 \begin{center}
-{\tt F(a1,a2,...)~=~(b1,b2,...)} \\
+{\tt F(a1,a2,...)~=~b1,b2,...} \\
 is syntactic sugar for \\
 {\tt F(a1,a2,...)~"="~(b1,b2,...)} \\
 \end{center}
@@ -5845,7 +5850,7 @@ function int32 r = foo ( int32 x, int32 y ? B + C, bool z ? )
 
 int32 b 1 = ...
 int32 f = foo ( b 1 )
-    // Call same as:
+    // Call has same effect as:
     //     int32 tmp y, bool tmp z = do in context fooC:
     //         tmp y = B + C
     //         tmp z = false
@@ -5859,7 +5864,7 @@ containing the {\em type-argument-declaration}.
 If the {\em type-argument-declaration} is
 in an argument list with `\TT{(|~|)}' brackets,
 the actual value of {\tt T} can be implied by a {\em function-call}.
-If an explicit value of {\tt T} is given in the call, that is used.
+If an explicit or default value of {\tt T} is given by the call, that is used.
 Otherwise if {\tt T} is the type of a prototype result variable, and there
 is a corresponding {\em function-call} result variable with a known type,
 the type of the leftmost such result variable
@@ -5879,8 +5884,11 @@ function T result = add (| type T |) ( T v1, T v2 ):
 //
 int32 x = ...
 int32 y = ...
-int32 z = add (| int32 |) ( x, y )  // T is explicitly given
-next z = add ( x, y )               // T = uns32 is implied
+int32 z = add (| int32 |) ( x, y )
+    // T is explicitly given.
+next z = add ( x, y )
+    // T = int32 is implied because that is the type of
+    // `next z'.
 \end{verbatim}\end{indpar}
 
 An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
@@ -5892,10 +5900,10 @@ containing the {\em type-argument-declaration}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
 
-If the {\em qalifiers-argument-declaraiont} is
+If the {\em qalifiers-argument-declaraion} is
 in an argument list with `\TT{(|~|)}' brackets,
 the actual value of {\tt Qs} may be implied by a {\em function-call}.
-If an explicit value of {\tt Qs} is given in the call, that is used.
+If an explicit or default value of {\tt Qs} is given by the call, that is used.
 Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
 of a prototype result variable, and there is a corresponding {\em function-call}
 result variable with known type,
@@ -5910,7 +5918,7 @@ to the leftmost such variable in the prototype.
 
 For example,
 \begin{indpar}\begin{verbatim}
-define required protected required qualifier in-range
+define protected required qualifier in-range
 define required prohibited qualifier ouch
 function Qs in-range T r =
         check (| qualifiers Qs, type T |) ( Qs T v ):
@@ -5970,7 +5978,7 @@ function Qs2 T r = inc (| qualifiers Qs1, type T |)
 which returns {\tt v+1} with the same qualifiers as {\tt v}
 except for the `{\tt stack}' qualifier which is removed.
 Here the rightside of the {\em qualifiers-conditioner}
-must be evaluatable whenever the function is compiled.
+must be evaluatable when a call to the function is compiled.
 
 The body of an inline function is parsed, but it is not checked for
 errors before the function is called.  When the function is called,

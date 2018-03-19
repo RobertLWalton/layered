@@ -1601,7 +1601,8 @@ or address:
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \TT{std}~~~\ttkey{unswrd}	& unsigned integer & size of integer register \\
 \TT{std}~~~\ttkey{intwrd}	& signed integer & size of integer register \\
-\TT{std}~~~\ttkey{floatwrd}	& floating point number & size of floating
+\TT{std}~~~\ttkey{floatwrd}	& floating point number
+                                & size of floating point register
 \end{tabular}
 
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
@@ -1776,8 +1777,18 @@ function prototypes of the form:
 \tt function $T1$ r = std $F$ ( $T2$ v )
 \end{center}
 This says that if you apply the function $F$ to the value \TT{v} which
-is of type $T2$, the function will return a value \TT{r} of type $T2$.
+is of type $T2$, the function will return a value \TT{r} of type $T1$.
 See \itemref{FUNCTION-PROTOTYPES-AND-CALLS} for more function prototype details.
+
+If a conversion from type $T2$ to type $T1$ may be implied, then
+in code of the form
+\begin{center} \tt
+\begin{tabular}{l}
+$T2$ v = \ldots \\
+$T1$ r = v
+\end{tabular}
+\end{center}
+the second statement will invoke the implied conversion.
 
 The following builtin conversion functions are defined:
 
@@ -1788,8 +1799,9 @@ The following builtin conversion functions are defined:
 {\tt function int$x$~~~r = std \ttkey{int$x$}~~~( int$y$ v )} \\
 {\tt function float$x$~r = std \ttkey{float$x$}~( int$y$ v )} \\
 {\tt function float$x$~r = std \ttkey{float$x$}~( float$y$ v )}
-
+\begin{center}
 for any $x\geq y$ for which the types are builtin
+\end{center}
 \begin{indpar}
 For these conversion functions, no information is lost from
 the value when it is converted to the new type.  These conversions
@@ -1801,9 +1813,9 @@ can be \ikey{implied}{implied conversion}.
 {\tt function int$x$~~~r = std \ttkey{mod}~~~( uns$y$ v )} \\
 {\tt function int$x$~~~r = std \ttkey{mod}~~~( int$y$ v )}
 \ttindex{mod}
-
+\begin{center}
 for any $x$ and $y$ for which the types are builtin
-
+\end{center}
 \begin{indpar}
 These functions return a value equal to the argument
 modulo $2^x$.
@@ -1819,9 +1831,9 @@ modulo $2^x$.
 {\tt function float$x$~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
 {\tt function float$x$~~~r = std \ttkey{nearest}~~~( float$y$ v )}
 \ttindex{nearest}
-
+\begin{center}
 for any $x$ and $y$ for which the types are builtin
-
+\end{center}
 \begin{indpar}
 These functions round the argument to the nearest value (ties to even)
 of the result type if the result must have less precision than the argument.
@@ -1849,7 +1861,9 @@ numbers via:
 {\tt function float$x$~~~r = std \ttkey{ceiling}~~~( float$x$ v )} \\
 {\tt function float$x$~~~r = std \ttkey{floor}~~~~~( float$x$ v )}
 
+\begin{center}
 for any $x$ for which the types are builtin
+\end{center}
 \begin{indpar}
 These functions round to nearest (ties to even),
 round up, and round down respectively.
@@ -1877,7 +1891,9 @@ for qualifier details.
 {\tt function \TT{*UNCHECKED*} float$x$~r =~%
 	\ttmkey{float$x$}{conversion function}~( int$x$ v )}
 
+\begin{center}
 for any $x$ for which the types are builtin
+\end{center}
 \begin{indpar}
 These functions just return the $x$-bit value of \TT{v}
 unchanged except for giving it a different type.
@@ -1907,7 +1923,6 @@ that is used to denote a number.  The syntax is:
 \\[0.5ex]
 \emkey{decimal-constant} \begin{tabular}[t]{@{}rl@{}}
                          ::= & {\em decimal-lexeme} \\
-			 $|$ & {\em decimal-body-lexeme} ~ {\em exponent} \\
 			 $|$ & {\em decimal-constant-prefix} ~
 			       {\em decimal-quoted-body} ~
 			       {\em exponent}\QMARK{}
@@ -1966,7 +1981,7 @@ that is used to denote a number.  The syntax is:
                {\em hexadecimal-quoted-body} ~
 	       {\em exponent}\QMARK{}
 \\[0.5ex]
-\emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{B}
+\emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{X}
 \\[0.5ex]
 \emkey{hexadecimal-quoted-body} :::= \TT{"} {\em hexadecimal-integer} ~
 				     {\em hexadecimal-fraction}\QMARK{} \TT{"}
@@ -2074,8 +2089,8 @@ may be defined as desired: see \itemref{IMPLIED-CONVERSION-FUNCTIONS}.
 \end{indpar}\label{DEFINED-TYPE-UNCHECKED-CONVERSION}
 
 
-\subsection{Enumeration Values}
-\label{Enumeration-VALUES}
+\subsection{Enumeration Types}
+\label{ENUMERATION-TYPES}
 
 An \key{enumeration type} is a defined type whose values are
 integers assigned to \skey{enumeration constant}s.
@@ -2388,8 +2403,8 @@ compile and link values of a given enumeration type
 can be assumed to be the same if \underline{all} values
 of that enumeration type are assigned in the a single compilation module.
 
-\subsection{Enumeration Sets and Lists}
-\label{Enumeration-Sets-And-Lists}
+\subsection{Enumeration Set and List Types}
+\label{ENUMERATION-SET-AND-LIST-TYPES}
 
 An \key{enumeration set} is a set of enumeration values.
 An \key{enumeration list} is a list of enumeration values.  The syntax

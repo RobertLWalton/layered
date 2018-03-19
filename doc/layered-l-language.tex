@@ -1244,11 +1244,9 @@ the statement ending block.
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
 
-When a function call to an inline function or a generic call to
-a generic is compiled,
+When a function call to an inline function is compiled,
 the context of the compilation is \underline{not} the current context but
-rather the context of the inline function or generic
-declaration.
+rather the context of the inline function declaration.
 Also the context in which any default expression provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.

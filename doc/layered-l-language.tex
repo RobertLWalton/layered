@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 15, 2018
+March 18, 2018
  
 \end{center}
 
@@ -273,7 +273,7 @@ the following character classes:
     $|$ & {\em form-feed} $|$ {\em vertical-tab}
     \end{tabular}
 \\
-\emkey{space-character} ::= {\em horizontal-space-character}
+\emkey{space-character} :::= {\em horizontal-space-character}
                         $|$ {\em vertical-space-character}
 \\[1ex]
 \emkey{graphic-character} :::= characters in UNICODE categories
@@ -318,12 +318,11 @@ the following character classes:
 
 Comments may be placed at the ends of lines:
 \begin{indpar}
-\emkey{comment} :::=
+\emkey{comment}\label{COMMENT} :::=
     \TT{//} {\em comment-character}\,$^\star$
 \\[1ex]
 \emkey{comment-character} :::= {\em graphic-character}
                           $|$ {\em horizontal-space-character}
-\label{COMMENT}
 \end{indpar}
 
 Lexemes may be separated by {\em white-space}, which
@@ -339,7 +338,7 @@ but, with some exceptions mentioned just below, is not itself a lexeme:
 
 One kind of {\em horizontal-space} is given special distinction:
 \begin{indpar}
-\emkey{indent} ::=
+\emkey{indent}\label{INDENT} ::=
 	\begin{tabular}[t]{l}
         {\em horizontal-space} just before the first \\
 	{\em graphic} character on a line
@@ -356,7 +355,7 @@ Indent lexemes are used to form logical lines and blocks
 
 One kind of {\em vertical-space} is given special distinction:
 \begin{indpar}
-\emkey{line-break} ::=
+\emkey{line-break}\label{LINE-BREAK} ::=
 	\begin{tabular}[t]{l}
         {\em vertical-space} containing exactly one {\em line-feed}
 	\end{tabular}
@@ -497,6 +496,14 @@ warning messages.
 \\[0.5ex]
 \emkey{mark} :::= {\em middle-lexeme} that is not a {\em word} or
 		  {\em number}
+\\[0.5ex]
+{\em indent} ::= see \pagref{INDENT}
+\\[0.5ex]
+{\em line-break} ::= see \pagref{LINE-BREAK}
+\\[0.5ex]
+{\em comment} ::= see \pagref{COMMENT}
+\\[0.5ex]
+{\em end-of-file} ::= see \pagref{END-OF-FILE}
 
 \end{indpar}
 \caption{L-Langauge Program Lexemes}
@@ -515,8 +522,8 @@ The symbol `\ttmkey{::=}{in syntax equation}'
 is used in syntax equations that define sequences of lexemes that may
 and sometimes must be separated by {\em white-space}.
 
-There is a special \emkey{end-of-file} lexeme that occurs only at the
-end of a file.
+There is a special \emkey{end-of-file}\label{END-OF-FILE}
+lexeme that occurs only at the end of a file.
 
 Files are scanned into sequences of lexemes which are then divided
 into logical lines as per \itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}.
@@ -631,10 +638,6 @@ this is a top level logical line ending with a block:
     this is the fourth line
             of the block:
         this is the only line of the second subblock
-      this line has erroneous indent as its indent
-           is less that the second subblock indent
-           but greater than the indent of the line
-           that contains the second subblock
     this is the fifth line of the block
          and it ends with an empty subblock:
 this is the second top level
@@ -840,23 +843,22 @@ The L-Language uses several kinds of names:
 	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
 \emkey{function-term-name} ::= {\em name} \\
-\emkey{initial-function-term-name} ::=
-    \begin{tabular}[t]{@{}l@{}}
-    {\em function-term-name} that can appear \\
-    at the beginning of a {\em statement};
-    see \pagref{INITIAL-FUNCTION-TERM-NAME}
+\emkey{function-variable-name} ::=
+    \begin{tabular}[t]{@{}p{4in}@{}}
+    {\em function-term-name} $N$ that appears in a {\em function-prototype}
+    of the form `{\tt function $N$ = \ldots};
+    see \pagref{FUNCTION-VARIABLE-NAME}
     \end{tabular}
 
 where
 \begin{enumerate}
-\item A {\em type-name} should not be an initial segment of
-a {\em variable-base-name} or of
-an {\em initial-function-term-name}.
+\item
+A {\em qualifier-name} or {\em type-name} must not be an initial segment
+of a {\em name} $N$ that might begin a {\em statement} of
+the form `{\tt $N$ = \ldots}'.  Examples of such names $N$
+are {\em deferred-result-variables} (\pagref{DEFERRED-RESULT-VARIABLE})
+and {\em function-variable-names} (\pagref{FUNCTION-VARIABLE-NAME}).
 \label{TYPE-NAME-RULE}
-\item A {\em qualifier-name} should not be an initial segment
-of a {\em type-name},
-of a {\em variable-base-name},
-or of an {\em initial-function-term-name}.
 \item
 A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
 may not begin with the word `\TT{next}' or `\TT{previous}' or
@@ -868,7 +870,7 @@ reserved for use by the compiler.
 \item
 {\em Name-items} beginning with `\TT{..}' (possibly followed by more
 `\TT{.}'s) are reserved
-for use by systems and compilers (e.g., \TT{..size} in the last example).
+for use by systems and compilers (e.g., `\TT{..size}').
 \end{enumerate}
 \end{indpar}
 
@@ -967,17 +969,6 @@ Abbreviation replacement occurs after
 {\em type-names}, {\em variable-base-names}, and
 {\em member-names} have been identified by the compiler.
 
-Thus the following example:
-\begin{indpar}\begin{verbatim}
-    x 1 ---> `x'
-    .foo ---> `.fee'
-    int64 y = x 1 .foo + 10
-        // Same as: std int64 y = (x.fee) "+" (10)
-    y 1 ---> `y'
-    bool z = y 1 is in { 1 .. 100 }
-        // Same as: std bool z = std (y) is in ({ 1 .. 100 })
-\end{verbatim}\end{indpar}
-
 Abbreviations are never external (\pagref{EXTERNAL}),%
 \label{ABBREVIATIONS-ARE-NOT-EXTERNAL}
 even if they begin with a {\em module-abbreviation}.
@@ -987,21 +978,33 @@ never extends beyond the file in which they are declared.
 Some examples are:
 \begin{indpar}\begin{verbatim}
 int32 ---> `std int32'
-    // Builtin type abbreviation
+uns64 ---> `std uns64'
+    // Builtin type abbreviations
 *UNCHECKED*  ---> `std *UNCHECKED*'
     // Builtin qualifier abbreviation
+
 *UNCHECKED* int32 x 1 = 99
     // Same as: std *UNCHECKED* std int32 x 1 = 99
 .foo ---> `fee'
     // Illegal: `fee' does not begin with `.'.
-"+" ---> `std int64'
+"+" ---> `std int62'
     // Illegal: `"+"' is not allowed as a type name.
-std ---> `std *UNCHECKED*'
-    // Illegal: `std' would be a qualifier name that is
-    // an initial segment of the type name `std uns64'.
+
 int64 unsigned ---> `uns64'
 int64 unsigned z = 9 + 7
     // Legal, same as: std uns64 z = (9) "+" (7)
+    // Matches function prototype:
+    //   function std uns64 r =
+    //       std (std uns64 v1) "+" (std uns64 v2)
+    // unless another function with prototype:
+    //   function std uns64 r =
+    //       (std uns64 v1) "+" (std uns64 v2)
+    // is defined.
+
+x 1 ---> `x'
+.foo ---> `.fee'
+int64 y = x 1 .foo + 10
+    // Same as: std int64 y = (x.fee) "+" (10)
 \end{verbatim}\end{indpar}
 
 Abbreviation is recursive: an {\em abbreviation-replacement} can
@@ -2043,12 +2046,10 @@ Any {\em qualifiers} in the declaration are attached to every
 variable or argument declared to have the defined type (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
 
-No {\em type-name} may be a prefix of another {\em type-name}, a
-{\em variable-name}, or the first {\em function-term-name} of a 
-{\em function-prototype} if that {\em function-term-name} does not
-follow an \TT{=} sign or {\em argument-list} in the prototype.
-No qualifier name may be a prefix of a type name.
-No type name may begin with `\TT{next}'.
+No {\em type-name} may be a prefix of
+any {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
+or any {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME}).
+See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 
 A value of a defined type may be converted to or from its base
 type by the
@@ -3298,8 +3299,11 @@ The qualifiers may be declared by:
 where
 \begin{enumerate}
 \item
-No {\em qualifier-name} may be a prefix of another {\em qualifier-name},
-or of any {\em type-name}, or of any {\em initial-function-term-name}.
+No {\em qualifier-name} may be a prefix of
+any {\em type-name},
+any {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
+or any {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME}).
+See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
 No qualifier name may begin with `\TT{next}'
 or `\TT{previous}'.
@@ -4804,6 +4808,11 @@ include {\em deferred-result-variables}.
 {\em Assignment-statements} that set {\em deferred-result-variables}
 are called `\skey{deferred assignment}s'.
 
+No {\em qualifier-name} or {\em type-name} may be a prefix of
+a {\em variable-name} used as a
+{\em deferred-result-variable}.
+See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
+
 The code must be such that every deferred variable is given a value
 by at most one deferred assignment, and if not a `\TT{next}' variable,
 is given a value by a deferred assignment before the variable is read.
@@ -5608,12 +5617,10 @@ The syntax is:
 \\[0.5ex]
 \emkey{function-term-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \\[0.5ex]
-\emkey{initial-function-term-name}\label{INITIAL-FUNCTION-TERM-NAME} ::=
-    \begin{tabular}[t]{@{}l@{}}
-    first {\em function-term-name} in any {\em function-pattern} \\
-    that does not begin with a {\em pattern-argument-list} \\
-    and does not follow an \TT{=} in the {\em function-prototype} \\
-    (an {\em initial-function-term-name} may begin a {\em statement}) \\
+\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
+    \begin{tabular}[t]{@{}p{4in}@{}}
+    {\em function-term-name} $N$ that appears in a {\em function-prototype}
+    of the form `{\tt function $N$ = \ldots}
     \end{tabular}
 \\[0.5ex]
 \emkey{pattern-argument-list} ::= {\em regular-argument-list}
@@ -5713,9 +5720,9 @@ A {\em function-prototype} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em function-prototype}.
 \item
-An {\em initial-function-term-name}
+An {\em function-variable-name}
 should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
-(see Rule \ref{TYPE-NAME-RULE} on \pagref{TYPE-NAME-RULE}).
+See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
 \TT{"="} cannot be used as a {\em function-term-name}
 in a {\em function-prototype}.
@@ -6336,7 +6343,7 @@ unknown type, the {\em function-prototype} must have result variables
 else the call-prototype match fails.
 The type and qualifiers of the first
 {\em function-prototype} result variable become the natural
-type and qualifiers (\pagref{NATURAL_TYPE})
+type and qualifiers (\pagref{NATURAL-TYPE})
 of the {\em function-call} expression if
 the match ultimately is accepted according to the rules below.
 

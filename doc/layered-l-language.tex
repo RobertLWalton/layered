@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 18, 2018
+March 19, 2018
  
 \end{center}
 
@@ -1068,7 +1068,7 @@ of \skey{declaration}s:
 
 Declarations declare {\em names} and {\em function-prototypes}.
 An {\em assignment-statement} is also a {\em declaration} of
-its result variable {\em names}.
+its result {\em variable-names}.
 
 {\em Names} shared between modules begin with {\em module-abbreviations}
 that designate the module in which the name is declared.
@@ -1233,14 +1233,25 @@ the {\em declaration} is not inside any block.
 The scope of a {\em name} or {\em function-prototype}
 is the scope of the declaration that defines it.
 
+In a {\em statement} that ends with a block
+(e.g., see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}),
+any result {\em variable-names} or {\em block-names} declared by
+the part of the statement before the statement ending block behave as if this
+initial part of the statement were a separate declaration outside
+and immediately preceeding
+the statement ending block.
+
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
 
-When a function call to an inline function is compiled, or the
-default expressions of function prototype are compiled,
+When a function call to an inline function or a generic call to
+a generic is compiled,
 the context of the compilation is \underline{not} the current context but
-rather the context of the inline function declaration or of the function
-prototype containing the default expression.
+rather the context of the inline function or generic
+declaration.
+Also the context in which any default expression provided by a declaration
+is compiled is the \underline{not} the current context but
+rather the context of that declaration.
 
 However code included by an `\TT{include}' statement
 (\itemref{INCLUDES}) \underline{is} compiled in the current context.
@@ -1285,20 +1296,14 @@ the scope of `{\tt v}', so the smallest containing block of
 `{\tt v}' is not the same as the smallest containing block of
 `\TT{next} {\tt v}'.
 
-In a {\em statement} that ends with a block,
-any result variable names or block names declared by
-the part of the statement before that block are declared
-outside the block (\pagref{BLOCK-ASSIGNMENT-STATEMENTS}).
-{\em Block-names} follow the same rules as other {\em names},
-and can hide or be hidden by other kinds of {\em names}.
-
 {\em Function-prototypes} cannot hide each other.  If the
 current scope contains two declarations whose prototypes
 both match a {\em function-call}, the call is ambiguous and
 in error, even if the scope of one declaration is within
 a subblock of the scope of the other.
 As a consequence, it may be unwise to place function declarations
-within assignment statements that have the context option.
+within inline functions or
+assignment statements that have the context option.
 
 A declaration not inside a block is said to be `\key{top level}'.
 

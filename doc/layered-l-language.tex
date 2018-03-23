@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 19, 2018
+March 22, 2018
  
 \end{center}
 
@@ -3603,7 +3603,7 @@ float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
 \label{EXPRESSION-SYNTAX}
 
 The operators that can appear in an expression in approximate
-precedence order (lowest precedence first) are:
+precedence order (lowest precedence topmost) are:
 
 \begin{center}
 
@@ -3651,7 +3651,8 @@ bitwise operators
 \begin{indpar}
 
 However precedence is only a rough guide to the syntax of L-Language
-operators.  Also there is no unary \TT{-} operator.
+operators.  Also unary \TT{+} and \TT{-} operators have the
+same precedence as the binary \TT{+} and\TT{-} operators.
 
 Two operators are said to be mixed in an expression if neither is
 inside a parenthesized subexpression that does not contain the other.
@@ -3809,6 +3810,7 @@ The precise syntax of expressions is:
 		 {\em primary-item}\PLUS{} \}\STAR{} \\
 	      {\em argument-list}\STAR{} \\
 	      \end{tabular} \\
+    $|$ & {\em argument-list} {\em argument-list}\PLUS{} \\
     $|$ & {\em bracketed-constant}
     \end{tabular}
 \\[0.5ex]
@@ -3896,8 +3898,9 @@ to match the {\em primary} to a {\em function-prototype}.
 
 \subsection{Expression Semantics}
 
-Expressions provide standard operators on numbers plus logical and
-memory reference operators.
+Expressions provide standard operators.  Expressions are compiled
+into function calls, and builtin functions
+implement logical and numeric operators.
 
 \subsubsection{Expression Typing}
 \label{EXPRESSION-TYPING}
@@ -3940,7 +3943,7 @@ case of function arguments, by the argument type specified in the
 function prototype.
 
 The target type of a {\em logical-expression} or a {\em comparison-expression}
-must be \TT{bool}.
+is \TT{bool}.
 
 In some cases the target type is specified by special rules.  The
 target type of {\em comparison-operands} is specified by special
@@ -3964,15 +3967,9 @@ When an expression has a natural type, it also has natural qualifiers
 that are found with the natural type.
 
 If there is no target type because an expression is being used
-as an assignment statement with no result variables, then
-the expression is in error and will not be compiled.
-The only exception to this rule
-is evaluation of function calls.  If a function call has no
-result variables, there may be greater ambiguity because the
-type of the first result variable cannot be used to discard function
-prototypes (see `conversion deficient', \pagref{CONVERSION-DEFICIENT}),
-but if there is no ambiguity for a particular
-function call, that call will be compiled.
+as a {\em simple-assignment-statement} with no result variables, then
+the expression must be a {\em function-call} and can only match
+{\em function-prototypes} that have no result variables.
 
 \subsubsection{Evaluation Order}
 \label{EVALUATION-ORDER}
@@ -4090,7 +4087,7 @@ are not evaluated.
 Note that a comparison operator may not have a negation that is
 also simply a comparison operator, e.g., \TT{>=} may not be the
 negation of \TT{<}.  For example, both return \TT{false} if an
-operand is \TT{NaN}.  For this reason `{\tt x < y}' and
+operand is \TT{NaN}.  For this reason `{\tt x >= y}' and
 `{\tt not ( x < y )}' are treated as semantically different
 expressions.
 
@@ -4146,6 +4143,7 @@ defined by library code.
 There is a `\key{floating point error register}' that holds
 floating point error flags that may be set by floating point
 arithmetic and comparison operations.  These flags are `\key{sticky}', in that
+arithmetic and comparison
 operations may set them but may never clear them.  There are also
 special builtin functions to manipulate these flags
 (\itemref{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}).
@@ -4212,7 +4210,7 @@ do \underline{not} set the invalid operand flag.
 
 Results may be denormalized numbers.  Except for compares,
 when an operand to an arithmetic operation is a denormalized
-number, it is treated as zero.
+number, it is treated as a signed zero.
 
 The operator
 \TT{\textasciicircum} is \underline{not} builtin and must be

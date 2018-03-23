@@ -1275,7 +1275,7 @@ the larger scope includes the whole statement:
     & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
 {\em compile-and-run-assignment-statement} with context option
     & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
-\end{tabular}
+\end{tabular}\label{HIDING-EXCEPTIONS}
 \end{center}
 
 As an exception to the last rule, the declaration with the
@@ -4686,7 +4686,8 @@ result variables acts as a declaration of these variables,
 and the scope of this declaration includes any block that may
 consitute the {\em assignment-right-side}.
 Result variables are not allowed to hide (\pagref{HIDE})
-other {\em name} declarations except as specified in \itemref{SCOPE}.
+other {\em name} declarations with exceptions listed on
+\pagref{HIDING-EXCEPTIONS}.
 
 However, if an assignment statement has a {\em next-variable-declaration}
 that uses the word `\ttkey{next}'\label{NEXT} in
@@ -4842,8 +4843,8 @@ Any result variables in a {\em block-assignment-statement}
 are called `\skey{deferred variable}s' because they do not
 immediately get a value.  They are assigned values by
 {\em assignment-statements} within the block
-in which {\em result-variable-declara\-tions}
-include {\em deferred-result-variables}.
+whose {\em result-variable-declara\-tions}
+include {\em deferred-result-variables}:
 \begin{indpar}
 \emkey{deferred-result-variable}\label{DEFERRED-RESULT-VARIABLE} ::=
     {\em variable-name} $|$ \TT{next} ~ {\em variable-name}
@@ -4856,24 +4857,19 @@ a {\em variable-name} used as a
 {\em deferred-result-variable}.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 
+Variables declared in the block may not hide (\pagref{HIDE})
+variables declared outside the block, including the result
+variables of the block, with exceptions listed on
+\pagref{HIDING-EXCEPTIONS}.
+
 The code must be such that every deferred variable is given a value
 by at most one deferred assignment, and if not a `\TT{next}' variable,
 is given a value by a deferred assignment before the variable is read.
-
-A variable allocated within the block is not visible outside the
-block, but may \underline{not} have the same name as any variable
-allocated outside the block that is visible in the block
-(this includes the block's deferred variables).\footnote{
-This is more restrictive than other block structured
-languages such as C.}.  The name `{\tt next v}' \underline{cannot}
-be given a value inside the block if {\tt v} is a variable allocated
-outside the block, except for the case that `{\tt next v}' is a
-block result variable.  In this last case, the name `{\tt v}' used
-inside the block before `{\tt next v}' is assigned a value refers
-to the value of `{\tt v}' at the beginning of the block, and the
-name `{\tt v}' used inside the block after `{\tt next v}' is assigned
-a value refers to the value assigned to `{\tt next v}'.  See
-the following example.
+If a deferred variable is of the form `{\tt next v}', then {\tt v}
+may be used in the block to refer to the variable value assigned
+outside and before the {\em block-assignment-statement}, up to
+the point where `{\tt next v}' is assigned a value in the block.
+After that point {\tt v} refers to the value assigned to `{\tt next v}'.
 
 An example of a {\em block-assignment-statement} is:
 \begin{indpar}\begin{verbatim}
@@ -4973,8 +4969,6 @@ int32 z = do BLOCK1:
         exit BLOCK2 if false
         z = 55
         exit BLOCK1
-    do BLOCK3:
-        exit BLOCK3
 \end{verbatim}\end{indpar}
 
 and therefore has no compiler errors.

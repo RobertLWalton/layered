@@ -4646,7 +4646,9 @@ these variables.
 The {\em assignment-right-side} produces a list of values,
 and this list must have
 at least as many elements as there are result variables.
-Result variables are assigned their values in parallel, after the
+If the {\em assignment-right-side} is a list of {\em expressions},
+and not a {\em block},
+the result variables are assigned their values in parallel, after the
 {\em assignment-right-side} has been completely evaluated.
 If the {\em assignment-right-side} produces
 too many values, the excess values at the end of the value list are
@@ -4679,21 +4681,24 @@ the type of a {\em function-prototype} result variable
 for a {\em function-call} that is the {\em assignment-right-side}
 (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
 
-The code of a function is organized into blocks.
-Two variables allocated in the same block of code may not have the same
-name, even if one is allocated in a subblock of the block allocating
-the other.
-Thus variables are only assigned values once within a function.
+A list of {\em assignment-statement}
+result variables acts as a declaration of these variables,
+and the scope of this declaration includes any block that may
+consitute the {\em assignment-right-side}.
+Result variables are not allowed to hide (\pagref{HIDE})
+other {\em name} declarations except as specified in \itemref{SCOPE}.
 
 However, if an assignment statement has a {\em next-variable-declaration}
 that uses the word `\ttkey{next}'\label{NEXT} in
 place of the {\em qualifier-names} and {\em type-name}
 of a result variable being assigned a value, then the named variable must
 have been previously assigned a value within the same smallest containing block,
-and a new variable with the same qualifiers, type, and name
+a new variable with the same qualifiers, type, and name
 as the previous variable is allocated,
 and the new variable supersedes the previous variable
-in subsequent code within the block.
+in subsequent code within the block.  Thus if {\tt v} is the name
+of a variable declared in a block, then after {\tt next v} is
+assigned, {\tt v} refers to the value assigned to {\tt next v}.
 
 See the example in \itemref{SIMPLE-ASSIGNMENT-STATEMENTS}, and
 the more detailed discussion in 
@@ -4704,15 +4709,11 @@ the name of
 a {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
 or an {\em iteration-result-variable} (\pagref{ITERATION-RESULT-VARIABLE}).
 
-The {\em result-variables} may be completely omitted in most forms
+The {\em result-variables} may be completely omitted in most some
 of {\em assignment-statements}.  Because these statements still have
 the form and semantics of statements that could have result variables,
-we call them `{\em assignment-statements}' even thought they allocate
+we call them `{\em assignment-statements}' even though they allocate
 and assign no result variables.
-
-Sometimes assignment statements with no explicit
-result variables have implied `\TT{next}' result variables:
-see \pagref{IMPLIED-NEXT-VARIABLES}.
 
 There are also statements that have the form:
 \begin{center}
@@ -4745,15 +4746,8 @@ values is the list of values assigned to the list of result variables.
 The {\em expressions} are evaluated in left to
 right order, and all the {\em expressions} are evaluated before any of
 the result variables are given values.
-
-There must be at least as many {\em expressions} as there are result
-variables.  If there are too many {\em expressions}, the values of the
-extra {\em expressions} are discarded, and these extra {\em expressions} 
-may be completely or partly optimized away, never compiled, and never executed.
-See section \itemref{OPTIMIZATION}.
-However function calls are never optimized away, although if they are
-to inline functions, the function body code that replaces the function
-call may be optimized away.
+In this case there must be the same number of {\em expressions}
+in the {\em expression-list} as their are result variables.
 
 An {\em expression} may only input values that are constants,
 the values of variables in the same function execution
@@ -4780,6 +4774,10 @@ and that is a {\em function-call}, the types the result variables
 are matched to the types of the {\em function-prototype} result
 variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
 
+If the {\em result-variable-list} is omitted, the
+{\em assignment-right-side} must be a {\em function-call} that
+matches a {\em function-prototype} with no result variables.
+
 Some examples of {\em simple-assignment-statements} are:
 \begin{indpar}\begin{verbatim}
 int32 x = 1
@@ -4796,6 +4794,7 @@ float32 m = 1.7
 int64 i = m             // ILLEGAL!  Undefined implicit
                         // conversion from float32 to int64.
 int32 j = nearest ( m ) // now j == 2 (round to nearest)
+int32 y = x + y         // ILLEGAL! y hides y.
 \end{verbatim}\end{indpar}
 
 \subsection{Block Assignment Statements}

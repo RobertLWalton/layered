@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 22, 2018
+March 23, 2018
  
 \end{center}
 
@@ -4277,8 +4277,14 @@ the $bI$ evaluate to \TT{true}, $e$ is evaluated and returned as the result.
 
 The target type of each $bI$ is \TT{bool} and the target type of each
 $eI$ is the target type of the {\em selection-expression}.
-Only one of the $eI$ is evaluated.  If any $bI$ is a compile time
+Only one of the $eI$ is evaluated.
+
+If any $bI$ is a compile time
 \TT{false} value, the associated $eI$ is not compiled or checked
+for compile errors.
+If any $bI$ is a compile time
+\TT{true} value, the subsequent $bJ$'s and their associated $eJ$'s
+are not compiled or checked
 for compile errors.
 \end{indpar}
 
@@ -4330,7 +4336,7 @@ compile time \TT{true} value, the remaining $bI$ are not compiled
 or checked for compile errors.
 \end{indpar}
 
-\TT{not $e1$ $cop1$ $e2$ $cop2$ $e3$ \ldots{}}
+\TT{not ( $e1$ $cop1$ $e2$ $cop2$ $e3$ \ldots{} )}
 \hfill [{\em logical-expression}]
 \begin{indpar}
 where the $copI$ are comparison operators chosen from the list
@@ -4352,7 +4358,14 @@ No $eI$ is evaluated more than once, though the value of some $eI$
 may be used more than once.
 
 The target type $T$ of the expressions $eI$ is selected as
-per \itemref{COMPARISON-EXPRESSIONS}.
+per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
+function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
+Builtin comparison operators are defined for all implemented
+numeric types.
+
+If $eI$, $e(I+1)$, and `{\tt $eI$ "$copI$" $e(I+1)$}' can be evaluated
+at compile time and evaluate to \TT{false}, subsequent
+$eJ$ are not compiled or checked for compile errors.
 \end{indpar}
 
 \TT{not $b$}
@@ -4389,6 +4402,12 @@ may be used more than once.
 The target type $T$ of the expressions $eI$ is selected as
 per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
 function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
+Builtin comparison operators are defined for all implemented
+numeric types.
+
+If $eI$, $e(I+1)$, and `{\tt $eI$ "$copI$" $e(I+1)$}' can be evaluated
+at compile time and evaluate to \TT{false}, subsequent
+$eJ$ are not compiled or checked for compile errors.
 \end{indpar}
 
 \TT{! $e1$}
@@ -4406,9 +4425,9 @@ Each function call
 been evaluated, so the operators (other than \TT{!}) are
 also evaluated left to right.
 
-The target type of the $eI$ is the target type of the
-{\em bitop-expression} and must \underline{not} be floating
-point number type.
+The target type $T$ of the $eI$ is the target type of the
+{\em bitop-expression}.  Builtin bitop operators are defined
+for all implemented integer numeric types.
 \end{indpar}
 
 \TT{$e1$ $shop1$ $e2$ $shop2$ $e3$ \ldots{}}
@@ -4422,10 +4441,11 @@ Each function call
 been evaluated, so the operators are
 also evaluated left to right.
 
-The target type of $e1$ is the target type of the
-{\em bitop-expression} and must \underline{not} be floating
-point number type.
+The target type $T$ of $e1$ is the target type of the
+{\em bitop-expression}.
 The target type of $e2$, $e3$, \ldots{} is \TT{unswrd}.
+Builtin bitop operators are defined
+for all implemented integer numeric types $T$.
 If $T$ is an integer type of size $x$,
 the value of the shift for $shopI$
 is $e(I+1)$ is taken modulo $2^x$.
@@ -4446,6 +4466,8 @@ also evaluated left to right.
 
 The target type of the $eI$ is the target type of the
 {\em summation-expression}.
+Builtin summation operators are defined
+for all implemented numeric types $T$.
 \end{indpar}
 
 \TT{$e1$ * $e2$ * $e3$ \ldots{}}
@@ -4464,10 +4486,14 @@ been evaluated, so the operators are
 also evaluated left to right.
 
 The target type $T$ of the $eI$ is the target type of the
-{\em product-expression}.  For \TT{div} and \TT{rem}, $T$ may
-\underline{not} be a floating point number type.
-For \TT{/}, $T$ may \underline{not} be an integer type.
-If $T$ is an integer type, it must have size at least 32 bits.
+{\em product-expression}.
+Builtin \TT{"*"} and \TT{mod} operators are defined
+for all implemented numeric types $T$.
+Builtin \TT{div} and \TT{rem} operators are defined
+for all implemented integer numeric types $T$ with size
+at least 32 bits.
+Builtin \TT{"/"} operators are defined
+for all implemented floating point numeric types $T$.
 
 \end{indpar}
 
@@ -4481,7 +4507,9 @@ as soon as its operands have
 been evaluated.
 
 The target type $T$ of the $eI$ is the target type of the
-{\em exponential-expression}.
+{\em exponential-expression}.  \underline{No} builtin
+\TT{"\textasciicircum"} operators are defined.
+
 
 \end{indpar}
 
@@ -4493,7 +4521,7 @@ where $ma$ is a {\em module-abbreviation}.
 
 $ma$ is prefixed to the unparenthesized
 operators whenever they are used according to the above
-rules.
+rules.  This is done by the parser, and not the compiler.
 
 For example,
 \begin{center}
@@ -4519,7 +4547,7 @@ is equivalent to the above example.
 \begin{indpar}
 where $Qs$ are zero or more {\em qualifier-names} and $T$ is a {\em type-name}.
 
-If the {\em subexpression} can be treated as a call to a
+If the {\em subexpression} can be compiled as a call to a
 user defined function named $T$, it is evaluated as such with
 target type `$Qs$ $T$'.
 

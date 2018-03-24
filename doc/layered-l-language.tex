@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 23, 2018
+March 24, 2018
  
 \end{center}
 
@@ -5035,9 +5035,10 @@ will be \TT{true}, and the \TT{else} subblock will be evaluated to set
 the {\tt result} to a \TT{NaN}.
 
 There are a couple of special rules applying to
-{\em conditional-assignment=statements}:\label{CONDITIONAL-SPECIAL-RULES}
+{\em conditional-assignment-statements}:\label{CONDITIONAL-SPECIAL-RULES}
 
-\begin{indpar}
+\begin{itemize}
+\item
 If some of the {\em conditional-expressions} can be computed at compile
 time, subblocks that the compiler determines cannot execute are not
 compiled or checked for compiler errors (but the subblocks are parsed
@@ -5048,7 +5049,7 @@ at compile time, subblocks beyond that of this {\em conditional-expression}
 are not compiled.  And if a remaining {\em conditional-expression}
 evaluates to \TT{false} at compile time, the subblock of this
 {\em conditional-expression} is not compiled.
-\end{indpar}
+\end{itemize}
 
 For example, if a {\em conditional-assignment-statement}
 contained
@@ -5064,10 +5065,11 @@ and will not be checked for compile time errors.
 
 A second special rule is:
 
-\begin{indpar}
+\begin{itemize}
+\item\label{MISSING-ELSE-RULE}
 Missing `\TT{else}'s do not cause compile errors,
 but will cause run time errors if needed at run time.
-\end{indpar}
+\end{itemize}
 
 For example, the {\em conditional-assignment-statement}:
 \begin{indpar}\begin{verbatim}

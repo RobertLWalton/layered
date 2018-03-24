@@ -5135,8 +5135,8 @@ The \skey{iteration variable}s are the
 {\em result-variables} of the
 {\em assignment-statements} executed by the initialization subblock.
 Each iteration of the loop gives these variables new values using
-`{\tt next v}' to refer to the next value of {\tt v}, where {\tt v}
-is an iteration variable.  In the example `{\tt i}' and
+`{\tt next v}' to refer to the value of {\tt v} in the next iteration,
+where {\tt v} is an iteration variable.  In the example `{\tt i}' and
 `{\tt partial sum}' are iteration variables.
 
 An iteration subblock qualified by `\ttkey{while}'
@@ -5209,9 +5209,7 @@ iteration can be discarded, and so forth.
 Code in an initialization or iteration subblock cannot set
 deferred result variables outside the subblock (including loop block
 result variables), or contain \TT{exit} statements that have
-not block label.
-
-
+no block label.
 
 \subsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}

@@ -766,7 +766,7 @@ for use by systems and compilers (e.g., \TT{..size} in the example).
 
 Words ending with `\TT{\TMP$n$}', where $n$ is a {\em natural-number}, are
 reserved for use by the compiler and may not be used in names by the
-SAFE user.  For example, names of the form \TT{T\TMP$n$} are used as
+L-Language user.  For example, names of the form \TT{T\TMP$n$} are used as
 temporary variables introduced during compilation.
 
 Names can be computed at compile time:
@@ -4848,7 +4848,7 @@ Any result variables in a {\em block-assignment-statement}
 are called `\skey{deferred variable}s' because they do not
 immediately get a value.  They are assigned values by
 {\em assignment-statements} within the block
-whose {\em result-variable-declara\-tions}
+whose {\em result-variable-lists}
 include {\em deferred-result-variables}:
 \begin{indpar}
 \emkey{deferred-result-variable}\label{DEFERRED-RESULT-VARIABLE} ::=
@@ -4907,12 +4907,13 @@ If the {\em block-name} is not given, the smallest block containing
 the {\em exit-statement} is exited.
 
 The block exit may be conditional.  The compiler checks that
-every one of the block's deferred result variables is given a value
-by a deferred assignment statement, no matter whether conditional
-exits are taken or not.  However, if a {\em block-name} is given
-and the block being exited is not the smallest block containing
-the exit statement, the deferred result variables of this smallest
-block need not be given values.
+if non-conditional exits are taken and conditional
+exits are either taken or not, each one of the block's
+deferred variables is given a value by a single deferred assignment statement.
+However, if a {\em block-name} is given and the exit statement is in
+a subblock of the named block,
+the deferred variables of this subblock
+need not be given values.
 
 Examples of {\em exit-statements} are:
 
@@ -4940,7 +4941,7 @@ next v = do BLOCK1:
     next v = false          // ILLEGAL: next v set twice
 \end{verbatim}\end{indpar}
 
-SAFE parses all code, but does not compile statements that
+L-Language parses all code, but does not compile statements that
 cannot be reached from the beginning of the current top level
 statement (e.g., out-of-line function declaration).  Because
 of unconditional \TT{exit} statements, or \TT{exit} statements

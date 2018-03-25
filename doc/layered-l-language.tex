@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 24, 2018
+March 25, 2018
  
 \end{center}
 
@@ -4647,12 +4647,12 @@ The {\em assignment-right-side} produces a list of values,
 and this list must have
 at least as many elements as there are result variables.
 If the {\em assignment-right-side} is a list of {\em expressions},
-and not a {\em block},
+and not a {\em subblock},
 the result variables are assigned their values in parallel, after the
 {\em assignment-right-side} has been completely evaluated.
-If the {\em assignment-right-side} produces
-too many values, the excess values at the end of the value list are
-discarded.
+If the {\em assignment-right-side} is a {\em function-call} that produces
+too many values, the excess values are discarded.  Otherwise there must
+be exactly as many values as there are result variables.
 
 When a variable value is set, the value is implicitly first
 computed in a register, then stored in the current function
@@ -4683,7 +4683,7 @@ for a {\em function-call} that is the {\em assignment-right-side}
 
 A list of {\em assignment-statement}
 result variables acts as a declaration of these variables,
-and the scope of this declaration includes any block that may
+and the scope of this declaration includes any {\em subblock} that may
 consitute the {\em assignment-right-side}.
 Result variables are not allowed to hide (\pagref{HIDE})
 other {\em name} declarations with exceptions listed on
@@ -4698,8 +4698,8 @@ a new variable with the same qualifiers, type, and name
 as the previous variable is allocated,
 and the new variable supersedes the previous variable
 in subsequent code within the block.  Thus if {\tt v} is the name
-of a variable declared in a block, then after {\tt next v} is
-assigned, {\tt v} refers to the value assigned to {\tt next v}.
+of a variable declared in a block, then after `{\tt next v}' is
+assigned, {\tt v} refers to the value assigned to `{\tt next v}'.
 
 See the example in \itemref{SIMPLE-ASSIGNMENT-STATEMENTS}, and
 the more detailed discussion in 
@@ -4710,17 +4710,20 @@ the name of
 a {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
 or an {\em iteration-result-variable} (\pagref{ITERATION-RESULT-VARIABLE}).
 
-The {\em result-variables} may be completely omitted in most some
-of {\em assignment-statements}.  Because these statements still have
+The {\em result-variables} may be completely omitted if the
+{\em assignment-right-side} is a {\em subblock} or is a
+{\em function-call} matching a {\em function-prototype} that has
+no result variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+Because such statements still have
 the form and semantics of statements that could have result variables,
 we call them `{\em assignment-statements}' even though they allocate
 and assign no result variables.
 
-There are also statements that have the form:
+Also there are statements with the form:
 \begin{center}
 {\em function-call} ~ \TT{=} ~ {\em expression-list}
 \end{center}
-which are syntactic sugar for {\em function-call}
+which are syntactic sugar for a {\em function-call}
 in which the {\em expression-list} has been made into a function argument
 list and there are no result variables.
 {\em Function-calls} \underline{cannot} be used as result variables.
@@ -4750,6 +4753,16 @@ the result variables are given values.
 In this case there must be the same number of {\em expressions}
 in the {\em expression-list} as their are result variables.
 
+If the {\em expression-list} is a single {\em expression} that
+is a {\em function-call} which
+returns a list of values, this list of values is used.
+In this case the {\em function-call} may produce more values than
+there are result variables, and the excess values are discarded,
+as long as there is at least one result variable.
+if there are no result variables, the
+{\em function-call} must match a {\em function-prototype} that has
+no result variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+
 An {\em expression} may only input values that are constants,
 the values of variables in the same function execution
 frame (including arguments passed to the function execution), 
@@ -4762,10 +4775,6 @@ for ways to load RAM values into function frame variables.
 See Section~\itemref{STACK-MANAGEMENT} for more information about
 function frames.
 
-If the {\em expression-list} is a single {\em expression} that
-is a {\em function-call} which returns a list of values,
-this list of values is used.
-
 The value assigned to each result variable must be implicitly convertible to
 the variable's type.
 In the case that an {\em expression} is producing
@@ -4774,10 +4783,6 @@ type of the {\em expression}.  If there is only one {\em expression}
 and that is a {\em function-call}, the types the result variables
 are matched to the types of the {\em function-prototype} result
 variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
-
-If the {\em result-variable-list} is omitted, the
-{\em assignment-right-side} must be a {\em function-call} that
-matches a {\em function-prototype} with no result variables.
 
 Some examples of {\em simple-assignment-statements} are:
 \begin{indpar}\begin{verbatim}

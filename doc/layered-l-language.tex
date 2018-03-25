@@ -5040,7 +5040,7 @@ is a \TT{NaN}, none of the {\em conditional-expressions}
 will be \TT{true}, and the \TT{else} subblock will be evaluated to set
 the {\tt result} to a \TT{NaN}.
 
-There are a couple of special rules applying to
+There are two special rules that apply to
 {\em conditional-assignment-statements}:\label{CONDITIONAL-SPECIAL-RULES}
 
 \begin{itemize}
@@ -5051,7 +5051,8 @@ compiled or checked for compiler errors (but the subblocks are parsed
 and checked for parsing errors).
 
 Specifically, if a {\em conditional-expression} evaluates to \TT{true}
-at compile time, subblocks beyond that of this {\em conditional-expression}
+at compile time, subblocks beyond the subblock
+of this {\em conditional-expression}
 are not compiled.  And if a remaining {\em conditional-expression}
 evaluates to \TT{false} at compile time, the subblock of this
 {\em conditional-expression} is not compiled.
@@ -5085,7 +5086,7 @@ For example, the {\em conditional-assignment-statement}:
         y <= x:
             result = y
 \end{verbatim}\end{indpar}
-will suffer a run-time error if {\tt x} or {\tt y} are
+will suffer a run-time error if either {\tt x} or {\tt y} is
 a floating point \TT{NaN} at run-time.
 
 \subsection{Loop Assignment Statements}

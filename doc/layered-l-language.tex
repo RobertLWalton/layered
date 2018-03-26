@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 25, 2018
+March 26, 2018
  
 \end{center}
 
@@ -1229,6 +1229,12 @@ itself, and
 lasts to the end of smallest block containing the {\em declaration},
 or until the end of the file containing the {\em declaration} if
 the {\em declaration} is not inside any block.
+If the {\em declaration} is in a module, the scope of the
+{\em declaration} is extended to include all the bodies of that
+module.
+If the {\em declaration} is external, the scope of the
+{\em declaration} is extended to include all modules and
+bodies that import the module containing the {\em declaration}.
 
 The scope of a {\em name} or {\em function-prototype}
 is the scope of the declaration that defines it.
@@ -5769,7 +5775,7 @@ should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
 \TT{"="} cannot be used as a {\em function-term-name}
-in a {\em function-prototype}.
+in a {\em function-pattern}.
 \item
 All the result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -5794,7 +5800,7 @@ as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
 In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
-A {\em pattern-argument-list} that ends with `\TT{?}' is considered
+An {\em argument-declaration} that ends with `\TT{?}' is considered
 to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
 
 
@@ -5824,12 +5830,12 @@ two nested blocks instead of one block without actually replacing
 variable names in the {\em function-declaration} by temporary variable
 names.}
 
-A function call without any {\em result-variable-list}
-is just like a function call with an empty
+A {\em function-call} without any {\em result-variable-list}
+is just like a {\em function-call} with an empty
 {\em result-variable-list}.
 
-A function call with an {\em input-variable-list} is just syntactic
-sugar for a function call with neither a {\em result-variable-list}
+A {\em function-call} with an {\em input-variable-list} is just syntactic
+sugar for a {\em function-call} with neither a {\em result-variable-list}
 or {\em input-variable-list}.  Specifically
 \begin{center}
 {\tt F(a1,a2,...)~=~b1,b2,...} \\
@@ -5838,7 +5844,7 @@ is syntactic sugar for \\
 \end{center}
 
 in which a term with \TT{"="} as its {\em function-term-name} is
-placed at the end of the function call.
+placed at the end of the {\em function-call}.
 
 {\em Call-terms} correspond to {\em pattern-terms}.  {\em Call-terms}
 other than the first may be in a different order than their matching
@@ -5891,7 +5897,8 @@ An example is:
 int32 B = ...
 int32 C = ...
 context fooC = current context
-function int32 r = foo ( int32 x, int32 y ? B + C, bool z ? )
+function int32 r =
+        foo ( int32 x ) bar ( int32 y ? B + C, bool z ? )
     ... function body omitted ...
 
 int32 b 1 = ...
@@ -5900,7 +5907,7 @@ int32 f = foo ( b 1 )
     //     int32 tmp y, bool tmp z = do ( fooC ):
     //         tmp y = B + C
     //         tmp z = false
-    //     int32 f = foo ( b 1, tmp y, tmp z )
+    //     int32 f = foo ( b 1 ) bar ( tmp y, tmp z )
 \end{verbatim}\end{indpar}
 
 An {\em argument-declaration} can be a {\em type-argument-declaration}
@@ -6347,8 +6354,22 @@ because of an ambiguity error, the call-prototype match
 is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
 
+\item If the {\em function-call} has no result variables, the
+{\em function-prototype} must have no result variables,
+else the call-prototype match fails.
+
+\item If the {\em function-call} has one result variable of
+unknown type, the {\em function-prototype} must have result variables
+else the call-prototype match fails.
+The type and qualifiers of the first
+{\em function-prototype} result variable become the natural
+type and qualifiers (\pagref{NATURAL-TYPE})
+of the {\em function-call} expression if
+the match ultimately is accepted according to the rules below.
+
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
-If the {\em function-call} is in a statement of the form
+If the {\em function-call} has result variables of known type
+as in a statement of the form
 \begin{center}
 {\tt $QCs1$ $TC1$ $vc1$, $QCs2$ $TC2$ $vc2$, \ldots{}~=~}{\em function-call}
 \end{center}
@@ -6381,19 +6402,6 @@ convertible to $QCs1$ $TC1$ values), the match is marked
 and will be disallowed later
 if there is another match that is not conversion deficient.
 Note that only the first result variable is considered by this rule.
-
-\item If the {\em function-call} has one result variable of
-unknown type, the {\em function-prototype} must have result variables
-else the call-prototype match fails.
-The type and qualifiers of the first
-{\em function-prototype} result variable become the natural
-type and qualifiers (\pagref{NATURAL-TYPE})
-of the {\em function-call} expression if
-the match ultimately is accepted according to the rules below.
-
-\item If the {\em function-call} has no result variables, the
-{\em function-prototype} must have no result variables,
-else the call-prototype match fails.
 
 \end{enumerate}
 

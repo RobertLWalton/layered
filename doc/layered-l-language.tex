@@ -5653,6 +5653,19 @@ The syntax is:
 \emkey{first-input-argument-declaration} ::= {\em argument-declaration}
 	without a {\em default-value}
 \\[0.5ex]
+\emkey{argument-declaration}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
+          \TT{?} {\em default-value}\QMARK{} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
+          \TT{==} {\em required-value} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
+\\[0.5ex]
+\emkey{required-value} ::= {\em expression} with compile time value
+\\[0.5ex]
 \emkey{function-pattern}\label{FUNCTION-PATTERN}
     \begin{tabular}[t]{rl}
     ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
@@ -5683,12 +5696,6 @@ The syntax is:
     $|$ & \TT{[} {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{]} \\
     \end{tabular}
-\\[0.5ex]
-\emkey{argument-declaration}
-    ::= {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
-        \{ \TT{?} {\em default-value}\QMARK{} \}\QMARK{}
-\\[0.5ex]
-\emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[0.5ex]
 \emkey{qualifiers-type-argument-list} ::= \\
 \hspace*{0.2in}\TT{(|} {\em qualifiers-type-argument-declaration}

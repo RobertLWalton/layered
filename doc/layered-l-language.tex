@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 26, 2018
+March 30, 2018
  
 \end{center}
 
@@ -6447,83 +6447,248 @@ is accepted and used to compile the {\em function-call}.
 \end{enumerate}
 
 
-\section{Includes}
-\label{INCLUDES}
+\section{Generics}
+\label{GENERICS}
 
-An \key{include statement} invokes compile time code that
-generates code which replaces the include statement in the compiler
-input.  The statement has the form:
-
-
-\begin{indpar}
-\emkey{include-statement} ::=
-    \ttkey{include} {\em include-assignment-statement}
-\\[0.5ex]
-\emkey{include-assignment-statement} ::=
-    \begin{tabular}[t]{l}
-    {\em assignment-statement} without {\em result-variables} \\
-    completely executable at compile time
-    \end{tabular}
-\end{indpar}
-
-The {\em include-assignment-statement} is executed at
-compile time and contains \skey{include block}s that generate
-the code that replaces the {\em include-statement}.  These have
-the syntax:
-
-\begin{indpar}
-\emkey{include-block} ::=
-        \begin{tabular}[t]{l}
-	\ttkey{include}\TT{:} \\
-	~~~~~ {\em statement}\STAR{}
-	\end{tabular}
-\end{indpar}
-
-When executed at compile time the {\em include-block} statements
-are not executed but are added to the list of statements that
-will replace the invoking {\em include-statement}.  Before being
-added any abbreviations or variables in the statements that have
-compile time values within the context of the {\em include-block}
-are substituted for.  The compile time code executed by an
-{\em include-statement} may execute many {\em include-blocks},
-and the statements produced by these are concatenated in the
-order of block execution.
+A \key{generic} is an inline function that is completely
+evaluated at compile time and that contains special
+`\skey{include-statement}s' which generate code that replaces the generic call
+in the program.  Within the included code compile time values are substituted
+for `\skey{include-argument}s'.
 
 An example is:
 \begin{indpar}\begin{verbatim}
-function min-max functions ( type T )
-    include:
-        function T result = min ( T x, T y ):
+generic min-max ( name F, name C )
+    include (F, C):
+        function T result = F (| type T |) ( T x, T y ):
             result = if:
-                x <= y:
+                (x) C (y):
                     result = x
-                y <= x:
+                (y) C (x):
                     result = y
-                (T) is in floating-types:
-                        // Parenthesize T to prevent compiler
-                        // from treating it as the beginning
-                        // of a result variable declaration.
+                T is float:
                     result = NaN
-        function T result = max ( T x, T y ):
-            result = - min ( -x, -y )
 
-include min-max functions ( int64 )
+min-max functions ( `min', `"<="' )
 int64 u = ...
 int64 v = min ( u, -1,000,000 )
-int64 w = max ( u, 1,000,000 )
+min-max functions ( `max', `">="' )
+float64 w = ...
+next w = max ( w, -1,000,000 )
 \end{verbatim}\end{indpar}
 
-The special conditional assignment statement
-rules described on page \pageref{CONDITIONAL-SPECIAL-RULES}
-are applied here to enable \TT{T} to be any integer or
-floating point number type.
+Note that {\tt C} is a function call {\em function-term-name} and not
+an operator.
+Also if {\tt T is float} is \TT{false} the last condition statement
+clause is not compiled or checked for errors
+(\pagref{MISSING-ELSE-RULE}).
 
-Note that variables of type `\TT{type}' with compile-time
-values behave as {\em type-names} in the included code.
-Similarly variables of types `\TT{qualifier}',
-`\TT{qualifier-set}', and `\TT{qualifier-\EOL list}' behave
-as {\em qualifier-names}.
+The general syntax is:
+\begin{indpar}
+\emkey{generic-declaration}\label{GENERIC-DECLARATION}
+    ::= \begin{tabular}[t]{l}
+        {\em generic-prototype}\TT{:} \\
+	\TT{~~~~}{\em statement}\STAR{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{generic-prototype}\label{GENERIC-PROTOTYPE}
+    ::= \TT{generic} ~ {\em module-abbreviation}\QMARK{}
+                     ~ {\em function-pattern}
+\\[0.5ex]
+{\em function-pattern} ::= see \pagref{FUNCTION-PATTERN}
+\\[0.5ex]
+\emkey{generic-call} ::= {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
+\\[0.5ex]
+\emkey{include-statement} ::=
+    \begin{tabular}[t]{l}
+    \ttkey{include} ~ \begin{tabular}[t]{@{}l@{}}
+                      {\em include-name}\QMARK{}
+                          ~ {\em include-argument-list}\QMARK{} \\
+		      \{ \TT{if} ~ {\em compile-time-expression}
+		                 ~ \}\QMARK{} ~ \TT{:} \\
+		      \end{tabular} \\
+    \TT{~~}{\em statement}\STAR{}
+    \end{tabular}
+\\[0.5ex]
+\emkey{include-name} ::=
+    \begin{tabular}[t]{l}
+    {\em name} ~~~~~ [see \pagref{NAME}] \\
+    \underline{not} containing
+	`\TT{.}',~ {\em quoted-marks},~ {\em quoted-separators}, or `\TT{if}'
+    \end{tabular}
+\\[0.5ex]
+\emkey{include-argument-list} ::=
+    \TT{(} {\em include-argument} \{ \TT{,} {\em include-argument} \}\STAR{}
+    \TT{)}
+\\[0.5ex]
+\emkey{include-argument} ::= {\em word} not containing `\TT{.}'
+\end{indpar}
 
+A {\em generic-call} is executes at compile-time and generates a list
+of `\skey{included statement}s' that replace the {\em generic-call} in
+the compilation.  The included statements are the {\em statements}
+of the subblocks at the end of the {\em include-statements} executed
+by the called generic function.  If several {\em include-statements}
+are executed, the included statement lists they generate are concatenated
+in execution order.
+
+Within the included statements generated by an {\em include-statement}
+the values of the {\em include-state\-ment}'s
+{\em include-arguments} are substituted for the names of these
+arguments.  These values must be known at compile-time within the scope
+of the {\em include-statement}.  The substitutions depend on the
+type of the argument variables as follows:
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}\ttmkey{name}{include argument}
+The argument name is replace by the sequence of lexemes represented by
+the \TT{name}.  A {\em name-item} that has the syntax of a {\em word}
+or {\em number} lexeme is represented by that lexeme, and all other
+{\em name-items} are represented by {\em quoted-strings}.
+
+\hspace*{-0.3in}\ttmkey{uns$x$}{include argument}
+The argument name is replace by a single natural number lexeme.
+
+\hspace*{-0.3in}\ttmkey{int$x$}{include argument}
+The argument name is replace by a single decimal integer lexeme.
+
+\hspace*{-0.3in}\ttmkey{float$x$}{include argument}
+The argument name is replace by a single decimal floating point
+number lexeme if the value can be represented exactly by that
+lexeme.  Otherwise the argument name is replaced by the two lexeme
+hexadecimal number constant representing the value exactly. 
+
+\hspace*{-0.3in}\ttmkey{character}{include argument}
+The argument name is replaced by the two lexeme
+character constant representing the value. 
+
+\hspace*{-0.3in}\ttmkey{string}{include argument}
+The argument name is replaced by a single quoted string lexeme
+representing the value.
+\end{indpar}
+
+An example is:
+\begin{indpar}\begin{verbatim}
+generic goo ( name N, name OP,
+              character C, string S,
+              int32 X, float64 Y, float64 Z )
+    include ( N, OP, C, S, X, Y, Z ):
+        n --> `N'
+        int64 n = 0
+        character c = C
+        string s = S
+        int32 x = X
+        float64 y = Y
+        float64 z = Z
+        float64 v = x OP y
+        float64 w = x * z OP y
+
+goo ( `my variable', `"+"', C"<LF>", "Hi There",
+      1,234, 1.5, 0.3 )
+    // Equivalent to:
+    //    n --> `my variable'
+    //    int64 my variable = 0
+    //    character c = C"<LF>"
+    //    string s = "Hi There"
+    //    int32 x = 1,234
+    //    float64 y = 1.5
+    //    float64 z = X"0.4CCCCCCCCCCCCC"
+    //    float64 v = x "+" y
+    //    float64 w = x "*" ( z "+" y )
+\end{verbatim}\end{indpar}
+
+The {\em generic-declaration} is parsed when first encountered
+by the compiler, but the included statments are not
+compiled.
+This means that operators in unparsed form cannot be substituted
+in included statements.  So the computation of {\tt w} in the
+example substitutes in the parsed expression `{\tt (x) "*" (z OP y)}'
+where {\tt OP} has not been identified as an operator by the parser.
+
+Also note that substitution inside name constant brackets such as
+\TT{`'} is allowed.
+
+The `\TT{if }{\em compile-time-expression}' option
+causes the {\em statements} to be included if and only if the
+{\em compile-time-expression} evaluates to \TT{true}.  An example use is:
+\begin{indpar}\begin{verbatim}
+generic min-max ( name F, name C )
+    include ( F, C ):
+        function T result = F (| type T |) ( T x, T y ):
+            include if not T is float:
+                result = if:
+                    (x) C (y):
+                        result = x
+                    (y) C (x):
+                        result = y
+            include if T is float:
+                result = if:
+                    (x) C (y):
+                        result = x
+                    (y) C (x):
+                        result = y
+                    else:
+                        result = NaN
+\end{verbatim}\end{indpar}
+
+Only whole {\em statements} can be included, but {\em include-statements}
+can be nested.  A nested {\em include-statement} does not have an
+{\em include-argument-list} but instead inherits the {\em include-arguments}
+of its containing {\em include-statement}.
+
+If an {\em include-statement} $S$ has an {\em include-name} $N$, then
+{\em include-statements} nested inside $S$ that do \underline{not}
+have the {\em include-name} $N$ are treated as ordinary statements
+and not as nested {\em include-statements}.  An example is:
+\begin{indpar}\begin{verbatim}
+generic compare function prototypes ( type T ):
+    include X ( T ):
+        generic compare function prototype ( name C )
+            include ( C ):
+                function bool r = ( T x ) C ( T y )
+        compare function prototype ( "<" )
+        compare function prototype ( "<=" )
+        compare function prototype ( "==" )
+        compare function prototype ( "!=" )
+        compare function prototype ( ">=" )
+        compare function prototype ( ">" )
+\end{verbatim}\end{indpar}
+
+The included statements that replace a generic call are compiled in the
+current context, and \underline{not} the context of the
+generic declaration.  The statements of the generic function
+itself, and any default values in the generic prototype,
+are compiled in the context of the generic declaration,
+just as for an inline function.
+
+If you want code compiled in another
+context (\pagref{CONTEXT}), wrap that code in the body of an inline function
+declared in that other context.  An example that implements a writable
+parameter is:
+\begin{indpar}\begin{verbatim}
+module "my_module" as mymod
+    define type P as read-write pointer to vector of float64
+    P p = new
+    // Parameter is stored in p.all
+    // P and p are not visible in other modules.
+
+    // function to allow reading of parameter
+    // by other modules.
+    //
+    function float64 r = mymod my parameter:
+        return p.all
+\end{verbatim}\end{indpar}
+
+As an additional feature of generics, whenever the word
+`\TT{G\TMP*}' appears in the included code, it is replaced
+by `\TT{G\TMP$n$}', where $n$ is a natural number unique
+to the generic call within the compilation.  This allows
+creation of names unique to the generic call.  Note that
+`\TT{G\TMP*}' can be part of a name, and not the entire name,
+so its replacement is not like the replacement of abbreviations.
+
+The \TT{generate name} function (\pagref{GENERATE-NAME})
+may be used to generate other names which can be substituted
+for {\em include-arguments}.
 
 \section{Clusters}
 \label{CLUSTERS}

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 30, 2018
+March 31, 2018
  
 \end{center}
 
@@ -1257,8 +1257,8 @@ Also the context in which any default expression provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
-However code included by an `\TT{include}' statement
-(\itemref{INCLUDES}) \underline{is} compiled in the current context.
+However code included by a generic
+(\itemref{GENERIC}) \underline{is} compiled in the current context.
 
 If two different declarations of the same {\em name} have overlapping
 scope, one of these scopes must include the other,
@@ -5886,6 +5886,19 @@ int32 h = fee b 1 foe c 2 fie d 3
     //   int32 h = fee ( b 1 ) fie ( d 3 ) foe ( c 2 )
 \end{verbatim}\end{indpar}
 
+If an argument has a {\em required-value} in a {\em pattern-argument-list},
+then there must be a corresponding {\em actual-argument} in the
+{\em function-call} whose value is a compile-time value that equals the
+{\em required-value}, which must also be a compile-time value.  An example is:
+\begin{indpar}\begin{verbatim}
+define type my type as int32
+define type your type as uns32
+function type r = companion type of ( type t == my type ):
+    r = your type
+function type r = companion type of ( type t == your type ):
+    r = my type
+\end{verbatim}\end{indpar}
+
 {\em Actual-arguments} may be omitted at the end of a {\em call-argument-list}
 if their corresponding
 {\em argu\-ment-declaration} contains a {\em default-value}.
@@ -6167,7 +6180,20 @@ that has the same type of bracket, then the call-prototype match fails.
 If the {\em function-prototype}
 has cluster member arguments or result variables,
 these must be implied, and they are added to the {\em function-call}
-at this point.  See \pagref{CLUSTER-ARGUMENTS} for details.
+at this point.  See \itemref{CLUSTERS} for details.
+
+\item
+Now the modified {\em function-call} matches
+the {\em function-pattern} in {\em function-term-names},
+location and number of {\em argument-lists}, and type of bracket (\TT{()},
+\TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  Some
+{\em call-argument-lists} may be shorter than the corresponding
+{\em pattern-argument-lists}.
+
+If a pattern {\em argument-declaration} has a {\em required-value},
+there must at this point be a matching {\em function-call} {\em actual-argument}
+with a compile-time value equal to the {\em required-value},
+else the call-prototype match fails.
 
 \item
 If some of the {\em call-argument-lists} are now too short, they are extended
@@ -6185,14 +6211,14 @@ If any of the arguments that need to be inserted in a
 {\em call-argument-list} matched to a {\em regular-argument-list}
 do not have {\em default-values}, the call-prototype match fails.
 
-The modified {\em function-call} now matches
+Now the modified {\em function-call} matches
 the {\em function-pattern} in {\em function-term-names},
 location and number of {\em argument-lists}, and type of bracket (\TT{()},
 \TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  The number of
 arguments also match for \TT{()} and \TT{[]} {\em argument-lists},
 and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
 is not greater than the number of arguments in the corresponding
-{em pattern-argument-list}.
+{\em pattern-argument-list}.
 
 Note that any {\em default-values} inserted in the {\em function-call}
 are evaluated in the context of the {\em function-prototype}.  For
@@ -6423,6 +6449,14 @@ all conversion deficient matches are discarded.
 
 \item If there is any remaining match that is not module deficient, then
 all module deficient matches are discarded.
+
+\item Let $e1$, $e2$, \ldots{}~be the argument expressions of
+the not-unfolded original {\em function-call}, read from left to right.
+If there are two matches $X$ and $Y$ such that
+some of the $eI$ have
+have {\em required-values} in $X$ but not in $Y$, and none of the $eI$
+have {\em required-values} in $Y$ but not in $X$,
+then the $Y$ match is discarded.
 
 \item Let $e1$, $e2$, \ldots{}~be the argument expressions of
 the not-unfolded original {\em function-call}, read from left to right.

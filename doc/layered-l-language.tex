@@ -1621,7 +1621,8 @@ or address:
 
 These are the \key{built in number types}.  The \TT{\ldots{}wrd} types
 are the sizes that execute fastest, while the \TT{\ldots{}max} types
-may be larger sizes for which all arithmetic operations are implemented.
+may be larger sizes for which all arithmetic and comparison
+operations are \key{implemented}\label{IMPLEMENTED}.
 Copying and conversion of values is always implemented for
 \underline{all}
 number types, regardless of implementation, except for implementations
@@ -2750,8 +2751,24 @@ the common prototype
 {\tt function unsadr r = size of ( type T )}
 \end{center}
 may be defined for different values of {\tt T}.  
+
 With this in mind, the following compile-time builtin functions may be
 defined automatically:
+
+\begin{indpar}
+{\tt function bool r = std ( type T ) \ttkey{is uns}} \\
+{\tt function bool r = std ( type T ) \ttkey{is int}} \\
+{\tt function bool r = std ( type T ) \ttkey{is float}} \\
+{\tt function bool r = std ( type T ) \ttkey{is numeric}} \\
+{\tt function bool r = std ( type T ) \ttkey{is implemented numeric}} \\
+\begin{indpar}
+These functions test {\tt T} in the current scope to see if it is
+an \TT{uns$x$} type, an \TT{int$x$} type, a \TT{float$x$} type,
+any of these types, or any of these types for which arithmetic
+and comparison operators are
+`implemented' (see \pagref{IMPLEMENTED}).
+\end{indpar}
+\end{indpar}
 
 \begin{indpar}
 {\tt function type r = \ttkey{base type of} ( type T )}
@@ -2788,8 +2805,8 @@ The alignment of builtin types is their size.
 For defined types it is the alignment of their underlying type.
 \end{indpar}
 
-{\tt function T r = \ttkey{min of} ( type T )} \\
-{\tt function T r = \ttkey{max of} ( type T )}
+{\tt function T r = \ttkey{min value}} \\
+{\tt function T r = \ttkey{max value}}
 \begin{indpar}
 Returns the minimum or maximum value of a type {\tt T}.
 These are defined only for number types and enumeration types,
@@ -2797,16 +2814,16 @@ and for enumeration types the values returned are the limits of
 the type's {\em enum-range}.
 \end{indpar}
 
-{\tt function T r = \ttkey{min unassigned of} ( type T )} \\
-{\tt function T r = \ttkey{max unassigned of} ( type T )}
+{\tt function T r = \ttkey{min unassigned value}} \\
+{\tt function T r = \ttkey{max unassigned value}}
 \begin{indpar}
 Returns the minimum or maximum values not yet assigned to an
 enumeration type {\tt T} by an {\em enum-assignment}.  Values
 assigned by unchecked conversions are not considered.  If
 no values have been assigned, the enumeration value corresponding
-to {\em first-enum} is returned by `\TT{min unassigned of}'
+to {\em first-enum} is returned by `\TT{min unassigned value}'
 and the enumeration value corresponding
-to {\em last-enum} is returned by `\TT{max unassigned of}'.
+to {\em last-enum} is returned by `\TT{max unassigned value}'.
 
 These are defined only for enumeration types,
 
@@ -2815,12 +2832,12 @@ You may only assume that constants of type {\tt T} whose values have
 already been compiled or linked are within
 ranges bounded by these values, i.e., in the ranges:
 \begin{center}
-{\tt [ min of (T), min unassigned of (T) )} \\
-{\tt ( max unassigned of (T), max of (T) ]}
+{\tt [ min value, min unassigned value )} \\
+{\tt ( max unassigned value, max value ]}
 \end{center}
 \end{indpar}
 
-{\tt function T r = \ttkey{missing value of} ( type T )}
+{\tt function T r = \ttkey{missing value}}
 \begin{indpar}
 Returns a suitable missing value for type {\tt T}.
 Defined to return the largest possible value for builtin unsigned
@@ -2830,7 +2847,7 @@ floating point number types.
 May be defined by user for defined types.
 \end{indpar}
 
-{\tt function T r = \ttkey{default value of} ( type T )}
+{\tt function T r = \ttkey{default value}}
 \begin{indpar}
 Returns a suitable default value for type {\tt T}.
 Defined to return \TT{0} for builtin number types.
@@ -6487,6 +6504,145 @@ is accepted and used to compile the {\em function-call}.
 
 \end{enumerate}
 
+\section{Special Functions}
+\label{SPECIAL-FUNCTIONS}
+
+Note that in this section `\TT{std}' is used as the
+{\em module-abbreviation} (\pagref{MODULE-ABBREVIATION})
+of the \TT{"standard"} module.
+This {\em module-abbreviation} is commonly omitted when
+a function is called.
+
+\subsection{Floating Pointer Error Flag Functions}
+\label{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}
+
+The \skey{floating point error flag}s of
+section~\itemref{FLOATING-POINT-ARITHMETIC-EXPRESSIONS}
+are located in the `\key{floating point error register}' which
+is a special register of \TT{unswrd} type.  The following
+builtin functions test and manipulate this register.
+
+\begin{indpar}
+{\tt function unswrd r = std \ttkey{fp error flags}} \\
+{\tt function std \ttkey{clear fp error flags}} \\
+{\tt function std \ttkey{clear fp error flags} ( unswrd mask ) } \\
+{\tt function std \ttkey{set fp error flags} ( unswrd mask ) }
+
+\begin{indpar}
+The first function
+above reads the register, the second clears the floating point
+error flags in the register, the third clears just the floating point
+error flags selected by the bits of \TT{mask}, and the fourth sets just the
+flags selected by the bits of \TT{mask}.  The value read from the register
+may contain non-zero bits other than the floating point error flags.
+\end{indpar}
+\end{indpar}
+
+The following functions with no arguments
+return compile time constants that are
+masks for the floating
+point error flags in the floating point error
+register.  Each mask has a single bit on.
+\begin{center}
+\begin{tabular}{ll}
+{\tt function unswrd r = std \ttkey{FP INVALID}}	& Invalid operand. \\
+{\tt function unswrd r = std \ttkey{FP DIVIDE BY ZERO}}	& Divide by zero. \\
+{\tt function unswrd r = std \ttkey{FP OVERFLOW}}	& Result overflow. \\
+{\tt function unswrd r = std \ttkey{FP UNDERFLOW}}	& Result underflow. \\
+{\tt function unswrd r = std \ttkey{FP INEXACT}}	& Result inexact. \\
+\end{tabular}
+\end{center}
+The value of \TT{mask} above should be a bitwise OR's of these constants.
+
+\subsection{Abbreviation Testing Functions}
+\label{ABBREVIATION-TESTING-FUNCTIONS}
+
+The following functions provide information
+about regular abbreviations (\pagref{ABBREVIATION-DECLARATION}).
+
+It is a compile error if any argument to these
+functions is not a compile time value.  The results returned by these
+functions are compile time values.
+
+\begin{indpar}
+{\tt function bool r = std ( name N ) \ttkey{is abbreviation}} \\
+{\tt function name r = std \ttkey{replacement of} ( name N )} \\
+{\tt function name r = std \ttkey{final replacement of} ( name N )}
+\begin{indpar}
+The first function returns \TT{true} if and only if {\tt N} names
+an abbreviation (\pagref{ABBREVIATION-DECLARATION}).
+
+The second function returns the replacement name from the
+{\em abbreviation-declaration} of {\tt N}, or returns {\tt N} itself
+if {\tt N} is not an abbreviation.  The replacement name may itself
+be an abbreviation.
+
+The third function applies the second function recursively until
+the name returned is not an abbreviation.
+\end{indpar}
+\end{indpar}
+
+\subsection{Compiler Functions}
+\label{COMPILER-FUNCTIONS}
+
+The following function can be used to produce compile-time
+generated names like `\TT{T\TMP$n$}', which are most likely
+to be useful in generics (\pagref{GENERICS}).
+
+\begin{indpar}
+{\tt function name r = std \ttkey{generated name} ( character c )}%
+\label{GENERATE-NAME}
+
+\begin{indpar}
+Returns the name `\TT{$c$\TMP$n$}' where $c$ is the value of the
+argument and $n$ is a natural-number such that the returned name
+is unique among all names generated during the compilation, either
+by this function or by the compiler.  $c$ must be an ASCII
+letter.
+\end{indpar}
+\end{indpar}
+
+\subsection{Program Termination Functions}
+\label{PROGRAM-TERMINATION-FUNCTIONS}
+
+The following functions are used to terminate program execution
+when a programming error is discovered.
+
+\begin{indpar}
+
+{\tt function string r = std \ttkey{call location}}
+\begin{indpar}
+This function returns a string of the form:
+\begin{center}
+{\em file-name}\TT{:~line~}{\em line-number}
+\end{center}
+describing the location of the {\em function-call}
+that invoked an inline function containing the call to
+`{\tt call location}'.  Here {\em file-name} is either
+the {\em module-name} (\pagref{MODULES}) or {\em body-name}
+(\pagref{BODIES}) of the file; that is, it is the name of
+the file containing the {\em function-call}
+relative to one of several directories
+specified separately to the compiler.
+{\em Line-number} is the number (1, 2, 3, \ldots) of the
+line in which the statement containing the {\em function-call}
+begins.
+
+This function allows an inline function to be written that
+outputs a message containing the location of the call to the
+inline function.
+\end{indpar}
+
+{\tt function std \ttkey{program stop}}
+\begin{indpar}
+This function terminates the program abnormally.  It has
+the special property that deferred variables that normally
+must be set in the block need not be set in an execution
+path that includes a call to this function.
+\end{indpar}
+
+\end{indpar}
+
 
 \section{Generics}
 \label{GENERICS}
@@ -6565,7 +6721,13 @@ The general syntax is:
 \emkey{include-argument} ::= {\em word} not containing `\TT{.}'
 \end{indpar}
 
-A {\em generic-call} is executes at compile-time and generates a list
+A {\em generic-prototype} is a {\em function-prototype} and a
+{\em generic-call} is a {\em function-call}.  {\em Function-calls}
+are matched to all {\em function-prototypes}, including
+{\em generic-prototypes}, and those that end up matching just a
+{\em generic-prototype} are {\em generic-calls}.
+
+A {\em generic-call} is executed at compile-time and generates a list
 of `\skey{included statement}s' that replace the {\em generic-call} in
 the compilation.  The included statements are the {\em statements}
 of the subblocks at the end of the {\em include-statements} executed

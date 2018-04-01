@@ -1258,7 +1258,7 @@ is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
 However code included by a generic
-(\itemref{GENERIC}) \underline{is} compiled in the current context.
+(\itemref{GENERICS}) \underline{is} compiled in the current context.
 
 If two different declarations of the same {\em name} have overlapping
 scope, one of these scopes must include the other,
@@ -2038,8 +2038,7 @@ converted by \TT{uns$x$}, \TT{int$x$}, or \TT{float$x$} functions only
 if it may be implicitly converted to the desired type.
 
 {\em Number-constants} are compile time values and can be combined by
-the standard operators to produce compile time values
-(see \itemref{COMPILE-TIME-EVALUATION}).
+the standard operators to produce compile time values.
 
 \subsection{The Void Type}
 \label{THE-VOID-TYPE}
@@ -2760,7 +2759,7 @@ defined automatically:
 {\tt function bool r = std ( type T ) \ttkey{is int}} \\
 {\tt function bool r = std ( type T ) \ttkey{is float}} \\
 {\tt function bool r = std ( type T ) \ttkey{is numeric}} \\
-{\tt function bool r = std ( type T ) \ttkey{is implemented numeric}} \\
+{\tt function bool r = std ( type T ) \ttkey{is implemented numeric}}
 \begin{indpar}
 These functions test {\tt T} in the current scope to see if it is
 an \TT{uns$x$} type, an \TT{int$x$} type, a \TT{float$x$} type,
@@ -3142,50 +3141,53 @@ include for n in [`x[1]', `x[2]', `x[3]' ]:
 Name sets and lists can be stored in variables of the builtin name set
 or list types:
 \begin{indpar}
-{\tt define type \ttkey{name set} as adr} \\
-{\tt define type \ttkey{name list} as adr}
+{\tt define type \ttkey{std name set} as adr} \\
+{\tt define type \ttkey{std name list} as adr} \\
+{\tt \ttkey{name set} -{}-{}-> `std name set'} \\
+{\tt \ttkey{name list} -{}-{}-> `std name list'}
 \end{indpar}
 
 The following \TT{name set} functions are buitin:
 
 \begin{indpar}
-{\tt function name set r = (name set s1)
-                        "\ttmkey{+}{name set union}" ( name set s2 )}
+{\tt function name set r = std (name set s1)
+                           "\ttmkey{+}{name set union}" ( name set s2 )}
 \begin{indpar}
 Returns the union of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function name set r = ( name set s1 )
-                        "\ttmkey{*}{name set intersection}" ( name set s2 )}
+{\tt function name set r = std ( name set s1 )
+                           "\ttmkey{*}{name set intersection}" ( name set s2 )}
 \begin{indpar}
 Returns the intersection of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function name set r = ( name set s1 )
-                        "\ttmkey{-}{name set difference}" ( name set s2 )}
+{\tt function name set r = std ( name set s1 )
+                           "\ttmkey{-}{name set difference}" ( name set s2 )}
 \begin{indpar}
 Returns the set difference of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function bool r = (name e) \ttmkey{in}{name set} ( name set s )}
+{\tt function bool r = std (name e) \ttmkey{in}{name set} ( name set s )}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt function name set r = (name n) "\ttmkey{+}{name set union}" ( name set s )}
+{\tt function name set r = std (name n)
+                           "\ttmkey{+}{name set union}" ( name set s )}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
-{\tt function name set r = ( name set s )
-                        "\ttmkey{+}{name set union}" (name n)}
+{\tt function name set r = std ( name set s )
+                           "\ttmkey{+}{name set union}" (name n)}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
-{\tt function name set r = ( name set s )
-                        "\ttmkey{-}{name set union}" (name n)}
+{\tt function name set r = std ( name set s )
+                           "\ttmkey{-}{name set union}" (name n)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt n}\}.
 \end{indpar}
@@ -3195,38 +3197,44 @@ Returns the set difference of {\tt s} and \{{\tt n}\}.
 The following \TT{name list} functions are buitin:
 
 \begin{indpar}
-{\tt function name list r = (name list ls1)
-		    "\ttmkey{+}{name list concatenation}" (name list ls2)}
+{\tt function \begin{tabular}[t]{@{}l@{}}
+              name list r = \\
+	      std (name list ls1)
+                        "\ttmkey{+}{name list concatenaton}" (name list ls2)
+	      \end{tabular}}
 \begin{indpar}
 Returns the concatenation of {\tt ls1} and {\tt ls2}.
 \end{indpar}
 
-{\tt function name list r = (name list ls1)
-                        "\ttmkey{-}{name list difference}" (name list ls2)}
+{\tt function \begin{tabular}[t]{@{}l@{}}
+              name list r = \\
+	      std (name list ls1)
+                        "\ttmkey{-}{name list difference}" (name list ls2)
+	      \end{tabular}}
 \begin{indpar}
 Returns the list made by removing all elements from {\tt ls1} that
 appear anywhere in {\tt ls2}.
 \end{indpar}
 
-{\tt function bool r = (name n) \ttmkey{in}{name list} (name list ls)}
+{\tt function bool r = std (name n) \ttmkey{in}{name list} (name list ls)}
 \begin{indpar}
 Returns \TT{true} if {\tt n} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt function name list r = (name n)
+{\tt function name list r = std (name n)
                         "\ttmkey{+}{name list prepend}" (name list ls)}
 \begin{indpar}
 Returns the list made by prepending {\tt n} to {\tt ls}.
 \end{indpar}
 
-{\tt function name list r = (name list ls)
+{\tt function name list r = std (name list ls)
                         "\ttmkey{+}{name list append}" (name n)}
 \begin{indpar}
 Returns the list made by appending {\tt n} to {\tt ls}.
 \end{indpar}
 
-{\tt function name list r = (name list s)
+{\tt function name list r = std (name list s)
                         "\ttmkey{-}{name list remove}" (name n)}
 \begin{indpar}
 Returns the list made by removing the all occurences of
@@ -3238,7 +3246,43 @@ Returns the list made by removing the all occurences of
 \subsection{Contexts}
 \label{CONTEXTS}
 
-TBD
+Contexts (\pagref{CONTEXT}) exist at compile-time and can be
+stored in compile-time variables.  The \TT{context} type is
+defined by
+\begin{indpar}
+{\tt define type \ttkey{std context} as adr} \\
+{\tt \ttkey{context} -{}-{}-> `std context'}
+\end{indpar}
+
+{\em Block-assignment-statements} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS})
+can specify a \TT{context} in which to compile the statements of
+their block.
+
+The following functions compute contexts:
+
+\begin{indpar}
+
+{\tt function context r = std \ttkey{current context}}
+\begin{indpar}
+Returns the context in effect just before
+the statement containing the function call.
+\end{indpar}
+
+{\tt function context r = std \ttkey{call context}}
+\begin{indpar}
+Returns the context in effect just before
+the statement containing the {\em function-call} that
+invoked the current inline function.
+\end{indpar}
+
+{\tt function context r = std \ttkey{declaration context}}
+\begin{indpar}
+Returns the context in effect just before
+the statement containing the {\em function-declar\-a\-tion} of
+inline function whose call is currently being compiled.
+\end{indpar}
+
+\end{indpar}
 
 
 \section{Qualifiers}

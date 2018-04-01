@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 31, 2018
+April 1, 2018
  
 \end{center}
 
@@ -645,7 +645,7 @@ this is the second top level
 \end{verbatim}\end{indpar}
 
 A warning message is output if the indents of any two
-consecutive logical lines differ by more than \TT{0} and
+consecutive physical lines differ by more than \TT{0} and
 less than \TT{2} columns, in order to better detect
 indentation mistakes.
 
@@ -689,8 +689,8 @@ this is a logical line // with a comment
 this is a logical line ending with a block:
      First line of the block
      Second line of the block
-// Comment that ends block, but is in error because
-
+// Comment that ends block
+// Comment that is in error because
     it begins a logical line that this continues
 
 this is a logical line with a block:
@@ -848,7 +848,13 @@ The L-Language uses several kinds of names:
     {\em function-term-name} $N$ that appears in a {\em function-prototype}
     of the form `{\tt function $N$ = \ldots};
     see \pagref{FUNCTION-VARIABLE-NAME}
-    \end{tabular}
+    \end{tabular} \\
+\emkey{block-name}
+	::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{include-name}
+	::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator}
 
 where
 \begin{enumerate}
@@ -860,9 +866,11 @@ are {\em deferred-result-variables} (\pagref{DEFERRED-RESULT-VARIABLE})
 and {\em function-variable-names} (\pagref{FUNCTION-VARIABLE-NAME}).
 \label{TYPE-NAME-RULE}
 \item
-A {\em type-name}, {\em qualifier-name}, or {\em variable-base-name}
+A {\em type-name}, {\em qualifier-name}, {\em variable-base-name},
+{\em block-name}, or {\em include-name}
 may not begin with the word `\TT{next}' or `\TT{previous}' or
-contains the words `\TT{is}', `\TT{as}', `\TT{with}', or `\TT{without}.
+contain the words `\TT{is}', `\TT{as}', `\TT{with}', `\TT{without},
+or `\TT{if}'.
 \item
 {\em Name-items} ending with `\TT{\TMP$n$}',
 where $n$ is a {\em natural-number}, are
@@ -944,8 +952,6 @@ The only {\em names}
 that can be abbreviated are {\em qualifier-names},
 {\em type-names}, {\em variable-base-names}, and
 {\em member-names}.
-{\em Module-abbreviations} and
-{\em function-term-names} \underline{cannot} be abbreviated.
 
 If the replacement name of an {\em abbreviation} is a {\em qualifier-name}
 in the context of the {\em abbreviation-declaration},
@@ -960,20 +966,21 @@ a {\em variable-base-name} if its replacement does, and the syntax of
 a {\em member-name} if its replacement does.
 
 The rules in \itemref{KINDS-OF-NAMES}
-apply to {\em abbreviations}.  In particular the rules regarding
-{\em qualifier-names} and {\em type-names} apply to {\em abbreviations}
-that are such.
+apply to {\em abbreviations}.  For example, the rule regarding
+{\em type-names} applies to {\em abbreviations}
+of {\em type-names}.
 
 Abbreviation replacement occurs after
 {\em qualifier-names},
 {\em type-names}, {\em variable-base-names}, and
 {\em member-names} have been identified by the compiler.
 
-Abbreviations are never external (\pagref{EXTERNAL}),%
-\label{ABBREVIATIONS-ARE-NOT-EXTERNAL}
+Abbreviations are internal and never external (\pagref{EXTERNAL}),%
+\label{ABBREVIATIONS-ARE-INTERNAL}
 even if they begin with a {\em module-abbreviation}.
 They do have scope (\pagref{SCOPE}) like other declarations, but their scope
-never extends beyond the file in which they are declared.
+is limited to the extended module (\pagref{EXTENDED-MODULE}) in
+which they are declared.
 
 Some examples are:
 \begin{indpar}\begin{verbatim}
@@ -1032,7 +1039,7 @@ with a particular module, the `\key{module of the body}',
 and extends that module.  A module
 may have zero or more bodies.
 A module and all its bodies together form
-an `\key{extended module}'.
+an `\key{extended module}'\label{EXTENDED-MODULE}.
 
 Modules and bodies consist of a sequence
 of \skey{declaration}s:
@@ -1084,16 +1091,16 @@ never in bodies.  External names and prototypes cannot be declared inside
 statement blocks, but must be declared at `top level' outside
 blocks.
 
-As an exception, abbreviations are never external, even if
+As an exception, abbreviations are internal, and never external, even if
 they begin with a {\em module-abbreviation}
-(\pagref{ABBREVIATIONS-ARE-NOT-EXTERNAL}).
+(\pagref{ABBREVIATIONS-ARE-INTERNAL}).
 
-In inline function calls the
+In {\em function-calls} and {\em generic-calls} the
 {\em module-abbreviation} may be omitted
-if the {\em function-prototype} matching the call
+if the {\em function-proto\-type} or {\em generic-prototype} matching the call
 can be unambiguously determined: see
 `module deficient' on \pagref{MODULE-DEFICIENT}.
-This may not be done
+This may \underline{not} be done
 for names (e.g., external types, external variables).
 
 An example is:
@@ -1222,7 +1229,7 @@ $ma$, the function will be
 
 A {\em declaration} has a \key{scope},
 that is the set of statements in which any
-names or function prototypes defined by the {\em declaration}
+names or prototypes defined by the {\em declaration}
 are recognized.  The scope of a {\em declaration}
 begins just after the {\em declaration}
 itself, and
@@ -1236,29 +1243,28 @@ If the {\em declaration} is external, the scope of the
 {\em declaration} is extended to include all modules and
 bodies that import the module containing the {\em declaration}.
 
-The scope of a {\em name} or {\em function-prototype}
+The scope of a {\em name}, {\em function-prototype}, or
+{\em generic-prototype}
 is the scope of the declaration that defines it.
 
-In a {\em statement} that ends with a block
-(e.g., see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}),
-any result {\em variable-names} or {\em block-names} declared by
-the part of the statement before the statement ending block behave as if this
-initial part of the statement were a separate declaration outside
-and immediately preceeding
-the statement ending block.
+The scope of a {\em block-name} is the block it names
+(see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}).
 
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
 
-When a function call to an inline function is compiled,
+When a {\em function-call} to an inline function
+or a {\em generic-call} to a generic is compiled,
 the context of the compilation is \underline{not} the current context but
-rather the context of the inline function declaration.
-Also the context in which any default expression provided by a declaration
+rather the context of the inline function or generic
+declaration.
+Also the context in which any {\em default-value} expression
+provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
-However code included by a generic
-(\itemref{GENERICS}) \underline{is} compiled in the current context.
+Code included by a generic
+(\itemref{GENERICS}), however, \underline{is} compiled in the current context.
 
 If two different declarations of the same {\em name} have overlapping
 scope, one of these scopes must include the other,
@@ -1277,6 +1283,8 @@ the larger scope includes the whole statement:
     & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
 {\em function-declaration}
     & [see \pagref{FUNCTION-DECLARATION}] \\
+{\em generic-declaration}
+    & [see \pagref{GENERIC-DECLARATION}] \\
 {\em block-assignment-statement} with context option
     & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
 {\em compile-and-run-assignment-statement} with context option
@@ -1300,14 +1308,21 @@ the scope of `{\tt v}', so the smallest containing block of
 `{\tt v}' is not the same as the smallest containing block of
 `\TT{next} {\tt v}'.
 
-{\em Function-prototypes} cannot hide each other.  If the
+Prototypes cannot hide each other.  If the
 current scope contains two declarations whose prototypes
-both match a {\em function-call}, the call is ambiguous and
+both match a {\em function-call} or {\em generic-call},
+the call is ambiguous and
 in error, even if the scope of one declaration is within
 a subblock of the scope of the other.
-As a consequence, it may be unwise to place function declarations
-within inline functions or
+As a consequence, it may be unwise to place {\em function-declarations}
+or {\em generic-declarations}
+within inline functions, generics, or
 assignment statements that have the context option.
+
+A call that is a statement by itself
+is matched against both {\em generic-prototypes}
+and {\em function-proto\-types}, and will be ambiguous if it matches
+one of each kind.
 
 A declaration not inside a block is said to be `\key{top level}'.
 
@@ -1332,15 +1347,20 @@ may use out-of-line functions.
 It is a programming error to access
 deferred result variable values before they are assigned.
 
-A name or the pattern of a prototype
+The name or the pattern of a prototype
 declared by a top level declaration in a module may begin with
 the {\em module-abbreviation} of the module.  In this case the
-name or prototype is `\key{external}', and its scope is extended
+name or prototype is `\key{external}',
+unless it is an abbreviation.
+The scope of external names and prototypes is extended
 to include modules and bodies that import the declaring module.
 All other names and prototypes declared in the module or
 its bodies are `\key{internal}',
 and these names and the patterns of these prototypes may not begin
 with any {\em module-abbreviation}.
+
+{\em Abbreviations} are always internal (\pagref{ABBREVIATIONS-ARE-INTERNAL}),
+even when they begin with a {\em module-abbreviation}.
 
 Any name or prototype declared to be external in an imported module is
 said to be `\key{imported}'.  The name or prototype is said to be
@@ -1478,6 +1498,9 @@ initializes after.  This graph must be acyclic.
 and {\em out-of-line-function-deferred-assignments}
 (\pagref{OUT-OF-LINE-FUNCTION-DEFERRED-ASSIGNMENT}) must be executed
 before statements initializing their variables or functions.
+Statements initializing their variables or functions must be executed
+before the variable values or functions are used.
+
 
 \subsection{Parsing}
 

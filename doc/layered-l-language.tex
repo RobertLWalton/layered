@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 1, 2018
+April 2, 2018
  
 \end{center}
 
@@ -506,7 +506,7 @@ warning messages.
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
 
 \end{indpar}
-\caption{L-Langauge Program Lexemes}
+\caption{L-Language Program Lexemes}
 \label{L-LANGUAGE-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
@@ -715,7 +715,7 @@ lexemes in the logical line
 are removed from the logical line.  If the result is
 empty, i.e., the logical line is a comment line, it is discarded.
 Otherwise the
-modified logical line becomes a L-Langauge `\emkey{statement}'.
+modified logical line becomes a L-Language `\emkey{statement}'.
 
 Therefore a file is a sequence of top-level statements.
 
@@ -894,9 +894,9 @@ is scanned left to right to first remove any {\em qualifier-names}
 and then a {\em type-name}, leaving a non-empty {\em variable-name}.
 At any point, if several suitable {\em names} match the
 beginning of the remaining part of the name sequence, the longest
-is choosen.  If this process succeeds without backup, the name
+is chosen.  If this process succeeds without backup, the name
 sequence is of the above form.  Otherwise it is not -- there is
-no backup.  If the process does not suceed, in some
+no backup.  If the process does not succeed, in some
 cases the name sequence may still be a single {\em variable-name}
 by itself, and in other cases it might be a sequence of one or
 more {\em function-term-names}.
@@ -1136,11 +1136,11 @@ math complex y = complex ( 0, 1 )
 math complex z1 = x + y
     // Parses to `math complex z1 = ( (x) "+" (y) )'.
     // Standard "+" does not apply because it does not match
-    // result type.  `math' module abbreviator is implied so
+    // result type.  `math' module abbreviation is implied so
     // that `math' module "+" applies.
 math complex z2 = math ( x + y )
     // Parses to `math complex z2 = ( math (x) "+" (y) )'.
-    // `math' module abbreviator for "+" is explicit and
+    // `math' module abbreviation for "+" is explicit and
     // NOT implied.
 \end{verbatim}\end{indpar}
 
@@ -1545,7 +1545,7 @@ it, the parser does not know the {\em qualifier-names}
 and {\em type-names} in a given scope, and in fact the parser
 has no notion of scope.
 
-The parser does know about {\em module-abbrevations} and
+The parser does know about {\em module-abbreviations} and
 converts a statement of the form:
 \begin{center}
 {\em module-abbreviation} {\tt (~\ldots~)}
@@ -2333,7 +2333,7 @@ Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
 \end{itemlist}
 \end{indpar}
 
-The above is examplified by:
+The above is exemplified by:
 \begin{indpar}\begin{verbatim}
 define type E1 as int32 with enum range [1 .. 20]
     // Now enumeration offset of (E1) == 0
@@ -2474,21 +2474,21 @@ or list
 values can be converted (see \pagref{CONVERSION-RELATION}).
 It is an error
 if this cannot be done because some of the types have no implied
-conversion defined for them, or if after implict conversion the
+conversion defined for them, or if after implied conversion the
 common type is not a defined enumeration type.
 Note that the common type can be an integer type if all
-{\em enum-values} are implicitly convertable to integer values.
+{\em enum-values} are implicitly convertible to integer values.
 
 An {\em enum-range} designates the two values given and all
 values in between.
-After implict conversion, the first {\em enum-value} in an {\em enum-range}
+After implied conversion, the first {\em enum-value} in an {\em enum-range}
 must \underline{not} be greater than the second {\em enum-value}
 in the {\em enum-range}.  If the first or second {\em enum-value} of
 an {\em enum-range} is omitted, it is taken to be the lower or upper
 limit of the enumeration type of the non-omitted {\em enum-value}.
 
 The order in which values are given in an {\em enum-set-constant}
-does not matter.  Overlapping and adjoining ranges are implictly
+does not matter.  Overlapping and adjoining ranges are implicitly
 combined.\footnote{Internally an enumeration set may be stored as a
 sorted list of integers with binary indicators specifying when all
 the values between one integer and the next integer are to be included
@@ -2693,7 +2693,7 @@ Returns the list made by appending {\tt e} to {\tt v}.
 {\tt function $L$ r = ($L$ s)
                         "\ttmkey{-}{enumeration list remove}" ($E$ e)}
 \begin{indpar}
-Returns the list made by removing the all occurences of
+Returns the list made by removing the all occurrences of
 {\tt e} in {\tt v}.
 \end{indpar}
 
@@ -2703,7 +2703,7 @@ An implementation is not required to implement run-time enumeration
 set and list variables.  If an implementation does
 not implement run-time enumeration set and list variables,
 enumeration set and list values computed at compile-time may
-not be garbage collectable during the compilation.
+not be garbage collectible during the compilation.
 
 \subsection{Type Values}
 \label{TYPE-VALUES}
@@ -3030,7 +3030,7 @@ An implementation is not required to implement run-time string
 variables.  If an implementation does
 not implement run-time string variables,
 string values computed at compile-time may
-not be garbage collectable during the compilation.
+not be garbage collectible during the compilation.
 
 \subsection{The Name Type}
 \label{THE-NAME-TYPE}
@@ -3112,7 +3112,7 @@ An implementation is not required to implement run-time name
 variables.  If an implementation does
 not implement run-time name variables,
 name values computed at compile-time may
-not be garbage collectable during the compilation.
+not be garbage collectible during the compilation.
 
 \subsection{Name Sets and Lists}
 \label{NAME-SETS-AND-LISTS}
@@ -3170,7 +3170,7 @@ or list types:
 {\tt \ttkey{name list} -{}-{}-> `std name list'}
 \end{indpar}
 
-The following \TT{name set} functions are buitin:
+The following \TT{name set} functions are builtin:
 
 \begin{indpar}
 {\tt function name set r = std (name set s1)
@@ -3217,13 +3217,13 @@ Returns the set difference of {\tt s} and \{{\tt n}\}.
 
 \end{indpar}
 
-The following \TT{name list} functions are buitin:
+The following \TT{name list} functions are builtin:
 
 \begin{indpar}
 {\tt function \begin{tabular}[t]{@{}l@{}}
               name list r = \\
 	      std (name list ls1)
-                        "\ttmkey{+}{name list concatenaton}" (name list ls2)
+                        "\ttmkey{+}{name list concatenation}" (name list ls2)
 	      \end{tabular}}
 \begin{indpar}
 Returns the concatenation of {\tt ls1} and {\tt ls2}.
@@ -3260,7 +3260,7 @@ Returns the list made by appending {\tt n} to {\tt ls}.
 {\tt function name list r = std (name list s)
                         "\ttmkey{-}{name list remove}" (name n)}
 \begin{indpar}
-Returns the list made by removing the all occurences of
+Returns the list made by removing the all occurrences of
 {\tt n} in {\tt ls}.
 \end{indpar}
 
@@ -3311,7 +3311,7 @@ inline function whose call is currently being compiled.
 \section{Qualifiers}
 \label{QUALIFIERS}
 
-Variables may be qualified by \skey{qualifier}s, which preceed the
+Variables may be qualified by \skey{qualifier}s, which precede the
 type when a variable is declared.  There are four builtin qualifiers
 described in Section~\itemref{BUILTIN-QUALIFIERS} that have special
 effects: \TT{mem}, \TT{stack}, \TT{*UNCHECKED*}, and \TT{global}.
@@ -3322,7 +3322,7 @@ may be defined, and are typically used to add an
 additional layer of type checking that is somewhat orthogonal to
 types.
 
-Syntactically {\em qualifier-names} immediately preceed the {\em type-names}
+Syntactically {\em qualifier-names} immediately precede the {\em type-names}
 that are before {\em variable-names}.  Some introductory examples are:
 \begin{indpar}\begin{verbatim}
 required qualifier fee
@@ -3625,8 +3625,8 @@ where `\ldots{}' denotes information about qualifiers.
 Here $T2$ is used as the name of a function that performs the
 conversion.
 
-A type $T2$ may be implicitly convertable to type $T1$ while
-$T1$ is explicitly convertable to $T2$.
+A type $T2$ may be implicitly convertible to type $T1$ while
+$T1$ is explicitly convertible to $T2$.
 
 \section{Expressions}
 \label{EXPRESSIONS}
@@ -4024,7 +4024,7 @@ int64 z3 = x + y2 * w
     //     Target type of y2 * w is int64,
     //     hence target type of y2 is int64 with is OK,
     //     and target type of w is int64, but w is not
-    //     implicitly convertiable to int64
+    //     implicitly convertible to int64
 \end{verbatim}\end{indpar}
 
 The target type of an expression is usually provided by the
@@ -4642,7 +4642,7 @@ user defined function named $T$, it is evaluated as such with
 target type `$Qs$ $T$'.
 
 Otherwise $e$ is evaluated with target type `$Qs$ $T$'
-and the result is implcitly
+and the result is implicitly
 converted to the target type of the {\em subexpression}.
 \end{indpar}
 
@@ -4748,7 +4748,7 @@ When a variable value is set, the value is implicitly first
 computed in a register, then stored in the current function
 frame, and for some time
 afterwards the value is left in the register which becomes a cache
-on the frame value.  This cacheing is hidden from the programmer.
+on the frame value.  This caching is hidden from the programmer.
 
 If a variable value is copied from another variable, usually the
 new variable simply becomes a compile-time alias for the old variable.
@@ -4774,7 +4774,7 @@ for a {\em function-call} that is the {\em assignment-right-side}
 A list of {\em assignment-statement}
 result variables acts as a declaration of these variables,
 and the scope of this declaration includes any {\em subblock} that may
-consitute the {\em assignment-right-side}.
+constitute the {\em assignment-right-side}.
 Result variables are not allowed to hide (\pagref{HIDE})
 other {\em name} declarations with exceptions listed on
 \pagref{HIDING-EXCEPTIONS}.
@@ -5354,7 +5354,7 @@ A call assignment must have the \TT{*UNCHECKED*} option
 unless $T$ is declared by an out-of-line
 function type declaration described below.  If there is no
 such declaration, the arguments are presented to the out-of-line
-function in the order they are listed in the {\em call-assigment-statement},
+function in the order they are listed in the {\em call-assignment-statement},
 unless the \TT{*REVERSE*} option is given, in which case this order
 is reversed.
 
@@ -5410,7 +5410,7 @@ Then a call assignment block is type-checked by matching
 the variable names in the call assignment block
 to those in the prototype.  Thus in this case the order of variables
 in the call block does not matter as they will be matched by
-variable name to the prototpye and then their values will be
+variable name to the prototype and then their values will be
 reordered according to the prototype.  Also, in this case
 a call block argument
 may be of different
@@ -5455,7 +5455,7 @@ an assignment statement of the form:
 
 The argument and result variable names used by the {\em statements}
 are those given in the {\em function-type} declaration.
-Thes names
+These names
 and names declared within the {\em statements} of the assignment,
 are permitted to hide (\pagref{HIDE})
 names in the context of the assignment, but the {\em function-name}
@@ -5633,7 +5633,7 @@ that have been declared to be compile-time.
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
 
 \ikey{Deferred assignment statements}{deferred assignment statement}
-specifies that assigment of its result variables is deferred until later:
+specifies that assignment of its result variables is deferred until later:
 
 \begin{indpar}
 \emkey{deferred-assignment-statement} ::=  \\
@@ -6057,7 +6057,7 @@ containing the {\em type-argument-declaration}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
 
-If the {\em qalifiers-argument-declaraion} is
+If the {\em qualifiers-argument-declaration} is
 in an argument list with `\TT{(|~|)}' brackets,
 the actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit or default value of {\tt Qs} is given by the call, that is used.
@@ -6103,7 +6103,7 @@ ouch int32 y1 = check ( x )
 int32 y2 = check ( x )
            // Illegal, result `ouch in-range r' cannot
            // be converted to y2 which has no `ouch'
-           // qualifer.
+           // qualifier.
 F ( x )    // Illegal, x does not have required in-range
 F ( y1 )   // Legal, y1 has required in-range
 \end{verbatim}\end{indpar}
@@ -6867,7 +6867,7 @@ goo ( `my variable', `"+"', C"<LF>", "Hi There",
 \end{verbatim}\end{indpar}
 
 The {\em generic-declaration} is parsed when first encountered
-by the compiler, but the included statments are not
+by the compiler, but the included statements are not
 compiled.
 This means that operators in unparsed form cannot be substituted
 in included statements.  So the computation of {\tt w} in the
@@ -7046,7 +7046,7 @@ function ( mem pp.type out,
             out.base.adr = pp.base.adr
         else:
             fatal error
-                ( "Deferencing empty pointer pair." )
+                ( "Dereferencing empty pointer pair." )
 
 // Prefix operator to increment the begin pointer of a
 // pointer pair.
@@ -7369,7 +7369,7 @@ next z.a = ...   // Write z.a
 \end{verbatim}\end{indpar}
 
 If a RAM cache variable is not used, it will not actually be loaded
-from RAM.  If two RAM cache variables are explicitely given the
+from RAM.  If two RAM cache variables are explicitly given the
 same address, the two variables will be treated as the same variable
 (i.e., a variable with two names).  For example:
 
@@ -7454,7 +7454,7 @@ See Section~\itemref{THE-MEM-QUALIFIER}.
 
 The \TT{*UNCHECKED*} qualifier is also required for the result variable
 of an unchecked conversion.  When used for a result variable of an
-assignment, the value assigned need only be convertable to the type
+assignment, the value assigned need only be convertible to the type
 of the variable by an unchecked conversion, instead of by a checked
 conversion.
 
@@ -7466,7 +7466,7 @@ names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement.
 
 A \key{trace qualifier} permits values to be marked so that they
 can be found (i.e., `traced') by garbage collectors
-(and occassionally debuggers)
+(and occasionally debuggers)
 when they are stored in the
 stack.  A trace qualifier may be declared by:
 
@@ -7485,7 +7485,7 @@ function with the prototype:
 {\tt (type T) = \ttkey{base type of} ( qualifier Q )}
 \end{center}
 The value of any variable with the trace qualifier must be
-\TT{*UNCHECKED*} convertable to a value of the base type.
+\TT{*UNCHECKED*} convertible to a value of the base type.
 
 It is common to add a trace qualifier to the statement that
 defines a type you want to trace.  An example in which the
@@ -7575,7 +7575,7 @@ the assignment statement.
 
 If a variable without a \TT{mem} qualifier needs to be
 recomputed and was computed by other than
-a {\em simple-assigment-statement}, it is a compile error if the
+a {\em simple-assignment-statement}, it is a compile error if the
 variable is marked out-of-date and later used.
 
 The \TT{reload} statement behaves like an executable statement but
@@ -7860,7 +7860,7 @@ be moved to a memory region where there is more free memory available.
 
 In a program being debugged, free stacks may be saved after they are no
 longer needed by the program, in order to permit them to be analyzed
-by a debbugger if the program detects an error.  In this situation
+by a debugger if the program detects an error.  In this situation
 free stacks are allocated to a very big circular buffer, and overwritten
 after they are no longer needed by the program.  It may happen that
 a free stack whose block is still running is in the way of allocating
@@ -7973,7 +7973,7 @@ if:
 	. . . . . . . . . . . .
 \end{verbatim}\end{indpar}
 where the result variables set are those set after the \TT{*UNWIND*}
-block, thus satisying the requirement that all result variables be set.
+block, thus satisfying the requirement that all result variables be set.
 
 [TBD: Maybe default clauses should exist for all block style
 assignment statements and execute at the beginning, setting
@@ -8034,7 +8034,7 @@ byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 Free stacks are always allocated on a \TT{64} byte boundary.
 
-The `\TT{allocate to stack}' inline functions may move stackes and
+The `\TT{allocate to stack}' inline functions may move stacks and
 therefore executes a `\TT{reload mem, mem dependent}' statement.
 
 
@@ -8095,7 +8095,7 @@ The {\em global-area-block} containing \TT{A.V} need not be compiled
 or linked before the {\em extern-global-block} referencing
 \TT{A.V} is compiled or linked.  This means a runtime reference
 can be made to \TT{A.V} when it does not exist.  Such a reference
-will incure a runtime error, typically a segmentation fault.
+will incur a runtime error, typically a segmentation fault.
 
 Memory within a global area can be allocated by:
 
@@ -8132,7 +8132,7 @@ with \underline{none} of the special `\TT{stack}'
 qualifier properties, and normally has no effect on code.
 
 The `\TT{allocate to global}' inline functions may move
-global areas and threfore executes a
+global areas and therefore executes a
 \begin{center}
 \TT{reload mem, mem dependent}
 \end{center}
@@ -8210,7 +8210,7 @@ the window so that what was
 $M$\TT{[}$i_0$\TT{,}$i_1$\TT{,}\ldots\TT{]} becomes
 $M$\TT{[0,0,}\ldots\TT{]}.
 
-Creating memory channels and completely reseting their reference points
+Creating memory channels and completely resetting their reference points
 are specific to the type of memory channel, and are not covered in
 this section.
 
@@ -8277,7 +8277,7 @@ the variable appears.  It is \TT{1} if the term is neither
 replicated or omitted, and \TT{0} if it is omitted.
 
 \hspace*{-0.3in}{\tt $T$ V\ttmkey{[$i$]}{of {\tt variable name}} } \\
-The value of the $i$+1'st occurance of \TT{V} in the unfolded pattern.
+The value of the $i$+1'st occurrence of \TT{V} in the unfolded pattern.
 The index $i$ may be computed at run time, and has the range
 \TT{0~..~V.count-1}.
 $T$ is the type of the variable given in the {\em pattern-term}.

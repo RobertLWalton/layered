@@ -1056,6 +1056,8 @@ of \skey{declaration}s:
         & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
     $|$ & {\em function-declaration }
         & [see \pagref{FUNCTION-DECLARATION}] \\
+    $|$ & {\em generic-declaration }
+        & [see \pagref{GENERIC-DECLARATION}] \\
     $|$ & {\em abbreviation-declaration }
         & [see \pagref{ABBREVIATION-DECLARATION}] \\
     $|$ & {\em assignment-statement }
@@ -1063,7 +1065,8 @@ of \skey{declaration}s:
     \end{tabular}
 \end{indpar}
 
-Declarations declare {\em names} and {\em function-prototypes}.
+Declarations declare {\em names}, {\em function-prototypes},
+and {\em generic-prototypes}.
 An {\em assignment-statement} is also a {\em declaration} of
 its result {\em variable-names}.
 
@@ -1072,6 +1075,8 @@ that designate the module in which the name is declared.
 Such names are called `\key{external}'.\label{EXTERNAL}
 Similarly the pattern of a {\em function-prototype}
 (\pagref{FUNCTION-PROTOTYPE})
+or {\em generic-prototype}
+(\pagref{GENERIC-PROTOTYPE})
 may begin with the {\em module-abbreviation} of the module in
 which the prototype is declared,
 and such prototypes are `\key{external}'.

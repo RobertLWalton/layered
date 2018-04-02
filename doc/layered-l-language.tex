@@ -173,17 +173,7 @@ April 2, 2018
 \section{Introduction}
 
 This document describes the Lower Layer Programming Language, or
-L-Language.  See the Introduction to the Layered
-Programming Languages for basic syntax and for an overview of the related
-Middle Layer M-Language and Higher Layer H-Language (these overviews
-have not yet been written).
-
-The L-Language is intended to be a target language for compilers of
-higher level languages.  As such it is optimized first to be an easy to 
-use as a target language, and second to be easy to
-compile into reasonably efficient debuggable assembly language code.
-
-The L-Language is similar to the C programming language
+L-Language, which is similar to the C programming language
 but differs in the following ways:
 
 \begin{enumerate}
@@ -239,7 +229,7 @@ L-Language allows code to be compiled into the compiler, to support
 language enhancements.
 
 \item
-L-Language uses the Layered Language Module Structure to manage
+L-Language has module structure to manage
 multi-file source code in a well-ordered and type-safe manner.
 
 
@@ -263,7 +253,7 @@ the following character classes:
 \emkey{horizontal-space-character}
     \begin{tabular}[t]{rl}
     :::= & characters in UNICODE category \TT{Zs} \\
-         & (includes single space) \\
+         & (includes ASCII single space) \\
     $|$  & {\em horizontal-tab-character}
     \end{tabular}
 \\
@@ -336,16 +326,14 @@ but, with some exceptions mentioned just below, is not itself a lexeme:
 \emkey{vertical-space} :::= {\em vertical-space-character}\PLUS{}
 \end{indpar}
 
-One kind of {\em horizontal-space} is given special distinction:
+The following is a special virtual lexeme:
 \begin{indpar}
 \emkey{indent}\label{INDENT} ::=
-	\begin{tabular}[t]{l}
-        {\em horizontal-space} just before the first \\
+        virtual lexeme inserted just before the first
 	{\em graphic} character on a line
-	\end{tabular}
 \end{indpar}
 
-The \skey{indent lexeme}s have no characters, but
+\ikey{Indent lexemes}{indent lexeme} have no characters, but
 do have an \mkey{indent}{of indent lexeme}, which is the indent of
 the graphic character after the indent lexeme.
 The \mkey{indent}{of character} of a character is the number
@@ -378,7 +366,8 @@ and are illegal:
 \begin{indpar}
 \emkey{misplaced-horizontal-space-character} :::=
     \begin{tabular}[t]{l}
-    {\em horizontal-space-character}, other than \\ single space
+    {\em horizontal-space-character}, other than \\
+    ASCII single space
     \end{tabular}
 \\[0.3ex]
 \emkey{misplaced-vertical-space-character} :::= {\em vertical-space-character}
@@ -415,7 +404,7 @@ but are otherwise like {\em horizontal-space}:
 
 {\em Misplaced-horizontal} only exists inside a {\em quoted-string},
 but the other three sequences can appear anywhere.  When they occur,
-these strings generate warning messages, but otherwise they behave
+these sequences generate warning messages, but otherwise they behave
 like {\em horizontal-space}.  Specifically, outside {\em quoted-strings}
 and {\em comments} these sequences can be used to separate other lexemes,
 just as {\em horizontal-space} can be used,
@@ -461,7 +450,7 @@ warning messages.
 \emkey{character-representative}\label{CHARACTER-REPRESENTATIVE}
 	\begin{tabular}[t]{@{}rl@{}}
 	::= & {\em graphic-character} other than \TT{"} \\
-	$|$ & {\em single-space-character} \\
+	$|$ & {\em ASCII-single-space-character} \\
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\[0.3ex]
@@ -644,8 +633,8 @@ this is the second top level
      logical line
 \end{verbatim}\end{indpar}
 
-A warning message is output if the indents of any two
-consecutive physical lines differ by more than \TT{0} and
+A warning message is output if two indents that are being compared
+differ by more than \TT{0} and
 less than \TT{2} columns, in order to better detect
 indentation mistakes.
 
@@ -761,7 +750,7 @@ is split into
 However, `\TT{.1}' is not a legal {\em name-item} and so cannot
 be part of a legal {\em name}.
 
-Name items beginning with more than one beginning `\TT{.}' are reserved
+Name items beginning with more than one `\TT{.}' are reserved
 for use by systems and compilers (e.g., \TT{..size} in the example).
 
 Words ending with `\TT{\TMP$n$}', where $n$ is a {\em natural-number}, are
@@ -859,6 +848,9 @@ The L-Language uses several kinds of names:
 where
 \begin{enumerate}
 \item
+A {\em qualifier-name} must not be an initial segment
+of a {\em type-name}.
+\item
 A {\em qualifier-name} or {\em type-name} must not be an initial segment
 of a {\em name} $N$ that might begin a {\em statement} of
 the form `{\tt $N$ = \ldots}'.  Examples of such names $N$
@@ -892,7 +884,8 @@ any name sequence that might be of the form
 \end{center}
 is scanned left to right to first remove any {\em qualifier-names}
 and then a {\em type-name}, leaving a non-empty {\em variable-name}.
-At any point, if several suitable {\em names} match the
+At any point, if several suitable {\em qualifier-names} or
+{\em type-names} match the
 beginning of the remaining part of the name sequence, the longest
 is chosen.  If this process succeeds without backup, the name
 sequence is of the above form.  Otherwise it is not -- there is
@@ -907,13 +900,10 @@ Name sequences that might be of the above form can only occur at
 the beginning of a statement or as a {\em result-variable-declaration}
 or an {\em argument-declaration} in a {\em function-prototype}.
 
-In addition, non-empty name sequences of the form
-\begin{center}
-{\em qualifier-name}\STAR{} {\em type-name}\QMARK{}
-\end{center}
+In addition, non-empty name sequences
 may appear in abstract tree subexpressions of the form
 \begin{center}
-{\em name-sequence} {\tt (~\ldots{}~)}
+{\em qualifier-name}\STAR{} {\em type-name}\QMARK{} {\tt (~\ldots{}~)}
 \end{center}
 and are treated similarly.
 

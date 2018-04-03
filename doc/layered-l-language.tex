@@ -1491,10 +1491,11 @@ initializes after.  This graph must be acyclic.
 {\em Deferred-assignment-statements} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS})
 and {\em out-of-line-function-deferred-assignments}
 (\pagref{OUT-OF-LINE-FUNCTION-DEFERRED-ASSIGNMENT}) must be executed
-before statements initializing their variables or functions.
-Statements initializing their variables or functions must be executed
-before the variable values or functions are used.
-
+before statements initializing their deferred variables or deferred functions.
+Statements initializing deferred variables and functions must be executed
+during initialization of the extended module containing the
+deferred variables and functions, and
+before the deferred variable values or deferred functions are used.
 
 \subsection{Parsing}
 
@@ -1504,7 +1505,7 @@ and {\em parser-clauses}
 of the current module's {\em module-declaration} or body's
 {\em body-declaration}.  The abstract syntax
 tree of a statement can be represented by inserting implied
-parentheses into the statement.
+parentheses into the statement and quoting operators.
 
 For example, the statement
 \begin{center}
@@ -5636,7 +5637,7 @@ specifies that assignment of its result variables is deferred until later:
 
 
 The result variables of 
-a {\em deferred-assignment-statement} are called `mkey{deferred}{variable}'.
+a {\em deferred-assignment-statement} are called `\mkey{deferred}{variable}'.
 
 A {\em deferred-assignment-statement} must be top level.
 The statement that assigns its values later must be an assignment

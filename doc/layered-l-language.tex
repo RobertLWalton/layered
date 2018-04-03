@@ -1592,7 +1592,6 @@ or address:
 \begin{indpar}
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \bf Name & \bf Kind & \bf Size \\[2ex]
-\TT{std}~~~\ttkey{uns1}		& unsigned integer & 1 bits \\
 \TT{std}~~~\ttkey{uns8}		& unsigned integer & 8 bits \\
 \TT{std}~~~\ttkey{uns16}	& unsigned integer & 16 bits \\
 \TT{std}~~~\ttkey{uns32}	& unsigned integer & 32 bits \\
@@ -1618,26 +1617,31 @@ or address:
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \TT{std}~~~\ttkey{unsadr}	& unsigned integer & size of address \\
 \TT{std}~~~\ttkey{intadr}	& signed integer & size of address \\
-\TT{std}~~~\ttkey{adr}		& signed or unsigned integer
+\TT{std}~~~\ttkey{adr}		& address
                                 & size of address \\
 \end{tabular}
 
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \TT{std}~~~\ttkey{unswrd}	& unsigned integer & size of integer register \\
 \TT{std}~~~\ttkey{intwrd}	& signed integer & size of integer register \\
-\TT{std}~~~\ttkey{floatwrd}	& floating point number
+\TT{std}~~~\ttkey{floatwrd}	& IEEE floating point number
                                 & size of floating point register
 \end{tabular}
 
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
 \TT{std}~~~\ttkey{unsmax}	& unsigned integer & max implemented size \\
 \TT{std}~~~\ttkey{intmax}	& signed integer & max implemented size \\
-\TT{std}~~~\ttkey{floatmax}	& floating point number & max implemented size
+\TT{std}~~~\ttkey{floatmax}	& IEEE floating point number
+                                & max implemented size
 \end{tabular}
 
 \end{indpar}
 
-These are the \key{built in number types}.  The \TT{\ldots{}wrd} types
+These are the \key{built in number types}.  The \TT{adr} type is a
+signed or unsigned integer used as an address, and is differentiated
+from other integers in case hardware differentiates addresses from
+integers.
+The \TT{\ldots{}wrd} types
 are the sizes that execute fastest, while the \TT{\ldots{}max} types
 may be larger sizes for which all arithmetic and comparison
 operations are \key{implemented}\label{IMPLEMENTED}.
@@ -1651,7 +1655,6 @@ module to which builtin types and functions belong.  For convenience
 the following abbreviations are builtin:
 \begin{indpar}
 \begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
-\ttkey{uns1} & {\tt `std~uns1'} \\
 \ttkey{uns8} & {\tt `std~uns8'} \\
 \ttkey{uns16} & {\tt `std~uns16'} \\
 \ttkey{uns32} & {\tt `std~uns32'} \\
@@ -1707,7 +1710,7 @@ In this document we will use these abbreviations as the
 \begin{indpar}
 {\em builtin-number-type-name}\label{BUILTIN-NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}cl}
-    ::= & \TT{uns1} $|$ \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
+    ::= & \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
                     $|$ \TT{uns128} \\
     $|$ & \TT{int8} $|$ \TT{int16} $|$ \TT{int32} $|$ \TT{int64}
                     $|$ \TT{int128} \\
@@ -1723,7 +1726,7 @@ In this document we will use these abbreviations as the
 The \mkey{size}{of number}
 of a number is the number of its bits.  Numbers can have
 different sizes: for example, unsigned integers can have
-sizes of 1, 8, 16, 32, 64, or 128 bits.
+sizes of 8, 16, 32, 64, or 128 bits.
 
 Numbers are stored in registers or in random access memory (RAM).
 
@@ -6574,6 +6577,37 @@ Note that in this section `\TT{std}' is used as the
 of the \TT{"standard"} module.
 This {\em module-abbreviation} is commonly omitted when
 a function is called.
+
+\subsection{Memory Functions}
+\label{MEMORY-FUNCTIONS}
+
+The following functions allocate memory and compute addresses.
+
+\begin{indpar}
+{\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
+				  \ttkey{allocate to static} \\
+				  ( unsadr size, \\
+				  ~~unswrd alignment ?~0 )
+				  \end{tabular}}
+
+\begin{indpar}
+Allocate {\tt size} bytes of memory with the given
+{\tt alignment} in bytes to static memory, the memory
+allocated when the program is linked and loaded.  Return
+the address of this memory.  The address viewed as an
+integer is an exact multiple of the {\tt alignment}.
+
+If the
+{\tt alignment} is omitted or is given as 0 it is taken
+to be equal to the \TT{size} if that is a power of 2
+no greater than 16 (the size of a 128 bit value).
+Otherwise it is an error if the {\em alignment} is not
+a power of 2.
+
+This function does not
+execute at compile-time even if its arguments are compile-time.
+\end{indpar}
+\end{indpar}
 
 \subsection{Floating Pointer Error Flag Functions}
 \label{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}

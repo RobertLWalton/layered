@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 2, 2018
+April 3, 2018
  
 \end{center}
 
@@ -1311,8 +1311,7 @@ in error, even if the scope of one declaration is within
 a subblock of the scope of the other.
 As a consequence, it may be unwise to place {\em function-declarations}
 or {\em generic-declarations}
-within inline functions, generics, or
-assignment statements that have the context option.
+within assignment statements that have the context option.
 
 A call that is a statement by itself
 is matched against both {\em generic-prototypes}
@@ -1342,7 +1341,7 @@ may use out-of-line functions.
 It is a programming error to access
 deferred result variable values before they are assigned.
 
-The name or the pattern of a prototype
+A name or prototype pattern
 declared by a top level declaration in a module may begin with
 the {\em module-abbreviation} of the module.  In this case the
 name or prototype is `\key{external}',
@@ -1351,7 +1350,7 @@ The scope of external names and prototypes is extended
 to include modules and bodies that import the declaring module.
 All other names and prototypes declared in the module or
 its bodies are `\key{internal}',
-and these names and the patterns of these prototypes may not begin
+and these names and prototype patterns may not begin
 with any {\em module-abbreviation}.
 
 {\em Abbreviations} are always internal (\pagref{ABBREVIATIONS-ARE-INTERNAL}),

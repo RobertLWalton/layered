@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 3, 2018
+April 4, 2018
  
 \end{center}
 
@@ -1067,7 +1067,7 @@ of \skey{declaration}s:
 
 Declarations declare {\em names}, {\em function-prototypes},
 and {\em generic-prototypes}.
-An {\em assignment-statement} is also a {\em declaration} of
+An {\em assignment-state\-ment} is also a {\em declaration} of
 its result {\em variable-names}.
 
 {\em Names} shared between modules begin with {\em module-abbreviations}
@@ -6584,6 +6584,7 @@ a function is called.
 The following functions allocate memory and compute addresses.
 
 \begin{indpar}
+
 {\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
 				  \ttkey{allocate to static} \\
 				  ( unsadr size, \\
@@ -6604,10 +6605,57 @@ no greater than 16 (the size of a 128 bit value).
 Otherwise it is an error if the {\em alignment} is not
 a power of 2.
 
+The memory bytes are initialized to zero.
+
 This function does not
 execute at compile-time even if its arguments are compile-time.
 \end{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
+\begin{center}
+where $T$ is any type
+\end{center}
+
+\begin{indpar}
+Allocate static memory and set it equal to {\tt v}.  
+The alignment of the memory is equal to the alignment of $T$.
+Return the address of this memory.  The address viewed as an
+integer is an exact multiple of the alignment.
+
+This function does not
+execute at compile-time even if its arguments are compile-time.
 \end{indpar}
+
+{\tt function *UNCHECKED* adr r =} \\
+\hspace*{0in}{\tt ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
+
+\begin{indpar}
+Allocate static memory and set it equal to the UTF-8 representation of the
+value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
+read-only, meaning that trying to write it will cause a program memory
+fault error.
+
+This function does not
+execute at compile-time even if its arguments are compile-time.
+\end{indpar}
+
+\end{indpar}
+
+Note that
+\begin{center}
+{\tt allocate to static ( "Hello There" )}
+\end{center}
+creates a \TT{string} vector containing {\tt "Hello There"},
+allocates static memory for a pointer to this vector, stores the
+pointer into the static memory, and returns the address of the
+pointer.
+
+On the other hand
+\begin{center}
+{\tt allocate UTF-8 to static ( "Hello There" )}
+\end{center}
+allocates static memory in which is stored a UFT-8 representation of
+{\tt "Hello There"}, and returns the address of this memory.
 
 \subsection{Floating Pointer Error Flag Functions}
 \label{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}
@@ -6965,16 +7013,18 @@ declared in that other context.  An example that implements a writable
 parameter is:
 \begin{indpar}\begin{verbatim}
 module "my_module" as mymod
-    define type P as read-write pointer to vector of float64
-    P p = new
-    // Parameter is stored in p.all
-    // P and p are not visible in other modules.
+    *UNCHECKED* adr p = allocate to static ( float64 ( 0 ) )
+    // Parameter is float64 stored at address p
+    // P is not visible in other modules.
 
     // function to allow reading of parameter
-    // by other modules.
+    // by other modules.  Usage is:
     //
-    function float64 r = mymod my parameter:
-        return p.all
+    //    float64 v = mymod my parameter
+    //
+    function mem float64 r, *UNCHECKED* adr r.adr =
+            mymod my parameter:
+        r.adr = p
 \end{verbatim}\end{indpar}
 
 As an additional feature of generics, whenever the word
@@ -7183,17 +7233,7 @@ as cluster and subcluster roots.  The `\TT{allocate to stack}'
 function requires that its result be a variable whose underlying
 type is \TT{void} (see \pagref{ALLOCATE-TO-STACK}).
 
-Cluster roots and members may be implied next variable
-(see \pagref{IMPLIED-NEXT-VARIABLES}).  Some members of a cluster
-may be next variables while other members of the same cluster are
-not.  The variables of a cluster are independent of each other
-in this respect.
-
 Cluster members may only be created as function call results.
-A {\em result-declaration} of the form `\TT{next} {\em v}' where
-{\em v} denotes a cluster member or root can only be used in
-a function result prototype: 
-see \pagref{IMPLIED-NEXT-VARIABLES}.
 
 A cluster member may be explicitly passed as a result variable
 or argument if it is the root of a subcluster that is being
@@ -8063,8 +8103,12 @@ byte of the allocated memory block
 at an address which is a multiple of \TT{A}\,.
 Free stacks are always allocated on a \TT{64} byte boundary.
 
-The `\TT{allocate to stack}' inline functions may move stacks and
-therefore executes a `\TT{reload mem, mem dependent}' statement.
+The `\TT{allocate to stack}' inline functions may move stacks.
+Therefore it executes a
+\begin{center}
+\TT{reload mem, mem dependent}
+\end{center}
+statement.
 
 
 \subsection{Global Areas}

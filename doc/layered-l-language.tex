@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 4, 2018
+April 5, 2018
  
 \end{center}
 
@@ -1828,7 +1828,7 @@ The following builtin conversion functions are defined:
 {\tt function float$x$~r = std \ttkey{float$x$}~( int$y$ v )} \\
 {\tt function float$x$~r = std \ttkey{float$x$}~( float$y$ v )}
 \begin{center}
-for any $x\geq y$ for which the types are builtin
+for any $x>y$ for which the types are builtin
 \end{center}
 \begin{indpar}
 For these conversion functions, no information is lost from
@@ -1956,10 +1956,9 @@ that is used to denote a number.  The syntax is:
 			       {\em exponent}\QMARK{}
 			 \end{tabular}
 \\[0.5ex]
-\emkey{decimal-lexeme} :::= {\em decimal-body-lexeme} ~ {\em exponent}\QMARK{}
-\\[0.5ex]
-\emkey{decimal-body-lexeme} :::= {\em sign}\QMARK{} ~ {\em decimal-integer} ~
-				 {\em decimal-fraction}\QMARK{}
+\emkey{decimal-lexeme} :::= {\em sign}\QMARK{} ~ {\em decimal-integer} ~
+			    {\em decimal-fraction}\QMARK{} ~
+                            {\em exponent}\QMARK{}
 \\[0.5ex]
 \emkey{decimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{D}
 \\[0.5ex]
@@ -1970,11 +1969,11 @@ that is used to denote a number.  The syntax is:
     \begin{tabular}[t]{@{}cl}
     :::= & {\em dit}\PLUS{} \\
      $|$ & {\em dit}
-           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{} \\
+           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
      $|$ & {\em dit} {\em dit}
-           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{} \\
+           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
      $|$ & {\em dit} {\em dit} {\em dit}
-           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{} \\
+           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
     \end{tabular} \\
 \emkey{decimal-fraction} :::= \TT{.} {\em dit}\PLUS{} \\
 \emkey{dit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
@@ -1993,13 +1992,13 @@ that is used to denote a number.  The syntax is:
     \begin{tabular}[t]{@{}cl}
     :::= & {\em bit}\PLUS{} \\
      $|$ & {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
      $|$ & {\em bit} {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
      $|$ & {\em bit} {\em bit} {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
      $|$ & {\em bit} {\em bit} {\em bit} {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\PLUS{} \\
+           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
     \end{tabular} \\
 \emkey{binary-fraction} :::= \TT{.} {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
@@ -2018,13 +2017,13 @@ that is used to denote a number.  The syntax is:
     \begin{tabular}[t]{@{}cl}
     :::= & {\em hit}\PLUS{} \\
      $|$ & {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
      $|$ & {\em hit} {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
      $|$ & {\em hit} {\em hit} {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
      $|$ & {\em hit} {\em hit} {\em hit} {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\PLUS{} \\
+           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
     \end{tabular} \\
 \emkey{hexadecimal-fraction} :::= \TT{.} {\em hit}\PLUS{} \\
 \emkey{hit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
@@ -2036,7 +2035,9 @@ that is used to denote a number.  The syntax is:
 The integer part of decimal constants may have commas
 every 3 digits, and the integer part of binary and hexadecimal constants
 may have commas every 4 digits.
-If there is a decimal point, there must be at least one fraction digit.
+If there is a decimal point, there \underline{must}
+be at least one integer digit and
+one fraction digit.
 
 \TT{NaN} denotes a canonical non-signaling NaN such
 at that produced by hardware on the target machine.

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 5, 2018
+April 7, 2018
  
 \end{center}
 
@@ -4065,7 +4065,7 @@ the expression must be a {\em function-call} and can only match
 
 Where binary operators of the same precedence appear outside
 parentheses in an expression, they are evaluated left to right.
-This is, they are left associative.  For example,
+That is, they are left associative.  For example,
 `{\tt x <{}< s1 >{}> s2}' is
 equivalent to `{\tt (x <{}< s1) >{}> s2}'.
 
@@ -4117,12 +4117,10 @@ An example assuming:
 
 
 \begin{indpar}\begin{verbatim}
-unswrd ---> `uns32'
-intwrd ---> `int32'
-floatwrd ---> `float32'
-unsmax ---> `uns64'
-intmax ---> `int64'
-floatmax ---> `float32'
+unswrd      is 32 bits
+intwrd      is 32 bits
+unsmax      is 64 bits
+intmax      is 64 bits
 \end{verbatim}\end{indpar}
 
 is:
@@ -4184,7 +4182,7 @@ expressions.
 
 If an integer arithmetic operator is being evaluated with
 operand and target type \TT{uns$x$} or \TT{int$x$}, the
-exact arithmetic results is computed and truncated to
+exact arithmetic result is computed and truncated to
 $x$ bits, i.e., is taken modulo $2^x$ before being presented
 as the result.
 
@@ -4342,15 +4340,27 @@ where $op$ is one of \TT{-} or \TT{!}
 {\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
 where $op$ is one of
-    \TT{+}, \TT{-}, \TT{\&}, \TT{|}, \TT{xor},
+    \TT{+}, \TT{-},
     \TT{*}, \TT{/}, \TT{div}, \TT{mod}, \TT{rem}, \TT{\textasciicircum}
 \end{indpar}
+
+{\tt function $T$ r = "!"\QMARK{} ( $T$ $v1$ ) "$op$" "!"\QMARK{} ( $T$ $v2$ )}
+\begin{indpar}
+where $op$ is one of
+    \TT{\&}, \TT{|}, \TT{xor}
+\end{indpar}
+
 \end{indpar}
 
 
 The selection operator (\TT{if/else}) and the logical
 operators (\TT{not}, \TT{and}, \TT{or}) may \underline{not}
 be overloaded.
+
+The expressions in the following are those output by the parser.
+However to avoid clutter, parentheses are omitted surrounding
+subexpressions $e$, $eI$, $b$, and $bI$, and quotes (\TT{"}) are omitted
+surrounding operators.
 
 \medskip
 
@@ -4372,7 +4382,8 @@ If any $bI$ is a compile time
 \TT{false} value, the associated $eI$ is not compiled or checked
 for compile errors.
 If any $bI$ is a compile time
-\TT{true} value, the subsequent $bJ$'s and their associated $eJ$'s
+\TT{true} value, the subsequent $bJ$'s and their associated $eJ$'s,
+and also $e$,
 are not compiled or checked
 for compile errors.
 \end{indpar}
@@ -4446,7 +4457,7 @@ the value of the {\em logical-expression}.
 No $eI$ is evaluated more than once, though the value of some $eI$
 may be used more than once.
 
-The target type $T$ of the expressions $eI$ is selected as
+The target type of the expressions $eI$ is selected as
 per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
 function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
 Builtin comparison operators are defined for all implemented
@@ -4488,7 +4499,7 @@ the value of the {\em comparison-expression}.
 No $eI$ is evaluated more than once, though the value of some $eI$
 may be used more than once.
 
-The target type $T$ of the expressions $eI$ is selected as
+The target type of the expressions $eI$ is selected as
 per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
 function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
 Builtin comparison operators are defined for all implemented
@@ -4514,7 +4525,7 @@ Each function call
 been evaluated, so the operators (other than \TT{!}) are
 also evaluated left to right.
 
-The target type $T$ of the $eI$ is the target type of the
+The target type of the $eI$ is the target type of the
 {\em bitop-expression}.  Builtin bitop operators are defined
 for all implemented integer numeric types.
 \end{indpar}
@@ -4530,7 +4541,7 @@ Each function call
 been evaluated, so the operators are
 also evaluated left to right.
 
-The target type $T$ of $e1$ is the target type of the
+The target type of $e1$ is the target type $T$ of the
 {\em bitop-expression}.
 The target type of $e2$, $e3$, \ldots{} is \TT{unswrd}.
 Builtin bitop operators are defined
@@ -4574,14 +4585,13 @@ Each function call
 been evaluated, so the operators are
 also evaluated left to right.
 
-The target type $T$ of the $eI$ is the target type of the
+The target type of the $eI$ is the target type $T$ of the
 {\em product-expression}.
-Builtin \TT{"*"} and \TT{mod} operators are defined
-for all implemented numeric types $T$.
-Builtin \TT{div} and \TT{rem} operators are defined
+Builtin \TT{*}, \TT{mod},
+\TT{div}, and \TT{rem} operators are defined
 for all implemented integer numeric types $T$ with size
 at least 32 bits.
-Builtin \TT{"/"} operators are defined
+Builtin \TT{/} and \TT{mod} operators are defined
 for all implemented floating point numeric types $T$.
 
 \end{indpar}
@@ -4632,17 +4642,17 @@ is equivalent to the above example.
 \end{indpar}
 
 \TT{$Qs$ $T$ ( $e$ )}
-\hfill [{\em subexpression}]
+\hfill [{\em primary}]
 \begin{indpar}
 where $Qs$ are zero or more {\em qualifier-names} and $T$ is a {\em type-name}.
 
-If the {\em subexpression} can be compiled as a call to a
+If the {\em primary} can be compiled as a call to a
 user defined function named $T$, it is evaluated as such with
 target type `$Qs$ $T$'.
 
 Otherwise $e$ is evaluated with target type `$Qs$ $T$'
 and the result is implicitly
-converted to the target type of the {\em subexpression}.
+converted to the target type of the {\em primary}.
 \end{indpar}
 
 \section{Assignment Statements}
@@ -7462,6 +7472,8 @@ writes the value to RAM.  For example:
 
 If the original value of \TT{v} was never used, it will not be
 read from RAM even \TT{v} is written in this way.
+
+TBD: Need a *WRITABLE* qualifier to allow writing this way.
 
 Because \TT{mem} is a protected qualifier, \TT{v} and the required
 members of the cluster of which \TT{v} is a root

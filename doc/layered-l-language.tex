@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 7, 2018
+April 9, 2018
  
 \end{center}
 
@@ -4703,6 +4703,8 @@ Assignment statements have the syntax:
     		& [see \pagref{EXPRESSION-LIST}] \\
     $|$ & {\em function-call}
     		& [see \pagref{FUNCTION-CALL}] \\
+    $|$ & {\em generic-call}
+    		& [see \pagref{GENERIC-CALL}] \\
     $|$ & {\em block}
 	        & [see kinds of assignment statement below] \\
     \end{tabular}
@@ -4733,7 +4735,9 @@ The kinds of assignment statements are:
     $|$ & {\em assembly-assignment-statement}
 	& \itemref{ASSEMBLY-ASSIGNMENT-STATEMENTS} \\
     $|$ & {\em function-call}
-	& \itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES} \\
+	& \itemref{FUNCTION-PROTOTYPES-AND-CALLS} \\
+    $|$ & {\em generic-call}
+	& \itemref{GENERICS} \\
     \end{tabular}
 \end{indpar}
 
@@ -6849,7 +6853,8 @@ The general syntax is:
 \\[0.5ex]
 {\em function-pattern} ::= see \pagref{FUNCTION-PATTERN}
 \\[0.5ex]
-\emkey{generic-call} ::= {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
+\emkey{generic-call}\label{GENERIC-CALL}
+    ::= {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
 \\[0.5ex]
 \emkey{include-statement} ::=
     \begin{tabular}[t]{l}

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 9, 2018
+April 10, 2018
  
 \end{center}
 
@@ -854,7 +854,7 @@ of a {\em type-name}.
 A {\em qualifier-name} or {\em type-name} must not be an initial segment
 of a {\em name} $N$ that might begin a {\em statement} of
 the form `{\tt $N$ = \ldots}'.  Examples of such names $N$
-are {\em deferred-result-variables} (\pagref{DEFERRED-RESULT-VARIABLE})
+are {\em deferred-variables} (\pagref{DEFERRED-VARIABLE})
 and {\em function-variable-names} (\pagref{FUNCTION-VARIABLE-NAME}).
 \label{TYPE-NAME-RULE}
 \item
@@ -2093,7 +2093,7 @@ variable or argument declared to have the defined type (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
 
 No {\em type-name} may be a prefix of
-any {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
+any {\em deferred-variable} (\pagref{DEFERRED-VARIABLE})
 or any {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME}).
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 
@@ -3408,7 +3408,7 @@ where
 \item
 No {\em qualifier-name} may be a prefix of
 any {\em type-name},
-any {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
+any {\em deferred-variable} (\pagref{DEFERRED-VARIABLE})
 or any {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME}).
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
@@ -4679,8 +4679,8 @@ Assignment statements have the syntax:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
-    $|$ & {\em deferred-result-variable}
-    		& [see \pagref{DEFERRED-RESULT-VARIABLE}] \\
+    $|$ & {\em deferred-variable}
+    		& [see \pagref{DEFERRED-VARIABLE}] \\
     $|$ & {\em iteration-result-variable}
     		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
     \end{tabular}
@@ -4798,8 +4798,8 @@ place of the {\em qualifier-names} and {\em type-name}
 of a result variable being assigned a value, then the named variable must
 have been previously assigned a value within the same smallest containing block,
 a new variable with the same qualifiers, type, and name
-as the previous variable is allocated,
-and the new variable supersedes the previous variable
+as that previous variable is allocated,
+and the new variable supersedes that previous variable
 in subsequent code within the block.  Thus if {\tt v} is the name
 of a variable declared in a block, then after `{\tt next v}' is
 assigned, {\tt v} refers to the value assigned to `{\tt next v}'.
@@ -4810,13 +4810,14 @@ the more detailed discussion in
 
 Note that `\TT{next}' behaves differently when it used as part of
 the name of
-a {\em deferred-result-variable} (\pagref{DEFERRED-RESULT-VARIABLE})
+a {\em deferred-variable} (\pagref{DEFERRED-VARIABLE})
 or an {\em iteration-result-variable} (\pagref{ITERATION-RESULT-VARIABLE}).
 
 The {\em result-variables} may be completely omitted if the
-{\em assignment-right-side} is a {\em subblock} or is a
+{\em assignment-right-side} is a {\em subblock}, is a
 {\em function-call} matching a {\em function-prototype} that has
-no result variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+no result variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}),
+or is a {\em generic-call} (\itemref{GENERICS}).
 Because such statements still have
 the form and semantics of statements that could have result variables,
 we call them `{\em assignment-statements}' even though they allocate
@@ -4854,7 +4855,7 @@ The {\em expressions} are evaluated in left to
 right order, and all the {\em expressions} are evaluated before any of
 the result variables are given values.
 In this case there must be the same number of {\em expressions}
-in the {\em expression-list} as their are result variables.
+in the {\em expression-list} as there are result variables.
 
 If the {\em expression-list} is a single {\em expression} that
 is a {\em function-call} which
@@ -4952,17 +4953,17 @@ are called `\skey{deferred variable}s' because they do not
 immediately get a value.  They are assigned values by
 {\em assignment-statements} within the block
 whose {\em result-variable-lists}
-include {\em deferred-result-variables}:
+include {\em deferred-variables}:
 \begin{indpar}
-\emkey{deferred-result-variable}\label{DEFERRED-RESULT-VARIABLE} ::=
+\emkey{deferred-variable}\label{DEFERRED-VARIABLE} ::=
     {\em variable-name} $|$ \TT{next} ~ {\em variable-name}
 \end{indpar}
-{\em Assignment-statements} that set {\em deferred-result-variables}
+{\em Assignment-statements} that set {\em deferred-variables}
 are called `\skey{deferred assignment}s'.
 
 No {\em qualifier-name} or {\em type-name} may be a prefix of
 a {\em variable-name} used as a
-{\em deferred-result-variable}.
+{\em deferred-variable}.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 
 Variables declared in the block may not hide (\pagref{HIDE})
@@ -4985,16 +4986,17 @@ int32 x = 1
 float64 y = 1.67
 int64 z, uns8 w, next x =:
 
-    z = 16,777,216   // Legal, z is result variable
-    x = 265          // ILLEGAL, x is NOT result variable
+    z = 16,777,216   // Legal, z is deferred variable
+    x = 265          // ILLEGAL, x is NOT deferred variable
     float64 y = 2.6  // ILLEGAL, y is visible outside block
     uns8 v = 55      // Legal, v is NOT visible outside block
-    next x = 265 + x // Legal, next x is result variable,
+    next x = 265 + x // Legal, next x is deferred variable,
                      //        now x == 266
     next y = 2.6     // ILLEGAL, y is visible outside block
-                     //          and next y is not result
+                     //          and next y is not deferred
                      //          variable
-    w = mod ( x )    // Legal, sets w to 10 as x is now 266
+    w = mod ( x )    // Legal, w is deferred variable,
+                     // sets w to 10 as x is now 266
 \end{verbatim}\end{indpar}
 
 An exit statement may be used to jump from within a block to
@@ -5027,11 +5029,11 @@ bool v = do BLOCK1:
     // sets v = ( x <= 10 or y >= 10 )
     //
     do BLOCK2:
-        exit BLOCK2 if ( x > 10 )
+        exit BLOCK2 if not x <= 10
         v = true
         exit BLOCK1
     do BLOCK3:
-        exit BLOCK3 if ( y < 10 )
+        exit BLOCK3 if not y >= 10
         v = true
         exit BLOCK1
     v = false
@@ -5059,11 +5061,11 @@ int32 x = 1
 int32 y = 1
 int32 z = do BLOCK1:
     do BLOCK2:
-        exit BLOCK2 if ( x > 10 )
+        exit BLOCK2 if not x <= 10
         z = 55
         exit BLOCK1
     do BLOCK3:
-        exit BLOCK3 if ( y < 10 )
+        exit BLOCK3 if not y >= 10
         z = "hot dog"    // Illegal conversion
         exit BLOCK1
     z = "cold dog"       // Illegal conversion

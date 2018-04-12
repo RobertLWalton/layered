@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 10, 2018
+April 11, 2018
  
 \end{center}
 
@@ -6673,6 +6673,37 @@ On the other hand
 \end{center}
 allocates static memory in which is stored a UFT-8 representation of
 {\tt "Hello There"}, and returns the address of this memory.
+
+The following function can be used to embed addresses in 
+floating point NaNs or other numeric values.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* adr r =} \\
+\hspace*{0in}{\tt ~~~~~~~~~std \ttkey{extract adr}} \\
+\hspace*{0in}{\tt ~~~~~~~~~~~~~ ( *UNCHECKED* uns64 v,} \\
+\hspace*{0in}{\tt ~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+
+\begin{indpar}
+Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
+and return the result as a usable byte address.
+If the target machine only uses the low order $k$ bits of a 64-bit
+address, the high order $64-k$ bits of the result are set according
+to the requirements of the target machine, or are undefined if there
+are no such requirements.  If $k>${\tt L+S},
+the {\tt L} bits are padded on the left with zero bits.
+
+For example, for an x86 target machine $k=48$ and the high order
+17 bits of the returned address must be equal (all 0's or all 1's).
+If {\tt L = 40} and {\tt S = 4} then 4+16=20 zero bits of padding are
+added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
+bit of the low {\tt L} bits of {\tt v} is sign extended to become
+the high order 17 bits of the returned address.
+\end{indpar}
+
+\end{indpar}
+
+
 
 \subsection{Floating Pointer Error Flag Functions}
 \label{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}

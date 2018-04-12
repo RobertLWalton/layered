@@ -2344,7 +2344,8 @@ compiled after the {\em enum-type-declaration} will make
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
 	      \end{tabular} \\
-Ditto with every `\TT{next}' replaced everywhere by `\TT{previous}' and
+Ditto with every `\TT{next}' replaced by `\TT{previous}',
+every `\TT{previous}' replaced by `\TT{next}', and
 \begin{center}
 \TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
 {\tt =~$I$(V0)~-~}{\em last-enum}
@@ -2405,13 +2406,13 @@ The following are builtin enumeration types:
 \begin{indpar} \tt
 define type~\ttkey{std type}~as unswrd with enum [0~..] \\
 \ttkey{type} ---> `std type' \\
-type~\ttkey{std missing type}~is next enum // 0 \\
+type \ttkey{std missing type}~= next enum // 0 \\
 function std type r = \ttmkey{std missing}{type}: \\
 \hspace*{0in}~~~~r = std missing type
 \\[1ex]
 define type~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
 \ttkey{qualifier} ---> `std qualifier' \\
-qualifier~\ttkey{std missing qualifier}~is next enum // 0 \\
+qualifier~\ttkey{std missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttmkey{std missing}{qualifier}: \\
 \hspace*{0in}~~~~r = std missing qualifier
 \\[1ex]
@@ -2420,9 +2421,9 @@ define type~\ttkey{std bool}\begin{tabular}[t]{@{}l@{}}
                             ~without implied conversion \\
 		            \end{tabular} \\
 \ttkey{bool} ---> `std bool' \\
-bool~\ttkey{std false}~is next enum // 0 \\
+bool~\ttkey{std false}~= next enum // 0 \\
 \ttkey{false} ---> `std false' \\
-bool~\ttkey{std true}~~is next enum // 1 \\
+bool~\ttkey{std true}~~= next enum // 1 \\
 \ttkey{true} ---> `std true'
 \end{indpar}
 

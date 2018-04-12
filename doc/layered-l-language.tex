@@ -2085,12 +2085,16 @@ specifies its {\em type-name}:
 \emkey{defined-type-declaration}\label{DEFINED-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
 \TT{define type} {\em qualifier-name}\STAR{} {\em defined-type-name}
-          \TT{as} {\em base-type-name} \\
+          \TT{as} {\em expression} \\
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME} \\
 \emkey{defined-type-name} ::= {\em type-name} \\
-\emkey{base-type-name} ::= {\em type-name} \\
+\emkey{expression} ::= see \pagref{EXPRESSION} \\
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
 \end{indpar}
+
+The {\em expression} must evaluate to a \TT{type} value at
+compile-time.  The simplest {\em expression} is just the name
+of another type.
 
 Any {\em qualifiers} in the declaration are attached to every
 variable or argument declared to have the defined type (see
@@ -2101,16 +2105,38 @@ any {\em deferred-variable} (\pagref{DEFERRED-VARIABLE})
 or any {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME}).
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 
-A value of a defined type may be converted to or from its base
-type by the
-\underline{unchecked}
-builtin functions:
-\begin{indpar}
-{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $D$ v )} \\
-{\tt function \TT{*UNCHECKED*} $D$ r = $D$ ( $B$ v )}
+Consider the example:
+\begin{indpar}\begin{verbatim}
+define type T1 as int32
+type T2 = int32
+define type T3 as T2  // Same as `define type T3 as int32'
+int32 x = 1
+T1 x1 = T1 ( x )
+T2 x2 = x             // Compile error: T2 is not a type-name.
+T3 x3 = T3 ( x )
+\end{verbatim}\end{indpar}
 
-where $B$ is the {\em base-type-name} used to define
-the {\em defined-type-name} $D$
+A `{\tt \ttkey{define type} T as \ldots}'
+statement defines {\tt T} to be a {\em type-name} that can be used in
+a declaration of the form `{\tt T v}'
+or can be used to name a constant equal an enumeration value
+that is the identifier of the type as in `{\tt T == int32}'
+(\pagref{TYPE-VALUES}), or can be used
+as a function of one argument to convert the argument to the
+type, as in `{\tt T(v)}'.
+However a statement of the form `{\tt type T = \ldots}'
+declares {\tt T} to be a mere variable name that can only be
+use as a constant equal to an enumeration value that is the
+identifier of a type.
+
+The following \underline{unchecked} builtin functions are defined:
+\begin{indpar}
+{\tt function $T$ r = $T$ ( \TT{*UNCHECKED*} $E$ v )} \\
+{\tt function $E$ r = $E$ ( \TT{*UNCHECKED*} $T$ v )}
+
+where $T$ is defined by `{\tt define type $T$ as $e$}' and
+$E$ is a {\em type-name} associated with the type that is the
+the value of $e$
 
 \begin{indpar}
 These functions do not change the actual value, but merely its
@@ -2457,8 +2483,26 @@ of that enumeration type are assigned in the a single code file.
 \subsection{Enumeration Set and List Types}
 \label{ENUMERATION-SET-AND-LIST-TYPES}
 
+For every enumeration type two additional types are created,
+an enumeration set type and an enumeration list type.
 An \key{enumeration set} is a set of enumeration values.
-An \key{enumeration list} is a list of enumeration values.  The syntax
+An \key{enumeration list} is a list of enumeration values.
+These two new types do not have {\em type-names},
+but they can be discovered by the following functions:
+
+\begin{indpar}
+
+{\tt function type r = std \ttmkey{set of} ( type E )} \\
+{\tt function type r = std \ttmkey{list of} ( type E )}
+\begin{indpar}
+Returns the type whose values are sets or lists
+of elements of type {\tt E}, where
+{\tt E} must be an enumeration type.
+\end{indpar}
+
+\end{indpar}
+
+The syntax
 for enumeration set and list constants is:
 \begin{indpar}
 \emkey{enum-set-constant}\label{ENUM-SET-CONSTANT}

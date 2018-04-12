@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 11, 2018
+April 12, 2018
  
 \end{center}
 
@@ -1756,7 +1756,8 @@ can be embedded in a 64-bit floating point NaN.  The L-Language does
 that takes as input a 64-bit integer and two small integers, $L$ and $S$,
 and returns a 64-bit address containing
 the byte address equal to the low order $L$ bits of the input integer
-left shifted by $S$.  The output may have undefined high order bits if
+left shifted by $S$ (see {\tt extract adr}, \pagref{EXTRACT-ADR}).
+The output may have undefined high order bits if
 the hardware ignores them when using the output to address memory.
 For example, if the hardware ignores the high order 20 bits, and uses only the
 low order 44 bits,
@@ -1792,9 +1793,11 @@ There are also three special floating point values:
 \TT{-Inf} denoting negative infinity,
 and \TT{NaN} denoting `\key{not-a-number}' which is a value produced
 when, for example, \TT{0} is divided by \TT{0}.
-In this document \ttkey{NaN} denotes the particular non-signaling
+In this document \ttkey{NaN}\label{NAN} denotes the particular non-signaling
 not-a-number value
-produced by arithmetic operations that cannot produce a number.
+produced by arithmetic operations that cannot produce a number.%
+\footnote{For example, the x86 architecture generates a
+`\key{floating indefinite NaN}' as output of such operations.}
 Floating point variables can store many other not-a-number values.
 
 \subsubsection{Number Conversion Functions}
@@ -2040,7 +2043,8 @@ be at least one integer digit and
 one fraction digit.
 
 \TT{NaN} denotes a canonical non-signaling NaN such
-at that produced by hardware on the target machine.
+at that produced by hardware on the target machine
+(\pagref{NAN}).
 \TT{+Inf} denotes positive infinity; \TT{-Inf} denotes negative infinity.
 
 {\em Number-constants} have no type.  They can be converted to
@@ -2075,8 +2079,8 @@ in fact it is assigning values to cluster members.
 \subsection{Defined Types}
 \label{DEFINED-TYPES}
 
-A declaration statement of the following form defines a type by
-specifying its {\em type-name}:
+A declaration statement of the following form defines a type and
+specifies its {\em type-name}:
 \begin{indpar}
 \emkey{defined-type-declaration}\label{DEFINED-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
@@ -2125,9 +2129,11 @@ integers assigned to \skey{enumeration constant}s.
 Each enumeration constant is assigned a value during compilation
 that is an integer unique relative to all enumeration
 constants of its enumeration type that are being compiled together.
-Then during linking the enumeration constant is assigned a possibly
+Then during program initialization
+the enumeration constant is assigned a possibly
 different value that is an integer unique relative to all enumeration
-constants of its enumeration type that are being linked together.
+constants of its enumeration type that are being initialized by
+the program.
 
 A declaration statement of the following form defines an \key{enumeration type}
 that has enumeration values:
@@ -2173,13 +2179,27 @@ Enumeration values can be assigned by declaration statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
     \begin{tabular}[t]{rl}
-    ::= & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ is next enum} \\
-    $|$ & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ is previous enum}
+    ::= & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ = next enum} \\
+    $|$ & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ = previous enum}
     \end{tabular}
+\\[0.5ex]
+\emkey{enum-type-name} ::= {\em type-name}
 \\[0.5ex]
 \emkey{enum-constant-name} ::= {\em variable-name}
 \\[0.5ex]
 {\em variable-name} ::= see \pagref{VARIABLE-NAME}
+\end{indpar}
+
+These statements invoke one of the builtin functions:
+\begin{indpar}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{next enum}} \\
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{previous enum}}
+\begin{center}
+where $T$ is the {\em enum-type-name} and $ma$ is its
+{\em module-abbreviation}, if any.
+\end{center}
+
+
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
@@ -2414,22 +2434,24 @@ unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
 `\TT{range value of}' functions above
 can be used to find the integer values associated with any
 enumeration constant, but unspecified builtin values may differ from
-one compilation or linking to the next.
+one compilation or program to the next.
 
 Enumeration values are assigned within a compilation in
 the order that {\em enum-assignments} are compiled.
-Enumeration values are assigned during linking according to the order
-that modules containing the {\em enum-assignments} are linked.
-The link and compile values assigned by an {\em enum-assignment}
+Enumeration values are assigned during program initialization
+according to the order
+that code files containing the {\em enum-assignments} are initialized.
+The program initialization
+and compile values assigned by an {\em enum-assignment}
 may differ.
 
-However, within a compilation module, all assignments to an enumeration type
-are done in the same order during linking as during compilation.
-Thus values assigned within the same module can be assumed to be
-in the same order at compile and link times.  Also,
-compile and link values of a given enumeration type
+However, within a code file, all assignments to an enumeration type
+are done in the same order during program initialization as during compilation.
+Thus values assigned within the same code file can be assumed to be
+in the same order at compile and run times.  Also,
+compile and run values of a given enumeration type
 can be assumed to be the same if \underline{all} values
-of that enumeration type are assigned in the a single compilation module.
+of that enumeration type are assigned in the a single code file.
 
 \subsection{Enumeration Set and List Types}
 \label{ENUMERATION-SET-AND-LIST-TYPES}
@@ -2848,9 +2870,9 @@ to {\em last-enum} is returned by `\TT{max unassigned value}'.
 
 These are defined only for enumeration types,
 
-These values may change when more code is compiled or linked.
+These values may change when more code is compiled or initialized.
 You may only assume that constants of type {\tt T} whose values have
-already been compiled or linked are within
+already been compiled or initialized are within
 ranges bounded by these values, i.e., in the ranges:
 \begin{center}
 {\tt [ min value, min unassigned value )} \\
@@ -6611,7 +6633,7 @@ The following functions allocate memory and compute addresses.
 \begin{indpar}
 Allocate {\tt size} bytes of memory with the given
 {\tt alignment} in bytes to static memory, the memory
-allocated when the program is linked and loaded.  Return
+allocated when the program is initialized.  Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
@@ -6680,7 +6702,7 @@ floating point NaNs or other numeric values.
 \begin{indpar}
 
 {\tt function *UNCHECKED* adr r =} \\
-\hspace*{0in}{\tt ~~~~~~~~~std \ttkey{extract adr}} \\
+\hspace*{0in}{\tt ~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
 \hspace*{0in}{\tt ~~~~~~~~~~~~~ ( *UNCHECKED* uns64 v,} \\
 \hspace*{0in}{\tt ~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
@@ -8216,8 +8238,8 @@ in the same manner as a function prototype argument variable
 matches a function call variable.
 
 The {\em global-area-block} containing \TT{A.V} need not be compiled
-or linked before the {\em extern-global-block} referencing
-\TT{A.V} is compiled or linked.  This means a runtime reference
+or loaded before the {\em extern-global-block} referencing
+\TT{A.V} is compiled or loaded.  This means a runtime reference
 can be made to \TT{A.V} when it does not exist.  Such a reference
 will incur a runtime error, typically a segmentation fault.
 
@@ -8279,7 +8301,7 @@ global area, global area blocks are executed in the compiler immediately
 after the block compiles, and the global area stack exists in the compiler.
 If the global area is also run time, its
 block code will be re-executed in the run time environment when the
-file containing it is linked, and might produce different stack contents
+file containing it is loaded, and might produce different stack contents
 for the area than the compile time version of the area.
 
 \section{Memory Channels}

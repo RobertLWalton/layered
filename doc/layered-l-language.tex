@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 12, 2018
+April 13, 2018
  
 \end{center}
 
@@ -2084,20 +2084,23 @@ specifies its {\em type-name}:
 \begin{indpar}
 \emkey{defined-type-declaration}\label{DEFINED-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
-\TT{define type} {\em qualifier-name}\STAR{} {\em defined-type-name}
-          \TT{as} {\em expression} \\
+\TT{define type}
+          {\em qualifier-name}\STAR{} {\em defined-type-name}
+          \TT{as} {\em base-type-expression} \\
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME} \\
-\emkey{defined-type-name} ::= {\em type-name} \\
-\emkey{expression} ::= see \pagref{EXPRESSION} \\
-\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\emkey{defined-type-name} ::= {\em type-name} ~~~~~ [see \pagref{TYPE-NAME}] \\
+\emkey{base-type-expression} ::= {\em expression} evaluating at compile-time
+				 to a \TT{type} value \\
+{\em expression} ::= see \pagref{EXPRESSION} \\
 \end{indpar}
 
-The {\em expression} must evaluate to a \TT{type} value at
-compile-time.  The simplest {\em expression} is just the name
-of another type.
+The simplest {\em base-type-expression} is just the name
+of another type, the `\key{base type}' of the new type defined
+by the {\em defined-type-declaration}.
+The {\em defined-type-name} names this new `\key{defined type}.
 
 Any {\em qualifiers} in the declaration are attached to every
-variable or argument declared to have the defined type (see
+variable or argument declared with the {\em defined-type-name} (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
 
 No {\em type-name} may be a prefix of
@@ -2118,33 +2121,38 @@ T3 x3 = T3 ( x )
 
 A `{\tt \ttkey{define type} T as \ldots}'
 statement defines {\tt T} to be a {\em type-name} that can be used in
-a declaration of the form `{\tt T v}'
+a declaration of the form `{\tt T v}',
 or can be used to name a constant equal an enumeration value
-that is the identifier of the type as in `{\tt T == int32}'
-(\pagref{TYPE-VALUES}), or can be used
+that is the identifier of the type as in `{\tt T == int32}',
+or can be used
 as a function of one argument to convert the argument to the
 type, as in `{\tt T(v)}'.
 However a statement of the form `{\tt type T = \ldots}'
 declares {\tt T} to be a mere variable name that can only be
 use as a constant equal to an enumeration value that is the
-identifier of a type.
+identifier of a type (\pagref{TYPE-VALUES}).
 
-The following \underline{unchecked} builtin functions are defined:
+The following builtin functions are defined:
 \begin{indpar}
-{\tt function $T$ r = $T$ ( \TT{*UNCHECKED*} $E$ v )} \\
-{\tt function $E$ r = $E$ ( \TT{*UNCHECKED*} $T$ v )}
+{\tt function $T$ r = $T$ ( \TT{*UNCHECKED*} $B$ v )} \\
+{\tt function $B$ r = $B$ ( \TT{*UNCHECKED*} $T$ v )}
 
-where $T$ is defined by `{\tt define type $T$ as $e$}' and
-$E$ is a {\em type-name} associated with the type that is the
-the value of $e$
+where $T$ is a {\em defined-type-name} and $B$ is any {\em type-name}
+for the base type of $T$
 
 \begin{indpar}
 These functions do not change the actual value, but merely its
 compile-time type.  Using these unchecked conversions,
 implied conversions in one direction only
 may be defined as desired: see \itemref{IMPLIED-CONVERSION-FUNCTIONS}.
-\end{indpar}
 \end{indpar}\label{DEFINED-TYPE-UNCHECKED-CONVERSION}
+
+{\tt function type r = std \ttkey{base type of} ( type t )}
+
+\begin{indpar}
+Returns the base type of the defined type t.
+\end{indpar}
+\end{indpar}
 
 
 \subsection{Enumeration Types}
@@ -2492,8 +2500,8 @@ but they can be discovered by the following functions:
 
 \begin{indpar}
 
-{\tt function type r = std \ttmkey{set of} ( type E )} \\
-{\tt function type r = std \ttmkey{list of} ( type E )}
+{\tt function type r = std \ttkey{set of} ( type E )} \\
+{\tt function type r = std \ttkey{list of} ( type E )}
 \begin{indpar}
 Returns the type whose values are sets or lists
 of elements of type {\tt E}, where

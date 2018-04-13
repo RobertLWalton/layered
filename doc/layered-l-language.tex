@@ -2091,7 +2091,7 @@ specifies its {\em type-name}:
 \emkey{defined-type-name} ::= {\em type-name} ~~~~~ [see \pagref{TYPE-NAME}] \\
 \emkey{base-type-expression} ::= {\em expression} evaluating at compile-time
 				 to a \TT{type} value \\
-{\em expression} ::= see \pagref{EXPRESSION} \\
+{\em expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 The simplest {\em base-type-expression} is just the name
@@ -2115,7 +2115,7 @@ type T2 = int32
 define type T3 as T2  // Same as `define type T3 as int32'
 int32 x = 1
 T1 x1 = T1 ( x )
-T2 x2 = x             // Compile error: T2 is not a type-name.
+T2 x2 = x             // Compile error: T2 is not a type-name
 T3 x3 = T3 ( x )
 \end{verbatim}\end{indpar}
 
@@ -2150,7 +2150,7 @@ may be defined as desired: see \itemref{IMPLIED-CONVERSION-FUNCTIONS}.
 {\tt function type r = std \ttkey{base type of} ( type t )}
 
 \begin{indpar}
-Returns the base type of the defined type t.
+Returns the base type of the defined type {\tt t}.
 \end{indpar}
 \end{indpar}
 
@@ -2164,7 +2164,7 @@ An addition name may be associated with a type by the statement:
           \TT{as type name of} {\em type-expression} \\
 \emkey{type-expression} ::= {\em expression} evaluating at compile-time
 				 to a \TT{type} value \\
-{\em expression} ::= see \pagref{EXPRESSION} \\
+{\em expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 Unlike the {\em defined-type-declaration}, the {\em type-name-declaration}
@@ -2209,40 +2209,100 @@ that has enumeration values:
 \hspace*{0.5in}
     \TT{define type} {\em qualifier-name}\STAR{}
     \begin{tabular}[t]{@{}l@{}}
-    {\em enum-type-name} \TT{as}~~~{\em base-enum-type-name} \\
+    {\em enum-type-name} \TT{as}~~~{\em enum-base} \\
     \TT{with enum range}~~~{\em enum-range} \\
-    \{ \TT{without implied conversion} \}\QMARK \\
     \end{tabular}
 \\[0.5ex]
-\emkey{base-enum-type-name}
+\emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+\emkey{enum-type-name} ::= {\em type-name} ~~~~~ [see \pagref{TYPE-NAME}]
+\\[0.5ex]
+\emkey{enum-base}
     \begin{tabular}[t]{rl}
-    ::= & {\em integer-type-name} \\
-    $|$ & {\em enum-direction}\QMARK{}~~~{\em enum-type-name} \\
-    \end{tabular} \\
-\emkey{enum-direction} ::= \TT{next} $|$ \TT{previous} \\
-\emkey{integer-type-name}
-    ::= {\em builtin-number-type-name}%
-            \,$^{\pagref{BUILTIN-NUMBER-TYPE-NAME}}$ naming an integer type \\
+    ::= & {\em integer-type-expression} \\
+    $|$ & {\em enum-direction}\QMARK{}~~~{\em enum-type-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{integer-type-expression} ::= {\em expression} evaluating at compile-time
+				 to a builtin integer \TT{type}
+\\[0.5ex]
+\emkey{enum-direction} ::= \TT{next} $|$ \TT{previous}
+\\[0.5ex]
+\emkey{enum-type-expression} ::= {\em expression} evaluating at compile-time
+				 to an enumeration \TT{type}
+\\[0.5ex]
 \emkey{enum-range}
     \begin{tabular}[t]{rl}
     ::= & \TT{[} {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
     $|$ & \TT{[} {\em first-enum} \TT{..} \TT{]} \\
     $|$ & \TT{[} \TT{..} {\em last-enum} \TT{]} \\
-    \end{tabular} \\
-\emkey{first-enum} ::= {\em compile-time-integer-expression} \\
-\emkey{last-enum} ::= {\em compile-time-integer-expression}
+    \end{tabular}
+\\[0.5ex]
+\emkey{first-enum} ::=
+    {\em expression} evaluating at compile-time to a integer
+\\[0.5ex]
+\emkey{last-enum} ::=
+    {\em expression} evaluating at compile-time to a integer
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 Here {\em first-enum} and {\em last-enum} are compile time integer
 values assigned to the newly defined enum type.
 {\em First-enum} must be less than or equal to {\em last-enum}.
 If {\em last-enum} is not given, it is assumed to be the maximum
-value permitted by the base enumeration type that conforms to the
+value permitted by the {\em enum-base} that conforms to the
 rules given below.
 Similarly if {\em first-enum} is not given, it is assumed to be the minimum
-value permitted by the base enumeration type.
+value permitted by the {\em enum-base}.
 
-Enumeration values can be assigned by declaration statements of the form
+The {\em enum-base} specifies the `\mkey{base type}{of enumeration type}'
+of the enumeration type
+which is either the type given by an {\em integer-type-expression} or
+the type given by an {\em enum-type-expression}.
+The `\mkey{underlying type}{of enumeration type}'
+of the enumeration type
+is the base type if that is an integer type, or is the
+underlying type of the base type otherwise.
+This definition is recursive, so the underlying type is always an
+integer type.
+
+Information about
+an enumeration type
+can be discovered by the functions:
+
+\begin{indpar}
+
+{\tt function type r = std \ttkey{base type of} ( type t )} \\
+{\tt function type r = std \ttkey{underlying type of} ( type t )}
+
+\begin{indpar}
+Returns the base type or underlying type of the enumeration type {\tt t}.
+\end{indpar}
+
+{\tt function intwrd r = std \ttkey{enum direction of} ( type t )}
+
+\begin{indpar}
+Returns the {\em enum-direction} of the enumeration type {\tt t}.
+{\tt -1} is returned if the direction is `{\tt previous}',
+{\tt +1} is returned if the direction is `{\tt next}',
+and {\tt 0} is returned if the direction is not given.
+\end{indpar}
+
+{\tt function $U$ r = std \ttkey{first enum of} ( type t )} \\
+{\tt function $U$ r = std \ttkey{last enum of} ( type t )}
+
+\begin{center}
+where $U$ is underlying type of the enumeration type {\tt t}
+\end{center}
+
+\begin{indpar}
+Returns the {\em first-enum} or {\em last-enum} of the enumeration type {\tt t}.
+\end{indpar}
+
+\end{indpar}
+
+Enumeration values can be assigned by assignment statements of the form
 \begin{indpar}
 \emkey{enum-assignment}
     \begin{tabular}[t]{rl}
@@ -2250,11 +2310,8 @@ Enumeration values can be assigned by declaration statements of the form
     $|$ & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ = previous enum}
     \end{tabular}
 \\[0.5ex]
-\emkey{enum-type-name} ::= {\em type-name}
-\\[0.5ex]
 \emkey{enum-constant-name} ::= {\em variable-name}
-\\[0.5ex]
-{\em variable-name} ::= see \pagref{VARIABLE-NAME}
+		~~~~~ [see \pagref{VARIABLE-NAME}]
 \end{indpar}
 
 These statements invoke one of the builtin functions:
@@ -2263,7 +2320,7 @@ These statements invoke one of the builtin functions:
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{previous enum}}
 \begin{center}
 where $T$ is the {\em enum-type-name} and $ma$ is its
-{\em module-abbreviation}, if any.
+{\em module-abbreviation}, if any
 \end{center}
 
 
@@ -2288,22 +2345,18 @@ would return a value below the {\em first-enum} value in a range.
 It is also an error if for a given type the same value is returned
 by some \TT{next~enum} and also by some \TT{previous~enum}.
 
-An enumeration type is a defined type with integer base type and
-extra apparatus provided by the range which provides a special
-mechanism for assigning enumeration type values.
-Given an enumeration type $E$ with its base type $B$
-the following conversions are defined:
+The following conversions are builtin:
 \begin{indpar}
-{\tt function ~~~~~~~~~~~ $B$ r = $B$ ( $E$ v )} \\
-{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $E$ v )} \\
-{\tt function \TT{*UNCHECKED*} $E$ r = $E$ ( $B$ v )}
+{\tt function $B$ r = $B$ ( \TT{*UNCHECKED*} $E$ v )} \\
+{\tt function $E$ r = $E$ ( \TT{*UNCHECKED*} $B$ v )}
+
+\begin{center}
+where $T$ is an {\em enum-type-name} and $B$ is any {\em type-name}
+for the base type of $T$
+\end{center}
 \begin{indpar}
 These conversions actually do nothing but change the type of the
-value.  The first two have identical effect.  The first is an implied
-conversion, and is only defined if the
-`\TT{without implied conversion}' option is \underline{not} given in the
-enumeration type definition.  The last two conversions are the
-\TT{*UNCHECKED*} conversions defined for all enum types.
+value.
 \end{indpar}
 \end{indpar}
 
@@ -2566,7 +2619,8 @@ for enumeration set and list constants is:
     $|$ & {\em enum-value}~~~\TT{..} \\
     $|$ & \TT{..}~~~{\em enum-value} \\
     \end{tabular} \\
-\emkey{enum-value} ::= {\em compile-time-enum-expression}
+\emkey{enum-value} ::= {\em expression} evaluating at compile-time to
+			an enumeration or integer value
 \end{indpar}
 
 If the {\em enum-values} in an {\em enum-set-constant} or

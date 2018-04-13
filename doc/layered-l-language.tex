@@ -2076,8 +2076,8 @@ When used as the base variable of a cluster, an assignment statement
 may appear to be assigning a value to a \TT{void} variable, but
 in fact it is assigning values to cluster members.
 
-\subsection{Defined Types}
-\label{DEFINED-TYPES}
+\subsection{Defined Types and Type Names}
+\label{DEFINED-TYPES-AND-TYPE-NAMES}
 
 A declaration statement of the following form defines a type and
 specifies its {\em type-name}:
@@ -2154,6 +2154,39 @@ Returns the base type of the defined type t.
 \end{indpar}
 \end{indpar}
 
+A type may have zero or more type names associate with it.
+An addition name may be associated with a type by the statement:
+\begin{indpar}
+\emkey{type-name-declaration}\label{TYPE-NAME-DECLARATION} ::= \\
+\hspace*{0.5in}
+\TT{define type}
+          {\em qualifier-name}\STAR{} {\em type-name}
+          \TT{as type name of} {\em type-expression} \\
+\emkey{type-expression} ::= {\em expression} evaluating at compile-time
+				 to a \TT{type} value \\
+{\em expression} ::= see \pagref{EXPRESSION} \\
+\end{indpar}
+
+Unlike the {\em defined-type-declaration}, the {\em type-name-declaration}
+does \underline{not} define a new type.  It merely defines a new
+{\em type-name} that references an old type.
+The {\em qualifier-names} in either declaration are associated
+with the {\em type-name}, and not the type, and are applied whenever
+the {\em type-name} is used to declare a variable.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+define type T4 as type name of int32
+    // Now T4 == int32
+T4 x = 1              // Same as `int32 x = 1'
+int32 y = T4 ( x )    // Same as `int32 y = int32 ( x )'
+define type T5 as int32
+    // Now T5 != int32 and T5 != T4
+define *UNCHECKED* T6 as type name of int32
+    // *UNCHECKED* is a builtin qualifier
+    // Now T6 == int32
+T6 x = 1              // Same as `*UNCHECKED* int32 x = 1'
+\end{verbatim}\end{indpar}
 
 \subsection{Enumeration Types}
 \label{ENUMERATION-TYPES}

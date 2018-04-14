@@ -2289,11 +2289,14 @@ Returns the {\em enum-direction} of the enumeration type {\tt t}.
 and {\tt 0} is returned if the direction is not given.
 \end{indpar}
 
-{\tt function $U$ r = std \ttkey{first enum of} ( type t )} \\
-{\tt function $U$ r = std \ttkey{last enum of} ( type t )}
+{\tt function $I$ r = std \ttkey{first enum of} ( type t )} \\
+{\tt function $I$ r = std \ttkey{last enum of} ( type t )}
 
 \begin{center}
-where $U$ is underlying type of the enumeration type {\tt t}
+where $I$ is the first type in the sequence \\
+\TT{intwrd     unswrd     intmax     unsmax} \\
+such that both the {\em first-enum} and the {\em last-enum} \\
+of enumeration type {\tt t} are convertable to $I$
 \end{center}
 
 \begin{indpar}
@@ -2345,19 +2348,36 @@ would return a value below the {\em first-enum} value in a range.
 It is also an error if for a given type the same value is returned
 by some \TT{next~enum} and also by some \TT{previous~enum}.
 
-The following conversions are builtin:
+The following functions are builtin:
 \begin{indpar}
+
 {\tt function $B$ r = $B$ ( \TT{*UNCHECKED*} $E$ v )} \\
 {\tt function $E$ r = $E$ ( \TT{*UNCHECKED*} $B$ v )}
 
 \begin{center}
-where $T$ is an {\em enum-type-name} and $B$ is any {\em type-name}
-for the base type of $T$
+where $E$ is an {\em enum-type-name} \\
+and $B$ is any {\em type-name}
+for the base type of $E$
 \end{center}
 \begin{indpar}
-These conversions actually do nothing but change the type of the
-value.
+These are conversions that do nothing but change the type of the value.
 \end{indpar}
+
+{\tt function $I$ r = $ma$\QMARK{} \ttkey{range value of} ( $E$ v )}
+
+\begin{center}
+where $E$ is an {\em enum-type-name}, \\
+$ma$ is the {\em module-abbreviation} of $E$ if any, \\
+and $I$ is the first type in the sequence \\
+\TT{intwrd     unswrd     intmax     unsmax} \\
+such that both the {\em first-enum} and the {\em last-enum} \\
+of enumeration type $E$ are convertable to $I$
+\end{center}
+\begin{indpar}
+The numeric value of {\tt v} is returned, where this numeric value is
+the value in the range {\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}.
+\end{indpar}
+
 \end{indpar}
 
 If the base type of an enumeration type is a builtin integer type,

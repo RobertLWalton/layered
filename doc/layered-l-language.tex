@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 13, 2018
+April 14, 2018
  
 \end{center}
 
@@ -2220,7 +2220,7 @@ that has enumeration values:
 \emkey{enum-base}
     \begin{tabular}[t]{rl}
     ::= & {\em integer-type-expression} \\
-    $|$ & {\em enum-direction}\QMARK{}~~~{\em enum-type-expression} \\
+    $|$ & {\em enum-direction}~~~{\em enum-type-expression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{integer-type-expression} ::= {\em expression} evaluating at compile-time
@@ -2296,7 +2296,7 @@ and {\tt 0} is returned if the direction is not given.
 where $I$ is the first type in the sequence \\
 \TT{intwrd     unswrd     intmax     unsmax} \\
 such that both the {\em first-enum} and the {\em last-enum} \\
-of enumeration type {\tt t} are convertable to $I$
+of enumeration type {\tt t} are convertible to $I$
 \end{center}
 
 \begin{indpar}
@@ -2348,7 +2348,7 @@ would return a value below the {\em first-enum} value in a range.
 It is also an error if for a given type the same value is returned
 by some \TT{next~enum} and also by some \TT{previous~enum}.
 
-The following functions are builtin:
+The following conversion function are builtin:
 \begin{indpar}
 
 {\tt function $B$ r = $B$ ( \TT{*UNCHECKED*} $E$ v )} \\
@@ -2363,89 +2363,101 @@ for the base type of $E$
 These are conversions that do nothing but change the type of the value.
 \end{indpar}
 
-{\tt function $I$ r = $ma$\QMARK{} \ttkey{range value of} ( $E$ v )}
+\end{indpar}
+
+In memory an enumeration value is represented by an integer value
+of the underlying type of the enumeration value's enumeration type.
+This is called the `\mkey{underlying value}{of enumeration value}'
+of the enumeration value.  The enumeration value also has a
+numeric value in the range
+{\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}, which is
+called the `\mkey{range value}{of enumeration value}' of the
+enumeration value.  The difference between the underlying value
+and the range value of an enumeration value is a constant
+called the `\mkey{enumeration offset}{of enumeration type}' of
+the enumeration type.
+
+In order to represent range values the `\mkey{range type}{of enumeration type}'
+is used.  This is the first type $R$ in the sequence \\
+\centerline{\TT{intwrd     unswrd     intmax     unsmax}}
+such that both the {\em first-enum} and the {\em last-enum}
+of the enumeration type are implicitly convertible to $R$.
+
+In order to represent enumeration offset the
+`\mkey{offset type}{of enumeration type}' is used.
+This is the first type $O$ in the sequence \\
+\centerline{\TT{intwrd     unswrd     intmax     unsmax}}
+such that values of either the underlying type or the range type
+of the enumeration type are implicitly convertible to $O$.
+
+The following builtin functions can be used to find
+these values:
+
+\begin{indpar}
+
+{\tt function $U$ r = $ma$\QMARK{} \ttkey{underlying value of} ( $E$ v )} \\
+{\tt function $R$ r = $ma$\QMARK{} \ttkey{range value of} ( $E$ v )}
 
 \begin{center}
-where $E$ is an {\em enum-type-name}, \\
+where $E$ is an {\em enum-type-name}, 
 $ma$ is the {\em module-abbreviation} of $E$ if any, \\
-and $I$ is the first type in the sequence \\
-\TT{intwrd     unswrd     intmax     unsmax} \\
-such that both the {\em first-enum} and the {\em last-enum} \\
-of enumeration type $E$ are convertable to $I$
+$U$ is the underlying type of $E$,
+and $R$ is the range type of $E$
 \end{center}
 \begin{indpar}
-The numeric value of {\tt v} is returned, where this numeric value is
-the value in the range {\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}.
+The underlying value or range value of {\tt v} is returned.
+\end{indpar}
+
+{\tt function $O$ r = std \ttkey{enumeration offset of} ( type t )} \\
+{\tt function type r = std \ttkey{range type of} ( type t )} \\
+{\tt function type r = std \ttkey{offset type of} ( type t )}
+
+\begin{center}
+where {\tt t} is an enumeration type and $O$ is its offset type
+\end{center}
+\begin{indpar}
+The enumeration offset, range type, or offset type of {\tt t} is returned.
 \end{indpar}
 
 \end{indpar}
+
+Thus for a value {\tt v} of an enumeration type $E$,
+\begin{center}
+\tt underlying value of ( v ) \begin{tabular}[t]{@{}l@{}}
+                              = range value of ( v ) \\
+			      + enumeration offset of ( $E$ )
+			      \end{tabular}
+\end{center}
 
 If the base type of an enumeration type is a builtin integer type,
 the integer value corresponding to {\em first-enum} is {\em first-enum}
-itself, and similarly for {\em last-enum}.  Thus the following
-example:
+itself, and similarly for {\em last-enum}.  Thus the enumeration offset
+is zero and we have the following example:
 \begin{indpar}\begin{verbatim}
 define type E as int32 with enum range [1 .. 20]
+    // Now enumeration offset of (E) == 0
 E C1 = next enum
-    // Now int32 (C1) == 1
+    // Now underlying value of (C1) == 1
 E C2 = next enum
-    // Now int32 (C2) == 2
+    // Now underlying value of (C2) == 2
 E C3 = previous enum
-    // Now int32 (C3) == 20
+    // Now underlying value of (C3) == 20
 E C4 = previous enum
-    // Now int32 (C4) == 19
+    // Now underlying value of (C4) == 19
 \end{verbatim}\end{indpar}
 
-The \key{underlying type}\label{UNDERLYING-TYPE}
-of a type $T$ is $T$ itself if
-$T$ is builtin, and is the underlying
-type of the base type of $T$ if $T$ is a defined type or an
-enumeration type.
-Thus every enumeration type $E$ has an underlying integer
-type $I$.  As long as the `\TT{without implied conversion}'
-option is \underline{not} used, a value of an enumeration type
-can always be implicitly converted to a value of its underlying
-type.  Thus the following example:
-\begin{indpar}\begin{verbatim}
-define type D as int32
-define type E as D with enum range [1 .. 20]
-E C1 = next enum
-    // Now int32 (C1) == 1
-E C3 = previous enum
-    // Now int32 (C3) == 20
-\end{verbatim}\end{indpar}
-
-If the base type of an enumeration type is another enumeration type,
-the map from values of the first enumeration type to underlying
-integer values consists of adding a constant, called the
-`\key{enumeration offset}', and the
-following are defined, where $I$ is the underlying
-integer type of enumeration type $E$:
-
-\begin{indpar}
-{\tt function $I$ r = \ttkey{enumeration offset of}~( type E )}
-\begin{indpar}
-Returns the enumeration offset of \TT{E}.
-\end{indpar}
-{\tt function $I$ r = \ttkey{range value of}~( $E$ v )}
-\begin{indpar}
-Returns ~~ {\tt $I$~( v ) - enumeration offset of ( $E$ )}.
-\end{indpar}
-
-\end{indpar}
-
-The enumeration offset of an {\em enum-type-name} is more specifically
-defined for the following cases:
+The enumeration offset of an {\em enum-type-name} is defined in general
+as per the following cases:
 
 \begin{indpar}
 \begin{itemlist}
 \item[\TT{define type} {\em qualifier-name}\STAR{} {\em enum-type-name}~~%
-    \TT{as}~~{\em builtin-integer-type-name} \ldots{}] ~\\
+    \TT{as}~~{\em integer-type-expression} \ldots{}] ~\\
 The enumeration offset of the {\em enum-type-name} equals \TT{0}.
 \item[\TT{define type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
               {\em enum-type-name}~~\TT{as}~~%
-              \TT{next}~~{\em base-enum-type-name} \\
+              \TT{next}~~{\em enum-type-expression} \\
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
 	      \end{tabular} \\
@@ -2459,39 +2471,37 @@ Has the effect of compiling the statements:
 {\em base-enum-type-name} {\tt ~V$n$~~=~~next enum} \\
 \end{tabular}
 \end{center}
-where $n$ = {\em last-enum} - {\em first-enum}.
-If $I$ is the underlying integer type of the {\em base-enum-type-name},
-and thence also of {\em enum-type-name}, then
+where $n$ = {\em last-enum} - {\em first-enum}, and then setting
 \begin{center}
-\TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
-{\tt =~$I$(V0)~-~}{\em first-enum}
+\TT{enumeration offset of (}{\em enum-type-name}\TT{)} = \\
+{\tt ~~~~underlying value of (V0)~-~}{\em first-enum}
 \end{center}
-Therefore if implied conversions are allowed, the first statement of the form
-\begin{center}
-{\em enum-type-name} \TT{~V~~=~~next enum} \\
-\end{center}
-compiled after the {\em enum-type-declaration} will make
-{\tt $I$(V) == $I$(V0)}, and the first statement of the form
-\begin{center}
-{\em enum-type-name} \TT{~V~~=~~previous enum} \\
-\end{center}
-compiled after the {\em enum-type-declaration} will make
-{\tt $I$(V) == $I$(V$n$)}.
 \item[\TT{define type} {\em qualifier-name}\STAR{}]
               \begin{tabular}[t]{@{}l@{}}
               {\em enum-type-name}~~\TT{as}~~%
-              \TT{previous}~~{\em enum-type-name} \\
+              \TT{previous}~~{\em enum-type-expression} \\
 	      \TT{with enum range [}
 	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
 	      \end{tabular} \\
-Ditto with every `\TT{next}' replaced by `\TT{previous}',
-every `\TT{previous}' replaced by `\TT{next}', and
+Has the effect of compiling the statements:
 \begin{center}
-\TT{enumeration offset of (}{\em enum-type-name}\TT{)} \\
-{\tt =~$I$(V0)~-~}{\em last-enum}
+\begin{tabular}{l}
+{\em base-enum-type-name} {\tt ~V0~~=~~previous enum} \\
+{\em base-enum-type-name} {\tt ~V1~~=~~previous enum} \\
+{\em base-enum-type-name} {\tt ~V2~~=~~previous enum} \\
+\ldots\ldots\ldots \\
+{\em base-enum-type-name} {\tt ~V$n$~~=~~previous enum} \\
+\end{tabular}
+\end{center}
+where $n$ = {\em last-enum} - {\em first-enum}, and then setting
+\begin{center}
+\TT{enumeration offset of (}{\em enum-type-name}\TT{)} = \\
+{\tt ~~~~underlying value of (V0)~-~}{\em last-enum}
 \end{center}
 \end{itemlist}
 \end{indpar}
+
+TBD
 
 The above is exemplified by:
 \begin{indpar}\begin{verbatim}

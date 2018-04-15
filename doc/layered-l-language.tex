@@ -2501,51 +2501,53 @@ where $n$ = {\em last-enum} - {\em first-enum}, and then setting
 \end{itemlist}
 \end{indpar}
 
-TBD
-
 The above is exemplified by:
 \begin{indpar}\begin{verbatim}
 define type E1 as int32 with enum range [1 .. 20]
     // Now enumeration offset of (E1) == 0
 E1 C1 = previous enum
-    // Now range value of (C1) == 20 == int32(C1)
+    // Now range value of (C1) == 20
+    // Now underlying value of (C1) == 20
 define type E2 as previous E1 with enum range [1 .. 10]
     // Now enumeration offset of (E2) == 9
 E2 C2 = next enum 
     // Now range value of (C2) == 1,
-    // Now range value of ( E1(C2) ) == 10 = int32(C2)
+    // Now underlying value of (C2) == 10
 E2 C3 = previous enum 
     // Now range value of (C3) == 10,
-    // Now range value of ( E1(C3) ) == 19 = int32(C3)
+    // Now underlying value of (C3) == 19
 define type E3 as next E2 with enum range [1 .. 5]
     // Now enumeration offset of (E3) == 10
 E3 C4 = next enum 
     // Now range value of (C4) == 1,
-    // range value of ( E2(C4) ) == 2,
-    // range value of ( E1(E2(C4)) ) = 11 = int32(C4)
+    // Now underlying value of (C4) = 11
 \end{verbatim}\end{indpar}
 
-If $E$ is an enumeration type with underlying
-type $I$, the following comparison and subtraction
-of values of type $E$ are defined as if implied conversion
-of $E$ values to $I$ values were allowed (even if they
-are not):
+The following builtin functions allow comparison and subtraction
+of enumeration values:
 
 \begin{indpar}
-{\tt function bool r = ( $E$ v1 ) "$cop$" ( $E$ v1 )}
 
-where $cop$ is
+{\tt function bool r = std ( $E$ v1 ) "$cop$" ( $E$ v1 )}
+
+\begin{center}
+where $E$ is an enumeration type and $cop$ is
 \ttmkey{<}{of enum values}, \ttmkey{<=}{of enum values},
 \ttmkey{==}{of enum values}, \ttmkey{!=}{of enum values},
 \ttmkey{>=}{of enum values}, or \ttmkey{>}{of enum values}.
+\end{center}
 \begin{indpar}
-Returns {\tt $I$(v1) "$cop$" $I$(v2)}.
+Returns {\tt range value of (v1) "$cop$" range value of (v2)}.
 \end{indpar}
 
-{\tt function $I$ r = ( $E$ v1 ) "\ttmkey{-}{of enum values}" ( $E$ v1 )}
+{\tt function $R$ r = ( $E$ v1 ) "\ttmkey{-}{of enum values}" ( $E$ v1 )}
+\begin{center}
+where $E$ is an enumeration type and $R$ is its range type
+\end{center}
 \begin{indpar}
-Returns {\tt $I$(v1) "-" $I$(v2)}.
+Returns {\tt range value of (v1) "-" range value of (v2)}.
 \end{indpar}
+
 \end{indpar}
 
 Two enumeration values of different types
@@ -2581,9 +2583,9 @@ Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified (i.e., implementation dependent)
 `\TT{type}' enumeration values.
 Similarly builtin qualifiers, such as `\TT{mem}', are given
-unspecified `\TT{quali\-fier}' enumeration values.  Conversions and
-`\TT{range value of}' functions above
-can be used to find the integer values associated with any
+unspecified `\TT{quali\-fier}' enumeration values.  
+The `\TT{range value of}' function above
+can be used to find the range value of an
 enumeration constant, but unspecified builtin values may differ from
 one compilation or program to the next.
 

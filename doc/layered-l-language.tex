@@ -2077,8 +2077,8 @@ in fact it is assigning values to cluster members.
 \subsection{Defined Types and Type Names}
 \label{DEFINED-TYPES-AND-TYPE-NAMES}
 
-A declaration statement of the following form defines a type and
-specifies its {\em type-name}:
+A declaration statement of the following form defines a new type and
+specifies a {\em type-name} for that type:
 \begin{indpar}
 \emkey{defined-type-declaration}\label{DEFINED-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
@@ -2093,10 +2093,12 @@ specifies its {\em type-name}:
 \end{indpar}
 
 A \TT{type} value is an enumeration value (\pagref{ENUMERATION-TYPES}),
-which is basically a small integer that identifies the type, and
-can be associated with {\em type-names}.  Types can be computed
+which is basically a small integer that identifies the type.
+Types can be computed
 by compile-time expressions, just like integers.
-A \TT{type} value can be associated with zero or more {\em type-names}.
+A \TT{type} value can be associated with zero or more {\em type-names},
+which can be used in various ways, including as the name of a constant
+equal to the \TT{type} value.
 
 In a {\em defined-type-declaration}
 the {\em base-type-expression} specifies
@@ -2131,15 +2133,14 @@ T3 x3 = T3 ( x )
 A `{\tt \ttkey{define type} T as \ldots}'
 statement defines {\tt T} to be a {\em type-name} that can be used in
 a declaration of the form `{\tt T v}',
-or can be used to name a constant equal an enumeration value
-that is the identifier of the type as in `{\tt T == int32}',
+or can be used to name a constant equal a \TT{type} value
+as in `{\tt T == int32}',
 or can be used
 as a function of one argument to convert the argument to the
 type, as in `{\tt T(v)}'.
 However a statement of the form `{\tt type T = \ldots}'
 declares {\tt T} to be a mere variable name that can only be
-use as a constant equal to an enumeration value that is the
-identifier of a type (\itemref{TYPE-VALUES}).
+use as a constant equal a \TT{type} value.
 
 A defined type has an
 `\mkey{underlying type}{of defined type}'\label{UNDERLYING-TYPE} that

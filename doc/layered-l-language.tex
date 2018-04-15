@@ -1042,12 +1042,10 @@ of \skey{declaration}s:
         & [see \pagref{BODY-DECLARATION}] \\
     $|$ & {\em defined-type-declaration}
         & [see \pagref{DEFINED-TYPE-DECLARATION}] \\
+    $|$ & {\em type-name-declaration}
+        & [see \pagref{TYPE-NAME-DECLARATION}] \\
     $|$ & {\em enum-type-declaration}
         & [see \pagref{ENUM-TYPE-DECLARATION}] \\
-    $|$ & {\em enum-set-type-declaration}
-        & [see \pagref{ENUM-SET-TYPE-DECLARATION}] \\
-    $|$ & {\em enum-list-type-declaration}
-        & [see \pagref{ENUM-LIST-TYPE-DECLARATION}] \\
     $|$ & {\em qualifier-declaration }
         & [see \pagref{QUALIFIER-DECLARATION}] \\
     $|$ & {\em function-type-declaration }
@@ -2132,6 +2130,13 @@ declares {\tt T} to be a mere variable name that can only be
 use as a constant equal to an enumeration value that is the
 identifier of a type (\pagref{TYPE-VALUES}).
 
+A defined type has an
+`\mkey{underlying type}{of defined type}'\label{UNDERLYING-TYPE} that
+is a builtin type.  Underlying types are defined recursively:
+the underlying type of a defined type is the underlying type of
+its base type, and the underlying type of a builtin type is
+the builtin type itself.
+
 The following builtin functions are defined:
 \begin{indpar}
 {\tt function $T$ r = $T$ ( \TT{*UNCHECKED*} $B$ v )} \\
@@ -2151,6 +2156,12 @@ may be defined as desired: see \itemref{IMPLIED-CONVERSION-FUNCTIONS}.
 
 \begin{indpar}
 Returns the base type of the defined type {\tt t}.
+\end{indpar}
+
+{\tt function type r = std \ttkey{underlying type of} ( type t )}
+
+\begin{indpar}
+Returns the underlying type of the defined type or builtin type {\tt t}.
 \end{indpar}
 \end{indpar}
 
@@ -2264,7 +2275,8 @@ The `\mkey{underlying type}{of enumeration type}'
 of the enumeration type
 is the base type if that is an integer type, or is the
 underlying type of the base type otherwise.
-This definition is recursive, so the underlying type is always an
+This definition is recursive, so the underlying type of an enumeration
+type is always an
 integer type.
 
 Information about
@@ -2623,10 +2635,22 @@ but they can be discovered by the following functions:
 \begin{indpar}
 Returns the type whose values are sets or lists
 of elements of type {\tt E}, where
-{\tt E} must be an enumeration type.
+{\tt E} must have an integer underlying type.
 \end{indpar}
 
 \end{indpar}
+
+These types can be given type names by
+{\em type-name-declarations} (\pagref{TYPE-NAME-DECLARATION}) of the form
+\begin{indpar}
+{\tt define type }{\em type-name}{\tt ~as type name of set of ( $E$ )} \\
+{\tt define type }{\em type-name}{\tt ~as type name of list of ( $E$ )}
+\end{indpar}
+where $E$ is the element type.
+
+Note that the element type of an enumeration set or list can be
+a builtin integer type or a non-enumeration defined type
+with a builtin integer underlying type.
 
 The syntax
 for enumeration set and list constants is:
@@ -2657,20 +2681,21 @@ for enumeration set and list constants is:
 
 If the {\em enum-values} in an {\em enum-set-constant} or
 {\em enum-list-constant} have different
-enumeration types, implied conversions from these to their base types
-are inserted until all have the same defined enumeration type,
+types, and these are defined types or enumeration types,
+implied conversions from these to their base types
+are inserted until all have the same defined type, enumeration type,
+or builtin integer type,
 which is called the
-`\key{common enumeration type}'\label{COMMON-ENUMERATION-TYPE}
+`\key{common element type}'\label{COMMON-ELEMENT-TYPE}
 of the set or list.
-This is the most specific least general type to which all the set
+This is the least general type to which all the set
 or list
-values can be converted (see \pagref{CONVERSION-RELATION}).
+elements can be converted (see \pagref{CONVERSION-RELATION}).
 It is an error
 if this cannot be done because some of the types have no implied
-conversion defined for them, or if after implied conversion the
-common type is not a defined enumeration type.
-Note that the common type can be an integer type if all
-{\em enum-values} are implicitly convertible to integer values.
+conversion to their base type defined for them.
+The type of an enumeration set or list is the set or list type
+defined for this common element type.
 
 An {\em enum-range} designates the two values given and all
 values in between.
@@ -2721,25 +2746,6 @@ given in the function call, must be in the give set of
 types, where types are values of the enumeration type `\TT{type}'
 (see Section~\itemref{TYPE-VALUES}).
 
-At compile-time
-enumeration sets and lists can be stored in variables of enumeration set
-or list types, which can be declared by:
-\begin{indpar}
-\emkey{enum-set-type-declaration}\label{ENUM-SET-TYPE-DECLARATION} ::= \\
-\hspace*{0.2in} \TT{define type}
-		\begin{tabular}[t]{@{}l@{}}
-                {\em qualifier-name}\STAR{} {\em enum-set-type-name} \\
-		\TT{as set of } {\em element-enum-type-name}
-		\end{tabular}
-\\[0.5ex]
-\emkey{enum-list-type-declaration}\label{ENUM-LIST-TYPE-DECLARATION} ::= \\
-\hspace*{0.2in} \TT{define type}
-		\begin{tabular}[t]{@{}l@{}}
-                {\em qualifier-name}\STAR{} {\em enum-list-type-name} \\
-		\TT{as list of } {\em element-enum-type-name}
-		\end{tabular}
-\end{indpar}
-
 The information about enumeration set and list types can be determined
 at compile-time by:
 
@@ -2759,7 +2765,6 @@ otherwise.
 {\tt function type r = \ttkey{element type of} ( type T )}
 \begin{indpar}
 Returns the element type of an enumeration set or list type {\tt T}.
-For a set or list constant, this is the common enumeration type.
 \end{indpar}
 
 \end{indpar}
@@ -2772,11 +2777,7 @@ define type \ttkey{std qualifiers} as set of qualifier \\
 \ttkey{qualifiers} ---> `std qualifiers'
 \end{indpar}
 
-An enumeration set or list constant is an enumeration set or list
-whose element type 
-is its common enumeration type, even if this enumeration set or list
-type has not been
-declared and is not builtin.
+TBD
 
 Given an enumeration set or list type $T1$ with base type $B1$ and
 an enumeration set or list type $T2$ with base type $B2$, the following
@@ -2787,7 +2788,7 @@ conversions are defined:
     Defined as an implied conversion \underline{but only if}
     an implied conversion from $B1$ to $B2$ is defined
 \end{indpar}
-{\tt function \TT{*UNCHECKED*} $T2$ r = ( $T1$ v )}
+{\tt function $T2$ r = ( \TT{*UNCHECKED*} $T1$ v )}
 \begin{indpar}
     Defined as an \TT{*UNCHECKED} explicit conversion \underline{but only if}
     an \TT{*UNCHECKED*} explicit conversion from $B1$ to $B2$ is defined
@@ -2798,49 +2799,51 @@ only be converted to a list type.
 These conversions actually do nothing but change the type of the
 value.
 
+Variables with compile-type enumeration set or list values can be defined.
 If $S$ is an enumeration set type with element type $E$, the following
-functions are defined at compile-time:
+functions are defined at compile-time (but may not be defined at
+run-time):
 
 \begin{indpar}
 {\tt function $S$ r =
-    ($S$ v1) "\ttmkey{+}{enumeration set union}" ( $S$ v2 )}
+    std ($S$ v1) "\ttmkey{+}{enumeration set union}" ( $S$ v2 )}
 \begin{indpar}
 Returns the union of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function $S$ r =
-    ($S$ v1) "\ttmkey{*}{enumeration set intersection}" ( $S$ v2 )}
+    std ($S$ v1) "\ttmkey{*}{enumeration set intersection}" ( $S$ v2 )}
 \begin{indpar}
 Returns the intersection of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function $S$ r =
-    ($S$ v1) "\ttmkey{-}{enumeration set difference}" ( $S$ v2 )}
+    std ($S$ v1) "\ttmkey{-}{enumeration set difference}" ( $S$ v2 )}
 \begin{indpar}
 Returns the set difference of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function bool r =
-    ($E$ e) \ttmkey{is in}{enumeration set} ($S$ s)}
+    std ($E$ e) \ttmkey{is in}{enumeration set} ($S$ s)}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
 \end{indpar}
 
 {\tt function $S$ r =
-    ($E$ e) "\ttmkey{+}{enumeration set union}" ($S$ s)}
+    std ($E$ e) "\ttmkey{+}{enumeration set union}" ($S$ s)}
 \begin{indpar}
 Returns union of \{{\tt e}\} and {\tt s}.
 \end{indpar}
 
 {\tt function $S$ r =
-    ($S$ s) "\ttmkey{+}{enumeration set union}" ($E$ e)}
+    std ($S$ s) "\ttmkey{+}{enumeration set union}" ($E$ e)}
 \begin{indpar}
 Returns union of \{{\tt e}\} and {\tt s}.
 \end{indpar}
 
 {\tt function $S$ r =
-    ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
+    std ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt e}\}.
 \end{indpar}
@@ -2851,39 +2854,39 @@ If $L$ is an enumeration list type with element type $E$, the following
 functions are defined at compile-time:
 
 \begin{indpar}
-{\tt function $L$ r = ($L$ v1)
+{\tt function $L$ r = std ($L$ v1)
 		    "\ttmkey{+}{enumeration list concatenation}" ($L$ v2)}
 \begin{indpar}
 Returns the concatenation of {\tt v1} and {\tt v2}.
 \end{indpar}
 
-{\tt function $L$ r = ($L$ v1)
+{\tt function $L$ r = std ($L$ v1)
                         "\ttmkey{-}{enumeration set difference}" ($L$ v2)}
 \begin{indpar}
 Returns the list made by removing all elements from {\tt v1} that
 appear anywhere in {\tt v2}.
 \end{indpar}
 
-{\tt function bool r = ($E$ e)
+{\tt function bool r = std ($E$ e)
                         \ttmkey{in}{enumeration list} ($L$ v)}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the list {\tt v}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt function $L$ r = ($E$ e)
+{\tt function $L$ r = std ($E$ e)
                         "\ttmkey{+}{enumeration list prepend}" ($L$ v)}
 \begin{indpar}
 Returns the list made by prepending {\tt e} to {\tt v}.
 \end{indpar}
 
-{\tt function $L$ r = ($L$ v)
+{\tt function $L$ r = std ($L$ v)
                         "\ttmkey{+}{enumeration list append}" ($E$ e)}
 \begin{indpar}
 Returns the list made by appending {\tt e} to {\tt v}.
 \end{indpar}
 
-{\tt function $L$ r = ($L$ s)
+{\tt function $L$ r = std ($L$ s)
                         "\ttmkey{-}{enumeration list remove}" ($E$ e)}
 \begin{indpar}
 Returns the list made by removing the all occurrences of

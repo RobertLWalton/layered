@@ -2092,14 +2092,25 @@ specifies its {\em type-name}:
 {\em expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
-The simplest {\em base-type-expression} is just the name
-of another type, the `\key{base type}' of the new type defined
+A \TT{type} value is an enumeration value (\pagref{ENUMERATION-TYPES}),
+which is basically a small integer that identifies the type, and
+can be associated with {\em type-names}.  Types can be computed
+by compile-time expressions, just like integers.
+A \TT{type} value can be associated with zero or more {\em type-names}.
+
+In a {\em defined-type-declaration}
+the {\em base-type-expression} specifies
+the `\key{base type}' of the new type defined
 by the {\em defined-type-declaration}.
-The {\em defined-type-name} names this new `\key{defined type}.
+The {\em defined-type-name} names a new `\key{defined type}'.
+The simplest {\em base-type-expres\-sion} is just a {\em type-name} of the
+base type.
 
 Any {\em qualifiers} in the declaration are attached to every
 variable or argument declared with the {\em defined-type-name} (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
+Such {\em qualifiers} are associated with {\em type-names} and not
+with \TT{type} values.
 
 No {\em type-name} may be a prefix of
 any {\em deferred-variable} (\pagref{DEFERRED-VARIABLE})
@@ -2128,7 +2139,7 @@ type, as in `{\tt T(v)}'.
 However a statement of the form `{\tt type T = \ldots}'
 declares {\tt T} to be a mere variable name that can only be
 use as a constant equal to an enumeration value that is the
-identifier of a type (\pagref{TYPE-VALUES}).
+identifier of a type (\itemref{TYPE-VALUES}).
 
 A defined type has an
 `\mkey{underlying type}{of defined type}'\label{UNDERLYING-TYPE} that

@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 14, 2018
+April 16, 2018
  
 \end{center}
 
@@ -3604,10 +3604,11 @@ The qualifiers may be declared by:
     \end{tabular} \\
 \emkey{qualifier-attribute}
     \begin{tabular}[t]{rl}
-    ::= & \ttkey{required} \\
-    $|$ & \ttkey{prohibited} \\
+    ::= & \ttkey{value} \\
+    $|$ & \ttkey{variable} \\
     $|$ & \ttkey{protected} \\
-    $|$ & \ttkey{inherited} \\
+    $|$ & \ttkey{required} \\
+    $|$ & \ttkey{prohibited} \\
     \end{tabular} \\
 \emkey{defined-qualifier-name} ::= {\em qualifier-name} \\
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
@@ -3625,6 +3626,22 @@ No qualifier name may begin with `\TT{next}'
 or `\TT{previous}'.
 \end{enumerate}
 \end{indpar}
+
+A `\key{variable qualifier}' qualifies variables but not values.
+If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
+does \underline{not} follow the value of {\tt v} when that value
+is copied to another variable.
+
+A `\key{value qualifier}' qualifies values, although the qualifier
+is attached to variables that hold these values.
+If $Q$ is a value qualifier attached to a variable {\tt v}, $Q$
+\underline{may} follow the value of {\tt v} to another variable
+when that value is copied to that other variable.
+
+A qualifier must be a variable qualifier or a value qualifier,
+but can never be both.
+
+TBD
 
 If a function prototype variable (argument or result) has
 a \key{required qualifier}, any call variable matched to this

@@ -2941,7 +2941,7 @@ equal.
 
 New types are declared by statements of the form:
 \begin{center}
-\tt define type {\em type-name} \ldots{}
+\tt \ttkey{define type} {\em type-name} \ldots{}
 \end{center}
 The {\em type-name} of a type can be used (1) before a {\em variable-name}
 in a declaration, (2) as the name of an enumeration value in an
@@ -2965,14 +2965,14 @@ or equivalently, the directed graph whose nodes are types
 which has an edge from $T1$ to
 $T2$ if and only if \TT{$T1~\CNV~T2$} is required to be acyclic.
 In addition, two different paths from one type to another are
-required to produce the same result.  For example:
+assumed to produce the same result.  For example:
 \begin{indpar}\begin{verbatim}
 int16 v1 = ...
 int32 v2 = v1
 float64 v3 = v2
 float64 v4 = v1
 // Given the two implied conversion paths v1 ---> v2 ---> v3
-// and v1 ---> v4, necessarily v3 == v4.
+// and v1 ---> v4, it is assumed that v3 == v4.
 \end{verbatim}\end{indpar}
 
 If for a set of types $\{T1,T2,\ldots\}$ there is a unique

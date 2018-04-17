@@ -2372,27 +2372,26 @@ would return a value below the {\em first-enum} value in a range.
 It is also an error if for a given type the same value is returned
 by some \TT{next~enum} and also by some \TT{previous~enum}.
 
-The following conversion function are builtin:
-\begin{indpar}
-
-{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $E$ v )} \\
-{\tt function \TT{*UNCHECKED*} $E$ r = $E$ ( $B$ v )}
-
-\begin{center}
-where $E$ is an {\em enum-type-name} \\
-and $B$ is any {\em type-name}
-for the base type of $E$
-\end{center}
-\begin{indpar}
-These are conversions that do nothing but change the type of the value.
-\end{indpar}
-
-\end{indpar}
-
 In memory an enumeration value is represented by an integer value
 of the underlying type of the enumeration value's enumeration type.
 This is called the `\mkey{underlying value}{of enumeration value}'
-of the enumeration value.  The enumeration value also has a
+of the enumeration value.
+
+The following unchecked conversions between enumeration values are builtin:
+\begin{indpar}
+
+{\tt function \TT{*UNCHECKED*} $E1$ r = $E1$ ( $E2$ v )}
+\begin{center}
+where $E1$ and $E2$ are both enumeration types
+and $E1$ and $E2$ have the same underlying type
+\end{center}
+\begin{indpar}
+These conversions do nothing but change the type of the value.
+\end{indpar}
+
+\end{indpar}
+
+The enumeration value also has a
 numeric value in the range
 {\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}, which is
 called the `\mkey{range value}{of enumeration value}' of the
@@ -2726,10 +2725,10 @@ in the set.}
 Thus
 \begin{indpar}\begin{verbatim}
 define type X as uns8 with enum range [1 .. 20]
-X X1 is next enum
-X X2 is next enum
+X X1 = next enum
+X X2 = next enum
 . . . . . . . . . .
-X X20 is next enum
+X X20 = next enum
 
 // Then:
 //
@@ -2789,27 +2788,19 @@ define type \ttkey{std qualifiers} as set of qualifier \\
 \ttkey{qualifiers} ---> `std qualifiers'
 \end{indpar}
 
-TBD
-
-Given an enumeration set or list type $T1$ with base type $B1$ and
-an enumeration set or list type $T2$ with base type $B2$, the following
-conversions are defined:
+The following unchecked conversions between enumeration
+set types and enumeration list types are builtin:
 \begin{indpar}
-{\tt function ~~~~~~~~~~~ $T2$ r = ( $T1$ v )}
+{\tt function \TT{*UNCHECKED*} $T1$ r = $T1$ ( $T2$ v )}
+\begin{center}
+where $T1$ and $T2$ are either both enumeration set types or both
+enumeration list types \\
+and the element types of $T1$ and $T2$ have the same underlying type
+\end{center}
 \begin{indpar}
-    Defined as an implied conversion \underline{but only if}
-    an implied conversion from $B1$ to $B2$ is defined
-\end{indpar}
-{\tt function \TT{*UNCHECKED*} $T2$ r = ( $T1$ v )}
-\begin{indpar}
-    Defined as an \TT{*UNCHECKED} explicit conversion \underline{but only if}
-    an \TT{*UNCHECKED*} explicit conversion from $B1$ to $B2$ is defined
+These conversions do nothing but change the type of the value.
 \end{indpar}
 \end{indpar}
-A set type can only be converted to a set type, and a list type can
-only be converted to a list type.
-These conversions actually do nothing but change the type of the
-value.
 
 Variables with compile-type enumeration set or list values can be defined.
 If $S$ is an enumeration set type with element type $E$, the following
@@ -2858,6 +2849,11 @@ Returns union of \{{\tt e}\} and {\tt s}.
     std ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt e}\}.
+
+{\tt function unswrd r = std \ttmkey{size of}{enumeration set} ($S$ s)}
+\begin{indpar}
+Returns the size of the set {\tt s} (number of elements in {\tt s}).
+\end{indpar}
 \end{indpar}
 
 \end{indpar}
@@ -2905,6 +2901,18 @@ Returns the list made by removing the all occurrences of
 {\tt e} in {\tt v}.
 \end{indpar}
 
+{\tt function unswrd r = std \ttmkey{length of}{enumeration list} ($L$ v)}
+\begin{indpar}
+Returns the length of the list {\tt v} (number of elements in {\tt v}).
+\end{indpar}
+
+{\tt function $E$ r = std ($L$ v) \TT{[} unswrd i \TT{]}}%
+\ttmindex{[]}{of enumeration list}
+\begin{indpar}
+Returns the {\tt i+1}'st list element of {\tt v}.
+It is an error if {\tt i >= length of (v)}.
+\end{indpar}
+
 \end{indpar}
 
 An implementation is not required to implement run-time enumeration
@@ -2920,8 +2928,8 @@ The type `\TT{type}' is a builtin enumeration type declared
 by the builtin equivalent of:
 \begin{indpar} \tt
 define type \ttkey{std type} as unswrd with enum [0~..] \\
-type \ttkey{std missing type} is next enum // 0 \\
-type \ttkey{std type} is next enum // 1 \\
+type \ttkey{std missing type} = next enum // 0 \\
+type \ttkey{std type} = next enum // 1 \\
 function std type r = std \ttmkey{missing}{type}: \\
 \hspace*{3em}r = std missing type \\
 \ttkey{type} \ABV{} `std type'
@@ -3643,7 +3651,7 @@ The type `\TT{qualifier}' is a builtin enumeration type declared
 by:
 \begin{indpar} \tt
 define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
-qualifier \ttkey{std missing qualifier} is next enum // 0 \\
+qualifier \ttkey{std missing qualifier} = next enum // 0 \\
 function std qualifier r = std \ttmkey{missing}{qualifier}: \\
 \hspace*{3em}r = std missing qualifier \\
 \ttkey{qualifier} \ABV{} `std qualifier'

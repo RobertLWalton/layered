@@ -2151,8 +2151,8 @@ the builtin type itself.
 
 The following builtin functions are defined:
 \begin{indpar}
-{\tt function $T$ r = $T$ ( \TT{*UNCHECKED*} $B$ v )} \\
-{\tt function $B$ r = $B$ ( \TT{*UNCHECKED*} $T$ v )}
+{\tt function \TT{*UNCHECKED*} $T$ r = $T$ ( $B$ v )} \\
+{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $T$ v )}
 
 where $T$ is a {\em defined-type-name} and $B$ is any {\em type-name}
 for the base type of $T$
@@ -2375,8 +2375,8 @@ by some \TT{next~enum} and also by some \TT{previous~enum}.
 The following conversion function are builtin:
 \begin{indpar}
 
-{\tt function $B$ r = $B$ ( \TT{*UNCHECKED*} $E$ v )} \\
-{\tt function $E$ r = $E$ ( \TT{*UNCHECKED*} $B$ v )}
+{\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $E$ v )} \\
+{\tt function \TT{*UNCHECKED*} $E$ r = $E$ ( $B$ v )}
 
 \begin{center}
 where $E$ is an {\em enum-type-name} \\
@@ -2800,7 +2800,7 @@ conversions are defined:
     Defined as an implied conversion \underline{but only if}
     an implied conversion from $B1$ to $B2$ is defined
 \end{indpar}
-{\tt function $T2$ r = ( \TT{*UNCHECKED*} $T1$ v )}
+{\tt function \TT{*UNCHECKED*} $T2$ r = ( $T1$ v )}
 \begin{indpar}
     Defined as an \TT{*UNCHECKED} explicit conversion \underline{but only if}
     an \TT{*UNCHECKED*} explicit conversion from $B1$ to $B2$ is defined
@@ -3627,6 +3627,33 @@ or `\TT{previous}'.
 \end{enumerate}
 \end{indpar}
 
+The builtin qualifiers are in effect declared by:
+\begin{indpar}
+{\tt protected variable qualifier~}\ttkey{mem} \\
+{\tt prohibited protected value qualifier~}\ttkey{stack} \\
+{\tt required variable qualifier~}\ttkey{*UNCHECKED*} \\
+{\tt protected value qualifier~}\ttkey{global}
+\end{indpar}
+
+Each qualifier is associated with a unique enumeration value,
+and this value can be used at both
+compile and run time to test whether two `\TT{qualifier}'s are
+equal.
+The type `\TT{qualifier}' is a builtin enumeration type declared
+by:
+\begin{indpar} \tt
+define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
+qualifier \ttkey{std missing qualifier} is next enum // 0 \\
+function std qualifier r = std \ttmkey{missing}{qualifier}: \\
+\hspace*{3em}r = std missing qualifier \\
+\ttkey{qualifier} \ABV{} `std qualifier'
+\end{indpar}
+
+The {\em qualifier-name} of a qualifier
+can be used (1) before a {\em type-name}
+in a declaration, (2) as the name of an enumeration value in an
+expression, or (3) as the name of a function in a {\em function-call}.
+
 A `\key{variable qualifier}' qualifies variables but not values.
 If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
 does \underline{not} follow the value of {\tt v} when that value
@@ -3719,73 +3746,6 @@ a copy, it must not be attached to the source.
 If this rule is violated for copy to
 call argument variable or copy to call result variable, the call-to-prototype
 match that generated these copies fails.
-
-
-TBD
-
-If a function prototype variable (argument or result) has
-a \key{required qualifier}, any call variable matched to this
-prototype variable must have the required qualifier.
-
-If a function prototype variable (argument or result)
-does \underline{not}
-have a \key{prohibited qualifier}, any call variable matched to this
-prototype variable must \underline{not} have the prohibited qualifier.
-
-A qualifier \underline{must} be required or prohibited or both.
-Given a function prototype variable with a qualifier that is
-both required and prohibited,
-a matching call variable must always have the qualifier,
-and given a function prototype variable without such a qualifier,
-a matching call variable must never have the qualifier.
-
-If a function prototype result variable has a \key{protected
-qualifier}, any call variable matched to this
-prototype variable will be given the protected qualifier
-(if it does not already have it).  Furthermore, no variable
-may have a protected qualifier unless it is matched to
-a function result variable with the qualifier.
-
-In the above example, 
-any call variable matched to the argument of {\tt F}
-must have the `{\tt fie}' qualifier, which is required.
-Any call variable matched to the argument of {\tt G}
-must \underline{not} have the `{\tt fo}' qualifier, which is prohibited.
-The `{\tt fo}' qualifier can only be placed on a variable that is
-the result of a function like {\tt G} which attaches it to its result,
-as `{\tt fo}' is protected.  `{\tt fee}' and `{\tt fie}' can be attached
-to any variable, as they are \underline{not} protected.
-
-Inherited qualifiers affect cluster variables and their behavior is
-specified on page~\pageref{INHERITED-QUALIFIER}. 
-
-The builtin qualifiers are in effect declared by:
-\begin{indpar}
-{\tt protected~qualifier~}\ttkey{mem} \\
-{\tt prohibited~protected~inherited~qualifier~}\ttkey{stack} \\
-{\tt required qualifier~}\ttkey{*UNCHECKED*} \\
-{\tt protected~inherited~qualifier~}\ttkey{global}
-\end{indpar}
-
-The type `\TT{qualifier}' is a builtin enumeration type declared
-by:
-\begin{indpar} \tt
-define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
-qualifier \ttkey{std missing qualifier} is next enum // 0 \\
-function std qualifier r = std \ttmkey{missing}{qualifier}: \\
-\hspace*{3em}r = std missing qualifier \\
-\ttkey{qualifier} \ABV{} `std qualifier'
-\end{indpar}
-Each qualifier is associated with a unique enumeration value
-of type `\TT{qualifier}', and this value can be used at both
-compile and run time to test whether two `\TT{qualifier}'s are
-equal.
-
-The {\em qualifier-name} of a qualifier
-can be used (1) before a {\em type-name}
-in a declaration, (2) as the name of an enumeration value in an
-expression, or (3) as the name of a function in a {\em function-call}.
-
 
 \section{Conversions}
 \label{CONVERSIONS}

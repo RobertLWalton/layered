@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 17, 2018
+April 18, 2018
  
 \end{center}
 
@@ -3528,9 +3528,10 @@ inline function whose call is currently being compiled.
 \label{QUALIFIERS}
 
 Variables may be qualified by \skey{qualifier}s, which precede the
-type when a variable is declared.  There are four builtin qualifiers
-described in Section~\itemref{BUILTIN-QUALIFIERS} that have special
-effects: \TT{mem}, \TT{stack}, \TT{*UNCHECKED*}, and \TT{global}.
+type when a variable is declared.  There are five builtin qualifiers:
+\TT{mem}, \TT{*WRITABLE*}, \TT{stack}, \TT{*UNCHECKED*}, and
+\TT{global}.  The first three have special effects
+described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
 have special effects.
 Other qualifiers that have no special effects
@@ -3638,6 +3639,7 @@ or `\TT{previous}'.
 The builtin qualifiers are in effect declared by:
 \begin{indpar}
 {\tt protected variable qualifier~}\ttkey{mem} \\
+{\tt protected variable qualifier~}\ttkey{*WRITABLE*} \\
 {\tt prohibited protected value qualifier~}\ttkey{stack} \\
 {\tt required variable qualifier~}\ttkey{*UNCHECKED*} \\
 {\tt protected value qualifier~}\ttkey{global}
@@ -3710,6 +3712,50 @@ takes the form of a function call and the assignment statement
 result variable
 matches a prototype result variable that \underline{does not have}
 the qualifier.
+
+Some examples involving builtin variable qualifiers are:
+\begin{indpar}\begin{verbatim}
+// Builtin declarations:
+//     protected variable qualifier mem
+//     required variable qualifier *UNCHECKED*
+
+// Function to read the int32 value at RAM address A
+// (not type safe).
+//
+function mem int32 r, *UNCHECKED* adr r.adr = read ( adr A ):
+    r.adr = A
+mem int32 x = read (1000)
+    // Creates variable *UNCHECKED* adr x.adr = 1000.
+    // The mem variable qualifier is special: x is not given
+    // a value by assignment, but automatically gets its
+    // value by reading location x.adr.
+int32 y = read(2000)
+    // Ditto but mem qualifier is automatically added to y.
+int32 z = x
+    // The mem variable qualifier on x is NOT propagated
+    // to z.
+
+*UNCHECKED* uns32 w = uns32 ( z )
+    // *UNCHECKED* is a require variable qualifier and must
+    // be written into code.  It is required to be on the
+    // result variable of an unchecked conversion from
+    // int32 to uns32 that just changes the type of the
+    // 32 bit value without changing the value.
+uns32 v = w
+    // The *UNCHECKED* variable qualifier on w is NOT
+    // propagated to v.
+\end{verbatim}\end{indpar}
+
+A call to {\tt read} returns a cluster of
+two variables, with only the root {\tt r} of the cluster being
+specified explicitly by the call, and the child {\tt r.adr} being
+created implicitly by the call: see \itemref{CLUSTERS}.
+The {\tt mem} qualifier has the special property that a value of a {\tt mem}
+variable {\tt r} is not given explicitly, but is read implicitly from
+RAM memory using the address in {\tt r.adr}: see \itemref{THE-MEM-QUALIFIER}.
+As a protected variable qualifier, {\tt mem} can only be attached to
+a variable by making the variable a result variable of an inline
+function call.
 
 The rules for value qualifiers differ from those for variable
 qualifiers in that they involve variable copying operations.

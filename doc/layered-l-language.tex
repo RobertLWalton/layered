@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 18, 2018
+April 19, 2018
  
 \end{center}
 
@@ -3719,16 +3719,16 @@ Some examples involving builtin variable qualifiers are:
 //     protected variable qualifier mem
 //     required variable qualifier *UNCHECKED*
 
-// Function to read the int32 value at RAM address A
-// (not type safe).
+// Function to read the int32 value at RAM address A.
+// Not type safe as argument A not vetted.
 //
-function mem int32 r, *UNCHECKED* adr r.adr = read ( adr A ):
+function mem int32 r, adr r.adr = read ( adr A ):
     r.adr = A
 mem int32 x = read (1000)
-    // Creates variable *UNCHECKED* adr x.adr = 1000.
-    // The mem variable qualifier is special: x is not given
-    // a value by assignment, but automatically gets its
-    // value by reading location x.adr.
+    // Creates variable adr x.adr = 1000.  The mem variable
+    // qualifier is special: x is not given a value by
+    // assignment, but automatically gets its value by
+    // reading location x.adr.
 int32 y = read(2000)
     // Ditto but mem qualifier is automatically added to y.
 int32 z = x
@@ -3804,6 +3804,32 @@ match that generated these copies fails.
 Some examples involving the \TT{stack} prohibited protected value
 qualifier are:
 \begin{indpar}\begin{verbatim}
+// Builtin declaration:
+//     protected prohibited value qualifier stack
+//
+// Assume:
+//    function *UNCHECKED* stack adr r = allocate to stack
+//                                         ( unswrd size )
+//        // Actual allocate to stack function returns more
+//        // complex cluster.
+//
+*UNCHECKED* adr address of x =
+               allocate to stack ( size of int32 )
+    // address of x is automatically given the `stack'
+    // qualifier.
+
+function mem int32 r, adr r.adr = read ( adr A ):
+    r.adr = A
+function mem int32 r, adr r.adr = read from stack
+                                    ( stack adr A ):
+    r.adr = A
+
+int32 x1 = read ( address of x )
+    // Compiler error: `read' prototype argument does not
+    // have prohibited `stack' qualifier call argument has.
+int32 x2 = read from stack ( address of x )
+    // Legal: `read from stack' prototype and call
+    // arguments both have `stack' qualifier.
 \end{verbatim}\end{indpar}
 
 \section{Conversions}
@@ -7006,7 +7032,7 @@ floating point NaNs or other numeric values.
 
 {\tt function *UNCHECKED* adr r =} \\
 \hspace*{0in}{\tt ~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
-\hspace*{0in}{\tt ~~~~~~~~~~~~~ ( *UNCHECKED* uns64 v,} \\
+\hspace*{0in}{\tt ~~~~~~~~~~~~~ ( uns64 v,} \\
 \hspace*{0in}{\tt ~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
 \begin{indpar}
@@ -7457,8 +7483,7 @@ define type pointer pair as void
     //                 last element
     //   mem adr pp.base is the base address that
     //                   is added to the offsets
-    //   *UNCHECKED* adr pp.base.adr is the address of
-    //                                  pp.base
+    //   adr pp.base.adr is the address of pp.base
     //   type pp.type is type of elements pointed at
 
 // Function to allocate a vector of n T's to the stack.
@@ -7467,32 +7492,30 @@ function ( stack pointer pair pp,
            unsadr pp.begin,
            unsadr pp.end,
            mem adr pp.base,
-           *UNCHECKED* adr pp.base.adr,
+           adr pp.base.adr,
            type pp.type ) =
         allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
     pp.type = T
     unsadr size = size of ( T ) * n
-    pp = allocate to stack ( size )
-        // This sets pp.offset, pp.base and
-        // pp.base.adr.
-    pp.begin = pp.offset
+    *UNCHECKED* void p = allocate to stack ( size )
+    pp.base.adr = p.base.adr
+    pp.begin = p.offset
     pp.end = pp.begin + size
-        // pp.offset is not returned to caller
 
 
 // Prefix operator to dereference a pointer pair to read
 // memory.
 //
 function ( mem pp.type out,
-           *UNCHECKED* unsadr out.offset,
+           unsadr out.offset,
            mem adr out.base,
-           *UNCHECKED* adr out.base.adr ) =
+           adr out.base.adr ) =
         "*" ( stack pointer pair pp,
               type pp.type,
               unsadr pp.begin,
               unsadr pp.end,
-              *UNCHECKED* adr pp.base ):
+              adr pp.base ):
     if:
         pp.begin < pp.end:
             out.offset   = pp.begin
@@ -7515,14 +7538,14 @@ function ( Q pointer pair pp2,
            unsadr pp2.begin,
            unsadr pp2.end,
            mem adr pp2.base,
-           *UNCHECKED* adr pp2.base.adr,
+           adr pp2.base.adr,
            type pp2.type )
         = ( qualifiers Q,
             Q pointer pair pp,
             type pp.type,
             unsadr pp.begin,
             unsadr pp.end,
-            *UNCHECKED* adr pp.base.adr ):
+            adr pp.base.adr ):
       pp2.begin = pp.begin
       pp2.end = pp.end
       pp2.base.adr = pp.base.adr
@@ -7628,9 +7651,9 @@ See \itemref{BUILTIN-QUALIFIERS}.
 The `\TT{mem}' qualifier\label{MEM}
 has the special property that given a variable
 \TT{v} of qualifier \TT{mem}, then if \TT{v} is allocated,
-and \TT{v.base} of type \TT{adr} and qualifier \TT{*UNCHECKED*}
+and \TT{v.base} of type \TT{adr}
 is allocated and assigned a value
-and \TT{v.offset} of type \TT{unsadr} and qualifier \TT{*UNCHECKED*}
+and \TT{v.offset} of type \TT{unsadr}
 is allocated and assigned a value, then
 the root \TT{v} is automatically
 assigned the value located at the RAM address \TT{v.base + v.offset}.
@@ -7792,10 +7815,10 @@ An example is:
 //
 define type foo as void
 define type foo_ptr as adr
-function foo x, *UNCHECKED* adr x.base,
-         mem int32 x.a, *UNCHECKED* x.a.offset,
-         mem int32 x.b, *UNCHECKED* x.b.offset,
-         mem int32 x.c, *UNCHECKED* x.c.offset
+function foo x, adr x.base,
+         mem int32 x.a, x.a.offset,
+         mem int32 x.b, x.b.offset,
+         mem int32 x.c, x.c.offset
         = "*" ( foo_ptr x ):
     x.base = x
     x.a.offset = 0
@@ -8433,10 +8456,10 @@ memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
-function T result, \\
-~~~~~~~~~stack *UNCHECKED* unsadr result.offset, \\
+function *UNCHECKED* T result, \\
+~~~~~~~~~stack unsadr result.offset, \\
 ~~~~~~~~~stack mem adr result.base, \\
-~~~~~~~~~*UNCHECKED* adr result.base.adr = \\
+~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
@@ -8448,9 +8471,10 @@ base address is stored in RAM.  The first and last of these
 are fixed but `\TT{result.base}' may change when the stack is
 moved.
 
+TBD: result.base does not need to be returned.
+
 The returned values use
-the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER})
-and `\TT{*UNCHECKED*}' qualifier (see \itemref{THE-UNCHECKED-QUALIFIER}).
+the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER}),
 
 The memory is freed when the free stack to which it is allocated
 is freed (\itemref{STACK-MANAGEMENT}).
@@ -8464,10 +8488,10 @@ The memory allocated is always aligned on an \TT{8} byte boundary.
 If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
-function T result, \\
-~~~~~~~~~stack *UNCHECKED* unsadr result.offset, \\
+function *UNCHECKED* T result, \\
+~~~~~~~~~stack unsadr result.offset, \\
 ~~~~~~~~~stack mem adr result.base, \\
-~~~~~~~~~*UNCHECKED* adr result.base.adr = \\
+~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
 ~~~~~~~~[| underlying type of T == void |]
@@ -8550,16 +8574,16 @@ Memory within a global area can be allocated by:
 
 \begin{indpar}\tt\begin{tabular}{l}
 ( T result, \\
-~~global *UNCHECKED* unsadr result.offset, \\
+~~global unsadr result.offset, \\
 ~~mem adr result.offset.base, \\
-~~global *UNCHECKED* adr result.offset.base.adr  ) = \\
+~~global adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \\[1ex]
 ( T result, \\
-~~global *UNCHECKED* unsadr result.offset, \\
+~~global unsadr result.offset, \\
 ~~mem adr result.offset.base, \\
-~~global *UNCHECKED* adr result.offset.base.adr  ) = \\
+~~global adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
 ~~~~~~~~[| underlying type of T == void |]

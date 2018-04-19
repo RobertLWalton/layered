@@ -2947,13 +2947,39 @@ The {\em type-name} of a type can be used (1) before a {\em variable-name}
 in a declaration, (2) as the name of an enumeration value in an
 expression, or (3) as the name of a function in a {\em function-call}.
 
-Values of one type $T1$ can be converted implicitly to another
+Values of one type $T1$ may be \key{explicitly converted} to another
 type $T2$ if and only if an inline function with prototype:
-\begin{indpar} \tt
-function rQs $T2$ r = (| qualifiers Qs |) ( Qs $T1$ v )
-\end{indpar}
-is defined.  In this case we say the $T1$ is \mkey{more specific}{types}
+\begin{center} \tt
+function \ldots~$T2$ r = $T2$ ( \ldots~$T1$ v )
+\end{center}
+is defined, where the `\ldots{}' denote arbitrary qualifiers.
+
+Values of one type $T1$ may be \key{implicitly converted} to another
+type $T2$ if and only if an inline function with prototype:
+\begin{center} \tt
+function \ldots~$T2$ r = \ttkey{implicit conversion} ( \ldots~$T1$ v )
+\end{center}
+is defined, where the `\ldots{}' denote arbitrary qualifiers.
+Given assignment statements
+\begin{center}
+\begin{tabular}{l}
+\tt $T1$ w = \ldots \\
+\tt $T2$ v = w \\
+\end{tabular}
+\end{center}
+
+where $T2\neq T1$, the compiler will change the second statement to
+\begin{center}
+\tt $T2$ v = implicit conversion ( w )
+\end{center}
+
+There can be several {\tt implicit conversion} functions from $T1$
+to $T2$ defined, each with different qualifiers.
+
+If \underline{any} implicit conversion from $T1$ to $T2$ is defined,
+we say the $T1$ is \mkey{more specific}{types}
 than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
+symbolically,
 \begin{center}
 {\tt $T1~~\CNV~~T2$}
 \end{center}%
@@ -2962,17 +2988,58 @@ than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
 The transitive closure of the $\CNV$ relation between types is
 required to be a partial order,
 or equivalently, the directed graph whose nodes are types
-which has an edge from $T1$ to
-$T2$ if and only if \TT{$T1~\CNV~T2$} is required to be acyclic.
-In addition, two different paths from one type to another are
-assumed to produce the same result.  For example:
+that has an arrow from $T1$ to
+$T2$ if and only if $T1 \CNV T2$ is required to be acyclic.
+This graph is know as the \key{implied conversion graph}.
+
+In addition, if there are two paths from type $T1$
+to type $T2$ in the implicit conversion graph that
+are disjoint except for their endpoints, there must also
+be a direct arrow from $T1$ to $T2$ in the graph, i.e.,
+\begin{center} \tt
+function \ldots~$T2$ r = implied conversion ( \ldots~$T1$ v )
+\end{center}
+must be defined.
+This last rule
+allows the call-prototype matching rule
+\ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+on page \pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+to disambiguate an implicit conversion from a $T1$ value to
+a $T2$ value by always choosing the direct path $T1\CNV T2$.
+
+For example, since
+\begin{center}
+{\tt uns16 $\CNV$ int32 $\CNV$ int64} \\
+and \\
+{\tt uns16 $\CNV$ uns32 $\CNV$ int64}
+\end{center}
+are both in the graph,
+then {\tt uns16 $\CNV$ int64} must be too.
+
+If the direct conversion does not exist,
+the implicit conversion will be a compilation error.
+If qualifiers disable the direct implicit conversion but
+not the two paths, the implicit conversion will be a compilation
+error for those qualifiers.
+Note that by rule
+\ref{ARGUMENT-CALL-PROTOTYPE-MATCHING}
+on \pagref{ARGUMENT-CALL-PROTOTYPE-MATCHING}
+such compilation errors may not be explicitly visible,
+but may be hidden inside call-prototype match failures.
+
+Although the compiler cannot check this, it should be true
+that if there are two different paths from one type to another
+in the implicit conversion greaph, both paths produce the same
+result.  For example:
 \begin{indpar}\begin{verbatim}
 int16 v1 = ...
 int32 v2 = v1
 float64 v3 = v2
+    // Implied conversions are v1 ---> v2 ---> v3.
 float64 v4 = v1
-// Given the two implied conversion paths v1 ---> v2 ---> v3
-// and v1 ---> v4, it is assumed that v3 == v4.
+    // Implied conversion is v1 ---> v4.
+
+// v3 == v4 should be true.
 \end{verbatim}\end{indpar}
 
 If for a set of types $\{T1,T2,\ldots\}$ there is a unique
@@ -2980,6 +3047,8 @@ type $T$ such that $T1\TCNV T$, $T2\TCNV T$, \ldots{}, where
 $\TCNV$ is the transitive closure of $\CNV$, then
 $T$ is called the `\key{least upper bound}'\label{LEAST-UPPER-BOUND}
 of the set of types.
+
+TBD
 
 Functions can be overloaded based on the number and types
 of their arguments and also on the values of arguments that
@@ -6796,7 +6865,8 @@ qualifiers, the call-prototype match fails.
 Otherwise this qualifiers set value is substituted for the {\em variable-name}
 throughout the {\em function-prototype}.
 
-\item If the unfolded {\em function-call} has {\em actual-argument}
+\item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
+If the unfolded {\em function-call} has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
 (including {\em default-values}),
 and the {\em function-pattern} has
@@ -6908,7 +6978,8 @@ have {\em required-values} in $X$ but not in $Y$, and none of the $eI$
 have {\em required-values} in $Y$ but not in $X$,
 then the $Y$ match is discarded.
 
-\item Let $e1$, $e2$, \ldots{}~be the argument expressions of
+\item\label{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+Let $e1$, $e2$, \ldots{}~be the argument expressions of
 the not-unfolded original {\em function-call}, read from left to right.
 If there are two matches $X$ and $Y$ such that
 $TX1$, $TX2$, \ldots{}~are the types of the $X$ prototype argument

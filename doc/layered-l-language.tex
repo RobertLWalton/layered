@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 19, 2018
+April 20, 2018
  
 \end{center}
 
@@ -3048,84 +3048,119 @@ $\TCNV$ is the transitive closure of $\CNV$, then
 $T$ is called the `\key{least upper bound}'\label{LEAST-UPPER-BOUND}
 of the set of types.
 
-TBD
-
 Functions can be overloaded based on the number and types
-of their arguments and also on the values of arguments that
-are known at compile time.  Thus different functions with
-the common prototype
+of their arguments, but also on the values of arguments that
+are known at compile time.  For example, using this last,
+many function declarations of the form
 \begin{center}
-{\tt function unsadr r = size of ( type T )}
+\begin{tabular}{l}
+{\tt function unsadr r = $ma$\QMARK{} size of ( type t == $T$ ):} \\
+\hspace*{0in}{\tt ~~~~r = $S$}
+\end{tabular}
 \end{center}
-may be defined for different values of {\tt T}.  
+be coded, where $ma$ is the {\em module-abbreviation} of the
+type name $T$, if any, and $S$ is the size in bytes of values of type $T$.
+As a consequence `{\tt size of ($T$)}' can be used at compile
+time to determine the size in bytes of values of an arbitrary type
+$T$.
 
-With this in mind, the following compile-time builtin functions may be
-defined automatically:
+It is also possible to define a default function that is used when
+function declarations with known prototypes are not applicable.
+For example, the following declarations are builtin:
+\begin{indpar}\begin{verbatim}
+function bool r = std ( type t == uns8 ):
+    return true
+function bool r = std ( type t == uns16 ):
+    return true
+function bool r = std ( type t == uns32 ):
+    return true
+function bool r = std ( type t == uns64 ):
+    return true
+function bool r = std ( type t == uns128 ):
+    return true
+function bool r = std ( type t ):
+    return false
+\end{verbatim}\end{indpar}
+where the last declaration is the default when none of the others
+apply.  See
+rule \ref{REQUIRED-ARGUMENTS-PREFERRED},
+\pagref{REQUIRED-ARGUMENTS-PREFERRED}.
+In this case we refer to the last declaration as the
+`\key{default declaration}' and say that the default declaration
+returns \TT{false}.
+
+The following are defined automatically for a type $T$, where
+$ma$ is the {\em module-abbreviation} of the module containing
+the declaration of $T$, if $T$ has such a {\em module-abbreviation}.
+Only some of these functions have a default declaration.
 
 \begin{indpar}
-{\tt function bool r = std ( type T ) \ttkey{is uns}} \\
-{\tt function bool r = std ( type T ) \ttkey{is int}} \\
-{\tt function bool r = std ( type T ) \ttkey{is float}} \\
-{\tt function bool r = std ( type T ) \ttkey{is numeric}} \\
-{\tt function bool r = std ( type T ) \ttkey{is implemented numeric}}
+{\tt function bool r = std ( type t == $T$ ) \ttkey{is uns}} \\
+{\tt function bool r = std ( type t == $T$ ) \ttkey{is int}} \\
+{\tt function bool r = std ( type t == $T$ ) \ttkey{is float}} \\
+{\tt function bool r = std ( type t == $T$ ) \ttkey{is numeric}} \\
+{\tt function bool r = std ( type t == $T$ )
+				\ttkey{is implemented numeric}}
 \begin{indpar}
-These functions test {\tt T} in the current scope to see if it is
+These functions test {\tt t} in the current scope to see if it is
 an \TT{uns$x$} type, an \TT{int$x$} type, a \TT{float$x$} type,
 any of these types, or any of these types for which arithmetic
 and comparison operators are
 `implemented' (see \pagref{IMPLEMENTED}).
+The default declaration returns \TT{false}.
 \end{indpar}
 \end{indpar}
 
 \begin{indpar}
-{\tt function type r = \ttkey{base type of} ( type T )}
+{\tt function type r = $ma$\QMARK{} \ttkey{base type of} ( type t == $T$ )}
 \begin{indpar}
-Returns the base type of the type {\tt T}.  For enumeration
+Returns the base type of the type {\tt t}.  For defined and enumeration
 types this is the associated base type from the defined type's
 declaration.  For builtin types, it is
-{\tt T} itself.
+{\tt t} itself.
 \end{indpar}
 
-{\tt function type r = \ttkey{underlying type of} ( type T )}
+{\tt function type r = $ma$\QMARK{} \ttkey{underlying type of}
+					( type t == $T$ )}
 \begin{indpar}
-Returns {\tt T} if {\tt T} is a builtin type.
-Otherwise if {\tt T} is a defined or enumeration type,
+Returns {\tt t} if {\tt t} is a builtin type.
+Otherwise if {\tt t} is a defined or enumeration type,
 \begin{center}
-\TT{underlying type of ( base type of ( T ) )}
+{\tt underlying type of ( base type of ( t ) )}
 \end{center}
 is returned.  See \pagref{UNDERLYING-TYPE}.
 \end{indpar}
 
-{\tt function unsadr r = \ttkey{size of} ( type T )}
+{\tt function unsadr r = $ma$\QMARK{} \ttkey{size of} ( type t == $T$ )}
 \begin{indpar}
-Returns the number of bytes in a value of type {\tt T}.
-For defined types it is the size of their underlying type
+Returns the number of bytes in a value of type {\tt t}.
+For defined and enumeration types it is the size of their underlying type
 (the size of \TT{void} is \TT{0}).
 \end{indpar}
 
-{\tt function unsadr r = \ttkey{alignment of} ( type T )}
+{\tt function unsadr r = $ma$\QMARK{} \ttkey{alignment of} ( type t == $T$ )}
 \begin{indpar}
-Returns the alignment of {\tt T}, a strictly positive integer.
-The address of a value of type {\tt T} in RAM should
+Returns the alignment of {\tt t}, a strictly positive integer.
+The address of a value of type {\tt t} in RAM should
 optimally be a multiple of the alignment.
 The alignment of builtin types is their size.
-For defined types it is the alignment of their underlying type.
+For defined and enumeration types it is the alignment of their underlying type.
 \end{indpar}
 
-{\tt function T r = \ttkey{min value}} \\
-{\tt function T r = \ttkey{max value}}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{min value}} \\
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{max value}}
 \begin{indpar}
-Returns the minimum or maximum value of a type {\tt T}.
+Returns the minimum or maximum value of a type $T$.
 These are defined only for number types and enumeration types,
 and for enumeration types the values returned are the limits of
 the type's {\em enum-range}.
 \end{indpar}
 
-{\tt function T r = \ttkey{min unassigned value}} \\
-{\tt function T r = \ttkey{max unassigned value}}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{min unassigned value}} \\
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{max unassigned value}}
 \begin{indpar}
 Returns the minimum or maximum values not yet assigned to an
-enumeration type {\tt T} by an {\em enum-assignment}.  Values
+enumeration type $T$ by an {\em enum-assignment}.  Values
 assigned by unchecked conversions are not considered.  If
 no values have been assigned, the enumeration value corresponding
 to {\em first-enum} is returned by `\TT{min unassigned value}'
@@ -3135,7 +3170,7 @@ to {\em last-enum} is returned by `\TT{max unassigned value}'.
 These are defined only for enumeration types,
 
 These values may change when more code is compiled or initialized.
-You may only assume that constants of type {\tt T} whose values have
+You may only assume that constants of type $T$ whose values have
 already been compiled or initialized are within
 ranges bounded by these values, i.e., in the ranges:
 \begin{center}
@@ -3144,9 +3179,9 @@ ranges bounded by these values, i.e., in the ranges:
 \end{center}
 \end{indpar}
 
-{\tt function T r = \ttkey{missing value}}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{missing value}}
 \begin{indpar}
-Returns a suitable missing value for type {\tt T}.
+Returns a suitable missing value for type $T$.
 Defined to return the largest possible value for builtin unsigned
 integer types, the smallest (most negative) possible value for
 builtin signed integer types, and \TT{NaN} for builtin
@@ -3154,17 +3189,25 @@ floating point number types.
 May be defined by user for defined types.
 \end{indpar}
 
-{\tt function T r = \ttkey{default value}}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{default value}}
 \begin{indpar}
-Returns a suitable default value for type {\tt T}.
+Returns a suitable default value for type $T$.
 Defined to return \TT{0} for builtin number types.
 May be defined by user for defined types.  For use by allocators,
 such as a user defined function that allocates a vector whose
-elements are of type {\tt T}, and the function wishes to give the elements an
+elements are of type $T$, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
 
-{\tt function bool r = ( type T1 ) "\ttkey{>}" ( type T2 )}
+\end{indpar}
+
+The following function differs from the above in that it
+consults an internal compiler database and does not depend
+on multiple function declarations with specified argument values:
+
+\begin{indpar}
+
+{\tt function bool r = std ( type T1 ) "\ttkey{>}" ( type T2 )}
 \begin{indpar}
 Returns \TT{true} if and only if {\tt T1 > T2} in the sense that values
 of type {\tt T1} can be implicitly converted to values of type {\tt T2}
@@ -6970,7 +7013,8 @@ all conversion deficient matches are discarded.
 \item If there is any remaining match that is not module deficient, then
 all module deficient matches are discarded.
 
-\item Let $e1$, $e2$, \ldots{}~be the argument expressions of
+\item\label{REQUIRED-ARGUMENTS-PREFERRED}
+Let $e1$, $e2$, \ldots{}~be the argument expressions of
 the not-unfolded original {\em function-call}, read from left to right.
 If there are two matches $X$ and $Y$ such that
 some of the $eI$ have

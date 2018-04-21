@@ -2802,7 +2802,8 @@ These conversions do nothing but change the type of the value.
 \end{indpar}
 
 Variables with compile-type enumeration set or list values can be defined.
-If $S$ is an enumeration set type with element type $E$, the following
+If $S$ is an enumeration set type with element type $E$, and $L$ is
+an enumeration list type with the same element type $E$, the following
 functions are defined at compile-time (but may not be defined at
 run-time):
 
@@ -2848,68 +2849,82 @@ Returns union of \{{\tt e}\} and {\tt s}.
     std ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt e}\}.
+\end{indpar}
 
 {\tt function unswrd r = std \ttmkey{size of}{enumeration set} ($S$ s)}
 \begin{indpar}
 Returns the size of the set {\tt s} (number of elements in {\tt s}).
 \end{indpar}
+
+{\tt function $E$ r = std ($S$ s) \TT{[} unswrd i \TT{]}}%
+\ttmindex{[]}{of enumeration set}
+\begin{indpar}
+Returns the {\tt i+1}'st element of {\tt s}, where the elements
+of {\tt s} are taken in the order of their integer underlying values.
+It is an error if {\tt i >= size of (s)}.
 \end{indpar}
 
+{\tt function $S$ r = std $S$ ($L$ ls)}
+\begin{indpar}
+Convert the enumeration list {\tt ls} to an enumeration set,
+removing duplicate elements.
 \end{indpar}
 
-If $L$ is an enumeration list type with element type $E$, the following
-functions are defined at compile-time:
-
+{\tt function $L$ r = std ($L$ ls1)
+		    "\ttmkey{+}{enumeration list concatenation}" ($L$ ls2)}
 \begin{indpar}
-{\tt function $L$ r = std ($L$ v1)
-		    "\ttmkey{+}{enumeration list concatenation}" ($L$ v2)}
-\begin{indpar}
-Returns the concatenation of {\tt v1} and {\tt v2}.
+Returns the concatenation of {\tt ls1} and {\tt ls2}.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ v1)
-                        "\ttmkey{-}{enumeration set difference}" ($L$ v2)}
+{\tt function $L$ r = std ($L$ ls)
+                        "\ttmkey{-}{enumeration list difference}" ($S$ s)}
 \begin{indpar}
-Returns the list made by removing all elements from {\tt v1} that
-appear anywhere in {\tt v2}.
+Returns the list made by removing all elements from {\tt ls} that
+are in {\tt s}.
 \end{indpar}
 
 {\tt function bool r = std ($E$ e)
-                        \ttmkey{in}{enumeration list} ($L$ v)}
+                        \ttmkey{in}{enumeration list} ($L$ ls)}
 \begin{indpar}
-Returns \TT{true} if {\tt e} is an element of the list {\tt v}, and
+Returns \TT{true} if {\tt e} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
 \end{indpar}
 
 {\tt function $L$ r = std ($E$ e)
-                        "\ttmkey{+}{enumeration list prepend}" ($L$ v)}
+                        "\ttmkey{+}{enumeration list prepend}" ($L$ ls)}
 \begin{indpar}
-Returns the list made by prepending {\tt e} to {\tt v}.
+Returns the list made by prepending {\tt e} to {\tt ls}.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ v)
+{\tt function $L$ r = std ($L$ ls)
                         "\ttmkey{+}{enumeration list append}" ($E$ e)}
 \begin{indpar}
-Returns the list made by appending {\tt e} to {\tt v}.
+Returns the list made by appending {\tt e} to {\tt ls}.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ s)
+{\tt function $L$ r = std ($L$ ls)
                         "\ttmkey{-}{enumeration list remove}" ($E$ e)}
 \begin{indpar}
 Returns the list made by removing the all occurrences of
-{\tt e} in {\tt v}.
+{\tt e} in {\tt ls}.
 \end{indpar}
 
-{\tt function unswrd r = std \ttmkey{length of}{enumeration list} ($L$ v)}
+{\tt function unswrd r = std \ttmkey{length of}{enumeration list} ($L$ ls)}
 \begin{indpar}
-Returns the length of the list {\tt v} (number of elements in {\tt v}).
+Returns the length of the list {\tt ls} (number of elements in {\tt ls}).
 \end{indpar}
 
-{\tt function $E$ r = std ($L$ v) \TT{[} unswrd i \TT{]}}%
+{\tt function $E$ r = std ($L$ ls) \TT{[} unswrd i \TT{]}}%
 \ttmindex{[]}{of enumeration list}
 \begin{indpar}
-Returns the {\tt i+1}'st list element of {\tt v}.
-It is an error if {\tt i >= length of (v)}.
+Returns the {\tt i+1}'st list element of {\tt ls}.
+It is an error if {\tt i >= length of (ls)}.
+\end{indpar}
+
+{\tt function $L$ r = std $L$ ($S$ s)}
+\begin{indpar}
+Convert the enumeration set {\tt s} to an enumeration list,
+listing the elements of {\tt s} in order of their underlying values.
 \end{indpar}
 
 \end{indpar}
@@ -3309,11 +3324,11 @@ Returns the string containing the single character {\tt c}.
 \end{indpar}
 
 {\tt function string r =
-    std \ttmkey{string}{of integer} ( int128 i )}
+    std \ttmkey{string}{of integer} ( intmax i )}
 \begin{indpar}
 Returns the string that is the decimal integer representation of
 the integer {\tt i}.  The value returned contains no high order
-zeros.  Non-negative values have no sign.
+zeros or commas.  Non-negative values have no sign.
 \end{indpar}
 
 {\tt function string r =
@@ -3372,6 +3387,11 @@ strings are its {\em name-items} with a \TT{null} string appended.
 Note that {\em natural-number} {\em name-items} are represented
 by strings of digits and not by integers.
 
+An element of a name value may be any string, so name values
+may not be legal source code {\em names} as defined on \pagref{NAME}.
+When a name value is used as a {\em name} in a compilation,
+it is a compilation error if the value is not a source code {\em name}.
+
 The \TT{name} type is is defined as a derived type:
 \begin{indpar} \tt
 define type \ttkey{std name} as adr \\
@@ -3406,10 +3426,16 @@ No check is made that {\tt s} is a legal {\em name-item}.
 Returns the concatenation of {\tt n1} and {\tt n2}.
 \end{indpar}
 
+{\tt function bool r = ( name n1 ) "\ttmkey{<}{of names}" ( name n2 )} \\
+{\tt function bool r = ( name n1 ) "\ttmkey{<=}{of names}" ( name n2 )} \\
 {\tt function bool r = ( name n1 ) "\ttmkey{==}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{!=}{of names}" ( name n2 )}
+{\tt function bool r = ( name n1 ) "\ttmkey{!=}{of names}" ( name n2 )} \\
+{\tt function bool r = ( name n1 ) "\ttmkey{>=}{of names}" ( name n2 )} \\
+{\tt function bool r = ( name n1 ) "\ttmkey{>}{of names}" ( name n2 )}
 \begin{indpar}
-Returns whether {\tt n1} and {\tt n2} are equal or not.
+Returns whether {\tt n1} is less than, less than or equal to,
+equal to, not equal to, greater than or equal to, or greater than
+{\tt n2}.  Ordering of names is lexical.
 \end{indpar}
 
 {\tt function name r = std \ttmkey{null}{name value}}
@@ -3448,8 +3474,8 @@ not be garbage collectible during the compilation.
 \subsection{Name Sets and Lists}
 \label{NAME-SETS-AND-LISTS}
 
-An \key{name set} is a set of names.
-An \key{name list} is a list of names.  The syntax
+A \key{name set} is a set of names.
+A \key{name list} is a list of names.  The syntax
 for name set and list constants is:
 \begin{indpar}
 \emkey{name-set-constant}\label{NAME-SET-CONSTANT}
@@ -3471,18 +3497,18 @@ The order in which names are given in a {\em name-set-constant}
 does not matter, and duplicate names in the set are eliminated.
 Thus
 \begin{center}
-`\TT{\{`X1' `X2'\} = \{`X2 `X1'\}}'\\
+`{\tt \{`X1' `X2'\} == \{`X2 `X1'\}}'\\
 and\\
-`\TT{\{`X1' `X1'\} = \{`X1'\}}'.
+`{\tt \{`X1' `X1'\} == \{`X1'\}}'.
 \end{center}
 
 The order in which values are given in an {\em name-list-constant}
 does matter, and duplicates are not combined.
 Thus
 \begin{center}
-`\TT{[`X1' `X2'] != [`X2 `X1']}'\\
+`{\tt [`X1' `X2'] != [`X2 `X1']}'\\
 and\\
-`\TT{[`X1' `X1'] != [`X1']}'.
+`{\tt [`X1' `X1'] != [`X1']}'.
 \end{center}
 
 Name set and list values are used in code expansions.
@@ -3541,9 +3567,28 @@ Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
 {\tt function name set r = std ( name set s )
-                           "\ttmkey{-}{name set union}" (name n)}
+                           "\ttmkey{-}{name set difference}" (name n)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt n}\}.
+\end{indpar}
+
+{\tt function unswrd r = std \ttmkey{size of}{name set} ( name set s )}
+\begin{indpar}
+Returns the size of {\tt s}, the number of names in {\tt s}.
+\end{indpar}
+
+{\tt function name r = std ( name set s ) \TT{[} unswrd i \TT{]}}%
+\ttmindex{[]}{of string}
+\begin{indpar}
+Returns the {\tt i+1}'st name of {\tt s}, where names in {\tt s}
+are taken in sorted order.
+
+It is a programming error if {\tt i >= size of ( s )}.
+\end{indpar}
+
+{\tt function name set r = std \ttkey{name set} ( name list ls )}
+\begin{indpar}
+Converts {\tt ls} from a list to a set, removing duplicate elements.
 \end{indpar}
 
 \end{indpar}
@@ -3562,12 +3607,12 @@ Returns the concatenation of {\tt ls1} and {\tt ls2}.
 
 {\tt function \begin{tabular}[t]{@{}l@{}}
               name list r = \\
-	      std (name list ls1)
-                        "\ttmkey{-}{name list difference}" (name list ls2)
+	      std (name list ls)
+                        "\ttmkey{-}{name list difference}" (name set s)
 	      \end{tabular}}
 \begin{indpar}
-Returns the list made by removing all elements from {\tt ls1} that
-appear anywhere in {\tt ls2}.
+Returns the list made by removing all elements from {\tt ls} that
+appear anywhere in {\tt s}.
 \end{indpar}
 
 {\tt function bool r = std (name n) \ttmkey{in}{name list} (name list ls)}
@@ -3593,6 +3638,25 @@ Returns the list made by appending {\tt n} to {\tt ls}.
 \begin{indpar}
 Returns the list made by removing the all occurrences of
 {\tt n} in {\tt ls}.
+\end{indpar}
+
+{\tt function unswrd r = std \ttmkey{length of}{name list} ( name list ls )}
+\begin{indpar}
+Returns the length of {\tt ls}, the number of names in {\tt ls}.
+\end{indpar}
+
+{\tt function name r = std ( name list ls ) \TT{[} unswrd i \TT{]}}%
+\ttmindex{[]}{of string}
+\begin{indpar}
+Returns the {\tt i+1}'st name of {\tt ls}.
+
+It is a programming error if {\tt i >= length of ( s )}.
+\end{indpar}
+
+{\tt function name list r = std \ttkey{name list} ( name set s )}
+\begin{indpar}
+Converts {\tt s} from a set to a list, where elements of {\tt s}
+are listed in sorted order in the result.
 \end{indpar}
 
 \end{indpar}
@@ -7237,6 +7301,8 @@ The general syntax is:
 \\[0.5ex]
 \emkey{include-argument} ::= {\em word} not containing `\TT{.}'
 \end{indpar}
+
+TBD: `include for x in ...'
 
 A {\em generic-prototype} is a {\em function-prototype} and a
 {\em generic-call} is a {\em function-call}.  {\em Function-calls}

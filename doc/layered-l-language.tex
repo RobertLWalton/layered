@@ -3338,11 +3338,22 @@ Returns the concatenation of {\tt s1} and {\tt s2}.
 \end{indpar}
 
 {\tt function bool r =
+    std ( string s1 ) "\ttmkey{<}{of strings}" ( string s2 )} \\
+{\tt function bool r =
+    std ( string s1 ) "\ttmkey{<=}{of strings}" ( string s2 )} \\
+{\tt function bool r =
     std ( string s1 ) "\ttmkey{==}{of strings}" ( string s2 )} \\
 {\tt function bool r =
-    std ( string s1 ) "\ttmkey{!=}{of strings}" ( string s2 )}
+    std ( string s1 ) "\ttmkey{!=}{of strings}" ( string s2 )} \\
+{\tt function bool r =
+    std ( string s1 ) "\ttmkey{>=}{of strings}" ( string s2 )} \\
+{\tt function bool r =
+    std ( string s1 ) "\ttmkey{>}{of strings}" ( string s2 )}
 \begin{indpar}
-Returns whether {\tt s1} and {\tt s2} are equal or not.
+Returns whether {\tt s1} is less than, less than or equal to,
+equal to, not equal to, greater than or equal to, or greater than
+{\tt s2}.  Ordering of strings is lexical (note ordering of
+characters is by character code).
 \end{indpar}
 
 {\tt function string r = std \ttmkey{null}{string value}}

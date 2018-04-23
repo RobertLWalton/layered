@@ -162,7 +162,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 21, 2018
+April 23, 2018
  
 \end{center}
 
@@ -6142,17 +6142,16 @@ The syntax is:
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
 \emkey{input-variable-list}
-    ::= {\em first-input-argument-declaration}
+    ::= {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{}
-\\[0.5ex]
-\emkey{first-input-argument-declaration} ::= {\em argument-declaration}
-	without a {\em default-value}
 \\[0.5ex]
 \emkey{argument-declaration}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
-          \TT{?} {\em default-value}\QMARK{} \\
+          \TT{?=} {\em default-value} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
+          \TT{??} \\
     $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
           \TT{==} {\em required-value} \\
     \end{tabular}
@@ -6164,7 +6163,7 @@ The syntax is:
 \emkey{function-pattern}\label{FUNCTION-PATTERN}
     \begin{tabular}[t]{rl}
     ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
-    $|$ & {\em pattern-argument-list}\PLUS{}
+    $|$ & {\em pattern-argument-list} {\em pattern-argument-list}\PLUS{}
     \end{tabular}
 \\[0.5ex]
 \emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{} ~
@@ -6178,7 +6177,7 @@ The syntax is:
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
     \begin{tabular}[t]{@{}p{4in}@{}}
     {\em function-term-name} $N$ that appears in a {\em function-prototype}
-    of the form `{\tt function $N$ = \ldots}
+    of the form `{\tt function $N$ = \ldots}'
     \end{tabular}
 \\[0.5ex]
 \emkey{pattern-argument-list} ::= {\em regular-argument-list}
@@ -6202,11 +6201,11 @@ The syntax is:
 \\[0.5ex]
 \emkey{qualifiers-argument-declaration} ::= \\
 \hspace*{0.2in}\TT{qualifiers} {\em variable-name}
-               \{ \TT{?} {\em default-value} \}\QMARK{}
+               \{ \TT{?=} {\em default-value} \}\QMARK{}
 \\[0.5ex]
 \emkey{type-argument-declaration} ::= \\
 \hspace*{0.2in}\TT{type} {\em variable-name}
-               \{ \TT{?} {\em default-value} \}\QMARK{}
+               \{ \TT{?=} {\em default-value} \}\QMARK{}
 \\[0.5ex]
 \emkey{conditioner}\label{CONDITIONER}
     \begin{tabular}[t]{@{}rl@{}}
@@ -6230,6 +6229,8 @@ The syntax is:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
           ~ {\em call-term}\STAR{} \\
+    $|$ & {em module-abbreviation}\QMARK{}
+          {\em call-argument-list} {\em call-argument-list}\PLUS{}
     \end{tabular}
 \\[0.5ex]
 \emkey{first-call-term} ::= {\em call-argument-list}\STAR{}
@@ -6262,11 +6263,9 @@ The syntax is:
 
 \begin{itemize}
 \item
-A {\em function-pattern} must have either a {\em function-term-name}
-or at least two {\em pattern-argu\-ment-lists} that have either `\TT{()}'
-or `\TT{[]}' brackets, unless it
-has the special form required of an implied conversion
-(\pagref{IMPLIED-CONVERSION}).
+A {\em function-pattern} or {\em function-call}
+must have either a {\em function-term-name}
+or at least two {\em argu\-ment-lists}.
 \item
 A {\em function-prototype} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
@@ -6278,6 +6277,9 @@ See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
 \TT{"="} cannot be used as a {\em function-term-name}
 in a {\em function-pattern}.
+\item
+The first {\em argument-declaration} in an {\em input-variable-list}
+must not have a {\em default-value} or end in \TT{??}.
 \item
 All the result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -6302,7 +6304,7 @@ as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
 In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
-An {\em argument-declaration} that ends with `\TT{?}' is considered
+An {\em argument-declaration} that ends with `\TT{??}' is considered
 to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
 
 
@@ -6400,7 +6402,7 @@ if their corresponding
 The {\em default-value} will be used as the actual argument
 for such an omitted actual argument.
 
-If the {\em argument-declaration} ends in `\TT{?}'\label{BOOL-DEFAULT}
+If the {\em argument-declaration} ends in `\TT{??}'\label{BOOL-DEFAULT}
 with no explicit {\em default-value}, the
 argument must have \TT{bool} type and the
 {\em default-value} is taken to be \TT{true} if the
@@ -6413,7 +6415,7 @@ int32 B = ...
 int32 C = ...
 context fooC = current context
 function int32 r =
-        foo ( int32 x ) bar ( int32 y ? B + C, bool z ? )
+        foo ( int32 x ) bar ( int32 y ?= B + C, bool z ?? )
     ... function body omitted ...
 
 int32 b 1 = ...
@@ -6695,7 +6697,7 @@ If some of the {\em call-argument-lists} are now too short, they are extended
 by adding the {\em default-values} from
 their matching {\em pattern-argument-lists}.
 As a special case, if a prototype {\em arg\-u\-ment-de\-clar\-a\-tion} ends in
-`\TT{?}' but has no {\em default-value}, then the actual
+`\TT{??}' and has no {\em default-value}, then the actual
 {\em default-value} used is \TT{true} if the {\em function-term-name}
 appeared in the original function call and was not added in
 Step~\ref{ADD-TERMS} above, or is \TT{false} if the {\em function-term-name}
@@ -7004,7 +7006,7 @@ The following functions allocate memory and compute addresses.
 {\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
 				  \ttkey{allocate to static} \\
 				  ( unsadr size, \\
-				  ~~unswrd alignment ?~0 )
+				  ~~unswrd alignment ?=~0 )
 				  \end{tabular}}
 
 \begin{indpar}

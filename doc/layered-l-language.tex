@@ -6315,7 +6315,7 @@ The result and argument variables in a
 {\em function-declaration},
 and names declared within the {\em statements} of the declaration,
 are permitted to hide (\pagref{HIDE})
-names in the context of the declaration.
+names in the context of the {\em function-declara\-tion}.
 
 A {\em function-call} with a {\em result-variable-list}
 is replaced by a {\em block-assignment-statement}
@@ -6358,9 +6358,12 @@ omitted, and if omitted, will be inserted with empty {\em call-argument-lists}.
 lists will be inserted if this can be done unambiguously.
 If a {\em pattern-argument-list} has \TT{()} brackets and a single
 argument, and the corresponding {\em call-argument-list} has a single
-{\em actual-argument} that is just a {\em name} or {\em constant},
+{\em actual-argument} that
+is a {\em primary-argument} ( sequence of {\em words}, {\em numbers},
+and {\em quoted-strings}, or a {\em bracketed-constant}), then
 the \TT{()} parentheses may be omitted in the {\em function-call}
-if there is no ambiguity involving {\em function-term-names}.
+if there is no ambiguity involving overlap with {\em function-term-names} or
+other argument lists.
 
 Examples are:
 \begin{indpar}\begin{verbatim}

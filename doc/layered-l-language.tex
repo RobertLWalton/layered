@@ -3889,11 +3889,13 @@ to a variable.  However, as described below, protected value qualifiers
 may also be propagated by copying operations.
 
 A `\key{required variable qualifier}' \underline{must} be attached
-in source code
 to an assignment result variable if the assignment statement
 takes the form of a function call and the assignment statement
 result variable
 matches a prototype result variable that has the qualifier.
+If the qualifier is also \TT{protected} it will be automatically
+attached to the assignment result variable, but otherwise it must
+be written into the source code.
 
 A `\key{prohibited variable qualifier}' \underline{must not}
 be attached in code to an assignment result variable
@@ -6440,7 +6442,7 @@ the actual value of {\tt T} can be implied by a {\em function-call}.
 If an explicit or default value of {\tt T} is given by the call, that is used.
 Otherwise if {\tt T} is the type of a prototype result variable, and there
 is a corresponding {\em function-call} result variable with a known type,
-the type of the leftmost such result variable
+the type of the leftmost such {\em function-call} result variable
 is assigned as the value of {\tt T}.  Otherwise
 if {\tt T} is the type of a prototype argument variable, and
 the {\em actual-argument} corresponding to the variable in the call has
@@ -6469,7 +6471,7 @@ which for some {\em variable-name} {\tt Qs}
 has the form `{\tt qualifiers Qs}'.
 This makes {\tt Qs} into a {\em qualifier-name}
 within the {\em function-de\-clar\-a\-tion}
-containing the {\em type-argument-declaration}.  Note that {\tt Qs}
+containing the {\em qualifiers-argument-declaration}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
 
@@ -6478,21 +6480,24 @@ in an argument list with `\TT{(|~|)}' brackets,
 the actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit or default value of {\tt Qs} is given by the call, that is used.
 Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
-of a prototype result variable, and there is a corresponding {\em function-call}
+of a prototype result variable that is \underline{not} a variable
+qualifier, and there is a corresponding {\em function-call}
 result variable with known type,
-the qualifiers of the leftmost such call result variable are
+the \underline{value} qualifiers of the leftmost such {\em function-call}
+result variable are
 assigned as the value of {\tt Qs}.  Otherwise
 if {\tt Qs} is given as the \underline{only} qualifier
 of a prototype argument variable,
 and the {\em actual-argument} corresponding to the
 variable has a natural type (\pagref{NATURAL-TYPE}),
-{\tt Qs} is assigned the qualifiers of the natural type corresponding
-to the leftmost such variable in the prototype.
+{\tt Qs} is assigned the \underline{value} qualifiers of the
+{\em actual-argument} corresponding to the
+leftmost such variable in the prototype.
 
 For example,
 \begin{indpar}\begin{verbatim}
-define protected required qualifier in-range
-define required prohibited qualifier ouch
+define protected required value qualifier in-range
+define required prohibited value qualifier ouch
 function Qs in-range T r =
         check (| qualifiers Qs, type T |) ( Qs T v ):
     if:
@@ -6536,7 +6541,7 @@ function T result = add (| type T |) ( T v1, T v2 )
     result = v1 + v2
 \end{verbatim}\end{indpar}
 
-which would define `\TT{add}' only for signed integer types.
+which would define `{\tt add}' only for signed integer types.
 Here the conditioner is a {\em logical-ex\-pres\-sion} that must
 be evaluatable whenever a call to the function is compiled.
 

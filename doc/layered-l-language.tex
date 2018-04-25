@@ -105,6 +105,8 @@
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
 
+\newcommand{\HSP}[1]{\hspace*{0in}\phantom{{\tt #1}}}
+
 \newcommand{\TMP}{\$}			% Compiler Temporary
 \newcommand{\ABV}{-{}-{}->}		% Abbreviates
 \newcommand{\CNV}{\longrightarrow}	% Converts to
@@ -162,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 24, 2018
+April 25, 2018
  
 \end{center}
 
@@ -2971,9 +2973,17 @@ is defined, where the `\ldots{}' denote arbitrary qualifiers.
 Values of one type $T1$ may be \key{implicitly converted} to another
 type $T2$ if and only if an inline function with prototype:
 \begin{center} \tt
-function \ldots~$T2$ r = \ttkey{implicit conversion} ( \ldots~$T1$ v )
+function \ldots~Qs~$T2$ r =
+		      \begin{tabular}[t]{@{}l@{}}
+                      \ttkey{implied conversion} \\
+                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \end{tabular}
 \end{center}
-is defined, where the `\ldots{}' denote arbitrary qualifiers.
+is defined, where the `\ldots{}' denote arbitrary variable qualifiers
+(see \itemref{QUALIFIERS}) and {\tt Qs} is an implicit argument that
+copies the value qualifiers of the assignment result variable to the function
+prototype result and argument variables
+(see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
 Given assignment statements
 \begin{center}
 \begin{tabular}{l}
@@ -2987,7 +2997,7 @@ where $T2\neq T1$, the compiler will change the second statement to
 \tt $T2$ v = implicit conversion ( w )
 \end{center}
 
-There can be several {\tt implicit conversion} functions from $T1$
+There can be several {\tt implied conversion} functions from $T1$
 to $T2$ defined, each with different qualifiers.
 
 If \underline{any} implicit conversion from $T1$ to $T2$ is defined,
@@ -3011,7 +3021,11 @@ to type $T2$ in the implicit conversion graph that
 are disjoint except for their endpoints, there must also
 be a direct arrow from $T1$ to $T2$ in the graph, i.e.,
 \begin{center} \tt
-function \ldots~$T2$ r = \ttkey{implied conversion} ( \ldots~$T1$ v )%
+function \ldots~Qs~$T2$ r =
+		      \begin{tabular}[t]{@{}l@{}}
+                      \ttkey{implied conversion} \\
+                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \end{tabular}
 \label{IMPLIED-CONVERSION}
 \end{center}
 must be defined.
@@ -3269,8 +3283,11 @@ or is non-zero.
 Returns the UNICODE character code of the character {\tt c}.
 \end{indpar}
 
-{\tt function uns32 r = std \ttmkey{implied conversion}{of character}
-		( character c )}
+function Qs~uns32 r =
+		      \begin{tabular}[t]{@{}l@{}}
+                      \ttmkey{implied conversion}{of character} \\
+                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~character c )
+                      \end{tabular}
 \begin{indpar}
 Implied conversion (\pagref{IMPLIED-CONVERSION})
 of character {\tt c} to its UNICODE character code.
@@ -3718,9 +3735,9 @@ inline function whose call is currently being compiled.
 \label{QUALIFIERS}
 
 Variables may be qualified by \skey{qualifier}s, which precede the
-type when a variable is declared.  There are five builtin qualifiers:
-\TT{mem}, \TT{*WRITABLE*}, \TT{stack}, \TT{*UNCHECKED*}, and
-\TT{global}.  The first three have special effects
+type when a variable is declared.  There are four builtin qualifiers:
+\TT{mem}, \TT{*WRITABLE*}, \TT{stack}, and \TT{*UNCHECKED*}.
+The first three have special effects
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
 have special effects.
@@ -3760,7 +3777,7 @@ int32 y6 = x3                // Illegal; x3 has prohibited
 fie int32 y7 = x3            // Legal; x3 has prohibited
                              // fie but so does y7.
 
-protected required qualifier foo
+protected required value qualifier fo
 function fo int32 result = G ( int32 value ):
     // Declares function G that computes a result of type
     // int32 from a value of type int32.  Attaches fo, which
@@ -3831,8 +3848,7 @@ The builtin qualifiers are in effect declared by:
 {\tt protected variable qualifier~}\ttkey{mem} \\
 {\tt protected variable qualifier~}\ttkey{*WRITABLE*} \\
 {\tt prohibited protected value qualifier~}\ttkey{stack} \\
-{\tt required variable qualifier~}\ttkey{*UNCHECKED*} \\
-{\tt protected value qualifier~}\ttkey{global}
+{\tt required prohibited variable qualifier~}\ttkey{*UNCHECKED*} \\
 \end{indpar}
 
 Each qualifier is associated with a unique enumeration value,
@@ -3851,14 +3867,16 @@ function std qualifier r = std \ttmkey{missing}{qualifier}: \\
 
 The {\em qualifier-name} of a qualifier
 can be used (1) before a {\em type-name}
-in a declaration, (2) as the name of an enumeration value in an
-expression, or (3) as the name of a function in a {\em function-call}.
+in a declaration, or (2) as the name of an enumeration value in an
+expression.
 
 A `\key{variable qualifier}' qualifies variables but not values.
 If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
 does \underline{not} follow the value of {\tt v} when that value
 is copied to another variable.  Variable qualifiers may
-\underline{not} be attached to prototype argument variables.
+\underline{not} be attached to prototype argument variables,
+and variable qualifiers on actual arguments are ignored as if they
+did not exist.
 
 A `\key{value qualifier}' qualifies values, although the qualifier
 is attached to variables that hold these values.
@@ -3873,28 +3891,18 @@ but can not be both.
 If a `\key{required qualifier}' qualifies a prototype variable,
 it must qualify any assignment result variable or actual argument
 value associated to that prototype variable by a function or
-generic call.
+generic call.  Note that variables qualifiers cannot be attached
+to prototype argument variable, so this rule does not apply to
+variable qualifiers on actual arguments.
 
 If a `\key{prohibited qualifier}' does \underline{not}
 qualify a prototype variable,
 it must \underline{not}
 qualify any assignment result variable or actual argument
 value associated to that prototype variable by a function or
-generic call.
-
-Assignment statements may remove required qualifiers
-but not add them.
-Assignment statements may add prohibited qualifiers
-but not remove them.  Implicit conversions defined by
-prototypes of the form
-\begin{center} \tt
-\begin{tabular}{l}
-function Qs~$T2$ r = \\
-\hspace*{0in}~~~~~~~~~\ttkey{implicit conversion} (| qualifiers Qs |)
-                          ( Qs~$T1$ v )
-\end{tabular}
-\end{center}
-behave similarly.
+generic call.  However, variable qualifiers on actual arguments
+are ignored as if they did not exist, so this rule does not
+apply to variable qualifiers on actual arguments.
 
 A `\key{protected qualifier}' can be attached in source code
 to an assignment result variable only if the assignment statement
@@ -3904,27 +3912,36 @@ matches a prototype result variable that has the qualifier.  Furthermore,
 in this case, if the qualifier is not explicitly encoded for the
 assignment statement result variable, it will be automatically added
 to that variable.
-
 This is the only way to attach a `\key{protected variable qualifier}'
 to a variable.  However, as described below, protected value qualifiers
-may also be propagated by copying operations.
+may also be propagated by assignments or implicit conversions operations.
 
-A `\key{required variable qualifier}' \underline{must} be attached
-to an assignment result variable if the assignment statement
-takes the form of a function call and the assignment statement
-result variable
-matches a prototype result variable that has the qualifier.
-If the qualifier is also \TT{protected} it will be automatically
-attached to the assignment result variable, but otherwise it must
-be written into the source code.
+An assignment statement of the form
+\begin{center}
+\tt $T$ v = w
+\end{center}
+where {\tt w} is of type $T$ behaves as if it had the form
+\begin{center}
+\tt $T$ v = assign ( w )
+\end{center}
+where {\tt assign} has the function prototype
+\begin{center} \tt
+function ~Qs~$T$ r = assign (| qualifiers Qs |) ( Qs~$T$ v )
+\end{center}
+Implicit conversions have a similar prototype of the form
+\begin{center} \tt
+function \ldots~Qs~$T2$ r =
+		      \begin{tabular}[t]{@{}l@{}}
+                      \ttkey{implied conversion} \\
+                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \end{tabular}
+\end{center}
 
-A `\key{prohibited variable qualifier}' \underline{must not}
-be attached in code to an assignment result variable
-if the assignment statement
-takes the form of a function call and the assignment statement
-result variable
-matches a prototype result variable that \underline{does not have}
-the qualifier.
+As a consequence, assignment statements and implicit conversions
+may remove required value qualifiers but not add them, and
+may add prohibited value qualifiers
+but not remove them.  Assignment statements and implicit conversions
+remove variable qualifiers and never add them.
 
 Some examples involving the \TT{mem} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:

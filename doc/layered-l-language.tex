@@ -3747,65 +3747,33 @@ additional layer of type checking that is somewhat orthogonal to
 types.
 
 Syntactically {\em qualifier-names} immediately precede the {\em type-names}
-that are before {\em variable-names}.  Some introductory examples are:
+that are before {\em variable-names}.  A simple example is:
 \begin{indpar}\begin{verbatim}
-required qualifier fee
-prohibited qualifier fie
-function int32 result = F ( fee int32 value ):
-    // Declares function F that computes a result of type
-    // int32 from a value of type int32 and qualifier fee.
-    // Requires call argument to have qualifier fee, but
-    // prohibits the argument from having qualifier fie.
+required protected value qualifier fee
+function int32 fee result = F ( int32 value ):
+    // Declares function F that computes a result of
+    // with qualifier fee.
+    //
+    ... [Function body omitted] ...
+function int32 result = G ( fee int32 value ):
+    // Declares function G that requires its argument to
+    // have qualifier fee.
     //
     ... [Function body omitted] ...
 
 // Example usage:
 //
 int32 x1 = ...
-fee int32 x2 = ...
-fie int32 x3 = ...
-int32 y1 = F ( x1 )          // Illegal; x1 does not have
-                             // required fee.
-int32 y2 = F ( x2 )          // Legal; x2 has required fee.
-int32 y3 = F ( x3 )          // Illegal; x3 has prohibited
-                             // fie.
-fee int32 y4 = x1            // Illegal; x1 does not have
-                             // required fee.
-fee int32 y5 = x2            // Legal; x2 has required fee.
-int32 y6 = x3                // Illegal; x3 has prohibited
-                             // fie but y6 does not.
-fie int32 y7 = x3            // Legal; x3 has prohibited
-                             // fie but so does y7.
+fee int32 x2 = F ( x1 )      // Legal; F produces result
+                             // with qualifier fee.
+int32 x3 = F ( x1 )          // Legal; F attaches protected
+                             // qualifier fee automatically
+                             // to x3.
+int32 y1 = G ( x1 )          // Illegal; G requires argument
+                             // to have qualifier fee.
+int32 y2 = G ( x2 )          // Legal; x2 has qualifier fee.
+int32 y3 = G ( x3 )          // Legal; x3 has qualifier fee.
 
-protected required value qualifier fo
-function fo int32 result = G ( int32 value ):
-    // Declares function G that computes a result of type
-    // int32 from a value of type int32.  Attaches fo, which
-    // is protected, to the result.
-    //
-    ... [Function body omitted] ...
-
-function int32 result = H ( fo int32 value ):
-    ... [Function body omitted] ...
-
-fee int32 z1 = G ( x1 )      // Legal; z1 also acquires fo.
-fee int32 z2 = H ( z1 )      // Legal; z1 has implied
-                             // qualifier fo.
-fo  int32 z3 = F ( x1 )      // Illegal; fo is protected, and
-                             // F does not have fo on its
-                             // prototype result variable.
-fo  int32 z4 = G ( x1 )      // Legal; G gives z4 the
-                             // protected fo qualifier so its
-                             // OK for z4 to have that
-                             // qualifier explicitly.
-
-fo  int32 z5 = x1            // Illegal, x1 does NOT have
-                             // protected qualifier fo.
-fo  int32 z6 = y7            // Legal, y7 has protected
-                             // qualifier fo.
-int32 z7 = y7                // Legal, y7 has protected
-                             // qualifier fo, so z7
-                             // acquires fo.
 \end{verbatim}\end{indpar}
 
 The qualifiers may be declared by:
@@ -3848,7 +3816,7 @@ The builtin qualifiers are in effect declared by:
 {\tt protected variable qualifier~}\ttkey{mem} \\
 {\tt protected variable qualifier~}\ttkey{*WRITABLE*} \\
 {\tt prohibited protected value qualifier~}\ttkey{stack} \\
-{\tt required prohibited variable qualifier~}\ttkey{*UNCHECKED*} \\
+{\tt required variable qualifier~}\ttkey{*UNCHECKED*}
 \end{indpar}
 
 Each qualifier is associated with a unique enumeration value,
@@ -6492,7 +6460,7 @@ leftmost such variable in the prototype.
 For example,
 \begin{indpar}\begin{verbatim}
 define protected required value qualifier in-range
-define required prohibited value qualifier ouch
+define prohibited value qualifier ouch
 function Qs in-range T r =
         check (| qualifiers Qs, type T |) ( Qs T v ):
     if:
@@ -6512,14 +6480,13 @@ ouch int32 x = ...
 ouch int32 y1 = check ( x )
            // Legal: check prototype becomes:
            //   ouch in-range r = check ( ouch int32 v )
-           // so argument can have qualifier ouch,
-           // and y1 must have qualifier ouch.
+           // so argument can have qualifier ouch.
            // Also y1 is given protected qualifier
            // `in-range'.
 int32 y2 = check ( x )
-           // Illegal, result `ouch in-range r' cannot
-           // be converted to y2 which has no `ouch'
-           // qualifier.
+           // Illegal: check prototype becomes:
+           //   in-range r = check ( int32 v )
+           // so argument CANNOT have qualifier ouch.
 F ( x )    // Illegal, x does not have required in-range
 F ( y1 )   // Legal, y1 has required in-range
 \end{verbatim}\end{indpar}

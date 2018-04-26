@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 25, 2018
+April 26, 2018
  
 \end{center}
 
@@ -6530,28 +6530,29 @@ were the function called, such as calls to non-existent functions.
 \subsection{Matching Function Calls to Prototypes}
 \label{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}
 
-To compile a {\em function-call} it must be matched to a
-single {\em function-prototype}.  If it matches more than one
-{\em function-prototype}, the call is ambiguous and is a compilation error
+To compile a {\em function-call} or {\em generic-call} it must be matched to a
+single {\em function-prototype} or {\em generic-prototype}.
+If the call matches more than one
+prototype, the call is ambiguous and is a compilation error
 
-The matching algorithm, given a {\em function-call} and a
-{\em function-prototype}, matches the {\em function-call}
-to the {\em function-pattern} in the {\em function-prototype},
+The matching algorithm, given a call and a
+prototype, matches the call
+to the {\em function-pattern} in the prototype,
 and matches any call result variables to
 the {\em prototype-result-variable-list}
-of the {\em function-prototype}.  The call may have one or more result
+of the prototype.  The call may have one or more result
 variables of known types, or a single result variable of unknown
-type, or no result variables (as in a {\em function-call} that is
+type, or no result variables (as in a call that is
 a {\em statement} by itself).  The algorithm is as follows:
 
 \begin{enumerate}
 
 \item
-If the {\em function-call} is in a statement of the form
+If the call is in a statement of the form
 \begin{center}
 {\em function-call} ~ \TT{=} ~ {\em expression-list}
 \end{center}
-the {\em function-prototype} must be of the form
+the prototype must be of the form
 \begin{center}
 {\tt function} ~ {\em function-pattern} ~ {\tt =} ~ {\em input-variable-list} \\
 \end{center}
@@ -6580,14 +6581,14 @@ behaves as if it were the function call with no result variables
 \tt F ( i ) "=" ( x, y )
 \end{center}
 
-\item If the {\em function-call} begins with a {\em module-abbreviation}
+\item If the call begins with a {\em module-abbreviation}
 (see \pagref{MODULE-ABBREVIATION}), the {\em function-pattern}
 must begin with a {\em module-abbreviation}, and the two
 {\em module-abbreviations} must reference the same {\em module-name}
 (i.e., module file, see \itemref{MODULES}), else the
 call-prototype match fails.
 
-\item If the {\em function-call} does \underline{not} begin
+\item If the call does \underline{not} begin
 with a {\em module-abbreviation}, but the {\em function-pattern}
 does begin with a {\em module-abbreviation}, the match is marked
 as `\key{module deficient}'\label{MODULE-DEFICIENT},
@@ -6595,8 +6596,8 @@ and will be disallowed later if there is
 another match that is not module deficient.
 
 \item
-The {\em function-term-names} in the {\em function-call} are located by
-matching segments of the {\em func\-tion-call} to
+The {\em function-term-names} in the call are located by
+matching segments of the call to
 {\em function-term-names} in the {\em function-pattern}.
 If a {\em function-term-name} matches more than one segment,
 the call-prototype match fails.  If the first {\em function-term-name}
@@ -6604,17 +6605,17 @@ in the {\em function-pattern} does not match any segment,
 or does not match the first matched segment, the call-prototype match fails.
 (Note that {\em function-term-names} in the {\em function-pattern}
 cannot be initial segments of each other, but unparenthesized
-{\em variable-names} may appear in the {\em function-call} and be
+{\em variable-names} may appear in the call and be
 mistaken for parts of {\em function-term-names}.)
 
-\item The {\em call-terms} after the first in the {\em function-call}
-are reordered so the {\em function-term-names} in the {\em function-call},
+\item The {\em call-terms} after the first in the call
+are reordered so the {\em function-term-names} in the call,
 taken in order, are a subsequence of the {\em function-term-names} in the
 {\em function-pattern}.
 If this cannot be done, the call-prototype match fails.
 (Note that {\em call-terms} other than the first all begin with
 a {\em function-term-name} and extend until the next {\em function-term-name}
-or the end of the {\em function-call}.)
+or the end of the call.)
 
 \item\label{ADD-TERMS}
 If some of the {\em function-term-names} in the {\em function-pattern}
@@ -6627,10 +6628,10 @@ between {\em call-terms} and {\em pattern-terms}.
 \item
 If some of the {\em pattern-terms} have argument lists that
 have a single parenthesized argument, the parentheses may be omitted
-in the {\em function-call} if the actual argument is a sequence of
+in the call if the actual argument is a sequence of
 {\em primary-items} or a {\em bracketed-constant}.
 Also {\em argument-lists}
-may be completely omitted in the {\em function-call}.  At this point
+may be completely omitted in the call.  At this point
 missing parentheses and missing {\em argument-lists} are added to
 each {\em call-term} to make it match the corresponding
 {\em pattern-term}.
@@ -6644,13 +6645,13 @@ is matched to a {\em call-term} {\em argument-list}
 that has the same type of bracket, then the call-prototype match fails.
 
 \item
-If the {\em function-prototype}
+If the prototype
 has cluster member arguments or result variables,
-these must be implied, and they are added to the {\em function-call}
+these must be implied, and they are added to the call
 at this point.  See \itemref{CLUSTERS} for details.
 
 \item
-Now the modified {\em function-call} matches
+Now the modified call matches
 the {\em function-pattern} in {\em function-term-names},
 location and number of {\em argument-lists}, and type of bracket (\TT{()},
 \TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  Some
@@ -6658,7 +6659,7 @@ location and number of {\em argument-lists}, and type of bracket (\TT{()},
 {\em pattern-argument-lists}.
 
 If a pattern {\em argument-declaration} has a {\em required-value},
-there must at this point be a matching {\em function-call} {\em actual-argument}
+there must at this point be a matching call {\em actual-argument}
 with a compile-time value equal to the {\em required-value},
 else the call-prototype match fails.
 
@@ -6678,7 +6679,7 @@ If any of the arguments that need to be inserted in a
 {\em call-argument-list} matched to a {\em regular-argument-list}
 do not have {\em default-values}, the call-prototype match fails.
 
-Now the modified {\em function-call} matches
+Now the modified call matches
 the {\em function-pattern} in {\em function-term-names},
 location and number of {\em argument-lists}, and type of bracket (\TT{()},
 \TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  The number of
@@ -6687,12 +6688,12 @@ and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
 is not greater than the number of arguments in the corresponding
 {\em pattern-argument-list}.
 
-Note that any {\em default-values} inserted in the {\em function-call}
-are evaluated in the context of the {\em function-prototype}.  For
+Note that any {\em default-values} inserted in the call
+are evaluated in the context of the prototype.  For
 matching purposes, this is relevant only if the {\em default-values}
 are {\em expressions} with compile-time values, and such
 {\em default-values} can be replaced by constants when the
-{\em function-prototype} is first compiled.
+prototype is first compiled.
 
 \item
 If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
@@ -6704,7 +6705,7 @@ the call-prototype match fails.  If the match does not fail,
 the set of qualifiers becomes the value of the {\em variable-name}
 in the {\em qualifiers-argument-declaration} and
 is substituted for the {\em variable-name} throughout the rest of the
-{\em function-prototype}.
+prototype.
 
 \item
 If any {\em type-argument-declaration} in a {\em function-pattern}
@@ -6716,7 +6717,7 @@ the call-prototype match fails.  If the match does not fail,
 the type value becomes the value of the {\em variable-name}
 in the {\em type-argument-declaration} and
 is substituted for the {\em variable-name} throughout the rest of the
-{\em function-prototype}.
+prototype.
 
 \item
 If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
@@ -6748,7 +6749,7 @@ is added as an actual argument
 in the {\em call-argument-list} that corresponds
 to the {\em qualifiers-argument-declaration}, and
 is substituted for the {\em variable-name} throughout the rest of the
-{\em function-prototype}.
+prototype.
 
 \item
 If any {\em type-argument-declaration} in a {\em function-pattern}
@@ -6777,16 +6778,16 @@ the type that is the assigned value is added as an actual argument
 in the {\em call-argument-list} that corresponds
 to the {\em type-argument-declaration}, and
 is substituted for the {\em variable-name} throughout the rest of the
-{\em function-prototype}.
+prototype.
 
 \item
-The modified {\em function-call} now matches the {\em function-pattern}
+The modified call now matches the {\em function-pattern}
 precisely in {\em function-term-names},
 location and number of {\em argument-lists}, type of bracket, i.e. \TT{()},
 \TT{[]}, or \TT{(|~|)} for each {\em argument-list}, and number of
 arguments in each {\em argument-list}.
 This modified function call is referred to as the
-`\mkey{unfolded}{function call}' {\em function-call}.
+`\mkey{unfolded}{call}' call.
 
 If any actual argument value needs to be a compile-time value in what
 follows, the actual argument expression is compiled at this
@@ -6796,7 +6797,7 @@ If the result is not a compile-time value, the call-prototype
 match fails.
 
 \item
-The {\em conditioners} in the {\em function-prototype} are evaluated
+The {\em conditioners} in the prototype are evaluated
 in order.  If any of the expressions in them do not have compile-time
 values, the call-prototype match fails.
 If any {\em logical-conditioner} evaluates
@@ -6805,28 +6806,28 @@ to \TT{false}, the call-prototype match fails.
 If the value assigned to the {\em variable-name} of a
 {\em type-conditioner} is not a type, the call-prototype match fails.
 Otherwise this type value is substituted for the {\em variable-name}
-throughout the {\em function-prototype}.
+throughout the prototype.
 
 If the value assigned to the {\em variable-name} of a
 {\em qualifiers-conditioner} is not a (possibly empty) set of
 qualifiers, the call-prototype match fails.
 Otherwise this qualifiers set value is substituted for the {\em variable-name}
-throughout the {\em function-prototype}.
+throughout the prototype.
 
 \item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
-If the unfolded {\em function-call} has {\em actual-argument}
+If the unfolded call has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
 (including {\em default-values}),
 and the {\em function-pattern} has
 {\em argument-declarations} `$Qs1$ $T1$ $v1$', `$Qs2$ $T2$ $v2$', \ldots{}
 read from left to right,
 then the statement containing the
-revised {\em function-call} is replace by:
+revised call is replace by:
 \begin{indpar}
 {\tt $Qs1$ $T1$ $tmp1$ = $e1$} \\
 {\tt $Qs2$ $T2$ $tmp2$ = $e2$} \\
 \ldots\ldots\ldots\ldots \\
-statement containing {\em function-call}
+statement containing call
 with each {\em actual-argument} $eI$ replaced by $tmpI$
 \end{indpar}
 
@@ -6855,33 +6856,33 @@ because of an ambiguity error, the call-prototype match
 is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
 
-\item If the {\em function-call} has no result variables, the
-{\em function-prototype} must have no result variables,
+\item If the call has no result variables, the
+prototype must have no result variables,
 else the call-prototype match fails.
 
-\item If the {\em function-call} has one result variable of
-unknown type, the {\em function-prototype} must have result variables
+\item If the call has one result variable of
+unknown type, the prototype must have result variables
 else the call-prototype match fails.
 The type and qualifiers of the first
-{\em function-prototype} result variable become the natural
+prototype result variable become the natural
 type and qualifiers (\pagref{NATURAL-TYPE})
-of the {\em function-call} expression if
+of the call expression if
 the match ultimately is accepted according to the rules below.
 
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
-If the {\em function-call} has result variables of known type
+If the call has result variables of known type
 as in a statement of the form
 \begin{center}
 {\tt $QCs1$ $TC1$ $vc1$, $QCs2$ $TC2$ $vc2$, \ldots{}~=~}{\em function-call}
 \end{center}
 with at least one result variable of known type,
-the {\em function-prototype} must be of the form
+the prototype must be of the form
 \begin{center}
 {\tt function $QRs1$ $TR1$ $vr1$, $QRs2$ $TR2$ $vr2$,
      \ldots{}~=~}{\em function-pattern}
 \end{center}
 with at least as many result variables in the prototype as in
-the {\em function-call} statement.  The statement is then
+the call statement.  The statement is then
 replaced by:
 \begin{indpar}
 {\tt $QRs1$ $TR1$ $tmp1$, $QRs2$ $TR2$ $tmp2$,
@@ -6907,7 +6908,7 @@ Note that only the first result variable is considered by this rule.
 \end{enumerate}
 
 
-The first step in compiling a {\em function-call} is to compute the
+The first step in compiling a call is to compute the
 set of matches of that call.  Then the following is done in order:
 
 \begin{enumerate}
@@ -6920,7 +6921,7 @@ all module deficient matches are discarded.
 
 \item\label{REQUIRED-ARGUMENTS-PREFERRED}
 Let $e1$, $e2$, \ldots{}~be the argument expressions of
-the not-unfolded original {\em function-call}, read from left to right.
+the not-unfolded original call, read from left to right.
 If there are two matches $X$ and $Y$ such that
 some of the $eI$ have
 have {\em required-values} in $X$ but not in $Y$, and none of the $eI$
@@ -6929,7 +6930,7 @@ then the $Y$ match is discarded.
 
 \item\label{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
 Let $e1$, $e2$, \ldots{}~be the argument expressions of
-the not-unfolded original {\em function-call}, read from left to right.
+the not-unfolded original call, read from left to right.
 If there are two matches $X$ and $Y$ such that
 $TX1$, $TX2$, \ldots{}~are the types of the $X$ prototype argument
 variables assigned to $e1$, $e2$, \ldots{}~in order, and
@@ -6941,19 +6942,19 @@ every $i$,
 then the $Y$ match is discarded.
 
 \item If after discarding matches as above, there are no matches,
-the {\em function-call} is `\key{unmatched}' and cannot be compiled.
+the call is `\key{unmatched}' and cannot be compiled.
 
 \item If after discarding matches as above, there is more than one
 match left,
-the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
+the call is `\key{ambiguous}' and cannot be compiled.
 
 \item If the remaining match has
 an ambiguity deficiency,
-the {\em function-call} is `\key{ambiguous}' and cannot be compiled.
+the call is `\key{ambiguous}' and cannot be compiled.
 
 \item Otherwise there is just one match left, and that
 match has no ambiguity deficiency.  That match
-is accepted and used to compile the {\em function-call}.
+is accepted and used to compile the call.
 
 \end{enumerate}
 

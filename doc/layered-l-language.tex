@@ -6531,10 +6531,17 @@ were the function called, such as calls to non-existent functions.
 \label{MATCHING-CALLS-TO-PROTOTYPES}
 
 To compile a {\em function-call}
-or {\em generic-call} (\pagref{GENERIC-CALL}) it must be matched to a
+or {\em generic-call} it must be matched to a
 single {\em function-prototype} or {\em generic-prototype}.
 If the call matches more than one
-prototype, the call is ambiguous and is a compilation error
+prototype, the call is ambiguous and is a compilation error.
+
+Calls that are {\em statements} by themselves, with no
+result variables, are matched to both {\em function-prototypes}
+with no result variables, and to
+{\em generic-prototypes} (\pagref{GENERIC-PROTOTYPE}),
+and no distinction is made during
+matching between these two kinds of prototypes.
 
 The matching algorithm, given a call and a
 prototype, matches the call
@@ -6599,7 +6606,7 @@ another match that is not module deficient.
 \item
 The {\em term-names} in the call are located by
 matching segments of the call to
-{\em proto\-type-term-names} in the {\em prototype-pattern}.
+{\em term-names} in the {\em prototype-pattern}.
 If a {\em term-name} matches more than one segment,
 the call-prototype match fails.  If the first {\em term-name}
 in the {\em prototype-pattern} does not match any segment,
@@ -6648,21 +6655,28 @@ that has the same type of bracket, then the call-prototype match fails.
 \item
 If the prototype
 has cluster member arguments or result variables,
-these must be implied, and they are added to the call
-at this point.  See \itemref{CLUSTERS} for details.
+these are implied in the call, and they are added to the call
+at this point.  If this cannot be done because some of the required
+cluster members
+do not exist in the context of the call, the call-prototype
+match fails.  See \itemref{CLUSTERS} for details.
 
-\item
-Now the modified call matches
+The modified call now matches
 the {\em prototype-pattern} in {\em term-names},
 location and number of {\em argument-lists}, and type of bracket (\TT{()},
 \TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  Some
 {\em call-argument-lists} may be shorter than the corresponding
 {\em pattern-argument-lists}.
 
+\item
 If a pattern {\em argument-declaration} has a {\em required-value},
 there must at this point be a matching call {\em actual-argument}
 with a compile-time value equal to the {\em required-value},
 else the call-prototype match fails.
+
+\item
+If some of the {\em call-argument-lists} are now too long, the call-prototype
+match fails.
 
 \item
 If some of the {\em call-argument-lists} are now too short, they are extended
@@ -6678,6 +6692,7 @@ Step~\ref{ADD-TERMS}.
 
 If any of the arguments that need to be inserted in a
 {\em call-argument-list} matched to a {\em regular-argument-list}
+(lists with \TT{()} or \TT{[]} brackets)
 do not have {\em default-values}, the call-prototype match fails.
 
 Now the modified call matches
@@ -6728,17 +6743,20 @@ a corresponding actual argument, the value of the
 is implied.
 
 If the {\em variable-name} in the {\em qualifiers-argument-declaration}
-is used as the \underline{sole} {\em qualifier-name}
-of prototype result variables
-with a matching actual results with known type and qualifiers,
-the qualifiers of the leftmost such actual result is assigned as the
+is used as a {\em qualifier-name}
+of a prototype result variable, and any other {\em qualifier-names}
+of that prototype result variable name \underline{variable}
+qualifiers in the context of the prototype, and if the
+the matching call result has known type and qualifiers,
+the \underline{value} qualifiers of the leftmost such call result
+are assigned as the elements of the
 value of the {\em variable-name}.
 
 Otherwise if the {\em variable-name}
 is used as the \underline{sole} {\em qualifier-name}
-of several arguments whose matching
+of several prototype arguments whose matching
 actual arguments have natural types, the qualifiers of the leftmost
-of these arguments is assigned as the
+of these actual arguments are assigned as the elements of the
 value of the {\em variable-name}.
 
 If no value can be assigned to the {\em variable-name} by these rules,
@@ -6761,12 +6779,12 @@ is implied.
 
 If the {\em variable-name} in the {\em type-argument-declaration}
 is used as the {\em type-name} of prototype result variables
-with a matching actual results with known type,
-the type of the leftmost such actual result is assigned as the
+with a matching call results with known type,
+the type of the leftmost such call result is assigned as the
 value of the {\em variable-name}.
 
 Otherwise if the {\em variable-name}
-is used the {\em type-name} of several arguments whose matching
+is used the {\em type-name} of several prototype arguments whose matching
 actual arguments have natural types, the type of the leftmost
 of these arguments is assigned as the
 value of the {\em variable-name}.
@@ -6883,7 +6901,8 @@ the prototype must be of the form
      \ldots{}~=~}{\em prototype-pattern}
 \end{center}
 with at least as many result variables in the prototype as in
-the call statement.  The statement is then
+the call statement.  If all the qualifiers are value qualifiers,
+and none are variable qualifiers, the statement is
 replaced by:
 \begin{indpar}
 {\tt $QRs1$ $TR1$ $tmp1$, $QRs2$ $TR2$ $tmp2$,
@@ -6898,9 +6917,15 @@ to $QCsI$ $TCI$, the call-prototype match fails.
 Note that extra prototype result variables
 are never used and are ultimately ignored.
 
-If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not equal
-(but $QRs1$ $TR1$ values are implicitly
-convertible to $QCs1$ $TC1$ values), the match is marked
+If some of the qualifiers are variable qualifiers, they are
+ignored in the computation of the $tmp\ldots$ values, but
+the rules of \itemref{QUALIFIERS} are applied with respect to
+the prototype result variable qualifiers and the $vc\ldots$
+call result variables qualifiers.
+
+If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not exactly equal after protected
+qualifiers have been added to $QCs1$,
+the match is marked
 `\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
 and will be disallowed later
 if there is another match that is not conversion deficient.

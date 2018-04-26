@@ -833,10 +833,10 @@ The L-Language uses several kinds of names:
 \emkey{block-name}\label{BLOCK-NAME}
 	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
-\emkey{function-term-name} ::= {\em name} \\
+\emkey{term-name} ::= {\em name} \\
 \emkey{function-variable-name} ::=
     \begin{tabular}[t]{@{}p{4in}@{}}
-    {\em function-term-name} $N$ that appears in a {\em function-prototype}
+    {\em term-name} $N$ that appears in a {\em function-prototype}
     of the form `{\tt function $N$ = \ldots};
     see \pagref{FUNCTION-VARIABLE-NAME}
     \end{tabular} \\
@@ -894,7 +894,7 @@ sequence is of the above form.  Otherwise it is not -- there is
 no backup.  If the process does not succeed, in some
 cases the name sequence may still be a single {\em variable-name}
 by itself, and in other cases it might be a sequence of one or
-more {\em function-term-names}.
+more {\em term-names}.
 Also the {\em qualifier-name} and {\em type-name}
 candidates are those of the current scope (\pagref{SCOPE}).
 
@@ -1402,7 +1402,7 @@ when a function declaration is used, the {\em module-abbreviation}
 beginning the function call may be omitted if the function declaration is
 the only function declaration within scope that matches the usage,
 according to the module deficiency rules of
-section~\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}.
+section~\itemref{MATCHING-CALLS-TO-PROTOTYPES}.
 Thus in the context of the above example the lines:
 \begin{indpar}\begin{verbatim}
 int32 y = mom my external function ( x )
@@ -1522,7 +1522,7 @@ variable declaration `{\tt int64 x 1}'.
 Operators in the original statement are replaced by quoted
 versions of the operators in the abstract
 syntax tree, e.g., {\tt +} is replaced by {\tt "+"}, so that
-the operators become {\em function-term-names}.
+the operators become {\em term-names}.
 
 The parser does not process {\em result-variable-declarations} or
 {\em argument-declarations}.  Thus
@@ -4342,7 +4342,7 @@ checks the scope to see if it is a {\em variable-declaration},
 {\em variable-name}, {\em qualifier-conversion}, or
 {\em type-conversion}.  If it is none of these, the
 compiler applies the {\em function-call} matching rules of
-\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}
+\itemref{MATCHING-CALLS-TO-PROTOTYPES}
 to match the {\em primary} to a {\em function-prototype}.
 
 \subsection{Expression Semantics}
@@ -4407,7 +4407,7 @@ form `\TT{$Qs$ $T$ ( \ldots{} )}' where $Qs$ is a list of qualifiers
 and $T$ is a type name is $T$.
 The natural type of a {\em function-call} is the type found by matching
 the call to {\em function-prototypes}
-(\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}), if an unambiguous
+(\itemref{MATCHING-CALLS-TO-PROTOTYPES}), if an unambiguous
 match can be found under the assumption that
 the call has a result variable of unknown type.
 No other expression has a natural type.
@@ -5143,7 +5143,7 @@ that is an {\em expression-list}
 In some cases the result variable type is matched to
 the type of a {\em function-prototype} result variable
 for a {\em function-call} that is the {\em assignment-right-side}
-(\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+(\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
 
 A list of {\em assignment-statement}
 result variables acts as a declaration of these variables,
@@ -5177,7 +5177,7 @@ or an {\em iteration-result-variable} (\pagref{ITERATION-RESULT-VARIABLE}).
 The {\em result-variables} may be completely omitted if the
 {\em assignment-right-side} is a {\em subblock}, is a
 {\em function-call} matching a {\em function-prototype} that has
-no result variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}),
+no result variables (\itemref{MATCHING-CALLS-TO-PROTOTYPES}),
 or is a {\em generic-call} (\itemref{GENERICS}).
 Because such statements still have
 the form and semantics of statements that could have result variables,
@@ -5192,7 +5192,7 @@ which are syntactic sugar for a {\em function-call}
 in which the {\em expression-list} has been made into a function argument
 list and there are no result variables.
 {\em Function-calls} \underline{cannot} be used as result variables.
-See \itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}.
+See \itemref{MATCHING-CALLS-TO-PROTOTYPES}.
 
 \subsection{Simple Assignment Statements}
 \label{SIMPLE-ASSIGNMENT-STATEMENTS}
@@ -5226,7 +5226,7 @@ there are result variables, and the excess values are discarded,
 as long as there is at least one result variable.
 if there are no result variables, the
 {\em function-call} must match a {\em function-prototype} that has
-no result variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+no result variables (\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
 
 An {\em expression} may only input values that are constants,
 the values of variables in the same function execution
@@ -5247,7 +5247,7 @@ only a single value, the type of its associated result variable is the target
 type of the {\em expression}.  If there is only one {\em expression}
 and that is a {\em function-call}, the types the result variables
 are matched to the types of the {\em function-prototype} result
-variables (\itemref{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}).
+variables (\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
 
 Some examples of {\em simple-assignment-statements} are:
 \begin{indpar}\begin{verbatim}
@@ -6088,11 +6088,11 @@ The syntax is:
     ::= & \ttkey{function} ~
           {\em prototype-result-variable-list} ~ \TT{=} \\
         & \TT{~~~~~}{\em module-abbreviation}\QMARK{}
-	                ~ {\em function-pattern} \\
+	                ~ {\em prototype-pattern} \\
     $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
-                           ~ {\em function-pattern} \\
+                           ~ {\em prototype-pattern} \\
     $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
-                           ~ {\em function-pattern} ~ \TT{=} \\
+                           ~ {\em prototype-pattern} ~ \TT{=} \\
         & \TT{~~~~~}{\em input-variable-list} \\
     $|$ & {\em function-prototype} \TT{[|} {\em conditioner} \TT{|]}
     \end{tabular}
@@ -6125,7 +6125,7 @@ The syntax is:
 \\[0.5ex]
 \emkey{required-value} ::= {\em expression} with compile time value
 \\[0.5ex]
-\emkey{function-pattern}\label{FUNCTION-PATTERN}
+\emkey{prototype-pattern}\label{FUNCTION-PATTERN}
     \begin{tabular}[t]{rl}
     ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
     $|$ & {\em pattern-argument-list} {\em pattern-argument-list}\PLUS{}
@@ -6135,13 +6135,13 @@ The syntax is:
 				{\em pattern-term}
 \\[0.5ex]
 \emkey{pattern-term}
-    ::= {\em function-term-name} ~ {\em pattern-argument-list}\STAR{}
+    ::= {\em term-name} ~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{function-term-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
+\emkey{term-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \\[0.5ex]
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
     \begin{tabular}[t]{@{}p{4in}@{}}
-    {\em function-term-name} $N$ that appears in a {\em function-prototype}
+    {\em term-name} $N$ that appears in a {\em function-prototype}
     of the form `{\tt function $N$ = \ldots}'
     \end{tabular}
 \\[0.5ex]
@@ -6202,7 +6202,7 @@ The syntax is:
 				{\em call-term}
 \\[0.5ex]
 \emkey{call-term}
-    ::= {\em function-term-name} {\em call-argument-list}\STAR{}
+    ::= {\em term-name} {\em call-argument-list}\STAR{}
 \\[1ex]
 \emkey{call-argument-list}
     \begin{tabular}[t]{@{}rl}
@@ -6228,20 +6228,20 @@ The syntax is:
 
 \begin{itemize}
 \item
-A {\em function-pattern} or {\em function-call}
-must have either a {\em function-term-name}
+A {\em prototype-pattern} or {\em function-call}
+must have either a {\em term-name}
 or at least two {\em argu\-ment-lists}.
 \item
-A {\em function-prototype} {\em function-term-name} must not be
-an initial segment of any other {\em function-term-name}
+A {\em function-prototype} {\em term-name} must not be
+an initial segment of any other {\em term-name}
 in the same {\em function-prototype}.
 \item
 An {\em function-variable-name}
 should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
-\TT{"="} cannot be used as a {\em function-term-name}
-in a {\em function-pattern}.
+\TT{"="} cannot be used as a {\em term-name}
+in a {\em prototype-pattern}.
 \item
 The first {\em argument-declaration} in an {\em input-variable-list}
 must not have a {\em default-value} or end in \TT{??}.
@@ -6312,7 +6312,7 @@ is syntactic sugar for \\
 {\tt F(a1,a2,...)~"="~(b1,b2,...)} \\
 \end{center}
 
-in which a term with \TT{"="} as its {\em function-term-name} is
+in which a term with \TT{"="} as its {\em term-name} is
 placed at the end of the {\em function-call}.
 
 {\em Call-terms} correspond to {\em pattern-terms}.  {\em Call-terms}
@@ -6327,7 +6327,7 @@ argument, and the corresponding {\em call-argument-list} has a single
 is a {\em primary-argument} ( sequence of {\em words}, {\em numbers},
 and {\em quoted-strings}, or a {\em bracketed-constant}), then
 the \TT{()} parentheses may be omitted in the {\em function-call}
-if there is no ambiguity involving overlap with {\em function-term-names} or
+if there is no ambiguity involving overlap with {\em term-names} or
 other argument lists.
 
 Examples are:
@@ -6527,17 +6527,18 @@ to never be compiled or checked for compilation errors.  If a function
 is never called, it may contain code that would have compilation errors
 were the function called, such as calls to non-existent functions.
 
-\subsection{Matching Function Calls to Prototypes}
-\label{MATCHING-FUNCTION-CALLS-TO-PROTOTYPES}
+\subsection{Matching Calls to Prototypes}
+\label{MATCHING-CALLS-TO-PROTOTYPES}
 
-To compile a {\em function-call} or {\em generic-call} it must be matched to a
+To compile a {\em function-call}
+or {\em generic-call} (\pagref{GENERIC-CALL}) it must be matched to a
 single {\em function-prototype} or {\em generic-prototype}.
 If the call matches more than one
 prototype, the call is ambiguous and is a compilation error
 
 The matching algorithm, given a call and a
 prototype, matches the call
-to the {\em function-pattern} in the prototype,
+to the {\em prototype-pattern} in the prototype,
 and matches any call result variables to
 the {\em prototype-result-variable-list}
 of the prototype.  The call may have one or more result
@@ -6554,12 +6555,12 @@ If the call is in a statement of the form
 \end{center}
 the prototype must be of the form
 \begin{center}
-{\tt function} ~ {\em function-pattern} ~ {\tt =} ~ {\em input-variable-list} \\
+{\tt function} ~ {\em prototype-pattern} ~ {\tt =} ~ {\em input-variable-list} \\
 \end{center}
 and the following will be done:
 \begin{enumerate}
 \item `\TT{=}' will be treated in the following as if it were the
-{\em function-term-name} \TT{"="}.
+{\em term-name} \TT{"="}.
 \item{\em expression-list} is parenthesized.
 \item {\em input-variable-list} is parenthesized.
 \end{enumerate}
@@ -6582,43 +6583,43 @@ behaves as if it were the function call with no result variables
 \end{center}
 
 \item If the call begins with a {\em module-abbreviation}
-(see \pagref{MODULE-ABBREVIATION}), the {\em function-pattern}
+(see \pagref{MODULE-ABBREVIATION}), the {\em prototype-pattern}
 must begin with a {\em module-abbreviation}, and the two
 {\em module-abbreviations} must reference the same {\em module-name}
 (i.e., module file, see \itemref{MODULES}), else the
 call-prototype match fails.
 
 \item If the call does \underline{not} begin
-with a {\em module-abbreviation}, but the {\em function-pattern}
+with a {\em module-abbreviation}, but the {\em prototype-pattern}
 does begin with a {\em module-abbreviation}, the match is marked
 as `\key{module deficient}'\label{MODULE-DEFICIENT},
 and will be disallowed later if there is
 another match that is not module deficient.
 
 \item
-The {\em function-term-names} in the call are located by
+The {\em term-names} in the call are located by
 matching segments of the call to
-{\em function-term-names} in the {\em function-pattern}.
-If a {\em function-term-name} matches more than one segment,
-the call-prototype match fails.  If the first {\em function-term-name}
-in the {\em function-pattern} does not match any segment,
+{\em proto\-type-term-names} in the {\em prototype-pattern}.
+If a {\em term-name} matches more than one segment,
+the call-prototype match fails.  If the first {\em term-name}
+in the {\em prototype-pattern} does not match any segment,
 or does not match the first matched segment, the call-prototype match fails.
-(Note that {\em function-term-names} in the {\em function-pattern}
+(Note that {\em term-names} in the {\em prototype-pattern}
 cannot be initial segments of each other, but unparenthesized
 {\em variable-names} may appear in the call and be
-mistaken for parts of {\em function-term-names}.)
+mistaken for parts of {\em term-names}.)
 
 \item The {\em call-terms} after the first in the call
-are reordered so the {\em function-term-names} in the call,
-taken in order, are a subsequence of the {\em function-term-names} in the
-{\em function-pattern}.
+are reordered so the {\em term-names} in the call,
+taken in order, are a subsequence of the {\em term-names} in the
+{\em prototype-pattern}.
 If this cannot be done, the call-prototype match fails.
 (Note that {\em call-terms} other than the first all begin with
-a {\em function-term-name} and extend until the next {\em function-term-name}
+a {\em term-name} and extend until the next {\em term-name}
 or the end of the call.)
 
 \item\label{ADD-TERMS}
-If some of the {\em function-term-names} in the {\em function-pattern}
+If some of the {\em term-names} in the {\em prototype-pattern}
 are missing from the call,
 new {\em call-terms} without argument lists
 are inserted in the call to match the missing
@@ -6652,7 +6653,7 @@ at this point.  See \itemref{CLUSTERS} for details.
 
 \item
 Now the modified call matches
-the {\em function-pattern} in {\em function-term-names},
+the {\em prototype-pattern} in {\em term-names},
 location and number of {\em argument-lists}, and type of bracket (\TT{()},
 \TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  Some
 {\em call-argument-lists} may be shorter than the corresponding
@@ -6669,9 +6670,9 @@ by adding the {\em default-values} from
 their matching {\em pattern-argument-lists}.
 As a special case, if a prototype {\em arg\-u\-ment-de\-clar\-a\-tion} ends in
 `\TT{??}' and has no {\em default-value}, then the actual
-{\em default-value} used is \TT{true} if the {\em function-term-name}
+{\em default-value} used is \TT{true} if the {\em term-name}
 appeared in the original function call and was not added in
-Step~\ref{ADD-TERMS} above, or is \TT{false} if the {\em function-term-name}
+Step~\ref{ADD-TERMS} above, or is \TT{false} if the {\em term-name}
 did not appear in the original function call, but was added in
 Step~\ref{ADD-TERMS}.
 
@@ -6680,7 +6681,7 @@ If any of the arguments that need to be inserted in a
 do not have {\em default-values}, the call-prototype match fails.
 
 Now the modified call matches
-the {\em function-pattern} in {\em function-term-names},
+the {\em prototype-pattern} in {\em term-names},
 location and number of {\em argument-lists}, and type of bracket (\TT{()},
 \TT{[]}, or \TT{(|~|)}) for each {\em argument-list}.  The number of
 arguments also match for \TT{()} and \TT{[]} {\em argument-lists},
@@ -6696,7 +6697,7 @@ are {\em expressions} with compile-time values, and such
 prototype is first compiled.
 
 \item
-If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
+If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} has a corresponding
 actual argument, the actual argument expression
 is evaluated with the `\TT{qualifiers}' target type,
@@ -6708,7 +6709,7 @@ is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 
 \item
-If any {\em type-argument-declaration} in a {\em function-pattern}
+If any {\em type-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} has a corresponding
 actual argument, the actual argument expression
 is evaluated with the `\TT{type}' target type,
@@ -6720,7 +6721,7 @@ is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 
 \item
-If any {\em qualifiers-argument-declaration} in a {\em function-pattern}
+If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} does \underline{not} have
 a corresponding actual argument, the value of the
 {\em variable-name} in the {\em qual\-i\-fiers-argument-declaration}
@@ -6752,7 +6753,7 @@ is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 
 \item
-If any {\em type-argument-declaration} in a {\em function-pattern}
+If any {\em type-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} does \underline{not} have
 a corresponding actual argument, the value of the
 {\em variable-name} in the {\em type-argument-declaration}
@@ -6781,8 +6782,8 @@ is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 
 \item
-The modified call now matches the {\em function-pattern}
-precisely in {\em function-term-names},
+The modified call now matches the {\em prototype-pattern}
+precisely in {\em term-names},
 location and number of {\em argument-lists}, type of bracket, i.e. \TT{()},
 \TT{[]}, or \TT{(|~|)} for each {\em argument-list}, and number of
 arguments in each {\em argument-list}.
@@ -6792,7 +6793,7 @@ This modified function call is referred to as the
 If any actual argument value needs to be a compile-time value in what
 follows, the actual argument expression is compiled at this
 time with its target type taken from the corresponding
-{\em function-pattern} {\em argument-declaration}.
+{\em prototype-pattern} {\em argument-declaration}.
 If the result is not a compile-time value, the call-prototype
 match fails.
 
@@ -6818,7 +6819,7 @@ throughout the prototype.
 If the unfolded call has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
 (including {\em default-values}),
-and the {\em function-pattern} has
+and the {\em prototype-pattern} has
 {\em argument-declarations} `$Qs1$ $T1$ $v1$', `$Qs2$ $T2$ $v2$', \ldots{}
 read from left to right,
 then the statement containing the
@@ -6879,7 +6880,7 @@ with at least one result variable of known type,
 the prototype must be of the form
 \begin{center}
 {\tt function $QRs1$ $TR1$ $vr1$, $QRs2$ $TR2$ $vr2$,
-     \ldots{}~=~}{\em function-pattern}
+     \ldots{}~=~}{\em prototype-pattern}
 \end{center}
 with at least as many result variables in the prototype as in
 the call statement.  The statement is then
@@ -7238,7 +7239,7 @@ float64 w = ...
 next w = max ( w, -1,000,000 )
 \end{verbatim}\end{indpar}
 
-Note that {\tt C} is a function call {\em function-term-name} and not
+Note that {\tt C} is a function call {\em term-name} and not
 an operator.
 Also if {\tt T is float} is \TT{false} the last condition statement
 clause is not compiled or checked for errors
@@ -7254,9 +7255,9 @@ The general syntax is:
 \\[0.5ex]
 \emkey{generic-prototype}\label{GENERIC-PROTOTYPE}
     ::= \TT{generic} ~ {\em module-abbreviation}\QMARK{}
-                     ~ {\em function-pattern}
+                     ~ {\em prototype-pattern}
 \\[0.5ex]
-{\em function-pattern} ::= see \pagref{FUNCTION-PATTERN}
+{\em prototype-pattern} ::= see \pagref{FUNCTION-PATTERN}
 \\[0.5ex]
 \emkey{generic-call}\label{GENERIC-CALL}
     ::= {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
@@ -8758,8 +8759,8 @@ Indirect address protocol.
 Define `compile-time function' as a function that can only be
 called at compile-time.
 
-Add `\TT{no} {\em function-term}' as a way of saying
-`{\em function-term} \TT{( false )}'.
+Add `\TT{no} {\em prototype-term}' as a way of saying
+`{\em prototype-term} \TT{( false )}'.
 
 If \TT{V} is the name of a repeatable variable (that may also
 be omittable), then:

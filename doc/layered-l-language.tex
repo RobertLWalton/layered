@@ -7185,33 +7185,10 @@ letter.
 \subsection{Program Termination Functions}
 \label{PROGRAM-TERMINATION-FUNCTIONS}
 
-The following functions are used to terminate program execution
+The following function is used to terminate program execution
 when a programming error is discovered.
 
 \begin{indpar}
-
-{\tt function string r = std \ttkey{call location}}
-\begin{indpar}
-This function returns a string of the form:
-\begin{center}
-{\em file-name}\TT{:~line~}{\em line-number}
-\end{center}
-describing the location of the {\em function-call}
-that invoked an inline function containing the call to
-`{\tt call location}'.  Here {\em file-name} is either
-the {\em module-name} (\pagref{MODULES}) or {\em body-name}
-(\pagref{BODIES}) of the file; that is, it is the name of
-the file containing the {\em function-call}
-relative to one of several directories
-specified separately to the compiler.
-{\em Line-number} is the number (1, 2, 3, \ldots) of the
-line in which the statement containing the {\em function-call}
-begins.
-
-This function allows an inline function to be written that
-outputs a message containing the location of the call to the
-inline function.
-\end{indpar}
 
 {\tt function std \ttkey{program stop}}
 \begin{indpar}
@@ -7223,6 +7200,67 @@ path that includes a call to this function.
 
 \end{indpar}
 
+
+The following functions can be used before program termination
+to diagnose the location of a programming error.  They reference
+a table of call locations which is builtin.
+
+\begin{indpar}
+
+{\tt function string r = std \ttkey{call location} ( unswrd i )}
+\begin{indpar}
+Returns the call location described by the {\tt i}'th entry in the
+call locations table.  This call location is a string of the form:
+\begin{center}
+{\em file-name}\TT{:~line~}{\em line-number}
+\end{center}
+specifying the location in a source code file of the
+first line of the statement
+containing the function call described by the {\tt i}'th entry.
+Here {\em file-name} is either
+the {\em module-name} (\pagref{MODULES}) or {\em body-name}
+(\pagref{BODIES}) of the file; that is, it is the name of
+the file containing the statement
+relative to one of several directories
+specified separately to the compiler.
+{\em Line-number} is the number (1, 2, 3, \ldots) of the
+line in which the statement begins.
+\end{indpar}
+
+{\tt function unswrd r = std \ttkey{call parent} ( unswrd i )}
+\begin{indpar}
+Returns the call parent $P$ of the {\tt i}'th entry in the
+call locations table.
+If $P$ is not 0, the {\tt i}'th entry is for a location
+in an inline function call that was called from the location
+described by the $P$'th entry of the call locations table.
+If $P$ is 0, the call location described by  the {\tt i}'th entry
+is not inside an inline function
+call, but is inside an out-of-line function.
+\end{indpar}
+
+{\tt function unswrd r = std \ttkey{call entry}}
+\begin{indpar}
+Returns the index in the call locations
+table of the entry describing
+the location of the statement containing the call
+to this function.
+\end{indpar}
+
+{\tt function unswrd r = std \ttkey{call entry} ( unswrd i )}
+\begin{indpar}
+Returns the index in the call locations
+table of entry describing the location of the statement
+containing the {\tt i+1}'st
+active out-of-line call recorded in the program stack, counting
+from the top of the stack (most recent entry).  For
+{\tt i == 0} this is the out-of-line call that called the
+out-of-line function which in turn called this builtin
+{\tt call entry} function.  If 0 is returned, {\tt i} equals
+or exceeds the number of out-of-line calls in the stack.
+\end{indpar}
+
+\end{indpar}
 
 \section{Generics}
 \label{GENERICS}

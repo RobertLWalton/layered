@@ -105,7 +105,7 @@
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
 
-\newcommand{\HSP}[1]{\hspace*{0in}\phantom{{\tt #1}}}
+\newcommand{\TS}{\hspace*{0in}\tt}
 
 \newcommand{\TMP}{\$}			% Compiler Temporary
 \newcommand{\ABV}{-{}-{}->}		% Abbreviates
@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 26, 2018
+April 27, 2018
  
 \end{center}
 
@@ -2585,13 +2585,13 @@ define type~\ttkey{std type}~as unswrd with enum [0~..] \\
 \ttkey{type} ---> `std type' \\
 type \ttkey{std missing type}~= next enum // 0 \\
 function std type r = \ttmkey{std missing}{type}: \\
-\hspace*{0in}~~~~r = std missing type
+\TS~~~~r = std missing type
 \\[1ex]
 define type~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
 \ttkey{qualifier} ---> `std qualifier' \\
 qualifier~\ttkey{std missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttmkey{std missing}{qualifier}: \\
-\hspace*{0in}~~~~r = std missing qualifier
+\TS~~~~r = std missing qualifier
 \\[1ex]
 define type~\ttkey{std bool}\begin{tabular}[t]{@{}l@{}}
                             ~as unswrd with enum [0~..~1] \\
@@ -2976,7 +2976,7 @@ type $T2$ if and only if an inline function with prototype:
 function \ldots~Qs~$T2$ r =
 		      \begin{tabular}[t]{@{}l@{}}
                       \ttkey{implied conversion} \\
-                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
                       \end{tabular}
 \end{center}
 is defined, where the `\ldots{}' denote arbitrary variable qualifiers
@@ -3024,7 +3024,7 @@ be a direct arrow from $T1$ to $T2$ in the graph, i.e.,
 function \ldots~Qs~$T2$ r =
 		      \begin{tabular}[t]{@{}l@{}}
                       \ttkey{implied conversion} \\
-                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
                       \end{tabular}
 \label{IMPLIED-CONVERSION}
 \end{center}
@@ -3084,7 +3084,7 @@ many function declarations of the form
 \begin{center}
 \begin{tabular}{l}
 {\tt function unsadr r = $ma$\QMARK{} size of ( type t == $T$ ):} \\
-\hspace*{0in}{\tt ~~~~r = $S$}
+{\TS ~~~~r = $S$}
 \end{tabular}
 \end{center}
 be coded, where $ma$ is the {\em module-abbreviation} of the
@@ -3286,7 +3286,7 @@ Returns the UNICODE character code of the character {\tt c}.
 function Qs~uns32 r =
 		      \begin{tabular}[t]{@{}l@{}}
                       \ttmkey{implied conversion}{of character} \\
-                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~character c )
+                      \TS~~~~(| qualifiers Qs |) ( Qs~character c )
                       \end{tabular}
 \begin{indpar}
 Implied conversion (\pagref{IMPLIED-CONVERSION})
@@ -3901,7 +3901,7 @@ Implicit conversions have a similar prototype of the form
 function \ldots~Qs~$T2$ r =
 		      \begin{tabular}[t]{@{}l@{}}
                       \ttkey{implied conversion} \\
-                      \HSP{~~~~}(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
                       \end{tabular}
 \end{center}
 
@@ -7017,18 +7017,20 @@ If the
 {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to the \TT{size} if that is a power of 2
 no greater than 16 (the size of a 128 bit value).
-Otherwise it is an error if the {\em alignment} is not
-a power of 2.
+Otherwise it is an error if the {\em alignment} is 0 or
+is not a power of 2.
 
 The memory bytes are initialized to zero.
 
-This function does not
-execute at compile-time even if its arguments are compile-time.
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
 \end{indpar}
 
 {\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
 \begin{center}
-where $T$ is any type
+where $T$ is any number type
 \end{center}
 
 \begin{indpar}
@@ -7037,12 +7039,14 @@ The alignment of the memory is equal to the alignment of $T$.
 Return the address of this memory.  The address viewed as an
 integer is an exact multiple of the alignment.
 
-This function does not
-execute at compile-time even if its arguments are compile-time.
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
 \end{indpar}
 
 {\tt function *UNCHECKED* adr r =} \\
-\hspace*{0in}{\tt ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
+{\TS ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
 
 \begin{indpar}
 Allocate static memory and set it equal to the UTF-8 representation of the
@@ -7050,27 +7054,13 @@ value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
 read-only, meaning that trying to write it will cause a program memory
 fault error.
 
-This function does not
-execute at compile-time even if its arguments are compile-time.
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
 \end{indpar}
 
 \end{indpar}
-
-Note that
-\begin{center}
-{\tt allocate to static ( "Hello There" )}
-\end{center}
-creates a \TT{string} vector containing {\tt "Hello There"},
-allocates static memory for a pointer to this vector, stores the
-pointer into the static memory, and returns the address of the
-pointer.
-
-On the other hand
-\begin{center}
-{\tt allocate UTF-8 to static ( "Hello There" )}
-\end{center}
-allocates static memory in which is stored a UFT-8 representation of
-{\tt "Hello There"}, and returns the address of this memory.
 
 The following function can be used to embed addresses in 
 floating point NaNs or other numeric values.
@@ -7078,9 +7068,9 @@ floating point NaNs or other numeric values.
 \begin{indpar}
 
 {\tt function *UNCHECKED* adr r =} \\
-\hspace*{0in}{\tt ~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
-\hspace*{0in}{\tt ~~~~~~~~~~~~~ ( uns64 v,} \\
-\hspace*{0in}{\tt ~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+{\TS~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
+{\TS~~~~~~~~~~~~~ ( uns64 v,} \\
+{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
 \begin{indpar}
 Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
@@ -7093,7 +7083,7 @@ the {\tt L} bits are padded on the left with zero bits.
 
 For example, for an x86 target machine $k=48$ and the high order
 17 bits of the returned address must be equal (all 0's or all 1's).
-If {\tt L = 40} and {\tt S = 4} then 4+16=20 zero bits of padding are
+If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
 added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
 bit of the low {\tt L} bits of {\tt v} is sign extended to become
 the high order 17 bits of the returned address.
@@ -7122,8 +7112,8 @@ builtin functions test and manipulate this register.
 The first function
 above reads the register, the second clears the floating point
 error flags in the register, the third clears just the floating point
-error flags selected by the bits of \TT{mask}, and the fourth sets just the
-flags selected by the bits of \TT{mask}.  The value read from the register
+error flags selected by the bits of {\tt mask}, and the fourth sets just the
+flags selected by the bits of {\tt mask}.  The value read from the register
 may contain non-zero bits other than the floating point error flags.
 \end{indpar}
 \end{indpar}
@@ -7142,7 +7132,7 @@ register.  Each mask has a single bit on.
 {\tt function unswrd r = std \ttkey{FP INEXACT}}	& Result inexact. \\
 \end{tabular}
 \end{center}
-The value of \TT{mask} above should be a bitwise OR's of these constants.
+The value of {\tt mask} above should be a bitwise OR's of these constants.
 
 \subsection{Abbreviation Testing Functions}
 \label{ABBREVIATION-TESTING-FUNCTIONS}

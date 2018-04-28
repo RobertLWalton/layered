@@ -7464,17 +7464,40 @@ If an {\em include-statement} $S$ has an {\em include-name} $N$, then
 have the {\em include-name} $N$ are treated as ordinary statements
 and not as nested {\em include-statements}.  An example is:
 \begin{indpar}\begin{verbatim}
-generic compare function prototypes ( type T ):
+generic max-min functions ( name T ):
     include X ( T ):
-        generic compare function prototype ( name C )
-            include ( C ):
-                function bool r = ( T x ) C ( T y )
-        compare function prototype ( "<" )
-        compare function prototype ( "<=" )
-        compare function prototype ( "==" )
-        compare function prototype ( "!=" )
-        compare function prototype ( ">=" )
-        compare function prototype ( ">" )
+        generic max-or-min function ( name F, name C ):
+            include ( F, C ):
+                function T r = F ( T x, T y ):
+                    include X if T is float:
+                        if:
+                            x C y:
+                                r = x
+                            y C x:
+                                r = y
+                            else:
+                                r = NaN
+                    include X if not T is float:
+                        if:
+                            x C y:
+                                r = x
+                            y C x:
+                                r = y
+        max-of-min function ( `min', `"<="' )
+        max-of-min function ( `max', `">="' )
+max-min functions ( `uns32' )
+    // Equivalent to:
+    //
+    // generic max-or-min function ( name F, name C )
+    //     include ( F, C ):
+    //         function uns32 r = F ( uns32 x, uns32 y ):
+    //             if:
+    //                 x C y:
+    //                     r = x
+    //                 y C x:
+    //                     r = y
+    // max-of-min function ( `min', `"<="' )
+    // max-of-min function ( `max', `">="' )
 \end{verbatim}\end{indpar}
 
 The included statements that replace a generic call are compiled in the

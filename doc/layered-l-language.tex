@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 27, 2018
+April 29, 2018
  
 \end{center}
 
@@ -767,22 +767,13 @@ see~\itemref{ABBREVIATIONS}.
 A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULES}.
 
-A {\em name} may be an abbreviation for another name.  Such abbreviations
-can be introduced by statements of the form
-\begin{center}
-{\em abbreviation-name} \TT{\ABV} \TT{`}{\em replacement-name}\TT{'}
-\end{center}
-See the section on abbreviations
-(\itemref{ABBREVIATIONS})
-for more details.
-
 The builtin names in this document are implicitly in the
 \TT{"standard"} module whose {\em module-abbreviation} is `\TT{std}'.
 See the section on modules (\itemref{MODULES}) for details.
 For example the name `\TT{bool}' of the boolean data type is actually a builtin
 abbreviation defined by:
 \begin{center}
-\TT{bool {\ABV} `std bool'}
+\TT{define abbreviation bool {\ABV} `std bool'}
 \end{center}
 and the builtin type name proper is `\TT{std bool}' and not `\TT{bool}'.
 
@@ -921,8 +912,17 @@ and {\em member-names}.
 
 Abbreviations are declared by:
 \begin{indpar}
-\emkey{abbreviation-declaration}\label{ABBREVIATION-DECLARATION}
-    ::= {\em abbreviation} ~ \ttkey{-{}-{}->} ~ {\em abbreviation-replacement}
+\emkey{abbreviation-declaration}\label{ABBREVIATION-DECLARATION} \\
+\hspace*{0.5in}\begin{tabular}{@{}rl@{}}
+    ::= & \ttkey{define abbreviation}\TT{~}{\em abbreviation}\TT{~}%
+          \ttkey{\ABV}\TT{~}{\em abbreviation-replacement} \\
+    $|$ & \TT{define abbreviations:} \\
+        & {\TS ~~~~}{\em abbreviation}\TT{ \ABV{} }
+		  {\em abbreviation-replacement} \\
+        & {\TS ~~~~}{\em abbreviation}\TT{ \ABV{} }
+		  {\em abbreviation-replacement} \\
+        & {\TS ~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots
+    \end{tabular}
 \\[1ex]
 \emkey{abbreviation} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \\[1ex]
@@ -976,20 +976,22 @@ which they are declared.
 
 Some examples are:
 \begin{indpar}\begin{verbatim}
-int32 ---> `std int32'
-uns64 ---> `std uns64'
-    // Builtin type abbreviations
-*UNCHECKED*  ---> `std *UNCHECKED*'
-    // Builtin qualifier abbreviation
+define abbreviations:
+    int32 ---> `std int32'
+    uns64 ---> `std uns64'
+        // Builtin type abbreviations
+    *UNCHECKED*  ---> `std *UNCHECKED*'
+        // Builtin qualifier abbreviation
 
 *UNCHECKED* int32 x 1 = 99
     // Same as: std *UNCHECKED* std int32 x 1 = 99
-.foo ---> `fee'
-    // Illegal: `fee' does not begin with `.'.
-"+" ---> `std int62'
-    // Illegal: `"+"' is not allowed as a type name.
+define abbreviations:
+    .foo ---> `fee'
+        // Illegal: `fee' does not begin with `.'.
+    "+" ---> `std int62'
+        // Illegal: `"+"' is not allowed as a type name.
 
-int64 unsigned ---> `uns64'
+define abbreviation int64 unsigned ---> `uns64'
 int64 unsigned z = 9 + 7
     // Legal, same as: std uns64 z = (9) "+" (7)
     // Matches function prototype:
@@ -1000,8 +1002,9 @@ int64 unsigned z = 9 + 7
     //       (std uns64 v1) "+" (std uns64 v2)
     // is defined.
 
-x 1 ---> `x'
-.foo ---> `.fee'
+define abbreviations:
+    x 1 ---> `x'
+    .foo ---> `.fee'
 int64 y = x 1 .foo + 10
     // Same as: std int64 y = (x.fee) "+" (10)
 \end{verbatim}\end{indpar}
@@ -1012,11 +1015,11 @@ Abbreviation loops are possible and result in compile errors when
 the abbreviation is used.
 For example:
 \begin{indpar}\begin{verbatim}
-    X ---> `Y'
+    define abbreviation X ---> `Y'
     int64 X = 5       // Same as: std int64 Y = 5
-    Y ---> `Z'
+    define abbreviation Y ---> `Z'
     int64 X = 5       // Same as: std int64 Z = 5
-    Z ---> `X'
+    define abbreviation Z ---> `X'
     int64 X = 5       // Compile error replacing X.
 \end{verbatim}\end{indpar}
 
@@ -1575,12 +1578,28 @@ and \underline{not}
 The compiler and not the parser handles binary operator associativity.
 
 
-\section{Data Types}
-\label{DATA-TYPES-TYPES}
+\section{Types}
+\label{TYPES}
 
 The basic builtin types are the number types and the \TT{void} type.
 All defined types are subtypes of these types.
 One of the builtin defined subtypes is the `\TT{type}' type.
+
+A type is denoted by its {\em type-name}.  New types are
+defined by statements of the form:
+
+\begin{indpar}
+\emkey{type-declaration}\label{TYPE-DECLARATION} \\
+\hspace*{0.5in}\begin{tabular}{@{}rl@{}}
+    ::= & \ttkey{define type}\TT{~}{\em type-name}\TT{~as~}\ldots \\
+    $|$ & \TT{define types:} \\
+        & {\TS ~~~~}{\em type-name}\TT{ as }\ldots \\
+        & {\TS ~~~~}{\em type-name}\TT{ as }\ldots \\
+        & {\TS ~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots
+    \end{tabular}
+\\[1ex]
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\end{indpar}
 
 \subsection{Number Types}
 \label{NUMBER-TYPES}
@@ -1654,6 +1673,9 @@ Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
 module to which builtin types and functions belong.  For convenience
 the following abbreviations are builtin:
 \begin{indpar}
+{\tt define abbreviations:}
+\begin{indpar}[0.3in]
+
 \begin{tabular}{p{0.8in}@{\tt ~\ABV~}l}
 \ttkey{uns8} & {\tt `std~uns8'} \\
 \ttkey{uns16} & {\tt `std~uns16'} \\
@@ -1694,15 +1716,17 @@ the following abbreviations are builtin:
 \ttkey{intmax} & {\tt `std~intmax'} \\
 \ttkey{floatmax} & {\tt `std~floatmax'} \\
 \end{tabular}
+
+\end{indpar}
 \end{indpar}
 
-Here we use abbreviation statements of the form
+Here
 \begin{center}
 {\em abbreviation-name}~~\TT{\ABV}~~\TT{`}{\em replacement-name}\TT{'}
 \end{center}
-to specify that whenever the {\em abbreviation-name} occurs it is to be
+specifies that whenever the {\em abbreviation-name} occurs it is to be
 replaced by the {\em replacement-name}.  See \itemref{ABBREVIATIONS} for
-more abbreviation details. 
+more abbreviation details.
 
 In this document we will use these abbreviations as the
 `\skey{builtin number type}s':
@@ -2076,8 +2100,8 @@ When used as the base variable of a cluster, an assignment statement
 may appear to be assigning a value to a \TT{void} variable, but
 in fact it is assigning values to cluster members.
 
-\subsection{Defined Types and Type Names}
-\label{DEFINED-TYPES-AND-TYPE-NAMES}
+\subsection{Defined Types}
+\label{DEFINED-TYPES}
 
 A declaration statement of the following form defines a new type and
 specifies a {\em type-name} for that type:
@@ -2581,26 +2605,30 @@ converted to a common enumeration or integer type.
 
 The following are builtin enumeration types:
 \begin{indpar} \tt
-define type~\ttkey{std type}~as unswrd with enum [0~..] \\
-\ttkey{type} ---> `std type' \\
+define types: \\
+\TS~~~~\ttkey{std type}~as unswrd with enum [0~..] \\
+\TS~~~~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
+\TS~~~~\ttkey{std bool}\begin{tabular}[t]{@{}l@{}}
+                            ~as unswrd with enum [0~..~1] \\
+		            \end{tabular} \\
+define abbreviations: \\
+\TS~~~~\ttkey{type} \ABV{} `std type' \\
+\TS~~~~\ttkey{qualifier} \ABV{} `std qualifier' \\
+\TS~~~~\ttkey{bool} \ABV{} `std bool'
+\\[1ex]
 type \ttkey{std missing type}~= next enum // 0 \\
 function std type r = \ttmkey{std missing}{type}: \\
 \TS~~~~r = std missing type
 \\[1ex]
-define type~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
-\ttkey{qualifier} ---> `std qualifier' \\
 qualifier~\ttkey{std missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttmkey{std missing}{qualifier}: \\
 \TS~~~~r = std missing qualifier
 \\[1ex]
-define type~\ttkey{std bool}\begin{tabular}[t]{@{}l@{}}
-                            ~as unswrd with enum [0~..~1] \\
-		            \end{tabular} \\
-\ttkey{bool} ---> `std bool' \\
 bool~\ttkey{std false}~= next enum // 0 \\
-\ttkey{false} ---> `std false' \\
 bool~\ttkey{std true}~~= next enum // 1 \\
-\ttkey{true} ---> `std true'
+define abbreviations: \\
+\TS~~~~\ttkey{false} \ABV{} `std false' \\
+\TS~~~~\ttkey{true} \ABV{} `std true'
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
@@ -2783,10 +2811,12 @@ Returns the element type of an enumeration set or list type {\tt T}.
 
 The following are builtin enumeration set types:
 \begin{indpar} \tt
-define type \ttkey{std types} as set of type \\
-\ttkey{types} ---> `std types' \\
-define type \ttkey{std qualifiers} as set of qualifier \\
-\ttkey{qualifiers} ---> `std qualifiers'
+define types: \\
+\TS~~~~\ttkey{std types} as set of type \\
+\TS~~~~\ttkey{std qualifiers} as set of qualifier \\
+define abbreviations: \\
+\TS~~~~\ttkey{types} \ABV{} `std types' \\
+\TS~~~~\ttkey{qualifiers} \ABV{} `std qualifiers'
 \end{indpar}
 
 The following unchecked conversions between enumeration
@@ -2944,11 +2974,11 @@ The type `\TT{type}' is a builtin enumeration type declared
 by the builtin equivalent of:
 \begin{indpar} \tt
 define type \ttkey{std type} as unswrd with enum [0~..] \\
+define abbreviation \ttkey{type} \ABV{} `std type' \\
 type \ttkey{std missing type} = next enum // 0 \\
 type \ttkey{std type} = next enum // 1 \\
 function std type r = std \ttmkey{missing}{type}: \\
-\hspace*{3em}r = std missing type \\
-\ttkey{type} \ABV{} `std type'
+\hspace*{3em}r = std missing type
 \end{indpar}
 Each type is associated with a unique enumeration value
 of type `\TT{type}', and this value can be used at both
@@ -3254,7 +3284,7 @@ A `\key{character}' is a 32-bit UNICODE character.  It is
 defined as the derived type:
 \begin{indpar} \tt
 define type~\ttkey{std character}~as uns32 \\
-\ttkey{character}~\ABV~`std character'
+define abbreviation~\ttkey{character}~\ABV~`std character'
 \end{indpar}
 
 A character constant has the syntax:
@@ -3314,7 +3344,7 @@ of 32-bit UNICODE characters.
 It is defined as a derived type:
 \begin{indpar} \tt
 define type \ttkey{std string} as adr \\
-\ttkey{string} \ABV{} `std string'
+define abbreviation \ttkey{string} \ABV{} `std string'
 \end{indpar}
 
 A {\em quoted-string} lexeme is a constant of \TT{string} type
@@ -3423,7 +3453,7 @@ it is a compilation error if the value is not a source code {\em name}.
 The \TT{name} type is is defined as a derived type:
 \begin{indpar} \tt
 define type \ttkey{std name} as adr \\
-\ttkey{name} \ABV{} `std name'
+define abbreviation \ttkey{name} \ABV{} `std name'
 \end{indpar}
 
 A sequence of {\em name-items} in \TT{`~'} quotes is a \TT{name}
@@ -3548,11 +3578,13 @@ include for n in [`x[1]', `x[2]', `x[3]' ]:
 
 Name sets and lists can be stored in variables of the builtin name set
 or list types:
-\begin{indpar}
-{\tt define type \ttkey{std name set} as adr} \\
-{\tt define type \ttkey{std name list} as adr} \\
-{\tt \ttkey{name set} -{}-{}-> `std name set'} \\
-{\tt \ttkey{name list} -{}-{}-> `std name list'}
+\begin{indpar} \tt
+define types: \\
+\TS~~~~\ttkey{std name set} as adr \\
+\TS~~~~\ttkey{std name list} as adr \\
+define abbreviations: \\
+\TS~~~~\ttkey{name set} \ABV{} `std name set' \\
+\TS~~~~\ttkey{name list} \ABV{} `std name list'
 \end{indpar}
 
 The following \TT{name set} functions are builtin:
@@ -3695,9 +3727,9 @@ are listed in sorted order in the result.
 Contexts (\pagref{CONTEXT}) exist at compile-time and can be
 stored in compile-time variables.  The \TT{context} type is
 defined by
-\begin{indpar}
-{\tt define type \ttkey{std context} as adr} \\
-{\tt \ttkey{context} -{}-{}-> `std context'}
+\begin{indpar} \tt
+define type \ttkey{std context} as adr \\
+define abbreviation \ttkey{context} \ABV{} `std context'
 \end{indpar}
 
 {\em Block-assignment-statements} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS})
@@ -3827,10 +3859,10 @@ The type `\TT{qualifier}' is a builtin enumeration type declared
 by:
 \begin{indpar} \tt
 define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
+define abbreviation \ttkey{qualifier} \ABV{} `std qualifier' \\
 qualifier \ttkey{std missing qualifier} = next enum // 0 \\
 function std qualifier r = std \ttmkey{missing}{qualifier}: \\
-\hspace*{3em}r = std missing qualifier \\
-\ttkey{qualifier} \ABV{} `std qualifier'
+\hspace*{3em}r = std missing qualifier
 \end{indpar}
 
 The {\em qualifier-name} of a qualifier
@@ -6356,8 +6388,9 @@ then there must be a corresponding {\em actual-argument} in the
 {\em function-call} whose value is a compile-time value that equals the
 {\em required-value}, which must also be a compile-time value.  An example is:
 \begin{indpar}\begin{verbatim}
-define type my type as int32
-define type your type as uns32
+define types:
+    my type as int32
+    your type as uns32
 function type r = companion type of ( type t == my type ):
     r = your type
 function type r = companion type of ( type t == your type ):
@@ -7913,8 +7946,9 @@ An example is:
 // Here a cluster foo, foo.a, foo.b, foo.c
 // where foo is an address.
 //
-define type foo as void
-define type foo_ptr as adr
+define types:
+    foo as void
+    foo_ptr as adr
 function foo x, adr x.base,
          mem int32 x.a, x.a.offset,
          mem int32 x.b, x.b.offset,

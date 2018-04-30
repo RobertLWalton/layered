@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 29, 2018
+April 30, 2018
  
 \end{center}
 
@@ -1240,6 +1240,14 @@ module.
 If the {\em declaration} is external, the scope of the
 {\em declaration} is extended to include all modules and
 bodies that import the module containing the {\em declaration}.
+
+Some statement subblocks are not considered to be blocks for
+the purposes of defining scope.  These include subblocks inside
+{\em abbreviation-declarations} (\pagref{ABBREVIATION-DECLARATION}),
+{\em type-declarations} (\pagref{TYPE-DECLARATION}),
+and {\em include-statements} (\pagref{INCLUDE-STATEMENT}).
+These subblocks are considered to be syntactic sugar for
+sequences of statements that do not contain the subblocks.
 
 The scope of a {\em name}, {\em function-prototype}, or
 {\em generic-prototype}
@@ -7348,7 +7356,7 @@ The general syntax is:
 \emkey{generic-call}\label{GENERIC-CALL}
     ::= {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]
 \\[0.5ex]
-\emkey{include-statement} ::=
+\emkey{include-statement}\label{INCLUDE-STATEMENT} ::=
     \begin{tabular}[t]{l}
     \ttkey{include} ~ \begin{tabular}[t]{@{}l@{}}
                       {\em include-name}\QMARK{}

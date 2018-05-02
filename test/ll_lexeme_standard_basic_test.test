@@ -762,6 +762,9 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+  ########: DISPATCHER
             Max CType: 3
             Ctype Map Size: 944
             A-Z a-z <0AA> <0B5> <0BA> <0C0>-<0D6> <0D8>-<0F6>
@@ -1061,7 +1064,7 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
-            Max CType: 16
+            Max CType: 17
             Ctype Map Size: 944
             <378>-<379> <380>-<383> <38B> <38D> <3A2> <530> <557>-<558>
             <560> <588> <58B>-<58C> <590> <5C8>-<5CF> <5EB>-<5EF>
@@ -1229,7 +1232,7 @@
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
                 #####: OUTPUT(20)
                 Dispatcher ID: #####
-            (-) [ ] ` { } <0AB> <0BB> <0F3A>-<0F3D> <169B>-<169C>
+            (-) [ ] { } <0AB> <0BB> <0F3A>-<0F3D> <169B>-<169C>
             <2018>-<201F> <2039>-<203A> <2045>-<2046> <207D>-<207E>
             <208D>-<208E> <2308>-<230B> <2329>-<232A> <2768>-<2775>
             <27C5>-<27C6> <27E6>-<27EF> <2983>-<2998> <29D8>-<29DB>
@@ -1242,6 +1245,9 @@
                 #####: OUTPUT(6)
                 Dispatcher ID: #####
             | [repeat(INFINITY)]
+                #####: OUTPUT(6)
+                Dispatcher ID: #####
+            ` [repeat(INFINITY)]
                 #####: OUTPUT(6)
                 Dispatcher ID: #####
             <0A1> [repeat(INFINITY)]
@@ -1916,7 +1922,10 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
-            Max CType: 5
+            Max CType: 0
+            Ctype Map Size: 0
+  ########: DISPATCHER
+            Max CType: 6
             Ctype Map Size: 64
             ! [repeat(INFINITY)]
                 #####: GOTO(####)
@@ -1930,7 +1939,10 @@
             : [repeat(INFINITY)]
                 #####: GOTO(####)
                 Dispatcher ID: #####
-            ' , ;
+            ' [repeat(INFINITY)]
+                #####: GOTO(####)
+                Dispatcher ID: #####
+            , ;
                 #####: GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
@@ -4188,8 +4200,7 @@ SEPARATOR 19(15): [
 WORD 19(16): h,i
 SEPARATOR 19(19): ]
 HORIZONTAL_SPACE 19(20): ␣
-SEPARATOR 19(21): `
-SEPARATOR 19(22): `
+SEPARATOR 19(21): ``
 WORD 19(23): foobar
 SEPARATOR 19(29): '
 HORIZONTAL_SPACE 19(30): ␣

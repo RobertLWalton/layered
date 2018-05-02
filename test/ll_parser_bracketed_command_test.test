@@ -376,6 +376,9 @@ WARNING: in line ###: undefine found no definition:
                       with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [- TOP LEVEL]
+        block BLOCK1: bracket "```" ... "'''" [code]
+                      with parsing selectors [- TOP LEVEL]
+                      with parsing options []
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
                          with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
@@ -390,10 +393,6 @@ WARNING: in line ###: undefine found no definition:
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [- TOP LEVEL]
-        block BLOCK1: bracket [< "`" "`" "`" >] ... [< "'" "'" "'" >]
-                      [code]
-                      with parsing selectors [- TOP LEVEL]
-                      with parsing options []
         block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 15 05:21:24 EST 2017
+// Date:	Wed May  2 01:31:31 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,51 +94,46 @@ namespace ll { namespace lexeme { namespace standard {
         // Sequence of horizontal space chracters
 	// (characters in category Zs characters and
 	// horizontal tabs).  May not be empty.  Also
-	// the lexeme must not be in one of the
-	// following two categories.
-    const uns32 indent_before_comment_t		= 9;
-	// Ditto, but just before a comment on a
-	// line that contains nothing but a comment.
-	// There is always one of these lexemes on such
-	// a line.  May be empty.
-    const uns32 indent_t			= 10;
+	// the lexeme must not be in the following
+	// category.
+    const uns32 indent_t			= 9;
 	// Ditto, but just before the first graphic
-	// character on a line that contains a
-	// graphic character that is not in a comment.
-	// There is always one of these lexemes on such
-	// a line.  Used to communicate the indentation
-	// of the line while allowing the lexeme table
-	// to be switched just before the first graphic
-	// character on the line.  May be empty.
-    const uns32 line_break_t			= 11;
+	// character on a line that contains a graphic
+	// character.  There is always one of these
+	// lexemes on such a line.  Used to communicate
+	// the indentation of the line and to allow
+	// the lexeme table to be switched just before
+	// the first graphic character on the line.
+	// Also may be empty.
+    const uns32 line_break_t			= 10;
         // Sequence of carriage returns, line feeds,
 	// vertical tabs, and form feeds containing
 	// at least one line feed.
-    const uns32 start_of_file_t			= 12;
+    const uns32 start_of_file_t			= 11;
         // Virtual 0-length lexeme at start of file.
-    const uns32 end_of_file_t			= 13;
+    const uns32 end_of_file_t			= 12;
         // Virtual 0-length lexeme at end of file.
 
     // Special lexemes:
     //
-    const uns32 data_t				= 14;
+    const uns32 data_t				= 13;
         // @ at begining of line.
-    const uns32 raw_data_t			= 15;
+    const uns32 raw_data_t			= 14;
         // !@ at begining of line.
-    const uns32 table_t				= 16;
+    const uns32 table_t				= 15;
         // ----- or ===== at beginning of line.
-    const uns32 row_t				= 17;
+    const uns32 row_t				= 16;
         // |, -----, or ===== at beginning of line.
 
     // Erroneous Lexeme Types:
     //
-    const uns32 premature_end_of_string_t	= 18;
+    const uns32 premature_end_of_string_t	= 17;
         // A line break or end of file was encountered
 	// in a quoted string.  The quoted string is
 	// ended as if by ", and this 0-length lexeme
 	// is output just before the line break or
 	// end of file.
-    const uns32 premature_end_of_file_t		= 19;
+    const uns32 premature_end_of_file_t		= 18;
         // End of file not following a line break.
 	// Includes case of empty input.  This 0-length
 	// lexeme is output just before the end of file
@@ -157,32 +152,32 @@ namespace ll { namespace lexeme { namespace standard {
     //     as erroneous atoms in effect allows them
     //     in comments and quoted strings.
     //
-    const uns32 misplaced_vertical_t		= 20;
+    const uns32 misplaced_vertical_t		= 19;
         // Sequence of carriage returns, vertical tabs,
 	// and form feeds that does not abutt a line
 	// feed.
-    const uns32 illegal_control_t		= 21;
+    const uns32 illegal_control_t		= 20;
         // Sequence of control characters that are not
 	// legal in any lexeme.
-    const uns32 unrecognized_character_t	= 22;
+    const uns32 unrecognized_character_t	= 21;
         // Sequence of unrecognized characters
 	// (characters with no recognized general
 	// category) that are not legal in any lexeme.
 
     // Erroneous Atom Types:
     //
-    const uns32 unrecognized_escape_t		= 23;
+    const uns32 unrecognized_escape_t		= 22;
         // Any unrecognized <...> sequence in a quoted
 	// string where ... is all upper case letters
 	// and digits.  Translated to <UUC>.
-    const uns32 misplaced_horizontal_t		= 24;
+    const uns32 misplaced_horizontal_t		= 23;
         // A sequence of horizontal characters other
 	// than single space in a quoted string.
 	// Translated to itself.  Such a sequence is
 	// legal and not erroneous if it is part of a
 	// horizontal space or comment lexeme.
 
-    const unsigned MAX_TYPE = 24;
+    const unsigned MAX_TYPE = 23;
 
     extern const char * const type_names[MAX_TYPE+1];
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 05:36:46 EDT 2017
+// Date:	Wed May  2 01:55:57 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,7 +87,6 @@ extern min::locatable_var<ll::parser::input>
 // lexeme's translation strings recorded in the token:
 //
 //	indent_t
-//	indent_before_comment_t
 //	line_break_t
 //	end_of_file_t
 //
@@ -120,15 +119,13 @@ extern min::locatable_var<ll::parser::input>
 // lexeme string, even for tokens whose lexeme transla-
 // tion strings are discarded.  The indent of the first
 // character AFTER the token, or of the end of input, is
-// recorded in the token indent, for use with indent_t
-// and indent_before_comment_t tokens to determine line
-// indent.
+// recorded in the token indent, for use with the
+// indent_t token to determine line indent.
 //
 // When called this closure function adds tokens until
 // it has added a token of one of the types:
 //
 //	indent_t
-//	indent_before_comment_t
 //	end_of_file_t
 //
 // This permits the scanner master table to be switched

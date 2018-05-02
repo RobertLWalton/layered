@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 01:21:02 EDT 2017
+// Date:	Wed May  2 01:22:20 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2186,25 +2186,16 @@ NEXT_TOKEN:
     // Come here with `current' set to the next
     // token to process.
 
-    // Skip comments, line breaks, and indent before
-    // comments, so that either nothing is skipped
-    // OR current is an indent or end-of-file.  If a
-    // blank line is skipped or end of file encoun-
-    // tered, set parser->at_paragraph_beginning.
+    // Delete comments and line breaks so that either
+    // nothing is deleted OR current is an indent or
+    // end-of-file.  If a blank line is deleted or
+    // end of file encountered, set parser->at_
+    // paragraph_beginning.
     //
-    // Comments skipped that are indented less than
-    // the indent of any following indent token are
-    // errors.  These errors are ignored but cause
-    // warning messages.
-    //
-    PAR::token first = current;
     min::uns32 t = current->type;
     while ( t == LEXSTD::line_break_t
 	    ||
-	    t == LEXSTD::comment_t
-	    ||
-	       t
-	    == LEXSTD::indent_before_comment_t )
+	    t == LEXSTD::comment_t )
     {
 	min::uns32 previous_t = t;
 
@@ -2218,73 +2209,10 @@ NEXT_TOKEN:
 	    parser->at_paragraph_beginning = true;
 	else if ( t == LEXSTD::end_of_file_t )
 	    parser->at_paragraph_beginning = true;
-    }
 
-    // Delete what has been skipped.
-    //
-    // We might issue warning for end of file not
-    // immediately preceeded by a line break, but
-    // an error message has already been issued by
-    // add_tokens.
-    //
-    if ( first != current )
-    {
-	// If we skipped, we stop at an indent
-	// or end of file.
-	//
-	MIN_REQUIRE
-	  ( t == LEXSTD::indent_t
-	    ||
-	    t == LEXSTD::end_of_file_t
-	  );
-
-	min::uns32 current_indent =
-	    t == LEXSTD::indent_t ?
-	    current->indent : 0;
-
-	// Delete tokens and find the bounds of any
-	// comments that are not indented as much
-	// as current_indent.
-	//
-	bool iic_exists = false;
-	min::phrase_position iic_position;
-	    // Data on insufficiently indented
-	    // comments.  Includes begin of first
-	    // such and end of last such.
-
-	while ( first != current )
-	{
-	    if (    first->type
-		 == LEXSTD::indent_before_comment_t
-		 &&
-		 first->indent < current_indent )
-	    {
-		MIN_REQUIRE ( first->next->type
-			      ==
-			      LEXSTD::comment_t );
-		if ( ! iic_exists )
-		{
-		    iic_exists = true;
-		    iic_position.begin =
-			first->next->position.begin;
-		}
-		iic_position.end =
-		    first->next->position.end;
-	    }
-	    first = first->next;
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-				first->previous ) );
-	}
-
-	// Issue warning for any insufficiently
-	// indented comments.
-	//
-	if ( iic_exists )
-	    PAR::parse_warn
-		( parser, iic_position,
-		  "comments NOT indented"
-		   " as much as following line" );
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    current->previous ) );
     }
 
     if ( indentation_found != min::NULL_STUB )
@@ -2634,11 +2562,8 @@ NEXT_TOKEN:
 		return min::MISSING_POSITION;
 	}
 
-	// Next is first part of continution line.
-	// Remove indent and continue with next
-	// token that is not indent, comment,
-	// indent-before-comment, line-break,
-	// or end-of-file.
+	// Next is first part of continuation line.
+	// Remove indent and go to NEXT_TOKEN.
 	//
 	PAR::ensure_next ( parser, current );
 	current = current->next;
@@ -2646,6 +2571,8 @@ NEXT_TOKEN:
 	PAR::free
 	    ( PAR::remove ( first_ref(parser),
 			    current->previous ) );
+
+	goto NEXT_TOKEN;
     }
 
     // Continue with non-comment, non-line-break,
@@ -2655,9 +2582,6 @@ NEXT_TOKEN:
 	( indentation_found == min::NULL_STUB );
     MIN_REQUIRE
 	( current->type != LEXSTD::end_of_file_t
-	  &&
-	     current->type
-	  != LEXSTD::indent_before_comment_t
 	  &&
 	  current->type != LEXSTD::indent_t
 	  &&

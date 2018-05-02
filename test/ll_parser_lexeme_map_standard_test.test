@@ -1,7 +1,7 @@
 START_OF_FILE: line #:
 // Layered Languages Lexeme Map Standard Parser Test Data
 ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // Layered Languages Lexeme Map Standard Parser Test Data
 ^
 COMMENT: line #:
@@ -10,7 +10,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 // Layered Languages Lexeme Map Standard Parser Test Data
                                                          ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 //
 ^
 COMMENT: line #:
@@ -19,7 +19,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 //
   ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // File:        ll_parser_lexeme_map_standard_test.in
 ^
 COMMENT: line #:
@@ -28,7 +28,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 // File:        ll_parser_lexeme_map_standard_test.in
                                                      ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // Author:      Bob Walton (walton@acm.org)
 ^
 COMMENT: line #:
@@ -37,7 +37,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // Date:        Sun Jun 11 12:30:30 EDT 2017
 ^
 COMMENT: line #:
@@ -46,7 +46,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 // Date:        Sun Jun 11 12:30:30 EDT 2017
                                             ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 //
 ^
 COMMENT: line #:
@@ -55,7 +55,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 //
   ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // The authors have placed this data in the public
 ^
 COMMENT: line #:
@@ -64,7 +64,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 // The authors have placed this data in the public
                                                   ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // domain; they make no warranty and accept no liability
 ^
 COMMENT: line #:
@@ -73,7 +73,7 @@ COMMENT: line #:
 LINE_BREAK: line #:
 // domain; they make no warranty and accept no liability
                                                         ^
-INDENT_BEFORE_COMMENT: line #:
+INDENT: line #:
 // for this data.
 ^
 COMMENT: line #:

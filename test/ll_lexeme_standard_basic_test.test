@@ -1,11 +1,11 @@
        ###: PROGRAM
             Max Master: 4
-                 0:        138 START
-                 1:        148 DEFAULT
-                 2:        153 DATA-CHECK
-                 3:        158 PARAGRAPH-CHECK
-                 4:        163 ROW-CHECK
-            Max Type: 24
+                 0:        130 START
+                 1:        140 DEFAULT
+                 2:        145 DATA-CHECK
+                 3:        150 PARAGRAPH-CHECK
+                 4:        155 ROW-CHECK
+            Max Type: 23
                  0: ?
                  1: w WORD
                  2: n NATURAL
@@ -15,34 +15,33 @@
                  6: s SEPARATOR
                  7: c COMMENT
                  8: h HORIZONTAL_SPACE
-                 9: I INDENT_BEFORE_COMMENT
-                10: i INDENT
-                11: b LINE_BREAK
-                12: f START_OF_FILE
-                13: e END_OF_FILE
-                14: D DATA
-                15: R RAW_DATA
-                16: T TABLE
-                17: O ROW
-                18: S PREMATURE_END_OF_STRING
-                19: F PREMATURE_END_OF_FILE
-                20: V MISPLACED_VERTICAL
-                21: C ILLEGAL_CONTROL
-                22: U UNRECOGNIZED_CHARACTER
-                23: E UNRECOGNIZED_ESCAPE
-                24: H MISPLACED_HORIZONTAL
+                 9: i INDENT
+                10: b LINE_BREAK
+                11: f START_OF_FILE
+                12: e END_OF_FILE
+                13: D DATA
+                14: R RAW_DATA
+                15: T TABLE
+                16: O ROW
+                17: S PREMATURE_END_OF_STRING
+                18: F PREMATURE_END_OF_FILE
+                19: V MISPLACED_VERTICAL
+                20: C ILLEGAL_CONTROL
+                21: U UNRECOGNIZED_CHARACTER
+                22: E UNRECOGNIZED_ESCAPE
+                23: H MISPLACED_HORIZONTAL
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
-            ####: OUTPUT(12), GOTO(####)
+            ####: OUTPUT(11), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: ####
-            ####: OUTPUT(19), GOTO(####)
+            ####: OUTPUT(18), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(19), GOTO(####)
+            #####: OUTPUT(18), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -57,8 +56,8 @@
             #####: GOTO(####)
    #######: TABLE
             Mode: NONE
-            Dispatcher ID: #####
-            #####: GOTO(####)
+            Dispatcher ID: ####
+            ####: GOTO(####)
    #######: TABLE
             Mode: SEPARATOR
             Dispatcher ID: #####
@@ -98,11 +97,11 @@
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(18), GOTO(####)
+            #####: OUTPUT(17), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
-            #####: OUTPUT(13), GOTO(####)
+            #####: OUTPUT(12), GOTO(####)
    #######: TABLE
             Mode: MASTER
             Dispatcher ID: #####
@@ -114,104 +113,92 @@
             Ctype Map Size: 0
    #######: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 48
-            /
-                ####: KEEP(1), OUTPUT(9), GOTO(####)
-                Dispatcher ID: ####
-   #######: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-   #######: DISPATCHER
-            Max CType: 2
             Ctype Map Size: 944
-            /
-                ####: KEEP(1), OUTPUT(10), GOTO(####)
-                Dispatcher ID: ####
-            !-. 0-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
-            <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
-            <561>-<587> <589>-<58A> <58D>-<58F> <591>-<5C7> <5D0>-<5EA>
-            <5F0>-<5F4> <606>-<61B> <61E>-<6DC> <6DE>-<70D> <710>-<74A>
-            <74D>-<7B1> <7C0>-<7FA> <800>-<82D> <830>-<83E> <840>-<85B>
-            <85E> <8A0>-<8B2> <8E4>-<983> <985>-<98C> <98F>-<990>
-            <993>-<9A8> <9AA>-<9B0> <9B2> <9B6>-<9B9> <9BC>-<9C4>
-            <9C7>-<9C8> <9CB>-<9CE> <9D7> <9DC>-<9DD> <9DF>-<9E3>
-            <9E6>-<9FB> <0A01>-<0A03> <0A05>-<0A0A> <0A0F>-<0A10>
-            <0A13>-<0A28> <0A2A>-<0A30> <0A32>-<0A33> <0A35>-<0A36>
-            <0A38>-<0A39> <0A3C> <0A3E>-<0A42> <0A47>-<0A48>
-            <0A4B>-<0A4D> <0A51> <0A59>-<0A5C> <0A5E> <0A66>-<0A75>
-            <0A81>-<0A83> <0A85>-<0A8D> <0A8F>-<0A91> <0A93>-<0AA8>
-            <0AAA>-<0AB0> <0AB2>-<0AB3> <0AB5>-<0AB9> <0ABC>-<0AC5>
-            <0AC7>-<0AC9> <0ACB>-<0ACD> <0AD0> <0AE0>-<0AE3>
-            <0AE6>-<0AF1> <0B01>-<0B03> <0B05>-<0B0C> <0B0F>-<0B10>
-            <0B13>-<0B28> <0B2A>-<0B30> <0B32>-<0B33> <0B35>-<0B39>
-            <0B3C>-<0B44> <0B47>-<0B48> <0B4B>-<0B4D> <0B56>-<0B57>
-            <0B5C>-<0B5D> <0B5F>-<0B63> <0B66>-<0B77> <0B82>-<0B83>
-            <0B85>-<0B8A> <0B8E>-<0B90> <0B92>-<0B95> <0B99>-<0B9A>
-            <0B9C> <0B9E>-<0B9F> <0BA3>-<0BA4> <0BA8>-<0BAA>
-            <0BAE>-<0BB9> <0BBE>-<0BC2> <0BC6>-<0BC8> <0BCA>-<0BCD>
-            <0BD0> <0BD7> <0BE6>-<0BFA> <0C00>-<0C03> <0C05>-<0C0C>
-            <0C0E>-<0C10> <0C12>-<0C28> <0C2A>-<0C39> <0C3D>-<0C44>
-            <0C46>-<0C48> <0C4A>-<0C4D> <0C55>-<0C56> <0C58>-<0C59>
-            <0C60>-<0C63> <0C66>-<0C6F> <0C78>-<0C7F> <0C81>-<0C83>
-            <0C85>-<0C8C> <0C8E>-<0C90> <0C92>-<0CA8> <0CAA>-<0CB3>
-            <0CB5>-<0CB9> <0CBC>-<0CC4> <0CC6>-<0CC8> <0CCA>-<0CCD>
-            <0CD5>-<0CD6> <0CDE> <0CE0>-<0CE3> <0CE6>-<0CEF>
-            <0CF1>-<0CF2> <0D01>-<0D03> <0D05>-<0D0C> <0D0E>-<0D10>
-            <0D12>-<0D3A> <0D3D>-<0D44> <0D46>-<0D48> <0D4A>-<0D4E>
-            <0D57> <0D60>-<0D63> <0D66>-<0D75> <0D79>-<0D7F>
-            <0D82>-<0D83> <0D85>-<0D96> <0D9A>-<0DB1> <0DB3>-<0DBB>
-            <0DBD> <0DC0>-<0DC6> <0DCA> <0DCF>-<0DD4> <0DD6>
-            <0DD8>-<0DDF> <0DE6>-<0DEF> <0DF2>-<0DF4> <0E01>-<0E3A>
-            <0E3F>-<0E5B> <0E81>-<0E82> <0E84> <0E87>-<0E88> <0E8A>
-            <0E8D> <0E94>-<0E97> <0E99>-<0E9F> <0EA1>-<0EA3> <0EA5>
-            <0EA7> <0EAA>-<0EAB> <0EAD>-<0EB9> <0EBB>-<0EBD>
-            <0EC0>-<0EC4> <0EC6> <0EC8>-<0ECD> <0ED0>-<0ED9>
-            <0EDC>-<0EDF> <0F00>-<0F47> <0F49>-<0F6C> <0F71>-<0F97>
-            <0F99>-<0FBC> <0FBE>-<0FCC> <0FCE>-<0FDA> <1000>-<10C5>
-            <10C7> <10CD> <10D0>-<1248> <124A>-<124D> <1250>-<1256>
-            <1258> <125A>-<125D> <1260>-<1288> <128A>-<128D>
-            <1290>-<12B0> <12B2>-<12B5> <12B8>-<12BE> <12C0>
-            <12C2>-<12C5> <12C8>-<12D6> <12D8>-<1310> <1312>-<1315>
-            <1318>-<135A> <135D>-<137C> <1380>-<1399> <13A0>-<13F4>
-            <1400>-<167F> <1681>-<169C> <16A0>-<16F8> <1700>-<170C>
-            <170E>-<1714> <1720>-<1736> <1740>-<1753> <1760>-<176C>
-            <176E>-<1770> <1772>-<1773> <1780>-<17DD> <17E0>-<17E9>
-            <17F0>-<17F9> <1800>-<FVS3> <1810>-<1819> <1820>-<1877>
-            <1880>-<18AA> <18B0>-<18F5> <1900>-<191E> <1920>-<192B>
-            <1930>-<193B> <1940> <1944>-<196D> <1970>-<1974>
-            <1980>-<19AB> <19B0>-<19C9> <19D0>-<19DA> <19DE>-<1A1B>
-            <1A1E>-<1A5E> <1A60>-<1A7C> <1A7F>-<1A89> <1A90>-<1A99>
-            <1AA0>-<1AAD> <1AB0>-<1ABE> <1B00>-<1B4B> <1B50>-<1B7C>
-            <1B80>-<1BF3> <1BFC>-<1C37> <1C3B>-<1C49> <1C4D>-<1C7F>
-            <1CC0>-<1CC7> <1CD0>-<1CF6> <1CF8>-<1CF9> <1D00>-<1DF5>
-            <1DFC>-<1F15> <1F18>-<1F1D> <1F20>-<1F45> <1F48>-<1F4D>
-            <1F50>-<1F57> <1F59> <1F5B> <1F5D> <1F5F>-<1F7D>
-            <1F80>-<1FB4> <1FB6>-<1FC4> <1FC6>-<1FD3> <1FD6>-<1FDB>
-            <1FDD>-<1FEF> <1FF2>-<1FF4> <1FF6>-<1FFE> <2010>-<2027>
-            <2030>-<205E> <2070>-<2071> <2074>-<208E> <2090>-<209C>
-            <20A0>-<20BD> <20D0>-<20F0> <2100>-<2189> <2190>-<23FA>
-            <2400>-<2426> <2440>-<244A> <2460>-<2B73> <2B76>-<2B95>
-            <2B98>-<2BB9> <2BBD>-<2BC8> <2BCA>-<2BD1> <2C00>-<2C2E>
-            <2C30>-<2C5E> <2C60>-<2CF3> <2CF9>-<2D25> <2D27> <2D2D>
-            <2D30>-<2D67> <2D6F>-<2D70> <2D7F>-<2D96> <2DA0>-<2DA6>
-            <2DA8>-<2DAE> <2DB0>-<2DB6> <2DB8>-<2DBE> <2DC0>-<2DC6>
-            <2DC8>-<2DCE> <2DD0>-<2DD6> <2DD8>-<2DDE> <2DE0>-<2E42>
-            <2E80>-<2E99> <2E9B>-<2EF3> <2F00>-<2FD5> <2FF0>-<2FFB>
-            <3001>-<303F> <3041>-<3096> <3099>-<30FF> <3105>-<312D>
-            <3131>-<318E> <3190>-<31BA> <31C0>-<31E3> <31F0>-<321E>
-            <3220>-<32FE> <3300>-<3400> <4DB5> <4DC0>-<4E00> <9FCC>
-            <0A000>-<0A48C> <0A490>-<0A4C6> <0A4D0>-<0A62B>
-            <0A640>-<0A69D> <0A69F>-<0A6F7> <0A700>-<0A78E>
-            <0A790>-<0A7AD> <0A7B0>-<0A7B1> <0A7F7>-<0A82B>
-            <0A830>-<0A839> <0A840>-<0A877> <0A880>-<0A8C4>
-            <0A8CE>-<0A8D9> <0A8E0>-<0A8FB> <0A900>-<0A953>
-            <0A95F>-<0A97C> <0A980>-<0A9CD> <0A9CF>-<0A9D9>
-            <0A9DE>-<0A9FE> <0AA00>-<0AA36> <0AA40>-<0AA4D>
-            <0AA50>-<0AA59> <0AA5C>-<0AAC2> <0AADB>-<0AAF6>
-            <0AB01>-<0AB06> <0AB09>-<0AB0E> <0AB11>-<0AB16>
-            <0AB20>-<0AB26> <0AB28>-<0AB2E> <0AB30>-<0AB5F>
-            <0AB64>-<0AB65> <0ABC0>-<0ABED> <0ABF0>-<0ABF9> <0AC00>
-            <0D7A3> <0D7B0>-<0D7C6> <0D7CB>-<0D7FB> <0F900>-<0FA6D>
+            !-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A> <38C>
+            <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F> <561>-<587>
+            <589>-<58A> <58D>-<58F> <591>-<5C7> <5D0>-<5EA> <5F0>-<5F4>
+            <606>-<61B> <61E>-<6DC> <6DE>-<70D> <710>-<74A> <74D>-<7B1>
+            <7C0>-<7FA> <800>-<82D> <830>-<83E> <840>-<85B> <85E>
+            <8A0>-<8B2> <8E4>-<983> <985>-<98C> <98F>-<990> <993>-<9A8>
+            <9AA>-<9B0> <9B2> <9B6>-<9B9> <9BC>-<9C4> <9C7>-<9C8>
+            <9CB>-<9CE> <9D7> <9DC>-<9DD> <9DF>-<9E3> <9E6>-<9FB>
+            <0A01>-<0A03> <0A05>-<0A0A> <0A0F>-<0A10> <0A13>-<0A28>
+            <0A2A>-<0A30> <0A32>-<0A33> <0A35>-<0A36> <0A38>-<0A39>
+            <0A3C> <0A3E>-<0A42> <0A47>-<0A48> <0A4B>-<0A4D> <0A51>
+            <0A59>-<0A5C> <0A5E> <0A66>-<0A75> <0A81>-<0A83>
+            <0A85>-<0A8D> <0A8F>-<0A91> <0A93>-<0AA8> <0AAA>-<0AB0>
+            <0AB2>-<0AB3> <0AB5>-<0AB9> <0ABC>-<0AC5> <0AC7>-<0AC9>
+            <0ACB>-<0ACD> <0AD0> <0AE0>-<0AE3> <0AE6>-<0AF1>
+            <0B01>-<0B03> <0B05>-<0B0C> <0B0F>-<0B10> <0B13>-<0B28>
+            <0B2A>-<0B30> <0B32>-<0B33> <0B35>-<0B39> <0B3C>-<0B44>
+            <0B47>-<0B48> <0B4B>-<0B4D> <0B56>-<0B57> <0B5C>-<0B5D>
+            <0B5F>-<0B63> <0B66>-<0B77> <0B82>-<0B83> <0B85>-<0B8A>
+            <0B8E>-<0B90> <0B92>-<0B95> <0B99>-<0B9A> <0B9C>
+            <0B9E>-<0B9F> <0BA3>-<0BA4> <0BA8>-<0BAA> <0BAE>-<0BB9>
+            <0BBE>-<0BC2> <0BC6>-<0BC8> <0BCA>-<0BCD> <0BD0> <0BD7>
+            <0BE6>-<0BFA> <0C00>-<0C03> <0C05>-<0C0C> <0C0E>-<0C10>
+            <0C12>-<0C28> <0C2A>-<0C39> <0C3D>-<0C44> <0C46>-<0C48>
+            <0C4A>-<0C4D> <0C55>-<0C56> <0C58>-<0C59> <0C60>-<0C63>
+            <0C66>-<0C6F> <0C78>-<0C7F> <0C81>-<0C83> <0C85>-<0C8C>
+            <0C8E>-<0C90> <0C92>-<0CA8> <0CAA>-<0CB3> <0CB5>-<0CB9>
+            <0CBC>-<0CC4> <0CC6>-<0CC8> <0CCA>-<0CCD> <0CD5>-<0CD6>
+            <0CDE> <0CE0>-<0CE3> <0CE6>-<0CEF> <0CF1>-<0CF2>
+            <0D01>-<0D03> <0D05>-<0D0C> <0D0E>-<0D10> <0D12>-<0D3A>
+            <0D3D>-<0D44> <0D46>-<0D48> <0D4A>-<0D4E> <0D57>
+            <0D60>-<0D63> <0D66>-<0D75> <0D79>-<0D7F> <0D82>-<0D83>
+            <0D85>-<0D96> <0D9A>-<0DB1> <0DB3>-<0DBB> <0DBD>
+            <0DC0>-<0DC6> <0DCA> <0DCF>-<0DD4> <0DD6> <0DD8>-<0DDF>
+            <0DE6>-<0DEF> <0DF2>-<0DF4> <0E01>-<0E3A> <0E3F>-<0E5B>
+            <0E81>-<0E82> <0E84> <0E87>-<0E88> <0E8A> <0E8D>
+            <0E94>-<0E97> <0E99>-<0E9F> <0EA1>-<0EA3> <0EA5> <0EA7>
+            <0EAA>-<0EAB> <0EAD>-<0EB9> <0EBB>-<0EBD> <0EC0>-<0EC4>
+            <0EC6> <0EC8>-<0ECD> <0ED0>-<0ED9> <0EDC>-<0EDF>
+            <0F00>-<0F47> <0F49>-<0F6C> <0F71>-<0F97> <0F99>-<0FBC>
+            <0FBE>-<0FCC> <0FCE>-<0FDA> <1000>-<10C5> <10C7> <10CD>
+            <10D0>-<1248> <124A>-<124D> <1250>-<1256> <1258>
+            <125A>-<125D> <1260>-<1288> <128A>-<128D> <1290>-<12B0>
+            <12B2>-<12B5> <12B8>-<12BE> <12C0> <12C2>-<12C5>
+            <12C8>-<12D6> <12D8>-<1310> <1312>-<1315> <1318>-<135A>
+            <135D>-<137C> <1380>-<1399> <13A0>-<13F4> <1400>-<167F>
+            <1681>-<169C> <16A0>-<16F8> <1700>-<170C> <170E>-<1714>
+            <1720>-<1736> <1740>-<1753> <1760>-<176C> <176E>-<1770>
+            <1772>-<1773> <1780>-<17DD> <17E0>-<17E9> <17F0>-<17F9>
+            <1800>-<FVS3> <1810>-<1819> <1820>-<1877> <1880>-<18AA>
+            <18B0>-<18F5> <1900>-<191E> <1920>-<192B> <1930>-<193B>
+            <1940> <1944>-<196D> <1970>-<1974> <1980>-<19AB>
+            <19B0>-<19C9> <19D0>-<19DA> <19DE>-<1A1B> <1A1E>-<1A5E>
+            <1A60>-<1A7C> <1A7F>-<1A89> <1A90>-<1A99> <1AA0>-<1AAD>
+            <1AB0>-<1ABE> <1B00>-<1B4B> <1B50>-<1B7C> <1B80>-<1BF3>
+            <1BFC>-<1C37> <1C3B>-<1C49> <1C4D>-<1C7F> <1CC0>-<1CC7>
+            <1CD0>-<1CF6> <1CF8>-<1CF9> <1D00>-<1DF5> <1DFC>-<1F15>
+            <1F18>-<1F1D> <1F20>-<1F45> <1F48>-<1F4D> <1F50>-<1F57>
+            <1F59> <1F5B> <1F5D> <1F5F>-<1F7D> <1F80>-<1FB4>
+            <1FB6>-<1FC4> <1FC6>-<1FD3> <1FD6>-<1FDB> <1FDD>-<1FEF>
+            <1FF2>-<1FF4> <1FF6>-<1FFE> <2010>-<2027> <2030>-<205E>
+            <2070>-<2071> <2074>-<208E> <2090>-<209C> <20A0>-<20BD>
+            <20D0>-<20F0> <2100>-<2189> <2190>-<23FA> <2400>-<2426>
+            <2440>-<244A> <2460>-<2B73> <2B76>-<2B95> <2B98>-<2BB9>
+            <2BBD>-<2BC8> <2BCA>-<2BD1> <2C00>-<2C2E> <2C30>-<2C5E>
+            <2C60>-<2CF3> <2CF9>-<2D25> <2D27> <2D2D> <2D30>-<2D67>
+            <2D6F>-<2D70> <2D7F>-<2D96> <2DA0>-<2DA6> <2DA8>-<2DAE>
+            <2DB0>-<2DB6> <2DB8>-<2DBE> <2DC0>-<2DC6> <2DC8>-<2DCE>
+            <2DD0>-<2DD6> <2DD8>-<2DDE> <2DE0>-<2E42> <2E80>-<2E99>
+            <2E9B>-<2EF3> <2F00>-<2FD5> <2FF0>-<2FFB> <3001>-<303F>
+            <3041>-<3096> <3099>-<30FF> <3105>-<312D> <3131>-<318E>
+            <3190>-<31BA> <31C0>-<31E3> <31F0>-<321E> <3220>-<32FE>
+            <3300>-<3400> <4DB5> <4DC0>-<4E00> <9FCC> <0A000>-<0A48C>
+            <0A490>-<0A4C6> <0A4D0>-<0A62B> <0A640>-<0A69D>
+            <0A69F>-<0A6F7> <0A700>-<0A78E> <0A790>-<0A7AD>
+            <0A7B0>-<0A7B1> <0A7F7>-<0A82B> <0A830>-<0A839>
+            <0A840>-<0A877> <0A880>-<0A8C4> <0A8CE>-<0A8D9>
+            <0A8E0>-<0A8FB> <0A900>-<0A953> <0A95F>-<0A97C>
+            <0A980>-<0A9CD> <0A9CF>-<0A9D9> <0A9DE>-<0A9FE>
+            <0AA00>-<0AA36> <0AA40>-<0AA4D> <0AA50>-<0AA59>
+            <0AA5C>-<0AAC2> <0AADB>-<0AAF6> <0AB01>-<0AB06>
+            <0AB09>-<0AB0E> <0AB11>-<0AB16> <0AB20>-<0AB26>
+            <0AB28>-<0AB2E> <0AB30>-<0AB5F> <0AB64>-<0AB65>
+            <0ABC0>-<0ABED> <0ABF0>-<0ABF9> <0AC00> <0D7A3>
+            <0D7B0>-<0D7C6> <0D7CB>-<0D7FB> <0F900>-<0FA6D>
             <0FA70>-<0FAD9> <0FB00>-<0FB06> <0FB13>-<0FB17>
             <0FB1D>-<0FB36> <0FB38>-<0FB3C> <0FB3E> <0FB40>-<0FB41>
             <0FB43>-<0FB44> <0FB46>-<0FBC1> <0FBD3>-<0FD3F>
@@ -290,16 +277,7 @@
             <1F780>-<1F7D4> <1F800>-<1F80B> <1F810>-<1F847>
             <1F850>-<1F859> <1F860>-<1F887> <1F890>-<1F8AD> <20000>
             <2A6D6> <2A700> <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: KEEP(1), OUTPUT(10), GOTO(####)
-                Dispatcher ID: ####
-   #######: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-   #######: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 48
-            /
-                ####: KEEP(0), OUTPUT(9), GOTO(####)
+                ####: KEEP(1), OUTPUT(9), GOTO(####)
                 Dispatcher ID: ####
    #######: DISPATCHER
             Max CType: 0
@@ -323,7 +301,7 @@
             Max CType: 0
             Ctype Map Size: 0
    #######: DISPATCHER
-            Max CType: 6
+            Max CType: 5
             Ctype Map Size: 944
             <378>-<379> <380>-<383> <38B> <38D> <3A2> <530> <557>-<558>
             <560> <588> <58B>-<58C> <590> <5C8>-<5CF> <5EB>-<5EF>
@@ -469,100 +447,97 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                ####: OUTPUT(22)
+                ####: OUTPUT(21)
                 Dispatcher ID: ####
             <HT> <SP> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP>
             <3000> [repeat(INFINITY)]
                 ####: OUTPUT(8)
                 Dispatcher ID: ####
-            /
-                ####: KEEP(0), OUTPUT(10), GOTO(####)
-                Dispatcher ID: ####
-            !-. 0-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
-            <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
-            <561>-<587> <589>-<58A> <58D>-<58F> <591>-<5C7> <5D0>-<5EA>
-            <5F0>-<5F4> <606>-<61B> <61E>-<6DC> <6DE>-<70D> <710>-<74A>
-            <74D>-<7B1> <7C0>-<7FA> <800>-<82D> <830>-<83E> <840>-<85B>
-            <85E> <8A0>-<8B2> <8E4>-<983> <985>-<98C> <98F>-<990>
-            <993>-<9A8> <9AA>-<9B0> <9B2> <9B6>-<9B9> <9BC>-<9C4>
-            <9C7>-<9C8> <9CB>-<9CE> <9D7> <9DC>-<9DD> <9DF>-<9E3>
-            <9E6>-<9FB> <0A01>-<0A03> <0A05>-<0A0A> <0A0F>-<0A10>
-            <0A13>-<0A28> <0A2A>-<0A30> <0A32>-<0A33> <0A35>-<0A36>
-            <0A38>-<0A39> <0A3C> <0A3E>-<0A42> <0A47>-<0A48>
-            <0A4B>-<0A4D> <0A51> <0A59>-<0A5C> <0A5E> <0A66>-<0A75>
-            <0A81>-<0A83> <0A85>-<0A8D> <0A8F>-<0A91> <0A93>-<0AA8>
-            <0AAA>-<0AB0> <0AB2>-<0AB3> <0AB5>-<0AB9> <0ABC>-<0AC5>
-            <0AC7>-<0AC9> <0ACB>-<0ACD> <0AD0> <0AE0>-<0AE3>
-            <0AE6>-<0AF1> <0B01>-<0B03> <0B05>-<0B0C> <0B0F>-<0B10>
-            <0B13>-<0B28> <0B2A>-<0B30> <0B32>-<0B33> <0B35>-<0B39>
-            <0B3C>-<0B44> <0B47>-<0B48> <0B4B>-<0B4D> <0B56>-<0B57>
-            <0B5C>-<0B5D> <0B5F>-<0B63> <0B66>-<0B77> <0B82>-<0B83>
-            <0B85>-<0B8A> <0B8E>-<0B90> <0B92>-<0B95> <0B99>-<0B9A>
-            <0B9C> <0B9E>-<0B9F> <0BA3>-<0BA4> <0BA8>-<0BAA>
-            <0BAE>-<0BB9> <0BBE>-<0BC2> <0BC6>-<0BC8> <0BCA>-<0BCD>
-            <0BD0> <0BD7> <0BE6>-<0BFA> <0C00>-<0C03> <0C05>-<0C0C>
-            <0C0E>-<0C10> <0C12>-<0C28> <0C2A>-<0C39> <0C3D>-<0C44>
-            <0C46>-<0C48> <0C4A>-<0C4D> <0C55>-<0C56> <0C58>-<0C59>
-            <0C60>-<0C63> <0C66>-<0C6F> <0C78>-<0C7F> <0C81>-<0C83>
-            <0C85>-<0C8C> <0C8E>-<0C90> <0C92>-<0CA8> <0CAA>-<0CB3>
-            <0CB5>-<0CB9> <0CBC>-<0CC4> <0CC6>-<0CC8> <0CCA>-<0CCD>
-            <0CD5>-<0CD6> <0CDE> <0CE0>-<0CE3> <0CE6>-<0CEF>
-            <0CF1>-<0CF2> <0D01>-<0D03> <0D05>-<0D0C> <0D0E>-<0D10>
-            <0D12>-<0D3A> <0D3D>-<0D44> <0D46>-<0D48> <0D4A>-<0D4E>
-            <0D57> <0D60>-<0D63> <0D66>-<0D75> <0D79>-<0D7F>
-            <0D82>-<0D83> <0D85>-<0D96> <0D9A>-<0DB1> <0DB3>-<0DBB>
-            <0DBD> <0DC0>-<0DC6> <0DCA> <0DCF>-<0DD4> <0DD6>
-            <0DD8>-<0DDF> <0DE6>-<0DEF> <0DF2>-<0DF4> <0E01>-<0E3A>
-            <0E3F>-<0E5B> <0E81>-<0E82> <0E84> <0E87>-<0E88> <0E8A>
-            <0E8D> <0E94>-<0E97> <0E99>-<0E9F> <0EA1>-<0EA3> <0EA5>
-            <0EA7> <0EAA>-<0EAB> <0EAD>-<0EB9> <0EBB>-<0EBD>
-            <0EC0>-<0EC4> <0EC6> <0EC8>-<0ECD> <0ED0>-<0ED9>
-            <0EDC>-<0EDF> <0F00>-<0F47> <0F49>-<0F6C> <0F71>-<0F97>
-            <0F99>-<0FBC> <0FBE>-<0FCC> <0FCE>-<0FDA> <1000>-<10C5>
-            <10C7> <10CD> <10D0>-<1248> <124A>-<124D> <1250>-<1256>
-            <1258> <125A>-<125D> <1260>-<1288> <128A>-<128D>
-            <1290>-<12B0> <12B2>-<12B5> <12B8>-<12BE> <12C0>
-            <12C2>-<12C5> <12C8>-<12D6> <12D8>-<1310> <1312>-<1315>
-            <1318>-<135A> <135D>-<137C> <1380>-<1399> <13A0>-<13F4>
-            <1400>-<167F> <1681>-<169C> <16A0>-<16F8> <1700>-<170C>
-            <170E>-<1714> <1720>-<1736> <1740>-<1753> <1760>-<176C>
-            <176E>-<1770> <1772>-<1773> <1780>-<17DD> <17E0>-<17E9>
-            <17F0>-<17F9> <1800>-<FVS3> <1810>-<1819> <1820>-<1877>
-            <1880>-<18AA> <18B0>-<18F5> <1900>-<191E> <1920>-<192B>
-            <1930>-<193B> <1940> <1944>-<196D> <1970>-<1974>
-            <1980>-<19AB> <19B0>-<19C9> <19D0>-<19DA> <19DE>-<1A1B>
-            <1A1E>-<1A5E> <1A60>-<1A7C> <1A7F>-<1A89> <1A90>-<1A99>
-            <1AA0>-<1AAD> <1AB0>-<1ABE> <1B00>-<1B4B> <1B50>-<1B7C>
-            <1B80>-<1BF3> <1BFC>-<1C37> <1C3B>-<1C49> <1C4D>-<1C7F>
-            <1CC0>-<1CC7> <1CD0>-<1CF6> <1CF8>-<1CF9> <1D00>-<1DF5>
-            <1DFC>-<1F15> <1F18>-<1F1D> <1F20>-<1F45> <1F48>-<1F4D>
-            <1F50>-<1F57> <1F59> <1F5B> <1F5D> <1F5F>-<1F7D>
-            <1F80>-<1FB4> <1FB6>-<1FC4> <1FC6>-<1FD3> <1FD6>-<1FDB>
-            <1FDD>-<1FEF> <1FF2>-<1FF4> <1FF6>-<1FFE> <2010>-<2027>
-            <2030>-<205E> <2070>-<2071> <2074>-<208E> <2090>-<209C>
-            <20A0>-<20BD> <20D0>-<20F0> <2100>-<2189> <2190>-<23FA>
-            <2400>-<2426> <2440>-<244A> <2460>-<2B73> <2B76>-<2B95>
-            <2B98>-<2BB9> <2BBD>-<2BC8> <2BCA>-<2BD1> <2C00>-<2C2E>
-            <2C30>-<2C5E> <2C60>-<2CF3> <2CF9>-<2D25> <2D27> <2D2D>
-            <2D30>-<2D67> <2D6F>-<2D70> <2D7F>-<2D96> <2DA0>-<2DA6>
-            <2DA8>-<2DAE> <2DB0>-<2DB6> <2DB8>-<2DBE> <2DC0>-<2DC6>
-            <2DC8>-<2DCE> <2DD0>-<2DD6> <2DD8>-<2DDE> <2DE0>-<2E42>
-            <2E80>-<2E99> <2E9B>-<2EF3> <2F00>-<2FD5> <2FF0>-<2FFB>
-            <3001>-<303F> <3041>-<3096> <3099>-<30FF> <3105>-<312D>
-            <3131>-<318E> <3190>-<31BA> <31C0>-<31E3> <31F0>-<321E>
-            <3220>-<32FE> <3300>-<3400> <4DB5> <4DC0>-<4E00> <9FCC>
-            <0A000>-<0A48C> <0A490>-<0A4C6> <0A4D0>-<0A62B>
-            <0A640>-<0A69D> <0A69F>-<0A6F7> <0A700>-<0A78E>
-            <0A790>-<0A7AD> <0A7B0>-<0A7B1> <0A7F7>-<0A82B>
-            <0A830>-<0A839> <0A840>-<0A877> <0A880>-<0A8C4>
-            <0A8CE>-<0A8D9> <0A8E0>-<0A8FB> <0A900>-<0A953>
-            <0A95F>-<0A97C> <0A980>-<0A9CD> <0A9CF>-<0A9D9>
-            <0A9DE>-<0A9FE> <0AA00>-<0AA36> <0AA40>-<0AA4D>
-            <0AA50>-<0AA59> <0AA5C>-<0AAC2> <0AADB>-<0AAF6>
-            <0AB01>-<0AB06> <0AB09>-<0AB0E> <0AB11>-<0AB16>
-            <0AB20>-<0AB26> <0AB28>-<0AB2E> <0AB30>-<0AB5F>
-            <0AB64>-<0AB65> <0ABC0>-<0ABED> <0ABF0>-<0ABF9> <0AC00>
-            <0D7A3> <0D7B0>-<0D7C6> <0D7CB>-<0D7FB> <0F900>-<0FA6D>
+            !-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A> <38C>
+            <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F> <561>-<587>
+            <589>-<58A> <58D>-<58F> <591>-<5C7> <5D0>-<5EA> <5F0>-<5F4>
+            <606>-<61B> <61E>-<6DC> <6DE>-<70D> <710>-<74A> <74D>-<7B1>
+            <7C0>-<7FA> <800>-<82D> <830>-<83E> <840>-<85B> <85E>
+            <8A0>-<8B2> <8E4>-<983> <985>-<98C> <98F>-<990> <993>-<9A8>
+            <9AA>-<9B0> <9B2> <9B6>-<9B9> <9BC>-<9C4> <9C7>-<9C8>
+            <9CB>-<9CE> <9D7> <9DC>-<9DD> <9DF>-<9E3> <9E6>-<9FB>
+            <0A01>-<0A03> <0A05>-<0A0A> <0A0F>-<0A10> <0A13>-<0A28>
+            <0A2A>-<0A30> <0A32>-<0A33> <0A35>-<0A36> <0A38>-<0A39>
+            <0A3C> <0A3E>-<0A42> <0A47>-<0A48> <0A4B>-<0A4D> <0A51>
+            <0A59>-<0A5C> <0A5E> <0A66>-<0A75> <0A81>-<0A83>
+            <0A85>-<0A8D> <0A8F>-<0A91> <0A93>-<0AA8> <0AAA>-<0AB0>
+            <0AB2>-<0AB3> <0AB5>-<0AB9> <0ABC>-<0AC5> <0AC7>-<0AC9>
+            <0ACB>-<0ACD> <0AD0> <0AE0>-<0AE3> <0AE6>-<0AF1>
+            <0B01>-<0B03> <0B05>-<0B0C> <0B0F>-<0B10> <0B13>-<0B28>
+            <0B2A>-<0B30> <0B32>-<0B33> <0B35>-<0B39> <0B3C>-<0B44>
+            <0B47>-<0B48> <0B4B>-<0B4D> <0B56>-<0B57> <0B5C>-<0B5D>
+            <0B5F>-<0B63> <0B66>-<0B77> <0B82>-<0B83> <0B85>-<0B8A>
+            <0B8E>-<0B90> <0B92>-<0B95> <0B99>-<0B9A> <0B9C>
+            <0B9E>-<0B9F> <0BA3>-<0BA4> <0BA8>-<0BAA> <0BAE>-<0BB9>
+            <0BBE>-<0BC2> <0BC6>-<0BC8> <0BCA>-<0BCD> <0BD0> <0BD7>
+            <0BE6>-<0BFA> <0C00>-<0C03> <0C05>-<0C0C> <0C0E>-<0C10>
+            <0C12>-<0C28> <0C2A>-<0C39> <0C3D>-<0C44> <0C46>-<0C48>
+            <0C4A>-<0C4D> <0C55>-<0C56> <0C58>-<0C59> <0C60>-<0C63>
+            <0C66>-<0C6F> <0C78>-<0C7F> <0C81>-<0C83> <0C85>-<0C8C>
+            <0C8E>-<0C90> <0C92>-<0CA8> <0CAA>-<0CB3> <0CB5>-<0CB9>
+            <0CBC>-<0CC4> <0CC6>-<0CC8> <0CCA>-<0CCD> <0CD5>-<0CD6>
+            <0CDE> <0CE0>-<0CE3> <0CE6>-<0CEF> <0CF1>-<0CF2>
+            <0D01>-<0D03> <0D05>-<0D0C> <0D0E>-<0D10> <0D12>-<0D3A>
+            <0D3D>-<0D44> <0D46>-<0D48> <0D4A>-<0D4E> <0D57>
+            <0D60>-<0D63> <0D66>-<0D75> <0D79>-<0D7F> <0D82>-<0D83>
+            <0D85>-<0D96> <0D9A>-<0DB1> <0DB3>-<0DBB> <0DBD>
+            <0DC0>-<0DC6> <0DCA> <0DCF>-<0DD4> <0DD6> <0DD8>-<0DDF>
+            <0DE6>-<0DEF> <0DF2>-<0DF4> <0E01>-<0E3A> <0E3F>-<0E5B>
+            <0E81>-<0E82> <0E84> <0E87>-<0E88> <0E8A> <0E8D>
+            <0E94>-<0E97> <0E99>-<0E9F> <0EA1>-<0EA3> <0EA5> <0EA7>
+            <0EAA>-<0EAB> <0EAD>-<0EB9> <0EBB>-<0EBD> <0EC0>-<0EC4>
+            <0EC6> <0EC8>-<0ECD> <0ED0>-<0ED9> <0EDC>-<0EDF>
+            <0F00>-<0F47> <0F49>-<0F6C> <0F71>-<0F97> <0F99>-<0FBC>
+            <0FBE>-<0FCC> <0FCE>-<0FDA> <1000>-<10C5> <10C7> <10CD>
+            <10D0>-<1248> <124A>-<124D> <1250>-<1256> <1258>
+            <125A>-<125D> <1260>-<1288> <128A>-<128D> <1290>-<12B0>
+            <12B2>-<12B5> <12B8>-<12BE> <12C0> <12C2>-<12C5>
+            <12C8>-<12D6> <12D8>-<1310> <1312>-<1315> <1318>-<135A>
+            <135D>-<137C> <1380>-<1399> <13A0>-<13F4> <1400>-<167F>
+            <1681>-<169C> <16A0>-<16F8> <1700>-<170C> <170E>-<1714>
+            <1720>-<1736> <1740>-<1753> <1760>-<176C> <176E>-<1770>
+            <1772>-<1773> <1780>-<17DD> <17E0>-<17E9> <17F0>-<17F9>
+            <1800>-<FVS3> <1810>-<1819> <1820>-<1877> <1880>-<18AA>
+            <18B0>-<18F5> <1900>-<191E> <1920>-<192B> <1930>-<193B>
+            <1940> <1944>-<196D> <1970>-<1974> <1980>-<19AB>
+            <19B0>-<19C9> <19D0>-<19DA> <19DE>-<1A1B> <1A1E>-<1A5E>
+            <1A60>-<1A7C> <1A7F>-<1A89> <1A90>-<1A99> <1AA0>-<1AAD>
+            <1AB0>-<1ABE> <1B00>-<1B4B> <1B50>-<1B7C> <1B80>-<1BF3>
+            <1BFC>-<1C37> <1C3B>-<1C49> <1C4D>-<1C7F> <1CC0>-<1CC7>
+            <1CD0>-<1CF6> <1CF8>-<1CF9> <1D00>-<1DF5> <1DFC>-<1F15>
+            <1F18>-<1F1D> <1F20>-<1F45> <1F48>-<1F4D> <1F50>-<1F57>
+            <1F59> <1F5B> <1F5D> <1F5F>-<1F7D> <1F80>-<1FB4>
+            <1FB6>-<1FC4> <1FC6>-<1FD3> <1FD6>-<1FDB> <1FDD>-<1FEF>
+            <1FF2>-<1FF4> <1FF6>-<1FFE> <2010>-<2027> <2030>-<205E>
+            <2070>-<2071> <2074>-<208E> <2090>-<209C> <20A0>-<20BD>
+            <20D0>-<20F0> <2100>-<2189> <2190>-<23FA> <2400>-<2426>
+            <2440>-<244A> <2460>-<2B73> <2B76>-<2B95> <2B98>-<2BB9>
+            <2BBD>-<2BC8> <2BCA>-<2BD1> <2C00>-<2C2E> <2C30>-<2C5E>
+            <2C60>-<2CF3> <2CF9>-<2D25> <2D27> <2D2D> <2D30>-<2D67>
+            <2D6F>-<2D70> <2D7F>-<2D96> <2DA0>-<2DA6> <2DA8>-<2DAE>
+            <2DB0>-<2DB6> <2DB8>-<2DBE> <2DC0>-<2DC6> <2DC8>-<2DCE>
+            <2DD0>-<2DD6> <2DD8>-<2DDE> <2DE0>-<2E42> <2E80>-<2E99>
+            <2E9B>-<2EF3> <2F00>-<2FD5> <2FF0>-<2FFB> <3001>-<303F>
+            <3041>-<3096> <3099>-<30FF> <3105>-<312D> <3131>-<318E>
+            <3190>-<31BA> <31C0>-<31E3> <31F0>-<321E> <3220>-<32FE>
+            <3300>-<3400> <4DB5> <4DC0>-<4E00> <9FCC> <0A000>-<0A48C>
+            <0A490>-<0A4C6> <0A4D0>-<0A62B> <0A640>-<0A69D>
+            <0A69F>-<0A6F7> <0A700>-<0A78E> <0A790>-<0A7AD>
+            <0A7B0>-<0A7B1> <0A7F7>-<0A82B> <0A830>-<0A839>
+            <0A840>-<0A877> <0A880>-<0A8C4> <0A8CE>-<0A8D9>
+            <0A8E0>-<0A8FB> <0A900>-<0A953> <0A95F>-<0A97C>
+            <0A980>-<0A9CD> <0A9CF>-<0A9D9> <0A9DE>-<0A9FE>
+            <0AA00>-<0AA36> <0AA40>-<0AA4D> <0AA50>-<0AA59>
+            <0AA5C>-<0AAC2> <0AADB>-<0AAF6> <0AB01>-<0AB06>
+            <0AB09>-<0AB0E> <0AB11>-<0AB16> <0AB20>-<0AB26>
+            <0AB28>-<0AB2E> <0AB30>-<0AB5F> <0AB64>-<0AB65>
+            <0ABC0>-<0ABED> <0ABF0>-<0ABF9> <0AC00> <0D7A3>
+            <0D7B0>-<0D7C6> <0D7CB>-<0D7FB> <0F900>-<0FA6D>
             <0FA70>-<0FAD9> <0FB00>-<0FB06> <0FB13>-<0FB17>
             <0FB1D>-<0FB36> <0FB38>-<0FB3C> <0FB3E> <0FB40>-<0FB41>
             <0FB43>-<0FB44> <0FB46>-<0FBC1> <0FBD3>-<0FD3F>
@@ -641,47 +616,47 @@
             <1F780>-<1F7D4> <1F800>-<1F80B> <1F810>-<1F847>
             <1F850>-<1F859> <1F860>-<1F887> <1F890>-<1F8AD> <20000>
             <2A6D6> <2A700> <2B734> <2B740> <2B81D> <2F800>-<2FA1D>
-                ####: KEEP(0), OUTPUT(10), GOTO(####)
+                ####: KEEP(0), OUTPUT(9), GOTO(####)
                 Dispatcher ID: ####
             <LF>
                 ####: GOTO(####)
                 Dispatcher ID: ####
             <VT>-<CR> [repeat(INFINITY)]
-                ####: OUTPUT(20)
+                ####: OUTPUT(19)
                 Dispatcher ID: ####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                ####: OUTPUT(21)
+                ####: OUTPUT(20)
+                Dispatcher ID: ####
+   #######: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+   #######: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 527
+            <HT> <SP> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP> <3000>
+                ####: ACCEPT
                 Dispatcher ID: ####
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
-            Max CType: 1
-            Ctype Map Size: 527
-            <HT> <SP> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP> <3000>
-                #####: ACCEPT
-                Dispatcher ID: #####
-  ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 65
             @
-                #####: KEEP(1), OUTPUT(15), GOTO(####)
+                #####: KEEP(1), OUTPUT(14), GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 65
             @
-                #####: KEEP(0), OUTPUT(14), GOTO(####)
+                #####: KEEP(0), OUTPUT(13), GOTO(####)
                 Dispatcher ID: #####
             !
                 Dispatcher ID: #####
@@ -695,7 +670,7 @@
             Max CType: 1
             Ctype Map Size: 65
             @
-                #####: KEEP(1), OUTPUT(15), GOTO(####)
+                #####: KEEP(1), OUTPUT(14), GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -707,15 +682,15 @@
             Max CType: 4
             Ctype Map Size: 65
             @
-                #####: KEEP(0), OUTPUT(14), GOTO(####)
+                #####: KEEP(0), OUTPUT(13), GOTO(####)
                 Dispatcher ID: #####
             !
                 Dispatcher ID: #####
             = [repeat(4)]
-                #####: KEEP(0), OUTPUT(16), GOTO(####)
+                #####: KEEP(0), OUTPUT(15), GOTO(####)
                 Dispatcher ID: #####
             - [repeat(4)]
-                #####: KEEP(0), OUTPUT(16), GOTO(####)
+                #####: KEEP(0), OUTPUT(15), GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -730,13 +705,13 @@
             Max CType: 3
             Ctype Map Size: 125
             |
-                #####: KEEP(0), OUTPUT(17), GOTO(####)
+                #####: KEEP(0), OUTPUT(16), GOTO(####)
                 Dispatcher ID: #####
             = [repeat(4)]
-                #####: KEEP(0), OUTPUT(17), GOTO(####)
+                #####: KEEP(0), OUTPUT(16), GOTO(####)
                 Dispatcher ID: #####
             - [repeat(4)]
-                #####: KEEP(0), OUTPUT(17), GOTO(####)
+                #####: KEEP(0), OUTPUT(16), GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -1232,7 +1207,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: OUTPUT(22)
+                #####: OUTPUT(21)
                 Dispatcher ID: #####
             /
                 #####: GOTO(####)
@@ -1245,14 +1220,14 @@
                 #####: GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: OUTPUT(20)
+                #####: OUTPUT(19)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: OUTPUT(21)
+                #####: OUTPUT(20)
                 Dispatcher ID: #####
             (-) [ ] ` { } <0AB> <0BB> <0F3A>-<0F3D> <169B>-<169C>
             <2018>-<201F> <2039>-<203A> <2045>-<2046> <207D>-<207E>
@@ -1730,7 +1705,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(22)
+                #####: ERRONEOUS_ATOM(21)
                 Dispatcher ID: #####
             <HT> <SP>-~ <NBSP>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A>
             <38C> <38E>-<3A1> <3A3>-<52F> <531>-<556> <559>-<55F>
@@ -1901,14 +1876,14 @@
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(20)
+                #####: ERRONEOUS_ATOM(19)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(21)
+                #####: ERRONEOUS_ATOM(20)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -1961,13 +1936,13 @@
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
- #########: DISPATCHER
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
- #########: DISPATCHER
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
- #########: DISPATCHER
+  ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 944
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
@@ -2144,7 +2119,7 @@
             <2B81D> <2F800>-<2FA1D>
                 #####: ACCEPT
                 Dispatcher ID: #####
- #########: DISPATCHER
+  ########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 944
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
@@ -3644,7 +3619,7 @@
             Ctype Map Size: 63
             >
                 #####: TRANSLATE_HEX(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(23)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
@@ -3665,14 +3640,14 @@
             Ctype Map Size: 63
             >
                 #####: TRANSLATE_NAME(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(23)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 91
             >
                 #####: TRANSLATE_NAME(1,1), ELSE:
-                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(23)
+                #####: TRANSLATE_TO(1,<UUC>), ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
             0-9 A-Z [repeat(INFINITY)]
                 Dispatcher ID: #####
@@ -3854,7 +3829,7 @@
             <1F8AE>-<1FFFF> <20001>-<2A6D5> <2A6D7>-<2A6FF>
             <2A701>-<2B733> <2B735>-<2B73F> <2B741>-<2B81C>
             <2B81E>-<2F7FF> <2FA1E>-<30000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(22)
+                #####: ERRONEOUS_ATOM(21)
                 Dispatcher ID: #####
             "
                 #####: TRANSLATE_TO(0), GOTO(####)
@@ -4032,18 +4007,18 @@
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
             <VT>-<CR> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(20)
+                #####: ERRONEOUS_ATOM(19)
                 Dispatcher ID: #####
             <HT> <NBSP> <1680> <2000>-<200A> <NNBSP> <MMSP>
             <3000> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(24)
+                #####: ERRONEOUS_ATOM(23)
                 Dispatcher ID: #####
             <NUL>-<BS> <SO>-<US> <DEL>-<APC> <SHY> <600>-<605> <ALM>
             <6DD> <70F> <MVS> <ZWSP>-<RLM> <2028>-<RLO> <WJ>-<2064>
             <LRI>-<206F> <0D800> <0DB7F>-<0DB80> <0DBFF>-<0DC00>
             <0DFFF>-<0E000> <0F8FF> <BOM> <0FFF9>-<0FFFB> <110BD>
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
-                #####: ERRONEOUS_ATOM(21)
+                #####: ERRONEOUS_ATOM(20)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0
@@ -4055,31 +4030,31 @@
             Max CType: 0
             Ctype Map Size: 0
 START_OF_FILE 0(0)0: <empty>
-INDENT_BEFORE_COMMENT 0(0)0: <empty>
+INDENT 0(0)0: <empty>
 COMMENT 0(0)0: //␣Layered␣Languages␣Standard␣Lexical␣Analyzer␣Test␣Data
 LINE_BREAK 0(56): ␊
-INDENT_BEFORE_COMMENT 1(0)0: <empty>
+INDENT 1(0)0: <empty>
 COMMENT 1(0)0: //
 LINE_BREAK 1(2): ␊
-INDENT_BEFORE_COMMENT 2(0)0: <empty>
+INDENT 2(0)0: <empty>
 COMMENT 2(0)0: //␣File:␉ll_lexeme_standard_test.in
 LINE_BREAK 2(35): ␊
-INDENT_BEFORE_COMMENT 3(0)0: <empty>
+INDENT 3(0)0: <empty>
 COMMENT 3(0)0: //␣Author:␉Bob␣Walton␣(walton@acm.org)
 LINE_BREAK 3(38): ␊
-INDENT_BEFORE_COMMENT 4(0)0: <empty>
+INDENT 4(0)0: <empty>
 COMMENT 4(0)0: //␣Date:␉Sun␣Feb␣26␣00:16:28␣EST␣2017
 LINE_BREAK 4(37): ␊
-INDENT_BEFORE_COMMENT 5(0)0: <empty>
+INDENT 5(0)0: <empty>
 COMMENT 5(0)0: //
 LINE_BREAK 5(2): ␊
-INDENT_BEFORE_COMMENT 6(0)0: <empty>
+INDENT 6(0)0: <empty>
 COMMENT 6(0)0: //␣The␣authors␣have␣placed␣this␣data␣in␣the␣public
 LINE_BREAK 6(50): ␊
-INDENT_BEFORE_COMMENT 7(0)0: <empty>
+INDENT 7(0)0: <empty>
 COMMENT 7(0)0: //␣domain;␣they␣make␣no␣warranty␣and␣accept␣no␣liability
 LINE_BREAK 7(56): ␊
-INDENT_BEFORE_COMMENT 8(0)0: <empty>
+INDENT 8(0)0: <empty>
 COMMENT 8(0)0: //␣for␣this␣data.
 LINE_BREAK 8(17): ␊
 LINE_BREAK 9(0)0: ␊
@@ -4226,13 +4201,13 @@ HORIZONTAL_SPACE 19(44): ␣
 WORD 19(45): *TEST*
 SEPARATOR 19(51): :
 LINE_BREAK 19(52): ␊
-INDENT_BEFORE_COMMENT 20(0)0: <empty>
+INDENT 20(0)0: <empty>
 COMMENT 20(0)0: //␣form␣feed␣
 LINE_BREAK 20(13): ␌␊
-INDENT_BEFORE_COMMENT 21(0)0: <empty>
+INDENT 21(0)0: <empty>
 COMMENT 21(0)0: //␣vertical␣tab␣
 LINE_BREAK 21(16): ␋␊
-INDENT_BEFORE_COMMENT 22(0)0: <empty>
+INDENT 22(0)0: <empty>
 COMMENT 22(0)0: //␣carriage␣return␣
 LINE_BREAK 22(19): ␍␊
 INDENT 23(0)0: <empty>
@@ -4311,11 +4286,11 @@ LINE_BREAK 35(33): ␊
 INDENT 36(0)0: <empty>
 NUMERIC 36(0)0: =<9=<8
 LINE_BREAK 36(6): ␊
-INDENT_BEFORE_COMMENT 37(0)0: <empty>
+INDENT 37(0)0: <empty>
 COMMENT 37(0)0: //␣blank␣line␣follows
 LINE_BREAK 37(21): ␊
 LINE_BREAK 38(0)0: ␊
-INDENT_BEFORE_COMMENT 39(0)0: <empty>
+INDENT 39(0)0: <empty>
 COMMENT 39(0)0: //␣blank␣line␣with␣spaces␣follows
 LINE_BREAK 39(33): ␊
 HORIZONTAL_SPACE 40(0)0: ␣␣␣␣␣

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 14:35:48 EDT 2017
+// Date:	Wed May  2 01:50:59 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -362,7 +362,6 @@ SCAN_NEXT_LEXEME:
 	case LEXSTD::comment_t:
 	case LEXSTD::line_break_t:
 	case LEXSTD::indent_t:
-	case LEXSTD::indent_before_comment_t:
 	    break;
 	case LEXSTD::end_of_file_t:
 	    parser->eof = true;
@@ -410,9 +409,6 @@ SCAN_NEXT_LEXEME:
 	     ||
 	        token->type
 	     == LEXSTD::indent_t
-	     ||
-	        token->type
-	     == LEXSTD::indent_before_comment_t
 	     ||
 	     count >= 100
 	   )

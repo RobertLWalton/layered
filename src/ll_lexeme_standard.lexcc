@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  7 03:28:37 EDT 2017
+// Date:	Wed May  2 01:02:47 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,8 +41,6 @@ cc	using namespace LEXSTD;
 cc
 cc	const min::Uchar UUC[1] =
 cc	    { min::UNKNOWN_UCHAR };
-cc
-cc	# define indent_bc_t indent_before_comment_t
 
 // Program Construction
 // ------- ------------
@@ -70,7 +68,6 @@ cc	    "QUOTED_STRING",
 cc	    "SEPARATOR",
 cc	    "COMMENT",
 cc	    "HORIZONTAL_SPACE",
-cc	    "INDENT_BEFORE_COMMENT",
 cc	    "INDENT",
 cc	    "LINE_BREAK",
 cc	    "START_OF_FILE",
@@ -88,7 +85,7 @@ cc	    "UNRECOGNIZED_ESCAPE",
 cc	    "MISPLACED_HORIZONTAL" };
 cc
 cc	const char * LEXSTD::type_codes =
-cc	    "?wn#mqschIibfeDRTOSFVCUEH";
+cc	    "?wn#mqschibfeDRTOSFVCUEH";
 cc
 cc	void LEXSTD::init_standard_program
 cc		( void )
@@ -190,13 +187,6 @@ cc	           NDL::add_category ( "M" ); \
 cc	           NDL::add_category ( "N" ); \
 cc	           NDL::add_category ( "P" ); \
 cc	           NDL::add_category ( "S" )
-cc
-
-lex	"<non-/-graphic>" = "<graphic> & ~ "/";
-lex
-cc	# define NON_SLASH_GRAPHIC \
-cc	           GRAPHIC; \
-cc	           NDL::sub_char ( '/' )
 cc
 
 lex	"<control>" = "<UNICODE-CATEGORY-C>"
@@ -341,15 +331,7 @@ lex
 cc	    NDL::begin_table ( begin_line );
 cc
 
-lex	   "<horizontal><repeat>//"
-lex	                keep 1
-lex	                output indent before comment
-lex	                goto horizontal space
-lex	   "<horizontal><repeat>/"
-lex	                keep 1
-lex	                output indent
-lex	                goto horizontal space
-lex	   "<horizontal><repeat><non-/-graphic>"
+lex	   "<horizontal><repeat><graphic>"
 lex	                keep 1
 lex	                output indent
 lex	                goto horizontal space
@@ -360,20 +342,8 @@ cc		   NDL::begin_dispatch();
 cc		      HORIZONTAL;
 cc		      NDL::REPEAT();
 cc
-cc		      NDL::begin_dispatch ( "/" );
-cc		         NDL::begin_dispatch ( "/" );
-cc		            NDL::keep ( 1 );
-cc		            NDL::output ( indent_bc_t );
-cc		            NDL::go
-cc			       ( horizontal_space );
-cc		         NDL::end_dispatch();
-cc		         NDL::keep ( 1 );
-cc		         NDL::output ( indent_t );
-cc		         NDL::go ( horizontal_space );
-cc		      NDL::end_dispatch();
-cc
 cc		      NDL::begin_dispatch();
-cc		         NON_SLASH_GRAPHIC;
+cc		         GRAPHIC;
 cc		         NDL::keep ( 1 );
 cc		         NDL::output ( indent_t );
 cc		         NDL::go ( horizontal_space );
@@ -384,29 +354,13 @@ cc			    ( horizontal_space_t );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "//" keep 0
-lex	        output indent before comment
-lex	        goto within line
-lex	   "/"  keep 0
-lex	        output indent
-lex	        goto within line
-lex	   "<non-/-graphic>"
+lex	   "<graphic>"
 lex	        keep 0
 lex	        output indent
 lex	        goto within line
 lex
-cc		   NDL::begin_dispatch ( "/" );
-cc		      NDL::begin_dispatch ( "/" );
-cc		         NDL::keep ( 0 );
-cc		         NDL::output ( indent_bc_t );
-cc		         NDL::go ( within_line );
-cc		      NDL::end_dispatch();
-cc		      NDL::keep ( 0 );
-cc		      NDL::output ( indent_t );
-cc		      NDL::go ( within_line );
-cc		   NDL::end_dispatch();
 cc		   NDL::begin_dispatch();
-cc		      NON_SLASH_GRAPHIC;
+cc		      GRAPHIC;
 cc		      NDL::keep ( 0 );
 cc		      NDL::output ( indent_t );
 cc		      NDL::go ( within_line );

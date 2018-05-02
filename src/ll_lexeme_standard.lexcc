@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:02:47 EDT 2018
+// Date:	Wed May  2 02:49:23 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -654,8 +654,8 @@ cc		   NDL::end_dispatch();
 cc
 
 lex	   "<isolated-separator>" output separator;
-lex	   "`" output separator;
 lex	   "|<repeat>" output separator;
+lex	   "`<repeat>" output separator;
 lex	   "<0A1><repeat>" output separator;
 lex	        // Inverted !
 lex	   "<0BF><repeat>" output separator;
@@ -663,11 +663,15 @@ lex	        // Inverted ?
 lex
 cc	    	   NDL::begin_dispatch();
 cc		      ISOLATED_SEPARATOR;
-cc		      NDL::add_char ( '`' );
 cc		      NDL::output ( separator_t );
 cc	    	   NDL::end_dispatch();
 cc
 cc	    	   NDL::begin_dispatch ( "|" );
+cc		      NDL::REPEAT();
+cc		      NDL::output ( separator_t );
+cc	    	   NDL::end_dispatch();
+cc
+cc	    	   NDL::begin_dispatch ( "`" );
 cc		      NDL::REPEAT();
 cc		      NDL::output ( separator_t );
 cc	    	   NDL::end_dispatch();
@@ -903,7 +907,7 @@ lex	   "!<repeat>" goto finish separators
 lex	   "?<repeat>" goto finish separators
 lex	   ".<repeat>" goto finish separators
 lex	   ":<repeat>" goto finish separators
-lex	   "'" goto finish separators
+lex	   "'<repeat>" goto finish separators
 lex	   "," goto finish separators
 lex	   ";" goto finish separators
 lex
@@ -927,7 +931,12 @@ cc		      NDL::REPEAT();
 cc		      NDL::go ( finish_separators );
 cc	    	   NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( "',;");
+cc	    	   NDL::begin_dispatch ( "'");
+cc		      NDL::REPEAT();
+cc		      NDL::go ( finish_separators );
+cc	    	   NDL::end_dispatch();
+cc
+cc	    	   NDL::begin_dispatch ( ",;");
 cc		      NDL::go ( finish_separators );
 cc	    	   NDL::end_dispatch();
 cc

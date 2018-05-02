@@ -367,12 +367,9 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
 SEPARATOR: "]": line ##:
 a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                    ^
-SEPARATOR: "`": line ##:
+SEPARATOR: "``": line ##:
 a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
-                     ^
-SEPARATOR: "`": line ##:
-a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
-                      ^
+                     ^^
 WORD: "foobar": line ##:
 a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                        ^^^^^^

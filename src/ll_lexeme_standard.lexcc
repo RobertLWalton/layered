@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 02:49:23 EDT 2018
+// Date:	Wed May  2 03:29:21 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,6 +125,8 @@ cc	    NDL::new_table
 cc		( finish_separators, MASTER );
 cc	    uns32 finish_middle;
 cc	    NDL::new_table ( finish_middle );
+cc	    uns32 word_or_numeric;
+cc	    NDL::new_table ( word_or_numeric );
 cc	    uns32 leading_zero;
 cc	    NDL::new_table ( leading_zero );
 cc	    uns32 natural;
@@ -252,6 +254,9 @@ lex	"<letter>" = "<UNICODE-CATEGORY-L>"
 lex
 cc	    const char * Letter = "L";
 cc
+
+lex	"<sign>" = "+" | "-"
+lex
 
 lex	"<digit>" = "<UNICODE-CATEGORY-Nd>"
 lex
@@ -691,7 +696,7 @@ cc
 
 lex	   "<trailing><repeat><letter>"
 lex	                output word
-lex	                goto finish middle;
+lex	                goto word or numeric;
 lex	   "<trailing><repeat><digit>"
 lex	                output numeric
 lex	                goto finish middle;
@@ -707,7 +712,7 @@ cc
 cc	               NDL::begin_dispatch();
 cc		           NDL::add_category ( Letter );
 cc		           NDL::output ( word_t );
-cc		           NDL::go ( finish_middle );
+cc		           NDL::go ( word_or_numeric );
 cc		       NDL::end_dispatch();
 cc
 cc	               NDL::begin_dispatch();
@@ -726,12 +731,12 @@ cc		       NDL::go ( separator );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "<letter>" output word goto finish middle;
+lex	   "<letter>" output word goto word or numeric;
 lex
 cc	    	   NDL::begin_dispatch ( );
 cc		      NDL::add_category ( "L" );
 cc		      NDL::output ( word_t );
-cc		      NDL::go ( finish_middle );
+cc		      NDL::go ( word_or_numeric );
 cc	    	   NDL::end_dispatch();
 cc
 
@@ -1008,6 +1013,72 @@ cc	    NDL::end_table();
 cc
 
 lex
+lex	begin word or numeric sublexeme table;
+lex	    // Come here when letter found before
+lex	    // digit in middle lexeme and `output word'
+lex	    // has been executed.
+lex
+cc	    NDL::begin_table ( word_or_numeric );
+cc
+
+lex	   "<sign><digit>"
+lex	       output numeric goto finish middle;
+lex	   "<sign>" accept;
+lex
+cc	           NDL::begin_dispatch ( "+-" );
+cc	               NDL::begin_dispatch();
+cc		           NDL::add_category ( Digit );
+cc		           NDL::output ( numeric_t );
+cc		           NDL::go ( finish_middle );
+cc		       NDL::end_dispatch();
+cc		   NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+
+lex	   "<middle>" accept;
+lex
+cc	           NDL::begin_dispatch();
+cc		       MIDDLE;
+cc		   NDL::accept();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "<trailing><repeat><sign><digit>"
+lex	       output numeric goto finish middle;
+lex	   "<trailing><repeat><sign>" accept;
+lex	   "<trailing><repeat><middle>" accept;
+lex	   "<trailing><repeat>"
+lex	        keep 0 goto finish separators;
+lex
+cc	           NDL::begin_dispatch ( trailing );
+cc	    	       NDL::REPEAT();
+cc	               NDL::begin_dispatch ( "+-" );
+cc	                   NDL::begin_dispatch();
+cc		               NDL::add_category ( Digit );
+cc		               NDL::output ( numeric_t );
+cc		               NDL::go ( finish_middle );
+cc		           NDL::end_dispatch();
+cc		       NDL::accept();
+cc		       NDL::end_dispatch();
+cc	               NDL::begin_dispatch();
+cc		           MIDDLE;
+cc		           NDL::accept();
+cc		       NDL::end_dispatch();
+cc		       NDL::keep ( 0 );
+cc		       NDL::go ( finish_separators );
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto within line;
+lex	end word or numeric sublexeme table;
+lex
+cc	    	   NDL::go ( within_line );
+cc
+cc	    NDL::end_table();
+cc
+
+lex
 lex	begin mark lexeme table;
 lex	    // Middle lexeme with no letter or digit yet
 lex	    // scanned.  Will be mark if none found.
@@ -1015,12 +1086,12 @@ lex
 cc	    NDL::begin_table ( mark );
 cc
 
-lex	   "<letter>" output word goto finish middle;
+lex	   "<letter>" output word goto word or numeric;
 lex
 cc	           NDL::begin_dispatch();
 cc		       NDL::add_category ( Letter );
 cc		       NDL::output ( word_t );
-cc		       NDL::go ( finish_middle );
+cc		       NDL::go ( word_or_numeric );
 cc		   NDL::end_dispatch();
 cc
 
@@ -1043,7 +1114,7 @@ cc
 
 lex	   "<trailing><repeat><letter>"
 lex	                output word
-lex	                goto finish middle;
+lex	                goto word or numeric;
 lex	   "<trailing><repeat><digit>"
 lex	                output numeric
 lex	                goto finish middle;
@@ -1057,7 +1128,7 @@ cc
 cc	               NDL::begin_dispatch();
 cc		           NDL::add_category ( Letter );
 cc		           NDL::output ( word_t );
-cc		           NDL::go ( finish_middle );
+cc		           NDL::go ( word_or_numeric );
 cc		       NDL::end_dispatch();
 cc
 cc	               NDL::begin_dispatch();

@@ -38,13 +38,13 @@ LINE_BREAK: line #:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 INDENT: line #:
-// Date:        Sun Feb 26 00:16:28 EST 2017
+// Date:        Wed May  2 04:03:24 EDT 2018
 ^
 COMMENT: line #:
-// Date:        Sun Feb 26 00:16:28 EST 2017
+// Date:        Wed May  2 04:03:24 EDT 2018
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line #:
-// Date:        Sun Feb 26 00:16:28 EST 2017
+// Date:        Wed May  2 04:03:24 EDT 2018
                                             ^
 INDENT: line #:
 //
@@ -149,29 +149,32 @@ LINE_BREAK: line ##:
 'tis noth'ng `but' a h'dache.
                              ^
 INDENT: line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
 ^
 WORD: "a.1.2.3..b...c": line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
 ^^^^^^^^^^^^^^
 WORD: "e5f": line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
                ^^^
 WORD: "x7+y6": line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
                    ^^^^^
 SEPARATOR: "(": line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
                         ^
 NUMERIC: "5z": line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
                          ^^
 SEPARATOR: ")": line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
                            ^
+NUMERIC: "may-02-2018": line ##:
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+                             ^^^^^^^^^^^
 LINE_BREAK: line ##:
-a.1.2.3..b...c e5f x7+y6(5z)
-                            ^
+a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+                                        ^
 INDENT: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
 ^

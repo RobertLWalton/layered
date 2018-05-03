@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 4, 2017
+May 3, 2018
  
 \end{center}
 
@@ -693,12 +693,12 @@ the following character classes:
 \emkey{letter} :::=
     characters in UNICODE category \TT{L}
 \\
-\emkey{ASCII-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
-                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+\emkey{decimal-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+                       $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
 \\
 \emkey{digit} :::=
     characters in UNICODE category \TT{Nd}
-    (includes {\em ASCII-digits})
+    (includes {\em decimal-digits})
 \\
 \emkey{lexical-item-character} :::=
 	\begin{tabular}[t]{l}
@@ -939,8 +939,8 @@ a form feed.
 \emkey{word} :::= {\em middle-lexeme} containing a {\em letter} before any
                   {\em digit}
 \\[0.5ex]
-\emkey{natural-number} :::= {\em ASCII-digit}\PLUS{} not beginning with \TT{0}
-                     $|$ \TT{0}
+\emkey{natural-number} :::=
+	{\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
 \\[0.5ex]
 \emkey{numeric} :::= \begin{tabular}[t]{l}
                      {\em middle-lexeme} containing a {\em digit}
@@ -1108,7 +1108,8 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 \emkey{atom-primary} ::= {\em character-representative} $|$
                              {\em cpat-name} except {\em repeat}
 \\[0.3ex]
-\emkey{repeat} ::= \TT{<repeat>} $|$ \TT{<repeat-}{\em ASCII-digit}\PLUS{}\TT{>}
+\emkey{repeat} ::=
+    \TT{<repeat>} $|$ \TT{<repeat-}{\em decimal-digit}\PLUS{}\TT{>}
 \\[0.3ex]
 \emkey{instruction-group}
 	::= {\em instruction}
@@ -1411,7 +1412,7 @@ The special character pattern name
 \TT{<{repeat-$N$}>}%
 \index{repeat-N@{\tt <repeat-$N$>}}%
 is similar but matches zero through $N$ occurrences of the previous
-character pattern, where $N$ is a sequence of {\em ASCII-digits}
+character pattern, where $N$ is a sequence of {\em decimal-digits}
 not beginning with \TT{0}.
 
 Note that if \TT{$C_1$<repeat>$C_2$} is part of an atom pattern where
@@ -6873,8 +6874,6 @@ begin standard lexical program;
             | "<UNICODE-CATEGORY-P>"
             | "<UNICODE-CATEGORY-S>"
 
-"<non-/-graphic>" = "<graphic> & ~ "/";
-
 "<control>" = "<UNICODE-CATEGORY-C>"
             | "<UNICODE-CATEGORY-Z>"
 
@@ -6906,9 +6905,11 @@ begin standard lexical program;
 
 "<letter>" = "<UNICODE-CATEGORY-L>"
 
+"<sign>" = "+" | "-"
+
 "<digit>" = "<UNICODE-CATEGORY-Nd>"
 
-"<non-ASCII-digit>" = "<digit> & ~ "0-9"
+"<non-decimal-digit>" = "<digit> & ~ "0-9"
 
 "<mark>" = (   "<UNICODE-CATEGORY-P>"
              | "<UNICODE-CATEGORY-S>"
@@ -6940,28 +6941,14 @@ end start file master table;
 
 begin begin line master table;
 
-   "<horizontal><repeat>//"
-                keep 1
-                output indent before comment
-                goto horizontal space
-   "<horizontal><repeat>/"
-                keep 1
-                output indent
-                goto horizontal space
-   "<horizontal><repeat><non-/-graphic>"
+   "<horizontal><repeat><graphic>"
                 keep 1
                 output indent
                 goto horizontal space
    "<horizontal><repeat>"
                 output horizontal space
 
-   "//" keep 0
-        output indent before comment
-        goto within line
-   "/"  keep 0
-        output indent
-        goto within line
-   "<non-/-graphic>"
+   "<graphic>"
         keep 0
         output indent
         goto within line
@@ -7064,8 +7051,8 @@ begin within line master table;
         output illegal control
 
    "<isolated-separator>" output separator;
-   "`" output separator;
    "|<repeat>" output separator;
+   "`<repeat>" output separator;
    "<0A1><repeat>" output separator;
         // Inverted !
    "<0BF><repeat>" output separator;
@@ -7073,7 +7060,7 @@ begin within line master table;
 
    "<trailing><repeat><letter>"
                 output word
-                goto finish middle;
+                goto word or numeric;
    "<trailing><repeat><digit>"
                 output numeric
                 goto finish middle;
@@ -7083,14 +7070,14 @@ begin within line master table;
                 keep 0
                 goto separator;
 
-   "<letter>" output word goto finish middle;
+   "<letter>" output word goto word or numeric;
 
    "0" goto leading zero;
 
    "1-9" goto natural;
 
-   "<non-ASCII-digit>" output numeric
-                       goto finish middle;
+   "<non-decimal-digit>" output numeric
+                         goto finish middle;
 
    "<mark-middle>" goto mark;
 
@@ -7147,7 +7134,7 @@ begin separator lexeme table;
    "?<repeat>" goto finish separators
    ".<repeat>" goto finish separators
    ":<repeat>" goto finish separators
-   "'" goto finish separators
+   "'<repeat>" goto finish separators
    "," goto finish separators
    ";" goto finish separators
 
@@ -7178,11 +7165,33 @@ begin finish middle sublexeme table;
 end finish middle sublexeme table;
 
 
+begin word or numeric sublexeme table;
+    // Come here when letter found before
+    // digit in middle lexeme and `output word'
+    // has been executed.
+
+   "<sign><digit>"
+       output numeric goto finish middle;
+   "<sign>" accept;
+
+   "<middle>" accept;
+
+   "<trailing><repeat><sign><digit>"
+       output numeric goto finish middle;
+   "<trailing><repeat><sign>" accept;
+   "<trailing><repeat><middle>" accept;
+   "<trailing><repeat>"
+        keep 0 goto finish separators;
+
+   goto within line;
+end word or numeric sublexeme table;
+
+
 begin mark lexeme table;
     // Middle lexeme with no letter or digit yet
     // scanned.  Will be mark if none found.
 
-   "<letter>" output word goto finish middle;
+   "<letter>" output word goto word or numeric;
 
    "<digit>" output numeric goto finish middle;
 
@@ -7190,7 +7199,7 @@ begin mark lexeme table;
 
    "<trailing><repeat><letter>"
                 output word
-                goto finish middle;
+                goto word or numeric;
    "<trailing><repeat><digit>"
                 output numeric
                 goto finish middle;
@@ -7220,8 +7229,8 @@ begin natural lexeme table;
 
    "0-9" accept;
 
-   "<non-ASCII-digit>" output numeric
-                       goto finish middle;
+   "<non-decimal-digit>" output numeric
+                         goto finish middle;
    "<letter>"          output numeric
                        goto finish middle;
    "<mark-middle>"     output numeric

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 03:29:21 EDT 2018
+// Date:	Thu May  3 03:42:17 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -263,7 +263,7 @@ lex
 cc	    const char * Digit = "Nd";
 cc
 
-lex	"<non-ASCII-digit>" = "<digit> & ~ "0-9"
+lex	"<non-decimal-digit>" = "<digit> & ~ "0-9"
 lex
 
 lex	"<mark>" = (   "<UNICODE-CATEGORY-P>"
@@ -754,8 +754,8 @@ cc		      NDL::go ( natural );
 cc	    	   NDL::end_dispatch();
 cc
 
-lex	   "<non-ASCII-digit>" output numeric
-lex	                       goto finish middle;
+lex	   "<non-decimal-digit>" output numeric
+lex	                         goto finish middle;
 lex
 cc	    	   NDL::begin_dispatch();
 cc		      NDL::add_category ( Digit );
@@ -1211,8 +1211,8 @@ cc		       NDL::accept();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "<non-ASCII-digit>" output numeric
-lex	                       goto finish middle;
+lex	   "<non-decimal-digit>" output numeric
+lex	                         goto finish middle;
 lex	   "<letter>"          output numeric
 lex	                       goto finish middle;
 lex	   "<mark-middle>"     output numeric

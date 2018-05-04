@@ -1387,9 +1387,17 @@ Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
 on \pagref{ATOM-TABLE}.
 
-The first master table in a lexical program
-becomes the current lexical table when the scanner
-is initialized.  This table is typically named `\TT{main}',
+The lexical scanner is called by another program (e.g., a parser)
+to scan a single lexeme.  The state of the scanner between calls is
+the current position in the input character sequence and
+the identifier of the master table to be used to scan the
+first atom of the next lexeme.  This state can be changed
+between calls by the caller, and in particular, the master
+table can be changed.  If it is not change, the master table
+for the first lexeme scan is the first master table in the lexical program,
+and for subsequent scans it is the last master table of the previous
+scan.  The first master table in a lexical program
+is typically named `\TT{main}',
 as it is in the \TT{example} lexical program on
 \pagref{EXAMPLE-LEXEME-PROGRAM}.
 

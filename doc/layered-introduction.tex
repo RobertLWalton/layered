@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 3, 2018
+May 4, 2018
  
 \end{center}
 
@@ -740,7 +740,7 @@ the graphic character after the indent lexeme.
 The \mkey{indent}{of character} of a character is the number
 of columns that precede the character in the character's physical line.
 Indent lexemes are used to form logical lines and blocks
-(\itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}).
+(\pagref{LOGICAL-LINE} and \itemref{LOGICAL-LINES}).
 
 One kind of {\em vertical-space} is given special distinction:
 \begin{indpar}
@@ -836,20 +836,34 @@ and sometimes must be separated by {\em white-space}.
 There is a special \emkey{end-of-file}\label{END-OF-FILE}
 lexeme that occurs only at the end of a file.
 
-The lexemes are organized into \skey{logical line}s.  Most of these
+The lexemes of a file are organized into \skey{logical line}s.%
+\label{LOGICAL-LINE}
+Most of these
 consist of a single non-indented input line.  Indented lines continue
-the previous logical line.  A `\TT{;}' ends a logical line, as does
-an end of file.  In syntax equations such as
-those of Figure~\itemref{LEXEME-PROGRAM-LEXEMES},
-the end of a logical line is denoted by `\TT{;}', but in examples
-it is usually denoted by line indentation.
+the current logical line.  A `\TT{;}' outside parentheses
+ends a logical line, as does
+an {\em indent} lexeme with zero indent or an
+an {\em end-of-file} lexeme.  Since indented lines continue the
+current logical line, {\em indent} lexemes with non-zero indent
+do \underline{not} end the current logical line.
 
-Files are scanned into sequences of lexemes which are then divided
-into logical lines as per \itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}.
 After each logical line is formed,
 {\em indent}, {\em comment},
-{\em line-break}, and {\em end-of-file} lexemes are deleted
-from the logical line.
+{\em line-break}, {\em end-of-file}, and logical line ending
+`\TT{;}' lexemes are deleted from the logical line.
+If the result is non-empty, it becomes a `\key{program statement}'.
+In syntax equations such as
+those of Figure~\itemref{LEXEME-PROGRAM-LEXEMES},
+the end of a logical line is denoted by `\TT{;}', but in examples
+it is usually denoted by line indentation or the end of file.
+
+A `\key{comment line}' is a logical line that consists of
+a single {\em comment} that is followed by a {\em line-break} and either
+an {\em indent} or {\em end-of-file}, or is followed by just an
+{\em end-of-file}.  It is an error for a logical line
+that is \underline{not} a comment line to begin with a {\em comment}.
+{\em Comments} can otherwise be included at any non-beginning position in any
+logical line.
 
 \ikey{Quoted string lexemes}{quoted strings!concatenated}
 separated by the `\TT{\#}' mark

@@ -299,7 +299,7 @@ character string: e.g., `\TT{hello}', `\TT{+}', `\TT{;}',
 `\TT{9.200}' are four lexemes.
 
 The lexical scanner is written in the M-Language and can be
-replaced.\footnote{As of 2015 the scanner is actually written
+replaced.\footnote{Currently the scanner is actually written
 in C++.}  This section describes the standard scanner which
 is driven by the lexical tables and is capable of scanning
 lexemes of common languages such as C and C++.
@@ -313,7 +313,7 @@ learn to mimic.\footnote{A possibly non-verifiable goal.}
 
 The standard scanner also tries to promote `\key{distributed modularity}',
 meaning that enhancements made by non-communicating users are
-more likely to fit together.\footnote{Regular expression grammars are
+more likely to fit together.\footnote{Regular expression grammars seem
 too unruly to meet this criterion.}
 
 The standard scanner operates on an input stream of 32-bit
@@ -413,7 +413,7 @@ to a single line feed character.
 The scanner has a state containing a current point 
 in the input UNICODE character stream,
 a \key{current lexical table} identifier, a \key{current lexeme type}
-which may be `\TT{none}', a \key{return stack}
+which may be `\TT{NONE}', a \key{return stack}
 of lexical table identifiers, and a \key{translation buffer} holding
 translations of atoms.  A
 \key{lexical table} is a set of atom patterns
@@ -437,7 +437,7 @@ characters such as the 4-character sequence \TT{<LF>} which matches
 the atom pattern \TT{"<" "LF" ">"}
 (in which the quoted string has been broken into three parts to prevent
 \TT{<LF>} being treated as representing a single line feed character)
-or the 4-character sequence \TT{<0a>} which matches the atom pattern
+or the 4-character sequence \TT{<0A>} which matches the atom pattern
 \begin{center}
 \TT{"<0<hex-digit>{}>"}
 \end{center}
@@ -471,10 +471,10 @@ the default instruction associated with the lexical table is executed instead.
 A single lexical table instruction can do many things.
 It can optionally reduce the length of a matched atom,
 translated the matched atom to a different character string,
-replace the matched atom and its translation,
-or change the current lexical table.
-An instruction can fail if the atom cannot be replaced or the
-translated atom does not match a given pattern.
+replace the matched atom and its translation with a match from an atom table,
+and change the current lexical table.
+An instruction can fail if the atom translation does not match a given pattern
+or if an atom table fails to match any atom in the input.
 An \key{instruction group} is a sequence of instructions
 such that the first successful instruction will be the effective
 instruction in the group.  An instruction group, instead of a single
@@ -501,7 +501,7 @@ recognize whitespace, and one to recognize comments.
 Lexeme tables have \ikey{types}{type!of lexeme table}.
 When the current lexical table becomes a lexeme table,
 the current lexeme type is set equal to the type of that table.
-The `\TT{output} {\em type}' and `\TT{output none}'
+The `\TT{output} {\em type}' and `\TT{output NONE}'
 instruction components can also be
 used to change the current lexeme type.
 
@@ -511,10 +511,10 @@ have no associated type and do not reset the current lexeme type.
 Upon finishing the execution of an instruction, if the
 current lexical table is a master table,
 the currently accumulated lexeme is output
-with the current lexeme type, if that is not `\TT{none}', or the
+with the current lexeme type, if that is not `\TT{NONE}', or the
 currently accumulated lexeme is discarded if the current lexeme
-type is `\TT{none}'.
-The current lexeme type is reset to `\TT{none}' whenever
+type is `\TT{NONE}'.
+The current lexeme type is reset to `\TT{NONE}' whenever
 the current lexical table becomes a master table.
 
 Thus if a lexeme table of
@@ -543,7 +543,8 @@ character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
 of the scanner.  For example, if \TT{<H>} appears in a quoted
 string, it may be reported as an erroneous atom of type
-`\TT{unrecognized escape}'.  Otherwise this atom will be processed
+`\TT{unrecognized escape}'.  Asside from error reporting,
+this atom will be processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the Unicode
 Replacement Character (hex code \TT{FFFD}).
@@ -1037,7 +1038,7 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	\TT{end} {\em program-name} \TT{lexical program};
 	\end{tabular}
 \\[0.3ex]
-\emkey{program-name} ::= {\em name}
+\emkey{program-name} ::= {\em quoted-string}
 \\[0.3ex]
 \emkey{lexical-program-unit}
         \begin{tabular}[t]{@{}rl@{}}
@@ -1054,10 +1055,10 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	::= & \TT{remove} {\em lexical-table-name} \\
 	$|$ & \TT{remove} \TT{"}{\em cpat-name}\TT{"}
 	\end{tabular}
-\\[2.0ex]
+\\[1.0ex]
 \hspace*{0.2in}
     {\bf Note:} `{\em cpat}\,' abbreviates `{\em character-pattern}\,'
-\\[2.0ex]
+\\[1.0ex]
 \emkey{cpat-definition} ::=
 	\TT{"}{\em cpat-name}\TT{"} \TT{=}
 		{\em cpat-expression} \TT{;}
@@ -1111,7 +1112,7 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
     \TT{master} $|$ \TT{lexeme} $|$ \TT{sublexeme} $|$ \TT{atom}
 \\[0.3ex]
 \emkey{lexical-table-name} ::=
-    {\em name} except \TT{scan error} or \TT{none}
+    {\em name} except \TT{SCAN ERROR} or \TT{NONE}
 \end{indpar}
 \caption{Lexeme Program Syntax: Part I}
 \label{LEXEME-PROGRAM-SYNTAX-1}
@@ -1161,7 +1162,7 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	$|$ & \TT{require} ~ {\em atom-pattern} \\
 	$|$ & \TT{error} ~ {\em type-name} \\
 	$|$ & \TT{output} ~ {\em type-name} \\
-	$|$ & \TT{output} ~ \TT{none} \\
+	$|$ & \TT{output} ~ \TT{NONE} \\
 	$|$ & \TT{goto} ~ {\em master-table-name} \\
 	$|$ & \TT{goto} ~ {\em lexeme-table-name} \\
 	$|$ & \TT{goto} ~ {\em sublexeme-table-name} \\
@@ -1171,7 +1172,7 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	$|$ & \TT{fail} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{type-name} ::= {\em name} except ~ \TT{scan error} ~ or ~ \TT{none}
+\emkey{type-name} ::= {\em name} except ~ \TT{SCAN ERROR} ~ or ~ \TT{NONE}
 \\[0.3ex]
 \emkey{atom-table-name} ::= {\em lexical-table-name}
 \\[0.3ex]
@@ -1249,12 +1250,15 @@ end premature tables lexical program;
 \label{EXAMPLE-LEXEME-PROGRAM}
 \end{boxedfigure}
 
-A \emkey{lexical-program} consists of a sequence of units that are
+A \emkey{lexical-program} is a file consisting of a sequence of
 {\em character-\EOL pattern-\EOL defi\-ni\-tions},
 {\em lexical-\EOL table-\EOL defi\-ni\-tions},
-or {\em program-inclusions}.  These respectively define character pattern sets
+and {\em program-inclusions}.  These respectively define character pattern sets
 and lexical tables, and include lexical program units of
 previously defined lexical programs.
+Programs have {\em program-names} that are {\em quoted-strings} representing
+file names relative to one of several directories input separately to
+the lexical scanner.
 
 \subsubsection{Lexical Program Inclusion}
 
@@ -1323,7 +1327,7 @@ following rules:
 \end{center}
 
 The \TT{|}, \TT{\&}, and \TT{\textasciitilde} operators and can be used to take
-the union, intersection, and complements of character sets.  The complement
+unions, intersections, and complements of character sets.  The complement
 is relative to the universe of all 32 bit unsigned integer UNICODE
 character codes.  Thus \TT{\textasciitilde "b-y"}
 denotes the same character set as
@@ -1339,6 +1343,7 @@ Some example {\em character-pattern-definitions} are:
 
 \begin{indpar}[0.05in]\begin{verbatim}
 "<hex-digit>" = "0-9" | "a-f" | "A-F";
+"<letter>" = "<UNICODE-L>";
 "<non-line-break-char>" = ~ "<LF>" & ~ "<VT>" & ~ "<FF>";
 "<quotable-char>" = "<020>-<07E>" & ~ "<Q>";
 "<whitespace-char>" = " " | "<LF>" | "<VT>" | "<FF>" | "<HT>";
@@ -1347,23 +1352,13 @@ Some example {\em character-pattern-definitions} are:
     | "<whitespace-char>";
 \end{verbatim}\end{indpar}
 
-Current implementations require that any two non-LATIN1 UNICODE
-characters that have the same UNICODE subcategory, UNICODE name
-(a.k.a. `abbreviation alias',
-e.g., \TT{HT} or \TT{SOH} or \TT{NBSP}, or may be `missing'),
-and UNICODE numeric value (e.g., \TT{3} or \TT{1/3}, or may be `missing'),
-must be treated identically: that is, one is in a character pattern's set
-if and only if the other is in the set.  This means that the
-character pattern expression \TT{"<0FFFF>-<0FFFFFF>"} is not implemented,
-for example, although \TT{"<0F>-<0FF>"} is implemented because it
-involves only LATIN1 characters.
-
 \subsubsection{Lexical Tables}
 
 A {\em lexical-table-definition} specifies a {\em lexical-table-name},
 the {\em lexical-table-kind} of the table,
 a set of {\em lexical-table-entries}
-each containing an {\em atom-pattern} and optionally an {\em instruction},
+each containing an {\em atom-pattern} and optionally
+an {\em instruction-group},
 and an optional {\em default-instruction-group} that is executed when
 no atom is recognized by any of the table entries.
 
@@ -1385,8 +1380,8 @@ back to a
 master table, and because this changes the current lexical table
 to a master table, it causes any accumulated lexeme
 to be output with its lexeme type being the current lexeme type
-if that is not `\TT{none}', or it causes any accumulated lexeme
-to be discarded if the current lexeme type is `\TT{none}'.
+if that is not `\TT{NONE}', or it causes any accumulated lexeme
+to be discarded if the current lexeme type is `\TT{NONE}'.
 
 Atom tables permit sets of atom patterns to be used in
 several places without copying all the patterns.  Details are
@@ -1868,14 +1863,14 @@ had been used instead the translation would have been the ASCII delete
 Upon finishing the execution of an instruction, if the
 current lexical table is a master table,
 the currently accumulated lexeme is output
-with the current lexeme type, if that is not `\TT{none}', or the
+with the current lexeme type, if that is not `\TT{NONE}', or the
 currently accumulated lexeme is discarded if the current lexeme
-type is `\TT{none}'.
-The current lexeme type is reset to `\TT{none}' whenever
+type is `\TT{NONE}'.
+The current lexeme type is reset to `\TT{NONE}' whenever
 the current lexical table becomes a master table.
 
-The `\TT{output none}' instruction can be used to reset the current
-lexeme type to `\TT{none}' in order to discard the currently
+The `\TT{output NONE}' instruction can be used to reset the current
+lexeme type to `\TT{NONE}' in order to discard the currently
 accumulated lexeme.
 
 \subsubsubsection{Goto, Call, Return, and Fail Instruction Components}
@@ -1883,7 +1878,7 @@ accumulated lexeme.
 A `\ttmkey{goto}{in lexical program} {\em lexical-table-name}\,'
 {\em instruction-component} switches the current lexical table after
 the current atom is processed.  If the table switches
-to a master table and the current lexeme type is not `\TT{none}',
+to a master table and the current lexeme type is not `\TT{NONE}',
 then the current lexeme translation is output with the
 current lexeme type as its type.
 

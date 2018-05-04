@@ -1417,6 +1417,20 @@ named by \TT{<hex-digit>} followed by a \TT{>}.
 Note that this {\em atom-pattern}
 only matches atoms that are 5 characters long.
 
+An {\em atom-pattern} can be broken up into separate parts
+each of which match consecutive segments of the atom.  For
+example, the above atom pattern could be written as
+\begin{center}
+\verb|"<" "<" "<hex-digit>" "<hex-digit>" ">"|
+\end{center}
+This can be of more than cosmetic use, as in the case of the two atom patterns
+\begin{center}
+\verb|"<" "LF" ">"| ~~~~~~~~~~~~~~~~~~ \verb|"<LF>"|
+\end{center}
+The first of these patterns matches the 4 characters `\TT{<}', `\TT{L}',
+`\TT{F}', and `\TT{>}', while the second pattern
+matches a single line-feed character.
+
 
 The special character pattern name
 \TT{<{others}>}%
@@ -1453,7 +1467,7 @@ character pattern, where $N$ is a sequence of {\em decimal-digits}
 not beginning with \TT{0}.
 
 Note that if \TT{$C_1$<repeat>$C_2$} is part of an atom pattern where
-$C_1$ and $C_2$ are character patterns or representatives, then
+$C_1$ and $C_2$ are character pattern names or character representatives, then
 any atom recognized by the pattern must contain some number of
 $C_1$ characters followed by a $C_2$ character that is \underline{not} also
 a $C_1$ character.
@@ -1466,19 +1480,18 @@ If {\em atom-patterns} of two distinct {\em lexical-table-entries}
 in the same {\em lexical-table} have the forms 
 \TT{"}$PC_1Q_1$\TT{"} and \TT{"}$PC_2Q_2$\TT{"} with a common
 prefix $P$ where
-$C_1$ and $C_2$ are both character patterns or representatives
-optionally followed
-by \TT{<repeat>} or \TT{<repeat-$N$>} and
-$Q_1$ and $Q_2$ are either both empty or both non-empty,
+$C_1$ and $C_2$ are \underline{distinct}
+character pattern names or character representatives
+and $Q_1$ and $Q_2$ are either both non-empty or both empty subpatterns,
 then the character sets of $C_1$ and $C_2$ \underline{must}
 be disjoint.  This permits a deterministic finite automaton that
-recognizes the atoms of the lexical table to be constructed.
+recognizes the atoms of the lexical table to be easily constructed.
 
-It is permissible for
+However it is permissible for
 a sequence of characters that matches one pattern to have a proper
 initial segment that matches another pattern; in this case the
-longer pattern takes precedence.  This is why either $Q_1$ or $Q_2$
-in the previous paragraph can be empty, but not both.
+longer pattern takes precedence.  This is why it is acceptable for
+just one of $Q_1$ or $Q_2$ in the previous paragraph to be non-empty.
 
 The order of {\em lexical-table-entries}
 in a {\em lexical-table} is not significant.
@@ -1540,7 +1553,9 @@ the matched atom and copies it into the translation.  In order to
 indicate this, the instruction may be written as if it had a single
 `\TT{accept}' instruction component.  If this component is present
 in an {\em instruction}, no other {\em instruction-components}
-may be present in the {\em instruction}.
+may be present in the {\em instruction}.  Omitting the {\em instruction-group}
+of a {\em lexical-table-entry} is the same as writting `\TT{accept}' for
+the {\em instruction-group}.
 
 \subsubsubsection{Match Instruction Components and Atom Tables}
 
@@ -1554,7 +1569,7 @@ provide a translation of the atom, and determine
 whether the containing {\em instruction} fails.
 
 Atom tables match only a single atom and implicitly return
-to their invoking instruction after matching one atom.  The
+to their invoking {\em instruction} after matching one atom.  The
 \TT{output}, \TT{goto}, \TT{call}, and \TT{return}
 {\em instruction-components} \underline{cannot} be used in an
 atom table.  However, the \TT{fail} {\em instruction-component}
@@ -1687,7 +1702,8 @@ A \TT{require} should only appear in an
 {\em instruction} which is followed by an `\TT{else}' in an
 {\em instruction-group}.
 A \TT{require} should only appear in an instruction that also
-contains a \TT{match}, \TT{translate hex}, or \TT{translate oct}
+contains a \TT{match}, \TT{translate hex}, \TT{translate oct},
+or \TT{translate name}
 instruction component, and is only useful for testing the
 translations produced by these latter components.
 

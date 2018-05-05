@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 08:44:53 EDT 2018
+// Date:	Sat May  5 09:14:37 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -843,8 +843,9 @@ bool BRA::parse_paragraph_element
 	PAR::token first =
 	    line_variables->previous->next;
 
-	// Here to handle line separator that
-	// superfluously ends a logical line.
+	// Here to handle line separator that super-
+	// fluously ends a logical line and comment
+	// line that becomes an empty logical line.
 	//
 	if ( first == current )
 	{

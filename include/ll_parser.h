@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:40:48 EDT 2018
+// Date:	Sat May  5 04:33:58 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -354,12 +354,15 @@ struct token_struct
         // and of the first character AFTER the token,
 	// or the end of input.
 
-    min::uns32 indent;
+    min::int32 indent;
         // Indent of the first character AFTER the
 	// token, or of the end of input.  Used in the
 	// indent_t tokens to determine line indent.
 	// See ll_lexeme.h for details of how character
 	// and end of input indent is computed.
+	//
+	// Signed only so that signed relative indenta-
+	// tion can be easily computed.
 
     const ll::parser::token next, previous;
         // Doubly linked list pointers for tokens.
@@ -2259,7 +2262,7 @@ inline min::int32 relative_indent
 	  == ll::lexeme::standard::indent_t );
 
     int relative_indent =
-        (min::int32) token->indent - paragraph_indent;
+        token->indent - paragraph_indent;
     if (    relative_indent != 0
 	 && relative_indent < indentation_offset 
 	 && relative_indent > - indentation_offset )

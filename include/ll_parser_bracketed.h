@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 01:44:06 EDT 2017
+// Date:	Sat May  5 04:25:10 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -909,7 +909,7 @@ struct line_variables
     // indented paragraph, and its values are used to
     // communicate between the parses of the various
     // logical lines, headed lines, and headed para-
-    // graphs of the indented paraagraph.
+    // graphs of the indented paragraph.
     //
     // WARNING: this ASSUMES that the parser tables are
     // not modified DURING logical line parsing.  Break-
@@ -925,6 +925,13 @@ struct line_variables
     min::int32 paragraph_indent;
         // Paragraph indentation for use in ending
 	// paragraph.
+    bool at_paragraph_indent;
+        // First token of logical line is at the
+	// paragraph indent (i.e., immediately after
+	// an indent token at that indent).  Used to
+	// detect erroneous comment at beginning
+	// of non-comment logical line that does
+	// not follow a line separator.
 
     // Variables that must be initialized before
     // indented paragraph lines are parsed, and are used

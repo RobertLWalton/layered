@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:22:20 EDT 2018
+// Date:	Sat May  5 04:25:21 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -783,9 +783,9 @@ bool BRA::parse_paragraph_element
 
 	if ( current->type == LEXSTD::indent_t )
 	{
-
 	    MIN_REQUIRE
 	        ( current->next == parser->first );
+
 	    min::uns32 lexical_master =
 	        ( parser->at_paragraph_beginning ?
 	          line_variables->
@@ -795,12 +795,18 @@ bool BRA::parse_paragraph_element
 	    if ( lexical_master != PAR::MISSING_MASTER )
 		PAR::set_lexical_master
 		    ( lexical_master, parser );
+
+	    line_variables->at_paragraph_indent =
+		(    current->indent
+		  == line_variables->paragraph_indent );
+
 	    PAR::ensure_next ( parser, current );
 	    current = current->next;
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
 				current->previous ) );
-	}
+	} else
+	    line_variables->at_paragraph_indent = false;
 
 	// Get subexpression.  First is the first token
 	// of the subexpression.
@@ -1465,8 +1471,7 @@ min::position BRA::parse_bracketed_subexpression
     }
     else
     {
-	if ( bracket_stack_p == NULL )
-	    goto NEXT_TOKEN;
+	MIN_REQUIRE ( bracket_stack_p != NULL );
 	if ( bracket_stack_p->prefix == min::NULL_STUB )
 	    goto NEXT_TOKEN;
 	PRE::prefix p =

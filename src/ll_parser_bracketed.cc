@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 04:25:21 EDT 2018
+// Date:	Sat May  5 08:44:53 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1431,8 +1431,18 @@ min::position BRA::parse_bracketed_subexpression
     min::gen prefix_group;
     TAB::flags prefix_selectors;
 
+    bool maybe_bad_comment = false;
+    min::phrase_position bad_comment_position;
+
     if ( parsing_logical_line )
     {
+	if ( line_variables->at_paragraph_indent )
+	{
+	    maybe_bad_comment =
+	        ( current->type == LEXSTD::comment_t );
+	    bad_comment_position = current->position;
+	}
+
 	BRA::line_data & line_data =
 	    line_variables->current;
 	min::gen implied_header =
@@ -2220,6 +2230,21 @@ NEXT_TOKEN:
 			    current->previous ) );
     }
 
+    if ( maybe_bad_comment )
+    {
+        if ( current->type != LEXSTD::end_of_file_t
+	     &&
+	     ( current->type != LEXSTD::indent_t
+	       ||
+	         current->indent
+	       > line_variables->paragraph_indent ) )
+	    PAR::parse_warn
+		( parser, bad_comment_position,
+		  "comment at beginning of"
+		  " logical line" );
+	maybe_bad_comment = false;
+    }
+
     if ( indentation_found != min::NULL_STUB )
     {
 	// We come here to process an indented para-
@@ -2560,7 +2585,7 @@ NEXT_TOKEN:
 			  paragraph_indent );
 	    if ( rindent < 0 )
 		return min::MISSING_POSITION;
-	    else if ( rindent <= 0
+	    else if ( rindent == 0
 		      &&
 		      (   selectors
 			& PAR::EALEINDENT_OPT ) )
@@ -2572,11 +2597,9 @@ NEXT_TOKEN:
 	//
 	PAR::ensure_next ( parser, current );
 	current = current->next;
-
 	PAR::free
 	    ( PAR::remove ( first_ref(parser),
 			    current->previous ) );
-
 	goto NEXT_TOKEN;
     }
 

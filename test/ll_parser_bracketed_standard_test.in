@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  2 02:23:49 EDT 2017
+// Date:	Sat May  5 05:35:34 EDT 2018
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -33,6 +33,15 @@ Ditto with separator:
    Fifth line.
    Sixth line A; Sixth line B
    Seventh line.
+
+// This is a legal comment line.
+// This is an illegal comment at the beginning of
+   the logical line // a logical line
+Ditto:
+   // Illegal comment in paragraph:
+       the line
+   // Legal comment
+   another line
 
 // The following are encoded in
 //     ll_parser_bracketed_standard_test.cc

@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 4, 2018
+May 6, 2018
  
 \end{center}
 
@@ -2280,18 +2280,41 @@ Input is parsed into a sequence of \skey{logical line}s, each of which is
 a sequence of tokens.  Once parsed, logical lines may be grouped into
 paragraphs.
 
-In the input physical lines begin with an indent lexeme token that
+In the input non-blank
+physical lines begin with an indent lexeme token that
 contains an indentation that is the number of columns before the first
-graphic character in the physical line (which cannot be a blank line or
-line containing just a comment).
-By `\key{indent token}' we mean such
-a token and by an `\mkey{indent}{of indent token}' we mean the indentation
-of an indent token or an integer that will be compared to such.
+graphic character in the physical line.  All physical lines end with a
+line-break or end-of-file token.  Blank physical lines have
+only this ending token, and do not have an indent token.
 
-A logical line begins just after the first indent token in the
-file or the first indent token after the previous logical line.
-The indent of this token is called the `\key{line indent}'.
-A logical line ends with one
+The `\mkey{indent}{of physical line}' of a non-blank physical line is the
+indent of its indent token.
+
+The first logical line in a file begins just after the first
+indent token in the file, which must have indent 0 else it is in error.
+A logical line can end with an indent token (see below for specific
+requirements), a line separator token outside parentheses
+(most commonly `\TT{;}'), or an end-of-file token.
+Logical lines other than the first begin with the first token after the
+previous logical line.
+
+Logical lines consisting of nothing but comment lexeme tokens and not
+ended by a line separator are
+called `\skey{comment line}s'.  Empty logical lines and comment lines
+are discarded unless they end with a line separator.
+
+After a logical
+line has been scanned, any indent, line-break, end-of-file, terminating
+line separator, or comment tokens
+are removed.  The logical line is then compacted to form
+a MIN object to which an \TT{.initiator}
+attribute is added that equals
+the special value \TT{min::\EOL LOGICAL\_\EOL LINE()} and a
+\TT{.terminator} attribute is added that is either the terminating 
+line separator or equals \TT{"<LF>"}.  The vector part of the MIN
+object can only be empty if the \TT{.terminator} is a line separator.
+
+More specifically, a logical line ends with one
 of the following as controlled by parser options defined in
 Figures~\itemref{END-AT-OPTIONS-1}
 and~\itemref{END-AT-OPTIONS-2}:
@@ -2299,8 +2322,8 @@ and~\itemref{END-AT-OPTIONS-2}:
 \begin{itemize}
 \item An indent token with indent equal to or less than the current indent.
 \item An indent token with indent less than the current indent.
-\item Any line break.
-\item Any completely blank (non-comment) line.
+\item The first indent token after any line-break.
+\item The first indent token after any completely blank (non-comment) line.
 This is called a `\key{paragraph break}'.
 \item A line separator, e.g.~`\TT{;}'.
 \item The end of file.  An end of file always terminates a logical line,
@@ -2415,10 +2438,11 @@ level this is just \TT{0}.  An indented paragraph changes the current
 indent to the indent of the first indent token within the indented
 paragraph.  See \itemref{PARAGRAPHS} for more detail.
 
-Note that in applying the above comments and lines containing
-just a comment are ignored.  Thus a `blank line' means any sequence
-of comment line and blank lines containing at least one completely
-blank line.
+Note that in applying the above comments are \underline{not} ignored
+and the indent before a comment may end a logical line.  However
+a comment following an indent is considered to be in error unless
+it is part of a comment line (logical line containing only comments
+and not ended by a line separator).
 
 Prefix separators, brackets, and indentation marks, all of which
 can be used to change syntax, can change the options that control

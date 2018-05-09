@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 04:14:23 EDT 2018
+// Date:	Wed May  9 06:02:52 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1437,7 +1437,8 @@ min::position BRA::parse_bracketed_subexpression
     TAB::flags prefix_selectors;
 
     min::phrase_position bad_comment_position =
-        { min::MISSING_POSITION, min::MISSING_POSITION };
+        { min::MISSING_POSITION,
+	  min::MISSING_POSITION };
 	// Begin is set non-missing if logical line
 	// beginning at paragraph indent starts with
 	// a comment.
@@ -3040,12 +3041,13 @@ NEXT_TOKEN:
 	    }
 
 	    // Separator cannot be found inside
-	    // brackets.
+	    // brackets.  This is because the new_
+	    // selectors element of all opening bracket
+	    // parser table entries is automatically set
+	    // to remove any EALSEP_OPT flag from the
+	    // separators.
 	    //
-	    // MIN_REQUIRE ( ! separator_found );
-	    //
-	    // TBD: Delete this as separator can be
-	    // found after all.
+	    MIN_REQUIRE ( ! separator_found );
 
 	    PAR::token next = current;
 	    min::phrase_position position;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 14:14:26 EDT 2018
+// Date:	Wed May  9 04:14:23 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3042,7 +3042,10 @@ NEXT_TOKEN:
 	    // Separator cannot be found inside
 	    // brackets.
 	    //
-	    MIN_REQUIRE ( ! separator_found );
+	    // MIN_REQUIRE ( ! separator_found );
+	    //
+	    // TBD: Delete this as separator can be
+	    // found after all.
 
 	    PAR::token next = current;
 	    min::phrase_position position;

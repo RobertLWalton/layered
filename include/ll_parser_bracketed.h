@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 04:25:10 EDT 2018
+// Date:	Wed May  9 03:31:18 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -658,32 +658,66 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // Parse Bracketed Subexpression Function
 // ----- --------- ------------- --------
 
-// Move `current' to the end of the current bracketed
-// subexpression, calling ll::parser::ensure_next if
-// more tokens are needed.  The bracketed subexpression
-// may be a logical line, an untyped bracketed subex-
-// pression, a typed bracketes subexpression or typed
-// prefix, or a prefix-n-list.  Other bracketed subex-
-// pressions are recognized within the subexpressions
-// just listed: namely indented paragraphs, implied
-// headers, headed lines, and mapped lexemes.
+// The parse_bracketed_subexpression function moves
+// `current' to the end of a subexpression, calling
+// ll::parser::ensure_next if more tokens are needed.
+// The bracketed subexpression may be of the kinds
+// listed below.  Sub-subexpressions are recoginized
+// and converted into single tokens during the scan
+// of the subexpression.  The function calls itself
+// recursively to accomplish this.
 //
 // The parsed subexpression is NOT compacted and tokens
 // in it are left untouched with the following excep-
-// tions.  Line breaks, comments, indent, and indent
-// before comment tokens are deleted.  After doing this,
-// quoted strings are merged within a logical line if
-// separated by a string concatenator or if consecutive
-// when no string concatenator is required.  Bracketed
-// sub-subexpressions of the subexpression being parsed
-// are converted to single tokens.  Any logical line
-// terminating line separator is deleted.
+// tions.  Line breaks, indent, and comment tokens are
+// deleted.  After doing this, quoted strings are merged
+// within a logical line if separated by a string con-
+// catenator or if consecutive when no string concatena-
+// tor is required.  Sub-subexpressions of the sub-
+// expression being scanned are converted to single
+// tokens.  Logical line terminating line separators are
+// deleted. Implied headers are inserted.  Mapped tokens
+// are replaced.
 //
 // In most cases MISSING_POSITION is returned.  If a
 // a logical line terminating line separator was
 // deleted, the position of the end of the separator
 // is returned.
 //
+// The following kinds of expression can be processed.
+// Unless otherwise specified the parsing selectors used
+// during the scan are those given by the `selectors'
+// argument.
+//
+// Bracketed Expressions:
+//
+//     AFTER recoginizing the opening bracket and moving
+//     `current' to the following token, this function
+//     is called with a top bracket_stack entry that has
+//     the opening bracket parser table entry as its
+//     `opening_bracket' value.  This function normally
+//     returns with `current' equal to the first token
+//     of the corresponding closing bracket and the
+//     tokens of the closing bracket delimited in the
+//     bracket stack entry (by closing_first and
+//     closing_next).  If the expression terminates
+//     without a closing bracket because that was
+//     omitted in the input and the omission was
+//     detected, then this function returns with
+//     closing_first == closing_next == the token before
+//     which the omitted closing bracket should be
+//     inserted.
+//
+//     This call uses the line_variables argument to
+//     specify the parameters that can end the logical
+//     line in which the bracketed expression occurs.
+//     A bracketed expression CANNOT cross logical
+//     lines, and the end of the current logical line
+//     signals an omitted closing bracket.
+//
+// TBD
+//
+//     is inside another expression with a differen
 // Sub-subexpressions are identified and each is replac-
 // ed by a single BRACKETED, BRACKETABLE, PURELIST, PRE-
 // FIX, or DERIVED token.  If a typed bracketed subex-
@@ -861,10 +895,16 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // brackets etc. are not recognized if they straddle
 // a line break.
 //
-// This function is called at the top level with zero
-// indent, parser->selectors, `top_level_indentation_
-// mark->line_sep' which is `;', and bracket_stack_p =
-// NULL.
+// This function is called at the top level with line
+// variables specifying paragraph_indent as 0, line_sep
+// as `top_level_indentation_mark->line_sep' which is
+// `;', all line_data as having selectors, paragraph_
+// lexical_master, and line_lexical_master taken from
+// the parser (e.g., parser->selectors), and bracket_
+// stack_p = NULL.  After processing any parsing com-
+// mands (i.e., a **PARSE** paragraph), the line_data
+// are reset to the parser values (e.g., parser->
+// selectors).
 //
 struct line_data
 {

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 03:31:18 EDT 2018
+// Date:	Wed May  9 06:25:25 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -689,7 +689,7 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // during the scan are those given by the `selectors'
 // argument.
 //
-// Bracketed Expressions:
+// Untyped Bracketed Expressions:
 //
 //     AFTER recoginizing the opening bracket and moving
 //     `current' to the following token, this function
@@ -708,12 +708,48 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     which the omitted closing bracket should be
 //     inserted.
 //
-//     This call uses the line_variables argument to
-//     specify the parameters that can end the logical
-//     line in which the bracketed expression occurs.
-//     A bracketed expression CANNOT cross logical
-//     lines, and the end of the current logical line
-//     signals an omitted closing bracket.
+//     This call uses the line_variables argument and
+//     options in the selectors argument to specify
+//     parameters that are used to detect the end the
+//     logical line in which the bracketed expression
+//     occurs.  A bracketed expression CANNOT cross
+//     logical lines, and the end of the current logical
+//     line signals an omitted closing bracket.
+//
+//     The EALSEP_OPT flag is removed by the new_
+//     selectors member of any opening bracket parser
+//     table entry, so line separators cannot end
+//     logical lines inside bracketed subexpressions.
+//
+//     If a closing bracket is encountered that matches
+//     the opening bracket in a bracket_stack entry
+//     that is NOT the top of the bracket_stack, and the
+//     EAOCLOSING option is set in the selectors argu-
+//     ment, the closing bracket for the subexpression
+//     being scanned has been omitted and should be
+//     inserted before the closing bracket that was
+//     found.
+//
+//     For untyped bracketed sub-subexpressions this
+//     function calls itself recursively with selectors
+//     modified by the sub-subexpression opening bracket
+//     parser table entry new_selectors member.  This
+//     function then removes the opening and any closing
+//     brackets of the sub-subexpression, applies any
+//     reformatter specified by the opening bracket
+//     parser table entry of the sub-subexpression, and
+//     if there is no reformatter, or if requested by
+//     the reformatter, compacts the sub-subexpression
+//     making its opening bracket its .initiator and its
+//     closing bracket (even if omitted) its .terminator.
+//     Compact is called with BRACKETING token type
+//     and the selectors used to scan the sub-subexpres-
+//     sion.
+//
+// Typed Bracketed Expressions:
+//
+//     These are like to untyped bracketed expressions
+//     but with the following differences.
 //
 // TBD
 //

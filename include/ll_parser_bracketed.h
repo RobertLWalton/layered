@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 10 01:45:37 EDT 2018
+// Date:	Thu May 10 02:40:53 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -677,7 +677,8 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // expression being scanned are converted to single
 // tokens.  Logical line terminating line separators are
 // deleted. Implied headers are inserted.  Mapped tokens
-// are replaced.
+// are replaced.  Some special editing of tokens is
+// done for typed bracketed subexpressions (see below).
 //
 // In most cases MISSING_POSITION is returned.  If a
 // a logical line terminating line separator was
@@ -701,22 +702,24 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //
 // Logical Line Expressions:
 //
-//     Parse_bracketed_subexpression is called by top
-//     level code to parse logical lines.  All other
-//     calls to parse_bracketed_subexpression are
-//     recursive calls.
+//     This function is called by top level code to
+//     parse logical lines.  All other calls to this
+//     function are recursive calls.
 //
 //     AFTER recognizing the indent before a logical
 //     line, or the logical line separator at the
 //     end of a previous line, this function is called
-//     with a line_variables argument and an empty
-//     bracket stack (NULL bracket_stack_p).  This
-//     function uses the line_variables argument and
-//     options in the selectors argument to specify
+//     with `current' equal to the first token after
+//     the indent or line separator, and with a line_
+//     variables argument and an empty bracket stack
+//     (NULL bracket_stack_p).
+//
+//     This function uses the line_variables argument
+//     and options in the selectors argument to specify
 //     parameters that are used to detect the end the
 //     logical line being scanned, and returns with
 //     `current' equal to the indent or end-of-file
-//     following the logical line.  But if the line is
+//     that ends the logical line.  But if the line is
 //     terminated by a line separator, the line
 //     separator is deleted by this function.
 //
@@ -724,6 +727,32 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     separator, this function returns the position of
 //     the end of the line separator.  In ALL other
 //     cases this function returns MISSING_POSITION.
+//
+//     Line_variables contains several sets of line_data
+//     which are used while parsing the line.  The
+//     paragraph set is copied to the current set by
+//     parse_paragraph_element at the beginning of an
+//     indented paragraph, or after a blank line when
+//     the previous paragraph header is not CONTINUED or
+//     the line after the blank line begins with an
+//     explicit paragraph header (TBD check).
+//
+//     When parse_paragraph_element calls this function
+//     to parse a logical line after an indent, it sets
+//     the current line_data lexical master to be in
+//     effect immediately after the indent token.  It
+//     also always passes the current line_data
+//     selectors to this function when parsing a logical
+//     line.
+//
+//     If the current line_data has an implied header,
+//     it is prepended to the logical line as a prefix
+//     header, and the logical line is scanned as a
+//     prefix-0-list (see below).  If the line begins
+//     with an explicit header in the same group as the
+//     implicit header, the implicit header is deleted,
+//     using the rule that an implicit header prefix-n-
+//     list must always have at least one element.
 //
 // TBD
 //
@@ -837,31 +866,6 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // An end of file token or an indent token with indent
 // less than the paragraph_indent always terminates a
 // logical line.
-//
-// The line_variables also contains several sets of
-// line_data which are used while parsing the line.
-// The paragraph set is copied to the current set by
-// parse_paragraph_element at the beginning of an
-// indented paragraph, or after a blank line when the
-// previous paragraph header is not CONTINUED or the
-// line after the blank line begins with an explicit
-// paragraph header.
-//
-// When parse_paragraph_element calls this function to
-// parse paragraph lines, it sets the current line_data
-// lexical master to be in effect immediately after any
-// indent token just before the logical line, and sets
-// the current line_data selectors to be in effect for
-// parsing the logical line.
-//
-// If the current line_data has an implied header, it
-// is prepended to the logical line as a prefix header,
-// and the logical line is scanned as a prefix-0-list.
-// If the line begins with an explicit header in the
-// same group as the implicit header, the implicit
-// header is deleted, using the rule that an implicit
-// header prefix-n-list must always have at least one
-// element.
 //
 // When this function encounters an active untyped
 // opening bracket, it calls itself recursively to parse

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 06:25:25 EDT 2018
+// Date:	Thu May 10 01:45:37 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -684,10 +684,48 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // deleted, the position of the end of the separator
 // is returned.
 //
+// This function never alters tokens before the value
+// of `current' at the time the function is called, and
+// assumes there is always at least one such token,
+// e.g., the start-file token.  The tokens scanned by
+// this function therefore consist of all tokens from
+// the initial `current->previous' token through the
+// final `current->previous' token.  This token list
+// may be empty in certain cases (e.g., scanning a
+// comment logical line).
+//
 // The following kinds of expression can be processed.
 // Unless otherwise specified the parsing selectors used
 // during the scan are those given by the `selectors'
 // argument.
+//
+// Logical Line Expressions:
+//
+//     Parse_bracketed_subexpression is called by top
+//     level code to parse logical lines.  All other
+//     calls to parse_bracketed_subexpression are
+//     recursive calls.
+//
+//     AFTER recognizing the indent before a logical
+//     line, or the logical line separator at the
+//     end of a previous line, this function is called
+//     with a line_variables argument and an empty
+//     bracket stack (NULL bracket_stack_p).  This
+//     function uses the line_variables argument and
+//     options in the selectors argument to specify
+//     parameters that are used to detect the end the
+//     logical line being scanned, and returns with
+//     `current' equal to the indent or end-of-file
+//     following the logical line.  But if the line is
+//     terminated by a line separator, the line
+//     separator is deleted by this function.
+//
+//     If a logical line is terminated by a line
+//     separator, this function returns the position of
+//     the end of the line separator.  In ALL other
+//     cases this function returns MISSING_POSITION.
+//
+// TBD
 //
 // Untyped Bracketed Expressions:
 //

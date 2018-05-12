@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 10 02:40:53 EDT 2018
+// Date:	Sat May 12 07:34:41 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -721,29 +721,46 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     `current' equal to the indent or end-of-file
 //     that ends the logical line.  But if the line is
 //     terminated by a line separator, the line
-//     separator is deleted by this function.
+//     separator is deleted by this function and
+//     `current' is returned as the token after the
+//     line separator.
 //
 //     If a logical line is terminated by a line
-//     separator, this function returns the position of
-//     the end of the line separator.  In ALL other
-//     cases this function returns MISSING_POSITION.
+//     separator, the return value of this function is
+//     the position of the end of the line separator.
+//     In ALL other cases the return value is MISSING_
+//     POSITION.
+//
+//     A logical line is in the paragraph beginning
+//     position if it is at the beginning of the input
+//     file, the beginning of an indented paragraph,
+//     or after a blank line, or if it is separated from
+//     such a position only by preceding comment lines.
 //
 //     Line_variables contains several sets of line_data
 //     which are used while parsing the line.  The
 //     paragraph set is copied to the current set by
-//     parse_paragraph_element at the beginning of an
-//     indented paragraph, or after a blank line when
-//     the previous paragraph header is not CONTINUED or
-//     the line after the blank line begins with an
-//     explicit paragraph header (TBD check).
+//     parse_paragraph_element at the beginning of a
+//     logical line in paragraph beginning position if
+//     the CONTINUING_OPT flag in the current line_data
+//     (before replacement) is off.  This last flag is
+//     set only by the line_data of a paragraph headed
+//     by a prefix whose type has the `continuing'
+//     option.  See the line_variables description below
+//     for more information about the sets of line_data
+//     it contains.
 //
 //     When parse_paragraph_element calls this function
 //     to parse a logical line after an indent, it sets
-//     the current line_data lexical master to be in
-//     effect immediately after the indent token.  It
-//     also always passes the current line_data
-//     selectors to this function when parsing a logical
-//     line.
+//     the lexical master that will be in effect
+//     immediately after the indent token from the
+//     current line_data.  The lexical master is set to
+//     the current line_data paragraph_lexical_master
+//     if the logical line is in paragraph beginning
+//     position, and to the line_lexical_master other-
+//     wise.  Parse_paragraph_element also passes the
+//     current line_data selectors to this function when
+//     parsing a logical line.
 //
 //     If the current line_data has an implied header,
 //     it is prepended to the logical line as a prefix
@@ -818,7 +835,50 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     These are like to untyped bracketed expressions
 //     but with the following differences.
 //
+//     When this function is called to parse a typed
+//     bracketed subexpression, the typed_data argument
+//     is NOT NULL, and is used during the parse and
+//     also returns information to the caller.  Type and
+//     attribute labels and values become special tokens
+//     with types ATTR_... and are moved to the front of
+//     the list of tokens returned.  When a typed open-
+//     ing bracket is encountered and the subsequent
+//     recursive call to this function is completed,
+//     these special tokens are used to set the attri-
+//     butes of the compacted sub-subexpression.  See
+//     typed_data structure above for more details on
+//     the ATTR_... token types.
+//
+//     Also when parsing a typed bracketed subexpres-
+//     sion, the selectors are switched when scanning
+//     the type and attributes parts to the attr_
+//     selectors provided by the typed opening defini-
+//     tion.  The selectors used to parse the subexpres-
+//     sion elements are the same as for an untyped
+//     bracketed subexpression: i.e., the value of the
+//     selectors argument to this function.  The options
+//     are NOT switched.
+//
+//     When a typed bracketed sub-subexpression is
+//     compacted, if it has no elements and its opening
+//     bracket (e.g. '{' with `code' selector) allows
+//     prefix separators, then the compacted token is
+//     given the PREFIX token type and that token is a
+//     prefix separator.  As soon as a PREFIX token is
+//     created, this function calls itself recursively
+//     to parse the prefix-n-list sub-subexpression
+//     headed by the PREFIX token.  See below.
+//
 // TBD
+//
+// Similarly a prefix separator at the beginning
+// of a prefix-n-list begins a prefix-(n+1)-list.
+// However, note that a prefix separator in a typed
+// bracketed subexpression is an error (but generally
+// '{' with `data' selector does not allow prefix
+// separators so prefix separators can only occur in
+// the elements list of a typed bracketed subexpres-
+// sion).
 //
 //     is inside another expression with a differen
 // Sub-subexpressions are identified and each is replac-
@@ -857,16 +917,6 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // `current->previous' always exists as the start
 // of file token is always present.
 //
-// This function parses a logical line if and only if
-// the bracket_stack_p argument is NULL.  When parsing
-// logical lines, the line_variables argument is used
-// to control parsing.  The logical line ends according
-// to the setting of the EAxxx_OPT options and the
-// line_variables line_sep and paragraph_indent members.
-// An end of file token or an indent token with indent
-// less than the paragraph_indent always terminates a
-// logical line.
-//
 // When this function encounters an active untyped
 // opening bracket, it calls itself recursively to parse
 // an untyped bracketed sub-subexpression, and when the
@@ -898,49 +948,6 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 // effect.  Bracketed subexpressions must be inside a
 // logical line, so the end of the logical line also
 // closes all bracket stack entries.
-//
-// Typed bracketed subexpressions are treated similarly
-// to untyped bracketed subexpressions, with the follow-
-// ing differences.  When called recursively to parse a
-// typed bracketed subexpression, the typed_data argu-
-// ment is NOT NULL, and is used during the parse and
-// also returns information to the caller.  Type and
-// attribute labels and values become special tokens
-// with types ATTR_... and are moved to the front of
-// the list of tokens returned.  When a typed opening
-// bracket is encountered and the subsequent recursive
-// call is completed, these special tokens are used to
-// set the attributes of the compacted sub-subexpres-
-// sion.  See typed_data structure above for more
-// details on the ATTR_... token types.
-//
-// Also when parsing a typed bracketed subexpression,
-// the selectors are switched when scanning the type
-// and attributes parts to the attr_selectors provided
-// by the typed opening definition.  The selectors used
-// to parse the subexpression elements are the same
-// as for an untyped bracketed subexpression: i.e., the
-// value of the selectors argument.  The options are NOT
-// switched.
-//
-// When a typed bracketed sub-subexpression is
-// compacted, if it has no elements and its opening
-// bracket (e.g. '{' with `code' selector) allows
-// prefix separators, then the compacted token is given
-// the PREFIX token type and that token is a prefix
-// separator.  If the token begins a logical line or an
-// untyped bracketed subexpression, then it begins a
-// prefix-0-list sub-subexpression, which is parsed
-// by calling this function recursively with the
-// top bracket stack entry specifying the prefix
-// token.  Similarly a prefix separator at the beginning
-// of a prefix-n-list begins a prefix-(n+1)-list.
-// However, note that a prefix separator in a typed
-// bracketed subexpression is an error (but generally
-// '{' with `data' selector does not allow prefix
-// separators so prefix separators can only occur in
-// the elements list of a typed bracketed subexpres-
-// sion).
 //
 // A prefix-n-list is ended by the end of a logical
 // line or the end of any containing untyped bracketed

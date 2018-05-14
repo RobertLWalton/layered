@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 13 16:04:09 EDT 2018
+// Date:	Mon May 14 03:53:34 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -925,25 +925,26 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //
 // Prefix-N-List Expressions:
 //
+//     When a PREFIX token is recognized, or one is
+//     implicitly inserted, this function calls itself
+//     recursively to scan the part of the prefix-n-list
+//     headed by the PREFIX token that is before the
+//     next PREFIX token or the end of the prefix-n-
+//     list.  Before calling itself the PREFIX token and
+//     its prefix group are pushed into the bracket
+//     stack.
 //
-// TBD
+//     The call to scan part of the prefix-n-list is
+//     ended by the end of a logical line, by the end
+//     of any containing untyped bracketed subexpres-
+//     sion, or by encountering another PREFIX token
+//     that has a group equal to a bracket stack entry
+//     that is after any untyped bracket entry in the
+//     stack.
 //
-// Similarly a prefix separator at the beginning
-// of a prefix-n-list begins a prefix-(n+1)-list.
-//
-// A prefix-n-list is ended by the end of a logical
-// line or the end of any containing untyped bracketed
-// subexpression.  It is continued by discovery of
-// another prefix separator with the same .type or
-// in the same prefix group as the prefix separator
-// identified at the top of the bracket stack.  It
-// is ended by discovery of another prefix separator
-// whose .type or group is the same as the prefix
-// separator identified in bracket stack entry
-// between the next to top entry and the first non-
-// prefix bracket stack entry or bottom of stack.
-// Prefix-n-lists are compacted by the compact_prefix_
-// list function.
+//     Upon return from a call to scan part of a prefix-
+//     n-list, the part is compacted by the compact_
+//     prefix_list function.
 //
 struct line_data
 {

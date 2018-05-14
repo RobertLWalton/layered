@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 03:53:34 EDT 2018
+// Date:	Mon May 14 04:19:09 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1015,7 +1015,7 @@ struct line_variables
 
     // Variables that must be initialized before
     // indented paragraph lines are parsed, and are used
-    // by parse_parargraph_element.
+    // by parse_paragraph_element.
     //
     ll::parser::token last_paragraph;
         // Last token whose value has a .type with

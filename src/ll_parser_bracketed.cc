@@ -754,6 +754,7 @@ bool BRA::parse_paragraph_element
 	  (    current->value_type
 	    == PARLEX::paragraph );
 
+	MIN_REQUIRE ( current->next != parser->first );
         current = current->next;
 
 	if ( line_variables->at_paragraph_end )

@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 17 06:55:06 EDT 2017
+// Date:	Mon May 14 05:27:47 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,7 +24,7 @@
 // parse_paragraph_element
 //         (parser,current,line_variables):
 //
-//     if line_variables->last_paragraph != NULL_STUB:
+//     if line_variables->last_paragraph not null
 //         // Special case where paragraph header
 //         // ended previous paragraph.  Current ==
 //         // line_variables->last_paragraph.
@@ -32,12 +32,15 @@
 //         current = current->next
 //         if line_variables->at_paragraph_end:
 //             // Paragraph header headed a 1-line
-//             // headed paragraph.
-//             line_variables->last_paragraph =
-//                 NULL_STUB
+//             // headed paragraph followed by the end
+//             // of the current indented paragraph
+//             // or an end of file.
+//             line_variables->last_paragraph = null
 //             return false
 //     else if line_variables->at_paragraph_end:
-//         // Return with 0 tokens.
+//         // Return with 0 tokens if indented
+//         // paragraph has ended or we are at end of
+//         // file.
 //         return false
 //
 //     loop to get lines of headed paragraph or just
@@ -47,21 +50,58 @@
 //         if parser->at_paragraph_beginning and
 //                    CONTINUING_OPT is off in
 //                    line_variables->current.selectors:
+//             // We are in paragraph beginning position
+//             // and NOT after a headed paragraph with
+//             // CONTINUING option.
 //             line_variables->current =
 //                 line_variables->paragraph
 //
 //	   if current is indent token:
+//
+//	       // At this point current->next ==
+//	       // parser->first, so we can reset lexical
+//	       // master.
+//	       if parser->at_paragraph_beginning:
+//	           // If in paragraph beginning
+//	           // position.
+//	           lexical_master =
+//	               line_variables->
+//	                   current
+//	                       .paragraph_lexical_master
+//	       else:
+//	           lexical_master =
+//	               line_variables->
+//	                   current.line_lexical_master
+//
+//	       line_variables->at_paragraph_indent =
+//	              current->indent
+//	           == line_variables->paragraph_indent
+//	           // Used by parse_bracketed_subexpres-
+//	           // sion to detect erroneous comment
+//	           // following `paragraph indent' on
+//	           // a non-comment line.
+//
 //	       move current to next token and delete
 //	            indent token
+//
+//	   else:
+//	       line_variables->at_paragraph_indent =
+//	           false
 //
 //	   selectors = line_variables->current.selectors
 //	       // Save selectors for compact_logical_
 //	       // line.
 //	   maybe_parser_command =
-//	       current->value == *PARSER*
+//	       current->value == *PARSER* and
+//	       line_variables->last_paragraph is null
+//	       // Parser commands are in logical lines
+//	       // that contain nothing but a single
+//	       // indented paragraph with intentation
+//	       // mark *PARSER*, *PARSER* *TEST*, etc.
 //	   separator_found =
 //	       parse_bracketed_subexpression with
 //	           selectors and line_variables
+//
 //	   line_variables->at_paragraph_end =
 //	       current is end of file token, or
 //	       current is indent token and indent is
@@ -70,13 +110,19 @@
 //
 //	   if parse_bracketed_subexpression did not
 //	            return any tokens:
+//	       // Line scanned had nothing but comments.
+//	       // This also happens after a line
+//	       // separator ended line that could have
+//	       // been ended by indentation.
+//
 //	       if not line_variables->at_paragraph_end:
 //	           continue loop to get lines
-//	       if line_variables->last_parargraph
-//	               != NULL_STUB:
+//	       if line_variables->last_paragraph not
+//	          null:
 //	           compact_paragraph from
-//	               line_variables.last_paragraph to
+//	               line_variables->last_paragraph to
 //	                   just before current
+//	       line_variables->last_paragraph = null
 //	       return false
 //
 //	   if parse_bracketed_subexpression returned
@@ -86,14 +132,20 @@
 //	       compact_logical_line
 //               consisting of tokens returned by
 //                   parse_bracketed_subexpression,
-//               with selectors, separator_found,
+//               with pass after bracketed subexpression
+//               pass, selectors, separator_found,
 //               line_variables->line_sep
+//             // Now result of parse_bracketed_sub-
+//             // expression is a single token contain-
+//             // ing the logical line.
+//
+// TBD
 //
 //	   if parse_bracketed_subexpression returned
 //	            a single headed paragraph token:
 //
-//	       if line_variables->last_paragraph
-//	                          != NULL_STUB:
+//	       if line_variables->last_paragraph not
+//	          null:
 //	           compact_paragraph from
 //	               line_variables.last_paragraph to
 //	                   just before returned token
@@ -114,7 +166,7 @@
 //                     returned token
 //
 //         else if line_variables->last_paragraph
-//                                 == NULL_STUB:
+//                                 is null:
 //             return maybe_parser_command
 //
 //         else if parser->at_paragraph_beginning and
@@ -129,13 +181,12 @@
 //	               tokens returned by parse_
 //	               bracketed_subexpression or
 //	               compact_logical_line above
-//	       line_variables->last_paragraph =
-//	           NULL_STUB
+//	       line_variables->last_paragraph = null
 //	       return false
 //
 //	   iterate loop to find next line of headed
 //	           paragraph (as line_variables->
-//	           last_paragraph != NULL_STUB)
+//	           last_paragraph is not null)
 //	                  
 // make_label(first,next):
 //     Collect all the tokens from first through next->
@@ -178,7 +229,7 @@
 //     the label token give it the ATTR_LABEL token
 //     type, increment typed_data->attr_count, and set
 //     typed_data->attributes to point at the token if
-//     typed_data->attributes is NULL.
+//     typed_data->attributes is null.
 //
 //     Note that attributes with empty labels will
 //     cause an error message and be otherwise ignored
@@ -216,7 +267,7 @@
 //                    below)
 //         else if start->next == next (there is just a
 //                 single token in the value)
-//                 and token->string == NULL_STUB
+//                 and token->string is null
 //                 (the token is not a quoted string
 //                  or numeric):
 //            if the single token has .initiator ==
@@ -239,9 +290,9 @@
 //
 // move_attributes(typed_data,next):
 //     If there are attributes after the last typed
-//     middle (typed_data->attributes != NULL_STUB and
-//     typed_data->middle_count != 0) and there are
-//     elements (typed_data->elements != NULL_STUB),
+//     middle (typed_data->attributes not null and
+//     typed_data->middle_count not 0) and there are
+//     elements (typed_data->elements not null),
 //     move the attributes to just before the elements.
 //     The attributes to be moved are all the tokens
 //     from typed_data->attributes through next->
@@ -265,7 +316,7 @@
 // 	    izes it, and calls itself recursively with
 // 	    the typed_data structure as an argument.
 // 	    Other calls to the parse bracketed subex-
-// 	    pression function have a NULL typed_data
+// 	    pression function have a null typed_data
 // 	    argument.
 // 	line_variables
 // 	    This points at the line variables being used
@@ -274,8 +325,8 @@
 // 	    and the updated variables are used to parse
 // 	    the next logical line.
 // 	bracket_stack_p
-// 	    Top bracket stack entry.  NULL if empty
-// 	    stack.  NULL if and only if we are being
+// 	    Top bracket stack entry.  Null if empty
+// 	    stack.  Null if and only if we are being
 // 	    asked to parse a logical line.
 //
 // Return Value:
@@ -294,10 +345,10 @@
 // bracketed_pass = parser->pass_stack
 //     // Bracketed pass; always the first pass in the
 //     // pass stack.
-// indentation_mark indentation_found = NULL_STUB
-//     // If not NULL_STUB, current token is an end-of-
-//     // line and current->previous token is the last
-//     // token of an indentation mark.
+// indentation_mark indentation_found = null
+//     // If not null, current token is an end-of-line
+//     // and current->previous token is the last token
+//     // of an indentation mark.
 // start_previous = current->previous
 //     // If current == start_previous->next, current
 //     // is at the beginning of the subexpression
@@ -308,7 +359,7 @@
 //     // as the start-of-file token is never removed
 //     // from the input.
 // parsing_logical_line =
-//         bracket_stack_p == NULL
+//         bracket_stack_p is null
 //     // True iff the parse_bracketed_subexpression()
 //     // was called to parse a logical line, and not
 //     // a subexpression of a logical line.
@@ -359,11 +410,11 @@
 //
 //	   prefix_entry
 //	       Prefix table entry for type of prefix,
-//	       or NULL_STUB if none.
+//	       or null if none.
 //
 //	   prefix_group
 //	       prefix_entry->group, or MISSING if
-//	       prefix_entry is NULL_STUB.
+//	       prefix_entry is null.
 //
 //	   prefix_selectors
 //	       Selectors used in parsing the prefix-n-
@@ -381,7 +432,7 @@
 //
 //         prefix_entry =
 //             line_variables->current.header_entry;
-//             // Required to be != NULL_STUB.
+//             // Required to be not null
 //         prefix_selectors =
 //             line_variables->current.header_selectors;
 //         prefix_group =
@@ -431,10 +482,10 @@
 //
 //     prefix_type = .type of prefix
 //     prefix_entry = prefix token .type entry in
-//          bracketed_pass prefix_table, or NULL_STUB
+//          bracketed_pass prefix_table, or null
 //          if none
 //     prefix_group = prefix_entry->group or MISSING if
-//                    prefix_entry == NULL_STUB
+//                    prefix_entry is null
 //     if prefix_group is not `line' or `paragraph',
 //             or token before prefix is IMPLIED_PREFIX:
 //         search bracket stack for bracket stack entry
@@ -522,7 +573,7 @@
 //         go to NEXT_TOKEN
 //
 //     prefix_selectors = selectors
-//     if prefix_entry != NULL_STUB:
+//     if prefix_entry not null:
 //         adjust prefix_selectors according to
 //                prefix_entry->new_selectors
 //                setting ALWAYS_SELECTOR on
@@ -649,8 +700,7 @@
 //		                              paragraph
 //
 //         top of bracket stack->closing_first =
-//         top of bracket stack->closing_last =
-//             NULL_STUB
+//         top of bracket stack->closing_last = null
 //         parse_bracketed_subexpression with
 //             prefix_selectors, with new bracket stack,
 //             line_variables argument;
@@ -658,7 +708,7 @@
 //
 //	   next (token after subexpression) =
 //	        top of stack closing first if not
-//	        NULL_STUB or current token otherwise
+//	        null or current token otherwise
 //
 //         if prefix_group == `paragraph' and one of
 //                  options EALBREAK, EALEINDENT,
@@ -747,7 +797,7 @@
 //             using indent_before_comment tokens to
 //             determine comment indent
 //
-//     if indentation_found != NULL_STUB:
+//     if indentation_found is not null
 //
 //         // Indentation was found below, but we
 //         // deferred processing it until we could skip
@@ -777,7 +827,7 @@
 //	               indentation_found->lexical_master
 //	           selectors = new_selectors
 //	           implied_header = MISSING
-//	           header_entry = NULL_STUB
+//	           header_entry = null
 //
 //	       // Loop to set implied headers in line_
 //	       // variables data.  Go at most 2 times
@@ -870,7 +920,7 @@
 //                 bracketed_pass->indentation_offset
 //             line_variables.line_sep =
 //                 indentation_found->line_sep
-//             line_variables.last_paragraph = NULL_STUB
+//             line_variables.last_paragraph = null
 //             line_variables.at_paragraph_end = false
 //             clear CONTINUING_OPT from
 //                 line_variables.current.selectors
@@ -897,7 +947,7 @@
 //             token value_type =
 //                       indentation_found->label
 //
-//	   indentation_found = NULL_STUB
+//	   indentation_found = null
 // 	 
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
@@ -933,7 +983,7 @@
 //         remove current (indent) token and set
 //                current to following token
 //
-//     assert indentation_found == NULL_STUB
+//     assert indentation_found is null
 //     assert current token is NOT end of file, comment,
 //           indent before comment, indent, or
 //           line break
@@ -985,7 +1035,7 @@
 //         if key not found:
 //
 //             if at beginning of subexpression
-//                   and typed_data argument != NULL
+//                   and typed_data argument is not null
 //                   and current is mark:
 //
 //                 // Current is mark at beginning of
@@ -1041,7 +1091,7 @@
 //		       middle_count = attr_count = 0
 //		       start_previous =
 //		           current->previous
-//		       elements = attributes = NULL_STUB
+//		       elements = attributes = null
 //		       end_position = MISSING_POSITION
 //		       subtype = TYPED_OPENING
 //		       type = MISSING
@@ -1126,8 +1176,7 @@
 //	                        there were no subexpres-
 //	                        sion elements before
 //	                        this typed middle
-//	                        (tdata.elements is NULL_
-//	                        STUB)
+//	                        (tdata.elements is null)
 //	                   tdata.elements =
 //	                       token after last key (the
 //	                       typed middle)
@@ -1211,8 +1260,7 @@
 //                 // FLAGS,MULTIVALUE}) followed by
 //                 // subexpression elements (beginning
 //                 // with typed_data.elements which is
-//                 // NULL_STUB if there are no
-//                 // elements).
+//                 // null if there are no elements).
 //
 //                 // By an attribute label token we
 //                 // mean a token of type TYPE or
@@ -1385,7 +1433,7 @@
 //
 //         if key is typed middle matching typed_middle
 //                component of typed_opening component
-//                of a non-NULL typed_data argument,
+//                of a non-null typed_data argument,
 //                or ditto for typed double middle,
 //                and typed_data->has_mark_type
 //                is false:
@@ -1411,7 +1459,7 @@
 //			     first token of key )
 //
 //              else if typed_data->middle_count is odd
-//                      and typed_data->elements == NULL
+//                      and typed_data->elements is null
 //                      and there are elements between
 //                          previous typed middle and
 //                          current typed middle key:

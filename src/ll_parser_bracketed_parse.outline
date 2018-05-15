@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 05:27:47 EDT 2018
+// Date:	Tue May 15 04:31:02 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -139,8 +139,6 @@
 //             // expression is a single token contain-
 //             // ing the logical line.
 //
-// TBD
-//
 //	   if parse_bracketed_subexpression returned
 //	            a single headed paragraph token:
 //
@@ -153,6 +151,9 @@
 //	           line_variables->last_paragraph =
 //	               returned token
 //	           return false
+//	           // Returned headed paragraph token
+//	           // will be processed by next call
+//	           // to this function.
 //
 //	       if parser->at_paragraph_beginning and
 //                        CONTINUING_OPT is off in
@@ -161,6 +162,8 @@
 //                        or if line_variables->
 //                              at_paragraph_end:
 //                 return false
+//                 // Returned headed paragraph token
+//                 // is 1-line paragraph.
 //             else:
 //                 line_variables->last_paragraph =
 //                     returned token
@@ -168,6 +171,8 @@
 //         else if line_variables->last_paragraph
 //                                 is null:
 //             return maybe_parser_command
+//             // Return logical line or headed line
+//             // token that is not in headed paragraph.
 //
 //         else if parser->at_paragraph_beginning and
 //                        CONTINUING_OPT is off in
@@ -183,10 +188,11 @@
 //	               compact_logical_line above
 //	       line_variables->last_paragraph = null
 //	       return false
+//	       // Return complete headed paragraph.
 //
 //	   iterate loop to find next line of headed
 //	           paragraph (as line_variables->
-//	           last_paragraph is not null)
+//	           last_paragraph is now not null)
 //	                  
 // make_label(first,next):
 //     Collect all the tokens from first through next->

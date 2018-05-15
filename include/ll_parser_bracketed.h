@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 04:19:09 EDT 2018
+// Date:	Tue May 15 06:27:21 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -442,9 +442,13 @@ struct typed_data
     ll::parser::bracketed::typed_opening typed_opening;
         // Typed_opening read just before the call to
 	// parse_bracketed_subexpression.
-    ll::parser::table::flags saved_selectors;
-        // Save of selectors argument to
-	// parse_bracketed_subexpression.
+    ll::parser::table::flags attribute_selectors;
+        // Selectors to be used to parse type and
+	// attributes.  Also the selectors initially
+	// passed as selectors argument to parse_
+	// bracketed_subexpression.
+    ll::parser::table::flags element_selectors;
+        // Selectors to be used to parse elements.
     min::unsptr middle_count;
         // Count of typed_middles seen so far.
     min::unsptr attr_count;
@@ -870,10 +874,10 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     if there is no reformatter, or if requested by
 //     the reformatter, compacts the sub-subexpression
 //     making its opening bracket its .initiator and its
-//     closing bracket (even if omitted) its .terminator.
-//     Compact is called with BRACKETING token type
-//     and the selectors used to scan the sub-subexpres-
-//     sion.
+//     closing bracket (even if omitted) its .termina-
+//     tor.  Compact is called with BRACKETING token
+//     type and the selectors used to scan the sub-sub-
+//     expression.
 //
 //     Untypes bracketed subexpressions can contain
 //     prefix separators.  See prefix-n-lists below.

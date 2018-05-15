@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 06:02:52 EDT 2018
+// Date:	Tue May 15 06:26:23 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1361,11 +1361,6 @@ min::position BRA::parse_bracketed_subexpression
 #   define PARSE_BRA_SUBEXP \
 	   BRA::parse_bracketed_subexpression
 	   // To avoid a too long line
-
-    // Note: if typed_data != NULL, selectors are those
-    // for scanning type and attributes, and selectors
-    // for scanning elements are in typed_data->saved_
-    // selectors.
 
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
@@ -2803,7 +2798,7 @@ NEXT_TOKEN:
 		++ typed_data->attr_count;
 
 		selectors =
-		    typed_data->saved_selectors;
+		    typed_data->element_selectors;
 	    }
 
 	    // Move to next token.
@@ -2877,7 +2872,7 @@ NEXT_TOKEN:
 	    {
 		tdata.typed_opening =
 		    (BRA::typed_opening) root;
-		tdata.saved_selectors =
+		tdata.element_selectors =
 		    new_selectors;
 		tdata.middle_count = 0;
 		tdata.attr_count = 0;
@@ -2891,17 +2886,18 @@ NEXT_TOKEN:
 		tdata.type = min::MISSING();
 		tdata.has_mark_type = false;
 
-		TAB::flags tselectors =
+		TAB::flags aselectors =
 		    new_selectors;
-		tselectors &= PAR::ALL_OPT;
-		tselectors
+		aselectors &= PAR::ALL_OPT;
+		aselectors
 		    |= tdata.typed_opening
 			       ->attr_selectors
 		    | PAR::ALWAYS_SELECTOR;
+		tdata.attribute_selectors = aselectors;
 
 		separator_found =
 		    PARSE_BRA_SUBEXP
-		      ( parser, tselectors,
+		      ( parser, aselectors,
 			current,
 			& tdata,
 			line_variables, & cstack );
@@ -3624,18 +3620,12 @@ NEXT_TOKEN:
 		if (    typed_data->middle_count % 2
 		     == 1 )
 		    selectors =
-			typed_data->saved_selectors;
+			typed_data->element_selectors;
 		else // if
 		     // typed_data->middle_count % 2
 		     // == 0
-		{
-		    selectors &= PAR::ALL_OPT;
-		    selectors |=
-			  typed_data
-			      ->typed_opening
-			      ->attr_selectors
-			| PAR::ALWAYS_SELECTOR;
-		}
+		    selectors =
+			typed_data->attribute_selectors;
 
 		break;
 	    }

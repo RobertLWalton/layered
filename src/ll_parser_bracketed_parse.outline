@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 04:31:02 EDT 2018
+// Date:	Tue May 15 05:51:37 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -194,6 +194,9 @@
 //	           paragraph (as line_variables->
 //	           last_paragraph is now not null)
 //	                  
+//
+// TBD for typed bracketed expressions
+//
 // make_label(first,next):
 //     Collect all the tokens from first through next->
 //     previous into a single label token.  Print
@@ -303,6 +306,8 @@
 //     The attributes to be moved are all the tokens
 //     from typed_data->attributes through next->
 //     previous.
+//
+// End TBD for typed bracketed expressions
 
 // parse_bracketed_subexpression(...)
 //
@@ -339,10 +344,8 @@
 //
 // 	position
 // 	    The end position of any line separator that
-// 	    ended the parsed subexpression, or
-// 	    PARAGRAPH_END if the end of the last logical
-// 	    line in a paragraph ended the parsed subex-
-// 	    pression, or MISSING_POSITION otherwise.
+// 	    ended the parsed subexpression, or MISSING_
+// 	    POSITION otherwise.
 //
 // IMPORTANT: This code assumes EVERY comment is
 // immediately followed by a line break or end of file.

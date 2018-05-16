@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 06:26:23 EDT 2018
+// Date:	Wed May 16 02:42:46 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1384,18 +1384,32 @@ min::position BRA::parse_bracketed_subexpression
 
     bool parsing_logical_line =
         ( bracket_stack_p == NULL );
-	// True iff we are parsing a logical line and
-	// NOT a bracketed (e.g.with `( )') subexpres-
-	// sion inside a logical line.  (bracketed_
-	// stack_p may still be non-NULL if the logical
-	// line is itself inside a bracketed subexpres-
-	// sion.)
+	// True iff we are being called to parse a
+	// logical line and NOT a sub-subexpression
+	// inside a logical line.
+
+    min::phrase_position bad_comment_position =
+        { min::MISSING_POSITION,
+	  min::MISSING_POSITION };
+	// Begin is set non-MISSING if logical line
+	// beginning at paragraph indent starts with
+	// a comment, and is reset to MISSING after
+	// comments and blank lines have been skipped.
+	// Used to detect comment at beginning of non-
+	// comment logical line error.
 
     if ( parsing_logical_line )
     {
 	line_variables->previous = current->previous;
 	line_variables->at_paragraph_beginning =
 	      parser->at_paragraph_beginning;
+
+	if ( line_variables->at_paragraph_indent
+	     &&
+	     current->type == LEXSTD::comment_t )
+	    bad_comment_position.begin =
+	        current->position.begin;
+
     }
 
     TAB::flags trace_flags = parser->trace_flags;
@@ -1413,6 +1427,9 @@ min::position BRA::parse_bracketed_subexpression
     }
     else
         trace_flags = 0;
+
+    // For descriptions of the following variables, see
+    // PREFIX_FOUND or PARSE_PREFIX_N_LIST below.
 
     // Variables input to both PREFIX_FOUND and
     // PARSE_PREFIX_N_LIST code blocks.
@@ -1432,21 +1449,8 @@ min::position BRA::parse_bracketed_subexpression
     min::gen prefix_group;
     TAB::flags prefix_selectors;
 
-    min::phrase_position bad_comment_position =
-        { min::MISSING_POSITION,
-	  min::MISSING_POSITION };
-	// Begin is set non-missing if logical line
-	// beginning at paragraph indent starts with
-	// a comment.
-
     if ( parsing_logical_line )
     {
-	if ( line_variables->at_paragraph_indent
-	     &&
-	     current->type == LEXSTD::comment_t )
-	    bad_comment_position.begin =
-	        current->position.begin;
-
 	BRA::line_data & line_data =
 	    line_variables->current;
 	min::gen implied_header =
@@ -1885,7 +1889,8 @@ PARSE_PREFIX_N_LIST:
     //         The prefix_table entry of the prefix
     //         token .type (NULL_STUB if none).
     //     prefix_group
-    //         The group of the prefix.
+    //         The group of the prefix.  Equals the
+    //         prefix_type if prefix_entry == NULL_STUB.
     //     prefix_selectors
     //         The selectors to be used in parsing
     //         the prefix-n-list headed by the

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 06:27:21 EDT 2018
+// Date:	Wed May 16 03:27:16 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1037,11 +1037,13 @@ struct line_variables
     //
     ll::parser::token previous;
         // Token just before logical line.  Initialized
-	// to current->previous.
+	// to current->previous by parse_bracketed_
+	// subexpression.
     bool at_paragraph_beginning;
         // True iff logical line is in paragraph
 	// beginning position.  Initialized to parser->
-	// at_paragraph_beginning.
+	// at_paragraph_beginning by parse_bracketed_
+	// subexpression.
 
     // Logical line data, used to parse next logical
     // line.  Reset from paragraph data before being

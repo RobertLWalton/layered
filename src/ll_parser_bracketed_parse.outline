@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 16 03:47:25 EDT 2018
+// Date:	Thu May 17 04:14:23 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -477,26 +477,31 @@
 //
 //     else:
 //
-// TBD
-//
 //         // Insert implied prefix NOT created by line_
 //         // variables.
 //
 //	   p = prefix table entry from the value type of
 //	       the top bracket stack entry prefix
 //
-//	   implied_subprefix = p->implied_subprefix
-//         implied_prefix_entry = prefix table entry for
-//             p->implied_subprefix_type, or null if
-//             none
 //         create new token of type IMPLIED_PREFIX,
-//             value_type implied_subprefix_type, value
-//             implied_subprefix, and insert it before
-//             current token.
+//             value_type = p->implied_subprefix_type,
+//             value = p->implied_subprefix, and insert
+//             it before current token.
+//             // We will go to PREFIX_FOUND below and
+//             // there value_type will be replaced by
+//             // any prefix table entry that is found
+//             // for the prefix .type.
 //         prefix = new token
+//
+//         if p->group is paragraph:
+//             if p->implied_subprefix type has a prefix
+//                table entry with `line' group:
+//                  prefix->type = IMPLIED_HEADER
 //
 //         separator_found = MISSING_SEPARATOR
 //         premature_closing = false
+//
+// TBD
 //
 // PREFIX_FOUND:
 //

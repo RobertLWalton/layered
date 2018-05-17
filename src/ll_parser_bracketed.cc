@@ -1500,41 +1500,15 @@ min::position BRA::parse_bracketed_subexpression
 	        ( bracket_stack_p->prefix->value_type );
 	if ( p == min::NULL_STUB )
 	    goto NEXT_TOKEN;
-	min::gen implied_subprefix =
-	    p->implied_subprefix;
-	if ( implied_subprefix == min::MISSING() )
+	if ( p->implied_subprefix == min::MISSING() )
 	    goto NEXT_TOKEN;
 
 	prefix = PAR::new_token
 		     ( PAR::IMPLIED_PREFIX );
-
-	TAB::key_table prefix_table =
-	    bracketed_pass->prefix_table;
-	PRE::prefix implied_prefix_entry =
-	    (PRE::prefix)
-	    TAB::find
-		( p->implied_subprefix_type,
-		  PRE::PREFIX,
-		  selectors,
-		  prefix_table );
-
-	if ( p->group == PARLEX::paragraph
-	     &&
-	        implied_prefix_entry
-	     != min::NULL_STUB
-	     &&
-	        implied_prefix_entry->group
-	     == PARLEX::line )
-	    prefix->type = PAR::IMPLIED_HEADER;
-		// IMPLIED_PREFIX is line header
-		// that is implied_subprefix of the
-		// prefix entry of a paragraph
-		// header.
-
 	PAR::put_before
 	    ( PAR::first_ref(parser),
 	      current, prefix );
-	PAR::value_ref(prefix) = implied_subprefix;
+	PAR::value_ref(prefix) = p->implied_subprefix;
 	PAR::value_type_ref(prefix) =
 	      p->implied_subprefix_type;
 	      // We go to PREFIX_FOUND which will
@@ -1544,6 +1518,30 @@ min::position BRA::parse_bracketed_subexpression
 	    current->position.begin;
 	prefix->position.end =
 	    current->position.begin;
+
+	if ( p->group == PARLEX::paragraph )
+	{
+	    // See if implied_subprefix group is
+	    // `line' and change IMPLIED_PREFIX to
+	    // IMPLIED_HEADER if it is.
+	    //
+	    TAB::key_table prefix_table =
+		bracketed_pass->prefix_table;
+	    PRE::prefix implied_subprefix_entry =
+		(PRE::prefix)
+		TAB::find
+		    ( p->implied_subprefix_type,
+		      PRE::PREFIX,
+		      selectors,
+		      prefix_table );
+
+	    if (    implied_subprefix_entry
+	         != min::NULL_STUB
+	         &&
+	            implied_subprefix_entry->group
+	         == PARLEX::line )
+		prefix->type = PAR::IMPLIED_HEADER;
+	}
 
 	separator_found = min::MISSING_POSITION;
 	premature_closing = false;

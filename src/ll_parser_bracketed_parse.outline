@@ -442,8 +442,6 @@
 //	       Selectors used in parsing the prefix-n-
 //	       list headed by the prefix.
 //
-// TBD
-//
 //     if parsing_logical_line:
 //
 //         if line_variables->current.implied_header
@@ -460,8 +458,9 @@
 //             line_variables->current.header_selectors;
 //         prefix_group =
 //             prefix_entry->group
-//         create new token of type IMPLIED_PREFIX,
-//             value_type prefix_entry->label, value
+//             // Required to be `paragraph' or `line'.
+//         create new token of type IMPLIED_HEADER,
+//             value_type = prefix_entry, value =
 //             line_variables->current.implied_header,
 //             and insert it before current token.
 //         prefix = new token
@@ -471,21 +470,25 @@
 //         go to PARSE_PREFIX_N_LIST
 //
 //     else if bracket stack does not have a top entry
-//             that has a prefix_entry with an implied_
-//             subprefix:
+//             that has a prefix with a prefix table
+//             entry in its value type that has an
+//             implied_subprefix:
 //         go to NEXT_TOKEN
 //
 //     else:
 //
+// TBD
+//
 //         // Insert implied prefix NOT created by line_
 //         // variables.
 //
-//	   implied_subprefix =
-//	       top bracket stack entry
-//	         ->prefix_entry->implied_subprefix
-//	   implied_subprefix_type =
-//	       top bracket stack entry
-//	         ->prefix_entry->implied_subprefix_type
+//	   p = prefix table entry from the value type of
+//	       the top bracket stack entry prefix
+//
+//	   implied_subprefix = p->implied_subprefix
+//         implied_prefix_entry = prefix table entry for
+//             p->implied_subprefix_type, or null if
+//             none
 //         create new token of type IMPLIED_PREFIX,
 //             value_type implied_subprefix_type, value
 //             implied_subprefix, and insert it before

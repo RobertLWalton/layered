@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 17 02:01:41 EDT 2018
+// Date:	Thu May 17 16:08:29 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1698,7 +1698,8 @@ PREFIX_FOUND:
 	//
 	// We must pretend the explicit paragraph header
 	// terminates the prefix-0-list begun by the
-	// implied line header.
+	// implied line header.  As this list is empty,
+	// the implied line header will be deleted.
 	//
 	// To enforce this, this code must immediately
 	// follow the above code.

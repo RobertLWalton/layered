@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 17 04:14:23 EDT 2018
+// Date:	Thu May 17 16:08:11 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -501,8 +501,6 @@
 //         separator_found = MISSING_SEPARATOR
 //         premature_closing = false
 //
-// TBD
-//
 // PREFIX_FOUND:
 //
 //     // Input variables (see above for definitions):
@@ -515,43 +513,64 @@
 //     prefix_entry = prefix token .type entry in
 //          bracketed_pass prefix_table, or null
 //          if none
-//     prefix_group = prefix_entry->group or MISSING if
-//                    prefix_entry is null
+//     prefix_group = prefix_entry->group or prefix_type
+//                    if prefix_entry is null or
+//                    prefix_entry->group is MISSING
 //     if prefix_group is not `line' or `paragraph',
 //             or token before prefix is IMPLIED_PREFIX:
 //         search bracket stack for bracket stack entry
-//                with entry->prefix_type == prefix_type
-//                or entry->prefix_entry->group ==
-//                == non-MISSING prefix_group
-//            stop search just befor first entry with
-//                 either MISSING prefix_type or
-//                 entyr line_variables different from
-//                 line_variables argument
+//                p with p->prefix_group == prefix_group
+//            stop search at end of bracket stack or
+//                 just before first entry with null
+//                 prefix
 //
-//     if bracket stack entry found:
+//     if bracket stack entry p found by search:
 //
 //         if prefix token type is IMPLIED_PREFIX:
 //             announce error: implied prefix has same
-//                 type or group as previous active
-//                 prefix in same subexpression
+//                 group as previous active prefix in
+//                 same subexpression; ignored
 //             delete prefix token
-//             go to NEXT_TOKEN
+//             go to FINISH_PREFIX
+//         else if p->prefix token type is IMPLIED_
+//                 HEADER and token before prefix does
+//                 NOT have IMPLIED_HEADER type:
+//             announce error: implied prefix has same
+//                 group as previous implied header but
+//                 is not a the beginning of a logical
+//                 line; ignored
+//             delete prefix token
+//             go to FINISH_PREFIX
+//         else if p->prefix_group is `paragraph' or
+//                 `line' and token before prefix does
+//                 NOT have IMPLIED_HEADER type:
+//             announce error: implied prefix has same
+//                 group as previous line or paragraph
+//                 header; ignored
+//             delete prefix token
+//             go to FINISH_PREFIX
 //
-//         close bracket stack entry and specify PREFIX
-//               token as closing token
+//         close bracket stack entry p and specify
+//               PREFIX token as closing token
 //         close all higher stack entries indicating
 //               that prefixes with their type/group
-//               were not found
+//               were not found and their subexpressions
+//               ended just before prefix
+//
 //         return separator_found
 //
-//     if paragraph_group == `paragraph'
-//             and
-//             prefix->type != IMPLIED_PREFIX
-//             and
-//             line_variables->at_paragraph_beginning
-//             &&
-//             top bracket stack entry is for prefix
-//                 with `line' group:
+//     if prefix_group == `paragraph'
+//        and
+//        line_variables->at_paragraph_beginning
+//        and
+//        prefix->type != IMPLIED_HEADER
+//        and
+//        prefix->type != IMPLIED_PREFIX
+//        and
+//        prefix->previous->type == IMPLIED_HEADER`
+//        and
+//        top bracket stack top entry is for prefix
+//            with `line' group:
 //         // Special case of explicit paragraph
 //         // header after implied line header.
 //         //
@@ -561,40 +580,52 @@
 //             // Thus implied `line' prefix gets
 //             // empty list and will be deleted.
 //
+//     if typed_data not null:
+//         announce error: prefix is inside typed
+//             bracketed subexpression; ignored
+//         delete prefix token
+//         go to FINISH_PREFIX
+//
 //     if prefix_group == `paragraph':
 //         if prefix->type == IMPLIED_PREFIX:
-//             announce that prefix is `paragraph'
-//                      prefix implied by previous
-//                      prefix and is thus in error
-//                      and is ignored
-//             remove prefix token
+//             announce error: prefix is implied
+//                 `paragraph' prefix that is not
+//                 an implied header; ignored
+//             delete prefix token
+//             go to FINISH_PREFIX
 //         else if prefix is not first token of
 //                 logical line or logical line is
 //                 not in paragraph beginning position:
-//             announce that prefix is explicit
-//                      `paragraph' prefix not in
-//                      paragraph beginning position
-//                      and is ignored
-//             remove prefix token
+//             announce error: prefix is explicit
+//                 `paragraph' prefix that is not at
+//                 beginning of a logical line that is
+//                 in paragraph beginning position;
+//                 ignored
+//             delete prefix token
+//             go to FINISH_PREFIX
 //
 //     else if prefix_group == `line' and prefix is
 //             NOT at beginning of current logical
 //             line and top bracket stack entry is
 //             NOT for a `paragraph' prefix:
-//         announce that prefix is `line' prefix that
-//                  is not at the beginning of a logical
-//                  line or immediately after a
-//                  `paragraph' prefix and is ignored
-//         remove prefix token
+//         announce error: prefix is `line' prefix that
+//             is not at the beginning of a logical line
+//             or immediately after a `paragraph'
+//             prefix; ignored
+//         delete prefix token
+//         go to FINISH_PREFIX
 //
-//     else if prefix not at start subexpression being
-//             parsed by parse_bracketed_subexpression:
-//         announce that prefix is not at beginning of
-//                  subexpression and does not continue
-//                  subexpression started by another
-//                  prefix of the prefix type or group,
-//                  and is ignored
-//         remove prefix token
+//     else if prefix not at start of subexpression
+//             being parsed by parse_bracketed_
+//             subexpression:
+//         announce error: prefix is not at beginning of
+//             subexpression and does not continue sub-
+//             expression started by another prefix of
+//             the prefix type or group; ignored
+//         delete prefix token
+//         go to FINISH_PREFIX
+//
+// FINISH_PREFIX:
 //
 //     if premature_closing:
 //         set prefix token type to BRACKETED if PREFIX
@@ -608,6 +639,8 @@
 //         adjust prefix_selectors according to
 //                prefix_entry->new_selectors
 //                setting ALWAYS_SELECTOR on
+//
+// TBD
 //
 // PARSE_PREFIX_N_LIST:
 //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 17 16:08:29 EDT 2018
+// Date:	Sun May 20 14:37:25 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1373,9 +1373,12 @@ min::position BRA::parse_bracketed_subexpression
 
     BRA::indentation_mark indentation_found =
         min::NULL_STUB;
-	// If not NULL_STUB, current token is an end-of-
-	// line and current->previous token is the last
-	// token of an indentation mark.
+	// If not NULL_STUB, this is the parser table
+	// entry of an indentation mark that has been
+	// found, current token is the comment, line-
+	// break, or end-of-file after the found
+	// indentation mark, and current->previous is
+	// the last token of an indentation mark.
 
     PAR::token start_previous = current->previous;
         // If current == start_previous->next, we are
@@ -1391,12 +1394,14 @@ min::position BRA::parse_bracketed_subexpression
     min::phrase_position bad_comment_position =
         { min::MISSING_POSITION,
 	  min::MISSING_POSITION };
-	// Begin is set non-MISSING if logical line
-	// beginning at paragraph indent starts with
-	// a comment, and is reset to MISSING after
-	// comments and blank lines have been skipped.
-	// Used to detect comment at beginning of non-
-	// comment logical line error.
+	// Begin is set non-MISSING if we are parsing a
+	// logical line beginning at paragraph indent
+	// that starts with a comment.  If it is set
+	// when we get to the first non-whitespace token
+	// on the logical line, a bad comment error will
+	// be announced (comment lines return to caller
+	// before they get to this point).  End is set
+	// to end of any comment or line break found.
 
     if ( parsing_logical_line )
     {
@@ -1409,7 +1414,6 @@ min::position BRA::parse_bracketed_subexpression
 	     current->type == LEXSTD::comment_t )
 	    bad_comment_position.begin =
 	        current->position.begin;
-
     }
 
     TAB::flags trace_flags = parser->trace_flags;
@@ -2211,65 +2215,33 @@ NEXT_TOKEN:
     // Come here with `current' set to the next
     // token to process.
 
-    // Delete comments, line breaks, and continuation
-    // indents before comments, so that either nothing
-    // is deleted OR current is a non-continuation
-    // indent or an indent before a non-comment or an
-    // end-of-file.  If a blank line is deleted or
-    // end of file encountered, set parser->at_
-    // paragraph_beginning.
+    // This main loop does the following:
+    //
+    // (1) Delete comments and line breaks.
+    // (2) Handle indentation_marks already found.
+    // (3) Return to caller on end-of-file or logical
+    //     line ending indent token.
+    // (4) Delete any continuation line indent token and
+    //     loop to NEXT_TOKEN.
+    // (5) Announce bad comments if any (comment lines
+    //     never come here).
+    // (6) Process non-indent, non-line-break, non-end-
+    //     of-file, non-comment token or multi-token
+    //     key.
+    // (7) Iterate loop to NEXT_TOKEN.
+
+    // Delete comments and line breaks and set
+    // parser->at_paragraph_beginning if appropriate.
     //
     min::uns32 t = current->type;
     while ( t == LEXSTD::line_break_t
 	    ||
-	    t == LEXSTD::comment_t
-	    ||
-	    t == LEXSTD::indent_t )
+	    t == LEXSTD::comment_t )
     {
-
-	if ( t == LEXSTD::indent_t )
-	{
-	    if ( indentation_found != min::NULL_STUB )
-	        break;
-		// Because in this case we are just
-		// getting rid of comment and line
-		// break after indentation mark and
-		// paragraph_indent is not correctly
-		// set yet.
-
-	    if (    current->indent
-	         <= line_variables->paragraph_indent )
-		break;
-
-	    // Must not advance past current if
-	    // indent is not for continuation, as
-	    // if it is not, we need to allow
-	    // master lexeme table to be changed
-	    // before advancing.
-	    //
-	    PAR::ensure_next ( parser, current );
-	    if (    current->next->type
-	         != LEXSTD::comment_t )
-	        break;
-
-	    // The following just generates a warning
-	    // message if current->indent is too near
-	    // paragraph_indent.  This is needed as
-	    // this indent is being deleted and will not
-	    // be retested below.
-	    //
-	    PAR::relative_indent
-		( parser,
-		  indentation_offset,
-		  current,
-		  line_variables->paragraph_indent );
-	}
-	else
-	{
-	    bad_comment_position.end =
-		current->position.end;
-	    PAR::ensure_next ( parser, current );
-	}
+	bad_comment_position.end =
+	    current->position.end;
+	    // Record end in case we need it.
+	PAR::ensure_next ( parser, current );
 
 	min::uns32 previous_t = t;
 	current = current->next;
@@ -2287,22 +2259,6 @@ NEXT_TOKEN:
 			    current->previous ) );
     }
 
-    if ( bad_comment_position.begin )
-    {
-        if ( current->type != LEXSTD::end_of_file_t
-	     &&
-	     ( current->type != LEXSTD::indent_t
-	       ||
-	         current->indent
-	       > line_variables->paragraph_indent ) )
-	    PAR::parse_warn
-		( parser, bad_comment_position,
-		  "comments at beginning of"
-		  " logical line" );
-	bad_comment_position.begin =
-	    min::MISSING_POSITION;
-    }
-
     if ( indentation_found != min::NULL_STUB )
     {
 	// We come here to process an indented para-
@@ -2317,6 +2273,8 @@ NEXT_TOKEN:
 	    ||
 	    current->type == LEXSTD::end_of_file_t
 	  );
+
+	MIN_REQUIRE ( ! bad_comment_position.begin );
 
 	// Compute selectors for indented sub-
 	// paragraph.
@@ -2609,7 +2567,13 @@ NEXT_TOKEN:
 
     // Continuation after any indented paragraph
     // has been processed, or if there was no
-    // indented paragraph.
+    // indented paragraph.  Current is not line-break
+    // or comment.
+    //
+    // Return if end of logical line.  Otherwise if
+    // indent, delete indent (its for continuation
+    // line) and loop to NEXT_TOKEN.  Otherwise fall
+    // through.
     //
     if ( current->type == LEXSTD::end_of_file_t )
 	return min::MISSING_POSITION;
@@ -2674,6 +2638,16 @@ NEXT_TOKEN:
 	  current->type != LEXSTD::line_break_t );
 
     parser->at_paragraph_beginning = false;
+
+    if ( bad_comment_position.begin )
+    {
+	PAR::parse_warn
+	    ( parser, bad_comment_position,
+	      "comments at beginning of"
+	      " logical line" );
+	bad_comment_position.begin =
+	    min::MISSING_POSITION;
+    }
 
     // Process quoted strings.
     //

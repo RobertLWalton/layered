@@ -355,10 +355,13 @@
 // bracketed_pass = parser->pass_stack
 //     // Bracketed pass; always the first pass in the
 //     // pass stack.
-// indentation_mark indentation_found = null
-//     // If not null, current token is an end-of-line
-//     // and current->previous token is the last token
-//     // of an indentation mark.
+// indentation_found = null
+//     // If not null, this is the indentation_mark
+//     // parser table entry of an indentation that has
+//     // been found, current token is the comment or
+//     // line-break or-end-of file following the
+//     // indentation mark, and current->previous is the
+//     // last token of the indentation mark.
 // start_previous = current->previous
 //     // If current == start_previous->next, current
 //     // is at the beginning of the subexpression
@@ -374,12 +377,14 @@
 //     // was called to parse a logical line, and not
 //     // a sub-subexpression of a logical line.
 // bad_comment_position = { MISSING, MISSING }
-//     // Set to position of any comment beginning a
-//     // logical line if line_variables->at_paragraph_
-//     // indent is true and reset to MISSING after
-//     // comments and blank lines have been skipped.
-//     // Used to detect comment at beginning of non-
-//     // comment logical line error.
+//     // Begin is set non-MISSING if we are parsing a
+//     // logical line beginning at paragraph indent
+//     // that starts with a comment.  If it is set
+//     // when we get to the first non-whitespace token
+//     // on the logical line, a bad comment error will
+//     // be announced (comment lines return to caller
+//     // before they get to this point).  End is set
+//     // to end of any comment or line break skipped.
 //
 // if parsing_logical_line:
 //     line_variables->previous = current->previous
@@ -641,8 +646,6 @@
 //                prefix_entry->new_selectors
 //                setting ALWAYS_SELECTOR on
 //
-// TBD
-//
 // PARSE_PREFIX_N_LIST:
 //
 //     // Parse prefix-n-list headed by prefix token.
@@ -847,31 +850,35 @@
 //	   iterate loop to find prefix-n-list
 //	           subexpression headed by prefix
 //
-// TBD
-//
 // NEXT_TOKEN:
 //
 //     // Come here with `current' set to next token
 //     // to process.
 //
-//     skip line break, comment, and indent_before_
-//          comment tokens; if a blank line is
-//          skipped or end of file encountered, set
-//          parser->at_paragraph_beginning = true
+
+//     // This main loop does the following:
+//     //
+//     // (1) Delete comments and line breaks.
+//     // (2) Handle indentation_marks already found.
+//     // (3) Return to caller on end-of-file or logical
+//     //     line ending indent token.
+//     // (4) Delete any continuation line indent token
+//     //     and loop to NEXT_TOKEN.
+//     // (5) Announce bad comments if any (comment
+//     //     lines never come here).
+//     // (6) Process non-indent, non-line-break, non-
+//     //     end-of-file, non-comment token or multi-
+//     //     token key.
+//     // (7) Iterate loop to NEXT_TOKEN.
 //
-//     if we skipped some tokens:
+//     // Delete comments and line breaks and set
+//     // parser->at_paragraph_beginning if appropriate.
 //
-//         assert that current is indent or end of file
-//
-//         current_indent = indent of current token if
-//             this is indent token or to 0 if current
-//             token is end of file
-//
-//         delete what has been skipped, but print a
-//             WARNING message if any comment deleted
-//             had less indent than current_indent,
-//             using indent_before_comment tokens to
-//             determine comment indent
+//     skip line break and comment tokens, setting
+//          bad_comment_position end to the end of any
+//          token skipped, and setting parser->at_
+//          paragraph_beginning = true if a blank line
+//          is skipped
 //
 //     if indentation_found is not null
 //
@@ -954,7 +961,7 @@
 //	                   
 //	           else if group == `line':
 //	               set line_variables
-//	                   .indentation_implied_paragraph
+//	                  .indentation_implied_paragraph
 //	                       .implied_header =
 //	                           implied_header
 //	                       .header_entry =
@@ -1027,8 +1034,12 @@
 // 	 
 //     // Continuation after any indented paragraph,
 //     // or if there was no indented paragraph.
-//     // Current is NOT a line-break, comment, or
-//     // indent-before-comment.
+//     // Current is NOT a line-break or comment.
+//
+//     // Return if end of logical line.  Otherwise if
+//     // indent, delete indent (its for continuation
+//     // line) and loop to NEXT_TOKEN.  Otherwise fall
+//     // through.
 //
 //     if current is end-of-file:
 //
@@ -1065,6 +1076,10 @@
 //           line break
 //
 //     parser->at_paragraph_beginning = false
+//
+//     if bad_comment_position.begin is non-MISSING:
+//        announce bad comment
+//        set bad_comment_position.begin = MISSING
 //
 //     if current is quoted string:
 //

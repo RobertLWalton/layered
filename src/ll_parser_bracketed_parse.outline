@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 19 15:27:18 EDT 2018
+// Date:	Sat May 19 20:29:20 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -771,7 +771,6 @@
 //             line_variables argument;
 //	       set separator_found = result
 //
-// TBD
 //	   next (token after subexpression) =
 //	        top of stack closing first if not
 //	        null or current token otherwise
@@ -791,16 +790,25 @@
 //               separator_found,
 //               line_variables->line_sep
 //
-//	   compact_prefix_separator
-//	     starting at prefix token and ending with
-//	              token just before `next'
-//	     with prefix_selectors, separator_found if
-//	     prefix_group == `paragraph',
-//	     line_variables->line_sep
+//         old_prefix_value_type = prefix->value_type
+//             // Save in case this changes; see below
 //
-//	   if compact_prefix_separators produced a
-//	           MIN object stored as the prefix
-//	           token value:
+//         if prefix_entry not null and has a non-null
+//                         reformatter:
+//            call reformatter with bracket_pass,
+//            prefix_selectors, tokens from prefix up to
+//            next
+//
+//         if no reformatter called or reformatter
+//               returned true:
+//	       compact_prefix_list with bracket_pass->
+//	       next, prefix_selectors, tokens from
+//	       prefix up to next, separator_found if
+//	       prefix_group == `line', line_variables->
+//	       line_sep->label if it exists
+//
+//	   if compact_prefix_list called and return
+//	                          true:
 //	       prefix->value_type = prefix_group if
 //	         prefix_group == `paragraph' or `line'
 //	         else MISSING;
@@ -812,32 +820,34 @@
 //	       return separator_found
 //
 //	   prefix = PREFIX token that closed bracket
-//	            stack
+//	            stack (from bracket stack closing_
+//	            first)
+//	   current top bracket stack entry prefix =
+//	           (new) prefix
 //
-//	   if .type of prefix (in prefix->value_type)
-//	               != .type of previous prefix
-//	                  (in prefix_type):
-//	       prefix_entry = prefix_table entry for
-//	                      .type of prefix
-//	           // Must exist as prefix must have
-//	           // a group.
-//	       if prefix_entry->group != prefix_group:
-//	           // Special case where line IMPLIED_
-//	           // PREFIX is immediately followed
-//	           // by an explicit paragraph prefix
-//	           //
-//	           prefix_group = `paragraph'
-//	           selectors = line_variables->paragraph
-//	                                      .selectors
-//
-//             top of stack->prefix_type = prefix_type =
-//                 prefix->value_type (.type of prefix)
-//             top of stack->prefix_entry = prefix_entry
-//             prefix_selectors = selectors modified by
-//                 prefix_entry->new_selectors
+//	   if prefix->value_type is not equal to
+//	                         old_prefix_value_type:
+//	       // We must fix up prefix related values
+//	       prefix_entry = prefix->value_type if that
+//	                      is a prefix table entry
+//	                      else null
+//	       prefix_type = prefix_entry->label if
+//	                     prefix_entry not null else
+//	                     prefix->value_type
+//	       prefix_group = prefix_entry->group if
+//	                      that exists else
+//	                      prefix_type
+//	       current top bracket stack entry
+//	               prefix_group = prefix_group
+//	       prefix_selectors = selectors modified by
+//	           prefix_entry->new_selectors with
+//	           ALWAYS_SELECTOR added if prefix_entry
+//	           is not null
 //
 //	   iterate loop to find prefix-n-list
 //	           subexpression headed by prefix
+//
+// TBD
 //
 // NEXT_TOKEN:
 //

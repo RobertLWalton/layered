@@ -405,7 +405,8 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
-WARNING: in lines ##-##: comments at beginning of logical line:
+WARNING: in lines ##-##: comments at beginning of non-comment logical
+         line:
 // These are illegal comments at the beginning of
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // a logical line
@@ -421,7 +422,7 @@ BRACKETED EXPRESSION:
    ^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
-WARNING: in line ##: comments at beginning of logical line:
+WARNING: in line ##: comments at beginning of non-comment logical line:
    // Illegal comment in paragraph
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:

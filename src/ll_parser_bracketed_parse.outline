@@ -894,9 +894,12 @@
 //         new_selectors = selectors modified by
 //                 indentation_found->new_selectors
 //
+//         mark_end = current->previous == last token of
+//                    indentation mark
+//
 //         if paragraph has some lines (i.e., current is
 //            an indent token whose indent is greater
-//            than the indent argument):
+//            than line_variables->paragraph_indent):
 //
 //             allocate line_variables for use in
 //             		parsing paragraph
@@ -906,17 +909,30 @@
 //	                      and
 //	                      .indentation_implied_
 //	                          paragraph:
-//	           lexical_master =
-//	               indentation_found->lexical_master
+//	           paragraph_lexical_master =
+//	               indentation_found->
+//	                   paragraph_lexical_master
+//	           line_lexical_master =
+//	               indentation_found->
+//	                   line_lexical_master
 //	           selectors = new_selectors
 //	           implied_header = MISSING
 //	           header_entry = null
 //
-//	       // Loop to set implied headers in line_
-//	       // variables data.  Go at most 2 times
-//	       // through the loop for paragraph and
-//	       // line implied headers.
-//	       //
+//             // If H = indentation_mark->
+//             //            implied_header,
+//             // we go through the following loop:
+//             //     0 times if H is MISSING
+//             //     1 times if H is paragraph header
+//             //                with MISSING
+//             //                implied_subprefix
+//             //     1 times if H is line header
+//             //     2 times if H is paragraph header
+//             //                with non-MISSING
+//             //                implied_subprefix
+//             //                (should be a `line'
+//             //                header)
+//             //
 //	       implied_header = indentation_found->
 //	                        implied_header
 //	       implied_header_type = indentation_found->
@@ -926,13 +942,17 @@
 //	       first_time = true
 //	       loop while implied_header != MISSING:
 //
-//	           header_entry = prefix table entry for
-//	                          implied_header_type
-//	           group = header_entry->group
-//	                   or MISSING if no header_entry
+//	           header_entry =
+//	               prefix table PREFIX entry for
+//	               implied_header_type and header_
+//	               selectors (may be null)
+//	           group = header_entry->group if this
+//	                   exists and is not MISSING,
+//	                   or implied_header_type
+//	                   otherwise
 //	           modify header_selectors by
 //	                  header_entry->new_selectors
-//	                  if there is a header_entry
+//	                  if header_entry is not null
 //
 //	           if group == `paragraph'
 //	                   and first_time:
@@ -945,10 +965,16 @@
 //	                       .header_selectors =
 //	                           header_selectors
 //	               set line_variables.indentation_
-//	                   implied_paragraph.lexical_
-//	                   master to header_entry->
-//	                   lexical_master if the latter
-//	                   is not MISSING
+//	                                  implied_
+//	                                  paragraph
+//	                   .paragraph_lexical_master =
+//	                     header_entry->
+//	                       paragraph_lexical_master
+//	                       if this is not MISSING
+//	                   .line_lexical_master =
+//	                     header_entry->
+//	                       line_lexical_master
+//	                       if this is not MISSING
 //
 //	               implied_header =
 //	                   header_entry->
@@ -979,10 +1005,12 @@
 //	                           .header_selectors =
 //	                               header_selectors
 //	               break implied_header loop
+//
 //	           else if first_time:
-//	               announce that indetation mark
+//	               announce that indentation mark
 //	                   implied header does not have
 //	                   `paragraph' or `line' group;
+//	                   cannot begin indented lines;
 //	                   ignored
 //	               break implied_header loop
 //	           else:
@@ -999,12 +1027,10 @@
 //
 //             line_variables.paragraph_indent =
 //                 current->indent
-//             line_variables.indentation_offset =
-//                 bracketed_pass->indentation_offset
 //             line_variables.line_sep =
 //                 indentation_found->line_sep
-//             line_variables.last_paragraph = null
 //             line_variables.at_paragraph_end = false
+//             line_variables.last_paragraph = null
 //             clear CONTINUING_OPT from
 //                 line_variables.current.selectors
 //
@@ -1012,18 +1038,24 @@
 //             loop to parse paragraph lines:
 //
 //                 parse_paragraph_element with
-//                     line_variables
+//                     current token and line_variables
 //                 if no token returned end loop
 //                 iterate loop
 //
-//         remove indentation mark (from just before
-//                paragraph lines)
+//         first = mark_end->next
+//         // Now tokens from first to just before
+//         // current are elements of indented
+//         // paragraph.
+//
+//         remove indentation mark from just before
+//                first
 //
 //         // Compact elements of indented paragraph
 //         // into INDENTED_PARAGRAPH token value.
 //
 //         compact paragraph lines
-//             with new_selectors,
+//             with bracketed_pass->next,
+//             new_selectors,
 //             .initiator = indentation_found->label,
 //             .terminator = INDENTED_PARAGRAPH,
 //             token type = BRACKETING,
@@ -1042,18 +1074,14 @@
 //     // through.
 //
 //     if current is end-of-file:
-//
-//         return PARAGRAPH_END
-//		      if and selectors & EAPBREAK
-//		  MISSING_POSITION
-//		      otherwise
+//         return MISSING_POSITION
 //
 //     else if current is indent:
 //
 //         if not at beginning of subexpression
 //                   and parser->at_paragraph_beginning
 //                   and selectors & EAPBREAK:
-//	       return PARAGRAPH_END
+//	       return MISSING_POSTION
 //
 //         else if current->indent is at or before
 //                 line_variables->paragraph_indent,
@@ -1070,16 +1098,20 @@
 //         remove current (indent) token and set
 //                current to following token
 //
+//         go to NEXT_TOKEN
+//
 //     assert indentation_found is null
-//     assert current token is NOT end of file, comment,
-//           indent before comment, indent, or
-//           line break
+//     assert current token is NOT end-of-file, comment,
+//           indent, or line break
 //
 //     parser->at_paragraph_beginning = false
 //
 //     if bad_comment_position.begin is non-MISSING:
-//        announce bad comment
+//        announce comments at beginning of non-comment
+//                 logical line
 //        set bad_comment_position.begin = MISSING
+//
+// TBD
 //
 //     if current is quoted string:
 //

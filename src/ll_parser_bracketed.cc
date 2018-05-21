@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 20 14:37:25 EDT 2018
+// Date:	Mon May 21 15:27:34 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2644,7 +2644,7 @@ NEXT_TOKEN:
 	PAR::parse_warn
 	    ( parser, bad_comment_position,
 	      "comments at beginning of"
-	      " logical line" );
+	      " non-comment logical line" );
 	bad_comment_position.begin =
 	    min::MISSING_POSITION;
     }

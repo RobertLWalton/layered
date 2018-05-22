@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 15:27:34 EDT 2018
+// Date:	Tue May 22 15:34:17 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1577,6 +1577,16 @@ PREFIX_FOUND:
     //         end of the prefix token.
     //
     {
+	// At this point prefix->next == current OR
+	// premature_closing is true, current is
+	// beyond prefix, and prefix-n-list will be
+	// assumed to be empty (see FINISH_PREFIX).
+	//
+        MIN_REQUIRE ( prefix->next != parser->first );
+        MIN_REQUIRE ( prefix->next == current
+	              ||
+		      premature_closing );
+
 	TAB::key_table prefix_table =
 	    bracketed_pass->prefix_table;
 	prefix_type = prefix->value_type;

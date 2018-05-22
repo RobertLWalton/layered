@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 19 20:29:20 EDT 2018
+// Date:	Tue May 22 15:34:30 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -514,6 +514,11 @@
 //     //	prefix
 //     //	separator_found
 //     // 	premature_closing
+//
+//     // At this point prefix->next == current OR
+//     // premature_closing is true, current is beyond
+//     // prefix, and prefix-n-list will be assumed to
+//     // be empty (see FINISH_PREFIX).
 //
 //     prefix_type = .type of prefix
 //     prefix_entry = prefix token .type PREFIX entry in
@@ -1113,7 +1118,7 @@
 //
 // TBD
 //
-//     if current is quoted string:
+//     if current token is quoted string:
 //
 //	   // Check this quoted string is to be
 //	   // concatenated to a PREVIOUS quoted
@@ -1146,7 +1151,17 @@
 //	   merge previous 2 tokens (both quoted strings)
 //	   go to NEXT_TOKEN
 //
+//     if current token is PREFIX token:
+//
+//        prefix = current
+//        current = current->next
+//        separator_found = MISSING_POSITION
+//        premature_closing = false
+//        go to PREFIX_FOUND
+//
 //     lookup key in bracketed_pass bracket table
+//            starting scan at current and using
+//            selectors
 //
 //     loop to refine key until it is selected or not
 //             found:

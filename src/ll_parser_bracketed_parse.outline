@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 22 15:34:30 EDT 2018
+// Date:	Wed May 23 08:02:31 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1116,8 +1116,6 @@
 //                 logical line
 //        set bad_comment_position.begin = MISSING
 //
-// TBD
-//
 //     if current token is quoted string:
 //
 //	   // Check this quoted string is to be
@@ -1159,16 +1157,12 @@
 //        premature_closing = false
 //        go to PREFIX_FOUND
 //
-//     lookup key in bracketed_pass bracket table
-//            starting scan at current and using
+//     lookup key beginning with current token in
+//            bracketed_pass bracket table using
 //            selectors
 //
 //     loop to refine key until it is selected or not
 //             found:
-//
-//         // Note: In the following the type of the
-//         // key is determined by checking object
-//         // subtype min::packed_subtype_of ( key ).
 //
 //         if key not found:
 //
@@ -1186,23 +1180,28 @@
 //                 ++ typed_data->attr_count
 //
 //                 selectors =
-//                     typed_data->saved selectors
+//                     typed_data->element_selectors
 //
 //             // Move to next token.
 //             //
 //             current = current->next
 //             go to NEXT_TOKEN
 //
+//         // In the following the type of the key is
+//         // determined by checking the object subtype
+//         // min::packed_subtype_of ( key ).
+//
 //         if key is selected opening bracket or typed
 //                opening:
+//
+//             // Note: typed opening is a subclass of
+//             // opening bracket.
 //
 //             new_selectors = selectors modified by
 //                 key->new_selectors
 //
 //             create new bracket stack entry with
 //                    opening bracket = key
-//                    line_variables =
-//                        line_variables argument
 //             push new entry into existing bracket
 //                  stack to create new bracket stack
 //
@@ -1220,6 +1219,7 @@
 //                   line_variables argument
 //	             set separator_found = result
 //
+// TBD
 //	       else if key is typed opening:
 //
 //                 initialize tdata typed_data

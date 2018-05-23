@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 22 15:34:17 EDT 2018
+// Date:	Wed May 23 08:02:45 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2827,6 +2827,8 @@ NEXT_TOKEN:
 	{
 	    BRA::opening_bracket opening_bracket =
 		(BRA::opening_bracket) root;
+		// TYPED_OPENING is a subclass of
+		// OPENING_BRACKET.
 
 	    TAB::flags new_selectors = selectors;
 	    new_selectors |=

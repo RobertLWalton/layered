@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 23 08:02:31 EDT 2018
+// Date:	Mon May 28 13:50:04 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1219,13 +1219,16 @@
 //                   line_variables argument
 //	             set separator_found = result
 //
-// TBD
 //	       else if key is typed opening:
 //
 //                 initialize tdata typed_data
 //                            structure:
 //		       typed_opening = key
-//		       saved_selectors = new_selectors
+//		       element_selectors = new_selectors
+//		       attribute_selectors =
+//		           key->attr_selectors plus
+//		           ALWAYS_SELECTOR with options
+//		           from new_selectors
 //		       middle_count = attr_count = 0
 //		       start_previous =
 //		           current->previous
@@ -1236,13 +1239,10 @@
 //		       has_mark_type = false
 //
 //                 parse_bracketed_subexpression with
-//                     selectors from key->attr_
-//                         selectors plus ALWAYS_
-//                         SELECTOR, with selector
-//                         options from new_selectors
+//                     tdata.attribute_selectors,
 //                     new bracket stack,
 //                     line_variables argument,
-//                     tdata containing typed opening
+//                     new tdata,
 //	               set separator_found = result
 //
 //	           // We do typed bracketed subexpres-
@@ -1252,6 +1252,10 @@
 //	           // TYPED_CLOSING may be missing and
 //	           // thus be inserted below to correct
 //	           // its being missing.
+//
+//	           token after subexpression =
+//	               top stack entry closing_first if
+//	               not null, else current
 //
 //	           if tdata.has_mark_type:
 //
@@ -1295,6 +1299,7 @@
 //	                   tdata.elements =
 //	                       type_token->next
 //
+// TBD
 //	           else if tdata.has_mark_type is false
 //	                   and tdata.middle_count is
 //	                   odd:

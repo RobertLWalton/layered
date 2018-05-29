@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 23 08:02:45 EDT 2018
+// Date:	Tue May 29 03:41:19 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3046,10 +3046,8 @@ NEXT_TOKEN:
 		 == cstack.closing_first )
 	    {
 		// Found a closing bracket that is
-		// not ours, or found a line break
-		// or end of file that terminates a
-		// paragraph with the closing
-		// bracket missing.
+		// not ours, or found a logical line
+		// end before any closing bracket.
 
 		// Compute location `next' just
 		// before which closing bracket

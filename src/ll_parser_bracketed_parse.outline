@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 13:50:04 EDT 2018
+// Date:	Mon May 28 22:35:11 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1299,7 +1299,6 @@
 //	                   tdata.elements =
 //	                       type_token->next
 //
-// TBD
 //	           else if tdata.has_mark_type is false
 //	                   and tdata.middle_count is
 //	                   odd:
@@ -1360,6 +1359,8 @@
 //			        ( tdata,
 //			          token after
 //			                subexpression )
+//
+// TBD
 // 	       require ! separator_found
 // 	           // It must be impossible to find a
 // 	           // separator inside brackets.
@@ -1372,6 +1373,8 @@
 //                             just before that closing
 //                 print error message indicating our
 //                       closing bracket was inserted
+//                       just before other closing, but
+//                       do not actually insert anything
 //
 //             else remove closing bracket
 //

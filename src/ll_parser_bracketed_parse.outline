@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 22:35:11 EDT 2018
+// Date:	Wed May 30 07:13:05 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1360,7 +1360,6 @@
 //			          token after
 //			                subexpression )
 //
-// TBD
 // 	       require ! separator_found
 // 	           // It must be impossible to find a
 // 	           // separator inside brackets.
@@ -1480,6 +1479,7 @@
 //		                bute in attribute list
 //
 //                 compact subexpression with
+//                         bracketed_pass->next,
 //                         new_selectors,
 //                         attributes taken attribute
 //                         list formed above,
@@ -1519,6 +1519,7 @@
 //    		       // list members are not protected
 //    		       // from GC.
 //
+// TBD
 //    		   if compacted token type == PREFIX:
 //		       goto PREFIX_FOUND with
 //		           prefix = the compacted token

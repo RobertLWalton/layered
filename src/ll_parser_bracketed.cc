@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 29 03:41:19 EDT 2018
+// Date:	Wed May 30 04:36:04 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3111,6 +3111,10 @@ NEXT_TOKEN:
 			  "'" );
 		else
 		{
+		    // Likely this can never happen,
+		    // but we have it here just in
+		    // case.
+		    //
 		    min::phrase_position position =
 			next->position;
 		    position.begin = position.end;

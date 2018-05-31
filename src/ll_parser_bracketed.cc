@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 31 05:36:43 EDT 2018
+// Date:	Thu May 31 16:04:50 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1134,7 +1134,8 @@ static void punctuation_error
 //
 // If typed_data->type is NOT MISSING, check that it
 // equals new label, and print error message if not.
-// Then in any case delete the new label token.
+// Then whether equal or not, delete the new label
+// token.
 //
 inline void make_type_label
 	( PAR::parser parser,
@@ -1227,8 +1228,8 @@ inline void make_attribute_label
     ++ typed_data->attr_count;
 }
 
-// Finish attribute.  On error either generate an attri-
-// bute with value NONE which will be deleted later.
+// Finish attribute.  On error generate an attribute
+// with value NONE which will be deleted later.
 //
 // If typed_data indicates there are no attributes
 // (e.g., we are immediately after a typed middle)

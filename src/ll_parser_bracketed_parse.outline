@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 31 05:18:56 EDT 2018
+// Date:	Thu May 31 16:38:51 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,8 +195,6 @@
 //	           last_paragraph is now not null)
 //	                  
 //
-// TBD for typed bracketed expressions
-//
 // make_label(first,next):
 //     Collect all the tokens from first through next->
 //     previous into a single label token.  Print
@@ -222,8 +220,8 @@
 //
 //     If on the other hand typed_data->type is not
 //     MISSING, check that it equals the new label,
-//     print an error message if not, and in any case
-//     delete the new label token.
+//     print an error message if not, and whether equal
+//     or not delete the new label token.
 //
 // make_attribute_label(typed_data,next):
 //     Make a label as per make_label from the tokens
@@ -307,7 +305,7 @@
 //     from typed_data->attributes through next->
 //     previous.
 //
-// End TBD for typed bracketed expressions
+//     Set typed_data->attributes = null.
 
 // parse_bracketed_subexpression(...)
 //

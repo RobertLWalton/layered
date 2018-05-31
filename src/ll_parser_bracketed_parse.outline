@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 07:13:05 EDT 2018
+// Date:	Thu May 31 05:18:56 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1519,7 +1519,6 @@
 //    		       // list members are not protected
 //    		       // from GC.
 //
-// TBD
 //    		   if compacted token type == PREFIX:
 //		       goto PREFIX_FOUND with
 //		           prefix = the compacted token
@@ -1538,13 +1537,10 @@
 //                 go to NEXT_TOKEN
 //
 //         if key is closing bracket:
-//             search top to bottom the portion of the
-//                    bracket stack whose entries have
-//                    line_variables equal to the
-//                    line_variables argument, but if
-//                    selectors does NOT have
-//                    EAOCLOSING, restrict search to
-//                    at most that top entry:
+//             search the bracket stack; if EAOCLOSING
+//                    NOT in selectors search only the
+//                    top entry, otherwise search ALL
+//                    entries top to bottom
 //             if entry found with matching closing
 //                      bracket:
 //                 close bracket stack entry that
@@ -1624,15 +1620,13 @@
 //                 ++ typed_data->middle_count
 //                 go to NEXT_TOKEN
 //
-//	       if typed_data->middle_count is NOW even:
+//	       if typed_data->middle_count is NOW odd:
 //	           selectors argument =
-//	              typed_data->saved_selectors
+//	              typed_data->element_selectors
 //	       else if typed_data->middle_count is NOW
-//	               odd:
-//                 selectors argument non-options =
-//                      typed_data->typed_opening
-//                                ->attr_selectors
-//                    | ALWAYS_SELECTOR
+//	               even:
+//                 selectors argument =
+//                      typed_data->attribute_selectors
 //
 //             go to NEXT_TOKEN
 //

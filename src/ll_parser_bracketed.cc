@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 04:36:04 EDT 2018
+// Date:	Thu May 31 05:36:43 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3454,7 +3454,7 @@ NEXT_TOKEN:
 		return separator_found;
 	    }
 	    else
-		break;
+		break;  // Goto NEXT_TOKEN
 	}
 	else if ( subtype == BRA::CLOSING_BRACKET )
 	{
@@ -3508,7 +3508,7 @@ NEXT_TOKEN:
 	    {
 		indentation_found =
 		    (BRA::indentation_mark) root;
-		break;
+		break;  // Goto NEXT_TOKEN
 	    }
 
 	    // Indentation mark not at end of line
@@ -3605,7 +3605,7 @@ NEXT_TOKEN:
 		     == BRA::TYPED_DOUBLE_MIDDLE )
 		{
 		    ++ typed_data->middle_count;
-		    break;
+		    break;  // Goto NEXT_TOKEN
 		}
 
 		// Do the following only if subtype
@@ -3621,7 +3621,7 @@ NEXT_TOKEN:
 		    selectors =
 			typed_data->attribute_selectors;
 
-		break;
+		break;  // Goto NEXT_TOKEN
 	    }
 
 	    // Typed middle does not match typed_
@@ -3683,7 +3683,7 @@ NEXT_TOKEN:
 		    ::punctuation_error
 			( parser, key_first,
 			  current, root->label );
-		break;
+		break;  // Goto NEXT_TOKEN
 	    }
 
 	    // Typed_attr_begin does not match
@@ -3747,7 +3747,7 @@ NEXT_TOKEN:
 		    ::punctuation_error
 			( parser, key_first,
 			  current, root->label );
-		break;
+		break;  // Goto NEXT_TOKEN
 	    }
 
 	    // Typed_attr_equal does not match
@@ -3799,7 +3799,7 @@ NEXT_TOKEN:
 		    ::punctuation_error
 			( parser, key_first,
 			  current, root->label );
-		break;
+		break;  // Goto NEXT_TOKEN
 	    }
 
 	    // Typed_attr_sep does not match
@@ -3846,7 +3846,7 @@ NEXT_TOKEN:
 			BRA::TYPED_ATTR_NEGATOR;
 		    typed_data->start_previous =
 			current->previous;
-		    break;
+		    break;  // Goto NEXT_TOKEN
 		}
 	    }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 04:33:58 EDT 2018
+// Date:	Sun Jun  3 07:56:23 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,7 +59,7 @@ namespace ll { namespace parser {
 	    colon,		// :
 	    equal,		// =
 	    vbar,		// |
-	    ealbreak,		// end at line break
+	    eaindent,		// end at indent
 	    ealeindent,		// end at le indent
 	    ealtindent,		// end at lt indent
 	    eapbreak,		// end at paragraph
@@ -1038,7 +1038,7 @@ enum {
     //
     ALL_OPT       			= 0xFFFFull,
 
-    EALBREAK_OPT			= 1ull << 0,
+    EAINDENT_OPT			= 1ull << 0,
     EALEINDENT_OPT			= 1ull << 1,
     EALTINDENT_OPT			= 1ull << 2,
     EAPBREAK_OPT			= 1ull << 3,
@@ -1047,7 +1047,7 @@ enum {
     STICKY_OPT				= 1ull << 6,
     CONTINUING_OPT			= 1ull << 7,
 
-    ALL_EA_OPT    = EALBREAK_OPT
+    ALL_EA_OPT    = EAINDENT_OPT
 	          + EALEINDENT_OPT
 	          + EALTINDENT_OPT
 	          + EAPBREAK_OPT

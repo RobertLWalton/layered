@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  2 01:54:52 EDT 2017
+// Date:	Sun Jun  3 07:57:26 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,7 +54,7 @@ min::locatable_gen PARLEX::comma;
 min::locatable_gen PARLEX::colon;
 min::locatable_gen PARLEX::equal;
 min::locatable_gen PARLEX::vbar;
-min::locatable_gen PARLEX::ealbreak;
+min::locatable_gen PARLEX::eaindent;
 min::locatable_gen PARLEX::ealeindent;
 min::locatable_gen PARLEX::ealtindent;
 min::locatable_gen PARLEX::eapbreak;
@@ -149,9 +149,9 @@ static void initialize ( void )
     PARLEX::equal = min::new_str_gen ( "=" );
     PARLEX::vbar = min::new_str_gen ( "|" );
 
-    PARLEX::ealbreak =
+    PARLEX::eaindent =
     	min::new_lab_gen
-	    ( "end", "at", "line", "break" );
+	    ( "end", "at", "indent" );
     PARLEX::ealeindent =
     	min::new_lab_gen
 	    ( "end", "at", "le", "indent" );
@@ -804,10 +804,10 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    ( selector_name_table_ref(parser) );
 
 	MIN_REQUIRE
-	    (    PAR::EALBREAK_OPT
+	    (    PAR::EAINDENT_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PARLEX::ealbreak ) );
+			PARLEX::eaindent ) );
 	MIN_REQUIRE
 	    (    PAR::EALEINDENT_OPT
 	      == 1ull << TAB::push_name

@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 6, 2018
+June 3, 2018
  
 \end{center}
 
@@ -2280,7 +2280,7 @@ Input is parsed into a sequence of \skey{logical line}s, each of which is
 a sequence of tokens.  Once parsed, logical lines may be grouped into
 paragraphs.
 
-In the input non-blank
+In the input, non-blank
 physical lines begin with an indent lexeme token that
 contains an indentation that is the number of columns before the first
 graphic character in the physical line.  All physical lines end with a
@@ -2300,8 +2300,8 @@ previous logical line.
 
 Logical lines consisting of nothing but comment lexeme tokens and not
 ended by a line separator are
-called `\skey{comment line}s'.  Empty logical lines and comment lines
-are discarded unless they end with a line separator.
+called `\skey{comment line}s'.  Comment lines and empty logical lines
+not ended by a line separator are discarded.
 
 After a logical
 line has been scanned, any indent, line-break, end-of-file, terminating
@@ -2322,7 +2322,7 @@ and~\itemref{END-AT-OPTIONS-2}:
 \begin{itemize}
 \item An indent token with indent equal to or less than the current indent.
 \item An indent token with indent less than the current indent.
-\item The first indent token after any line-break.
+\item Any indent token.
 \item The first indent token after any completely blank (non-comment) line.
 This is called a `\key{paragraph break}'.
 \item A line separator, e.g.~`\TT{;}'.
@@ -2333,21 +2333,6 @@ regardless of option settings.
 \begin{boxedfigure}[!p]
 
 \begin{indpar}[0.5in]
-
-\hspace*{-0.2in}\ttmkey{end at line break}{parser option} \\
-    This parser option causes a simple line break to end a logical line.
-    In this case continuation lines are not possible.
-
-\vspace*{-0.05in}
-\hspace*{-0.2in}\ttmkey{end at paragraph break}{parser option} \\
-    This parser option causes a blank line to end a logical line.
-    If this option is not present, blank lines have no affect
-    on parsed input.
-
-    This option is most often used with an implied paragraph header
-    (\itemref{LINE-VARIABLES})
-    to turn sequences of lines between blank lines into headed paragraphs
-    (\itemref{HEADED-PARAGRAPHS}).
     
 
 \vspace*{-0.05in}
@@ -2366,6 +2351,21 @@ regardless of option settings.
     with indent \underline{equal to} or greater
     than the current indent, assuming other
     options permit.
+
+\hspace*{-0.2in}\ttmkey{end at indent}{parser option} \\
+    This parser option causes any indent to end a logical line.
+    In this case continuation lines are not possible.
+
+\vspace*{-0.05in}
+\hspace*{-0.2in}\ttmkey{end at paragraph break}{parser option} \\
+    This parser option causes a blank line to end a logical line.
+    If this option is not present, blank lines have no affect
+    on parsed input.
+
+    This option is most often used with an implied paragraph header
+    (\itemref{LINE-VARIABLES})
+    to turn sequences of lines between blank lines into headed paragraphs
+    (\itemref{HEADED-PARAGRAPHS}).
 
 \vspace*{-0.05in}
 \hspace*{-0.2in}\ttmkey{end at line separator}{parser option}

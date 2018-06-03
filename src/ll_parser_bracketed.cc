@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 31 16:04:50 EDT 2018
+// Date:	Sun Jun  3 07:57:13 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2099,7 +2099,7 @@ PARSE_PREFIX_N_LIST:
 		 &&
 		 ( ( prefix_selectors
 		     &
-		     (   PAR::EALBREAK_OPT
+		     (   PAR::EAINDENT_OPT
 		       + PAR::EALEINDENT_OPT
 		       + PAR::EALTINDENT_OPT
 		       + PAR::EALSEP_OPT ) )

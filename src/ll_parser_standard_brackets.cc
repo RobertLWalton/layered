@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 07:47:07 EDT 2017
+// Date:	Sun Jun  3 07:58:00 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -333,7 +333,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( EAPBREAK_OPT + EALTINDENT_OPT,
-	          EALBREAK_OPT + EALEINDENT_OPT
+	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT , 0 ),
 	  PARLEX::paragraph,
 	  min::MISSING(),

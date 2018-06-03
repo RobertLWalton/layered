@@ -758,13 +758,13 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with lexical master "DEFAULT"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with parsing options [end at line break]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing options [end at indent]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     define prefix "Z" [math]
         with parsing selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
         with lexical master "DEFAULT"
-        with parsing options [end at line break]
+        with parsing options [end at indent]
     print prefix ""
         block BLOCK1: prefix "X" [code]
                       with parsing selectors [code, math]

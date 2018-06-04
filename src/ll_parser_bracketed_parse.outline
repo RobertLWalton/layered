@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 31 16:38:51 EDT 2018
+// Date:	Mon Jun  4 05:50:16 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -782,7 +782,7 @@
 //	        null or current token otherwise
 //
 //         if prefix_group == `paragraph' and one of
-//                  options EALBREAK, EALEINDENT,
+//                  options EAINDENT, EALEINDENT,
 //                  EALTINDENT, or EALSEP is on in
 //                  prefix_selectors and it is NOT
 //                  true that the prefix-n-list consists
@@ -1080,6 +1080,9 @@
 //         return MISSING_POSITION
 //
 //     else if current is indent:
+//
+//         if selectors & EAINDENT:
+//             return MISSING_POSITION
 //
 //         if not at beginning of subexpression
 //                   and parser->at_paragraph_beginning

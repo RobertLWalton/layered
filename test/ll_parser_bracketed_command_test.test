@@ -1922,3 +1922,47 @@ BRACKETED EXPRESSION:
 *PARSER*:
     trace [- parser output]
     end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+    define top level
+           with parsing options [end at indent]
+    trace [+ parser output, + subexpression details]
+BRACKETED EXPRESSION:
+    This is a logical line "."
+@@ = This is a logical line ".":
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    line ###:
+This is a logical line.
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a second logical line "."
+@@ = And a second logical line ".":
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    And a second logical line.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a third logical line "."
+@@ = And a third logical line ".":
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    line ###:
+   And a third logical line.
+   ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a fourth logical line "."
+@@ = And a fourth logical line ".":
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    line ###:
+And a fourth logical line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    trace [- parser output, - subexpression details]
+    end block BLOCK1

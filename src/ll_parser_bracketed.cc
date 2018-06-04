@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 07:57:13 EDT 2018
+// Date:	Mon Jun  4 05:49:46 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2590,6 +2590,9 @@ NEXT_TOKEN:
 	return min::MISSING_POSITION;
     else if ( current->type == LEXSTD::indent_t )
     {
+	if ( selectors & PAR::EAINDENT_OPT )
+		return min::MISSING_POSITION;
+
 	if ( ( parser->at_paragraph_beginning
 	       &&
 	       start_previous->next != current )

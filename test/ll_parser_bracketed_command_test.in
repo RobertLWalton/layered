@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 08:01:00 EDT 2018
+// Date:	Mon Jun  4 06:43:24 EDT 2018
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -628,4 +628,19 @@ And a last line.
 {p} and a fifth stray
 *PARSER*:
     trace [- parser output]
+    end block BLOCK1
+
+*PARSER*:
+    begin block BLOCK1
+    define top level
+           with parsing options [end at indent]
+    trace [+ parser output, + subexpression details]
+
+This is a logical line.
+    And a second logical line.
+   And a third logical line.
+And a fourth logical line.
+
+*PARSER*:
+    trace [- parser output, - subexpression details]
     end block BLOCK1

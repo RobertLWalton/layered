@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 30, 2018
+June 10, 2018
  
 \end{center}
 
@@ -352,10 +352,6 @@ One kind of {\em vertical-space} is given special distinction:
 \end{indpar}
 
 This is the {\em line-break} lexeme.
-
-A non-{\em indent}, non-{\em line-break} {\em white-space}, such as occurs
-in the middle of text or code outside comments, is discarded and not treated
-as a lexeme.  Such {\em white-space} may be used to separate lexemes.
 
 {\em Horizontal-\EOL space-\EOL characters}\label{ILLEGAL-CHARACTERS}
 other than single
@@ -821,9 +817,6 @@ The L-Language uses several kinds of names:
 			    or {\em quoted-separator}
 			\end{tabular} \\
 \emkey{member-subscript} ::= see \pagref{MEMBER-SUBSCRIPT} \\
-\emkey{block-name}\label{BLOCK-NAME}
-	::= {\em name} not containing a `\TT{.}',
-			 {\em quoted-mark}, or {\em quoted-separator} \\
 \emkey{term-name} ::= {\em name} \\
 \emkey{function-variable-name} ::=
     \begin{tabular}[t]{@{}p{4in}@{}}
@@ -842,13 +835,14 @@ where
 \begin{enumerate}
 \item
 A {\em qualifier-name} must not be an initial segment
-of a {\em type-name}.
+of a {\em type-name}.  See text below.
 \item
 A {\em qualifier-name} or {\em type-name} must not be an initial segment
 of a {\em name} $N$ that might begin a {\em statement} of
 the form `{\tt $N$ = \ldots}'.  Examples of such names $N$
 are {\em deferred-variables} (\pagref{DEFERRED-VARIABLE})
 and {\em function-variable-names} (\pagref{FUNCTION-VARIABLE-NAME}).
+See text below.
 \label{TYPE-NAME-RULE}
 \item
 A {\em type-name}, {\em qualifier-name}, {\em variable-base-name},
@@ -891,7 +885,10 @@ candidates are those of the current scope (\pagref{SCOPE}).
 
 Name sequences that might be of the above form can only occur at
 the beginning of a statement or as a {\em result-variable-declaration}
-or an {\em argument-declaration} in a {\em function-prototype}.
+(\pagref{RESULT-VARIABLE-DECLARATION})
+or an {\em argument-declaration} in a {\em function-prototype}
+or {\em generic-prototype}
+(\pagref{ARGUMENT-DECLARATION}).
 
 In addition, non-empty name sequences
 may appear in abstract tree subexpressions of the form
@@ -988,13 +985,15 @@ define abbreviations:
 define abbreviations:
     .foo ---> `fee'
         // Illegal: `fee' does not begin with `.'.
-    "+" ---> `std int62'
-        // Illegal: `"+"' is not allowed as a type name.
+    "+" ---> `std int64'
+        // Illegal: `"+"' is not allowed as a type-name
+        // (or a qualifier name, variable-base-name, or
+        // member-name).
 
 define abbreviation int64 unsigned ---> `uns64'
 int64 unsigned z = 9 + 7
     // Legal, same as: std uns64 z = (9) "+" (7)
-    // Matches function prototype:
+    // Matches builtin function prototype:
     //   function std uns64 r =
     //       std (std uns64 v1) "+" (std uns64 v2)
     // unless another function with prototype:
@@ -1070,7 +1069,7 @@ of \skey{declaration}s:
 
 Declarations declare {\em names}, {\em function-prototypes},
 and {\em generic-prototypes}.
-An {\em assignment-state\-ment} is also a {\em declaration} of
+An {\em assignment-state\-ment} may also be a {\em declaration} of
 its result {\em variable-names}.
 
 {\em Names} shared between modules begin with {\em module-abbreviations}
@@ -1165,6 +1164,10 @@ A \key{module} is a file that begins with a {\em module-declaration}:
 \begin{itemize}
 
 \item
+A {\em module-declaration} may only appear at the very beginning
+of a module file.
+
+\item
 In a {\em module-declaration} all {\em module-abbreviations} must be
 distinct, and all {\em module-names} must be distinct.
 \end{itemize}
@@ -1234,7 +1237,7 @@ itself, and
 lasts to the end of smallest block containing the {\em declaration},
 or until the end of the file containing the {\em declaration} if
 the {\em declaration} is not inside any block.
-If the {\em declaration} is in a module, the scope of the
+If the {\em declaration} is at top level in a module, the scope of the
 {\em declaration} is extended to include all the bodies of that
 module.
 If the {\em declaration} is external, the scope of the
@@ -1245,7 +1248,7 @@ Some statement subblocks are not considered to be blocks for
 the purposes of defining scope.  These include subblocks inside
 {\em abbreviation-declarations} (\pagref{ABBREVIATION-DECLARATION}),
 {\em type-declarations} (\pagref{TYPE-DECLARATION}),
-and {\em include-statements} (\pagref{INCLUDE-STATEMENT}).
+and {\em in\-clude-statements} (\pagref{INCLUDE-STATEMENT}).
 These subblocks are considered to be syntactic sugar for
 sequences of statements that do not contain the subblocks.
 
@@ -1330,6 +1333,11 @@ and {\em function-proto\-types}, and will be ambiguous if it matches
 one of each kind.
 
 A declaration not inside a block is said to be `\key{top level}'.
+The scope of a top level declaration in a module file is
+extended to include the
+bodies of that module.  External declarations must be top level in a
+module file,
+and their scope is extended to the modules and bodies that import the module.
 
 A top level declaration
 may \underline{not} have `\TT{next} {\em variable-name}' as
@@ -1419,11 +1427,11 @@ Thus in the context of the above example the lines:
 int32 y = mom my external function ( x )
 int32 y = my external function ( x )
 \end{verbatim}\end{indpar}
-are equivalent if no imported module with abbreviation $ma$
-contains the {\em function-prototype}:
+are equivalent if no {\em function-prototype}
 \begin{center}
-\tt function int32 r = $ma$ my external function ( int32 v )
+\tt function int32 r = $ma$\QMARK{} my external function ( int32 v )
 \end{center}
+is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
 
 \subsection{Bodies}
 \label{BODIES}
@@ -1444,6 +1452,20 @@ is a file that begins with an {\em body-declaration}:
 {\em import-clause} ::= see \pagref{IMPORT-CLAUSE}
 \\[0.5ex]
 {\em after-clause} ::= \TT{initialize after }{\em body-name}
+
+
+\begin{itemize}
+
+\item
+A {\em body-declaration} may only appear at the very beginning
+of a body file.
+
+\item
+In a {\em body-declaration} all {\em module-abbreviations} must be
+distinct, and all {\em module-names} and {\em body-names}
+must be distinct.
+\end{itemize}
+
 \end{indpar}
 
 A {\em body-name} is a POSIX file name.
@@ -1454,7 +1476,7 @@ specified separately to the compiler.
 
 A \key{body} is an extension of the module named in the first
 line of the {\em body-declaration}.  The body cannot itself
-declare any external names.  It can provide
+contain external declarations.  It can provide
 assignments for variables and out-of-line functions deferred in the
 module it extends, and can call out-of-line functions in these
 assignments.
@@ -6150,7 +6172,7 @@ The syntax is:
     ::= {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{}
 \\[0.5ex]
-\emkey{argument-declaration}
+\emkey{argument-declaration}\label{ARGUMENT-DECLARATION}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
     $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}

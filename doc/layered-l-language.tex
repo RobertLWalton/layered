@@ -2310,8 +2310,7 @@ different value that is an integer unique relative to all enumeration
 constants of its enumeration type that are being initialized by
 the program.
 
-A declaration statement of the following form defines an \key{enumeration type}
-that has enumeration values:
+A declaration statement of the following form defines an \key{enumeration type}:
 \begin{indpar}
 \emkey{enum-type-declaration}\label{ENUM-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}
@@ -2347,10 +2346,10 @@ that has enumeration values:
     \end{tabular}
 \\[0.5ex]
 \emkey{first-enum} ::=
-    {\em expression} evaluating at compile-time to a integer
+    {\em expression} evaluating at compile-time to an integer
 \\[0.5ex]
 \emkey{last-enum} ::=
-    {\em expression} evaluating at compile-time to a integer
+    {\em expression} evaluating at compile-time to an integer
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
@@ -2636,10 +2635,12 @@ of enumeration values:
 
 \begin{indpar}
 
-{\tt function bool r = std ( $E$ v1 ) "$cop$" ( $E$ v1 )}
+{\tt function bool r = $ma$\QMARK{} ( $E$ v1 ) "$cop$" ( $E$ v1 )}
 
 \begin{center}
-where $E$ is an enumeration type and $cop$ is
+where $E$ is an enumeration type, \\
+$ma$ is the {\em module-abbreviation} of $E$ if any, \\
+and $cop$ is
 \ttmkey{<}{of enum values}, \ttmkey{<=}{of enum values},
 \ttmkey{==}{of enum values}, \ttmkey{!=}{of enum values},
 \ttmkey{>=}{of enum values}, or \ttmkey{>}{of enum values}.
@@ -2648,9 +2649,12 @@ where $E$ is an enumeration type and $cop$ is
 Returns {\tt range value of (v1) "$cop$" range value of (v2)}.
 \end{indpar}
 
-{\tt function $R$ r = ( $E$ v1 ) "\ttmkey{-}{of enum values}" ( $E$ v1 )}
+{\tt function $R$ r =
+    $ma$\QMARK{} ( $E$ v1 ) "\ttmkey{-}{of enum values}" ( $E$ v1 )}
 \begin{center}
-where $E$ is an enumeration type and $R$ is its range type
+where $E$ is an enumeration type, \\
+$ma$ is the {\em module-abbreviation} of $E$ if any, \\
+and $R$ is $E$'s range type
 \end{center}
 \begin{indpar}
 Returns {\tt range value of (v1) "-" range value of (v2)}.
@@ -2711,8 +2715,8 @@ may differ.
 
 However, within a code file, all assignments to an enumeration type
 are done in the same order during program initialization as during compilation.
-Thus values assigned within the same code file can be assumed to be
-in the same order at compile and run times.  Also,
+Thus values assigned within the same code file can be assumed to
+have the same relative values at compile and run times.  Also,
 compile and run values of a given enumeration type
 can be assumed to be the same if \underline{all} values
 of that enumeration type are assigned in the a single code file.

@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 10, 2018
+June 11, 2018
  
 \end{center}
 
@@ -1696,7 +1696,7 @@ may be larger sizes for which all arithmetic and comparison
 operations are \key{implemented}\label{IMPLEMENTED}.
 Copying and conversion of values is always implemented for
 \underline{all}
-number types, regardless of implementation, except for implementations
+number types, except for implementations
 that do not implement \underline{any} floating point types.
 
 Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
@@ -2181,9 +2181,10 @@ define type T1 as int32
 type T2 = int32
 define type T3 as T2  // Same as `define type T3 as int32'
 int32 x = 1
-T1 x1 = T1 ( x )
-T2 x2 = x             // Compile error: T2 is not a type-name
-T3 x3 = T3 ( x )
+*UNCHECKED* T1 x1 = T1 ( x )
+*UNCHECKED* T2 x2 = x        // Compile error:
+                             // T2 is not a type-name
+*UNCHECKED* T3 x3 = T3 ( x )
 \end{verbatim}\end{indpar}
 
 A `{\tt \ttkey{define type} T as \ldots}'
@@ -2193,7 +2194,8 @@ or can be used to name a constant equal a \TT{type} value
 as in `{\tt T == int32}',
 or can be used
 as a function of one argument to convert the argument to the
-type, as in `{\tt T(v)}'.
+type, as in `{\tt T(v)}', provided the result is a variable with
+the \TT{*UNCHECKED*} qualifier.
 However a statement of the form `{\tt type T = \ldots}'
 declares {\tt T} to be a mere variable name that can only be
 use as a constant equal a \TT{type} value.
@@ -2205,7 +2207,7 @@ the underlying type of a defined type is the underlying type of
 its base type, and the underlying type of a builtin type is
 the builtin type itself.
 
-The following builtin functions are defined:
+The following builtin unchecked conversion functions are defined:
 \begin{indpar}
 {\tt function \TT{*UNCHECKED*} $T$ r = $T$ ( $B$ v )} \\
 {\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $T$ v )}
@@ -2215,11 +2217,38 @@ for the base type of $T$
 
 \begin{indpar}
 These functions do not change the actual value, but merely its
-compile-time type.  Using these unchecked conversions,
-implied conversions in one direction only
-may be defined as desired: see \itemref{IMPLIED-CONVERSION}.
+compile-time type.
 \end{indpar}\label{DEFINED-TYPE-UNCHECKED-CONVERSION}
 
+\end{indpar}
+
+The \TT{*UNCHECKED*} qualifier
+(\itemref{QUALIFIERS} and \pagref{THE-UNCHECKED-QUALIFIER})
+may be attached to variables and must be attached to the result
+variables of an unchecked type conversion.  An example of
+their use to define type and \underline{explicit} conversion from
+type {\tt T1} to type {\tt T2} that is \underline{not} unchecked is:
+\begin{indpar}\begin{verbatim}
+define type T1 as T2
+function T2 r = T2 ( T1 v ):
+    *UNCHECKED* r2 = T2 ( v )
+    r = r2
+\end{verbatim}\end{indpar}
+They can also be used to define an implied conversion from type
+{\tt T1} to type {\tt T2}, as in the
+following example:
+\begin{indpar}\begin{verbatim}
+define type T1 as T2
+function Qs T2 r = implied conversion
+                       (| qualifiers Qs |) ( Qs T1 v ):
+    *UNCHECKED* Qs r2 = T2 ( v )
+    r = r2
+\end{verbatim}\end{indpar}
+See \itemref{IMPLIED-CONVERSION} implied conversion details.
+
+The following builtin functions are also defined:
+
+\begin{indpar}
 {\tt function type r = std \ttkey{base type of} ( type t )}
 
 \begin{indpar}
@@ -2234,7 +2263,7 @@ Returns the underlying type of the defined type or builtin type {\tt t}.
 \end{indpar}
 
 A type may have zero or more type names associate with it.
-An addition name may be associated with a type by the statement:
+An additional name may be associated with a type by the statement:
 \begin{indpar}
 \emkey{type-name-declaration}\label{TYPE-NAME-DECLARATION} ::= \\
 \hspace*{0.5in}

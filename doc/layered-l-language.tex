@@ -2793,7 +2793,8 @@ which is called the
 of the set or list.
 This is the least general type to which all the set
 or list
-elements can be converted (see \pagref{CONVERSION-RELATION}).
+elements can be converted by implied conversions
+(see \pagref{CONVERSION-RELATION}).
 It is an error
 if this cannot be done because some of the types have no implied
 conversion to their base type defined for them.
@@ -2802,9 +2803,9 @@ defined for this common element type.
 
 An {\em enum-range} designates the two values given and all
 values in between.
-After implied conversion, the first {\em enum-value} in an {\em enum-range}
-must \underline{not} be greater than the second {\em enum-value}
-in the {\em enum-range}.  If the first or second {\em enum-value} of
+After implied conversion, if the first {\em enum-value} in an {\em enum-range}
+is greater than the second {\em enum-value} in the {\em enum-range},
+the set is empty.  If the first or second {\em enum-value} of
 an {\em enum-range} is omitted, it is taken to be the lower or upper
 limit of the enumeration type of the non-omitted {\em enum-value}.
 
@@ -2830,7 +2831,7 @@ X X20 = next enum
 
 The order in which values are given in an {\em enum-list-constant}
 does matter, and ranges are not combined.  Thus in the above
-example `\TT{[X1 X2] != [X2 X1]}' and `\TT{[X1 X1] != [X1]}'.
+example `{\tt [X1, X2] != [X2, X1]}' and `{\tt [X1, X1] != [X1]}'.
 
 Enumeration set and list values are used in logical expressions that
 condition function lookup.  For example,
@@ -2844,8 +2845,8 @@ defines a function that takes only signed integer type
 arguments, and not unsigned integer type arguments.
 The logical expression inside \TT{[|~|]} must be satisfied
 for the function definition to match a function call, and
-the type argument \TT{T}, which is implied and need not be
-given in the function call, must be in the give set of
+the type argument {\tt T}, which is implied and need not be
+given in the function call, must be in the given set of
 types, where types are values of the enumeration type `\TT{type}'
 (see Section~\itemref{TYPE-VALUES}).
 
@@ -2897,61 +2898,63 @@ These conversions do nothing but change the type of the value.
 \end{indpar}
 
 Variables with compile-type enumeration set or list values can be defined.
-If $S$ is an enumeration set type with element type $E$, and $L$ is
-an enumeration list type with the same element type $E$, the following
-functions are defined at compile-time (but may not be defined at
-run-time):
+If $S$ is an enumeration set type with element type $E$,
+$L$ is an enumeration list type with element type $E$,
+and $ma$ is the {\em module-abbreviation} of the original type name
+of $E$ if any,
+then the following functions are defined at compile-time
+(but may not be defined at run-time):
 
 \begin{indpar}
 {\tt function $S$ r =
-    std ($S$ v1) "\ttmkey{+}{enumeration set union}" ( $S$ v2 )}
+    $ma$\QMARK{} ($S$ v1) "\ttmkey{+}{enumeration set union}" ( $S$ v2 )}
 \begin{indpar}
 Returns the union of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function $S$ r =
-    std ($S$ v1) "\ttmkey{*}{enumeration set intersection}" ( $S$ v2 )}
+    $ma$\QMARK{} ($S$ v1) "\ttmkey{*}{enumeration set intersection}" ( $S$ v2 )}
 \begin{indpar}
 Returns the intersection of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function $S$ r =
-    std ($S$ v1) "\ttmkey{-}{enumeration set difference}" ( $S$ v2 )}
+    $ma$\QMARK{} ($S$ v1) "\ttmkey{-}{enumeration set difference}" ( $S$ v2 )}
 \begin{indpar}
 Returns the set difference of {\tt v1} and {\tt v2}.
 \end{indpar}
 
 {\tt function bool r =
-    std ($E$ e) \ttmkey{is in}{enumeration set} ($S$ s)}
+    $ma$\QMARK{} ($E$ e) \ttmkey{is in}{enumeration set} ($S$ s)}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
 \end{indpar}
 
 {\tt function $S$ r =
-    std ($E$ e) "\ttmkey{+}{enumeration set union}" ($S$ s)}
+    $ma$\QMARK{} ($E$ e) "\ttmkey{+}{enumeration set union}" ($S$ s)}
 \begin{indpar}
 Returns union of \{{\tt e}\} and {\tt s}.
 \end{indpar}
 
 {\tt function $S$ r =
-    std ($S$ s) "\ttmkey{+}{enumeration set union}" ($E$ e)}
+    $ma$\QMARK{} ($S$ s) "\ttmkey{+}{enumeration set union}" ($E$ e)}
 \begin{indpar}
 Returns union of \{{\tt e}\} and {\tt s}.
 \end{indpar}
 
 {\tt function $S$ r =
-    std ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
+    $ma$\QMARK{} ($S$ s) "\ttmkey{-}{enumeration set union}" ($E$ e)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt e}\}.
 \end{indpar}
 
-{\tt function unswrd r = std \ttmkey{size of}{enumeration set} ($S$ s)}
+{\tt function unswrd r = $ma$\QMARK{} \ttmkey{size of}{enumeration set} ($S$ s)}
 \begin{indpar}
 Returns the size of the set {\tt s} (number of elements in {\tt s}).
 \end{indpar}
 
-{\tt function $E$ r = std ($S$ s) \TT{[} unswrd i \TT{]}}%
+{\tt function $E$ r = $ma$\QMARK{} ($S$ s) \TT{[} unswrd i \TT{]}}%
 \ttmindex{[]}{of enumeration set}
 \begin{indpar}
 Returns the {\tt i+1}'st element of {\tt s}, where the elements
@@ -2959,64 +2962,65 @@ of {\tt s} are taken in the order of their integer underlying values.
 It is an error if {\tt i >= size of (s)}.
 \end{indpar}
 
-{\tt function $S$ r = std $S$ ($L$ ls)}
+{\tt function $S$ r = $S$ ($L$ ls)}
 \begin{indpar}
 Convert the enumeration list {\tt ls} to an enumeration set,
 removing duplicate elements.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ ls1)
+{\tt function $L$ r = $ma$\QMARK{} ($L$ ls1)
 		    "\ttmkey{+}{enumeration list concatenation}" ($L$ ls2)}
 \begin{indpar}
 Returns the concatenation of {\tt ls1} and {\tt ls2}.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ ls)
+{\tt function $L$ r = $ma$\QMARK{} ($L$ ls)
                         "\ttmkey{-}{enumeration list difference}" ($S$ s)}
 \begin{indpar}
 Returns the list made by removing all elements from {\tt ls} that
 are in {\tt s}.
 \end{indpar}
 
-{\tt function bool r = std ($E$ e)
-                        \ttmkey{in}{enumeration list} ($L$ ls)}
+{\tt function bool r = $ma$\QMARK{} ($E$ e)
+                        \ttmkey{is in}{enumeration list} ($L$ ls)}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt function $L$ r = std ($E$ e)
+{\tt function $L$ r = $ma$\QMARK{} ($E$ e)
                         "\ttmkey{+}{enumeration list prepend}" ($L$ ls)}
 \begin{indpar}
 Returns the list made by prepending {\tt e} to {\tt ls}.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ ls)
+{\tt function $L$ r = $ma$\QMARK{} ($L$ ls)
                         "\ttmkey{+}{enumeration list append}" ($E$ e)}
 \begin{indpar}
 Returns the list made by appending {\tt e} to {\tt ls}.
 \end{indpar}
 
-{\tt function $L$ r = std ($L$ ls)
+{\tt function $L$ r = $ma$\QMARK{} ($L$ ls)
                         "\ttmkey{-}{enumeration list remove}" ($E$ e)}
 \begin{indpar}
 Returns the list made by removing the all occurrences of
 {\tt e} in {\tt ls}.
 \end{indpar}
 
-{\tt function unswrd r = std \ttmkey{length of}{enumeration list} ($L$ ls)}
+{\tt function unswrd r =
+    $ma$\QMARK{} \ttmkey{length of}{enumeration list} ($L$ ls)}
 \begin{indpar}
 Returns the length of the list {\tt ls} (number of elements in {\tt ls}).
 \end{indpar}
 
-{\tt function $E$ r = std ($L$ ls) \TT{[} unswrd i \TT{]}}%
+{\tt function $E$ r = $ma$\QMARK{} ($L$ ls) \TT{[} unswrd i \TT{]}}%
 \ttmindex{[]}{of enumeration list}
 \begin{indpar}
 Returns the {\tt i+1}'st list element of {\tt ls}.
 It is an error if {\tt i >= length of (ls)}.
 \end{indpar}
 
-{\tt function $L$ r = std $L$ ($S$ s)}
+{\tt function $L$ r = $L$ ($S$ s)}
 \begin{indpar}
 Convert the enumeration set {\tt s} to an enumeration list,
 listing the elements of {\tt s} in order of their underlying values.
@@ -3056,27 +3060,18 @@ The {\em type-name} of a type can be used (1) before a {\em variable-name}
 in a declaration, (2) as the name of an enumeration value in an
 expression, or (3) as the name of a function in a {\em function-call}.
 
-Values of one type $T1$ may be \key{explicitly converted} to another
+In general, values of one type $T1$ may be \key{explicitly converted} to another
 type $T2$ if and only if an inline function with prototype:
 \begin{center} \tt
 function \ldots~$T2$ r = $T2$ ( \ldots~$T1$ v )
 \end{center}
 is defined, where the `\ldots{}' denote arbitrary qualifiers.
+This function is not builtin, except in the case where
+$T2$ and $T1$ are both names for the same type (and possibly the
+same name), and in this
+case the function just copies the value without changing its
+type.
 
-Values of one type $T1$ may be \key{implicitly converted} to another
-type $T2$ if and only if an inline function with prototype:
-\begin{center} \tt
-function \ldots~Qs~$T2$ r =
-		      \begin{tabular}[t]{@{}l@{}}
-                      \ttkey{implied conversion} \\
-                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
-                      \end{tabular}
-\end{center}
-is defined, where the `\ldots{}' denote arbitrary variable qualifiers
-(see \itemref{QUALIFIERS}) and {\tt Qs} is an implicit argument that
-copies the value qualifiers of the assignment result variable to the function
-prototype result and argument variables
-(see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
 Given assignment statements
 \begin{center}
 \begin{tabular}{l}
@@ -3087,13 +3082,36 @@ Given assignment statements
 
 where $T2\neq T1$, the compiler will change the second statement to
 \begin{center}
-\tt $T2$ v = implicit conversion ( w )
+\tt $T2$ v = implied conversion ( w )
 \end{center}
+so that if the appropriate `{\tt implied conversion}' function is
+defined, the assignment `{\tt $T2$ v = w}' will compile.  Such
+implicit conversions are most generally defined by defining
+an inline function with the prototype:
 
-There can be several {\tt implied conversion} functions from $T1$
-to $T2$ defined, each with different qualifiers.
+\begin{center} \tt
+function Qs~$T2$ r =
+		      \begin{tabular}[t]{@{}l@{}}
+                      \ttkey{implied conversion} \\
+                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
+                      \end{tabular}
+\end{center}
+where {\tt Qs} is an implicit argument that copies the value qualifiers
+(see \itemref{QUALIFIERS}) of the assignment result variable to the function
+prototype result and argument variables
+(see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).  An example is:
+\begin{indpar}\begin{verbatim}
+define type T1 as T2
+function Qs T2 r = implied conversion
+                       (| qualifiers Qs |) ( Qs T1 v ):
+    *UNCHECKED* Qs r2 = T2 ( v )
+    r = r2
+\end{verbatim}\end{indpar}
 
-If \underline{any} implicit conversion from $T1$ to $T2$ is defined,
+Instead of this general function, several`{\tt implied conversion}' functions
+each with different qualifiers can be defined.
+
+If \underline{any} implied conversion from $T1$ to $T2$ is defined,
 we say the $T1$ is \mkey{more specific}{types}
 than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
 symbolically,
@@ -3110,7 +3128,7 @@ $T2$ if and only if $T1 \CNV T2$ is required to be acyclic.
 This graph is know as the \key{implied conversion graph}.
 
 In addition, if there are two paths from type $T1$
-to type $T2$ in the implicit conversion graph that
+to type $T2$ in the implied conversion graph that
 are disjoint except for their endpoints, there must also
 be a direct arrow from $T1$ to $T2$ in the graph, i.e.,
 \begin{center} \tt
@@ -3126,7 +3144,7 @@ This last rule
 allows the call-prototype matching rule
 \ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
 on page \pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
-to disambiguate an implicit conversion from a $T1$ value to
+to disambiguate an implied conversion from a $T1$ value to
 a $T2$ value by always choosing the direct path $T1\CNV T2$.
 
 For example, since
@@ -3139,9 +3157,9 @@ are both in the graph,
 then {\tt uns16 $\CNV$ int64} must be too.
 
 If the direct conversion does not exist,
-the implicit conversion will be a compilation error.
-If qualifiers disable the direct implicit conversion but
-not the two paths, the implicit conversion will be a compilation
+the implied conversion will be a compilation error.
+If qualifiers disable the direct implied conversion but
+not the two paths, the implied conversion will be a compilation
 error for those qualifiers.
 Note that by rule
 \ref{ARGUMENT-CALL-PROTOTYPE-MATCHING}
@@ -3151,7 +3169,7 @@ but may be hidden inside call-prototype match failures.
 
 Although the compiler cannot check this, it should be true
 that if there are two different paths from one type to another
-in the implicit conversion graph, both paths produce the same
+in the implied conversion graph, both paths produce the same
 result.  For example:
 \begin{indpar}\begin{verbatim}
 int16 v1 = ...
@@ -3167,7 +3185,7 @@ float64 v4 = v1
 If for a set of types $\{T1,T2,\ldots\}$ there is a unique
 type $T$ such that $T1\TCNV T$, $T2\TCNV T$, \ldots{}, where
 $\TCNV$ is the transitive closure of $\CNV$, then
-$T$ is called the `\key{least upper bound}'\label{LEAST-UPPER-BOUND}
+$T$ is called the `\key{greatest lower bound}'\label{GREATEST-LOWER-BOUND}
 of the set of types.
 
 Functions can be overloaded based on the number and types
@@ -3190,17 +3208,17 @@ It is also possible to define a default function that is used when
 function declarations with known prototypes are not applicable.
 For example, the following declarations are builtin:
 \begin{indpar}\begin{verbatim}
-function bool r = std ( type t == uns8 ):
+function bool r = std is uns ( type t == uns8 ):
     return true
-function bool r = std ( type t == uns16 ):
+function bool r = std is uns ( type t == uns16 ):
     return true
-function bool r = std ( type t == uns32 ):
+function bool r = std is uns ( type t == uns32 ):
     return true
-function bool r = std ( type t == uns64 ):
+function bool r = std is uns ( type t == uns64 ):
     return true
-function bool r = std ( type t == uns128 ):
+function bool r = std is uns ( type t == uns128 ):
     return true
-function bool r = std ( type t ):
+function bool r = std is uns ( type t ):
     return false
 \end{verbatim}\end{indpar}
 where the last declaration is the default when none of the others
@@ -3318,7 +3336,7 @@ May be defined by user for defined types.
 Returns a suitable default value for type $T$.
 Defined to return \TT{0} for builtin number types.
 May be defined by user for defined types.  For use by allocators,
-such as a user defined function that allocates a vector whose
+such as a function that allocates a vector whose
 elements are of type $T$, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
@@ -3415,7 +3433,7 @@ whose characters are those represented by the lexeme with
 the addition of a \TT{NUL} character (code \TT{0}) at the end:
 \begin{indpar}
 \emkey{string-constant}\label{STRING-CONSTANT}
-    :::= \TT{"}{\em character-representative}\TT{"} \\
+    :::= \TT{"}{\em character-representative\STAR{}}\TT{"} \\
 {\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
 \end{indpar}
 
@@ -3618,18 +3636,18 @@ The order in which names are given in a {\em name-set-constant}
 does not matter, and duplicate names in the set are eliminated.
 Thus
 \begin{center}
-`{\tt \{`X1' `X2'\} == \{`X2 `X1'\}}'\\
+`{\tt \{`X1', `X2'\} == \{`X2', `X1'\}}'\\
 and\\
-`{\tt \{`X1' `X1'\} == \{`X1'\}}'.
+`{\tt \{`X1', `X1'\} == \{`X1'\}}'.
 \end{center}
 
 The order in which values are given in an {\em name-list-constant}
 does matter, and duplicates are not combined.
 Thus
 \begin{center}
-`{\tt [`X1' `X2'] != [`X2 `X1']}'\\
+`{\tt [`X1', `X2'] != [`X2', `X1']}'\\
 and\\
-`{\tt [`X1' `X1'] != [`X1']}'.
+`{\tt [`X1', `X1'] != [`X1']}'.
 \end{center}
 
 Name set and list values are used in code expansions.
@@ -3671,7 +3689,7 @@ Returns the intersection of {\tt s1} and {\tt s2}.
 Returns the set difference of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function bool r = std (name e) \ttmkey{in}{name set} ( name set s )}
+{\tt function bool r = std (name e) \ttmkey{is in}{name set} ( name set s )}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
@@ -3738,7 +3756,7 @@ Returns the list made by removing all elements from {\tt ls} that
 appear anywhere in {\tt s}.
 \end{indpar}
 
-{\tt function bool r = std (name n) \ttmkey{in}{name list} (name list ls)}
+{\tt function bool r = std (name n) \ttmkey{is in}{name list} (name list ls)}
 \begin{indpar}
 Returns \TT{true} if {\tt n} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
@@ -3977,7 +3995,7 @@ assignment statement result variable, it will be automatically added
 to that variable.
 This is the only way to attach a `\key{protected variable qualifier}'
 to a variable.  However, as described below, protected value qualifiers
-may also be propagated by assignments or implicit conversions operations.
+may also be propagated by assignments or implied conversion operations.
 
 An assignment statement of the form
 \begin{center}
@@ -4000,10 +4018,10 @@ function \ldots~Qs~$T2$ r =
                       \end{tabular}
 \end{center}
 
-As a consequence, assignment statements and implicit conversions
+As a consequence, assignment statements and implied conversions
 may remove required value qualifiers but not add them, and
 may add prohibited value qualifiers
-but not remove them.  Assignment statements and implicit conversions
+but not remove them.  Assignment statements and implied conversions
 remove variable qualifiers and never add them.
 
 Some examples involving the \TT{mem} and \TT{*UNCHECKED*}
@@ -4597,9 +4615,9 @@ Non-numeric comparison operators require that one or more of
 the operands have a natural type (\pagref{NATURAL-TYPE}) that
 cannot be converted to one of the numeric types listed above.
 In this case the target type is
-the least upper bound (\pagref{LEAST-UPPER-BOUND})
+the greatest lower bound (\pagref{GREATEST-LOWER-BOUND})
 of all these natural types.
-It is a compile error if this least upper bound does
+It is a compile error if this greatest lower bound does
 not exist, or if it is \TT{bool} and no operand natural type was \TT{bool}.
 For example, given the expression `{\tt v == missing}', where \TT{v}
 is of `\TT{qualifier}' type, {\tt missing}, which has no natural type, will be
@@ -5351,13 +5369,13 @@ int32 y = x + 1         // y == 2
 next x = 10 * x         // Now x == 10
 next y = x + y          // Now y == 12
 int32 z = 256 + y       // z == 268
-int8 u = z              // ILLEGAL!  Undefined implicit
+int8 u = z              // ILLEGAL!  Undefined implied
                         // conversion from int32 to int8.
 int8 v = mod ( z )      // Now v == 12
 int8 w = v + 257        // ILLEGAL!  Constant out of range
                         // of target type int8.
 float32 m = 1.7
-int64 i = m             // ILLEGAL!  Undefined implicit
+int64 i = m             // ILLEGAL!  Undefined implied
                         // conversion from float32 to int64.
 int32 j = nearest ( m ) // now j == 2 (round to nearest)
 int32 y = x + y         // ILLEGAL! y hides y.

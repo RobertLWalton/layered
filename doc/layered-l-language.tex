@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 11, 2018
+June 12, 2018
  
 \end{center}
 
@@ -3972,7 +3972,7 @@ but can not be both.
 If a `\key{required qualifier}' qualifies a prototype variable,
 it must qualify any assignment result variable or actual argument
 value associated to that prototype variable by a function or
-generic call.  Note that variables qualifiers cannot be attached
+generic call.  Note that variable qualifiers cannot be attached
 to prototype argument variable, so this rule does not apply to
 variable qualifiers on actual arguments.
 
@@ -3999,15 +3999,17 @@ may also be propagated by assignments or implied conversion operations.
 
 An assignment statement of the form
 \begin{center}
-\tt $T$ v = w
+\tt $Qvars$  $Qvals$ $T$ v = w
 \end{center}
-where {\tt w} is of type $T$ behaves as if it had the form
+where {\tt w} is of type $T$, $Qvars$ is a possibly empty list
+of variable qualifiers, and $Qvals$ is a possibly empty list of
+value qualifiers, behaves as if it had the form
 \begin{center}
-\tt $T$ v = assign ( w )
+\tt $Qvars$ $Qvals$ $T$ v = assign ( w )
 \end{center}
 where {\tt assign} has the function prototype
 \begin{center} \tt
-function ~Qs~$T$ r = assign (| qualifiers Qs |) ( Qs~$T$ v )
+function ~$Qvals$ ~$T$ r = assign ( $Qvals$~$T$ v )
 \end{center}
 Implicit conversions have a similar prototype of the form
 \begin{center} \tt

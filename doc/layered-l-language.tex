@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 12, 2018
+June 13, 2018
  
 \end{center}
 
@@ -3889,6 +3889,20 @@ int32 y3 = G ( x3 )          // Legal; x3 has qualifier fee.
 
 \end{verbatim}\end{indpar}
 
+Qualifier definitions reference function prototypes and function
+calls, which are described in detail later in this document
+(\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).  However for the
+purposes of this section reference to the above example may suffice.
+In this example
+\begin{center}
+{\tt function \ldots{} result = \ldots{} ( \ldots{} value )}
+\end{center}
+is a function prototype with one \underline{prototype} result variable
+`{\tt result}' and one \underline{prototype} argument variable `{\tt value}'.
+A statement like `{\tt int32 x3 = F ( x1 )}' includes a function
+call with \underline{actual} result variable `{\tt x3}' and
+\underline{actual} argument `{\tt x1}'.
+
 The qualifiers may be declared by:
 \begin{indpar}
 \emkey{qualifier-declaration}\label{QUALIFIER-DECLARATION} \\
@@ -4011,7 +4025,22 @@ where {\tt assign} has the function prototype
 \begin{center} \tt
 function ~$Qvals$ ~$T$ r = assign ( $Qvals$~$T$ v )
 \end{center}
-Implicit conversions have a similar prototype of the form
+Or in other words, the \underline{value} qualifiers of {\tt v} are treated
+as prototype argument qualifiers with {\tt w} the actual argument
+corresponding to {\tt v}.  The \underline{variable} qualifiers
+of {\tt v} and {\tt w} are ignored in simple variable assignments.
+
+If {\tt w} does \underline{not} have type $T$, the statement
+\begin{center}
+\tt $Qvars$  $Qvals$ $T$ v = w
+\end{center}
+compiles as
+\begin{center}
+\tt $Qvars$  $Qvals$ $T$ v = implied conversion ( w )
+\end{center}
+where the `{\tt implied conversion}' function must be defined by
+the user or builtin.  A typical implied conversion prototype
+for converting values of type $T1$ to values of type $T2$ is:
 \begin{center} \tt
 function \ldots~Qs~$T2$ r =
 		      \begin{tabular}[t]{@{}l@{}}
@@ -4019,6 +4048,12 @@ function \ldots~Qs~$T2$ r =
                       \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
                       \end{tabular}
 \end{center}
+which specifies that the $Qs$ argument is implicitly assigned
+to the set of \underline{value} qualifiers of the actual
+result variable (in this case $Qvals$).  See
+the {\em qualifiers-argument-declaration} discussion on
+\pagref{QUALIFIERS-ARGUMENT-DECLARATION-DISCUSSION}
+for more details.
 
 As a consequence, assignment statements and implied conversions
 may remove required value qualifiers but not add them, and
@@ -6546,6 +6581,7 @@ next z = add ( x, y )
 \end{verbatim}\end{indpar}
 
 An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
+\label{QUALIFIERS-ARGUMENT-DECLARATION-DISCUSSION}
 which for some {\em variable-name} {\tt Qs}
 has the form `{\tt qualifiers Qs}'.
 This makes {\tt Qs} into a {\em qualifier-name}

@@ -4160,56 +4160,13 @@ the {\em expression} computes a value to store in the variable.
 
 The parser parses {\em expressions} and converts code into statements
 that have no {\em expressions} except for {\em variable-names}
-and for {\em function-calls} in statements of the form
+and {\em function-calls} in statements of the form
 \begin{indpar}
+\ldots{} ~ {\tt =} ~{\em variable-name \\}
 \ldots{} ~ {\tt =} ~{\em function-call}
 \end{indpar}
-where \ldots{} is an optional list of result variables for the
-{\em function-call}.
-
-\subsection{Variable Names}
-
-A {\em variable-name} names a variable that is allocated to
-the current function frame by an {\em assignment-statement}.
-The syntax is:
-
-\begin{indpar}
-\emkey{variable-name}
-	::= {\em variable-base-name} {\em member-selector}\STAR{} \\
-\emkey{variable-base-name}
-	::= {\em name} not containing a `\TT{.}',
-			 {\em quoted-mark}, or {\em quoted-separator} \\
-\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript } \\
-\emkey{member-name}
-	::= \begin{tabular}[t]{@{}l@{}}
-                        {\em name} beginning with a `\TT{.}', \\
-			but not containing a {\em quoted-mark}
-			    or {\em quoted-separator}
-			\end{tabular} \\
-\emkey{member-subscript}\label{MEMBER-SUBSCRIPT}
-    ::= {\em enum-list-constant} \\
-{\em enum-list-constant} ::= see \pagref{ENUM-LIST-CONSTANT} \\
-{\em name} ::= see \pagref{NAME}
-\end{indpar}
-
-Some examples that use {\em member-subscripts} are:\label{SLICE}
-\begin{indpar}\begin{verbatim}
-uns8 string[0 .. 5] = .....   // Allocate slice.
-..... string[0] .....         // Read one variable of slice.
-..... string[1 .. 5] .....    // Read subslice of slice.
-..... string[0 .. 3] .....    // Read a different subslice.
-\end{verbatim}\end{indpar}
-
-One can also assemble slices into a larger slice.  For example:
-\begin{indpar}\begin{verbatim}
-float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
-float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
-float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
-..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
-\end{verbatim}\end{indpar}
-
-\subsection{Expression Syntax}
-\label{EXPRESSION-SYNTAX}
+where \ldots{} is a list of result variables (which is optional
+for {\em function-calls}).
 
 The operators that can appear in an expression in approximate
 precedence order (lowest precedence topmost) are:
@@ -4258,18 +4215,59 @@ bitwise operators
 \end{center}
 
 However precedence is only a rough guide to the syntax of L-Language
-operators.  Also unary \TT{+} and \TT{-} operators have the
-same precedence as the binary \TT{+} and\TT{-} operators.
+operators.
 
 Two operators are said to be mixed in an expression if neither is
 inside a parenthesized subexpression that does not contain the other.
 The logical operators other than `\TT{not}' cannot be mixed with
 each other, and similarly for the product operators and the
 bitwise operators other than \TT{!} (bitwise complement).  Bitwise
-operators cannot be mixed with summation and product operators.
+operators cannot be mixed with summation, product, or exponent operators.
 
-Operators are classified as \key{infix}, \key{prefix}, or
-\key{postfix}.  An operator can be more than one of these.
+\subsection{Variable Names}
+
+A {\em variable-name} names a variable that is allocated to
+the current function frame by an {\em assignment-statement}.
+The syntax is:
+
+\begin{indpar}
+\emkey{variable-name}
+	::= {\em variable-base-name} {\em member-selector}\STAR{} \\
+\emkey{variable-base-name}
+	::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{member-selector} ::= {\em member-name} $|$ {\em member-subscript } \\
+\emkey{member-name}
+	::= \begin{tabular}[t]{@{}l@{}}
+                        {\em name} beginning with a `\TT{.}', \\
+			but not containing a {\em quoted-mark}
+			    or {\em quoted-separator}
+			\end{tabular} \\
+\emkey{member-subscript}\label{MEMBER-SUBSCRIPT}
+    ::= {\em enum-list-constant} \\
+{\em enum-list-constant} ::= see \pagref{ENUM-LIST-CONSTANT} \\
+{\em name} ::= see \pagref{NAME}
+\end{indpar}
+
+Some examples that use {\em member-subscripts} are:\label{SLICE}
+\begin{indpar}\begin{verbatim}
+uns8 string[0 .. 5] = .....   // Allocate slice.
+..... string[0] .....         // Read one variable of slice.
+..... string[1 .. 5] .....    // Read subslice of slice.
+..... string[0 .. 3] .....    // Read a different subslice.
+\end{verbatim}\end{indpar}
+
+One can also assemble slices into a larger slice.  For example:
+\begin{indpar}\begin{verbatim}
+float64 m[0 .. 1, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[2 .. 6, 0 .. 1 ] = .....   // Allocate slice.
+float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
+..... m[0 .. 6, 0 .. 4] .....        // Read assembled slice.
+\end{verbatim}\end{indpar}
+
+\subsection{Expression Syntax}
+\label{EXPRESSION-SYNTAX}
+
 The parser begins by parsing expressions according to the syntax:
 
 \begin{indpar}
@@ -4333,6 +4331,8 @@ The parser begins by parsing expressions according to the syntax:
     \end{tabular}
 \end{indpar}
 
+Operators are classified as \key{infix}, \key{prefix}, or
+\key{postfix}.  An operator can be more than one of these.
 When a sequence of consecutive operators occurs, either
 \begin{itemize}
 \item[(1)] The sequence begins the expression and consists of
@@ -4344,6 +4344,124 @@ just prefix operators.
 \item[(3)] The sequence ends the expression and consists of
 just postfix operators.
 \end{itemize}
+
+If an expression cannot be made to follow these rules, the expression
+is ambiguous, which is a compile error.
+
+After parsing as above, the parser inserts parentheses so that
+each prefix or postfix operator has a single {\em primary} operand
+and each infix operator has two {\em primary} operands.  This is
+done using an operator priority\footnote{Here priority is not quite
+the same thing as precedence, so we use a different word for the
+concept.}
+table which for builtin operators is:
+\begin{center}
+\newcommand{\R}{$\rightarrow$}
+\newcommand{\B}{$\leftrightarrow$}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+& \multicolumn{15}{c|}{second operator} \\
+\hline
+first		& \B      & \B        & \B       & \B      & \R
+		& \B      & \B        & \B       & \B      & \B      & \B
+		& \B      & \B        & \B       & \B \\
+operator 	& \TT{if} & \TT{else} & \TT{and} & \TT{or} & \TT{not}
+                & \TT{<}  & \TT{<=}   & \TT{==}  & \TT{!=} & \TT{>=} & \TT{>}
+		& \TT{+}  & \TT{-}    & \TT{*}   & \TT{/}
+\\\hline
+\B~\TT{if}	& x & < & > & > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{else}	& > & x & > & > & > & > & > & > & > & > & > & > & > & > & > \\
+\hline
+\B~\TT{and}	& < & < & < & x & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{or}	& < & < & x & < & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{not}	& < & < & < & < & > & > & > & > & > & > & > & > & > & > & > \\
+\hline
+\B~\TT{<}	& < & < & < & < & x & < & < & < & < & < & < & > & > & > & > \\
+\B~\TT{<=}	& < & < & < & < & x & < & < & < & < & < & < & > & > & > & > \\
+\B~\TT{==}	& < & < & < & < & x & < & < & < & < & < & < & > & > & > & > \\
+\B~\TT{!=}	& < & < & < & < & x & < & < & < & < & < & < & > & > & > & > \\
+\B~\TT{>=}	& < & < & < & < & x & < & < & < & < & < & < & > & > & > & > \\
+\B~\TT{>}	& < & < & < & < & x & < & < & < & < & < & < & > & > & > & > \\
+\hline
+\B~\TT{+}	& < & < & < & < & x & < & < & < & < & < & < & < & < & > & > \\
+\B~\TT{-}	& < & < & < & < & x & < & < & < & < & < & < & < & < & > & > \\
+\hline
+\B~\TT{*}	& < & < & < & < & x & < & < & < & < & < & < & < & < & < & x \\
+\B~\TT{/}	& < & < & < & < & x & < & < & < & < & < & < & < & < & x & x \\
+\B~\TT{div}	& < & < & < & < & x & < & < & < & < & < & < & < & < & x & x \\
+\B~\TT{mod}	& < & < & < & < & x & < & < & < & < & < & < & < & < & x & x \\
+\B~\TT{rem}	& < & < & < & < & x & < & < & < & < & < & < & < & < & x & x \\
+\hline
+\B~\TT{\textasciicircum}
+		& < & < & < & < & x & < & < & < & < & < & < & < & < & < & < \\
+\hline
+\R~\TT{+}	& < & < & < & < & x & < & < & < & < & < & < & < & < & < & < \\
+\R~\TT{-}	& < & < & < & < & x & < & < & < & < & < & < & < & < & < & < \\
+\hline
+\B~\TT{\&}	& < & < & < & < & x & < & < & < & < & < & < & x & x & x & x \\
+\B~\TT{|}	& < & < & < & < & x & < & < & < & < & < & < & x & x & x & x \\
+\B~\TT{xor}	& < & < & < & < & x & < & < & < & < & < & < & x & x & x & x \\
+\B~\TT{<{}<}	& < & < & < & < & x & < & < & < & < & < & < & x & x & x & x \\
+\B~\TT{>{}>}	& < & < & < & < & x & < & < & < & < & < & < & x & x & x & x \\
+\R~\TT{!}	& < & < & < & < & x & < & < & < & < & < & < & x & x & x & x \\
+\hline
+
+\end{tabular}
+\\
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+& \multicolumn{12}{c|}{second operator} \\
+\hline
+first		& \B       & \B       & \B       & \B
+                & \R     & \R
+		& \B      & \B     & \B      & \B         & \B
+		& \R \\
+operator 	& \TT{div} & \TT{mod} & \TT{rem} & \TT{\textasciicircum}
+		& \TT{+} & \TT{-}
+		& \TT{\&} & \TT{|} & \TT{xor} & \TT{<{}<} & \TT{>{}>}
+		& \TT{!}
+\\\hline
+\B~\TT{if}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{else}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\hline
+\B~\TT{and}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{or}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{not}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\hline
+\B~\TT{<}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{<=}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{==}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{!=}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{>=}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\B~\TT{>}	& > & > & > & > & > & > & > & > & > & > & > & > \\
+\hline
+\B~\TT{+}	& > & > & > & > & > & > & x & x & x & x & x & x \\
+\B~\TT{-}	& > & > & > & > & > & > & x & x & x & x & x & x \\
+\hline
+\B~\TT{*}	& x & x & x & > & > & > & x & x & x & x & x & x \\
+\B~\TT{/}	& x & x & x & > & > & > & x & x & x & x & x & x \\
+\B~\TT{div}	& x & x & x & > & > & > & x & x & x & x & x & x \\
+\B~\TT{mod}	& x & x & x & > & > & > & x & x & x & x & x & x \\
+\B~\TT{rem}	& x & x & x & > & > & > & x & x & x & x & x & x \\
+\hline
+\B~\TT{\textasciicircum}
+		& x & x & x & > & > & x & x & x & x & x & x & x \\
+\hline
+\R~\TT{+}	& < & < & < & < & > & > & x & x & x & x & x & x \\
+\R~\TT{-}	& < & < & < & < & > & > & x & x & x & x & x & x \\
+\hline
+\B~\TT{\&}	& x & x & x & x & x & x & < & x & x & x & x & > \\
+\B~\TT{|}	& x & x & x & x & x & x & x & < & x & x & x & > \\
+\B~\TT{xor}	& x & x & x & x & x & x & x & x & < & x & x & > \\
+\B~\TT{<{}<}	& x & x & x & x & x & x & x & x & x & < & < & > \\
+\B~\TT{>{}>}	& x & x & x & x & x & x & x & x & x & < & < & > \\
+\hline
+\R~\TT{!}	& x & x & x & x & x & x & < & < & < & x & x & > \\
+\hline
+
+\end{tabular}
+\end{center}
+
 
 TBD
 

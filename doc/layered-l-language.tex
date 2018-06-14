@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 13, 2018
+June 14, 2018
  
 \end{center}
 
@@ -4065,7 +4065,7 @@ Some examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:
 \begin{indpar}\begin{verbatim}
 // Builtin declarations:
-//     protected variable qualifier mem
+//     protected variable qualifier *MEM*
 //     required variable qualifier *UNCHECKED*
 
 // Function to read the int32 value at RAM address A.
@@ -4099,10 +4099,10 @@ A call to {\tt read} returns a cluster of
 two variables, with only the root {\tt r} of the cluster being
 specified explicitly by the call, and the child {\tt r.adr} being
 created implicitly by the call: see \itemref{CLUSTERS}.
-The {\tt mem} qualifier has the special property that a value of a {\tt mem}
+The \TT{*MEM*} qualifier has the special property that a value of a \TT{*MEM*}
 variable {\tt r} is not given explicitly, but is read implicitly from
 RAM memory using the address in {\tt r.adr}: see \itemref{THE-MEM-QUALIFIER}.
-As a protected variable qualifier, {\tt mem} can only be attached to
+As a protected variable qualifier, \TT{*MEM*} can only be attached to
 a variable by making the variable a result variable of an inline
 function call.
 
@@ -4136,6 +4136,16 @@ int32 x2 = read from stack ( address of x )
     // Legal: `read from stack' prototype and call
     // arguments both have `stack' qualifier.
 \end{verbatim}\end{indpar}
+
+The \TT{stack} qualifier is special in that it is not allowed to qualify
+values returned by an out-of-line function call.
+This qualifier is then attached to addresses of data allocated
+to the stack frame of the function call, because these addresses become
+invalid when the call returns.  There are other situations where
+a \TT{stack} value cannot qualify a variable value because the
+lifetime of the variable is longer than the lifetime of the
+stack frame in used when the variable is set:
+see \itemref{THE-STACK-QUALIFIER} for details.
 
 \section{Expressions}
 \label{EXPRESSIONS}

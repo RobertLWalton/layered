@@ -4257,8 +4257,6 @@ bitwise operators
 
 \end{center}
 
-\begin{indpar}
-
 However precedence is only a rough guide to the syntax of L-Language
 operators.  Also unary \TT{+} and \TT{-} operators have the
 same precedence as the binary \TT{+} and\TT{-} operators.
@@ -4270,149 +4268,22 @@ each other, and similarly for the product operators and the
 bitwise operators other than \TT{!} (bitwise complement).  Bitwise
 operators cannot be mixed with summation and product operators.
 
-The precise syntax of expressions is:
+Operators are classified as \key{infix}, \key{prefix}, or
+\key{postfix}.  An operator can be more than one of these.
+The parser begins by parsing expressions according to the syntax:
 
+\begin{indpar}
 \emkey{expression}\label{EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em selection-expression} \\
-    $|$ & {\em logical-expression} \\
-    $|$ & {\em comparison-expression} \\
-    $|$ & {\em bitop-expression} \\
-    $|$ & {\em summation-expression} \\
-    $|$ & {\em product-expression} \\
-    $|$ & {\em exponent-expression} \\
-    $|$ & {\em mark-expression} \\
-    $|$ & {\em subexpression} \\
-    $|$ & {\em primary} \\
-    \end{tabular}
+\hspace*{0.5in} {\em infix-operand}
+	  \{ {\em infix-operator} {\em infix-operand} \}\STAR{}
 \\[0.5ex]
-\emkey{selection-expression}\label{SELECTION-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em selection-operand} \TT{if} {\em logical-expression} \TT{else} \\
-	& ~~~~~ \{ {\em selection-operand} \TT{if} {\em logical-expression}
-	           \TT{else} \}\STAR{} \\
-	& ~~~~~ {\em selection-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{selection-operand}\label{SELECTION-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em bitop-expression} $|$ {\em summation-expression}
-                                 $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em mark-expression} \\
-    $|$ & {\em subexpression} $|$ {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{logical-expression}\label{LOGICAL-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \TT{not}\QMARK{} ~  {\em logical-operand} \\
-    $|$ & \TT{not}\QMARK{} ~ {\em logical-operand}
-         \{ \TT{and} ~ \TT{not}\QMARK{} ~ {\em logical-operand} \}\PLUS{} \\
-    $|$ & \TT{not}\QMARK{} ~ {\em logical-operand}
-         \{ \TT{or} ~ \TT{not}\QMARK{} ~ {\em logical-operand} \}\PLUS{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{logical-operand}\label{LOGICAL-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em comparison-expression} $|$ {\em subexpression} \\
-    $|$ & {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{comparison-expression}\label{COMPARISON-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em comparison-operand}
-	  \{ {\em comparison-operator} ~ {\em comparison-operand} \}\PLUS{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{comparison-operator}\label{COMPARISON-OPERATOR} ::=
-    \TT{==} $|$ \TT{!=} $|$ \TT{>} $|$ \TT{>=} $|$ \TT{<} $|$ \TT{<=}
-\\[0.5ex]
-\emkey{comparison-operand}\label{COMPARISON-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em bitop-expression} $|$ {\em summation-expression}
-                                 $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em mark-expression} \\
-    $|$ & {\em subexpression} $|$ {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{bitop-expression}\label{BITOP-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \TT{!} {\em bitop-operand} \\
-    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{\&} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
-    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{|} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
-    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{xor}
-	    ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
-    $|$ & {\em bitop-operand}
-         \{ {\em shift-operator} ~ {\em bitop-operand} \}\PLUS{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ \TT{>{}>}
-\\[0.5ex]
-\emkey{bitop-operand}\label{BITOP-OPERAND} ::=
-    {\em mark-expression} $|$ {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{summation-expression}\label{SUMMATION-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em sign}\QMARK{} ~  {\em summation-operand} ~
-         \{ {\em sign} ~ {\em summation-operand} \}\PLUS{} \\
-    $|$ & {\em sign} ~ {\em summation-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{sign}\label{SIGN} ::= \TT{+} $|$ \TT{-}
-\\[0.5ex]
-\emkey{summation-operand}\label{SUMMATION-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em product-expression} $|$ {\em exponent-expression}
-                                   $|$ {\em mark-expression} \\
-    $|$ & {\em subexpression} $|$ {\em primary} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{product-expression}\label{PRODUCT-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em product-operand} ~ \{ \TT{*} ~ {\em product-operand} \}\PLUS{} \\
-    $|$ & {\em product-operand} ~ \TT{/} ~ {\em product-operand} \\
-    $|$ & {\em product-operand} ~ \TT{div} ~ {\em product-operand} \\
-    $|$ & {\em product-operand} ~ \TT{mod} ~ {\em product-operand} \\
-    $|$ & {\em product-operand} ~ \TT{rem} ~ {\em product-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{product-operand}\label{PRODUCT-OPERAND} ::=
-    {\em exponent-expression} $|$ {\em mark-expression} $|$
-    {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{exponent-expression}\label{EXPONENT-EXPRESSION}
-    ::= {\em exponent-operand} ~ \TT{\textasciicircum} ~ {\em exponent-operand}
-\\[0.5ex]
-\emkey{exponent-operand}\label{EXPONENT-OPERAND} ::=
-    {\em mark-expression} $|$ {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{mark-expression}\label{MARK-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \{ {\em mark-operand} ~ {\em mark-operator} \}\PLUS{}
-	  {\em mark-operand}\QMARK{} \\
-    $|$ & \{ {\em mark-operator} ~ {\em mark-operand} \}\PLUS{}
-	  {\em mark-operator}\QMARK{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{mark-operator}\label{MARK-OPERATOR} ::=
-    {\em mark} that is not otherwise mentioned in these syntax equations
-\\[0.5ex]
-\emkey{mark-operand}\label{MARK-OPERAND} ::=
-    {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{subexpression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
-    $|$ & \TT{(} {\em expression} \TT{)} \\
-    \end{tabular}
-\\[0.5ex]
-{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\emkey{infix-operand} ::=
+    {\em prefix-operator}\STAR{} {\em primary} {\em postfix-operator}\STAR{}
 \\[0.5ex]
 \emkey{primary}\label{PRIMARY}
     \begin{tabular}[t]{rl}
-    ::= & {\em argument-list}\STAR{}
+    ::= & {\em subexpression} \\
+    $|$ & {\em argument-list}\STAR{}
 	      \begin{tabular}[t]{l}
 	      {\em primary-item}\PLUS{}\\
 	      \{ {\em argument-list}\PLUS{}
@@ -4422,6 +4293,14 @@ The precise syntax of expressions is:
     $|$ & {\em argument-list} {\em argument-list}\PLUS{} \\
     $|$ & {\em bracketed-constant}
     \end{tabular}
+\\[0.5ex]
+\emkey{subexpression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em module-abbreviation} ~ \TT{(} {\em expression} \TT{)} \\
+    $|$ & \TT{(} {\em expression} \TT{)} \\
+    \end{tabular}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
 \emkey{primary-item}\label{PRIMARY-ITEM}
     ::= {\em word} $|$ {\em number} $|$ {\em quoted-string}
@@ -4453,6 +4332,20 @@ The precise syntax of expressions is:
     $|$ & \TT{..} {\em expression} \\
     \end{tabular}
 \end{indpar}
+
+When a sequence of consecutive operators occurs, either
+\begin{itemize}
+\item[(1)] The sequence begins the expression and consists of
+just prefix operators.
+\item[(2)] The sequence neither begins nor ends the expression
+and the sequence contains a single infix operator optionally
+preceeded by just postfix operators and optionally followed by
+just prefix operators.
+\item[(3)] The sequence ends the expression and consists of
+just postfix operators.
+\end{itemize}
+
+TBD
 
 Note that strictly binary operators such as \TT{mod} can also
 be used as function names in {\em primaries}, as in

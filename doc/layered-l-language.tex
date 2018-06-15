@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 14, 2018
+June 15, 2018
  
 \end{center}
 
@@ -4346,7 +4346,9 @@ just postfix operators.
 \end{itemize}
 
 If an expression cannot be made to follow these rules, the expression
-is ambiguous, which is a compile error.
+is illegal and a compile error.  If the expression can be made to follow
+these rules in more than one way, the expression
+is ambiguous, and is a compile error.
 
 After parsing as above, the parser inserts parentheses so that
 each prefix or postfix operator has a single {\em primary} operand
@@ -4369,38 +4371,38 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \IX{if}		& x & < & > & > & > & > & > & > & > & > & > \\
 \IX{else}	& > & x & > & > & > & > & > & > & > & > & > \\
 \hline
-\IX{and}	& < & < & < & x & > & > & > & > & > & > & > \\
-\IX{or}		& < & < & x & < & > & > & > & > & > & > & > \\
-\RX{not}	& < & < & < & < & > & > & > & > & > & > & > \\
+\IX{and}	& < & x< & < & x & > & > & > & > & > & > & > \\
+\IX{or}		& < & x< & x & < & > & > & > & > & > & > & > \\
+\RX{not}	& < & x< & < & < & > & > & > & > & > & > & > \\
 \hline
-\IX{<}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{<=}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{==}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{!=}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{>=}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{>}		& < & < & < & < & x & < & < & < & < & < & < \\
+\IX{<}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{<=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{==}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{!=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{>=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{>}		& < & x< & < & < & x & < & < & < & < & < & < \\
 \hline
-\IX{+}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{-}		& < & < & < & < & x & < & < & < & < & < & < \\
+\IX{+}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{-}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \hline
-\IX{*}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{/}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{div}	& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{mod}	& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{rem}	& < & < & < & < & x & < & < & < & < & < & < \\
+\IX{*}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{/}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{div}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{mod}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{rem}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \hline
 \IX{\textasciicircum}
-		& < & < & < & < & x & < & < & < & < & < & < \\
+		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \hline
-\RX{+}		& < & < & < & < & x & < & < & < & < & < & < \\
-\RX{-}		& < & < & < & < & x & < & < & < & < & < & < \\
+\RX{+}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\RX{-}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \hline
-\IX{\&}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{|}		& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{xor}	& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{<{}<}	& < & < & < & < & x & < & < & < & < & < & < \\
-\IX{>{}>}	& < & < & < & < & x & < & < & < & < & < & < \\
-\RX{!}		& < & < & < & < & x & < & < & < & < & < & < \\
+\IX{\&}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{|}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{xor}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{<{}<}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\IX{>{}>}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
+\RX{!}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \hline
 
 \end{tabular}
@@ -4414,12 +4416,12 @@ operator 	& \IX{+}  & \IX{-}    & \IX{*}   & \IX{/}
                 & \IX{div} & \IX{mod} & \IX{rem} & \IX{\textasciicircum}
 		& \RX{+} & \RX{-}
 \\\hline
-\IX{if}		& > & > & > & > & > & > & > & > & > & > \\
+\IX{if}		& >x & >x & >x & >x & >x & >x & >x & >x & >x & >x \\
 \IX{else}	& > & > & > & > & > & > & > & > & > & > \\
 \hline
-\IX{and}	& > & > & > & > & > & > & > & > & > & > \\
-\IX{or}		& > & > & > & > & > & > & > & > & > & > \\
-\RX{not}	& > & > & > & > & > & > & > & > & > & > \\
+\IX{and}	& >x & >x & >x & >x & >x & >x & >x & >x & >x & >x \\
+\IX{or}		& >x & >x & >x & >x & >x & >x & >x & >x & >x & >x \\
+\RX{not}	& >x & >x & >x & >x & >x & >x & >x & >x & >x & >x \\
 \hline
 \IX{<}		& > & > & > & > & > & > & > & > & > & > \\
 \IX{<=}		& > & > & > & > & > & > & > & > & > & > \\
@@ -4431,11 +4433,11 @@ operator 	& \IX{+}  & \IX{-}    & \IX{*}   & \IX{/}
 \IX{+}		& > & > & > & > & > & > & > & > & > & > \\
 \IX{-}		& > & > & > & > & > & > & > & > & > & > \\
 \hline
-\IX{*}		& > & > & > & > & x & x & x & > & > & > \\
-\IX{/}		& > & > & x & x & x & x & x & > & > & > \\
-\IX{div}	& > & > & x & x & x & x & x & > & > & > \\
-\IX{mod}	& > & > & x & x & x & x & x & > & > & > \\
-\IX{rem}	& > & > & x & x & x & x & x & > & > & > \\
+\IX{*}		& < & < & > & x & x & x & x & > & > & > \\
+\IX{/}		& < & < & x & x & x & x & x & > & > & > \\
+\IX{div}	& < & < & x & x & x & x & x & > & > & > \\
+\IX{mod}	& < & < & x & x & x & x & x & > & > & > \\
+\IX{rem}	& < & < & x & x & x & x & x & > & > & > \\
 \hline
 \IX{\textasciicircum}
 		& < & < & < & < & < & < & < & x & > & > \\
@@ -4461,34 +4463,34 @@ first & \multicolumn{6}{c|}{second operator} \\
 operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 		& \RX{!}
 \\\hline
-\IX{if}	& > & > & > & > & > & > \\
+\IX{if}		& > & > & > & > & > & > \\
 \IX{else}	& > & > & > & > & > & > \\
 \hline
-\IX{and}	& > & > & > & > & > & > \\
-\IX{or}	& > & > & > & > & > & > \\
-\RX{not}	& > & > & > & > & > & > \\
+\IX{and}	& >x & >x & >x & >x & >x & >x \\
+\IX{or}		& >x & >x & >x & >x & >x & >x \\
+\RX{not}	& >x & >x & >x & >x & >x & >x \\
 \hline
-\IX{<}	& > & > & > & > & > & > \\
-\IX{<=}	& > & > & > & > & > & > \\
-\IX{==}	& > & > & > & > & > & > \\
-\IX{!=}	& > & > & > & > & > & > \\
-\IX{>=}	& > & > & > & > & > & > \\
-\IX{>}	& > & > & > & > & > & > \\
+\IX{<}		& > & > & > & > & > & > \\
+\IX{<=}		& > & > & > & > & > & > \\
+\IX{==}		& > & > & > & > & > & > \\
+\IX{!=}		& > & > & > & > & > & > \\
+\IX{>=}		& > & > & > & > & > & > \\
+\IX{>}		& > & > & > & > & > & > \\
 \hline
-\IX{+}	& > & > & > & > & > & > \\
-\IX{-}	& > & > & > & > & > & > \\
+\IX{+}		& x & x & x & x & x & x \\
+\IX{-}		& x & x & x & x & x & x \\
 \hline
-\IX{*}	& x & x & x & > & > & > \\
-\IX{/}	& x & x & x & > & > & > \\
-\IX{div}	& x & x & x & > & > & > \\
-\IX{mod}	& x & x & x & > & > & > \\
-\IX{rem}	& x & x & x & > & > & > \\
+\IX{*}		& x & x & x & x & x & x \\
+\IX{/}		& x & x & x & x & x & x \\
+\IX{div}	& x & x & x & x & x & x \\
+\IX{mod}	& x & x & x & x & x & x \\
+\IX{rem}	& x & x & x & x & x & x \\
 \hline
 \IX{\textasciicircum}
-		& x & x & x & > & > & x \\
+		& x & x & x & x & x & x \\
 \hline
-\RX{+}		& < & < & < & < & > & > \\
-\RX{-}		& < & < & < & < & > & > \\
+\RX{+}		& x & x & x & x & x & x \\
+\RX{-}		& x & x & x & x & x & x \\
 \hline
 \IX{\&}		& < & x & x & x & x & > \\
 \IX{|}		& x & < & x & x & x & > \\

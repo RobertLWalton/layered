@@ -4487,16 +4487,16 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 \IX{\textasciicircum}
 		& x & x & x & > & > & x \\
 \hline
-\RX{+}	& < & < & < & < & > & > \\
-\RX{-}	& < & < & < & < & > & > \\
+\RX{+}		& < & < & < & < & > & > \\
+\RX{-}		& < & < & < & < & > & > \\
 \hline
-\IX{\&}	& x & x & x & x & x & x \\
-\IX{|}	& x & x & x & x & x & x \\
-\IX{xor}	& x & x & x & x & x & x \\
-\IX{<{}<}	& x & x & x & x & x & x \\
-\IX{>{}>}	& x & x & x & x & x & x \\
+\IX{\&}		& < & x & x & x & x & > \\
+\IX{|}		& x & < & x & x & x & > \\
+\IX{xor}	& x & x & < & x & x & > \\
+\IX{<{}<}	& x & x & x & < & < & x \\
+\IX{>{}>}	& x & x & x & < & < & x \\
 \hline
-\RX{!}	& x & x & x & x & x & x \\
+\RX{!}	& < & < & < & x & x & > \\
 \hline
 
 \end{tabular}

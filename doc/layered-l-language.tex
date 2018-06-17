@@ -4494,10 +4494,10 @@ precedence table is required to obey the following rules
 concerning prefix and postfix operators:
 \begin{center}
 \begin{tabular}{cccl}
-\IX{$op1$} < \RX{$op2$} & and & \IX{$op1$} x< \RX{$op2$}  & are never true \\
-\RX{$op1$} < \RX{$op2$} & and & \RX{$op1$} x< \RX{$op2$}  & are never true \\
-\LX{$op1$} < \IX{$op2$} & and & \LX{$op1$} x< \IX{$op2$}  & are never true \\
-\LX{$op1$} < \LX{$op2$} & and & \LX{$op1$} x< \LX{$op2$}  & are never true \\
+\IX{$op1$}~~<~~\RX{$op2$} & and & \IX{$op1$}~~x<~~\RX{$op2$} & are never true \\
+\RX{$op1$}~~<~~\RX{$op2$} & and & \RX{$op1$}~~x<~~\RX{$op2$} & are never true \\
+\LX{$op1$}~~>~~\IX{$op2$} & and & \LX{$op1$}~~>x~~\IX{$op2$} & are never true \\
+\LX{$op1$}~~>~~\LX{$op2$} & and & \LX{$op1$}~~>x~~\LX{$op2$} & are never true \\
 \end{tabular}
 \end{center}
 

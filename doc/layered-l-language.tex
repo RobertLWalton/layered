@@ -1521,7 +1521,8 @@ whose nodes are bodies that extend
 the module and whose arrows connect each body to the bodies it
 initializes after.  This graph must be acyclic.
 
-{\em Deferred-assignment-statements} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS})
+All {\em deferred-assignment-statements}
+(\pagref{DEFERRED-ASSIGNMENT-STATEMENTS})
 and {\em out-of-line-function-deferred-assignments}
 (\pagref{OUT-OF-LINE-FUNCTION-DEFERRED-ASSIGNMENT}) must be executed
 before statements initializing their deferred variables or deferred functions.
@@ -4723,31 +4724,67 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 TBD
 
 \begin{indpar}\begin{verbatim}
-define asymetric left associative else operator "else"
-define asymetric binary if operator "if"
-define right associative and operator "and"
-define right associative or operator "or"
-define prefix not operator "not"
+define left associative "else" operator "else"
+include "else" expression in expresssion
 
-define else expression as expression
-define and expression as expression
-define or expression as expression
-define not expression as expression
-    // Note: if expression is NOT expression
+define asymetric binary "if" operator "if"
+include "if" expression in "else" operand
 
-define if expression as else first operand
-define expression as else second operand
+include "logical" expression in "if" second operand
+include "value" expression in "if" first operand
+include "value" expression in expression
 
-define expression as if first operand
+define left associative "logical" operator "and"
+define left associative "logical" operator "or"
+include "logical" expression in "if" second operand
+include "logical" expression in "value" expression
 
-define and expression as expression
-define and expression as if second operand
-define or expression as expression
-define or expression as if second operand
-define not expression as expression
-define not expression as if second operand
-define not expression as and operand
-define not expression as or operand
+define prefix "not" operator "not"
+include "not" expression in "logical" operand
+include "not" expression in "logical" expression
+
+define left associative "compare" operators
+       "<", "<=", "==", "!=", ">=", ">"
+include "compare" expression in "logical" operand
+include "compare" expression in "not" operand
+include "compare" expression in "logical" expression
+
+define left associative "summation" operators "+", "-"
+include "summation" expression in "compare" operand
+include "summation" expression in "value" expression
+
+define left associative "product" operator "*"
+define binary "product" operator "/"
+define binary "product" operator "mod"
+define binary "product" operator "rem"
+define binary "product" operator "div"
+include "product" expression in "summation" operand
+include "product" expression in "compare" operand
+include "product" expression in "value" expression
+
+define binary "exponent" operator "^"
+include "exponent" expression in "product" operand
+include "exponent" expression in "summation" operand
+include "exponent" expression in "compare" operand
+include "exponent" expression in "value" expression
+
+define prefix "sign" operators "+", "-"
+include "sign" expression in "exponent" operand
+include "sign" expression in "product" operand
+include "sign" expression in "summation" operand
+include "sign" expression in "compare" operand
+include "sign" expression in "value" expression
+
+define left associative "bitop" operator "&"
+define left associative "bitop" operator "|"
+include "bitop" expression in "compare" operand
+include "bitop" expression in "value" expression
+
+define prefix "complement" operator "!"
+include "complement" expression in "bitop" operand
+include "complement" expression in "compare" operand
+include "complement" expression in "value" expression
+
 \end{verbatim}\end{indpar}
 
 TBD

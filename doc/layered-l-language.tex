@@ -4698,13 +4698,13 @@ Notice that in the sequence \TT{)}$_x$ \TT{)} \IX{else}
 the $_x$ has been hidded from the \IX{else} by a \TT{)} without
 the $_x$, so this part of the expression is legal.  Similarly
 \TT{\{} \TT{(} \TT{(}$_x$ is legal. The builtin
-operator precedence table dictates that the first operand of an \IX{else}
+operator precedence table dictates that the left operand of an \IX{else}
 must have \IX{if} as its `\mkey{topmost}{operator}'
 operator or be a {\em primary}
 in the initial expression, and also dictates that \TT{if} cannot be the topmost
 operator in the entire expression.  These rules are satisfied by the example.
 The builtin operator precedence table also dictates that the
-second operand of an \IX{if} must contain a logical or comparison
+right operand of an \IX{if} must contain a logical or comparison
 operator as its `topmost' operator or be a {\em primary}
 in the initial expression.  This is \underline{not} satisfied by the
 example, so the example is a compile error.
@@ -4721,24 +4721,275 @@ concerning prefix and postfix operators:
 \end{tabular}
 \end{center}
 
+TBD
+
+\begin{indpar}
+\emkey{expression} ::= \\
+    \begin{tabular}[t]{rl}
+        & {\em else-expression} \\
+    $|$ & {\em value-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{value-expression} ::= \\
+    \begin{tabular}[t]{rl}
+        & {\em logical-expression} \\
+    $|$ & {\em summation-expression} \\
+    $|$ & {\em product-expression} \\
+    $|$ & {\em exponent-expression} \\
+    $|$ & {\em bitop-expression} \\
+    $|$ & {\em complement-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{else-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em else-left-operand} \ttkey{else} {\em else-right-operand} \\
+    $|$ & {\em else-left-expression} \ttkey{else} {\em else-right-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{else-left-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em else-left-operand} \ttkey{else} {\em else-left-operand} \\
+    $|$ & {\em else-left-expression} \ttkey{else} {\em else-left-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{else-left-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em if-expression} \\
+    $|$ & {\em value-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{else-right-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em value-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{if-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em if-left-operand} \ttkey{if} {\em if-right-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{if-left-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em value-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{if-right-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em logical-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{logical-expression}\label{LOGICAL-EXPRESSION}
+    \begin{tabular}[t]{rl}
+    ::= & {\em \$and\$-expression} \\
+    $|$ & {\em \$or\$-expression} \\
+    $|$ & {\em not-expression} \\
+    $|$ & {\em compare-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{\$and\$-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em logical-operand} \ttkey{and} {\em logical-operand} \\
+    $|$ & {\em \$and\$-expression} \ttkey{and} {\em logical-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{\$or\$-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em logical-operand} \ttkey{or} {\em logical-operand} \\
+    $|$ & {\em \$or\$-expression} \ttkey{or} {\em logical-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{logical-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em not-expression} \\
+    $|$ & {\em compare-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{not-expression}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{not} {\em not-operand} \\
+    $|$ & \ttkey{not} {\em not-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{not-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em compare-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{compare-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em compare-operand} {\em compare-operator} {\em compare-operand} \\
+    $|$ & {\em compare-expression} {\em compare-operator}
+                                   {\em compare-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{compare-operator}::=
+    \ttkey{==} $|$ \ttkey{!=} $|$ \ttkey{>} $|$
+    \ttkey{>=} $|$ \ttkey{<} $|$ \ttkey{<=}
+\\[0.5ex]
+\emkey{compare-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em summation-expression} \\
+    $|$ & {\em product-expression} \\
+    $|$ & {\em exponent-expression} \\
+    $|$ & {\em sign-expression} \\
+    $|$ & {\em bitop-expression} \\
+    $|$ & {\em complement-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{summation-expression} \\
+    \hspace*{0.5in}
+    \begin{tabular}[t]{rl}
+    ::= & {\em summation-operand} {\em summation-operator}
+                                  {\em summation-operand} \\
+    $|$ & {\em summation-expression} {\em summation-operator}
+                                     {\em summation-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{summation-operator}::= \ttkey{+} $|$ \ttkey{-}
+\\[0.5ex]
+\emkey{summation-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em product-expression} \\
+    $|$ & {\em exponent-expression} \\
+    $|$ & {\em sign-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{product-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em \$*\$-expression} \\
+    $|$ & {\em product-operand} \ttkey{/} {\em product-operand} \\
+    $|$ & {\em product-operand} \ttkey{mod} {\em product-operand} \\
+    $|$ & {\em product-operand} \ttkey{rem} {\em product-operand} \\
+    $|$ & {\em product-operand} \ttkey{div} {\em product-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{\$*\$-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em product-operand} \ttkey{\$*\$} {\em product-operand} \\
+    $|$ & {\em \$*\$-expression} \ttkey{\$*\$} {\em product-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{product-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em exponent-expression} \\
+    $|$ & {\em sign-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{exponent-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em exponent-operand} \ttkey{\textasciicircum}
+                                  {\em exponent-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{exponent-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em sign-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{sign-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em sign-operator} {\em sign-operand} \\
+    $|$ & {\em sign-operator} {\em sign-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{sign-operator}::= \ttkey{+} $|$ \ttkey{-}
+\\[0.5ex]
+\emkey{sign-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{bitop-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em \$\&\$-expression} \\
+    $|$ & {\em \$|\$-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{\$\&\$-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em bitop-operand} \ttkey{\&} {\em bitop-operand} \\
+    $|$ & {\em \$\&\$-expression} \ttkey{\&} {\em bitop-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{\$|\$-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em bitop-operand} \ttkey{|} {\em bitop-operand} \\
+    $|$ & {\em \$|\$-expression} \ttkey{|} {\em bitop-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{bitop-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em complement-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{complement-expression}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{!} {\em complement-operand} \\
+    $|$ & \ttkey{!} {\em complement-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{complement-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{shift-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em shift-left-operand} {\em shift-operator}
+                                   {\em shift-right-operand} \\
+    $|$ & {\em shift-expression} {\em shift-operator}
+                                 {\em shift-right-operand} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{shift-operator} ::= \TT{<{}<} $|$ \TT{>{}>}
+\\[0.5ex]
+\emkey{shift-left-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em complement-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{shift-right-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em summation-expression} \\
+    $|$ & {\em product-expression} \\
+    $|$ & {\em exponent-expression} \\
+    $|$ & {\em sign-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+
+\end{indpar}
 
 
 TBD
 
 \begin{indpar}\begin{verbatim}
-define left associative "else" operator "else"
+define right asymetric left associative
+                       "else" operator "else"
 include "else" expression in expresssion
 
 define asymetric binary "if" operator "if"
-include "if" expression in "else" operand
+include "if" expression in "else" left operand
 
-include "logical" expression in "if" second operand
-include "value" expression in "if" first operand
+include "logical" expression in "if" right operand
+include "value" expression in "else" right operand
+include "value" expression in "if" left operand
 include "value" expression in expression
 
 define left associative "logical" operator "and"
 define left associative "logical" operator "or"
-include "logical" expression in "if" second operand
+include "logical" expression in "if" right operand
 include "logical" expression in "value" expression
 
 define prefix "not" operator "not"
@@ -4787,150 +5038,18 @@ include "complement" expression in "bitop" operand
 include "complement" expression in "compare" operand
 include "complement" expression in "value" expression
 
+define left asymetric left associative
+                      "shift" operators "<<", ">>"
+include "shift" expression in "compare" operand
+include "shift" expression in "value" expression
+include "complement" expression in "shift" left operand
+include "summation" expression in "shift" right operand
+include "product" expression in "shift" right operand
+include "exponent" expression in "shift" right operand
+include "sign" expression in "shift" right operand
+
 \end{verbatim}\end{indpar}
 
-TBD
-
-\begin{indpar}
-\emkey{expression} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em else-expression} \\
-    $|$ & {\em logical-expression} \\
-    $|$ & {\em negation-expression} \\
-    $|$ & {\em comparison-expression} \\
-    $|$ & {\em bitop-expression} \\
-    $|$ & {\em complement-expression} \\
-    $|$ & {\em summation-expression} \\
-    $|$ & {\em product-expression} \\
-    $|$ & {\em exponent-expression} \\
-    $|$ & {\em sign-expression} \\
-    $|$ & {\em primary} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{else-expression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em else-left-operand} \ttkey{else} {\em else-right-operand} \\
-        & {\em selection-operand} \TT{if} {\em logical-expression} \TT{else} \\
-	& ~~~~~ \{ {\em selection-operand} \TT{if} {\em logical-expression}
-	           \TT{else} \}\STAR{} \\
-	& ~~~~~ {\em selection-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{selection-operand}\label{SELECTION-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em bitop-expression} $|$ {\em summation-expression}
-                                 $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em mark-expression} \\
-    $|$ & {\em subexpression} $|$ {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{logical-expression}\label{LOGICAL-EXPRESSION} ::=
-    {\em and-expression} $|$ {\em or-expression} $|$ {\em not-expression}
-\\[0.5ex]
-\emkey{and-expression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em logical-operand} \ttkey{and} {\em logical-operand} \\
-    $|$ & {\em and-expression} \ttkey{and} {\em logical-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{or-expression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em logical-operand} \ttkey{or} {\em logical-operand} \\
-    $|$ & {\em or-expression} \ttkey{or} {\em logical-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{logical-operand}\label{LOGICAL-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em comparison-expression} $|$ {\em subexpression} \\
-    $|$ & {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{comparison-expression}\label{COMPARISON-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em comparison-operand}
-	  \{ {\em comparison-operator} ~ {\em comparison-operand} \}\PLUS{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{comparison-operator}\label{COMPARISON-OPERATOR} ::=
-    \TT{==} $|$ \TT{!=} $|$ \TT{>} $|$ \TT{>=} $|$ \TT{<} $|$ \TT{<=}
-\\[0.5ex]
-\emkey{comparison-operand}\label{COMPARISON-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em bitop-expression} $|$ {\em summation-expression}
-                                 $|$ {\em product-expression} \\
-    $|$ & {\em exponent-expression} $|$ {\em mark-expression} \\
-    $|$ & {\em subexpression} $|$ {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{bitop-expression}\label{BITOP-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \TT{!} {\em bitop-operand} \\
-    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{\&} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
-    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{|} ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
-    $|$ & \TT{!}\QMARK{} ~ {\em bitop-operand}
-         \{ \TT{xor}
-	    ~ \TT{!}\QMARK{} ~ {\em bitop-operand} \}\PLUS{} \\
-    $|$ & {\em bitop-operand}
-         \{ {\em shift-operator} ~ {\em bitop-operand} \}\PLUS{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{shift-operator}\label{SHIFT-OPERATOR} ::= \TT{<{}<} $|$ \TT{>{}>}
-\\[0.5ex]
-\emkey{bitop-operand}\label{BITOP-OPERAND} ::=
-    {\em mark-expression} $|$ {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{summation-expression}\label{SUMMATION-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em sign}\QMARK{} ~  {\em summation-operand} ~
-         \{ {\em sign} ~ {\em summation-operand} \}\PLUS{} \\
-    $|$ & {\em sign} ~ {\em summation-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{sign}\label{SIGN} ::= \TT{+} $|$ \TT{-}
-\\[0.5ex]
-\emkey{summation-operand}\label{SUMMATION-OPERAND}
-    \begin{tabular}[t]{rl}
-    ::= & {\em product-expression} $|$ {\em exponent-expression}
-                                   $|$ {\em mark-expression} \\
-    $|$ & {\em subexpression} $|$ {\em primary} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{product-expression}\label{PRODUCT-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em product-operand} ~ \{ \TT{*} ~ {\em product-operand} \}\PLUS{} \\
-    $|$ & {\em product-operand} ~ \TT{/} ~ {\em product-operand} \\
-    $|$ & {\em product-operand} ~ \TT{div} ~ {\em product-operand} \\
-    $|$ & {\em product-operand} ~ \TT{mod} ~ {\em product-operand} \\
-    $|$ & {\em product-operand} ~ \TT{rem} ~ {\em product-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{product-operand}\label{PRODUCT-OPERAND} ::=
-    {\em exponent-expression} $|$ {\em mark-expression} $|$
-    {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{exponent-expression}\label{EXPONENT-EXPRESSION}
-    ::= {\em exponent-operand} ~ \TT{\textasciicircum} ~ {\em exponent-operand}
-\\[0.5ex]
-\emkey{exponent-operand}\label{EXPONENT-OPERAND} ::=
-    {\em mark-expression} $|$ {\em subexpression} $|$ {\em primary}
-\\[0.5ex]
-\emkey{mark-expression}\label{MARK-EXPRESSION} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \{ {\em mark-operand} ~ {\em mark-operator} \}\PLUS{}
-	  {\em mark-operand}\QMARK{} \\
-    $|$ & \{ {\em mark-operator} ~ {\em mark-operand} \}\PLUS{}
-	  {\em mark-operator}\QMARK{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{mark-operator}\label{MARK-OPERATOR} ::=
-    {\em mark} that is not otherwise mentioned in these syntax equations
-\\[0.5ex]
-\emkey{mark-operand}\label{MARK-OPERAND} ::=
-    {\em subexpression} $|$ {\em primary}
-
-\end{indpar}
 
 Note that strictly binary operators such as \TT{mod} can also
 be used as function names in {\em primaries}, as in

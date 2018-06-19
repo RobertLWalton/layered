@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 18, 2018
+June 19, 2018
  
 \end{center}
 
@@ -4392,168 +4392,6 @@ following examples:
 \end{tabular}
 \end{center}
 
-After assigning fixity as above, the parser inserts parentheses so that
-each prefix or postfix operator has a single {\em primary} operand
-and each infix operator has two {\em primary} operands.  This is
-done using the \key{operator precedence table}.  The builtin part of
-this table is given in Figures
-\itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-1},
-\itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-2}, and
-\itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-3}.
-
-Given the operator precedence table, parentheses are inserted as
-follows:
-
-\begin{center}
-\begin{tabular}{llcl}
-if $op1$ x $op2$ & $op1$ {\em primary}\QMARK{} $op2$
-		 & & is a compile error \\
-if $op1$ < $op2$ & $op1$ {\em primary}\QMARK{} $op2$
-		 & rewrites as
-                 & $op1$ {\em primary}\QMARK{} \TT{)} $op2$ \\
-if $op1$ x< $op2$ & $op1$ {\em primary}\QMARK{} $op2$
-		  & rewrites as
-                  & $op1$ {\em primary}\QMARK{} \TT{)$_x$} $op2$ \\
-if $op1$ > $op2$ & $op1$ {\em primary}\QMARK{} $op2$
-		 & rewrites as
-                 & $op1$ \TT{(} {\em primary}\QMARK{} $op2$ \\
-if $op1$ >x $op2$ & $op1$ {\em primary}\QMARK{} $op2$
-		 & rewrites as
-                 & $op1$ \TT{(}$_x$ {\em primary}\QMARK{} $op2$ \\
-if $op1$ d $op2$ & $op1$ {\em primary}\QMARK{} $op2$
-                 & \multicolumn{2}{l}{is the final result of the parse} \\
-\end{tabular}
-\end{center}
-
-In the operator precedence tables the symbol \TT{\{} is used to denote
-the beginning of the expression and the symbol \TT{\}} is used to denote
-the end of the expression.  Applying these rules,
-if the expression contains a sequence `\TT{)}$_x$ $op$' the operand
-preceding $op$ is illegal for $op$ and is a compile error, or
-if the expression contains a sequence `$op$ \TT{(}$_x$' the operand
-following $op$ is illegal for $op$ and is a compile error.
-It is possible for the parse result to be
-`\TT{\{} \TT{(}$_x$ {\em primary} \TT{)}$_x$ \TT{\}}' in which case
-the parse is not a legal expression (this can happen if the {\em primary}
-topmost operator is `\TT{if}').
-
-As an example, given the expression
-\begin{center}
-\tt \TT{\{}  x \IX{+} \RX{+} y \IX{*} z \TT{\}}
-\end{center}
-we get
-\begin{center}
-\begin{tabular}{llcl}
-(1) &
-\TT{\{} > \IX{+}
-    & so & \tt \TT{\{} x \IX{+} \RX{+} y \IX{*} z \TT{\}} \\
-&   & rewrites as
-    & \tt \TT{\{} \TT{(} x \IX{+} \RX{+} y \IX{*} z \TT{\}}\\
-(2) &
-\IX{+} > \RX{+}
-    & so this rewrites as
-    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \RX{+} y \IX{*} z \TT{\}} \\
-(3) &
-\RX{+} < \IX{*}
-    & so this rewrites as
-    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \RX{+} y \TT{)} \IX{*} z \TT{\}} \\
-(4) &
-\IX{+} > \IX{*}
-    & so this rewrites as
-    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z
-          \TT{\}} \\
-(5) &
-\IX{*} < \TT{\}}
-    & so this rewrites as
-    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z
-          \TT{)} \TT{\}} \\
-(6) &
-\IX{+} < \TT{\}}
-    & so this rewrites as
-    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z
-          \TT{)} \TT{)} \TT{\}} \\
-(7) &
-\TT{\{} d \TT{\}}
-    & \multicolumn{2}{l}{this is the final result of the parse}
-\end{tabular}
-\end{center}
-
-Notice that the step (4) above is possible because
-{\tt \TT{(} \RX{+} y \TT{)}} became a {\em primary} after
-the step (3),
-step (6) is possible because
-{\tt \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z \TT{)} }
-became a {\em primary} after step (5),
-and step (7) is possible because
-{ \tt \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z \TT{)} \TT{)} }
-became a {\em primary} after step (6).
-.
-
-As another example, consider
-\begin{center}
-\tt \TT{\{} x \IX{if} \RX{+} y \IX{else} z \TT{\}}
-\end{center}
-we get
-\begin{center}
-\begin{tabular}{lcl}
-\TT{\{} >x \IX{if}
-    & so
-    & \tt \TT{\{} x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
-    & rewrites as
-    & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
-\IX{if} >x \RX{+}
-   & so this rewites as
-   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \IX{else} z
-         \TT{\}} \\
-\RX{+} x< \IX{else}
-   & so this rewites as
-   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
-         \IX{else} z \TT{\}} \\
-\IX{if} < \IX{else}
-   & so this rewites as
-   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
-         \TT{)} \IX{else} z \TT{\}} \\
-\TT{\{} < \IX{else}
-   & so this rewites as
-   & \tt \TT{\{} \TT{(} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
-         \TT{)} \IX{else} z \TT{\}} \\
-\IX{else} < \TT{\}}
-   & so this rewites as
-   & \tt \TT{\{} \TT{(} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
-         \TT{)} \IX{else} z \TT{)} \TT{\}} \\
-\TT{\{} d \TT{\}}
-    & \multicolumn{2}{l}{this is the final result of the parse, and is
-                         a compile error because of \IX{if} \TT{(}$_x$}
-\end{tabular}
-\end{center}
-
-Notice that in the sequence \TT{)}$_x$ \TT{)} \IX{else}
-the $_x$ has been hidded from the \IX{else} by a \TT{)} without
-the $_x$, so this part of the expression is legal.  Similarly
-\TT{\{} \TT{(} \TT{(}$_x$ is legal. The builtin
-operator precedence table dictates that the first operand of an \IX{else}
-must have \IX{if} as its `\mkey{topmost}{operator}'
-operator or be a {\em primary}
-in the initial expression, and also dictates that \TT{if} cannot be the topmost
-operator in the entire expression.  These rules are satisfied by the example.
-The builtin operator precedence table also dictates that the
-second operand of an \IX{if} must contain a logical or comparison
-operator as its `topmost' operator or be a {\em primary}
-in the initial expression.  This is \underline{not} satisfied by the
-example, so the example is a compile error.
-
-In order for this algorithm to work properly, the operator
-precedence table is required to obey the following rules
-concerning prefix and postfix operators:
-\begin{center}
-\begin{tabular}{cccl}
-\IX{$op1$}~~<~~\RX{$op2$} & and & \IX{$op1$}~~x<~~\RX{$op2$} & are never true \\
-\RX{$op1$}~~<~~\RX{$op2$} & and & \RX{$op1$}~~x<~~\RX{$op2$} & are never true \\
-\LX{$op1$}~~>~~\IX{$op2$} & and & \LX{$op1$}~~>x~~\IX{$op2$} & are never true \\
-\LX{$op1$}~~>~~\LX{$op2$} & and & \LX{$op1$}~~>x~~\LX{$op2$} & are never true \\
-\end{tabular}
-\end{center}
-
 \begin{figure}[p]
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|}
@@ -4718,6 +4556,170 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 \caption{Builtin Operator Precedence Table: Part 3 of 3}
 \label{BUILTIN-OPERATOR-PRECEDENCE-TABLE-3}
 \end{figure}
+
+After assigning fixity as above, the parser inserts parentheses so that
+each prefix or postfix operator has a single {\em primary} operand
+and each infix operator has two {\em primary} operands.  This is
+done using the \key{operator precedence table}.  The builtin part of
+this table is given in Figures
+\itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-1},
+\itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-2}, and
+\itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-3}.
+
+Given the operator precedence table, parentheses are inserted as
+follows:
+
+\begin{center}
+\begin{tabular}{llcl}
+if $op1$ x $op2$ & $op1$ {\em primary}\QMARK{} $op2$
+		 & & is a compile error \\
+if $op1$ < $op2$ & $op1$ {\em primary}\QMARK{} $op2$
+		 & rewrites as
+                 & $op1$ {\em primary}\QMARK{} \TT{)} $op2$ \\
+if $op1$ x< $op2$ & $op1$ {\em primary}\QMARK{} $op2$
+		  & rewrites as
+                  & $op1$ {\em primary}\QMARK{} \TT{)$_x$} $op2$ \\
+if $op1$ > $op2$ & $op1$ {\em primary}\QMARK{} $op2$
+		 & rewrites as
+                 & $op1$ \TT{(} {\em primary}\QMARK{} $op2$ \\
+if $op1$ >x $op2$ & $op1$ {\em primary}\QMARK{} $op2$
+		 & rewrites as
+                 & $op1$ \TT{(}$_x$ {\em primary}\QMARK{} $op2$ \\
+if $op1$ d $op2$ & $op1$ {\em primary}\QMARK{} $op2$
+                 & \multicolumn{2}{l}{is the final result of the parse} \\
+\end{tabular}
+\end{center}
+
+In the operator precedence tables the symbol \TT{\{} is used to denote
+the beginning of the expression and the symbol \TT{\}} is used to denote
+the end of the expression.  Applying these rules,
+if the expression contains a sequence `\TT{)}$_x$ $op$' the operand
+preceding $op$ is illegal for $op$ and is a compile error, or
+if the expression contains a sequence `$op$ \TT{(}$_x$' the operand
+following $op$ is illegal for $op$ and is a compile error.
+It is possible for the parse result to be
+`\TT{\{} \TT{(}$_x$ {\em primary} \TT{)}$_x$ \TT{\}}' in which case
+the parse is not a legal expression (this can happen if the {\em primary}
+topmost operator is `\TT{if}').
+
+\pagebreak[4]
+
+As an example, given the expression
+\begin{center}
+\tt \TT{\{}  x \IX{+} \RX{+} y \IX{*} z \TT{\}}
+\end{center}
+we get
+\begin{center}
+\begin{tabular}{llcl}
+(1) &
+\TT{\{} > \IX{+}
+    & so & \tt \TT{\{} x \IX{+} \RX{+} y \IX{*} z \TT{\}} \\
+&   & rewrites as
+    & \tt \TT{\{} \TT{(} x \IX{+} \RX{+} y \IX{*} z \TT{\}}\\
+(2) &
+\IX{+} > \RX{+}
+    & so this rewrites as
+    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \RX{+} y \IX{*} z \TT{\}} \\
+(3) &
+\RX{+} < \IX{*}
+    & so this rewrites as
+    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \RX{+} y \TT{)} \IX{*} z \TT{\}} \\
+(4) &
+\IX{+} > \IX{*}
+    & so this rewrites as
+    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z
+          \TT{\}} \\
+(5) &
+\IX{*} < \TT{\}}
+    & so this rewrites as
+    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z
+          \TT{)} \TT{\}} \\
+(6) &
+\IX{+} < \TT{\}}
+    & so this rewrites as
+    & \tt \TT{\{} \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z
+          \TT{)} \TT{)} \TT{\}} \\
+(7) &
+\TT{\{} d \TT{\}}
+    & \multicolumn{2}{l}{this is the final result of the parse}
+\end{tabular}
+\end{center}
+
+Notice that the step (4) above is possible because
+{\tt \TT{(} \RX{+} y \TT{)}} became a {\em primary} after
+the step (3),
+step (6) is possible because
+{\tt \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z \TT{)} }
+became a {\em primary} after step (5),
+and step (7) is possible because
+{ \tt \TT{(} x \IX{+} \TT{(} \TT{(} \RX{+} y \TT{)} \IX{*} z \TT{)} \TT{)} }
+became a {\em primary} after step (6).
+.
+
+As another example, consider
+\begin{center}
+\tt \TT{\{} x \IX{if} \RX{+} y \IX{else} z \TT{\}}
+\end{center}
+we get
+\begin{center}
+\begin{tabular}{lcl}
+\TT{\{} >x \IX{if}
+    & so
+    & \tt \TT{\{} x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
+    & rewrites as
+    & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
+\IX{if} >x \RX{+}
+   & so this rewites as
+   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \IX{else} z
+         \TT{\}} \\
+\RX{+} x< \IX{else}
+   & so this rewites as
+   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+         \IX{else} z \TT{\}} \\
+\IX{if} < \IX{else}
+   & so this rewites as
+   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+         \TT{)} \IX{else} z \TT{\}} \\
+\TT{\{} < \IX{else}
+   & so this rewites as
+   & \tt \TT{\{} \TT{(} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+         \TT{)} \IX{else} z \TT{\}} \\
+\IX{else} < \TT{\}}
+   & so this rewites as
+   & \tt \TT{\{} \TT{(} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+         \TT{)} \IX{else} z \TT{)} \TT{\}} \\
+\TT{\{} d \TT{\}}
+    & \multicolumn{2}{l}{this is the final result of the parse, and is
+                         a compile error because of \IX{if} \TT{(}$_x$}
+\end{tabular}
+\end{center}
+
+Notice that in the sequence \TT{)}$_x$ \TT{)} \IX{else}
+the $_x$ has been hidded from the \IX{else} by a \TT{)} without
+the $_x$, so this part of the expression is legal.  Similarly
+\TT{\{} \TT{(} \TT{(}$_x$ is legal. The builtin
+operator precedence table dictates that the first operand of an \IX{else}
+must have \IX{if} as its `\mkey{topmost}{operator}'
+operator or be a {\em primary}
+in the initial expression, and also dictates that \TT{if} cannot be the topmost
+operator in the entire expression.  These rules are satisfied by the example.
+The builtin operator precedence table also dictates that the
+second operand of an \IX{if} must contain a logical or comparison
+operator as its `topmost' operator or be a {\em primary}
+in the initial expression.  This is \underline{not} satisfied by the
+example, so the example is a compile error.
+
+In order for this algorithm to work properly, the operator
+precedence table is required to obey the following rules
+concerning prefix and postfix operators:
+\begin{center}
+\begin{tabular}{cccl}
+\IX{$op1$}~~<~~\RX{$op2$} & and & \IX{$op1$}~~x<~~\RX{$op2$} & are never true \\
+\RX{$op1$}~~<~~\RX{$op2$} & and & \RX{$op1$}~~x<~~\RX{$op2$} & are never true \\
+\LX{$op1$}~~>~~\IX{$op2$} & and & \LX{$op1$}~~>x~~\IX{$op2$} & are never true \\
+\LX{$op1$}~~>~~\LX{$op2$} & and & \LX{$op1$}~~>x~~\LX{$op2$} & are never true \\
+\end{tabular}
+\end{center}
 
 
 

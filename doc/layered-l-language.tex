@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 19, 2018
+June 20, 2018
  
 \end{center}
 
@@ -1151,15 +1151,18 @@ A \key{module} is a file that begins with a {\em module-declaration}:
     \begin{tabular}[t]{rl}
     ::= & {\em simple-module-declaration} \\
     $|$ & {\em simple-module-declaration}\TT{:} \\
-	& \TT{~~~~}{\em import-clause}\STAR{} \\
+	& \TT{~~~~}{\em module-clause}\STAR{} \\
     \end{tabular} \\
 \emkey{simple-module-declaration} ::= \TT{module} {\em module-name}
         \TT{as} {\em module-abbreviation} \\
 \emkey{module-name} ::= {\em quoted-string} \\
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
 	::= \TT{word} not containing any `\TT{.}'s \\
+\emkey{module-clause}\label{MODULE-CLAUSE} ::=
+    {\em import-clause} $|$ {\em parser-instruction} \\
 \emkey{import-clause}\label{IMPORT-CLAUSE} ::= \TT{import} {\em module-name}
-        \TT{as} {\em module-abbreviation}
+        \TT{as} {\em module-abbreviation} \\
+{\em parser-instruction} ::= see \pagref{PARSER-INSTRUCTION}
 
 \begin{itemize}
 
@@ -4721,7 +4724,7 @@ concerning prefix and postfix operators:
 \end{tabular}
 \end{center}
 
-TBD
+The builtin operator table encodes the following syntax equations:
 
 \begin{indpar}
 \emkey{expression} ::= \\
@@ -4742,26 +4745,14 @@ TBD
 \\[0.5ex]
 \emkey{else-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em else-left-operand} \ttkey{else} {\em else-right-operand} \\
-    $|$ & {\em else-left-expression} \ttkey{else} {\em else-right-operand} \\
+    ::= & {\em else-operand} \ttkey{else} {\em else-operand} \\
+    ::= & {\em else-expression} \ttkey{else} {\em else-operand} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{else-left-expression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em else-left-operand} \ttkey{else} {\em else-left-operand} \\
-    $|$ & {\em else-left-expression} \ttkey{else} {\em else-left-operand} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{else-left-operand}
+\emkey{else-operand}
     \begin{tabular}[t]{rl}
     ::= & {\em if-expression} \\
     $|$ & {\em value-expression} \\
-    $|$ & {\em primary}
-    \end{tabular}
-\\[0.5ex]
-\emkey{else-right-operand}
-    \begin{tabular}[t]{rl}
-    ::= & {\em value-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
@@ -4971,12 +4962,12 @@ TBD
 
 \end{indpar}
 
-
-TBD
+The builtin syntax equations above, and the builtin operator
+precedence table, can be computed from the following builtin
+`\skey{parser instruction}s':
 
 \begin{indpar}\begin{verbatim}
-define right asymetric left associative
-                       "else" operator "else"
+define left associative "else" operator "else"
 include "else" expression in expresssion
 
 define asymetric binary "if" operator "if"
@@ -5038,7 +5029,7 @@ include "complement" expression in "bitop" operand
 include "complement" expression in "compare" operand
 include "complement" expression in "value" expression
 
-define left asymetric left associative
+define asymetric left associative
                       "shift" operators "<<", ">>"
 include "shift" expression in "compare" operand
 include "shift" expression in "value" expression

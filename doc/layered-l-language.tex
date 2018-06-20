@@ -1159,9 +1159,18 @@ A \key{module} is a file that begins with a {\em module-declaration}:
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
 	::= \TT{word} not containing any `\TT{.}'s \\
 \emkey{module-clause}\label{MODULE-CLAUSE} ::=
-    {\em import-clause} $|$ {\em parser-instruction} \\
-\emkey{import-clause}\label{IMPORT-CLAUSE} ::= \TT{import} {\em module-name}
+    {\em import-clause} $|$ {\em parser-block} \\
+\emkey{import-clause}\label{IMPORT-CLAUSE}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{import} {\em module-name}
         \TT{as} {\em module-abbreviation} \\
+    $|$ & \TT{import} {\em module-name} \TT{parsing}
+    \end{tabular} \\
+\emkey{parser-block}\label{PARSER-BLOCK}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{external}\QMARK{} \TT{parsing:} \\
+	& \TT{~~~~}{\em parser-instruction}\STAR{} \\
+    \end{tabular} \\
 {\em parser-instruction} ::= see \pagref{PARSER-INSTRUCTION}
 
 \begin{itemize}
@@ -1446,15 +1455,22 @@ is a file that begins with an {\em body-declaration}:
 \emkey{body-declaration}\label{BODY-DECLARATION} ::=
     \begin{tabular}[t]{l}
     \TT{body }{\em body-name}\TT{ of }{\em module-name}\TT{:} \\
-    \TT{~~~~}{\em import-clause}\STAR{} \\
-    \TT{~~~~}{\em after-clause}\STAR{} \\
+    \TT{~~~~}{\em body-clause}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{body-name} ::= {\em quoted-string}
 \\[0.5ex]
+{\em body-clause} ::= {\em import-clause} $|$ {\em after-clause} $|$
+                      {\em internal-parser-block}
+\\[0.5ex]
 {\em import-clause} ::= see \pagref{IMPORT-CLAUSE}
 \\[0.5ex]
 {\em after-clause} ::= \TT{initialize after }{\em body-name}
+\\[0.5ex]
+\emkey{internal-parser-block} ::=
+{\em parser-block} without \TT{external} option
+\\[0.5ex]
+{\em parser-block} ::= see \pagref{PARSER-BLOCK}
 
 
 \begin{itemize}

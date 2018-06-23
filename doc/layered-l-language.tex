@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 20, 2018
+June 22, 2018
  
 \end{center}
 
@@ -4352,19 +4352,23 @@ The parser begins by parsing expressions according to the syntax:
     $|$ & {\em expression} \TT{..} \\
     $|$ & \TT{..} {\em expression} \\
     \end{tabular}
+\\[0.5ex]
+{\em name-item} ::= see \pagref{NAME-ITEM}
 \end{indpar}
 
 Operators are classified as \key{infix}, \key{prefix}, or
 \key{postfix}.  An operator can be more than one of these.
 When a sequence of consecutive operators occurs, either
 \begin{itemize}
-\item[(1)] The sequence begins the expression and consists of
-just prefix operators.
-\item[(2)] The sequence neither begins nor ends the expression
-and the sequence contains a single infix operator optionally
+\item[(1)] The sequence is before the first {\em primary}
+in the expression and consists of just prefix operators.
+\item[(2)] The sequence is between {\em primaries}
+in the expression
+and contains a single infix operator optionally
 preceeded by just postfix operators and optionally followed by
 just prefix operators.
-\item[(3)] The sequence ends the expression and consists of
+\item[(3)] The sequence is after the last {\em primary}
+in the expression and consists of
 just postfix operators.
 \end{itemize}
 
@@ -4609,9 +4613,11 @@ if $op1$ d $op2$ & $op1$ {\em primary}\QMARK{} $op2$
 \end{tabular}
 \end{center}
 
-In the operator precedence tables the symbol \TT{\{} is used to denote
-the beginning of the expression and the symbol \TT{\}} is used to denote
-the end of the expression.  Applying these rules,
+In the operator precedence tables the symbol \TT{\{} is treated as an
+operator that appears only at the very beginning of the expression
+and the symbol \TT{\}} is treated as an operator that appears only at
+the very end of the expression.  After applying these rules as much
+as possible to an expression,
 if the expression contains a sequence `\TT{)}$_x$ $op$' the operand
 preceding $op$ is illegal for $op$ and is a compile error, or
 if the expression contains a sequence `$op$ \TT{(}$_x$' the operand

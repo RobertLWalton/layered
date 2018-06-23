@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 22, 2018
+June 23, 2018
  
 \end{center}
 
@@ -4288,6 +4288,20 @@ float64 m[0 .. 6, 2 .. 4 ] = .....   // Allocate slice.
 \subsection{Expression Syntax}
 \label{EXPRESSION-SYNTAX}
 
+Parsing converts expressions into function calls in two steps.
+The first step identifies operators.  The second step inserts
+implied parentheses, thus identifying function call argument lists.
+At the end all the operators are quoted converting them into
+function terms (i.e., names of functions).
+
+Insertion of impliled parentheses is driven by an operator
+precedence table.  This in turn corresponds to operator
+syntax equations, which in turn can be derived from parser
+instructions.
+
+\subsubsection{Operator Identification}
+\label{OPERATOR-IDENTIFICATION}
+
 The parser begins by parsing expressions according to the syntax:
 
 \begin{indpar}
@@ -4415,6 +4429,9 @@ following examples:
 \end{tabular}
 \end{center}
 
+\subsubsection{The Operator Precedence Table}
+\label{THE-OPERATOR-PRECEDENCE-TABLE}
+
 \begin{figure}[p]
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|}
@@ -4427,7 +4444,7 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \TT{\{}		& >x & > & > & > & > & > & > & > & > & > & > \\
 \hline
 \IX{if}		& x & < & > & > & > & > & > & > & > & > & > \\
-\IX{else}	& > & x & > & > & > & > & > & > & > & > & > \\
+\IX{else}	& > & < & > & > & > & > & > & > & > & > & > \\
 \hline
 \IX{and}	& < & x< & < & x & > & > & > & > & > & > & > \\
 \IX{or}		& < & x< & x & < & > & > & > & > & > & > & > \\
@@ -4724,9 +4741,9 @@ the $_x$ has been hidded from the \IX{else} by a \TT{)} without
 the $_x$, so this part of the expression is legal.  Similarly
 \TT{\{} \TT{(} \TT{(}$_x$ is legal. The builtin
 operator precedence table dictates that the left operand of an \IX{else}
-must have \IX{if} as its `\mkey{topmost}{operator}'
+must have \IX{if} or \IX{else} as its `\mkey{topmost}{operator}'
 operator or be a {\em primary}
-in the initial expression, and also dictates that \TT{if} cannot be the topmost
+in the initial expression, and also dictates that \IX{if} cannot be the topmost
 operator in the entire expression.  These rules are satisfied by the example.
 The builtin operator precedence table also dictates that the
 right operand of an \IX{if} must contain a logical or comparison
@@ -4745,6 +4762,10 @@ concerning prefix and postfix operators:
 \LX{$op1$}~~>~~\LX{$op2$} & and & \LX{$op1$}~~>x~~\LX{$op2$} & are never true \\
 \end{tabular}
 \end{center}
+
+
+\subsubsection{Operator Syntax Equations}
+\label{OPERATOR-SYNTAX-EQUATIONS}
 
 The builtin operator table encodes the following syntax equations:
 
@@ -4983,6 +5004,9 @@ The builtin operator table encodes the following syntax equations:
     \end{tabular}
 
 \end{indpar}
+
+\subsubsection{Parser Instructions}
+\label{PARSER-INSTRUCTIONS}
 
 The builtin syntax equations above, and the builtin operator
 precedence table, can be computed from the following builtin

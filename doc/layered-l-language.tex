@@ -5089,6 +5089,63 @@ include "sign" expression in "shift" right operand
 
 \end{verbatim}\end{indpar}
 
+The user may add {\em parser-instructions} to those that
+are builtin using {\em parser-blocks} (\itemref{PARSER-BLOCKS}).
+
+\ikey{Parser-instructions}{parser-instruction}\label{PARSER-INSTRUCTION}
+have the syntax:
+
+\begin{indpar}
+\emkey{parser-instruction}
+    \begin{tabular}[t]{rl}
+    ::= & {\em parser-define-instruction} \\
+    $|$ & {\em parser-include-instruction} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{parser-define-instruction} ::= \\
+\hspace*{0.3in}
+    \ttkey{define} ~ {\em operator-type} ~ {\em expression-type}
+    		   ~ \ttkey{operators} ~ {\em operator-names}
+\\[0.5ex]
+\emkey{parser-include-instruction} ::= \\
+\hspace*{0.3in}
+    \ttkey{include} ~ {\em expression-type}
+    		   ~ \ttkey{expression in} ~ {\em expression-type}
+    		   ~ {\em expression-kind}
+\\[0.5ex]
+\emkey{operator-type}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{prefix} $|$ \ttkey{postfix} \\
+    $|$ & \ttkey{asymetric}\QMARK{} ~ \ttkey{binary} \\
+    $|$ & \ttkey{asymetric}\QMARK{} ~ \ttkey{left associative} \\
+    $|$ & \ttkey{asymetric}\QMARK{} ~ \ttkey{right associative} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{expression-type} ::= {\em quoted-string}
+\\[0.5ex]
+\emkey{operator-names} ::= {\em operator-name}
+			   \{ \TT{,} {\em operator-name} \}\STAR{}
+\\[0.5ex]
+\emkey{operator-name} ::= {\em quoted-string}
+\\[0.5ex]
+\emkey{expression-kind}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{expression} \\
+    $|$ & \ttkey{operand} \\
+    $|$ & \ttkey{left operand} \\
+    $|$ & \ttkey{right operand} \\
+    \end{tabular}
+
+\end{indpar}
+
+\subsubsection{Parser Blocks}
+\label{PARSER-BLOCKS}
+
+
+\subsubsection{Primaries}
+\label{PRIMARIES}
+
+
 
 It is the compiler, and not the parser, that analyzes {\em primaries},
 because knowledge of the {\em names} in scope is required.  To the

@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 23, 2018
+June 25, 2018
  
 \end{center}
 
@@ -1913,11 +1913,10 @@ the value when it is converted to the new type.  These conversions
 can be \ikey{implied}{implied conversion}.
 \end{indpar}
 
-{\tt function uns$x$~~~r = std \ttkey{mod}~~~( uns$y$ v )} \\
-{\tt function uns$x$~~~r = std \ttkey{mod}~~~( int$y$ v )} \\
-{\tt function int$x$~~~r = std \ttkey{mod}~~~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std \ttkey{mod}~~~( int$y$ v )}
-\ttindex{mod}
+{\tt function uns$x$~~~r = std \ttkey{truncate}~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~r = std \ttkey{truncate}~~~( int$y$ v )} \\
+{\tt function int$x$~~~r = std \ttkey{truncate}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = std \ttkey{truncate}~~~( int$y$ v )}
 \begin{center}
 for any $x$ and $y$ for which the types are builtin
 \end{center}
@@ -1949,11 +1948,11 @@ value for integer results.
 
 \end{indpar}
 
-Note the difference between \TT{mod} and \TT{nearest} when applied to
+Note the difference between \TT{truncate} and \TT{nearest} when applied to
 integers outside the range of the target type:
 \begin{center}
 \begin{tabular}{l}
-{\tt uns8 ( mod ( 257 ) ) == 1} \\
+{\tt uns8 ( truncate ( 257 ) ) == 1} \\
 {\tt uns8 ( nearest ( 257 ) ) == 255} \\
 \end{tabular}
 \end{center}
@@ -2133,7 +2132,8 @@ floating point number type.  If it is too large, it is converted to
 If it cannot be represented exactly, it is rounded (ties to even).
 
 A {\em number-constant} can be explicitly converted to any number
-type by the \TT{mod} or \TT{nearest} functions.  It may be explicitly
+type by either the \TT{truncate} or \TT{nearest} functions.
+It may be explicitly
 converted by \TT{uns$x$}, \TT{int$x$}, or \TT{float$x$} functions only
 if it may be implicitly converted to the desired type.
 
@@ -4302,7 +4302,11 @@ instructions.
 \subsubsection{Operator Identification}
 \label{OPERATOR-IDENTIFICATION}
 
-The parser begins by parsing expressions according to the syntax:
+The parser identifies operators by a left-to-right scan of
+an expression, choosing the longest operator that matches the
+beginning of the yet unscanned input at each stage, and skipping
+the first lexeme of the yet unscanned input if no operator matches.
+Then the parser parses expressions according to the syntax:
 
 \begin{indpar}
 \emkey{expression}\label{EXPRESSION} ::= \\
@@ -4644,8 +4648,6 @@ It is possible for the parse result to be
 the parse is not a legal expression (this can happen if the {\em primary}
 topmost operator is `\TT{if}').
 
-\pagebreak[4]
-
 As an example, given the expression
 \begin{center}
 \tt \TT{\{}  x \IX{+} \RX{+} y \IX{*} z \TT{\}}
@@ -4767,7 +4769,7 @@ concerning prefix and postfix operators:
 \subsubsection{Operator Syntax Equations}
 \label{OPERATOR-SYNTAX-EQUATIONS}
 
-The builtin operator table encodes the following syntax equations:
+The builtin operator precedence table encodes the following syntax equations:
 
 \begin{indpar}
 \emkey{expression} ::= \\
@@ -5087,12 +5089,6 @@ include "sign" expression in "shift" right operand
 
 \end{verbatim}\end{indpar}
 
-
-Note that strictly binary operators such as \TT{mod} can also
-be used as function names in {\em primaries}, as in
-\begin{center}
-{\tt uns8 x = mod ( 257 )}
-\end{center}
 
 It is the compiler, and not the parser, that analyzes {\em primaries},
 because knowledge of the {\em names} in scope is required.  To the
@@ -6052,7 +6048,7 @@ next y = x + y          // Now y == 12
 int32 z = 256 + y       // z == 268
 int8 u = z              // ILLEGAL!  Undefined implied
                         // conversion from int32 to int8.
-int8 v = mod ( z )      // Now v == 12
+int8 v = truncate ( z ) // Now v == 12
 int8 w = v + 257        // ILLEGAL!  Constant out of range
                         // of target type int8.
 float32 m = 1.7
@@ -6150,7 +6146,7 @@ int64 z, uns8 w, next x =:
     next y = 2.6     // ILLEGAL, y is visible outside block
                      //          and next y is not deferred
                      //          variable
-    w = mod ( x )    // Legal, w is deferred variable,
+    w = truncate ( x )  // Legal, w is deferred variable,
                      // sets w to 10 as x is now 266
 \end{verbatim}\end{indpar}
 

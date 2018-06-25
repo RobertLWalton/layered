@@ -5104,8 +5104,12 @@ have the syntax:
 \\[0.5ex]
 \emkey{parser-define-instruction} ::= \\
 \hspace*{0.3in}
-    \ttkey{define} ~ {\em operator-type} ~ {\em expression-type}
-    		   ~ \ttkey{operators} ~ {\em operator-names}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{define} ~ {\em operator-type} ~ {\em expression-type}
+    		   ~ \ttkey{operator} ~ {\em operator-name} \\
+    $|$ & \ttkey{define} ~ {\em operator-type} ~ {\em expression-type}
+    		   ~ \ttkey{operators} ~ {\em operator-name-list} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{parser-include-instruction} ::= \\
 \hspace*{0.3in}
@@ -5123,10 +5127,10 @@ have the syntax:
 \\[0.5ex]
 \emkey{expression-type} ::= {\em quoted-string}
 \\[0.5ex]
-\emkey{operator-names} ::= {\em operator-name}
-			   \{ \TT{,} {\em operator-name} \}\STAR{}
-\\[0.5ex]
 \emkey{operator-name} ::= {\em quoted-string}
+\\[0.5ex]
+\emkey{operator-name-list} ::= {\em operator-name}
+			   \{ \TT{,} {\em operator-name} \}\PLUS{}
 \\[0.5ex]
 \emkey{expression-kind}
     \begin{tabular}[t]{rl}
@@ -5135,6 +5139,99 @@ have the syntax:
     $|$ & \ttkey{left operand} \\
     $|$ & \ttkey{right operand} \\
     \end{tabular}
+
+\end{indpar}
+
+The \skey{syntax unit}s defined by {\em parser-instructions}
+have names of the forms:
+\begin{center}
+{\em expression-type}-expression \\
+{\em expression-type}-operand \\
+{\em expression-type}-left-operand \\
+{\em expression-type}-right-operand \\
+\end{center}
+where the {\em expression-type} is unquoted.  In {\em parser-instructions}
+{\em expression-types} are quoted because they are sometimes operators,
+such as {\tt "and"}, but the syntax equations are not L-Language expressions.
+
+The {\em parser-define-instructions} act as follows:
+
+\begin{indpar}
+
+{\tt define \TT{prefix} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & $N$ {\em E-operand} \\
+                            $|$ & $N$ {\em E-expression} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{prefix} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operator} {\em E-operand} \\
+                            $|$ & {\em E-operator} {\em E-expression} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{postfix} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} $N$ \\
+                            $|$ & {\em E-expression} $N$ \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{postfix} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-operator} \\
+                            $|$ & {\em E-expression} {\em E-operator} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{binary} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} $N$ {\em E-operand} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{binary} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-operator}
+			          {\em E-operand} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{asymetric binary} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} $N$
+			          {\em E-right-operand} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{asymetric binary} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} {\em E-operator}
+			          {\em E-right-operand} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
 
 \end{indpar}
 

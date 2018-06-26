@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 25, 2018
+June 26, 2018
  
 \end{center}
 
@@ -5166,7 +5166,7 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
                             \end{tabular}
 \end{indpar}
 
-{\tt define \TT{prefix} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+{\tt define \TT{prefix} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-expression} \begin{tabular}[t]{rl}
@@ -5185,7 +5185,7 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
                             \end{tabular}
 \end{indpar}
 
-{\tt define \TT{postfix} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+{\tt define \TT{postfix} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-expression} \begin{tabular}[t]{rl}
@@ -5203,7 +5203,7 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
                             \end{tabular}
 \end{indpar}
 
-{\tt define \TT{binary} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+{\tt define \TT{binary} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-expression} \begin{tabular}[t]{rl}
@@ -5222,12 +5222,106 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
                             \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric binary} "$E$" operators "$N1$"\TT{,} $N2$ \ldots}
+{\tt define \TT{asymetric binary} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-left-operand} {\em E-operator}
 			          {\em E-right-operand} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{left associative} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} $N$ {\em E-operand} \\
+                            $|$ & {\em E-expression} $N$ {\em E-operand} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{left associative} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-operator}
+			          {\em E-operand} \\
+                            $|$ & {\em E-expression} {\em E-operator}
+			          {\em E-operand} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{asymetric left associative} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} $N$
+			          {\em E-right-operand} \\
+                            $|$ & {\em E-expression} $N$
+			          {\em E-right-operand} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{asymetric left associative} \begin{tabular}[t]{l}
+                                             "$E$" operators \\
+					     "$N1$"\TT{,} "$N2$" \ldots \\
+					     \end{tabular}}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} {\em E-operator}
+			          {\em E-right-operand} \\
+                            $|$ & {\em E-expression} {\em E-operator}
+			          {\em E-right-operand} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{right associative} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} $N$ {\em E-operand} \\
+                            $|$ & {\em E-operand} $N$ {\em E-expression} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{right associative} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-operator}
+			          {\em E-operand} \\
+                            $|$ & {\em E-operand} {\em E-operator}
+			          {\em E-expression} \\
+                            \end{tabular} \\
+         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+	 \end{tabular}
+\end{indpar}
+
+{\tt define \TT{asymetric right associative} "$E$" operator "$N$"}
+\begin{indpar}
+creates: {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} $N$
+			          {\em E-right-operand} \\
+                            $|$ & {\em E-left-operand} $N$
+			          {\em E-expression} \\
+                            \end{tabular}
+\end{indpar}
+
+{\tt define \TT{asymetric right associative} \begin{tabular}[t]{l}
+                                             "$E$" operators \\
+					     "$N1$"\TT{,} "$N2$" \ldots \\
+					     \end{tabular}}
+\begin{indpar}
+creates: \begin{tabular}[t]{l}
+         {\em E-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} {\em E-operator}
+			          {\em E-right-operand} \\
+                            $|$ & {\em E-left-operand} {\em E-operator}
+			          {\em E-expression} \\
                             \end{tabular} \\
          {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}

@@ -5102,7 +5102,7 @@ have the syntax:
     $|$ & {\em parser-include-instruction} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{parser-define-instruction} ::= \\
+\emkey{parser-define-instruction} \\
 \hspace*{0.3in}
     \begin{tabular}[t]{rl}
     ::= & \ttkey{define} ~ {\em operator-type} ~ {\em expression-type}
@@ -5111,11 +5111,17 @@ have the syntax:
     		   ~ \ttkey{operators} ~ {\em operator-name-list} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{parser-include-instruction} ::= \\
+\emkey{parser-include-instruction} \\
 \hspace*{0.3in}
-    \ttkey{include} ~ {\em expression-type}
-    		   ~ \ttkey{expression in} ~ {\em expression-type}
-    		   ~ {\em expression-kind}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{include} ~ {\em expression-type}
+    		   ~ \ttkey{expression in expression} \\
+    $|$ & \ttkey{include} ~ {\em expression-type}
+    		   ~ \begin{tabular}[t]{@{}l@{}}
+		     \ttkey{expression in} \\
+		     {\em expression-type} ~ {\em expression-kind}
+		     \end{tabular}
+    \end{tabular}
 \\[0.5ex]
 \emkey{operator-type}
     \begin{tabular}[t]{rl}
@@ -5329,11 +5335,106 @@ creates: \begin{tabular}[t]{l}
 
 \end{indpar}
 
+The {\em parser-include-instructions} act as follows:
+
+\begin{indpar}
+
+{\tt include "$E$" expression in expression}
+\begin{indpar}
+creates: {\em expression} ::= {\em $E$-expression}
+\end{indpar}
+
+{\tt include "$E1$" expression in "$E2$" expression}
+\begin{indpar}
+creates: {\em $E2$-expression} ::= {\em $E1$-expression}
+\end{indpar}
+
+{\tt include "$E1$" expression in "$E2$" operand}
+\begin{indpar}
+creates: {\em $E2$-operand} ::= {\em $E1$-expression}
+\end{indpar}
+
+{\tt include "$E1$" expression in "$E2$" left operand}
+\begin{indpar}
+creates: {\em $E2$-left-operand} ::= {\em $E1$-expression}
+\end{indpar}
+
+{\tt include "$E1$" expression in "$E2$" right operand}
+\begin{indpar}
+creates: {\em $E2$-right-operand} ::= {\em $E1$-expression}
+\end{indpar}
+
+\end{indpar}
+
+In general, creating the syntax equations
+\begin{center}
+$X$ ::= $Y$ \ldots \\
+and \\
+$X$ ::= $Z$ \ldots \\
+\end{center}
+is equivalent to creating
+\begin{center}
+$X$ \begin{tabular}[t]{rl}
+    ::= & $Y$ \ldots \\
+    $|$ & $Z$ \ldots \\
+    \end{tabular}
+\end{center}
+
+In addition, whenever a syntax unit with a name of the
+form {\em \ldots-operand} is created, the syntax equation
+\begin{center}
+{\em \ldots-operand} ::= {\em primary}
+\end{center}
+is created.  So a {\em primary} can be used as any operand.
+
+\subsubsection{Parsing vs Type Checking}
+
+Note that there are syntax equations one might like to
+have that are not possible with the L-Language {\em parser-instructions}
+or operand precedence table.  An example would be
+\begin{center}
+\begin{tabular}{l}
+{\em else-expression} ::= {\em else-left-operand} \TT{else}
+                          {\em else-right-operand} \\
+{\em else-left-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em if-expression} \\
+    $|$ & {\em else-left-operand} \TT{else} {\em if-expression}
+    \end{tabular}
+\end{tabular}
+\end{center}
+This syntax would enforce the rule that in
+\begin{center}
+{\em else-operand} \TT{else} {\em else-operand} \TT{else} {\em else-operand}
+    \ldots{} \TT{else} {\em else-operand}
+\end{center}
+the `\TT{if}' operator could be topmost in any {\em else-operand}
+but the last.  The reason the above syntax equations cannot be
+created is that an operator precedence table cannot encode them:
+it cannot encode a left associative operator whose rightmost
+operand in an expression involving more than two of the operators
+is distinct from the non-rightmost operands.  {\em Parser-instructions}
+and the operator precedence table can encode syntax equations that
+make the leftmost operand in such an expression distince from
+the non-leftmost operands, but this is not what we want for the
+`\TT{else}' operator.
+
+Also the parse cannot identify as erroneous expressions such as
+\begin{center}
+\tt {\em if-expression} else ( {\em if-expression} )
+\end{center}
+in which the second `\TT{if}' is hidden inside parentheses.
+
+In both cases type checking will catch the error later in the
+compilation, after parsing.
+
+
+
 \subsubsection{Parser Blocks}
 \label{PARSER-BLOCKS}
 
 
-\subsubsection{Primaries}
+\subsection{Primaries}
 \label{PRIMARIES}
 
 

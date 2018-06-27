@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 26, 2018
+June 27, 2018
  
 \end{center}
 
@@ -5387,6 +5387,69 @@ form {\em \ldots-operand} is created, the syntax equation
 \end{center}
 is created.  So a {\em primary} can be used as any operand.
 
+The {\em parser-instructions} are used to compute the parser
+syntax equations and from these the operator
+precedence table.  The procedure is roughly as follows.
+
+In general an infix operator $N$ ends up in a syntax equation equivalent to
+\begin{center}
+{\em $N$-expression} ::= {\em l-operand} $N$ {\em r-operand}
+\end{center}
+where just one of the following holds:
+\begin{center}
+{\em l-operand} ::= {\em $N$-operand} \\
+{\em l-operand} ::= {\em $N$-left-operand} \\
+{\em l-operand} ::= {\em $N$-operand} $|$ {\em $N$-expression } \\
+{\em l-operand} ::= {\em $N$-left-operand} $|$ {\em $N$-expression }
+\end{center}
+and similarly for {\em r-operand}.
+From the equations for the components of {\em l-operand} the following
+are computed:
+\begin{center}
+\begin{tabular}{l}
+$N_{top}$ = set of possible topmost operators in {\em l-operand} \\
+$N_{all}$ = set of all possible operators outside parentheses
+           in {\em l-operand}
+\end{tabular}
+\end{center}
+
+Then for each $M\in{}N_{top}$ the operator precedence relation
+`$M$~<~$N$' is generated, and for each $M\in(N_{all}-N_{top})$
+the operator precedence relation
+`$M$~x<~$N$' is generated.  A similar procedure involving {\em r-operand}
+generates relations `$N$~>~$M$' and `$N$~>x~$M$'.
+
+It is possible for this procedure to generate
+both $M$~<~$N$ and $N$~<~$M$, or
+both $N$~>~$M$ and $M$~>~$N$.
+These are called `\skey{precedence loop}s' and are
+compilation errors.  For example, the following
+{\em parser-instructions} will trigger these errors:
+\begin{indpar}\begin{verbatim}
+define binary "N" operator "++"
+define binary "M" operator "--"
+include "N" expression in "M" operand
+include "M" expression in "N" operand
+\end{verbatim}\end{indpar}
+These instructions generate the parser syntax equations:
+\begin{center}
+\begin{tabular}{l}
+{\em N-expression} ::= {\em N-operand} ~ {\tt ++} ~ {\em N-operand} \\
+{\em M-expression} ::= {\em M-operand} ~ {\tt -{}-} ~ {\em M-operand} \\
+{\em M-operand} ::= {\em N-expression} \\
+{\em N-operand} ::= {\em M-expression} \\
+\end{tabular}
+\end{center}
+from which the following are derived:
+\begin{center}
+\begin{tabular}{l}
+$N_{top}$ = \{ -{}- \} \\
+$M_{top}$ = \{ +{}+ \} \\
+{\tt -{}- < ++} ~~ and ~~ {\tt ++ > -{}-} \\
+{\tt ++ < -{}-} ~~ and ~~ {\tt -{}- > ++} \\
+\end{tabular}
+\end{center}
+
 \subsubsection{Parsing vs Type Checking}
 
 Note that there are syntax equations one might like to
@@ -5415,11 +5478,11 @@ it cannot encode a left associative operator whose rightmost
 operand in an expression involving more than two of the operators
 is distinct from the non-rightmost operands.  {\em Parser-instructions}
 and the operator precedence table can encode syntax equations that
-make the leftmost operand in such an expression distince from
+make the leftmost operand in such an expression distinct from
 the non-leftmost operands, but this is not what we want for the
 `\TT{else}' operator.
 
-Also the parse cannot identify as erroneous expressions such as
+Also the parser cannot identify as erroneous expressions such as
 \begin{center}
 \tt {\em if-expression} else ( {\em if-expression} )
 \end{center}
@@ -5433,8 +5496,30 @@ compilation, after parsing.
 \subsubsection{Parser Blocks}
 \label{PARSER-BLOCKS}
 
+{\em Parser-instructions} can only be included in {\em parser-blocks}
+which themselves can only be included as {\em module-clauses} in
+{\em module-declarations} (\pagref{MODULE-DECLARATION})
+or {\em body-clauses} in {\em body-declarations} (\pagref{BODY-DECLARATION})
+at the beginning of a file.
 
-\subsection{Primaries}
+The {\em parser-instructions} at the beginning of a file are
+added to the builtin {\em parser-instructions} to define the
+operator precedence table used in the file.  The parsing
+instructions in a module file also apply the files of bodies of that
+module.
+
+It is possible to export a block of {\em parser-instructions}.  This is
+done by labelling a {\em parser-block} `\ttmkey{external}{parser-block}'
+in a {\em module-declaration}.  The instructions in the external
+{\em parser-blocks} of an exporting module can be imported by the
+\begin{center}
+\TT{import} ~ {\em module-name} ~ \TT{parsing}
+\end{center}
+{\em import-clause} in the {\em module-declaration} or {\em body-declaration}
+of an importing module or body.
+
+
+\subsubsection{Primaries}
 \label{PRIMARIES}
 
 

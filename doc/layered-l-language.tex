@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 27, 2018
+June 29, 2018
  
 \end{center}
 
@@ -5581,14 +5581,15 @@ implement logical and numeric operators.
 L-Language uses a top-down method of assigning types to operator arguments.
 Generally given the statement
 \begin{center}
-$T$ $v$ ~ \TT{=} ~ $e1$ ~ $op1$ ~ $e2$ ~ $op2$ ~ \ldots{}
+$T$ $v$ ~ \TT{=} ~ $e1$ ~ $op$ ~ $e2$
 \end{center}
-where $T$ is a type of a variable $v$, where $e1$, $e2$, \ldots{} are
-subexpressions, and where $op1$, $op2$, \ldots{} are operators with the
-same precedence (e.g., all are either \TT{+} or \TT{-}), then
-all the subexpression values are implicitly converted to type $T$
-before the operations are done.  Here $T$ is called the `\key{target type}'
-of the expressions $e1$, $e2$, \ldots{}.
+where $T$ is a type of a variable $v$,
+$op$ is a builtin arithmetic operator,
+and $e1$, $e2$ are subexpressions that are the operands of $op$, then
+the subexpression values are implicitly converted to type $T$
+before the operation is done.  Here $T$ is called the `\key{target type}'
+of the expression `$e1$ $op$ $e2$', and for builtin arithmetic operators
+usually becomes the target type of the operand subexpressions.
 
 An example is:
 
@@ -5604,11 +5605,44 @@ int64 z2 = x + y2
     // OK, y2 IS implicitly convertible to int64
 int64 z3 = x + y2 * w
     // Compile error:
-    //     Target type of y2 * w is int64,
-    //     hence target type of y2 is int64 with is OK,
-    //     and target type of w is int64, but w is not
-    //     implicitly convertible to int64
+    //     Target type of x + ( y2 * w ) is int64, so
+    //     target type of y2 * w is int64, target type
+    //     of y2 is int64 which is OK, and target type
+    //     of w is also int64, but w is not implicitly
+    //     convertible to int64.
 \end{verbatim}\end{indpar}
+
+More explicitly, the mechanism by which this all works is as
+follows.  Given the statement
+\begin{center}
+\tt $T$ $v$ = $e1$ $op1$ $e2$ $op2$ $e3$
+\end{center}
+where $T$ is a type of a variable $v$, $e1$, $e2$, $e3$ are
+operand subexpressions, and $op1$, $op2$, \ldots{} are builtin arithmetic
+operators with the
+same precedence like \TT{+} and \TT{-}, then
+after parsing and compilation the statement is translated to
+\begin{center}
+\begin{tabular}{l}
+\tt $T1$ tmp1 = $e1$ \\
+\tt $T2$ tmp2 = $e2$ \\
+\tt $T3$ tmp3 = tmp1 "$op1$" tmp2 \\
+\tt $T4$ tmp4 = $e3$ \\
+\tt $T$ $v$ = tmp3 "$op2$" tmp4 \\
+\end{tabular}
+\end{center}
+For builtin arithmetic operators like \TT{+} and \TT{-} the function
+prototype is equivalent to
+\begin{center}
+\tt $T$ r = ( $T$ arg1 ) "$op$" ( $T$ arg2 )
+\end{center}
+in which the arguments are given the same type as the result,
+so the target type of the function call becomes the target type
+of each argument.  Therefore in the example $T3\equiv T$ and
+$T4\equiv T$.  The function call for computing {\tt tmp3} is
+similar and results in $T2\equiv T$, $T1\equiv T$.  Therefore
+all operands are converted to the target type $T$ of the final
+result variable $v$.
 
 The target type of an expression is usually provided by the
 type of the variable being set by an assignment statement, or in the

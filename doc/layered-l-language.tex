@@ -5701,6 +5701,55 @@ never evaluated, and if $b$ evaluates to \TT{true} at compile
 time, $e2$ is never compiled.  However all subexpressions are parsed and
 parsing errors are detected.
 
+\subsubsection{If/Else Expressions}
+
+\begin{indpar}\begin{verbatim}
+define type std *IF-VALUE* as void
+    // The expression `e1 if e2' has as its value an
+    // *IF_VALUE* r that is a root of a cluster with
+    // members:
+    //    bool r.valid  Value of e2.
+    //    T r.value     Value of e1 if r.valid true.
+    //                  Default value of type T
+    //                  if r.valid false.
+    //
+    // where T is the type of e1 value.
+
+// Prototype of "if" function:
+//
+function *IF-VALUE* r, T r.value, bool r.valid =
+    (| type T |) ( T arg1 ) "if" ( bool arg2 )
+
+// Equivalent code of "else" WITH "if" second operand.
+//
+function *IF-VALUE* r, T r.value, bool r.valid =
+        (| type T |)
+        ( *IF-VALUE* arg1, T arg1.value, bool arg1.valid )
+        "else"
+        ( *IF-VALUE* *DEFERRED* arg2, T arg2.value,
+                                      bool arg2.valid ):
+    if:
+        arg1.valid:
+            r.value = arg1.value
+            r.valid = true
+        default:
+            r.value = arg2.value
+            r.valid = arg2.valid
+
+// Equivalent code of "else" WITHOUT "if" second operand.
+//
+function T r =
+        (| type T |)
+        ( *IF-VALUE* arg1, T arg1.value, bool arg1.valid )
+        "else"
+        ( T *DEFERRED* arg2 ):
+    if:
+        arg1.valid:
+            r = arg1.value
+        default:
+            r = arg2
+\end{verbatim}\end{indpar}
+
 \subsubsection{Logical Expressions}
 
 In logical expressions the `\TT{not}' operator is moved inside

@@ -5834,6 +5834,18 @@ As this is the result of the first {\tt "else"}, both
 arguments to that {\tt "else"} get the same type and
 therefore $T$ becomes the target type of $e1$, $e3$, and $e5$.
 
+Note that the second arguments to both {\tt "if"} and {\tt "else"}
+are {\tt *DEFERRED*}, which means that they are not computed before
+the functions are called, but instead the expressions computing them
+are inserted in the code expanded from the functions (which are
+inline).  There are context issues here (see \itemref{SCOPE},
+\itemref{CONTEXTS}, and the context option of the
+{\em block-assignment-statement} in 
+\itemref{BLOCK-ASSIGNMENT-STATEMENTS}), which we have ignored
+in this section
+as they would clutter both the function definitions and the compiled
+code of the example.
+
 \subsubsection{Logical Expressions}
 
 In logical expressions the `\TT{not}' operator is moved inside

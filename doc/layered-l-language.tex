@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 30, 2018
+July 1, 2018
  
 \end{center}
 
@@ -5709,29 +5709,31 @@ A statement such as
 \end{center}
 is parsed to become
 \begin{center}
-\tt $T$ $v$ = ( ($e1$ if $e2$) else ($e3$ if $e4$) ) else $e5$
+\tt $T$ $v$ = ( ($e1$ "if" $e2$) "else" ($e3$ "if" $e4$) ) "else" $e5$
 \end{center}
 
 The following are equivalent to the builtin function definitions for
-the `\TT{if}' and `\TT{else}' operators:
+the {\tt "if"} and {\tt "else" } functions:
 
 \begin{indpar}\begin{verbatim}
 define type std *IF-VALUE* as void
-    // The expression `e1 if e2' has as its value an
-    // *IF_VALUE* r that is a root of a cluster with
-    // members:
+    // The expression `e1 "if" e2' has as its value an
+    // *IF-VALUE* r that is a root of a cluster with members:
+    //
     //    bool r.valid  Value of e2.
     //    T r.value     Value of e1 if r.valid true.
     //                  Default value of type T
     //                  if r.valid false.
     //
-    // where T is the type of e1 value.
+    // where T is the type of the e1 value and cannot itself
+    // equal *IF-VALUE*.
 
-// Equivalend code of "if" function:
+// Equivalent code of "if" function:
 //
 function *IF-VALUE* r, T r.value, bool r.valid =
         (| type T |)
-        ( T *DEFERRED* arg1 ) "if" ( bool arg2 ):
+        ( T *DEFERRED* arg1 ) "if" ( bool arg2 )
+	[| T != std *IF-VALUE* |]:
     if:
         arg2:
             r.value = arg1
@@ -5752,7 +5754,7 @@ function *IF-VALUE* r, T r.value, bool r.valid =
         arg1.valid:
             r.value = arg1.value
             r.valid = true
-        default:
+        else:
             r.value = arg2.value
             r.valid = arg2.valid
 
@@ -5767,25 +5769,70 @@ function T r =
     if:
         arg1.valid:
             r = arg1.value
-        default:
+        else:
             r = arg2
 \end{verbatim}\end{indpar}
 
-TBD
+These functions use an {\tt *IF-VALUE*} cluster (see
+\itemref{CLUSTERS} for details of clusters) to record
+whether the {\em logical-expression} input to the {\tt "if"}
+function was \TT{true} or \TT{false} and also record
+the value of the other expression input to the {\tt "if"}
+function if the {\em logical-expression} was \TT{true}.
+The functions also use the {\em if-assignment} statement
+descripted in \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS}.
+
+Given these definitions the compiler expands the example
+\begin{center}
+\tt $T$ $v$ = ( ($e1$ "if" $e2$) "else" ($e3$ "if" $e4$) ) "else" $e5$
+\end{center}
+
+to the following code (in which we have ignored issues of context
+for simplicity):
 
 \begin{center}
 \begin{tabular}{l}
-\tt $T1$ tmp1 = $e1$ \\
-\tt $T2$ tmp2 = $e2$ \\
-\tt $T3$ tmp3 = tmp1 "if" tmp2 \\
-\tt $T4$ tmp4 = $e3$ \\
-\tt $T5$ tmp5 = $e4$ \\
-\tt $T6$ tmp6 = tmp4 "if" tmp5 \\
-\tt $T7$ tmp7 = tmp3 "else" tmp6 \\
-\tt $T5$ tmp8 = $e5$ \\
-\tt $T$ $v$ = tmp7 "else" tmp8 \\
+\tt bool tmp1 = $e2$ \\
+\tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid = do: \\
+\tt ~~~~if: \\
+\tt ~~~~~~~~tmp1: \\
+\tt ~~~~~~~~~~~~tmp2.value = $e1$ \\
+\tt ~~~~~~~~~~~~tmp2.valid = true \\
+\tt ~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~tmp2.value = default value \\
+\tt ~~~~~~~~~~~~tmp2.valid = false \\
+\tt *IF-VALUE* tmp3, $T$ tmp3.value, bool tmp3.valid = do: \\
+\tt ~~~~if: \\
+\tt ~~~~~~~~tmp2.valid: \\
+\tt ~~~~~~~~~~~~tmp3.value = tmp2.value \\
+\tt ~~~~~~~~~~~~tmp3.valid = true \\
+\tt ~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~bool tmp4 = $e4$ \\
+\tt ~~~~~~~~~~~~if: \\
+\tt ~~~~~~~~~~~~~~~~tmp4: \\
+\tt ~~~~~~~~~~~~~~~~~~~~tmp3.value = $e3$ \\
+\tt ~~~~~~~~~~~~~~~~~~~~tmp3.valid = true \\
+\tt ~~~~~~~~~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~~~~~~~~~tmp3.value = default value \\
+\tt ~~~~~~~~~~~~~~~~~~~~tmp3.valid = false \\
+\tt $T$ $v$ = do: \\
+\tt ~~~~if: \\
+\tt ~~~~~~~~tmp3.valid: \\
+\tt ~~~~~~~~~~~~v = tmp3.value \\
+\tt ~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~v = $e5$ \\
 \end{tabular}
 \end{center}
+
+In this code the type $T$ of the result variable $v$ becomes
+the type of the result of the second {\tt "else"} whose
+first argument then assumes the types given in
+\begin{center}
+\tt *IF-VALUE* tmp3, $T$ tmp3.value, bool tmp3.valid
+\end{center}
+As this is the result of the first {\tt "else"}, both
+arguments to that {\tt "else"} get the same type and
+therefore $T$ becomes the target type of $e1$, $e3$, and $e5$.
 
 \subsubsection{Logical Expressions}
 

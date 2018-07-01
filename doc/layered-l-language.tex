@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 29, 2018
+June 30, 2018
  
 \end{center}
 
@@ -5703,6 +5703,18 @@ parsing errors are detected.
 
 \subsubsection{If/Else Expressions}
 
+A statement such as
+\begin{center}
+\tt $T$ $v$ = $e1$ if $e2$ else $e3$ if $e4$ else $e5$
+\end{center}
+is parsed to become
+\begin{center}
+\tt $T$ $v$ = ( ($e1$ if $e2$) else ($e3$ if $e4$) ) else $e5$
+\end{center}
+
+The following are equivalent to the builtin function definitions for
+the `\TT{if}' and `\TT{else}' operators:
+
 \begin{indpar}\begin{verbatim}
 define type std *IF-VALUE* as void
     // The expression `e1 if e2' has as its value an
@@ -5715,10 +5727,18 @@ define type std *IF-VALUE* as void
     //
     // where T is the type of e1 value.
 
-// Prototype of "if" function:
+// Equivalend code of "if" function:
 //
 function *IF-VALUE* r, T r.value, bool r.valid =
-    (| type T |) ( T arg1 ) "if" ( bool arg2 )
+        (| type T |)
+        ( T *DEFERRED* arg1 ) "if" ( bool arg2 ):
+    if:
+        arg2:
+            r.value = arg1
+            r.valid = true
+        default:
+            r.value = std default_value_of ( T )
+            r.valid = false
 
 // Equivalent code of "else" WITH "if" second operand.
 //
@@ -5742,13 +5762,30 @@ function T r =
         (| type T |)
         ( *IF-VALUE* arg1, T arg1.value, bool arg1.valid )
         "else"
-        ( T *DEFERRED* arg2 ):
+        ( T *DEFERRED* arg2 )
+	[| T != std *IF-VALUE* |]
     if:
         arg1.valid:
             r = arg1.value
         default:
             r = arg2
 \end{verbatim}\end{indpar}
+
+TBD
+
+\begin{center}
+\begin{tabular}{l}
+\tt $T1$ tmp1 = $e1$ \\
+\tt $T2$ tmp2 = $e2$ \\
+\tt $T3$ tmp3 = tmp1 "if" tmp2 \\
+\tt $T4$ tmp4 = $e3$ \\
+\tt $T5$ tmp5 = $e4$ \\
+\tt $T6$ tmp6 = tmp4 "if" tmp5 \\
+\tt $T7$ tmp7 = tmp3 "else" tmp6 \\
+\tt $T5$ tmp8 = $e5$ \\
+\tt $T$ $v$ = tmp7 "else" tmp8 \\
+\end{tabular}
+\end{center}
 
 \subsubsection{Logical Expressions}
 

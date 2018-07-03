@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 1, 2018
+July 3, 2018
  
 \end{center}
 
@@ -5713,7 +5713,8 @@ is parsed to become
 \end{center}
 
 The following are equivalent to the builtin function definitions for
-the {\tt "if"} and {\tt "else" } functions:
+the {\tt "if"} and {\tt "else" } functions (except for context issues
+as noted after the example below):
 
 \begin{indpar}\begin{verbatim}
 define type std *IF-VALUE* as void
@@ -5732,7 +5733,7 @@ define type std *IF-VALUE* as void
 //
 function *IF-VALUE* r, T r.value, bool r.valid =
         (| type T |)
-        ( T *DEFERRED* arg1 ) "if" ( bool arg2 )
+        ( *DEFERRED* T arg1 ) "if" ( bool arg2 )
 	[| T != std *IF-VALUE* |]:
     if:
         arg2:
@@ -5748,7 +5749,7 @@ function *IF-VALUE* r, T r.value, bool r.valid =
         (| type T |)
         ( *IF-VALUE* arg1, T arg1.value, bool arg1.valid )
         "else"
-        ( *IF-VALUE* *DEFERRED* arg2, T arg2.value,
+        ( *DEFERRED* *IF-VALUE* arg2, T arg2.value,
                                       bool arg2.valid ):
     if:
         arg1.valid:
@@ -5764,7 +5765,7 @@ function T r =
         (| type T |)
         ( *IF-VALUE* arg1, T arg1.value, bool arg1.valid )
         "else"
-        ( T *DEFERRED* arg2 )
+        ( *DEFERRED* T arg2 )
 	[| T != std *IF-VALUE* |]
     if:
         arg1.valid:
@@ -5790,7 +5791,7 @@ Given these definitions the compiler expands the example
 to the following code (in which we have ignored issues of context
 for simplicity):
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{l}
 \tt bool tmp1 = $e2$ \\
 \tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid = do: \\
@@ -5801,6 +5802,8 @@ for simplicity):
 \tt ~~~~~~~~else: \\
 \tt ~~~~~~~~~~~~tmp2.value = default value \\
 \tt ~~~~~~~~~~~~tmp2.valid = false \\
+\end{tabular} \\
+\begin{tabular}{l}
 \tt *IF-VALUE* tmp3, $T$ tmp3.value, bool tmp3.valid = do: \\
 \tt ~~~~if: \\
 \tt ~~~~~~~~tmp2.valid: \\
@@ -5815,6 +5818,8 @@ for simplicity):
 \tt ~~~~~~~~~~~~~~~~else: \\
 \tt ~~~~~~~~~~~~~~~~~~~~tmp3.value = default value \\
 \tt ~~~~~~~~~~~~~~~~~~~~tmp3.valid = false \\
+\end{tabular} \\
+\begin{tabular}{l}
 \tt $T$ $v$ = do: \\
 \tt ~~~~if: \\
 \tt ~~~~~~~~tmp3.valid: \\
@@ -5822,7 +5827,7 @@ for simplicity):
 \tt ~~~~~~~~else: \\
 \tt ~~~~~~~~~~~~v = $e5$ \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 In this code the type $T$ of the result variable $v$ becomes
 the type of the result of the second {\tt "else"} whose
@@ -5852,12 +5857,53 @@ In logical expressions the `\TT{not}' operator is moved inside
 `\TT{and}' and `\TT{or}' operators before further evaluation.
 Also double negations are deleted.
 
+Thus the following example:
+\begin{center}
+\begin{tabular}{lcl}
+	  &			& \tt not ( x and not y and z ) \\
+parser:	  & $\Longrightarrow$ 	& \tt not ( ( x and ( not y ) ) and z ) \\
+compiler: & $\Longrightarrow$ 	& \tt ( not ( x and ( not y ) ) ) or
+                                                        ( not z ) \\
+compiler: & $\Longrightarrow$ 	& \tt ( ( not x ) or (not ( not y ) ) ) or
+                                                        ( not z ) \\
+compiler: & $\Longrightarrow$ 	& \tt ( ( not x ) or y ) or ( not z ) \\
+\end{tabular}
+\end{center}
+
 The target type for logical expressions is always \TT{bool}.
 
 Logical expressions are evaluated from left to right and
 if the value of the entire expression is discovered before all
 the subexpressions are evaluated, evaluation of later subexpressions is
-skipped, as per \itemref{EVALUATION-ORDER}.
+skipped.  This is implemented by defining
+the {\tt "and"} and {\tt "or" } functions as follows:
+
+\begin{indpar}\begin{verbatim}
+function bool r =
+        ( bool arg1 ) "and" ( *DEFERRED* bool arg2 ):
+    if:
+        arg1:
+            r = do ( std call context ):
+	        r = arg2
+        default:
+            r = false
+
+function bool r =
+        ( bool arg1 ) "or" ( *DEFERRED* bool arg2 ):
+    if:
+        arg1:
+            r = true
+        default:
+            r = do ( std call context ):
+	        r = arg2
+\end{verbatim}\end{indpar}
+
+Here the second arguments are {\tt *DEFERRED*} and if needed are
+evaluated in the context of the caller of the {\tt "and"} or
+{\tt "or"} functions.  For more on contexts see
+\itemref{SCOPE}, \itemref{CONTEXTS}, and the context option of the
+{\em block-assignment-statement} in 
+\itemref{BLOCK-ASSIGNMENT-STATEMENTS}.
 
 \subsubsection{Comparison Expressions}
 \label{COMPARISON-EXPRESSIONS}
@@ -5913,6 +5959,12 @@ For example, given the expression `{\tt v == missing}', where \TT{v}
 is of `\TT{qualifier}' type, {\tt missing}, which has no natural type, will be
 evaluated with `\TT{qualifier}' target type.
 
+Note that a comparison operator may not have a negation that is
+also simply a comparison operator, e.g., \TT{>=} may not be the
+negation of \TT{<}.  For example, both return \TT{false} if an
+operand is \TT{NaN}.  For this reason `{\tt x >= y}' and
+`{\tt not ( x < y )}' are semantically different expressions.
+
 Comparison expressions are evaluated from left to right and are
 true if and only if all the comparisons are true.  Middle
 arguments are shared between two comparison operators.
@@ -5931,16 +5983,58 @@ bool z2 = x < y1 and y1 < y2
     // converted to uns32 to compare it with y2.
 \end{verbatim}\end{indpar}
 
-As per \itemref{EVALUATION-ORDER}, if a comparison evaluates
+If one comparison in a sequence of comparisons evaluates
 to \TT{false}, operands following those of the comparison
-are not evaluated.
+are not evaluated.  This is implemented by defining comparison
+function as follows:
 
-Note that a comparison operator may not have a negation that is
-also simply a comparison operator, e.g., \TT{>=} may not be the
-negation of \TT{<}.  For example, both return \TT{false} if an
-operand is \TT{NaN}.  For this reason `{\tt x >= y}' and
-`{\tt not ( x < y )}' are treated as semantically different
-expressions.
+\begin{indpar}\begin{verbatim}
+define type std *COMPARE-VALUE* as void
+    // The expression `e1 "cop" e2' where cop is a comparison
+    // opertor has as its value a *COMPARE-VALUE* r that is a
+    // root of a cluster with members:
+    //
+    //    T r.right op  Value of e2.
+    //    bool r.value  Result of comparison.
+    //
+    // where T is the type of the operands and cannot itself
+    // equal *COMPARE-VALUE*.
+    //
+    // *COMPARE-VALUE*s are implicitly convertable to bool's.
+    // Values other than bool and *COMPARE-VALUES* are
+    // implicitly convertable to *COMPARE-VALUES*.
+
+function Qs bool r = implied conversion
+                     (| qualifiers Qs |)
+		     ( Qs *COMPARE-VALUE v, bool v.value ):
+    r = v.value
+
+function Qs *COMPARE-VALUE* r, T r.right op, bool r.value =
+                     (| qualifiers Qs, type T |)
+		     ( Qs T v ):
+    r.right op = v
+    r.value = true
+
+// The following is defined separately for various types T
+// and for comparison operators other than "<".
+// 
+function *COMPARE-VALUE* r, T r.right op, bool r.value =
+        ( *COMPARE-VALUE* arg1, T arg1.right op,
+	                        bool arg1.value )
+	"<" ( *DEFERRED* T arg2 ):
+    if:
+        arg1.value:
+	    r.right op = do ( std call context ):
+	        r.right op = arg2
+            r.value = arg1.right op "<" r.right op
+	default:
+	    r.right op = default value
+	    r.value = false
+\end{verbatim}\end{indpar}
+
+As an example of the application of the above, consider:
+
+TBD
 
 \subsubsection{Integer Arithmetic Expressions}
 

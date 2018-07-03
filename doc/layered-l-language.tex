@@ -1611,23 +1611,6 @@ becomes the abstract syntax tree represented by
 \tt (int64 x 1) = ($ma$ (y 5 b) "+" ((sin (w)) "*" (cos z)))
 \end{center}
 
-According to the syntax of expressions (\itemref{EXPRESSION-SYNTAX}),
-the parser does not insert parentheses that make operators
-left associative.  Thus
-\begin{center}
-\tt int64 w 1 = x 2 + y 3 + z 4 
-\end{center}
-becomes the abstract syntax tree represented by
-\begin{center}
-\tt (int64 w 1) = ((x 2) "+" (y 3) "+" (z 4))
-\end{center}
-and \underline{not}
-\begin{center}
-\tt (int64 w 1) = ( ( (x 2) "+" (y 3) ) "+" (z 4))
-\end{center}
-The compiler and not the parser handles binary operator associativity.
-
-
 \section{Types}
 \label{TYPES}
 
@@ -4448,18 +4431,18 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \TT{\{}		& >x & > & > & > & > & > & > & > & > & > & > \\
 \hline
 \IX{if}		& x & < & > & > & > & > & > & > & > & > & > \\
-\IX{else}	& > & < & > & > & > & > & > & > & > & > & > \\
+\IX{else}	& > & > & > & > & > & > & > & > & > & > & > \\
 \hline
-\IX{and}	& < & x< & < & x & > & > & > & > & > & > & > \\
-\IX{or}		& < & x< & x & < & > & > & > & > & > & > & > \\
+\IX{and}	& < & x< & > & x & > & > & > & > & > & > & > \\
+\IX{or}		& < & x< & x & > & > & > & > & > & > & > & > \\
 \RX{not}	& < & x< & < & < & > & > & > & > & > & > & > \\
 \hline
-\IX{<}		& < & x< & < & < & x & < & < & < & < & < & < \\
-\IX{<=}		& < & x< & < & < & x & < & < & < & < & < & < \\
-\IX{==}		& < & x< & < & < & x & < & < & < & < & < & < \\
-\IX{!=}		& < & x< & < & < & x & < & < & < & < & < & < \\
-\IX{>=}		& < & x< & < & < & x & < & < & < & < & < & < \\
-\IX{>}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{<}		& < & x< & < & < & x & > & > & > & > & > & > \\
+\IX{<=}		& < & x< & < & < & x & > & > & > & > & > & > \\
+\IX{==}		& < & x< & < & < & x & > & > & > & > & > & > \\
+\IX{!=}		& < & x< & < & < & x & > & > & > & > & > & > \\
+\IX{>=}		& < & x< & < & < & x & > & > & > & > & > & > \\
+\IX{>}		& < & x< & < & < & x & > & > & > & > & > & > \\
 \hline
 \IX{+}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \IX{-}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
@@ -4790,14 +4773,19 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{else-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em else-operand} \ttkey{else} {\em else-operand} \\
-    ::= & {\em else-expression} \ttkey{else} {\em else-operand} \\
+    ::= & {\em else-left-operand} \ttkey{else} {\em else-right-operand} \\
+    ::= & {\em else-left-operand} \ttkey{else} {\em else-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{else-operand}
+\emkey{else-left-operand}
     \begin{tabular}[t]{rl}
     ::= & {\em if-expression} \\
-    $|$ & {\em value-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{else-right-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em value-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
@@ -4829,13 +4817,13 @@ The builtin operator precedence table encodes the following syntax equations:
 \emkey{\$and\$-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em logical-operand} \ttkey{and} {\em logical-operand} \\
-    $|$ & {\em \$and\$-expression} \ttkey{and} {\em logical-operand} \\
+    $|$ & {\em logical-operand} \ttkey{and} {\em \$and\$-expression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{\$or\$-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em logical-operand} \ttkey{or} {\em logical-operand} \\
-    $|$ & {\em \$or\$-expression} \ttkey{or} {\em logical-operand} \\
+    $|$ & {\em logical-operand} \ttkey{or} {\em \$or\$-expression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{logical-operand}
@@ -4860,8 +4848,8 @@ The builtin operator precedence table encodes the following syntax equations:
 \emkey{compare-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em compare-operand} {\em compare-operator} {\em compare-operand} \\
-    $|$ & {\em compare-expression} {\em compare-operator}
-                                   {\em compare-operand} \\
+    $|$ & {\em compare-operand} {\em compare-operator}
+                                   {\em compare-operator} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{compare-operator}::=
@@ -5015,7 +5003,7 @@ precedence table, can be computed from the following builtin
 `\skey{parser instruction}s':
 
 \begin{indpar}\begin{verbatim}
-define left associative "else" operator "else"
+define asymetric right associative "else" operator "else"
 include "else" expression in expresssion
 
 define asymetric binary "if" operator "if"
@@ -5026,8 +5014,8 @@ include "value" expression in "else" right operand
 include "value" expression in "if" left operand
 include "value" expression in expression
 
-define left associative "logical" operator "and"
-define left associative "logical" operator "or"
+define right associative "logical" operator "and"
+define right associative "logical" operator "or"
 include "logical" expression in "if" right operand
 include "logical" expression in "value" expression
 
@@ -5035,7 +5023,7 @@ define prefix "not" operator "not"
 include "not" expression in "logical" operand
 include "not" expression in "logical" expression
 
-define left associative "compare" operators
+define right associative "compare" operators
        "<", "<=", "==", "!=", ">=", ">"
 include "compare" expression in "logical" operand
 include "compare" expression in "not" operand
@@ -5088,6 +5076,13 @@ include "exponent" expression in "shift" right operand
 include "sign" expression in "shift" right operand
 
 \end{verbatim}\end{indpar}
+
+Note that the {\tt "else"}, {\tt "and"}, {\tt "or"} operators
+and the comparison operators are right associative and not
+left associative.  This is because the defer evaluation of
+their right operands.  Right associativity coupled with
+deferred evaluation of right operands produces left to
+right evaluation order.  See the example on \pagref{IF-ELSE-EXAMPLE}.
 
 The user may add {\em parser-instructions} to those that
 are builtin using {\em parser-blocks} (\itemref{PARSER-BLOCKS}).
@@ -5452,46 +5447,27 @@ $M_{top}$ = \{ +{}+ \} \\
 
 \subsubsection{Parsing vs Type Checking}
 
-Note that there are syntax equations one might like to
-have that are not possible with the L-Language {\em parser-instructions}
-or operand precedence table.  An example would be
-\begin{center}
-\begin{tabular}{l}
-{\em else-expression} ::= {\em else-left-operand} \TT{else}
-                          {\em else-right-operand} \\
-{\em else-left-operand}
-    \begin{tabular}[t]{rl}
-    ::= & {\em if-expression} \\
-    $|$ & {\em else-left-operand} \TT{else} {\em if-expression}
-    \end{tabular}
-\end{tabular}
-\end{center}
-This syntax would enforce the rule that in
-\begin{center}
-{\em else-operand} \TT{else} {\em else-operand} \TT{else} {\em else-operand}
-    \ldots{} \TT{else} {\em else-operand}
-\end{center}
-the `\TT{if}' operator could be topmost in any {\em else-operand}
-but the last.  The reason the above syntax equations cannot be
-created is that an operator precedence table cannot encode them:
-it cannot encode a left associative operator whose rightmost
-operand in an expression involving more than two of the operators
-is distinct from the non-rightmost operands.  {\em Parser-instructions}
-and the operator precedence table can encode syntax equations that
-make the leftmost operand in such an expression distinct from
-the non-leftmost operands, but this is not what we want for the
-`\TT{else}' operator.
-
-Also the parser cannot identify as erroneous expressions such as
+The parser cannot identify as erroneous expressions such as
 \begin{center}
 \tt {\em if-expression} else ( {\em if-expression} )
 \end{center}
 in which the second `\TT{if}' is hidden inside parentheses.
 
-In both cases type checking will catch the error later in the
+In this case type checking will catch the error later in the
 compilation, after parsing.
 
-
+There are other possible cases where the parser cannot catch
+errors that must be caught later by type checking.
+For example, consider the {\tt "else"} operator
+which is `{\tt asymetric right associative}'.  This means
+that in a sequence of operands and alternating {\tt "else"}
+operators, the parser can make the rightmost operand different
+from the other operands.  But because it is based on an
+operator hierarchy table, the parser cannot
+make the leftmost operand distinct from all the other operands.
+It seems pure luck that the parser can do the right thing
+for the {\tt "else"} operator, which is right associative only
+because it defers the evaluation of its right operand.
 
 \subsubsection{Parser Blocks}
 \label{PARSER-BLOCKS}
@@ -5709,8 +5685,12 @@ A statement such as
 \end{center}
 is parsed to become
 \begin{center}
-\tt $T$ $v$ = ( ($e1$ "if" $e2$) "else" ($e3$ "if" $e4$) ) "else" $e5$
+\tt $T$ $v$ = ($e1$ "if" $e2$) "else" ( ($e3$ "if" $e4$) "else" $e5$ )
 \end{center}
+
+Because {\tt "else"} defers the evaluation of its right operand,
+it is parsed as a right associative operator, but evaluates its
+operands left to right.
 
 The following are equivalent to the builtin function definitions for
 the {\tt "if"} and {\tt "else" } functions (except for context issues
@@ -5784,12 +5764,14 @@ The functions also use the {\em if-assignment} statement
 descripted in \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS}.
 
 Given these definitions the compiler expands the example
-\begin{center}
-\tt $T$ $v$ = ( ($e1$ "if" $e2$) "else" ($e3$ "if" $e4$) ) "else" $e5$
+\begin{center}\label{IF-ELSE-EXAMPLE}
+\tt $T$ $v$ = ( $e1$ "if" $e2$) "else" ( ($e3$ "if" $e4$) "else" $e5$ )
 \end{center}
 
 to the following code (in which we have ignored issues of context
 for simplicity):
+
+TBD
 
 \begin{indpar}
 \begin{tabular}{l}

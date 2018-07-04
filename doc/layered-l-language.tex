@@ -5718,7 +5718,7 @@ function *IF-VALUE* r, T r.value, bool r.valid =
                 r.value = do ( std call context ):
                     r.value = arg1
                 r.valid = true
-        default:
+        else:
             r.value = std default_value_of ( T )
             r.valid = false
 
@@ -5750,10 +5750,7 @@ Given these definitions the compiler expands the example
 \tt $T$ $v$ = ($e1$ "if" $e2$) "else" ( ($e3$ "if" $e4$) "else" $e5$ )
 \end{center}
 
-to the following code (in which we have ignored issues of context
-for simplicity):
-
-TBD
+to the following code:
 
 \begin{indpar}
 \begin{tabular}{l}
@@ -5876,8 +5873,8 @@ function bool r =
     if:
         arg1:
             r = do ( std call context ):
-	        r = arg2
-        default:
+                r = arg2
+        else:
             r = false
 
 function bool r =
@@ -5885,9 +5882,9 @@ function bool r =
     if:
         arg1:
             r = true
-        default:
+        else:
             r = do ( std call context ):
-	        r = arg2
+                r = arg2
 \end{verbatim}\end{indpar}
 
 Here the second arguments are {\tt *DEFERRED*} and if needed are
@@ -5998,35 +5995,103 @@ define type std *COMPARE-VALUE* as void
 
 function Qs bool r = implied conversion
                      (| qualifiers Qs |)
-		     ( Qs *COMPARE-VALUE v, bool v.value ):
+                     ( Qs *COMPARE-VALUE v, bool v.value ):
     r = v.value
 
 function Qs *COMPARE-VALUE* r, T r.right op, bool r.value =
+                     implied conversion
                      (| qualifiers Qs, type T |)
-		     ( Qs T v ):
+                     ( Qs T v ):
     r.right op = v
     r.value = true
 
-// The following is defined separately for various types T
+// The following are defined separately for various types T
 // and for comparison operators other than "<".
 // 
 function *COMPARE-VALUE* r, T r.right op, bool r.value =
         ( *COMPARE-VALUE* arg1, T arg1.right op,
-	                        bool arg1.value )
-	"<" ( *DEFERRED* T arg2 ):
+                                bool arg1.value )
+        "<" ( *DEFERRED* T arg2 ):
     if:
         arg1.value:
-	    r.right op = do ( std call context ):
-	        r.right op = arg2
-            r.value = arg1.right op "<" r.right op
-	default:
-	    r.right op = default value
-	    r.value = false
+            r.right op = do ( std call context ):
+                r.right op = arg2
+            r.value = arg1.right op less than r.right op
+        else:
+            r.right op = default value
+            r.value = false
+
+function bool r = ( T arg1 ) less than ( * T arg2 ):
+    // function definition is builtin and omitted here
 \end{verbatim}\end{indpar}
 
-As an example of the application of the above, consider:
+Given these definitions the compiler expands the example
+\begin{center}\label{COMPARE-EXAMPLE}
+\tt bool $v$ = $e1 "<" ( $e2 "<" $e3$ )
+\end{center}
 
-TBD
+to the following code:
+
+\begin{indpar}
+\begin{tabular}{l}
+\tt std context tmp0 = std current context \\
+\tt // tmp0 is call(er) context \\
+\tt // lt-context is context of "<" function declaration \\
+\tt // implied-conversion-context is context of the \\
+\tt // ~~~~~~~~`implied conversion' function declaration \\
+\end{tabular}
+
+\begin{tabular}{l}
+\tt // Evaluate $e1$ - operand of `implied conversion' below \\
+\tt bool tmp1 = $e1$ \\
+\end{tabular}
+
+\begin{tabular}{l}
+\tt // Evaluate `implied conversion ( $e1$ )' \\
+\tt // - left operand of first "<" \\
+\tt *COMPARE-VALUE* tmp2, $T$ tmp2.right op, bool tmp2.value = \\
+\tt ~~~~do ( implied-conversion-context ): \\
+\tt ~~tmp2.right op = tmp1 \\
+\tt ~~tmp2.value = true \\
+\end{tabular}
+
+\begin{tabular}{l}
+\tt // Evaluate `($e1$ "<" $e2$ )' \\
+\tt // - right operand of second "<" \\
+\tt *COMPARE-VALUE* tmp3, $T$ tmp3.right op, bool tmp3.value = \\
+\tt ~~~~do ( lt-context ): \\
+\tt ~~if: \\
+\tt ~~~~tmp2.value: \\
+\tt ~~~~~~tmp3.right op = do ( tmp0 ): \\
+\tt ~~~~~~~~~tmp3.right op = $e2$ \\
+\tt ~~~~~~tmp3.value = tmp2.right op less than tmp3.right op \\
+\tt ~~~~else: \\
+\tt ~~~~~~tmp3.right op = default value \\
+\tt ~~~~~~tmp3.value = false \\
+\end{tabular}
+
+\begin{tabular}{l}
+\tt // Evaluate second "<" \\
+\tt *COMPARE-VALUE* tmp4, $T$ tmp4.right op,\\
+\tt ~~~~~~~~~~~~~~~~~~~~~~bool tmp4.value = \\
+\tt ~~~~do ( lt-context ): \\
+\tt ~~if: \\
+\tt ~~~~tmp3.value: \\
+\tt ~~~~~~tmp4.right op = do ( tmp0 ): \\
+\tt ~~~~~~~~~tmp4.right op = $e3$ \\
+\tt ~~~~~~tmp4.value = tmp3.right op less than tmp4.right op \\
+\tt ~~~~else: \\
+\tt ~~~~~~tmp4.right op = default value \\
+\tt ~~~~~~tmp4.value = false \\
+\end{tabular}
+
+\begin{tabular}{l}
+\tt // Evaluate bool $v$ = implied conversion ( ... ) \\
+\tt bool v = do ( implied-conversion-context ): \\
+\tt ~~~~v = tmp4.value \\
+\end{tabular}
+
+\end{indpar}
 
 \subsubsection{Integer Arithmetic Expressions}
 

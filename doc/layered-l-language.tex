@@ -5758,6 +5758,7 @@ TBD
 \begin{indpar}
 \begin{tabular}{l}
 \tt std context tmp0 = std current context \\
+\tt // tmp0 is call(er) context \\
 \tt // if-context is context of "if" function declaration \\
 \tt // else-context is context of "else" function declaration \\
 \tt // \\
@@ -5766,71 +5767,72 @@ TBD
 \tt // \\
 \tt // Evaluate ($e1$ "if" $e2$) - left operand of first "else" \\
 \tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid = \\
-\tt ~~~~~~~~do ( if-context ): \\
-\tt ~~~~if: \\
-\tt ~~~~~~~~tmp1: \\
-\tt ~~~~~~~~~~~~tmp2.value = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~tmp2.value = $e1$ \\
-\tt ~~~~~~~~~~~~tmp2.valid = true \\
-\tt ~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~tmp2.value = default value \\
-\tt ~~~~~~~~~~~~tmp2.valid = false \\
+\tt ~~~~do ( if-context ): \\
+\tt ~~if: \\
+\tt ~~~~tmp1: \\
+\tt ~~~~~~tmp2.value = do ( tmp0 ): \\
+\tt ~~~~~~~~tmp2.value = $e1$ \\
+\tt ~~~~~~tmp2.valid = true \\
+\tt ~~~~else: \\
+\tt ~~~~~~tmp2.value = default value \\
+\tt ~~~~~~tmp2.valid = false \\
 \end{tabular}
 
 \begin{tabular}{l}
 \tt // Evaluate first "else" \\
 \tt $T$ $v$ = do ( else-context ): \\
-\tt ~~~~if: \\
-\tt ~~~~~~~~tmp2.valid: \\
-\tt ~~~~~~~~~~~~$v$ = tmp2.value \\
-\tt ~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~r = do ( tmp0 ): \\
+\tt ~~if: \\
+\tt ~~~~tmp2.valid: \\
+\tt ~~~~~~$v$ = tmp2.value \\
+\tt ~~~~else: \\
+\tt ~~~~~~r = do ( tmp0 ): \\
 \end{tabular}
 
 \begin{tabular}{l}
-\tt ~~~~~~~~~~~~~~~~// Evaluate (($e3$ "if" $e4$) "else" $e5$") \\
-\tt ~~~~~~~~~~~~~~~~// - deferred right operand of first "else" \\
-\tt ~~~~~~~~~~~~~~~~// Evaluate $e4$ \\
-\tt ~~~~~~~~~~~~~~~~// - right operand of second "if" \\
-\tt ~~~~~~~~~~~~~~~~bool tmp3 = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~~~~~tmp3 = $e4$ \\
-\tt ~~~~~~~~~~~~~~~~// Evaluate ($e3$ "if" $e4$) \\
-\tt ~~~~~~~~~~~~~~~~// - left operand of second "else" \\
-\tt ~~~~~~~~~~~~~~~~*IF-VALUE* tmp4, $T$ tmp4.value, \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bool tmp4.valid = \\
-\tt ~~~~~~~~~~~~~~~~~~do ( if-context ): \\
-\tt ~~~~~~~~~~~~~~~~~~~~if: \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~tmp3: \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~tmp4.value = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~tmp4.value = $e3$ \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~tmp4.valid = true \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~tmp4.value = default value \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~tmp4.valid = false \\
+\tt ~~~~~~~~// Evaluate (($e3$ "if" $e4$) "else" $e5$") \\
+\tt ~~~~~~~~// - deferred right operand of first "else" \\
+\tt ~~~~~~~~// Evaluate $e4$ \\
+\tt ~~~~~~~~// - right operand of second "if" \\
+\tt ~~~~~~~~bool tmp3 = do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~tmp3 = $e4$ \\
+\tt ~~~~~~~~// Evaluate ($e3$ "if" $e4$) \\
+\tt ~~~~~~~~// - left operand of second "else" \\
+\tt ~~~~~~~~*IF-VALUE* tmp4, $T$ tmp4.value, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~bool tmp4.valid = \\
+\tt ~~~~~~~~~~do ( if-context ): \\
+\tt ~~~~~~~~~~~~if: \\
+\tt ~~~~~~~~~~~~~~tmp3: \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~~~~~~~tmp4.value = $e3$ \\
+\tt ~~~~~~~~~~~~~~~~tmp4.valid = true \\
+\tt ~~~~~~~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = default value \\
+\tt ~~~~~~~~~~~~~~~~tmp4.valid = false \\
 \end{tabular}
 
 \begin{tabular}{l}
-\tt ~~~~~~~~~~~~~~~~// Evaluate second "else" \\
-\tt ~~~~~~~~~~~~~~~~r = do ( else-context ): \\
-\tt ~~~~~~~~~~~~~~~~~~if: \\
-\tt ~~~~~~~~~~~~~~~~~~~~~tmp4.valid: \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~~r = tmp4.value \\
-\tt ~~~~~~~~~~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~~r = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~r = $e5$ \\
+\tt ~~~~~~~~// Evaluate second "else" \\
+\tt ~~~~~~~~r = do ( else-context ): \\
+\tt ~~~~~~~~~~if: \\
+\tt ~~~~~~~~~~~~tmp4.valid: \\
+\tt ~~~~~~~~~~~~~~r = tmp4.value \\
+\tt ~~~~~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~~~r = do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~~~~~r = $e5$ \\
 \end{tabular}
 
 \end{indpar}
 
 In this code the type $T$ of the result variable $v$ becomes
-the type of the result of the second {\tt "else"} whose
+the type of the result of the first {\tt "else"} whose
 first argument then assumes the types given in
 \begin{center}
-\tt *IF-VALUE* tmp3, $T$ tmp3.value, bool tmp3.valid
+\tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid
 \end{center}
-As this is the result of the first {\tt "else"}, both
-arguments to that {\tt "else"} get the same type and
-therefore $T$ becomes the target type of $e1$, $e3$, and $e5$.
+and whose second argument gets type $T$.  The second argument
+is the second {\tt "else"} subxpression, and as it has
+target type $T$, the arguments of the second {\tt "else"}
+have the same types as the arguments of the first {\tt "else"}.
 
 Note that the second arguments to both {\tt "if"} and {\tt "else"}
 are {\tt *DEFERRED*}, which means that they are not computed before

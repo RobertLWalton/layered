@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 4, 2018
+July 6, 2018
  
 \end{center}
 
@@ -750,6 +750,8 @@ be part of a legal {\em name}.
 
 Name items beginning with more than one `\TT{.}' are reserved
 for use by systems and compilers (e.g., \TT{..size} in the example).
+Name items beginning and ending with `\TT{*}' are
+similarly reserved.
 
 Words ending with `\TT{\TMP$n$}', where $n$ is a {\em natural-number}, are
 reserved for use by the compiler and may not be used in names by the
@@ -858,6 +860,10 @@ reserved for use by the compiler.
 {\em Name-items} beginning with `\TT{..}' (possibly followed by more
 `\TT{.}'s) are reserved
 for use by systems and compilers (e.g., `\TT{..size}').
+\item
+{\em Name-items} beginning \underline{and} ending
+with `\TT{*}' are reserved
+for use by systems and compilers (e.g., `\TT{*UNCHECKED*}').
 \end{enumerate}
 \end{indpar}
 
@@ -5990,24 +5996,20 @@ define type std *COMPARE-VALUE* as void
     // equal *COMPARE-VALUE*.
     //
     // *COMPARE-VALUE*s are implicitly convertable to bool's.
-    // Values other than bool and *COMPARE-VALUES* are
-    // implicitly convertable to *COMPARE-VALUES*.
 
 function Qs bool r = implied conversion
                      (| qualifiers Qs |)
                      ( Qs *COMPARE-VALUE v, bool v.value ):
     r = v.value
 
-function Qs *COMPARE-VALUE* r, T r.right op, bool r.value =
-                     implied conversion
-                     (| qualifiers Qs, type T |)
-                     ( Qs T v ):
-    r.right op = v
-    r.value = true
-
 // The following are defined separately for various types T
 // and for comparison operators other than "<".
 // 
+function *COMPARE-VALUE* r, T r.right op, bool r.value =
+        ( T arg1 ) "<" ( T arg2 ):
+    r.right op = arg2
+    r.value = arg1.right op less than r.right op
+
 function *COMPARE-VALUE* r, T r.right op, bool r.value =
         ( *COMPARE-VALUE* arg1, T arg1.right op,
                                 bool arg1.value )
@@ -6016,21 +6018,26 @@ function *COMPARE-VALUE* r, T r.right op, bool r.value =
         arg1.value:
             r.right op = do ( std call context ):
                 r.right op = arg2
-            r.value = arg1.right op less than r.right op
+            r.value = arg1.right op "<" r.right op
         else:
             r.right op = default value
             r.value = false
 
-function bool r = ( T arg1 ) less than ( * T arg2 ):
+function bool r = ( T arg1 ) less than ( T arg2 )
     // function definition is builtin and omitted here
 \end{verbatim}\end{indpar}
 
-Given these definitions the compiler expands the example
-\begin{center}\label{COMPARE-EXAMPLE}
-\tt bool $v$ = $e1 "<" ( $e2 "<" $e3$ )
-\end{center}
+Compare operations are left associative.
 
-to the following code:
+Given these definitions the parser expands the example
+\begin{center}\label{COMPARE-EXAMPLE}
+\tt bool $v$ = $e1 "<" $e2 "<" $e3$
+\end{center}
+to
+\begin{center}
+\tt bool $v$ = ( $e1 "<" $e2 ) "<" $e3$
+\end{center}
+and the compiler expands this to the following code:
 
 \begin{indpar}
 \begin{tabular}{l}
@@ -6042,32 +6049,18 @@ to the following code:
 \end{tabular}
 
 \begin{tabular}{l}
-\tt // Evaluate $e1$ - operand of `implied conversion' below \\
-\tt bool tmp1 = $e1$ \\
-\end{tabular}
-
-\begin{tabular}{l}
-\tt // Evaluate `implied conversion ( $e1$ )' \\
-\tt // - left operand of first "<" \\
-\tt *COMPARE-VALUE* tmp2, $T$ tmp2.right op, bool tmp2.value = \\
-\tt ~~~~do ( implied-conversion-context ): \\
-\tt ~~tmp2.right op = tmp1 \\
-\tt ~~tmp2.value = true \\
+\tt // Evaluate $e1$ and $e2$ - operands of first "<" \\
+\tt T tmp1 = $e1$ \\
+\tt T tmp2 = $e2$ \\
 \end{tabular}
 
 \begin{tabular}{l}
 \tt // Evaluate `($e1$ "<" $e2$ )' \\
 \tt // - right operand of second "<" \\
 \tt *COMPARE-VALUE* tmp3, $T$ tmp3.right op, bool tmp3.value = \\
-\tt ~~~~do ( lt-context ): \\
-\tt ~~if: \\
-\tt ~~~~tmp2.value: \\
-\tt ~~~~~~tmp3.right op = do ( tmp0 ): \\
-\tt ~~~~~~~~~tmp3.right op = $e2$ \\
-\tt ~~~~~~tmp3.value = tmp2.right op less than tmp3.right op \\
-\tt ~~~~else: \\
-\tt ~~~~~~tmp3.right op = default value \\
-\tt ~~~~~~tmp3.value = false \\
+\tt ~~~~~~~~do ( lt-context ): \\
+\tt ~~~~tmp3.right op = tmp2 \\
+\tt ~~~~tmp3.value = tmp1 less than tmp2 \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -6075,14 +6068,15 @@ to the following code:
 \tt *COMPARE-VALUE* tmp4, $T$ tmp4.right op,\\
 \tt ~~~~~~~~~~~~~~~~~~~~~~bool tmp4.value = \\
 \tt ~~~~do ( lt-context ): \\
-\tt ~~if: \\
-\tt ~~~~tmp3.value: \\
-\tt ~~~~~~tmp4.right op = do ( tmp0 ): \\
-\tt ~~~~~~~~~tmp4.right op = $e3$ \\
-\tt ~~~~~~tmp4.value = tmp3.right op less than tmp4.right op \\
-\tt ~~~~else: \\
-\tt ~~~~~~tmp4.right op = default value \\
-\tt ~~~~~~tmp4.value = false \\
+\tt ~~~~~~~~if: \\
+\tt ~~~~~~~~~~~~tmp3.value: \\
+\tt ~~~~~~~~~~~~~~~~tmp4.right op = do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~~~~~~~~tmp4.right op = $e3$ \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = \\
+\tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op less than tmp4.right op \\
+\tt ~~~~~~~~~~~~else: \\
+\tt ~~~~~~~~~~~~~~~~tmp4.right op = default value \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = false \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -6092,6 +6086,22 @@ to the following code:
 \end{tabular}
 
 \end{indpar}
+
+If $T$ $\equiv$ \TT{bool}, the second {\tt "<"} has a
+choice between the two function prototypes:
+\begin{center}
+{\tt function ... r = ( bool arg1 ) "<" ( bool arg2 )} \\
+{\tt function ... r = \begin{tabular}[t]{l}
+                      ( *COMPARE-VALUE* arg1 ) \\
+		      "<" \\
+		      ( *DEFERRED* bool arg2 ) \\
+		      \end{tabular} }
+\end{center}
+The first choice requires that an implied conversion be applied to
+the value of `{\tt ($e1$ "<" $e2$)}', and by rule
+\ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED} on
+\pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+the prototype that does not require implied conversion is preferred.
 
 \subsubsection{Integer Arithmetic Expressions}
 
@@ -8520,7 +8530,8 @@ $TY1$, $TY2$, \ldots{}~are the types of the $Y$ argument
 variables assigned to $e1$, $e2$, \ldots{}~in order,
 and values of type
 $TXi$ are implicitly convertible to values of type $TYi$ for
-every $i$,
+every $i$, but not vice versa (which should only happen if
+all the types are the same),
 then the $Y$ match is discarded.
 
 \item If after discarding matches as above, there are no matches,

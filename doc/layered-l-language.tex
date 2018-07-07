@@ -5663,25 +5663,83 @@ the expression must be a {\em function-call} and can only match
 \subsubsection{Evaluation Order}
 \label{EVALUATION-ORDER}
 
-Where binary operators of the same precedence appear outside
-parentheses in an expression, they are evaluated left to right.
-That is, they are left associative.  For example,
-`{\tt x <{}< s1 >{}> s2}' is
+All builtin operators evaluate operands and operators from
+left to right.  All that are associative are left associative,
+except the `\TT{else}' operator, which evaluates from left
+to right because it has a deferred second operand, even though
+it is right associative.
+
+For example, `{\tt x <{}< s1 >{}> s2}' is
 equivalent to `{\tt (x <{}< s1) >{}> s2}'.
 
-For logical operators such as `\TT{and}', `\TT{or}', and
-`\TT{\ldots{}~if~\ldots{}~else~\ldots{}}' the value of the expression
-may be determined before all the operands have been evaluated.
-In this case the unnecessary operands are never evaluated.
+The `\TT{else}', `\TT{and}' and `\TT{or} operators, and the
+6 builtin comparison operators (\TT{<}, \TT{==}, etc.), all
+defer their second operand.  Ususally operands are evaluated
+before the operator executes, but a deferred operand is not
+evaluated until inspection of other operand values determines
+that the deferred operand value will be needed.  Furthermore,
+if the other operand values are available at compile time,
+and inspecting them at compile time determines that the deferred
+operand value will not be needed, the deferred operand is not
+even compiled.  Such an uncompiled deferred operand might have
+compile errors were it compiled, but it will cause no compile
+errors if it is not compiled.
+
 For example, if in `\TT{$e1$~and~$e2$}' the subexpression $e1$
 evaluates to \TT{false}, the subexpression $e2$ is never evaluated.
-Furthermore, if $e1$ evaluates at compile-time to \TT{false},
-$e2$ is not even compiled, and any compile errors it contains
-are not detected.  Similarly if in `\TT{$e1$~if~$b$~else~$e2$}' the
+If $e1$ evaluates at compile-time to \TT{false},
+$e2$ is not compiled, and any compile errors it contains
+are not detected.  Similarly in `\TT{$e1$~if~$b$~else~$e2$}' if the
 conditioning expression $b$ evaluates to \TT{true}, $e2$ is
 never evaluated, and if $b$ evaluates to \TT{true} at compile
 time, $e2$ is never compiled.  However all subexpressions are parsed and
 parsing errors are detected.
+
+Deferred operands are just a particular case of deferred function arguments,
+as operators are translated by the parser into function calls.
+For example, the `\TT{and}' operator, which the parser translates
+into the {\tt "and"} function, is implemented by the function
+declaration:
+
+\begin{indpar}\begin{verbatim}
+function bool r =
+        ( bool arg1 ) "and" ( *DEFERRED* bool arg2 ):
+    if:
+        arg1:
+            r = do ( std call context ):
+                r = arg2
+        else:
+            r = false
+\end{verbatim}\end{indpar}
+
+The assignment statement `{\tt bool v = $e1$ and $e1$}' is
+translated by the parser into `{\tt bool v = $e1$ "and" $e2$}' which
+given the above function declaration compiles to:
+\begin{indpar}
+\begin{tabular}{l}
+\tt std context tmp0 = std current context \\
+\tt // tmp0 is call(er) context \\
+\tt // and-context is context of "and" function declaration \\
+\tt // \\
+\tt // Evaluate $e1$ - right operand of "and"\\
+\tt bool tmp1 = $e1$ \\
+\tt // \\
+\tt // Evaluate ($e1$ "and" $e2$) \\
+\tt bool v = do ( and-context ): \\
+\tt ~~if: \\
+\tt ~~~~tmp1: \\
+\tt ~~~~~~v = do ( tmp0 ): \\
+\tt ~~~~~~~~v = $e1$ \\
+\tt ~~~~else: \\
+\tt ~~~~~~v = false \\
+\end{tabular}
+\end{indpar}
+
+There are context issues here.  For details on contexts,
+see \itemref{SCOPE},
+\itemref{CONTEXTS}, and the context option of the
+{\em block-assignment-statement} in 
+\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 
 \subsubsection{If/Else Expressions}
 
@@ -5699,8 +5757,7 @@ it is parsed as a right associative operator, but evaluates its
 operands left to right.
 
 The following are equivalent to the builtin function definitions for
-the {\tt "if"} and {\tt "else" } functions (except for context issues
-as noted after the example below):
+the {\tt "if"} and {\tt "else" } functions:
 
 \begin{indpar}\begin{verbatim}
 define type std *IF-VALUE* as void
@@ -5841,10 +5898,8 @@ Note that the second arguments to both {\tt "if"} and {\tt "else"}
 are {\tt *DEFERRED*}, which means that they are not computed before
 the functions are called, but instead the expressions computing them
 are inserted in the code expanded from the functions (which are
-inline).  There are context issues here: see \itemref{SCOPE},
-\itemref{CONTEXTS}, and the context option of the
-{\em block-assignment-statement} in 
-\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+inline).  See the discussion at the end of the Evaluation Order section
+\itemref{EVALUATION-ORDER}.
 
 \subsubsection{Logical Expressions}
 
@@ -5895,10 +5950,9 @@ function bool r =
 
 Here the second arguments are {\tt *DEFERRED*} and if needed are
 evaluated in the context of the caller of the {\tt "and"} or
-{\tt "or"} functions.  For more on contexts see
-\itemref{SCOPE}, \itemref{CONTEXTS}, and the context option of the
-{\em block-assignment-statement} in 
-\itemref{BLOCK-ASSIGNMENT-STATEMENTS}.
+{\tt "or"} functions.
+See the discussion at the end of the Evaluation Order section
+\itemref{EVALUATION-ORDER}.
 
 \subsubsection{Comparison Expressions}
 \label{COMPARISON-EXPRESSIONS}

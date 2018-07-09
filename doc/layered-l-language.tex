@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 6, 2018
+July 9, 2018
  
 \end{center}
 
@@ -2305,6 +2305,32 @@ define *UNCHECKED* T6 as type name of int32
 T6 x = 1              // Same as `*UNCHECKED* int32 x = 1'
 \end{verbatim}\end{indpar}
 
+There is one builtin defined type:
+\begin{indpar} \tt
+define type \ttkey{std bool} as unswrd \\
+define abbreviation \ttkey{bool} \ABV{} `std bool' \\
+function std bool r = \ttkey{std false}: \\
+\TS~~~~*UNCHECKED* r2 = std bool ( 0 ) \\
+\TS~~~~r = r2 \\
+function std bool r = \ttkey{std true}: \\
+\TS~~~~*UNCHECKED* r2 = std bool ( 1 ) \\
+\TS~~~~r = r2 \\
+function std intwrd r = \ttkey{std int} ( bool v ): \\
+\TS~~~~r = 1 if v else 0
+\end{indpar}
+
+In statements that test \TT{bool} values to determine control
+flow, \TT{false} (derived by converting the integer zero)
+denotes false, and any \TT{bool} value derived by converting
+a non-zero integer denotes true.
+
+Implied conversions from any type of value to a \TT{bool} may
+be defined as a shorthand for testing the validity of the value.
+Because of this, it is important that \TT{bool} values \underline{not} be
+acceptable as operands of builtin operators, e.g., comparison
+operators.  This in turn makes it impossible to define \TT{bool}
+as an enumeration type as per Section~\itemref{ENUMERATION-TYPES}.
+
 \subsection{Enumeration Types}
 \label{ENUMERATION-TYPES}
 
@@ -2680,13 +2706,9 @@ The following are builtin enumeration types:
 define types: \\
 \TS~~~~\ttkey{std type}~as unswrd with enum [0~..] \\
 \TS~~~~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
-\TS~~~~\ttkey{std bool}\begin{tabular}[t]{@{}l@{}}
-                            ~as unswrd with enum [0~..~1] \\
-		            \end{tabular} \\
 define abbreviations: \\
 \TS~~~~\ttkey{type} \ABV{} `std type' \\
 \TS~~~~\ttkey{qualifier} \ABV{} `std qualifier' \\
-\TS~~~~\ttkey{bool} \ABV{} `std bool'
 \\[1ex]
 type \ttkey{std missing type}~= next enum // 0 \\
 function std type r = \ttmkey{std missing}{type}: \\
@@ -2695,12 +2717,6 @@ function std type r = \ttmkey{std missing}{type}: \\
 qualifier~\ttkey{std missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttmkey{std missing}{qualifier}: \\
 \TS~~~~r = std missing qualifier
-\\[1ex]
-bool~\ttkey{std false}~= next enum // 0 \\
-bool~\ttkey{std true}~~= next enum // 1 \\
-define abbreviations: \\
-\TS~~~~\ttkey{false} \ABV{} `std false' \\
-\TS~~~~\ttkey{true} \ABV{} `std true'
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',

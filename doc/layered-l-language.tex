@@ -2324,7 +2324,8 @@ flow, \TT{false} (derived by converting the integer zero)
 denotes false, and any \TT{bool} value derived by converting
 a non-zero integer denotes true.
 
-Implied conversions from any type of value to a \TT{bool} may
+Implied conversions from any type of value to a \TT{bool}%
+\label{IMPLIED-BOOL-CONVERSION} may
 be defined as a shorthand for testing the validity of the value.
 Because of this, it is important that \TT{bool} values \underline{not} be
 acceptable as operands of builtin operators, e.g., comparison
@@ -6179,6 +6180,13 @@ and the rule will apply to reject $T2$.  Note that we do not need
 an `{\tt implied conversion}' function for a left {\tt *COMPARE-VALUE*}
 operand, as it suffices for the $T1$ `{\tt right op}' member to be
 implicitly convertable to the $T2$ `{\tt right op}' member.
+
+Importantly comparison operators, such as \TT{==}, are
+\underline{not} defined for \TT{bool} operands.  Since many
+types are implicitly convertable to \TT{bool}
+(see \pagref{IMPLIED-BOOL-CONVERSION}), defining comparison
+operators for \TT{bool} values would badly compromise compile time
+detection of programming errors.
 
 \subsubsection{Integer Arithmetic Expressions}
 

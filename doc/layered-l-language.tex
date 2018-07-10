@@ -6092,7 +6092,11 @@ bool z2 = x < y1 and y1 < y2
 
 If one comparison in a sequence of comparisons evaluates
 to \TT{false}, operands following those of the comparison
-are not evaluated.  This is implemented by defining comparison
+are not evaluated.  If one comparison in a sequence of comparisons
+evaluates to \TT{false} at compile time,
+the operands following those of the comparison are not compiled.
+
+This is implemented by defining comparison
 function as follows:
 
 \begin{indpar}\begin{verbatim}
@@ -6218,8 +6222,8 @@ the types of both operands of the rightmost compare operator
 in the $T1$ case will be
 implicitly convertable to the types of the operands in the $T2$ case
 and the rule will apply to reject $T2$.  Note that we do not need
-an `{\tt implied conversion}' function for a left {\tt *COMPARE-VALUE*}
-operand, as it suffices for the $T1$ `{\tt right op}' member to be
+an `{\tt implied conversion}' function for {\tt *COMPARE-VALUE*}
+values, as it suffices for the $T1$ `{\tt right op}' member to be
 implicitly convertable to the $T2$ `{\tt right op}' member.
 
 Importantly comparison operators, such as \TT{==}, are

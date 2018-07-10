@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 9, 2018
+July 10, 2018
  
 \end{center}
 
@@ -2307,7 +2307,7 @@ T6 x = 1              // Same as `*UNCHECKED* int32 x = 1'
 
 There is one builtin defined type:
 \begin{indpar} \tt
-define type \ttkey{std bool} as unswrd \\
+define type \ttkey{std bool}\label{BOOL} as unswrd \\
 define abbreviation \ttkey{bool} \ABV{} `std bool' \\
 function std bool r = \ttkey{std false}: \\
 \TS~~~~*UNCHECKED* r2 = std bool ( 0 ) \\
@@ -6157,21 +6157,28 @@ and the compiler expands this to the following code:
 
 \end{indpar}
 
-If $T$ $\equiv$ \TT{bool}, the second {\tt "<"} has a
-choice between the two function prototypes:
-\begin{center}
-{\tt function ... r = ( bool arg1 ) "<" ( bool arg2 )} \\
-{\tt function ... r = \begin{tabular}[t]{l}
-                      ( *COMPARE-VALUE* arg1 ) \\
-		      "<" \\
-		      ( *DEFERRED* bool arg2 ) \\
-		      \end{tabular} }
-\end{center}
-The first choice requires that an implied conversion be applied to
-the value of `{\tt ($e1$ "<" $e2$)}', and by rule
-\ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED} on
-\pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
-the prototype that does not require implied conversion is preferred.
+Typing of comparison expressions, as described above, is a
+consequence of the rules for matching function calls to
+prototypes, and specifically of the rule that more restrictive
+argument types are preferred to less restrictive ones
+(rule \ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED} on
+\pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}).
+A function like {\tt "<"} is only defined for
+some second operand types.  Given the type $T$ of the second operand
+of the rightmost compare operator in a sequence of several compare operators,
+the type of the first operand is a {\tt *COMPARE-VALUE*}
+whose {\tt right op} member has type $T$.  Then the target types
+of the remaining operands in the compare operator sequence are determined.
+So if we have two candidates
+for $T$, $T1$ and $T2$, we only need to choose the correct one.
+By the rule cited, if $T1$ is implicitly convertable to $T2$, then
+the types of both operands of the rightmost compare operator
+in the $T1$ case will be
+implicitly convertable to the types of the operands in the $T2$ case
+and the rule will apply to reject $T2$.  Note that we do not need
+an `{\tt implied conversion}' function for a left {\tt *COMPARE-VALUE*}
+operand, as it suffices for the $T1$ `{\tt right op}' member to be
+implicitly convertable to the $T2$ `{\tt right op}' member.
 
 \subsubsection{Integer Arithmetic Expressions}
 

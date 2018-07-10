@@ -4460,12 +4460,12 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \IX{or}		& < & x< & x & > & > & > & > & > & > & > & > \\
 \RX{not}	& < & x< & < & < & > & > & > & > & > & > & > \\
 \hline
-\IX{<}		& < & x< & < & < & x & > & > & > & > & > & > \\
-\IX{<=}		& < & x< & < & < & x & > & > & > & > & > & > \\
-\IX{==}		& < & x< & < & < & x & > & > & > & > & > & > \\
-\IX{!=}		& < & x< & < & < & x & > & > & > & > & > & > \\
-\IX{>=}		& < & x< & < & < & x & > & > & > & > & > & > \\
-\IX{>}		& < & x< & < & < & x & > & > & > & > & > & > \\
+\IX{<}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{<=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{==}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{!=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{>=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{>}		& < & x< & < & < & x & < & < & < & < & < & < \\
 \hline
 \IX{+}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \IX{-}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
@@ -5037,8 +5037,8 @@ include "value" expression in "else" right operand
 include "value" expression in "if" left operand
 include "value" expression in expression
 
-define right associative "logical" operator "and"
-define right associative "logical" operator "or"
+define left associative "logical" operator "and"
+define left associative "logical" operator "or"
 include "logical" expression in "if" right operand
 include "logical" expression in "value" expression
 
@@ -5046,7 +5046,7 @@ define prefix "not" operator "not"
 include "not" expression in "logical" operand
 include "not" expression in "logical" expression
 
-define right associative "compare" operators
+define left associative "compare" operators
        "<", "<=", "==", "!=", ">=", ">"
 include "compare" expression in "logical" operand
 include "compare" expression in "not" operand
@@ -5100,12 +5100,10 @@ include "sign" expression in "shift" right operand
 
 \end{verbatim}\end{indpar}
 
-Note that the {\tt "else"}, {\tt "and"}, {\tt "or"} operators
-and the comparison operators are right associative and not
-left associative.  This is because the defer evaluation of
-their right operands.  Right associativity coupled with
-deferred evaluation of right operands produces left to
-right evaluation order.  See the example on \pagref{IF-ELSE-EXAMPLE}.
+Note that the {\tt "else"} operator is right associative and not
+left associative.  However, because it defers evaluation of its
+right operand, it evaluates its subexpressions in left to
+right order.  See the example on \pagref{IF-ELSE-EXAMPLE}.
 
 The user may add {\em parser-instructions} to those that
 are builtin using {\em parser-blocks} (\itemref{PARSER-BLOCKS}).
@@ -5760,33 +5758,61 @@ see \itemref{SCOPE},
 
 \subsubsection{If/Else Expressions}
 
+The expression
+\begin{center}
+\tt $e1$ if $b1$ else $e2$ if $b2$ \ldots{} else $e$
+\end{center}
+is evaluated as follows.
+$b1$ is evaluated first.  If it is \TT{true}, $e1$ is evaluated and its
+value is returned.  If it is \TT{false}, $e1$ is \underline{not}
+evaluated, and instead $b2$ is evaluated.  If that is \TT{true}
+$e2$ is evaluated and its value is returned.  But if $b2$ is \TT{false}
+evaluation of the expression continues.  If none of
+the $bI$ evaluate to \TT{true}, $e$ is evaluated and returned as the result.
+
+The target type of each $bI$ is \TT{bool} and the target type of each
+$eI$ is the target type of the whole expression.
+Only one of the $eI$ is evaluated.
+
+If any $bI$ is a compile time
+\TT{false} value, the associated $eI$ is not compiled or checked
+for compile errors.
+If any $bI$ is a compile time
+\TT{true} value, the subsequent $bJ$'s and their associated $eJ$'s,
+and also $e$,
+are not compiled or checked
+for compile errors.
+
+In the rest of this section we consider the details of
+how all the above happens.
+
 A statement such as
 \begin{center}
-\tt $T$ $v$ = $e1$ if $e2$ else $e3$ if $e4$ else $e5$
+\tt $T$ $v$ = $e1$ if $b1$ else $e2$ if $b2$ else $e3$
 \end{center}
 is parsed to become
 \begin{center}
-\tt $T$ $v$ = ($e1$ "if" $e2$) "else" ( ($e3$ "if" $e4$) "else" $e5$ )
+\tt $T$ $v$ = ($e1$ "if" $b1$) "else" ( ($e2$ "if" $b2$) "else" $e3$ )
 \end{center}
 
-Because {\tt "else"} defers the evaluation of its right operand,
-it is parsed as a right associative operator, but evaluates its
-operands left to right.
+Here {\tt "else"} is parsed as a right associative operator,
+but because it defers the evaluation of its right operand,
+it evaluates its operands left to right.
 
-The following are equivalent to the builtin function definitions for
+The following are the builtin function definitions for
 the {\tt "if"} and {\tt "else" } functions:
 
 \begin{indpar}\begin{verbatim}
 define type std *IF-VALUE* as void
-    // The expression `e1 "if" e2' has as its value an
+    // The expression `e "if" b' has as its value an
     // *IF-VALUE* r that is a root of a cluster with members:
     //
-    //    bool r.valid  Value of e2.
-    //    T r.value     Value of e1 if r.valid true.
+    //    bool r.valid  Value of b.
+    //    T r.value     Value of e if r.valid true.
     //                  Default value of type T
     //                  if r.valid false.
     //
-    // where T is the type of the e1 value and cannot itself
+    // where T is the type of the e value and cannot itself
     // equal *IF-VALUE*.
 
 function *IF-VALUE* r, T r.value, bool r.valid =
@@ -5821,13 +5847,13 @@ These functions use an {\tt *IF-VALUE*} cluster (see
 whether the {\em logical-expression} input to the {\tt "if"}
 function was \TT{true} or \TT{false} and also record
 the value of the other expression input to the {\tt "if"}
-function if the {\em logical-expression} was \TT{true}.
-The functions also use the {\em if-assignment} statement
+function when the {\em logical-expression} was \TT{true}.
+These functions use the {\em if-assignment} statement
 descripted in \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS}.
 
 Given these definitions the compiler expands the example
 \begin{center}\label{IF-ELSE-EXAMPLE}
-\tt $T$ $v$ = ($e1$ "if" $e2$) "else" ( ($e3$ "if" $e4$) "else" $e5$ )
+\tt $T$ $v$ = ($e1$ "if" $b1$) "else" ( ($e2$ "if" $b2$) "else" $e3$ )
 \end{center}
 
 to the following code:
@@ -5839,10 +5865,10 @@ to the following code:
 \tt // if-context is context of "if" function declaration \\
 \tt // else-context is context of "else" function declaration \\
 \tt // \\
-\tt // Evaluate $e2$ - right operand of first "if"\\
-\tt bool tmp1 = $e2$ \\
+\tt // Evaluate $b1$ - right operand of first "if"\\
+\tt bool tmp1 = $b1$ \\
 \tt // \\
-\tt // Evaluate ($e1$ "if" $e2$) - left operand of first "else" \\
+\tt // Evaluate ($e1$ "if" $b1$) - left operand of first "else" \\
 \tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid = \\
 \tt ~~~~do ( if-context ): \\
 \tt ~~if: \\
@@ -5866,13 +5892,13 @@ to the following code:
 \end{tabular}
 
 \begin{tabular}{l}
-\tt ~~~~~~~~// Evaluate (($e3$ "if" $e4$) "else" $e5$") \\
+\tt ~~~~~~~~// Evaluate (($e2$ "if" $b2$) "else" $e3$") \\
 \tt ~~~~~~~~// - deferred right operand of first "else" \\
-\tt ~~~~~~~~// Evaluate $e4$ \\
+\tt ~~~~~~~~// Evaluate $b2$ \\
 \tt ~~~~~~~~// - right operand of second "if" \\
 \tt ~~~~~~~~bool tmp3 = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~tmp3 = $e4$ \\
-\tt ~~~~~~~~// Evaluate ($e3$ "if" $e4$) \\
+\tt ~~~~~~~~~~~~tmp3 = $b2$ \\
+\tt ~~~~~~~~// Evaluate ($e2$ "if" $b2$) \\
 \tt ~~~~~~~~// - left operand of second "else" \\
 \tt ~~~~~~~~*IF-VALUE* tmp4, $T$ tmp4.value, \\
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~bool tmp4.valid = \\
@@ -5880,7 +5906,7 @@ to the following code:
 \tt ~~~~~~~~~~~~if: \\
 \tt ~~~~~~~~~~~~~~tmp3: \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~~~tmp4.value = $e3$ \\
+\tt ~~~~~~~~~~~~~~~~~~tmp4.value = $e2$ \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = true \\
 \tt ~~~~~~~~~~~~~~else: \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = default value \\
@@ -5895,7 +5921,7 @@ to the following code:
 \tt ~~~~~~~~~~~~~~r = tmp4.value \\
 \tt ~~~~~~~~~~~~else: \\
 \tt ~~~~~~~~~~~~~~r = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~r = $e5$ \\
+\tt ~~~~~~~~~~~~~~~~r = $e3$ \\
 \end{tabular}
 
 \end{indpar}
@@ -5911,7 +5937,7 @@ is the second {\tt "else"} subxpression, and as it has
 target type $T$, the arguments of the second {\tt "else"}
 have the same types as the arguments of the first {\tt "else"}.
 
-Note that the second arguments to both {\tt "if"} and {\tt "else"}
+The second arguments to both {\tt "if"} and {\tt "else"}
 are {\tt *DEFERRED*}, which means that they are not computed before
 the functions are called, but instead the expressions computing them
 are inserted in the code expanded from the functions (which are

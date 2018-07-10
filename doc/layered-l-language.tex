@@ -5944,7 +5944,7 @@ are inserted in the code expanded from the functions (which are
 inline).  See the discussion at the end of the Evaluation Order section
 \itemref{EVALUATION-ORDER}.
 
-\subsubsection{Logical Expressions}
+\subsubsection{Logical (And/Or/Not) Expressions}
 
 In logical expressions the `\TT{not}' operator is moved inside
 `\TT{and}' and `\TT{or}' operators before further evaluation.
@@ -5963,12 +5963,26 @@ compiler: & $\Longrightarrow$ 	& \tt ( ( not x ) or y ) or ( not z ) \\
 \end{tabular}
 \end{center}
 
-The target type for logical expressions is always \TT{bool}.
+The target type for logical expressions and their operands
+is always \TT{bool}.
 
-Logical expressions are evaluated from left to right and
-if the value of the entire expression is discovered before all
-the subexpressions are evaluated, evaluation of later subexpressions is
-skipped.  This is implemented by defining
+The expression\\
+\centerline{\tt $b1$ and $b2$ and $b3$ and \ldots{}}\\[1ex]
+is evaluated from left to right and if any $bI$ evaluates to \TT{false},
+evaluation of later $bI$ is skipped.
+If any $bI$ is a
+compile time \TT{false} value, the remaining $bI$ are not compiled
+or checked for compile errors.
+
+Similarly the expression\\
+\centerline{\tt $b1$ or $b2$ or $b3$ or \ldots{}}\\[1ex]
+is evaluated from left to right and if any $bI$ evaluates to \TT{true},
+evaluation of later $bI$ is skipped.
+If any $bI$ is a
+compile time \TT{true} value, the remaining $bI$ are not compiled
+or checked for compile errors.
+
+This is implemented by defining
 the {\tt "and"} and {\tt "or" } functions as follows:
 
 \begin{indpar}\begin{verbatim}
@@ -5991,13 +6005,14 @@ function bool r =
                 r = arg2
 \end{verbatim}\end{indpar}
 
-Here the second arguments are {\tt *DEFERRED*} and if needed are
+Here the right operands are {\tt *DEFERRED*} and if needed are
 evaluated in the context of the caller of the {\tt "and"} or
 {\tt "or"} functions.
 See the discussion at the end of the Evaluation Order section
 \itemref{EVALUATION-ORDER}.
 
-\subsubsection{Comparison Expressions}
+
+\subsubsection{Comparison (</<=/==/!=/=>/>) Expressions}
 \label{COMPARISON-EXPRESSIONS}
 
 The target type for comparison expressions is always \TT{bool}.

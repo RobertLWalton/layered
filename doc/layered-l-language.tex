@@ -6096,8 +6096,7 @@ are not evaluated.  If one comparison in a sequence of comparisons
 evaluates to \TT{false} at compile time,
 the operands following those of the comparison are not compiled.
 
-This is implemented by defining comparison
-function as follows:
+This is implemented by the following code:
 
 \begin{indpar}\begin{verbatim}
 define type std *COMPARE-VALUE* as void
@@ -6124,7 +6123,7 @@ function Qs bool r = implied conversion
 function *COMPARE-VALUE* r, T r.right op, bool r.value =
         ( T arg1 ) "<" ( T arg2 ):
     r.right op = arg2
-    r.value = arg1.right op less than r.right op
+    r.value = arg1.right op "<" r.right op
 
 function *COMPARE-VALUE* r, T r.right op, bool r.value =
         ( *COMPARE-VALUE* arg1, T arg1.right op,
@@ -6139,8 +6138,8 @@ function *COMPARE-VALUE* r, T r.right op, bool r.value =
             r.right op = default value
             r.value = false
 
-function bool r = ( T arg1 ) less than ( T arg2 )
-    // function definition is builtin and omitted here
+function bool r = ( T arg1 ) "<" ( T arg2 ):
+    r = [[[code to implement compare of arg1 and arg2]]]
 \end{verbatim}\end{indpar}
 
 Compare operations are left associative.
@@ -6232,6 +6231,47 @@ types are implicitly convertable to \TT{bool}
 (see \pagref{IMPLIED-BOOL-CONVERSION}), defining comparison
 operators for \TT{bool} values would badly compromise compile time
 detection of programming errors.
+
+In order to implement a comparison operator $cop$ with optional
+module abbreviation $ma$ for a new
+type $T$, one defines a function with the prototype:
+\begin{center}
+\tt function bool r = $ma$\QMARK{} ( $T$ arg1 ) "$cop$ ( $T$ arg2 )
+\end{center}
+and then you add the line
+\begin{center}
+\tt define compare operator [$ma$]\QMARK{} ( $T$, "$cop$" )
+\end{center}
+This last line invokes the builtin generic:
+
+\label{DEFINE-COMPARE-OPERATOR}%
+\begin{indpar}\begin{verbatim}
+generic std define compare operator
+                [ module M ?= NOMOD ] ( type T, name OP ):
+
+    include ( M, T, OP ):
+
+        function M *COMPARE-VALUE* r, T r.right op,
+                                      bool r.value =
+                ( T arg1 ) OP ( T arg2 ):
+            r.right op = arg2
+            r.value = M ( arg1.right op OP r.right op )
+
+        function M *COMPARE-VALUE* r, T r.right op,
+                                      bool r.value =
+                ( *COMPARE-VALUE* arg1, T arg1.right op,
+                                        bool arg1.value )
+                OP ( *DEFERRED* T arg2 ):
+            if:
+                arg1.value:
+                    r.right op = do ( std call context ):
+                        r.right op = arg2
+                    r.value =
+                        M ( arg1.right op OP r.right op )
+                else:
+                    r.right op = default value
+                    r.value = false
+\end{verbatim}\end{indpar}
 
 \subsubsection{Integer Arithmetic Expressions}
 
@@ -6358,314 +6398,48 @@ The operator
 \TT{\textasciicircum} is \underline{not} builtin and must be
 defined by library code.
 
-\subsection{Operator Semantics}
+\subsubsection{User Defined Standard Operators}
+\label{USER-DEFINED-STANDARD-OPERATORS}
 
-The following evaluation rules are applied in the order given.
-
-For example, `{\tt not ( x > y and z )}' is evaluated by applying
-the rule that rewrites it to `{\tt not x > y or not z}' instead of
-the rules that evaluated `{\tt x > y and z}' first and then complement
-the result.
-
-Parentheses are inserted by the parser to separate operators of
-differing precedence before these rules are applied.
-
-Comparison operators, and the
-arithmetic operators, summation, product, and bitwise, 
-may be overloaded by functions that apply them to non-numeric
-types other than \TT{bool}.
-If $T$ is such a type, these functions must have prototypes
-of the forms
+The standard operators for comparison and arithmetic can be overloaded
+for a non-builtin type $T$ with an optional module abbreviation
+$ma$ by defining functions with the following prototypes:
 \begin{indpar}
-{\tt function bool r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
+{\tt function bool r = $ma$\QMARK{} ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
-where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
+where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}.
+In addition include the line
+\begin{center}
+\tt define compare operator [$ma$]\QMARK{} ( $T$, "$cop$" )
+\end{center}
+as described on \pagref{DEFINE-COMPARE-OPERATOR}.
 \end{indpar}
 
-{\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( unswrd $v2$ )}
+{\tt function $T$ r = $ma$\QMARK{} ( $T$ $v1$ ) "$op$" ( unswrd $v2$ )}
 \begin{indpar}
 where $op$ is one of \TT{<{}<} or \TT{>{}>}
 \end{indpar}
 
-{\tt function $T$ r = "$op$" ( $T$ $v1$ )}
+{\tt function $T$ r = $ma$\QMARK{} "$op$" ( $T$ $v1$ )}
 \begin{indpar}
-where $op$ is one of \TT{-} or \TT{!}
+where $op$ is one of \TT{-}, \TT{+}, or \TT{!}
 \end{indpar}
 
-{\tt function $T$ r = ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
+{\tt function $T$ r = $ma$\QMARK{} ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
 where $op$ is one of
     \TT{+}, \TT{-},
-    \TT{*}, \TT{/}, \TT{div}, \TT{mod}, \TT{rem}, \TT{\textasciicircum}
-\end{indpar}
-
-{\tt function $T$ r = "!"\QMARK{} ( $T$ $v1$ ) "$op$" "!"\QMARK{} ( $T$ $v2$ )}
-\begin{indpar}
-where $op$ is one of
+    \TT{*}, \TT{/}, \TT{div}, \TT{mod}, \TT{rem}, \TT{\textasciicircum},
     \TT{\&}, \TT{|}, \TT{xor}
 \end{indpar}
 
 \end{indpar}
 
 
-The selection operator (\TT{if/else}) and the logical
-operators (\TT{not}, \TT{and}, \TT{or}) may \underline{not}
-be overloaded.
+The operators {\tt "if"}, {\tt "else"}, {\tt "and"},
+{\tt "or"} and {\tt "not"} should not be overloaded.
 
-The expressions in the following are those output by the parser.
-However to avoid clutter, parentheses are omitted surrounding
-subexpressions $e$, $eI$, $b$, and $bI$, and quotes (\TT{"}) are omitted
-surrounding operators.
-
-\medskip
-
-\TT{$e1$ if $b1$ else $e2$ if $b2$ \ldots{} else $e$}
-\hfill [{\em selection-expression}]
-\begin{indpar}
-$b1$ is evaluated first.  If it is \TT{true}, $e1$ is evaluated and its
-value is returned.  If it is \TT{false}, $e1$ is \underline{not}
-evaluated, and instead $b2$ is evaluated.  If that is \TT{true}
-$e2$ is evaluated and its value is returned.  But if $b2$ is \TT{false}
-evaluation of the {\em selection-expression} continues.  If none of
-the $bI$ evaluate to \TT{true}, $e$ is evaluated and returned as the result.
-
-The target type of each $bI$ is \TT{bool} and the target type of each
-$eI$ is the target type of the {\em selection-expression}.
-Only one of the $eI$ is evaluated.
-
-If any $bI$ is a compile time
-\TT{false} value, the associated $eI$ is not compiled or checked
-for compile errors.
-If any $bI$ is a compile time
-\TT{true} value, the subsequent $bJ$'s and their associated $eJ$'s,
-and also $e$,
-are not compiled or checked
-for compile errors.
-\end{indpar}
-
-\TT{not ( $b1$ and $b2$ and \ldots{} )}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-The expression is replaced by
-\TT{( ( not $b1$ ) or ( not $b2$ ) or \ldots{} )}.
-\end{indpar}
-
-\TT{not ( $b1$ or $b2$ or \ldots{} )}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-The expression is replaced by
-\TT{( ( not $b1$ ) and ( not $b2$ ) and \ldots{} )}.
-\end{indpar}
-
-\TT{not ( not $b1$ )}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-The expression is replaced by $b1$.
-\end{indpar}
-
-\TT{$b1$ and $b2$ and \ldots{}}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-The $bI$ are evaluated left to right until one evaluates to
-\TT{false} or none do.  If one evaluates to \TT{false},
-\TT{false} is returned as the value of the {\em logical-expression}
-and the remaining $bI$ are not evaluated.
-Otherwise \TT{true} is returned.
-
-The target type of all the $bI$ is \TT{bool}.  If any $bI$ is a
-compile time \TT{false} value, the remaining $bI$ are not compiled
-or checked for compile errors.
-\end{indpar}
-
-\TT{$b1$ or $b2$ or \ldots{}}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-The $bI$ are evaluated left to right until one evaluates to
-\TT{true} or none do.  If one evaluates to \TT{true},
-\TT{true} is returned as the value of the {\em logical-expression}
-and the remaining $bI$ are not evaluated.
-Otherwise \TT{false} is returned.
-
-The target type of all the $bI$ is \TT{bool}.  If any $bI$ is a
-compile time \TT{true} value, the remaining $bI$ are not compiled
-or checked for compile errors.
-\end{indpar}
-
-\TT{not ( $e1$ $cop1$ $e2$ $cop2$ $e3$ \ldots{} )}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-where the $copI$ are comparison operators chosen from the list
-\TT{==}, \TT{!=}, \TT{>}. \TT{>=}, \TT{<}, or \TT{<=}.
-
-First $e1$ and $e2$ are evaluated.  Then the function
-call `{\tt $e1$ "$cop1$" $e2$}'
-is evaluated, and if it is \TT{false},
-\TT{true} is returned as the value of the {\em logical-expression}.
-Otherwise $e3$ and the function call `{\tt $e2$ "$cop2$" $e3$}'
-are evaluated, and if the latter
-evaluated to \TT{false},
-\TT{true} is returned as the value of the {\em logical-expression}.
-This continues until a comparison evaluates to \TT{false} or all
-evaluate to \TT{true}.  In the latter case, \TT{false} is returned as
-the value of the {\em logical-expression}.
-
-No $eI$ is evaluated more than once, though the value of some $eI$
-may be used more than once.
-
-The target type of the expressions $eI$ is selected as
-per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
-function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
-Builtin comparison operators are defined for all implemented
-numeric types.
-
-If $eI$, $e(I+1)$, and `{\tt $eI$ "$copI$" $e(I+1)$}' can be evaluated
-at compile time and evaluate to \TT{false}, subsequent
-$eJ$ are not compiled or checked for compile errors.
-\end{indpar}
-
-\TT{not $b$}
-\hfill [{\em logical-expression}]
-\begin{indpar}
-$b$ is evaluated.  If it returns \TT{true}, \TT{false} is
-returned as the value of the {\em logical-expression}.
-Otherwise \TT{true} is returned.
-
-The target type of the $b$ is \TT{bool}.
-\end{indpar}
-
-\TT{$e1$ $cop1$ $e2$ $cop2$ $e3$ \ldots{}}
-\hfill [{\em comparison-expression}]
-\begin{indpar}
-where the $copI$ are comparison operators chosen from the list
-\TT{==}, \TT{!=}, \TT{>}. \TT{>=}, \TT{<}, or \TT{<=}.
-
-First $e1$ and $e2$ are evaluated.  Then the function call
-`{\tt $e1$ "$cop1$" $e2$}'
-is evaluated, and if it is \TT{false},
-\TT{false} is returned as the value of the {\em comparison-expression}.
-Otherwise $e3$ and the function call `{\tt $e2$ "$cop2$" $e3$}'
-are evaluated, and if the latter
-evaluated to \TT{false},
-\TT{false} is returned as the value of the {\em comparison-expression}.
-This continues until a comparison evaluates to \TT{false} or all
-evaluate to \TT{true}.  In the latter case, \TT{true} is returned as
-the value of the {\em comparison-expression}.
-
-No $eI$ is evaluated more than once, though the value of some $eI$
-may be used more than once.
-
-The target type of the expressions $eI$ is selected as
-per \itemref{COMPARISON-EXPRESSIONS}.  The target type of the
-function calls `{\tt $eI$ "$copI$" $e(I+1)$}' is \TT{bool}.
-Builtin comparison operators are defined for all implemented
-numeric types.
-
-If $eI$, $e(I+1)$, and `{\tt $eI$ "$copI$" $e(I+1)$}' can be evaluated
-at compile time and evaluate to \TT{false}, subsequent
-$eJ$ are not compiled or checked for compile errors.
-\end{indpar}
-
-\TT{! $e1$}
-\hfill [{\em bitop-expression}] \\
-\TT{$e1$ $bop$ $e2$ $bop$ $e3$ \ldots{}}
-\hfill [{\em bitop-expression}]
-\begin{indpar}
-where the $bop$ is a bitop operator chosen from the list
-\TT{\&}, \TT{|}, \TT{xor}
-
-The $eI$ are evaluated left to right.
-Each function call
-`{\tt "!" $e1$}' or
-`{\tt $eI$ "$bop$" $e(I+1)$}' is evaluated as soon as its operands have
-been evaluated, so the operators (other than \TT{!}) are
-also evaluated left to right.
-
-The target type of the $eI$ is the target type of the
-{\em bitop-expression}.  Builtin bitop operators are defined
-for all implemented integer numeric types.
-\end{indpar}
-
-\TT{$e1$ $shop1$ $e2$ $shop2$ $e3$ \ldots{}}
-\hfill [{\em bitop-expression}]
-\begin{indpar}
-where the $shopI$ are bitop operators chosen from the list
-\TT{<{}<}, \TT{>{}>}.
-
-Each function call
-`{\tt $eI$ "$shopI$" $e(I+1)$}' is evaluated as soon as its operands have
-been evaluated, so the operators are
-also evaluated left to right.
-
-The target type of $e1$ is the target type $T$ of the
-{\em bitop-expression}.
-The target type of $e2$, $e3$, \ldots{} is \TT{unswrd}.
-Builtin bitop operators are defined
-for all implemented integer numeric types $T$.
-If $T$ is an integer type of size $x$,
-the value of the shift for $shopI$
-is $e(I+1)$ is taken modulo $2^x$.
-\end{indpar}
-
-\TT{$sop1$\QMARK{} $e1$ $sop2$ $e2$ $sop3$ $e3$ \ldots{}}
-\hfill [{\em summation-expression}]
-\begin{indpar}
-where $sopI$ are summation operators chosen from the list
-\TT{+} or \TT{-}.
-
-The $eI$ are evaluated left to right.
-Each function call
-`{\tt "$sop1$" $e1$}' or
-`{\tt $eI$ "$sop(I+1)$" $e(I+1)$}' is evaluated as soon as its operands have
-been evaluated, so the operators are
-also evaluated left to right.
-
-The target type of the $eI$ is the target type of the
-{\em summation-expression}.
-Builtin summation operators are defined
-for all implemented numeric types $T$.
-\end{indpar}
-
-\TT{$e1$ * $e2$ * $e3$ \ldots{}}
-\hfill [{\em product-expression}] \\
-\TT{$e1$ $dop$ $e2$}
-\hfill [{\em product-expression}]
-\begin{indpar}
-where the $dop$ is a divide operator chosen from the list
-\TT{/}, \TT{div}, \TT{mod}, \TT{rem}.
-
-The $eI$ are evaluated left to right.
-Each function call
-`{\tt "$eI$ "*" $e)I+1)$}' or
-`{\tt $eI$ "$dop(I+1)$" $e(I+1)$}' is evaluated as soon as its operands have
-been evaluated, so the operators are
-also evaluated left to right.
-
-The target type of the $eI$ is the target type $T$ of the
-{\em product-expression}.
-Builtin \TT{*}, \TT{mod},
-\TT{div}, and \TT{rem} operators are defined
-for all implemented integer numeric types $T$ with size
-at least 32 bits.
-Builtin \TT{/} and \TT{mod} operators are defined
-for all implemented floating point numeric types $T$.
-
-\end{indpar}
-
-\TT{$e1$ \textasciicircum{} $e2$}
-\hfill [{\em exponential-expression}]
-\begin{indpar}
-The $eI$ are evaluated left to right.
-The the function call
-`{\tt $eI$ "\textasciicircum" $e(I+1)$}' is evaluated
-as soon as its operands have
-been evaluated.
-
-The target type $T$ of the $eI$ is the target type of the
-{\em exponential-expression}.  \underline{No} builtin
-\TT{"\textasciicircum"} operators are defined.
-
-
-\end{indpar}
+\subsection{Operator Semantics}
 
 \TT{$ma$ ( $e1$ $op1$ $e2$ $op2$ \ldots{} )}
 \hfill [{\em subexpression}]

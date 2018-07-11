@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 10, 2018
+July 11, 2018
  
 \end{center}
 
@@ -6398,6 +6398,74 @@ The operator
 \TT{\textasciicircum} is \underline{not} builtin and must be
 defined by library code.
 
+\subsubsection{Qualifier/Type Subexpressions}
+\label{QUALIFIER/TYPE-SUBEXPRESSIONS}
+
+An expression of the form
+\begin{center}
+\tt $Q1s$ $T1$ ( $e$ )
+\end{center}
+where $Q1s$ are zero or more {\em qualifier-names}
+and $T1$ is a {\em type-name},
+when compiled in a statement of the form 
+\begin{center}
+\tt $Q2s$ $T2$ v = $Q1s$ $T1$ ( $e$ )
+\end{center}
+is compiled as
+\begin{center}
+\begin{tabular}{l}
+\tt $Q1s$ $T1$ tmp = $e$ \\
+\tt $Q2s$ $T2$ v = tmp
+\end{tabular}
+\end{center}
+where {\tt tmp} is a temporary variable.
+
+Similarly an expression of the form
+\begin{center}
+\tt $Q1s$ ( $e$ )
+\end{center}
+where $Q1s$ are one or more {\em qualifier-names},
+when compiled in a statement of the form 
+\begin{center}
+\tt $Q2s$ $T2$ v = $Q1s$ ( $e$ )
+\end{center}
+is compiled as
+\begin{center}
+\begin{tabular}{l}
+\tt $Q1s$ $T2$ tmp = $e$ \\
+\tt $Q2s$ $T2$ v = tmp
+\end{tabular}
+\end{center}
+
+\subsubsection{Module Abbreviation Subexpressions}
+\label{MODULE-ABBREVIATION-SUBEXPRESSIONS}
+
+An expression of the form
+\begin{center}
+\tt $ma$ ( $e$ )
+\label{MODULE-ABBREVIATION-SEMANTICS}
+\end{center}
+where $ma$ is a {\em module-abbreviation} is modified
+by the parser (not the compiler).  The parser prefixes
+$ma$ to the unparenthesized operators in the the subexpression $e$.
+
+For example,
+\begin{center}
+\begin{tabular}{c}
+\tt $ma$ ( x + ( y1 + y2 ) + ( z1 * z2 ) ) \\
+becomes \\
+\tt $ma$ ( $ma$ x "+" ( y1 "+" y2 ) ) "+" ( z1 "*" z2 )
+\end{tabular}
+\end{center}
+and
+\begin{center}
+\begin{tabular}{c}
+\tt $ma$ ( x + ( y1 + y2 ) + z1 * z2 ) \\
+becomes \\
+\tt $ma$ ( $ma$ x "+" ( y1 "+" y2 ) ) "+" ( $ma$ z1 "*" z2 )
+\end{tabular}
+\end{center}
+
 \subsubsection{User Defined Standard Operators}
 \label{USER-DEFINED-STANDARD-OPERATORS}
 
@@ -6407,8 +6475,10 @@ $ma$ by defining functions with the following prototypes:
 \begin{indpar}
 {\tt function bool r = $ma$\QMARK{} ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
-where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}.
-In addition include the line
+where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
+
+In addition, to allow sequences of compare operators with operands
+of type $T$ you must include the line
 \begin{center}
 \tt define compare operator [$ma$]\QMARK{} ( $T$, "$cop$" )
 \end{center}
@@ -6438,51 +6508,6 @@ where $op$ is one of
 
 The operators {\tt "if"}, {\tt "else"}, {\tt "and"},
 {\tt "or"} and {\tt "not"} should not be overloaded.
-
-\subsection{Operator Semantics}
-
-\TT{$ma$ ( $e1$ $op1$ $e2$ $op2$ \ldots{} )}
-\hfill [{\em subexpression}]
-\label{MODULE-ABBREVIATION-SEMANTICS}
-\begin{indpar}
-where $ma$ is a {\em module-abbreviation}.
-
-$ma$ is prefixed to the unparenthesized
-operators whenever they are used according to the above
-rules.  This is done by the parser, and not the compiler.
-
-For example,
-\begin{center}
-\begin{tabular}{c}
-{\tt $ma$ ( x + ( y1 + y2 ) + ( z1 * z2 ) )} \\
-becomes \\
-{\tt $ma$ x + ( y1 + y2 ) ) + ( z1 * z2 )}
-\end{tabular}
-\end{center}
-
-Since the parser places parentheses implicitly, in `\TT{$ma$($e$)}'
-only the lowest precedence operators in $e$ are affected.
-Thus the pre-parser expression
-\begin{center}
-{\tt $ma$ ( x + ( y1 + y2 ) + z1 * z2 )} \\
-\end{center}
-is equivalent to the above example.
-
-\end{indpar}
-
-\TT{$Qs$ $T$ ( $e$ )}
-\hfill [{\em primary}]
-\begin{indpar}
-where $Qs$ are zero or more {\em qualifier-names} and $T$ is a {\em type-name}.
-
-If the {\em primary} can be compiled as a call to a
-user defined function named $T$, it is evaluated as such with
-target type `$Qs$ $T$'.
-
-Otherwise $e$ is evaluated with target type `$Qs$ $T$'
-and the result is implicitly
-converted to the target type of the {\em primary}.
-\end{indpar}
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}

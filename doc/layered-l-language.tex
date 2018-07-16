@@ -4599,7 +4599,7 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 \IX{<{}<}	& x & x & x & < & < & x & < \\
 \IX{>{}>}	& x & x & x & < & < & x & < \\
 \hline
-\RX{!}	& < & < & < & x & x & > & < \\
+\RX{!}	& < & < & < & < & < & > & < \\
 \hline
 
 \end{tabular}
@@ -4784,6 +4784,7 @@ The builtin operator precedence table encodes the following syntax equations:
     \begin{tabular}[t]{rl}
         & {\em else-expression} \\
     $|$ & {\em value-expression} \\
+    $|$ & {\em primary} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{value-expression} ::= \\
@@ -4792,7 +4793,9 @@ The builtin operator precedence table encodes the following syntax equations:
     $|$ & {\em summation-expression} \\
     $|$ & {\em product-expression} \\
     $|$ & {\em exponent-expression} \\
+    $|$ & {\em sign-expression} \\
     $|$ & {\em bitop-expression} \\
+    $|$ & {\em shift-expression} \\
     $|$ & {\em complement-expression} \\
     \end{tabular}
 \\[0.5ex]
@@ -4833,22 +4836,22 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{logical-expression}\label{LOGICAL-EXPRESSION}
     \begin{tabular}[t]{rl}
-    ::= & {\em \$and\$-expression} \\
-    $|$ & {\em \$or\$-expression} \\
+    ::= & {\em logical-and-expression} \\
+    $|$ & {\em logical-or-expression} \\
     $|$ & {\em not-expression} \\
     $|$ & {\em compare-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{\$and\$-expression}
+\emkey{logical-and-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em logical-operand} \ttkey{and} {\em logical-operand} \\
-    $|$ & {\em logical-operand} \ttkey{and} {\em \$and\$-expression} \\
+    $|$ & {\em logical-and-expression} \ttkey{and} {\em logical-operand} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{\$or\$-expression}
+\emkey{logical-or-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em logical-operand} \ttkey{or} {\em logical-operand} \\
-    $|$ & {\em logical-operand} \ttkey{or} {\em \$or\$-expression} \\
+    $|$ & {\em logical-or-expression} \ttkey{or} {\em logical-operand} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{logical-operand}
@@ -4873,8 +4876,8 @@ The builtin operator precedence table encodes the following syntax equations:
 \emkey{compare-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em compare-operand} {\em compare-operator} {\em compare-operand} \\
-    $|$ & {\em compare-operand} {\em compare-operator}
-                                   {\em compare-operator} \\
+    $|$ & {\em compare-expression} {\em compare-operator}
+                                   {\em compare-operand} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{compare-operator}::=
@@ -4888,6 +4891,7 @@ The builtin operator precedence table encodes the following syntax equations:
     $|$ & {\em exponent-expression} \\
     $|$ & {\em sign-expression} \\
     $|$ & {\em bitop-expression} \\
+    $|$ & {\em shift-expression} \\
     $|$ & {\em complement-expression} \\
     $|$ & {\em primary}
     \end{tabular}
@@ -4913,17 +4917,17 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{product-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em \$*\$-expression} \\
+    ::= & {\em product-*-expression} \\
     $|$ & {\em product-operand} \ttkey{/} {\em product-operand} \\
     $|$ & {\em product-operand} \ttkey{mod} {\em product-operand} \\
     $|$ & {\em product-operand} \ttkey{rem} {\em product-operand} \\
     $|$ & {\em product-operand} \ttkey{div} {\em product-operand} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{\$*\$-expression}
+\emkey{product-*-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em product-operand} \ttkey{\$*\$} {\em product-operand} \\
-    $|$ & {\em \$*\$-expression} \ttkey{\$*\$} {\em product-operand} \\
+    ::= & {\em product-operand} \ttkey{*} {\em product-operand} \\
+    $|$ & {\em product-*-expression} \ttkey{*} {\em product-operand} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{product-operand}
@@ -4960,20 +4964,20 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{bitop-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em \$\&\$-expression} \\
-    $|$ & {\em \$|\$-expression} \\
+    ::= & {\em bitop-\&-expression} \\
+    $|$ & {\em bitop-|-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{\$\&\$-expression}
+\emkey{bitop-\&-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-operand} \ttkey{\&} {\em bitop-operand} \\
-    $|$ & {\em \$\&\$-expression} \ttkey{\&} {\em bitop-operand} \\
+    $|$ & {\em bitop-\&-expression} \ttkey{\&} {\em bitop-operand} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{\$|\$-expression}
+\emkey{bitop-|-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em bitop-operand} \ttkey{|} {\em bitop-operand} \\
-    $|$ & {\em \$|\$-expression} \ttkey{|} {\em bitop-operand} \\
+    $|$ & {\em bitop-|-expression} \ttkey{|} {\em bitop-operand} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{bitop-operand}
@@ -5011,11 +5015,7 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{shift-right-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em summation-expression} \\
-    $|$ & {\em product-expression} \\
-    $|$ & {\em exponent-expression} \\
-    $|$ & {\em sign-expression} \\
-    $|$ & {\em primary}
+    ::= & {\em primary} \\
     \end{tabular}
 
 \end{indpar}
@@ -5095,10 +5095,6 @@ define asymetric left associative
 include "shift" expression in "compare" operand
 include "shift" expression in "value" expression
 include "complement" expression in "shift" left operand
-include "summation" expression in "shift" right operand
-include "product" expression in "shift" right operand
-include "exponent" expression in "shift" right operand
-include "sign" expression in "shift" right operand
 
 \end{verbatim}\end{indpar}
 

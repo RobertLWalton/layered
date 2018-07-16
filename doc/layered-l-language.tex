@@ -5180,39 +5180,47 @@ The {\em parser-define-instructions} act as follows:
 
 {\tt define \TT{prefix} "$E$" operator "$N$"}
 \begin{indpar}
-creates: {\em E-expression} \begin{tabular}[t]{rl}
+creates: \begin{tabular}[t]{l}
+         {\em E-N-expression} \begin{tabular}[t]{rl}
                             ::= & $N$ {\em E-operand} \\
-                            $|$ & $N$ {\em E-expression} \\
-                            \end{tabular}
+                            $|$ & $N$ {\em E-N-expression} \\
+                            \end{tabular} \\
+         {\em E-expression} ::= {\em E-N-expression} \\
+	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{prefix} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
-         {\em E-expression} \begin{tabular}[t]{rl}
-                            ::= & {\em E-operator} {\em E-operand} \\
-                            $|$ & {\em E-operator} {\em E-expression} \\
+         {\em E-N1-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-N1-operator} {\em E-operand} \\
+                            $|$ & {\em E-N1-operator} {\em E-N1-expression} \\
                             \end{tabular} \\
-         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+         {\em E-expression} ::= {\em E-N1-expression} \\
+         {\em E-N1-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{postfix} "$E$" operator "$N$"}
 \begin{indpar}
-creates: {\em E-expression} \begin{tabular}[t]{rl}
+creates: \begin{tabular}[t]{l}
+         {\em E-N-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-operand} $N$ \\
-                            $|$ & {\em E-expression} $N$ \\
-                            \end{tabular}
+                            $|$ & {\em E-N-expression} $N$ \\
+                            \end{tabular} \\
+         {\em E-expression} ::= {\em E-N-expression} \\
+	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{postfix} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
-         {\em E-expression} \begin{tabular}[t]{rl}
-                            ::= & {\em E-operand} {\em E-operator} \\
-                            $|$ & {\em E-expression} {\em E-operator} \\
+         {\em E-N1-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-N1-operator} \\
+                            $|$ & {\em E-N1-expression} {\em E-N1-operator} \\
                             \end{tabular} \\
-         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+         {\em E-expression} ::= {\em E-N1-expression} \\
+         {\em E-N1-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}
 \end{indpar}
 
@@ -5255,33 +5263,40 @@ creates: \begin{tabular}[t]{l}
 
 {\tt define \TT{left associative} "$E$" operator "$N$"}
 \begin{indpar}
-creates: {\em E-expression} \begin{tabular}[t]{rl}
+creates: \begin{tabular}[t]{l}
+         {\em E-N-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-operand} $N$ {\em E-operand} \\
-                            $|$ & {\em E-expression} $N$ {\em E-operand} \\
-                            \end{tabular}
+                            $|$ & {\em E-N-expression} $N$ {\em E-operand} \\
+                            \end{tabular} \\
+         {\em E-expression} ::= {\em E-N-expression} \\
+	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{left associative} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
-         {\em E-expression} \begin{tabular}[t]{rl}
-                            ::= & {\em E-operand} {\em E-operator}
+         {\em E-N1-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-N1-operator}
 			          {\em E-operand} \\
-                            $|$ & {\em E-expression} {\em E-operator}
+                            $|$ & {\em E-N1-expression} {\em E-N1-operator}
 			          {\em E-operand} \\
                             \end{tabular} \\
-         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+         {\em E-expression} ::= {\em E-N1-expression} \\
+         {\em E-N1-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{asymetric left associative} "$E$" operator "$N$"}
 \begin{indpar}
-creates: {\em E-expression} \begin{tabular}[t]{rl}
+creates: \begin{tabular}[t]{l}
+         {\em E-N-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-left-operand} $N$
 			          {\em E-right-operand} \\
-                            $|$ & {\em E-expression} $N$
+                            $|$ & {\em E-N-expression} $N$
 			          {\em E-right-operand} \\
-                            \end{tabular}
+                            \end{tabular} \\
+         {\em E-expression} ::= {\em E-N-expression} \\
+	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{asymetric left associative} \begin{tabular}[t]{l}
@@ -5290,45 +5305,53 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
 					     \end{tabular}}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
-         {\em E-expression} \begin{tabular}[t]{rl}
-                            ::= & {\em E-left-operand} {\em E-operator}
+         {\em E-N1-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} {\em E-N1-operator}
 			          {\em E-right-operand} \\
-                            $|$ & {\em E-expression} {\em E-operator}
+                            $|$ & {\em E-N1-expression} {\em E-N1-operator}
 			          {\em E-right-operand} \\
                             \end{tabular} \\
-         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+         {\em E-expression} ::= {\em E-N1-expression} \\
+         {\em E-N1-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{right associative} "$E$" operator "$N$"}
 \begin{indpar}
-creates: {\em E-expression} \begin{tabular}[t]{rl}
+creates: \begin{tabular}[t]{l}
+         {\em E-N-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-operand} $N$ {\em E-operand} \\
-                            $|$ & {\em E-operand} $N$ {\em E-expression} \\
-                            \end{tabular}
+                            $|$ & {\em E-operand} $N$ {\em E-N-expression} \\
+                            \end{tabular} \\
+         {\em E-expression} ::= {\em E-N-expression} \\
+	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{right associative} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
-         {\em E-expression} \begin{tabular}[t]{rl}
-                            ::= & {\em E-operand} {\em E-operator}
+         {\em E-N1-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-operand} {\em E-N1-operator}
 			          {\em E-operand} \\
-                            $|$ & {\em E-operand} {\em E-operator}
-			          {\em E-expression} \\
+                            $|$ & {\em E-operand} {\em E-N1-operator}
+			          {\em E-N1-expression} \\
                             \end{tabular} \\
-         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+         {\em E-expression} ::= {\em E-N1-expression} \\
+         {\em E-N1-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{asymetric right associative} "$E$" operator "$N$"}
 \begin{indpar}
-creates: {\em E-expression} \begin{tabular}[t]{rl}
+creates: \begin{tabular}[t]{l}
+         {\em E-N-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-left-operand} $N$
 			          {\em E-right-operand} \\
                             $|$ & {\em E-left-operand} $N$
-			          {\em E-expression} \\
-                            \end{tabular}
+			          {\em E-N-expression} \\
+                            \end{tabular} \\
+         {\em E-expression} ::= {\em E-N-expression} \\
+	 \end{tabular}
 \end{indpar}
 
 {\tt define \TT{asymetric right associative} \begin{tabular}[t]{l}
@@ -5337,13 +5360,14 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
 					     \end{tabular}}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
-         {\em E-expression} \begin{tabular}[t]{rl}
-                            ::= & {\em E-left-operand} {\em E-operator}
+         {\em E-N1-expression} \begin{tabular}[t]{rl}
+                            ::= & {\em E-left-operand} {\em E-N1-operator}
 			          {\em E-right-operand} \\
-                            $|$ & {\em E-left-operand} {\em E-operator}
-			          {\em E-expression} \\
+                            $|$ & {\em E-left-operand} {\em E-N1-operator}
+			          {\em E-N1-expression} \\
                             \end{tabular} \\
-         {\em E-operator} ::= $N1$ $|$ $N2$ \ldots \\
+         {\em E-expression} ::= {\em E-N1-expression} \\
+         {\em E-N1-operator} ::= $N1$ $|$ $N2$ \ldots \\
 	 \end{tabular}
 \end{indpar}
 
@@ -5400,6 +5424,11 @@ form {\em \ldots-operand} is created, the syntax equation
 {\em \ldots-operand} ::= {\em primary}
 \end{center}
 is created.  So a {\em primary} can be used as any operand.
+The syntax equation
+\begin{center}
+{\em expression} ::= {\em primary}
+\end{center}
+is also created, so an {\em expression} can be a {\em primary} by itself.
 
 The {\em parser-instructions} are used to compute the parser
 syntax equations and from these the operator

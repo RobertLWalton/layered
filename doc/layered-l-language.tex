@@ -4457,8 +4457,8 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \IX{if}		& x & < & > & > & > & > & > & > & > & > & > \\
 \IX{else}	& > & > & > & > & > & > & > & > & > & > & > \\
 \hline
-\IX{and}	& < & x< & > & x & > & > & > & > & > & > & > \\
-\IX{or}		& < & x< & x & > & > & > & > & > & > & > & > \\
+\IX{and}	& < & x< & < & x & > & > & > & > & > & > & > \\
+\IX{or}		& < & x< & x & < & > & > & > & > & > & > & > \\
 \RX{not}	& < & x< & < & < & > & > & > & > & > & > & > \\
 \hline
 \IX{<}		& < & x< & < & < & x & < & < & < & < & < & < \\
@@ -4523,10 +4523,10 @@ operator 	& \IX{+}  & \IX{-}    & \IX{*}   & \IX{/}
 \IX{>=}		& > & > & > & > & > & > & > & > & > & > \\
 \IX{>}		& > & > & > & > & > & > & > & > & > & > \\
 \hline
-\IX{+}		& > & > & > & > & > & > & > & > & > & > \\
-\IX{-}		& > & > & > & > & > & > & > & > & > & > \\
+\IX{+}		& < & < & > & > & > & > & > & > & > & > \\
+\IX{-}		& < & < & > & > & > & > & > & > & > & > \\
 \hline
-\IX{*}		& < & < & > & x & x & x & x & > & > & > \\
+\IX{*}		& < & < & < & x & x & x & x & > & > & > \\
 \IX{/}		& < & < & x & x & x & x & x & > & > & > \\
 \IX{div}	& < & < & x & x & x & x & x & > & > & > \\
 \IX{mod}	& < & < & x & x & x & x & x & > & > & > \\
@@ -4564,7 +4564,7 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 \\\hline
 \TT{\{}	& > & > & > & > & > & > & d \\
 \hline
-\IX{if}		& > & > & > & > & > & > & x< \\
+\IX{if}		& >x & >x & >x & >x & >x & >x & x< \\
 \IX{else}	& > & > & > & > & > & > & < \\
 \hline
 \IX{and}	& >x & >x & >x & >x & >x & >x & < \\
@@ -4629,13 +4629,13 @@ if $op1$ < $op2$ & $op1$ {\em primary}\QMARK{} $op2$
                  & $op1$ {\em primary}\QMARK{} \TT{)} $op2$ \\
 if $op1$ x< $op2$ & $op1$ {\em primary}\QMARK{} $op2$
 		  & rewrites as
-                  & $op1$ {\em primary}\QMARK{} \TT{)$_x$} $op2$ \\
+                  & $op1$ {\em primary}\QMARK{} \TT{)$\!_x$} $op2$ \\
 if $op1$ > $op2$ & $op1$ {\em primary}\QMARK{} $op2$
 		 & rewrites as
                  & $op1$ \TT{(} {\em primary}\QMARK{} $op2$ \\
 if $op1$ >x $op2$ & $op1$ {\em primary}\QMARK{} $op2$
 		 & rewrites as
-                 & $op1$ \TT{(}$_x$ {\em primary}\QMARK{} $op2$ \\
+                 & $op1$ $_x\!$\TT{(} {\em primary}\QMARK{} $op2$ \\
 if $op1$ d $op2$ & $op1$ {\em primary}\QMARK{} $op2$
                  & \multicolumn{2}{l}{is the final result of the parse} \\
 \end{tabular}
@@ -4646,12 +4646,12 @@ operator that appears only at the very beginning of the expression
 and the symbol \TT{\}} is treated as an operator that appears only at
 the very end of the expression.  After applying these rules as much
 as possible to an expression,
-if the expression contains a sequence `\TT{)}$_x$ $op$' the operand
+if the expression contains a sequence `\TT{)}$\!_x$ $op$' the operand
 preceding $op$ is illegal for $op$ and is a compile error, or
-if the expression contains a sequence `$op$ \TT{(}$_x$' the operand
+if the expression contains a sequence `$op$ $_x\!$\TT{(}' the operand
 following $op$ is illegal for $op$ and is a compile error.
 It is possible for the parse result to be
-`\TT{\{} \TT{(}$_x$ {\em primary} \TT{)}$_x$ \TT{\}}' in which case
+`\TT{\{} $_x\!$\TT{(} {\em primary} \TT{)}$\!_x$ \TT{\}}' in which case
 the parse is not a legal expression (this can happen if the {\em primary}
 topmost operator is `\TT{if}').
 
@@ -4662,10 +4662,10 @@ As an example, given the expression
 we get
 \begin{center}
 \begin{tabular}{llcl}
+    & & initially & \tt \TT{\{} x \IX{+} \RX{+} y \IX{*} z \TT{\}} \\
 (1) &
 \TT{\{} > \IX{+}
-    & so & \tt \TT{\{} x \IX{+} \RX{+} y \IX{*} z \TT{\}} \\
-&   & rewrites as
+    & so this rewrites as
     & \tt \TT{\{} \TT{(} x \IX{+} \RX{+} y \IX{*} z \TT{\}}\\
 (2) &
 \IX{+} > \RX{+}
@@ -4692,7 +4692,7 @@ we get
           \TT{)} \TT{)} \TT{\}} \\
 (7) &
 \TT{\{} d \TT{\}}
-    & \multicolumn{2}{l}{this is the final result of the parse}
+    & \multicolumn{2}{l}{so this is the final result of the parse}
 \end{tabular}
 \end{center}
 
@@ -4714,41 +4714,41 @@ As another example, consider
 we get
 \begin{center}
 \begin{tabular}{lcl}
-\TT{\{} >x \IX{if}
-    & so
+    & initially
     & \tt \TT{\{} x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
-    & rewrites as
-    & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
+\TT{\{} >x \IX{if}
+    & so this rewrites as
+    & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
 \IX{if} >x \RX{+}
    & so this rewites as
-   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \IX{else} z
+   & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \IX{else} z
          \TT{\}} \\
 \RX{+} x< \IX{else}
    & so this rewites as
-   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+   & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \IX{else} z \TT{\}} \\
 \IX{if} < \IX{else}
    & so this rewites as
-   & \tt \TT{\{} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+   & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \TT{)} \IX{else} z \TT{\}} \\
 \TT{\{} < \IX{else}
    & so this rewites as
-   & \tt \TT{\{} \TT{(} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+   & \tt \TT{\{} \TT{(} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \TT{)} \IX{else} z \TT{\}} \\
 \IX{else} < \TT{\}}
    & so this rewites as
-   & \tt \TT{\{} \TT{(} \TT{(}$_x$ x \IX{if} \TT{(}$_x$ \RX{+} y \TT{)}$_x$
+   & \tt \TT{\{} \TT{(} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \TT{)} \IX{else} z \TT{)} \TT{\}} \\
 \TT{\{} d \TT{\}}
-    & \multicolumn{2}{l}{this is the final result of the parse, and is
-                         a compile error because of \IX{if} \TT{(}$_x$}
+    & \multicolumn{2}{l}{so this is the final result of the parse, with
+                         an error signalled by \IX{if} $_x\!$\TT{(}}
 \end{tabular}
 \end{center}
 
-Notice that in the sequence \TT{)}$_x$ \TT{)} \IX{else}
+Notice that in the sequence \TT{)}$\!_x$ \TT{)} \IX{else}
 the $_x$ has been hidded from the \IX{else} by a \TT{)} without
 the $_x$, so this part of the expression is legal.  Similarly
-\TT{\{} \TT{(} \TT{(}$_x$ is legal. The builtin
+\TT{\{} \TT{(} $_x\!$\TT{(} is legal. The builtin
 operator precedence table dictates that the left operand of an \IX{else}
 must have \IX{if} or \IX{else} as its `\mkey{topmost}{operator}'
 operator or be a {\em primary}
@@ -4758,7 +4758,8 @@ The builtin operator precedence table also dictates that the
 right operand of an \IX{if} must contain a logical or comparison
 operator as its `topmost' operator or be a {\em primary}
 in the initial expression.  This is \underline{not} satisfied by the
-example, so the example is a compile error.
+example because the right operand is {\tt (+ y)},
+so the example is a compile error.
 
 In order for this algorithm to work properly, the operator
 precedence table is required to obey the following rules

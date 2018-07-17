@@ -5430,6 +5430,44 @@ The syntax equation
 \end{center}
 is also created, so an {\em expression} can be a {\em primary} by itself.
 
+According to the above rules, the {\em parser-instruction}:
+\begin{center}
+{\tt define prefix "not" operator "not"}
+\end{center}
+should produce the syntax equations:
+\begin{center}
+\begin{tabular}{l}
+{\em not-not-expression} \begin{tabular}[t]{rl}
+		     ::= & $not$ {\em not-operand} \\
+		     $|$ & $not$ {\em not-not-expression} \\
+		     \end{tabular} \\
+{\em not-expression} ::= {\em not-not-expression} \\
+\end{tabular}
+\end{center}
+However, because {\tt "not"} is the \underline{only} operator in
+a {\em not-expression}, there equations can be simplified to
+\begin{center}
+\begin{tabular}{l}
+{\em not-expression} \begin{tabular}[t]{rl}
+		     ::= & $not$ {\em not-operand} \\
+		     $|$ & $not$ {\em not-expression} \\
+		     \end{tabular} \\
+\end{tabular}
+\end{center}
+This simplification has been applied in section 
+\itemref{OPERATOR-SYNTAX-EQUATIONS} to simplify the following:
+\begin{center}
+{\em else-expression} \\
+{\em not-expression} \\
+{\em compare-expression} \\
+{\em summation-expression} \\
+{\em sign-expression} \\
+{\em shift-expression} \\
+{\em complement-expression}
+\end{center}
+
+TBD
+
 The {\em parser-instructions} are used to compute the parser
 syntax equations and from these the operator
 precedence table.  The procedure is roughly as follows.

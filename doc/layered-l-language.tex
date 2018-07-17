@@ -1167,15 +1167,11 @@ A \key{module} is a file that begins with a {\em module-declaration}:
 \emkey{module-clause}\label{MODULE-CLAUSE} ::=
     {\em import-clause} $|$ {\em parser-block} \\
 \emkey{import-clause}\label{IMPORT-CLAUSE}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{import} {\em module-name}
-        \TT{as} {\em module-abbreviation} \\
-    $|$ & \TT{import} {\em module-name} \TT{parsing}
-    \end{tabular} \\
-\emkey{parser-block}\label{PARSER-BLOCK}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{external}\QMARK{} \TT{parsing:} \\
-	& \TT{~~~~}{\em parser-instruction}\STAR{} \\
+    ::= \TT{import} {\em module-name} \TT{as} {\em module-abbreviation} \\
+\emkey{parser-block}\label{PARSER-BLOCK} ::=
+    \begin{tabular}[t]{@{}l}
+    \TT{external}\QMARK{} \TT{parsing:} \\
+    \TT{~~~~}{\em parser-instruction}\STAR{} \\
     \end{tabular} \\
 {\em parser-instruction} ::= see \pagref{PARSER-INSTRUCTION}
 
@@ -1188,6 +1184,9 @@ of a module file.
 \item
 In a {\em module-declaration} all {\em module-abbreviations} must be
 distinct, and all {\em module-names} must be distinct.
+
+\item
+There may be at most one {\em parser-block} in a {\em module-declaration}.
 \end{itemize}
 \end{indpar}
 
@@ -1489,6 +1488,9 @@ of a body file.
 In a {\em body-declaration} all {\em module-abbreviations} must be
 distinct, and all {\em module-names} and {\em body-names}
 must be distinct.
+
+\item
+There may be at most one {\em parser-block} in a {\em body-declaration}.
 \end{itemize}
 
 \end{indpar}
@@ -5111,9 +5113,13 @@ have the syntax:
 
 \begin{indpar}
 \emkey{parser-instruction}
-    \begin{tabular}[t]{rl}
+    \begin{tabular}[t]{rll}
     ::= & {\em parser-define-instruction} \\
     $|$ & {\em parser-include-instruction} \\
+    $|$ & {\em parser-import-instruction}
+        & [see \pagref{PARSER-IMPORT-INSTRUCTION}]\\
+    $|$ & {\em parser-delete-instruction}
+        & [see \pagref{PARSER-DELETE-INSTRUCTION}]\\
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-define-instruction} \\
@@ -5633,13 +5639,57 @@ module.
 It is possible to export a block of {\em parser-instructions}.  This is
 done by labelling a {\em parser-block} `\ttmkey{external}{parser-block}'
 in a {\em module-declaration}.  The instructions in the external
-{\em parser-blocks} of an exporting module can be imported by the
-\begin{center}
-\TT{import} ~ {\em module-name} ~ \TT{parsing}
-\end{center}
-{\em import-clause} in the {\em module-declaration} or {\em body-declaration}
-of an importing module or body.
+{\em parser-blocks} of an exporting module can be imported by a
+\begin{indpar}
+\emkey{parser-import-instruction}\label{PARSER-IMPORT-INSTRUCTION} ::=
+    \TT{import} ~ {\em module-name} ~ \TT{parsing}%
+    \ttindex{import \ldots{} parsing}
+\end{indpar}
+in a {\em parser-block}.  This adds the {\em parser-instructions}
+from the external {\em parser-block} of the named module to the
+builtin {\em parser-instructions}.
 
+If a {\em parser-instruction} mentions an operator then that
+operator is removed from all builtin or imported {\em parser-instructions}
+in which it occurs.  For example, there are builtin {\em parser-instructions}
+\begin{center}
+\tt
+\begin{tabular}{l}
+define left associative "summation" operators "+", "-" \\
+define prefix "sign" operators "+", "-" \\
+\end{tabular}
+\end{center}
+If a body {\em parser-block} contains the instruction
+\begin{center}
+define binary "foo" operator "+" \\
+\end{center}
+the builtin instructions will be modified to become
+\begin{center}
+\tt
+\begin{tabular}{l}
+define left associative "summation" operator "-" \\
+define prefix "sign" operator "-" \\
+\end{tabular}
+\end{center}
+If the body {\em parser-block} also contains the instruction
+\begin{center}
+define left associative "bar" operator "-" \\
+\end{center}
+the builtin instructions mentioned would be deleted entirely.
+
+A 
+\begin{indpar}
+\emkey{parser-delete-instruction}\label{PARSER-DELETE-INSTRUCTION}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{delete operator} {\em operator-name} \\
+    $|$ & \ttkey{delete operators} {\em operator-name-list} \\
+    \end{tabular}
+\end{indpar}
+may be used to delete operators from builtin or imported
+{\em parser-instructions}.
+An operator listed in a
+{\em parser-delete-instruction} cannot be listed in
+any other {\em parser-instruction} in the same {\em parser-block}.
 
 \subsubsection{Primaries}
 \label{PRIMARIES}

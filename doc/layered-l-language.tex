@@ -70,6 +70,7 @@
      $^{\mbox{#1}}$#2}}
     % Change notice.
 
+\newcommand{\LSTAR}{L$^\star$}
 \newcommand{\TT}[1]{{\tt \bfseries #1}}
 
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
@@ -3359,7 +3360,7 @@ floating point number types.
 May be defined by user for defined types.
 \end{indpar}
 
-{\tt function $T$ r = $ma$\QMARK{} \ttkey{default value}}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{default value}}\label{DEFAULT-VALUE}
 \begin{indpar}
 Returns a suitable default value for type $T$.
 Defined to return \TT{0} for builtin number types.
@@ -3367,6 +3368,14 @@ May be defined by user for defined types.  For use by allocators,
 such as a function that allocates a vector whose
 elements are of type $T$, and the function wishes to give the elements an
 initial default value.
+\end{indpar}
+
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{no value}}\label{NO-VALUE}
+\begin{indpar}
+Marks the result variable {\tt r} as not having any value.  In this
+situation {\tt r} may be treated as having a value that can be copied
+into another variable, but cannot be used in any other way.  This
+function is builtin for \underline{all} types $T$.
 \end{indpar}
 
 \end{indpar}
@@ -4288,9 +4297,9 @@ All other variables can be allocated by {\em assignment-statements}
 (\itemref{ASSIGNMENT-STATEMENTS}).
 
 L-language has an extension,
-the \ikey{L$^*$-language}{L*-language}\label{L*-LANGUAGE},
+the \ikey{\LSTAR-language}{L*-language}\label{LSTAR-LANGUAGE},
 that allows variables with {\em member-selectors} to be allocated
-by {\em assignment-statements}.  The L$^*$-language is significantly
+by {\em assignment-statements}.  The \LSTAR-language is significantly
 less type-safe than the L-language, but is needed by the compiler
 as the output language for expanding inline function calls.
 
@@ -5832,9 +5841,9 @@ Some special rules
 make use of the `\key{natural type}'\label{NATURAL-TYPE}
 that some subexpressions have.
 The natural type of a variable is its type.
-The natural type of an expression of the
-form `\TT{$Qs$ $T$ ( \ldots{} )}' where $Qs$ is a list of qualifiers
-and $T$ is a type name is $T$.
+For an expression of the form `\TT{$Qs$ $T$ ( \ldots{} )}'
+where $Qs$ is a list of qualifiers and $T$ is a type name, the
+natural type is $T$.
 The natural type of a {\em function-call} is the type found by matching
 the call to {\em function-prototypes}
 (\itemref{MATCHING-CALLS-TO-PROTOTYPES}), if an unambiguous
@@ -5862,9 +5871,10 @@ it is right associative.
 For example, `{\tt x <{}< s1 >{}> s2}' is
 equivalent to `{\tt (x <{}< s1) >{}> s2}'.
 
-The `\TT{else}', `\TT{and}' and `\TT{or} operators, and the
-6 builtin comparison operators (\TT{<}, \TT{==}, etc.), all
-defer their second operand.  Ususally operands are evaluated
+The `\TT{if} operator defers its first operand, while
+the `\TT{else}', `\TT{and}' and `\TT{or} operators, and sometimes the
+6 builtin comparison operators (\TT{<}, \TT{==}, etc.),
+defer their second operand.  Usually operands are evaluated
 before the operator executes, but a deferred operand is not
 evaluated until inspection of other operand values determines
 that the deferred operand value will be needed.  Furthermore,
@@ -5883,7 +5893,7 @@ are not detected.  Similarly in `\TT{$e1$~if~$b$~else~$e2$}' if the
 conditioning expression $b$ evaluates to \TT{true}, $e2$ is
 never evaluated, and if $b$ evaluates to \TT{true} at compile
 time, $e2$ is never compiled.  However all subexpressions are parsed and
-parsing errors are detected.
+parsing errors are always detected.
 
 Deferred operands are just a particular case of deferred function arguments,
 as operators are translated by the parser into function calls.
@@ -5911,14 +5921,14 @@ given the above function declaration compiles to:
 \tt // tmp0 is call(er) context \\
 \tt // and-context is context of "and" function declaration \\
 \tt // \\
-\tt // Evaluate $e1$ - right operand of "and"\\
+\tt // Evaluate $e1$ - left operand of "and"\\
 \tt bool tmp1 = $e1$ \\
 \tt // \\
 \tt // Evaluate ($e1$ "and" $e2$) \\
 \tt bool v = do ( and-context ): \\
 \tt ~~if: \\
 \tt ~~~~tmp1: \\
-\tt ~~~~~~v = do ( tmp0 ): \\
+\tt ~~~~~~do ( tmp0 ): \\
 \tt ~~~~~~~~v = $e1$ \\
 \tt ~~~~else: \\
 \tt ~~~~~~v = false \\
@@ -5996,11 +6006,11 @@ function *IF-VALUE* r, T r.value, bool r.valid =
         [| T != std *IF-VALUE* |]:
     if:
         arg2:
-                r.value = do ( std call context ):
+                do ( std call context ):
                     r.value = arg1
                 r.valid = true
         else:
-            r.value = std default_value_of ( T )
+            r.value = no value
             r.valid = false
 
 function T r =
@@ -6013,7 +6023,7 @@ function T r =
         arg1.valid:
             r = arg1.value
         else:
-            r = do ( std call context ):
+            do ( std call context ):
                 r = arg2
 \end{verbatim}\end{indpar}
 
@@ -6031,7 +6041,7 @@ Given these definitions the compiler expands the example
 \tt $T$ $v$ = ($e1$ "if" $b1$) "else" ( ($e2$ "if" $b2$) "else" $e3$ )
 \end{center}
 
-to the following code:
+to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 
 \begin{indpar}
 \begin{tabular}{l}
@@ -6048,11 +6058,11 @@ to the following code:
 \tt ~~~~do ( if-context ): \\
 \tt ~~if: \\
 \tt ~~~~tmp1: \\
-\tt ~~~~~~tmp2.value = do ( tmp0 ): \\
+\tt ~~~~~~do ( tmp0 ): \\
 \tt ~~~~~~~~tmp2.value = $e1$ \\
 \tt ~~~~~~tmp2.valid = true \\
 \tt ~~~~else: \\
-\tt ~~~~~~tmp2.value = default value \\
+\tt ~~~~~~tmp2.value = no value \\
 \tt ~~~~~~tmp2.valid = false \\
 \end{tabular}
 
@@ -6063,7 +6073,7 @@ to the following code:
 \tt ~~~~tmp2.valid: \\
 \tt ~~~~~~$v$ = tmp2.value \\
 \tt ~~~~else: \\
-\tt ~~~~~~r = do ( tmp0 ): \\
+\tt ~~~~~~do ( tmp0 ): \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -6071,8 +6081,7 @@ to the following code:
 \tt ~~~~~~~~// - deferred right operand of first "else" \\
 \tt ~~~~~~~~// Evaluate $b2$ \\
 \tt ~~~~~~~~// - right operand of second "if" \\
-\tt ~~~~~~~~bool tmp3 = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~tmp3 = $b2$ \\
+\tt ~~~~~~~~bool tmp3 = $b2$ \\
 \tt ~~~~~~~~// Evaluate ($e2$ "if" $b2$) \\
 \tt ~~~~~~~~// - left operand of second "else" \\
 \tt ~~~~~~~~*IF-VALUE* tmp4, $T$ tmp4.value, \\
@@ -6080,23 +6089,23 @@ to the following code:
 \tt ~~~~~~~~~~do ( if-context ): \\
 \tt ~~~~~~~~~~~~if: \\
 \tt ~~~~~~~~~~~~~~tmp3: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.value = do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~~~~~do ( tmp0 ): \\
 \tt ~~~~~~~~~~~~~~~~~~tmp4.value = $e2$ \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = true \\
 \tt ~~~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.value = default value \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = no value \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = false \\
 \end{tabular}
 
 \begin{tabular}{l}
 \tt ~~~~~~~~// Evaluate second "else" \\
-\tt ~~~~~~~~r = do ( else-context ): \\
+\tt ~~~~~~~~do ( else-context ): \\
 \tt ~~~~~~~~~~if: \\
 \tt ~~~~~~~~~~~~tmp4.valid: \\
-\tt ~~~~~~~~~~~~~~r = tmp4.value \\
+\tt ~~~~~~~~~~~~~~v = tmp4.value \\
 \tt ~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~r = do ( tmp0 ): \\
-\tt ~~~~~~~~~~~~~~~~r = $e3$ \\
+\tt ~~~~~~~~~~~~~~do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~~~~~v = $e3$ \\
 \end{tabular}
 
 \end{indpar}
@@ -6112,7 +6121,7 @@ is the second {\tt "else"} subxpression, and as it has
 target type $T$, the arguments of the second {\tt "else"}
 have the same types as the arguments of the first {\tt "else"}.
 
-The second arguments to both {\tt "if"} and {\tt "else"}
+The first argument of {\tt "if"} and the second argument of {\tt "else"}
 are {\tt *DEFERRED*}, which means that they are not computed before
 the functions are called, but instead the expressions computing them
 are inserted in the code expanded from the functions (which are
@@ -6310,7 +6319,7 @@ function *COMPARE-VALUE* r, T r.right op, bool r.value =
                 r.right op = arg2
             r.value = arg1.right op "<" r.right op
         else:
-            r.right op = default value
+            r.right op = no value
             r.value = false
 
 function bool r = ( T arg1 ) "<" ( T arg2 ):
@@ -6365,7 +6374,7 @@ and the compiler expands this to the following code:
 \tt ~~~~~~~~~~~~~~~~tmp4.value = \\
 \tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op less than tmp4.right op \\
 \tt ~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.right op = default value \\
+\tt ~~~~~~~~~~~~~~~~tmp4.right op = no value \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = false \\
 \end{tabular}
 
@@ -6444,7 +6453,7 @@ generic std define compare operator
                     r.value =
                         M ( arg1.right op OP r.right op )
                 else:
-                    r.right op = default value
+                    r.right op = no value
                     r.value = false
 \end{verbatim}\end{indpar}
 

@@ -6432,19 +6432,19 @@ This last line invokes the builtin generic:
 
 \label{DEFINE-COMPARE-OPERATOR}%
 \begin{indpar}\begin{verbatim}
-generic std define compare operator
-                [ module M ?= NOMOD ] ( type T, name OP ):
+generic std define compare operator ( type T, name OP )
+            [| module ma = current if T exported |]:
 
-    include ( M, T, OP ):
+    include ( T, OP ):
 
-        function M *COMPARE-VALUE* r, T r.right op,
-                                      bool r.value =
+        function ma *COMPARE-VALUE* r, T r.right op,
+                                       bool r.value =
                 ( T arg1 ) OP ( T arg2 ):
             r.right op = arg2
-            r.value = M ( arg1.right op OP r.right op )
+            r.value = M ( arg1 op OP r.right op )
 
-        function M *COMPARE-VALUE* r, T r.right op,
-                                      bool r.value =
+        function ma *COMPARE-VALUE* r, T r.right op,
+                                       bool r.value =
                 ( *COMPARE-VALUE* arg1, T arg1.right op,
                                         bool arg1.value )
                 OP ( *DEFERRED* T arg2 ):

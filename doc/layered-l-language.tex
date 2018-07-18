@@ -111,7 +111,6 @@
 \newcommand{\TMP}{\$}			% Compiler Temporary
 \newcommand{\ABV}{-{}-{}->}		% Abbreviates
 \newcommand{\CNV}{\longrightarrow}	% Converts to
-\newcommand{\TCNV}{\Longrightarrow}	% Transitive closure
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -1711,6 +1710,12 @@ Copying and conversion of values is always implemented for
 number types, except for implementations
 that do not implement \underline{any} floating point types.
 
+It is required that the sizes of {\tt unswrd} and {\tt intwrd} be the
+same, and that the sizes of {\tt unsmax} and {\tt intwrd} be the
+same.  It is required that the size of {\tt unsmax} be at least
+as large as the size of {\tt unswrd}, and similarly for {\tt int\ldots}
+and {\tt float\ldots}.
+
 Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
 module to which builtin types and functions belong.  For convenience
 the following abbreviations are builtin:
@@ -2440,8 +2445,9 @@ and {\tt 0} is returned if the direction is not given.
 {\tt function $I$ r = std \ttkey{last enum of} ( type t )}
 
 \begin{center}
-where $I$ is the first type in the sequence \\
-\TT{intwrd     unswrd     intmax     unsmax} \\
+where $I$ is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
+in the set \\
+\TT{unswrd     intwrd     unsmax     intmax} \\
 such that both the {\em first-enum} and the {\em last-enum} \\
 of enumeration type {\tt t} are convertible to $I$
 \end{center}
@@ -2524,15 +2530,18 @@ called the `\mkey{enumeration offset}{of enumeration type}' of
 the enumeration type.
 
 In order to represent range values the `\mkey{range type}{of enumeration type}'
-is used.  This is the first type $R$ in the sequence \\
-\centerline{\TT{intwrd     unswrd     intmax     unsmax}}
+is used.
+This is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
+$R$ in the set \\
+\centerline{\TT{unswrd     intwrd     unsmax     intmax}}
 such that both the {\em first-enum} and the {\em last-enum}
 of the enumeration type are implicitly convertible to $R$.
 
 In order to represent enumeration offset the
 `\mkey{offset type}{of enumeration type}' is used.
-This is the first type $O$ in the sequence \\
-\centerline{\TT{intwrd     unswrd     intmax     unsmax}}
+This is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
+$O$ in the set \\
+\centerline{\TT{unswrd     intwrd     unsmax     intmax}}
 such that values of either the underlying type or the range type
 of the enumeration type are implicitly convertible to $O$.
 
@@ -3172,8 +3181,8 @@ function \ldots~$T2$ r = $ma$\QMARK{}
 then it is required that $T1~~\CNV~~T2$.  The notion of more specific
 types is used by the
 call-prototype matching rule
-\ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
-on page \pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+\ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
+on page \pagref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
 to disambiguate function calls.
 
 If for a set of types $\{T1,T2,\ldots\}$ there is a unique
@@ -3186,13 +3195,21 @@ from $T1$ to $T2$, but there are exceptions.  The builtin exceptions
 are
 \begin{center}
 \begin{tabular}{lll}
-\tt int$x$	& $\CNV$ & \tt float$x$ \\
-\tt int$x$	& $\CNV$ & \tt uns$x$ \\
-\tt uns$x$	& $\CNV$ & \tt float$x$ \\
+\tt unswrd	& $\CNV$ & \tt intwrd \\
+\tt intwrd	& $\CNV$ & \tt unsmax \\
+\tt unsmax	& $\CNV$ & \tt intmax \\
+\tt intmax	& $\CNV$ & \tt floatwrd \\
 \end{tabular}
-\\[2ex]
-for any $x$ for which the types are defined.
 \end{center}
+Note that this implies that
+\begin{center}
+\tt unswrd $\CNV$ intwrd $\CNV$ unsmax $\CNV$ intmax
+           $\CNV$ floatwrd $\CNV$ floatmax
+\end{center}
+In deducing argument types, the compiler sometimes uses
+rule \ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
+on page \pagref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
+to pick the most specific type in this sequence that works.
 
 Functions can be overloaded based on the number and types
 of their arguments, but also on the values of arguments that
@@ -6181,8 +6198,8 @@ There is no given target type for operands of comparison operators.
 So the target type of these must be specified by rules.
 
 For numeric operands of comparison operators
-the target type is the first type
-in the following sequence that is such that all operands
+the target type is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
+in the following set that is such that all operands
 can be implicitly converted to that type:
 \begin{center}
 \TT{unswrd} ~ \TT{intwrd} ~ \TT{unsmax} ~ \TT{intmax}
@@ -6195,10 +6212,8 @@ An example assuming:
 \begin{indpar}\begin{verbatim}
 unswrd      is 32 bits
 intwrd      is 32 bits
-floatwrd    is 64 bits
 unsmax      is 64 bits
 intmax      is 64 bits
-floatmax    is 64 bits
 \end{verbatim}\end{indpar}
 
 is:
@@ -6368,8 +6383,8 @@ Typing of comparison expressions, as described above, is a
 consequence of the rules for matching function calls to
 prototypes, and specifically of the rule that more restrictive
 argument types are preferred to less restrictive ones
-(rule \ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED} on
-\pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}).
+(rule \ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED} on
+\pagref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}).
 A function like {\tt "<"} is only defined for
 some second operand types.  Given the type $T$ of the second operand
 of the rightmost compare operator in a sequence of several compare operators,
@@ -8611,7 +8626,7 @@ have {\em required-values} in $X$ but not in $Y$, and none of the $eI$
 have {\em required-values} in $Y$ but not in $X$,
 then the $Y$ match is discarded.
 
-\item\label{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+\item\label{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
 Let $e1$, $e2$, \ldots{}~be the argument expressions of
 the not-unfolded original call, read from left to right.
 If there are two matches $X$ and $Y$ such that

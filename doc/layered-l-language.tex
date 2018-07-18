@@ -6238,7 +6238,8 @@ In this case the target type is
 the greatest lower bound (\pagref{GREATEST-LOWER-BOUND})
 of all these natural types.
 It is a compile error if this greatest lower bound does
-not exist, or if it is \TT{bool} and no operand natural type was \TT{bool}.
+not exist, or if comparison operators are not defined for this
+type.
 For example, given the expression `{\tt v == missing}', where \TT{v}
 is of `\TT{qualifier}' type, {\tt missing}, which has no natural type, will be
 evaluated with `\TT{qualifier}' target type.
@@ -6251,29 +6252,33 @@ operand is \TT{NaN}.  For this reason `{\tt x >= y}' and
 
 Comparison expressions are evaluated from left to right and are
 true if and only if all the comparisons are true.  Middle
-arguments are shared between two comparison operators.
+arguments are shared between two comparison operators, e.g.,
+in `{\tt x < y < z}' the middle argument {\tt y} is evaluated
+once and shared between `{\tt x < y}' and `{\tt y < z}'.
 An example is:
 
 \begin{indpar}\begin{verbatim}
+// Assume intwrd is int64, unswrd is uns64.
+//
 int64 x = 9,568
 uns16 y1 = 0xFF00
 uns32 y2 = 0xFF01
 bool z1 = x < y1 < y2
-    // x, y1, y2 are all converted to int64.
+    // x, y1, y2 are all converted to intwrd (int64).
     // y2 is only converted if x < y1 is true.
 bool z2 = x < y1 and y1 < y2
-    // y1 is converted to int64 to compare it with x
+    // y1 is converted to intwrd to compare it with x
     // and then if x < y1 is true, y1 is separately
-    // converted to uns32 to compare it with y2.
+    // converted to unswrd (uns64) to compare it with y2.
 \end{verbatim}\end{indpar}
 
 If one comparison in a sequence of comparisons evaluates
-to \TT{false}, operands following those of the comparison
+to \TT{false}, operands following those of this comparison
 are not evaluated.  If one comparison in a sequence of comparisons
 evaluates to \TT{false} at compile time,
-the operands following those of the comparison are not compiled.
+the operands following those of this comparison are not compiled.
 
-This is implemented by the following code:
+This is implemented by the following builtin code:
 
 \begin{indpar}\begin{verbatim}
 define type std *COMPARE-VALUE* as void
@@ -6281,7 +6286,7 @@ define type std *COMPARE-VALUE* as void
     // opertor has as its value a *COMPARE-VALUE* r that is a
     // root of a cluster with members:
     //
-    //    T r.right op  Value of e2.
+    //    T r.right op  Value of e2 (i.e., right operand)
     //    bool r.value  Result of comparison.
     //
     // where T is the type of the operands and cannot itself
@@ -6308,7 +6313,7 @@ function *COMPARE-VALUE* r, T r.right op, bool r.value =
         "<" ( *DEFERRED* T arg2 ):
     if:
         arg1.value:
-            r.right op = do ( std call context ):
+            do ( std call context ):
                 r.right op = arg2
             r.value = arg1.right op "<" r.right op
         else:
@@ -6329,7 +6334,8 @@ to
 \begin{center}
 \tt bool $v$ = ( $e1 "<" $e2 ) "<" $e3$
 \end{center}
-and the compiler expands this to the following code:
+and the compiler expands this to the following
+\LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 
 \begin{indpar}
 \begin{tabular}{l}
@@ -6352,7 +6358,7 @@ and the compiler expands this to the following code:
 \tt *COMPARE-VALUE* tmp3, $T$ tmp3.right op, bool tmp3.value = \\
 \tt ~~~~~~~~do ( lt-context ): \\
 \tt ~~~~tmp3.right op = tmp2 \\
-\tt ~~~~tmp3.value = tmp1 less than tmp2 \\
+\tt ~~~~tmp3.value = tmp1 "<" tmp2 \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -6362,10 +6368,10 @@ and the compiler expands this to the following code:
 \tt ~~~~do ( lt-context ): \\
 \tt ~~~~~~~~if: \\
 \tt ~~~~~~~~~~~~tmp3.value: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.right op = do ( tmp0 ): \\
+\tt ~~~~~~~~~~~~~~~~do ( tmp0 ): \\
 \tt ~~~~~~~~~~~~~~~~~~~tmp4.right op = $e3$ \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = \\
-\tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op less than tmp4.right op \\
+\tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op "<" tmp4.right op \\
 \tt ~~~~~~~~~~~~else: \\
 \tt ~~~~~~~~~~~~~~~~tmp4.right op = no value \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = false \\
@@ -6407,13 +6413,16 @@ Importantly comparison operators, such as \TT{==}, are
 types are implicitly convertable to \TT{bool}
 (see \pagref{IMPLIED-BOOL-CONVERSION}), defining comparison
 operators for \TT{bool} values would badly compromise compile time
-detection of programming errors.
+detection of programming errors.\footnote{Another difficulty
+with allowing comparison of \TT{bool} values is that in
+`{\tt $e1$ < $e2$ < $e3$}' the first {\tt <} could evaluate
+to a \TT{bool} and not a \TT{*COMPARE-VALUE*}.}
 
 In order to implement a comparison operator $cop$ with optional
 module abbreviation $ma$ for a new
 type $T$, one defines a function with the prototype:
 \begin{center}
-\tt function bool r = $ma$\QMARK{} ( $T$ arg1 ) "$cop$ ( $T$ arg2 )
+\tt function bool r = $ma$\QMARK{} ( $T$ arg1 ) "$cop$" ( $T$ arg2 )
 \end{center}
 and then you add the line
 \begin{center}

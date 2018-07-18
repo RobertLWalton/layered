@@ -6433,17 +6433,17 @@ This last line invokes the builtin generic:
 \label{DEFINE-COMPARE-OPERATOR}%
 \begin{indpar}\begin{verbatim}
 generic std define compare operator ( type T, name OP )
-            [| module ma = current if T exported |]:
+            [| export if T exported |]:
 
     include ( T, OP ):
 
-        function ma *COMPARE-VALUE* r, T r.right op,
+        function ..ma *COMPARE-VALUE* r, T r.right op,
                                        bool r.value =
                 ( T arg1 ) OP ( T arg2 ):
             r.right op = arg2
             r.value = M ( arg1 op OP r.right op )
 
-        function ma *COMPARE-VALUE* r, T r.right op,
+        function ..ma *COMPARE-VALUE* r, T r.right op,
                                        bool r.value =
                 ( *COMPARE-VALUE* arg1, T arg1.right op,
                                         bool arg1.value )
@@ -6467,13 +6467,19 @@ exact arithmetic result is computed and truncated to
 $x$ bits, i.e., is taken modulo $2^x$ before being presented
 as the result.
 
-An exception to this is made for integer division operations.
+Some exceptions to this are made for integer division operations.
 If the divisor is zero, the results are undefined.  If the
 target type is \TT{int$x$}, the dividend is $-2^{x-1}$, and
 the divisor is $-1$, the result is undefined.  In both these
 cases the result may be a program terminating error.
 
-The bitwise operators are:
+Except for the right operands of
+shift operators, the operand types of builtin
+integer arithmetic operators are the target type of the result.
+
+The arithmetic operators \TT{+}, \TT{-}, and \TT{*} are builtin.
+
+The builtin bitwise operators are:
 \begin{center}
 \begin{tabular}{ll}
 \TT{\&}		& bitwise AND \\
@@ -6491,7 +6497,7 @@ to \TT{unswrd} and only its low order $x$ bits are used as the
 shift amount, where $x$ is the size of $T$.
 In other words, the shift amount is {\tt s mod 2$^x$}.
 
-The integer division operators are:
+The builtin integer division operators are:
 \begin{center}
 \begin{tabular}{ll}
 \TT{div}	& quotient rounded towards zero \\
@@ -6516,7 +6522,7 @@ operations may set them but may never clear them.  There are also
 special builtin functions to manipulate these flags
 (\itemref{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}).
 
-The flags with the operation results when the flags are set are:
+The flags and operation results when the flags are set are as follows:
 \begin{indpar}
 \mkey{Invalid Operand}{floating point error flag}
 \begin{indpar}
@@ -6580,6 +6586,9 @@ Results may be denormalized numbers.  Except for compares,
 when an operand to an arithmetic operation is a denormalized
 number, it is treated as a signed zero.
 
+The builtin arithmetic floating point
+operators are \TT{+}, \TT{-}, \TT{/}, and \TT{mod}.
+The operand types of these operators are the target type of their result.
 The operator
 \TT{\textasciicircum} is \underline{not} builtin and must be
 defined by library code.
@@ -6664,9 +6673,9 @@ $ma$ by defining functions with the following prototypes:
 where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
 
 In addition, to allow sequences of compare operators with operands
-of type $T$ you must include the line
+of type $T$, for each compare operator $op$ you must include the line
 \begin{center}
-\tt define compare operator [$ma$]\QMARK{} ( $T$, "$cop$" )
+\tt define compare operator ( $T$, "$op$" )
 \end{center}
 as described on \pagref{DEFINE-COMPARE-OPERATOR}.
 \end{indpar}

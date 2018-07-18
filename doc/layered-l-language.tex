@@ -165,7 +165,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 17, 2018
+July 18, 2018
  
 \end{center}
 
@@ -2820,10 +2820,10 @@ or builtin integer type,
 which is called the
 `\key{common element type}'\label{COMMON-ELEMENT-TYPE}
 of the set or list.
-This is the least general type to which all the set
+This is the most specific type to which all the set
 or list
 elements can be converted by implied conversions
-(see \pagref{CONVERSION-RELATION}).
+(see \pagref{MORE-SPECIFIC-RELATION}).
 It is an error
 if this cannot be done because some of the types have no implied
 conversion to their base type defined for them.
@@ -3112,7 +3112,7 @@ Given assignment statements
 where $T2\neq T1$, the compiler will change the second statement to
 \begin{center}
 \tt $T2$ v = implied conversion ( w )
-\end{center}
+\end{center}\label{IMPLIED-CONVERSION}
 so that if the appropriate `{\tt implied conversion}' function is
 defined, the assignment `{\tt $T2$ v = w}' will compile.  Such
 implicit conversions are most generally defined by defining
@@ -3140,65 +3140,9 @@ function Qs T2 r = implied conversion
 Instead of this general function, several`{\tt implied conversion}' functions
 each with different qualifiers can be defined.
 
-If \underline{any} implied conversion from $T1$ to $T2$ is defined,
-we say the $T1$ is \mkey{more specific}{types}
-than $T2$, or $T2$ is \mkey{more general}{types} than $T1$, or
-symbolically,
-\begin{center}
-{\tt $T1~~\CNV~~T2$}
-\end{center}%
-\label{CONVERSION-RELATION}
-
-The transitive closure of the $\CNV$ relation between types is
-required to be a partial order,
-or equivalently, the directed graph whose nodes are types
-that has an arrow from $T1$ to
-$T2$ if and only if $T1 \CNV T2$ is required to be acyclic.
-This graph is know as the \key{implied conversion graph}.
-
-In addition, if there are two paths from type $T1$
-to type $T2$ in the implied conversion graph that
-are disjoint except for their endpoints, there must also
-be a direct arrow from $T1$ to $T2$ in the graph, i.e.,
-\begin{center} \tt
-function \ldots~Qs~$T2$ r =
-		      \begin{tabular}[t]{@{}l@{}}
-                      \ttkey{implied conversion} \\
-                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
-                      \end{tabular}
-\label{IMPLIED-CONVERSION}
-\end{center}
-must be defined.
-This last rule
-allows the call-prototype matching rule
-\ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
-on page \pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
-to disambiguate an implied conversion from a $T1$ value to
-a $T2$ value by always choosing the direct path $T1\CNV T2$.
-
-For example, since
-\begin{center}
-{\tt uns16 $\CNV$ int32 $\CNV$ int64} \\
-and \\
-{\tt uns16 $\CNV$ uns32 $\CNV$ int64}
-\end{center}
-are both in the graph,
-then {\tt uns16 $\CNV$ int64} must be too.
-
-If the direct conversion does not exist,
-the implied conversion will be a compilation error.
-If qualifiers disable the direct implied conversion but
-not the two paths, the implied conversion will be a compilation
-error for those qualifiers.
-Note that by rule
-\ref{ARGUMENT-CALL-PROTOTYPE-MATCHING}
-on \pagref{ARGUMENT-CALL-PROTOTYPE-MATCHING}
-such compilation errors may not be explicitly visible,
-but may be hidden inside call-prototype match failures.
-
 Although the compiler cannot check this, it should be true
-that if there are two different paths from one type to another
-in the implied conversion graph, both paths produce the same
+that if there are two different ways to implicitly convert from
+one type to another, both ways should produce the same
 result.  For example:
 \begin{indpar}\begin{verbatim}
 int16 v1 = ...
@@ -3211,11 +3155,44 @@ float64 v4 = v1
 // v3 == v4 should be true.
 \end{verbatim}\end{indpar}
 
+There is a notion of one type being `\mkey{more specific}{type}' than
+another type, and the relation of being more specific is required
+to be a partial order compatible with implicit conversion.  Symbolically
+we say that
+\begin{center}
+{\tt $T1~~\CNV~~T2$}
+\end{center}%
+\label{MORE-SPECIFIC-RELATION}
+if $T1$ is more specific than $T2$, and that whenever there exists a
+function with prototype of the form
+\begin{center} \tt
+function \ldots~$T2$ r = $ma$\QMARK{}
+                         \TT{implied conversion} \ldots{} ( \ldots{} $T1$ v )
+\end{center}
+then it is required that $T1~~\CNV~~T2$.  The notion of more specific
+types is used by the
+call-prototype matching rule
+\ref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+on page \pagref{MORE-RESTRICTIVE-ARGUMENT-TYPES-PREFERRED}
+to disambiguate function calls.
+
 If for a set of types $\{T1,T2,\ldots\}$ there is a unique
-type $T$ such that $T1\TCNV T$, $T2\TCNV T$, \ldots{}, where
-$\TCNV$ is the transitive closure of $\CNV$, then
+type $T$ such that $T1\CNV T$, $T2\CNV T$, \ldots{}, then
 $T$ is called the `\key{greatest lower bound}'\label{GREATEST-LOWER-BOUND}
 of the set of types.
+
+In general $T1~~\CNV~~T2$ implies that there is an implied conversion
+from $T1$ to $T2$, but there are exceptions.  The builtin exceptions
+are
+\begin{center}
+\begin{tabular}{lll}
+\tt int$x$	& $\CNV$ & \tt float$x$ \\
+\tt int$x$	& $\CNV$ & \tt uns$x$ \\
+\tt uns$x$	& $\CNV$ & \tt float$x$ \\
+\end{tabular}
+\\[2ex]
+for any $x$ for which the types are defined.
+\end{center}
 
 Functions can be overloaded based on the number and types
 of their arguments, but also on the values of arguments that
@@ -3388,9 +3365,8 @@ on multiple function declarations with specified argument values:
 
 {\tt function bool r = std ( type T1 ) "\ttkey{>}" ( type T2 )}
 \begin{indpar}
-Returns \TT{true} if and only if {\tt T1$\CNV$T2}, that is, values
-of type {\tt T1} can be implicitly converted to values of type {\tt T2}
-(see \pagref{CONVERSION-RELATION}).
+Returns \TT{true} if and only if {\tt T1$\CNV$T2}, that is, $T1$ is
+more specific than $T2$ (see \pagref{MORE-SPECIFIC-RELATION}).
 \end{indpar}
 
 \end{indpar}
@@ -6174,7 +6150,7 @@ function bool r =
         ( bool arg1 ) "and" ( *DEFERRED* bool arg2 ):
     if:
         arg1:
-            r = do ( std call context ):
+            do ( std call context ):
                 r = arg2
         else:
             r = false
@@ -6185,7 +6161,7 @@ function bool r =
         arg1:
             r = true
         else:
-            r = do ( std call context ):
+            do ( std call context ):
                 r = arg2
 \end{verbatim}\end{indpar}
 
@@ -6219,8 +6195,10 @@ An example assuming:
 \begin{indpar}\begin{verbatim}
 unswrd      is 32 bits
 intwrd      is 32 bits
+floatwrd    is 64 bits
 unsmax      is 64 bits
 intmax      is 64 bits
+floatmax    is 64 bits
 \end{verbatim}\end{indpar}
 
 is:
@@ -8641,9 +8619,9 @@ $TX1$, $TX2$, \ldots{}~are the types of the $X$ prototype argument
 variables assigned to $e1$, $e2$, \ldots{}~in order, and
 $TY1$, $TY2$, \ldots{}~are the types of the $Y$ argument
 variables assigned to $e1$, $e2$, \ldots{}~in order,
-and values of type
-$TXi$ are implicitly convertible to values of type $TYi$ for
-every $i$, but not vice versa (which should only happen if
+and type $TXi$ is more specific (\pagref{MORE-SPECIFIC-RELATION})
+than type $TYi$ for
+every $i$, but not vice versa (which can only happen if
 all the types are the same),
 then the $Y$ match is discarded.
 

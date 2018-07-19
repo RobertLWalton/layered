@@ -6917,6 +6917,11 @@ if there are no result variables, the
 {\em function-call} must match a {\em function-prototype} that has
 no result variables (\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
 
+If an {\em expression-list} contains more than one {\em expression},
+and one of the {\em expressions} is a {\em function-call}, only the
+first value returned by the function is used, and any other values
+returned by the function are discarded.
+
 An {\em expression} may only input values that are constants,
 the values of variables in the same function execution
 frame (including arguments passed to the function execution), 

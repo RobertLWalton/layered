@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 18, 2018
+July 19, 2018
  
 \end{center}
 
@@ -6735,14 +6735,17 @@ Assignment statements have the syntax:
     \end{tabular}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
-    ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em variable-name}
+    ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em result-variable-name}
 \\[0.5ex]
 \emkey{next-variable-declaration}
-    ::= \ttkey{next}~{\em variable-name}
+    ::= \ttkey{next}~{\em result-variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+\emkey{result-variable-name} ::= {\em variable-name}
+                                 without {\em member-selectors}
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -6795,16 +6798,10 @@ that give {\em variable-names} with types and qualifiers,
 these result variables are allocated to the current function frame, and
 values produced by evaluating the {\em assign\-ment-right-side} are stored in
 these variables.
-The {\em assignment-right-side} produces a list of values,
-and this list must have
-at least as many elements as there are result variables.
-If the {\em assignment-right-side} is a list of {\em expressions},
-and not a {\em subblock},
-the result variables are assigned their values in parallel, after the
-{\em assignment-right-side} has been completely evaluated.
-If the {\em assignment-right-side} is a {\em function-call} that produces
-too many values, the excess values are discarded.  Otherwise there must
-be exactly as many values as there are result variables.
+
+The {\em assignment-right-side} may produce a list of values which can be
+used to set multiple {\em result-variables}.  The {\em assignment-right-side}
+is completely evaluated before any {\em result-variables} are set.
 
 When a variable value is set, the value is implicitly first
 computed in a register, then stored in the current function
@@ -6833,20 +6830,21 @@ the type of a {\em function-prototype} result variable
 for a {\em function-call} that is the {\em assignment-right-side}
 (\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
 
-A list of {\em assignment-statement}
-result variables acts as a declaration of these variables,
-and the scope of this declaration includes any {\em subblock} that may
+A {\em result-variable-declaration} acts
+as a declaration of its variable,
+and the scope of the declarations includes any {\em subblock} that may
 constitute the {\em assignment-right-side}.
 Result variables are not allowed to hide (\pagref{HIDE})
 other {\em name} declarations with exceptions listed on
 \pagref{HIDING-EXCEPTIONS}.
 
-However, if an assignment statement has a {\em next-variable-declaration}
-that uses the word `\ttkey{next}'\label{NEXT} in
+A {\em next-variable-declaration} is similar to a
+{\em result-variable-declaration}, but uses the word
+`\ttkey{next}'\label{NEXT} in
 place of the {\em qualifier-names} and {\em type-name}
-of a result variable being assigned a value, then the named variable must
-have been previously assigned a value within the same smallest containing block,
-a new variable with the same qualifiers, type, and name
+of a result variable being assigned a value.  The named result variable must
+have been previously assigned a value within the same smallest containing block.
+A new variable with the same qualifiers, type, and name
 as that previous variable is allocated,
 and the new variable supersedes that previous variable
 in subsequent code within the block.  Thus if {\tt v} is the name
@@ -6881,6 +6879,9 @@ in which the {\em expression-list} has been made into a function argument
 list and there are no result variables.
 {\em Function-calls} \underline{cannot} be used as result variables.
 See \itemref{MATCHING-CALLS-TO-PROTOTYPES}.
+
+The \LSTAR-language (\pagref{LSTAR-LANGUAGE}) extends the L-Language
+by allowing {\em result-variable-names} to contain {\em member-selectors}.
 
 \subsection{Simple Assignment Statements}
 \label{SIMPLE-ASSIGNMENT-STATEMENTS}

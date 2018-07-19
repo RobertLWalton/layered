@@ -7010,9 +7010,23 @@ immediately get a value.  They are assigned values by
 whose {\em result-variable-lists}
 include {\em deferred-variables}:
 \begin{indpar}
-\emkey{deferred-variable}\label{DEFERRED-VARIABLE} ::=
-    {\em variable-name} $|$ \TT{next} ~ {\em variable-name}
+\emkey{deferred-variable}\label{DEFERRED-VARIABLE}
+    \begin{tabular}[t]{rl}
+    ::= & {\em result-variable-name} \\
+    $|$ & \TT{next} ~ {\em result-variable-name} \\
+    $|$ & {\em prototype-result-variable-name} \\
+    \end{tabular}
+\\[1ex]
+\emkey{prototype-result-variable-name} ::= {\em variable-name}
 \end{indpar}
+{\em Deferred-variables} of the first two forms are names of
+{\em result-variables} of containing {\em assignment-blocks},
+while {\em prototype-result-variable-names} are names of
+result variables of the prototype of a containing
+{\em function-delcaration} or {\em generic-declaration}
+(\pagref{FUNCTION-PROTOTYPE}).  These latter can contain
+{\em member-selectors}.
+
 {\em Assignment-statements} that set {\em deferred-variables}
 are called `\skey{deferred assignment}s'.
 

@@ -7326,7 +7326,7 @@ the `\TT{while/until}' subblock is call the `\key{iteration subblock}',
 and the `\TT{finally}' subblock is call the `\key{finalization subblock}'.
 
 The \skey{iteration variable}s are the
-{\em result-variables} of the
+{\em result-variables} declared by the
 {\em assignment-statements} executed by the initialization subblock.
 Each iteration of the loop gives these variables new values using
 `{\tt next v}' to refer to the value of {\tt v} in the next iteration,
@@ -7353,9 +7353,13 @@ Within the initialization and iteration subblocks assignment
 statements may set iteration variables in adjacent subblocks
 using the following syntax for assignment statement result variables:
 \begin{indpar}
-\emkey{iteration-result-variable}\label{ITERATION-RESULT-VARIABLE} ::=
-    \ttmkey{next}{iteration result variable}~{\em variable-name}
-     $|$ \ttmkey{next next}{iteration result variable}~{\em variable-name}
+\emkey{iteration-result-variable}\label{ITERATION-RESULT-VARIABLE}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmkey{next}{iteration result variable} ~
+                      {\em result-variable-name} \\
+    $|$ & \ttmkey{next next}{iteration result variable}
+                      {\em result-variable-name} \\
+    \end{tabular}
 \end{indpar}
 {\em Assignment-statements} that set {\em iteration-result-variables}
 are called `\skey{iteration assignment}s'.
@@ -7403,7 +7407,8 @@ iteration can be discarded, and so forth.
 Code in an initialization or iteration subblock cannot set
 deferred result variables outside the subblock (including loop block
 result variables), or contain \TT{exit} statements that have
-no block label.
+no block label (however such statements may be in subblocks 
+of the initialization or iteration subblock).
 
 \subsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}

@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 19, 2018
+July 20, 2018
  
 \end{center}
 
@@ -2691,7 +2691,7 @@ $ma$ is the {\em module-abbreviation} of $E$ if any, \\
 and $cop$ is
 \ttmkey{<}{of enum values}, \ttmkey{<=}{of enum values},
 \ttmkey{==}{of enum values}, \ttmkey{!=}{of enum values},
-\ttmkey{>=}{of enum values}, or \ttmkey{>}{of enum values}.
+\ttmkey{=>}{of enum values}, or \ttmkey{>}{of enum values}.
 \end{center}
 \begin{indpar}
 Returns {\tt range value of (v1) "$cop$" range value of (v2)}.
@@ -2997,7 +2997,7 @@ Returns the size of the set {\tt s} (number of elements in {\tt s}).
 \begin{indpar}
 Returns the {\tt i+1}'st element of {\tt s}, where the elements
 of {\tt s} are taken in the order of their integer underlying values.
-It is an error if {\tt i >= size of (s)}.
+It is an error if {\tt i => size of (s)}.
 \end{indpar}
 
 {\tt function $S$ r = $S$ ($L$ ls)}
@@ -3055,7 +3055,7 @@ Returns the length of the list {\tt ls} (number of elements in {\tt ls}).
 \ttmindex{[]}{of enumeration list}
 \begin{indpar}
 Returns the {\tt i+1}'st list element of {\tt ls}.
-It is an error if {\tt i >= length of (ls)}.
+It is an error if {\tt i => length of (ls)}.
 \end{indpar}
 
 {\tt function $L$ r = $L$ ($S$ s)}
@@ -3364,12 +3364,13 @@ elements are of type $T$, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
 
-{\tt function $T$ r = $ma$\QMARK{} \ttkey{no value}}\label{NO-VALUE}
+{\tt function *UNCHECKED* $T$ r = $ma$\QMARK{} \ttkey{no value}}\label{NO-VALUE}
 \begin{indpar}
-Marks the result variable {\tt r} as not having any value.  In this
-situation {\tt r} may be treated as having a value that can be copied
-into another variable, but cannot be used in any other way.  This
-function is builtin for \underline{all} types $T$.
+Marks the result variable {\tt r} as not having any value.  An operation
+that reads the variable value will have undefined behavior, hence the result is
+{\tt *UNCHECKED*}, and the programmer is responsible for ensuring that
+the value is never read (due to the values of other variables).
+This function is builtin for \underline{all} types $T$.
 \end{indpar}
 
 \end{indpar}
@@ -3435,7 +3436,7 @@ of character {\tt c} to its UNICODE character code.
 
 Because of this implied conversion,
 characters can be compared using \TT{<}, \TT{<=}, \TT{==},
-\TT{!=}, \TT{>=}, or \TT{>}.
+\TT{!=}, \TT{=>}, or \TT{>}.
 \end{indpar}
 
 {\tt function character r = std \ttmkey{NUL}{character value}}
@@ -3504,7 +3505,7 @@ Returns the concatenation of {\tt s1} and {\tt s2}.
 {\tt function bool r =
     std ( string s1 ) "\ttmkey{!=}{of strings}" ( string s2 )} \\
 {\tt function bool r =
-    std ( string s1 ) "\ttmkey{>=}{of strings}" ( string s2 )} \\
+    std ( string s1 ) "\ttmkey{=>}{of strings}" ( string s2 )} \\
 {\tt function bool r =
     std ( string s1 ) "\ttmkey{>}{of strings}" ( string s2 )}
 \begin{indpar}
@@ -3599,7 +3600,7 @@ Returns the concatenation of {\tt n1} and {\tt n2}.
 {\tt function bool r = ( name n1 ) "\ttmkey{<=}{of names}" ( name n2 )} \\
 {\tt function bool r = ( name n1 ) "\ttmkey{==}{of names}" ( name n2 )} \\
 {\tt function bool r = ( name n1 ) "\ttmkey{!=}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{>=}{of names}" ( name n2 )} \\
+{\tt function bool r = ( name n1 ) "\ttmkey{=>}{of names}" ( name n2 )} \\
 {\tt function bool r = ( name n1 ) "\ttmkey{>}{of names}" ( name n2 )}
 \begin{indpar}
 Returns whether {\tt n1} is less than, less than or equal to,
@@ -3754,7 +3755,7 @@ Returns the size of {\tt s}, the number of names in {\tt s}.
 Returns the {\tt i+1}'st name of {\tt s}, where names in {\tt s}
 are taken in sorted order.
 
-It is a programming error if {\tt i >= size of ( s )}.
+It is a programming error if {\tt i => size of ( s )}.
 \end{indpar}
 
 {\tt function name set r = std \ttkey{name set} ( name list ls )}
@@ -3821,7 +3822,7 @@ Returns the length of {\tt ls}, the number of names in {\tt ls}.
 \begin{indpar}
 Returns the {\tt i+1}'st name of {\tt ls}.
 
-It is a programming error if {\tt i >= length of ( s )}.
+It is a programming error if {\tt i => length of ( s )}.
 \end{indpar}
 
 {\tt function name list r = std \ttkey{name list} ( name set s )}
@@ -4220,9 +4221,11 @@ logical operators
 \medskip
 
 \begin{tabular}{c}
-\TT{== ~ != ~ > ~ >= ~ < ~ <=} \\
+\TT{== ~ != ~ > ~ =>\footnotemark ~ < ~ <=} \\
 comparison operators
 \end{tabular}
+\footnotetext{L-language uses \TT{=>} so {\tt x => y}
+whereas the C language uses \TT{>=} so {\tt x >= y}.}
 
 \medskip
 
@@ -4454,7 +4457,7 @@ following examples:
 first & \multicolumn{11}{c|}{second operator} \\
 \cline{2-12}
 operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
-                & \IX{<}  & \IX{<=}   & \IX{==}  & \IX{!=} & \IX{>=} & \IX{>}
+                & \IX{<}  & \IX{<=}   & \IX{==}  & \IX{!=} & \IX{=>} & \IX{>}
 \\\hline
 \TT{\{}		& >x & > & > & > & > & > & > & > & > & > & > \\
 \hline
@@ -4469,7 +4472,7 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \IX{<=}		& < & x< & < & < & x & < & < & < & < & < & < \\
 \IX{==}		& < & x< & < & < & x & < & < & < & < & < & < \\
 \IX{!=}		& < & x< & < & < & x & < & < & < & < & < & < \\
-\IX{>=}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\IX{=>}		& < & x< & < & < & x & < & < & < & < & < & < \\
 \IX{>}		& < & x< & < & < & x & < & < & < & < & < & < \\
 \hline
 \IX{+}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
@@ -4524,7 +4527,7 @@ operator 	& \IX{+}  & \IX{-}    & \IX{*}   & \IX{/}
 \IX{<=}		& > & > & > & > & > & > & > & > & > & > \\
 \IX{==}		& > & > & > & > & > & > & > & > & > & > \\
 \IX{!=}		& > & > & > & > & > & > & > & > & > & > \\
-\IX{>=}		& > & > & > & > & > & > & > & > & > & > \\
+\IX{=>}		& > & > & > & > & > & > & > & > & > & > \\
 \IX{>}		& > & > & > & > & > & > & > & > & > & > \\
 \hline
 \IX{+}		& < & < & > & > & > & > & > & > & > & > \\
@@ -4579,7 +4582,7 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 \IX{<=}		& > & > & > & > & > & > & < \\
 \IX{==}		& > & > & > & > & > & > & < \\
 \IX{!=}		& > & > & > & > & > & > & < \\
-\IX{>=}		& > & > & > & > & > & > & < \\
+\IX{=>}		& > & > & > & > & > & > & < \\
 \IX{>}		& > & > & > & > & > & > & < \\
 \hline
 \IX{+}		& x & x & x & x & x & x & < \\
@@ -4886,7 +4889,7 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{compare-operator}::=
     \ttkey{==} $|$ \ttkey{!=} $|$ \ttkey{>} $|$
-    \ttkey{>=} $|$ \ttkey{<} $|$ \ttkey{<=}
+    \ttkey{=>} $|$ \ttkey{<} $|$ \ttkey{<=}
 \\[0.5ex]
 \emkey{compare-operand}
     \begin{tabular}[t]{rl}
@@ -5053,7 +5056,7 @@ include "not" expression in "logical" operand
 include "not" expression in "logical" expression
 
 define left associative "compare" operators
-       "<", "<=", "==", "!=", ">=", ">"
+       "<", "<=", "==", "!=", "=>", ">"
 include "compare" expression in "logical" operand
 include "compare" expression in "not" operand
 include "compare" expression in "logical" expression
@@ -5987,7 +5990,7 @@ define type std *IF-VALUE* as void
     //
     //    bool r.valid  Value of b.
     //    T r.value     Value of e if r.valid true.
-    //                  Default value of type T
+    //                  *UNCHECKED* no value of type T
     //                  if r.valid false.
     //
     // where T is the type of the e value and cannot itself
@@ -6003,7 +6006,7 @@ function *IF-VALUE* r, T r.value, bool r.valid =
                     r.value = arg1
                 r.valid = true
         else:
-            r.value = no value
+            r.value = *UNCHECKED* ( no value )
             r.valid = false
 
 function T r =
@@ -6055,7 +6058,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \tt ~~~~~~~~tmp2.value = $e1$ \\
 \tt ~~~~~~tmp2.valid = true \\
 \tt ~~~~else: \\
-\tt ~~~~~~tmp2.value = no value \\
+\tt ~~~~~~tmp2.value = *UNCHECKED* ( no value ) \\
 \tt ~~~~~~tmp2.valid = false \\
 \end{tabular}
 
@@ -6086,7 +6089,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \tt ~~~~~~~~~~~~~~~~~~tmp4.value = $e2$ \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = true \\
 \tt ~~~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.value = no value \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = *UNCHECKED* ( no value ) \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = false \\
 \end{tabular}
 
@@ -6245,9 +6248,9 @@ is of `\TT{qualifier}' type, {\tt missing}, which has no natural type, will be
 evaluated with `\TT{qualifier}' target type.
 
 Note that a comparison operator may not have a negation that is
-also simply a comparison operator, e.g., \TT{>=} may not be the
+also simply a comparison operator, e.g., \TT{=>} may not be the
 negation of \TT{<}.  For example, both return \TT{false} if an
-operand is \TT{NaN}.  For this reason `{\tt x >= y}' and
+operand is \TT{NaN}.  For this reason `{\tt x => y}' and
 `{\tt not ( x < y )}' are semantically different expressions.
 
 Comparison expressions are evaluated from left to right and are
@@ -6286,8 +6289,10 @@ define type std *COMPARE-VALUE* as void
     // opertor has as its value a *COMPARE-VALUE* r that is a
     // root of a cluster with members:
     //
-    //    T r.right op  Value of e2 (i.e., right operand)
     //    bool r.value  Result of comparison.
+    //    T r.right op  Value of e2 (i.e., right operand) if
+    //                  r.value is true.  *UNCHECKED* no
+    //                  value if r.value is false.
     //
     // where T is the type of the operands and cannot itself
     // equal *COMPARE-VALUE*.
@@ -6317,7 +6322,7 @@ function *COMPARE-VALUE* r, T r.right op, bool r.value =
                 r.right op = arg2
             r.value = arg1.right op "<" r.right op
         else:
-            r.right op = no value
+            r.right op = *UNCHECKED* ( no value )
             r.value = false
 
 function bool r = ( T arg1 ) "<" ( T arg2 ):
@@ -6373,7 +6378,7 @@ and the compiler expands this to the following
 \tt ~~~~~~~~~~~~~~~~tmp4.value = \\
 \tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op "<" tmp4.right op \\
 \tt ~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.right op = no value \\
+\tt ~~~~~~~~~~~~~~~~tmp4.right op = *UNCHECKED* ( no value ) \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = false \\
 \end{tabular}
 
@@ -6455,7 +6460,7 @@ generic std define compare operator ( type T, name OP )
                     r.value =
                         M ( arg1.right op OP r.right op )
                 else:
-                    r.right op = no value
+                    r.right op = *UNCHECKED* ( no value )
                     r.value = false
 \end{verbatim}\end{indpar}
 
@@ -6670,7 +6675,7 @@ $ma$ by defining functions with the following prototypes:
 \begin{indpar}
 {\tt function bool r = $ma$\QMARK{} ( $T$ $v1$ ) "$op$" ( $T$ $v2$ )}
 \begin{indpar}
-where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{>=}, or \TT{>}
+where $op$ is one of \TT{<}, \TT{<=}, \TT{==}, \TT{!=}, \TT{=>}, or \TT{>}
 
 In addition, to allow sequences of compare operators with operands
 of type $T$, for each compare operator $op$ you must include the line
@@ -7095,23 +7100,23 @@ Examples of {\em exit-statements} are:
 int32 x = 1
 int32 y = 1
 bool v = do BLOCK1:
-    // sets v = ( x <= 10 or y >= 10 )
+    // sets v = ( x <= 10 or y => 10 )
     //
     do BLOCK2:
         exit BLOCK2 if not x <= 10
         v = true
         exit BLOCK1
     do BLOCK3:
-        exit BLOCK3 if not y >= 10
+        exit BLOCK3 if not y => 10
         v = true
         exit BLOCK1
     v = false
 
 next v = do BLOCK1:
-    // attempts to set next v = ( x <= 20 or y >= 20 )
+    // attempts to set next v = ( x <= 20 or y => 20 )
     next v = true
     exit BLOCK1 if x <= 20
-    exit BLOCK1 if y >= 20
+    exit BLOCK1 if y => 20
     next v = false          // ILLEGAL: next v set twice
 \end{verbatim}\end{indpar}
 
@@ -7134,7 +7139,7 @@ int32 z = do BLOCK1:
         z = 55
         exit BLOCK1
     do BLOCK3:
-        exit BLOCK3 if not y >= 10
+        exit BLOCK3 if not y => 10
         z = "hot dog"    // Illegal conversion
         exit BLOCK1
     z = "cold dog"       // Illegal conversion
@@ -7214,8 +7219,8 @@ is a \TT{NaN}, none of the {\em conditional-expressions}
 will be \TT{true}, and the \TT{else} subblock will be evaluated to set
 the {\tt result} to a \TT{NaN}.
 
-There are two special rules that apply to
-{\em conditional-assignment-statements}:\label{CONDITIONAL-SPECIAL-RULES}
+The following special rule applies to
+{\em conditional-assignment-statements}:\label{CONDITIONAL-SPECIAL-RULE}
 
 \begin{itemize}
 \item
@@ -7235,7 +7240,7 @@ evaluates to \TT{false} at compile time, the subblock of this
 For example, if a {\em conditional-assignment-statement}
 contained
 \begin{indpar}\begin{verbatim}
-    if x >= 1,000,000:
+    x => 1,000,000:
         result = NaN
 \end{verbatim}\end{indpar}
 where {\tt x} is a variable with value known at compile time
@@ -7243,25 +7248,33 @@ that is less than {\tt 1,000,000}, then
 `{\tt result = NaN}' will not compile
 and will not be checked for compile time errors.
 
-
-A second special rule is:
-
-\begin{itemize}
-\item\label{MISSING-ELSE-RULE}
-Missing `\TT{else}'s do not cause compile errors,
-but will cause run time errors if needed at run time.
-\end{itemize}
-
-For example, the {\em conditional-assignment-statement}:
+Typically the \TT{else} subblock cannot be omitted.  For
+example, the following has a compile time error unless
+one of the conditionals evaluates to \TT{true} at compile time:
 \begin{indpar}\begin{verbatim}
     result = if:
         x <= y:
             result = x
         y <= x:
             result = y
+        // ILLEGAL because result is not set if there
+        // is no else subblock.
 \end{verbatim}\end{indpar}
-will suffer a run-time error if either {\tt x} or {\tt y} is
-a floating point \TT{NaN} at run-time.
+Possible \TT{else} subblocks for this example are:
+\begin{indpar}\begin{verbatim}
+        else:
+            result = default value
+\end{verbatim}\end{indpar}
+or
+\begin{indpar}\begin{verbatim}
+        else:
+            result = *UNCHECKED* ( no value )
+\end{verbatim}\end{indpar}
+or
+\begin{indpar}\begin{verbatim}
+        else:
+            program stop
+\end{verbatim}\end{indpar}
 
 \subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -8994,20 +9007,22 @@ generic min-max ( name F, name C )
                     result = y
                 T is float:
                     result = NaN
+                else:
+                    program stop
 
 min-max functions ( `min', `"<="' )
 int64 u = ...
 int64 v = min ( u, -1,000,000 )
-min-max functions ( `max', `">="' )
+min-max functions ( `max', `"=>"' )
 float64 w = ...
 next w = max ( w, -1,000,000 )
 \end{verbatim}\end{indpar}
 
 Note that {\tt C} is a function call {\em term-name} and not
 an operator.
-Also if {\tt T is float} is \TT{false} the last condition statement
-clause is not compiled or checked for errors
-(\pagref{MISSING-ELSE-RULE}).
+Also if `{\tt T is float}' is \TT{false} the assignment of \TT{NaN}
+to `{\tt result}' will not be compiled or checked for errors
+(\pagref{CONDITIONAL-SPECIAL-RULE}).
 
 The general syntax is:
 \begin{indpar}
@@ -9195,7 +9210,7 @@ generic max-min functions ( name T ):
                             y C x:
                                 r = y
         max-of-min function ( `min', `"<="' )
-        max-of-min function ( `max', `">="' )
+        max-of-min function ( `max', `"=>"' )
 max-min functions ( `uns32' )
     // Equivalent to:
     //
@@ -9208,7 +9223,7 @@ max-min functions ( `uns32' )
     //                 y C x:
     //                     r = y
     // max-of-min function ( `min', `"<="' )
-    // max-of-min function ( `max', `">="' )
+    // max-of-min function ( `max', `"=>"' )
 \end{verbatim}\end{indpar}
 
 The included statements that replace a generic call are compiled in the
@@ -9422,7 +9437,7 @@ but will create new members of existing clusters.  For example:
 \begin{indpar}\begin{verbatim}
 function ( bool v.nonneg ) = test sign ( int32 v ):
     if:
-        v >= 0:
+        v => 0:
             v.nonneg = true
         else:
             v.nonneg = false

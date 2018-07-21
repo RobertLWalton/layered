@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 20, 2018
+July 21, 2018
  
 \end{center}
 
@@ -7307,13 +7307,20 @@ The general syntax of loop assignment statements is:
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	          \ttkey{loop:} \\
 	\TT{~~~~}\ttkey{initially}\TT{:} \\
-	\TT{~~~~~~~~~}{\em assignment-statement}\STAR{} \\
+	\TT{~~~~~~~~~}{\em iteration-variable-assignment-statement}\STAR{} \\
 	\TT{~~~~}\{ \ttkey{while} $|$ \ttkey{until} \}
 	         {\em condition-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ttkey{finally}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
+\\[1ex]
+\emkey{iteration-variable-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{l}
+    {\em assignment-statement} in which all {\em result-variables} \\
+    are {\em result-variable-declarations}
+    \end{tabular}
 \end{indpar}
 
 This is somewhat like the conditional assignment statement
@@ -7327,7 +7334,7 @@ and the `\TT{finally}' subblock is call the `\key{finalization subblock}'.
 
 The \skey{iteration variable}s are the
 {\em result-variables} declared by the
-{\em assignment-statements} executed by the initialization subblock.
+{\em iteration-variable-assignment-statements} executed by the initialization subblock.
 Each iteration of the loop gives these variables new values using
 `{\tt next v}' to refer to the value of {\tt v} in the next iteration,
 where {\tt v} is an iteration variable.  In the example `{\tt i}' and
@@ -7551,7 +7558,7 @@ an assignment statement of the form:
 \begin{indpar}
 \emkey{out-of-line-function-assignment}%
 \label{OUT-OF-LINE-FUNCTION-ASSIGNMENT} ::= \\
-\hspace*{0.5in}{\em function-type}~~{\em function-name} \TT{=:} \\
+\hspace*{0.5in}{\em function-type-name}~~{\em function-name} \TT{=:} \\
 \hspace*{1.0in}{\em statement}\STAR{}
 \end{indpar}
 
@@ -7561,7 +7568,12 @@ These names
 and names declared within the {\em statements} of the assignment,
 are permitted to hide (\pagref{HIDE})
 names in the context of the assignment, but the {\em function-name}
-may not.
+may not.  The {\em statements} of the assignment may reference
+variables in the context of the assignment, which will have
+the values they have been given when the assignment executes, except
+for deferred variables (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}),
+which must be given values before the function is called.
+
 
 If the {\em function-name} is deferred, the {\em function-type}
 name given in the {\em out-of-line-function-deferred-assignment}
@@ -7684,8 +7696,8 @@ and names declared within the block {\em statements}
 are permitted to hide (\pagref{HIDE})
 names in the specified context.
 
-Then the
-compiled code is executed.  The variables in the {\em result-variable-list}
+After it is compiled, the `\TT{do}' subblock is executed.
+The variables in the {\em result-variable-list}
 may be set by either {\em argument-assignment-statements} or
 `\TT{do}' subblock {\em statements} as for
 a block assignment statement (see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
@@ -7705,6 +7717,12 @@ and if the same context is being used,
 the compilation will be bypassed and the previously compiled code used.
 This optimization is required, but such previously compiled code
 may be discarded if it has not been used in a long time.
+
+The {\em statements} of the {\em compile-and-run-assignment-statement}
+may reference to variables in the context of the assignment statement.
+These variables act as arguments to the compiled code that may
+vary from one execution to another, and are not used to optimize or
+index the code.
 
 
 \subsection{Compile-Time Assignment Statements}
@@ -7750,8 +7768,9 @@ A {\em deferred-assignment-statement} must be top level.
 The statement that assigns its values later must be an assignment
 statement with identical {\em result-variable-list}
 that is in the same extended module as the {\em deferred-assignment-statement}.
-It is a program error to read a deferred variable before it has
-been assigned a value.
+It is a detected program error to read a deferred variable before it has
+been assigned a value (this error can only occur in the same extended
+module as the {\em deferred-assignment-statement}).
 
 \subsection{Assembly Assignment Statements}
 \label{ASSEMBLY-ASSIGNMENT-STATEMENTS}

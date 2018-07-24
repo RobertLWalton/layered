@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 21, 2018
+July 24, 2018
  
 \end{center}
 
@@ -6749,8 +6749,8 @@ Assignment statements have the syntax:
 \\[0.5ex]
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
-\emkey{result-variable-name} ::= {\em variable-name}
-                                 without {\em member-selectors}
+\emkey{result-variable-name}\label{RESULT-VARIABLE-NAME}
+    ::= {\em variable-name} without {\em member-selectors}
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -7844,10 +7844,16 @@ The syntax is:
 \\[0.5ex]
 \emkey{prototype-result-variable-list} ::= \\
 \hspace*{0.5in}
-    {\em result-variable-declaration}
-    \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
+    {\em prototype-result-variable-declaration}
+    \{ \TT{,} {\em prototype-result-variable-declaration} \}\STAR{}
 \\[0.5ex]
-{\em result-variable-declaration} ::= see \pagref{RESULT-VARIABLE-DECLARATION}
+\emkey{prototype-result-variable-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em qualifier-name}\STAR{} ~
+          {\em type-name} ~ {\em variable-name} \\
+    $|$ & \ttmkey{next}{prototype result variable} ~
+          {\em variable-name} \\
+    \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
@@ -7984,6 +7990,20 @@ in the same {\em function-prototype}.
 An {\em function-variable-name}
 should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
+\item
+A {\em prototype-result-variable-declaration} {\em variable-name}
+can have {\em member-selectors},
+unlike an {\em assignment-statement} {\em result-variable-name}
+(\pagref{RESULT-VARIABLE-NAME}).  See Clusters \itemref{CLUSTERS}.
+\item
+For a {\em prototype-result-variable-declaration} of the form `\TT{next} $v$',
+$v$ must be the {\em vari\-able-name} in an {\em argument-declaration}
+of the form `{\em qualifier-name}\STAR{} {\em type-name} $v$', and
+any actual argument associated to the {\em argument-declaration}
+must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
+{\em assignment-statement} {\em result-variable-declaration} in the
+\LSTAR-language (i.e., with {\em member-selectors} allowed for $v$ and
+$w$).
 \item
 \TT{"="} cannot be used as a {\em term-name}
 in a {\em prototype-pattern}.

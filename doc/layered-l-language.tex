@@ -3996,7 +3996,8 @@ can be used (1) before a {\em type-name}
 in a declaration, or (2) as the name of an enumeration value in an
 expression.
 
-A `\key{variable qualifier}' qualifies variables but not values.
+A `\key{variable qualifier}'\label{VARIABLE-QUALIFIER}
+qualifies variables but not values.
 If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
 does \underline{not} follow the value of {\tt v} when that value
 is copied to another variable.  Variable qualifiers may
@@ -4004,7 +4005,8 @@ is copied to another variable.  Variable qualifiers may
 and variable qualifiers on actual arguments are ignored as if they
 did not exist.
 
-A `\key{value qualifier}' qualifies values, although the qualifier
+A `\key{value qualifier}'\label{VALUE-QUALIFIER}
+qualifies values, although the qualifier
 is attached to variables that hold these values.
 If $Q$ is a value qualifier attached to a variable {\tt v}, $Q$
 \underline{may} follow the value of {\tt v} to another variable
@@ -5910,7 +5912,7 @@ function bool r =
 
 The assignment statement `{\tt bool v = $e1$ and $e1$}' is
 translated by the parser into `{\tt bool v = $e1$ "and" $e2$}' which
-given the above function declaration compiles to:
+given the above function declaration compiles to:\label{AND-EXAMPLE}
 \begin{indpar}
 \begin{tabular}{l}
 \tt std context tmp0 = std current context \\
@@ -7983,11 +7985,11 @@ A {\em prototype-pattern} or {\em function-call}
 must have either a {\em term-name}
 or at least two {\em argu\-ment-lists}.
 \item
-A {\em function-prototype} {\em term-name} must not be
+A {\em prototype-pattern} {\em term-name} must not be
 an initial segment of any other {\em term-name}
-in the same {\em function-prototype}.
+in the same {\em prototype-pattern}.
 \item
-An {\em function-variable-name}
+A {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME})
 should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
@@ -8015,27 +8017,35 @@ All the result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct.
 \item
+{\em Argument-declarations} appear inside `\TT{()}' or `\TT{[]}'
+bracketed {\em argument-lists} and are \underline{not}
+{\em qualifiers-type-argument-declarations} even if they have
+the same form.  {\em Qualifiers-type-argument-declarations} appear
+inside `\TT{(|\,|)}' bracketed {\em qualifiers-type-argument-lists}.
+\item
 The {\em variable-name} in a {\em qualifiers-argument-declaration}
 or a {\em qualifiers-conditioner} is treated as a {\em qualifier-name}
 within the rest of the {\em function-prototype}.  The value of the
 {\em variable-name} must be computable at compile-time when the
-function is called.  A {\em qualifiers-argument-declaration}
-can be inside `\TT{()}' or `\TT{[]}' bracketed {\em argument-lists},
-as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
+function is called.
 \item
 The {\em variable-name} in a {\em type-argument-declaration}
 or a {\em type-conditioner} is treated as a {\em type-name}
 within the rest of the {\em function-prototype}.  The value of the
 {\em variable-name} must be computable at compile-time when the
-function is called.  A {\em type-argument-declaration}
-can be inside `\TT{()}' or `\TT{[]}' bracketed {\em argument-lists},
-as well as `\TT{(|~|)}' bracketed {\em argument-lists}.
+function is called.
 \item
 In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
 An {\em argument-declaration} that ends with `\TT{??}' is considered
 to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
+\item
+Variable qualifiers (\pagref{VARIABLE-QUALIFIER}) can appear
+in {\em prototype-result-variable-declarations}, but with the
+exception of the \ttmkey{*DERERRED*}{in {\em argument-declarations}}
+qualifier cannot appear in {\em argument-declarations}.
+
 
 
 \end{itemize}
@@ -8048,25 +8058,32 @@ are permitted to hide (\pagref{HIDE})
 names in the context of the {\em function-declara\-tion}.
 
 A {\em function-call} with a {\em result-variable-list}
-is replaced by a {\em block-assignment-statement}
+is replaced by an \LSTAR-language (\pagref{LSTAR-LANGUAGE})
+{\em block-assignment-statement} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS})
 with an context option specifying the context of the
-{\em function-declaration}
-(\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+{\em function-declaration}.
 The result and argument variables in the {\em function-declaration}
 are effectively replaced by compiler generated temporary variable names to
 avoid conflicts, and variables declared inside the replacing
 {\em block-assignment-statement} are permitted to hide variables outside
-the statement (\pagref{HIDE}).  The values of the argument temporary
-variables are computed before the block and the values of the result
+the statement (\pagref{HIDE}).  The values of the non-{\tt *DEFERRED*}
+argument temporary variables are computed before the block, while
+the values of the {\tt *DEFERRED*}
+argument temporary variables are computed where they are used
+inside the block, but within their own subblock that has the
+{\em function-call} context and not the {\em function-declaration}
+context.
+Default values for arguments are computed
+at the beginning of the block, which makes them similar to other
+non-{\tt *DEFERRED*} argument values except that they are computed
+in the context of the {\em function-declaration} and not the context
+of the {\em function-call}.
+The values of the result
 temporary variables are assigned to the {\em function-call} result
-variables after the block.\footnote{This can be implemented by using
-two nested blocks instead of one block without actually replacing
-variable names in the {\em function-declaration} by temporary variable
-names.}
+variables after the block.
+There are examples on pages \pageref{AND-EXAMPLE}, \pageref{IF-ELSE-EXAMPLE},
+and \pageref{COMPARE-EXAMPLE}.
 
-A {\em function-call} without any {\em result-variable-list}
-is just like a {\em function-call} with an empty
-{\em result-variable-list}.
 
 A {\em function-call} with an {\em input-variable-list} is just syntactic
 sugar for a {\em function-call} with neither a {\em result-variable-list}
@@ -8161,12 +8178,13 @@ int32 f = foo ( b 1 )
     //     int32 f = foo ( b 1 ) bar ( tmp y, tmp z )
 \end{verbatim}\end{indpar}
 
-An {\em argument-declaration} can be a {\em type-argument-declaration}
-which has the form `{\tt type T}' for some {\em variable-name} {\tt T}.
+A {\em type-argument-declaration} inside `\TT{(|\,|)}' brackets or
+a {\em type-conditioner} inside `\TT{[|\,|]}' brackets has the
+form `{\tt type T \ldots}' for some {\em variable-name} {\tt T}.
 This makes {\tt T} into a {\em type-name} within the {\em function-declaration}
 containing the {\em type-argument-declaration}.
-If the {\em type-argument-declaration} is
-in an argument list with `\TT{(|~|)}' brackets,
+For a {\em type-argument-declaration}
+in `\TT{(|\,|)}' brackets,
 the actual value of {\tt T} can be implied by a {\em function-call}.
 If an explicit or default value of {\tt T} is given by the call, that is used.
 Otherwise if {\tt T} is the type of a prototype result variable, and there
@@ -8195,29 +8213,32 @@ next z = add ( x, y )
     // `next z'.
 \end{verbatim}\end{indpar}
 
-An {\em argument-declaration} can be a {\em qualifiers-argument-declaration}
+A {\em qualifiers-argument-declaration}
 \label{QUALIFIERS-ARGUMENT-DECLARATION-DISCUSSION}
-which for some {\em variable-name} {\tt Qs}
-has the form `{\tt qualifiers Qs}'.
+inside `\TT{(|\,|)}' brackets or
+a {\em qualifiers-conditioner} that is inside `\TT{[|\,|]}' brackets has the
+form `{\tt qualifiers Qs \ldots}' for some {\em variable-name} {\tt Qs}.
 This makes {\tt Qs} into a {\em qualifier-name}
 within the {\em function-de\-clar\-a\-tion}
-containing the {\em qualifiers-argument-declaration}.  Note that {\tt Qs}
+containing the {\em qualifiers-argument-de\-clar\-a\-tion}.  Note that {\tt Qs}
 is used like a {\em qualifier-name}, but its value is a set of
 zero or more qualifiers.
 
-If the {\em qualifiers-argument-declaration} is
-in an argument list with `\TT{(|~|)}' brackets,
+For a {\em qualifiers-argument-declaration}
+within `\TT{(|\,|)}' brackets,
 the actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit or default value of {\tt Qs} is given by the call, that is used.
 Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
 of a prototype result variable that is \underline{not} a variable
-qualifier, and there is a corresponding {\em function-call}
+qualifier and is not {\tt protected},
+and there is a corresponding {\em function-call}
 result variable with known type,
 the \underline{value} qualifiers of the leftmost such {\em function-call}
 result variable are
 assigned as the value of {\tt Qs}.  Otherwise
 if {\tt Qs} is given as the \underline{only} qualifier
-of a prototype argument variable,
+of a prototype argument variable that is \underline{not} a variable
+qualifier,
 and the {\em actual-argument} corresponding to the
 variable has a natural type (\pagref{NATURAL-TYPE}),
 {\tt Qs} is assigned the \underline{value} qualifiers of the
@@ -8230,6 +8251,9 @@ define protected required value qualifier in-range
 define prohibited value qualifier ouch
 function Qs in-range T r =
         check (| qualifiers Qs, type T |) ( Qs T v ):
+        // in-range is protected so Qs is implied to
+        // be the non-protected value qualifiers of
+        // the actual result variable
     if:
         v < 0:
             error "argument < 0"
@@ -8238,7 +8262,7 @@ function Qs in-range T r =
         else:
             result = v
 
-function F ( in-range v ):
+function F ( in-range ouch v ):
     ... function body omitted ...
 
 // Example usage
@@ -8258,7 +8282,7 @@ F ( x )    // Illegal, x does not have required in-range
 F ( y1 )   // Legal, y1 has required in-range
 \end{verbatim}\end{indpar}
 
-{\em Conditioners} bracketed by `\TT{[|~|]}'
+{\em Conditioners} bracketed by `\TT{[|\,|]}'
 can be written at the end of a {\em function-prototype},
 as in:
 \begin{indpar}\begin{verbatim}

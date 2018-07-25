@@ -6744,7 +6744,7 @@ Assignment statements have the syntax:
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
     ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em result-variable-name}
 \\[0.5ex]
-\emkey{next-variable-declaration}
+\emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
     ::= \ttkey{next}~{\em result-variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
@@ -8359,7 +8359,7 @@ the {\em prototype-result-variable-list}
 of the prototype.  The call may have one or more result
 variables of known types, or a single result variable of unknown
 type, or no result variables (as in a call that is
-a {\em statement} by itself).  The algorithm is as follows:
+a {\em statement} by itself).  The matching algorithm is as follows:
 
 \begin{enumerate}
 
@@ -8546,7 +8546,7 @@ prototype.
 \item
 If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} does \underline{not} have
-a corresponding actual argument, the value of the
+a corresponding actual or default argument, the value of the
 {\em variable-name} in the {\em qual\-i\-fiers-argument-declaration}
 is implied.
 
@@ -8554,17 +8554,23 @@ If the {\em variable-name} in the {\em qualifiers-argument-declaration}
 is used as a {\em qualifier-name}
 of a prototype result variable, and any other {\em qualifier-names}
 of that prototype result variable name \underline{variable}
+or \underline{protected value}
 qualifiers in the context of the prototype, and if the
 the matching call result has known type and qualifiers,
-the \underline{value} qualifiers of the leftmost such call result
+the \underline{unprotected value} qualifiers of the leftmost such call result
 are assigned as the elements of the
 value of the {\em variable-name}.
 
-Otherwise if the {\em variable-name}
-is used as the \underline{sole} {\em qualifier-name}
-of several prototype arguments whose matching
-actual arguments have natural types, the qualifiers of the leftmost
-of these actual arguments are assigned as the elements of the
+Otherwise if the {\em variable-name} in the
+{\em qualifiers-argument-declaration}
+is used as a {\em qualifier-name}
+of a prototype argument variable, and any other {\em qualifier-names}
+of that prototype argument variable name \underline{variable}
+qualifiers in the context of the prototype, and if the
+the matching call actual argument has a
+natural type (\pagref{NATURAL-TYPE}) and qualifiers,
+the \underline{variable} qualifiers of the leftmost such call argument
+are assigned as the elements of the
 value of the {\em variable-name}.
 
 If no value can be assigned to the {\em variable-name} by these rules,
@@ -8581,7 +8587,7 @@ prototype.
 \item
 If any {\em type-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} does \underline{not} have
-a corresponding actual argument, the value of the
+a corresponding actual or default argument, the value of the
 {\em variable-name} in the {\em type-argument-declaration}
 is implied.
 
@@ -8592,8 +8598,9 @@ the type of the leftmost such call result is assigned as the
 value of the {\em variable-name}.
 
 Otherwise if the {\em variable-name}
-is used the {\em type-name} of several prototype arguments whose matching
-actual arguments have natural types, the type of the leftmost
+is used the {\em type-name} of a prototype argument whose matching
+actual argument has a natural type (\pagref{NATURAL-TYPE}),
+the type of the leftmost
 of these arguments is assigned as the
 value of the {\em variable-name}.
 
@@ -8641,6 +8648,14 @@ qualifiers, the call-prototype match fails.
 Otherwise this qualifiers set value is substituted for the {\em variable-name}
 throughout the prototype.
 
+\item\label{NEXT-CALL-PROTOTYPE-MATCHING}
+If the prototype has a `\TT{next} $v$' result variable and a prototype
+argument named $v$, the {\em actual-argument} matched to the argument $v$
+must be a variable name $w$ for which `\TT{next} $w$' is a legal
+{\em next-variable-declaration} (\pagref{NEXT-VARIABLE-DECLARATION})
+in the call context, and $v$ and $w$ must have identical types, else
+the call-prototype match fails.
+
 \item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
 If the unfolded call has {\em actual-argument}
 expressions $e1$, $e2$, \ldots{} read from left to right
@@ -8682,6 +8697,10 @@ If any of the statements `{\tt $QsI$ $TI$ $tmpI$ = \ldots}' cannot be compiled
 because of an ambiguity error, the call-prototype match
 is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
+
+In applying this rule, \TT{*DEFFERED*} prototype arguments are treated
+as if they were not deferred, as the location of evaluation has no
+effect on whether an implicit conversion exists or not.
 
 \item If the call has no result variables, the
 prototype must have no result variables,
@@ -8725,11 +8744,22 @@ to $QCsI$ $TCI$, the call-prototype match fails.
 Note that extra prototype result variables
 are never used and are ultimately ignored.
 
+In this process, if instead of `$QRsI$ $TRI$ $vrI$' for some $I$ one has
+`{\tt next} $vrI$', then
+`$QCsI$ $TCI$ $vcI$' is not given explicitly by the call.
+In this case, if $vcI$ is the variable matched to the appropriate argument by 
+Step~\ref{NEXT-CALL-PROTOTYPE-MATCHING} above, the
+statement `$QCsI$ $TCI$ $vcI$ = $tmpI$' is replaced by
+statement `{\tt next} $vcI$ = $tmpI$', and
+$QRsI$ and $TRI$ are taken to be the the qualifiers and type
+of $vcI$ in the context of the call.
+
 If some of the qualifiers are variable qualifiers, they are
 ignored in the computation of the $tmp\ldots$ values, but
-the rules of \itemref{QUALIFIERS} are applied with respect to
+the rules of \itemref{QUALIFIERS} are applied to
 the prototype result variable qualifiers and the $vc\ldots$
-call result variables qualifiers.
+call result variable qualifiers, and if these rules fail, the
+call-prototype match fails.
 
 If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not exactly equal after protected
 qualifiers have been added to $QCs1$,

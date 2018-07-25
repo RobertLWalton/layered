@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 24, 2018
+July 25, 2018
  
 \end{center}
 
@@ -8045,6 +8045,11 @@ Variable qualifiers (\pagref{VARIABLE-QUALIFIER}) can appear
 in {\em prototype-result-variable-declarations}, but with the
 exception of the \ttmkey{*DERERRED*}{in {\em argument-declarations}}
 qualifier cannot appear in {\em argument-declarations}.
+\item
+Note that prototype result variable names and argument variable names
+may have {\em mem\-ber-selectors} in the L-language, unlike
+variable names declared by {\em assignment-stat-ments}.  See
+Clusters, \itemref{CLUSTERS}.
 
 
 
@@ -8084,6 +8089,18 @@ variables after the block.
 There are examples on pages \pageref{AND-EXAMPLE}, \pageref{IF-ELSE-EXAMPLE},
 and \pageref{COMPARE-EXAMPLE}.
 
+If there is a {\em prototype-result-variable-declaration}
+of the form `\TT{next} $v$' for some variable name $v$, there must
+be a prototype
+argument named $v$.
+In this case any function call must have an actual argument $w$ that
+is a {\em variable-name} for which `\TT{next} $w$' is legal
+(in the \LSTAR-language) in the context
+of the function call, and the types of the prototype argument variable $v$
+and the actual argument $w$ must be identical.  The function call
+expands to an assignment block that places the
+result value in a temporary variable,
+and `\TT{next} $w$' is then set from the temporary variable.
 
 A {\em function-call} with an {\em input-variable-list} is just syntactic
 sugar for a {\em function-call} with neither a {\em result-variable-list}

@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 25, 2018
+July 26, 2018
  
 \end{center}
 
@@ -7250,7 +7250,9 @@ that is less than {\tt 1,000,000}, then
 `{\tt result = NaN}' will not compile
 and will not be checked for compile time errors.
 
-Typically the \TT{else} subblock cannot be omitted.  For
+The \TT{else} subblock cannot be omitted unless one of the
+other subblocks has a conditional that evaluates to \TT{true}
+at compile time.  For
 example, the following has a compile time error unless
 one of the conditionals evaluates to \TT{true} at compile time:
 \begin{indpar}\begin{verbatim}
@@ -9137,7 +9139,8 @@ Note that {\tt C} is a function call {\em term-name} and not
 an operator.
 Also if `{\tt T is float}' is \TT{false} the assignment of \TT{NaN}
 to `{\tt result}' will not be compiled or checked for errors
-(\pagref{CONDITIONAL-SPECIAL-RULE}).
+(\pagref{CONDITIONAL-SPECIAL-RULE}), while if it is \TT{true}
+the `\TT{else}' subblock will not be compiled.
 
 The general syntax is:
 \begin{indpar}
@@ -9148,10 +9151,25 @@ The general syntax is:
 	\end{tabular}
 \\[0.5ex]
 \emkey{generic-prototype}\label{GENERIC-PROTOTYPE}
-    ::= \TT{generic} ~ {\em module-abbreviation}\QMARK{}
-                     ~ {\em prototype-pattern}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{generic} ~ {\em module-abbreviation}\QMARK{}
+                       ~ {\em prototype-pattern} \\
+    $|$ & {\em generic-prototype} \TT{[|} {\em generic-conditioner} \TT{|]}
+    \end{tabular}
 \\[0.5ex]
 {\em prototype-pattern} ::= see \pagref{FUNCTION-PATTERN}
+\\[0.5ex]
+\emkey{generic-conditioner}\label{GENERIC-CONDITIONER}
+    \begin{tabular}[t]{rl}
+    ::= & {\em conditioner} ~~~~~ [see \pagref{CONDITIONER}] \\
+    $|$ & {\em external-conditioner}
+    \end{tabular}
+\\[0.5ex]
+\emkey{external-conditioner}\label{EXTERNAL-CONDITIONER}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmkey{external}{conditioner} \\
+    $|$ & \TT{external if} ~ {\em logical-expression} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{generic-call}\label{GENERIC-CALL}
     ::= {\em function-call} ~~~~~ [see \pagref{FUNCTION-CALL}]

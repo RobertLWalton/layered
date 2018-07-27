@@ -9479,8 +9479,8 @@ integer indices to
 either the base variable name of the cluster or to another member name
 of the cluster.  Two variable names with different base variable names
 belong to different clusters.  The indices must be compile time
-constants when the member is allocated and written, but may be run time
-variables when the member is read.
+constants when the member is allocated and written, but may be expression
+run time values when the member is read.
 
 Variables in clusters are thus organized into trees, with clusters
 that have different bases being in disjoint trees.  Any variable in a cluster
@@ -9492,7 +9492,7 @@ The main feature of clusters and subclusters
 is that members are passed to or returned
 from functions implicitly when their the root variable is named
 explicitly.  Furthermore, non-root cluster members \underline{cannot}
-be created except as results of function calls.
+be created except as implied results of function calls.
 
 For example:
 \begin{indpar}\begin{verbatim}
@@ -9508,13 +9508,13 @@ define type pointer pair as void
 
 // Function to allocate a vector of n T's to the stack.
 //
-function ( stack pointer pair pp,
-           unsadr pp.begin,
-           unsadr pp.end,
-           *MEM* adr pp.base,
-           adr pp.base.adr,
-           type pp.type ) =
-        allocate to stack ( type T, uns32 n ):
+function stack pointer pair pp,
+         unsadr pp.begin,
+         unsadr pp.end,
+         *MEM* adr pp.base,
+         adr pp.base.adr,
+         type pp.type =
+      allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
     pp.type = T
     unsadr size = size of ( T ) * n
@@ -9525,17 +9525,21 @@ function ( stack pointer pair pp,
 
 
 // Prefix operator to dereference a pointer pair to read
-// memory.
+// memory.  Assumes parser instructions:
 //
-function ( *MEM* pp.type out,
-           unsadr out.offset,
-           *MEM* adr out.base,
-           adr out.base.adr ) =
-        "*" ( stack pointer pair pp,
-              type pp.type,
-              unsadr pp.begin,
-              unsadr pp.end,
-              adr pp.base ):
+//     define prefix "dereference" operator "*"
+//     include "dereference" expression in "value" expression
+//     ..........
+//
+function *MEM* pp.type out,
+         unsadr out.offset,
+         *MEM* adr out.base,
+         adr out.base.adr =
+      "*" ( stack pointer pair pp,
+            type pp.type,
+            unsadr pp.begin,
+            unsadr pp.end,
+            adr pp.base ):
     if:
         pp.begin < pp.end:
             out.offset   = pp.begin
@@ -9547,29 +9551,35 @@ function ( *MEM* pp.type out,
 // Prefix operator to increment the begin pointer of a
 // pointer pair.
 //
-function ( next pp.begin )
+function next pp.begin =
         "++" ( stack pointer pair pp,
                unsadr pp.begin )
-      next pp.begin = pp.begin + size of ( pp.type )
+      unsadr r = pp.begin + size of ( pp.type )
+      if:
+          r < pp.begin:
+            fatal error
+                ( "Pointer pair overflow." )
+          else:
+              next pp.begin = pp.begin + size of ( pp.type )
 
 // Assignment operator for pointer pairs.
 //
-function ( Q pointer pair pp2,
-           unsadr pp2.begin,
-           unsadr pp2.end,
-           *MEM* adr pp2.base,
-           adr pp2.base.adr,
-           type pp2.type )
-        = ( qualifiers Q,
-            Q pointer pair pp,
-            type pp.type,
-            unsadr pp.begin,
-            unsadr pp.end,
-            adr pp.base.adr ):
-      pp2.begin = pp.begin
-      pp2.end = pp.end
-      pp2.base.adr = pp.base.adr
-      pp2.type = pp.type
+function Qs pointer pair pp2,
+         unsadr pp2.begin,
+         unsadr pp2.end,
+         *MEM* adr pp2.base,
+         adr pp2.base.adr,
+         type pp2.type
+       = assignment (| qualifiers Qs |)
+                    (  Qs pointer pair pp,
+                       type pp.type,
+                       unsadr pp.begin,
+                       unsadr pp.end,
+                       adr pp.base.adr ):
+    pp2.begin = pp.begin
+    pp2.end = pp.end
+    pp2.base.adr = pp.base.adr
+    pp2.type = pp.type
 
 // Example usage:
 //

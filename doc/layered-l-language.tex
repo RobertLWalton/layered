@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 27, 2018
+July 28, 2018
  
 \end{center}
 
@@ -9197,7 +9197,8 @@ The general syntax is:
     \begin{tabular}[t]{l}
     \TT{include}\ttindex{include for}
         ~ \begin{tabular}[t]{@{}l@{}}
-	  {\em include-name}\QMARK{} \\
+	  {\em include-name}\QMARK{}
+	      ~ {\em include-argument-list}\QMARK{} \\
 	  \TT{for} ~ {\em include-argument-type}
 	           ~ {\em include-argument-name} \\
 	  \TT{in} ~ {\em list-expression} ~ \TT{:} \\
@@ -9231,7 +9232,7 @@ The general syntax is:
     \begin{tabular}[t]{l}
     \TT{name} ~~~ \TT{character} ~~~ \TT{string} \\
     \TT{uns$x$} ~~~ \TT{int$x$} ~~~ \TT{float$x$} \\
-    \TT{type} ~~~ \TT{qualifiers}
+    \TT{type} ~~~ \TT{qualifier} ~~~ \TT{qualifiers}
     \end{tabular}
 \end{indpar}
 
@@ -9293,6 +9294,13 @@ compiler generates a {\em type-name} that is unique among all names
 within the current compilation (of a module or body)
 and can be used within this compilation to refer to the type.
 
+\hspace*{-0.3in}\ttmkey{qualifier}{include argument}
+The include argument name is replaced by a qualifier name referencing the
+value.  If no qualifier name has been defined for the \TT{qualifier} value, the
+compiler generates a {\em qualifier-name} that is unique among all names
+within the current compilation (of a module or body)
+and can be used within this compilation to refer to the type.
+
 \hspace*{-0.3in}\ttmkey{qualifiers}{include argument}
 The include argument name is replaced by a list of qualifier names referencing
 the qualifiers listed in the value, which must be a qualifier list or a
@@ -9305,7 +9313,7 @@ and can be used within this compilation to refer to the qualifier.
 as a module abbreviation, and if it appears in the included code,
 refers to either the current module or to no module (as for a non-external
 name), as determined by {\em external-conditioners}
-(\pagref{EXTERNAL-CONDITIONER}).
+(\pagref{EXTERNAL-CONDITIONER-EXPLANATION}).
 \end{indpar}
 
 An example is:
@@ -9315,7 +9323,7 @@ generic goo ( name N, name OP,
               character C, string S,
               int32 X, float64 Y, float64 Z,
               type T )
-	[| external if T is external |]
+        [| external if T is external |]
     include ( N, OP, C, S, X, Y, Z, T ):
         define abbreviation n ---> `N'
         int64 N = 0
@@ -9353,7 +9361,8 @@ Also note that substitution inside name constant brackets such as
 \TT{`'} is allowed.
 
 The word `\key{..ma}' is treated as a module abbreviation by the
-parser.  If no `\ttkey{external}' {\em generic-conditioner} is present, or
+parser.\label{EXTERNAL-CONDITIONER-EXPLANATION}
+If no `\ttkey{external}' {\em generic-conditioner} is present, or
 if this is a compilation of a body file, `\TT{..ma}'
 is deleted (replaced by an empty lexeme sequence).
 If an `\TT{external}' {\em generic-conditioner} is present and a module
@@ -9369,9 +9378,9 @@ The `\TT{if }{\em logical-expression}' option
 causes the {\em statements} to be included if and only if the
 {\em logical-expression} evaluates to \TT{true}.  An example use is:
 \begin{indpar}\begin{verbatim}
-generic min-max ( name F, name C )
-    include ( F, C ):
-        function T result = F (| type T |) ( T x, T y ):
+generic min-max ( type T, name F, name C )
+    include ( T, F, C ):
+        function T result = F ( T x, T y ):
             include if not T is float:
                 result = if:
                     (x) C (y):
@@ -9397,20 +9406,38 @@ of its containing {\em include-statement}.  The values of include arguments,
 {\em logical-expressions}, and {\em list-expressions} in a set of
 nested {\em include-statements} are computed at compile-time
 just before the outermost of the {\em include-statements}.
+No substitutions are made in {\em logical-expressions} or {\em list-expressions}
+before they are evaluated.  Thus in the example, `{\tt not T is float}'
+is evaluate as is, without any substitution for {\tt T},
+just before `{\tt include ( T, F, C )}'.
 
 The {\em include-for-statement} introduces a new {\em include-argument-name}
 and assigns to it values from the list produced by a {\em list-expression}.
 The {\em statements} in its subblock are included once for each value
-from the list.
+from the list.  The {\em include-argument-name} introduced after the
+`\TT{for}' is \underline{not} included in the {\em include-argument-list}
+of the statement.  An example is:
+\begin{indpar}\begin{verbatim}
+generic min-max functions ( name F, name C ):
+    include (F, C ) for T in [uns32, int32, uns64, int64]:
+        min-max function ( T, F, C )
+min-max function ( `max', `"=>"' )
+    // Equivalent to:
+    //
+    // min-max function ( uns32, `max', `"=>"' )
+    // min-max function ( int32, `max', `"=>"' )
+    // min-max function ( uns64, `max', `"=>"' )
+    // min-max function ( int64, `max', `"=>"' )
+\end{verbatim}\end{indpar}
 
 If an {\em include-statement} $S$ has an {\em include-name} $N$, then
 {\em include-statements} nested inside $S$ that do \underline{not}
 have the {\em include-name} $N$ are treated as ordinary statements
 and not as nested {\em include-statements}.  An example is:
 \begin{indpar}\begin{verbatim}
-generic max-min functions ( name T ):
+generic min-max functions ( type T ):
     include X ( T ):
-        generic max-or-min function ( name F, name C ):
+        generic min-max function ( name F, name C ):
             include ( F, C ):
                 function T r = F ( T x, T y ):
                     include X if T is float:
@@ -9429,14 +9456,15 @@ generic max-min functions ( name T ):
                                 r = y
                             else:
                                 program stop
-        max-of-min function ( `min', `"<="' )
-        max-of-min function ( `max', `"=>"' )
-max-min functions ( `uns32' )
+        min-max function ( `min', `"<="' )
+        min-max function ( `max', `"=>"' )
+min-max functions ( uns32 )
     // Equivalent to:
     //
-    // generic max-or-min function ( name F, name C )
+    // generic min-max function ( name F, name C )
     //     include ( F, C ):
-    //         function uns32 r = F ( uns32 x, uns32 y ):
+    //         function std uns32 r =
+    //                 F ( std uns32 x, std uns32 y ):
     //             if:
     //                 x C y:
     //                     r = x
@@ -9444,11 +9472,11 @@ max-min functions ( `uns32' )
     //                     r = y
     //                 else:
     //                     program stop
-    // max-of-min function ( `min', `"<="' )
-    // max-of-min function ( `max', `"=>"' )
+    // min-max function ( `min', `"<="' )
+    // min-max function ( `max', `"=>"' )
 \end{verbatim}\end{indpar}
 
-An {\em include-statements} without {\em include-names} are treated
+{\em Include-statements} without {\em include-names} are treated
 as if they all had the same {\em include-name} that is different
 from every other {\em include-name}.
 
@@ -9474,8 +9502,7 @@ module "my_module" as mymod
 //
 //    float64 v = mymod my parameter
 //
-function *MEM* float64 r, *UNCHECKED* adr r.adr =
-         mymod my parameter:
+function *MEM* float64 r, adr r.adr = mymod my parameter:
     r.adr = p
 \end{verbatim}\end{indpar}
 
@@ -9489,7 +9516,7 @@ so its replacement is not like the replacement of abbreviations.
 
 The \TT{generate name} function (\pagref{GENERATE-NAME})
 may be used to generate other names which can be substituted
-for {\em include-arguments}.
+for include arguments.
 
 \section{Clusters}
 \label{CLUSTERS}

@@ -9310,15 +9310,17 @@ name), as determined by {\em external-conditioners}
 
 An example is:
 \begin{indpar}\begin{verbatim}
+module "my module" as mymod
 generic goo ( name N, name OP,
               character C, string S,
               int32 X, float64 Y, float64 Z,
-	      type T )
+              type T )
+	[| external if T is external |]
     include ( N, OP, C, S, X, Y, Z, T ):
         define abbreviation n ---> `N'
         int64 N = 0
         character c = C
-        string s = S
+        string ..ma s = S
         int32 x = X
         float64 y = Y
         float64 z = Z
@@ -9331,7 +9333,7 @@ goo ( `my variable', `"+"', C"<LF>", "Hi There",
     //    define abbreviation n ---> `my variable'
     //    int64 my variable = 0
     //    character c = C"<LF>"
-    //    string s = "Hi There"
+    //    string mymod s = "Hi There"
     //    int32 x = 1,234
     //    float64 y = 1.5
     //    float64 z = X"0.4CCCCCCCCCCCCC"
@@ -9349,6 +9351,19 @@ where {\tt OP} has not been identified as an operator by the parser.
 
 Also note that substitution inside name constant brackets such as
 \TT{`'} is allowed.
+
+The word `\key{..ma}' is treated as a module abbreviation by the
+parser.  If no `\ttkey{external}' {\em generic-conditioner} is present, or
+if this is a compilation of a body file, `\TT{..ma}'
+is deleted (replaced by an empty lexeme sequence).
+If an `\TT{external}' {\em generic-conditioner} is present and a module
+is being compiled, `\TT{..ma}'
+is replaced by the abbreviation of the module.
+If the {\em generic-conditioner} has the form `\TT{external if $e$}',
+the expression $e$ is evaluated at the beginning of the evaluation of
+the generic, and if \TT{true}, the effect is as if just `\TT{external}'
+were the conditioner, but if \TT{false}, the effect is as if there
+was no conditioner.
 
 The `\TT{if }{\em logical-expression}' option
 causes the {\em statements} to be included if and only if the

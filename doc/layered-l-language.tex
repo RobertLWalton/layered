@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 28, 2018
+July 30, 2018
  
 \end{center}
 
@@ -3113,6 +3113,33 @@ type.
 Given assignment statements
 \begin{center}
 \begin{tabular}{l}
+\tt $T$ w = \ldots \\
+\tt $T$ v = w \\
+\end{tabular}
+\end{center}
+
+the compiler will check to see if there is any function with a
+prototype of the form
+
+\begin{center} \tt
+function \begin{tabular}[t]{@{}l@{}}
+	 \ldots~$T$ r = \\
+	 $ma$\QMARK{} \ttkey{assignment}
+	 \{ (| qualifiers \ldots{} |) \}\QMARK{}
+	 ( \ldots~$T1$ v )
+	 \end{tabular}
+\end{center}
+
+If so, the compiler will change the second statement to
+\begin{center}
+\tt $T$ v = assignment ( w )
+\end{center}\label{ASSIGNMENT}
+Otherwise the compiler will simply copy the underlying type value of
+$w$ to $v$.
+
+Given assignment statements
+\begin{center}
+\begin{tabular}{l}
 \tt $T1$ w = \ldots \\
 \tt $T2$ v = w \\
 \end{tabular}
@@ -3130,7 +3157,7 @@ an inline function with the prototype:
 \begin{center} \tt
 function Qs~$T2$ r =
 		      \begin{tabular}[t]{@{}l@{}}
-                      \ttkey{implied conversion} \\
+                      $ma$\QMARK{} \ttkey{implied conversion} \\
                       \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
                       \end{tabular}
 \end{center}
@@ -3174,9 +3201,14 @@ we say that
 \label{MORE-SPECIFIC-RELATION}
 if $T1$ is more specific than $T2$, and that whenever there exists a
 function with prototype of the form
+
 \begin{center} \tt
-function \ldots~$T2$ r = $ma$\QMARK{}
-                         \TT{implied conversion} \ldots{} ( \ldots{} $T1$ v )
+function \begin{tabular}[t]{@{}l@{}}
+	 \ldots~$T$ r = \\
+	 $ma$\QMARK{} \ttkey{implied conversion} \\
+	 \TS~~~~~\{ (| qualifiers \ldots{} |) \}\QMARK{}
+	 ( \ldots~$T1$ v )
+	 \end{tabular}
 \end{center}
 then it is required that $T1~~\CNV~~T2$.  The notion of more specific
 types is used by the
@@ -3206,10 +3238,11 @@ Note that this implies that
 \tt unswrd $\CNV$ intwrd $\CNV$ unsmax $\CNV$ intmax
            $\CNV$ floatwrd $\CNV$ floatmax
 \end{center}
-In deducing argument types, the compiler sometimes uses
+The only use of these exceptions is in
 rule \ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
 on page \pagref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
-to pick the most specific type in this sequence that works.
+by which the compiler favors function prototypes with
+more specific argument types.
 
 Functions can be overloaded based on the number and types
 of their arguments, but also on the values of arguments that

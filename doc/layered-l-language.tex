@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 30, 2018
+August 18, 2018
  
 \end{center}
 
@@ -4835,10 +4835,14 @@ The builtin operator precedence table encodes the following syntax equations:
     $|$ & {\em summation-expression} \\
     $|$ & {\em product-expression} \\
     $|$ & {\em exponent-expression} \\
-    $|$ & {\em sign-expression} \\
+    $|$ & {\em arithmetic-prefix-expression} \\
+    $|$ & {\em arithmetic-postfix-expression} \\
     $|$ & {\em bitop-expression} \\
     $|$ & {\em shift-expression} \\
-    $|$ & {\em complement-expression} \\
+    $|$ & {\em bitop-prefix-expression} \\
+    $|$ & {\em bitop-postfix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{else-expression}
@@ -4931,10 +4935,14 @@ The builtin operator precedence table encodes the following syntax equations:
     ::= & {\em summation-expression} \\
     $|$ & {\em product-expression} \\
     $|$ & {\em exponent-expression} \\
-    $|$ & {\em sign-expression} \\
+    $|$ & {\em arithmetic-prefix-expression} \\
+    $|$ & {\em arithmetic-postfix-expression} \\
     $|$ & {\em bitop-expression} \\
     $|$ & {\em shift-expression} \\
-    $|$ & {\em complement-expression} \\
+    $|$ & {\em bitop-prefix-expression} \\
+    $|$ & {\em bitop-postfix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
@@ -4953,7 +4961,10 @@ The builtin operator precedence table encodes the following syntax equations:
     \begin{tabular}[t]{rl}
     ::= & {\em product-expression} \\
     $|$ & {\em exponent-expression} \\
-    $|$ & {\em sign-expression} \\
+    $|$ & {\em arithmetic-prefix-expression} \\
+    $|$ & {\em arithmetic-postfix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
@@ -4975,7 +4986,10 @@ The builtin operator precedence table encodes the following syntax equations:
 \emkey{product-operand}
     \begin{tabular}[t]{rl}
     ::= & {\em exponent-expression} \\
-    $|$ & {\em sign-expression} \\
+    $|$ & {\em arithmetic-prefix-expression} \\
+    $|$ & {\em arithmetic-postfix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
@@ -4987,21 +5001,25 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{exponent-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em sign-expression} \\
+    ::= & {\em arithmetic-prefix-expression} \\
+    $|$ & {\em arithmetic-postfix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
-\emkey{sign-expression}
+\emkey{arithmetic-prefix-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em sign-operator} {\em sign-operand} \\
-    $|$ & {\em sign-operator} {\em sign-expression} \\
+    ::= & {\em arithmetic-prefix-operator} {\em arithmetic-prefix-operand} \\
+    $|$ & {\em arithmetic-prefix-operator} {\em arithmetic-prefix-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{sign-operator}::= \ttkey{+} $|$ \ttkey{-}
+\emkey{arithmetic-prefix-operator}::= \ttkey{+} $|$ \ttkey{-}
 \\[0.5ex]
-\emkey{sign-operand}
+\emkey{arithmetic-prefix-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em primary}
+    ::= & {\em reference-prefix-expression} \\
+    $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{bitop-expression}
@@ -5024,19 +5042,23 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{bitop-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em complement-expression} \\
+    ::= & {\em bitop-prefix-expression} \\
+    $|$ & {\em bitop-postfix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
-\emkey{complement-expression}
+\emkey{bitop-prefix-expression}
     \begin{tabular}[t]{rl}
-    ::= & \ttkey{!} {\em complement-operand} \\
-    $|$ & \ttkey{!} {\em complement-expression} \\
+    ::= & \ttkey{!} {\em bitop-prefix-operand} \\
+    $|$ & \ttkey{!} {\em bitop-prefix-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{complement-operand}
+\emkey{bitop-prefix-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em primary}
+    ::= & {\em reference-prefix-expression} \\
+    $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{shift-expression}
@@ -5051,13 +5073,17 @@ The builtin operator precedence table encodes the following syntax equations:
 \\[0.5ex]
 \emkey{shift-left-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em complement-expression} \\
+    ::= & {\em bitop-prefix-expression} \\
+    $|$ & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
 \emkey{shift-right-operand}
     \begin{tabular}[t]{rl}
-    ::= & {\em primary} \\
+    ::= & {\em reference-prefix-expression} \\
+    $|$ & {\em reference-postfix-expression} \\
+    $|$ & {\em primary} \\
     \end{tabular}
 
 \end{indpar}
@@ -5115,28 +5141,28 @@ include "exponent" expression in "summation" operand
 include "exponent" expression in "compare" operand
 include "exponent" expression in "value" expression
 
-define prefix "sign" operators "+", "-"
-include "sign" expression in "exponent" operand
-include "sign" expression in "product" operand
-include "sign" expression in "summation" operand
-include "sign" expression in "compare" operand
-include "sign" expression in "value" expression
+define prefix "arithmetic-prefix" operators "+", "-"
+include "arithmetic-prefix" expression in "exponent" operand
+include "arithmetic-prefix" expression in "product" operand
+include "arithmetic-prefix" expression in "summation" operand
+include "arithmetic-prefix" expression in "compare" operand
+include "arithmetic-prefix" expression in "value" expression
 
 define left associative "bitop" operator "&"
 define left associative "bitop" operator "|"
 include "bitop" expression in "compare" operand
 include "bitop" expression in "value" expression
 
-define prefix "complement" operator "!"
-include "complement" expression in "bitop" operand
-include "complement" expression in "compare" operand
-include "complement" expression in "value" expression
+define prefix "bitop-prefix" operator "!"
+include "bitop-prefix" expression in "bitop" operand
+include "bitop-prefix" expression in "compare" operand
+include "bitop-prefix" expression in "value" expression
 
 define asymetric left associative
                       "shift" operators "<<", ">>"
 include "shift" expression in "compare" operand
 include "shift" expression in "value" expression
-include "complement" expression in "shift" left operand
+include "bitop-prefix" expression in "shift" left operand
 
 \end{verbatim}\end{indpar}
 
@@ -5570,9 +5596,9 @@ This simplification has been applied in section
 {\em not-expression} \\
 {\em compare-expression} \\
 {\em summation-expression} \\
-{\em sign-expression} \\
+{\em arithmetic-prefix-expression} \\
 {\em shift-expression} \\
-{\em complement-expression}
+{\em bitop-prefix-expression}
 \end{center}
 
 Another implication of the above rules is what happens when
@@ -5696,7 +5722,7 @@ in which it occurs.  For example, there are builtin {\em parser-instructions}
 \tt
 \begin{tabular}{l}
 define left associative "summation" operators "+", "-" \\
-define prefix "sign" operators "+", "-" \\
+define prefix "arithmetic-prefix" operators "+", "-" \\
 \end{tabular}
 \end{center}
 If a body {\em parser-block} contains the instruction
@@ -5708,7 +5734,7 @@ the builtin instructions will be modified to become
 \tt
 \begin{tabular}{l}
 define left associative "summation" operator "-" \\
-define prefix "sign" operator "-" \\
+define prefix "arithmetic-prefix" operator "-" \\
 \end{tabular}
 \end{center}
 If the body {\em parser-block} also contains the instruction

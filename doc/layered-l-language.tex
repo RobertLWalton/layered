@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 18, 2018
+August 19, 2018
  
 \end{center}
 
@@ -4482,8 +4482,8 @@ following examples:
 \end{tabular}
 \end{center}
 
-\subsubsection{The Operator Precedence Table}
-\label{THE-OPERATOR-PRECEDENCE-TABLE}
+\subsubsection{The Builtin Operator Precedence Table}
+\label{THE-BUILTIN-OPERATOR-PRECEDENCE-TABLE}
 
 \begin{figure}[p]
 \begin{center}
@@ -4650,9 +4650,10 @@ operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
 \label{BUILTIN-OPERATOR-PRECEDENCE-TABLE-3}
 \end{figure}
 
-After assigning fixity as above, the parser inserts parentheses so that
-each prefix or postfix operator has a single {\em primary} operand
-and each infix operator has two {\em primary} operands.  This is
+After assigning fixity as in \itemref{OPERATOR-IDENTIFICATION},
+    the parser inserts parentheses so that
+	each prefix or postfix operator has a single {\em primary} operand
+    and each infix operator has two {\em primary} operands.  This is
 done using the \key{operator precedence table}.  The builtin part of
 this table is given in Figures
 \itemref{BUILTIN-OPERATOR-PRECEDENCE-TABLE-1},
@@ -4816,8 +4817,8 @@ concerning prefix and postfix operators:
 \end{center}
 
 
-\subsubsection{Operator Syntax Equations}
-\label{OPERATOR-SYNTAX-EQUATIONS}
+\subsubsection{Builtin Operator Syntax Equations}
+\label{BUILTIN-OPERATOR-SYNTAX-EQUATIONS}
 
 The builtin operator precedence table encodes the following syntax equations:
 
@@ -5088,8 +5089,8 @@ The builtin operator precedence table encodes the following syntax equations:
 
 \end{indpar}
 
-\subsubsection{Parser Instructions}
-\label{PARSER-INSTRUCTIONS}
+\subsubsection{Builtin Parser Instructions}
+\label{BUILTIN-PARSER-INSTRUCTIONS}
 
 The builtin syntax equations above, and the builtin operator
 precedence table, can be computed from the following builtin
@@ -5142,28 +5143,78 @@ include "exponent" expression in "compare" operand
 include "exponent" expression in "value" expression
 
 define prefix "arithmetic-prefix" operators "+", "-"
-include "arithmetic-prefix" expression in "exponent" operand
-include "arithmetic-prefix" expression in "product" operand
-include "arithmetic-prefix" expression in "summation" operand
-include "arithmetic-prefix" expression in "compare" operand
-include "arithmetic-prefix" expression in "value" expression
+include "arithmetic-prefix" expression in
+        "exponent" operand
+include "arithmetic-prefix" expression in
+        "product" operand
+include "arithmetic-prefix" expression in
+        "summation" operand
+include "arithmetic-prefix" expression in
+        "compare" operand
+include "arithmetic-prefix" expression in
+        "value" expression
+
+include "arithmetic-postfix" expression in
+        "exponent" operand
+include "arithmetic-postfix" expression in
+        "product" operand
+include "arithmetic-postfix" expression in
+        "summation" operand
+include "arithmetic-postfix" expression in
+        "compare" operand
+include "arithmetic-postfix" expression in
+        "value" expression
 
 define left associative "bitop" operator "&"
 define left associative "bitop" operator "|"
 include "bitop" expression in "compare" operand
 include "bitop" expression in "value" expression
 
-define prefix "bitop-prefix" operator "!"
-include "bitop-prefix" expression in "bitop" operand
-include "bitop-prefix" expression in "compare" operand
-include "bitop-prefix" expression in "value" expression
-
 define asymetric left associative
                       "shift" operators "<<", ">>"
 include "shift" expression in "compare" operand
 include "shift" expression in "value" expression
-include "bitop-prefix" expression in "shift" left operand
 
+define prefix "bitop-prefix" operator "!"
+include "bitop-prefix" expression in "shift" left operand
+include "bitop-prefix" expression in "bitop" operand
+include "bitop-prefix" expression in "compare" operand
+include "bitop-prefix" expression in "value" expression
+
+include "bitop-postfix" expression in "shift" left operand
+include "bitop-postfix" expression in "bitop" operand
+include "bitop-postfix" expression in "compare" operand
+include "bitop-postfix" expression in "value" expression
+
+include "reference-prefix" expression in
+        "exponent" operand
+include "reference-prefix" expression in
+        "product" operand
+include "reference-prefix" expression in
+        "summation" operand
+include "reference-prefix" expression in
+        "shift" left operand
+include "reference-prefix" expression in
+        "bitop" operand
+include "reference-prefix" expression in
+        "compare" operand
+include "reference-prefix" expression in
+        "value" expression
+
+include "reference-postfix" expression in
+        "exponent" operand
+include "reference-postfix" expression in
+        "product" operand
+include "reference-postfix" expression in
+        "summation" operand
+include "reference-postfix" expression in
+        "shift" left operand
+include "reference-postfix" expression in
+        "bitop" operand
+include "reference-postfix" expression in
+        "compare" operand
+include "reference-postfix" expression in
+        "value" expression
 \end{verbatim}\end{indpar}
 
 Note that the {\tt "else"} operator is right associative and not
@@ -5173,6 +5224,38 @@ right order.  See the example on \pagref{IF-ELSE-EXAMPLE}.
 
 The user may add {\em parser-instructions} to those that
 are builtin using {\em parser-blocks} (\itemref{PARSER-BLOCKS}).
+
+There are several builtin expression types that have no builtin
+operators, but are defined purely for the convenience of users
+adding operators.  These are
+\begin{center}
+"arithmetic-postfix" expression \\
+"bitop-postfix" expression \\
+"reference-prefix" expression \\
+"reference-postfix" expression
+\end{center}
+
+The builtin parser instructions respect the convention that
+prefix and postfix operators should not be mixed with each other.
+The parser itself does \underline{not} have this convention builtin.
+For example, the user added parser instructions
+
+\begin{indpar}\begin{verbatim}
+define prefix "reference-prefix" operator "++"
+define postfix "reference-postfix" operator "++"
+include "reference-postfix" expression in
+        "reference-prefix" operand
+\end{verbatim}\end{indpar}
+
+would allow one to write `{\tt ++ x ++}' which would parse as
+`{\tt ++ (x ++)}', that is, postfix operators would be executed before
+prefix operators.  However this seems confusing, so the builtin
+parser instructions avoid this.
+
+
+
+\subsubsection{Parser Instruction Syntax}
+\label{PARSER-INSTRUCTION-SYNTAX}
 
 \ikey{Parser-instructions}{parser-instruction}\label{PARSER-INSTRUCTION}
 have the syntax:
@@ -5245,6 +5328,33 @@ have names of the forms:
 where the {\em expression-type} is unquoted.  In {\em parser-instructions}
 {\em expression-types} are quoted because they are sometimes operators,
 such as {\tt "and"}, but the syntax equations are not L-Language expressions.
+
+The operators defined by parser instructions have one of three fixities:
+\key{prefix}, or \key{postfix}, or \key{infix}.  The syntax of the
+parser instruction specifies the operator fixity are follows:
+\begin{center}
+\begin{tabular}{ll}
+\tt define prefix \ldots{} operator\ldots & specifies prefix operators \\
+\tt define postfix \ldots{} operator\ldots & specifies postfix operators \\
+\tt define \ldots{} binary \ldots{} operator\ldots
+    & specifies infix operators \\
+\tt define \ldots{} associative \ldots{} operator\ldots
+    & specifies infix operators \\
+\end{tabular}
+\end{center}
+
+Operators of different fixities are different operators from the point
+of view of the operator precedence table:
+see \itemref{THE-BUILTIN-OPERATOR-PRECEDENCE-TABLE}.  For example,
+prefix {\tt +} and infix {\tt +} are distinct builtin operators from
+this point of view.  The single operator lexeme sequence {\tt +} thus
+has two fixities: prefix and infix.
+
+A single operator lexeme sequence is \underline{not} permitted to have
+all three fixities.
+
+\subsubsection{Parser Instruction Semantics}
+\label{PARSER-INSTRUCTION-SEMANTICS}
 
 The {\em parser-define-instructions} act as follows:
 
@@ -5502,6 +5612,9 @@ The syntax equation
 \end{center}
 is also created, so an {\em expression} can be a {\em primary} by itself.
 
+\subsubsection{Computing Operator Precedence}
+\label{COMPUTING-OPERATOR-PRECEDENCE}
+
 The {\em parser-instructions} are used to compute the parser
 syntax equations and from these the operator
 precedence table.  The procedure is roughly as follows.
@@ -5590,7 +5703,7 @@ a {\em not-expression}, these equations can be simplified to
 \end{tabular}
 \end{center}
 This simplification has been applied in section 
-\itemref{OPERATOR-SYNTAX-EQUATIONS} to simplify the following:
+\itemref{BUILTIN-OPERATOR-SYNTAX-EQUATIONS} to simplify the following:
 \begin{center}
 {\em else-expression} \\
 {\em not-expression} \\

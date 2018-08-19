@@ -5828,9 +5828,27 @@ in a {\em parser-block}.  This adds the {\em parser-instructions}
 from the external {\em parser-block} of the named module to the
 builtin {\em parser-instructions}.
 
-If a {\em parser-instruction} mentions an operator then that
-operator is removed from all builtin or imported {\em parser-instructions}
-in which it occurs.  For example, there are builtin {\em parser-instructions}
+The ordering of {\em parser-instructions} within a single {\em parser-block}
+makes \underline{no} difference.  No two such instructions may define the same
+operator with the same fixity.
+
+The ordering of {\em parser-blocks} \underline{does} make a difference.
+If {\em parser-block} X imports {\em parser-block} Y, or if X is in 
+the body of a module and Y is the {\em parser-block} of the module, or if
+Y is the block of builtin parser instructions, then
+we say that Y is a parent of X.  The graph of parser blocks with the
+parent relation must be acyclic.  The {\em parser-instructions} in the
+ancestors of X in this graph are said to be \mkey{ancestor}{parser instruction}
+{\em parser-instructions} of X.
+
+Note that a module or body can contain at most one {\em parser-block}.
+A module that contains nothing but a single exported {\em parser-block}
+can be used to define {\em parser-instructions} that can be imported.
+
+If a {\em parser-instruction} defines an operator with a given fixity,
+then that operator is removed from all ancestor {\em parser-instructions}
+in which it occurs with the same fixity.
+For example, there are builtin {\em parser-instructions}
 \begin{center}
 \tt
 \begin{tabular}{l}
@@ -5842,33 +5860,49 @@ If a body {\em parser-block} contains the instruction
 \begin{center}
 define binary "foo" operator "+" \\
 \end{center}
-the builtin instructions will be modified to become
+the first builtin instruction only will be modified to become
 \begin{center}
 \tt
 \begin{tabular}{l}
 define left associative "summation" operator "-" \\
-define prefix "arithmetic-prefix" operator "-" \\
 \end{tabular}
 \end{center}
 If the body {\em parser-block} also contains the instruction
 \begin{center}
 define left associative "bar" operator "-" \\
 \end{center}
-the builtin instructions mentioned would be deleted entirely.
+that builtin instruction would be deleted entirely.  However the builtin
+instruction
+\begin{center}
+\tt
+\begin{tabular}{l}
+define prefix "arithmetic-prefix" operators "+", "-" \\
+\end{tabular}
+\end{center}
+would \underline{not} be modified by any of this.
 
-A 
+The parser instruction 
 \begin{indpar}
 \emkey{parser-delete-instruction}\label{PARSER-DELETE-INSTRUCTION}
     \begin{tabular}[t]{rl}
-    ::= & \ttkey{delete operator} {\em operator-name} \\
-    $|$ & \ttkey{delete operators} {\em operator-name-list} \\
+    ::= & \ttmkey{delete}{operator} {\em operator-type}
+          \TT{operator} {\em operator-name} \\
+    $|$ & \ttmkey{delete}{operator} {\em operator-type}
+          \TT{operators} {\em operator-name-list} \\
     \end{tabular}
 \end{indpar}
-may be used to delete operators from builtin or imported
+may be used to delete operators from ancestor
 {\em parser-instructions}.
 An operator listed in a
 {\em parser-delete-instruction} cannot be listed in
 any other {\em parser-instruction} in the same {\em parser-block}.
+The {\em operator-type} in a
+{\em parser-delete-instruction} is only used to specify
+the operator fixity, and need not otherwise match the {\em operator-type}
+in the ancestor {\em parser-instruction} that is affected.
+For example, {\tt binary} may be used in the {\em parser-delete-instruction}
+where {\em associative} is used in the affected ancestor
+{\em parser-instruction}.
 
 \subsubsection{Primaries}
 \label{PRIMARIES}

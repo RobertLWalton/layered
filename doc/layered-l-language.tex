@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 19, 2018
+August 20, 2018
  
 \end{center}
 
@@ -5009,7 +5009,8 @@ The builtin operator precedence table encodes the following syntax equations:
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
-\emkey{arithmetic-prefix-expression}
+\emkey{arithmetic-prefix-expression} \\
+    \hspace*{0.5in}
     \begin{tabular}[t]{rl}
     ::= & {\em arithmetic-prefix-operator} {\em arithmetic-prefix-operand} \\
     $|$ & {\em arithmetic-prefix-operator} {\em arithmetic-prefix-expression} \\
@@ -9761,6 +9762,10 @@ be created except as implied results of function calls.
 
 For example:
 \begin{indpar}\begin{verbatim}
+// The module has an exported parsing block containing:
+//
+//      define prefix "reference-prefix" operators "*", "++"
+
 define type pointer pair as void
     // if pp is a pointer pair then:
     //   unsadr pp.begin is the offset of the first element
@@ -9854,9 +9859,8 @@ function ...
     // are set equal to 100 and 101.
     //
     pointer pair pp = allocate to stack ( int32, 2 )
-    next ( * pp ) = 100
-    ++ pp
-    next ( * pp ) = 101
+    * pp = 100
+    * ++ pp = 101
     . . . .
     // Vector of 1000 float64's is summed.
     //

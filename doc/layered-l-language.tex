@@ -8311,6 +8311,17 @@ expands to an assignment block that places the
 result value in a temporary variable,
 and `\TT{next} $w$' is then set from the temporary variable.
 
+An example using this is:
+\begin{indpar}\begin{verbatim}
+function int32 r, next v = post increment ( int32 v ):
+    r = v
+    next v = v + 1
+
+int32 x = 1
+int32 y = post increment ( x )     // y == 1
+int32 z = x                        // z == 2
+\end{verbatim}\end{indpar}
+
 A {\em function-call} with an {\em input-variable-list} is just syntactic
 sugar for a {\em function-call} with neither a {\em result-variable-list}
 or {\em input-variable-list}.  Specifically
@@ -9883,44 +9894,58 @@ This is a general characteristic of the L-Language, and derives
 from the fact that the functions automatically manage the members
 of a cluster.
 
-Cluster member names may be used as prototype parameter
-names, with the root of these names also being a prototype
-parameter.  This specifies that the parameters are related
-by being in the same cluster.  The arguments with member names
-\underline{must} not be given explicit values by function calls,
-they must be omitted in the call itself, as they will be given
-the values taken from members of the root value given in the call.
-If the cluster members named as arguments
-in the function prototype do not have corresponding members of the
+Cluster member names may be used as prototype argument
+names, if the root of these names is a prototype argument.
+Prototype arguments with member names
+\underline{must} be \underline{omitted} in the call itself.
+They are given the values taken from members of their root values
+given in the call.
+If a prototype argument with a members name
+does not have a corresponding member of its
 root value given in the call,
 the function prototype does not match the call unless the prototype
-member has a default (see \pagref{DEFAULTS-TO} ).
+member has a default value (see \pagref{DEFAULTS-TO} ).
 
-When this is done for prototype results, the cluster root must similarly
-be a either a result or argument, and the designated
-members of the cluster are created and set from the results.
-Again the cluster members \underline{must} be omitted in calls,
-but will be automatically created.
-Note that when this is done any qualifiers on the omitted cluster
-members will be set by the prototypes.
+Cluster member names may be used as prototype result
+names, if the root of these names is either a prototype result or
+a prototype argument.
+Prototype results with member names
+\underline{must} be \underline{omitted} in the call itself.
+They will be created by the call.
+A prototype cluster member result that is \underline{not} of the form
+`\TT{next} \ldots' must \underline{not}
+have a matching actual cluster member that
+pre-exists the call, else the prototype-call match fails.
+Note that qualifiers of cluster members created by the call are
+provided by the call.
 
-If all result variables are cluster members, then calls
-using the prototypes will have no explicit result variables,
-but will create new members of existing clusters.  For example:
+A prototype result may be of the form `\TT{next} $v.m$' where $v$ is
+the name of a prototype argument that matched to an cluster root
+call actual argument and $.m$ denotes member selectors (that may be
+subscripts).  In this case $v.m$ may or may not pre-exist
+the call: it will be created if it does not pre-exist.
+
+A cluster member may be used as an actual argument or result if
+the corresponding prototype argument or result is
+\underline{not} a cluster member.
+
+The following is an example:
 \begin{indpar}\begin{verbatim}
-function ( bool v.nonneg ) = test sign ( int32 v ):
+function bool v.nonneg = test sign ( int32 v ):
     if:
         v => 0:
             v.nonneg = true
         else:
             v.nonneg = false
 
+function test sign ( int32 v, bool v.nonneg ):
+    // Do nothing
+
 int32 x = 89
 int32 y = -5
-test sign ( x )
-test sign ( y )
-// Now x.nonneg exits and is true
-// and y.nonneg exits and is false.
+test sign ( x )    // Creates x.nonneg = true
+test sign ( y )    // Creates y.nonneg = false
+test sign ( x )    // Does nothing
 \end{verbatim}\end{indpar}
 
 A variable whose underlying type is \TT{void} has no actual value

@@ -8890,8 +8890,9 @@ and if $v$ and $w$ do have {\em member-selectors}, the types of their
 root variables must be identical,
 else the call-prototype match fails.
 As an exception, $w$ need not exist in the call context if $v$ has
-{\em member-selectors} and a default value (in which case $w$ is
-created by the call).
+{\em member-selectors} and a default value, in which case the call will
+be treated as if $w$ did pre-exist the call and had the default value
+(this can only happen if $v$ and $w$ have {\em member-selectors}).
 
 \item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
 If the unfolded call has {\em actual-argument}
@@ -9971,7 +9972,9 @@ as cluster and subcluster roots.  The `\TT{allocate to stack}'
 function requires that its result be a variable whose underlying
 type is \TT{void} (see \pagref{ALLOCATE-TO-STACK}).
 
-Cluster members may only be created as function call results.
+Importantly, cluster members may only be created or updated
+(via `\TT{next}') as inline function call results.  Thus if
+the inline functions are written correctly, the program will be type-safe.
 
 A cluster member may be explicitly passed as a result variable
 or argument if it is the root of a subcluster that is being

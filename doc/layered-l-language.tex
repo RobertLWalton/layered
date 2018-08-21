@@ -6959,7 +6959,11 @@ Assignment statements have the syntax:
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
 \emkey{result-variable-name}\label{RESULT-VARIABLE-NAME}
-    ::= {\em variable-name} without {\em member-selectors}
+    ::= \begin{tabular}[t]{l}
+        {\em variable-name} without {\em member-selectors} \\
+	(in the \LSTAR-Language (\pagref{LSTAR-LANGUAGE})
+	 {\em member-selectors} are allowed)
+	\end{tabular}
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -8068,6 +8072,12 @@ The syntax is:
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+{\em type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
 \emkey{input-variable-list}
     ::= {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{}
@@ -8214,7 +8224,7 @@ any actual argument associated to the {\em argument-declaration}
 must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
 {\em assignment-statement} {\em result-variable-declaration} in the
 \LSTAR-language (i.e., with {\em member-selectors} allowed for $v$ and
-$w$).
+$w$).  If $v$ or $w$ have {\em member-selectors}, these must be identical.
 \item
 \TT{"="} cannot be used as a {\em term-name}
 in a {\em prototype-pattern}.
@@ -8872,9 +8882,16 @@ throughout the prototype.
 If the prototype has a `\TT{next} $v$' result variable and a prototype
 argument named $v$, the {\em actual-argument} matched to the argument $v$
 must be a variable name $w$ for which `\TT{next} $w$' is a legal
+\LSTAR-Language (\pagref{LSTAR-LANGUAGE})
 {\em next-variable-declaration} (\pagref{NEXT-VARIABLE-DECLARATION})
-in the call context, and $v$ and $w$ must have identical types, else
-the call-prototype match fails.
+in the call context, $v$ and $w$ must have identical types, $v$ and $w$ must
+have identical {\em member-selectors} (or both can have none),
+and if $v$ and $w$ do have {\em member-selectors}, the types of their
+root variables must be identical,
+else the call-prototype match fails.
+As an exception, $w$ need not exist in the call context if $v$ has
+{\em member-selectors} and a default value (in which case $w$ is
+created by the call).
 
 \item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
 If the unfolded call has {\em actual-argument}

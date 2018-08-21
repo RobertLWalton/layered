@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 20, 2018
+August 21, 2018
  
 \end{center}
 
@@ -6192,7 +6192,7 @@ it evaluates its operands left to right.
 The following are the builtin function definitions for
 the {\tt "if"} and {\tt "else" } functions:
 
-\begin{indpar}\begin{verbatim}
+\begin{indpar}\label{IF-ELSE-IMPLEMENTATION}\begin{verbatim}
 define type std *IF-VALUE* as void
     // The expression `e "if" b' has as its value an
     // *IF-VALUE* r that is a root of a cluster with members:
@@ -6492,7 +6492,7 @@ the operands following those of this comparison are not compiled.
 
 This is implemented by the following builtin code:
 
-\begin{indpar}\begin{verbatim}
+\begin{indpar}\label{COMPARE-IMPLEMENTATION}\begin{verbatim}
 define type std *COMPARE-VALUE* as void
     // The expression `e1 "cop" e2' where cop is a comparison
     // opertor has as its value a *COMPARE-VALUE* r that is a
@@ -9819,7 +9819,9 @@ function stack pointer pair pp,
     unsadr size = size of ( T ) * n
     *UNCHECKED* void p = allocate to stack ( size )
     pp.base.adr = p.base.adr
-    pp.begin = p.offset
+    *UNCHECKED* unsadr offset = p.offset
+        // Gets rid of stack qualifier
+    pp.begin = offset
     pp.end = pp.begin + size
 
 
@@ -9831,7 +9833,7 @@ function stack pointer pair pp,
 //     ..........
 //
 function *MEM* pp.type out,
-         unsadr out.offset,
+         stack unsadr out.offset,
          *MEM* adr out.base,
          adr out.base.adr =
       "*" ( stack pointer pair pp,
@@ -9912,6 +9914,38 @@ This is a general characteristic of the L-Language, and derives
 from the fact that the functions automatically manage the members
 of a cluster.
 
+In this example `\TT{*MEM*}'\label{MEM} is a special builtin qualifier
+which can be applied to variables.
+It has the special property that given a variable
+\TT{v} of qualifier \TT{*MEM*}, then if \TT{v} is allocated,
+and \TT{v.base} of type \TT{adr}
+is allocated and assigned a value
+and \TT{v.offset} of type \TT{unsadr}
+is allocated and assigned a value, then
+the root \TT{v} is automatically
+assigned the value located at the RAM address \TT{v.base + v.offset}.
+It is an error in this case to explicitly assign a value to \TT{v}.
+This is how \TT{out} gets its value from
+\TT{out.base}, and \TT{out.offset}.
+
+Similarly if \TT{v.adr} is allocated an assigned a value, then
+the root \TT{v} is automatically
+assigned the value located at the RAM address \TT{v.adr}.
+This is how \TT{out.base} and \TT{pp.base} get their values from
+\TT{out.base.adr} and \TT{pp.base.adr} respectively.
+
+For details on the `\TT{*MEM*}' qualifier see \itemref{THE-MEM-QUALIFIER}.
+
+The `\TT{stack}' qualifier in the example has the property that values with
+this qualifier may not be passed out of a block with a free
+stack.  This keeps stack addresses from escaping contexts in
+which they are valid.  See Sections~\itemref{THE-STACK-QUALIFIER} and
+\itemref{STACK-MANAGEMENT}.
+
+Other examples of the use of clusters are the implementation of
+\TT{if/else} expressions (\pagref{IF-ELSE-IMPLEMENTATION})
+and \TT{</<=/==/!=/=>/>} expressions (\pagref{COMPARE-IMPLEMENTATION}).
+
 Cluster member names may be used as prototype argument
 names, if the root of these names is a prototype argument.
 Prototype arguments with member names
@@ -9936,16 +9970,6 @@ have a matching actual cluster member that
 pre-exists the call, else the prototype-call match fails.
 Note that qualifiers of cluster members created by the call are
 provided by the call.
-
-A prototype result may be of the form `\TT{next} $v.m$' where $v$ is
-the name of a prototype argument that matched to an cluster root
-call actual argument and $.m$ denotes member selectors (that may be
-subscripts).  In this case $v.m$ may or may not pre-exist
-the call: it will be created if it does not pre-exist.
-
-A cluster member may be used as an actual argument or result if
-the corresponding prototype argument or result is
-\underline{not} a cluster member.
 
 The following is an example:
 \begin{indpar}\begin{verbatim}
@@ -9972,142 +9996,21 @@ as cluster and subcluster roots.  The `\TT{allocate to stack}'
 function requires that its result be a variable whose underlying
 type is \TT{void} (see \pagref{ALLOCATE-TO-STACK}).
 
+A cluster member may be used as an actual argument if
+the corresponding prototype argument is
+\underline{not} a cluster member.  A cluster member may \underline{not}
+be used as an actual result.
+
+However a prototype result may be of the form `\TT{next} $v.m$' where $v$ is
+the name of a prototype argument that matched to an cluster root
+call actual argument and $.m$ denotes member selectors (that may be
+subscripts).  In this case $v.m$ may or may not pre-exist
+the call: it will be created if it does not pre-exist.
+
 Importantly, cluster members may only be created or updated
-(via `\TT{next}') as inline function call results.  Thus if
+(via `\TT{next}': see \pagref{NEXT-CALL-PROTOTYPE-MATCHING})
+as inline function call results.  Thus if
 the inline functions are written correctly, the program will be type-safe.
-
-A cluster member may be explicitly passed as a result variable
-or argument if it is the root of a subcluster that is being
-created or used.  The matching prototype variable must
-be a cluster root, and \underline{not} a cluster member,
-within the prototype.  If the cluster member being passed is a
-result variable, its matching prototype variable declaration must have the
-underlying type \TT{void} or be a `\TT{next ...}' result.
-
-The `\TT{qualifiers Q}' argument to the assignment operation
-is assigned by implication to qualifiers of the `\TT{pointer pair}'
-argument, and these qualifiers are added to the result.
-
-In the above example `\TT{*MEM*}' is a special builtin qualifier
-which can be applied to variables.
-See \itemref{BUILTIN-QUALIFIERS}.
-
-The `\TT{*MEM*}' qualifier\label{MEM}
-has the special property that given a variable
-\TT{v} of qualifier \TT{*MEM*}, then if \TT{v} is allocated,
-and \TT{v.base} of type \TT{adr}
-is allocated and assigned a value
-and \TT{v.offset} of type \TT{unsadr}
-is allocated and assigned a value, then
-the root \TT{v} is automatically
-assigned the value located at the RAM address \TT{v.base + v.offset}.
-It is an error in this case to explicitly assign a value to \TT{v}.
-This is how \TT{out} gets its value from
-\TT{out.base}, and \TT{out.offset}.
-
-Similarly if \TT{v.adr} is allocated an assigned a value, then
-the root \TT{v} is automatically
-assigned the value located at the RAM address \TT{v.adr}.
-This is how \TT{out.base} and \TT{pp.base} get their values from
-\TT{out.base.adr} and \TT{pp.base.adr} respectively.
-
-For details on the `\TT{*MEM*}' qualifier see \itemref{THE-MEM-QUALIFIER}.
-
-The `\TT{stack}' qualifier has the property that values with
-this qualifier may not be passed out of a block with a free
-stack.  This keeps stack addresses from escaping contexts in
-which they are valid.  See Sections~\itemref{THE-STACK-QUALIFIER} and
-\itemref{STACK-MANAGEMENT}.
-
-A qualifier may be \ikey{inherited}{qualifier}\label{INHERITED-QUALIFIER}.
-If an inherited qualifier
-is applied to the root variable of a cluster
-or subcluster, this inherited qualifier is automatically applied to all
-the member variables in the cluster or subcluster.  This is not done
-for non-inherited qualifiers.
-
-The `\TT{stack}' qualifier is inherited.
-
-Another example of a cluster with implied next variables is:
-\begin{indpar}\begin{verbatim}
-define type sequence as void
-    // if seq is a sequence,
-    // seq.count is the number of its elements
-    // seq.type is the type of the elements
-    // seq[0 .. seq.count - 1] are the elements
-
-// Function to rotate the sequence right 1 position.
-//
-next seq.count, next seq[0 .. seq.count - 1]
-    = right rotate ( sequence seq, unsadr seq.count,
-                     type seq.type,
-                     seq.type seq[0 .. seq.count - 1]:
-    next seq[1 .. seq.count - 1] = seq[0 .. seq.count - 2]
-    next seq[0] = seq[seq.count - 1]
-
-// Example usage
-//
-    sequence s = ...
-    rotate ( s )
-\end{verbatim}\end{indpar}
-Here the \TT{seq.count} and \TT{seq.type} arguments
-specify types and member indices
-of results and of arguments later in the argument list.  A call's actual
-\TT{seq.count} and \TT{seq.type} arguments must be compile time values
-in order to be so used.
-
-A last example of the use of clusters is the implementation of
-comparison operators so that
-\begin{center}
-\TT{(x~<~y)~<~z}
-\end{center}
-is the same as
-\begin{center}
-\TT{(x~<~y) AND (y~<~z)}
-\end{center}
-where \TT{y}, if it is an expression,
-is not evaluated twice:\label{COMPARISON-RESULTS}
-\begin{indpar}\begin{verbatim}
-define type comparison result as void
-    // if cr is a comparison result then:
-    //   bool cr.value is the result of the comparison
-    //   type cr.type is the type of the values compared
-    //   cr.type last is the last value compared
-
-// Comparison result of x < y where x and y are type T.
-//
-function comparison result cr, bool cr.value,
-         type cr.type, T cr.last =
-        (| type T |) ( T first ) "<" ( T last ):
-    cr.type = T
-    cr.last = last
-    cr.value = first less than last
-
-// Comparison result of x < y where x is a comparison result.
-//
-function comparison result cr, bool cr.value, type cr.type,
-         T cr.last =
-         ( comparison result cf, bool cf.value, type cf.type,
-           cf.type cf.last ) "<" ( cf.type last ):
-    cr.type = cf.type
-    cr.last = last
-    cr.value = cf.last less than last
-
-// Implied conversion of comparison result to bool.
-//
-function Qs bool result =
-    (| qualifiers Qs |) ( QS comparison result cr,
-    bool cr.value, type cr.type, cr.type cr.last ):
-    result = cr.value
-\end{verbatim}\end{indpar}
-
-Cluster variables can be grouped into `\skey{slice}s', see
-\pagref{SLICE}.  A slice can be allocated and passed
-as an argument as if it were a single variable.  When cluster
-variables or slices containing {\em member-indexes} are allocated,
-the {\em member-indexes} must be defined at compile time.
-When these variables or slices are read, the
-{\em member-indexes} can be run time.
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}

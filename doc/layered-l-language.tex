@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 21, 2018
+August 26, 2018
  
 \end{center}
 
@@ -3870,7 +3870,10 @@ are listed in sorted order in the result.
 \label{CONTEXTS}
 
 Contexts (\pagref{CONTEXT}) exist at compile-time and can be
-stored in compile-time variables.  The \TT{context} type is
+stored in compile-time variables.  A context value designates a point
+in the program code, i.e., a `\key{code point}'.
+
+The \TT{context} type is
 defined by
 \begin{indpar} \tt
 define type \ttkey{std context} as adr \\
@@ -3907,6 +3910,19 @@ inline function whose call is currently being compiled.
 
 \end{indpar}
 
+In order for a context value to be available at run-time, it
+must be returned by one of these functions or be the context of
+a compile-and-run statement (\pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}).
+If a context value is stored in a variable by one of these functions,
+then it need not be available at run time if it can be proved that the
+variable value will not be available at run time.  A variable value is
+available at run time only if the variable is exported, or if the
+variable is in a context that is
+available at run time, or if the variable value is copied into another
+variable that may be available at run time, or if the variable value is
+written into memory.\footnote{With modern memories is it not unreasonable
+to make all contexts available at runtime by storing them
+in a disk file mapped into memory and paged in only as needed.}
 
 \section{Qualifiers}
 \label{QUALIFIERS}

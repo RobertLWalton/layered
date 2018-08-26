@@ -3924,6 +3924,9 @@ written into memory.\footnote{With modern memories is it not unreasonable
 to make all contexts available at runtime by storing them
 in a disk file mapped into memory and paged in only as needed.}
 
+Context values are never needed at run-time if the program contains
+no compile-and-run statements.
+
 \section{Qualifiers}
 \label{QUALIFIERS}
 
@@ -3943,7 +3946,7 @@ Syntactically {\em qualifier-names} immediately precede the {\em type-names}
 that are before {\em variable-names}.  A simple example is:
 \begin{indpar}\begin{verbatim}
 required protected value qualifier fee
-function int32 fee result = F ( int32 value ):
+function fee int32 result = F ( int32 value ):
     // Declares function F that computes a result of
     // with qualifier fee.
     //
@@ -3983,7 +3986,7 @@ A statement like `{\tt int32 x3 = F ( x1 )}' includes a function
 call with \underline{actual} result variable `{\tt x3}' and
 \underline{actual} argument `{\tt x1}'.
 
-The qualifiers may be declared by:
+Qualifiers may be declared by:
 \begin{indpar}
 \emkey{qualifier-declaration}\label{QUALIFIER-DECLARATION} \\
 \hspace*{0.5in}
@@ -4018,13 +4021,22 @@ or `\TT{previous}'.
 \end{enumerate}
 \end{indpar}
 
-The builtin qualifiers are in effect declared by:
+The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
 {\tt protected variable qualifier~}\ttkey{*MEM*} \\
 {\tt protected variable qualifier~}\ttkey{*WRITABLE*} \\
 {\tt prohibited protected value qualifier~}\ttkey{stack} \\
 {\tt required variable qualifier~}\ttkey{*UNCHECKED*}
 \end{indpar}
+
+In addition there are several builtin `\skey{prototype qualifier}s'
+that can only be used in function prototypes:
+\begin{center}
+\TT{*DEFERRED*} \\
+\TT{*OPTIONAL*} \\
+\end{center}
+These are qualifiers only syntactically, and have their own semantics
+not related to that of the defined qualifiers.
 
 Each qualifier is associated with a unique enumeration value,
 and this value can be used at both
@@ -4103,14 +4115,19 @@ value qualifiers, behaves as if it had the form
 \begin{center}
 \tt $Qvars$ $Qvals$ $T$ v = assign ( w )
 \end{center}
-where {\tt assign} has the function prototype
+The \TT{assign} function may be defined explicitly, as is necessary
+for clusters (see \itemref{CLUSTERS}).  If not defined explicitly,
+it behaves as if it has the function prototype
 \begin{center} \tt
-function ~$Qvals$ ~$T$ r = assign ( $Qvals$~$T$ v )
+function ~$Qvals$ ~$T$ r = \ttkey{assign} ( $Qvals$~$T$ v )
 \end{center}
-Or in other words, the \underline{value} qualifiers of {\tt v} are treated
+and merely copies the value of {\tt v} to {\tt r}.
+Thus the \underline{value} qualifiers of {\tt v} are treated
 as prototype argument qualifiers with {\tt w} the actual argument
 corresponding to {\tt v}.  The \underline{variable} qualifiers
-of {\tt v} and {\tt w} are ignored in simple variable assignments.
+of {\tt w} are ignored in these assignments.  Variable
+qualifiers of {\tt v} are allowed only if they are not
+protected.
 
 If {\tt w} does \underline{not} have type $T$, the statement
 \begin{center}
@@ -4141,7 +4158,21 @@ As a consequence, assignment statements and implied conversions
 may remove required value qualifiers but not add them, and
 may add prohibited value qualifiers
 but not remove them.  Assignment statements and implied conversions
-remove variable qualifiers and never add them.
+may remove variable qualifiers but may only add unprotected variable
+qualifiers.
+
+Required value qualifiers may be added and prohibited value qualifiers
+removed by an unchecked builtin function with the following prototype:
+\begin{center} \tt
+function \begin{tabular}[t]{@{}l@{}}
+         \TT{*UNCHECKED*}~Qrs~T r = \ttkey{re-qualify} \\
+         \TS~~~~(| qualifiers Qrs, qualifiers Qvs, type T |) \\
+	 \TS~~~~( Qvs~T v ) \\
+	 \end{tabular}
+\end{center}
+
+This function copies the value of {\tt v} to {\tt r}.
+This function \underline{cannot} add protected \underline{variable} qualifiers.
 
 Some examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:
@@ -4207,15 +4238,20 @@ qualifier are:
 
 function *MEM* int32 r, adr r.adr = read ( adr A ):
     r.adr = A
-function *MEM* int32 r, adr r.adr = read from stack
+function *MEM* int32 r, adr r.adr = read from stack 1
+                                        ( stack adr A ):
+    *UNCHECKED* adr a = re-qualify ( A )
+    r.adr = a
+function *MEM* int32 r, stack adr r.adr = read from stack 2
                                         ( stack adr A ):
     r.adr = A
 
 int32 x1 = read ( address of x )
     // Compiler error: `read' prototype argument does not
     // have prohibited `stack' qualifier call argument has.
-int32 x2 = read from stack ( address of x )
-    // Legal: `read from stack' prototype and call
+int32 x2 = read from stack 1 ( address of x )
+int32 x3 = read from stack 2 ( address of x )
+    // Both legal: `read from stack ...' prototype and call
     // arguments both have `stack' qualifier.
 \end{verbatim}\end{indpar}
 

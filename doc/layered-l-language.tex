@@ -3394,7 +3394,8 @@ floating point number types.
 May be defined by user for defined types.
 \end{indpar}
 
-{\tt function $T$ r = $ma$\QMARK{} \ttkey{default value}}\label{DEFAULT-VALUE}
+{\tt function $T$ r = $ma$\QMARK{} \ttkey{default value}}%
+    \label{DEFAULT-VALUE-OF-TYPE}
 \begin{indpar}
 Returns a suitable default value for type $T$.
 Defined to return \TT{0} for builtin number types.
@@ -8456,7 +8457,8 @@ function type r = companion type of ( type t == your type ):
 {\em Actual-arguments} may be omitted at the end of a {\em call-argument-list}
 if their corresponding
 {\em argu\-ment-declaration} contains a {\em default-value}.
-The {\em default-value} will be used as the actual argument
+\label{DEFAULT-VALUE}
+The \emkey{default-value} will be used as the actual argument
 for such an omitted actual argument.
 
 If the {\em argument-declaration} ends in `\TT{??}'\label{BOOL-DEFAULT}
@@ -9860,6 +9862,15 @@ from functions implicitly when their the root variable is named
 explicitly.  Furthermore, non-root cluster members \underline{cannot}
 be created except as implied results of function calls.
 
+More specifically, non-root cluster members \underline{cannot}
+be created or updated (via `\TT{next}')
+by using them as result variable names in an
+{\em assignment-statement}.  They can only be created or updated
+when their root is given as an actual result or actual argument
+to an inline function call, and the prototype of the function
+specifies that the non-root cluster members should be implicitly created
+or updated.
+
 For example:
 \begin{indpar}\begin{verbatim}
 // The module has an exported parsing block containing:
@@ -10034,34 +10045,45 @@ Other examples of the use of clusters are the implementation of
 \TT{if/else} expressions (\pagref{IF-ELSE-IMPLEMENTATION})
 and \TT{</<=/==/!=/=>/>} expressions (\pagref{COMPARE-IMPLEMENTATION}).
 
-Cluster member names may be used as prototype argument
-names, if the root of these names is a prototype argument.
-Actual call arguments corresponding to such prototype arguments
-\underline{must not} be given explicitly in the call itself, but
-are implicitly taken from actual members of their root values that are
-explicitly given in the call.
-If a prototype argument with a members name
-does not have a corresponding member of its
-root value given explicitly in the call,
-the function prototype does not match the call unless the prototype
-member has a default value (see \pagref{DEFAULTS-TO} ).
+The actual arguments and result variables of a function call are
+matched to corresponding prototype arguments and result variables in
+a function prototype, but when these are cluster members that are
+not cluster roots, the matching process is modified.
 
-Cluster member names (not of the form `\TT{next} \ldots')
-may be used as prototype result
-names, if the root of these names is either a prototype result or
-a prototype argument.
-Actual result variables corresponding to such prototype results
-\underline{must not} be given explicitly in the call itself.
-The actual result members must \underline{not exist} before the
-call, and will be created by the call.
+When a cluster member name $v.m$ is used as prototype argument name,
+the root $v$ of the member name must also be a prototype argument name.
+An actual call argument $w$ must correspond to the prototype root $v$, but
+\underline{no actual} argument may correspond to the prototype member $v.m$.
+Instead, the cluster member $w.m$ of the actual root argument is implicitly
+matched to the prototype member $v.m$.  If $w.m$ does not exist,
+the call/prototype match fails unless the prototype $v.m$ has a
+default value (see \pagref{DEFAULT-VALUE} ).
 
+Here $.m$ denotes any sequence of {\em member-selectors} including possibly
+{\em member-subscripts}.
 
-A prototype result may be of the form
-`\TT{next} $v$' where $v$ is a prototype argment that may be a cluster
-member.  In this case an actual call argument corresponding to $v$ must
-be given as above, unless $v$ has a default argument, in which case
-an actual member variable corresponding the the prototype argument $v$
-is created with the given default value before the call is executed.
+When a cluster member name $v.m$ is used as prototype result name in
+a {\em prototype-result-variable-declaration} that is \underline{not}
+of the form `{\tt next $v.m$}',
+the root $v$ of the member name must also be either a prototype result name
+or a prototype argument name.
+An actual call argument or result variable
+$w$ must correspond to the prototype root $v$, but
+\underline{no actual} result variable
+may correspond to the prototype member $v.m$.
+Instead, the cluster member $w.m$ of the actual root is implicitly
+matched to the prototype member $v.m$.  This implies that $w.m$ must
+not pre-exist the call.  If it does, the call/prototype match fails.
+
+When a cluster member name $v.m$ is used as prototype result name in
+a {\em prototype-result-variable-declaration} that \underline{is}
+of the form `{\tt next $v.m$}', the cluster member name $v.m$ itself
+must be a prototype argument name.  This implies that $v$ must also
+be a prototype argument name with a matching actual argument $w$.
+Either $w.m$ must pre-exist the call, or if $v.m$ has a default
+value, then $w.m$ will be created with the default value before
+the call is made.  The call will create a new variable of the
+same name $w.m$ to supercede the pre-call $w.m$.
 
 The following is an example:
 \begin{indpar}\begin{verbatim}

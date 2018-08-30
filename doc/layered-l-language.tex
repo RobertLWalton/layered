@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 26, 2018
+August 30, 2018
  
 \end{center}
 
@@ -863,7 +863,7 @@ for use by systems and compilers (e.g., `\TT{..size}').
 \item
 {\em Name-items} beginning \underline{and} ending
 with `\TT{*}' are reserved
-for use by systems and compilers (e.g., `\TT{*UNCHECKED*}').
+for use by systems and compilers (e.g., \TT{*UNCHECKED*}).
 \end{enumerate}
 \end{indpar}
 
@@ -2735,7 +2735,7 @@ function std qualifier r = \ttmkey{std missing}{qualifier}: \\
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified (i.e., implementation dependent)
 `\TT{type}' enumeration values.
-Similarly builtin qualifiers, e.g.~`\TT{*MEM*}', are given
+Similarly builtin qualifiers, e.g.~\TT{*MEM*}, are given
 unspecified `\TT{quali\-fier}' enumeration values.  
 The `\TT{range value of}' function above
 can be used to find the range value of an
@@ -3345,6 +3345,13 @@ For defined and enumeration types it is the alignment of their underlying type.
 There is \underline{no} default declaration.
 \end{indpar}
 
+{\tt function bool r = $ma$\QMARK{} \ttkey{zero value OK} ( type t == $T$ )}
+\begin{indpar}
+Returns \TT{true} if a memory location holding a value of type $T$ can be
+initialized to all zero bits.  Returns \TT{false} otherwise.
+Must return \TT{false} if the underlying type of $T$ is \TT{void}.
+\end{indpar}
+
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{min value}} \\
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{max value}}
 \begin{indpar}
@@ -3932,7 +3939,7 @@ no compile-and-run statements.
 
 Variables may be qualified by \skey{qualifier}s, which precede the
 type when a variable is declared.  There are four builtin qualifiers:
-\TT{*MEM*}, \TT{*WRITABLE*}, \TT{stack}, and \TT{*UNCHECKED*}.
+\TT{*MEM*}, \TT{*WRITABLE*}, \TT{*STACK*}, and \TT{*UNCHECKED*}.
 The first three have special effects
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
@@ -4025,7 +4032,7 @@ The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
 {\tt protected variable qualifier~}\ttkey{*MEM*} \\
 {\tt protected variable qualifier~}\ttkey{*WRITABLE*} \\
-{\tt prohibited protected value qualifier~}\ttkey{stack} \\
+{\tt prohibited protected value qualifier~}\ttkey{*STACK*} \\
 {\tt required variable qualifier~}\ttkey{*UNCHECKED*}
 \end{indpar}
 
@@ -4219,48 +4226,48 @@ As a protected variable qualifier, \TT{*MEM*} can only be attached to
 a variable by making the variable a result variable of an inline
 function call.
 
-Some examples involving the \TT{stack} prohibited protected value
+Some examples involving the \TT{*STACK*} prohibited protected value
 qualifier are:
 \begin{indpar}\begin{verbatim}
 // Builtin declaration:
-//     protected prohibited value qualifier stack
+//     protected prohibited value qualifier *STACK*
 //
 // Assume:
-//    function *UNCHECKED* stack adr r = allocate to stack
+//    function *UNCHECKED* *STACK* adr r = allocate to stack
 //                                         ( unswrd size )
 //        // Actual allocate to stack function returns more
 //        // complex cluster.
 //
 *UNCHECKED* adr address of x =
                allocate to stack ( size of int32 )
-    // address of x is automatically given the `stack'
+    // address of x is automatically given the `*STACK*'
     // qualifier.
 
 function *MEM* int32 r, adr r.adr = read ( adr A ):
     r.adr = A
 function *MEM* int32 r, adr r.adr = read from stack 1
-                                        ( stack adr A ):
+                                        ( *STACK* adr A ):
     *UNCHECKED* adr a = re-qualify ( A )
     r.adr = a
-function *MEM* int32 r, stack adr r.adr = read from stack 2
-                                        ( stack adr A ):
+function *MEM* int32 r, *STACK* adr r.adr = read from stack 2
+                                        ( *STACK* adr A ):
     r.adr = A
 
 int32 x1 = read ( address of x )
     // Compiler error: `read' prototype argument does not
-    // have prohibited `stack' qualifier call argument has.
+    // have prohibited `*STACK*' qualifier call argument has.
 int32 x2 = read from stack 1 ( address of x )
 int32 x3 = read from stack 2 ( address of x )
     // Both legal: `read from stack ...' prototype and call
-    // arguments both have `stack' qualifier.
+    // arguments both have `*STACK*' qualifier.
 \end{verbatim}\end{indpar}
 
-The \TT{stack} qualifier is special in that it is not allowed to qualify
+The \TT{*STACK*} qualifier is special in that it is not allowed to qualify
 values returned by an out-of-line function call.
 This qualifier is then attached to addresses of data allocated
 to the stack frame of the function call, because these addresses become
 invalid when the call returns.  There are other situations where
-a \TT{stack} value cannot qualify a variable value because the
+a \TT{*STACK*} value cannot qualify a variable value because the
 lifetime of the variable is longer than the lifetime of the
 stack frame in used when the variable is set:
 see \itemref{THE-STACK-QUALIFIER} for details.
@@ -8601,12 +8608,12 @@ Another example is:
 \begin{indpar}\begin{verbatim}
 function Qs2 T r = inc (| qualifiers Qs1, type T |)
                        ( Qs1 T v )
-    [| qualifiers Qs2 = Qs1 - { stack } |]:
+    [| qualifiers Qs2 = Qs1 - { *STACK* } |]:
     return v + 1
 \end{verbatim}\end{indpar}
 
 which returns {\tt v+1} with the same qualifiers as {\tt v}
-except for the `{\tt stack}' qualifier which is removed.
+except for the `{\tt *STACK*}' qualifier which is removed.
 Here the rightside of the {\em qualifiers-conditioner}
 must be evaluatable when a call to the function is compiled.
 
@@ -9128,6 +9135,18 @@ a function is called.
 The following functions allocate memory and compute addresses.
 
 \begin{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{NULL}}\label{NULL}
+
+\begin{indpar}
+Returns the address of a block of N bytes of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced.
+N is at least 1 megabyte if addresses are 32 bits, and is at least
+1 gitabyte if addresses are 64 bits.  The same value is returned for
+all calls to {\tt NULL} within a run-time environment, or for all compile-time
+calls within a compilation,  though the run-time and compile-time values
+may differ.
+\end{indpar}
 
 {\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
 				  \ttkey{allocate to static} \\
@@ -9859,7 +9878,7 @@ define type pointer pair as void
 
 // Function to allocate a vector of n T's to the stack.
 //
-function stack pointer pair pp,
+function *STACK* pointer pair pp,
          unsadr pp.begin,
          unsadr pp.end,
          *MEM* adr pp.base,
@@ -9871,8 +9890,8 @@ function stack pointer pair pp,
     unsadr size = size of ( T ) * n
     *UNCHECKED* void p = allocate to stack ( size )
     pp.base.adr = p.base.adr
-    *UNCHECKED* unsadr offset = p.offset
-        // Gets rid of stack qualifier
+    *UNCHECKED* unsadr offset = re-qualify ( p.offset )
+        // Gets rid of *STACK* qualifier
     pp.begin = offset
     pp.end = pp.begin + size
 
@@ -9885,10 +9904,10 @@ function stack pointer pair pp,
 //     ..........
 //
 function *MEM* pp.type out,
-         stack unsadr out.offset,
+         unsadr out.offset,
          *MEM* adr out.base,
          adr out.base.adr =
-      "*" ( stack pointer pair pp,
+      "*" ( *STACK* pointer pair pp,
             type pp.type,
             unsadr pp.begin,
             unsadr pp.end,
@@ -9905,7 +9924,7 @@ function *MEM* pp.type out,
 // pointer pair.
 //
 function next pp.begin =
-        "++" ( stack pointer pair pp,
+        "++" ( *STACK* pointer pair pp,
                unsadr pp.begin )
       unsadr r = pp.begin + size of ( pp.type )
       if:
@@ -9966,7 +9985,7 @@ This is a general characteristic of the L-Language, and derives
 from the fact that the functions automatically manage the members
 of a cluster.
 
-In this example `\TT{*MEM*}'\label{MEM} is a special builtin qualifier
+In this example \TT{*MEM*}\label{MEM} is a special builtin qualifier
 which can be applied to variables.
 It has the special property that given a variable
 \TT{v} of qualifier \TT{*MEM*}, then if \TT{v} is allocated,
@@ -9986,9 +10005,9 @@ assigned the value located at the RAM address \TT{v.adr}.
 This is how \TT{out.base} and \TT{pp.base} get their values from
 \TT{out.base.adr} and \TT{pp.base.adr} respectively.
 
-For details on the `\TT{*MEM*}' qualifier see \itemref{THE-MEM-QUALIFIER}.
+For details on the \TT{*MEM*} qualifier see \itemref{THE-MEM-QUALIFIER}.
 
-The `\TT{stack}' qualifier in the example has the property that values with
+The \TT{*STACK*} qualifier in the example has the property that values with
 this qualifier may not be passed out of a block with a free
 stack.  This keeps stack addresses from escaping contexts in
 which they are valid.  See Sections~\itemref{THE-STACK-QUALIFIER} and
@@ -10067,7 +10086,7 @@ the inline functions are written correctly, the program will be type-safe.
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
-The builtin qualifiers are \TT{*MEM*}, \TT{stack}, \TT{*UNCHECKED*},
+The builtin qualifiers are \TT{*MEM*}, \TT{*STACK*}, \TT{*UNCHECKED*},
 and \TT{global}.
 There is also a special class of qualifiers called trace qualifiers.
 
@@ -10101,6 +10120,9 @@ The the
 variable \TT{v} must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.  It is called a `\key{RAM cache variable}'.
+
+The type of the variable \TT{v} must \underline{not} have \TT{void} as its
+underlying type.
 
 An example is:
 
@@ -10168,14 +10190,15 @@ So only functions can effect a load of RAM contents to a variable.
 
 There is a special function of zero arguments, \TT{NULL}, of result
 type \TT{adr}, that
-references a block of 4,096 bytes of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced.
+references a block of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced
+(\pagref{NULL}).
 
 
 \subsection{The Stack Qualifier}
 \label{THE-STACK-QUALIFIER}
 
-The `\ttkey{stack}' qualifier is an inherited, prohibited,
+The `\ttkey{*STACK*}' qualifier is an inherited, prohibited,
 protected qualifier
 attached to offsets and addresses
 returned by the builtin `\TT{allocate to stack}'
@@ -10184,7 +10207,7 @@ It is used to keep these from being stored in
 non-stack memory and in stacks who lifetime exceeds that of the
 memory the stack address points at.
 
-The special property of the `\TT{stack}' qualifier is that it cannot
+The special property of the \TT{*STACK*} qualifier is that it cannot
 be used to qualify variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
 {\em out-of-line-assignment-statement}, or
@@ -10194,20 +10217,20 @@ This is so that stack addresses pointing into a free stack
 cannot outlive the free stack.
 See Section~\itemref{STACK-MANAGEMENT} for more information.
 
-Also, as a prohibited qualifier, a \TT{stack} value cannot be
+Also, as a prohibited qualifier, a \TT{*STACK*} value cannot be
 passed as an argument to a function that does not expect a
-\TT{stack} value.  For example:
+\TT{*STACK*} value.  For example:
 \begin{indpar}\begin{verbatim}
-stack adr sa = ...
+*STACK* adr sa = ...
 adr ta = ...
 function adr result = F ( adr arg ):
     . . . . . . . . . .
-function adr result = G ( stack adr arg ):
+function adr result = G ( *STACK* adr arg ):
     . . . . . . . . . .
 adr xa = F ( sa ) // Illegal; F's arg does not have
-                  // stack qualifier.
-adr ya = G ( sa ) // Legal; G's arg has stack qualifier.
-adr za = G ( ta ) // Legal; G's arg's stack qualifier has
+                  // *STACK* qualifier.
+adr ya = G ( sa ) // Legal; G's arg has *STACK* qualifier.
+adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
                   // no effect (its not required).
 \end{verbatim}\end{indpar}
 
@@ -10307,7 +10330,7 @@ will be inserted automatically into the code at the point of the
 be in error.
 
 As a special case, if a variable that is declared to be out-of-date,
-\TT{v}, has the `\TT{*MEM*}' qualifier, and is in
+\TT{v}, has the \TT{*MEM*} qualifier, and is in
 a cluster that causes \TT{v} to be loaded from memory
 (as per Section~\itemref{THE-MEM-QUALIFIER}), then if \TT{v} is declared
 to be out-of-date, recomputing \TT{v} just means that \TT{v}
@@ -10572,7 +10595,7 @@ deallocated.  The main reason this is important is that stack addresses
 can be passed out of a block with a bound stack to its containing block,
 but cannot be passed out of a block with a free stack to its containing
 or calling block.  This is implemented by giving certain
-variables the `\TT{stack}' qualifier: see
+variables the \TT{*STACK*} qualifier: see
 Section~\itemref{THE-STACK-QUALIFIER}.
 
 Stacks of out-of-line function executions
@@ -10586,17 +10609,17 @@ are free, and variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
 {\em out-of-line-assignment-statement}, or
 {\em compile-time-assignment-statement},
-may \underline{not} have the `\TT{stack}' qualifier.
+may \underline{not} have the \TT{*STACK*} qualifier.
 
 Stacks of loop iteration subblocks are free, and
 variables in the {\em result-variable-list}
 and iteration variables
-of a {\em loop-assignment-statement} may not have the `\TT{stack}'
+of a {\em loop-assignment-statement} may not have the \TT{*STACK*}
 qualifier.  However, stacks of loop `\TT{initially}' and `\TT{finally}'
 subblocks are not free.
 
 Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
-but are never deallocated and make no use of the `\TT{stack}'
+but are never deallocated and make no use of the \TT{*STACK*}
 qualifier.
 
 All other stacks are bound.  Memory allocated to them
@@ -10757,8 +10780,8 @@ the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
 function *UNCHECKED* T result, \\
-~~~~~~~~~stack unsadr result.offset, \\
-~~~~~~~~~stack *MEM* adr result.base, \\
+~~~~~~~~~*STACK* unsadr result.offset, \\
+~~~~~~~~~*STACK* *MEM* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
@@ -10774,12 +10797,12 @@ moved.
 TBD: result.base does not need to be returned.
 
 The returned values use
-the `\TT{stack}' qualifier (see \itemref{THE-STACK-QUALIFIER}),
+the \TT{*STACK*} qualifier (see \itemref{THE-STACK-QUALIFIER}),
 
 The memory is freed when the free stack to which it is allocated
 is freed (\itemref{STACK-MANAGEMENT}).
 The memory containing the \TT{base} value may also be
-freed at this time.  The inherited `\TT{stack}' qualifier is used to
+freed at this time.  The inherited \TT{*STACK*} qualifier is used to
 ensure that addresses of these values cannot survive the free stack:
 see \itemref{THE-STACK-QUALIFIER}.
 
@@ -10789,8 +10812,8 @@ If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
 function *UNCHECKED* T result, \\
-~~~~~~~~~stack unsadr result.offset, \\
-~~~~~~~~~stack *MEM* adr result.base, \\
+~~~~~~~~~*STACK* unsadr result.offset, \\
+~~~~~~~~~*STACK* *MEM* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
@@ -10899,9 +10922,9 @@ by `\TT{allocate to global}' can be.
 The `\TT{allocate to global}' function plays the same role for
 global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
-instead of the \TT{stack} qualifier.  The \TT{global} qualifier
+instead of the \TT{*STACK*} qualifier.  The \TT{global} qualifier
 is a protected, inherited qualifier
-with \underline{none} of the special `\TT{stack}'
+with \underline{none} of the special \TT{*STACK*}
 qualifier properties, and normally has no effect on code.
 
 The `\TT{allocate to global}' inline functions may move

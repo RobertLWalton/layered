@@ -10036,28 +10036,32 @@ and \TT{</<=/==/!=/=>/>} expressions (\pagref{COMPARE-IMPLEMENTATION}).
 
 Cluster member names may be used as prototype argument
 names, if the root of these names is a prototype argument.
-Prototype arguments with member names
-\underline{must} be \underline{omitted} in the call itself.
-They are given the values taken from members of their root values
-given in the call.
+Actual call arguments corresponding to such prototype arguments
+\underline{must not} be given explicitly in the call itself, but
+are implicitly taken from actual members of their root values that are
+explicitly given in the call.
 If a prototype argument with a members name
 does not have a corresponding member of its
-root value given in the call,
+root value given explicitly in the call,
 the function prototype does not match the call unless the prototype
 member has a default value (see \pagref{DEFAULTS-TO} ).
 
-Cluster member names may be used as prototype result
+Cluster member names (not of the form `\TT{next} \ldots')
+may be used as prototype result
 names, if the root of these names is either a prototype result or
 a prototype argument.
-Prototype results with member names
-\underline{must} be \underline{omitted} in the call itself.
-They will be created by the call.
-A prototype cluster member result that is \underline{not} of the form
-`\TT{next} \ldots' must \underline{not}
-have a matching actual cluster member that
-pre-exists the call, else the prototype-call match fails.
-Note that qualifiers of cluster members created by the call are
-provided by the call.
+Actual result variables corresponding to such prototype results
+\underline{must not} be given explicitly in the call itself.
+The actual result members must \underline{not exist} before the
+call, and will be created by the call.
+
+
+A prototype result may be of the form
+`\TT{next} $v$' where $v$ is a prototype argment that may be a cluster
+member.  In this case an actual call argument corresponding to $v$ must
+be given as above, unless $v$ has a default argument, in which case
+an actual member variable corresponding the the prototype argument $v$
+is created with the given default value before the call is executed.
 
 The following is an example:
 \begin{indpar}\begin{verbatim}

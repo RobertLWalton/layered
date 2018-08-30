@@ -5146,6 +5146,8 @@ The builtin operator precedence table encodes the following syntax equations:
     $|$ & {\em reference-postfix-expression} \\
     $|$ & {\em primary} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{reference-prefix-operand} ::= {\em reference-postfix-expression}
 
 \end{indpar}
 
@@ -5275,6 +5277,9 @@ include "reference-postfix" expression in
         "compare" operand
 include "reference-postfix" expression in
         "value" expression
+
+include "reference-postfix" expression in
+        "reference-prefix" operand
 \end{verbatim}\end{indpar}
 
 Note that the {\tt "else"} operator is right associative and not
@@ -5296,23 +5301,18 @@ adding operators.  These are
 \end{center}
 
 The builtin parser instructions respect the convention that
-prefix and postfix operators should not be mixed with each other.
-The parser itself does \underline{not} have this convention builtin.
-For example, the user added parser instructions
+prefix and postfix operators should not be mixed with each other,
+except that {\em reference-prefix} and {\em reference-postfix}
+operators may be mixed, with the {\em reference-postfix} operators
+being executed first.  An example of using this latter is:
 
 \begin{indpar}\begin{verbatim}
-define prefix "reference-prefix" operator "++"
+define prefix "reference-prefix" operator "*"
 define postfix "reference-postfix" operator "++"
-include "reference-postfix" expression in
-        "reference-prefix" operand
 \end{verbatim}\end{indpar}
 
-would allow one to write `{\tt ++ x ++}' which would parse as
-`{\tt ++ (x ++)}', that is, postfix operators would be executed before
-prefix operators.  However this seems confusing, so the builtin
-parser instructions avoid this.
-
-
+which allows one to write `{\tt * x ++}' and get the parse
+`{\tt * (x ++)}'.
 
 \subsubsection{Parser Instruction Syntax}
 \label{PARSER-INSTRUCTION-SYNTAX}
@@ -9864,7 +9864,8 @@ For example:
 \begin{indpar}\begin{verbatim}
 // The module has an exported parsing block containing:
 //
-//      define prefix "reference-prefix" operators "*", "++"
+//     define prefix "reference-prefix" operator "*"
+//     define prefix "reference-postfix" operator "++"
 
 define type pointer pair as void
     // if pp is a pointer pair then:
@@ -9895,18 +9896,35 @@ function *STACK* pointer pair pp,
     pp.begin = offset
     pp.end = pp.begin + size
 
-
-// Prefix operator to dereference a pointer pair to read
-// memory.  Assumes parser instructions:
+// Assignment operator for pointer pairs.
 //
-//     define prefix "dereference" operator "*"
-//     include "dereference" expression in "value" expression
-//     ..........
+function Qs pointer pair pp2,
+         unsadr pp2.begin,
+         unsadr pp2.end,
+         *MEM* adr pp2.base,
+         adr pp2.base.adr,
+         type pp2.type
+
+       = assignment (| qualifiers Qs |)
+                    (  Qs pointer pair pp,
+                       type pp.type,
+                       unsadr pp.begin,
+                       unsadr pp.end,
+                       adr pp.base.adr ):
+
+    pp2.begin = pp.begin
+    pp2.end = pp.end
+    pp2.base.adr = pp.base.adr
+    pp2.type = pp.type
+
+// Operator to dereference a point returning the value
+// pointed at.
 //
 function *MEM* pp.type out,
          unsadr out.offset,
          *MEM* adr out.base,
          adr out.base.adr =
+
       "*" ( *STACK* pointer pair pp,
             type pp.type,
             unsadr pp.begin,
@@ -9920,38 +9938,38 @@ function *MEM* pp.type out,
             fatal error
                 ( "Dereferencing empty pointer pair." )
 
-// Prefix operator to increment the begin pointer of a
-// pointer pair.
-//
-function next pp.begin =
-        "++" ( *STACK* pointer pair pp,
-               unsadr pp.begin )
-      unsadr r = pp.begin + size of ( pp.type )
-      if:
-          r < pp.begin:
-            fatal error
-                ( "Pointer pair overflow." )
-          else:
-              next pp.begin = pp.begin + size of ( pp.type )
-
-// Assignment operator for pointer pairs.
+// Postfix operator to increment the begin pointer of a
+// pointer pair while returning the original pointer
+// pair.
 //
 function Qs pointer pair pp2,
          unsadr pp2.begin,
          unsadr pp2.end,
          *MEM* adr pp2.base,
          adr pp2.base.adr,
-         type pp2.type
-       = assignment (| qualifiers Qs |)
-                    (  Qs pointer pair pp,
-                       type pp.type,
-                       unsadr pp.begin,
-                       unsadr pp.end,
-                       adr pp.base.adr ):
+         type pp2.type,
+	 next pp.begin
+
+       = (| qualifiers Qs |)
+         (  Qs pointer pair pp,
+            type pp.type,
+            unsadr pp.begin,
+            unsadr pp.end,
+            adr pp.base.adr )
+         "++":
+
     pp2.begin = pp.begin
     pp2.end = pp.end
     pp2.base.adr = pp.base.adr
     pp2.type = pp.type
+
+    unsadr r = pp.begin + size of ( pp.type )
+    if:
+        r < pp.begin:
+            fatal error ( "Pointer pair adr overflow." )
+            // adr address arithmetic overflow
+        else:
+            next pp.begin = pp.begin + size of ( pp.type )
 
 // Example usage:
 //
@@ -9961,8 +9979,8 @@ function ...
     // are set equal to 100 and 101.
     //
     pointer pair pp = allocate to stack ( int32, 2 )
-    * pp = 100
-    * ++ pp = 101
+    * pp ++ = 100
+    * pp ++ = 101
     . . . .
     // Vector of 1000 float64's is summed.
     //
@@ -9973,8 +9991,7 @@ function ...
             float64 partial sum = 0
             pointer pair ppf2 = ppf
         while ppf2.begin < ppf2.end:
-            next partial sum = partial sum + * ppf2
-            ++ ppf2
+            next partial sum = partial sum + * ppf2 ++
         finally:
             sum = partial sum
 \end{verbatim}\end{indpar}\label{NEXT-CLUSTER-BASE-EXAMPLE}

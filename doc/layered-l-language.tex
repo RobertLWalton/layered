@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 30, 2018
+August 31, 2018
  
 \end{center}
 
@@ -10013,29 +10013,31 @@ This is a general characteristic of the L-Language, and derives
 from the fact that the functions automatically manage the members
 of a cluster.
 
-In this example \TT{*MEM*}\label{MEM} is a special builtin qualifier
-which can be applied to variables.
-It has the special property that given a variable
-\TT{v} of qualifier \TT{*MEM*}, then if \TT{v} is allocated,
-and \TT{v.base} of type \TT{adr}
-is allocated and assigned a value
-and \TT{v.offset} of type \TT{unsadr}
-is allocated and assigned a value, then
-the root \TT{v} is automatically
-assigned the value located at the RAM address \TT{v.base + v.offset}.
-It is an error in this case to explicitly assign a value to \TT{v}.
-This is how \TT{out} gets its value from
-\TT{out.base}, and \TT{out.offset}.
+In this example \TT{*MEM*}\label{MEM} is a special builtin variable qualifier.
+Its special property is if a variable
+{\tt v} of qualifier \TT{*MEM*} is allocated,
+and if a cluster members  {\tt v.base} of type \TT{adr}
+and {\tt v.offset} of type \TT{unsadr}
+are allocated and assigned values, then
+the cluster root {\tt v} is automatically
+assigned the value read from the RAM address {\tt v.base + v.offset}.
+It is an error in this case to explicitly assign a value to {\tt v}.
+This is how {\tt out} gets its value from
+{\tt out.base}, and {\tt out.offset} in the {\tt "*"} prototype.
 
-Similarly if \TT{v.adr} is allocated an assigned a value, then
-the root \TT{v} is automatically
-assigned the value located at the RAM address \TT{v.adr}.
-This is how \TT{out.base} and \TT{pp.base} get their values from
-\TT{out.base.adr} and \TT{pp.base.adr} respectively.
+Similarly if {\tt v} and {\tt v.adr} are allocated, {\tt v} has qualifier
+\TT{*MEM*}, and {\tt v.adr} is assigned a value, then
+the cluster root {\tt v} is automatically
+assigned the value read from the RAM address {\tt v.adr}.
+This is how {\tt out.base} gets its value from
+{\tt out.base.adr} in the {\tt "*"} prototype, and
+how {\tt pp.base} gets its value from
+{\tt pp.base.adr} in the {\tt allocate to stack} prototype.
 
 For details on the \TT{*MEM*} qualifier see \itemref{THE-MEM-QUALIFIER}.
 
-The \TT{*STACK*} qualifier in the example has the property that values with
+The \TT{*STACK*} value qualifier in the example has the special property
+that values with
 this qualifier may not be passed out of a block with a free
 stack.  This keeps stack addresses from escaping contexts in
 which they are valid.  See Sections~\itemref{THE-STACK-QUALIFIER} and
@@ -10059,7 +10061,8 @@ matched to the prototype member $v.m$.  If $w.m$ does not exist,
 the call/prototype match fails unless the prototype $v.m$ has a
 default value (see \pagref{DEFAULT-VALUE} ).
 
-Here $.m$ denotes any sequence of {\em member-selectors} including possibly
+Here $v$ denotes a variable name without any {\em member-selectors},
+and $.m$ denotes any sequence of {\em member-selectors}, including possibly
 {\em member-subscripts}.
 
 When a cluster member name $v.m$ is used as prototype result name in
@@ -10084,6 +10087,8 @@ Either $w.m$ must pre-exist the call, or if $v.m$ has a default
 value, then $w.m$ will be created with the default value before
 the call is made.  The call will create a new variable of the
 same name $w.m$ to supercede the pre-call $w.m$.
+If $w.m$ does not pre-exist the call the $v.m$ has no default
+value, the call/prototype match fails.
 
 The following is an example:
 \begin{indpar}\begin{verbatim}
@@ -10115,14 +10120,8 @@ the corresponding prototype argument is
 \underline{not} a cluster member.  A cluster member may \underline{not}
 be used as an actual result.
 
-However a prototype result may be of the form `\TT{next} $v.m$' where $v$ is
-the name of a prototype argument that matched to an cluster root
-call actual argument and $.m$ denotes member selectors (that may be
-subscripts).  In this case $v.m$ may or may not pre-exist
-the call: it will be created if it does not pre-exist.
-
 Importantly, cluster members may only be created or updated
-(via `\TT{next}': see \pagref{NEXT-CALL-PROTOTYPE-MATCHING})
+(via `\TT{next}')
 as inline function call results.  Thus if
 the inline functions are written correctly, the program will be type-safe.
 

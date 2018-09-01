@@ -10128,42 +10128,46 @@ the inline functions are written correctly, the program will be type-safe.
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
-The builtin qualifiers are \TT{*MEM*}, \TT{*STACK*}, \TT{*UNCHECKED*},
-and \TT{global}.
+The builtin qualifiers are \TT{*MEM*}, \TT{*WRITABLE*}, \TT{*UNCHECKED*},
+\TT{*STACK*}, \TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
 There is also a special class of qualifiers called trace qualifiers.
 
-\subsection{The Memory Qualifier}
+\subsection{The \TT{*MEM*} Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
-The \ttkey{*MEM*} qualifier is a protected qualifier that behaves
-in a special way when it is given to a variable \TT{v}.
-In this situation \TT{v} is a copy of a RAM memory value and
+The \ttkey{*MEM*} qualifier is a protected variable qualifier that behaves
+in a special way when it is given to a variable {\tt v}.
+In this situation {\tt v} is a copy of a RAM memory value and
 must be in a cluster that
 has either:
 \begin{enumerate}
 \item
-A variable \TT{v.adr} of type \TT{adr} with either of the qualifiers
-\TT{*MEM*} or \TT{*UNCHECKED*} that is the RAM address of \TT{v}.
+A member {\tt v.adr} of type {\tt adr} 
+that is the RAM address of {\tt v}.
 
 \item
-A variable \TT{v.offset} of type \TT{intadr} or \TT{unsadr} and
-qualifier \TT{*UNCHECKED*}, and
-a variable \TT{w.base} of type \TT{adr} and qualifier \TT{*MEM*}
-or \TT{*UNCHECKED*} where \TT{w} is either \TT{v} or an ancestor
-of \TT{v} in the cluster (if there are several such ancestors, the
-closest to \TT{v} is selected).
-In this case the RAM address of \TT{v} is \TT{v.offset+w.base}.
-If \TT{w.base} has qualifier \TT{*MEM*} it must recursively obey these
-rules (so there must be either a \TT{w.base.adr} variable
-or \TT{w.base.offset} and \TT{u.base} variables where \TT{u}
-is either \TT{w.base} or an ancestor of \TT{w.base} in the cluster, etc.).
+Members {\tt v.offset} of type \TT{intadr} or \TT{unsadr} and
+{\tt w.base} of type \TT{adr},
+{\tt w} is either {\tt v} or an ancestor
+of {\tt v} in the cluster (if there are several such ancestors, the
+closest to {\tt v} is selected).
+In this case the RAM address of {\tt v} is {\tt v.offset+w.base}.
+
+\item
+It is possible for any of the cluster members mentioned above,
+i.e., {\tt v.adr}, {\tt v.offset}, or {\tt w.base}, to have the
+\TT{*MEM*} qualifier, in which case they must obey these recursively.
+E.g., if {\tt w.base} has the \TT{*MEM*} qualifier there must be either
+{\tt w.base.adr}, or there must be both
+{\tt w.base\EOL .offset} and {\tt w.base.base}.
 \end{enumerate}
-The the
-variable \TT{v} must \underline{not} be given a value by an
+
+A variable {\tt v} with \TT{*MEM*} qualifier
+must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.  It is called a `\key{RAM cache variable}'.
 
-The type of the variable \TT{v} must \underline{not} have \TT{void} as its
+The type of the variable {\tt v} must \underline{not} have \TT{void} as its
 underlying type.
 
 An example is:
@@ -10211,7 +10215,7 @@ same address, the two variables will be treated as the same variable
         // v and w are two names for the same variable.
 \end{verbatim}\end{indpar}
 
-If \TT{v} is a RAM cache variable, assigning a value to `\TT{next v}'
+If {\tt v} is a RAM cache variable, assigning a value to `{\tt next v}'
 writes the value to RAM.  For example:
 
 \begin{indpar}\begin{verbatim}
@@ -10220,13 +10224,13 @@ writes the value to RAM.  For example:
     next v = ...       // Writes value to v.adr
 \end{verbatim}\end{indpar}
 
-If the original value of \TT{v} was never used, it will not be
-read from RAM even \TT{v} is written in this way.
+If the original value of {\tt v} was never used, it will not be
+read from RAM even {\tt v} is written in this way.
 
 TBD: Need a *WRITABLE* qualifier to allow writing this way.
 
-Because \TT{*MEM*} is a protected qualifier, \TT{v} and the required
-members of the cluster of which \TT{v} is a root
+Because \TT{*MEM*} is a protected qualifier, {\tt v} and the required
+members of the cluster of which {\tt v} is a root
 must be created as matches to result variables of a function.
 So only functions can effect a load of RAM contents to a variable.
 
@@ -10280,9 +10284,9 @@ adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
 \label{THE-UNCHECKED-QUALIFIER}
 
 The \TT{*UNCHECKED*} qualifier is a
-required qualifier that must qualify the \TT{v.adr} or
-\TT{v.offset} variables
-associated with a variable \TT{v} that has the \TT{*MEM*} qualifier.
+required qualifier that must qualify the {\tt v.adr} or
+{\tt v.offset} variables
+associated with a variable {\tt v} that has the \TT{*MEM*} qualifier.
 See Section~\itemref{THE-MEM-QUALIFIER}.
 
 The \TT{*UNCHECKED*} qualifier is also required for the result variable

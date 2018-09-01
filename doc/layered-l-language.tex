@@ -164,7 +164,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 31, 2018
+September 1, 2018
  
 \end{center}
 
@@ -3939,9 +3939,10 @@ no compile-and-run statements.
 \label{QUALIFIERS}
 
 Variables may be qualified by \skey{qualifier}s, which precede the
-type when a variable is declared.  There are four builtin qualifiers:
-\TT{*MEM*}, \TT{*WRITABLE*}, \TT{*STACK*}, and \TT{*UNCHECKED*}.
-The first three have special effects
+type when a variable is declared.  There are six builtin qualifiers:
+\TT{*MEM*}, \TT{*WRITABLE*}, \TT{*STACK*}, \TT{*UNCHECKED*},
+\TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
+Most fo these have special effects
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
 have special effects.
@@ -4069,10 +4070,12 @@ A `\key{variable qualifier}'\label{VARIABLE-QUALIFIER}
 qualifies variables but not values.
 If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
 does \underline{not} follow the value of {\tt v} when that value
-is copied to another variable.  Variable qualifiers may
-\underline{not} be attached to prototype argument variables,
-and variable qualifiers on actual arguments are ignored as if they
-did not exist.
+is copied to another variable.  If a variable qualifier is attached
+to a prototype argument, any actual argument matching the prototype
+argument must be a variable name that has the variable qualifier.
+If no variable qualifiers are attached to a prototype argument,
+variable qualifiers on actual arguments matched to that prototype
+argument are ignored as if they did not exist.
 
 A `\key{value qualifier}'\label{VALUE-QUALIFIER}
 qualifies values, although the qualifier
@@ -9959,7 +9962,7 @@ function Qs pointer pair pp2,
          *MEM* adr pp2.base,
          adr pp2.base.adr,
          type pp2.type,
-	 next pp.begin
+         next pp.begin
 
        = (| qualifiers Qs |)
          (  Qs pointer pair pp,
@@ -10147,7 +10150,7 @@ that is the RAM address of {\tt v}.
 
 \item
 Members {\tt v.offset} of type \TT{intadr} or \TT{unsadr} and
-{\tt w.base} of type \TT{adr},
+{\tt w.base} of type \TT{adr}, where
 {\tt w} is either {\tt v} or an ancestor
 of {\tt v} in the cluster (if there are several such ancestors, the
 closest to {\tt v} is selected).
@@ -10156,10 +10159,12 @@ In this case the RAM address of {\tt v} is {\tt v.offset+w.base}.
 \item
 It is possible for any of the cluster members mentioned above,
 i.e., {\tt v.adr}, {\tt v.offset}, or {\tt w.base}, to have the
-\TT{*MEM*} qualifier, in which case they must obey these recursively.
+\TT{*MEM*} qualifier, in which case they must obey these rules recursively.
 E.g., if {\tt w.base} has the \TT{*MEM*} qualifier there must be either
 {\tt w.base.adr}, or there must be both
-{\tt w.base\EOL .offset} and {\tt w.base.base}.
+{\tt w.base\EOL .offset} and {\tt w.base.base} (in this case
+{\tt w.base.base} must exist and {\tt w.base} cannot be used as its
+own {\tt .base}).
 \end{enumerate}
 
 A variable {\tt v} with \TT{*MEM*} qualifier
@@ -10184,55 +10189,49 @@ define types:
     foo as void
     foo_ptr as adr
 function foo x, adr x.base,
-         *MEM* int32 x.a, x.a.offset,
-         *MEM* int32 x.b, x.b.offset,
-         *MEM* int32 x.c, x.c.offset
-        = "*" ( foo_ptr x ):
-    x.base = x
+         *MEM* *WRITABLE* int32 x.a, x.a.offset,
+         *MEM*            int32 x.b, x.b.offset,
+         *MEM* *WRITABLE* int32 x.c, x.c.offset
+        = "*" ( foo_ptr y ):
+    x.base = y
     x.a.offset = 0
     x.b.offset = 4
     x.c.offset = 8
+function next x.a = update a
+        ( foo x, *MEM* *WRITABLE* int32 x.a, int32 v ):
+    next x.a = v
 
 // Usage:
 //
-foo_ptr zp = ... // assign adr to zp
-foo z = * zp     // Assign to z.base, z.a.offset, ...
-... z.a ...      // Use z.a
-next z.a = ...   // Write z.a
+foo_ptr zp = ...        // assign adr to zp
+foo z = * zp            // Assign to z.base, z.a.offset, ...
+... z.a ...             // Use z.a
+update a ( z, ... )    // Write z.a
 
 \end{verbatim}\end{indpar}
 
-If a RAM cache variable is not used, it will not actually be loaded
-from RAM.  If two RAM cache variables are explicitly given the
-same address, the two variables will be treated as the same variable
-(i.e., a variable with two names).  For example:
-
-\begin{indpar}\begin{verbatim}
-    *MEM* int32 w
-    adr w.adr = ...
-    *MEM* int32 v
-    adr v.adr = w.adr
-        // v and w are two names for the same variable.
-\end{verbatim}\end{indpar}
-
-If {\tt v} is a RAM cache variable, assigning a value to `{\tt next v}'
+If {\tt v} is a \TT{*WRITABLE*}
+RAM cache variable, assigning a value to `{\tt next v}'
 writes the value to RAM.  For example:
 
 \begin{indpar}\begin{verbatim}
-    *MEM* int32 v
-    adr v.adr = ...
-    next v = ...       // Writes value to v.adr
+    function *MEM* *WRITABLE* r, adr r.adr = foo ( ... ):
+        . . . . . . . . . .
+    int32 v = foo ( ... )
+    next v = ...       // Writes value to v.adr and updates v
 \end{verbatim}\end{indpar}
 
-If the original value of {\tt v} was never used, it will not be
-read from RAM even {\tt v} is written in this way.
+If a RAM cache variable {\tt v}'s value is not used,
+it will not actually be loaded from RAM, even if {\tt v} is written
+by assigning a value to `{\tt next v}'.
 
-TBD: Need a *WRITABLE* qualifier to allow writing this way.
-
-Because \TT{*MEM*} is a protected qualifier, {\tt v} and the required
-members of the cluster of which {\tt v} is a root
-must be created as matches to result variables of a function.
-So only functions can effect a load of RAM contents to a variable.
+Because \TT{*MEM*} and \TT{*WRITABLE*} are protected qualifiers,
+and because a variable cannot be a RAM cache variable unless it is
+a cluster root,
+RAM cache variables can only be created as
+results of inline function calls.
+So only inline functions can effect a read or write
+of RAM contents.
 
 There is a special function of zero arguments, \TT{NULL}, of result
 type \TT{adr}, that

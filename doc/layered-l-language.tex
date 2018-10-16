@@ -85,6 +85,9 @@
 
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
+\newcommand{\ttakey}[1]{\TT{*#1*}\index{#1@{\tt *#1*}}}
+\newcommand{\ttamkey}[2]{\TT{*#1*}\index{#1@{\tt *#1*}!#2}}
+
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
@@ -164,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 1, 2018
+October 16, 2018
  
 \end{center}
 
@@ -2245,7 +2248,7 @@ may be attached to variables and must be attached to the result
 variables of an unchecked type conversion.  An example of
 their use to define type and \underline{explicit} conversion from
 type {\tt T1} to type {\tt T2} that is \underline{not} unchecked is:
-\begin{indpar}\begin{verbatim}
+\begin{indpar}\label{NOT-UNCHECKED-CONVERSION-DEFINITION}\begin{verbatim}
 define type T1 as T2
 function T2 r = T2 ( T1 v ):
     *UNCHECKED* r2 = T2 ( v )
@@ -4032,10 +4035,10 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt protected variable qualifier~}\ttkey{*MEM*} \\
-{\tt protected variable qualifier~}\ttkey{*WRITABLE*} \\
-{\tt prohibited protected value qualifier~}\ttkey{*STACK*} \\
-{\tt required variable qualifier~}\ttkey{*UNCHECKED*}
+{\tt protected variable qualifier~}\ttakey{MEM} \\
+{\tt protected variable qualifier~}\ttakey{WRITABLE} \\
+{\tt prohibited protected value qualifier~}\ttakey{STACK} \\
+{\tt required prohibited variable qualifier~}\ttakey{UNCHECKED}
 \end{indpar}
 
 In addition there are several builtin `\skey{prototype qualifier}s'
@@ -7716,9 +7719,9 @@ are used to call out-of-line functions:
 \\[1ex]
 \emkey{call-assignment-option}
 	\begin{tabular}[t]{rl}
-	::= & \ttkey{*UNCHECKED*} $|$ \ttkey{*REVERSE*}
-	                          $|$ \ttkey{*NO-RELOAD*} \\
-	$|$ & \ttkey{*COMPILE-TIME*} $|$ \ttkey{*COMPILE-TIME-ONLY*}
+	::= & \ttakey{UNCHECKED} $|$ \ttakey{REVERSE}
+	                          $|$ \ttakey{NO-RELOAD} \\
+	$|$ & \ttakey{COMPILE-TIME} $|$ \ttakey{COMPILE-TIME-ONLY}
 	\end{tabular}
 \\[1ex]
 \emkey{argument-assignment-statement} ::=
@@ -7754,7 +7757,7 @@ Normally a `\TT{reload *MEM*, *MEM* dependent}'
 statement (see \itemref{THE-RELOAD-COMMAND})
 is executed automatically
 upon returning from the called function, but the
-\ttkey{*NO-RELOAD*} option suppresses this.
+\ttakey{NO-RELOAD} option suppresses this.
 If the \TT{*NO-RELOAD*} is given, the \TT{*UNCHECKED*} option must
 also be given.
 
@@ -7785,8 +7788,8 @@ An out-of-line function type declaration has the form:
 \\[0.5ex]
 \emkey{function-declaration-option}
 	\begin{tabular}[t]{rl}
-	::= & \ttkey{*COMPILE-TIME*} \\
-	$|$ & \ttkey{*COMPILE-TIME-ONLY*}
+	::= & \ttakey{COMPILE-TIME} \\
+	$|$ & \ttakey{COMPILE-TIME-ONLY}
 	\end{tabular}
 \end{indpar}
 
@@ -8060,7 +8063,7 @@ are used to embed assembler instructions in compiled code:
 \emkey{assembly-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
-	    ~\TT{*UNCHECKED*}~\ttkey{*ASSEMBLY*:} \\
+	    ~\TT{*UNCHECKED*}~\ttakey{ASSEMBLY}\TT{:} \\
 	\TT{~~~~}{\em argument-assignment-statement}\STAR{} \\
 	\TT{~~~~}{\em argument-variable-declaration}\STAR{} \\
 	\TT{~~~~do:} \\
@@ -8325,7 +8328,7 @@ to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
 \item
 Variable qualifiers (\pagref{VARIABLE-QUALIFIER}) can appear
 in {\em prototype-result-variable-declarations}, but with the
-exception of the \ttmkey{*DERERRED*}{in {\em argument-declarations}}
+exception of the \ttamkey{DEFERRED}{in {\em argument-declarations}}
 qualifier cannot appear in {\em argument-declarations}.
 \item
 Note that prototype result variable names and argument variable names
@@ -10138,7 +10141,7 @@ There is also a special class of qualifiers called trace qualifiers.
 \subsection{The \TT{*MEM*} Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
-The \ttkey{*MEM*} qualifier is a protected variable qualifier that behaves
+The \ttakey{MEM} qualifier is a protected variable qualifier that behaves
 in a special way when it is given to a variable {\tt v}.
 In this situation {\tt v} is a copy of a RAM memory value and
 must be in a cluster that
@@ -10240,17 +10243,17 @@ inaccessible and will cause a segmentation fault if referenced
 (\pagref{NULL}).
 
 
-\subsection{The Stack Qualifier}
+\subsection{The \TT{*STACK*} Qualifier}
 \label{THE-STACK-QUALIFIER}
 
-The `\ttkey{*STACK*}' qualifier is an inherited, prohibited,
-protected qualifier
-attached to offsets and addresses
+The `\ttakey{STACK}' qualifier is a prohibited,
+protected, value qualifier
+attached to clusters containing offsets and addresses
 returned by the builtin `\TT{allocate to stack}'
 function (\pagref{ALLOCATE-TO-STACK}).
-It is used to keep these from being stored in
+It is used to keep a stack address or offset from being stored in
 non-stack memory and in stacks who lifetime exceeds that of the
-memory the stack address points at.
+memory the stack the address or offset points into.
 
 The special property of the \TT{*STACK*} qualifier is that it cannot
 be used to qualify variables in the {\em result-variable-list}
@@ -10258,7 +10261,7 @@ of a {\em call-assignment-statement},
 {\em out-of-line-assignment-statement}, or
 {\em compile-time-assignment-statement},
 or iteration variables in a {\em loop-assignment-statement}.
-This is so that stack addresses pointing into a free stack
+This is so that stack addresses and offsets pointing into a free stack
 cannot outlive the free stack.
 See Section~\itemref{STACK-MANAGEMENT} for more information.
 
@@ -10282,17 +10285,21 @@ adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
 \subsection{The \TT{*UNCHECKED*} Qualifier}
 \label{THE-UNCHECKED-QUALIFIER}
 
-The \TT{*UNCHECKED*} qualifier is a
-required qualifier that must qualify the {\tt v.adr} or
-{\tt v.offset} variables
-associated with a variable {\tt v} that has the \TT{*MEM*} qualifier.
-See Section~\itemref{THE-MEM-QUALIFIER}.
+The \ttakey{UNCHECKED} qualifier is a
+required, prohibited variable qualifier that marks actual result variables
+whose values are computed by functions that
+break type checking or other language rules.
 
-The \TT{*UNCHECKED*} qualifier is also required for the result variable
-of an unchecked conversion.  When used for a result variable of an
-assignment, the value assigned need only be convertible to the type
-of the variable by an unchecked conversion, instead of by a checked
-conversion.
+For example, the actual result variables of unchecked conversions
+must have the \TT{*UNCHECKED*} qualifier.
+
+It is possible for two functions to have identical prototypes
+except that one has the \TT{*UNCHECKED*} qualifier on its
+result variable and the other does not.  The function selected by
+call-prototype matching will depend upon whether the actual
+result variable of the call has the \TT{*UNCHECKED*} qualifier,
+because the qualifier is \underline{both} required and prohibited.
+An example is given on page \pageref{NOT-UNCHECKED-CONVERSION-DEFINITION}.
 
 The \TT{*UNCHECKED*} lexeme is also used as the initial part some
 names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement.
@@ -10530,14 +10537,14 @@ statement that executes a sequence of specialized instructions:
 \begin{indpar}
 \emkey{atomic-memory-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \TT{( uns32 count, adr bad address ) = }\ttkey{*ATOMIC*} \TT{:} \\
+        \TT{( uns32 count, adr bad address ) = }\ttakey{ATOMIC} \TT{:} \\
 	\TT{~~~~}{\em lock-instruction}\STAR{} \\
 	\TT{~~~~}{\em compare-instruction}\STAR{} \\
 	\TT{~~~~}{\em write-instruction}\STAR{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{lock-instruction} ::= \ttkey{*LOCK*} {\em lock-variable} \\
-\emkey{compare-instruction} ::= \ttkey{*COMPARE*} {\em compare-variable}
+\emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-variable} \\
+\emkey{compare-instruction} ::= \ttakey{COMPARE} {\em compare-variable}
 						  {\em address-variable} \\
 \emkey{write-instruction} ::= \\
 \hspace*{0.2in}\begin{tabular}[t]{rl}
@@ -10721,7 +10728,7 @@ containing block terminates:
 \begin{indpar}
 \emkey{unwind-block}
     ::= \begin{tabular}[t]{l}
-	\ttkey{*UNWIND*}\TT{:} \\
+	\ttakey{UNWIND}\TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{} \\
 	\end{tabular}
 \end{indpar}
@@ -10795,7 +10802,7 @@ There are two ways to ensure correct code.  The first is to
 set all block result variables either in or before the
 \TT{*UNWIND*} block that contains the \TT{*CATCH*} statement.
 The second is to use the special variable
-\ttkey{*LAST-ENABLED-UNWIND*} inside the \TT{*UNWIND*} block.
+\ttakey{LAST-ENABLED-UNWIND} inside the \TT{*UNWIND*} block.
 This variable is \TT{true} if and only if the \TT{*UNWIND*}
 block is the last \TT{*UNWIND*} block enabled in its containing
 block, and so if the variable is \TT{true}, any containing
@@ -10824,41 +10831,40 @@ memory to the current free stack and returns its offset within
 the stack and the address of the stack base address:
 
 \begin{indpar}\tt\begin{tabular}{l}
-function *UNCHECKED* T result, \\
-~~~~~~~~~*STACK* unsadr result.offset, \\
-~~~~~~~~~*STACK* *MEM* adr result.base, \\
+function *UNCHECKED* *STACK* T result, \\
+~~~~~~~~~unsadr result.offset, \\
+~~~~~~~~~*MEM* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
-Here `\TT{result.offset}' is the offset of the \TT{N} bytes within the
-stack, `\TT{result.base}' is the base address of the stack, and
-stack, `\TT{result.base.adr}' is the address of where this
+Here \TT{result.offset} is the offset of the \TT{N} bytes within the
+stack, \TT{result.base} is the base address of the stack, and
+stack, \TT{result.base.adr} is the address of where this
 base address is stored in RAM.  The first and last of these
-are fixed but `\TT{result.base}' may change when the stack is
+are fixed but \TT{result.base} may change when the stack is
 moved.
 
-TBD: result.base does not need to be returned.
-
-The returned values use
+The returned cluster has
 the \TT{*STACK*} qualifier (see \itemref{THE-STACK-QUALIFIER}),
+so that \TT{result.offset} and \TT{result.base.adr} cannot be
+stored in places whose lifetime exceeds that of the current
+free stack.
 
 The memory is freed when the free stack to which it is allocated
 is freed (\itemref{STACK-MANAGEMENT}).
 The memory containing the \TT{base} value may also be
-freed at this time.  The inherited \TT{*STACK*} qualifier is used to
-ensure that addresses of these values cannot survive the free stack:
-see \itemref{THE-STACK-QUALIFIER}.
+freed at this time. 
 
 The memory allocated is always aligned on an \TT{8} byte boundary.
 
 If you want a different alignment you can use:
 
 \begin{indpar}\tt\begin{tabular}{l}
-function *UNCHECKED* T result, \\
-~~~~~~~~~*STACK* unsadr result.offset, \\
-~~~~~~~~~*STACK* *MEM* adr result.base, \\
+function *UNCHECKED* *STACK* T result, \\
+~~~~~~~~~unsadr result.offset, \\
+~~~~~~~~~*MEM* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
@@ -10893,8 +10899,8 @@ by other code.  The syntax is:
 	\TT{global} {\em global-area-name} \TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{} \\
 	\end{tabular} \\
-\emkey{global-area-option} ::= \ttkey{*COMPILE-TIME*}
-                           $|$ \ttkey{*COMPILE-TIME-ONLY*}
+\emkey{global-area-option} ::= \ttakey{COMPILE-TIME}
+                           $|$ \ttakey{COMPILE-TIME-ONLY}
 \end{indpar}
 
 Several such blocks may have the same {\em global-area-name},

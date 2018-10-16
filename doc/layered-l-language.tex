@@ -10148,7 +10148,7 @@ must be in a cluster that
 has either:
 \begin{enumerate}
 \item
-A member {\tt v.adr} of type {\tt adr} 
+A member {\tt v.adr} of type \TT{adr} 
 that is the RAM address of {\tt v}.
 
 \item
@@ -10229,14 +10229,12 @@ it will not actually be loaded from RAM, even if {\tt v} is written
 by assigning a value to `{\tt next v}'.
 
 Because \TT{*MEM*} and \TT{*WRITABLE*} are protected qualifiers,
-and because a variable cannot be a RAM cache variable unless it is
-a cluster root,
 RAM cache variables can only be created as
 results of inline function calls.
 So only inline functions can effect a read or write
 of RAM contents.
 
-There is a special function of zero arguments, \TT{NULL}, of result
+There is a special unchecked function of zero arguments, \TT{NULL}, of result
 type \TT{adr}, that
 references a block of virtual memory that is
 inaccessible and will cause a segmentation fault if referenced

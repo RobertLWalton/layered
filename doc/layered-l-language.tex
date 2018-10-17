@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 16, 2018
+October 17, 2018
  
 \end{center}
 
@@ -3945,7 +3945,7 @@ Variables may be qualified by \skey{qualifier}s, which precede the
 type when a variable is declared.  There are six builtin qualifiers:
 \TT{*MEM*}, \TT{*WRITABLE*}, \TT{*STACK*}, \TT{*UNCHECKED*},
 \TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
-Most fo these have special effects
+Most of these have special effects
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
 have special effects.
@@ -3957,7 +3957,7 @@ types.
 Syntactically {\em qualifier-names} immediately precede the {\em type-names}
 that are before {\em variable-names}.  A simple example is:
 \begin{indpar}\begin{verbatim}
-required protected value qualifier fee
+protected value qualifier fee
 function fee int32 result = F ( int32 value ):
     // Declares function F that computes a result of
     // with qualifier fee.
@@ -4013,8 +4013,8 @@ Qualifiers may be declared by:
     ::= & \ttkey{value} \\
     $|$ & \ttkey{variable} \\
     $|$ & \ttkey{protected} \\
-    $|$ & \ttkey{required} \\
-    $|$ & \ttkey{prohibited} \\
+    $|$ & \ttkey{addable} \\
+    $|$ & \ttkey{deletable} \\
     \end{tabular} \\
 \emkey{defined-qualifier-name} ::= {\em qualifier-name} \\
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
@@ -4037,8 +4037,8 @@ The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
 {\tt protected variable qualifier~}\ttakey{MEM} \\
 {\tt protected variable qualifier~}\ttakey{WRITABLE} \\
-{\tt prohibited protected value qualifier~}\ttakey{STACK} \\
-{\tt required prohibited variable qualifier~}\ttakey{UNCHECKED}
+{\tt protected addable value qualifier~}\ttakey{STACK} \\
+{\tt variable qualifier~}\ttakey{UNCHECKED}
 \end{indpar}
 
 In addition there are several builtin `\skey{prototype qualifier}s'
@@ -4073,12 +4073,10 @@ A `\key{variable qualifier}'\label{VARIABLE-QUALIFIER}
 qualifies variables but not values.
 If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
 does \underline{not} follow the value of {\tt v} when that value
-is copied to another variable.  If a variable qualifier is attached
-to a prototype argument, any actual argument matching the prototype
-argument must be a variable name that has the variable qualifier.
-If no variable qualifiers are attached to a prototype argument,
-variable qualifiers on actual arguments matched to that prototype
-argument are ignored as if they did not exist.
+is copied to another variable.  A variable qualifier may \underline{not}
+be attached to a prototype argument variable, and any variable qualifiers
+attached to an actual argument are ignored.
+A variable qualifier may be attached to a prototype result variable.
 
 A `\key{value qualifier}'\label{VALUE-QUALIFIER}
 qualifies values, although the qualifier
@@ -4086,26 +4084,22 @@ is attached to variables that hold these values.
 If $Q$ is a value qualifier attached to a variable {\tt v}, $Q$
 \underline{may} follow the value of {\tt v} to another variable
 when that value is copied to that other variable.
-Value qualifiers may be attached to prototype argument variables.
+Value qualifiers may be attached to prototype argument variables
+and prototype result variables.
 
 A qualifier must be a variable qualifier or a value qualifier,
 but can not be both.
 
-If a `\key{required qualifier}' qualifies a prototype variable,
-it must qualify any assignment result variable or actual argument
-value associated to that prototype variable by a function or
-generic call.  Note that variable qualifiers cannot be attached
-to prototype argument variable, so this rule does not apply to
-variable qualifiers on actual arguments.
-
-If a `\key{prohibited qualifier}' does \underline{not}
-qualify a prototype variable,
-it must \underline{not}
-qualify any assignment result variable or actual argument
-value associated to that prototype variable by a function or
-generic call.  However, variable qualifiers on actual arguments
-are ignored as if they did not exist, so this rule does not
-apply to variable qualifiers on actual arguments.
+Given an assignement statement `$v1$ \TT{=} $v2$', if $v1$ has
+a qualifier that $v2$ does not have, that qualifier is said to
+have been \mkey{added}{by assignment} by the assignment.
+If $v1$ does not have a qualifier that $v2$ does have, then
+that qualifier is said to have been \mkey{deleted} by the assignment.
+An \mkey{addable}{qualifier} qualifier is a qualifier that can be added by
+assignments, and a \mkey{deletable}{qualifier} qualifier is a qualifier
+that can be deleted by assignments.  A qualifier that is neither
+addable or deletable must be attached to $v1$ if and only if it is
+attached to $v2$.
 
 A `\key{protected qualifier}' can be attached in source code
 to an assignment result variable only if the assignment statement
@@ -4119,15 +4113,17 @@ This is the only way to attach a `\key{protected variable qualifier}'
 to a variable.  However, as described below, protected value qualifiers
 may also be propagated by assignments or implied conversion operations.
 
+TBD
+
 An assignment statement of the form
 \begin{center}
-\tt $Qvars$  $Qvals$ $T$ v = w
+\tt $Qvars$  $Qvals$ $T$ x = y
 \end{center}
-where {\tt w} is of type $T$, $Qvars$ is a possibly empty list
+where {\tt y} is of type $T$, $Qvars$ is a possibly empty list
 of variable qualifiers, and $Qvals$ is a possibly empty list of
 value qualifiers, behaves as if it had the form
 \begin{center}
-\tt $Qvars$ $Qvals$ $T$ v = assign ( w )
+\tt $Qvars$ $Qvals$ $T$ x = assign ( y )
 \end{center}
 The \TT{assign} function may be defined explicitly, as is necessary
 for clusters (see \itemref{CLUSTERS}).  If not defined explicitly,
@@ -4136,20 +4132,20 @@ it behaves as if it has the function prototype
 function ~$Qvals$ ~$T$ r = \ttkey{assign} ( $Qvals$~$T$ v )
 \end{center}
 and merely copies the value of {\tt v} to {\tt r}.
-Thus the \underline{value} qualifiers of {\tt v} are treated
-as prototype argument qualifiers with {\tt w} the actual argument
+Thus the \underline{value} qualifiers of {\tt x} are treated
+as prototype argument qualifiers with {\tt y} the actual argument
 corresponding to {\tt v}.  The \underline{variable} qualifiers
-of {\tt w} are ignored in these assignments.  Variable
-qualifiers of {\tt v} are allowed only if they are not
+of {\tt y} are ignored in these assignments.  Variable
+qualifiers of {\tt x} are allowed only if they are addable and not
 protected.
 
-If {\tt w} does \underline{not} have type $T$, the statement
+If {\tt y} does \underline{not} have type $T$, the statement
 \begin{center}
-\tt $Qvars$  $Qvals$ $T$ v = w
+\tt $Qvars$  $Qvals$ $T$ x = y
 \end{center}
 compiles as
 \begin{center}
-\tt $Qvars$  $Qvals$ $T$ v = implied conversion ( w )
+\tt $Qvars$  $Qvals$ $T$ x = implied conversion ( y )
 \end{center}
 where the `{\tt implied conversion}' function must be defined by
 the user or builtin.  A typical implied conversion prototype
@@ -9922,12 +9918,12 @@ function Qs pointer pair pp2,
          adr pp2.base.adr,
          type pp2.type
 
-       = assignment (| qualifiers Qs |)
-                    (  Qs pointer pair pp,
-                       type pp.type,
-                       unsadr pp.begin,
-                       unsadr pp.end,
-                       adr pp.base.adr ):
+       = assign (| qualifiers Qs |)
+                (  Qs pointer pair pp,
+                   type pp.type,
+                   unsadr pp.begin,
+                   unsadr pp.end,
+                   adr pp.base.adr ):
 
     pp2.begin = pp.begin
     pp2.end = pp.end

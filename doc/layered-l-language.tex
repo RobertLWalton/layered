@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 17, 2018
+October 18, 2018
  
 \end{center}
 
@@ -2228,7 +2228,7 @@ its base type, and the underlying type of a builtin type is
 the builtin type itself.
 
 The following builtin unchecked conversion functions are defined:
-\begin{indpar}
+\begin{indpar}\label{DEFINED-TYPE-UNCHECKED-CONVERSIONS}
 {\tt function \TT{*UNCHECKED*} $T$ r = $T$ ( $B$ v )} \\
 {\tt function \TT{*UNCHECKED*} $B$ r = $B$ ( $T$ v )}
 
@@ -2259,8 +2259,7 @@ They can also be used to define an implied conversion from type
 following example:
 \begin{indpar}\begin{verbatim}
 define type T1 as T2
-function Qs T2 r = implied conversion
-                       (| qualifiers Qs |) ( Qs T1 v ):
+function Qs T2 r = assign (| qualifiers Qs |) ( Qs T1 v ):
     *UNCHECKED* Qs r2 = T2 ( v )
     r = r2
 \end{verbatim}\end{indpar}
@@ -3116,68 +3115,75 @@ type.
 Given assignment statements
 \begin{center}
 \begin{tabular}{l}
-\tt $T$ w = \ldots \\
-\tt $T$ v = w \\
+\tt $Tw$ w = \ldots \\
+\tt $Tu$ u = w \\
 \end{tabular}
 \end{center}
 
-the compiler will check to see if there is any function with a
-prototype of the form
-
-\begin{center} \tt
-function \begin{tabular}[t]{@{}l@{}}
-	 \ldots~$T$ r = \\
-	 $ma$\QMARK{} \ttkey{assignment}
-	 \{ (| qualifiers \ldots{} |) \}\QMARK{}
-	 ( \ldots~$T1$ v )
-	 \end{tabular}
-\end{center}
-
-If so, the compiler will change the second statement to
+the compiler will make the assignment using
+`\key{implicit assignment}'\label{IMPLICIT-ASSIGNMENT} if possible, or
+if not possible, will rewrite the second statement as
 \begin{center}
-\tt $T$ v = assignment ( w )
-\end{center}\label{ASSIGNMENT}
-Otherwise the compiler will simply copy the underlying type value of
-$w$ to $v$.
+\tt $Tu$ u = assign ( w )
+\end{center}\label{EXPLICIT-ASSIGN}
+in which case the assignment is said to be an
+`\key{explicit assignment}'.  Implicit assignment
+can only be used if \skey{implicit assignment rule}s are
+satisfied, and one of these is
+\begin{indpar}\begin{itemize}
+\item[(IA1)]\label{IMPLICIT-ASSIGNMENT-TYPE-RULE}
+In `{\tt u = w}' the types of {\tt u} and {\tt w}
+must be identical.
+\end{itemize}\end{indpar}
+When implicit assignment is used, the value of {\tt w} is copied
+exactly to {\tt u} (or if there is no value because the common
+type is derived from \TT{void}, nothing is done).
+The other implicit assignment rules involve qualifiers
+(\pagref{IMPLICIT-ASSIGNMENT-QUALIFIER-RULES}) and cluster
+members (\pagref{IMPLICIT-ASSIGNMENT-OF-CLUSTERS}).
 
-Given assignment statements
-\begin{center}
-\begin{tabular}{l}
-\tt $T1$ w = \ldots \\
-\tt $T2$ v = w \\
-\end{tabular}
-\end{center}
+Explicit assignment is very often referred to as
+`\key{implied conversion}'.\label{IMPLIED-CONVERSION}
+The following is an example of an implied conversion {\tt assign}
+function:
 
-where $T2\neq T1$, the compiler will change the second statement to
-\begin{center}
-\tt $T2$ v = implied conversion ( w )
-\end{center}\label{IMPLIED-CONVERSION}
-so that if the appropriate `{\tt implied conversion}' function is
-defined, the assignment `{\tt $T2$ v = w}' will compile.  Such
-implicit conversions are most generally defined by defining
-an inline function with the prototype:
-
-\begin{center} \tt
-function Qs~$T2$ r =
-		      \begin{tabular}[t]{@{}l@{}}
-                      $ma$\QMARK{} \ttkey{implied conversion} \\
-                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
-                      \end{tabular}
-\end{center}
-where {\tt Qs} is an implicit argument that copies the value qualifiers
-(see \itemref{QUALIFIERS}) of the assignment result variable to the function
-prototype result and argument variables
-(see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).  An example is:
 \begin{indpar}\begin{verbatim}
-define type T1 as T2
-function Qs T2 r = implied conversion
-                       (| qualifiers Qs |) ( Qs T1 v ):
-    *UNCHECKED* Qs r2 = T2 ( v )
+define type id as int32
+
+// Allow id's to be implicitly converted to int32's:
+//
+function Qs int32 r = assign (| qualifiers Qs |) ( Qs id v ):
+    *UNCHECKED* Qs r2 = int32 ( v )
     r = r2
+
+// Example usage:
+//
+id file = ...
+if file == 0:
+    ...
 \end{verbatim}\end{indpar}
 
-Instead of this general function, several`{\tt implied conversion}' functions
-each with different qualifiers can be defined.
+Here {\tt Qs} is an implicit argument that copies the value qualifiers
+(see \itemref{QUALIFIERS}) of the assignment result variable to the function
+prototype result and prototype argument variables
+(see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
+This code makes use of a builtin unchecked conversion from \TT{id} to \TT{int32}
+that is created when by the {\tt define type} statement
+(see \pagref{DEFINED-TYPE-UNCHECKED-CONVERSIONS}).
+
+Implicit {\tt assign}'s are not cascaded.  More specifically, in
+\begin{center}
+\tt $Tu$ u = assign ( w )
+\end{center}
+if {\tt assign} is explcitly written
+and its result cannot be implicitly
+assigned to {\tt u}, then an implicit {\tt assign} would be added
+making the statement
+\begin{center}
+\tt $Tu$ u = assign ( assign ( w ) )
+\end{center}
+But this is extra {\tt assign} is \underline{not} added
+if the first {\tt assign} is implicit.
 
 Although the compiler cannot check this, it should be true
 that if there are two different ways to implicitly convert from
@@ -3202,18 +3208,20 @@ we say that
 {\tt $T1~~\CNV~~T2$}
 \end{center}%
 \label{MORE-SPECIFIC-RELATION}
-if $T1$ is more specific than $T2$, and that whenever there exists a
-function with prototype of the form
+if $T1$ is more specific than $T2$, and that this is true if 
+there exists some function with prototype of the form
 
 \begin{center} \tt
 function \begin{tabular}[t]{@{}l@{}}
-	 \ldots~$T$ r = \\
-	 $ma$\QMARK{} \ttkey{implied conversion} \\
-	 \TS~~~~~\{ (| qualifiers \ldots{} |) \}\QMARK{}
-	 ( \ldots~$T1$ v )
+	 Qs $T2$ r =
+	 $ma$\QMARK{} \ttkey{assign}
+	 (| qualifiers Qs |)
+	 ( Qs $T1$ v )
 	 \end{tabular}
 \end{center}
-then it is required that $T1~~\CNV~~T2$.  The notion of more specific
+(Here the names {\tt Qs}, {\tt r}, and {\tt v} may be different
+in the actual function prototype.)
+The notion of more specific
 types is used by the
 call-prototype matching rule
 \ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
@@ -3226,7 +3234,8 @@ $T$ is called the `\key{greatest lower bound}'\label{GREATEST-LOWER-BOUND}
 of the set of types.
 
 In general $T1~~\CNV~~T2$ implies that there is an implied conversion
-from $T1$ to $T2$, but there are exceptions.  The builtin exceptions
+of the above form from $T1$ to $T2$, but there are exceptions.
+The builtin exceptions
 are
 \begin{center}
 \begin{tabular}{lll}
@@ -3471,7 +3480,7 @@ Returns the UNICODE character code of the character {\tt c}.
 
 function Qs~uns32 r =
 		      \begin{tabular}[t]{@{}l@{}}
-                      \ttmkey{implied conversion}{of character} \\
+                      \ttmkey{assign}{of character} \\
                       \TS~~~~(| qualifiers Qs |) ( Qs~character c )
                       \end{tabular}
 \begin{indpar}
@@ -3921,6 +3930,9 @@ inline function whose call is currently being compiled.
 
 \end{indpar}
 
+Context values will be needed at run-time if the program contains
+compile-and-run statements.
+
 In order for a context value to be available at run-time, it
 must be returned by one of these functions or be the context of
 a compile-and-run statement (\pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}).
@@ -3934,9 +3946,6 @@ variable that may be available at run time, or if the variable value is
 written into memory.\footnote{With modern memories is it not unreasonable
 to make all contexts available at runtime by storing them
 in a disk file mapped into memory and paged in only as needed.}
-
-Context values are never needed at run-time if the program contains
-no compile-and-run statements.
 
 \section{Qualifiers}
 \label{QUALIFIERS}
@@ -4073,10 +4082,7 @@ A `\key{variable qualifier}'\label{VARIABLE-QUALIFIER}
 qualifies variables but not values.
 If $Q$ is a variable qualifier attached to a variable {\tt v}, $Q$
 does \underline{not} follow the value of {\tt v} when that value
-is copied to another variable.  A variable qualifier may \underline{not}
-be attached to a prototype argument variable, and any variable qualifiers
-attached to an actual argument are ignored.
-A variable qualifier may be attached to a prototype result variable.
+is copied to another variable.
 
 A `\key{value qualifier}'\label{VALUE-QUALIFIER}
 qualifies values, although the qualifier
@@ -4084,17 +4090,16 @@ is attached to variables that hold these values.
 If $Q$ is a value qualifier attached to a variable {\tt v}, $Q$
 \underline{may} follow the value of {\tt v} to another variable
 when that value is copied to that other variable.
-Value qualifiers may be attached to prototype argument variables
-and prototype result variables.
 
 A qualifier must be a variable qualifier or a value qualifier,
 but can not be both.
 
-Given an assignement statement `$v1$ \TT{=} $v2$', if $v1$ has
+Given an assignment statement `$v1$ \TT{=} $v2$', if $v1$ has
 a qualifier that $v2$ does not have, that qualifier is said to
 have been \mkey{added}{by assignment} by the assignment.
 If $v1$ does not have a qualifier that $v2$ does have, then
-that qualifier is said to have been \mkey{deleted} by the assignment.
+that qualifier is said to have been \mkey{deleted}{by assignment}
+by the assignment.
 An \mkey{addable}{qualifier} qualifier is a qualifier that can be added by
 assignments, and a \mkey{deletable}{qualifier} qualifier is a qualifier
 that can be deleted by assignments.  A qualifier that is neither
@@ -4145,15 +4150,15 @@ If {\tt y} does \underline{not} have type $T$, the statement
 \end{center}
 compiles as
 \begin{center}
-\tt $Qvars$  $Qvals$ $T$ x = implied conversion ( y )
+\tt $Qvars$  $Qvals$ $T$ x = assign ( y )
 \end{center}
-where the `{\tt implied conversion}' function must be defined by
+where the `{\tt assign}' function must be defined by
 the user or builtin.  A typical implied conversion prototype
 for converting values of type $T1$ to values of type $T2$ is:
 \begin{center} \tt
 function \ldots~Qs~$T2$ r =
 		      \begin{tabular}[t]{@{}l@{}}
-                      \ttkey{implied conversion} \\
+                      \ttkey{assign} \\
                       \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
                       \end{tabular}
 \end{center}
@@ -6570,7 +6575,7 @@ define type std *COMPARE-VALUE* as void
     //
     // *COMPARE-VALUE*s are implicitly convertable to bool's.
 
-function Qs bool r = implied conversion
+function Qs bool r = assign
                      (| qualifiers Qs |)
                      ( Qs *COMPARE-VALUE v, bool v.value ):
     r = v.value
@@ -6619,7 +6624,7 @@ and the compiler expands this to the following
 \tt // tmp0 is call(er) context \\
 \tt // lt-context is context of "<" function declaration \\
 \tt // implied-conversion-context is context of the \\
-\tt // ~~~~~~~~`implied conversion' function declaration \\
+\tt // ~~~~~~~~`assign' function declaration \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -6654,7 +6659,7 @@ and the compiler expands this to the following
 \end{tabular}
 
 \begin{tabular}{l}
-\tt // Evaluate bool $v$ = implied conversion ( ... ) \\
+\tt // Evaluate bool $v$ = assign ( ... ) \\
 \tt bool v = do ( implied-conversion-context ): \\
 \tt ~~~~v = tmp4.value \\
 \end{tabular}
@@ -6680,7 +6685,7 @@ the types of both operands of the rightmost compare operator
 in the $T1$ case will be
 implicitly convertable to the types of the operands in the $T2$ case
 and the rule will apply to reject $T2$.  Note that we do not need
-an `{\tt implied conversion}' function for {\tt *COMPARE-VALUE*}
+an `{\tt assign}' function for {\tt *COMPARE-VALUE*}
 values, as it suffices for the $T1$ `{\tt right op}' member to be
 implicitly convertable to the $T2$ `{\tt right op}' member.
 

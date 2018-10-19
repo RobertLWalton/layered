@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 18, 2018
+October 19, 2018
  
 \end{center}
 
@@ -3121,29 +3121,27 @@ Given assignment statements
 \end{center}
 
 the compiler will make the assignment using
-`\key{implicit assignment}'\label{IMPLICIT-ASSIGNMENT} if possible, or
+`\key{direct assignment}'\label{DIRECT-ASSIGNMENT} if possible, or
 if not possible, will rewrite the second statement as
 \begin{center}
 \tt $Tu$ u = assign ( w )
 \end{center}\label{EXPLICIT-ASSIGN}
 in which case the assignment is said to be an
-`\key{explicit assignment}'.  Implicit assignment
-can only be used if \skey{implicit assignment rule}s are
+`\key{implicit conversion}'.  Direct assignment
+can only be used if \skey{direct assignment rule}s are
 satisfied, and one of these is
 \begin{indpar}\begin{itemize}
-\item[(IA1)]\label{IMPLICIT-ASSIGNMENT-TYPE-RULE}
+\item[(DA1)]\label{DIRECT-ASSIGNMENT-TYPE-RULE}
 In `{\tt u = w}' the types of {\tt u} and {\tt w}
 must be identical.
 \end{itemize}\end{indpar}
-When implicit assignment is used, the value of {\tt w} is copied
+When direct assignment is used, the value of {\tt w} is copied
 exactly to {\tt u} (or if there is no value because the common
 type is derived from \TT{void}, nothing is done).
-The other implicit assignment rules involve qualifiers
-(\pagref{IMPLICIT-ASSIGNMENT-QUALIFIER-RULES}) and cluster
-members (\pagref{IMPLICIT-ASSIGNMENT-OF-CLUSTERS}).
+The other direct assignment rules involve qualifiers
+(\pagref{DIRECT-ASSIGNMENT-QUALIFIER-RULES}) and cluster
+members (\pagref{DIRECT-ASSIGNMENT-OF-CLUSTERS}).
 
-Explicit assignment is very often referred to as
-`\key{implied conversion}'.\label{IMPLIED-CONVERSION}
 The following is an example of an implied conversion {\tt assign}
 function:
 
@@ -3164,26 +3162,27 @@ if file == 0:
 \end{verbatim}\end{indpar}
 
 Here {\tt Qs} is an implicit argument that copies the value qualifiers
-(see \itemref{QUALIFIERS}) of the assignment result variable to the function
+(see \itemref{QUALIFIERS}) of the {\tt assign} prototype
+result variable to the function
 prototype result and prototype argument variables
 (see \itemref{FUNCTION-PROTOTYPES-AND-CALLS}).
 This code makes use of a builtin unchecked conversion from \TT{id} to \TT{int32}
 that is created when by the {\tt define type} statement
 (see \pagref{DEFINED-TYPE-UNCHECKED-CONVERSIONS}).
 
-Implicit {\tt assign}'s are not cascaded.  More specifically, in
+Implied {\tt assign}'s are not cascaded.  More specifically, in
 \begin{center}
 \tt $Tu$ u = assign ( w )
 \end{center}
 if {\tt assign} is explcitly written
-and its result cannot be implicitly
-assigned to {\tt u}, then an implicit {\tt assign} would be added
+and its result cannot be directly
+assigned to {\tt u}, then an implied {\tt assign} would be added
 making the statement
 \begin{center}
 \tt $Tu$ u = assign ( assign ( w ) )
 \end{center}
 But this is extra {\tt assign} is \underline{not} added
-if the first {\tt assign} is implicit.
+if the first {\tt assign} is implied.
 
 Although the compiler cannot check this, it should be true
 that if there are two different ways to implicitly convert from
@@ -3213,14 +3212,14 @@ there exists some function with prototype of the form
 
 \begin{center} \tt
 function \begin{tabular}[t]{@{}l@{}}
-	 Qs $T2$ r =
+	 \ldots{}~$T2$ r =
 	 $ma$\QMARK{} \ttkey{assign}
-	 (| qualifiers Qs |)
-	 ( Qs $T1$ v )
+	 ( \ldots{}~$T1$ v )
 	 \end{tabular}
 \end{center}
-(Here the names {\tt Qs}, {\tt r}, and {\tt v} may be different
-in the actual function prototype.)
+where \ldots{}~denotes possible qualifiers, and
+the names {\tt r} and {\tt v} may be different
+in the actual function prototype.
 The notion of more specific
 types is used by the
 call-prototype matching rule

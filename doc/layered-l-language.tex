@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 19, 2018
+October 20, 2018
  
 \end{center}
 
@@ -3120,14 +3120,14 @@ Given assignment statements
 \end{tabular}
 \end{center}
 
-the compiler will make the assignment using
-`\key{direct assignment}'\label{DIRECT-ASSIGNMENT} if possible, or
+the compiler will assign the value of {\tt w} to the variable {\tt v}
+using `\key{direct assignment}'\label{DIRECT-ASSIGNMENT} if possible, or
 if not possible, will rewrite the second statement as
 \begin{center}
 \tt $Tu$ u = assign ( w )
 \end{center}\label{EXPLICIT-ASSIGN}
 in which case the assignment is said to be an
-`\key{implicit conversion}'.  Direct assignment
+`\key{implied conversion}'\label{IMPLIED-CONVERSION}.  Direct assignment
 can only be used if \skey{direct assignment rule}s are
 satisfied, and one of these is
 \begin{indpar}\begin{itemize}
@@ -3992,20 +3992,6 @@ int32 y3 = G ( x3 )          // Legal; x3 has qualifier fee.
 
 \end{verbatim}\end{indpar}
 
-Qualifier definitions reference function prototypes and function
-calls, which are described in detail later in this document
-(\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).  However for the
-purposes of this section reference to the above example may suffice.
-In this example
-\begin{center}
-{\tt function \ldots{} result = \ldots{} ( \ldots{} value )}
-\end{center}
-is a function prototype with one \underline{prototype} result variable
-`{\tt result}' and one \underline{prototype} argument variable `{\tt value}'.
-A statement like `{\tt int32 x3 = F ( x1 )}' includes a function
-call with \underline{actual} result variable `{\tt x3}' and
-\underline{actual} argument `{\tt x1}'.
-
 Qualifiers may be declared by:
 \begin{indpar}
 \emkey{qualifier-declaration}\label{QUALIFIER-DECLARATION} \\
@@ -4117,7 +4103,48 @@ This is the only way to attach a `\key{protected variable qualifier}'
 to a variable.  However, as described below, protected value qualifiers
 may also be propagated by assignments or implied conversion operations.
 
+Given assignment statements
+\begin{center}
+\begin{tabular}{l}
+\tt $Qsw$ $Tw$ w = \ldots \\
+\tt $Qsu$ $Tu$ u = w \\
+\end{tabular}
+\end{center}
+
+where $Qsw$ denotes the qualifiers of {\tt w} and $Tw$ is the type
+of {\tt w}, and $Qsu$, $Tu$ are similarly for {\tt u},
+the compiler will assign the value of {\tt w} to the variable {\tt v}
+using direct assignment if possible: see \pagref{DIRECT-ASSIGNMENT}.
+However a direct assignment must obey the following rules:
+\begin{indpar}\begin{itemize}
+\item[(DA1)]
+The types of {\tt u} and {\tt w}
+must be identical.
+\item[(DA2)]
+A value qualifier of {\tt w} must also be a qualifier of {\tt u} unless
+the qualifier is deletable.
+\item[(DA3)]
+A value qualifier of {\tt u} must also be a qualifier of {\tt w} unless
+the qualifier is addable.
+\item[(DA4)]
+No variable qualifier of {\tt u} may be protected.
+\end{itemize}\end{indpar}
+
 TBD
+
+Qualifier definitions reference function prototypes and function
+calls, which are described in detail later in this document
+(\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).  However for the
+purposes of this section reference to the above example may suffice.
+In this example
+\begin{center}
+{\tt function \ldots{} result = \ldots{} ( \ldots{} value )}
+\end{center}
+is a function prototype with one \underline{prototype} result variable
+`{\tt result}' and one \underline{prototype} argument variable `{\tt value}'.
+A statement like `{\tt int32 x3 = F ( x1 )}' includes a function
+call with \underline{actual} result variable `{\tt x3}' and
+\underline{actual} argument `{\tt x1}'.
 
 An assignment statement of the form
 \begin{center}

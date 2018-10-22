@@ -4179,16 +4179,19 @@ the qualifier is deletable or protected.
 If the assignment is a result assignment,
 a \underline{variable} qualifier
 of {\tt u} must also be a qualifier of {\tt r} unless
-the qualifier is addable.
+the qualifier is addable and un-protected.
 \item[(DA8)]
 If the assignment is a result assignment,
 a \underline{protected} \underline{variable} qualifier
 of {\tt r} that is not an explicit
 qualifier of {\tt u} is implicitly added to {\tt u}.
 \end{itemize}\end{indpar}
+Thus result assignments treat variable qualifiers as if they
+were value qualifiers, except for protected qualifiers, which
+are allowed and added by implication.
 
-As specified on page \pageref{EXPLICIT-ASSIGN}, if an assignment
-statement
+As specified on page \pageref{EXPLICIT-ASSIGN}, if any
+assignment
 \begin{center}
 \tt $Qsu$ $Tu$ u = w
 \end{center}
@@ -4197,13 +4200,12 @@ re-written as
 \begin{center}
 \tt $Qsu$ $Tu$ u = assign ( w )
 \end{center}
+This applies to both non-result and result assignments.
 If no {\tt assign} function is defined for the given types and
-qualifiers, the assignemt statement will not compile.
+qualifiers, the assignment fails to compile.
 
-TBD
-
-Required value qualifiers may be added and prohibited value qualifiers
-removed by an unchecked builtin function with the following prototype:
+Non-addable value qualifiers may be added and non-deletable value qualifiers
+deleted by the following builtin un\-check\-ed function:
 \begin{center} \tt
 function \begin{tabular}[t]{@{}l@{}}
          \TT{*UNCHECKED*}~Qrs~T r = \ttkey{re-qualify} \\
@@ -4213,7 +4215,10 @@ function \begin{tabular}[t]{@{}l@{}}
 \end{center}
 
 This function copies the value of {\tt v} to {\tt r}.
-This function \underline{cannot} add protected \underline{variable} qualifiers.
+This function \underline{cannot} add
+\underline{protected} or non-addable \underline{variable} qualifiers.
+
+TBD
 
 Some examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:

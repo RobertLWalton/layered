@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 20, 2018
+October 23, 2018
  
 \end{center}
 
@@ -4112,95 +4112,95 @@ Given assignment statements
 \end{center}
 
 where $Qsw$ denotes the qualifiers of {\tt w} and $Tw$ is the type
-of {\tt w}, and $Qsu$, $Tu$ are similarly for {\tt u},
+of {\tt w}, and $Qsu$, $Tu$ similarly for {\tt u},
 the compiler will assign the value of {\tt w} to the variable {\tt v}
 using direct assignment if possible: see \pagref{DIRECT-ASSIGNMENT}.
 However a direct assignment must obey the following rules:
 \begin{indpar}\begin{itemize}
+\label{DIRECT-ASSIGNMENT-QUALIFIER-RULES}
 \item[(DA1)]
 The types of {\tt u} and {\tt w}
 must be identical.
 \item[(DA2)]
-A value qualifier of {\tt w} must also be a qualifier of {\tt u} unless
+A \underline{value} qualifier of {\tt w}
+must also be a qualifier of {\tt u} unless
 the qualifier is deletable.
 \item[(DA3)]
-A value qualifier of {\tt u} must also be a qualifier of {\tt w} unless
+A \underline{value} qualifier of {\tt u}
+must also be a qualifier of {\tt w} unless
 the qualifier is addable.
 \item[(DA4)]
-No variable qualifier of {\tt u} may be protected.
+If the assignment is not a result assignment (see below),
+no \underline{variable} qualifier of {\tt u} may be protected.
+\item[(DA5)]
+If the assignment is not a result assignment (see below),
+{\tt w} may have any \underline{variable} qualifier and
+{\tt u} may have any \underline{un-protected} \underline{variable} qualifier.
 \end{itemize}\end{indpar}
 
+Function calls are implemented with implied assignments of actual
+arguments to function prototype arguments and function prototype
+results to actual results.
+Function prototypes and function
+calls are described in detail later in this document
+(\itemref{FUNCTION-PROTOTYPES-AND-CALLS}), but for the
+purposes of this section reference to the example at the beginning
+of this section may suffice.
+Given code of the form
+\begin{center}
+\begin{tabular}{l}
+\tt function $Qsr$ $Tr$ r = F ( $Qsv$ $Tv$ v ) \\
+\tt $Qsw$ $Tw$ w = \ldots \\
+\tt $Qsu$ $Tu$ u = F ( w ) \\
+\end{tabular}
+\end{center}
+an \key{argument assignment}
+\begin{center}
+\begin{tabular}{l}
+\tt $Qsv$ $Tv$ v = w \\
+\end{tabular}
+\end{center}
+is generated which behaves just like any other assignment.
+Also a \key{result assignment}
+\begin{center}
+\begin{tabular}{l}
+\tt $Qsu$ $Tu$ u = r \\
+\end{tabular}
+\end{center}
+is generated, but result assignments differ from other assignments
+in that result assignments obey the rules:
+\begin{indpar}\begin{itemize}
+\item[(DA6)]
+If the assignment is a result assignment,
+a \underline{variable} qualifier
+of {\tt r} must also be a qualifier of {\tt u} unless
+the qualifier is deletable or protected.
+\item[(DA7)]
+If the assignment is a result assignment,
+a \underline{variable} qualifier
+of {\tt u} must also be a qualifier of {\tt r} unless
+the qualifier is addable.
+\item[(DA8)]
+If the assignment is a result assignment,
+a \underline{protected} \underline{variable} qualifier
+of {\tt r} that is not an explicit
+qualifier of {\tt u} is implicitly added to {\tt u}.
+\end{itemize}\end{indpar}
+
+As specified on page \pageref{EXPLICIT-ASSIGN}, if an assignment
+statement
+\begin{center}
+\tt $Qsu$ $Tu$ u = w
+\end{center}
+does \underline{not} obey the rules of direct assignment, it is
+re-written as
+\begin{center}
+\tt $Qsu$ $Tu$ u = assign ( w )
+\end{center}
+If no {\tt assign} function is defined for the given types and
+qualifiers, the assignemt statement will not compile.
+
 TBD
-
-Qualifier definitions reference function prototypes and function
-calls, which are described in detail later in this document
-(\itemref{FUNCTION-PROTOTYPES-AND-CALLS}).  However for the
-purposes of this section reference to the above example may suffice.
-In this example
-\begin{center}
-{\tt function \ldots{} result = \ldots{} ( \ldots{} value )}
-\end{center}
-is a function prototype with one \underline{prototype} result variable
-`{\tt result}' and one \underline{prototype} argument variable `{\tt value}'.
-A statement like `{\tt int32 x3 = F ( x1 )}' includes a function
-call with \underline{actual} result variable `{\tt x3}' and
-\underline{actual} argument `{\tt x1}'.
-
-An assignment statement of the form
-\begin{center}
-\tt $Qvars$  $Qvals$ $T$ x = y
-\end{center}
-where {\tt y} is of type $T$, $Qvars$ is a possibly empty list
-of variable qualifiers, and $Qvals$ is a possibly empty list of
-value qualifiers, behaves as if it had the form
-\begin{center}
-\tt $Qvars$ $Qvals$ $T$ x = assign ( y )
-\end{center}
-The \TT{assign} function may be defined explicitly, as is necessary
-for clusters (see \itemref{CLUSTERS}).  If not defined explicitly,
-it behaves as if it has the function prototype
-\begin{center} \tt
-function ~$Qvals$ ~$T$ r = \ttkey{assign} ( $Qvals$~$T$ v )
-\end{center}
-and merely copies the value of {\tt v} to {\tt r}.
-Thus the \underline{value} qualifiers of {\tt x} are treated
-as prototype argument qualifiers with {\tt y} the actual argument
-corresponding to {\tt v}.  The \underline{variable} qualifiers
-of {\tt y} are ignored in these assignments.  Variable
-qualifiers of {\tt x} are allowed only if they are addable and not
-protected.
-
-If {\tt y} does \underline{not} have type $T$, the statement
-\begin{center}
-\tt $Qvars$  $Qvals$ $T$ x = y
-\end{center}
-compiles as
-\begin{center}
-\tt $Qvars$  $Qvals$ $T$ x = assign ( y )
-\end{center}
-where the `{\tt assign}' function must be defined by
-the user or builtin.  A typical implied conversion prototype
-for converting values of type $T1$ to values of type $T2$ is:
-\begin{center} \tt
-function \ldots~Qs~$T2$ r =
-		      \begin{tabular}[t]{@{}l@{}}
-                      \ttkey{assign} \\
-                      \TS~~~~(| qualifiers Qs |) ( Qs~$T1$ v )
-                      \end{tabular}
-\end{center}
-which specifies that the $Qs$ argument is implicitly assigned
-to the set of \underline{value} qualifiers of the actual
-result variable (in this case $Qvals$).  See
-the {\em qualifiers-argument-declaration} discussion on
-\pagref{QUALIFIERS-ARGUMENT-DECLARATION-DISCUSSION}
-for more details.
-
-As a consequence, assignment statements and implied conversions
-may remove required value qualifiers but not add them, and
-may add prohibited value qualifiers
-but not remove them.  Assignment statements and implied conversions
-may remove variable qualifiers but may only add unprotected variable
-qualifiers.
 
 Required value qualifiers may be added and prohibited value qualifiers
 removed by an unchecked builtin function with the following prototype:

@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 23, 2018
+October 27, 2018
  
 \end{center}
 
@@ -4122,20 +4122,25 @@ However a direct assignment must obey the following rules:
 The types of {\tt u} and {\tt w}
 must be identical.
 \item[(DA2)]
-A \underline{value} qualifier of {\tt w}
-must also be a qualifier of {\tt u} unless
-the qualifier is deletable.
-\item[(DA3)]
 A \underline{value} qualifier of {\tt u}
 must also be a qualifier of {\tt w} unless
 the qualifier is addable.
-\item[(DA4)]
+\item[(DA3)]
+A \underline{value} qualifier of {\tt w}
+must also be a qualifier of {\tt u} unless
+the qualifier is deletable.
+\item[(DA4n)]
 If the assignment is not a result assignment (see below),
-no \underline{variable} qualifier of {\tt u} may be protected.
-\item[(DA5)]
+all the \underline{variable} qualifiers of {\tt u} must be both
+\underline{un-protected} and \underline{addable}, regardless of
+whether they are qualifiers of {\tt w}.
+\item[(DA5n)]
 If the assignment is not a result assignment (see below),
-{\tt w} may have any \underline{variable} qualifier and
-{\tt u} may have any \underline{un-protected} \underline{variable} qualifier.
+{\tt w} may have any \underline{variable} qualifier.
+\item[NOTE]
+If the assignment is not a result assignment (see below),
+then as far as {\tt u} is concerned, the qualifiers of {\tt w} are
+ignored.
 \end{itemize}\end{indpar}
 
 Function calls are implemented with implied assignments of actual
@@ -4170,25 +4175,31 @@ Also a \key{result assignment}
 is generated, but result assignments differ from other assignments
 in that result assignments obey the rules:
 \begin{indpar}\begin{itemize}
-\item[(DA6)]
-If the assignment is a result assignment,
-a \underline{variable} qualifier
-of {\tt r} must also be a qualifier of {\tt u} unless
-the qualifier is deletable or protected.
-\item[(DA7)]
+\item[(DA4r)]
 If the assignment is a result assignment,
 a \underline{variable} qualifier
 of {\tt u} must also be a qualifier of {\tt r} unless
 the qualifier is addable and un-protected.
-\item[(DA8)]
+\item[(DA5r)]
 If the assignment is a result assignment,
-a \underline{protected} \underline{variable} qualifier
-of {\tt r} that is not an explicit
-qualifier of {\tt u} is implicitly added to {\tt u}.
-\end{itemize}\end{indpar}
+a \underline{variable} qualifier
+of {\tt r} must also be an explicit qualifier of {\tt u} unless
+the qualifier is deletable or protected.
+If the qualifier is protected but not an explicit qualifier of {\tt u},
+the qualifier will be implicitly added to {\tt u}.
+\item[NOTE]
+If the assignment is a result assignment,
+the \underline{variable} qualifiers of {\tt u} must be the same as the
+qualifiers of {\tt r}, except that (1) an addable, un-protected qualifier
+of {\tt u} need not be a qualifier of {\tt r}, (2) a deletable, un-protected
+qualifier of {\tt r} need not be a qualifier of {\tt u}, and (3)
+a protected qualifier of {\tt r} need not be an explicit qualifier of {\tt u}
+but will be implicitly added to {\tt u}.
+
 Thus result assignments treat variable qualifiers as if they
 were value qualifiers, except for protected qualifiers, which
-are allowed and added by implication.
+are added by implication.
+\end{itemize}\end{indpar}
 
 As specified on page \pageref{EXPLICIT-ASSIGN}, if any
 assignment

@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 27, 2018
+October 29, 2018
  
 \end{center}
 
@@ -3910,21 +3910,23 @@ The following functions compute contexts:
 {\tt function context r = std \ttkey{current context}}
 \begin{indpar}
 Returns the context in effect just before
-the statement containing the function call.
+the statement containing the {\tt current con\-text} {\em function-call}.
 \end{indpar}
 
 {\tt function context r = std \ttkey{call context}}
 \begin{indpar}
 Returns the context in effect just before
 the statement containing the {\em function-call} that
-invoked the current inline function.
+invoked the inline function that contains
+the statement containing the {\tt call context} {\em function-call}.
 \end{indpar}
 
 {\tt function context r = std \ttkey{declaration context}}
 \begin{indpar}
 Returns the context in effect just before
-the statement containing the {\em function-declar\-a\-tion} of
-inline function whose call is currently being compiled.
+the statement containing the {\em function-declar\-a\-tion} of the
+inline function that contains
+the statement containing the {\tt call context} {\em function-call}.
 \end{indpar}
 
 \end{indpar}
@@ -4029,10 +4031,10 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt protected variable qualifier~}\ttakey{MEM} \\
-{\tt protected variable qualifier~}\ttakey{WRITABLE} \\
-{\tt protected addable value qualifier~}\ttakey{STACK} \\
-{\tt variable qualifier~}\ttakey{UNCHECKED}
+{\tt define protected variable qualifier~}\ttakey{MEM} \\
+{\tt define protected variable qualifier~}\ttakey{WRITABLE} \\
+{\tt define protected addable value qualifier~}\ttakey{STACK} \\
+{\tt define variable qualifier~}\ttakey{UNCHECKED}
 \end{indpar}
 
 In addition there are several builtin `\skey{prototype qualifier}s'

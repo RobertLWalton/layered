@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 29, 2018
+October 30, 2018
  
 \end{center}
 
@@ -3121,7 +3121,7 @@ Given assignment statements
 \end{center}
 
 the compiler will assign the value of {\tt w} to the variable {\tt v}
-using `\key{direct assignment}'\label{DIRECT-ASSIGNMENT} if possible, or
+using `\key{direct assignment}'\label{DIRECT-ASSIGNMENT-TYPE} if possible, or
 if not possible, will rewrite the second statement as
 \begin{center}
 \tt $Tu$ u = assign ( w )
@@ -4081,31 +4081,49 @@ when that value is copied to that other variable.
 A qualifier must be a variable qualifier or a value qualifier,
 but can not be both.
 
-Given an assignment statement `$v1$ \TT{=} $v2$', if $v1$ has
-a qualifier that $v2$ does not have, that qualifier is said to
-have been \mkey{added}{by assignment} by the assignment.
-If $v1$ does not have a qualifier that $v2$ does have, then
-that qualifier is said to have been \mkey{deleted}{by assignment}
-by the assignment.
-An \mkey{addable}{qualifier} qualifier is a qualifier that can be added by
-assignments, and a \mkey{deletable}{qualifier} qualifier is a qualifier
-that can be deleted by assignments.  A qualifier that is neither
-addable or deletable must be attached to $v1$ if and only if it is
-attached to $v2$.
+A \underline{value} qualifier may be
+\mkey{addable}{qualifier} or
+\mkey{deletable}{qualifier}.  Any qualifier may be
+\mkey{protected}{qualifier}.  These qualifier attributes control
+direct assignments (\pagref{DIRECT-ASSIGNMENT-TYPE}) according to rules
+we now describe.
 
-A `\key{protected qualifier}' can be attached in source code
-to an assignment result variable only if the assignment statement
-takes the form of a function call and the assignment statement
-result variable
-matches a prototype result variable that has the qualifier.  Furthermore,
-in this case, if the qualifier is not explicitly encoded for the
-assignment statement result variable, it will be automatically added
-to that variable.
-This is the only way to attach a `\key{protected variable qualifier}'
-to a variable.  However, as described below, protected value qualifiers
-may also be propagated by assignments or implied conversion operations.
+In order to understand the following, we will look ahead to how
+an inline function call is expanded (as per
+\itemref{MATCHING-CALLS-TO-PROTOTYPES}).  Given the function
+prototype
+\begin{center}
+\begin{tabular}{l}
+\tt function $Qsr$ $Tr$ r = F ( $Qsv$ $Tv$ v ) \\
+\end{tabular}
+\end{center}
+where $Qs\ldots$ are qualifiers and $T\ldots$ are types,
+the code
+\begin{center}
+\begin{tabular}{l}
+\tt $Qsw$ $Tw$ w = \ldots \\
+\tt $Qsu$ $Tu$ u = F ( w ) \\
+\end{tabular}
+\end{center}
+expands modulo variable renaming to the equivalent of
+\begin{center}
+\begin{tabular}{l}
+\tt $Qsw$ $Tw$ w = \ldots \\
+\tt $Qsv$ $Tv$ v = w \\
 
-Given assignment statements
+\tt $Qsr$ $Tr$ r =: \\
+\tt ~~~~~ body of the inline function \\
+\tt $Qsu$ $Tu$ u = r \\
+\end{tabular}
+\end{center}
+
+In the above {\tt \ldots{}~u = r} is called a \key{result assignment}
+and {\tt \ldots{}~v = w} is called a non-result assignment.
+Also any assignment {\tt \ldots{}~u = w} in which neither {\tt u} or
+{\tt w} is a function prototype variable in a function expansion is
+called a non-result assignment.
+
+Rephrasing this, consider the assignment statements
 \begin{center}
 \begin{tabular}{l}
 \tt $Qsw$ $Tw$ w = \ldots \\
@@ -4113,94 +4131,55 @@ Given assignment statements
 \end{tabular}
 \end{center}
 
-where $Qsw$ denotes the qualifiers of {\tt w} and $Tw$ is the type
-of {\tt w}, and $Qsu$, $Tu$ similarly for {\tt u},
-the compiler will assign the value of {\tt w} to the variable {\tt v}
-using direct assignment if possible: see \pagref{DIRECT-ASSIGNMENT}.
-However a direct assignment must obey the following rules:
+where either {\tt w} or {\tt u}, but not both, may be a function 
+prototype variable in an inline function call expansion.
+If {\tt w} is a function prototype result variable, then
+the assignment {\tt \ldots{}~u = w} is a result assignment.  Otherwise
+{\tt \ldots{}~u = w} is a non-result assignment.
+
+Then the assignment {\tt \ldots{}~u = w} is a \key{direct assignment}
+\label{DIRECT-ASSIGNMENT}
+if and only if:
 \begin{indpar}\begin{itemize}
 \label{DIRECT-ASSIGNMENT-QUALIFIER-RULES}
 \item[(DA1)]
-The types of {\tt u} and {\tt w}
-must be identical.
+The types of {\tt u} and {\tt w} are identical
+(as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
 A \underline{value} qualifier of {\tt u}
-must also be a qualifier of {\tt w} unless
-the qualifier is addable.
+is also a qualifier of {\tt w} unless
+the qualifier is \mkey{addable}{qualifier}.
 \item[(DA3)]
 A \underline{value} qualifier of {\tt w}
-must also be a qualifier of {\tt u} unless
-the qualifier is deletable.
-\item[(DA4n)]
-If the assignment is not a result assignment (see below),
-all the \underline{variable} qualifiers of {\tt u} must be both
-\underline{un-protected} and \underline{addable}, regardless of
-whether they are qualifiers of {\tt w}.
-\item[(DA5n)]
-If the assignment is not a result assignment (see below),
-{\tt w} may have any \underline{variable} qualifier.
-\item[NOTE]
-If the assignment is not a result assignment (see below),
-then as far as {\tt u} is concerned, the qualifiers of {\tt w} are
-ignored.
-\end{itemize}\end{indpar}
-
-Function calls are implemented with implied assignments of actual
-arguments to function prototype arguments and function prototype
-results to actual results.
-Function prototypes and function
-calls are described in detail later in this document
-(\itemref{FUNCTION-PROTOTYPES-AND-CALLS}), but for the
-purposes of this section reference to the example at the beginning
-of this section may suffice.
-Given code of the form
-\begin{center}
-\begin{tabular}{l}
-\tt function $Qsr$ $Tr$ r = F ( $Qsv$ $Tv$ v ) \\
-\tt $Qsw$ $Tw$ w = \ldots \\
-\tt $Qsu$ $Tu$ u = F ( w ) \\
-\end{tabular}
-\end{center}
-an \key{argument assignment}
-\begin{center}
-\begin{tabular}{l}
-\tt $Qsv$ $Tv$ v = w \\
-\end{tabular}
-\end{center}
-is generated which behaves just like any other assignment.
-Also a \key{result assignment}
-\begin{center}
-\begin{tabular}{l}
-\tt $Qsu$ $Tu$ u = r \\
-\end{tabular}
-\end{center}
-is generated, but result assignments differ from other assignments
-in that result assignments obey the rules:
-\begin{indpar}\begin{itemize}
-\item[(DA4r)]
-If the assignment is a result assignment,
-a \underline{variable} qualifier
-of {\tt u} must also be a qualifier of {\tt r} unless
-the qualifier is addable and un-protected.
-\item[(DA5r)]
-If the assignment is a result assignment,
-a \underline{variable} qualifier
-of {\tt r} must also be an explicit qualifier of {\tt u} unless
-the qualifier is deletable or protected.
-If the qualifier is protected but not an explicit qualifier of {\tt u},
+is also a qualifier of {\tt u} unless
+the qualifier is \mkey{deletable}{qualifier}.
+However, if the qualifier is \mkey{protected}{qualifier}
+but not an explicit qualifier of {\tt u},
 the qualifier will be implicitly added to {\tt u}.
+\item[(DA4)]
+If the assignment is not a result assignment,
+{\tt u} does \underline{not} have any \underline{variable} qualifiers
+(but {\tt w} may have any \underline{variable} qualifiers).
+\item[(DA5)]
+If the assignment is a result assignment,
+a \underline{variable} qualifier
+of {\tt u} is also a qualifier of {\tt w}.
+\item[(DA6)]
+If the assignment is a result assignment,
+a \underline{variable} qualifier
+of {\tt w} is also a qualifier of {\tt u}.
+However, if the qualifier is \mkey{protected}{qualifier}
+but not an explicit qualifier of {\tt u},
+the qualifier will be implicitly added to {\tt u}.
+\item[NOTE]
+If the assignment is not a result assignment,
+then as far as {\tt u} is concerned, the \underline{variable}
+qualifiers of {\tt w} are ignored.
 \item[NOTE]
 If the assignment is a result assignment,
 the \underline{variable} qualifiers of {\tt u} must be the same as the
-qualifiers of {\tt r}, except that (1) an addable, un-protected qualifier
-of {\tt u} need not be a qualifier of {\tt r}, (2) a deletable, un-protected
-qualifier of {\tt r} need not be a qualifier of {\tt u}, and (3)
-a protected qualifier of {\tt r} need not be an explicit qualifier of {\tt u}
-but will be implicitly added to {\tt u}.
-
-Thus result assignments treat variable qualifiers as if they
-were value qualifiers, except for protected qualifiers, which
-are added by implication.
+qualifiers of {\tt r}, except that a protected variable qualifier of {\tt w}
+need not be explicitly given for {\tt u} but will be implicitly added.
 \end{itemize}\end{indpar}
 
 As specified on page \pageref{EXPLICIT-ASSIGN}, if any
@@ -4229,7 +4208,7 @@ function \begin{tabular}[t]{@{}l@{}}
 
 This function copies the value of {\tt v} to {\tt r}.
 This function \underline{cannot} add
-\underline{protected} or non-addable \underline{variable} qualifiers.
+\underline{variable} qualifiers.
 
 TBD
 
@@ -4339,9 +4318,9 @@ The parser and compiler convert {\em expressions} and into statements
 that have no {\em expressions} except for {\em variable-names}
 and {\em function-calls} in statements of the form
 \begin{indpar}
-\ldots{} ~ {\tt =} ~{\em constant} \\
-\ldots{} ~ {\tt =} ~{\em variable-name} \\
-\ldots{} ~ {\tt =} ~{\em function-call}
+\ldots{}~~ {\tt =} ~{\em constant} \\
+\ldots{}~~ {\tt =} ~{\em variable-name} \\
+\ldots{}~~ {\tt =} ~{\em function-call}
 \end{indpar}
 where \ldots{} is a list of result variables (which is optional
 for {\em function-calls}).

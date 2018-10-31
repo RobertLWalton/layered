@@ -3918,7 +3918,7 @@ the statement containing the {\tt current con\-text} {\em function-call}.
 Returns the context in effect just before
 the statement containing the {\em function-call} whose
 inline function expansion contains
-the statement containing the {\tt call context} {\em function-call}.
+the statement containing the {\tt call con\-text} {\em function-call}.
 \end{indpar}
 
 {\tt function context r = std \ttkey{declaration context}}
@@ -3963,7 +3963,7 @@ types.
 Syntactically {\em qualifier-names} immediately precede the {\em type-names}
 that are before {\em variable-names}.  A simple example is:
 \begin{indpar}\begin{verbatim}
-protected value qualifier fee
+implied value qualifier fee
 function fee int32 result = F ( int32 value ):
     // Declares function F that computes a result of
     // with qualifier fee.
@@ -3980,7 +3980,7 @@ function int32 result = G ( fee int32 value ):
 int32 x1 = ...
 fee int32 x2 = F ( x1 )      // Legal; F produces result
                              // with qualifier fee.
-int32 x3 = F ( x1 )          // Legal; F attaches protected
+int32 x3 = F ( x1 )          // Legal; F attaches implied
                              // qualifier fee automatically
                              // to x3.
 int32 y1 = G ( x1 )          // Illegal; G requires argument
@@ -4004,7 +4004,7 @@ Qualifiers may be declared by:
     \begin{tabular}[t]{rl}
     ::= & \ttkey{value} \\
     $|$ & \ttkey{variable} \\
-    $|$ & \ttkey{protected} \\
+    $|$ & \ttkey{implied} \\
     $|$ & \ttkey{addable} \\
     $|$ & \ttkey{deletable} \\
     \end{tabular} \\
@@ -4027,14 +4027,14 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt define protected variable qualifier \ttkey{std *MEM*}} \\
+{\tt define implied variable qualifier \ttkey{std *MEM*}} \\
 {\tt define abbreviation \ttakey{MEM} ---> `std *MEM*'} \\
-{\tt define protected variable qualifier \ttkey{std *WRITABLE*}} \\
+{\tt define implied variable qualifier \ttkey{std *WRITABLE*}} \\
 {\tt define abbreviation \ttakey{WRITABLE} ---> `std *WRITABLE*'} \\
-{\tt define protected addable value qualifier \ttkey{std *STACK*}} \\
+{\tt define implied addable value qualifier \ttkey{std *STACK*}} \\
 {\tt define abbreviation \ttakey{STACK} ---> `std *STACK*'} \\
 {\tt define variable qualifier \ttkey{std *UNCHECKED*}} \\
-{\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'} \\
+{\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'}
 \end{indpar}
 
 In addition there are several builtin `\skey{prototype qualifier}s'
@@ -4085,7 +4085,7 @@ but cannot be both.
 A \underline{value} qualifier may be
 \mkey{addable}{qualifier} or
 \mkey{deletable}{qualifier}.  Any qualifier may be
-\mkey{protected}{qualifier}.  These qualifier attributes control
+\mkey{implied}{qualifier}.  These qualifier attributes control
 direct assignments (\pagref{DIRECT-ASSIGNMENT-TYPE}) according to rules
 we now describe.
 
@@ -4153,9 +4153,10 @@ the qualifier is \mkey{addable}{qualifier}.
 \item[(DA3)]
 A \underline{value} qualifier of {\tt w}
 is also a qualifier of {\tt u} unless
-the qualifier is \mkey{deletable}{qualifier}.
-However, if the qualifier is \mkey{protected}{qualifier}
-but not an explicit qualifier of {\tt u},
+the qualifier is \mkey{deletable}{qualifier} or
+the qualifier is \mkey{implied}{qualifier}
+\underline{and} the assignment is a result assignment.
+In the latter case
 the qualifier will be implicitly added to {\tt u}.
 \item[(DA4)]
 If the assignment is not a result assignment,
@@ -4169,18 +4170,15 @@ of {\tt u} is also a qualifier of {\tt w}.
 If the assignment is a result assignment,
 a \underline{variable} qualifier
 of {\tt w} is also a qualifier of {\tt u}.
-However, if the qualifier is \mkey{protected}{qualifier}
+However, if the qualifier is \mkey{implied}{qualifier}
 but not an explicit qualifier of {\tt u},
-the qualifier will be implicitly added to {\tt u}.
+the qualifier will be implicitly added to {\tt u} (and this rule
+will thereby be satisfied).
 \item[NOTE]
-If the assignment is not a result assignment,
-then as far as {\tt u} is concerned, the \underline{variable}
-qualifiers of {\tt w} are ignored.
-\item[NOTE]
-If the assignment is a result assignment,
-the \underline{variable} qualifiers of {\tt u} must be the same as the
-qualifiers of {\tt r}, except that a protected variable qualifier of {\tt w}
-need not be explicitly given for {\tt u} but will be implicitly added.
+In order to have a \underline{variable} qualifier, a variable {\tt u}
+must be assigned its value by a result assignment whose prototype
+result variable {\tt w} has the qualifier.  If the qualifier is not
+implied, {\tt u} must be given the qualifier explicitly.
 \end{itemize}\end{indpar}
 
 A direct assignment {\tt \ldots{}~u = w} is 
@@ -4234,7 +4232,7 @@ int32 z = x
     // to z.
 
 *UNCHECKED* uns32 w = uns32 ( z )
-    // *UNCHECKED* is an unprotected variable qualifier that
+    // *UNCHECKED* is a non-implied variable qualifier that
     // must be written into code.  It must be on the
     // result variable of an unchecked conversion from
     // int32 to uns32 that just changes the type of the
@@ -4255,7 +4253,7 @@ As a variable qualifier, \TT{*MEM*} can only be attached to
 a variable by setting the variable to the result of a
 function call.
 
-Some examples involving the \TT{*STACK*} addable protected value
+Some examples involving the \TT{*STACK*} addable implied value
 qualifier are:
 \begin{indpar}\begin{verbatim}
 // Assume:
@@ -8568,7 +8566,7 @@ the actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit or default value of {\tt Qs} is given by the call, that is used.
 Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
 of a prototype result variable that is \underline{not} a variable
-qualifier and is not {\tt protected},
+qualifier and is not {\tt implied},
 and there is a corresponding {\em function-call}
 result variable with known type,
 the \underline{value} qualifiers of the leftmost such {\em function-call}
@@ -8585,12 +8583,12 @@ leftmost such variable in the prototype.
 
 For example,
 \begin{indpar}\begin{verbatim}
-define protected required value qualifier in-range
+define implied required value qualifier in-range
 define prohibited value qualifier ouch
 function Qs in-range T r =
         check (| qualifiers Qs, type T |) ( Qs T v ):
-        // in-range is protected so Qs is implied to
-        // be the non-protected value qualifiers of
+        // in-range is implied so Qs is implied to
+        // be the non-implied value qualifiers of
         // the actual result variable
     if:
         v < 0:
@@ -8610,7 +8608,7 @@ ouch int32 y1 = check ( x )
            // Legal: check prototype becomes:
            //   ouch in-range r = check ( ouch int32 v )
            // so argument can have qualifier ouch.
-           // Also y1 is given protected qualifier
+           // Also y1 is given implied qualifier
            // `in-range'.
 int32 y2 = check ( x )
            // Illegal: check prototype becomes:
@@ -8875,10 +8873,10 @@ If the {\em variable-name} in the {\em qualifiers-argument-declaration}
 is used as a {\em qualifier-name}
 of a prototype result variable, and any other {\em qualifier-names}
 of that prototype result variable name \underline{variable}
-or \underline{protected value}
+or \underline{implied value}
 qualifiers in the context of the prototype, and if the
 the matching call result has known type and qualifiers,
-the \underline{unprotected value} qualifiers of the leftmost such call result
+the \underline{non-implied value} qualifiers of the leftmost such call result
 are assigned as the elements of the
 value of the {\em variable-name}.
 
@@ -9090,7 +9088,7 @@ the prototype result variable qualifiers and the $vc\ldots$
 call result variable qualifiers, and if these rules fail, the
 call-prototype match fails.
 
-If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not exactly equal after protected
+If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not exactly equal after implied
 qualifiers have been added to $QCs1$,
 the match is marked
 `\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
@@ -10165,7 +10163,7 @@ There is also a special class of qualifiers called trace qualifiers.
 \subsection{The \TT{*MEM*} Memory Qualifier}
 \label{THE-MEM-QUALIFIER}
 
-The \ttakey{MEM} qualifier is a protected variable qualifier that behaves
+The \ttakey{MEM} qualifier is a implied variable qualifier that behaves
 in a special way when it is given to a variable {\tt v}.
 In this situation {\tt v} is a copy of a RAM memory value and
 must be in a cluster that
@@ -10252,7 +10250,7 @@ If a RAM cache variable {\tt v}'s value is not used,
 it will not actually be loaded from RAM, even if {\tt v} is written
 by assigning a value to `{\tt next v}'.
 
-Because \TT{*MEM*} and \TT{*WRITABLE*} are protected qualifiers,
+Because \TT{*MEM*} and \TT{*WRITABLE*} are implied qualifiers,
 RAM cache variables can only be created as
 results of inline function calls.
 So only inline functions can effect a read or write
@@ -10268,8 +10266,8 @@ inaccessible and will cause a segmentation fault if referenced
 \subsection{The \TT{*STACK*} Qualifier}
 \label{THE-STACK-QUALIFIER}
 
-The `\ttakey{STACK}' qualifier is a prohibited,
-protected, value qualifier
+The `\ttakey{STACK}' qualifier is an addable,
+implied, value qualifier
 attached to clusters containing offsets and addresses
 returned by the builtin `\TT{allocate to stack}'
 function (\pagref{ALLOCATE-TO-STACK}).
@@ -10996,7 +10994,7 @@ The `\TT{allocate to global}' function plays the same role for
 global areas as the `\TT{allocate to stack}' function does for
 stacks, accept that the address gets the \TT{global} qualifier
 instead of the \TT{*STACK*} qualifier.  The \TT{global} qualifier
-is a protected, inherited qualifier
+is an implied qualifier
 with \underline{none} of the special \TT{*STACK*}
 qualifier properties, and normally has no effect on code.
 

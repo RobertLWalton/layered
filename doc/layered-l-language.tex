@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 30, 2018
+October 31, 2018
  
 \end{center}
 
@@ -3916,8 +3916,8 @@ the statement containing the {\tt current con\-text} {\em function-call}.
 {\tt function context r = std \ttkey{call context}}
 \begin{indpar}
 Returns the context in effect just before
-the statement containing the {\em function-call} that
-invoked the inline function that contains
+the statement containing the {\em function-call} whose
+inline function expansion contains
 the statement containing the {\tt call context} {\em function-call}.
 \end{indpar}
 
@@ -3925,26 +3925,22 @@ the statement containing the {\tt call context} {\em function-call}.
 \begin{indpar}
 Returns the context in effect just before
 the statement containing the {\em function-declar\-a\-tion} of the
-inline function that contains
+inline function whose {\em function-call} expansion contains
 the statement containing the {\tt call context} {\em function-call}.
 \end{indpar}
 
 \end{indpar}
 
-Context values will be needed at run-time if the program contains
-compile-and-run statements.
+Context values are needed at run-time if the program contains
+compile-and-run statements (\pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}).
 
 In order for a context value to be available at run-time, it
 must be returned by one of these functions or be the context of
-a compile-and-run statement (\pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}).
+a compile-and-run statement.
 If a context value is stored in a variable by one of these functions,
 then it need not be available at run time if it can be proved that the
-variable value will not be available at run time.  A variable value is
-available at run time only if the variable is exported, or if the
-variable is in a context that is
-available at run time, or if the variable value is copied into another
-variable that may be available at run time, or if the variable value is
-written into memory.\footnote{With modern memories is it not unreasonable
+variable value will not be available at run time.%
+\footnote{With modern memories it may be reasonable
 to make all contexts available at runtime by storing them
 in a disk file mapped into memory and paged in only as needed.}
 
@@ -3955,7 +3951,7 @@ Variables may be qualified by \skey{qualifier}s, which precede the
 type when a variable is declared.  There are six builtin qualifiers:
 \TT{*MEM*}, \TT{*WRITABLE*}, \TT{*STACK*}, \TT{*UNCHECKED*},
 \TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
-Most of these have special effects
+These have special effects or special usage
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
 have special effects.
@@ -4031,10 +4027,14 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt define protected variable qualifier~}\ttakey{MEM} \\
-{\tt define protected variable qualifier~}\ttakey{WRITABLE} \\
-{\tt define protected addable value qualifier~}\ttakey{STACK} \\
-{\tt define variable qualifier~}\ttakey{UNCHECKED}
+{\tt define protected variable qualifier \ttkey{std *MEM*}} \\
+{\tt define abbreviation \ttakey{MEM} ---> `std *MEM*'} \\
+{\tt define protected variable qualifier \ttkey{std *WRITABLE*}} \\
+{\tt define abbreviation \ttakey{WRITABLE} ---> `std *WRITABLE*'} \\
+{\tt define protected addable value qualifier \ttkey{std *STACK*}} \\
+{\tt define abbreviation \ttakey{STACK} ---> `std *STACK*'} \\
+{\tt define variable qualifier \ttkey{std *UNCHECKED*}} \\
+{\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'} \\
 \end{indpar}
 
 In addition there are several builtin `\skey{prototype qualifier}s'
@@ -4043,8 +4043,8 @@ that can only be used in function prototypes:
 \TT{*DEFERRED*} \\
 \TT{*OPTIONAL*} \\
 \end{center}
-These are qualifiers only syntactically, and have their own semantics
-not related to that of the defined qualifiers.
+These two are qualifiers only syntactically, and have their own semantics
+not related to that of other qualifiers.
 
 Each qualifier is associated with a unique enumeration value,
 and this value can be used at both
@@ -4075,11 +4075,12 @@ A `\key{value qualifier}'\label{VALUE-QUALIFIER}
 qualifies values, although the qualifier
 is attached to variables that hold these values.
 If $Q$ is a value qualifier attached to a variable {\tt v}, $Q$
-\underline{may} follow the value of {\tt v} to another variable
+typically, but not necessarily,
+follows the value of {\tt v} to another variable
 when that value is copied to that other variable.
 
 A qualifier must be a variable qualifier or a value qualifier,
-but can not be both.
+but cannot be both.
 
 A \underline{value} qualifier may be
 \mkey{addable}{qualifier} or
@@ -4088,7 +4089,7 @@ A \underline{value} qualifier may be
 direct assignments (\pagref{DIRECT-ASSIGNMENT-TYPE}) according to rules
 we now describe.
 
-In order to understand the following, we will look ahead to how
+In order to understand the following, we will look ahead at how
 an inline function call is expanded (as per
 \itemref{MATCHING-CALLS-TO-PROTOTYPES}).  Given the function
 prototype
@@ -4159,7 +4160,7 @@ the qualifier will be implicitly added to {\tt u}.
 \item[(DA4)]
 If the assignment is not a result assignment,
 {\tt u} does \underline{not} have any \underline{variable} qualifiers
-(but {\tt w} may have any \underline{variable} qualifiers).
+(but {\tt w} may have \underline{variable} qualifiers).
 \item[(DA5)]
 If the assignment is a result assignment,
 a \underline{variable} qualifier
@@ -4182,12 +4183,15 @@ qualifiers of {\tt r}, except that a protected variable qualifier of {\tt w}
 need not be explicitly given for {\tt u} but will be implicitly added.
 \end{itemize}\end{indpar}
 
+A direct assignment {\tt \ldots{}~u = w} is 
+implemented by simply copying the value of {\tt w} to {\tt v}.
+
 As specified on page \pageref{EXPLICIT-ASSIGN}, if any
 assignment
 \begin{center}
 \tt $Qsu$ $Tu$ u = w
 \end{center}
-does \underline{not} obey the rules of direct assignment, it is
+is \underline{not} a direct assignment, it is
 re-written as
 \begin{center}
 \tt $Qsu$ $Tu$ u = assign ( w )
@@ -4200,7 +4204,7 @@ Non-addable value qualifiers may be added and non-deletable value qualifiers
 deleted by the following builtin un\-check\-ed function:
 \begin{center} \tt
 function \begin{tabular}[t]{@{}l@{}}
-         \TT{*UNCHECKED*}~Qrs~T r = \ttkey{re-qualify} \\
+         \TT{*UNCHECKED*}~Qrs~T r = std \ttkey{re-qualify} \\
          \TS~~~~(| qualifiers Qrs, qualifiers Qvs, type T |) \\
 	 \TS~~~~( Qvs~T v ) \\
 	 \end{tabular}
@@ -4210,15 +4214,9 @@ This function copies the value of {\tt v} to {\tt r}.
 This function \underline{cannot} add
 \underline{variable} qualifiers.
 
-TBD
-
 Some examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:
 \begin{indpar}\begin{verbatim}
-// Builtin declarations:
-//     protected variable qualifier *MEM*
-//     required variable qualifier *UNCHECKED*
-
 // Function to read the int32 value at RAM address A.
 // Not type safe as argument A not vetted.
 //
@@ -4236,8 +4234,8 @@ int32 z = x
     // to z.
 
 *UNCHECKED* uns32 w = uns32 ( z )
-    // *UNCHECKED* is a require variable qualifier and must
-    // be written into code.  It is required to be on the
+    // *UNCHECKED* is an unprotected variable qualifier that
+    // must be written into code.  It must be on the
     // result variable of an unchecked conversion from
     // int32 to uns32 that just changes the type of the
     // 32 bit value without changing the value.
@@ -4253,17 +4251,15 @@ created implicitly by the call: see \itemref{CLUSTERS}.
 The \TT{*MEM*} qualifier has the special property that a value of a \TT{*MEM*}
 variable {\tt r} is not given explicitly, but is read implicitly from
 RAM memory using the address in {\tt r.adr}: see \itemref{THE-MEM-QUALIFIER}.
-As a protected variable qualifier, \TT{*MEM*} can only be attached to
-a variable by making the variable a result variable of an inline
+As a variable qualifier, \TT{*MEM*} can only be attached to
+a variable by setting the variable to the result of a
 function call.
 
-Some examples involving the \TT{*STACK*} prohibited protected value
+Some examples involving the \TT{*STACK*} addable protected value
 qualifier are:
 \begin{indpar}\begin{verbatim}
-// Builtin declaration:
-//     protected prohibited value qualifier *STACK*
-//
 // Assume:
+//
 //    function *UNCHECKED* *STACK* adr r = allocate to stack
 //                                         ( unswrd size )
 //        // Actual allocate to stack function returns more
@@ -4286,11 +4282,15 @@ function *MEM* int32 r, *STACK* adr r.adr = read from stack 2
 
 int32 x1 = read ( address of x )
     // Compiler error: `read' prototype argument does not
-    // have prohibited `*STACK*' qualifier call argument has.
+    // have non-deletable `*STACK*' qualifier that the call
+    // argument has.
 int32 x2 = read from stack 1 ( address of x )
 int32 x3 = read from stack 2 ( address of x )
     // Both legal: `read from stack ...' prototype and call
     // arguments both have `*STACK*' qualifier.
+    //
+    // First call does NOT propagage *STACK* to x2.adr.
+    // Second call propagages *STACK* to x3.adr.
 \end{verbatim}\end{indpar}
 
 The \TT{*STACK*} qualifier is special in that it is not allowed to qualify

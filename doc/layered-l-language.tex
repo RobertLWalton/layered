@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 31, 2018
+November 1, 2018
  
 \end{center}
 
@@ -8564,32 +8564,26 @@ For a {\em qualifiers-argument-declaration}
 within `\TT{(|\,|)}' brackets,
 the actual value of {\tt Qs} may be implied by a {\em function-call}.
 If an explicit or default value of {\tt Qs} is given by the call, that is used.
-Otherwise if {\tt Qs} is the given as the \underline{only} qualifier
-of a prototype result variable that is \underline{not} a variable
-qualifier and is not {\tt implied},
-and there is a corresponding {\em function-call}
-result variable with known type,
-the \underline{value} qualifiers of the leftmost such {\em function-call}
-result variable are
-assigned as the value of {\tt Qs}.  Otherwise
-if {\tt Qs} is given as the \underline{only} qualifier
-of a prototype argument variable that is \underline{not} a variable
-qualifier,
-and the {\em actual-argument} corresponding to the
-variable has a natural type (\pagref{NATURAL-TYPE}),
+Otherwise if {\tt Qs} is given as a qualifier
+of a prototype result or argument variable,
 {\tt Qs} is assigned the \underline{value} qualifiers of the
-{\em actual-argument} corresponding to the
-leftmost such variable in the prototype.
+corresponding actual variable that are not explicitly given the
+prototype variable.  If {\tt Qs} is a qualifier of several prototype
+variables, the rightmost is used (e.g., prototype arguments take
+precedence over prototype results).
+However any actual result variable used must have
+has known type, and any actual argument variable used must have
+a natural type (\pagref{NATURAL-TYPE}), else the call-prototype match
+fails.
 
 For example,
 \begin{indpar}\begin{verbatim}
-define implied required value qualifier in-range
-define prohibited value qualifier ouch
+define implied deletable value qualifier in-range
+define value qualifier ouch
 function Qs in-range T r =
         check (| qualifiers Qs, type T |) ( Qs T v ):
-        // in-range is implied so Qs is implied to
-        // be the non-implied value qualifiers of
-        // the actual result variable
+        // Checks that v is in range and if so, copies
+        // it to r and adds in-range qualifier.
     if:
         v < 0:
             error "argument < 0"
@@ -8598,24 +8592,23 @@ function Qs in-range T r =
         else:
             result = v
 
-function F ( in-range ouch v ):
+function ouch int32 F ( ... ):
+    ... function body omitted ...
+function G ( in-range ouch v ):
     ... function body omitted ...
 
 // Example usage
 //
-ouch int32 x = ...
+ouch int32 x = F ( ... )
 ouch int32 y1 = check ( x )
            // Legal: check prototype becomes:
            //   ouch in-range r = check ( ouch int32 v )
-           // so argument can have qualifier ouch.
-           // Also y1 is given implied qualifier
-           // `in-range'.
+           // so result can have qualifier ouch.
+           // Also y1 is given implied qualifier in-range.
 int32 y2 = check ( x )
-           // Illegal: check prototype becomes:
-           //   in-range r = check ( int32 v )
-           // so argument CANNOT have qualifier ouch.
-F ( x )    // Illegal, x does not have required in-range
-F ( y1 )   // Legal, y1 has required in-range
+           // Illegal: y must have explicit qualifier ouch.
+G ( x )    // Illegal, x does not have required in-range.
+G ( y1 )   // Legal, y1 has required in-range and ouch.
 \end{verbatim}\end{indpar}
 
 {\em Conditioners} bracketed by `\TT{[|\,|]}'
@@ -9875,8 +9868,8 @@ integer indices to
 either the base variable name of the cluster or to another member name
 of the cluster.  Two variable names with different base variable names
 belong to different clusters.  The indices must be compile time
-constants when the member is allocated and written, but may be expression
-run time values when the member is read.
+constants when the member is allocated, but may be expression
+run time values when the member is written or read.
 
 Variables in clusters are thus organized into trees, with clusters
 that have different bases being in disjoint trees.  Any variable in a cluster
@@ -9904,7 +9897,7 @@ For example:
 // The module has an exported parsing block containing:
 //
 //     define prefix "reference-prefix" operator "*"
-//     define prefix "reference-postfix" operator "++"
+//     define postfix "reference-postfix" operator "++"
 
 define type pointer pair as void
     // if pp is a pointer pair then:
@@ -9929,10 +9922,13 @@ function *STACK* pointer pair pp,
     pp.type = T
     unsadr size = size of ( T ) * n
     *UNCHECKED* void p = allocate to stack ( size )
+        // p gets protected qualifier *STACK* but this
+        // is not implicitly propagated to pp.  The
+        // fact that p is *UNCHECKED* indicates that it
+        // is the responsibility of the inline function
+        // to attach *STACK* to pp.
     pp.base.adr = p.base.adr
-    *UNCHECKED* unsadr offset = re-qualify ( p.offset )
-        // Gets rid of *STACK* qualifier
-    pp.begin = offset
+    pp.begin = p.offset
     pp.end = pp.begin + size
 
 // Assignment operator for pointer pairs.

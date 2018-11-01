@@ -8863,27 +8863,17 @@ a corresponding actual or default argument, the value of the
 is implied.
 
 If the {\em variable-name} in the {\em qualifiers-argument-declaration}
-is used as a {\em qualifier-name}
-of a prototype result variable, and any other {\em qualifier-names}
-of that prototype result variable name \underline{variable}
-or \underline{implied value}
-qualifiers in the context of the prototype, and if the
-the matching call result has known type and qualifiers,
-the \underline{non-implied value} qualifiers of the leftmost such call result
-are assigned as the elements of the
-value of the {\em variable-name}.
-
-Otherwise if the {\em variable-name} in the
-{\em qualifiers-argument-declaration}
-is used as a {\em qualifier-name}
-of a prototype argument variable, and any other {\em qualifier-names}
-of that prototype argument variable name \underline{variable}
-qualifiers in the context of the prototype, and if the
-the matching call actual argument has a
-natural type (\pagref{NATURAL-TYPE}) and qualifiers,
-the \underline{variable} qualifiers of the leftmost such call argument
-are assigned as the elements of the
-value of the {\em variable-name}.
+is used as a {\em qualifier-name} of a prototype result or argument variable,
+it is assigned the \underline{value} qualifiers of the
+corresponding actual variable that are not explicitly given as qualifiers
+of the prototype variable.  If {\em variable-name}
+is a qualifier of several prototype
+variables, the rightmost is used (e.g., prototype arguments take
+precedence over prototype results).
+However any matcing call result variable used must have
+have known type, and any matching call argument variable used must have
+a natural type (\pagref{NATURAL-TYPE}), else the call-prototype match
+fails.
 
 If no value can be assigned to the {\em variable-name} by these rules,
 the call-prototype match fails.

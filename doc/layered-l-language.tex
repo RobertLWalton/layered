@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 1, 2018
+November 2, 2018
  
 \end{center}
 
@@ -3133,7 +3133,8 @@ satisfied, and one of these is
 \begin{indpar}\begin{itemize}
 \item[(DA1)]\label{DIRECT-ASSIGNMENT-TYPE-RULE}
 In `{\tt u = w}' the types of {\tt u} and {\tt w}
-must be identical.
+must be identical, and this type
+must not have \TT{void} as its underling type.
 \end{itemize}\end{indpar}
 When direct assignment is used, the value of {\tt w} is copied
 exactly to {\tt u} (or if there is no value because the common
@@ -4089,7 +4090,24 @@ A \underline{value} qualifier may be
 direct assignments (\pagref{DIRECT-ASSIGNMENT-TYPE}) according to rules
 we now describe.
 
-In order to understand the following, we will look ahead at how
+Given variables {\tt u} and {\tt w}
+the compiler will execute
+\begin{center}
+\tt \ldots~u = w
+\end{center}
+as a direct assignment (\pagref{DIRECT-ASSIGNMENT-TYPE}) if it can,
+simply copying the value of {\tt w} to {\tt u}, or otherwise
+the compiler will rewrite the statement as
+\begin{center}
+\tt \ldots~u= assign ( w )
+\end{center}
+and treat the assignment as a function call.  To qualify as a direct
+assignment, the types of {\tt u} and {\tt w} must be identical,
+and the assignment must obey some rules involving qualifiers.  These
+qualifier rules differ for different kinds of assignments, so we
+now define the different kinds of assignments.
+
+To do this, we must look ahead at how
 an inline function call is expanded (as per
 \itemref{MATCHING-CALLS-TO-PROTOTYPES}).  Given the function
 prototype
@@ -4113,38 +4131,74 @@ expands modulo variable renaming to the equivalent of
 \tt $Qsv$ $Tv$ v = w \\
 
 \tt $Qsr$ $Tr$ r =: \\
-\tt ~~~~~ body of the inline function \\
+\tt ~~~~~ \ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
+\tt ~~~~~ r = \ldots \\
+\tt ~~~~~ \ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 \tt $Qsu$ $Tu$ u = r \\
 \end{tabular}
 \end{center}
 
-In the above {\tt \ldots{}~u = r} is called a \key{result assignment}
-and {\tt \ldots{}~v = w} is called a non-result assignment.
-Also any assignment {\tt \ldots{}~u = w} in which neither {\tt u} or
-{\tt w} is a function prototype variable in a function expansion is
-called a non-result assignment.
+In the above
+\begin{indpar}
+\begin{itemize}
+\item {\tt \ldots{}~v = w}
+	\begin{tabular}[t]{l}
+	is called an \key{argument assignment} \\
+        ({\tt v} is a prototype argument variable)
+	\end{tabular}
+\item {\tt r = \ldots}
+	\begin{tabular}[t]{l}
+	is called a \key{deferred result assignment} \\
+	({\tt r} is a prototype result variable)
+	\end{tabular}
+\item {\tt \ldots{}~u = r}
+	\begin{tabular}[t]{l}
+	is called a \key{final result assignment} \\
+	({\tt r} is a prototype result variable)
+	\end{tabular}
+\item any other assignment {\tt \ldots~x = y} for variables {\tt x}
+      and {\tt y} is called a \key{ordinary assignment}
+\end{itemize}
+\end{indpar}
 
-Rephrasing this, consider the assignment statements
+Rephrasing this, consider the assignment statement
 \begin{center}
 \begin{tabular}{l}
-\tt $Qsw$ $Tw$ w = \ldots \\
-\tt $Qsu$ $Tu$ u = w \\
+\tt \{ $Qsu$ $Tu$ \}\QMARK{} u = w \\
 \end{tabular}
 \end{center}
 
-where either {\tt w} or {\tt u}, but not both, may be a function 
-prototype variable in an inline function call expansion.
-If {\tt w} is a function prototype result variable, then
-the assignment {\tt \ldots{}~u = w} is a result assignment.  Otherwise
-{\tt \ldots{}~u = w} is a non-result assignment.
+for variables {\tt w} and {\tt u}.
+If {\tt w} is a function prototype result variable,
+the assignment a final result assignment.
+If {\tt u} is a prototype argument variable,
+the assignment is an argument assignment.
+If {\tt u} is a prototype result variable,
+the assignment is a deferred result assignment (and {\tt u}
+is not preceeded by a type or qualifiers).
+Otherwise the assignment is an ordinary assignment.
 
-Then the assignment {\tt \ldots{}~u = w} is a \key{direct assignment}
+We distinguish these kinds of assignments because for direct
+assignments:
+(1) implied value qualifiers of {\tt w} are implicitly
+added to {\tt u} for result final and ordinary assignments, but
+not for result deferred and argument assignments; (2)
+implied variable qualifiers of {\tt w} are implicitly added to
+{\tt u} for result final assignments, but not for other assignments;
+and (3) {\tt u} may have explicit variable qualifiers only for result final
+assignments.
+
+TBD
+
+Formally, an
+assignment {\tt \ldots{}~u = w} is a \key{direct assignment}
 \label{DIRECT-ASSIGNMENT}
 if and only if:
 \begin{indpar}\begin{itemize}
 \label{DIRECT-ASSIGNMENT-QUALIFIER-RULES}
 \item[(DA1)]
-The types of {\tt u} and {\tt w} are identical
+The types of {\tt u} and {\tt w} are identical and this type
+does not have \TT{void} as its underling type
 (as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
 A \underline{value} qualifier of {\tt u}
@@ -7334,7 +7388,7 @@ result variables of the prototype of a containing
 {\em member-selectors}.
 
 {\em Assignment-statements} that set {\em deferred-variables}
-are called `\skey{deferred assignment}s'.
+are called `\skey{deferred assignment}s'.\label{DEFERRED-ASSIGNMENT}
 
 No {\em qualifier-name} or {\em type-name} may be a prefix of
 a {\em variable-name} used as a

@@ -3134,7 +3134,7 @@ satisfied, and one of these is
 \item[(DA1)]\label{DIRECT-ASSIGNMENT-TYPE-RULE}
 In `{\tt u = w}' the types of {\tt u} and {\tt w}
 must be identical, and this type
-must not have \TT{void} as its underling type.
+must not have \TT{void} as its underlying type.
 \end{itemize}\end{indpar}
 When direct assignment is used, the value of {\tt w} is copied
 exactly to {\tt u} (or if there is no value because the common
@@ -4099,7 +4099,7 @@ as a direct assignment (\pagref{DIRECT-ASSIGNMENT-TYPE}) if it can,
 simply copying the value of {\tt w} to {\tt u}, or otherwise
 the compiler will rewrite the statement as
 \begin{center}
-\tt \ldots~u= assign ( w )
+\tt \ldots~u = assign ( w )
 \end{center}
 and treat the assignment as a function call.  To qualify as a direct
 assignment, the types of {\tt u} and {\tt w} must be identical,
@@ -4142,22 +4142,28 @@ In the above
 \begin{indpar}
 \begin{itemize}
 \item {\tt \ldots{}~v = w}
-	\begin{tabular}[t]{l}
+	\begin{tabular}[t]{@{}l}
 	is called an \key{argument assignment} \\
         ({\tt v} is a prototype argument variable)
 	\end{tabular}
 \item {\tt r = \ldots}
-	\begin{tabular}[t]{l}
+	\begin{tabular}[t]{@{}l}
 	is called a \key{deferred result assignment} \\
-	({\tt r} is a prototype result variable)
+	({\tt r} is a prototype result variable) \\
+	({\tt r} is not preceeded by explicit qualifiers or type) \\
+	(implicitly {\tt r} has the qualifiers and type given by
+	call-prototype match) \\
 	\end{tabular}
 \item {\tt \ldots{}~u = r}
-	\begin{tabular}[t]{l}
+	\begin{tabular}[t]{@{}l}
 	is called a \key{final result assignment} \\
 	({\tt r} is a prototype result variable)
 	\end{tabular}
-\item any other assignment {\tt \ldots~x = y} for variables {\tt x}
-      and {\tt y} is called a \key{ordinary assignment}
+\item any other
+	\begin{tabular}[t]{@{}l}
+	assignment {\tt \ldots~x = y} for variables {\tt x} and {\tt y} \\
+	is called a \key{ordinary assignment}
+	\end{tabular}
 \end{itemize}
 \end{indpar}
 
@@ -4169,23 +4175,23 @@ Rephrasing this, consider the assignment statement
 \end{center}
 
 for variables {\tt w} and {\tt u}.
-If {\tt w} is a function prototype result variable,
-the assignment a final result assignment.
-If {\tt u} is a prototype argument variable,
+If {\tt u} is a prototype argument variable in a function call expansion,
 the assignment is an argument assignment.
-If {\tt u} is a prototype result variable,
+If {\tt u} is a prototype result variable in a function call expansion,
 the assignment is a deferred result assignment (and {\tt u}
 is not preceeded by a type or qualifiers).
+If {\tt w} is a function prototype result variable in a function call expansion,
+the assignment a final result assignment.
 Otherwise the assignment is an ordinary assignment.
 
 We distinguish these kinds of assignments because for direct
 assignments:
 (1) implied value qualifiers of {\tt w} are implicitly
-added to {\tt u} for result final and ordinary assignments, but
-not for result deferred and argument assignments; (2)
+added to {\tt u} for final result and ordinary assignments, but
+not for deferred result and argument assignments; (2)
 implied variable qualifiers of {\tt w} are implicitly added to
-{\tt u} for result final assignments, but not for other assignments;
-and (3) {\tt u} may have explicit variable qualifiers only for result final
+{\tt u} for final result assignments, but not for other assignments;
+and (3) {\tt u} may have explicit variable qualifiers only for final result
 assignments.
 
 TBD
@@ -4198,7 +4204,7 @@ if and only if:
 \label{DIRECT-ASSIGNMENT-QUALIFIER-RULES}
 \item[(DA1)]
 The types of {\tt u} and {\tt w} are identical and this type
-does not have \TT{void} as its underling type
+does not have \TT{void} as its underlying type
 (as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
 A \underline{value} qualifier of {\tt u}
@@ -4209,22 +4215,31 @@ A \underline{value} qualifier of {\tt w}
 is also a qualifier of {\tt u} unless
 the qualifier is \mkey{deletable}{qualifier} or
 the qualifier is \mkey{implied}{qualifier}
-\underline{and} the assignment is a result assignment.
-In the latter case
+\underline{and} the assignment is a final result assignment or
+ordinary assignment.
+In this last case,
 the qualifier will be implicitly added to {\tt u}.
 \item[(DA4)]
-If the assignment is not a result assignment,
+If the assignment is an argument or ordinary assignment,
 {\tt u} does \underline{not} have any \underline{variable} qualifiers
 (but {\tt w} may have \underline{variable} qualifiers).
 \item[(DA5)]
-If the assignment is a result assignment,
+If the assignment is a final or deferred result assignment,
 a \underline{variable} qualifier
 of {\tt u} is also a qualifier of {\tt w}.
+For deferred result assignments, the qualifiers of {\tt u}
+are not explicit in the assignment,
+but are those given by the call-prototype match.
 \item[(DA6)]
-If the assignment is a result assignment,
+If the assignment is a final or deferred result assignment,
 a \underline{variable} qualifier
 of {\tt w} is also a qualifier of {\tt u}.
-However, if the qualifier is \mkey{implied}{qualifier}
+For deferred result assignments, the qualifiers of {\tt u}
+are not explicit in the assignment,
+but are those given by the call-prototype match.
+
+However, for a final result assignment,
+if the qualifier is \mkey{implied}{qualifier}
 but not an explicit qualifier of {\tt u},
 the qualifier will be implicitly added to {\tt u} (and this rule
 will thereby be satisfied).

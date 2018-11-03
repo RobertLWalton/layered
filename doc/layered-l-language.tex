@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 2, 2018
+November 3, 2018
  
 \end{center}
 
@@ -4194,8 +4194,6 @@ implied variable qualifiers of {\tt w} are implicitly added to
 and (3) {\tt u} may have explicit variable qualifiers only for final result
 assignments.
 
-TBD
-
 Formally, an
 assignment {\tt \ldots{}~u = w} is a \key{direct assignment}
 \label{DIRECT-ASSIGNMENT}
@@ -4207,11 +4205,13 @@ The types of {\tt u} and {\tt w} are identical and this type
 does not have \TT{void} as its underlying type
 (as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
-A \underline{value} qualifier of {\tt u}
+If the assignment is not a deferred result assignment,
+a \underline{value} qualifier of {\tt u}
 is also a qualifier of {\tt w} unless
 the qualifier is \mkey{addable}{qualifier}.
 \item[(DA3)]
-A \underline{value} qualifier of {\tt w}
+If the assignment is not a deferred result assignment,
+a \underline{value} qualifier of {\tt w}
 is also a qualifier of {\tt u} unless
 the qualifier is \mkey{deletable}{qualifier} or
 the qualifier is \mkey{implied}{qualifier}
@@ -4224,19 +4224,13 @@ If the assignment is an argument or ordinary assignment,
 {\tt u} does \underline{not} have any \underline{variable} qualifiers
 (but {\tt w} may have \underline{variable} qualifiers).
 \item[(DA5)]
-If the assignment is a final or deferred result assignment,
+If the assignment is a final result assignment,
 a \underline{variable} qualifier
 of {\tt u} is also a qualifier of {\tt w}.
-For deferred result assignments, the qualifiers of {\tt u}
-are not explicit in the assignment,
-but are those given by the call-prototype match.
 \item[(DA6)]
-If the assignment is a final or deferred result assignment,
+If the assignment is a final result assignment,
 a \underline{variable} qualifier
 of {\tt w} is also a qualifier of {\tt u}.
-For deferred result assignments, the qualifiers of {\tt u}
-are not explicit in the assignment,
-but are those given by the call-prototype match.
 
 However, for a final result assignment,
 if the qualifier is \mkey{implied}{qualifier}
@@ -4245,27 +4239,17 @@ the qualifier will be implicitly added to {\tt u} (and this rule
 will thereby be satisfied).
 \item[NOTE]
 In order to have a \underline{variable} qualifier, a variable {\tt u}
-must be assigned its value by a result assignment whose prototype
-result variable {\tt w} has the qualifier.  If the qualifier is not
-implied, {\tt u} must be given the qualifier explicitly.
+must be a result prototype variable in a deferred result assignment,
+or must be assigned its value by a final result assignment whose prototype
+result variable {\tt w} has the qualifier.  In the latter case,
+{\tt u} need not be given the qualifier explicitly if the qualifier
+is implied.
+\item[NOTE]
+Deferred result assignments ignore qualifiers and are always direct
+assignments if (DA1) is satisfied.
 \end{itemize}\end{indpar}
 
-A direct assignment {\tt \ldots{}~u = w} is 
-implemented by simply copying the value of {\tt w} to {\tt v}.
-
-As specified on page \pageref{EXPLICIT-ASSIGN}, if any
-assignment
-\begin{center}
-\tt $Qsu$ $Tu$ u = w
-\end{center}
-is \underline{not} a direct assignment, it is
-re-written as
-\begin{center}
-\tt $Qsu$ $Tu$ u = assign ( w )
-\end{center}
-This applies to both non-result and result assignments.
-If no {\tt assign} function is defined for the given types and
-qualifiers, the assignment fails to compile.
+TBD
 
 Non-addable value qualifiers may be added and non-deletable value qualifiers
 deleted by the following builtin un\-check\-ed function:

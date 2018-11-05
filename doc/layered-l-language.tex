@@ -4148,15 +4148,14 @@ In the above
 	\end{tabular}
 \item {\tt r = \ldots}
 	\begin{tabular}[t]{@{}l}
-	is called a \key{deferred result assignment} \\
-	({\tt r} is a prototype result variable) \\
+	is called a \key{deferred assignment} \\
 	({\tt r} is not preceeded by explicit qualifiers or type) \\
 	(implicitly {\tt r} has the qualifiers and type given by
 	call-prototype match) \\
 	\end{tabular}
 \item {\tt \ldots{}~u = r}
 	\begin{tabular}[t]{@{}l}
-	is called a \key{final result assignment} \\
+	is called a \key{result assignment} \\
 	({\tt r} is a prototype result variable)
 	\end{tabular}
 \item any other
@@ -4177,21 +4176,21 @@ Rephrasing this, consider the assignment statement
 for variables {\tt w} and {\tt u}.
 If {\tt u} is a prototype argument variable in a function call expansion,
 the assignment is an argument assignment.
-If {\tt u} is a prototype result variable in a function call expansion,
-the assignment is a deferred result assignment (and {\tt u}
-is not preceeded by a type or qualifiers).
 If {\tt w} is a function prototype result variable in a function call expansion,
-the assignment a final result assignment.
+the assignment a result assignment.
+If there are no qualifiers $Qus$ and type $Tu$ explicitly given for {\tt u},
+{\tt u} inherits qualifiers and type given previously, and the assignment
+is a deferred assignment.
 Otherwise the assignment is an ordinary assignment.
+
+TBD
 
 We distinguish these kinds of assignments because for direct
 assignments:
 (1) implied value qualifiers of {\tt w} are implicitly
-added to {\tt u} for final result and ordinary assignments, but
-not for deferred result and argument assignments; (2)
-implied variable qualifiers of {\tt w} are implicitly added to
-{\tt u} for final result assignments, but not for other assignments;
-and (3) {\tt u} may have explicit variable qualifiers only for final result
+added to {\tt u} for result and ordinary assignments, but
+not for deferred and argument assignments;
+and (2) {\tt u} may have explicit variable qualifiers only for result
 assignments.
 
 Formally, an

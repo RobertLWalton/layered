@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 3, 2018
+November 5, 2018
  
 \end{center}
 
@@ -4245,27 +4245,22 @@ result variable {\tt w} has the qualifier.  In the latter case,
 {\tt u} need not be given the qualifier explicitly if the qualifier
 is implied.
 \item[NOTE]
-Deferred result assignments ignore qualifiers and are always direct
+Deferred result assignments, which ignore qualifiers, are always direct
 assignments if (DA1) is satisfied.
 \end{itemize}\end{indpar}
 
-TBD
+Deferred result assignments that change qualifiers may violate
+type checking.  An example is:
+\begin{indpar}\begin{verbatim}
+// *UNCHECKED* function to remove *STACK* qualifier.
+//
+function *UNCHECKED* Qrs T r = remove *STACK*
+        (| qualifiers Qvs, type T |) ( Qvs T v )
+        [| qualifiers Qrs = Qvs - { *STACK* } |]:
+    r = v
+\end{verbatim}\end{indpar}
 
-Non-addable value qualifiers may be added and non-deletable value qualifiers
-deleted by the following builtin un\-check\-ed function:
-\begin{center} \tt
-function \begin{tabular}[t]{@{}l@{}}
-         \TT{*UNCHECKED*}~Qrs~T r = std \ttkey{re-qualify} \\
-         \TS~~~~(| qualifiers Qrs, qualifiers Qvs, type T |) \\
-	 \TS~~~~( Qvs~T v ) \\
-	 \end{tabular}
-\end{center}
-
-This function copies the value of {\tt v} to {\tt r}.
-This function \underline{cannot} add
-\underline{variable} qualifiers.
-
-Some examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
+Examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:
 \begin{indpar}\begin{verbatim}
 // Function to read the int32 value at RAM address A.

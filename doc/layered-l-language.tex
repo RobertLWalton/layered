@@ -4102,10 +4102,11 @@ the compiler will rewrite the statement as
 \tt \ldots~u = assign ( w )
 \end{center}
 and treat the assignment as a function call.  To qualify as a direct
-assignment, the types of {\tt u} and {\tt w} must be identical,
+assignment, the types of {\tt u} and {\tt w} must be identical and
+not \TT{void},
 and the assignment must obey some rules involving qualifiers.  These
 qualifier rules differ for different kinds of assignments, so we
-now define the different kinds of assignments.
+now introduce the different kinds of assignments.
 
 To do this, we must look ahead at how
 an inline function call is expanded (as per
@@ -4152,6 +4153,8 @@ In the above
 	({\tt r} is not preceeded by explicit qualifiers or type) \\
 	(implicitly {\tt r} has the qualifiers and type given by
 	call-prototype match) \\
+        (see \pagref{DEFERRED-ASSIGNMENT} for other kinds of
+	deferred assignments) \\
 	\end{tabular}
 \item {\tt \ldots{}~u = r}
 	\begin{tabular}[t]{@{}l}
@@ -4180,7 +4183,7 @@ If {\tt w} is a function prototype result variable in a function call expansion,
 the assignment a result assignment.
 If there are no qualifiers $Qus$ and type $Tu$ explicitly given for {\tt u},
 {\tt u} inherits qualifiers and type given previously, and the assignment
-is a deferred assignment.
+is a deferred assignment (\pagref{DEFERRED-ASSIGNMENT}).
 Otherwise the assignment is an ordinary assignment.
 
 TBD

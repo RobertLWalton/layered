@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 5, 2018
+November 6, 2018
  
 \end{center}
 
@@ -4186,15 +4186,21 @@ If there are no qualifiers $Qus$ and type $Tu$ explicitly given for {\tt u},
 is a deferred assignment (\pagref{DEFERRED-ASSIGNMENT}).
 Otherwise the assignment is an ordinary assignment.
 
-TBD
+As a subcase, a deferred assignment {\tt r = \ldots}~ is called
+an unchecked result deferred assignment if {\tt r} is a prototype
+result variable with the \TT{*UNCHECKED*} qualifier (the qualifiers
+of {\tt r} are determined by call-prototype matching).
 
 We distinguish these kinds of assignments because for direct
 assignments:
-(1) implied value qualifiers of {\tt w} are implicitly
+(1) implied qualifiers of {\tt w} are implicitly
 added to {\tt u} for result and ordinary assignments, but
 not for deferred and argument assignments;
-and (2) {\tt u} may have explicit variable qualifiers only for result
-assignments.
+(2) {\tt u} may have explicit variable qualifiers only if either
+{\tt u} or {\tt w} is a prototype result variable (i.e., result
+assignments, and direct assignments to a result variable); and
+(3) unchecked result deferred assignments permit value qualifiers
+to be added or deleted without restriction.
 
 Formally, an
 assignment {\tt \ldots{}~u = w} is a \key{direct assignment}
@@ -4207,34 +4213,36 @@ The types of {\tt u} and {\tt w} are identical and this type
 does not have \TT{void} as its underlying type
 (as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
-If the assignment is not a deferred result assignment,
-a \underline{value} qualifier of {\tt u}
+A \underline{value} qualifier of {\tt u}
 is also a qualifier of {\tt w} unless
-the qualifier is \mkey{addable}{qualifier}.
+the qualifier is \mkey{addable}{qualifier} or the assignment
+is an unchecked result deferred assignment.
 \item[(DA3)]
-If the assignment is not a deferred result assignment,
-a \underline{value} qualifier of {\tt w}
+A \underline{value} qualifier of {\tt w}
 is also a qualifier of {\tt u} unless
-the qualifier is \mkey{deletable}{qualifier} or
+the qualifier is \mkey{deletable}{qualifier}, or
+the assignment is an unchecked result deferred assignment, or
 the qualifier is \mkey{implied}{qualifier}
-\underline{and} the assignment is a final result assignment or
+\underline{and} the assignment is a result assignment or
 ordinary assignment.
 In this last case,
-the qualifier will be implicitly added to {\tt u}.
+the qualifier will be implicitly added to {\tt u} (and this
+rule will thereby be satisfied).
 \item[(DA4)]
 If the assignment is an argument or ordinary assignment,
+or if it is a deferred assignment and {\tt u} is \underline{not}
+a prototype result variable,
 {\tt u} does \underline{not} have any \underline{variable} qualifiers
 (but {\tt w} may have \underline{variable} qualifiers).
 \item[(DA5)]
-If the assignment is a final result assignment,
+If the assignment is a result assignment,
 a \underline{variable} qualifier
 of {\tt u} is also a qualifier of {\tt w}.
 \item[(DA6)]
-If the assignment is a final result assignment,
+If the assignment is a result assignment,
 a \underline{variable} qualifier
 of {\tt w} is also a qualifier of {\tt u}.
-
-However, for a final result assignment,
+However,
 if the qualifier is \mkey{implied}{qualifier}
 but not an explicit qualifier of {\tt u},
 the qualifier will be implicitly added to {\tt u} (and this rule
@@ -4242,16 +4250,22 @@ will thereby be satisfied).
 \item[NOTE]
 In order to have a \underline{variable} qualifier, a variable {\tt u}
 must be a result prototype variable in a deferred result assignment,
-or must be assigned its value by a final result assignment whose prototype
+or must be assigned its value by a result assignment whose prototype
 result variable {\tt w} has the qualifier.  In the latter case,
 {\tt u} need not be given the qualifier explicitly if the qualifier
 is implied.
 \item[NOTE]
-Deferred result assignments, which ignore qualifiers, are always direct
+Unchecked result deferred assignments ignore qualifiers and are always direct
 assignments if (DA1) is satisfied.
+\item[NOTE]
+If a result variable has \TT{void} as its underlying type, or if it
+has the \TT{*MEM*} qualifier (see below), it is never
+bbi Ingerick <bingerick@twintierhospitality.com>
+assigned a value by a deferred assignment, and is therefore free to have
+any qualifiers.
 \end{itemize}\end{indpar}
 
-Deferred result assignments that change qualifiers may violate
+Unchecked result deferred assignments that change qualifiers may violate
 type checking.  An example is:
 \begin{indpar}\begin{verbatim}
 // *UNCHECKED* function to remove *STACK* qualifier.

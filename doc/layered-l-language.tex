@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 6, 2018
+November 8, 2018
  
 \end{center}
 
@@ -4038,13 +4038,13 @@ The builtin defined qualifiers are in effect declared by:
 {\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'}
 \end{indpar}
 
-In addition there are several builtin `\skey{prototype qualifier}s'
+In addition there are several builtin `\skey{pseudo-qualifier}s'
 that can only be used in function prototypes:
 \begin{center}
 \TT{*DEFERRED*} \\
 \TT{*OPTIONAL*} \\
 \end{center}
-These two are qualifiers only syntactically, and have their own semantics
+These are qualifiers only syntactically, and have their own semantics
 not related to that of other qualifiers.
 
 Each qualifier is associated with a unique enumeration value,
@@ -4187,9 +4187,11 @@ is a deferred assignment (\pagref{DEFERRED-ASSIGNMENT}).
 Otherwise the assignment is an ordinary assignment.
 
 As a subcase, a deferred assignment {\tt r = \ldots}~ is called
-an unchecked result deferred assignment if {\tt r} is a prototype
-result variable with the \TT{*UNCHECKED*} qualifier (the qualifiers
-of {\tt r} are determined by call-prototype matching).
+an \key{unchecked result deferred assignment} if {\tt r} is a prototype
+result variable with the \TT{*UNCHECKED*} qualifier in a function
+call expansion (the qualifiers
+of {\tt r} are determined by call-prototype matching, see
+\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
 
 We distinguish these kinds of assignments because for direct
 assignments:
@@ -4260,7 +4262,6 @@ assignments if (DA1) is satisfied.
 \item[NOTE]
 If a result variable has \TT{void} as its underlying type, or if it
 has the \TT{*MEM*} qualifier (see below), it is never
-bbi Ingerick <bingerick@twintierhospitality.com>
 assigned a value by a deferred assignment, and is therefore free to have
 any qualifiers.
 \end{itemize}\end{indpar}
@@ -4336,7 +4337,8 @@ function *MEM* int32 r, adr r.adr = read ( adr A ):
     r.adr = A
 function *MEM* int32 r, adr r.adr = read from stack 1
                                         ( *STACK* adr A ):
-    *UNCHECKED* adr a = re-qualify ( A )
+    *UNCHECKED* adr a = remove *STACK* ( A )
+        // Uses `remove *STACK*' function defined above.
     r.adr = a
 function *MEM* int32 r, *STACK* adr r.adr = read from stack 2
                                         ( *STACK* adr A ):
@@ -10207,8 +10209,10 @@ the inline functions are written correctly, the program will be type-safe.
 \label{BUILTIN-QUALIFIERS}
 
 The builtin qualifiers are \TT{*MEM*}, \TT{*WRITABLE*}, \TT{*UNCHECKED*},
-\TT{*STACK*}, \TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
+and \TT{*STACK*}.
 There is also a special class of qualifiers called trace qualifiers.
+\TT{*DEFERRED*}, and \TT{*OPTIONAL*} a pseudo-qualifiers that are
+syntactically like qualifiers, but semantically are not qualifiers.
 
 \subsection{The \TT{*MEM*} Memory Qualifier}
 \label{THE-MEM-QUALIFIER}

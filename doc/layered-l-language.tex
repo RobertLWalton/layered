@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 8, 2018
+November 9, 2018
  
 \end{center}
 
@@ -3419,10 +3419,12 @@ initial default value.
 
 {\tt function *UNCHECKED* $T$ r = $ma$\QMARK{} \ttkey{no value}}\label{NO-VALUE}
 \begin{indpar}
-Marks the result variable {\tt r} as not having any value.  An operation
-that reads the variable value will have undefined behavior, hence the result is
-{\tt *UNCHECKED*}, and the programmer is responsible for ensuring that
-the value is never read (due to the values of other variables).
+This is a special compile-time value that marks any variable
+having it as not having a value that can be input to any builtin
+operation that does not simply copy the value to another variable
+(e.g., direct assignments, see \pagref{DIRECT-ASSIGNMENT-TYPE}).
+It is a compile error for an operation that does not simply copy the
+value to another variable to attempt to process this value as input.
 This function is builtin for \underline{all} types $T$.
 \end{indpar}
 
@@ -6288,7 +6290,7 @@ given the above function declaration compiles to:\label{AND-EXAMPLE}
 \tt ~~if: \\
 \tt ~~~~tmp1: \\
 \tt ~~~~~~do ( tmp0 ): \\
-\tt ~~~~~~~~v = $e1$ \\
+\tt ~~~~~~~~v = $e2$ \\
 \tt ~~~~else: \\
 \tt ~~~~~~v = false \\
 \end{tabular}

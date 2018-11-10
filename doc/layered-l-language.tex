@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 9, 2018
+November 10, 2018
  
 \end{center}
 
@@ -8188,7 +8188,9 @@ result variables receive any value.
 
 Inline functions are declared by {\em function-declarations}
 that contain a {\em function-prototype} and the code body of the
-function.  Note that inline functions cannot be called recursively.
+function.  Note that inline functions can be called recursively,
+but the recursion must be controlled by and terminated by compile-time
+values.
 
 The syntax is:
 
@@ -8294,11 +8296,13 @@ The syntax is:
 \\[0.5ex]
 \emkey{qualifiers-argument-declaration} ::= \\
 \hspace*{0.2in}\TT{qualifiers} {\em variable-name}
-               \{ \TT{?=} {\em default-value} \}\QMARK{}
+               \{ \TT{?=} {\em default-value} $|$
+	          \TT{==} {\em required-value} \}\QMARK{}
 \\[0.5ex]
 \emkey{type-argument-declaration} ::= \\
 \hspace*{0.2in}\TT{type} {\em variable-name}
-               \{ \TT{?=} {\em default-value} \}\QMARK{}
+               \{ \TT{?=} {\em default-value} $|$
+	          \TT{==} {\em required-value} \}\QMARK{}
 \\[0.5ex]
 \emkey{conditioner}\label{CONDITIONER}
     \begin{tabular}[t]{@{}rl@{}}
@@ -8322,7 +8326,7 @@ The syntax is:
     \begin{tabular}[t]{@{}rl}
     ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
           ~ {\em call-term}\STAR{} \\
-    $|$ & {em module-abbreviation}\QMARK{}
+    $|$ & {\em module-abbreviation}\QMARK{}
           {\em call-argument-list} {\em call-argument-list}\PLUS{}
     \end{tabular}
 \\[0.5ex]
@@ -8399,14 +8403,15 @@ the same form.  {\em Qualifiers-type-argument-declarations} appear
 inside `\TT{(|\,|)}' bracketed {\em qualifiers-type-argument-lists}.
 \item
 The {\em variable-name} in a {\em qualifiers-argument-declaration}
-or a {\em qualifiers-conditioner} is treated as a {\em qualifier-name}
-within the rest of the {\em function-prototype}.  The value of the
+or a {\em qualifiers-conditioner} is treated syntactically
+as a {\em qualifier-name}
+within the rest of the {\em function-prototype}.  The value assigned to the
 {\em variable-name} must be computable at compile-time when the
 function is called.
 \item
 The {\em variable-name} in a {\em type-argument-declaration}
-or a {\em type-conditioner} is treated as a {\em type-name}
-within the rest of the {\em function-prototype}.  The value of the
+or a {\em type-conditioner} is treated syntactically as a {\em type-name}
+within the rest of the {\em function-prototype}.  The value assigned to the
 {\em variable-name} must be computable at compile-time when the
 function is called.
 \item
@@ -8417,9 +8422,8 @@ An {\em argument-declaration} that ends with `\TT{??}' is considered
 to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
 \item
 Variable qualifiers (\pagref{VARIABLE-QUALIFIER}) can appear
-in {\em prototype-result-variable-declarations}, but with the
-exception of the \ttamkey{DEFERRED}{in {\em argument-declarations}}
-qualifier cannot appear in {\em argument-declarations}.
+in {\em prototype-result-variable-declarations}, but
+cannot appear in {\em argument-declarations}.
 \item
 Note that prototype result variable names and argument variable names
 may have {\em mem\-ber-selectors} in the L-language, unlike
@@ -8431,7 +8435,7 @@ Clusters, \itemref{CLUSTERS}.
 \end{itemize}
 \end{indpar}
 
-The result and argument variables in a
+The result and argument variable names in a
 {\em function-declaration},
 and names declared within the {\em statements} of the declaration,
 are permitted to hide (\pagref{HIDE})
@@ -8442,25 +8446,29 @@ is replaced by an \LSTAR-language (\pagref{LSTAR-LANGUAGE})
 {\em block-assignment-statement} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS})
 with an context option specifying the context of the
 {\em function-declaration}.
-The result and argument variables in the {\em function-declaration}
-are effectively replaced by compiler generated temporary variable names to
-avoid conflicts, and variables declared inside the replacing
-{\em block-assignment-statement} are permitted to hide variables outside
-the statement (\pagref{HIDE}).  The values of the non-{\tt *DEFERRED*}
-argument temporary variables are computed before the block, while
-the values of the {\tt *DEFERRED*}
+Non-{\tt *DEFERRED*} actual arguments are assigned to temporary variables
+before the function call {\em block-assignment-statement},
+and the temporary variable values are assigned to prototype argument names
+at the beginning of the {\em block-assignment-statement}.
+Variables declared inside the
+{\em block-assign\-ment-statement} are permitted to hide variables outside
+the statement (\pagref{HIDE}).  The actual results of the
+{\em block-assignment-statement} are temporary variables,
+and the values of these are assigned
+to the actual result variables after the {\em block-assignment-statement}.
+
+The values of {\tt *DEFERRED*}
 argument temporary variables are computed where they are used
-inside the block, but within their own subblock that has the
+inside the {\em block-assignment-statement},
+but within their own subblock that has the
 {\em function-call} context and not the {\em function-declaration}
 context.
 Default values for arguments are computed
-at the beginning of the block, which makes them similar to other
-non-{\tt *DEFERRED*} argument values except that they are computed
+at the beginning of the {\em block-assignment-statement}, which makes them similar to
+non-{\tt *DEFERRED*} prototype argument except that they are computed
 in the context of the {\em function-declaration} and not the context
 of the {\em function-call}.
-The values of the result
-temporary variables are assigned to the {\em function-call} result
-variables after the block.
+
 There are examples on pages \pageref{AND-EXAMPLE}, \pageref{IF-ELSE-EXAMPLE},
 and \pageref{COMPARE-EXAMPLE}.
 
@@ -8471,11 +8479,15 @@ argument named $v$.
 In this case any function call must have an actual argument $w$ that
 is a {\em variable-name} for which `\TT{next} $w$' is legal
 (in the \LSTAR-language) in the context
-of the function call, and the types of the prototype argument variable $v$
-and the actual argument $w$ must be identical.  The function call
-expands to an assignment block that places the
-result value in a temporary variable,
-and `\TT{next} $w$' is then set from the temporary variable.
+of the function call.  The value of the temporary result variable of the
+{\em block-assignment-statement} corresponding to the `\TT{next} $v$'
+prototype result will be assigned to the `\TT{next} $w$' actual result
+after the {\em block-assignment-statement}.
+
+In all cases the types and qualifiers of the actual and prototype
+arguments must be such that the assignments mentioned above can
+be compiled.  If this is not the case, the call-prototype match
+fails and other prototypes will be tried.
 
 An example using this is:
 \begin{indpar}\begin{verbatim}
@@ -8512,8 +8524,8 @@ argument, and the corresponding {\em call-argument-list} has a single
 is a {\em primary-argument} ( sequence of {\em words}, {\em numbers},
 and {\em quoted-strings}, or a {\em bracketed-constant}), then
 the \TT{()} parentheses may be omitted in the {\em function-call}
-if there is no ambiguity involving overlap with {\em term-names} or
-other argument lists.
+if the {\em actual-argument} is bounded unambiguously by {\em call-terms}
+and other argument lists without omitted parentheses.
 
 Examples are:
 \begin{indpar}\begin{verbatim}
@@ -8593,7 +8605,7 @@ the actual value of {\tt T} can be implied by a {\em function-call}.
 If an explicit or default value of {\tt T} is given by the call, that is used.
 Otherwise if {\tt T} is the type of a prototype result variable, and there
 is a corresponding {\em function-call} result variable with a known type,
-the type of the leftmost such {\em function-call} result variable
+the type of the \underline{leftmost} such {\em function-call} result variable
 is assigned as the value of {\tt T}.  Otherwise
 if {\tt T} is the type of a prototype argument variable, and
 the {\em actual-argument} corresponding to the variable in the call has
@@ -8637,10 +8649,11 @@ of a prototype result or argument variable,
 {\tt Qs} is assigned the \underline{value} qualifiers of the
 corresponding actual variable that are not explicitly given the
 prototype variable.  If {\tt Qs} is a qualifier of several prototype
-variables, the rightmost is used (e.g., prototype arguments take
-precedence over prototype results).
+argument variables, the \underline{leftmost} of these
+is used, else if {\tt Qs} is a qualifier of several prototype result
+varialbes, the \underline{leftmost} of these is used.
 However any actual result variable used must have
-has known type, and any actual argument variable used must have
+a known type, and any actual argument variable used must have
 a natural type (\pagref{NATURAL-TYPE}), else the call-prototype match
 fails.
 
@@ -8658,7 +8671,7 @@ function Qs in-range T r =
         v > 100:
             error "argument > 100"
         else:
-            result = v
+            r = v
 
 function ouch int32 F ( ... ):
     ... function body omitted ...
@@ -8697,13 +8710,13 @@ be evaluatable whenever a call to the function is compiled.
 
 Another example is:
 \begin{indpar}\begin{verbatim}
-function Qs2 T r = inc (| qualifiers Qs1, type T |)
-                       ( Qs1 T v )
+function Qs2 T r = remove *STACK*
+    (| qualifiers Qs1, type T |) ( Qs1 T v )
     [| qualifiers Qs2 = Qs1 - { *STACK* } |]:
-    return v + 1
+    r = v
 \end{verbatim}\end{indpar}
 
-which returns {\tt v+1} with the same qualifiers as {\tt v}
+which returns a value with the same value qualifiers as {\tt v}
 except for the `{\tt *STACK*}' qualifier which is removed.
 Here the rightside of the {\em qualifiers-conditioner}
 must be evaluatable when a call to the function is compiled.

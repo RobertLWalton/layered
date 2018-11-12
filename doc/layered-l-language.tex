@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 10, 2018
+November 12, 2018
  
 \end{center}
 
@@ -4189,11 +4189,10 @@ is a deferred assignment (\pagref{DEFERRED-ASSIGNMENT}).
 Otherwise the assignment is an ordinary assignment.
 
 As a subcase, a deferred assignment {\tt r = \ldots}~ is called
-an \key{unchecked result deferred assignment} if {\tt r} is a prototype
-result variable with the \TT{*UNCHECKED*} qualifier in a function
-call expansion (the qualifiers
-of {\tt r} are determined by call-prototype matching, see
-\itemref{MATCHING-CALLS-TO-PROTOTYPES}).
+a \key{result deferred assignment} if {\tt r} is a prototype
+result variable in a function call expansion.  In this case
+the qualifiers of {\tt r} are determined by call-prototype matching, see
+\itemref{MATCHING-CALLS-TO-PROTOTYPES}.
 
 We distinguish these kinds of assignments because for direct
 assignments:
@@ -4203,7 +4202,7 @@ not for deferred and argument assignments;
 (2) {\tt u} may have explicit variable qualifiers only if either
 {\tt u} or {\tt w} is a prototype result variable (i.e., result
 assignments, and direct assignments to a result variable); and
-(3) unchecked result deferred assignments permit value qualifiers
+(3) result deferred assignments permit value qualifiers
 to be added or deleted without restriction.
 
 Formally, an
@@ -4220,12 +4219,12 @@ does not have \TT{void} as its underlying type
 A \underline{value} qualifier of {\tt u}
 is also a qualifier of {\tt w} unless
 the qualifier is \mkey{addable}{qualifier} or the assignment
-is an unchecked result deferred assignment.
+is an result deferred assignment.
 \item[(DA3)]
 A \underline{value} qualifier of {\tt w}
 is also a qualifier of {\tt u} unless
 the qualifier is \mkey{deletable}{qualifier}, or
-the assignment is an unchecked result deferred assignment, or
+the assignment is an result deferred assignment, or
 the qualifier is \mkey{implied}{qualifier}
 \underline{and} the assignment is a result assignment or
 ordinary assignment.
@@ -4268,7 +4267,7 @@ assigned a value by a deferred assignment, and is therefore free to have
 any qualifiers.
 \end{itemize}\end{indpar}
 
-Unchecked result deferred assignments that change qualifiers may violate
+Result deferred assignments that change qualifiers may violate
 type checking.  An example is:
 \begin{indpar}\begin{verbatim}
 // *UNCHECKED* function to remove *STACK* qualifier.
@@ -4278,6 +4277,10 @@ function *UNCHECKED* Qrs T r = remove *STACK*
         [| qualifiers Qrs = Qvs - { *STACK* } |]:
     r = v
 \end{verbatim}\end{indpar}
+
+In this example, the {\tt *UNCHECKED*} qualifier could be
+omitted, but then `{\tt remove *STACK*}' would violate
+type checking without giving any indication that it did so.
 
 Examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:
@@ -8710,9 +8713,9 @@ be evaluatable whenever a call to the function is compiled.
 
 Another example is:
 \begin{indpar}\begin{verbatim}
-function Qs2 T r = remove *STACK*
-    (| qualifiers Qs1, type T |) ( Qs1 T v )
-    [| qualifiers Qs2 = Qs1 - { *STACK* } |]:
+function *UNCHECKED* Qsr T r = remove *STACK*
+    (| qualifiers Qsv, type T |) ( Qsv T v )
+    [| qualifiers Qsr = Qsv - { *STACK* } |]:
     r = v
 \end{verbatim}\end{indpar}
 

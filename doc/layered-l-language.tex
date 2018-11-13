@@ -8861,8 +8861,9 @@ If the prototype
 has cluster member arguments,
 these are implied in the call, and they are added to the call
 at this point.  If this cannot be done because some of the required
-cluster members do not exist in the context of the call, the call-prototype
-match fails.  See \itemref{CLUSTERS} for details.
+cluster members do not exist in the context of the call, and if the
+corresponding prototype arguments do not have default values,
+the call-prototype match fails.  See \itemref{CLUSTERS} for details.
 
 The modified call now matches
 the {\em prototype-pattern} in {\em term-names},
@@ -8875,6 +8876,20 @@ location and number of {\em argument-lists}, and type of bracket (\TT{()},
 If the prototype has cluster member results,
 these will be created by the call, and if they already exist,
 the call-prototype match fails.
+
+\item\label{NEXT-CALL-PROTOTYPE-MATCHING}
+If the prototype has a `\TT{next} $v$' result, then $v$ must be the
+name of a prototype argument whose corresponding actual argument is
+a variable name $w$ for which `\TT{next} $w$' is a permitted assignment
+result in the \LSTAR-Language (\pagref{LSTAR-LANGUAGE}), else the
+call-prototype match fails.  If `\TT{next} $w$' is permitted, it
+becomes the actual result corresponding to the `\TT{next} $v$' prototype
+result.
+
+An exception to the last paragraph occurs when $w$ is the name of
+a cluster member that does not exist, but $v$ has a default value.
+In this case `\TT{next} $v$' is effectively replaced in the prototype
+by $v$ with its type and qualifiers.
 
 \item
 If some of the {\em call-argument-lists} are now too long, the call-prototype
@@ -9033,22 +9048,6 @@ If the value assigned to the {\em variable-name} of a
 qualifiers, the call-prototype match fails.
 Otherwise this qualifiers set value is substituted for the {\em variable-name}
 throughout the prototype.
-
-\item\label{NEXT-CALL-PROTOTYPE-MATCHING}
-If the prototype has a `\TT{next} $v$' result variable and a prototype
-argument named $v$, the {\em actual-argument} matched to the argument $v$
-must be a variable name $w$ for which `\TT{next} $w$' is a legal
-\LSTAR-Language (\pagref{LSTAR-LANGUAGE})
-{\em next-variable-declaration} (\pagref{NEXT-VARIABLE-DECLARATION})
-in the call context, $v$ and $w$ must have identical types, $v$ and $w$ must
-have identical {\em member-selectors} (or both can have none),
-and if $v$ and $w$ do have {\em member-selectors}, the types of their
-root variables must be identical,
-else the call-prototype match fails.
-As an exception, $w$ need not exist in the call context if $v$ has
-{\em member-selectors} and a default value, in which case the call will
-be treated as if $w$ did pre-exist the call and had the default value
-(this can only happen if $v$ and $w$ have {\em member-selectors}).
 
 \item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
 If the unfolded call has {\em actual-argument}

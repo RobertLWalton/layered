@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 12, 2018
+November 13, 2018
  
 \end{center}
 
@@ -8858,11 +8858,10 @@ that has the same type of bracket, then the call-prototype match fails.
 
 \item
 If the prototype
-has cluster member arguments or result variables,
+has cluster member arguments,
 these are implied in the call, and they are added to the call
 at this point.  If this cannot be done because some of the required
-cluster members
-do not exist in the context of the call, the call-prototype
+cluster members do not exist in the context of the call, the call-prototype
 match fails.  See \itemref{CLUSTERS} for details.
 
 The modified call now matches
@@ -8873,10 +8872,9 @@ location and number of {\em argument-lists}, and type of bracket (\TT{()},
 {\em pattern-argument-lists}.
 
 \item
-If a pattern {\em argument-declaration} has a {\em required-value},
-there must at this point be a matching call {\em actual-argument}
-with a compile-time value equal to the {\em required-value},
-else the call-prototype match fails.
+If the prototype has cluster member results,
+these will be created by the call, and if they already exist,
+the call-prototype match fails.
 
 \item
 If some of the {\em call-argument-lists} are now too long, the call-prototype
@@ -8907,13 +8905,6 @@ arguments also match for \TT{()} and \TT{[]} {\em argument-lists},
 and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
 is not greater than the number of arguments in the corresponding
 {\em pattern-argument-list}.
-
-Note that any {\em default-values} inserted in the call
-are evaluated in the context of the prototype.  For
-matching purposes, this is relevant only if the {\em default-values}
-are {\em expressions} with compile-time values, and such
-{\em default-values} can be replaced by constants when the
-prototype is first compiled.
 
 \item
 If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
@@ -8952,12 +8943,12 @@ it is assigned the \underline{value} qualifiers of the
 corresponding actual variable that are not explicitly given as qualifiers
 of the prototype variable.  If {\em variable-name}
 is a qualifier of several prototype
-variables, the rightmost is used (e.g., prototype arguments take
-precedence over prototype results).
-However any matcing call result variable used must have
-have known type, and any matching call argument variable used must have
-a natural type (\pagref{NATURAL-TYPE}), else the call-prototype match
-fails.
+variables, the leftmost argument is used if it exists, and otherwise
+the leftmost result is used.
+However the matching actual argument or result used must have
+have known type if it is a result, or a
+natural type (\pagref{NATURAL-TYPE}) if it is an argument,
+else the call-prototype match fails.
 
 If no value can be assigned to the {\em variable-name} by these rules,
 the call-prototype match fails.
@@ -8978,17 +8969,15 @@ a corresponding actual or default argument, the value of the
 is implied.
 
 If the {\em variable-name} in the {\em type-argument-declaration}
-is used as the {\em type-name} of prototype result variables
-with a matching call results with known type,
-the type of the leftmost such call result is assigned as the
-value of the {\em variable-name}.
-
-Otherwise if the {\em variable-name}
-is used the {\em type-name} of a prototype argument whose matching
-actual argument has a natural type (\pagref{NATURAL-TYPE}),
-the type of the leftmost
-of these arguments is assigned as the
-value of the {\em variable-name}.
+is used as the {\em type-name} of a prototype result or argument variable,
+it is assigned the type of the corresponding actual variable.
+If {\em variable-name} is the type of several prototype
+variables, the leftmost result is used if it exists, and otherwise
+the leftmost argument is used.
+However the matching actual argument or result used must have
+have known type if it is a result, or a
+natural type (\pagref{NATURAL-TYPE}) if it is an argument,
+else the call-prototype match fails.
 
 If no value can be assigned to the {\em variable-name} by these rules,
 the call-prototype match fails.
@@ -9013,8 +9002,19 @@ If any actual argument value needs to be a compile-time value in what
 follows, the actual argument expression is compiled at this
 time with its target type taken from the corresponding
 {\em prototype-pattern} {\em argument-declaration}.
-If the result is not a compile-time value, the call-prototype
+If the result is not a compile-time value, or an error occurs
+while compiling the result, the call-prototype
 match fails.
+
+Note that any {\em default-values} inserted in the call
+are evaluated in the context of the prototype, and not the
+context of the call.
+
+\item
+If a pattern {\em argument-declaration} has a {\em required-value},
+there must at this point be a matching call {\em actual-argument}
+with a compile-time value equal to the {\em required-value},
+else the call-prototype match fails.
 
 \item
 The {\em conditioners} in the prototype are evaluated

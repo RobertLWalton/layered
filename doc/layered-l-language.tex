@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 13, 2018
+November 14, 2018
  
 \end{center}
 
@@ -4194,8 +4194,8 @@ result variable in a function call expansion.  In this case
 the qualifiers of {\tt r} are determined by call-prototype matching, see
 \itemref{MATCHING-CALLS-TO-PROTOTYPES}.
 
-We distinguish these kinds of assignments because for direct
-assignments:
+We distinguish these kinds of assignments because for
+direct assignments:
 (1) implied qualifiers of {\tt w} are implicitly
 added to {\tt u} for result and ordinary assignments, but
 not for deferred and argument assignments;
@@ -8958,7 +8958,8 @@ it is assigned the \underline{value} qualifiers of the
 corresponding actual variable that are not explicitly given as qualifiers
 of the prototype variable.  If {\em variable-name}
 is a qualifier of several prototype
-variables, the leftmost argument is used if it exists, and otherwise
+variables, the leftmost non-\TT{*DEFERRED*}
+argument is used if it exists, and otherwise
 the leftmost result is used.
 However the matching actual argument or result used must have
 have known type if it is a result, or a
@@ -8988,7 +8989,7 @@ is used as the {\em type-name} of a prototype result or argument variable,
 it is assigned the type of the corresponding actual variable.
 If {\em variable-name} is the type of several prototype
 variables, the leftmost result is used if it exists, and otherwise
-the leftmost argument is used.
+the leftmost non-\TT{*DEFERRED*} argument is used.
 However the matching actual argument or result used must have
 have known type if it is a result, or a
 natural type (\pagref{NATURAL-TYPE}) if it is an argument,
@@ -9050,12 +9051,12 @@ Otherwise this qualifiers set value is substituted for the {\em variable-name}
 throughout the prototype.
 
 \item\label{ARGUMENT-CALL-PROTOTYPE-MATCHING}
-If the unfolded call has {\em actual-argument}
-expressions $e1$, $e2$, \ldots{} read from left to right
+If the {\em prototype-pattern} has
+non-\TT{*DEFERRED*} {\em argument-declarations}
+`$Qs1$ $T1$ $v1$', `$Qs2$ $T2$ $v2$', \ldots{} read from left to right,
+and the unfolded call has {\em actual-argument}
+expressions $e1$, $e2$, \ldots{} corresponding to $v1$, $v2$, \ldots{}
 (including {\em default-values}),
-and the {\em prototype-pattern} has
-{\em argument-declarations} `$Qs1$ $T1$ $v1$', `$Qs2$ $T2$ $v2$', \ldots{}
-read from left to right,
 then the statement containing the
 revised call is replace by:
 \begin{indpar}
@@ -9091,39 +9092,43 @@ because of an ambiguity error, the call-prototype match
 is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
 
-In applying this rule, \TT{*DEFFERED*} prototype arguments are treated
-as if they were not deferred, as the location of evaluation has no
-effect on whether an implicit conversion exists or not.
+Note that for call-prototype matching purposes,
+\ttamkey{DEFFERED}{call-prototype matching} prototype
+arguments are ignored.  This is because they might never be compiled
+(see the end of section \itemref{EVALUATION-ORDER}).
 
-\item If the call has no result variables, the
+\item If the call has no result variables, either the
 prototype must have no result variables,
+or the first prototype result variable must have the
+\ttakey{OPTIONAL} pseudo-qualifier,
 else the call-prototype match fails.
 
 \item If the call has one result variable of
 unknown type, the prototype must have result variables
 else the call-prototype match fails.
 The type and qualifiers of the first
-prototype result variable become the natural
+prototype result variable become the
+type and qualifiers of the on call result variable, and also become the
+natural
 type and qualifiers (\pagref{NATURAL-TYPE})
 of the call expression if
 the match ultimately is accepted according to the rules below.
 
 \item \label{FUNCTION-CALL-ASSIGNMENT-COMPILATION}
-If the call has result variables of known type
-as in a statement of the form
-\begin{center}
-{\tt $QCs1$ $TC1$ $vc1$, $QCs2$ $TC2$ $vc2$, \ldots{}~=~}{\em function-call}
-\end{center}
-with at least one result variable of known type,
-the prototype must be of the form
+The prototype is now of the form
 \begin{center}
 {\tt function $QRs1$ $TR1$ $vr1$, $QRs2$ $TR2$ $vr2$,
      \ldots{}~=~}{\em prototype-pattern}
 \end{center}
-with at least as many result variables in the prototype as in
-the call statement.  If all the qualifiers are value qualifiers,
-and none are variable qualifiers, the statement is
-replaced by:
+where $QRs1$, $TR1$, $QRS2$, $TR2$, \ldots{} are known.
+The function call is now of the form
+\begin{center}
+{\tt $QCs1$ $TC1$ $vc1$, $QCs2$ $TC2$ $vc2$, \ldots{}~=~}{\em function-call}
+\end{center}
+where some of the $QCs.~TC.$ may be replaced by `\TT{next} $w$' as per
+(\ref{NEXT-CALL-PROTOTYPE-MATCHING}) above.
+
+Then the function call is replaced by:
 \begin{indpar}
 {\tt $QRs1$ $TR1$ $tmp1$, $QRs2$ $TR2$ $tmp2$,
     \ldots{}~=~}{\em function-call} \\
@@ -9131,32 +9136,22 @@ replaced by:
 {\tt $QCs2$ $TC2$ $vc2$ = $tmp2$} \\
 \ldots\ldots\ldots\ldots
 \end{indpar}
+where $tmp1$, $tmp2$, \ldots{} are temporary variables.  There is
+no statement `\ldots~$vc.$ = $tmp.$' if $vc.$ does not exist (because
+there are fewer actual result variables than there are prototype result
+variables) or if $QC.$ contains the \TT{*MEM} qualifier
+(\itemref{THE-MEM-QUALIFIER}).
+
 If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
-compiled because $QRsI$ $TRI$ is not implicitly convertible
-to $QCsI$ $TCI$, the call-prototype match fails.
-Note that extra prototype result variables
-are never used and are ultimately ignored.
+compiled, the call-prototype match fails.
 
-In this process, if instead of `$QRsI$ $TRI$ $vrI$' for some $I$ one has
-`{\tt next} $vrI$', then
-`$QCsI$ $TCI$ $vcI$' is not given explicitly by the call.
-In this case, if $vcI$ is the variable matched to the appropriate argument by 
-Step~\ref{NEXT-CALL-PROTOTYPE-MATCHING} above, the
-statement `$QCsI$ $TCI$ $vcI$ = $tmpI$' is replaced by
-statement `{\tt next} $vcI$ = $tmpI$', and
-$QRsI$ and $TRI$ are taken to be the the qualifiers and type
-of $vcI$ in the context of the call.
+Here the assignments `\ldots~$vc.$ = $tmp.$' are treated as
+result assignments, and not as ordinary assignments,
+for the purposes of computing and checking qualifiers
+(\pagref{DIRECT-ASSIGNMENT}).
 
-If some of the qualifiers are variable qualifiers, they are
-ignored in the computation of the $tmp\ldots$ values, but
-the rules of \itemref{QUALIFIERS} are applied to
-the prototype result variable qualifiers and the $vc\ldots$
-call result variable qualifiers, and if these rules fail, the
-call-prototype match fails.
-
-If $QRs1$ $TR1$ and $QCs1$ $TC1$ are not exactly equal after implied
-qualifiers have been added to $QCs1$,
-the match is marked
+If the assignment `\ldots~$vc1$ = $tmp1$' exists and is not a direct
+assignment (\pagref{DIRECT-ASSIGNMENT}), the match is marked
 `\key{conversion deficient}'\label{CONVERSION-DEFICIENT},
 and will be disallowed later
 if there is another match that is not conversion deficient.

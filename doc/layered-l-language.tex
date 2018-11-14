@@ -9125,7 +9125,7 @@ The function call is now of the form
 \begin{center}
 {\tt $QCs1$ $TC1$ $vc1$, $QCs2$ $TC2$ $vc2$, \ldots{}~=~}{\em function-call}
 \end{center}
-where some of the $QCs.~TC.$ may be replaced by `\TT{next} $w$' as per
+where some of the $QCs.~TC.~v.$ may be replaced by `\TT{next} $w$' as per
 (\ref{NEXT-CALL-PROTOTYPE-MATCHING}) above.
 
 Then the function call is replaced by:
@@ -9168,9 +9168,6 @@ set of matches of that call.  Then the following is done in order:
 \item If there is any match that is not conversion deficient, then
 all conversion deficient matches are discarded.
 
-\item If there is any remaining match that is not module deficient, then
-all module deficient matches are discarded.
-
 \item\label{REQUIRED-ARGUMENTS-PREFERRED}
 Let $e1$, $e2$, \ldots{}~be the argument expressions of
 the not-unfolded original call, read from left to right.
@@ -9193,6 +9190,9 @@ than type $TYi$ for
 every $i$, but not vice versa (which can only happen if
 all the types are the same),
 then the $Y$ match is discarded.
+
+\item If there is any remaining match that is not module deficient, then
+all module deficient matches are discarded.
 
 \item If after discarding matches as above, there are no matches,
 the call is `\key{unmatched}' and cannot be compiled.

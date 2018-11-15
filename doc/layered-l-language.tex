@@ -1622,6 +1622,21 @@ becomes the abstract syntax tree represented by
 \tt (int64 x 1) = ($ma$ (y 5 b) "+" ((sin (w)) "*" (cos z)))
 \end{center}
 
+The parser also does a bit of expression rewriting
+(\itemref{PARSER-REWRITE-RULES}).  For example, the expression
+\begin{center}
+\tt not ( x and y )
+\end{center}
+gets rewritten to become
+\begin{center}
+\tt ( not ( x ) ) and ( not ( y ) )
+\end{center}
+and in general, the parser moves {\tt "not"} inside {\tt "and"}
+and {\tt "or"} and eliminates double negations,
+and similarly moves the bitwise complement operator {\tt "!"}
+inside the bitwise operators {\tt "\&"} and {\tt "|"}
+and eliminates double complements.
+
 \section{Types}
 \label{TYPES}
 
@@ -5429,6 +5444,8 @@ have the syntax:
         & [see \pagref{PARSER-IMPORT-INSTRUCTION}]\\
     $|$ & {\em parser-delete-instruction}
         & [see \pagref{PARSER-DELETE-INSTRUCTION}]\\
+    $|$ & {\em parser-rewrite-rule}
+        & [see \pagref{PARSER-REWRITE-RULES}]\\
     \end{tabular}
 \\[0.5ex]
 \emkey{parser-define-instruction} \\
@@ -5960,6 +5977,75 @@ It seems pure luck that the parser can do the right thing
 for the {\tt "else"} operator, which is right associative only
 because it defers the evaluation of its right operand.
 
+\subsubsection{Parser Rewrite Rules}
+\label{PARSER-REWRITE-RULES}
+
+After parsing an expression, the parser applies rewrite rules
+to the expression.  The builtin rules are:
+
+\begin{indpar}\begin{verbatim}
+rewrite "not" ( x "and" y ) ===>
+        ( "not" ( x ) ) "or" ( "not" ( y ) )
+rewrite "not" ( x "or" y ) ===>
+        ( "not" ( x ) ) "and" ( "not" ( y ) )
+rewrite "not" ( "not" x ) ===> x
+rewrite "!" ( x "&" y ) ===>
+        ( "!" ( x ) ) "|" ( "!" ( y ) )
+rewrite "!" ( x "|" y ) ===>
+        ( "!" ( x ) ) "&" ( "!" ( y ) )
+rewrite "!" ( "!" x ) ===> x
+\end{verbatim}\end{indpar}
+
+These rules move {\tt "not"} inside {\tt "and"}
+and {\tt "or"} and eliminate double negations,
+and similarly move the bitwise complement operator {\tt "!"}
+inside the bitwise operators {\tt "\&"} and {\tt "|"}
+and eliminate double complements.
+
+The general form of a parser rewrite rule is:
+\begin{indpar}
+\emkey{parser-rewrite-rule}
+    ::= \ttkey{rewrite} ~ {\em expression-1}
+    		   ~ \ttkey{===>} ~ {\em expression-2}
+\end{indpar}
+which says that any expression of the form {\em expression-1}
+is to be rewritten as an expression of the form {\em expression-2}.
+In these {\em expressions}, operators are quoted strings,
+variables that take subexpressions as values are single words,
+and parentheses are used to delimit subexpressions containing
+operators.
+
+A word naming a subexpression variable may appear at most once
+in {\em expression-1}, but may appear any number of times, including
+zero, in {\em expression-2}.
+
+Explicit function names in an actual expression are not considered
+to be operators for the purposes of rewritting.  Thus the code
+line
+\begin{center}
+\tt bool x = "not" ( y and z )
+\end{center}
+will not be rewritten and after parsing will be
+\begin{center}
+\tt bool x = "not" ( y "and" z )
+\end{center}
+because "not" will not be treated as an operator,
+whereas
+\begin{center}
+\tt bool x = not ( y and z )
+\end{center}
+will be rewritten and after parsing will be
+\begin{center}
+\tt bool x = ( "not" ( y ) ) "or" ( "not" ( z ) )
+\end{center}
+
+Rewrite rules can be applied to expressions in different
+orders.  If the result does not depend upon the order of
+rewrite rule application, the rules are said to be
+\mkey{confluent}{rewrite rules}.  The builtin rules are confluent.
+Its up to the programmer to make rules that are confluent, else
+compilation will be non-deterministic.
+
 \subsubsection{Parser Blocks}
 \label{PARSER-BLOCKS}
 
@@ -6049,12 +6135,16 @@ The parser instruction
           \TT{operator} {\em operator-name} \\
     $|$ & \ttmkey{delete}{operator} {\em operator-type}
           \TT{operators} {\em operator-name-list} \\
+    $|$ & \ttmkey{delete}{rewrite rule} \TT{rewrite}
+          {\em expression} \\
     \end{tabular}
 \end{indpar}
-may be used to delete operators from ancestor
+may be used to delete operators or rewrite rules from ancestor
 {\em parser-instructions}.
-An operator listed in a
-{\em parser-delete-instruction} cannot be listed in
+
+The first two forms delete operators.
+An operator listed in one of these
+{\em parser-delete-instructions} cannot be listed in
 any other {\em parser-instruction} in the same {\em parser-block}.
 The {\em operator-type} in a
 {\em parser-delete-instruction} is only used to specify
@@ -6063,6 +6153,11 @@ in the ancestor {\em parser-instruction} that is affected.
 For example, {\tt binary} may be used in the {\em parser-delete-instruction}
 where {\em associative} is used in the affected ancestor
 {\em parser-instruction}.
+
+The last form deletes rewrite rules whose first {\em expression}
+matches the expression given in the {\em parser-delete-instruction}.
+Here the operators and parentheses of the {\em expressions} must match
+exactly, but words that name subexpression variables may differ.
 
 \subsubsection{Primaries}
 \label{PRIMARIES}

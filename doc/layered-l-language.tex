@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 14, 2018
+November 15, 2018
  
 \end{center}
 
@@ -9137,18 +9137,27 @@ Then the function call is replaced by:
 \ldots\ldots\ldots\ldots
 \end{indpar}
 where $tmp1$, $tmp2$, \ldots{} are temporary variables.  There is
-no statement `\ldots~$vc.$ = $tmp.$' if $vc.$ does not exist (because
+no statement `\ldots~$vc.$ = $tmp.$' if $vc.$ does not exist because
 there are fewer actual result variables than there are prototype result
-variables) or if $QC.$ contains the \TT{*MEM} qualifier
-(\itemref{THE-MEM-QUALIFIER}).
-
-If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
-compiled, the call-prototype match fails.
+variables.
 
 Here the assignments `\ldots~$vc.$ = $tmp.$' are treated as
 result assignments, and not as ordinary assignments,
 for the purposes of computing and checking qualifiers
 (\pagref{DIRECT-ASSIGNMENT}).
+
+If $QC.$ contains the \ttamkey{MEM}{in call-prototype match}
+qualifier, the statement
+`\ldots~$vc.$ = $tmp.$' must satisfy the rules of a direct
+assignment (\pagref{DIRECT-ASSIGNMENT}), else the call-prototype
+match fails.  In this case the assignment is treated as an
+assignment for the purposes of implying qualifiers and determining
+if it is a direct assignment, but is otherwise treated as if it did
+not exist (no instructions are executed to copy a value).
+See \itemref{THE-MEM-QUALIFIER} for more on the \TT{*MEM*} qualifier.
+
+If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
+compiled, the call-prototype match fails.
 
 If the assignment `\ldots~$vc1$ = $tmp1$' exists and is not a direct
 assignment (\pagref{DIRECT-ASSIGNMENT}), the match is marked

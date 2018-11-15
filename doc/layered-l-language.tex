@@ -10226,7 +10226,7 @@ There is also a special class of qualifiers called trace qualifiers.
 \TT{*DEFERRED*}, and \TT{*OPTIONAL*} a pseudo-qualifiers that are
 syntactically like qualifiers, but semantically are not qualifiers.
 
-\subsection{The \TT{*MEM*} Memory Qualifier}
+\subsection{The \TT{*MEM*} and \TT{*WRITABLE*} Memory Qualifiers}
 \label{THE-MEM-QUALIFIER}
 
 The \ttakey{MEM} qualifier is a implied variable qualifier that behaves
@@ -10256,6 +10256,14 @@ E.g., if {\tt w.base} has the \TT{*MEM*} qualifier there must be either
 {\tt w.base\EOL .offset} and {\tt w.base.base} (in this case
 {\tt w.base.base} must exist and {\tt w.base} cannot be used as its
 own {\tt .base}).
+
+\item
+Member {\tt v.offset} of type \TT{intadr} or \TT{unsadr} with a
+compile time value, but \underline{no} member {\tt v.base},
+and instead for a cluster ancestor {\tt w} of {\tt v}
+members as in any of these items, including this, that allow the RAM
+address {\tt A} of {\tt w} to be computed.  The RAM address of {\tt v}
+is then {\tt v.offset+A}.
 \end{enumerate}
 
 A variable {\tt v} with \TT{*MEM*} qualifier
@@ -10301,7 +10309,7 @@ update a ( z, ... )    // Write z.a
 
 \end{verbatim}\end{indpar}
 
-If {\tt v} is a \TT{*WRITABLE*}
+If {\tt v} is a \ttakey{WRITABLE}
 RAM cache variable, assigning a value to `{\tt next v}'
 writes the value to RAM.  For example:
 

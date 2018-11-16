@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 15, 2018
+November 16, 2018
  
 \end{center}
 
@@ -4047,7 +4047,7 @@ The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
 {\tt define implied variable qualifier \ttkey{std *MEM*}} \\
 {\tt define abbreviation \ttakey{MEM} ---> `std *MEM*'} \\
-{\tt define implied variable qualifier \ttkey{std *WRITABLE*}} \\
+{\tt define implied deletable value qualifier \ttkey{std *WRITABLE*}} \\
 {\tt define abbreviation \ttakey{WRITABLE} ---> `std *WRITABLE*'} \\
 {\tt define implied addable value qualifier \ttkey{std *STACK*}} \\
 {\tt define abbreviation \ttakey{STACK} ---> `std *STACK*'} \\
@@ -8952,6 +8952,7 @@ is matched to a {\em call-term} {\em argument-list}
 that has the same type of bracket, then the call-prototype match fails.
 
 \item
+\label{CLUSTER-MEMBER-ARGUMENTS}
 If the prototype
 has cluster member arguments,
 these are implied in the call, and they are added to the call
@@ -8959,6 +8960,12 @@ at this point.  If this cannot be done because some of the required
 cluster members do not exist in the context of the call, and if the
 corresponding prototype arguments do not have default values,
 the call-prototype match fails.  See \itemref{CLUSTERS} for details.
+
+But if a required cluster member does not exist and the prototype
+argument does have a default value, the default value becomes the
+actual argument corresponding to the prototype argument.
+In this case the prototype argument must be followed by \TT{?=},
+and \underline{not} \TT{??}, in the prototype.
 
 The modified call now matches
 the {\em prototype-pattern} in {\em term-names},
@@ -10031,7 +10038,7 @@ to the end of the base variable name.  See \pagref{NAMES}.
 
 Thus a cluster
 is like a C/C++ structure, but it is a set of variables and not a
-piece of memory.
+block of RAM memory.
 
 More specifically, the members of the cluster can be named by
 adding either a member name beginning with a `\TT{.}' or a
@@ -10083,7 +10090,7 @@ define type pointer pair as void
 
 // Function to allocate a vector of n T's to the stack.
 //
-function *STACK* pointer pair pp,
+function *STACK* *WRITABLE* pointer pair pp,
          unsadr pp.begin,
          unsadr pp.end,
          *MEM* adr pp.base,
@@ -10091,12 +10098,13 @@ function *STACK* pointer pair pp,
          type pp.type =
       allocate to stack ( type T, uns32 n ):
     require ( zero value OK ( T ) )
+    require ( size of T mod alignment of T == 0 )
     pp.type = T
     unsadr size = size of ( T ) * n
     *UNCHECKED* void p = allocate to stack ( size )
-        // p gets protected qualifier *STACK* but this
-        // is not implicitly propagated to pp.  The
-        // fact that p is *UNCHECKED* indicates that it
+        // p gets implied qualifiers *STACK* and *WRITABLE*
+        // but these are is not implicitly propagated to pp.
+        // The fact that p is *UNCHECKED* indicates that it
         // is the responsibility of the inline function
         // to attach *STACK* to pp.
     pp.base.adr = p.base.adr
@@ -10127,16 +10135,18 @@ function Qs pointer pair pp2,
 // Operator to dereference a point returning the value
 // pointed at.
 //
-function *MEM* pp.type out,
+function *MEM* WQ pp.type out,
          unsadr out.offset,
          *MEM* adr out.base,
          adr out.base.adr =
 
-      "*" ( *STACK* pointer pair pp,
+      "*" (| qualifiers Qs |)
+          ( Qs pointer pair pp,
             type pp.type,
             unsadr pp.begin,
             unsadr pp.end,
-            adr pp.base ):
+            adr pp.base.adr )
+      [| qualifiers WQ = Qs * { *WRITABLE* } |]
     if:
         pp.begin < pp.end:
             out.offset   = pp.begin
@@ -10176,11 +10186,11 @@ function Qs pointer pair pp2,
             fatal error ( "Pointer pair adr overflow." )
             // adr address arithmetic overflow
         else:
-            next pp.begin = pp.begin + size of ( pp.type )
+            next pp.begin = r
 
 // Example usage:
 //
-function ...
+function ...:
 
     // Vector of 2 int32's is allocated and the elements
     // are set equal to 100 and 101.
@@ -10230,7 +10240,12 @@ This is how {\tt out.base} gets its value from
 how {\tt pp.base} gets its value from
 {\tt pp.base.adr} in the {\tt allocate to stack} prototype.
 
-For details on the \TT{*MEM*} qualifier see \itemref{THE-MEM-QUALIFIER}.
+If a variable {\tt v} has both the \TT{*MEM*} and \TT{*WRITABLE*}
+qualifiers, you can assign a value to `\TT{next} {\tt v }' to write
+the RAM location that {\tt v} caches.
+
+For details on the \TT{*MEM*} and \TT{*WRITABLE*} qualifiers
+see \itemref{THE-MEM-QUALIFIER}.
 
 The \TT{*STACK*} value qualifier in the example has the special property
 that values with
@@ -10254,8 +10269,9 @@ An actual call argument $w$ must correspond to the prototype root $v$, but
 \underline{no actual} argument may correspond to the prototype member $v.m$.
 Instead, the cluster member $w.m$ of the actual root argument is implicitly
 matched to the prototype member $v.m$.  If $w.m$ does not exist,
-the call/prototype match fails unless the prototype $v.m$ has a
-default value (see \pagref{DEFAULT-VALUE} ).
+the call-prototype match fails unless the prototype $v.m$ has a
+default value (see rule \ref{CLUSTER-MEMBER-ARGUMENTS},
+\pagref{CLUSTER-MEMBER-ARGUMENTS} ).
 
 Here $v$ denotes a variable name without any {\em member-selectors},
 and $.m$ denotes any sequence of {\em member-selectors}, including possibly
@@ -10271,8 +10287,9 @@ $w$ must correspond to the prototype root $v$, but
 \underline{no actual} result variable
 may correspond to the prototype member $v.m$.
 Instead, the cluster member $w.m$ of the actual root is implicitly
-matched to the prototype member $v.m$.  This implies that $w.m$ must
-not pre-exist the call.  If it does, the call/prototype match fails.
+matched to the prototype member $v.m$.  This implies that $w.m$ is
+created by the call and must
+not pre-exist the call.  If it does pre-exist, the call-prototype match fails.
 
 When a cluster member name $v.m$ is used as prototype result name in
 a {\em prototype-result-variable-declaration} that \underline{is}
@@ -10284,7 +10301,7 @@ value, then $w.m$ will be created with the default value before
 the call is made.  The call will create a new variable of the
 same name $w.m$ to supercede the pre-call $w.m$.
 If $w.m$ does not pre-exist the call the $v.m$ has no default
-value, the call/prototype match fails.
+value, the call-prototype match fails.
 
 The following is an example:
 \begin{indpar}\begin{verbatim}

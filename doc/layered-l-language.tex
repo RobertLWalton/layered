@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 16, 2018
+November 18, 2018
  
 \end{center}
 
@@ -9322,296 +9322,6 @@ is accepted and used to compile the call.
 
 \end{enumerate}
 
-\section{Special Functions}
-\label{SPECIAL-FUNCTIONS}
-
-Note that in this section `\TT{std}' is used as the
-{\em module-abbreviation} (\pagref{MODULE-ABBREVIATION})
-of the \TT{"standard"} module.
-This {\em module-abbreviation} is commonly omitted when
-a function is called.
-
-\subsection{Memory Functions}
-\label{MEMORY-FUNCTIONS}
-
-The following functions allocate memory and compute addresses.
-
-\begin{indpar}
-
-{\tt function *UNCHECKED* adr r = std \ttkey{NULL}}\label{NULL}
-
-\begin{indpar}
-Returns the address of a block of N bytes of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced.
-N is at least 1 megabyte if addresses are 32 bits, and is at least
-1 gitabyte if addresses are 64 bits.  The same value is returned for
-all calls to {\tt NULL} within a run-time environment, or for all compile-time
-calls within a compilation,  though the run-time and compile-time values
-may differ.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
-				  \ttkey{allocate to static} \\
-				  ( unsadr size, \\
-				  ~~unswrd alignment ?=~0 )
-				  \end{tabular}}
-
-\begin{indpar}
-Allocate {\tt size} bytes of memory with the given
-{\tt alignment} in bytes to static memory, the memory
-allocated when the program is initialized.  Return
-the address of this memory.  The address viewed as an
-integer is an exact multiple of the {\tt alignment}.
-
-If the
-{\tt alignment} is omitted or is given as 0 it is taken
-to be equal to the \TT{size} if that is a power of 2
-no greater than 16 (the size of a 128 bit value).
-Otherwise it is an error if the {\em alignment} is 0 or
-is not a power of 2.
-
-The memory bytes are initialized to zero.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
-\begin{center}
-where $T$ is any number type
-\end{center}
-
-\begin{indpar}
-Allocate static memory and set it equal to {\tt v}.  
-The alignment of the memory is equal to the alignment of $T$.
-Return the address of this memory.  The address viewed as an
-integer is an exact multiple of the alignment.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r =} \\
-{\TS ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
-
-\begin{indpar}
-Allocate static memory and set it equal to the UTF-8 representation of the
-value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
-read-only, meaning that trying to write it will cause a program memory
-fault error.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-\end{indpar}
-
-The following function can be used to embed addresses in 
-floating point NaNs or other numeric values.
-
-\begin{indpar}
-
-{\tt function *UNCHECKED* adr r =} \\
-{\TS~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
-{\TS~~~~~~~~~~~~~ ( uns64 v,} \\
-{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
-
-\begin{indpar}
-Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
-and return the result as a usable byte address.
-If the target machine only uses the low order $k$ bits of a 64-bit
-address, the high order $64-k$ bits of the result are set according
-to the requirements of the target machine, or are undefined if there
-are no such requirements.  If $k>${\tt L+S},
-the {\tt L} bits are padded on the left with zero bits.
-
-For example, for an x86 target machine $k=48$ and the high order
-17 bits of the returned address must be equal (all 0's or all 1's).
-If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
-added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
-bit of the low {\tt L} bits of {\tt v} is sign extended to become
-the high order 17 bits of the returned address.
-\end{indpar}
-
-\end{indpar}
-
-
-
-\subsection{Floating Pointer Error Flag Functions}
-\label{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}
-
-The \skey{floating point error flag}s of
-section~\itemref{FLOATING-POINT-ARITHMETIC-EXPRESSIONS}
-are located in the `\key{floating point error register}' which
-is a special register of \TT{unswrd} type.  The following
-builtin functions test and manipulate this register.
-
-\begin{indpar}
-{\tt function unswrd r = std \ttkey{fp error flags}} \\
-{\tt function std \ttkey{clear fp error flags}} \\
-{\tt function std \ttkey{clear fp error flags} ( unswrd mask ) } \\
-{\tt function std \ttkey{set fp error flags} ( unswrd mask ) }
-
-\begin{indpar}
-The first function
-above reads the register, the second clears the floating point
-error flags in the register, the third clears just the floating point
-error flags selected by the bits of {\tt mask}, and the fourth sets just the
-flags selected by the bits of {\tt mask}.  The value read from the register
-may contain non-zero bits other than the floating point error flags.
-\end{indpar}
-\end{indpar}
-
-The following functions with no arguments
-return compile time constants that are
-masks for the floating
-point error flags in the floating point error
-register.  Each mask has a single bit on.
-\begin{center}
-\begin{tabular}{ll}
-{\tt function unswrd r = std \ttkey{FP INVALID}}	& Invalid operand. \\
-{\tt function unswrd r = std \ttkey{FP DIVIDE BY ZERO}}	& Divide by zero. \\
-{\tt function unswrd r = std \ttkey{FP OVERFLOW}}	& Result overflow. \\
-{\tt function unswrd r = std \ttkey{FP UNDERFLOW}}	& Result underflow. \\
-{\tt function unswrd r = std \ttkey{FP INEXACT}}	& Result inexact. \\
-\end{tabular}
-\end{center}
-The value of {\tt mask} above should be a bitwise OR's of these constants.
-
-\subsection{Abbreviation Testing Functions}
-\label{ABBREVIATION-TESTING-FUNCTIONS}
-
-The following functions provide information
-about regular abbreviations (\pagref{ABBREVIATION-DECLARATION}).
-
-It is a compile error if any argument to these
-functions is not a compile time value.  The results returned by these
-functions are compile time values.
-
-\begin{indpar}
-{\tt function bool r = std ( name N ) \ttkey{is abbreviation}} \\
-{\tt function name r = std \ttkey{replacement of} ( name N )} \\
-{\tt function name r = std \ttkey{final replacement of} ( name N )}
-\begin{indpar}
-The first function returns \TT{true} if and only if {\tt N} names
-an abbreviation (\pagref{ABBREVIATION-DECLARATION}).
-
-The second function returns the replacement name from the
-{\em abbreviation-declaration} of {\tt N}, or returns {\tt N} itself
-if {\tt N} is not an abbreviation.  The replacement name may itself
-be an abbreviation.
-
-The third function applies the second function recursively until
-the name returned is not an abbreviation.
-\end{indpar}
-\end{indpar}
-
-\subsection{Compiler Functions}
-\label{COMPILER-FUNCTIONS}
-
-The following function can be used to produce compile-time
-generated names like `\TT{T\TMP$n$}', which are most likely
-to be useful in generics (\pagref{GENERICS}).
-
-\begin{indpar}
-{\tt function name r = std \ttkey{generated name} ( character c )}%
-\label{GENERATE-NAME}
-
-\begin{indpar}
-Returns the name `\TT{$c$\TMP$n$}' where $c$ is the value of the
-argument and $n$ is a natural-number such that the returned name
-is unique among all names generated during the compilation, either
-by this function or by the compiler.  $c$ must be an ASCII
-letter.
-\end{indpar}
-\end{indpar}
-
-\subsection{Program Termination Functions}
-\label{PROGRAM-TERMINATION-FUNCTIONS}
-
-The following function is used to terminate program execution
-when a programming error is discovered.
-
-\begin{indpar}
-
-{\tt function std \ttkey{program stop}}
-\begin{indpar}
-This function terminates the program abnormally.  It has
-the special property that deferred variables that normally
-must be set in the block need not be set in an execution
-path that includes a call to this function.
-\end{indpar}
-
-\end{indpar}
-
-
-The following functions can be used before program termination
-to diagnose the location of a programming error.  They reference
-a table of call locations which is builtin.
-
-\begin{indpar}
-
-{\tt function string r = std \ttkey{call location} ( unswrd i )}
-\begin{indpar}
-Returns the call location described by the {\tt i}'th entry in the
-call locations table.  This call location is a string of the form:
-\begin{center}
-{\em file-name}\TT{:~line~}{\em line-number}
-\end{center}
-specifying the location in a source code file of the
-first line of the statement
-containing the function call described by the {\tt i}'th entry.
-Here {\em file-name} is either
-the {\em module-name} (\pagref{MODULES}) or {\em body-name}
-(\pagref{BODIES}) of the file; that is, it is the name of
-the file containing the statement
-relative to one of several directories
-specified separately to the compiler.
-{\em Line-number} is the number (1, 2, 3, \ldots) of the
-line in which the statement begins.
-\end{indpar}
-
-{\tt function unswrd r = std \ttkey{call parent} ( unswrd i )}
-\begin{indpar}
-Returns the call parent $P$ of the {\tt i}'th entry in the
-call locations table.
-If $P$ is not 0, the {\tt i}'th entry is for a location
-in an inline function call that was called from the location
-described by the $P$'th entry of the call locations table.
-If $P$ is 0, the call location described by  the {\tt i}'th entry
-is not inside an inline function
-call, but is inside an out-of-line function.
-\end{indpar}
-
-{\tt function unswrd r = std \ttkey{call entry}}
-\begin{indpar}
-Returns the index in the call locations
-table of the entry describing
-the location of the statement containing the call
-to this function.
-\end{indpar}
-
-{\tt function unswrd r = std \ttkey{call entry} ( unswrd i )}
-\begin{indpar}
-Returns the index in the call locations
-table of entry describing the location of the statement
-containing the {\tt i+1}'st
-active out-of-line call recorded in the program stack, counting
-from the top of the stack (most recent entry).  For
-{\tt i == 0} this is the out-of-line call that called the
-out-of-line function which in turn called this builtin
-{\tt call entry} function.  If 0 is returned, {\tt i} equals
-or exceeds the number of out-of-line calls in the stack.
-\end{indpar}
-
-\end{indpar}
-
 \section{Generics}
 \label{GENERICS}
 
@@ -10650,194 +10360,6 @@ place as would a `\TT{next~}{\em variable-name}' expression.
 These properties allow `\TT{reload Q}' to appear in an inline
 or conditional subblock.
 
-\section{Memory Write Statements}
-\label{MEMORY-WRITE-STATEMENTS}
-
-Statements that write memory make use of cluster structures
-similar to those used with
-\TT{*MEM*} qualifier variables:
-see Section~\itemref{THE-MEM-QUALIFIER}.
-
-Specifically, memory needs to be addressed.  This is done by either
-of the following methods of specifying a RAM address:
-\begin{enumerate}
-\item
-An `\key{address variable} \TT{va}
-of type \TT{adr} with either of the qualifiers
-\TT{*MEM*} or \TT{*UNCHECKED*} that contains the RAM address.
-If \TT{va} has qualifier \TT{*MEM*} it must obey
-the rules of Section~\itemref{THE-MEM-QUALIFIER}.
-
-
-\item
-An `\key{address variable}' \TT{vo} of type \TT{intadr} or \TT{unsadr} and
-qualifier \TT{*UNCHECKED*} in a cluster, and
-a variable \TT{vb.base} of type \TT{adr} and qualifier \TT{*MEM*}
-or \TT{*UNCHECKED*} where \TT{vb} is either \TT{vo} or an ancestor
-of \TT{vo} in its cluster.
-In this case the RAM address is \TT{vo+vb.base}.
-If \TT{vo.base} has qualifier \TT{*MEM*} it must recursively obey
-the rules of Section~\itemref{THE-MEM-QUALIFIER}.
-
-\end{enumerate}
-
-An address variable may be the member \TT{v.adr} or \TT{v.offset}
-of a cluster with RAM cache variable \TT{v}.  In this case the
-address variable is said to be the `\mkey{address}{of RAM cache variable}'
-of the RAM cache variable \TT{v}.
-
-\subsection{Single Value Write Statements}
-\label{SINGLE-VALUE-WRITE-STATEMENTS}
-
-The form of a single valued write statement is:
-
-\begin{indpar}
-\emkey{single-value-write-statement} ::=
-    \TT{*WRITE*} {\em value-variable} {\em address-variable}
-\end{indpar}
-
-The value in the {\em value-variable} is written to the RAM address
-in the {\em address-variable}.  If the {\em address-variable} is the
-address of a RAM cache variable \TT{v}, the write statement does
-\underline{not} update \TT{v} or create `\TT{next v}'.
-
-\subsection{Memory Copy Statements}
-\label{MEMORY-COPY-STATEMENTS}
-
-The form of a memory copy statement is:
-
-\begin{indpar}
-\emkey{memory-copy-statement} ::=
-    \TT{*COPY*} {\em source-variable} {\em destination-variable}
-    		{\em length-variable}
-\end{indpar}
-Bytes are copied from the RAM address in the {\em source-variable}
-to the RAM address in the {\em destin\-ation-\EOL variable}.
-The number of bytes copied is in the {\em length-variable},
-which must be of the \TT{unsadr} type.
-
-If the source address is greater than the destination address,
-the bytes are copied in ascending address order.  If the
-source address is less than the destination address,
-bytes are copied in descending address order.  If the two
-addresses are equal, bytes may or may not be copied.  The effect of
-all this is to copy regions of memory correctly even if they
-overlap.
-
-
-\subsection{Memory Set Statements}
-\label{MEMORY-SET-STATEMENTS}
-
-The form of a memory set statement is:
-
-\begin{indpar}
-\emkey{memory-set-statement} ::=
-    \TT{*SET*} {\em value-variable} {\em address-variable}
-    		{\em length-variable}
-\end{indpar}
-The `set length' is stored in the {\em length-variable} which must
-be of \TT{unsadr} type.  As long as the set length is not zero,
-this statement performs a \TT{*WRITE*} operation on its
-first two arguments, and then increments the address by
-the length of the type of the value, and decrements the set length
-by one.
-
-\subsection{Atomic Memory Statements}
-\label{ATOMIC-MEMORY-STATEMENTS}
-
-An \key{atomic-memory-statement} is a generalization of
-the classic compare-and-set instruction.  It is a block assignment
-statement that executes a sequence of specialized instructions:
-
-\begin{indpar}
-\emkey{atomic-memory-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \TT{( uns32 count, adr bad address ) = }\ttakey{ATOMIC} \TT{:} \\
-	\TT{~~~~}{\em lock-instruction}\STAR{} \\
-	\TT{~~~~}{\em compare-instruction}\STAR{} \\
-	\TT{~~~~}{\em write-instruction}\STAR{} \\
-	\end{tabular}
-\\[0.5ex]
-\emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-variable} \\
-\emkey{compare-instruction} ::= \ttakey{COMPARE} {\em compare-variable}
-						  {\em address-variable} \\
-\emkey{write-instruction} ::= \\
-\hspace*{0.2in}\begin{tabular}[t]{rl}
-        & \TT{*WRITE*} {\em value-variable} {\em address-variable} \\
-    $|$ & \TT{*COPY*} {\em source-variable} {\em destination-variable}
-    		      {\em length-variable} \\
-    $|$ & \TT{*SET*} {\em value-variable} {\em address-variable}
-    		     {\em length-variable} \\
-    \end{tabular}
-\end{indpar}
-
-The special instructions,
-which make use of clusters (Section~\itemref{CLUSTERS}),
-and are as follows:
-\begin{indpar}[0.4in]
-\hspace*{-0.2in}{\em \bf Lock-Instruction}.
-The {\em lock-variable} is of type \TT{uns32}
-and identifies the lock.
-The lock is a binary test-and-set lock provided by the
-underlying system.  Locks are allocated to sets of processes
-that share memory, so that if any process in the set gets
-the lock, other processes in the set cannot.
-
-The lock instruction sets the lock and succeeds if the lock
-was not already set, and otherwise just fails.
-
-When the {\em atomic-assignment-statement} terminates, either
-successfully or when it fails, all locks gotten are released in
-reverse order.
-
-\hspace*{-0.2in}{\em \bf Compare-Instruction}.
-The compare
-instruction reads the value at the {\em address-variable} designated
-address and compares
-it to the value of the {\em compare-variable}.  The instruction
-succeeds if the values are equal, and fails otherwise.
-
-The {\em compare-variable} may be a RAM cache variable whose
-address is the {\em address-variable}.  The RAM cache variable
-is not changed even if the value read does not match its value.
-
-\hspace*{-0.2in}{\em \bf Write-Instructions}.
-These do what they normally do, except they are all dry-run 
-before any actually execute.  During the dry-run one of these
-instruction fails if any memory reference it makes would fail
-were the instruction actually executed.  In particular, if any
-piece of memory is paged out or not in RAM, the dry-run fails.
-\end{indpar}
-
-The `\TT{count}' value returned by the {\em atomic-memory-statement}
-equals \TT{0} if the statement succeeds, or is the number of the
-first failed instruction in the statement block if the statement
-fails (the first instruction is number \TT{1}).
-The `\TT{bad address}' value is \TT{0} unless the block
-fails because of a memory fault, in which case the `\TT{bad address}'
-value is set to the faulting address.  One usually deals with a faulting
-address by reading it with a normal instruction if it is a read fault,
-or writing it with a normal instruction that does not change its
-value if it is a write fault (this may require a compare and set
-assembly instruction),
-and then retrying the \TT{*ATOMIC*} block.
-
-Interrupts of all kinds are disabled during the execution of an
-{\em atomic-memory-statement} so the statement will execute as
-fast as the underlying hardware will allow.  However, this means
-that memory paging is disabled, so instructions will fail if
-they page fault.  This is the reason for the dry-run of the
-{\em write-instructions}, to be sure they will not fail
-when they actually write data.
-
-A system may put restrictions on the size of the value in
-a {\em length-variable}, and on the number of instructions
-in an \TT{*ATOMIC*} block, in order to ensure that interrupts
-are not disabled for very long.  Violation of these restrictions
-causes a \TT{*ATOMIC*} block instruction fault that is distinct
-from \TT{*ATOMIC*} block failures described above (such violations
-are not recoverable).
-
 \section{Stack Management}
 \label{STACK-MANAGEMENT}
 
@@ -11219,6 +10741,484 @@ If the global area is also run time, its
 block code will be re-executed in the run time environment when the
 file containing it is loaded, and might produce different stack contents
 for the area than the compile time version of the area.
+
+\section{Special Functions}
+\label{SPECIAL-FUNCTIONS}
+
+Note that in this section `\TT{std}' is used as the
+{\em module-abbreviation} (\pagref{MODULE-ABBREVIATION})
+of the \TT{"standard"} module.
+This {\em module-abbreviation} is commonly omitted when
+a function is called.
+
+\subsection{Memory Functions}
+\label{MEMORY-FUNCTIONS}
+
+The following functions allocate memory and compute addresses.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{NULL}}\label{NULL}
+
+\begin{indpar}
+Returns the address of a block of N bytes of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced.
+N is at least 1 megabyte if addresses are 32 bits, and is at least
+1 gitabyte if addresses are 64 bits.  The same value is returned for
+all calls to {\tt NULL} within a run-time environment, or for all compile-time
+calls within a compilation,  though the run-time and compile-time values
+may differ.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
+				  \ttkey{allocate to static} \\
+				  ( unsadr size, \\
+				  ~~unswrd alignment ?=~0 )
+				  \end{tabular}}
+
+\begin{indpar}
+Allocate {\tt size} bytes of memory with the given
+{\tt alignment} in bytes to static memory, the memory
+allocated when the program is initialized.  Return
+the address of this memory.  The address viewed as an
+integer is an exact multiple of the {\tt alignment}.
+
+If the
+{\tt alignment} is omitted or is given as 0 it is taken
+to be equal to the \TT{size} if that is a power of 2
+no greater than 16 (the size of a 128 bit value).
+Otherwise it is an error if the {\em alignment} is 0 or
+is not a power of 2.
+
+The memory bytes are initialized to zero.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
+\begin{center}
+where $T$ is any number type
+\end{center}
+
+\begin{indpar}
+Allocate static memory and set it equal to {\tt v}.  
+The alignment of the memory is equal to the alignment of $T$.
+Return the address of this memory.  The address viewed as an
+integer is an exact multiple of the alignment.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r =} \\
+{\TS ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
+
+\begin{indpar}
+Allocate static memory and set it equal to the UTF-8 representation of the
+value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
+read-only, meaning that trying to write it will cause a program memory
+fault error.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+\end{indpar}
+
+The following function can be used to embed addresses in 
+floating point NaNs or other numeric values.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* adr r =} \\
+{\TS~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
+{\TS~~~~~~~~~~~~~ ( uns64 v,} \\
+{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+
+\begin{indpar}
+Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
+and return the result as a usable byte address.
+If the target machine only uses the low order $k$ bits of a 64-bit
+address, the high order $64-k$ bits of the result are set according
+to the requirements of the target machine, or are undefined if there
+are no such requirements.  If $k>${\tt L+S},
+the {\tt L} bits are padded on the left with zero bits.
+
+For example, for an x86 target machine $k=48$ and the high order
+17 bits of the returned address must be equal (all 0's or all 1's).
+If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
+added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
+bit of the low {\tt L} bits of {\tt v} is sign extended to become
+the high order 17 bits of the returned address.
+\end{indpar}
+
+\end{indpar}
+
+
+
+\subsection{Floating Pointer Error Flag Functions}
+\label{FLOATING-POINT-ERROR-FLAG-FUNCTIONS}
+
+The \skey{floating point error flag}s of
+section~\itemref{FLOATING-POINT-ARITHMETIC-EXPRESSIONS}
+are located in the `\key{floating point error register}' which
+is a special register of \TT{unswrd} type.  The following
+builtin functions test and manipulate this register.
+
+\begin{indpar}
+{\tt function unswrd r = std \ttkey{fp error flags}} \\
+{\tt function std \ttkey{clear fp error flags}} \\
+{\tt function std \ttkey{clear fp error flags} ( unswrd mask ) } \\
+{\tt function std \ttkey{set fp error flags} ( unswrd mask ) }
+
+\begin{indpar}
+The first function
+above reads the register, the second clears the floating point
+error flags in the register, the third clears just the floating point
+error flags selected by the bits of {\tt mask}, and the fourth sets just the
+flags selected by the bits of {\tt mask}.  The value read from the register
+may contain non-zero bits other than the floating point error flags.
+\end{indpar}
+\end{indpar}
+
+The following functions with no arguments
+return compile time constants that are
+masks for the floating
+point error flags in the floating point error
+register.  Each mask has a single bit on.
+\begin{center}
+\begin{tabular}{ll}
+{\tt function unswrd r = std \ttkey{FP INVALID}}	& Invalid operand. \\
+{\tt function unswrd r = std \ttkey{FP DIVIDE BY ZERO}}	& Divide by zero. \\
+{\tt function unswrd r = std \ttkey{FP OVERFLOW}}	& Result overflow. \\
+{\tt function unswrd r = std \ttkey{FP UNDERFLOW}}	& Result underflow. \\
+{\tt function unswrd r = std \ttkey{FP INEXACT}}	& Result inexact. \\
+\end{tabular}
+\end{center}
+The value of {\tt mask} above should be a bitwise OR's of these constants.
+
+\subsection{Abbreviation Testing Functions}
+\label{ABBREVIATION-TESTING-FUNCTIONS}
+
+The following functions provide information
+about regular abbreviations (\pagref{ABBREVIATION-DECLARATION}).
+
+It is a compile error if any argument to these
+functions is not a compile time value.  The results returned by these
+functions are compile time values.
+
+\begin{indpar}
+{\tt function bool r = std ( name N ) \ttkey{is abbreviation}} \\
+{\tt function name r = std \ttkey{replacement of} ( name N )} \\
+{\tt function name r = std \ttkey{final replacement of} ( name N )}
+\begin{indpar}
+The first function returns \TT{true} if and only if {\tt N} names
+an abbreviation (\pagref{ABBREVIATION-DECLARATION}).
+
+The second function returns the replacement name from the
+{\em abbreviation-declaration} of {\tt N}, or returns {\tt N} itself
+if {\tt N} is not an abbreviation.  The replacement name may itself
+be an abbreviation.
+
+The third function applies the second function recursively until
+the name returned is not an abbreviation.
+\end{indpar}
+\end{indpar}
+
+\subsection{Compiler Functions}
+\label{COMPILER-FUNCTIONS}
+
+The following function can be used to produce compile-time
+generated names like `\TT{T\TMP$n$}', which are most likely
+to be useful in generics (\pagref{GENERICS}).
+
+\begin{indpar}
+{\tt function name r = std \ttkey{generated name} ( character c )}%
+\label{GENERATE-NAME}
+
+\begin{indpar}
+Returns the name `\TT{$c$\TMP$n$}' where $c$ is the value of the
+argument and $n$ is a natural-number such that the returned name
+is unique among all names generated during the compilation, either
+by this function or by the compiler.  $c$ must be an ASCII
+letter.
+\end{indpar}
+\end{indpar}
+
+\subsection{Program Termination Functions}
+\label{PROGRAM-TERMINATION-FUNCTIONS}
+
+The following function is used to terminate program execution
+when a programming error is discovered.
+
+\begin{indpar}
+
+{\tt function std \ttkey{program stop}}
+\begin{indpar}
+This function terminates the program abnormally.  It has
+the special property that deferred variables that normally
+must be set in the block need not be set in an execution
+path that includes a call to this function.
+\end{indpar}
+
+\end{indpar}
+
+
+The following functions can be used before program termination
+to diagnose the location of a programming error.  They reference
+a table of call locations which is builtin.
+
+\begin{indpar}
+
+{\tt function string r = std \ttkey{call location} ( unswrd i )}
+\begin{indpar}
+Returns the call location described by the {\tt i}'th entry in the
+call locations table.  This call location is a string of the form:
+\begin{center}
+{\em file-name}\TT{:~line~}{\em line-number}
+\end{center}
+specifying the location in a source code file of the
+first line of the statement
+containing the function call described by the {\tt i}'th entry.
+Here {\em file-name} is either
+the {\em module-name} (\pagref{MODULES}) or {\em body-name}
+(\pagref{BODIES}) of the file; that is, it is the name of
+the file containing the statement
+relative to one of several directories
+specified separately to the compiler.
+{\em Line-number} is the number (1, 2, 3, \ldots) of the
+line in which the statement begins.
+\end{indpar}
+
+{\tt function unswrd r = std \ttkey{call parent} ( unswrd i )}
+\begin{indpar}
+Returns the call parent $P$ of the {\tt i}'th entry in the
+call locations table.
+If $P$ is not 0, the {\tt i}'th entry is for a location
+in an inline function call that was called from the location
+described by the $P$'th entry of the call locations table.
+If $P$ is 0, the call location described by  the {\tt i}'th entry
+is not inside an inline function
+call, but is inside an out-of-line function.
+\end{indpar}
+
+{\tt function unswrd r = std \ttkey{call entry}}
+\begin{indpar}
+Returns the index in the call locations
+table of the entry describing
+the location of the statement containing the call
+to this function.
+\end{indpar}
+
+{\tt function unswrd r = std \ttkey{call entry} ( unswrd i )}
+\begin{indpar}
+Returns the index in the call locations
+table of entry describing the location of the statement
+containing the {\tt i+1}'st
+active out-of-line call recorded in the program stack, counting
+from the top of the stack (most recent entry).  For
+{\tt i == 0} this is the out-of-line call that called the
+out-of-line function which in turn called this builtin
+{\tt call entry} function.  If 0 is returned, {\tt i} equals
+or exceeds the number of out-of-line calls in the stack.
+\end{indpar}
+
+\end{indpar}
+
+\section{Memory Write Statements}
+\label{MEMORY-WRITE-STATEMENTS}
+
+Statements that write memory make use of cluster structures
+similar to those used with
+\TT{*MEM*} qualifier variables:
+see Section~\itemref{THE-MEM-QUALIFIER}.
+
+Specifically, memory needs to be addressed.  This is done by either
+of the following methods of specifying a RAM address:
+\begin{enumerate}
+\item
+An `\key{address variable} \TT{va}
+of type \TT{adr} with either of the qualifiers
+\TT{*MEM*} or \TT{*UNCHECKED*} that contains the RAM address.
+If \TT{va} has qualifier \TT{*MEM*} it must obey
+the rules of Section~\itemref{THE-MEM-QUALIFIER}.
+
+
+\item
+An `\key{address variable}' \TT{vo} of type \TT{intadr} or \TT{unsadr} and
+qualifier \TT{*UNCHECKED*} in a cluster, and
+a variable \TT{vb.base} of type \TT{adr} and qualifier \TT{*MEM*}
+or \TT{*UNCHECKED*} where \TT{vb} is either \TT{vo} or an ancestor
+of \TT{vo} in its cluster.
+In this case the RAM address is \TT{vo+vb.base}.
+If \TT{vo.base} has qualifier \TT{*MEM*} it must recursively obey
+the rules of Section~\itemref{THE-MEM-QUALIFIER}.
+
+\end{enumerate}
+
+An address variable may be the member \TT{v.adr} or \TT{v.offset}
+of a cluster with RAM cache variable \TT{v}.  In this case the
+address variable is said to be the `\mkey{address}{of RAM cache variable}'
+of the RAM cache variable \TT{v}.
+
+\subsection{Single Value Write Statements}
+\label{SINGLE-VALUE-WRITE-STATEMENTS}
+
+The form of a single valued write statement is:
+
+\begin{indpar}
+\emkey{single-value-write-statement} ::=
+    \TT{*WRITE*} {\em value-variable} {\em address-variable}
+\end{indpar}
+
+The value in the {\em value-variable} is written to the RAM address
+in the {\em address-variable}.  If the {\em address-variable} is the
+address of a RAM cache variable \TT{v}, the write statement does
+\underline{not} update \TT{v} or create `\TT{next v}'.
+
+\subsection{Memory Copy Statements}
+\label{MEMORY-COPY-STATEMENTS}
+
+The form of a memory copy statement is:
+
+\begin{indpar}
+\emkey{memory-copy-statement} ::=
+    \TT{*COPY*} {\em source-variable} {\em destination-variable}
+    		{\em length-variable}
+\end{indpar}
+Bytes are copied from the RAM address in the {\em source-variable}
+to the RAM address in the {\em destin\-ation-\EOL variable}.
+The number of bytes copied is in the {\em length-variable},
+which must be of the \TT{unsadr} type.
+
+If the source address is greater than the destination address,
+the bytes are copied in ascending address order.  If the
+source address is less than the destination address,
+bytes are copied in descending address order.  If the two
+addresses are equal, bytes may or may not be copied.  The effect of
+all this is to copy regions of memory correctly even if they
+overlap.
+
+
+\subsection{Memory Set Statements}
+\label{MEMORY-SET-STATEMENTS}
+
+The form of a memory set statement is:
+
+\begin{indpar}
+\emkey{memory-set-statement} ::=
+    \TT{*SET*} {\em value-variable} {\em address-variable}
+    		{\em length-variable}
+\end{indpar}
+The `set length' is stored in the {\em length-variable} which must
+be of \TT{unsadr} type.  As long as the set length is not zero,
+this statement performs a \TT{*WRITE*} operation on its
+first two arguments, and then increments the address by
+the length of the type of the value, and decrements the set length
+by one.
+
+\subsection{Atomic Memory Statements}
+\label{ATOMIC-MEMORY-STATEMENTS}
+
+An \key{atomic-memory-statement} is a generalization of
+the classic compare-and-set instruction.  It is a block assignment
+statement that executes a sequence of specialized instructions:
+
+\begin{indpar}
+\emkey{atomic-memory-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \TT{( uns32 count, adr bad address ) = }\ttakey{ATOMIC} \TT{:} \\
+	\TT{~~~~}{\em lock-instruction}\STAR{} \\
+	\TT{~~~~}{\em compare-instruction}\STAR{} \\
+	\TT{~~~~}{\em write-instruction}\STAR{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-variable} \\
+\emkey{compare-instruction} ::= \ttakey{COMPARE} {\em compare-variable}
+						  {\em address-variable} \\
+\emkey{write-instruction} ::= \\
+\hspace*{0.2in}\begin{tabular}[t]{rl}
+        & \TT{*WRITE*} {\em value-variable} {\em address-variable} \\
+    $|$ & \TT{*COPY*} {\em source-variable} {\em destination-variable}
+    		      {\em length-variable} \\
+    $|$ & \TT{*SET*} {\em value-variable} {\em address-variable}
+    		     {\em length-variable} \\
+    \end{tabular}
+\end{indpar}
+
+The special instructions,
+which make use of clusters (Section~\itemref{CLUSTERS}),
+and are as follows:
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}{\em \bf Lock-Instruction}.
+The {\em lock-variable} is of type \TT{uns32}
+and identifies the lock.
+The lock is a binary test-and-set lock provided by the
+underlying system.  Locks are allocated to sets of processes
+that share memory, so that if any process in the set gets
+the lock, other processes in the set cannot.
+
+The lock instruction sets the lock and succeeds if the lock
+was not already set, and otherwise just fails.
+
+When the {\em atomic-assignment-statement} terminates, either
+successfully or when it fails, all locks gotten are released in
+reverse order.
+
+\hspace*{-0.2in}{\em \bf Compare-Instruction}.
+The compare
+instruction reads the value at the {\em address-variable} designated
+address and compares
+it to the value of the {\em compare-variable}.  The instruction
+succeeds if the values are equal, and fails otherwise.
+
+The {\em compare-variable} may be a RAM cache variable whose
+address is the {\em address-variable}.  The RAM cache variable
+is not changed even if the value read does not match its value.
+
+\hspace*{-0.2in}{\em \bf Write-Instructions}.
+These do what they normally do, except they are all dry-run 
+before any actually execute.  During the dry-run one of these
+instruction fails if any memory reference it makes would fail
+were the instruction actually executed.  In particular, if any
+piece of memory is paged out or not in RAM, the dry-run fails.
+\end{indpar}
+
+The `\TT{count}' value returned by the {\em atomic-memory-statement}
+equals \TT{0} if the statement succeeds, or is the number of the
+first failed instruction in the statement block if the statement
+fails (the first instruction is number \TT{1}).
+The `\TT{bad address}' value is \TT{0} unless the block
+fails because of a memory fault, in which case the `\TT{bad address}'
+value is set to the faulting address.  One usually deals with a faulting
+address by reading it with a normal instruction if it is a read fault,
+or writing it with a normal instruction that does not change its
+value if it is a write fault (this may require a compare and set
+assembly instruction),
+and then retrying the \TT{*ATOMIC*} block.
+
+Interrupts of all kinds are disabled during the execution of an
+{\em atomic-memory-statement} so the statement will execute as
+fast as the underlying hardware will allow.  However, this means
+that memory paging is disabled, so instructions will fail if
+they page fault.  This is the reason for the dry-run of the
+{\em write-instructions}, to be sure they will not fail
+when they actually write data.
+
+A system may put restrictions on the size of the value in
+a {\em length-variable}, and on the number of instructions
+in an \TT{*ATOMIC*} block, in order to ensure that interrupts
+are not disabled for very long.  Violation of these restrictions
+causes a \TT{*ATOMIC*} block instruction fault that is distinct
+from \TT{*ATOMIC*} block failures described above (such violations
+are not recoverable).
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

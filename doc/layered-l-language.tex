@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 18, 2018
+November 19, 2018
  
 \end{center}
 
@@ -2752,7 +2752,7 @@ function std qualifier r = \ttmkey{std missing}{qualifier}: \\
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified (i.e., implementation dependent)
 `\TT{type}' enumeration values.
-Similarly builtin qualifiers, e.g.~\TT{*MEM*}, are given
+Similarly builtin qualifiers, e.g.~\TT{*READ*}, are given
 unspecified `\TT{quali\-fier}' enumeration values.  
 The `\TT{range value of}' function above
 can be used to find the range value of an
@@ -3967,7 +3967,7 @@ in a disk file mapped into memory and paged in only as needed.}
 
 Variables may be qualified by \skey{qualifier}s, which precede the
 type when a variable is declared.  There are six builtin qualifiers:
-\TT{*MEM*}, \TT{*WRITABLE*}, \TT{*STACK*}, \TT{*UNCHECKED*},
+\TT{*READ*}, \TT{*WRITE*}, \TT{*STACK*}, \TT{*UNCHECKED*},
 \TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
 These have special effects or special usage
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
@@ -4045,10 +4045,10 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt define implied variable qualifier \ttkey{std *MEM*}} \\
-{\tt define abbreviation \ttakey{MEM} ---> `std *MEM*'} \\
-{\tt define implied deletable value qualifier \ttkey{std *WRITABLE*}} \\
-{\tt define abbreviation \ttakey{WRITABLE} ---> `std *WRITABLE*'} \\
+{\tt define implied variable qualifier \ttkey{std *READ*}} \\
+{\tt define abbreviation \ttakey{READ} ---> `std *READ*'} \\
+{\tt define implied variable qualifier \ttkey{std *WRITE*}} \\
+{\tt define abbreviation \ttakey{WRITE} ---> `std *WRITE*'} \\
 {\tt define implied addable value qualifier \ttkey{std *STACK*}} \\
 {\tt define abbreviation \ttakey{STACK} ---> `std *STACK*'} \\
 {\tt define variable qualifier \ttkey{std *UNCHECKED*}} \\
@@ -4277,7 +4277,7 @@ Unchecked result deferred assignments ignore qualifiers and are always direct
 assignments if (DA1) is satisfied.
 \item[NOTE]
 If a result variable has \TT{void} as its underlying type, or if it
-has the \TT{*MEM*} qualifier (see below), it is never
+has the \TT{*READ*} qualifier (see below), it is never
 assigned a value by a deferred assignment, and is therefore free to have
 any qualifiers.
 \end{itemize}\end{indpar}
@@ -4297,23 +4297,24 @@ In this example, the {\tt *UNCHECKED*} qualifier could be
 omitted, but then `{\tt remove *STACK*}' would violate
 type checking without giving any indication that it did so.
 
-Examples involving the \TT{*MEM*} and \TT{*UNCHECKED*}
+Examples involving the \TT{*READ*} and \TT{*UNCHECKED*}
 builtin variable qualifiers are:
 \begin{indpar}\begin{verbatim}
 // Function to read the int32 value at RAM address A.
 // Not type safe as argument A not vetted.
 //
-function *MEM* int32 r, adr r.adr = read ( adr A ):
+function *READ* int32 r, adr r.adr = read ( adr A ):
     r.adr = A
-*MEM* int32 x = read (1000)
-    // Creates variable adr x.adr = 1000.  The *MEM* variable
-    // qualifier is special: x is not given a value by
-    // assignment, but automatically gets its value by
+*READ* int32 x = read (1000)
+    // Creates variable adr x.adr = 1000.  *READ* is a
+    // special varible qualifier: x is not given a value
+    // by assignment, but automatically gets its value by
     // reading location x.adr.
 int32 y = read(2000)
-    // Ditto but *MEM* qualifier is automatically added to y.
+    // Ditto but *READ* qualifier is automatically added to
+    // y.
 int32 z = x
-    // The *MEM* variable qualifier on x is NOT propagated
+    // The *READ* variable qualifier on x is NOT propagated
     // to z.
 
 *UNCHECKED* uns32 w = uns32 ( z )
@@ -4331,10 +4332,10 @@ A call to {\tt read} returns a cluster of
 two variables, with only the root {\tt r} of the cluster being
 specified explicitly by the call, and the child {\tt r.adr} being
 created implicitly by the call: see \itemref{CLUSTERS}.
-The \TT{*MEM*} qualifier has the special property that a value of a \TT{*MEM*}
+The \TT{*READ*} qualifier has the special property that a value of a \TT{*READ*}
 variable {\tt r} is not given explicitly, but is read implicitly from
-RAM memory using the address in {\tt r.adr}: see \itemref{THE-MEM-QUALIFIER}.
-As a variable qualifier, \TT{*MEM*} can only be attached to
+RAM memory using the address in {\tt r.adr}: see \itemref{THE-READ-QUALIFIER}.
+As a variable qualifier, \TT{*READ*} can only be attached to
 a variable by setting the variable to the result of a
 function call.
 
@@ -4353,15 +4354,15 @@ qualifier are:
     // address of x is automatically given the `*STACK*'
     // qualifier.
 
-function *MEM* int32 r, adr r.adr = read ( adr A ):
+function *READ* int32 r, adr r.adr = read ( adr A ):
     r.adr = A
-function *MEM* int32 r, adr r.adr = read from stack 1
+function *READ* int32 r, adr r.adr = read from stack 1
                                         ( *STACK* adr A ):
     *UNCHECKED* adr a = remove *STACK* ( A )
         // Uses `remove *STACK*' function defined above.
     r.adr = a
-function *MEM* int32 r, *STACK* adr r.adr = read from stack 2
-                                        ( *STACK* adr A ):
+function *READ* int32 r, *STACK* adr r.adr =
+        read from stack 2 ( *STACK* adr A ):
     r.adr = A
 
 int32 x1 = read ( address of x )
@@ -7401,7 +7402,7 @@ or the values of global variables.  In particular,
 no input can come \underline{directly}
 from RAM memory outside the current function execution frame or
 global memory,
-but see \pagref{MEM} and Section~\itemref{THE-MEM-QUALIFIER}
+but see \pagref{READ} and Section~\itemref{THE-READ-QUALIFIER}
 for ways to load RAM values into function frame variables.
 See Section~\itemref{STACK-MANAGEMENT} for more information about
 function frames.
@@ -7941,7 +7942,7 @@ call are matched by name to arguments in the type declaration,
 and then ordered as per the type declaration.  In this case
 the \TT{*REVERSE*} option is not permitted.
 
-Normally a `\TT{reload *MEM*, *MEM* dependent}'
+Normally a `\TT{reload *READ*, *READ* dependent}'
 statement (see \itemref{THE-RELOAD-COMMAND})
 is executed automatically
 upon returning from the called function, but the
@@ -9248,7 +9249,7 @@ result assignments, and not as ordinary assignments,
 for the purposes of computing and checking qualifiers
 (\pagref{DIRECT-ASSIGNMENT}).
 
-If $QC.$ contains the \ttamkey{MEM}{in call-prototype match}
+If $QC.$ contains the \ttamkey{READ}{in call-prototype match}
 qualifier, the statement
 `\ldots~$vc.$ = $tmp.$' must satisfy the rules of a direct
 assignment (\pagref{DIRECT-ASSIGNMENT}), else the call-prototype
@@ -9256,7 +9257,7 @@ match fails.  In this case the assignment is treated as an
 assignment for the purposes of implying qualifiers and determining
 if it is a direct assignment, but is otherwise treated as if it did
 not exist (no instructions are executed to copy a value).
-See \itemref{THE-MEM-QUALIFIER} for more on the \TT{*MEM*} qualifier.
+See \itemref{THE-READ-QUALIFIER} for more on the \TT{*READ*} qualifier.
 
 If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
 compiled, the call-prototype match fails.
@@ -9721,7 +9722,7 @@ module "my_module" as mymod
 //
 //    float64 v = mymod my parameter
 //
-function *MEM* float64 r, adr r.adr = mymod my parameter:
+function *READ* float64 r, adr r.adr = mymod my parameter:
     r.adr = p
 \end{verbatim}\end{indpar}
 
@@ -9793,17 +9794,17 @@ define type pointer pair as void
     //   unsadr pp.begin is the offset of the first element
     //   unsadr pp.end is the offset just AFTER the
     //                 last element
-    //   *MEM* adr pp.base is the base address that
-    //                     is added to the offsets
+    //   *READ* adr pp.base is the base address that
+    //                      is added to the offsets
     //   adr pp.base.adr is the address of pp.base
     //   type pp.type is type of elements pointed at
 
 // Function to allocate a vector of n T's to the stack.
 //
-function *STACK* *WRITABLE* pointer pair pp,
+function *STACK* *WRITE* pointer pair pp,
          unsadr pp.begin,
          unsadr pp.end,
-         *MEM* adr pp.base,
+         *READ* adr pp.base,
          adr pp.base.adr,
          type pp.type =
       allocate to stack ( type T, uns32 n ):
@@ -9812,7 +9813,7 @@ function *STACK* *WRITABLE* pointer pair pp,
     pp.type = T
     unsadr size = size of ( T ) * n
     *UNCHECKED* void p = allocate to stack ( size )
-        // p gets implied qualifiers *STACK* and *WRITABLE*
+        // p gets implied qualifiers *STACK* and *WRITE*
         // but these are is not implicitly propagated to pp.
         // The fact that p is *UNCHECKED* indicates that it
         // is the responsibility of the inline function
@@ -9826,7 +9827,7 @@ function *STACK* *WRITABLE* pointer pair pp,
 function Qs pointer pair pp2,
          unsadr pp2.begin,
          unsadr pp2.end,
-         *MEM* adr pp2.base,
+         *READ* adr pp2.base,
          adr pp2.base.adr,
          type pp2.type
 
@@ -9845,9 +9846,9 @@ function Qs pointer pair pp2,
 // Operator to dereference a point returning the value
 // pointed at.
 //
-function *MEM* WQ pp.type out,
+function *READ* WQ pp.type out,
          unsadr out.offset,
-         *MEM* adr out.base,
+         *READ* adr out.base,
          adr out.base.adr =
 
       "*" (| qualifiers Qs |)
@@ -9856,7 +9857,7 @@ function *MEM* WQ pp.type out,
             unsadr pp.begin,
             unsadr pp.end,
             adr pp.base.adr )
-      [| qualifiers WQ = Qs * { *WRITABLE* } |]
+      [| qualifiers WQ = Qs * { *WRITE* } |]
     if:
         pp.begin < pp.end:
             out.offset   = pp.begin
@@ -9872,7 +9873,7 @@ function *MEM* WQ pp.type out,
 function Qs pointer pair pp2,
          unsadr pp2.begin,
          unsadr pp2.end,
-         *MEM* adr pp2.base,
+         *READ* adr pp2.base,
          adr pp2.base.adr,
          type pp2.type,
          next pp.begin
@@ -9929,9 +9930,9 @@ This is a general characteristic of the L-Language, and derives
 from the fact that the functions automatically manage the members
 of a cluster.
 
-In this example \TT{*MEM*}\label{MEM} is a special builtin variable qualifier.
+In this example \TT{*READ*}\label{READ} is a special builtin variable qualifier.
 Its special property is if a variable
-{\tt v} of qualifier \TT{*MEM*} is allocated,
+{\tt v} of qualifier \TT{*READ*} is allocated,
 and if a cluster members  {\tt v.base} of type \TT{adr}
 and {\tt v.offset} of type \TT{unsadr}
 are allocated and assigned values, then
@@ -9942,7 +9943,7 @@ This is how {\tt out} gets its value from
 {\tt out.base}, and {\tt out.offset} in the {\tt "*"} prototype.
 
 Similarly if {\tt v} and {\tt v.adr} are allocated, {\tt v} has qualifier
-\TT{*MEM*}, and {\tt v.adr} is assigned a value, then
+\TT{*READ*}, and {\tt v.adr} is assigned a value, then
 the cluster root {\tt v} is automatically
 assigned the value read from the RAM address {\tt v.adr}.
 This is how {\tt out.base} gets its value from
@@ -9950,12 +9951,12 @@ This is how {\tt out.base} gets its value from
 how {\tt pp.base} gets its value from
 {\tt pp.base.adr} in the {\tt allocate to stack} prototype.
 
-If a variable {\tt v} has both the \TT{*MEM*} and \TT{*WRITABLE*}
+If a variable {\tt v} has both the \TT{*READ*} and \TT{*WRITE*}
 qualifiers, you can assign a value to `\TT{next} {\tt v }' to write
 the RAM location that {\tt v} caches.
 
-For details on the \TT{*MEM*} and \TT{*WRITABLE*} qualifiers
-see \itemref{THE-MEM-QUALIFIER}.
+For details on the \TT{*READ*} and \TT{*WRITE*} qualifiers
+see \itemref{THE-READ-QUALIFIER}.
 
 The \TT{*STACK*} value qualifier in the example has the special property
 that values with
@@ -10051,16 +10052,16 @@ the inline functions are written correctly, the program will be type-safe.
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
-The builtin qualifiers are \TT{*MEM*}, \TT{*WRITABLE*}, \TT{*UNCHECKED*},
+The builtin qualifiers are \TT{*READ*}, \TT{*WRITE*}, \TT{*UNCHECKED*},
 and \TT{*STACK*}.
 There is also a special class of qualifiers called trace qualifiers.
 \TT{*DEFERRED*}, and \TT{*OPTIONAL*} a pseudo-qualifiers that are
 syntactically like qualifiers, but semantically are not qualifiers.
 
-\subsection{The \TT{*MEM*} and \TT{*WRITABLE*} Memory Qualifiers}
-\label{THE-MEM-QUALIFIER}
+\subsection{The \TT{*READ*} and \TT{*WRITE*} Memory Qualifiers}
+\label{THE-READ-QUALIFIER}
 
-The \ttakey{MEM} qualifier is a implied variable qualifier that behaves
+The \ttakey{READ} qualifier is a implied variable qualifier that behaves
 in a special way when it is given to a variable {\tt v}.
 In this situation {\tt v} is a copy of a RAM memory value and
 must be in a cluster that
@@ -10081,8 +10082,8 @@ In this case the RAM address of {\tt v} is {\tt v.offset+w.base}.
 \item
 It is possible for any of the cluster members mentioned above,
 i.e., {\tt v.adr}, {\tt v.offset}, or {\tt w.base}, to have the
-\TT{*MEM*} qualifier, in which case they must obey these rules recursively.
-E.g., if {\tt w.base} has the \TT{*MEM*} qualifier there must be either
+\TT{*READ*} qualifier, in which case they must obey these rules recursively.
+E.g., if {\tt w.base} has the \TT{*READ*} qualifier there must be either
 {\tt w.base.adr}, or there must be both
 {\tt w.base\EOL .offset} and {\tt w.base.base} (in this case
 {\tt w.base.base} must exist and {\tt w.base} cannot be used as its
@@ -10097,7 +10098,7 @@ address {\tt A} of {\tt w} to be computed.  The RAM address of {\tt v}
 is then {\tt v.offset+A}.
 \end{enumerate}
 
-A variable {\tt v} with \TT{*MEM*} qualifier
+A variable {\tt v} with \TT{*READ*} qualifier
 must \underline{not} be given a value by an
 assignment statement, but will instead be loaded with a value
 from its RAM address.  It is called a `\key{RAM cache variable}'.
@@ -10119,16 +10120,16 @@ define types:
     foo as void
     foo_ptr as adr
 function foo x, adr x.base,
-         *MEM* *WRITABLE* int32 x.a, x.a.offset,
-         *MEM*            int32 x.b, x.b.offset,
-         *MEM* *WRITABLE* int32 x.c, x.c.offset
+         *READ* *WRITE* int32 x.a, x.a.offset,
+         *READ*         int32 x.b, x.b.offset,
+         *READ* *WRITE* int32 x.c, x.c.offset
         = "*" ( foo_ptr y ):
     x.base = y
     x.a.offset = 0
     x.b.offset = 4
     x.c.offset = 8
 function next x.a = update a
-        ( foo x, *MEM* *WRITABLE* int32 x.a, int32 v ):
+        ( foo x, *READ* *WRITE* int32 x.a, int32 v ):
     next x.a = v
 
 // Usage:
@@ -10140,12 +10141,12 @@ update a ( z, ... )    // Write z.a
 
 \end{verbatim}\end{indpar}
 
-If {\tt v} is a \ttakey{WRITABLE}
+If {\tt v} is a \ttakey{WRITE}
 RAM cache variable, assigning a value to `{\tt next v}'
 writes the value to RAM.  For example:
 
 \begin{indpar}\begin{verbatim}
-    function *MEM* *WRITABLE* r, adr r.adr = foo ( ... ):
+    function *READ* *WRITE* r, adr r.adr = foo ( ... ):
         . . . . . . . . . .
     int32 v = foo ( ... )
     next v = ...       // Writes value to v.adr and updates v
@@ -10155,7 +10156,7 @@ If a RAM cache variable {\tt v}'s value is not used,
 it will not actually be loaded from RAM, even if {\tt v} is written
 by assigning a value to `{\tt next v}'.
 
-Because \TT{*MEM*} and \TT{*WRITABLE*} are implied qualifiers,
+Because \TT{*READ*} and \TT{*WRITE*} are implied qualifiers,
 RAM cache variables can only be created as
 results of inline function calls.
 So only inline functions can effect a read or write
@@ -10307,18 +10308,18 @@ will be inserted automatically into the code at the point of the
 be in error.
 
 As a special case, if a variable that is declared to be out-of-date,
-\TT{v}, has the \TT{*MEM*} qualifier, and is in
+\TT{v}, has the \TT{*READ*} qualifier, and is in
 a cluster that causes \TT{v} to be loaded from memory
-(as per Section~\itemref{THE-MEM-QUALIFIER}), then if \TT{v} is declared
+(as per Section~\itemref{THE-READ-QUALIFIER}), then if \TT{v} is declared
 to be out-of-date, recomputing \TT{v} just means that \TT{v}
 is reloaded from RAM.  The possibility that software cache
-variables (with the \TT{*MEM*} qualifier) will become out-of-date because
+variables (with the \TT{*READ*} qualifier) will become out-of-date because
 the RAM locations they cache have changed is the reason the \TT{reload}
 statement exists.
 
 The statement
 \begin{center}
-\TT{reload *MEM*, *MEM* dependent}
+\TT{reload *READ*, *READ* dependent}
 \end{center}
 is commonly used to declare all
 variables that act as software caches of memory, and all variables
@@ -10341,7 +10342,7 @@ no input to {\em expression} has been recomputed, \TT{v} does not
 need to be recomputed.  Otherwise \TT{v} is recomputed by re-executing
 the assignment statement.
 
-If a variable without a \TT{*MEM*} qualifier needs to be
+If a variable without a \TT{*READ*} qualifier needs to be
 recomputed and was computed by other than
 a {\em simple-assignment-statement}, it is a compile error if the
 variable is marked out-of-date and later used.
@@ -10426,7 +10427,7 @@ the stack address.  To accommodate this builtin memory read-write
 functions will not only accept an \TT{adr} value as a RAM address,
 but also accept a RAM address consisting of an \TT{unsadr}
 offset within the stack and a stack base address that is itself
-stored in RAM.  See Sections~\itemref{THE-MEM-QUALIFIER}
+stored in RAM.  See Sections~\itemref{THE-READ-QUALIFIER}
 and \itemref{STACK-MEMORY-ALLOCATION}
 for details.
 
@@ -10570,7 +10571,7 @@ the stack and the address of the stack base address:
 \begin{indpar}\tt\begin{tabular}{l}
 function *UNCHECKED* *STACK* T result, \\
 ~~~~~~~~~unsadr result.offset, \\
-~~~~~~~~~*MEM* adr result.base, \\
+~~~~~~~~~*READ* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
@@ -10601,7 +10602,7 @@ If you want a different alignment you can use:
 \begin{indpar}\tt\begin{tabular}{l}
 function *UNCHECKED* *STACK* T result, \\
 ~~~~~~~~~unsadr result.offset, \\
-~~~~~~~~~*MEM* adr result.base, \\
+~~~~~~~~~*READ* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
 ~~~~\ttkey{allocate to stack} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
@@ -10617,7 +10618,7 @@ Free stacks are always allocated on a \TT{64} byte boundary.
 The `\TT{allocate to stack}' inline functions may move stacks.
 Therefore it executes a
 \begin{center}
-\TT{reload *MEM*, *MEM* dependent}
+\TT{reload *READ*, *READ* dependent}
 \end{center}
 statement.
 
@@ -10686,14 +10687,14 @@ Memory within a global area can be allocated by:
 \begin{indpar}\tt\begin{tabular}{l}
 ( T result, \\
 ~~global unsadr result.offset, \\
-~~*MEM* adr result.offset.base, \\
+~~*READ* adr result.offset.base, \\
 ~~global adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \\[1ex]
 ( T result, \\
 ~~global unsadr result.offset, \\
-~~*MEM* adr result.offset.base, \\
+~~*READ* adr result.offset.base, \\
 ~~global adr result.offset.base.adr  ) = \\
 ~~~~\ttkey{allocate to global} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
@@ -10718,7 +10719,7 @@ qualifier properties, and normally has no effect on code.
 The `\TT{allocate to global}' inline functions may move
 global areas and therefore executes a
 \begin{center}
-\TT{reload *MEM*, *MEM* dependent}
+\TT{reload *READ*, *READ* dependent}
 \end{center}
 statement.
 
@@ -11037,29 +11038,29 @@ or exceeds the number of out-of-line calls in the stack.
 
 Statements that write memory make use of cluster structures
 similar to those used with
-\TT{*MEM*} qualifier variables:
-see Section~\itemref{THE-MEM-QUALIFIER}.
+\TT{*READ*} qualifier variables:
+see Section~\itemref{THE-READ-QUALIFIER}.
 
 Specifically, memory needs to be addressed.  This is done by either
 of the following methods of specifying a RAM address:
 \begin{enumerate}
 \item
-An `\key{address variable} \TT{va}
-of type \TT{adr} with either of the qualifiers
-\TT{*MEM*} or \TT{*UNCHECKED*} that contains the RAM address.
-If \TT{va} has qualifier \TT{*MEM*} it must obey
-the rules of Section~\itemref{THE-MEM-QUALIFIER}.
+An `\key{address variable}' \TT{va}
+of type \TT{adr} with either or both of the qualifiers
+\TT{*READABLE*} or \TT{*WRITABLE*} that contains the RAM address.
+If \TT{va} has qualifier \TT{*READ*} it must obey
+the rules of Section~\itemref{THE-READ-QUALIFIER}.
 
 
 \item
 An `\key{address variable}' \TT{vo} of type \TT{intadr} or \TT{unsadr} and
 qualifier \TT{*UNCHECKED*} in a cluster, and
-a variable \TT{vb.base} of type \TT{adr} and qualifier \TT{*MEM*}
+a variable \TT{vb.base} of type \TT{adr} and qualifier \TT{*READ*}
 or \TT{*UNCHECKED*} where \TT{vb} is either \TT{vo} or an ancestor
 of \TT{vo} in its cluster.
 In this case the RAM address is \TT{vo+vb.base}.
-If \TT{vo.base} has qualifier \TT{*MEM*} it must recursively obey
-the rules of Section~\itemref{THE-MEM-QUALIFIER}.
+If \TT{vo.base} has qualifier \TT{*READ*} it must recursively obey
+the rules of Section~\itemref{THE-READ-QUALIFIER}.
 
 \end{enumerate}
 

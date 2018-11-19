@@ -4334,7 +4334,8 @@ specified explicitly by the call, and the child {\tt r.adr} being
 created implicitly by the call: see \itemref{CLUSTERS}.
 The \TT{*READ*} qualifier has the special property that a value of a \TT{*READ*}
 variable {\tt r} is not given explicitly, but is read implicitly from
-RAM memory using the address in {\tt r.adr}: see \itemref{THE-READ-QUALIFIER}.
+RAM memory using the address in {\tt r.adr}:
+see \itemref{THE-READ-AND-WRITE-QUALIFIERS}.
 As a variable qualifier, \TT{*READ*} can only be attached to
 a variable by setting the variable to the result of a
 function call.
@@ -7402,7 +7403,7 @@ or the values of global variables.  In particular,
 no input can come \underline{directly}
 from RAM memory outside the current function execution frame or
 global memory,
-but see \pagref{READ} and Section~\itemref{THE-READ-QUALIFIER}
+but see \pagref{READ} and Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}
 for ways to load RAM values into function frame variables.
 See Section~\itemref{STACK-MANAGEMENT} for more information about
 function frames.
@@ -9257,7 +9258,8 @@ match fails.  In this case the assignment is treated as an
 assignment for the purposes of implying qualifiers and determining
 if it is a direct assignment, but is otherwise treated as if it did
 not exist (no instructions are executed to copy a value).
-See \itemref{THE-READ-QUALIFIER} for more on the \TT{*READ*} qualifier.
+See \itemref{THE-READ-AND-WRITE-QUALIFIERS}
+for more on the \TT{*READ*} qualifier.
 
 If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
 compiled, the call-prototype match fails.
@@ -9956,7 +9958,7 @@ qualifiers, you can assign a value to `\TT{next} {\tt v }' to write
 the RAM location that {\tt v} caches.
 
 For details on the \TT{*READ*} and \TT{*WRITE*} qualifiers
-see \itemref{THE-READ-QUALIFIER}.
+see \itemref{THE-READ-AND-WRITE-QUALIFIERS}.
 
 The \TT{*STACK*} value qualifier in the example has the special property
 that values with
@@ -10058,8 +10060,8 @@ There is also a special class of qualifiers called trace qualifiers.
 \TT{*DEFERRED*}, and \TT{*OPTIONAL*} a pseudo-qualifiers that are
 syntactically like qualifiers, but semantically are not qualifiers.
 
-\subsection{The \TT{*READ*} and \TT{*WRITE*} Memory Qualifiers}
-\label{THE-READ-QUALIFIER}
+\subsection{The \TT{*READ*} and \TT{*WRITE*} Qualifiers}
+\label{THE-READ-AND-WRITE-QUALIFIERS}
 
 The \ttakey{READ} qualifier is a implied variable qualifier that behaves
 in a special way when it is given to a variable {\tt v}.
@@ -10141,16 +10143,26 @@ update a ( z, ... )    // Write z.a
 
 \end{verbatim}\end{indpar}
 
+The \ttakey{WRITE} qualifier also identifies a variable as
+being a cache of RAM.  However, the
+variable is not given any initial value if it does not
+also have the \TT{*READ*} qualifier.
 If {\tt v} is a \ttakey{WRITE}
 RAM cache variable, assigning a value to `{\tt next v}'
 writes the value to RAM.  For example:
 
 \begin{indpar}\begin{verbatim}
-    function *READ* *WRITE* r, adr r.adr = foo ( ... ):
+    function *WRITE* r, adr r.adr = foo ( ... ):
         . . . . . . . . . .
     int32 v = foo ( ... )
-    next v = ...       // Writes value to v.adr and updates v
+        // v does not have any value at this point, and
+        // using the value of v will be a compiler error.
+    next v = ...      
+        // Writes value to v.adr and updates v
 \end{verbatim}\end{indpar}
+
+A RAM cache variable may have both the \TT{*READ*} and \TT{*WRITE*}
+qualifiers.
 
 If a RAM cache variable {\tt v}'s value is not used,
 it will not actually be loaded from RAM, even if {\tt v} is written
@@ -10310,7 +10322,8 @@ be in error.
 As a special case, if a variable that is declared to be out-of-date,
 \TT{v}, has the \TT{*READ*} qualifier, and is in
 a cluster that causes \TT{v} to be loaded from memory
-(as per Section~\itemref{THE-READ-QUALIFIER}), then if \TT{v} is declared
+(as per Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}),
+then if \TT{v} is declared
 to be out-of-date, recomputing \TT{v} just means that \TT{v}
 is reloaded from RAM.  The possibility that software cache
 variables (with the \TT{*READ*} qualifier) will become out-of-date because
@@ -10427,7 +10440,7 @@ the stack address.  To accommodate this builtin memory read-write
 functions will not only accept an \TT{adr} value as a RAM address,
 but also accept a RAM address consisting of an \TT{unsadr}
 offset within the stack and a stack base address that is itself
-stored in RAM.  See Sections~\itemref{THE-READ-QUALIFIER}
+stored in RAM.  See Sections~\itemref{THE-READ-AND-WRITE-QUALIFIERS}
 and \itemref{STACK-MEMORY-ALLOCATION}
 for details.
 
@@ -11039,7 +11052,7 @@ or exceeds the number of out-of-line calls in the stack.
 Statements that write memory make use of cluster structures
 similar to those used with
 \TT{*READ*} qualifier variables:
-see Section~\itemref{THE-READ-QUALIFIER}.
+see Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}.
 
 Specifically, memory needs to be addressed.  This is done by either
 of the following methods of specifying a RAM address:
@@ -11049,7 +11062,7 @@ An `\key{address variable}' \TT{va}
 of type \TT{adr} with either or both of the qualifiers
 \TT{*READABLE*} or \TT{*WRITABLE*} that contains the RAM address.
 If \TT{va} has qualifier \TT{*READ*} it must obey
-the rules of Section~\itemref{THE-READ-QUALIFIER}.
+the rules of Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}.
 
 
 \item
@@ -11060,7 +11073,7 @@ or \TT{*UNCHECKED*} where \TT{vb} is either \TT{vo} or an ancestor
 of \TT{vo} in its cluster.
 In this case the RAM address is \TT{vo+vb.base}.
 If \TT{vo.base} has qualifier \TT{*READ*} it must recursively obey
-the rules of Section~\itemref{THE-READ-QUALIFIER}.
+the rules of Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}.
 
 \end{enumerate}
 

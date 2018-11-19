@@ -10228,8 +10228,8 @@ adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
 \subsection{The \TT{*UNCHECKED*} Qualifier}
 \label{THE-UNCHECKED-QUALIFIER}
 
-The \ttakey{UNCHECKED} qualifier is a
-variable qualifier that is used to mark the result variables
+The \ttakey{UNCHECKED} qualifier is a builtin
+variable qualifier that is used by convention to mark the result variables
 of function calls that violate normal type-checking.
 See \itemref{UNCHECKED-NUMBER-CONVERSIONS}, Unchecked Number
 Conversions, for examples of functions producing \TT{*UNCHECKED*}
@@ -10246,6 +10246,14 @@ An example is given on page \pageref{NOT-UNCHECKED-CONVERSION-DEFINITION}.
 The \TT{*UNCHECKED*} lexeme is also used as the initial part some
 names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement
 (\pagref{ASSEMBLY-ASSIGNMENT-STATEMENT}).
+
+\subsection{The \TT{*READABLE*} and \TT{*WRITABLE*} Qualifiers}
+\label{THE-READABLE-AND-WRITABLE-QUALIFIERS}
+
+The \ttakey{READABLE} and \ttakey{WRITABLE} qualifiers are builtin
+implied, deletable, value qualifiers that are used by convention
+to mark pointers that can be safely used for, respectively,
+reading or writing.
 
 \subsection{Trace Qualifiers}
 \label{TRACE-QUALIFIERS}

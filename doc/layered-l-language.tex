@@ -1991,6 +1991,7 @@ round up, and round down respectively.
 
 
 \subsubsection{Unchecked Number Conversions}
+\label{UNCHECKED-NUMBER-CONVERSIONS}
 
 The following \underline{unchecked} conversion functions are defined.
 Note that here \TT{*UNCHECKED*} is a qualifier; see \itemref{QUALIFIERS}
@@ -8250,7 +8251,8 @@ module as the {\em deferred-assignment-statement}).
 are used to embed assembler instructions in compiled code:
 
 \begin{indpar}
-\emkey{assembly-assignment-statement} ::= \\
+\emkey{assembly-assignment-statement}\label{ASSEMBLY-ASSIGNMENT-STATEMENT}
+    ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em result-variable-list} \TT{=} \}\QMARK{}
 	    ~\TT{*UNCHECKED*}~\ttakey{ASSEMBLY}\TT{:} \\
@@ -10054,10 +10056,13 @@ the inline functions are written correctly, the program will be type-safe.
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
 
-The builtin qualifiers are \TT{*READ*}, \TT{*WRITE*}, \TT{*UNCHECKED*},
-and \TT{*STACK*}.
+Builtin qualifiers with special properties implemented in the L-Language
+are \TT{*READ*}, \TT{*WRITE*}, and \TT{*STACK*}.
+Builtin qualifiers with no special properties but which are used
+according to specific conventions are \TT{*UNCHECKED*}, \TT{*READABLE},
+and \TT{*WRITABLE}.
 There is also a special class of qualifiers called trace qualifiers.
-\TT{*DEFERRED*}, and \TT{*OPTIONAL*} a pseudo-qualifiers that are
+Lastly \TT{*DEFERRED*} and \TT{*OPTIONAL*} are pseudo-qualifiers that are
 syntactically like qualifiers, but semantically are not qualifiers.
 
 \subsection{The \TT{*READ*} and \TT{*WRITE*} Qualifiers}
@@ -10172,7 +10177,7 @@ Because \TT{*READ*} and \TT{*WRITE*} are implied qualifiers,
 RAM cache variables can only be created as
 results of inline function calls.
 So only inline functions can effect a read or write
-of RAM contents.
+of arbitrary RAM contents.
 
 There is a special unchecked function of zero arguments, \TT{NULL}, of result
 type \TT{adr}, that
@@ -10224,23 +10229,23 @@ adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
 \label{THE-UNCHECKED-QUALIFIER}
 
 The \ttakey{UNCHECKED} qualifier is a
-required, prohibited variable qualifier that marks actual result variables
-whose values are computed by functions that
-break type checking or other language rules.
-
-For example, the actual result variables of unchecked conversions
-must have the \TT{*UNCHECKED*} qualifier.
+variable qualifier that is used to mark the result variables
+of function calls that violate normal type-checking.
+See \itemref{UNCHECKED-NUMBER-CONVERSIONS}, Unchecked Number
+Conversions, for examples of functions producing \TT{*UNCHECKED*}
+results.
 
 It is possible for two functions to have identical prototypes
 except that one has the \TT{*UNCHECKED*} qualifier on its
 result variable and the other does not.  The function selected by
 call-prototype matching will depend upon whether the actual
 result variable of the call has the \TT{*UNCHECKED*} qualifier,
-because the qualifier is \underline{both} required and prohibited.
+because the qualifier is neither addable or deletable.
 An example is given on page \pageref{NOT-UNCHECKED-CONVERSION-DEFINITION}.
 
 The \TT{*UNCHECKED*} lexeme is also used as the initial part some
-names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement.
+names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement
+(\pagref{ASSEMBLY-ASSIGNMENT-STATEMENT}).
 
 \subsection{Trace Qualifiers}
 \label{TRACE-QUALIFIERS}

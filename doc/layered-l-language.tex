@@ -11059,6 +11059,39 @@ or exceeds the number of out-of-line calls in the stack.
 
 \end{indpar}
 
+\section{Pointers}
+\label{POINTERS}
+
+A \ttkey{pointer} points at a vector of RAM memory and
+permits elements of the vector to be read or written.
+Builtin functions are also available to copy one vector
+to another, set all the elements of a vector to
+a given value, and perform vector arithmetic operations.
+
+\subsection{The Pointer Type}
+\label{THE-POINTER-TYPE}
+
+\begin{indpar}\begin{verbatim}
+// The module has an exported parsing block containing:
+//
+//     define prefix "reference-prefix" operator "*"
+//     define postfix "reference-postfix" operator "++"
+
+define type std pointer as void
+define abbreviation pointer ---> `std pointer'
+
+    // if p is a pointer then:
+    //   unsadr p.begin is the offset of the first element
+    //   unsadr p.end is the offset just AFTER the
+    //                   last element
+    //   *READ* adr p.base is the base address that
+    //                      is added to the offsets
+    //   adr p.base.adr is the address of pp.base
+    //   type p.type is type of elements pointed at
+    //   qualifiers p.qualifiers are the qualifiers
+    //              of elements pointed at
+\end{verbatim}\end{indpar}
+
 \section{Memory Write Statements}
 \label{MEMORY-WRITE-STATEMENTS}
 

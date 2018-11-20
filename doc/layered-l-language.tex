@@ -4709,6 +4709,10 @@ operator 	& \IX{if} & \IX{else} & \IX{and} & \IX{or} & \RX{not}
 \IX{>{}>}	& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \RX{!}		& < & x< & x< & x< & x & < & < & < & < & < & < \\
 \hline
+\RX{*}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\RX{-{}-}	& < & x< & < & < & x & < & < & < & < & < & < \\
+\LX{++}		& < & x< & < & < & x & < & < & < & < & < & < \\
+\hline
 
 \end{tabular}
 \end{center}
@@ -4765,6 +4769,10 @@ operator 	& \IX{+}  & \IX{-}    & \IX{*}   & \IX{/}
 \hline
 \RX{!}		& x & x & x & x & x & x & x & x & x & x \\
 \hline
+\RX{*}		& < & < & < & < & < & < & < & < & x & x \\
+\RX{-{}-}	& < & < & < & < & < & < & < & < & x & x \\
+\LX{++}		& < & < & < & < & < & < & < & < & x & x \\
+\hline
 
 \end{tabular}
 \end{center}
@@ -4774,51 +4782,55 @@ operator 	& \IX{+}  & \IX{-}    & \IX{*}   & \IX{/}
 
 \begin{figure}[p]
 \begin{center}
-\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}
 \hline
-first & \multicolumn{7}{c|}{second operator} \\
-\cline{2-8}
+first & \multicolumn{10}{c|}{second operator} \\
+\cline{2-11}
 operator 	& \IX{\&} & \IX{|} & \IX{xor} & \IX{<{}<} & \IX{>{}>}
-		& \RX{!} & \TT{\}}
+		& \RX{!} & \RX{*} & \RX{-{}-} & \LX{++} & \TT{\}}
 \\\hline
-\TT{\{}	& > & > & > & > & > & > & d \\
+\TT{\{}	& > & > & > & > & > & > & > & > & > & d \\
 \hline
-\IX{if}		& >x & >x & >x & >x & >x & >x & x< \\
-\IX{else}	& > & > & > & > & > & > & < \\
+\IX{if}		& >x & >x & >x & >x & >x & >x & > & > & > & x< \\
+\IX{else}	& > & > & > & > & > & > & > & > & > & < \\
 \hline
-\IX{and}	& >x & >x & >x & >x & >x & >x & < \\
-\IX{or}		& >x & >x & >x & >x & >x & >x & < \\
-\RX{not}	& >x & >x & >x & >x & >x & >x & < \\
+\IX{and}	& >x & >x & >x & >x & >x & >x & > & > & > & < \\
+\IX{or}		& >x & >x & >x & >x & >x & >x & > & > & > & < \\
+\RX{not}	& >x & >x & >x & >x & >x & >x & > & > & > & < \\
 \hline
-\IX{<}		& > & > & > & > & > & > & < \\
-\IX{<=}		& > & > & > & > & > & > & < \\
-\IX{==}		& > & > & > & > & > & > & < \\
-\IX{!=}		& > & > & > & > & > & > & < \\
-\IX{=>}		& > & > & > & > & > & > & < \\
-\IX{>}		& > & > & > & > & > & > & < \\
+\IX{<}		& > & > & > & > & > & > & > & > & > & < \\
+\IX{<=}		& > & > & > & > & > & > & > & > & > & < \\
+\IX{==}		& > & > & > & > & > & > & > & > & > & < \\
+\IX{!=}		& > & > & > & > & > & > & > & > & > & < \\
+\IX{=>}		& > & > & > & > & > & > & > & > & > & < \\
+\IX{>}		& > & > & > & > & > & > & > & > & > & < \\
 \hline
-\IX{+}		& x & x & x & x & x & x & < \\
-\IX{-}		& x & x & x & x & x & x & < \\
+\IX{+}		& x & x & x & x & x & x & > & > & > & < \\
+\IX{-}		& x & x & x & x & x & x & > & > & > & < \\
 \hline
-\IX{*}		& x & x & x & x & x & x & < \\
-\IX{/}		& x & x & x & x & x & x & < \\
-\IX{div}	& x & x & x & x & x & x & < \\
-\IX{mod}	& x & x & x & x & x & x & < \\
-\IX{rem}	& x & x & x & x & x & x & < \\
+\IX{*}		& x & x & x & x & x & x & > & > & > & < \\
+\IX{/}		& x & x & x & x & x & x & > & > & > & < \\
+\IX{div}	& x & x & x & x & x & x & > & > & > & < \\
+\IX{mod}	& x & x & x & x & x & x & > & > & > & < \\
+\IX{rem}	& x & x & x & x & x & x & > & > & > & < \\
 \hline
 \IX{\textasciicircum}
-		& x & x & x & x & x & x & < \\
+		& x & x & x & x & x & x & > & > & > & < \\
 \hline
-\RX{+}		& x & x & x & x & x & x & < \\
-\RX{-}		& x & x & x & x & x & x & < \\
+\RX{+}		& x & x & x & x & x & x & > & > & > & < \\
+\RX{-}		& x & x & x & x & x & x & > & > & > & < \\
 \hline
-\IX{\&}		& < & x & x & x & x & > & < \\
-\IX{|}		& x & < & x & x & x & > & < \\
-\IX{xor}	& x & x & < & x & x & > & < \\
-\IX{<{}<}	& x & x & x & < & < & x & < \\
-\IX{>{}>}	& x & x & x & < & < & x & < \\
+\IX{\&}		& < & x & x & x & x & > & > & > & > & < \\
+\IX{|}		& x & < & x & x & x & > & > & > & > & < \\
+\IX{xor}	& x & x & < & x & x & > & > & > & > & < \\
+\IX{<{}<}	& x & x & x & < & < & x & > & > & > & < \\
+\IX{>{}>}	& x & x & x & < & < & x & > & > & > & < \\
 \hline
-\RX{!}	& < & < & < & < & < & > & < \\
+\RX{!}	& < & < & < & < & < & > & > & > & > & < \\
+\hline
+\RX{*}		& < & < & < & < & < & x & > & > & > & < \\
+\RX{-{}-}	& < & < & < & < & < & x & > & > & > & < \\
+\LX{++}		& < & < & < & < & < & x & < & < & < & < \\
 \hline
 
 \end{tabular}

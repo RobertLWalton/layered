@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 19, 2018
+November 20, 2018
  
 \end{center}
 
@@ -5237,6 +5237,7 @@ The builtin operator precedence table encodes the following syntax equations:
 \emkey{bitop-prefix-operand}
     \begin{tabular}[t]{rl}
     ::= & {\em reference-prefix-expression} \\
+    ::= & {\em reference-postfix-expression} \\
     $|$ & {\em primary}
     \end{tabular}
 \\[0.5ex]
@@ -5265,7 +5266,31 @@ The builtin operator precedence table encodes the following syntax equations:
     $|$ & {\em primary} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{reference-prefix-operand} ::= {\em reference-postfix-expression}
+\emkey{reference-prefix-expression} \\
+    \hspace*{0.5in}
+    \begin{tabular}[t]{rl}
+    ::= & {\em reference-prefix-operator} {\em reference-prefix-operand} \\
+    $|$ & {\em reference-prefix-operator} {\em reference-prefix-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{reference-prefix-operator}::= \ttkey{*} $|$ \ttkey{--}
+\\[0.5ex]
+\emkey{reference-prefix-operand}
+    \begin{tabular}[t]{rl}
+    ::= & {\em reference-postfix-expression} \\
+    $|$ & {\em primary}
+    \end{tabular}
+\\[0.5ex]
+\emkey{reference-postfix-expression} \\
+    \hspace*{0.5in}
+    \begin{tabular}[t]{rl}
+    ::= & {\em reference-postfix-operand} {\em reference-postfix-operator} \\
+    $|$ & {\em reference-postfix-expression} {\em reference-postfix-operator} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{reference-postfix-operator}::= \ttkey{++}
+\\[0.5ex]
+\emkey{reference-postfix-operand} ::= {\em primary}
 
 \end{indpar}
 
@@ -5366,6 +5391,7 @@ include "bitop-postfix" expression in "bitop" operand
 include "bitop-postfix" expression in "compare" operand
 include "bitop-postfix" expression in "value" expression
 
+define prefix "reference-prefix" operators "*", "--"
 include "reference-prefix" expression in
         "exponent" operand
 include "reference-prefix" expression in
@@ -5381,6 +5407,7 @@ include "reference-prefix" expression in
 include "reference-prefix" expression in
         "value" expression
 
+define postfix "reference-postfix" operator "++"
 include "reference-postfix" expression in
         "exponent" operand
 include "reference-postfix" expression in
@@ -5413,24 +5440,15 @@ operators, but are defined purely for the convenience of users
 adding operators.  These are
 \begin{center}
 "arithmetic-postfix" expression \\
-"bitop-postfix" expression \\
-"reference-prefix" expression \\
-"reference-postfix" expression
+"bitop-postfix" expression
 \end{center}
 
 The builtin parser instructions respect the convention that
 prefix and postfix operators should not be mixed with each other,
 except that {\em reference-prefix} and {\em reference-postfix}
 operators may be mixed, with the {\em reference-postfix} operators
-being executed first.  An example of using this latter is:
-
-\begin{indpar}\begin{verbatim}
-define prefix "reference-prefix" operator "*"
-define postfix "reference-postfix" operator "++"
-\end{verbatim}\end{indpar}
-
-which allows one to write `{\tt * x ++}' and get the parse
-`{\tt * (x ++)}'.
+being executed first.  For example,
+`{\tt * x ++}' and parses as `{\tt * (x ++)}'.
 
 \subsubsection{Parser Instruction Syntax}
 \label{PARSER-INSTRUCTION-SYNTAX}

@@ -167,7 +167,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 20, 2018
+November 21, 2018
  
 \end{center}
 
@@ -3373,7 +3373,7 @@ For defined and enumeration types it is the alignment of their underlying type.
 There is \underline{no} default declaration.
 \end{indpar}
 
-{\tt function bool r = $ma$\QMARK{} \ttkey{zero value OK} ( type t == $T$ )}
+{\tt function bool r = $ma$\QMARK{} \ttkey{zero value OK for} ( type t == $T$ )}
 \begin{indpar}
 Returns \TT{true} if a memory location holding a value of type $T$ can be
 initialized to all zero bits.  Returns \TT{false} otherwise.
@@ -9842,7 +9842,7 @@ function *STACK* *WRITE* pointer pair pp,
          adr pp.base.adr,
          type pp.type =
       allocate to stack ( type T, uns32 n ):
-    require ( zero value OK ( T ) )
+    require ( zero value OK for T )
     require ( size of T mod alignment of T == 0 )
     pp.type = T
     unsadr size = size of ( T ) * n
@@ -11120,7 +11120,76 @@ define abbreviation pointer ---> `std pointer'
     //   type p.type is type of elements pointed at
     //   qualifiers p.qualifiers are the qualifiers
     //              of elements pointed at
+    //
+    // A pointer is *READABLE* if it can be used to read
+    // elements and *WRITABLE* if it can be used to write
+    // elements.
 \end{verbatim}\end{indpar}
+
+\subsection{Pointer Memory Allocators}
+\label{POINTER-MEMORY-ALLOCATORS}
+
+
+The following functions allocate pointers to new vectors:
+
+\begin{indpar}
+
+
+\begin{indpar}\tt\begin{tabular}{l}
+function *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~unsadr p.begin, \\
+~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~*READ* adr p.base, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttkey{allocate to stack} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~[| zero value OK for T |] \\
+~~~~~~~~[| Qs are all addable |] \\
+~\\
+~\\
+function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~unsadr p.begin, \\
+~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~*READ* adr p.base, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttkey{allocate to stack} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~// Vector initialized to zeros even \\
+~~~~~~~~// if this is not a legal T value. \\
+~~~~~~~~// All qualifiers are allowed in Qs. \\
+\end{tabular}\end{indpar}\label{POINTER-ALLOCATE-TO-STACK}
+
+\begin{indpar}
+TBD
+
+Allocate {\tt size} bytes of memory with the given
+{\tt alignment} in bytes to static memory, the memory
+allocated when the program is initialized.  Return
+the address of this memory.  The address viewed as an
+integer is an exact multiple of the {\tt alignment}.
+
+If the
+{\tt alignment} is omitted or is given as 0 it is taken
+to be equal to the \TT{size} if that is a power of 2
+no greater than 16 (the size of a 128 bit value).
+Otherwise it is an error if the {\em alignment} is 0 or
+is not a power of 2.
+
+The memory bytes are initialized to zero.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+\end{indpar}
 
 \section{Memory Write Statements}
 \label{MEMORY-WRITE-STATEMENTS}

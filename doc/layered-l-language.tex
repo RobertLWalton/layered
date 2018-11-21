@@ -11181,37 +11181,12 @@ function Qrs pointer r, \\
 ~~~~~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
 ~~~~~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
 ~~~~~~~~[| Qrs = Qps - \{ *WRITABLE* \} |] \\
-\end{tabular}}\label{POINTER-ASSIGN}
+\end{tabular}}\label{POINTER-READ-ONLY}
 
 \begin{indpar}
-Copies a pointer as per an assignment statement whic removing the
+Copies a pointer as per an assignment statement while removing the
 \TT{*WRITABLE*} qualifier from the pointer.
 \end{indpar}
-
-
-
-
-\begin{indpar}\begin{verbatim}
-define type std pointer as void
-define abbreviation pointer ---> `std pointer'
-
-    // if p is a pointer then:
-    //   unsadr p.begin is the offset of the first element
-    //   unsadr p.end is the offset just AFTER the
-    //                   last element
-    //   *READ* adr p.base is the base address that
-    //                      is added to the offsets
-    //   adr p.base.adr is the address of pp.base
-    //   type p.type is type of elements pointed at
-    //   qualifiers p.qualifiers are the qualifiers
-    //              of elements pointed at
-    //
-    // A pointer is *READABLE* if it can be used to read
-    // elements and *WRITABLE* if it can be used to write
-    // elements.
-\end{verbatim}\end{indpar}
-
-Pointers may be copied
 
 \subsection{Vector Allocators}
 \label{VECTOR-ALLOCATORS}
@@ -11310,6 +11285,31 @@ Calls to the functions of this section execute at compile-time only if
 they are included in a {\em compile-time-assign\-ment-\EOL statement}
 (\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
 Otherwise they execute at run time.
+
+\subsection{Vector Element Access}
+\label{VECTOR-ELEMENT-ACCESS}
+
+The following functions can be used to access vector elements:
+
+\begin{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qrs p.qualifiers p.type r, \\
+~~~~~~~~~~~~~unsadr p.offset, \\
+~~~~~~~~~~~~~*READ* adr p.base, \\
+~~~~~~~~~~~~~adr p.base.adr = \\
+~~~~(| qualifiers Qps |) \\
+~~~~( Qps pointer p, unsadr p.offset, adr p.base.adr, \\
+~~~~~~type p.type, qualifiers p.qualifiers ) \\
+~~~~\TT{[} unsadr i \TT{]}\ttmindex{[]}{of pointer} \\
+~~~~(| qualifiers Qrs = \\
+~~~~~~~~~p.qualifiers \\
+~~~~~~~+ ( \{ *READ* \} if ( *READABLE* in Qps ) else \{\} ) \\
+~~~~~~~+ ( \{ *WRITE* \} if ( *WRITABLE* in Qps ) else \{\} )  |] \\
+\end{tabular}}
+
+
+\end{indpar}
 
 \section{Memory Write Statements}
 \label{MEMORY-WRITE-STATEMENTS}

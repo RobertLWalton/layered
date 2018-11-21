@@ -11135,8 +11135,8 @@ The following functions allocate pointers to new vectors:
 \begin{indpar}
 
 
-\begin{indpar}\tt\begin{tabular}{l}
-function *READABLE* *WRITABLE* pointer p, \\
+\begin{indpar}\tt\begin{tabular}{@{}l}
+function *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~unsadr p.begin, \\
 ~~~~~~~~~~~~~unsadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
@@ -11148,9 +11148,15 @@ function *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~( unsadr N = 1 ) \\
 ~~~~~~~~[| zero value OK for T |] \\
 ~~~~~~~~[| Qs are all addable |] \\
-~\\
-~\\
-function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
+\end{tabular}\end{indpar}\label{POINTER-ALLOCATE-TO-STACK}
+
+The following functions are \TT{*UNCHECKED*} versions of the
+above, and do the same thing as the checked versions but
+allow zero to be an illegal {\tt T} value and allow any qualifiers
+in {\tt Qs}:
+
+\begin{indpar}\tt\begin{tabular}{@{}l}
+function *UNCHECKED* *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~unsadr p.begin, \\
 ~~~~~~~~~~~~~unsadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
@@ -11163,7 +11169,7 @@ function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~// Vector initialized to zeros even \\
 ~~~~~~~~// if this is not a legal T value. \\
 ~~~~~~~~// All qualifiers are allowed in Qs. \\
-\end{tabular}\end{indpar}\label{POINTER-ALLOCATE-TO-STACK}
+\end{tabular}\end{indpar}
 
 \begin{indpar}
 TBD

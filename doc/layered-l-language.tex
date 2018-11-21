@@ -11126,8 +11126,8 @@ define abbreviation pointer ---> `std pointer'
     // elements.
 \end{verbatim}\end{indpar}
 
-\subsection{Pointer Memory Allocators}
-\label{POINTER-MEMORY-ALLOCATORS}
+\subsection{Vector Allocators}
+\label{VECTOR-ALLOCATORS}
 
 
 The following functions allocate pointers to new vectors:
@@ -11135,7 +11135,7 @@ The following functions allocate pointers to new vectors:
 \begin{indpar}
 
 
-\begin{indpar}\tt\begin{tabular}{@{}l}
+{\tt\begin{tabular}{@{}l}
 function *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~unsadr p.begin, \\
 ~~~~~~~~~~~~~unsadr p.end, \\
@@ -11148,15 +11148,48 @@ function *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~( unsadr N = 1 ) \\
 ~~~~~~~~[| zero value OK for T |] \\
 ~~~~~~~~[| Qs are all addable |] \\
-\end{tabular}\end{indpar}\label{POINTER-ALLOCATE-TO-STACK}
+\end{tabular}}\label{POINTER-ALLOCATE-TO-STACK}
+
+\begin{indpar}
+Allocates a vector of {\tt N} elements to the current free
+stack (\pagref{FREE-STACK}).  The elements are set to zero.
+The elements each have type {\tt T} and qualifiers {\tt Qs}.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~unsadr p.begin, \\
+~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~*READ* adr p.base, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttkey{allocate to global} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~[| zero value OK for T |] \\
+~~~~~~~~[| Qs are all addable |] \\
+\end{tabular}}\label{POINTER-ALLOCATE-TO-GLOBAL}
+
+\begin{indpar}
+Must be executed within a global area block (\itemref{GLOBAL-AREAS}).
+Allocates a vector of {\tt N} elements to the global area.
+The elements are set to zero.
+The elements each have type {\tt T} and qualifiers {\tt Qs}.
+\end{indpar}
+
+\end{indpar}
 
 The following functions are \TT{*UNCHECKED*} versions of the
 above, and do the same thing as the checked versions but
 allow zero to be an illegal {\tt T} value and allow any qualifiers
 in {\tt Qs}:
 
-\begin{indpar}\tt\begin{tabular}{@{}l}
-function *UNCHECKED* *STACK* *READABLE* *WRITABLE* pointer p, \\
+\begin{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
+~~~~~~~~~~~~~~~~~~~~~pointer p, \\
 ~~~~~~~~~~~~~unsadr p.begin, \\
 ~~~~~~~~~~~~~unsadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
@@ -11169,33 +11202,27 @@ function *UNCHECKED* *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~// Vector initialized to zeros even \\
 ~~~~~~~~// if this is not a legal T value. \\
 ~~~~~~~~// All qualifiers are allowed in Qs. \\
-\end{tabular}\end{indpar}
+\end{tabular}}
 
-\begin{indpar}
-TBD
+{\tt\begin{tabular}{@{}l}
+function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~unsadr p.begin, \\
+~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~*READ* adr p.base, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttkey{allocate to global} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( unsadr N = 1 ) \\
+\end{tabular}}
 
-Allocate {\tt size} bytes of memory with the given
-{\tt alignment} in bytes to static memory, the memory
-allocated when the program is initialized.  Return
-the address of this memory.  The address viewed as an
-integer is an exact multiple of the {\tt alignment}.
+\end{indpar}
 
-If the
-{\tt alignment} is omitted or is given as 0 it is taken
-to be equal to the \TT{size} if that is a power of 2
-no greater than 16 (the size of a 128 bit value).
-Otherwise it is an error if the {\em alignment} is 0 or
-is not a power of 2.
-
-The memory bytes are initialized to zero.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
+Calls to the functions of this section execute at compile-time only if
+they are included in a {\em compile-time-assign\-ment-\EOL statement}
 (\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-\end{indpar}
+Otherwise they execute at run time.
 
 \section{Memory Write Statements}
 \label{MEMORY-WRITE-STATEMENTS}

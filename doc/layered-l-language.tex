@@ -87,6 +87,8 @@
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttakey}[1]{\TT{*#1*}\index{#1@{\tt *#1*}}}
 \newcommand{\ttamkey}[2]{\TT{*#1*}\index{#1@{\tt *#1*}!#2}}
+\newcommand{\ttstdkey}[1]{\TT{std #1}\index{#1@{\tt std #1}}}
+\newcommand{\ttstdmkey}[2]{\TT{std #1}\index{#1@{\tt std #1}!#2}}
 
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
@@ -2333,15 +2335,15 @@ T6 x = 1              // Same as `*UNCHECKED* int32 x = 1'
 
 There is one builtin defined type:
 \begin{indpar} \tt
-define type \ttkey{std bool}\label{BOOL} as unswrd \\
+define type \ttstdkey{bool}\label{BOOL} as unswrd \\
 define abbreviation \ttkey{bool} \ABV{} `std bool' \\
-function std bool r = \ttkey{std false}: \\
+function std bool r = \ttstdkey{false}: \\
 \TS~~~~*UNCHECKED* r2 = std bool ( 0 ) \\
 \TS~~~~r = r2 \\
-function std bool r = \ttkey{std true}: \\
+function std bool r = \ttstdkey{true}: \\
 \TS~~~~*UNCHECKED* r2 = std bool ( 1 ) \\
 \TS~~~~r = r2 \\
-function std intwrd r = \ttkey{std int} ( bool v ): \\
+function std intwrd r = \ttstdmkey{int}{of {\tt bool}} ( bool v ): \\
 \TS~~~~r = 1 if v else 0
 \end{indpar}
 
@@ -2735,17 +2737,17 @@ converted to a common enumeration or integer type.
 The following are builtin enumeration types:
 \begin{indpar} \tt
 define types: \\
-\TS~~~~\ttkey{std type}~as unswrd with enum [0~..] \\
-\TS~~~~\ttkey{std qualifier}~as unswrd with enum [0~..] \\
+\TS~~~~\ttstdkey{type}~as unswrd with enum [0~..] \\
+\TS~~~~\ttstdkey{qualifier}~as unswrd with enum [0~..] \\
 define abbreviations: \\
 \TS~~~~\ttkey{type} \ABV{} `std type' \\
 \TS~~~~\ttkey{qualifier} \ABV{} `std qualifier' \\
 \\[1ex]
-type \ttkey{std missing type}~= next enum // 0 \\
+type \ttstdkey{missing type}~= next enum // 0 \\
 function std type r = \ttmkey{std missing}{type}: \\
 \TS~~~~r = std missing type
 \\[1ex]
-qualifier~\ttkey{std missing qualifier}~= next enum // 0 \\
+qualifier~\ttstdkey{missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttmkey{std missing}{qualifier}: \\
 \TS~~~~r = std missing qualifier
 \end{indpar}
@@ -2932,8 +2934,8 @@ Returns the element type of an enumeration set or list type {\tt T}.
 The following are builtin enumeration set types:
 \begin{indpar} \tt
 define types: \\
-\TS~~~~\ttkey{std types} as set of type \\
-\TS~~~~\ttkey{std qualifiers} as set of qualifier \\
+\TS~~~~\ttstdkey{types} as set of type \\
+\TS~~~~\ttstdkey{qualifiers} as set of qualifier \\
 define abbreviations: \\
 \TS~~~~\ttkey{types} \ABV{} `std types' \\
 \TS~~~~\ttkey{qualifiers} \ABV{} `std qualifiers'
@@ -3096,10 +3098,10 @@ not be garbage collectible during the compilation.
 The type `\TT{type}' is a builtin enumeration type declared
 by the builtin equivalent of:
 \begin{indpar} \tt
-define type \ttkey{std type} as unswrd with enum [0~..] \\
+define type \ttstdkey{type} as unswrd with enum [0~..] \\
 define abbreviation \ttkey{type} \ABV{} `std type' \\
-type \ttkey{std missing type} = next enum // 0 \\
-type \ttkey{std type} = next enum // 1 \\
+type \ttstdkey{missing type} = next enum // 0 \\
+type \ttstdkey{type} = next enum // 1 \\
 function std type r = std \ttmkey{missing}{type}: \\
 \hspace*{3em}r = std missing type
 \end{indpar}
@@ -3466,7 +3468,7 @@ more specific than $T2$ (see \pagref{MORE-SPECIFIC-RELATION}).
 A `\key{character}' is a 32-bit UNICODE character.  It is
 defined as the derived type:
 \begin{indpar} \tt
-define type~\ttkey{std character}~as uns32 \\
+define type~\ttstdkey{character}~as uns32 \\
 define abbreviation~\ttkey{character}~\ABV~`std character'
 \end{indpar}
 
@@ -3526,7 +3528,7 @@ A `\key{string}' is a vector of characters, that is,
 of 32-bit UNICODE characters.
 It is defined as a derived type:
 \begin{indpar} \tt
-define type \ttkey{std string} as adr \\
+define type \ttstdkey{string} as adr \\
 define abbreviation \ttkey{string} \ABV{} `std string'
 \end{indpar}
 
@@ -3635,7 +3637,7 @@ it is a compilation error if the value is not a source code {\em name}.
 
 The \TT{name} type is is defined as a derived type:
 \begin{indpar} \tt
-define type \ttkey{std name} as adr \\
+define type \ttstdkey{name} as adr \\
 define abbreviation \ttkey{name} \ABV{} `std name'
 \end{indpar}
 
@@ -3763,8 +3765,8 @@ Name sets and lists can be stored in variables of the builtin name set
 or list types:
 \begin{indpar} \tt
 define types: \\
-\TS~~~~\ttkey{std name set} as adr \\
-\TS~~~~\ttkey{std name list} as adr \\
+\TS~~~~\ttstdkey{name set} as adr \\
+\TS~~~~\ttstdkey{name list} as adr \\
 define abbreviations: \\
 \TS~~~~\ttkey{name set} \ABV{} `std name set' \\
 \TS~~~~\ttkey{name list} \ABV{} `std name list'
@@ -3914,7 +3916,7 @@ in the program code, i.e., a `\key{code point}'.
 The \TT{context} type is
 defined by
 \begin{indpar} \tt
-define type \ttkey{std context} as adr \\
+define type \ttstdkey{context} as adr \\
 define abbreviation \ttkey{context} \ABV{} `std context'
 \end{indpar}
 
@@ -4072,9 +4074,9 @@ equal.
 The type `\TT{qualifier}' is a builtin enumeration type declared
 by:
 \begin{indpar} \tt
-define type \ttkey{std qualifier} as unswrd with enum [0~..] \\
+define type \ttstdkey{qualifier} as unswrd with enum [0~..] \\
 define abbreviation \ttkey{qualifier} \ABV{} `std qualifier' \\
-qualifier \ttkey{std missing qualifier} = next enum // 0 \\
+qualifier \ttstdkey{missing qualifier} = next enum // 0 \\
 function std qualifier r = std \ttmkey{missing}{qualifier}: \\
 \hspace*{3em}r = std missing qualifier
 \end{indpar}
@@ -11101,12 +11103,95 @@ a given value, and perform vector arithmetic operations.
 \subsection{The Pointer Type}
 \label{THE-POINTER-TYPE}
 
-\begin{indpar}\begin{verbatim}
-// The module has an exported parsing block containing:
-//
-//     define prefix "reference-prefix" operator "*"
-//     define postfix "reference-postfix" operator "++"
+Pointers are a builtin cluster type defined by:
 
+\begin{indpar} \tt
+define type \ttstdkey{pointer}\label{POINTER} as void \\
+define abbreviation \ttkey{pointer} \ABV{} `std pointer'
+\end{indpar}
+
+Its cluster members are:
+
+\begin{indpar}[0.6in]
+\hspace*{-0.3in}{\tt unsadr \ttdmkey{begin}{of pointer}} \\
+The offset of the first element relative to the {\tt base}.
+
+\hspace*{-0.3in}{\tt unsadr \ttdmkey{end}{of pointer}} \\
+The offset just after the last element relative to the {\tt base}.
+
+\hspace*{-0.3in}{\tt *READ* adr \ttdmkey{base}{of pointer}} \\
+The base address of the vector.  The first element of a vector pointed
+at by {\tt p} is at address {\tt p.base + p.begin} and the address
+{\tt p.base + p.end} points just after the last element of the vector.
+
+\hspace*{-0.3in}{\tt adr \ttdmkey{base.adr}{of pointer}} \\
+The address from which {\tt .base} is read.
+
+\hspace*{-0.3in}{\tt type \ttdmkey{type}{of pointer}} \\
+The type of the vector elements.
+
+\hspace*{-0.3in}{\tt qualifiers \ttdmkey{qualifiers}{of pointer}} \\
+The qualifiers of the vector elements.
+
+\end{indpar}
+
+The following qualifiers are recognized as having special meaning
+when applied to pointers:
+
+\begin{indpar}[0.6in]
+
+\hspace*{-0.3in}\ttamkey{READABLE}{pointer} \\
+Signifies that the pointer can be used to read vector elements.
+
+\hspace*{-0.3in}\ttamkey{WRITABLE}{pointer} \\
+Signifies that the pointer can be used to write vector elements.
+
+\end{indpar}
+
+The following functions can be used to copy pointers:
+
+{\tt\begin{tabular}{@{}l}
+function Qs pointer r, \\
+~~~~~~~~~~~~unsadr r.begin, \\
+~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~*READ* adr r.base, \\
+~~~~~~~~~~~~adr r.base.adr, \\
+~~~~~~~~~~~~type r.type, \\
+~~~~~~~~~~~~qualifiers r.qualifiers = \\
+~~~~\ttstdkey{assign} \\
+~~~~~~~~(| qualifiers Qs |) \\
+~~~~~~~~( Qs pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
+\end{tabular}}\label{POINTER-ASSIGN}
+
+\begin{indpar}
+Copies a pointer as per an assignment statement.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qrs pointer r, \\
+~~~~~~~~~~~~~unsadr r.begin, \\
+~~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~~*READ* adr r.base, \\
+~~~~~~~~~~~~~adr r.base.adr, \\
+~~~~~~~~~~~~~type r.type, \\
+~~~~~~~~~~~~~qualifiers r.qualifiers = \\
+~~~~\ttstdkey{read only} \\
+~~~~~~~~(| qualifiers Qps |) \\
+~~~~~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
+~~~~~~~~[| Qrs = Qps - \{ *WRITABLE* \} |] \\
+\end{tabular}}\label{POINTER-ASSIGN}
+
+\begin{indpar}
+Copies a pointer as per an assignment statement whic removing the
+\TT{*WRITABLE*} qualifier from the pointer.
+\end{indpar}
+
+
+
+
+\begin{indpar}\begin{verbatim}
 define type std pointer as void
 define abbreviation pointer ---> `std pointer'
 
@@ -11125,6 +11210,8 @@ define abbreviation pointer ---> `std pointer'
     // elements and *WRITABLE* if it can be used to write
     // elements.
 \end{verbatim}\end{indpar}
+
+Pointers may be copied
 
 \subsection{Vector Allocators}
 \label{VECTOR-ALLOCATORS}

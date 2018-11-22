@@ -11442,6 +11442,52 @@ the pointer returned is empty.
 
 \end{indpar}
 
+\subsection{Vector Operations}
+\label{VECTOR-OPERATIONS}
+
+The functions of this section take pointer arguments that designate
+input and output vectors.
+
+Some of the remaining functions of this section obey the following:
+
+\begin{indpar}
+\key{The Vector Overlap Criteria}(\key{VOC}).
+The input and output vectors of this function obey either of
+the following rules:
+\begin{itemize}
+\item[(A)] No output vector overlaps any of the other output or
+any input vector.
+\item[(B)] Any two vectors that overlap are identical (and in particular
+have identical element types).
+\end{itemize}
+\end{indpar}
+
+\begin{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function \ttstdmkey{add}{vectors} \\
+~~~~~~~~~~~~~( pointer p1, intadr p1.begin, intadr p1.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~ adr p1.base.adr, type p1.type, \\
+~~~~~~~~~~~~~~~pointer p2, intadr p2.begin, intadr p2.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~ adr p2.base.adr, type p2.type, \\
+~~~~~~~~~~~~~~~pointer p3, intadr p3.begin, intadr p3.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~ adr p3.base.adr, type p3.type ) \\
+~~~~~~~~~~~~~[| p1.type == p2.type |] \\
+~~~~~~~~~~~~~[| p1.type is numeric |] \\
+~~~~~~~~~~~~~[| p3.type is numeric |] \\
+\end{tabular}}
+
+\begin{indpar}
+Adds the vector pointed at by {\tt p1} to the vector pointed
+at by {\tt p2} and stores the result in the vector pointed at
+by {\tt p3}.  Element additions are performed with target type
+{\tt p3.type}.  Element qualifiers are ignored.
+This function obeys VOC.
+\end{indpar}
+
+\end{indpar}
+
+
 \section{Memory Write Statements}
 \label{MEMORY-WRITE-STATEMENTS}
 

@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 21, 2018
+November 22, 2018
  
 \end{center}
 
@@ -11118,6 +11118,7 @@ The offset of the first element relative to the {\tt base}.
 
 \hspace*{-0.3in}{\tt unsadr \ttdmkey{end}{of pointer}} \\
 The offset just after the last element relative to the {\tt base}.
+This may not be less than \TT{.begin}.
 
 \hspace*{-0.3in}{\tt *READ* adr \ttdmkey{base}{of pointer}} \\
 The base address of the vector.  The first element of a vector pointed
@@ -11294,19 +11295,122 @@ The following functions can be used to access vector elements:
 \begin{indpar}
 
 {\tt\begin{tabular}{@{}l}
-function Qrs p.qualifiers p.type r, \\
+function unsadr r = \\
+~~~~\ttstdmkey{size of}{pointer}
+            ( pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+\end{tabular}}
+
+\begin{indpar}
+Returns the number of elements
+in the vector pointed at by {\tt p}.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function bool r = \\
+~~~~( pointer p, unsadr p.begin, unsadr p.end )
+    \ttstdmkey{is empty}{pointer}
+\end{tabular}}
+
+\begin{indpar}
+Equivalent to {\tt size of p == 0}.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qrs p.type r, \\
 ~~~~~~~~~~~~~unsadr p.offset, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr = \\
 ~~~~(| qualifiers Qps |) \\
-~~~~( Qps pointer p, unsadr p.offset, adr p.base.adr, \\
-~~~~~~type p.type, qualifiers p.qualifiers ) \\
+~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
 ~~~~\TT{[} unsadr i \TT{]}\ttmindex{[]}{of pointer} \\
 ~~~~(| qualifiers Qrs = \\
 ~~~~~~~~~p.qualifiers \\
 ~~~~~~~+ ( \{ *READ* \} if ( *READABLE* in Qps ) else \{\} ) \\
 ~~~~~~~+ ( \{ *WRITE* \} if ( *WRITABLE* in Qps ) else \{\} )  |] \\
 \end{tabular}}
+
+\begin{indpar}
+If {\tt p} is a pointer and {\tt i} an unsigned integer,
+{\tt p[i]} is the {\tt i}+1'st element of the vector pointed at
+by {\tt p}.  It is a fatal error if {\tt i} is too large
+(i.e., if {\tt i => size of p}).
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qrs p.type r, \\
+~~~~~~~~~~~~~unsadr p.offset, \\
+~~~~~~~~~~~~~*READ* adr p.base, \\
+~~~~~~~~~~~~~adr p.base.adr = \\
+~~~~(| qualifiers Qps |) \\
+~~~~"\ttmkey{*}{of pointer}"
+        ( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~~~adr p.base.adr, type p.type, \\
+~~~~~~~~~~qualifiers p.qualifiers ) \\
+~~~~(| qualifiers Qrs = \\
+~~~~~~~~~p.qualifiers \\
+~~~~~~~+ ( \{ *READ* \} if ( *READABLE* in Qps ) else \{\} ) \\
+~~~~~~~+ ( \{ *WRITE* \} if ( *WRITABLE* in Qps ) else \{\} )  |] \\
+\end{tabular}}
+
+\begin{indpar}
+If {\tt p} is a pointer, {\tt *p} is equivalent to {\tt p[0]}.
+Here {\tt *} is a prefix operator.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qps pointer r, \\
+~~~~~~~~~~~~~unsadr r.begin, \\
+~~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~~*READ* adr r.base, \\
+~~~~~~~~~~~~~adr r.base.adr, \\
+~~~~~~~~~~~~~type r.type, \\
+~~~~~~~~~~~~~qualifiers r.qualifiers, \\
+~~~~~~~~~~~~~next p.begin, \\
+~~~~(| qualifiers Qps |) \\
+~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
+~~~~"\ttmkey{++}{of pointer}" \\
+\end{tabular}}
+
+\begin{indpar}
+If {\tt p} is a pointer, {\tt p++} adds {\tt size of T} to {\tt p.begin},
+thus skipping over the first element of the vector pointed at by {\tt p},
+and returns the initial value of {\tt p} before {\tt p.begin} was
+altered.  The idiom {\tt *p++} returns the first element of the vector
+pointed at by {\tt p} and also removes this element from the vector.
+
+It is a fatal error if {\tt size of p == 0} when this function is
+called.  Here {\tt ++} is a postfix operator.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qps pointer r, \\
+~~~~~~~~~~~~~unsadr r.begin, \\
+~~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~~*READ* adr r.base, \\
+~~~~~~~~~~~~~adr r.base.adr, \\
+~~~~~~~~~~~~~type r.type, \\
+~~~~~~~~~~~~~qualifiers r.qualifiers, \\
+~~~~~~~~~~~~~next p.end, \\
+~~~~(| qualifiers Qps |) \\
+~~~~"\ttmkey{-{}-}{of pointer}"
+         ( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~~~~adr p.base.adr, type p.type, \\
+~~~~~~~~~~~qualifiers p.qualifiers ) \\
+\end{tabular}}
+
+\begin{indpar}
+If {\tt p} is a pointer, {\tt -{}-p} subtracts {\tt size of T} from {\tt p.end},
+thus removing the last element of the vector pointed at by {\tt p},
+and returns a pointer to a vector consisting of the single removed element.
+The idiom {\tt *-{}-p} returns the last element of the vector
+pointed at by {\tt p} and also removes this element from the vector.
+
+It is a fatal error if {\tt size of p == 0} when this function is
+called.  Here {\tt -{}-} is a prefix operator.
+\end{indpar}
 
 
 \end{indpar}

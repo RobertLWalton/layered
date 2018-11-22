@@ -11113,10 +11113,11 @@ define abbreviation \ttkey{pointer} \ABV{} `std pointer'
 Its cluster members are:
 
 \begin{indpar}[0.6in]
-\hspace*{-0.3in}{\tt unsadr \ttdmkey{begin}{of pointer}} \\
+\hspace*{-0.3in}{\tt intadr \ttdmkey{begin}{of pointer}} \\
 The offset of the first element relative to the {\tt base}.
+Note that the offset can be negative.
 
-\hspace*{-0.3in}{\tt unsadr \ttdmkey{end}{of pointer}} \\
+\hspace*{-0.3in}{\tt intadr \ttdmkey{end}{of pointer}} \\
 The offset just after the last element relative to the {\tt base}.
 This may not be less than \TT{.begin}.
 
@@ -11153,15 +11154,15 @@ The following functions can be used to copy pointers:
 
 {\tt\begin{tabular}{@{}l}
 function Qs pointer r, \\
-~~~~~~~~~~~~unsadr r.begin, \\
-~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~intadr r.begin, \\
+~~~~~~~~~~~~intadr r.end, \\
 ~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~qualifiers r.qualifiers = \\
 ~~~~\ttstdkey{assign} \\
 ~~~~~~~~(| qualifiers Qs |) \\
-~~~~~~~~( Qs pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~( Qs pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
 \end{tabular}}\label{POINTER-ASSIGN}
 
@@ -11171,15 +11172,15 @@ Copies a pointer as per an assignment statement.
 
 {\tt\begin{tabular}{@{}l}
 function Qrs pointer r, \\
-~~~~~~~~~~~~~unsadr r.begin, \\
-~~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~~intadr r.begin, \\
+~~~~~~~~~~~~~intadr r.end, \\
 ~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~~qualifiers r.qualifiers = \\
 ~~~~\ttstdkey{read only} \\
 ~~~~~~~~(| qualifiers Qps |) \\
-~~~~~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~~~~~( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
 ~~~~~~~~[| Qrs = Qps - \{ *WRITABLE* \} |] \\
 \end{tabular}}\label{POINTER-READ-ONLY}
@@ -11200,8 +11201,8 @@ The following functions allocate pointers to new vectors:
 
 {\tt\begin{tabular}{@{}l}
 function *STACK* *READABLE* *WRITABLE* pointer p, \\
-~~~~~~~~~~~~~unsadr p.begin, \\
-~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
@@ -11221,8 +11222,8 @@ The elements each have type {\tt T} and qualifiers {\tt Qs}.
 
 {\tt\begin{tabular}{@{}l}
 function *READABLE* *WRITABLE* pointer p, \\
-~~~~~~~~~~~~~unsadr p.begin, \\
-~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
@@ -11253,15 +11254,15 @@ in {\tt Qs}:
 {\tt\begin{tabular}{@{}l}
 function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
 ~~~~~~~~~~~~~~~~~~~~~pointer p, \\
-~~~~~~~~~~~~~unsadr p.begin, \\
-~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
 ~~~~\ttkey{allocate to stack} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
-~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~( intadr N = 1 ) \\
 ~~~~~~~~// Vector initialized to zeros even \\
 ~~~~~~~~// if this is not a legal T value. \\
 ~~~~~~~~// All qualifiers are allowed in Qs. \\
@@ -11269,15 +11270,15 @@ function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
 
 {\tt\begin{tabular}{@{}l}
 function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
-~~~~~~~~~~~~~unsadr p.begin, \\
-~~~~~~~~~~~~~unsadr p.end, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
 ~~~~\ttkey{allocate to global} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
-~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~( intadr N = 1 ) \\
 \end{tabular}}
 
 \end{indpar}
@@ -11295,9 +11296,9 @@ The following functions can be used to access vector elements:
 \begin{indpar}
 
 {\tt\begin{tabular}{@{}l}
-function unsadr r = \\
+function intadr r = \\
 ~~~~\ttstdmkey{size of}{pointer}
-            ( pointer p, unsadr p.begin, unsadr p.end, \\
+            ( pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
 \end{tabular}}
 
@@ -11308,7 +11309,7 @@ in the vector pointed at by {\tt p}.
 
 {\tt\begin{tabular}{@{}l}
 function bool r = \\
-~~~~( pointer p, unsadr p.begin, unsadr p.end )
+~~~~( pointer p, intadr p.begin, intadr p.end )
     \ttstdmkey{is empty}{pointer}
 \end{tabular}}
 
@@ -11318,13 +11319,13 @@ Equivalent to {\tt size of p == 0}.
 
 {\tt\begin{tabular}{@{}l}
 function Qrs p.type r, \\
-~~~~~~~~~~~~~unsadr p.offset, \\
+~~~~~~~~~~~~~intadr p.offset, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr = \\
 ~~~~(| qualifiers Qps |) \\
-~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
-~~~~\TT{[} unsadr i \TT{]}\ttmindex{[]}{of pointer} \\
+~~~~\TT{[} intadr i \TT{]}\ttmindex{[]}{of pointer} \\
 ~~~~(| qualifiers Qrs = \\
 ~~~~~~~~~p.qualifiers \\
 ~~~~~~~+ ( \{ *READ* \} if ( *READABLE* in Qps ) else \{\} ) \\
@@ -11340,12 +11341,12 @@ by {\tt p}.  It is a fatal error if {\tt i} is too large
 
 {\tt\begin{tabular}{@{}l}
 function Qrs p.type r, \\
-~~~~~~~~~~~~~unsadr p.offset, \\
+~~~~~~~~~~~~~intadr p.offset, \\
 ~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr = \\
 ~~~~(| qualifiers Qps |) \\
 ~~~~"\ttmkey{*}{of pointer}"
-        ( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+        ( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~~~~~adr p.base.adr, type p.type, \\
 ~~~~~~~~~~qualifiers p.qualifiers ) \\
 ~~~~(| qualifiers Qrs = \\
@@ -11361,15 +11362,15 @@ Here {\tt *} is a prefix operator.
 
 {\tt\begin{tabular}{@{}l}
 function Qps pointer r, \\
-~~~~~~~~~~~~~unsadr r.begin, \\
-~~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~~intadr r.begin, \\
+~~~~~~~~~~~~~intadr r.end, \\
 ~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~~qualifiers r.qualifiers, \\
 ~~~~~~~~~~~~~next p.begin, \\
 ~~~~(| qualifiers Qps |) \\
-~~~~( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+~~~~( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
 ~~~~"\ttmkey{++}{of pointer}" \\
 \end{tabular}}
@@ -11381,14 +11382,14 @@ and returns the initial value of {\tt p} before {\tt p.begin} was
 altered.  The idiom {\tt *p++} returns the first element of the vector
 pointed at by {\tt p} and also removes this element from the vector.
 
-It is a fatal error if {\tt size of p == 0} when this function is
+It is a fatal error if {\tt p} is empty when this function is
 called.  Here {\tt ++} is a postfix operator.
 \end{indpar}
 
 {\tt\begin{tabular}{@{}l}
 function Qps pointer r, \\
-~~~~~~~~~~~~~unsadr r.begin, \\
-~~~~~~~~~~~~~unsadr r.end, \\
+~~~~~~~~~~~~~intadr r.begin, \\
+~~~~~~~~~~~~~intadr r.end, \\
 ~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
@@ -11396,7 +11397,7 @@ function Qps pointer r, \\
 ~~~~~~~~~~~~~next p.end, \\
 ~~~~(| qualifiers Qps |) \\
 ~~~~"\ttmkey{-{}-}{of pointer}"
-         ( Qps pointer p, unsadr p.begin, unsadr p.end, \\
+         ( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~~~~~~adr p.base.adr, type p.type, \\
 ~~~~~~~~~~~qualifiers p.qualifiers ) \\
 \end{tabular}}
@@ -11408,8 +11409,34 @@ and returns a pointer to a vector consisting of the single removed element.
 The idiom {\tt *-{}-p} returns the last element of the vector
 pointed at by {\tt p} and also removes this element from the vector.
 
-It is a fatal error if {\tt size of p == 0} when this function is
+It is a fatal error if {\tt p} is empty when this function is
 called.  Here {\tt -{}-} is a prefix operator.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function Qps pointer r, \\
+~~~~~~~~~~~~~intadr r.begin, \\
+~~~~~~~~~~~~~intadr r.end, \\
+~~~~~~~~~~~~~*READ* adr r.base, \\
+~~~~~~~~~~~~~adr r.base.adr, \\
+~~~~~~~~~~~~~type r.type, \\
+~~~~~~~~~~~~~qualifiers r.qualifiers, \\
+~~~~~~~~~~~~~next p.end, \\
+~~~~(| qualifiers Qps |) \\
+~~~~( Qps pointer p, intadr p.begin, intadr p.end, \\
+~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
+~~~~\TT{[} intadr i, intadr j \TT{]}\ttmindex{[]}{subvector} \\
+\end{tabular}}
+
+\begin{indpar}
+If {\tt p} is a pointer, {\tt p[i,j]} is a pointer to elements
+{\tt p[i]} through {\tt p[j]} of the vector pointed at by {\tt p}.
+If {\tt i < 0} it is replaced by `{\tt size of p + i}', and similarly
+for {\tt j}.
+It is a fatal error if after these replacements {\tt i} and {\tt j}
+are not both in the range {\tt [0, size of p - 1]}.
+Otherwise if {\tt j < i} after these replacements,
+the pointer returned is empty.
 \end{indpar}
 
 

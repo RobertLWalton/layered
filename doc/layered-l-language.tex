@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 22, 2018
+November 23, 2018
  
 \end{center}
 
@@ -11500,7 +11500,11 @@ in that they have the same element types and numbers of elements.
 \begin{indpar}
 
 {\tt\begin{tabular}{@{}l}
-function \ttstdmkey{add}{vectors} \\
+function \ttstdmkey{add}{vectors} {\rm (or \ttstdmkey{sub}{vectors},
+					   \ttstdmkey{mul}{vectors},
+					   \ttstdmkey{div}{vectors},
+					   \ttstdmkey{max}{vectors},
+					   \ttstdmkey{min}{vectors})} \\
 ~~~~~~~~~~~~~( *READABLE* pointer p1, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p1.begin, intadr p1.end, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~ adr p1.base.adr, type p1.type, \\
@@ -11510,16 +11514,55 @@ function \ttstdmkey{add}{vectors} \\
 ~~~~~~~~~~~~~~~*WRITABLE* pointer p3, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p3.begin, intadr p3.end, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~ adr p3.base.adr, type p3.type ) \\
-~~~~~~~~~~~~~[| p1.type == p2.type |] \\
 ~~~~~~~~~~~~~[| p1.type is numeric |] \\
-~~~~~~~~~~~~~[| p3.type is numeric |] \\
+~~~~~~~~~~~~~[| p2.type is numeric |] \\
+~~~~~~~~~~~~~[| p3.type is float |] \\
 \end{tabular}}
 
 \begin{indpar}
-Adds the vector pointed at by {\tt p1} to the vector pointed
-at by {\tt p2} and stores the result in the vector pointed at
-by {\tt p3}.  Element additions are performed with target type
-{\tt p3.type}.  All vectors must be of the same length.
+Adds, subtracts, multiplies, divides, takes the maximum of, or
+takes the minimum of corresponding elements of the vectors pointed
+at by {\tt p1} and {\tt p2}
+and stores the results in corresponding elements of
+the vector pointed at by {\tt p3}.  Elements of {\tt p2} are subtracted
+from elements of {\tt p1}, and elements of {\tt p1} are divided by
+elements of {\tt p2}.  Element operations are
+performed with target type {\tt p3.type}: note this must be floating
+point.  All vectors must be of the same length.
+Element qualifiers are ignored.
+This function obeys VOC.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function \ttstdmkey{add}{scalar-vector}
+    {\rm (or \ttstdmkey{sub}{scalar-vector},
+	     \ttstdmkey{mul}{scalar-vector},
+	     \ttstdmkey{div}{scalar-vector},
+	     \ttstdmkey{max}{scalar-vector},
+	     \ttstdmkey{min}{scalar-vector})} \\
+~~~~~~~~~~~~~(| type T |) \\
+~~~~~~~~~~~~~( T v, \\
+~~~~~~~~~~~~~~~*READABLE* pointer p1, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p1.begin, intadr p1.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p1.base.adr, type p1.type, \\
+~~~~~~~~~~~~~~~*WRITABLE* pointer p2, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p2.begin, intadr p2.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p2.base.adr, type p2.type ) \\
+~~~~~~~~~~~~~[| T is numeric |] \\
+~~~~~~~~~~~~~[| p1.type is numeric |] \\
+~~~~~~~~~~~~~[| p2.type is float |] \\
+\end{tabular}}
+
+\begin{indpar}
+Adds, subtracts, multiplies, divides, takes the maximum of, or
+takes the minimum of {\tt v} and elements of the vector pointed
+at by {\tt p1}
+and stores the results in corresponding elements of
+the vector pointed at by {\tt p2}.  {\tt v} is subtracted
+from elements of {\tt p1}, and elements of {\tt p1} are divided by
+{\tt v}.  Element operations are
+performed with target type {\tt p2.type}: note this must be floating
+point.  Both vectors must be of the same length.
 Element qualifiers are ignored.
 This function obeys VOC.
 \end{indpar}

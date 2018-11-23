@@ -11535,11 +11535,15 @@ This function obeys VOC.
 
 {\tt\begin{tabular}{@{}l}
 function \ttstdmkey{add}{scalar-vector}
-    {\rm (or \ttstdmkey{sub}{scalar-vector},
-	     \ttstdmkey{mul}{scalar-vector},
+    {\rm (or \begin{tabular}[t]{@{}l@{}}
+             \ttstdmkey{sub}{scalar-vector},
+             \ttstdmkey{revsub}{scalar-vector},
+	     \ttstdmkey{mul}{scalar-vector}, \\
 	     \ttstdmkey{div}{scalar-vector},
+	     \ttstdmkey{revdiv}{scalar-vector}, \\
 	     \ttstdmkey{max}{scalar-vector},
-	     \ttstdmkey{min}{scalar-vector})} \\
+	     \ttstdmkey{min}{scalar-vector})
+	     \end{tabular}} \\
 ~~~~~~~~~~~~~(| type T |) \\
 ~~~~~~~~~~~~~( T v, \\
 ~~~~~~~~~~~~~~~*READABLE* pointer p1, \\
@@ -11558,11 +11562,80 @@ Adds, subtracts, multiplies, divides, takes the maximum of, or
 takes the minimum of {\tt v} and elements of the vector pointed
 at by {\tt p1}
 and stores the results in corresponding elements of
-the vector pointed at by {\tt p2}.  {\tt v} is subtracted
-from elements of {\tt p1}, and elements of {\tt p1} are divided by
-{\tt v}.  Element operations are
+the vector pointed at by {\tt p2}.  Here \TT{sub} subtracts {\tt v}
+from the vector elements, \TT{revsub} subtracts the vector elements
+from {\tt v}, \TT{div} divides the vector elements by {\tt v},
+and \TT{revdiv} divides {\tt v} by the vector elements.  Element operations are
 performed with target type {\tt p2.type}: note this must be floating
 point.  Both vectors must be of the same length.
+Element qualifiers are ignored.
+This function obeys VOC.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function \ttstdmkey{bitand}{vectors} {\rm (or \ttstdmkey{bitor}{vectors},
+					   \ttstdmkey{bitnand}{vectors},
+					   \ttstdmkey{bitor}{vectors})} \\
+~~~~~~~~~~~~~( *READABLE* pointer p1, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p1.begin, intadr p1.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p1.base.adr, type p1.type, \\
+~~~~~~~~~~~~~~~*READABLE* pointer p2, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p2.begin, intadr p2.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p2.base.adr, type p2.type, \\
+~~~~~~~~~~~~~~~*WRITABLE* pointer p3, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p3.begin, intadr p3.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p3.base.adr, type p3.type ) \\
+~~~~~~~~~~~~~[| p1.type is uns |] \\
+~~~~~~~~~~~~~[| p2.type is uns |] \\
+~~~~~~~~~~~~~[| p3.type is uns |] \\
+\end{tabular}}
+
+\begin{indpar}
+Takes the bitwise and, or, nand, or xor
+of corresponding elements of the vectors pointed
+at by {\tt p1} and {\tt p2}
+and stores the results in corresponding elements of
+the vector pointed at by {\tt p3}.  The nand operation computes
+the bitwise and of the {\tt p1} element and the complement of the
+{\tt p2} element.
+Element operations are
+performed with target type {\tt p3.type}: note this must be an unsigned
+integer type.  All vectors must be of the same length.
+Element qualifiers are ignored.
+This function obeys VOC.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function \ttstdmkey{add}{scalar-vector}
+    {\rm (or \begin{tabular}[t]{@{}l@{}}
+             \ttstdmkey{bitand}{scalar-vector},
+             \ttstdmkey{bitor}{scalar-vector},
+	     \ttstdmkey{bitnand}{scalar-vector}, \\
+	     \ttstdmkey{bitxor}{scalar-vector})
+	     \end{tabular}} \\
+~~~~~~~~~~~~~(| type T |) \\
+~~~~~~~~~~~~~( T v, \\
+~~~~~~~~~~~~~~~*READABLE* pointer p1, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p1.begin, intadr p1.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p1.base.adr, type p1.type, \\
+~~~~~~~~~~~~~~~*WRITABLE* pointer p2, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p2.begin, intadr p2.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~ adr p2.base.adr, type p2.type ) \\
+~~~~~~~~~~~~~[| T is uns |] \\
+~~~~~~~~~~~~~[| p1.type is uns |] \\
+~~~~~~~~~~~~~[| p2.type is uns |] \\
+\end{tabular}}
+
+\begin{indpar}
+Takes the bitwise and, or, nand, or xor
+of {\tt v} and elements of the vector pointed
+at by {\tt p1}
+and stores the results in corresponding elements of
+the vector pointed at by {\tt p2}.  The nand operation computes
+the bitwise AND of {\tt v} and the complement of the {\tt p1} element.
+Element operations are
+performed with target type {\tt p2.type}: note this must be an unsigned
+integer type.  Both vectors must be of the same length.
 Element qualifiers are ignored.
 This function obeys VOC.
 \end{indpar}

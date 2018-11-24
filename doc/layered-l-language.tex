@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 23, 2018
+November 24, 2018
  
 \end{center}
 
@@ -11288,10 +11288,10 @@ they are included in a {\em compile-time-assign\-ment-\EOL statement}
 (\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
 Otherwise they execute at run time.
 
-\subsection{Vector Element Access}
-\label{VECTOR-ELEMENT-ACCESS}
+\subsection{Vector Access Operations}
+\label{VECTOR-ACCESS-OPERATIONS}
 
-The following functions can be used to access vector elements:
+The following builtin functions can be used to access vector elements:
 
 \begin{indpar}
 
@@ -11442,11 +11442,7 @@ the pointer returned is empty.
 
 \end{indpar}
 
-\subsection{Vector Operations}
-\label{VECTOR-OPERATIONS}
-
-The functions of this section take pointer arguments that designate
-input and output vectors.
+The following functions write the elements of a vector:
 
 \begin{indpar}
 
@@ -11471,8 +11467,6 @@ function \ttstdmkey{copy}{vectors} \\
 ~~~~~~~~~~~~~~~*WRITABLE* pointer p2, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p2.begin, intadr p2.end, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~~adr p2.base.adr, type p2.type ) \\
-~~~~~~~~~~~~~[| p1.type is numeric |] \\
-~~~~~~~~~~~~~[| p2.type is numeric |] \\
 \end{tabular}}
 
 \begin{indpar}
@@ -11480,10 +11474,56 @@ Copy the vector pointed at by {\tt p1} to the vector pointed at by
 {\tt p2}.  Values of type {\tt p1.type} must be convertable to
 values of type {\tt p2.type}.  If the two vectors overlap,
 the types {\tt p1.type} and {\tt p2.type} must have the same
-size (in which case if the {\tt p2} vector begins at a non-first
-element of the {\tt p1} vector the copy will be from the ends of
+size (in which case if the {\tt p2} vector begins after
+the beginning of the {\tt p1} vector, the copy will be from the ends of
 the vectors to the beginnings of the vectors, while in all other
 cases the copy will be from the beginnings to the ends).
+The vectors must have the same number of elements.
+\end{indpar}
+
+\end{indpar}
+
+\subsection{Vector Arithmetic Operations}
+\label{VECTOR-ARITHMETIC-OPERATIONS}
+
+The builtin functions of this section take pointer arguments that designate
+input and output vectors and perform arithmetic operations on vector
+elements.\footnote{These functions can be used to interface to
+Intel SSE and AVX instructions.}
+
+\begin{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function T r = \ttstdmkey{sum}{of vector} (or \ttstdmkey{product}{of vector},
+                                              \ttstdmkey{max}{of vector},
+                                              \ttstdmkey{min}{of vector}) \\
+~~~~(| type T |) \\
+~~~~( *READABLE* pointer p, \\
+~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
+~~~~~~~~~~~~~~~~~adr p.base.adr, type p.type ) \\
+~~~~[| T is in { float32, float64, float128 } |] \\
+\end{tabular}}
+
+\begin{indpar}
+Return the sum, product, maximum, or minimum of all the elements of the vector
+pointed at by {\tt p}.  Operations are done with target type {\tt T}.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function T r = \ttstdmkey{product}{of vectors} \\
+~~~~(| type T |) \\
+~~~~( *READABLE* pointer p1, \\
+~~~~~~~~~~~~~~~~~intadr p1.begin, intadr p1.end, \\
+~~~~~~~~~~~~~~~~~adr p1.base.adr, type p1.type ) \\
+~~~~~~*READABLE* pointer p2, \\
+~~~~~~~~~~~~~~~~~intadr p2.begin, intadr p2.end, \\
+~~~~~~~~~~~~~~~~~adr p2.base.adr, type p2.type ) \\
+~~~~[| T is in { float32, float64, float128 } |] \\
+\end{tabular}}
+
+\begin{indpar}
+Return the scalar product of the vectors pointed at by {\tt p1} and
+{\tt p2}.  Operations are done with target type {\tt T}.
 \end{indpar}
 
 \end{indpar}

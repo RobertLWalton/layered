@@ -11704,19 +11704,19 @@ statement that executes a sequence of specialized instructions:
 \emkey{write-instruction} ::=
         \ttakey{WRITE} {\em atomic-value} {\em atomic-pointer} \\
 \emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32} \\
-\emkey{atomic-value} ::= {\em expression} \\
-\emkey{atomic-pointer} ::= {\em expression} evaluating to a pointer
+\emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
+							\\
+\emkey{atomic-value} ::= {\em expression} evaluatable with pointer \TT{.type}
 
 \begin{indpar}
-{\em Atomic-pointers} are evaluated with \TT{pointer} target type.
-{\em Atomic-values} are evaluated with target type equal to the
-{\tt .type} member of the associated {\em atomic-pointer}.
-This type must have a numeric type as its underlying
-type.
+Pointer {\tt .type}'s must have a numeric type as its underlying type.
+The pointer values must point at a vector with at least one element,
+and the address of that element must be a multiple of the element
+size in bytes.
 
 The atomic codes are defined by:
 
-\begin{indpar} \tt
+{\tt
 define type \ttstdkey{atomic code} as uns32 with enum [0~..] \\
 define \begin{tabular}[t]{@{}l@{}}
        abbreviation \\
@@ -11731,104 +11731,154 @@ function std atomic code r = std \ttmkey{fail}{atomic code}: \\
 atomic code \ttstdkey{op error atomic code } = next enum // 3 \\
 function std atomic code r = std \ttmkey{op error}{atomic code}: \\
 \hspace*{3em}r = std op error atomic code
-\end{indpar}
+}
 
 \end{indpar}
 
 \end{indpar}
 
-{\em Atomic-statements} are executed in two passes:
+{\em Atomic-statements} are executed in three passes:
 
 \begin{indpar}[0.6in]
-\hspace*{-0.3in}{\bf Pass 1, User Pass}:
+\hspace*{-0.3in}{\bf Pass 1, Compilation Pass}:
 This is executed as normal code, and in fact each {\em atomic-instruction}
 translates into a call to a builtin unpublished function.  These functions
-do some checking and compile the code for pass 2.  At the end of pass 1
-this pass 2 code is loaded into the kernel and checked.  Pass 1 also
-compiles a parameter block for the kernel code.  If an {\em atomic-statement}
+do some checkMPXCHG8B
+At the end of pass 1, this kernel code is loaded into the kernel and checked.
+If an {\em atomic-statement}
 is part of an out-of-line routine that is executed many times, compilation
-of the kernel code and passing this to the kernel need only be done once,
-though compilation of the parameter block needs to be done for every
-statement execution.
+of the kernel code, passing this code to the kernel, and checking the
+code in the kernel, need only be done once.
 
-\hspace*{-0.3in}{\bf Pass 2, Kernel Pass}: First asyncrhonous interrupts are
-disabled.  Then the code is executed until it terminates.  If an error
-is discovered the code aborts.  Otherwise the code terminates successfully.
-When the code terminates, any locks acquired are freed in the opposite order
-to that in which they were acquired.  Upon termination of pass 2, the
-{\em atomic-statement} terminates.  Upon successful termination, the
-returned values are: {\tt count = 0}, {\tt atomic code = success},
-{\tt pass = 2}.
+Pass 1 also compiles a parameter block for the kernel code, and at the end
+of pass 1, loads the parameter block into the kernel.  The kernel does
+not check the parameter block.  The parameter block, which encodes the
+argument values of the {\em atomic-instructions}, must be compiled
+individually for every
+{\em atomic-statement} execution.
+
+\hspace*{-0.3in}{\bf Pass 2, Test Pass}: Asyncrhonous interrupts are
+disabled at the beginning of pass 2, and are not re-enabled until
+the {\em atomic-statement} terminates.
+
+Pass 2 executes all the {\em atomic-instructions} in order, except that
+{\em write-instructions} are executed in \key{write-check} mode.
+In this mode {\em write-instructions} check that the locations
+they are to write are writable, but do not actually change these locations.
+
+\hspace*{-0.3in}{\bf Pass 3, Set Pass}: 
+{\em Write-instructions} are re-executed in order and each writes its
+{\em atomic-value} into the locations designated by its
+{\em atomic-pointer}.
+
+If the {\em atomic-statement} does not
+terminate before executing pass 3, the statement will succeed.
+Failures and operation errors cannot be discovered during pass 3.
+
+When the {\em atomic-statement} terminates, either successfully or
+one failure or operation error,
+any locks acquired are freed in the opposite order
+to that in which they were acquired, and interrupts are re-enabled.
+
+Upon successful termination, the returned values are:
+\begin{center}
+{\tt count = 0},~~~~ {\tt atomic code = success},~~~~
+{\tt pass = }undefined
+\end{center}
 \end{indpar}
 
-TBD
-
-The special instructions,
-which make use of clusters (Section~\itemref{CLUSTERS}),
-and are as follows:
+The special instructions are as follows:
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}{\em \bf Lock-Instruction}.
-The {\em lock-variable} is of type \TT{uns32}
+The {\em lock-ID} is of type \TT{uns32}
 and identifies the lock.
 The lock is a binary test-and-set lock provided by the
-underlying system.  Locks are allocated to sets of processes
-that share memory, so that if any process in the set gets
+underlying runtime system.  Locks are allocated to sets of processes
+that share memory, so that if any process in the set acquires
 the lock, other processes in the set cannot.
 
-The lock instruction sets the lock and succeeds if the lock
-was not already set, and otherwise just fails.
+In pass 1 the \emkey{lock-instruction} reads the lock and succeeds if the lock
+was not already set, and otherwise fails.  If the lock is not already set,
+it is \underline{not} acquired in pass 1.
 
-When the {\em atomic-assignment-statement} terminates, either
-successfully or when it fails, all locks gotten are released in
-reverse order.
+In pass 2 the \emkey{lock-instruction} sets the lock and succeeds if the lock
+was not already set, and otherwise fails.
+
+In pass 3 {\em lock-instructions} do nothing.
+
+A {\em lock-instruction} that does not fail in pass 1 may still fail in
+pass 2 if another process acquires the lock between when the instruction
+execution in pass 1 and the start of pass 2.
+
+When the {\em atomic-statement} terminates, either
+successfully or when it fails or has an operation error,
+all locks gotten are released in reverse order.
+
+If the {\em lock-ID} is not valid, the {\em lock-instruction}
+has an operation error.
 
 \hspace*{-0.2in}{\em \bf Compare-Instruction}.
-The compare
-instruction reads the value at the {\em address-variable} designated
-address and compares
-it to the value of the {\em compare-variable}.  The instruction
+In both passes 1 and 2, the \emkey{compare-instruction} reads the value at
+the {\em atomic-pointer} designated
+address and compares it to the {\em atomic-value}.  The instruction
 succeeds if the values are equal, and fails otherwise.
 
-The {\em compare-variable} may be a RAM cache variable whose
-address is the {\em address-variable}.  The RAM cache variable
-is not changed even if the value read does not match its value.
+In pass 3 {\em compare-instructions} do nothing.
+
+It is an operation error if the address pointed at is not readable.
+If this happens in pass 1 it is a permanent error.  If it happens
+in pass 2 it might be because a page to be read was paged out
+between when the instruction execution in pass 1 and the start of pass 2.
+
+It is a programming error if the pointer does not point at a vector
+with at least one element or if the pointer does not have the
+{\tt *READABLE*} qualifier.
+
 
 \hspace*{-0.2in}{\em \bf Write-Instructions}.
-These do what they normally do, except they are all dry-run 
-before any actually execute.  During the dry-run one of these
-instruction fails if any memory reference it makes would fail
-were the instruction actually executed.  In particular, if any
-piece of memory is paged out or not in RAM, the dry-run fails.
+During passes 1 and 2, the \emkey{write-instruction} performs a
+\key{write-check} of the locations to be written.  This consists
+conceptually of reading the values at these locations and doing
+a hardware compare-and-set instruction to write the values read
+back into the locations.\footnote{On INTEL X86\_64 processors
+instructions typically used are {\tt CMPXCHG\ldots} instructions
+with the {\tt LOCK} prefix.}
+
+The implementation assumes that if the locks before a {\em write-instruction}
+are acquired in pass 2 by an {\em atomic-statement}, the locations to be
+written by the {\em write-instruction} cannot be changed by any other
+processor.
+
+During pass 3, the \emkey{write-instruction} writes the {\em atomic-value} to
+the {\em atomic-pointer} designated address.  
+
+It is an operation error if the address pointed at is not both readable
+and writable.
+If this happens in pass 1 it is a permanent error.  If it happens
+in pass 2 it might be because a page to be written was paged out
+between when the instruction execution in pass 1 and the start of pass 2.
+
+It is a programming error if the pointer does not point at a vector
+with at least one element or if the pointer does not have the
+{\tt *WRITABLE*} qualifier (it need not have the {\tt *READABLE*}
+qualifier though the page with the element must be readable).
 \end{indpar}
 
-The `\TT{count}' value returned by the {\em atomic-memory-statement}
+The returned {\tt count} value returned by the {\em atomic-statement}
 equals \TT{0} if the statement succeeds, or is the number of the
-first failed instruction in the statement block if the statement
-fails (the first instruction is number \TT{1}).
-The `\TT{bad address}' value is \TT{0} unless the block
-fails because of a memory fault, in which case the `\TT{bad address}'
-value is set to the faulting address.  One usually deals with a faulting
-address by reading it with a normal instruction if it is a read fault,
-or writing it with a normal instruction that does not change its
-value if it is a write fault (this may require a compare and set
-assembly instruction),
-and then retrying the \TT{*ATOMIC*} block.
+first failed or operation error detecting
+instruction in the statement block.  I.e., if the first instruction
+fails, {\tt count} is set to \TT{1}.
 
-Interrupts of all kinds are disabled during the execution of an
-{\em atomic-memory-statement} so the statement will execute as
-fast as the underlying hardware will allow.  However, this means
-that memory paging is disabled, so instructions will fail if
-they page fault.  This is the reason for the dry-run of the
-{\em write-instructions}, to be sure they will not fail
-when they actually write data.
+The returned {\tt atomic code} indicates whether the {\em atomic-statement}
+succeeded, failed, or had an operation error.
 
-A system may put restrictions on the size of the value in
-a {\em length-variable}, and on the number of instructions
-in an \TT{*ATOMIC*} block, in order to ensure that interrupts
-are not disabled for very long.  Violation of these restrictions
-causes a \TT{*ATOMIC*} block instruction fault that is distinct
-from \TT{*ATOMIC*} block failures described above (such violations
-are not recoverable).
+Programming errors are all detected during pass 1.
+
+A system may put restrictions on the number of {\em atomic-instructions}
+in an {\em atomic-statement} block.  Violation of these restrictions
+is a programming error.  At least 32 {\em atomic-instructions} will be
+allowed in all implementations.
 
 
 \section{Memory Write Statements}

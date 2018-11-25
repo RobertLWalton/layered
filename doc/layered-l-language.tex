@@ -11693,10 +11693,12 @@ statement that executes a sequence of specialized instructions:
 \emkey{atomic-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         {\tt uns32 count, atomic code c, uns32 pass = \ttakey{ATOMIC}:} \\
-	\TT{~~~~}{\em lock-instruction}\STAR{} \\
-	\TT{~~~~}{\em compare-instruction}\STAR{} \\
-	\TT{~~~~}{\em write-instruction}\STAR{} \\
+	\TT{~~~~}{\em atomic-instruction}\STAR{} \\
 	\end{tabular}
+\\[0.5ex]
+\emkey{atomic-instruction} ::= {\em lock-instruction}
+			   $|$ {\em compare-instruction}
+			   $|$ {\em write-instruction}
 \\[0.5ex]
 \emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-ID} \\
 \emkey{compare-instruction} ::= \ttakey{COMPARE} {\em atomic-value}
@@ -11709,9 +11711,15 @@ statement that executes a sequence of specialized instructions:
 \emkey{atomic-value} ::= {\em expression} evaluatable with pointer \TT{.type}
 
 \begin{indpar}
-Pointer {\tt .type}'s must have a numeric type as its underlying type.
+Pointer {\tt .type}'s must have a numeric type as their underlying type.
+
+\end{indpar}
+
+\end{indpar}
 
 The atomic codes are defined by:
+
+\begin{indpar}
 
 {\tt
 define type \ttstdkey{atomic code} as uns32 with enum [0~..] \\
@@ -11732,8 +11740,6 @@ function std atomic code r = std \ttmkey{op error}{atomic code}: \\
 
 \end{indpar}
 
-\end{indpar}
-
 {\em Atomic-statements} are executed in three passes:
 
 \begin{indpar}[0.6in]
@@ -11748,7 +11754,7 @@ system kernel and checked by the kernel.
 If an {\em atomic-statement}
 is part of an out-of-line routine that is executed many times, compilation
 of the kernel code, passing this code to the kernel, and checking the
-code in the kernel, need only be done once.
+code in the kernel, may only need to be done once.
 
 Pass 1 also compiles a parameter block for the kernel code, and at the end
 of pass 1, loads the parameter block into the kernel.  The kernel does
@@ -11776,8 +11782,8 @@ terminate before executing pass 3, the statement will succeed.
 Failures and operation errors cannot be discovered during pass 3.
 
 When the {\em atomic-statement} terminates, either successfully or
-one failure or operation error,
-any locks acquired are freed in the opposite order
+on failure or operation error,
+any locks acquired are released in the opposite order
 to that in which they were acquired, and interrupts are re-enabled.
 
 Upon successful termination, the returned values are:
@@ -11787,7 +11793,7 @@ Upon successful termination, the returned values are:
 \end{center}
 \end{indpar}
 
-The special instructions are as follows:
+The {\em atomic-instructions} are as follows:
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}{\em \bf Lock-Instruction}.
 The {\em lock-ID} is of type \TT{uns32}
@@ -11802,13 +11808,14 @@ was not already set, and otherwise fails.  If the lock is not already set,
 it is \underline{not} acquired in pass 1.
 
 In pass 2 the \emkey{lock-instruction} sets the lock and succeeds if the lock
-was not already set, and otherwise fails.
+was not already set, and otherwise fails.  If the instruction succeeds,
+it will have set the lock.
 
 In pass 3 {\em lock-instructions} do nothing.
 
 A {\em lock-instruction} that does not fail in pass 1 may still fail in
 pass 2 if another process acquires the lock between when the instruction
-execution in pass 1 and the start of pass 2.
+executed in pass 1 and the start of pass 2.
 
 When the {\em atomic-statement} terminates, either
 successfully or when it fails or has an operation error,
@@ -11828,7 +11835,7 @@ In pass 3 {\em compare-instructions} do nothing.
 It is an operation error if the address pointed at is not readable.
 If this happens in pass 1 it is a permanent error.  If it happens
 in pass 2 it might be because a page to be read was paged out
-between when the instruction execution in pass 1 and the start of pass 2.
+between when the instruction executed in pass 1 and the start of pass 2.
 
 It is a programming error if the pointer does not point at a vector
 with at least one element or if the pointer does not have the
@@ -11857,7 +11864,7 @@ It is an operation error if the address pointed at is not both readable
 and writable.
 If this happens in pass 1 it is a permanent error.  If it happens
 in pass 2 it might be because a page to be written was paged out
-between when the instruction execution in pass 1 and the start of pass 2.
+between when the instruction executed in pass 1 and the start of pass 2.
 
 It is a programming error if the pointer does not point at a vector
 with at least one element or if the pointer does not have the

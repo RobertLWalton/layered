@@ -11799,13 +11799,13 @@ The {\em atomic-instructions} are as follows:
 The {\em lock-ID} is of type \TT{uns32}
 and identifies the lock.
 The lock is a binary test-and-set lock provided by the
-underlying runtime system.  Locks are allocated to sets of processes
-that share memory, so that if any process in the set acquires
-the lock, other processes in the set cannot.
+underlying runtime system.  Locks are allocated to groups of processes
+that share memory, so that if any process in the group acquires
+the lock, other processes in the group cannot.
 
 In pass 1 the \emkey{lock-instruction} reads the lock and succeeds if the lock
 was not already set, and otherwise fails.  If the lock is not already set,
-it is \underline{not} acquired in pass 1.
+it is \underline{not} set or acquired in pass 1.
 
 In pass 2 the \emkey{lock-instruction} sets the lock and succeeds if the lock
 was not already set, and otherwise fails.  If the instruction succeeds,
@@ -11817,6 +11817,8 @@ A {\em lock-instruction} that does not fail in pass 1 may still fail in
 pass 2 if another process acquires the lock between when the instruction
 executed in pass 1 and the start of pass 2.
 
+Locks are acquired in the order that their {\em lock-instructions} appear
+within the block of the {\em atomic-statement}.
 When the {\em atomic-statement} terminates, either
 successfully or when it fails or has an operation error,
 all locks acquired are released in reverse order.
@@ -11832,10 +11834,18 @@ succeeds if the values are equal, and fails otherwise.
 
 In pass 3 {\em compare-instructions} do nothing.
 
+The implementation assumes that if the locks before a {\em compare-instruction}
+are acquired in pass 2, the locations to be
+read by the {\em compare-instruction} cannot be changed by any other
+processor.  The program code must enforce this assumption (and is in
+this sense unchecked).
+
 It is an operation error if the address pointed at is not readable.
 If this happens in pass 1 it is a permanent error.  If it happens
 in pass 2 it might be because a page to be read was paged out
 between when the instruction executed in pass 1 and the start of pass 2.
+Re-executing the {\em atomic-statement} will page the offending
+page back in during pass 1.
 
 It is a programming error if the pointer does not point at a vector
 with at least one element or if the pointer does not have the
@@ -11865,6 +11875,8 @@ and writable.
 If this happens in pass 1 it is a permanent error.  If it happens
 in pass 2 it might be because a page to be written was paged out
 between when the instruction executed in pass 1 and the start of pass 2.
+Re-executing the {\em atomic-statement} will page the offending
+page back in during pass 1.
 
 It is a programming error if the pointer does not point at a vector
 with at least one element or if the pointer does not have the
@@ -11874,7 +11886,7 @@ qualifier though the page with the element must be readable).
 
 The returned {\tt count} value returned by the {\em atomic-statement}
 equals \TT{0} if the statement succeeds, or is the number of the
-first failed or operation error detecting
+first failint or operation error detecting
 instruction in the statement block.  I.e., if the first instruction
 fails, {\tt count} is set to \TT{1}.
 

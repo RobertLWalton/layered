@@ -11710,9 +11710,6 @@ statement that executes a sequence of specialized instructions:
 
 \begin{indpar}
 Pointer {\tt .type}'s must have a numeric type as its underlying type.
-The pointer values must point at a vector with at least one element,
-and the address of that element must be a multiple of the element
-size in bytes.
 
 The atomic codes are defined by:
 
@@ -11743,8 +11740,11 @@ function std atomic code r = std \ttmkey{op error}{atomic code}: \\
 \hspace*{-0.3in}{\bf Pass 1, Compilation Pass}:
 This is executed as normal code, and in fact each {\em atomic-instruction}
 translates into a call to a builtin unpublished function.  These functions
-do some checkMPXCHG8B
-At the end of pass 1, this kernel code is loaded into the kernel and checked.
+do some checking and compile the {\em atomic-instructions} into a block
+of kernel code.
+
+At the end of pass 1, this kernel code is loaded into the operating
+system kernel and checked by the kernel.
 If an {\em atomic-statement}
 is part of an out-of-line routine that is executed many times, compilation
 of the kernel code, passing this code to the kernel, and checking the
@@ -11838,16 +11838,17 @@ with at least one element or if the pointer does not have the
 \hspace*{-0.2in}{\em \bf Write-Instructions}.
 During passes 1 and 2, the \emkey{write-instruction} performs a
 \key{write-check} of the locations to be written.  This consists
-conceptually of reading the values at these locations and doing
-a hardware compare-and-set instruction to write the values read
-back into the locations.\footnote{On INTEL X86\_64 processors
-instructions typically used are {\tt CMPXCHG\ldots} instructions
-with the {\tt LOCK} prefix.}
+conceptually of reading the values at these locations and writing
+the values read back into the locations.
+
+In pass 1 compare-and-set instructions are used.  In pass 2, the
+locations are simply read and written using normal instructions.
 
 The implementation assumes that if the locks before a {\em write-instruction}
-are acquired in pass 2 by an {\em atomic-statement}, the locations to be
+are acquired in pass 2, the locations to be
 written by the {\em write-instruction} cannot be changed by any other
-processor.
+processor.  The program code must enforce this assumption (and is in
+this sense unchecked).
 
 During pass 3, the \emkey{write-instruction} writes the {\em atomic-value} to
 the {\em atomic-pointer} designated address.  
@@ -11880,194 +11881,6 @@ in an {\em atomic-statement} block.  Violation of these restrictions
 is a programming error.  At least 32 {\em atomic-instructions} will be
 allowed in all implementations.
 
-
-\section{Memory Write Statements}
-\label{MEMORY-WRITE-STATEMENTS}
-
-Statements that write memory make use of cluster structures
-similar to those used with
-\TT{*READ*} qualifier variables:
-see Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}.
-
-Specifically, memory needs to be addressed.  This is done by either
-of the following methods of specifying a RAM address:
-\begin{enumerate}
-\item
-An `\key{address variable}' \TT{va}
-of type \TT{adr} with either or both of the qualifiers
-\TT{*READABLE*} or \TT{*WRITABLE*} that contains the RAM address.
-If \TT{va} has qualifier \TT{*READ*} it must obey
-the rules of Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}.
-
-
-\item
-An `\key{address variable}' \TT{vo} of type \TT{intadr} or \TT{unsadr} and
-qualifier \TT{*UNCHECKED*} in a cluster, and
-a variable \TT{vb.base} of type \TT{adr} and qualifier \TT{*READ*}
-or \TT{*UNCHECKED*} where \TT{vb} is either \TT{vo} or an ancestor
-of \TT{vo} in its cluster.
-In this case the RAM address is \TT{vo+vb.base}.
-If \TT{vo.base} has qualifier \TT{*READ*} it must recursively obey
-the rules of Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}.
-
-\end{enumerate}
-
-An address variable may be the member \TT{v.adr} or \TT{v.offset}
-of a cluster with RAM cache variable \TT{v}.  In this case the
-address variable is said to be the `\mkey{address}{of RAM cache variable}'
-of the RAM cache variable \TT{v}.
-
-\subsection{Single Value Write Statements}
-\label{SINGLE-VALUE-WRITE-STATEMENTS}
-
-The form of a single valued write statement is:
-
-\begin{indpar}
-\emkey{single-value-write-statement} ::=
-    \TT{*WRITE*} {\em value-variable} {\em address-variable}
-\end{indpar}
-
-The value in the {\em value-variable} is written to the RAM address
-in the {\em address-variable}.  If the {\em address-variable} is the
-address of a RAM cache variable \TT{v}, the write statement does
-\underline{not} update \TT{v} or create `\TT{next v}'.
-
-\subsection{Memory Copy Statements}
-\label{MEMORY-COPY-STATEMENTS}
-
-The form of a memory copy statement is:
-
-\begin{indpar}
-\emkey{memory-copy-statement} ::=
-    \TT{*COPY*} {\em source-variable} {\em destination-variable}
-    		{\em length-variable}
-\end{indpar}
-Bytes are copied from the RAM address in the {\em source-variable}
-to the RAM address in the {\em destin\-ation-\EOL variable}.
-The number of bytes copied is in the {\em length-variable},
-which must be of the \TT{unsadr} type.
-
-If the source address is greater than the destination address,
-the bytes are copied in ascending address order.  If the
-source address is less than the destination address,
-bytes are copied in descending address order.  If the two
-addresses are equal, bytes may or may not be copied.  The effect of
-all this is to copy regions of memory correctly even if they
-overlap.
-
-
-\subsection{Memory Set Statements}
-\label{MEMORY-SET-STATEMENTS}
-
-The form of a memory set statement is:
-
-\begin{indpar}
-\emkey{memory-set-statement} ::=
-    \TT{*SET*} {\em value-variable} {\em address-variable}
-    		{\em length-variable}
-\end{indpar}
-The `set length' is stored in the {\em length-variable} which must
-be of \TT{unsadr} type.  As long as the set length is not zero,
-this statement performs a \TT{*WRITE*} operation on its
-first two arguments, and then increments the address by
-the length of the type of the value, and decrements the set length
-by one.
-
-\subsection{Atomic Memory Statements}
-\label{ATOMIC-MEMORY-STATEMENTS}
-
-An \key{atomic-memory-statement} is a generalization of
-the classic compare-and-set instruction.  It is a block assignment
-statement that executes a sequence of specialized instructions:
-
-\begin{indpar}
-\emkey{atomic-memory-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \TT{( uns32 count, adr bad address ) = }\ttakey{ATOMIC} \TT{:} \\
-	\TT{~~~~}{\em lock-instruction}\STAR{} \\
-	\TT{~~~~}{\em compare-instruction}\STAR{} \\
-	\TT{~~~~}{\em write-instruction}\STAR{} \\
-	\end{tabular}
-\\[0.5ex]
-\emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-variable} \\
-\emkey{compare-instruction} ::= \ttakey{COMPARE} {\em compare-variable}
-						  {\em address-variable} \\
-\emkey{write-instruction} ::= \\
-\hspace*{0.2in}\begin{tabular}[t]{rl}
-        & \TT{*WRITE*} {\em value-variable} {\em address-variable} \\
-    $|$ & \TT{*COPY*} {\em source-variable} {\em destination-variable}
-    		      {\em length-variable} \\
-    $|$ & \TT{*SET*} {\em value-variable} {\em address-variable}
-    		     {\em length-variable} \\
-    \end{tabular}
-\end{indpar}
-
-The special instructions,
-which make use of clusters (Section~\itemref{CLUSTERS}),
-and are as follows:
-\begin{indpar}[0.4in]
-\hspace*{-0.2in}{\em \bf Lock-Instruction}.
-The {\em lock-variable} is of type \TT{uns32}
-and identifies the lock.
-The lock is a binary test-and-set lock provided by the
-underlying system.  Locks are allocated to sets of processes
-that share memory, so that if any process in the set gets
-the lock, other processes in the set cannot.
-
-The lock instruction sets the lock and succeeds if the lock
-was not already set, and otherwise just fails.
-
-When the {\em atomic-assignment-statement} terminates, either
-successfully or when it fails, all locks gotten are released in
-reverse order.
-
-\hspace*{-0.2in}{\em \bf Compare-Instruction}.
-The compare
-instruction reads the value at the {\em address-variable} designated
-address and compares
-it to the value of the {\em compare-variable}.  The instruction
-succeeds if the values are equal, and fails otherwise.
-
-The {\em compare-variable} may be a RAM cache variable whose
-address is the {\em address-variable}.  The RAM cache variable
-is not changed even if the value read does not match its value.
-
-\hspace*{-0.2in}{\em \bf Write-Instructions}.
-These do what they normally do, except they are all dry-run 
-before any actually execute.  During the dry-run one of these
-instruction fails if any memory reference it makes would fail
-were the instruction actually executed.  In particular, if any
-piece of memory is paged out or not in RAM, the dry-run fails.
-\end{indpar}
-
-The `\TT{count}' value returned by the {\em atomic-memory-statement}
-equals \TT{0} if the statement succeeds, or is the number of the
-first failed instruction in the statement block if the statement
-fails (the first instruction is number \TT{1}).
-The `\TT{bad address}' value is \TT{0} unless the block
-fails because of a memory fault, in which case the `\TT{bad address}'
-value is set to the faulting address.  One usually deals with a faulting
-address by reading it with a normal instruction if it is a read fault,
-or writing it with a normal instruction that does not change its
-value if it is a write fault (this may require a compare and set
-assembly instruction),
-and then retrying the \TT{*ATOMIC*} block.
-
-Interrupts of all kinds are disabled during the execution of an
-{\em atomic-memory-statement} so the statement will execute as
-fast as the underlying hardware will allow.  However, this means
-that memory paging is disabled, so instructions will fail if
-they page fault.  This is the reason for the dry-run of the
-{\em write-instructions}, to be sure they will not fail
-when they actually write data.
-
-A system may put restrictions on the size of the value in
-a {\em length-variable}, and on the number of instructions
-in an \TT{*ATOMIC*} block, in order to ensure that interrupts
-are not disabled for very long.  Violation of these restrictions
-causes a \TT{*ATOMIC*} block instruction fault that is distinct
-from \TT{*ATOMIC*} block failures described above (such violations
-are not recoverable).
 
 \section{Memory Channels}
 \label{MEMORY-CHANNELS}

@@ -11809,7 +11809,7 @@ it is \underline{not} acquired in pass 1.
 
 In pass 2 the \emkey{lock-instruction} sets the lock and succeeds if the lock
 was not already set, and otherwise fails.  If the instruction succeeds,
-it will have set the lock.
+it will have set and thereby acquired the lock.
 
 In pass 3 {\em lock-instructions} do nothing.
 
@@ -11819,7 +11819,7 @@ executed in pass 1 and the start of pass 2.
 
 When the {\em atomic-statement} terminates, either
 successfully or when it fails or has an operation error,
-all locks gotten are released in reverse order.
+all locks acquired are released in reverse order.
 
 If the {\em lock-ID} is not valid, the {\em lock-instruction}
 has an operation error.

@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 25, 2018
+November 28, 2018
  
 \end{center}
 
@@ -10460,11 +10460,11 @@ of a {\em call-assignment-statement},
 may \underline{not} have the \TT{*STACK*} qualifier.
 
 Stacks of loop iteration subblocks are free, and
-variables in the {\em result-variable-list}
-and iteration variables
-of a {\em loop-assignment-statement} may not have the \TT{*STACK*}
+iteration variables
+of a {\em loop-assignment-statement} may \underline{not} have the \TT{*STACK*}
 qualifier.  However, stacks of loop `\TT{initially}' and `\TT{finally}'
-subblocks are not free.
+subblocks are not free, and result variables of
+a {\em loop-assignment-statement} \underline{may} have the \TT{*STACK*} qualifier.
 
 Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
 but are never deallocated and make no use of the \TT{*STACK*}
@@ -10477,17 +10477,16 @@ allocated to their smallest containing free stack, and not deallocated
 until that free stack is deallocated.
 
 Free stacks are relocatable and can be moved.
-Substacks cannot move independently,
-but move whenever their smallest containing free stack moves.
+Bound stacks cannot move independently,
+but move whenever their containing free stack moves.
 Any stack address is relative to its containing free stack,
 which is the current free stack at the time executable code uses
-the stack address.  To accommodate this builtin memory read-write
-functions will not only accept an \TT{adr} value as a RAM address,
-but also accept a RAM address consisting of an \TT{unsadr}
-offset within the stack and a stack base address that is itself
-stored in RAM.  See Sections~\itemref{THE-READ-AND-WRITE-QUALIFIERS}
-and \itemref{STACK-MEMORY-ALLOCATION}
-for details.
+the stack address.  To accommodate this stack addresses are a pair
+consisting of the static address of a location containing the base
+address of the containing free stack and an offset within that
+free stack.
+
+TBD
 
 There are a couple of situations in which free stacks move.
 

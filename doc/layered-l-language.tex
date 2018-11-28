@@ -7438,7 +7438,7 @@ from RAM memory outside the current function execution frame or
 global memory,
 but see \pagref{READ} and Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}
 for ways to load RAM values into function frame variables.
-See Section~\itemref{STACK-MANAGEMENT} for more information about
+See Section~\itemref{STACKS} for more information about
 function frames.
 
 The value assigned to each result variable must be implicitly convertible to
@@ -9999,7 +9999,7 @@ that values with
 this qualifier may not be passed out of a block with a free
 stack.  This keeps stack addresses from escaping contexts in
 which they are valid.  See Sections~\itemref{THE-STACK-QUALIFIER} and
-\itemref{STACK-MANAGEMENT}.
+\itemref{STACKS}.
 
 Other examples of the use of clusters are the implementation of
 \TT{if/else} expressions (\pagref{IF-ELSE-IMPLEMENTATION})
@@ -10085,342 +10085,11 @@ Importantly, cluster members may only be created or updated
 as inline function call results.  Thus if
 the inline functions are written correctly, the program will be type-safe.
 
-\section{Builtin Qualifiers}
-\label{BUILTIN-QUALIFIERS}
+\section{Memory Organization}
+\label{MEMORY-ORGANIZATION}
 
-Builtin qualifiers with special properties implemented in the L-Language
-are \TT{*READ*}, \TT{*WRITE*}, and \TT{*STACK*}.
-Builtin qualifiers with no special properties but which are used
-according to specific conventions are \TT{*UNCHECKED*}, \TT{*READABLE},
-and \TT{*WRITABLE}.
-There is also a special class of qualifiers called trace qualifiers.
-Lastly \TT{*DEFERRED*} and \TT{*OPTIONAL*} are pseudo-qualifiers that are
-syntactically like qualifiers, but semantically are not qualifiers.
-
-\subsection{The \TT{*READ*} and \TT{*WRITE*} Qualifiers}
-\label{THE-READ-AND-WRITE-QUALIFIERS}
-
-The \ttakey{READ} qualifier is a implied variable qualifier that behaves
-in a special way when it is given to a variable {\tt v}.
-In this situation {\tt v} is a copy of a RAM memory value and
-must be in a cluster that
-has either:
-\begin{enumerate}
-\item
-A member {\tt v.adr} of type \TT{adr} 
-that is the RAM address of {\tt v}.
-
-\item
-Members {\tt v.offset} of type \TT{intadr} or \TT{unsadr} and
-{\tt w.base} of type \TT{adr}, where
-{\tt w} is either {\tt v} or an ancestor
-of {\tt v} in the cluster (if there are several such ancestors, the
-closest to {\tt v} is selected).
-In this case the RAM address of {\tt v} is {\tt v.offset+w.base}.
-
-\item
-It is possible for any of the cluster members mentioned above,
-i.e., {\tt v.adr}, {\tt v.offset}, or {\tt w.base}, to have the
-\TT{*READ*} qualifier, in which case they must obey these rules recursively.
-E.g., if {\tt w.base} has the \TT{*READ*} qualifier there must be either
-{\tt w.base.adr}, or there must be both
-{\tt w.base\EOL .offset} and {\tt w.base.base} (in this case
-{\tt w.base.base} must exist and {\tt w.base} cannot be used as its
-own {\tt .base}).
-
-\item
-Member {\tt v.offset} of type \TT{intadr} or \TT{unsadr} with a
-compile time value, but \underline{no} member {\tt v.base},
-and instead for a cluster ancestor {\tt w} of {\tt v}
-members as in any of these items, including this, that allow the RAM
-address {\tt A} of {\tt w} to be computed.  The RAM address of {\tt v}
-is then {\tt v.offset+A}.
-\end{enumerate}
-
-A variable {\tt v} with \TT{*READ*} qualifier
-must \underline{not} be given a value by an
-assignment statement, but will instead be loaded with a value
-from its RAM address.  It is called a `\key{RAM cache variable}'.
-
-The type of the variable {\tt v} must \underline{not} have \TT{void} as its
-underlying type.
-
-An example is:
-
-\begin{indpar}\begin{verbatim}
-// In C/C++:
-//     struct foo_struct { int a, b, c }
-//     typedef foo_struct * foo
-//
-// Here a cluster foo, foo.a, foo.b, foo.c
-// where foo is an address.
-//
-define types:
-    foo as void
-    foo_ptr as adr
-function foo x, adr x.base,
-         *READ* *WRITE* int32 x.a, x.a.offset,
-         *READ*         int32 x.b, x.b.offset,
-         *READ* *WRITE* int32 x.c, x.c.offset
-        = "*" ( foo_ptr y ):
-    x.base = y
-    x.a.offset = 0
-    x.b.offset = 4
-    x.c.offset = 8
-function next x.a = update a
-        ( foo x, *READ* *WRITE* int32 x.a, int32 v ):
-    next x.a = v
-
-// Usage:
-//
-foo_ptr zp = ...        // assign adr to zp
-foo z = * zp            // Assign to z.base, z.a.offset, ...
-... z.a ...             // Use z.a
-update a ( z, ... )    // Write z.a
-
-\end{verbatim}\end{indpar}
-
-The \ttakey{WRITE} qualifier also identifies a variable as
-being a cache of RAM.  However, the
-variable is not given any initial value if it does not
-also have the \TT{*READ*} qualifier.
-If {\tt v} is a \ttakey{WRITE}
-RAM cache variable, assigning a value to `{\tt next v}'
-writes the value to RAM.  For example:
-
-\begin{indpar}\begin{verbatim}
-    function *WRITE* r, adr r.adr = foo ( ... ):
-        . . . . . . . . . .
-    int32 v = foo ( ... )
-        // v does not have any value at this point, and
-        // using the value of v will be a compiler error.
-    next v = ...      
-        // Writes value to v.adr and updates v
-\end{verbatim}\end{indpar}
-
-A RAM cache variable may have both the \TT{*READ*} and \TT{*WRITE*}
-qualifiers.
-
-If a RAM cache variable {\tt v}'s value is not used,
-it will not actually be loaded from RAM, even if {\tt v} is written
-by assigning a value to `{\tt next v}'.
-
-Because \TT{*READ*} and \TT{*WRITE*} are implied qualifiers,
-RAM cache variables can only be created as
-results of inline function calls.
-So only inline functions can effect a read or write
-of arbitrary RAM contents.
-
-There is a special unchecked function of zero arguments, \TT{NULL}, of result
-type \TT{adr}, that
-references a block of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced
-(\pagref{NULL}).
-
-
-\subsection{The \TT{*STACK*} Qualifier}
-\label{THE-STACK-QUALIFIER}
-
-The `\ttakey{STACK}' qualifier is an addable,
-implied, value qualifier
-attached to clusters containing offsets and addresses
-returned by the builtin `\TT{allocate to stack}'
-function (\pagref{ALLOCATE-TO-STACK}).
-It is used to keep a stack address or offset from being stored in
-non-stack memory and in stacks who lifetime exceeds that of the
-memory the stack the address or offset points into.
-
-The special property of the \TT{*STACK*} qualifier is that it cannot
-be used to qualify variables in the {\em result-variable-list}
-of a {\em call-assignment-statement},
-{\em out-of-line-assignment-statement}, or
-{\em compile-time-assignment-statement},
-or iteration variables in a {\em loop-assignment-statement}.
-This is so that stack addresses and offsets pointing into a free stack
-cannot outlive the free stack.
-See Section~\itemref{STACK-MANAGEMENT} for more information.
-
-Also, as a prohibited qualifier, a \TT{*STACK*} value cannot be
-passed as an argument to a function that does not expect a
-\TT{*STACK*} value.  For example:
-\begin{indpar}\begin{verbatim}
-*STACK* adr sa = ...
-adr ta = ...
-function adr result = F ( adr arg ):
-    . . . . . . . . . .
-function adr result = G ( *STACK* adr arg ):
-    . . . . . . . . . .
-adr xa = F ( sa ) // Illegal; F's arg does not have
-                  // *STACK* qualifier.
-adr ya = G ( sa ) // Legal; G's arg has *STACK* qualifier.
-adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
-                  // no effect (its not required).
-\end{verbatim}\end{indpar}
-
-\subsection{The \TT{*UNCHECKED*} Qualifier}
-\label{THE-UNCHECKED-QUALIFIER}
-
-The \ttakey{UNCHECKED} qualifier is a builtin
-variable qualifier that is used by convention to mark the result variables
-of function calls that violate normal type-checking.
-See \itemref{UNCHECKED-NUMBER-CONVERSIONS}, Unchecked Number
-Conversions, for examples of functions producing \TT{*UNCHECKED*}
-results.
-
-It is possible for two functions to have identical prototypes
-except that one has the \TT{*UNCHECKED*} qualifier on its
-result variable and the other does not.  The function selected by
-call-prototype matching will depend upon whether the actual
-result variable of the call has the \TT{*UNCHECKED*} qualifier,
-because the qualifier is neither addable or deletable.
-An example is given on page \pageref{NOT-UNCHECKED-CONVERSION-DEFINITION}.
-
-The \TT{*UNCHECKED*} lexeme is also used as the initial part some
-names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement
-(\pagref{ASSEMBLY-ASSIGNMENT-STATEMENT}).
-
-\subsection{The \TT{*READABLE*} and \TT{*WRITABLE*} Qualifiers}
-\label{THE-READABLE-AND-WRITABLE-QUALIFIERS}
-
-The \ttakey{READABLE} and \ttakey{WRITABLE} qualifiers are builtin
-implied, deletable, value qualifiers that are used by convention
-to mark pointers that can be safely used for, respectively,
-reading or writing.
-
-\subsection{Trace Qualifiers}
-\label{TRACE-QUALIFIERS}
-
-A \key{trace qualifier} permits values to be marked so that they
-can be found (i.e., `traced') by garbage collectors
-(and occasionally debuggers)
-when they are stored in the
-stack.  A trace qualifier may be declared by:
-
-\begin{indpar}
-\emkey{trace-qualifier-declaration}
-    \begin{tabular}[t]{rl}
-    ::= & \ttkey{trace qualifier}
-           {\em defined-qualifier-name} \\
-        & ~~~~~ \TT{with base type}~~{\em type-name}
-    \end{tabular}
-\end{indpar}
-
-The base type of a trace qualifier may be determined by the
-function with the prototype:
-\begin{center}
-{\tt (type T) = \ttkey{base type of} ( qualifier Q )}
-\end{center}
-The value of any variable with the trace qualifier must be
-\TT{*UNCHECKED*} convertible to a value of the base type.
-
-It is common to add a trace qualifier to the statement that
-defines a type you want to trace.  An example in which the
-qualifier is \TT{Q} and the type is \TT{T} is:
-\begin{indpar}\begin{verbatim}
-trace qualifier Q with base type adr
-define type Q T as adr
-\end{verbatim}\end{indpar}
-which causes all values of type \TT{T} in the stack to be
-traced.
-
-More specifically, when a value \TT{V} of a variable with the trace
-qualifier \TT{Q} and base type \TT{B} is added to a stack,
-\TT{V} converted to type \TT{B} is also
-pushed into a (virtual or physical) \TT{Q}-stack of values of
-type \TT{B}.
-When the stack containing \TT{V} is freed, the corresponding
-value in the \TT{Q}-stack is popped.  There is a \TT{Q}-stack
-associated with every process and every global area.
-Using functions in the
-subroutine library (see TBD), these \TT{Q}-stacks can be read.
-
-While a value may be pushed into a stack more than once,
-a value will not be pushed if the compiler can prove it is already
-in the stack.  Thus given the definitions above, in
-\begin{indpar}\begin{verbatim}
-T v = ...
-T w = v
-\end{verbatim}\end{indpar}
-the first statement may push the value of \TT{v} to the \TT{Q} stack
-but the second statement will not push the value of \TT{w} on
-the grounds that it is already in the stack.
-
-\subsection{The Reload Statement}
-\label{THE-RELOAD-COMMAND}
-
-The reload statement has the syntax:
-\begin{indpar}
-\emkey{reload-statement} ::=
-    \ttkey{reload} {\em qualifiers} \{ \TT{,} {\em qualifiers} \}\STAR{} \\
-\emkey{qualifiers} ::= {\em qualifier} $|$ {\em qualifier-set} \\
-\emkey{qualifier} ::= {\em expression} evaluating to a qualifier \\
-\emkey{qualifier-set} ::= {\em expression} evaluating to a qualifier set
-\end{indpar}
-
-This statement declares the values of all variables with the designated
-qualifiers to be out-of-date and unusable.  If any of these variables
-is used subsequently, statements to recompute the variable value
-will be inserted automatically into the code at the point of the
-\TT{reload} statement.  If this is not possible the compilation will
-be in error.
-
-As a special case, if a variable that is declared to be out-of-date,
-\TT{v}, has the \TT{*READ*} qualifier, and is in
-a cluster that causes \TT{v} to be loaded from memory
-(as per Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}),
-then if \TT{v} is declared
-to be out-of-date, recomputing \TT{v} just means that \TT{v}
-is reloaded from RAM.  The possibility that software cache
-variables (with the \TT{*READ*} qualifier) will become out-of-date because
-the RAM locations they cache have changed is the reason the \TT{reload}
-statement exists.
-
-The statement
-\begin{center}
-\TT{reload *READ*, *READ* dependent}
-\end{center}
-is commonly used to declare all
-variables that act as software caches of memory, and all variables
-that should be updated when the caches are updated, to be out-of-date.
-
-Note that variables computed from out-of-date variables are \underline{not}
-declared to be out-of-date.
-
-If an out-of-date variable value is not used after the \TT{reload} statement,
-it is not recomputed.
-
-Variable values are recomputed in the same order as they were
-originally computed.  How each variable is recomputed depends upon
-how it was originally computed.
-
-If a variable \TT{v} was originally computed by
-a {\em simple-assignment-statement}
-of the form `{\em type} \TT{v =} {\em expression}', then if
-no input to {\em expression} has been recomputed, \TT{v} does not
-need to be recomputed.  Otherwise \TT{v} is recomputed by re-executing
-the assignment statement.
-
-If a variable without a \TT{*READ*} qualifier needs to be
-recomputed and was computed by other than
-a {\em simple-assignment-statement}, it is a compile error if the
-variable is marked out-of-date and later used.
-
-The \TT{reload} statement behaves like an executable statement but
-it has some unusual properties when it is executed inside a
-nested subblock.  First, it declares out-of-date any variable with
-the given qualifiers that is visible in its subblock \underline{and any
-containing block}.
-Second, it will recompute any out-of-date variable in its subblock
-\underline{or any containing block} that may be used after the
-\TT{reload} statement executes.
-Third, when it recomputes variables, it overwrites
-the place the variable is stored, rather than allocating a new
-place as would a `\TT{next~}{\em variable-name}' expression.
-These properties allow `\TT{reload Q}' to appear in an inline
-or conditional subblock.
-
-\section{Stack Management}
-\label{STACK-MANAGEMENT}
+\subsection{Stacks}
+\label{STACKS}
 
 Each execution thread has a stack that is not in any other
 stack.  Each out-of-line function
@@ -10648,7 +10317,7 @@ stored in places whose lifetime exceeds that of the current
 free stack.
 
 The memory is freed when the free stack to which it is allocated
-is freed (\itemref{STACK-MANAGEMENT}).
+is freed (\itemref{STACKS}).
 The memory containing the \TT{base} value may also be
 freed at this time. 
 
@@ -10799,6 +10468,340 @@ If the global area is also run time, its
 block code will be re-executed in the run time environment when the
 file containing it is loaded, and might produce different stack contents
 for the area than the compile time version of the area.
+
+\section{Builtin Qualifiers}
+\label{BUILTIN-QUALIFIERS}
+
+Builtin qualifiers with special properties implemented in the L-Language
+are \TT{*READ*}, \TT{*WRITE*}, and \TT{*STACK*}.
+Builtin qualifiers with no special properties but which are used
+according to specific conventions are \TT{*UNCHECKED*}, \TT{*READABLE},
+and \TT{*WRITABLE}.
+There is also a special class of qualifiers called trace qualifiers.
+Lastly \TT{*DEFERRED*} and \TT{*OPTIONAL*} are pseudo-qualifiers that are
+syntactically like qualifiers, but semantically are not qualifiers.
+
+\subsection{The \TT{*READ*} and \TT{*WRITE*} Qualifiers}
+\label{THE-READ-AND-WRITE-QUALIFIERS}
+
+The \ttakey{READ} qualifier is a implied variable qualifier that behaves
+in a special way when it is given to a variable {\tt v}.
+In this situation {\tt v} is a copy of a RAM memory value and
+must be in a cluster that
+has either:
+\begin{enumerate}
+\item
+A member {\tt v.adr} of type \TT{adr} 
+that is the RAM address of {\tt v}.
+
+\item
+Members {\tt v.offset} of type \TT{intadr} or \TT{unsadr} and
+{\tt w.base} of type \TT{adr}, where
+{\tt w} is either {\tt v} or an ancestor
+of {\tt v} in the cluster (if there are several such ancestors, the
+closest to {\tt v} is selected).
+In this case the RAM address of {\tt v} is {\tt v.offset+w.base}.
+
+\item
+It is possible for any of the cluster members mentioned above,
+i.e., {\tt v.adr}, {\tt v.offset}, or {\tt w.base}, to have the
+\TT{*READ*} qualifier, in which case they must obey these rules recursively.
+E.g., if {\tt w.base} has the \TT{*READ*} qualifier there must be either
+{\tt w.base.adr}, or there must be both
+{\tt w.base\EOL .offset} and {\tt w.base.base} (in this case
+{\tt w.base.base} must exist and {\tt w.base} cannot be used as its
+own {\tt .base}).
+
+\item
+Member {\tt v.offset} of type \TT{intadr} or \TT{unsadr} with a
+compile time value, but \underline{no} member {\tt v.base},
+and instead for a cluster ancestor {\tt w} of {\tt v}
+members as in any of these items, including this, that allow the RAM
+address {\tt A} of {\tt w} to be computed.  The RAM address of {\tt v}
+is then {\tt v.offset+A}.
+\end{enumerate}
+
+A variable {\tt v} with \TT{*READ*} qualifier
+must \underline{not} be given a value by an
+assignment statement, but will instead be loaded with a value
+from its RAM address.  It is called a `\key{RAM cache variable}'.
+
+The type of the variable {\tt v} must \underline{not} have \TT{void} as its
+underlying type.
+
+An example is:
+
+\begin{indpar}\begin{verbatim}
+// In C/C++:
+//     struct foo_struct { int a, b, c }
+//     typedef foo_struct * foo
+//
+// Here a cluster foo, foo.a, foo.b, foo.c
+// where foo is an address.
+//
+define types:
+    foo as void
+    foo_ptr as adr
+function foo x, adr x.base,
+         *READ* *WRITE* int32 x.a, x.a.offset,
+         *READ*         int32 x.b, x.b.offset,
+         *READ* *WRITE* int32 x.c, x.c.offset
+        = "*" ( foo_ptr y ):
+    x.base = y
+    x.a.offset = 0
+    x.b.offset = 4
+    x.c.offset = 8
+function next x.a = update a
+        ( foo x, *READ* *WRITE* int32 x.a, int32 v ):
+    next x.a = v
+
+// Usage:
+//
+foo_ptr zp = ...        // assign adr to zp
+foo z = * zp            // Assign to z.base, z.a.offset, ...
+... z.a ...             // Use z.a
+update a ( z, ... )    // Write z.a
+
+\end{verbatim}\end{indpar}
+
+The \ttakey{WRITE} qualifier also identifies a variable as
+being a cache of RAM.  However, the
+variable is not given any initial value if it does not
+also have the \TT{*READ*} qualifier.
+If {\tt v} is a \ttakey{WRITE}
+RAM cache variable, assigning a value to `{\tt next v}'
+writes the value to RAM.  For example:
+
+\begin{indpar}\begin{verbatim}
+    function *WRITE* r, adr r.adr = foo ( ... ):
+        . . . . . . . . . .
+    int32 v = foo ( ... )
+        // v does not have any value at this point, and
+        // using the value of v will be a compiler error.
+    next v = ...      
+        // Writes value to v.adr and updates v
+\end{verbatim}\end{indpar}
+
+A RAM cache variable may have both the \TT{*READ*} and \TT{*WRITE*}
+qualifiers.
+
+If a RAM cache variable {\tt v}'s value is not used,
+it will not actually be loaded from RAM, even if {\tt v} is written
+by assigning a value to `{\tt next v}'.
+
+Because \TT{*READ*} and \TT{*WRITE*} are implied qualifiers,
+RAM cache variables can only be created as
+results of inline function calls.
+So only inline functions can effect a read or write
+of arbitrary RAM contents.
+
+There is a special unchecked function of zero arguments, \TT{NULL}, of result
+type \TT{adr}, that
+references a block of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced
+(\pagref{NULL}).
+
+
+\subsection{The \TT{*STACK*} Qualifier}
+\label{THE-STACK-QUALIFIER}
+
+The `\ttakey{STACK}' qualifier is an addable,
+implied, value qualifier
+attached to clusters containing offsets and addresses
+returned by the builtin `\TT{allocate to stack}'
+function (\pagref{ALLOCATE-TO-STACK}).
+It is used to keep a stack address or offset from being stored in
+non-stack memory and in stacks who lifetime exceeds that of the
+memory the stack the address or offset points into.
+
+The special property of the \TT{*STACK*} qualifier is that it cannot
+be used to qualify variables in the {\em result-variable-list}
+of a {\em call-assignment-statement},
+{\em out-of-line-assignment-statement}, or
+{\em compile-time-assignment-statement},
+or iteration variables in a {\em loop-assignment-statement}.
+This is so that stack addresses and offsets pointing into a free stack
+cannot outlive the free stack.
+See Section~\itemref{STACKS} for more information.
+
+Also, as a prohibited qualifier, a \TT{*STACK*} value cannot be
+passed as an argument to a function that does not expect a
+\TT{*STACK*} value.  For example:
+\begin{indpar}\begin{verbatim}
+*STACK* adr sa = ...
+adr ta = ...
+function adr result = F ( adr arg ):
+    . . . . . . . . . .
+function adr result = G ( *STACK* adr arg ):
+    . . . . . . . . . .
+adr xa = F ( sa ) // Illegal; F's arg does not have
+                  // *STACK* qualifier.
+adr ya = G ( sa ) // Legal; G's arg has *STACK* qualifier.
+adr za = G ( ta ) // Legal; G's arg's *STACK* qualifier has
+                  // no effect (its not required).
+\end{verbatim}\end{indpar}
+
+\subsection{The \TT{*UNCHECKED*} Qualifier}
+\label{THE-UNCHECKED-QUALIFIER}
+
+The \ttakey{UNCHECKED} qualifier is a builtin
+variable qualifier that is used by convention to mark the result variables
+of function calls that violate normal type-checking.
+See \itemref{UNCHECKED-NUMBER-CONVERSIONS}, Unchecked Number
+Conversions, for examples of functions producing \TT{*UNCHECKED*}
+results.
+
+It is possible for two functions to have identical prototypes
+except that one has the \TT{*UNCHECKED*} qualifier on its
+result variable and the other does not.  The function selected by
+call-prototype matching will depend upon whether the actual
+result variable of the call has the \TT{*UNCHECKED*} qualifier,
+because the qualifier is neither addable or deletable.
+An example is given on page \pageref{NOT-UNCHECKED-CONVERSION-DEFINITION}.
+
+The \TT{*UNCHECKED*} lexeme is also used as the initial part some
+names. An example is the \TT{*UNCHECKED* *ASSEMBLY*} assignment statement
+(\pagref{ASSEMBLY-ASSIGNMENT-STATEMENT}).
+
+\subsection{The \TT{*READABLE*} and \TT{*WRITABLE*} Qualifiers}
+\label{THE-READABLE-AND-WRITABLE-QUALIFIERS}
+
+The \ttakey{READABLE} and \ttakey{WRITABLE} qualifiers are builtin
+implied, deletable, value qualifiers that are used by convention
+to mark pointers that can be safely used for, respectively,
+reading or writing.
+
+\subsection{Trace Qualifiers}
+\label{TRACE-QUALIFIERS}
+
+A \key{trace qualifier} permits values to be marked so that they
+can be found (i.e., `traced') by garbage collectors
+(and occasionally debuggers)
+when they are stored in the
+stack.  A trace qualifier may be declared by:
+
+\begin{indpar}
+\emkey{trace-qualifier-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{trace qualifier}
+           {\em defined-qualifier-name} \\
+        & ~~~~~ \TT{with base type}~~{\em type-name}
+    \end{tabular}
+\end{indpar}
+
+The base type of a trace qualifier may be determined by the
+function with the prototype:
+\begin{center}
+{\tt (type T) = \ttkey{base type of} ( qualifier Q )}
+\end{center}
+The value of any variable with the trace qualifier must be
+\TT{*UNCHECKED*} convertible to a value of the base type.
+
+It is common to add a trace qualifier to the statement that
+defines a type you want to trace.  An example in which the
+qualifier is \TT{Q} and the type is \TT{T} is:
+\begin{indpar}\begin{verbatim}
+trace qualifier Q with base type adr
+define type Q T as adr
+\end{verbatim}\end{indpar}
+which causes all values of type \TT{T} in the stack to be
+traced.
+
+More specifically, when a value \TT{V} of a variable with the trace
+qualifier \TT{Q} and base type \TT{B} is added to a stack,
+\TT{V} converted to type \TT{B} is also
+pushed into a (virtual or physical) \TT{Q}-stack of values of
+type \TT{B}.
+When the stack containing \TT{V} is freed, the corresponding
+value in the \TT{Q}-stack is popped.  There is a \TT{Q}-stack
+associated with every process and every global area.
+Using functions in the
+subroutine library (see TBD), these \TT{Q}-stacks can be read.
+
+While a value may be pushed into a stack more than once,
+a value will not be pushed if the compiler can prove it is already
+in the stack.  Thus given the definitions above, in
+\begin{indpar}\begin{verbatim}
+T v = ...
+T w = v
+\end{verbatim}\end{indpar}
+the first statement may push the value of \TT{v} to the \TT{Q} stack
+but the second statement will not push the value of \TT{w} on
+the grounds that it is already in the stack.
+
+\subsection{The Reload Statement}
+\label{THE-RELOAD-COMMAND}
+
+The reload statement has the syntax:
+\begin{indpar}
+\emkey{reload-statement} ::=
+    \ttkey{reload} {\em qualifiers} \{ \TT{,} {\em qualifiers} \}\STAR{} \\
+\emkey{qualifiers} ::= {\em qualifier} $|$ {\em qualifier-set} \\
+\emkey{qualifier} ::= {\em expression} evaluating to a qualifier \\
+\emkey{qualifier-set} ::= {\em expression} evaluating to a qualifier set
+\end{indpar}
+
+This statement declares the values of all variables with the designated
+qualifiers to be out-of-date and unusable.  If any of these variables
+is used subsequently, statements to recompute the variable value
+will be inserted automatically into the code at the point of the
+\TT{reload} statement.  If this is not possible the compilation will
+be in error.
+
+As a special case, if a variable that is declared to be out-of-date,
+\TT{v}, has the \TT{*READ*} qualifier, and is in
+a cluster that causes \TT{v} to be loaded from memory
+(as per Section~\itemref{THE-READ-AND-WRITE-QUALIFIERS}),
+then if \TT{v} is declared
+to be out-of-date, recomputing \TT{v} just means that \TT{v}
+is reloaded from RAM.  The possibility that software cache
+variables (with the \TT{*READ*} qualifier) will become out-of-date because
+the RAM locations they cache have changed is the reason the \TT{reload}
+statement exists.
+
+The statement
+\begin{center}
+\TT{reload *READ*, *READ* dependent}
+\end{center}
+is commonly used to declare all
+variables that act as software caches of memory, and all variables
+that should be updated when the caches are updated, to be out-of-date.
+
+Note that variables computed from out-of-date variables are \underline{not}
+declared to be out-of-date.
+
+If an out-of-date variable value is not used after the \TT{reload} statement,
+it is not recomputed.
+
+Variable values are recomputed in the same order as they were
+originally computed.  How each variable is recomputed depends upon
+how it was originally computed.
+
+If a variable \TT{v} was originally computed by
+a {\em simple-assignment-statement}
+of the form `{\em type} \TT{v =} {\em expression}', then if
+no input to {\em expression} has been recomputed, \TT{v} does not
+need to be recomputed.  Otherwise \TT{v} is recomputed by re-executing
+the assignment statement.
+
+If a variable without a \TT{*READ*} qualifier needs to be
+recomputed and was computed by other than
+a {\em simple-assignment-statement}, it is a compile error if the
+variable is marked out-of-date and later used.
+
+The \TT{reload} statement behaves like an executable statement but
+it has some unusual properties when it is executed inside a
+nested subblock.  First, it declares out-of-date any variable with
+the given qualifiers that is visible in its subblock \underline{and any
+containing block}.
+Second, it will recompute any out-of-date variable in its subblock
+\underline{or any containing block} that may be used after the
+\TT{reload} statement executes.
+Third, when it recomputes variables, it overwrites
+the place the variable is stored, rather than allocating a new
+place as would a `\TT{next~}{\em variable-name}' expression.
+These properties allow `\TT{reload Q}' to appear in an inline
+or conditional subblock.
 
 \section{Special Functions}
 \label{SPECIAL-FUNCTIONS}

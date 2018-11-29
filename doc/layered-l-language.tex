@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 28, 2018
+November 29, 2018
  
 \end{center}
 
@@ -10088,24 +10088,26 @@ the inline functions are written correctly, the program will be type-safe.
 \section{Memory Organization}
 \label{MEMORY-ORGANIZATION}
 
-Memory is organized into two parts: static and dynamic.
+Memory is organized into two parts: \key{static} and \key{dynamic}.
 Static memory variables are allocated at fixed addresses
-that never change.  Dynamic memory is allocated to blocks that
-can be moved.  Static memory contains mostly pointers to dynamic
-blocks, with these pointers being updated when the blocks they
-point at are moved.
+that never change.  Dynamic memory contains blocks that
+can be moved.
 
 Static addresses consist of a single \TT{adr} value.
 
-Dynamic addresses are pairs, each consisting of a static
-base location $L$ of type \TT{adr}, and an offset $O$ of type \TT{intadr}.
-$L$ is the static memory address of a \TT{adr} value which is the
-base address $B$ of the dynamic block containing the dynamic location
-being addressed.  $O$ is the offset of the location in that block.
-Thus the location address is $B+O$.  If the block is moved, $B$ changes,
-but $L$ and $O$ do not change.
+A \key{stub/body object} consists of a dynamic block called the
+object's \key{body} and a static block called the object's \key{stub}
+that contains a pointer to the body.
 
-TBD
+A pointer to a location in the body of a stub/body object
+consists of an \TT{adr} value
+pointing to the object's stub and an \TT{unsadr} (or \TT{intadr})
+value that is the offset of the location within the body.
+
+Builtin function prototypes are defined to allocate static and dynamic memory
+and deallocate dynamic memory.  These functions are actually provided
+by the runtime system, and may be defined in different ways to support
+different memory allocation/deallocation features.
 
 \subsection{Static Memory}
 \label{STATIC-MEMORY}

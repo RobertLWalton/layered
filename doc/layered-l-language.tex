@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 29, 2018
+November 30, 2018
  
 \end{center}
 
@@ -10095,13 +10095,20 @@ can be moved.
 
 Static addresses consist of a single \TT{adr} value.
 
-A \key{stub/body object} consists of a dynamic block called the
-object's \key{body} and a static block called the object's \key{stub}
-that contains a pointer to the body.
+Dynamic blocks can be moved when they are expanded or when dynamic
+memory needs to be reorganized because, for example, other dynamic
+blocks are being are allocated or expanded.  As a consequence,
+each dynamic block is associate with a pointer stored in static
+memory that points at the beginning of the dynamic block.  This
+pointer is in a static storage datum called a \key{stub}
+and is called a \key{body pointer}.  The dynamic block is called
+a \key{body} of the stub.  A stub can have more than one body.
 
-A pointer to a location in the body of a stub/body object
+TBD
+
+A pointer to a location in the body of a stub
 consists of an \TT{adr} value
-pointing to the object's stub and an \TT{unsadr} (or \TT{intadr})
+pointing to the stub and an \TT{unsadr} or \TT{intadr}
 value that is the offset of the location within the body.
 
 Builtin function prototypes are defined to allocate static and dynamic memory

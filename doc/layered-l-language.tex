@@ -10161,7 +10161,8 @@ offset of the dynamic pointer.
 {\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
 				  \ttstdkey{allocate to static} \\
 				  ~~~~( unsadr size, \\
-				  ~~~~~~unswrd alignment ?=~0 )
+				  ~~~~~~unswrd alignment ?=~0, \\
+				  ~~~~~~unswrd region ?=~0 ) \\
 				  \end{tabular}}
 
 \begin{indpar}
@@ -10186,15 +10187,21 @@ in a {\em compile-time-assign\-ment-\EOL statement}
 Otherwise it executes at run time.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = \ttstdkey{allocate to static} ( $T$ v )}
-\begin{center}
-where $T$ is any number type
-\end{center}
 
+{\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
+				  \ttstdkey{allocate to static} \\
+				  ~~~~(| type $T$ v |) \\
+				  ~~~~( $T$ v, \\
+				  ~~~~~~unswrd N ?=~1, \\
+				  ~~~~~~unswrd region ?=~0 ) \\
+				  \end{tabular} \\
+\TS~~~~~~~~| ( underlying type of T ) is numeric |]}
 \begin{indpar}
-Allocate static memory and set it equal to {\tt v}.  
+Allocate a vector of {\tt N} elements to
+static memory, set each element equal to {\tt v}, and return the
+address of the first (lowest addressed) element.
 The alignment of the memory is equal to the alignment of $T$.
-Return the address of this memory.  The address viewed as an
+The address viewed as an
 integer is an exact multiple of the alignment.
 
 This function executes at compile-time only if it is included
@@ -10203,8 +10210,9 @@ in a {\em compile-time-assign\-ment-\EOL statement}
 Otherwise it executes at run time.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r =} \\
-{\TS ~~~~~~~~~\ttstdkey{allocate UTF-8 to static} ( string s )}
+{\tt function *UNCHECKED* adr r = \\
+\TS~~~~~~~~\ttstdkey{allocate UTF-8 to static} \\
+\TS~~~~~~~~~~~~( string s, unsadr region ?=~0 )}
 
 \begin{indpar}
 Allocate static memory and set it equal to the UTF-8 representation of the

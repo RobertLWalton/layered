@@ -10104,7 +10104,8 @@ pointer is in a static storage datum called a \key{stub}
 and is called a \key{body pointer}.  The dynamic block is called
 a \key{body} of the stub.  A stub can have more than one body.
 
-A pointer to a location in the body of a stub
+A pointer to a location in the body of a stub is called
+a \key{dynamic pointer}.  A dynamic pointer
 consists of an \TT{adr} value
 pointing to the body pointer and an \TT{unsadr} or \TT{intadr}
 value that is the offset of the location within the body.
@@ -10138,6 +10139,23 @@ N is at least 1 megabyte if addresses are 32 bits, and is at least
 all calls to {\tt NULL} within a run-time environment, or for all compile-time
 calls within a compilation,  though the run-time and compile-time values
 may differ.
+
+When a dynamic block is deallocated, its body pointer may be set to
+this value in order to cause any reference to the block to trigger
+a memory fault.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{STATIC BASE}}\label{NULL}
+
+\begin{indpar}
+Returns the address of a static memory location that contains an
+\TT{adr} value equal to zero (note the value returned is not itself zero).
+{\tt STATIC BASE} may be thought of as a body pointer to static memory,
+treating static memory as if it were a dynamic block (that never moves).
+
+This may be used to construct a dynamic pointer to a static
+memory location.  The static address of the location becomes the
+offset of the dynamic pointer.
 \end{indpar}
 
 {\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}

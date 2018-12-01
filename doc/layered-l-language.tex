@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 30, 2018
+December 1, 2018
  
 \end{center}
 
@@ -10104,12 +10104,17 @@ pointer is in a static storage datum called a \key{stub}
 and is called a \key{body pointer}.  The dynamic block is called
 a \key{body} of the stub.  A stub can have more than one body.
 
-TBD
-
 A pointer to a location in the body of a stub
 consists of an \TT{adr} value
-pointing to the stub and an \TT{unsadr} or \TT{intadr}
+pointing to the body pointer and an \TT{unsadr} or \TT{intadr}
 value that is the offset of the location within the body.
+Instead of an \TT{adr} value pointing at the body pointer, a pair consisting
+of an \TT{adr} value pointing at the stub and an \TT{unsadr} value
+that is the offset of the body pointer in the stub may be used.  However,
+this offset is usually a constant, as is the stub address,
+so adding the stub address and the
+body pointer within stub offset together to get a single constant
+address pointing directly at the body pointer is the norm.
 
 Builtin function prototypes are defined to allocate static and dynamic memory
 and deallocate dynamic memory.  These functions are actually provided
@@ -10118,6 +10123,114 @@ different memory allocation/deallocation features.
 
 \subsection{Static Memory}
 \label{STATIC-MEMORY}
+
+The following functions allocate static memory and compute static addresses.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{NULL}}\label{NULL}
+
+\begin{indpar}
+Returns the address of a block of N bytes of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced.
+N is at least 1 megabyte if addresses are 32 bits, and is at least
+1 gitabyte if addresses are 64 bits.  The same value is returned for
+all calls to {\tt NULL} within a run-time environment, or for all compile-time
+calls within a compilation,  though the run-time and compile-time values
+may differ.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
+				  \ttkey{allocate to static} \\
+				  ( unsadr size, \\
+				  ~~unswrd alignment ?=~0 )
+				  \end{tabular}}
+
+\begin{indpar}
+Allocate {\tt size} bytes of memory with the given
+{\tt alignment} in bytes to static memory, the memory
+allocated when the program is initialized.  Return
+the address of this memory.  The address viewed as an
+integer is an exact multiple of the {\tt alignment}.
+
+If the
+{\tt alignment} is omitted or is given as 0 it is taken
+to be equal to the \TT{size} if that is a power of 2
+no greater than 16 (the size of a 128 bit value).
+Otherwise it is an error if the {\em alignment} is 0 or
+is not a power of 2.
+
+The memory bytes are initialized to zero.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
+\begin{center}
+where $T$ is any number type
+\end{center}
+
+\begin{indpar}
+Allocate static memory and set it equal to {\tt v}.  
+The alignment of the memory is equal to the alignment of $T$.
+Return the address of this memory.  The address viewed as an
+integer is an exact multiple of the alignment.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r =} \\
+{\TS ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
+
+\begin{indpar}
+Allocate static memory and set it equal to the UTF-8 representation of the
+value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
+read-only, meaning that trying to write it will cause a program memory
+fault error.
+
+This function executes at compile-time only if it is included
+in a {\em compile-time-assign\-ment-\EOL statement}
+(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
+Otherwise it executes at run time.
+\end{indpar}
+
+\end{indpar}
+
+The following function can be used to embed addresses in 
+floating point NaNs or other numeric values.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* adr r =} \\
+{\TS~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
+{\TS~~~~~~~~~~~~~ ( uns64 v,} \\
+{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+
+\begin{indpar}
+Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
+and return the result as a usable byte address.
+If the target machine only uses the low order $k$ bits of a 64-bit
+address, the high order $64-k$ bits of the result are set according
+to the requirements of the target machine, or are undefined if there
+are no such requirements.  If $k>${\tt L+S},
+the {\tt L} bits are padded on the left with zero bits.
+
+For example, for an x86 target machine $k=48$ and the high order
+17 bits of the returned address must be equal (all 0's or all 1's).
+If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
+added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
+bit of the low {\tt L} bits of {\tt v} is sign extended to become
+the high order 17 bits of the returned address.
+\end{indpar}
+
+\end{indpar}
+
 
 \subsection{Stacks}
 \label{STACKS}
@@ -10842,117 +10955,6 @@ Note that in this section `\TT{std}' is used as the
 of the \TT{"standard"} module.
 This {\em module-abbreviation} is commonly omitted when
 a function is called.
-
-\subsection{Memory Functions}
-\label{MEMORY-FUNCTIONS}
-
-The following functions allocate memory and compute addresses.
-
-\begin{indpar}
-
-{\tt function *UNCHECKED* adr r = std \ttkey{NULL}}\label{NULL}
-
-\begin{indpar}
-Returns the address of a block of N bytes of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced.
-N is at least 1 megabyte if addresses are 32 bits, and is at least
-1 gitabyte if addresses are 64 bits.  The same value is returned for
-all calls to {\tt NULL} within a run-time environment, or for all compile-time
-calls within a compilation,  though the run-time and compile-time values
-may differ.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
-				  \ttkey{allocate to static} \\
-				  ( unsadr size, \\
-				  ~~unswrd alignment ?=~0 )
-				  \end{tabular}}
-
-\begin{indpar}
-Allocate {\tt size} bytes of memory with the given
-{\tt alignment} in bytes to static memory, the memory
-allocated when the program is initialized.  Return
-the address of this memory.  The address viewed as an
-integer is an exact multiple of the {\tt alignment}.
-
-If the
-{\tt alignment} is omitted or is given as 0 it is taken
-to be equal to the \TT{size} if that is a power of 2
-no greater than 16 (the size of a 128 bit value).
-Otherwise it is an error if the {\em alignment} is 0 or
-is not a power of 2.
-
-The memory bytes are initialized to zero.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
-\begin{center}
-where $T$ is any number type
-\end{center}
-
-\begin{indpar}
-Allocate static memory and set it equal to {\tt v}.  
-The alignment of the memory is equal to the alignment of $T$.
-Return the address of this memory.  The address viewed as an
-integer is an exact multiple of the alignment.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r =} \\
-{\TS ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
-
-\begin{indpar}
-Allocate static memory and set it equal to the UTF-8 representation of the
-value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
-read-only, meaning that trying to write it will cause a program memory
-fault error.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
-\end{indpar}
-
-\end{indpar}
-
-The following function can be used to embed addresses in 
-floating point NaNs or other numeric values.
-
-\begin{indpar}
-
-{\tt function *UNCHECKED* adr r =} \\
-{\TS~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
-{\TS~~~~~~~~~~~~~ ( uns64 v,} \\
-{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
-
-\begin{indpar}
-Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
-and return the result as a usable byte address.
-If the target machine only uses the low order $k$ bits of a 64-bit
-address, the high order $64-k$ bits of the result are set according
-to the requirements of the target machine, or are undefined if there
-are no such requirements.  If $k>${\tt L+S},
-the {\tt L} bits are padded on the left with zero bits.
-
-For example, for an x86 target machine $k=48$ and the high order
-17 bits of the returned address must be equal (all 0's or all 1's).
-If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
-added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
-bit of the low {\tt L} bits of {\tt v} is sign extended to become
-the high order 17 bits of the returned address.
-\end{indpar}
-
-\end{indpar}
-
 
 
 \subsection{Floating Pointer Error Flag Functions}

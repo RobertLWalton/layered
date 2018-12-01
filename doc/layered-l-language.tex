@@ -1915,12 +1915,12 @@ the second statement will automatically invoke the implied conversion.
 The following builtin conversion functions are defined:
 
 \begin{indpar}
-{\tt function uns$x$~~~r = std \ttkey{uns$x$}~~~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std \ttkey{int$x$}~~~( uns$y$ v )} \\
-{\tt function float$x$~r = std \ttkey{float$x$}~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std \ttkey{int$x$}~~~( int$y$ v )} \\
-{\tt function float$x$~r = std \ttkey{float$x$}~( int$y$ v )} \\
-{\tt function float$x$~r = std \ttkey{float$x$}~( float$y$ v )}
+{\tt function uns$x$~~~r = \ttstdkey{uns$x$}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = \ttstdkey{int$x$}~~~( uns$y$ v )} \\
+{\tt function float$x$~r = \ttstdkey{float$x$}~( uns$y$ v )} \\
+{\tt function int$x$~~~r = \ttstdkey{int$x$}~~~( int$y$ v )} \\
+{\tt function float$x$~r = \ttstdkey{float$x$}~( int$y$ v )} \\
+{\tt function float$x$~r = \ttstdkey{float$x$}~( float$y$ v )}
 \begin{center}
 for any $x>y$ for which the types are builtin
 \end{center}
@@ -1930,10 +1930,10 @@ the value when it is converted to the new type.  These conversions
 can be \ikey{implied}{implied conversion}.
 \end{indpar}
 
-{\tt function uns$x$~~~r = std \ttkey{truncate}~~~( uns$y$ v )} \\
-{\tt function uns$x$~~~r = std \ttkey{truncate}~~~( int$y$ v )} \\
-{\tt function int$x$~~~r = std \ttkey{truncate}~~~( uns$y$ v )} \\
-{\tt function int$x$~~~r = std \ttkey{truncate}~~~( int$y$ v )}
+{\tt function uns$x$~~~r = \ttstdkey{truncate}~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~r = \ttstdkey{truncate}~~~( int$y$ v )} \\
+{\tt function int$x$~~~r = \ttstdkey{truncate}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~r = \ttstdkey{truncate}~~~( int$y$ v )}
 \begin{center}
 for any $x$ and $y$ for which the types are builtin
 \end{center}
@@ -1942,15 +1942,15 @@ These functions return a value equal to the argument
 modulo $2^x$.
 \end{indpar}
 
-{\tt function uns$x$~~~~~r = std \ttkey{nearest}~~~( uns$y$ v )} \\
-{\tt function uns$x$~~~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
-{\tt function uns$x$~~~~~r = std \ttkey{nearest}~~~( float$y$ v )} \\
-{\tt function int$x$~~~~~r = std \ttkey{nearest}~~~( uns$y$ v )} \\
-{\tt function int$x$~~~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
-{\tt function int$x$~~~~~r = std \ttkey{nearest}~~~( float$y$ v )} \\
-{\tt function float$x$~~~r = std \ttkey{nearest}~~~( uns$y$ v )} \\
-{\tt function float$x$~~~r = std \ttkey{nearest}~~~( int$y$ v )} \\
-{\tt function float$x$~~~r = std \ttkey{nearest}~~~( float$y$ v )}
+{\tt function uns$x$~~~~~r = \ttstdkey{nearest}~~~( uns$y$ v )} \\
+{\tt function uns$x$~~~~~r = \ttstdkey{nearest}~~~( int$y$ v )} \\
+{\tt function uns$x$~~~~~r = \ttstdkey{nearest}~~~( float$y$ v )} \\
+{\tt function int$x$~~~~~r = \ttstdkey{nearest}~~~( uns$y$ v )} \\
+{\tt function int$x$~~~~~r = \ttstdkey{nearest}~~~( int$y$ v )} \\
+{\tt function int$x$~~~~~r = \ttstdkey{nearest}~~~( float$y$ v )} \\
+{\tt function float$x$~~~r = \ttstdkey{nearest}~~~( uns$y$ v )} \\
+{\tt function float$x$~~~r = \ttstdkey{nearest}~~~( int$y$ v )} \\
+{\tt function float$x$~~~r = \ttstdkey{nearest}~~~( float$y$ v )}
 \ttindex{nearest}
 \begin{center}
 for any $x$ and $y$ for which the types are builtin
@@ -1978,9 +1978,9 @@ Floating point numbers can be converted to integer valued floating point
 numbers via:
 
 \begin{indpar}
-{\tt function float$x$~~~r = std \ttkey{round}~~~~~( float$x$ v )} \\
-{\tt function float$x$~~~r = std \ttkey{ceiling}~~~( float$x$ v )} \\
-{\tt function float$x$~~~r = std \ttkey{floor}~~~~~( float$x$ v )}
+{\tt function float$x$~~~r = \ttstdkey{round}~~~~~( float$x$ v )} \\
+{\tt function float$x$~~~r = \ttstdkey{ceiling}~~~( float$x$ v )} \\
+{\tt function float$x$~~~r = \ttstdkey{floor}~~~~~( float$x$ v )}
 
 \begin{center}
 for any $x$ for which the types are builtin
@@ -2286,13 +2286,13 @@ See \itemref{IMPLIED-CONVERSION} implied conversion details.
 The following builtin functions are also defined:
 
 \begin{indpar}
-{\tt function type r = std \ttkey{base type of} ( type t )}
+{\tt function type r = \ttstdkey{base type of} ( type t )}
 
 \begin{indpar}
 Returns the base type of the defined type {\tt t}.
 \end{indpar}
 
-{\tt function type r = std \ttkey{underlying type of} ( type t )}
+{\tt function type r = \ttstdkey{underlying type of} ( type t )}
 
 \begin{indpar}
 Returns the underlying type of the defined type or builtin type {\tt t}.
@@ -2445,14 +2445,14 @@ can be discovered by the functions:
 
 \begin{indpar}
 
-{\tt function type r = std \ttkey{base type of} ( type t )} \\
-{\tt function type r = std \ttkey{underlying type of} ( type t )}
+{\tt function type r = \ttstdkey{base type of} ( type t )} \\
+{\tt function type r = \ttstdkey{underlying type of} ( type t )}
 
 \begin{indpar}
 Returns the base type or underlying type of the enumeration type {\tt t}.
 \end{indpar}
 
-{\tt function intwrd r = std \ttkey{enum direction of} ( type t )}
+{\tt function intwrd r = \ttstdkey{enum direction of} ( type t )}
 
 \begin{indpar}
 Returns the {\em enum-direction} of the enumeration type {\tt t}.
@@ -2461,8 +2461,8 @@ Returns the {\em enum-direction} of the enumeration type {\tt t}.
 and {\tt 0} is returned if the direction is not given.
 \end{indpar}
 
-{\tt function $I$ r = std \ttkey{first enum of} ( type t )} \\
-{\tt function $I$ r = std \ttkey{last enum of} ( type t )}
+{\tt function $I$ r = \ttstdkey{first enum of} ( type t )} \\
+{\tt function $I$ r = \ttstdkey{last enum of} ( type t )}
 
 \begin{center}
 where $I$ is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
@@ -2583,9 +2583,9 @@ and $R$ is the range type of $E$
 The underlying value or range value of {\tt v} is returned.
 \end{indpar}
 
-{\tt function $O$ r = std \ttkey{enumeration offset of} ( type t )} \\
-{\tt function type r = std \ttkey{range type of} ( type t )} \\
-{\tt function type r = std \ttkey{offset type of} ( type t )}
+{\tt function $O$ r = \ttstdkey{enumeration offset of} ( type t )} \\
+{\tt function type r = \ttstdkey{range type of} ( type t )} \\
+{\tt function type r = \ttstdkey{offset type of} ( type t )}
 
 \begin{center}
 where {\tt t} is an enumeration type and $O$ is its offset type
@@ -2791,8 +2791,8 @@ but they can be discovered by the following functions:
 
 \begin{indpar}
 
-{\tt function type r = std \ttkey{set of} ( type E )} \\
-{\tt function type r = std \ttkey{list of} ( type E )}
+{\tt function type r = \ttstdkey{set of} ( type E )} \\
+{\tt function type r = \ttstdkey{list of} ( type E )}
 \begin{indpar}
 Returns the type whose values are sets or lists
 of elements of type {\tt E}, where
@@ -3486,14 +3486,14 @@ The following functions are builtin:
 
 \begin{indpar}
 
-{\tt function character r = std \ttkey{character} ( uns32 c )}
+{\tt function character r = \ttstdkey{character} ( uns32 c )}
 \begin{indpar}
 Returns the character with UNICODE character code equal to {\tt c}.
 No check is made that {\tt c} is a legal UNICODE character code
 or is non-zero.
 \end{indpar}
 
-{\tt function uns32 r = std \ttkey{code} ( character c )}
+{\tt function uns32 r = \ttstdkey{code} ( character c )}
 \begin{indpar}
 Returns the UNICODE character code of the character {\tt c}.
 \end{indpar}
@@ -3831,7 +3831,7 @@ are taken in sorted order.
 It is a programming error if {\tt i => size of ( s )}.
 \end{indpar}
 
-{\tt function name set r = std \ttkey{name set} ( name list ls )}
+{\tt function name set r = \ttstdkey{name set} ( name list ls )}
 \begin{indpar}
 Converts {\tt ls} from a list to a set, removing duplicate elements.
 \end{indpar}
@@ -3898,7 +3898,7 @@ Returns the {\tt i+1}'st name of {\tt ls}.
 It is a programming error if {\tt i => length of ( s )}.
 \end{indpar}
 
-{\tt function name list r = std \ttkey{name list} ( name set s )}
+{\tt function name list r = \ttstdkey{name list} ( name set s )}
 \begin{indpar}
 Converts {\tt s} from a set to a list, where elements of {\tt s}
 are listed in sorted order in the result.
@@ -3928,13 +3928,13 @@ The following functions compute contexts:
 
 \begin{indpar}
 
-{\tt function context r = std \ttkey{current context}}
+{\tt function context r = \ttstdkey{current context}}
 \begin{indpar}
 Returns the context in effect just before
 the statement containing the {\tt current con\-text} {\em function-call}.
 \end{indpar}
 
-{\tt function context r = std \ttkey{call context}}
+{\tt function context r = \ttstdkey{call context}}
 \begin{indpar}
 Returns the context in effect just before
 the statement containing the {\em function-call} whose
@@ -3942,7 +3942,7 @@ inline function expansion contains
 the statement containing the {\tt call con\-text} {\em function-call}.
 \end{indpar}
 
-{\tt function context r = std \ttkey{declaration context}}
+{\tt function context r = \ttstdkey{declaration context}}
 \begin{indpar}
 Returns the context in effect just before
 the statement containing the {\em function-declar\-a\-tion} of the
@@ -10129,7 +10129,7 @@ The following functions allocate static memory and compute static addresses.
 
 \begin{indpar}
 
-{\tt function *UNCHECKED* adr r = std \ttkey{NULL}}\label{NULL}
+{\tt function *UNCHECKED* adr r = \ttstdkey{NULL}}\label{NULL}
 
 \begin{indpar}
 Returns the address of a block of N bytes of virtual memory that is
@@ -10145,7 +10145,7 @@ this value in order to cause any reference to the block to trigger
 a memory fault.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = std \ttkey{STATIC BASE}}\label{NULL}
+{\tt function *UNCHECKED* adr r = \ttstdkey{STATIC BASE}}\label{NULL}
 
 \begin{indpar}
 Returns the address of a static memory location that contains an
@@ -10158,10 +10158,10 @@ memory location.  The static address of the location becomes the
 offset of the dynamic pointer.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = std \begin{tabular}[t]{@{}l@{}}
-				  \ttkey{allocate to static} \\
-				  ( unsadr size, \\
-				  ~~unswrd alignment ?=~0 )
+{\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
+				  \ttstdkey{allocate to static} \\
+				  ~~~~( unsadr size, \\
+				  ~~~~~~unswrd alignment ?=~0 )
 				  \end{tabular}}
 
 \begin{indpar}
@@ -10186,7 +10186,7 @@ in a {\em compile-time-assign\-ment-\EOL statement}
 Otherwise it executes at run time.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = std \ttkey{allocate to static} ( $T$ v )}
+{\tt function *UNCHECKED* adr r = \ttstdkey{allocate to static} ( $T$ v )}
 \begin{center}
 where $T$ is any number type
 \end{center}
@@ -10204,7 +10204,7 @@ Otherwise it executes at run time.
 \end{indpar}
 
 {\tt function *UNCHECKED* adr r =} \\
-{\TS ~~~~~~~~~std \ttkey{allocate UTF-8 to static} ( string s )}
+{\TS ~~~~~~~~~\ttstdkey{allocate UTF-8 to static} ( string s )}
 
 \begin{indpar}
 Allocate static memory and set it equal to the UTF-8 representation of the
@@ -10220,13 +10220,13 @@ Otherwise it executes at run time.
 
 \end{indpar}
 
-The following function can be used to embed addresses in 
+The following functions can be used to embed static addresses in 
 floating point NaNs or other numeric values.
 
 \begin{indpar}
 
 {\tt function *UNCHECKED* adr r =} \\
-{\TS~~~~~~~~~std \ttkey{extract adr}\label{EXTRACT-ADR}} \\
+{\TS~~~~~~~~~\ttstdkey{extract adr}\label{EXTRACT-ADR}} \\
 {\TS~~~~~~~~~~~~~ ( uns64 v,} \\
 {\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
@@ -10245,6 +10245,24 @@ If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
 added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
 bit of the low {\tt L} bits of {\tt v} is sign extended to become
 the high order 17 bits of the returned address.
+\end{indpar}
+
+{\tt function *UNCHECKED* uns64 r =} \\
+{\TS~~~~~~~~~\ttstdkey{embed adr}\label{EMBED-ADR}} \\
+{\TS~~~~~~~~~~~~~ ( uns64 template, adr address,} \\
+{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+
+\begin{indpar}
+Make a 64-bit value containing the address in the low order
+{\tt L} bits, such that
+\begin{center}
+\tt extract adr ( embed adr ( T, A, L, S ), L, S ) == A
+\end{center}
+provided the low order {\tt S} bits of {\tt A} are zero and all of
+the non-zero bits of {\tt A} are within the low order {\tt L+S} bits
+of {\tt A}.  The high order {\tt 64-L} bits of the value returned
+by {\tt embed adr} are copied from the high order {\tt 64-L} bits
+of the {\tt template}.
 \end{indpar}
 
 \end{indpar}
@@ -10461,7 +10479,7 @@ function *UNCHECKED* *STACK* T result, \\
 ~~~~~~~~~unsadr result.offset, \\
 ~~~~~~~~~*READ* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
-~~~~\ttkey{allocate to stack} ( type T, unsadr N ) \\
+~~~~\ttstdkey{allocate to stack} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
 
@@ -10492,7 +10510,7 @@ function *UNCHECKED* *STACK* T result, \\
 ~~~~~~~~~unsadr result.offset, \\
 ~~~~~~~~~*READ* adr result.base, \\
 ~~~~~~~~~adr result.base.adr = \\
-~~~~\ttkey{allocate to stack} \\
+~~~~\ttstdkey{allocate to stack} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}
@@ -10577,14 +10595,14 @@ Memory within a global area can be allocated by:
 ~~global unsadr result.offset, \\
 ~~*READ* adr result.offset.base, \\
 ~~global adr result.offset.base.adr  ) = \\
-~~~~\ttkey{allocate to global} ( type T, unsadr N ) \\
+~~~~\ttstdkey{allocate to global} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \\[1ex]
 ( T result, \\
 ~~global unsadr result.offset, \\
 ~~*READ* adr result.offset.base, \\
 ~~global adr result.offset.base.adr  ) = \\
-~~~~\ttkey{allocate to global} \\
+~~~~\ttstdkey{allocate to global} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \end{tabular}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
@@ -10985,10 +11003,10 @@ is a special register of \TT{unswrd} type.  The following
 builtin functions test and manipulate this register.
 
 \begin{indpar}
-{\tt function unswrd r = std \ttkey{fp error flags}} \\
-{\tt function std \ttkey{clear fp error flags}} \\
-{\tt function std \ttkey{clear fp error flags} ( unswrd mask ) } \\
-{\tt function std \ttkey{set fp error flags} ( unswrd mask ) }
+{\tt function unswrd r = \ttstdkey{fp error flags}} \\
+{\tt function \ttstdkey{clear fp error flags}} \\
+{\tt function \ttstdkey{clear fp error flags} ( unswrd mask ) } \\
+{\tt function \ttstdkey{set fp error flags} ( unswrd mask ) }
 
 \begin{indpar}
 The first function
@@ -11007,11 +11025,11 @@ point error flags in the floating point error
 register.  Each mask has a single bit on.
 \begin{center}
 \begin{tabular}{ll}
-{\tt function unswrd r = std \ttkey{FP INVALID}}	& Invalid operand. \\
-{\tt function unswrd r = std \ttkey{FP DIVIDE BY ZERO}}	& Divide by zero. \\
-{\tt function unswrd r = std \ttkey{FP OVERFLOW}}	& Result overflow. \\
-{\tt function unswrd r = std \ttkey{FP UNDERFLOW}}	& Result underflow. \\
-{\tt function unswrd r = std \ttkey{FP INEXACT}}	& Result inexact. \\
+{\tt function unswrd r = \ttstdkey{FP INVALID}}		& Invalid operand. \\
+{\tt function unswrd r = \ttstdkey{FP DIVIDE BY ZERO}}	& Divide by zero. \\
+{\tt function unswrd r = \ttstdkey{FP OVERFLOW}}	& Result overflow. \\
+{\tt function unswrd r = \ttstdkey{FP UNDERFLOW}}	& Result underflow. \\
+{\tt function unswrd r = \ttstdkey{FP INEXACT}}		& Result inexact. \\
 \end{tabular}
 \end{center}
 The value of {\tt mask} above should be a bitwise OR's of these constants.
@@ -11028,8 +11046,8 @@ functions are compile time values.
 
 \begin{indpar}
 {\tt function bool r = std ( name N ) \ttkey{is abbreviation}} \\
-{\tt function name r = std \ttkey{replacement of} ( name N )} \\
-{\tt function name r = std \ttkey{final replacement of} ( name N )}
+{\tt function name r = \ttstdkey{replacement of} ( name N )} \\
+{\tt function name r = \ttstdkey{final replacement of} ( name N )}
 \begin{indpar}
 The first function returns \TT{true} if and only if {\tt N} names
 an abbreviation (\pagref{ABBREVIATION-DECLARATION}).
@@ -11052,7 +11070,7 @@ generated names like `\TT{T\TMP$n$}', which are most likely
 to be useful in generics (\pagref{GENERICS}).
 
 \begin{indpar}
-{\tt function name r = std \ttkey{generated name} ( character c )}%
+{\tt function name r = \ttstdkey{generated name} ( character c )}%
 \label{GENERATE-NAME}
 
 \begin{indpar}
@@ -11072,7 +11090,7 @@ when a programming error is discovered.
 
 \begin{indpar}
 
-{\tt function std \ttkey{program stop}}
+{\tt function \ttstdkey{program stop}}
 \begin{indpar}
 This function terminates the program abnormally.  It has
 the special property that deferred variables that normally
@@ -11089,7 +11107,7 @@ a table of call locations which is builtin.
 
 \begin{indpar}
 
-{\tt function string r = std \ttkey{call location} ( unswrd i )}
+{\tt function string r = \ttstdkey{call location} ( unswrd i )}
 \begin{indpar}
 Returns the call location described by the {\tt i}'th entry in the
 call locations table.  This call location is a string of the form:
@@ -11109,7 +11127,7 @@ specified separately to the compiler.
 line in which the statement begins.
 \end{indpar}
 
-{\tt function unswrd r = std \ttkey{call parent} ( unswrd i )}
+{\tt function unswrd r = \ttstdkey{call parent} ( unswrd i )}
 \begin{indpar}
 Returns the call parent $P$ of the {\tt i}'th entry in the
 call locations table.
@@ -11121,7 +11139,7 @@ is not inside an inline function
 call, but is inside an out-of-line function.
 \end{indpar}
 
-{\tt function unswrd r = std \ttkey{call entry}}
+{\tt function unswrd r = \ttstdkey{call entry}}
 \begin{indpar}
 Returns the index in the call locations
 table of the entry describing
@@ -11129,7 +11147,7 @@ the location of the statement containing the call
 to this function.
 \end{indpar}
 
-{\tt function unswrd r = std \ttkey{call entry} ( unswrd i )}
+{\tt function unswrd r = \ttstdkey{call entry} ( unswrd i )}
 \begin{indpar}
 Returns the index in the call locations
 table of entry describing the location of the statement
@@ -11260,7 +11278,7 @@ function *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
-~~~~\ttkey{allocate to stack} \\
+~~~~\ttstdkey{allocate to stack} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
 ~~~~~~~~( unsadr N = 1 ) \\
 ~~~~~~~~[| zero value OK for T |] \\
@@ -11281,7 +11299,7 @@ function *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
-~~~~\ttkey{allocate to global} \\
+~~~~\ttstdkey{allocate to global} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
 ~~~~~~~~( unsadr N = 1 ) \\
 ~~~~~~~~[| zero value OK for T |] \\
@@ -11313,7 +11331,7 @@ function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
-~~~~\ttkey{allocate to stack} \\
+~~~~\ttstdkey{allocate to stack} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
 ~~~~~~~~( intadr N = 1 ) \\
 ~~~~~~~~// Vector initialized to zeros even \\
@@ -11329,7 +11347,7 @@ function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
-~~~~\ttkey{allocate to global} \\
+~~~~\ttstdkey{allocate to global} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
 ~~~~~~~~( intadr N = 1 ) \\
 \end{tabular}}

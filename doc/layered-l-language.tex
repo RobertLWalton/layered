@@ -10141,36 +10141,8 @@ different memory allocation/deallocation features.
 
 The following functions allocate static memory and compute static addresses.
 
-\begin{indpar}
-
-{\tt function *UNCHECKED* adr r = \ttstdkey{NULL}}\label{NULL}
 
 \begin{indpar}
-Returns the address of a block of N bytes of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced.
-N is at least 1 megabyte if addresses are 32 bits, and is at least
-1 gitabyte if addresses are 64 bits.  The same value is returned for
-all calls to {\tt NULL} within a run-time environment, or for all compile-time
-calls within a compilation,  though the run-time and compile-time values
-may differ.
-
-When a dynamic block is deallocated, its body pointer may be set to
-this value in order to cause any reference to the block to trigger
-a memory fault.
-\end{indpar}
-
-{\tt function *UNCHECKED* adr r = \ttstdkey{STATIC BASE}}\label{STATIC BASE}
-
-\begin{indpar}
-Returns the address of a static memory location that contains an
-\TT{adr} value equal to zero (note the value returned is not itself zero).
-{\tt STATIC BASE} may be thought of as a body pointer to static memory,
-treating static memory as if it were a dynamic block (that never moves).
-
-This may be used to construct a dynamic pointer to a static
-memory location.  The static address of the location becomes the
-offset of the dynamic pointer.
-\end{indpar}
 
 {\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
 				  \ttstdkey{allocate to static} \\
@@ -10180,9 +10152,9 @@ offset of the dynamic pointer.
 				  \end{tabular}}
 
 \begin{indpar}
-Allocate {\tt size} bytes of memory with the given
-{\tt alignment} in bytes to static memory, the memory
-allocated when the program is initialized.  Return
+Allocate {\tt size} bytes of static memory with the given
+{\tt alignment} in bytes to static memory.
+Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
@@ -10194,11 +10166,6 @@ Otherwise it is an error if the {\em alignment} is 0 or
 is not a power of 2.
 
 The memory bytes are initialized to zero.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
 \end{indpar}
 
 
@@ -10217,11 +10184,6 @@ address of the first (lowest addressed) element.
 The alignment of the memory is equal to the alignment of $T$.
 The address viewed as an
 integer is an exact multiple of the alignment.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
 \end{indpar}
 
 {\tt function *UNCHECKED* adr r = \\
@@ -10233,16 +10195,12 @@ Allocate static memory and set it equal to the UTF-8 representation of the
 value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
 read-only, meaning that trying to write it will cause a program memory
 fault error.
-
-This function executes at compile-time only if it is included
-in a {\em compile-time-assign\-ment-\EOL statement}
-(\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
-Otherwise it executes at run time.
 \end{indpar}
 
 \end{indpar}
 
-The following functions can be used to embed static addresses in 
+The following functions can be used to embed static addresses or offsets
+into tables in static regions into
 floating point NaNs or other numeric values.
 
 \begin{indpar}
@@ -10289,6 +10247,112 @@ of the {\tt template}.
 
 \end{indpar}
 
+
+\subsection{Dynamic Memory}
+\label{DYNAMIC-MEMORY}
+
+
+The following functions allocate and deallocate dynamic memory blocks.
+Each block is associated with a body pointer that points at the
+block.  The block in turn points back at the
+body pointer, so when the block is moved the body pointer can be
+updated.  This back-pointer is provided by the run-time
+system and is not visible to non-system code.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* unsadr r = \begin{tabular}[t]{@{}l@{}}
+				     \ttstdkey{allocate to dynamic} \\
+				     ~~~~( adr body pointer, \\
+				     ~~~~~~unsadr size, \\
+				     ~~~~~~unswrd alignment ?=~0, \\
+				     ~~~~~~unswrd region ?=~0 ) \\
+				     \end{tabular}}
+
+\begin{indpar}
+Allocate {\tt size} bytes of memory with the given
+{\tt alignment} in bytes to dynamic memory.  Store the
+the address of this memory in the body point that is in the static
+memory location whose address is given by the first argument.
+The address stored, when viewed as an
+integer, is an exact multiple of the {\tt alignment}.
+
+If the
+{\tt alignment} is omitted or is given as 0 it is taken
+to be equal to the \TT{size} if that is a power of 2
+no greater than 16 (the size of a 128 bit value).
+Otherwise it is an error if the {\em alignment} is 0 or
+is not a power of 2.
+
+The memory bytes are initialized to zero.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
+				  \ttstdkey{allocate to dynamic} \\
+				  ~~~~(| type $T$ v |) \\
+				  ~~~~( adr body pointer, \\
+				  ~~~~~~$T$ v, \\
+				  ~~~~~~unswrd N ?=~1, \\
+				  ~~~~~~unswrd region ?=~0 ) \\
+				  \end{tabular} \\
+\TS~~~~~~~~| ( underlying type of T ) is numeric |]}
+\begin{indpar}
+Allocate a vector of {\tt N} elements to
+dynamic memory, set each element equal to {\tt v}, and store the
+address of the first (lowest addressed) element
+in the body point that is in the static
+memory location whose address is given by the first argument.
+The alignment of the memory is equal to the alignment of $T$.
+The address stored, when viewed as an
+integer, is an exact multiple of the alignment.
+\end{indpar}
+
+{\tt function \ttstdkey{deallocate from dynamic}
+	      ( adr body pointer )}
+
+\begin{indpar}
+Deallocate the dynamic block pointed at by the body pointer,
+and set the body pointer to \TT{NULL} (defined below).  If
+the body pointer is already \TT{NULL}, do nothing.
+\end{indpar}
+
+\end{indpar}
+
+The following functions return constants that are used in
+managing dynamic blocks and dynamic pointers.
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* adr r = \ttstdkey{NULL}}\label{NULL}
+
+\begin{indpar}
+Returns the address of a block of N bytes of virtual memory that is
+inaccessible and will cause a segmentation fault if referenced.
+N is at least 1 megabyte if addresses are 32 bits, and is at least
+1 gitabyte if addresses are 64 bits.  The same value is returned for
+all calls to {\tt NULL} within a run-time environment, or for all compile-time
+calls within a compilation,  though the run-time and compile-time values
+may differ.
+
+When a dynamic block is deallocated, its body pointer is set to
+this value in order to cause any reference to the block to trigger
+a memory fault.
+\end{indpar}
+
+{\tt function *UNCHECKED* adr r = \ttstdkey{STATIC BASE}}\label{STATIC BASE}
+
+\begin{indpar}
+Returns the address of a static memory location that contains an
+\TT{adr} value equal to zero (note the value returned is not itself zero).
+{\tt STATIC BASE} may be thought of as a body pointer to static memory,
+treating static memory as if it were a dynamic block (that never moves).
+
+This may be used to construct a dynamic pointer to a static
+memory location.  The static address of the location becomes the
+offset of the dynamic pointer.
+\end{indpar}
+
+\end{indpar}
 
 \subsection{Stacks}
 \label{STACKS}

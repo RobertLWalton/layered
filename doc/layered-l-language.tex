@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 2, 2018
+December 3, 2018
  
 \end{center}
 
@@ -10375,10 +10375,11 @@ Stacks are either free or bound.\label{FREE-STACK}
 A bound stack is a substack that is
 not deallocated from memory until its smallest containing free stack is
 deallocated.  The main reason this is important is that stack addresses
+(produced by the `\TT{allocate to stack}' function)
 can be passed out of a block with a bound stack to its containing block,
 but cannot be passed out of a block with a free stack to its containing
 or calling block.  This is implemented by giving certain
-variables the \TT{*STACK*} qualifier: see
+variables containing stack addresses the \TT{*STACK*} qualifier: see
 Section~\itemref{THE-STACK-QUALIFIER}.
 
 Stacks of out-of-line function executions
@@ -10394,15 +10395,9 @@ of a {\em call-assignment-statement},
 {\em compile-time-assignment-statement},
 may \underline{not} have the \TT{*STACK*} qualifier.
 
-Stacks of loop iteration subblocks are free, and
-iteration variables
-of a {\em loop-assignment-statement} may \underline{not} have the \TT{*STACK*}
-qualifier.  However, stacks of loop `\TT{initially}' and `\TT{finally}'
-subblocks are not free, and result variables of
-a {\em loop-assignment-statement} \underline{may} have the \TT{*STACK*} qualifier.
-
 Global area stacks (see Section~\itemref{GLOBAL-AREAS}) are free,
-but are never deallocated and make no use of the \TT{*STACK*}
+but are never deallocated, so the
+`\TT{allocate to global}' function makes no use of the \TT{*STACK*}
 qualifier.
 
 All other stacks are bound.  Memory allocated to them
@@ -10411,43 +10406,29 @@ is actually
 allocated to their smallest containing free stack, and not deallocated
 until that free stack is deallocated.
 
-Free stacks are relocatable and can be moved.
+If you call `\TT{allocate to stack}' in loop iterations, the memory
+allocated will not be freed until after the loop terminates, as the
+iteration subblock stack is bound, as are the
+`\TT{initially}' and `\TT{finally}' subblock stacks.
+
+Free stacks are dynamic blocks and can be moved.
 Bound stacks cannot move independently,
 but move whenever their containing free stack moves.
 Any stack address is relative to its containing free stack,
 which is the current free stack at the time executable code uses
-the stack address.  To accommodate this stack addresses are a pair
-consisting of the static address of a location containing the base
-address of the containing free stack and an offset within that
-free stack.
+the stack address.  To accommodate this stack addresses are stored
+in dynamic pointers.
 
-TBD
-
-There are a couple of situations in which free stacks move.
-
-Memory of runtime determined size can be allocated to the end of
-a stack by the `\TT{allocate to stack}' and `\TT{allocate to global}'
-functions described below, and such may
-require that the smallest containing free stack
-be moved to a memory region where there is more free memory available.
+Free stacks may be moved when dynamic blocks are allocated or
+increased in size.
 
 In a program being debugged, free stacks may be saved after they are no
 longer needed by the program, in order to permit them to be analyzed
-by a debugger if the program detects an error.  In this situation
-free stacks are allocated to a very big circular buffer, and overwritten
-after they are no longer needed by the program.  It may happen that
-a free stack whose block is still running is in the way of allocating
-a new stack to the circular buffer, in which case the still running
-block's free stack may be moved.
+by a debugger if the program detects an error.
 
-Lastly, global area stacks (\pagref{GLOBAL-AREAS})
-may be deallocated when programs that
-can reference them are still running, or may not yet be allocated
-when these programs run.  Deallocated global area stacks are treated as if
-they were allocated to inaccessible memory, so deallocating these stacks
-is like moving them to inaccessible memory, and referencing
-them when they are deallocated gives a memory fault.
-
+Generally when a free stack is deallocated, its body pointer is set
+to \TT{NULL}, so if unchecked code tries to use deallocated
+stack memory, it will have a memory fault.
 
 \subsection{Unwind Blocks}
 \label{UNWIND-BLOCKS}

@@ -10152,18 +10152,16 @@ The following functions allocate static memory and compute static addresses.
 				  \end{tabular}}
 
 \begin{indpar}
-Allocate {\tt size} bytes of static memory with the given
-{\tt alignment} in bytes to static memory.
+Allocate a {\tt size} byte block of static memory with the given
+{\tt alignment} in bytes.
 Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
-If the
-{\tt alignment} is omitted or is given as 0 it is taken
-to be equal to the \TT{size} if that is a power of 2
-no greater than 16 (the size of a 128 bit value).
-Otherwise it is an error if the {\em alignment} is 0 or
-is not a power of 2.
+If the {\tt alignment} is omitted or is given as 0 it is taken
+to be equal to \TT{size}.  The explicit or implied
+alignment must be a power of two not greater than the memory
+page size (which is the alignment of regions).
 
 The memory bytes are initialized to zero.
 \end{indpar}
@@ -10182,6 +10180,8 @@ Allocate a vector of {\tt N} elements to
 static memory, set each element equal to {\tt v}, and return the
 address of the first (lowest addressed) element.
 The alignment of the memory is equal to the alignment of $T$.
+This alignment must be a power of two not greater than the memory
+page size (which is the alignment of regions).
 The address viewed as an
 integer is an exact multiple of the alignment.
 \end{indpar}
@@ -10270,19 +10270,17 @@ system and is not visible to non-system code.
 				     \end{tabular}}
 
 \begin{indpar}
-Allocate {\tt size} bytes of memory with the given
-{\tt alignment} in bytes to dynamic memory.  Store the
+Allocate a {\tt size} byte block of dynamic memory with the given
+{\tt alignment} in bytes.  Store the
 the address of this memory in the body point that is in the static
 memory location whose address is given by the first argument.
 The address stored, when viewed as an
 integer, is an exact multiple of the {\tt alignment}.
 
-If the
-{\tt alignment} is omitted or is given as 0 it is taken
-to be equal to the \TT{size} if that is a power of 2
-no greater than 16 (the size of a 128 bit value).
-Otherwise it is an error if the {\em alignment} is 0 or
-is not a power of 2.
+If the {\tt alignment} is omitted or is given as 0 it is taken
+to be equal to \TT{size}.  The explicit or implied
+alignment must be a power of two not greater than the memory
+page size (which is the alignment of regions).
 
 The memory bytes are initialized to zero.
 \end{indpar}
@@ -10303,6 +10301,8 @@ address of the first (lowest addressed) element
 in the body point that is in the static
 memory location whose address is given by the first argument.
 The alignment of the memory is equal to the alignment of $T$.
+This alignment must be a power of two not greater than the memory
+page size (which is the alignment of regions).
 The address stored, when viewed as an
 integer, is an exact multiple of the alignment.
 \end{indpar}
@@ -10428,7 +10428,73 @@ by a debugger if the program detects an error.
 
 Generally when a free stack is deallocated, its body pointer is set
 to \TT{NULL}, so if unchecked code tries to use deallocated
-stack memory, it will have a memory fault.
+stack memory, it will suffer a memory fault.
+
+The following function is used to allocate memory to the
+current stack:
+
+\begin{indpar}
+
+{\tt function *UNCHECKED* *STACK* \begin{tabular}[t]{@{}l@{}}
+                                  T r, \\
+				  unsadr r.offset, \\
+				  *READ* adr r.base, \\
+				  adr r.base.adr = \\
+				  \end{tabular} \\
+\TS~~~~\begin{tabular}[t]{@{}l@{}}
+       \ttstdkey{allocate to stack} \label{ALLOCATE-TO-STACK} \\
+       ~~~~(| type T |) \\
+       ~~~~( unsadr size, \\
+       ~~~~~~unswrd alignment ?=~0, \\
+       ~~~~~~unswrd region ?=~0 ) \\
+\TS~~~~[|( underlying type of T ) == void |] \\
+       \end{tabular}}
+
+\begin{indpar}
+Allocate a {\tt size} byte block of stack memory with the given
+{\tt alignment} in bytes.  The block is allocated to the current
+stack.
+
+Return the offset of the block within the current stack as {\tt r.offset},
+the value of the body pointer of the current stack as {\tt r.base},
+and the address of this body pointer as {\tt r.base.adr}.
+Here {\tt r.base} may change when the stack is moved, but the other
+returned values remain fixed.
+
+If the {\tt alignment} is omitted or is given as 0 it is taken
+to be equal to \TT{size}.  The explicit or implied
+alignment must be a power of two not greater than {\tt 64}
+(which is the alignment of the stack itself).
+
+The memory bytes are initialized to zero.
+
+The `\TT{allocate to stack}' inline function may move stacks.
+Therefore it executes a
+\begin{center}
+{\tt reload *READ*, *READ* dependent}
+\end{center}
+statement.
+
+The returned cluster has
+the \TT{*STACK*} qualifier (see \itemref{THE-STACK-QUALIFIER}),
+so that {\tt r.offset} and {\tt r.base.adr} cannot be
+stored by unchecked code in places whose lifetime exceeds that of the current
+free stack.
+
+The memory is freed when the free stack to which it is allocated
+is freed (\itemref{STACKS}).
+The memory containing the stack body pointer may also be
+freed at this time. 
+
+The memory allocated is always aligned on an \TT{8} byte boundary.
+\end{indpar}
+
+\end{indpar}
+
+A vector whose elements are of some type $T$ can be allocated by
+the pointer version of `\TT{allocate to stack}': see
+\pagref{POINTER-ALLOCATE-TO-STACK}.
+
 
 \subsection{Unwind Blocks}
 \label{UNWIND-BLOCKS}
@@ -10534,66 +10600,6 @@ assignment statements and execute at the beginning, setting
 values for result variables that will be available outside
 the block if the block does not set any values itself.]
 
-\subsection{Stack Memory Allocation}
-\label{STACK-MEMORY-ALLOCATION}
-
-The `\ttkey{allocate to stack}' function allocates \TT{N} bytes of
-memory to the current free stack and returns its offset within
-the stack and the address of the stack base address:
-
-\begin{indpar}\tt\begin{tabular}{l}
-function *UNCHECKED* *STACK* T result, \\
-~~~~~~~~~unsadr result.offset, \\
-~~~~~~~~~*READ* adr result.base, \\
-~~~~~~~~~adr result.base.adr = \\
-~~~~\ttstdkey{allocate to stack} ( type T, unsadr N ) \\
-~~~~~~~~[| underlying type of T == void |]
-\end{tabular}\end{indpar}\label{ALLOCATE-TO-STACK}
-
-Here \TT{result.offset} is the offset of the \TT{N} bytes within the
-stack, \TT{result.base} is the base address of the stack, and
-stack, \TT{result.base.adr} is the address of where this
-base address is stored in RAM.  The first and last of these
-are fixed but \TT{result.base} may change when the stack is
-moved.
-
-The returned cluster has
-the \TT{*STACK*} qualifier (see \itemref{THE-STACK-QUALIFIER}),
-so that \TT{result.offset} and \TT{result.base.adr} cannot be
-stored in places whose lifetime exceeds that of the current
-free stack.
-
-The memory is freed when the free stack to which it is allocated
-is freed (\itemref{STACKS}).
-The memory containing the \TT{base} value may also be
-freed at this time. 
-
-The memory allocated is always aligned on an \TT{8} byte boundary.
-
-If you want a different alignment you can use:
-
-\begin{indpar}\tt\begin{tabular}{l}
-function *UNCHECKED* *STACK* T result, \\
-~~~~~~~~~unsadr result.offset, \\
-~~~~~~~~~*READ* adr result.base, \\
-~~~~~~~~~adr result.base.adr = \\
-~~~~\ttstdkey{allocate to stack} \\
-~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
-~~~~~~~~[| underlying type of T == void |]
-\end{tabular}\end{indpar}
-
-where \TT{A} must be a power of \TT{2} not greater than \TT{64}.
-This will align the \TT{O+1}'st
-byte of the allocated memory block
-at an address which is a multiple of \TT{A}\,.
-Free stacks are always allocated on a \TT{64} byte boundary.
-
-The `\TT{allocate to stack}' inline functions may move stacks.
-Therefore it executes a
-\begin{center}
-\TT{reload *READ*, *READ* dependent}
-\end{center}
-statement.
 
 
 \subsection{Global Areas}

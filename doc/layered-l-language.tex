@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 3, 2018
+December 4, 2018
  
 \end{center}
 
@@ -10375,7 +10375,8 @@ Stacks are either free or bound.\label{FREE-STACK}
 A bound stack is a substack that is
 not deallocated from memory until its smallest containing free stack is
 deallocated.  The main reason this is important is that stack addresses
-(produced by the `\TT{allocate to stack}' function)
+(produced by the `\TT{allocate to stack}' function:
+\pagref{ALLOCATE-TO-STACK})
 can be passed out of a block with a bound stack to its containing block,
 but cannot be passed out of a block with a free stack to its containing
 or calling block.  This is implemented by giving certain
@@ -10411,24 +10412,15 @@ allocated will not be freed until after the loop terminates, as the
 iteration subblock stack is bound, as are the
 `\TT{initially}' and `\TT{finally}' subblock stacks.
 
-Free stacks are dynamic blocks and can be moved.
-Bound stacks cannot move independently,
-but move whenever their containing free stack moves.
-Any stack address is relative to its containing free stack,
-which is the current free stack at the time executable code uses
-the stack address.  To accommodate this stack addresses are stored
-in dynamic pointers.
+Thread stacks and global area stacks are dynamic blocks that can be moved,
+and all other stacks are allocated within these.  Thus all stacks are
+within a dynamic block.  Stacks cannot move independently, but move
+only when their dynamic block moves.  Stack addresses are dynamic
+pointers containing an offset within the stack's dynamic block.
 
-Free stacks may be moved when dynamic blocks are allocated or
-increased in size.
-
-In a program being debugged, free stacks may be saved after they are no
-longer needed by the program, in order to permit them to be analyzed
+In a program being debugged, free stacks may be saved when they are
+deallocated, in order to permit them to be analyzed
 by a debugger if the program detects an error.
-
-Generally when a free stack is deallocated, its body pointer is set
-to \TT{NULL}, so if unchecked code tries to use deallocated
-stack memory, it will suffer a memory fault.
 
 The following function is used to allocate memory to the
 current stack:
@@ -10451,24 +10443,25 @@ current stack:
        \end{tabular}}
 
 \begin{indpar}
-Allocate a {\tt size} byte block of stack memory with the given
-{\tt alignment} in bytes.  The block is allocated to the current
-stack.
+Allocate a {\tt size} byte block to the current stack with the given
+{\tt alignment} in bytes.
 
-Return the offset of the block within the current stack as {\tt r.offset},
-the value of the body pointer of the current stack as {\tt r.base},
+Return the offset of the block within the current stack's dynamic
+block as {\tt r.offset},
+the value of the body pointer of the dynamic block as {\tt r.base},
 and the address of this body pointer as {\tt r.base.adr}.
-Here {\tt r.base} may change when the stack is moved, but the other
+Here {\tt r.base} may change when the dynamic block is moved, but the other
 returned values remain fixed.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than {\tt 64}
-(which is the alignment of the stack itself).
+(which is the alignment of a dynamic block containing stacks).
 
 The memory bytes are initialized to zero.
 
-The `\TT{allocate to stack}' inline function may move stacks.
+The `\TT{allocate to stack}' inline function may move dynamic blocks
+containing stacks.
 Therefore it executes a
 \begin{center}
 {\tt reload *READ*, *READ* dependent}
@@ -10483,10 +10476,6 @@ free stack.
 
 The memory is freed when the free stack to which it is allocated
 is freed (\itemref{STACKS}).
-The memory containing the stack body pointer may also be
-freed at this time. 
-
-The memory allocated is always aligned on an \TT{8} byte boundary.
 \end{indpar}
 
 \end{indpar}

@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 4, 2018
+December 5, 2018
  
 \end{center}
 
@@ -10597,7 +10597,14 @@ the block if the block does not set any values itself.]
 A global area is like the stack frame of a function that has no
 arguments or return value, except that after this function executes,
 the global area remains allocated and its variables can be referenced
-by other code.  The syntax is:
+by other code.  The other difference is that the code executed by
+a global block to set the block variables can be split among
+many files and many locations with each file.
+
+A global area is a free stack with its own dynamic block
+(see \itemref{STACKS}).
+
+The syntax is:
 \begin{indpar}
 \emkey{global-area-block} ::= \\
 \hspace*{3em}\begin{tabular}[t]{@{}l}
@@ -10635,12 +10642,16 @@ A variable with {\em variable-name}
 \TT{A} may be named as \TT{A.V}, or if the variable has its own
 {\em variable-abbreviation} \TT{VA},
 this by itself (and \underline{not} \TT{A.VA})
-may be used to name the variable.  An abbreviation is only effective
-withing the scope of the `\TT{extern}' statement that defines it.
+may be used to name the variable.  An {\em variable-abbreviation}
+is only effective
+within the scope of the `\TT{extern}' statement that defines it.
 
-A variable in an
-{\em extern-variable-statement} must match its corresponding
-{\em global-area-block} variable with respect to type and qualifiers
+TBD
+
+A {\em variable-name} in an
+{\em extern-variable-statement} must match a corresponding
+{\em global-area-block} {\em variable-name}, and that matching
+{\em variable-name} must have the same type and qualifiers
 in the same manner as a function prototype argument variable
 matches a function call variable.
 

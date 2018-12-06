@@ -10430,7 +10430,6 @@ current stack:
 {\tt function *UNCHECKED* *STACK* \begin{tabular}[t]{@{}l@{}}
                                   T r, \\
 				  unsadr r.offset, \\
-				  *READ* adr r.base, \\
 				  adr r.base.adr = \\
 				  \end{tabular} \\
 \TS~~~~\begin{tabular}[t]{@{}l@{}}
@@ -10448,10 +10447,7 @@ Allocate a {\tt size} byte block to the current stack with the given
 
 Return the offset of the block within the current stack's dynamic
 block as {\tt r.offset},
-the value of the body pointer of the dynamic block as {\tt r.base},
-and the address of this body pointer as {\tt r.base.adr}.
-Here {\tt r.base} may change when the dynamic block is moved, but the other
-returned values remain fixed.
+and the address of the dynamic block's body pointer as {\tt r.base.adr}.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
@@ -10692,15 +10688,13 @@ Memory within a global area can be allocated by:
 \begin{indpar}\tt\begin{tabular}{l}
 ( T result, \\
 ~~global unsadr result.offset, \\
-~~*READ* adr result.offset.base, \\
-~~global adr result.offset.base.adr  ) = \\
+~~global adr result.base.adr  ) = \\
 ~~~~\ttstdkey{allocate to global} ( type T, unsadr N ) \\
 ~~~~~~~~[| underlying type of T == void |]
 \\[1ex]
 ( T result, \\
 ~~global unsadr result.offset, \\
-~~*READ* adr result.offset.base, \\
-~~global adr result.offset.base.adr  ) = \\
+~~global adr result.base.adr  ) = \\
 ~~~~\ttstdkey{allocate to global} \\
 ~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
 ~~~~~~~~[| underlying type of T == void |]
@@ -11284,20 +11278,15 @@ Its cluster members are:
 
 \begin{indpar}[0.6in]
 \hspace*{-0.3in}{\tt intadr \ttdmkey{begin}{of pointer}} \\
-The offset of the first element relative to the {\tt base}.
+The offset of the first element relative to the pointer base address.
 Note that the offset can be negative.
 
 \hspace*{-0.3in}{\tt intadr \ttdmkey{end}{of pointer}} \\
-The offset just after the last element relative to the {\tt base}.
+The offset just after the last element relative to the pointer base address.
 This may not be less than \TT{.begin}.
 
-\hspace*{-0.3in}{\tt *READ* adr \ttdmkey{base}{of pointer}} \\
-The base address of the vector.  The first element of a vector pointed
-at by {\tt p} is at address {\tt p.base + p.begin} and the address
-{\tt p.base + p.end} points just after the last element of the vector.
-
 \hspace*{-0.3in}{\tt adr \ttdmkey{base.adr}{of pointer}} \\
-The address from which {\tt .base} is read.
+The address from which the pointer base address is read.
 
 \hspace*{-0.3in}{\tt type \ttdmkey{type}{of pointer}} \\
 The type of the vector elements.
@@ -11326,7 +11315,6 @@ The following functions can be used to copy pointers:
 function Qs pointer r, \\
 ~~~~~~~~~~~~intadr r.begin, \\
 ~~~~~~~~~~~~intadr r.end, \\
-~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~qualifiers r.qualifiers = \\
@@ -11344,7 +11332,6 @@ Copies a pointer as per an assignment statement.
 function Qrs pointer r, \\
 ~~~~~~~~~~~~~intadr r.begin, \\
 ~~~~~~~~~~~~~intadr r.end, \\
-~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~~qualifiers r.qualifiers = \\
@@ -11373,7 +11360,6 @@ The following functions allocate pointers to new vectors:
 function *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~intadr p.begin, \\
 ~~~~~~~~~~~~~intadr p.end, \\
-~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
@@ -11394,7 +11380,6 @@ The elements each have type {\tt T} and qualifiers {\tt Qs}.
 function *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~intadr p.begin, \\
 ~~~~~~~~~~~~~intadr p.end, \\
-~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
@@ -11426,7 +11411,6 @@ function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
 ~~~~~~~~~~~~~~~~~~~~~pointer p, \\
 ~~~~~~~~~~~~~intadr p.begin, \\
 ~~~~~~~~~~~~~intadr p.end, \\
-~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
@@ -11442,7 +11426,6 @@ function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
 function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~intadr p.begin, \\
 ~~~~~~~~~~~~~intadr p.end, \\
-~~~~~~~~~~~~~*READ* adr p.base, \\
 ~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~type p.type, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
@@ -11534,7 +11517,6 @@ Here {\tt *} is a prefix operator.
 function Qps pointer r, \\
 ~~~~~~~~~~~~~intadr r.begin, \\
 ~~~~~~~~~~~~~intadr r.end, \\
-~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~~qualifiers r.qualifiers, \\
@@ -11560,7 +11542,6 @@ called.  Here {\tt ++} is a postfix operator.
 function Qps pointer r, \\
 ~~~~~~~~~~~~~intadr r.begin, \\
 ~~~~~~~~~~~~~intadr r.end, \\
-~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~~qualifiers r.qualifiers, \\
@@ -11587,7 +11568,6 @@ called.  Here {\tt -{}-} is a prefix operator.
 function Qps pointer r, \\
 ~~~~~~~~~~~~~intadr r.begin, \\
 ~~~~~~~~~~~~~intadr r.end, \\
-~~~~~~~~~~~~~*READ* adr r.base, \\
 ~~~~~~~~~~~~~adr r.base.adr, \\
 ~~~~~~~~~~~~~type r.type, \\
 ~~~~~~~~~~~~~qualifiers r.qualifiers, \\

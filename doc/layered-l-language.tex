@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 5, 2018
+December 6, 2018
  
 \end{center}
 
@@ -10613,16 +10613,21 @@ The syntax is:
 	\TT{~~~~}{\em statement}\STAR{} \\
 	\end{tabular} \\
 \emkey{global-area-option} ::= \ttakey{COMPILE-TIME}
-                           $|$ \ttakey{COMPILE-TIME-ONLY}
+                           $|$ \ttakey{COMPILE-TIME-ONLY} \\
+\emkey{global-area-name} ::= {\em module-abbreviation}\QMARK{}
+			     {\em block-name}
 \end{indpar}
 
 Several such blocks may have the same {\em global-area-name},
 as long as no {\em variable-name} appears in more than one of these blocks.
+{\em Global-area-names} may or may not start with {\em module-abbreviations}
+and follow the same export/import rules
+as {\em variable-names}.
 
-In order to be accessed a global area must be named in an `\TT{extern}'
-statement:
+In order to be accessed a global area must be named in an
+{\em extern-statement}:
 \begin{indpar}
-\emkey{extern-global-block} ::= \\
+\emkey{extern-statment} ::= \\
 \hspace*{3em}\begin{tabular}[t]{@{}l}
 	\TT{extern} {\em global-area-abbreviation}
 	            \TT{is global} {\em global-area-name} \TT{:} \\
@@ -10631,22 +10636,43 @@ statement:
 \\[1ex]
 \emkey{extern-variable-statement} \\
 \hspace*{3em}\begin{tabular}[t]{@{}rl}
-    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
-    $|$ & {\em variable-abbreviation} \TT{is}
-          {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
+    ::= & {\em qualifier-name}\STAR{} {\em type-name}
+          {\em global-variable-name} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name}
+          {\em extern-variable-name} \TT{is}
+          {\em global-variable-name} \\
+    \end{tabular}
+\\[1ex]
+\emkey{extern-variable-name} \\
+\hspace*{3em}\begin{tabular}[t]{@{}rl}
+    ::= & {\em global-area-abbreviation}\TT{.}{\em global-variable-name} \\
+    $|$ & {\em extern-variable-name} as defined in an
+          {\em extern-variable-statement} \\
     \end{tabular}
 \end{indpar}
 
-A variable with {\em variable-name}
+A variable with {\em global-variable-name}
 \TT{V} in a global area with {\em global-area-abbreviation}
-\TT{A} may be named as \TT{A.V}, or if the variable has its own
-{\em variable-abbreviation} \TT{VA},
-this by itself (and \underline{not} \TT{A.VA})
-may be used to name the variable.  An {\em variable-abbreviation}
-is only effective
-within the scope of the `\TT{extern}' statement that defines it.
+\TT{A} is given the {\em extern-variable-name} \TT{A.V}
+by the first form of the {\em extern-variable-statement}.
+The second form of the {\em extern-variable-statement} gives
+an explicit {\em extern-variable-name}.
+The {\em global-area-abbreviation} and {\em extern-variable-names}
+defined by an {\em extern-statement} are only visible within the
+scope of the {\em extern-statement}.
 
-TBD
+An {\em extern-variable-name} actually names a new \key{external variable}
+which has the qualifiers and type given in the {\em extern-variable-statement}
+that defines the {\em extern-variable-name}.
+Each of these new variables is assigned the value of its
+associated global variable, using an ordinary assignment statement.
+The qualifiers and type of the new variable does not have to exactly
+match the qualifiers and type of its associated global variable as long
+as this assignment can be compiled.
+
+Note that both global variables and their associated external variables
+are actually constant, and cannot be changed.  If $v$ is an external
+variable, the construct `\TT{next} $v$' is \underline{not} permitted.
 
 A {\em variable-name} in an
 {\em extern-variable-statement} must match a corresponding

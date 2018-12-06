@@ -10615,10 +10615,12 @@ The syntax is:
 \end{indpar}
 
 Several such blocks may have the same {\em global-area-name},
-as long as no {\em variable-name} appears in more than one of these blocks.
+as long as no {\em variable-name} is allocated in more than one of these blocks.
 {\em Global-area-names} may or may not start with {\em module-abbreviations}
 and follow the same export/import rules
-as {\em variable-names}.
+as non-global {\em variable-names}.  The names of variables in a global
+area do not follow the export/import rules of non-global variables, but
+are effectively exported if and only if their {\em global-area-name} is.
 
 In order to be accessed a global area must be named in an
 {\em extern-statement}:
@@ -10662,7 +10664,7 @@ which has the qualifiers and type given in the {\em extern-variable-statement}
 that defines the {\em extern-variable-name}.
 Each of these new variables is assigned the value of its
 associated global variable, using an ordinary assignment statement.
-The qualifiers and type of the new variable does not have to exactly
+The qualifiers and type of the new variable do not have to exactly
 match the qualifiers and type of its associated global variable as long
 as this assignment can be compiled.
 
@@ -10670,12 +10672,10 @@ Note that both global variables and their associated external variables
 are actually constant, and cannot be changed.  If $v$ is an external
 variable, the construct `\TT{next} $v$' is \underline{not} permitted.
 
-A {\em variable-name} in an
-{\em extern-variable-statement} must match a corresponding
-{\em global-area-block} {\em variable-name}, and that matching
-{\em variable-name} must have the same type and qualifiers
-in the same manner as a function prototype argument variable
-matches a function call variable.
+Also note that while a {\em global-variable-name} by itself cannot
+generally be used, it can be used inside the {\em global-area-block}
+that defines the global variable by code that is after that definition
+in that block.
 
 The {\em global-area-block} containing \TT{A.V} need not be compiled
 or loaded before the {\em extern-global-block} referencing

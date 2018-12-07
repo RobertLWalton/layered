@@ -10677,11 +10677,10 @@ generally be used, it can be used inside the {\em global-area-block}
 that defines the global variable by code that is after that definition
 in that block.
 
-The {\em global-area-block} containing \TT{A.V} need not be compiled
-or loaded before the {\em extern-global-block} referencing
-\TT{A.V} is compiled or loaded.  This means a runtime reference
-can be made to \TT{A.V} when it does not exist.  Such a reference
-will incur a runtime error, typically a segmentation fault.
+An {\em extern-statement} containing a {\em global-variable-name}
+must be compiled after the {\em global-area-block} that defines
+the reference global variable, and the code containing the statement
+must be initialized after the code containing the block is initialized.
 
 Memory within a global area can be allocated by:
 

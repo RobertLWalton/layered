@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 6, 2018
+December 8, 2018
  
 \end{center}
 
@@ -10436,8 +10436,7 @@ current stack:
        \ttstdkey{allocate to stack} \label{ALLOCATE-TO-STACK} \\
        ~~~~(| type T |) \\
        ~~~~( unsadr size, \\
-       ~~~~~~unswrd alignment ?=~0, \\
-       ~~~~~~unswrd region ?=~0 ) \\
+       ~~~~~~unswrd alignment ?=~0 ) \\
 \TS~~~~[|( underlying type of T ) == void |] \\
        \end{tabular}}
 
@@ -10679,57 +10678,55 @@ in that block.
 
 An {\em extern-statement} containing a {\em global-variable-name}
 must be compiled after the {\em global-area-block} that defines
-the reference global variable, and the code containing the statement
-must be initialized after the code containing the block is initialized.
+the referenced global variable, and the code containing the
+{\em extern-statement} must be initialized after the code containing
+the {\em global-area-block} is initialized.
 
-Memory within a global area can be allocated by:
+Memory within a global area can be allocated by the function:
 
-\begin{indpar}\tt\begin{tabular}{l}
-( T result, \\
-~~global unsadr result.offset, \\
-~~global adr result.base.adr  ) = \\
-~~~~\ttstdkey{allocate to global} ( type T, unsadr N ) \\
-~~~~~~~~[| underlying type of T == void |]
-\\[1ex]
-( T result, \\
-~~global unsadr result.offset, \\
-~~global adr result.base.adr  ) = \\
-~~~~\ttstdkey{allocate to global} \\
-~~~~~~~~~~~~( type T, unsadr N, unsadr O, unsadr A ) \\
-~~~~~~~~[| underlying type of T == void |]
-\end{tabular}\end{indpar}\label{ALLOCATE-TO-GLOBAL}
+\begin{indpar}
 
-Here \TT{A} must a power of \TT{2} not greater than \TT{64}.
-Global areas are allocated on a \TT{64} byte boundary and
-may be moved during execution.
+{\tt function *UNCHECKED* \begin{tabular}[t]{@{}l@{}}
+                                  T r, \\
+				  unsadr r.offset, \\
+				  adr r.base.adr = \\
+				  \end{tabular} \\
+\TS~~~~\begin{tabular}[t]{@{}l@{}}
+       \ttstdkey{allocate to global} \label{ALLOCATE-TO-GLOBAL} \\
+       ~~~~(| type T |) \\
+       ~~~~( unsadr size, \\
+       ~~~~~~unswrd alignment ?=~0 ) \\
+\TS~~~~[|( underlying type of T ) == void |] \\
+       \end{tabular}}
 
-Global area variables \underline{cannot} be written to, but memory allocated
-by `\TT{allocate to global}' can be.
+\begin{indpar}
+Just like `{\tt allocate to stack}' (\pagref{ALLOCATE-TO-STACK})
+except that this function must be called by statements inside
+a global area, the memory will be allocated to this global area,
+and there is \underline{no} \TT{*STACK*} qualifier on the result.
 
-The `\TT{allocate to global}' function plays the same role for
-global areas as the `\TT{allocate to stack}' function does for
-stacks, accept that the address gets the \TT{global} qualifier
-instead of the \TT{*STACK*} qualifier.  The \TT{global} qualifier
-is an implied qualifier
-with \underline{none} of the special \TT{*STACK*}
-qualifier properties, and normally has no effect on code.
 
-The `\TT{allocate to global}' inline functions may move
-global areas and therefore executes a
-\begin{center}
-\TT{reload *READ*, *READ* dependent}
-\end{center}
-statement.
+\end{indpar}
 
-Global areas are run time by default.
-The code of a run time
+\end{indpar}
+
+A vector whose elements are of some type $T$ can be allocated by
+the pointer version of `\TT{allocate to global}': see
+\pagref{POINTER-ALLOCATE-TO-GLOBAL}.
+
+Global areas are run time by default.  The code of a run time
 global area block is executed when the file containing it is
 loaded, and the stack of the area is allocated and defined when
 the global area block is executed.
-Global areas may be deallocated or moved during execution.
-References to a global area
-that is not yet allocated or that has been deallocated cause runtime
-errors (typically segmentation faults).
+
+Global area stacks may be moved during execution.  During execution of
+a global block, the global area's stack is the current stack.
+The main difference between normal execution and global block execution
+is that globally visible variables are allocated at the top of the global
+stack and after a global block has executed, the global stack is truncated
+so it contains just these variables.  Note that truncation could happen
+after each statement in the global block, but it does not for debugging
+reasons.
 
 Global areas may also be made compile time, or both compile and run time,
 by use of the \TT{*COM\-PILE-\EOL TIME-\EOL ONLY*} or \TT{*COMPILE-\EOL TIME*}
@@ -10740,6 +10737,14 @@ If the global area is also run time, its
 block code will be re-executed in the run time environment when the
 file containing it is loaded, and might produce different stack contents
 for the area than the compile time version of the area.
+
+A global area can be deallocated by the function:
+
+TBD
+
+References to a global area
+that is not yet allocated or that has been deallocated cause runtime
+errors (typically segmentation faults).
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}

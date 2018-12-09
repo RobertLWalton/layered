@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 8, 2018
+December 9, 2018
  
 \end{center}
 
@@ -10589,11 +10589,11 @@ the block if the block does not set any values itself.]
 \subsection{Global Areas}
 \label{GLOBAL-AREAS}
 
-A global area is a dynamic block called a \key{global stack}
+A global area is a dynamic block called the \key{global stack}
 of the area.  Global variables are allocated to global stacks by
 {\em global-area-blocks} in a manner similar to the way
 ordinary variables are allocated to non-global stacks.
-Specifically, the result variables of a statement in a {\em global-area-stack}
+Specifically, the result variables of a statement in a {\em global-area-block}
 are allocated to the area's global stack instead of being allocated
 to the current (non-global) stack.
 
@@ -10628,25 +10628,22 @@ area do not follow the export/import rules of non-global variables, but
 are effectively exported if and only if their {\em global-area-name} is.
 
 Several {\em global-area-blocks} may have the same {\em global-area-name}
-provided that
+provided that either
 \begin{center}
 \begin{tabular}{l}
-(1) the blocks have the savem {\em global-area-abbreviation} \\
-and \\
-(2) either \begin{tabular}[t]{@{}l}
-           (2a) the blocks are all top level in the same file \\
-	   or \\
-	   (2b) the blocks are not top level but have the same
+(A) the blocks are all top level in the same file \\
+or \\
+(B) the blocks are not top level but have the same
 	        smallest containing subblock
-	   \end{tabular}
 \end{tabular}
 \end{center}
 
 As far as allocating variables to the global stack is concerned,
-the several block behave as if they were concatenated (but note
+several blocks with the same {\em global-area-name}
+behave as if they were concatenated (but note
 that different names may be in scope for different blocks).
 
-In order to be accessed a global area must be named in an
+In order accessed a global area it must be named in an
 {\em extern-statement}:
 \begin{indpar}
 \emkey{extern-statment} ::= \\
@@ -10702,8 +10699,12 @@ that defines the global variable by code that is after that definition
 in that block.
 
 An {\em extern-statement} containing a {\em global-variable-name}
-must be compiled after the {\em global-area-block} that defines
-the referenced global variable, and the code containing the
+must be within the scope of the {\em global-area-block} that defines
+the referenced global variable.
+
+TBD
+
+and the code containing the
 {\em extern-statement} must be initialized after the code containing
 the {\em global-area-block} is initialized.
 

@@ -10627,22 +10627,6 @@ as non-global {\em variable-names}.  The names of variables in a global
 area do not follow the export/import rules of non-global variables, but
 are effectively exported if and only if their {\em global-area-name} is.
 
-Several {\em global-area-blocks} may have the same {\em global-area-name}
-provided that either
-\begin{center}
-\begin{tabular}{l}
-(A) the blocks are all top level in the same file \\
-or \\
-(B) the blocks are not top level but have the same
-	        smallest containing subblock
-\end{tabular}
-\end{center}
-
-As far as allocating variables to the global stack is concerned,
-several blocks with the same {\em global-area-name}
-behave as if they were concatenated (but note
-that different names may be in scope for different blocks).
-
 In order accessed a global area it must be named in an
 {\em extern-statement}:
 \begin{indpar}
@@ -10702,12 +10686,6 @@ An {\em extern-statement} containing a {\em global-variable-name}
 must be within the scope of the {\em global-area-block} that defines
 the referenced global variable.
 
-TBD
-
-and the code containing the
-{\em extern-statement} must be initialized after the code containing
-the {\em global-area-block} is initialized.
-
 Memory within a global area can be allocated by the function:
 
 \begin{indpar}
@@ -10728,7 +10706,8 @@ Memory within a global area can be allocated by the function:
 \begin{indpar}
 Just like `{\tt allocate to stack}' (\pagref{ALLOCATE-TO-STACK})
 except that this function must be called by statements inside
-a global area, the memory will be allocated to this global area,
+a {\em global-area-block}, the memory will be allocated to the global stack
+of the global area,
 and there is \underline{no} \TT{*STACK*} qualifier on the result.
 
 
@@ -10739,6 +10718,30 @@ and there is \underline{no} \TT{*STACK*} qualifier on the result.
 A vector whose elements are of some type $T$ can be allocated by
 the pointer version of `\TT{allocate to global}': see
 \pagref{POINTER-ALLOCATE-TO-GLOBAL}.
+
+A {\em global-area-block} may continue a previous {\em global-area-block}
+if it is within the scope of the previous block and has the
+same {\em global-area-name} as the previous block.  In this case either
+both blocks must be top level, or both must have the same smallest
+containing subblock.  The second block is called the
+\key{continuing global block} and the first block is called
+the \key{continued global block}.
+
+As far as allocating variables to the global stack is concerned,
+the continuing {\em global-area-block}
+resumes where the continued {\em global-area-block} left off.
+
+A global area may exist at run time or at compile time or both,
+as dictated by the {\em global-area-options} on the global area's
+{\em global-area-block}.  No options indicates run-time only, the default.
+The \TT{*COMPILE-TIME*} option indiates both compile-time and run-time.
+The \TT{*COMPILE-\EOL TIME-\EOL ONLY*} option indicates compile-time only.
+
+TBD
+
+and the code containing the
+{\em extern-statement} must be initialized after the code containing
+the {\em global-area-block} is initialized.
 
 Global areas are run time by default.  The code of a run time
 global area block is executed when the file containing it is

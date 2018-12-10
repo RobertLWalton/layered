@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 9, 2018
+December 10, 2018
  
 \end{center}
 
@@ -2744,11 +2744,11 @@ define abbreviations: \\
 \TS~~~~\ttkey{qualifier} \ABV{} `std qualifier' \\
 \\[1ex]
 type \ttstdkey{missing type}~= next enum // 0 \\
-function std type r = \ttmkey{std missing}{type}: \\
+function std type r = \ttstdmkey{missing}{type}: \\
 \TS~~~~r = std missing type
 \\[1ex]
 qualifier~\ttstdkey{missing qualifier}~= next enum // 0 \\
-function std qualifier r = \ttmkey{std missing}{qualifier}: \\
+function std qualifier r = \ttstdmkey{missing}{qualifier}: \\
 \TS~~~~r = std missing qualifier
 \end{indpar}
 
@@ -4048,13 +4048,13 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt define implied variable qualifier \ttkey{std *READ*}} \\
+{\tt define implied variable qualifier \ttstdkey{*READ*}} \\
 {\tt define abbreviation \ttakey{READ} ---> `std *READ*'} \\
-{\tt define implied variable qualifier \ttkey{std *WRITE*}} \\
+{\tt define implied variable qualifier \ttstdkey{*WRITE*}} \\
 {\tt define abbreviation \ttakey{WRITE} ---> `std *WRITE*'} \\
-{\tt define implied addable value qualifier \ttkey{std *STACK*}} \\
+{\tt define implied addable value qualifier \ttstdkey{*STACK*}} \\
 {\tt define abbreviation \ttakey{STACK} ---> `std *STACK*'} \\
-{\tt define variable qualifier \ttkey{std *UNCHECKED*}} \\
+{\tt define variable qualifier \ttstdkey{*UNCHECKED*}} \\
 {\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'}
 \end{indpar}
 
@@ -10307,8 +10307,10 @@ The address stored, when viewed as an
 integer, is an exact multiple of the alignment.
 \end{indpar}
 
-{\tt function \ttstdkey{deallocate from dynamic}
-	      ( adr body pointer )}
+{\tt function \TT{*UNCHECKED* deallocate dynamic block}%
+	      \index{deallocate@{\tt *UNCHECKED* deallocate}!%
+	             dynamic block@{\tt dynamic block}} \\
+\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( adr body pointer )}
 
 \begin{indpar}
 Deallocate the dynamic block pointed at by the body pointer,
@@ -10327,7 +10329,7 @@ managing dynamic blocks and dynamic pointers.
 
 \begin{indpar}
 Returns the address of a block of N bytes of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced.
+inaccessible and will cause a memory fault if referenced.
 N is at least 1 megabyte if addresses are 32 bits, and is at least
 1 gitabyte if addresses are 64 bits.  The same value is returned for
 all calls to {\tt NULL} within a run-time environment, or for all compile-time
@@ -10542,7 +10544,7 @@ normally terminating block \TT{B} finishes terminating.
 However, \TT{B} will not execute anything but enabled \TT{*UNWIND*}
 subblocks, as it is still terminating.
 
-Machine errors, i.e. memory segment faults, invoke callable functions
+Machine errors, i.e. memory faults, invoke callable functions
 which can record error information and execute a \TT{*THROW*}.
 Similarly detected programming or data errors can record
 error information and execute a \TT{*THROW*}.  An \TT{*UNWIND*}
@@ -10731,8 +10733,9 @@ As far as allocating variables to the global stack is concerned,
 the continuing {\em global-area-block}
 resumes where the continued {\em global-area-block} left off.
 
-A global area may exist at run time or at compile time or both,
-as dictated by the {\em global-area-options} on the global area's
+A global area may exist at run time or at compile time or both.
+For an area defined by a top level {\em global-area-block}, this is
+dictated by the {\em global-area-options} on the
 {\em global-area-block}.  No options indicates run-time only, the default.
 The \TT{*COMPILE-TIME*} option indiates both compile-time and run-time.
 The \TT{*COMPILE-\EOL TIME-\EOL ONLY*} option indicates compile-time only.
@@ -10740,43 +10743,44 @@ The {\em global-area-options} on a continuing {\em global-area-block}
 must be identical (except for ordering) to those on the continued
 {\em global-area-block}.
 
-TBD
+When a top level {\em global-area-block} is to be executed at compile time,
+it is executed immediately after the entire block is compiled.
+In this case it must not reference variables in its context that will
+not be defined until run time.
 
-and the code containing the
-{\em extern-statement} must be initialized after the code containing
-the {\em global-area-block} is initialized.
+When a top level {\em global-area-block} is to be executed at run-time,
+it is executed when its containing file is initialized.
 
-Global areas are run time by default.  The code of a run time
-global area block is executed when the file containing it is
-loaded, and the stack of the area is allocated and defined when
-the global area block is executed.
+A non-top level {\em global-area-block} is to be executed at either
+compile-time or run-time, it is executed the \underline{first time}
+its smallest containing subblock is executed.  Non-top level
+{\em global-area-blocks} do not have {\em global-area-options}.
 
-Global area stacks may be moved during execution.  During execution of
-a global block, the global area's stack is the current stack.
-The main difference between normal execution and global block execution
-is that globally visible variables are allocated at the top of the global
-stack and after a global block has executed, the global stack is truncated
-so it contains just these variables.  Note that truncation could happen
-after each statement in the global block, but it does not for debugging
-reasons.
+The {\em global-area-name} of a global area is allocated as a
+result variable of the first (non-continuing) {\em global-area-block}
+defining the global area.  It is of type `\TT{global area}' and
+can be used to find the dynamic block that is the areas' global stack.
+The relevant definitions are:
+\begin{indpar}
+{\tt
+define type \ttstdkey{global area}~as \ldots \\
+define abbreviation \ttkey{global area} \ABV{} `std global area'
+\\[1ex]
+function adr body pointer = \ttstdkey{dynamic block of} \\
+\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( global area g )
+}
 
-Global areas may also be made compile time, or both compile and run time,
-by use of the \TT{*COM\-PILE-\EOL TIME-\EOL ONLY*} or \TT{*COMPILE-\EOL TIME*}
-{\em global-\EOL area-\EOL options} above.  For a compile time
-global area, global area blocks are executed in the compiler immediately
-after the block compiles, and the global area stack exists in the compiler.
-If the global area is also run time, its
-block code will be re-executed in the run time environment when the
-file containing it is loaded, and might produce different stack contents
-for the area than the compile time version of the area.
+\begin{indpar}
+Return the address of the body pointer of the dynamic block that
+is the global stack of the global area {\tt g}.
+\end{indpar}
+\end{indpar}
 
-A global area can be deallocated by the function:
-
-TBD
-
-References to a global area
-that is not yet allocated or that has been deallocated cause runtime
-errors (typically segmentation faults).
+Global stacks may be moved during execution.  Given the address of
+the body pointer of the global stack, the `{\tt *UNCHECKED* deallocate
+dynamic block}' function can be used to deallocate the dynamic block and
+reset the body pointer to {\tt NULL}, which will cause any future
+reference to the global stack to suffer a memory fault.
 
 \section{Builtin Qualifiers}
 \label{BUILTIN-QUALIFIERS}
@@ -10907,7 +10911,7 @@ of arbitrary RAM contents.
 There is a special unchecked function of zero arguments, \TT{NULL}, of result
 type \TT{adr}, that
 references a block of virtual memory that is
-inaccessible and will cause a segmentation fault if referenced
+inaccessible and will cause a memory fault if referenced
 (\pagref{NULL}).
 
 

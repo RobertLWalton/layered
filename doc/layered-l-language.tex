@@ -10117,24 +10117,36 @@ so adding the stub address and the
 body pointer within stub offset together to get a single constant
 address pointing directly at the body pointer is the norm.
 
+Builtin function prototypes are defined to allocate static and dynamic memory
+and deallocate dynamic memory.  These functions are actually provided
+by the runtime system, and may be defined in different ways to support
+different memory allocation/deallocation features.
+
+\subsection{Memory Regions}
+\label{MEMORY-REGIONS}
+
 Both static and dynamic data blocks are allocated to \skey{region}s.
 This permits operations such as garbage collecting all blocks in a
 region, compacting a dynamic region by moving blocks in it to eliminate
 gaps between blocks, and requiring that a static region have limited size
 so that data in it can be addressed by a limited size offset.
 
-Regions are defined by the run-time system using an interface that
-is not specified by the L-Language.
+Regions are identified by \TT{memory region} values:
+\begin{indpar}\tt
+define type \ttstdkey{memory region}~as \ldots \\
+define abbreviation \ttkey{memory region} \ABV{} `std memory region' \\
+memory region \ttstdkey{default static region} = \ldots \\
+memory region \ttstdkey{default dynamic region} = \ldots \\
+memory region \ttstdkey{default stack region} = \ldots \\
+\end{indpar}
 
-Regions are identified by unsigned integers.  If in an allocate function
-the region is designated as \TT{0}, a default region will be used
-(typically there will be a different default for static and dynamic
-memory).
-
-Builtin function prototypes are defined to allocate static and dynamic memory
-and deallocate dynamic memory.  These functions are actually provided
-by the runtime system, and may be defined in different ways to support
-different memory allocation/deallocation features.
+Regions may be created by the run-time system using an interface that
+is not specified by the L-Language.  However the run-time system must
+provide the default
+memory regions defined above: one for static data, one for
+dynamic data, and one for stacks (which may or may not be the same as the one
+for dynamic data).  These default regions are used if no other regions
+are created.
 
 \subsection{Static Memory}
 \label{STATIC-MEMORY}
@@ -10144,12 +10156,13 @@ The following functions allocate static memory and compute static addresses.
 
 \begin{indpar}
 
-{\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
-				  \ttstdkey{allocate to static} \\
-				  ~~~~( unsadr size, \\
-				  ~~~~~~unswrd alignment ?=~0, \\
-				  ~~~~~~unswrd region ?=~0 ) \\
-				  \end{tabular}}
+{\tt function adr r = \begin{tabular}[t]{@{}l@{}}
+		      \ttstdkey{allocate to static} \\
+		      ~~~~( unsadr size, \\
+		      ~~~~~~unswrd alignment ?=~0, \\
+		      ~~~~~~memory region r ?= \\
+		      ~~~~~~~~~~std default static region ) \\
+		      \end{tabular}}
 
 \begin{indpar}
 Allocate a {\tt size} byte block of static memory with the given

@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 10, 2018
+December 11, 2018
  
 \end{center}
 
@@ -10724,7 +10724,8 @@ the pointer version of `\TT{allocate to global}': see
 A {\em global-area-block} may continue a previous {\em global-area-block}
 if it is within the scope of the previous block and has the
 same {\em global-area-name} as the previous block.  In this case either
-both blocks must be top level, or both must have the same smallest
+both blocks must be top level and in the same file,
+or both must have the same smallest
 containing subblock.  The second block is called the
 \key{continuing global block} and the first block is called
 the \key{continued global block}.
@@ -10751,15 +10752,16 @@ not be defined until run time.
 When a top level {\em global-area-block} is to be executed at run-time,
 it is executed when its containing file is initialized.
 
-A non-top level {\em global-area-block} is to be executed at either
-compile-time or run-time, it is executed the \underline{first time}
-its smallest containing subblock is executed.  Non-top level
+A non-top level {\em global-area-block}
+is executed the \underline{first time}
+its smallest containing subblock is executed, either at compile-time
+or at run-time.  Non-top level
 {\em global-area-blocks} do not have {\em global-area-options}.
 
 The {\em global-area-name} of a global area is allocated as a
 result variable of the first (non-continuing) {\em global-area-block}
 defining the global area.  It is of type `\TT{global area}' and
-can be used to find the dynamic block that is the areas' global stack.
+can be used to find the dynamic block that is the area's global stack.
 The relevant definitions are:
 \begin{indpar}
 {\tt

@@ -10244,28 +10244,44 @@ of the {\tt template}.
 \subsection{Dynamic Memory}
 \label{DYNAMIC-MEMORY}
 
-
-The following functions allocate and deallocate dynamic memory blocks.
-Each block is associated with a body pointer that points at the
-block.  The block in turn points back at the
+A \key{dynamic block} is a memory block that may be moved.  Each
+dynamic block has an associated \key{body pointer} in static
+memory that always points at the beginning of the dynamic block.
+The block in turn points back at the
 body pointer, so when the block is moved the body pointer can be
 updated.  This back-pointer is provided by the run-time
 system and is not visible to non-system code.
 
+Body pointers have type:
+\begin{indpar}\tt
+define type \ttstdkey{body pointer}~as adr \\
+define abbreviation \ttkey{body pointer} \ABV{} `std body pointer' \\
+function body pointer r = std default value: \\
+\TS~~~~r = NULL
+\end{indpar}
+
+Body pointers must be allocated to static memory, and are typically
+elements in larger static memory data structures called \skey{stub}s.
+
+The following functions allocate and deallocate dynamic memory blocks.
+
 \begin{indpar}
 
-{\tt function *UNCHECKED* unsadr r = \begin{tabular}[t]{@{}l@{}}
-				     \ttstdkey{allocate to dynamic} \\
-				     ~~~~( adr body pointer, \\
-				     ~~~~~~unsadr size, \\
-				     ~~~~~~unswrd alignment ?=~0, \\
-				     ~~~~~~unswrd region ?=~0 ) \\
-				     \end{tabular}}
+{\tt function unsadr r = \begin{tabular}[t]{@{}l@{}}
+                         \TT{std *UNCHECKED* allocate to dynamic}%
+	                 \index{allocate@{\tt *UNCHECKED* allocate}!%
+	                        to dynamic@{\tt to dynamic}} \\
+			 ~~~~( adr body pointer address, \\
+			 ~~~~~~unsadr size, \\
+			 ~~~~~~unswrd alignment ?=~0, \\
+			 ~~~~~~memory region R ?= \\
+			 ~~~~~~~~~~std default dynamic region ) \\
+			 \end{tabular}}
 
 \begin{indpar}
 Allocate a {\tt size} byte block of dynamic memory with the given
 {\tt alignment} in bytes.  Store the
-the address of this memory in the body point that is in the static
+the address of this memory in the body pointer that is in the static
 memory location whose address is given by the first argument.
 The address stored, when viewed as an
 integer, is an exact multiple of the {\tt alignment}.
@@ -10276,6 +10292,9 @@ alignment must be a power of two not greater than the memory
 page size (which is the alignment of regions).
 
 The memory bytes are initialized to zero.
+
+Returns \TT{size} on success.  On failure does nothing, but returns
+the maximum value of {\tt size} that would be successful.
 \end{indpar}
 
 {\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
@@ -10300,15 +10319,19 @@ The address stored, when viewed as an
 integer, is an exact multiple of the alignment.
 \end{indpar}
 
-{\tt function \TT{*UNCHECKED* deallocate dynamic block}%
+{\tt function \TT{std *UNCHECKED* deallocate dynamic block}%
 	      \index{deallocate@{\tt *UNCHECKED* deallocate}!%
 	             dynamic block@{\tt dynamic block}} \\
-\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( adr body pointer )}
+\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( body pointer P )}
 
 \begin{indpar}
 Deallocate the dynamic block pointed at by the body pointer,
 and set the body pointer to \TT{NULL} (defined below).  If
 the body pointer is already \TT{NULL}, do nothing.
+
+Note that the body pointer argument given locates the dynamic
+block, and the back pointer within that block locates the
+body pointer itself.
 \end{indpar}
 
 \end{indpar}

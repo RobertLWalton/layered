@@ -88,6 +88,7 @@
 \newcommand{\ttakey}[1]{\TT{*#1*}\index{#1@{\tt *#1*}}}
 \newcommand{\ttamkey}[2]{\TT{*#1*}\index{#1@{\tt *#1*}!#2}}
 \newcommand{\ttstdkey}[1]{\TT{std #1}\index{#1@{\tt std #1}}}
+\newcommand{\ttstdlkey}[2]{\TT{std #1 #2}\index{#1@{\tt std #1}!#2@{\tt #2}}}
 \newcommand{\ttstdmkey}[2]{\TT{std #1}\index{#1@{\tt std #1}!#2}}
 
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
@@ -10252,26 +10253,29 @@ body pointer, so when the block is moved the body pointer can be
 updated.  This back-pointer is provided by the run-time
 system and is not visible to non-system code.
 
-Body pointers have type:
+The addresses of body pointers (and not the body pointer themselves)
+have the type:
 \begin{indpar}\tt
-define type \ttstdkey{body pointer}~as adr \\
-define abbreviation \ttkey{body pointer} \ABV{} `std body pointer' \\
-function body pointer r = std default value: \\
-\TS~~~~r = NULL
+define type \ttstdkey{body pointer address}~as adr \\
+define abbreviation \ttkey{body pointer address} \ABV{} \\
+\TS~~~~~~~~~~~~~~~~~~~~`std body pointer address'
 \end{indpar}
 
 Body pointers must be allocated to static memory, and are typically
 elements in larger static memory data structures called \skey{stub}s.
+Upon being so allocated, body pointers should be given the initial
+value \TT{NULL} (defined below).  Body pointer addresses must be
+created by unchecked code.
 
 The following functions allocate and deallocate dynamic memory blocks.
 
 \begin{indpar}
 
 {\tt function unsadr r = \begin{tabular}[t]{@{}l@{}}
-                         \TT{std *UNCHECKED* allocate to dynamic}%
-	                 \index{allocate@{\tt *UNCHECKED* allocate}!%
+                         \TT{std allocate to dynamic}%
+	                 \index{allocate@{\tt allocate}!%
 	                        to dynamic@{\tt to dynamic}} \\
-			 ~~~~( adr body pointer address, \\
+			 ~~~~( body pointer address A, \\
 			 ~~~~~~unsadr size, \\
 			 ~~~~~~unswrd alignment ?=~0, \\
 			 ~~~~~~memory region R ?= \\
@@ -10282,9 +10286,12 @@ The following functions allocate and deallocate dynamic memory blocks.
 Allocate a {\tt size} byte block of dynamic memory with the given
 {\tt alignment} in bytes.  Store the
 the address of this memory in the body pointer that is in the static
-memory location whose address is given by the first argument.
+memory location whose address is given by {\tt A}.
 The address stored, when viewed as an
 integer, is an exact multiple of the {\tt alignment}.
+
+Before calling this function the body pointer at address {\tt A}
+\underline{must} be set to \TT{NULL} (defined below).
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
@@ -10297,51 +10304,68 @@ Returns \TT{size} on success.  On failure does nothing, but returns
 the maximum value of {\tt size} that would be successful.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
-				  \ttstdkey{allocate to dynamic} \\
-				  ~~~~(| type $T$ v |) \\
-				  ~~~~( adr body pointer, \\
-				  ~~~~~~$T$ v, \\
-				  ~~~~~~unswrd N ?=~1, \\
-				  ~~~~~~unswrd region ?=~0 ) \\
-				  \end{tabular} \\
-\TS~~~~~~~~| ( underlying type of T ) is numeric |]}
-\begin{indpar}
-Allocate a vector of {\tt N} elements to
-dynamic memory, set each element equal to {\tt v}, and store the
-address of the first (lowest addressed) element
-in the body point that is in the static
-memory location whose address is given by the first argument.
-The alignment of the memory is equal to the alignment of $T$.
-This alignment must be a power of two not greater than the memory
-page size (which is the alignment of regions).
-The address stored, when viewed as an
-integer, is an exact multiple of the alignment.
-\end{indpar}
-
 {\tt function \TT{std *UNCHECKED* deallocate dynamic block}%
 	      \index{deallocate@{\tt *UNCHECKED* deallocate}!%
 	             dynamic block@{\tt dynamic block}} \\
-\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( body pointer P )}
+\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( body pointer address A )}
 
 \begin{indpar}
 Deallocate the dynamic block pointed at by the body pointer,
 and set the body pointer to \TT{NULL} (defined below).  If
 the body pointer is already \TT{NULL}, do nothing.
-
-Note that the body pointer argument given locates the dynamic
-block, and the back pointer within that block locates the
-body pointer itself.
 \end{indpar}
 
 \end{indpar}
+
+A vector whose elements are of some type $T$ can be allocated by
+the pointer version of `\TT{allocate to dynamic}': see
+\pagref{POINTER-ALLOCATE-TO-DYNAMIC}.
+
+The following function allocates to the end of an \underline{existing}
+dynamic block:
+
+\begin{indpar}
+
+{\tt function unsadr r = \begin{tabular}[t]{@{}l@{}}
+                         \ttstdlkey{allocate}{to dynamic block} \\
+			 ~~~~( body pointer address A, \\
+			 ~~~~~~unsadr size, \\
+			 ~~~~~~unswrd alignment ?=~0 ) \\
+			 \end{tabular}}
+
+\begin{indpar}
+Add a {\tt size} byte block of to the dynamic block whose body pointer
+is located at address {\tt A}.  The offset of the block is returned.
+This offst is a multiple of the the given {\tt alignment} in bytes.
+If necessary padding is added to the dynamic block before the
+newly allocated memory to ensure the offset is a multiple of the
+{\tt alignment}, and if necessary the dynamic block is moved so that
+its body pointer is a multiple of the alignment.
+
+If the dynamic block has not been allocated before this call
+(i.e., its body pointer is \TT{NULL}),
+it is allocated first.
+
+If the {\tt alignment} is omitted or is given as 0 it is taken
+to be equal to \TT{size}.  The explicit or implied
+alignment must be a power of two not greater than the memory
+page size (which is the alignment of regions).
+
+The memory bytes are initialized to zero.
+\end{indpar}
+
+\end{indpar}
+
+A vector whose elements are of some type $T$ can be allocated by
+the pointer version of `\TT{allocate to dynamic block}': see
+\pagref{POINTER-ALLOCATE-TO-DYNAMIC-BLOCK}.
 
 The following functions return constants that are used in
 managing dynamic blocks and dynamic pointers.
 
 \begin{indpar}
 
-{\tt function *UNCHECKED* adr r = \ttstdkey{NULL}}\label{NULL}
+{\tt function adr r = \ttstdkey{NULL}}\label{NULL}
 
 \begin{indpar}
 Returns the address of a block of N bytes of virtual memory that is
@@ -10357,7 +10381,7 @@ this value in order to cause any reference to the block to trigger
 a memory fault.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = \ttstdkey{STATIC BASE}}\label{STATIC BASE}
+{\tt function adr r = \ttstdkey{STATIC BASE}}\label{STATIC BASE}
 
 \begin{indpar}
 Returns the address of a static memory location that contains an
@@ -11476,6 +11500,72 @@ The elements are set to zero.
 The elements each have type {\tt T} and qualifiers {\tt Qs}.
 \end{indpar}
 
+{\tt\begin{tabular}{@{}l}
+function *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdkey{allocate to dynamic} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( body pointer address A, unsadr N ?= 1, \\
+~~~~~~~~~~memory region R ?= std default dynamic region ) \\
+~~~~~~~~[| zero value OK for T |] \\
+~~~~~~~~[| Qs are all addable |] \\
+\end{tabular}}\label{POINTER-ALLOCATE-TO-DYNAMIC}
+
+\begin{indpar}
+Allocates a vector of {\tt N} elements as a new dynamic block in
+the dynamic memory region R, and stores the address of the block
+in the body pointer addressed by {\tt A}.  Before calling this
+function the body pointer \underline{must} be set to \TT{NULL}.
+The elements are set to zero.
+The elements each have type {\tt T} and qualifiers {\tt Qs}.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdlkey{allocate}{to dynamic block} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( body pointer address A, unsadr N ?= 1, \\
+~~~~~~~~~~memory region R ?= std default dynamic region ) \\
+~~~~~~~~[| zero value OK for T |] \\
+~~~~~~~~[| Qs are all addable |] \\
+\end{tabular}}\label{POINTER-ALLOCATE-TO-DYNAMIC-BLOCK}
+
+\begin{indpar}
+Add a {\tt size} byte block of to the dynamic block whose body pointer
+is located at address {\tt A}.  The offset of the block is returned
+and is a multiple of the the given {\tt align\-ment} in bytes.
+If necessary padding is added to the dynamic block before the
+newly allocated memory to ensure the offset is a multiple of the
+{\tt alignment}.  If necessary the dynamic block is moved so that
+its body pointer is a multiple of the alignment.
+
+If the dynamic block has not been allocated before this call
+(i.e., its body pointer is \TT{NULL}),
+it is allocated first.
+
+Adds a vector of {\tt N} elements to the end of the dynamic block
+whose body pointer is located at address {\tt A}.
+If necessary padding is added before the vector and/or
+the dynamic block is moved so that the vector has the alignment of
+the type {\tt T}.
+
+If the dynamic block has not been allocated before this call
+(i.e., its body pointer is \TT{NULL}),
+it is allocated first.
+
+The elements are set to zero.
+The elements each have type {\tt T} and qualifiers {\tt Qs}.
+\end{indpar}
+
 \end{indpar}
 
 The following functions are \TT{*UNCHECKED*} versions of the
@@ -11524,6 +11614,32 @@ function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
 ~~~~~~~~( unsadr N ?= 1, \\
 ~~~~~~~~~~memory region R ?= std default static region ) \\
+\end{tabular}}
+
+{\tt\begin{tabular}{@{}l}
+function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdkey{allocate to dynamic} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( body pointer address A, unsadr N ?= 1, \\
+~~~~~~~~~~memory region R ?= std default dynamic region ) \\
+\end{tabular}}
+
+{\tt\begin{tabular}{@{}l}
+function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdlkey{allocate}{to dynamic block} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( body pointer address A, unsadr N ?= 1, \\
+~~~~~~~~~~memory region R ?= std default dynamic region ) \\
 \end{tabular}}
 
 \end{indpar}

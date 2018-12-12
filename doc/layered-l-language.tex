@@ -169,7 +169,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 11, 2018
+December 12, 2018
  
 \end{center}
 
@@ -10137,7 +10137,7 @@ define type \ttstdkey{memory region}~as \ldots \\
 define abbreviation \ttkey{memory region} \ABV{} `std memory region' \\
 memory region \ttstdkey{default static region} = \ldots \\
 memory region \ttstdkey{default dynamic region} = \ldots \\
-memory region \ttstdkey{default stack region} = \ldots \\
+memory region \ttstdkey{default stack region} = \ldots
 \end{indpar}
 
 Regions may be created by the run-time system using an interface that
@@ -10151,7 +10151,11 @@ are created.
 \subsection{Static Memory}
 \label{STATIC-MEMORY}
 
-The following functions allocate static memory and compute static addresses.
+Static memory variables are allocated at fixed addresses
+that never change.
+Static addresses consist of a single \TT{adr} value.
+
+The following function allocates static memory and computes static addresses.
 
 
 \begin{indpar}
@@ -10179,38 +10183,14 @@ page size (which is the alignment of regions).
 The memory bytes are initialized to zero.
 \end{indpar}
 
-
-{\tt function *UNCHECKED* adr r = \begin{tabular}[t]{@{}l@{}}
-				  \ttstdkey{allocate to static} \\
-				  ~~~~(| type $T$ v |) \\
-				  ~~~~( $T$ v, \\
-				  ~~~~~~unswrd N ?=~1, \\
-				  ~~~~~~unswrd region ?=~0 ) \\
-				  \end{tabular} \\
-\TS~~~~~~~~| ( underlying type of T ) is numeric |]}
-\begin{indpar}
-Allocate a vector of {\tt N} elements to
-static memory, set each element equal to {\tt v}, and return the
-address of the first (lowest addressed) element.
-The alignment of the memory is equal to the alignment of $T$.
-This alignment must be a power of two not greater than the memory
-page size (which is the alignment of regions).
-The address viewed as an
-integer is an exact multiple of the alignment.
 \end{indpar}
 
-{\tt function *UNCHECKED* adr r = \\
-\TS~~~~~~~~\ttstdkey{allocate UTF-8 to static} \\
-\TS~~~~~~~~~~~~( string s, unsadr region ?=~0 )}
-
-\begin{indpar}
-Allocate static memory and set it equal to the UTF-8 representation of the
-value of {\tt s} with a \TT{NUL} appended.  The memory allocated may be
-read-only, meaning that trying to write it will cause a program memory
-fault error.
-\end{indpar}
-
-\end{indpar}
+A vector whose elements are of some type $T$ can be allocated by
+the pointer version of `\TT{allocate to static}': see
+\pagref{POINTER-ALLOCATE-TO-STATIC}.  A vector containing a copy
+of a compile-time \TT{string} value can also be allocated by
+a pointer version of `\TT{allocate to static}': see
+\pagref{POINTER-ALLOCATE-UTF-8-TO-STATIC}.
 
 The following functions can be used to embed static addresses or offsets
 into tables in static regions into
@@ -11420,7 +11400,7 @@ function *STACK* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
 ~~~~\ttstdkey{allocate to stack} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
-~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~( unsadr N ?= 1 ) \\
 ~~~~~~~~[| zero value OK for T |] \\
 ~~~~~~~~[| Qs are all addable |] \\
 \end{tabular}}\label{POINTER-ALLOCATE-TO-STACK}
@@ -11440,7 +11420,7 @@ function *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~~~~~~qualifiers p.qualifiers = \\
 ~~~~\ttstdkey{allocate to global} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
-~~~~~~~~( unsadr N = 1 ) \\
+~~~~~~~~( unsadr N ?= 1 ) \\
 ~~~~~~~~[| zero value OK for T |] \\
 ~~~~~~~~[| Qs are all addable |] \\
 \end{tabular}}\label{POINTER-ALLOCATE-TO-GLOBAL}
@@ -11448,6 +11428,27 @@ function *READABLE* *WRITABLE* pointer p, \\
 \begin{indpar}
 Must be executed within a global area block (\itemref{GLOBAL-AREAS}).
 Allocates a vector of {\tt N} elements to the global area.
+The elements are set to zero.
+The elements each have type {\tt T} and qualifiers {\tt Qs}.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdkey{allocate to static} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( unsadr N ?= 1, \\
+~~~~~~~~~~memory region R ?= std default static region ) \\
+~~~~~~~~[| zero value OK for T |] \\
+~~~~~~~~[| Qs are all addable |] \\
+\end{tabular}}\label{POINTER-ALLOCATE-TO-STATIC}
+
+\begin{indpar}
+Allocates a vector of {\tt N} elements to the static memory region R.
 The elements are set to zero.
 The elements each have type {\tt T} and qualifiers {\tt Qs}.
 \end{indpar}
@@ -11489,9 +11490,51 @@ function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
 ~~~~~~~~( intadr N = 1 ) \\
 \end{tabular}}
 
+{\tt\begin{tabular}{@{}l}
+function *UNCHECKED* *READABLE* *WRITABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdkey{allocate to static} \\
+~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
+~~~~~~~~( unsadr N ?= 1, \\
+~~~~~~~~~~memory region R ?= std default static region ) \\
+\end{tabular}}
+
 \end{indpar}
 
-Calls to the functions of this section execute at compile-time only if
+The following function allocates a readonly UTF-8 character
+string to static memory:
+
+\begin{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function *READABLE* pointer p, \\
+~~~~~~~~~~~~~intadr p.begin, \\
+~~~~~~~~~~~~~intadr p.end, \\
+~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~type p.type, \\
+~~~~~~~~~~~~~qualifiers p.qualifiers = \\
+~~~~\ttstdkey{allocate UTF-8 to static} \\
+~~~~~~~~( string S, \\
+~~~~~~~~~~memory region R ?= std default static region ) \\
+\end{tabular}}\label{POINTER-ALLOCATE-UTF-8-TO-STATIC}
+
+\begin{indpar}
+Allocate static memory and set it equal to the UTF-8 representation of the
+value of {\tt S} with a \TT{NUL} appended.  The element type {\tt p.type}
+is set to \TT{uns8}, and the element qualifiers {\tt p.qualifiers} is
+set to the empty set.  The memory allocated may be
+read-only, meaning that trying to write it with unchecked code
+will cause a program memory fault error.
+\end{indpar}
+
+\end{indpar}
+
+Like for most functions,
+calls to the functions of this section execute at compile-time only if
 they are included in a {\em compile-time-assign\-ment-\EOL statement}
 (\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}).
 Otherwise they execute at run time.

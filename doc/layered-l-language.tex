@@ -170,7 +170,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 12, 2018
+December 13, 2018
  
 \end{center}
 
@@ -10101,8 +10101,9 @@ memory needs to be reorganized because, for example, other dynamic
 blocks are being are allocated or expanded.  As a consequence,
 each dynamic block is associate with a pointer stored in static
 memory that points at the beginning of the dynamic block.  This
-pointer is in a static storage datum called a \key{stub}
-and is called a \key{body pointer}.  The dynamic block is called
+pointer is called a \key{body pointer} and is located
+in a static storage datum called a \key{stub}.
+The dynamic block is called
 a \key{body} of the stub.  A stub can have more than one body.
 
 A pointer to a location in the body of a stub is called
@@ -10130,7 +10131,7 @@ Both static and dynamic data blocks are allocated to \skey{region}s.
 This permits operations such as garbage collecting all blocks in a
 region, compacting a dynamic region by moving blocks in it to eliminate
 gaps between blocks, and requiring that a static region have limited size
-so that data in it can be addressed by a limited size offset.
+so that data in it can be addressed using a limited size offset.
 
 Regions are identified by \TT{memory region} values:
 \begin{indpar}\tt
@@ -10166,12 +10167,12 @@ The following function allocates static memory and computes static addresses.
 		      ~~~~( unsadr size, \\
 		      ~~~~~~unswrd alignment ?=~0, \\
 		      ~~~~~~memory region r ?= \\
-		      ~~~~~~~~~~std default static region ) \\
+		      ~~~~~~~~~~std default static R ) \\
 		      \end{tabular}}
 
 \begin{indpar}
 Allocate a {\tt size} byte block of static memory with the given
-{\tt alignment} in bytes.
+{\tt alignment} in bytes to region {\tt R}.
 Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
@@ -10189,8 +10190,8 @@ The memory bytes are initialized to zero.
 A vector whose elements are of some type $T$ can be allocated by
 the pointer version of `\TT{allocate to static}': see
 \pagref{POINTER-ALLOCATE-TO-STATIC}.  A vector containing a copy
-of a compile-time \TT{string} value can also be allocated by
-a pointer version of `\TT{allocate to static}': see
+of a compile-time \TT{string} value can be allocated by
+`\TT{allocate UTF-8 to static}': see
 \pagref{POINTER-ALLOCATE-UTF-8-TO-STATIC}.
 
 The following functions can be used to embed static addresses or offsets
@@ -10199,7 +10200,7 @@ floating point NaNs or other numeric values.
 
 \begin{indpar}
 
-{\tt function *UNCHECKED* adr r =} \\
+{\tt function adr r =} \\
 {\TS~~~~~~~~~\ttstdkey{extract adr}\label{EXTRACT-ADR}} \\
 {\TS~~~~~~~~~~~~~ ( uns64 v,} \\
 {\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
@@ -10236,6 +10237,37 @@ provided the low order {\tt S} bits of {\tt A} are zero and all of
 the non-zero bits of {\tt A} are within the low order {\tt L+S} bits
 of {\tt A}.  The high order {\tt 64-L} bits of the value returned
 by {\tt embed adr} are copied from the high order {\tt 64-L} bits
+of the {\tt template}.
+\end{indpar}
+
+{\tt function unsadr r =} \\
+{\TS~~~~~~~~~\ttstdkey{extract offset}\label{EXTRACT-OFFSET}} \\
+{\TS~~~~~~~~~~~~~ ( uns64 v,} \\
+{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+
+\begin{indpar}
+Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
+and return the result as an unsigned integer.  If \TT{unsadr} has
+$k$ bits, the integer is truncated if $k<${\tt L+S} and padded on
+the left with zero bits if $k>${\tt L+S}.
+
+\end{indpar}
+
+{\tt function uns64 r =} \\
+{\TS~~~~~~~~~\ttstdkey{embed offset}\label{EMBED-OFFSET}} \\
+{\TS~~~~~~~~~~~~~ ( uns64 template, unsadr offset,} \\
+{\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
+
+\begin{indpar}
+Make a 64-bit value containing {\tt offset} in the low order
+{\tt L} bits, such that
+\begin{center}
+\tt extract offset ( embed offset ( T, O, L, S ), L, S ) == O
+\end{center}
+provided the low order {\tt S} bits of {\tt O} are zero and all of
+the non-zero bits of {\tt O} are within the low order {\tt L+S} bits
+of {\tt O}.  The high order {\tt 64-L} bits of the value returned
+by {\tt embed offset} are copied from the high order {\tt 64-L} bits
 of the {\tt template}.
 \end{indpar}
 

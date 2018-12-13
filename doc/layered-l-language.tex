@@ -10157,6 +10157,29 @@ Static memory variables are allocated at fixed addresses
 that never change.
 Static addresses consist of a single \TT{adr} value.
 
+The following function returns the static memory address
+of a large block of memory that will cause a memory fault if accessed:
+
+\begin{indpar}
+
+{\tt function adr r = \ttstdkey{NULL}}\label{NULL}
+
+\begin{indpar}
+Returns the address of a block of N bytes of virtual memory that is
+inaccessible and will cause a memory fault if referenced.
+N is at least 1 megabyte if addresses are 32 bits, and is at least
+1 gitabyte if addresses are 64 bits.  The same value is returned for
+all calls to {\tt NULL} within a run-time environment, or for all compile-time
+calls within a compilation,  though the run-time and compile-time values
+may differ.
+
+When a dynamic block is deallocated, its body pointer is set to
+this value in order to cause any reference to the block to trigger
+a memory fault.
+\end{indpar}
+
+\end{indpar}
+
 The following function allocates static memory and computes static addresses.
 
 
@@ -10172,17 +10195,20 @@ The following function allocates static memory and computes static addresses.
 
 \begin{indpar}
 Allocate a {\tt size} byte block of static memory with the given
-{\tt alignment} in bytes to region {\tt R}.
+{\tt alignment} in bytes to static region {\tt R}.
 Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
+
+This function returns \TT{NULL} if there is insuffient memory
+in the region to allocate the desired memory.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than the memory
 page size (which is the alignment of regions).
 
-The memory bytes are initialized to zero.
+The allocated memory is initialized to zero.
 \end{indpar}
 
 \end{indpar}
@@ -10195,7 +10221,7 @@ of a compile-time \TT{string} value can be allocated by
 \pagref{POINTER-ALLOCATE-UTF-8-TO-STATIC}.
 
 The following functions can be used to embed static addresses or offsets
-into tables in static regions into
+in static tables into
 floating point NaNs or other numeric values.
 
 \begin{indpar}
@@ -10229,13 +10255,13 @@ the high order 17 bits of the returned address.
 
 \begin{indpar}
 Make a 64-bit value containing the address in the low order
-{\tt L} bits, such that
+{\tt L} bits, such that if the low order {\tt S} bits of {\tt A}
+are zero, then
 \begin{center}
-\tt extract adr ( embed adr ( T, A, L, S ), L, S ) == A
+\tt extract adr ( embed adr ( T, A, L, S ), L, S )
 \end{center}
-provided the low order {\tt S} bits of {\tt A} are zero and all of
-the non-zero bits of {\tt A} are within the low order {\tt L+S} bits
-of {\tt A}.  The high order {\tt 64-L} bits of the value returned
+addresses the same location as {\tt A}.
+The high order {\tt 64-L} bits of the value returned
 by {\tt embed adr} are copied from the high order {\tt 64-L} bits
 of the {\tt template}.
 \end{indpar}
@@ -10296,7 +10322,7 @@ define abbreviation \ttkey{body pointer address} \ABV{} \\
 Body pointers must be allocated to static memory, and are typically
 elements in larger static memory data structures called \skey{stub}s.
 Upon being so allocated, body pointers should be given the initial
-value \TT{NULL} (defined below).  Body pointer addresses must be
+value \TT{NULL}.  Body pointer addresses must be
 created by unchecked code.
 
 The following functions allocate and deallocate dynamic memory blocks.
@@ -10323,14 +10349,16 @@ The address stored, when viewed as an
 integer, is an exact multiple of the {\tt alignment}.
 
 Before calling this function the body pointer at address {\tt A}
-\underline{must} be set to \TT{NULL} (defined below).
+\underline{must} be set to \TT{NULL}.
+If there is insufficient memory in the region to allocated the desired block,
+this function does nothing, leaving the body pointer value as \TT{NULL}.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than the memory
 page size (which is the alignment of regions).
 
-The memory bytes are initialized to zero.
+The allocated memory is initialized to zero.
 
 Returns \TT{size} on success.  On failure does nothing, but returns
 the maximum value of {\tt size} that would be successful.
@@ -10343,7 +10371,7 @@ the maximum value of {\tt size} that would be successful.
 
 \begin{indpar}
 Deallocate the dynamic block pointed at by the body pointer,
-and set the body pointer to \TT{NULL} (defined below).  If
+and set the body pointer to \TT{NULL}.  If
 the body pointer is already \TT{NULL}, do nothing.
 \end{indpar}
 
@@ -10366,9 +10394,10 @@ dynamic block:
 			 \end{tabular}}
 
 \begin{indpar}
-Add a {\tt size} byte block of to the dynamic block whose body pointer
+Add a {\tt size} byte block of to the end of the
+dynamic block whose body pointer
 is located at address {\tt A}.  The offset of the block is returned.
-This offst is a multiple of the the given {\tt alignment} in bytes.
+This offset is a multiple of the the given {\tt alignment} in bytes.
 If necessary padding is added to the dynamic block before the
 newly allocated memory to ensure the offset is a multiple of the
 {\tt alignment}, and if necessary the dynamic block is moved so that
@@ -10383,7 +10412,7 @@ to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than the memory
 page size (which is the alignment of regions).
 
-The memory bytes are initialized to zero.
+The allocated memory is initialized to zero.
 \end{indpar}
 
 \end{indpar}
@@ -10392,28 +10421,13 @@ A vector whose elements are of some type $T$ can be allocated by
 the pointer version of `\TT{allocate to dynamic block}': see
 \pagref{POINTER-ALLOCATE-TO-DYNAMIC-BLOCK}.
 
-The following functions return constants that are used in
-managing dynamic blocks and dynamic pointers.
+The following function returns that static address of a body
+pointer that points to all of static memory:
 
 \begin{indpar}
 
-{\tt function adr r = \ttstdkey{NULL}}\label{NULL}
-
-\begin{indpar}
-Returns the address of a block of N bytes of virtual memory that is
-inaccessible and will cause a memory fault if referenced.
-N is at least 1 megabyte if addresses are 32 bits, and is at least
-1 gitabyte if addresses are 64 bits.  The same value is returned for
-all calls to {\tt NULL} within a run-time environment, or for all compile-time
-calls within a compilation,  though the run-time and compile-time values
-may differ.
-
-When a dynamic block is deallocated, its body pointer is set to
-this value in order to cause any reference to the block to trigger
-a memory fault.
-\end{indpar}
-
-{\tt function adr r = \ttstdkey{STATIC BASE}}\label{STATIC BASE}
+{\tt function body pointer address r =
+    \ttstdkey{STATIC BASE}}\label{STATIC BASE}
 
 \begin{indpar}
 Returns the address of a static memory location that contains an
@@ -10527,7 +10541,7 @@ to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than {\tt 64}
 (which is the alignment of a dynamic block containing stacks).
 
-The memory bytes are initialized to zero.
+The allocated memory is initialized to zero.
 
 The `\TT{allocate to stack}' inline function may move dynamic blocks
 containing stacks.

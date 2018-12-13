@@ -10107,7 +10107,7 @@ The dynamic block is called
 a \key{body} of the stub.  A stub can have more than one body.
 
 A pointer to a location in the body of a stub is called
-a \key{dynamic pointer}.  A dynamic pointer
+a \key{dynamic pointer}\label{DYNAMIC-POINTER}.  A dynamic pointer
 consists of an \TT{adr} value
 pointing to the body pointer and an \TT{unsadr} or \TT{intadr}
 value that is the offset of the location within the body.
@@ -10185,13 +10185,14 @@ The following function allocates static memory and computes static addresses.
 
 \begin{indpar}
 
-{\tt function adr r = \begin{tabular}[t]{@{}l@{}}
-		      \ttstdkey{allocate to static} \\
-		      ~~~~( unsadr size, \\
-		      ~~~~~~unswrd alignment ?=~0, \\
-		      ~~~~~~memory region r ?= \\
-		      ~~~~~~~~~~std default static R ) \\
-		      \end{tabular}}
+{\tt function adr r, unsadr s = \\
+\hspace*{1in}\begin{tabular}[t]{@{}l@{}}
+	     \ttstdkey{allocate to static} \\
+	     ~~~~( unsadr size, \\
+	     ~~~~~~unswrd alignment ?=~0, \\
+	     ~~~~~~memory region r ?= \\
+	     ~~~~~~~~~~std default static R ) \\
+	     \end{tabular}}
 
 \begin{indpar}
 Allocate a {\tt size} byte block of static memory with the given
@@ -10201,7 +10202,10 @@ the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
 This function returns \TT{NULL} if there is insuffient memory
-in the region to allocate the desired memory.
+in the region to allocate the desired memory.  In this case
+{\tt s} is set to the maximum {\tt size} argument value that
+would have succeeded.  Otherwise {\tt s} is set to the value
+of the {\tt size} argument.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
@@ -10330,9 +10334,7 @@ The following functions allocate and deallocate dynamic memory blocks.
 \begin{indpar}
 
 {\tt function unsadr r = \begin{tabular}[t]{@{}l@{}}
-                         \TT{std allocate to dynamic}%
-	                 \index{allocate@{\tt allocate}!%
-	                        to dynamic@{\tt to dynamic}} \\
+                         \ttstdlkey{allocate}{to dynamic} \\
 			 ~~~~( body pointer address A, \\
 			 ~~~~~~unsadr size, \\
 			 ~~~~~~unswrd alignment ?=~0, \\
@@ -10360,8 +10362,17 @@ page size (which is the alignment of regions).
 
 The allocated memory is initialized to zero.
 
-Returns \TT{size} on success.  On failure does nothing, but returns
-the maximum value of {\tt size} that would be successful.
+The `\TT{allocate to dynamic}' inline function may move dynamic blocks.
+Therefore it ends by executing a
+\begin{center}
+{\tt reload *READ*, *READ* dependent}
+\end{center}
+statement.
+
+Returns {\tt size} on success.  On failure does nothing, but returns
+the maximum value of {\tt size} that would be successful (which will
+be less than the {\tt size} argument).
+
 \end{indpar}
 
 {\tt function \TT{std *UNCHECKED* deallocate dynamic block}%
@@ -10386,8 +10397,11 @@ dynamic block:
 
 \begin{indpar}
 
-{\tt function unsadr r = \begin{tabular}[t]{@{}l@{}}
-                         \ttstdlkey{allocate}{to dynamic block} \\
+{\tt function unsadr r, unsadr s = \\
+\hspace*{1in}
+                         \begin{tabular}[t]{@{}l@{}}
+                         \ttstdlkey{allocate}{to dynamic block}%
+			     \label{ALLOCATE-TO-DYNAMIC-BLOCK} \\
 			 ~~~~( body pointer address A, \\
 			 ~~~~~~unsadr size, \\
 			 ~~~~~~unswrd alignment ?=~0 ) \\
@@ -10413,6 +10427,20 @@ alignment must be a power of two not greater than the memory
 page size (which is the alignment of regions).
 
 The allocated memory is initialized to zero.
+
+The `\TT{allocate to dynamic block}' inline function may move dynamic blocks.
+Therefore it ends by executing a
+\begin{center}
+{\tt reload *READ*, *READ* dependent}
+\end{center}
+statement.
+
+The number of bytes allocates is returned in {\tt s}.  This equals
+the {\tt size} argument on success.  On failure, does nothing except
+possibly move dynamic blocks,
+and {\tt s} is set equal to the maximum
+{\tt size} that would have succeeded.
+
 \end{indpar}
 
 \end{indpar}
@@ -10505,7 +10533,8 @@ Thread stacks and global area stacks are dynamic blocks that can be moved,
 and all other stacks are allocated within these.  Thus all stacks are
 within a dynamic block.  Stacks cannot move independently, but move
 only when their dynamic block moves.  Stack addresses are dynamic
-pointers containing an offset within the stack's dynamic block.
+pointers (\pagref{DYNAMIC-POINTER})
+containing an offset within the stack's dynamic block.
 
 In a program being debugged, free stacks may be saved when they are
 deallocated, in order to permit them to be analyzed
@@ -10516,11 +10545,12 @@ current stack:
 
 \begin{indpar}
 
-{\tt function *UNCHECKED* *STACK* \begin{tabular}[t]{@{}l@{}}
-                                  T r, \\
-				  unsadr r.offset, \\
-				  adr r.base.adr = \\
-				  \end{tabular} \\
+{\tt function \begin{tabular}[t]{@{}l@{}}
+              *STACK* T r, \\
+	      unsadr r.offset, \\
+	      adr r.base.adr, \\
+	      unsadr s = \\
+	      \end{tabular} \\
 \TS~~~~\begin{tabular}[t]{@{}l@{}}
        \ttstdkey{allocate to stack} \label{ALLOCATE-TO-STACK} \\
        ~~~~(| type T |) \\
@@ -10544,9 +10574,8 @@ alignment must be a power of two not greater than {\tt 64}
 
 The allocated memory is initialized to zero.
 
-The `\TT{allocate to stack}' inline function may move dynamic blocks
-containing stacks.
-Therefore it executes a
+The `\TT{allocate to stack}' inline function may move dynamic blocks.
+Therefore it ends by executing a
 \begin{center}
 {\tt reload *READ*, *READ* dependent}
 \end{center}
@@ -10560,6 +10589,13 @@ free stack.
 
 The memory is freed when the free stack to which it is allocated
 is freed (\itemref{STACKS}).
+
+Sets {\tt s} to the value of the {\tt size} argument on success.
+On failure does nothing except possibly move dynamic blocks, and returns
+in {\tt s} the maximum value of {\tt size} that would be successful
+(which will be less than the {\tt size} argument), and returns
+\TT{NULL} as the value of {\tt r.base.adr}.
+
 \end{indpar}
 
 \end{indpar}

@@ -10454,7 +10454,8 @@ which is by default a substack of the stack of its containing block.
 And each global area has a stack that is not in any other stack.
 
 Conceptually, the assignment statements in a block each allocate memory for
-their variable to the current block stack and copy values to these
+their result variables to the stack of their smallest containing
+block, and copy values to these
 variables.  As noted above (Section~\itemref{ASSIGNMENT-STATEMENTS}),
 the memory and associated copies may be
 optimized away in some cases.

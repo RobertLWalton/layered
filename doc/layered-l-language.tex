@@ -86,6 +86,7 @@
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttakey}[1]{\TT{*#1*}\index{#1@{\tt *#1*}}}
+\newcommand{\ttalkey}[2]{\TT{*#1* *#2*}\index{#1 #2@{\tt *#1* *#2*}}}
 \newcommand{\ttamkey}[2]{\TT{*#1*}\index{#1@{\tt *#1*}!#2}}
 \newcommand{\ttstdkey}[1]{\TT{std #1}\index{#1@{\tt std #1}}}
 \newcommand{\ttstdlkey}[2]{\TT{std #1 #2}\index{#1@{\tt std #1}!#2@{\tt #2}}}
@@ -12160,28 +12161,41 @@ the classic compare-and-set instruction.  It is a block assignment
 statement that executes a sequence of specialized instructions:
 
 \begin{indpar}
-\emkey{atomic-statement} ::= \\
+\emkey{atomic-statement} ::= {\em atomic-block} $|$ {\em atomic-read-statement}
+\\[0.5ex]
+\emkey{atomic-block} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         {\tt uns32 count, atomic code c, uns32 pass = \ttakey{ATOMIC}:} \\
 	\TT{~~~~}{\em atomic-instruction}\STAR{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{atomic-instruction} ::= {\em lock-instruction}
-			   $|$ {\em compare-instruction}
-			   $|$ {\em write-instruction}
+\emkey{atomic-instruction}
+    \begin{tabular}[t]{cl}
+    ::= & {\em lock-instruction} \\
+    $|$ & {\em compare-instruction} \\
+    $|$ & {\em write-instruction} \\
+    $|$ & {\em atomic-write-instruction} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-ID} \\
 \emkey{compare-instruction} ::= \ttakey{COMPARE} {\em atomic-value}
 						  {\em atomic-pointer} \\
 \emkey{write-instruction} ::=
         \ttakey{WRITE} {\em atomic-value} {\em atomic-pointer} \\
+\emkey{atomic-write-instruction} ::=
+        \ttalkey{ATOMIC}{WRITE} {\em atomic-value} {\em atomic-pointer} \\
+\emkey{atomic-read-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r = \ttalkey{ATOMIC}{READ}} {\em atomic-pointer} \\
 \emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32} \\
 \emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
 							\\
-\emkey{atomic-value} ::= {\em expression} evaluatable with pointer \TT{.type}
+\emkey{atomic-value} ::= {\em expression} evaluatable to the \TT{.type}
+			of the associated {\em atomic-pointer}
 
 \begin{indpar}
 Pointer {\tt .type}'s must have a numeric type as their underlying type.
+For {\em compare-instructions}, {\em atomic-write-instructions}, and
+{\em atomic-read-statements} this type must be \TT{uns32}.
 
 \end{indpar}
 

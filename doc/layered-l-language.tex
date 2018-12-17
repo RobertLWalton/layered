@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 13, 2018
+December 17, 2018
  
 \end{center}
 
@@ -12156,9 +12156,9 @@ This function obeys VOC.
 \section{Atomic Statements}
 \label{ATOMIC-STATEMENTS}
 
-An {\em atomic-statement} is a generalization of
+An {\em atomic-block} is a generalization of
 the classic compare-and-set instruction.  It is a block assignment
-statement that executes a sequence of specialized instructions:
+statement that executes a sequence of specialized instructions.
 
 \begin{indpar}
 \emkey{atomic-statement} ::= {\em atomic-block} $|$ {\em atomic-read-statement}
@@ -12180,7 +12180,9 @@ statement that executes a sequence of specialized instructions:
 \emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-ID} \\
 \emkey{compare-instruction} ::= \ttakey{COMPARE} {\em atomic-value}
 						  {\em atomic-pointer} \\
-\emkey{write-instruction} ::=
+\emkey{write-instruction} ::= {\em ordinary-write-instruction}
+                          $|$ {\em atomic-write-instruction} \\
+\emkey{ordinary-write-instruction} ::= 
         \ttakey{WRITE} {\em atomic-value} {\em atomic-pointer} \\
 \emkey{atomic-write-instruction} ::=
         \ttalkey{ATOMIC}{WRITE} {\em atomic-value} {\em atomic-pointer} \\
@@ -12224,7 +12226,7 @@ function std atomic code r = std \ttmkey{op error}{atomic code}: \\
 
 \end{indpar}
 
-{\em Atomic-statements} are executed in three passes:
+{\em Atomic-blocks} are executed in three passes:
 
 \begin{indpar}[0.6in]
 \hspace*{-0.3in}{\bf Pass 1, Compilation Pass}:
@@ -12235,7 +12237,7 @@ of kernel code.
 
 At the end of pass 1, this kernel code is loaded into the operating
 system kernel and checked by the kernel.
-If an {\em atomic-statement}
+If an {\em atomic-block}
 is part of an out-of-line routine that is executed many times, compilation
 of the kernel code, passing this code to the kernel, and checking the
 code in the kernel, may only need to be done once.
@@ -12245,11 +12247,11 @@ of pass 1, loads the parameter block into the kernel.  The kernel does
 not check the parameter block.  The parameter block, which encodes the
 argument values of the {\em atomic-instructions}, must be compiled
 individually for every
-{\em atomic-statement} execution.
+{\em atomic-block} execution.
 
 \hspace*{-0.3in}{\bf Pass 2, Test Pass}: Asyncrhonous interrupts are
 disabled at the beginning of pass 2, and are not re-enabled until
-the {\em atomic-statement} terminates.
+the {\em atomic-block} terminates.
 
 Pass 2 executes all the {\em atomic-instructions} in order, except that
 {\em write-instructions} are executed in \key{write-check} mode.
@@ -12261,14 +12263,14 @@ they are to write are writable, but do not actually change these locations.
 {\em atomic-value} into the locations designated by its
 {\em atomic-pointer}.
 
-If the {\em atomic-statement} does not
+If the {\em atomic-block} does not
 terminate before executing pass 3, the statement will succeed.
 Failures and operation errors cannot be discovered during pass 3.
 
-When the {\em atomic-statement} terminates, either successfully or
+When the {\em atomic-block} terminates, either successfully or
 on failure or operation error,
 any locks acquired are released in the opposite order
-to that in which they were acquired, and interrupts are re-enabled.
+to that in which they were acquired, and interrupts are then re-enabled.
 
 Upon successful termination, the returned values are:
 \begin{center}
@@ -12302,8 +12304,8 @@ pass 2 if another process acquires the lock between when the instruction
 executed in pass 1 and the start of pass 2.
 
 Locks are acquired in the order that their {\em lock-instructions} appear
-within the block of the {\em atomic-statement}.
-When the {\em atomic-statement} terminates, either
+within the {\em atomic-block}.
+When the {\em atomic-block} terminates, either
 successfully or when it fails or has an operation error,
 all locks acquired are released in reverse order.
 
@@ -12311,10 +12313,17 @@ If the {\em lock-ID} is not valid, the {\em lock-instruction}
 has an operation error.
 
 \hspace*{-0.2in}{\em \bf Compare-Instruction}.
-In both passes 1 and 2, the \emkey{compare-instruction} reads the value at
-the {\em atomic-pointer} designated
+In both passes 1 and 2, the \emkey{compare-instruction} reads the \TT{uns32}
+value at the {\em atomic-pointer} designated
 address and compares it to the {\em atomic-value}.  The instruction
 succeeds if the values are equal, and fails otherwise.
+
+During both passes 1 and 2 the \TT{uns32} value read from memory is
+read atomically, meaning that
+the value read will exactly equal the last value atomically written to system
+(non-cache) memory by \underline{any} processor.
+The {\em atomic-write-instruction} writes \TT{uns32} values atomically directly
+to system memory, bypassing caches.
 
 In pass 3 {\em compare-instructions} do nothing.
 
@@ -12328,7 +12337,7 @@ It is an operation error if the address pointed at is not readable.
 If this happens in pass 1 it is a permanent error.  If it happens
 in pass 2 it might be because a page to be read was paged out
 between when the instruction executed in pass 1 and the start of pass 2.
-Re-executing the {\em atomic-statement} will page the offending
+Re-executing the {\em atomic-block} will page the offending
 page back in during pass 1.
 
 It is a programming error if the pointer does not point at a vector
@@ -12337,7 +12346,7 @@ with at least one element or if the pointer does not have the
 
 
 \hspace*{-0.2in}{\em \bf Write-Instructions}.
-During passes 1 and 2, the \emkey{write-instruction} performs a
+During passes 1 and 2, a \emkey{write-instruction} performs a
 \key{write-check} of the locations to be written.  This consists
 conceptually of reading the values at these locations and writing
 the values read back into the locations.
@@ -12352,14 +12361,18 @@ processor.  The program code must enforce this assumption (and is in
 this sense unchecked).
 
 During pass 3, the \emkey{write-instruction} writes the {\em atomic-value} to
-the {\em atomic-pointer} designated address.  
+the {\em atomic-pointer} designated address.  The {\em atomic-write-instruction}
+writes the value atomically directly to system memory, bypassing caches.
+Furthermore any data written in the {\em atomic-block}
+before an {\em atomic-write-instruction} will be written into system memory
+before the value written by the {\em atomic-write-instruction} is written.
 
 It is an operation error if the address pointed at is not both readable
 and writable.
 If this happens in pass 1 it is a permanent error.  If it happens
 in pass 2 it might be because a page to be written was paged out
 between when the instruction executed in pass 1 and the start of pass 2.
-Re-executing the {\em atomic-statement} will page the offending
+Re-executing the {\em atomic-block} will page the offending
 page back in during pass 1.
 
 It is a programming error if the pointer does not point at a vector
@@ -12368,19 +12381,19 @@ with at least one element or if the pointer does not have the
 qualifier though the page with the element must be readable).
 \end{indpar}
 
-The returned {\tt count} value returned by the {\em atomic-statement}
+The returned {\tt count} value returned by the {\em atomic-block}
 equals \TT{0} if the statement succeeds, or is the number of the
 first failint or operation error detecting
 instruction in the statement block.  I.e., if the first instruction
 fails, {\tt count} is set to \TT{1}.
 
-The returned {\tt atomic code} indicates whether the {\em atomic-statement}
+The returned {\tt atomic code} indicates whether the {\em atomic-block}
 succeeded, failed, or had an operation error.
 
 Programming errors are all detected during pass 1.
 
 A system may put restrictions on the number of {\em atomic-instructions}
-in an {\em atomic-statement} block.  Violation of these restrictions
+in an {\em atomic-block}.  Violation of these restrictions
 is a programming error.  At least 32 {\em atomic-instructions} will be
 allowed in all implementations.
 

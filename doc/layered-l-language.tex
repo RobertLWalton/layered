@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 17, 2018
+December 20, 2018
  
 \end{center}
 
@@ -12186,8 +12186,14 @@ statement that executes a sequence of specialized instructions.
         \ttakey{WRITE} {\em atomic-value} {\em atomic-pointer} \\
 \emkey{atomic-write-instruction} ::=
         \ttalkey{ATOMIC}{WRITE} {\em atomic-value} {\em atomic-pointer} \\
-\emkey{atomic-read-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r = \ttalkey{ATOMIC}{READ}} {\em atomic-pointer} \\
+\emkey{atomic-read-statement} ::=  {\em atomic-pre-read-statement}
+                              $|$  {\em atomic-post-read-statement} \\
+\emkey{atomic-pre-read-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{PRE-READ}} {\em atomic-pointer} \\
+\emkey{atomic-post-read-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{POST-READ}} {\em atomic-pointer} \\
 \emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32} \\
 \emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
 							\\
@@ -12197,7 +12203,9 @@ statement that executes a sequence of specialized instructions.
 \begin{indpar}
 Pointer {\tt .type}'s must have a numeric type as their underlying type.
 For {\em compare-instructions}, {\em atomic-write-instructions}, and
-{\em atomic-read-statements} this type must be \TT{uns32}.
+{\em atomic-read-statements} this type must be \TT{uns32}, and the
+address in the instruction's {\em atomic-pointer} must be aligned on
+a 4-byte bounary.
 
 \end{indpar}
 

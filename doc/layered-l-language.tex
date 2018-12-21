@@ -12153,8 +12153,33 @@ This function obeys VOC.
 
 \end{indpar}
 
-\section{Atomic Statements}
-\label{ATOMIC-STATEMENTS}
+\section{Atomic Functions and Statements}
+\label{ATOMIC-FUNCTIONS-AND-STATEMENTS}
+
+The following builtin \skey{atomic function}s
+can be used to optimistically access a shared database if
+there is only one process that writes the database:
+
+\begin{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function uns32 r = \ttstdkey{*ATOMIC*} ( *READABLE* pointer p, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+~~~~~~~~~~~~~[| p.type == uns32 |] \\
+\end{tabular}}
+
+\begin{indpar}
+Return the value of the vector memory element.  The vector length
+must be 1 (p.end must equal p.begin + size of uns32).  The type of this
+element must be \TT{uns32}, and the address of the element
+must a multiple of the element size in bytes.
+\end{indpar}
+
+\end{indpar}
+
+TBD
 
 An {\em atomic-block} is a generalization of
 the classic compare-and-set instruction.  It is a block assignment

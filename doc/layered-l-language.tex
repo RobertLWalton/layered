@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 20, 2018
+December 21, 2018
  
 \end{center}
 
@@ -12161,7 +12161,32 @@ the classic compare-and-set instruction.  It is a block assignment
 statement that executes a sequence of specialized instructions.
 
 \begin{indpar}
-\emkey{atomic-statement} ::= {\em atomic-block} $|$ {\em atomic-read-statement}
+\emkey{atomic-statement} ::= {\em atomic-read-statement}
+			 $|$ {\em atomic-write-statement}
+			 $|$ {\em atomic-block}
+\\[0.5ex]
+\emkey{atomic-read-statement} ::= {\em atomic-pre-read-statement}
+                              $|$ {\em atomic-post-read-statement} \\
+\emkey{atomic-pre-read-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{PRE-READ}} {\em atomic-pointer} \\
+\emkey{atomic-post-write-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{POST-READ}} {\em atomic-pointer}
+\\[0.5ex]
+\emkey{atomic-write-statement} ::= {\em atomic-pre-write-statement}
+                              $|$ {\em atomic-post-write-statement} \\
+\emkey{atomic-pre-write-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{PRE-WRITE}} {\em atomic-pointer} \\
+\emkey{atomic-post-write-statement} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{POST-WRITE}} {\em atomic-pointer}
+\\[0.5ex]
+\emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
+							\\
+\emkey{atomic-value} ::= {\em expression} evaluatable to the \TT{.type}
+			of the associated {\em atomic-pointer}
 \\[0.5ex]
 \emkey{atomic-block} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
@@ -12174,7 +12199,6 @@ statement that executes a sequence of specialized instructions.
     ::= & {\em lock-instruction} \\
     $|$ & {\em compare-instruction} \\
     $|$ & {\em write-instruction} \\
-    $|$ & {\em atomic-write-instruction} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{lock-instruction} ::= \ttakey{LOCK} {\em lock-ID} \\
@@ -12184,21 +12208,8 @@ statement that executes a sequence of specialized instructions.
                           $|$ {\em atomic-write-instruction} \\
 \emkey{ordinary-write-instruction} ::= 
         \ttakey{WRITE} {\em atomic-value} {\em atomic-pointer} \\
-\emkey{atomic-write-instruction} ::=
-        \ttalkey{ATOMIC}{WRITE} {\em atomic-value} {\em atomic-pointer} \\
-\emkey{atomic-read-statement} ::=  {\em atomic-pre-read-statement}
-                              $|$  {\em atomic-post-read-statement} \\
-\emkey{atomic-pre-read-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r =
-    \ttalkey{ATOMIC}{PRE-READ}} {\em atomic-pointer} \\
-\emkey{atomic-post-read-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r =
-    \ttalkey{ATOMIC}{POST-READ}} {\em atomic-pointer} \\
-\emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32} \\
-\emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
-							\\
-\emkey{atomic-value} ::= {\em expression} evaluatable to the \TT{.type}
-			of the associated {\em atomic-pointer}
+\emkey{atomic-write-instruction} ::= {\em atomic-write-statement} \\
+\emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32}
 
 \begin{indpar}
 Pointer {\tt .type}'s must have a numeric type as their underlying type.

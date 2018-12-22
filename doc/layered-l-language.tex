@@ -12156,6 +12156,12 @@ This function obeys VOC.
 \section{Atomic Functions and Statements}
 \label{ATOMIC-FUNCTIONS-AND-STATEMENTS}
 
+In the following \key{system memory} refers to the main computer
+RAM memory.  Individual processors have caches of this memory,
+and the values 
+
+TBD
+
 The following builtin \skey{atomic function}s
 can be used to optimistically access a shared database if
 there is only one process that writes the database:
@@ -12163,10 +12169,11 @@ there is only one process that writes the database:
 \begin{indpar}
 
 {\tt\begin{tabular}{@{}l}
-function uns32 r = \ttstdkey{*ATOMIC*} ( *READABLE* pointer p, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+function uns32 r = \ttstdkey{*ATOMIC* *PRE-READ*} \\
+~~~~~~~~~~~~~~~~~~~~~~~( *READABLE* pointer p, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
 ~~~~~~~~~~~~~[| p.type == uns32 |] \\
 \end{tabular}}
 
@@ -12175,6 +12182,72 @@ Return the value of the vector memory element.  The vector length
 must be 1 (p.end must equal p.begin + size of uns32).  The type of this
 element must be \TT{uns32}, and the address of the element
 must a multiple of the element size in bytes.
+
+All reads executed \underline{after} this builtin function will return data
+that was written to system memory \underline{after} the value read by
+this function was written to system memory.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function uns32 r = \ttstdkey{*ATOMIC* *POST-READ*} \\
+~~~~~~~~~~~~~~~~~~~~~~~( *READABLE* pointer p, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+~~~~~~~~~~~~~[| p.type == uns32 |] \\
+\end{tabular}}
+
+\begin{indpar}
+Return the value of the vector memory element.  The vector length
+must be 1 (p.end must equal p.begin + size of uns32).  The type of this
+element must be \TT{uns32}, and the address of the element
+must a multiple of the element size in bytes.
+
+All reads executed \underline{before} this builtin function will return data
+that was written to system memory \underline{before} the value read by
+this function was written to system memory.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function \ttstdkey{*ATOMIC* *PRE-WRITE*} \\
+~~~~~~~~~~~~~~~~~~~~~~~( uns32 value, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~*WRITABLE* pointer p, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+~~~~~~~~~~~~~[| p.type == uns32 |] \\
+\end{tabular}}
+
+\begin{indpar}
+Write the value to the vector memory element.  The vector length
+must be 1 (p.end must equal p.begin + size of uns32).  The type of this
+element must be \TT{uns32}, and the address of the element
+must a multiple of the element size in bytes.
+
+All writes executed \underline{after} this builtin function will write
+to system memory \underline{after} this function writes its {\tt value}
+to system memory.
+\end{indpar}
+
+{\tt\begin{tabular}{@{}l}
+function \ttstdkey{*ATOMIC* *POST-WRITE*} \\
+~~~~~~~~~~~~~~~~~~~~~~~( uns32 value, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~*WRITABLE* pointer p, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~intadr p.begin, intadr p.end, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+~~~~~~~~~~~~~[| p.type == uns32 |] \\
+\end{tabular}}
+
+\begin{indpar}
+Write the value to the vector memory element.  The vector length
+must be 1 (p.end must equal p.begin + size of uns32).  The type of this
+element must be \TT{uns32}, and the address of the element
+must a multiple of the element size in bytes.
+
+All writes executed \underline{before} this builtin function will write
+to system memory \underline{before} this function writes its {\tt value}
+to system memory.
 \end{indpar}
 
 \end{indpar}

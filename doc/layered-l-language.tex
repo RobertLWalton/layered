@@ -12328,8 +12328,39 @@ The code has the form:
 uns32 version = *ATOMIC* *PRE-READ* ( post-version )
 . . . . perform read operation
 if ( version != *ATOMIC* *POST-READ* ( pre-version ) )
-    .... take action on read failure ...
+    .... take action on read failure   ....
+    .... (e.g., repeat read operation) ....
+\end{verbatim}\end{indpar}
 
+This code has two flaws:
+\begin{itemize}
+\item[(1)] If the reader and writer are in different
+processes of the same processor, and the reader interrupts the writer
+during an update, the read operation cannot succeed and will (typically)
+spin forever.  His is known as \key{priority inversion} (writer must
+have equal or higher priority than reader).  One simple fix is to lock
+out interrupts during the entire write operation.
+
+\item[(2)] If the reader and writer are on different processors, and
+the write update takes a long time, the read operation cannot complete
+during the write update, and will (typically) spin for the duration
+of the update.  One simple fix is to minimize the duration of the
+write operation.
+\end{itemize}
+
+These problems can be addressed by re-writing the write update
+using an {\em atomic-block} as follows:
+\begin{indpar}\begin{verbatim}
+// Write operation
+//
+uns32 next-version = (* pre-version) + 1
+... compute values to be written ...
+... and locations to write them to ...
+... (but do NOT write any locations) ...
+uns32 count, atomic code c, uns32 pass = *ATOMIC*:
+    *ATOMIC* *PRE-WRITE* ( next-version, pre-version )
+    ... perform update operation writes (no reads) ...
+    *ATOMIC* *POST-WRITE* ( next-version, post-version )
 \end{verbatim}\end{indpar}
 
 An {\em atomic-block} is a generalization of

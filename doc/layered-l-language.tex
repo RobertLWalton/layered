@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 22, 2018
+December 23, 2018
  
 \end{center}
 
@@ -12163,9 +12163,12 @@ when multiple processors are being used, it is sometimes important
 to be sure that values read from memory are values store in
 system memory at a particular time, and not values store in system
 memory at some earlier time or values that will be stored at some
-later time.  It is also sometimes important that a value read from
-system memory be the same as a value of the same size
-stored at the same location by some other processor.
+later time.
+
+It is also sometimes important that a read or write operation to
+system memory be executed completely without interruption by
+other processors reading or writing the same locations.  Such
+read and write operations are said to be \key{atomic}.
 
 The following builtin \skey{atomic function}s
 can be used to optimistically access a shared database stored
@@ -12183,7 +12186,8 @@ function uns32 r = \ttstdkey{*ATOMIC* *PRE-READ*} \\
 \end{tabular}}
 
 \begin{indpar}
-Read from system memory and return the value of the vector's only element.
+Atomically read
+from system memory and return the value of the vector's only element.
 The vector length must be 1 (p.end must equal p.begin + size of uns32).
 The type of this element must be \TT{uns32}, and the address of the element
 must a multiple of the element size in bytes.
@@ -12191,7 +12195,12 @@ must a multiple of the element size in bytes.
 All reads executed by the current processor \underline{after}
 a call to this builtin function will return data that either
 existed in system memory at the time of the call, or was written
-to system memory after the call.
+to system memory after the call.%
+\footnote{On modern INTEL X86\_64 processors
+all aligned reads are atomic and {\tt *ATOMIC* *PRE-READ*} can be implemented
+by a normal read \underline{followed} by a {\tt LFENCE} instruction.
+In addition, optimized code must execute
+{\tt *ATOMIC* *PRE-READ*} before executing following read statements. }
 
 This buitlin function executes
 `{\tt reload *READ*, *READ* dependent}'.
@@ -12204,10 +12213,12 @@ function uns32 r = \ttstdkey{*ATOMIC* *POST-READ*} \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~adr p.base.adr, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
 ~~~~~~~~~~~~~[| p.type == uns32 |] \\
+~~~~~~~~~~~~~[| p.begin + size of ( uns32 ) == p.end |] \\
 \end{tabular}}
 
 \begin{indpar}
-Read from system memory and return the value of the vector's only element.
+Atomically read from system memory
+and return the value of the vector's only element.
 The vector length must be 1 (p.end must equal p.begin + size of uns32).
 The type of this element must be \TT{uns32}, and the address of the element
 must a multiple of the element size in bytes.
@@ -12215,7 +12226,12 @@ must a multiple of the element size in bytes.
 All reads executed by the current processor \underline{before}
 a call to this builtin function will return data that was written
 to system memory \underline{before} the value read by
-this function was written to system memory.
+this function was written to system memory.%
+\footnote{On modern INTEL X86\_64 processors
+all aligned reads are atomic and {\tt *ATOMIC* *POST-READ*} can be implemented
+by a normal read \underline{preceded} by a {\tt LFENCE} instruction.  In
+addition optimized code must not execute {\tt *ATOMIC* *POST-READ*}
+before executing preceding read statements.}
 \end{indpar}
 
 {\tt\begin{tabular}{@{}l}
@@ -12229,14 +12245,19 @@ function \ttstdkey{*ATOMIC* *PRE-WRITE*} \\
 \end{tabular}}
 
 \begin{indpar}
-Write {\tt value} to the vector's only element in system memory.
+Atomically write {\tt value} to the vector's only element in system memory.
 The vector length must be 1 (p.end must equal p.begin + size of uns32).
 The type of this element must be \TT{uns32}, and the address of the element
 must a multiple of the element size in bytes.
 
 All writes executed \underline{after} this builtin function will write
 to system memory \underline{after} this function writes its {\tt value}
-to system memory.
+to system memory.%
+\footnote{On modern INTEL X86\_64 processors
+all aligned writes are atomic and {\tt *ATOMIC* *PRE-WRITE*} can be implemented
+by a normal write \underline{followed} by a {\tt SFENCE} instruction.
+In addition, optimized code must execute
+{\tt *ATOMIC* *PRE-WRITE*} before executing following write statements. }
 \end{indpar}
 
 {\tt\begin{tabular}{@{}l}
@@ -12250,19 +12271,66 @@ function \ttstdkey{*ATOMIC* *POST-WRITE*} \\
 \end{tabular}}
 
 \begin{indpar}
-Write {\tt value} to the vector's only element in system memory.
+Atomically write {\tt value} to the vector's only element in system memory.
 The vector length must be 1 (p.end must equal p.begin + size of uns32).
 The type of this element must be \TT{uns32}, and the address of the element
 must a multiple of the element size in bytes.
 
 All writes executed \underline{before} this builtin function will write
 to system memory \underline{before} this function writes its {\tt value}
-to system memory.
+to system memory.%
+\footnote{On modern INTEL X86\_64 processors
+all aligned write are atomic and {\tt *ATOMIC* *POST-WRITE*} can be implemented
+by a normal write \underline{preceded} by a {\tt SFENCE} instruction.  In
+addition optimized code must not execute {\tt *ATOMIC* *POST-WRITE*}
+before executing preceding write statements.}
 \end{indpar}
 
 \end{indpar}
 
-TBD
+These atomic builtin functions can be used by themselves to
+implement a shared complex database with a single writing process.
+The database is protected by two \TT{uns32} aligned version numbers
+called the pre-version and the post-version.  When no update operation
+is in progress, these are equal.  The writer adds one to the pre-version
+at the very beginning of the update, and adds one to the post-version
+at the very end of the update.  A reader reads the post-version at
+the very beginning of a read operation, and then at any point can
+read the pre-version and check that it matches the pre-version value
+read to see if there has been any writing during the read operation.
+Thus the read operation can check at any point
+whether the values read so far are consistant.%
+\footnote{This is an old method that appears, for example, in 
+an article of Leslie Lamport, `Concurrent Reading and Writing',
+Comminications of the ACM, vol 20, no 11, pp 806--811, Nov 1977.
+A variant uses a single version value incremented at both the
+beginning and end of an update so this value is odd during the update
+and even when no update is in progress.}
+
+The code has the form:
+\begin{indpar}\begin{verbatim}
+*WRITABLE* pointer pre-version = ...
+*READABLE* pointer post-version = ...
+  // pointer with 2 aligned uns32 elements
+
+. . . . . . . . . .
+
+// Write operation
+//
+*ATOMIC* *PRE-WRITE* ( (* pre-version) + 1, pre-version )
+. . . . perform update operation
+*ATOMIC* *POST-WRITE* ( (* post-version) + 1, post-version )
+
+. . . . . . . . . .
+
+// Read operation
+//
+uns32 version = *ATOMIC* *PRE-READ* ( post-version )
+. . . . perform read operation
+if ( version != *ATOMIC* *POST-READ* ( pre-version ) )
+    .... take action on read failure ...
+
+\end{verbatim}\end{indpar}
 
 An {\em atomic-block} is a generalization of
 the classic compare-and-set instruction.  It is a block assignment

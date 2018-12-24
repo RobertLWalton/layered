@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 23, 2018
+December 24, 2018
  
 \end{center}
 
@@ -12351,21 +12351,95 @@ write operation.
 These problems can be addressed by re-writing the write update
 using an {\em atomic-block} as follows:
 \begin{indpar}\begin{verbatim}
-// Write operation
+// Write operation, single process writer
 //
 uns32 next-version = (* pre-version) + 1
 ... compute values to be written ...
 ... and locations to write them to ...
 ... (but do NOT write any locations) ...
-uns32 count, atomic code c, uns32 pass = *ATOMIC*:
-    *ATOMIC* *PRE-WRITE* ( next-version, pre-version )
+atomic code c, uns32 pass, uns32 index = *ATOMIC*:
+    *ATOMIC* *PRE-WRITE* next-version, pre-version
     ... perform update operation writes (no reads) ...
-    *ATOMIC* *POST-WRITE* ( next-version, post-version )
+    *ATOMIC* *POST-WRITE* next-version, post-version
 \end{verbatim}\end{indpar}
 
-An {\em atomic-block} is a generalization of
-the classic compare-and-set instruction.  It is a block assignment
-statement that executes a sequence of specialized instructions.
+Here all the write operations are collected together in the
+the {\em atomic-block}, so from the point of view of readers,
+the {\em atomic-block} is the update operation.  It is as short
+as possible, as it only contains the writes.  In addition,
+interrupts are disabled in an atomic block, so interrupts are
+disabled during the update operation.
+
+The atomic block actually executes in three passes.  Pass 1 `compiles'
+the block code (the write instructions) and stores the result in
+the operating system kernel.  This result is in two parts: code and
+parameters.  Both are checked by the kernel at the end of pass 1.
+If a particular {\em atomic-block} is executed many
+times, the code is cached so it need be compiled and checked only once.
+
+Pass 2 checks that the write instructions access writable memory pages,
+but does no actual writes.
+
+Pass 3 executes the write instructions in order.
+
+Interrupts are disabled at the beginning of pass 2 and re-enabled when
+the atomic block terminates (either on success or an operation failure
+in pass 2).
+
+The \TT{atomic code} returned by the {\em atomic-block} will indicate
+whether the block succeeded or suffered an operation error.  There
+are two kinds of operation error.  A pass 1 error is an unaligned
+atomic write address (non-atomic writes need not be aligned).  A pass 2
+error is an address that is used to write will cause a memory fault.
+In each error case the pass number and the index of the instruction within
+the {\em atomic-block} (\TT{1},\TT{2}, \ldots) is returned.
+
+If there are now several processes that can write the database, the
+write update operation code needs to be changed so something like:
+\begin{indpar}\begin{verbatim}
+// Write operation, multiple process writers
+//
+uns32 version = (* post-version)
+// Read phase of update: like a read operation
+... read database to compute values to be written ...
+... and locations to write them to ...
+... (but do NOT write any locations) ...
+...
+atomic code c, uns32 pass, uns32 index = *ATOMIC*:
+    *LOCK* ...
+    *COMPARE* version pre-version
+    *ATOMIC* *PRE-WRITE* version + 1, pre-version
+    ... perform update operation writes (no reads) ...
+    *ATOMIC* *POST-WRITE* version + 1, post-version
+\end{verbatim}\end{indpar}
+
+Here the {\tt *LOCK*} instruction sets a test-and-set lock bit that
+locks out other writers.  Then the {\tt *COMPARE*} instruction
+checks that the {\tt pre-version} has not changed since the update
+started (if it had, that would mean some other writer updated the
+database during the read phase of the update, and the update is
+no longer valid).  Both these instructions are executed in pass 2.
+Lastly the write instructions are executed as before.
+
+Any locks acquired are released when the {\em atomic-block} terminates
+in the reverse order to that in which they were acquired.
+
+Now there are possible failures other than an operation error:
+a lock may not be acquireable or a compare may fail.  If this happens
+(in pass 2) a failure \TT{atomic code} is returned
+(instead of an operation error code), along with the index of the
+failing instruction.
+
+Clearly {\em atomic-blocks} generalize
+the classic compare-and-set instruction.
+However, they are not mean for updates that have a large number of
+writes, as these are best handled by using {\em atomic-blocks} to construct
+queues of processes waiting to do updates or read the database.
+
+The rest of this section describes the syntax and semantics
+of general {\em atomic-blocks}.
+
+TBD
 
 \begin{indpar}
 \emkey{atomic-statement} ::= {\em atomic-read-statement}
@@ -12397,7 +12471,7 @@ statement that executes a sequence of specialized instructions.
 \\[0.5ex]
 \emkey{atomic-block} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        {\tt uns32 count, atomic code c, uns32 pass = \ttakey{ATOMIC}:} \\
+        {\tt atomic code c, uns32 pass, uns32 index = \ttakey{ATOMIC}:} \\
 	\TT{~~~~}{\em atomic-instruction}\STAR{} \\
 	\end{tabular}
 \\[0.5ex]
@@ -12500,8 +12574,8 @@ to that in which they were acquired, and interrupts are then re-enabled.
 
 Upon successful termination, the returned values are:
 \begin{center}
-{\tt count = 0},~~~~ {\tt atomic code = success},~~~~
-{\tt pass = }undefined
+{\tt atomic code = success},~~~~ {\tt pass =}undefined,~~~~
+{\tt index = }undefined
 \end{center}
 \end{indpar}
 
@@ -12607,11 +12681,11 @@ with at least one element or if the pointer does not have the
 qualifier though the page with the element must be readable).
 \end{indpar}
 
-The returned {\tt count} value returned by the {\em atomic-block}
+The returned {\tt index} value returned by the {\em atomic-block}
 equals \TT{0} if the statement succeeds, or is the number of the
 first failint or operation error detecting
 instruction in the statement block.  I.e., if the first instruction
-fails, {\tt count} is set to \TT{1}.
+fails, {\tt index} is set to \TT{1}.
 
 The returned {\tt atomic code} indicates whether the {\em atomic-block}
 succeeded, failed, or had an operation error.

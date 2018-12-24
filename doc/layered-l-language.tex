@@ -12353,7 +12353,7 @@ using an {\em atomic-block} as follows:
 \begin{indpar}\begin{verbatim}
 // Write operation, single process writer
 //
-uns32 next-version = (* pre-version) + 1
+uns32 next-version = (*ATOMIC* *READ* pre-version) + 1
 ... compute values to be written ...
 ... and locations to write them to ...
 ... (but do NOT write any locations) ...
@@ -12399,7 +12399,7 @@ write update operation code needs to be changed so something like:
 \begin{indpar}\begin{verbatim}
 // Write operation, multiple process writers
 //
-uns32 version = (* post-version)
+uns32 version = *ATOMIC* *READ* post-version
 // Read phase of update: like a read operation
 ... read database to compute values to be written ...
 ... and locations to write them to ...
@@ -12415,60 +12415,37 @@ atomic code c, uns32 pass, uns32 index = *ATOMIC*:
 
 Here the {\tt *LOCK*} instruction sets a test-and-set lock bit that
 locks out other writers.  Then the {\tt *COMPARE*} instruction
-checks that the {\tt pre-version} has not changed since the update
-started (if it had, that would mean some other writer updated the
+ensures that the {\tt pre-version} matches the {\tt post-version}
+read when the update
+started (if it does not, that would mean that some other writer updated the
 database during the read phase of the update, and the update is
 no longer valid).  Both these instructions are executed in pass 2.
-Lastly the write instructions are executed as before.
-
-Any locks acquired are released when the {\em atomic-block} terminates
-in the reverse order to that in which they were acquired.
+Lastly the write instructions are executed as before, with the actual
+writes being done in pass 3.
 
 Now there are possible failures other than an operation error:
 a lock may not be acquireable or a compare may fail.  If this happens
 (in pass 2) a failure \TT{atomic code} is returned
 (instead of an operation error code), along with the index of the
-failing instruction.
+failing instruction (and no writes are executed).
+
+Any locks acquired are released when the {\em atomic-block} terminates
+(successfully or otherwise)
+in the reverse order to that in which they were acquired and before
+interrupts are re-enabled.
 
 Clearly {\em atomic-blocks} generalize
 the classic compare-and-set instruction.
-However, they are not mean for updates that have a large number of
+However, they are not meant for updates that have a large number of
 writes, as these are best handled by using {\em atomic-blocks} to construct
 queues of processes waiting to do updates or read the database.
 
 The rest of this section describes the syntax and semantics
 of general {\em atomic-blocks}.
 
-TBD
+The syntax is:
 
 \begin{indpar}
-\emkey{atomic-statement} ::= {\em atomic-read-statement}
-			 $|$ {\em atomic-write-statement}
-			 $|$ {\em atomic-block}
-\\[0.5ex]
-\emkey{atomic-read-statement} ::= {\em atomic-pre-read-statement}
-                              $|$ {\em atomic-post-read-statement} \\
-\emkey{atomic-pre-read-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r =
-    \ttalkey{ATOMIC}{PRE-READ}} {\em atomic-pointer} \\
-\emkey{atomic-post-write-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r =
-    \ttalkey{ATOMIC}{POST-READ}} {\em atomic-pointer}
-\\[0.5ex]
-\emkey{atomic-write-statement} ::= {\em atomic-pre-write-statement}
-                              $|$ {\em atomic-post-write-statement} \\
-\emkey{atomic-pre-write-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r =
-    \ttalkey{ATOMIC}{PRE-WRITE}} {\em atomic-pointer} \\
-\emkey{atomic-post-write-statement} ::= \\
-\hspace*{0.5in}{\tt uns32 r =
-    \ttalkey{ATOMIC}{POST-WRITE}} {\em atomic-pointer}
-\\[0.5ex]
-\emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
-							\\
-\emkey{atomic-value} ::= {\em expression} evaluatable to the \TT{.type}
-			of the associated {\em atomic-pointer}
-\\[0.5ex]
 \emkey{atomic-block} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         {\tt atomic code c, uns32 pass, uns32 index = \ttakey{ATOMIC}:} \\
@@ -12489,16 +12466,27 @@ TBD
                           $|$ {\em atomic-write-instruction} \\
 \emkey{ordinary-write-instruction} ::= 
         \ttakey{WRITE} {\em atomic-value} {\em atomic-pointer} \\
-\emkey{atomic-write-instruction} ::= {\em atomic-write-statement} \\
-\emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32}
+\emkey{atomic-write-instruction} ::= {\em atomic-pre-write-instruction}
+                              $|$ {\em atomic-post-write-instruction} \\
+\emkey{atomic-pre-write-instruction} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{PRE-WRITE}} {\em atomic-pointer} \\
+\emkey{atomic-post-write-instruction} ::= \\
+\hspace*{0.5in}{\tt uns32 r =
+    \ttalkey{ATOMIC}{POST-WRITE}} {\em atomic-pointer}
+\\[0.5ex]
+\emkey{lock-ID} ::= {\em expression} evaluatable with target type \TT{uns32} \\
+\emkey{atomic-value} ::= {\em expression} evaluatable to the \TT{.type}
+			of the associated {\em atomic-pointer} \\
+\emkey{atomic-pointer} ::= {\em expression} evaluatable with \TT{pointer} type
 
 \begin{indpar}
-Pointer {\tt .type}'s must have a numeric type as their underlying type.
-For {\em compare-instructions}, {\em atomic-write-instructions}, and
-{\em atomic-read-statements} this type must be \TT{uns32}, and the
-address in the instruction's {\em atomic-pointer} must be aligned on
+Pointer {\tt .type}'s must have a numeric type as their underlying type
+and pointers must point at vectors with a single element.
+For {\em compare-instructions} and {\em atomic-write-instructions},
+the {\tt .type} must be \TT{uns32}, and the
+vector element address must be aligned on
 a 4-byte bounary.
-
 \end{indpar}
 
 \end{indpar}
@@ -12525,6 +12513,8 @@ function std atomic code r = std \ttmkey{op error}{atomic code}: \\
 }
 
 \end{indpar}
+
+TBD
 
 {\em Atomic-blocks} are executed in three passes:
 

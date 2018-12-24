@@ -12501,9 +12501,9 @@ define \begin{tabular}[t]{@{}l@{}}
        abbreviation \\
        \ttkey{atomic code} \ABV{} `std atomic code' \\
        \end{tabular} \\
-atomic code \ttstdkey{succeed atomic code } = next enum // 0 \\
-function std atomic code r = std \ttmkey{succeed}{atomic code}: \\
-\hspace*{3em}r = std succeed atomic code \\
+atomic code \ttstdkey{success atomic code } = next enum // 0 \\
+function std atomic code r = std \ttmkey{success}{atomic code}: \\
+\hspace*{3em}r = std success atomic code \\
 atomic code \ttstdkey{fail atomic code } = next enum // 1 \\
 function std atomic code r = std \ttmkey{fail}{atomic code}: \\
 \hspace*{3em}r = std fail atomic code \\
@@ -12513,8 +12513,6 @@ function std atomic code r = std \ttmkey{op error}{atomic code}: \\
 }
 
 \end{indpar}
-
-TBD
 
 {\em Atomic-blocks} are executed in three passes:
 
@@ -12534,7 +12532,7 @@ code in the kernel, may only need to be done once.
 
 Pass 1 also compiles a parameter block for the kernel code, and at the end
 of pass 1, loads the parameter block into the kernel.  The kernel does
-not check the parameter block.  The parameter block, which encodes the
+also checks the parameter block.  The parameter block, which encodes the
 argument values of the {\em atomic-instructions}, must be compiled
 individually for every
 {\em atomic-block} execution.
@@ -12548,13 +12546,13 @@ Pass 2 executes all the {\em atomic-instructions} in order, except that
 In this mode {\em write-instructions} check that the locations
 they are to write are writable, but do not actually change these locations.
 
-\hspace*{-0.3in}{\bf Pass 3, Set Pass}: 
+\hspace*{-0.3in}{\bf Pass 3, Write Pass}: 
 {\em Write-instructions} are re-executed in order and each writes its
 {\em atomic-value} into the locations designated by its
 {\em atomic-pointer}.
 
 If the {\em atomic-block} does not
-terminate before executing pass 3, the statement will succeed.
+terminate before executing pass 3, the block will succeed.
 Failures and operation errors cannot be discovered during pass 3.
 
 When the {\em atomic-block} terminates, either successfully or
@@ -12571,27 +12569,24 @@ Upon successful termination, the returned values are:
 
 The {\em atomic-instructions} are as follows:
 \begin{indpar}[0.4in]
-\hspace*{-0.2in}{\em \bf Lock-Instruction}.
+\hspace*{-0.2in}{\em \bf Lock-Instruction}\index{lock instruction}.
 The {\em lock-ID} is of type \TT{uns32}
 and identifies the lock.
-The lock is a binary test-and-set lock provided by the
+The lock is a binary (1-bit equivalent) test-and-set lock provided by the
 underlying runtime system.  Locks are allocated to groups of processes
 that share memory, so that if any process in the group acquires
-the lock, other processes in the group cannot.
+the lock, other processes in the group cannot.  Lock-IDs are allocated
+by the runtime system using an interface that is not part of the L-Language.
 
-In pass 1 the \emkey{lock-instruction} reads the lock and succeeds if the lock
-was not already set, and otherwise fails.  If the lock is not already set,
-it is \underline{not} set or acquired in pass 1.
+In pass 1 a {\em lock-instruction} checks that the lock-ID is valid
+for the current process.  It is an operation error if it is not.
+The lock is \underline{not} set in pass 1.
 
-In pass 2 the \emkey{lock-instruction} sets the lock and succeeds if the lock
+In pass 2 a {\em lock-instruction} sets the lock and succeeds if the lock
 was not already set, and otherwise fails.  If the instruction succeeds,
 it will have set and thereby acquired the lock.
 
 In pass 3 {\em lock-instructions} do nothing.
-
-A {\em lock-instruction} that does not fail in pass 1 may still fail in
-pass 2 if another process acquires the lock between when the instruction
-executed in pass 1 and the start of pass 2.
 
 Locks are acquired in the order that their {\em lock-instructions} appear
 within the {\em atomic-block}.
@@ -12599,50 +12594,66 @@ When the {\em atomic-block} terminates, either
 successfully or when it fails or has an operation error,
 all locks acquired are released in reverse order.
 
-If the {\em lock-ID} is not valid, the {\em lock-instruction}
-has an operation error.
+The implementation ensures values read and written by instructions
+following a {\em lock-in\-struc\-tion} are read from system memory or
+written to system memory \underline{after} the {\em lock-in\-struc\-tion}
+has written its lock bit to system memory.%
+\footnote{On some computers lock bit memory may not be main RAM memory,
+and on these we extend the notion of `system memory' to include
+non-RAM lock bit memories.}
 
-\hspace*{-0.2in}{\em \bf Compare-Instruction}.
-In both passes 1 and 2, the \emkey{compare-instruction} reads the \TT{uns32}
-value at the {\em atomic-pointer} designated
-address and compares it to the {\em atomic-value}.  The instruction
+\hspace*{-0.2in}{\em \bf Compare-Instruction}\index{compare instruction}.
+The {\em compare-instruction} reads the \TT{uns32}
+value of the only element of the {\em atomic-pointer} designated
+vector and compares it to the {\em atomic-value}.  The instruction
 succeeds if the values are equal, and fails otherwise.
 
-During both passes 1 and 2 the \TT{uns32} value read from memory is
-read atomically, meaning that
-the value read will exactly equal the last value atomically written to system
-(non-cache) memory by \underline{any} processor.
-The {\em atomic-write-instruction} writes \TT{uns32} values atomically directly
-to system memory, bypassing caches.
+For specifically:
+
+In pass 1 the vector pointed at by the {\em atomic-pointer} is checked
+to ensure that it has
+only one element and the address of that element is a multiple of
+the size of an \TT{uns32} value.  It is an operation error if this
+check fails.
+
+In pass 2 the vector element value is read atomically from memory and
+compared with the {\em atomic-value}.  If the values are equal, the
+{\em compare-instruction} succeeds; otherwise it fails.  The instruction
+may also have an operation error in pass 2 if it tries to read
+inaccessible memory.
 
 In pass 3 {\em compare-instructions} do nothing.
 
-The implementation assumes that if the locks before a {\em compare-instruction}
-are acquired in pass 2, the locations to be
-read by the {\em compare-instruction} cannot be changed by any other
-processor.  The program code must enforce this assumption (and is in
-this sense unchecked).
 
-It is an operation error if the address pointed at is not readable.
-If this happens in pass 1 it is a permanent error.  If it happens
-in pass 2 it might be because a page to be read was paged out
-between when the instruction executed in pass 1 and the start of pass 2.
-Re-executing the {\em atomic-block} will page the offending
-page back in during pass 1.
-
-It is a programming error if the pointer does not point at a vector
-with at least one element or if the pointer does not have the
-{\tt *READABLE*} qualifier.
+It is a compile error if the {\em atomic-pointer}
+does not have the {\tt *READABLE*} qualifier.
 
 
-\hspace*{-0.2in}{\em \bf Write-Instructions}.
-During passes 1 and 2, a \emkey{write-instruction} performs a
-\key{write-check} of the locations to be written.  This consists
-conceptually of reading the values at these locations and writing
-the values read back into the locations.
+\hspace*{-0.2in}{\em \bf Write-Instructions}\index{write instruction}.
+Write instructions write values into memory in pass 3.
 
-In pass 1 compare-and-set instructions are used.  In pass 2, the
-locations are simply read and written using normal instructions.
+In pass 1 the vector pointed at by the {\em atomic-pointer} is checked
+to ensure that it has only one element, and for atomic write instructions,
+the address of that element is additionally checked to ensure
+that it is a multiple of
+the size of an \TT{uns32} value.  It is an operation error if one or both
+of these checks fails.
+
+In pass 2 the vector element is in effect read and rewritten with its
+current value: i.e., the value is not changed, but a check is made that
+the value is writable into the element.\footnote{On modern INTEL 86\_64
+this may be done by {\tt CHPXCHG} instructions with equal compare and write
+values.}
+
+In pass 3 the {\em atomic-value} is written to the vector element.
+
+For atomic writes, the write to system memory is atomic.
+
+For {\tt *ATOMIC* *PRE-WRITE*} the implementation ensures that all
+following {\em atomic block} {\em write-instructions} write their
+values to system memory \underline{after} the value written by
+{\tt *ATOMIC* *PRE-WRITE*} has been stored in system memory.
+
 
 The implementation assumes that if the locks before a {\em write-instruction}
 are acquired in pass 2, the locations to be

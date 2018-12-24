@@ -12626,7 +12626,8 @@ In pass 3 {\em compare-instructions} do nothing.
 
 
 It is a compile error if the {\em atomic-pointer}
-does not have the {\tt *READABLE*} qualifier.
+does not have the {\tt *READABLE*} qualifier or does not have
+the \TT{uns32} {\tt .type}.
 
 
 \hspace*{-0.2in}{\em \bf Write-Instructions}\index{write instruction}.
@@ -12646,56 +12647,34 @@ this may be done by {\tt CHPXCHG} instructions with equal compare and write
 values.}
 
 In pass 3 the {\em atomic-value} is written to the vector element.
-
 For atomic writes, the write to system memory is atomic.
+The implementation ensures that all the {\em write-instructions}
+following an {\tt *ATOMIC* *PRE-WRITE*} write to system memory
+\underline{after} the value written by the
+{\tt *ATOMIC* *PRE-WRITE*} has been written to system memory.
+The implementation ensures that all the {\em write-instructions}
+preceding an {\tt *ATOMIC* *POST-WRITE*} write to system memory
+\underline{before} the value written by the
+{\tt *ATOMIC* *POST-WRITE*} is been written to system memory.
 
-For {\tt *ATOMIC* *PRE-WRITE*} the implementation ensures that all
-following {\em atomic block} {\em write-instructions} write their
-values to system memory \underline{after} the value written by
-{\tt *ATOMIC* *PRE-WRITE*} has been stored in system memory.
-
-
-The implementation assumes that if the locks before a {\em write-instruction}
-are acquired in pass 2, the locations to be
-written by the {\em write-instruction} cannot be changed by any other
-processor.  The program code must enforce this assumption (and is in
-this sense unchecked).
-
-During pass 3, the \emkey{write-instruction} writes the {\em atomic-value} to
-the {\em atomic-pointer} designated address.  The {\em atomic-write-instruction}
-writes the value atomically directly to system memory, bypassing caches.
-Furthermore any data written in the {\em atomic-block}
-before an {\em atomic-write-instruction} will be written into system memory
-before the value written by the {\em atomic-write-instruction} is written.
-
-It is an operation error if the address pointed at is not both readable
-and writable.
-If this happens in pass 1 it is a permanent error.  If it happens
-in pass 2 it might be because a page to be written was paged out
-between when the instruction executed in pass 1 and the start of pass 2.
-Re-executing the {\em atomic-block} will page the offending
-page back in during pass 1.
-
-It is a programming error if the pointer does not point at a vector
-with at least one element or if the pointer does not have the
-{\tt *WRITABLE*} qualifier (it need not have the {\tt *READABLE*}
-qualifier though the page with the element must be readable).
+It is a compile error if the {\em atomic-pointer}
+does not have the {\tt *WRITABLE*} qualifier or does not have
+the \TT{uns32} {\tt .type}.  The pointer need not have the
+{\tt *READABLE*} qualifier, but the pages with the element must be readable
+in order for the pointer to pass the check in pass 2.
 \end{indpar}
-
-The returned {\tt index} value returned by the {\em atomic-block}
-equals \TT{0} if the statement succeeds, or is the number of the
-first failint or operation error detecting
-instruction in the statement block.  I.e., if the first instruction
-fails, {\tt index} is set to \TT{1}.
 
 The returned {\tt atomic code} indicates whether the {\em atomic-block}
 succeeded, failed, or had an operation error.
-
-Programming errors are all detected during pass 1.
+If the block is terminated by an operation error
+or instruction failure, the {\em pass} and {\tt index} values identify
+the pass and instruction that had the error or failure.
+{\tt Index} value \TT{1} corresponds to the first instruction in the block.
 
 A system may put restrictions on the number of {\em atomic-instructions}
 in an {\em atomic-block}.  Violation of these restrictions
-is a programming error.  At least 32 {\em atomic-instructions} will be
+is a pass 1 operation error that returns \TT{0} as the {\tt index}.
+At least 32 {\em atomic-instructions} will be
 allowed in all implementations.
 
 

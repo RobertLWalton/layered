@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 24, 2018
+December 26, 2018
  
 \end{center}
 
@@ -12433,6 +12433,13 @@ Any locks acquired are released when the {\em atomic-block} terminates
 (successfully or otherwise)
 in the reverse order to that in which they were acquired and before
 interrupts are re-enabled.
+
+A transaction can also update several databases at once using a single
+{\em atomic-block}.  Each database
+may have its own pre- and post- version variables and its own lock,
+in which case there will be one {\tt *LOCK*} and one {\tt *COMPARE*}
+instruction in the {\em atomic-block} for each database.  Locks and
+version variables may also be shared among databases.
 
 Clearly {\em atomic-blocks} generalize
 the classic compare-and-set instruction.

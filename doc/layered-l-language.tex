@@ -10243,6 +10243,8 @@ floating point NaNs or other numeric values.
 {\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
 \begin{indpar}
+{\tt L} and {\tt S} must be compile time values.
+
 Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
 and return the result as a usable byte address.
 If the target machine only uses the low order $k$ bits of a 64-bit
@@ -10251,7 +10253,7 @@ to the requirements of the target machine, or are undefined if there
 are no such requirements.  If $k>${\tt L+S},
 the {\tt L} bits are padded on the left with zero bits.
 
-For example, for an x86 target machine $k=48$ and the high order
+For example, for an INTEL 64 target machine $k=48$ and the high order
 17 bits of the returned address must be equal (all 0's or all 1's).
 If {\tt L = 40} and {\tt S = 4} then 64-40-4=20 zero bits of padding are
 added on the left.  If {\tt L = 44} and {\tt S = 4}, the high order
@@ -10265,9 +10267,12 @@ the high order 17 bits of the returned address.
 {\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
 \begin{indpar}
+{\tt L} and {\tt S} must be compile time values.
+
 Make a 64-bit value containing the address in the low order
 {\tt L} bits, such that if the low order {\tt S} bits of {\tt A}
-are zero, then
+are zero and either $k\leq${\tt L+S} or the high order $k-${\tt L+S} bits
+of {\tt A} are zero, then
 \begin{center}
 \tt extract adr ( embed adr ( T, A, L, S ), L, S )
 \end{center}
@@ -10283,6 +10288,8 @@ of the {\tt template}.
 {\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
 \begin{indpar}
+{\tt L} and {\tt S} must be compile time values.
+
 Take the low order {\tt L} bits of {\tt v}, shift them left by {\tt S},
 and return the result as an unsigned integer.  If \TT{unsadr} has
 $k$ bits, the integer is truncated if $k<${\tt L+S} and padded on
@@ -10296,6 +10303,8 @@ the left with zero bits if $k>${\tt L+S}.
 {\TS~~~~~~~~~~~~~~~ unswrd L, unswrd S ?= 0 )}
 
 \begin{indpar}
+{\tt L} and {\tt S} must be compile time values.
+
 Make a 64-bit value containing {\tt offset} in the low order
 {\tt L} bits, such that
 \begin{center}

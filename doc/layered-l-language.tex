@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 26, 2018
+December 29, 2018
  
 \end{center}
 
@@ -10093,7 +10093,8 @@ the inline functions are written correctly, the program will be type-safe.
 Memory is organized into two parts: \key{static} and \key{dynamic}.
 Static memory variables are allocated at fixed addresses
 that never change.  Dynamic memory contains blocks that
-can be moved.
+can be moved.  An implementation may choose not to implement dynamic
+memory.
 
 Static addresses consist of a single \TT{adr} value.
 
@@ -10113,8 +10114,9 @@ consists of an \TT{adr} value
 pointing to the body pointer and an \TT{unsadr} or \TT{intadr}
 value that is the offset of the location within the body.
 Instead of an \TT{adr} value pointing at the body pointer, a pair consisting
-of an \TT{adr} value pointing at the stub and an \TT{unsadr} value
-that is the offset of the body pointer in the stub may be used.  However,
+of an \TT{adr} value pointing at the stub and an \TT{intadr} value
+that is the offset of the body pointer in the stub may be used (the
+offset may be negative).  However,
 this offset is usually a constant, as is the stub address,
 so adding the stub address and the
 body pointer within stub offset together to get a single constant
@@ -10123,7 +10125,11 @@ address pointing directly at the body pointer is the norm.
 Builtin function prototypes are defined to allocate static and dynamic memory
 and deallocate dynamic memory.  These functions are actually provided
 by the runtime system, and may be defined in different ways to support
-different memory allocation/deallocation features.
+different memory allocation/deallocation features.  This document
+assumes that stacks may be allocated as dynamic blocks, but an implementation
+may choose to implement stacks in static memory and use
+function prototypes different from those described in this document
+for allocating memory to a stack.
 
 \subsection{Memory Regions}
 \label{MEMORY-REGIONS}
@@ -10145,11 +10151,9 @@ memory region \ttstdkey{default stack region} = \ldots
 
 Regions may be created by the run-time system using an interface that
 is not specified by the L-Language.  However the run-time system must
-provide the default
-memory regions defined above: one for static data, one for
-dynamic data, and one for stacks (which may or may not be the same as the one
-for dynamic data).  These default regions are used if no other regions
-are created.
+provide the static and stack default memory regions defined above, and
+also the dynamic default region if dynamic memory is implemented.
+These default regions are used if no other regions are created.
 
 \subsection{Static Memory}
 \label{STATIC-MEMORY}
@@ -10202,7 +10206,7 @@ Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
-This function returns \TT{NULL} if there is insuffient memory
+This function returns \TT{ERROR(NOMEM)} if there is insuffient memory
 in the region to allocate the desired memory.  In this case
 {\tt s} is set to the maximum {\tt size} argument value that
 would have succeeded.  Otherwise {\tt s} is set to the value
@@ -10210,10 +10214,12 @@ of the {\tt size} argument.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
-alignment must be a power of two not greater than the memory
-page size (which is the alignment of regions).
+alignment must be a power of two not greater than alignment of the
+region (usually the page size for static regions).  If the {\tt alignment}
+does not meet these criteria, \TT{ERROR(BADALIGN)} is returned
+and {\tt size} is set to the largest legal alignment for the region.
 
-The allocated memory is initialized to zero.
+An memory allocated is initialized to zero.
 \end{indpar}
 
 \end{indpar}

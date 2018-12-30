@@ -2184,6 +2184,16 @@ Returns the type $T$ error value with given error code.
 Returns {\tt ERROR(0)}.  Used to indicate a value that is missing,
 but is not necessarily associated with any error.
 \end{indpar}
+{\tt function bool r = \ttstdkey{is error} ( $T$ value ) }
+\begin{indpar}
+Returns \TT{true} if and only if {\tt value} is an error value.
+\end{indpar}
+{\tt function unswrd r = \ttstdkey{error code of} ( $T$ value ) }
+\begin{indpar}
+Returns error code of {\tt value} if that is an error value, or
+returns {\tt unswrd(ERROR(bad argument))} if {\tt value} is not
+an error value.
+\end{indpar}
 {\tt function unswrd r = \ttstdkey{MAX ERROR CODE} ( type t == $T$ )}
 \begin{indpar}
 Returns the maximum allowed error code for type $T$.  For builtin number

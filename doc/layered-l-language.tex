@@ -2191,7 +2191,7 @@ Returns \TT{true} if and only if {\tt value} is an error value.
 {\tt function unswrd r = \ttstdkey{error code of} ( $T$ value ) }
 \begin{indpar}
 Returns error code of {\tt value} if that is an error value, or
-returns {\tt unswrd(ERROR(bad argument))} if {\tt value} is not
+returns {\tt unswrd(ERROR(BAD ARGUMENT RANGE))} if {\tt value} is not
 an error value.
 \end{indpar}
 {\tt function unswrd r = \ttstdkey{MAX ERROR CODE} ( type t == $T$ )}
@@ -2229,6 +2229,20 @@ are:
 For a builtin floating point number type $T$ whose values are of size
 $s$ bits, the high order $s/2$ bits of every error value of type $T$
 is the same and this value designates the error value as a non-signalling NaN.
+
+The following are standard error code values:
+\begin{indpar}
+
+{\tt function unswrd r = \ttstdkey{INSUFFICIENT MEMORY}} ~~~ (== 0)
+\begin{indpar}
+Not enough memory is available.
+\end{indpar}
+{\tt function unswrd r = \ttstdkey{BAD ARGUMENT RANGE}} ~~~ (== 1)
+\begin{indpar}
+Argument is out of range.
+\end{indpar}
+
+\end{indpar}
 
 
 

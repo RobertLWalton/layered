@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 30, 2018
+December 31, 2018
  
 \end{center}
 
@@ -10289,7 +10289,7 @@ region (usually the page size for static regions).  If the {\tt alignment}
 does not meet these criteria, \TT{ERROR(BAD ALIGNMENT)} is returned
 and {\tt size} is set to the largest legal alignment for the region.
 
-An memory allocated is initialized to zero.
+Any memory allocated is initialized to zero.
 \end{indpar}
 
 \end{indpar}
@@ -10419,14 +10419,15 @@ The following functions allocate and deallocate dynamic memory blocks.
 
 \begin{indpar}
 
-{\tt function unsadr r = \begin{tabular}[t]{@{}l@{}}
-                         \ttstdlkey{allocate}{to dynamic} \\
-			 ~~~~( body pointer address A, \\
-			 ~~~~~~unsadr size, \\
-			 ~~~~~~unswrd alignment ?=~0, \\
-			 ~~~~~~memory region R ?= \\
-			 ~~~~~~~~~~std default dynamic region ) \\
-			 \end{tabular}}
+{\tt function adr r, unsadr s = \\
+\hspace*{1in}\begin{tabular}[t]{@{}l@{}}
+	     \ttstdlkey{allocate}{to dynamic} \\
+	     ~~~~( body pointer address A, \\
+	     ~~~~~~unsadr size, \\
+	     ~~~~~~unswrd alignment ?=~0, \\
+	     ~~~~~~memory region R ?= \\
+	     ~~~~~~~~~~std default dynamic region ) \\
+	     \end{tabular}}
 
 \begin{indpar}
 Allocate a {\tt size} byte block of dynamic memory with the given
@@ -10437,27 +10438,34 @@ The address stored, when viewed as an
 integer, is an exact multiple of the {\tt alignment}.
 
 Before calling this function the body pointer at address {\tt A}
-\underline{must} be set to \TT{NULL}.
+\underline{must} be set to {\tt NULL}.  If the function does not succeed,
+an error value will be returned in {\tt r} and the body pointer will be
+left unchanged.
+
+On success the address stored in the body pointer is returned in {\tt r} and
+the {\tt size} argument is returned in {\tt s }.
+
 If there is insufficient memory in the region to allocated the desired block,
-this function does nothing, leaving the body pointer value as \TT{NULL}.
+\TT{ERROR(\EOL INSUFFICIENT MEMORY)} is returned in {\tt r} and
+the maximum size that could be successfully allocated is returned in {\tt s}.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
-alignment must be a power of two not greater than the memory
-page size (which is the alignment of regions).
+alignment must be a power of two not greater than the alignment of the
+region (by default the page size for dynamic regions).  If the {\tt alignment}
+does not meet these criteria,
+\TT{ERROR(BAD ALIGNMENT)} is returned in {\tt r}
+and the largest legal alignment for the region is returned in {\tt s}.
 
-The allocated memory is initialized to zero.
+Any memory allocated is initialized to zero.
 
-The `\TT{allocate to dynamic}' inline function may move dynamic blocks.
+The `\TT{allocate to dynamic}' inline function may move dynamic blocks
+(even if it fails due to insufficient memory).
 Therefore it ends by executing a
 \begin{center}
 {\tt reload *READ*, *READ* dependent}
 \end{center}
 statement.
-
-Returns {\tt size} on success.  On failure does nothing, but returns
-the maximum value of {\tt size} that would be successful (which will
-be less than the {\tt size} argument).
 
 \end{indpar}
 
@@ -10484,14 +10492,15 @@ dynamic block:
 \begin{indpar}
 
 {\tt function unsadr r, unsadr s = \\
-\hspace*{1in}
-                         \begin{tabular}[t]{@{}l@{}}
-                         \ttstdlkey{allocate}{to dynamic block}%
-			     \label{ALLOCATE-TO-DYNAMIC-BLOCK} \\
-			 ~~~~( body pointer address A, \\
-			 ~~~~~~unsadr size, \\
-			 ~~~~~~unswrd alignment ?=~0 ) \\
-			 \end{tabular}}
+\hspace*{1in}\begin{tabular}[t]{@{}l@{}}
+	     \ttstdlkey{allocate}{to dynamic block}%
+		 \label{ALLOCATE-TO-DYNAMIC-BLOCK} \\
+	     ~~~~( body pointer address A, \\
+	     ~~~~~~unsadr size, \\
+	     ~~~~~~unswrd alignment ?=~0, \\
+	     ~~~~~~memory region R ?= \\
+	     ~~~~~~~~~~std default dynamic region ) \\
+	     \end{tabular}}
 
 \begin{indpar}
 Add a {\tt size} byte block of to the end of the
@@ -10505,27 +10514,35 @@ its body pointer is a multiple of the alignment.
 
 If the dynamic block has not been allocated before this call
 (i.e., its body pointer is \TT{NULL}),
-it is allocated first.
+it is allocated first.  Only in this case is the region argument {\tt R}
+used.
+
+On success the offset of the allocated memory in the dynamic block
+is returned in {\tt r} and
+the {\tt size} argument is returned in {\tt s }.
+
+If there is insufficient memory,
+\TT{ERROR(\EOL INSUFFICIENT MEMORY)} is returned in {\tt r} and
+the maximum size that could be successfully allocated is returned in {\tt s}.
 
 If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
-alignment must be a power of two not greater than the memory
-page size (which is the alignment of regions).
+alignment must be a power of two not greater than the alignment of the
+block being expanded (or if the block is being newly allocated, the
+alignment of the region).  If the {\tt alignment}
+does not meet these criteria,
+\TT{ERROR(BAD ALIGNMENT)} is returned in {\tt r}
+and the largest legal alignment is returned in {\tt s}.
 
-The allocated memory is initialized to zero.
+Any memory allocated is initialized to zero.
 
-The `\TT{allocate to dynamic block}' inline function may move dynamic blocks.
+The `\TT{allocate to dynamic block}' inline function may move dynamic blocks
+(even if it fails due to insufficient memory).
 Therefore it ends by executing a
 \begin{center}
 {\tt reload *READ*, *READ* dependent}
 \end{center}
 statement.
-
-The number of bytes allocates is returned in {\tt s}.  This equals
-the {\tt size} argument on success.  On failure, does nothing except
-possibly move dynamic blocks,
-and {\tt s} is set equal to the maximum
-{\tt size} that would have succeeded.
 
 \end{indpar}
 

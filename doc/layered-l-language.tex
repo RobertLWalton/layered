@@ -2179,7 +2179,7 @@ The following builtin functions manipulate error values for a given type $T$:
 \begin{indpar}
 Returns the type $T$ error value with given error code.
 \end{indpar}
-{\tt function $T$ r = \ttstdkey{NULL}}
+{\tt function $T$ r = \ttstdkey{NULL}}\label{NULL}
 \begin{indpar}
 Returns {\tt ERROR(0)}.  Used to indicate a value that is missing,
 but is not necessarily associated with any error.
@@ -2191,7 +2191,7 @@ Returns \TT{true} if and only if {\tt value} is an error value.
 {\tt function unswrd r = \ttstdkey{error code of} ( $T$ value ) }
 \begin{indpar}
 Returns error code of {\tt value} if that is an error value, or
-returns {\tt unswrd(ERROR(BAD ARGUMENT RANGE))} if {\tt value} is not
+returns {\tt unswrd(ERROR(BAD RANGE))} if {\tt value} is not
 an error value.
 \end{indpar}
 {\tt function unswrd r = \ttstdkey{MAX ERROR CODE} ( type t == $T$ )}
@@ -2223,7 +2223,7 @@ with 32 bit virtual addresses and at least 1 gigabyte on computers
 with 48 or more bit virtual addresses.  Error codes for the \TT{adr} type
 are:
 \begin{center}
-\tt ERROR(c) == $T$(NULL) + c
+\tt ERROR(c) == adr(NULL) + c
 \end{center}
 
 For a builtin floating point number type $T$ whose values are of size
@@ -2237,9 +2237,13 @@ The following are standard error code values:
 \begin{indpar}
 Not enough memory is available.
 \end{indpar}
-{\tt function unswrd r = \ttstdkey{BAD ARGUMENT RANGE}} ~~~ (== 1)
+{\tt function unswrd r = \ttstdkey{BAD RANGE}} ~~~ (== 1)
 \begin{indpar}
 Argument is out of range.
+\end{indpar}
+{\tt function unswrd r = \ttstdkey{BAD ALIGNMENT}} ~~~ (== 2)
+\begin{indpar}
+Alignment argument is out of range.
 \end{indpar}
 
 \end{indpar}
@@ -10249,28 +10253,6 @@ Static memory variables are allocated at fixed addresses
 that never change.
 Static addresses consist of a single \TT{adr} value.
 
-The following function returns the static memory address
-of a large block of memory that will cause a memory fault if accessed:
-
-\begin{indpar}
-
-{\tt function adr r = \ttstdkey{NULL}}\label{NULL}
-
-\begin{indpar}
-Returns the address of a block of N bytes of virtual memory that is
-inaccessible and will cause a memory fault if referenced.
-N is at least 1 megabyte if addresses are 32 bits, and is at least
-1 gitabyte if addresses are 64 bits.  The same value is returned for
-all calls to {\tt NULL} within a run-time environment, or for all compile-time
-calls within a compilation,  though the run-time and compile-time values
-may differ.
-
-When a dynamic block is deallocated, its body pointer is set to
-this value in order to cause any reference to the block to trigger
-a memory fault.
-\end{indpar}
-
-\end{indpar}
 
 The following function allocates static memory and computes static addresses.
 
@@ -10293,7 +10275,8 @@ Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
-This function returns \TT{ERROR(NOMEM)} if there is insuffient memory
+This function returns \TT{ERROR(INSUFFICIENT MEMORY)}
+if there is insuffient memory
 in the region to allocate the desired memory.  In this case
 {\tt s} is set to the maximum {\tt size} argument value that
 would have succeeded.  Otherwise {\tt s} is set to the value
@@ -10303,7 +10286,7 @@ If the {\tt alignment} is omitted or is given as 0 it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than alignment of the
 region (usually the page size for static regions).  If the {\tt alignment}
-does not meet these criteria, \TT{ERROR(BADALIGN)} is returned
+does not meet these criteria, \TT{ERROR(BAD ALIGNMENT)} is returned
 and {\tt size} is set to the largest legal alignment for the region.
 
 An memory allocated is initialized to zero.

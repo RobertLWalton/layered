@@ -10560,7 +10560,7 @@ pointer that points to all of static memory:
 \begin{indpar}
 
 {\tt function body pointer address r =
-    \ttstdkey{STATIC BASE}}\label{STATIC BASE}
+    \ttstdkey{STATIC BASE}}\label{STATIC BASE}\label{STATIC-BASE}
 
 \begin{indpar}
 Returns the address of a static memory location that contains an
@@ -11621,7 +11621,23 @@ Copies a pointer as per an assignment statement while removing the
 \label{VECTOR-ALLOCATORS}
 
 
-The following functions allocate pointers to new vectors:
+The following functions allocate pointers to new vectors.
+All these functions do nothing but the following on an error:
+\begin{indpar}
+{\bf Insufficient Memory}~~If there is not enough memory,
+{\tt p.base.adr} is set to \TT{ERROR(\EOL IN\-SUF\-FI\-CIENT MEMORY)}
+and {\tt p.base.begin} is set to the largest value of {\tt N}
+that could be allocated.  Dynamic bodies may be moved if
+an function allocating a dynamic body or to the end of a dynamic
+body has this error.
+
+{\bf Bad Alignment}~~The elements of the vector could not be
+aligned because {\tt alignment of ( $T$ )} is too large,
+{\tt p.base.adr} is set to \TT{ERROR(BAD ALIGNMENT)}
+and {\tt p.base\EOL .begin} is set to the largest alignment
+that would be allowed.
+
+\end{indpar}
 
 \begin{indpar}
 
@@ -11686,6 +11702,7 @@ function *READABLE* *WRITABLE* pointer p, \\
 Allocates a vector of {\tt N} elements to the static memory region R.
 The elements are set to zero.
 The elements each have type {\tt T} and qualifiers {\tt Qs}.
+{\tt p.base.adr} is set equal to \TT{std STATIC BASE} (\pagref{STATIC-BASE}).
 \end{indpar}
 
 {\tt\begin{tabular}{@{}l}
@@ -11728,14 +11745,6 @@ function *READABLE* *WRITABLE* pointer p, \\
 \end{tabular}}\label{POINTER-ALLOCATE-TO-DYNAMIC-BLOCK}
 
 \begin{indpar}
-Add a {\tt size} byte block of to the dynamic block whose body pointer
-is located at address {\tt A}.  The offset of the block is returned
-and is a multiple of the the given {\tt align\-ment} in bytes.
-If necessary padding is added to the dynamic block before the
-newly allocated memory to ensure the offset is a multiple of the
-{\tt alignment}.  If necessary the dynamic block is moved so that
-its body pointer is a multiple of the alignment.
-
 If the dynamic block has not been allocated before this call
 (i.e., its body pointer is \TT{NULL}),
 it is allocated first.
@@ -11759,7 +11768,7 @@ The elements each have type {\tt T} and qualifiers {\tt Qs}.
 The following functions are \TT{*UNCHECKED*} versions of the
 above, and do the same thing as the checked versions but
 allow zero to be an illegal {\tt T} value and allow any qualifiers
-in {\tt Qs}:
+in {\tt Qs}.  The vectors are initialized to zero.
 
 \begin{indpar}
 
@@ -11774,9 +11783,6 @@ function *UNCHECKED* *STACK* *READABLE* *WRITABLE* \\
 ~~~~\ttstdkey{allocate to stack} \\
 ~~~~~~~~(| type T ?= uns8, qualifiers Qs ?= \{\} |) \\
 ~~~~~~~~( intadr N = 1 ) \\
-~~~~~~~~// Vector initialized to zeros even \\
-~~~~~~~~// if this is not a legal T value. \\
-~~~~~~~~// All qualifiers are allowed in Qs. \\
 \end{tabular}}
 
 {\tt\begin{tabular}{@{}l}

@@ -171,7 +171,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 31, 2018
+January 1, 2019
  
 \end{center}
 
@@ -2228,7 +2228,7 @@ are:
 
 For a builtin floating point number type $T$ whose values are of size
 $s$ bits, the high order $s/2$ bits of every error value of type $T$
-is the same and this value designates the error value as a non-signalling NaN.
+is the same and this value designates the error value as a non-signaling NaN.
 
 The following are standard error code values:
 \begin{indpar}
@@ -3286,7 +3286,7 @@ Implied {\tt assign}'s are not cascaded.  More specifically, in
 \begin{center}
 \tt $Tu$ u = assign ( w )
 \end{center}
-if {\tt assign} is explcitly written
+if {\tt assign} is explicitly written
 and its result cannot be directly
 assigned to {\tt u}, then an implied {\tt assign} would be added
 making the statement
@@ -4263,7 +4263,7 @@ In the above
 \item {\tt r = \ldots}
 	\begin{tabular}[t]{@{}l}
 	is called a \key{deferred assignment} \\
-	({\tt r} is not preceeded by explicit qualifiers or type) \\
+	({\tt r} is not preceded by explicit qualifiers or type) \\
 	(implicitly {\tt r} has the qualifiers and type given by
 	call-prototype match) \\
         (see \pagref{DEFERRED-ASSIGNMENT} for other kinds of
@@ -4403,7 +4403,7 @@ function *READ* int32 r, adr r.adr = read ( adr A ):
     r.adr = A
 *READ* int32 x = read (1000)
     // Creates variable adr x.adr = 1000.  *READ* is a
-    // special varible qualifier: x is not given a value
+    // special variable qualifier: x is not given a value
     // by assignment, but automatically gets its value by
     // reading location x.adr.
 int32 y = read(2000)
@@ -4471,8 +4471,8 @@ int32 x3 = read from stack 2 ( address of x )
     // Both legal: `read from stack ...' prototype and call
     // arguments both have `*STACK*' qualifier.
     //
-    // First call does NOT propagage *STACK* to x2.adr.
-    // Second call propagages *STACK* to x3.adr.
+    // First call does NOT propagate *STACK* to x2.adr.
+    // Second call propagates *STACK* to x3.adr.
 \end{verbatim}\end{indpar}
 
 The \TT{*STACK*} qualifier is special in that it is not allowed to qualify
@@ -4615,7 +4615,7 @@ implied parentheses, thus identifying function call argument lists.
 At the end all the operators are quoted converting them into
 function terms (i.e., names of functions).
 
-Insertion of impliled parentheses is driven by an operator
+Insertion of implied parentheses is driven by an operator
 precedence table.  This in turn corresponds to operator
 syntax equations, which in turn can be derived from parser
 instructions.
@@ -4704,7 +4704,7 @@ in the expression and consists of just prefix operators.
 \item[(2)] The sequence is between {\em primaries}
 in the expression
 and contains a single infix operator optionally
-preceeded by just postfix operators and optionally followed by
+preceded by just postfix operators and optionally followed by
 just prefix operators.
 \item[(3)] The sequence is after the last {\em primary}
 in the expression and consists of
@@ -5047,33 +5047,33 @@ we get
     & so this rewrites as
     & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} \RX{+} y \IX{else} z \TT{\}} \\
 \IX{if} >x \RX{+}
-   & so this rewites as
+   & so this rewrites as
    & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \IX{else} z
          \TT{\}} \\
 \RX{+} x< \IX{else}
-   & so this rewites as
+   & so this rewires as
    & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \IX{else} z \TT{\}} \\
 \IX{if} < \IX{else}
-   & so this rewites as
+   & so this rewires as
    & \tt \TT{\{} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \TT{)} \IX{else} z \TT{\}} \\
 \TT{\{} < \IX{else}
-   & so this rewites as
+   & so this rewires as
    & \tt \TT{\{} \TT{(} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \TT{)} \IX{else} z \TT{\}} \\
 \IX{else} < \TT{\}}
-   & so this rewites as
+   & so this rewires as
    & \tt \TT{\{} \TT{(} $_x\!$\TT{(} x \IX{if} $_x\!$\TT{(} \RX{+} y \TT{)}$\!_x$
          \TT{)} \IX{else} z \TT{)} \TT{\}} \\
 \TT{\{} d \TT{\}}
     & \multicolumn{2}{l}{so this is the final result of the parse, with
-                         an error signalled by \IX{if} $_x\!$\TT{(}}
+                         an error signaled by \IX{if} $_x\!$\TT{(}}
 \end{tabular}
 \end{center}
 
 Notice that in the sequence \TT{)}$\!_x$ \TT{)} \IX{else}
-the $_x$ has been hidded from the \IX{else} by a \TT{)} without
+the $_x$ has been hidden from the \IX{else} by a \TT{)} without
 the $_x$, so this part of the expression is legal.  Similarly
 \TT{\{} \TT{(} $_x\!$\TT{(} is legal. The builtin
 operator precedence table dictates that the left operand of an \IX{else}
@@ -5409,10 +5409,10 @@ precedence table, can be computed from the following builtin
 `\skey{parser instruction}s':
 
 \begin{indpar}\begin{verbatim}
-define asymetric right associative "else" operator "else"
-include "else" expression in expresssion
+define asymmetric right associative "else" operator "else"
+include "else" expression in expression
 
-define asymetric binary "if" operator "if"
+define asymmetric binary "if" operator "if"
 include "if" expression in "else" left operand
 
 include "logical" expression in "if" right operand
@@ -5482,8 +5482,8 @@ define left associative "bitop" operator "|"
 include "bitop" expression in "compare" operand
 include "bitop" expression in "value" expression
 
-define asymetric left associative
-                      "shift" operators "<<", ">>"
+define asymmetric left associative
+                       "shift" operators "<<", ">>"
 include "shift" expression in "compare" operand
 include "shift" expression in "value" expression
 
@@ -5600,9 +5600,9 @@ have the syntax:
 \emkey{operator-type}
     \begin{tabular}[t]{rl}
     ::= & \ttkey{prefix} $|$ \ttkey{postfix} \\
-    $|$ & \ttkey{asymetric}\QMARK{} ~ \ttkey{binary} \\
-    $|$ & \ttkey{asymetric}\QMARK{} ~ \ttkey{left associative} \\
-    $|$ & \ttkey{asymetric}\QMARK{} ~ \ttkey{right associative} \\
+    $|$ & \ttkey{asymmetric}\QMARK{} ~ \ttkey{binary} \\
+    $|$ & \ttkey{asymmetric}\QMARK{} ~ \ttkey{left associative} \\
+    $|$ & \ttkey{asymmetric}\QMARK{} ~ \ttkey{right associative} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{expression-type} ::= {\em quoted-string}
@@ -5729,7 +5729,7 @@ creates: \begin{tabular}[t]{l}
 	 \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric binary} "$E$" operator "$N$"}
+{\tt define \TT{asymmetric binary} "$E$" operator "$N$"}
 \begin{indpar}
 creates: {\em E-expression} \begin{tabular}[t]{rl}
                             ::= & {\em E-left-operand} $N$
@@ -5737,7 +5737,7 @@ creates: {\em E-expression} \begin{tabular}[t]{rl}
                             \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric binary} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
+{\tt define \TT{asymmetric binary} "$E$" operators "$N1$"\TT{,} "$N2$" \ldots}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-expression} \begin{tabular}[t]{rl}
@@ -5773,7 +5773,7 @@ creates: \begin{tabular}[t]{l}
 	 \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric left associative} "$E$" operator "$N$"}
+{\tt define \TT{asymmetric left associative} "$E$" operator "$N$"}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-N-expression} \begin{tabular}[t]{rl}
@@ -5786,7 +5786,7 @@ creates: \begin{tabular}[t]{l}
 	 \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric left associative} \begin{tabular}[t]{l}
+{\tt define \TT{asymmetric left associative} \begin{tabular}[t]{l}
                                              "$E$" operators \\
 					     "$N1$"\TT{,} "$N2$" \ldots \\
 					     \end{tabular}}
@@ -5828,7 +5828,7 @@ creates: \begin{tabular}[t]{l}
 	 \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric right associative} "$E$" operator "$N$"}
+{\tt define \TT{asymmetric right associative} "$E$" operator "$N$"}
 \begin{indpar}
 creates: \begin{tabular}[t]{l}
          {\em E-N-expression} \begin{tabular}[t]{rl}
@@ -5841,7 +5841,7 @@ creates: \begin{tabular}[t]{l}
 	 \end{tabular}
 \end{indpar}
 
-{\tt define \TT{asymetric right associative} \begin{tabular}[t]{l}
+{\tt define \TT{asymmetric right associative} \begin{tabular}[t]{l}
                                              "$E$" operators \\
 					     "$N1$"\TT{,} "$N2$" \ldots \\
 					     \end{tabular}}
@@ -6095,7 +6095,7 @@ compilation, after parsing.
 There are other possible cases where the parser cannot catch
 errors that must be caught later by type checking.
 For example, consider the {\tt "else"} operator
-which is `{\tt asymetric right associative}'.  This means
+which is `{\tt asymmetric right associative}'.  This means
 that in a sequence of operands and alternating {\tt "else"}
 operators, the parser can make the rightmost operand different
 from the other operands.  But because it is based on an
@@ -6148,7 +6148,7 @@ in {\em expression-1}, but may appear any number of times, including
 zero, in {\em expression-2}.
 
 Explicit function names in an actual expression are not considered
-to be operators for the purposes of rewritting.  Thus the code
+to be operators for the purposes of rewriting.  Thus the code
 line
 \begin{center}
 \tt bool x = "not" ( y and z )
@@ -6190,7 +6190,7 @@ instructions in a module file also apply the files of bodies of that
 module.
 
 It is possible to export a block of {\em parser-instructions}.  This is
-done by labelling a {\em parser-block} `\ttmkey{external}{parser-block}'
+done by labeling a {\em parser-block} `\ttmkey{external}{parser-block}'
 in a {\em module-declaration}.  The instructions in the external
 {\em parser-blocks} of an exporting module can be imported by a
 \begin{indpar}
@@ -6621,7 +6621,7 @@ function was \TT{true} or \TT{false} and also record
 the value of the other expression input to the {\tt "if"}
 function when the {\em logical-expression} was \TT{true}.
 These functions use the {\em if-assignment} statement
-descripted in \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS}.
+described in \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS}.
 
 Given these definitions the compiler expands the example
 \begin{center}\label{IF-ELSE-EXAMPLE}
@@ -6877,8 +6877,8 @@ This is implemented by the following builtin code:
 \begin{indpar}\label{COMPARE-IMPLEMENTATION}\begin{verbatim}
 define type std *COMPARE-VALUE* as void
     // The expression `e1 "cop" e2' where cop is a comparison
-    // opertor has as its value a *COMPARE-VALUE* r that is a
-    // root of a cluster with members:
+    // operator has as its value a *COMPARE-VALUE* r that is
+    // a root of a cluster with members:
     //
     //    bool r.value  Result of comparison.
     //    T r.right op  Value of e2 (i.e., right operand) if
@@ -6888,7 +6888,7 @@ define type std *COMPARE-VALUE* as void
     // where T is the type of the operands and cannot itself
     // equal *COMPARE-VALUE*.
     //
-    // *COMPARE-VALUE*s are implicitly convertable to bool's.
+    // *COMPARE-VALUE*s are implicitly convertible to bool's.
 
 function Qs bool r = assign
                      (| qualifiers Qs |)
@@ -6995,18 +6995,18 @@ whose {\tt right op} member has type $T$.  Then the target types
 of the remaining operands in the compare operator sequence are determined.
 So if we have two candidates
 for $T$, $T1$ and $T2$, we only need to choose the correct one.
-By the rule cited, if $T1$ is implicitly convertable to $T2$, then
+By the rule cited, if $T1$ is implicitly convertible to $T2$, then
 the types of both operands of the rightmost compare operator
 in the $T1$ case will be
-implicitly convertable to the types of the operands in the $T2$ case
+implicitly convertible to the types of the operands in the $T2$ case
 and the rule will apply to reject $T2$.  Note that we do not need
 an `{\tt assign}' function for {\tt *COMPARE-VALUE*}
 values, as it suffices for the $T1$ `{\tt right op}' member to be
-implicitly convertable to the $T2$ `{\tt right op}' member.
+implicitly convertible to the $T2$ `{\tt right op}' member.
 
 Importantly comparison operators, such as \TT{==}, are
 \underline{not} defined for \TT{bool} operands.  Since many
-types are implicitly convertable to \TT{bool}
+types are implicitly convertible to \TT{bool}
 (see \pagref{IMPLIED-BOOL-CONVERSION}), defining comparison
 operators for \TT{bool} values would badly compromise compile time
 detection of programming errors.\footnote{Another difficulty
@@ -7623,7 +7623,7 @@ include {\em deferred-variables}:
 {\em result-variables} of containing {\em assignment-blocks},
 while {\em prototype-result-variable-names} are names of
 result variables of the prototype of a containing
-{\em function-delcaration} or {\em generic-declaration}
+{\em function-declaration} or {\em generic-declaration}
 (\pagref{FUNCTION-PROTOTYPE}).  These latter can contain
 {\em member-selectors}.
 
@@ -8878,7 +8878,7 @@ corresponding actual variable that are not explicitly given the
 prototype variable.  If {\tt Qs} is a qualifier of several prototype
 argument variables, the \underline{leftmost} of these
 is used, else if {\tt Qs} is a qualifier of several prototype result
-varialbes, the \underline{leftmost} of these is used.
+variables, the \underline{leftmost} of these is used.
 However any actual result variable used must have
 a known type, and any actual argument variable used must have
 a natural type (\pagref{NATURAL-TYPE}), else the call-prototype match
@@ -9324,7 +9324,7 @@ is `\key{ambiguity deficient}' (and will be
 rejected later, possibly for another reason).
 
 Note that for call-prototype matching purposes,
-\ttamkey{DEFFERED}{call-prototype matching} prototype
+\ttamkey{DEFERRED}{call-prototype matching} prototype
 arguments are ignored.  This is because they might never be compiled
 (see the end of section \itemref{EVALUATION-ORDER}).
 
@@ -10139,7 +10139,7 @@ be a prototype argument name with a matching actual argument $w$.
 Either $w.m$ must pre-exist the call, or if $v.m$ has a default
 value, then $w.m$ will be created with the default value before
 the call is made.  The call will create a new variable of the
-same name $w.m$ to supercede the pre-call $w.m$.
+same name $w.m$ to supersede the pre-call $w.m$.
 If $w.m$ does not pre-exist the call the $v.m$ has no default
 value, the call-prototype match fails.
 
@@ -10275,10 +10275,10 @@ Return
 the address of this memory.  The address viewed as an
 integer is an exact multiple of the {\tt alignment}.
 
-This function returns \TT{ERROR(INSUFFICIENT MEMORY)}
-if there is insuffient memory
-in the region to allocate the desired memory.  In this case
-{\tt s} is set to the maximum {\tt size} argument value that
+If there is insufficient memory
+in the region to allocate the desired memory,
+this function returns \TT{ERROR(INSUFFICIENT MEMORY)} and sets
+{\tt s} to the maximum {\tt size} argument value that
 would have succeeded.  Otherwise {\tt s} is set to the value
 of the {\tt size} argument.
 
@@ -10287,7 +10287,9 @@ to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than alignment of the
 region (usually the page size for static regions).  If the {\tt alignment}
 does not meet these criteria, \TT{ERROR(BAD ALIGNMENT)} is returned
-and {\tt size} is set to the largest legal alignment for the region.
+and {\tt s} is set to the largest legal alignment for the region.
+
+On success {\tt s} is set to the {\tt size} argument.
 
 Any memory allocated is initialized to zero.
 \end{indpar}
@@ -10844,7 +10846,7 @@ The syntax is:
 The result variables in a statement whose smallest containing block
 is a {\em global-area-block} are allocated to the global stack of
 the global area named by the {\em global-area-block}, instead of
-being alocated to the current stack.  The `{\tt allocate to global}'
+being allocated to the current stack.  The `{\tt allocate to global}'
 function (\pagref{ALLOCATE-TO-GLOBAL}) can also be used to allocate
 data to the global stack.  All other result variables are allocated
 as normal to the current stack (which is not a global stack).
@@ -10858,7 +10860,7 @@ are effectively exported if and only if their {\em global-area-name} is.
 In order accessed a global area it must be named in an
 {\em extern-statement}:
 \begin{indpar}
-\emkey{extern-statment} ::= \\
+\emkey{extern-statement} ::= \\
 \hspace*{3em}\begin{tabular}[t]{@{}l}
 	\TT{extern} {\em global-area-abbreviation}
 	            \TT{is global} {\em global-area-name} \TT{:} \\
@@ -10964,7 +10966,7 @@ A global area may exist at run time or at compile time or both.
 For an area defined by a top level {\em global-area-block}, this is
 dictated by the {\em global-area-options} on the
 {\em global-area-block}.  No options indicates run-time only, the default.
-The \TT{*COMPILE-TIME*} option indiates both compile-time and run-time.
+The \TT{*COMPILE-TIME*} option indicates both compile-time and run-time.
 The \TT{*COMPILE-\EOL TIME-\EOL ONLY*} option indicates compile-time only.
 The {\em global-area-options} on a continuing {\em global-area-block}
 must be identical (except for ordering) to those on the continued
@@ -12044,7 +12046,7 @@ function \ttstdmkey{copy}{vectors} \\
 
 \begin{indpar}
 Copy the vector pointed at by {\tt p1} to the vector pointed at by
-{\tt p2}.  Values of type {\tt p1.type} must be convertable to
+{\tt p2}.  Values of type {\tt p1.type} must be convertible to
 values of type {\tt p2.type}.  If the two vectors overlap,
 the types {\tt p1.type} and {\tt p2.type} must have the same
 size (in which case if the {\tt p2} vector begins after
@@ -12401,10 +12403,10 @@ the very beginning of a read operation, and then at any point can
 read the pre-version and check that it matches the post-version value
 read to see if there has been any writing during the read operation.
 Thus the read operation can check at any point
-whether the values read so far are consistant.%
+whether the values read so far are consistent.%
 \footnote{This is an old method that appears, for example, in 
 an article of Leslie Lamport, `Concurrent Reading and Writing',
-Comminications of the ACM, vol 20, no 11, pp 806--811, Nov 1977.
+Communications of the ACM, vol 20, no 11, pp 806--811, Nov 1977.
 A variant uses a single version value incremented at both the
 beginning and end of an update so this value is odd during the update
 and even when no update is in progress.}
@@ -12526,7 +12528,7 @@ Lastly the write instructions are executed as before, with the actual
 writes being done in pass 3.
 
 Now there are possible failures other than an operation error:
-a lock may not be acquireable or a compare may fail.  If this happens
+a lock may not be acquirable or a compare may fail.  If this happens
 (in pass 2) a failure \TT{atomic code} is returned
 (instead of an operation error code), along with the index of the
 failing instruction (and no writes are executed).
@@ -12594,8 +12596,8 @@ Pointer {\tt .type}'s must have a numeric type as their underlying type
 and pointers must point at vectors with a single element.
 For {\em compare-instructions} and {\em atomic-write-instructions},
 the {\tt .type} must be \TT{uns32}, and the
-vector element address must be aligned on
-a 4-byte bounary.
+vector element address must be aligned on a {\tt size of uns32}
+byte boundary.
 \end{indpar}
 
 \end{indpar}
@@ -12646,7 +12648,7 @@ argument values of the {\em atomic-instructions}, must be compiled
 individually for every
 {\em atomic-block} execution.
 
-\hspace*{-0.3in}{\bf Pass 2, Test Pass}: Asyncrhonous interrupts are
+\hspace*{-0.3in}{\bf Pass 2, Test Pass}: Asynchronous interrupts are
 disabled at the beginning of pass 2, and are not re-enabled until
 the {\em atomic-block} terminates.
 
@@ -12671,7 +12673,7 @@ to that in which they were acquired, and interrupts are then re-enabled.
 
 Upon successful termination, the returned values are:
 \begin{center}
-{\tt atomic code = success},~~~~ {\tt pass =}undefined,~~~~
+{\tt atomic code = success},~~~~ {\tt pass = }undefined,~~~~
 {\tt index = }undefined
 \end{center}
 \end{indpar}
@@ -12685,7 +12687,9 @@ The lock is a binary (1-bit equivalent) test-and-set lock provided by the
 underlying runtime system.  Locks are allocated to groups of processes
 that share memory, so that if any process in the group acquires
 the lock, other processes in the group cannot.  Lock-IDs are allocated
-by the runtime system using an interface that is not part of the L-Language.
+by the runtime system using an interface that is not part of the L-Language.%
+\footnote{On modern INTEL 64 processors one might use a bit test-and-set
+instruction for a lock and allocate each lock its own cache line.}
 
 In pass 1 a {\em lock-instruction} checks that the lock-ID is valid
 for the current process.  It is an operation error if it is not.
@@ -12718,8 +12722,6 @@ The {\em compare-instruction} reads the \TT{uns32}
 value of the only element of the {\em atomic-pointer} designated
 vector and compares it to the {\em atomic-value}.  The instruction
 succeeds if the values are equal, and fails otherwise.
-
-For specifically:
 
 In pass 1 the vector pointed at by the {\em atomic-pointer} is checked
 to ensure that it has

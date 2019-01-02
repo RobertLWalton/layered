@@ -174,7 +174,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 1, 2019
+January 2, 2019
  
 \end{center}
 
@@ -10227,11 +10227,14 @@ address pointing directly at the body pointer is the norm.
 Builtin function prototypes are defined to allocate static and dynamic memory
 and deallocate dynamic memory.  These functions are actually provided
 by the runtime system, and may be defined in different ways to support
-different memory allocation/deallocation features.  This document
-assumes that stacks may be allocated as dynamic blocks, but an implementation
-may choose to implement stacks in static memory and use
+different memory allocation/deallocation features.
+
+This document assumes\label{DYNAMIC-STACKS-AND-GLOBAL-AREAS}
+that stacks and global areas are allocated as dynamic blocks,
+but an implementation
+may choose to implement stacks and global areas in static memory and use
 function prototypes different from those described in this document
-for allocating memory to a stack.
+for allocating memory to a stack or global area.
 
 \subsection{Memory Regions}
 \label{MEMORY-REGIONS}
@@ -10293,7 +10296,7 @@ this function returns \TT{ERROR(INSUFFICIENT MEMORY)} and sets
 would have succeeded.  Otherwise {\tt s} is set to the value
 of the {\tt size} argument.
 
-If the {\tt alignment} is omitted or is given as 0 it is taken
+If the {\tt alignment} is omitted or is given as \TT{0} it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than alignment of the
 region (usually the page size for static regions).  If the {\tt alignment}
@@ -10462,7 +10465,7 @@ If there is insufficient memory in the region to allocated the desired block,
 \TT{ERROR(\EOL INSUFFICIENT MEMORY)} is returned in {\tt r} and
 the maximum size that could be successfully allocated is returned in {\tt s}.
 
-If the {\tt alignment} is omitted or is given as 0 it is taken
+If the {\tt alignment} is omitted or is given as \TT{0} it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than the alignment of the
 region (by default the page size for dynamic regions).  If the {\tt alignment}
@@ -10538,7 +10541,7 @@ If there is insufficient memory,
 \TT{ERROR(\EOL INSUFFICIENT MEMORY)} is returned in {\tt r} and
 the maximum size that could be successfully allocated is returned in {\tt s}.
 
-If the {\tt alignment} is omitted or is given as 0 it is taken
+If the {\tt alignment} is omitted or is given as \TT{0} it is taken
 to be equal to \TT{size}.  The explicit or implied
 alignment must be a power of two not greater than the alignment of the
 block being expanded (or if the block is being newly allocated, the
@@ -10613,7 +10616,7 @@ deallocated.  The main reason this is important is that stack addresses
 can be passed out of a block with a bound stack to its containing block,
 but cannot be passed out of a block with a free stack to its containing
 or calling block.  This is implemented by giving certain
-variables containing stack addresses the \TT{*STACK*} qualifier: see
+values containing stack addresses the \TT{*STACK*} qualifier: see
 Section~\itemref{THE-STACK-QUALIFIER}.
 
 Stacks of out-of-line function executions
@@ -10645,7 +10648,8 @@ allocated will not be freed until after the loop terminates, as the
 iteration subblock stack is bound, as are the
 `\TT{initially}' and `\TT{finally}' subblock stacks.
 
-Thread stacks and global area stacks are dynamic blocks that can be moved,
+Thread stacks and global area stacks are dynamic blocks that can be moved
+(\pagref{DYNAMIC-STACKS-AND-GLOBAL-AREAS}),
 and all other stacks are allocated within these.  Thus all stacks are
 within a dynamic block.  Stacks cannot move independently, but move
 only when their dynamic block moves.  Stack addresses are dynamic
@@ -10683,12 +10687,23 @@ Return the offset of the block within the current stack's dynamic
 block as {\tt r.offset},
 and the address of the dynamic block's body pointer as {\tt r.base.adr}.
 
-If the {\tt alignment} is omitted or is given as 0 it is taken
-to be equal to \TT{size}.  The explicit or implied
-alignment must be a power of two not greater than {\tt 64}
-(which is the alignment of a dynamic block containing stacks).
+If there is not enough memory,
+{\tt p.base.adr} is set to \TT{ERROR(\EOL IN\-SUF\-FI\-CIENT MEMORY)}
+and {\tt p.base.begin} is set to the largest {\tt size}
+that could be allocated.  Dynamic bodies may be moved if the function
+call has this error.
 
-The allocated memory is initialized to zero.
+
+If the {\tt alignment} is omitted or is given as \TT{0} it is taken
+to be equal to \TT{size}.  The explicit or implied
+alignment must be a power of two not greater than the alignment
+of the dynamic block containing the stack (which is typically
+\TT{64} or greater).  If the alignment does not met these criteria,
+{\tt p.base.adr} is set to \TT{ERROR(BAD ALIGNMENT)}
+and {\tt p.base\EOL .begin} is set to the largest alignment
+that would be allowed.
+
+Any allocated memory is initialized to zero.
 
 The `\TT{allocate to stack}' inline function may move dynamic blocks.
 Therefore it ends by executing a
@@ -10705,12 +10720,6 @@ free stack.
 
 The memory is freed when the free stack to which it is allocated
 is freed (\itemref{STACKS}).
-
-Sets {\tt s} to the value of the {\tt size} argument on success.
-On failure does nothing except possibly move dynamic blocks, and returns
-in {\tt s} the maximum value of {\tt size} that would be successful
-(which will be less than the {\tt size} argument), and returns
-\TT{NULL} as the value of {\tt r.base.adr}.
 
 \end{indpar}
 
@@ -11531,7 +11540,7 @@ active out-of-line call recorded in the program stack, counting
 from the top of the stack (most recent entry).  For
 {\tt i == 0} this is the out-of-line call that called the
 out-of-line function which in turn called this builtin
-{\tt call entry} function.  If 0 is returned, {\tt i} equals
+{\tt call entry} function.  If \TT{0} is returned, {\tt i} equals
 or exceeds the number of out-of-line calls in the stack.
 \end{indpar}
 
@@ -11640,7 +11649,7 @@ All these functions do nothing but the following on an error:
 {\tt p.base.adr} is set to \TT{ERROR(\EOL IN\-SUF\-FI\-CIENT MEMORY)}
 and {\tt p.base.begin} is set to the largest value of {\tt N}
 that could be allocated.  Dynamic bodies may be moved if
-an function allocating a dynamic body or to the end of a dynamic
+a function call allocating a dynamic body or to the end of a dynamic
 body has this error.
 
 {\bf Bad Alignment}~~The elements of the vector could not be

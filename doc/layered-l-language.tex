@@ -91,6 +91,9 @@
 \newcommand{\ttstdkey}[1]{\TT{std #1}\index{#1@{\tt std #1}}}
 \newcommand{\ttstdlkey}[2]{\TT{std #1 #2}\index{#1@{\tt std #1}!#2@{\tt #2}}}
 \newcommand{\ttstdmkey}[2]{\TT{std #1}\index{#1@{\tt std #1}!#2}}
+\newcommand{\ttstdindex}[1]{\index{#1@{\tt std #1}}}
+\newcommand{\ttstdlindex}[2]{\index{#1@{\tt std #1}!#2@{\tt #2}}}
+\newcommand{\ttstdmindex}[2]{\index{#1@{\tt std #1}!#2}}
 
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
@@ -2184,7 +2187,8 @@ Returns the type $T$ error value with given error code.
 Returns {\tt ERROR(0)}.  Used to indicate a value that is missing,
 but is not necessarily associated with any error.
 \end{indpar}
-{\tt function bool r = \ttstdkey{is error} ( $T$ value ) }
+{\tt function bool r =
+    \TT{std} ( $T$ value ) \TT{is error}\ttstdindex{is error} }
 \begin{indpar}
 Returns \TT{true} if and only if {\tt value} is an error value.
 \end{indpar}
@@ -3005,13 +3009,15 @@ The information about enumeration set and list types can be determined
 at compile-time by:
 
 \begin{indpar}
-{\tt function bool r = \ttkey{is enumeration set type} ( type T )}
+{\tt function bool r = \TT{std} ( type T ) \TT{is enumeration set type}%
+                                    \ttstdindex{is enumeration set type}}
 \begin{indpar}
 Returns \TT{true} if {\tt T} is an enumeration set type and \TT{false}
 otherwise.
 \end{indpar}
 
-{\tt function bool r = \ttkey{is enumeration list type} ( type T )}
+{\tt function bool r = \TT{std} ( type T ) \TT{is enumeration list type}%
+                                    \ttstdindex{is enumeration list type}}
 \begin{indpar}
 Returns \TT{true} if {\tt T} is an enumeration list type and \TT{false}
 otherwise.
@@ -3415,12 +3421,17 @@ Only some of these functions have a default declaration, but for
 those that do, the default declaration is in the \TT{std} module.
 
 \begin{indpar}
-{\tt function bool r = std ( type t == $T$ ) \ttkey{is uns}} \\
-{\tt function bool r = std ( type t == $T$ ) \ttkey{is int}} \\
-{\tt function bool r = std ( type t == $T$ ) \ttkey{is float}} \\
-{\tt function bool r = std ( type t == $T$ ) \ttkey{is numeric}} \\
-{\tt function bool r = std ( type t == $T$ )
-				\ttkey{is implemented numeric}}
+{\tt function bool r = \TT{std} ( type t == $T$ )
+                                  \TT{is uns}\ttstdindex{is uns}} \\
+{\tt function bool r = \TT{std} ( type t == $T$ )
+                                  \TT{is int}\ttstdindex{is int}} \\
+{\tt function bool r = \TT{std} ( type t == $T$ )
+                                  \TT{is float}\ttstdindex{is float}} \\
+{\tt function bool r = \TT{std} ( type t == $T$ )
+                                  \TT{is numeric}\ttstdindex{is numeric}} \\
+{\tt function bool r = \TT{std} ( type t == $T$ )
+                                  \TT{is implemented numeric}%
+				  \ttstdindex{is implemented numeric}}
 \begin{indpar}
 These functions test {\tt t} in the current scope to see if it is
 an \TT{uns$x$} type, an \TT{int$x$} type, a \TT{float$x$} type,
@@ -11408,7 +11419,8 @@ functions is not a compile time value.  The results returned by these
 functions are compile time values.
 
 \begin{indpar}
-{\tt function bool r = std ( name N ) \ttkey{is abbreviation}} \\
+{\tt function bool r = \TT{std} ( name N )
+                       \TT{is abbreviation}\ttstdindex{is abbreviation}} \\
 {\tt function name r = \ttstdkey{replacement of} ( name N )} \\
 {\tt function name r = \ttstdkey{final replacement of} ( name N )}
 \begin{indpar}
@@ -11883,7 +11895,7 @@ The following builtin functions can be used to access vector elements:
 function intadr r = \\
 ~~~~\ttstdmkey{size of}{pointer}
             ( pointer p, intadr p.begin, intadr p.end, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~type p.type ) \\
+~~~~~~~~~~~~~~~~~~type p.type ) \\
 \end{tabular}}
 
 \begin{indpar}
@@ -11893,8 +11905,8 @@ in the vector pointed at by {\tt p}.
 
 {\tt\begin{tabular}{@{}l}
 function bool r = \\
-~~~~( pointer p, intadr p.begin, intadr p.end )
-    \ttstdmkey{is empty}{pointer}
+~~~~\TT{std} ( pointer p, intadr p.begin, intadr p.end )
+    \TT{is empty}\ttstdmindex{is empty}{pointer}
 \end{tabular}}
 
 \begin{indpar}

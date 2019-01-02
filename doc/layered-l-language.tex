@@ -8048,7 +8048,7 @@ are used to call out-of-line functions:
 	\begin{tabular}[t]{rl}
 	::= & \ttakey{UNCHECKED} $|$ \ttakey{REVERSE}
 	                          $|$ \ttakey{NO-RELOAD} \\
-	$|$ & \ttakey{COMPILE-TIME} $|$ \ttakey{COMPILE-TIME-ONLY}
+	$|$ & \ttakey{COMPILE-AND-RUN-TIME} $|$ \ttakey{COMPILE-TIME}
 	\end{tabular}
 \\[1ex]
 \emkey{argument-assignment-statement} ::=
@@ -8088,11 +8088,11 @@ upon returning from the called function, but the
 If the \TT{*NO-RELOAD*} is given, the \TT{*UNCHECKED*} option must
 also be given.
 
-If the \TT{*COMPILE-TIME*} option is given, the call
+If the \TT{*COMPILE-AND-RUN-TIME*} option is given, the call
 will be made at compile time only if the argument values are available
 at compile time, and will otherwise be made at run time.  When the call
 is made determines whether any result variable values are determined
-at compile time.  If the \TT{*COMPILE-TIME-ONLY*} option is given,
+at compile time.  If the \TT{*COMPILE-TIME*} option is given,
 the call is made at compile time, and the argument values must be
 available at compile time.
 
@@ -8115,8 +8115,8 @@ An out-of-line function type declaration has the form:
 \\[0.5ex]
 \emkey{function-declaration-option}
 	\begin{tabular}[t]{rl}
-	::= & \ttakey{COMPILE-TIME} \\
-	$|$ & \ttakey{COMPILE-TIME-ONLY}
+	::= & \ttakey{COMPILE-AND-RUN-TIME} \\
+	$|$ & \ttakey{COMPILE-TIME}
 	\end{tabular}
 \end{indpar}
 
@@ -8216,10 +8216,10 @@ names in the context of the declaration, but the {\em function-name}
 may not.
 
 For the function to be callable at compile time, the
-\TT{*COMPILE-TIME*} or \TT{*COMPILE-\EOL TIME-\EOL ONLY*} options must be given.
+\TT{*COMPILE-AND-RUN-TIME*} or \TT{*COM\-PILE-\EOL TIME*} options must be given.
 See Section~\itemref{COMPILE-TIME-ASSIGNMENT-STATEMENTS}.
 A \TT{*COMPILE-\EOL TIME*} out-of-line function will also be callable at
-run time, but a \TT{*COMPILE-\EOL TIME-\EOL ONLY*}
+run time, but a \TT{*COMPILE-\EOL TIME*}
 out-of-line function will only be callable
 at compile time.
 
@@ -10750,6 +10750,10 @@ as enabled, but is skipped.  Then when the containing block
 terminates, all its enabled unwind blocks are executed in
 the reverse order of that in which they were enabled.
 
+An unwind block can use result variables of its containing block
+if and only if these are assigned values before the unwind block
+is enabled.
+
 Unwind blocks are used to close or deallocate things that were opened.
 For example, right after a statement that opens a file there may be
 an unwind block that closes the file.  This ensures that the file
@@ -10777,33 +10781,34 @@ of a block occurs at the end of the block if
 the block has not executed a \TT{*THROW*} or an abnormally
 terminating subblock.
 
-Any enabled \TT{*UNWIND*} subblocks of an abnormally terminating
+Any enabled unwind subblocks of an abnormally terminating
 block are executed in reverse order, just as they would be if
 the block were terminating normally.  No other part of the block
 is executed.
 
-If an \TT{*UNWIND*} subblock executing in an abnormally terminating
+If an unwind subblock executing in an abnormally terminating
 containing block \TT{B}
 executes a \TT{*CATCH*} statement, the termination of this
 containing block \TT{B}
 is changed from abnormal to normal.  This means
 that \TT{B}'s containing block \TT{C} will resume when the now
 normally terminating block \TT{B} finishes terminating.
-However, \TT{B} will not execute anything but enabled \TT{*UNWIND*}
+However, \TT{B} will not execute anything but enabled unwind
 subblocks, as it is still terminating.
 
 Machine errors, i.e. memory faults, invoke callable functions
 which can record error information and execute a \TT{*THROW*}.
 Similarly detected programming or data errors can record
-error information and execute a \TT{*THROW*}.  An \TT{*UNWIND*}
+error information and execute a \TT{*THROW*}.  An unwind
 block can look at recorded error information and decide whether
 or not to execute a \TT{*CATCH*}.
 
 If a block has result variables it must assign, then these need not be
 assigned if the block terminates abnormally, as they will not
-be visible to enabled \TT{*UNWIND*} blocks.  However, if a block \TT{B}
+be visible to enabled unwind blocks in the block containing
+the abnormally terminating block.  However, if a block \TT{B}
 that is terminating abnormally executes a \TT{*CATCH*} statement in
-one of its \TT{*UNWIND*} subblocks,
+one of its unwind subblocks,
 all result variables that block \TT{B} must assign must be given values, even
 though part of block \TT{B} may not have executed.  The compiler
 will check this, and will only permit code that passes straight forward
@@ -10811,13 +10816,13 @@ compiler checks.
 
 There are two ways to ensure correct code.  The first is to 
 set all block result variables either in or before the
-\TT{*UNWIND*} block that contains the \TT{*CATCH*} statement.
+unwind block that contains the \TT{*CATCH*} statement.
 The second is to use the special variable
-\ttakey{LAST-ENABLED-UNWIND} inside the \TT{*UNWIND*} block.
-This variable is \TT{true} if and only if the \TT{*UNWIND*}
-block is the last \TT{*UNWIND*} block enabled in its containing
+\ttakey{LAST-ENABLED-UNWIND} inside the unwind block.
+This variable is \TT{true} if and only if the unwind
+block is the last unwind block enabled in its containing
 block, and so if the variable is \TT{true}, any containing
-block result variables set after the \TT{*UNWIND*} block need to be
+block result variables set after the unwind block need to be
 set.  The compiler will accept a statement of the form:
 \begin{indpar}\begin{verbatim}
 if:
@@ -10826,7 +10831,7 @@ if:
         result-variable-2 = ...
 	. . . . . . . . . . . .
 \end{verbatim}\end{indpar}
-where the result variables set are those set after the \TT{*UNWIND*}
+where the result variables set are those set after the unwind
 block, thus satisfying the requirement that all result variables be set.
 
 [TBD: Maybe default clauses should exist for all block style
@@ -10857,8 +10862,8 @@ The syntax is:
 	\TT{global} {\em global-area-name} \TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{} \\
 	\end{tabular} \\
-\emkey{global-area-option} ::= \ttakey{COMPILE-TIME}
-                           $|$ \ttakey{COMPILE-TIME-ONLY} \\
+\emkey{global-area-option} ::= \ttakey{COMPILE-AND-RUN-TIME}
+                           $|$ \ttakey{COMPILE-TIME} \\
 \emkey{global-area-name} ::= {\em module-abbreviation}\QMARK{}
 			     {\em block-name}
 \end{indpar}
@@ -10877,7 +10882,7 @@ as non-global {\em variable-names}.  The names of variables in a global
 area do not follow the export/import rules of non-global variables, but
 are effectively exported if and only if their {\em global-area-name} is.
 
-In order accessed a global area it must be named in an
+In order to access a global area it must be named in an
 {\em extern-statement}:
 \begin{indpar}
 \emkey{extern-statement} ::= \\
@@ -10986,8 +10991,8 @@ A global area may exist at run time or at compile time or both.
 For an area defined by a top level {\em global-area-block}, this is
 dictated by the {\em global-area-options} on the
 {\em global-area-block}.  No options indicates run-time only, the default.
-The \TT{*COMPILE-TIME*} option indicates both compile-time and run-time.
-The \TT{*COMPILE-\EOL TIME-\EOL ONLY*} option indicates compile-time only.
+The \TT{*COMPILE-AND-RUN-TIME*} option indicates both compile-time and run-time.
+The \TT{*COMPILE-TIME*} option indicates compile-time only.
 The {\em global-area-options} on a continuing {\em global-area-block}
 must be identical (except for ordering) to those on the continued
 {\em global-area-block}.
@@ -11004,7 +11009,7 @@ A non-top level {\em global-area-block}
 is executed the \underline{first time}
 its smallest containing subblock is executed, either at compile-time
 or at run-time.  Non-top level
-{\em global-area-blocks} do not have {\em global-area-options}.
+{\em global-area-blocks} must not have {\em global-area-options}.
 
 The {\em global-area-name} of a global area is allocated as a
 result variable of the first (non-continuing) {\em global-area-block}
@@ -11016,8 +11021,8 @@ The relevant definitions are:
 define type \ttstdkey{global area}~as \ldots \\
 define abbreviation \ttkey{global area} \ABV{} `std global area'
 \\[1ex]
-function adr body pointer = \ttstdkey{dynamic block of} \\
-\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( global area g )
+function adr body pointer address = \ttstdkey{dynamic block of} \\
+\TS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~( global area g )
 }
 
 \begin{indpar}

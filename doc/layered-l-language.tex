@@ -174,7 +174,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 2, 2019
+January 3, 2019
  
 \end{center}
 
@@ -3539,14 +3539,24 @@ elements are of type $T$, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
 
-{\tt function *UNCHECKED* $T$ r = $ma$\QMARK{} \ttkey{no value}}\label{NO-VALUE}
+{\tt function *UNCHECKED* $T$ r = $ma$\QMARK{} \ttalkey{NO}{VALUE}}%
+    \label{NO-VALUE}
 \begin{indpar}
 This is a special compile-time value that marks any variable
 having it as not having a value that can be input to any builtin
 operation that does not simply copy the value to another variable
 (e.g., direct assignments, see \pagref{DIRECT-ASSIGNMENT-TYPE}).
-It is a compile error for an operation that does not simply copy the
+It is implemented by simply not assigning any value to a variable
+that the compiler knows has been assigned \TT{*NO* *VALUE*}, though
+if the compiler cannot figure out if a value being copied is such
+a value, the compiler will copy the value.
+
+It is an error for an operation that does not simply copy the
 value to another variable to attempt to process this value as input.
+If the compiler can discover that this is being done it is a compile
+error, but otherwise it is an undetected error, hence an unchecked
+code error.
+
 This function is builtin for \underline{all} types $T$.
 \end{indpar}
 
@@ -6592,7 +6602,7 @@ define type std *IF-VALUE* as void
     //
     //    bool r.valid  Value of b.
     //    T r.value     Value of e if r.valid true.
-    //                  *UNCHECKED* no value of type T
+    //                  *UNCHECKED* ( *NO* *VALUE* ) of type T
     //                  if r.valid false.
     //
     // where T is the type of the e value and cannot itself
@@ -6608,7 +6618,7 @@ function *IF-VALUE* r, T r.value, bool r.valid =
                     r.value = arg1
                 r.valid = true
         else:
-            r.value = *UNCHECKED* ( no value )
+            r.value = *UNCHECKED* ( *NO* *VALUE* )
             r.valid = false
 
 function T r =
@@ -6660,7 +6670,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \tt ~~~~~~~~tmp2.value = $e1$ \\
 \tt ~~~~~~tmp2.valid = true \\
 \tt ~~~~else: \\
-\tt ~~~~~~tmp2.value = *UNCHECKED* ( no value ) \\
+\tt ~~~~~~tmp2.value = *UNCHECKED* ( *NO* *VALUE* ) \\
 \tt ~~~~~~tmp2.valid = false \\
 \end{tabular}
 
@@ -6691,7 +6701,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \tt ~~~~~~~~~~~~~~~~~~tmp4.value = $e2$ \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = true \\
 \tt ~~~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.value = *UNCHECKED* ( no value ) \\
+\tt ~~~~~~~~~~~~~~~~tmp4.value = *UNCHECKED* ( *NO* *VALUE* ) \\
 \tt ~~~~~~~~~~~~~~~~tmp4.valid = false \\
 \end{tabular}
 
@@ -6924,7 +6934,7 @@ function *COMPARE-VALUE* r, T r.right op, bool r.value =
                 r.right op = arg2
             r.value = arg1.right op "<" r.right op
         else:
-            r.right op = *UNCHECKED* ( no value )
+            r.right op = *UNCHECKED* ( *NO* *VALUE* )
             r.value = false
 
 function bool r = ( T arg1 ) "<" ( T arg2 ):
@@ -6980,7 +6990,7 @@ and the compiler expands this to the following
 \tt ~~~~~~~~~~~~~~~~tmp4.value = \\
 \tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op "<" tmp4.right op \\
 \tt ~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.right op = *UNCHECKED* ( no value ) \\
+\tt ~~~~~~~~~~~~~~~~tmp4.right op = *UNCHECKED* ( *NO* *VALUE* ) \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = false \\
 \end{tabular}
 
@@ -7062,7 +7072,7 @@ generic std define compare operator ( type T, name OP )
                     r.value =
                         M ( arg1.right op OP r.right op )
                 else:
-                    r.right op = *UNCHECKED* ( no value )
+                    r.right op = *UNCHECKED* ( *NO* *VALUE* )
                     r.value = false
 \end{verbatim}\end{indpar}
 
@@ -7876,7 +7886,7 @@ Possible \TT{else} subblocks for this example are:
 or
 \begin{indpar}\begin{verbatim}
         else:
-            result = *UNCHECKED* ( no value )
+            result = *UNCHECKED* ( *NO* *VALUE* )
 \end{verbatim}\end{indpar}
 or
 \begin{indpar}\begin{verbatim}

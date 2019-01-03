@@ -6612,12 +6612,12 @@ define type std *IF-VALUE* as void
     // at compile time to be false.
 
 function *IF-VALUE* r, T r.value, bool r.valid =
-        (| type T, qualifiers Qs |)
+        (| type T |)
         ( *UNUSED* arg1 ) "if" ( bool arg2 == false )
         [| T != std *IF-VALUE* |]:
     if:
-	r.value = *UNCHECKED* T ( *NO* *VALUE* )
-	r.valid = false
+        r.value = *UNCHECKED* T ( *NO* *VALUE* )
+        r.valid = false
 
 function *IF-VALUE* r, Qs T r.value, bool r.valid =
         (| type T, qualifiers Qs |)
@@ -6634,16 +6634,18 @@ function *IF-VALUE* r, Qs T r.value, bool r.valid =
 
 function Qs T r =
         (| type T, qualifiers Qs |)
-        ( *IF-VALUE* arg1, Qs T arg1.value, bool arg1.valid == true )
+        ( *IF-VALUE* arg1, Qs T arg1.value,
+                           bool arg1.valid == true )
         "else"
         ( *UNUSED* arg2 )
         [| T != std *IF-VALUE* |]
     if:
-	r = arg1.value
+        r = arg1.value
 
 function Q1s Q2s T r =
         (| type T, qualifiers Q1s, qualifiers Q2s |)
-        ( *IF-VALUE* arg1, Q1s T arg1.value, bool arg1.valid )
+        ( *IF-VALUE* arg1, Q1s T arg1.value,
+                           bool arg1.valid )
         "else"
         ( *DEFERRED* Q2s T arg2 )
         [| T != std *IF-VALUE* |]
@@ -7010,7 +7012,8 @@ and the compiler expands this to the following
 \tt ~~~~~~~~~~~~~~~~tmp4.value = \\
 \tt ~~~~~~~~~~~~~~~~~~~~tmp3.right op "<" tmp4.right op \\
 \tt ~~~~~~~~~~~~else: \\
-\tt ~~~~~~~~~~~~~~~~tmp4.right op = *UNCHECKED* ( *NO* *VALUE* ) \\
+\tt ~~~~~~~~~~~~~~~~tmp4.right op = \\
+\tt ~~~~~~~~~~~~~~~~~~~~*UNCHECKED* ( *NO* *VALUE* ) \\
 \tt ~~~~~~~~~~~~~~~~tmp4.value = false \\
 \end{tabular}
 

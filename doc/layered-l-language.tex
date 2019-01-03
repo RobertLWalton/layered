@@ -3539,7 +3539,7 @@ elements are of type $T$, and the function wishes to give the elements an
 initial default value.
 \end{indpar}
 
-{\tt function *UNCHECKED* $T$ r = $ma$\QMARK{} \ttalkey{NO}{VALUE}}%
+{\tt function *UNCHECKED* $Qs$ $T$ r = $ma$\QMARK{} \ttalkey{NO}{VALUE}}%
     \label{NO-VALUE}
 \begin{indpar}
 This is a special compile-time value that marks any variable
@@ -3557,7 +3557,8 @@ If the compiler can discover that this is being done it is a compile
 error, but otherwise it is an undetected error, hence an unchecked
 code error.
 
-This function is builtin for \underline{all} types $T$.
+This function is builtin for \underline{all} types $T$ and sets of
+value qualifiers $Qs$.
 \end{indpar}
 
 \end{indpar}
@@ -6601,16 +6602,26 @@ define type std *IF-VALUE* as void
     // *IF-VALUE* r that is a root of a cluster with members:
     //
     //    bool r.valid  Value of b.
-    //    T r.value     Value of e if r.valid true.
-    //                  *UNCHECKED* ( *NO* *VALUE* ) of type T
+    //    Qs T r.value  Value of e if r.valid true.
+    //                  *UNCHECKED* ( *NO* *VALUE* )
     //                  if r.valid false.
     //
     // where T is the type of the e value and cannot itself
-    // equal *IF-VALUE*.
+    // equal *IF-VALUE*, and Qs are the value qualifiers of
+    // the e value, or is the empty set if r.valid is known
+    // at compile time to be false.
 
 function *IF-VALUE* r, T r.value, bool r.valid =
-        (| type T |)
-        ( *DEFERRED* T arg1 ) "if" ( bool arg2 )
+        (| type T, qualifiers Qs |)
+        ( *UNUSED* arg1 ) "if" ( bool arg2 == false )
+        [| T != std *IF-VALUE* |]:
+    if:
+	r.value = *UNCHECKED* T ( *NO* *VALUE* )
+	r.valid = false
+
+function *IF-VALUE* r, Qs T r.value, bool r.valid =
+        (| type T, qualifiers Qs |)
+        ( *DEFERRED* Qs T arg1 ) "if" ( bool arg2 )
         [| T != std *IF-VALUE* |]:
     if:
         arg2:
@@ -6618,14 +6629,23 @@ function *IF-VALUE* r, T r.value, bool r.valid =
                     r.value = arg1
                 r.valid = true
         else:
-            r.value = *UNCHECKED* ( *NO* *VALUE* )
+            r.value = *UNCHECKED* Qs T ( *NO* *VALUE* )
             r.valid = false
 
-function T r =
-        (| type T |)
-        ( *IF-VALUE* arg1, T arg1.value, bool arg1.valid )
+function Qs T r =
+        (| type T, qualifiers Qs |)
+        ( *IF-VALUE* arg1, Qs T arg1.value, bool arg1.valid == true )
         "else"
-        ( *DEFERRED* T arg2 )
+        ( *UNUSED* arg2 )
+        [| T != std *IF-VALUE* |]
+    if:
+	r = arg1.value
+
+function Q1s Q2s T r =
+        (| type T, qualifiers Q1s, qualifiers Q2s |)
+        ( *IF-VALUE* arg1, Q1s T arg1.value, bool arg1.valid )
+        "else"
+        ( *DEFERRED* Q2s T arg2 )
         [| T != std *IF-VALUE* |]
     if:
         arg1.valid:

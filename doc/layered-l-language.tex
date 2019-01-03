@@ -89,6 +89,7 @@
 \newcommand{\ttalkey}[2]{\TT{*#1* *#2*}\index{#1 #2@{\tt *#1* *#2*}}}
 \newcommand{\ttamkey}[2]{\TT{*#1*}\index{#1@{\tt *#1*}!#2}}
 \newcommand{\ttstdkey}[1]{\TT{std #1}\index{#1@{\tt std #1}}}
+\newcommand{\ttstdakey}[1]{\TT{std *#1*}\index{#1@{\tt std *#1*}}}
 \newcommand{\ttstdlkey}[2]{\TT{std #1 #2}\index{#1@{\tt std #1}!#2@{\tt #2}}}
 \newcommand{\ttstdmkey}[2]{\TT{std #1}\index{#1@{\tt std #1}!#2}}
 \newcommand{\ttstdindex}[1]{\index{#1@{\tt std #1}}}
@@ -4086,7 +4087,7 @@ in a disk file mapped into memory and paged in only as needed.}
 Variables may be qualified by \skey{qualifier}s, which precede the
 type when a variable is declared.  There are six builtin qualifiers:
 \TT{*READ*}, \TT{*WRITE*}, \TT{*STACK*}, \TT{*UNCHECKED*},
-\TT{*DEFERRED*}, and \TT{*OPTIONAL*}.
+\TT{*READABLE*}, and \TT{*WRITABLE*}.
 These have special effects or special usage
 described in Section~\itemref{BUILTIN-QUALIFIERS}.
 There is also a builtin method for defining trace qualifiers which
@@ -4095,6 +4096,11 @@ Other qualifiers that have no special effects
 may be defined, and are typically used to add an
 additional layer of type checking that is somewhat orthogonal to
 types.
+
+There are also three pseudo-qulifiers,
+\TT{*DEFERRED*}, \TT{*OPTIONAL*}, and \TT{*UNUSED*},
+which are syntactically like qualifiers but are not semantically
+qualifiers.
 
 Syntactically {\em qualifier-names} immediately precede the {\em type-names}
 that are before {\em variable-names}.  A simple example is:
@@ -4163,14 +4169,18 @@ or `\TT{previous}'.
 
 The builtin defined qualifiers are in effect declared by:
 \begin{indpar}
-{\tt define implied variable qualifier \ttstdkey{*READ*}} \\
+{\tt define implied variable qualifier \ttstdakey{READ}} \\
 {\tt define abbreviation \ttakey{READ} ---> `std *READ*'} \\
-{\tt define implied variable qualifier \ttstdkey{*WRITE*}} \\
+{\tt define implied variable qualifier \ttstdakey{WRITE}} \\
 {\tt define abbreviation \ttakey{WRITE} ---> `std *WRITE*'} \\
-{\tt define implied addable value qualifier \ttstdkey{*STACK*}} \\
+{\tt define implied addable value qualifier \ttstdakey{STACK}} \\
 {\tt define abbreviation \ttakey{STACK} ---> `std *STACK*'} \\
-{\tt define variable qualifier \ttstdkey{*UNCHECKED*}} \\
-{\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'}
+{\tt define variable qualifier \ttstdakey{UNCHECKED}} \\
+{\tt define abbreviation \ttakey{UNCHECKED} ---> `std *UNCHECKED*'} \\
+{\tt define implied deletable value qualifier \ttstdakey{READABLE}} \\
+{\tt define abbreviation \ttakey{READABLE} ---> `std *READABLE*'} \\
+{\tt define implied deletable value qualifier \ttstdakey{WRITABLE}} \\
+{\tt define abbreviation \ttakey{WRITABLE} ---> `std *WRITABLE*'}
 \end{indpar}
 
 In addition there are several builtin `\skey{pseudo-qualifier}s'
@@ -4178,6 +4188,7 @@ that can only be used in function prototypes:
 \begin{center}
 \TT{*DEFERRED*} \\
 \TT{*OPTIONAL*} \\
+\TT{*UNUSED*} \\
 \end{center}
 These are qualifiers only syntactically, and have their own semantics
 not related to that of other qualifiers.
@@ -11079,7 +11090,8 @@ Builtin qualifiers with no special properties but which are used
 according to specific conventions are \TT{*UNCHECKED*}, \TT{*READABLE},
 and \TT{*WRITABLE}.
 There is also a special class of qualifiers called trace qualifiers.
-Lastly \TT{*DEFERRED*} and \TT{*OPTIONAL*} are pseudo-qualifiers that are
+Lastly \TT{*DEFERRED*}, \TT{*OPTIONAL*}, and \TT{*UNUSED*}
+are pseudo-qualifiers that are
 syntactically like qualifiers, but semantically are not qualifiers.
 
 \subsection{The \TT{*READ*} and \TT{*WRITE*} Qualifiers}

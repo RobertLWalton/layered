@@ -8502,13 +8502,15 @@ The syntax is:
     {\em prototype-result-variable-declaration}
     \{ \TT{,} {\em prototype-result-variable-declaration} \}\STAR{}
 \\[0.5ex]
-\emkey{prototype-result-variable-declaration}
-    \begin{tabular}[t]{rl}
-    ::= & {\em qualifier-name}\STAR{} ~
+\emkey{prototype-result-variable-declaration} \\
+\hspace*{1in}\begin{tabular}[t]{rl}
+    ::= & {\em result-qualifier-name}\STAR{} ~
           {\em type-name} ~ {\em variable-name} \\
     $|$ & \ttmkey{next}{prototype result variable} ~
           {\em variable-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{result-qualifier-name} ::= {\em qualifier-name} $|$ \ttakey{OPTIONAL}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
@@ -8522,16 +8524,20 @@ The syntax is:
     ::= {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{}
 \\[0.5ex]
-\emkey{argument-declaration}\label{ARGUMENT-DECLARATION}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name} \\
-    $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
-          \TT{?=} {\em default-value} \\
-    $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
-          \TT{??} \\
-    $|$ & {\em qualifier-name}\STAR{} {\em type-name} {\em variable-name}
-          \TT{==} {\em required-value} \\
+\emkey{argument-declaration}\label{ARGUMENT-DECLARATION} \\
+\hspace*{1in}\begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \\
+    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \TT{?=} {\em default-value} \\
+    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \TT{??} \\
+    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \TT{==} {\em required-value} \\
+    $|$ & \ttakey{UNUSED} {\em variable-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{argument-qualifier-name} ::= {\em qualifier-name} $|$ \ttakey{DEFERRED}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[0.5ex]

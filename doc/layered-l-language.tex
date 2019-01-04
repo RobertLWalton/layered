@@ -6562,6 +6562,7 @@ see \itemref{SCOPE},
 \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 
 \subsubsection{If/Else Expressions}
+\label{IF/ELSE-EXPESSIONS}
 
 The expression
 \begin{center}
@@ -8751,11 +8752,26 @@ inside the {\em block-assignment-statement},
 but within their own subblock that has the
 {\em function-call} context and not the {\em function-declaration}
 context.
-Default values for arguments are computed
-at the beginning of the {\em block-assignment-statement}, which makes them similar to
+Default values for arguments are computed at the beginning
+of the {\em block-assignment-statement}, which makes them similar to
 non-{\tt *DEFERRED*} prototype argument except that they are computed
 in the context of the {\em function-declaration} and not the context
 of the {\em function-call}.
+
+{\em Required-values} must be computable at compile time in the
+context of the {\em function-declaration}, and have no effect unless
+their associated argument is computable at compile time within the
+context of the {\em function-call}.
+In this case, if the compile time values are not equal, the
+{\em function-declaration} does not match the {\em function-call}.
+If a {\em function-declaration}
+with a {\em required-value} does match the call,
+some of the other arguments may be unused and never compiled,
+and it may be desireable to permit these arguments to be uncompilable,
+that is, to have compile errors if they were compiled.  These
+arguments may be marked {\tt *UNUSED*} to suppress their compilation,
+as long as such arguments are
+not referenced in the function body.
 
 There are examples on pages \pageref{AND-EXAMPLE}, \pageref{IF-ELSE-EXAMPLE},
 and \pageref{COMPARE-EXAMPLE}.

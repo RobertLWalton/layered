@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 3, 2019
+January 4, 2019
  
 \end{center}
 
@@ -9228,6 +9228,13 @@ arguments also match for \TT{()} and \TT{[]} {\em argument-lists},
 and number of actual arguments in each \TT{(|~|)} {\em call-argument-list}
 is not greater than the number of arguments in the corresponding
 {\em pattern-argument-list}.
+
+\item
+Any arguments marked \TT{*UNUSED*} are ignored during call-prototype
+matching from this point on.  Such prototype arguments must not be referenced
+in the body of a successfully matched {\em function-declaration},
+but on the other hand, the corresponding actual arguments
+need not be compilable, as they will not be compiled.
 
 \item
 If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}

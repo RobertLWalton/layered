@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 4, 2019
+January 6, 2019
  
 \end{center}
 
@@ -4406,7 +4406,7 @@ Unchecked result deferred assignments ignore qualifiers and are always direct
 assignments if (DA1) is satisfied.
 \item[NOTE]
 If a result variable has \TT{void} as its underlying type, or if it
-has the \TT{*READ*} qualifier (see below), it is never
+has either the \TT{*READ*} or \TT{*WRITE*} qualifiers (see below), it is never
 assigned a value by a deferred assignment, and is therefore free to have
 any qualifiers.
 \end{itemize}\end{indpar}
@@ -9462,6 +9462,7 @@ for the purposes of computing and checking qualifiers
 (\pagref{DIRECT-ASSIGNMENT}).
 
 If $QC.$ contains the \ttamkey{READ}{in call-prototype match}
+or \ttamkey{WRITE}{in call-prototype match}
 qualifier, the statement
 `\ldots~$vc.$ = $tmp.$' must satisfy the rules of a direct
 assignment (\pagref{DIRECT-ASSIGNMENT}), else the call-prototype
@@ -9470,7 +9471,7 @@ assignment for the purposes of implying qualifiers and determining
 if it is a direct assignment, but is otherwise treated as if it did
 not exist (no instructions are executed to copy a value).
 See \itemref{THE-READ-AND-WRITE-QUALIFIERS}
-for more on the \TT{*READ*} qualifier.
+for more on the \TT{*READ*} and \TT{*WRITE*} qualifiers.
 
 If any of the `{\tt $QCsI$ $TCI$ $vc1$ = $tmpI$}' statements cannot be
 compiled, the call-prototype match fails.

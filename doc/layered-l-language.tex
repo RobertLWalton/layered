@@ -3252,7 +3252,7 @@ satisfied, and one of these is
 \item[(DA1)]\label{DIRECT-ASSIGNMENT-TYPE-RULE}
 In `{\tt u = w}' the types of {\tt u} and {\tt w}
 must be identical, and this type
-must not have \TT{void} as its underlying type.
+must not be \TT{void} (but may have \TT{void} as its underlying type).
 \end{itemize}\end{indpar}
 When direct assignment is used, the value of {\tt w} is copied
 exactly to {\tt u} (or if there is no value because the common
@@ -4295,9 +4295,10 @@ In the above
 	\end{tabular}
 \item {\tt r = \ldots}
 	\begin{tabular}[t]{@{}l}
-	is called a \key{deferred assignment} \\
+	is called a \key{result deferred assignment} \\
 	({\tt r} is not preceded by explicit qualifiers or type) \\
-	(implicitly {\tt r} has the qualifiers and type given by
+	({\tt r} is a prototype result variable that implicitly \\
+	has the qualifiers and type given by
 	call-prototype match) \\
         (see \pagref{DEFERRED-ASSIGNMENT} for other kinds of
 	deferred assignments) \\
@@ -4356,9 +4357,8 @@ if and only if:
 \begin{indpar}\begin{itemize}
 \label{DIRECT-ASSIGNMENT-QUALIFIER-RULES}
 \item[(DA1)]
-The types of {\tt u} and {\tt w} are identical and this type
-does not have \TT{void} as its underlying type
-(as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
+The types of {\tt u} and {\tt w} are identical and this type is not
+\TT{void} (as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
 A \underline{value} qualifier of {\tt u}
 is also a qualifier of {\tt w} unless
@@ -4402,17 +4402,19 @@ result variable {\tt w} has the qualifier.  In the latter case,
 {\tt u} need not be given the qualifier explicitly if the qualifier
 is implied.
 \item[NOTE]
-Unchecked result deferred assignments ignore qualifiers and are always direct
-assignments if (DA1) is satisfied.
+Result deferred assignments ignore qualifiers and are always direct
+assignments when (DA1) is satisfied.  So as far as qualifiers are concerned,
+result deferred assignments are effectly unchecked.
 \item[NOTE]
 If a result variable has \TT{void} as its underlying type, or if it
-has either the \TT{*READ*} or \TT{*WRITE*} qualifiers (see below), it is never
+has either the \TT{*READ*} or \TT{*WRITE*} qualifiers
+(\itemref{THE-READ-AND-WRITE-QUALIFIERS}), it is never
 assigned a value by a deferred assignment, and is therefore free to have
 any qualifiers.
 \end{itemize}\end{indpar}
 
-Result deferred assignments that change qualifiers may violate
-type checking.  An example is:
+Result deferred assignments that change qualifiers are allowed
+to violate qualifier checking.  An example is:
 \begin{indpar}\begin{verbatim}
 // *UNCHECKED* function to remove *STACK* qualifier.
 //

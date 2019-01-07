@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 6, 2019
+January 7, 2019
  
 \end{center}
 
@@ -3251,15 +3251,14 @@ satisfied, and one of these is
 \begin{indpar}\begin{itemize}
 \item[(DA1)]\label{DIRECT-ASSIGNMENT-TYPE-RULE}
 In `{\tt u = w}' the types of {\tt u} and {\tt w}
-must be identical, and this type
-must not be \TT{void} (but may have \TT{void} as its underlying type).
+must be identical, and this type must not have
+\TT{void} as its underlying type.
 \end{itemize}\end{indpar}
 When direct assignment is used, the value of {\tt w} is copied
 exactly to {\tt u} (or if there is no value because the common
 type is derived from \TT{void}, nothing is done).
 The other direct assignment rules involve qualifiers
-(\pagref{DIRECT-ASSIGNMENT-QUALIFIER-RULES}) and cluster
-members (\pagref{DIRECT-ASSIGNMENT-OF-CLUSTERS}).
+(\pagref{DIRECT-ASSIGNMENT-QUALIFIER-RULES}).
 
 The following is an example of an implied conversion {\tt assign}
 function:
@@ -4357,8 +4356,9 @@ if and only if:
 \begin{indpar}\begin{itemize}
 \label{DIRECT-ASSIGNMENT-QUALIFIER-RULES}
 \item[(DA1)]
-The types of {\tt u} and {\tt w} are identical and this type is not
-\TT{void} (as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
+The types of {\tt u} and {\tt w} are identical and this type must not
+have \TT{void} as its underlying type
+(as per \pagref{DIRECT-ASSIGNMENT-TYPE-RULE}).
 \item[(DA2)]
 A \underline{value} qualifier of {\tt u}
 is also a qualifier of {\tt w} unless
@@ -4511,10 +4511,12 @@ int32 x3 = read from stack 2 ( address of x )
 \end{verbatim}\end{indpar}
 
 The \TT{*STACK*} qualifier is special in that it is not allowed to qualify
-values returned by an out-of-line function call.
+values returned by an \underline{out-}\EOL \underline{of-}\EOL \underline{line}
+function call.
 This qualifier is then attached to addresses of data allocated
-to the stack frame of the function call, because these addresses become
-invalid when the call returns.  There are other situations where
+to the stack frame of the out-of-line function call,
+because these addresses become invalid when the call returns.
+There are other situations where
 a \TT{*STACK*} value cannot qualify a variable value because the
 lifetime of the variable is longer than the lifetime of the
 stack frame in used when the variable is set:
@@ -11263,8 +11265,7 @@ The special property of the \TT{*STACK*} qualifier is that it cannot
 be used to qualify variables in the {\em result-variable-list}
 of a {\em call-assignment-statement},
 {\em out-of-line-assignment-statement}, or
-{\em compile-time-assignment-statement},
-or iteration variables in a {\em loop-assignment-statement}.
+{\em compile-time-assignment-statement}.
 This is so that stack addresses and offsets pointing into a free stack
 cannot outlive the free stack.
 See Section~\itemref{STACKS} for more information.

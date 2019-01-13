@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 7, 2019
+January 13, 2019
  
 \end{center}
 
@@ -4350,7 +4350,7 @@ assignments, and direct assignments to a result variable);
 (3) result deferred assignments permit value qualifiers
 to be added or deleted without restriction; and (4)
 result direct assignments can in effect copy clusters
-(see \pagref{RESULT-DIRECT-ASSIGNMENTS}).
+(see \pagref{RESULT-DIRECT-ASSIGNMENT}).
 
 Formally, an
 assignment {\tt \ldots{}~u = w} is a \key{direct assignment}
@@ -4419,9 +4419,10 @@ any qualifiers.
 \end{itemize}\end{indpar}
 
 Generally a direct assignment `{\tt \ldots{}~u = w}' just copies the
-value of {\tt w} to {\tt v}, but result direct assignments are an exception%
-\label{RESULT-DIRECT-ASSIGNMENTS}.
-A result direct assignment in effect makes {\tt u} an alternative name for
+value of {\tt w} to {\tt v}, but result direct assignments
+are an exception%
+\label{RESULT-DIRECT-ASSIGNMENT}.
+A \key{result direct assignment} in effect makes {\tt u} an alternative name for
 {\tt w}, and extends the scope of {\tt w} to include the scope of {\tt u}.
 No values are copied, and the common type of {\tt u} and {\tt v} can have
 \TT{void} as its underlying type.
@@ -10282,6 +10283,9 @@ Importantly, cluster members may only be created or updated
 (via `\TT{next}')
 as inline function call results.  Thus if
 the inline functions are written correctly, the program will be type-safe.
+
+Implementation of clusters depends upon special rules for 
+result direct assignments.  See \pagref{RESULT-DIRECT-ASSIGNMENT}.
 
 \section{Memory Organization}
 \label{MEMORY-ORGANIZATION}

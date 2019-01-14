@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 13, 2019
+January 14, 2019
  
 \end{center}
 
@@ -9258,18 +9258,6 @@ but on the other hand, the corresponding actual arguments
 need not be compilable, as they will not be compiled.
 
 \item
-If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
-{\em qualifiers-type-argument-list} has a corresponding
-actual argument, the actual argument expression
-is evaluated with the `\TT{qualifiers}' target type,
-and must have a compile time value which is a set of qualifiers, else
-the call-prototype match fails.  If the match does not fail,
-the set of qualifiers becomes the value of the {\em variable-name}
-in the {\em qualifiers-argument-declaration} and
-is substituted for the {\em variable-name} throughout the rest of the
-prototype.
-
-\item
 If any {\em type-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} has a corresponding
 actual argument, the actual argument expression
@@ -9278,6 +9266,46 @@ and must have a compile time value which is a type, else
 the call-prototype match fails.  If the match does not fail,
 the type value becomes the value of the {\em variable-name}
 in the {\em type-argument-declaration} and
+is substituted for the {\em variable-name} throughout the rest of the
+prototype.
+
+\item
+If any {\em type-argument-declaration} in a {\em prototype-pattern}
+{\em qualifiers-type-argument-list} does \underline{not} have
+a corresponding actual or default argument, the value of the
+{\em variable-name} in the {\em type-argument-declaration}
+is implied.
+
+If the {\em variable-name} in the {\em type-argument-declaration}
+is used as the {\em type-name} of a prototype result or argument variable,
+it is assigned the type of the corresponding actual variable.
+If {\em variable-name} is the type of several prototype
+variables, the leftmost result is used if it exists, and otherwise
+the leftmost non-\TT{*DEFERRED*} argument is used.
+However the matching actual argument or result used must have
+have known type if it is a result, or a
+natural type (\pagref{NATURAL-TYPE}) if it is an argument,
+else the call-prototype match fails.
+
+If no value can be assigned to the {\em variable-name} by these rules,
+the call-prototype match fails.
+
+If a value is assigned,
+the type that is the assigned value is added as an actual argument
+in the {\em call-argument-list} that corresponds
+to the {\em type-argument-declaration}, and
+is substituted for the {\em variable-name} throughout the rest of the
+prototype.
+
+\item
+If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
+{\em qualifiers-type-argument-list} has a corresponding
+actual argument, the actual argument expression
+is evaluated with the `\TT{qualifiers}' target type,
+and must have a compile time value which is a set of qualifiers, else
+the call-prototype match fails.  If the match does not fail,
+the set of qualifiers becomes the value of the {\em variable-name}
+in the {\em qualifiers-argument-declaration} and
 is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 
@@ -9310,34 +9338,6 @@ the set of qualifiers that is the assigned value
 is added as an actual argument
 in the {\em call-argument-list} that corresponds
 to the {\em qualifiers-argument-declaration}, and
-is substituted for the {\em variable-name} throughout the rest of the
-prototype.
-
-\item
-If any {\em type-argument-declaration} in a {\em prototype-pattern}
-{\em qualifiers-type-argument-list} does \underline{not} have
-a corresponding actual or default argument, the value of the
-{\em variable-name} in the {\em type-argument-declaration}
-is implied.
-
-If the {\em variable-name} in the {\em type-argument-declaration}
-is used as the {\em type-name} of a prototype result or argument variable,
-it is assigned the type of the corresponding actual variable.
-If {\em variable-name} is the type of several prototype
-variables, the leftmost result is used if it exists, and otherwise
-the leftmost non-\TT{*DEFERRED*} argument is used.
-However the matching actual argument or result used must have
-have known type if it is a result, or a
-natural type (\pagref{NATURAL-TYPE}) if it is an argument,
-else the call-prototype match fails.
-
-If no value can be assigned to the {\em variable-name} by these rules,
-the call-prototype match fails.
-
-If a value is assigned,
-the type that is the assigned value is added as an actual argument
-in the {\em call-argument-list} that corresponds
-to the {\em type-argument-declaration}, and
 is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 

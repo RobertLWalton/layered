@@ -9270,6 +9270,7 @@ is substituted for the {\em variable-name} throughout the rest of the
 prototype.
 
 \item
+\label{IMPLIED-TYPE-DETERMINATION-STEP}
 If any {\em type-argument-declaration} in a {\em prototype-pattern}
 {\em qualifiers-type-argument-list} does \underline{not} have
 a corresponding actual or default argument, the value of the
@@ -9281,11 +9282,25 @@ is used as the {\em type-name} of a prototype result or argument variable,
 it is assigned the type of the corresponding actual variable.
 If {\em variable-name} is the type of several prototype
 variables, the leftmost result is used if it exists, and otherwise
-the leftmost non-\TT{*DEFERRED*} argument is used.
+the leftmost argument is used.
 However the matching actual argument or result used must have
 have known type if it is a result, or a
 natural type (\pagref{NATURAL-TYPE}) if it is an argument,
 else the call-prototype match fails.
+
+If a matching actual argument is used, its type is determined by
+compiling the actual argument with a single result variable of
+unknown type.  If this compilation fails, the call-prototype match
+fails, even if the argument is \TT{*DEFERRED*} and ends up not being
+used in the call expansion\footnotemark.
+
+\newcounter{DeferredFootnote}
+\setcounter{DeferredFootnote}{\value{footnote}}
+\footnotetext{This means that {\tt *DEFERRED*}
+arguments should be in the call expansion unless other arguments to
+the function have specific compile-time values that can be intercepted
+by alternate prototypes: see the implementation of
+\TT{if/else} on \pagref{IF-ELSE-IMPLEMENTATION} for an example.}
 
 If no value can be assigned to the {\em variable-name} by these rules,
 the call-prototype match fails.
@@ -9322,13 +9337,24 @@ it is assigned the \underline{value} qualifiers of the
 corresponding actual variable that are not explicitly given as qualifiers
 of the prototype variable.  If {\em variable-name}
 is a qualifier of several prototype
-variables, the leftmost non-\TT{*DEFERRED*}
+variables, the leftmost
 argument is used if it exists, and otherwise
 the leftmost result is used.
 However the matching actual argument or result used must have
 have known type if it is a result, or a
 natural type (\pagref{NATURAL-TYPE}) if it is an argument,
 else the call-prototype match fails.
+
+If a matching actual argument is used, its qualifiers are determined by
+compiling the actual argument with a single result variable of
+type given by the prototype, unless the argument was compiled in
+Step \ref{IMPLIED-TYPE-DETERMINATION-STEP}.
+If this compilation fails, the call-prototype match
+fails, even if the argument is \TT{*DEFERRED*} and ends up not being
+used in the call expansion.\footnotemark[\value{DeferredFootnote}]
+If instead the argument was compiled in
+Step \ref{IMPLIED-TYPE-DETERMINATION-STEP}, then the result variable
+qualifiers determined by that compilation are used.
 
 If no value can be assigned to the {\em variable-name} by these rules,
 the call-prototype match fails.

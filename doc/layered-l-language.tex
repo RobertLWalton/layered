@@ -9506,7 +9506,10 @@ variables.
 Here the assignments `\ldots~$vc.$ = $tmp.$' are treated as
 result assignments, and not as ordinary assignments,
 for the purposes of computing and checking qualifiers
-(\pagref{DIRECT-ASSIGNMENT}).
+(\pagref{DIRECT-ASSIGNMENT}).  Also, if any of these assignments
+are direct assignments, they have the special semantics of
+result direct assignments described on page \pagref{RESULT-DIRECT-ASSIGNMENT}
+(so that cluster members are assigned correctly).
 
 If $QC.$ contains the \ttamkey{READ}{in call-prototype match}
 or \ttamkey{WRITE}{in call-prototype match}

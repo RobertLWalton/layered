@@ -7028,7 +7028,8 @@ to
 \tt bool $v$ = ( $e1 "<" $e2 ) "<" $e3$
 \end{center}
 and the compiler expands this to the following
-\LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
+\LSTAR-language (\pagref{LSTAR-LANGUAGE}) code
+(modulo variable renaming issues):
 
 \begin{indpar}
 \begin{tabular}{l}
@@ -7120,7 +7121,7 @@ type $T$, one defines a function with the prototype:
 \end{center}
 and then you add the line
 \begin{center}
-\tt define compare operator [$ma$]\QMARK{} ( $T$, "$cop$" )
+\tt define compare operator [$ma$]\QMARK{} ( $T$, `"$cop$"' )
 \end{center}
 This last line invokes the builtin generic:
 

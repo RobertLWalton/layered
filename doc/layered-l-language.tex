@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 14, 2019
+January 16, 2019
  
 \end{center}
 
@@ -6576,11 +6576,12 @@ given the above function declaration compiles to:\label{AND-EXAMPLE}
 \end{tabular}
 \end{indpar}
 
-There are context issues here.  For details on contexts,
+There are context and variable renaming issues here, as there are
+whenever we give examples of expanded function calls.  For details on contexts,
 see \itemref{SCOPE},
 \itemref{CONTEXTS}, and the context option of the
 {\em block-assignment-statement} in 
-\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+\itemref{BLOCK-ASSIGNMENT-STATEMENTS}.
 
 \subsubsection{If/Else Expressions}
 \label{IF/ELSE-EXPESSIONS}
@@ -6648,9 +6649,8 @@ function *IF-VALUE* r, T r.value, bool r.valid =
         (| type T |)
         ( *UNUSED* arg1 ) "if" ( bool arg2 == false )
         [| T != std *IF-VALUE* |]:
-    if:
-        r.value = *UNCHECKED* T ( *NO* *VALUE* )
-        r.valid = false
+    r.value = *UNCHECKED* T ( *NO* *VALUE* )
+    r.valid = false
 
 function *IF-VALUE* r, Qs T r.value, bool r.valid =
         (| type T, qualifiers Qs |)
@@ -6672,8 +6672,7 @@ function Qs T r =
         "else"
         ( *UNUSED* arg2 )
         [| T != std *IF-VALUE* |]
-    if:
-        r = arg1.value
+    r = arg1.value
 
 function Q1s Q2s T r =
         (| type T, qualifiers Q1s, qualifiers Q2s |)
@@ -6699,12 +6698,20 @@ function when the {\em logical-expression} was \TT{true}.
 These functions use the {\em if-assignment} statement
 described in \itemref{CONDITIONAL-ASSIGNMENT-STATEMENTS}.
 
-Given these definitions the compiler expands the example
+Given these definitions the example
 \begin{center}\label{IF-ELSE-EXAMPLE}
 \tt $T$ $v$ = ($e1$ "if" $b1$) "else" ( ($e2$ "if" $b2$) "else" $e3$ )
 \end{center}
+where
+\begin{center}
+compiling {\tt $T$ ...~= $eI$} adds qualifiers $QsI$ to the result
 
-to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
+none of the $bI$ have \TT{false} as a compile time value
+\end{center}
+
+is expanded by the compiler
+to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code
+(module variable renaming issues):
 
 \begin{indpar}
 \begin{tabular}{l}
@@ -6717,7 +6724,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \tt bool tmp1 = $b1$ \\
 \tt // \\
 \tt // Evaluate ($e1$ "if" $b1$) - left operand of first "else" \\
-\tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid = \\
+\tt *IF-VALUE* tmp2, $Qs1$ $T$ tmp2.value, bool tmp2.valid = \\
 \tt ~~~~do ( if-context ): \\
 \tt ~~if: \\
 \tt ~~~~tmp1: \\
@@ -6731,7 +6738,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 
 \begin{tabular}{l}
 \tt // Evaluate first "else" \\
-\tt $T$ $v$ = do ( else-context ): \\
+\tt $Qs1$ $Qs2$ $Qs3$ $T$ $v$ = do ( else-context ): \\
 \tt ~~if: \\
 \tt ~~~~tmp2.valid: \\
 \tt ~~~~~~$v$ = tmp2.value \\
@@ -6747,7 +6754,7 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \tt ~~~~~~~~bool tmp3 = $b2$ \\
 \tt ~~~~~~~~// Evaluate ($e2$ "if" $b2$) \\
 \tt ~~~~~~~~// - left operand of second "else" \\
-\tt ~~~~~~~~*IF-VALUE* tmp4, $T$ tmp4.value, \\
+\tt ~~~~~~~~*IF-VALUE* tmp4, $Qs2$ $T$ tmp4.value, \\
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~bool tmp4.valid = \\
 \tt ~~~~~~~~~~do ( if-context ): \\
 \tt ~~~~~~~~~~~~if: \\
@@ -6774,10 +6781,10 @@ to the following \LSTAR-language (\pagref{LSTAR-LANGUAGE}) code:
 \end{indpar}
 
 In this code the type $T$ of the result variable $v$ becomes
-the type of the result of the first {\tt "else"} whose
+the target type of the result of the first {\tt "else"} whose
 first argument then assumes the types given in
 \begin{center}
-\tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid
+\tt *IF-VALUE* tmp2, $Qs1$ $T$ tmp2.value, bool tmp2.valid
 \end{center}
 and whose second argument gets type $T$.  The second argument
 is the second {\tt "else"} subexpression, and as it has
@@ -6790,6 +6797,20 @@ the functions are called, but instead the expressions computing them
 are inserted in the code expanded from the functions (which are
 inline).  See the discussion at the end of the Evaluation Order section
 \itemref{EVALUATION-ORDER}.
+
+If $b1$ has the compile time value \TT{false}, the first {\tt "if"}
+compiles instead to:
+\begin{indpar}
+\begin{tabular}{l}
+\tt // Evaluate ($e1$ "if" false) - left operand of first "else" \\
+\tt *IF-VALUE* tmp2, $T$ tmp2.value, bool tmp2.valid = \\
+\tt ~~~~do ( if-context ): \\
+\tt ~~tmp2.value = *UNCHECKED* ( *NO* *VALUE* ) \\
+\tt ~~tmp2.valid = false \\
+\end{tabular}
+\end{indpar}
+so that $e1$ is never compiled and $Qs1$ is in effect the empty set of
+qualifiers.
 
 \subsubsection{Logical (And/Or/Not) Expressions}
 

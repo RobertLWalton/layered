@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 16, 2019
+January 17, 2019
  
 \end{center}
 
@@ -11301,11 +11301,23 @@ writes the value to RAM.  For example:
 \end{verbatim}\end{indpar}
 
 A RAM cache variable may have both the \TT{*READ*} and \TT{*WRITE*}
-qualifiers.
+qualifiers.  A variable with both may be both written and used in
+expressions, but a variable with just \TT{*WRITE*} may only be written,
+and may \underline{not} be used in expressions (that is, writting
+`{\tt next v}' does \underline{not} give {\tt v} a value that can be used in
+an expression).
 
 If a RAM cache variable {\tt v}'s value is not used,
 it will not actually be loaded from RAM, even if {\tt v} is written
-by assigning a value to `{\tt next v}'.
+by assigning a value to `{\tt next v}'.  Thus if {\tt v} is given
+both the \TT{*READ*} and \TT{*WRITE*} qualifiers, but it is not used,
+it will not be loaded from RAM.  Then if {\tt next v} is written and
+subsequently {\tt v} is used in an expression, the
+value of {\tt v} will be the value written.
+
+Since an unused RAM cache variable {\tt v} is not loaded from RAM,
+members of {\tt v} used to compute its address may be given the unchecked value
+\TT{*NO* *VALUE*} (\pagref{NO-VALUE}).
 
 Because \TT{*READ*} and \TT{*WRITE*} are implied qualifiers,
 RAM cache variables can only be created as

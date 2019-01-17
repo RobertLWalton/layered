@@ -12097,7 +12097,7 @@ function Qrs p.type r, \\
 ~~~~( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~adr p.base.adr, type p.type, qualifiers p.qualifiers ) \\
 ~~~~\TT{[} intadr i \TT{]}\ttmindex{[]}{of pointer} \\
-~~~~(| qualifiers Qrs = \\
+~~~~[| qualifiers Qrs = \\
 ~~~~~~~~~p.qualifiers \\
 ~~~~~~~+ ( \{ *READ* \} if ( *READABLE* in Qps ) else \{\} ) \\
 ~~~~~~~+ ( \{ *WRITE* \} if ( *WRITABLE* in Qps ) else \{\} )  |] \\
@@ -12120,7 +12120,7 @@ function Qrs p.type r, \\
         ( Qps pointer p, intadr p.begin, intadr p.end, \\
 ~~~~~~~~~~adr p.base.adr, type p.type, \\
 ~~~~~~~~~~qualifiers p.qualifiers ) \\
-~~~~(| qualifiers Qrs = \\
+~~~~[| qualifiers Qrs = \\
 ~~~~~~~~~p.qualifiers \\
 ~~~~~~~+ ( \{ *READ* \} if ( *READABLE* in Qps ) else \{\} ) \\
 ~~~~~~~+ ( \{ *WRITE* \} if ( *WRITABLE* in Qps ) else \{\} )  |] \\

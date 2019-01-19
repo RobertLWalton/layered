@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 17, 2019
+January 19, 2019
  
 \end{center}
 
@@ -9247,6 +9247,7 @@ If some of the {\em call-argument-lists} are now too long, the call-prototype
 match fails.
 
 \item
+\label{DEFAULT-ARGUMENT-INSERTION}
 If some of the {\em call-argument-lists} are now too short, they are extended
 by adding the {\em default-values} from
 their matching {\em pattern-argument-lists}.
@@ -9280,16 +9281,22 @@ but on the other hand, the corresponding actual arguments
 need not be compilable, as they will not be compiled.
 
 \item
-If any {\em type-argument-declaration} in a {\em prototype-pattern}
-{\em qualifiers-type-argument-list} has a corresponding
-actual argument, the actual argument expression
-is evaluated with the `\TT{type}' target type,
-and must have a compile time value which is a type, else
-the call-prototype match fails.  If the match does not fail,
-the type value becomes the value of the {\em variable-name}
-in the {\em type-argument-declaration} and
-is substituted for the {\em variable-name} throughout the rest of the
-prototype.
+For any {\em type-argument-declaration} in a {\em prototype-pattern}
+{\em qualifiers-type-argument-list} or {\em regular-argument-list}
+the {\em variable-name} in the declaration may be used syntactically as
+a type throughout the rest of the prototype and in any associated
+{\em function-declaration} body.  If it is so used, then
+any actual argument corresponding to the {\em type-argument-declaration}
+must evaluate with the `\TT{type}'
+target type to a compile-time value, else
+the call-prototype match fails.    If the match does not fail,
+this value is substituted for the {\em variable-name} throughout
+the rest of the prototype and in any associated {\em function-declaration}
+body.
+(The corresponding actual argument will exist if
+the {\em type-argument-declaration} is in a
+{\em regular-argument-list}, but may be the default
+argument from Step \ref{DEFAULT-ARGUMENT-INSERTION}.)
 
 \item
 \label{IMPLIED-TYPE-DETERMINATION-STEP}
@@ -9332,19 +9339,26 @@ the type that is the assigned value is added as an actual argument
 in the {\em call-argument-list} that corresponds
 to the {\em type-argument-declaration}, and
 is substituted for the {\em variable-name} throughout the rest of the
-prototype.
+prototype and in any associated {\em function-declaration} body.
 
 \item
-If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
-{\em qualifiers-type-argument-list} has a corresponding
-actual argument, the actual argument expression
-is evaluated with the `\TT{qualifiers}' target type,
-and must have a compile time value which is a set of qualifiers, else
-the call-prototype match fails.  If the match does not fail,
-the set of qualifiers becomes the value of the {\em variable-name}
-in the {\em qualifiers-argument-declaration} and
-is substituted for the {\em variable-name} throughout the rest of the
-prototype.
+For any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
+{\em qualifiers-type-argument-list} or {\em regular-argument-list}
+the {\em variable-name} in the declaration may be used syntactically as
+a qualifier throughout the rest of the prototype and in any associated
+{\em function-declaration} body.  If it is so used, then
+any actual argument corresponding to the {\em qualifiers-argument-declaration}
+must evaluate with the `\TT{qualifiers}'
+target type to a compile-time value, else
+the call-prototype match fails.    If the match does not fail,
+the set of qualifiers denoted by this value
+is substituted for the {\em variable-name} throughout
+the rest of the prototype and in any associated {\em function-declaration}
+body.
+(The corresponding actual argument will exist if
+the {\em qualifiers-argument-declaration} is in a
+{\em regular-argument-list}, but may be the default
+argument from Step \ref{DEFAULT-ARGUMENT-INSERTION}.)
 
 \item
 If any {\em qualifiers-argument-declaration} in a {\em prototype-pattern}
@@ -9387,7 +9401,7 @@ is added as an actual argument
 in the {\em call-argument-list} that corresponds
 to the {\em qualifiers-argument-declaration}, and
 is substituted for the {\em variable-name} throughout the rest of the
-prototype.
+prototype and in any associated {\em function-declaration} body.
 
 \item
 The modified call now matches the {\em prototype-pattern}

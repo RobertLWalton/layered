@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 20, 2019
+January 22, 2019
  
 \end{center}
 
@@ -2278,16 +2278,18 @@ by post-parser processing.
 
 Input is parsed into a sequence of \skey{logical line}s, each of which is
 a sequence of tokens.  Once parsed, logical lines may be grouped into
-paragraphs.
+paragraphs.  A paragraph with its logical lines may be nested inside
+a larger logical line.
 
 In the input, non-blank
 physical lines begin with an indent lexeme token that
-contains an indentation that is the number of columns before the first
+contains an \mkey{indent}{of indent lexeme token}
+parameter that is the number of columns before the first
 graphic character in the physical line.  All physical lines end with a
 line-break or end-of-file token.  Blank physical lines have
 only this ending token, and do not have an indent token.
 
-The `\mkey{indent}{of physical line}' of a non-blank physical line is the
+The \mkey{indent}{of physical line} of a non-blank physical line is the
 indent of its indent token.
 
 The first logical line in a file begins just after the first

@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 22, 2019
+January 25, 2019
  
 \end{center}
 
@@ -2508,8 +2508,8 @@ Note that a closing bracket or a prefix separator can \underline{not}
 force the end of a logical line.  Subexpressions bracketed by opening
 and closing brackets must be inside a logical line.  Similarly subexpressions
 delimited by prefix separators must be inside a logical line, with the
-exception of headed paragraphs beginning with paragraph prefix separators like
-\TT{\{p\}} in the example.
+exception that paragraphs headed by certain prefix separators can
+consist of a sequence of logical lines.
 
 The master table (\pagref{MASTER-TABLE})
 used to scan the lexemes of a logical line
@@ -2554,7 +2554,7 @@ lexeme in the file has non-zero indent.
 Details on indented paragraphs are given
 in \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}.
 
-An \key{headed paragraph}
+A \key{headed paragraph}
 begins with explicit or implicit \skey{paragraph header},
 which is a prefix separator such as the `\TT{\{p\}}'s in
 \begin{indpar}\begin{verbatim}

@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 25, 2019
+February 5, 2019
  
 \end{center}
 
@@ -654,7 +654,7 @@ the following character classes:
 \begin{indpar}
 \emkey{horizontal-space-character}
     \begin{tabular}[t]{rl}
-    :::= & characters in UNICODE category \TT{Zs} \\
+    :::= & character in UNICODE category \TT{Zs} \\
          & (includes single space) \\
     $|$  & {\em horizontal-tab-character}
     \end{tabular}
@@ -668,16 +668,16 @@ the following character classes:
 \emkey{space-character} ::= {\em horizontal-space-character}
                         $|$ {\em vertical-space-character}
 \\[1ex]
-\emkey{graphic-character} :::= characters in UNICODE categories
-                              \TT{L}, \TT{M}, \TT{N}, \TT{P}, and \TT{S}
+\emkey{graphic-character} :::= character in UNICODE category
+                              \TT{L}, \TT{M}, \TT{N}, \TT{P}, or \TT{S}
 \\
 \emkey{control-character} :::=
-	characters in UNICODE categories \TT{C} and \TT{Z}
+	character in UNICODE category \TT{C} or \TT{Z}
 \\[1ex]
 \emkey{isolated-separating-character} :::=
     \begin{tabular}[t]{l}
-    characters in UNICODE categories \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
-    and \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
+    character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
+    or \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
     \end{tabular}
 \\
 \emkey{separating-character} :::= \TT{|} $|$ {\em isolated-separating-character}
@@ -692,13 +692,13 @@ the following character classes:
 \emkey{quoting-character} :::= \TT{"}
 \\[1ex]
 \emkey{letter} :::=
-    characters in UNICODE category \TT{L}
+    character in UNICODE category \TT{L}
 \\
 \emkey{decimal-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
                        $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
 \\
 \emkey{digit} :::=
-    characters in UNICODE category \TT{Nd}
+    character in UNICODE category \TT{Nd}
     (includes {\em decimal-digits})
 \\
 \emkey{lexical-item-character} :::=

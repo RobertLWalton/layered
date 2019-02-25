@@ -860,7 +860,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 ======= END PARSER TEST(S)
 *PARSER*:
     begin block BLOCK1
-    print string concatenator
+    print quoted string concatenator
         block BLOCK1: "#"
         block standard: "#"
         block TOP LEVEL: "#"
@@ -890,8 +890,8 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
     ^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    define string concatenator enabled
-    print string concatenator
+    define quoted string concatenator enabled
+    print quoted string concatenator
         block BLOCK1: enabled
         block standard: "#"
         block TOP LEVEL: "#"
@@ -924,8 +924,8 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
             ^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    define string concatenator disabled
-    print string concatenator
+    define quoted string concatenator disabled
+    print quoted string concatenator
         block BLOCK1: disabled
         block standard: "#"
         block TOP LEVEL: "#"

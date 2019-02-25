@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 24 20:13:06 EST 2019
+// Date:	Mon Feb 25 01:11:33 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,6 +60,7 @@ static min::locatable_gen full;
 static min::locatable_gen lines;
 static min::locatable_gen bracketed_subexpressions;
 static min::locatable_gen offset;
+static min::locatable_gen quoted_lexeme;
 static min::locatable_gen string_lexeme;
 static min::locatable_gen concatenator;
 static min::locatable_gen top;
@@ -90,6 +91,7 @@ static void initialize ( void )
         min::new_lab_gen
 	    ( "bracketed", "subexpressions" );
     ::offset = min::new_str_gen ( "offset" );
+    ::quoted_lexeme = min::new_str_gen ( "quoted" );
     ::string_lexeme = min::new_str_gen ( "string" );
     ::concatenator =
         min::new_str_gen ( "concatenator" );
@@ -4302,15 +4304,17 @@ static min::gen bracketed_pass_command
 	return min::SUCCESS();
     }
 
-    if ( vp[i] == ::string_lexeme
+    if ( vp[i] == ::quoted_lexeme
          &&
-	 i + 1 < size
+	 i + 2 < size
 	 &&
-	 vp[i+1] == ::concatenator )
+	 vp[i+1] == ::string_lexeme
+	 &&
+	 vp[i+2] == ::concatenator )
     {
         if ( command == PARLEX::print )
 	{
-	    if ( i + 2 < size )
+	    if ( i + 3 < size )
 		return PAR::parse_error
 		    ( parser, ppvec[i+1],
 		      "unexpected stuff after" );
@@ -4360,13 +4364,13 @@ static min::gen bracketed_pass_command
 	else if ( command != PARLEX::define )
 	    return min::FAILURE();
 
-	else if ( i + 2 >= size )
+	else if ( i + 3 >= size )
 	    return PAR::parse_error
 		( parser, ppvec[i+1],
 		  "expected string concatenator"
 		  " after" );
 
-	i += 2;
+	i += 3;
 	min::locatable_gen concat = vp[i];
 	if ( concat == PARLEX::enabled )
 	    concat = min::ENABLED();

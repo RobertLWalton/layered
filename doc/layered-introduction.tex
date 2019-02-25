@@ -227,7 +227,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 5, 2019
+February 24, 2019
  
 \end{center}
 
@@ -866,13 +866,15 @@ that is \underline{not} a comment line to begin with a {\em comment}.
 {\em Comments} can otherwise be included at any non-beginning position in any
 logical line.
 
-\ikey{Quoted string lexemes}{quoted strings!concatenated}
-separated by the `\TT{\#}' mark
-are glued together if they are in the
-same logical line.  Thus
+The Bracketed Subexpression Recognition Pass glues together
+\ikey{quoted string lexemes}{quoted strings!concatenated}
+separated by one or two `\TT{\#}' marks
+if they are in the same logical line
+(see \pagref{QUOTED-STRING-CONCATENATION} for more details).
+Thus
 \begin{indpar}\begin{verbatim}
-"This is a longer sentence" #
-    " than we would like."
+"This is a longer sentence"#
+    #" than we would like."
 "And this is a second sentence."
 \end{verbatim}\end{indpar}
 is equivalent to
@@ -880,7 +882,7 @@ is equivalent to
 "This is a longer sentence than we would like."
 "And this is a second sentence."
 \end{verbatim}\end{indpar}
-This is useful for
+Quoted string concatenation is useful for
 breaking long quoted string lexemes across line continuations.
 But there is an important case where there is not an exact equivalence
 between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
@@ -3318,12 +3320,13 @@ The bracketed subexpression recognition pass recognizes:
 
 The bracketed subexpression recognition pass also merges
 quoted strings if they are in the same logical line and are
-separated by the quoted string concatenator (e.g., `\TT{\#}').
+separated by one or two quoted string concatenators (e.g., `\TT{\#}').%
+\label{QUOTED-STRING-CONCATENATION}
 Thus if logical lines end with a line break
 but permit indented continuation lines, then
 \begin{indpar}\begin{verbatim}
-"This is a longer sentence"
-    # " than we would like."
+"This is a longer sentence"#
+    #" than we would like."
 "And this is a second sentence."
 \end{verbatim}\end{indpar}
 is equivalent to

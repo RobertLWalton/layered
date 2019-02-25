@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 05:49:46 EDT 2018
+// Date:	Sun Feb 24 20:13:06 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2685,25 +2685,34 @@ NEXT_TOKEN:
 
 	if ( concat != min::ENABLED() )
 	{
-	    if (    current->previous->previous
-			   ->value
-		 != concat )
+	    PAR::token t = current->previous->previous;
+	    if ( t->value != concat )
 		goto NEXT_TOKEN;
-	    if (    start_previous->next
-		 == current->previous->previous )
-		goto NEXT_TOKEN;
-	    if (    current->previous->previous
-			   ->previous->type
-		 != LEXSTD::quoted_string_t )
+	    if ( start_previous->next == t )
 		goto NEXT_TOKEN;
 
-	    // Remove string_concatenator token.
+	    int number_of_concatenators = 1;
+	    t = t->previous;
+
+	    if ( t->value == concat )
+	    {
+		if ( start_previous->next == t )
+		    goto NEXT_TOKEN;
+		t = t->previous;
+	        ++ number_of_concatenators;
+	    }
+
+	    if ( t->type != LEXSTD::quoted_string_t )
+		goto NEXT_TOKEN;
+
+	    // Remove string_concatenator tokens.
 	    //
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      current->previous
-			     ->previous ) );
+	    while ( number_of_concatenators -- )
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous
+				 ->previous ) );
 	}
 	else if (    current->previous->previous
 			    ->type

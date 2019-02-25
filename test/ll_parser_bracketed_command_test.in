@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 06:43:24 EDT 2018
+// Date:	Sun Feb 24 20:21:21 EST 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -262,20 +262,23 @@ third line with indent 0
     begin block BLOCK1
     print string concatenator
 *PARSER* *TEST*:
-    "A" # "B"
     "A" "B"
+    "A" # "B"
+    "A" # # "B"
 *PARSER*:
     define string concatenator enabled
     print string concatenator
 *PARSER* *TEST*:
-    "A" # "B"
     "A" "B"
+    "A" # "B"
+    "A" # # "B"
 *PARSER*:
     define string concatenator disabled
     print string concatenator
 *PARSER* *TEST*:
-    "A" # "B"
     "A" "B"
+    "A" # "B"
+    "A" # # "B"
 *PARSER*:
     end block BLOCK1
 

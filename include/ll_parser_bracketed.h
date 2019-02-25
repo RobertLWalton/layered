@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 16 03:27:16 EDT 2018
+// Date:	Mon Feb 25 07:34:41 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -550,6 +550,18 @@ const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 6;
 // Bracketed Subexpression Pass
 // --------- ------------- ----
 
+struct middle_break
+    // Middle break begin and end values as UTF-8
+    // character strings, and length in bytes of
+    // each.  Middle breaks are disabled if lengths
+    // are 0.
+{
+    min::uns8  begin[32];
+    min::uns8  end[32];
+    min::uns32 begin_length;
+    min::uns32 end_length;
+};
+
 struct block_struct
     // Saves bracketed pass information for a block.
 {
@@ -558,6 +570,9 @@ struct block_struct
 
     min::gen string_concatenator;
         // Saved string_concatenator.
+
+    ll::parser::bracketed::middle_break middle_break;
+    	// Saved middle break information.
 };
 
 typedef min::packed_vec_insptr
@@ -576,11 +591,14 @@ inline void push_block
 	( ll::parser::bracketed::block_stack
 	      block_stack,
 	  min::int32 indentation_offset,
-	  min::gen string_concatenator )
+	  min::gen string_concatenator,
+	  ll::parser::bracketed::middle_break
+	      middle_break )
 {
     ll::parser::bracketed::block_struct b =
         { indentation_offset,
-	  string_concatenator };
+	  string_concatenator,
+	  middle_break };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, string_concatenator );
@@ -627,6 +645,9 @@ struct bracketed_pass_struct
 	//     Consecutive quoted strings in a logical
 	//     line are concatenated (without any
 	//     intervening mark).
+
+    ll::parser::bracketed::middle_break middle_break;
+    	// Middle break info.
 
     const ll::parser::bracketed::block_stack
             block_stack;

@@ -864,13 +864,6 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         block BLOCK1: "#"
         block standard: "#"
         block TOP LEVEL: "#"
-======= PARSER TEST: "AB"
-======= line ###:
-    "A" # "B"
-    ^^^^^^^^^
-------- line ###:
-    "A" # "B"
-    ^^^^^^^^^
 ======= PARSER TEST: "A" "B"
 ======= line ###:
     "A" "B"
@@ -881,6 +874,20 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 ------- line ###:
     "A" "B"
         ^^^
+======= PARSER TEST: "AB"
+======= line ###:
+    "A" # "B"
+    ^^^^^^^^^
+------- line ###:
+    "A" # "B"
+    ^^^^^^^^^
+======= PARSER TEST: "AB"
+======= line ###:
+    "A" # # "B"
+    ^^^^^^^^^^^
+------- line ###:
+    "A" # # "B"
+    ^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     define string concatenator enabled
@@ -888,16 +895,6 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         block BLOCK1: enabled
         block standard: "#"
         block TOP LEVEL: "#"
-======= PARSER TEST: "A" # "B"
-======= line ###:
-    "A" # "B"
-    ^^^^^^^^^
-------- line ###:
-    "A" # "B"
-    ^^^
-------- line ###:
-    "A" # "B"
-          ^^^
 ======= PARSER TEST: "AB"
 ======= line ###:
     "A" "B"
@@ -905,13 +902,6 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 ------- line ###:
     "A" "B"
     ^^^^^^^
-======= END PARSER TEST(S)
-*PARSER*:
-    define string concatenator disabled
-    print string concatenator
-        block BLOCK1: disabled
-        block standard: "#"
-        block TOP LEVEL: "#"
 ======= PARSER TEST: "A" # "B"
 ======= line ###:
     "A" # "B"
@@ -922,6 +912,23 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 ------- line ###:
     "A" # "B"
           ^^^
+======= PARSER TEST: "A" # # "B"
+======= line ###:
+    "A" # # "B"
+    ^^^^^^^^^^^
+------- line ###:
+    "A" # # "B"
+    ^^^
+------- line ###:
+    "A" # # "B"
+            ^^^
+======= END PARSER TEST(S)
+*PARSER*:
+    define string concatenator disabled
+    print string concatenator
+        block BLOCK1: disabled
+        block standard: "#"
+        block TOP LEVEL: "#"
 ======= PARSER TEST: "A" "B"
 ======= line ###:
     "A" "B"
@@ -932,6 +939,26 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 ------- line ###:
     "A" "B"
         ^^^
+======= PARSER TEST: "A" # "B"
+======= line ###:
+    "A" # "B"
+    ^^^^^^^^^
+------- line ###:
+    "A" # "B"
+    ^^^
+------- line ###:
+    "A" # "B"
+          ^^^
+======= PARSER TEST: "A" # # "B"
+======= line ###:
+    "A" # # "B"
+    ^^^^^^^^^^^
+------- line ###:
+    "A" # # "B"
+    ^^^
+------- line ###:
+    "A" # # "B"
+            ^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 25 01:11:33 EST 2019
+// Date:	Mon Feb 25 07:41:20 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -641,6 +641,9 @@ static void bracketed_pass_reset
     bracketed_pass->indentation_offset = 2;
     BRA::string_concatenator_ref ( bracketed_pass ) =
         PARLEX::number_sign;
+
+    BRA::middle_break mb = { "#", "#", 1, 1 };
+    bracketed_pass->middle_break = mb;
 }
 
 static min::gen bracketed_pass_begin_block
@@ -655,7 +658,8 @@ static min::gen bracketed_pass_begin_block
     BRA::push_block
 	( bracketed_pass->block_stack,
 	  bracketed_pass->indentation_offset,
-	  bracketed_pass->string_concatenator );
+	  bracketed_pass->string_concatenator,
+	  bracketed_pass->middle_break );
 
     return min::SUCCESS();
 }
@@ -694,6 +698,7 @@ static min::gen bracketed_pass_end_block
         b.indentation_offset;
     string_concatenator_ref ( bracketed_pass ) =
         b.string_concatenator;
+    bracketed_pass->middle_break = b.middle_break;
 
     return min::SUCCESS();
 }

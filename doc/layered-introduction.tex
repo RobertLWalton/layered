@@ -110,6 +110,7 @@
 \newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@\TT{#1}!#2@\TT{#2}}}
 \newcommand{\ttilkey}[3]{\TT{#1}\index{#2@\TT{#2}!#3@\TT{#3}}}
 \newcommand{\ttmkey}[2]{\TT{#1}\index{#1@\TT{#1}!#2}}
+\newcommand{\ttmlkey}[3]{\TT{#1 #2}\index{#1@\TT{#1}!#2@\TT{#2}!#3}}
 
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@\TT{.#1}}}
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@\TT{.#1}!#2}}
@@ -227,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 24, 2019
+February 25, 2019
  
 \end{center}
 
@@ -701,7 +702,7 @@ the following character classes:
     character in UNICODE category \TT{Nd}
     (includes {\em decimal-digits})
 \\
-\emkey{lexical-item-character} :::=
+\emkey{lexical-item-character}\label{LEXICAL-ITEM-CHARACTER} :::=
 	\begin{tabular}[t]{l}
         {\em graphic-character} other than \\
 	{\em separating-character} or \TT{"}
@@ -979,8 +980,8 @@ a form feed.
 \emkey{word} :::= {\em middle-lexeme} containing a {\em letter} that is not
                   a {\em number}
 \\[0.5ex]
-\emkey{mark} :::= {\em middle-lexeme} that is not a {\em word} or
-		  {\em number}
+\emkey{mark}\label{MARK} :::= {\em middle-lexeme} that is
+                              not a {\em word} or {\em number}
 \\[0.5ex]
 {\em indent} ::= see \pagref{INDENT}
 \\[0.5ex]
@@ -1018,6 +1019,19 @@ the right to left removal of {\em trailing-separators} from a
 {\em trailing-separator-character}
 as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
+
+It is possible to break a {\em middle-lexeme} across lines by
+adding \TT{\#} to the end of the first part and separately
+to the beginning of the second part.  The two parts will be
+concatenated after deleting these \TT{\#}'s.  Thus
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-#
+    #lexeme.
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-lexeme.
+\end{verbatim}\end{indpar}
 
 The syntax of a lexical program is specified in
 Figures~\itemref{LEXEME-PROGRAM-SYNTAX-1}
@@ -3318,9 +3332,52 @@ The bracketed subexpression recognition pass recognizes:
     paragraph or line headers or other typed prefix separators
 \end{indpar}
 
+The bracketed subexpression recognition pass merges
+middle lexemes if they are consecutive within a logical line,
+the first ends with
+a \key{middle break begin} (e.g., `\TT{\#}'), and the second begins with
+a \key{middle break end} (e.g., `\TT{\#}').%
+\label{MIDDLE-LEXEME-CONCATENATION}
+The middle break begin and end are deleted from the concatenation.
+Thus if logical lines end with a line break
+but permit indented continuation lines, then
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-#
+    #lexeme.
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-lexeme.
+\end{verbatim}\end{indpar}
+
+The middle breaks can be changed by the parser command:
+\begin{indpar}[0.1in]
+\emlkey{parser-middle-breaks}{-command}%
+\label{PARSER-MIDDLE-BREAKS-COMMAND} ::= \\
+\hspace*{3em} \ttmkey{define middle breaks}{parser command}
+	  ~ {\em middle-break-name}
+\\[0.5ex]
+\emkey{middle-break-name} ::= \TT{"}{\em middle-break-begin}\TT{"}
+			      \TT{...}{}
+                              \TT{"}{\em middle-break-end}\TT{"}
+		     $|$ \TT{disabled}
+\\[0.5ex]
+\emkey{middle-break-begin} :::= {\em mark}
+\\[0.5ex]
+\emkey{middle-break-end} :::= {\em mark}
+\\[0.5ex]
+{\em mark} ::= see \pagref{MARK}
+\end{indpar}
+
+If {\em middle-break-name} is `\TT{disabled}', middle lexemes
+are never concatenated.
+
+The end of a parser block erases the effects of any
+{\em define-middle-breaks-commands} executed during the block.
+
 The bracketed subexpression recognition pass also merges
 quoted strings if they are in the same logical line and are
-separated by one or two quoted string concatenators (e.g., `\TT{\#}').%
+separated by one or two \skey{quoted string concatenator}s (e.g., `\TT{\#}').%
 \label{QUOTED-STRING-CONCATENATION}
 Thus if logical lines end with a line break
 but permit indented continuation lines, then
@@ -3345,24 +3402,24 @@ being a line feed.
 
 The concatenator can be changed by the parser command:
 \begin{indpar}[0.1in]
-\emkey{parser-string-concatenator-command}%
-\label{PARSER-STRING-CONCATENATOR-COMMAND} ::= \\
-\hspace*{3em} \ttmkey{define string concatenator}{parser command}
-	  ~ {\em string-concatenator}
+\emlkey{parser-quoted-string}{-concatenator-command}%
+\label{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} ::= \\
+\hspace*{3em} \ttmlkey{define quoted string}{concatenator}{parser command}
+	  ~ {\em quoted-string-concatenator}
 \\[0.5ex]
-\emkey{string-concatenator} ::= {\em quoted-key} with a single component
+\emkey{quoted-string-concatenator} ::= {\em quoted-key} with a single component
 		     $|$ \TT{disabled} $|$ \TT{enabled}
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \end{indpar}
 
-If {\em string-concatenator} is `\TT{disabled}', quoted strings
+If {\em quoted-string-concatenator} is `\TT{disabled}', quoted strings
 are never concatenated.  If it is `\TT{enabled}', consecutive
 quoted strings are concatenated; that is, no concatenator lexeme
 needs to be placed between the strings.
 
 The end of a parser block erases the effects of any
-{\em define-string-concatenator-commands} executed during the block.
+{\em define-quoted-string-concatenator-commands} executed during the block.
 
 The bracketed parser pass has three symbol tables.  The bracketed
 symbol table contains:
@@ -3438,7 +3495,7 @@ are similarly divided:
 \emkey{parser-bracketed-command}
     \begin{tabular}[t]{@{}rll@{}}
     ::= & {\em parser-string-concatenator-command}
-        & see \pagref{PARSER-STRING-CONCATENATOR-COMMAND} \\
+        & see \pagref{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} \\
     $|$ & {\em parser-untyped-bracket-command}
         & see \pagref{PARSER-UNTYPED-BRACKET-COMMAND} \\
     $|$ & {\em parser-indentation-mark-command}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 12:38:46 EST 2019
+// Date:	Tue Feb 26 13:27:03 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4124,8 +4124,8 @@ static bool multivalue_reformatter_function
 	    if ( start != t )
 	    {
 	        if (    start->next != t
-		     ||    start->type
-		        == LEXSTD::quoted_string_t )
+		     ||  ( 1 << start->type )
+		        & LEXSTD::convert_mask )
 		    ::make_label ( parser, start, t );
 		++ count;
 	    }

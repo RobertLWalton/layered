@@ -263,96 +263,6 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
-// Strings
-// -------
-
-static min::uns32 string_stub_disp[] =
-{
-    min::DISP ( & PAR::token_struct::next ),
-    min::DISP_END
-};
-
-static min::packed_vec<min::uns32,PAR::string_struct>
-    string_type ( "ll::parser::string_type",
-                  NULL, ::string_stub_disp );
-
-// Free list of strings.
-//
-static min::locatable_var<PAR::string_insptr>
-    free_strings;
-
-static int number_free_strings = 0;
-
-static int max_string_free_list_size = 100;
-
-static unsigned min_string_length = 80;
-
-PAR::string PAR::new_string
-	( min::uns32 n, min::ptr<const min::uns32> s )
-{
-    min::locatable_var<PAR::string_insptr> str
-        ( (PAR::string_insptr) ::free_strings );
-
-    if ( str == NULL_STUB )
-    {
-        min::uns32 m = n;
-	if ( m < ::min_string_length )
-	    m = ::min_string_length;
-        str = ::string_type.new_stub ( m );
-    }
-    else
-    {
-        -- ::number_free_strings;
-	::free_strings = str->next;
-	if ( str->max_length < n )
-	    min::resize ( str, n );
-	min::pop ( str, str->length );
-    }
-    next_ref(str) = NULL_STUB;
-    min::push ( str, n, s );
-    return (PAR::string) str;
-}
-
-PAR::string PAR::free_string ( PAR::string string )
-{
-    if ( string == NULL_STUB )
-        return NULL_STUB;
-
-    if ( ::max_string_free_list_size >= 0
-         &&
-            ::number_free_strings
-	 >= ::max_string_free_list_size )
-    {
-        min::deallocate ( string );
-	return NULL_STUB;
-    }
-
-    PAR::string_insptr str =
-        (PAR::string_insptr) string;
-    next_ref(str) = ::free_strings;
-    ::free_strings = str;
-    ++ ::number_free_strings;
-    return NULL_STUB;
-}
-
-void PAR::set_max_string_free_list_size ( int n )
-{
-    ::max_string_free_list_size = n;
-    if ( n >= 0 ) while ( ::number_free_strings > n )
-    {
-	PAR::string_insptr string = ::free_strings;
-	::free_strings = string->next;
-        min::deallocate ( string );
-	-- ::number_free_strings;
-    }
-}
-
-void PAR::resize ( PAR::string string )
-{
-    PAR::string_insptr s = (PAR::string_insptr) string;
-    min::resize ( s, s->length );
-}
-
 // Tokens
 // ------
 
@@ -365,7 +275,6 @@ static min::uns32 token_gen_disp[] =
 
 static min::uns32 token_stub_disp[] =
 {
-    min::DISP ( & PAR::token_struct::string ),
     min::DISP ( & PAR::token_struct::next ),
     min::DISP ( & PAR::token_struct::previous ),
     min::DISP_END
@@ -421,7 +330,6 @@ PAR::token PAR::new_token ( min::uns32 type )
 
     value_ref(token) = min::MISSING();
     value_type_ref(token) = min::MISSING();
-    string_ref(token) = NULL_STUB;
     token->type = type;
     return token;
 }

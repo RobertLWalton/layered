@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 04:48:02 EST 2019
+// Date:	Tue Feb 26 06:14:45 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1631,9 +1631,8 @@ TAB::key_prefix PAR::find_key_prefix
     {
 	if ( current == next
 	     ||
-             current->value == min::MISSING()
-	     ||
-	     ! is_lexeme ( current->type ) )
+             ! ( ( 1 << current->type )
+	         & LEXSTD::symbol_mask ) )
 	    break;
 
 	min::gen e = current->value;

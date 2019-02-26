@@ -1699,10 +1699,10 @@ template <typename T>
 // beginning with `current'.  If `next' is NULL_STUB,
 // tokens are added to the token list as necessary, but
 // otherwise only tokens before `next' are considered.
-// Only lexeme token types with non-MISSING token value
-// are considered.  If `next' is NULL_STUB, it is
-// assumed that the token list finally ends with an
-// end-of-file token, and this cannot be part of any
+// Only lexeme token types that are symbols as per
+// symbol_mask are considered.  If `next' is NULL_STUB,
+// it is assumed that the token list finally ends with
+// an end-of-file token, and this cannot be part of any
 // key table entry (because its token value is
 // MISSING).
 //

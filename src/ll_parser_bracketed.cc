@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 05:24:09 EST 2019
+// Date:	Tue Feb 26 06:39:09 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -961,10 +961,10 @@ bool BRA::parse_paragraph_element
 
 // Given the token sequence from `first' to `next', make
 // a label containing these tokens.  Convert quoted
-// string and numeric tokens to strings.  Announce
-// non-name components as errors and ignore them.  If
-// allow_sublabels is false, also treat components
-// that are themselves labels as errors.
+// string tokens to strings.  Announce non-name compon-
+// ents as errors and ignore them.  If allow_sublabels
+// is false, also treat components that are themselves
+// labels as errors.
 //
 // If there are 0 non-erroneous label components, make
 // an empty label, and if there is exactly 1 component,

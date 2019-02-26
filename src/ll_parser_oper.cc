@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:49:47 EDT 2018
+// Date:	Tue Feb 26 12:17:44 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -459,9 +459,6 @@ static void oper_parse ( PAR::parser parser,
 		    current->type = PAR::OPERATOR;
 		    PAR::value_ref ( current ) =
 			oper->label;
-		    MIN_REQUIRE
-		      (    current->string
-		        == min::NULL_STUB );
 		}
 
 		if ( trace_flags & PAR::TRACE_KEYS )

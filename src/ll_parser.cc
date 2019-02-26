@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 06:14:45 EST 2019
+// Date:	Tue Feb 26 12:19:38 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -428,7 +428,6 @@ PAR::token PAR::new_token ( min::uns32 type )
 
 void PAR::free ( PAR::token token )
 {
-    string_ref(token) = free_string ( token->string );
     value_ref(token) = min::MISSING();
 
     PAR::internal::remove ( token );
@@ -2368,24 +2367,15 @@ min::gen PAR::scan_name
 void PAR::convert_token ( PAR::token token )
 {
     min::gen type;
-    min::locatable_gen value;
+    min::locatable_gen value ( token->value );
 
     if ( token->type == LEXSTD::quoted_string_t )
-    {
 	type = PARLEX::doublequote;
-	value = min::new_str_gen
-		  ( min::begin_ptr_of ( token->string ),
-		    token->string->length );
-	PAR::string_ref(token) =
-	    PAR::free_string ( token->string );
-    }
     else
     {
 	MIN_REQUIRE
 	    ( token->type == LEXSTD::numeric_t );
-
 	type = PARLEX::number_sign;
-	value = token->value;
     }
 
     PAR::value_ref(token) = min::new_obj_gen ( 10, 1 );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 07:57:26 EDT 2018
+// Date:	Tue Feb 26 04:48:02 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2008,7 +2008,8 @@ void PAR::compact
 	      current != next;
 	      ++ t, current = current->next )
 	{
-	    if ( current->string != min::NULL_STUB )
+	    if ( ( 1 << current->type )
+	         & LEXSTD::convert_mask )
 		PAR::convert_token ( current );
 	}
 
@@ -2367,35 +2368,32 @@ min::gen PAR::scan_name
 
 void PAR::convert_token ( PAR::token token )
 {
-    MIN_REQUIRE ( token->string != min::NULL_STUB );
-
     min::gen type;
+    min::locatable_gen value;
 
-    if (    token->type
-	 == LEXSTD::quoted_string_t )
+    if ( token->type == LEXSTD::quoted_string_t )
+    {
 	type = PARLEX::doublequote;
+	value = min::new_str_gen
+		  ( min::begin_ptr_of ( token->string ),
+		    token->string->length );
+	PAR::string_ref(token) =
+	    PAR::free_string ( token->string );
+    }
     else
     {
-	MIN_REQUIRE (    token->type
-		      == LEXSTD::numeric_t );
+	MIN_REQUIRE
+	    ( token->type == LEXSTD::numeric_t );
 
 	type = PARLEX::number_sign;
+	value = token->value;
     }
 
-
-    PAR::value_ref(token)
-	= min::new_obj_gen ( 10, 1 );
-    min::obj_vec_insptr elemvp
-	( token->value );
+    PAR::value_ref(token) = min::new_obj_gen ( 10, 1 );
+    min::obj_vec_insptr elemvp ( token->value );
     min::attr_push(elemvp) = min::MISSING();
 
-    min::attr ( elemvp, 0 ) =
-                    min::new_str_gen
-			( min::begin_ptr_of
-			      ( token->string ),
-			  token->string->length );
-    PAR::string_ref(token) =
-	PAR::free_string ( token->string );
+    min::attr ( elemvp, 0 ) = value;
 
     min::attr_insptr elemap ( elemvp );
     min::locate ( elemap, min::dot_type );

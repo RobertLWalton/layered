@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 25 07:41:20 EST 2019
+// Date:	Tue Feb 26 05:24:09 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -641,7 +641,6 @@ static void bracketed_pass_reset
     bracketed_pass->indentation_offset = 2;
     BRA::string_concatenator_ref ( bracketed_pass ) =
         PARLEX::number_sign;
-
     BRA::middle_break mb = { "#", "#", 1, 1 };
     bracketed_pass->middle_break = mb;
 }
@@ -736,6 +735,8 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
     bracketed_pass->indentation_offset = 2;
     BRA::string_concatenator_ref ( bracketed_pass ) =
         PARLEX::number_sign;
+    BRA::middle_break mb = { "#", "#", 1, 1 };
+    bracketed_pass->middle_break = mb;
 
     return (PAR::pass) bracketed_pass;
 }
@@ -1014,10 +1015,10 @@ static void make_label
 
 	case LEXSTD::word_t:
 	case LEXSTD::natural_t:
+	case LEXSTD::numeric_t:
 	    break;
 
 	case LEXSTD::quoted_string_t:
-	case LEXSTD::numeric_t:
 	    t->type = PAR::DERIVED;
 	    PAR::value_ref(t) = min::new_str_gen
 			( min::begin_ptr_of

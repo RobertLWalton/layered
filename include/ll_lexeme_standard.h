@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:31:31 EDT 2018
+// Date:	Mon Feb 25 20:11:01 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,7 +83,19 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 mark_t				= 4;
         // Middle lexeme not containing a letter or
 	// a digit.
+
+    const uns32 middle_mask =
+          ( 1 << word_t ) + ( 1 << natural_t )
+	+ ( 1 << numeric_t ) + ( 1 << mark_t );
+	// Middle lexemes.
+
     const uns32 quoted_string_t			= 5;
+
+    const uns32 convert_mask =
+        ( 1 << numeric_t ) + ( 1 << quoted_string_t );
+	// Lexemes to be converted to expressions
+	// of the form {" ... "} or {# ... #}.
+
     const uns32 separator_t			= 6;
         // Includes leading and trailing separators.
 

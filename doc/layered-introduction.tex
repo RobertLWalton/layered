@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 25, 2019
+February 26, 2019
  
 \end{center}
 
@@ -2081,9 +2081,10 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& Standardly the token lexeme types are word, mark, separator,
-		  and natural-number whose tokens have a \TT{value} that is
+		  natural-number, and numeric
+		  whose tokens have a \TT{value} that is
 		  a MIN string equal to the lexeme characters,
-		  quoted string and numeric whose tokens
+		  quoted string whose tokens
 		  have a \TT{string} equal
 		  to the lexeme translation string,
 		  and comment, indent, line break, start of file,
@@ -2193,10 +2194,11 @@ A token has the following components:
 		  (but for \TT{DERIVED} type tokens the token my have
 		  a \TT{value} that equals \TT{MISSING}).
 \\[1ex]
-		& Note that natural-numbers have token \TT{value}'s that are MIN
+		& Note that natural-numbers and numerics
+		  have token \TT{value}'s that are MIN
 		  strings equal to their lexemes,
 		  and are \underline{not} MIN numbers.
-		  This allows very large natural-number lexemes,
+		  This allows very large number lexemes,
 		  and does not try to exploit the 1-1 correspondence
 		  between not-too-large natural-number lexemes and
 		  non-negative integral MIN numbers.  It means that
@@ -2226,7 +2228,7 @@ A token has the following components:
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{string}{of token}
-		& For quoted string and numeric lexemes,
+		& For quoted strings,
 		  which do not have token \TT{value}'s,
                   this is the translation string of the lexeme,
 		  stored in a manner that makes
@@ -3611,12 +3613,14 @@ and the above rule merges the attributes into Y to get
 as the \TT{value} of a \TT{BRACKETED} token.
 
 In the process of forming a MIN object, some tokens must be converted to
-object elements.  If these tokens have MIN values, their values are used.
-But for quoted string and numeric lexemes, there is a token \TT{string}
-but no token \TT{value}.  Such tokens are converted to a MIN object
+object elements.  If these tokens have MIN values, their values are used,
+except for numeric lexemes.
+Quoted string and numeric lexemes
+are first converted to a MIN object
 whose \TT{.type} is \TT{"<Q>"} for a quoted string or \TT{\#} for
 a numeric, and whose single element is a MIN string equal to the
-token \TT{string}.
+the token \TT{value} for numerics and the token \TT{string} for
+quoted strings.
 
 Note that natural-numbers, consisting of just decimal digits
 with no leading zeros, are not numeric lexemes, and have MIN string

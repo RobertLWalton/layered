@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 05:43:13 EST 2017
+// Date:	Tue Feb 26 04:47:49 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -580,10 +580,9 @@ bool PRE::compact_prefix_list
 
 	while ( current != next )
 	{
-	    if (    current->string
-		 != min::NULL_STUB )
-		PAR::convert_token
-		    ( current );
+	    if (   ( 1 << current->type )
+	         & LEXSTD::convert_mask )
+		PAR::convert_token ( current );
 
 	    if ( min::is_attr_legal ( current->value ) )
 	    {

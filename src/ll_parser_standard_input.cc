@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:50:59 EDT 2018
+// Date:	Tue Feb 26 04:54:18 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -282,17 +282,6 @@ SCAN_NEXT_LEXEME:
 	}
 	else switch ( type )
 	{
-	case LEXSTD::word_t:
-	case LEXSTD::mark_t:
-	case LEXSTD::separator_t:
-	case LEXSTD::natural_t:
-	{
-	    value_ref(token) = min::new_str_gen
-	        ( min::begin_ptr_of
-		      ( translation_buffer ),
-		  translation_buffer->length );
-	    break;
-	}
 	case LEXSTD::numeric_t:
 	{
 	    min::uns32 length =
@@ -348,6 +337,17 @@ SCAN_NEXT_LEXEME:
 		}
 		// else fall through
 	    }
+	}
+	case LEXSTD::word_t:
+	case LEXSTD::mark_t:
+	case LEXSTD::separator_t:
+	case LEXSTD::natural_t:
+	{
+	    value_ref(token) = min::new_str_gen
+	        ( min::begin_ptr_of
+		      ( translation_buffer ),
+		  translation_buffer->length );
+	    break;
 	}
 	case LEXSTD::quoted_string_t:
 	{

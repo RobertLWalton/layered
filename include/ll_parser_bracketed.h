@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 25 07:34:41 EST 2019
+// Date:	Mon Feb 25 19:55:19 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -556,8 +556,8 @@ struct middle_break
     // each.  Middle breaks are disabled if lengths
     // are 0.
 {
-    min::uns8  begin[32];
-    min::uns8  end[32];
+    char       begin[32];
+    char       end[32];
     min::uns32 begin_length;
     min::uns32 end_length;
 };

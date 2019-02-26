@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 06:39:09 EST 2019
+// Date:	Tue Feb 26 12:38:46 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1016,16 +1016,7 @@ static void make_label
 	case LEXSTD::word_t:
 	case LEXSTD::natural_t:
 	case LEXSTD::numeric_t:
-	    break;
-
 	case LEXSTD::quoted_string_t:
-	    t->type = PAR::DERIVED;
-	    PAR::value_ref(t) = min::new_str_gen
-			( min::begin_ptr_of
-			      ( t->string ),
-			  t->string->length );
-	    PAR::string_ref(t) =
-		PAR::free_string ( t->string );
 	    break;
 
 	case PAR::DERIVED:
@@ -1290,7 +1281,8 @@ inline void finish_attribute
 	}
 	else if ( start->next == next
 	          &&
-		  start->string == min::NULL_STUB )
+		  ! (   ( 1 << start->type )
+		      & LEXSTD::convert_mask ) )
 	{
 	    min::gen initiator =
 		typed_data
@@ -1356,6 +1348,18 @@ inline void move_attributes
     }
 
     typed_data->attributes = min::NULL_STUB;
+}
+
+inline min::gen strcat ( min::gen s1, min::gen s2 )
+{
+    min::str_ptr sp1 ( s1 );
+    min::str_ptr sp2 ( s2 );
+    min::unsptr l1 = min::strlen ( sp1 );
+    min::unsptr l2 = min::strlen ( sp2 );
+    char s [l1 + l2 + 1];
+    min::strcpy ( s, s1 );
+    min::strcpy ( s + l1, s2 );
+    return min::new_str_gen ( s );
 }
 
 min::position BRA::parse_bracketed_subexpression
@@ -2727,17 +2731,14 @@ NEXT_TOKEN:
 		  != LEXSTD::quoted_string_t )
 	    goto NEXT_TOKEN;
 
-	// Merge current->previous into current->
-	// previous->previous, and delete current->
-	// previous.
+	// Append current->previous->value to the end
+	// of current->previous->previous->value, and
+	// delete current->previous.
 	//
-	min::push
-	    ( (PAR::string_insptr)
-		  current->previous->previous
-				   ->string,
-	      current->previous->string->length,
-	      min::begin_ptr_of
-		  ( current->previous->string ) );
+	PAR::value_ref ( current->previous->previous )
+	    = ::strcat ( current->previous->previous
+	                        ->value,
+			 current->previous->value );
 	current->previous->previous
 		->position.end =
 	    current->previous->position.end;
@@ -4122,9 +4123,9 @@ static bool multivalue_reformatter_function
 	{
 	    if ( start != t )
 	    {
-	        if ( start->next != t
-		     ||
-		     start->string != min::NULL_STUB )
+	        if (    start->next != t
+		     ||    start->type
+		        == LEXSTD::quoted_string_t )
 		    ::make_label ( parser, start, t );
 		++ count;
 	    }

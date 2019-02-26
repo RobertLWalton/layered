@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 04:54:18 EST 2019
+// Date:	Tue Feb 26 12:05:42 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -330,9 +330,6 @@ SCAN_NEXT_LEXEME:
 		    token->type = PAR::find_token_type
 		    	( PAR::value_type_ref(token),
 			  token->value );
-		    PAR::string_ref(token) =
-			PAR::free_string
-			    ( token->string );
 		    break;
 		}
 		// else fall through
@@ -342,21 +339,12 @@ SCAN_NEXT_LEXEME:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
 	case LEXSTD::natural_t:
+	case LEXSTD::quoted_string_t:
 	{
 	    value_ref(token) = min::new_str_gen
 	        ( min::begin_ptr_of
 		      ( translation_buffer ),
 		  translation_buffer->length );
-	    break;
-	}
-	case LEXSTD::quoted_string_t:
-	{
-	    int length = translation_buffer->length;
-	    PAR::string_ref(token) =
-	        PAR::new_string
-		    ( length,
-		      min::begin_ptr_of
-			  ( translation_buffer ) );
 	    break;
 	}
 	case LEXSTD::comment_t:
@@ -384,19 +372,6 @@ SCAN_NEXT_LEXEME:
 		    << min::pgen_quote ( token->value )
 		    << min::restore_print_format
 		    << ": ";
-	    else if ( token->string != min::NULL_STUB )
-	    {
-	        printer << min::save_print_format
-		        << min::graphic_only;
-		min::print_unicode
-		    ( printer,
-		      token->string->length,
-		      min::begin_ptr_of
-			       ( token->string ),
-		      min::quote_all_str_format );
-		printer << min::restore_print_format
-		        << ": ";
-	    }
 	    printer
 		<< LEX::pline_numbers
 		        ( scanner, first, next )

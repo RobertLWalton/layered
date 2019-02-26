@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 07:56:23 EDT 2018
+// Date:	Tue Feb 26 13:31:40 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,6 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Strings
 //	Tokens
 //	Parser Closures
 //	Parser
@@ -136,86 +135,6 @@ namespace bracketed {
 }
 
 } }
-
-
-// Strings
-// -------
-
-namespace ll { namespace parser {
-
-// Token character strings are optional parts of tokens.
-// A token character string is allocated when its token
-// is allocated and freed when its token is freed.  As
-// the lifetime of a token character string may be
-// short, freed token character strings are put on a
-// special free list.  These token character strings
-// start out being long enough to hold a typical maxi-
-// mum length line (80 characters) and may grow if
-// necessary to hold longer character strings.
-//
-// Some token character strings are kept a long time
-// before they are freed.  These are resized to optimize
-// memory usage.  Tokens need not be explicitly freed,
-// as they will be garbage collected when they become
-// unreferenceable.
-
-struct string_struct;
-typedef min::packed_vec_ptr<Uchar,string_struct>
-        string;
-typedef min::packed_vec_insptr<Uchar,string_struct>
-        string_insptr;
-struct string_struct
-{
-    uns32 control;
-    	// Packed vector control word.
-    uns32 length;
-        // Length of vector.
-    uns32 max_length;
-        // Maximum length of vector.
-
-    const ll::parser::string_insptr next;
-        // Pointer to next block on free list, if string
-	// is on free list.  List is NULL_STUB termina-
-	// ted.
-
-    // The elements of a string are uns32 UNICODE
-    // characters.
-};
-
-MIN_REF ( ll::parser::string_insptr, next,
-          ll::parser::string_insptr )
-
-// Allocate a new string and return a pointer to it.
-//
-ll::parser::string new_string
-	( uns32 n, min::ptr<const min::Uchar> s );
-
-inline ll::parser::string new_string
-	( uns32 n, const Uchar * s )
-{
-    return ll::parser::new_string
-        ( n, min::new_ptr ( s ) );
-}
-
-// Free a string and return NULL_STUB.
-//
-ll::parser::string free_string
-	( ll::parser::string string );
-
-// Set the maximum number of strings on the free list.
-// Set to 0 to make list empty.  Set to < 0 if there is
-// no limit.  Defaults to 100.
-//
-void set_max_string_free_list_size ( int n );
-
-// Resize a string so its maximum and current length
-// coincide.  This should only be done to strings
-// that are going to be long-lived and not freed by
-// free_string.
-//
-void resize ( ll::parser::string string );
-
-} }
 
 // Tokens
 // ------
@@ -328,9 +247,9 @@ struct token_struct
 	// 	    a MIN object.
 
     const min::gen value;
-        // Value for some lexeme types, and MISSING for
-	// others that have strings instead.  See the
-	// type above for non-lexeme type values.
+        // MIN string value equal to the lexeme for some
+	// lexeme types.  See the type above for non-
+	// lexeme type values.
 
     const min::gen value_type;
         // For a BRACKETED token, the .initiator of its
@@ -344,10 +263,6 @@ struct token_struct
 	// or the .type of its MIN value otherwise.
 	//
 	// In all other cases, MISSING.
-
-    const ll::parser::string string;
-        // Character string for lexeme types that have
-	// no value.
 
     min::phrase_position position;
         // Position of the first character of the token
@@ -368,8 +283,6 @@ struct token_struct
         // Doubly linked list pointers for tokens.
 };
 
-MIN_REF ( ll::parser::string, string,
-          ll::parser::token )
 MIN_REF ( min::gen, value,
           ll::parser::token )
 MIN_REF ( min::gen, value_type,
@@ -411,15 +324,14 @@ MIN_REF ( ll::parser::token, previous,
 
 // Allocate a new token of the given type by moving the
 // token from the free list to the allocated list and
-// setting its type.  Its value is set to min::MISSING()
-// and its string to min::NULL_STUB.
+// setting its type.  Its value is set to
+// min::MISSING().
 //
 ll::parser::token new_token ( uns32 type );
 
 // Free token and return NULL_STUB.  Token is moved from
 // the allocated list to the free list after its value
-// is set to MISSING and its string is freed and set to
-// NULL_STUB.
+// is set to MISSING.
 //
 void free ( ll::parser::token token );
 

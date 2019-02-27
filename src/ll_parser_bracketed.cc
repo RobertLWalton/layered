@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 13:27:03 EST 2019
+// Date:	Wed Feb 27 04:48:45 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1350,7 +1350,13 @@ inline void move_attributes
     typed_data->attributes = min::NULL_STUB;
 }
 
-inline min::gen strcat ( min::gen s1, min::gen s2 )
+// Concatenate the MIN strings s1 and s2, after
+// removing n1 bytes from the end of s1 and n2
+// bytes from the beginning of s2.
+//
+inline min::gen strcat
+	( min::gen s1, min::gen s2,
+	  min::uns32 n1 = 0, min::uns32 n2 = 0 )
 {
     min::str_ptr sp1 ( s1 );
     min::str_ptr sp2 ( s2 );
@@ -1358,8 +1364,36 @@ inline min::gen strcat ( min::gen s1, min::gen s2 )
     min::unsptr l2 = min::strlen ( sp2 );
     char s [l1 + l2 + 1];
     min::strcpy ( s, s1 );
-    min::strcpy ( s + l1, s2 );
+    const char * t2 = ~ min::begin_ptr_of ( s2 );
+    strcpy ( s + l1 - n1, t2 + n2 );
     return min::new_str_gen ( s );
+}
+
+// Return true if the string s is at the beginning of
+// the string g, and g is longer than s.  g must a MIN
+// string general value.  n is the length of s.
+//
+inline bool at_begin ( const char * s, min::gen g,
+                       min::uns32 n )
+{
+    min::str_ptr sp ( g );
+    const char * t = ~ min::begin_ptr_of ( sp );
+    if ( strncmp ( t, s, n ) != 0 ) return false;
+    return t[n] != 0;
+}
+
+// Return true if the string s is at the end of the
+// string g, and g is longer than s.  g must a MIN
+// string general value.  n is the length of s.
+//
+inline bool at_end ( const char * s, min::gen g,
+                     min::uns32 n )
+{
+    min::str_ptr sp ( g );
+    const char * t = ~ min::begin_ptr_of ( sp );
+    min::uns32 m = strlen ( t );
+    if ( m <= n ) return false;
+    return strcmp ( t + m - n, s ) == 0;
 }
 
 min::position BRA::parse_bracketed_subexpression
@@ -2739,6 +2773,50 @@ NEXT_TOKEN:
 	    = ::strcat ( current->previous->previous
 	                        ->value,
 			 current->previous->value );
+	current->previous->previous
+		->position.end =
+	    current->previous->position.end;
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  current->previous ) );
+	goto NEXT_TOKEN;
+    }
+
+    if ( (   ( 1 << current->type )
+           & LEXSTD::middle_mask )
+	 &&
+            bracketed_pass->middle_break.begin_length
+	 != 0
+	 &&
+	 at_begin
+	     ( bracketed_pass->middle_break.begin,
+	       current->value,
+	       bracketed_pass->middle_break
+			      .begin_length )
+	 &&
+	 start_previous->next != current
+	 &&
+	 (    ( 1 << current->previous->type )
+            & LEXSTD::middle_mask )
+	 &&
+	 at_end ( bracketed_pass->middle_break.end,
+	          current->previous->value,
+		  bracketed_pass->middle_break
+		                 .end_length ) )
+    {
+	// Append current->previous->value to the end
+	// of current->previous->previous->value, and
+	// delete current->previous.
+	//
+	PAR::value_ref ( current->previous->previous )
+	    = ::strcat ( current->previous->previous
+	                        ->value,
+			 current->previous->value,
+			 bracketed_pass->middle_break
+			                .begin_length,
+			 bracketed_pass->middle_break
+			                .end_length );
 	current->previous->previous
 		->position.end =
 	    current->previous->position.end;

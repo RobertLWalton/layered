@@ -3720,6 +3720,37 @@ BRACKETED EXPRESSION:
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
+BRACKETED EXPRESSION:
+    "This is a longer sentence than we would like."
+@@@@ = "This is a longer sentence than we would like.":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+"This is a longer sentence"#
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    #" than we would like."
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    "And this is a second sentence."
+@@@@ = "And this is a second sentence.":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+"And this is a second sentence."
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a continued-middle-lexeme "."
+@@@@ = This is a continued-middle-lexeme ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+This is a continued-middle-#
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    #lexeme.
+^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 27 04:48:45 EST 2019
+// Date:	Wed Feb 27 04:55:56 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1362,6 +1362,8 @@ inline min::gen strcat
     min::str_ptr sp2 ( s2 );
     min::unsptr l1 = min::strlen ( sp1 );
     min::unsptr l2 = min::strlen ( sp2 );
+    MIN_REQUIRE ( n1 <= l1 );
+    MIN_REQUIRE ( n2 <= l2 );
     char s [l1 + l2 + 1];
     min::strcpy ( s, s1 );
     const char * t2 = ~ min::begin_ptr_of ( s2 );
@@ -2805,21 +2807,21 @@ NEXT_TOKEN:
 		  bracketed_pass->middle_break
 		                 .end_length ) )
     {
-	// Append current->previous->value to the end
-	// of current->previous->previous->value, and
-	// delete current->previous.
+	// Append current->value to the end of current->
+	// previous->value.  Then delete current and
+	// move to next token, and go to NEXT_TOKEN.
 	//
-	PAR::value_ref ( current->previous->previous )
-	    = ::strcat ( current->previous->previous
-	                        ->value,
-			 current->previous->value,
+	PAR::value_ref ( current->previous )
+	    = ::strcat ( current->previous->value,
+			 current->value,
 			 bracketed_pass->middle_break
 			                .begin_length,
 			 bracketed_pass->middle_break
 			                .end_length );
-	current->previous->previous
-		->position.end =
-	    current->previous->position.end;
+	current->previous ->position.end =
+	    current->position.end;
+	PAR::ensure_next ( parser, current );
+	current = current->next;
 	PAR::free
 	    ( PAR::remove
 		( first_ref(parser),

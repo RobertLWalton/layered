@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  5 14:27:01 EDT 2018
+// Date:	Wed Feb 27 07:39:13 EST 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -138,6 +138,13 @@ And one more {| |b["A", 201,202, [5]]: t}
     print bracket ""
 
 // Documentation checks
+
+"This is a longer sentence"#
+    #" than we would like."
+"And this is a second sentence."
+
+This is a continued-middle-#
+    #lexeme.
 
 {my type|a b c|}
 {|a b c|my type}

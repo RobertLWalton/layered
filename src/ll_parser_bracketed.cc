@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 27 04:55:56 EST 2019
+// Date:	Thu Feb 28 04:29:49 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,6 +63,8 @@ static min::locatable_gen offset;
 static min::locatable_gen quoted_lexeme;
 static min::locatable_gen string_lexeme;
 static min::locatable_gen concatenator;
+static min::locatable_gen middle_lexeme;
+static min::locatable_gen break_lexeme;
 static min::locatable_gen top;
 
 static void initialize ( void )
@@ -95,6 +97,8 @@ static void initialize ( void )
     ::string_lexeme = min::new_str_gen ( "string" );
     ::concatenator =
         min::new_str_gen ( "concatenator" );
+    ::middle_lexeme = min::new_str_gen ( "middle" );
+    ::break_lexeme = min::new_str_gen ( "break" );
     ::top = min::new_str_gen ( "top" );
 }
 static min::initializer initializer ( ::initialize );
@@ -4479,6 +4483,129 @@ static min::gen bracketed_pass_command
 
 	BRA::string_concatenator_ref
 	    ( bracketed_pass ) = concat;
+
+	return min::SUCCESS();
+    }
+
+    if ( vp[i] == ::middle_lexeme
+         &&
+	 i + 1 < size
+	 &&
+	 vp[i+1] == ::break_lexeme )
+    {
+        if ( command == PARLEX::print )
+	{
+	    if ( i + 2 < size )
+		return PAR::parse_error
+		    ( parser, ppvec[i+1],
+		      "unexpected stuff after" );
+
+	    min::uns32 indent =
+		COM::print_command ( parser, ppvec );
+	    parser->printer
+		<< min::bom << min::no_auto_break
+		<< min::set_indent ( indent + 4 );
+
+	    BRA::middle_break middle_break =
+	        bracketed_pass->middle_break; 
+	    for ( min::uns32 i =
+	              bracketed_pass->
+		          block_stack->length;
+		  0 <= i; -- i )
+	    {
+	        min::gen block_name =
+		    ( i == 0 ?
+		      (min::gen) PARLEX::top_level :
+		      (&parser->block_stack[i-1])
+		          ->name );
+
+	        parser->printer << min::indent
+		                << "block "
+				<< min::pgen_name
+				     ( block_name )
+				<< ": ";
+		if ( middle_break.begin_length == 0 )
+		    parser->printer << "disabled";
+		else
+		{
+		    min::print_cstring
+		        ( parser->printer,
+			  middle_break.begin,
+			  min::quote_all_str_format );
+		    parser->printer << " ";
+		    min::print_cstring
+		        ( parser->printer,
+			  middle_break.end,
+			  min::quote_all_str_format );
+		}
+
+		if ( i == 0 ) break;
+
+		BRA::block_struct b =
+		    bracketed_pass->block_stack[i-1];
+		middle_break = b.middle_break;
+	    }
+
+	    parser->printer << min::eom;
+	    return PAR::PRINTED;
+	}
+	else if ( command != PARLEX::define )
+	    return min::FAILURE();
+
+	else if ( i + 2 >= size )
+	    return PAR::parse_error
+		( parser, ppvec[i+1],
+		  "expected middle break name"
+		  " after" );
+
+	i += 2;
+
+	BRA::middle_break middle_break;
+
+	if ( vp[i] == PARLEX::disabled )
+	{
+	    middle_break.begin_length =
+	    middle_break.end_length = 0;
+	}
+	else
+	{
+	    min::gen begin_name =
+	        PAR::scan_quoted_string
+		    ( vp, i, parser );
+	    if ( begin_name == min::MISSING()
+	         ||
+		 LEXSTD::lexical_type_of ( begin_name )
+		 != LEXSTD::mark_t )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "expected quoted mark" );
+	    if ( i >= size
+		 ||
+		 vp[i] != PARLEX::dotdotdot )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "expected ... after" );
+	    ++ i;
+	    min::gen end_name =
+	        PAR::scan_quoted_string
+		    ( vp, i, parser );
+	    if ( end_name == min::MISSING()
+	         ||
+		 LEXSTD::lexical_type_of ( end_name )
+		 != LEXSTD::mark_t )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "expected quoted mark" );
+
+	    // TBD
+	}
+
+	if ( i + 1 < size )
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "unexpected stuff after" );
+
+	bracketed_pass->middle_break = middle_break;
 
 	return min::SUCCESS();
     }

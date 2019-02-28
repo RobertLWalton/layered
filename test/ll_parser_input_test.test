@@ -38,13 +38,13 @@ LINE_BREAK: line #:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 INDENT: line #:
-// Date:        Wed May  2 04:03:24 EDT 2018
+// Date:        Thu Feb 28 02:27:59 EST 2019
 ^
 COMMENT: line #:
-// Date:        Wed May  2 04:03:24 EDT 2018
+// Date:        Thu Feb 28 02:27:59 EST 2019
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE_BREAK: line #:
-// Date:        Wed May  2 04:03:24 EDT 2018
+// Date:        Thu Feb 28 02:27:59 EST 2019
                                             ^
 INDENT: line #:
 //
@@ -149,32 +149,35 @@ LINE_BREAK: line ##:
 'tis noth'ng `but' a h'dache.
                              ^
 INDENT: line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
 ^
 WORD: "a.1.2.3..b...c": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
 ^^^^^^^^^^^^^^
 WORD: "e5f": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                ^^^
 WORD: "x7+y6": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                    ^^^^^
 SEPARATOR: "(": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                         ^
 NUMERIC: "5z": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                          ^^
 SEPARATOR: ")": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                            ^
-NUMERIC: "may-02-2018": line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
+NUMERIC: "2018-may-02": line ##:
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                              ^^^^^^^^^^^
+NUMERIC: "2018/05/02": line ##:
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
+                                         ^^^^^^^^^^
 LINE_BREAK: line ##:
-a.1.2.3..b...c e5f x7+y6(5z) may-02-2018
-                                        ^
+a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
+                                                   ^
 INDENT: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
 ^
@@ -623,29 +626,29 @@ LINE_BREAK: line ##:
 <BLANK-LINE>
      ^
 INDENT: line ##:
-"premature end of line
+"premature end of line follows
 ^
-QUOTED_STRING: "premature␣end␣of␣line": line ##:
-"premature end of line
-^^^^^^^^^^^^^^^^^^^^^^
+QUOTED_STRING: "premature␣end␣of␣line␣follows": line ##:
+"premature end of line follows
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: string ended by line break or end of file; line ##:
-"premature end of line
-                      ^
+"premature end of line follows
+                              ^
 LINE_BREAK: line ##:
-"premature end of line
-                      ^
+"premature end of line follows
+                              ^
 INDENT: line ##:
-"premature end of file<END-OF-FILE>
+"premature end of file follows<END-OF-FILE>
 ^
-QUOTED_STRING: "premature␣end␣of␣file": line ##:
-"premature end of file<END-OF-FILE>
-^^^^^^^^^^^^^^^^^^^^^^
+QUOTED_STRING: "premature␣end␣of␣file␣follows": line ##:
+"premature end of file follows<END-OF-FILE>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: string ended by line break or end of file; line ##:
-"premature end of file<END-OF-FILE>
-                      ^
+"premature end of file follows<END-OF-FILE>
+                              ^
 ERROR: end of file not preceeded by a line break; line ##:
-"premature end of file<END-OF-FILE>
-                      ^
+"premature end of file follows<END-OF-FILE>
+                              ^
 END_OF_FILE: line ##:
-"premature end of file<END-OF-FILE>
-                      ^
+"premature end of file follows<END-OF-FILE>
+                              ^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 28 04:29:49 EST 2019
+// Date:	Thu Feb 28 05:12:51 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4579,6 +4579,16 @@ static min::gen bracketed_pass_command
 		return PAR::parse_error
 		    ( parser, ppvec[i],
 		      "expected quoted mark" );
+	    middle_break.begin_length =
+	        min::strlen ( begin_name );
+	    if (   middle_break.begin_length
+	         > sizeof ( middle_break.begin ) - 1 )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "too many characters in" );
+	    min::strcpy ( middle_break.begin,
+	                  begin_name );
+
 	    if ( i >= size
 		 ||
 		 vp[i] != PARLEX::dotdotdot )
@@ -4596,8 +4606,15 @@ static min::gen bracketed_pass_command
 		return PAR::parse_error
 		    ( parser, ppvec[i],
 		      "expected quoted mark" );
-
-	    // TBD
+	    middle_break.end_length =
+	        min::strlen ( end_name );
+	    if (   middle_break.end_length
+	         > sizeof ( middle_break.end ) - 1 )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "too many characters in" );
+	    min::strcpy ( middle_break.end,
+	                  end_name );
 	}
 
 	if ( i + 1 < size )

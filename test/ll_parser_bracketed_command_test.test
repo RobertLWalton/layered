@@ -1993,3 +1993,103 @@ And a fourth logical line.
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+    print middle break
+        block BLOCK1: "#" "#"
+        block standard: "#" "#"
+        block TOP LEVEL: "#" "#"
+    trace [+ parser output, + subexpression details]
+BRACKETED EXPRESSION:
+    this-is-a-continued-lexme
+@@ = this-is-a-continued-lexme:
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+this-is-a-#
+^^^^^^^^^^^
+    #continued-#
+^^^^^^^^^^^^^^^^
+    #lexme
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    this-is-a-~ ~continued-~ ~lexme
+@@ = this-is-a-~ ~continued-~ ~lexme:
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+this-is-a-~
+^^^^^^^^^^^
+    ~continued-~
+^^^^^^^^^^^^^^^^
+    ~lexme
+^^^^^^^^^^
+*PARSER*:
+    define middle break "~" ... "~"
+    print middle break
+        block BLOCK1: "~" "~"
+        block standard: "#" "#"
+        block TOP LEVEL: "#" "#"
+BRACKETED EXPRESSION:
+    this-is-a-# #continued-# #lexme
+@@ = this-is-a-# #continued-# #lexme:
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+this-is-a-#
+^^^^^^^^^^^
+    #continued-#
+^^^^^^^^^^^^^^^^
+    #lexme
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    this-is-a-continued-lexme
+@@ = this-is-a-continued-lexme:
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+this-is-a-~
+^^^^^^^^^^^
+    ~continued-~
+^^^^^^^^^^^^^^^^
+    ~lexme
+^^^^^^^^^^
+*PARSER*:
+    define middle break disabled
+    print middle break
+        block BLOCK1: disabled
+        block standard: "#" "#"
+        block TOP LEVEL: "#" "#"
+BRACKETED EXPRESSION:
+    this-is-a-# #continued-# #lexme
+@@ = this-is-a-# #continued-# #lexme:
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+this-is-a-#
+^^^^^^^^^^^
+    #continued-#
+^^^^^^^^^^^^^^^^
+    #lexme
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    this-is-a-~ ~continued-~ ~lexme
+@@@ = this-is-a-~ ~continued-~ ~lexme:
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+this-is-a-~
+^^^^^^^^^^^
+    ~continued-~
+^^^^^^^^^^^^^^^^
+    ~lexme
+^^^^^^^^^^
+*PARSER*:
+    trace [- parser output, - subexpression details]
+    end block BLOCK1

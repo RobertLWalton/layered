@@ -3342,11 +3342,12 @@ is equivalent to
 This is a continued-middle-lexeme.
 \end{verbatim}\end{indpar}
 
-The middle breaks can be changed by the parser command:
+The middle break begin and end can be changed, or middle breaks can
+be disabled, by the parser command:
 \begin{indpar}[0.1in]
-\emlkey{parser-middle-breaks}{-command}%
+\emlkey{parser-middle-break}{-command}%
 \label{PARSER-MIDDLE-BREAKS-COMMAND} ::= \\
-\hspace*{3em} \ttmkey{define middle breaks}{parser command}
+\hspace*{3em} \ttmkey{define middle break}{parser command}
 	  ~ {\em middle-break-name}
 \\[0.5ex]
 \emkey{middle-break-name} ::= \TT{"}{\em middle-break-begin}\TT{"}
@@ -3365,7 +3366,7 @@ If {\em middle-break-name} is `\TT{disabled}', middle lexemes
 are never concatenated.
 
 The end of a parser block erases the effects of any
-{\em define-middle-breaks-commands} executed during the block.
+{\em define-middle-break-commands} executed during the block.
 
 The bracketed subexpression recognition pass also merges
 quoted strings if they are in the same logical line and are

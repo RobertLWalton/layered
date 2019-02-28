@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 12:19:38 EST 2019
+// Date:	Thu Feb 28 04:37:00 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2098,22 +2098,11 @@ min::gen PAR::scan_name_string_label
 	  min::uns64 end_types,
 	  bool empty_name_ok )
 {
-    if ( i >= min::size_of ( vp ) )
+    min::gen s = PAR::scan_quoted_string
+        ( vp, i, parser );
+    if ( s == min::MISSING() )
         return min::MISSING();
-
-    min::gen element = vp[i];
-
-    if (    min::get ( element, min::dot_type )
-         != PARLEX::doublequote )
-        return min::MISSING();
-
-    min::obj_vec_ptr ep = element;
-    if ( min::size_of ( ep ) != 1 )
-        return min::MISSING();
-
-    min::str_ptr sp = ep[0];
-
-    ++ i;
+    min::str_ptr sp = s;
 
     if ( parser->name_scanner == NULL_STUB )
     {

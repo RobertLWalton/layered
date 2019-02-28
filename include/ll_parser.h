@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 13:31:40 EST 2019
+// Date:	Thu Feb 28 04:14:48 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1898,6 +1898,34 @@ const min::uns64 END_SCAN_MASK =
       ( 1ull << ll::lexeme::standard
                           ::premature_end_of_file_t )
     + ( 1ull << ll::lexeme::standard::end_of_file_t );
+
+// Given an object vector pointer vp pointing at an
+// expression, and an index i of an element in the
+// object attribute vector, then if the element is
+// a quoted string, increment i by one and a return
+// the min::gen value containing the quoted string
+// characters proper.
+//
+// If the element does not exist (i >= size_of ( vp)) or
+// is not a quoted string, this function just returns
+// min::MISSING().
+//
+inline min::gen scan_quoted_string
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser )
+{
+    if ( i >= min::size_of ( vp ) )
+            return min::MISSING();
+    min::gen element = vp[i];
+    if (    min::get ( element, min::dot_type )
+	 != ll::parser::lexeme::doublequote )
+	return min::MISSING();
+    min::obj_vec_ptr ep = element;
+    if ( min::size_of ( ep ) != 1 )
+	return min::MISSING();
+    ++ i;
+    return ep[0];
+}
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the

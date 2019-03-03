@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 19, 2019
+March 3, 2019
  
 \end{center}
 
@@ -480,11 +480,8 @@ warning messages.
 	or ending with a {\em trailing-separator-character} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{number} \begin{tabular}[t]{rl}
-    ::= & {\em middle-lexeme} with a {\em digit} before any {\em letter} \\
-    $|$ & {\em middle-lexeme} with a {\em digit} immediately after
-                               a `\TT{+}' or `\TT{-}' \\
-	\end{tabular}
+\emkey{number}
+    ::= {\em middle-lexeme} with a {\em digit} before any {\em letter}
 \\[0.5ex]
 \emkey{natural-number}\label{NATURAL-NUMBER}
 	:::= {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
@@ -2031,7 +2028,8 @@ unchanged except for giving it a different type.
 \subsubsection{Number Constants}
 \label{NUMBER-CONSTANTS}
 
-A \key{number-constant} is a {\em number} lexeme with specific syntax
+A \key{number-constant} is a {\em number} lexeme or sequence of
+lexemes with specific syntax
 that is used to denote a number.  The syntax is:
 
 \begin{indpar}

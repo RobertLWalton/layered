@@ -5541,7 +5541,7 @@ Next suppose the parser is given the definition:
     define prefix "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
-	with parsing options [+ sticky]
+        with parsing options [+ sticky]
 \end{verbatim}\end{indpar}
 with a `\TT{sticky}' option.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
@@ -5567,7 +5567,7 @@ If instead the parser is given the definition:
     define prefix "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
-	with parsing options [+ continuing]
+        with parsing options [+ continuing]
 \end{verbatim}\end{indpar}
 with a `\TT{continuing}' option, then when given the above input
 the parser would produce the single MIN object:

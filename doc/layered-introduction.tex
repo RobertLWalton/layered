@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 28, 2019
+March 5, 2019
  
 \end{center}
 
@@ -3298,38 +3298,55 @@ The bracketed subexpression recognition pass recognizes:
 \hspace*{-0.2in}indented paragraphs, consisting of a line-ending
     indentation mark (e.g.~`\TT{:}') followed by a sequence of
     indented logical lines, ended by a non-indented line or end
-    of file \\
+    of file: \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
+\\[0.5ex]
 \hspace*{-0.2in}logical lines, which may end with any line break,
     or with a line break not followed by an indented line,
     or with a line break followed by a counter-indented line,
     or with a line separator (e.g.~`\TT{;}'),
-    or with any blank line, or with an end of file \\
+    or with any blank line, or with an end of file:
+    \itemref{LOGICAL-LINES}
+\\[0.5ex]
+\hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
+    and bracketed subexpressions, which must be inside logical lines:
+    \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS}
+\\[0.5ex]
+\hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
+    and typed bracketed subexpressions, which must be inside logical lines:
+    \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+\\[0.5ex]
+\hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
+    and prefix lists that are lists of subexpressions between
+    typed prefix separators, which must be inside logical lines:
+    \itemref{TYPED-PREFIX-SEPARATORS}
+\\[0.5ex]
+\hspace*{-0.2in}paragraph and line headers, which are special typed prefix
+    separators: \itemref{HEADED-PARAGRAPHS} and \itemref{HEADED-LINES}
+\\[0.5ex]
+\hspace*{-0.2in}mapped lexemes, which are special lexemes typically
+    produced at the beginning of a logical line that are mapped onto
+    paragraph or line headers or other typed prefix separators:
+    \itemref{MAPPED-LEXEMES}
+\\[0.5ex]
+\hspace*{-0.2in}headed lines, which are logical lines beginning with
+    a line header:
+    \itemref{HEADED-LINES}
+\\[0.5ex]
 \hspace*{-0.2in}headed paragraphs,
     which are sequences of logical lines
     ended by a blank line, by the next headed paragraph,
     or by the end of a containing indented paragraph,
     where the whole headed paragraph begins with a paragraph
-    header \\
-\hspace*{-0.2in}brackets (e.g.~`\TT{(}' and `\TT{)}')
-    and bracketed subexpressions, which must be inside logical lines \\
-\hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
-    and typed bracketed subexpressions, which must be inside logical lines \\
-\hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
-    and prefix lists that are lists of subexpressions between
-    typed prefix separators, which must be inside logical lines \\
-\hspace*{-0.2in}paragraph and line headers, which are special typed prefix
-    separators \\
-\hspace*{-0.2in}mapped lexemes, which are special lexemes typically
-    produced at the beginning of a logical line that are mapped onto
-    paragraph or line headers or other typed prefix separators
+    header:
+    \itemref{HEADED-PARAGRAPHS}
 \end{indpar}
 
-The bracketed subexpression recognition pass merges
-middle lexemes if they are consecutive within a logical line,
+The bracketed subexpression recognition pass merges middle lexemes%
+\label{MIDDLE-LEXEME-MERGE}
+if they are consecutive within a logical line,
 the first ends with
 a \key{middle break begin} (e.g., `\TT{\#}'), and the second begins with
-a \key{middle break end} (e.g., `\TT{\#}').%
-\label{MIDDLE-LEXEME-CONCATENATION}
+a \key{middle break end} (e.g., `\TT{\#}').
 The middle break begin and end are deleted from the concatenation.
 Thus if logical lines end with a line break
 but permit indented continuation lines, then
@@ -3355,15 +3372,17 @@ be disabled, by the parser command:
                               \TT{"}{\em middle-break-end}\TT{"}
 		     $|$ \TT{disabled}
 \\[0.5ex]
-\emkey{middle-break-begin} :::= {\em mark} with at most 31 UTF-8 bytes
+\emkey{middle-break-begin} :::=
+    {\em mark} with at least 1 and at most 31 UTF-8 bytes
 \\[0.5ex]
-\emkey{middle-break-end} :::= {\em mark} with at most 31 UTF-8 bytes
+\emkey{middle-break-end} :::=
+    {\em mark} with at least 1 and at most 31 UTF-8 bytes
 \\[0.5ex]
 {\em mark} ::= see \pagref{MARK}
 \end{indpar}
 
 If {\em middle-break-name} is `\TT{disabled}', middle lexemes
-are never concatenated.
+are never merged.
 
 The end of a parser block erases the effects of any
 {\em define-middle-break-commands} executed during the block.
@@ -3372,8 +3391,7 @@ The bracketed subexpression recognition pass also merges
 quoted strings if they are in the same logical line and are
 separated by one or two \skey{quoted string concatenator}s (e.g., `\TT{\#}').%
 \label{QUOTED-STRING-CONCATENATION}
-Thus if logical lines end with a line break
-but permit indented continuation lines, then
+Thus if logical lines permit indented continuation lines, then
 \begin{indpar}\begin{verbatim}
 "This is a longer sentence"#
     #" than we would like."
@@ -3393,7 +3411,7 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-The concatenator can be changed by the parser command:
+The quoted string concatenator can be changed by the parser command:
 \begin{indpar}[0.1in]
 \emlkey{parser-quoted-string}{-concatenator-command}%
 \label{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} ::= \\
@@ -3414,22 +3432,29 @@ needs to be placed between the strings.
 The end of a parser block erases the effects of any
 {\em define-quoted-string-concatenator-commands} executed during the block.
 
-The bracketed parser pass has three symbol tables.  The bracketed
-symbol table contains:
-\begin{indpar}[0.5in]
-\hspace*{-0.2in}opening brackets (e.g.~`\TT{(}') and their
-    corresponding closing brackets (e.g.~`\TT{)}') \\
-\hspace*{-0.2in}indentation marks (e.g.~`\TT{:}')
-    and any corresponding line separators (e.g.~`\TT{;}') \\
-\hspace*{-0.2in}typed openings (e.g.~`\TT{\{}') and their
+The bracketed parser pass has three symbol tables:
+\begin{indpar}[0.3in]
+Bracketed Symbol Table.  Contains multi-lexeme keys found in
+the input: \\
+\hspace*{0.2in}opening brackets (e.g.~`\TT{(}') and their
+    corresponding closing brackets (e.g.~`\TT{)}'):
+    \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS}
+\\[0.5ex]
+\hspace*{0.2in}indentation marks (e.g.~`\TT{:}')
+    and any corresponding line separators (e.g.~`\TT{;}'):
+    \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
+\\[0.5ex]
+\hspace*{0.2in}typed openings (e.g.~`\TT{\{}') and their
       corresponding typed closings (e.g.~`\TT{\}}') \\
-      and typed middles (e.g.~`\TT{|}')
+\hspace*{0.2in}and typed middles (e.g.~`\TT{|}'):
+    \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+\\[1ex]
+Prefix Symbol Table. Contains information about prefix separator types:
+\itemref{PREFIX-DEFINITIONS}
+\\[1ex]
+Mapped Lexeme Symbol Table.  Maps some lexeme types to
+bracketed subexpressions that replace the lexemes: \itemref{MAPPED-LEXEMES}
 \end{indpar}
-
-The bracketed parser pass also has a symbol table
-for prefixes
-(see \itemref{PREFIX-DEFINITIONS})
-and a symbol table for mapped prefix lexemes (see \itemref{MAPPED-LEXEMES}).
 
 In bracketed subexpression recognition, 
 multi-lexeme keys in the bracketed symbol table
@@ -3437,6 +3462,14 @@ are not recognized in the
 input if their lexemes are not all on the same physical line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
+
+TBD
+
+Also broken parts of middle lexemes (\pagref{MIDDLE-LEXEME-MERGE})
+other than the first are not recognizable as part of keys.
+So bracketed symbol table (see above) entries should avoid multi-character
+lexemes that begin with
+{\em middle-break-begin} or end with {\em middle-break-end}.
 
 Like other parser passes, the bracketed subexpression recognition pass uses
 parsing selectors and parsing options.

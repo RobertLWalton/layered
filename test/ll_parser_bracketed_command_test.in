@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 28 05:39:16 EST 2019
+// Date:	Wed Mar  6 12:00:51 EST 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -10,6 +10,8 @@
 
 *PARSER*:
     print bracket ""
+    print indentation mark ""
+    print typed bracket ""
 
 *PARSER*:
     define bracket "[+"
@@ -28,7 +30,7 @@
 
     define indentation mark ":" ... ";"
     			    [code, math, text]
-    print bracket ":"
+    print indentation mark ":"
 
     define bracket "[+" ... "+]" [text, operator 2]
     define bracket "<+" ... "+>" [text + operator]

@@ -3662,11 +3662,6 @@ BRACKETED EXPRESSION:
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "(" ... ")" [data]
                          with parsing selectors [- TOP LEVEL]
-        block standard: indentation mark ":" ... ";" [code]
-                        with parsing selectors [- TOP LEVEL]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing]
         block standard: bracket "[" ... "]" [data, code, math, text]
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
@@ -3681,33 +3676,6 @@ BRACKETED EXPRESSION:
                         with parsing selectors [- TOP LEVEL, - code,
                                                 + math, - text]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
-        block standard: bracket "{" ... "|" ... "|" ... "}"
-                        // "||" is also allowed.
-                        [code, math, text]
-                        with parsing selectors [- TOP LEVEL]
-                        with attribute selectors [data]
-                        with attributes ":" ... "=" ... ","
-                        with attribute negator "no"
-                        with attribute flags initiator "["
-                        with attribute multivalue initiator [< "{" "*" >]
-                        with prefix separators allowed
-        block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
-                         // "||" is also allowed.
-                         [data]
-                         with parsing selectors [- TOP LEVEL]
-                         with attribute selectors [data]
-                         with attributes ":" ... "=" ... ","
-                         with attribute negator "no"
-                         with attribute flags initiator "["
-                         with attribute multivalue initiator [< "{" "*" >]
-        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
-                         [TOP LEVEL]
-                         with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
-                         [TOP LEVEL]
-                         with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
         block standard: bracket "<+" ... "+>" [math]
                         with parsing selectors [- TOP LEVEL]

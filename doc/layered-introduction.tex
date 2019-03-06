@@ -3654,13 +3654,12 @@ as the \TT{value} of a \TT{BRACKETED} token.
 
 In the process of forming a MIN object, some tokens must be converted to
 object elements.  If these tokens have MIN values, their values are used,
-except for numeric lexemes.
+except for quoted string and numeric lexemes.
 Quoted string and numeric lexemes
 are first converted to a MIN object
 whose \TT{.type} is \TT{"<Q>"} for a quoted string or \TT{\#} for
 a numeric, and whose single element is a MIN string equal to the
-the token \TT{value} for numerics and the token \TT{string} for
-quoted strings.
+the token \TT{value}.
 
 Note that natural-numbers, consisting of just decimal digits
 with no leading zeros, are not numeric lexemes, and have MIN string
@@ -3704,12 +3703,13 @@ mentioned above:
     that equals
     \begin{center}
     \begin{tabular}{ll}
-       & the {\em type-label} of a typed bracketed subexpression, \\
-    or & \TT{""} for a typed bracketed subexpression with no
-         {\em type-label}, \\
+       & the {\em type-label} of a typed bracketed subexpression
+         (\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}), \\
     or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme. \\
-    or & \TT{\#} if the MIN object represents a numeric lexeme. \\
-    \end{tabular}
+    or & \TT{\#} if the MIN object represents a numeric lexeme. \\[1ex]
+       & The {\em type-label} \TT{""} represents
+         the absence of a \TT{.type} attribute. \\
+    \end{tabular} \\
     \end{center}
 \medskip
 \hspace*{-0.2in}\ttdmkey{initiator}{subexpression attribute}\\
@@ -3745,7 +3745,9 @@ mentioned above:
     A MIN string, or a MIN label whose elements are MIN strings,
     that equals
     the operator (e.g., \TT{","}) that acts as a
-    separator in a subexpression.
+    separator in a subexpression.  Separators are \underline{not} recognized
+    by the bracketed subexpression parser pass, but by other passes
+    (.e.g., the standard operator pass).
 
 \end{indpar}
 

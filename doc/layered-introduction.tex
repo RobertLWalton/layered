@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 5, 2019
+March 6, 2019
  
 \end{center}
 
@@ -3360,12 +3360,18 @@ This is a continued-middle-lexeme.
 \end{verbatim}\end{indpar}
 
 The middle break begin and end can be changed, or middle breaks can
-be disabled, by the parser command:
+be disabled, by the \TT{define middle break} command.  Middle breaks
+of all current parser blocks can be printed by the \TT{print middle break}
+command.  The syntax of these commands is:
 \begin{indpar}[0.1in]
 \emlkey{parser-middle-break}{-command}%
-\label{PARSER-MIDDLE-BREAKS-COMMAND} ::= \\
-\hspace*{3em} \ttmkey{define middle break}{parser command}
-	  ~ {\em middle-break-name}
+\label{PARSER-MIDDLE-BREAK-COMMAND} ::= \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmkey{define middle break}{parser command}
+		    ~ {\em middle-break-name} \\
+    $|$ & \ttmkey{print middle break}{parser command} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{middle-break-name} ::= \TT{"}{\em middle-break-begin}\TT{"}
 			      \TT{...}{}
@@ -3411,12 +3417,20 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-The quoted string concatenator can be changed by the parser command:
+The quoted string concatenator can be changed or disabled by the
+\TT{define quoted string concatenator} command.  Quoted string concatenators
+of all current parser blocks can be printed by the
+\TT{print quoted string concatenator} command.
+The syntax of these commands is:
 \begin{indpar}[0.1in]
 \emlkey{parser-quoted-string}{-concatenator-command}%
 \label{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} ::= \\
-\hspace*{3em} \ttmlkey{define quoted string}{concatenator}{parser command}
-	  ~ {\em quoted-string-concatenator}
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmlkey{define quoted string}{concatenator}{parser command}
+		    ~ {\em quoted-string-concatenator} \\
+    $|$ & \ttmlkey{print quoted string}{concatenator}{parser command} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{quoted-string-concatenator} ::= {\em quoted-key} with a single component
 		     $|$ \TT{disabled} $|$ \TT{enabled}
@@ -3463,13 +3477,11 @@ input if their lexemes are not all on the same physical line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-TBD
-
-Also broken parts of middle lexemes (\pagref{MIDDLE-LEXEME-MERGE})
-other than the first are not recognizable as part of keys.
-So bracketed symbol table (see above) entries should avoid multi-character
-lexemes that begin with
-{\em middle-break-begin} or end with {\em middle-break-end}.
+Also bracketed symbol table (see above) entries should avoid keys
+that contain multi-character lexemes that begin with {\em middle-break-begin}
+or end with {\em middle-break-end}.  If such keys are used, they may
+not be recognized, or broken {\em middle-lexeme} parts may be misrecognized
+as parts of keys.
 
 Like other parser passes, the bracketed subexpression recognition pass uses
 parsing selectors and parsing options.
@@ -3520,8 +3532,10 @@ are similarly divided:
 \begin{indpar}[0.1in]
 \emkey{parser-bracketed-command}
     \begin{tabular}[t]{@{}rll@{}}
-    ::= & {\em parser-string-concatenator-command}
+    ::= & {\em parser-quoted-string-concatenator-command}
         & see \pagref{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} \\
+    $|$ & {\em parser-middle-break-command}
+        & see \pagref{PARSER-MIDDLE-BREAK-COMMAND} \\
     $|$ & {\em parser-untyped-bracket-command}
         & see \pagref{PARSER-UNTYPED-BRACKET-COMMAND} \\
     $|$ & {\em parser-indentation-mark-command}
@@ -3530,6 +3544,8 @@ are similarly divided:
         & see \pagref{PARSER-TYPED-BRACKET-COMMAND} \\
     $|$ & {\em parser-prefix-command}
         & see \pagref{PARSER-PREFIX-COMMAND} \\
+    $|$ & {\em parser-ID-character-command}
+        & see \pagref{PARSER-ID-CHARACTER-COMMAND} \\
     $|$ & {\em parser-mapped-lexeme-command}
         & see \pagref{PARSER-MAPPED-LEXEME-COMMAND} \\
     $|$ & {\em bracketed-parser-print-command}

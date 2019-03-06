@@ -3823,13 +3823,16 @@ The general syntax is:
     see \pagref{TYPED-PREFIX-SEPARATOR}
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
+      \raggedright
       An {\em untyped-bracketed-subexpression} {\em element-list}
       is normally terminated by the expression's {\em closing-bracket}.
       It may be abnormally terminated by an outer
       {\em bracketed-subexpression's}
-      {\em closing-bracket}, {\em typed-closing},
+      {\em closing-bracket} (e.g.,~`\TT{)}'),
+      {\em typed-closing} (e.g.,~`\TT{\}}'),
       or {\em non-continuation-line-break}, but \underline{not}
-      by a {\em line-separator} or {\em typed-middle}.
+      by a {\em line-separator} (e.g.,~`\TT{;}')
+      or {\em typed-middle} (e.g.,~`\TT{|}').
       \end{minipage}
 \end{indpar}
 
@@ -3865,7 +3868,11 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 			    ~ {\em reformatter-arguments}\QMARK{} ] \\
     $|$ & \multicolumn{2}{l}{\ttmkey{undefine bracket}{parser command}
 		    ~ {\em bracket-name} ~ {\em selectors}} \\
-    \end{tabular}
+    $|$ & \multicolumn{2}{l}{\ttmkey{print bracket}{parser command}
+		    ~ {\em partial-opening-bracket} }\\
+    \end{tabular} \\[1ex]
+    \hspace*{0.2in}
+     NOTE: The \TT{with \ldots} clauses can appear in any order.
 \\[0.5ex]
 \emkey{bracket-name} ::= {\em opening-bracket}
 			 ~ \ttmkey{...}{in {\em bracket-name}}
@@ -3876,13 +3883,15 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{closing-bracket} ::= {\em quoted-key}
 \\[0.5ex]
+\emkey{partial-opening-bracket} ::= {\em quoted-key}
+\\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{new-selectors} ::= {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
 \\[0.5ex]
 \emkey{bracket-options} ::= {\em end-at-option-spec}
 	~ except ~ `\TT{end at line separator}'
-	~~~ [see \pagref{END-AT-OPTION-SPEC}]
+	~~~ [\pagref{END-AT-OPTION-SPEC}]
 \\[0.5ex]
 \emkey{reformatter-name}\label{REFORMATTER-NAME} ::=
     {\em simple-name} not containing `\TT{reformatter}'
@@ -3904,8 +3913,15 @@ are sometimes called `\key{untyped brackets}'
 to distinguish them from typed brackets
 such as `\TT{\{b|}' and `\TT{|b\}}'
 in which the type, in this case `\TT{b}',
-is arbitrary.  See \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+is fairly arbitrary.  See \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
 for a description of typed brackets.
+
+The `\TT{print bracket} {\em partial-opening-bracket}' command
+prints all untyped bracket symbol table entries whose
+{\em opening-bracket} contains the {\em partial-opening-bracket}
+as a (not necessarily initial) substring.  Using \TT{""} as
+a {\em partial-opening-bracket} will print all untyped bracket
+symbol table entries.
 
 In the absence of a reformatter,
 a bracketed subexpression is converted to a \TT{BRACKETED}
@@ -4200,7 +4216,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{new-selectors} ::= {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
 \\[0.5ex]
 \emkey{end-at-options} ::= {\em parser-flag-spec}
-	~~~~~ [see \pagref{END-AT-OPTIONS-1}]
+	~~~~~ [\pagref{END-AT-OPTIONS-1}]
 \\[0.5ex]
 \emkey{header} ::= \begin{tabular}[t]{l}
                    {\em typed-prefix-separator}
@@ -4858,14 +4874,14 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{typed-element-selectors} ::= {\em selector-spec}
-	~ [see \pagref{SELECTOR-SPEC}]
+	~ [\pagref{SELECTOR-SPEC}]
 \\[0.5ex]
 \emkey{bracket-options} ::=
 	{\em end-at-option-spec} ~ except ~ `\TT{end at line separator}' ~
-	[see \pagref{END-AT-OPTION-SPEC}]
+	[\pagref{END-AT-OPTION-SPEC}]
 \\[0.5ex]
 \emkey{typed-attribute-selectors} ::= {\em selector-flags}
-	~ [see \pagref{SELECTOR-FLAGS}]
+	~ [\pagref{SELECTOR-FLAGS}]
 \\[0.5ex]
 \emkey{typed-attribute-punctuation} ::= \\
     \hspace*{0.2in}
@@ -5143,7 +5159,7 @@ whose general syntax is:
                      $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
 \emkey{implied-prefix} ::= {\em typed-prefix-separator}\label{IMPLIED-PREFIX}
-				~~~~~ [see \pagref{TYPED-PREFIX-SEPARATOR}]
+				~~~~~ [\pagref{TYPED-PREFIX-SEPARATOR}]
 \\[0.5ex]
 \emkey{master-name} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'
@@ -5156,7 +5172,7 @@ whose general syntax is:
 \emkey{prefix-option}
     \begin{tabular}[t]{rl@{~~~~~}l}
     ::= & {\em end-at-option} ~ except ~ `\TT{end at line separator}'
-        & [see \pagref{END-AT-OPTIONS-1}] \\
+        & [\pagref{END-AT-OPTIONS-1}] \\
     $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
           \label{PARSING-HEADER-OPTIONS}
     \end{tabular}

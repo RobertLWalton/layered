@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 28 05:12:51 EST 2019
+// Date:	Wed Mar  6 11:40:39 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4627,24 +4627,11 @@ static min::gen bracketed_pass_command
 	return min::SUCCESS();
     }
 
-    if ( command == PARLEX::print )
-    {
-        if ( vp[i] == ::bracket )
-	    type = ::BRACKET;
-	else if ( vp[i] == PARLEX::prefix )
-	    type = ::PREFIX;
-	else
-	    return min::FAILURE();
-
-	min_names = 1;
-	max_names = 1;
-	++ i;
-    }
-    else if ( vp[i] == ::bracket )
+    if ( vp[i] == ::bracket )
     {
         type = ::BRACKET;
-	min_names = 2;
-	max_names = 2;
+	min_names = max_names =
+	    ( command == PARLEX::print ? 1 : 2 );
 	++ i;
     }
     else if ( vp[i] == ::indentation
@@ -4655,7 +4642,8 @@ static min::gen bracketed_pass_command
     {
 	type = ::INDENTATION_MARK;
 	min_names = 1;
-	max_names = 2;
+	max_names =
+	    ( command == PARLEX::print ? 1 : 2 );
 	i += 2;
     }
     else if ( vp[i] == ::typed
@@ -4665,8 +4653,10 @@ static min::gen bracketed_pass_command
 	      vp[i + 1] == ::bracket )
     {
 	type = ::TYPED_BRACKET;
-	min_names = 2;
-	max_names = 4;
+	if ( command == PARLEX::print )
+	    min_names = max_names = 1;
+	else
+	    min_names = 2, max_names = 4;
 	i += 2;
     }
     else if ( vp[i] == PARLEX::prefix )
@@ -4728,9 +4718,9 @@ static min::gen bracketed_pass_command
 	int count = 0;
 
 	TAB::key_table_iterator it
-	    ( type == ::BRACKET ?
-	      bracketed_pass->bracket_table :
-	      bracketed_pass->prefix_table );
+	    ( type == ::PREFIX ?
+	      bracketed_pass->prefix_table :
+	      bracketed_pass->bracket_table );
 	while ( true )
 	{
 	    TAB::root root = it.next();
@@ -4743,13 +4733,17 @@ static min::gen bracketed_pass_command
 	    min::uns32 subtype =
 		min::packed_subtype_of ( root );
 
-	    if ( subtype != BRA::OPENING_BRACKET
-		 &&
-		 subtype != BRA::TYPED_OPENING
-		 &&
-		 subtype != BRA::INDENTATION_MARK
-		 &&
-		 subtype != PRE::PREFIX )
+	    if ( (    type == ::BRACKET
+	           && subtype != BRA::OPENING_BRACKET )
+		 ||
+		 (    type == ::TYPED_BRACKET
+		   && subtype != BRA::TYPED_OPENING )
+		 ||
+		 (    type == ::INDENTATION_MARK
+		   && subtype != BRA::INDENTATION_MARK )
+		 ||
+		 (    type == ::PREFIX
+		   && subtype != PRE::PREFIX ) )
 		continue;
 
 	    ++ count;
@@ -4777,7 +4771,8 @@ static min::gen bracketed_pass_command
 		    (BRA::typed_opening) root;
 
 		parser->printer
-		    << "bracket "
+		    << ( type == ::BRACKET ?
+		         "bracket " : "typed bracket " )
 		    << min::pgen_quote
 			   ( opening_bracket->label )
 		    << " ... ";

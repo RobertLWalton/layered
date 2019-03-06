@@ -14,15 +14,10 @@
                          with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
                          with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
-                         // "||" is also allowed.
-                         [data]
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [- TOP LEVEL]
-                         with attribute selectors [data]
-                         with attributes ":" ... "=" ... ","
-                         with attribute negator "no"
-                         with attribute flags initiator "["
-                         with attribute multivalue initiator [< "{" "*" >]
+                         with special reformatter
+    print indentation mark ""
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [- TOP LEVEL]
@@ -31,9 +26,16 @@
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+    print typed bracket ""
+        block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
+                         // "||" is also allowed.
+                         [data]
                          with parsing selectors [- TOP LEVEL]
-                         with special reformatter
+                         with attribute selectors [data]
+                         with attributes ":" ... "=" ... ","
+                         with attribute negator "no"
+                         with attribute flags initiator "["
+                         with attribute multivalue initiator [< "{" "*" >]
 *PARSER*:
 ERROR: in line ##: too few quoted names in:
     define bracket "[+"
@@ -85,7 +87,7 @@ ERROR: in line ##: expected quoted name after:
                          with special reformatter
     define indentation mark ":" ... ";"
                             [code, math, text]
-    print bracket ":"
+    print indentation mark ":"
         block standard: indentation mark ":" ... ";" [code, text, math]
                         with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
@@ -306,10 +308,10 @@ ERROR: in line ##: innermost block name does not match `BLOCK1':
 *PARSER*:
     define bracket "<|" ... "|>" [code]
 ======= PARSER TEST: < |hi there D| >
-======= line ##:
+======= line ###:
     <| hi there D |>
     ^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
     <| hi there D |>
     ^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
@@ -363,11 +365,6 @@ WARNING: in line ###: undefine found no definition:
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "(" ... ")" [data]
                          with parsing selectors [- TOP LEVEL]
-        block standard: indentation mark ":" ... ";" [code, text, math]
-                        with parsing selectors [- TOP LEVEL]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing]
         block standard: bracket "[" ... "]" [code, text, math]
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
@@ -381,25 +378,8 @@ WARNING: in line ###: undefine found no definition:
                       with parsing options []
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
                          with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
-                         // "||" is also allowed.
-                         [data]
-                         with parsing selectors [- TOP LEVEL]
-                         with attribute selectors [data]
-                         with attributes ":" ... "=" ... ","
-                         with attribute negator "no"
-                         with attribute flags initiator "["
-                         with attribute multivalue initiator [< "{" "*" >]
-        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
-                         [TOP LEVEL]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
                         with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
-                         [TOP LEVEL]
-                         with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket "<+" ... "+>" [code, operator 1]
                         with parsing selectors [- TOP LEVEL, ^ code,
                                                 - math, + operator 1]

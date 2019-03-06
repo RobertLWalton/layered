@@ -165,7 +165,11 @@ INDENT: line ##:
                          with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
                          with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: bracket "{" ... "|" ... "|" ... "}"
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with special reformatter
+    print typed bracket ""
+        block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
                          [data]
                          with parsing selectors [- TOP LEVEL]
@@ -174,6 +178,7 @@ INDENT: line ##:
                          with attribute negator "no"
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
+    print indentation mark ""
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [- TOP LEVEL]
@@ -182,9 +187,6 @@ INDENT: line ##:
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
-        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
-                         with parsing selectors [- TOP LEVEL]
-                         with special reformatter
 ======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
                          ")" ")" "]"
 ======= END PARSER TEST(S)

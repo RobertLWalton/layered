@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 19 05:19:13 EDT 2017
+// Date:	Wed Mar  6 11:52:47 EST 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,8 @@
         with parsing options [default options]
     print top level
     print bracket ""
+    print typed bracket ""
+    print indentation mark ""
 
 *PARSER* *TEST*:
     [ x <+ y +> z {|4|w} m (n (p)) ]

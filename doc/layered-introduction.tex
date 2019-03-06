@@ -1090,8 +1090,8 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	 $|$ & \TT{<others>} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{category} :::= UNICODE category, e.g., \TT{L} \\
-\emkey{subcategory} :::= UNICODE subcategory, e.g., \TT{Lu}
+\emkey{category} :::= UNICODE category, e.g.,~\TT{L} \\
+\emkey{subcategory} :::= UNICODE subcategory, e.g.,~\TT{Lu}
 \\[0.3ex]
 \emkey{cpat-expression}
         \begin{tabular}[t]{@{}rl@{}}
@@ -3744,7 +3744,7 @@ mentioned above:
 \hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
     that equals
-    the operator (e.g., \TT{","}) that acts as a
+    the operator (e.g.,~\TT{","}) that acts as a
     separator in a subexpression.  Separators are \underline{not} recognized
     by the bracketed subexpression parser pass, but by other passes
     (.e.g., the standard operator pass).
@@ -4014,7 +4014,7 @@ token whose \TT{value} is the special value named.
 \begin{indpar}[0.5em]
 Requires that the expression element values be MIN strings,
 numbers, labels, bracketed subexpressions, or equal to the
-{\em separator} argument.
+{\em separator} argument (e.g.,~\TT{","}).
 
 The subexpression is divided into components by {\em separator}
 tokens and is converted to a \TT{BRACKETED}
@@ -4026,12 +4026,13 @@ Components derived from {\em quoted-string} or {\em numeric}
 lexemes are considered to be the strings represented by the lexemes.
 The \TT{BRACKETED} result token gets the {\em separator} as its
 \TT{.separator} attribute, and the opening and closing brackets
+(e.g.,~\TT{\{*~*\}})
 as its \TT{.initiator} and \TT{.terminator} attributes.
 
-The {\em separator} argument (e.g., \TT{","}) must denote
+The {\em separator} argument (e.g.,~\TT{","}) must denote
 a single MIN string, and
-cannot denote a multi-component MIN label (this is purely an implementation
-limitation).
+cannot denote a multi-component MIN label (this is purely a current
+implementation limitation).
 \end{indpar}
 
 \end{indpar}
@@ -4198,9 +4199,14 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine indentation mark}{parser command} ~
 	  {\em indentation-name} ~ {\em parsing-selectors} \\
+    $|$ & \ttmkey{print indentation mark}{parser command} ~
+	  {\em partial-indentation-mark} \\
     $|$ & \ttmkey{define indentation offset}{parser command} ~
 	  {\em indentation-offset}  \\
-    \end{tabular}
+    $|$ & \ttmkey{print indentation offset}{parser command} \\
+    \end{tabular} \\[1ex]
+    \hspace*{0.2in}
+    NOTE: The \TT{with \ldots} clauses can appear in any order.
 \label{INDENTATION-MARK-DEFINITION}
 \\[0.5ex]
 \emkey{indentation-name} ::= {\em indentation-mark}
@@ -4210,6 +4216,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \label{INDENTATION-MARK-NAME}
 \\[0.5ex]
 \emkey{line-separator} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{partial-indentation-mark} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
@@ -4246,8 +4254,18 @@ This rule allows physical lines such as
 \tt This logical line is followed by an empty logical line;
 \end{center}
 to represent a single paragraph line, instead of two paragraph lines
-the second of which is empty.  All paragraph lines
+the second of which is empty.  All retained paragraph lines
 are non-empty.
+
+The `\TT{print indentation mark} {\em partial-indentation-mark}' command
+prints all indentation mark symbol table entries whose
+{\em indentation-mark} contains the {\em partial-indentation-mark}
+as a (not necessarily initial) substring.  Using \TT{""} as
+a {\em partial-indentation-mark} will print all indentation mark
+symbol table entries.
+
+Indentation offsets of all current parser blocks can be printed by the
+\TT{print indentation offset} command.
 
 A paragraph line may be a headed line (that has a line header:
 see \itemref{HEADED-LINES})
@@ -4342,9 +4360,9 @@ The definitions
         // Indentation mark definition governing top level
         // parsing.  May NOT be redefined.  Has NO line
         // separator.
-    define indentation mark "*PARSER*" ... ";" [TOP LEVEL]
+    define indentation mark "*PARSER*:" ... ";" [TOP LEVEL]
         with parsing selectors [data]
-    define indentation mark "*PARSER* *TEST*" ... ";"
+    define indentation mark "*PARSER* *TEST*:" ... ";"
         [TOP LEVEL]
 \end{verbatim}\end{indpar}
 are builtin.
@@ -4501,7 +4519,7 @@ and it contains some combination of the 64 flag characters:
 \end{tabular}
 \end{center}
 More flags can be represented by natural number flag indices
-(e.g., \TT{64}) which are separated from each other
+(e.g.,~\TT{64}) which are separated from each other
 and from any flag character by comma separators.
 Multiple non-number flag lexemes, separated by comma separators,
 can also be used.  Some examples are:
@@ -5485,7 +5503,7 @@ symbol table, selecting entries active according to the current
 parser selectors.  If an entry is found, it is used to replace
 the lexeme's token by another token, with token
 value taken from the table entry, and token type computed
-from the token value (e.g., \TT{BRACKETED}, \TT{BRACKETABLE},
+from the token value (e.g.,~\TT{BRACKETED}, \TT{BRACKETABLE},
 \TT{PREFIX}, etc.).  The lexical master is also
 changed to the value in the table entry before scanning more
 lexemes, unless the table entry lexical master is missing.
@@ -6091,7 +6109,7 @@ cannot be changed.  The following are permitted {\em parser-pass-names}:
     a pass just below it on the stack.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{operator}{parser pass name}\\
-    Parses expressions with computational operators (e.g., \TT{+} and
+    Parses expressions with computational operators (e.g.,~\TT{+} and
     \TT{*}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{lexeme replacement}{parser pass name}\\
@@ -6105,14 +6123,14 @@ cannot be changed.  The following are permitted {\em parser-pass-names}:
     Recognizes numbers with exponents.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{number pair recognition}{parser pass name}\\
-    Recognizes pairs of numbers (e.g., \TT{4 1/2}).
+    Recognizes pairs of numbers (e.g.,~\TT{4 1/2}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{number unit grouping}{parser pass name}\\
-    Groups numbers and numeric units (e.g., \TT{4ft 5in}).
+    Groups numbers and numeric units (e.g.,~\TT{4ft 5in}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{unit multiplication insertion}{parser pass name}\\
     Inserts multipliers between numbers and
-    numeric units (e.g., \TT{4*ft} and \TT{\$*4.99}).
+    numeric units (e.g.,~\TT{4*ft} and \TT{\$*4.99}).
 \end{indpar}
 
 The \TT{parser define pass} statement sets the

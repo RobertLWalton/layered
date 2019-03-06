@@ -3635,9 +3635,27 @@ BRACKETED EXPRESSION:
     print bracket ""
     ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
+    print indentation mark ""
+@@@@ = print indentation mark "":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    print indentation mark ""
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    print typed bracket ""
+@@@@ = print typed bracket "":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    print typed bracket ""
+    ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-         [< "*PARSER*" ":" >]|@@@@|}
-@@@@ = @@@@:
+         [< "*PARSER*" ":" >]|@@@@ @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = [< "*PARSER*" ":" >]
@@ -3646,6 +3664,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^
     print bracket ""
 ^^^^^^^^^^^^^^^^^^^^
+    print indentation mark ""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    print typed bracket ""
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     print bracket ""
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -3688,6 +3710,40 @@ BRACKETED EXPRESSION:
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
+    print indentation mark ""
+        block standard: indentation mark ":" ... ";" [code]
+                        with parsing selectors [- TOP LEVEL]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing]
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [- TOP LEVEL]
+        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
+                         with parsing selectors [- TOP LEVEL]
+    print typed bracket ""
+        block standard: typed bracket "{" ... "|" ... "|" ... "}"
+                        // "||" is also allowed.
+                        [code, math, text]
+                        with parsing selectors [- TOP LEVEL]
+                        with attribute selectors [data]
+                        with attributes ":" ... "=" ... ","
+                        with attribute negator "no"
+                        with attribute flags initiator "["
+                        with attribute multivalue initiator [< "{" "*" >]
+                        with prefix separators allowed
+        block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
+                         // "||" is also allowed.
+                         [data]
+                         with parsing selectors [- TOP LEVEL]
+                         with attribute selectors [data]
+                         with attributes ":" ... "=" ... ","
+                         with attribute negator "no"
+                         with attribute flags initiator "["
+                         with attribute multivalue initiator [< "{" "*" >]
 BRACKETED EXPRESSION:
     "This is a longer sentence than we would like."
 @@@@ = "This is a longer sentence than we would like.":

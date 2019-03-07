@@ -5147,7 +5147,8 @@ in this lookup are those at the point of parsing the particular
 prefix separator, and can lead to different results for the same
 prefix \TT{.type} at different points in the input text.  In particular
 these selectors may not be those in effect at the beginning of
-the {\em prefix-n-list} containing the prefix separator.
+the {\em prefix-n-list} containing the prefix separator
+(see `\TT{parsing selectors}' below).
 
 
 Entries in the prefix table are managed by {\em parser-prefix-commands}
@@ -5236,7 +5237,8 @@ In an expression of the form:
 \begin{center}
 \{ {\em prefix-n} {\em prefix-(n+1)-list} \}\PLUS{}
 \end{center}
-the {\em prefix-n}'s must all have the same group.
+the {\em prefix-n}'s must all have the same group, but need not all
+have the same \TT{.type}.
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}.
@@ -5324,6 +5326,19 @@ where
 {\em typed-attribute-multivalue-opening} ::= {\em multivalue-opening}
 \end{indpar}
 \end{indpar}
+
+A subexpression of this form typically arrises when a logical line
+that begins with the {\tt ID-character} (\pagref{ID-CHARACTER}) immediately
+followed by a {\em natural-number} causes a special lexeme with a special
+lexeme type and empty character string to be prefaced
+to the line, and the type of this special lexeme
+is mapped (\itemref{MAPPED-LEXEMES}) to the prefix
+
+\begin{center}
+\TT{\{}{\em prefix} {\em prefix-attributes}\QMARK{} \TT{\}}
+\end{center}
+which then absorbs the elements of the logical line to become a
+headed line object (\itemref{HEADED-LINES}) of the above form.
 
 The effect of reformatting is to define the object whose identifier
 is {\em ID}.  The object has the
@@ -5441,7 +5456,7 @@ The specific form of an ID is:
 \emmkey{ID}{in \TT{data} reformatter}\label{ID} :::=
     {\em ID-character} ~ {\em ID-number}
 \\[0.5ex]
-\emmkey{ID-character}{in \TT{data} reformatter} ::=
+\emmkey{ID-character}{in \TT{data} reformatter}\label{ID-CHARACTER} ::=
     a unicode character that is a parser parameter (see below)
 \\[0.5ex]
 \emkey{ID-number} ::= {\em non-zero-digit} ~ {\em digit}\STAR{}

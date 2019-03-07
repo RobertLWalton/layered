@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 6, 2019
+March 7, 2019
  
 \end{center}
 
@@ -1090,8 +1090,8 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 	 $|$ & \TT{<others>} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{category} :::= UNICODE category, e.g.,~\TT{L} \\
-\emkey{subcategory} :::= UNICODE subcategory, e.g.,~\TT{Lu}
+\emkey{category} :::= UNICODE category, e.g.~\TT{L} \\
+\emkey{subcategory} :::= UNICODE subcategory, e.g.~\TT{Lu}
 \\[0.3ex]
 \emkey{cpat-expression}
         \begin{tabular}[t]{@{}rl@{}}
@@ -3577,7 +3577,7 @@ headed paragraph.
 
 For {\em untyped-bracketed-subexpressions} that are \underline{not}
 reformatted, the brackets become the
-\TT{.ini\-ti\-ator} (e.g. `\TT{(}') and \TT{.terminator} (e.g., `\TT{)}').
+\TT{.ini\-ti\-ator} (e.g.~`\TT{(}') and \TT{.terminator} (e.g., `\TT{)}').
 {\em Indented-paragraph-subexpressions} are similar, with the
 {\em indentation-mark} (e.g., `\TT{:}') being the \TT{.ini\-ti\-ator} and
 the special value
@@ -3736,15 +3736,15 @@ mentioned above:
     or & \TT{min::INDENTED\_PARAGRAPH()} for an indented paragraph \\
     or & the terminator of a logical line: \\
        & ~~~ either \TT{"<LF>"}, \\
-       & ~~~ or a {\em line-separator-name} (e.g. \TT{";"}) \\
-    or & the terminator of sentence (e.g. \TT{"."}) \\
+       & ~~~ or a {\em line-separator-name} (e.g.~\TT{";"}) \\
+    or & the terminator of sentence (e.g.~\TT{"."}) \\
     \end{tabular}
     \end{center}
 \medskip
 \hspace*{-0.2in}\ttdmkey{separator}{subexpression attribute}\\
     A MIN string, or a MIN label whose elements are MIN strings,
     that equals
-    the operator (e.g.,~\TT{","}) that acts as a
+    the operator (e.g.~\TT{","}) that acts as a
     separator in a subexpression.  Separators are \underline{not} recognized
     by the bracketed subexpression parser pass, but by other passes
     (.e.g., the standard operator pass).
@@ -3828,11 +3828,11 @@ Note: \begin{minipage}[t]{5.8in}
       is normally terminated by the expression's {\em closing-bracket}.
       It may be abnormally terminated by an outer
       {\em bracketed-subexpression's}
-      {\em closing-bracket} (e.g.,~`\TT{)}'),
-      {\em typed-closing} (e.g.,~`\TT{\}}'),
+      {\em closing-bracket} (e.g.~`\TT{)}'),
+      {\em typed-closing} (e.g.~`\TT{\}}'),
       or {\em non-continuation-line-break}, but \underline{not}
-      by a {\em line-separator} (e.g.,~`\TT{;}')
-      or {\em typed-middle} (e.g.,~`\TT{|}').
+      by a {\em line-separator} (e.g.~`\TT{;}')
+      or {\em typed-middle} (e.g.~`\TT{|}').
       \end{minipage}
 \end{indpar}
 
@@ -4014,7 +4014,7 @@ token whose \TT{value} is the special value named.
 \begin{indpar}[0.5em]
 Requires that the expression element values be MIN strings,
 numbers, labels, bracketed subexpressions, or equal to the
-{\em separator} argument (e.g.,~\TT{","}).
+{\em separator} argument (e.g.~\TT{","}).
 
 The subexpression is divided into components by {\em separator}
 tokens and is converted to a \TT{BRACKETED}
@@ -4026,10 +4026,10 @@ Components derived from {\em quoted-string} or {\em numeric}
 lexemes are considered to be the strings represented by the lexemes.
 The \TT{BRACKETED} result token gets the {\em separator} as its
 \TT{.separator} attribute, and the opening and closing brackets
-(e.g.,~\TT{\{*~*\}})
+(e.g.~\TT{\{*~*\}})
 as its \TT{.initiator} and \TT{.terminator} attributes.
 
-The {\em separator} argument (e.g.,~\TT{","}) must denote
+The {\em separator} argument (e.g.~\TT{","}) must denote
 a single MIN string, and
 cannot denote a multi-component MIN label (this is purely a current
 implementation limitation).
@@ -4097,7 +4097,7 @@ the line after the outer paragraph
 \end{verbatim}\end{indpar}
 
 An \key{indented paragraph subexpression}
-begins with an {\em indentation-mark} (e.g. `\TT{:}')
+begins with an {\em indentation-mark} (e.g.~`\TT{:}')
 which must be at the end of a physical line.
 This is followed by an \key{indented paragraph}
 consisting of zero or more non-empty
@@ -4519,7 +4519,7 @@ and it contains some combination of the 64 flag characters:
 \end{tabular}
 \end{center}
 More flags can be represented by natural number flag indices
-(e.g.,~\TT{64}) which are separated from each other
+(e.g.~\TT{64}) which are separated from each other
 and from any flag character by comma separators.
 Multiple non-number flag lexemes, separated by comma separators,
 can also be used.  Some examples are:
@@ -4658,68 +4658,68 @@ The general syntax is:
 		      This is a special kind of label.
 		      \end{tabular}
 \\[0.5ex]
-\emkey{typed-opening} ::= {\em key} ~~~ [e.g. `\TT{\{}' ~
+\emkey{typed-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]%
     \label{TYPED-OPENING}
 \\[0.5ex]
-\emkey{typed-middle} ::= {\em key} ~~~ [e.g. `\TT{|}' ~
+\emkey{typed-middle} ::= {\em key} ~~~ [e.g.~`\TT{|}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-closing} ::= {\em key} ~~~ [e.g. `\TT{\}}' ~
+\emkey{typed-closing} ::= {\em key} ~~~ [e.g.~`\TT{\}}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]%
     \label{TYPED-CLOSING}
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g. `\TT{:}' ~
+\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g.~`\TT{:}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g. `\TT{,}' ~
+\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g. `\TT{=}' ~
+\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g.~`\TT{=}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g. `\TT{no}' ~
+\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g.~`\TT{no}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g. `\TT{[}' ~
+\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g.~`\TT{[}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{typed-attribute-flags-separator} :::= \TT{,} ~~~ [cannot be changed]
 \\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g. `\TT{]}'
+\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g.~`\TT{]}'
     as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-opening} ::= {\em key} ~~~ [e.g. `\TT{\{*}' ~
+\emkey{typed-attribute-multivalue-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{*}' ~
     as per {\em parser-typed-bracket-command} ~
     \pagref{PARSER-TYPED-BRACKET-COMMAND}]
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-separator} ::= {\em key} ~~~ [e.g. `\TT{,}' ~
+\emkey{typed-attribute-multivalue-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}' ~
     as per \TT{multivalue} reformatter ~
     \pagref{MULTIVALUE-REFORMATTER}]
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-closing} ::= {\em key} ~ [e.g. `\TT{*\}}' ~
+\emkey{typed-attribute-multivalue-closing} ::= {\em key} ~ [e.g.~`\TT{*\}}' ~
     as per {\em parser-untyped-bracket-command} ~
     \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=
     \begin{tabular}[t]{@{}l}
-    {\em typed-middle}~~~{\em typed-middle} ~~~~~ [e.g. `\TT{||}'] \\
+    {\em typed-middle}~~~{\em typed-middle} ~~~~~ [e.g.~`\TT{||}'] \\
     as a single lexeme (when possible): see text
     \end{tabular}
 \end{indpar}
 
 A typed bracketed expression is converted to a
 MIN object whose list elements are the components of the
-subexpression between {\em typed-middles}.  The
+subexpression between {\em typed-middles} (e.g., `\TT{|}'s)  The
 {\em type-label} or {\em type-mark}(s) become(s) the \TT{.type}
 attribute of this object.  Any {\em attributes} given in the
 typed bracketed expression become attributes of the object.
@@ -4747,17 +4747,18 @@ those of the subexpression context.
 During both scans options are standardly set to those of the
 context less the `\TT{end at line separator}' option.
 
-If two {\em typed-middles} with no intervening space
+If two {\em typed-middles} (e.g., `\TT{|}'s) with no intervening space
 are lexically scanned as a single lexeme, then this new
-{\em doubled-typed-middle} lexeme can be used
+{\em doubled-typed-middle} lexeme (e.g., `\TT{||}') can be used
 to represent an empty list in place of
 two {\em typed-middle} lexemes with an intervening space.
 Note that in this case the {\em typed-middles} must be single
 lexemes.
 
 If a typed bracketed subexpression ends pre-maturely,
-a parsing error is
-announced and missing but required {\em typed-middle}'s and {\em typed-closings}
+a parsing error is announced and any missing but required
+{\em typed-middle} (e.g.~`\TT{|})
+and {\em typed-closing} (e.g.~`\TT{\}}')
 are inserted in the input
 just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket} of a containing
@@ -4770,7 +4771,7 @@ parsing options (e.g., a {\em closing-bracket} cannot pre-maturely
 end a subexpression if `\TT{end at outer closing}' is not a parsing
 option).
 
-When a {\em typed-opening} is recognized, the current parsing
+When a {\em typed-opening} (e.g.~`\TT{\{}') is recognized, the current parsing
 selector set and options are saved in a stack and
 a new selector set and new options are computed by modifying the saved set
 and options
@@ -4785,7 +4786,7 @@ associated with the {\em typed-opening} (also see below), while the
 {\em end-at-options} remain the same as those use to scan the
 {\em element-list}.
 The saved selector set and options are restored after the subexpression ending
-{\em typed-closing} is recognized.
+{\em typed-closing} (e.g.~`\TT{\}}') is recognized.
 
 A {\em typed-opening} is specified by a
 \ttmkey{define typed bracket}{parser command}
@@ -4810,11 +4811,13 @@ which specifies
 \begin{tabular}{l}
 `\TT{\{}' to be a {\em typed-opening} \\
 `\TT{|}' to be a {\em typed-middle} \\
+`\TT{||}' to be by implication the {\em doubled-typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
 `\TT{text}' to be the sole definition selector \\
 `\TT{[- data]}' to be the {\em typed-element-selectors} \\
-`\TT{[- end at outer closing]}' to be the {\em bracket-options} \\
-~~~~~ (This does not actually have to be given explicitly as it is implied.) \\
+`\TT{[- end at outer closing, - end at line separator]}' \\
+~~~~~~to be the {\em bracket-options}; \\
+~~~~~~here `\TT{- end at line separator}' is implied. \\
 `\TT{[data]}' to be the {\em typed-attribute-selectors} \\
 `\TT{:}' to be the {\em typed-attribute-begin} \\
 `\TT{=}' to be the {\em typed-attribute-equal} \\
@@ -4932,6 +4935,7 @@ The definition
     define typed bracket "{" ... "|" ... "|" ... "}" [data]
         // `||' abbreviates `| |'
         // there are NO ELEMENT SELECTORS
+        // there are NO PARSING OPTIONS
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -4948,6 +4952,7 @@ is builtin.  The definition
                          [code, math, text]
         // `||' abbreviates `| |'
         // there are NO ELEMENT SELECTORS
+        // there are NO PARSING OPTIONS
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -4957,16 +4962,24 @@ is builtin.  The definition
 \end{verbatim}\end{indpar}
 
 is included by the standard parser at the beginning of
-its `\TT{standard}' parser block.  Since there are no
-{\em typed-element-selectors} in either typed bracket definition,
-the parsing selectors
-for the {\em element-list} of a {\em typed-bracketed-subexpression}
-recognized by this definition are the same as the parsing selectors
-just outside the typed bracketed subexpression.
+its `\TT{standard}' parser block.
+
+Since `\TT{with parsing options}'
+does not appear in either definition, the parsing options used
+to scan any {\em typed-bracketed-subexpression} recognized by
+these definitions are the same as the parsing options just before
+this {\em typed-bracketed-subexpression}.  Similarly since
+`\TT{with element selectors}' does not appear in either definition,
+the parsing selectors used to scan the
+{\em element-list} of any {\em typed-bracketed-subexpression}
+recognized by these definitions are the same as the parsing selectors
+just before the {\em typed-bracketed-subexpression}.
+
 The untyped bracket definitions for `\TT{[\ldots]}' and
 `\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BULITINS},
 all with the `\TT{data}' selector, are used to parse
-attribute flags and multivalue lists.
+attribute flags and multivalue lists in any
+{\em typed-bracketed-subexpression} recognized by these definitions.
 
 The current implementation supports two syntactic extensions of
 the above.  First, more than 2 \TT{|}'s may be used to switch
@@ -5503,7 +5516,7 @@ symbol table, selecting entries active according to the current
 parser selectors.  If an entry is found, it is used to replace
 the lexeme's token by another token, with token
 value taken from the table entry, and token type computed
-from the token value (e.g.,~\TT{BRACKETED}, \TT{BRACKETABLE},
+from the token value (e.g.~\TT{BRACKETED}, \TT{BRACKETABLE},
 \TT{PREFIX}, etc.).  The lexical master is also
 changed to the value in the table entry before scanning more
 lexemes, unless the table entry lexical master is missing.
@@ -6109,7 +6122,7 @@ cannot be changed.  The following are permitted {\em parser-pass-names}:
     a pass just below it on the stack.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{operator}{parser pass name}\\
-    Parses expressions with computational operators (e.g.,~\TT{+} and
+    Parses expressions with computational operators (e.g.~\TT{+} and
     \TT{*}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{lexeme replacement}{parser pass name}\\
@@ -6123,14 +6136,14 @@ cannot be changed.  The following are permitted {\em parser-pass-names}:
     Recognizes numbers with exponents.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{number pair recognition}{parser pass name}\\
-    Recognizes pairs of numbers (e.g.,~\TT{4 1/2}).
+    Recognizes pairs of numbers (e.g.~\TT{4 1/2}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{number unit grouping}{parser pass name}\\
-    Groups numbers and numeric units (e.g.,~\TT{4ft 5in}).
+    Groups numbers and numeric units (e.g.~\TT{4ft 5in}).
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{unit multiplication insertion}{parser pass name}\\
     Inserts multipliers between numbers and
-    numeric units (e.g.,~\TT{4*ft} and \TT{\$*4.99}).
+    numeric units (e.g.~\TT{4*ft} and \TT{\$*4.99}).
 \end{indpar}
 
 The \TT{parser define pass} statement sets the

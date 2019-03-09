@@ -315,16 +315,16 @@ BRACKETED EXPRESSION:
     define ID character "@"
     begin block Y
     define ID character disabled
+    begin block Z
+    define ID character "$"
     print ID character
+        block Z: `$'
         block Y: disabled
         block X: `@'
         block standard: disabled
         block TOP LEVEL: disabled
+    end block Z
     end block Y
-    print ID character
-        block X: `@'
-        block standard: disabled
-        block TOP LEVEL: disabled
     end block X
     print ID character
         block standard: disabled

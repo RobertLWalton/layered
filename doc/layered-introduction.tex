@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 8, 2019
+March 9, 2019
  
 \end{center}
 
@@ -5486,7 +5486,10 @@ The specific form of an ID is:
     {\em ID-character} ~ {\em ID-number}
 \\[0.5ex]
 \emmkey{ID-character}{in \TT{data} reformatter}\label{ID-CHARACTER} ::=
-    a unicode character that is a parser parameter (see below)
+    \begin{tabular}[t]{l}
+    a unicode character that is a parser parameter (see below); \\
+    it must be a non-digit that can begin a numeric
+    \end{tabular}
 \\[0.5ex]
 \emkey{ID-number} ::= {\em non-zero-digit} ~ {\em digit}\STAR{}
 
@@ -5495,12 +5498,16 @@ The specific form of an ID is:
 The {\em ID-number} identifies the particular object or long
 string that is pointed at.
 
-The {\em ID-character} is a parser parameter definable by
+The {\em ID-character} is a parser parameter that can be defined
+or printed by:
 \begin{indpar}[0.1in]
 \emkey{parser-ID-character-command}%
-\label{PARSER-ID-CHARACTER-COMMAND} ::= \\
-\hspace*{3em} \ttmkey{define ID character}{parser command}
-	  ~ {\em ID-character-representative}
+\label{PARSER-ID-CHARACTER-COMMAND} \\
+\hspace*{3em} \begin{tabular}{rl}
+              ::= & \ttmkey{define ID character}{parser command}
+			  ~ {\em ID-character-representative} \\
+              $|$ & \ttmkey{print ID character}{parser command} \\
+	      \end{tabular}
 \\[0.5ex]
 \emkey{ID-character-representative} ::=
      {\em quoted-character} $|$ \TT{disabled}
@@ -5508,6 +5515,18 @@ The {\em ID-character} is a parser parameter definable by
 \emkey{quoted-character} ::=
     {\em quoted-string} with exactly one {\em character-representative}.
 \end{indpar}
+
+An {\em ID} is recognized on input when its token is being constructed,
+and its token value, which would normally be its lexeme string,
+is replaced by it ID value, which is looked up in the parser's
+\mkey{ID map}{of parser}.  If there is no previous value, a preallocated
+stub is created and assigned as the value.
+
+Note that the map of {\em IDs} to values is defined separately for
+each input stream of tokens.  {\em IDs} must be mapped to values before
+they are used, although in the case of objects, which have stubs,
+the values can initially be preallocated stubs that have identity but
+do not yet have any content.
 
 \subsubsection{Mapped Lexemes}
 \label{MAPPED-LEXEMES}

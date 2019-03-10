@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 04:47:49 EST 2019
+// Date:	Sun Mar 10 05:26:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -391,7 +391,7 @@ static bool data_reformatter_function
 	MIN_REQUIRE ( map[ID] == ID_gen );
 	MIN_REQUIRE
 	    ( map->hash_table == min::NULL_STUB );
-	min::insert ( map, first->value, ID );
+	min::put ( map, ID, first->value );
     }
 
     first = first->next;

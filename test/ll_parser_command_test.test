@@ -339,10 +339,18 @@ BRACKETED EXPRESSION:
     define prefix "data" [TOP LEVEL]
         with parsing selectors [data]
         with data reformatter ( "=", "not", "[", "{*" )
+ERROR: in line ###: previous uses of ID exist and will be dangling:
+@@ = Jill
+^^
 BRACKETED EXPRESSION:
-    {data|PREALLOCATED(4) said `hello there Jack'|data}
+    ID 6 is {|PREALLOCATED(2*4) said `hello there Jack'|}
     line ###:
-@@ said @@
+ID 6 is @@
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 4 is Jill
+    line ###:
+ID 4 is @@
 ^^^^^^^^^^
 *PARSER*:
     print prefix ""

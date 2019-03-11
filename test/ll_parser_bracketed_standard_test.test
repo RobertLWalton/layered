@@ -5954,8 +5954,8 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
-    foe = PREALLOCATED(7)
-@@@@ = foe = PREALLOCATED(7):
+    foe = PREALLOCATED(1*7)
+@@@@ = foe = PREALLOCATED(1*7):
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -5966,8 +5966,8 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
-    fie = PREALLOCATED(8)
-@@@@ = fie = PREALLOCATED(8):
+    fie = PREALLOCATED(1*8)
+@@@@ = fie = PREALLOCATED(1*8):
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -6003,11 +6003,11 @@ BRACKETED EXPRESSION:
 @@ = 1 2 3 :
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": fie = PREALLOCATED(8), foe = PREALLOCATED(7), fee = {|A B C|},
-         fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
+    {"": fie = PREALLOCATED(1*8), foe = PREALLOCATED(1*7), fee =
+         {|A B C|}, fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
 @@@@ = 1 2 3:
-           fie = PREALLOCATED(8)
-           foe = PREALLOCATED(7)
+           fie = PREALLOCATED(1*8)
+           foe = PREALLOCATED(1*7)
            fee = {|A B C|}
            fum = [< "Q" "R" "T" >]
            foo = "P"
@@ -6075,28 +6075,33 @@ BRACKETED EXPRESSION:
     line ###:
 @@ = XYZ
 ^^^^^^^^
+ERROR: in line ###: previous uses of ID exist and will be dangling:
+@@ = XYZ
+^^
 BRACKETED EXPRESSION:
-    {data|{"": fie = PREALLOCATED(8), foe = {|Z|}, fee = {|A B C|},
-               fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}|data}
-@@@@ = @@@@:
+    ID 6 is
+        {"": fie = PREALLOCATED(2*8), foe = {|Z|}, fee = {|A B C|},
+             fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
+@@@@ = ID 6 is @@@@:
+           .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .type = "data"
+           .initiator = [$ LOGICAL_LINE $]
 @@@@ = 1 2 3:
-           fie = PREALLOCATED(8)
+           fie = PREALLOCATED(2*8)
            foe = {|Z|}
            fee = {|A B C|}
            fum = [< "Q" "R" "T" >]
            foo = "P"
            .position[H] = PACKED_VEC
     line ###:
-@@
-^^
+ID 6 is @@
+^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|@@@@|data}
-@@@@ = {data|@@@@|data}:
+    ID 8 is XYZ
+@@@@ = ID 8 is XYZ:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-@@
-^^
+ID 8 is @@
+^^^^^^^^^^

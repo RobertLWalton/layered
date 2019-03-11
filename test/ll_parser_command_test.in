@@ -137,8 +137,10 @@
 
 @5 = Jack
 @3 = `hello there @5'
-@4 said @3
+@6 = @4 said @3
 @4 = Jill
+ID 6 is @6
+ID 4 is @4
 
 *PARSER*:
     print prefix ""

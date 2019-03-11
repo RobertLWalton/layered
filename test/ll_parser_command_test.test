@@ -272,6 +272,9 @@ ERROR: in line ##: `"foo"' does not name a lexeme type:
                          ^^^^^
     define mapped lexeme "PREMATURE_END_OF_FILE" [data]
         with token value {p}
+ERROR: in line ##: no `token value' given:
+    define mapped lexeme "PREMATURE_END_OF_FILE" [data]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     print mapped lexeme ""
         block X: mapped lexeme "PREMATURE_END_OF_FILE" [data]
                  with token value {p||p}

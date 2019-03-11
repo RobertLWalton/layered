@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 22 03:29:49 EDT 2017
+// Date:	Mon Mar 11 13:57:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1359,6 +1359,11 @@ static min::gen execute_mapped_lexeme
 		      "expected `token value'"
 		      " or `lexical master' after" );
 	}
+
+	if ( token_value == min::NONE() )
+	    return PAR::parse_error
+		( parser, ppvec->position,
+		  "no `token value' given" );
 
 	min::locatable_gen token_value_type;
 	min::uns32 token_type =

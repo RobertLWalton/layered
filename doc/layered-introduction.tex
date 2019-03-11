@@ -3350,19 +3350,20 @@ is replaced by its ID value, which is looked up in the parser's
 \mkey{ID map}{of parser}.  If there is no previous value, a preallocated
 stub is created and assigned as the value.
 
-Note that the map of {\em IDs} to values is defined separately for
+The ID map used to map IDs is defined separately for
 each input stream of tokens.  {\em IDs} must be mapped to values before
 they are used, although in the case of objects, which have stubs,
 the values can initially be preallocated stubs that have identity but
 do not yet have any content.  In this last case, object content
-can be assigned by the \TT{data} reformatter (\pagref{DATA-REFORMATTER}).
+can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
 
 \subsubsection{Mapped Lexemes}
 \label{MAPPED-LEXEMES}
 
 A `\key{mapped-lexeme}'
-is a special kind of lexeme that can be mapped to different
-type of token by a `\key{mapped lexeme symbol table}' entry.
+is a special kind of lexeme that has its own special lexeme type
+which can be mapped to change the token type and value
+by the `\key{mapped lexeme symbol table}'.
 Entries in this symbol table are managed by
 {\em parser-mapped-lexeme-commands}:
 
@@ -3376,15 +3377,21 @@ Entries in this symbol table are managed by
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{~mapped lexeme} ~ {\em mapped-lexeme-name} ~
 	                       {\em parsing-selectors} \\
-	  {}[ \TT{with token value} ~ {\em token-value} ] \\
+	  \TT{with token value} ~ {\em token-value} \\
 	  {}[ \TT{with lexical master} ~ {\em master-name} ] \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine mapped lexeme}{parser command} ~
 	  {\em mapped-lexeme-name} ~ {\em parsing-selectors} \\
-    \end{tabular}
+    $|$ & \ttmkey{print mapped lexeme}{parser command} ~
+	  {\em partial-mapped-lexeme-name}  \\
+    \end{tabular} \\[1ex]
+    \hspace*{0.2in}
+     NOTE: The \TT{with \ldots} clauses can appear in any order.
 \label{MAPPED-LEXEME-DEFINITION}
 \\[0.5ex]
 \emkey{mapped-lexeme-name} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{partial-mapped-lexeme-name} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]

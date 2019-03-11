@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 10 05:26:53 EDT 2019
+// Date:	Mon Mar 11 02:49:17 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -143,6 +143,8 @@ static bool data_reformatter_function
 	        ( first->next->value ) )
         return true;
 
+    min::phrase_position ID_position =
+        first->next->position;
     min::position end_position =
         next->previous->position.end;
 
@@ -391,6 +393,12 @@ static bool data_reformatter_function
 	MIN_REQUIRE ( map[ID] == ID_gen );
 	MIN_REQUIRE
 	    ( map->hash_table == min::NULL_STUB );
+	if (    min::count_of_preallocated ( ID_gen )
+	     != 1 )
+	    PAR::parse_error
+		( parser, ID_position,
+		  "previous uses of ID exist and will"
+		  " be dangling" );
 	min::put ( map, ID, first->value );
     }
 

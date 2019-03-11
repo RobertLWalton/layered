@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 02:49:17 EDT 2019
+// Date:	Mon Mar 11 07:31:50 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -156,9 +156,9 @@ static bool data_reformatter_function
 			      first->next  ) );
 
     min::locatable_gen attributes ( min::MISSING() );
-    if ( next->previous != first
-         &&
-	 next->previous->value_type == PARLEX::colon )
+    if (    min::get ( next->previous->value,
+	               min::dot_terminator )
+	 == min::INDENTED_PARAGRAPH() )
     {
         attributes = next->previous->value;
 	PAR::free ( PAR::remove ( first_ref(parser),

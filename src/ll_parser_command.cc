@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 13:57:52 EDT 2019
+// Date:	Tue Mar 12 16:00:48 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1240,7 +1240,7 @@ static min::gen execute_mapped_lexeme
 	    	(TAB::lexeme_map_entry) entry;
 
 	    min::gen token_value = e->token_value;
-	    if ( token_value != min::MISSING() )
+	    if ( token_value != min::NONE() )
 		parser->printer
 		    << min::indent
 		    << "with token value "
@@ -1359,11 +1359,6 @@ static min::gen execute_mapped_lexeme
 		      "expected `token value'"
 		      " or `lexical master' after" );
 	}
-
-	if ( token_value == min::NONE() )
-	    return PAR::parse_error
-		( parser, ppvec->position,
-		  "no `token value' given" );
 
 	min::locatable_gen token_value_type;
 	min::uns32 token_type =

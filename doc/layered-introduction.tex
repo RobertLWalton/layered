@@ -3360,11 +3360,14 @@ can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
 \subsubsection{Mapped Lexemes}
 \label{MAPPED-LEXEMES}
 
-A `\key{mapped-lexeme}'
-is a special kind of lexeme that has its own special lexeme type
-which can be mapped to change the token type and value
-by the `\key{mapped lexeme symbol table}'.
-Entries in this symbol table are managed by
+A `\key{mapped-lexeme}' is a special kind of lexeme that has its
+own special lexeme type which allows a token with this type to be
+mapped by the `\key{mapped lexeme symbol table}' to a token with
+a different type and value.  For example, a token with special
+lexeme type \TT{DATA} can be mapped to a \TT{PREFIX} type token
+with value `\TT{\{data\}}'.
+
+Entries in the mapped lexeme symbol table are managed by
 {\em parser-mapped-lexeme-commands}:
 
 \begin{indpar}[0.1in]
@@ -3377,7 +3380,7 @@ Entries in this symbol table are managed by
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{~mapped lexeme} ~ {\em lexeme-type-name} ~
 	                       {\em parsing-selectors} \\
-	  \TT{with token value} ~ {\em token-value} \\
+	  {}[ \TT{with token value} ~ {\em token-value} ] \\
 	  {}[ \TT{with lexical master} ~ {\em lexical-master-name} ] \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine mapped lexeme}{parser command} ~
@@ -3464,12 +3467,21 @@ Lexical Master Name	& Characters		& Lexical Type
 \TT{ROW\_CHECK}		& \TT{|}		& \TT{ROW} \\
 			& \TT{-{}-{}-{}-{}-}	& \TT{ROW} \\
 			& \TT{=====}		& \TT{ROW}
+\\[2ex]
+\TT{DEFAULT}		& \multicolumn{2}{@{}l}{does not recognize any special lexemes}
 \end{tabular}
 \end{center}
 
 
-If a \TT{parser define mapped lexeme} command gives no lexical master,
-the lexical master is missing.
+If a \TT{parser define mapped lexeme} command gives no {\em token-value},
+tokens with its lexeme type are deleted, and not altered.
+
+If a \TT{parser define mapped lexeme} command names a lexical master,
+after the token has been deleted or altered, the current lexical master
+is changed to the lexical master named, and the next lexeme for the
+next token is scanned using that new lexical master.
+
+TBD
 
 When the bracketed subexpression parser first sees a lexeme in
 its token, the parser looks up the lexeme in the mapped lexeme

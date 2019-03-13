@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 12, 2019
+March 13, 2019
  
 \end{center}
 
@@ -3434,11 +3434,18 @@ lexical masters when the next 2 input characters are `\TT{!@}'.
 Typically mapped to the `\TT{\{raw data\}}' prefix separator.
 \end{indpar}
 
+\ttmkey{TABLE}{special lexeme}
+\begin{indpar}
+Output by the \TT{PARAGRAPH\_\EOL CHECK} lexical master
+when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
+`\TT{=====}'.
+Typically mapped to the `\TT{\{table\}}' prefix separator.
+\end{indpar}
+
 \ttmkey{ROW}{special lexeme}
 \begin{indpar}
 Output by the \TT{ROW\_\EOL CHECK} lexical master when the next
-input character is `\TT{|}'.
-Output by either the \TT{PARAGRAPH\_\EOL CHECK} or \TT{ROW\_\EOL CHECK}
+input character is `\TT{|}', or
 when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
 `\TT{=====}'.
 Typically mapped to the `\TT{\{row\}}' prefix separator.
@@ -3462,8 +3469,8 @@ Lexical Master Name	& Characters		& Lexical Type
 \\[2ex]
 \TT{PARAGRAPH\_CHECK}	& \TT{@}		& \TT{DATA} \\
 			& \TT{!@}		& \TT{RAW\_DATA} \\
-			& \TT{-{}-{}-{}-{}-}	& \TT{ROW} \\
-			& \TT{=====}		& \TT{ROW}
+			& \TT{-{}-{}-{}-{}-}	& \TT{TABLE} \\
+			& \TT{=====}		& \TT{TABLE}
 \\[2ex]
 \TT{ROW\_CHECK}		& \TT{|}		& \TT{ROW} \\
 			& \TT{-{}-{}-{}-{}-}	& \TT{ROW} \\
@@ -3498,25 +3505,24 @@ If the {\em token-value} is an object with no \TT{.type},
 the token is given the \TT{BRACKETABLE} token type.
 Otherwise if the {\em token-value} is an object it is given
 the \TT{BRACKETED} token type.
-If the {\em token-value} is not an object, it must be a
-MIN string, MIN label, or special value, and it is given the token
+If the {\em token-value} is not an object, it is given the token
 type \TT{DERIVED}.
 
-TBD
-
-A mapped lexeme is called a `\key{header lexeme}' if it is only
+A mapped lexeme is called a `\key{header lexeme}' if the parser
+symbol tables are configured so that the lexeme is only
 produced by looking
 at the first non-whitespace characters of a logical line and does
 not actually consume any of the characters it looks at.
-So for example, if the
-line begins with `\TT{========}', a header lexeme indicating
-a table paragraph might be produced, followed by a header lexeme
-indicating a table line, but none of the line beginning `\TT{=}'
+So for example, if the line begins with `\TT{========}',
+a \TT{TABLE} header lexeme indicating
+a table paragraph might be produced, followed by a \TT{ROW} header lexeme
+indicating a table row line, but none of the line beginning `\TT{=}'
 characters will be skipped over while producing these header lexemes.
 In short, the scanner will peek ahead but not read ahead when
-producing header lexemes.  Header lexemes are usually mapped
-to paragraph or line header \TT{PREFIX} tokens described in the
-next sections.
+producing header lexemes, as is normal for all mapped lexemes.
+Header lexemes are used to introduce
+headed paragraphs (\itemref{HEADED-PARAGRAPHS})
+and headed lines (\itemref{HEADED-LINES}).
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}

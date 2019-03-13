@@ -3412,8 +3412,9 @@ Entries in the mapped lexeme symbol table are managed by
 Special lexemes do not (usually) have any associated character string,
 but they do have their own unique lexeme type.  Although special
 lexemes indicate the presence of particular characters in the input,
-scanning a special lexeme does not consume these characters, which
-will appear in the non-special lexeme that follows the special lexeme.
+scanning a special lexeme (usually) does not consume these characters,
+which will then appear in the non-special lexeme that follows the
+special lexeme.
 
 The standard special lexeme types:
 
@@ -3446,9 +3447,9 @@ Typically mapped to the `\TT{\{row\}}' prefix separator.
 \end{indpar}
 
 The standard lexical masters that recognize special lexemes all
-branch to the standard default lexical master after finding a
+branch to the standard \TT{DEFAULT} lexical master after finding a
 single special lexeme, or if there is no special lexeme in the
-input.  These lexical masters are:
+input.  The standard lexical masters are:
 
 \begin{center}
 \begin{tabular}{l@{\hspace{0.7in}}ll}
@@ -3473,37 +3474,35 @@ Lexical Master Name	& Characters		& Lexical Type
 \end{center}
 
 
-If a \TT{parser define mapped lexeme} command gives no {\em token-value},
-tokens with its lexeme type are deleted, and not altered.
+When the bracketed subexpression parser first sees a lexeme it
+creates a token for that lexeme, setting the token type to the
+lexical type of the lexeme.  The parser then looks this type
+up in the mapped lexeme symbol table, selecting entries active
+according to the current parser selectors.  If an entry is found,
+it is used to replace the token's type and value, and optionally
+to change the lexical master that will scan the next lexeme.
 
-If a \TT{parser define mapped lexeme} command names a lexical master,
-after the token has been deleted or altered, the current lexical master
-is changed to the lexical master named, and the next lexeme for the
-next token is scanned using that new lexical master.
+If the mapped lexeme symbol table entry has no {\em token-value},
+the token which selected the entry is deleted, and not altered.
+If the entry has no {\em lexical-master-name}, the lexical master
+is not changed, which for standard lexical masters means the
+next lexeme will be scanned by the default lexical master.
+
+When a token value is changed by this process, the token is
+given a new token type computed from the new token value.
+If the {\em token-value} is an object with a \TT{.type} but
+no elements, no \TT{.initiator}, and no \TT{.terminator},
+the token is given the \TT{PREFIX} token type.
+If the {\em token-value} is an object with no \TT{.type},
+ no \TT{.initiator}, and no \TT{.terminator},
+the token is given the \TT{BRACKETABLE} token type.
+Otherwise if the {\em token-value} is an object it is given
+the \TT{BRACKETED} token type.
+If the {\em token-value} is not an object, it must be a
+MIN string, MIN label, or special value, and it is given the token
+type \TT{DERIVED}.
 
 TBD
-
-When the bracketed subexpression parser first sees a lexeme in
-its token, the parser looks up the lexeme in the mapped lexeme
-symbol table, selecting entries active according to the current
-parser selectors.  If an entry is found, it is used to replace
-the lexeme's token by another token, with token
-value taken from the table entry, and token type computed
-from the token value (e.g.~\TT{BRACKETED}, \TT{BRACKETABLE},
-\TT{PREFIX}, etc.).  The lexical master is also
-changed to the value in the table entry before scanning more
-lexemes, unless the table entry lexical master is missing.
-
-If the {\em token-value} has a \TT{.type} and
-no elements, no \TT{.initiator}, and no \TT{.terminator},
-the token is given the \TT{PREFIX} token type rather
-than the \TT{BRACKETED} token type.  Note that {\em token-values}
-cannot be lexemes, quoted strings, or numerics.
-
-A {\em token-value} may be an {\em untyped-bracketed-expression}
-that becomes a \TT{DERIVED} label or special value upon being parsed.
-A mapped lexeme can map to such a {\em token-value}, but not to
-another lexeme.
 
 A mapped lexeme is called a `\key{header lexeme}' if it is only
 produced by looking

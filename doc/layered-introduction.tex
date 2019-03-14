@@ -5764,8 +5764,8 @@ The parser's output for a headed paragraph is a MIN object
 whose \TT{.type} and attributes are taken from the paragraph header
 and whose elements are the logical or headed lines in the headed paragraph.
 If the first logical line of the headed paragraph contains only
-the paragraph header, it is omitted from the list of elements
-(so there is no blank logical line).
+the paragraph header, that logical line is omitted from the list of elements
+(so there are no blank logical lines).
 
 As an example, suppose the parser is given the definitions.
 \begin{indpar}\begin{verbatim}

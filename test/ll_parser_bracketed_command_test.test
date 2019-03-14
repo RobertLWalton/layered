@@ -1581,6 +1581,11 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
                       with parsing options [+ continuing]
     trace [+ parser output]
 BRACKETED EXPRESSION:
+    {p1||p1}
+    line ###:
+{p1}
+^^^^
+BRACKETED EXPRESSION:
     {p1|{l1|this is a first paragraph|l1} {l1|and a line|l1}|p1}
     lines ###-###:
 {p1} this is a first paragraph
@@ -1635,8 +1640,10 @@ and another line outside the fourth paragraph
 BRACKETED EXPRESSION:
     {p1|{l1|this is a fifth paragraph|l1} {l1|and a line|l1}|p1}
     lines ###-###:
-{p1} this is a fifth paragraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{p1}
+^^^^
+this is a fifth paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^
 and a line
 ^^^^^^^^^^
 BRACKETED EXPRESSION:

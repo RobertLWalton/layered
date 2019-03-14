@@ -5786,17 +5786,20 @@ a top level parsing selector):
 the parser produces the MIN object:
 \begin{indpar}\begin{verbatim}
 {itemize: indent = 5em, mark = "*"|
-    {item: 1 chicken}
-    {item: 1 tablespoon olive oil}
-    {item: 1 tablespoon paprika}}
+    {item| 1 chicken |item}
+    {item| 1 tablespoon olive oil |item}
+    {item| 1 tablespoon paprika |item}
+    |itemize}
 \end{verbatim}\end{indpar}
 
-Now suppose the parser is given the definition:
+Now suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define prefix "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
+    define prefix "item" [code, text]
+        with group line
 \end{verbatim}\end{indpar}
 with a `\TT{implied subprefix}'.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
@@ -5807,13 +5810,17 @@ with a `\TT{implied subprefix}'.  Then when given given the input:
 \end{verbatim}\end{indpar}
 the parser will produce the same MIN object.
 
-Next suppose the parser is given the definition:
+TBD
+
+Next suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define prefix "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
         with parsing options [+ sticky]
+    define prefix "item" [code, text]
+        with group line
 \end{verbatim}\end{indpar}
 with a `\TT{sticky}' option.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
@@ -5829,8 +5836,9 @@ the parser will produce two MIN objects, the first being as
 above and the second being:
 \begin{indpar}\begin{verbatim}
 {itemize: indent = 5em, mark = "*"|
-    {item: a potato}}
-    {item: 1 tablespoon butter}}
+    {item| a potato |item}
+    {item| 1 tablespoon butter |item}
+    |itemize}
 \end{verbatim}\end{indpar}
 
 If instead the parser is given the definition:

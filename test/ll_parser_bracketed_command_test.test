@@ -1766,9 +1766,18 @@ BRACKETED EXPRESSION:
 and another line
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    this is paragraph 11
-    line ###:
+    {p1|{l1|this is paragraph 11|l1} {l1|and another line|l1}|p1}
+    lines ###-###:
+{p1}
+^^^^
 this is paragraph 11
+^^^^^^^^^^^^^^^^^^^^
+and another line
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    this is paragraph 12
+    line ###:
+this is paragraph 12
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     and another line

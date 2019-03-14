@@ -493,6 +493,8 @@ third line with indent 0
     print prefix ""
     trace [+ parser output]
 
+{p1}
+
 {p1} this is a first paragraph
 and a line
 
@@ -513,7 +515,8 @@ and a line
 
 and another line outside the fourth paragraph
 
-{p1} this is a fifth paragraph
+{p1}
+this is a fifth paragraph
 and a line
 
 and another line outside the fifth paragraph

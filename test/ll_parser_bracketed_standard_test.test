@@ -6105,3 +6105,122 @@ BRACKETED EXPRESSION:
     line ###:
 ID 8 is @@
 ^^^^^^^^^^
+BRACKETED PARSER FOUND
+    [TOP LEVEL, code] SELECTED KEY [< "*PARSER*" ":" >]
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    [- bracketed subexpressions "," - keys]
+@@@@ = - bracketed subexpressions "," - keys:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+    trace [- bracketed subexpressions, - keys]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    trace [- bracketed subexpressions "," - keys]
+@@@@ = trace [- bracketed subexpressions "," - keys]:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    trace [- bracketed subexpressions, - keys]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< "*PARSER*" ":" >]|@@@@|}
+@@@@ = @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = [< "*PARSER*" ":" >]
+    lines ###-###:
+*PARSER*:
+^^^^^^^^^
+    trace [- bracketed subexpressions, - keys]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
+              {item|1 tablespoon olive oil|item}
+              {item|1 tablespoon paprika|item}|itemize}
+@@@@ = {item|1 chicken|item} {item|1 tablespoon olive oil|item}
+               {item|1 tablespoon paprika|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{itemize: indent = 5em, mark = "*"}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{item} 1 chicken
+^^^^^^^^^^^^^^^^
+{item} 1 tablespoon olive oil
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{item} 1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
+              {item|1 tablespoon olive oil|item}
+              {item|1 tablespoon paprika|item}|itemize}
+@@@@ = @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@@ = {item|1 chicken|item} {item|1 tablespoon olive oil|item}
+               {item|1 tablespoon paprika|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{itemize: indent = 5em, mark = "*"|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {item | 1 chicken |}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {item | 1 tablespoon olive oil |}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {item | 1 tablespoon paprika |} |}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
+              {item|1 tablespoon olive oil|item}
+              {item|1 tablespoon paprika|item}|itemize}
+@@@@ = {item|1 chicken|item} {item|1 tablespoon olive oil|item}
+               {item|1 tablespoon paprika|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{itemize: indent = 5em, mark = "*"}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1 chicken
+^^^^^^^^^
+1 tablespoon olive oil
+^^^^^^^^^^^^^^^^^^^^^^
+1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    a potato
+@@@@ = a potato:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+a potato
+^^^^^^^^
+BRACKETED EXPRESSION:
+    1 tablespoon butter
+@@@@ = 1 tablespoon butter:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+1 tablespoon butter
+^^^^^^^^^^^^^^^^^^^

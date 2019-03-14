@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 13, 2019
+March 14, 2019
  
 \end{center}
 
@@ -5732,9 +5732,11 @@ line that follows the line header.
 The parser's output
 for a headed line is a MIN object whose \TT{.type} and attributes
 are taken from the line header and whose elements are
-taken from the rest of the headed line.  This output has \underline{no}
+taken from the rest of the headed line.  This output has a \TT{.type}
+but \underline{no}
 \TT{.initiator}, unlike the parser's output
-for a logical line that has no line header whose \TT{.initiator}
+for a logical line that has no line header, which has \underline{no}
+\TT{.type} but has an \TT{.initiator}
 is the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 
 Line headers may be implied by the \TT{implied subprefix}

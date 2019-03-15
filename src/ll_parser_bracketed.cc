@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  6 11:40:39 EST 2019
+// Date:	Fri Mar 15 16:30:05 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2089,34 +2089,32 @@ PARSE_PREFIX_N_LIST:
 			    implied_paragraph =
 			line_variables->current;
 
+		    min::locatable_gen implied_header
+		        ( min::copy
+			      ( prefix->value, 0 ) );
+		    MIN_REQUIRE ( min::get ( implied_header,
+		                        min::dot_position )
+			     != min::NONE() );
+
+		    // TBD: protect implied_header from
+		    // garbage collection.
+
+		    // Following triggers bug (inf loop)
+		    // in min::remove of list pointer.
+		    //
+		    // min::set ( implied_header,
+		               // min::dot_position,
+			       // min::NONE() );
+
 		    line_variables->
 			paragraph.implied_header =
-		      prefix->value;
+		      implied_header;
 		    line_variables->
 			paragraph.header_entry =
 		      prefix_entry;
 		    line_variables->
 			paragraph.header_selectors =
 		      prefix_selectors;
-
-		    // The following causes compact_
-		    // prefix_separator to make a
-		    // copy of prefix->value, so
-		    // paragraph.implied_header
-		    // remains unchanged.
-		    //
-		    // Changing prefix->type to
-		    // IMPLIED_PREFIX does no harm
-		    // as at this point prefix is
-		    // the first thing in the
-		    // logical line and we can
-		    // pretend it was implied.
-		    //
-		    MIN_REQUIRE
-			(    start_previous->next
-			  == prefix );
-		    prefix->type =
-			PAR::IMPLIED_PREFIX;
 		}
 		else
 		{

@@ -6224,3 +6224,35 @@ BRACKETED EXPRESSION:
     line ###:
 1 tablespoon butter
 ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
+              {item|1 tablespoon olive oil|item}
+              {item|1 tablespoon paprika|item}|itemize}
+@@@@ = {item|1 chicken|item} {item|1 tablespoon olive oil|item}
+               {item|1 tablespoon paprika|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{itemize: indent = 5em, mark = "*"}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1 chicken
+^^^^^^^^^
+1 tablespoon olive oil
+^^^^^^^^^^^^^^^^^^^^^^
+1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|a potato|item}
+              {item|1 tablespoon butter|item}|itemize}
+@@@@ = {item|a potato|item} {item|1 tablespoon butter|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+a potato
+^^^^^^^^
+1 tablespoon butter
+^^^^^^^^^^^^^^^^^^^

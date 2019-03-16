@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 15 16:30:05 EDT 2019
+// Date:	Fri Mar 15 21:35:38 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2099,12 +2099,9 @@ PARSE_PREFIX_N_LIST:
 		    // TBD: protect implied_header from
 		    // garbage collection.
 
-		    // Following triggers bug (inf loop)
-		    // in min::remove of list pointer.
-		    //
-		    // min::set ( implied_header,
-		               // min::dot_position,
-			       // min::NONE() );
+		     min::set ( implied_header,
+		                min::dot_position,
+			        min::NONE() );
 
 		    line_variables->
 			paragraph.implied_header =

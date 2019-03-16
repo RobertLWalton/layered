@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 15 21:35:38 EDT 2019
+// Date:	Sat Mar 16 05:55:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2089,23 +2089,17 @@ PARSE_PREFIX_N_LIST:
 			    implied_paragraph =
 			line_variables->current;
 
-		    min::locatable_gen implied_header
-		        ( min::copy
-			      ( prefix->value, 0 ) );
-		    MIN_REQUIRE ( min::get ( implied_header,
-		                        min::dot_position )
-			     != min::NONE() );
+		    line_variables->sticky_header =
+		        min::copy ( prefix->value, 0 );
 
-		    // TBD: protect implied_header from
-		    // garbage collection.
-
-		     min::set ( implied_header,
+		     min::set ( line_variables
+		                    ->sticky_header,
 		                min::dot_position,
 			        min::NONE() );
 
 		    line_variables->
 			paragraph.implied_header =
-		      implied_header;
+		      line_variables->sticky_header;
 		    line_variables->
 			paragraph.header_entry =
 		      prefix_entry;

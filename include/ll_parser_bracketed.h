@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 25 19:55:19 EST 2019
+// Date:	Sat Mar 16 05:49:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1019,6 +1019,10 @@ struct line_variables
     // WARNING: this ASSUMES that the parser tables are
     // not modified DURING logical line parsing.  Break-
     // ing this assumption breaks the garbage collector.
+    //
+    // Also, sticky paragraph.implied headers need to be
+    // copied to `sticky_header' element in order to
+    // protect them from garbage collection.
 {
     // Variables that must be initialized before logical
     // lines are parsed, and are used while parsing a
@@ -1065,6 +1069,11 @@ struct line_variables
 	// beginning position.  Initialized to parser->
 	// at_paragraph_beginning by parse_bracketed_
 	// subexpression.
+
+    // Copy of STICKY paragraph.implied_header below,
+    // made to protect it from garbage collection.
+    //
+    min::locatable_gen sticky_header;
 
     // Logical line data, used to parse next logical
     // line.  Reset from paragraph data before being

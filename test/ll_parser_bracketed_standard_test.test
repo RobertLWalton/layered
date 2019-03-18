@@ -6256,3 +6256,78 @@ a potato
 ^^^^^^^^
 1 tablespoon butter
 ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {end itemize|{"": .terminator = "<LF>", .initiator =
+                      [$ LOGICAL_LINE $]|line #|}|end itemize}
+@@@@ = @@@@:
+           .type = [< "end" "itemize" >]
+           .position[H] = PACKED_VEC
+@@@@ = line #:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{end itemize}
+^^^^^^^^^^^^^
+line #
+^^^^^^
+BRACKETED EXPRESSION:
+    line #
+@@@@ = line #:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+line #
+^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
+              {item|1 tablespoon olive oil|item}
+              {item|1 tablespoon paprika|item} {item|a potato|item}
+              {item|1 tablespoon butter|item}|itemize}
+@@@@ = {item|1 chicken|item} {item|1 tablespoon olive oil|item}
+               {item|1 tablespoon paprika|item} {item|a potato|item}
+               {item|1 tablespoon butter|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{itemize: indent = 5em, mark = "*"}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1 chicken
+^^^^^^^^^
+1 tablespoon olive oil
+^^^^^^^^^^^^^^^^^^^^^^
+1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+a potato
+^^^^^^^^
+1 tablespoon butter
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {end itemize|{"": .terminator = "<LF>", .initiator =
+                      [$ LOGICAL_LINE $]|line #|}|end itemize}
+@@@@ = @@@@:
+           .type = [< "end" "itemize" >]
+           .position[H] = PACKED_VEC
+@@@@ = line #:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{end itemize}
+^^^^^^^^^^^^^
+line #
+^^^^^^
+BRACKETED EXPRESSION:
+    line #
+@@@@ = line #:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+line #
+^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 19 12:24:53 EDT 2019
+// Date:	Tue Mar 19 15:41:01 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -299,7 +299,7 @@ a potato
     define prefix "end itemize" [code, text]
     	with group paragraph
 
-{itemize: indent = 5em, mark = "*"}
+{itemize: indent = 5em, mark = "*", label = "STICKY"}
 1 chicken
 1 tablespoon olive oil
 1 tablespoon paprika
@@ -323,9 +323,9 @@ line 2
     	with group line
     define prefix "end itemize" [code, text]
     	with group paragraph
-	with implied subprefix {item}
 
-{itemize: indent = 5em, mark = "*"}
+{itemize: indent = 5em, mark = "*",
+          label = "CONTINUING"}
 1 chicken
 1 tablespoon olive oil
 1 tablespoon paprika

@@ -1275,7 +1275,7 @@ void PAR::parse ( PAR::parser parser )
     parser->at_paragraph_beginning = true;
     line_variables.line_sep =
 	parser->top_level_indentation_mark->line_sep;
-    line_variables.current.selectors =
+    line_variables.current.selectors &=
         ~ PAR::CONTINUING_OPT;
 	// line_variables.current.selectors are replaced
 	// by line_variables.paragraph.selectors near

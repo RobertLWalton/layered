@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 16 05:55:43 EDT 2019
+// Date:	Tue Mar 19 12:21:18 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -769,7 +769,14 @@ bool BRA::parse_paragraph_element
 	MIN_REQUIRE ( current->next != parser->first );
         current = current->next;
 
-	if ( line_variables->at_paragraph_end )
+	if ( ( parser->at_paragraph_beginning
+	       &&
+	       ! ( line_variables->
+			current.selectors
+	           &
+	           PAR::CONTINUING_OPT ) )
+	      ||
+	      line_variables->at_paragraph_end )
 	{
 	    line_variables->last_paragraph =
 	        min::NULL_STUB;

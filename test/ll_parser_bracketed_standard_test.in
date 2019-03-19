@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 18 02:59:00 EDT 2019
+// Date:	Tue Mar 19 12:24:53 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -323,6 +323,7 @@ line 2
     	with group line
     define prefix "end itemize" [code, text]
     	with group paragraph
+	with implied subprefix {item}
 
 {itemize: indent = 5em, mark = "*"}
 1 chicken
@@ -331,6 +332,10 @@ line 2
 
 a potato
 1 tablespoon butter
+
+{end itemize}
+
+line 0
 
 {end itemize}
 line 1

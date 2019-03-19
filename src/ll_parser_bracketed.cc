@@ -2559,7 +2559,7 @@ NEXT_TOKEN:
 	    line_variables.at_paragraph_end = false;
 	    line_variables.last_paragraph =
 		min::NULL_STUB;
-	    line_variables.current.selectors = ~
+	    line_variables.current.selectors &= ~
 		PAR::CONTINUING_OPT;
 		// line_variables.current.selectors
 		// is replaced by line_variables.

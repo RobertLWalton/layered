@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 14, 2019
+March 19, 2019
  
 \end{center}
 
@@ -5810,8 +5810,6 @@ with a `\TT{implied subprefix}'.  Then when given given the input:
 \end{verbatim}\end{indpar}
 the parser will produce the same MIN object.
 
-TBD
-
 Next suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
@@ -5859,6 +5857,11 @@ the parser would produce the single MIN object:
     {item: a potato}}
     {item: 1 tablespoon butter}}
 \end{verbatim}\end{indpar}
+
+Note that the `\TT{sticky}' and `\TT{continuing}' options
+remain in effect until the next explicit (non-implied)
+paragraph header, or until the end of a containing
+indented paragraph (or the end of file).
 
 TBD
 

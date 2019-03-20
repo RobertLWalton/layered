@@ -6354,3 +6354,81 @@ BRACKETED EXPRESSION:
     line ###:
 line #
 ^^^^^^
+*PARSER*:
+    print mapped lexeme ""
+        block standard: mapped lexeme "DATA" [TOP LEVEL]
+                        with token value {data||data}
+        block standard: mapped lexeme "RAW_DATA" [TOP LEVEL]
+                        with token value {raw data||raw data}
+        block standard: mapped lexeme "TABLE" [TOP LEVEL]
+                        with token value {table||table}
+        block standard: mapped lexeme "ROW" [TOP LEVEL]
+                        with token value {row||row}
+    print prefix "table"
+        block standard: prefix "table"
+                        [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [- TOP LEVEL]
+                        with group paragraph
+                        with line lexical master "ROW-CHECK"
+    print prefix "row"
+        block standard: prefix "row" [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [- TOP LEVEL]
+                        with group line
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
+              {item|1 tablespoon olive oil|item}
+              {item|1 tablespoon paprika|item}|itemize}
+@@@@ = {item|1 chicken|item} {item|1 tablespoon olive oil|item}
+               {item|1 tablespoon paprika|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{itemize: indent = 5em, mark = "*"}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{item} 1 chicken
+^^^^^^^^^^^^^^^^
+{item} 1 tablespoon olive oil
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{item} 1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {itemize: indent = "5em", mark = "*"|{item|a potato|item}
+              {item|1 tablespoon butter|item}|itemize}
+@@@@ = {item|a potato|item} {item|1 tablespoon butter|item}:
+           indent = "5em"
+           .type = "itemize"
+           mark = "*"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+a potato
+^^^^^^^^
+1 tablespoon butter
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|=============|row} {row|"|" 1 chicken "|"|row}
+           {row|=============|row}
+           {row|"|" 1 tablespoon olive oil "|"|row} {row|-|row}
+           {row|"|" 1 tablespoon paprika|row} {row|=|row}|table}
+@@@@ = {row|=============|row} {row|"|" 1 chicken "|"|row}
+               {row|=============|row}
+               {row|"|" 1 tablespoon olive oil "|"|row} {row|-|row}
+               {row|"|" 1 tablespoon paprika|row} {row|=|row}:
+           .position[H] = PACKED_VEC
+           .type = "table"
+    lines ###-###:
+=============
+^^^^^^^^^^^^^
+| 1 chicken |
+^^^^^^^^^^^^^
+=============
+^^^^^^^^^^^^^
+| 1 tablespoon olive oil |
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+-
+^
+| 1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^^^
+=
+^

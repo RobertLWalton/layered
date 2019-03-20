@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 28 02:09:42 EST 2019
+// Date:	Wed Mar 20 07:06:49 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -519,10 +519,17 @@ lex	                output table
 lex	                goto row check;
 lex
 cc	           NDL::begin_dispatch ( "=" );
-cc	               NDL::REPEAT ( 4 );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( table_t );
-cc		       NDL::go ( row_check );
+cc	             NDL::begin_dispatch ( "=" );
+cc	               NDL::begin_dispatch ( "=" );
+cc	                 NDL::begin_dispatch ( "=" );
+cc	                   NDL::begin_dispatch ( "=" );
+cc		             NDL::keep ( 0 );
+cc		             NDL::output ( table_t );
+cc		             NDL::go ( row_check );
+cc		           NDL::end_dispatch();
+cc		         NDL::end_dispatch();
+cc		       NDL::end_dispatch();
+cc		     NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
@@ -531,10 +538,17 @@ lex	                output table
 lex	                goto row check;
 lex
 cc	           NDL::begin_dispatch ( "-" );
-cc	               NDL::REPEAT ( 4 );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( table_t );
-cc		       NDL::go ( row_check );
+cc	             NDL::begin_dispatch ( "-" );
+cc	               NDL::begin_dispatch ( "-" );
+cc	                 NDL::begin_dispatch ( "-" );
+cc	                   NDL::begin_dispatch ( "-" );
+cc		             NDL::keep ( 0 );
+cc		             NDL::output ( table_t );
+cc		             NDL::go ( row_check );
+cc		           NDL::end_dispatch();
+cc		         NDL::end_dispatch();
+cc		       NDL::end_dispatch();
+cc		     NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
@@ -563,24 +577,22 @@ cc		       NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "====="      keep 0
+lex	   "="          keep 0
 lex	                output row
 lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "=" );
-cc	               NDL::REPEAT ( 4 );
 cc		       NDL::keep ( 0 );
 cc		       NDL::output ( row_t );
 cc		       NDL::go ( within_line );
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "-----"      keep 0
+lex	   "-"          keep 0
 lex	                output row
 lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "-" );
-cc	               NDL::REPEAT ( 4 );
 cc		       NDL::keep ( 0 );
 cc		       NDL::output ( row_t );
 cc		       NDL::go ( within_line );

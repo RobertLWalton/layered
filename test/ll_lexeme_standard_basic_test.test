@@ -676,8 +676,50 @@
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 62
+            =
+                #####: KEEP(0), OUTPUT(15), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 62
+            =
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 62
+            =
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 62
+            =
+                Dispatcher ID: #####
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 46
+            -
+                #####: KEEP(0), OUTPUT(15), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 46
+            -
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 46
+            -
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 46
+            -
+                Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 4
             Ctype Map Size: 65
@@ -686,11 +728,9 @@
                 Dispatcher ID: #####
             !
                 Dispatcher ID: #####
-            = [repeat(4)]
-                #####: KEEP(0), OUTPUT(15), GOTO(####)
+            =
                 Dispatcher ID: #####
-            - [repeat(4)]
-                #####: KEEP(0), OUTPUT(15), GOTO(####)
+            -
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -707,10 +747,10 @@
             |
                 #####: KEEP(0), OUTPUT(16), GOTO(####)
                 Dispatcher ID: #####
-            = [repeat(4)]
+            =
                 #####: KEEP(0), OUTPUT(16), GOTO(####)
                 Dispatcher ID: #####
-            - [repeat(4)]
+            -
                 #####: KEEP(0), OUTPUT(16), GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
@@ -1951,10 +1991,10 @@
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 944
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>

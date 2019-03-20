@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 07:58:00 EDT 2018
+// Date:	Wed Mar 20 06:51:30 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -280,18 +280,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
     min::uns32 row_lexical_master =
         PAR::get_lexical_master
 	    ( row_check, parser );
-    min::locatable_gen row_value
-        ( min::new_obj_gen ( 10, 1 ) );
-    {
-        min::obj_vec_insptr vp ( row_value );
-	min::attr_insptr ap ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, row );
-	min::locate ( ap, min::dot_position );
-	min::set ( ap, min::new_stub_gen ( pos ) );
-	min::set_flag
-	    ( ap, min::standard_attr_hide_flag );
-    }
 
     PRE::push_prefix
 	( table,
@@ -300,8 +288,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  PARLEX::paragraph,
-	  row_value,
-	  row,
+	  min::MISSING(), // implied_subprefix
+	  min::MISSING(), // implied_subprefix_type
 	  PAR::MISSING_MASTER,
 	  row_lexical_master,
 	  min::NULL_STUB,

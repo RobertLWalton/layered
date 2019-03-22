@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 20 07:06:49 EDT 2019
+// Date:	Fri Mar 22 12:33:13 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,25 +64,25 @@ cc	    "WORD",
 cc	    "NATURAL",
 cc	    "NUMERIC",
 cc	    "MARK",
-cc	    "QUOTED_STRING",
+cc	    "QUOTED-STRING",
 cc	    "SEPARATOR",
 cc	    "COMMENT",
-cc	    "HORIZONTAL_SPACE",
+cc	    "HORIZONTAL-SPACE",
 cc	    "INDENT",
-cc	    "LINE_BREAK",
-cc	    "START_OF_FILE",
-cc	    "END_OF_FILE",
+cc	    "LINE-BREAK",
+cc	    "START-OF-FILE",
+cc	    "END-OF-FILE",
 cc	    "DATA",
-cc	    "RAW_DATA",
+cc	    "RAW-DATA",
 cc	    "TABLE",
 cc	    "ROW",
-cc	    "PREMATURE_END_OF_STRING",
-cc	    "PREMATURE_END_OF_FILE",
-cc	    "MISPLACED_VERTICAL",
-cc	    "ILLEGAL_CONTROL",
-cc	    "UNRECOGNIZED_CHARACTER",
-cc	    "UNRECOGNIZED_ESCAPE",
-cc	    "MISPLACED_HORIZONTAL" };
+cc	    "PREMATURE-END-OF-STRING",
+cc	    "PREMATURE-END-OF-FILE",
+cc	    "MISPLACED-VERTICAL",
+cc	    "ILLEGAL-CONTROL",
+cc	    "UNRECOGNIZED-CHARACTER",
+cc	    "UNRECOGNIZED-ESCAPE",
+cc	    "MISPLACED-HORIZONTAL" };
 cc
 cc	const char * LEXSTD::type_codes =
 cc	    "?wn#mqschibfeDRTOSFVCUEH";

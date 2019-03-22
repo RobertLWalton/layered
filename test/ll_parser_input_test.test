@@ -1,4 +1,4 @@
-START_OF_FILE: line #:
+START-OF-FILE: line #:
 // Layered Languages Standard Lexical Analyzer Test Data
 ^
 INDENT: line #:
@@ -7,7 +7,7 @@ INDENT: line #:
 COMMENT: line #:
 // Layered Languages Standard Lexical Analyzer Test Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // Layered Languages Standard Lexical Analyzer Test Data
                                                         ^
 INDENT: line #:
@@ -16,7 +16,7 @@ INDENT: line #:
 COMMENT: line #:
 //
 ^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 //
   ^
 INDENT: line #:
@@ -25,7 +25,7 @@ INDENT: line #:
 COMMENT: line #:
 // File:        ll_lexeme_standard_test.in
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // File:        ll_lexeme_standard_test.in
                                           ^
 INDENT: line #:
@@ -34,7 +34,7 @@ INDENT: line #:
 COMMENT: line #:
 // Author:      Bob Walton (walton@acm.org)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // Author:      Bob Walton (walton@acm.org)
                                            ^
 INDENT: line #:
@@ -43,7 +43,7 @@ INDENT: line #:
 COMMENT: line #:
 // Date:        Thu Feb 28 02:27:59 EST 2019
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // Date:        Thu Feb 28 02:27:59 EST 2019
                                             ^
 INDENT: line #:
@@ -52,7 +52,7 @@ INDENT: line #:
 COMMENT: line #:
 //
 ^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 //
   ^
 INDENT: line #:
@@ -61,7 +61,7 @@ INDENT: line #:
 COMMENT: line #:
 // The authors have placed this data in the public
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // The authors have placed this data in the public
                                                   ^
 INDENT: line #:
@@ -70,7 +70,7 @@ INDENT: line #:
 COMMENT: line #:
 // domain; they make no warranty and accept no liability
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // domain; they make no warranty and accept no liability
                                                         ^
 INDENT: line #:
@@ -79,10 +79,10 @@ INDENT: line #:
 COMMENT: line #:
 // for this data.
 ^^^^^^^^^^^^^^^^^
-LINE_BREAK: line #:
+LINE-BREAK: line #:
 // for this data.
                  ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 <BLANK-LINE>
 ^
 INDENT: line ##:
@@ -103,19 +103,19 @@ abc 3.4+z (x,y)
 SEPARATOR: ")": line ##:
 abc 3.4+z (x,y)
               ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 abc 3.4+z (x,y)
                ^
 INDENT: line ##:
 "hi" "ho<HT>x y<>z<LF>"
 ^
-QUOTED_STRING: "hi": line ##:
+QUOTED-STRING: "hi": line ##:
 "hi" "ho<HT>x y<>z<LF>"
 ^^^^
-QUOTED_STRING: "ho␉x␣y<>z␊": line ##:
+QUOTED-STRING: "ho␉x␣y<>z␊": line ##:
 "hi" "ho<HT>x y<>z<LF>"
      ^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "hi" "ho<HT>x y<>z<LF>"
                        ^
 INDENT: line ##:
@@ -145,7 +145,7 @@ WORD: "h'dache": line ##:
 SEPARATOR: ".": line ##:
 'tis noth'ng `but' a h'dache.
                             ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 'tis noth'ng `but' a h'dache.
                              ^
 INDENT: line ##:
@@ -175,7 +175,7 @@ a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
 NUMERIC: "2018/05/02": line ##:
 a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                                          ^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
                                                    ^
 INDENT: line ##:
@@ -214,7 +214,7 @@ NUMERIC: "4:5::6:A:B": line ##:
 SEPARATOR: ":": line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
                               ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
                                ^
 INDENT: line ##:
@@ -232,7 +232,7 @@ NUMERIC: "1/2/3/4,5/6,7,8/9": line ##:
 NUMERIC: "8888.12,3,4": line ##:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                        ^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 1,23,456 1,234/6,789 1/2/3/4,5/6,7,8/9 8888.12,3,4
                                                   ^
 INDENT: line ##:
@@ -271,7 +271,7 @@ NUMERIC: "'1'2'3'4": line ##:
 SEPARATOR: "'": line ##:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                                           ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                                            ^
 INDENT: line ##:
@@ -283,13 +283,13 @@ MARK: "+-*~@#$%^&=<>_!?./": line ##:
 SEPARATOR: ":": line ##:
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
                   ^
-QUOTED_STRING: "foo": line ##:
+QUOTED-STRING: "foo": line ##:
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
                    ^^^^^
 WORD: "x<79><LF>": line ##:
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
                         ^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 +-*~@#$%^&=<>_!?./:"foo"x<79><LF>
                                  ^
 INDENT: line ##:
@@ -325,13 +325,13 @@ WORD: "comment": line ##:
 NUMERIC: "<89>": line ##:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                              ^^^^
-QUOTED_STRING: "'": line ##:
+QUOTED-STRING: "'": line ##:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                   ^^
 ERROR: string ended by line break or end of file; line ##:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                     ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                     ^
 INDENT: line ##:
@@ -397,7 +397,7 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
 SEPARATOR: ":": line ##:
 a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                                                    ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 a(b,c) d{e;f} g[h,i] ``foobar' fum' *PARSER* *TEST*:
                                                     ^
 INDENT: line ##:
@@ -406,7 +406,7 @@ INDENT: line ##:
 COMMENT: line ##:
 // form feed ␌
 ^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 // form feed ␌
              ^
 INDENT: line ##:
@@ -415,7 +415,7 @@ INDENT: line ##:
 COMMENT: line ##:
 // vertical tab ␋
 ^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 // vertical tab ␋
                 ^
 INDENT: line ##:
@@ -424,7 +424,7 @@ INDENT: line ##:
 COMMENT: line ##:
 // carriage return ␍
 ^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 // carriage return ␍
                    ^
 INDENT: line ##:
@@ -439,7 +439,7 @@ z       x // horizontal tab
 COMMENT: line ##:
 z       x // horizontal tab
           ^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 z       x // horizontal tab
                            ^
 INDENT: line ##:
@@ -448,7 +448,7 @@ all     ␌␋␍
 WORD: "all": line ##:
 all     ␌␋␍
 ^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 all     ␌␋␍
         ^^^
 INDENT: line ##:
@@ -475,7 +475,7 @@ control A␁B␂C␃
 ERROR: illegal control character sequence; line ##:
 control A␁B␂C␃
              ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 control A␁B␂C␃
               ^
 INDENT: line ##:
@@ -484,73 +484,73 @@ INDENT: line ##:
 ERROR: in line ##: unrecognized escape sequence:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                             ^^^^
-QUOTED_STRING: "<Q>␊␍␉␈␌␋␥␣â␁": line ##:
+QUOTED-STRING: "<Q>␊␍␉␈␌␋␥␣â␁": line ##:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<Q><LF><CR><HT><BS><FF><VT><XX><SP><0E2><1>"
                                              ^
 INDENT: line ##:
 "<0041><00000042>C D<00000045><0046>G"
 ^
-QUOTED_STRING: "ABC␣DEFG": line ##:
+QUOTED-STRING: "ABC␣DEFG": line ##:
 "<0041><00000042>C D<00000045><0046>G"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<0041><00000042>C D<00000045><0046>G"
                                       ^
 INDENT: line ##:
 "<0041><000000B5>C D<000000E3><0006>G"
 ^
-QUOTED_STRING: "AµC␣Dã␆G": line ##:
+QUOTED-STRING: "AµC␣Dã␆G": line ##:
 "<0041><000000B5>C D<000000E3><0006>G"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<0041><000000B5>C D<000000E3><0006>G"
                                       ^
 INDENT: line ##:
 "<0001>"
 ^
-QUOTED_STRING: "␁": line ##:
+QUOTED-STRING: "␁": line ##:
 "<0001>"
 ^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<0001>"
         ^
 INDENT: line ##:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 ^
-QUOTED_STRING: "␀␁␂␃␄␅␆␇": line ##:
+QUOTED-STRING: "␀␁␂␃␄␅␆␇": line ##:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL>"
                                           ^
 INDENT: line ##:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 ^
-QUOTED_STRING: "␈␉␊␊␋␌␍␎␏": line ##:
+QUOTED-STRING: "␈␉␊␊␋␌␍␎␏": line ##:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<BS><HT><LF><NL><VT><FF><CR><SO><SI>"
                                       ^
 INDENT: line ##:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
 ^
-QUOTED_STRING: "␐␑␒␓␔␕␖␗": line ##:
+QUOTED-STRING: "␐␑␒␓␔␕␖␗": line ##:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB>"
                                           ^
 INDENT: line ##:
 "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
 ^
-QUOTED_STRING: "␘␙␚␛␜␝␞␟␡": line ##:
+QUOTED-STRING: "␘␙␚␛␜␝␞␟␡": line ##:
 "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "<CAN><EOM><SUB><ESC><FS><GS><RS><US><DEL>"
                                            ^
 INDENT: line ##:
@@ -559,10 +559,10 @@ INDENT: line ##:
 ERROR: in line ##: illegal control character sequence:
 "misplaced control ␁"
                    ^
-QUOTED_STRING: "misplaced␣control␣␁": line ##:
+QUOTED-STRING: "misplaced␣control␣␁": line ##:
 "misplaced control ␁"
 ^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "misplaced control ␁"
                      ^
 INDENT: line ##:
@@ -589,7 +589,7 @@ misplaced space ␌ here and ␍ here
 WORD: "here": line ##:
 misplaced space ␌ here and ␍ here
                              ^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 misplaced space ␌ here and ␍ here
                                  ^
 INDENT: line ##:
@@ -598,7 +598,7 @@ INDENT: line ##:
 NUMERIC: "=<9=<8": line ##:
 =<9=<8
 ^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 =<9=<8
       ^
 INDENT: line ##:
@@ -607,10 +607,10 @@ INDENT: line ##:
 COMMENT: line ##:
 // blank line follows
 ^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 // blank line follows
                      ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 <BLANK-LINE>
 ^
 INDENT: line ##:
@@ -619,28 +619,28 @@ INDENT: line ##:
 COMMENT: line ##:
 // blank line with spaces follows
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 // blank line with spaces follows
                                  ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 <BLANK-LINE>
      ^
 INDENT: line ##:
 "premature end of line follows
 ^
-QUOTED_STRING: "premature␣end␣of␣line␣follows": line ##:
+QUOTED-STRING: "premature␣end␣of␣line␣follows": line ##:
 "premature end of line follows
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: string ended by line break or end of file; line ##:
 "premature end of line follows
                               ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 "premature end of line follows
                               ^
 INDENT: line ##:
 "premature end of file follows<END-OF-FILE>
 ^
-QUOTED_STRING: "premature␣end␣of␣file␣follows": line ##:
+QUOTED-STRING: "premature␣end␣of␣file␣follows": line ##:
 "premature end of file follows<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: string ended by line break or end of file; line ##:
@@ -649,6 +649,6 @@ ERROR: string ended by line break or end of file; line ##:
 ERROR: end of file not preceeded by a line break; line ##:
 "premature end of file follows<END-OF-FILE>
                               ^
-END_OF_FILE: line ##:
+END-OF-FILE: line ##:
 "premature end of file follows<END-OF-FILE>
                               ^

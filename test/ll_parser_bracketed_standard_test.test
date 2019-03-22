@@ -6441,7 +6441,7 @@ BRACKETED EXPRESSION:
     print mapped lexeme ""
         block standard: mapped lexeme "DATA" [TOP LEVEL]
                         with token value {data||data}
-        block standard: mapped lexeme "RAW_DATA" [TOP LEVEL]
+        block standard: mapped lexeme "RAW-DATA" [TOP LEVEL]
                         with token value {raw data||raw data}
         block standard: mapped lexeme "TABLE" [TOP LEVEL]
                         with token value {table||table}

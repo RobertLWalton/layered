@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 20, 2019
+March 22, 2019
  
 \end{center}
 
@@ -2983,7 +2983,7 @@ The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{tabular}{lll}
 parsing selectors 	& 47 bits	& \pagref{PARSING-SELECTORS} \\
 parsing end at options	& 6 bits	& \pagref{END-AT-OPTIONS-1} \\
-parsing header options	& 2 bits	& \pagref{PARSING-HEADER-OPTIONS} \\
+parsing header options	& 2 bits	& \pagref{HEADER-OPTION} \\
 parsing trace flags	& 64 bits	& \pagref{TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
@@ -3141,9 +3141,11 @@ prints the top level selectors and lexical masters.
 The standard parser executes the equivalent of
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    begin block standard
     define top level
         with parsing selectors [code]
+        with paragraph lexical master "PARAGRAPH-CHECK"
+        with line lexical master "DATA-CHECK"
+
 \end{verbatim}\end{indpar}
 
 
@@ -3158,11 +3160,18 @@ may be given or modified by the {\em parser-trace-command}:
 \end{center}
 Trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
-in Figure~\itemref{TRACE-FLAGS}.
+in Figure~\itemref{TRACE-FLAGS}.  The \TT{warnings} flag is set, and
+all other trace flags are cleared, when the parser is initialized.
 
 \begin{boxedfigure}[!p]
 
 \begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttmkey{warnings}{parsing trace flag} ~
+    Print warning messages when the parser detects a parse error.
+    A warning message also indicates what action the parser took
+    to `fix' the error.  This flag is set when the
+    parser is initialized.
+
 \hspace*{-0.2in}\ttmkey{parser input}{parsing trace flag} ~
     When the parser reads a token from the input,
     a description of the token is printed.
@@ -5454,9 +5463,11 @@ whose general syntax is:
     \begin{tabular}[t]{rl@{~~~~~}l}
     ::= & {\em end-at-option} ~ except ~ `\TT{end at line separator}'
         & [\pagref{END-AT-OPTIONS-1}] \\
-    $|$ & \ttkey{sticky} $|$ \ttkey{continuing}
-          \label{PARSING-HEADER-OPTIONS}
+    $|$ & {\em header-option}
     \end{tabular}
+\\[0.5ex]
+\emkey{header-option} ::= \ttkey{sticky} $|$ \ttkey{continuing}
+          \label{HEADER-OPTION}
 \\[0.5ex]
 \emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
 \emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 12 16:00:48 EDT 2019
+// Date:	Fri Mar 22 06:57:39 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1472,9 +1472,9 @@ static min::gen execute_ID_character
 		parser->printer << "disabled";
 	    else
 		parser->printer
-		    << "`"
+		    << "\""
 		    << min::punicode ( ID_character )
-		    << "'";
+		    << "\"";
 
 	    if ( i == 0 ) break;
 

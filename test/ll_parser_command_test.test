@@ -320,9 +320,9 @@ BRACKETED EXPRESSION:
     begin block Z
     define ID character "$"
     print ID character
-        block Z: `$'
+        block Z: "$"
         block Y: disabled
-        block X: `@'
+        block X: "@"
         block standard: disabled
         block TOP LEVEL: disabled
     end block Z

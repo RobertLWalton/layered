@@ -2434,7 +2434,9 @@ Two option groups are also defined:
 \end{tabular}
 \end{center}
 
-\TT{Default options} are also the parser top level options.
+\TT{Default options}\label{DEFAULT-OPTIONS}
+are also the parser options set when the
+a parser is initialized.
 
 \medskip
 
@@ -3054,7 +3056,9 @@ to any subsequence of lexemes in a selector name, not just an initial
 subsequence.  There is \underline{no} matching of partial lexemes.
 
 The \key{standard parser} creates a single initial parsing block
-named `\ttmkey{standard}{parsing block}' and defines in it the selectors
+named `\ttmkey{standard}{parsing block}'%
+\label{STANDARD-PARSING-BLOCK}
+and defines in it the selectors
 \begin{center}
 \ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
 \end{center}
@@ -3108,10 +3112,12 @@ can be reset by the {\em parser-selector-command}:
     \end{tabular}
 \end{center}
 
-The \TT{TOP LEVEL} selector is always set implicitly by this command, and is
+The \TT{TOP LEVEL} selector\label{TOP-LEVEL-SELECTOR}
+is always set implicitly by this command, and is
 the only default selector if no `\TT{define top level}' commands
 are given.  So the \TT{TOP LEVEL} selector is always included in the
-top level selectors.
+top level selectors.  The \TT{TOP LEVEL} selector is also always cleared
+when indented paragraphs or bracketed subexpressions are being parsed.
 
 Either of the two lexical master parameters (\pagref{LEXICAL-MASTER-PARAMETERS})
 can be set by this command.
@@ -3138,15 +3144,21 @@ The top level print command:
 
 prints the top level selectors and lexical masters.
 
-The standard parser executes the equivalent of
+The top level definition
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define top level
         with parsing selectors [code]
         with paragraph lexical master "PARAGRAPH-CHECK"
         with line lexical master "DATA-CHECK"
-
 \end{verbatim}\end{indpar}
+is included in the `\TT{standard}' parser block
+(\pagref{STANDARD-PARSING-BLOCK}).  Note that the
+\TT{TOP LEVEL} selector (\pagref{TOP-LEVEL-SELECTOR})
+is implicitly set by this command, and as the parsing
+options are not changed, the `\TT{default}' options
+set when the parser was initialized remain in effect
+(\pagref{DEFAULT-OPTIONS}).
 
 
 \subsubsection{Parser Trace Commands}
@@ -3160,8 +3172,10 @@ may be given or modified by the {\em parser-trace-command}:
 \end{center}
 Trace flags cause trace printouts to the printer the parser uses
 for error messages.  The trace flag names are builtin and are listed
-in Figure~\itemref{TRACE-FLAGS}.  The \TT{warnings} flag is set, and
-all other trace flags are cleared, when the parser is initialized.
+in Figure~\itemref{TRACE-FLAGS}.
+
+When a parser is initialized, its \TT{warnings} flag is set, and
+all its other trace flags are cleared.
 
 \begin{boxedfigure}[!p]
 
@@ -3365,6 +3379,16 @@ they are used, although in the case of objects, which have stubs,
 the values can initially be preallocated stubs that have identity but
 do not yet have any content.  In this last case, object content
 can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
+
+When a parser is initialized, the ID character is disabled.  The
+ID definition
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define ID character "@"
+\end{verbatim}\end{indpar}
+is included in the `\TT{standard}' parser block
+(\pagref{STANDARD-PARSING-BLOCK}).
+
 
 \subsubsection{Mapped Lexemes}
 \label{MAPPED-LEXEMES}
@@ -4314,8 +4338,8 @@ The definitions
          with parsing selectors [data]
          with special reformatter
 \end{verbatim}\end{indpar}
-are included by the standard parser at the beginning of
-its `\TT{standard}' parser block.
+are included in the `\TT{standard}' parser block
+(\pagref{STANDARD-PARSING-BLOCK}).
 
 \subsubsection{Indented Paragraph Subexpressions}
 \label{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
@@ -4616,8 +4640,8 @@ The definition
      define indentation mark ":" ... ";" [code]
          with parsing options [default options]
 \end{verbatim}\end{indpar}
-is included by the standard parser at the beginning of
-its `\TT{standard}' parser block.
+is included in the `\TT{standard}' parser block
+(\pagref{STANDARD-PARSING-BLOCK}).
 
 \subsubsection{Typed Bracketed Subexpressions}
 \label{TYPED-BRACKETED-SUBEXPRESSIONS}
@@ -5215,8 +5239,8 @@ is builtin.  The definition
         with prefix separators allowed
 \end{verbatim}\end{indpar}
 
-is included by the standard parser at the beginning of
-its `\TT{standard}' parser block.
+is included in the `\TT{standard}' parser block
+(\pagref{STANDARD-PARSING-BLOCK}).
 
 Since `\TT{with parsing options}'
 does not appear in either definition, the parsing options used

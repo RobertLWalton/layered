@@ -6436,7 +6436,7 @@ BRACKETED EXPRESSION:
           + subexpression details, + subexpression lines, - keys,
           - bracketed subexpressions ]
     print ID character
-        block standard: `@'
+        block standard: "@"
         block TOP LEVEL: disabled
     print mapped lexeme ""
         block standard: mapped lexeme "DATA" [TOP LEVEL]

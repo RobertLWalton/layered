@@ -6412,6 +6412,15 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^
 =
 ^
+BRACKETED EXPRESSION:
+    {# -5 #} is a negative number
+@@@@ = {# -5 #} is a negative number:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+-5 is a negative number
+^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     print selector ""
         block standard: text

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 20 12:40:40 EDT 2019
+// Date:	Fri Mar 22 15:48:16 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -367,6 +367,8 @@ a potato
 -
 | 1 tablespoon paprika
 =
+
+-5 is a negative number
 
 *PARSER*:
     end block BLOCK1

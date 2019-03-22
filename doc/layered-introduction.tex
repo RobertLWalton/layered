@@ -3478,9 +3478,7 @@ Typically mapped to the `\TT{\{table\}}' prefix separator.
 \ttmkey{ROW}{special lexeme}
 \begin{indpar}
 Output by the \TT{ROW-\EOL CHECK} lexical master when the next
-input character is `\TT{|}', or
-when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
-`\TT{=====}'.
+input character is `\TT{|}', `\TT{-}', or `\TT{=}'.
 Typically mapped to the `\TT{\{row\}}' prefix separator.
 \end{indpar}
 
@@ -3506,8 +3504,8 @@ Lexical Master Name	& Characters		& Lexical Type
 			& \TT{=====}		& \TT{TABLE}
 \\[2ex]
 \TT{ROW-CHECK}		& \TT{|}		& \TT{ROW} \\
-			& \TT{-{}-{}-{}-{}-}	& \TT{ROW} \\
-			& \TT{=====}		& \TT{ROW}
+			& \TT{-}		& \TT{ROW} \\
+			& \TT{=}		& \TT{ROW}
 \\[2ex]
 \TT{DEFAULT}		& \multicolumn{2}{@{}l}{does not recognize any special lexemes}
 \end{tabular}
@@ -3556,6 +3554,23 @@ producing header lexemes, as is normal for all mapped lexemes.
 Header lexemes are used to introduce
 headed paragraphs (\itemref{HEADED-PARAGRAPHS})
 and headed lines (\itemref{HEADED-LINES}).
+
+
+When a parser is initialized, no lexemes are mapped.  The
+lexeme mapping definitions
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define mapped lexeme "DATA" [TOP LEVEL]
+           with token value {data}
+    define mapped lexeme "RAW-DATA" [TOP LEVEL]
+           with token value {raw data}
+    define mapped lexeme "TABLE" [TOP LEVEL]
+           with token value {table}
+    define mapped lexeme "ROW" [TOP LEVEL]
+           with token value {row}
+\end{verbatim}\end{indpar}
+are included in the `\TT{standard}' parser block
+(\pagref{STANDARD-PARSING-BLOCK}).
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}

@@ -34,7 +34,7 @@ WORD: "*PARSER*": line ##:
 SEPARATOR: ":": line ##:
 *PARSER*:
         ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 *PARSER*:
          ^
 INDENT: line ##:
@@ -46,7 +46,7 @@ WORD: "print": line ##:
 WORD: "trace": line ##:
     print trace
           ^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
     print trace
                ^
 INDENT: line ##:
@@ -64,7 +64,7 @@ WORD: "*PARSER*": line ##:
 SEPARATOR: ":": line ##:
 *PARSER*:
         ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 *PARSER*:
          ^
 INDENT: line ##:
@@ -88,7 +88,7 @@ WORD: "input": line ##:
 SEPARATOR: "]": line ##:
     trace [- parser input]
                          ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
     trace [- parser input]
                           ^
 INDENT: line ##:
@@ -100,10 +100,10 @@ WORD: "print": line ##:
 WORD: "trace": line ##:
     print trace
           ^^^^^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
     print trace
                ^
-LINE_BREAK: line ##:
+LINE-BREAK: line ##:
 <BLANK-LINE>
 ^
 INDENT: line ##:
@@ -270,12 +270,12 @@ INDENT: line ##:
 ERROR: in line ##: `"foo"' does not name a lexeme type:
     define mapped lexeme "foo" [data]
                          ^^^^^
-    define mapped lexeme "PREMATURE_END_OF_FILE" [data]
+    define mapped lexeme "PREMATURE-END-OF-FILE" [data]
         with token value {p}
-    define mapped lexeme "PREMATURE_END_OF_FILE" [data]
+    define mapped lexeme "PREMATURE-END-OF-FILE" [data]
     print mapped lexeme ""
-        block X: mapped lexeme "PREMATURE_END_OF_FILE" [data]
-        block X: mapped lexeme "PREMATURE_END_OF_FILE" [data]
+        block X: mapped lexeme "PREMATURE-END-OF-FILE" [data]
+        block X: mapped lexeme "PREMATURE-END-OF-FILE" [data]
                  with token value {p||p}
     end block X
     print mapped lexeme ""

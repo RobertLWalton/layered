@@ -3455,21 +3455,21 @@ The standard special lexeme types:
 
 \ttmkey{DATA}{special lexeme}
 \begin{indpar}
-Output by the \TT{DATA\_\EOL CHECK} and \TT{PARAGRAPH\_\EOL CHECK}
+Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
 lexical masters when the next input character is `\TT{@}'.
 Typically mapped to the `\TT{\{data\}}' prefix separator.
 \end{indpar}
 
-\ttmkey{RAW\_DATA}{special lexeme}
+\ttmkey{RAW-DATA}{special lexeme}
 \begin{indpar}
-Output by the \TT{DATA\_\EOL CHECK} and \TT{PARAGRAPH\_\EOL CHECK}
+Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
 lexical masters when the next 2 input characters are `\TT{!@}'.
 Typically mapped to the `\TT{\{raw data\}}' prefix separator.
 \end{indpar}
 
 \ttmkey{TABLE}{special lexeme}
 \begin{indpar}
-Output by the \TT{PARAGRAPH\_\EOL CHECK} lexical master
+Output by the \TT{PARAGRAPH-\EOL CHECK} lexical master
 when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
 `\TT{=====}'.
 Typically mapped to the `\TT{\{table\}}' prefix separator.
@@ -3477,7 +3477,7 @@ Typically mapped to the `\TT{\{table\}}' prefix separator.
 
 \ttmkey{ROW}{special lexeme}
 \begin{indpar}
-Output by the \TT{ROW\_\EOL CHECK} lexical master when the next
+Output by the \TT{ROW-\EOL CHECK} lexical master when the next
 input character is `\TT{|}', or
 when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
 `\TT{=====}'.
@@ -3497,15 +3497,15 @@ input.  The standard lexical masters are:
 Lexical Master Name	& Characters		& Lexical Type
 \\\hline
 \\[0.5ex]
-\TT{DATA\_CHECK}	& \TT{@}		& \TT{DATA} \\
-			& \TT{!@}		& \TT{RAW\_DATA} 
+\TT{DATA-CHECK}		& \TT{@}		& \TT{DATA} \\
+			& \TT{!@}		& \TT{RAW-DATA} 
 \\[2ex]
-\TT{PARAGRAPH\_CHECK}	& \TT{@}		& \TT{DATA} \\
-			& \TT{!@}		& \TT{RAW\_DATA} \\
+\TT{PARAGRAPH-CHECK}	& \TT{@}		& \TT{DATA} \\
+			& \TT{!@}		& \TT{RAW-DATA} \\
 			& \TT{-{}-{}-{}-{}-}	& \TT{TABLE} \\
 			& \TT{=====}		& \TT{TABLE}
 \\[2ex]
-\TT{ROW\_CHECK}		& \TT{|}		& \TT{ROW} \\
+\TT{ROW-CHECK}		& \TT{|}		& \TT{ROW} \\
 			& \TT{-{}-{}-{}-{}-}	& \TT{ROW} \\
 			& \TT{=====}		& \TT{ROW}
 \\[2ex]

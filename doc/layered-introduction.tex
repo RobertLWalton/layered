@@ -3572,6 +3572,21 @@ lexeme mapping definitions
 are included in the `\TT{standard}' parser block
 (\pagref{STANDARD-PARSING-BLOCK}).
 
+When a parser is initialized, its paragraph and
+line top level lexical masters (\pagref{LEXICAL-MASTER-PARAMETERS})
+are both set to the \TT{DEFAULT} lexical master
+which does \underline{not} recognize special lexemes.  The
+`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define top level
+        with parsing selectors [code]
+        with paragraph lexical master "PARAGRAPH-CHECK"
+        with line lexical master "DATA-CHECK"
+\end{verbatim}\end{indpar}
+which sets the lexical masters as indicated so that the special
+lexemes above are recognized in certain contexts.
+
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}
 

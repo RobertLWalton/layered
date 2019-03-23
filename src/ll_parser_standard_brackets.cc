@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 20 06:51:30 EDT 2019
+// Date:	Sat Mar 23 05:51:39 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -339,4 +339,19 @@ void PARSTD::init_prefix ( PAR::parser parser )
 void PARSTD::init_ID_character ( PAR::parser parser )
 {
     parser->ID_character = '@';
+}
+
+// Standard Concatenators
+// -------- -------------
+
+void PARSTD::init_concatenator_character
+	( PAR::parser parser )
+{
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+
+    BRA::string_concatenator_ref ( bracketed_pass ) =
+        PARLEX::number_sign;
+    BRA::middle_break mb = { "#", "#", 1, 1 };
+    bracketed_pass->middle_break = mb;
 }

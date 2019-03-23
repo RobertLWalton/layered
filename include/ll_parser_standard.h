@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 01:55:57 EDT 2018
+// Date:	Sat Mar 23 05:51:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -239,6 +239,16 @@ void init_prefix ( ll::parser::parser parser );
 // character.
 //
 void init_ID_character ( ll::parser::parser parser );
+
+// Standard Concatenator Character
+// -------- ------------ ---------
+
+// Set the bracketed_pass->string_concatenator and also
+// bracketed_pass->middle_break to the standard
+// concatenator character.
+//
+void init_concatenator_character
+	( ll::parser::parser parser );
 
 
 // Standard Parser Operators

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 14 15:20:10 EDT 2019
+// Date:	Sat Mar 23 06:29:28 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,11 @@
     define selector operator 1
     print selector ""
     print top level
+
+    define quoted string concatenator "#"
+    define middle break "#" ... "#"
+    print quoted string concatenator
+    print middle break
 
     define bracket "(" ... ")" [code, math, text]
     define bracket "[" ... "]" [code, math, text]

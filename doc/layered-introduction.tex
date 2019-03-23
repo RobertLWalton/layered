@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 22, 2019
+March 23, 2019
  
 \end{center}
 
@@ -3690,6 +3690,14 @@ are never merged.
 The end of a parser block erases the effects of any
 {\em define-middle-break-commands} executed during the block.
 
+When a parser is initialized, the middle break is disabled. The
+`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
+the definition
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define middle break "#" ... "#"
+\end{verbatim}\end{indpar}
+
 The bracketed subexpression recognition pass also merges
 quoted strings if they are in the same logical line and are
 separated by one or two \skey{quoted string concatenator}s (e.g., `\TT{\#}').%
@@ -3742,6 +3750,14 @@ needs to be placed between the strings.
 
 The end of a parser block erases the effects of any
 {\em define-quoted-string-concatenator-commands} executed during the block.
+
+When a parser is initialized, the quoted string concatenator is disabled. The
+`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
+the definition
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define quoted string concatenator "#"
+\end{verbatim}\end{indpar}
 
 The bracketed parser pass has three symbol tables:
 \begin{indpar}[0.3in]

@@ -72,6 +72,14 @@ ERROR: in line ##: expected quoted name after:
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing]
+    define quoted string concatenator "#"
+    define middle break "#" ... "#"
+    print quoted string concatenator
+        block standard: "#"
+        block TOP LEVEL: disabled
+    print middle break
+        block standard: "#" "#"
+        block TOP LEVEL: disabled
     define bracket "(" ... ")" [code, math, text]
     define bracket "[" ... "]" [code, math, text]
     print bracket "["
@@ -302,7 +310,7 @@ ERROR: in line ##: innermost block name does not match `x':
     ^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-ERROR: in line ##: innermost block name does not match `BLOCK1':
+ERROR: in line ###: innermost block name does not match `BLOCK1':
     end block BLOCK1
     ^^^^^^^^^^^^^^^^
 *PARSER*:
@@ -843,7 +851,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
     print quoted string concatenator
         block BLOCK1: "#"
         block standard: "#"
-        block TOP LEVEL: "#"
+        block TOP LEVEL: disabled
 ======= PARSER TEST: "A" "B"
 ======= line ###:
     "A" "B"
@@ -874,7 +882,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
     print quoted string concatenator
         block BLOCK1: enabled
         block standard: "#"
-        block TOP LEVEL: "#"
+        block TOP LEVEL: disabled
 ======= PARSER TEST: "AB"
 ======= line ###:
     "A" "B"
@@ -908,7 +916,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
     print quoted string concatenator
         block BLOCK1: disabled
         block standard: "#"
-        block TOP LEVEL: "#"
+        block TOP LEVEL: disabled
 ======= PARSER TEST: "A" "B"
 ======= line ###:
     "A" "B"
@@ -1994,7 +2002,7 @@ And a fourth logical line.
     print middle break
         block BLOCK1: "#" "#"
         block standard: "#" "#"
-        block TOP LEVEL: "#" "#"
+        block TOP LEVEL: disabled
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     this-is-a-continued-lexme
@@ -2027,7 +2035,7 @@ this-is-a-~
     print middle break
         block BLOCK1: "~" "~"
         block standard: "#" "#"
-        block TOP LEVEL: "#" "#"
+        block TOP LEVEL: disabled
 BRACKETED EXPRESSION:
     this-is-a-# #continued-# #lexme
 @@ = this-is-a-# #continued-# #lexme:
@@ -2059,7 +2067,7 @@ this-is-a-~
     print middle break
         block BLOCK1: disabled
         block standard: "#" "#"
-        block TOP LEVEL: "#" "#"
+        block TOP LEVEL: disabled
 BRACKETED EXPRESSION:
     this-is-a-# #continued-# #lexme
 @@ = this-is-a-# #continued-# #lexme:

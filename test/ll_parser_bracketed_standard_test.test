@@ -6458,10 +6458,10 @@ BRACKETED EXPRESSION:
                         with token value {row||row}
     print middle break
         block standard: "#" "#"
-        block TOP LEVEL: "#" "#"
+        block TOP LEVEL: disabled
     print quoted string concatenator
         block standard: "#"
-        block TOP LEVEL: "#"
+        block TOP LEVEL: disabled
     print bracket ""
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, code, math, text]

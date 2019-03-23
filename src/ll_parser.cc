@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 28 04:37:00 EST 2019
+// Date:	Sat Mar 23 05:53:07 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -968,11 +968,14 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	if ( define_standard )
 	{
+	    PARSTD::init_input ( parser );
 	    PARSTD::init_block ( parser );
 	    PARSTD::init_lexeme_map ( parser );
 	    PARSTD::init_brackets ( parser );
 	    PARSTD::init_prefix ( parser );
 	    PARSTD::init_ID_character ( parser );
+	    PARSTD::init_concatenator_character
+	    	( parser );
 	    PARSTD::init_oper ( parser );
 	}
     }

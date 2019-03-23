@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 22 05:39:25 EDT 2017
+// Date:	Sat Mar 23 06:12:44 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,12 +24,18 @@ int main ( int argc, const char * argv[] )
 {
     min::initialize();
     PAR::init ( PAR::default_parser, false );
+        // We cannot use `true' to init standard
+	// parser as this would also init standard
+	// operators.
     PARSTD::init_input ( PAR::default_parser );
     PARSTD::init_block ( PAR::default_parser );
     PARSTD::init_brackets ( PAR::default_parser );
     PARSTD::init_lexeme_map ( PAR::default_parser );
     PARSTD::init_prefix ( PAR::default_parser );
     PARSTD::init_ID_character ( PAR::default_parser );
+    PARSTD::init_concatenator_character
+        ( PAR::default_parser );
+
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
     PAR::init_ostream

@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 23, 2019
+March 24, 2019
  
 \end{center}
 
@@ -4352,7 +4352,9 @@ implementation limitation).
 
 
 
-The definitions\label{UNTYPED-BRACKET-BULITINS}
+When a parser is initialized, the following
+definitions\label{UNTYPED-BRACKET-BULITINS}
+are included in the \TT{TOP LEVEL} parser block:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
      define bracket "(" ... ")" [data]
@@ -4366,9 +4368,8 @@ The definitions\label{UNTYPED-BRACKET-BULITINS}
      define bracket "[$" ... "$]" [data]
          with special reformatter
 \end{verbatim}\end{indpar}
-are builtin.
-
-The definitions
+The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
+adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
      define bracket "(" ... ")" [code, math, text, data]
@@ -4384,8 +4385,6 @@ The definitions
          with parsing selectors [data]
          with special reformatter
 \end{verbatim}\end{indpar}
-are included in the `\TT{standard}' parser block
-(\pagref{STANDARD-PARSING-BLOCK}).
 
 \subsubsection{Indented Paragraph Subexpressions}
 \label{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
@@ -4666,9 +4665,12 @@ following non-comment non-blank line.
 Comments at the beginning or end of a file cannot be
 in error.
 
-The definitions
+When a parser is initialized, the following
+definitions are included in the \TT{TOP LEVEL} parser block:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
+    define indentation offset 2
+
     define indentation mark "TOP LEVEL" []
         // Indentation mark definition governing top level
         // parsing.  May NOT be redefined.  Has NO line
@@ -4678,16 +4680,13 @@ The definitions
     define indentation mark "*PARSER* *TEST*:" ... ";"
         [TOP LEVEL]
 \end{verbatim}\end{indpar}
-are builtin.
-
-The definition
+The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
+adds the definition:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
      define indentation mark ":" ... ";" [code]
          with parsing options [default options]
 \end{verbatim}\end{indpar}
-is included in the `\TT{standard}' parser block
-(\pagref{STANDARD-PARSING-BLOCK}).
 
 \subsubsection{Typed Bracketed Subexpressions}
 \label{TYPED-BRACKETED-SUBEXPRESSIONS}

@@ -5252,7 +5252,8 @@ as a (not necessarily initial) substring.  Using \TT{""} as
 a {\em partial-typed-opening} will print all typed bracket
 symbol table entries.
 
-The definition
+When a parser is initialized, the following
+definitions are included in the \TT{TOP LEVEL} parser block:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define typed bracket "{" ... "|" ... "|" ... "}" [data]
@@ -5266,9 +5267,8 @@ The definition
         with attribute multivalue initiator "{*"
         // WITHOUT prefix separators allowed
 \end{verbatim}\end{indpar}
-
-is builtin.  The definition
-
+The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
+adds the definition:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define typed bracket "{" ... "|" ... "|" ... "}"

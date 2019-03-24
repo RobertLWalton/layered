@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Oct 30 03:00:09 EDT 2017
+# Date:		Sat Mar 23 20:55:38 EDT 2019
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -45,7 +45,8 @@ PARSER_TESTS = ll_parser_input_test \
 	       ll_parser_bracketed_command_test \
 	       ll_parser_prefix_command_test \
 	       ll_parser_oper_standard_test \
-	       ll_parser_oper_command_test
+	       ll_parser_oper_command_test \
+	       ll_parser_standard_print_test
 
 TESTS = ${LEXEME_TESTS} ${PARSER_TESTS}
 
@@ -710,6 +711,24 @@ ll_parser_oper_command_test.out:	\
 	rm -f $*.out
 	${RUNENV} \
 	    ll_parser_oper_command_test < $*.in > $*.out
+
+ll_parser_standard_print_test:		\
+	    ll_parser_standard_print_test.cc \
+	    ${PARSER_O} \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -o $@ \
+	    ${PARSER_O} \
+	    ll_parser_standard_print_test.cc
+
+ll_parser_standard_print_test.out:	\
+	    ll_parser_standard_print_test \
+	    ll_parser_standard_print_test.in
+	rm -f $*.out
+	${RUNENV} $* < \
+	    ll_parser_standard_print_test.in \
+	    > $*.out
 
 clean:
 	rm -f ${TESTS} ${TESTS:=.out} *.o \

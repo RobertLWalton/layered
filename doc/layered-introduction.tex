@@ -5798,6 +5798,34 @@ of the {\em sentence}.
 
 \end{indpar}
 
+After a parser is initialized, it has \underline{no} prefix
+definitions.
+The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
+adds the definitions:
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define prefix "p" [TOP LEVEL, data, code, math, text]
+           with group paragraph
+           with parsing options [- end at indent,
+                                 - end at le indent,
+                                 + end at lt indent,
+                                 + end at paragraph break,
+                                 - end at line separator,
+                                 - end at outer closing]
+    define prefix "raw data"
+                  [TOP LEVEL, data, code, math, text]
+           with parsing selectors [data]
+    define prefix "table" [TOP LEVEL, data, code, math, text]
+           with group paragraph
+           with line lexical master "ROW-CHECK"
+    define prefix "row" [TOP LEVEL, data, code, math, text]
+           with group line
+    define prefix "data" [TOP LEVEL, data, code, math, text]
+           with data reformatter
+                ( "=", "no", "[", [< "{" "*" >] )
+\end{verbatim}\end{indpar}
+
+
 \subsubsection{Headed Lines}
 \label{HEADED-LINES}
 

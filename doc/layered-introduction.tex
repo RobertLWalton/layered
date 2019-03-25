@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 24, 2019
+March 25, 2019
  
 \end{center}
 
@@ -5962,7 +5962,7 @@ the parser would produce the single MIN object:
     {item: 1 chicken}
     {item: 1 tablespoon olive oil}
     {item: 1 tablespoon paprika}
-    {item: a potato}}
+    {item: a potato}
     {item: 1 tablespoon butter}}
 \end{verbatim}\end{indpar}
 
@@ -5970,6 +5970,68 @@ Note that the `\TT{sticky}' and `\TT{continuing}' options
 remain in effect until the next explicit (non-implied)
 paragraph header, or until the end of a containing
 indented paragraph (or the end of file).
+
+The `\TT{standard}' parser block contains the definitions:
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define top level
+        with parsing selectors [code]
+        with paragraph lexical master "PARAGRAPH-CHECK"
+        with line lexical master "DATA-CHECK"
+    define mapped lexeme "TABLE" [TOP LEVEL]
+           with token value {table}
+    define mapped lexeme "ROW" [TOP LEVEL]
+           with token value {row}
+    define prefix "table" [TOP LEVEL, data, code, math, text]
+        with group paragraph
+        with line lexical master "ROW-CHECK"
+    define prefix "row" [TOP LEVEL, data, code, math, text]
+        with group line
+\end{verbatim}\end{indpar}
+
+To see how these definitions work, consider the example:
+\begin{indpar}\begin{verbatim}
+=============
+| 1 chicken |
+-------------
+| 1 tablespoon olive oil |
+-
+| 1 tablespoon paprika
+=
+\end{verbatim}\end{indpar}
+where the first line appears in paragraph beginning position
+(\pagref{PARAGRAPH-BEGINNING-POSITION}).
+Therefore at the beginning of the first line the top level
+paragraph lexical master, which is \TT{PARAGAPH-CHECK}, is used.
+As this
+sees a string of 5 or more \TT{=}'s, it outputs a \TT{TABLE}
+special lexeme which is mapped to the \TT{\{table\}} prefix.
+The `\TT{table}' prefix in turn has a definition which
+changes the line lexical master to \TT{ROW-CHECK}, and this
+is also used for the rest of the first line.  As none
+of the \TT{=}'s have been consumed by the \TT{TABLE} special
+lexeme, this last lexical master sees the first \TT{=} and
+outputs a \TT{ROW} special lexeme, which is mapped to a
+\TT{\{row\}} prefix.  After outputting the \TT{ROW} special
+lexeme, the \TT{ROW-CHECK} lexical master transfers to the
+\TT{DEFAULT} lexical master which scans the normal lexemes
+in the line.  Since neither special lexeme consumed any \TT{=}'s,
+the one normal lexeme in the line contains all the
+\TT{=}'s.  At the beginning of the next logical line, the
+top level line lexical master is installed, which is
+\TT{ROW-CHECK}.  The final result is the same as if
+\begin{indpar}\begin{verbatim}
+{table}{row}=============
+{row}| 1 chicken |
+{row}-------------
+{row}| 1 tablespoon olive oil |
+{row}-
+{row}| 1 tablespoon paprika
+{row}=
+\end{verbatim}\end{indpar}
+had been input.
+
+
 
 TBD
 

@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 25, 2019
+March 26, 2019
  
 \end{center}
 
@@ -6029,117 +6029,30 @@ top level line lexical master is installed, which is
 {row}| 1 tablespoon paprika
 {row}=
 \end{verbatim}\end{indpar}
-had been input.
-
-
-
-TBD
-
-The indentation mark of an indented paragraph sets an
-\TT{implied paragraph header} variable to either have
-a missing value or to have a paragraph header value.  If the value of
-this variable is not missing and a logical line beginning is
-encountered that is not part of some previous headed paragraph,
-a copy of this variable's value is inserted at the beginning of
-that logical line.  See \itemref{LINE-VARIABLES} for details.
-
-Consider the example:
+had been input and is
 \begin{indpar}\begin{verbatim}
-{itemize: indent = 5em, mark = "*"}
-{item}1 chicken 
-{item}1 tablespoon olive oil
-{item}1 tablespoon paprika
-
-a potato
-1 tablespoon butter
-
-=============
-| 1 chicken |
--------------
-| 1 tablespoon olive oil |
--
-| 1 tablespoon paprika
-=
+{table| {row| ============= |row}
+        {row| "|" 1 chicken "|" |row}
+        {row| ------------- |row}
+        {row| "|" 1 tablespoon olive oil "|" |row}
+        {row| - |row}
+        {row| "|" 1 tablespoon paprika |row}
+        {row| = |row}
+	|table}
 \end{verbatim}\end{indpar}
 
-Here there are 3 headed paragraphs inside the top level indented
-paragraph.  The first headed paragraph has
-paragraph header `\TT{\{itemize\}}' and line headers `\TT{\{item\}}'
-for each of its logical lines.  The second has the same headers but
-they are implied.  The third headed paragraph has lexical headers:
-the first line begins with `\TT{====}' which causes the
-\begin{center}
-\TT{\{table\}\EOL\{line\}}
-\end{center}
-paragraph header and line header to be inserted at this line's beginning,
-and in subsequent lines `\TT{|}' inserts `\TT{\{row\}}' line headers
-and both `\TT{-}' and `\TT{=}' insert `\TT{\{line\}}' line headers.
-All this assumes there are appropriate entries in the parser's
-prefix table for `\TT{itemize}', `\TT{item}', `\TT{table}',
-`\TT{line}', and `\TT{row}', and that the lexical scanner has
-been programmed to produce special lexemes in certain
-contexts.  To be specific about the latter, the lexical scanner
-at top level, upon seeing `\TT{====}' at the beginning of logical
-line following a blank line,
-must produce a special lexeme that maps
-to `\TT{table}' and a second special lexeme that maps to `\TT{line}'.
-Then for the remaining logical lines within this
-`\TT{table}' headed paragraph, the scanner must
-produce special lexemes that map to
-`\TT{row}' for lines beginning with `\TT{|}' and
-`\TT{line}' for lines beginning with `\TT{-}' or `\TT{=}'.
 
-The above example might be used to generate the output:
-
-\begin{indpar}
-\begin{indpar}[5em]
-\begin{itemize}
-\item[*] 1 chicken
-\item[*] 1 tablespoon olive oil
-\item[*] 1 tablespoon paprika
-\end{itemize}
-\end{indpar}
-
-\begin{indpar}[5em]
-\begin{itemize}
-\item[*] 1 potato
-\item[*] 1 tablespoon butter
-\end{itemize}
-\end{indpar}
-
-\begin{tabular}{|l|}
-\hline\hline
-1 chicken
-\\\hline
-1 tablespoon olive oil
-\\\hline
-1 tablespoon paprika
-\\\hline\hline
-\end{tabular}
-
-\end{indpar}
-
-For this example the indented paragraph elements produced are
-the MIN objects:
-\begin{indpar}\begin{verbatim}
-{itemize: indent = 5em, mark = "*" |
-    {item: | 1 chicken |}
-    {item: | 1 tablespoon olive oil |}
-    {item: | 1 tablespoon paprika |} |}
-
-{itemize: indent = 5em, mark = "*" |
-    {item: a potato |}
-    {item: 1 tablespoon butter |} |}
-
-{table: |
-    {line: | ============= |}
-    {row: "|" 1 chicken "|" |}
-    {line: | ------------- |}
-    {row: | "|" 1 tablespoon olive oil "|" |}
-    {line: | - |}
-    {row: | "|" 1 tablespoon paprika |}
-    {line: | = |} |}
-\end{verbatim}\end{indpar}
+At top level the paragraph and line lexical masters are
+set by the `\TT{define top level}' command, and the
+only way to get an implied header is to input a paragraph
+header with the `\TT{sticky}' option.  In contrast,
+an indented paragraph can begin with a paragraph and
+line lexical masters that are either set by the its
+`\TT{define indentation mark}' command or are inherited
+from the surrounding context, and the
+`\TT{define indentation mark}' can optionally set an implied
+paragraph or line header.
+See \itemref{LINE-VARIABLES} for details.
 
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}

@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 26, 2019
+March 28, 2019
  
 \end{center}
 
@@ -6059,10 +6059,11 @@ See \itemref{LINE-VARIABLES} for details.
 
 A logical line is said to be in
 `\key{paragraph beginning position}'\label{PARAGRAPH-BEGINNING-POSITION}
-if it follows a blank line or the beginning of its containing
-indented paragraph, with comment lines possibly intervening.
+if it follows a blank line, or the beginning of its containing
+indented paragraph, or the beginning of the input file,
+with comment lines possibly intervening.
 
-While parsing an indented paragraph, the parser maintains the
+While parsing a logical line the parser maintains the
 following `\skey{line variable}s':
 
 \begin{indpar}[0.4in]
@@ -6079,11 +6080,11 @@ following `\skey{line variable}s':
 
     If this value is not missing a copy of the value is inserted
     as an implied header just after the indent token that begins
-    a logical line.  An implied header is an implied subprefix
+    a logical line.  An implied header is an implied prefix separator
     and is almost like an explicit prefix separator except that
     if it has no following {\em prefix-n-list} elements
-    it is removed.  See `\TT{implied subprefix}', \pagref{IMPLIED-SUBPREFIX},
-    for more details.
+    it is removed.  It is similar to an implied subprefix,
+    see \pagref{IMPLIED-SUBPREFIX}.
 
     The type of a non-missing implied header must have a prefix
     definition selected by the \TT{selectors} line variable that

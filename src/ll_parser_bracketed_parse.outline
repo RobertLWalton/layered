@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 05:50:16 EDT 2018
+// Date:	Sun Mar 31 03:42:06 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -274,9 +274,8 @@
 //                    below)
 //         else if start->next == next (there is just a
 //                 single token in the value)
-//                 and token->string is null
-//                 (the token is not a quoted string
-//                  or numeric):
+//                 and start-type is not a convertable
+//                 type (string or numeric):
 //            if the single token has .initiator ==
 //                   typed_data->typed_opening
 //                   ->typed_attr_multivalue_initiator:
@@ -1149,6 +1148,20 @@
 //
 //	   merge previous 2 tokens (both quoted strings)
 //	   go to NEXT_TOKEN
+//
+//     if current token is the second part of a broken
+//        middle lexeme (previous token exists, both
+//        current and previous are middle lexemes,
+//        middle break is not disabled, current begins
+//        with middle break begin and has additional
+//        characters, previous ends with middle break
+//        end and has previous characters):
+//
+//        append current->value to previous->value
+//               deleting middle begin and end
+//        remove current (second middle) token and set
+//                current to following token
+//        go to NEXT_TOKEN
 //
 //     if current token is PREFIX token:
 //

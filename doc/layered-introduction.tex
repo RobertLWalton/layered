@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 28, 2019
+March 31, 2019
  
 \end{center}
 
@@ -3682,6 +3682,12 @@ command.  The syntax of these commands is:
     {\em mark} with at least 1 and at most 31 UTF-8 bytes
 \\[0.5ex]
 {\em mark} ::= see \pagref{MARK}
+\begin{indpar}
+WARNING: {\em middle-break-end} and {\em middle-break-begin} must
+be chosen so bracketed symbol table entries (\pagref{BRACKETED-SYMBOL-TABLE})
+do not begin with a {\em middle-break-begin} or end with a
+{\em middle-break-end}.
+\end{indpar}
 \end{indpar}
 
 If {\em middle-break-name} is `\TT{disabled}', middle lexemes
@@ -3761,20 +3767,29 @@ the definition
 
 The bracketed parser pass has three symbol tables:
 \begin{indpar}[0.3in]
-Bracketed Symbol Table.  Contains multi-lexeme keys found in
+Bracketed Symbol Table.\label{BRACKETED-SYMBOL-TABLE}
+Contains multi-lexeme keys found in
 the input: \\
-\hspace*{0.2in}opening brackets (e.g.~`\TT{(}') and their
+\hspace*{0.2in}opening brackets (e.g.~`\TT{(}') and
     corresponding closing brackets (e.g.~`\TT{)}'):
     \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS}
 \\[0.5ex]
 \hspace*{0.2in}indentation marks (e.g.~`\TT{:}')
-    and any corresponding line separators (e.g.~`\TT{;}'):
+    and corresponding line separators (e.g.~`\TT{;}'):
     \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
 \\[0.5ex]
-\hspace*{0.2in}typed openings (e.g.~`\TT{\{}') and their
-      corresponding typed closings (e.g.~`\TT{\}}') \\
-\hspace*{0.2in}and typed middles (e.g.~`\TT{|}'):
-    \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+\hspace*{0.2in}typed
+      \begin{tabular}[t]{@{}ll}
+      openings (e.g.~`\TT{\{}') &
+      corresponding closings (e.g.~`\TT{\}}') \\
+      middles (e.g.~`\TT{|}') &
+      attribute begins (e.g.~`\TT{:}') \\
+      attribute separators (e.g.~`\TT{,}') &
+      attribute equals (e.g.~`\TT{=}') \\
+      attribute negators (e.g.~`\TT{not}'): &
+      \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+      \end{tabular}
+\\[0.5ex]
 \\[1ex]
 Prefix Symbol Table. Contains information about prefix separator types:
 \itemref{PREFIX-DEFINITIONS}

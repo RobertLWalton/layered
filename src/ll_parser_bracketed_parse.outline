@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 31 03:42:06 EDT 2019
+// Date:	Sun Mar 31 05:14:42 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,11 +30,12 @@
 //         // line_variables->last_paragraph.
 //         //
 //         current = current->next
-//         if line_variables->at_paragraph_end:
+//         if line_variables->at_paragraph_end
+//            or line_variable->at_paragraph_beginning
+//               and CONTINUING_OPT is off in
+//               line_variables->current.selectors:
 //             // Paragraph header headed a 1-line
-//             // headed paragraph followed by the end
-//             // of the current indented paragraph
-//             // or an end of file.
+//             // headed paragraph that is now complete.
 //             line_variables->last_paragraph = null
 //             return false
 //     else if line_variables->at_paragraph_end:
@@ -731,30 +732,20 @@
 //		  line_variables->
 //		      implied_paragraph =
 //		          line_variables->current
+//		  line_variables->sticky_header =
+//		      copy of prefix->value object
+//		      with .position attribute deleted
+//		      // to protect sticky header
+//		      // object from garbage collection
 //		  line_variables->paragraph
 //		      .impiled_header =
-//		          prefix->value
+//		          line_variables->sticky_header
 //		  line_variables->paragraph
 //		      .header_entry =
 //		          prefix_entry
 //		  line_variables->paragraph
 //		      .header_selectors =
 //		          prefix_selectors
-//
-//		  // The following causes compact_
-//		  // prefix_selector to make a copy
-//		  // of prefix->value so paragraph.
-//		  // implied_header remains unchanged.
-//		  //
-//		  REQUIRE start_previous->next ==
-//		      prefix
-//		  prefix->type = IMPLIED_PREFIX
-//		  //
-//		  // Changing prefix->type to IMPLIED_
-//		  // PREFIX does not harm as at this
-//		  // point preix is the first thing
-//		  // in the logical line and we can
-//		  // pretend it was implied.
 //
 //	       else (no STICKY_OPT):
 //		  line_variables->paragraph =
@@ -1133,13 +1124,13 @@
 //
 //	   if concat != ENABLED:
 //	       check whether we are now just after a
-//	             quoted string that is after a
-//	             token equal to concat that is
+//	             quoted string that is after one or
+//	             two tokens equal to concat that are
 //	             after a quoted string
 //	       if no:
 //	          go to NEXT_TOKEN
 //	       if yes: 
-//	          remove token equal to concat
+//	          remove tokens equal to concat
 //
 //	   else if concat == ENABLED and we are NOT now
 //	           after a quoted string that is itself

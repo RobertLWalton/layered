@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 23 05:26:15 EDT 2019
+// Date:	Sun Mar 31 03:44:46 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2785,6 +2785,8 @@ NEXT_TOKEN:
 	goto NEXT_TOKEN;
     }
 
+    // Process broken middle lexemes.
+    //
     if ( (   ( 1 << current->type )
            & LEXSTD::middle_mask )
 	 &&

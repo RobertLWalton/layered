@@ -3098,7 +3098,8 @@ parsing subsequent logical lines or headed paragraphs.
 See \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS} for indented paragraph details.
 
 The top level selectors, end-at options, and lexical masters
-can be reset by the {\em parser-selector-command}:
+can be reset by the parser \ttkey{define top level} command:%
+\label{DEFINE-TOP-LEVEL}
 \begin{center}
     \begin{tabular}[t]{l}
     \ttmkey{define top level}{parser command} \\
@@ -6072,14 +6073,20 @@ See \itemref{LINE-VARIABLES} for details.
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}
 
-A logical line is said to be in
-`\key{paragraph beginning position}'\label{PARAGRAPH-BEGINNING-POSITION}
-if it follows a blank line, or the beginning of its containing
-indented paragraph, or the beginning of the input file,
+In order to parse logical lines, the parser maintains sets of
+`\skey{line variable}s'.  There is a separate set of line
+variables for each indented paragraph, and one additional set
+for the top level.
+
+The line variables are described below.  These descriptions make
+use of the notion that a logical line may be in
+`\key{paragraph beginning position}'\label{PARAGRAPH-BEGINNING-POSITION}.
+This means that the logical line follows a blank line,
+or is at the the beginning of its containing
+indented paragraph, or is at the beginning of the input file,
 with comment lines possibly intervening.
 
 While parsing a logical line the parser maintains the
-following `\skey{line variable}s':
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttmkey{selectors}{line variable}\\
@@ -6141,6 +6148,27 @@ the new value will not take affect until the next logical line.
     in paragraph beginning position, \underline{unless} the
     \TT{options} current line variable
     contains the `\TT{continuing}' option.
+
+    The top level paragraph line variables, with the exception of
+    the paragraph implied header, are the same as the
+    parser selectors, options, and lexical masters, and can be changed
+    by the \TT{define top level} parser command (\pagref{DEFINE-TOP-LEVEL}).
+    The top level paragraph implied header is normally missing, but
+    may be changed by a `\TT{sticky}' paragraph header as indicated below.
+
+    The paragraph line variables of an indented paragraph are set from
+    the \TT{define inden\-ta\-tion mark} parser command
+    (\pagref{PARSER-INDENTATION-MARK-COMMAND}), and with the exception
+    of the paragraph implied header, are not changed while parsing the indented
+    paragraph.
+
+    An explicit paragraph header that sets the `\TT{sticky}' option
+    replaces the paragraph implied header with a copy of itself.
+    An explicit paragraph header that clears the `\TT{sticky}' option
+    replaces the paragraph implied header with the missing value at
+    top level, or with the value from the \TT{define indentation mark}
+    command within an indented paragraph.
+
 \end{indpar}
 
 An indentation mark initializes the paragraph line

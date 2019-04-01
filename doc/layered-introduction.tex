@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 31, 2019
+April 1, 2019
  
 \end{center}
 
@@ -6156,11 +6156,15 @@ the new value will not take affect until the next logical line.
     The top level paragraph implied header is normally missing, but
     may be changed by a `\TT{sticky}' paragraph header as indicated below.
 
-    The paragraph line variables of an indented paragraph are set from
-    the \TT{define inden\-ta\-tion mark} parser command
-    (\pagref{PARSER-INDENTATION-MARK-COMMAND}), and with the exception
-    of the paragraph implied header, are not changed while parsing the indented
-    paragraph.
+    For indented paragraphs, paragraph selectors and options line variables
+    are computed from the context of the indented paragraph modified according
+    to parameters given in the the \TT{define inden\-ta\-tion mark}
+    parser command (\pagref{PARSER-INDENTATION-MARK-COMMAND}) for the mark
+    the introduces the paragraph.  The paragraph lexical masters and
+    implied header line variables are set from the values provided in the
+    \TT{define inden\-ta\-tion mark} command.  The paragraph implied header
+    may be changed while parsing the indented paragraph if a `\TT{sticky}'
+    explicit paragraph header is encountered.
 
     An explicit paragraph header that sets the `\TT{sticky}' option
     replaces the paragraph implied header with a copy of itself.
@@ -6171,32 +6175,7 @@ the new value will not take affect until the next logical line.
 
 \end{indpar}
 
-An indentation mark initializes the paragraph line
-variables from the definition of the indentation mark, and these
-are copied to the current line variables at the
-beginning of the indented paragraph.  The copied paragaph
-line variables are used to process the lines of the paragraph.
-An implicit or explicit paragraph header in the indented paragraph
-starts a headed paragraph and
-modifies the current line variables which are then used to process the lines
-of the headed paragraph.  At the end of a headed paragraph, the
-paragraph line variables are recopied to the current line variables,
-in preparation for processing further lines and headed paragraphs of
-the indented paragraph.
-
-Prefix separators should \underline{not} change selectors
-in such a way as to alter the parsing of prefix separators,
-as if they do subsequent prefix separators may not be parsed.  This
-applies to paragraph and line headers.
-Also, implied headers should \underline{not} change the selectors in such a way
-as to alter how explicit header \TT{.type}'s are looked up in the
-prefix table (see \itemref{PREFIX-DEFINITIONS}).
-
-Also note that parsing definitions cannot change during the parsing of
-a logical line, an indented paragraph inside a logical line,
-or any headed paragraph.
-
-Line processing is as follows:
+Logical line processing is as follows:
 
 \begin{enumerate}
 
@@ -6291,6 +6270,18 @@ is reset to the value it had at the beginning of the indented paragraph.
 \end{enumerate}
 
 \end{enumerate}
+
+Prefix separators should \underline{not} change selectors
+in such a way as to alter the parsing of prefix separators,
+as if they do subsequent prefix separators may not be parsed.  This
+applies to paragraph and line headers.
+Also, implied headers should \underline{not} change the selectors in such a way
+as to alter how explicit header \TT{.type}'s are looked up in the
+prefix table (see \itemref{PREFIX-DEFINITIONS}).
+
+Also note that parsing definitions cannot change during the parsing of
+a logical line, an indented paragraph inside a logical line,
+or any headed paragraph.
 
 
 

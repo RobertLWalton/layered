@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 31 05:14:42 EDT 2019
+// Date:	Fri Apr  5 09:43:47 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -526,7 +526,7 @@
 //                    if prefix_entry is null or
 //                    prefix_entry->group is MISSING
 //     if prefix_group is not `line' or `paragraph',
-//             or token before prefix is IMPLIED_PREFIX:
+//             or token before prefix is IMPLIED_HEADER:
 //         search bracket stack for bracket stack entry
 //                p with p->prefix_group == prefix_group
 //            stop search at end of bracket stack or

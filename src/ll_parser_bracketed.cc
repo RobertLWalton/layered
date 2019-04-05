@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 31 03:44:46 EDT 2019
+// Date:	Fri Apr  5 15:23:04 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1534,6 +1534,34 @@ min::position BRA::parse_bracketed_subexpression
 	      ||
 	      prefix_group == PARLEX::line );
 
+	if ( prefix_group == PARLEX::paragraph )
+	{
+	    if ( ! line_variables->
+	               at_paragraph_beginning )
+	    {
+		min::phrase_position pp =
+		    { current->position.begin,
+		      current->position.begin };
+		min::gen type =
+		    min::get ( implied_header,
+		               min::dot_type );
+		PAR::parse_error
+		  ( parser,
+		    pp,
+		    "implied paragraph header"
+		    " of type `",
+		    min::pgen_never_quote
+			( type ),
+		    " is not at beginning"
+		    " of logical line in paragraph"
+		    " beginning position; ignored"
+		  );
+		  goto NEXT_TOKEN;
+	    }
+	    line_variables->current =
+		line_variables->implied_paragraph;
+	}
+
 	prefix = PAR::new_token
 		     ( PAR::IMPLIED_HEADER );
 	PAR::put_before
@@ -1546,10 +1574,6 @@ min::position BRA::parse_bracketed_subexpression
 	    current->position.begin;
 	prefix->position.end =
 	    current->position.begin;
-
-	if ( prefix_group == PARLEX::paragraph )
-	    line_variables->current =
-		line_variables->implied_paragraph;
 
 	goto PARSE_PREFIX_N_LIST;
     }

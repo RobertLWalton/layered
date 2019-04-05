@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  5 09:43:47 EDT 2019
+// Date:	Fri Apr  5 15:23:16 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -463,14 +463,23 @@
 //         prefix_group =
 //             prefix_entry->group
 //             // Required to be `paragraph' or `line'.
+//
+//         if prefix_group == paragraph:
+//             if ! line_variables->
+//                       at_paragraph_beginning
+//                 announce error: implied paragraph
+//                     header at beginning of logical
+//                     line not in paragraph beginning
+//                     position; ignored
+//                 go to NEXT_TOKEN
+//             copy line_variables->implied_paragraph
+//             to line_variables->current
+//
 //         create new token of type IMPLIED_HEADER,
 //             value_type = prefix_entry, value =
 //             line_variables->current.implied_header,
 //             and insert it before current token.
 //         prefix = new token
-//         if prefix_group == paragraph:
-//             copy line_variables->implied_paragraph
-//             to line_variables->current
 //         go to PARSE_PREFIX_N_LIST
 //
 //     else if bracket stack does not have a top entry

@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 1, 2019
+April 6, 2019
  
 \end{center}
 
@@ -6086,7 +6086,7 @@ or is at the the beginning of its containing
 indented paragraph, or is at the beginning of the input file,
 with comment lines possibly intervening.
 
-While parsing a logical line the parser maintains the
+While parsing a logical line the parser uses the line variables:
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttmkey{selectors}{line variable}\\
@@ -6102,15 +6102,29 @@ While parsing a logical line the parser maintains the
 
     If this value is not missing a copy of the value is inserted
     as an implied header just after the indent token that begins
-    a logical line.  An implied header is an implied prefix separator
+    a logical line.  An implied header is an implied subprefix
+    (\pagref{IMPLIED-SUBPREFIX})
     and is almost like an explicit prefix separator except that
     if it has no following {\em prefix-n-list} elements
-    it is removed.  It is similar to an implied subprefix,
-    see \pagref{IMPLIED-SUBPREFIX}.
+    it is removed.
 
     The type of a non-missing implied header must have a prefix
     definition selected by the \TT{selectors} line variable that
     has either the `\TT{paragraph}' or `\TT{line}' group.
+
+    Modifications to selectors and options made by an implied
+    header should be chosen so that they do not affect the parsing
+    of any explicit header that occurs immediately after the
+    implied header.
+
+    This is because in such a case the implied header will be
+    deleted, as there is nothing between it and the explicit
+    header.  When the implied header is deleted,
+    the selectors and options will be fixed up as if
+    the implied header was never inserted.  \underline{However}, the
+    explicit header will have been parsed with selectors and
+    options as they were modified by the implied header, and the
+    explicit header is \underline{not} reparsed.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
@@ -6122,12 +6136,14 @@ While parsing a logical line the parser maintains the
     and the line lexical master is used for other logical lines.
 \\[1ex]
 \hspace*{-0.2in}Note: The above line variables are called
-the `\key{current line variables}'.
+the `\ikey{\underline{current} line variables}{current line variable}'.
 \\[1ex]
-\hspace*{-0.2in}Note: If any current line variable is reset
+\hspace*{-0.2in}Note: If any current line variable is changed
 after the current line varables
 have been used at the beginning of a logical line,
 the new value will not take affect until the next logical line.
+Explicit paragraph headers with the `\TT{sticky}' or `\TT{continuing}'
+options or with a \TT{line} group implied subprefix make such changes.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
@@ -6204,9 +6220,9 @@ beginning of the logical line, and the
 selectors, options, and lexical masters in the prefix definition are used to
 modify the current line variables selectors, options, and lexical
 masters.
-If in addition the prefix definition has an implied subheader
+If in addition the prefix definition has an implied subprefix
 that itself has a prefix definition selected by the modified
-selectors which has the `\TT{line}' group, this implied subheader
+selectors which has the `\TT{line}' group, this implied subprefix
 is copied to the \TT{implied\_header} current line variable.
 
 \item
@@ -6225,21 +6241,21 @@ If it begins with a prefix that has a prefix definition with either
 the `\TT{paragraph}' or `\TT{line}' group, then that is an explicit
 paragraph header or line header.
 
-If an explicit paragraph header is found immediately after implicit headers,
-the implicit headers are deleted.
+If an explicit paragraph header is found immediately after implied headers,
+the implied headers are deleted.
 
-If an explicit line header is found immediately after implicit headers,
-any preceeding implicit line header that was inserted at
-the beginning of the logical line or following an implicit
+If an explicit line header is found immediately after implied headers,
+any preceeding implied line header that was inserted at
+the beginning of the logical line or following an implied
 paragraph header is deleted.
 
 If implied headers are deleted, the current line variables are restored
 to their state before the deleted implied header was inserted.
 Note, however, that the current line selectors and options
-computed by the implicit headers were used to parse the
+computed by the implied headers were used to parse the
 explicit header and look up its
-prefix definition, so care should be taken that prefix defintions
-for implicit headers do not change the selectors and options sufficiently to
+prefix definition, so care should be taken that prefix definitions
+for implied headers do not change the selectors and options sufficiently to
 affect parsing explicit headers.
 
 \item
@@ -6248,9 +6264,9 @@ If an explicit paragraph header is found,
 its prefix definition is used to
 modify the current line variables
 selectors, options, and lexical masters.
-If in addition the prefix definition has an implied subheader
+If in addition the prefix definition has an implied subprefix
 that itself has a prefix definition selected by the modified
-selectors which has the `\TT{line}' group, this implied subheader
+selectors which has the `\TT{line}' group, this implied subprefix
 is copied to the \TT{implied header} current line variable.
 
 Then:
@@ -6258,10 +6274,10 @@ Then:
 \begin{enumerate}
 
 \item If the \TT{options} current line variable
-now has the `\TT{sticky}' option flag, the \TT{para\-graph implicit
+now has the `\TT{sticky}' option flag, the \TT{para\-graph implied
 header} line variable is set to a copy of the explicit paragraph header.
 
-\item Otherwise the \TT{paragraph implicit header} line variable
+\item Otherwise the \TT{paragraph implied header} line variable
 is reset to the value it had at the beginning of the current
 indented paragraph,
 or to missing if the logical line is top level.
@@ -6276,19 +6292,10 @@ implied headers are deleted and the logical line is deleted.
 
 \end{enumerate}
 
-TBD
-
-Prefix separators should \underline{not} change selectors
-in such a way as to alter the parsing of prefix separators,
-as if they do subsequent prefix separators may not be parsed.  This
-applies to paragraph and line headers.
-Also, implied headers should \underline{not} change the selectors in such a way
-as to alter how explicit header \TT{.type}'s are looked up in the
-prefix table (see \itemref{PREFIX-DEFINITIONS}).
-
-Also note that parsing definitions cannot change during the parsing of
+Note that parsing definitions cannot change during the parsing of
 a logical line, an indented paragraph inside a logical line,
-or any headed paragraph.
+or any headed paragraph.  Line variables, however, may change,
+and new sets of line variables are created by indented paragraphs.
 
 
 

@@ -80,9 +80,7 @@ This line contains subsubexpressions (x 5 "foo")
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [code] SELECTED KEY "`"
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [text] SELECTED KEY [< "{" "{" >]
+BRACKETED PARSER FOUND [code] SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [math] SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -93,19 +91,24 @@ BRACKETED EXPRESSION:
          .initiator = [< "{" "{" >]
          .position[H] = PACKED_VEC
     line ##:
-     (x + `y z {{p q}}' - [ g h ]).
-               ^^^^^^^
-BRACKETED PARSER FOUND [text] SELECTED KEY "'"
+     (x + y z {{p q}} + `{p}' - [ g h ]).
+              ^^^^^^^
+BRACKETED PARSER FOUND [code] SELECTED KEY "`"
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
+BRACKETED PARSER FOUND [] SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    `y z {{p q}}'
-@@ = y z {{p q}}:
+    `"{" p "}"'
+@@ = "{" p "}":
          .terminator = "'"
          .initiator = "`"
          .position[H] = PACKED_VEC
     line ##:
-     (x + `y z {{p q}}' - [ g h ]).
-          ^^^^^^^^^^^^^
+     (x + y z {{p q}} + `{p}' - [ g h ]).
+                        ^^^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "]"
@@ -117,32 +120,32 @@ BRACKETED EXPRESSION:
           .initiator = "["
           .position[H] = PACKED_VEC
     line ##:
-     (x + `y z {{p q}}' - [ g h ]).
-                          ^^^^^^^
+     (x + y z {{p q}} + `{p}' - [ g h ]).
+                                ^^^^^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    (x + `y z {{p q}}' - [g h])
-@@@ = x + `y z {{p q}}' - [g h]:
+    (x + y z {{p q}} + `"{" p "}"' - [g h])
+@@@ = x + y z {{p q}} + `"{" p "}"' - [g h]:
           .terminator = ")"
           .initiator = "("
           .position[H] = PACKED_VEC
     line ##:
-     (x + `y z {{p q}}' - [ g h ]).
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     (x + y z {{p q}} + `{p}' - [ g h ]).
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line contains more subsubexpressions
-        (x + `y z {{p q}}' - [g h]) "."
+        (x + y z {{p q}} + `"{" p "}"' - [g h]) "."
 @@@ = This line contains more subsubexpressions
-              (x + `y z {{p q}}' - [g h]) ".":
+              (x + y z {{p q}} + `"{" p "}"' - [g h]) ".":
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This line contains more subsubexpressions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     (x + `y z {{p q}}' - [ g h ]).
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     (x + y z {{p q}} + `{p}' - [ g h ]).
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY [< "{" "{" >]
@@ -505,7 +508,7 @@ BRACKETED EXPRESSION:
           .initiator = "<+"
           .position[H] = PACKED_VEC
     line ##:
-     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+     {{ <+ x +> <- y ->}} ``<+ x +> <- y ->''
         ^^^^^^^
 BRACKETED PARSER FOUND [math] SELECTED KEY "->"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -519,9 +522,9 @@ BRACKETED EXPRESSION:
           .initiator = [< "{" "{" >]
           .position[H] = PACKED_VEC
     line ##:
-     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+     {{ <+ x +> <- y ->}} ``<+ x +> <- y ->''
      ^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "`"
+BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "``"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -537,32 +540,32 @@ BRACKETED EXPRESSION:
           .initiator = "<-"
           .position[H] = PACKED_VEC
     line ##:
-     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
-                                   ^^^^^^^
-BRACKETED PARSER FOUND [text] SELECTED KEY "'"
+     {{ <+ x +> <- y ->}} ``<+ x +> <- y ->''
+                                    ^^^^^^^
+BRACKETED PARSER FOUND [text] SELECTED KEY "''"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    `<+ x +> <- y ->'
+    ``<+ x +> <- y ->''
 @@@ = <+ x +> <- y ->:
-          .terminator = "'"
-          .initiator = "`"
+          .terminator = "''"
+          .initiator = "``"
           .position[H] = PACKED_VEC
     line ##:
-     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
-                          ^^^^^^^^^^^^^^^^^
+     {{ <+ x +> <- y ->}} ``<+ x +> <- y ->''
+                          ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This tests selector changes --- <+ x +> <- y -> {{<+ x +> <- y ->}}
-        `<+ x +> <- y ->'
+        ``<+ x +> <- y ->''
 @@@ = This tests selector changes --- <+ x +> <- y ->
-              {{<+ x +> <- y ->}} `<+ x +> <- y ->':
+              {{<+ x +> <- y ->}} ``<+ x +> <- y ->'':
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
     lines ##-##:
 This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     {{ <+ x +> <- y ->}} ``<+ x +> <- y ->''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
@@ -3670,6 +3673,9 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     print bracket ""
+        block standard: bracket "``" ... "''" [data, code, math, text]
+                        with parsing selectors [- TOP LEVEL, - data,
+                                                - code, - math, + text]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, code, math, text]
                         with parsing selectors [data]
@@ -3688,9 +3694,9 @@ BRACKETED EXPRESSION:
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
                          with parsing selectors [- TOP LEVEL]
-        block standard: bracket "`" ... "'" [code, math, text]
-                        with parsing selectors [- TOP LEVEL, - code,
-                                                - math, + text]
+        block standard: bracket "`" ... "'" [data, code, math, text]
+                        with parsing selectors [- TOP LEVEL, - data,
+                                                - code, - math, - text]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
@@ -5673,31 +5679,14 @@ ERROR: in line ###: prefix separator of type `x' not at beginning of
                 ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [text] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-PREFIX EXPRESSION:
-    {x||x}
-@@@@ =:
-           .type = "x"
-           .position[H] = PACKED_VEC
-    line ###:
-         the outer `{x}'
-                    ^^^
-BRACKETED PARSER FOUND [text] SELECTED KEY "'"
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
+BRACKETED PARSER FOUND [] SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {x||x}
-@@@@ =:
-           .type = "x"
-           .position[H] = PACKED_VEC
-    line ###:
-         the outer `{x}'
-                    ^^^
-BRACKETED EXPRESSION:
-    `{x||x}'
-@@@@ = {x||x}:
+    `"{" x "}"'
+@@@@ = "{" x "}":
            .terminator = "'"
            .initiator = "`"
            .position[H] = PACKED_VEC
@@ -5706,9 +5695,9 @@ BRACKETED EXPRESSION:
                    ^^^^^
 BRACKETED EXPRESSION:
     with an indented paragraph that has an unrecognized because it is
-        not in the same logical line as the outer `{x||x}'
+        not in the same logical line as the outer `"{" x "}"'
 @@@@ = with an indented paragraph that has an unrecognized because it is
-               not in the same logical line as the outer `{x||x}':
+               not in the same logical line as the outer `"{" x "}"':
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]

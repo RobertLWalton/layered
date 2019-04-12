@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 24 05:14:23 EDT 2019
+// Date:	Fri Apr 12 04:14:53 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -16,7 +16,7 @@ This is a line containing a parenthesized subexpression
      ( hi there ).
 This line contains subsubexpressions (x 5 "foo")
 This line contains more subsubexpressions
-     (x + `y z {{p q}}' - [ g h ]).
+     (x + y z {{p q}} + `{p}' - [ g h ]).
 This line contains a missing closing bracket
      (x + {{ y z )
 This line contains an incorrect closing bracket
@@ -51,7 +51,7 @@ Ditto:
 // define bracket "<+" .. "+>" [math]
 // define bracket "<-" .. "->" [text]
 This tests selector changes --- <+ x +> <- y ->
-     {{ <+ x +> <- y ->}} `<+ x +> <- y ->'
+     {{ <+ x +> <- y ->}} ``<+ x +> <- y ->''
 
 This is a label [< x y "hello" 5.6 z >]
 This is another label [< x ( y ) z >]

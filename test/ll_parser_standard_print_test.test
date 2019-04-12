@@ -40,6 +40,9 @@
         block standard: "#"
         block TOP LEVEL: disabled
     print bracket ""
+        block standard: bracket "``" ... "''" [data, code, math, text]
+                        with parsing selectors [- TOP LEVEL, - data,
+                                                - code, - math, + text]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, code, math, text]
                         with parsing selectors [data]
@@ -58,9 +61,9 @@
                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
                          with parsing selectors [- TOP LEVEL]
-        block standard: bracket "`" ... "'" [code, math, text]
-                        with parsing selectors [- TOP LEVEL, - code,
-                                                - math, + text]
+        block standard: bracket "`" ... "'" [data, code, math, text]
+                        with parsing selectors [- TOP LEVEL, - data,
+                                                - code, - math, - text]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
@@ -114,8 +117,9 @@
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
     print prefix ""
-        block standard: prefix "p" [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [- TOP LEVEL]
+        block standard: prefix "p" [TOP LEVEL, code, text]
+                        with parsing selectors [- TOP LEVEL, - data,
+                                                - code, - math, + text]
                         with group paragraph
                         with parsing options [- end at indent,
                                               - end at le indent,

@@ -228,7 +228,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 6, 2019
+April 12, 2019
  
 \end{center}
 
@@ -4390,8 +4390,12 @@ adds the definitions:
      define bracket "[" ... "]" [code, math, text, data]
      define bracket "{{" ... "}}" [code, math, text]
          with parsing selectors [ + math, - code, - text]
-     define bracket "`" ... "'" [code, math, text]
-         with parsing selectors [ + text, - code, - math]
+     define bracket "`" ... "'" [code, math, text, data]
+         with parsing selectors
+              [ - code, - math, - text, - data]
+     define bracket "``" ... "''" [code, math, text, data]
+         with parsing selectors
+              [ + text, - code, - math, - data]
      define bracket "[<" ... ">]" [code, math, text, data]
          with parsing selectors [data]
          with label reformatter
@@ -5825,7 +5829,9 @@ adds the definitions:
                                  + end at lt indent,
                                  + end at paragraph break,
                                  - end at line separator,
-                                 - end at outer closing]
+                                 - end at outer closing,
+                                 + text,
+                                 - code, - math, - data]
     define prefix "raw data"
                   [TOP LEVEL, data, code, math, text]
            with parsing selectors [data]
@@ -6052,7 +6058,7 @@ had been input and is
         {row| - |row}
         {row| "|" 1 tablespoon paprika |row}
         {row| = |row}
-	|table}
+        |table}
 \end{verbatim}\end{indpar}
 
 

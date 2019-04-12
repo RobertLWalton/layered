@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 23 05:53:07 EDT 2019
+// Date:	Fri Apr 12 06:01:56 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,7 @@ min::locatable_gen PARLEX::default_opt;
 min::locatable_gen PARLEX::other_selectors;
 min::locatable_gen PARLEX::parser;
 min::locatable_gen PARLEX::data;
+min::locatable_gen PARLEX::atom;
 min::locatable_gen PARLEX::prefix;
 min::locatable_gen PARLEX::header;
 min::locatable_gen PARLEX::line;
@@ -181,6 +182,7 @@ static void initialize ( void )
 
     PARLEX::parser = min::new_str_gen ( "parser" );
     PARLEX::data = min::new_str_gen ( "data" );
+    PARLEX::atom = min::new_str_gen ( "atom" );
     PARLEX::prefix = min::new_str_gen ( "prefix" );
     PARLEX::header = min::new_str_gen ( "header" );
     PARLEX::line = min::new_str_gen ( "line" );
@@ -775,6 +777,12 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		      ( parser->selector_name_table,
 			PARLEX::data ) );
 
+	MIN_REQUIRE
+	    (    PAR::ATOM_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PARLEX::atom ) );
+
 	PAR::selector_group_name_table_ref(parser) =
 	    TAB::create_key_table ( 32 );
 
@@ -846,6 +854,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	min::locatable_gen closing_quote
 	    ( min::new_str_gen ( "'" ) );
 
+	min::locatable_gen opening_double_quote
+	    ( min::new_str_gen ( "``" ) );
+	min::locatable_gen closing_double_quote
+	    ( min::new_str_gen ( "''" ) );
+
 	min::locatable_gen opening_square_angle
 	    ( min::new_lab_gen ( "[", "<" ) );
 	min::locatable_gen angle_closing_square
@@ -909,6 +922,17 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      closing_quote,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
+	      TAB::new_flags
+	          ( PAR::ATOM_SELECTOR,
+		    PAR::DATA_SELECTOR, 0 ),
+	      min::NULL_STUB, min::NULL_STUB,
+	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( opening_double_quote,
+	      closing_double_quote,
+	      PAR::DATA_SELECTOR,
+	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      min::NULL_STUB, min::NULL_STUB,
 	      bracketed_pass->bracket_table );
@@ -928,7 +952,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	BRA::push_brackets
 	    ( opening_square_angle,
 	      angle_closing_square,
-	      PAR::DATA_SELECTOR,
+	      PAR::DATA_SELECTOR + PAR::ATOM_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      PAR::find_reformatter
@@ -940,7 +964,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	BRA::push_brackets
 	    ( opening_square_dollar,
 	      dollar_closing_square,
-	      PAR::DATA_SELECTOR,
+	      PAR::DATA_SELECTOR + PAR::ATOM_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
 	      PAR::find_reformatter

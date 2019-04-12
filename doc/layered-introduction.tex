@@ -2753,10 +2753,16 @@ The following parsing selectors are builtin:
     subexpression is parsed.
 
 \hspace*{-0.2in}\ttmkey{data}{parser selector} \\
-    This selects symbol table entries that parse raw data.  Is
-    it used to enable symbol table entries that parse prefix
+    This selects symbol table entries that parse raw data.
+    It is used to enable symbol table entries that parse prefix
     separators and the type/attribute parts of typed
     brackets.
+
+\hspace*{-0.2in}\ttmkey{atom}{parser selector} \\
+    This selects only the symbol table entries that parse
+    labels and special values (e.g., \TT{[<~>]} and \TT{[\$~\$]}).
+    It is used to enable labels and special values to appear in
+    a list of lexemes.
 
 \end{indpar}
 
@@ -4375,12 +4381,14 @@ are included in the \TT{TOP LEVEL} parser block:
      define bracket "[" ... "]" [data]
      define bracket "{{" ... "}}" [data]
      define bracket "`" ... "'" [data]
-     define bracket "[<" ... ">]" [data]
+         with parsing selectors [ - data, + atom]
+     define bracket "``" ... "''" [data]
+     define bracket "[<" ... ">]" [data, atom]
          with label reformatter
+     define bracket "[$" ... "$]" [data, atom]
+         with special reformatter
      define bracket "{*" ... "*}" [data]
          with multivalue reformatter ( "," )
-     define bracket "[$" ... "$]" [data]
-         with special reformatter
 \end{verbatim}\end{indpar}
 The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
@@ -4392,14 +4400,16 @@ adds the definitions:
          with parsing selectors [ + math, - code, - text]
      define bracket "`" ... "'" [code, math, text, data]
          with parsing selectors
-              [ - code, - math, - text, - data]
+              [ + atom, - code, - math, - text, - data]
      define bracket "``" ... "''" [code, math, text, data]
          with parsing selectors
               [ + text, - code, - math, - data]
-     define bracket "[<" ... ">]" [code, math, text, data]
+     define bracket "[<" ... ">]"
+                    [code, math, text, data, atom]
          with parsing selectors [data]
          with label reformatter
-     define bracket "[$" ... "$]" [code, math, text, data]
+     define bracket "[$" ... "$]"
+                    [code, math, text, data, atom]
          with parsing selectors [data]
          with special reformatter
 \end{verbatim}\end{indpar}

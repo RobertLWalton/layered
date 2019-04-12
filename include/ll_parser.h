@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 28 04:14:48 EST 2019
+// Date:	Fri Apr 12 05:37:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,6 +72,7 @@ namespace ll { namespace parser {
 	    other_selectors, 	// other selectors
 	    parser,		// parser
 	    data,		// data
+	    atom,		// atom
 	    prefix,		// prefix
 	    header,		// header
 	    line,		// line
@@ -990,6 +991,7 @@ enum {
     //
     TOP_LEVEL_SELECTOR			= 1ull << 17,
     DATA_SELECTOR			= 1ull << 18,
+    ATOM_SELECTOR			= 1ull << 19,
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 12 03:29:46 EDT 2019
+// Date:	Fri Apr 12 06:12:25 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,6 +45,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( "text" ) );
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
+    min::locatable_gen atom_name
+        ( min::new_str_gen ( "atom" ) );
     min::locatable_gen label_name
         ( min::new_str_gen ( "label" ) );
     min::locatable_gen special_name
@@ -62,6 +64,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
     TAB::flags data =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, data_name );
+    TAB::flags atom =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, atom_name );
 
     min::locatable_gen opening_double_brace
         ( min::new_lab_gen ( "{", "{" ) );
@@ -133,7 +138,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text + data,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( 0, code + math + text + data, 0 ),
+	      ( atom, code + math + text + data, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
@@ -148,7 +153,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_square_angle,
           angle_closing_square,
-	  code + math + text + data,
+	  code + math + text + data + atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( data, PAR::ALL_SELECTORS ^ data, 0 ),
@@ -160,7 +165,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_square_dollar,
           dollar_closing_square,
-	  code + math + text + data,
+	  code + math + text + data + atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( data, PAR::ALL_SELECTORS ^ data, 0 ),

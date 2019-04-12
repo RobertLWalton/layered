@@ -95,10 +95,10 @@ BRACKETED EXPRESSION:
               ^^^^^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [] SELECTED KEY "}"
+BRACKETED PARSER FOUND [atom] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
-BRACKETED PARSER FOUND [] SELECTED KEY "'"
+BRACKETED PARSER FOUND [atom] SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     `"{" p "}"'
@@ -3676,11 +3676,14 @@ BRACKETED EXPRESSION:
         block standard: bracket "``" ... "''" [data, code, math, text]
                         with parsing selectors [- TOP LEVEL, - data,
                                                 - code, - math, + text]
+        block TOP LEVEL: bracket "``" ... "''" [data]
+                         with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [data, code, math, text]
+                        [data, atom, code, math, text]
                         with parsing selectors [data]
                         with label reformatter
-        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
+                         [data, atom]
                          with parsing selectors [- TOP LEVEL]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
@@ -3696,9 +3699,11 @@ BRACKETED EXPRESSION:
                          with parsing selectors [- TOP LEVEL]
         block standard: bracket "`" ... "'" [data, code, math, text]
                         with parsing selectors [- TOP LEVEL, - data,
-                                                - code, - math, - text]
+                                                + atom, - code, - math,
+                                                - text]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- TOP LEVEL]
+                         with parsing selectors [- TOP LEVEL, - data,
+                                                 + atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                         [code, math, text]
                         with parsing selectors [- TOP LEVEL, - code,
@@ -3710,10 +3715,11 @@ BRACKETED EXPRESSION:
         block standard: bracket "<-" ... "->" [text]
                         with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [data, code, math, text]
+                        [data, atom, code, math, text]
                         with parsing selectors [data]
                         with special reformatter
-        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
+                         [data, atom]
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
@@ -5679,10 +5685,10 @@ ERROR: in line ###: prefix separator of type `x' not at beginning of
                 ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [] SELECTED KEY "}"
+BRACKETED PARSER FOUND [atom] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
-BRACKETED PARSER FOUND [] SELECTED KEY "'"
+BRACKETED PARSER FOUND [atom] SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     `"{" x "}"'

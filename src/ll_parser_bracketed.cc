@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  5 15:23:04 EDT 2019
+// Date:	Sat Apr 13 12:22:00 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2046,6 +2046,26 @@ PARSE_PREFIX_N_LIST:
 			new_selectors.xor_flags;
 		prefix_selectors |=
 		    PAR::ALWAYS_SELECTOR;
+
+		if ( prefix_selectors & PAR::RESET_OPT )
+		{
+		    line_variables->paragraph =
+			line_variables->
+			    indentation_paragraph;
+		    line_variables->
+			    implied_paragraph =
+			line_variables->
+		      indentation_implied_paragraph;
+		    line_variables->current =
+			line_variables->paragraph;
+		    MIN_REQUIRE
+		        ( prefix->next == current );
+		    PAR::free
+			( PAR::remove
+			      ( first_ref(parser),
+				current->previous ) );
+		    return min::MISSING_POSITION;
+		}
 
 		BRA::line_data & line_data =
 		    line_variables->current;

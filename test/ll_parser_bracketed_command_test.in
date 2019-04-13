@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 23 06:29:28 EDT 2019
+// Date:	Sat Apr 13 12:39:41 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -554,6 +554,9 @@ and another line outside the fifth paragraph
     define prefix "p3" [code]
         with group paragraph
         with parsing options [+ sticky]
+    define prefix "code" [code]
+        with group paragraph
+        with parsing options [+ reset]
     trace [+ parser output]
 this is paragraph 1
 and another line
@@ -582,6 +585,10 @@ and another line
 this is paragraph 9
 and another line
 
+{code}this is code line 1
+
+and code line 2
+
 {p1} this is paragraph 10
 and another line
 
@@ -591,6 +598,17 @@ and another line
 
 this is paragraph 12
 and another line
+
+{p3} this is paragraph 13
+and another line
+
+this is paragraph 14
+and another line
+
+{code}
+this is code line 3
+
+and code line 4
 
 *PARSER*:
     trace [- parser output]

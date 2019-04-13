@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 12 04:14:53 EDT 2019
+// Date:	Sat Apr 13 16:37:02 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -296,8 +296,6 @@ a potato
 	with parsing options [+ sticky]
     define prefix "item" [code, text]
     	with group line
-    define prefix "end itemize" [code, text]
-    	with group paragraph
 
 {itemize: indent = 5em, mark = "*", label = "STICKY"}
 1 chicken
@@ -307,7 +305,7 @@ a potato
 a potato
 1 tablespoon butter
 
-{end itemize}
+{code}
 line 1
 
 line 2
@@ -321,8 +319,6 @@ line 2
 	with parsing options [+ continuing]
     define prefix "item" [code, text]
     	with group line
-    define prefix "end itemize" [code, text]
-    	with group paragraph
 
 {itemize: indent = 5em, mark = "*",
           label = "CONTINUING"}
@@ -333,14 +329,11 @@ line 2
 a potato
 1 tablespoon butter
 
-{end itemize}
+{code}
 
-line 0
+line 3
 
-{end itemize}
-line 1
-
-line 2
+line 4
 
 *PARSER*:
     end block BLOCK1

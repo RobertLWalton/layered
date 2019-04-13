@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 12 06:12:25 EDT 2019
+// Date:	Sat Apr 13 16:30:07 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -331,8 +331,57 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::NULL_STUB,
 	  bracketed_pass->prefix_table );
 
+    PRE::push_prefix
+	( code_name,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + code + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( RESET_OPT, 0, 0 ),
+	  PARLEX::paragraph,
+	  min::MISSING(),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    min::locatable_gen section
+        ( min::new_str_gen ( "section" ) );
     min::locatable_gen p
         ( min::new_str_gen ( "p" ) );
+
+    min::locatable_gen implied_p
+        ( min::new_obj_gen ( 10, 1 ) );
+    {
+        min::obj_vec_insptr vp ( implied_p );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, p );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
+    }
+
+    PRE::push_prefix
+	( section,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + code + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( EAPBREAK_OPT + EALTINDENT_OPT + text,
+	          EALEINDENT_OPT + EAINDENT_OPT
+		+ EALSEP_OPT + EAOCLOSING_OPT
+		+ code + math + data, 0 ),
+	  PARLEX::paragraph, // group
+	  implied_p,	     // implied_subprefix
+	  p,		     // implied_subprefix_type
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
 
     PRE::push_prefix
 	( p,
@@ -340,7 +389,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( EAPBREAK_OPT + EALTINDENT_OPT + text,
+	      (   EAPBREAK_OPT + EALTINDENT_OPT
+	        + STICKY_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),

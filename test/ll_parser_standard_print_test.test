@@ -133,6 +133,18 @@
                                               + end at lt indent,
                                               + end at paragraph break,
                                               - end at line separator,
+                                              - end at outer closing,
+                                              + sticky]
+        block standard: prefix "section" [TOP LEVEL, code, text]
+                        with parsing selectors [- TOP LEVEL, - data,
+                                                - code, - math, + text]
+                        with group paragraph
+                        with implied subprefix {p||p}
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
                                               - end at outer closing]
         block standard: prefix [< "raw" "data" >]
                         [TOP LEVEL, data, code, math, text]
@@ -150,3 +162,7 @@
                         with parsing selectors [- TOP LEVEL]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
+        block standard: prefix "code" [TOP LEVEL, code, text]
+                        with parsing selectors [- TOP LEVEL]
+                        with group paragraph
+                        with parsing options [+ reset]

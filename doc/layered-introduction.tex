@@ -5833,16 +5833,6 @@ The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "p" [TOP LEVEL, data, code, math, text]
-           with group paragraph
-           with parsing options [- end at indent,
-                                 - end at le indent,
-                                 + end at lt indent,
-                                 + end at paragraph break,
-                                 - end at line separator,
-                                 - end at outer closing,
-                                 + text,
-                                 - code, - math, - data]
     define prefix "raw data"
                   [TOP LEVEL, data, code, math, text]
            with parsing selectors [data]
@@ -5854,6 +5844,29 @@ adds the definitions:
     define prefix "data" [TOP LEVEL, data, code, math, text]
            with data reformatter
                 ( "=", "no", "[", [< "{" "*" >] )
+    define prefix "code" [TOP LEVEL, code, text]
+           with parsing options [+ reset]
+    define prefix "section" [TOP LEVEL, code, text]
+           with group paragraph
+           with parsing selectors [+ text,
+                                   - code, - math, - data]
+           with parsing options [+ end at lt indent,
+                                 + end at paragraph break,
+                                 - end at indent,
+                                 - end at le indent,
+                                 - end at line separator,
+                                 - end at outer closing]
+    define prefix "p" [TOP LEVEL, code, text]
+           with group paragraph
+           with parsing selectors [+ text,
+                                   - code, - math, - data]
+           with parsing options [+ sticky,
+                                 + end at lt indent,
+                                 + end at paragraph break,
+                                 - end at indent,
+                                 - end at le indent,
+                                 - end at line separator,
+                                 - end at outer closing]
 \end{verbatim}\end{indpar}
 
 

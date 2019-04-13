@@ -15,6 +15,7 @@
     % Modifies \verb and \verbatim to print ' with
     % the Computer Modern Typewrite font.
     % Also includes the textcomp package.
+\usepackage{enumitem}
 
 \makeindex
 
@@ -228,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 12, 2019
+April 13, 2019
  
 \end{center}
 
@@ -6277,25 +6278,68 @@ affect parsing explicit headers.
 If an explicit paragraph header is found,
 its prefix definition is used to
 modify the current line variables
-selectors, options, and lexical masters.
-If in addition the prefix definition has an implied subprefix
-that itself has a prefix definition selected by the modified
-selectors which has the `\TT{line}' group, this implied subprefix
-is copied to the \TT{implied header} current line variable.
+selectors, options, and lexical masters.  Then
+\begin{enumerate}[label*=\arabic*]
+\item
+If the `\ttkey{reset}' option flag is on in the new current line variables,
+then
+\begin{enumerate}[label*=.\arabic*]
 
-Then:
-
-\begin{enumerate}
-
-\item If the \TT{options} current line variable
-now has the `\TT{sticky}' option flag, the \TT{para\-graph implied
-header} line variable is set to a copy of the explicit paragraph header.
-
-\item Otherwise the \TT{paragraph implied header} line variable
+\item The \TT{paragraph implied header} line variable
 is reset to the value it had at the beginning of the current
 indented paragraph,
 or to missing if the logical line is top level.
 
+\item The paragraph line variables are copied to the current line
+variables (resetting the latter to their state before the explicit
+paragraph header was parsed, except for the implied header value
+which was just reset).
+
+\item The explicit paragraph header is deleted.  Parsing is as
+if the explicit paragraph header had never existed, except that
+the paragraph and current line variables are set to the values
+they had at the beginning of the current indented paragraph or
+at top level after the last \TT{define top level} command, and
+also a comment is allowed without warning
+between the deleted explicit paragraph
+header and any following non-comment lexeme in the current logical
+line.
+
+
+
+\end{enumerate}
+
+
+\item
+Otherwise (if the `\TT{reset}' flag is off),
+let $P$ denote the implied subprefix of the prefix definition
+of the explicit line header ($P$ may not exist).  Then
+
+\begin{enumerate}[label*=.\arabic*]
+
+\item
+If $P$ exists and
+itself has a prefix definition selected by the modified
+current selectors that has the `\TT{line}' group, $P$
+is copied to the \TT{current implied header} line variable.
+
+\item
+The \TT{paragraph implied header} is reset to the following:
+
+\begin{enumerate}[label*=.\arabic*]
+\item
+To a copy of $P$, if $P$ itself has a prefix definition selected by the
+modified current selectors that has the `\TT{paragraph}' group.
+
+\item Otherwise to a copy of the explicit paragraph header,
+if the current options now has the `\TT{sticky}' flag.
+
+\item Otherwise to the value it had at the beginning of the current
+indented paragraph,
+or to missing if the logical line is top level.
+
+\end{enumerate}
+\end{enumerate}
 \end{enumerate}
 
 \item

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 12 05:37:40 EDT 2019
+// Date:	Sat Apr 13 04:24:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,6 +66,7 @@ namespace ll { namespace parser {
 	    ealsep,		// end at line separator
 	    eaoclosing,		// end at outer closings
 	    sticky,		// sticky
+	    reset,		// reset
 	    continuing,		// continuing
 	    other_ea_opt,	// other end at options
 	    default_opt,	// default options
@@ -959,6 +960,7 @@ enum {
     EAOCLOSING_OPT			= 1ull << 5,
     STICKY_OPT				= 1ull << 6,
     CONTINUING_OPT			= 1ull << 7,
+    RESET_OPT				= 1ull << 8,
 
     ALL_EA_OPT    = EAINDENT_OPT
 	          + EALEINDENT_OPT
@@ -972,7 +974,8 @@ enum {
 
     ALL_PREFIX_OPT = ALL_EA_OPT
                    + STICKY_OPT
-		   + CONTINUING_OPT,
+		   + CONTINUING_OPT
+		   + RESET_OPT,
 
     DEFAULT_EA_OPT = EALEINDENT_OPT
 	           + EALSEP_OPT

@@ -6255,18 +6255,12 @@ a potato
 1 tablespoon butter
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {end itemize|{"": .terminator = "<LF>", .initiator =
-                      [$ LOGICAL_LINE $]|line #|}|end itemize}
-@@@@ = @@@@:
-           .type = [< "end" "itemize" >]
-           .position[H] = PACKED_VEC
+    line #
 @@@@ = line #:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
-{end itemize}
-^^^^^^^^^^^^^
+    line ###:
 line #
 ^^^^^^
 BRACKETED EXPRESSION:
@@ -6309,37 +6303,14 @@ a potato
 1 tablespoon butter
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {end itemize||end itemize}
-@@@@ =:
-           .type = [< "end" "itemize" >]
-           .position[H] = PACKED_VEC
-    line ###:
-{end itemize}
-^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     line #
 @@@@ = line #:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-line #
-^^^^^^
-BRACKETED EXPRESSION:
-    {end itemize|{"": .terminator = "<LF>", .initiator =
-                      [$ LOGICAL_LINE $]|line #|}|end itemize}
-@@@@ = @@@@:
-           .type = [< "end" "itemize" >]
-           .position[H] = PACKED_VEC
-@@@@ = line #:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
-{end itemize}
-^^^^^^^^^^^^^
-line #
-^^^^^^
+{code}line #
+      ^^^^^^
 BRACKETED EXPRESSION:
     line #
 @@@@ = line #:

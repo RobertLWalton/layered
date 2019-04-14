@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 13 12:22:00 EDT 2019
+// Date:	Sun Apr 14 03:48:30 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -847,6 +847,41 @@ bool BRA::parse_paragraph_element
 		  NULL,
 		  line_variables );
 
+	PAR::token first =
+	    line_variables->previous->next;
+
+	// Here to handle RESET paragraph header.
+	//
+	if (   line_variables->current.selectors
+	     & PAR::RESET_OPT )
+	{
+	    // Header has been deleted and current is
+	    // next token.
+	    //
+	    line_variables->paragraph =
+		line_variables->indentation_paragraph;
+	    line_variables->implied_paragraph =
+		line_variables->
+		    indentation_implied_paragraph;
+	    line_variables->current =
+		line_variables->paragraph;
+
+	    if (    line_variables->last_paragraph
+	          == min::NULL_STUB )
+	        continue;
+	    else
+	    {
+		BRA::compact_paragraph
+		    ( parser,
+		      line_variables->last_paragraph,
+		      current,
+		      trace_flags );
+		line_variables->last_paragraph
+		    = min::NULL_STUB;
+		return false;
+	    }
+	}
+
 	line_variables->at_paragraph_end =
 	    ( current->type == LEXSTD::end_of_file_t
 	      ||
@@ -859,9 +894,6 @@ bool BRA::parse_paragraph_element
 			line_variables->
 			    paragraph_indent )
 		< 0 ) );
-
-	PAR::token first =
-	    line_variables->previous->next;
 
 	// Here to handle line separator that super-
 	// fluously ends a logical line and comment
@@ -2047,26 +2079,6 @@ PARSE_PREFIX_N_LIST:
 		prefix_selectors |=
 		    PAR::ALWAYS_SELECTOR;
 
-		if ( prefix_selectors & PAR::RESET_OPT )
-		{
-		    line_variables->paragraph =
-			line_variables->
-			    indentation_paragraph;
-		    line_variables->
-			    implied_paragraph =
-			line_variables->
-		      indentation_implied_paragraph;
-		    line_variables->current =
-			line_variables->paragraph;
-		    MIN_REQUIRE
-		        ( prefix->next == current );
-		    PAR::free
-			( PAR::remove
-			      ( first_ref(parser),
-				current->previous ) );
-		    return min::MISSING_POSITION;
-		}
-
 		BRA::line_data & line_data =
 		    line_variables->current;
 		line_data.paragraph_lexical_master =
@@ -2081,6 +2093,17 @@ PARSE_PREFIX_N_LIST:
 		line_data.header_entry =
 		    min::NULL_STUB;
 		    // Just for safety.
+
+		if ( prefix_selectors & PAR::RESET_OPT )
+		{
+		    MIN_REQUIRE
+		        ( prefix->next == current );
+		    PAR::free
+			( PAR::remove
+			      ( first_ref(parser),
+				current->previous ) );
+		    return min::MISSING_POSITION;
+		}
 
 		min::gen implied_header =
 		    prefix_entry->implied_subprefix;

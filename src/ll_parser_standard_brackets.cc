@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 13 16:30:07 EDT 2019
+// Date:	Sun Apr 14 20:44:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -348,21 +348,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 
     min::locatable_gen section
         ( min::new_str_gen ( "section" ) );
-    min::locatable_gen p
-        ( min::new_str_gen ( "p" ) );
-
-    min::locatable_gen implied_p
-        ( min::new_obj_gen ( 10, 1 ) );
-    {
-        min::obj_vec_insptr vp ( implied_p );
-	min::attr_insptr ap ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, p );
-	min::locate ( ap, min::dot_position );
-	min::set ( ap, min::new_stub_gen ( pos ) );
-	min::set_flag
-	    ( ap, min::standard_attr_hide_flag );
-    }
 
     PRE::push_prefix
 	( section,
@@ -375,13 +360,16 @@ void PARSTD::init_prefix ( PAR::parser parser )
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
 	  PARLEX::paragraph, // group
-	  implied_p,	     // implied_subprefix
-	  p,		     // implied_subprefix_type
+	  min::MISSING(),
+	  min::MISSING(),
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
 	  bracketed_pass->prefix_table );
+
+    min::locatable_gen p
+        ( min::new_str_gen ( "p" ) );
 
     PRE::push_prefix
 	( p,

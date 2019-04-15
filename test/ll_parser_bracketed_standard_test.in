@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 14 04:15:38 EDT 2019
+// Date:	Sun Apr 14 15:27:08 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -360,3 +360,18 @@ a potato
 =
 
 -5 is a negative number
+
+{section} This is a section.
+
+{p}
+This is the first paragraph.
+
+This is the second
+paragraph.  Which has several
+sentences.
+
+{code}
+This is a code line.
+
+{p}This is the
+third paragraph.

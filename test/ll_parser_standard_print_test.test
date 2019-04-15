@@ -139,7 +139,6 @@
                         with parsing selectors [- TOP LEVEL, - data,
                                                 - code, - math, + text]
                         with group paragraph
-                        with implied subprefix {p||p}
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,

@@ -6457,3 +6457,29 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^
 third paragraph.
 ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {quote|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                This is a fouth paragraph "."|}|quote}
+@@@@ = @@@@:
+           .type = "quote"
+           .position[H] = PACKED_VEC
+@@@@ = This is a fouth paragraph ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+    {quote}
+    ^^^^^^^
+    This is a fouth
+^^^^^^^^^^^^^^^^^^^
+    paragraph.
+^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And another code line "."
+@@@@ = And another code line ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+       And another code line.
+       ^^^^^^^^^^^^^^^^^^^^^^

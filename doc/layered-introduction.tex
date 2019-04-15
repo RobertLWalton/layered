@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 13, 2019
+April 15, 2019
  
 \end{center}
 
@@ -6324,34 +6324,26 @@ line.
 
 
 \item
-Otherwise (if the `\TT{reset}' flag is off),
-let $P$ denote the implied subprefix of the prefix definition
-of the explicit line header ($P$ may not exist).  Then
+Otherwise (if the `\TT{reset}' flag is off), then
 
 \begin{enumerate}[label*=.\arabic*]
 
 \item
+Let $P$ denote the implied subprefix of the prefix definition
+of the explicit paragraph header.
 If $P$ exists and
 itself has a prefix definition selected by the modified
 current selectors that has the `\TT{line}' group, $P$
 is copied to the \TT{current implied header} line variable.
 
 \item
-The \TT{paragraph implied header} is reset to the following:
-
-\begin{enumerate}[label*=.\arabic*]
-\item
-To a copy of $P$, if $P$ itself has a prefix definition selected by the
-modified current selectors that has the `\TT{paragraph}' group.
-
-\item Otherwise to a copy of the explicit paragraph header,
+The \TT{paragraph implied header} is set to
+a copy of the explicit paragraph header,
 if the current options now has the `\TT{sticky}' flag.
-
-\item Otherwise to the value it had at the beginning of the current
+Otherwise it is reset to the value it had at the beginning of the current
 indented paragraph,
 or to missing if the logical line is top level.
 
-\end{enumerate}
 \end{enumerate}
 \end{enumerate}
 

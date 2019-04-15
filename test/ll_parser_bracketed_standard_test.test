@@ -6387,3 +6387,73 @@ BRACKETED EXPRESSION:
     line ###:
 -5 is a negative number
 ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                  This is a section "."|}|section}
+@@@@ = @@@@:
+           .type = "section"
+           .position[H] = PACKED_VEC
+@@@@ = This is a section ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{section} This is a section.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+            is the first paragraph "."|}|p}
+@@@@ = @@@@:
+           .type = "p"
+           .position[H] = PACKED_VEC
+@@@@ = This is the first paragraph ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{p}
+^^^
+This is the first paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+            is the second paragraph "." Which has several sentences
+            "."|}|p}
+@@@@ = @@@@:
+           .type = "p"
+           .position[H] = PACKED_VEC
+@@@@ = This is the second paragraph "." Which has several sentences ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+This is the second
+^^^^^^^^^^^^^^^^^^
+paragraph.  Which has several
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sentences.
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a code line "."
+@@@@ = This is a code line ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+This is a code line.
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+            is the third paragraph "."|}|p}
+@@@@ = @@@@:
+           .type = "p"
+           .position[H] = PACKED_VEC
+@@@@ = This is the third paragraph ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{p}This is the
+^^^^^^^^^^^^^^
+third paragraph.
+^^^^^^^^^^^^^^^^

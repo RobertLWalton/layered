@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 14 20:44:52 EDT 2019
+// Date:	Mon Apr 15 03:34:47 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -373,6 +373,29 @@ void PARSTD::init_prefix ( PAR::parser parser )
 
     PRE::push_prefix
 	( p,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + code + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      (   EAPBREAK_OPT + EALTINDENT_OPT
+	        + STICKY_OPT + text,
+	          EALEINDENT_OPT + EAINDENT_OPT
+		+ EALSEP_OPT + EAOCLOSING_OPT
+		+ code + math + data, 0 ),
+	  PARLEX::paragraph,
+	  min::MISSING(),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    min::locatable_gen quote_name
+        ( min::new_str_gen ( "quote" ) );
+
+    PRE::push_prefix
+	( quote_name,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + code + text,
 	  block_level, PAR::top_level_position,

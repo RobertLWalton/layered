@@ -5867,6 +5867,17 @@ adds the definitions:
                                  - end at le indent,
                                  - end at line separator,
                                  - end at outer closing]
+    define prefix "quote" [TOP LEVEL, code, text]
+           with group paragraph
+           with parsing selectors [+ text,
+                                   - code, - math, - data]
+           with parsing options [+ sticky,
+                                 + end at lt indent,
+                                 + end at paragraph break,
+                                 - end at indent,
+                                 - end at le indent,
+                                 - end at line separator,
+                                 - end at outer closing]
 \end{verbatim}\end{indpar}
 
 

@@ -3723,6 +3723,12 @@ BRACKETED EXPRESSION:
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
+        block standard: indentation mark ":" [text]
+                        with parsing selectors [- TOP LEVEL]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing]
+                        with implied header {p||p}
         block standard: indentation mark ":" ... ";" [code]
                         with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
@@ -6483,3 +6489,50 @@ BRACKETED EXPRESSION:
     line ###:
        And another code line.
        ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+            is a paragraph with a subparagraph
+            {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                 ":"|
+                 {p|{"": .terminator = "<LF>", .initiator =
+                         [$ LOGICAL_LINE $]|This is subparagraph 1 "."|}|p}
+                 {p|{"": .terminator = "<LF>", .initiator =
+                         [$ LOGICAL_LINE $]|This is subparagraph 2 "."|}|p}|}
+            and a continuation of the outer paragraph "."|}|p}
+@@@@ = @@@@:
+           .type = "p"
+           .position[H] = PACKED_VEC
+@@@@ = This is a paragraph with a subparagraph @@@@ and a continuation
+               of the outer paragraph ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@@ = {p|@@@@|p} {p|@@@@|p}:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+@@@@ = This is subparagraph 1 ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@@ = This is subparagraph 2 ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{p}This is a paragraph with a subparagraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        This is
+^^^^^^^^^^^^^^^^
+        subparagraph 1.
+^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        This is subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                2.
+^^^^^^^^^^^^^^^^^^
+and a continuation of the outer paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

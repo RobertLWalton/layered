@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 15, 2019
+April 16, 2019
  
 \end{center}
 
@@ -4710,11 +4710,14 @@ definitions are included in the \TT{TOP LEVEL} parser block:
         [TOP LEVEL]
 \end{verbatim}\end{indpar}
 The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
-adds the definition:
+adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
      define indentation mark ":" ... ";" [code]
          with parsing options [default options]
+     define indentation mark ":" [text]
+         with parsing options [default options]
+         with implied header {p}
 \end{verbatim}\end{indpar}
 
 \subsubsection{Typed Bracketed Subexpressions}

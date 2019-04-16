@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 15 03:34:47 EDT 2019
+// Date:	Tue Apr 16 03:50:11 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -184,6 +184,40 @@ void PARSTD::init_brackets ( PAR::parser parser )
 			   - PAR::DEFAULT_EA_OPT,
 			   0 ),
 	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  bracketed_pass->bracket_table );
+
+
+    min::locatable_var<min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file,
+		PAR::top_level_position, 0 );
+    min::locatable_gen p
+        ( min::new_str_gen ( "p" ) );
+    min::locatable_gen implied_p_header
+        ( min::new_obj_gen ( 10, 1 ) );
+    {
+        min::obj_vec_insptr vp ( implied_p_header );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, p );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
+    }
+
+
+    BRA::push_indentation_mark
+        ( PARLEX::colon, min::MISSING(),
+	  text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( PAR::DEFAULT_EA_OPT,
+	                     PAR::ALL_EA_OPT
+			   - PAR::DEFAULT_EA_OPT,
+			   0 ),
+	  implied_p_header,
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  bracketed_pass->bracket_table );

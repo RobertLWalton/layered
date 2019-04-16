@@ -87,6 +87,12 @@
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
+        block standard: indentation mark ":" [text]
+                        with parsing selectors [- TOP LEVEL]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing]
+                        with implied header {p||p}
         block standard: indentation mark ":" ... ";" [code]
                         with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,

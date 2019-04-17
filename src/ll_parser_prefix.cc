@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 07:31:50 EDT 2019
+// Date:	Wed Apr 17 05:31:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -419,21 +419,11 @@ static bool sentence_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    parser->printer << "SENTENCE REFORMATTER"
-                    << min::eol;
     PRE::prefix prefix_entry = (PRE::prefix) entry;
     PAR::reformatter_arguments args =
         prefix_entry->reformatter_arguments;
-    for ( min::uns32 i = 0; i < args->length; ++ i )
-	parser->printer << "SENTENCE ARGUMENT "
-	                << min::pgen ( args[i] )
-			<< min::eol;
 
     MIN_REQUIRE ( first != next );
-    MIN_REQUIRE ( args->length == 1 );
-    MIN_REQUIRE ( min::is_obj ( args[0] ) );
-    min::obj_vec_ptr argvp ( args[0] );
-    min::unsptr arglen = min::size_of ( argvp );
 
     for ( PAR::token t = first->next; t != next;
                                       t = t->next )
@@ -442,9 +432,10 @@ static bool sentence_reformatter_function
 	    continue;
 
 	min::unsptr i = 0;
-	while ( i < arglen && argvp[i] != t->value )
+	while (    i < args->length
+	        && args[i] != t->value )
 	    ++ i;
-	if ( i >= arglen ) continue;
+	if ( i >= args->length ) continue;
 
 	min::position separator_found =
 	    t->position.end;
@@ -464,7 +455,7 @@ static bool sentence_reformatter_function
 
 	PRE::compact_prefix_list
 	    ( parser, pass, selectors, first, t,
-	      separator_found, argvp[i],
+	      separator_found, args[i],
 	      trace_flags, true );
 
 	first = next_first;
@@ -493,7 +484,7 @@ static void prefix_reformatter_stack_initialize ( void )
     min::locatable_gen sentence_name
         ( min::new_str_gen ( "sentence" ) );
     PAR::push_reformatter
-        ( sentence_name, 0, 1, 1,
+        ( sentence_name, 0, 0, 1000,
 	  ::sentence_reformatter_function,
 	  PRE::prefix_reformatter_stack );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 16 03:50:11 EDT 2019
+// Date:	Wed Apr 17 04:36:42 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,11 @@ void PARSTD::init_brackets ( PAR::parser parser )
 {
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
+
+    min::locatable_var<min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file,
+		PAR::top_level_position, 0 );
 
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
@@ -189,10 +194,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  bracketed_pass->bracket_table );
 
 
-    min::locatable_var<min::phrase_position_vec_insptr>
-	pos;
-    min::init ( pos, parser->input_file,
-		PAR::top_level_position, 0 );
     min::locatable_gen p
         ( min::new_str_gen ( "p" ) );
     min::locatable_gen implied_p_header
@@ -380,6 +381,21 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::NULL_STUB,
 	  bracketed_pass->prefix_table );
 
+    min::locatable_gen s
+        ( min::new_str_gen ( "s" ) );
+    min::locatable_gen implied_s_header
+        ( min::new_obj_gen ( 10, 1 ) );
+    {
+        min::obj_vec_insptr vp ( implied_s_header );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, s );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
+    }
+
     min::locatable_gen section
         ( min::new_str_gen ( "section" ) );
 
@@ -394,8 +410,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
 	  PARLEX::paragraph, // group
-	  min::MISSING(),
-	  min::MISSING(),
+	  implied_s_header,
+	  s,
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
@@ -417,8 +433,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
 	  PARLEX::paragraph,
-	  min::MISSING(),
-	  min::MISSING(),
+	  implied_s_header,
+	  s,
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
@@ -440,12 +456,46 @@ void PARSTD::init_prefix ( PAR::parser parser )
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
 	  PARLEX::paragraph,
-	  min::MISSING(),
-	  min::MISSING(),
+	  implied_s_header,
+	  s,
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
+	  bracketed_pass->prefix_table );
+
+    min::locatable_gen sentence
+        ( min::new_str_gen ( "sentence" ) );
+    min::locatable_gen period
+        ( min::new_str_gen ( "." ) );
+    min::locatable_gen question
+        ( min::new_str_gen ( "?" ) );
+    min::locatable_gen exclamation
+        ( min::new_str_gen ( "!" ) );
+
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        s_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 5 ) );
+    min::push ( s_arguments ) = period;
+    min::push ( s_arguments ) = question;
+    min::push ( s_arguments ) = exclamation;
+    min::push ( s_arguments ) = PARLEX::colon;
+    min::push ( s_arguments ) = PARLEX::semicolon;
+
+    PRE::push_prefix
+	( s, text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  PARLEX::line,   // group
+	  min::MISSING(), // implied_subprefix
+	  min::MISSING(), // implied_subprefix_type
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  PAR::find_reformatter
+	      ( sentence,
+	        PRE::prefix_reformatter_stack ),
+	  s_arguments,
 	  bracketed_pass->prefix_table );
 }
 

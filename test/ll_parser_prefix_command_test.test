@@ -19,13 +19,11 @@
         with implied subprefix {s}
     define prefix "s" [text]
         with sentence reformatter
-             ( (".", ";", ":", "?", "!" ) )
+            ( ".", ";", ":", "?", "!" )
     print prefix "s"
         block X: prefix "s" [text]
                  with parsing selectors [- TOP LEVEL]
-                 with sentence reformatter ( {|"." ";" ":" "?" "!"|} )
-SENTENCE REFORMATTER
-SENTENCE ARGUMENT {|"." ";" ":" "?" "!"|}
+                 with sentence reformatter ( ".", ";", ":", "?", "!" )
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
        {s: .terminator = "."|an add-on|s}

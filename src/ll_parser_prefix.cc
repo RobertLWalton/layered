@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 05:31:32 EDT 2019
+// Date:	Wed Apr 17 21:37:36 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -450,6 +450,7 @@ static bool sentence_reformatter_function
 		first->value;
 	    PAR::value_type_ref(next_first) =
 		first->value_type;
+	    next_first->type = first->type;
 	    first->type = PAR::IMPLIED_PREFIX;
 	}
 
@@ -459,15 +460,19 @@ static bool sentence_reformatter_function
 	      trace_flags, true );
 
 	first = next_first;
-	if ( first == min::NULL_STUB )
-	{
-	    PAR::free
-		( PAR::remove ( first_ref(parser),
-				t ) );
-	    break;
-	}
     }
-    return first != min::NULL_STUB;
+    if ( first == min::NULL_STUB )
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    next->previous ) );
+    else
+    {
+	PRE::compact_prefix_list
+	    ( parser, pass, selectors, first, next,
+	      min::MISSING_POSITION, min::MISSING(),
+	      trace_flags, true );
+    }
+    return false;
 }
 
 static void prefix_reformatter_stack_initialize ( void )

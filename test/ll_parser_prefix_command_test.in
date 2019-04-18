@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 05:32:11 EDT 2019
+// Date:	Thu Apr 18 05:27:07 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -24,17 +24,22 @@
 *PARSER*:
     begin block X
     define prefix "p" [TOP LEVEL]
-        with parsing options [end at paragraph break]
+        with parsing options [end at paragraph break, sticky]
 	with group paragraph
 	with parsing selectors [+ text, - code]
 	with implied subprefix {s}
     define prefix "s" [text]
         with sentence reformatter
 	    ( ".", ";", ":", "?", "!" )
-    print prefix "s"
+    define prefix "code" [text]
+	with group paragraph
+	with parsing options [+ reset]
+    print prefix ""
 
 {p}This is a sentence: an add-on.  A phrase;
 and a question?
+
+{code}
 
 *PARSER*:
     end block X

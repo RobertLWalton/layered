@@ -144,7 +144,6 @@
                                               + sticky]
         block standard: prefix "s" [text]
                         with parsing selectors [- TOP LEVEL]
-                        with group line
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
         block standard: prefix "quote" [TOP LEVEL, code, text]

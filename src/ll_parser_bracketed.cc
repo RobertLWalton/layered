@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 14 03:48:30 EDT 2019
+// Date:	Thu Apr 18 05:12:34 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -946,8 +946,6 @@ bool BRA::parse_paragraph_element
 	if (    first->value_type
 	     == PARLEX::paragraph )
 	{
-	    MIN_REQUIRE ( ! maybe_parser_command );
-
 	    if ( line_variables->last_paragraph
 		 != min::NULL_STUB )
 	    {

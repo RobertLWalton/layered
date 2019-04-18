@@ -487,7 +487,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	( s, text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  s,
+	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
 	  PAR::MISSING_MASTER,

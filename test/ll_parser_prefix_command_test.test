@@ -13,21 +13,35 @@
 *PARSER*:
     begin block X
     define prefix "p" [TOP LEVEL]
-        with parsing options [end at paragraph break]
+        with parsing options [end at paragraph break, sticky]
         with group paragraph
         with parsing selectors [+ text, - code]
         with implied subprefix {s}
     define prefix "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
-    print prefix "s"
+    define prefix "code" [text]
+        with group paragraph
+        with parsing options [+ reset]
+    print prefix ""
+        block X: prefix "p" [TOP LEVEL]
+                 with parsing selectors [- TOP LEVEL, - code, + text]
+                 with group paragraph
+                 with implied subprefix {s||s}
+                 with parsing options [end at paragraph break, sticky]
         block X: prefix "s" [text]
                  with parsing selectors [- TOP LEVEL]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
+        block X: prefix "code" [text]
+                 with parsing selectors [- TOP LEVEL]
+                 with group paragraph
+                 with parsing options [+ reset]
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
        {s: .terminator = "."|an add-on|s}
        {s: .terminator = ";"|A phrase|s}
        {s: .terminator = "?"|and a question|s}|p}
+BRACKETED EXPRESSION:
+    And a line of code "."
 *PARSER*:
     end block X

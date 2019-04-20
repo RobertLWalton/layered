@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 18 05:12:34 EDT 2019
+// Date:	Sat Apr 20 13:21:00 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1724,12 +1724,6 @@ PREFIX_FOUND:
 	MIN_REQUIRE
 	    ( prefix_next != parser->first );
 
-	if ( ( prefix_group != PARLEX::paragraph
-	       &&
-	       prefix_group != PARLEX::line )
-	     ||
-		 prefix->previous->type
-	     == PAR::IMPLIED_HEADER )
 	for ( BRA::bracket_stack * p =
 		     bracket_stack_p;
 
@@ -1758,49 +1752,42 @@ PREFIX_FOUND:
 		    prefix = min::NULL_STUB;
 		    goto FINISH_PREFIX;
 		}
-		else if (    p->prefix->type
-		          == PAR::IMPLIED_HEADER
-		          &&
-			     prefix->previous->type
-			  != PAR::IMPLIED_HEADER )
+		if ( (    prefix_group
+		       == PARLEX::paragraph
+		       ||
+		          prefix_group
+		       == PARLEX::line )
+		     &&
+		        prefix->type
+		     != PAR::IMPLIED_HEADER )
 		{
-		    PAR::parse_error
-		      ( parser,
-			prefix->position,
-			"prefix separator"
-			" of type `",
-			min::pgen_never_quote
-			    ( prefix_type ),
-			"' has group of"
-			" previous implied header"
-			" but is not at beginning"
-			" of logical line; ignored"
-		      );
-		    prefix = min::NULL_STUB;
-		    goto FINISH_PREFIX;
-		}
-		else if ( (    p->prefix_group
-		            == PARLEX::paragraph
-		            ||
-			       p->prefix_group
-			    == PARLEX::line )
-		          &&
-			     prefix->previous->type
-			  != PAR::IMPLIED_HEADER )
-		{
-		    PAR::parse_error
-		      ( parser,
-			prefix->position,
-			"prefix separator"
-			" of type `",
-			min::pgen_never_quote
-			    ( prefix_type ),
-			"' has group of previous"
-			" line or paragraph header;"
-			" ignored"
-		      );
-		    prefix = min::NULL_STUB;
-		    goto FINISH_PREFIX;
+		    PAR::token t =
+		        line_variables->previous->next;
+		    while (    t->type
+		            == PAR::IMPLIED_HEADER
+			    ||
+			       t->type
+			    == PAR::IMPLIED_PREFIX )
+			t = t->next;
+		    if ( t != prefix )
+		    {
+			PAR::parse_error
+			  ( parser,
+			    prefix->position,
+			    "explicit prefix separator"
+			    " of type `",
+			    min::pgen_never_quote
+				( prefix_type ),
+			    "' has `",
+			    min::pgen_never_quote
+				( prefix_group ),
+			    "' group but is not at the"
+			    " beginning of a logical"
+			    " line; ignored"
+			  );
+			prefix = min::NULL_STUB;
+			goto FINISH_PREFIX;
+		    }
 		}
 		p->closing_first = prefix;
 		p->closing_next = prefix->next;
@@ -2214,7 +2201,6 @@ PARSE_PREFIX_N_LIST:
 		     &
 		     (   PAR::EAINDENT_OPT
 		       + PAR::EALEINDENT_OPT
-		       + PAR::EALTINDENT_OPT
 		       + PAR::EALSEP_OPT ) )
 		   != 0 )
 		 &&

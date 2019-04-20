@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  5 15:23:16 EDT 2019
+// Date:	Sat Apr 20 13:38:22 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -534,13 +534,11 @@
 //     prefix_group = prefix_entry->group or prefix_type
 //                    if prefix_entry is null or
 //                    prefix_entry->group is MISSING
-//     if prefix_group is not `line' or `paragraph',
-//             or token before prefix is IMPLIED_HEADER:
-//         search bracket stack for bracket stack entry
-//                p with p->prefix_group == prefix_group
-//            stop search at end of bracket stack or
-//                 just before first entry with null
-//                 prefix
+//     search bracket stack for bracket stack entry
+//            p with p->prefix_group == prefix_group
+//        stop search at end of bracket stack or
+//             just before first entry with null
+//             prefix
 //
 //     if bracket stack entry p found by search:
 //
@@ -550,21 +548,16 @@
 //                 same subexpression; ignored
 //             delete prefix token
 //             go to FINISH_PREFIX
-//         else if p->prefix token type is IMPLIED_
-//                 HEADER and token before prefix does
-//                 NOT have IMPLIED_HEADER type:
-//             announce error: implied prefix has same
-//                 group as previous implied header but
-//                 is not a the beginning of a logical
+//         else if prefix_group is `paragraph' or
+//                 `line' and prefix is not itself
+//                 an IMPLIED_HEADER and preceeding
+//                 tokens in the same logical line
+//                 are NOT all IMPLIED_HEADERs or
+//                 IMPLIED_PREFIXes:
+//             announce error: explicit prefix has
+//                 `paragraph' or `line' group and is
+//                 not at the beginning of the logical
 //                 line; ignored
-//             delete prefix token
-//             go to FINISH_PREFIX
-//         else if p->prefix_group is `paragraph' or
-//                 `line' and token before prefix does
-//                 NOT have IMPLIED_HEADER type:
-//             announce error: implied prefix has same
-//                 group as previous line or paragraph
-//                 header; ignored
 //             delete prefix token
 //             go to FINISH_PREFIX
 //
@@ -664,11 +657,11 @@
 //
 //     // Input variables (see above for definitions):
 //     //
-//     //	prefix
-//     //	prefix_type
-//     //	prefix_entry
-//     //	prefix_group
-//     // 	prefix_selectors
+//     //       prefix
+//     //       prefix_type
+//     //       prefix_entry
+//     //       prefix_group
+//     //       prefix_selectors
 //     //
 //     // current == prefix->next at this point
 //
@@ -679,17 +672,17 @@
 //          to create new bracket stack
 //
 //     loop to find prefix-n-list subexpression
-//	       headed by prefix:
+//             headed by prefix:
 //
-//	   if prefix_group == `paragraph'
-//	           and prefix->type != IMPLIED_HEADER:
+//         if prefix_group == `paragraph'
+//                 and prefix->type != IMPLIED_HEADER:
 //
-//	       // Implied line header may have been
-//	       // inserted and deleted before this
-//	       // explicit paragraph header.  Selectors
-//	       // may be incorrect because of CONTINUING
-//	       // flag.
-//	       //
+//             // Implied line header may have been
+//             // inserted and deleted before this
+//             // explicit paragraph header.  Selectors
+//             // may be incorrect because of CONTINUING
+//             // flag.
+//             //
 //	       // At this point we are parsing logical
 //	       // line and prefix is explicit.
 //	       //
@@ -782,12 +775,13 @@
 //
 //         if prefix_group == `paragraph' and one of
 //                  options EAINDENT, EALEINDENT,
-//                  EALTINDENT, or EALSEP is on in
-//                  prefix_selectors and it is NOT
-//                  true that the prefix-n-list consists
-//                  of a single element made from a
-//                  headed line (i.e., a single element
-//                  with value_type == `line' ):
+//                  or EALSEP is on in prefix_selectors,
+//                  and the prefix-n-list is not empty,
+//                  and it is NOT true that the prefix-
+//                  n-list consists of a single element
+//                  made from a headed line (i.e., a
+//                  single element with value_type ==
+//                  `line' ):
 //             compact_logical_line
 //               starting at token after prefix and
 //                        ending just before `next',

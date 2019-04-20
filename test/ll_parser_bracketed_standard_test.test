@@ -6394,44 +6394,45 @@ BRACKETED EXPRESSION:
 -5 is a negative number
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {section|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                  This is a section "."|}|section}
+    {section|{s: .terminator = "."|This is a section|s}|section}
 @@@@ = @@@@:
            .type = "section"
            .position[H] = PACKED_VEC
-@@@@ = This is a section ".":
-           .terminator = "<LF>"
+@@@@ = This is a section:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
     line ###:
 {section} This is a section.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the first paragraph "."|}|p}
+    {p|{s: .terminator = "."|This is the first paragraph|s}|p}
 @@@@ = @@@@:
            .type = "p"
            .position[H] = PACKED_VEC
-@@@@ = This is the first paragraph ".":
-           .terminator = "<LF>"
+@@@@ = This is the first paragraph:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
     lines ###-###:
 {p}
 ^^^
 This is the first paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the second paragraph "." Which has several sentences
-            "."|}|p}
-@@@@ = @@@@:
+    {p|{s: .terminator = "."|This is the second paragraph|s}
+       {s: .terminator = "."|Which has several sentences|s}|p}
+@@@@ = @@@@ @@@@:
            .type = "p"
            .position[H] = PACKED_VEC
-@@@@ = This is the second paragraph "." Which has several sentences ".":
-           .terminator = "<LF>"
+@@@@ = This is the second paragraph:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
+@@@@ = Which has several sentences:
+           .terminator = "."
+           .position[H] = PACKED_VEC
+           .type = "s"
     lines ###-###:
 This is the second
 ^^^^^^^^^^^^^^^^^^
@@ -6449,30 +6450,28 @@ BRACKETED EXPRESSION:
 This is a code line.
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the third paragraph "."|}|p}
+    {p|{s: .terminator = "."|This is the third paragraph|s}|p}
 @@@@ = @@@@:
            .type = "p"
            .position[H] = PACKED_VEC
-@@@@ = This is the third paragraph ".":
-           .terminator = "<LF>"
+@@@@ = This is the third paragraph:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
     lines ###-###:
 {p}This is the
 ^^^^^^^^^^^^^^
 third paragraph.
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {quote|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                This is a fouth paragraph "."|}|quote}
+    {quote|{s: .terminator = "."|This is a fouth paragraph|s}|quote}
 @@@@ = @@@@:
            .type = "quote"
            .position[H] = PACKED_VEC
-@@@@ = This is a fouth paragraph ".":
-           .terminator = "<LF>"
+@@@@ = This is a fouth paragraph:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
     lines ###-###:
     {quote}
     ^^^^^^^
@@ -6490,35 +6489,32 @@ BRACKETED EXPRESSION:
        And another code line.
        ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is a paragraph with a subparagraph
-            {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-                 ":"|
-                 {p|{"": .terminator = "<LF>", .initiator =
-                         [$ LOGICAL_LINE $]|This is subparagraph 1 "."|}|p}
-                 {p|{"": .terminator = "<LF>", .initiator =
-                         [$ LOGICAL_LINE $]|This is subparagraph 2 "."|}|p}|}
-            and a continuation of the outer paragraph "."|}|p}
+    {p|{s: .terminator = "."|This is a paragraph with a subparagraph
+           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                ":"|
+                {p|{s: .terminator = "."|This is subparagraph 1|s}|p}
+                {p|{s: .terminator = "."|This is subparagraph 2|s}|p}|}
+           and a continuation of the outer paragraph|s}|p}
 @@@@ = @@@@:
            .type = "p"
            .position[H] = PACKED_VEC
 @@@@ = This is a paragraph with a subparagraph @@@@ and a continuation
-               of the outer paragraph ".":
-           .terminator = "<LF>"
+               of the outer paragraph:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
 @@@@ = {p|@@@@|p} {p|@@@@|p}:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = ":"
-@@@@ = This is subparagraph 1 ".":
-           .terminator = "<LF>"
+@@@@ = This is subparagraph 1:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-@@@@ = This is subparagraph 2 ".":
-           .terminator = "<LF>"
+           .type = "s"
+@@@@ = This is subparagraph 2:
+           .terminator = "."
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = "s"
     lines ###-###:
 {p}This is a paragraph with a subparagraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

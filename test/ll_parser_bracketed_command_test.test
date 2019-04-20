@@ -1902,8 +1902,7 @@ BRACKETED EXPRESSION:
 with one extra line.
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'
-       group but is not at beginning of logical line or immediately
-       after a prefix separator of `paragraph' group; ignored:
+       group but is not at the beginning of a logical line; ignored:
 {l1} This is a line {l2} and continuation.
                     ^^^^
 BRACKETED EXPRESSION:
@@ -1932,8 +1931,8 @@ BRACKETED EXPRESSION:
 And a last line.
 ^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
-       `paragraph' group but is not at beginning of a logical line that
-       is in paragraph beginning position; ignored:
+       `paragraph' group but is not at the beginning of a logical line;
+       ignored:
 {p} This is a paragraph {p} and continuation.
                         ^^^
 BRACKETED EXPRESSION:
@@ -1952,8 +1951,7 @@ BRACKETED EXPRESSION:
 {x} implied `l1' prefix in error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'
-       group but is not at beginning of logical line or immediately
-       after a prefix separator of `paragraph' group; ignored:
+       group but is not at the beginning of a logical line; ignored:
 {l1}{l2} a stray line
     ^^^^
 BRACKETED EXPRESSION:

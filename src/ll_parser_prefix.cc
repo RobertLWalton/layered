@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 21:37:36 EDT 2019
+// Date:	Sat Apr 20 13:37:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -470,7 +470,7 @@ static bool sentence_reformatter_function
 	PRE::compact_prefix_list
 	    ( parser, pass, selectors, first, next,
 	      min::MISSING_POSITION, min::MISSING(),
-	      trace_flags, true );
+	      trace_flags );
     }
     return false;
 }

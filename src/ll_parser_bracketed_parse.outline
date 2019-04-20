@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 20 13:38:22 EDT 2019
+// Date:	Sat Apr 20 15:14:51 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -102,6 +102,28 @@
 //	   separator_found =
 //	       parse_bracketed_subexpression with
 //	           selectors and line_variables
+//
+//	   if RESET option is on in line_variables->
+//	            current.selectors:
+//	        // Header token with + reset flag has
+//	        // been deleted; current is next token.
+//	        line_variables->paragraph =
+//	            line_variables->
+//	                indentation_paragraph
+//	        line_variables->implied_paragraph =
+//	            line_variables->
+//	                indentation_implied_paragraph
+//	        line_variables->current =
+//	            line_variables->paragraph
+//	        if line_variables->last_paragraph null:
+//	            iterate loop to get next line
+//	        else:
+//	            compact_paragraph from
+//	                line_variables.last_paragraph to
+//	                    current
+//	            line_variables->last_paragraph =
+//	                null
+//	            return false
 //
 //	   line_variables->at_paragraph_end =
 //	       current is end of file token, or
@@ -703,6 +725,11 @@
 //	          MISSING
 //	       line_variables->current.header_entry =
 //	          null
+//
+//	       if RESET option on in prefix_selectors:
+//	           require prefix->next == current
+//	           free prefix
+//	           return MISSING_POSITION
 //
 //	       implied_header =
 //	           prefix_entry->implied_subprefix

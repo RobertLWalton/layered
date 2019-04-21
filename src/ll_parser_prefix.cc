@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 20 13:37:52 EDT 2019
+// Date:	Sun Apr 21 03:23:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,7 +168,7 @@ static bool data_reformatter_function
     PRE::compact_prefix_list
         ( parser, pass, selectors, first, next,
 	  min::MISSING_POSITION, min::MISSING(),
-	  trace_flags, true );
+	  trace_flags );
 
     min::obj_vec_insptr fvp ( first->value );
     min::attr_insptr fap ( fvp );
@@ -457,7 +457,7 @@ static bool sentence_reformatter_function
 	PRE::compact_prefix_list
 	    ( parser, pass, selectors, first, t,
 	      separator_found, args[i],
-	      trace_flags, true );
+	      trace_flags );
 
 	first = next_first;
     }
@@ -500,7 +500,7 @@ static min::initializer prefix_reformatter_initializer
 // Prefix Compact Function
 // ------ ------- --------
 
-bool PRE::compact_prefix_list
+void PRE::compact_prefix_list
 	( PAR::parser parser,
 	  PAR::pass pass,
 	  PAR::table::flags selectors,
@@ -508,113 +508,97 @@ bool PRE::compact_prefix_list
 	  PAR::token next,
           const min::position & separator_found,
 	  min::gen separator,
-	  TAB::flags trace_flags,
-	  bool dont_delete )
+	  TAB::flags trace_flags )
 {
-    if (    first->next == next
-         && ! separator_found
-	 && ! dont_delete
-	 && ( first->type == PAR::IMPLIED_PREFIX
-	      ||
-	      first->type == PAR::IMPLIED_HEADER ) )
+    first->position.end =
+	next->previous->position.end;
+    PAR::token current = first->next;
+
+    PAR::execute_pass_parse
+	 ( parser, pass, selectors,
+	   current, next );
+
+
+    min::obj_vec_insptr vp
+	( first->value );
+    min::locatable_var
+	    <min::phrase_position_vec_insptr>
+	pos;
+
+    if ( first->type == PAR::IMPLIED_PREFIX
+	 ||
+	 first->type == PAR::IMPLIED_HEADER )
     {
-	PAR::free
-	    ( PAR::remove ( first_ref(parser),
-			    first ) );
-	return false;
+	min::uns32 unused_size = 0;
+	for ( PAR::token t = first->next;
+	      t != next; t = t->next )
+	    ++ unused_size;
+	if ( separator_found )
+	    unused_size += 5;
+	PAR::value_ref(first) =
+	    min::copy ( vp, unused_size );
+	vp = first->value;
+
+	min::init ( pos, parser->input_file,
+		    first->position, 0 );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
+	if ( separator_found )
+	{
+	    min::locate ( ap, min::dot_terminator );
+	    min::set ( ap, separator );
+	    first->position.end = separator_found;
+	}
     }
     else
     {
-	first->position.end =
-	    next->previous->position.end;
-	PAR::token current = first->next;
-
-	PAR::execute_pass_parse
-	     ( parser, pass, selectors,
-	       current, next );
-
-
-	min::obj_vec_insptr vp
-	    ( first->value );
-	min::locatable_var
-		<min::phrase_position_vec_insptr>
-	    pos;
-
-	if ( first->type == PAR::IMPLIED_PREFIX
-	     ||
-	     first->type == PAR::IMPLIED_HEADER )
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_position );
+	pos = min::get ( ap );
+	if ( separator_found )
 	{
-	    min::uns32 unused_size = 0;
-	    for ( PAR::token t = first->next;
-	          t != next; t = t->next )
-	        ++ unused_size;
-	    if ( separator_found )
-	        unused_size += 5;
-	    PAR::value_ref(first) =
-	        min::copy ( vp, unused_size );
-	    vp = first->value;
+	    min::locate ( ap, min::dot_terminator );
+	    min::set ( ap, separator );
+	    first->position.end = separator_found;
+	}
+    }
+    pos->position = first->position;
 
-	    min::init ( pos, parser->input_file,
-	                first->position, 0 );
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    min::set ( ap, min::new_stub_gen ( pos ) );
-	    min::set_flag
-	        ( ap, min::standard_attr_hide_flag );
-	    if ( separator_found )
-	    {
-		min::locate ( ap, min::dot_terminator );
-		min::set ( ap, separator );
-		first->position.end = separator_found;
-	    }
+    while ( current != next )
+    {
+	if (   ( 1 << current->type )
+	     & LEXSTD::convert_mask )
+	    PAR::convert_token ( current );
+
+	if ( min::is_attr_legal ( current->value ) )
+	{
+	    min::attr_push(vp) = current->value;
+	    min::push ( pos ) = current->position;
 	}
 	else
-	{
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    pos = min::get ( ap );
-	    if ( separator_found )
-	    {
-		min::locate ( ap, min::dot_terminator );
-		min::set ( ap, separator );
-		first->position.end = separator_found;
-	    }
-	}
-	pos->position = first->position;
+	    PAR::parse_error
+		( parser, current->position,
+		  "not a legal object element"
+		  " value; `",
+		  min::pgen_never_quote
+		      ( current->value ),
+		  "'; ignored" );
 
-	while ( current != next )
-	{
-	    if (   ( 1 << current->type )
-	         & LEXSTD::convert_mask )
-		PAR::convert_token ( current );
-
-	    if ( min::is_attr_legal ( current->value ) )
-	    {
-		min::attr_push(vp) = current->value;
-		min::push ( pos ) = current->position;
-	    }
-	    else
-	        PAR::parse_error
-		    ( parser, current->position,
-		      "not a legal object element"
-		      " value; `",
-		      min::pgen_never_quote
-		          ( current->value ),
-		      "'; ignored" );
-
-	    current = current->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref
-			    (parser),
-			current->previous ) );
-	}
+	current = current->next;
+	PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref
+			(parser),
+		    current->previous ) );
     }
 
     first->type = PAR::BRACKETED;
 
+    vp = min::NULL_STUB;
+        // To allow trace to print object.
     PAR::trace_subexpression
         ( parser, first, trace_flags );
-
-    return true;
 }

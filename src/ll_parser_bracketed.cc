@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 20 13:21:00 EDT 2019
+// Date:	Sun Apr 21 03:23:26 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2194,6 +2194,25 @@ PARSE_PREFIX_N_LIST:
 	    if ( next == min::NULL_STUB )
 		next = current;
 
+	    min::gen old_prefix_value_type =
+	        prefix->value_type;
+
+	    if (    prefix->next == next
+		 && (    prefix->type
+		      == PAR::IMPLIED_PREFIX
+		      ||
+		         prefix->type
+		      == PAR::IMPLIED_HEADER )
+		 && ( prefix_group != PARLEX::line
+		      ||
+		      ! separator_found ) )
+	    {
+		PAR::free
+		    ( PAR::remove ( first_ref(parser),
+				    prefix ) );
+		goto CONTINUE_PREFIX_N_LIST;
+	    }
+
 	    if (    prefix_group
 		 == PARLEX::paragraph
 		 &&
@@ -2222,55 +2241,54 @@ PARSE_PREFIX_N_LIST:
 		      trace_flags );
 	    }
 
-	    min::phrase_position position =
-	        { prefix->position.begin,
-	          next->previous->position.end };
-	    if ( separator_found )
-	        position.end = separator_found;
+	    if ( prefix_group == PARLEX::line
+		 ||
+		 prefix_group == PARLEX::paragraph )
+		PAR::value_type_ref ( prefix ) =
+		    prefix_group;
+	    else
+		PAR::value_type_ref ( prefix ) =
+		    min::MISSING();
 
-	    min::gen old_prefix_value_type =
-	        prefix->value_type;
-	    if ( ( prefix_entry == min::NULL_STUB
-	           ||
-		      prefix_entry->reformatter
-		   == min::NULL_STUB
-		   ||
-		   ( * prefix_entry->reformatter->
-		       reformatter_function )
-		     ( parser,
-		       (PAR::pass) bracketed_pass,
-		       prefix_selectors,
-		       prefix, next, position,
-		       trace_flags,
-		       (TAB::root) prefix_entry )
-	         )
-		 &&
-		 PRE::compact_prefix_list
-		     ( parser, bracketed_pass->next,
-		       prefix_selectors,
-		       prefix, next,
-			  prefix_group
-		       == PARLEX::line ?
-			   separator_found :
-			   min::MISSING_POSITION,
-		          line_variables->line_sep
-		       != min::NULL_STUB ?
-		          line_variables->line_sep
-			                ->label :
-			  min::MISSING(),
-		       trace_flags ) )
+	    if ( prefix_entry != min::NULL_STUB
+	         &&
+		    prefix_entry->reformatter
+		 != min::NULL_STUB )
 	    {
-		if (    prefix_group
-		     == PARLEX::line
-		     ||
-			prefix_group
-		     == PARLEX::paragraph )
-		    PAR::value_type_ref ( prefix ) =
-			prefix_group;
-		else
-		    PAR::value_type_ref ( prefix ) =
-			min::MISSING();
-	    }
+		min::phrase_position position =
+		    { prefix->position.begin,
+		      next->previous->position.end };
+		if ( separator_found )
+		    position.end = separator_found;
+
+		if ( ! ( * prefix_entry->reformatter->
+		             reformatter_function )
+			   ( parser,
+			     (PAR::pass) bracketed_pass,
+			     prefix_selectors,
+			     prefix, next, position,
+			     trace_flags,
+			     (TAB::root) prefix_entry )
+		   )
+
+		    goto CONTINUE_PREFIX_N_LIST;
+	     }
+
+	     PRE::compact_prefix_list
+		 ( parser, bracketed_pass->next,
+		   prefix_selectors,
+		   prefix, next,
+		   prefix_group == PARLEX::line ?
+		       separator_found :
+		       min::MISSING_POSITION,
+		      line_variables->line_sep
+		   != min::NULL_STUB ?
+		      line_variables->line_sep
+				    ->label :
+		      min::MISSING(),
+		   trace_flags );
+
+	CONTINUE_PREFIX_N_LIST:
 
 	    if (    cstack.closing_first
 		 == cstack.closing_next )

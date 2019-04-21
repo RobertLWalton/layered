@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 01:16:22 EDT 2017
+// Date:	Sun Apr 21 03:21:58 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -111,23 +111,16 @@ extern min::locatable_var<ll::parser::reformatter>
 // removed, but both the first and the next tokens are
 // not.
 //
-// If on the other hand the first token is an IMPLIED_
-// PREFIX token, then if there are some elements, or
-// separator_found is true, or dont_delete is true, the
-// value of this token is replaced by a copy before it
-// is used, but if there are no elements, separator_
-// found is false, and dont_delete is false, the first
-// token is deleted and nothing else is done.
-//
 // If separator_found is true, set the .terminator
 // attribute of the expanded PREFIX to separator
 // and update the end position of the expanded PREFIX
 // token to separator_found.
 //
-// Returns false if first token was deleted and true if
-// first token was remade into a BRACKETED token.
+// If the first token is an IMPLIED_HEADER or IMPLIED_
+// PREFIX token, the value of this token is replaced by
+// a copy and then treated as if it were a PREFIX token.
 //
-bool compact_prefix_list
+void compact_prefix_list
 	( ll::parser::parser parser,
 	  ll::parser::pass pass,
 	  ll::parser::table::flags selectors,
@@ -135,8 +128,7 @@ bool compact_prefix_list
 	  ll::parser::token next,
 	  const min::position & separator_found,
 	  min::gen separator,
-	  ll::parser::table::flags trace_flags,
-	  bool dont_delete = false );
+	  ll::parser::table::flags trace_flags );
 
 } } }
 

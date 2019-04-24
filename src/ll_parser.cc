@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 13 04:26:12 EDT 2019
+// Date:	Wed Apr 24 04:49:25 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1281,18 +1281,6 @@ void PAR::parse ( PAR::parser parser )
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
 				current->previous ) );
-    }
-
-    if (    current->type == LEXSTD::indent_t
-         && current->indent != 0 )
-    {
-	min::phrase_position position =
-	    current->position;
-	position.begin = position.end;
-	PAR::parse_error
-	    ( parser, position,
-	      "first non-comment lexeme"
-	      " is indented" );
     }
 
     TAB::flags trace_flags =

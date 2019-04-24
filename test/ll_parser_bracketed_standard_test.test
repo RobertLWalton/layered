@@ -408,8 +408,8 @@ Ditto with separator:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    Seventh line.
 ^^^^^^^^^^^^^^^^
-WARNING: in lines ##-##: comments at beginning of non-comment logical
-         line:
+WARNING: in lines ##-##: comment after indent that begins non-comment
+         logical line:
 // These are illegal comments at the beginning of
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // a logical line
@@ -425,7 +425,8 @@ BRACKETED EXPRESSION:
    ^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
-WARNING: in line ##: comments at beginning of non-comment logical line:
+WARNING: in line ##: comment after indent that begins non-comment
+         logical line:
    // Illegal comment in paragraph
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -448,10 +449,32 @@ BRACKETED EXPRESSION:
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with some extra stuff  // Another legal comment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [code] SELECTED KEY ";"
+     OF SUBTYPE ll::parser::table::line_sep_type
+BRACKETED EXPRESSION:
+    the first line of a pair;
+@@@ = the first line of a pair:
+          .terminator = ";"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
+    line ##:
+   the first line of a pair;  // A legal comment
+   ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and the second line of the pair
+@@@ = and the second line of the pair:
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
+    lines ##-##:
+       and the second line of // that begins logical
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the pair               // line after a ';'
+^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@
-         @@@|}
-@@@ = @@@ @@@:
+         @@@ @@@ @@@|}
+@@@ = @@@ @@@ @@@ @@@:
           .terminator = [$ INDENTED_PARAGRAPH $]
           .position[H] = PACKED_VEC
           .initiator = ":"
@@ -467,11 +490,20 @@ Ditto:
    another line // Another legal comment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with some extra stuff  // Another legal comment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       // Another legal comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   the first line of a pair;  // A legal comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       and the second line of // that begins logical
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the pair               // line after a ';'
+^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Ditto:
         the line
         another line with some extra stuff
+        the first line of a pair; and the second line of the pair
 @@@ = Ditto @@@:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
@@ -488,7 +520,15 @@ Ditto:
    another line // Another legal comment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with some extra stuff  // Another legal comment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       // Another legal comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   the first line of a pair;  // A legal comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       and the second line of // that begins logical
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       the pair               // line after a ';'
+^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "+>"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "+>"
@@ -1465,10 +1505,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {T: x = "A", y = "B", z = "C"|1 2 3 4|T}
-@@@ = @@@:
-          .terminator = "<LF>"
-          .position[H] = PACKED_VEC
-          .initiator = [$ LOGICAL_LINE $]
+@@@@ = @@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
     line ##:
 {T: x = A|1 2|y = B|3 4|z = C: S}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1492,17 +1532,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {S: y = "B", z = "C"|1 2 3 4|S}
-@@@ = 1 2 3 4:
-          .type = "S"
-          y = "B"
-          z = "C"
-          .position[H] = PACKED_VEC
+@@@@ = 1 2 3 4:
+           .type = "S"
+           y = "B"
+           z = "C"
+           .position[H] = PACKED_VEC
     line ##:
 {|1 2|y = B|3 4|z = C: S}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {S: y = "B", z = "C"|1 2 3 4|S}
-@@@@ = @@@:
+@@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -2027,7 +2067,7 @@ BRACKETED EXPRESSION:
            .terminator = ")"
            .initiator = "("
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
            ^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
@@ -2052,7 +2092,7 @@ BRACKETED EXPRESSION:
            .terminator = "]"
            .initiator = "["
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
                              ^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
@@ -2062,7 +2102,7 @@ BRACKETABLE EXPRESSION:
 @@@@ = (A B) [< foo bar >] [C D]:
            .separator = ","
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2072,7 +2112,7 @@ BRACKETED EXPRESSION:
            .initiator = [< "{" "*" >]
            .separator = ","
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
@@ -2087,7 +2127,7 @@ BRACKETED EXPRESSION:
            x = (A B), [< "foo" "bar" >], [C D]
            .type = "T"
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2096,7 +2136,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ##:
+    line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
@@ -2123,7 +2163,7 @@ BRACKETABLE EXPRESSION:
 @@@@ =:
            .separator = ","
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* ,,, *}|1 2 3|}
         ^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2133,7 +2173,7 @@ BRACKETED EXPRESSION:
            .initiator = [< "{" "*" >]
            .separator = ","
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* ,,, *}|1 2 3|}
         ^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
@@ -2147,7 +2187,7 @@ BRACKETED EXPRESSION:
 @@@@ = 1 2 3:
            .type = "T"
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: x = {* ,,, *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2156,7 +2196,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ##:
+    line ###:
 {T: x = {* ,,, *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
@@ -2180,7 +2220,7 @@ BRACKETED EXPRESSION:
            m = "1"
            n = "2"
            .position[H] = PACKED_VEC
-    line ##:
+    line ###:
 {T: m = 1| |n = 2}
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2189,7 +2229,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ##:
+    line ###:
 {T: m = 1| |n = 2}
 ^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
@@ -6463,6 +6503,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^
 third paragraph.
 ^^^^^^^^^^^^^^^^
+WARNING: in line ###: logical line begins at an indent that is greater
+         than the current paragraph indent:
+    {quote}
+    ^
 BRACKETED EXPRESSION:
     {quote|{s: .terminator = "."|This is a fouth paragraph|s}|quote}
 @@@@ = @@@@:

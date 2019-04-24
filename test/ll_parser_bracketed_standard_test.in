@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 16 03:59:49 EDT 2019
+// Date:	Wed Apr 24 04:04:26 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,10 @@ Ditto:
    // Legal comment
    another line // Another legal comment
        with some extra stuff  // Another legal comment
-       // A final legal comment
+       // Another legal comment
+   the first line of a pair;  // A legal comment
+       and the second line of // that begins logical
+       the pair               // line after a ';'
 
 // The following are encoded in
 //     ll_parser_bracketed_standard_test.cc

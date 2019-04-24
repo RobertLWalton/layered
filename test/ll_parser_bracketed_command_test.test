@@ -2021,6 +2021,10 @@ BRACKETED EXPRESSION:
     line ###:
 This is a logical line.
 ^^^^^^^^^^^^^^^^^^^^^^^
+WARNING: in line ###: logical line begins at an indent that is greater
+         than the current paragraph indent:
+    And a second logical line.
+    ^
 BRACKETED EXPRESSION:
     And a second logical line "."
 @@ = And a second logical line ".":
@@ -2037,17 +2041,8 @@ BRACKETED EXPRESSION:
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     line ###:
-   And a third logical line.
-   ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    And a fourth logical line "."
-@@ = And a fourth logical line ".":
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
-    line ###:
-And a fourth logical line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+And a third logical line.
+^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
@@ -2137,10 +2132,10 @@ this-is-a-#
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     this-is-a-~ ~continued-~ ~lexme
-@@@ = this-is-a-~ ~continued-~ ~lexme:
-          .terminator = "<LF>"
-          .position[H] = PACKED_VEC
-          .initiator = [$ LOGICAL_LINE $]
+@@ = this-is-a-~ ~continued-~ ~lexme:
+         .terminator = "<LF>"
+         .position[H] = PACKED_VEC
+         .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^

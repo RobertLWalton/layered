@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 21 03:23:26 EDT 2019
+// Date:	Wed Apr 24 03:52:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -801,6 +801,7 @@ bool BRA::parse_paragraph_element
 	    line_variables->current =
 	        line_variables->paragraph;
 
+	line_variables->at_paragraph_indent = false;
 	if ( current->type == LEXSTD::indent_t )
 	{
 	    MIN_REQUIRE
@@ -816,17 +817,33 @@ bool BRA::parse_paragraph_element
 		PAR::set_lexical_master
 		    ( lexical_master, parser );
 
-	    line_variables->at_paragraph_indent =
-		(    current->indent
-		  == line_variables->paragraph_indent );
-
+	    // This ensure_name MUST be after the
+	    // lexical masters are reset.
+	    //
 	    PAR::ensure_next ( parser, current );
+	    if (    current->indent
+		 == line_variables->paragraph_indent )
+		line_variables->at_paragraph_indent =
+		    true;
+	    else
+	    if (   current->indent
+		 > line_variables->paragraph_indent )
+	    {
+		min::phrase_position pos =
+		    { current->next->position.begin,
+		      current->next->position.begin };
+		PAR::parse_warn
+		    ( parser, pos,
+		      "logical line begins at an indent"
+		      " that is greater than the"
+		      " current paragraph indent" );
+	    }
+
 	    current = current->next;
 	    PAR::free
 		( PAR::remove ( first_ref(parser),
 				current->previous ) );
-	} else
-	    line_variables->at_paragraph_indent = false;
+	}
 
 	// Get subexpression.  First is the first token
 	// of the subexpression.
@@ -2774,7 +2791,7 @@ NEXT_TOKEN:
     {
 	PAR::parse_warn
 	    ( parser, bad_comment_position,
-	      "comments at beginning of"
+	      "comment after indent that begins"
 	      " non-comment logical line" );
 	bad_comment_position.begin =
 	    min::MISSING_POSITION;

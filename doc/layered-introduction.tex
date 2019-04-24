@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 16, 2019
+April 24, 2019
  
 \end{center}
 
@@ -2301,12 +2301,13 @@ only this ending token, and do not have an indent token.
 The \mkey{indent}{of physical line} of a non-blank physical line is the
 indent of its indent token.
 
-The first logical line in a file begins just after the first
-indent token in the file, which must have indent 0 else it is in error.
 A logical line can end with an indent token (see below for specific
 requirements), a line separator token outside parentheses
 (most commonly `\TT{;}'), or an end-of-file token.
-Logical lines other than the first begin with the first token after the
+The first logical line begins with the first
+token of the file.  For logical lines at top level, or for all the
+logical lines in the same indented paragraph (see \itemref{PARAGRAPHS}),
+a logical line other than the first begins with the first token after the
 previous logical line.
 
 Logical lines consisting of nothing but comment lexeme tokens and not
@@ -2451,11 +2452,21 @@ level this is just \TT{0}.  An indented paragraph changes the current
 indent to the indent of the first indent token within the indented
 paragraph.  See \itemref{PARAGRAPHS} for more detail.
 
+A logical line that begins after an indent (i.e., does not begin
+after a line separator) must begin at the current indent,
+else a warning message is produced.
+Since outside indented paragraphs the current indent is \TT{0},
+logical lines outside indented paragraphs must begin at indent \TT{0},
+unless they begin after a line separator.  In particular, the first
+logical line of a file must begin at indent \TT{0}.
+
 Note that in applying the above comments are \underline{not} ignored
-and the indent before a comment may end a logical line.  However
-a comment following an indent is considered to be in error unless
-it is part of a comment line (logical line containing only comments
-and not ended by a line separator).
+and the indent before a comment may end a logical line.  However,
+if a comment following an indent begins a non-comment logical line,
+the comment is in error and a warning message is produced.
+The effect is that comments in a logical line must be at least as
+indented as the logical line, unless the logical line begins
+after a line separator (e.g., `\TT{;}).
 
 Prefix separators, brackets, and indentation marks, all of which
 can be used to change syntax, can change the options that control
@@ -2541,7 +2552,8 @@ of some headed paragraphs, of a single logical line.
 An \key{indented paragraph} begins with an indentation mark at the
 end of a physical line, and is most frequently the last thing in the
 logical line to which this physical line belongs.  The indentation
-mark resets the \key{current indent} for the duration of the indented
+mark resets the \key{current indent}\label{CURRENT-INDENT}
+for the duration of the indented
 paragraph to the indent of the next indent token (the indent of
 the next non-blank, non-comment line), if this indent
 is greater than the current indent at the time the indentation mark
@@ -2550,7 +2562,9 @@ end of file before any indent token, the indented paragraph is
 empty and contains no logical lines.
 
 The current indent during the duration of an indented paragraph is
-also referred to as the \key{paragraph indent} of that indented paragraph.
+also referred to as the
+\key{paragraph indent}\label{PARAGRAPH-INDENT}
+of that indented paragraph.
 The paragraph ends with the first indent token that has a smaller
 indent (first non-blank, non-comment line with smaller indent),
 or with an end of file.
@@ -2558,9 +2572,11 @@ or with an end of file.
 Top level parsing behaves as if input were in an indented paragraph
 with \TT{0} paragraph indent and a fictious indentation mark named
 `\TT{TOP LEVEL}'.
-An error is announced if the first non-comment,
-non-line-break, non-end-of-file
-lexeme in the file has non-zero indent.
+
+A logical line that begins after an indent (i.e., does not begin
+after a line separator) must begin at the paragraph indent,
+else a warning message is produced.  In particular, the first
+logical line of a file must begin at indent \TT{0}.
 
 Details on indented paragraphs are given
 in \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS}.

@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 24, 2019
+April 26, 2019
  
 \end{center}
 
@@ -2460,13 +2460,14 @@ logical lines outside indented paragraphs must begin at indent \TT{0},
 unless they begin after a line separator.  In particular, the first
 logical line of a file must begin at indent \TT{0}.
 
-Note that in applying the above comments are \underline{not} ignored
-and the indent before a comment may end a logical line.  However,
-if a comment following an indent begins a non-comment logical line,
-the comment is in error and a warning message is produced.
-The effect is that comments in a logical line must be at least as
-indented as the logical line, unless the logical line begins
-after a line separator (e.g., `\TT{;}).
+Note that in applying the above comment lexeme indentation
+is \underline{not} ignored
+and the indent before a comment may end a logical line (or set the
+current indent of an indented paragraph, or end an indented paragraph:
+see \itemref{PARAGRAPHS}).
+However a warning message is issued if a comment lexeme that is not
+inside a comment line (and therefore is in a non-comment logical line)
+is not indented \underline{more} than the current indent.
 
 Prefix separators, brackets, and indentation marks, all of which
 can be used to change syntax, can change the options that control

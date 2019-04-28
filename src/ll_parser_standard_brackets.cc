@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 28 02:55:12 EDT 2019
+// Date:	Sun Apr 28 05:44:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -344,14 +344,19 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( data, PAR::ALL_SELECTORS ^ data, 0 ),
+	      ( data + data_paragraph,
+	        PAR::ALL_SELECTORS ^ data
+		                   ^ data_paragraph,
+	        0 ),
 	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
-	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  PAR::find_reformatter
+	      ( data_name,
+	        PRE::prefix_reformatter_stack ),
+	  data_arguments,
 	  bracketed_pass->prefix_table );
 
     min::locatable_gen table

@@ -177,7 +177,9 @@
                                               - end at outer closing]
         block standard: prefix [< "raw" "data" >]
                         [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [data]
+                        with parsing selectors [data, data paragraph]
+                        with data reformatter ( "=", "no", "[",
+                        [< "{" "*" >] )
         block standard: prefix "table"
                         [TOP LEVEL, data, code, math, text]
                         with parsing selectors [- TOP LEVEL]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 17 21:51:17 EDT 2019
+// Date:	Sun Apr 28 02:55:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,6 +52,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( "data" ) );
     min::locatable_gen atom_name
         ( min::new_str_gen ( "atom" ) );
+    min::locatable_gen data_paragraph_name
+        ( min::new_lab_gen ( "data", "paragraph" ) );
     min::locatable_gen label_name
         ( min::new_str_gen ( "label" ) );
     min::locatable_gen special_name
@@ -72,6 +74,10 @@ void PARSTD::init_brackets ( PAR::parser parser )
     TAB::flags atom =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, atom_name );
+    TAB::flags data_paragraph =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table,
+	      data_paragraph_name );
 
     min::locatable_gen opening_double_brace
         ( min::new_lab_gen ( "{", "{" ) );
@@ -193,7 +199,6 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  bracketed_pass->bracket_table );
 
-
     min::locatable_gen p
         ( min::new_str_gen ( "p" ) );
     min::locatable_gen implied_p_header
@@ -219,6 +224,23 @@ void PARSTD::init_brackets ( PAR::parser parser )
 			   - PAR::DEFAULT_EA_OPT,
 			   0 ),
 	  implied_p_header,
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  bracketed_pass->bracket_table );
+
+    // This must be the LAST indentation mark pushed.
+    //
+    BRA::push_indentation_mark
+        ( PARLEX::colon, min::MISSING(),
+	  data_paragraph,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( PAR::DEFAULT_EA_OPT + data,
+	                     PAR::ALL_EA_OPT
+			   - PAR::DEFAULT_EA_OPT
+			   + COMMAND_SELECTORS
+			   - data,
+			   0 ),
+	  min::MISSING(),
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  bracketed_pass->bracket_table );
@@ -257,6 +279,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
         ( min::new_str_gen ( "text" ) );
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
+    min::locatable_gen data_paragraph_name
+        ( min::new_lab_gen ( "data", "paragraph" ) );
 
     TAB::flags code =
         1ull << TAB::find_name
@@ -270,6 +294,10 @@ void PARSTD::init_prefix ( PAR::parser parser )
     TAB::flags data =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, data_name );
+    TAB::flags data_paragraph =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table,
+	      data_paragraph_name );
 
     min::uns32 block_level =
         PAR::block_level ( parser );
@@ -298,7 +326,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::new_flags ( data_paragraph, 0, 0 ),
 	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type

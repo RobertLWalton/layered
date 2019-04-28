@@ -1,5 +1,6 @@
 *PARSER*:
     print selector ""
+        block standard: data paragraph
         block standard: text
         block standard: math
         block standard: code
@@ -87,6 +88,11 @@
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
+        block standard: indentation mark ":" [data paragraph]
+                        with parsing selectors [data]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing]
         block standard: indentation mark ":" [text]
                         with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
@@ -182,7 +188,8 @@
                         with group line
         block standard: prefix "data"
                         [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [- TOP LEVEL]
+                        with parsing selectors [- TOP LEVEL,
+                                                + data paragraph]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
         block standard: prefix "code" [TOP LEVEL, code, text]

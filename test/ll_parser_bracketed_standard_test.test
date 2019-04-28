@@ -3763,6 +3763,11 @@ BRACKETED EXPRESSION:
                          with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
+        block standard: indentation mark ":" [data paragraph]
+                        with parsing selectors [data]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing]
         block standard: indentation mark ":" [text]
                         with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
@@ -5932,7 +5937,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^
 ======================
 ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
@@ -5950,12 +5955,12 @@ BRACKETED EXPRESSION:
     line ###:
 @@ = A B C
 ^^^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
-BRACKETED PARSER FOUND [code] SELECTED KEY ":"
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
@@ -5967,7 +5972,7 @@ BRACKETED EXPRESSION:
     line ###:
         foo = P
         ^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
@@ -5979,7 +5984,7 @@ BRACKETED EXPRESSION:
     line ###:
         fum = Q R T
         ^^^^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
@@ -5991,7 +5996,7 @@ BRACKETED EXPRESSION:
     line ###:
         fee = @@
         ^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
@@ -6003,7 +6008,7 @@ BRACKETED EXPRESSION:
     line ###:
         foe = @@
         ^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:
@@ -6066,14 +6071,14 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^
         fie = @@
 ^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
-BRACKETED PARSER FOUND [code] SELECTED KEY "{"
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [code] SELECTED KEY "|"
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -6099,7 +6104,7 @@ BRACKETED EXPRESSION:
     line ###:
 @@ = {|Z|}
 ^^^^^^^^^^
-BRACKETED PARSER FOUND [code] SELECTED KEY "="
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
 BRACKETED EXPRESSION:

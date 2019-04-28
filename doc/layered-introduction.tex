@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 26, 2019
+April 28, 2019
  
 \end{center}
 
@@ -3054,7 +3054,7 @@ context.
 \label{PARSER-SELECTOR-COMMANDS}
 
 The only builtin selector names\label{SELECTOR-NAMES}
-are `\TT{TOP LEVEL}' and `\TT{data}'.
+are `\ttkey{TOP LEVEL}', `\ttkey{data}', and `\ttkey{atom}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \ttmkey{define selector}{parser command} ~ {\em selector}
@@ -3084,7 +3084,8 @@ named `\ttmkey{standard}{parsing block}'%
 \label{STANDARD-PARSING-BLOCK}
 and defines in it the selectors
 \begin{center}
-\ttkey{code} ~~~ \ttkey{text} ~~~ \ttkey{math}
+\ttkey{code} ~~~~~~~~~~ \ttkey{text} ~~~~~~~~~~ \ttkey{math} ~~~~~~~~~~
+    \ttkey{data paragraph}
 \end{center}
 The standard parser also sets the top level selector set to contain just
 `\TT{TOP LEVEL}' and `\TT{code}'.
@@ -3097,6 +3098,7 @@ equivalent of
     define selector code
     define selector math
     define selector text
+    define selector data paragraph
 \end{verbatim}\end{indpar}
 
 The end of a parser block erases the effects of any
@@ -4735,6 +4737,11 @@ adds the definitions:
      define indentation mark ":" [text]
          with parsing options [default options]
          with implied header {p}
+     define indentation mark ":" [data paragraph]
+         with parsing selectors [data]
+         with parsing options [default options]
+         // This definition is the last defined and
+         // the first examined by searches.
 \end{verbatim}\end{indpar}
 
 \subsubsection{Typed Bracketed Subexpressions}
@@ -5853,15 +5860,18 @@ The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "raw data"
-                  [TOP LEVEL, data, code, math, text]
-           with parsing selectors [data]
     define prefix "table" [TOP LEVEL, data, code, math, text]
            with group paragraph
            with line lexical master "ROW-CHECK"
     define prefix "row" [TOP LEVEL, data, code, math, text]
            with group line
     define prefix "data" [TOP LEVEL, data, code, math, text]
+           with parsing selectors [+ data paragraph]
+           with data reformatter
+                ( "=", "no", "[", [< "{" "*" >] )
+    define prefix "raw data"
+                  [TOP LEVEL, data, code, math, text]
+           with parsing selectors [data, data paragraph]
            with data reformatter
                 ( "=", "no", "[", [< "{" "*" >] )
     define prefix "code" [TOP LEVEL, code, text]

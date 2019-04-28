@@ -1,5 +1,6 @@
 *PARSER*:
     print selector ""
+        block standard: data paragraph
         block standard: text
         block standard: math
         block standard: code
@@ -24,6 +25,7 @@
     trace [+ subexpression elements,
            + subexpression lines ]
     print selector ""
+        block standard: data paragraph
         block standard: text
         block standard: math
         block standard: code

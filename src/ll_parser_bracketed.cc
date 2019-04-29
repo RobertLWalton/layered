@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 24 03:52:12 EDT 2019
+// Date:	Mon Apr 29 02:39:49 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1182,16 +1182,23 @@ static void punctuation_error
 	    ( parser, next, label );
 }
 
-// Make type label.  If no label tokens, just print
-// missing type error message.  Otherwise if typed_data
-// ->type is MISSING, set new label token type to
-// TYPE, increment typed_data->attr_count, and move
+// Make type label.  If no label tokens, print missing
+// type error message and assume label is "".  If label
+// computes as min::empty_lab, print error message and
+// replace label with "" (i.e., min::empty_str).
+//
+// If typed_data->type is MISSING, then if the new label
+// is not min::empty_str, set new label token type to
+// TYPE, increment typed_data->attr_count, and move TYPE
 // token to before typed_data->elements if that is not
-// NULL_STUB. 
+// NULL_STUB.  If on the other hand a new label token
+// for type min::empty_str was produced, delete that
+// token.  In any case set typed_data->type to the new
+// label.
 //
 // If typed_data->type is NOT MISSING, check that it
 // equals new label, and print error message if not.
-// Then whether equal or not, delete the new label
+// Then whether equal or not, delete any new label
 // token.
 //
 inline void make_type_label
@@ -1199,48 +1206,69 @@ inline void make_type_label
 	  BRA::typed_data * typed_data,
 	  PAR::token next )
 {
+    min::gen type = min::empty_str;
     PAR::token start = typed_data->start_previous->next;
+    min::phrase_position pos = start->position;
     if ( start == next )
     {
-	::missing_error ( parser, next, "type" );
-	return;
-    }
-
-    ::make_label ( parser, start, next );
-
-    if ( typed_data->type == min::MISSING() )
-    {
-	start->type = BRA::TYPE;
-	typed_data->type = start->value;
-	++ typed_data->attr_count;
-
-	if ( typed_data->elements != min::NULL_STUB )
-	{
-	    typed_data->end_position =
-		next->previous->position.end;
-	    PAR::move_to_before
-		( parser, typed_data->elements,
-		  next->previous, next );
-	}
+	::missing_error
+	    ( parser, next, "type; \"\" assumed" );
+	start = min::NULL_STUB;
     }
     else
     {
-	if ( typed_data->type != start->value )
+        ::make_label ( parser, start, next );
+	type = start->value;
+	if ( type == min::empty_lab )
+	{
+	    type = min::empty_str;
 	    PAR::parse_error
-		( parser, start->position,
+		( parser, pos,
+		  "empty type label; \"\" assumed" );
+	}
+    }
+
+    if ( typed_data->type != min::MISSING() )
+    {
+        if ( typed_data->type != type )
+	    PAR::parse_error
+		( parser, pos,
 		  "beginning type `",
 		  min::pgen_never_quote
 		    ( typed_data->type ),
 		  "' != end type `",
 		  min::pgen_never_quote
-		    ( start->value ),
+		    ( type ),
 		  "'; end type ignored"
 		);
+    }
+    else // if ( typed_data->type == min::MISSING() )
+    {
+	typed_data->type = type;
 
+        if ( type != min::empty_str )
+	{
+	    start->type = BRA::TYPE;
+	    ++ typed_data->attr_count;
+
+	    if (    typed_data->elements
+	         != min::NULL_STUB )
+	    {
+		typed_data->end_position =
+		    next->previous->position.end;
+		PAR::move_to_before
+		    ( parser, typed_data->elements,
+		      next->previous, next );
+	    }
+	    start = min::NULL_STUB;
+	        // To prevent deletion of start.
+	}
+    }
+
+    if ( start != min::NULL_STUB )
 	PAR::free
 	    ( PAR::remove ( first_ref(parser),
 			    start ) );
-    }
 }
 
 // Make attribute label.
@@ -3745,18 +3773,20 @@ NEXT_TOKEN:
 		     == 0 )
 		{
 		    if (    typed_data->subtype
-			 == BRA::TYPED_OPENING
-			 &&
-			    typed_data
-				->start_previous
-				->next
-			 != key_first )
-			::make_type_label
-			    ( parser, typed_data,
-			      key_first );
-		    else if (    typed_data->subtype
-			      != BRA::TYPED_OPENING
-			    )
+			 == BRA::TYPED_OPENING )
+		    {
+			 if (    typed_data
+				     ->start_previous
+				     ->next
+			      != key_first )
+			    ::make_type_label
+				( parser, typed_data,
+				  key_first );
+			  else
+			      typed_data->type =
+			          min::empty_str;
+		    }
+		    else 
 		    {
 			::finish_attribute
 			    ( parser, typed_data,

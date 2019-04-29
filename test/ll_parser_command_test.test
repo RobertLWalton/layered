@@ -194,7 +194,7 @@ INDENT: line ##:
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
                          with parsing selectors [- TOP LEVEL]
-======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
+======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
 ======= PARSER TEST: "`" a b c "[" $ MISSING $ "]" "[" < e f g "[" < h i
                          > "]" j > "]" "'"
@@ -224,38 +224,38 @@ INDENT: line ##:
     trace [+ subexpression lines]
 ======= PARSER TEST:
 ======= line ##:
-    [ x <+ y +> z {|4|w} m (n (p)) ]
+    [ x <+ y +> z {w|4|} m (n (p)) ]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     trace [- subexpression lines]
     trace [+ subexpression details]
 ======= PARSER TEST:
-@@ = "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")" ")" "]":
+@@ = "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p ")" ")" "]":
          .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
 ======= END PARSER TEST(S)
 *PARSER*:
     trace [+ subexpression elements]
-======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
+======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
-@@ = "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p ")" ")" "]":
+@@ = "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p ")" ")" "]":
          .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
 ======= END PARSER TEST(S)
 *PARSER*:
     trace [- subexpression details]
-======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
+======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
 ======= END PARSER TEST(S)
 *PARSER*:
     trace [+ subexpression lines]
-======= PARSER TEST: "[" x <+ y +> z "{" "|" 4 "|" w "}" m "(" n "(" p
+======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
 ======= line ##:
-    [ x <+ y +> z {|4|w} m (n (p)) ]
+    [ x <+ y +> z {w|4|} m (n (p)) ]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:

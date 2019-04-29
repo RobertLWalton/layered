@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 28, 2019
+April 29, 2019
  
 \end{center}
 
@@ -4752,20 +4752,17 @@ The following are examples of
 where \ldots{} denotes a list of elements:
 \begin{center}
 \TT{\{my type|} ~~~\ldots~~~ \TT{|\}} \\
-\TT{\{|} ~~~\ldots~~~ \TT{|my type\}} \\
 \TT{\{my type|} ~~~\ldots~~~ \TT{|my type\}} \\
 \TT{\{my type||\}} \\
-\TT{\{||my type\}} \\
 \TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{my type: my attribute = 5, your option = FALSE|} ~~~\ldots~~~
     \TT{|my type\}} \\
-\TT{\{my attribute = 5|} ~~~\ldots~~~
+\TT{\{my type: my attribute = 5|} ~~~\ldots~~~
     \TT{|my option = TRUE: my type\}} \\
 \TT{\{my type|} ~~~\ldots~~~
     \TT{|my attribute = 5, my option\}} \\
 \TT{\{my type|} ~~~\ldots~~~
     \TT{|my attribute = 5, my option: my type\}} \\
-\TT{\{|} ~~~\ldots~~~ \TT{|my attribute = 5, my option: my type\}} \\
 \TT{\{|} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{||\}} \\
 \TT{\{\}} \\
@@ -4785,10 +4782,6 @@ The attribute value `\TT{= TRUE}' can be omitted (as in
 `\TT{my option}'), and the attribute value `\TT{= FALSE}' can be represented
 by omitting it and prefacing the attribute label with `\TT{no}'
 (as in `\TT{no your option}').
-The type can be omitted from the beginning unless it is followed by
-a single attribute with omitted \TT{TRUE} value, as such an attribute
-will be mistaken for the type (i.e., in \TT{\{X|\ldots|\}}, \TT{X} is
-a type label and \underline{not} an attribute label).
 The type can be omitted from the end unless it is preceded
 by a single attribute with omitted \TT{TRUE} value, as such an attribute
 will be mistaken for the type.
@@ -4796,13 +4789,13 @@ will be mistaken for the type.
 a type label and \underline{not} an attribute label).
 If omitted from both
 beginning and end, the type is missing, but there can still be
-attributes.  Also \TT{""} may be used as a type label to denote
+attributes at the end.  Also \TT{""} may be used as a type label to denote
 a missing type.
 
 For example, the following are equivalent:
 \begin{center}
 \TT{\{my option|a b c|no your option\}} \\
-\TT{\{no your option|a b c|my option\}} \\
+\TT{\{my option:~no your option|a b c|\}} \\
 \TT{\{my option:~your option = FALSE |a b c|\}}
 \end{center}
 
@@ -4893,11 +4886,11 @@ Multiple non-number flag lexemes, separated by comma separators,
 can also be used.  Some examples are:
 \begin{center}
 \begin{tabular}{l}
-\TT{\{my attribute [H] = (3,4)|A B C|\}} \\
-\TT{\{my attribute [H, 64] = (3,4)|A B C|\}} \\
-\TT{\{my attribute [64] = (3,4)|A B C|\}} \\
-\TT{\{my attribute [64, HJ, 256] = (3,4)|A B C|\}} \\
-\TT{\{my attribute [64, H, J, 256] = (3,4)|A B C|\}} \\
+\TT{\{my type:~my attribute [H] = (3,4)|A B C|\}} \\
+\TT{\{my type:~my attribute [H, 64] = (3,4)|A B C|\}} \\
+\TT{\{my type:~my attribute [64] = (3,4)|A B C|\}} \\
+\TT{\{my type:~my attribute [64, HJ, 256] = (3,4)|A B C|\}} \\
+\TT{\{my type:~my attribute [64, H, J, 256] = (3,4)|A B C|\}} \\
 \end{tabular}
 \end{center}
 
@@ -4936,7 +4929,6 @@ The general syntax is:
 \emkey{opening-type-and-attributes}\label{OPENING-TYPE-AND-ATTRIBUTES}
 	\begin{tabular}[t]{@{}rl}
 	::= & {\em type-label} \\
-        $|$ & {\em attribute-list} but not {\em attribute-label} \\
 	$|$ & {\em type-label}~~~{\em typed-attribute-begin}~~~%
 		                 {\em attribute-list}
 	\end{tabular}
@@ -5104,7 +5096,7 @@ Note that the MIN object is \underline{not} given \TT{.initiator}
 or \TT{.terminator} attributes, unless they are given as explicit
 attributes as in:
 \begin{center}
-\TT{\{ .initiator = "(", .terminator = ")" | 1 2 3 4 |\}}
+\TT{\{ "":~.initiator = "(", .terminator = ")" | 1 2 3 4 |\}}
 \end{center}
 
 During the scanning of typed subexpression {\em attribute-lists}

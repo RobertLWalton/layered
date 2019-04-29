@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 29 02:39:49 EDT 2019
+// Date:	Mon Apr 29 05:35:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3452,32 +3452,14 @@ NEXT_TOKEN:
 		{
 		    if ( t->type == BRA::TYPE )
 		    {
-			if (    t->value
-			     == min::empty_str )
-			    /* Do nothing. */;
-			else
-			if (    t->value
-			     == min::empty_lab )
-			{
-			    PAR::parse_error
-				( parser,
-				  t->position,
-				  "empty type"
-				  " label;"
-				  " ignored" );
-			}
-			else
-			{
-			    MIN_REQUIRE
-			     (   i
-			       < tdata.attr_count );
-			    attributes[i].name =
-				min::dot_type;
-			    attributes[i].value =
-				t->value;
-			    type = t->value;
-			    ++ i;
-			}
+			MIN_REQUIRE
+			 ( i < tdata.attr_count );
+			attributes[i].name =
+			    min::dot_type;
+			attributes[i].value =
+			    t->value;
+			type = t->value;
+			++ i;
 			skip = true;
 		    }
 		    else if (    t->type

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 16 05:49:02 EDT 2019
+// Date:	Mon Apr 29 01:51:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -492,7 +492,11 @@ struct typed_data
         // If typed_opening is followed immediately by a
 	// mark, the value of that mark.  If it is fol-
 	// lowed by a non-mark type label, the value of
-	// that type label.  MISSING otherwise.
+	// that type label.  If the type "" was inferred
+	// due to an error, or due to the `{|' construc-
+	// tion, set to "" (min::empty_str).  MISSING
+	// otherwise.  There is a TYPE token for this
+	// type iff it is not MISSING or "".
     bool has_mark_type;
         // True if and only if typed_opening is followed
 	// by a mark, which becomes the type.
@@ -530,7 +534,8 @@ struct typed_data
 // TEMPORARY_TT is in ll::parser
 //
 const min::uns32 TYPE            = TEMPORARY_TT + 0;
-    // .type value
+    // .type value.  If the .type value is "", there
+    // is NO TYPE token.
 const min::uns32 ATTR_LABEL      = TEMPORARY_TT + 1;
 const min::uns32 ATTR_FLAGS      = TEMPORARY_TT + 2;
 const min::uns32 ATTR_VALUE      = TEMPORARY_TT + 3;

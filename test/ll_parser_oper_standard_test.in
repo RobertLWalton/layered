@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 26 02:21:33 EDT 2017
+// Date:	Mon Apr 29 03:15:01 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -18,5 +18,5 @@
     {{ x < y < z }}
     [ x = ( y < z ) ]
     [ x = w < y < z ]
-    {|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
+    {t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
     {X: Y = {* A, B, C *} | 1 2 3 |}

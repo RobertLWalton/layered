@@ -518,7 +518,6 @@ void PRE::compact_prefix_list
 	 ( parser, pass, selectors,
 	   current, next );
 
-
     min::obj_vec_insptr vp
 	( first->value );
     min::locatable_var

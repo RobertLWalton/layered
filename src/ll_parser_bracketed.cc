@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 29 05:35:43 EDT 2019
+// Date:	Tue Apr 30 06:23:33 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1806,8 +1806,7 @@ PREFIX_FOUND:
 		        prefix->type
 		     != PAR::IMPLIED_HEADER )
 		{
-		    PAR::token t =
-		        line_variables->previous->next;
+		    PAR::token t = p->prefix;
 		    while (    t->type
 		            == PAR::IMPLIED_HEADER
 			    ||

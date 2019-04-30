@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 21 03:21:58 EDT 2019
+// Date:	Tue Apr 30 14:52:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -119,6 +119,12 @@ extern min::locatable_var<ll::parser::reformatter>
 // If the first token is an IMPLIED_HEADER or IMPLIED_
 // PREFIX token, the value of this token is replaced by
 // a copy and then treated as if it were a PREFIX token.
+//
+// If the only element of the result would be a
+// PURELIST, then instead of adding the PURELIST as a
+// single element to the result, add all the elements of
+// the PURELIST (effectively merging the PURELIST and
+// the PREFIX).
 //
 void compact_prefix_list
 	( ll::parser::parser parser,

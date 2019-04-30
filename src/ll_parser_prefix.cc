@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 21 03:23:40 EDT 2019
+// Date:	Tue Apr 30 14:46:18 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -524,76 +524,100 @@ void PRE::compact_prefix_list
 	    <min::phrase_position_vec_insptr>
 	pos;
 
-    if ( first->type == PAR::IMPLIED_PREFIX
-	 ||
-	 first->type == PAR::IMPLIED_HEADER )
-    {
-	min::uns32 unused_size = 0;
-	for ( PAR::token t = first->next;
-	      t != next; t = t->next )
-	    ++ unused_size;
-	if ( separator_found )
-	    unused_size += 5;
-	PAR::value_ref(first) =
-	    min::copy ( vp, unused_size );
-	vp = first->value;
+    bool merge_purelist =
+        ( current->next == next
+	  &&
+	  current->type == PAR::PURELIST );
 
-	min::init ( pos, parser->input_file,
-		    first->position, 0 );
-	min::attr_insptr ap ( vp );
+    bool implied =
+        ( first->type == PAR::IMPLIED_PREFIX
+	  ||
+	  first->type == PAR::IMPLIED_HEADER );
+
+    min::uns32 size = 0;
+        // Number vector elements to add to prefix.
+    min::obj_vec_ptr vp2;
+        // vp to purelist, or NULL.
+    if ( merge_purelist )
+    {
+        vp2 = current->value;
+	size += min::attr_size_of ( vp2 );
+    }
+    else for ( PAR::token t = current;
+	       t != next; t = t->next )
+	    ++ size;
+
+    if ( implied )
+    {
+	PAR::value_ref(first) =
+	    min::copy
+	        ( vp,   size
+		      + ( separator_found ? 5 : 0 ) );
+	vp = first->value;
+    }
+
+    min::attr_insptr ap ( vp );
+
+    if ( separator_found )
+    {
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, separator );
+	first->position.end = separator_found;
+    }
+
+    if ( merge_purelist )
+    {
+	min::attr_ptr ap2 ( vp );
 	min::locate ( ap, min::dot_position );
-	min::set ( ap, min::new_stub_gen ( pos ) );
-	min::set_flag
-	    ( ap, min::standard_attr_hide_flag );
-	if ( separator_found )
-	{
-	    min::locate ( ap, min::dot_terminator );
-	    min::set ( ap, separator );
-	    first->position.end = separator_found;
-	}
+	pos = min::get ( ap );
+	for ( min::uns32 i = 0;
+	      i < min::attr_size_of ( vp2 ); ++ i )
+	    min::attr_push(vp) = min::attr ( vp2, i );
     }
     else
     {
-	min::attr_insptr ap ( vp );
 	min::locate ( ap, min::dot_position );
-	pos = min::get ( ap );
-	if ( separator_found )
+	if ( implied )
 	{
-	    min::locate ( ap, min::dot_terminator );
-	    min::set ( ap, separator );
-	    first->position.end = separator_found;
-	}
-    }
-    pos->position = first->position;
-
-    while ( current != next )
-    {
-	if (   ( 1 << current->type )
-	     & LEXSTD::convert_mask )
-	    PAR::convert_token ( current );
-
-	if ( min::is_attr_legal ( current->value ) )
-	{
-	    min::attr_push(vp) = current->value;
-	    min::push ( pos ) = current->position;
+	    min::init ( pos, parser->input_file,
+			first->position, size );
+	    min::set ( ap, min::new_stub_gen ( pos ) );
+	    min::set_flag
+		( ap, min::standard_attr_hide_flag );
 	}
 	else
-	    PAR::parse_error
-		( parser, current->position,
-		  "not a legal object element"
-		  " value; `",
-		  min::pgen_never_quote
-		      ( current->value ),
-		  "'; ignored" );
+	    pos = min::get ( ap );
 
-	current = current->next;
-	PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref
-			(parser),
-		    current->previous ) );
+	while ( current != next )
+	{
+	    if (   ( 1 << current->type )
+		 & LEXSTD::convert_mask )
+		PAR::convert_token ( current );
+
+	    if ( min::is_attr_legal ( current->value ) )
+	    {
+		min::attr_push(vp) = current->value;
+		min::push ( pos ) = current->position;
+	    }
+	    else
+		PAR::parse_error
+		    ( parser, current->position,
+		      "not a legal object element"
+		      " value; `",
+		      min::pgen_never_quote
+			  ( current->value ),
+		      "'; ignored" );
+
+	    current = current->next;
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref
+			    (parser),
+			current->previous ) );
+	}
     }
 
+    pos->position = first->position;
     first->type = PAR::BRACKETED;
 
     vp = min::NULL_STUB;

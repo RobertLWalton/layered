@@ -464,7 +464,7 @@ inline ll::parser::token remove
 //     BRACKETED and the token value type is MISSING.
 //
 //     Otherwise if the token value is an object, the
-//     token type is BRACKATABLE and the token value
+//     token type is BRACKETABLE and the token value
 //     type is MISSING.
 //
 //     Otherwise if the token value is not NONE, the

@@ -6088,36 +6088,36 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
-BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "{"
-     OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "|"
-     OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-PURELIST EXPRESSION:
-    {|Z|}
+BRACKETED EXPRESSION:
+    (Z)
 @@@@ = Z:
+           .terminator = ")"
+           .initiator = "("
            .position[H] = PACKED_VEC
     line ###:
-@@ = {|Z|}
-     ^^^^^
+@@ = (Z)
+     ^^^
 BRACKETED EXPRESSION:
-    {data|{|Z|}|data}
-@@@@ = {|Z|}:
+    {data|(Z)|data}
+@@@@ = (Z):
            .position[H] = PACKED_VEC
            .type = "data"
     line ###:
-@@ = {|Z|}
-^^^^^^^^^^
+@@ = (Z)
+^^^^^^^^
 BRACKETED EXPRESSION:
-    {|Z|}
+    (Z)
 @@@@ = Z:
+           .terminator = ")"
+           .initiator = "("
            .position[H] = PACKED_VEC
     line ###:
-@@ = {|Z|}
-^^^^^^^^^^
+@@ = (Z)
+^^^^^^^^
 BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
@@ -6140,15 +6140,15 @@ ERROR: in line ###: previous uses of ID exist and will be dangling:
 ^^
 BRACKETED EXPRESSION:
     ID 6 is
-        {"": fie = PREALLOCATED(2*8), foe = {|Z|}, fee = {|A B C|},
-             fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
+        {"": fie = PREALLOCATED(2*8), foe = (Z), fee = {|A B C|}, fum =
+             [< "Q" "R" "T" >], foo = "P"|1 2 3|}
 @@@@ = ID 6 is @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
 @@@@ = 1 2 3:
            fie = PREALLOCATED(2*8)
-           foe = {|Z|}
+           foe = (Z)
            fee = {|A B C|}
            fum = [< "Q" "R" "T" >]
            foo = "P"

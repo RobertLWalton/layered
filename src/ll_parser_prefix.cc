@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 30 14:46:18 EDT 2019
+// Date:	Tue Apr 30 15:00:54 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -573,6 +573,11 @@ void PRE::compact_prefix_list
 	for ( min::uns32 i = 0;
 	      i < min::attr_size_of ( vp2 ); ++ i )
 	    min::attr_push(vp) = min::attr ( vp2, i );
+	current = current->next;
+	PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref (parser),
+		    current->previous ) );
     }
     else
     {
@@ -611,8 +616,7 @@ void PRE::compact_prefix_list
 	    current = current->next;
 	    PAR::free
 		( PAR::remove
-		      ( PAR::first_ref
-			    (parser),
+		      ( PAR::first_ref (parser),
 			current->previous ) );
 	}
     }

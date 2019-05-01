@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 24 04:49:25 EDT 2019
+// Date:	Wed May  1 14:14:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,6 +60,7 @@ min::locatable_gen PARLEX::ealtindent;
 min::locatable_gen PARLEX::eapbreak;
 min::locatable_gen PARLEX::ealsep;
 min::locatable_gen PARLEX::eaoclosing;
+min::locatable_gen PARLEX::eiparagraph;
 min::locatable_gen PARLEX::sticky;
 min::locatable_gen PARLEX::reset;
 min::locatable_gen PARLEX::continuing;
@@ -169,6 +170,9 @@ static void initialize ( void )
     PARLEX::eaoclosing =
     	min::new_lab_gen
 	    ( "end", "at", "outer", "closing" );
+    PARLEX::eiparagraph =
+    	min::new_lab_gen
+	    ( "enable", "indented", "paragraph" );
     PARLEX::sticky = min::new_str_gen ( "sticky" );
     PARLEX::reset = min::new_str_gen ( "reset" );
     PARLEX::continuing =
@@ -744,6 +748,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PARLEX::eaoclosing ) );
+	MIN_REQUIRE
+	    (    PAR::EIPARAGRAPH_OPT
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PARLEX::eiparagraph ) );
 	MIN_REQUIRE
 	    (    PAR::STICKY_OPT
 	      == 1ull << TAB::push_name

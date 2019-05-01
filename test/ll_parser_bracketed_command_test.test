@@ -1,41 +1,30 @@
 *PARSER*:
     print bracket ""
         block TOP LEVEL: bracket "``" ... "''" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
                          with multivalue reformatter ( "," )
         block TOP LEVEL: bracket "(" ... ")" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- TOP LEVEL, - data,
-                                                 + atom]
+                         with parsing selectors [- data, + atom]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
-                         with parsing selectors [- TOP LEVEL]
     print typed bracket ""
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
                          [data]
-                         with parsing selectors [- TOP LEVEL]
                          with attribute selectors [data]
                          with attributes ":" ... "=" ... ","
                          with attribute negator "no"
@@ -52,11 +41,13 @@ ERROR: in line ##: expected quoted name after:
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     define selector text
     define selector code
     define selector math
@@ -73,11 +64,13 @@ ERROR: in line ##: expected quoted name after:
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     define quoted string concatenator "#"
     define middle break "#" ... "#"
     print quoted string concatenator
@@ -91,27 +84,21 @@ ERROR: in line ##: expected quoted name after:
     print bracket "["
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with label reformatter
         block standard: bracket "[" ... "]" [code, text, math]
-                        with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with special reformatter
     define indentation mark ":" ... ";"
                             [code, math, text]
     print indentation mark ":"
         block standard: indentation mark ":" ... ";" [code, text, math]
-                        with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
@@ -126,8 +113,8 @@ ERROR: in line ##: expected `,' after:
              [^ code, - math, + operator 1]
     print bracket "<+"
         block standard: bracket "<+" ... "+>" [code, operator 1]
-                        with parsing selectors [- TOP LEVEL, ^ code,
-                                                - math, + operator 1]
+                        with parsing selectors [^ code, - math,
+                                                + operator 1]
 *PARSER*:
     trace [ + subexpression lines,
             + subexpression elements]
@@ -372,40 +359,27 @@ WARNING: in line ###: undefine found no definition:
         with parsing options []
     print bracket ""
         block TOP LEVEL: bracket "``" ... "''" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
                          with multivalue reformatter ( "," )
         block standard: bracket "(" ... ")" [code, text, math]
-                        with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "(" ... ")" [data]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket "[" ... "]" [code, text, math]
-                        with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
-                         with parsing selectors [- TOP LEVEL]
         block BLOCK1: bracket "`" ... "'" [code]
-                      with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- TOP LEVEL, - data,
-                                                 + atom]
+                         with parsing selectors [- data, + atom]
         block BLOCK1: bracket "```" ... "'''" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with parsing options []
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
-                        with parsing selectors [- TOP LEVEL]
         block standard: bracket "<+" ... "+>" [code, operator 1]
-                        with parsing selectors [- TOP LEVEL, ^ code,
-                                                - math, + operator 1]
+                        with parsing selectors [^ code, - math,
+                                                + operator 1]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with special reformatter
 ======= PARSER TEST: (```")"''')
 ======= line ###:

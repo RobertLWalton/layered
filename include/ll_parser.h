@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 18 14:17:42 EDT 2019
+// Date:	Wed May  1 14:11:17 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,6 +65,7 @@ namespace ll { namespace parser {
 	    			//     break
 	    ealsep,		// end at line separator
 	    eaoclosing,		// end at outer closings
+	    eiparagraph,	// enable indented paragraph
 	    sticky,		// sticky
 	    reset,		// reset
 	    continuing,		// continuing
@@ -958,9 +959,10 @@ enum {
     EAPBREAK_OPT			= 1ull << 3,
     EALSEP_OPT				= 1ull << 4,
     EAOCLOSING_OPT			= 1ull << 5,
-    STICKY_OPT				= 1ull << 6,
-    CONTINUING_OPT			= 1ull << 7,
-    RESET_OPT				= 1ull << 8,
+    EIPARAGRAPH_OPT			= 1ull << 6,
+    STICKY_OPT				= 1ull << 7,
+    CONTINUING_OPT			= 1ull << 8,
+    RESET_OPT				= 1ull << 9,
 
     ALL_EA_OPT    = EAINDENT_OPT
 	          + EALEINDENT_OPT
@@ -969,10 +971,14 @@ enum {
 	          + EALSEP_OPT
 	          + EAOCLOSING_OPT,
 
+    BRACKET_OFF_OPT = EALSEP_OPT
+    		    + EIPARAGRAPH_OPT,
+
     ALL_BRACKET_OPT = ALL_EA_OPT
 		    - EALSEP_OPT,
 
     ALL_PREFIX_OPT = ALL_EA_OPT
+    		   + EIPARAGRAPH_OPT
                    + STICKY_OPT
 		   + CONTINUING_OPT
 		   + RESET_OPT,
@@ -981,7 +987,8 @@ enum {
 	           + EALSEP_OPT
 	           + EAOCLOSING_OPT,
 
-    DEFAULT_OPT = DEFAULT_EA_OPT,
+    DEFAULT_OPT = DEFAULT_EA_OPT
+                + EIPARAGRAPH_OPT,
 
     // Selectors:
     //
@@ -997,7 +1004,17 @@ enum {
     ATOM_SELECTOR			= 1ull << 19,
 
     COMMAND_SELECTORS = ALL_SELECTORS
-                      - ALWAYS_SELECTOR
+                      - ALWAYS_SELECTOR,
+
+    BRACKET_OFF_SELECTORS = TOP_LEVEL_SELECTOR,
+
+    ALL_BRACKET_SELECTORS = COMMAND_SELECTORS
+    			  - BRACKET_OFF_SELECTORS,
+
+    PARAGRAPH_OFF_SELECTORS = TOP_LEVEL_SELECTOR,
+
+    ALL_PARAGRAPH_SELECTORS = COMMAND_SELECTORS
+    			    - PARAGRAPH_OFF_SELECTORS
 };
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;

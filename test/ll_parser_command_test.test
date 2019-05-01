@@ -18,11 +18,13 @@ ERROR: in line ##: extraneous stuff after:
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     print trace
         [ + warnings, - parser input, - parser output,
           + parser commands, - subexpression elements,
@@ -123,11 +125,13 @@ INDENT: line ##:
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     define top level
         with parsing selectors [data, my selector]
         with parsing options [default options]
@@ -135,11 +139,13 @@ INDENT: line ##:
         block standard:  selectors [TOP LEVEL, data, my selector]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     define top level
         with parsing selectors [TOP LEVEL, code]
         with parsing options [default options]
@@ -147,39 +153,32 @@ INDENT: line ##:
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     print bracket ""
         block TOP LEVEL: bracket "``" ... "''" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
                          with multivalue reformatter ( "," )
         block TOP LEVEL: bracket "(" ... ")" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- TOP LEVEL, - data,
-                                                 + atom]
+                         with parsing selectors [- data, + atom]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print typed bracket ""
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
                          [data]
-                         with parsing selectors [- TOP LEVEL]
                          with attribute selectors [data]
                          with attributes ":" ... "=" ... ","
                          with attribute negator "no"
@@ -188,12 +187,10 @@ INDENT: line ##:
     print indentation mark ""
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
-                         with parsing selectors [- TOP LEVEL]
 ======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
 ======= PARSER TEST: "`" a b c "[" $ MISSING $ "]" "[" < e f g "[" < h i
@@ -206,15 +203,18 @@ INDENT: line ##:
     print top level
         block X:  selectors [TOP LEVEL, data, code]
                   options [end at le indent, end at line separator,
-                           end at outer closing]
+                           end at outer closing,
+                           enable indented paragraph]
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
 ======= PARSER TEST: [x <+ y +> z {w|4|w} m (n (p))]
 ======= PARSER TEST: `a b c [$ MISSING $] [< e f g [< h i >] j >]'
 ======= END PARSER TEST(S)

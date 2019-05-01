@@ -13,11 +13,13 @@
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
-                                  end at outer closing]
+                                  end at outer closing,
+                                  enable indented paragraph]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
-                                   end at outer closing]
+                                   end at outer closing,
+                                   enable indented paragraph]
     print pass
         top
         operator [code, math]

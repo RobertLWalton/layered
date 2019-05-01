@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 30 06:23:33 EDT 2019
+// Date:	Wed May  1 14:50:17 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,11 +166,14 @@ BRA::opening_bracket
 
     opening->new_selectors = new_selectors;
     opening->new_selectors.or_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        (   PAR::BRACKET_OFF_SELECTORS
+	  + PAR::BRACKET_OFF_OPT );
     opening->new_selectors.not_flags |=
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        (   PAR::BRACKET_OFF_SELECTORS
+	  + PAR::BRACKET_OFF_OPT );
     opening->new_selectors.xor_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        (   PAR::BRACKET_OFF_SELECTORS
+	  + PAR::BRACKET_OFF_OPT );
 
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
@@ -240,11 +243,11 @@ BRA::indentation_mark
     imark->position = position;
     imark->new_selectors = new_selectors;
     imark->new_selectors.or_flags &= ~
-        PAR::TOP_LEVEL_SELECTOR;
+        PAR::PARAGRAPH_OFF_SELECTORS;
     imark->new_selectors.not_flags |=
-        PAR::TOP_LEVEL_SELECTOR;
+        PAR::PARAGRAPH_OFF_SELECTORS;
     imark->new_selectors.xor_flags &= ~
-        PAR::TOP_LEVEL_SELECTOR;
+        PAR::PARAGRAPH_OFF_SELECTORS;
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
         min::get ( implied_header, min::dot_type );
@@ -446,11 +449,14 @@ BRA::typed_opening
 
     opening->new_selectors = element_selectors;
     opening->new_selectors.or_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        (   PAR::BRACKET_OFF_SELECTORS
+	  + PAR::BRACKET_OFF_OPT );
     opening->new_selectors.not_flags |=
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        (   PAR::BRACKET_OFF_SELECTORS
+	  + PAR::BRACKET_OFF_OPT );
     opening->new_selectors.xor_flags &= ~
-        ( PAR::TOP_LEVEL_SELECTOR + PAR::EALSEP_OPT );
+        (   PAR::BRACKET_OFF_SELECTORS
+	  + PAR::BRACKET_OFF_OPT );
     opening->attr_selectors = attr_selectors;
 
     reformatter_ref(opening) = min::NULL_STUB;
@@ -4919,7 +4925,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::COMMAND_SELECTORS )
+		     PAR::ALL_BRACKET_SELECTORS )
 		{
 		    parser->printer
 			<< min::indent
@@ -4927,7 +4933,7 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  PAR::ALL_BRACKET_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -5081,7 +5087,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::COMMAND_SELECTORS )
+		     PAR::ALL_PARAGRAPH_SELECTORS )
 		{
 		    parser->printer
 			<< min::indent
@@ -5089,7 +5095,7 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  PAR::ALL_PARAGRAPH_SELECTORS,
 			  parser->
 			      selector_name_table,
 			  parser, true );
@@ -5316,7 +5322,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  PAR::ALL_BRACKET_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5489,7 +5495,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  PAR::ALL_PARAGRAPH_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5644,7 +5650,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  PAR::ALL_BRACKET_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,

@@ -3719,53 +3719,39 @@ BRACKETED EXPRESSION:
 *PARSER*:
     print bracket ""
         block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- TOP LEVEL, - data,
-                                                - code, - math, + text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
         block TOP LEVEL: bracket "``" ... "''" [data]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, atom, code, math, text]
                         with parsing selectors [data]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
                          with multivalue reformatter ( "," )
         block standard: bracket "(" ... ")" [data, code, math, text]
-                        with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "(" ... ")" [data]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket "[" ... "]" [data, code, math, text]
-                        with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: bracket "[" ... "]" [data]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket "`" ... "'" [data, code, math, text]
-                        with parsing selectors [- TOP LEVEL, - data,
-                                                + atom, - code, - math,
-                                                - text]
+                        with parsing selectors [- data, + atom, - code,
+                                                - math, - text]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- TOP LEVEL, - data,
-                                                 + atom]
+                         with parsing selectors [- data, + atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                         [code, math, text]
-                        with parsing selectors [- TOP LEVEL, - code,
-                                                + math, - text]
+                        with parsing selectors [- code, + math, - text]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-                         with parsing selectors [- TOP LEVEL]
         block standard: bracket "<+" ... "+>" [math]
-                        with parsing selectors [- TOP LEVEL]
         block standard: bracket "<-" ... "->" [text]
-                        with parsing selectors [- TOP LEVEL]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [data, atom, code, math, text]
                         with parsing selectors [data]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [- TOP LEVEL]
                          with special reformatter
     print indentation mark ""
         block standard: indentation mark ":" [data paragraph]
@@ -3774,29 +3760,24 @@ BRACKETED EXPRESSION:
                                               end at line separator,
                                               end at outer closing]
         block standard: indentation mark ":" [text]
-                        with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
                         with implied header {p||p}
         block standard: indentation mark ":" ... ";" [code]
-                        with parsing selectors [- TOP LEVEL]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [- TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
-                         with parsing selectors [- TOP LEVEL]
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
                         // "||" is also allowed.
                         [code, math, text]
-                        with parsing selectors [- TOP LEVEL]
                         with attribute selectors [data]
                         with attributes ":" ... "=" ... ","
                         with attribute negator "no"
@@ -3806,7 +3787,6 @@ BRACKETED EXPRESSION:
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
                          [data]
-                         with parsing selectors [- TOP LEVEL]
                          with attribute selectors [data]
                          with attributes ":" ... "=" ... ","
                          with attribute negator "no"

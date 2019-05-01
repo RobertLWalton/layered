@@ -447,72 +447,48 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
     ( `
       ^
 ======= END PARSER TEST(S)
-======= PARSER TEST: (An indented paragraph
-                      {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                           .initiator = ":"|
-                           {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|
-                                ```This logical line continues on no
-                                   matter what "," even with a spurious
-                                   ")" "," until the following is
-                                   encountered-'''|}
-                           {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|Second line of
-                                indented paragraph "."|}|})
+======= PARSER TEST: A line ","
+                         (containing
+                          ```This logical line continues on no matter
+                             what "," even with a spurious ")" "," until
+                             the following is encountered-''' more of
+                          the containment) stuff after bracketed
+                         subexpression
 ======= lines ###-###:
-    ( An indented paragraph:
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-                ```This logical line continues on no
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    A line, ( containing
+    ^^^^^^^^^^^^^^^^^^^^
+       ```This logical line continues on no
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     the following is encountered- '''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                Second line of indented paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                more of the containment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              ) // End of () bracketed subexpression
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        stuff after bracketed subexpression
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- lines ###-###:
+    A line, ( containing
+            ^^^^^^^^^^^^
+       ```This logical line continues on no
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+matter what, even with a spurious ), until
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    the following is encountered- '''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                more of the containment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
               ) // End of () bracketed subexpression
 ^^^^^^^^^^^^^^^
 ------- lines ###-###:
-    ( An indented paragraph:
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-                ```This logical line continues on no
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       ```This logical line continues on no
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 matter what, even with a spurious ), until
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     the following is encountered- '''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                Second line of indented paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-              ) // End of () bracketed subexpression
-^^^^^^^^^^^^^^^
-------- lines ###-###:
-    ( An indented paragraph:
-                           ^
-                ```This logical line continues on no
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-matter what, even with a spurious ), until
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    the following is encountered- '''
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                Second line of indented paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-                ```This logical line continues on no
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-matter what, even with a spurious ), until
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    the following is encountered- '''
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-                ```This logical line continues on no
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-matter what, even with a spurious ), until
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    the following is encountered- '''
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-                Second line of indented paragraph.
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1
@@ -598,119 +574,23 @@ third line with indent 0
     trace [- parser output, + subexpression elements]
 ERROR: in line ###: missing closing bracket `)' inserted at end of
        logical line that ends here:
-                goodbye ) there
-                               ^
-======= PARSER TEST: well
-                         (hello
-                          {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                               .initiator = ":"|
-                               {"": .terminator = "<LF>", .initiator =
-                                    [$ LOGICAL_LINE $]|goodbye ")"
-                                    there|}|})
+                goodbye there
+                             ^
+======= PARSER TEST: well (hello ":" goodbye there)
 ======= lines ###-###:
         well ( hello:
         ^^^^^^^^^^^^^
-                goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- lines ###-###:
         well ( hello:
              ^^^^^^^^
-                goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-        well ( hello:
-                    ^
-                goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-                goodbye ) there
-                ^^^^^^^^^^^^^^^
+                goodbye there
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= PARSER TEST: hi there
 ======= line ###:
         hi there
         ^^^^^^^^
-======= END PARSER TEST(S)
-======= PARSER TEST: (hello
-                      {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                           .initiator = ":"|
-                           {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|goodbye ")" there|}
-                           {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|hi there|}|}) end
-======= lines ###-###:
-        ( hello:
-        ^^^^^^^^
-            goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-          ) end
-^^^^^^^^^^^^^^^
-------- lines ###-###:
-        ( hello:
-        ^^^^^^^^
-            goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-          ) end
-^^^^^^^^^^^
-------- lines ###-###:
-        ( hello:
-               ^
-            goodbye ) there
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-            goodbye ) there
-            ^^^^^^^^^^^^^^^
-------- line ###:
-            hi there
-            ^^^^^^^^
-======= END PARSER TEST(S)
-ERROR: in line ###: missing closing bracket `)' inserted at end of
-       logical line that ends here:
-            hi there
-                    ^
-======= PARSER TEST: (hello
-                      {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                           .initiator = ":"|
-                           {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|goodbye there|}
-                           {"": .terminator = "<LF>", .initiator =
-                                [$ LOGICAL_LINE $]|hi there|}|})
-======= lines ###-###:
-        ( hello:
-        ^^^^^^^^
-            goodbye there
-^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-        ( hello:
-        ^^^^^^^^
-            goodbye there
-^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-------- lines ###-###:
-        ( hello:
-               ^
-            goodbye there
-^^^^^^^^^^^^^^^^^^^^^^^^^
-            hi there
-^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-            goodbye there
-            ^^^^^^^^^^^^^
-------- line ###:
-            hi there
-            ^^^^^^^^
-======= PARSER TEST: ")" end
-======= line ###:
-        ) end
-        ^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1
@@ -1984,7 +1864,8 @@ BRACKETED EXPRESSION:
 *PARSER*:
     begin block BLOCK1
     define top level
-           with parsing options [end at indent]
+           with parsing options
+             [end at indent, enable indented paragraph]
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     This is a logical line "."

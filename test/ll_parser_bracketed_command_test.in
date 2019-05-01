@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 24 04:04:43 EDT 2019
+// Date:	Wed May  1 16:00:25 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -140,12 +140,13 @@
 )
 ' )
 *PARSER* *TEST*:
-    ( An indented paragraph:
-		```This logical line continues on no
+    A line, ( containing
+       ```This logical line continues on no
 matter what, even with a spurious ), until
     the following is encountered- '''
-                Second line of indented paragraph.
+                more of the containment
 	      ) // End of () bracketed subexpression
+	stuff after bracketed subexpression
 *PARSER*:
     end block BLOCK1
 
@@ -199,20 +200,9 @@ third line with indent 0
 
 *PARSER* *TEST*:
 	well ( hello:
-	        goodbye ) there
+	        goodbye there
 	hi there
 
-*PARSER* *TEST*:
-	( hello:
-	    goodbye ) there
-	    hi there
-	  ) end
-
-*PARSER* *TEST*:
-	( hello:
-	    goodbye there
-	    hi there
-	) end
 *PARSER*:
     end block BLOCK1
 
@@ -668,7 +658,8 @@ And a last line.
 *PARSER*:
     begin block BLOCK1
     define top level
-           with parsing options [end at indent]
+           with parsing options
+	     [end at indent, enable indented paragraph]
     trace [+ parser output, + subexpression details]
 
 This is a logical line.

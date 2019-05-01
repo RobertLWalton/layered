@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  1 14:50:17 EDT 2019
+// Date:	Wed May  1 15:45:55 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3700,7 +3700,10 @@ NEXT_TOKEN:
 	    // Closing bracket does not match a
 	    // bracket stack entry; reject key.
 	}
-	else if ( subtype == BRA::INDENTATION_MARK )
+	else if ( subtype == BRA::INDENTATION_MARK
+		  &&
+		  (   selectors
+		    & PAR::EIPARAGRAPH_OPT ) )
 	{
 	    if (    current->type
 		 == LEXSTD::line_break_t

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 22 06:57:39 EDT 2019
+// Date:	Thu May  2 06:47:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -956,6 +956,9 @@ static min::gen execute_selectors
 // Execute Top Level
 // ------- --- -----
 
+static TAB::flags TOP_LEVEL_OPT = PAR::ALL_EA_OPT
+                                + PAR::EIPARAGRAPH_OPT;
+
 static min::gen execute_top_level
 	( min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec,
@@ -1019,7 +1022,7 @@ static min::gen execute_top_level
 	                    << " options ";
 	    COM::print_flags
 		( flags,
-		  PAR::ALL_OPT,
+		  TOP_LEVEL_OPT,
 		  parser->selector_name_table,
 		  parser );
 
@@ -1094,7 +1097,7 @@ static min::gen execute_top_level
 	    min::gen result;
 	    result = COM::scan_new_flags
 		( vp, i, new_options,
-		  PAR::ALL_OPT,
+		  TOP_LEVEL_OPT,
 		  parser->selector_name_table,
 		  parser->selector_group_name_table,
 		  parser, true );

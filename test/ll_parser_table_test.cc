@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  1 14:48:07 EDT 2019
+// Date:	Thu May  2 08:01:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,13 @@ unsigned failed_count = 0;
 
 // Test
 // ----
+
+const TAB::flags BRACKET_OFF_SELECTORS =
+      PAR::TOP_LEVEL_SELECTOR;
+
+const TAB::flags BRACKET_OFF_OPT =
+      PAR::EALSEP_OPT
+    + PAR::EIPARAGRAPH_OPT;
 
 int main ( int argc, const char * argv[] )
 {
@@ -96,8 +103,8 @@ int main ( int argc, const char * argv[] )
     ASSERT ( oparen->selectors == 64 );
     ASSERT ( oparen->new_selectors.or_flags == 32 );
     ASSERT (    oparen->new_selectors.not_flags
-             == ( 34 | PAR::BRACKET_OFF_OPT
-	             | PAR::BRACKET_OFF_SELECTORS ) );
+             == ( 34 | BRACKET_OFF_OPT
+	             | BRACKET_OFF_SELECTORS ) );
     ASSERT ( oparen->new_selectors.xor_flags == 38 );
 
     BRA::push_indentation_mark

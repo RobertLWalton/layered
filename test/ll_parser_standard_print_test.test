@@ -121,8 +121,8 @@
                          with attribute multivalue initiator [< "{" "*" >]
     print prefix ""
         block standard: prefix "p" [TOP LEVEL, code, text]
-                        with parsing selectors [- TOP LEVEL, - data,
-                                                - code, - math, + text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
                         with group paragraph
                         with implied subprefix {s||s}
                         with parsing options [- end at indent,
@@ -133,12 +133,11 @@
                                               - end at outer closing,
                                               + sticky]
         block standard: prefix "s" [text]
-                        with parsing selectors [- TOP LEVEL]
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
         block standard: prefix "quote" [TOP LEVEL, code, text]
-                        with parsing selectors [- TOP LEVEL, - data,
-                                                - code, - math, + text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
                         with group paragraph
                         with implied subprefix {s||s}
                         with parsing options [- end at indent,
@@ -149,8 +148,8 @@
                                               - end at outer closing,
                                               + sticky]
         block standard: prefix "section" [TOP LEVEL, code, text]
-                        with parsing selectors [- TOP LEVEL, - data,
-                                                - code, - math, + text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
                         with group paragraph
                         with implied subprefix {s||s}
                         with parsing options [- end at indent,
@@ -166,19 +165,15 @@
                         [< "{" "*" >] )
         block standard: prefix "table"
                         [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [- TOP LEVEL]
                         with group paragraph
                         with line lexical master "ROW-CHECK"
         block standard: prefix "row" [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [- TOP LEVEL]
                         with group line
         block standard: prefix "data"
                         [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [- TOP LEVEL,
-                                                + data paragraph]
+                        with parsing selectors [+ data paragraph]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
         block standard: prefix "code" [TOP LEVEL, code, text]
-                        with parsing selectors [- TOP LEVEL]
                         with group paragraph
                         with parsing options [+ reset]

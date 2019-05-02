@@ -624,7 +624,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         block BLOCK1: prefix "X" [code]
                       with parsing selectors [code, math]
         block BLOCK1: prefix "Y" [code]
-                      with parsing selectors [- TOP LEVEL, + text]
+                      with parsing selectors [+ text]
                       with group ajax
         block BLOCK1: prefix "Z" [math]
                       with parsing selectors [code]
@@ -896,10 +896,8 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with prefix separators allowed
     print prefix ""
         block BLOCK1: prefix "L3" [text]
-                      with parsing selectors [- TOP LEVEL]
                       with group line
         block BLOCK1: prefix "L4" [text]
-                      with parsing selectors [- TOP LEVEL]
                       with group line
         block BLOCK1: prefix "P1" [code, text]
                       with parsing selectors [text]
@@ -1294,7 +1292,6 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with group line
     print prefix "p3"
         block BLOCK1: prefix "p3" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with group paragraph
                       with implied subprefix {l3||l3}
                       with parsing options [+ continuing]
@@ -1436,22 +1433,17 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with parsing options [+ continuing]
     print prefix ""
         block BLOCK1: prefix "l1" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with group line
         block BLOCK1: prefix "l2" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with group line
         block BLOCK1: prefix "p1" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with group paragraph
                       with implied subprefix {l1||l1}
         block BLOCK1: prefix "p2" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with group paragraph
                       with implied subprefix {l2||l2}
                       with parsing options [+ continuing]
         block BLOCK1: prefix "p3" [code]
-                      with parsing selectors [- TOP LEVEL]
                       with group paragraph
                       with parsing options [+ continuing]
     trace [+ parser output]

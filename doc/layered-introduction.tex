@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 29, 2019
+May 2, 2019
  
 \end{center}
 
@@ -2328,8 +2328,8 @@ object can only be empty if the \TT{.terminator} is a line separator.
 
 More specifically, a logical line ends with one
 of the following as controlled by parser options defined in
-Figures~\itemref{END-AT-OPTIONS-1}
-and~\itemref{END-AT-OPTIONS-2}:
+Figures~\itemref{OPTION-NAMES-1}
+and~\itemref{OPTION-NAMES-2}:
 
 \begin{itemize}
 \item An indent token with indent equal to or less than the current indent.
@@ -2343,6 +2343,8 @@ regardless of option settings.
 \end{itemize}
 
 \begin{boxedfigure}[!p]
+
+End-At Options:
 
 \begin{indpar}[0.5in]
     
@@ -2406,21 +2408,52 @@ regardless of option settings.
 
     If this option is off, the only closing bracket that will be
     recognized is that of the innermost open bracketed expression.
-    Also, a bracketed subexpression that contains an indented paragraph
-    will contain logical lines, but these contained logical lines
-    can never contain the closing bracket of the subexpression.
-
 
 \end{indpar}
 
 \medskip
 
-\caption{\bf Parsing End-At Options: Part I}
-\label{END-AT-OPTIONS-1}
+\caption{\bf Parsing Options: Part I}
+\label{OPTION-NAMES-1}
+\label{OPTION-NAMES}
 
 \end{boxedfigure}
 
 \begin{boxedfigure}[!t]
+
+Enable Options:
+
+\begin{indpar}
+
+\hspace*{-0.2in}\ttmkey{enable indented paragraph}{parser option} \\
+    This parser option allows indentation marks beginning an indented
+    paragraph to be recognized (if they end a physical line).
+
+    This option is on by default at top level (else parsing commands
+    could not be recognized).
+    The option is automatically turned off inside a bracketed
+    subexpression.
+
+\end{indpar}
+
+\bigskip
+
+Prefix Options:
+
+\begin{indpar}
+
+\hspace*{-0.2in}\ttmkey{sticky}{parser option} \\
+    This parser option allows TBD
+
+\hspace*{-0.2in}\ttmkey{continuing}{parser option} \\
+    This parser option allows TBD
+
+\hspace*{-0.2in}\ttmkey{reset}{parser option} \\
+    This parser option allows TBD
+
+\end{indpar}
+
+\bigskip
 
 Two option groups are also defined:
 
@@ -2429,7 +2462,8 @@ Two option groups are also defined:
 \ttmkey{default options}{parser option group}
 				& \TT{end at le indent} \\
 				& \TT{end at line separator} \\
-				& \TT{end at outer closing}
+				& \TT{end at outer closing} \\
+				& \TT{enable indented paragraph}
 \\[2ex]
 \ttmkey{other end at options}{parser option group}
 				& all `\TT{end at}' options
@@ -2442,8 +2476,8 @@ a parser is initialized.
 
 \medskip
 
-\caption{\bf Parsing End-At Options: Part II}
-\label{END-AT-OPTIONS-2}
+\caption{\bf Parsing Options: Part II}
+\label{OPTION-NAMES-2}
 
 \end{boxedfigure}
 
@@ -2900,12 +2934,15 @@ physical line, and the indented logical lines that follow are
                           with only selector names (\pagref{SELECTOR-NAMES})
 			  \label{SELECTOR-FLAGS}
 \\[0.0ex]
-\emkey{end-at-option} ::= {\em parser-flag} as per \pagref{END-AT-OPTIONS-1}
+\emkey{option} ::= {\em parser-flag} as per \pagref{OPTION-NAMES}
 \\[0.0ex]
-\emkey{end-at-option-spec} ::= {\em parser-flag-spec}
-                          with only end at option names
-			  (\pagref{END-AT-OPTIONS-1})
-			  \label{END-AT-OPTION-SPEC}
+\emkey{option-spec} ::= {\em parser-flag-spec}
+                          with only option names (\pagref{OPTION-NAMES})
+			  \label{OPTION-SPEC}
+\\[0.0ex]
+\emkey{option-flags} ::= {\em parser-flag-list}
+                          with only option names (\pagref{OPTION-NAMES})
+			  \label{OPTION-FLAGS}
 \\[0.0ex]
 \emkey{trace-flag} ::= {\em parser-flag} as per \pagref{TRACE-FLAGS}
 \\[0.0ex]
@@ -2936,11 +2973,12 @@ physical line, and the indented logical lines that follow are
 \\[0.3ex]
 \emkey{parser-top-level-command} ::= \\
 \hspace*{0.3in}\begin{tabular}{rl}
-    & \TT{define}\ttmindex{define top level}{parser command} ~
-      \begin{tabular}[t]{@{}l@{}}
+    & \TT{define}\ttmindex{define top level}{parser command}
+      \label{DEFINE-TOP-LEVEL}
+      ~ \begin{tabular}[t]{@{}l@{}}
        \TT{top level} \\{}
        [ \TT{with parsing selectors} ~ {\em selector-spec} ] \\{}
-       [ \TT{with parsing options} ~ {\em end-at-option-spec} ] \\{}
+       [ \TT{with parsing options} ~ {\em top-level-option-spec} ] \\{}
        [ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
 	                  \begin{tabular}[t]{@{}l@{}}
 			  \TT{lexical master} \\
@@ -2950,6 +2988,13 @@ physical line, and the indented logical lines that follow are
 $|$ & \ttmkey{print top level}{parser command} \\
    \end{tabular}
 \label{PARSER-TOP-LEVEL-COMMAND}
+\\[0.3ex]
+\emkey{top-level-option-spec} ::=
+    \begin{tabular}[t]{l}
+    {\em option-spec} with only `\TT{end at \ldots}' \\
+    and `\TT{enable indented paragraph}' options
+	~~~ [\pagref{OPTION-SPEC}]
+    \end{tabular}
 \\[0.3ex]
 \emkey{lexical-master-name}\label{LEXICAL-MASTER-NAME} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'
@@ -3008,8 +3053,9 @@ The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
 parsing selectors 	& 47 bits	& \pagref{PARSING-SELECTORS} \\
-parsing end at options	& 6 bits	& \pagref{END-AT-OPTIONS-1} \\
-parsing header options	& 2 bits	& \pagref{HEADER-OPTION} \\
+parsing end at options	& 6 bits	& \pagref{OPTION-NAMES} \\
+parsing enable options	& 1 bits	& \pagref{OPTION-NAMES} \\
+parsing prefix options	& 3 bits	& \pagref{OPTION-NAMES} \\
 parsing trace flags	& 64 bits	& \pagref{TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
@@ -3124,13 +3170,13 @@ parsing subsequent logical lines or headed paragraphs.
 See \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS} for indented paragraph details.
 
 The top level selectors, end-at options, and lexical masters
-can be reset by the parser \ttkey{define top level} command:%
-\label{DEFINE-TOP-LEVEL}
+can be reset by the parser \ttkey{define top level} command
+(\pagref{DEFINE-TOP-LEVEL}):
 \begin{center}
     \begin{tabular}[t]{l}
     \ttmkey{define top level}{parser command} \\
-    \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
-    \TT{~~~~}[ \TT{with parsing options} {\em end-at-option-spec} ] \\
+    \TT{~~~~}[ \TT{with parsing selectors} {\em top-level-selectors} ] \\
+    \TT{~~~~}[ \TT{with parsing options} {\em top-level-options} ] \\
     \TT{~~~~}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
 	                \begin{tabular}[t]{@{}l@{}}
 			\TT{lexical master} \\
@@ -4212,7 +4258,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
     ::= & \multicolumn{2}{l}{\ttmkey{define bracket}{parser command}
 		    ~ {\em bracket-name} ~ {\em selectors}} \\
 	& \hspace*{3em} & [ \TT{with parsing selectors}
-	                    ~ {\em new-selectors} ] \\
+	                    ~ {\em bracket-selectors} ] \\
         &               & [ \TT{with parsing options}
 	                    ~ {\em bracket-options} ] \\
         &               & [ \TT{with}
@@ -4240,11 +4286,18 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{new-selectors} ::= {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
+\emkey{bracket-selectors}\label{BRACKET-SELECTORS} ::=
+    \begin{tabular}[t]{l}
+    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+	~~~ [\pagref{SELECTOR-SPEC}]
+    \end{tabular}
 \\[0.5ex]
-\emkey{bracket-options} ::= {\em end-at-option-spec}
-	~ except ~ `\TT{end at line separator}'
-	~~~ [\pagref{END-AT-OPTION-SPEC}]
+\emkey{bracket-options}\label{BRACKET-OPTIONS} ::=
+    \begin{tabular}[t]{l}
+    {\em option-spec} with only `\TT{end at \ldots}' options \\
+    other than `\TT{end at line separator}'
+	~~~ [\pagref{OPTION-SPEC}]
+    \end{tabular}
 \\[0.5ex]
 \emkey{reformatter-name}\label{REFORMATTER-NAME} ::=
     {\em simple-name} not containing `\TT{reformatter}'
@@ -4519,7 +4572,7 @@ The general syntax is:
 
 {\em Paragraph-lines} are logical lines that end according to
 the setting of the end-at options;
-See~\pagref{END-AT-OPTIONS-1}.  The setting of these options can be
+See~\pagref{OPTION-NAMES}.  The setting of these options can be
 controlled by the specification of the {\em indentation-mark}.
 
 {\em Paragraph-lines} may be headed lines (see \itemref{HEADED-LINES})
@@ -4548,8 +4601,9 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{indentation mark} ~
 	  {\em indentation-name} ~ {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
-	  {}[ \TT{with parsing options} ~ {\em end-at-options} ] \\
+	  {}[ \TT{with parsing selectors}
+	       ~ {\em indentation-mark-selectors} ] \\
+	  {}[ \TT{with parsing options} ~ {\em indentation-mark-options} ] \\
 	  {}[ \TT{with implied header} ~ {\em header} ] \\
           {}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
 	                  \begin{tabular}[t]{@{}l@{}}
@@ -4581,10 +4635,18 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{new-selectors} ::= {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
+\emkey{indentation-mark-selectors} ::=
+    \begin{tabular}[t]{l}
+    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+	~~~ [\pagref{SELECTOR-SPEC}]
+    \end{tabular}
 \\[0.5ex]
-\emkey{end-at-options} ::= {\em parser-flag-spec}
-	~~~~~ [\pagref{END-AT-OPTIONS-1}]
+\emkey{indentation-mark-options} ::=
+    \begin{tabular}[t]{l}
+    {\em option-spec} with only `\TT{end at \ldots}' options \\
+    and `\TT{enable indented paragraph}' option
+	~~~ [\pagref{OPTION-SPEC}]
+    \end{tabular}
 \\[0.5ex]
 \emkey{header} ::= \begin{tabular}[t]{l}
                    {\em typed-prefix-separator}
@@ -4690,8 +4752,9 @@ When an {\em indentation-mark} is recognized, the current parsing
 selector set, parsing options, and line separator are saved in a stack.
 Then a new selector set and new options are computed by modifying
 the saved selector set
-according to the {\em new-selectors} and modifying the saved options according
-to the {\em end-at-options} in the indentation mark definition,
+according to the {\em indentation-mark-selectors}
+and modifying the saved options according
+to the {\em indentation-mark-options} in the indentation mark definition,
 and a new line separator is set according to that definition.
 A new set of line variables is computed for use in parsing the
 indented paragraph, as per \itemref{LINE-VARIABLES}.
@@ -4701,7 +4764,7 @@ The \TT{TOP LEVEL} selector is always turned off when parsing indented
 paragraph lines.
 Note that if no {\em new-selectors} are given, selectors
 other than \TT{TOP LEVEL}
-are not modified, if no {\em end-at-options} 
+are not modified, if no {\em indentation-mark-options} 
 are given, options are not modified, and if no
 {\em line-separator} is given, no line separator can end
 an indented paragraph logical line.
@@ -5143,7 +5206,7 @@ parsing selector set and options while scanning the {\em element-list}.
 But while scanning the type label and attributes, the
 current parsing selector set is set to the {\em typed-attribute-selectors}
 associated with the {\em typed-opening} (also see below), while the
-{\em end-at-options} remain the same as those use to scan the
+options remain the same as those use to scan the
 {\em element-list}.
 The saved selector set and options are restored after the subexpression ending
 {\em typed-closing} (e.g.~`\TT{\}}') is recognized.
@@ -5258,12 +5321,10 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{typed-element-selectors} ::= {\em selector-spec}
-	~ [\pagref{SELECTOR-SPEC}]
+\emkey{typed-element-selectors} ::= {\em bracket-selectors}
+	~ [\pagref{BRACKET-SELECTORS}]
 \\[0.5ex]
-\emkey{bracket-options} ::=
-	{\em end-at-option-spec} ~ except ~ `\TT{end at line separator}' ~
-	[\pagref{END-AT-OPTION-SPEC}]
+\emkey{bracket-options} ::= see \pagref{BRACKET-OPTIONS}
 \\[0.5ex]
 \emkey{typed-attribute-selectors} ::= {\em selector-flags}
 	~ [\pagref{SELECTOR-FLAGS}]
@@ -5535,7 +5596,7 @@ whose general syntax is:
           \ttmindex{define prefix}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{prefix} ~ {\em prefix-name} ~ {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors} ~ {\em new-selectors} ] \\
+	  {}[ \TT{with parsing selectors} ~ {\em prefix-selectors} ] \\
 	  {}[ \TT{with group} ~ {\em prefix-group} ] \\
 	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\
           {}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
@@ -5562,6 +5623,12 @@ whose general syntax is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
+\emkey{prefix-selectors} ::=
+    \begin{tabular}[t]{l}
+    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+	~~~ [\pagref{SELECTOR-SPEC}]
+    \end{tabular}
+\\[0.5ex]
 \emkey{prefix-group} ::= {\em quoted-key}
                      $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
@@ -5571,20 +5638,8 @@ whose general syntax is:
 \emkey{lexical-master-name} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
-\emkey{prefix-options}
-    ::= \TT{[]}
-    $|$ \TT{[} {\em prefix-option}
-               \{ \TT{,} {\em prefix-option} \}\STAR{} \TT{]}
-\\[0.5ex]
-\emkey{prefix-option}
-    \begin{tabular}[t]{rl@{~~~~~}l}
-    ::= & {\em end-at-option} ~ except ~ `\TT{end at line separator}'
-        & [\pagref{END-AT-OPTIONS-1}] \\
-    $|$ & {\em header-option}
-    \end{tabular}
-\\[0.5ex]
-\emkey{header-option} ::= \ttkey{sticky} $|$ \ttkey{continuing}
-          \label{HEADER-OPTION}
+\emkey{prefix-options} ::=
+    {\em option-spec} ~~~ [\pagref{OPTION-SPEC}]
 \\[0.5ex]
 \emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
 \emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}

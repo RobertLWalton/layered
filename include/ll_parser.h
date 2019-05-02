@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  1 14:11:17 EDT 2019
+// Date:	Thu May  2 08:02:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -971,18 +971,6 @@ enum {
 	          + EALSEP_OPT
 	          + EAOCLOSING_OPT,
 
-    BRACKET_OFF_OPT = EALSEP_OPT
-    		    + EIPARAGRAPH_OPT,
-
-    ALL_BRACKET_OPT = ALL_EA_OPT
-		    - EALSEP_OPT,
-
-    ALL_PREFIX_OPT = ALL_EA_OPT
-    		   + EIPARAGRAPH_OPT
-                   + STICKY_OPT
-		   + CONTINUING_OPT
-		   + RESET_OPT,
-
     DEFAULT_EA_OPT = EALEINDENT_OPT
 	           + EALSEP_OPT
 	           + EAOCLOSING_OPT,
@@ -1005,16 +993,6 @@ enum {
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR,
-
-    BRACKET_OFF_SELECTORS = TOP_LEVEL_SELECTOR,
-
-    ALL_BRACKET_SELECTORS = COMMAND_SELECTORS
-    			  - BRACKET_OFF_SELECTORS,
-
-    PARAGRAPH_OFF_SELECTORS = TOP_LEVEL_SELECTOR,
-
-    ALL_PARAGRAPH_SELECTORS = COMMAND_SELECTORS
-    			    - PARAGRAPH_OFF_SELECTORS
 };
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;

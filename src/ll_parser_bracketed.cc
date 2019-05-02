@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  1 15:45:55 EDT 2019
+// Date:	Thu May  2 07:28:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,41 @@
 # define COM ll::parser::command
 # define PRE ll::parser::prefix
 # define BRA ll::parser::bracketed
+
+const TAB::flags BRACKET_OFF_SELECTORS =
+      PAR::TOP_LEVEL_SELECTOR;
+
+const TAB::flags BRACKET_SELECTORS =
+      PAR::COMMAND_SELECTORS
+    - BRACKET_OFF_SELECTORS;
+
+const TAB::flags BRACKET_OFF_OPT =
+      PAR::EALSEP_OPT
+    + PAR::EIPARAGRAPH_OPT;
+
+const TAB::flags BRACKET_OPT =
+      PAR::ALL_EA_OPT
+    - PAR::EALSEP_OPT;
+
+const TAB::flags INDENTATION_MARK_OFF_SELECTORS =
+      PAR::TOP_LEVEL_SELECTOR;
+
+const TAB::flags INDENTATION_MARK_SELECTORS =
+      PAR::COMMAND_SELECTORS
+    - INDENTATION_MARK_OFF_SELECTORS;
+
+const TAB::flags INDENTATION_MARK_OPT =
+      PAR::ALL_EA_OPT
+    + PAR::EIPARAGRAPH_OPT;
+
+const TAB::flags PREFIX_OFF_SELECTORS =
+      PAR::TOP_LEVEL_SELECTOR;
+
+const TAB::flags PREFIX_SELECTORS =
+      PAR::COMMAND_SELECTORS
+    - PREFIX_OFF_SELECTORS;
+
+const TAB::flags PREFIX_OPT = PAR::ALL_OPT;
 
 static bool initialize_called = false;
 static min::locatable_gen bracket;
@@ -166,14 +201,14 @@ BRA::opening_bracket
 
     opening->new_selectors = new_selectors;
     opening->new_selectors.or_flags &= ~
-        (   PAR::BRACKET_OFF_SELECTORS
-	  + PAR::BRACKET_OFF_OPT );
+        (   BRACKET_OFF_SELECTORS
+	  + BRACKET_OFF_OPT );
     opening->new_selectors.not_flags |=
-        (   PAR::BRACKET_OFF_SELECTORS
-	  + PAR::BRACKET_OFF_OPT );
+        (   BRACKET_OFF_SELECTORS
+	  + BRACKET_OFF_OPT );
     opening->new_selectors.xor_flags &= ~
-        (   PAR::BRACKET_OFF_SELECTORS
-	  + PAR::BRACKET_OFF_OPT );
+        (   BRACKET_OFF_SELECTORS
+	  + BRACKET_OFF_OPT );
 
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
@@ -243,11 +278,11 @@ BRA::indentation_mark
     imark->position = position;
     imark->new_selectors = new_selectors;
     imark->new_selectors.or_flags &= ~
-        PAR::PARAGRAPH_OFF_SELECTORS;
+        INDENTATION_MARK_OFF_SELECTORS;
     imark->new_selectors.not_flags |=
-        PAR::PARAGRAPH_OFF_SELECTORS;
+        INDENTATION_MARK_OFF_SELECTORS;
     imark->new_selectors.xor_flags &= ~
-        PAR::PARAGRAPH_OFF_SELECTORS;
+        INDENTATION_MARK_OFF_SELECTORS;
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
         min::get ( implied_header, min::dot_type );
@@ -449,14 +484,14 @@ BRA::typed_opening
 
     opening->new_selectors = element_selectors;
     opening->new_selectors.or_flags &= ~
-        (   PAR::BRACKET_OFF_SELECTORS
-	  + PAR::BRACKET_OFF_OPT );
+        (   BRACKET_OFF_SELECTORS
+	  + BRACKET_OFF_OPT );
     opening->new_selectors.not_flags |=
-        (   PAR::BRACKET_OFF_SELECTORS
-	  + PAR::BRACKET_OFF_OPT );
+        (   BRACKET_OFF_SELECTORS
+	  + BRACKET_OFF_OPT );
     opening->new_selectors.xor_flags &= ~
-        (   PAR::BRACKET_OFF_SELECTORS
-	  + PAR::BRACKET_OFF_OPT );
+        (   BRACKET_OFF_SELECTORS
+	  + BRACKET_OFF_OPT );
     opening->attr_selectors = attr_selectors;
 
     reformatter_ref(opening) = min::NULL_STUB;
@@ -4928,7 +4963,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::ALL_BRACKET_SELECTORS )
+		     BRACKET_SELECTORS )
 		{
 		    parser->printer
 			<< min::indent
@@ -4936,14 +4971,14 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::ALL_BRACKET_SELECTORS,
+			  BRACKET_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
 		}
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::ALL_BRACKET_OPT )
+		     BRACKET_OPT )
 		{
 		    parser->printer
 			<< min::indent
@@ -4951,7 +4986,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::ALL_BRACKET_OPT,
+			  BRACKET_OPT,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -5003,7 +5038,7 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_flags
 			( typed_opening->attr_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  BRACKET_SELECTORS,
 			  parser->selector_name_table,
 			  parser );
 
@@ -5090,7 +5125,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::ALL_PARAGRAPH_SELECTORS )
+		     INDENTATION_MARK_SELECTORS )
 		{
 		    parser->printer
 			<< min::indent
@@ -5098,7 +5133,7 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::ALL_PARAGRAPH_SELECTORS,
+			  INDENTATION_MARK_SELECTORS,
 			  parser->
 			      selector_name_table,
 			  parser, true );
@@ -5159,7 +5194,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::COMMAND_SELECTORS )
+		     PREFIX_SELECTORS )
 		{
 		    parser->printer
 		        << min::indent
@@ -5167,7 +5202,7 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::COMMAND_SELECTORS,
+			  PREFIX_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -5194,7 +5229,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PAR::ALL_PREFIX_OPT )
+		     PREFIX_OPT )
 		{
 		    parser->printer
 			<< min::indent
@@ -5202,7 +5237,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PAR::ALL_PREFIX_OPT,
+			  PREFIX_OPT,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -5325,7 +5360,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_selectors,
-			  PAR::ALL_BRACKET_SELECTORS,
+			  BRACKET_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5349,7 +5384,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_BRACKET_OPT,
+			  BRACKET_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5498,7 +5533,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_selectors,
-			  PAR::ALL_PARAGRAPH_SELECTORS,
+			  INDENTATION_MARK_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5653,7 +5688,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_selectors,
-			  PAR::ALL_BRACKET_SELECTORS,
+			  BRACKET_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5680,7 +5715,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_BRACKET_OPT,
+			  BRACKET_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -5917,7 +5952,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_PREFIX_OPT,
+			  PREFIX_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,

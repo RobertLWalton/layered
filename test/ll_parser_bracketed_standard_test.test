@@ -3764,10 +3764,14 @@ BRACKETED EXPRESSION:
                                               end at line separator,
                                               end at outer closing]
                         with implied header {p||p}
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
         block standard: indentation mark ":" ... ";" [code]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
@@ -6575,3 +6579,39 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^
 and a continuation of the outer paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|A paragraph with an embedded table
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {table|{row|=============|row}
+                      {row|"|" 1 chicken "|"|row}
+                      {row|=============|row}
+                      {row|"|" 1 tablespoon olive oil "|"|row}
+                      {row|-|row} {row|"|" 1 tablespoon paprika|row}
+                      {row|=|row}|table}|}|s}|p}
+@@@@ = {s|A paragraph with an embedded table @@@@|s}:
+           .type = "p"
+           .position[H] = PACKED_VEC
+@@@@ = {table|{row|=============|row} {row|"|" 1 chicken "|"|row}
+              {row|=============|row}
+              {row|"|" 1 tablespoon olive oil "|"|row} {row|-|row}
+              {row|"|" 1 tablespoon paprika|row} {row|=|row}|table}:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+{p}A paragraph with an embedded table:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    =============
+^^^^^^^^^^^^^^^^^
+    | 1 chicken |
+^^^^^^^^^^^^^^^^^
+    =============
+^^^^^^^^^^^^^^^^^
+    | 1 tablespoon olive oil |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    -
+^^^^^
+    | 1 tablespoon paprika
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+    =
+^^^^^

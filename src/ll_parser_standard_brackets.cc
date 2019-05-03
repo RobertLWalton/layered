@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 28 05:44:57 EDT 2019
+// Date:	Fri May  3 04:42:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,17 @@ void PARSTD::init_brackets ( PAR::parser parser )
         1ull << TAB::find_name
 	    ( parser->selector_name_table,
 	      data_paragraph_name );
+
+    min::locatable_gen paragraph_check_name
+        ( min::new_str_gen ( "PARAGRAPH-CHECK" ) );
+    min::locatable_gen data_check_name
+        ( min::new_str_gen ( "DATA-CHECK" ) );
+    min::uns32 paragraph_check =
+        PAR::get_lexical_master
+	    ( paragraph_check_name, parser );
+    min::uns32 data_check =
+        PAR::get_lexical_master
+	    ( data_check_name, parser );
 
     min::locatable_gen opening_double_brace
         ( min::new_lab_gen ( "{", "{" ) );
@@ -195,8 +206,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
 			   - PAR::DEFAULT_EA_OPT,
 			   0 ),
 	  min::MISSING(),
-	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
+	  paragraph_check,
+	  data_check,
 	  bracketed_pass->bracket_table );
 
     min::locatable_gen p
@@ -224,8 +235,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
 			   - PAR::DEFAULT_EA_OPT,
 			   0 ),
 	  implied_p_header,
-	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
+	  paragraph_check,
+	  data_check,
 	  bracketed_pass->bracket_table );
 
     // This must be the LAST indentation mark pushed.

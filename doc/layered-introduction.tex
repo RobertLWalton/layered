@@ -4746,8 +4746,10 @@ A paragraph may be empty (have no paragraph lines or object elements).
 The \TT{implied paragraph header} and \TT{lexical master} parameters
 can be used to initialize line variables
 that affect the parsing of indented paragraphs: see \itemref{LINE-VARIABLES}.
-They have no effect if they are not explicitly included in the indentation
-mark definition command.
+If they are not explicitly included in the indentation mark definition command,
+they are treated as missing (for lexical masters this means the \TT{DEFAULT}
+lexical master is used).
+
 If `\TT{with lexical master}' is given in the `\TT{define indentation mark}'
 command, both lexical master parameters are set to the same
 {\em lexical-master-name}.
@@ -4814,8 +4816,12 @@ adds the definitions:
 *PARSER*:
      define indentation mark ":" ... ";" [code]
          with parsing options [default options]
+         with paragraph lexical master "PARAGRAPH-CHECK"
+         with line lexical master "DATA-CHECK"
      define indentation mark ":" [text]
          with parsing options [default options]
+         with paragraph lexical master "PARAGRAPH-CHECK"
+         with line lexical master "DATA-CHECK"
          with implied header {p}
      define indentation mark ":" [data paragraph]
          with parsing selectors [data]

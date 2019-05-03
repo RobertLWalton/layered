@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 2, 2019
+May 3, 2019
  
 \end{center}
 
@@ -2344,7 +2344,7 @@ regardless of option settings.
 
 \begin{boxedfigure}[!p]
 
-End-At Options:
+End-At Options:\label{END-AT-OPTIONS}
 
 \begin{indpar}[0.5in]
     
@@ -2419,9 +2419,9 @@ End-At Options:
 
 \end{boxedfigure}
 
-\begin{boxedfigure}[!t]
+\begin{boxedfigure}[!p]
 
-Enable Options:
+Paragraph Options:\label{PARAGRAPH-OPTIONS}
 
 \begin{indpar}
 
@@ -2438,24 +2438,41 @@ Enable Options:
 
 \bigskip
 
-Prefix Options:
+The following options apply only to prefix table entries with
+the `\TT{paragraph}' group.
 
 \begin{indpar}
 
 \hspace*{-0.2in}\ttmkey{sticky}{parser option} \\
-    This parser option allows TBD
+    An explicit paragraph header wit the `\TT{sticky}' option
+    replaces the paragraph implied header with a copy of itself.
+    An explicit paragraph header without the `\TT{sticky}' option
+    replaces the paragraph implied header with the missing value at
+    top level, or with the value from the \TT{define indentation mark}
+    command within an indented paragraph.  See \ref{STICKY-RULE},
+    \pagref{STICKY-RULE}.
 
 \hspace*{-0.2in}\ttmkey{continuing}{parser option} \\
-    This parser option allows TBD
+    A blank line ends a headed paragraph unless the paragraph header
+    has the `\TT{continuing}' option \underline{and}
+    the first logical line after the blank line does
+    \underline{not} begin with an explicit paragraph header.
+    See \ref{CONTINUING-RULE}, \pagref{CONTINUING-RULE}.
 
 \hspace*{-0.2in}\ttmkey{reset}{parser option} \\
-    This parser option allows TBD
+    A paragraph header with this option resets the line variables
+    (including the implied header) to their values at the beginning
+    of the current indented paragraph, or if outside an indented
+    paragraph, the values at the beginning of the file or after
+    the last `\TT{define top level}' parser command.  The paragraph
+    header is then deleted and not used to head a paragraph.
+    See \ref{RESET-RULE}, \pagref{RESET-RULE}.
 
 \end{indpar}
 
 \bigskip
 
-Two option groups are also defined:
+Option groups:
 
 \begin{center}
 \begin{tabular}{ll}
@@ -2638,7 +2655,7 @@ that follows another logical line.
 A headed paragraph ends with the next blank line that
 follows a logical line (there is an exception if the paragraph prefix table
 entry has the
-`\TT{continuing}' property), or when the indented paragraph that
+`\TT{continuing}' option), or when the indented paragraph that
 contains the headed paragraph ends (this can be at an
 end of file).
 
@@ -3053,9 +3070,9 @@ The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
 parsing selectors 	& 47 bits	& \pagref{PARSING-SELECTORS} \\
-parsing end at options	& 6 bits	& \pagref{OPTION-NAMES} \\
-parsing enable options	& 1 bits	& \pagref{OPTION-NAMES} \\
-parsing prefix options	& 3 bits	& \pagref{OPTION-NAMES} \\
+parsing end at options	& 6 bits	& \pagref{END-AT-OPTIONS} \\
+parsing paragraph options
+			& 4 bits	& \pagref{PARAGRAPH-OPTIONS} \\
 parsing trace flags	& 64 bits	& \pagref{TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
@@ -3175,7 +3192,7 @@ can be reset by the parser \ttkey{define top level} command
 \begin{center}
     \begin{tabular}[t]{l}
     \ttmkey{define top level}{parser command} \\
-    \TT{~~~~}[ \TT{with parsing selectors} {\em top-level-selectors} ] \\
+    \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
     \TT{~~~~}[ \TT{with parsing options} {\em top-level-options} ] \\
     \TT{~~~~}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
 	                \begin{tabular}[t]{@{}l@{}}
@@ -6311,11 +6328,21 @@ Logical line processing is as follows:
 
 \begin{enumerate}
 
-\item If the logical line is the first of a file, or the first of an
+\item\label{CONTINUING-RULE}
+If the logical line is the first of a file, or the first of an
 indented paragraph, or if it is in paragraph beginning position and the
 \TT{options} current line variable does not have the `\TT{continuing}'
 option, then the paragraph line variables are copied
 to the corresponding current line variables.
+
+If the logical line is the first after a blank line, and the blank
+line was preceeded by a sequence of logical lines prefixed by a
+paragraph header, the logical lines in this sequence (but not the
+current logical line) are collected into a paragraph
+headed by the paragraph header, unless the \TT{options} current line
+variable has the `\TT{continuing} option \underline{and}
+the current logical line does \underline{not}
+begin with an explicit paragraph header.
 
 \item The parsing selectors, options, and lexical master used at the
 beginning of the logical line are taken from the current line variables.
@@ -6381,7 +6408,7 @@ its prefix definition is used to
 modify the current line variables
 selectors, options, and lexical masters.  Then
 \begin{enumerate}[label*=\arabic*]
-\item
+\item\label{RESET-RULE}
 If the `\ttkey{reset}' option flag is on in the new current line variables,
 then
 \begin{enumerate}[label*=.\arabic*]
@@ -6425,6 +6452,7 @@ current selectors that has the `\TT{line}' group, $P$
 is copied to the \TT{current implied header} line variable.
 
 \item
+\label{STICKY-RULE}
 The \TT{paragraph implied header} is set to
 a copy of the explicit paragraph header,
 if the current options now has the `\TT{sticky}' flag.

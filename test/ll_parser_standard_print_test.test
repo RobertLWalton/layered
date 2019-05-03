@@ -88,10 +88,14 @@
                                               end at line separator,
                                               end at outer closing]
                         with implied header {p||p}
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
         block standard: indentation mark ":" ... ";" [code]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"

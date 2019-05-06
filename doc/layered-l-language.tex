@@ -631,7 +631,10 @@ A logical line may end with a \key{block} that is itself a sequence of
 logical lines that have indents greater than the indent of the
 logical line containing the block.
 The block is introduced by a `\TT{:}' at the end
-of a physical line.  If the first {\em indent} lexeme after the
+of a physical line, provided the `\TT{:}' is not inside brackets
+or quotes
+(e.g., not inside \TT{(~)} or \TT{`~'}).
+If the first {\em indent} lexeme after the
 `\TT{:}' has an indent that is \underline{not} greater than the indent
 of the logical line containing the `\TT{:}', the block is empty.
 Otherwise the indent of this {\em indent} lexeme becomes the
@@ -734,7 +737,7 @@ has been formed, any {\em indent},
 {\em comment}, {\em line-break}, and {\em end-of-file}
 lexemes in the logical line
 are removed from the logical line.  If the result is
-empty, i.e., the logical line is a comment line, it is discarded.
+empty, e.g., the logical line is a comment line, it is discarded.
 Otherwise the
 modified logical line becomes a L-Language `\emkey{statement}'.
 
@@ -985,11 +988,11 @@ that can be abbreviated are {\em qualifier-names},
 If the replacement name of an {\em abbreviation} is a {\em qualifier-name}
 in the context of the {\em abbreviation-declaration},
 the {\em abbreviation} becomes a {\em qualifier-name}, and
-must have they syntax of a {\em qualifier-name}.
+must have the syntax of a {\em qualifier-name}.
 Similarly, if the replacement name of an {\em abbreviation} is a {\em type-name}
 in the context of the {\em abbreviation-declaration},
 the {\em abbreviation} becomes a {\em type-name}, and
-must have they syntax of a {\em type-name}.
+must have the syntax of a {\em type-name}.
 In other cases, the {\em abbreviation} must have the syntax of
 a {\em variable-base-name} if its replacement does, and the syntax of
 a {\em member-name} if its replacement does.
@@ -1212,7 +1215,7 @@ A \key{module} is a file that begins with a {\em module-declaration}:
 \begin{itemize}
 
 \item
-A {\em module-declaration} may only appear at the very beginning
+A {\em module-declaration} may only appear as the first statement
 of a module file.
 
 \item
@@ -1288,9 +1291,14 @@ itself, and
 lasts to the end of smallest block containing the {\em declaration},
 or until the end of the file containing the {\em declaration} if
 the {\em declaration} is not inside any block.
+A declaration not inside a block is said to be `\key{top level}'.
 If the {\em declaration} is at top level in a module, the scope of the
 {\em declaration} is extended to include all the bodies of that
 module.
+A name or prototype pattern
+declared by a top level declaration in a module may begin with
+the {\em module-abbreviation} of the module.  This makes the
+declaration `\key{external}'.
 If the {\em declaration} is external, the scope of the
 {\em declaration} is extended to include all modules and
 bodies that import the module containing the {\em declaration}.
@@ -1301,14 +1309,40 @@ the purposes of defining scope.  These include subblocks inside
 {\em type-declarations} (\pagref{TYPE-DECLARATION}),
 and {\em in\-clude-statements} (\pagref{INCLUDE-STATEMENT}).
 These subblocks are considered to be syntactic sugar for
-sequences of statements that do not contain the subblocks.
+sequences of statements that do not contain subblocks.
+
+
+If a declaration declares a name or prototype pattern that does
+\underline{not} begin with a the {\em module-abbreviation} of the
+containing module, the declaration is `\key{internal}'.  Declarations
+that are not top level or are in a body file, and not a module file,
+\underline{must} be internal.
+
+Also, {\em abbreviation-declarations} are always internal
+(\pagref{ABBREVIATIONS-ARE-INTERNAL}),
+even when their abbreviation begins with a {\em module-abbreviation}.
+
+A {\em name} or {\em prototype} is external if its
+declaration is external, and internal if its declaration is internal.
+
+Any name or prototype declared to be external in an imported module is
+said to be `\key{imported}'.  The name or prototype is said to be
+`\key{exported}' by the module that contains its declaration,
+and `\key{imported}' by modules and bodies that import that module.
+Imported names can be used only if they begin
+with the {\em module-abbreviation} that references the module in which
+they are declared.  Imported prototypes may be used by calls beginning with
+the {\em module-abbreviation} that references the module in which
+they are declared, or if there is no ambiguity the {\em module-abbreviation}
+may be omitted from the calls.
 
 The scope of a {\em name}, {\em function-prototype}, or
 {\em generic-prototype}
 is the scope of the declaration that defines it.
 
 The scope of a {\em block-name} is the block it names
-(see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+(see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).  Block names are
+internal.
 
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
@@ -1323,7 +1357,7 @@ provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
-Code included by a generic
+Code produced by {\em include-statements} executed during a call to a generic
 (\itemref{GENERICS}), however, \underline{is} compiled in the current context.
 
 If two different declarations of the same {\em name} have overlapping
@@ -1383,13 +1417,6 @@ is matched against both {\em generic-prototypes}
 and {\em function-proto\-types}, and will be ambiguous if it matches
 one of each kind.
 
-A declaration not inside a block is said to be `\key{top level}'.
-The scope of a top level declaration in a module file is
-extended to include the
-bodies of that module.  External declarations must be top level in a
-module file,
-and their scope is extended to the modules and bodies that import the module.
-
 A top level declaration
 may \underline{not} have `\TT{next} {\em variable-name}' as
 a result variable.
@@ -1410,33 +1437,6 @@ of that module, and if it is in a body,
 may use out-of-line functions.
 It is a programming error to access
 deferred result variable values before they are assigned.
-
-A name or prototype pattern
-declared by a top level declaration in a module may begin with
-the {\em module-abbreviation} of the module.  In this case the
-name or prototype is `\key{external}',
-unless it is an abbreviation.
-The scope of external names and prototypes is extended
-to include modules and bodies that import the declaring module.
-All other names and prototypes declared in the module or
-its bodies are `\key{internal}',
-and these names and prototype patterns may not begin
-with any {\em module-abbreviation}.
-
-{\em Abbreviations} are always internal (\pagref{ABBREVIATIONS-ARE-INTERNAL}),
-even when they begin with a {\em module-abbreviation}.
-
-Any name or prototype declared to be external in an imported module is
-said to be `\key{imported}'.  The name or prototype is said to be
-`\key{exported}' by the module that contains its declaration,
-and `\key{imported}' by modules and bodies that import that module.
-
-Imported names can be used only if they begin
-with the {\em module-abbreviation} that references the module in which
-they are declared.  Imported prototypes may be used by calls beginning with
-the {\em module-abbreviation} that references the module in which
-they are declared, or if there is no ambiguity the {\em module-abbreviation}
-may be omitted from the calls.
 
 An example is:
 \begin{indpar}\begin{verbatim}

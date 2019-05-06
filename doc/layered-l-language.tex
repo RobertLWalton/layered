@@ -1078,6 +1078,9 @@ may have zero or more bodies.
 A module and all its bodies together form
 an `\key{extended module}'\label{EXTENDED-MODULE}.
 
+\subsection{Declarations}
+\label{Declarations}
+
 Modules and bodies consist of a sequence
 of \skey{declaration}s:
 \begin{indpar}
@@ -1112,7 +1115,7 @@ of \skey{declaration}s:
 
 Declarations declare {\em names}, {\em function-prototypes},
 and {\em generic-prototypes}.
-An {\em assignment-state\-ment} may also be a {\em declaration} of
+An {\em assignment-state\-ment} may also act as a {\em declaration} of
 its result {\em variable-names}.
 
 {\em Names} shared between modules begin with {\em module-abbreviations}
@@ -1128,20 +1131,50 @@ and such prototypes are `\key{external}'.
 
 External names and prototypes can only be declared in modules, and
 never in bodies.  External names and prototypes cannot be declared inside
-statement blocks, but must be declared at `top level' outside
-blocks.
+statement blocks, but must be declared at `\key{top level}', that is,
+outside statement blocks.
 
-As an exception, abbreviations are internal, and never external, even if
-they begin with a {\em module-abbreviation}
-(\pagref{ABBREVIATIONS-ARE-INTERNAL}).
+If a declaration declares a name or prototype pattern that does
+\underline{not} begin with a the {\em module-abbreviation} of the
+containing module, the declaration is `\key{internal}'.  Declarations
+that are not top level and all declarations in a body file
+\underline{must} be internal.
 
-In {\em function-calls} and {\em generic-calls} the
-{\em module-abbreviation} may be omitted
-if the {\em function-proto\-type} or {\em generic-prototype} matching the call
-can be unambiguously determined: see
-`module deficient' on \pagref{MODULE-DEFICIENT}.
-This may \underline{not} be done
-for names (e.g., external types, external variables).
+The following are exceptions to the above:
+\begin{itemize}
+\item {\em Abbreviation-declarations} are always internal
+(\pagref{ABBREVIATIONS-ARE-INTERNAL}),
+even when their abbreviation begins with a {\em module-abbreviation}.
+
+\item
+\label{NON-BLOCKS}
+Statement subblocks inside the following declarations
+are not considered to be blocks for the purposes of program organization:
+\begin{itemize}
+\item[] {\em abbreviation-declarations} (\pagref{ABBREVIATION-DECLARATION})
+\item[] {\em type-declarations} (\pagref{TYPE-DECLARATION})
+\item[] {\em in\-clude-statements} (\pagref{INCLUDE-STATEMENT}).
+\end{itemize}
+These subblocks are considered to be syntactic sugar for
+sequences of statements that do not contain subblocks.
+\end{itemize}
+
+A {\em name} or {\em prototype} is external if its
+declaration is external, and internal if its declaration is internal.
+
+A module may be imported into another module or body.
+Any name or prototype declared to be external in a module that is imported
+into a second module is
+said to be `\key{imported}' within the second module, and
+`\key{exported}' from the first module.
+Imported names can be used only if they begin
+with the {\em module-abbreviation} that references the module in which
+they are declared.  Imported prototypes may be used by calls beginning with
+the {\em module-abbreviation} that references the module in which
+they are declared, or if there is no ambiguity the {\em module-abbreviation}
+may be omitted from the calls.
+{\em Module-abbreviations} may not be omitted from imported names
+(e.g., external types, external variables).
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -1183,6 +1216,181 @@ math complex z2 = math ( x + y )
     // `math' module abbreviation for "+" is explicit and
     // NOT implied.
 \end{verbatim}\end{indpar}
+
+\subsection{Scope}
+\label{SCOPE}
+
+
+A {\em declaration} has a \key{scope},
+that is the set of statements in which any
+names or prototypes defined by the {\em declaration}
+are recognized.  The scope of a {\em declaration}
+begins just after the {\em declaration}
+itself, and
+lasts to the end of smallest block containing the {\em declaration},%
+\footnote{Recall that subblocks of
+{\em abbreviation-declarations},
+{\em type-declarations},
+and {\em in\-clude-statements} not considered to be blocks for
+this purpose: see \ref{NON-BLOCKS} on \pagref{NON-BLOCKS}.}
+or until the end of the file containing the {\em declaration} if
+the {\em declaration} is top level.
+The scope of top level {\em declarations} in a module
+is extended to include all the bodies of that
+module.
+If the {\em declaration} is external, the declaration must be
+top level in a module and not in a body, and the scope of the
+{\em declaration} is extended to include all modules and
+bodies that import the module containing the {\em declaration}.
+
+
+The scope of a {\em name}, {\em function-prototype}, or
+{\em generic-prototype}
+is the scope of the declaration that defines it.
+
+The scope of a {\em block-name} is the block it names
+(see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).  Block names are
+internal.
+
+The \key{context}\label{CONTEXT} of a statement is the set of declarations
+whose scope the statement is in.
+
+When a {\em function-call} to an inline function
+or a {\em generic-call} to a generic is compiled,
+the context of the compilation is \underline{not} the current context but
+rather the context of the inline function or generic
+declaration.
+Also the context in which any {\em default-value} expression
+provided by a declaration
+is compiled is the \underline{not} the current context but
+rather the context of that declaration.
+
+Code produced by {\em include-statements} executed during a call to a generic
+(\itemref{GENERICS}), however, \underline{is} compiled in the current context.
+
+If two different declarations of the same {\em name} have overlapping
+scope, one of these scopes must include the other,
+and the declaration with the smaller scope is said to 
+`\mkey{hide}{declaration}'\label{HIDE} the other declaration.
+Such hiding is a compiler error unless the smaller scope
+is within one of the following kinds of statements, and
+the larger scope includes the whole statement:
+\begin{center}
+\begin{tabular}{ll}
+{\em function-type-declaration}
+    & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
+{\em out-of-line-function-assignment}
+    & [see \pagref{OUT-OF-LINE-FUNCTION-ASSIGNMENT}] \\
+{\em out-of-line-function-declaration}
+    & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
+{\em function-declaration}
+    & [see \pagref{FUNCTION-DECLARATION}] \\
+{\em generic-declaration}
+    & [see \pagref{GENERIC-DECLARATION}] \\
+{\em block-assignment-statement} with context option
+    & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
+{\em compile-and-run-assignment-statement} with context option
+    & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
+\end{tabular}\label{HIDING-EXCEPTIONS}
+\end{center}
+
+As an exception to the last rule, the declaration with the
+smaller scope may be an assignment statement declaring
+a variable name `\TT{next} {\tt v}' when the declaration
+with the larger scope is an assignment statement
+declaring `{\tt v}', and the two declarations have the
+same smallest containing block.
+Within the smaller scope `{\tt v}' refers to the
+`\TT{next} {\tt v}' declaration: see \pagref{NEXT}.
+
+By the last rule,
+`\TT{next} {\tt v}' cannot be declared inside a block $B$ if `{\tt v}' was
+declared outside $B$ and $B$ is completely within
+the scope of `{\tt v}', so the smallest containing block of
+`{\tt v}' is not the same as the smallest containing block of
+`\TT{next} {\tt v}'.
+
+Prototypes cannot hide each other.  If the
+current scope contains two declarations whose prototypes
+both match a {\em function-call} or {\em generic-call},
+the call is ambiguous and
+in error, even if the scope of one declaration is within
+a subblock of the scope of the other.
+As a consequence, it may be unwise to place {\em function-declarations}
+or {\em generic-declarations}
+within statements that have the context option.
+
+A call that is a statement by itself
+is matched against both {\em generic-prototypes}
+and {\em function-proto\-types}, and will be ambiguous if it matches
+one of each kind.
+
+A top level declaration
+may \underline{not} have `\TT{next} {\em variable-name}' as
+a result variable.
+
+A top level assignment statement in a module may not include references to
+out-of-line functions or to inline functions that in turn include
+references to out-of-line functions.  This implies that all code needed
+to initialize a top level variable will be initialized before the
+variable is initialized.
+
+However a top level assignment statement may have a
+\key{deferred value} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}) indicating
+that its result variable values will not be assigned until later.
+The statement
+assigning the values must be in the same extended module
+as the deferred assignment statement, but may be in a body
+of that module, and if it is in a body,
+may use out-of-line functions.
+It is a programming error to access
+deferred result variable values before they are assigned.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+module "my_own_module" as mom:
+    // `import "standard" as std' is implied
+    import "George's_own_module" as gom
+    // gom contains:
+    //    function int32 z = gom ( int32 x ) "+" ( int32 y )
+
+int32 mom my external constant = ...
+int32 my internal constant = ...
+
+function int32 y = mom my external function ( int32 x ):
+    ... function body omitted ...
+function int32 y = my internal function ( int32 x ):
+    ... function body omitted ...
+
+function int32 z = my inline function ( int32 x, int32 y ):
+    int32 z1 = gom ( x + y )
+        // Uses gom's + operator.
+        // Compiles as as `gom (x) "+" (y)'.
+    int32 z2 = std ( x + y )
+        // Uses builtin std's + operator.
+        // Compiles as as `std (x) "+" (y)'.
+    z  = z1 + z2 
+        // Compiles as `z = ( (x) "+" (y) )'.
+        // Compile error, ambiguous: both std + operator
+        // and gom's + operator match the call to "+".
+\end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
+
+More specifically,
+when a function declaration is used, the {\em module-abbreviation}
+beginning the function call may be omitted if the function declaration is
+the only function declaration within scope that matches the usage,
+according to the module deficiency rules of
+section~\itemref{MATCHING-CALLS-TO-PROTOTYPES}.
+Thus in the context of the above example the lines:
+\begin{indpar}\begin{verbatim}
+int32 y = mom my external function ( x )
+int32 y = my external function ( x )
+\end{verbatim}\end{indpar}
+are equivalent if no {\em function-prototype}
+\begin{center}
+\tt function int32 r = $ma$\QMARK{} my external function ( int32 v )
+\end{center}
+is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
 
 \subsection{Modules}
 \label{MODULES}
@@ -1277,212 +1485,6 @@ $ma$, the function will be
 {\tt ~~~~r = ( $T2$ ( x ) ) "==" ( $T2$  ( y ) )}
 \end{tabular}
 \end{center}
-
-
-\subsection{Scope}
-\label{SCOPE}
-
-A {\em declaration} has a \key{scope},
-that is the set of statements in which any
-names or prototypes defined by the {\em declaration}
-are recognized.  The scope of a {\em declaration}
-begins just after the {\em declaration}
-itself, and
-lasts to the end of smallest block containing the {\em declaration},
-or until the end of the file containing the {\em declaration} if
-the {\em declaration} is not inside any block.
-A declaration not inside a block is said to be `\key{top level}'.
-If the {\em declaration} is at top level in a module, the scope of the
-{\em declaration} is extended to include all the bodies of that
-module.
-A name or prototype pattern
-declared by a top level declaration in a module may begin with
-the {\em module-abbreviation} of the module.  This makes the
-declaration `\key{external}'.
-If the {\em declaration} is external, the scope of the
-{\em declaration} is extended to include all modules and
-bodies that import the module containing the {\em declaration}.
-
-Some statement subblocks are not considered to be blocks for
-the purposes of defining scope.  These include subblocks inside
-{\em abbreviation-declarations} (\pagref{ABBREVIATION-DECLARATION}),
-{\em type-declarations} (\pagref{TYPE-DECLARATION}),
-and {\em in\-clude-statements} (\pagref{INCLUDE-STATEMENT}).
-These subblocks are considered to be syntactic sugar for
-sequences of statements that do not contain subblocks.
-
-
-If a declaration declares a name or prototype pattern that does
-\underline{not} begin with a the {\em module-abbreviation} of the
-containing module, the declaration is `\key{internal}'.  Declarations
-that are not top level or are in a body file, and not a module file,
-\underline{must} be internal.
-
-Also, {\em abbreviation-declarations} are always internal
-(\pagref{ABBREVIATIONS-ARE-INTERNAL}),
-even when their abbreviation begins with a {\em module-abbreviation}.
-
-A {\em name} or {\em prototype} is external if its
-declaration is external, and internal if its declaration is internal.
-
-Any name or prototype declared to be external in an imported module is
-said to be `\key{imported}'.  The name or prototype is said to be
-`\key{exported}' by the module that contains its declaration,
-and `\key{imported}' by modules and bodies that import that module.
-Imported names can be used only if they begin
-with the {\em module-abbreviation} that references the module in which
-they are declared.  Imported prototypes may be used by calls beginning with
-the {\em module-abbreviation} that references the module in which
-they are declared, or if there is no ambiguity the {\em module-abbreviation}
-may be omitted from the calls.
-
-The scope of a {\em name}, {\em function-prototype}, or
-{\em generic-prototype}
-is the scope of the declaration that defines it.
-
-The scope of a {\em block-name} is the block it names
-(see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).  Block names are
-internal.
-
-The \key{context}\label{CONTEXT} of a statement is the set of declarations
-whose scope the statement is in.
-
-When a {\em function-call} to an inline function
-or a {\em generic-call} to a generic is compiled,
-the context of the compilation is \underline{not} the current context but
-rather the context of the inline function or generic
-declaration.
-Also the context in which any {\em default-value} expression
-provided by a declaration
-is compiled is the \underline{not} the current context but
-rather the context of that declaration.
-
-Code produced by {\em include-statements} executed during a call to a generic
-(\itemref{GENERICS}), however, \underline{is} compiled in the current context.
-
-If two different declarations of the same {\em name} have overlapping
-scope, one of these scopes must include the other,
-and the declaration with the smaller scope is said to 
-`\mkey{hide}{declaration}'\label{HIDE} the other declaration.
-Such hiding is a compiler error unless the smaller scope
-is within one of the following kinds of statements, and
-the larger scope includes the whole statement:
-\begin{center}
-\begin{tabular}{ll}
-{\em function-type-declaration}
-    & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
-{\em out-of-line-function-assignment}
-    & [see \pagref{OUT-OF-LINE-FUNCTION-ASSIGNMENT}] \\
-{\em out-of-line-function-declaration}
-    & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
-{\em function-declaration}
-    & [see \pagref{FUNCTION-DECLARATION}] \\
-{\em generic-declaration}
-    & [see \pagref{GENERIC-DECLARATION}] \\
-{\em block-assignment-statement} with context option
-    & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
-{\em compile-and-run-assignment-statement} with context option
-    & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
-\end{tabular}\label{HIDING-EXCEPTIONS}
-\end{center}
-
-As an exception to the last rule, the declaration with the
-smaller scope may be an assignment statement declaring
-a variable name `\TT{next} {\tt v}' when the declaration
-with the larger scope is an assignment statement
-declaring `{\tt v}', and the two declarations have the
-same smallest containing block.
-Within the smaller scope `{\tt v}' refers to the
-`\TT{next} {\tt v}' declaration: see \pagref{NEXT}.
-
-By the last rule,
-`\TT{next} {\tt v}' cannot be declared in a block $B$ if `{\tt v}' was
-declared outside $B$ and $B$ is completely within
-the scope of `{\tt v}', so the smallest containing block of
-`{\tt v}' is not the same as the smallest containing block of
-`\TT{next} {\tt v}'.
-
-Prototypes cannot hide each other.  If the
-current scope contains two declarations whose prototypes
-both match a {\em function-call} or {\em generic-call},
-the call is ambiguous and
-in error, even if the scope of one declaration is within
-a subblock of the scope of the other.
-As a consequence, it may be unwise to place {\em function-declarations}
-or {\em generic-declarations}
-within assignment statements that have the context option.
-
-A call that is a statement by itself
-is matched against both {\em generic-prototypes}
-and {\em function-proto\-types}, and will be ambiguous if it matches
-one of each kind.
-
-A top level declaration
-may \underline{not} have `\TT{next} {\em variable-name}' as
-a result variable.
-
-A top level assignment statement in a module may not include references to
-out-of-line functions or to inline functions that in turn include
-references to out-of-line functions.  This implies that all code needed
-to initialize a top level variable will be initialized before the
-variable is initialized.
-
-However a top level assignment statement may have a
-\key{deferred value} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}) indicating
-that its result variable values will not be assigned until later.
-The statement
-assigning the values must be in the same extended module
-as the deferred assignment statement, but may be in a body
-of that module, and if it is in a body,
-may use out-of-line functions.
-It is a programming error to access
-deferred result variable values before they are assigned.
-
-An example is:
-\begin{indpar}\begin{verbatim}
-module "my_own_module" as mom:
-    // `import "standard" as std' is implied
-    import "George's_own_module" as gom
-    // gom contains:
-    //    function int32 z = gom ( int32 x ) "+" ( int32 y )
-
-int32 mom my external constant = ...
-int32 my internal constant = ...
-
-function int32 y = mom my external function ( int32 x ):
-    ... function body omitted ...
-function int32 y = my internal function ( int32 x ):
-    ... function body omitted ...
-
-function int32 z = my inline function ( int32 x, int32 y ):
-    int32 z1 = gom ( x + y )
-        // Uses gom's + operator.
-        // Compiles as as `gom (x) "+" (y)'.
-    int32 z2 = std ( x + y )
-        // Uses builtin std's + operator.
-        // Compiles as as `std (x) "+" (y)'.
-    z  = z1 + z2 
-        // Compiles as `z = ( (x) "+" (y) )'.
-        // Compile error, ambiguous: both std + operator
-        // and gom's + operator match the call to "+".
-\end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
-
-More specifically,
-when a function declaration is used, the {\em module-abbreviation}
-beginning the function call may be omitted if the function declaration is
-the only function declaration within scope that matches the usage,
-according to the module deficiency rules of
-section~\itemref{MATCHING-CALLS-TO-PROTOTYPES}.
-Thus in the context of the above example the lines:
-\begin{indpar}\begin{verbatim}
-int32 y = mom my external function ( x )
-int32 y = my external function ( x )
-\end{verbatim}\end{indpar}
-are equivalent if no {\em function-prototype}
-\begin{center}
-\tt function int32 r = $ma$\QMARK{} my external function ( int32 v )
-\end{center}
-is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
 
 \subsection{Bodies}
 \label{BODIES}

@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 3, 2019
+May 6, 2019
  
 \end{center}
 
@@ -266,7 +266,7 @@ the following character classes:
 \emkey{horizontal-space-character}
     \begin{tabular}[t]{rl}
     :::= & characters in UNICODE category \TT{Zs} \\
-         & (includes ASCII single space) \\
+         & (includes {\em ASCII-single-space}) \\
     $|$  & {\em horizontal-tab-character}
     \end{tabular}
 \\
@@ -305,12 +305,12 @@ the following character classes:
 \emkey{letter} :::=
     characters in UNICODE category \TT{L}
 \\
-\emkey{decimal-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+\emkey{ASCII-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
                      $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
 \\
 \emkey{digit} :::=
     characters in UNICODE category \TT{Nd}
-    (includes {\em decimal-digits})
+    (includes {\em ASCII-digits})
 \\
 \emkey{lexical-item-character} :::=
 	\begin{tabular}[t]{l}
@@ -376,7 +376,7 @@ and are illegal:
 \emkey{misplaced-horizontal-space-character} :::=
     \begin{tabular}[t]{l}
     {\em horizontal-space-character}, other than \\
-    ASCII single space
+    ASCII-single-space
     \end{tabular}
 \\[0.3ex]
 \emkey{misplaced-vertical-space-character} :::= {\em vertical-space-character}
@@ -463,8 +463,10 @@ warning messages.
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{special-character-representative} :::=
-    \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
+\emkey{special-character-representative} :::= \\
+\hspace*{0.5in}
+    \TT{<} \{ {\em ASCII-upper-case-letter} $|$ {\em ASCII-digit}
+            \}\PLUS{} \TT{>}
 \\[1ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
                        not beginning with \TT{//}
@@ -484,7 +486,7 @@ warning messages.
     ::= {\em middle-lexeme} with a {\em digit} before any {\em letter}
 \\[0.5ex]
 \emkey{natural-number}\label{NATURAL-NUMBER}
-	:::= {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
+	:::= {\em ASCII-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
 \\[0.5ex]
 \emkey{word} :::= {\em middle-lexeme} containing a {\em letter} that is not
                   a {\em number}
@@ -549,6 +551,30 @@ between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
+
+\ikey{Middle lexemes}{middle lexemes!glued}
+in the same logical line are glued together if the first
+ends with `\TT{\#}' and the second begins with `\TT{\#}'.
+Thus
+\begin{indpar}\begin{verbatim}
+This is a continued-#
+    #middle# #-lexeme.
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-lexeme.
+\end{verbatim}\end{indpar}
+For compatibility, two consequtive `\TT{\#}' marks may be used
+to glue together two quoted strings, as in
+\begin{indpar}\begin{verbatim}
+"This is a continued-"#
+    #"quoted"# #"-string".
+\end{verbatim}\end{indpar}
+which is equivalent to
+\begin{indpar}\begin{verbatim}
+"This is a continued-quoted-string".
+\end{verbatim}\end{indpar}
+
 
 A \emkey{special-character-representative} can consist of
 a UNICODE character name surrounded by angle brackets.  Examples are

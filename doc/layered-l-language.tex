@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 6, 2019
+May 7, 2019
  
 \end{center}
 
@@ -1310,6 +1310,11 @@ the scope of `{\tt v}', so the smallest containing block of
 `{\tt v}' is not the same as the smallest containing block of
 `\TT{next} {\tt v}'.
 
+However, if `{\tt v}' is an external variable,
+`\TT{next} {\tt v}' may not be declared.%
+\footnote{This rule is not logically necessary, but is made to
+avoid confusion while reading code.}
+
 Prototypes cannot hide each other.  If the
 current scope contains two declarations whose prototypes
 both match a {\em function-call} or {\em generic-call},
@@ -1324,27 +1329,6 @@ A call that is a statement by itself
 is matched against both {\em generic-prototypes}
 and {\em function-proto\-types}, and will be ambiguous if it matches
 one of each kind.
-
-A top level declaration
-may \underline{not} have `\TT{next} {\em variable-name}' as
-a result variable.
-
-A top level assignment statement in a module may not include references to
-out-of-line functions or to inline functions that in turn include
-references to out-of-line functions.  This implies that all code needed
-to initialize a top level variable will be initialized before the
-variable is initialized.
-
-However a top level assignment statement may have a
-\key{deferred value} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}) indicating
-that its result variable values will not be assigned until later.
-The statement
-assigning the values must be in the same extended module
-as the deferred assignment statement, but may be in a body
-of that module, and if it is in a body,
-may use out-of-line functions.
-It is a programming error to access
-deferred result variable values before they are assigned.
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -1395,7 +1379,7 @@ is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
 \subsection{Modules}
 \label{MODULES}
 
-A \key{module} is a file that begins with a {\em module-declaration}:
+A \key{module} is a file whose first statement is a {\em module-declaration}:
 
 \begin{indpar}
 \emkey{module-declaration}\label{MODULE-DECLARATION}
@@ -1406,7 +1390,7 @@ A \key{module} is a file that begins with a {\em module-declaration}:
     \end{tabular} \\
 \emkey{simple-module-declaration} ::= \TT{module} {\em module-name}
         \TT{as} {\em module-abbreviation} \\
-\emkey{module-name} ::= {\em quoted-string} \\
+\emkey{module-name}\label{MODULE-NAME} ::= {\em quoted-string} \\
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
 	::= \TT{word} not containing any `\TT{.}'s \\
 \emkey{module-clause}\label{MODULE-CLAUSE} ::=
@@ -1452,6 +1436,26 @@ arrows connect each module to the modules it or its bodies import is called
 the `\key{module graph}'.\label{MODULE-GRAPH}
 This graph \underline{must be acyclic}.
 
+The execution of a top level assignment statement in a module may
+\underline{not} invoke an out-of-line function.
+This ensures that all code needed
+to initialize a top level variable will be initialized before the
+variable is initialized.
+
+However a top level assignment statement may have a
+\key{deferred value} (\pagref{DEFERRED-ASSIGNMENT-STATEMENTS}) indicating
+that its result variable values will not be assigned until later.
+The statement executed later that
+assigns the values must be a top level statement
+in the same extended module
+as the deferred assignment statement, but may be in a body
+of that module, and if it is in a body,
+may use out-of-line functions.
+It is a programming error to access
+deferred result variable values before they are assigned,
+and there are program-initialization-time checks to catch
+these errors.
+
 The module \TT{"standard"}\index{standard@\TT{"standard"}} with
 module abbreviation \ttkey{std} is builtin and contains the builtin types and
 functions.  The {\em import-clause}
@@ -1489,8 +1493,7 @@ $ma$, the function will be
 \subsection{Bodies}
 \label{BODIES}
 
-A \key{body}
-is a file that begins with an {\em body-declaration}:
+A \key{body} is a file whose first statement is a {\em body-declaration}:
 
 \begin{indpar}
 \emkey{body-declaration}\label{BODY-DECLARATION} ::=
@@ -1501,12 +1504,14 @@ is a file that begins with an {\em body-declaration}:
 \\[0.5ex]
 \emkey{body-name} ::= {\em quoted-string}
 \\[0.5ex]
-{\em body-clause} ::= {\em import-clause} $|$ {\em after-clause} $|$
+{\em module-name} ::= see \pagref{MODULE-NAME}
+\\[0.5ex]
+\emkey{body-clause} ::= {\em import-clause} $|$ {\em after-clause} $|$
                       {\em internal-parser-block}
 \\[0.5ex]
 {\em import-clause} ::= see \pagref{IMPORT-CLAUSE}
 \\[0.5ex]
-{\em after-clause} ::= \TT{initialize after }{\em body-name}
+\emkey{after-clause} ::= \TT{initialize after }{\em body-name}
 \\[0.5ex]
 \emkey{internal-parser-block} ::=
 {\em parser-block} without \TT{external} option
@@ -1517,13 +1522,14 @@ is a file that begins with an {\em body-declaration}:
 \begin{itemize}
 
 \item
-A {\em body-declaration} may only appear at the very beginning
+A {\em body-declaration} may only appear as the first statement
 of a body file.
 
 \item
-In a {\em body-declaration} all {\em module-abbreviations} must be
-distinct, and all {\em module-names} and {\em body-names}
-must be distinct.
+In a {\em body-declaration} the {\em module-abbreviations} of imported
+modules must be distinct and must be different from the
+{\em module-abbreviation} used by the body's module,
+and all {\em module-names} and {\em body-names} must be distinct.
 
 \item
 There may be at most one {\em parser-block} in a {\em body-declaration}.
@@ -1554,7 +1560,8 @@ to the body.  The body must import whatever other modules it uses
 explicitly.
 
 The {\em after-clauses} name other bodies that extend the same
-module, and control initialization: see \itemref{PROGRAM-INITIALIZATION}.
+module, and determine the order in which bodies are initialized:
+see \itemref{PROGRAM-INITIALIZATION}.
 
 \subsection{Program Initialization}
 \label{PROGRAM-INITIALIZATION}
@@ -1593,6 +1600,7 @@ Statements initializing deferred variables and functions must be executed
 during initialization of the extended module containing the
 deferred variables and functions, and
 before the deferred variable values or deferred functions are used.
+There are program-initialization-time checks to enforce this rule.
 
 \subsection{Parsing}
 

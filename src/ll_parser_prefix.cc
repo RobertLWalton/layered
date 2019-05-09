@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 30 15:00:54 EDT 2019
+// Date:	Thu May  9 04:03:08 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -268,10 +268,16 @@ static bool data_reformatter_function
 		      " ignored" );
 	    }
 
+	    // Now if j < lsize the last thing scanned
+	    // was an args[0] (e.g., "=").
+
 	    min::locatable_gen value
 	        ( has_negator ? min::FALSE
 		              : min::TRUE );
 	    bool is_multivalue = false;
+	    min::locatable_gen reverse_name
+		( min::MISSING() );
+	    min::gen reverse_flags = min::MISSING();
 	    if ( j + 1 == lsize )
 	    {
 		min::phrase_position_vec ppvec =
@@ -285,8 +291,15 @@ static bool data_reformatter_function
 		      " but not found; line ignored" );
 		continue;
 	    }
-	    else if ( j + 2 == lsize )
+	    else if ( j + 2 == lsize
+	              ||
+	    	      (    j + 3 < lsize
+	                && line[j+3] == args[0] ) )
 	    {
+	        // Single token value, including
+		// possible multi-value bracketed
+		// list.
+		//
 	        ++ j;
 		value = line[j++];
 		if ( min::is_obj ( value ) )
@@ -298,9 +311,50 @@ static bool data_reformatter_function
 		    is_multivalue =
 			( min::get ( vap ) == args[3] );
 		}
+		if ( j < lsize )
+		{
+		    // name = value = reverse_name
+		    // Ready to scan second "=".
+		    //
+		    MIN_REQUIRE ( line[j] == args[0] );
+		    ++ j;
+		    reverse_name =
+			( PAR::scan_label ( line, j ) );
+		    if (    reverse_name
+		         == min::MISSING() )
+		    {
+			min::phrase_position_vec ppvec =
+			    min::position_of
+			        ( paragraph );
+			PAR::parse_error
+			    ( parser, ppvec[i],
+			      "reverse attribute label"
+			      " after second `",
+			      min::pgen_never_quote
+				  ( args[0] ),
+			      "' was expected but not"
+			      " found; line ignored" );
+			continue;
+		    }
+
+		    if (    j < lsize
+		         && min::is_obj ( line[j] ) )
+		    {
+			min::obj_vec_ptr fvp
+			    ( line[j] );
+			min::attr_ptr fap ( fvp );
+			min::locate
+			    ( fap, min::dot_initiator );
+			if (    min::get ( fap )
+			     == args[2] )
+			    reverse_flags = line[j++];
+		    }
+		}
 	    }
 	    else if ( j + 2 < lsize )
 	    {
+	        // Multi-token value, i.e., a label.
+		//
 		int j0 = j ++;
 		value = PAR::scan_label ( line, j );
 		if ( value == min::MISSING() )
@@ -319,19 +373,20 @@ static bool data_reformatter_function
 			  " line ignored" );
 		    continue;
 		}
-		else if ( j < lsize )
-		{
-		    min::phrase_position_vec ppvec =
-			min::position_of ( line );
-		    min::phrase_position pos =
-		        { (&ppvec[j])->begin,
-			  (&ppvec[lsize-1])->end };
-		    PAR::parse_error
-			( parser, pos,
-			  "extra stuff at end of line;"
-			  " line ignored" );
-		    continue;
-		}
+	    }
+
+	    if ( j < lsize )
+	    {
+		min::phrase_position_vec ppvec =
+		    min::position_of ( line );
+		min::phrase_position pos =
+		    { (&ppvec[j])->begin,
+		      (&ppvec[lsize-1])->end };
+		PAR::parse_error
+		    ( parser, pos,
+		      "extra stuff at end of line;"
+		      " line ignored" );
+		continue;
 	    }
 
 	    min::locate ( fap, name );

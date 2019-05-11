@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  1 14:14:02 EDT 2019
+// Date:	Sat May 11 14:06:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1842,7 +1842,8 @@ void PAR::set_attr_flags
 void PAR::set_attr_multivalue
 	( PAR::parser parser,
 	  min::attr_insptr & ap,
-	  min::gen multivalue )
+	  min::gen multivalue,
+	  bool must_be_objects )
 {
     min::obj_vec_ptr vp ( multivalue );
     min::unsptr n =
@@ -1852,9 +1853,14 @@ void PAR::set_attr_multivalue
     for ( min::unsptr i = 0; i < n; ++ i )
     {
 	min::gen value = min::attr ( vp, i );
-	if ( min::is_attr_legal ( value ) )
-	    values[m++] = value;
-	else
+	bool is_legal = min::is_attr_legal ( value );
+	if ( ! is_legal
+	     ||
+	     ( must_be_objects
+	       &&
+	       ! min::is_preallocated ( value )
+	       &&
+	       ! min::is_obj ( value ) ) )
 	{
 	    min::attr_ptr ap ( vp );
 	    min::locate ( ap, min::dot_position );
@@ -1863,10 +1869,16 @@ void PAR::set_attr_multivalue
 	    min::phrase_position position = pos[i];
 	    PAR::parse_error
 		( parser, position,
-		  "not a legal attribute value `",
+		  ( is_legal ?  "not an object or"
+		                " preallocated" :
+			        "not a legal" ),
+		   min::pnop,
+		   " attribute value `",
 		   min::pgen_never_quote ( value ),
 		   "'; ignored" );
 	}
+	else
+	    values[m++] = value;
     }
     min::set ( ap, values, m );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  2 08:02:24 EDT 2019
+// Date:	Sat May 11 13:59:42 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,7 +65,8 @@ namespace ll { namespace parser {
 	    			//     break
 	    ealsep,		// end at line separator
 	    eaoclosing,		// end at outer closings
-	    eiparagraph,	// enable indented paragraph
+	    eiparagraph,	// enable indented
+	    			//        paragraph
 	    sticky,		// sticky
 	    reset,		// reset
 	    continuing,		// continuing
@@ -1740,12 +1741,18 @@ void set_attr_flags
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `multivalue' containing
 // multiple attribute value, set the designated values
-// of the attribute.
+// of the attribute.  Require that the values be legal
+// (not condition codes, not auxiliary values, not NONE,
+// etc., as per min::is_attr_legal).  If must_be_objects
+// is true, requires that the values be objects or pre-
+// allocated.  For a value not meeting requirements,
+// prints error message and ignores value.
 //
 void set_attr_multivalue
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,
-	  min::gen multivalue );
+	  min::gen multivalue,
+	  bool must_be_objects = false );
 
 // First, invokes the given pass, if that is not NULL_
 // STUB, on the expression consisting of the tokens

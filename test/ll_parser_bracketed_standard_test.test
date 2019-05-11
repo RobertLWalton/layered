@@ -6018,10 +6018,90 @@ BRACKETED EXPRESSION:
     line ###:
         fie = @@
         ^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETABLE EXPRESSION:
+    {|X, Y, Z|}
+@@@@ = X Y Z:
+           .separator = ","
+           .position[H] = PACKED_VEC
+    line ###:
+        mie = {* X, Y, Z *}
+              ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* X, Y, Z *}
+@@@@ = X Y Z:
+           .terminator = [< "*" "}" >]
+           .initiator = [< "{" "*" >]
+           .separator = ","
+           .position[H] = PACKED_VEC
+    line ###:
+        mie = {* X, Y, Z *}
+              ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    mie = {* X, Y, Z *}
+@@@@ = mie = {* X, Y, Z *}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+        mie = {* X, Y, Z *}
+        ^^^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [data] SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY ","
+     OF SUBTYPE ll::parser::table::typed_attr_sep_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETABLE EXPRESSION:
+    {|{|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8)|}
+@@@@ = {|A B C|} PREALLOCATED(2*7) PREALLOCATED(2*8):
+           .separator = ","
+           .position[H] = PACKED_VEC
+    line ###:
+        moe = {* @@, @@, @@ *}
+              ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8) *}
+@@@@ = {|A B C|} PREALLOCATED(2*7) PREALLOCATED(2*8):
+           .terminator = [< "*" "}" >]
+           .initiator = [< "{" "*" >]
+           .separator = ","
+           .position[H] = PACKED_VEC
+    line ###:
+        moe = {* @@, @@, @@ *}
+              ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    moe = {* {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8) *}
+@@@@ = moe = {* {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8) *}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+        moe = {* @@, @@, @@ *}
+        ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
-         @@@@ @@@@ @@@@ @@@@|}
-@@@@ = @@@@ @@@@ @@@@ @@@@ @@@@:
+         @@@@ @@@@ @@@@ @@@@ @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@ @@@@ @@@@ @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = ":"
@@ -6038,6 +6118,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^
         fie = @@
 ^^^^^^^^^^^^^^^^
+        mie = {* X, Y, Z *}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        moe = {* @@, @@, @@ *}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {data|1 2 3|data}
 @@@@ = 1 2 3:
@@ -6047,11 +6131,15 @@ BRACKETED EXPRESSION:
 @@ = 1 2 3 :
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": fie = PREALLOCATED(1*8), foe = PREALLOCATED(1*7), fee =
-         {|A B C|}, fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
+    {"": moe = {* {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8) *},
+         mie = {* "X", "Y", "Z" *}, fie = PREALLOCATED(2*8), foe =
+         PREALLOCATED(2*7), fee = {|A B C|}, fum = [< "Q" "R" "T" >],
+         foo = "P"|1 2 3|}
 @@@@ = 1 2 3:
-           fie = PREALLOCATED(1*8)
-           foe = PREALLOCATED(1*7)
+           moe = {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8)
+           mie = "X", "Y", "Z"
+           fie = PREALLOCATED(2*8)
+           foe = PREALLOCATED(2*7)
            fee = {|A B C|}
            fum = [< "Q" "R" "T" >]
            foo = "P"
@@ -6069,6 +6157,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^
         fie = @@
 ^^^^^^^^^^^^^^^^
+        mie = {* X, Y, Z *}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        moe = {* @@, @@, @@ *}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
@@ -6124,14 +6216,17 @@ ERROR: in line ###: previous uses of ID exist and will be dangling:
 ^^
 BRACKETED EXPRESSION:
     ID 6 is
-        {"": fie = PREALLOCATED(2*8), foe = (Z), fee = {|A B C|}, fum =
-             [< "Q" "R" "T" >], foo = "P"|1 2 3|}
+        {"": moe = {* {|A B C|}, (Z), PREALLOCATED(3*8) *}, mie =
+             {* "X", "Y", "Z" *}, fie = PREALLOCATED(3*8), foe = (Z),
+             fee = {|A B C|}, fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
 @@@@ = ID 6 is @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
 @@@@ = 1 2 3:
-           fie = PREALLOCATED(2*8)
+           moe = {|A B C|}, (Z), PREALLOCATED(3*8)
+           mie = "X", "Y", "Z"
+           fie = PREALLOCATED(3*8)
            foe = (Z)
            fee = {|A B C|}
            fum = [< "Q" "R" "T" >]

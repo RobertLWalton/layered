@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  3 05:10:03 EDT 2019
+// Date:	Sat May 11 04:22:08 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -248,6 +248,8 @@ the line after the outer paragraph
 	fee = @5
 	foe = @7
 	fie = @8
+	mie = {* X, Y, Z *}
+	moe = {* @5, @7, @8 *}
 @7 = (Z)
 @8 = XYZ
 ID 6 is @6

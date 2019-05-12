@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 11 13:59:42 EDT 2019
+// Date:	Sun May 12 07:32:34 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1727,11 +1727,29 @@ void put_error_operator_after
 
 
 // Given an attribute pointer ap located at an attribute
-// and a bracketed expression `flags' containing attri-
+// and a bracketed expression `flags' designating attri-
 // bute flags, set the designated flags of the attri-
-// bute.
+// bute.  If part of `flags' has erroneous format, print
+// an error message for that part and ignore the part.
 //
 void set_attr_flags
+	( ll::parser::parser parser,
+	  min::attr_insptr & ap,
+	  min::gen flags,
+	  const min::flag_parser * flag_parser
+	      = min::standard_attr_flag_parser );
+
+// Given an attribute pointer ap located at an attribute
+// and a bracketed expression `flags' designating attri-
+// bute flags, test whether the flags pointed at by ap
+// are exactly the designated flags.  Return true if so,
+// and false otherwise.  If false is returned, print an
+// error message for each flag found to mismatch.
+//
+// If part of `flags' has erroneous format, print an
+// error message for that part and ignore the part.
+//
+bool test_attr_flags
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen flags,

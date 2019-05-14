@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 12 07:32:34 EDT 2019
+// Date:	Tue May 14 06:59:29 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1755,6 +1755,33 @@ bool test_attr_flags
 	  min::gen flags,
 	  const min::flag_parser * flag_parser
 	      = min::standard_attr_flag_parser );
+
+// Given an attribute pointer ap located at an attribute
+// and a value, set attribute to the value.  Require
+// that the values be legal (not condition codes, not
+// auxiliary values, not NONE, etc., as per min::is_
+// attr_legal).  If the attribute is a double-arrow
+// attribute (min::reverse_name_of is not NONE), require
+// that the value be an object.
+//
+// If option is NEW, attribute is required to NOT have
+// a previous value.  If option is NEW_OR_SAME,
+// attribute is required to either have no previous
+// value, or to have a value equal to the new value (in
+// which case nothing is done).  If the option is ADD,
+// the value is added to the set of attribute values,
+// unless it is already in that set.
+//
+// If requirements are not met, this function does
+// nothing but print an error message.  True is returned
+// if there is no error; false if there is an error.
+//
+enum { NEW, NEW_OR_SAME, ADD };
+bool set_attr_value
+	( ll::parser::parser parser,
+	  min::attr_insptr & ap,
+	  min::gen value,
+	  unsigned option );
 
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `multivalue' containing

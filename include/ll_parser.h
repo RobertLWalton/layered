@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 06:59:29 EDT 2019
+// Date:	Tue May 14 11:02:22 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1754,7 +1754,12 @@ bool test_attr_flags
 	  min::attr_insptr & ap,
 	  min::gen flags,
 	  const min::flag_parser * flag_parser
-	      = min::standard_attr_flag_parser );
+	      = min::standard_attr_flag_parser,
+	  min::packed_vec_ptr<min::ustring> flag_names
+	      = min::standard_attr_flag_names,
+	  min::unsptr n = 100 );
+	      // n is hidden argument: first try
+	      // length of min::get_flags vector.
 
 // Given an attribute pointer ap located at an attribute
 // and a value, set attribute to the value.  Require
@@ -1775,12 +1780,15 @@ bool test_attr_flags
 // If requirements are not met, this function does
 // nothing but print an error message.  True is returned
 // if there is no error; false if there is an error.
+// Any error message uses `pos' to determine the posi-
+// tion of the value (not the name) in the input stream.
 //
 enum { NEW, NEW_OR_SAME, ADD };
 bool set_attr_value
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen value,
+	  min::phrase_position const & pos,
 	  unsigned option );
 
 // Given an attribute pointer ap located at an attribute

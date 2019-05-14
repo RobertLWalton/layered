@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 11 14:06:53 EDT 2019
+// Date:	Tue May 14 15:57:42 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1837,6 +1837,208 @@ void PAR::set_attr_flags
 		   "'; ignored" );
 	}
     }
+}
+
+// Compute flag name in buffer.
+//
+static void sflag_name
+	( char buffer[100], min::uns32 flag, 
+	  min::packed_vec_ptr<min::ustring>
+	      flag_names )
+{
+    if ( flag < flag_names->length )
+    {
+	min::ustring s = flag_names[flag];
+	MIN_ASSERT
+	    ( min::ustring_length ( s ) < 100,
+	      "flag name too long" );
+	strcpy ( buffer, min::ustring_chars ( s ) );
+    }
+    else
+	sprintf ( buffer, "%d", flag );
+}
+
+bool PAR::test_attr_flags
+	( PAR::parser parser,
+	  min::attr_insptr & ap,
+	  min::gen flags,
+	  const min::flag_parser * flag_parser,
+	  min::packed_vec_ptr<min::ustring> flag_names,
+	  min::unsptr n )
+{
+    bool result = true;
+
+    min::gen f[n], d[n];
+    min::unsptr nf = min::get_flags ( f, n, ap );
+    if ( nf > n )
+        return PAR::test_attr_flags
+	    ( parser, ap, flags,
+	      flag_parser, flag_names, nf );
+
+    min::gen zero_cc = min::new_control_code_gen ( 0 );
+
+    for ( min::unsptr i = 0; i < nf; ++ i )
+        d[i] = zero_cc;
+	// d records bits on in flags so duplicates
+	// can be ignored
+
+    min::obj_vec_insptr vp ( flags );
+
+    for ( min::unsptr i = 0;
+	  i < min::size_of ( vp ); ++ i )
+    {
+	min::gen flags_text = vp[i];
+	if ( min::is_obj ( flags_text ) )
+	{
+	    min::obj_vec_insptr fvp ( flags_text );
+	    min::attr_insptr fap ( fvp );
+	    min::locate ( fap, min::dot_type );
+	    min::gen type = get ( fap );
+	    if ( type == min::doublequote
+		 ||
+		 type == min::number_sign )
+		flags_text = fvp[0];
+	}
+
+	if ( min::is_str ( flags_text ) )
+	{
+	    min::str_ptr sp ( flags_text );
+	    min::unsptr len = min::strlen ( sp );
+	    char text_buffer[len+1];
+	    min::strcpy ( text_buffer, sp );
+	    min::uns32 fv[len];
+	    len = min::parse_flags
+		    ( fv, text_buffer, flag_parser );
+	    for ( min::unsptr j = 0; j < len; ++ j )
+	    {
+	        min::unsptr k = fv[j] & min::VSIZE;
+		min::unsptr i = fv[j] / min::VSIZE;
+		min::unsgen dcc =
+		    min::control_code_of ( d[i] );
+		min::unsgen fcc =
+		    min::control_code_of ( f[i] );
+		if ( dcc & ( 1 << k ) )
+		    // duplicate flag; ignore
+		    continue;
+
+		dcc |= ( 1 << k );
+		d[i] = min::new_control_code_gen
+			    ( dcc );
+
+		if ( fcc & ( 1 << k ) ) 
+		{
+		    // Flag set correctly.  Turn off
+		    // in f to indicate flag has been
+		    // processed.
+		    //
+		    fcc &= ~ ( 1 << k );
+		    f[i] = min::new_control_code_gen
+				( fcc );
+		}
+		else
+		{
+		    // Flag off for name when it should
+		    // have been on.
+		    //
+		    min::gen name = min::name_of ( ap );
+		    char buffer[100];
+		    sflag_name
+		        ( buffer, fv[j], flag_names );
+		    min::attr_insptr ap ( vp );
+		    min::locate
+			( ap, min::dot_position );
+		    min::phrase_position_vec_insptr
+			pos = min::get ( ap );
+		    min::phrase_position position =
+			pos[i];
+		    parse_error ( parser, position,
+		    		  "flag `",
+				  min::pnop,
+				  buffer,
+				  min::pnop,
+				  "' in ",
+				  min::pgen_quote
+				      ( flags_text ),
+				  "should be previously"
+				  " on for label ",
+				  min::pgen_quote
+				      ( name ),
+				  " but is off;"
+				  " flag set" );
+		    min::set_flag ( ap, fv[j] );
+		    result = false;
+		}
+	    }
+
+	    if ( text_buffer[0] != 0 )
+	    {
+		min::attr_insptr ap ( vp );
+		min::locate
+		    ( ap, min::dot_position );
+		min::phrase_position_vec_insptr
+		    pos = min::get ( ap );
+		min::phrase_position position =
+		    pos[i];
+		char buffer[len+200];
+		sprintf ( buffer,
+			  "bad flag(s) \"%s\" in ",
+			  text_buffer );
+		parse_error ( parser, position,
+			      buffer,
+			      min::pgen_quote
+				  ( flags_text ),
+			      "; bad flag(s) ignored" );
+	    }
+	}
+	else
+	{
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    min::phrase_position_vec_insptr
+		pos = min::get ( ap );
+	    min::phrase_position position = pos[i];
+	    PAR::parse_error
+		( parser, position,
+		  "bad flags specifier `",
+		   min::pgen_quote ( flags_text ),
+		   "'; ignored" );
+	}
+    }
+
+    for ( min::unsptr i = 0; i < nf; ++ n )
+    {
+        min::unsgen cc = min::control_code_of ( f[i] );
+        if ( cc == 0 ) continue;
+
+	for ( unsigned k = 0; k < min::VSIZE; ++ k )
+	{
+	    if ( ( cc & ( 1 << k ) ) == 0 ) continue;
+
+	    // Flag on for name when it should have been
+	    // off.
+	    //
+	    min::gen name = min::name_of ( ap );
+	    unsigned j = i * min::VSIZE + k;
+	    char buffer[100];
+	    sflag_name ( buffer, j, flag_names );
+
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_position );
+	    min::phrase_position_vec_insptr pos =
+	        min::get ( ap );
+	    parse_error ( parser, pos->position,
+			  "flag `",
+			  min::pnop,
+			  buffer,
+			  min::pnop,
+			  "' for label ",
+			  min::pgen_quote ( name ),
+			  " should be previously off"
+			  " but is on; flag left on" );
+	    result = false;
+	}
+    }
+    return result;
 }
 
 void PAR::set_attr_multivalue

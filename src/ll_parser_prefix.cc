@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  9 04:03:08 EDT 2019
+// Date:	Tue May 14 03:52:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -410,7 +410,8 @@ static bool data_reformatter_function
     if ( min::size_of ( fvp ) == 1 )
     {
         min::attr_info info[2];
-	min::unsptr n = min::get_attrs ( info, 2, fap );
+	min::unsptr n =
+	    min::attr_info_of ( info, 2, fap );
 	if ( n == 0
 	     ||
 	     ( n == 1

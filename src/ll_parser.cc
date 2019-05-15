@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 15 03:55:24 EDT 2019
+// Date:	Wed May 15 04:47:20 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2023,6 +2023,44 @@ bool PAR::test_attr_flags
 	}
     }
     return result;
+}
+
+bool PAR::set_attr_value
+	( PAR::parser parser,
+	  min::attr_insptr & ap,
+	  min::gen value,
+	  min::phrase_position const & pos,
+	  unsigned option )
+{
+    min::gen previous_value = min::get ( ap );
+    if ( previous_value == min::NONE() )
+    {
+        min::set ( ap, value );
+	return true;
+    }
+    if ( option == NEW )
+    {
+	min::gen name = min::name_of ( ap );
+        parse_error ( parser, pos,
+		      "",
+		      min::pgen_quote ( name ),
+		      " already has value(s);"
+		      " old value(s) not changed" );
+	return false;
+    }
+    if ( previous_value == value ) return true;
+    if ( option == NEW_OR_SAME )
+    {
+	min::gen name = min::name_of ( ap );
+        parse_error ( parser, pos,
+		      "",
+		      min::pgen_quote ( name ),
+		      " already has different value(s);"
+		      " old value(s) not changed" );
+	return false;
+    }
+    min::add_to_set ( ap, value );
+    return true;
 }
 
 void PAR::set_attr_multivalue

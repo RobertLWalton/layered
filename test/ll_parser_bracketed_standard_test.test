@@ -2127,16 +2127,16 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: x = {* (A B), [< "foo" "bar" >], [C D] *}|1 2 3|T}
+    {T: x = {* [C D], (A B), [< "foo" "bar" >] *}|1 2 3|T}
 @@@@ = 1 2 3:
-           x = (A B), [< "foo" "bar" >], [C D]
+           x = [C D], (A B), [< "foo" "bar" >]
            .type = "T"
            .position[H] = PACKED_VEC
     line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: x = {* (A B), [< "foo" "bar" >], [C D] *}|1 2 3|T}
+    {T: x = {* [C D], (A B), [< "foo" "bar" >] *}|1 2 3|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4525,15 +4525,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "||"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": my attribute = {* [< "a" "b" "c" >], [< "d" "e" >], "f" *}||}
+    {"": my attribute = {* "f", [< "a" "b" "c" >], [< "d" "e" >] *}||}
 @@@@ =:
            .position[H] = PACKED_VEC
-           my attribute = [< "a" "b" "c" >], [< "d" "e" >], "f"
+           my attribute = "f", [< "a" "b" "c" >], [< "d" "e" >]
     line ###:
 {my attribute = {* a b c, d e, f *} ||}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": my attribute = {* [< "a" "b" "c" >], [< "d" "e" >], "f" *}||}
+    {"": my attribute = {* "f", [< "a" "b" "c" >], [< "d" "e" >] *}||}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -6131,13 +6131,13 @@ BRACKETED EXPRESSION:
 @@ = 1 2 3 :
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": moe = {* {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8) *},
-         mie = {* "X", "Y", "Z" *}, fie = PREALLOCATED(2*8), foe =
+    {"": moe = {* PREALLOCATED(2*8), {|A B C|}, PREALLOCATED(2*7) *},
+         mie = {* "Z", "X", "Y" *}, fie = PREALLOCATED(2*8), foe =
          PREALLOCATED(2*7), fee = {|A B C|}, fum = [< "Q" "R" "T" >],
          foo = "P"|1 2 3|}
 @@@@ = 1 2 3:
-           moe = {|A B C|}, PREALLOCATED(2*7), PREALLOCATED(2*8)
-           mie = "X", "Y", "Z"
+           moe = PREALLOCATED(2*8), {|A B C|}, PREALLOCATED(2*7)
+           mie = "Z", "X", "Y"
            fie = PREALLOCATED(2*8)
            foe = PREALLOCATED(2*7)
            fee = {|A B C|}
@@ -6216,16 +6216,16 @@ ERROR: in line ###: previous uses of ID exist and will be dangling:
 ^^
 BRACKETED EXPRESSION:
     ID 6 is
-        {"": moe = {* {|A B C|}, (Z), PREALLOCATED(3*8) *}, mie =
-             {* "X", "Y", "Z" *}, fie = PREALLOCATED(3*8), foe = (Z),
+        {"": moe = {* PREALLOCATED(3*8), {|A B C|}, (Z) *}, mie =
+             {* "Z", "X", "Y" *}, fie = PREALLOCATED(3*8), foe = (Z),
              fee = {|A B C|}, fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
 @@@@ = ID 6 is @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
 @@@@ = 1 2 3:
-           moe = {|A B C|}, (Z), PREALLOCATED(3*8)
-           mie = "X", "Y", "Z"
+           moe = PREALLOCATED(3*8), {|A B C|}, (Z)
+           mie = "Z", "X", "Y"
            fie = PREALLOCATED(3*8)
            foe = (Z)
            fee = {|A B C|}

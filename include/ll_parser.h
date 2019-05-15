@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 11:02:22 EDT 2019
+// Date:	Wed May 15 07:12:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1789,23 +1789,25 @@ bool set_attr_value
 	  min::attr_insptr & ap,
 	  min::gen value,
 	  min::phrase_position const & pos,
-	  unsigned option );
+	  unsigned option = NEW );
 
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `multivalue' containing
 // multiple attribute value, set the designated values
-// of the attribute.  Require that the values be legal
-// (not condition codes, not auxiliary values, not NONE,
-// etc., as per min::is_attr_legal).  If must_be_objects
-// is true, requires that the values be objects or pre-
-// allocated.  For a value not meeting requirements,
-// prints error message and ignores value.
+// of the attribute using set_attr_value.  If option
+// is NEW there must be no previous values.  If NEW_OR_
+// SAME either there must be no previous values are the
+// value sets of multivalue and ap must be the same as
+// sets, with duplicates allowed for both `sets'.
+// Otherwise if option is ADD multivalues values are
+// added to set of ap values.  Returns true if no error
+// messages and false if error messages.
 //
-void set_attr_multivalue
+bool set_attr_multivalue
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen multivalue,
-	  bool must_be_objects = false );
+	  unsigned option = NEW );
 
 // First, invokes the given pass, if that is not NULL_
 // STUB, on the expression consisting of the tokens

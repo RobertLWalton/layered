@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 15 04:47:20 EDT 2019
+// Date:	Wed May 15 07:11:06 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2032,6 +2032,27 @@ bool PAR::set_attr_value
 	  min::phrase_position const & pos,
 	  unsigned option )
 {
+    bool is_legal = min::is_attr_legal ( value );
+    if ( ! is_legal
+	 ||
+	 ( min::reverse_name_of ( ap ) != min::NONE()
+	   &&
+	   ! min::is_preallocated ( value )
+	   &&
+	   ! min::is_obj ( value ) ) )
+    {
+	PAR::parse_error
+	    ( parser, pos,
+	      ( is_legal ?  "not an object or"
+			    " preallocated" :
+			    "not a legal" ),
+	       min::pnop,
+	       " attribute value `",
+	       min::pgen_never_quote ( value ),
+	       "'; ignored" );
+	return false;
+    }
+
     min::gen previous_value = min::get ( ap );
     if ( previous_value == min::NONE() )
     {
@@ -2063,48 +2084,98 @@ bool PAR::set_attr_value
     return true;
 }
 
-void PAR::set_attr_multivalue
+// Test whether value set pointed at by ap equals
+// element set of vp.  Allows duplicates in both `sets'.
+// NOT optimized for large sets.
+//
+static bool same_multivalue
+    ( min::attr_insptr & ap, min::obj_vec_ptr & vp,
+      min::unsptr n = 100 )
+{
+    min::gen values[n];
+    min::unsptr nap = min::get ( values, n, ap );
+    if ( nap > n )
+        return same_multivalue ( ap, vp, nap );
+
+    bool apfound[nap];
+    for ( min::unsptr i = 0; i < nap; ++ i )
+        apfound[i] = false;
+
+    min::unsptr nvp = min::attr_size_of ( vp );
+    min::unsptr count = 0;
+        // Number values elements found.
+    for ( min::unsptr i = 0; i < nvp; ++ i )
+    {
+	bool vpfound = false;
+        for ( min::unsptr j = 0; j < nap; ++ j )
+	{
+	    if ( values[j] == vp[i]
+	         &&
+		 ! apfound[j] )
+	    {
+	        apfound[j] = true;
+		++ count;
+	    }
+	}
+	if ( ! vpfound ) return false;
+    }
+
+    return count == nap;
+}
+
+bool PAR::set_attr_multivalue
 	( PAR::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen multivalue,
-	  bool must_be_objects )
+	  unsigned option )
 {
     min::obj_vec_ptr vp ( multivalue );
-    min::unsptr n =
-	min::attr_size_of ( vp );
-    min::gen values[n];
-    min::unsptr m = 0;
+    min::attr_ptr vap ( vp );
+    min::locate ( vap, min::dot_position );
+    min::phrase_position_vec pos = min::get ( vap );
+
+    switch ( option )
+    {
+    case NEW:
+    case NEW_OR_SAME:
+	if ( min::get ( ap ) != min::NONE() )
+	{
+	    if ( option == NEW_OR_SAME
+	         &&
+		 same_multivalue ( ap, vp ) )
+	        return true;
+
+	    min::gen name = min::name_of ( ap );
+	    min::gen reverse_name =
+	        min::reverse_name_of ( ap );
+	    parse_error ( parser, pos->position,
+			  "",
+			  min::pgen_quote ( name ),
+			  " <=> ",
+			  min::pgen_quote
+			      ( reverse_name ),
+			  ( option == NEW ?
+			    " already has value(s);"
+			    " old value(s) not"
+			    " changed" :
+			    " already has different"
+			    " value(s); old value(s)"
+			    " not changed" ) );
+	    return false;
+	}
+	break;
+    }
+
+    min::unsptr n = min::attr_size_of ( vp );
+    bool result = true;
     for ( min::unsptr i = 0; i < n; ++ i )
     {
-	min::gen value = min::attr ( vp, i );
-	bool is_legal = min::is_attr_legal ( value );
-	if ( ! is_legal
-	     ||
-	     ( must_be_objects
-	       &&
-	       ! min::is_preallocated ( value )
-	       &&
-	       ! min::is_obj ( value ) ) )
-	{
-	    min::attr_ptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    min::phrase_position_vec pos =
-		min::get ( ap );
-	    min::phrase_position position = pos[i];
-	    PAR::parse_error
-		( parser, position,
-		  ( is_legal ?  "not an object or"
-		                " preallocated" :
-			        "not a legal" ),
-		   min::pnop,
-		   " attribute value `",
-		   min::pgen_never_quote ( value ),
-		   "'; ignored" );
-	}
-	else
-	    values[m++] = value;
+        if ( ! PAR::set_attr_value
+	           ( parser, ap, min::attr ( vp, i ),
+		     pos[i], ADD ) )
+	    result = false;
     }
-    min::set ( ap, values, m );
+    return result;
 }
 
 void PAR::compact

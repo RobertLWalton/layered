@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 15:57:42 EDT 2019
+// Date:	Wed May 15 03:55:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1773,7 +1773,7 @@ void PAR::set_attr_flags
 	  min::gen flags,
 	  const min::flag_parser * flag_parser )
 {
-    min::obj_vec_insptr vp ( flags );
+    min::obj_vec_ptr vp ( flags );
 
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
@@ -1781,8 +1781,8 @@ void PAR::set_attr_flags
 	min::gen flags_text = vp[i];
 	if ( min::is_obj ( flags_text ) )
 	{
-	    min::obj_vec_insptr fvp ( flags_text );
-	    min::attr_insptr fap ( fvp );
+	    min::obj_vec_ptr fvp ( flags_text );
+	    min::attr_ptr fap ( fvp );
 	    min::locate ( fap, min::dot_type );
 	    min::gen type = get ( fap );
 	    if ( type == min::doublequote
@@ -1805,11 +1805,11 @@ void PAR::set_attr_flags
 
 	    if ( text_buffer[0] != 0 )
 	    {
-		min::attr_insptr ap ( vp );
+		min::attr_ptr vap ( vp );
 		min::locate
-		    ( ap, min::dot_position );
-		min::phrase_position_vec_insptr
-		    pos = min::get ( ap );
+		    ( vap, min::dot_position );
+		min::phrase_position_vec
+		    pos = min::get ( vap );
 		min::phrase_position position =
 		    pos[i];
 		char buffer[len+200];
@@ -1825,10 +1825,10 @@ void PAR::set_attr_flags
 	}
 	else
 	{
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    min::phrase_position_vec_insptr
-		pos = min::get ( ap );
+	    min::attr_ptr vap ( vp );
+	    min::locate ( vap, min::dot_position );
+	    min::phrase_position_vec
+		pos = min::get ( vap );
 	    min::phrase_position position = pos[i];
 	    PAR::parse_error
 		( parser, position,
@@ -1867,6 +1867,7 @@ bool PAR::test_attr_flags
 	  min::unsptr n )
 {
     bool result = true;
+    min::gen zero_cc = min::new_control_code_gen ( 0 );
 
     min::gen f[n], d[n];
     min::unsptr nf = min::get_flags ( f, n, ap );
@@ -1875,14 +1876,15 @@ bool PAR::test_attr_flags
 	    ( parser, ap, flags,
 	      flag_parser, flag_names, nf );
 
-    min::gen zero_cc = min::new_control_code_gen ( 0 );
-
     for ( min::unsptr i = 0; i < nf; ++ i )
         d[i] = zero_cc;
-	// d records bits on in flags so duplicates
-	// can be ignored
+	// d records bits that are set by flags so
+	// duplicates can be ignored
 
-    min::obj_vec_insptr vp ( flags );
+    min::obj_vec_ptr vp ( flags );
+    min::attr_ptr avp ( vp );
+    min::locate ( avp, min::dot_position );
+    min::phrase_position_vec pos = min::get ( avp );
 
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
@@ -1890,8 +1892,8 @@ bool PAR::test_attr_flags
 	min::gen flags_text = vp[i];
 	if ( min::is_obj ( flags_text ) )
 	{
-	    min::obj_vec_insptr fvp ( flags_text );
-	    min::attr_insptr fap ( fvp );
+	    min::obj_vec_ptr fvp ( flags_text );
+	    min::attr_ptr fap ( fvp );
 	    min::locate ( fap, min::dot_type );
 	    min::gen type = get ( fap );
 	    if ( type == min::doublequote
@@ -1907,9 +1909,23 @@ bool PAR::test_attr_flags
 	    char text_buffer[len+1];
 	    min::strcpy ( text_buffer, sp );
 	    min::uns32 fv[len];
-	    len = min::parse_flags
+	    min::uns32 fvlen = min::parse_flags
 		    ( fv, text_buffer, flag_parser );
-	    for ( min::unsptr j = 0; j < len; ++ j )
+
+	    if ( text_buffer[0] != 0 )
+	    {
+		char buffer[len+200];
+		sprintf ( buffer,
+			  "bad flag(s) \"%s\" in ",
+			  text_buffer );
+		parse_error ( parser, pos[i],
+			      buffer,
+			      min::pgen_quote
+				  ( flags_text ),
+			      "; bad flag(s) ignored" );
+	    }
+
+	    for ( min::unsptr j = 0; j < fvlen; ++ j )
 	    {
 	        min::unsptr k = fv[j] & min::VSIZE;
 		min::unsptr i = fv[j] / min::VSIZE;
@@ -1940,18 +1956,13 @@ bool PAR::test_attr_flags
 		    // Flag off for name when it should
 		    // have been on.
 		    //
+		    result = false;
 		    min::gen name = min::name_of ( ap );
+
 		    char buffer[100];
 		    sflag_name
 		        ( buffer, fv[j], flag_names );
-		    min::attr_insptr ap ( vp );
-		    min::locate
-			( ap, min::dot_position );
-		    min::phrase_position_vec_insptr
-			pos = min::get ( ap );
-		    min::phrase_position position =
-			pos[i];
-		    parse_error ( parser, position,
+		    parse_error ( parser, pos[i],
 		    		  "flag `",
 				  min::pnop,
 				  buffer,
@@ -1966,45 +1977,21 @@ bool PAR::test_attr_flags
 				  " but is off;"
 				  " flag set" );
 		    min::set_flag ( ap, fv[j] );
-		    result = false;
 		}
-	    }
-
-	    if ( text_buffer[0] != 0 )
-	    {
-		min::attr_insptr ap ( vp );
-		min::locate
-		    ( ap, min::dot_position );
-		min::phrase_position_vec_insptr
-		    pos = min::get ( ap );
-		min::phrase_position position =
-		    pos[i];
-		char buffer[len+200];
-		sprintf ( buffer,
-			  "bad flag(s) \"%s\" in ",
-			  text_buffer );
-		parse_error ( parser, position,
-			      buffer,
-			      min::pgen_quote
-				  ( flags_text ),
-			      "; bad flag(s) ignored" );
 	    }
 	}
 	else
 	{
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    min::phrase_position_vec_insptr
-		pos = min::get ( ap );
-	    min::phrase_position position = pos[i];
 	    PAR::parse_error
-		( parser, position,
+		( parser, pos[i],
 		  "bad flags specifier `",
 		   min::pgen_quote ( flags_text ),
 		   "'; ignored" );
 	}
     }
 
+    // Check for flags that are on but should be off.
+    //
     for ( min::unsptr i = 0; i < nf; ++ n )
     {
         min::unsgen cc = min::control_code_of ( f[i] );
@@ -2017,15 +2004,13 @@ bool PAR::test_attr_flags
 	    // Flag on for name when it should have been
 	    // off.
 	    //
+	    result = false;
 	    min::gen name = min::name_of ( ap );
+
 	    unsigned j = i * min::VSIZE + k;
 	    char buffer[100];
 	    sflag_name ( buffer, j, flag_names );
 
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_position );
-	    min::phrase_position_vec_insptr pos =
-	        min::get ( ap );
 	    parse_error ( parser, pos->position,
 			  "flag `",
 			  min::pnop,
@@ -2035,7 +2020,6 @@ bool PAR::test_attr_flags
 			  min::pgen_quote ( name ),
 			  " should be previously off"
 			  " but is on; flag left on" );
-	    result = false;
 	}
     }
     return result;
@@ -2066,7 +2050,7 @@ void PAR::set_attr_multivalue
 	{
 	    min::attr_ptr ap ( vp );
 	    min::locate ( ap, min::dot_position );
-	    min::phrase_position_vec_insptr pos =
+	    min::phrase_position_vec pos =
 		min::get ( ap );
 	    min::phrase_position position = pos[i];
 	    PAR::parse_error

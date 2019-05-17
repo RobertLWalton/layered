@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 03:52:12 EDT 2019
+// Date:	Fri May 17 05:53:47 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -194,6 +194,9 @@ static bool data_reformatter_function
 	      i < min::size_of ( paragraph ); ++ i )
         {
 	    min::obj_vec_ptr line ( paragraph[i] );
+	    min::phrase_position_vec ppvec =
+		min::position_of ( line );
+	    min::unsptr value_index;
 	    min::uns32 lsize = min::size_of ( line );
 
 	    if ( lsize == 0 ) continue;
@@ -209,8 +212,6 @@ static bool data_reformatter_function
 		      ( line, j, args[0] ) );
 	    if ( name == min::MISSING() )
 	    {
-		min::phrase_position_vec ppvec =
-		    min::position_of ( paragraph );
 		PAR::parse_error
 		    ( parser, ppvec[i],
 		      "line does not begin with a"
@@ -239,8 +240,6 @@ static bool data_reformatter_function
 
 	    if ( j < lsize && line[j] != args[0] )
 	    {
-		min::phrase_position_vec ppvec =
-		    min::position_of ( line );
 		PAR::parse_error
 		    ( parser, ppvec[j],
 		      message,
@@ -253,8 +252,6 @@ static bool data_reformatter_function
 
 	    if ( j < lsize && has_negator )
 	    {
-		min::phrase_position_vec ppvec =
-		    min::position_of ( line );
 		PAR::parse_error
 		    ( parser,
 		      ppvec[0],
@@ -280,8 +277,6 @@ static bool data_reformatter_function
 	    min::gen reverse_flags = min::MISSING();
 	    if ( j + 1 == lsize )
 	    {
-		min::phrase_position_vec ppvec =
-		    min::position_of ( line );
 		PAR::parse_error
 		    ( parser, ppvec[j],
 		      "after `",
@@ -300,7 +295,7 @@ static bool data_reformatter_function
 		// possible multi-value bracketed
 		// list.
 		//
-	        ++ j;
+	        value_index = ++ j;
 		value = line[j++];
 		if ( min::is_obj ( value ) )
 		{
@@ -313,7 +308,7 @@ static bool data_reformatter_function
 		}
 		if ( j < lsize )
 		{
-		    // name = value = reverse_name
+		    // name = value(s) = reverse_name
 		    // Ready to scan second "=".
 		    //
 		    MIN_REQUIRE ( line[j] == args[0] );
@@ -323,9 +318,6 @@ static bool data_reformatter_function
 		    if (    reverse_name
 		         == min::MISSING() )
 		    {
-			min::phrase_position_vec ppvec =
-			    min::position_of
-			        ( paragraph );
 			PAR::parse_error
 			    ( parser, ppvec[i],
 			      "reverse attribute label"
@@ -359,8 +351,6 @@ static bool data_reformatter_function
 		value = PAR::scan_label ( line, j );
 		if ( value == min::MISSING() )
 		{
-		    min::phrase_position_vec ppvec =
-			min::position_of ( line );
 		    PAR::parse_error
 			( parser, ppvec[j0],
 			  "after `",
@@ -377,8 +367,6 @@ static bool data_reformatter_function
 
 	    if ( j < lsize )
 	    {
-		min::phrase_position_vec ppvec =
-		    min::position_of ( line );
 		min::phrase_position pos =
 		    { (&ppvec[j])->begin,
 		      (&ppvec[lsize-1])->end };
@@ -390,16 +378,130 @@ static bool data_reformatter_function
 	    }
 
 	    min::locate ( fap, name );
+	    if ( reverse_name == min::MISSING() )
+	    {
+	        min::attr_info info;
+		if ( min::attr_info_of ( info, fap ) )
+		{
+		    PAR::parse_error
+			( parser, ppvec->position,
+			  "single-arrow attribute has"
+			  " been set previously;"
+			  " line ignored" );
+		    continue;
+		}
+
+		if ( flags != min::MISSING() )
+		    PAR::set_attr_flags
+			( parser, fap, flags );
+	    }
+	    else
+	    {
+	        min::attr_info info;
+		min::attr_info_of ( info, fap );
+		if ( info.flag_count > 0 )
+		{
+		    if ( flags == min::MISSING() )
+		    {
+			PAR::parse_error
+			    ( parser, ppvec->position,
+			      "double-arrow attribute"
+			      " has flags but no flags"
+			      " given in line;"
+			      " line ignored" );
+			continue;
+		    }
+		    else if ( ! PAR::test_attr_flags
+		                   ( parser, fap,
+				     flags ) )
+		    {
+			PAR::parse_error
+			    ( parser, ppvec->position,
+			      "double-arrow attribute"
+			      " has flags that disagree"
+			      " with flags given in"
+			      " line (see above"
+			      " errors);"
+			      " line ignored" );
+			continue;
+		    }
+		}
+
+		if ( ! min::is_obj ( value ) )
+		{
+		    PAR::parse_error
+			( parser, ppvec[value_index],
+			  "double-arrow attribute"
+			  " value is NOT an object;"
+			  " line ignored" );
+		    continue;
+		}
+
+		{
+		    min::obj_vec_insptr rvp ( value );
+		    min::attr_insptr rap ( rvp );
+		    min::attr_info rinfo;
+		    min::attr_info_of ( rinfo, rap );
+		    if ( rinfo.flag_count > 0 )
+		    {
+			if (    reverse_flags
+			     == min::MISSING() )
+			{
+			    PAR::parse_error
+				( parser,
+				  ppvec->position,
+				  "double-arrow"
+				  " attribute has"
+				  " reverse flags but"
+				  " no reverse flags"
+				  " are given in line;"
+				  " line ignored" );
+			    continue;
+			}
+			else if ( ! PAR::test_attr_flags
+				       ( parser, rap,
+				         reverse_flags )
+				)
+			{
+			    PAR::parse_error
+				( parser,
+				  ppvec->position,
+				  "double-arrow"
+				  " attribute has"
+				  " reverse flags that"
+				  " disagree with"
+				  " reverse flags given"
+				  " in line (see above"
+				  " errors);"
+				  " line ignored" );
+			    continue;
+			}
+		    }
+		    else if (    reverse_flags
+		              != min::MISSING() )
+			PAR::set_attr_flags
+			    ( parser, rap,
+			      reverse_flags );
+		}
+
+		if (    info.flag_count == 0
+		     && flags != min::MISSING() );
+		    PAR::set_attr_flags
+			( parser, fap, flags );
+
+	        min::locate_reverse
+		    ( fap, reverse_name );
+	    }
 
 	    if ( ! is_multivalue )    
-		min::set ( fap, value );
+	    {
+		PAR::set_attr_value
+		    ( parser, fap, value,
+		      ppvec[value_index] );
+	    }
 	    else
-	        PAR::set_attr_multivalue
+		PAR::set_attr_multivalue
 		    ( parser, fap, value );
-
-	    if ( flags != min::MISSING() )
-	        PAR::set_attr_flags
-		    ( parser, fap, flags );
 	}
     }
 
@@ -407,7 +509,8 @@ static bool data_reformatter_function
     // than .position) then replace the value by its
     // sole element.
     //
-    if ( min::size_of ( fvp ) == 1 )
+    if (    min::size_of ( fvp ) == 1
+         && attributes == min::MISSING() )
     {
         min::attr_info info[2];
 	min::unsptr n =
@@ -456,6 +559,7 @@ static bool data_reformatter_function
 		  "previous uses of ID exist and will"
 		  " be dangling" );
 	min::put ( map, ID, first->value );
+	MIN_REQUIRE ( attributes == min::MISSING() );
     }
 
     first = first->next;

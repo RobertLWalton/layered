@@ -6132,18 +6132,18 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": moe = {* PREALLOCATED(2*8), {|A B C|}, PREALLOCATED(2*7) *},
-         mie = {* "Z", "X", "Y" *}, fie = PREALLOCATED(2*8), foe =
-         PREALLOCATED(2*7), fee = {|A B C|}, fum = [< "Q" "R" "T" >],
-         foo = "P"|1 2 3|}
+         foo = "P", fie = PREALLOCATED(2*8), fum = [< "Q" "R" "T" >],
+         foe = PREALLOCATED(2*7), fee = {|A B C|}, mie =
+         {* "Z", "X", "Y" *}|1 2 3|}
 @@@@ = 1 2 3:
            moe = PREALLOCATED(2*8), {|A B C|}, PREALLOCATED(2*7)
-           mie = "Z", "X", "Y"
+           foo = "P"
            fie = PREALLOCATED(2*8)
+           .position[H] = PACKED_VEC
+           fum = [< "Q" "R" "T" >]
            foe = PREALLOCATED(2*7)
            fee = {|A B C|}
-           fum = [< "Q" "R" "T" >]
-           foo = "P"
-           .position[H] = PACKED_VEC
+           mie = "Z", "X", "Y"
     lines ###-###:
 @@ = 1 2 3 :
 ^^^^^^^^^^^^
@@ -6216,22 +6216,13 @@ ERROR: in line ###: previous uses of ID exist and will be dangling:
 ^^
 BRACKETED EXPRESSION:
     ID 6 is
-        {"": moe = {* PREALLOCATED(3*8), {|A B C|}, (Z) *}, mie =
-             {* "Z", "X", "Y" *}, fie = PREALLOCATED(3*8), foe = (Z),
-             fee = {|A B C|}, fum = [< "Q" "R" "T" >], foo = "P"|1 2 3|}
+        {"": moe = {* PREALLOCATED(3*8), {|A B C|}, (Z) *}, foo = "P",
+             fie = PREALLOCATED(3*8), fum = [< "Q" "R" "T" >], foe =
+             (Z), fee = {|A B C|}, mie = {* "Z", "X", "Y" *}|1 2 3|}
 @@@@ = ID 6 is @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-@@@@ = 1 2 3:
-           moe = PREALLOCATED(3*8), {|A B C|}, (Z)
-           mie = "Z", "X", "Y"
-           fie = PREALLOCATED(3*8)
-           foe = (Z)
-           fee = {|A B C|}
-           fum = [< "Q" "R" "T" >]
-           foo = "P"
-           .position[H] = PACKED_VEC
     line ###:
 ID 6 is @@
 ^^^^^^^^^^

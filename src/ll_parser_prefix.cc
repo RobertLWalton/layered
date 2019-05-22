@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 17 05:53:47 EDT 2019
+// Date:	Sun May 19 15:54:35 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -137,11 +137,38 @@ static bool data_reformatter_function
     if ( first->next->next == next ) return true;
     if ( first->next->next->value != args[0] )
         return true;
+    if ( min::is_obj ( first->next->value ) )
+    {
+        min::obj_vec_ptr tvp ( first->next->value );
+	if ( min::has_single_attr ( tvp ) )
+	    return true;
+    }
+    else
     if ( first->next->type != PAR::DERIVED
          ||
-	 !  min::is_preallocated
-	        ( first->next->value ) )
+	 ! min::is_preallocated ( first->next->value ) )
         return true;
+
+    // If prefix has attributes other than .type and
+    // .position, return true.
+    //
+    {
+        min::obj_vec_ptr pvp ( first->value );
+	min::attr_ptr pap ( pvp );
+        min::attr_info info[2];
+	min::unsptr n =
+	    min::attr_info_of ( info, 2, pap );
+	if ( n != 2 ) return true;
+	for ( unsigned i = 0; i < n; ++ i )
+	{
+	    if ( info[i].name != min::dot_type
+	         &&
+		 info[i].name != min::dot_position )
+		return true;
+	    if ( info[i].reverse_attr_count > 0 )
+	        return true;
+        }
+    }
 
     min::phrase_position ID_position =
         first->next->position;
@@ -156,6 +183,7 @@ static bool data_reformatter_function
 			      first->next  ) );
 
     min::locatable_gen attributes ( min::MISSING() );
+    min::unsptr asize = 0;
     if (    min::get ( next->previous->value,
 	               min::dot_terminator )
 	 == min::INDENTED_PARAGRAPH() )
@@ -163,6 +191,8 @@ static bool data_reformatter_function
         attributes = next->previous->value;
 	PAR::free ( PAR::remove ( first_ref(parser),
 			          next->previous  ) );
+	min::obj_vec_ptr avp ( attributes );
+	asize = min::size_of ( avp );
     }
 
     PRE::compact_prefix_list
@@ -170,23 +200,76 @@ static bool data_reformatter_function
 	  min::MISSING_POSITION, min::MISSING(),
 	  trace_flags );
 
-    min::obj_vec_insptr fvp ( first->value );
-    min::attr_insptr fap ( fvp );
+    min::obj_vec_ptr fvp ( first->value );
+    min::unsptr fvpsize = min::size_of ( fvp );
 
-    // Remove .type.
+    // If value has one element and no attributes (other
+    // than .position) then replace the value by its
+    // sole element and finish up.
     //
-    min::locate ( fap, min::dot_type );
-    min::set ( fap, min::NONE() );
+    if (    min::size_of ( fvp ) == 1
+         && attributes == min::MISSING()
+	 && min::is_preallocated ( ID_gen ) )
+    {
+	PAR::value_ref(first) = fvp[0];
+	fvp = min::NULL_STUB;
+	PAR::trace_subexpression
+	    ( parser, first, trace_flags );
+
+	if ( min::is_obj ( first->value ) )
+	    min::copy ( ID_gen, first->value, 0 );
+	else
+	{
+	    min::uns32 ID =
+		min::id_of_preallocated ( ID_gen );
+	    min::id_map map = parser->id_map;
+	    MIN_REQUIRE ( ID < map->length );
+	    MIN_REQUIRE ( map[ID] == ID_gen );
+	    MIN_REQUIRE
+		( map->hash_table == min::NULL_STUB );
+	    if (    min::count_of_preallocated
+	                ( ID_gen )
+		 != 1 )
+		PAR::parse_error
+		    ( parser, ID_position,
+		      "previous uses of ID exist and"
+		      " will be dangling" );
+	    min::put ( map, ID, first->value );
+	}
+
+	first = first->next;
+	PAR::free ( PAR::remove ( first_ref(parser),
+				  first->previous ) );
+	return false;
+    }
+
+    if ( min::is_preallocated ( ID_gen ) )
+	min::new_obj_gen
+	    ( ID_gen, 5 + fvpsize + 5 * asize,
+	              2 * asize + 4 );
+
+    min::obj_vec_insptr idvp ( ID_gen );
+    for ( min::unsptr i = 0; i < fvpsize; ++ i )
+	min::attr_push ( idvp ) = fvp[i];
+
+    min::attr_ptr fap ( fvp );
+    min::attr_insptr idap ( idvp );
+    locate ( fap, min::dot_position );
+    min::phrase_position_vec idppvec =
+        min::get ( fap );
+    locate ( idap, min::dot_position );
+    min::set ( idap, min::new_stub_gen ( idppvec ) );
+    min::set_flag
+        ( idap, min::standard_attr_hide_flag );
 
     if ( attributes != min::MISSING() )
     {
         {
 	    first->position.end = end_position;
-	    min::locate ( fap, min::dot_position );
-	    min::phrase_position_vec_insptr ppvec =
+	    min::phrase_position_vec_insptr insppvec =
 		min::phrase_position_vec_insptr
-		    ( min::get ( fap ) );
-	    ppvec->position.end = end_position;
+		    ( idppvec );
+	    insppvec->position.end = end_position;
 	}
 
         min::obj_vec_ptr paragraph ( attributes );
@@ -194,7 +277,7 @@ static bool data_reformatter_function
 	      i < min::size_of ( paragraph ); ++ i )
         {
 	    min::obj_vec_ptr line ( paragraph[i] );
-	    min::phrase_position_vec ppvec =
+	    min::phrase_position_vec lppvec =
 		min::position_of ( line );
 	    min::unsptr value_index;
 	    min::uns32 lsize = min::size_of ( line );
@@ -213,7 +296,7 @@ static bool data_reformatter_function
 	    if ( name == min::MISSING() )
 	    {
 		PAR::parse_error
-		    ( parser, ppvec[i],
+		    ( parser, lppvec[i],
 		      "line does not begin with a"
 		      " (possibly negated)"
 		      " attribute label;"
@@ -227,10 +310,10 @@ static bool data_reformatter_function
 	        "after attribute label `";
 	    if ( j < lsize && min::is_obj ( line[j] ) )
 	    {
-	        min::obj_vec_ptr fvp ( line[j] );
-		min::attr_ptr fap ( fvp );
-		min::locate ( fap, min::dot_initiator );
-		if ( min::get ( fap ) == args[2] )
+	        min::obj_vec_ptr lvp ( line[j] );
+		min::attr_ptr lap ( lvp );
+		min::locate ( lap, min::dot_initiator );
+		if ( min::get ( lap ) == args[2] )
 		{
 		    flags = line[j++];
 		    message =
@@ -241,7 +324,7 @@ static bool data_reformatter_function
 	    if ( j < lsize && line[j] != args[0] )
 	    {
 		PAR::parse_error
-		    ( parser, ppvec[j],
+		    ( parser, lppvec[j],
 		      message,
 		      min::pgen_never_quote
 			  ( args[0] ),
@@ -254,7 +337,7 @@ static bool data_reformatter_function
 	    {
 		PAR::parse_error
 		    ( parser,
-		      ppvec[0],
+		      lppvec[0],
 		      "negator preceding"
 		      " attribute label"
 		      " that is followed"
@@ -278,7 +361,7 @@ static bool data_reformatter_function
 	    if ( j + 1 == lsize )
 	    {
 		PAR::parse_error
-		    ( parser, ppvec[j],
+		    ( parser, lppvec[j],
 		      "after `",
 		      min::pgen_never_quote
 			  ( args[0] ),
@@ -319,7 +402,7 @@ static bool data_reformatter_function
 		         == min::MISSING() )
 		    {
 			PAR::parse_error
-			    ( parser, ppvec[i],
+			    ( parser, lppvec[i],
 			      "reverse attribute label"
 			      " after second `",
 			      min::pgen_never_quote
@@ -332,12 +415,12 @@ static bool data_reformatter_function
 		    if (    j < lsize
 		         && min::is_obj ( line[j] ) )
 		    {
-			min::obj_vec_ptr fvp
+			min::obj_vec_ptr lvp
 			    ( line[j] );
-			min::attr_ptr fap ( fvp );
+			min::attr_ptr lap ( lvp );
 			min::locate
-			    ( fap, min::dot_initiator );
-			if (    min::get ( fap )
+			    ( lap, min::dot_initiator );
+			if (    min::get ( lap )
 			     == args[2] )
 			    reverse_flags = line[j++];
 		    }
@@ -352,7 +435,7 @@ static bool data_reformatter_function
 		if ( value == min::MISSING() )
 		{
 		    PAR::parse_error
-			( parser, ppvec[j0],
+			( parser, lppvec[j0],
 			  "after `",
 			  min::pgen_never_quote
 			      ( args[0] ),
@@ -368,8 +451,8 @@ static bool data_reformatter_function
 	    if ( j < lsize )
 	    {
 		min::phrase_position pos =
-		    { (&ppvec[j])->begin,
-		      (&ppvec[lsize-1])->end };
+		    { (&lppvec[j])->begin,
+		      (&lppvec[lsize-1])->end };
 		PAR::parse_error
 		    ( parser, pos,
 		      "extra stuff at end of line;"
@@ -377,14 +460,14 @@ static bool data_reformatter_function
 		continue;
 	    }
 
-	    min::locate ( fap, name );
+	    min::locate ( idap, name );
 	    if ( reverse_name == min::MISSING() )
 	    {
 	        min::attr_info info;
-		if ( min::attr_info_of ( info, fap ) )
+		if ( min::attr_info_of ( info, idap ) )
 		{
 		    PAR::parse_error
-			( parser, ppvec->position,
+			( parser, lppvec->position,
 			  "single-arrow attribute has"
 			  " been set previously;"
 			  " line ignored" );
@@ -393,18 +476,18 @@ static bool data_reformatter_function
 
 		if ( flags != min::MISSING() )
 		    PAR::set_attr_flags
-			( parser, fap, flags );
+			( parser, idap, flags );
 	    }
 	    else
 	    {
 	        min::attr_info info;
-		min::attr_info_of ( info, fap );
+		min::attr_info_of ( info, idap );
 		if ( info.flag_count > 0 )
 		{
 		    if ( flags == min::MISSING() )
 		    {
 			PAR::parse_error
-			    ( parser, ppvec->position,
+			    ( parser, lppvec->position,
 			      "double-arrow attribute"
 			      " has flags but no flags"
 			      " given in line;"
@@ -412,11 +495,11 @@ static bool data_reformatter_function
 			continue;
 		    }
 		    else if ( ! PAR::test_attr_flags
-		                   ( parser, fap,
+		                   ( parser, idap,
 				     flags ) )
 		    {
 			PAR::parse_error
-			    ( parser, ppvec->position,
+			    ( parser, lppvec->position,
 			      "double-arrow attribute"
 			      " has flags that disagree"
 			      " with flags given in"
@@ -430,7 +513,7 @@ static bool data_reformatter_function
 		if ( ! min::is_obj ( value ) )
 		{
 		    PAR::parse_error
-			( parser, ppvec[value_index],
+			( parser, lppvec[value_index],
 			  "double-arrow attribute"
 			  " value is NOT an object;"
 			  " line ignored" );
@@ -449,7 +532,7 @@ static bool data_reformatter_function
 			{
 			    PAR::parse_error
 				( parser,
-				  ppvec->position,
+				  lppvec->position,
 				  "double-arrow"
 				  " attribute has"
 				  " reverse flags but"
@@ -465,7 +548,7 @@ static bool data_reformatter_function
 			{
 			    PAR::parse_error
 				( parser,
-				  ppvec->position,
+				  lppvec->position,
 				  "double-arrow"
 				  " attribute has"
 				  " reverse flags that"
@@ -487,80 +570,28 @@ static bool data_reformatter_function
 		if (    info.flag_count == 0
 		     && flags != min::MISSING() );
 		    PAR::set_attr_flags
-			( parser, fap, flags );
+			( parser, idap, flags );
 
 	        min::locate_reverse
-		    ( fap, reverse_name );
+		    ( idap, reverse_name );
 	    }
 
 	    if ( ! is_multivalue )    
 	    {
 		PAR::set_attr_value
-		    ( parser, fap, value,
-		      ppvec[value_index] );
+		    ( parser, idap, value,
+		      lppvec[value_index] );
 	    }
 	    else
 		PAR::set_attr_multivalue
-		    ( parser, fap, value );
+		    ( parser, idap, value );
 	}
     }
 
-    // If value has one element and no attributes (other
-    // than .position) then replace the value by its
-    // sole element.
-    //
-    if (    min::size_of ( fvp ) == 1
-         && attributes == min::MISSING() )
-    {
-        min::attr_info info[2];
-	min::unsptr n =
-	    min::attr_info_of ( info, 2, fap );
-	if ( n == 0
-	     ||
-	     ( n == 1
-	       &&
-	       info[0].name == min::dot_position
-	       &&
-	       info[0].reverse_attr_count == 0
-	     ) )
-
-	    PAR::value_ref(first) = fvp[0];
-    }
-
-    // Must close fvp before trace_subexpression or
-    // stub_swap.
-    //
-    fvp = min::NULL_STUB;
-
+    PAR::value_ref(first) = ID_gen;
+    idvp = min::NULL_STUB;
     PAR::trace_subexpression
 	( parser, first, trace_flags );
-
-    if ( min::is_obj ( first->value ) )
-    {
-	const min::stub * ID_stub =
-	    min::stub_of ( ID_gen );
-	const min::stub * value_stub =
-	    min::stub_of ( first->value );
-	MUP::stub_swap ( ID_stub, value_stub );
-    }
-    else
-    {
-        min::uns32 ID =
-	    min::id_of_preallocated ( ID_gen );
-	min::id_map map = parser->id_map;
-	MIN_REQUIRE ( ID < map->length );
-	MIN_REQUIRE ( map[ID] == ID_gen );
-	MIN_REQUIRE
-	    ( map->hash_table == min::NULL_STUB );
-	if (    min::count_of_preallocated ( ID_gen )
-	     != 1 )
-	    PAR::parse_error
-		( parser, ID_position,
-		  "previous uses of ID exist and will"
-		  " be dangling" );
-	min::put ( map, ID, first->value );
-	MIN_REQUIRE ( attributes == min::MISSING() );
-    }
 
     first = first->next;
     PAR::free ( PAR::remove ( first_ref(parser),

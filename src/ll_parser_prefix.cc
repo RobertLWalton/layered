@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 22 22:28:38 EDT 2019
+// Date:	Thu May 23 06:08:39 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -352,7 +352,8 @@ static bool data_reformatter_function
 	    }
 
 	    // Now if j < lsize the last thing scanned
-	    // was an args[0] (e.g., "=").
+	    // was an args[0] (e.g., "=").  Here
+	    // j == lsize is OK.
 	    //
 	    if ( j + 1 == lsize )
 	    {
@@ -369,10 +370,10 @@ static bool data_reformatter_function
 	    min::locatable_gen value
 	        ( has_negator ? min::FALSE
 		              : min::TRUE );
+	    bool has_value = false;
 	    bool is_multivalue = false;
 	    min::locatable_gen reverse_name
 		( min::MISSING() );
-	    min::gen reverse_flags = min::MISSING();
 	    if ( j + 2 == lsize
 	         ||
 	    	 (    j + 3 < lsize
@@ -382,6 +383,7 @@ static bool data_reformatter_function
 		// possible multi-value bracketed
 		// list.
 		//
+		has_value = true;
 	        value_index = ++ j;
 		value = line[j++];
 		if ( min::is_obj ( value ) )
@@ -415,25 +417,13 @@ static bool data_reformatter_function
 			      " found; line ignored" );
 			continue;
 		    }
-
-		    if (    j < lsize
-		         && min::is_obj ( line[j] ) )
-		    {
-			min::obj_vec_ptr lvp
-			    ( line[j] );
-			min::attr_ptr lap ( lvp );
-			min::locate
-			    ( lap, min::dot_initiator );
-			if (    min::get ( lap )
-			     == args[2] )
-			    reverse_flags = line[j++];
-		    }
 		}
 	    }
 	    else if ( j + 2 < lsize )
 	    {
 	        // Multi-token value, i.e., a label.
 		//
+		has_value = true;
 		int j0 = j ++;
 		value = PAR::scan_label ( line, j );
 		if ( value == min::MISSING() )
@@ -465,127 +455,34 @@ static bool data_reformatter_function
 	    }
 
 	    min::locate ( idap, name );
-	    if ( reverse_name == min::MISSING() )
+	    min::attr_info info;
+	    min::attr_info_of ( info, idap );
+	    if ( info.value_count > 0
+		 ||
+		 info.flag_count > 0 )
 	    {
-	        min::attr_info info;
-		if ( min::attr_info_of ( info, idap ) )
-		{
-		    PAR::parse_error
-			( parser, lppvec->position,
-			  "single-arrow attribute has"
-			  " been set previously;"
-			  " line ignored" );
-		    continue;
-		}
-
-		if ( flags != min::MISSING() )
-		    PAR::set_attr_flags
-			( parser, idap, flags );
+		PAR::parse_error
+		    ( parser, lppvec->position,
+		      "attribute has"
+		      " previously set value(s) or"
+		      " flags; line ignored" );
+		continue;
 	    }
-	    else
-	    {
-	        min::attr_info info;
-		min::attr_info_of ( info, idap );
-		if ( info.flag_count > 0 )
-		{
-		    if ( flags == min::MISSING() )
-		    {
-			PAR::parse_error
-			    ( parser, lppvec->position,
-			      "double-arrow attribute"
-			      " has flags but no flags"
-			      " given in line;"
-			      " line ignored" );
-			continue;
-		    }
-		    else if ( ! PAR::test_attr_flags
-		                   ( parser, idap,
-				     flags ) )
-		    {
-			PAR::parse_error
-			    ( parser, lppvec->position,
-			      "double-arrow attribute"
-			      " has flags that disagree"
-			      " with flags given in"
-			      " line (see above"
-			      " errors);"
-			      " line ignored" );
-			continue;
-		    }
-		}
 
-		if ( ! min::is_obj ( value ) )
-		{
-		    PAR::parse_error
-			( parser, lppvec[value_index],
-			  "double-arrow attribute"
-			  " value is NOT an object;"
-			  " line ignored" );
-		    continue;
-		}
+	    if ( flags != min::MISSING() )
+		PAR::set_attr_flags
+		    ( parser, idap, flags );
 
-		{
-		    min::obj_vec_insptr rvp ( value );
-		    min::attr_insptr rap ( rvp );
-		    min::attr_info rinfo;
-		    min::attr_info_of ( rinfo, rap );
-		    if ( rinfo.flag_count > 0 )
-		    {
-			if (    reverse_flags
-			     == min::MISSING() )
-			{
-			    PAR::parse_error
-				( parser,
-				  lppvec->position,
-				  "double-arrow"
-				  " attribute has"
-				  " reverse flags but"
-				  " no reverse flags"
-				  " are given in line;"
-				  " line ignored" );
-			    continue;
-			}
-			else if ( ! PAR::test_attr_flags
-				       ( parser, rap,
-				         reverse_flags )
-				)
-			{
-			    PAR::parse_error
-				( parser,
-				  lppvec->position,
-				  "double-arrow"
-				  " attribute has"
-				  " reverse flags that"
-				  " disagree with"
-				  " reverse flags given"
-				  " in line (see above"
-				  " errors);"
-				  " line ignored" );
-			    continue;
-			}
-		    }
-		    else if (    reverse_flags
-		              != min::MISSING() )
-			PAR::set_attr_flags
-			    ( parser, rap,
-			      reverse_flags );
-		}
+	    if ( ! has_value ) continue;
 
-		if (    info.flag_count == 0
-		     && flags != min::MISSING() );
-		    PAR::set_attr_flags
-			( parser, idap, flags );
-
+	    if ( reverse_name != min::MISSING() )
 	        min::locate_reverse
 		    ( idap, reverse_name );
-	    }
 
 	    if ( ! is_multivalue )    
-	    {
 		PAR::set_attr_value
 		    ( parser, idap, value,
 		      lppvec[value_index] );
-	    }
 	    else
 		PAR::set_attr_multivalue
 		    ( parser, idap, value );

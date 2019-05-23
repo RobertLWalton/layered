@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 19 15:54:35 EDT 2019
+// Date:	Wed May 22 22:28:38 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,7 +158,7 @@ static bool data_reformatter_function
         min::attr_info info[2];
 	min::unsptr n =
 	    min::attr_info_of ( info, 2, pap );
-	if ( n != 2 ) return true;
+	if ( n > 2 ) return true;
 	for ( unsigned i = 0; i < n; ++ i )
 	{
 	    if ( info[i].name != min::dot_type
@@ -170,23 +170,15 @@ static bool data_reformatter_function
         }
     }
 
-    min::phrase_position ID_position =
-        first->next->position;
-    min::position end_position =
-        next->previous->position.end;
-
-    min::locatable_gen ID_gen ( first->next->value );
-
-    PAR::free ( PAR::remove ( first_ref(parser),
-			      first->next  ) );
-    PAR::free ( PAR::remove ( first_ref(parser),
-			      first->next  ) );
-
     min::locatable_gen attributes ( min::MISSING() );
     min::unsptr asize = 0;
+    min::position end_position =
+        next->previous->position.end;
     if (    min::get ( next->previous->value,
 	               min::dot_terminator )
-	 == min::INDENTED_PARAGRAPH() )
+	 == min::INDENTED_PARAGRAPH()
+	 &&
+	 min::is_obj ( next->previous->value ) )
     {
         attributes = next->previous->value;
 	PAR::free ( PAR::remove ( first_ref(parser),
@@ -194,6 +186,15 @@ static bool data_reformatter_function
 	min::obj_vec_ptr avp ( attributes );
 	asize = min::size_of ( avp );
     }
+
+    min::phrase_position ID_position =
+        first->next->position;
+    min::locatable_gen ID_gen ( first->next->value );
+
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->next  ) );
+    PAR::free ( PAR::remove ( first_ref(parser),
+			      first->next  ) );
 
     PRE::compact_prefix_list
         ( parser, pass, selectors, first, next,
@@ -203,9 +204,10 @@ static bool data_reformatter_function
     min::obj_vec_ptr fvp ( first->value );
     min::unsptr fvpsize = min::size_of ( fvp );
 
-    // If value has one element and no attributes (other
-    // than .position) then replace the value by its
-    // sole element and finish up.
+    // If value has one element and there are no
+    // attributes (other than .type and .position)
+    // then replace the value by its sole element
+    // and finish up.
     //
     if (    min::size_of ( fvp ) == 1
          && attributes == min::MISSING()
@@ -296,7 +298,7 @@ static bool data_reformatter_function
 	    if ( name == min::MISSING() )
 	    {
 		PAR::parse_error
-		    ( parser, lppvec[i],
+		    ( parser, lppvec->position,
 		      "line does not begin with a"
 		      " (possibly negated)"
 		      " attribute label;"
@@ -310,10 +312,11 @@ static bool data_reformatter_function
 	        "after attribute label `";
 	    if ( j < lsize && min::is_obj ( line[j] ) )
 	    {
-	        min::obj_vec_ptr lvp ( line[j] );
-		min::attr_ptr lap ( lvp );
-		min::locate ( lap, min::dot_initiator );
-		if ( min::get ( lap ) == args[2] )
+	        min::obj_vec_ptr flagsvp ( line[j] );
+		min::attr_ptr flagsap ( flagsvp );
+		min::locate
+		    ( flagsap, min::dot_initiator );
+		if ( min::get ( flagsap ) == args[2] )
 		{
 		    flags = line[j++];
 		    message =
@@ -350,14 +353,7 @@ static bool data_reformatter_function
 
 	    // Now if j < lsize the last thing scanned
 	    // was an args[0] (e.g., "=").
-
-	    min::locatable_gen value
-	        ( has_negator ? min::FALSE
-		              : min::TRUE );
-	    bool is_multivalue = false;
-	    min::locatable_gen reverse_name
-		( min::MISSING() );
-	    min::gen reverse_flags = min::MISSING();
+	    //
 	    if ( j + 1 == lsize )
 	    {
 		PAR::parse_error
@@ -369,10 +365,18 @@ static bool data_reformatter_function
 		      " but not found; line ignored" );
 		continue;
 	    }
-	    else if ( j + 2 == lsize
-	              ||
-	    	      (    j + 3 < lsize
-	                && line[j+3] == args[0] ) )
+
+	    min::locatable_gen value
+	        ( has_negator ? min::FALSE
+		              : min::TRUE );
+	    bool is_multivalue = false;
+	    min::locatable_gen reverse_name
+		( min::MISSING() );
+	    min::gen reverse_flags = min::MISSING();
+	    if ( j + 2 == lsize
+	         ||
+	    	 (    j + 3 < lsize
+	           && line[j+3] == args[0] ) )
 	    {
 	        // Single token value, including
 		// possible multi-value bracketed
@@ -392,17 +396,17 @@ static bool data_reformatter_function
 		if ( j < lsize )
 		{
 		    // name = value(s) = reverse_name
-		    // Ready to scan second "=".
+		    // Just scanned second "=".
 		    //
 		    MIN_REQUIRE ( line[j] == args[0] );
-		    ++ j;
+		    min::uns32 saved_j = j ++;
 		    reverse_name =
 			( PAR::scan_label ( line, j ) );
 		    if (    reverse_name
 		         == min::MISSING() )
 		    {
 			PAR::parse_error
-			    ( parser, lppvec[i],
+			    ( parser, lppvec[saved_j],
 			      "reverse attribute label"
 			      " after second `",
 			      min::pgen_never_quote

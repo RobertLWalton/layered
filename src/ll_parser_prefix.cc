@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 23 06:08:39 EDT 2019
+// Date:	Fri May 24 05:45:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,6 +125,7 @@ static bool data_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -508,6 +509,7 @@ static bool sentence_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {

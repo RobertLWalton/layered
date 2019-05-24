@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 15 07:12:24 EDT 2019
+// Date:	Fri May 24 05:36:03 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1383,6 +1383,7 @@ typedef bool ( * reformatter_function )
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  ll::parser::table::flags trace_flags,
 	  ll::parser::table::root entry );
     //
@@ -1397,10 +1398,17 @@ typedef bool ( * reformatter_function )
     // reformatter being called.  This entry contains
     // various kinds of reformatter arguments.
     //
-    // The function may change `first'.  Note that if
-    // this is done, a recalculated position would be
-    // incorrect, which is why `position' is calculated
-    // before the function is called.
+    // The function may change `first'.
+    //
+    // `position' may include tokens not passed to the
+    // reformatter, such as brackets in a bracketed
+    // expression, or a line separator.  If there
+    // is a line_separator, it is passed as a separate
+    // argument (which is otherwise MISSING), and
+    // position.end is the position of the end of the
+    // line_separator.  The line_separator may be
+    // non-MISSING for prefix reformatters, but is
+    // generally MISSING for other reformatters.
     //
     // If true is returned, the caller of the function
     // will immediately call ll:: parser::compact (even

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 26 12:17:44 EST 2019
+// Date:	Fri May 24 05:45:23 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -616,7 +616,7 @@ static void oper_parse ( PAR::parser parser,
 			       ->reformatter_function )
 			     ( parser, pass, selectors,
 			       D.first, current,
-			       position,
+			       position, min::MISSING(),
 			       reformatter_trace_flags,
 			       (TAB::root) first_oper )
 		       )
@@ -715,6 +715,7 @@ static bool separator_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -793,6 +794,7 @@ static bool declare_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -879,6 +881,7 @@ static bool right_associative_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -947,6 +950,7 @@ static bool unary_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1033,6 +1037,7 @@ static bool binary_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1128,6 +1133,7 @@ static bool infix_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1186,6 +1192,7 @@ static bool infix_and_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -1368,6 +1375,7 @@ static bool sum_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {

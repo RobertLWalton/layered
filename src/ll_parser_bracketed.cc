@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  2 07:28:43 EDT 2019
+// Date:	Fri May 24 05:45:01 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2352,6 +2352,10 @@ PARSE_PREFIX_N_LIST:
 			     (PAR::pass) bracketed_pass,
 			     prefix_selectors,
 			     prefix, next, position,
+			     separator_found ?
+				 line_variables->
+				     line_sep->label :
+				 min::MISSING(),
 			     trace_flags,
 			     (TAB::root) prefix_entry )
 		   )
@@ -3423,6 +3427,7 @@ NEXT_TOKEN:
 			       bracketed_pass,
 			   new_selectors,
 			   first, next, position,
+			   min::MISSING(),
 			   trace_flags,
 			   (TAB::root)
 			       opening_bracket )
@@ -4237,6 +4242,7 @@ static bool label_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -4287,6 +4293,7 @@ static bool special_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
@@ -4329,6 +4336,7 @@ static bool multivalue_reformatter_function
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
+	  min::gen line_separator,
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {

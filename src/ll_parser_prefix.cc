@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 05:45:12 EDT 2019
+// Date:	Fri May 24 06:25:49 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,14 +177,14 @@ static bool data_reformatter_function
         next->previous->position.end;
     if (    min::get ( next->previous->value,
 	               min::dot_terminator )
-	 == min::INDENTED_PARAGRAPH()
-	 &&
-	 min::is_obj ( next->previous->value ) )
+	 == min::INDENTED_PARAGRAPH() )
     {
         attributes = next->previous->value;
 	PAR::free ( PAR::remove ( first_ref(parser),
 			          next->previous  ) );
 	min::obj_vec_ptr avp ( attributes );
+	    // Attributes must be an object else
+	    // min::get would have returned NONE.
 	asize = min::size_of ( avp );
     }
 
@@ -201,14 +201,16 @@ static bool data_reformatter_function
         ( parser, pass, selectors, first, next,
 	  min::MISSING_POSITION, min::MISSING(),
 	  trace_flags );
+        // Here we ignore the line_separator argument
+	// intentionally.
 
     min::obj_vec_ptr fvp ( first->value );
     min::unsptr fvpsize = min::size_of ( fvp );
 
-    // If value has one element and there are no
-    // attributes (other than .type and .position)
-    // then replace the value by its sole element
-    // and finish up.
+    // If value has one element, ID_gen is preallocated,
+    // and there are no compacted prefix attributes
+    // other than .type and .position, then replace the
+    // value by its sole element and finish up.
     //
     if (    min::size_of ( fvp ) == 1
          && attributes == min::MISSING()
@@ -249,7 +251,7 @@ static bool data_reformatter_function
     if ( min::is_preallocated ( ID_gen ) )
 	min::new_obj_gen
 	    ( ID_gen, 5 + fvpsize + 5 * asize,
-	              2 * asize + 4 );
+	              4 + 2 * asize );
 
     min::obj_vec_insptr idvp ( ID_gen );
     for ( min::unsptr i = 0; i < fvpsize; ++ i )
@@ -279,6 +281,8 @@ static bool data_reformatter_function
 	for ( min::uns32 i = 0;
 	      i < min::size_of ( paragraph ); ++ i )
         {
+	    MIN_REQUIRE
+	        ( min::is_obj ( paragraph[i] ) );
 	    min::obj_vec_ptr line ( paragraph[i] );
 	    min::phrase_position_vec lppvec =
 		min::position_of ( line );
@@ -303,6 +307,19 @@ static bool data_reformatter_function
 		      "line does not begin with a"
 		      " (possibly negated)"
 		      " attribute label;"
+		      " line ignored" );
+		continue;
+	    }
+
+	    if ( j < lsize && has_negator )
+	    {
+		PAR::parse_error
+		    ( parser,
+		      lppvec[0],
+		      "negator preceeds"
+		      " attribute label"
+		      " which is followed"
+		      " by flags or value;"
 		      " line ignored" );
 		continue;
 	    }
@@ -337,24 +354,9 @@ static bool data_reformatter_function
 		continue;
 	    }
 
-	    if ( j < lsize && has_negator )
-	    {
-		PAR::parse_error
-		    ( parser,
-		      lppvec[0],
-		      "negator preceding"
-		      " attribute label"
-		      " that is followed"
-		      " by `",
-		      min::pgen_never_quote
-			  ( args[0] ),
-		      "'; negator"
-		      " ignored" );
-	    }
-
-	    // Now if j < lsize the last thing scanned
-	    // was an args[0] (e.g., "=").  Here
-	    // j == lsize is OK.
+	    // Now if j < lsize, line[j] == args[0]
+	    // (e.g., "=").  j == lsize is also
+	    // possible.
 	    //
 	    if ( j + 1 == lsize )
 	    {
@@ -377,29 +379,26 @@ static bool data_reformatter_function
 		( min::MISSING() );
 	    if ( j + 2 == lsize
 	         ||
-	    	 (    j + 3 < lsize
-	           && line[j+3] == args[0] ) )
+	    	 (    j + 2 < lsize
+	           && line[j+2] == args[0] ) )
 	    {
 	        // Single token value, including
 		// possible multi-value bracketed
-		// list.
+		// list.  Double arrow attribute
+		// is possible.
 		//
 		has_value = true;
 	        value_index = ++ j;
 		value = line[j++];
-		if ( min::is_obj ( value ) )
-		{
-		    min::obj_vec_ptr vvp ( value );
-		    min::attr_ptr vap ( vvp );
-		    min::locate
-		        ( vap, min::dot_initiator );
-		    is_multivalue =
-			( min::get ( vap ) == args[3] );
-		}
+		is_multivalue =
+		    (    min::get ( value,
+		                    min::dot_initiator )
+		      == args[3] );
 		if ( j < lsize )
 		{
-		    // name = value(s) = reverse_name
-		    // Just scanned second "=".
+		    // Double arrow attribute.  Syntax:
+		    //   name = value(s) = reverse_name
+		    // line[j] == args[0] (second "=").
 		    //
 		    MIN_REQUIRE ( line[j] == args[0] );
 		    min::uns32 saved_j = j ++;
@@ -425,12 +424,12 @@ static bool data_reformatter_function
 	        // Multi-token value, i.e., a label.
 		//
 		has_value = true;
-		int j0 = j ++;
+		min::uns32 saved_j = j ++;
 		value = PAR::scan_label ( line, j );
 		if ( value == min::MISSING() )
 		{
 		    PAR::parse_error
-			( parser, lppvec[j0],
+			( parser, lppvec[saved_j],
 			  "after `",
 			  min::pgen_never_quote
 			      ( args[0] ),

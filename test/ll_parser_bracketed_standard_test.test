@@ -6235,6 +6235,82 @@ BRACKETED EXPRESSION:
     line ###:
 ID 8 is @@
 ^^^^^^^^^^
+BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+PREFIX EXPRESSION:
+    {data||data}
+@@@@ =:
+           .type = "data"
+           .position[H] = PACKED_VEC
+    line ###:
+{data} @@ = M N P
+^^^^^^
+BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
+BRACKETED EXPRESSION:
+    {data|M N P|data}
+@@@@ = M N P:
+           .type = "data"
+           .position[H] = PACKED_VEC
+    line ###:
+{data} @@ = M N P
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|M N P|}
+@@@@ = M N P:
+           .position[H] = PACKED_VEC
+    line ###:
+{data} @@ = M N P
+^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED PARSER FOUND [code] SELECTED KEY "="
+     OF SUBTYPE ll::parser::table::typed_attr_equal_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="
+BRACKETED PARSER FOUND [code] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    {data|PREALLOCATED(1*10) = A B C|data}
+@@@@ = PREALLOCATED(1*10) = A B C:
+           .type = "data"
+           .position[H] = PACKED_VEC
+    line ###:
+{data| @@@ = A B C|}
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|PREALLOCATED(1*10) = A B C|data}
+@@@@ = {data|PREALLOCATED(1*10) = A B C|data}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{data| @@@ = A B C|}
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 9 is {|M N P|}
+@@@@ = ID 9 is {|M N P|}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 9 is @@
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 10 is PREALLOCATED(2*10)
+@@@@ = ID 10 is PREALLOCATED(2*10):
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 10 is @@@
+^^^^^^^^^^^^
 BRACKETED PARSER FOUND
     [TOP LEVEL, code] SELECTED KEY [< "*PARSER*" ":" >]
      OF SUBTYPE ll::parser::table::indentation_mark_type

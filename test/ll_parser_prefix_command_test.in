@@ -24,7 +24,8 @@
 *PARSER*:
     begin block X
     define prefix "p" [TOP LEVEL]
-        with parsing options [end at paragraph break, sticky]
+        with parsing options
+	     [end at paragraph break, sticky]
 	with group paragraph
 	with parsing selectors [+ text, - code]
 	with implied subprefix {s}

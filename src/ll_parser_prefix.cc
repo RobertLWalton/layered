@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 06:25:49 EDT 2019
+// Date:	Sun May 26 16:10:03 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -475,17 +475,22 @@ static bool data_reformatter_function
 
 	    if ( ! has_value ) continue;
 
+	    unsigned option = PAR::NEW;
 	    if ( reverse_name != min::MISSING() )
+	    {
 	        min::locate_reverse
 		    ( idap, reverse_name );
+		option = PAR::ADD;
+	    }
 
 	    if ( ! is_multivalue )    
 		PAR::set_attr_value
 		    ( parser, idap, value,
-		      lppvec[value_index] );
+		      lppvec[value_index],
+		      option );
 	    else
 		PAR::set_attr_multivalue
-		    ( parser, idap, value );
+		    ( parser, idap, value, option );
 	}
     }
 

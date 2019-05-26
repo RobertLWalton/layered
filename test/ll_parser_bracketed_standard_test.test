@@ -6777,3 +6777,261 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
     =
 ^^^^^
+BRACKETED EXPRESSION:
+    ROOT = PREALLOCATED(1*20) = LEAVES
+@@@@ = ROOT = PREALLOCATED(1*20) = LEAVES:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    ROOT = @@@ = LEAVES
+    ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    RIGHT = PREALLOCATED(1*22) = LEFT
+@@@@ = RIGHT = PREALLOCATED(1*22) = LEFT:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    RIGHT = @@@ = LEFT
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    LEFT = PREALLOCATED(1*23) = RIGHT
+@@@@ = LEFT = PREALLOCATED(1*23) = RIGHT:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    LEFT = @@@ = RIGHT
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
+         @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+@@@ = A:
+       ^
+    ROOT = @@@ = LEAVES
+^^^^^^^^^^^^^^^^^^^^^^^
+    RIGHT = @@@ = LEFT
+^^^^^^^^^^^^^^^^^^^^^^
+    LEFT = @@@ = RIGHT
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|A|data}
+@@@@ = A:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@@@ = A:
+^^^^^^^
+BRACKETED EXPRESSION:
+    {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@ = LEAVES|
+         A|}
+@@@@ =:
+           LEFT = @@@@ = RIGHT
+@@@@ =:
+           RIGHT = @@@@ = LEFT
+@@@@ =:
+           LEAVES = @@@@ = ROOT
+@@@@ = A:
+           RIGHT = @@@@ = LEFT
+           .position[H] = PACKED_VEC
+           LEFT = @@@@ = RIGHT
+           ROOT = @@@@ = LEAVES
+    lines ###-###:
+@@@ = A:
+^^^^^^^^
+    ROOT = @@@ = LEAVES
+^^^^^^^^^^^^^^^^^^^^^^^
+    RIGHT = @@@ = LEFT
+^^^^^^^^^^^^^^^^^^^^^^
+    LEFT = @@@ = RIGHT
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ROOT = {"": LEAVES = @@@@ = ROOT||} = LEAVES
+@@@@ = ROOT = @@@@ = LEAVES:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    ROOT = @@@ = LEAVES
+    ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    RIGHT = {"": RIGHT = @@@@ = LEFT||} = LEFT
+@@@@ = RIGHT = @@@@ = LEFT:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    RIGHT = @@@ = LEFT
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    LEFT =
+        {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
+              = LEAVES|A|} = RIGHT
+@@@@ = LEFT = @@@@ = RIGHT:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    LEFT = @@@ = RIGHT
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
+         @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+@@@ = B:
+       ^
+    ROOT = @@@ = LEAVES
+^^^^^^^^^^^^^^^^^^^^^^^
+    RIGHT = @@@ = LEFT
+^^^^^^^^^^^^^^^^^^^^^^
+    LEFT = @@@ = RIGHT
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|B|data}
+@@@@ = B:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@@@ = B:
+^^^^^^^
+BRACKETED EXPRESSION:
+    {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@ = LEAVES|
+         B|}
+@@@@ = B:
+           .position[H] = PACKED_VEC
+           RIGHT = @@@@ = LEFT
+           LEFT = @@@@ = RIGHT
+           ROOT = @@@@ = LEAVES
+    lines ###-###:
+@@@ = B:
+^^^^^^^^
+    ROOT = @@@ = LEAVES
+^^^^^^^^^^^^^^^^^^^^^^^
+    RIGHT = @@@ = LEFT
+^^^^^^^^^^^^^^^^^^^^^^
+    LEFT = @@@ = RIGHT
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ROOT = {"": LEAVES = {* @@@@, @@@@ *} = ROOT||} = LEAVES
+@@@@ = ROOT = @@@@ = LEAVES:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    ROOT = @@@ = LEAVES
+    ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    RIGHT =
+        {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
+              = LEAVES|A|} = LEFT
+@@@@ = RIGHT = @@@@ = LEFT:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    RIGHT = @@@ = LEFT
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    LEFT =
+        {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
+              = LEAVES|B|} = RIGHT
+@@@@ = LEFT = @@@@ = RIGHT:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    LEFT = @@@ = RIGHT
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
+         @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+@@@ = C:
+       ^
+    ROOT = @@@ = LEAVES
+^^^^^^^^^^^^^^^^^^^^^^^
+    RIGHT = @@@ = LEFT
+^^^^^^^^^^^^^^^^^^^^^^
+    LEFT = @@@ = RIGHT
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|C|data}
+@@@@ = C:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@@@ = C:
+^^^^^^^
+BRACKETED EXPRESSION:
+    {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@ = LEAVES|
+         C|}
+@@@@ = C:
+           .position[H] = PACKED_VEC
+           RIGHT = @@@@ = LEFT
+           LEFT = @@@@ = RIGHT
+           ROOT = @@@@ = LEAVES
+    lines ###-###:
+@@@ = C:
+^^^^^^^^
+    ROOT = @@@ = LEAVES
+^^^^^^^^^^^^^^^^^^^^^^^
+    RIGHT = @@@ = LEFT
+^^^^^^^^^^^^^^^^^^^^^^
+    LEFT = @@@ = RIGHT
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 20 IS {"": LEAVES = {* @@@@, @@@@, @@@@ *} = ROOT||}
+@@@@ = ID 20 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 20 IS @@@
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 21 IS
+        {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
+              = LEAVES|A|}
+@@@@ = ID 21 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 21 IS @@@
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 22 IS
+        {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
+              = LEAVES|B|}
+@@@@ = ID 22 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 22 IS @@@
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 23 IS
+        {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
+              = LEAVES|C|}
+@@@@ = ID 23 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 23 IS @@@
+^^^^^^^^^^^^

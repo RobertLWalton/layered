@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 15 07:11:06 EDT 2019
+// Date:	Sun May 26 16:07:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2033,11 +2033,15 @@ bool PAR::set_attr_value
 	  unsigned option )
 {
     bool is_legal = min::is_attr_legal ( value );
+    bool is_double_arrow =
+	( min::reverse_name_of ( ap ) != min::NONE() );
+    bool is_preallocated =
+        min::is_preallocated ( value );
     if ( ! is_legal
 	 ||
-	 ( min::reverse_name_of ( ap ) != min::NONE()
+	 ( is_double_arrow
 	   &&
-	   ! min::is_preallocated ( value )
+	   ! is_preallocated
 	   &&
 	   ! min::is_obj ( value ) ) )
     {
@@ -2056,6 +2060,8 @@ bool PAR::set_attr_value
     min::gen previous_value = min::get ( ap );
     if ( previous_value == min::NONE() )
     {
+	if ( is_double_arrow && is_preallocated )
+	    min::new_obj_gen ( value, 40, 20 );
         min::set ( ap, value );
 	return true;
     }
@@ -2080,6 +2086,8 @@ bool PAR::set_attr_value
 		      " old value(s) not changed" );
 	return false;
     }
+    if ( is_double_arrow && is_preallocated )
+	min::new_obj_gen ( value, 40, 20 );
     min::add_to_set ( ap, value );
     return true;
 }

@@ -7035,3 +7035,175 @@ BRACKETED EXPRESSION:
     line ###:
 ID 23 IS @@@
 ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [*,@]
+@@@@ = *,@:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+    LEAVES[*,@]
+          ^^^^^
+BRACKETED EXPRESSION:
+    LEAVES [*,@]
+@@@@ = LEAVES [*,@]:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    LEAVES[*,@]
+    ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|5, 6, 7|}
+@@@@ = 5 6 7:
+           .separator = ","
+           .position[H] = PACKED_VEC
+    line ###:
+    OTHER = {* 5, 6, 7 *}
+            ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* 5, 6, 7 *}
+@@@@ = 5 6 7:
+           .terminator = [< "*" "}" >]
+           .initiator = [< "{" "*" >]
+           .separator = ","
+           .position[H] = PACKED_VEC
+    line ###:
+    OTHER = {* 5, 6, 7 *}
+            ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    OTHER = {* 5, 6, 7 *}
+@@@@ = OTHER = {* 5, 6, 7 *}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    OTHER = {* 5, 6, 7 *}
+    ^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
+         @@@@|}
+@@@@ = @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+@@@ = ABC:
+         ^
+    LEAVES[*,@]
+^^^^^^^^^^^^^^^
+    OTHER = {* 5, 6, 7 *}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|ABC|data}
+@@@@ = ABC:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@@@ = ABC:
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT, OTHER =
+         {* "7", "5", "6" *}|ABC|}
+@@@@ = ABC:
+           LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT
+           .position[H] = PACKED_VEC
+           OTHER = "7", "5", "6"
+    lines ###-###:
+@@@ = ABC:
+^^^^^^^^^^
+    LEAVES[*,@]
+^^^^^^^^^^^^^^^
+    OTHER = {* 5, 6, 7 *}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 20 IS NOW
+        {"": LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT, OTHER =
+             {* "7", "5", "6" *}|ABC|}
+@@@@ = ID 20 IS NOW @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 20 IS NOW @@@
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [aZ*+,/]
+@@@@ = aZ*+,/:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+    X[aZ*+,/]
+     ^^^^^^^^
+BRACKETED EXPRESSION:
+    X [aZ*+,/]
+@@@@ = X [aZ*+,/]:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    X[aZ*+,/]
+    ^^^^^^^^^
+BRACKETED EXPRESSION:
+    [@]
+@@@@ = @:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+    Y[@] = 5
+     ^^^
+BRACKETED EXPRESSION:
+    Y [@] = 5
+@@@@ = Y [@] = 5:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    Y[@] = 5
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
+         @@@@|}
+@@@@ = @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+@@@ = D:
+       ^
+    X[aZ*+,/]
+^^^^^^^^^^^^^
+    Y[@] = 5
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|D|data}
+@@@@ = D:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@@@ = D:
+^^^^^^^
+BRACKETED EXPRESSION:
+    {"": X[*+/aZ] = {* *}, Y[@] = "5"|D|}
+@@@@ = D:
+           X[*+/aZ] =
+           Y[@] = "5"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+@@@ = D:
+^^^^^^^^
+    X[aZ*+,/]
+^^^^^^^^^^^^^
+    Y[@] = 5
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 30 IS {"": X[*+/aZ] = {* *}, Y[@] = "5"|D|}
+@@@@ = ID 30 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 30 IS @@@
+^^^^^^^^^^^^

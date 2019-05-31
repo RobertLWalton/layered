@@ -5803,7 +5803,8 @@ where
 The {\em ID} (first element) of the headed line must be either
 a preallocated stub or an object that has replaced a preallocated
 stub.  In the latter case the object may not have any attributes
-with flags or any single attribute values.  Also the {\em prefix}
+with flags or any single attribute values; but it may have
+double attribute values.  Also the {\em prefix}
 must not have any associated prefix attributes (other than
 \TT{.type} or \TT{.position}).  If these requirements are not met, the
 \TT{data} reformatter takes no action, and the headed logical
@@ -5832,6 +5833,9 @@ using its reformatter arguments to treat each line as being
 formatted in the same manner as an {\em attribute}
 in a {\em typed-bracketed-subexpression}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
+If {\em ID} is an object with double attribute values, any
+new double attribute values will add to existing double attribute value
+\underline{sets} (not multi-sets).
 
 As a special case, if there is only one {\em element}, no {\em attributes},
 and {\em ID} is a preallocated stub,
@@ -5869,9 +5873,12 @@ and have no effect other than setting the {\em ID} to the
 desired value.
 
 Dangling references will
-\underline{not} cause garbage collection errors, but will generate
-a parser error message.  Dangling references will print as
-preallocated stubs with their ID number which can be used for finding
+\underline{not} cause garbage collection errors, but the \TT{data}
+reformatter will generate
+a parser error message.  Dangling references print as
+preallocated stubs with their ID number and a counter equal to
+one plus the total number of dangling references.  This information
+can be used for finding
 dangling references in the input.
 
 \end{indpar}

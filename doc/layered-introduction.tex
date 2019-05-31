@@ -4192,6 +4192,7 @@ The general syntax is:
 \begin{indpar}[0.1in]
 \emkey{untyped-bracketed-subexpression} ::=
 	{\em opening-bracket} ~ {\em element-list} ~ {\em closing-bracket}
+\label{UNTYPED-BRACKETED-SUBEXPRESSION}
 \\[0.5ex]
 \emkey{opening-bracket} ::=
    {\em key} ~~~ [e.g., `\TT{(}' or `\TT{[<}', ~
@@ -5070,13 +5071,17 @@ The general syntax is:
 \\[0.5ex]
 \emkey{reverse-attribute-label} ::= {\em attribute-label}
 \\[0.5ex]
-\emkey{attribute-flags}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em typed-attribute-flags-opening}~~~{\em attribute-flag-item} \\
-        & \{ {\em typed-attribute-flags-separator}~~~%
-	  {\em attribute-flag-item} \}\STAR{} \\
-	& {\em typed-attribute-flags-closing} \\
+\emkey{attribute-flags} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}l}
+    {\em untyped-bracketed-subexpression}
+    (\pagref{UNTYPED-BRACKETED-SUBEXPRESSION})
+    with {\em attribute-flag-items} as {\em elements} \\
+    and {\em typed-attribute-flags-opening} as {\em opening-bracket}
     \end{tabular}
+\\[0.5ex]
+\emkey{attribute-flag-items} :::=
+    {\em attribute-flag-item}\QMARK{}
+    \{ \TT{,} {\em attribute-flag-item}\QMARK{} \}\STAR{}
 \\[0.5ex]
 \emkey{attribute-flag-item}
     \begin{tabular}[t]{@{}rl}
@@ -5087,23 +5092,30 @@ The general syntax is:
 \\[0.5ex]
 \emkey{attribute-flag-index} ::= {\em natural-number}
 \\[0.5ex]
-\emkey{single-attribute-values}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em value} \\
-    $|$ & {\em typed-attribute-multivalue-opening}~~~{\em value}\QMARK{} \\
-        & \{ {\em typed-attribute-multivalue-separator}~~~%
-	     {\em value}\QMARK{} \}\STAR{} \\
-	& {\em typed-attribute-multivalue-closing} \\
+\emkey{single-attribute-values} ::= {\em value }
+                                $|$ {\em single-attribute-multivalue}
+\\[0.5ex]
+\emkey{single-attribute-multivalue} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}l}
+    {\em untyped-bracketed-subexpression}
+    (\pagref{UNTYPED-BRACKETED-SUBEXPRESSION})
+    with {\em values} as {\em elements}, \\
+    {\em typed-attribute-multivalue-opening} as {\em opening-bracket}, \\
+    and \TT{multivalue} reformatter
+    (\pagref{MULTIVALUE-REFORMATTER})
     \end{tabular}
 \\[0.5ex]
-\emkey{double-attribute-values}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em object-id} \\
-    $|$ & {\em typed-attribute-multivalue-opening}~~~%
-          {\em object-id}\QMARK{} \\
-        & \{ {\em typed-attribute-multivalue-separator}~~~%
-	     {\em object-id}\QMARK{} \}\STAR{} \\
-	& {\em typed-attribute-multivalue-closing} \\
+\emkey{double-attribute-values} ::= {\em object-id }
+                                $|$ {\em double-attribute-multivalue}
+\\[0.5ex]
+\emkey{double-attribute-multivalue} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}l}
+    {\em untyped-bracketed-subexpression}
+    (\pagref{UNTYPED-BRACKETED-SUBEXPRESSION})
+    with {\em object-ids} as {\em elements}, \\
+    {\em typed-attribute-multivalue-opening} as {\em opening-bracket}, \\
+    and \TT{multivalue} reformatter
+    (\pagref{MULTIVALUE-REFORMATTER})
     \end{tabular}
 \\[0.5ex]
 \emkey{value} ::= {\em label} $|$ {\em bracketed-subexpression}
@@ -5134,15 +5146,7 @@ Most of the following are defined by the {\em parser-typed-bracket-command}
 \\[0.5ex]
 \emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g.~`\TT{[}']
 \\[0.5ex]
-\emkey{typed-attribute-flags-separator} :::= \TT{,} ~~~ [cannot be changed]
-\\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g.~`\TT{]}']
-\\[0.5ex]
 \emkey{typed-attribute-multivalue-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{*}']
-\\[0.5ex]
-\emkey{typed-attribute-multivalue-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}']
-\\[0.5ex]
-\emkey{typed-attribute-multivalue-closing} ::= {\em key} ~ [e.g.~`\TT{*\}}']
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=
     \begin{tabular}[t]{@{}l}

@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 3, 2019
+May 31, 2019
  
 \end{center}
 
@@ -2454,7 +2454,7 @@ the `\TT{paragraph}' group.
 
 \hspace*{-0.2in}\ttmkey{continuing}{parser option} \\
     A blank line ends a headed paragraph unless the paragraph header
-    has the `\TT{continuing}' option \underline{and}
+    has the `\TT{con\-tin\-u\-ing}' option \underline{and}
     the first logical line after the blank line does
     \underline{not} begin with an explicit paragraph header.
     See \ref{CONTINUING-RULE}, \pagref{CONTINUING-RULE}.
@@ -5033,15 +5033,21 @@ The general syntax is:
 \emkey{attribute}\label{ATTRIBUTE}
                   \begin{tabular}[t]{@{}rl}
                   ::= & {\em attribute-label}~~~%
+		        \begin{tabular}[t]{@{}l}
+	                {\em attribute-flags}\QMARK{} \\
 	                {\em typed-attribute-equal}~~~%
-			{\em single-attribute-value} \\
+			{\em single-attribute-values} \\
+			\end{tabular} \\
                   $|$ & {\em attribute-label}~~~%
 		        \begin{tabular}[t]{@{}l}
+	                {\em attribute-flags}\QMARK{} \\
 	                {\em typed-attribute-equal}~~~%
-			{\em double-attribute-value} \\
+			{\em double-attribute-values} \\
 	                {\em typed-attribute-equal}~~~%
-			{\em attribute-label} \\
+			{\em reverse-attribute-label} \\
 			\end{tabular} \\
+                  $|$ & {\em attribute-label}~~~%
+	                {\em attribute-flags} \\
                   $|$ & {\em attribute-label} \\
                   $|$ & {\em typed-attribute-negator}~~~%
 		        {\em attribute-label} \\
@@ -5060,7 +5066,9 @@ The general syntax is:
 \\[0.5ex]
 \emkey{type-mark} ::= {\em mark}\label{TYPE-MARK}
 \\[0.5ex]
-\emkey{attribute-label} ::= {\em label} {\em attribute-flags}\QMARK{}
+\emkey{attribute-label} ::= {\em label}
+\\[0.5ex]
+\emkey{reverse-attribute-label} ::= {\em attribute-label}
 \\[0.5ex]
 \emkey{attribute-flags}
     \begin{tabular}[t]{@{}rl}
@@ -5079,21 +5087,22 @@ The general syntax is:
 \\[0.5ex]
 \emkey{attribute-flag-index} ::= {\em natural-number}
 \\[0.5ex]
-\emkey{single-attribute-value}
+\emkey{single-attribute-values}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em value} \\
-    $|$ & {\em typed-attribute-multivalue-opening} {\em value}\QMARK{} \\
-        & \{ {\em typed-attribute-multivalue-separator} {\em value}\QMARK{}
-	                                       \}\STAR{} \\
+    $|$ & {\em typed-attribute-multivalue-opening}~~~{\em value}\QMARK{} \\
+        & \{ {\em typed-attribute-multivalue-separator}~~~%
+	     {\em value}\QMARK{} \}\STAR{} \\
 	& {\em typed-attribute-multivalue-closing} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{double-attribute-value}
+\emkey{double-attribute-values}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em object-id} \\
-    $|$ & {\em typed-attribute-multivalue-opening} {\em object-id}\QMARK{} \\
-        & \{ {\em typed-attribute-multivalue-separator} {\em object-id}\QMARK{}
-	                                       \}\STAR{} \\
+    $|$ & {\em typed-attribute-multivalue-opening}~~~%
+          {\em object-id}\QMARK{} \\
+        & \{ {\em typed-attribute-multivalue-separator}~~~%
+	     {\em object-id}\QMARK{} \}\STAR{} \\
 	& {\em typed-attribute-multivalue-closing} \\
     \end{tabular}
 \\[0.5ex]
@@ -5101,66 +5110,64 @@ The general syntax is:
 \\[0.5ex]
 \emkey{object-id} ::= \begin{tabular}[t]{l}
                       \ttmkey{@}{in object ID} {\em natural-number} \\
-		      This is a special kind of label.
+		      This is a special kind of {\em label}.
 		      \end{tabular}
-\\[0.5ex]
-\emkey{typed-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]%
+\\[2ex]
+Most of the following are defined by the {\em parser-typed-bracket-command}
+    (\pagref{PARSER-TYPED-BRACKET-COMMAND}):
+\begin{indpar}[0.2in]
+\emkey{typed-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{}']
     \label{TYPED-OPENING}
 \\[0.5ex]
-\emkey{typed-middle} ::= {\em key} ~~~ [e.g.~`\TT{|}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-middle} ::= {\em key} ~~~ [e.g.~`\TT{|}']
 \\[0.5ex]
-\emkey{typed-closing} ::= {\em key} ~~~ [e.g.~`\TT{\}}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]%
+\emkey{typed-closing} ::= {\em key} ~~~ [e.g.~`\TT{\}}']
     \label{TYPED-CLOSING}
 \\[0.5ex]
-\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g.~`\TT{:}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-begin} ::= {\em key} ~~~ [e.g.~`\TT{:}']
 \\[0.5ex]
-\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}']
 \\[0.5ex]
-\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g.~`\TT{=}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-equal} ::= {\em key} ~~~ [e.g.~`\TT{=}']
 \\[0.5ex]
-\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g.~`\TT{no}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-negator} ::= {\em key} ~~~ [e.g.~`\TT{no}']
 \\[0.5ex]
-\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g.~`\TT{[}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-flags-opening} ::= {\em key} ~~~ [e.g.~`\TT{[}']
 \\[0.5ex]
 \emkey{typed-attribute-flags-separator} :::= \TT{,} ~~~ [cannot be changed]
 \\[0.5ex]
-\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g.~`\TT{]}'
-    as per {\em parser-untyped-bracket-command} ~
-    \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-flags-closing} ::= {\em key} ~~~ [e.g.~`\TT{]}']
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{*}' ~
-    as per {\em parser-typed-bracket-command} ~
-    \pagref{PARSER-TYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-multivalue-opening} ::= {\em key} ~~~ [e.g.~`\TT{\{*}']
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}' ~
-    as per \TT{multivalue} reformatter ~
-    \pagref{MULTIVALUE-REFORMATTER}]
+\emkey{typed-attribute-multivalue-separator} ::= {\em key} ~~~ [e.g.~`\TT{,}']
 \\[0.5ex]
-\emkey{typed-attribute-multivalue-closing} ::= {\em key} ~ [e.g.~`\TT{*\}}' ~
-    as per {\em parser-untyped-bracket-command} ~
-    \pagref{PARSER-UNTYPED-BRACKET-COMMAND}]
+\emkey{typed-attribute-multivalue-closing} ::= {\em key} ~ [e.g.~`\TT{*\}}']
 \\[0.5ex]
 \emkey{doubled-typed-middle} :::=
     \begin{tabular}[t]{@{}l}
     {\em typed-middle}~~~{\em typed-middle} ~~~~~ [e.g.~`\TT{||}'] \\
     as a single lexeme (when possible): see text
     \end{tabular}
+\end{indpar}
+The following rules apply to the set of all {\em attributes} in a
+single {\em typed-bracketed-subexpression}:
+\begin{enumerate}
+\item
+An {\em attribute} that is just `{\em attribute-label}' is equivalent to: \\
+\hspace*{1in} {\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{TRUE}
+\item
+An {\em attribute} that is just
+`{\em typed-attribute-negator}~~~{\em attribute-label}' is equivalent to: \\
+\hspace*{1in}{\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{FALSE}
+\item
+An {\em attribute-label} may appear in more that one {\em attribute},
+but at most one without any {\em reverse-attribute-label}, and in
+at most one with any particular {\em reverse-attribute-label}.
+\item
+An {\em attribute-label} may appear with {\em attribute-flags}
+in at most one {\em attribute}.
+\end{enumerate}
 \end{indpar}
 
 A typed bracketed expression is converted to a

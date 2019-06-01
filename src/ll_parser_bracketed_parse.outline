@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 28 04:48:42 EDT 2019
+// Date:	Sat Jun  1 06:26:09 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -583,8 +583,8 @@
 //         else if prefix_group is `paragraph' or
 //                 `line' and prefix is not itself
 //                 an IMPLIED_HEADER and preceeding
-//                 tokens in the same logical line
-//                 are NOT all IMPLIED_HEADERs or
+//                 tokens from p->prefix to the current
+//                 token are NOT all IMPLIED_HEADERs or
 //                 IMPLIED_PREFIXes:
 //             announce error: explicit prefix has
 //                 `paragraph' or `line' group and is
@@ -845,7 +845,9 @@
 //                         reformatter:
 //            call reformatter with bracket_pass,
 //                 prefix_selectors, tokens from prefix
-//                 up to next
+//                 up to next, and either line_sep->
+//                 label if separator_found or MISSING
+//                 otherwise
 //            if reformatter returns false:
 //                goto CONTINUE_PREFIX_N_LIST
 //
@@ -1435,10 +1437,11 @@
 //             if key is opening bracket:
 //
 //                 call opening bracket reformatter if
-//                              any with new_selectors,
-//                              and if none or if
-//                              compaction requested by
-//                              reformatter:
+//                              any with new_selectors
+//                              and MISSING line sepa-
+//                              rator
+//                 if no reformatter or if compaction
+//                       requested by reformatter:
 //                     compact subexpression with
 //                         new_selectors,
 //                         .initiator =

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 13:09:20 EDT 2019
+// Date:	Sat Jun  1 15:51:08 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1354,8 +1354,72 @@ inline void make_attribute_label
     ++ typed_data->attr_count;
 }
 
-// Finish attribute.  On error generate an attribute
-// with value NONE which will be deleted later.
+// Finish value.  On error generate a value NONE which
+// will be deleted later.
+//
+inline void finish_value
+	( PAR::parser parser,
+	  BRA::typed_data * typed_data,
+	  PAR::token next )
+{
+    PAR::token start = typed_data->start_previous->next;
+    if ( start == next )
+    {
+	missing_error ( parser, next,
+			"attribute value;"
+			" attribute ignored" );
+	start = PAR::new_token ( BRA::ATTR_VALUE );
+	put_before ( PAR::first_ref(parser),
+		     next, start );
+	// Position needed to determine end of
+	// typed bracketed expression.
+	min::phrase_position pos =
+	    { typed_data->end_position,
+	      typed_data->end_position };
+	    // Position recorded by ATTR_EQUAL.
+	start->position = pos;
+	PAR::value_ref(start) = min::NONE();
+    }
+    else if ( start->next == next
+	      &&
+	      ! (   ( 1 << start->type )
+		  & LEXSTD::convert_mask ) )
+    {
+	min::gen initiator =
+	    typed_data
+		->typed_opening
+		->typed_attr_multivalue_initiator;
+	start->type =
+	    ( start->value_type == initiator
+	      &&
+	      initiator != min::MISSING() ?
+	      BRA::ATTR_MULTIVALUE :
+	      BRA::ATTR_VALUE );
+
+	if ( start->type == BRA::ATTR_VALUE
+	     &&
+	     ! min::is_attr_legal ( start->value ) )
+	{
+	    PAR::parse_error
+	      ( parser,
+		start->position,
+		"not a legal attribute value `",
+		min::pgen_never_quote
+		    ( start->value ),
+		"'; attribute ignored" );
+	    PAR::value_ref(start) = min::NONE();
+	}
+    }
+    else
+    {
+	::make_label
+	    ( parser, start, next );
+	start->type = BRA::ATTR_VALUE;
+    }
+}
+
+// Finish attribute.  Uses finish_value above if
+// value needs to be finished.
 //
 // If typed_data indicates there are no attributes
 // (e.g., we are immediately after a typed middle)
@@ -1388,61 +1452,7 @@ inline void finish_attribute
 	      BRA::ATTR_TRUE );
     }
     else if ( subtype == BRA::TYPED_ATTR_EQUAL )
-    {
-	if ( start == next )
-	{
-	    missing_error ( parser, next,
-	                    "attribute value;"
-			    " attribute ignored" );
-	    start = PAR::new_token ( BRA::ATTR_VALUE );
-	    put_before ( PAR::first_ref(parser),
-			 next, start );
-	    // Position needed to determine end of
-	    // typed bracketed expression.
-	    min::phrase_position pos =
-	        { typed_data->end_position,
-	          typed_data->end_position };
-		// Position recorded by ATTR_EQUAL.
-	    start->position = pos;
-	    PAR::value_ref(start) = min::NONE();
-	}
-	else if ( start->next == next
-	          &&
-		  ! (   ( 1 << start->type )
-		      & LEXSTD::convert_mask ) )
-	{
-	    min::gen initiator =
-		typed_data
-		    ->typed_opening
-		    ->typed_attr_multivalue_initiator;
-	    start->type =
-	        ( start->value_type == initiator
-		  &&
-		  initiator != min::MISSING() ?
-		  BRA::ATTR_MULTIVALUE :
-		  BRA::ATTR_VALUE );
-
-	    if ( start->type == BRA::ATTR_VALUE
-	         &&
-		 ! min::is_attr_legal ( start->value ) )
-	    {
-		PAR::parse_error
-		  ( parser,
-		    start->position,
-		    "not a legal attribute value `",
-		    min::pgen_never_quote
-		        ( start->value ),
-		    "'; attribute ignored" );
-		PAR::value_ref(start) = min::NONE();
-	    }
-	}
-	else
-	{
-	    ::make_label
-	        ( parser, start, next );
-	    start->type = BRA::ATTR_VALUE;
-	}
-    }
+        finish_value ( parser, typed_data, next );
     else MIN_ASSERT ( subtype == BRA::TYPED_MIDDLE,
                       "unrecognized subtype in"
 		      " finish_attribute" );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 29 01:51:32 EDT 2019
+// Date:	Sat Jun  1 15:01:45 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -524,9 +524,12 @@ struct typed_data
 //     attribute
 //         ::= TYPE
 //           | ATTR_LABEL ATTR_FLAGS? ATTR_VALUE
+//                                    ATTR_REVERSE?
 //           | ATTR_LABEL ATTR_FLAGS? ATTR_MULTIVALUE
-//           | ATTR_TRUE ATTR_FLAGS?
-//           | ATTR_FALSE ATTR_FLAGS?
+//                                    ATTR_REVERSE?
+//           | ATTR_LABEL ATTR_FLAGS?
+//           | ATTR_TRUE
+//           | ATTR_FALSE
 //
 // Note the TYPE token need not be first in the initial
 // segment.
@@ -540,16 +543,13 @@ const min::uns32 ATTR_LABEL      = TEMPORARY_TT + 1;
 const min::uns32 ATTR_FLAGS      = TEMPORARY_TT + 2;
 const min::uns32 ATTR_VALUE      = TEMPORARY_TT + 3;
 const min::uns32 ATTR_MULTIVALUE = TEMPORARY_TT + 4;
-    // Attribute label, flags, and value.  Must be
-    // consecutive tokens in that order.  There is
-    // only 1 label token, 0 or 1 flag tokens,
-    // and 1 value token.  The value token can
-    // optionally be a multi-value token.
-const min::uns32 ATTR_TRUE       = TEMPORARY_TT + 5;
-const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 6;
+const min::uns32 ATTR_REVERSE    = TEMPORARY_TT + 5;
+    // Attribute label, flags, value, and reverse
+    // label.
+const min::uns32 ATTR_TRUE       = TEMPORARY_TT + 6;
+const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 7;
     // Attribute label for attribute with TRUE or
-    // FALSE value implied.  May be followed by
-    // ATTR_FLAGS token.
+    // FALSE value implied.
 
 
 // Bracketed Subexpression Pass

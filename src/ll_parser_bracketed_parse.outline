@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 11:02:33 EDT 2019
+// Date:	Sat Jun  1 15:51:54 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -277,6 +277,40 @@
 //     cause an error message and be otherwise ignored
 //     in code below.
 //
+// finish_value(typed_data,next):
+//     Let start = typed_data->start_previous->next.
+//     if start == next (there are no tokens to
+//                       make into a value):
+//         output error message that attribute
+//                value is missing and attribute
+//                is ignored
+//         create a new token before next of
+//                token type ATTR_VALUE and
+//                value NONE (this will cause
+//                attribute to be ignored in code
+//                below)
+//     else if start->next == next (there is just a
+//             single token in the value)
+//             and start-type is not a convertable
+//             type (string or numeric):
+//        if the single token has .initiator ==
+//               typed_data->typed_opening
+//               ->typed_attr_multivalue_initiator:
+//           token->type = ATTR_MULTIVALUE
+//        else:
+//           token->type = ATTR_VALUE
+//           if is_attr_legal ( token value ) is
+//                            false:
+//              output error message saying value
+//                     is not legal and attribute
+//                     is ignored
+//              token->value = NONE (this will cause
+//                  attribute to be ignored in code
+//                  below)
+//     else:
+//         make_label ( start, next )
+//         start->type = ATTR_VALUE
+//
 // finish_attribute(typed_data,next):
 //     Let start = typed_data->start_previous->next.
 //
@@ -297,37 +331,7 @@
 //     in code below.
 //
 //     If instead the subtype is TYPED_ATTR_EQUAL:
-//         if start == next (there are no tokens to
-//                           make into a value):
-//             output error message that attribute
-//                    value is missing and attribute
-//                    is ignored
-//             create a new token before next of
-//                    token type ATTR_VALUE and
-//                    value NONE (this will cause
-//                    attribute to be ignored in code
-//                    below)
-//         else if start->next == next (there is just a
-//                 single token in the value)
-//                 and start-type is not a convertable
-//                 type (string or numeric):
-//            if the single token has .initiator ==
-//                   typed_data->typed_opening
-//                   ->typed_attr_multivalue_initiator:
-//               token->type = ATTR_MULTIVALUE
-//            else:
-//               token->type = ATTR_VALUE
-//               if is_attr_legal ( token value ) is
-//                                false:
-//                  output error message saying value
-//                         is not legal and attribute
-//                         is ignored
-//                  token->value = NONE (this will cause
-//                      attribute to be ignored in code
-//                      below)
-//         else:
-//             make_label ( start, next )
-//             start->type = ATTR_VALUE
+//         finish_value(typed_data,next)
 //
 // move_attributes(typed_data,next):
 //     If there are attributes after the last typed

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 05:45:01 EDT 2019
+// Date:	Sat Jun  1 13:09:20 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3740,19 +3740,20 @@ NEXT_TOKEN:
 	    // Closing bracket does not match a
 	    // bracket stack entry; reject key.
 	}
-	else if ( subtype == BRA::INDENTATION_MARK
-		  &&
-		  (   selectors
-		    & PAR::EIPARAGRAPH_OPT ) )
+	else if ( subtype == BRA::INDENTATION_MARK )
 	{
-	    if (    current->type
-		 == LEXSTD::line_break_t
-		 ||
-		    current->type
-		 == LEXSTD::comment_t
-		 ||
-		    current->type
-		 == LEXSTD::end_of_file_t )
+	    if (
+		  (   selectors
+		    & PAR::EIPARAGRAPH_OPT )
+		  &&
+		  (    current->type
+		    == LEXSTD::line_break_t
+		    ||
+		       current->type
+		    == LEXSTD::comment_t
+		    ||
+		       current->type
+		    == LEXSTD::end_of_file_t ) )
 	    {
 		indentation_found =
 		    (BRA::indentation_mark) root;
@@ -3762,19 +3763,20 @@ NEXT_TOKEN:
 	    // Indentation mark not at end of line
 	    // or end of file; reject key.
 	}
-	else if ( subtype == BRA::LINE_SEP
-		  &&
-		     line_variables->line_sep
+	else if ( subtype == BRA::LINE_SEP )
+	{
+	    if (     line_variables->line_sep
 		  == (BRA::line_sep) root
 		  &&
 		  (   selectors
 		    & PAR::EALSEP_OPT ) )
-	{
-	    separator_found =
-		current->previous->position.end;
-	    PAR::remove
-		( parser, current, root->label );
-	    return separator_found ;
+	    {
+		separator_found =
+		    current->previous->position.end;
+		PAR::remove
+		    ( parser, current, root->label );
+		return separator_found ;
+	    }
 	}
 	else if ( subtype == BRA::TYPED_MIDDLE
 		  ||

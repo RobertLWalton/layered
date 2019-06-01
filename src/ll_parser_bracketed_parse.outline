@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 06:26:09 EDT 2019
+// Date:	Sat Jun  1 11:02:33 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -241,20 +241,22 @@
 // make_type_label(typed_data,next):
 //     Make a label as per make_label from the tokens
 //     start = typed_data->start_previous->next through
-//     next->previous.  If there are no such, just
-//     output a `missing type' error message and return.
+//     next->previous. 
 //
-//     Otherwise, if typed_data->type is MISSING (there
-//     was no previous TYPE token), set the new label
-//     token type to TYPE, set typed_data->type to the
-//     tokens value (the label), increment typed_data->
-//     attr_count, and move the token if necessary so it
-//     is before typed_data->elements.
+//     If there are no label, or label computes as empty
+//     label, assume label is "" and print error message.
 //
-//     If on the other hand typed_data->type is not
-//     MISSING, check that it equals the new label,
-//     print an error message if not, and whether equal
-//     or not delete the new label token.
+//     Then if typed_data->type is MISSING (there was no
+//     previous TYPE token), set typed_data->type to the
+//     new label, and if this is not "", set the new
+//     label token type to TYPE, increment typed_data->
+//     attr_count, and move the TYPE token if necessary
+//     so it is before typed_data->elements.
+//
+//     Otherwise if typed_data->type is NOT MISSING,
+//     check that it equals the new label, print an
+//     error message if not, and whether equal or not
+//     delete the new label token.
 //
 // make_attribute_label(typed_data,next):
 //     Make a label as per make_label from the tokens
@@ -1246,8 +1248,7 @@
 //         // determined by checking the object subtype
 //         // min::packed_subtype_of ( key ).
 //
-//         if key is selected opening bracket or typed
-//                opening:
+//         if key is opening bracket or typed opening:
 //
 //             // Note: typed opening is a subclass of
 //             // opening bracket.
@@ -1473,13 +1474,7 @@
 //		                the compact function:
 //
 //		       for TYPE token:
-//		           if token->value is empty str:
-//		               do nothing
-//		           else if token->value is empty
-//		                   label:
-//		               print empty type label
-//		                     error message
-//		           else add to the attribute
+//		           add to the attribute
 //		                list a .type attribute
 //		                with value token->value
 //		           skip to next attribute label
@@ -1610,19 +1605,21 @@
 //                       key
 //                 return MISSING_POSITION
 //
-//         if key is selected indentation mark and
-//                current is end of file or line break
-//                or comment:
-//             indentation_found = key
-//             go to NEXT_TOKEN
-//             // See above for indented paragraph
-//             // processing.
+//         if key is indentation mark:
+//             if selectors & EIPARAGRAPH and current is
+//                     end of file or line break or
+//                     comment:
+//                 indentation_found = key
+//                 go to NEXT_TOKEN
+//                 // See above for indented paragraph
+//                 // processing.
 //
-//         if key is line separator matching
-//                line_variables argument->line_sep
-//                and selectors & EALSEP:
-//             remove line separator
-//             return end position of removed separator
+//         if key is line separator:
+//             if key matches line_variables argument->
+//                    line_sep and selectors & EALSEP:
+//                 remove line separator
+//                 return end position of removed
+//                        separator
 //
 //         // Note: In the following the type of the
 //         // previous key is determined by checking the
@@ -1641,12 +1638,15 @@
 //
 //                 if there is no previous typed key
 //                          after the typed opening in
-//                          the subexpression and there
-//                          are tokens between the typed
-//                          opening and the key
-//                     make_type_label
-//                         ( typed_data,
-//			     first token of key )
+//                          the subexpression:
+//                     if there are tokens between the
+//                              typed opening and the
+//                              key:
+//                         make_type_label
+//                             ( typed_data,
+//			         first token of key )
+//		       else:
+//		           set typed_data->type = ""
 //	           else if there is some other key in
 //	                   the subexpression after the
 //	                   typed opening:

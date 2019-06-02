@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  2 13:46:17 EDT 2019
+// Date:	Sun Jun  2 15:08:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4045,9 +4045,18 @@ NEXT_TOKEN:
 			     typed_data->
 			         start_previous->type
 		          != BRA::ATTR_MULTIVALUE )
+		{
 		    ::finish_value
 		        ( parser, typed_data,
 			  key_first );
+		    PAR::remove
+			( parser, current,
+			  root->label );
+		    typed_data->subtype =
+			BRA::TYPED_ATTR_EQUAL;
+		    typed_data->start_previous =
+			current->previous;
+		}
 		else
 		    ::punctuation_error
 			( parser, key_first,

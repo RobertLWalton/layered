@@ -7209,3 +7209,56 @@ BRACKETED EXPRESSION:
     line ###:
 ID 30 IS @@@
 ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X: hi = {|A B C|}, to = @@@@ = from|A B C|X}
+@@@@ =:
+           from = @@@@ = to
+@@@@ = A B C:
+           .type = "X"
+           hi = {|A B C|}
+           to = @@@@ = from
+           .position[H] = PACKED_VEC
+    line ###:
+@@@ = {X: hi = @@, to = @@@ = from|A B C|}
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|@@@@|data}
+@@@@ = @@@@:
+           .position[H] = PACKED_VEC
+           .type = "data"
+    line ###:
+@@@ = {X: hi = @@, to = @@@ = from|A B C|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X: hi = {|A B C|}, to = @@@@ = from|A B C|X}
+@@@@ = A B C:
+           .type = "X"
+           hi = {|A B C|}
+           to = @@@@ = from
+           .position[H] = PACKED_VEC
+    line ###:
+@@@ = {X: hi = @@, to = @@@ = from|A B C|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 40 IS {X: hi = {|A B C|}, to = @@@@ = from|A B C|X}
+@@@@ = ID 40 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@@ = A B C:
+           .type = "X"
+           hi = {|A B C|}
+           to = @@@@ = from
+           .position[H] = PACKED_VEC
+    line ###:
+ID 40 IS @@@
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 41 IS {"": from = @@@@ = to||}
+@@@@ = ID 41 IS @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 41 IS @@@
+^^^^^^^^^^^^

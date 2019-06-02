@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 27 07:29:58 EDT 2019
+// Date:	Sun Jun  2 15:09:32 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -447,3 +447,7 @@ ID 20 IS NOW @20
     Y[@] = 5
 
 ID 30 IS @30
+
+@40 = {X: hi = @5, to = @41 = from|A B C|}
+ID 40 IS @40
+ID 41 IS @41

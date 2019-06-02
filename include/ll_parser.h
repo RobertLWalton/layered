@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 05:36:03 EDT 2019
+// Date:	Sun Jun  2 12:19:36 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1876,17 +1876,25 @@ struct attr
 {
     min::gen name;
     min::gen value;
+    min::phrase_position value_pos;
     min::gen multivalue;
     min::gen flags;
+    min::gen reverse_name;
     attr ( min::gen name, min::gen value )
         : name ( name ), value ( value ),
 	  multivalue ( min::MISSING() ),
-	  flags ( min::MISSING() ) {}
+	  flags ( min::MISSING() ),
+	  reverse_name ( min::MISSING() )
+	  { value_pos.begin =
+	    value_pos.end = min::MISSING_POSITION; }
     attr ( void )
         : name ( min::MISSING() ),
 	  value ( min::MISSING() ),
 	  multivalue ( min::MISSING() ),
-	  flags ( min::MISSING() ) {}
+	  flags ( min::MISSING() ),
+	  reverse_name ( min::MISSING() )
+	  { value_pos.begin =
+	    value_pos.end = min::MISSING_POSITION; }
 };
 void compact
 	( ll::parser::parser parser,

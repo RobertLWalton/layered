@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 15:51:08 EDT 2019
+// Date:	Sun Jun  2 03:04:16 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1452,7 +1452,19 @@ inline void finish_attribute
 	      BRA::ATTR_TRUE );
     }
     else if ( subtype == BRA::TYPED_ATTR_EQUAL )
-        finish_value ( parser, typed_data, next );
+    {
+        min::uns32 t =
+	    typed_data->start_previous->type;
+	if ( t == BRA::ATTR_VALUE
+	     ||
+	     t == BRA::ATTR_MULTIVALUE )
+	{
+	    ::make_label ( parser, start, next );
+	    start->type = BRA::ATTR_REVERSE;
+	}
+	else
+	    ::finish_value ( parser, typed_data, next );
+    }
     else MIN_ASSERT ( subtype == BRA::TYPED_MIDDLE,
                       "unrecognized subtype in"
 		      " finish_attribute" );
@@ -4005,6 +4017,19 @@ NEXT_TOKEN:
 		    typed_data->start_previous =
 			current->previous;
 		}
+		else if (    typed_data->subtype
+		          == BRA::TYPED_ATTR_EQUAL
+			  &&
+			     typed_data->
+			         start_previous->type
+		          != BRA::ATTR_VALUE
+			  &&
+			     typed_data->
+			         start_previous->type
+		          != BRA::ATTR_MULTIVALUE )
+		    ::finish_value
+		        ( parser, typed_data,
+			  key_first );
 		else
 		    ::punctuation_error
 			( parser, key_first,

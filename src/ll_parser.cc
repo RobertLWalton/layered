@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 26 16:07:40 EDT 2019
+// Date:	Sun Jun  2 12:31:50 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2186,6 +2186,48 @@ bool PAR::set_attr_multivalue
     return result;
 }
 
+inline void set_attributes
+	( PAR::parser parser,
+	  min::attr_insptr & ap,
+	  const min::phrase_position & position,
+	  PAR::attr * attributes,
+	  min::uns32 m )
+{
+    while ( m -- )
+    {
+	min::locate ( ap, attributes->name );
+	if ( attributes->flags != min::MISSING() )
+	    PAR::set_attr_flags
+		( parser, ap,
+		  attributes->flags );
+
+	unsigned option = PAR::NEW;
+	if (    attributes->reverse_name
+	     != min::MISSING() )
+	{
+	    min::locate_reverse
+		( ap, attributes->reverse_name );
+	    option = PAR::ADD;
+	}
+
+	if (    attributes->multivalue
+	     == min::MISSING() )
+	    PAR::set_attr_value
+	        ( parser, ap, attributes->value,
+		  attributes->value_pos.begin ?
+		  attributes->value_pos :
+		  position,
+		  option );
+	else
+	    PAR::set_attr_multivalue
+		( parser, ap,
+		  attributes->multivalue,
+		  option );
+
+	++ attributes;
+    }
+}
+
 void PAR::compact
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -2219,22 +2261,9 @@ void PAR::compact
 	    min::get ( ap );
 	pos->position = position;
 
-	while ( m -- )
-	{
-	    min::locate ( ap, attributes->name );
-	    if (    attributes->multivalue
-	         == min::MISSING() )
-		min::set ( ap, attributes->value );
-	    else
-	        PAR::set_attr_multivalue
-		    ( parser, ap,
-		      attributes->multivalue );
-	    if ( attributes->flags != min::MISSING() )
-	        PAR::set_attr_flags
-		    ( parser, ap,
-		      attributes->flags );
-	    ++ attributes;
-	}
+	set_attributes
+	    ( parser, ap, position, attributes, m );
+
 	first->type = PAR::BRACKETED;
 	first->position = position;
     }
@@ -2313,22 +2342,8 @@ void PAR::compact
 	min::set_flag
 	    ( expap, min::standard_attr_hide_flag );
 
-	while ( m -- )
-	{
-	    min::locate ( expap, attributes->name );
-	    if (    attributes->multivalue
-	         == min::MISSING() )
-		min::set ( expap, attributes->value );
-	    else
-	        PAR::set_attr_multivalue
-		    ( parser, expap,
-		      attributes->multivalue );
-	    if ( attributes->flags != min::MISSING() )
-	        PAR::set_attr_flags
-		    ( parser, expap,
-		      attributes->flags );
-	    ++ attributes;
-	}
+	set_attributes
+	    ( parser, expap, position, attributes, m );
 
 	first = PAR::new_token ( type );
 	PAR::put_before

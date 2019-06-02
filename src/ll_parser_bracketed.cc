@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  2 03:04:16 EDT 2019
+// Date:	Sun Jun  2 13:46:17 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3525,6 +3525,8 @@ NEXT_TOKEN:
 			    min::dot_type;
 			attributes[i].value =
 			    t->value;
+			attributes[i].value_pos =
+			    t->position;
 			type = t->value;
 			++ i;
 			skip = true;
@@ -3579,6 +3581,8 @@ NEXT_TOKEN:
 				t->value;
 			    attributes[i].value =
 				min::TRUE;
+			    attributes[i].value_pos =
+			        t->position;
 			    ++ i;
 			    skip = false;
 			}
@@ -3607,6 +3611,8 @@ NEXT_TOKEN:
 				t->value;
 			    attributes[i].value =
 				min::FALSE;
+			    attributes[i].value_pos =
+			        t->position;
 			    ++ i;
 			    skip = false;
 			}
@@ -3629,17 +3635,29 @@ NEXT_TOKEN:
 			    skip = true;
 			}
 			else
+			{
 			    attributes[i-1].value =
 				t->value;
+			    attributes[i-1].value_pos =
+			        t->position;
+			}
 		    }
 		    else if (    t->type
 			      == BRA::
 				 ATTR_MULTIVALUE )
+		    {
 			attributes[i-1].multivalue =
 			    t->value;
+			attributes[i-1].value_pos =
+			    t->position;
+		    }
 		    else if (    t->type
 			      == BRA::ATTR_FLAGS )
 			attributes[i-1].flags =
+			    t->value;
+		    else if (    t->type
+			      == BRA::ATTR_REVERSE )
+			attributes[i-1].reverse_name =
 			    t->value;
 		}
 

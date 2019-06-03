@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  2 12:31:50 EDT 2019
+// Date:	Mon Jun  3 02:54:27 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2025,6 +2025,22 @@ bool PAR::test_attr_flags
     return result;
 }
 
+inline void replace_value
+	( min::gen value,
+	  min::file file,
+	  min::phrase_position const & position )
+{
+    min::new_obj_gen ( value, 40, 20 );
+    min::locatable_var<min::phrase_position_vec_insptr>
+        pos;
+    min::init ( pos, file, position, 0 );
+    min::obj_vec_insptr vp ( value );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, min::dot_position );
+    min::set ( ap, min::new_stub_gen ( pos ) );
+    min::set_flag ( ap, min::standard_attr_hide_flag );
+}
+
 bool PAR::set_attr_value
 	( PAR::parser parser,
 	  min::attr_insptr & ap,
@@ -2061,7 +2077,8 @@ bool PAR::set_attr_value
     if ( previous_value == min::NONE() )
     {
 	if ( is_double_arrow && is_preallocated )
-	    min::new_obj_gen ( value, 40, 20 );
+	    ::replace_value
+	        ( value, parser->input_file, pos );
         min::set ( ap, value );
 	return true;
     }
@@ -2087,7 +2104,8 @@ bool PAR::set_attr_value
 	return false;
     }
     if ( is_double_arrow && is_preallocated )
-	min::new_obj_gen ( value, 40, 20 );
+	::replace_value
+	    ( value, parser->input_file, pos );
     min::add_to_set ( ap, value );
     return true;
 }

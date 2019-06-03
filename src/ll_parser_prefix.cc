@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 26 16:10:03 EDT 2019
+// Date:	Mon Jun  3 02:54:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -141,7 +141,14 @@ static bool data_reformatter_function
     if ( min::is_obj ( first->next->value ) )
     {
         min::obj_vec_ptr tvp ( first->next->value );
-	if ( min::has_single_attr ( tvp ) )
+	if ( min::size_of ( tvp ) > 0 ) return true;
+	min::attr_ptr tap ( tvp );
+	min::attr_info info[1];
+	min::unsptr n =
+	    min::attr_info_of ( info, 1, tap, false );
+	if ( n > 1 ) return true;
+	if (    n == 1
+	     && info[0].name != min::dot_position )
 	    return true;
     }
     else

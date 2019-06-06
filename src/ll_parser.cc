@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  3 02:54:27 EDT 2019
+// Date:	Thu Jun  6 16:45:56 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2228,15 +2228,16 @@ inline void set_attributes
 	    option = PAR::ADD;
 	}
 
-	if (    attributes->multivalue
-	     == min::MISSING() )
+	if (    attributes->value
+	     != min::NONE() )
 	    PAR::set_attr_value
 	        ( parser, ap, attributes->value,
 		  attributes->value_pos.begin ?
 		  attributes->value_pos :
 		  position,
 		  option );
-	else
+	else if (    attributes->multivalue
+	          != min::MISSING() )
 	    PAR::set_attr_multivalue
 		( parser, ap,
 		  attributes->multivalue,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  2 15:08:43 EDT 2019
+// Date:	Thu Jun  6 16:45:35 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1445,11 +1445,21 @@ inline void finish_attribute
     {
         ::make_attribute_label
 	           ( parser, typed_data, next );
-
-	typed_data->start_previous->next->type =
-	    ( subtype == BRA::TYPED_ATTR_NEGATOR ?
-	      BRA::ATTR_FALSE :
-	      BRA::ATTR_TRUE );
+	if ( next->previous->type == BRA::ATTR_FLAGS )
+	{
+	    if ( subtype == BRA::TYPED_ATTR_NEGATOR )
+		PAR::parse_error
+		    ( parser,
+		      typed_data->negator_position,
+		      "negator preceding attribute"
+		      " label that is followed by"
+		      " flags; negator ignored" );
+	}
+	else
+	    typed_data->start_previous->next->type =
+		( subtype == BRA::TYPED_ATTR_NEGATOR ?
+		  BRA::ATTR_FALSE :
+		  BRA::ATTR_TRUE );
     }
     else if ( subtype == BRA::TYPED_ATTR_EQUAL )
     {

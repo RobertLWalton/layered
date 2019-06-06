@@ -448,6 +448,6 @@ ID 20 IS NOW @20
 
 ID 30 IS @30
 
-!@40 = {X: hi = @5, to = @41 = from}
+!@40 = {X: hi = @5, to = @41 = from, hi = 77, hi[*], hi[@]}
 ID 40 IS [@40]
 ID 41 IS [@41]

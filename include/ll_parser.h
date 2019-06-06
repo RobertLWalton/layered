@@ -1875,7 +1875,7 @@ bool set_attr_multivalue
 struct attr
 {
     min::gen name;
-    min::gen value;
+    min::gen value;  // min::NONE() if no value.
     min::phrase_position value_pos;
     min::gen multivalue;
     min::gen flags;
@@ -1889,7 +1889,7 @@ struct attr
 	    value_pos.end = min::MISSING_POSITION; }
     attr ( void )
         : name ( min::MISSING() ),
-	  value ( min::MISSING() ),
+	  value ( min::NONE() ),
 	  multivalue ( min::MISSING() ),
 	  flags ( min::MISSING() ),
 	  reverse_name ( min::MISSING() )

@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 15:51:54 EDT 2019
+// Date:	Thu Jun  6 16:46:26 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -244,7 +244,8 @@
 //     next->previous. 
 //
 //     If there are no label, or label computes as empty
-//     label, assume label is "" and print error message.
+//     label, assume label is "" and print error
+//     message.
 //
 //     Then if typed_data->type is MISSING (there was no
 //     previous TYPE token), set typed_data->type to the
@@ -315,23 +316,35 @@
 //     Let start = typed_data->start_previous->next.
 //
 //     Examine typed_data->subtype (the subtype of the
-//     last key found).  If it is TYPED_OPENING, TYPED_
-//     ATTR_SEP, TYPED_ATTR_NEGATOR, or TYPED_MIDDLE,
-//     make_attribute_label(typed_data,next) and give
-//     the resulting token the type ATTR_FALSE if the
-//     subtype above was TYPED_ATTR_NEGATOR and ATTR_
-//     TRUE otherwise.  However, as an exception, do
-//     not do anything if the subtype examined was
-//     TYPED_MIDDLE and there are no tokens between
-//     the TYPED_MIDDLE token and `next' (i.e., start
-//     == next).
+//     last key found).
+//
+//     if subtype is TYPED_OPENING, TYPED_ATTR_SEP,
+//                TYPED_ATTR_NEGATOR, or subtype is
+//                TYPED_MIDDLE and there are tokens
+//                between TYPED_MIDDLE and next:
+//
+//         make_attribute_label(typed_data,next)
+//         if next->previous->type is ATTR_FLAGS:
+//             if subtype is TYPED_ATTR_NEGATOR:
+//                 announce error: negator preceeding
+//                 attribute label that is followed by
+//                 flags; negator ignored
+//         else
+//             set resulting token type to ATTR_FALSE
+//             if subtype was TYPED_ATTR_NEGATOR and
+//             ATTR_TRUE otherwise.
+//
+//     If instead the subtype is TYPED_ATTR_EQUAL:
+//         if start_previous->type is ATTR_VALUE or
+//                 ATTR_MULTIVALUE:
+//             make_label ( start, next )
+//             start->type = ATTR_REVERSE
+//         else:
+//             finish_value(typed_data,next)
 //
 //     Note that attributes with empty labels will
 //     cause an error message and be otherwise ignored
 //     in code below.
-//
-//     If instead the subtype is TYPED_ATTR_EQUAL:
-//         finish_value(typed_data,next)
 //
 // move_attributes(typed_data,next):
 //     If there are attributes after the last typed
@@ -1533,6 +1546,12 @@
 //		                as flags of last attri-
 //		                bute in attribute list
 //
+//		       for ATTR_REVERSE token:
+//		           install token->value
+//		                as reverse_name of last
+//		                attribute in attribute
+//		                list
+//
 //                 compact subexpression with
 //                         bracketed_pass->next,
 //                         new_selectors,
@@ -1751,6 +1770,17 @@
 //                 make_attribute_label
 //                     ( typed_data,
 //                       first token of key )
+//                 remove the typed attribute equal key
+//                 typed_data->subtype =
+//                     TYPED_ATTR_EQUAL
+//	           typed_data->start_previous =
+//	               current->previous
+//	       else if typed key is typed attribute
+//	               equal and start_previous->type
+//	               is NOT ATTR_VALUE or ATTR_
+//	               MULTIVALUE:
+//	           finish_value
+//	               ( typed_data, key_first )
 //                 remove the typed attribute equal key
 //                 typed_data->subtype =
 //                     TYPED_ATTR_EQUAL

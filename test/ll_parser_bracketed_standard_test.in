@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  3 02:53:32 EDT 2019
+// Date:	Fri Jun  7 04:31:21 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -66,7 +66,8 @@ Another typed subexpression
 Yet another typed subexpression
     {x: w, z = b c 5 d|1 2 3|y = 6 : x}
 And another- {t| x y z |b[ABC_,200] = (1 2 3),
-                       no c[+], d[-], no f, g : t}
+                       c[+] = FALSE, d[-] = TRUE,
+		       no f, g : t}
 And one more {t| |b["A", 201,202, [5]]: t}
 {}
 ({)
@@ -193,10 +194,10 @@ This is a continued-middle-#
 {< 1 2 3 >}
 {"<" ">"| 1 2 3 |"<" ">"}
 
-{x: y[+Y]}
+{x: y[+Y] = 44}
 {x: y[1,Y]}
-{x: y[+,62]}
-{x: y[62,1]}
+{x: y[+,62], no y}
+{x: y[62,1], y}
 
 {x: y = (z + w, v| m n |}
 

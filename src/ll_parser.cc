@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  6 16:45:56 EDT 2019
+// Date:	Fri Jun  7 06:16:29 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1767,28 +1767,68 @@ void PAR::put_error_operator_after
     token->position = position;
 }
 
-void PAR::set_attr_flags
+bool PAR::set_attr_flags
 	( PAR::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen flags,
-	  const min::flag_parser * flag_parser )
+	  const min::flag_parser * flag_parser,
+	  min::packed_vec_ptr<min::ustring> flag_names,
+	  unsigned option )
 {
-    min::obj_vec_ptr vp ( flags );
+    min::obj_vec_ptr fvp ( flags );
+    min::attr_ptr fap ( fvp );
+    min::locate ( fap, min::dot_position );
+    min::phrase_position_vec pos = min::get ( fap );
+
+    if ( option != PAR::ADD )
+    {
+        min::attr_info info;
+	min::attr_info_of ( info, ap, false );
+	if ( info.flag_count > 0 )
+	{
+	    fvp = min::NULL_STUB;
+	    if ( option == PAR::NEW )
+	    {
+		parse_error
+		    ( parser, pos->position,
+		      "",
+		      min::pgen_quote ( info.name ),
+		      " already has flag(s);"
+		      " old flag(s) not changed" );
+		return false;
+	    }
+	    else if ( test_attr_flags
+	                  ( parser, ap, flags,
+			    flag_parser,
+			    flag_names ) )
+	        return true;
+	    else
+	    {
+		parse_error
+		    ( parser, pos->position,
+		      "",
+		      min::pgen_quote ( info.name ),
+		      " already has different flag(s);"
+		      " old flag(s) not changed" );
+		return false;
+	    }
+	}
+    }
 
     for ( min::unsptr i = 0;
-	  i < min::size_of ( vp ); ++ i )
+	  i < min::size_of ( fvp ); ++ i )
     {
-	min::gen flags_text = vp[i];
+	min::gen flags_text = fvp[i];
 	if ( min::is_obj ( flags_text ) )
 	{
-	    min::obj_vec_ptr fvp ( flags_text );
-	    min::attr_ptr fap ( fvp );
-	    min::locate ( fap, min::dot_type );
-	    min::gen type = get ( fap );
+	    min::obj_vec_ptr tvp ( flags_text );
+	    min::attr_ptr tap ( tvp );
+	    min::locate ( tap, min::dot_type );
+	    min::gen type = get ( tap );
 	    if ( type == min::doublequote
 		 ||
 		 type == min::number_sign )
-		flags_text = fvp[0];
+		flags_text = tvp[0];
 	}
 
 	if ( min::is_str ( flags_text ) )
@@ -1805,18 +1845,11 @@ void PAR::set_attr_flags
 
 	    if ( text_buffer[0] != 0 )
 	    {
-		min::attr_ptr vap ( vp );
-		min::locate
-		    ( vap, min::dot_position );
-		min::phrase_position_vec
-		    pos = min::get ( vap );
-		min::phrase_position position =
-		    pos[i];
 		char buffer[len+200];
 		sprintf ( buffer,
 			  "bad flag(s) \"%s\" in ",
 			  text_buffer );
-		parse_error ( parser, position,
+		parse_error ( parser, pos[i],
 			      buffer,
 			      min::pgen_quote
 				  ( flags_text ),
@@ -1825,18 +1858,15 @@ void PAR::set_attr_flags
 	}
 	else
 	{
-	    min::attr_ptr vap ( vp );
-	    min::locate ( vap, min::dot_position );
-	    min::phrase_position_vec
-		pos = min::get ( vap );
-	    min::phrase_position position = pos[i];
 	    PAR::parse_error
-		( parser, position,
+		( parser, pos[i],
 		  "bad flags specifier `",
 		   min::pgen_quote ( flags_text ),
 		   "'; ignored" );
 	}
     }
+
+    return true;
 }
 
 // Compute flag name in buffer.

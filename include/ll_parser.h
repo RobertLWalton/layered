@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  2 12:19:36 EDT 2019
+// Date:	Fri Jun  7 05:33:45 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1734,18 +1734,40 @@ void put_error_operator_after
 	  ll::parser::token t );
 
 
+// Options for set_attr_...
+//
+enum { NEW, NEW_OR_SAME, ADD };
+
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `flags' designating attri-
 // bute flags, set the designated flags of the attri-
 // bute.  If part of `flags' has erroneous format, print
 // an error message for that part and ignore the part.
 //
-void set_attr_flags
+// If option is NEW, attribute is required to NOT have
+// previous flags.  If option is NEW_OR_SAME, attribute
+// is required to either have no previous flags, or to
+// have a flags equal to the new flags (in which case
+// nothing is done).  If the option is ADD, each flag
+// is added to the existing set of attribute flags,
+// unless it is already in that set.
+//
+// If option requirements are not met, this function
+// does nothing but print an error message.  True is
+// returned if there is no option error; false if there
+// is an option error.  Flag parsing errors are NOT
+// option errors, and simply print an error message and
+// ignore the associated part of the `flags' argument.
+//
+bool set_attr_flags
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen flags,
 	  const min::flag_parser * flag_parser
-	      = min::standard_attr_flag_parser );
+	      = min::standard_attr_flag_parser,
+	  min::packed_vec_ptr<min::ustring> flag_names
+	      = min::standard_attr_flag_names,
+	  unsigned option = NEW );
 
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `flags' designating attri-
@@ -1791,7 +1813,6 @@ bool test_attr_flags
 // Any error message uses `pos' to determine the posi-
 // tion of the value (not the name) in the input stream.
 //
-enum { NEW, NEW_OR_SAME, ADD };
 bool set_attr_value
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,

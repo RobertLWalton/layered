@@ -7247,14 +7247,17 @@ BRACKETED EXPRESSION:
 ERROR: in line ###: "hi" already has value(s); old value(s) not changed:
 !@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
                                           ^^
+ERROR: in line ###: "hi" already has flag(s); old flag(s) not changed:
+!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
+                                                       ^^^
 BRACKETED EXPRESSION:
-    {X: hi[*@] = {|A B C|}, to = @@@@ = from||X}
+    {X: hi[*] = {|A B C|}, to = @@@@ = from||X}
 @@@@ =:
            .position[H] = PACKED_VEC
            from = @@@@ = to
 @@@@ =:
            .type = "X"
-           hi[*@] = {|A B C|}
+           hi[*] = {|A B C|}
            to = @@@@ = from
            .position[H] = PACKED_VEC
     line ###:
@@ -7269,20 +7272,20 @@ BRACKETED EXPRESSION:
 !@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {X: hi[*@] = {|A B C|}, to = @@@@ = from||X}
+    {X: hi[*] = {|A B C|}, to = @@@@ = from||X}
 @@@@ =:
            .type = "X"
-           hi[*@] = {|A B C|}
+           hi[*] = {|A B C|}
            to = @@@@ = from
            .position[H] = PACKED_VEC
     line ###:
 !@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {X: hi[*@] = {|A B C|}, to = @@@@ = from||X}
+    {X: hi[*] = {|A B C|}, to = @@@@ = from||X}
 @@@@ =:
            .type = "X"
-           hi[*@] = {|A B C|}
+           hi[*] = {|A B C|}
            to = @@@@ = from
            .position[H] = PACKED_VEC
     line ###:

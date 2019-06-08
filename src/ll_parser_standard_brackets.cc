@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  3 04:42:40 EDT 2019
+// Date:	Sat Jun  8 13:41:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -332,11 +332,13 @@ void PARSTD::init_prefix ( PAR::parser parser )
         ( min::new_lab_gen ( "{", "*" ) );
     min::push ( data_arguments ) = left_curly_star;
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( data_name,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags ( data_paragraph, 0, 0 ),
 	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
@@ -345,15 +347,17 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  PAR::find_reformatter
 	      ( data_name,
-	        PRE::prefix_reformatter_stack ),
+	        BRA::bracket_type_reformatter_stack ),
 	  data_arguments,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( raw_data,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags
 	      ( data + data_paragraph,
 	        PAR::ALL_SELECTORS ^ data
@@ -366,9 +370,9 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  PAR::find_reformatter
 	      ( data_name,
-	        PRE::prefix_reformatter_stack ),
+	        BRA::bracket_type_reformatter_stack ),
 	  data_arguments,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen table
         ( min::new_str_gen ( "table" ) );
@@ -380,11 +384,13 @@ void PARSTD::init_prefix ( PAR::parser parser )
         PAR::get_lexical_master
 	    ( row_check, parser );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( table,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  PARLEX::paragraph,
 	  min::MISSING(), // implied_subprefix
@@ -393,13 +399,15 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  row_lexical_master,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( row,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  PARLEX::line,
 	  min::MISSING(),
@@ -408,13 +416,15 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( code_name,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + code + text,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags ( RESET_OPT, 0, 0 ),
 	  PARLEX::paragraph,
 	  min::MISSING(),
@@ -423,7 +433,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen s
         ( min::new_str_gen ( "s" ) );
@@ -443,11 +453,13 @@ void PARSTD::init_prefix ( PAR::parser parser )
     min::locatable_gen section
         ( min::new_str_gen ( "section" ) );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( section,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + code + text,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags
 	      ( EAPBREAK_OPT + EALTINDENT_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
@@ -460,16 +472,18 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen p
         ( min::new_str_gen ( "p" ) );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( p,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + code + text,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags
 	      (   EAPBREAK_OPT + EALTINDENT_OPT
 	        + STICKY_OPT + text,
@@ -483,16 +497,18 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen quote_name
         ( min::new_str_gen ( "quote" ) );
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( quote_name,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + code + text,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags
 	      (   EAPBREAK_OPT + EALTINDENT_OPT
 	        + STICKY_OPT + text,
@@ -506,7 +522,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen sentence
         ( min::new_str_gen ( "sentence" ) );
@@ -527,9 +543,11 @@ void PARSTD::init_prefix ( PAR::parser parser )
     min::push ( s_arguments ) = PARLEX::colon;
     min::push ( s_arguments ) = PARLEX::semicolon;
 
-    PRE::push_prefix
+    BRA::push_bracket_type
 	( s, text,
 	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::ALL_FLAGS,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
@@ -538,9 +556,9 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PAR::MISSING_MASTER,
 	  PAR::find_reformatter
 	      ( sentence,
-	        PRE::prefix_reformatter_stack ),
+	        BRA::bracket_type_reformatter_stack ),
 	  s_arguments,
-	  bracketed_pass->prefix_table );
+	  bracketed_pass->bracket_type_table );
 }
 
 // Standard ID Character

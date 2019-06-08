@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  6 16:45:35 EDT 2019
+// Date:	Sat Jun  8 10:54:22 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Untyped Brackets
 //	Indentation Marks
 //	Typed Brackets
+//	Bracket Type Table
 //	Bracketed Subexpression Pass
 //	Bracketed Subexpression Parser Functions
 //	Parse Bracketed Subexpression Function
@@ -582,6 +583,88 @@ BRA::typed_opening
         prefix_separators_allowed;
 
     return opening;
+}
+
+// Bracket Type Table
+// ------- ---- -----
+
+static min::uns32 bracket_type_gen_disp[] = {
+    min::DISP ( & BRA::bracket_type_struct::label ),
+    min::DISP ( & BRA::bracket_type_struct::group ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::implied_subprefix ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::implied_subprefix_type ),
+    min::DISP_END };
+
+static min::uns32 bracket_type_stub_disp[] = {
+    min::DISP ( & BRA::bracket_type_struct::next ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::reformatter ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::reformatter_arguments ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<BRA::bracket_type_struct, TAB::root_struct>
+    bracket_type_type
+        ( "ll::parser::bracketed::bracket_type_type",
+	  ::bracket_type_gen_disp,
+	  ::bracket_type_stub_disp );
+const min::uns32 & BRA::BRACKET_TYPE =
+    ::bracket_type_type.subtype;
+
+void BRA::push_bracket_type
+	( min::gen bracket_type_label,
+	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  TAB::new_flags element_selectors,
+	  TAB::flags prefix_selectors,
+	  TAB::new_flags new_selectors,
+	  min::gen group,
+	  min::gen implied_subprefix,
+	  min::gen implied_subprefix_type,
+	  min::uns32 paragraph_lexical_master,
+	  min::uns32 line_lexical_master,
+	  ll::parser::reformatter reformatter,
+	  ll::parser::reformatter_arguments
+	      reformatter_arguments,
+	  TAB::key_table bracket_type_table )
+{
+    min::locatable_var<BRA::bracket_type> bracket_type
+        ( ::bracket_type_type.new_stub() );
+
+    label_ref(bracket_type) = bracket_type_label;
+    bracket_type->selectors = selectors;
+    bracket_type->block_level = block_level;
+    bracket_type->position = position;
+    bracket_type->element_selectors = element_selectors;
+    bracket_type->prefix_selectors = prefix_selectors;
+    bracket_type->new_selectors = new_selectors;
+
+    bracket_type->new_selectors.or_flags &= ~
+        PAR::TOP_LEVEL_SELECTOR;
+    bracket_type->new_selectors.not_flags |=
+        PAR::TOP_LEVEL_SELECTOR;
+    bracket_type->new_selectors.xor_flags &= ~
+        PAR::TOP_LEVEL_SELECTOR;
+
+    group_ref(bracket_type) = group;
+    implied_subprefix_ref(bracket_type) =
+        implied_subprefix;
+    implied_subprefix_type_ref(bracket_type) =
+        implied_subprefix_type;
+    bracket_type->paragraph_lexical_master =
+        paragraph_lexical_master;
+    bracket_type->line_lexical_master =
+        line_lexical_master;
+    reformatter_ref(bracket_type) = reformatter;
+    reformatter_arguments_ref(bracket_type) =
+        reformatter_arguments;
+
+    TAB::push ( bracket_type_table,
+                (TAB::root) bracket_type );
 }
 
 // Bracketed Subexpression Pass

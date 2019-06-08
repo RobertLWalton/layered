@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  8 06:38:12 EDT 2019
+// Date:	Sat Jun  8 13:55:33 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,7 +26,6 @@
 # define LL_PARSER_BRACKETED_H
 
 # include <ll_parser.h>
-# include <ll_parser_prefix.h>
 
 namespace ll { namespace parser { namespace bracketed {
 
@@ -710,8 +709,9 @@ struct bracketed_pass_struct
         // Hash table for brackets and indentation
 	// marks.
 
-    const ll::parser::table::key_table prefix_table;
-        // Table for prefix separator types.
+    const ll::parser::table::key_table
+	    bracket_type_table;
+        // Table for bracket types.
 
     int32 indentation_offset;
         // Amount the indentation of a line has to be
@@ -759,7 +759,8 @@ MIN_REF ( ll::parser::pass, next,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( ll::parser::table::key_table, bracket_table,
           ll::parser::bracketed::bracketed_pass )
-MIN_REF ( ll::parser::table::key_table, prefix_table,
+MIN_REF ( ll::parser::table::key_table,
+          bracket_type_table,
           ll::parser::bracketed::bracketed_pass )
 MIN_REF ( min::gen, string_concatenator,
           ll::parser::bracketed::bracketed_pass )
@@ -1080,13 +1081,13 @@ struct line_data
     min::gen implied_header;
         // The header implied at the start of the line,
 	// or MISSING if none.
-    ll::parser::prefix::prefix header_entry;
-        // The prefix table entry associated with the
-	// implied_header, as found using the selectors
-	// member above.  NOT USED if implied_header
-	// is MISSING.  This is a cache and can be
-	// recomputed from implied_header and selectors
-	// above.
+    ll::parser::bracketed::bracket_type header_entry;
+        // The bracket type table entry associated with
+	// the implied_header, as found using the
+	// selectors member above.  NOT USED if implied_
+	// header is MISSING.  This is a cache and can
+	// be recomputed from implied_header and
+	// selectors above.
     ll::parser::table::flags header_selectors;
         // `selectors' above modified by the new_selec-
 	// tors member of the header_entry.  Used to
@@ -1350,6 +1351,45 @@ void compact_paragraph
 	( ll::parser::parser parser,
 	  ll::parser::token & first,
 	  ll::parser::token next,
+	  ll::parser::table::flags trace_flags );
+
+// Given an expression beginning with first and ending
+// just before next, in which the first token is a
+// PREFIX token, add the non-first tokens to the first
+// token value as elements.  Execute pass->next on
+// the list of non-first elements before doing this, and
+// then convert any non-first element tokens with
+// strings to tokens with values of .type <Q> or #.
+// The end position of the expanded PREFIX token is
+// updated to equal the end position of next->previous,
+// and the type of the PREFIX token is changed to
+// BRACKETED.  Lastly non-first element tokens are
+// removed, but both the first and the next tokens are
+// not.
+//
+// If separator_found is true, set the .terminator
+// attribute of the expanded PREFIX to separator
+// and update the end position of the expanded PREFIX
+// token to separator_found.
+//
+// If the first token is an IMPLIED_HEADER or IMPLIED_
+// PREFIX token, the value of this token is replaced by
+// a copy and then treated as if it were a PREFIX token.
+//
+// If the only element of the result would be a
+// PURELIST, then instead of adding the PURELIST as a
+// single element to the result, add all the elements of
+// the PURELIST (effectively merging the PURELIST and
+// the PREFIX).
+//
+void compact_prefix_list
+	( ll::parser::parser parser,
+	  ll::parser::pass pass,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token first,
+	  ll::parser::token next,
+	  const min::position & separator_found,
+	  min::gen separator,
 	  ll::parser::table::flags trace_flags );
 
 } } }

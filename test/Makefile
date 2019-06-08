@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Mar 23 20:55:38 EDT 2019
+# Date:		Sat Jun  8 14:00:06 EDT 2019
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -85,7 +85,6 @@ PARSER_O =	${LEXEME_O} \
 		ll_parser.o \
 		ll_parser_table.o \
 		ll_parser_command.o \
-		ll_parser_prefix.o \
 		ll_parser_bracketed.o \
 		ll_parser_oper.o \
 		ll_parser_standard.o \
@@ -472,7 +471,6 @@ ll_parser.o:	\
 	${LEXEME_H} \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
-	../include/ll_parser_prefix.h \
 	../include/ll_parser_bracketed.h \
 	../include/ll_parser_command.h \
 	../include/ll_parser_standard.h \
@@ -513,23 +511,10 @@ ll_parser_standard.o:	\
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard.cc
 
-ll_parser_prefix.o:	\
-	${LEXEME_H} \
-	../include/ll_parser.h \
-	../include/ll_parser_table.h \
-	../include/ll_parser_prefix.h \
-	../src/ll_parser_prefix.cc \
-	Makefile
-	g++ -g ${GFLAGS} ${WFLAGS} \
-	    -I ../include -I ${MIN}/include \
-	    -c \
-	    ../src/ll_parser_prefix.cc
-
 ll_parser_bracketed.o:	\
 	${LEXEME_H} \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
-	../include/ll_parser_prefix.h \
 	../include/ll_parser_bracketed.h \
 	../include/ll_parser_command.h \
 	../include/ll_parser_standard.h \
@@ -544,7 +529,6 @@ ll_parser_standard_brackets.o:	\
 	${LEXEME_H} \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
-	../include/ll_parser_prefix.h \
 	../include/ll_parser_bracketed.h \
 	../include/ll_parser_standard.h \
 	../src/ll_parser_standard_brackets.cc \

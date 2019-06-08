@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  1 15:01:45 EDT 2019
+// Date:	Sat Jun  8 06:38:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,7 @@
 //	Untyped Brackets
 //	Indentation Marks
 //	Typed Brackets
+//	Bracket Type Table
 //	Bracketed Subexpression Pass
 //	Parse Bracketed Subexpression Function
 //	Bracketed Compact Functions
@@ -551,6 +552,91 @@ const min::uns32 ATTR_FALSE      = TEMPORARY_TT + 7;
     // Attribute label for attribute with TRUE or
     // FALSE value implied.
 
+
+// Bracket Type Table
+// ------- ---- -----
+
+struct bracket_type_struct;
+typedef min::packed_struct_updptr<bracket_type_struct>
+    bracket_type;
+extern const uns32 & BRACKET_TYPE;
+    // Subtype of min::packed_struct
+    //              <bracket_type_struct>.
+
+struct bracket_type_struct
+    : public ll::parser::table::root_struct
+{
+    // Packed_struct subtype is BRACKET_TYPE.
+
+    ll::parser::table::new_flags element_selectors;
+
+    // Prefix Data
+    //
+    // [Prefix data could be made into a separate
+    // structure pointed at by bracket_type, but it
+    // is anticipated that most bracket_types will
+    // have prefix data, so this is not done.]
+    //
+    ll::parser::table::flags prefix_selectors;
+    ll::parser::table::new_flags new_selectors;
+    min::gen group;
+    min::gen implied_subprefix;
+    min::gen implied_subprefix_type;
+        // This is just a cache of the .type of
+	// the implied prefix, or MISSING if none.
+    min::uns32 paragraph_lexical_master;
+    min::uns32 line_lexical_master;
+        // ll::lexeme::MISSING_MASTER if missing.
+    ll::parser::reformatter reformatter;
+    ll::parser::reformatter_arguments
+	    reformatter_arguments;
+	// Reformater and its arguments, or (both) NULL_
+	// STUB if none.
+};
+
+MIN_REF ( ll::parser::table::root, next,
+          ll::parser::bracketed::bracket_type )
+MIN_REF ( min::gen, label,
+          ll::parser::bracketed::bracket_type )
+MIN_REF ( min::gen, group,
+          ll::parser::bracketed::bracket_type )
+MIN_REF ( min::gen, implied_subprefix,
+          ll::parser::bracketed::bracket_type )
+MIN_REF ( min::gen, implied_subprefix_type,
+          ll::parser::bracketed::bracket_type )
+MIN_REF ( ll::parser::reformatter, reformatter,
+          ll::parser::bracketed::bracket_type )
+MIN_REF ( ll::parser::reformatter_arguments,
+	  reformatter_arguments,
+          ll::parser::bracketed::bracket_type )
+
+// Create a bracket_type definition entry with given
+// label and parameters, and push it into the
+// given bracket_type_table.
+//
+void push_bracket_type
+	( min::gen bracket_type_label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::new_flags
+	      element_selectors,
+	  ll::parser::table::flags prefix_selectors,
+	  ll::parser::table::new_flags new_selectors,
+	  min::gen group,
+	  min::gen implied_subprefix,
+	  min::gen implied_subprefix_type,
+	  min::uns32 paragraph_lexical_master,
+	  min::uns32 line_lexical_master,
+	      // May be ll::lexeme::MISSING_MASTER
+	  ll::parser::reformatter reformatter,
+	  ll::parser::reformatter_arguments
+	      reformatter_arguments,
+	  ll::parser::table::key_table
+	      bracket_type_table );
+
+extern min::locatable_var<ll::parser::reformatter>
+    bracket_type_reformatter_stack;
 
 // Bracketed Subexpression Pass
 // --------- ------------- ----

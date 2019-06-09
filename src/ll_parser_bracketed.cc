@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  9 03:54:09 EDT 2019
+// Date:	Sun Jun  9 15:00:59 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -618,9 +618,8 @@ void BRA::push_bracket_type
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  TAB::new_flags element_selectors,
-	  TAB::flags prefix_selectors,
 	  TAB::new_flags new_selectors,
+	  TAB::flags prefix_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
@@ -638,9 +637,8 @@ void BRA::push_bracket_type
     bracket_type->selectors = selectors;
     bracket_type->block_level = block_level;
     bracket_type->position = position;
-    bracket_type->element_selectors = element_selectors;
-    bracket_type->prefix_selectors = prefix_selectors;
     bracket_type->new_selectors = new_selectors;
+    bracket_type->prefix_selectors = prefix_selectors;
 
     bracket_type->new_selectors.or_flags &= ~
         PAR::TOP_LEVEL_SELECTOR;
@@ -1385,6 +1383,37 @@ inline void make_type_label
 	    }
 	    start = min::NULL_STUB;
 	        // To prevent deletion of start.
+
+	    BRA::bracketed_pass bracketed_pass =
+		(BRA::bracketed_pass)
+		parser->pass_stack;
+	    TAB::key_table bracket_type_table =
+		bracketed_pass->bracket_type_table;
+	    BRA::bracket_type bracket_type =
+		(BRA::bracket_type)
+		TAB::find
+		    ( type,
+		      BRA::BRACKET_TYPE,
+		      typed_data->context_selectors,
+		      bracket_type_table );
+	    if ( bracket_type != min::NULL_STUB )
+	    {
+		TAB::flags element_selectors =
+		    typed_data->context_selectors;
+		element_selectors |=
+		    bracket_type->
+		        new_selectors.or_flags;
+		element_selectors &= ~
+		    bracket_type->
+		        new_selectors.not_flags;
+		element_selectors ^=
+		    bracket_type->
+		        new_selectors.xor_flags;
+		element_selectors |=
+		    PAR::ALWAYS_SELECTOR;
+		typed_data->element_selectors =
+		    element_selectors;
+	    }
 	}
     }
 
@@ -3240,6 +3269,7 @@ NEXT_TOKEN:
 	    {
 		tdata.typed_opening =
 		    (BRA::typed_opening) root;
+		tdata.context_selectors = selectors;
 		tdata.element_selectors =
 		    new_selectors;
 		tdata.middle_count = 0;
@@ -6938,9 +6968,8 @@ static min::gen bracketed_pass_command
 	    ( name[0], selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      TAB::new_flags ( 0, 0, 0 ),
-	      PAR::ALL_SELECTORS,
 	      new_selectors,
+	      PAR::ALL_SELECTORS,
 	      group,
 	      implied_subprefix,
 	      implied_subprefix_type,

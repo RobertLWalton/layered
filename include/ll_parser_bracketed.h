@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  8 13:55:33 EDT 2019
+// Date:	Sun Jun  9 14:58:03 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -442,6 +442,9 @@ struct typed_data
     ll::parser::bracketed::typed_opening typed_opening;
         // Typed_opening read just before the call to
 	// parse_bracketed_subexpression.
+    ll::parser::table::flags context_selectors;
+        // Selectors in the context in which the typed_
+	// opening appears.
     ll::parser::table::flags attribute_selectors;
         // Selectors to be used to parse type and
 	// attributes.  Also the selectors initially
@@ -567,7 +570,7 @@ struct bracket_type_struct
 {
     // Packed_struct subtype is BRACKET_TYPE.
 
-    ll::parser::table::new_flags element_selectors;
+    ll::parser::table::new_flags new_selectors;
 
     // Prefix Data
     //
@@ -577,7 +580,6 @@ struct bracket_type_struct
     // have prefix data, so this is not done.]
     //
     ll::parser::table::flags prefix_selectors;
-    ll::parser::table::new_flags new_selectors;
     min::gen group;
     min::gen implied_subprefix;
     min::gen implied_subprefix_type;
@@ -618,10 +620,8 @@ void push_bracket_type
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  ll::parser::table::new_flags
-	      element_selectors,
-	  ll::parser::table::flags prefix_selectors,
 	  ll::parser::table::new_flags new_selectors,
+	  ll::parser::table::flags prefix_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,

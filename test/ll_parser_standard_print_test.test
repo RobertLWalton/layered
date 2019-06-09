@@ -124,7 +124,7 @@
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
     print prefix ""
-        block standard: prefix "p" [TOP LEVEL, code, text]
+        block standard: bracket type "p" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
                         with group paragraph
@@ -136,10 +136,10 @@
                                               - end at line separator,
                                               - end at outer closing,
                                               + sticky]
-        block standard: prefix "s" [text]
+        block standard: bracket type "s" [text]
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
-        block standard: prefix "quote" [TOP LEVEL, code, text]
+        block standard: bracket type "quote" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
                         with group paragraph
@@ -151,7 +151,7 @@
                                               - end at line separator,
                                               - end at outer closing,
                                               + sticky]
-        block standard: prefix "section" [TOP LEVEL, code, text]
+        block standard: bracket type "section" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
                         with group paragraph
@@ -162,22 +162,23 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing]
-        block standard: prefix [< "raw" "data" >]
+        block standard: bracket type [< "raw" "data" >]
                         [TOP LEVEL, data, code, math, text]
                         with parsing selectors [data, data paragraph]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
-        block standard: prefix "table"
+        block standard: bracket type "table"
                         [TOP LEVEL, data, code, math, text]
                         with group paragraph
                         with line lexical master "ROW-CHECK"
-        block standard: prefix "row" [TOP LEVEL, data, code, math, text]
+        block standard: bracket type "row"
+                        [TOP LEVEL, data, code, math, text]
                         with group line
-        block standard: prefix "data"
+        block standard: bracket type "data"
                         [TOP LEVEL, data, code, math, text]
                         with parsing selectors [+ data paragraph]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
-        block standard: prefix "code" [TOP LEVEL, code, text]
+        block standard: bracket type "code" [TOP LEVEL, code, text]
                         with group paragraph
                         with parsing options [+ reset]

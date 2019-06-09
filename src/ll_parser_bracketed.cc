@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  8 13:41:38 EDT 2019
+// Date:	Sun Jun  9 03:54:09 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5962,25 +5962,25 @@ static min::gen bracketed_pass_command
 	    }
 	    else if ( subtype == BRA::BRACKET_TYPE )
 	    {
-		BRA::bracket_type prefix =
+		BRA::bracket_type bracket_type =
 		    (BRA::bracket_type) root;
 
 		parser->printer
-		    << "prefix "
+		    << "bracket type "
 		    << min::pgen_quote
-		           ( prefix->label );
+		           ( bracket_type->label );
 
 		parser->printer
 		    << " " << min::set_break;
 
 		COM::print_flags
-		    ( prefix->selectors,
+		    ( bracket_type->selectors,
 		      PAR::COMMAND_SELECTORS,
 		      parser->selector_name_table,
 		      parser );
 
 		TAB::new_flags new_selectors =
-		    prefix->new_selectors;
+		    bracket_type->new_selectors;
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
@@ -5997,7 +5997,7 @@ static min::gen bracketed_pass_command
 			  parser, true );
 		}
 
-		min::gen group = prefix->group;
+		min::gen group = bracket_type->group;
 		if ( group != min::MISSING() )
 		    parser->printer
 			<< min::indent
@@ -6005,7 +6005,7 @@ static min::gen bracketed_pass_command
 			<< min::pgen ( group );
 
 		min::gen subprefix =
-		    prefix->implied_subprefix;
+		    bracket_type->implied_subprefix;
 		if ( subprefix != min::MISSING() )
 		    parser->printer
 			<< min::indent
@@ -6014,8 +6014,10 @@ static min::gen bracketed_pass_command
 
 		COM::print_lexical_master
 		    ( parser,
-		      prefix->paragraph_lexical_master,
-		      prefix->line_lexical_master );
+		      bracket_type->
+		          paragraph_lexical_master,
+		      bracket_type->
+		          line_lexical_master );
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
@@ -6032,19 +6034,20 @@ static min::gen bracketed_pass_command
 			  parser, true );
 		}
 
-		if (    prefix->reformatter
+		if (    bracket_type->reformatter
 		     != min::NULL_STUB )
 		{
 		    parser->printer
 			<< min::indent
 			<< "with "
 			<< min::pgen_name
-			       ( prefix->reformatter
-			               ->name )
+			       ( bracket_type->
+			             reformatter->name )
 			<< " reformatter";
 
 		    min::packed_vec_ptr<min::gen> args =
-			prefix->reformatter_arguments;
+			bracket_type->
+			    reformatter_arguments;
 		    if ( args != min::NULL_STUB )
 		    {
 			parser->printer
@@ -6936,7 +6939,7 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      TAB::ALL_FLAGS,
+	      PAR::ALL_SELECTORS,
 	      new_selectors,
 	      group,
 	      implied_subprefix,

@@ -621,18 +621,18 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with lexical master "DEFAULT"
         with parsing options [end at indent]
     print prefix ""
-        block BLOCK1: prefix "X" [code]
+        block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]
-        block BLOCK1: prefix "Y" [code]
+        block BLOCK1: bracket type "Y" [code]
                       with parsing selectors [+ text]
                       with group ajax
-        block BLOCK1: prefix "Z" [math]
+        block BLOCK1: bracket type "Z" [math]
                       with parsing selectors [code]
                       with implied subprefix
                       {X: y = "5", z = [< "hi" "there" >]||X}
                       with lexical master "DEFAULT"
     print prefix "X"
-        block BLOCK1: prefix "X" [code]
+        block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]
     end block BLOCK1
 *PARSER*:
@@ -895,26 +895,26 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with attribute multivalue initiator "{*"
         with prefix separators allowed
     print prefix ""
-        block BLOCK1: prefix "L3" [text]
+        block BLOCK1: bracket type "L3" [text]
                       with group line
-        block BLOCK1: prefix "L4" [text]
+        block BLOCK1: bracket type "L4" [text]
                       with group line
-        block BLOCK1: prefix "P1" [code, text]
+        block BLOCK1: bracket type "P1" [code, text]
                       with parsing selectors [text]
                       with group paragraph
                       with implied subprefix {S1||S1}
                       with parsing options [end at paragraph break]
-        block BLOCK1: prefix "P2" [code, text]
+        block BLOCK1: bracket type "P2" [code, text]
                       with parsing selectors [text]
                       with group paragraph
                       with parsing options [end at paragraph break]
-        block BLOCK1: prefix "P3" [code, text]
+        block BLOCK1: bracket type "P3" [code, text]
                       with parsing selectors [text]
                       with group paragraph
                       with implied subprefix {L3||L3}
                       with parsing options [end at paragraph break,
                                             end at line separator]
-        block BLOCK1: prefix "P4" [code, text]
+        block BLOCK1: bracket type "P4" [code, text]
                       with parsing selectors [text]
                       with group paragraph
                       with implied subprefix {L4||L4}
@@ -1291,7 +1291,7 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
     define prefix "l3" [code]
         with group line
     print prefix "p3"
-        block BLOCK1: prefix "p3" [code]
+        block BLOCK1: bracket type "p3" [code]
                       with group paragraph
                       with implied subprefix {l3||l3}
                       with parsing options [+ continuing]
@@ -1432,18 +1432,18 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with group paragraph
         with parsing options [+ continuing]
     print prefix ""
-        block BLOCK1: prefix "l1" [code]
+        block BLOCK1: bracket type "l1" [code]
                       with group line
-        block BLOCK1: prefix "l2" [code]
+        block BLOCK1: bracket type "l2" [code]
                       with group line
-        block BLOCK1: prefix "p1" [code]
+        block BLOCK1: bracket type "p1" [code]
                       with group paragraph
                       with implied subprefix {l1||l1}
-        block BLOCK1: prefix "p2" [code]
+        block BLOCK1: bracket type "p2" [code]
                       with group paragraph
                       with implied subprefix {l2||l2}
                       with parsing options [+ continuing]
-        block BLOCK1: prefix "p3" [code]
+        block BLOCK1: bracket type "p3" [code]
                       with group paragraph
                       with parsing options [+ continuing]
     trace [+ parser output]

@@ -366,7 +366,7 @@ ID 4 is @@
 ^^^^^^^^^^
 *PARSER*:
     print prefix ""
-        block X: prefix "data" [TOP LEVEL]
+        block X: bracket type "data" [TOP LEVEL]
                  with parsing selectors [data]
                  with data reformatter ( "=", "not", "[",
                  [< "{" "*" >] )

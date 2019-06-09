@@ -25,14 +25,14 @@
         with group paragraph
         with parsing options [+ reset]
     print prefix ""
-        block X: prefix "p" [TOP LEVEL]
+        block X: bracket type "p" [TOP LEVEL]
                  with parsing selectors [- code, + text]
                  with group paragraph
                  with implied subprefix {s||s}
                  with parsing options [end at paragraph break, sticky]
-        block X: prefix "s" [text]
+        block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
-        block X: prefix "code" [text]
+        block X: bracket type "code" [text]
                  with group paragraph
                  with parsing options [+ reset]
 BRACKETED EXPRESSION:

@@ -123,7 +123,7 @@
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
                          with prefix selectors []
-    print prefix ""
+    print bracket type ""
         block standard: bracket type "p" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]

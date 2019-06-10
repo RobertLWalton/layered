@@ -11,19 +11,19 @@
         with attribute multivalue initiator "{*"
 *PARSER*:
     begin block X
-    define prefix "p" [TOP LEVEL]
+    define bracket type "p" [TOP LEVEL]
         with parsing options
              [end at paragraph break, sticky]
         with group paragraph
         with parsing selectors [+ text, - code]
         with implied subprefix {s}
-    define prefix "s" [text]
+    define bracket type "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
-    define prefix "code" [text]
+    define bracket type "code" [text]
         with group paragraph
         with parsing options [+ reset]
-    print prefix ""
+    print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
                  with parsing selectors [- code, + text]
                  with parsing options [end at paragraph break, sticky]

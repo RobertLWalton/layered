@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 10 04:03:51 EDT 2019
+// Date:	Mon Jun 10 16:04:16 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -22,19 +22,19 @@
 
 *PARSER*:
     begin block X
-    define prefix "p" [TOP LEVEL]
+    define bracket type "p" [TOP LEVEL]
         with parsing options
 	     [end at paragraph break, sticky]
 	with group paragraph
 	with parsing selectors [+ text, - code]
 	with implied subprefix {s}
-    define prefix "s" [text]
+    define bracket type "s" [text]
         with sentence reformatter
 	    ( ".", ";", ":", "?", "!" )
-    define prefix "code" [text]
+    define bracket type "code" [text]
 	with group paragraph
 	with parsing options [+ reset]
-    print prefix ""
+    print bracket type ""
 
 {p}This is a sentence: an add-on.  A phrase;
 and a question?

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 10 07:03:52 EDT 2019
+// Date:	Mon Jun 10 16:09:34 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,7 @@ const TAB::flags BRACKET_TYPE_OPT = PAR::ALL_OPT;
 
 static bool initialize_called = false;
 static min::locatable_gen bracket;
+static min::locatable_gen type;
 static min::locatable_gen indentation;
 static min::locatable_gen typed;
 static min::locatable_gen element;
@@ -108,6 +109,7 @@ static void initialize ( void )
     initialize_called = true;
 
     ::bracket = min::new_str_gen ( "bracket" );
+    ::type = min::new_str_gen ( "type" );
     ::indentation = min::new_str_gen
 			    ( "indentation" );
     ::typed = min::new_str_gen ( "typed" );
@@ -5587,10 +5589,20 @@ static min::gen bracketed_pass_command
 
     if ( vp[i] == ::bracket )
     {
-        type = ::BRACKET;
-	min_names = max_names =
-	    ( command == PARLEX::print ? 1 : 2 );
-	++ i;
+	if ( i + 1 < size && vp[i + 1] == ::type )
+	{
+	    type = ::BRACKET_TYPE;
+	    min_names = 1;
+	    max_names = 1;
+	    i += 2;
+	}
+        else
+	{
+	    type = ::BRACKET;
+	    min_names = max_names =
+		( command == PARLEX::print ? 1 : 2 );
+	    ++ i;
+	}
     }
     else if ( vp[i] == ::indentation
               &&
@@ -5616,13 +5628,6 @@ static min::gen bracketed_pass_command
 	else
 	    min_names = 2, max_names = 4;
 	i += 2;
-    }
-    else if ( vp[i] == PARLEX::prefix )
-    {
-	type = ::BRACKET_TYPE;
-	min_names = 1;
-	max_names = 1;
-	++ i;
     }
     else
         return min::FAILURE();

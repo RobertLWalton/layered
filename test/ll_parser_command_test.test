@@ -184,6 +184,7 @@ INDENT: line ##:
                          with attribute negator "no"
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
+                         with prefix selectors []
     print indentation mark ""
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]

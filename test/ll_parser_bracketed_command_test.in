@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  1 16:00:25 EDT 2019
+// Date:	Mon Jun 10 03:55:24 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -229,6 +229,7 @@ third line with indent 0
         with element selectors [data]
         with attribute selectors [data]
         with attributes "::" ... "==" ... "#"
+        with prefix selectors []
     define typed bracket "T2{" ... "|" ... "|" ... "}T2"
         [code, text, math, data]
         with element selectors [data]
@@ -237,7 +238,6 @@ third line with indent 0
         with attribute negator "NO"
         with attribute flags initiator "("
         with attribute multivalue initiator "[@"
-        with prefix separators allowed
     define bracket "[@" ... "@]" [code]
         with multivalue reformatter ( "@" )
 
@@ -289,7 +289,6 @@ third line with indent 0
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
 *PARSER* *TEST*:
     [8 my type: my attr = 99 9]
 *PARSER*:
@@ -339,7 +338,6 @@ third line with indent 0
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
 
     print prefix ""
 
@@ -411,7 +409,6 @@ third line with indent 0
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p1" [code]
         with group paragraph
         with implied subprefix {l1}
@@ -470,7 +467,6 @@ third line with indent 0
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p1" [code]
         with group paragraph
         with implied subprefix {l1}
@@ -529,7 +525,6 @@ and another line outside the fifth paragraph
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p1" [code]
         with group paragraph
         with implied subprefix {l1}
@@ -616,7 +611,6 @@ this is a test line
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p" [code]
         with group paragraph
         with implied subprefix {l1}

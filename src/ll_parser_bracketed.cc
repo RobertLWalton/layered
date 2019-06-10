@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  9 15:00:59 EDT 2019
+// Date:	Mon Jun 10 03:34:51 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,7 +120,6 @@ static void initialize ( void )
     ::negator = min::new_str_gen ( "negator" );
     ::separator = min::new_str_gen ( "separator" );
     ::separators = min::new_str_gen ( "separators" );
-    ::allowed = min::new_str_gen ( "allowed" );
     ::mark = min::new_str_gen ( "mark" );
     ::full = min::new_str_gen ( "full" );
     ::lines = min::new_str_gen ( "lines" );
@@ -466,7 +465,7 @@ BRA::typed_opening
 	  const min::flag_parser *
 	           typed_attr_flag_parser,
 	  min::gen typed_attr_multivalue_initiator,
-	  bool prefix_separators_allowed,
+	  TAB::flags prefix_selectors,
 	  TAB::key_table bracket_table )
 {
     min::locatable_var<BRA::typed_opening> opening
@@ -578,8 +577,7 @@ BRA::typed_opening
     typed_attr_multivalue_initiator_ref(opening) =
         typed_attr_multivalue_initiator;
 
-    opening->prefix_separators_allowed =
-        prefix_separators_allowed;
+    opening->prefix_selectors = prefix_selectors;
 
     return opening;
 }
@@ -3800,8 +3798,10 @@ NEXT_TOKEN:
 		       ||
 		       is_mark_prefix )
 		     &&
-		     tdata.typed_opening->
-			 prefix_separators_allowed )
+		     ( tdata.typed_opening->
+			   prefix_selectors
+		       &&
+		       tdata.context_selectors ) )
 		    token_type = PAR::PREFIX;
 		else
 		    type = min::MISSING();
@@ -5857,7 +5857,7 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_flags
 			( typed_opening->attr_selectors,
-			  BRACKET_SELECTORS,
+			  PAR::COMMAND_SELECTORS,
 			  parser->selector_name_table,
 			  parser );
 
@@ -5904,12 +5904,22 @@ static min::gen bracketed_pass_command
 			     ( TOATTR
 				 (multivalue_initiator)
 			     );
-		    if ( typed_opening->
-			     prefix_separators_allowed )
+		    if (    typed_opening->
+		                prefix_selectors
+		         != PAR::ALL_SELECTORS )
+		    {
 			parser->printer
-			  << min::indent
-			  << "with prefix"
-			     " separators allowed";
+			    << min::indent
+			    << "with prefix"
+			       " selectors ";
+			COM::print_flags
+			    ( typed_opening->
+				  prefix_selectors,
+			      PAR::COMMAND_SELECTORS,
+			      parser->
+			          selector_name_table,
+			      parser );
+		    }
 		}
 
 #		undef PQ
@@ -6475,7 +6485,7 @@ static min::gen bracketed_pass_command
 	bool has_middle = ( number_of_names == 4 );
 
 	TAB::new_flags new_element_selectors;
-	TAB::new_flags new_attribute_selectors;
+	TAB::flags new_attribute_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
 	min::locatable_gen
@@ -6487,7 +6497,8 @@ static min::gen bracketed_pass_command
 	    	( min::MISSING() ),
 	    attribute_multivalue_initiator
 	        ( min::MISSING() );
-	bool prefix_separators_allowed = false;
+	TAB::flags new_prefix_selectors =
+	    PAR::ALL_SELECTORS;
 
 	while ( i < size && vp[i] == PARLEX::with )
 	{
@@ -6496,32 +6507,40 @@ static min::gen bracketed_pass_command
 		 &&
 		 ( vp[i] == ::element
 		   ||
-		   vp[i] == ::attribute )
+		   vp[i] == ::attribute
+		   ||
+		   vp[i] == PARLEX::prefix )
 		 &&
 		 vp[i+1] == PARLEX::selectors )
 	    {
-		bool is_element =
-		    ( vp[i] == ::element );
-	        TAB::new_flags & new_selectors =
-		    ( is_element ?
-		      new_element_selectors :
-		      new_attribute_selectors );
-	        
+		min::gen kind = vp[i];
 		i += 2;
-		min::gen result =
-		    COM::scan_new_flags
-			( vp, i, new_selectors,
+		min::gen result;
+		if ( kind == ::element )
+		    result = COM::scan_new_flags
+			( vp, i, new_element_selectors,
 			  BRACKET_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
 			  parser, true );
+		else
+		    result = COM::scan_flags
+			( vp, i,
+			  kind == ::attribute ?
+			  new_attribute_selectors :
+			  new_prefix_selectors,
+			  PAR::COMMAND_SELECTORS,
+	                  parser->selector_name_table,
+			  parser->
+			    selector_group_name_table,
+			  parser );
 		if ( result == min::ERROR() )
 		    return min::ERROR();
 		else if ( result == min::FAILURE() )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
-			  is_element ?
+			  kind == ::element ?
 			  "expected bracketed selector"
 			  " modifier list after" :
 			  "expected bracketed selector"
@@ -6610,29 +6629,17 @@ static min::gen bracketed_pass_command
 		SCAN_NAME
 		    ( attribute_separator, false );
 	    }
-	    else
-	    if ( i + 2 < size
-		 &&
-		 vp[i] == PARLEX::prefix
-		 &&
-		 vp[i+1] == ::separators
-		 &&
-		 vp[i+2] == ::allowed )
-	    {
-		i += 3;
-		prefix_separators_allowed = true;
-	    }
 	    else return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected `attributes',"
-		  " or `attribute negator',"
+		  " or `element selectors',"
+		  " or `attribute selectors',"
+		  " or `prefix selectors',"
+		  " or `parsing options',"
 		  " or `attribute flags initiator',"
 		  " or `attribute multivalue"
 		       " initiator',"
-		  " or `element selectors',"
-		  " or `attribute selectors',"
-		  " or `parsing options',"
-		  " or `prefix separators allowed'"
+		  " or `attribute negator'"
 		  " after" );
 	}
 	if ( i < size )
@@ -6707,7 +6714,7 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_element_selectors,
-	      new_attribute_selectors.or_flags,
+	      new_attribute_selectors,
 	      attribute_begin,
 	      attribute_equal,
 	      attribute_separator,
@@ -6715,7 +6722,7 @@ static min::gen bracketed_pass_command
 	      attribute_flags_initiator,
 	      min::standard_attr_flag_parser,
 	      attribute_multivalue_initiator,
-	      prefix_separators_allowed,
+	      new_prefix_selectors,
 	      bracketed_pass->bracket_table );
 
 	break;

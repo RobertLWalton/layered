@@ -3795,7 +3795,6 @@ BRACKETED EXPRESSION:
                         with attribute negator "no"
                         with attribute flags initiator "["
                         with attribute multivalue initiator [< "{" "*" >]
-                        with prefix separators allowed
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
                          [data]
@@ -3804,6 +3803,7 @@ BRACKETED EXPRESSION:
                          with attribute negator "no"
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
+                         with prefix selectors []
 BRACKETED EXPRESSION:
     "This is a longer sentence than we would like."
 @@@@ = "This is a longer sentence than we would like.":

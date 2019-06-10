@@ -9,7 +9,6 @@
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
 *PARSER*:
     begin block X
     define prefix "p" [TOP LEVEL]

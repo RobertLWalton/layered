@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  9 15:00:45 EDT 2019
+// Date:	Mon Jun 10 04:02:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -270,7 +270,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  PARLEX::left_square,
 	  min::standard_attr_flag_parser,
 	  opening_brace_star,
-	  true,
+	  PAR::ALL_SELECTORS,
 	  bracketed_pass->bracket_table );
 }
 

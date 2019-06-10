@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  7 06:16:29 EDT 2019
+// Date:	Mon Jun 10 03:59:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1003,7 +1003,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PARLEX::left_square,
 	      min::standard_attr_flag_parser,
 	      opening_brace_star,
-	      false,
+	      0,
 	      bracketed_pass->bracket_table );
 
 	if ( define_standard )

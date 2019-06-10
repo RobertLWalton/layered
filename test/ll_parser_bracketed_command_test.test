@@ -30,6 +30,7 @@
                          with attribute negator "no"
                          with attribute flags initiator "["
                          with attribute multivalue initiator [< "{" "*" >]
+                         with prefix selectors []
 *PARSER*:
 ERROR: in line ##: too few quoted names in:
     define bracket "[+"
@@ -641,6 +642,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with element selectors [data]
         with attribute selectors [data]
         with attributes "::" ... "==" ... "#"
+        with prefix selectors []
     define typed bracket "T2{" ... "|" ... "|" ... "}T2"
         [code, text, math, data]
         with element selectors [data]
@@ -649,7 +651,6 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with attribute negator "NO"
         with attribute flags initiator "("
         with attribute multivalue initiator "[@"
-        with prefix separators allowed
     define bracket "[@" ... "@]" [code]
         with multivalue reformatter ( "@" )
 ======= PARSER TEST: {T: x = "5", y = "6"|A B C|T}
@@ -827,7 +828,6 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
 ======= PARSER TEST: [{my type: my attr = "99"||my type}]
 ======= line ###:
     [8 my type: my attr = 99 9]
@@ -893,7 +893,6 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     print prefix ""
         block BLOCK1: bracket type "L3" [text]
                       with group line
@@ -1155,7 +1154,6 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p1" [code]
         with group paragraph
         with implied subprefix {l1}
@@ -1416,7 +1414,6 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p1" [code]
         with group paragraph
         with implied subprefix {l1}
@@ -1531,7 +1528,6 @@ and another line outside the fifth paragraph
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p1" [code]
         with group paragraph
         with implied subprefix {l1}
@@ -1707,7 +1703,6 @@ and code line #
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
     define prefix "p" [code]
         with group paragraph
         with implied subprefix {l1}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 10 03:34:51 EDT 2019
+// Date:	Mon Jun 10 07:03:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,14 +67,14 @@ const TAB::flags INDENTATION_MARK_OPT =
       PAR::ALL_EA_OPT
     + PAR::EIPARAGRAPH_OPT;
 
-const TAB::flags PREFIX_OFF_SELECTORS =
+const TAB::flags BRACKET_TYPE_OFF_SELECTORS =
       PAR::TOP_LEVEL_SELECTOR;
 
-const TAB::flags PREFIX_SELECTORS =
+const TAB::flags BRACKET_TYPE_SELECTORS =
       PAR::COMMAND_SELECTORS
-    - PREFIX_OFF_SELECTORS;
+    - BRACKET_TYPE_OFF_SELECTORS;
 
-const TAB::flags PREFIX_OPT = PAR::ALL_OPT;
+const TAB::flags BRACKET_TYPE_OPT = PAR::ALL_OPT;
 
 static bool initialize_called = false;
 static min::locatable_gen bracket;
@@ -5236,7 +5236,7 @@ enum definition_type
     { BRACKET,
       INDENTATION_MARK,
       TYPED_BRACKET,
-      PREFIX };
+      BRACKET_TYPE };
 
 static min::gen bracketed_pass_command
 	( PAR::parser parser,
@@ -5619,7 +5619,7 @@ static min::gen bracketed_pass_command
     }
     else if ( vp[i] == PARLEX::prefix )
     {
-	type = ::PREFIX;
+	type = ::BRACKET_TYPE;
 	min_names = 1;
 	max_names = 1;
 	++ i;
@@ -5676,7 +5676,7 @@ static min::gen bracketed_pass_command
 	int count = 0;
 
 	TAB::key_table_iterator it
-	    ( type == ::PREFIX ?
+	    ( type == ::BRACKET_TYPE ?
 	      bracketed_pass->bracket_type_table :
 	      bracketed_pass->bracket_table );
 	while ( true )
@@ -5700,7 +5700,7 @@ static min::gen bracketed_pass_command
 		 (    type == ::INDENTATION_MARK
 		   && subtype != BRA::INDENTATION_MARK )
 		 ||
-		 (    type == ::PREFIX
+		 (    type == ::BRACKET_TYPE
 		   && subtype != BRA::BRACKET_TYPE ) )
 		continue;
 
@@ -6024,7 +6024,7 @@ static min::gen bracketed_pass_command
 
 		if ( TAB::all_flags ( new_selectors )
 		     &
-		     PREFIX_SELECTORS )
+		     BRACKET_TYPE_SELECTORS )
 		{
 		    parser->printer
 		        << min::indent
@@ -6032,9 +6032,39 @@ static min::gen bracketed_pass_command
 			   " selectors ";
 		    COM::print_new_flags
 			( new_selectors,
-			  PREFIX_SELECTORS,
+			  BRACKET_TYPE_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
+		}
+
+		if ( TAB::all_flags ( new_selectors )
+		     &
+		     BRACKET_TYPE_OPT )
+		{
+		    parser->printer
+			<< min::indent
+			<< "with parsing"
+			   " options ";
+		    COM::print_new_flags
+			( new_selectors,
+			  BRACKET_TYPE_OPT,
+			  parser->selector_name_table,
+			  parser, true );
+		}
+
+		if (    bracket_type->prefix_selectors
+		     != PAR::ALL_SELECTORS )
+		{
+		    parser->printer
+		        << min::indent
+			<< "with prefix"
+			   " selectors ";
+		    COM::print_flags
+			( bracket_type->
+			      prefix_selectors,
+			  PAR::COMMAND_SELECTORS,
+			  parser->selector_name_table,
+			  parser );
 		}
 
 		min::gen group = bracket_type->group;
@@ -6058,21 +6088,6 @@ static min::gen bracketed_pass_command
 		          paragraph_lexical_master,
 		      bracket_type->
 		          line_lexical_master );
-
-		if ( TAB::all_flags ( new_selectors )
-		     &
-		     PREFIX_OPT )
-		{
-		    parser->printer
-			<< min::indent
-			<< "with parsing"
-			   " options ";
-		    COM::print_new_flags
-			( new_selectors,
-			  PREFIX_OPT,
-			  parser->selector_name_table,
-			  parser, true );
-		}
 
 		if (    bracket_type->reformatter
 		     != min::NULL_STUB )
@@ -6727,7 +6742,7 @@ static min::gen bracketed_pass_command
 
 	break;
     }
-    case ::PREFIX:
+    case ::BRACKET_TYPE:
     {
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
@@ -6782,7 +6797,7 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PREFIX_OPT,
+			  BRACKET_TYPE_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,
@@ -7000,7 +7015,7 @@ static min::gen bracketed_pass_command
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
 	        ( name[0],
-		     type == ::PREFIX ? 
+		     type == ::BRACKET_TYPE ? 
 		  bracketed_pass->bracket_type_table :
 		  bracketed_pass->bracket_table );
 
@@ -7090,7 +7105,7 @@ static min::gen bracketed_pass_command
 
 		break;
 	    }
-	    case ::PREFIX:
+	    case ::BRACKET_TYPE:
 	    {
 		// Here to suppress warning message.
 		//

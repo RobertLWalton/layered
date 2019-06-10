@@ -26,14 +26,14 @@
     print prefix ""
         block X: bracket type "p" [TOP LEVEL]
                  with parsing selectors [- code, + text]
+                 with parsing options [end at paragraph break, sticky]
                  with group paragraph
                  with implied subprefix {s||s}
-                 with parsing options [end at paragraph break, sticky]
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "code" [text]
-                 with group paragraph
                  with parsing options [+ reset]
+                 with group paragraph
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
        {s: .terminator = "."|an add-on|s}

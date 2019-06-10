@@ -349,7 +349,7 @@ BRACKETED EXPRESSION:
         with lexical master DATA-CHECK
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}
-    define prefix "data" [TOP LEVEL]
+    define bracket type "data" [TOP LEVEL]
         with parsing selectors [data]
         with data reformatter ( "=", "not", "[", "{*" )
 ERROR: in line ###: previous uses of ID exist and will be dangling:
@@ -366,7 +366,7 @@ BRACKETED EXPRESSION:
 ID 4 is @@
 ^^^^^^^^^^
 *PARSER*:
-    print prefix ""
+    print bracket type ""
         block X: bracket type "data" [TOP LEVEL]
                  with parsing selectors [data]
                  with data reformatter ( "=", "not", "[",

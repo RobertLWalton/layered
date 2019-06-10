@@ -900,19 +900,19 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
                       with group line
         block BLOCK1: bracket type "P1" [code, text]
                       with parsing selectors [text]
+                      with parsing options [end at paragraph break]
                       with group paragraph
                       with implied subprefix {S1||S1}
-                      with parsing options [end at paragraph break]
         block BLOCK1: bracket type "P2" [code, text]
                       with parsing selectors [text]
-                      with group paragraph
                       with parsing options [end at paragraph break]
+                      with group paragraph
         block BLOCK1: bracket type "P3" [code, text]
                       with parsing selectors [text]
-                      with group paragraph
-                      with implied subprefix {L3||L3}
                       with parsing options [end at paragraph break,
                                             end at line separator]
+                      with group paragraph
+                      with implied subprefix {L3||L3}
         block BLOCK1: bracket type "P4" [code, text]
                       with parsing selectors [text]
                       with group paragraph
@@ -1290,9 +1290,9 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with group line
     print prefix "p3"
         block BLOCK1: bracket type "p3" [code]
+                      with parsing options [+ continuing]
                       with group paragraph
                       with implied subprefix {l3||l3}
-                      with parsing options [+ continuing]
 ======= PARSER TEST: this is the indented paragraph 6::
                          {p1|{l1|with a first line|l1}
                              {l1|and a second line with [HI THERE]
@@ -1437,12 +1437,12 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
                       with group paragraph
                       with implied subprefix {l1||l1}
         block BLOCK1: bracket type "p2" [code]
+                      with parsing options [+ continuing]
                       with group paragraph
                       with implied subprefix {l2||l2}
-                      with parsing options [+ continuing]
         block BLOCK1: bracket type "p3" [code]
-                      with group paragraph
                       with parsing options [+ continuing]
+                      with group paragraph
     trace [+ parser output]
 BRACKETED EXPRESSION:
     {p1||p1}

@@ -127,8 +127,6 @@
         block standard: bracket type "p" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
-                        with group paragraph
-                        with implied subprefix {s||s}
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -136,14 +134,14 @@
                                               - end at line separator,
                                               - end at outer closing,
                                               + sticky]
+                        with group paragraph
+                        with implied subprefix {s||s}
         block standard: bracket type "s" [text]
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
         block standard: bracket type "quote" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
-                        with group paragraph
-                        with implied subprefix {s||s}
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -151,17 +149,19 @@
                                               - end at line separator,
                                               - end at outer closing,
                                               + sticky]
+                        with group paragraph
+                        with implied subprefix {s||s}
         block standard: bracket type "section" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
-                        with group paragraph
-                        with implied subprefix {s||s}
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing]
+                        with group paragraph
+                        with implied subprefix {s||s}
         block standard: bracket type [< "raw" "data" >]
                         [TOP LEVEL, data, code, math, text]
                         with parsing selectors [data, data paragraph]
@@ -180,5 +180,5 @@
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
         block standard: bracket type "code" [TOP LEVEL, code, text]
-                        with group paragraph
                         with parsing options [+ reset]
+                        with group paragraph

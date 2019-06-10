@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 10 03:17:45 EDT 2019
+// Date:	Mon Jun 10 07:13:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -583,6 +583,7 @@ struct bracket_type_struct
     // have prefix data, so this is not done.]
     //
     ll::parser::table::flags prefix_selectors;
+        // Defaults to ALL_SELECTORS.
     min::gen group;
     min::gen implied_subprefix;
     min::gen implied_subprefix_type;

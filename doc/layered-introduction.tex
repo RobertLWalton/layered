@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 31, 2019
+June 11, 2019
  
 \end{center}
 
@@ -2646,7 +2646,8 @@ paragraph.
 \end{verbatim}\end{indpar}
 
 The type of the paragraph header, \TT{p} in this example, must 
-appear in the parser's \key{prefix table} (\itemref{PREFIX-DEFINITIONS}),
+appear in the parser's \key{bracket type table}
+(\itemref{BRACKET-TYPE-DEFINITIONS}),
 and be marked there as a paragraph header (i.e., must have the `\TT{paragraph}'
 group).  A paragraph header must appear at the
 beginning of a logical line that is itself either at the
@@ -2847,7 +2848,8 @@ One selector group is also defined:
 For a few parser symbol tables lookup does not use a sequence
 of tokens, but instead uses a pre-scanned sequence of symbols,
 such as the type of a prefix separator.  An example of such
-a symbol table is the prefix table (\itemref{PREFIX-DEFINITIONS}).
+a symbol table is the bracket type table
+(\itemref{BRACKET-TYPE-DEFINITIONS}).
 
 The parser symbol tables act like stacks; as new parsing
 definitions are encountered, they are are `pushed' into the
@@ -3881,8 +3883,8 @@ the input: \\
       \end{tabular}
 \\[0.5ex]
 \\[1ex]
-Prefix Symbol Table. Contains information about prefix separator types:
-\itemref{PREFIX-DEFINITIONS}
+Bracket Type Symbol Table. Contains information about bracket types:
+\itemref{BRACKET-TYPE-DEFINITIONS}
 \\[1ex]
 Mapped Lexeme Symbol Table.  Maps some lexeme types to
 bracketed subexpressions that replace the lexemes: \itemref{MAPPED-LEXEMES}
@@ -4119,11 +4121,11 @@ mentioned above:
     that equals
     \begin{center}
     \begin{tabular}{ll}
-       & the {\em type-label} of a typed bracketed subexpression
+       & the {\em bracket-type} of a typed bracketed subexpression
          (\itemref{TYPED-BRACKETED-SUBEXPRESSIONS}), \\
     or & \TT{"<Q>"} if the MIN object represents a quoted string lexeme. \\
     or & \TT{\#} if the MIN object represents a numeric lexeme. \\[1ex]
-       & The {\em type-label} \TT{""} represents
+       & The {\em bracket-type} \TT{""} represents
          the absence of a \TT{.type} attribute. \\
     \end{tabular} \\
     \end{center}
@@ -5015,17 +5017,17 @@ The general syntax is:
 \\[0.5ex]
 \emkey{opening-type-and-attributes}\label{OPENING-TYPE-AND-ATTRIBUTES}
 	\begin{tabular}[t]{@{}rl}
-	::= & {\em type-label} \\
-	$|$ & {\em type-label}~~~{\em typed-attribute-begin}~~~%
+	::= & {\em bracket-type} \\
+	$|$ & {\em bracket-type}~~~{\em typed-attribute-begin}~~~%
 		                 {\em attribute-list}
 	\end{tabular}
 \\[0.5ex]
 \emkey{closing-type-and-attributes}
 	\begin{tabular}[t]{@{}rl}
-	::= & {\em type-label} \\
+	::= & {\em bracket-type} \\
         $|$ & {\em attribute-list} but not {\em attribute-label} \\
 	$|$ & {\em attribute-list}~~~{\em typed-attribute-begin}~~~%
-		                 {\em type-label}
+		                 {\em bracket-type}
 	\end{tabular}
 \\[0.5ex]
 \emkey{attribute-list}\label{ATTRIBUTE-LIST} ::= {\em attribute}~~~%
@@ -5063,7 +5065,7 @@ The general syntax is:
     but \underline{not} {\em mark} or {\em separator} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{type-label} ::= {\em label}\label{TYPE-LABEL}
+\emkey{bracket-type} ::= {\em label}\label{TYPE-LABEL}
 \\[0.5ex]
 \emkey{type-mark} ::= {\em mark}\label{TYPE-MARK}
 \\[0.5ex]
@@ -5177,7 +5179,7 @@ in at most one {\em attribute}.
 A typed bracketed expression is converted to a
 MIN object whose list elements are the components of the
 subexpression between {\em typed-middles} (e.g., `\TT{|}'s)  The
-{\em type-label} or {\em type-mark}(s) become(s) the \TT{.type}
+{\em bracket-type} or {\em type-mark}(s) become(s) the \TT{.type}
 attribute of this object.  Any {\em attributes} given in the
 typed bracketed expression become attributes of the object.
 An attribute with just a {\em typed-attribute-label} and neither
@@ -5228,22 +5230,44 @@ parsing options (e.g., a {\em closing-bracket} cannot pre-maturely
 end a subexpression if `\TT{end at outer closing}' is not a parsing
 option).
 
-When a {\em typed-opening} (e.g.~`\TT{\{}') is recognized, the current parsing
-selector set and options are saved in a stack and
-a new selector set and new options are computed by modifying the saved set
-and options
-according to the {\em typed-element-selectors} and {\em bracket-options}
-associated with the {\em typed-opening}
-(see the \TT{parser define typed bracket}
-command below).  The modified selector set and options become the current
-parsing selector set and options while scanning the {\em element-list}.
-But while scanning the type label and attributes, the
-current parsing selector set is set to the {\em typed-attribute-selectors}
-associated with the {\em typed-opening} (also see below), while the
-options remain the same as those use to scan the
-{\em element-list}.
-The saved selector set and options are restored after the subexpression ending
+When a {\em typed-opening} (e.g.~`\TT{\{}') is recognized,
+the current parsing selector set and options become the
+\ikey{context selectors and options}%
+{context!selectors and options!of {\em typed-bracketed-subexpression}}
+of the {\em typed-bracketed-subexpression}.
+The current parsing selectors are then reset to the
+{\em typed-attribute-selectors} associated with the {\em typed-opening}
+(see below), while the options remain the same as the context options.
+These selectors and options are used to scan the {\em bracket-type}
+and {\em attributes}, but \underline{not} the {\em elements}.
+
+When it is encountered, the {\em bracket-type} is looked up on the
+bracket type definition table (\itemref{BRACKET-TYPE-DEFINITIONS})
+using the context selectors.
+If an entry is found, the selectors and options used to scan
+the {\em elements} are computed by modifying the context selectors
+and options according to the
+{\em typed-element-selectors} and {\em bracket-options} in the
+found entry.
+If no entry is found, the selectors and options used to scan
+the {\em elements} are computed by modifying the context selectors
+and options according to the
+{\em typed-element-selectors} and {\em bracket-options}
+associated with the {\em typed-opening} by the
+\TT{parser define typed bracket} command (see below).
+
+The parsing selectors and options are reset to the
+context selectors and options after the subexpression ending
 {\em typed-closing} (e.g.~`\TT{\}}') is recognized.
+
+A {\em typed-bracketed-subexpression} with \underline{no}
+elements may be a {\em typed-prefix-separator}
+(see \itemref{TYPED-PREFIX-SEPARATORS}) if the context
+selectors contain a selector in common with the
+{\em typed-prefix-selectors} associated with
+the {\em typed-opening} by the
+\TT{parser define typed bracket} command (see below).
+
 
 A {\em typed-opening} is specified by a
 \ttmkey{define typed bracket}{parser command}
@@ -5260,7 +5284,7 @@ parser command.  An example is:
 \TT{~~~~with attribute negator "no"} \\
 \TT{~~~~with attribute flags initiator "["} \\
 \TT{~~~~with attribute multivalue initiator "\{*"} \\
-\TT{~~~~with prefix separators allowed} \\
+\TT{~~~~with prefix selectors [prefix allowed]} \\
 \end{tabular}
 \end{center}
 which specifies
@@ -5281,11 +5305,17 @@ which specifies
 `\TT{,}' to be the {\em typed-attribute-separator} \\
 `\TT{no}' to be the {\em typed-attribute-negator} \\
 `\TT{[}' to be the {\em typed-attribute-flags-opening} \\
-`\TT{\{*}' to be the {\em typed-attribute-multivalue-opening} \\
-that {\em typed-bracketed-subexpressions} with the give {\em typed-opening}
-and no elements \\
-are to be treated as {\em typed-prefix-separators}
-(see \itemref{TYPED-PREFIX-SEPARATORS}).
+`\TT{\{*}' to be the {\em typed-attribute-multivalue-opening}
+\\[1.0ex]
+\begin{minipage}{5in}
+That a {\em typed-bracketed-subexpression} with the give {\em typed-opening}
+and no elements 
+is to be treated as a {\em typed-prefix-separator}
+(see \itemref{TYPED-PREFIX-SEPARATORS})
+\underline{only if} the context 
+of the {\em typed-bracketed-subexpression}
+has the `\TT{prefix allowed}' selector.
+\end{minipage}
 \end{tabular}
 \end{center}
 
@@ -5316,7 +5346,6 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	      {\em typed-attribute-selectors} ] \\
 	  {}[ \TT{with parsing options} ~
 	      {\em bracket-options} ] \\
-	  {}[ \TT{with prefix separators allowed} ] \\
 	  {}[ \TT{with attributes} ~ {\em typed-attribute-punctuation} ] \\
 	  {}[ \TT{with attribute negator} ~ {\em typed-attribute-negator} ] \\
 	  {}[ \TT{with} \begin{tabular}[t]{l}
@@ -5327,6 +5356,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	                \TT{attribute multivalue initiator} \\
 	                {\em typed-attribute-multivalue-opening} ]
 			\end{tabular} \\
+	  {}[ \TT{with prefix selectors} {\em typed-prefix-selectors} ] \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine typed bracket}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
@@ -5380,13 +5410,12 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \emkey{typed-attribute-flags-opening} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{typed-attribute-multivalue-opening} ::= {\em quoted-key}
+\\[0.5ex]
+\emkey{typed-prefix-selectors} ::= {\em selector-flags}
+	~ [\pagref{SELECTOR-FLAGS}]
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
-
-Here the `\TT{with prefix separators allowed}' option permits the use of
-the typed brackets for {\em typed-prefix-separators} described in
-Section \itemref{TYPED-PREFIX-SEPARATORS}.
 
 The `\TT{print typed bracket} {\em partial-typed-opening}' command
 prints all typed bracket symbol table entries whose
@@ -5493,7 +5522,7 @@ The general syntax of a typed prefix separator is:
 \begin{indpar}[0.1in]
 \emkey{typed-prefix-separator}\label{TYPED-PREFIX-SEPARATOR}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em typed-opening}~~~{\em type-label}~~~%
+    ::= & {\em typed-opening}~~~{\em bracket-type}~~~%
           {\em opening-attributes}\QMARK{}~~~{\em typed-closing} \\
     $|$ & {\em typed-opening}~~~{\em type-mark}~~~{\em typed-closing} \\
     \end{tabular}
@@ -5509,16 +5538,16 @@ The general syntax of a typed prefix separator is:
 \\[0.5em]
 \emkey{attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
 \\[0.5em]
-\emkey{type-label} ::= see \pagref{TYPE-LABEL}
+\emkey{bracket-type} ::= see \pagref{TYPE-LABEL}
 \\[0.5em]
 \emkey{type-mark} ::= see \pagref{TYPE-MARK}
 \end{indpar}
 
-The ~ `\TT{with prefix separators allowed}' ~ option to a
+The ~ `\TT{with prefix separators}' ~ option to a
 {\em parser-typed-bracket-command} (see \pagref{PARSER-TYPED-BRACKET-COMMAND})
-enables use of
-punctuation defined by the command
-to construct {\em typed-prefix-separators}.
+enables
+{\em typed-bracketed-subexpressions} specified by the command
+to be {\em typed-prefix-separators}.
 
 A {\em typed-prefix-separator} is converted to a MIN object which has the
 same structure as a typed bracketed subexpression with an empty list.
@@ -5591,8 +5620,19 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
-\subsubsection{Prefix Definitions}
-\label{PREFIX-DEFINITIONS}
+A \emkey{prefix-type}\label{PREFIX-TYPE} is a
+{\em bracket-type} or {\em type-mark} in a {\em typed-prefix-separator}.
+The {\em prefix-type} of a {\em typed-prefix-separator}
+may be looked up in the
+bracket type table (\itemref{BRACKET-TYPE-DEFINITIONS}) and the
+information found may be used to change the selectors and options
+used to scan the {\em prefix-n-list} headed by
+the {\em typed-prefix-separator}.
+
+\subsubsection{Bracket Type Definitions}
+\label{BRACKET-TYPE-DEFINITIONS}
+
+TBD
 
 Unlike brackets and indentation marks, prefix separator types do {\bf not}
 have to be defined in order to be used.  But a prefix separator type
@@ -6019,7 +6059,7 @@ for a logical line that has no line header, which has \underline{no}
 is the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 
 Line headers may be implied by the \TT{implied subprefix}
-of a paragraph header (see \itemref{PREFIX-DEFINITIONS}
+of a paragraph header (see \itemref{BRACKET-TYPE-DEFINITIONS}
 and \itemref{HEADED-PARAGRAPHS})
 or by line variables (see \itemref{LINE-VARIABLES}).
 

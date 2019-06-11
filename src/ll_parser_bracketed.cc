@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 10 16:09:34 EDT 2019
+// Date:	Tue Jun 11 04:13:09 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1886,7 +1886,11 @@ min::position BRA::parse_bracketed_subexpression
 	         != min::NULL_STUB
 	         &&
 	            implied_subprefix_entry->group
-	         == PARLEX::line )
+	         == PARLEX::line
+		 &&
+		 ( implied_subprefix_entry->
+		       prefix_selectors
+		   & selectors ) )
 		prefix->type = PAR::IMPLIED_HEADER;
 	}
 
@@ -1943,10 +1947,17 @@ PREFIX_FOUND:
 	prefix_group = prefix_type;
 	if ( prefix_entry != min::NULL_STUB )
 	{
-	    PAR::value_type_ref(prefix) =
-	        min::new_stub_gen ( prefix_entry );
-	    if ( prefix_entry->group != min::MISSING() )
-		prefix_group = prefix_entry->group;
+	    if ( prefix_entry->prefix_selectors
+	         &
+		 selectors )
+	    {
+		PAR::value_type_ref(prefix) =
+		    min::new_stub_gen ( prefix_entry );
+		if (    prefix_entry->group
+		     != min::MISSING() )
+		    prefix_group = prefix_entry->group;
+	    }
+	    else prefix_entry = min::NULL_STUB;
 	}
 
 	PAR::token prefix_next = prefix->next;
@@ -2232,6 +2243,9 @@ PARSE_PREFIX_N_LIST:
     //     prefix_entry
     //         The bracket_type_table entry of the
     //         prefix token .type (NULL_STUB if none).
+    //         Also NULL_STUB if bracket_type_table
+    //         entry prefix data not selected by
+    //         entry->prefix_selectors.
     //     prefix_group
     //         The group of the prefix.  Equals the
     //         prefix_type if prefix_entry == NULL_STUB.
@@ -2340,7 +2354,12 @@ PARSE_PREFIX_N_LIST:
 			 != min::NULL_STUB
 			 &&
 			    header_entry->group
-			 == PARLEX::line )
+			 == PARLEX::line
+			 &&
+			 ( header_entry->
+			       prefix_selectors
+			   &
+			   prefix_selectors ) )
 		    {
 			TAB::flags
 				header_selectors =
@@ -2737,20 +2756,27 @@ NEXT_TOKEN:
 		if (    header_entry
 		     != min::NULL_STUB )
 		{
-		    if ( header_entry->group
-		         != min::MISSING() )
-			group = header_entry->group;
-		    header_selectors |=
-			header_entry->
-			    new_selectors.or_flags;
-		    header_selectors &= ~
-			header_entry->
-			    new_selectors.not_flags;
-		    header_selectors ^=
-			header_entry->
-			    new_selectors.xor_flags;
-		    header_selectors |=
-			PAR::ALWAYS_SELECTOR;
+		    if ( header_entry->prefix_selectors
+		         &
+			 header_selectors )
+		    {
+			if ( header_entry->group
+			     != min::MISSING() )
+			    group = header_entry->group;
+			header_selectors |=
+			    header_entry->
+				new_selectors.or_flags;
+			header_selectors &= ~
+			    header_entry->
+				new_selectors.not_flags;
+			header_selectors ^=
+			    header_entry->
+				new_selectors.xor_flags;
+			header_selectors |=
+			    PAR::ALWAYS_SELECTOR;
+		    }
+		    else
+		        header_entry = min::NULL_STUB;
 		}
 
 		if (    group
@@ -6751,6 +6777,8 @@ static min::gen bracketed_pass_command
     {
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
+	TAB::flags new_prefix_selectors =
+	    PAR::ALL_SELECTORS;
 	min::locatable_gen group ( min::MISSING() );
 	min::locatable_gen implied_subprefix
 	    ( min::MISSING() );
@@ -6790,6 +6818,30 @@ static min::gen bracketed_pass_command
 			( parser, ppvec[i-1],
 			  "expected bracketed selector"
 			  " modifier list after" );
+	    }
+	    else
+	    if ( i + 1 < size
+		 &&
+		 vp[i] == PARLEX::prefix
+		 &&
+		 vp[i+1] == PARLEX::selectors )
+	    {
+		i += 2;
+		min::gen result =
+		    COM::scan_flags
+			( vp, i, new_prefix_selectors,
+			  PAR::COMMAND_SELECTORS,
+			  parser->selector_name_table,
+			  parser->
+			    selector_group_name_table,
+			  parser );
+		if ( result == min::ERROR() )
+		    return min::ERROR();
+		else if ( result == min::FAILURE() )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected bracketed selector"
+			  " list after" );
 	    }
 	    else
 	    if ( i + 1 < size
@@ -6996,7 +7048,7 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
-	      PAR::ALL_SELECTORS,
+	      new_prefix_selectors,
 	      group,
 	      implied_subprefix,
 	      implied_subprefix_type,

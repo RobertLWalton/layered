@@ -9,7 +9,7 @@
         block TOP LEVEL: bracket "(" ... ")" [data]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- data, + atom]
+                         with element selectors [- data, + atom]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
@@ -19,7 +19,7 @@
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [data]
+                         with element selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
     print typed bracket ""
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
@@ -95,14 +95,14 @@ ERROR: in line ##: expected quoted name after:
                             [code, math, text]
     print indentation mark ":"
         block standard: indentation mark ":" ... ";" [code, text, math]
-                        with parsing options [end at le indent,
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [data]
+                         with element selectors [data]
 ERROR: in line ##: unrecognized flag/option name:
     define bracket "[+" ... "+]" [text, operator 2]
                                         ^^^^^^^^^^
@@ -110,11 +110,11 @@ ERROR: in line ##: expected `,' after:
     define bracket "<+" ... "+>" [text + operator]
                                   ^^^^
     define bracket "<+" ... "+>" [code, operator 1]
-        with parsing selectors
+        with element selectors
              [^ code, - math, + operator 1]
     print bracket "<+"
         block standard: bracket "<+" ... "+>" [code, operator 1]
-                        with parsing selectors [^ code, - math,
+                        with element selectors [^ code, - math,
                                                 + operator 1]
 *PARSER*:
     trace [ + subexpression lines,
@@ -158,7 +158,7 @@ ERROR: in line ##: expected `,' after:
 *PARSER*:
     begin block BLOCK1
     define bracket "[X" ... "X]" [code, operator 1]
-        with parsing selectors [- code, + operator 1]
+        with element selectors [- code, + operator 1]
 ======= PARSER TEST: [a [b c] c] [X a "[" b c "]" d X]
 ======= line ##:
     [ a [ b c ] c ] [X a [ b c ] d X]
@@ -357,7 +357,7 @@ WARNING: in line ###: undefine found no definition:
     begin block BLOCK1
     define bracket "`" ... "'" [code]
     define bracket "```" ... "'''" [code]
-        with parsing options []
+        with element options []
     print bracket ""
         block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -371,13 +371,13 @@ WARNING: in line ###: undefine found no definition:
         block TOP LEVEL: bracket "[" ... "]" [data]
         block BLOCK1: bracket "`" ... "'" [code]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- data, + atom]
+                         with element selectors [- data, + atom]
         block BLOCK1: bracket "```" ... "'''" [code]
-                      with parsing options []
+                      with element options []
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "<" "|" >] ... [< "|" ">" >] []
         block standard: bracket "<+" ... "+>" [code, operator 1]
-                        with parsing selectors [^ code, - math,
+                        with element selectors [^ code, - math,
                                                 + operator 1]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
@@ -600,41 +600,41 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
     print bracket type ""
         nothing found
     define bracket type "X" [code]
-        with parsing selectors [code, math]
+        with element selectors [code, math]
     define bracket type "Y" [code]
-        with parsing selectors [+ text]
+        with element selectors [+ text]
         with group ajax
-ERROR: in lines ###-###: `with parsing options' not allowed for prefix
+ERROR: in lines ###-###: `with element options' not allowed for prefix
        unless prefix group is `paragraph'; options ignored:
     define bracket type "Z" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with parsing selectors [code]
+        with element selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with implied subprefix {X: y = 5, z = hi there}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with lexical master "DEFAULT"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with parsing options [end at indent]
+        with element options [end at indent]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     define bracket type "Z" [math]
-        with parsing selectors [code]
+        with element selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
         with lexical master "DEFAULT"
-        with parsing options [end at indent]
+        with element options [end at indent]
     print bracket type ""
         block BLOCK1: bracket type "X" [code]
-                      with parsing selectors [code, math]
+                      with element selectors [code, math]
         block BLOCK1: bracket type "Y" [code]
-                      with parsing selectors [+ text]
+                      with element selectors [+ text]
                       with group ajax
         block BLOCK1: bracket type "Z" [math]
-                      with parsing selectors [code]
+                      with element selectors [code]
                       with implied subprefix
                       {X: y = "5", z = [< "hi" "there" >]||X}
                       with lexical master "DEFAULT"
     print bracket type "X"
         block BLOCK1: bracket type "X" [code]
-                      with parsing selectors [code, math]
+                      with element selectors [code, math]
     end block BLOCK1
 *PARSER*:
     define typed bracket "T1{" ... "|" ... "|" ... "}T1"
@@ -863,24 +863,24 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
 *PARSER*:
     begin block BLOCK1
     define bracket type "P1" [code, text]
-        with parsing selectors [text]
+        with element selectors [text]
         with group paragraph
         with implied subprefix {S1}
-        with parsing options [end at paragraph break]
+        with element options [end at paragraph break]
     define bracket type "P2" [code, text]
-        with parsing selectors [text]
+        with element selectors [text]
         with group paragraph
-        with parsing options [end at paragraph break]
+        with element options [end at paragraph break]
     define bracket type "P3" [code, text]
-        with parsing selectors [text]
+        with element selectors [text]
         with group paragraph
         with implied subprefix {L3}
-        with parsing options [end at paragraph break,
+        with element options [end at paragraph break,
                               end at line separator]
     define bracket type "L3" [text]
         with group line
     define bracket type "P4" [code, text]
-        with parsing selectors [text]
+        with element selectors [text]
         with group paragraph
         with implied subprefix {L4}
     define bracket type "L4" [text]
@@ -899,22 +899,22 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         block BLOCK1: bracket type "L4" [text]
                       with group line
         block BLOCK1: bracket type "P1" [code, text]
-                      with parsing selectors [text]
-                      with parsing options [end at paragraph break]
+                      with element selectors [text]
+                      with element options [end at paragraph break]
                       with group paragraph
                       with implied subprefix {S1||S1}
         block BLOCK1: bracket type "P2" [code, text]
-                      with parsing selectors [text]
-                      with parsing options [end at paragraph break]
+                      with element selectors [text]
+                      with element options [end at paragraph break]
                       with group paragraph
         block BLOCK1: bracket type "P3" [code, text]
-                      with parsing selectors [text]
-                      with parsing options [end at paragraph break,
+                      with element selectors [text]
+                      with element options [end at paragraph break,
                                             end at line separator]
                       with group paragraph
                       with implied subprefix {L3||L3}
         block BLOCK1: bracket type "P4" [code, text]
-                      with parsing selectors [text]
+                      with element selectors [text]
                       with group paragraph
                       with implied subprefix {L4||L4}
 ======= PARSER TEST: {P1|{S1|Hi there "."|S1} {S1|Bye "."|S1}
@@ -1285,12 +1285,12 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
     define bracket type "p3" [code]
         with group paragraph
         with implied subprefix {l3}
-        with parsing options [+ continuing]
+        with element options [+ continuing]
     define bracket type "l3" [code]
         with group line
     print bracket type "p3"
         block BLOCK1: bracket type "p3" [code]
-                      with parsing options [+ continuing]
+                      with element options [+ continuing]
                       with group paragraph
                       with implied subprefix {l3||l3}
 ======= PARSER TEST: this is the indented paragraph 6::
@@ -1422,12 +1422,12 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
     define bracket type "p2" [code]
         with group paragraph
         with implied subprefix {l2}
-        with parsing options [+ continuing]
+        with element options [+ continuing]
     define bracket type "l2" [code]
         with group line
     define bracket type "p3" [code]
         with group paragraph
-        with parsing options [+ continuing]
+        with element options [+ continuing]
     print bracket type ""
         block BLOCK1: bracket type "l1" [code]
                       with group line
@@ -1437,11 +1437,11 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
                       with group paragraph
                       with implied subprefix {l1||l1}
         block BLOCK1: bracket type "p2" [code]
-                      with parsing options [+ continuing]
+                      with element options [+ continuing]
                       with group paragraph
                       with implied subprefix {l2||l2}
         block BLOCK1: bracket type "p3" [code]
-                      with parsing options [+ continuing]
+                      with element options [+ continuing]
                       with group paragraph
     trace [+ parser output]
 BRACKETED EXPRESSION:
@@ -1536,15 +1536,15 @@ and another line outside the fifth paragraph
     define bracket type "p2" [code]
         with group paragraph
         with implied subprefix {l2}
-        with parsing options [+ sticky]
+        with element options [+ sticky]
     define bracket type "l2" [code]
         with group line
     define bracket type "p3" [code]
         with group paragraph
-        with parsing options [+ sticky]
+        with element options [+ sticky]
     define bracket type "code" [code]
         with group paragraph
-        with parsing options [+ reset]
+        with element options [+ reset]
     trace [+ parser output]
 BRACKETED EXPRESSION:
     this is paragraph 1

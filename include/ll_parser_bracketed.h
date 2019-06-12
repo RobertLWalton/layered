@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 10 07:13:24 EDT 2019
+// Date:	Wed Jun 12 04:28:05 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,9 +58,9 @@ struct opening_bracket_struct :
           closing_bracket;
         // The opposing bracket of the opening bracket.
 
-    ll::parser::table::new_flags new_selectors;
-    	// New selectors associated with this opening
-	// bracket.
+    ll::parser::table::new_flags element_selectors;
+    	// Element selectors associated with this
+	// opening bracket.
 
     const ll::parser::reformatter reformatter;
     const ll::parser::reformatter_arguments
@@ -94,8 +94,8 @@ MIN_REF ( min::gen, label,
           ll::parser::bracketed::closing_bracket )
 
 // Push entry into bracket table.  EALSEP_OPT is set
-// in new_selectors.not_flags and cleared from
-// new_selectors.{or,xor}_flags.
+// in element_selectors.not_flags and cleared from
+// element_selectors.{or,xor}_flags.
 //
 ll::parser::bracketed::opening_bracket
     push_brackets
@@ -105,7 +105,7 @@ ll::parser::bracketed::opening_bracket
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
-	      & new_selectors,
+	      & element_selectors,
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
 	      reformatter_arguments,
@@ -137,7 +137,7 @@ extern const uns32 & LINE_SEP;
 struct indentation_mark_struct : 
 	public ll::parser::table::root_struct
 {
-    ll::parser::table::new_flags new_selectors;
+    ll::parser::table::new_flags element_selectors;
 
     const ll::parser::bracketed::line_sep line_sep;
 
@@ -184,7 +184,7 @@ ll::parser::bracketed::indentation_mark
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
-	      & new_selectors,
+	      & element_selectors,
 	  min::gen implied_header,
 	      // May be min::MISSING()
 	  min::uns32 paragraph_lexical_master,
@@ -266,7 +266,7 @@ struct typed_opening_struct :
     // Typed_opening is closed by closing_bracket.
     
     // Element selectors are in opening_bracket_struct::
-    // new_selectors.  Attribute selectors are here:
+    // element_selectors.  Attribute selectors are here:
     //
     ll::parser::table::flags attr_selectors;
 
@@ -573,7 +573,7 @@ struct bracket_type_struct
 {
     // Packed_struct subtype is BRACKET_TYPE.
 
-    ll::parser::table::new_flags new_selectors;
+    ll::parser::table::new_flags element_selectors;
 
     // Prefix Data
     //
@@ -624,7 +624,8 @@ void push_bracket_type
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  ll::parser::table::new_flags new_selectors,
+	  ll::parser::table::new_flags
+	      element_selectors,
 	  ll::parser::table::flags prefix_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
@@ -983,18 +984,18 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     For untyped bracketed sub-subexpressions this
 //     function calls itself recursively with selectors
 //     modified by the sub-subexpression opening bracket
-//     parser table entry new_selectors member.  This
-//     function then removes the opening and any closing
-//     brackets of the sub-subexpression, applies any
-//     reformatter specified by the opening bracket
-//     parser table entry of the sub-subexpression, and
-//     if there is no reformatter, or if requested by
-//     the reformatter, compacts the sub-subexpression
-//     making its opening bracket its .initiator and its
-//     closing bracket (even if omitted) its .termina-
-//     tor.  Compact is called with BRACKETING token
-//     type and the selectors used to scan the sub-sub-
-//     expression.
+//     parser table entry element_selectors member.
+//     This function then removes the opening and any
+//     closing brackets of the sub-subexpression,
+//     applies any reformatter specified by the opening
+//     bracket parser table entry of the sub-subexpres-
+//     sion, and if there is no reformatter, or if
+//     requested by the reformatter, compacts the sub-
+//     subexpression making its opening bracket its
+//     .initiator and its closing bracket (even if
+//     omitted) its .terminator.  Compact is called with
+//     BRACKETING token type and the selectors used to
+//     scan the sub-subexpression.
 //
 //     Untypes bracketed subexpressions can contain
 //     prefix separators.  See prefix-n-lists below.
@@ -1093,9 +1094,9 @@ struct line_data
 	// be recomputed from implied_header and
 	// selectors above.
     ll::parser::table::flags header_selectors;
-        // `selectors' above modified by the new_selec-
-	// tors member of the header_entry.  Used to
-	// parse the prefix-n-list headed by the
+        // `selectors' above modified by the element_
+	// selectors member of the header_entry.  Used
+	// to parse the prefix-n-list headed by the
 	// implied_header if that is not MISSING.  NOT
 	// USED if implied_header is MISSING.  This is
 	// a cache and can be recomputed from header_

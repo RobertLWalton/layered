@@ -3727,12 +3727,12 @@ BRACKETED EXPRESSION:
 *PARSER*:
     print bracket ""
         block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- data, - code, - math,
+                        with element selectors [- data, - code, - math,
                                                 + text]
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, atom, code, math, text]
-                        with parsing selectors [data]
+                        with element selectors [data]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
@@ -3744,38 +3744,38 @@ BRACKETED EXPRESSION:
         block standard: bracket "[" ... "]" [data, code, math, text]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block standard: bracket "`" ... "'" [data, code, math, text]
-                        with parsing selectors [- data, + atom, - code,
+                        with element selectors [- data, + atom, - code,
                                                 - math, - text]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- data, + atom]
+                         with element selectors [- data, + atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                         [code, math, text]
-                        with parsing selectors [- code, + math, - text]
+                        with element selectors [- code, + math, - text]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket "<+" ... "+>" [math]
         block standard: bracket "<-" ... "->" [text]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [data, atom, code, math, text]
-                        with parsing selectors [data]
+                        with element selectors [data]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
                          with special reformatter
     print indentation mark ""
         block standard: indentation mark ":" [data paragraph]
-                        with parsing selectors [data]
-                        with parsing options [end at le indent,
+                        with element selectors [data]
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
         block standard: indentation mark ":" [text]
-                        with parsing options [end at le indent,
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
                         with implied header {p||p}
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
         block standard: indentation mark ":" ... ";" [code]
-                        with parsing options [end at le indent,
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
                         with paragraph lexical master "PARAGRAPH-CHECK"
@@ -3784,7 +3784,7 @@ BRACKETED EXPRESSION:
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [data]
+                         with element selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
@@ -7233,8 +7233,8 @@ BRACKETED EXPRESSION:
            .initiator = "["
            .position[H] = PACKED_VEC
     line ###:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
-                                                ^^^
+           hi[*], hi[@]}
+             ^^^
 BRACKETED EXPRESSION:
     [@]
 @@@@ = @:
@@ -7242,14 +7242,14 @@ BRACKETED EXPRESSION:
            .initiator = "["
            .position[H] = PACKED_VEC
     line ###:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
-                                                       ^^^
+           hi[*], hi[@]}
+                    ^^^
 ERROR: in line ###: "hi" already has value(s); old value(s) not changed:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
+!@@@ = {X: hi = @@, to = @@@ = from, hi = 77,
                                           ^^
 ERROR: in line ###: "hi" already has flag(s); old flag(s) not changed:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
-                                                       ^^^
+           hi[*], hi[@]}
+                    ^^^
 BRACKETED EXPRESSION:
     {X: hi[*] = {|A B C|}, to = @@@@ = from||X}
 @@@@ =:
@@ -7260,17 +7260,21 @@ BRACKETED EXPRESSION:
            hi[*] = {|A B C|}
            to = @@@@ = from
            .position[H] = PACKED_VEC
-    line ###:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+!@@@ = {X: hi = @@, to = @@@ = from, hi = 77,
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           hi[*], hi[@]}
+^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|@@@@|raw data}
 @@@@ = @@@@:
            .position[H] = PACKED_VEC
            .type = [< "raw" "data" >]
-    line ###:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+!@@@ = {X: hi = @@, to = @@@ = from, hi = 77,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           hi[*], hi[@]}
+^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {X: hi[*] = {|A B C|}, to = @@@@ = from||X}
 @@@@ =:
@@ -7278,9 +7282,11 @@ BRACKETED EXPRESSION:
            hi[*] = {|A B C|}
            to = @@@@ = from
            .position[H] = PACKED_VEC
-    line ###:
-!@@@ = {X: hi = @@, to = @@@ = from, hi = 77, hi[*], hi[@]}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lines ###-###:
+!@@@ = {X: hi = @@, to = @@@ = from, hi = 77,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           hi[*], hi[@]}
+^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {X: hi[*] = {|A B C|}, to = @@@@ = from||X}
 @@@@ =:

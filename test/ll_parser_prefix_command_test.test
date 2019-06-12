@@ -12,27 +12,27 @@
 *PARSER*:
     begin block X
     define bracket type "p" [TOP LEVEL]
-        with parsing options
+        with element options
              [end at paragraph break, sticky]
         with group paragraph
-        with parsing selectors [+ text, - code]
+        with element selectors [+ text, - code]
         with implied subprefix {s}
     define bracket type "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
     define bracket type "code" [text]
         with group paragraph
-        with parsing options [+ reset]
+        with element options [+ reset]
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
-                 with parsing selectors [- code, + text]
-                 with parsing options [end at paragraph break, sticky]
+                 with element selectors [- code, + text]
+                 with element options [end at paragraph break, sticky]
                  with group paragraph
                  with implied subprefix {s||s}
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "code" [text]
-                 with parsing options [+ reset]
+                 with element options [+ reset]
                  with group paragraph
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}

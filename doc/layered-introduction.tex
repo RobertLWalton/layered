@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 11, 2019
+June 12, 2019
  
 \end{center}
 
@@ -3962,8 +3962,8 @@ are similarly divided:
         & see \pagref{PARSER-INDENTATION-MARK-COMMAND} \\
     $|$ & {\em parser-typed-bracket-command}
         & see \pagref{PARSER-TYPED-BRACKET-COMMAND} \\
-    $|$ & {\em parser-prefix-command}
-        & see \pagref{PARSER-PREFIX-COMMAND} \\
+    $|$ & {\em parser-bracket-type-command}
+        & see \pagref{PARSER-BRACKET-TYPE-COMMAND} \\
     $|$ & {\em parser-ID-character-command}
         & see \pagref{PARSER-ID-CHARACTER-COMMAND} \\
     $|$ & {\em parser-mapped-lexeme-command}
@@ -5065,7 +5065,7 @@ The general syntax is:
     but \underline{not} {\em mark} or {\em separator} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{bracket-type} ::= {\em label}\label{TYPE-LABEL}
+\emkey{bracket-type} ::= {\em label}\label{BRACKET-TYPE}
 \\[0.5ex]
 \emkey{type-mark} ::= {\em mark}\label{TYPE-MARK}
 \\[0.5ex]
@@ -5535,9 +5535,15 @@ The general syntax of a typed prefix separator is:
 \\[0.5em]
 \emkey{attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
 \\[0.5em]
-\emkey{bracket-type} ::= see \pagref{TYPE-LABEL}
+\emkey{bracket-type} ::= see \pagref{BRACKET-TYPE}
 \\[0.5em]
 \emkey{type-mark} ::= see \pagref{TYPE-MARK}
+\\[0.5em]
+\emkey{prefix-type}\label{PREFIX-TYPE} ::=
+    \begin{tabular}[t]{l}
+    {\em bracket-type} $|$ {\em type-mark} \\
+    that is in a {\em typed-prefix-separator}
+    \end{tabular}
 \end{indpar}
 
 The ~ `\TT{with prefix separators}' ~ option to a
@@ -5617,7 +5623,7 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
-A \emkey{prefix-type}\label{PREFIX-TYPE} is a
+A \emkey{prefix-type} is a
 {\em bracket-type} or {\em type-mark} in a {\em typed-prefix-separator}.
 The {\em prefix-type} of a {\em typed-prefix-separator}
 may be looked up in the
@@ -5629,44 +5635,40 @@ the {\em typed-prefix-separator}.
 \subsubsection{Bracket Type Definitions}
 \label{BRACKET-TYPE-DEFINITIONS}
 
-TBD
+Unlike brackets and indentation marks, {\em bracket-types}
+(\pagref{BRACKET-TYPE}) do {\bf not}
+have to be defined in order to be used.  But a {\em bracket-type}
+can be defined so that it has special effects on parsing, particularly
+if it is a prefix type (\pagref{PREFIX-TYPE}).
 
-Unlike brackets and indentation marks, prefix separator types do {\bf not}
-have to be defined in order to be used.  But a prefix separator type
-can be defined so that it has special effects on parsing.  For this purpose
-a `\key{prefix separator type}' is referred to as just a `\key{prefix}'.
+Bracket type definitions are stored in the `\key{bracket type table}'
+which is one of the parser symbol tables.
 
-Prefix definitions are stored in the `\key{prefix table}' which is one
-of the parser symbol tables.
+When a {\em typed-bracketed-subexpression} is parsed, its {\em bracket-type}
+(i.e., its \TT{.type} if it has one) is looked up
+in the bracket type table using the selectors in effect at the beginning
+of the {\em typed-bracketed-subexpression} parse (the context selectors).
+If a table entry is found, it is used to provide information about
+that affects the parse of the
+{\em elements} of the {\em typed-bracketed-subexpression},
+and if the subexpression has no elements and is a
+{\em typed-prefix-separator}, the parse of the {\em prefix-n-list}
+following the prefix separator.
 
-When a prefix separator is parsed, its \TT{.type} is looked up
-in the prefix table using the selectors in effect at the beginning
-of the prefix separator parse.  If a table entry is found, it is
-attached to the prefix and used thereafter to provide information
-about the prefix.
-
-It is important to note that the selectors used
-in this lookup are those at the point of parsing the particular
-prefix separator, and can lead to different results for the same
-prefix \TT{.type} at different points in the input text.  In particular
-these selectors may not be those in effect at the beginning of
-the {\em prefix-n-list} containing the prefix separator
-(see `\TT{parsing selectors}' below).
-
-
-Entries in the prefix table are managed by {\em parser-prefix-commands}
+Entries in the bracket type table are managed by
+{\em parser-bracket-type-commands}
 whose general syntax is:
 
 \begin{indpar}
-\emkey{parser-prefix-command}%
-\label{PARSER-PREFIX-COMMAND}
+\emkey{parser-bracket-type-command}%
+\label{PARSER-BRACKET-TYPE-COMMAND}
 \\
     \hspace*{0.2in}
     \begin{tabular}[t]{rl}
     ::= & \TT{define}%
-          \ttmindex{define prefix}{parser command} ~
+          \ttmindex{define bracket type}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{prefix} ~ {\em prefix-name} ~ {\em parsing-selectors} \\
+	  \TT{bracket type} ~ {\em prefix-name} ~ {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} ~ {\em prefix-selectors} ] \\
 	  {}[ \TT{with group} ~ {\em prefix-group} ] \\
 	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\

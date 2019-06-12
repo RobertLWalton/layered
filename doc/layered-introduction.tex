@@ -5241,7 +5241,7 @@ The current parsing selectors are then reset to the
 These selectors and options are used to scan the {\em bracket-type}
 and {\em attributes}, but \underline{not} the {\em elements}.
 
-When it is encountered, the {\em bracket-type} is looked up on the
+When the {\em bracket-type} is encountered, it is looked up in the
 bracket type definition table (\itemref{BRACKET-TYPE-DEFINITIONS})
 using the context selectors.
 If an entry is found, the selectors and options used to scan
@@ -5310,11 +5310,10 @@ which specifies
 \begin{minipage}{5in}
 That a {\em typed-bracketed-subexpression} with the give {\em typed-opening}
 and no elements 
-is to be treated as a {\em typed-prefix-separator}
+should be treated as a {\em typed-prefix-separator}
 (see \itemref{TYPED-PREFIX-SEPARATORS})
-\underline{only if} the context 
-of the {\em typed-bracketed-subexpression}
-has the `\TT{prefix allowed}' selector.
+\underline{if and only if} the context selectors
+have the `\TT{prefix allowed}' selector.
 \end{minipage}
 \end{tabular}
 \end{center}
@@ -5437,7 +5436,7 @@ definitions are included in the \TT{TOP LEVEL} parser block:
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        // WITHOUT prefix separators allowed
+        with prefix selectors []
 \end{verbatim}\end{indpar}
 The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definition:
@@ -5453,7 +5452,7 @@ adds the definition:
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix separators allowed
+        with prefix selectors [prefix allowed]
 \end{verbatim}\end{indpar}
 
 is included in the `\TT{standard}' parser block
@@ -5461,14 +5460,12 @@ is included in the `\TT{standard}' parser block
 
 Since `\TT{with parsing options}'
 does not appear in either definition, the parsing options used
-to scan any {\em typed-bracketed-subexpression} recognized by
-these definitions are the same as the parsing options just before
-this {\em typed-bracketed-subexpression}.  Similarly since
+to scan any {\em elements}
+are the same as the context options.
+Similarly since
 `\TT{with element selectors}' does not appear in either definition,
-the parsing selectors used to scan the
-{\em element-list} of any {\em typed-bracketed-subexpression}
-recognized by these definitions are the same as the parsing selectors
-just before the {\em typed-bracketed-subexpression}.
+the parsing selectors used to scan {\em elements}
+are the same as the context selectors.
 
 The untyped bracket definitions for `\TT{[\ldots]}' and
 `\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BULITINS},
@@ -5520,8 +5517,8 @@ Some examples are:
 The general syntax of a typed prefix separator is:
 
 \begin{indpar}[0.1in]
-\emkey{typed-prefix-separator}\label{TYPED-PREFIX-SEPARATOR}
-    \begin{tabular}[t]{@{}rl}
+\emkey{typed-prefix-separator}\label{TYPED-PREFIX-SEPARATOR} \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}rl}
     ::= & {\em typed-opening}~~~{\em bracket-type}~~~%
           {\em opening-attributes}\QMARK{}~~~{\em typed-closing} \\
     $|$ & {\em typed-opening}~~~{\em type-mark}~~~{\em typed-closing} \\

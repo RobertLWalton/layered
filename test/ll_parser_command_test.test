@@ -170,7 +170,7 @@ INDENT: line ##:
         block TOP LEVEL: bracket "(" ... ")" [data]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- data, + atom]
+                         with element selectors [- data, + atom]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
@@ -190,7 +190,7 @@ INDENT: line ##:
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [data]
+                         with element selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
 ======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
@@ -350,7 +350,7 @@ BRACKETED EXPRESSION:
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}
     define bracket type "data" [TOP LEVEL]
-        with parsing selectors [data]
+        with element selectors [data]
         with data reformatter ( "=", "not", "[", "{*" )
 ERROR: in line ###: previous uses of ID exist and will be dangling:
 @@ = Jill
@@ -368,7 +368,7 @@ ID 4 is @@
 *PARSER*:
     print bracket type ""
         block X: bracket type "data" [TOP LEVEL]
-                 with parsing selectors [data]
+                 with element selectors [data]
                  with data reformatter ( "=", "not", "[",
                  [< "{" "*" >] )
     print mapped lexeme ""

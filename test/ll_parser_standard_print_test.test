@@ -45,12 +45,12 @@
         block TOP LEVEL: disabled
     print bracket ""
         block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- data, - code, - math,
+                        with element selectors [- data, - code, - math,
                                                 + text]
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, atom, code, math, text]
-                        with parsing selectors [data]
+                        with element selectors [data]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
@@ -62,36 +62,36 @@
         block standard: bracket "[" ... "]" [data, code, math, text]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block standard: bracket "`" ... "'" [data, code, math, text]
-                        with parsing selectors [- data, + atom, - code,
+                        with element selectors [- data, + atom, - code,
                                                 - math, - text]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [- data, + atom]
+                         with element selectors [- data, + atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                         [code, math, text]
-                        with parsing selectors [- code, + math, - text]
+                        with element selectors [- code, + math, - text]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [data, atom, code, math, text]
-                        with parsing selectors [data]
+                        with element selectors [data]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
                          with special reformatter
     print indentation mark ""
         block standard: indentation mark ":" [data paragraph]
-                        with parsing selectors [data]
-                        with parsing options [end at le indent,
+                        with element selectors [data]
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
         block standard: indentation mark ":" [text]
-                        with parsing options [end at le indent,
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
                         with implied header {p||p}
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
         block standard: indentation mark ":" ... ";" [code]
-                        with parsing options [end at le indent,
+                        with element options [end at le indent,
                                               end at line separator,
                                               end at outer closing]
                         with paragraph lexical master "PARAGRAPH-CHECK"
@@ -100,7 +100,7 @@
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
-                         with parsing selectors [data]
+                         with element selectors [data]
         block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
     print indentation offset
         block standard: 2
@@ -125,9 +125,9 @@
                          with prefix selectors []
     print bracket type ""
         block standard: bracket type "p" [TOP LEVEL, code, text]
-                        with parsing selectors [- data, - code, - math,
+                        with element selectors [- data, - code, - math,
                                                 + text]
-                        with parsing options [- end at indent,
+                        with element options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
                                               + end at paragraph break,
@@ -140,9 +140,9 @@
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
         block standard: bracket type "quote" [TOP LEVEL, code, text]
-                        with parsing selectors [- data, - code, - math,
+                        with element selectors [- data, - code, - math,
                                                 + text]
-                        with parsing options [- end at indent,
+                        with element options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
                                               + end at paragraph break,
@@ -152,9 +152,9 @@
                         with group paragraph
                         with implied subprefix {s||s}
         block standard: bracket type "section" [TOP LEVEL, code, text]
-                        with parsing selectors [- data, - code, - math,
+                        with element selectors [- data, - code, - math,
                                                 + text]
-                        with parsing options [- end at indent,
+                        with element options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
                                               + end at paragraph break,
@@ -164,7 +164,7 @@
                         with implied subprefix {s||s}
         block standard: bracket type [< "raw" "data" >]
                         [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [data, data paragraph]
+                        with element selectors [data, data paragraph]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
         block standard: bracket type "table"
@@ -176,9 +176,9 @@
                         with group line
         block standard: bracket type "data"
                         [TOP LEVEL, data, code, math, text]
-                        with parsing selectors [+ data paragraph]
+                        with element selectors [+ data paragraph]
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
         block standard: bracket type "code" [TOP LEVEL, code, text]
-                        with parsing options [+ reset]
+                        with element options [+ reset]
                         with group paragraph

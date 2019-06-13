@@ -1982,10 +1982,6 @@ PREFIX_FOUND:
 	    }
 	    else
 	    {
-parser->printer << "CONVERTING TO BRACKETED: "
-                << min::pgen ( prefix->value )
-		<< " OF GROUP " << min::pgen ( prefix_group )
-		<< min::eol;
 		prefix->type = PAR::BRACKETED;
 	        if ( premature_closing )
 		    return separator_found;

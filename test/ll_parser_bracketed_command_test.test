@@ -44,13 +44,13 @@ ERROR: in line ##: expected quoted name after:
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
     define selector text
     define selector code
     define selector math
@@ -69,13 +69,13 @@ ERROR: in line ##: expected quoted name after:
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
     define quoted string concatenator "#"
     define middle break "#" ... "#"
     print quoted string concatenator
@@ -681,7 +681,7 @@ ERROR: in lines ###-###: `with element options' not allowed for prefix
 ------- line ###:
     (T1{T}T1 A B C)
      ^^^^^^^
-======= PARSER TEST: ({T|A B C|T})
+======= PARSER TEST: ({T||T} A B C)
 ======= line ###:
     (T2{T}T2 A B C)
     ^^^^^^^^^^^^^^^
@@ -690,7 +690,7 @@ ERROR: in lines ###-###: `with element options' not allowed for prefix
     ^^^^^^^^^^^^^^^
 ------- line ###:
     (T2{T}T2 A B C)
-     ^^^^^^^^^^^^^
+     ^^^^^^^
 ======= PARSER TEST: {T: NO Z, X, W, NO Y|A B C D|T}
 ======= line ###:
     T1{T:: X # NO Y | A B | NO Z # W | C D | }T1
@@ -870,23 +870,27 @@ ERROR: in lines ###-###: `with element options' not allowed for prefix
         with element selectors [text]
         with group paragraph
         with implied subprefix {S1}
-        with element options [end at paragraph break]
+        with element options [end at paragraph break,
+                              enable prefix]
     define bracket type "P2" [code, text]
         with element selectors [text]
         with group paragraph
-        with element options [end at paragraph break]
+        with element options [end at paragraph break,
+                              enable prefix]
     define bracket type "P3" [code, text]
         with element selectors [text]
         with group paragraph
         with implied subprefix {L3}
         with element options [end at paragraph break,
-                              end at line separator]
+                              end at line separator,
+                              enable prefix]
     define bracket type "L3" [text]
         with group line
     define bracket type "P4" [code, text]
         with element selectors [text]
         with group paragraph
         with implied subprefix {L4}
+        with element options [+ enable prefix]
     define bracket type "L4" [text]
         with group line
     define typed bracket "{" ... "|" ... "|" ... "}"
@@ -904,21 +908,25 @@ ERROR: in lines ###-###: `with element options' not allowed for prefix
                       with group line
         block BLOCK1: bracket type "P1" [code, text]
                       with element selectors [text]
-                      with element options [end at paragraph break]
+                      with element options [end at paragraph break,
+                                            enable prefix]
                       with group paragraph
                       with implied subprefix {S1||S1}
         block BLOCK1: bracket type "P2" [code, text]
                       with element selectors [text]
-                      with element options [end at paragraph break]
+                      with element options [end at paragraph break,
+                                            enable prefix]
                       with group paragraph
         block BLOCK1: bracket type "P3" [code, text]
                       with element selectors [text]
                       with element options [end at paragraph break,
-                                            end at line separator]
+                                            end at line separator,
+                                            enable prefix]
                       with group paragraph
                       with implied subprefix {L3||L3}
         block BLOCK1: bracket type "P4" [code, text]
                       with element selectors [text]
+                      with element options [+ enable prefix]
                       with group paragraph
                       with implied subprefix {L4||L4}
 ======= PARSER TEST: {P1|{S1|Hi there "."|S1} {S1|Bye "."|S1}
@@ -1062,6 +1070,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
 *PARSER*:
     define bracket type "p" [code]
         with group paragraph
+        with element options [+ enable prefix]
         with implied subprefix {l}
 ======= PARSER TEST: this is the indented paragraph 3::
                          {p|{"": .terminator = "<LF>", .initiator =
@@ -1160,11 +1169,13 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
         with group paragraph
+        with element options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "p2" [code]
         with group paragraph
+        with element options [+ enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
         with group line
@@ -1289,12 +1300,14 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
     define bracket type "p3" [code]
         with group paragraph
         with implied subprefix {l3}
-        with element options [+ continuing]
+        with element options
+             [+ continuing, + enable prefix]
     define bracket type "l3" [code]
         with group line
     print bracket type "p3"
         block BLOCK1: bracket type "p3" [code]
-                      with element options [+ continuing]
+                      with element options [+ enable prefix,
+                                            + continuing]
                       with group paragraph
                       with implied subprefix {l3||l3}
 ======= PARSER TEST: this is the indented paragraph 6::
@@ -1420,32 +1433,38 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
         with group paragraph
+        with element options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "p2" [code]
         with group paragraph
         with implied subprefix {l2}
-        with element options [+ continuing]
+        with element options
+             [+ continuing, + enable prefix]
     define bracket type "l2" [code]
         with group line
     define bracket type "p3" [code]
         with group paragraph
-        with element options [+ continuing]
+        with element options
+             [+ continuing, + enable prefix]
     print bracket type ""
         block BLOCK1: bracket type "l1" [code]
                       with group line
         block BLOCK1: bracket type "l2" [code]
                       with group line
         block BLOCK1: bracket type "p1" [code]
+                      with element options [+ enable prefix]
                       with group paragraph
                       with implied subprefix {l1||l1}
         block BLOCK1: bracket type "p2" [code]
-                      with element options [+ continuing]
+                      with element options [+ enable prefix,
+                                            + continuing]
                       with group paragraph
                       with implied subprefix {l2||l2}
         block BLOCK1: bracket type "p3" [code]
-                      with element options [+ continuing]
+                      with element options [+ enable prefix,
+                                            + continuing]
                       with group paragraph
     trace [+ parser output]
 BRACKETED EXPRESSION:
@@ -1534,18 +1553,19 @@ and another line outside the fifth paragraph
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
         with group paragraph
+        with element options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "p2" [code]
         with group paragraph
+        with element options [+ sticky, + enable prefix]
         with implied subprefix {l2}
-        with element options [+ sticky]
     define bracket type "l2" [code]
         with group line
     define bracket type "p3" [code]
         with group paragraph
-        with element options [+ sticky]
+        with element options [+ sticky, + enable prefix]
     define bracket type "code" [code]
         with group paragraph
         with element options [+ reset]
@@ -1709,13 +1729,12 @@ and code line #
         with attribute multivalue initiator "{*"
     define bracket type "p" [code]
         with group paragraph
+        with element options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "l2" [code]
         with group line
-    define bracket type "x" [code]
-        with implied subprefix {l1}
     trace [+ parser output]
 BRACKETED EXPRESSION:
     {l1|this is a line|l1}
@@ -1785,6 +1804,11 @@ BRACKETED EXPRESSION:
     line ###:
 {p} This is a paragraph {p} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    define bracket type "x" [code]
+        with implied subprefix {l1}
+    define top level
+           with parsing options [ + enable table prefix]
 ERROR: in line ###: implied prefix separator of type `l1' has `line'
        group but is not at beginning of logical line or immediately
        after a prefix separator of `paragraph' group; ignored:

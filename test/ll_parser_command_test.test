@@ -20,13 +20,13 @@ ERROR: in line ##: extraneous stuff after:
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
     print trace
         [ + warnings, - parser input, - parser output,
           + parser commands, - subexpression elements,
@@ -129,13 +129,13 @@ INDENT: line ##:
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
     define top level
         with parsing selectors [data, my selector]
         with parsing options [default options]
@@ -145,13 +145,13 @@ INDENT: line ##:
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
     define top level
         with parsing selectors [TOP LEVEL, code]
         with parsing options [default options]
@@ -161,13 +161,13 @@ INDENT: line ##:
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
     print bracket ""
         block TOP LEVEL: bracket "``" ... "''" [data]
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -213,20 +213,19 @@ INDENT: line ##:
         block X:  selectors [TOP LEVEL, data, code]
                   options [end at le indent, end at line separator,
                            end at outer closing,
-                           enable indented paragraph,
-                           enable paragraph header]
+                           enable indented paragraph, enable header]
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
-                                  enable paragraph header]
+                                  enable header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
                                    enable indented paragraph,
-                                   enable paragraph header]
+                                   enable header]
 ======= PARSER TEST: [x <+ y +> z {w|4|w} m (n (p))]
 ======= PARSER TEST: `a b c [$ MISSING $] [< e f g [< h i >] j >]'
 ======= END PARSER TEST(S)
@@ -318,12 +317,12 @@ BRACKETED EXPRESSION:
     define mapped lexeme "DATA" [code, data]
         with token value {data}
 BRACKETED EXPRESSION:
-    {data|@hello there|data}
+    {data||data} @hello there
     line ###:
 @hello there
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|@goodby there|data}
+    {data||data} @goodby there
     line ###:
 @goodby there
 ^^^^^^^^^^^^^
@@ -362,6 +361,7 @@ BRACKETED EXPRESSION:
         with token value {data}
     define bracket type "data" [TOP LEVEL]
         with element selectors [data]
+        with group line
         with data reformatter ( "=", "not", "[", "{*" )
 ERROR: in line ###: previous uses of ID exist and will be dangling:
 @@ = Jill
@@ -380,6 +380,7 @@ ID 4 is @@
     print bracket type ""
         block X: bracket type "data" [TOP LEVEL]
                  with element selectors [data]
+                 with group line
                  with data reformatter ( "=", "not", "[",
                  [< "{" "*" >] )
     print mapped lexeme ""

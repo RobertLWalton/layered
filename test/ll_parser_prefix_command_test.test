@@ -13,7 +13,8 @@
     begin block X
     define bracket type "p" [TOP LEVEL]
         with element options
-             [end at paragraph break, sticky]
+             [end at paragraph break, sticky,
+              enable table prefix]
         with group paragraph
         with element selectors [+ text, - code]
         with implied subprefix {s}
@@ -26,7 +27,8 @@
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
                  with element selectors [- code, + text]
-                 with element options [end at paragraph break, sticky]
+                 with element options [end at paragraph break,
+                                       enable table prefix, sticky]
                  with group paragraph
                  with implied subprefix {s||s}
         block X: bracket type "s" [text]

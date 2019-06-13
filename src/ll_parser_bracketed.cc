@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 12 03:42:42 EDT 2019
+// Date:	Thu Jun 13 15:04:30 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1793,6 +1793,17 @@ min::position BRA::parse_bracketed_subexpression
 	      ||
 	      prefix_group == PARLEX::line );
 
+	if ( ( selectors & PAR::EPREFIX_OPT ) == 0
+	      &&
+	      ( selectors & PAR::ETPREFIX_OPT ) == 0
+	      &&
+	      ( ( selectors & PAR::EHEADER_OPT ) == 0
+	        ||
+		( prefix_group != PARLEX::paragraph
+		  &&
+		  prefix_group != PARLEX::line ) ) )
+	    goto NEXT_TOKEN;
+
 	if ( prefix_group == PARLEX::paragraph )
 	{
 	    if ( ! line_variables->
@@ -1886,11 +1897,7 @@ min::position BRA::parse_bracketed_subexpression
 	         != min::NULL_STUB
 	         &&
 	            implied_subprefix_entry->group
-	         == PARLEX::line
-		 &&
-		 ( implied_subprefix_entry->
-		       prefix_selectors
-		   & selectors ) )
+	         == PARLEX::line )
 		prefix->type = PAR::IMPLIED_HEADER;
 	}
 
@@ -1934,6 +1941,8 @@ PREFIX_FOUND:
 	              ||
 		      premature_closing );
 
+	PAR::token prefix_next = prefix->next;
+
 	TAB::key_table bracket_type_table =
 	    bracketed_pass->bracket_type_table;
 	prefix_type = prefix->value_type;
@@ -1947,22 +1956,63 @@ PREFIX_FOUND:
 	prefix_group = prefix_type;
 	if ( prefix_entry != min::NULL_STUB )
 	{
-	    if ( prefix_entry->prefix_selectors
-	         &
-		 selectors )
+	    if ( prefix_entry->group != min::MISSING() )
+		prefix_group = prefix_entry->group;
+
+	    if ( ( selectors & PAR::ETPREFIX_OPT )
+	         ||
+		 ( selectors & PAR::EPREFIX_OPT )
+		 ||
+		 ( ( prefix_group == PARLEX::paragraph
+		     ||
+		     prefix_group == PARLEX::line )
+		   &&
+		   ( selectors & PAR::EHEADER_OPT ) ) )
 	    {
 		PAR::value_type_ref(prefix) =
 		    min::new_stub_gen ( prefix_entry );
-		if (    prefix_entry->group
-		     != min::MISSING() )
-		    prefix_group = prefix_entry->group;
 	    }
-	    else prefix_entry = min::NULL_STUB;
-	}
+	    else
+	    if ( prefix->type == PAR::IMPLIED_PREFIX
+		 ||
+		 prefix->type == PAR::IMPLIED_HEADER )
+	    {
+	        prefix = min::NULL_STUB;
+		goto FINISH_PREFIX;
+	    }
+	    else
+	    {
+parser->printer << "CONVERTING TO BRACKETED: "
+                << min::pgen ( prefix->value )
+		<< " OF GROUP " << min::pgen ( prefix_group )
+		<< min::eol;
+		prefix->type = PAR::BRACKETED;
+	        if ( premature_closing )
+		    return separator_found;
+		else
+		    goto NEXT_TOKEN;
+	    }
 
-	PAR::token prefix_next = prefix->next;
-	MIN_REQUIRE
-	    ( prefix_next != parser->first );
+	}
+	else
+	if ( ( selectors & PAR::EPREFIX_OPT ) == 0 )
+	{
+	    if ( prefix->type == PAR::IMPLIED_PREFIX
+		 ||
+		 prefix->type == PAR::IMPLIED_HEADER )
+	    {
+	        prefix = min::NULL_STUB;
+		goto FINISH_PREFIX;
+	    }
+	    else
+	    {
+		prefix->type = PAR::BRACKETED;
+	        if ( premature_closing )
+		    return separator_found;
+		else
+		    goto NEXT_TOKEN;
+	    }
+	}
 
 	for ( BRA::bracket_stack * p =
 		     bracket_stack_p;
@@ -2354,12 +2404,7 @@ PARSE_PREFIX_N_LIST:
 			 != min::NULL_STUB
 			 &&
 			    header_entry->group
-			 == PARLEX::line
-			 &&
-			 ( header_entry->
-			       prefix_selectors
-			   &
-			   prefix_selectors ) )
+			 == PARLEX::line )
 		    {
 			TAB::flags
 				header_selectors =
@@ -2756,27 +2801,20 @@ NEXT_TOKEN:
 		if (    header_entry
 		     != min::NULL_STUB )
 		{
-		    if ( header_entry->prefix_selectors
-		         &
-			 header_selectors )
-		    {
-			if ( header_entry->group
-			     != min::MISSING() )
-			    group = header_entry->group;
-			header_selectors |=
-			    header_entry->
-				element_selectors.or_flags;
-			header_selectors &= ~
-			    header_entry->
-				element_selectors.not_flags;
-			header_selectors ^=
-			    header_entry->
-				element_selectors.xor_flags;
-			header_selectors |=
-			    PAR::ALWAYS_SELECTOR;
-		    }
-		    else
-		        header_entry = min::NULL_STUB;
+		    if ( header_entry->group
+			 != min::MISSING() )
+			group = header_entry->group;
+		    header_selectors |=
+			header_entry->
+			    element_selectors.or_flags;
+		    header_selectors &= ~
+			header_entry->
+			    element_selectors.not_flags;
+		    header_selectors ^=
+			header_entry->
+			    element_selectors.xor_flags;
+		    header_selectors |=
+			PAR::ALWAYS_SELECTOR;
 		}
 
 		if (    group

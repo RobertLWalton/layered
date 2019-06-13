@@ -14,12 +14,14 @@
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
-                                  enable indented paragraph]
+                                  enable indented paragraph,
+                                  enable paragraph header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
-                                   enable indented paragraph]
+                                   enable indented paragraph,
+                                   enable paragraph header]
     print pass
         top
         operator [code, math]

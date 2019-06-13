@@ -43,12 +43,14 @@ ERROR: in line ##: expected quoted name after:
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
-                                  enable indented paragraph]
+                                  enable indented paragraph,
+                                  enable paragraph header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
-                                   enable indented paragraph]
+                                   enable indented paragraph,
+                                   enable paragraph header]
     define selector text
     define selector code
     define selector math
@@ -66,12 +68,14 @@ ERROR: in line ##: expected quoted name after:
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
-                                  enable indented paragraph]
+                                  enable indented paragraph,
+                                  enable paragraph header]
         block TOP LEVEL:  selectors [TOP LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
-                                   enable indented paragraph]
+                                   enable indented paragraph,
+                                   enable paragraph header]
     define quoted string concatenator "#"
     define middle break "#" ... "#"
     print quoted string concatenator

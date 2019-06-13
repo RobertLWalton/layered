@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  2 06:47:40 EDT 2019
+// Date:	Thu Jun 13 01:50:37 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -957,7 +957,8 @@ static min::gen execute_selectors
 // ------- --- -----
 
 static TAB::flags TOP_LEVEL_OPT = PAR::ALL_EA_OPT
-                                + PAR::EIPARAGRAPH_OPT;
+                                + PAR::EIPARAGRAPH_OPT
+				+ PAR::EPHEADER_OPT;
 
 static min::gen execute_top_level
 	( min::obj_vec_ptr & vp, min::uns32 i0,

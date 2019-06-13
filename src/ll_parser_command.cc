@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 01:50:37 EDT 2019
+// Date:	Thu Jun 13 04:42:01 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -914,8 +914,10 @@ static min::gen execute_selectors
 
 	min::uns32 block_level =
 	    PAR::block_level ( parser );
-	for ( min::uns32 j = t->length; 17 < j --; )
-	    // Ignore 1ull << 16 == ALWAYS_SELECTOR
+	for ( min::uns32 j = t->length;
+	      PAR::SELECTOR_OFFSET + 1 < j --; )
+	    // Ignore 1ull << ( SELECTOR_OFFSET + 1 _
+	    // == ALWAYS_SELECTOR
 	{
 	    if (   min::is_subsequence ( name, t[j] )
 	         < 0 )

@@ -955,7 +955,7 @@ enum {
 
     // Options:
     //
-    ALL_OPT       			= 0xFFFFull,
+    ALL_OPT       			= 0xFFFFFull,
 
     EAINDENT_OPT			= 1ull << 0,
     EALEINDENT_OPT			= 1ull << 1,
@@ -988,16 +988,18 @@ enum {
 
     // Selectors:
     //
-    ALL_SELECTORS 			= -1ull << 16,
+    SELECTOR_OFFSET			= 20,
 
-    ALWAYS_SELECTOR			= 1ull << 16,
+    ALL_SELECTORS 			= -1ull << 20,
+
+    ALWAYS_SELECTOR			= 1ull << 20,
         // Hidden selector that is always on.
 
     // Builtin selectors:
     //
-    TOP_LEVEL_SELECTOR			= 1ull << 17,
-    DATA_SELECTOR			= 1ull << 18,
-    ATOM_SELECTOR			= 1ull << 19,
+    TOP_LEVEL_SELECTOR			= 1ull << 21,
+    DATA_SELECTOR			= 1ull << 22,
+    ATOM_SELECTOR			= 1ull << 23,
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR,

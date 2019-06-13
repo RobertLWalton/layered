@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 12, 2019
+June 13, 2019
  
 \end{center}
 
@@ -2421,7 +2421,7 @@ End-At Options:\label{END-AT-OPTIONS}
 
 \begin{boxedfigure}[!p]
 
-Paragraph Options:\label{PARAGRAPH-OPTIONS}
+Enable Options:\label{ENABLE-OPTIONS}
 
 \begin{indpar}
 
@@ -2435,6 +2435,10 @@ Paragraph Options:\label{PARAGRAPH-OPTIONS}
     subexpression.
 
 \end{indpar}
+
+\bigskip
+
+Paragraph Options:\label{PARAGRAPH-OPTIONS}
 
 \bigskip
 
@@ -2794,10 +2798,10 @@ The context of a symbol table lookup includes a set of
 \skey{parsing selector}s.\label{PARSING-SELECTORS}
 In order to be active, a symbol table entry's set of selectors
 must have some selector in common with the parsing selectors.
-A selector set is represented as a 47-bit unsigned integer value
+A selector set is represented as a 43-bit unsigned integer value
 with the bit in
 position 1\TT{<{}<}N being on if the N+1'st selector is in the set.
-Thus there can be at most 47 distinct selectors used by any set of
+Thus there can be at most 43 distinct selectors used by any set of
 parser definitions.  The selectors that can be
 currently used are given names that are sequences of symbols,
 and must be referenced by these names.
@@ -3071,10 +3075,12 @@ one parser block.
 The parser has several sets of \emkey{parser-flags}\index{flags!parser}:
 \begin{center}
 \begin{tabular}{lll}
-parsing selectors 	& 47 bits	& \pagref{PARSING-SELECTORS} \\
+parsing selectors 	& 43 bits	& \pagref{PARSING-SELECTORS} \\
 parsing end at options	& 6 bits	& \pagref{END-AT-OPTIONS} \\
+parsing enable options
+			& 4 bits	& \pagref{ENABLE-OPTIONS} \\
 parsing paragraph options
-			& 4 bits	& \pagref{PARAGRAPH-OPTIONS} \\
+			& 3 bits	& \pagref{PARAGRAPH-OPTIONS} \\
 parsing trace flags	& 64 bits	& \pagref{TRACE-FLAGS} \\
 \end{tabular}
 \end{center}
@@ -3126,7 +3132,7 @@ Other selector names must be defined by the {\em parser-selector-command}:
 \end{center}
 When the parser block containing a selector name definition
 command ends, the selector name is erased.
-There may be at most 47 selectors, including the builtin selectors,
+There may be at most 43 selectors, including the builtin selectors,
 defined at any one time.
 
 The selector print command:

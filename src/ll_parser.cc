@@ -797,7 +797,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 			PARLEX::reset ) );
 
 	while ( parser->selector_name_table->length
-	        < 16 )
+	        < SELECTOR_OFFSET )
 	    TAB::push_name
 		( parser->selector_name_table,
 		  min::MISSING() );

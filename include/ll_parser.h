@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 01:45:21 EDT 2019
+// Date:	Thu Jun 13 15:03:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -69,7 +69,7 @@ namespace ll { namespace parser {
 	    			//        paragraph
 	    eprefix,		// enable prefix
 	    etprefix,		// enable table prefix
-	    epheader,		// enable paragraph header
+	    eheader,		// enable header
 	    sticky,		// sticky
 	    reset,		// reset
 	    continuing,		// continuing
@@ -966,7 +966,7 @@ enum {
     EIPARAGRAPH_OPT			= 1ull << 6,
     EPREFIX_OPT				= 1ull << 7,
     ETPREFIX_OPT			= 1ull << 8,
-    EPHEADER_OPT			= 1ull << 9,
+    EHEADER_OPT				= 1ull << 9,
     STICKY_OPT				= 1ull << 10,
     CONTINUING_OPT			= 1ull << 11,
     RESET_OPT				= 1ull << 12,
@@ -978,13 +978,18 @@ enum {
 	          + EALSEP_OPT
 	          + EAOCLOSING_OPT,
 
+    ALL_ENABLE_OPT = EIPARAGRAPH_OPT
+	           + EPREFIX_OPT
+		   + ETPREFIX_OPT
+		   + EHEADER_OPT,
+
     DEFAULT_EA_OPT = EALEINDENT_OPT
 	           + EALSEP_OPT
 	           + EAOCLOSING_OPT,
 
     DEFAULT_OPT = DEFAULT_EA_OPT
                 + EIPARAGRAPH_OPT
-		+ EPHEADER_OPT,
+		+ EHEADER_OPT,
 
     // Selectors:
     //

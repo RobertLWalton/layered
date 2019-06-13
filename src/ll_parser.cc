@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 01:50:49 EDT 2019
+// Date:	Thu Jun 13 15:04:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,7 +63,7 @@ min::locatable_gen PARLEX::eaoclosing;
 min::locatable_gen PARLEX::eiparagraph;
 min::locatable_gen PARLEX::eprefix;
 min::locatable_gen PARLEX::etprefix;
-min::locatable_gen PARLEX::epheader;
+min::locatable_gen PARLEX::eheader;
 min::locatable_gen PARLEX::sticky;
 min::locatable_gen PARLEX::reset;
 min::locatable_gen PARLEX::continuing;
@@ -182,9 +182,8 @@ static void initialize ( void )
     PARLEX::etprefix =
     	min::new_lab_gen
 	    ( "enable", "table", "prefix" );
-    PARLEX::epheader =
-    	min::new_lab_gen
-	    ( "enable", "paragraph", "header" );
+    PARLEX::eheader =
+    	min::new_lab_gen ( "enable", "header" );
     PARLEX::sticky = min::new_str_gen ( "sticky" );
     PARLEX::reset = min::new_str_gen ( "reset" );
     PARLEX::continuing =
@@ -776,10 +775,10 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		      ( parser->selector_name_table,
 			PARLEX::etprefix ) );
 	MIN_REQUIRE
-	    (    PAR::EPHEADER_OPT
+	    (    PAR::EHEADER_OPT
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
-			PARLEX::epheader ) );
+			PARLEX::eheader ) );
 	MIN_REQUIRE
 	    (    PAR::STICKY_OPT
 	      == 1ull << TAB::push_name

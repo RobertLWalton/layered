@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 12 04:21:29 EDT 2019
+// Date:	Thu Jun 13 21:21:25 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,13 +42,6 @@ unsigned failed_count = 0;
 // Test
 // ----
 
-const TAB::flags BRACKET_OFF_SELECTORS =
-      PAR::TOP_LEVEL_SELECTOR;
-
-const TAB::flags BRACKET_OFF_OPT =
-      PAR::EALSEP_OPT
-    + PAR::EIPARAGRAPH_OPT;
-
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
@@ -83,9 +76,9 @@ int main ( int argc, const char * argv[] )
     BRA::push_brackets
         ( opening_parenthesis,
 	  closing_parenthesis,
-	  64,
+	  1ull<<40,
 	  0, pp,
-	  TAB::new_flags(32,34,38),
+	  TAB::new_flags(1ull<<30,1ull<<31,1ull<<32),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracket_table );
 
@@ -100,13 +93,15 @@ int main ( int argc, const char * argv[] )
 		    TAB::ALL_FLAGS,
 	            bracket_table );
     ASSERT ( oparen->closing_bracket == cparen );
-    ASSERT ( oparen->selectors == 64 );
-    ASSERT ( oparen->element_selectors.or_flags == 32 );
+    ASSERT ( oparen->selectors == (1ull<<40) );
+    ASSERT (    oparen->element_selectors.or_flags
+             == (1ull<<30) );
     ASSERT (    oparen->element_selectors.not_flags
-             == ( 34 | BRACKET_OFF_OPT
-	             | BRACKET_OFF_SELECTORS ) );
-    ASSERT
-        ( oparen->element_selectors.xor_flags == 38 );
+             == (   (1ull<<31)
+	          | BRA::BRACKET_OFF_OPT
+	          | BRA::BRACKET_OFF_SELECTORS ) );
+    ASSERT (    oparen->element_selectors.xor_flags
+	     == (1ull<<32) );
 
     BRA::push_indentation_mark
         ( colon, semicolon,

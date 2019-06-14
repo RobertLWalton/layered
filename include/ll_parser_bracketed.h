@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 12 04:28:05 EDT 2019
+// Date:	Thu Jun 13 21:23:39 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,6 +28,47 @@
 # include <ll_parser.h>
 
 namespace ll { namespace parser { namespace bracketed {
+
+const ll::parser::table::flags BRACKET_OFF_SELECTORS =
+      ll::parser::TOP_LEVEL_SELECTOR;
+
+const ll::parser::table::flags BRACKET_SELECTORS =
+      ll::parser::COMMAND_SELECTORS
+    - BRACKET_OFF_SELECTORS;
+
+const ll::parser::table::flags BRACKET_OFF_OPT =
+      ll::parser::EALSEP_OPT
+    + ll::parser::EIPARAGRAPH_OPT
+    + ll::parser::EHEADER_OPT;
+
+const ll::parser::table::flags BRACKET_OPT =
+      ll::parser::ALL_EA_OPT
+    + ll::parser::ALL_ENABLE_OPT
+    - BRACKET_OFF_OPT;
+
+const ll::parser::table::flags
+	    INDENTATION_MARK_OFF_SELECTORS =
+      ll::parser::TOP_LEVEL_SELECTOR;
+
+const ll::parser::table::flags
+	    INDENTATION_MARK_SELECTORS =
+      ll::parser::COMMAND_SELECTORS
+    - INDENTATION_MARK_OFF_SELECTORS;
+
+const ll::parser::table::flags INDENTATION_MARK_OPT =
+      ll::parser::ALL_EA_OPT
+    + ll::parser::ALL_ENABLE_OPT;
+
+const ll::parser::table::flags
+	    BRACKET_TYPE_OFF_SELECTORS =
+      ll::parser::TOP_LEVEL_SELECTOR;
+
+const ll::parser::table::flags BRACKET_TYPE_SELECTORS =
+      ll::parser::COMMAND_SELECTORS
+    - BRACKET_TYPE_OFF_SELECTORS;
+
+const ll::parser::table::flags BRACKET_TYPE_OPT =
+      ll::parser::ALL_OPT;
 
 
 // Untyped Brackets

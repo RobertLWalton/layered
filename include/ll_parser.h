@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 14 05:35:29 EDT 2019
+// Date:	Fri Jun 14 07:30:29 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -73,8 +73,18 @@ namespace ll { namespace parser {
 	    sticky,		// sticky
 	    reset,		// reset
 	    continuing,		// continuing
-	    other_ea_opt,	// other end at options
 	    default_opt,	// default options
+	    other_ea_opt,	// other end at options
+	    default_ea_opt,	// default end at
+	    			//         options
+	    non_default_ea_opt,	// non-default end at
+	    			//             options
+	    other_enable_opt,	// other enable options
+	    default_enable_opt,	// default enable
+	    			//         options
+	    non_default_enable_opt,
+	    			// non-default enable
+	    			//             options
 	    other_selectors, 	// other selectors
 	    parser,		// parser
 	    data,		// data
@@ -987,9 +997,11 @@ enum {
 	           + EALSEP_OPT
 	           + EAOCLOSING_OPT,
 
+    DEFAULT_ENABLE_OPT = EIPARAGRAPH_OPT
+	               + EHEADER_OPT,
+
     DEFAULT_OPT = DEFAULT_EA_OPT
-                + EIPARAGRAPH_OPT
-		+ EHEADER_OPT,
+                + DEFAULT_ENABLE_OPT,
 
     // Selectors:
     //

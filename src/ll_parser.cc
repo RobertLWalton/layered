@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 15:04:43 EDT 2019
+// Date:	Fri Jun 14 07:29:49 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,8 +67,13 @@ min::locatable_gen PARLEX::eheader;
 min::locatable_gen PARLEX::sticky;
 min::locatable_gen PARLEX::reset;
 min::locatable_gen PARLEX::continuing;
-min::locatable_gen PARLEX::other_ea_opt;
 min::locatable_gen PARLEX::default_opt;
+min::locatable_gen PARLEX::other_ea_opt;
+min::locatable_gen PARLEX::default_ea_opt;
+min::locatable_gen PARLEX::non_default_ea_opt;
+min::locatable_gen PARLEX::other_enable_opt;
+min::locatable_gen PARLEX::default_enable_opt;
+min::locatable_gen PARLEX::non_default_enable_opt;
 min::locatable_gen PARLEX::other_selectors;
 min::locatable_gen PARLEX::parser;
 min::locatable_gen PARLEX::data;
@@ -189,11 +194,26 @@ static void initialize ( void )
     PARLEX::continuing =
         min::new_str_gen ( "continuing" );
 
+    PARLEX::default_opt =
+        min::new_lab_gen ( "default", "options" );
     PARLEX::other_ea_opt =
         min::new_lab_gen ( "other", "end", "at",
 	                   "options" );
-    PARLEX::default_opt =
-        min::new_lab_gen ( "default", "options" );
+    PARLEX::default_ea_opt =
+        min::new_lab_gen
+	    ( "default", "end", "at", "options" );
+    PARLEX::non_default_ea_opt =
+        min::new_lab_gen
+	    ( "non-default", "end", "at", "options" );
+    PARLEX::other_enable_opt =
+        min::new_lab_gen ( "other", "enable",
+	                   "options" );
+    PARLEX::default_enable_opt =
+        min::new_lab_gen
+	    ( "default", "enable", "options" );
+    PARLEX::non_default_enable_opt =
+        min::new_lab_gen
+	    ( "non-default", "enable", "options" );
     PARLEX::other_selectors =
         min::new_lab_gen ( "other", "selectors" );
 
@@ -829,11 +849,37 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    TAB::create_key_table ( 32 );
 
 	TAB::push_root
+	    ( PARLEX::default_opt, PAR::DEFAULT_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
 	    ( PARLEX::other_ea_opt, PAR::ALL_EA_OPT,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root
-	    ( PARLEX::default_opt, PAR::DEFAULT_OPT,
+	    ( PARLEX::default_ea_opt,
+	      PAR::DEFAULT_EA_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PARLEX::non_default_ea_opt,
+	      PAR::ALL_EA_OPT - PAR::DEFAULT_EA_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PARLEX::other_enable_opt,
+	      PAR::ALL_ENABLE_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PARLEX::default_enable_opt,
+	      PAR::DEFAULT_ENABLE_OPT,
+	      0, PAR::top_level_position,
+	      parser->selector_group_name_table );
+	TAB::push_root
+	    ( PARLEX::non_default_enable_opt,
+	      + PAR::ALL_ENABLE_OPT
+	      - PAR::DEFAULT_ENABLE_OPT,
 	      0, PAR::top_level_position,
 	      parser->selector_group_name_table );
 	TAB::push_root

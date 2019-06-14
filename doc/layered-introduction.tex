@@ -2529,7 +2529,27 @@ Option groups:
 				& \TT{enable header}
 \\[2ex]
 \ttmkey{other end at options}{parser option group}
-				& all `\TT{end at}' options
+				& all `\TT{end at \ldots}' options
+\\[2ex]
+\ttmkey{default end at options}{parser option group}
+				& \TT{end at le indent} \\
+				& \TT{end at line separator} \\
+				& \TT{end at outer closing}
+\\[2ex]
+\ttmkey{non-default end at options}{parser option group}
+				& all `\TT{end at}' options except those in \\
+				& `\TT{default end at options}'
+\\[2ex]
+\ttmkey{other enable options}{parser option group}
+				& all `\TT{enable \ldots}' options
+\\[2ex]
+\ttmkey{default enable options}{parser option group}
+				& \TT{enable indented paragraph} \\
+				& \TT{enable header}
+\\[2ex]
+\ttmkey{non-default enable options}{parser option group}
+				& all `\TT{enable}' options except those in \\
+				& `\TT{default enable options}'
 \end{tabular}
 \end{center}
 
@@ -4030,8 +4050,7 @@ The following subsections first describe the output of the
 bracketed subexpression parser pass and then describe
 the different kinds of
 {\em bracketed-subexpressions} and their related
-{\em parser-bracketed-commands}.  Lastly {\em bracketed-parser-print-commands}
-are described.
+{\em parser-bracketed-commands}.
 
 \subsubsection{Bracketed Subexpression Parser Pass Output}
 \label{BRACKETED-SUBEXPRESSION-PARSER-PASS-OUTPUT}
@@ -4331,9 +4350,9 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
     \begin{tabular}[t]{rll}
     ::= & \multicolumn{2}{l}{\ttmkey{define bracket}{parser command}
 		    ~ {\em bracket-name} ~ {\em selectors}} \\
-	& \hspace*{3em} & [ \TT{with parsing selectors}
+	& \hspace*{3em} & [ \TT{with element selectors}
 	                    ~ {\em bracket-selectors} ] \\
-        &               & [ \TT{with parsing options}
+        &               & [ \TT{with element options}
 	                    ~ {\em bracket-options} ] \\
         &               & [ \TT{with}
 			    ~ {\em reformatter-name}
@@ -4427,12 +4446,15 @@ containing the {\em untyped-bracketed-subexpression}.
 
 When an {\em opening-bracket} is recognized, the current parser
 selector set and options are saved in a stack.  Then if the
-bracket definition contains {\em new-selectors},
+bracket definition contains {\em bracket-selectors},
 a new selector set is computed by modifying the saved set
-according to the {\em new-selectors}.
+according to the {\em bracket-selectors}.  Additionally
+the `\TT{TOP LEVEL}' selector is always turned off.
 Similarly if the bracket definition contains {\em bracket-options},
-these are used to compute a new set of end-at options,
-and additionally the `\TT{end at line separator}' option is turned off.
+these are used to compute a new set of end-at options.
+Additionally the `\TT{end at line separator}',
+`\TT{enable indented paragraph}', and `\TT{enable header}' options
+are always turned off.
 The saved selector set and options are restored after the {\em closing-bracket}
 is recognized.  However {\em closing-bracket}
 recognition does not depend
@@ -4444,7 +4466,7 @@ An example using {\em bracket-options} to permit
 to bracket arbitrary text with arbitrary indentation is:
 \begin{indpar}\begin{verbatim}
 parser define bracket "```" ... "'''" [code]
-       with parsing options []
+       with element options []
 ( An indented paragraph:
     ```This logical line continues on no
 matter what, even with a spurious ), until
@@ -4452,12 +4474,6 @@ matter what, even with a spurious ), until
     Second line of indented paragraph.
     ) // End of () bracketed subexpression
 \end{verbatim}\end{indpar}
-
-The `\TT{- end at line separator}' option is always implied
-by `\TT{parser define bra\-cket}', and if the options
-`\TT{+ end at line separator}' or
-`\TT{\textasciicircum{} end at line separa\-tor}' are given, they
-are ignored and warning messages are output.
 
 Several reformatters are provided that change the MIN value
 represented by an {\em untyped-bracketed-subexpression}:
@@ -4531,7 +4547,7 @@ are included in the \TT{TOP LEVEL} parser block:
      define bracket "[" ... "]" [data]
      define bracket "{{" ... "}}" [data]
      define bracket "`" ... "'" [data]
-         with parsing selectors [ - data, + atom]
+         with element selectors [ - data, + atom]
      define bracket "``" ... "''" [data]
      define bracket "[<" ... ">]" [data, atom]
          with label reformatter
@@ -4547,20 +4563,20 @@ adds the definitions:
      define bracket "(" ... ")" [code, math, text, data]
      define bracket "[" ... "]" [code, math, text, data]
      define bracket "{{" ... "}}" [code, math, text]
-         with parsing selectors [ + math, - code, - text]
+         with element selectors [ + math, - code, - text]
      define bracket "`" ... "'" [code, math, text, data]
-         with parsing selectors
+         with element selectors
               [ + atom, - code, - math, - text, - data]
      define bracket "``" ... "''" [code, math, text, data]
-         with parsing selectors
+         with element selectors
               [ + text, - code, - math, - data]
      define bracket "[<" ... ">]"
                     [code, math, text, data, atom]
-         with parsing selectors [data]
+         with element selectors [data]
          with label reformatter
      define bracket "[$" ... "$]"
                     [code, math, text, data, atom]
-         with parsing selectors [data]
+         with element selectors [data]
          with special reformatter
 \end{verbatim}\end{indpar}
 
@@ -4678,9 +4694,9 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 	  \begin{tabular}[t]{@{}l@{}}
 	  \TT{indentation mark} ~
 	  {\em indentation-name} ~ {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors}
+	  {}[ \TT{with element selectors}
 	       ~ {\em indentation-mark-selectors} ] \\
-	  {}[ \TT{with parsing options} ~ {\em indentation-mark-options} ] \\
+	  {}[ \TT{with element options} ~ {\em indentation-mark-options} ] \\
 	  {}[ \TT{with implied header} ~ {\em header} ] \\
           {}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
 	                  \begin{tabular}[t]{@{}l@{}}
@@ -4863,11 +4879,11 @@ definitions are included in the \TT{TOP LEVEL} parser block:
     define indentation offset 2
 
     define indentation mark "TOP LEVEL" []
-        // Indentation mark definition governing top level
-        // parsing.  May NOT be redefined.  Has NO line
-        // separator.
+        // Indentation mark definition implicitly governing
+        // top level parsing.  May NOT be explicitly used
+        // or redefined.  Has NO line separator.
     define indentation mark "*PARSER*:" ... ";" [TOP LEVEL]
-        with parsing selectors [data]
+        with element selectors [data]
     define indentation mark "*PARSER* *TEST*:" ... ";"
         [TOP LEVEL]
 \end{verbatim}\end{indpar}
@@ -4876,17 +4892,20 @@ adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
      define indentation mark ":" ... ";" [code]
-         with parsing options [default options]
+         with element options [+ default end at options,
+                               - non-default end at options]
          with paragraph lexical master "PARAGRAPH-CHECK"
          with line lexical master "DATA-CHECK"
      define indentation mark ":" [text]
-         with parsing options [default options]
+         with element options [+ default end at options,
+                               - non-default end at options]
          with paragraph lexical master "PARAGRAPH-CHECK"
          with line lexical master "DATA-CHECK"
          with implied header {p}
      define indentation mark ":" [data paragraph]
-         with parsing selectors [data]
-         with parsing options [default options]
+         with element selectors [data]
+         with element options [+ default end at options,
+                               - non-default end at options]
          // This definition is the last defined and
          // the first examined by searches.
 \end{verbatim}\end{indpar}

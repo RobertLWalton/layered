@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 15:03:02 EDT 2019
+// Date:	Fri Jun 14 05:35:29 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1008,6 +1008,13 @@ enum {
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR,
+
+
+    TOP_LEVEL_OFF_SELECTORS = TOP_LEVEL_SELECTOR,
+    TOP_LEVEL_SELECTORS = COMMAND_SELECTORS
+                        - TOP_LEVEL_OFF_SELECTORS,
+    TOP_LEVEL_OPT = ALL_EA_OPT
+                  + ALL_ENABLE_OPT
 };
 
 const uns32 NO_LINE_INDENT = 0xFFFFFFFF;

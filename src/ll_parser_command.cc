@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 15:05:37 EDT 2019
+// Date:	Fri Jun 14 05:51:46 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -958,9 +958,6 @@ static min::gen execute_selectors
 // Execute Top Level
 // ------- --- -----
 
-static TAB::flags TOP_LEVEL_OPT = PAR::ALL_EA_OPT
-                                + PAR::ALL_ENABLE_OPT;
-
 static min::gen execute_top_level
 	( min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec,
@@ -1024,7 +1021,7 @@ static min::gen execute_top_level
 	                    << " options ";
 	    COM::print_flags
 		( flags,
-		  TOP_LEVEL_OPT,
+		  PAR::TOP_LEVEL_OPT,
 		  parser->selector_name_table,
 		  parser );
 
@@ -1074,7 +1071,7 @@ static min::gen execute_top_level
 	    min::gen result;
 	    result = COM::scan_new_flags
 		( vp, i, new_selectors,
-		  PAR::COMMAND_SELECTORS,
+		  PAR::TOP_LEVEL_SELECTORS,
 		  parser->selector_name_table,
 		  parser->selector_group_name_table,
 		  parser, true );
@@ -1099,7 +1096,7 @@ static min::gen execute_top_level
 	    min::gen result;
 	    result = COM::scan_new_flags
 		( vp, i, new_options,
-		  TOP_LEVEL_OPT,
+		  PAR::TOP_LEVEL_OPT,
 		  parser->selector_name_table,
 		  parser->selector_group_name_table,
 		  parser, true );
@@ -1142,7 +1139,7 @@ static min::gen execute_top_level
                              | new_options.not_flags );
     parser->selectors ^= new_selectors.xor_flags
                       ^  new_options.xor_flags;
-    parser->selectors |= PAR::TOP_LEVEL_SELECTOR
+    parser->selectors |= PAR::TOP_LEVEL_OFF_SELECTORS
                       |  PAR::ALWAYS_SELECTOR;
     parser->paragraph_lexical_master =
         paragraph_lexical_master;

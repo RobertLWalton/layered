@@ -2328,8 +2328,8 @@ object can only be empty if the \TT{.terminator} is a line separator.
 
 More specifically, a logical line ends with one
 of the following as controlled by parser options defined in
-Figures~\itemref{OPTION-NAMES-1}
-and~\itemref{OPTION-NAMES-2}:
+Figures~\itemref{OPTION-NAMES-1}, \itemref{OPTION-NAMES-2},
+and~\itemref{OPTION-NAMES-3}:
 
 \begin{itemize}
 \item An indent token with indent equal to or less than the current indent.
@@ -2434,6 +2434,25 @@ Enable Options:\label{ENABLE-OPTIONS}
     The option is automatically turned off inside a bracketed
     subexpression.
 
+\hspace*{-0.2in}\ttmkey{enable header}{parser option} \\
+    This parser option allows {\em typed-prefix-separators} that
+    have the \TT{paragraph} or \TT{line} group, and therefore
+    can be line or paragraph headers (see \itemref{HEADED-LINES}
+    and \itemref{HEADED-PARAGRAPHS}).
+
+    This option is on by default at top level, but is
+    automatically turned off inside a bracketed subexpression.
+
+\hspace*{-0.2in}\ttmkey{enable table prefix}{parser option} \\
+    This parser option allows {\em typed-prefix-separators} whose
+    {\em bracket-type} has a selected bracket table entry.
+    This option is off by default at top level.
+
+\hspace*{-0.2in}\ttmkey{enable prefix}{parser option} \\
+    This parser option allows all {\em typed-prefix-subexpressions}
+    with no {\em elements} to be {\em typed-prefix-separators}.
+    This option is off by default at top level.
+
 \end{indpar}
 
 \bigskip
@@ -2462,6 +2481,21 @@ the `\TT{paragraph}' group.
     the first logical line after the blank line does
     \underline{not} begin with an explicit paragraph header.
     See \ref{CONTINUING-RULE}, \pagref{CONTINUING-RULE}.
+
+\end{indpar}
+
+\medskip
+
+\caption{\bf Parsing Options: Part II}
+\label{OPTION-NAMES-2}
+
+\end{boxedfigure}
+
+\begin{boxedfigure}[!t]
+
+Paragraph Options Continued:
+
+\begin{indpar}
 
 \hspace*{-0.2in}\ttmkey{reset}{parser option} \\
     A paragraph header with this option resets the line variables
@@ -2497,8 +2531,8 @@ a parser is initialized.
 
 \medskip
 
-\caption{\bf Parsing Options: Part II}
-\label{OPTION-NAMES-2}
+\caption{\bf Parsing Options: Part III}
+\label{OPTION-NAMES-3}
 
 \end{boxedfigure}
 

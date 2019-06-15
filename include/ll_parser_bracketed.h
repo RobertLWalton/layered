@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 21:23:39 EDT 2019
+// Date:	Sat Jun 15 02:48:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -337,7 +337,7 @@ struct typed_opening_struct :
 
     ll::parser::table::flags prefix_selectors;
 	// A typed bracketed subexpression with this
-	// typed opening can be a PREFIX iff the
+	// typed opening can be a PREFIX only if the
 	// selectors of its context and this have
 	// a selector in common: defaults to
 	// PAR::ALL_SELECTORS.
@@ -623,8 +623,6 @@ struct bracket_type_struct
     // is anticipated that most bracket_types will
     // have prefix data, so this is not done.]
     //
-    ll::parser::table::flags prefix_selectors;
-        // Defaults to ALL_SELECTORS.
     min::gen group;
     min::gen implied_subprefix;
     min::gen implied_subprefix_type;
@@ -667,7 +665,6 @@ void push_bracket_type
 	  const min::phrase_position & position,
 	  ll::parser::table::new_flags
 	      element_selectors,
-	  ll::parser::table::flags prefix_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,

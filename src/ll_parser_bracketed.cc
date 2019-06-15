@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 02:08:25 EDT 2019
+// Date:	Sat Jun 15 02:49:03 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -584,7 +584,6 @@ void BRA::push_bracket_type
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  TAB::new_flags element_selectors,
-	  TAB::flags prefix_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
@@ -603,7 +602,6 @@ void BRA::push_bracket_type
     bracket_type->block_level = block_level;
     bracket_type->position = position;
     bracket_type->element_selectors = element_selectors;
-    bracket_type->prefix_selectors = prefix_selectors;
 
     bracket_type->element_selectors.or_flags &= ~
         PAR::TOP_LEVEL_SELECTOR;
@@ -2254,9 +2252,6 @@ PARSE_PREFIX_N_LIST:
     //     prefix_entry
     //         The bracket_type_table entry of the
     //         prefix token .type (NULL_STUB if none).
-    //         Also NULL_STUB if bracket_type_table
-    //         entry prefix data not selected by
-    //         entry->prefix_selectors.
     //     prefix_group
     //         The group of the prefix.  Equals the
     //         prefix_type if prefix_entry == NULL_STUB.
@@ -6089,21 +6084,6 @@ static min::gen bracketed_pass_command
 			  parser, true );
 		}
 
-		if (    bracket_type->prefix_selectors
-		     != PAR::ALL_SELECTORS )
-		{
-		    parser->printer
-		        << min::indent
-			<< "with prefix"
-			   " selectors ";
-		    COM::print_flags
-			( bracket_type->
-			      prefix_selectors,
-			  PAR::COMMAND_SELECTORS,
-			  parser->selector_name_table,
-			  parser );
-		}
-
 		min::gen group = bracket_type->group;
 		if ( group != min::MISSING() )
 		    parser->printer
@@ -6784,8 +6764,6 @@ static min::gen bracketed_pass_command
     {
 	TAB::new_flags new_selectors;
 	TAB::new_flags new_options;
-	TAB::flags new_prefix_selectors =
-	    PAR::ALL_SELECTORS;
 	min::locatable_gen group ( min::MISSING() );
 	min::locatable_gen implied_subprefix
 	    ( min::MISSING() );
@@ -6825,30 +6803,6 @@ static min::gen bracketed_pass_command
 			( parser, ppvec[i-1],
 			  "expected bracketed selector"
 			  " modifier list after" );
-	    }
-	    else
-	    if ( i + 1 < size
-		 &&
-		 vp[i] == PARLEX::prefix
-		 &&
-		 vp[i+1] == PARLEX::selectors )
-	    {
-		i += 2;
-		min::gen result =
-		    COM::scan_flags
-			( vp, i, new_prefix_selectors,
-			  PAR::COMMAND_SELECTORS,
-			  parser->selector_name_table,
-			  parser->
-			    selector_group_name_table,
-			  parser );
-		if ( result == min::ERROR() )
-		    return min::ERROR();
-		else if ( result == min::FAILURE() )
-		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "expected bracketed selector"
-			  " list after" );
 	    }
 	    else
 	    if ( i + 1 < size
@@ -7055,7 +7009,6 @@ static min::gen bracketed_pass_command
 	      PAR::block_level ( parser ),
 	      ppvec->position,
 	      new_selectors,
-	      new_prefix_selectors,
 	      group,
 	      implied_subprefix,
 	      implied_subprefix_type,

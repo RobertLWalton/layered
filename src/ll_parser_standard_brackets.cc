@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 15:05:51 EDT 2019
+// Date:	Sat Jun 15 02:50:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -338,7 +338,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( data_paragraph, 0, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::line,   // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
@@ -360,7 +359,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	        PAR::ALL_SELECTORS ^ data
 		                   ^ data_paragraph,
 	        0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::line,   // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
@@ -388,7 +386,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::paragraph,
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
@@ -404,7 +401,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::line,
 	  min::MISSING(),
 	  min::MISSING(),
@@ -420,7 +416,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( RESET_OPT, 0, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::paragraph,
 	  min::MISSING(),
 	  min::MISSING(),
@@ -458,7 +453,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::paragraph, // group
 	  implied_s_header,
 	  s,
@@ -482,7 +476,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::paragraph,
 	  implied_s_header,
 	  s,
@@ -506,7 +499,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
-	  PAR::ALL_SELECTORS,
 	  PARLEX::paragraph,
 	  implied_s_header,
 	  s,
@@ -539,7 +531,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	( s, text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  PAR::ALL_SELECTORS,
 	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type

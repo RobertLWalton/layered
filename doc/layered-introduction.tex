@@ -5606,9 +5606,10 @@ redacted in the future.
 \label{TYPED-PREFIX-SEPARATORS}
 
 A \key{typed prefix separator}
-has the same syntax as an {\em typed-bracketed-subexpression}
-but without the {\em element-list}, meaning there are no
-{\em typed-middles} (e.g., `\TT{|}'s) or {\em elements}.
+has the same syntax as a {\em typed-bracketed-subexpression}
+with no {\em typed-middles} (e.g., `\TT{|}'s) and therefore
+no {\em elements}, or with only a single {\em bracket-type-mark}
+and no {\em elements}.
 Some examples are:
 \begin{center}
 \TT{\{my type\}} \\
@@ -5646,7 +5647,7 @@ The general syntax of a typed prefix separator is:
 \\[0.5em]
 \emkey{prefix-type}\label{PREFIX-TYPE} ::=
     \begin{tabular}[t]{l}
-    the {\em bracket-type-label} or {\em bracket-type-mark}
+    {\em bracket-type-label} $|$ {\em bracket-type-mark} \\
     in a {\em typed-prefix-separator}
     \end{tabular}
 \end{indpar}

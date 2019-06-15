@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 21:21:25 EDT 2019
+// Date:	Sat Jun 15 07:04:55 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,13 +94,13 @@ int main ( int argc, const char * argv[] )
 	            bracket_table );
     ASSERT ( oparen->closing_bracket == cparen );
     ASSERT ( oparen->selectors == (1ull<<40) );
-    ASSERT (    oparen->element_selectors.or_flags
+    ASSERT (    oparen->parsing_selectors.or_flags
              == (1ull<<30) );
-    ASSERT (    oparen->element_selectors.not_flags
+    ASSERT (    oparen->parsing_selectors.not_flags
              == (   (1ull<<31)
 	          | BRA::BRACKET_OFF_OPT
 	          | BRA::BRACKET_OFF_SELECTORS ) );
-    ASSERT (    oparen->element_selectors.xor_flags
+    ASSERT (    oparen->parsing_selectors.xor_flags
 	     == (1ull<<32) );
 
     BRA::push_indentation_mark
@@ -119,10 +119,10 @@ int main ( int argc, const char * argv[] )
 		    TAB::ALL_FLAGS,
 	            bracket_table ); 
 
-    ASSERT ( imark->element_selectors.or_flags == 32 );
-    ASSERT (    imark->element_selectors.not_flags
+    ASSERT ( imark->parsing_selectors.or_flags == 32 );
+    ASSERT (    imark->parsing_selectors.not_flags
              == PAR::TOP_LEVEL_SELECTOR );
-    ASSERT ( imark->element_selectors.xor_flags == 0 );
+    ASSERT ( imark->parsing_selectors.xor_flags == 0 );
 
     if ( failed_count > 0 )
     {

@@ -1,9 +1,9 @@
 TAB::find ( opening_parenthesis, BRA::CLOSING_BRACKET, TAB::ALL_FLAGS, bracket_table ) == min::NULL_STUB is true
 oparen->closing_bracket == cparen is true
 oparen->selectors == (1ull<<40) is true
-oparen->element_selectors.or_flags == (1ull<<30) is true
-oparen->element_selectors.not_flags == ( (1ull<<31) | BRA::BRACKET_OFF_OPT | BRA::BRACKET_OFF_SELECTORS ) is true
-oparen->element_selectors.xor_flags == (1ull<<32) is true
-imark->element_selectors.or_flags == 32 is true
-imark->element_selectors.not_flags == PAR::TOP_LEVEL_SELECTOR is true
-imark->element_selectors.xor_flags == 0 is true
+oparen->parsing_selectors.or_flags == (1ull<<30) is true
+oparen->parsing_selectors.not_flags == ( (1ull<<31) | BRA::BRACKET_OFF_OPT | BRA::BRACKET_OFF_SELECTORS ) is true
+oparen->parsing_selectors.xor_flags == (1ull<<32) is true
+imark->parsing_selectors.or_flags == 32 is true
+imark->parsing_selectors.not_flags == PAR::TOP_LEVEL_SELECTOR is true
+imark->parsing_selectors.xor_flags == 0 is true

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 02:49:03 EDT 2019
+// Date:	Sat Jun 15 07:01:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,7 +46,6 @@ static min::locatable_gen bracket;
 static min::locatable_gen type;
 static min::locatable_gen indentation;
 static min::locatable_gen typed;
-static min::locatable_gen element;
 static min::locatable_gen attributes;
 static min::locatable_gen attribute;
 static min::locatable_gen flags;
@@ -78,7 +77,6 @@ static void initialize ( void )
     ::indentation = min::new_str_gen
 			    ( "indentation" );
     ::typed = min::new_str_gen ( "typed" );
-    ::element = min::new_str_gen ( "element" );
     ::attributes = min::new_str_gen ( "attributes" );
     ::attribute = min::new_str_gen ( "attribute" );
     ::flags = min::new_str_gen ( "flags" );
@@ -146,7 +144,7 @@ BRA::opening_bracket
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  const TAB::new_flags & element_selectors,
+	  const TAB::new_flags & parsing_selectors,
 	  PAR::reformatter reformatter,
 	  PAR::reformatter_arguments
 	      reformatter_arguments,
@@ -165,14 +163,14 @@ BRA::opening_bracket
     opening->block_level = block_level;
     opening->position = position;
 
-    opening->element_selectors = element_selectors;
-    opening->element_selectors.or_flags &= ~
+    opening->parsing_selectors = parsing_selectors;
+    opening->parsing_selectors.or_flags &= ~
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
-    opening->element_selectors.not_flags |=
+    opening->parsing_selectors.not_flags |=
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
-    opening->element_selectors.xor_flags &= ~
+    opening->parsing_selectors.xor_flags &= ~
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
 
@@ -230,7 +228,7 @@ BRA::indentation_mark
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  const TAB::new_flags & element_selectors,
+	  const TAB::new_flags & parsing_selectors,
 	  min::gen implied_header,
 	  min::uns32 paragraph_lexical_master,
 	  min::uns32 line_lexical_master,
@@ -242,12 +240,12 @@ BRA::indentation_mark
     imark->selectors = selectors;
     imark->block_level = block_level;
     imark->position = position;
-    imark->element_selectors = element_selectors;
-    imark->element_selectors.or_flags &= ~
+    imark->parsing_selectors = parsing_selectors;
+    imark->parsing_selectors.or_flags &= ~
         INDENTATION_MARK_OFF_SELECTORS;
-    imark->element_selectors.not_flags |=
+    imark->parsing_selectors.not_flags |=
         INDENTATION_MARK_OFF_SELECTORS;
-    imark->element_selectors.xor_flags &= ~
+    imark->parsing_selectors.xor_flags &= ~
         INDENTATION_MARK_OFF_SELECTORS;
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
@@ -422,7 +420,7 @@ BRA::typed_opening
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  const TAB::new_flags & element_selectors,
+	  const TAB::new_flags & parsing_selectors,
 	  TAB::flags attr_selectors,
 	  min::gen typed_attr_begin,
 	  min::gen typed_attr_equal,
@@ -448,14 +446,14 @@ BRA::typed_opening
     opening->position = position;
     closing_bracket_ref(opening) = closing;
 
-    opening->element_selectors = element_selectors;
-    opening->element_selectors.or_flags &= ~
+    opening->parsing_selectors = parsing_selectors;
+    opening->parsing_selectors.or_flags &= ~
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
-    opening->element_selectors.not_flags |=
+    opening->parsing_selectors.not_flags |=
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
-    opening->element_selectors.xor_flags &= ~
+    opening->parsing_selectors.xor_flags &= ~
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
     opening->attr_selectors = attr_selectors;
@@ -583,7 +581,7 @@ void BRA::push_bracket_type
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  TAB::new_flags element_selectors,
+	  TAB::new_flags parsing_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
@@ -601,13 +599,13 @@ void BRA::push_bracket_type
     bracket_type->selectors = selectors;
     bracket_type->block_level = block_level;
     bracket_type->position = position;
-    bracket_type->element_selectors = element_selectors;
+    bracket_type->parsing_selectors = parsing_selectors;
 
-    bracket_type->element_selectors.or_flags &= ~
+    bracket_type->parsing_selectors.or_flags &= ~
         PAR::TOP_LEVEL_SELECTOR;
-    bracket_type->element_selectors.not_flags |=
+    bracket_type->parsing_selectors.not_flags |=
         PAR::TOP_LEVEL_SELECTOR;
-    bracket_type->element_selectors.xor_flags &= ~
+    bracket_type->parsing_selectors.xor_flags &= ~
         PAR::TOP_LEVEL_SELECTOR;
 
     group_ref(bracket_type) = group;
@@ -1365,13 +1363,13 @@ inline void make_type_label
 		    typed_data->context_selectors;
 		element_selectors |=
 		    bracket_type->
-		        element_selectors.or_flags;
+		        parsing_selectors.or_flags;
 		element_selectors &= ~
 		    bracket_type->
-		        element_selectors.not_flags;
+		        parsing_selectors.not_flags;
 		element_selectors ^=
 		    bracket_type->
-		        element_selectors.xor_flags;
+		        parsing_selectors.xor_flags;
 		element_selectors |=
 		    PAR::ALWAYS_SELECTOR;
 		typed_data->element_selectors =
@@ -2226,13 +2224,13 @@ FINISH_PREFIX:
 	{
 	    prefix_selectors |=
 	      prefix_entry->
-		  element_selectors.or_flags;
+		  parsing_selectors.or_flags;
 	    prefix_selectors &= ~
 	      prefix_entry->
-		  element_selectors.not_flags;
+		  parsing_selectors.not_flags;
 	    prefix_selectors ^=
 	      prefix_entry->
-		  element_selectors.xor_flags;
+		  parsing_selectors.xor_flags;
 	    prefix_selectors |=
 	      PAR::ALWAYS_SELECTOR;
 	}
@@ -2302,13 +2300,13 @@ PARSE_PREFIX_N_LIST:
 		prefix_selectors = selectors;
 		prefix_selectors |=
 		    prefix_entry->
-			element_selectors.or_flags;
+			parsing_selectors.or_flags;
 		prefix_selectors &= ~
 		    prefix_entry->
-			element_selectors.not_flags;
+			parsing_selectors.not_flags;
 		prefix_selectors ^=
 		    prefix_entry->
-			element_selectors.xor_flags;
+			parsing_selectors.xor_flags;
 		prefix_selectors |=
 		    PAR::ALWAYS_SELECTOR;
 
@@ -2367,15 +2365,15 @@ PARSE_PREFIX_N_LIST:
 			    prefix_selectors;
 			header_selectors |=
 			    header_entry->
-				element_selectors
+				parsing_selectors
 				    .or_flags;
 			header_selectors &= ~
 			    header_entry->
-				element_selectors
+				parsing_selectors
 				    .not_flags;
 			header_selectors ^=
 			    header_entry->
-				element_selectors
+				parsing_selectors
 				    .xor_flags;
 			header_selectors |=
 			    PAR::ALWAYS_SELECTOR;
@@ -2576,13 +2574,13 @@ PARSE_PREFIX_N_LIST:
 
 		    prefix_selectors |=
 			prefix_entry->
-			    element_selectors.or_flags;
+			    parsing_selectors.or_flags;
 		    prefix_selectors &= ~
 			prefix_entry->
-			    element_selectors.not_flags;
+			    parsing_selectors.not_flags;
 		    prefix_selectors ^=
 			prefix_entry->
-			    element_selectors.xor_flags;
+			    parsing_selectors.xor_flags;
 		    prefix_selectors |=
 			PAR::ALWAYS_SELECTOR;
 		}
@@ -2661,13 +2659,13 @@ NEXT_TOKEN:
 	//
 	TAB::flags new_selectors = selectors;
 	new_selectors |=
-	    indentation_found->element_selectors
+	    indentation_found->parsing_selectors
 			     .or_flags;
 	new_selectors &= ~
-	    indentation_found->element_selectors
+	    indentation_found->parsing_selectors
 			     .not_flags;
 	new_selectors ^=
-	    indentation_found->element_selectors
+	    indentation_found->parsing_selectors
 			     .xor_flags;
 	new_selectors |= PAR::ALWAYS_SELECTOR;
 
@@ -2762,13 +2760,13 @@ NEXT_TOKEN:
 			group = header_entry->group;
 		    header_selectors |=
 			header_entry->
-			    element_selectors.or_flags;
+			    parsing_selectors.or_flags;
 		    header_selectors &= ~
 			header_entry->
-			    element_selectors.not_flags;
+			    parsing_selectors.not_flags;
 		    header_selectors ^=
 			header_entry->
-			    element_selectors.xor_flags;
+			    parsing_selectors.xor_flags;
 		    header_selectors |=
 			PAR::ALWAYS_SELECTOR;
 		}
@@ -3257,13 +3255,13 @@ NEXT_TOKEN:
 
 	    TAB::flags new_selectors = selectors;
 	    new_selectors |=
-		opening_bracket->element_selectors
+		opening_bracket->parsing_selectors
 				.or_flags;
 	    new_selectors &= ~
-		opening_bracket->element_selectors
+		opening_bracket->parsing_selectors
 				.not_flags;
 	    new_selectors ^=
-		opening_bracket->element_selectors
+		opening_bracket->parsing_selectors
 				.xor_flags;
 	    new_selectors |= PAR::ALWAYS_SELECTOR;
 
@@ -5802,36 +5800,36 @@ static min::gen bracketed_pass_command
 		      parser->selector_name_table,
 		      parser );
 
-		TAB::new_flags element_selectors =
-		    opening_bracket->element_selectors;
+		TAB::new_flags parsing_selectors =
+		    opening_bracket->parsing_selectors;
 
 		if ( TAB::all_flags
-		         ( element_selectors )
+		         ( parsing_selectors )
 		     &
 		     BRA::BRACKET_SELECTORS )
 		{
 		    parser->printer
 			<< min::indent
-			<< "with element"
+			<< "with parsing"
 			   " selectors ";
 		    COM::print_new_flags
-			( element_selectors,
+			( parsing_selectors,
 			  BRA::BRACKET_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
 		}
 
 		if ( TAB::all_flags
-		         ( element_selectors )
+		         ( parsing_selectors )
 		     &
 		     BRA::BRACKET_OPT )
 		{
 		    parser->printer
 			<< min::indent
-			<< "with element"
+			<< "with parsing"
 			   " options ";
 		    COM::print_new_flags
-			( element_selectors,
+			( parsing_selectors,
 			  BRA::BRACKET_OPT,
 			  parser->selector_name_table,
 			  parser, true );
@@ -5976,20 +5974,20 @@ static min::gen bracketed_pass_command
 		      parser->selector_name_table,
 		      parser );
 
-		TAB::new_flags element_selectors =
-		    indentation_mark->element_selectors;
+		TAB::new_flags parsing_selectors =
+		    indentation_mark->parsing_selectors;
 
 		if ( TAB::all_flags
-			( element_selectors )
+			( parsing_selectors )
 		     &
 		     BRA::INDENTATION_MARK_SELECTORS )
 		{
 		    parser->printer
 			<< min::indent
-			<< "with element"
+			<< "with parsing"
 			   " selectors ";
 		    COM::print_new_flags
-			( element_selectors,
+			( parsing_selectors,
 			  BRA::
 			    INDENTATION_MARK_SELECTORS,
 			  parser->
@@ -5998,16 +5996,16 @@ static min::gen bracketed_pass_command
 		}
 
 		if ( TAB::all_flags
-		         ( element_selectors )
+		         ( parsing_selectors )
 		     &
 		     PAR::ALL_EA_OPT )
 		{
 		    parser->printer
 			<< min::indent
-			<< "with element"
+			<< "with parsing"
 			   " options ";
 		    COM::print_new_flags
-			( element_selectors,
+			( parsing_selectors,
 			  PAR::ALL_EA_OPT,
 			  parser->
 			      selector_name_table,
@@ -6049,36 +6047,36 @@ static min::gen bracketed_pass_command
 		      parser->selector_name_table,
 		      parser );
 
-		TAB::new_flags element_selectors =
-		    bracket_type->element_selectors;
+		TAB::new_flags parsing_selectors =
+		    bracket_type->parsing_selectors;
 
 		if ( TAB::all_flags
-		         ( element_selectors )
+		         ( parsing_selectors )
 		     &
 		     BRA::BRACKET_TYPE_SELECTORS )
 		{
 		    parser->printer
 		        << min::indent
-			<< "with element"
+			<< "with parsing"
 			   " selectors ";
 		    COM::print_new_flags
-			( element_selectors,
+			( parsing_selectors,
 			  BRA::BRACKET_TYPE_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
 		}
 
 		if ( TAB::all_flags
-		         ( element_selectors )
+		         ( parsing_selectors )
 		     &
 		     BRA::BRACKET_TYPE_OPT )
 		{
 		    parser->printer
 			<< min::indent
-			<< "with element"
+			<< "with parsing"
 			   " options ";
 		    COM::print_new_flags
-			( element_selectors,
+			( parsing_selectors,
 			  BRA::BRACKET_TYPE_OPT,
 			  parser->selector_name_table,
 			  parser, true );
@@ -6217,7 +6215,7 @@ static min::gen bracketed_pass_command
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::selectors )
 	    {
@@ -6241,7 +6239,7 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::options )
 	    {
@@ -6337,16 +6335,16 @@ static min::gen bracketed_pass_command
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
 			  "expected"
-			  " `element selectors',"
-			  " `element options',"
+			  " `parsing selectors',"
+			  " `parsing options',"
 			  " or `... reformatter ...'"
 			  " after" );
 	    }
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
-		      "expected `element selectors',"
-		      " `element options',"
+		      "expected `parsing selectors',"
+		      " `parsing options',"
 		      " or `... reformatter ...'"
 		      " after" );
 	}
@@ -6390,7 +6388,7 @@ static min::gen bracketed_pass_command
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::selectors )
 	    {
@@ -6415,7 +6413,7 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::options )
 	    {
@@ -6469,8 +6467,8 @@ static min::gen bracketed_pass_command
 	    else
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
-		      "expected `element selectors',"
-		      " `element options', `implied"
+		      "expected `parsing selectors',"
+		      " `parsing options', `implied"
 		      " header', or"
 		      " `... lexical master'"
 		      " after" );
@@ -6517,7 +6515,7 @@ static min::gen bracketed_pass_command
 
 	bool has_middle = ( number_of_names == 4 );
 
-	TAB::new_flags new_element_selectors;
+	TAB::new_flags new_parsing_selectors;
 	TAB::flags new_attribute_selectors;
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
@@ -6538,7 +6536,7 @@ static min::gen bracketed_pass_command
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 ( vp[i] == ::element
+		 ( vp[i] == PARLEX::parsing
 		   ||
 		   vp[i] == ::attribute
 		   ||
@@ -6549,9 +6547,9 @@ static min::gen bracketed_pass_command
 		min::gen kind = vp[i];
 		i += 2;
 		min::gen result;
-		if ( kind == ::element )
+		if ( kind == PARLEX::parsing )
 		    result = COM::scan_new_flags
-			( vp, i, new_element_selectors,
+			( vp, i, new_parsing_selectors,
 			  BRA::BRACKET_SELECTORS,
 	                  parser->selector_name_table,
 			  parser->
@@ -6573,7 +6571,7 @@ static min::gen bracketed_pass_command
 		else if ( result == min::FAILURE() )
 		    return PAR::parse_error
 			( parser, ppvec[i-1],
-			  kind == ::element ?
+			  kind == PARLEX::parsing ?
 			  "expected bracketed selector"
 			  " modifier list after" :
 			  "expected bracketed selector"
@@ -6582,7 +6580,7 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::options )
 	    {
@@ -6665,10 +6663,10 @@ static min::gen bracketed_pass_command
 	    else return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected `attributes',"
-		  " or `element selectors',"
+		  " or `parsing selectors',"
 		  " or `attribute selectors',"
 		  " or `prefix selectors',"
-		  " or `element options',"
+		  " or `parsing options',"
 		  " or `attribute flags initiator',"
 		  " or `attribute multivalue"
 		       " initiator',"
@@ -6688,11 +6686,11 @@ static min::gen bracketed_pass_command
 		  "expected `with attribute selectors'"
 		  " after" );
 
-	new_element_selectors.or_flags |=
+	new_parsing_selectors.or_flags |=
 	    new_options.or_flags;
-	new_element_selectors.not_flags |=
+	new_parsing_selectors.not_flags |=
 	    new_options.not_flags;
-	new_element_selectors.xor_flags |=
+	new_parsing_selectors.xor_flags |=
 	    new_options.xor_flags;
 
 	min::locatable_gen
@@ -6746,7 +6744,7 @@ static min::gen bracketed_pass_command
 	      selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      new_element_selectors,
+	      new_parsing_selectors,
 	      new_attribute_selectors,
 	      attribute_begin,
 	      attribute_equal,
@@ -6783,7 +6781,7 @@ static min::gen bracketed_pass_command
 	    ++ i;
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::selectors )
 	    {
@@ -6807,7 +6805,7 @@ static min::gen bracketed_pass_command
 	    else
 	    if ( i + 1 < size
 		 &&
-		 vp[i] == ::element
+		 vp[i] == PARLEX::parsing
 		 &&
 		 vp[i+1] == PARLEX::options )
 	    {
@@ -6963,8 +6961,8 @@ static min::gen bracketed_pass_command
 			( parser, ppvec[i-1],
 			  "expected"
 			  " `prefix selectors',"
-			  " `element selectors',"
-			  " `element options',"
+			  " `parsing selectors',"
+			  " `parsing options',"
 			  " `group',"
 			  " `implied subprefix',"
 			  " or `... lexical master'"
@@ -6975,8 +6973,8 @@ static min::gen bracketed_pass_command
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected `prefix selectors',"
-		      " `element selectors',"
-		      " `element options',"
+		      " `parsing selectors',"
+		      " `parsing options',"
 		      " `group',"
 		      " `implied subprefix',"
 		      " or `... lexical master'"
@@ -7000,7 +6998,7 @@ static min::gen bracketed_pass_command
 	else if ( TAB::all_flags ( new_options ) != 0 )
 	    PAR::parse_error
 		( parser, ppvec->position,
-		  "`with element options' not allowed"
+		  "`with parsing options' not allowed"
 		  " for prefix unless prefix group is"
 		  " `paragraph'; options ignored" );
 

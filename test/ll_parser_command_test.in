@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 14 06:01:28 EDT 2019
+// Date:	Sat Jun 15 07:15:39 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -135,7 +135,7 @@
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}
     define bracket type "data" [TOP LEVEL]
-        with element selectors [data]
+        with parsing selectors [data]
 	with group line
 	with data reformatter ( "=", "not", "[", "{*" )
 

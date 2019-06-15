@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 15:59:00 EDT 2019
+// Date:	Sat Jun 15 07:14:51 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -40,7 +40,7 @@
     define bracket "[+" ... "+]" [text, operator 2]
     define bracket "<+" ... "+>" [text + operator]
     define bracket "<+" ... "+>" [code, operator 1]
-        with element selectors
+        with parsing selectors
 	     [^ code, - math, + operator 1]
     print bracket "<+"
 
@@ -57,7 +57,7 @@
 *PARSER*:
     begin block BLOCK1
     define bracket "[X" ... "X]" [code, operator 1]
-        with element selectors [- code, + operator 1]
+        with parsing selectors [- code, + operator 1]
 *PARSER* *TEST*:
     [ a [ b c ] c ] [X a [ b c ] d X]
     this is a paragraph +:
@@ -126,7 +126,7 @@
     begin block BLOCK1
     define bracket "`" ... "'" [code]
     define bracket "```" ... "'''" [code]
-        with element options []
+        with parsing options []
     print bracket ""
 *PARSER* *TEST*:
     ( ``` ) ''' )
@@ -210,15 +210,15 @@ third line with indent 0
     begin block BLOCK1
     print bracket type ""
     define bracket type "X" [code]
-        with element selectors [code, math]
+        with parsing selectors [code, math]
     define bracket type "Y" [code]
-        with element selectors [+ text]
+        with parsing selectors [+ text]
         with group ajax
     define bracket type "Z" [math]
-        with element selectors [code]
+        with parsing selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
         with lexical master "DEFAULT"
-        with element options [end at indent]
+        with parsing options [end at indent]
     print bracket type ""
     print bracket type "X"
     end block BLOCK1
@@ -226,13 +226,13 @@ third line with indent 0
 *PARSER*:
     define typed bracket "T1{" ... "|" ... "|" ... "}T1"
         [code, text, math, data]
-        with element selectors [data]
+        with parsing selectors [data]
         with attribute selectors [data]
         with attributes "::" ... "==" ... "#"
         with prefix selectors []
     define typed bracket "T2{" ... "|" ... "|" ... "}T2"
         [code, text, math, data]
-        with element selectors [data]
+        with parsing selectors [data]
         with attribute selectors [data, code]
         with attributes "::" ... "==" ... "#"
         with attribute negator "NO"
@@ -283,7 +283,7 @@ third line with indent 0
     begin block BLOCK1
     define typed bracket "8" ... "|" ... "|" ... "9"
         [code, text, math, data]
-        with element selectors [data]
+        with parsing selectors [data]
         with attribute selectors [data, code]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -308,35 +308,35 @@ third line with indent 0
 *PARSER*:
     begin block BLOCK1
     define bracket type "P1" [code, text]
-        with element selectors [text]
+        with parsing selectors [text]
         with group paragraph
         with implied subprefix {S1}
-        with element options [end at paragraph break,
+        with parsing options [end at paragraph break,
 	                      enable prefix]
     define bracket type "P2" [code, text]
-        with element selectors [text]
+        with parsing selectors [text]
         with group paragraph
-        with element options [end at paragraph break,
+        with parsing options [end at paragraph break,
 	                      enable prefix]
     define bracket type "P3" [code, text]
-        with element selectors [text]
+        with parsing selectors [text]
         with group paragraph
         with implied subprefix {L3}
-        with element options [end at paragraph break,
+        with parsing options [end at paragraph break,
 	                      end at line separator,
 			      enable prefix]
     define bracket type "L3" [text]
         with group line
     define bracket type "P4" [code, text]
-        with element selectors [text]
+        with parsing selectors [text]
         with group paragraph
         with implied subprefix {L4}
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
     define bracket type "L4" [text]
         with group line
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -385,7 +385,7 @@ third line with indent 0
 *PARSER*:
     define bracket type "p" [code]
         with group paragraph
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
         with implied subprefix {l}
 *PARSER* *TEST*:
     this is the indented paragraph 3::
@@ -408,7 +408,7 @@ third line with indent 0
         with implied header {p1}
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -416,13 +416,13 @@ third line with indent 0
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
         with group paragraph
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "p2" [code]
         with group paragraph
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
         with group line
@@ -444,7 +444,7 @@ third line with indent 0
     define bracket type "p3" [code]
         with group paragraph
         with implied subprefix {l3}
-        with element options
+        with parsing options
 	     [+ continuing, + enable prefix]
     define bracket type "l3" [code]
         with group line
@@ -469,7 +469,7 @@ third line with indent 0
     begin block BLOCK1
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -477,20 +477,20 @@ third line with indent 0
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
         with group paragraph
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "p2" [code]
         with group paragraph
         with implied subprefix {l2}
-        with element options
+        with parsing options
 	     [+ continuing, + enable prefix]
     define bracket type "l2" [code]
         with group line
     define bracket type "p3" [code]
         with group paragraph
-        with element options
+        with parsing options
 	     [+ continuing, + enable prefix]
     print bracket type ""
     trace [+ parser output]
@@ -530,7 +530,7 @@ and another line outside the fifth paragraph
     begin block BLOCK1
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -538,22 +538,22 @@ and another line outside the fifth paragraph
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
         with group paragraph
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line
     define bracket type "p2" [code]
         with group paragraph
-        with element options [+ sticky, + enable prefix]
+        with parsing options [+ sticky, + enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
         with group line
     define bracket type "p3" [code]
         with group paragraph
-        with element options [+ sticky, + enable prefix]
+        with parsing options [+ sticky, + enable prefix]
     define bracket type "code" [code]
         with group paragraph
-        with element options [+ reset]
+        with parsing options [+ reset]
     trace [+ parser output]
 this is paragraph 1
 and another line
@@ -617,7 +617,7 @@ this is a test line
     begin block BLOCK1
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -625,7 +625,7 @@ this is a test line
         with attribute multivalue initiator "{*"
     define bracket type "p" [code]
         with group paragraph
-        with element options [+ enable prefix]
+        with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
         with group line

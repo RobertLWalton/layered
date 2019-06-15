@@ -3,7 +3,7 @@
     define selector text
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -12,29 +12,29 @@
 *PARSER*:
     begin block X
     define bracket type "p" [TOP LEVEL]
-        with element options
+        with parsing options
              [end at paragraph break, sticky,
               enable table prefix]
         with group paragraph
-        with element selectors [+ text, - code]
+        with parsing selectors [+ text, - code]
         with implied subprefix {s}
     define bracket type "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
     define bracket type "code" [text]
         with group paragraph
-        with element options [+ reset]
+        with parsing options [+ reset]
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
-                 with element selectors [- code, + text]
-                 with element options [end at paragraph break,
+                 with parsing selectors [- code, + text]
+                 with parsing options [end at paragraph break,
                                        enable table prefix, sticky]
                  with group paragraph
                  with implied subprefix {s||s}
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "code" [text]
-                 with element options [+ reset]
+                 with parsing options [+ reset]
                  with group paragraph
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}

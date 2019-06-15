@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 15:59:19 EDT 2019
+// Date:	Sat Jun 15 07:16:01 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -13,7 +13,7 @@
     define selector text
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text]
-        // no element selectors
+        // no parsing selectors
         with attribute selectors [data]
         with attributes ":" ... "=" ... ","
         with attribute negator "no"
@@ -23,18 +23,18 @@
 *PARSER*:
     begin block X
     define bracket type "p" [TOP LEVEL]
-        with element options
+        with parsing options
 	     [end at paragraph break, sticky,
 	      enable table prefix]
 	with group paragraph
-	with element selectors [+ text, - code]
+	with parsing selectors [+ text, - code]
 	with implied subprefix {s}
     define bracket type "s" [text]
         with sentence reformatter
 	    ( ".", ";", ":", "?", "!" )
     define bracket type "code" [text]
 	with group paragraph
-	with element options [+ reset]
+	with parsing options [+ reset]
     print bracket type ""
 
 {p}This is a sentence: an add-on.  A phrase;

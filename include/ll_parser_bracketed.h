@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 02:48:52 EDT 2019
+// Date:	Sat Jun 15 07:00:51 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,7 +99,7 @@ struct opening_bracket_struct :
           closing_bracket;
         // The opposing bracket of the opening bracket.
 
-    ll::parser::table::new_flags element_selectors;
+    ll::parser::table::new_flags parsing_selectors;
     	// Element selectors associated with this
 	// opening bracket.
 
@@ -134,9 +134,9 @@ MIN_REF ( ll::parser::table::root, next,
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::closing_bracket )
 
-// Push entry into bracket table.  EALSEP_OPT is set
-// in element_selectors.not_flags and cleared from
-// element_selectors.{or,xor}_flags.
+// Push entry into bracket table.  The BRACKET_OFF_...
+// flags are set in parsing_selectors.not_flags and
+// cleared from parsing_selectors.{or,xor}_flags.
 //
 ll::parser::bracketed::opening_bracket
     push_brackets
@@ -146,7 +146,7 @@ ll::parser::bracketed::opening_bracket
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
-	      & element_selectors,
+	      & parsing_selectors,
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
 	      reformatter_arguments,
@@ -178,7 +178,7 @@ extern const uns32 & LINE_SEP;
 struct indentation_mark_struct : 
 	public ll::parser::table::root_struct
 {
-    ll::parser::table::new_flags element_selectors;
+    ll::parser::table::new_flags parsing_selectors;
 
     const ll::parser::bracketed::line_sep line_sep;
 
@@ -216,6 +216,11 @@ MIN_REF ( ll::parser::table::root, next,
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::line_sep )
 
+// Push entry into bracket table.  The INDENTATION_
+// MARK_OFF_...  flags are set in parsing_selectors.not_
+// flags and cleared from parsing_selectors.{or,xor}_
+// flags.
+//
 ll::parser::bracketed::indentation_mark
     push_indentation_mark
 	( min::gen mark_label,
@@ -225,7 +230,7 @@ ll::parser::bracketed::indentation_mark
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
-	      & element_selectors,
+	      & parsing_selectors,
 	  min::gen implied_header,
 	      // May be min::MISSING()
 	  min::uns32 paragraph_lexical_master,
@@ -306,8 +311,8 @@ struct typed_opening_struct :
     // Packed_struct subtype is TYPED_OPENING.
     // Typed_opening is closed by closing_bracket.
     
-    // Element selectors are in opening_bracket_struct::
-    // element_selectors.  Attribute selectors are here:
+    // Parsing selectors are in opening_bracket_struct::
+    // parsing_selectors.  Attribute selectors are here:
     //
     ll::parser::table::flags attr_selectors;
 
@@ -452,9 +457,9 @@ MIN_REF ( min::gen, label,
           ll::parser::bracketed
 	            ::typed_attr_negator )
 
-// Push entry into bracket table.  EALSEP_OPT is set
-// in element_selectors.not_flags and cleared from
-// element_selectors.{or,xor}_flags.
+// Push entry into bracket table.  The BRACKET_OFF_...
+// flags are set in parsing_selectors.not_flags and
+// cleared from parsing_selectors.{or,xor}_flags.
 //
 ll::parser::bracketed::typed_opening
     push_typed_brackets
@@ -466,7 +471,7 @@ ll::parser::bracketed::typed_opening
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  const ll::parser::table::new_flags
-	      & element_selectors,
+	      & parsing_selectors,
 	  ll::parser::table::flags attr_selectors,
 	  min::gen typed_attr_begin,
 	  min::gen typed_attr_equal,
@@ -614,7 +619,7 @@ struct bracket_type_struct
 {
     // Packed_struct subtype is BRACKET_TYPE.
 
-    ll::parser::table::new_flags element_selectors;
+    ll::parser::table::new_flags parsing_selectors;
 
     // Prefix Data
     //
@@ -654,9 +659,9 @@ MIN_REF ( ll::parser::reformatter_arguments,
 	  reformatter_arguments,
           ll::parser::bracketed::bracket_type )
 
-// Create a bracket_type definition entry with given
-// label and parameters, and push it into the
-// given bracket_type_table.
+// Push entry into bracket type table.  The TOP_LEVEL_
+// SELECTOR is set in parsing_selectors.not_flags and
+// cleared from parsing_selectors.{or,xor}_flags.
 //
 void push_bracket_type
 	( min::gen bracket_type_label,
@@ -664,7 +669,7 @@ void push_bracket_type
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  ll::parser::table::new_flags
-	      element_selectors,
+	      parsing_selectors,
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
@@ -1022,7 +1027,7 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 //     For untyped bracketed sub-subexpressions this
 //     function calls itself recursively with selectors
 //     modified by the sub-subexpression opening bracket
-//     parser table entry element_selectors member.
+//     parser table entry parsing_selectors member.
 //     This function then removes the opening and any
 //     closing brackets of the sub-subexpression,
 //     applies any reformatter specified by the opening
@@ -1132,7 +1137,7 @@ struct line_data
 	// be recomputed from implied_header and
 	// selectors above.
     ll::parser::table::flags header_selectors;
-        // `selectors' above modified by the element_
+        // `selectors' above modified by the parsing_
 	// selectors member of the header_entry.  Used
 	// to parse the prefix-n-list headed by the
 	// implied_header if that is not MISSING.  NOT

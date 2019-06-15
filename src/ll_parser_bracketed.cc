@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 13 21:02:48 EDT 2019
+// Date:	Sat Jun 15 02:08:25 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3310,7 +3310,8 @@ NEXT_TOKEN:
 		tdata.has_mark_type = false;
 
 		TAB::flags aselectors = selectors;
-		aselectors &= PAR::ALL_OPT;
+		aselectors &= PAR::ALL_OPT
+		            - BRA::BRACKET_OFF_OPT;
 		aselectors
 		    |= tdata.typed_opening
 			       ->attr_selectors

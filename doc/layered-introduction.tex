@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 14, 2019
+June 15, 2019
  
 \end{center}
 
@@ -4950,13 +4950,13 @@ by omitting it and prefacing the attribute label with `\TT{no}'
 (as in `\TT{no your option}').
 The type can be omitted from the end unless it is preceded
 by a single attribute with omitted \TT{TRUE} value, as such an attribute
-will be mistaken for the type.
+will be mistaken for the type
 (i.e., in \TT{\{|\ldots|X\}}, \TT{X} is
 a type label and \underline{not} an attribute label).
-If omitted from both
-beginning and end, the type is missing, but there can still be
-attributes at the end.  Also \TT{""} may be used as a type label to denote
-a missing type.
+If the type is given at the end, it must match the type given at the
+beginning.  If no type is given at the beginning, the type is missing
+and must not be given at the end.  However, \TT{""} can be used as a type
+at either end to denote a missing type.
 
 For example, the following are equivalent:
 \begin{center}
@@ -5017,12 +5017,14 @@ If the type is
 a single {\em mark} lexeme and there are no attributes,
 the `\TT{|}'s surrounding
 the elements may be omitted, in which case the {\em mark} is not
-quoted.
+quoted, but the {\em mark} must appear both before and after the elements.
 Similarly if the type is a label consisting of two \underline{distinct}
 {\em mark}
 lexemes, and there are no attributes, the `\TT{|}'s may be
 omitted with the two unquoted {\em marks} being placed before and
 after the elements, respectively.
+Lastly if there are no elements and the type is a single {\em mark},
+the second copy of the {\em mark} may be omitted, as in `\TT{\{*\}}'.
 Except in these cases, type and attribute labels
 cannot contain separators or marks unless these are quoted.
 
@@ -5031,6 +5033,7 @@ The following are equivalent pairs of examples with {\em mark} types:
 \begin{tabular}{l@{~~~~~}l}
 \TT{\{+ 1 2 3 +\}} & \TT{\{"+"| 1 2 3 |"+"\}} \\
 \TT{\{< 1 2 3 >\}} & \TT{\{"<" ">"| 1 2 3 |"<" ">"\}} \\
+\TT{\{*\}} & \TT{\{"*"||"*"\}} \\
 \end{tabular}
 \end{center}
 
@@ -5269,19 +5272,11 @@ If an {\em attribute-label} is followed by {\em attribute-flags},
 the attribute is given the indicated flags.
 
 Note that the MIN object is \underline{not} given \TT{.initiator}
-or \TT{.terminator} attributes, unless they are given as explicit
+~or~ \TT{.terminator} attributes, unless they are given as explicit
 attributes as in:
 \begin{center}
 \TT{\{ "":~.initiator = "(", .terminator = ")" | 1 2 3 4 |\}}
 \end{center}
-
-During the scanning of typed subexpression {\em attribute-lists}
-parsing selectors are standardly set to just `\TT{data}',
-while during the scanning of typed subexpression
-{\em element-lists} parsing selectors are standardly
-those of the subexpression context.
-During both scans options are standardly set to those of the
-context less the `\TT{end at line separator}' option.
 
 If two {\em typed-middles} (e.g., `\TT{|}'s) with no intervening space
 are lexically scanned as a single lexeme, then this new
@@ -5314,9 +5309,14 @@ the current parsing selector set and options become the
 of the {\em typed-bracketed-subexpression}.
 The current parsing selectors are then reset to the
 {\em typed-attribute-selectors} associated with the {\em typed-opening}
-(see below), while the options remain the same as the context options.
+(see below), while the options remain the same as the context options
+but with the `\TT{end at line separator}',
+`\TT{enable indented paragraph}', and `\TT{enable header}' options turned
+off.
 These selectors and options are used to scan the {\em bracket-type}
 and {\em attributes}, but \underline{not} the {\em elements}.
+{\em Type-attribute-selectors} typically consists of just the
+\TT{data} selector.
 
 When the {\em bracket-type} is encountered, it is looked up in the
 bracket type definition table (\itemref{BRACKET-TYPE-DEFINITIONS})
@@ -5339,11 +5339,20 @@ context selectors and options after the subexpression ending
 
 A {\em typed-bracketed-subexpression} with \underline{no}
 elements may be a {\em typed-prefix-separator}
-(see \itemref{TYPED-PREFIX-SEPARATORS}) if the context
-selectors contain a selector in common with the
+(see \itemref{TYPED-PREFIX-SEPARATORS}) only if
+the context selectors contain a selector in common with the
 {\em typed-prefix-selectors} associated with
 the {\em typed-opening} by the
-\TT{parser define typed bracket} command (see below).
+\TT{parser define typed bracket} command (see below) and at
+least one of the following is true:
+\begin{itemize}
+\item The `\TT{enable prefix}' option is set in the context selectors.
+\item The `\TT{enable table prefix}' option is set in the context selectors
+      and a bracket table entry was found for the {\em bracket-type}.
+\item The `\TT{enable header}' option is set in the context selectors
+      and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
+      group was found for the {\em bracket-type}.
+\end{itemize}
 
 
 A {\em typed-opening} is specified by a
@@ -5361,7 +5370,7 @@ parser command.  An example is:
 \TT{~~~~with attribute negator "no"} \\
 \TT{~~~~with attribute flags initiator "["} \\
 \TT{~~~~with attribute multivalue initiator "\{*"} \\
-\TT{~~~~with prefix selectors [prefix allowed]} \\
+\TT{~~~~with prefix selectors [text]} \\
 \end{tabular}
 \end{center}
 which specifies
@@ -5387,10 +5396,9 @@ which specifies
 \begin{minipage}{5in}
 That a {\em typed-bracketed-subexpression} with the give {\em typed-opening}
 and no elements 
-should be treated as a {\em typed-prefix-separator}
-(see \itemref{TYPED-PREFIX-SEPARATORS})
-\underline{if and only if} the context selectors
-have the `\TT{prefix allowed}' selector.
+should \underline{not} be treated as a {\em typed-prefix-separator}
+(see \itemref{TYPED-PREFIX-SEPARATORS}) if
+the context selectors do \underline{not} have the `\TT{text}' selector.
 \end{minipage}
 \end{tabular}
 \end{center}
@@ -5529,7 +5537,6 @@ adds the definition:
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-        with prefix selectors [prefix allowed]
 \end{verbatim}\end{indpar}
 
 is included in the `\TT{standard}' parser block
@@ -5537,12 +5544,17 @@ is included in the `\TT{standard}' parser block
 
 Since `\TT{with parsing options}'
 does not appear in either definition, the parsing options used
-to scan any {\em elements}
-are the same as the context options.
+to scan any {\em elements} are the same as the context options
+modified by any parsing options
+found when the {\em bracket-type} is looked up in the
+bracket type table.
 Similarly since
-`\TT{with element selectors}' does not appear in either definition,
+`\TT{with parsing selectors}' does not appear in either definition,
 the parsing selectors used to scan {\em elements}
-are the same as the context selectors.
+are the same as the context selectors
+modified by any parsing selectors
+found when the {\em bracket-type} is looked up in the
+bracket type table.
 
 The untyped bracket definitions for `\TT{[\ldots]}' and
 `\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BULITINS},

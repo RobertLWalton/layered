@@ -6029,16 +6029,16 @@ see \pagref{ID-CHARACTER}) causes a special lexeme with a special
 lexeme type and empty character string to be prefaced
 to the line, and the type of this special lexeme
 is mapped (\itemref{MAPPED-LEXEMES}) to the prefix of the
-above logical line, e.g., to \TT{\{data\}}.
+above logical line, e.g., to \TT{\{data\}} or \TT{\{raw data\}}.
 
 The effect of reformatting is to delete the entire subexpression token list
-and to define or add to the object whose identifier
-is {\em ID}.  The object is given the
+and to define or add to the object whose denoted by
+{\em ID}.  The object is given the
 elements given in the {\em element-list} and the attributes in the
 {\em indented-attributes}.
 The {\em indented-attributes} are parsed before this reformatter
 is invoked to become a MIN object
-with \TT{INDENTED\_\EOL PARAGRAPH} \TT{.terminator} and logical
+with \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} \TT{.terminator} and logical
 line elements.  This reformatter
 then further parses these logical lines
 using its reformatter arguments to treat each line as being
@@ -6095,8 +6095,7 @@ dangling references in the input.
 
 \end{indpar}
 
-\ttmkey{sentence}{reformatter}
-        \TT{(} {\em terminator-list} \TT{)}
+\ttmkey{sentence}{reformatter} ~ {\em terminator-list}
 	\label{SENTENCE-REFORMATTER}
 
 \begin{indpar}[0.5em]
@@ -6105,14 +6104,19 @@ where
 \begin{indpar}
 \emkey{terminator-list} ::=
     \TT{()}
-    $|$ \TT{(} {\em terminator} \{ \TT{,} {\em terminator} \}\STAR{} \TT{)}
+    $|$ \TT{(} {\em quoted-terminator}
+     \{ \TT{,} {\em quoted-terminator} \}\STAR{} \TT{)}
+\\[0.5ex]
+\emkey{quoted-terminator} :::= \TT{"}{\em terminator}\TT{"}
+\\[0.5ex]
+\emkey{terminator} :::= {\em mark} $|$ {\em separator}
 \end{indpar}
 
 
-The subexpression must be a MIN value of the form:
+The {\em prefix-n-list} must have the form:
 \begin{center}
-\TT{\{}{\em prefix} {\em prefix-attributes}\QMARK{} \TT{|}
-            {\em element-list}  \TT{|\}}
+\TT{\{}{\em prefix} {\em prefix-attributes}\QMARK{}\TT{\}}
+            {\em element-list}
 \end{center}
 where
 \begin{indpar}
@@ -6126,11 +6130,11 @@ where
 
 The {\em element-list} is parsed according to the rules:
 \begin{indpar}
-\emkey{element-list} ::= {\em sentence}\STAR{} {\em phrase}
+\emkey{element-list} ::= {\em sentence}\STAR{} {\em phrase}\QMARK{}
 \\[0.5ex]
-\emkey{sentence} ::= {\em phrase} {\em terminator}
+\emkey{sentence} ::= {\em phrase}\QMARK{} {\em terminator}
 \\[0.5ex]
-\emkey{phrase} ::= {\em phrase-element}\STAR{}
+\emkey{phrase} ::= {\em phrase-element}\PLUS{}
 \\[0.5ex]
 \emkey{phrase-element} ::= {\em element} other than {\em terminator}
 \end{indpar}
@@ -6195,6 +6199,9 @@ adds the definitions:
                                  - end at le indent,
                                  - end at line separator,
                                  - end at outer closing]
+    define prefix "s" [text]
+           with sentence reformatter
+                ( ".", "?", "!", ":", ";" )
     define prefix "quote" [TOP LEVEL, code, text]
            with group paragraph
            with parsing selectors [+ text,

@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 15, 2019
+June 16, 2019
  
 \end{center}
 
@@ -5351,6 +5351,7 @@ and {\em attributes}, but \underline{not} the {\em elements}.
 When a {\em bracket-type-label} is encountered, it is looked up in the
 bracket type definition table (\itemref{BRACKET-TYPE-DEFINITIONS})
 using the context selectors.
+\label{TYPED-PARSING-SELECTORS-USE}
 If an entry is found, the selectors and options used to scan
 the {\em elements} are computed by modifying the context selectors
 and options according to the
@@ -5660,7 +5661,8 @@ a {\em typed-prefix-separator} if all of the following are true:
 \item The subexpression contains a non-missing
       {\em bracket-type} (i.e., the subexpression is \underline{not}
       `\TT{\{\}}' or `\TT{\{""\}}').
-\item The subexpression context selectors (\pagref{CONTEXT-SELECTORS})
+\item\label{TYPED-PREFIX-SELECTORS-USE}
+The subexpression context selectors (\pagref{CONTEXT-SELECTORS})
 and the {\em typed-prefix-selectors} (\pagref{TYPED-PREFIX-SELECTORS})
 associated with the {\em typed-opening} by the
 {\em parser-typed-bracket-command} have at least one selector flag in
@@ -5736,13 +5738,15 @@ The general syntax of a prefix-n list is:
 \\[0.5ex]
 \emkey{prefix-n} ::= {\em typed-prefix-separator}
 \\[0.5ex]
+\emkey{prefix} ::= {\em prefix-n}
+\\[0.5ex]
 \emkey{simple-element-list} ::= see \pagref{SIMPLE-ELEMENT-LIST}
 \\[0.5ex]
 Note: \begin{minipage}[t]{5.8in}
       All the {\em prefix-n}'s in a given {\em prefix-n-list} must
       have the same group.  The group of a {\em prefix-n} is its
       {\em bracket-type} unless this has a bracket type definition with
-      a non-missing \TT{group} member: see \pagref{PREFIX-GROUP}.
+      a non-missing \TT{group} member: see \pagref{BRACKET-TYPE-GROUP}.
       \end{minipage}
 \end{indpar}
 
@@ -5770,13 +5774,14 @@ if it is the {\em bracket-type} of a {\em typed-prefix-separator}.
 Bracket type definitions are stored in the `\key{bracket type table}'
 which is one of the parser symbol tables.
 
-When a {\em typed-bracketed-subexpression} is parsed, its {\em bracket-type}
+When a {\em typed-bracketed-subexpression} or {\em typed-prefix-separator}
+is parsed, its {\em bracket-type}
 (i.e., its \TT{.type} if it has one) is looked up
 in the bracket type table using the selectors in effect at the beginning
-of the {\em typed-bracketed-subexpression} parse (the context selectors).
+of the subexpression or separator parse (the context selectors).
 If a table entry is found, it is used to provide information about
 that affects the parse of the
-{\em elements} of the {\em typed-bracketed-subexpression},
+{\em elements} of a {\em typed-bracketed-subexpression},
 and if the subexpression has no elements and is a
 {\em typed-prefix-separator}, the parse of the {\em prefix-n-list}
 following the prefix separator.
@@ -5794,9 +5799,10 @@ whose general syntax is:
     ::= & \TT{define}%
           \ttmindex{define bracket type}{parser command} ~
 	  \begin{tabular}[t]{@{}l@{}}
-	  \TT{bracket type} ~ {\em prefix-name} ~ {\em parsing-selectors} \\
-	  {}[ \TT{with parsing selectors} ~ {\em prefix-selectors} ] \\
-	  {}[ \TT{with group} ~ {\em prefix-group} ] \\
+	  \TT{bracket type} ~ {\em bracket-type-name}
+	                    ~ {\em parsing-selectors} \\
+	  {}[ \TT{with parsing selectors} ~ {\em bracket-type-selectors} ] \\
+	  {}[ \TT{with group} ~ {\em bracket-type-group} ] \\
 	  {}[ \TT{with implied subprefix} ~ {\em implied-prefix} ] \\
           {}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
 	                  \begin{tabular}[t]{@{}l@{}}
@@ -5809,26 +5815,26 @@ whose general syntax is:
 			  {\em reformatter-arguments}\QMARK{} ] \\
 			  \end{tabular} \\
 	  \end{tabular} \\
-    $|$ & \ttmkey{undefine prefix}{parser command} ~
-	  {\em prefix-name} ~
+    $|$ & \ttmkey{undefine bracket type}{parser command} ~
+	  {\em bracket-type-name} ~
 	  {\em parsing-selectors} \\
-    $|$ & \ttmkey{print prefix}{parser command} ~
-	  {\em partial-prefix-name} \\
+    $|$ & \ttmkey{print bracket type}{parser command} ~
+	  {\em partial-bracket-type-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{prefix-name} ::= {\em quoted-key}
+\emkey{bracket-type-name} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{partial-prefix-name} ::= {\em quoted-key}
+\emkey{partial-bracket-type-name} ::= {\em quoted-key}
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{prefix-selectors} ::=
+\emkey{bracket-type-selectors} ::=
     \begin{tabular}[t]{l}
     {\em selector-spec} without any `\TT{TOP LEVEL}' selector
 	~~~ [\pagref{SELECTOR-SPEC}]
     \end{tabular}
 \\[0.5ex]
-\emkey{prefix-group} ::= {\em quoted-key}
+\emkey{bracket-type-group} ::= {\em quoted-key}
                      $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
 \emkey{implied-prefix} ::= {\em typed-prefix-separator}\label{IMPLIED-PREFIX}
@@ -5846,53 +5852,70 @@ whose general syntax is:
 \end{indpar}
 
 
-The `\TT{print prefix} {\em partial-prefix-name}' command
-prints all prefix symbol table entries whose
-{\em prefix-name} contains the {\em partial-prefix-name}
+The `\TT{print bracket type} {\em partial-bracket-type-name}' command
+prints all bracket type symbol table entries whose
+{\em bracket-type-name} contains the {\em partial-bracket-type-name}
 as a (not necessarily initial) substring.  Using \TT{""} as
-a {\em partial-prefix-name} will print all prefix
+a {\em partial-bracket-type-name} will print all bracket type
 symbol table entries.
 
 
-The components special to a prefix definition are:
+The components special to a bracket type definition are:
 
 \begin{indpar}[0.4in]
 
-\hspace*{-0.2in}\ttmkey{parsing selectors}{in prefix definition}\\
+\hspace*{-0.2in}\ttmkey{parsing selectors}{in bracket type definition}\\
 The elements of the {\em prefix-(n+1)-list} following a {\em prefix-n}
 are parsed using the parsing selectors as they were at the beginning
-of the containing {\em prefix-n-list} as modified by any {\em new-selectors}
-found in a prefix definition of the type of the {\em prefix-n}.  These modified
-selectors are also used to parse any subsequent {\em prefix-n} in the list
-(and so the modifications should the chosen so they do not affect parsing of
-prefixes or the lookup of prefix table definitions).
+of the containing {\em prefix-n-list} (the context selectors of the
+{\em prefix-n}) as modified by any
+{\em bracket-type-selectors} found in a bracket type definition of
+the {\em bracket-type} of the {\em prefix-n}.
+These modified
+selectors are also used to parse any subsequent {\em prefix-n} in the list,
+so the modifications should the chosen so they do not affect parsing of
+{\em typed-prefix-separators} or the lookup of bracket type table definitions.
 
-\hspace*{-0.2in}\ttmkey{group}{in prefix definition}\label{PREFIX-GROUP}\\
-If the \TT{.type} attribute of a prefix has a prefix definition
-with a non-missing {\em prefix-group}, this {\em prefix-group} is
-the group of the prefix.  Otherwise the \TT{.type} is the group of the
-prefix.
+The elements of a {\em typed-bracketed-subexpression}
+are parsed using the parsing selectors as they were at the beginning
+subexpression (the context selectors of the subexpression) as modified by any
+{\em bracket-type-selectors} found in a bracket type definition of
+the {\em bracket-type} of the subexpression, if a bracket type definition is
+found.  If no defintion is found, the {\em typed-parsing-selectors} of the
+{\em parser-typed-bracket-command} for the {\em typed-opening} are used:
+see \pagref{TYPED-PARSING-SELECTORS-USE}.
+
+\hspace*{-0.2in}\ttmkey{group}{in bracket type definition}%
+	\label{BRACKET-TYPE-GROUP}\\
+If the {\em bracket-type} of a {\em prefix-n}
+has a bracket type definition
+with a non-missing {\em bracket-type-group}, this {\em bracket-type-group} is
+the group of the {\em prefix-n}.
+Otherwise the {\em bracket-type} is the group of the
+{\em prefix-n}.
 
 In an expression of the form:
 \begin{center}
 \{ {\em prefix-n} {\em prefix-(n+1)-list} \}\PLUS{}
 \end{center}
 the {\em prefix-n}'s must all have the same group, but need not all
-have the same \TT{.type}.
+have the same {\em bracket-type}.
 
 The groups `\TT{paragraph}' and `\TT{line}' are special:
 see \itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}.
 
-\hspace*{-0.2in}\ttmkey{implied subprefix}{in prefix definition}%
+\hspace*{-0.2in}\ttmkey{implied subprefix}{in bracket type definition}%
 \label{IMPLIED-SUBPREFIX} \\
-A copy of the {\em implied-prefix} is inserted immediately
+If the {\em bracket-type} of a {\em prefix-n} has a bracket type definition
+with a non-missing {\em implied-prefix},
+a copy of this {\em implied-prefix} is inserted immediately
 after the {\em prefix-n}, and becomes the head of a {\em prefix-(n+1)-list}.
 If this {\em prefix-(n+1)-list}  list has no elements other than
 the {\em implied-prefix}, it is deleted and ignored.
 
 Thus the effect is to insert the {\em implied-prefix} after the
 {\em prefix-n} unless the logical line or bracketed expression
-containing the {\em prefix-n-list} ends after the {\em prefix-n} or
+containing the {\em prefix-n-list} ends immediately after the {\em prefix-n} or
 unless an explicit prefix whose group is that
 of a preceeding prefix (including the {\em implied-prefix}) follows
 the {\em prefix-n} in the input.  However, there is one difference
@@ -5902,21 +5925,45 @@ table definition will be those modified by the {\em implied-prefix}
 and may differ from those that would be at the same input position
 had the {\em implied-prefix} not been inserted.
 
-\hspace*{-0.2in}\ttmkey{parsing options}{in prefix definition}\\
+The {\em implied-prefix} of the bracket type definition will also be
+ignored unless one of the following is true, where the context selectors
+are the parsing selectors in effect at the point where the {\em implied-prefix}
+is to be inserted:
+\begin{enumerate}[label=(\alph*)]
+\item The `\TT{enable prefix}' option is set in the context selectors.
+\item The `\TT{enable table prefix}' option is set in the context selectors
+      and a bracket table entry was found for the {\em bracket-type} of
+      the {\em implied-prefix}.
+\item The `\TT{enable header}' option is set in the context selectors
+      and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
+      group was found for the {\em bracket-type} of
+      the {\em implied-prefix}.
+\end{enumerate}
+
+If the {\em implied-prefix} is given, it must have the form
+of a {\em typed-prefix-separator},
+but within its {\em parser-bracket-type-command} it is parsed
+using a definition of its {\em typed-opening} with
+empty {\em prefix-selectors}, so it is recognized there
+as if it were a {\em typed-bracketed-subexpression} with a {\em bracket-type}
+and no {\em elements}, as per
+item~\ref{TYPED-PREFIX-SELECTORS-USE}, \pagref{TYPED-PREFIX-SELECTORS-USE}.
+
+\hspace*{-0.2in}\ttmkey{parsing options}{in bracket type definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that
-have the `\TT{paragraph}' group.  The {\em prefix-options} are
+have the `\TT{paragraph}' group.  The {\em bracket-type-options} are
 used to set the \TT{paragraph\_options} line variable:
 see \itemref{LINE-VARIABLES}.
 
-\hspace*{-0.2in}\ttmkey{paragraph lexical master}{in prefix definition}\\
-\hspace*{-0.2in}\ttmkey{line lexical master}{in prefix definition}\\
+\hspace*{-0.2in}\ttmkey{paragraph lexical master}{in bracket type definition}\\
+\hspace*{-0.2in}\ttmkey{line lexical master}{in bracket type definition}\\
 For prefixes with the `\TT{paragraph}' group, these parameters are
 used to set the corresponding paragraph line variables.
 For prefixes with the `\TT{line}' group, these are used to set
 the corresponding current line variables.
 See \itemref{LINE-VARIABLES} for details.
 
-If `\TT{with lexical master}' is given in the `\TT{define prefix}'
+If `\TT{with lexical master}' is given in the `\TT{define bracket type}'
 command, both lexical master parameters are set to the same
 {\em lexical-master-name}.
 
@@ -5934,10 +5981,10 @@ represented by a {\em prefix-n-list} headed by a defined prefix:
 
 
 \begin{indpar}[0.5em]
-The subexpression must be a token list that could be represented by
+The {\em prefix-n-list} must be a token list that could be represented by
 a headed logical line of the form:
 \begin{center}
-\TT{\{}{\em prefix} \TT{\}}
+\TT{\{}{\em prefix}\TT{\}}
             {\em ID} ~ {\em equal-sign} ~ {\em element-list}
      ~ {\em indented-attributes}\QMARK{}
 \end{center}

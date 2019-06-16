@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 7, 2019
+June 16, 2019
  
 \end{center}
 
@@ -1704,9 +1704,18 @@ defined by statements of the form:
 \subsection{Number Types}
 \label{NUMBER-TYPES}
 
-Numbers are sequences of bits, and each number is one of
+\ikey{Numbers}{number} are sequences of bits that can be stored in registers
+or in random access memory (RAM).
+Each number has a \mkey{size}{of number}, which is
+its number of bits.  For example, unsigned integers can have
+sizes of 8, 16, 32, 64, or 128 bits.
+
+Numbers are of
 four kinds, unsigned integer, signed integer, floating point number,
-or address:
+or address.
+
+The following is a list of all the number types, all of which are
+builtin:
 
 \begin{indpar}
 \begin{tabular}{p{1.5in}@{~~~~~~}p{2in}@{~~~~~~}l}
@@ -1756,7 +1765,7 @@ or address:
 
 \end{indpar}
 
-These are the \key{built in number types}.  The \TT{adr} type is a
+The \TT{adr} type is a
 signed or unsigned integer used as an address, and is differentiated
 from other integers in case hardware differentiates addresses from
 integers.
@@ -1770,10 +1779,11 @@ number types, except for implementations
 that do not implement \underline{any} floating point types.
 
 It is required that the sizes of {\tt unswrd} and {\tt intwrd} be the
-same, and that the sizes of {\tt unsmax} and {\tt intwrd} be the
+same, and that the sizes of {\tt unsmax} and {\tt intmax} be the
 same.  It is required that the size of {\tt unsmax} be at least
-as large as the size of {\tt unswrd}, and similarly for {\tt int\ldots}
-and {\tt float\ldots}.
+as large as the size of {\tt unswrd}, that {\tt intmax} be at least
+as large as {\tt intwrd}, and that {\tt floatmax} be at least as large
+as {\tt floatwrd}.
 
 Here `\TT{std}' is the module abbreviation for the \TT{"standard"}
 module to which builtin types and functions belong.  For convenience
@@ -1835,10 +1845,10 @@ replaced by the {\em replacement-name}.  See \itemref{ABBREVIATIONS} for
 more abbreviation details.
 
 In this document we will use these abbreviations as the
-`\skey{builtin number type}s':
+`\skey{number type}s':
 
 \begin{indpar}
-{\em builtin-number-type-name}\label{BUILTIN-NUMBER-TYPE-NAME}
+{\em number-type-name}\label{NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}cl}
     ::= & \TT{uns8} $|$ \TT{uns16} $|$ \TT{uns32} $|$ \TT{uns64}
                     $|$ \TT{uns128} \\
@@ -1852,13 +1862,6 @@ In this document we will use these abbreviations as the
 \end{indpar}
 
 \subsubsection{Integer Number Types}
-
-The \mkey{size}{of number}
-of a number is the number of its bits.  Numbers can have
-different sizes: for example, unsigned integers can have
-sizes of 8, 16, 32, 64, or 128 bits.
-
-Numbers are stored in registers or in random access memory (RAM).
 
 An \key{unsigned integer} of size $S$ is a binary integer with
 $S$ binary digits (\skey{bit}s) and range from $0$ to $2^S-1$.
@@ -2209,9 +2212,9 @@ of inaccessible memory if there was no error, so values pointing at
 inaccessible memory can be used as error values.
 
 Each error value contains an \key{error code}, which is a small
-non-negative integer that give some information as to the kind of error.
+non-negative integer that gives some information as to the kind of error.
 
-The following builtin functions manipulate error values for a given type $T$:
+The following builtin functions manipulate error values for any number type $T$:
 \begin{indpar}
 {\tt function $T$ r = \ttstdkey{ERROR} ( unswrd code )}
 \begin{indpar}
@@ -2230,57 +2233,55 @@ Returns \TT{true} if and only if {\tt value} is an error value.
 {\tt function unswrd r = \ttstdkey{error code of} ( $T$ value ) }
 \begin{indpar}
 Returns error code of {\tt value} if that is an error value, or
-returns {\tt unswrd(ERROR(BAD RANGE))} if {\tt value} is not
+returns {\tt BAD RANGE} if {\tt value} is not
 an error value.
 \end{indpar}
 {\tt function unswrd r = \ttstdkey{MAX ERROR CODE} ( type t == $T$ )}
 \begin{indpar}
-Returns the maximum allowed error code for type $T$.  For builtin number
-types $T$, this is at least $2^s-1$ where $s$ is the size in bits of
+Returns the maximum allowed error code for type $T$.
+This is at least $2^s-1$ where $2s$ is the size in bits of
 numbers of type $T$, with the exception of the \TT{adr} type.  For
-the \TT{adr} type the maximum allowed error code is $2*{20}-1$ for 32-bit
+the \TT{adr} type the maximum allowed error code is $2^{20}-1$ for 32-bit
 values and $2^{30}-1$ for 64-bit values.
 
 \end{indpar}
 \end{indpar}
 
-For a builtin unsigned integer type $T$ and an error code c not greater
-than the maximum allowed for $T$,
+Error codes are computed as follows for an integer type $T$ and an error
+code $c$ not greater than the maximum allowed for $T$:
 \begin{center}
-\tt ERROR(c) == $T$(max value) - c
+\begin{tabular}{l@{~~~~~~~~~~}l}
+$T$ is unsigned integer & \tt ERROR(c) == $T$(max value) - $c$
+\\[1ex]
+$T$ is signed integer & \tt ERROR(c) == $T$(min value) + $c$
+\\[1ex]
+$T$ is \TT{adr} & \tt ERROR(c) == NULL + $c$  ~~~~~ [see text]\\
+\end{tabular}
 \end{center}
 
-For a builtin signed integer type $T$ and an error code c not greater
-than the maximum allowed for $T$,
-\begin{center}
-\tt ERROR(c) == $T$(min value) + c
-\end{center}
-
-The \TT{adr} type is an exception.  For this type, \TT{NULL} is the address
+For the \TT{adr} type, \TT{NULL} is the address
 of a block of unimplemented memory that is at least 1 megabyte on computers
 with 32 bit virtual addresses and at least 1 gigabyte on computers
-with 48 or more bit virtual addresses.  Error codes for the \TT{adr} type
-are:
-\begin{center}
-\tt ERROR(c) == adr(NULL) + c
-\end{center}
+with 48 or more bit virtual addresses.  Thus using an \TT{adr} error code
+as an address will cause a memory fault.
 
-For a builtin floating point number type $T$ whose values are of size
+For a floating point number type $T$ whose values are of size
 $s$ bits, the high order $s/2$ bits of every error value of type $T$
 is the same and this value designates the error value as a non-signaling NaN.
+The low order $s$ bits are the error code.
 
-The following are standard error code values:
+The following are builtin error code values for all number types $T$:
 \begin{indpar}
 
-{\tt function unswrd r = \ttstdkey{INSUFFICIENT MEMORY}} ~~~ (== 0)
+{\tt function $T$ r = \ttstdkey{INSUFFICIENT MEMORY}} \hfill [code == 1]
 \begin{indpar}
 Not enough memory is available.
 \end{indpar}
-{\tt function unswrd r = \ttstdkey{BAD RANGE}} ~~~ (== 1)
+{\tt function $T$ r = \ttstdkey{BAD RANGE}} \hfill [code == 2]
 \begin{indpar}
 Argument is out of range.
 \end{indpar}
-{\tt function unswrd r = \ttstdkey{BAD ALIGNMENT}} ~~~ (== 2)
+{\tt function $T$ r = \ttstdkey{BAD ALIGNMENT}} \hfill [code == 3]
 \begin{indpar}
 Alignment argument is out of range.
 \end{indpar}
@@ -2326,19 +2327,25 @@ A \TT{type} value can be associated with zero or more {\em type-names},
 which can be used in various ways, including as the name of a constant
 equal to the \TT{type} value.
 
-In a {\em defined-type-declaration}
-the {\em base-type-expression} specifies
-the `\key{base type}' of the new type defined
-by the {\em defined-type-declaration}.
-The {\em defined-type-name} names a new `\key{defined type}'.
+A {\em defined-type-declaration} declares a new \TT{type} enumeration
+value and associates a type name, the
+{\em defined-type-name}, with this new \TT{type} value.
+The {\em base-type-expression} specifies
+the `\key{base type}' of the new type.
 The simplest {\em base-type-expres\-sion} is just a {\em type-name} of the
-base type.
+base type.  It is possible to associate more type names with the
+same \TT{type} value:
+see {\em type-name-declaration}, \pagref{TYPE-NAME-DECLARATION}.
 
-Any {\em qualifiers} in the declaration are attached to every
-variable or argument declared with the {\em defined-type-name} (see
+Any variable {\em qualifiers} in the declaration are attached to every
+variable declared with the {\em defined-type-name} (see
+section \itemref{QUALIFIERS} for more on {\em qualifiers}).
+Any value {\em qualifiers} in the declaration are attached to every
+variable and every argument declared with the {\em defined-type-name} (see
 section \itemref{QUALIFIERS} for more on {\em qualifiers}).
 Such {\em qualifiers} are associated with {\em type-names} and not
-with \TT{type} values.
+with \TT{type} values:
+see {\em type-name-declaration}, \pagref{TYPE-NAME-DECLARATION}.
 
 No {\em type-name} may be a prefix of
 any {\em deferred-variable} (\pagref{DEFERRED-VARIABLE})
@@ -2399,18 +2406,18 @@ variables of an unchecked type conversion.  An example of
 their use to define type and \underline{explicit} conversion from
 type {\tt T1} to type {\tt T2} that is \underline{not} unchecked is:
 \begin{indpar}\label{NOT-UNCHECKED-CONVERSION-DEFINITION}\begin{verbatim}
-define type T1 as T2
+define type T2 as T1
 function T2 r = T2 ( T1 v ):
-    *UNCHECKED* r2 = T2 ( v )
+    *UNCHECKED* T2 r2 = T2 ( v )
     r = r2
 \end{verbatim}\end{indpar}
 They can also be used to define an implied conversion from type
 {\tt T1} to type {\tt T2}, as in the
 following example:
 \begin{indpar}\begin{verbatim}
-define type T1 as T2
+define type T2 as T1
 function Qs T2 r = assign (| qualifiers Qs |) ( Qs T1 v ):
-    *UNCHECKED* Qs r2 = T2 ( v )
+    *UNCHECKED* Qs T2 r2 = T2 ( v )
     r = r2
 \end{verbatim}\end{indpar}
 See \itemref{IMPLIED-CONVERSION} implied conversion details.
@@ -2445,11 +2452,11 @@ An additional name may be associated with a type by the statement:
 \end{indpar}
 
 Unlike the {\em defined-type-declaration}, the {\em type-name-declaration}
-does \underline{not} define a new type.  It merely defines a new
-{\em type-name} that references an old type.
+does \underline{not} define a new \TT{type} value.  It merely defines a new
+{\em type-name} that references an old \TT{type} value.
 The {\em qualifier-names} in either declaration are associated
 with the {\em type-name}, and not the type, and are applied whenever
-the {\em type-name} is used to declare a variable.
+the {\em type-name} is used to declare a variable or argument.
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -2470,12 +2477,12 @@ There is one builtin defined type:
 define type \ttstdkey{bool}\label{BOOL} as unswrd \\
 define abbreviation \ttkey{bool} \ABV{} `std bool' \\
 function std bool r = \ttstdkey{false}: \\
-\TS~~~~*UNCHECKED* r2 = std bool ( 0 ) \\
+\TS~~~~*UNCHECKED* bool r2 = std bool ( 0 ) \\
 \TS~~~~r = r2 \\
 function std bool r = \ttstdkey{true}: \\
-\TS~~~~*UNCHECKED* r2 = std bool ( 1 ) \\
+\TS~~~~*UNCHECKED* bool r2 = std bool ( 1 ) \\
 \TS~~~~r = r2 \\
-function std intwrd r = \ttstdmkey{int}{of {\tt bool}} ( bool v ): \\
+function std unswrd r = \ttstdmkey{unswrd}{of {\tt bool}} ( bool v ): \\
 \TS~~~~r = 1 if v else 0
 \end{indpar}
 

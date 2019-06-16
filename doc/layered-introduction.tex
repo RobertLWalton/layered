@@ -5334,7 +5334,8 @@ option).
 When a {\em typed-opening} (e.g.~`\TT{\{}') is recognized,
 the current parsing selector set and options become the
 \ikey{context selectors and options}%
-{context!selectors and options!of {\em typed-bracketed-subexpression}}
+{context!selectors and options!of {\em typed-bracketed-subexpression}}%
+\label{CONTEXT-SELECTORS}
 of the {\em typed-bracketed-subexpression}.
 The current parsing selectors are then reset to the
 {\em typed-attribute-selectors} associated with the {\em typed-opening}
@@ -5511,8 +5512,8 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{typed-attribute-multivalue-opening} ::= {\em quoted-key}
 \\[0.5ex]
-\emkey{typed-prefix-selectors} ::= {\em selector-flags}
-	~ [\pagref{SELECTOR-FLAGS}]
+\emkey{typed-prefix-selectors}\label{TYPED-PREFIX-SELECTORS}
+    ::= {\em selector-flags} ~ [\pagref{SELECTOR-FLAGS}]
 
 \label{TYPED-BRACKET-DEFINITIONS}
 \end{indpar}
@@ -5644,37 +5645,49 @@ The general syntax of a typed prefix separator is:
 \emkey{bracket-type-label} ::= see \pagref{BRACKET-TYPE-LABEL}
 \\[0.5em]
 \emkey{bracket-type-mark} ::= see \pagref{BRACKET-TYPE-MARK}
-\\[0.5em]
-\emkey{prefix-type}\label{PREFIX-TYPE} ::=
-    \begin{tabular}[t]{l}
-    {\em bracket-type-label} $|$ {\em bracket-type-mark} \\
-    in a {\em typed-prefix-separator}
-    \end{tabular}
 \end{indpar}
 
-TBD
-
-A {\em typed-bracketed-subexpression} with \underline{no}
-elements may be a {\em typed-prefix-separator}
-(see \itemref{TYPED-PREFIX-SEPARATORS}) only if
-the context selectors contain a selector in common with the
-{\em typed-prefix-selectors} associated with
-the {\em typed-opening} by the
-\TT{parser define typed bracket} command (see below) and at
-least one of the following is true:
-\begin{itemize}
+{\em Typed-prefix-separators} and {\em typed-bracketed-subexpressions}
+are parsed by the same algorithm that is driven by parameters from
+the same {\em parser-typed-bracket-command} for a given {\em typed-opening}
+(e.g., `\TT{\{}').
+After the {\em typed-closing}
+(e.g., `\TT{\}}') is read, the parsed subexpression is classified as
+a {\em typed-prefix-separator} if all of the following are true:
+\begin{enumerate}
+\item The subexpression does not contain a {\em typed-middle} (e.g., `\TT{|}'). 
+\item The subexpression does not contain two {\em bracket-type-marks}.
+\item The subexpression contains a non-missing
+      {\em bracket-type} (i.e., the subexpression is \underline{not}
+      `\TT{\{\}}' or `\TT{\{""\}}').
+\item The subexpression context selectors (\pagref{CONTEXT-SELECTORS})
+and the {\em typed-prefix-selectors} (\pagref{TYPED-PREFIX-SELECTORS})
+associated with the {\em typed-opening} by the
+{\em parser-typed-bracket-command} have at least one selector flag in
+common (the {\em typed-prefix-selectors} default to all selectors on,
+so this requirement is met by default).
+\item At least one of the following is true:
+\begin{enumerate}
 \item The `\TT{enable prefix}' option is set in the context selectors.
 \item The `\TT{enable table prefix}' option is set in the context selectors
       and a bracket table entry was found for the {\em bracket-type}.
 \item The `\TT{enable header}' option is set in the context selectors
       and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
       group was found for the {\em bracket-type}.
-\end{itemize}
+\end{enumerate}
+\end{enumerate}
 
+If all of the above are true, the subexpression is a
+{\em typed-prefix-separator} and can head a {\em prefix-N-list}.
+Otherwise the subexpression is a {\em typed-bracketed-subexpression}
+(without any {\em elements} if it meets the requirements 1 and 2 above)
+and is a token by itself that \underline{cannot} head a {\em prefix-N-list}.
+In the rest of this section we will only talk about
+{\em typed-prefix-separators}.
 
 A {\em typed-prefix-separator} is converted to a MIN object which has the
 same structure as a typed bracketed subexpression with an empty element list.
-In particular, the {\em prefix-type} of the {\em typed-prefix-separator}
+In particular, the {\em bracket-type} of the {\em typed-prefix-separator}
 becomes the \TT{.type} attribute of the MIN object.
 
 {\em Typed-prefix-separators} are used to form {\em prefix-N-lists}.%
@@ -5745,15 +5758,6 @@ is just alternate syntax for
 \TT{\{T| X Y Z |\}}
 \end{center}
 
-A \emkey{prefix-type} is a
-{\em bracket-type} or {\em type-mark} in a {\em typed-prefix-separator}.
-The {\em prefix-type} of a {\em typed-prefix-separator}
-may be looked up in the
-bracket type table (\itemref{BRACKET-TYPE-DEFINITIONS}) and the
-information found may be used to change the selectors and options
-used to scan the {\em prefix-n-list} headed by
-the {\em typed-prefix-separator}.
-
 \subsubsection{Bracket Type Definitions}
 \label{BRACKET-TYPE-DEFINITIONS}
 
@@ -5761,7 +5765,7 @@ Unlike brackets and indentation marks, {\em bracket-types}
 (\pagref{BRACKET-TYPE}) do {\bf not}
 have to be defined in order to be used.  But a {\em bracket-type}
 can be defined so that it has special effects on parsing, particularly
-if it is a {\em prefix-type} (\pagref{PREFIX-TYPE}).
+if it is the {\em bracket-type} of a {\em typed-prefix-separator}.
 
 Bracket type definitions are stored in the `\key{bracket type table}'
 which is one of the parser symbol tables.

@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 16, 2019
+June 17, 2019
  
 \end{center}
 
@@ -2626,6 +2626,110 @@ of the underlying type of the enumeration value's enumeration type.
 This is called the `\mkey{underlying value}{of enumeration value}'
 of the enumeration value.
 
+The enumeration value also has a numeric value in the range
+{\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}, which is
+called the `\mkey{range value}{of enumeration value}' of the
+enumeration value.  The difference between the underlying value
+and the range value of an enumeration value is a constant
+called the `\mkey{enumeration offset}{of enumeration type}' of
+the enumeration type.
+
+Thuse for a value $V$ of enumeration type $E$:
+\begin{center}
+underlying value of $V$ = range value of $V$ + enumeration offset of $E$
+\end{center}
+
+If the base type of an enumeration type is an integer type,
+the integer value corresponding to {\em first-enum} is {\em first-enum}
+itself, and similarly for {\em last-enum}.  Thus the enumeration offset
+is zero and we have the following example:
+\begin{indpar}\begin{verbatim}
+define type E as int32 with enum range [1 .. 20]
+    // Now enumeration offset of (E) == 0
+E C1 = next enum
+    // Now underlying value of (C1) == 1
+E C2 = next enum
+    // Now underlying value of (C2) == 2
+E C3 = previous enum
+    // Now underlying value of (C3) == 20
+E C4 = previous enum
+    // Now underlying value of (C4) == 19
+\end{verbatim}\end{indpar}
+
+The effect of an {\em enumeration-type-declaration} with an
+{\em enum-type-expression} base type is as follows:
+
+\begin{indpar}
+\begin{itemlist}
+\item[\TT{define type} {\em qualifier-name}\STAR{}]
+              \begin{tabular}[t]{@{}l@{}}
+              {\em enum-type-name}~~\TT{as}~~%
+              \TT{next}~~{\em enum-type-expression} \\
+	      \TT{with enum range [}
+	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
+	      \end{tabular} \\
+Has the effect of compiling the statements:
+\begin{center}
+\begin{tabular}{l}
+{\em base-enum-type-name} {\tt ~V0~~=~~next enum} \\
+{\em base-enum-type-name} {\tt ~V1~~=~~next enum} \\
+{\em base-enum-type-name} {\tt ~V2~~=~~next enum} \\
+\ldots\ldots\ldots \\
+{\em base-enum-type-name} {\tt ~V$n$~~=~~next enum} \\
+\end{tabular}
+\end{center}
+where $n$ = {\em last-enum} - {\em first-enum}, and then setting
+\begin{center}
+enumeration offset of {\em enum-type-name} =
+underlying value of V0 - {\em first-enum}
+\end{center}
+\item[\TT{define type} {\em qualifier-name}\STAR{}]
+              \begin{tabular}[t]{@{}l@{}}
+              {\em enum-type-name}~~\TT{as}~~%
+              \TT{previous}~~{\em enum-type-expression} \\
+	      \TT{with enum range [}
+	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
+	      \end{tabular} \\
+Has the effect of compiling the statements:
+\begin{center}
+\begin{tabular}{l}
+{\em base-enum-type-name} {\tt ~V0~~=~~previous enum} \\
+{\em base-enum-type-name} {\tt ~V1~~=~~previous enum} \\
+{\em base-enum-type-name} {\tt ~V2~~=~~previous enum} \\
+\ldots\ldots\ldots \\
+{\em base-enum-type-name} {\tt ~V$n$~~=~~previous enum} \\
+\end{tabular}
+\end{center}
+where $n$ = {\em last-enum} - {\em first-enum}, and then setting
+\begin{center}
+enumeration offset of {\em enum-type-name} =
+underlying value of V0 - {\em last-enum}
+\end{center}
+\end{itemlist}
+\end{indpar}
+
+The above is exemplified by:
+\begin{indpar}\begin{verbatim}
+define type E1 as int32 with enum range [1 .. 20]
+    // Now enumeration offset of (E1) == 0
+E1 C1 = previous enum
+    // Now range value of (C1) == 20
+    // Now underlying value of (C1) == 20
+define type E2 as previous E1 with enum range [1 .. 10]
+    // Now enumeration offset of (E2) == 9
+E2 C2 = next enum 
+    // Now range value of (C2) == 1,
+    // Now underlying value of (C2) == 10
+E2 C3 = previous enum 
+    // Now range value of (C3) == 10,
+    // Now underlying value of (C3) == 19
+define type E3 as next E2 with enum range [1 .. 5]
+    // Now enumeration offset of (E3) == 10
+E3 C4 = next enum 
+    // Now range value of (C4) == 1,
+    // Now underlying value of (C4) = 11
+\end{verbatim}\end{indpar}
+
 TBD
 
 Information about
@@ -2681,15 +2785,6 @@ These conversions do nothing but change the type of the value.
 
 \end{indpar}
 
-The enumeration value also has a
-numeric value in the range
-{\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}, which is
-called the `\mkey{range value}{of enumeration value}' of the
-enumeration value.  The difference between the underlying value
-and the range value of an enumeration value is a constant
-called the `\mkey{enumeration offset}{of enumeration type}' of
-the enumeration type.
-
 In order to represent range values the `\mkey{range type}{of enumeration type}'
 is used.
 This is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
@@ -2744,100 +2839,6 @@ Thus for a value {\tt v} of an enumeration type $E$,
 			      + enumeration offset of ( $E$ )
 			      \end{tabular}
 \end{center}
-
-If the base type of an enumeration type is an integer type,
-the integer value corresponding to {\em first-enum} is {\em first-enum}
-itself, and similarly for {\em last-enum}.  Thus the enumeration offset
-is zero and we have the following example:
-\begin{indpar}\begin{verbatim}
-define type E as int32 with enum range [1 .. 20]
-    // Now enumeration offset of (E) == 0
-E C1 = next enum
-    // Now underlying value of (C1) == 1
-E C2 = next enum
-    // Now underlying value of (C2) == 2
-E C3 = previous enum
-    // Now underlying value of (C3) == 20
-E C4 = previous enum
-    // Now underlying value of (C4) == 19
-\end{verbatim}\end{indpar}
-
-The enumeration offset of an {\em enum-type-name} is defined in general
-as per the following cases:
-
-\begin{indpar}
-\begin{itemlist}
-\item[\TT{define type} {\em qualifier-name}\STAR{} {\em enum-type-name}~~%
-    \TT{as}~~{\em integer-type-expression} \ldots{}] ~\\
-The enumeration offset of the {\em enum-type-name} equals \TT{0}.
-\item[\TT{define type} {\em qualifier-name}\STAR{}]
-              \begin{tabular}[t]{@{}l@{}}
-              {\em enum-type-name}~~\TT{as}~~%
-              \TT{next}~~{\em enum-type-expression} \\
-	      \TT{with enum range [}
-	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
-	      \end{tabular} \\
-Has the effect of compiling the statements:
-\begin{center}
-\begin{tabular}{l}
-{\em base-enum-type-name} {\tt ~V0~~=~~next enum} \\
-{\em base-enum-type-name} {\tt ~V1~~=~~next enum} \\
-{\em base-enum-type-name} {\tt ~V2~~=~~next enum} \\
-\ldots\ldots\ldots \\
-{\em base-enum-type-name} {\tt ~V$n$~~=~~next enum} \\
-\end{tabular}
-\end{center}
-where $n$ = {\em last-enum} - {\em first-enum}, and then setting
-\begin{center}
-\TT{enumeration offset of (}{\em enum-type-name}\TT{)} = \\
-{\tt ~~~~underlying value of (V0)~-~}{\em first-enum}
-\end{center}
-\item[\TT{define type} {\em qualifier-name}\STAR{}]
-              \begin{tabular}[t]{@{}l@{}}
-              {\em enum-type-name}~~\TT{as}~~%
-              \TT{previous}~~{\em enum-type-expression} \\
-	      \TT{with enum range [}
-	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
-	      \end{tabular} \\
-Has the effect of compiling the statements:
-\begin{center}
-\begin{tabular}{l}
-{\em base-enum-type-name} {\tt ~V0~~=~~previous enum} \\
-{\em base-enum-type-name} {\tt ~V1~~=~~previous enum} \\
-{\em base-enum-type-name} {\tt ~V2~~=~~previous enum} \\
-\ldots\ldots\ldots \\
-{\em base-enum-type-name} {\tt ~V$n$~~=~~previous enum} \\
-\end{tabular}
-\end{center}
-where $n$ = {\em last-enum} - {\em first-enum}, and then setting
-\begin{center}
-\TT{enumeration offset of (}{\em enum-type-name}\TT{)} = \\
-{\tt ~~~~underlying value of (V0)~-~}{\em last-enum}
-\end{center}
-\end{itemlist}
-\end{indpar}
-
-The above is exemplified by:
-\begin{indpar}\begin{verbatim}
-define type E1 as int32 with enum range [1 .. 20]
-    // Now enumeration offset of (E1) == 0
-E1 C1 = previous enum
-    // Now range value of (C1) == 20
-    // Now underlying value of (C1) == 20
-define type E2 as previous E1 with enum range [1 .. 10]
-    // Now enumeration offset of (E2) == 9
-E2 C2 = next enum 
-    // Now range value of (C2) == 1,
-    // Now underlying value of (C2) == 10
-E2 C3 = previous enum 
-    // Now range value of (C3) == 10,
-    // Now underlying value of (C3) == 19
-define type E3 as next E2 with enum range [1 .. 5]
-    // Now enumeration offset of (E3) == 10
-E3 C4 = next enum 
-    // Now range value of (C4) == 1,
-    // Now underlying value of (C4) = 11
-\end{verbatim}\end{indpar}
 
 The following builtin functions allow comparison and subtraction
 of enumeration values:

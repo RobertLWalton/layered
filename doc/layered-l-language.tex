@@ -2781,22 +2781,6 @@ and {\tt 0} is returned if the direction is not given.
 
 \end{indpar}
 
-TBD
-
-The following unchecked conversions between enumeration values are builtin:
-\begin{indpar}
-
-{\tt function \TT{*UNCHECKED*} $E1$ r = $E1$ ( $E2$ v )}
-\begin{center}
-where $E1$ and $E2$ are both enumeration types
-and $E1$ and $E2$ have the same underlying type
-\end{center}
-\begin{indpar}
-These conversions do nothing but change the type of the value.
-\end{indpar}
-
-\end{indpar}
-
 The following builtin functions allow comparison and subtraction
 of enumeration values:
 
@@ -2833,14 +2817,32 @@ Two enumeration values of different types
 may be compared or subtracted if they can be implicitly
 converted to a common enumeration or integer type.
 
+The following unchecked conversions between enumeration values are builtin:
+\begin{indpar}
+
+{\tt function \TT{*UNCHECKED*} $E1$ r = $E1$ ( $E2$ v )}
+\begin{center}
+where $E1$ and $E2$ are both enumeration types
+and $E1$ and $E2$ have the same underlying type
+\end{center}
+\begin{indpar}
+These conversions do nothing but change the type of the value.
+The result may be an illegal $E1$ value, that is, a value whose range
+value is outside the range of $E1$.
+\end{indpar}
+
+\end{indpar}
+
 The following are builtin enumeration types:
 \begin{indpar} \tt
 define types: \\
 \TS~~~~\ttstdkey{type}~as unswrd with enum [0~..] \\
 \TS~~~~\ttstdkey{qualifier}~as unswrd with enum [0~..] \\
+\TS~~~~\ttstdkey{error code}~as unswrd with enum [0~..] \\
 define abbreviations: \\
 \TS~~~~\ttkey{type} \ABV{} `std type' \\
 \TS~~~~\ttkey{qualifier} \ABV{} `std qualifier' \\
+\TS~~~~\ttkey{error code} \ABV{} `std error code'
 \\[1ex]
 type \ttstdkey{missing type}~= next enum // 0 \\
 function std type r = \ttstdmkey{missing}{type}: \\
@@ -2849,17 +2851,19 @@ function std type r = \ttstdmkey{missing}{type}: \\
 qualifier~\ttstdkey{missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttstdmkey{missing}{qualifier}: \\
 \TS~~~~r = std missing qualifier
+\\[1ex]
+error code~\ttstdkey{NULL error code}~= next enum // 0 \\
+function std error code r = \ttstdmkey{NULL}{error code}: \\
+\TS~~~~r = std NULL error code
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
 are given unspecified (i.e., implementation dependent)
 `\TT{type}' enumeration values.
 Similarly builtin qualifiers, e.g.~\TT{*READ*}, are given
-unspecified `\TT{quali\-fier}' enumeration values.  
-The `\TT{range value of}' function above
-can be used to find the range value of an
-enumeration constant, but unspecified builtin values may differ from
-one compilation or program to the next.
+unspecified `\TT{quali\-fier}' enumeration values,
+and builtin error codes, e.g.~\TT{BAD ARG\-U\-MENT},
+are given unspecified `\TT{error code}' enumeration values.
 
 Enumeration values are assigned within a compilation in
 the order that {\em enum-assignments} are compiled.
@@ -2876,7 +2880,7 @@ Thus values assigned within the same code file can be assumed to
 have the same relative values at compile and run times.  Also,
 compile and run values of a given enumeration type
 can be assumed to be the same if \underline{all} values
-of that enumeration type are assigned in the a single code file.
+of that enumeration type are assigned in a single code file.
 
 \subsection{Enumeration Set and List Types}
 \label{ENUMERATION-SET-AND-LIST-TYPES}

@@ -2534,7 +2534,7 @@ A declaration statement of the following form defines an \key{enumeration type}:
     \end{tabular}
 \\[0.5ex]
 \emkey{integer-type-expression} ::= {\em expression} evaluating at compile-time
-				 to a builtin integer \TT{type}
+				 to a integer \TT{type}
 \\[0.5ex]
 \emkey{enum-direction} ::= \TT{next} $|$ \TT{previous}
 \\[0.5ex]
@@ -2577,45 +2577,6 @@ underlying type of the base type otherwise.
 This definition is recursive, so the underlying type of an enumeration
 type is always an
 integer type.
-
-Information about
-an enumeration type
-can be discovered by the functions:
-
-\begin{indpar}
-
-{\tt function type r = \ttstdkey{base type of} ( type t )} \\
-{\tt function type r = \ttstdkey{underlying type of} ( type t )}
-
-\begin{indpar}
-Returns the base type or underlying type of the enumeration type {\tt t}.
-\end{indpar}
-
-{\tt function intwrd r = \ttstdkey{enum direction of} ( type t )}
-
-\begin{indpar}
-Returns the {\em enum-direction} of the enumeration type {\tt t}.
-{\tt -1} is returned if the direction is `{\tt previous}',
-{\tt +1} is returned if the direction is `{\tt next}',
-and {\tt 0} is returned if the direction is not given.
-\end{indpar}
-
-{\tt function $I$ r = \ttstdkey{first enum of} ( type t )} \\
-{\tt function $I$ r = \ttstdkey{last enum of} ( type t )}
-
-\begin{center}
-where $I$ is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
-in the set \\
-\TT{unswrd     intwrd     unsmax     intmax} \\
-such that both the {\em first-enum} and the {\em last-enum} \\
-of enumeration type {\tt t} are convertible to $I$
-\end{center}
-
-\begin{indpar}
-Returns the {\em first-enum} or {\em last-enum} of the enumeration type {\tt t}.
-\end{indpar}
-
-\end{indpar}
 
 Enumeration values can be assigned by assignment statements of the form
 \begin{indpar}
@@ -2664,6 +2625,47 @@ In memory an enumeration value is represented by an integer value
 of the underlying type of the enumeration value's enumeration type.
 This is called the `\mkey{underlying value}{of enumeration value}'
 of the enumeration value.
+
+TBD
+
+Information about
+an enumeration type
+can be discovered by the functions:
+
+\begin{indpar}
+
+{\tt function type r = \ttstdkey{base type of} ( type t )} \\
+{\tt function type r = \ttstdkey{underlying type of} ( type t )}
+
+\begin{indpar}
+Returns the base type or underlying type of the enumeration type {\tt t}.
+\end{indpar}
+
+{\tt function intwrd r = \ttstdkey{enum direction of} ( type t )}
+
+\begin{indpar}
+Returns the {\em enum-direction} of the enumeration type {\tt t}.
+{\tt -1} is returned if the direction is `{\tt previous}',
+{\tt +1} is returned if the direction is `{\tt next}',
+and {\tt 0} is returned if the direction is not given.
+\end{indpar}
+
+{\tt function $I$ r = \ttstdkey{first enum of} ( type t )} \\
+{\tt function $I$ r = \ttstdkey{last enum of} ( type t )}
+
+\begin{center}
+where $I$ is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
+in the set \\
+\TT{unswrd     intwrd     unsmax     intmax} \\
+such that both the {\em first-enum} and the {\em last-enum} \\
+of enumeration type {\tt t} are convertible to $I$
+\end{center}
+
+\begin{indpar}
+Returns the {\em first-enum} or {\em last-enum} of the enumeration type {\tt t}.
+\end{indpar}
+
+\end{indpar}
 
 The following unchecked conversions between enumeration values are builtin:
 \begin{indpar}
@@ -2743,7 +2745,7 @@ Thus for a value {\tt v} of an enumeration type $E$,
 			      \end{tabular}
 \end{center}
 
-If the base type of an enumeration type is a builtin integer type,
+If the base type of an enumeration type is an integer type,
 the integer value corresponding to {\em first-enum} is {\em first-enum}
 itself, and similarly for {\em last-enum}.  Thus the enumeration offset
 is zero and we have the following example:
@@ -2949,8 +2951,8 @@ These types can be given type names by
 where $E$ is the element type.
 
 Note that the element type of an enumeration set or list can be
-a builtin integer type or a non-enumeration defined type
-with a builtin integer underlying type.
+an integer type or a non-enumeration defined type
+with an integer underlying type.
 
 The syntax
 for enumeration set and list constants is:
@@ -2984,7 +2986,7 @@ If the {\em enum-values} in an {\em enum-set-constant} or
 types, and these are defined types or enumeration types,
 implied conversions from these to their base types
 are inserted until all have the same defined type, enumeration type,
-or builtin integer type,
+or integer type,
 which is called the
 `\key{common element type}'\label{COMMON-ELEMENT-TYPE}
 of the set or list.

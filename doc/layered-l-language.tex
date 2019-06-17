@@ -2730,19 +2730,44 @@ E3 C4 = next enum
     // Now underlying value of (C4) = 11
 \end{verbatim}\end{indpar}
 
-TBD
+For an enumeration type $E$ defined with range
+{\tt [{\em first-enum}~..~{\em last-enum}]}, the
+`\mkey{range type}{of enumeration type}' of $E$ is defined as the
+most specific type $R$ (\pagref{MORE-SPECIFIC-RELATION})
+in the set
+\begin{center}
+\TT{unswrd     intwrd     unsmax     intmax}
+\end{center}
+such that {\em first-enum}, {\em last-enum}, and all values of the
+underlying type of $E$ are convertible to $R$.
 
-Information about
-an enumeration type
-can be discovered by the functions:
+Given this, information about an enumeration type $E$ with
+range type $R$ can be discovered by the compile time functions:
 
 \begin{indpar}
+
+{\tt function $R$ r = $ma$\QMARK{} \ttkey{underlying value of} ( $E$ v )} \\
+{\tt function $R$ r = $ma$\QMARK{} \ttkey{range value of} ( $E$ v )}
+\begin{indpar}
+Returns the underlying value or range value of {\tt v}.
+\end{indpar}
+
+{\tt function $R$ r = \ttstdkey{first enum of} ( type t )} \\
+{\tt function $R$ r = \ttstdkey{last enum of} ( type t )} \\
+{\tt function $R$ r = \ttstdkey{enumeration offset of} ( type t )}
+
+\begin{indpar}
+Returns the {\em first-enum}, {\em last-enum}, or enumeration offset
+of the enumeration type {\tt t}.
+\end{indpar}
 
 {\tt function type r = \ttstdkey{base type of} ( type t )} \\
-{\tt function type r = \ttstdkey{underlying type of} ( type t )}
+{\tt function type r = \ttstdkey{underlying type of} ( type t )} \\
+{\tt function type r = \ttstdkey{range type of} ( type t )}
 
 \begin{indpar}
-Returns the base type or underlying type of the enumeration type {\tt t}.
+Returns the base type, underlying type, or range type
+of the enumeration type {\tt t}.
 \end{indpar}
 
 {\tt function intwrd r = \ttstdkey{enum direction of} ( type t )}
@@ -2754,22 +2779,9 @@ Returns the {\em enum-direction} of the enumeration type {\tt t}.
 and {\tt 0} is returned if the direction is not given.
 \end{indpar}
 
-{\tt function $I$ r = \ttstdkey{first enum of} ( type t )} \\
-{\tt function $I$ r = \ttstdkey{last enum of} ( type t )}
-
-\begin{center}
-where $I$ is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
-in the set \\
-\TT{unswrd     intwrd     unsmax     intmax} \\
-such that both the {\em first-enum} and the {\em last-enum} \\
-of enumeration type {\tt t} are convertible to $I$
-\end{center}
-
-\begin{indpar}
-Returns the {\em first-enum} or {\em last-enum} of the enumeration type {\tt t}.
 \end{indpar}
 
-\end{indpar}
+TBD
 
 The following unchecked conversions between enumeration values are builtin:
 \begin{indpar}
@@ -2784,61 +2796,6 @@ These conversions do nothing but change the type of the value.
 \end{indpar}
 
 \end{indpar}
-
-In order to represent range values the `\mkey{range type}{of enumeration type}'
-is used.
-This is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
-$R$ in the set \\
-\centerline{\TT{unswrd     intwrd     unsmax     intmax}}
-such that both the {\em first-enum} and the {\em last-enum}
-of the enumeration type are implicitly convertible to $R$.
-
-In order to represent enumeration offset the
-`\mkey{offset type}{of enumeration type}' is used.
-This is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
-$O$ in the set \\
-\centerline{\TT{unswrd     intwrd     unsmax     intmax}}
-such that values of either the underlying type or the range type
-of the enumeration type are implicitly convertible to $O$.
-
-The following builtin functions can be used to find
-these values:
-
-\begin{indpar}
-
-{\tt function $U$ r = $ma$\QMARK{} \ttkey{underlying value of} ( $E$ v )} \\
-{\tt function $R$ r = $ma$\QMARK{} \ttkey{range value of} ( $E$ v )}
-
-\begin{center}
-where $E$ is an {\em enum-type-name}, 
-$ma$ is the {\em module-abbreviation} of $E$ if any, \\
-$U$ is the underlying type of $E$,
-and $R$ is the range type of $E$
-\end{center}
-\begin{indpar}
-The underlying value or range value of {\tt v} is returned.
-\end{indpar}
-
-{\tt function $O$ r = \ttstdkey{enumeration offset of} ( type t )} \\
-{\tt function type r = \ttstdkey{range type of} ( type t )} \\
-{\tt function type r = \ttstdkey{offset type of} ( type t )}
-
-\begin{center}
-where {\tt t} is an enumeration type and $O$ is its offset type
-\end{center}
-\begin{indpar}
-The enumeration offset, range type, or offset type of {\tt t} is returned.
-\end{indpar}
-
-\end{indpar}
-
-Thus for a value {\tt v} of an enumeration type $E$,
-\begin{center}
-\tt underlying value of ( v ) \begin{tabular}[t]{@{}l@{}}
-                              = range value of ( v ) \\
-			      + enumeration offset of ( $E$ )
-			      \end{tabular}
-\end{center}
 
 The following builtin functions allow comparison and subtraction
 of enumeration values:

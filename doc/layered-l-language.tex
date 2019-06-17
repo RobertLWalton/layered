@@ -2201,96 +2201,6 @@ if it may be implicitly converted to the desired type.
 {\em Number-constants} are compile time values and can be combined by
 the standard operators to produce compile time values.
 
-\subsubsection{Error Values}
-\label{ERROR-VALUES}
-
-All number types have \skey{error value}s that can be returned by
-functions to indicate an error.  Error values are typically legal
-number values that cannot be normal return values in a particular context.
-For example, an allocation function would never return the address
-of inaccessible memory if there was no error, so values pointing at
-inaccessible memory can be used as error values.
-
-Each error value contains an \key{error code}, which is a small
-non-negative integer that gives some information as to the kind of error.
-
-The following builtin functions manipulate error values for any number type $T$:
-\begin{indpar}
-{\tt function $T$ r = \ttstdkey{ERROR} ( unswrd code )}
-\begin{indpar}
-Returns the type $T$ error value with given error code.
-\end{indpar}
-{\tt function $T$ r = \ttstdkey{NULL}}\label{NULL}
-\begin{indpar}
-Returns {\tt ERROR(0)}.  Used to indicate a value that is missing,
-but is not necessarily associated with any error.
-\end{indpar}
-{\tt function bool r =
-    \TT{std} ( $T$ value ) \TT{is error}\ttstdindex{is error} }
-\begin{indpar}
-Returns \TT{true} if and only if {\tt value} is an error value.
-\end{indpar}
-{\tt function unswrd r = \ttstdkey{error code of} ( $T$ value ) }
-\begin{indpar}
-Returns error code of {\tt value} if that is an error value, or
-returns {\tt BAD RANGE} if {\tt value} is not
-an error value.
-\end{indpar}
-{\tt function unswrd r = \ttstdkey{MAX ERROR CODE} ( type t == $T$ )}
-\begin{indpar}
-Returns the maximum allowed error code for type $T$.
-This is at least $2^s-1$ where $2s$ is the size in bits of
-numbers of type $T$, with the exception of the \TT{adr} type.  For
-the \TT{adr} type the maximum allowed error code is $2^{20}-1$ for 32-bit
-values and $2^{30}-1$ for 64-bit values.
-
-\end{indpar}
-\end{indpar}
-
-Error codes are computed as follows for an integer type $T$ and an error
-code $c$ not greater than the maximum allowed for $T$:
-\begin{center}
-\begin{tabular}{l@{~~~~~~~~~~}l}
-$T$ is unsigned integer & \tt ERROR(c) == $T$(max value) - $c$
-\\[1ex]
-$T$ is signed integer & \tt ERROR(c) == $T$(min value) + $c$
-\\[1ex]
-$T$ is \TT{adr} & \tt ERROR(c) == NULL + $c$  ~~~~~ [see text]\\
-\end{tabular}
-\end{center}
-
-For the \TT{adr} type, \TT{NULL} is the address
-of a block of unimplemented memory that is at least 1 megabyte on computers
-with 32 bit virtual addresses and at least 1 gigabyte on computers
-with 48 or more bit virtual addresses.  Thus using an \TT{adr} error code
-as an address will cause a memory fault.
-
-For a floating point number type $T$ whose values are of size
-$s$ bits, the high order $s/2$ bits of every error value of type $T$
-is the same and this value designates the error value as a non-signaling NaN.
-The low order $s$ bits are the error code.
-
-The following are builtin error code values for all number types $T$:
-\begin{indpar}
-
-{\tt function $T$ r = \ttstdkey{INSUFFICIENT MEMORY}} \hfill [code == 1]
-\begin{indpar}
-Not enough memory is available.
-\end{indpar}
-{\tt function $T$ r = \ttstdkey{BAD RANGE}} \hfill [code == 2]
-\begin{indpar}
-Argument is out of range.
-\end{indpar}
-{\tt function $T$ r = \ttstdkey{BAD ALIGNMENT}} \hfill [code == 3]
-\begin{indpar}
-Alignment argument is out of range.
-\end{indpar}
-
-\end{indpar}
-
-
-
-
 \subsection{The Void Type}
 \label{THE-VOID-TYPE}
 
@@ -2852,9 +2762,10 @@ qualifier~\ttstdkey{missing qualifier}~= next enum // 0 \\
 function std qualifier r = \ttstdmkey{missing}{qualifier}: \\
 \TS~~~~r = std missing qualifier
 \\[1ex]
-error code~\ttstdkey{NULL error code}~= next enum // 0 \\
+error code~\ttstdkey{NULL ERROR CODE}~= next enum // 0%
+\label{NULL-ERROR-CODE} \\
 function std error code r = \ttstdmkey{NULL}{error code}: \\
-\TS~~~~r = std NULL error code
+\TS~~~~r = std NULL ERROR CODE
 \end{indpar}
 
 Builtin types not mentioned above, such as `\TT{void}' and `\TT{int32}',
@@ -2881,6 +2792,114 @@ have the same relative values at compile and run times.  Also,
 compile and run values of a given enumeration type
 can be assumed to be the same if \underline{all} values
 of that enumeration type are assigned in a single code file.
+
+\subsection{Error Values}
+\label{ERROR-VALUES}
+
+All number types have \skey{error value}s that can be returned by
+functions to indicate an error.  Error values are typically legal
+number values that cannot be normal return values in a particular context.
+For example, an allocation function would never return the address
+of inaccessible memory if there was no error, so values pointing at
+inaccessible memory can be used as error values.
+
+Each error value contains an \key{error code}, which is a small
+non-negative integer that gives some information as to the kind of error.
+There is also an \TT{error code} type, defined as a builtin enumeration
+type, that is implicitly convertable to every number type.
+
+The following \TT{error code} enumeration values have builtin definitions:
+\begin{center}
+\begin{tabular}{lp{4in}}
+\ttstdkey{NULL ERROR CODE} &  Used to indicate a value that is missing, but not
+necessarily associated with any error.  This value is returned by the
+{\tt NULL} function described below, and is defined to have range value
+\TT{0}: see \pagref{NULL-ERROR-CODE}.
+\\[0.5ex]
+\ttstdkey{BAD ERROR CODE} &  When an error code that is too large is
+converted to a number type that cannot store it, the error value stored
+corresponds to this error code instead.
+\\[0.5ex]
+\ttstdkey{BAD RANGE} &  Argument is out of range.
+\\[0.5ex]
+\ttstdkey{BAD ALIGNMENT} &  Alignment argument is out of range.
+\\[0.5ex]
+\ttstdkey{INSUFFICIENT MEMORY} &  Not enough memory is available.
+\end{tabular}
+\end{center}
+
+The maximum error code range value allowed determined by the number type
+as follows:
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+\bf Type & \bf Maximum Error Code Range Value
+\\[1ex]
+\TT{int$x$} & $x/4-1$ \\
+\TT{uns$x$} & $x/4-1$ \\
+\TT{float$x$} & $x/2-1$ \\
+\TT{\ldots wrd} & same as \TT{\ldots $x$} where $x$ is size of type \\
+\TT{\ldots max} & same as \TT{\ldots $x$} where $x$ is size of type \\
+\TT{adr} &  $2^{20}-1$ if addresses are 32 bits, else $2^{30}-1$ \\
+\TT{\ldots adr} & same as \TT{adr} \\
+\end{tabular}
+\end{center}
+
+Error codes are computed as follows for an integer type $T$ and an error
+code range value $c$ not greater than the maximum allowed for $T$:
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}l}
+$T$ is unsigned integer & \tt ERROR(c) == $T$(max value) - $c$
+\\[1ex]
+$T$ is signed integer & \tt ERROR(c) == $T$(min value) + $c$
+\\[1ex]
+$T$ is \TT{adr} & \tt ERROR(c) == NULL + $c$  ~~~~~ [see text]\\
+\end{tabular}
+\end{center}
+
+For the \TT{adr} type, \TT{NULL} is the address
+of a block of unimplemented memory that is at least 1 megabyte on computers
+with 32 bit virtual addresses and at least 1 gigabyte on computers
+with 48 or more bit virtual addresses.  Thus using an \TT{adr} error code
+as an address will cause a memory fault.
+
+For a \TT{float$x$} type $T$,
+the high order $x/2$ bits of every error value of type $T$
+is the same and this value designates the error value as a non-signaling NaN.
+The low order $x$ bits are the error code range value.
+
+The following builtin functions manipulate error values for
+any number type $T$:
+\begin{indpar}
+{\tt function error code r = \ttstdkey{NULL}}\label{NULL}
+\begin{indpar}
+Returns {\tt NULL ERROR CODE}.  Permits \TT{std} to be omitted
+when using {\tt NULL ERROR CODE} (but \TT{std} cannot be omitted with other
+error codes).
+\end{indpar}
+{\tt function bool r = ( $T$ value) \ttstdkey{is} ( error code c )}
+\begin{indpar}
+Returns \TT{true} iff {\tt value} equals {\tt c} converted to type $T$.
+Differs from \TT{==} only for floating point types $T$, for which
+\TT{==} will always return \TT{false} when NaNs are input.
+\end{indpar}
+{\tt function error code r = \ttstdkey{error code of} ( $T$ value ) }
+\begin{indpar}
+Returns error code of {\tt value} if that is an error value, or
+returns {\tt std BAD ERROR CODE} if {\tt value} is not an error value.
+\end{indpar}
+{\tt function bool r = ( $T$ value )\ttstdkey{is error code} }
+\begin{indpar}
+Returns \TT{true} if {\tt value} encodes an error code.
+Same as: \\
+\hspace*{0.3in}{\tt error code of ( value ) != std BAD ERROR CODE}.
+\end{indpar}
+{\tt function unswrd r = \ttstdkey{max error code} ( type t )}
+\begin{indpar}
+Returns the maximum allowed error code range value for a number type $T$.
+\end{indpar}
+\end{indpar}
+
+
 
 \subsection{Enumeration Set and List Types}
 \label{ENUMERATION-SET-AND-LIST-TYPES}

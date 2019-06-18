@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 17, 2019
+June 18, 2019
  
 \end{center}
 
@@ -2513,19 +2513,19 @@ where $T$ is the {\em enum-type-name} and $ma$ is its
 \end{indpar}
 
 Within a compilation the compiler assigns the value {\em first-enum}
-to the first constant named in a `\TT{next enum}'
-{\em enum-assignment} statement for
-the given type, and then for subsequent such statements
-assigns values in increasing order.
+to the constant named in the first `\TT{next enum}'
+{\em enum-assignment} statement for the given type,
+and then for subsequent `\TT{next enum}' statements for that type,
+assigns consecutive integer values in increasing order.
 It is an error if `\TT{next~enum}'
 would return a value beyond the {\em last-enum} value in a range.
 
 Similarly the compiler assigns the value {\em last-enum}
-to the first constant named in a `\TT{previous enum}'
-{\em enum-assignment} statement for
-the given type, and then for subsequent such statements
-assigns values in decreasing order.
-It is an error if `\TT{previous~enum}'
+to the constant named in the first `\TT{previous enum}'
+{\em enum-assignment} statement for the given type.
+Then for subsequent `\TT{previous enum}' statements for that type,
+the compilation assigns consecutive integer values in decreasing order.
+It is an error if `\TT{previous enum}'
 would return a value below the {\em first-enum} value in a range.
 
 It is also an error if for a given type the same value is returned
@@ -2536,15 +2536,16 @@ of the underlying type of the enumeration value's enumeration type.
 This is called the `\mkey{underlying value}{of enumeration value}'
 of the enumeration value.
 
-The enumeration value also has a numeric value in the range
+An enumeration value also has a numeric value in the range
 {\tt [}{\em first-enum}{\tt ,} {\em last-enum}{\tt ]}, which is
 called the `\mkey{range value}{of enumeration value}' of the
 enumeration value.  The difference between the underlying value
-and the range value of an enumeration value is a constant
+and the range value of an enumeration value is constant
+for a given enumeration type, and
 called the `\mkey{enumeration offset}{of enumeration type}' of
-the enumeration type.
+that enumeration type.
 
-Thuse for a value $V$ of enumeration type $E$:
+Thus for a value $V$ of enumeration type $E$:
 \begin{center}
 underlying value of $V$ = range value of $V$ + enumeration offset of $E$
 \end{center}
@@ -2566,8 +2567,8 @@ E C4 = previous enum
     // Now underlying value of (C4) == 19
 \end{verbatim}\end{indpar}
 
-The effect of an {\em enumeration-type-declaration} with an
-{\em enum-type-expression} base type is as follows:
+The effects of {\em enumeration-type-declarations} with
+{\em enum-type-expression} base types are as follows:
 
 \begin{indpar}
 \begin{itemlist}
@@ -2576,7 +2577,7 @@ The effect of an {\em enumeration-type-declaration} with an
               {\em enum-type-name}~~\TT{as}~~%
               \TT{next}~~{\em enum-type-expression} \\
 	      \TT{with enum range [}
-	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
+	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
 	      \end{tabular} \\
 Has the effect of compiling the statements:
 \begin{center}
@@ -2598,7 +2599,7 @@ underlying value of V0 - {\em first-enum}
               {\em enum-type-name}~~\TT{as}~~%
               \TT{previous}~~{\em enum-type-expression} \\
 	      \TT{with enum range [}
-	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \ldots{} \\
+	         {\em first-enum} \TT{..} {\em last-enum} \TT{]} \\
 	      \end{tabular} \\
 Has the effect of compiling the statements:
 \begin{center}
@@ -2650,6 +2651,8 @@ in the set
 \end{center}
 such that {\em first-enum}, {\em last-enum}, and all values of the
 underlying type of $E$ are convertible to $R$.
+It is a compilation error if the range type of an enumeration type
+does not exist.
 
 Given this, information about an enumeration type $E$ with
 range type $R$ can be discovered by the compile time functions:
@@ -2736,7 +2739,7 @@ where $E1$ and $E2$ are both enumeration types
 and $E1$ and $E2$ have the same underlying type
 \end{center}
 \begin{indpar}
-These conversions do nothing but change the type of the value.
+These conversions do nothing but change the type of the underlying value.
 The result may be an illegal $E1$ value, that is, a value whose range
 value is outside the range of $E1$.
 \end{indpar}
@@ -2810,15 +2813,20 @@ type, that is implicitly convertable to every number type.
 
 The following \TT{error code} enumeration values have builtin definitions:
 \begin{center}
-\begin{tabular}{lp{4in}}
+\begin{tabular}{lp{3.5in}}
 \ttstdkey{NULL ERROR CODE} &  Used to indicate a value that is missing, but not
 necessarily associated with any error.  This value is returned by the
 {\tt NULL} function described below, and is defined to have range value
 \TT{0}: see \pagref{NULL-ERROR-CODE}.
 \\[0.5ex]
-\ttstdkey{BAD ERROR CODE} &  When an error code that is too large is
-converted to a number type that cannot store it, the error value stored
-corresponds to this error code instead.
+\ttstdkey{TOO LARGE ERROR CODE} &  If an error code is to be stored in a number,
+and the error code range value
+is too large for the number type to store the error code, this value
+is stored instead.
+\\[0.5ex]
+\ttstdkey{NOT ERROR VALUE} &
+If an error code is to be read from a number, and
+the number value is not an error value, this error code is read instead.
 \\[0.5ex]
 \ttstdkey{BAD RANGE} &  Argument is out of range.
 \\[0.5ex]
@@ -2828,7 +2836,7 @@ corresponds to this error code instead.
 \end{tabular}
 \end{center}
 
-The maximum error code range value allowed determined by the number type
+The maximum error code range value allowed is determined by the number type
 as follows:
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
@@ -2837,8 +2845,10 @@ as follows:
 \TT{int$x$} & $x/4-1$ \\
 \TT{uns$x$} & $x/4-1$ \\
 \TT{float$x$} & $x/2-1$ \\
-\TT{\ldots wrd} & same as \TT{\ldots $x$} where $x$ is size of type \\
-\TT{\ldots max} & same as \TT{\ldots $x$} where $x$ is size of type \\
+\TT{\ldots wrd} & same as \TT{\ldots $x$}
+                  where $x$ is size of \TT{\ldots wrd} \\
+\TT{\ldots max} & same as \TT{\ldots $x$}
+                  where $x$ is size of \TT{\ldots max} \\
 \TT{adr} &  $2^{20}-1$ if addresses are 32 bits, else $2^{30}-1$ \\
 \TT{\ldots adr} & same as \TT{adr} \\
 \end{tabular}
@@ -2852,11 +2862,11 @@ $T$ is unsigned integer & \tt ERROR(c) == $T$(max value) - $c$
 \\[1ex]
 $T$ is signed integer & \tt ERROR(c) == $T$(min value) + $c$
 \\[1ex]
-$T$ is \TT{adr} & \tt ERROR(c) == NULL + $c$  ~~~~~ [see text]\\
+$T$ is \TT{adr} & \tt ERROR(c) == adr(NULL) + $c$  ~~~~~ [see text]\\
 \end{tabular}
 \end{center}
 
-For the \TT{adr} type, \TT{NULL} is the address
+For the \TT{adr} type, \TT{adr(NULL)} is the address
 of a block of unimplemented memory that is at least 1 megabyte on computers
 with 32 bit virtual addresses and at least 1 gigabyte on computers
 with 48 or more bit virtual addresses.  Thus using an \TT{adr} error code
@@ -2864,7 +2874,7 @@ as an address will cause a memory fault.
 
 For a \TT{float$x$} type $T$,
 the high order $x/2$ bits of every error value of type $T$
-is the same and this value designates the error value as a non-signaling NaN.
+is the same and designates the error value as a non-signaling NaN.
 The low order $x$ bits are the error code range value.
 
 The following builtin functions manipulate error values for
@@ -2876,7 +2886,7 @@ Returns {\tt NULL ERROR CODE}.  Permits \TT{std} to be omitted
 when using {\tt NULL ERROR CODE} (but \TT{std} cannot be omitted with other
 error codes).
 \end{indpar}
-{\tt function bool r = ( $T$ value) \ttstdkey{is} ( error code c )}
+{\tt function bool r = \TT{std} ( $T$ value) \ttkey{is} ( error code c )}
 \begin{indpar}
 Returns \TT{true} iff {\tt value} equals {\tt c} converted to type $T$.
 Differs from \TT{==} only for floating point types $T$, for which
@@ -2887,11 +2897,10 @@ Differs from \TT{==} only for floating point types $T$, for which
 Returns error code of {\tt value} if that is an error value, or
 returns {\tt std BAD ERROR CODE} if {\tt value} is not an error value.
 \end{indpar}
-{\tt function bool r = ( $T$ value )\ttstdkey{is error code} }
+{\tt function bool r = \TT{std} ( $T$ value )\ttkey{is error code} }
 \begin{indpar}
-Returns \TT{true} if {\tt value} encodes an error code.
-Same as: \\
-\hspace*{0.3in}{\tt error code of ( value ) != std BAD ERROR CODE}.
+Returns \TT{true} if {\tt value} is an error value and therefore
+encodes an error code.
 \end{indpar}
 {\tt function unswrd r = \ttstdkey{max error code} ( type t )}
 \begin{indpar}
@@ -3804,17 +3813,24 @@ A \TT{null} is appended to the end of the name.
 No check is made that {\tt s} is a legal {\em name-item}.
 \end{indpar}
 
-{\tt function name r = ( name n1 ) "\ttmkey{+}{of names}" ( name n2 )}
+{\tt function name r =
+	\TT{std} ( name n1 ) "\ttmkey{+}{of names}" ( name n2 )}
 \begin{indpar}
 Returns the concatenation of {\tt n1} and {\tt n2}.
 \end{indpar}
 
-{\tt function bool r = ( name n1 ) "\ttmkey{<}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{<=}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{==}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{!=}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{=>}{of names}" ( name n2 )} \\
-{\tt function bool r = ( name n1 ) "\ttmkey{>}{of names}" ( name n2 )}
+{\tt function bool r =
+	\TT{std} ( name n1 ) "\ttmkey{<}{of names}" ( name n2 )} \\
+{\tt function bool r =
+	\TT{std} ( name n1 ) "\ttmkey{<=}{of names}" ( name n2 )} \\
+{\tt function bool r =
+	\TT{std} ( name n1 ) "\ttmkey{==}{of names}" ( name n2 )} \\
+{\tt function bool r =
+	\TT{std} ( name n1 ) "\ttmkey{!=}{of names}" ( name n2 )} \\
+{\tt function bool r =
+	\TT{std} ( name n1 ) "\ttmkey{=>}{of names}" ( name n2 )} \\
+{\tt function bool r =
+	\TT{std} ( name n1 ) "\ttmkey{>}{of names}" ( name n2 )}
 \begin{indpar}
 Returns whether {\tt n1} is less than, less than or equal to,
 equal to, not equal to, greater than or equal to, or greater than

@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 16, 2019
+June 19, 2019
  
 \end{center}
 
@@ -3802,134 +3802,15 @@ The bracketed subexpression recognition pass recognizes:
     where the whole headed paragraph begins with a paragraph
     header:
     \itemref{HEADED-PARAGRAPHS}
+\\[0.5ex]
+\hspace*{-0.2in}broken middle lexemes,
+    whose parts need to be glued together:
+    \itemref{MIDDLE-LEXEME-BREAKS}
+\\[0.5ex]
+\hspace*{-0.2in}split quoted strings,
+    whose parts need to be glued together:
+    \itemref{QUOTED-STRING-CONCATENATION}
 \end{indpar}
-
-The bracketed subexpression recognition pass merges middle lexemes%
-\label{MIDDLE-LEXEME-MERGE}
-if they are consecutive within a logical line,
-the first ends with
-a \key{middle break begin} (e.g., `\TT{\#}'), and the second begins with
-a \key{middle break end} (e.g., `\TT{\#}').
-The middle break begin and end are deleted from the concatenation.
-Thus if logical lines end with a line break
-but permit indented continuation lines, then
-\begin{indpar}\begin{verbatim}
-This is a continued-middle-#
-    #lexeme.
-\end{verbatim}\end{indpar}
-is equivalent to
-\begin{indpar}\begin{verbatim}
-This is a continued-middle-lexeme.
-\end{verbatim}\end{indpar}
-
-The middle break begin and end can be changed, or middle breaks can
-be disabled, by the \TT{define middle break} command.  Middle breaks
-of all current parser blocks can be printed by the \TT{print middle break}
-command.  The syntax of these commands is:
-\begin{indpar}[0.1in]
-\emlkey{parser-middle-break}{-command}%
-\label{PARSER-MIDDLE-BREAK-COMMAND} ::= \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttmkey{define middle break}{parser command}
-		    ~ {\em middle-break-name} \\
-    $|$ & \ttmkey{print middle break}{parser command} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{middle-break-name} ::= \TT{"}{\em middle-break-begin}\TT{"}
-			      \TT{...}{}
-                              \TT{"}{\em middle-break-end}\TT{"}
-		     $|$ \TT{disabled}
-\\[0.5ex]
-\emkey{middle-break-begin} :::=
-    {\em mark} with at least 1 and at most 31 UTF-8 bytes
-\\[0.5ex]
-\emkey{middle-break-end} :::=
-    {\em mark} with at least 1 and at most 31 UTF-8 bytes
-\\[0.5ex]
-{\em mark} ::= see \pagref{MARK}
-\begin{indpar}
-WARNING: {\em middle-break-end} and {\em middle-break-begin} must
-be chosen so bracketed symbol table entries (\pagref{BRACKETED-SYMBOL-TABLE})
-do not begin with a {\em middle-break-begin} or end with a
-{\em middle-break-end}.
-\end{indpar}
-\end{indpar}
-
-If {\em middle-break-name} is `\TT{disabled}', middle lexemes
-are never merged.
-
-The end of a parser block erases the effects of any
-{\em define-middle-break-commands} executed during the block.
-
-When a parser is initialized, the middle break is disabled. The
-`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
-the definition
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define middle break "#" ... "#"
-\end{verbatim}\end{indpar}
-
-The bracketed subexpression recognition pass also merges
-quoted strings if they are in the same logical line and are
-separated by one or two \skey{quoted string concatenator}s (e.g., `\TT{\#}').%
-\label{QUOTED-STRING-CONCATENATION}
-Thus if logical lines permit indented continuation lines, then
-\begin{indpar}\begin{verbatim}
-"This is a longer sentence"#
-    #" than we would like."
-"And this is a second sentence."
-\end{verbatim}\end{indpar}
-is equivalent to
-\begin{indpar}\begin{verbatim}
-"This is a longer sentence than we would like."
-"And this is a second sentence."
-\end{verbatim}\end{indpar}
-This is useful for
-breaking long quoted string lexemes across physical line boundaries.
-But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
-\underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
-quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
-and \TT{>}.  The latter is a 1-character quoted string, the character
-being a line feed.
-
-The quoted string concatenator can be changed or disabled by the
-\TT{define quoted string concatenator} command.  Quoted string concatenators
-of all current parser blocks can be printed by the
-\TT{print quoted string concatenator} command.
-The syntax of these commands is:
-\begin{indpar}[0.1in]
-\emlkey{parser-quoted-string}{-concatenator-command}%
-\label{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} ::= \\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttmlkey{define quoted string}{concatenator}{parser command}
-		    ~ {\em quoted-string-concatenator} \\
-    $|$ & \ttmlkey{print quoted string}{concatenator}{parser command} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{quoted-string-concatenator} ::= {\em quoted-key} with a single component
-		     $|$ \TT{disabled} $|$ \TT{enabled}
-\\[0.5ex]
-\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
-\end{indpar}
-
-If {\em quoted-string-concatenator} is `\TT{disabled}', quoted strings
-are never concatenated.  If it is `\TT{enabled}', consecutive
-quoted strings are concatenated; that is, no concatenator lexeme
-needs to be placed between the strings.
-
-The end of a parser block erases the effects of any
-{\em define-quoted-string-concatenator-commands} executed during the block.
-
-When a parser is initialized, the quoted string concatenator is disabled. The
-`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
-the definition
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define quoted string concatenator "#"
-\end{verbatim}\end{indpar}
 
 The bracketed parser pass has three symbol tables:
 \begin{indpar}[0.3in]
@@ -3971,9 +3852,10 @@ input if their lexemes are not all on the same physical line.
 This is different from other parser passes, which are executed
 after line breaks have been removed.
 
-Also bracketed symbol table (see above) entries should avoid keys
+Also bracketed symbol table entries should avoid keys
 that contain multi-character lexemes that begin with {\em middle-break-begin}
-or end with {\em middle-break-end}.  If such keys are used, they may
+or end with {\em middle-break-end} (see \itemref{MIDDLE-LEXEME-BREAKS}).
+If such keys are used, they may
 not be recognized, or broken {\em middle-lexeme} parts may be misrecognized
 as parts of keys.
 
@@ -4046,11 +3928,144 @@ are similarly divided:
 \label{PARSER-BRACKETED-COMMAND}
 \end{indpar}
 
-The following subsections first describe the output of the
-bracketed subexpression parser pass and then describe
+The following subsections describe middle lexeme breaks,
+quoted string concatenation, and the output of the
+bracketed subexpression parser pass, and then describe
 the different kinds of
-{\em bracketed-subexpressions} and their related
+{\em brac\-keted-subexpressions} and their related
 {\em parser-bracketed-commands}.
+
+\subsubsection{Middle Lexeme Breaks}
+\label{MIDDLE-LEXEME-BREAKS}
+
+The bracketed subexpression recognition pass merges middle lexemes%
+\label{MIDDLE-LEXEME-MERGE}
+if they are consecutive within a logical line,
+the first ends with
+a \key{middle break begin} (e.g., `\TT{\#}'), and the second begins with
+a \key{middle break end} (e.g., `\TT{\#}').
+The middle break begin and end are deleted from the concatenation.
+Thus if logical lines end with a line break
+but permit indented continuation lines, then
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-#
+    #lexeme.
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+This is a continued-middle-lexeme.
+\end{verbatim}\end{indpar}
+
+The middle break begin and end can be changed, or middle breaks can
+be disabled, by the \TT{define middle break} command.  Middle breaks
+of all current parser blocks can be printed by the \TT{print middle break}
+command.  The syntax of these commands is:
+\begin{indpar}[0.1in]
+\emlkey{parser-middle-break}{-command}%
+\label{PARSER-MIDDLE-BREAK-COMMAND} ::= \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmkey{define middle break}{parser command}
+		    ~ {\em middle-break-name} \\
+    $|$ & \ttmkey{print middle break}{parser command} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{middle-break-name} ::= \TT{"}{\em middle-break-begin}\TT{"}
+			      \TT{...}{}
+                              \TT{"}{\em middle-break-end}\TT{"}
+		     $|$ \TT{disabled}
+\\[0.5ex]
+\emkey{middle-break-begin} :::=
+    {\em mark} with at least 1 and at most 31 UTF-8 bytes
+\\[0.5ex]
+\emkey{middle-break-end} :::=
+    {\em mark} with at least 1 and at most 31 UTF-8 bytes
+\\[0.5ex]
+{\em mark} ::= see \pagref{MARK}
+\begin{indpar}
+WARNING: {\em middle-break-end} and {\em middle-break-begin} must
+be chosen so bracketed symbol table entries (\pagref{BRACKETED-SYMBOL-TABLE})
+do not begin with a {\em middle-break-begin} or end with a
+{\em middle-break-end}.
+\end{indpar}
+\end{indpar}
+
+If {\em middle-break-name} is `\TT{disabled}', middle lexemes
+are never merged.
+
+The end of a parser block erases the effects of any
+{\em define-middle-break-commands} executed during the block.
+
+When a parser is initialized, the middle break is disabled. The
+`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
+the definition
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define middle break "#" ... "#"
+\end{verbatim}\end{indpar}
+
+\subsubsection{Quoted String Concatenation}
+\label{QUOTED-STRING-CONCATENATION}
+
+The bracketed subexpression recognition pass merges
+quoted strings if they are in the same logical line and are
+separated by one or two \skey{quoted string concatenator}s (e.g., `\TT{\#}').
+Thus if logical lines permit indented continuation lines, then
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence"#
+    #" than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+is equivalent to
+\begin{indpar}\begin{verbatim}
+"This is a longer sentence than we would like."
+"And this is a second sentence."
+\end{verbatim}\end{indpar}
+This is useful for
+breaking long quoted string lexemes across physical line boundaries.
+But there is an important case where there is not an exact equivalence
+between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+\underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
+quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
+and \TT{>}.  The latter is a 1-character quoted string, the character
+being a line feed.
+
+The quoted string concatenator can be changed or disabled by the
+\TT{define quoted string concatenator} command.  Quoted string concatenators
+of all current parser blocks can be printed by the
+\TT{print quoted string concatenator} command.
+The syntax of these commands is:
+\begin{indpar}[0.1in]
+\emlkey{parser-quoted-string}{-concatenator-command}%
+\label{PARSER-QUOTED-STRING-CONCATENATOR-COMMAND} ::= \\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmlkey{define quoted string}{concatenator}{parser command}
+		    ~ {\em quoted-string-concatenator} \\
+    $|$ & \ttmlkey{print quoted string}{concatenator}{parser command} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{quoted-string-concatenator} ::= {\em quoted-key} with a single component
+		     $|$ \TT{disabled} $|$ \TT{enabled}
+\\[0.5ex]
+\emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
+\end{indpar}
+
+If {\em quoted-string-concatenator} is `\TT{disabled}', quoted strings
+are never concatenated.  If it is `\TT{enabled}', consecutive
+quoted strings are concatenated; that is, no concatenator lexeme
+needs to be placed between the strings.
+
+The end of a parser block erases the effects of any
+{\em define-quoted-string-concatenator-commands} executed during the block.
+
+When a parser is initialized, the quoted string concatenator is disabled. The
+`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
+the definition
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    define quoted string concatenator "#"
+\end{verbatim}\end{indpar}
 
 \subsubsection{Bracketed Subexpression Parser Pass Output}
 \label{BRACKETED-SUBEXPRESSION-PARSER-PASS-OUTPUT}

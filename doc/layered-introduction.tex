@@ -868,7 +868,7 @@ that is \underline{not} a comment line to begin with a {\em comment}.
 {\em Comments} can otherwise be included at any non-beginning position in any
 logical line.
 
-The Bracketed Subexpression Recognition Pass glues together
+The Bracketed Subexpression Recognition Pass merges
 \ikey{quoted string lexemes}{quoted strings!concatenated}
 separated by one or two `\TT{\#}' marks
 if they are in the same logical line
@@ -887,7 +887,7 @@ is equivalent to
 Quoted string concatenation is useful for
 breaking long quoted string lexemes across line continuations.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+between the merged and unmerged versions.  \TT{"<" \# "LF" \# ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
@@ -3804,11 +3804,11 @@ The bracketed subexpression recognition pass recognizes:
     \itemref{HEADED-PARAGRAPHS}
 \\[0.5ex]
 \hspace*{-0.2in}broken middle lexemes,
-    whose parts need to be glued together:
+    whose parts need to be merged together:
     \itemref{MIDDLE-LEXEME-BREAKS}
 \\[0.5ex]
 \hspace*{-0.2in}split quoted strings,
-    whose parts need to be glued together:
+    whose parts need to be merged together:
     \itemref{QUOTED-STRING-CONCATENATION}
 \end{indpar}
 
@@ -3853,8 +3853,8 @@ This is different from other parser passes, which are executed
 after line breaks have been removed.
 
 Also bracketed symbol table entries should avoid keys
-that contain multi-character lexemes that begin with {\em middle-break-begin}
-or end with {\em middle-break-end} (see \itemref{MIDDLE-LEXEME-BREAKS}).
+that contain multi-character lexemes that end with {\em middle-break-begin}
+or begin with {\em middle-break-end} (see \itemref{MIDDLE-LEXEME-BREAKS}).
 If such keys are used, they may
 not be recognized, or broken {\em middle-lexeme} parts may be misrecognized
 as parts of keys.
@@ -3929,10 +3929,10 @@ are similarly divided:
 \end{indpar}
 
 The following subsections describe middle lexeme breaks,
-quoted string concatenation, and the output of the
-bracketed subexpression parser pass, and then describe
-the different kinds of
-{\em brac\-keted-subexpressions} and their related
+quoted string concatenation, the output of the
+bracketed subexpression parser pass, and
+each different kind of
+{\em brac\-keted-subexpression} and its related
 {\em parser-bracketed-commands}.
 
 \subsubsection{Middle Lexeme Breaks}
@@ -3983,9 +3983,9 @@ command.  The syntax of these commands is:
 \\[0.5ex]
 {\em mark} ::= see \pagref{MARK}
 \begin{indpar}
-WARNING: {\em middle-break-end} and {\em middle-break-begin} must
+WARNING: {\em middle-break-begin} and {\em middle-break-end} must
 be chosen so bracketed symbol table entries (\pagref{BRACKETED-SYMBOL-TABLE})
-do not begin with a {\em middle-break-begin} or end with a
+do not end with a {\em middle-break-begin} or begin with a
 {\em middle-break-end}.
 \end{indpar}
 \end{indpar}
@@ -4024,7 +4024,7 @@ is equivalent to
 This is useful for
 breaking long quoted string lexemes across physical line boundaries.
 But there is an important case where there is not an exact equivalence
-between the glued and unglued versions.  \TT{"<" \# "LF" \# ">"} is
+between the merged and unmerged versions.  \TT{"<" \# "LF" \# ">"} is
 \underline{not} equivalent to \TT{"<LF>"}.  The former is a 4-character
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
@@ -7074,8 +7074,7 @@ component is one of
 \em
 simple-operator-name \\
 opening-bracket-name \\
-indentation-mark-name \\
-gluing-indentation-mark-name
+indentation-mark-name
 \end{indpar}
 
 

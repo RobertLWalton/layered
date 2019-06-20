@@ -4363,8 +4363,9 @@ The general syntax is:
                     {\em separator} $|$ {\em quoted-string} \\
     $|$ & {\em untyped-bracketed-subexpression} \\
     $|$ & {\em indented-paragraph-subexpression} \\
-    $|$ & {\em typed-bracketed-subexpression}
-          that is not a {\em typed-prefix-separator} \\
+    $|$ & {\em typed-bracketed-subexpression} \\
+    $|$ & {\em typed-prefix-separator} that is not a prefix:
+          see \pagref{PREFIX-0-LIST} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{indented-paragraph-subexpression} ::=
@@ -4390,17 +4391,17 @@ Note: \begin{minipage}[t]{5.8in}
       \end{minipage}
 \end{indpar}
 
-A \key{bracketed subexpression}\index{bracketed subexpression!untyped}
+An \key{untyped bracketed subexpression}\index{bracketed subexpression!untyped}
 begins with
 an {\em opening-bracket} and ends with a match\-ed
 {\em clos\-ing-bracket} as defined by a
 \TT{parser define bracket} command, an example of which is
 \begin{center}
-\TT{parser define bracket "("~...~")" [operator, text]} \ldots
+\TT{parser define bracket "("~...~")" [math, text]} \ldots
 \end{center}
 which specifies `\TT{(}' to be an {\em opening-bracket}
 with `\TT{)}' as its corresponding {\em closing-bracket}
-and `\TT{operator}' and `\TT{text}' as the definition selectors.
+and `\TT{math}' and `\TT{text}' as the definition selectors.
 
 The general syntax of {\em parser-untyped-bracket-commands} is:
 
@@ -4473,7 +4474,7 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \end{indpar}
 
 Brackets such as `\TT{(}' and `\TT{)}'
-are sometimes called `\key{untyped brackets}'
+are called `\key{untyped brackets}'
 to distinguish them from typed brackets
 such as `\TT{\{b|}' and `\TT{|b\}}'
 in which the type, in this case `\TT{b}',
@@ -4488,7 +4489,7 @@ a {\em partial-opening-bracket} will print all untyped bracket
 symbol table entries.
 
 In the absence of a reformatter,
-a bracketed subexpression is converted to a \TT{BRACKETED}
+an untyped bracketed subexpression is converted to a \TT{BRACKETED}
 token whose \TT{value} is a
 MIN object whose list elements are the components of the
 subexpression except for the brackets.  The
@@ -4533,7 +4534,7 @@ parser define bracket "```" ... "'''" [code]
     ```This logical line continues on no
 matter what, even with a spurious ), until
   the following is encountered- '''
-    Second line of indented paragraph.
+    Second logical line of indented paragraph.
     ) // End of () bracketed subexpression
 \end{verbatim}\end{indpar}
 
@@ -4545,10 +4546,11 @@ represented by an {\em untyped-bracketed-subexpression}:
 \ttmkey{label}{reformatter} \hfill e.g.:~\ttmkey{[<~>]}{reformatting}
 
 \begin{indpar}[0.5em]
-Requires that the expression element values be MIN strings or
-natural numbers or labels.
-Elements derived from {\em quoted-string} or {\em numeric}
-lexemes are considered to be the strings represented by the lexemes.
+Requires that the subexpression elements be {\em words},
+{\em natural-numbers}, {\em numerics}, {\em quoted-strings},
+or MIN label values.
+The value of an element is taken to be the MIN string containing the
+element lexeme or the MIN label value of a non-lexeme element.
 
 The subexpression is converted to a \TT{DERIVED}
 token whose \TT{value} is the value of the single element
@@ -4573,18 +4575,18 @@ token whose \TT{value} is the special value named.
 	\label{MULTIVALUE-REFORMATTER}
 
 \begin{indpar}[0.5em]
-Requires that the expression element values be MIN strings,
-numbers, labels, bracketed subexpressions, or equal to the
+Requires that the subexpression elements be {\em words},
+{\em natural-numbers}, {\em numerics}, {\em quoted-strings},
+or equal to the
 {\em separator} argument (e.g.~\TT{","}).
 
 The subexpression is divided into components by {\em separator}
 tokens and is converted to a \TT{BRACKETED}
 token whose \TT{value} is a list with one element for each
-non-missing component.  A component must be a single MIN object,
-string, number, or label, except that a list of more than one
-string, number, and label valued tokens is converted to a MIN label.
-Components derived from {\em quoted-string} or {\em numeric}
-lexemes are considered to be the strings represented by the lexemes.
+non-missing component.  A component that is a single element
+becomes the MIN string of the lexeme of that element, and a component with
+more than one element becomes a MIN label whose elements are the
+MIN strings of the component elements.
 The \TT{BRACKETED} result token gets the {\em separator} as its
 \TT{.separator} attribute, and the opening and closing brackets
 (e.g.~\TT{\{*~*\}})
@@ -5717,12 +5719,19 @@ the same {\em parser-typed-bracket-command} for a given {\em typed-opening}
 After the {\em typed-closing}
 (e.g., `\TT{\}}') is read, the parsed subexpression is classified as
 a {\em typed-prefix-separator} if all of the following are true:
+\newcounter{PREFIX-COUNTER}
 \begin{enumerate}
 \item The subexpression does not contain a {\em typed-middle} (e.g., `\TT{|}'). 
-\item The subexpression does not contain two {\em bracket-type-marks}.
+\item The subexpression does not contain {\em bracket-type-marks}.
 \item The subexpression contains a non-missing
-      {\em bracket-type} (i.e., the subexpression is \underline{not}
+      {\em bracket-type} (e.g., the subexpression is \underline{not}
       `\TT{\{\}}' or `\TT{\{""\}}').
+\setcounter{PREFIX-COUNTER}{\value{enumi}}
+\end{enumerate}
+A {\em typed-prefix-separator} is classified as a \key{prefix}\label{PREFIX}
+if in addition the following are true:
+\begin{enumerate}
+\setcounter{enumi}{\value{PREFIX-COUNTER}}
 \item\label{TYPED-PREFIX-SELECTORS-USE}
 The subexpression context selectors (\pagref{CONTEXT-SELECTORS})
 and the {\em typed-prefix-selectors} (\pagref{TYPED-PREFIX-SELECTORS})
@@ -5741,20 +5750,18 @@ so this requirement is met by default).
 \end{enumerate}
 \end{enumerate}
 
-If all of the above are true, the subexpression is a
-{\em typed-prefix-separator} and can head a {\em prefix-N-list}.
-Otherwise the subexpression is a {\em typed-bracketed-subexpression}
-(without any {\em elements} if it meets the requirements 1 and 2 above)
-and is a token by itself that \underline{cannot} head a {\em prefix-N-list}.
-In the rest of this section we will only talk about
-{\em typed-prefix-separators}.
-
 A {\em typed-prefix-separator} is converted to a MIN object which has the
 same structure as a typed bracketed subexpression with an empty element list.
 In particular, the {\em bracket-type} of the {\em typed-prefix-separator}
 becomes the \TT{.type} attribute of the MIN object.
 
-{\em Typed-prefix-separators} are used to form {\em prefix-N-lists}.%
+If a {\em typed-prefix-separator} is a {\em prefix},
+it becomes a \TT{PREFIX} token that can head a {\em prefix-N-list}.
+Otherwise it becomes a \TT{BRACKETED} token by itself
+that \underline{cannot} head a {\em prefix-N-list}, but which can
+be a {\em prefix-N-list} {\em element}.
+
+{\em Prefixes} are used to form {\em prefix-N-lists}.%
 \label{PREFIX-0-LIST}
 The following is an example in which {\em line-breaks} are ignored:
 
@@ -5798,9 +5805,9 @@ The general syntax of a prefix-n list is:
     $|$ & {\em simple-element-list} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{prefix-n} ::= {\em typed-prefix-separator}
+\emkey{prefix-n} ::= {\em prefix}
 \\[0.5ex]
-\emkey{prefix} ::= {\em prefix-n}
+\emkey{prefix} ::= see text above
 \\[0.5ex]
 \emkey{simple-element-list} ::= see \pagref{SIMPLE-ELEMENT-LIST}
 \\[0.5ex]

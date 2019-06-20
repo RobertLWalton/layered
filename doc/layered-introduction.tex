@@ -2135,6 +2135,8 @@ A token has the following components:
 		  a \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 		  attribute, but may have other attributes
 		  (besides \TT{.position}).
+		  The \TT{BRACKETABLE} type is given to tokens primarily
+		  by the operator parser pass.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -3810,8 +3812,9 @@ The bracketed subexpression recognition pass recognizes:
     typed prefix separators, which must be inside logical lines:
     \itemref{TYPED-PREFIX-SEPARATORS}
 \\[0.5ex]
-\hspace*{-0.2in}paragraph and line headers, which are special typed prefix
-    separators: \itemref{HEADED-PARAGRAPHS} and \itemref{HEADED-LINES}
+\hspace*{-0.2in}paragraph and line headers, which are specials kinds of
+    typed prefix separators:
+    \itemref{HEADED-PARAGRAPHS} and \itemref{HEADED-LINES}
 \\[0.5ex]
 \hspace*{-0.2in}mapped lexemes, which are special lexemes typically
     produced at the beginning of a logical line that are mapped onto
@@ -4094,11 +4097,17 @@ the definition
     define quoted string concatenator "#"
 \end{verbatim}\end{indpar}
 
+\subsubsection{Bracketed Subexpression Parser Pass Input}
+\label{BRACKETED-SUBEXPRESSION-PARSER-PASS-INPUT}
+
+TBD
+
 \subsubsection{Bracketed Subexpression Parser Pass Output}
 \label{BRACKETED-SUBEXPRESSION-PARSER-PASS-OUTPUT}
 
 The bracketed subexpression recognizer converts
-subexpressions to single \TT{BRACK\-ET\-ED} tokens whose \TT{value}'s
+subexpressions to single \TT{BRACK\-ET\-ED} or \TT{PURE\-LIST}
+tokens whose \TT{value}'s
 are MIN objects, or into \TT{DERIVED} tokens whose values are
 not MIN objects (e.g., they are labels or special values).
 
@@ -4134,7 +4143,7 @@ be given as explicit attributes.  There is a \TT{.type}
 attribute unless the type is represented by \TT{""}.
 {\em Prefix-n-lists} are just an alternate form of
 {\em typed-bracketed-sub\-ex\-pres\-sions}, and headed paragraphs
-are just an alternate form of {\em prefix-n-lists}.
+are just a particular kind of {\em prefix-n-lists}.
 
 The elements of a MIN object are the values of sub-subexpressions and
 may themselves the MIN objects, as when brackets are nested.  The
@@ -4146,11 +4155,12 @@ X has no attributes other than \TT{.type}, \TT{.initiator},
 and \TT{.terminator}, and Y does not have any of these three
 attributes, then X and Y are merged to get a new object with
 the attributes of both X and Y and the elements of Y.  This is implemented
-by having the bracketed subexpression parser give the token type
-\TT{BRACKETABLE} to Y as a temporary token type indicating that Y
+by giving the token type
+\TT{BRACKETABLE} or \TT{PURELIST}
+to Y as a temporary token type indicating that Y
 does not have any \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 attribute.  Then when X is formed, the knowledge of the structure
-of X and the \TT{BRACKETABLE} type of Y permit the two objects
+of X and the \TT{BRACKETABLE} or \TT{PURELIST} type of Y permit the two objects
 to be merged.%
 \label{MERGING-BRACKATABLE-TOKENS}
 
@@ -4165,12 +4175,12 @@ The token sequence
 \end{center}
 is converted by the standard operator pass
 (see \itemref{OPERATOR-PARSING-PASS})
-to
+to a \TT{BRACKETABLE} token with value
 \begin{center}
 \tt \{"": .separator = "," | x  \{| y 5 |\} 8 w p |\}
 \end{center}
-where \TT{""} denotes a missing \TT{.type}.  This is a \TT{BRACKETABLE}
-token.  If we denote it by Y,
+where \TT{""} denotes a missing \TT{.type}.
+If we denote this token value by Y,
 then the full expression is
 \begin{center}
 \tt \{"": .initiator = "(", .terminator = ")" | Y |\}
@@ -4186,7 +4196,7 @@ and the above rule merges the attributes into Y to get
 as the \TT{value} of a \TT{BRACKETED} token.
 
 In the process of forming a MIN object, some tokens must be converted to
-object elements.  If these tokens have MIN values, their values are used,
+object elements.  The MIN values of these tokens become the object elements,
 except for quoted string and numeric lexemes.
 Quoted string and numeric lexemes
 are first converted to a MIN object
@@ -4196,7 +4206,7 @@ the token \TT{value}.
 
 Note that natural-numbers, consisting of just decimal digits
 with no leading zeros, are not numeric lexemes, and have MIN string
-values equal to the lexeme (the string of digits).  This allows
+token values equal to the lexeme (the string of digits).  This allows
 arbitrarily long natural-numbers to be used in names.
 
 Thus for example, the parser input
@@ -4285,9 +4295,9 @@ mentioned above:
 \end{indpar}
 
 In addition to the attributes just given, a MIN object that is
-the value of a \TT{BRACKETED} token will have
+the value of a \TT{BRACKETED} or \TT{PURE\-LIST} token will have
 a \ttdmkey{position}{of MIN object} attribute that is a
-\TT{min::\EOL phrase\_\EOL position\_\EOL vec} giving the positions
+\TT{min::\EOL phrase\_\EOL position\_\EOL vec} giving the within file positions
 of the lexemes which the MIN object and its elements represent.
 This is a hidden attribute that is not (normally) printed.
 

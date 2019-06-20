@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 19, 2019
+June 20, 2019
  
 \end{center}
 
@@ -2067,8 +2067,10 @@ A token has the following components:
         	          \ttmkey{OPERATOR}{token type} \\
         	          \ttmkey{BRACKETED}{token type} \\
         	          \ttmkey{BRACKETABLE}{token type} \\
+        	          \ttmkey{PURELIST}{token type} \\
         	          \ttmkey{PREFIX}{token type} \\
         	          \ttmkey{IMPLIED\_PREFIX}{token type} \\
+        	          \ttmkey{IMPLIED\_HEADER}{token type} \\
         	          \ttmkey{DERIVED}{token type} \\[1ex]
 			  \end{tabular}
 \\[1ex]
@@ -2106,7 +2108,7 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& \TT{BRACKETED} and \TT{BRACKETABLE} tokens
+		& \TT{BRACKETED}, \TT{BRACKETABLE}, and \TT{PURELIST} tokens
 		  are used to represent subexpressions, and have
 		  MIN objects as their \TT{value}.
 \end{tabular}
@@ -2118,29 +2120,36 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
+		& A \TT{PURELIST} token
+		  is equivalent to (and an optimization of) a \TT{BRACKETED}
+		  token whose \TT{value} is a MIN object
+		  that does \underline{not} have \underline{any}
+		  attributes (other than \TT{.position}).
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 		& A \TT{BRACKETABLE} token
 		  is equivalent to (and an optimization of) a \TT{BRACKETED}
 		  token whose \TT{value} is a MIN object
 		  that does \underline{not} have
 		  a \TT{.type}, \TT{.initiator}, or \TT{.terminator}
-		  attribute.
-		  If such a token is to become the \underline{only} element of a
+		  attribute, but does have other attributes
+		  (besides \TT{.position}).
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& If a \TT{BRACKETABLE} or \TT{PURELIST} token
+		  is to become the \underline{only} element of a
 		  containing subexpression that will have no attributes other
 		  than \TT{.type}, \TT{.initiator}, or \TT{.terminator}, 
 		  then instead of creating a new
 		  \TT{BRACKETED} token, any \TT{.type}, \TT{.initiator},
 		  or \TT{.terminator} from the containing subexpression
-		  is added to the \TT{BRACKETABLE} token,
+		  is added to the \TT{BRACKETABLE} or \TT{PURELIST} token,
 		  the token type of this token is then
 		  changed to \TT{BRACKETED}, and
 		  its token position and \TT{.position} attribute are
 		  updated to the position of its containing subexpression.
-\end{tabular}
-\\[1ex]  
-\begin{tabular}{p{1in}p{4.5in}}
-		& Empty subexpressions are recorded as \TT{BRACKETABLE}
-		  subexpressions whose MIN object has no elements and
-		  no attributes other than \TT{.position}.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2158,11 +2167,28 @@ A token has the following components:
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
 		& An \TT{IMPLIED\_PREFIX} token is a prefix token that
-		  was inserted as an implied header
-                  (see \itemref{LINE-VARIABLES}).  It is just like
+		  was inserted after another prefix token whose
+		  {\em bracket-\EOL type} bracket type table entry has an
+		  {\em implied-\EOL prefix}: see
+		  \pagref{IMPLIED-PREFIX}.
+		  It is just like
 		  a \TT{PREFIX} token except that it is deleted and
 		  ignored if it heads a {\em prefix-n-list} with zero
-		  elements.
+		  elements, and otherwise its value is replaced by a
+		  copy of its value before being used, as its value is
+		  shared with the bracket type table entry.
+\end{tabular}
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
+		& An \TT{IMPLIED\_HEADER} token is a prefix token like an
+		  \TT{IMPLIED\_\EOL PREFIX} but is a header token
+		  and appears at the beginning of a logical line,
+		  possibly after other header tokens.  A header
+		  is a prefix whose {\em bracket-\EOL type-\EOL group}
+		  (a.k.a., prefix group) is
+		  either `\TT{paragraph}' or `\TT{line}.
+                  See \itemref{LINE-VARIABLES} and
+		  \itemref{BRACKET-TYPE-DEFINITIONS}.
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2179,8 +2205,9 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& \TT{BRACKETED}, \TT{BRACKETABLE}, \TT{PREFIX},
-		  \TT{IMPLIED\_PREFIX} and \TT{DERIVED}
+		& \TT{BRACKETED}, \TT{BRACKETABLE}, \TT{PURELIST}, \TT{PREFIX},
+		  \TT{IMPLIED\_\EOL PREFIX}, \TT{IMPLIED\_\EOL HEADER}
+		  and \TT{DERIVED}
 		  tokens are called
 		  \skey{expression token}s and \TT{OPERATOR} and lexeme
 		  tokens are called non-expression tokens.

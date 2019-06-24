@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 20, 2019
+June 24, 2019
  
 \end{center}
 
@@ -4649,21 +4649,25 @@ adds the definitions:
 
 The following is an example
 \key{indented paragraph subexpression}
-using `\TT{:}' as an {\em indentation-mark}:
+using `\TT{:}' as the {\em indentation-mark}:
 \begin{indpar}\begin{verbatim}
-the line before the outer paragraph
-this is an outer paragraph:
-    the first line of the outer paragraph
-    the second line of the outer paragraph which
+the first logical line
+the second logical line that ends with
+           an outer indented paragraph:
+    the first logical line of this outer paragraph
+    the second logical line of the outer paragraph which
         is continued on this indented line
-    an inner paragraph:
-        the first line of the inner paragraph
-        the second line of the inner paragraph which
-            is continued on this indented line
-    the first outer paragraph line after the inner paragraph
-    another inner paragraph, but one with zero lines:
-    the last line of the outer paragraph
-the line after the outer paragraph
+    the third logical line which ends with
+              an inner indented paragraph:
+        the first logical line of the inner paragraph
+        the second logical line of the inner paragraph
+            which is continued on this indented line
+    the first outer paragraph logical line after
+        the inner paragraph
+    the next logical line, which ends with another
+        inner paragraph, but one with zero lines:
+    the last logical line of the outer paragraph
+the logical after the outer paragraph
 \end{verbatim}\end{indpar}
 
 An \key{indented paragraph subexpression}
@@ -4675,13 +4679,25 @@ consisting of zero or more non-empty
 logical lines called \skey{paragraph line}s.
 The paragraph has a \key{paragraph indent},
 which is the indent of the
-first non-blank, non-comment physical line after the
+first non-blank physical line after the
 line containing the indentation mark, if this indent
 is greater than the current indent.
 But if this indent is less than or equal
-to the current indent, or if there is no non-blank, non-comment
+to the current indent, or if there is no non-blank
 physical line before an end of file,
 the paragraph is empty, and has no paragraph lines.
+
+Comment lines (lines containing only comment lexemes)
+are `logical lines' for the purposes of setting the
+paragraph indent and terminating an indented paragraph.
+Thus the following example:
+\begin{indpar}\begin{verbatim}
+a logical line ending with an indented paragraph:
+    // comment line setting the paragraph indent
+    the first logical line in the paragraph
+// comment line terminating the paragraph
+the first logical line after the paragraph
+\end{verbatim}\end{indpar}
 
 At the beginning of the paragraph,
 the \key{current indent} is set to the paragraph indent,
@@ -4735,6 +4751,24 @@ controlled by the specification of the {\em indentation-mark}.
 {\em Paragraph-lines} may be headed lines (see \itemref{HEADED-LINES})
 or may be grouped into headed paragraphs (see \itemref{HEADED-PARAGRAPHS}).
 
+An indented paragraph subexpression is converted to a \TT{BRACKETED}
+token whose \TT{value} is a
+MIN object with list elements derived from the {\em paragraph-lines}
+of the paragraph.  In the absence of a line header, a {\em paragraph-line}
+becomes a logical line object, which is a MIN object with
+\TT{min::\EOL LOGICAL\_\EOL LINE()} as its \TT{.initiator} and either the
+indented paragraph {\em line-separator} (see below) or \TT{"<LF>"}
+as its \TT{.terminator}.  Headed lines (\itemref{HEADED-LINES})
+have a \TT{.type} instead of an \TT{.initiator}, and either have
+no \TT{.terminator} or have a {\em line-separator} as \TT{.terminator}.
+After lines are parsed, a sequence of lines may be
+made into a headed paragraph with a \TT{.type} which replaces the
+sequence of lines in the indented paragraph MIN object.  A headed paragraph
+has no \TT{.initiator} or \TT{.terminator}.  The indented paragraph MIN
+object itself has its {\em indentation-mark} (see below) as its
+\TT{.initiator} and \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as its
+\TT{.terminator}.
+
 An {\em indentation-mark} is specified by a
 \ttmkey{define indentation mark}{parser command}
 parser command, and may have
@@ -4769,7 +4803,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 			  \end{tabular} \\
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine indentation mark}{parser command} ~
-	  {\em indentation-name} ~ {\em parsing-selectors} \\
+	  {\em indentation-mark} ~ {\em parsing-selectors} \\
     $|$ & \ttmkey{print indentation mark}{parser command} ~
 	  {\em partial-indentation-mark} \\
     $|$ & \ttmkey{define indentation offset}{parser command} ~
@@ -4846,43 +4880,6 @@ symbol table entries.
 
 Indentation offsets of all current parser blocks can be printed by the
 \TT{print indentation offset} command.
-
-A paragraph line may be a headed line (that has a line header:
-see \itemref{HEADED-LINES})
-or be part of a headed paragraph (see: \itemref{HEADED-PARAGRAPHS}).
-Any other paragraph line is converted to a MIN object that becomes an
-element of the indented paragraph.  The elements of this object are
-the components of the line, treated as subexpression components, except for
-any {\em line-separator} that ends the line.  The
-object is given a \TT{.initiator} attribute value
-equal to \TT{min::\EOL LOGICAL\_\EOL LINE()}.
-If it ends with a {\em line-separator},
-it is given a \TT{.terminator} attribute equal to the
-{\em line-separator}, and otherwise it is given a
-\TT{.terminator} attribute equal to \TT{"<LF>"}.
-
-Headed lines are converted to a MIN object with attributes
-(including \TT{.type}) taken from their line header and
-elements taken from the rest of the logical line.  If the
-headed line is terminated by a line separator, that line
-separator becomes the \TT{.terminator} attribute of the MIN object.
-See \itemref{HEADED-LINES} for details.
-
-A headed paragraph is converted to a single MIN object
-that becomes an element in the indented paragraph.
-This MIN object has attributes (including \TT{.type})
-taken from its paragraph header and
-elements that are the logical lines belonging to the headed paragraph
-(these may include headed lines).
-See \itemref{HEADED-LINES} for details.
-
-The indented paragraph as a whole is converted to a MIN object whose elements
-are the MIN objects produced by {\em paragraph-lines} outside headed
-paragraphs and headed paragraphs.
-The \TT{.initiator} attribute of this paragraph MIN object
-is the {\em indentation-mark} that introduced the paragraph,
-and the \TT{.terminator} attribute is \TT{min::INDENTED\_PARAGRAPH()}.
-A paragraph may be empty (have no paragraph lines or object elements).
 
 The \TT{implied paragraph header} and \TT{lexical master} parameters
 can be used to initialize line variables

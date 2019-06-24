@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 23 11:22:31 EDT 2019
+// Date:	Mon Jun 24 04:40:37 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1870,8 +1870,11 @@ min::position BRA::parse_bracketed_subexpression
 
 PREFIX_FOUND:
 
-    // Come here when PREFIX token has been created.
-    //
+    MIN_REQUIRE
+        (    prefix->type == PAR::PREFIX
+          || prefix->type == PAR::IMPLIED_PREFIX
+	  || prefix->type == PAR::IMPLIED_HEADER );
+
     // Input variables:
     //
     //     prefix

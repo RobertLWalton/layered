@@ -4769,6 +4769,17 @@ object itself has its {\em indentation-mark} (see below) as its
 \TT{.initiator} and \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as its
 \TT{.terminator}.
 
+\ikey{Empty logical lines}{empty logical line} with no ending
+{\em line-separator} are always ignored as if they did not exist%
+\label{NON-EMPTY-PARAGRAPH-LINE-RULE}.
+This rule allows physical lines such as
+\begin{center}
+\tt This logical line is followed by an empty logical line;
+\end{center}
+to represent a single logical line, instead of two logical lines
+the second of which is empty.  All retained logical lines
+are non-empty.
+
 An {\em indentation-mark} is specified by a
 \ttmkey{define indentation mark}{parser command}
 parser command, and may have
@@ -4860,17 +4871,6 @@ Line separators are only recognized outside explicitly
 bracketed subexpressions (untyped bracketed or typed bracketed)
 in the paragraph.
 
-\ikey{Empty logical lines}{empty logical line} with no ending
-{\em line-separator} are always ignored as if they did not exist%
-\label{NON-EMPTY-PARAGRAPH-LINE-RULE}.
-This rule allows physical lines such as
-\begin{center}
-\tt This logical line is followed by an empty logical line;
-\end{center}
-to represent a single paragraph line, instead of two paragraph lines
-the second of which is empty.  All retained paragraph lines
-are non-empty.
-
 The `\TT{print indentation mark} {\em partial-indentation-mark}' command
 prints all indentation mark symbol table entries whose
 {\em indentation-mark} contains the {\em partial-indentation-mark}
@@ -4885,8 +4885,13 @@ The \TT{implied paragraph header} and \TT{lexical master} parameters
 can be used to initialize line variables
 that affect the parsing of indented paragraphs: see \itemref{LINE-VARIABLES}.
 If they are not explicitly included in the indentation mark definition command,
-they are treated as missing (for lexical masters this means the \TT{DEFAULT}
-lexical master is used).
+they are treated as missing.  If a lexical master is missing,
+the lexical master in effect at the beginning of a {\em paragraph-line}
+in an indented paragraph
+is the lexical master in effect at the end of the previous
+{\em paragraph-line}, or if there is no previous {\em paragraph-line},
+the lexical master in effect when the paragraph's
+indentation mark is scanned.
 
 If `\TT{with lexical master}' is given in the `\TT{define indentation mark}'
 command, both lexical master parameters are set to the same
@@ -4896,10 +4901,9 @@ If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
 but the difference is less than $N$ columns (default $N=2$),
 a parse warning message is announced.
-No corrective action is taken; the line is accepted as either ending
-the paragraph if its indent is less than the current
-indent, or continuing the current paragraph line if its indent
-is greater than the current indent.  Here $N$ is called the
+No corrective action is taken; the line may continue a logical line
+or end an indented paragraph according to the usual rules.
+Here $N$ is called the
 \key{parser indentation offset}, and is a parser parameter that can be
 changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the

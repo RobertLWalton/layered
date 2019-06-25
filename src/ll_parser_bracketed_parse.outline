@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 24 04:44:34 EDT 2019
+// Date:	Tue Jun 25 04:10:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1343,7 +1343,9 @@
 //		       attribute_selectors =
 //		           key->attr_selectors plus
 //		           ALWAYS_SELECTOR with options
-//		           from new_selectors
+//		           from selectors but with
+//		           EALSEP, EIPARAGAPH, EHEADER
+//		           turned off
 //		       middle_count = attr_count = 0
 //		       start_previous =
 //		           current->previous
@@ -1606,14 +1608,14 @@
 //                               PREFIX if
 //                                  .type attribute
 //                                        value is
-//                                        present,
+//                                        present, and
 //                                  tdata.middle_count
 //                                        == 0, and
 //                                  either tdata
 //                                        .has_mark_type
 //                                        is false or
 //                                        or is_mark_
-//                                           prefix
+//                                           prefix, and
 //                                  key has prefix_sep-
 //                                      arators_allowed
 //                                      true
@@ -1817,10 +1819,10 @@
 //                     TYPED_ATTR_EQUAL
 //	           typed_data->start_previous =
 //	               current->previous
-//	       else if typed key is typed attribute
-//	               equal and start_previous->type
-//	               is NOT ATTR_VALUE or ATTR_
-//	               MULTIVALUE:
+//	       else if previous typed key is typed
+//	               attribute equal and start_
+//	               previous->type is NOT ATTR_VALUE
+//	               or ATTR_MULTIVALUE:
 //	           finish_value
 //	               ( typed_data, key_first )
 //                 remove the typed attribute equal key

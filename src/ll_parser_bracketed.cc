@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 24 04:40:37 EDT 2019
+// Date:	Sun Jun 30 23:29:33 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6476,6 +6476,22 @@ static min::gen bracketed_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected `with' after" );
+
+	if (    paragraph_lexical_master
+	     == PAR::MISSING_MASTER
+	     &&
+	        line_lexical_master
+	     != PAR::MISSING_MASTER )
+	{
+	    PAR::parse_warn
+		( parser, ppvec->position,
+		  "line lexical master set but"
+		  " paragraph lexical master is"
+		  " missing; paragraph lexical master"
+		  " set equal to line lexical master" );
+	    paragraph_lexical_master =
+	        line_lexical_master;
+	}
 
 	if ( TAB::all_flags ( new_options ) == 0 )
 	{

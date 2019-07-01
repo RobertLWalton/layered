@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 30, 2019
+July 1, 2019
  
 \end{center}
 
@@ -4767,9 +4767,10 @@ as its \TT{.terminator}.  Headed lines (\itemref{HEADED-LINES})
 have a \TT{.type} instead of an \TT{.initiator}, and either have
 no \TT{.terminator} or have a {\em line-separator} as \TT{.terminator}.
 After lines are parsed, a sequence of lines may be
-made into a headed paragraph with a \TT{.type} which replaces the
+made into a headed paragraph which replaces the
 sequence of lines in the indented paragraph MIN object.  A headed paragraph
-has no \TT{.initiator} or \TT{.terminator}.  The indented paragraph MIN
+has a \TT{.type} but
+no \TT{.initiator} or \TT{.terminator}.  The indented paragraph MIN
 object itself has its {\em indentation-mark} (see below) as its
 \TT{.initiator} and \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as its
 \TT{.terminator}.

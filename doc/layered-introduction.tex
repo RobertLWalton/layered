@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 24, 2019
+June 30, 2019
  
 \end{center}
 
@@ -2454,7 +2454,8 @@ Enable Options:\label{ENABLE-OPTIONS}
 
 \begin{indpar}
 
-\hspace*{-0.2in}\ttmkey{enable indented paragraph}{parser option} \\
+\hspace*{-0.2in}\ttmkey{enable indented paragraph}{parser option}%
+	\label{ENABLE-INDENTED-PARAGRAPH} \\
     This parser option allows indentation marks beginning an indented
     paragraph to be recognized (if they end a physical line).
 
@@ -4647,6 +4648,10 @@ adds the definitions:
 \subsubsection{Indented Paragraph Subexpressions}
 \label{INDENTED-PARAGRAPH-SUBEXPRESSIONS}
 
+Indented paragraph subexpressions
+are recognized if the `\TT{enable indented paragraph}'
+option is on (\pagref{ENABLE-INDENTED-PARAGRAPH}; this
+option is always off inside a bracketed subexpression).
 The following is an example
 \key{indented paragraph subexpression}
 using `\TT{:}' as the {\em indentation-mark}:
@@ -4895,47 +4900,44 @@ indentation mark is scanned.
 
 If `\TT{with lexical master}' is given in the `\TT{define indentation mark}'
 command, both lexical master parameters are set to the same
-{\em lexical-master-name}.
+{\em lexical-master-name}.  If `\TT{with line lex\-ical master}' is
+given but `\TT{with paragraph lexical master}' is not, both lexical
+masters are set to the line lexical master and a parser warning message
+is announced.
 
 If while parsing an indented paragraph a line is encountered whose
 indent is different from the current indent,
-but the difference is less than $N$ columns (default $N=2$),
-a parse warning message is announced.
+but the difference is less than `\key{indentation offset}'
+columns (default 2),
+a parser warning message is announced.
 No corrective action is taken; the line may continue a logical line
 or end an indented paragraph according to the usual rules.
-Here $N$ is called the
-\key{parser indentation offset}, and is a parser parameter that can be
+Here the indentation offset can be
 changed with the \TT{parser define indentation offset} command.
 If changed in a parser block, the original value is reinstated at the
 end of the block.
 
 When an {\em indentation-mark} is recognized, the current parsing
-selector set, parsing options, and line separator are saved in a stack.
+selector set and parsing options are saved in a stack.
 Then a new selector set and new options are computed by modifying
 the saved selector set
 according to the {\em indentation-mark-selectors}
 and modifying the saved options according
-to the {\em indentation-mark-options} in the indentation mark definition,
-and a new line separator is set according to that definition.
-A new set of line variables is computed for use in parsing the
-indented paragraph, as per \itemref{LINE-VARIABLES}.
-The saved selector set, options, and line separator
+to the {\em indentation-mark-options} in the indentation mark definition.
+The saved selector set and options
 are restored after the end of paragraph is recognized.
 The \TT{TOP LEVEL} selector is always turned off when parsing indented
 paragraph lines.
 Note that if no {\em new-selectors} are given, selectors
 other than \TT{TOP LEVEL}
 are not modified, if no {\em indentation-mark-options} 
-are given, options are not modified, and if no
-{\em line-separator} is given, no line separator can end
-an indented paragraph logical line.
+are given, options are not modified.
 
-Comments are ignored when determining line indentation, but may
-cause errors to be announced.  A comment is considered to be in error
-if it appears on a line by itself and is less indented than the first
-following non-comment non-blank line.
-Comments at the beginning or end of a file cannot be
-in error.
+A new set of line variables is computed for use in parsing the
+indented paragraph, as per \itemref{LINE-VARIABLES}.
+The line variables include the paragraph line separator,
+implied header, and lexical masters, as given in
+the indentation mark definition (any of these may be missing).
 
 When a parser is initialized, the following
 definitions are included in the \TT{TOP LEVEL} parser block:

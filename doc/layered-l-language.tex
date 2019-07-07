@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 18, 2019
+July 7, 2019
  
 \end{center}
 
@@ -2922,12 +2922,14 @@ but they can be discovered by the following functions:
 
 \begin{indpar}
 
-{\tt function type r = \ttstdkey{set of} ( type E )} \\
-{\tt function type r = \ttstdkey{list of} ( type E )}
+{\tt function type r = $ma$\QMARK{} \ttkey{set of} ( type E )} \\
+{\tt function type r = $ma$\QMARK{} \ttkey{list of} ( type E )}
 \begin{indpar}
 Returns the type whose values are sets or lists
 of elements of type {\tt E}, where
-{\tt E} must have an integer underlying type.
+{\tt E} must have an integer underlying type, and
+$ma$ is the {\em module-abbreviation} of the original type name
+of $E$ if any.
 \end{indpar}
 
 \end{indpar}
@@ -2941,7 +2943,7 @@ These types can be given type names by
 where $E$ is the element type.
 
 Note that the element type of an enumeration set or list can be
-an integer type or a non-enumeration defined type
+an integer type, an enumeration type, or a non-enumeration defined type
 with an integer underlying type.
 
 The syntax
@@ -2967,14 +2969,16 @@ for enumeration set and list constants is:
     $|$ & {\em enum-value}~~~\TT{..} \\
     $|$ & \TT{..}~~~{\em enum-value} \\
     \end{tabular} \\
-\emkey{enum-value} ::= {\em expression} evaluating at compile-time to
-			an enumeration or integer value
+\emkey{enum-value} ::= \begin{tabular}[t]{p{4.5in}}
+                       {\em expression} evaluating at compile-time to
+		        a value of a defined type with integer underlying type,
+			an enumeration type, or an integer type
+			\end{tabular}
 \end{indpar}
 
 If the {\em enum-values} in an {\em enum-set-constant} or
 {\em enum-list-constant} have different
-types, and these are defined types or enumeration types,
-implied conversions from these to their base types
+types, implied conversions from these to their base types
 are inserted until all have the same defined type, enumeration type,
 or integer type,
 which is called the
@@ -2991,12 +2995,13 @@ The type of an enumeration set or list is the set or list type
 defined for this common element type.
 
 An {\em enum-range} designates the two values given and all
-values in between.
+values in between.  For ranges the values cannot have defined types,
+but must have enumeration or integer types.
 After implied conversion, if the first {\em enum-value} in an {\em enum-range}
 is greater than the second {\em enum-value} in the {\em enum-range},
 the set is empty.  If the first or second {\em enum-value} of
 an {\em enum-range} is omitted, it is taken to be the lower or upper
-limit of the enumeration type of the non-omitted {\em enum-value}.
+limit of the enumeration or integer type of the non-omitted {\em enum-value}.
 
 The order in which values are given in an {\em enum-set-constant}
 does not matter.  Overlapping and adjoining ranges are implicitly
@@ -3033,9 +3038,10 @@ T v = signed max (| type T |) ( T v1, T v2 )
 defines a function that takes only signed integer type
 arguments, and not unsigned integer type arguments.
 The logical expression inside \TT{[|~|]} must be satisfied
-for the function definition to match a function call, and
+for the function definition to match a function call, and therefore
 the type argument {\tt T}, which is implied and need not be
-given in the function call, must be in the given set of
+given in the function call, must satisfy the logical expression
+by being in the given set of
 types, where types are values of the enumeration type `\TT{type}'
 (see Section~\itemref{TYPE-VALUES}).
 
@@ -3067,8 +3073,9 @@ Returns the element type of an enumeration set or list type {\tt T}.
 The following are builtin enumeration set types:
 \begin{indpar} \tt
 define types: \\
-\TS~~~~\ttstdkey{types} as set of type \\
-\TS~~~~\ttstdkey{qualifiers} as set of qualifier \\
+\TS~~~~\ttstdkey{types} as type name of std set of ( std type ) \\
+\TS~~~~\ttstdkey{qualifiers} as type name of\\
+\TS~~~~~~~~~~~~~~~~~~~~~~std set of ( std qualifier ) \\
 define abbreviations: \\
 \TS~~~~\ttkey{types} \ABV{} `std types' \\
 \TS~~~~\ttkey{qualifiers} \ABV{} `std qualifiers'
@@ -3088,9 +3095,9 @@ These conversions do nothing but change the type of the value.
 \end{indpar}
 \end{indpar}
 
-Variables with compile-type enumeration set or list values can be defined.
-If $S$ is an enumeration set type with element type $E$,
-$L$ is an enumeration list type with element type $E$,
+Variables with compile-time enumeration set or list values can be defined.
+If $S$ is the type name of an enumeration set type with element type $E$,
+$L$ is the type name of an enumeration list type with element type $E$,
 and $ma$ is the {\em module-abbreviation} of the original type name
 of $E$ if any,
 then the following functions are defined at compile-time

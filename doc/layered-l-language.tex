@@ -2490,7 +2490,7 @@ integer type.
 
 Enumeration values can be assigned by assignment statements of the form
 \begin{indpar}
-\emkey{enum-assignment}
+\emkey{enum-assignment}\label{ENUM-ASSIGNMENT}
     \begin{tabular}[t]{rl}
     ::= & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ = next enum} \\
     $|$ & {\em enum-type-name} ~ {\em enum-constant-name}\TT{ = previous enum}
@@ -2643,7 +2643,8 @@ E3 C4 = next enum
 
 For an enumeration type $E$ defined with range
 {\tt [{\em first-enum}~..~{\em last-enum}]}, the
-`\mkey{range type}{of enumeration type}' of $E$ is defined as the
+`\mkey{range type}{of enumeration type}'\label{RANGE-TYPE}
+of $E$ is defined as the
 most specific type $R$ (\pagref{MORE-SPECIFIC-RELATION})
 in the set
 \begin{center}
@@ -3063,7 +3064,7 @@ Returns \TT{true} if {\tt T} is an enumeration list type and \TT{false}
 otherwise.
 \end{indpar}
 
-{\tt function type r = \ttkey{element type of} ( type T )}
+{\tt function type r = \ttstdkey{element type of} ( type T )}
 \begin{indpar}
 Returns the element type of an enumeration set or list type {\tt T}.
 \end{indpar}
@@ -3242,7 +3243,7 @@ define type \ttstdkey{type} as unswrd with enum [0~..] \\
 define abbreviation \ttkey{type} \ABV{} `std type' \\
 type \ttstdkey{missing type} = next enum // 0 \\
 type \ttstdkey{type} = next enum // 1 \\
-function std type r = std \ttmkey{missing}{type}: \\
+function std type r = \ttstdmkey{missing}{type}: \\
 \hspace*{3em}r = std missing type
 \end{indpar}
 Each type is associated with a unique enumeration value
@@ -3310,7 +3311,7 @@ define type id as int32
 // Allow id's to be implicitly converted to int32's:
 //
 function Qs int32 r = assign (| qualifiers Qs |) ( Qs id v ):
-    *UNCHECKED* Qs r2 = int32 ( v )
+    *UNCHECKED* Qs int32 r2 = int32 ( v )
     r = r2
 
 // Example usage:
@@ -3393,8 +3394,8 @@ of the set of types.
 
 In general $T1~~\CNV~~T2$ implies that there is an implied conversion
 of the above form from $T1$ to $T2$, but there are exceptions.
-The builtin exceptions
-are
+If the size of \TT{unsmax} is \underline{larger than} the
+size of \TT{unswrd}, the builtin exceptions are
 \begin{center}
 \begin{tabular}{lll}
 \tt unswrd	& $\CNV$ & \tt intwrd \\
@@ -3408,11 +3409,27 @@ Note that this implies that
 \tt unswrd $\CNV$ intwrd $\CNV$ unsmax $\CNV$ intmax
            $\CNV$ floatwrd $\CNV$ floatmax
 \end{center}
-The only use of these exceptions is in
-rule \ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
-on page \pagref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED}
+If \TT{unsmax} \underline{equals} \TT{unswrd}, the builtin exceptions are
+\begin{center}
+\begin{tabular}{lll}
+\tt unswrd	& $\CNV$ & \tt intwrd \\
+\tt intwrd	& $\CNV$ & \tt floatwrd \\
+\end{tabular}
+\end{center}
+These exceptions are used in the following:
+\begin{itemize}
+\item
+definition of range type, \pagref{RANGE-TYPE}
+\item
+definition of common element type, \pagref{COMMON-ELEMENT-TYPE}
+\item
+comparison operator operand conversion, \pagref{COMPARISON-OPERATOR-TYPE}
+\item
+rule \ref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED},
+\pagref{MORE-SPECIFIC-ARGUMENT-TYPES-PREFERRED},
 by which the compiler favors function prototypes with
-more specific argument types.
+more specific argument types
+\end{itemize}
 
 Functions can be overloaded based on the number and types
 of their arguments, but also on the values of arguments that
@@ -3425,7 +3442,7 @@ many function declarations of the form
 \end{tabular}
 \end{center}
 be coded, where $ma$ is the {\em module-abbreviation} of the
-type name $T$, if any, and $S$ is the size in bytes of values of type $T$.
+type name $T$, if any, and $S$ is the size in 8-bit bytes of values of type $T$.
 As a consequence `{\tt size of ($T$)}' can be used at compile
 time to determine the size in bytes of values of an arbitrary type
 $T$.
@@ -3489,7 +3506,7 @@ The default declaration returns \TT{false}.
 Returns the base type of the type {\tt t}.  For defined and enumeration
 types this is the associated base type from the defined type's
 declaration.
-The default declaration returns {\tt t} itself.
+The default declaration returns {\tt std missing type}.
 \end{indpar}
 
 {\tt function type r = $ma$\QMARK{} \ttkey{underlying type of}
@@ -3499,7 +3516,7 @@ If {\tt t} is a defined or enumeration type, returns
 \begin{center}
 {\tt underlying type of ( base type of ( t ) )}
 \end{center}
-The default declaration returns {\tt t} itself.
+The default declaration returns {\tt std missing type}.
 \end{indpar}
 
 {\tt function unsadr r = $ma$\QMARK{} \ttkey{size of} ( type t == $T$ )}
@@ -3515,7 +3532,7 @@ There is \underline{no} default declaration.
 Returns the alignment of {\tt t}, a strictly positive integer.
 The address of a value of type {\tt t} in RAM should
 optimally be a multiple of the alignment.
-The alignment of builtin types is their size.
+The alignment of builtin types is their size in bytes.
 For defined and enumeration types it is the alignment of their underlying type.
 There is \underline{no} default declaration.
 \end{indpar}
@@ -3525,6 +3542,7 @@ There is \underline{no} default declaration.
 Returns \TT{true} if a memory location holding a value of type $T$ can be
 initialized to all zero bits.  Returns \TT{false} otherwise.
 Must return \TT{false} if the underlying type of $T$ is \TT{void}.
+The default declaration returns \TT{false}.
 \end{indpar}
 
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{min value}} \\
@@ -3532,22 +3550,23 @@ Must return \TT{false} if the underlying type of $T$ is \TT{void}.
 \begin{indpar}
 Returns the minimum or maximum value of a type $T$.
 These are defined only for number types and enumeration types,
-and for enumeration types the values returned are the limits of
+and for enumeration types the values returned are the
+\underline{range value} limits of
 the type's {\em enum-range}.
 \end{indpar}
 
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{min unassigned value}} \\
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{max unassigned value}}
 \begin{indpar}
-Returns the minimum or maximum values not yet assigned to an
-enumeration type $T$ by an {\em enum-assignment}.  Values
-assigned by unchecked conversions are not considered.  If
+Returns the minimum or maximum \underline{range values} not yet assigned to an
+enumeration type $T$ by an {\em enum-assignment} (\pagref{ENUM-ASSIGNMENT}).
+Values assigned by unchecked conversions are not considered.  If
 no values have been assigned, the enumeration value corresponding
 to {\em first-enum} is returned by `\TT{min unassigned value}'
 and the enumeration value corresponding
 to {\em last-enum} is returned by `\TT{max unassigned value}'.
 
-These are defined only for enumeration types,
+These are defined only for enumeration types $T$.
 
 These values may change when more code is compiled or initialized.
 You may only assume that constants of type $T$ whose values have
@@ -3578,6 +3597,7 @@ May be defined by user for defined types.  For use by allocators,
 such as a function that allocates a vector whose
 elements are of type $T$, and the function wishes to give the elements an
 initial default value.
+There is \underline{no} default declaration.
 \end{indpar}
 
 {\tt function *UNCHECKED* $Qs$ $T$ r = $ma$\QMARK{} \ttalkey{NO}{VALUE}}%
@@ -6938,7 +6958,7 @@ So the target type of these must be specified by rules.
 For numeric operands of comparison operators
 the target type is the most specific type (\pagref{MORE-SPECIFIC-RELATION})
 in the following set that is such that all operands
-can be implicitly converted to that type:
+can be implicitly converted to that type:\label{COMPARISON-OPERATOR-TYPE}
 \begin{center}
 \TT{unswrd} ~ \TT{intwrd} ~ \TT{unsmax} ~ \TT{intmax}
            ~ \TT{floatwrd} ~ \TT{floatmax}

@@ -175,7 +175,7 @@ The Lower (L) Layered Programming Language \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 7, 2019
+July 8, 2019
  
 \end{center}
 
@@ -3987,54 +3987,54 @@ define abbreviations: \\
 The following \TT{name set} functions are builtin:
 
 \begin{indpar}
-{\tt function name set r = std (name set s1)
+{\tt function name set r = \TT{std} (name set s1)
                            "\ttmkey{+}{name set union}" ( name set s2 )}
 \begin{indpar}
 Returns the union of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function name set r = std ( name set s1 )
+{\tt function name set r = \TT{std} ( name set s1 )
                            "\ttmkey{*}{name set intersection}" ( name set s2 )}
 \begin{indpar}
 Returns the intersection of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function name set r = std ( name set s1 )
+{\tt function name set r = \TT{std} ( name set s1 )
                            "\ttmkey{-}{name set difference}" ( name set s2 )}
 \begin{indpar}
 Returns the set difference of {\tt s1} and {\tt s2}.
 \end{indpar}
 
-{\tt function bool r = std (name e) \ttmkey{is in}{name set} ( name set s )}
+{\tt function bool r = \TT{std} (name e) \ttmkey{is in}{name set} ( name set s )}
 \begin{indpar}
 Returns \TT{true} if {\tt e} is an element of the set {\tt s}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt function name set r = std (name n)
+{\tt function name set r = \TT{std} (name n)
                            "\ttmkey{+}{name set union}" ( name set s )}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
-{\tt function name set r = std ( name set s )
+{\tt function name set r = \TT{std} ( name set s )
                            "\ttmkey{+}{name set union}" (name n)}
 \begin{indpar}
 Returns union of \{{\tt n}\} and {\tt s}.
 \end{indpar}
 
-{\tt function name set r = std ( name set s )
+{\tt function name set r = \TT{std} ( name set s )
                            "\ttmkey{-}{name set difference}" (name n)}
 \begin{indpar}
 Returns the set difference of {\tt s} and \{{\tt n}\}.
 \end{indpar}
 
-{\tt function unswrd r = std \ttmkey{size of}{name set} ( name set s )}
+{\tt function unswrd r = \TT{std} \ttmkey{size of}{name set} ( name set s )}
 \begin{indpar}
 Returns the size of {\tt s}, the number of names in {\tt s}.
 \end{indpar}
 
-{\tt function name r = std ( name set s ) \TT{[} unswrd i \TT{]}}%
+{\tt function name r = \TT{std} ( name set s ) \TT{[} unswrd i \TT{]}}%
 \ttmindex{[]}{of string}
 \begin{indpar}
 Returns the {\tt i+1}'st name of {\tt s}, where names in {\tt s}
@@ -4043,9 +4043,26 @@ are taken in sorted order.
 It is a programming error if {\tt i => size of ( s )}.
 \end{indpar}
 
-{\tt function name set r = \ttstdkey{name set} ( name list ls )}
+{\tt function name set r = \ttkey{name set} ( name list ls )}
 \begin{indpar}
 Converts {\tt ls} from a list to a set, removing duplicate elements.
+\end{indpar}
+
+{\tt function name set r = \ttkey{name set} ( error code c )}
+\begin{indpar}
+Returns {\tt c} converted to an error value of \TT{name set} type.
+\TT{Name set} values
+have \TT{adr} as their underlying type and can store any error value
+that an \TT{adr} value can. 
+If {\tt c} is out of the
+range of error codes permissible for \TT{adr},
+\TT{std TOO LARGE ERROR CODE} is used in place of {\tt c}.
+\end{indpar}
+
+{\tt function error code r = \ttkey{error code} ( name set s )}
+\begin{indpar}
+Returns the \TT{error code} encoded by the error value stored in {\tt s}, or 
+returns \TT{std NOT ERROR VALUE} if {\tt s} is not storing an error value.
 \end{indpar}
 
 \end{indpar}
@@ -4072,37 +4089,37 @@ Returns the list made by removing all elements from {\tt ls} that
 appear anywhere in {\tt s}.
 \end{indpar}
 
-{\tt function bool r = std (name n) \ttmkey{is in}{name list} (name list ls)}
+{\tt function bool r = \TT{std} (name n) \ttmkey{is in}{name list} (name list ls)}
 \begin{indpar}
 Returns \TT{true} if {\tt n} is an element of the list {\tt ls}, and
 \TT{false} otherwise.
 \end{indpar}
 
-{\tt function name list r = std (name n)
+{\tt function name list r = \TT{std} (name n)
                         "\ttmkey{+}{name list prepend}" (name list ls)}
 \begin{indpar}
 Returns the list made by prepending {\tt n} to {\tt ls}.
 \end{indpar}
 
-{\tt function name list r = std (name list ls)
+{\tt function name list r = \TT{std} (name list ls)
                         "\ttmkey{+}{name list append}" (name n)}
 \begin{indpar}
 Returns the list made by appending {\tt n} to {\tt ls}.
 \end{indpar}
 
-{\tt function name list r = std (name list s)
+{\tt function name list r = \TT{std} (name list s)
                         "\ttmkey{-}{name list remove}" (name n)}
 \begin{indpar}
 Returns the list made by removing the all occurrences of
 {\tt n} in {\tt ls}.
 \end{indpar}
 
-{\tt function unswrd r = std \ttmkey{length of}{name list} ( name list ls )}
+{\tt function unswrd r = \TT{std} \ttmkey{length of}{name list} ( name list ls )}
 \begin{indpar}
 Returns the length of {\tt ls}, the number of names in {\tt ls}.
 \end{indpar}
 
-{\tt function name r = std ( name list ls ) \TT{[} unswrd i \TT{]}}%
+{\tt function name r = \TT{std} ( name list ls ) \TT{[} unswrd i \TT{]}}%
 \ttmindex{[]}{of string}
 \begin{indpar}
 Returns the {\tt i+1}'st name of {\tt ls}.
@@ -4110,10 +4127,27 @@ Returns the {\tt i+1}'st name of {\tt ls}.
 It is a programming error if {\tt i => length of ( s )}.
 \end{indpar}
 
-{\tt function name list r = \ttstdkey{name list} ( name set s )}
+{\tt function name list r = \ttkey{name list} ( name set s )}
 \begin{indpar}
 Converts {\tt s} from a set to a list, where elements of {\tt s}
 are listed in sorted order in the result.
+\end{indpar}
+
+{\tt function name list r = \ttkey{name list} ( error code c )}
+\begin{indpar}
+Returns {\tt c} converted to an error value of \TT{name list} type.
+\TT{Name list} values
+have \TT{adr} as their underlying type and can store any error value
+that an \TT{adr} value can. 
+If {\tt c} is out of the
+range of error codes permissible for \TT{adr},
+\TT{std TOO LARGE ERROR CODE} is used in place of {\tt c}.
+\end{indpar}
+
+{\tt function error code r = \ttkey{error code} ( name list ls )}
+\begin{indpar}
+Returns the \TT{error code} encoded by the error value stored in {\tt ls}, or 
+returns \TT{std NOT ERROR VALUE} if {\tt ls} is not storing an error value.
 \end{indpar}
 
 \end{indpar}

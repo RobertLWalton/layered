@@ -2879,8 +2879,14 @@ is the same and designates the error value as a non-signaling NaN.
 The low order $x$ bits are the error code range value.
 
 The following builtin functions manipulate error values for
-any number type $T$:
+any number type $T$:\label{ERROR-CODE-FUNCTIONS}
 \begin{indpar}
+{\tt function $T$ r = $T$ ( error code c )}
+\begin{indpar}
+Converts {\tt c} to type $T$.  If {\tt c} is out of the
+range of error codes permissible for $T$,
+\TT{std TOO LARGE ERROR CODE} is used in place of {\tt c}.
+\end{indpar}
 {\tt function error code r = \ttstdkey{NULL}}\label{NULL}
 \begin{indpar}
 Returns {\tt NULL ERROR CODE}.  Permits \TT{std} to be omitted
@@ -3581,11 +3587,8 @@ ranges bounded by these values, i.e., in the ranges:
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{missing value}}
 \begin{indpar}
 Returns a suitable missing value for type $T$.
-Defined to return the largest possible value for builtin unsigned
-integer types, the smallest (most negative) possible value for
-builtin signed integer types, and \TT{NaN} for builtin
-floating point number types.
-May be defined by user for defined types.
+Returns \TT{$T$(NULL)} for numeric types $T$.
+May be defined by user for enumeration and defined types.
 \end{indpar}
 
 {\tt function $T$ r = $ma$\QMARK{} \ttkey{default value}}%
@@ -3674,25 +3677,37 @@ or is non-zero.
 Returns the UNICODE character code of the character {\tt c}.
 \end{indpar}
 
-function Qs~uns32 r =
-		      \begin{tabular}[t]{@{}l@{}}
-                      \ttmkey{assign}{of character} \\
-                      \TS~~~~(| qualifiers Qs |) ( Qs~character c )
+function Qs~uns32 r = \begin{tabular}[t]{@{}l@{}}
+                      \ttstdmkey{assign}{of character} \\
+                      \TS~~(| qualifiers Qs |) ( Qs~character c )
                       \end{tabular}
 \begin{indpar}
 Implied conversion (\pagref{IMPLIED-CONVERSION})
 of character {\tt c} to its UNICODE character code.
 
 Because of this implied conversion,
-characters can be compared using \TT{<}, \TT{<=}, \TT{==},
-\TT{!=}, \TT{=>}, or \TT{>}.
+\TT{character} values can be compared using \TT{<}, \TT{<=}, \TT{==},
+\TT{!=}, \TT{=>}, or \TT{>}, differences of \TT{character} values can be
+computed (e.g., \TT{C"7" - C"0"}),
+and \TT{character} values can be
+tested by the error code functions (\pagref{ERROR-CODE-FUNCTIONS})
+that test \TT{uns32} values.
 \end{indpar}
 
-{\tt function character r = std \ttmkey{NUL}{character value}}
+{\tt function character r = \ttstdmkey{NUL}{character value}}
 \begin{indpar}
 Returns \TT{C"<0>"},
 the character with UNICODE code \TT{0} that is conventionally
 used to represent the missing \TT{character} value.
+\end{indpar}
+
+{\tt function character r = \ttstdkey{character} ( error code c )}
+\begin{indpar}
+Returns {\tt c} converted to a \TT{character}.  UNICODE
+character codes to not overlap \TT{error code} values when
+stored in an \TT{uns32} integer, as that former
+are less than $2^{24}$ and the latter are not less than
+$2^{30}$.
 \end{indpar}
 
 \end{indpar}

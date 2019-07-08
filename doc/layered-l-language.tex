@@ -3728,7 +3728,9 @@ whose characters are those represented by the lexeme with
 the addition of a \TT{NUL} character (code \TT{0}) at the end:
 \begin{indpar}
 \emkey{string-constant}\label{STRING-CONSTANT}
-    :::= \TT{"}{\em character-representative\STAR{}}\TT{"} \\
+    :::= \TT{"}{\em string-character-representative\STAR{}}\TT{"} \\
+{\em string-character-representative} :::=
+    {\em character-representative} not representing \TT{NUL} \\
 {\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
 \end{indpar}
 
@@ -3779,14 +3781,6 @@ equal to, not equal to, greater than or equal to, or greater than
 characters is by character code).
 \end{indpar}
 
-{\tt function string r = std \ttmkey{null}{string value}}
-\begin{indpar}
-Returns a particular zero length \TT{string} that is conventionally
-used to represent the missing \TT{string} value.
-Although the string is of zero length, it does have one character:
-the \TT{NUL} character at its end.
-\end{indpar}
-
 {\tt function unswrd r = std \ttmkey{length of}{string} ( string s )}
 \begin{indpar}
 Returns the length of {\tt s}, the number of characters in {\tt s}
@@ -3802,6 +3796,23 @@ It is a programming error if {\tt i > length of ( s )}.
 
 If {\tt i == length of ( s )}
 the \TT{NUL} at the end of the string is returned.
+\end{indpar}
+
+{\tt function string r = \ttkey{string} ( error code c )}
+\begin{indpar}
+Returns {\tt c} converted to an error value of \TT{string} type.
+\TT{String} values
+have \TT{adr} as their underlying type and can store any error value
+that an \TT{adr} value can. 
+If {\tt c} is out of the
+range of error codes permissible for \TT{adr},
+\TT{std TOO LARGE ERROR CODE} is used in place of {\tt c}.
+\end{indpar}
+
+{\tt function error code r = \ttkey{error code} ( string s )}
+\begin{indpar}
+Returns the \TT{error code} encoded by the error value stored in {\tt s}, or 
+returns \TT{std NOT ERROR VALUE} if {\tt s} is not storing an error value.
 \end{indpar}
 
 \end{indpar}
@@ -3833,8 +3844,7 @@ define abbreviation \ttkey{name} \ABV{} `std name'
 \end{indpar}
 
 A sequence of {\em name-items} in \TT{`~'} quotes is a \TT{name}
-constant whose strings are the {\em name-items}
-with the \TT{null} string appended:
+constant whose strings are the {\em name-items}:
 \begin{indpar}
 \emkey{name-constant}\label{NAME-CONSTANT}
     ::= \TT{`}{\em name-item}\STAR{}\TT{'} \\
@@ -3851,7 +3861,6 @@ The following are compile-time functions involving names:
 {\tt function name r = \ttmkey{name}{of string} ( string s )}
 \begin{indpar}
 Returns the name containing just {\tt s} as its only {\em name-item}.
-A \TT{null} is appended to the end of the name.
 No check is made that {\tt s} is a legal {\em name-item}.
 \end{indpar}
 
@@ -3879,29 +3888,34 @@ equal to, not equal to, greater than or equal to, or greater than
 {\tt n2}.  Ordering of names is lexical.
 \end{indpar}
 
-{\tt function name r = std \ttmkey{null}{name value}}
+{\tt function unswrd r = \ttstdmkey{length of}{name} ( name n )}
 \begin{indpar}
-Returns a particular zero length \TT{name} that is conventionally
-used to represent the missing \TT{name} value.
-Although the name is of zero length, it does have one string,
-the \TT{null} string at its end.
+Returns the length of {\tt n}, the number of strings in {\tt n}.
 \end{indpar}
 
-{\tt function unswrd r = std \ttmkey{length of}{name} ( name n )}
-\begin{indpar}
-Returns the length of {\tt n}, the number of strings in {\tt n}
-\underline{not counting} the \TT{null} string at the end.
-\end{indpar}
-
-{\tt function string r = std ( name n ) \TT{[} unswrd i \TT{]}}%
+{\tt function string r = \TT{std} ( name n ) \TT{[} unswrd i \TT{]}}%
 \ttmindex{[]}{of string}
 \begin{indpar}
 Returns the {\tt i+1}'st string of {\tt n}.
 
-It is a programming error if {\tt i > length of ( n )}.
+It is a programming error if {\tt i >= length of ( n )}.
+\end{indpar}
 
-If {\tt i == length of ( n )}
-the \TT{null} at the end of the name is returned.
+{\tt function name r = \ttkey{name} ( error code c )}
+\begin{indpar}
+Returns {\tt c} converted to an error value of \TT{name} type.
+\TT{Name} values
+have \TT{adr} as their underlying type and can store any error value
+that an \TT{adr} value can. 
+If {\tt c} is out of the
+range of error codes permissible for \TT{adr},
+\TT{std TOO LARGE ERROR CODE} is used in place of {\tt c}.
+\end{indpar}
+
+{\tt function error code r = \ttkey{error code} ( name n )}
+\begin{indpar}
+Returns the \TT{error code} encoded by the error value stored in {\tt n}, or 
+returns \TT{std NOT ERROR VALUE} if {\tt n} is not storing an error value.
 \end{indpar}
 
 \end{indpar}

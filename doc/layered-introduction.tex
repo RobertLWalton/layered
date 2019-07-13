@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 1, 2019
+July 13, 2019
  
 \end{center}
 
@@ -5019,12 +5019,14 @@ by omitting it and prefacing the attribute label with `\TT{no}'
 The type can be omitted from the end unless it is preceded
 by a single attribute with omitted \TT{TRUE} value, as such an attribute
 will be mistaken for the type
-(i.e., in \TT{\{|\ldots|X\}}, \TT{X} is
-a type label and \underline{not} an attribute label).
+(i.e., in \TT{\{X|\ldots|Y\}}, \TT{Y} is
+a type label and \underline{not} an attribute label, and it is an error
+if \TT{X} and \TT{Y} are not the same).
 If the type is given at the end, it must match the type given at the
 beginning.  If no type is given at the beginning, the type is missing
 and must not be given at the end.  However, \TT{""} can be used as a type
-at either end to denote a missing type.
+at either end to denote a missing type (e.g., \TT{\{|\ldots|""\}} is
+legal and is the same as \TT{\{|\ldots|\}}).
 
 For example, the following are equivalent:
 \begin{center}
@@ -5091,8 +5093,6 @@ Similarly if the type is a label consisting of two \underline{distinct}
 lexemes, and there are no attributes, the `\TT{|}'s may be
 omitted with the two unquoted {\em marks} being placed before and
 after the elements, respectively.
-Lastly if there are no elements and the type is a single {\em mark},
-the second copy of the {\em mark} may be omitted, as in `\TT{\{*\}}'.
 Except in these cases, type and attribute labels
 cannot contain separators or marks unless these are quoted.
 
@@ -5323,12 +5323,14 @@ An {\em attribute} that is just
 `{\em typed-attribute-negator}~~~{\em attribute-label}' is equivalent to: \\
 \hspace*{1in}{\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{FALSE}
 \item
-An {\em attribute-label} may appear in more that one {\em attribute},
-but at most one without any {\em reverse-attribute-label}, and in
-at most one with any particular {\em reverse-attribute-label}.
+For a given {\em attribute-label}, at most one {\em attribute} containing
+{\em single-attribute-values} may appear.
 \item
-An {\em attribute-label} may appear with {\em attribute-flags}
-in at most one {\em attribute}.
+For a given {\em attribute-label}, at most one {\em attribute} containing
+{\em attribute-flags} may appear.
+\item
+For a given {\em attribute-label} and {\em reverse-attribute-label},
+at most one {\em attribute} containing both labels may appear.
 \end{enumerate}
 \end{indpar}
 

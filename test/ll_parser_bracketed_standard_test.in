@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 07:15:14 EDT 2019
+// Date:	Sat Jul 13 05:09:37 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -94,6 +94,10 @@ And one more {t| |b["A", 201,202, [5]]: t}
 {|1 2|y = B|3 4|}
 {S|1 2|y = B|3 4|S}
 {|1 2|y = B|3 4|""}
+{X|1 2 3|Y}
+{|1 2 3|Y}
+{""|1 2 3|""}
+{|1 2 3|""}
 {""|1 2|y = B|3 4|""}
 {"": y = B|1 2 3 4|}
 {"": y = B|1 2 3 4|z = C: ""}
@@ -179,6 +183,8 @@ This is a continued-middle-#
 {"": my attribute = 5, no your option|a b c|""}
 {+ a b c +}
 {my option| a b c |no your option}
+{my option: no your option| a b c |}
+{my option: your option = FALSE| a b c |}
 {no your option| a b c |my option}
 {my option| a b c |your option}
 {+ +}

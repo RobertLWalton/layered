@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 13, 2019
+July 14, 2019
  
 \end{center}
 
@@ -5323,34 +5323,44 @@ An {\em attribute} that is just
 `{\em typed-attribute-negator}~~~{\em attribute-label}' is equivalent to: \\
 \hspace*{1in}{\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{FALSE}
 \item
-For a given {\em attribute-label}, at most one {\em attribute} containing
-{\em single-attribute-values} may appear.
+An {\em attribute} that is just
+`{\em attribute-label}~~~{\em attribute-flags}' sets just the attribute
+flags and does \underline{not} set any attribute values
 \item
 For a given {\em attribute-label}, at most one {\em attribute} containing
 {\em attribute-flags} may appear.
+\item
+For a given {\em attribute-label}, at most one {\em attribute} containing
+{\em single-attribute-values} may appear.
 \item
 For a given {\em attribute-label} and {\em reverse-attribute-label},
 at most one {\em attribute} containing both labels may appear.
 \end{enumerate}
 \end{indpar}
 
-A typed bracketed expression is converted to a
+A {\em typed-bracketed-subexpression} is converted to a
 MIN object whose list elements are the components of the
-subexpression between {\em typed-middles} (e.g., `\TT{|}'s)  The
-{\em bracket-type} becomes the \TT{.type}
-attribute of this object.  Any {\em attributes} given in the
-typed bracketed expression become attributes of the object.
-An attribute with just a {\em typed-attribute-label} and neither
-a {\em typed-attribute-value} or {\em typed-attribute-negator} prefix
-gets the implied value \TT{TRUE}.
-An attribute with a {\em typed-attribute-negator}
-and {\em typed-attribute-label} but no {\em typed-attribute-value}
-gets the implied value \TT{FALSE}.
-If an {\em attribute-label} is followed by {\em attribute-flags},
-the attribute is given the indicated flags.
+subexpression between {\em typed-middles} (e.g., `\TT{|}'s).  The
+{\em bracket-type}, if it is not missing
+(and therefore \underline{not} \TT{""}), becomes the \TT{.type}
+attribute of this object.  An {\em attribute-label}
+becomes an attribute name of the object, and
+{\em single-attribute-values} in an {\em attribute}
+become the values of the {\em attribute}'s attribute name.
+{\em Attribute-flags} in an {\em attribute}
+become the flags of the {\em attribute}'s attribute name.
+{\em Double-attribute-values} in an {\em attribute}
+become the values of the attribute name/reverse attribute name
+specified by the {\em attribute}'s {\em attribute-label} and
+{\em reverse-attribute-label}.  The MIN object is given the
+hidden \TT{.position} attribute specifying the position in the
+input text of the {\em typed-bracketed-subexpression} and the
+positions of each of its {\em elements}.
 
-In a {\em typed-bracketed-subexpression}
-with {\em bracket-type-marks}, if the beginning and ending
+A {\em typed-bracketed-subexpression} with {\em bracket-type-marks}
+has just \TT{.type} and \TT{.position}
+attributes, and no other attributes.  The \TT{.type}
+is never missing.  If the beginning and ending
 {\em bracket-type-marks} are identical, the {\em bracket-type}
 is just a MIN string equal to these {\em bracket-type-marks},
 but if the two {\em bracket-type-marks} are \underline{not} identical,
@@ -5364,10 +5374,11 @@ Note that {\em marks} cannot be part of a {\em label}, so a
 Note that a {\em typed-bracketed-subexpression} must contain a
 {\em typed-middle} (e.g., `\TT{|}'), unless it has
 \underline{two} {\em bracket-type-marks} or is the degenerate
-form `\TT{\{\}}'.  {\em Typed-prefix-separators} are syntactically the same
-as {\em typed-bracketed-subexpressions} with no elements
-but with no {\em typed-middle} or with only one {\em bracket-type-mark}:
-see \itemref{TYPED-PREFIX-SEPARATORS}.
+form `\TT{\{\}}'.
+{\em Typed-prefix-separators} (\itemref{TYPED-PREFIX-SEPARATORS})
+are syntactically similar to {\em typed-bracketed-subexpressions}
+but have no {\em typed-middle} and at most one {\em bracket-type-mark},
+and therefore have cannot have any {\em elements}.
 
 Note that the MIN object is \underline{not} given \TT{.initiator}
 ~or~ \TT{.terminator} attributes, unless they are given as explicit
@@ -5381,8 +5392,8 @@ are lexically scanned as a single lexeme, then this new
 {\em doubled-typed-middle} lexeme (e.g., `\TT{||}') can be used
 to represent an empty list in place of
 two {\em typed-middle} lexemes with an intervening space.
-Note that in this case the {\em typed-middles} must be single
-lexemes.
+Note that in this case the {\em typed-middle} is required to be
+a \underline{single} lexeme.
 
 If a typed bracketed subexpression ends pre-maturely,
 a parsing error is announced and any missing but required
@@ -5394,7 +5405,8 @@ just after the pre-maturely ended subexpression.  Such a pre-mature end can be
 discovered by finding the {\em closing-bracket} of a containing
 untyped bracketed subexpression, the {\em typed-closing}
 of a containing typed bracketed subexpression with a different
-{\em typed-closing}, the end of the logical line
+{\em typed-closing}, a {\em typed-closing} following a missing
+{\em typed-middle}, the end of the logical line
 containing the typed bracketed subexpression,
 or an end of file.  However, the end must be enabled by the
 parsing options (e.g., a {\em closing-bracket} cannot pre-maturely

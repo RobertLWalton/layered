@@ -5487,10 +5487,16 @@ which specifies
 `\TT{||}' to be by implication the {\em doubled-typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
 `\TT{text}' to be the sole definition selector \\
-`\TT{[- data]}' to be the {\em typed-parsing-selectors} \\
-`\TT{[- end at outer closing, - end at line separator]}' \\
+`\TT{[- data, - TOP LEVEL]}' to be the {\em typed-parsing-selectors} \\
+~~~~~~here `\TT{- TOP LEVEL}' is implied. \\
+`\begin{tabular}[t]{l}
+ \TT{[- end at outer closing, - end at line separator,} \\
+ \TT{~- enable indented paragraph, - enable header]}' \\
+ \end{tabular} \\
 ~~~~~~to be the {\em bracket-options}; \\
-~~~~~~here `\TT{- end at line separator}' is implied. \\
+~~~~~~here `\TT{- end at line separator}',
+           `\TT{- enable indented paragraph}', \\
+~~~~~~and `\TT{- enable header}' are implied. \\
 `\TT{[data]}' to be the {\em typed-attribute-selectors} \\
 `\TT{:}' to be the {\em typed-attribute-begin} \\
 `\TT{=}' to be the {\em typed-attribute-equal} \\
@@ -5661,6 +5667,12 @@ are the same as the context selectors
 modified by any parsing selectors
 found when the {\em bracket-type} is looked up in the
 bracket type table.
+Note, however, that `\TT{- TOP LEVEL}' is always
+implied in {\em typed-parsing-selectors} and
+`\TT{- end at line separator}',
+`\TT{ - enable indented paragraph}', and
+`\TT{ - enable header}' are always impled for
+{\em bracket-options}.
 
 The untyped bracket definitions for `\TT{[\ldots]}' and
 `\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BULITINS},

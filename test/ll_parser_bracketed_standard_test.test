@@ -7023,6 +7023,82 @@ BRACKETED EXPRESSION:
     =
 ^^^^^
 BRACKETED EXPRESSION:
+    < 99 >
+@@@@ = 99:
+           .terminator = ">"
+           .initiator = "<"
+           .position[H] = PACKED_VEC
+    line ###:
+< 99 >
+^^^^^^
+BRACKETED EXPRESSION:
+    < 99 >
+@@@@ = < 99 >:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+< 99 >
+^^^^^^
+BRACKETED EXPRESSION:
+    {@ < 99 > @}
+@@@@ = < 99 >:
+           .type = "@"
+           .position[H] = PACKED_VEC
+    line ###:
+{@ < 99 > @}
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {@ < 99 > @}
+@@@@ = {@ < 99 > @}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{@ < 99 > @}
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    end block BLOCK1
+@@@@ = end block BLOCK1:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    end block BLOCK1
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [+ bracketed subexpressions]
+@@@@ = + bracketed subexpressions:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+    line ###:
+    trace [+ bracketed subexpressions]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    trace [+ bracketed subexpressions]
+@@@@ = trace [+ bracketed subexpressions]:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    trace [+ bracketed subexpressions]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< "*PARSER*" ":" >]|@@@@ @@@@|}
+@@@@ = @@@@ @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = [< "*PARSER*" ":" >]
+    lines ###-###:
+*PARSER*:
+^^^^^^^^^
+    end block BLOCK1
+^^^^^^^^^^^^^^^^^^^^
+    trace [+ bracketed subexpressions]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     ROOT = PREALLOCATED(1*20) = LEAVES
 @@@@ = ROOT = PREALLOCATED(1*20) = LEAVES:
            .terminator = "<LF>"

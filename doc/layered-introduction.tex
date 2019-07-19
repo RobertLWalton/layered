@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 14, 2019
+July 19, 2019
  
 \end{center}
 
@@ -5446,10 +5446,16 @@ and options according to the
 associated with the {\em typed-opening} by the
 \TT{parser define typed bracket} command (see below).
 
-{\em Bracket-type-marks} are \underline{not} looked up in the
-bracket type table for the purposes of the last paragraph.
-This is because an initial {\em bracket-type-mark} may not
-be the entire {\em bracket-type}.
+A {\em bracket-type-mark} is also looked up in the
+bracket type table when it is encountered, and
+any entry found is used to modify the context selectors
+and options used to scan {\em elements} of its
+{\em typed-bracketed-subexpression}.  When an initial
+{\em bracket-type-mark-1} is not the same as the final
+{\em bracket-type-mark-2}, and the two are combined into
+a MIN label that becomes the {\em bracket-type},
+\underline{only} the initial {\em bracket-type-mark-1}
+is looked up to find the bracket type definition.
 
 The parsing selectors and options are reset to the
 context selectors and options after the subexpression ending

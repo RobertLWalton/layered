@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 30 23:29:33 EDT 2019
+// Date:	Fri Jul 19 04:02:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3208,6 +3208,36 @@ NEXT_TOKEN:
 		typed_data->has_mark_type = true;
 		current->type = BRA::TYPE;
 		++ typed_data->attr_count;
+
+		// Adjust typed_data->element_selectors
+		//
+		TAB::key_table bracket_type_table =
+		    bracketed_pass->bracket_type_table;
+		BRA::bracket_type bracket_type =
+		    (BRA::bracket_type)
+		    TAB::find
+			( typed_data->type,
+			  BRA::BRACKET_TYPE,
+			  typed_data->context_selectors,
+			  bracket_type_table );
+		if ( bracket_type != min::NULL_STUB )
+		{
+		    TAB::flags element_selectors =
+			typed_data->context_selectors;
+		    element_selectors |=
+			bracket_type->
+			    parsing_selectors.or_flags;
+		    element_selectors &= ~
+			bracket_type->
+			    parsing_selectors.not_flags;
+		    element_selectors ^=
+			bracket_type->
+			    parsing_selectors.xor_flags;
+		    element_selectors |=
+			PAR::ALWAYS_SELECTOR;
+		    typed_data->element_selectors =
+			element_selectors;
+		}
 
 		selectors =
 		    typed_data->element_selectors;

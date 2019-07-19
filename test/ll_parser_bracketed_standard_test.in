@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 13 05:09:37 EDT 2019
+// Date:	Fri Jul 19 04:36:16 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -428,6 +428,17 @@ and a continuation of the outer paragraph.
     =
 
 {code}
+
+*PARSER*:
+    end block BLOCK1
+    begin block BLOCK1
+    define bracket type "@" [code]
+    	with parsing selectors [data]
+    define bracket "<" ... ">" [code]
+    trace [+ bracketed subexpressions]
+
+< 99 >
+{@ < 99 > @}
 
 *PARSER*:
     end block BLOCK1

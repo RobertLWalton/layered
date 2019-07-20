@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 07:14:51 EDT 2019
+// Date:	Fri Jul 19 21:52:03 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -344,6 +344,8 @@ third line with indent 0
         with attribute multivalue initiator "{*"
 
     print bracket type ""
+    print bracket type "P4"
+    print bracket type "P" // Should print nothing.
 
 *PARSER* *TEST*:
     {P1}

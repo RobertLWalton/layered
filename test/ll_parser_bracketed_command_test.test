@@ -929,6 +929,14 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
                       with parsing options [+ enable prefix]
                       with group paragraph
                       with implied subprefix {L4||L4}
+    print bracket type "P4"
+        block BLOCK1: bracket type "P4" [code, text]
+                      with parsing selectors [text]
+                      with parsing options [+ enable prefix]
+                      with group paragraph
+                      with implied subprefix {L4||L4}
+    print bracket type "P" // Should print nothing.
+        nothing found
 ======= PARSER TEST: {P1|{S1|Hi there "."|S1} {S1|Bye "."|S1}
                          {S1|And some more "."|S1}|P1}
 ======= lines ###-###:

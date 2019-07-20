@@ -4363,14 +4363,10 @@ The general syntax is:
     ::= & {\em word} $|$ {\em number} $|$ {\em mark} $|$
                     {\em separator} $|$ {\em quoted-string} \\
     $|$ & {\em untyped-bracketed-subexpression} \\
-    $|$ & {\em indented-paragraph-subexpression} \\
     $|$ & {\em typed-bracketed-subexpression} \\
     $|$ & {\em typed-prefix-separator} that is not a prefix:
           see \pagref{PREFIX-0-LIST} \\
     \end{tabular}
-\\[0.5ex]
-\emkey{indented-paragraph-subexpression} ::=
-    see \pagref{INDENTED-PARAGRAPH-SUBEXPRESSION}
 \\[0.5ex]
 \emkey{typed-bracketed-subexpression} ::=
     see \pagref{TYPED-BRACKETED-SUBEXPRESSION}
@@ -4485,7 +4481,7 @@ for a description of typed brackets.
 The `\TT{print bracket} {\em partial-opening-bracket}' command
 prints all untyped bracket symbol table entries whose
 {\em opening-bracket} contains the {\em partial-opening-bracket}
-as a (not necessarily initial) substring.  Using \TT{""} as
+as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-opening-bracket} will print all untyped bracket
 symbol table entries.
 
@@ -4880,7 +4876,7 @@ in the paragraph.
 The `\TT{print indentation mark} {\em partial-indentation-mark}' command
 prints all indentation mark symbol table entries whose
 {\em indentation-mark} contains the {\em partial-indentation-mark}
-as a (not necessarily initial) substring.  Using \TT{""} as
+as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-indentation-mark} will print all indentation mark
 symbol table entries.
 
@@ -5616,7 +5612,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 The `\TT{print typed bracket} {\em partial-typed-opening}' command
 prints all typed bracket symbol table entries whose
 {\em typed-opening} contains the {\em partial-typed-opening}
-as a (not necessarily initial) substring.  Using \TT{""} as
+as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-typed-opening} will print all typed bracket
 symbol table entries.
 
@@ -5960,7 +5956,7 @@ whose general syntax is:
 The `\TT{print bracket type} {\em partial-bracket-type-name}' command
 prints all bracket type symbol table entries whose
 {\em bracket-type-name} contains the {\em partial-bracket-type-name}
-as a (not necessarily initial) substring.  Using \TT{""} as
+as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-bracket-type-name} will print all bracket type
 symbol table entries.
 

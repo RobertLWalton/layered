@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 19 04:36:16 EDT 2019
+// Date:	Sun Jul 21 05:30:40 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -278,6 +278,17 @@ ID 10 is @10
 
 *PARSER*:
     trace [- bracketed subexpressions, - keys]
+
+{p} {s} This is a sentence. {s}
+And another.  {s} And yet another
+{foo} sentence.
+
+{code}
+
+{P} {S} This is a sentence. {S}
+    And another.  {S} And yet another
+    {foo} sentence.
+
 
 *PARSER*:
     begin block BLOCK1

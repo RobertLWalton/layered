@@ -6596,6 +6596,57 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^
     trace [- bracketed subexpressions, - keys]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: prefix separator of type `foo' not at beginning of
+       subexpression and does not continue subexpression started by
+       another prefix with the same type or group; ignored:
+{foo} sentence.
+^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|This is a sentence|s}
+       {s: .terminator = "."|And another|s}
+       {s: .terminator = "."|And yet another sentence|s}|p}
+@@@@ = @@@@ @@@@ @@@@:
+           .type = "p"
+           .position[H] = PACKED_VEC
+@@@@ = This is a sentence:
+           .terminator = "."
+           .type = "s"
+           .position[H] = PACKED_VEC
+@@@@ = And another:
+           .terminator = "."
+           .type = "s"
+           .position[H] = PACKED_VEC
+@@@@ = And yet another sentence:
+           .terminator = "."
+           .type = "s"
+           .position[H] = PACKED_VEC
+    lines ###-###:
+{p} {s} This is a sentence. {s}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+And another.  {s} And yet another
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{foo} sentence.
+^^^^^^^^^^^^^^^
+ERROR: in line ###: prefix separator of type `foo' not at beginning of
+       subexpression and does not continue subexpression started by
+       another prefix with the same type or group; ignored:
+    {foo} sentence.
+    ^^^^^
+BRACKETED EXPRESSION:
+    {P|{S|This is a sentence "."|S} {S|And another "."|S}
+       {S|And yet another sentence "."|S}|P}
+@@@@ = {P|{S|This is a sentence "."|S} {S|And another "."|S}
+          {S|And yet another sentence "."|S}|P}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+{P} {S} This is a sentence. {S}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    And another.  {S} And yet another
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {foo} sentence.
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {itemize: indent = "5em", mark = "*"|{item|1 chicken|item}
               {item|1 tablespoon olive oil|item}

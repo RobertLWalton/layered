@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 19, 2019
+July 21, 2019
  
 \end{center}
 
@@ -5705,7 +5705,7 @@ redacted in the future.
 
 A \key{typed prefix separator}
 has the same syntax as a {\em typed-bracketed-subexpression}
-with no {\em typed-middles} (e.g., `\TT{|}'s) and therefore
+but with no {\em typed-middles} (e.g., `\TT{|}'s) and therefore
 no {\em elements}, or with only a single {\em bracket-type-mark}
 and no {\em elements}.
 Some examples are:
@@ -5745,7 +5745,7 @@ The general syntax of a typed prefix separator is:
 \end{indpar}
 
 {\em Typed-prefix-separators} and {\em typed-bracketed-subexpressions}
-are parsed by the same algorithm that is driven by parameters from
+are parsed by the same algorithm which is driven by parameters from
 the same {\em parser-typed-bracket-command} for a given {\em typed-opening}
 (e.g., `\TT{\{}').
 After the {\em typed-closing}
@@ -5773,10 +5773,10 @@ common (the {\em typed-prefix-selectors} default to all selectors on,
 so this requirement is met by default).
 \item At least one of the following is true:
 \begin{enumerate}
-\item The `\TT{enable prefix}' option is set in the context selectors.
-\item The `\TT{enable table prefix}' option is set in the context selectors
+\item The `\TT{enable prefix}' option is set in the context options.
+\item The `\TT{enable table prefix}' option is set in the context options
       and a bracket table entry was found for the {\em bracket-type}.
-\item The `\TT{enable header}' option is set in the context selectors
+\item The `\TT{enable header}' option is set in the context options
       and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
       group was found for the {\em bracket-type}.
 \end{enumerate}
@@ -5795,38 +5795,57 @@ be a {\em prefix-N-list} {\em element}.
 
 {\em Prefixes} are used to form {\em prefix-N-lists}.%
 \label{PREFIX-0-LIST}
-The following is an example in which {\em line-breaks} are ignored:
+The following is an example in which the entire text is a single
+logical line, in spite of the lack of indentation of continuation
+lines, because {\tt \{p\}} is a special
+paragraph prefix with `{\tt + end at paragraph break}'
+and `{\tt - end at le indent}' options:
 
 
-\begin{tabular}{lll}
+\begin{tabular}{p{3.5in}|l|l}
 Text	& Separator &  Syntactic Category
 \\\hline
-\tt \{p\} \{s\} This is a sentence.	& \tt \{p\} & \em prefix-0-list \\
-\tt ~~~ \{s\} And another. \\
-\tt \{p\} \{s\} And a new \{foo\} paragraph.
+\raggedright
+\tt \{p\} \{s\} This is a sentence. \{s\} And
+another.  \{s\} And yet another
+\{foo\} sentence. & \tt \{p\} & \em prefix-0-list
 \\\hline
 \tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list
 \\\hline
 \tt This is a sentence.	& (none) & \em prefix-2-list
 \\\hline
-\tt \{s\} And another.  	& \tt \{s\} & \em prefix-1-list
+\tt \{s\} And another sentence.  	& \tt \{s\} & \em prefix-1-list
 \\\hline
-\tt And another. & (none) & \em prefix-2-list
+\tt And another sentence. & (none) & \em prefix-2-list
 \\\hline
-\tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
+\tt \{s\} And yet another \{foo\} sentence. & \tt \{s\} & \em prefix-1-list
 \\\hline
-\tt And a new \{foo\} paragraph. & (none) & \em prefix-2-list \\
+\tt And yet another \{foo\} sentence. & (none) & \em prefix-2-list \\
 			       &        & \TT{\{foo\}} is in error \\
 			       &        & and is ignored (deleted).
 \end{tabular}
 
-The {\em prefix-0-list} in this example is equivalent to:
+The {\em prefix-0-list} in this example would be equivalent to:
 \begin{indpar}\begin{verbatim}
-{|  {p|  {s| This is a sentence "." |}
-         {s| And another "." |} |}
-    {p|  {s| And a new paragraph "." |} |} |}
-             // `{foo}' deleted
+{p|  {s| This is a sentence "." |s}
+     {s| And another "." |s}
+     {s| And a yet another sentence "." |s} |p}
+         // `{foo}' deleted
 \end{verbatim}\end{indpar}
+
+except that {\tt \{s\}} is a special sentence prefix that invokes
+a the \TT{sentence} reformatter (\pagref{SENTENCE-REFORMATTER})
+which moves the {\tt "."} into a {\tt .terminator} attribute, so the
+example is finally equivalent to:
+\begin{indpar}[0.2in]\begin{verbatim}
+{p|  {s: .terminator = "."| This is a sentence |s}
+     {s: .terminator = "."| And another |s}
+     {s: .terminator = "."| And a yet another sentence |s} |p}
+\end{verbatim}\end{indpar}
+
+If we changed {\tt \{p\}} to {\tt \{P\}} and {\tt \{s\}} to {\tt \{S\}}, there
+would nothing special about the prefixes, the continuation
+lines would have to be indented, and {\tt "."} would not be moved.
 
 The general syntax of a prefix-n list is:
 

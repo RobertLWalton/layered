@@ -5984,6 +5984,15 @@ The components special to a bracket type definition are:
 \begin{indpar}[0.4in]
 
 \hspace*{-0.2in}\ttmkey{parsing selectors}{in bracket type definition}\\
+The elements of a {\em typed-bracketed-subexpression}
+are parsed using the parsing selectors as they were at the beginning
+subexpression (the context selectors of the subexpression) as modified by any
+{\em bracket-type-selectors} found in a bracket type definition of
+the {\em bracket-type} of the subexpression, if a bracket type definition is
+found.  If no defintion is found, the {\em typed-parsing-selectors} of the
+{\em parser-typed-bracket-command} for the {\em typed-opening} are used:
+see \pagref{TYPED-PARSING-SELECTORS-USE}.
+
 The elements of the {\em prefix-(n+1)-list} following a {\em prefix-n}
 are parsed using the parsing selectors as they were at the beginning
 of the containing {\em prefix-n-list} (the context selectors of the
@@ -5995,14 +6004,6 @@ selectors are also used to parse any subsequent {\em prefix-n} in the list,
 so the modifications should the chosen so they do not affect parsing of
 {\em typed-prefix-separators} or the lookup of bracket type table definitions.
 
-The elements of a {\em typed-bracketed-subexpression}
-are parsed using the parsing selectors as they were at the beginning
-subexpression (the context selectors of the subexpression) as modified by any
-{\em bracket-type-selectors} found in a bracket type definition of
-the {\em bracket-type} of the subexpression, if a bracket type definition is
-found.  If no defintion is found, the {\em typed-parsing-selectors} of the
-{\em parser-typed-bracket-command} for the {\em typed-opening} are used:
-see \pagref{TYPED-PARSING-SELECTORS-USE}.
 
 \hspace*{-0.2in}\ttmkey{group}{in bracket type definition}%
 	\label{BRACKET-TYPE-GROUP}\\

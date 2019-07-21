@@ -5899,12 +5899,11 @@ is parsed, its {\em bracket-type}
 (i.e., its \TT{.type} if it has one) is looked up
 in the bracket type table using the selectors in effect at the beginning
 of the subexpression or separator parse (the context selectors).
-If a table entry is found, it is used to provide information about
+If a table entry is found, it is used to provide information
 that affects the parse of the
-{\em elements} of a {\em typed-bracketed-subexpression},
-and if the subexpression has no elements and is a
-{\em typed-prefix-separator}, the parse of the {\em prefix-n-list}
-following the prefix separator.
+{\em elements} of a {\em typed-bracketed-subexpression}
+or the {\em elements} of a {\em prefix-n-list}
+that begins with a {\em typed-prefix-separator}.
 
 Entries in the bracket type table are managed by
 {\em parser-bracket-type-commands}

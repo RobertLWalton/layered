@@ -6006,12 +6006,17 @@ $m\leq n$.  So the selector modifications
 should the chosen so that they do not affect parsing of
 {\em typed-prefix-separators} or lookup of bracket type table definitions.
 
-However, the selectors modified by a bracket type type entry for a
-{\em prefix-m} are always the selectors in effect at the beginning
-of the {\em prefix-m-list} containing the {\em prefix-m}, even though
-these selectors are not used to parse the {\em prefix-m} or
-look up its bracket type table entry if the {\em prefix-m}
-does not begin its containing {\em prefix-m-list}.
+More specifically, consider {\em prefix-m} in its {\em prefix-m-list}.
+Let $SO_1$ be the selectors and options in effect at the beginning of
+the entire {\em prefix-m-list}.  Let $SO_2$ be the selectors and options
+in effect at the beginning of {\em prefix-m}, and let $SO_3$ be the
+selectors and options in effect just after {\em prefix-m}.
+$SO_2$ is used to parse {\em prefix-m} and look up its bracket type table
+entry.  Then $SO_1$ is modified by the bracket type table entry
+parsing selectors and parsing options (see below)
+to produce $SO_3$.  A consideration is that if
+{\em prefix-m} is not at the beginning of its {\em prefix-m-list},
+$SO_1$ and $SO_2$ may not be the same.
 
 \hspace*{-0.2in}\ttmkey{group}{in bracket type definition}%
 	\label{BRACKET-TYPE-GROUP}\\

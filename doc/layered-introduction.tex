@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 21, 2019
+July 24, 2019
  
 \end{center}
 
@@ -5999,11 +5999,19 @@ of the containing {\em prefix-n-list} (the context selectors of the
 {\em prefix-n}) as modified by any
 {\em bracket-type-selectors} found in a bracket type definition of
 the {\em bracket-type} of the {\em prefix-n}.
-These modified
-selectors are also used to parse any subsequent {\em prefix-n} in the list,
-so the modifications should the chosen so they do not affect parsing of
-{\em typed-prefix-separators} or the lookup of bracket type table definitions.
+These same modified
+selectors are also used to parse any subsequent {\em prefix-m} in the list
+and look up its \TT{.type} in the bracket type table, even if
+$m\leq n$.  So the selector modifications
+should the chosen so that they do not affect parsing of
+{\em typed-prefix-separators} or lookup of bracket type table definitions.
 
+However, the selectors modified by a bracket type type entry for a
+{\em prefix-m} are always the selectors in effect at the beginning
+of the {\em prefix-m-list} containing the {\em prefix-m}, even though
+these selectors are not used to parse the {\em prefix-m} or
+look up its bracket type table entry if the {\em prefix-m}
+does not begin its containing {\em prefix-m-list}.
 
 \hspace*{-0.2in}\ttmkey{group}{in bracket type definition}%
 	\label{BRACKET-TYPE-GROUP}\\

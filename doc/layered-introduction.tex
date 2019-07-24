@@ -2498,7 +2498,7 @@ Paragraph Options:\label{PARAGRAPH-OPTIONS}
 
 \bigskip
 
-The following options apply only to prefix table entries with
+The following options apply only to bracket type table entries with
 the `\TT{paragraph}' group.
 
 \begin{indpar}
@@ -2750,8 +2750,8 @@ beginning of a logical line that is itself either at the
 beginning of an indented paragraph or just after a blank line
 that follows another logical line.
 A headed paragraph ends with the next blank line that
-follows a logical line (there is an exception if the paragraph prefix table
-entry has the
+follows a logical line (there is an exception if the paragraph
+bracket type table entry has the
 `\TT{continuing}' option), or when the indented paragraph that
 contains the headed paragraph ends (this can be at an
 end of file).
@@ -5618,6 +5618,7 @@ symbol table entries.
 
 When a parser is initialized, the following
 definitions are included in the \TT{TOP LEVEL} parser block:
+\label{TOP-LEVEL-{}}
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define typed bracket "{" ... "|" ... "|" ... "}" [data]
@@ -6007,16 +6008,21 @@ should the chosen so that they do not affect parsing of
 {\em typed-prefix-separators} or lookup of bracket type table definitions.
 
 More specifically, consider {\em prefix-m} in its {\em prefix-m-list}.
-Let $SO_1$ be the selectors and options in effect at the beginning of
-the entire {\em prefix-m-list}.  Let $SO_2$ be the selectors and options
-in effect at the beginning of {\em prefix-m}, and let $SO_3$ be the
-selectors and options in effect just after {\em prefix-m}.
-$SO_2$ is used to parse {\em prefix-m} and look up its bracket type table
-entry.  Then $SO_1$ is modified by the bracket type table entry
-parsing selectors and parsing options (see below)
-to produce $SO_3$.  A consideration is that if
+Let $S_1$ be the selectors in effect at the beginning of
+the entire {\em prefix-m-list}.  Let $S_2$ be the selectors
+in effect at the beginning of {\em prefix-m}, and let $S_3$ be the
+selectors in effect just after {\em prefix-m}.
+$S_2$ is used to parse {\em prefix-m} and look up its bracket type table
+entry.  Then $S_1$ is modified by the bracket type table entry
+parsing selectors to produce $S_3$ (if no bracket type table entry
+was found, $S_3$ equals $S_1$).  Note that if
 {\em prefix-m} is not at the beginning of its {\em prefix-m-list},
-$SO_1$ and $SO_2$ may not be the same.
+$S_1$ and $S_2$ may not be the same.
+Note that prefix options below do not have the same considerations
+as a bracket type table cannot modify options unless it has
+\TT{paragraph} group, and a {\em prefix-m} with \TT{paragraph}
+group must begin its containing {\em prefix-m-list} (which is a logical
+line).
 
 \hspace*{-0.2in}\ttmkey{group}{in bracket type definition}%
 	\label{BRACKET-TYPE-GROUP}\\
@@ -6053,21 +6059,40 @@ unless an explicit prefix whose group is that
 of a preceeding prefix (including the {\em implied-prefix}) follows
 the {\em prefix-n} in the input.  However, there is one difference
 if there is an explicit prefix, and this is that the selectors
-used to parse the explicit prefix and find any associated prefix
+used to parse the explicit prefix and find any associated bracket type
 table definition will be those modified by the {\em implied-prefix}
 and may differ from those that would be at the same input position
 had the {\em implied-prefix} not been inserted.
 
+More specifically, consider a {\em prefix-m-list} that begins with an implied
+{\em prefix-m} followed immediately by an explicit {\em prefix-m}.
+Let $SO_1$ be the selectors and options in effect at the beginning of
+the entire {\em prefix-m-list}.  Let $SO_2$ be the selectors and options
+in effect at the beginning of explicit {\em prefix-m}, and let $SO_3$ be the
+selectors and options in effect just after the explicit {\em prefix-m}.
+$SO_2$, which is $SO_1$ modified by the bracket type table entry of the
+implied {\em prefix-m},
+is used to parse the explicit {\em prefix-m} and look up its bracket type table
+entry.  Then the implied {\em prefix-m} is deleted (an implied prefix is
+deleted if its element list is empty) and
+$SO_1$ is modified by the explicit {\em prefix-m}'s bracket type table entry
+parsing selectors and parsing options
+to produce $SO_3$ (if no bracket type table entry
+was found, $SO_3$ equals $SO_1$).
+Note that prefix options are only affected if the {\em prefix-m}'s have
+the \TT{paragraph} group, as only bracket type table entries with that
+group can have parsing options.
+
 The {\em implied-prefix} of the bracket type definition will also be
-ignored unless one of the following is true, where the context selectors
-are the parsing selectors in effect at the point where the {\em implied-prefix}
+ignored unless one of the following is true, where the context options
+are the parsing options in effect at the point where the {\em implied-prefix}
 is to be inserted:
 \begin{enumerate}[label=(\alph*)]
-\item The `\TT{enable prefix}' option is set in the context selectors.
-\item The `\TT{enable table prefix}' option is set in the context selectors
+\item The `\TT{enable prefix}' option is set in the context options.
+\item The `\TT{enable table prefix}' option is set in the context options
       and a bracket table entry was found for the {\em bracket-type} of
       the {\em implied-prefix}.
-\item The `\TT{enable header}' option is set in the context selectors
+\item The `\TT{enable header}' option is set in the context options
       and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
       group was found for the {\em bracket-type} of
       the {\em implied-prefix}.
@@ -6075,12 +6100,16 @@ is to be inserted:
 
 If the {\em implied-prefix} is given, it must have the form
 of a {\em typed-prefix-separator},
-but within its {\em parser-bracket-type-command} it is parsed
+but within its {\em parser-bracket-type-command} it must be parsed
 using a definition of its {\em typed-opening} with
-empty {\em prefix-selectors}, so it is recognized there
+empty {\em typed-prefix-selectors}, so it will be recognized
 as if it were a {\em typed-bracketed-subexpression} with a {\em bracket-type}
 and no {\em elements}, as per
 item~\ref{TYPED-PREFIX-SELECTORS-USE}, \pagref{TYPED-PREFIX-SELECTORS-USE}.
+In particular, when the parser is initialized, the \TT{TOP LEVEL}
+parser block is given a suitable typed bracket definition for
+\TT{"\{~ ...~"|"~...~"|"~...~"\}"}
+(\pagref{TOP-LEVEL-{}}).
 
 \hspace*{-0.2in}\ttmkey{parsing options}{in bracket type definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that
@@ -6289,7 +6318,7 @@ of the {\em sentence}.
 
 \end{indpar}
 
-After a parser is initialized, it has \underline{no} prefix
+After a parser is initialized, it has \underline{no} bracket type
 definitions.
 The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
@@ -6615,7 +6644,7 @@ While parsing a logical line the parser uses the line variables:
     if it has no following {\em prefix-n-list} elements
     it is removed.
 
-    The type of a non-missing implied header must have a prefix
+    The type of a non-missing implied header must have a bracket type
     definition selected by the \TT{selectors} line variable that
     has either the `\TT{paragraph}' or `\TT{line}' group.
 
@@ -6722,23 +6751,24 @@ begin with an explicit paragraph header.
 beginning of the logical line are taken from the current line variables.
 
 \item If the current \TT{implied\_header} variable value is not missing,
-the prefix definition for this is looked up (using selectors now
+the bracket type definition for this is looked up (using selectors now
 equal to the \TT{selectors} current line variable).
-The prefix definition must exist and have either the `\TT{paragraph}' or
+The bracket type definition must exist and have either the `\TT{paragraph}' or
 `\TT{line}' group, and if it has the `\TT{paragraph}' group,
 the logical line must be in paragraph beginning position.
 
-If the prefix definition has the `\TT{paragraph}' group, the
+If the bracket type definition has the `\TT{paragraph}' group, the
 implied prefix is an implied paragraph header.  If it has the `\TT{line}' group,
 the implied prefix is an implied line header.
 
 If the implied prefix is an implied paragraph header, it is inserted at the
 beginning of the logical line, and the
-selectors, options, and lexical masters in the prefix definition are used to
+selectors, options,
+and lexical masters in the bracket type definition are used to
 modify the current line variables selectors, options, and lexical
 masters.
-If in addition the prefix definition has an implied subprefix
-that itself has a prefix definition selected by the modified
+If in addition the bracket type definition has an implied subprefix
+that itself has a bracket type definition selected by the modified
 selectors which has the `\TT{line}' group, this implied subprefix
 is copied to the \TT{implied\_header} current line variable.
 
@@ -6747,14 +6777,15 @@ If the current \TT{implied\_header} line variable is now an
 implied line header, it is inserted after any implied paragraph header
 or at the beginning of the logical line if there is no implied
 paragraph header, and the
-selectors, options, and lexical masters in the prefix definition are used to
+selectors, options,
+and lexical masters in the bracket type definition are used to
 modify the current line variables selectors, options, and lexical
 masters.
 
 \item
 
 The first part of the rest of the logical line is then parsed.
-If it begins with a prefix that has a prefix definition with either
+If it begins with a prefix that has a bracket type definition with either
 the `\TT{paragraph}' or `\TT{line}' group, then that is an explicit
 paragraph header or line header.
 
@@ -6771,14 +6802,14 @@ to their state before the deleted implied header was inserted.
 Note, however, that the current line selectors and options
 computed by the implied headers were used to parse the
 explicit header and look up its
-prefix definition, so care should be taken that prefix definitions
+bracket type definition, so care should be taken that bracket type definitions
 for implied headers do not change the selectors and options sufficiently to
 affect parsing explicit headers.
 
 \item
 
 If an explicit paragraph header is found,
-its prefix definition is used to
+its bracket type definition is used to
 modify the current line variables
 selectors, options, and lexical masters.  Then
 \begin{enumerate}[label*=\arabic*]
@@ -6818,10 +6849,10 @@ Otherwise (if the `\TT{reset}' flag is off), then
 \begin{enumerate}[label*=.\arabic*]
 
 \item
-Let $P$ denote the implied subprefix of the prefix definition
+Let $P$ denote the implied subprefix of the bracket type definition
 of the explicit paragraph header.
 If $P$ exists and
-itself has a prefix definition selected by the modified
+itself has a bracket type definition selected by the modified
 current selectors that has the `\TT{line}' group, $P$
 is copied to the \TT{current implied header} line variable.
 

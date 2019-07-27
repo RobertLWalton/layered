@@ -6666,7 +6666,7 @@ While parsing a logical line the parser uses the line variables:
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
     The lexical master is reset to one of these values
     just after the indent token that begins a logical line, unless
-    that value is missing.  The paragraph lexical master is used
+    the value is missing.  The paragraph lexical master is used
     for logical lines in paragraph beginning position
     (\pagref{PARAGRAPH-BEGINNING-POSITION})
     and the line lexical master is used for other logical lines.
@@ -6684,8 +6684,9 @@ the `\ikey{\underline{current} line variables}{current line variable}'.
 after the current line varables
 have been used at the beginning of a logical line,
 the new value will not take affect until the next logical line.
-Explicit paragraph headers with the `\TT{sticky}' or `\TT{continuing}'
-options or with a \TT{line} group implied subprefix make such changes.
+Explicit paragraph headers make such changes if they have
+the `\TT{sticky}' or `\TT{continuing}' options or if they have
+an implied subprefix which has the \TT{line} group.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\
@@ -6707,18 +6708,18 @@ options or with a \TT{line} group implied subprefix make such changes.
     \TT{options} current line variable
     contains the `\TT{continuing}' option.
 
-    The top level paragraph line variables, with the exception of
+    The \underline{top level} paragraph line variables, with the exception of
     the paragraph implied header, are the same as the
     parser selectors, options, and lexical masters, and can be changed
     by the \TT{define top level} parser command (\pagref{DEFINE-TOP-LEVEL}).
-    The top level paragraph implied header is normally missing, but
+    The \underline{top level} paragraph implied header is normally missing, but
     may be changed by a `\TT{sticky}' paragraph header as indicated below.
 
     For indented paragraphs, paragraph selectors and options line variables
     are computed from the context of the indented paragraph modified according
     to parameters given in the the \TT{define inden\-ta\-tion mark}
     parser command (\pagref{PARSER-INDENTATION-MARK-COMMAND}) for the mark
-    the introduces the paragraph.  The paragraph lexical masters and
+    that introduces the paragraph.  The paragraph lexical masters and
     implied header line variables are set from the values provided in the
     \TT{define inden\-ta\-tion mark} command.  The paragraph implied header
     may be changed while parsing the indented paragraph if a `\TT{sticky}'
@@ -6743,8 +6744,8 @@ If the logical line is in paragraph beginning position and the
 option, then the paragraph line variables are copied
 to the corresponding current line variables.
 
-If the logical line is the first after a blank line, and the blank
-line was preceeded by a sequence of logical lines prefixed by a
+If the logical line is in paragraph beginning position and is also
+preceeded by a sequence of logical lines prefixed by a
 paragraph header, the logical lines in this sequence (but not the
 current logical line) are collected into a paragraph
 headed by the paragraph header, unless the \TT{options} current line

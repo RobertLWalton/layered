@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 24, 2019
+July 27, 2019
  
 \end{center}
 
@@ -6666,10 +6666,16 @@ While parsing a logical line the parser uses the line variables:
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\
     The lexical master is reset to one of these values
     just after the indent token that begins a logical line, unless
-    the value is missing.  The paragraph lexical master is used
+    that value is missing.  The paragraph lexical master is used
     for logical lines in paragraph beginning position
     (\pagref{PARAGRAPH-BEGINNING-POSITION})
     and the line lexical master is used for other logical lines.
+
+    By convention, non-default lexical masters revert to the default master
+    after identifying any special lexemes at the location where the
+    non-default lexical master is installed.  If the lexical master
+    is \underline{not} set at the beginning of a logical line,
+    by this convention the default lexical master will be in effect.
 \\[1ex]
 \hspace*{-0.2in}Note: The above line variables are called
 the `\ikey{\underline{current} line variables}{current line variable}'.
@@ -6732,8 +6738,7 @@ Logical line processing is as follows:
 \begin{enumerate}
 
 \item\label{CONTINUING-RULE}
-If the logical line is the first of a file, or the first of an
-indented paragraph, or if it is in paragraph beginning position and the
+If the logical line is in paragraph beginning position and the
 \TT{options} current line variable does not have the `\TT{continuing}'
 option, then the paragraph line variables are copied
 to the corresponding current line variables.
@@ -6748,7 +6753,11 @@ the current logical line does \underline{not}
 begin with an explicit paragraph header.
 
 \item The parsing selectors, options, and lexical master used at the
-beginning of the logical line are taken from the current line variables.
+beginning of the logical line are set from the current line variables,
+specifically, the
+\TT{selectors},
+\TT{options}, and \TT{para\-graph/\EOL line lexical master}
+current line variables.
 
 \item If the current \TT{implied\_header} variable value is not missing,
 the bracket type definition for this is looked up (using selectors now

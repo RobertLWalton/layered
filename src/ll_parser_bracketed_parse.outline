@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 19 05:35:01 EDT 2019
+// Date:	Sat Jul 27 05:45:41 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,13 +25,17 @@
 //         (parser,current,line_variables):
 //
 //     if line_variables->last_paragraph not null
-//         // Special case where paragraph header
-//         // ended previous paragraph.  Current ==
-//         // line_variables->last_paragraph.
+//         // Special case where explicit paragraph
+//         // header ended previous paragraph.  Previous
+//         // paragraph was returned, and now current ==
+//         // line_variables->last_paragraph is the
+//         // headed paragraph token of the explicit
+//         // paragraph header that ended the previous
+//         // paragraph.
 //         //
 //         current = current->next
 //         if line_variables->at_paragraph_end
-//            or line_variable->at_paragraph_beginning
+//            or line_variables->at_paragraph_beginning
 //               and CONTINUING_OPT is off in
 //               line_variables->current.selectors:
 //             // Paragraph header headed a 1-line
@@ -74,6 +78,10 @@
 //	           lexical_master =
 //	               line_variables->
 //	                   current.line_lexical_master
+//
+//	       if lexical_master not missing:
+//	          set parser lexical master to
+//	              lexical_master
 //
 //	       line_variables->at_paragraph_indent =
 //	       if    current->indent
@@ -175,6 +183,10 @@
 //	   if parse_bracketed_subexpression returned
 //	            a single headed paragraph token:
 //
+//	       // Headed paragraph token contains an
+//	       // explicit paragraph header that ends
+//	       // any preceeding paragraph.
+//	       //
 //	       if line_variables->last_paragraph not
 //	          null:
 //	           compact_paragraph from
@@ -184,9 +196,9 @@
 //	           line_variables->last_paragraph =
 //	               returned token
 //	           return false
-//	           // Returned headed paragraph token
-//	           // will be processed by next call
-//	           // to this function.
+//	           // Headed paragraph token will be
+//	           // processed at the beginning of the
+//	           // next call to this function.
 //
 //	       if parser->at_paragraph_beginning and
 //                        CONTINUING_OPT is off in

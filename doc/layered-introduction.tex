@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 27, 2019
+July 28, 2019
  
 \end{center}
 
@@ -6651,16 +6651,16 @@ While parsing a logical line the parser uses the line variables:
     Modifications to selectors and options made by an implied
     header should be chosen so that they do not affect the parsing
     of any explicit header that occurs immediately after the
-    implied header.
-
-    This is because in such a case the implied header will be
-    deleted, as there is nothing between it and the explicit
-    header.  When the implied header is deleted,
-    the selectors and options will be fixed up as if
-    the implied header was never inserted.  \underline{However}, the
-    explicit header will have been parsed with selectors and
-    options as they were modified by the implied header, and the
-    explicit header is \underline{not} reparsed.
+    implied header, and do not affect the lookup of the bracket type of that
+    header.  This is because if the
+    logical line begins with an explicit header, that will be
+    parsed and its bracket type table entry will be looked up
+    using the selectors and options set by the implied
+    header, and then the implied header will then be deleted (as there
+    are no elements between it and the explicit header).  But
+    after the implied header is deleted, the explicit header
+    is \underline{not} re-parsed and its bracket type table entry
+    is \underline{not} re-looked-up.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
 \hspace*{-0.2in}\ttmkey{line lexical master}{line variable}\\

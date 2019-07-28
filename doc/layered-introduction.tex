@@ -6760,37 +6760,36 @@ specifically, the
 \TT{options}, and \TT{para\-graph/\EOL line lexical master}
 current line variables.
 
-\item If the current \TT{implied\_header} variable value is not missing,
+\item If the \TT{implied\_header} current line variable value is not missing,
 the bracket type definition for this is looked up (using selectors now
 equal to the \TT{selectors} current line variable).
 The bracket type definition must exist and have either the `\TT{paragraph}' or
-`\TT{line}' group, and if it has the `\TT{paragraph}' group,
-the logical line must be in paragraph beginning position.
+`\TT{line}' group.
+
+The \TT{implied\_header} is treated as missing unless one of the
+following options is present in the \TT{options} current line variable:
+\begin{center}
+\TT{enable prefix} \\
+\TT{enable table prefix} \\
+\TT{enable header} \\
+\end{center}
+
+If the \TT{implied\_header} has the `\TT{paragraph}' group and the
+logical line is \underline{not} in paragraph beginning position,
+an error is announced and the \TT{implied\_\EOL header} is treated as missing.
 
 If the bracket type definition has the `\TT{paragraph}' group, the
 implied prefix is an implied paragraph header.  If it has the `\TT{line}' group,
 the implied prefix is an implied line header.
 
-If the implied prefix is an implied paragraph header, it is inserted at the
-beginning of the logical line, and the
-selectors, options,
-and lexical masters in the bracket type definition are used to
-modify the current line variables selectors, options, and lexical
-masters.
-If in addition the bracket type definition has an implied subprefix
-that itself has a bracket type definition selected by the modified
-selectors which has the `\TT{line}' group, this implied subprefix
-is copied to the \TT{implied\_header} current line variable.
-
-\item
-If the current \TT{implied\_header} line variable is now an
-implied line header, it is inserted after any implied paragraph header
-or at the beginning of the logical line if there is no implied
-paragraph header, and the
-selectors, options,
-and lexical masters in the bracket type definition are used to
-modify the current line variables selectors, options, and lexical
-masters.
+A non-missing implied header is inserted at the beginning of the logical line.
+If it is a paragraph header, the selectors, options, lexical masters,
+and implied subprefix in its bracket type definition are used to
+modify the current line variables selectors, options, lexical
+masters, and implied header.  If this gives the \TT{implied\_header}
+current line variable a non-missing value, that value must have
+`\TT{line}' group when its bracket type is looked up using the
+new \TT{selectors} current line variable.
 
 \item
 

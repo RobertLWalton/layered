@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 19 04:02:52 EDT 2019
+// Date:	Mon Jul 29 15:21:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1735,6 +1735,13 @@ min::position BRA::parse_bracketed_subexpression
 
     if ( parsing_logical_line )
     {
+	if ( ( selectors & PAR::EPREFIX_OPT ) == 0
+	      &&
+	      ( selectors & PAR::ETPREFIX_OPT ) == 0
+	      &&
+	      ( selectors & PAR::EHEADER_OPT ) == 0 )
+	    goto NEXT_TOKEN;
+
 	BRA::line_data & line_data =
 	    line_variables->current;
 	min::gen implied_header =
@@ -1753,13 +1760,6 @@ min::position BRA::parse_bracketed_subexpression
 	    ( prefix_group == PARLEX::paragraph
 	      ||
 	      prefix_group == PARLEX::line );
-
-	if ( ( selectors & PAR::EPREFIX_OPT ) == 0
-	      &&
-	      ( selectors & PAR::ETPREFIX_OPT ) == 0
-	      &&
-	      ( selectors & PAR::EHEADER_OPT ) == 0 )
-	    goto NEXT_TOKEN;
 
 	if ( prefix_group == PARLEX::paragraph )
 	{

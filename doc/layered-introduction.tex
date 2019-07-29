@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 28, 2019
+July 29, 2019
  
 \end{center}
 
@@ -6749,7 +6749,7 @@ preceeded by a sequence of logical lines prefixed by a
 paragraph header, the logical lines in this sequence (but not the
 current logical line) are collected into a paragraph
 headed by the paragraph header, unless the \TT{options} current line
-variable has the `\TT{continuing} option \underline{and}
+variable has the `\TT{continuing}' option \underline{and}
 the current logical line does \underline{not}
 begin with an explicit paragraph header.
 
@@ -6783,13 +6783,28 @@ implied prefix is an implied paragraph header.  If it has the `\TT{line}' group,
 the implied prefix is an implied line header.
 
 A non-missing implied header is inserted at the beginning of the logical line.
-If it is a paragraph header, the selectors, options, lexical masters,
-and implied subprefix in its bracket type definition are used to
-modify the current line variables selectors, options, lexical
-masters, and implied header.  If this gives the \TT{implied\_header}
-current line variable a non-missing value, that value must have
-`\TT{line}' group when its bracket type is looked up using the
-new \TT{selectors} current line variable.
+Then the parsing selectors and parsing options
+in its bracket type definition are used to
+modify the current selectors and options.
+In addition, if the implied header has `\TT{paragraph}' group,
+the new selectors and options are stored in the current line
+variable selectors and options,
+the lexical masters of the implied header's bracket type definition
+are stored in the current line variable lexical masters, and
+the implied subprefix of the bracket type definition is stored in
+the current line variable implied header variable.
+These new current line variable values are used for subsequent lines
+until the current line variables are reset from the paragraph line
+variables (e.g., at the next paragraph beginning position).
+
+If the above resets the implied header current line variable to a non-missing
+value, that value must have the `\TT{line}' group when its bracket definition
+is looked up using the new selectors.
+As this new implied header current line variable value
+is also the implied subprefix of the implied paragraph header that
+has just been inserted at the beginning of the logical line, it will
+also be inserted as an implied subprefix just after the inserted implied
+paragraph header and treated as an implied line header.
 
 \item
 
@@ -6800,20 +6815,20 @@ paragraph header or line header.
 
 If an explicit paragraph header is found immediately after implied headers,
 the implied headers are deleted.
-
 If an explicit line header is found immediately after implied headers,
-any preceeding implied line header that was inserted at
-the beginning of the logical line or following an implied
-paragraph header is deleted.
+an implied line header is deleted, but an implied paragraph header is not
+deleted.
 
-If implied headers are deleted, the current line variables are restored
-to their state before the deleted implied header was inserted.
-Note, however, that the current line selectors and options
-computed by the implied headers were used to parse the
+When implied headers are deleted, the parsing selectors, options,
+and current line variables are restored to their state before the deleted
+implied headers were inserted.
+However the selectors and options used to parse the
 explicit header and look up its
-bracket type definition, so care should be taken that bracket type definitions
-for implied headers do not change the selectors and options sufficiently to
-affect parsing explicit headers.
+bracket type definition are \underline{not} the restored parsers and options,
+but rather the selectors and options established by the implied headers.
+Therefore implied headers should not change selectors and options
+sufficiently to affect parsing explicit headers or looking up their
+bracket type definitions.
 
 \item
 

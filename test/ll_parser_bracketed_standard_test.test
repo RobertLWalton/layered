@@ -7118,6 +7118,15 @@ BRACKETED EXPRESSION:
     end block BLOCK1
     ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
+    begin block BLOCK1
+@@@@ = begin block BLOCK1:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    begin block BLOCK1
+    ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     [+ bracketed subexpressions]
 @@@@ = + bracketed subexpressions:
            .terminator = "]"
@@ -7137,8 +7146,8 @@ BRACKETED EXPRESSION:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-         [< "*PARSER*" ":" >]|@@@@ @@@@|}
-@@@@ = @@@@ @@@@:
+         [< "*PARSER*" ":" >]|@@@@ @@@@ @@@@|}
+@@@@ = @@@@ @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = [< "*PARSER*" ":" >]
@@ -7147,6 +7156,8 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^
     end block BLOCK1
 ^^^^^^^^^^^^^^^^^^^^
+    begin block BLOCK1
+^^^^^^^^^^^^^^^^^^^^^^
     trace [+ bracketed subexpressions]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -7692,172 +7703,59 @@ BRACKETED EXPRESSION:
 ID 41 IS [@@@]
 ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    begin block BLOCK1
-@@@@ = begin block BLOCK1:
+    end block BLOCK1
+@@@@ = end block BLOCK1:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-    begin block BLOCK1
-    ^^^^^^^^^^^^^^^^^^
+    end block BLOCK1
+    ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    [code]
-@@@@ = code:
+    [+ parser commands]
+@@@@ = + parser commands:
            .terminator = "]"
            .initiator = "["
            .position[H] = PACKED_VEC
     line ###:
-    define bracket "<" ... ">" [code]
-                               ^^^^^^
+    trace [+ parser commands]
+          ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    define bracket "<" "..." ">" [code]
-@@@@ = define bracket "<" "..." ">" [code]:
+    trace [+ parser commands]
+@@@@ = trace [+ parser commands]:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
     line ###:
-    define bracket "<" ... ">" [code]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [data]
-@@@@ = data:
-           .terminator = "]"
-           .initiator = "["
-           .position[H] = PACKED_VEC
-    line ###:
-    define bracket "<<" ... ">>" [data]
-                                 ^^^^^^
-BRACKETED EXPRESSION:
-    define bracket "<<" "..." ">>" [data]
-@@@@ = define bracket "<<" "..." ">>" [data]:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    line ###:
-    define bracket "<<" ... ">>" [data]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [code]
-@@@@ = code:
-           .terminator = "]"
-           .initiator = "["
-           .position[H] = PACKED_VEC
-    line ###:
-    define bracket type "D" [code]
-                            ^^^^^^
-BRACKETED EXPRESSION:
-    [data]
-@@@@ = data:
-           .terminator = "]"
-           .initiator = "["
-           .position[H] = PACKED_VEC
-    line ###:
-           with parsing selectors [data]
-                                  ^^^^^^
-BRACKETED EXPRESSION:
-    define bracket type "D" [code] with parsing selectors [data] with
-        group line
-@@@@ = define bracket type "D" [code] with parsing selectors [data] with
-               group line:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
-    define bracket type "D" [code]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-           with parsing selectors [data]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-           with group line
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [code]
-@@@@ = code:
-           .terminator = "]"
-           .initiator = "["
-           .position[H] = PACKED_VEC
-    line ###:
-    define indentation mark "::" [code]
-                                 ^^^^^^
-BRACKETED EXPRESSION:
-    [code]
-@@@@ = code:
-           .terminator = "]"
-           .initiator = "["
-           .position[H] = PACKED_VEC
-    line ###:
-           with parsing selectors [code]
-                                  ^^^^^^
-BRACKETED EXPRESSION:
-    {D||D}
-@@@@ =:
-           .type = "D"
-           .position[H] = PACKED_VEC
-    line ###:
-           with implied header {D}
-                               ^^^
-BRACKETED EXPRESSION:
-    define indentation mark "::" [code] with parsing selectors [code]
-        with implied header {D||D}
-@@@@ = define indentation mark "::" [code] with parsing selectors [code]
-               with implied header {D||D}:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
-    define indentation mark "::" [code]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-           with parsing selectors [code]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-           with implied header {D}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [+ bracketed subexpressions]
-@@@@ = + bracketed subexpressions:
-           .terminator = "]"
-           .initiator = "["
-           .position[H] = PACKED_VEC
-    line ###:
-    trace [+ bracketed subexpressions]
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    trace [+ bracketed subexpressions]
-@@@@ = trace [+ bracketed subexpressions]:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    line ###:
-    trace [+ bracketed subexpressions]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    trace [+ parser commands]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-         [< "*PARSER*" ":" >]|@@@@ @@@@ @@@@ @@@@ @@@@ @@@@|}
-@@@@ = @@@@ @@@@ @@@@ @@@@ @@@@ @@@@:
+         [< "*PARSER*" ":" >]|@@@@ @@@@|}
+@@@@ = @@@@ @@@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = [< "*PARSER*" ":" >]
     lines ###-###:
 *PARSER*:
 ^^^^^^^^^
+    end block BLOCK1
+^^^^^^^^^^^^^^^^^^^^
+    trace [+ parser commands]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    trace [+ parser commands]
+*PARSER*:
     begin block BLOCK1
-^^^^^^^^^^^^^^^^^^^^^^
     define bracket "<" ... ">" [code]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     define bracket "<<" ... ">>" [data]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     define bracket type "D" [code]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            with parsing selectors [data]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            with group line
-^^^^^^^^^^^^^^^^^^^^^^^^^^
     define indentation mark "::" [code]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            with parsing selectors [code]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            with implied header {D}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     trace [+ bracketed subexpressions]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     < 99 >
 @@@@ = 99:
@@ -7917,3 +7815,26 @@ test paragraph::
 ^^^^^^^^^^^^^^^^
     < 99 > << 88 >>
 ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    end block BLOCK1
+@@@@ = end block BLOCK1:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    end block BLOCK1
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< "*PARSER*" ":" >]|@@@@|}
+@@@@ = @@@@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = [< "*PARSER*" ":" >]
+    lines ###-###:
+*PARSER*:
+^^^^^^^^^
+    end block BLOCK1
+^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    end block BLOCK1

@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 29, 2019
+July 30, 2019
  
 \end{center}
 
@@ -6114,8 +6114,10 @@ parser block is given a suitable typed bracket definition for
 \hspace*{-0.2in}\ttmkey{parsing options}{in bracket type definition}\\
 `\TT{with parsing options}' is only permitted for prefixes that
 have the `\TT{paragraph}' group.  The {\em bracket-type-options} are
-used to set the \TT{paragraph\_options} line variable:
-see \itemref{LINE-VARIABLES}.
+used to set the current parsing options and the
+\TT{op\-tions} current line variable when an explicit
+paragraph header begins a paragraph:
+see \itemref{EXPLICIT-HEADER-PARSING}.
 
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{in bracket type definition}\\
 \hspace*{-0.2in}\ttmkey{line lexical master}{in bracket type definition}\\
@@ -6799,14 +6801,15 @@ variables (e.g., at the next paragraph beginning position).
 
 If the above resets the implied header current line variable to a non-missing
 value, that value must have the `\TT{line}' group when its bracket definition
-is looked up using the new selectors.
+is looked up using the new selectors current line variable value.
 As this new implied header current line variable value
 is also the implied subprefix of the implied paragraph header that
-has just been inserted at the beginning of the logical line, it will
+has just been inserted at the beginning of the current logical line, it will
 also be inserted as an implied subprefix just after the inserted implied
-paragraph header and treated as an implied line header.
+paragraph header and treated as an implied line header of the current
+logical line.
 
-\item
+\item\label{EXPLICIT-HEADER-PARSING}
 
 The first part of the rest of the logical line is then parsed.
 If it begins with a prefix that has a bracket type definition with either
@@ -6830,16 +6833,17 @@ Therefore implied headers should not change selectors and options
 sufficiently to affect parsing explicit headers or looking up their
 bracket type definitions.
 
-\item
+If an explicit header is found, then after any implied headers are deleted
+and state has been restored, the explicit header's bracket type definition
+is used to modify the parsing selectors and options, and if the header is
+a paragraph header, the current line variables selectors, options,
+lexical masters, and implied header.
+Here the implied header is copied from the explicit header's bracket type
+definition only if it has the `\TT{line}' group when its bracket type
+definition is looked up with the new selectors current line variable.
 
-If an explicit paragraph header is found,
-its bracket type definition is used to
-modify the current line variables
-selectors, options, and lexical masters.  Then
-\begin{enumerate}[label*=\arabic*]
 \item\label{RESET-RULE}
-If the `\ttkey{reset}' option flag is on in the new current line variables,
-then
+If an explicit paragraph header sets the `\ttkey{reset}' option flag, then
 \begin{enumerate}[label*=.\arabic*]
 
 \item The \TT{paragraph implied header} line variable
@@ -6861,35 +6865,29 @@ also a comment is allowed without warning
 between the deleted explicit paragraph
 header and any following non-comment lexeme in the current logical
 line.
-
-
-
 \end{enumerate}
 
 
 \item
-Otherwise (if the `\TT{reset}' flag is off), then
+If an explicit paragraph header does \underline{not}
+set the `\TT{reset}' option flag, then
 
 \begin{enumerate}[label*=.\arabic*]
 
-\item
-Let $P$ denote the implied subprefix of the bracket type definition
-of the explicit paragraph header.
-If $P$ exists and
-itself has a bracket type definition selected by the modified
-current selectors that has the `\TT{line}' group, $P$
-is copied to the \TT{current implied header} line variable.
+\item\label{STICKY-RULE}
+If the explicit paragraph header sets
+the `\ttkey{sticky}' option flag, then
+the \TT{paragraph implied header} is set to
+a copy of the explicit paragraph header.
 
 \item
-\label{STICKY-RULE}
-The \TT{paragraph implied header} is set to
-a copy of the explicit paragraph header,
-if the current options now has the `\TT{sticky}' flag.
-Otherwise it is reset to the value it had at the beginning of the current
+If the explicit paragraph header does \underline{not}
+set the `\TT{sticky}' option flag, then
+the \TT{para\-graph implied header}
+is reset to the value it had at the beginning of the current
 indented paragraph,
 or to missing if the logical line is top level.
 
-\end{enumerate}
 \end{enumerate}
 
 \item

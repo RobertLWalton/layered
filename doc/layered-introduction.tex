@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 30, 2019
+July 31, 2019
  
 \end{center}
 
@@ -6134,7 +6134,8 @@ command, both lexical master parameters are set to the same
 \end{indpar}
 
 The following reformatters may be used to change the MIN value
-represented by a {\em prefix-n-list} headed by a defined prefix:
+represented by a {\em prefix-n-list} headed by a prefix with
+a bracket type definition:
 
 \begin{indpar}
 
@@ -6156,7 +6157,7 @@ where
 \begin{indpar}
 \emkey{prefix} ::= the prefix, e.g., `\TT{data}'
 \\[0.5ex]
-\emkey{ID} ::= ID for preallocated stub (see \pagref{ID})
+\emkey{ID} ::= see \pagref{ID}
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
@@ -6183,8 +6184,9 @@ with flags or any single attribute values; but it may have
 double attribute values.  Also the {\em prefix}
 must not have any associated prefix attributes (other than
 \TT{.type} or \TT{.position}).  If these requirements are not met, the
-\TT{data} reformatter takes no action, and the headed logical
-line is retained as is in the input.
+\TT{data} reformatter takes no action, and the {\em prefix-n-list}
+beginning with the \TT{data} prefix
+is retained as is in the input.
 
 A subexpression of this form typically arrises when a logical line
 that begins with an {\em ID} ( a lexeme consisting of an
@@ -6200,8 +6202,10 @@ and to define or add to the object whose denoted by
 {\em ID}.  The object is given the
 elements given in the {\em element-list} and the attributes in the
 {\em indented-attributes}.
-The {\em indented-attributes} are parsed before this reformatter
-is invoked to become a MIN object
+Before this reformatter
+is invoked,
+the {\em indented-attributes} are parsed
+to become a MIN object
 with \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} \TT{.terminator} and logical
 line elements.  This reformatter
 then further parses these logical lines
@@ -6326,23 +6330,27 @@ The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "table" [TOP LEVEL, data, code, math, text]
+    define bracket type "table"
+                        [TOP LEVEL, data, code, math, text]
            with group paragraph
            with line lexical master "ROW-CHECK"
-    define prefix "row" [TOP LEVEL, data, code, math, text]
+    define bracket type "row"
+                        [TOP LEVEL, data, code, math, text]
            with group line
-    define prefix "data" [TOP LEVEL, data, code, math, text]
+    define bracket type "data"
+                        [TOP LEVEL, data, code, math, text]
+           with group line
            with parsing selectors [+ data paragraph]
-           with data reformatter
-                ( "=", "no", "[", [< "{" "*" >] )
-    define prefix "raw data"
+           with data reformatter ( "=", "no", "[", "{*" )
+    define bracket type "raw data"
                   [TOP LEVEL, data, code, math, text]
+           with group line
            with parsing selectors [data, data paragraph]
-           with data reformatter
-                ( "=", "no", "[", [< "{" "*" >] )
-    define prefix "code" [TOP LEVEL, code, text]
+           with data reformatter ( "=", "no", "[", "{*" )
+    define bracket type "code" [TOP LEVEL, code, text]
+           with group paragraph
            with parsing options [+ reset]
-    define prefix "section" [TOP LEVEL, code, text]
+    define bracket type "section" [TOP LEVEL, code, text]
            with group paragraph
            with parsing selectors [+ text,
                                    - code, - math, - data]
@@ -6352,7 +6360,8 @@ adds the definitions:
                                  - end at le indent,
                                  - end at line separator,
                                  - end at outer closing]
-    define prefix "p" [TOP LEVEL, code, text]
+           with implied subprefix {s}
+    define bracket type "p" [TOP LEVEL, code, text]
            with group paragraph
            with parsing selectors [+ text,
                                    - code, - math, - data]
@@ -6363,10 +6372,11 @@ adds the definitions:
                                  - end at le indent,
                                  - end at line separator,
                                  - end at outer closing]
-    define prefix "s" [text]
+           with implied subprefix {s}
+    define bracket type "s" [text]
            with sentence reformatter
                 ( ".", "?", "!", ":", ";" )
-    define prefix "quote" [TOP LEVEL, code, text]
+    define bracket type "quote" [TOP LEVEL, code, text]
            with group paragraph
            with parsing selectors [+ text,
                                    - code, - math, - data]
@@ -6377,6 +6387,7 @@ adds the definitions:
                                  - end at le indent,
                                  - end at line separator,
                                  - end at outer closing]
+           with implied subprefix {s}
 \end{verbatim}\end{indpar}
 
 
@@ -6432,9 +6443,9 @@ the paragraph header, that logical line is omitted from the list of elements
 As an example, suppose the parser is given the definitions.
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "itemize" [code, text]
+    define bracket type "itemize" [code, text]
         with group paragraph
-    define prefix "item" [code, text]
+    define bracket type "item" [code, text]
         with group line
 \end{verbatim}\end{indpar}
 Then when given the input (with `\TT{code}' or `\TT{text}'
@@ -6457,10 +6468,10 @@ the parser produces the MIN object:
 Now suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "itemize" [code, text]
+    define bracket type "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
-    define prefix "item" [code, text]
+    define bracket type "item" [code, text]
         with group line
 \end{verbatim}\end{indpar}
 with a `\TT{implied subprefix}'.  Then when given given the input:
@@ -6475,11 +6486,11 @@ the parser will produce the same MIN object.
 Next suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "itemize" [code, text]
+    define bracket type "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
         with parsing options [+ sticky]
-    define prefix "item" [code, text]
+    define bracket type "item" [code, text]
         with group line
 \end{verbatim}\end{indpar}
 with a `\TT{sticky}' option.  Then when given given the input:
@@ -6504,7 +6515,7 @@ above and the second being:
 If instead the parser is given the definition:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define prefix "itemize" [code, text]
+    define bracket type "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
         with parsing options [+ continuing]
@@ -6536,10 +6547,12 @@ The `\TT{standard}' parser block contains the definitions:
            with token value {table}
     define mapped lexeme "ROW" [TOP LEVEL]
            with token value {row}
-    define prefix "table" [TOP LEVEL, data, code, math, text]
+    define bracket type "table"
+                        [TOP LEVEL, data, code, math, text]
         with group paragraph
         with line lexical master "ROW-CHECK"
-    define prefix "row" [TOP LEVEL, data, code, math, text]
+    define bracket type "row"
+                        [TOP LEVEL, data, code, math, text]
         with group line
 \end{verbatim}\end{indpar}
 

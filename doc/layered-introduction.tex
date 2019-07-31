@@ -6400,22 +6400,27 @@ appear at the beginning of a logical line, or immediately
 after a paragraph header, which itself must begin a logical
 line: see \itemref{HEADED-PARAGRAPHS}.
 
-A `\key{headed line}' is a line header and the part of its containing logical
-line that follows the line header.
+A `\key{headed line}' is a logical line beginning with a line header.
 The parser's output
 for a headed line is a MIN object whose \TT{.type} and attributes
 are taken from the line header and whose elements are
-taken from the rest of the headed line.  This output has a \TT{.type}
+taken from the rest of the headed line, except that if the
+logical line is ended by a {\em line-separator} this becomes he
+\TT{.terminator} attribute of the MIN object.  The MIN object has a \TT{.type}
 but \underline{no}
 \TT{.initiator}, unlike the parser's output
 for a logical line that has no line header, which has \underline{no}
 \TT{.type} but has an \TT{.initiator}
-is the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
+equal to the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 
 Line headers may be implied by the \TT{implied subprefix}
-of a paragraph header (see \itemref{BRACKET-TYPE-DEFINITIONS}
+of a paragraph header (see \pagref{IMPLIED-SUBPREFIX}
 and \itemref{HEADED-PARAGRAPHS})
-or by line variables (see \itemref{LINE-VARIABLES}).
+or by the \TT{implied header} line variable (see \pagref{IMPLIED-HEADER}).
+
+Line headers, including implied line headers,
+are only recognized if the \TT{enable header}
+option is on at the beginning of the logical line.
 
 \subsubsection{Headed Paragraphs}
 \label{HEADED-PARAGRAPHS}
@@ -6648,7 +6653,7 @@ While parsing a logical line the parser uses the line variables:
     The parsing options are reset to this value just after the
     indent token that begins a logical line.
 \\[1ex]
-\hspace*{-0.2in}\ttmkey{implied header}{line variable}\\
+\hspace*{-0.2in}\ttmkey{implied header}{line variable}\label{IMPLIED-HEADER}\\
     May be missing or set equal to a paragraph or line header.
 
     If this value is not missing a copy of the value is inserted

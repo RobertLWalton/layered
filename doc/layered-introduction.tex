@@ -6400,6 +6400,15 @@ appear at the beginning of a logical line, or immediately
 after a paragraph header, which itself must begin a logical
 line: see \itemref{HEADED-PARAGRAPHS}.
 
+Line headers may be implied by the \TT{implied subprefix}
+of a paragraph header (see \pagref{IMPLIED-SUBPREFIX}
+and \itemref{HEADED-PARAGRAPHS})
+or by the \TT{implied header} line variable (see \pagref{IMPLIED-HEADER}).
+
+Line headers, including implied line headers,
+are only recognized if the \TT{enable header}
+option is on at the beginning of the logical line.
+
 A `\key{headed line}' is a logical line beginning with a line header.
 The parser's output
 for a headed line is a MIN object whose \TT{.type} and attributes
@@ -6412,15 +6421,6 @@ but \underline{no}
 for a logical line that has no line header, which has \underline{no}
 \TT{.type} but has an \TT{.initiator}
 equal to the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
-
-Line headers may be implied by the \TT{implied subprefix}
-of a paragraph header (see \pagref{IMPLIED-SUBPREFIX}
-and \itemref{HEADED-PARAGRAPHS})
-or by the \TT{implied header} line variable (see \pagref{IMPLIED-HEADER}).
-
-Line headers, including implied line headers,
-are only recognized if the \TT{enable header}
-option is on at the beginning of the logical line.
 
 \subsubsection{Headed Paragraphs}
 \label{HEADED-PARAGRAPHS}

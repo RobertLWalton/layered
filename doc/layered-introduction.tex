@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 31, 2019
+August 1, 2019
  
 \end{center}
 
@@ -6526,13 +6526,15 @@ above and the second being:
     |itemize}
 \end{verbatim}\end{indpar}
 
-If instead the parser is given the definition:
+If instead the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define bracket type "itemize" [code, text]
         with group paragraph
         with implied subprefix {item}
         with parsing options [+ continuing]
+    define bracket type "item" [code, text]
+        with group line
 \end{verbatim}\end{indpar}
 with a `\TT{continuing}' option, then when given the above input
 the parser would produce the single MIN object:
@@ -6548,7 +6550,7 @@ the parser would produce the single MIN object:
 Note that the `\TT{sticky}' and `\TT{continuing}' options
 remain in effect until the next explicit (non-implied)
 paragraph header, or until the end of a containing
-indented paragraph (or the end of file).
+indented paragraph.
 
 The `\TT{standard}' parser block contains the definitions:
 \begin{indpar}\begin{verbatim}

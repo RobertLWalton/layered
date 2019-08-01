@@ -2745,10 +2745,14 @@ The type of the paragraph header, \TT{p} in this example, must
 appear in the parser's \key{bracket type table}
 (\itemref{BRACKET-TYPE-DEFINITIONS}),
 and be marked there as a paragraph header (i.e., must have the `\TT{paragraph}'
-group).  A paragraph header must appear at the
-beginning of a logical line that is itself either at the
-beginning of an indented paragraph or just after a blank line
-that follows another logical line.
+group).
+
+A paragraph header must appear at the
+beginning of a logical line that is 
+in `\key{paragraph beginning position}', which means that the logical
+line is at the beginning of a file, at the beginning of an indented
+paragraph, or immediately after a blank line, with intervening
+comment lines ignored.
 A headed paragraph ends with the next blank line that
 follows a logical line (there is an exception if the paragraph
 bracket type table entry has the
@@ -2781,9 +2785,6 @@ The two lexical master parameters\label{LEXICAL-MASTER-PARAMETERS}
 are the `\key{paragraph lexical master}'
 which is used for logical lines in paragraph beginning position
 and the `\key{line lexical master}' which is used for other logical lines.
-A logical line is in paragraph beginning position
-if it follows a blank line or the beginning of its containing
-indented paragraph, with comment lines possibly intervening.
 
 The default lexical master is named `\ttmkey{DEFAULT}{lexical master}'.
 It is assumed that all lexical masters check for special lexemes at
@@ -6427,16 +6428,24 @@ equal to the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 
 A `\key{paragraph header}' is a typed prefix separator that has
 the `\TT{paragraph}' group.  Paragraph headers may only
-appear at the beginning of a logical line that follows a blank
-line or is at the beginning of an indented paragraph (where
+appear at the beginning of a logical line in paragraph beginning position,
+that is, following a blank
+line or the beginning of an indented paragraph or file (where
 intervening comment lines are ignored).
+
+Paragraph headers may be implied 
+by the \TT{implied header} line variable (see \pagref{IMPLIED-HEADER}).
+
+Paragraph headers, including implied paragraph headers,
+are only recognized if the \TT{enable header}
+option is on at the beginning the paragraph header's logical line.
 
 A `\key{headed paragraph}' is a logical line that begins with paragraph header,
 plus all the following logical or headed
 lines up until the headed paragraph end.
 A headed paragraph may be ended by a blank line (unless the paragraph
 is `continuing'), or by the end
-of its containing indented paragraph.
+of its containing indented paragraph, or by the end of the input file.
 
 The parser's output for a headed paragraph is a MIN object 
 whose \TT{.type} and attributes are taken from the paragraph header

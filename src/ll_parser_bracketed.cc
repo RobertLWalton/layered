@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 29 15:21:52 EDT 2019
+// Date:	Fri Aug  2 10:35:20 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -954,9 +954,74 @@ bool BRA::parse_paragraph_element
 	if (   line_variables->current.selectors
 	     & PAR::RESET_OPT )
 	{
+	    MIN_REQUIRE ( first == current );
+
 	    // Header has been deleted and current is
 	    // next token.
 	    //
+	    min::phrase_position bad_phrase =
+		{ min::MISSING_POSITION,
+		  min::MISSING_POSITION };
+	    min::uns32 previous_t = 0;
+	    while ( true )
+	    {
+		if (    current->type
+		     == LEXSTD::indent_t )
+		{
+		    int32 rindent =
+		        PAR::relative_indent
+		            ( parser,
+			      indentation_offset,
+			      current,
+			      line_variables->
+			          paragraph_indent );
+		    if ( rindent < 0 )
+			line_variables->
+			    at_paragraph_end = true;
+		    if ( rindent <= 0 )
+		        break;
+		}
+		else if (    current->type
+		          == LEXSTD::end_of_file_t )
+		{
+		    line_variables->at_paragraph_end =
+		    parser->at_paragraph_beginning =
+		        true;
+		    break;
+		}
+		else if (    current->type
+		          == LEXSTD::line_break_t )
+		{
+		    if (    previous_t
+		         == LEXSTD::line_break_t )
+			parser->at_paragraph_beginning =
+			    true;
+		}
+		else if (    current->type
+		          != LEXSTD::comment_t )
+		{
+		    if ( ! bad_phrase.begin )
+		        bad_phrase = current->position;
+		    else
+			bad_phrase.end =
+			    current->position.end;
+		}
+
+		previous_t = current->type;
+		PAR::ensure_next ( parser, current );
+		current = current->next;
+		PAR::free
+		    ( PAR::remove
+			( first_ref(parser),
+			  current->previous ) );
+	    }
+
+	    if ( bad_phrase.begin )
+		PAR::parse_error
+		    ( parser, bad_phrase,
+		      "non-comments after reset prefix;"
+		      " ignored" );
+
 	    line_variables->paragraph =
 		line_variables->indentation_paragraph;
 	    line_variables->implied_paragraph =
@@ -966,7 +1031,7 @@ bool BRA::parse_paragraph_element
 		line_variables->paragraph;
 
 	    if (    line_variables->last_paragraph
-	          == min::NULL_STUB )
+		 == min::NULL_STUB )
 	        continue;
 	    else
 	    {

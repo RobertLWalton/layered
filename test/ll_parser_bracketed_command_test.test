@@ -1659,8 +1659,8 @@ and another line
 BRACKETED EXPRESSION:
     this is code line #
     line ###:
-{code}this is code line #
-      ^^^^^^^^^^^^^^^^^^^
+this is code line #
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     and code line #
     line ###:

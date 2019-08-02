@@ -6779,6 +6779,9 @@ BRACKETED EXPRESSION:
     line ###:
 line #
 ^^^^^^
+ERROR: in line ###: non-comments after reset prefix; ignored:
+{code}line #
+      ^^^^^^
 BRACKETED EXPRESSION:
     {itemize: label = "CONTINUING", indent = "5em", mark = "*"|
               {item|1 chicken|item} {item|1 tablespoon olive oil|item}
@@ -6809,15 +6812,6 @@ a potato
 ^^^^^^^^
 1 tablespoon butter
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    line #
-@@@@ = line #:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    line ###:
-{code}line #
-      ^^^^^^
 BRACKETED EXPRESSION:
     line #
 @@@@ = line #:
@@ -6984,13 +6978,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^
     paragraph.
 ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    And another code line "."
-@@@@ = And another code line ".":
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    line ###:
+ERROR: in line ###: non-comments after reset prefix; ignored:
        And another code line.
        ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:

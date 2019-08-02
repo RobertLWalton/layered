@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 19 21:52:03 EDT 2019
+// Date:	Fri Aug  2 13:12:01 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -584,7 +584,8 @@ and another line
 this is paragraph 9
 and another line
 
-{code}this is code line 1
+{code}
+this is code line 1
 
 and code line 2
 

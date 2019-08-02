@@ -40,12 +40,7 @@
 {p}This is a sentence: an add-on.  A phrase;
 and a question?
 
-{code}
-
-{code}
-
 {code}And a line of code.
 
 *PARSER*:
     end block X
-

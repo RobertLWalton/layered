@@ -21,7 +21,7 @@
     define bracket type "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
-    define bracket type "code" [text]
+    define bracket type "code" [TOP LEVEL, text]
         with group paragraph
         with parsing options [+ reset]
     print bracket type ""
@@ -33,7 +33,7 @@
                  with implied subprefix {s||s}
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
-        block X: bracket type "code" [text]
+        block X: bracket type "code" [TOP LEVEL, text]
                  with parsing options [+ reset]
                  with group paragraph
 BRACKETED EXPRESSION:
@@ -41,7 +41,8 @@ BRACKETED EXPRESSION:
        {s: .terminator = "."|an add-on|s}
        {s: .terminator = ";"|A phrase|s}
        {s: .terminator = "?"|and a question|s}|p}
-BRACKETED EXPRESSION:
-    And a line of code "."
+ERROR: in line ##: non-comments after reset prefix; ignored:
+{code}And an unrecognized line.
+      ^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     end block X

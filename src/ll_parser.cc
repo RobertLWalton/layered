@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 14 07:29:49 EDT 2019
+// Date:	Fri Aug  2 15:59:54 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1396,8 +1396,6 @@ void PAR::parse ( PAR::parser parser )
 	    break;
 	}
 
-	min::uns32 error_count_save =
-	    parser->error_count;
 	PAR::token previous = current->previous;
 	bool maybe_parser_command =
 	    parse_paragraph_element
@@ -1425,10 +1423,7 @@ void PAR::parse ( PAR::parser parser )
 			COM::parser_test_execute_command
 			    ( parser, vp[0] );
 		    else if (    initiator
-		              == PARLEX::parser_colon
-			      &&
-			         parser->error_count
-			      == error_count_save )
+		              == PARLEX::parser_colon )
 		    {
 		        MIN_REQUIRE
 			    ( ::line_data_as_inited

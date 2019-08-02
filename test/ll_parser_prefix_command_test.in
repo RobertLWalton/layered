@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 07:16:01 EDT 2019
+// Date:	Fri Aug  2 16:11:44 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,7 @@
     define bracket type "s" [text]
         with sentence reformatter
 	    ( ".", ";", ":", "?", "!" )
-    define bracket type "code" [text]
+    define bracket type "code" [TOP LEVEL, text]
 	with group paragraph
 	with parsing options [+ reset]
     print bracket type ""
@@ -40,7 +40,8 @@
 {p}This is a sentence: an add-on.  A phrase;
 and a question?
 
-{code}And a line of code.
+{code}And an unrecognized line.
 
 *PARSER*:
     end block X
+

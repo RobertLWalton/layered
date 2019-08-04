@@ -6637,6 +6637,38 @@ from the surrounding context, and the
 paragraph or line header.
 See \itemref{LINE-VARIABLES} for details.
 
+\subsubsection{Isolated Headers}
+\label{ISOLATED-HEADERS}
+
+An \key{isolated header} is paragraph header that resets the
+\TT{line lexical master} or is a \key{reset header}, which is
+a header with a bracket type definition that has the
+`\TT{reset}' group.  An isolated header must appear at the
+beginning of a logical line and must be the only thing in its
+logical line (in particular, the logical line cannot end with
+a line separator).  In determining the extent of the logical
+line containing the header,
+the \TT{options} current line variable value modified
+by parameters from the header bracket type definition
+is used.
+
+An isolated paragraph header sets the current line variables
+to those of the containing indented paragraph or the top level
+if there is no containing indented paragraph, as modified by
+the parameters in the headers bracket type definition (one of
+which must be a non-missing line lexical master).
+
+An isolated paragraph header may be implied.  In this case it
+is effectively placed on a line by itself and deleted only if
+it is not followed by any (possibly headed) logical lines.
+
+A reset header sets the paragraph line variables
+to those of the containing indented paragraph or the top level
+if there is no containing indented paragraph, as modified by
+the parameters in the headers bracket type definition.
+Then the reset header is deleted and the next logical line
+is treated as being in paragraph beginning position.
+
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}
 
@@ -6826,7 +6858,8 @@ the implied subprefix of the bracket type definition is stored in
 the current line variable implied header variable.
 These new current line variable values are used for subsequent lines
 until the current line variables are reset from the paragraph line
-variables (e.g., at the next paragraph beginning position).
+variables (e.g., at beginning of the next logical line that is
+in paragraph beginning position).
 
 If the above resets the implied header current line variable to a non-missing
 value, that value must have the `\TT{line}' group when its bracket definition

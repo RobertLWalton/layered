@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 14 07:30:29 EDT 2019
+// Date:	Sun Aug  4 17:57:34 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1191,6 +1191,9 @@ struct parser_struct
 	// when an end of file is encountered.  Set
 	// false by a non-indent, non-comment, non-
 	// line-break, non-end-of-file token.
+	//
+	// This value should only be used when at the
+	// beginning of a logical line.
 
     uns64 error_count;
     uns64 warning_count;

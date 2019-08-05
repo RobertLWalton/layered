@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  2 10:35:20 EDT 2019
+// Date:	Mon Aug  5 04:13:41 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -830,6 +830,9 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 // Bracketed Subexpression Parser Functions
 // --------- ------------- ------ ---------
 
+const min::position BRA::ISOLATED_HEADER =
+    { 0xFFFFFFFF, 1 };
+
 bool BRA::parse_paragraph_element
 	( PAR::parser parser,
 	  PAR::token & current,
@@ -951,8 +954,7 @@ bool BRA::parse_paragraph_element
 
 	// Here to handle RESET paragraph header.
 	//
-	if (   line_variables->current.selectors
-	     & PAR::RESET_OPT )
+	if ( separator_found == BRA::ISOLATED_HEADER )
 	{
 	    MIN_REQUIRE ( first == current );
 
@@ -1981,6 +1983,61 @@ PREFIX_FOUND:
 	prefix_group = prefix_type;
 	if ( prefix_entry != min::NULL_STUB )
 	{
+
+	    if ( prefix_entry->group == PARLEX::reset )
+	    {
+		MIN_REQUIRE
+		    ( prefix->next == current );
+
+		PAR::token t = prefix;
+		while (   line_variables->previous
+		                        ->next
+		        != t
+			&&
+			(
+			      t->previous->type
+			   == IMPLIED_HEADER
+			   ||
+			      t->previous->type
+			   == IMPLIED_PREFIX ) )
+		    t = t->previous;
+
+		if (    line_variables->previous->next
+		     != t
+		     || ! line_variables->
+		              at_paragraph_beginning )
+		{
+		    PAR::parse_error
+		      ( parser,
+			prefix->position,
+			"reset header of type `",
+			min::pgen_never_quote
+			    ( prefix_type ),
+			"' not at beginning of logical"
+			" line in paragraph beginning"
+			" position; ignored" 
+		      );
+		    prefix = min::NULL_STUB;
+		    goto FINISH_PREFIX;
+		}
+
+		// If t != prefix, then we have been
+		// called to scan the prefix-n-list of
+		// an implied prefix.  In this case when
+		// we return BRA::ISOLATED_PREFIX, the
+		// caller will see an empty prefix-n-
+		// list and delete the implied prefix
+		// or header and return BRA::ISOLATED_
+		// PREFIX to its caller, etc.  We
+		// CANNOT delete implied prefixes here.
+
+		PAR::free
+		    ( PAR::remove
+			  ( first_ref(parser),
+			    current->previous ) );
+		return BRA::ISOLATED_HEADER;
+	    }
+
 	    if ( prefix_entry->group != min::MISSING() )
 		prefix_group = prefix_entry->group;
 
@@ -2388,17 +2445,6 @@ PARSE_PREFIX_N_LIST:
 		line_data.header_entry =
 		    min::NULL_STUB;
 		    // Just for safety.
-
-		if ( prefix_selectors & PAR::RESET_OPT )
-		{
-		    MIN_REQUIRE
-		        ( prefix->next == current );
-		    PAR::free
-			( PAR::remove
-			      ( first_ref(parser),
-				current->previous ) );
-		    return min::MISSING_POSITION;
-		}
 
 		min::gen implied_header =
 		    prefix_entry->implied_subprefix;

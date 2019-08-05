@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 07:00:51 EDT 2019
+// Date:	Mon Aug  5 04:13:23 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1317,6 +1317,8 @@ inline bool is_closed ( ll::parser::bracketed
     return    p != NULL
            && p->closing_first != min::NULL_STUB;
 }
+
+extern const min::position ISOLATED_HEADER;
 
 min::position parse_bracketed_subexpression
 	( ll::parser::parser parser,

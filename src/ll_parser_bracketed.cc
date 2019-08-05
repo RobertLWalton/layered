@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  5 06:10:40 EDT 2019
+// Date:	Mon Aug  5 14:22:11 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -975,28 +975,55 @@ bool BRA::parse_paragraph_element
 
 	    // Remove following tokens till end of
 	    // logical line, ignoring line separators.
-	    // If non-comment removed, announce error.
+	    // If non-comment, non-indent, non-line-
+	    // break removed, announce error.
 	    //
 	    min::phrase_position bad_phrase =
 		{ min::MISSING_POSITION,
 		  min::MISSING_POSITION };
 	    min::uns32 previous_t = 0;
+	    TAB::flags selectors =
+	        line_variables->current.selectors;
 	    while ( true )
 	    {
 		if (    current->type
 		     == LEXSTD::indent_t )
 		{
+
 		    int32 rindent =
 		        PAR::relative_indent
 		            ( parser,
 			      indentation_offset,
 			      current,
 			      line_variables->
-			          paragraph_indent );
+				paragraph_indent );
+
 		    if ( rindent < 0 )
 			line_variables->
 			    at_paragraph_end = true;
-		    if ( rindent <= 0 )
+
+		    if ( selectors & PAR::EAINDENT_OPT )
+		        break;
+
+		    if ( ( parser->
+		               at_paragraph_beginning
+			   &&
+			      line_variables->previous
+			                    ->next
+			   != current )
+			 &&
+			 (   selectors
+			   & PAR::EAPBREAK_OPT ) )
+			    break;
+
+	            if (     ( selectors
+		               & PAR::EALEINDENT_OPT )
+		          && rindent <= 0 )
+		        break;
+
+	            if (     ( selectors
+		               & PAR::EALTINDENT_OPT )
+		          && rindent < 0 )
 		        break;
 		}
 		else if (    current->type
@@ -1018,6 +1045,8 @@ bool BRA::parse_paragraph_element
 		else if (    current->type
 		          != LEXSTD::comment_t )
 		{
+		    parser->at_paragraph_beginning =
+			false;
 		    if ( ! bad_phrase.begin )
 		        bad_phrase = current->position;
 		    else

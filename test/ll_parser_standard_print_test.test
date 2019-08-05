@@ -184,5 +184,4 @@
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
         block standard: bracket type "code" [TOP LEVEL, code, text]
-                        with parsing options [+ reset]
-                        with group paragraph
+                        with group reset

@@ -1575,8 +1575,7 @@ and another line outside the fifth paragraph
         with group paragraph
         with parsing options [+ sticky, + enable prefix]
     define bracket type "code" [code]
-        with group paragraph
-        with parsing options [+ reset]
+        with group reset
     trace [+ parser output]
 BRACKETED EXPRESSION:
     this is paragraph 1

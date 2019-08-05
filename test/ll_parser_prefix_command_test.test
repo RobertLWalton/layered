@@ -22,8 +22,7 @@
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
     define bracket type "code" [TOP LEVEL, text]
-        with group paragraph
-        with parsing options [+ reset]
+        with group reset
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
                  with parsing selectors [- code, + text]
@@ -34,8 +33,7 @@
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "code" [TOP LEVEL, text]
-                 with parsing options [+ reset]
-                 with group paragraph
+                 with group reset
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
        {s: .terminator = "."|an add-on|s}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  5 04:13:41 EDT 2019
+// Date:	Mon Aug  5 06:10:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -952,14 +952,30 @@ bool BRA::parse_paragraph_element
 	PAR::token first =
 	    line_variables->previous->next;
 
-	// Here to handle RESET paragraph header.
+	// Here to handle reset header.
 	//
 	if ( separator_found == BRA::ISOLATED_HEADER )
 	{
-	    MIN_REQUIRE ( first == current );
+	    MIN_REQUIRE ( first->next == current );
 
-	    // Header has been deleted and current is
-	    // next token.
+	    line_variables->paragraph =
+		line_variables->indentation_paragraph;
+	    line_variables->implied_paragraph =
+		line_variables->
+		    indentation_implied_paragraph;
+	    line_variables->current =
+		line_variables->paragraph;
+
+	    // Remove reset header.
+	    //
+	    PAR::free
+		( PAR::remove
+		      ( first_ref(parser),
+			current->previous ) );
+
+	    // Remove following tokens till end of
+	    // logical line, ignoring line separators.
+	    // If non-comment removed, announce error.
 	    //
 	    min::phrase_position bad_phrase =
 		{ min::MISSING_POSITION,
@@ -1023,14 +1039,6 @@ bool BRA::parse_paragraph_element
 		    ( parser, bad_phrase,
 		      "non-comments after reset prefix;"
 		      " ignored" );
-
-	    line_variables->paragraph =
-		line_variables->indentation_paragraph;
-	    line_variables->implied_paragraph =
-		line_variables->
-		    indentation_implied_paragraph;
-	    line_variables->current =
-		line_variables->paragraph;
 
 	    if (    line_variables->last_paragraph
 		 == min::NULL_STUB )
@@ -2031,10 +2039,8 @@ PREFIX_FOUND:
 		// PREFIX to its caller, etc.  We
 		// CANNOT delete implied prefixes here.
 
-		PAR::free
-		    ( PAR::remove
-			  ( first_ref(parser),
-			    current->previous ) );
+		PAR::value_type_ref(prefix) =
+		    min::new_stub_gen ( prefix_entry );
 		return BRA::ISOLATED_HEADER;
 	    }
 

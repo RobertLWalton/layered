@@ -21,7 +21,7 @@
     define bracket type "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
-    define bracket type "code" [TOP LEVEL, text]
+    define bracket type "***" [TOP LEVEL, text]
         with group reset
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
@@ -32,7 +32,7 @@
                  with implied subprefix {s||s}
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
-        block X: bracket type "code" [TOP LEVEL, text]
+        block X: bracket type "***" [TOP LEVEL, text]
                  with group reset
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
@@ -40,7 +40,7 @@ BRACKETED EXPRESSION:
        {s: .terminator = ";"|A phrase|s}
        {s: .terminator = "?"|and a question|s}|p}
 ERROR: in line ##: non-comments after reset prefix; ignored:
-{code}And an unrecognized line.
-      ^^^^^^^^^^^^^^^^^^^^^^^^^
+{***}And an unrecognized line.
+     ^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     end block X

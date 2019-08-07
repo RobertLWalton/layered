@@ -6780,8 +6780,8 @@ BRACKETED EXPRESSION:
 line #
 ^^^^^^
 ERROR: in line ###: non-comments after reset prefix; ignored:
-{code}line #
-      ^^^^^^
+{***}line #
+     ^^^^^^
 BRACKETED EXPRESSION:
     {itemize: label = "CONTINUING", indent = "5em", mark = "*"|
               {item|1 chicken|item} {item|1 tablespoon olive oil|item}

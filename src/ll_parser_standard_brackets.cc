@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  5 04:45:42 EDT 2019
+// Date:	Wed Aug  7 03:55:58 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -292,6 +292,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
         ( min::new_str_gen ( "data" ) );
     min::locatable_gen data_paragraph_name
         ( min::new_lab_gen ( "data", "paragraph" ) );
+    min::locatable_gen three_stars
+        ( min::new_str_gen ( "***" ) );
 
     TAB::flags code =
         1ull << TAB::find_name
@@ -411,7 +413,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  bracketed_pass->bracket_type_table );
 
     BRA::push_bracket_type
-	( code_name,
+	( three_stars,
 	    PAR::TOP_LEVEL_SELECTOR
 	  + code + text,
 	  block_level, PAR::top_level_position,

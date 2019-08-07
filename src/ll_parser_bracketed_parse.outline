@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 29 15:20:59 EDT 2019
+// Date:	Tue Aug  6 23:25:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -121,10 +121,12 @@
 //	       parse_bracketed_subexpression with
 //	           selectors and line_variables
 //
-//	   if RESET option is on in line_variables->
-//	            current.selectors:
-//	        // Header token with + reset flag has
-//	        // been deleted; current is next token.
+//	   if separator_found == ISOLATED_HEADER:
+//
+//	        // line_variables->previous->next is
+//	        // prefix token followed immediately by
+//	        // current.
+//
 //	        line_variables->paragraph =
 //	            line_variables->
 //	                indentation_paragraph
@@ -133,6 +135,21 @@
 //	                indentation_implied_paragraph
 //	        line_variables->current =
 //	            line_variables->paragraph
+//
+//	        remove prefix token (which has `reset'
+//	               group)
+//
+//		scan to indent or end-of-file at end of
+//		     logical line, using line_
+//		     variables->current.selectors for
+//		     option flags, and ignoring line_
+//		     separators
+//
+//		if any tokens other than comments, new-
+//		   lines, indents, and end-of-files are
+//		   found during scan, announce that they
+//		   are in error and are ignored
+//
 //	        if line_variables->last_paragraph null:
 //	            iterate loop to get next line
 //	        else:
@@ -612,6 +629,27 @@
 //                    if prefix_entry is null or
 //                    prefix_entry->group is MISSING
 //     if prefix_entry not null:
+//         if prefix_entry->group == `reset':
+//	      require prefix->next == current
+//            if tokens from line_variables->previous->
+//               next to prefix are not all IMPLIED_
+//               HEADERs or IMPLIED_PREFIXes, or if
+//               not line_variables->at_paragraph_
+//               beginning:
+//                 announce that prefix with `reset'
+//                     group is not at beginning of
+//                     logical line in paragrah begin-
+//                     ning position
+//                 delete prefix token
+//                 goto FINISH_PREFIX
+//            prefix->value_type = prefix_entry
+//            return ISOLATED_HEADER
+//                // Note: we may be returning to scan
+//                // of IMPLIED_PREFIX/HEADER prefix-n-
+//                // list, which on seeing an empty list
+//                // will delete the IMPLIED_PREFIX/
+//                // HEADER and return ISOLATED_HEADER
+//                // to its caller.
 //         if selectors contains EPREFIX_OPT or
 //                 ETPREFIX_OPT or if selectors contains
 //                 EHEADER_OPT and prefix_group is
@@ -807,11 +845,6 @@
 //	          MISSING
 //	       line_variables->current.header_entry =
 //	          null
-//
-//	       if RESET option on in prefix_selectors:
-//	           require prefix->next == current
-//	           free prefix
-//	           return MISSING_POSITION
 //
 //	       implied_header =
 //	           prefix_entry->implied_subprefix

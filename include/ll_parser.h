@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  4 17:57:34 EDT 2019
+// Date:	Wed Aug  7 17:53:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1544,10 +1544,9 @@ inline ll::parser::table::new_flags parsing_selectors
         ( ll::parser::table::flags selectors )
 {
     return ll::parser::table::new_flags
-        (   selectors
-	  | ll::parser::ALWAYS_SELECTOR,
-	    ll::parser::COMMAND_SELECTORS
-	  & ~ selectors, 0 );
+        ( selectors,
+	  ll::parser::COMMAND_SELECTORS & ~ selectors,
+	  0 );
 }
 
 // Ditto for options.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  5 14:22:11 EDT 2019
+// Date:	Wed Aug  7 12:48:14 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -150,6 +150,10 @@ BRA::opening_bracket
 	      reformatter_arguments,
 	  TAB::key_table bracket_table )
 {
+    MIN_REQUIRE
+        ( (   TAB::all_flags ( parsing_selectors )
+	    & PAR::ALWAYS_SELECTOR ) == 0 );
+
     min::locatable_var<BRA::opening_bracket> opening
         ( ::opening_bracket_type.new_stub() );
     min::locatable_var<BRA::closing_bracket> closing
@@ -234,6 +238,10 @@ BRA::indentation_mark
 	  min::uns32 line_lexical_master,
 	  TAB::key_table bracket_table )
 {
+    MIN_REQUIRE
+        ( (   TAB::all_flags ( parsing_selectors )
+	    & PAR::ALWAYS_SELECTOR ) == 0 );
+
     min::locatable_var<BRA::indentation_mark> imark
         ( ::indentation_mark_type.new_stub() );
     label_ref(imark) = mark_label;
@@ -433,6 +441,10 @@ BRA::typed_opening
 	  TAB::flags prefix_selectors,
 	  TAB::key_table bracket_table )
 {
+    MIN_REQUIRE
+        ( (   TAB::all_flags ( parsing_selectors )
+	    & PAR::ALWAYS_SELECTOR ) == 0 );
+
     min::locatable_var<BRA::typed_opening> opening
         ( ::typed_opening_type.new_stub() );
     min::locatable_var<BRA::closing_bracket> closing
@@ -592,6 +604,10 @@ void BRA::push_bracket_type
 	      reformatter_arguments,
 	  TAB::key_table bracket_type_table )
 {
+    MIN_REQUIRE
+        ( (   TAB::all_flags ( parsing_selectors )
+	    & PAR::ALWAYS_SELECTOR ) == 0 );
+
     min::locatable_var<BRA::bracket_type> bracket_type
         ( ::bracket_type_type.new_stub() );
 
@@ -1462,23 +1478,11 @@ inline void make_type_label
 		      typed_data->context_selectors,
 		      bracket_type_table );
 	    if ( bracket_type != min::NULL_STUB )
-	    {
-		TAB::flags element_selectors =
-		    typed_data->context_selectors;
-		element_selectors |=
-		    bracket_type->
-		        parsing_selectors.or_flags;
-		element_selectors &= ~
-		    bracket_type->
-		        parsing_selectors.not_flags;
-		element_selectors ^=
-		    bracket_type->
-		        parsing_selectors.xor_flags;
-		element_selectors |=
-		    PAR::ALWAYS_SELECTOR;
 		typed_data->element_selectors =
-		    element_selectors;
-	    }
+		    TAB::modified_flags
+		        ( typed_data->context_selectors,
+			  bracket_type->
+			      parsing_selectors );
 	}
     }
 
@@ -1741,6 +1745,8 @@ min::position BRA::parse_bracketed_subexpression
 	  BRA::line_variables * line_variables,
 	  BRA::bracket_stack * bracket_stack_p )
 {
+
+    MIN_REQUIRE ( selectors & PAR::ALWAYS_SELECTOR );
 
 #   define PARSE_BRA_SUBEXP \
 	   BRA::parse_bracketed_subexpression
@@ -2377,19 +2383,11 @@ FINISH_PREFIX:
 
 	prefix_selectors = selectors;
 	if ( prefix_entry != min::NULL_STUB )
-	{
-	    prefix_selectors |=
-	      prefix_entry->
-		  parsing_selectors.or_flags;
-	    prefix_selectors &= ~
-	      prefix_entry->
-		  parsing_selectors.not_flags;
-	    prefix_selectors ^=
-	      prefix_entry->
-		  parsing_selectors.xor_flags;
-	    prefix_selectors |=
-	      PAR::ALWAYS_SELECTOR;
-	}
+	    prefix_selectors =
+	        TAB::modified_flags
+		    ( prefix_selectors,
+		      prefix_entry->
+		          parsing_selectors );
     }
 
 PARSE_PREFIX_N_LIST:
@@ -2453,18 +2451,11 @@ PARSE_PREFIX_N_LIST:
 		selectors =
 		    line_variables->paragraph
 				   .selectors;
-		prefix_selectors = selectors;
-		prefix_selectors |=
-		    prefix_entry->
-			parsing_selectors.or_flags;
-		prefix_selectors &= ~
-		    prefix_entry->
-			parsing_selectors.not_flags;
-		prefix_selectors ^=
-		    prefix_entry->
-			parsing_selectors.xor_flags;
-		prefix_selectors |=
-		    PAR::ALWAYS_SELECTOR;
+		prefix_selectors =
+		    TAB::modified_flags
+		        ( selectors,
+			  prefix_entry->
+			     parsing_selectors );
 
 		BRA::line_data & line_data =
 		    line_variables->current;
@@ -2505,29 +2496,15 @@ PARSE_PREFIX_N_LIST:
 			    header_entry->group
 			 == PARLEX::line )
 		    {
-			TAB::flags
-				header_selectors =
-			    prefix_selectors;
-			header_selectors |=
-			    header_entry->
-				parsing_selectors
-				    .or_flags;
-			header_selectors &= ~
-			    header_entry->
-				parsing_selectors
-				    .not_flags;
-			header_selectors ^=
-			    header_entry->
-				parsing_selectors
-				    .xor_flags;
-			header_selectors |=
-			    PAR::ALWAYS_SELECTOR;
 			line_data.implied_header =
 			    implied_header;
 			line_data.header_entry =
 			    header_entry;
 			line_data.header_selectors =
-			    header_selectors;
+			    TAB::modified_flags
+			        ( prefix_selectors,
+			          header_entry->
+				    parsing_selectors );
 		    }
 		}
 
@@ -2708,6 +2685,12 @@ PARSE_PREFIX_N_LIST:
 
 		if ( prefix_entry != min::NULL_STUB )
 		{
+		    prefix_selectors =
+		        TAB::modified_flags
+			    ( selectors,
+			      prefix_entry->
+			          parsing_selectors );
+
 		    prefix_type = prefix_entry->label;
 
 		    cstack.prefix_group =
@@ -2716,18 +2699,6 @@ PARSE_PREFIX_N_LIST:
 		          != min::MISSING() ?
 			  prefix_entry->group :
 			  prefix_type );
-
-		    prefix_selectors |=
-			prefix_entry->
-			    parsing_selectors.or_flags;
-		    prefix_selectors &= ~
-			prefix_entry->
-			    parsing_selectors.not_flags;
-		    prefix_selectors ^=
-			prefix_entry->
-			    parsing_selectors.xor_flags;
-		    prefix_selectors |=
-			PAR::ALWAYS_SELECTOR;
 		}
 	    }
 	}
@@ -2802,17 +2773,11 @@ NEXT_TOKEN:
 	// Compute selectors for indented sub-
 	// paragraph.
 	//
-	TAB::flags new_selectors = selectors;
-	new_selectors |=
-	    indentation_found->parsing_selectors
-			     .or_flags;
-	new_selectors &= ~
-	    indentation_found->parsing_selectors
-			     .not_flags;
-	new_selectors ^=
-	    indentation_found->parsing_selectors
-			     .xor_flags;
-	new_selectors |= PAR::ALWAYS_SELECTOR;
+	TAB::flags new_selectors =
+	    TAB::modified_flags
+	        ( selectors,
+	          indentation_found->
+		      parsing_selectors );
 
 	PAR::token mark_end = current->previous;
 	    // Last token of indentation mark.
@@ -2903,17 +2868,11 @@ NEXT_TOKEN:
 		    if ( header_entry->group
 			 != min::MISSING() )
 			group = header_entry->group;
-		    header_selectors |=
-			header_entry->
-			    parsing_selectors.or_flags;
-		    header_selectors &= ~
-			header_entry->
-			    parsing_selectors.not_flags;
-		    header_selectors ^=
-			header_entry->
-			    parsing_selectors.xor_flags;
-		    header_selectors |=
-			PAR::ALWAYS_SELECTOR;
+		    header_selectors =
+		        TAB::modified_flags
+			    ( header_selectors,
+			      header_entry->
+			          parsing_selectors );
 		}
 
 		if (    group
@@ -3367,23 +3326,12 @@ NEXT_TOKEN:
 			  typed_data->context_selectors,
 			  bracket_type_table );
 		if ( bracket_type != min::NULL_STUB )
-		{
-		    TAB::flags element_selectors =
-			typed_data->context_selectors;
-		    element_selectors |=
-			bracket_type->
-			    parsing_selectors.or_flags;
-		    element_selectors &= ~
-			bracket_type->
-			    parsing_selectors.not_flags;
-		    element_selectors ^=
-			bracket_type->
-			    parsing_selectors.xor_flags;
-		    element_selectors |=
-			PAR::ALWAYS_SELECTOR;
 		    typed_data->element_selectors =
-			element_selectors;
-		}
+		        TAB::modified_flags
+			    ( typed_data->
+			          context_selectors,
+			      bracket_type->
+			            parsing_selectors );
 
 		selectors =
 		    typed_data->element_selectors;
@@ -3428,17 +3376,11 @@ NEXT_TOKEN:
 		// TYPED_OPENING is a subclass of
 		// OPENING_BRACKET.
 
-	    TAB::flags new_selectors = selectors;
-	    new_selectors |=
-		opening_bracket->parsing_selectors
-				.or_flags;
-	    new_selectors &= ~
-		opening_bracket->parsing_selectors
-				.not_flags;
-	    new_selectors ^=
-		opening_bracket->parsing_selectors
-				.xor_flags;
-	    new_selectors |= PAR::ALWAYS_SELECTOR;
+	    TAB::flags new_selectors =
+	        TAB::modified_flags
+		    ( selectors,
+		      opening_bracket->
+		          parsing_selectors );
 
 	    BRA::bracket_stack cstack
 		( bracket_stack_p );

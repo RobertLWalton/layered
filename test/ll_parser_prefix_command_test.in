@@ -32,14 +32,14 @@
     define bracket type "s" [text]
         with sentence reformatter
 	    ( ".", ";", ":", "?", "!" )
-    define bracket type "code" [TOP LEVEL, text]
+    define bracket type "***" [TOP LEVEL, text]
 	with group reset
     print bracket type ""
 
 {p}This is a sentence: an add-on.  A phrase;
 and a question?
 
-{code}And an unrecognized line.
+{***}And an unrecognized line.
 
 *PARSER*:
     end block X

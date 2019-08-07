@@ -164,6 +164,8 @@
                                               - end at outer closing]
                         with group paragraph
                         with implied subprefix {s||s}
+        block standard: bracket type "***" [TOP LEVEL, code, text]
+                        with group reset
         block standard: bracket type [< "raw" "data" >]
                         [TOP LEVEL, data, code, math, text]
                         with parsing selectors [data, data paragraph]
@@ -183,5 +185,3 @@
                         with group line
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
-        block standard: bracket type "code" [TOP LEVEL, code, text]
-                        with group reset

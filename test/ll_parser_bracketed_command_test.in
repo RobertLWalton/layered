@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  5 04:41:45 EDT 2019
+// Date:	Wed Aug  7 03:59:34 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -553,7 +553,7 @@ and another line outside the fifth paragraph
     define bracket type "p3" [code]
         with group paragraph
         with parsing options [+ sticky, + enable prefix]
-    define bracket type "code" [code]
+    define bracket type "***" [code]
         with group reset
     trace [+ parser output]
 this is paragraph 1
@@ -583,7 +583,7 @@ and another line
 this is paragraph 9
 and another line
 
-{code}
+{***}
 this is code line 1
 
 and code line 2
@@ -604,7 +604,7 @@ and another line
 this is paragraph 14
 and another line
 
-{code}
+{***}
 this is code line 3
 
 and code line 4

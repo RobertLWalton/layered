@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 1, 2019
+August 7, 2019
  
 \end{center}
 
@@ -6348,9 +6348,8 @@ adds the definitions:
            with group line
            with parsing selectors [data, data paragraph]
            with data reformatter ( "=", "no", "[", "{*" )
-    define bracket type "code" [TOP LEVEL, code, text]
-           with group paragraph
-           with parsing options [+ reset]
+    define bracket type "***" [TOP LEVEL, code, text]
+           with group reset
     define bracket type "section" [TOP LEVEL, code, text]
            with group paragraph
            with parsing selectors [+ text,
@@ -6875,10 +6874,11 @@ logical line.
 
 The first part of the rest of the logical line is then parsed.
 If it begins with a prefix that has a bracket type definition with either
-the `\TT{paragraph}' or `\TT{line}' group, then that is an explicit
-paragraph header or line header.
+the `\TT{paragraph}', `\TT{line}', or `\TT{reset}' group,
+then that is an explicit, paragraph, line, or reset header.
 
-If an explicit paragraph header is found immediately after implied headers,
+If an explicit paragraph or reset
+header is found immediately after implied headers,
 the implied headers are deleted.
 If an explicit line header is found immediately after implied headers,
 an implied line header is deleted, but an implied paragraph header is not
@@ -6895,62 +6895,43 @@ Therefore implied headers should not change selectors and options
 sufficiently to affect parsing explicit headers or looking up their
 bracket type definitions.
 
-If an explicit header is found, then after any implied headers are deleted
-and state has been restored, the explicit header's bracket type definition
+If a line or non-isolated paragraph
+explicit header is found, then after any implied headers are deleted
+and the state set by the current indentation mark or top level definition
+has been restored, the explicit header's bracket type definition
 is used to modify the parsing selectors and options, and if the header is
 a paragraph header, the current line variables selectors, options,
-lexical masters, and implied header.
+and implied header.
 Here the implied header is copied from the explicit header's bracket type
-definition only if it has the `\TT{line}' group when its bracket type
+definition only if the explicit header is a paragraph header and the
+implied header has the `\TT{line}' group when its bracket type
 definition is looked up with the new selectors current line variable.
 
-\item\label{RESET-RULE}
-If an explicit paragraph header sets the `\ttkey{reset}' option flag, then
-\begin{enumerate}[label*=.\arabic*]
+If an isolated paragraph header is found, the header's bracket type
+definition modifies the current line variables selectors, options,
+line lexical master, and implied header.
 
-\item The \TT{paragraph implied header} line variable
-is reset to the value it had at the beginning of the current
-indented paragraph,
-or to missing if the logical line is top level.
-
-\item The paragraph line variables are copied to the current line
-variables (resetting the latter to their state before the explicit
-paragraph header was parsed, except for the implied header value
-which was just reset).
-
-\item The explicit paragraph header is deleted.  Parsing is as
-if the explicit paragraph header had never existed, except that
-the paragraph and current line variables are set to the values
-they had at the beginning of the current indented paragraph or
-at top level after the last \TT{define top level} command, and
-also a comment is allowed without warning
-between the deleted explicit paragraph
-header and any following non-comment lexeme in the current logical
-line.
-\end{enumerate}
-
+If a reset header is found,\label{RESET-RULE}
+the header's bracket type
+definition modifies the \underline{paragraph} selectors, options,
+line \underline{and paragraph}
+lexical masters, and implied header.  Then the reset header is
+deleted, and its line is treated as a blank line, so the next line is
+in paragraph beginning position and the paragraph line variables are
+copied to the current line variables.
 
 \item
-If an explicit paragraph header does \underline{not}
-set the `\TT{reset}' option flag, then
-
-\begin{enumerate}[label*=.\arabic*]
-
-\item\label{STICKY-RULE}
-If the explicit paragraph header sets
-the `\ttkey{sticky}' option flag, then
-the \TT{paragraph implied header} is set to
+If an explicit paragraph header sets
+the `\ttkey{sticky}' option flag,\label{STICKY-RULE}
+then the \TT{paragraph im\-pli\-ed header} is set to
 a copy of the explicit paragraph header.
 
-\item
 If the explicit paragraph header does \underline{not}
 set the `\TT{sticky}' option flag, then
 the \TT{para\-graph implied header}
 is reset to the value it had at the beginning of the current
 indented paragraph,
 or to missing if the logical line is top level.
-
-\end{enumerate}
 
 \item
 

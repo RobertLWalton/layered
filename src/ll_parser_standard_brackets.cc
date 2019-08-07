@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 03:55:58 EDT 2019
+// Date:	Wed Aug  7 14:21:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -128,6 +128,10 @@ void PARSTD::init_brackets ( PAR::parser parser )
     parser->selectors |= code | PAR::TOP_LEVEL_SELECTOR
                               | PAR::ALWAYS_SELECTOR;
 
+    // In the following be sure parsing selectors
+    // argument does nothing to ALWAYS_SELECTOR.
+    // Use COMMAND_SELECTORS instead of ALL_SELECTORS.
+
     min::uns32 block_level =
         PAR::block_level ( parser );
     BRA::push_brackets
@@ -178,7 +182,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text + data + atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( data, PAR::ALL_SELECTORS ^ data, 0 ),
+	      ( data, PAR::COMMAND_SELECTORS ^ data,
+	              0 ),
 	  PAR::find_reformatter
 	      ( label_name,
 	        BRA::untyped_reformatter_stack ),
@@ -190,7 +195,8 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text + data + atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( data, PAR::ALL_SELECTORS ^ data, 0 ),
+	      ( data, PAR::COMMAND_SELECTORS ^ data,
+	              0 ),
 	  PAR::find_reformatter
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),
@@ -358,8 +364,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( data + data_paragraph,
-	        PAR::ALL_SELECTORS ^ data
-		                   ^ data_paragraph,
+	        PAR::COMMAND_SELECTORS ^ data
+		                       ^ data_paragraph,
 	        0 ),
 	  PARLEX::line,   // group
 	  min::MISSING(), // implied_subprefix

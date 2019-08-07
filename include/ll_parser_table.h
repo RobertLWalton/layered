@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 14 20:40:20 EDT 2017
+// Date:	Wed Aug  7 12:48:03 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,6 +77,16 @@ inline ll::parser::table::flags all_flags
     return   new_flags.or_flags
            | new_flags.not_flags
            | new_flags.xor_flags;
+}
+
+inline ll::parser::table::flags modified_flags
+	( ll::parser::table::flags f,
+	  ll::parser::table::new_flags const & nf )
+{
+    f |= nf.or_flags;
+    f &= ~ nf.not_flags;
+    f ^= nf.xor_flags;
+    return f;
 }
 
 // Name Tables

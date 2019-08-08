@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  6 23:25:02 EDT 2019
+// Date:	Thu Aug  8 05:37:29 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1118,11 +1118,9 @@
 //	                   .paragraph_lexical_master =
 //	                     header_entry->
 //	                       paragraph_lexical_master
-//	                       if this is not MISSING
 //	                   .line_lexical_master =
 //	                     header_entry->
 //	                       line_lexical_master
-//	                       if this is not MISSING
 //
 //	               implied_header =
 //	                   header_entry->

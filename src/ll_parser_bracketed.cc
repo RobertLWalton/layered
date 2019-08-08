@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 12:48:14 EDT 2019
+// Date:	Thu Aug  8 05:35:11 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2887,20 +2887,14 @@ NEXT_TOKEN:
 		    paragraph_data.header_selectors
 			= header_selectors;
 
-		    if (    header_entry->
-				paragraph_lexical_master
-			 != PAR::MISSING_MASTER )
-			implied_data
-			       .paragraph_lexical_master
-			    = header_entry->
-			       paragraph_lexical_master;
-		    if (    header_entry->
-				line_lexical_master
-			 != PAR::MISSING_MASTER )
-			implied_data
-			       .line_lexical_master
-			    = header_entry->
-			       line_lexical_master;
+		    implied_data
+			   .paragraph_lexical_master
+			= header_entry->
+			   paragraph_lexical_master;
+		    implied_data
+			   .line_lexical_master
+			= header_entry->
+			   line_lexical_master;
 
 		    first_time = false;
 		    implied_header =

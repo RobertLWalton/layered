@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 7, 2019
+August 9, 2019
  
 \end{center}
 
@@ -6120,17 +6120,13 @@ used to set the current parsing options and the
 paragraph header begins a paragraph:
 see \itemref{EXPLICIT-HEADER-PARSING}.
 
-\hspace*{-0.2in}\ttmkey{paragraph lexical master}{in bracket type definition}\\
 \hspace*{-0.2in}\ttmkey{line lexical master}{in bracket type definition}\\
-For prefixes with the `\TT{paragraph}' group, these parameters are
-used to set the corresponding paragraph line variables.
-For prefixes with the `\TT{line}' group, these are used to set
-the corresponding current line variables.
-See \itemref{LINE-VARIABLES} for details.
-
-If `\TT{with lexical master}' is given in the `\TT{define bracket type}'
-command, both lexical master parameters are set to the same
-{\em lexical-master-name}.
+`\TT{with line lexical master}' is only permitted for prefixes that
+have the `\TT{para\-graph}' group.  
+This parameter may be non-missing only for isolated paragraph headers
+and mapped paragraph headers, and
+is used to set the corresponding current line variable.
+See \itemref{ISOLATED-HEADERS} and \itemref{LINE-VARIABLES} for details.
 
 \end{indpar}
 
@@ -6640,9 +6636,16 @@ See \itemref{LINE-VARIABLES} for details.
 \label{ISOLATED-HEADERS}
 
 An \key{isolated header} is paragraph header that resets the
-\TT{line lexical master} or is a \key{reset header}, which is
-a header with a bracket type definition that has the
-`\TT{reset}' group.  An isolated header must appear at the
+\TT{line lexical master} and is not a mapped header,
+or is a reset header.  A \key{mapped header} is a prefix
+that was created at the beginning of a logical line
+when a mapped lexeme was mapped to the prefix.
+A \key{reset header} is a prefix with the
+`\TT{reset}' group.  Isolated headers and mapped prefixes that
+are headers are the only prefixes that can reset the line lexical
+master.
+
+An isolated header must appear at the
 beginning of a logical line and must be the only thing in its
 logical line (in particular, the logical line cannot end with
 a line separator).  In determining the extent of the logical
@@ -6655,18 +6658,14 @@ An isolated paragraph header sets the current line variables
 to those of the containing indented paragraph or the top level
 if there is no containing indented paragraph, as modified by
 the parameters in the headers bracket type definition (one of
-which must be a non-missing line lexical master).
-
-An isolated paragraph header may be implied.  In this case it
-is effectively placed on a line by itself and deleted only if
-it is not followed by any (possibly headed) logical lines.
+which is the non-missing line lexical master).
 
 A reset header sets the paragraph line variables
 to those of the containing indented paragraph or the top level
-if there is no containing indented paragraph, as modified by
-the parameters in the headers bracket type definition.
-Then the reset header is deleted and the next logical line
-is treated as being in paragraph beginning position.
+if there is no containing indented paragraph.
+
+An isolated paragraph header may \underline{not} be implied or
+sticky.
 
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}
@@ -6900,8 +6899,10 @@ explicit header is found, then after any implied headers are deleted
 and the state set by the current indentation mark or top level definition
 has been restored, the explicit header's bracket type definition
 is used to modify the parsing selectors and options, and if the header is
-a paragraph header, the current line variables selectors, options,
-and implied header.
+a paragraph header, the current line variable selectors, options,
+and implied header, and if in addition the header is a mapped paragraph
+header with a non-missing line lexical master, the current line variable
+line lexical master.
 Here the implied header is copied from the explicit header's bracket type
 definition only if the explicit header is a paragraph header and the
 implied header has the `\TT{line}' group when its bracket type
@@ -6912,13 +6913,12 @@ definition modifies the current line variables selectors, options,
 line lexical master, and implied header.
 
 If a reset header is found,\label{RESET-RULE}
-the header's bracket type
-definition modifies the \underline{paragraph} selectors, options,
-line \underline{and paragraph}
-lexical masters, and implied header.  Then the reset header is
+the selectors, options, and line variables are just restored
+to the values they were set to by the current indentation mark
+definition or top level definition.
+Then the reset header is
 deleted, and its line is treated as a blank line, so the next line is
-in paragraph beginning position and the paragraph line variables are
-copied to the current line variables.
+in paragraph beginning position.
 
 \item
 If an explicit paragraph header sets

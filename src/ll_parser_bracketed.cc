@@ -991,6 +991,8 @@ bool BRA::parse_paragraph_element
 		    ( PAR::remove
 			  ( first_ref(parser),
 			    current->previous ) );
+
+		parser->at_paragraph_beginning = true;
 	    }
 
 	    // Remove following tokens till end of

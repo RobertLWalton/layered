@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 22:21:53 EDT 2017
+// Date:	Fri Aug  9 05:34:45 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -97,7 +97,7 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	  block_level,
 	  PAR::top_level_position,
 	  data_value,
-	  PAR::PREFIX,
+	  PAR::MAPPED_PREFIX,
 	  PARLEX::data,
 	  PAR::MISSING_MASTER,
 	  parser->lexeme_map );
@@ -127,7 +127,7 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	  block_level,
 	  PAR::top_level_position,
 	  raw_data_value,
-	  PAR::PREFIX,
+	  PAR::MAPPED_PREFIX,
 	  raw_data,
 	  PAR::MISSING_MASTER,
 	  parser->lexeme_map );
@@ -157,7 +157,7 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	  block_level,
 	  PAR::top_level_position,
 	  table_value,
-	  PAR::PREFIX,
+	  PAR::MAPPED_PREFIX,
 	  table,
 	  PAR::MISSING_MASTER,
 	  parser->lexeme_map );
@@ -187,7 +187,7 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
 	  block_level,
 	  PAR::top_level_position,
 	  row_value,
-	  PAR::PREFIX,
+	  PAR::MAPPED_PREFIX,
 	  row,
 	  PAR::MISSING_MASTER,
 	  parser->lexeme_map );

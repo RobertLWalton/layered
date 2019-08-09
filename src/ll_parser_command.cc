@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 14 05:51:46 EDT 2019
+// Date:	Fri Aug  9 05:35:36 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1367,6 +1367,8 @@ static min::gen execute_mapped_lexeme
 	    PAR::find_token_type (
 	        min::ref<min::gen> ( token_value_type ),
 		token_value );
+	if ( token_type == PAR::PREFIX )
+	    token_type = PAR::MAPPED_PREFIX;
 
 	if ( i < size )
 	    return PAR::parse_error

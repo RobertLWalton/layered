@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  8 05:35:11 EDT 2019
+// Date:	Fri Aug  9 08:29:38 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -974,20 +974,24 @@ bool BRA::parse_paragraph_element
 	{
 	    MIN_REQUIRE ( first->next == current );
 
-	    line_variables->paragraph =
-		line_variables->indentation_paragraph;
-	    line_variables->implied_paragraph =
-		line_variables->
-		    indentation_implied_paragraph;
-	    line_variables->current =
-		line_variables->paragraph;
+	    if ( first->value_type == PARLEX::reset )
+	    {
+		line_variables->paragraph =
+		    line_variables->
+		        indentation_paragraph;
+		line_variables->implied_paragraph =
+		    line_variables->
+			indentation_implied_paragraph;
+		line_variables->current =
+		    line_variables->paragraph;
 
-	    // Remove reset header.
-	    //
-	    PAR::free
-		( PAR::remove
-		      ( first_ref(parser),
-			current->previous ) );
+		// Remove reset header.
+		//
+		PAR::free
+		    ( PAR::remove
+			  ( first_ref(parser),
+			    current->previous ) );
+	    }
 
 	    // Remove following tokens till end of
 	    // logical line, ignoring line separators.
@@ -1982,6 +1986,7 @@ PREFIX_FOUND:
 
     MIN_REQUIRE
         (    prefix->type == PAR::PREFIX
+          || prefix->type == PAR::MAPPED_PREFIX
           || prefix->type == PAR::IMPLIED_PREFIX
 	  || prefix->type == PAR::IMPLIED_HEADER );
 
@@ -2074,8 +2079,9 @@ PREFIX_FOUND:
 		// PREFIX to its caller, etc.  We
 		// CANNOT delete implied prefixes here.
 
+		prefix->type = PAR::BRACKETED;
 		PAR::value_type_ref(prefix) =
-		    min::new_stub_gen ( prefix_entry );
+		    PARLEX::reset;
 		return BRA::ISOLATED_HEADER;
 	    }
 
@@ -2451,11 +2457,35 @@ PARSE_PREFIX_N_LIST:
 		selectors =
 		    line_variables->paragraph
 				   .selectors;
+		selectors &=
+		    ~ ( PAR::STICKY_OPT
+		        +
+			PAR::CONTINUING_OPT );
+
 		prefix_selectors =
 		    TAB::modified_flags
 		        ( selectors,
 			  prefix_entry->
 			     parsing_selectors );
+
+		if ( (   prefix_selectors
+		       & PAR::STICKY_OPT )
+		     &&
+		        prefix_entry->
+			    line_lexical_master
+		     != PAR::MISSING_MASTER )
+		{
+		    PAR::parse_error
+		      ( parser,
+			prefix->position,
+			"isolated header of type `",
+			min::pgen_never_quote
+			  ( prefix_type ),
+			"' cannot be sticky;"
+			" sticky flag ignored" );
+		    prefix_selectors &=
+		        ~ PAR::STICKY_OPT;
+		}
 
 		BRA::line_data & line_data =
 		    line_variables->current;
@@ -2508,8 +2538,7 @@ PARSE_PREFIX_N_LIST:
 		    }
 		}
 
-		if (   line_variables->current
-				      .selectors
+		if (   prefix_selectors
 		     & PAR::STICKY_OPT )
 		{
 		    line_variables->
@@ -2544,6 +2573,17 @@ PARSE_PREFIX_N_LIST:
 			line_variables->
 		      indentation_implied_paragraph;
 		}
+
+		if (    prefix_entry->line_lexical_master
+		     != PAR::MISSING_MASTER
+		     &&
+		     prefix->type == PAR::PREFIX )
+		{
+		    prefix->type = PAR::BRACKETED;
+		    PAR::value_type_ref(prefix) =
+		        PARLEX::paragraph;
+		    return BRA::ISOLATED_HEADER;
+		}
 	    }
 
 	    cstack.closing_first =
@@ -2564,6 +2604,21 @@ PARSE_PREFIX_N_LIST:
 
 	    min::gen old_prefix_value_type =
 	        prefix->value_type;
+
+	    if (    separator_found
+	         == BRA::ISOLATED_HEADER )
+	    {
+		if (    prefix->type
+		     == PAR::IMPLIED_PREFIX
+		     ||
+		        prefix->type
+		     == PAR::IMPLIED_HEADER )
+		    PAR::free
+			( PAR::remove
+			      ( first_ref(parser),
+				prefix ) );
+	    	return separator_found;
+	    }
 
 	    if (    prefix->next == next
 		 && (    prefix->type
@@ -2672,11 +2727,6 @@ PARSE_PREFIX_N_LIST:
 	    if (    prefix->value_type
 		 != old_prefix_value_type )
 	    {
-		prefix_type =
-		prefix_group =
-		cstack.prefix_group =
-		    prefix->value_type;
-
 		prefix_entry =
 		    (BRA::bracket_type)
 		    min::stub_of ( prefix->value_type );
@@ -2700,6 +2750,12 @@ PARSE_PREFIX_N_LIST:
 			  prefix_entry->group :
 			  prefix_type );
 		}
+		else
+		    prefix_type =
+		    prefix_group =
+		    cstack.prefix_group =
+			prefix->value_type;
+
 	    }
 	}
     }
@@ -2800,7 +2856,7 @@ NEXT_TOKEN:
 	     > 0 )
 	{
 
-	    // Initialize line_varables.
+	    // Initialize line_variables.
 	    //
 	    BRA::line_variables line_variables;
 	    BRA::line_data & paragraph_data =
@@ -2880,21 +2936,32 @@ NEXT_TOKEN:
 		     &&
 		     first_time )
 		{
+		    if (    header_entry->
+			        line_lexical_master
+			 != PAR::MISSING_MASTER )
+		    {
+			min::phrase_position pos =
+			    { current->position.end,
+			      current->position.end };
+			PAR::parse_error
+			  ( parser,
+			    pos,
+			    "indentation mark implied"
+			    " header of type `",
+			    min::pgen_never_quote
+			      ( implied_header_type
+			      ),
+			    "' cannot be isolated;"
+			    " implied header ignored" );
+			break;
+		    }
+
 		    paragraph_data.implied_header =
 			implied_header;
 		    paragraph_data.header_entry =
 			header_entry;
 		    paragraph_data.header_selectors
 			= header_selectors;
-
-		    implied_data
-			   .paragraph_lexical_master
-			= header_entry->
-			   paragraph_lexical_master;
-		    implied_data
-			   .line_lexical_master
-			= header_entry->
-			   line_lexical_master;
 
 		    first_time = false;
 		    implied_header =
@@ -2954,8 +3021,8 @@ NEXT_TOKEN:
 		}
 		else
 		{
-		    // Implied subprefix of
-		    // paragraph header is OK.
+		    // Implied subprefix of paragraph
+		    // or line header is OK.
 		    // Do nothing with it.
 		    //
 		    break;
@@ -3248,7 +3315,9 @@ NEXT_TOKEN:
 	goto NEXT_TOKEN;
     }
 
-    if ( current->type == PAR::PREFIX )
+    if ( current->type == PAR::PREFIX
+         ||
+	 current->type == PAR::MAPPED_PREFIX )
     {
 	prefix = current;
 
@@ -4517,7 +4586,9 @@ void BRA::compact_paragraph
 	while ( current != next )
 	{
 	    MIN_REQUIRE
-	        ( current->type != PAR::PREFIX );
+	        ( current->type != PAR::PREFIX
+		  &&
+		  current->type != PAR::MAPPED_PREFIX );
 	    if ( current->value_type == PARLEX::line
 		 ||
 		    current->value_type

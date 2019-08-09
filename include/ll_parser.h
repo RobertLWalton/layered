@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 17:53:32 EDT 2019
+// Date:	Fri Aug  9 05:33:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -169,10 +169,11 @@ enum // Token types (see below).
     BRACKETABLE		= 0xFFFFFFFD,
     PURELIST		= 0xFFFFFFFC,
     PREFIX		= 0xFFFFFFFB,
-    IMPLIED_PREFIX	= 0xFFFFFFFA,
-    IMPLIED_HEADER	= 0xFFFFFFF9,
-    OPERATOR		= 0xFFFFFFF8,
-    DERIVED		= 0xFFFFFFF7,
+    MAPPED_PREFIX	= 0xFFFFFFFA,
+    IMPLIED_PREFIX	= 0xFFFFFFF9,
+    IMPLIED_HEADER	= 0xFFFFFFF8,
+    OPERATOR		= 0xFFFFFFF7,
+    DERIVED		= 0xFFFFFFF6,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
@@ -271,7 +272,8 @@ struct token_struct
     const min::gen value_type;
         // For a BRACKETED token, the .initiator of its
 	// MIN value, if any, or the prefix group of its
-	// .type, if that is `line' or `paragraph'.
+	// .type, if that is `line', `paragraph', or
+	// `reset'.
 	//
 	// For a PREFIX, IMPLIED_PREFIX, or IMPLIED_
 	// HEADER token, the prefix table entry of the

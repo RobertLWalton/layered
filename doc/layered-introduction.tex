@@ -6637,13 +6637,13 @@ See \itemref{LINE-VARIABLES} for details.
 
 An \key{isolated header} is paragraph header that resets the
 \TT{line lexical master} and is not a mapped header,
-or is a reset header.  A \key{mapped header} is a prefix
+or is a reset header.  A \key{mapped header} is an explicit header
 that was created at the beginning of a logical line
-when a mapped lexeme was mapped to the prefix.
+when a mapped lexeme was mapped to a prefix.
 A \key{reset header} is a prefix with the
-`\TT{reset}' group.  Isolated headers and mapped prefixes that
-are headers are the only prefixes that can reset the line lexical
-master.
+`\TT{reset}' group.  Isolated headers and mapped headers
+are the only headers that can reset the line lexical
+master to the value in the header's bracket type definition.
 
 An isolated header must appear at the
 beginning of a logical line and must be the only thing in its
@@ -6651,13 +6651,13 @@ logical line (in particular, the logical line cannot end with
 a line separator).  In determining the extent of the logical
 line containing the header,
 the \TT{options} current line variable value modified
-by parameters from the header bracket type definition
+by parameters from the header's bracket type definition
 is used.
 
 An isolated paragraph header sets the current line variables
 to those of the containing indented paragraph or the top level
 if there is no containing indented paragraph, as modified by
-the parameters in the headers bracket type definition (one of
+the parameters in the header's bracket type definition (one of
 which is the non-missing line lexical master).
 
 A reset header sets the paragraph line variables
@@ -6666,6 +6666,19 @@ if there is no containing indented paragraph.
 
 An isolated paragraph header may \underline{not} be implied or
 sticky.
+
+A reset header's bracket type definition cannot have any parameters
+other than `\TT{group}'.
+
+A mapped paragraph header may set the line lexical master
+current line variable without the requirement that the mapped
+paragraph header be in a logical line by itself.  The reason
+is that the special lexical master that produced the mapped
+paragraph header is assumed to jump to the line lexical master
+after producing the paragraph header, so the line lexical master
+takes effect immediately after the mapped paragraph header in
+its logical line.  However this assumption is not verified by
+code.
 
 \subsubsection{Line Variables}
 \label{LINE-VARIABLES}

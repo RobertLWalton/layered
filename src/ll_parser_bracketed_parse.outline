@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 14:04:40 EDT 2019
+// Date:	Sat Aug 10 17:16:31 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -289,7 +289,7 @@
 //     typed_data->context_selectors.  If an entry is
 //     found, reset typed_data->element_selectors to
 //     typed_data->context_selectors modified by the
-//     entry parsing_selectors with ALWAYS_SELECTOR set.
+//     entry parsing_selectors.
 //
 //     Otherwise if typed_data->type is NOT MISSING,
 //     check that it equals the new label, print an
@@ -794,7 +794,6 @@
 //     if prefix_entry not null:
 //         adjust prefix_selectors according to
 //                prefix_entry->parsing_selectors
-//                setting ALWAYS_SELECTOR on
 //
 // PARSE_PREFIX_N_LIST:
 //
@@ -833,9 +832,22 @@
 //	       //
 //	       selectors = line_variables->paragraph
 //	                                   .selectors
+//	       turn STICKY_OPT and CONTINUING_OPT off
+//	            in selectors
 //	       prefix_selectors = selectors
 //		  modified by prefix_entry->parsing_
-//		  selectors with ALWAYS_SELECTOR set
+//		  selectors
+//
+//	       if STICKY_OPT on in prefix_selectors
+//	                     and prefix_entry->line_
+//	                     lexical_master is not
+//	                     MISSING_MASTER:
+//	           announce error: isolated_header
+//	               cannot be sticky; sticky flag
+//	               ignored
+//	           turn off STICKY_OPT in prefix_
+//	                selectors
+//	             
 //	       line_variables->current
 //		  .paragraph_lexical_master =
 //		  prefix_entry->paragraph_lexical_master
@@ -862,7 +874,7 @@
 //		      header_selectors =
 //		          prefix_selectors modified by
 //		          header_entry->parsing_selec-
-//		          tors with ALWAYS_SELECTOR set
+//		          tors
 //		      line_variables->current
 //		          .implied_header =
 //		              implied_header
@@ -873,8 +885,7 @@
 //		          .header_selectors =
 //		              header_selectors
 //
-//	       if line_variables->current.selectors
-//		  has STICKY_OPT flag set:
+//	       if prefix_selectors has STICKY_OPT:
 //		  line_variables->
 //		      implied_paragraph =
 //		          line_variables->current
@@ -903,6 +914,13 @@
 //		              indentation_implied_
 //		                        paragraph
 //
+//	       if prefix_entry->line_lexical_master is
+//	                 not MISSING_MASTER and prefix->
+//	                 type is PREFIX:
+//	          prefix->type = BRACKETED
+//	          prefix->value_type = `paragraph'
+//	          return ISOLATED_HEADER
+//
 //	       // End of `if' that handles explicit
 //	       // paragraph header.
 //
@@ -920,6 +938,12 @@
 //         old_prefix_value_type = prefix->value_type
 //             // Save in case this changes or prefix
 //             // is deleted; see below
+//
+//         if separator_found == ISOLATED_HEADER:
+//             if prefix->type is IMPLIED_HEADER or
+//                                IMPLIED_PREFIX:
+//                remove prefix token
+//             return separator_found
 //
 //         if prefix-n-list is empty and prefix->type
 //                  is IMPLIED_HEADER or IMPLIED_PREFIX
@@ -993,9 +1017,8 @@
 //	       current top bracket stack entry
 //	               prefix_group = prefix_group
 //	       prefix_selectors = selectors modified by
-//	           prefix_entry->parsing_selectors with
-//	           ALWAYS_SELECTOR added if prefix_entry
-//	           is not null
+//	           prefix_entry->parsing_selectors if
+//	           prefix_entry is not null
 //
 //	   iterate loop to find prefix-n-list
 //	           subexpression headed by prefix
@@ -1347,8 +1370,7 @@
 //     		      set typed_data->element_selectors
 //     		          to typed_data->context_
 //     		          selectors modified by the
-//     			  entry parsing_selectors with
-//     			  ALWAYS_SELECTOR set.
+//     			  entry parsing_selectors
 //
 //                 selectors =
 //                     typed_data->element_selectors
@@ -1397,11 +1419,10 @@
 //		       context_selectors = selectors
 //		       element_selectors = new_selectors
 //		       attribute_selectors =
-//		           key->attr_selectors plus
-//		           ALWAYS_SELECTOR with options
-//		           from selectors but with
-//		           EALSEP, EIPARAGAPH, EHEADER
-//		           turned off
+//		           key->attr_selectors with
+//		           options from selectors but
+//		           with EALSEP, EIPARAGAPH,
+//		           EHEADER turned off
 //		       middle_count = attr_count = 0
 //		       start_previous =
 //		           current->previous

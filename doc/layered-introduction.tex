@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 9, 2019
+August 10, 2019
  
 \end{center}
 
@@ -6716,24 +6716,26 @@ While parsing a logical line the parser uses the line variables:
     (\pagref{IMPLIED-SUBPREFIX})
     and is almost like an explicit prefix separator except that
     if it has no following {\em prefix-n-list} elements
-    it is removed.
+    it is removed.  In particular, if an implied header is immediately
+    followed by an explicit (i.e., not implied) header with the same
+    group, the implied header is removed.
 
-    The type of a non-missing implied header must have a bracket type
-    definition selected by the \TT{selectors} line variable that
+    A non-missing implied header must have a bracket type
+    definition selected by the \TT{selec\-tors} line variable that
     has either the `\TT{paragraph}' or `\TT{line}' group.
 
     Modifications to selectors and options made by an implied
     header should be chosen so that they do not affect the parsing
     of any explicit header that occurs immediately after the
     implied header, and do not affect the lookup of the bracket type of that
-    header.  This is because if the
+    explicit header.  This is because if the
     logical line begins with an explicit header, that will be
-    parsed and its bracket type table entry will be looked up
+    parsed and its bracket type table definition will be looked up
     using the selectors and options set by the implied
     header, and then the implied header will then be deleted (as there
     are no elements between it and the explicit header).  But
     after the implied header is deleted, the explicit header
-    is \underline{not} re-parsed and its bracket type table entry
+    is \underline{not} re-parsed and its bracket type table definition
     is \underline{not} re-looked-up.
 \\[1ex]
 \hspace*{-0.2in}\ttmkey{paragraph lexical master}{line variable}\\
@@ -6754,13 +6756,12 @@ While parsing a logical line the parser uses the line variables:
 \hspace*{-0.2in}Note: The above line variables are called
 the `\ikey{\underline{current} line variables}{current line variable}'.
 \\[1ex]
-\hspace*{-0.2in}Note: If any current line variable is changed
-after the current line varables
-have been used at the beginning of a logical line,
-the new value will not take affect until the next logical line.
-Explicit paragraph headers make such changes if they have
-the `\TT{sticky}' or `\TT{continuing}' options or if they have
-an implied subprefix which has the \TT{line} group.
+\hspace*{-0.2in}Note: Explicit paragraph headers and reset headers
+change the line variables, except for the paragraph lexical header.
+A change to the line lexical header does not take effect until
+the beginning of the logical line immediately after the logical line
+containing the explicit paragraph or reset header, so use of these
+headers is restricted: see \itemref{ISOLATED-HEADERS}.
 \\[2ex]
 \hspace*{-0.2in}\ttmkey{paragraph selectors}{line variable}\\
 \hspace*{-0.2in}\ttmkey{paragraph options}{line variable}\\

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 08:29:38 EDT 2019
+// Date:	Sat Aug 10 14:17:13 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2075,11 +2075,11 @@ PREFIX_FOUND:
 		// called to scan the prefix-n-list of
 		// an implied prefix.  In this case when
 		// we return BRA::ISOLATED_PREFIX, the
-		// caller will see an empty prefix-n-
-		// list and delete the implied prefix
-		// or header and return BRA::ISOLATED_
-		// PREFIX to its caller, etc.  We
-		// CANNOT delete implied prefixes here.
+		// caller will see this and delete the
+		// implied prefix or header and return
+		// BRA::ISOLATED_PREFIX to its caller,
+		// etc.  We CANNOT delete implied pre-
+		// fixes here.
 
 		prefix->type = PAR::BRACKETED;
 		PAR::value_type_ref(prefix) =

@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  8 05:37:29 EDT 2019
+// Date:	Sat Aug 10 14:04:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -127,17 +127,20 @@
 //	        // prefix token followed immediately by
 //	        // current.
 //
-//	        line_variables->paragraph =
-//	            line_variables->
-//	                indentation_paragraph
-//	        line_variables->implied_paragraph =
-//	            line_variables->
-//	                indentation_implied_paragraph
-//	        line_variables->current =
-//	            line_variables->paragraph
+//		if line_variables->prevous->next->
+//		       value_type == `reset':
+//	           line_variables->paragraph =
+//	               line_variables->
+//	                   indentation_paragraph
+//	           line_variables->implied_paragraph =
+//	               line_variables->
+//	                   indentation_implied_paragraph
+//	           line_variables->current =
+//	               line_variables->paragraph
 //
-//	        remove prefix token (which has `reset'
-//	               group)
+//	           remove prefix token (which has
+//	                  `reset' group)
+//	           parser->at_paragraph_beginning = true
 //
 //		scan to indent or end-of-file at end of
 //		     logical line, using line_
@@ -613,8 +616,8 @@
 //     //	separator_found
 //     // 	premature_closing
 //
-//     require prefix->type to be PREFIX, IMPLIED_
-//             PREFIX, or IMPLIED_HEADER
+//     require prefix->type to be PREFIX, MAPPED_PREFIX,
+//             IMPLIED_PREFIX, or IMPLIED_HEADER
 //
 //     // At this point prefix->next == current OR
 //     // premature_closing is true, current is beyond
@@ -642,14 +645,14 @@
 //                     ning position
 //                 delete prefix token
 //                 goto FINISH_PREFIX
-//            prefix->value_type = prefix_entry
+//            prefix->value_type = `reset'
 //            return ISOLATED_HEADER
 //                // Note: we may be returning to scan
 //                // of IMPLIED_PREFIX/HEADER prefix-n-
-//                // list, which on seeing an empty list
-//                // will delete the IMPLIED_PREFIX/
-//                // HEADER and return ISOLATED_HEADER
-//                // to its caller.
+//                // list, which on seeing ISOLATED_
+//                // HEADER returned, will delete the
+//                // IMPLIED_PREFIX/HEADER and return
+//                // ISOLATED_HEADER to its caller.
 //         if selectors contains EPREFIX_OPT or
 //                 ETPREFIX_OPT or if selectors contains
 //                 EHEADER_OPT and prefix_group is

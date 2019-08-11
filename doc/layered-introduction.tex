@@ -6820,7 +6820,8 @@ headed paragraph.  Such a sequence ends (1) just before a logical
 line in paragraph beginning position if the \TT{options} current line
 variable does \underline{not} have the `\TT{continuing}' option, or
 (2) just before a logical line that begins with an explicit paragraph
-header, or (3) just before the end of the current indented paragraph
+header (such a line must be in paragraph beginning position),
+or (3) just before the end of the current indented paragraph
 or, at top level, the end of file.
 
 \item\label{CONTINUING-RULE}
@@ -6836,11 +6837,12 @@ specifically, the
 \TT{options}, and \TT{para\-graph/\EOL line lexical master}
 current line variables.
 
-\item If the \TT{implied\_header} current line variable value is not missing,
+\item\label{IMPLIED-HEADER-PARSING}
+If the \TT{implied\_header} current line variable value is not missing,
 the bracket type definition for this is looked up (using selectors now
 equal to the \TT{selectors} current line variable).
 The bracket type definition must exist and have either the `\TT{paragraph}' or
-`\TT{line}' group.
+`\TT{line}' group.  Note that an isolated header cannot be implied.
 
 The \TT{implied\_header} is treated as missing unless one of the
 following options is present in the \TT{options} current line variable:
@@ -6864,32 +6866,24 @@ in its bracket type definition are used to
 modify the current selectors and options.
 In addition, if the implied header has `\TT{paragraph}' group,
 the new selectors and options are stored in the current line
-variable selectors and options,
-the lexical masters of the implied header's bracket type definition
-are stored in the current line variable lexical masters, and
+variable selectors and options, and
 the implied subprefix of the bracket type definition is stored in
-the current line variable implied header variable.
+the current line variable implied header variable if it has the
+`\TT{line}' group when its bracket type is looked up with the
+new selectors current line variable value (this implied subprefix
+will also be inserted after the implied paragraph header in its
+logical line).
 These new current line variable values are used for subsequent lines
 until the current line variables are reset from the paragraph line
 variables (e.g., at beginning of the next logical line that is
 in paragraph beginning position).
-
-If the above resets the implied header current line variable to a non-missing
-value, that value must have the `\TT{line}' group when its bracket definition
-is looked up using the new selectors current line variable value.
-As this new implied header current line variable value
-is also the implied subprefix of the implied paragraph header that
-has just been inserted at the beginning of the current logical line, it will
-also be inserted as an implied subprefix just after the inserted implied
-paragraph header and treated as an implied line header of the current
-logical line.
 
 \item\label{EXPLICIT-HEADER-PARSING}
 
 The first part of the rest of the logical line is then parsed.
 If it begins with a prefix that has a bracket type definition with either
 the `\TT{paragraph}', `\TT{line}', or `\TT{reset}' group,
-then that is an explicit, paragraph, line, or reset header.
+then that is an explicit paragraph, line, or reset header.
 
 If an explicit paragraph or reset
 header is found immediately after implied headers,
@@ -6940,6 +6934,8 @@ If an explicit paragraph header sets
 the `\ttkey{sticky}' option flag,\label{STICKY-RULE}
 then the \TT{paragraph im\-pli\-ed header} is set to
 a copy of the explicit paragraph header.
+Note that an isolated header cannot be implied and therefore
+cannot be sticky.
 
 If the explicit paragraph header does \underline{not}
 set the `\TT{sticky}' option flag, then

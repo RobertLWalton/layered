@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  2 15:59:54 EDT 2019
+// Date:	Sat Aug 10 22:22:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -809,11 +809,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PARLEX::continuing ) );
-	MIN_REQUIRE
-	    (    PAR::RESET_OPT
-	      == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			PARLEX::reset ) );
 
 	while ( parser->selector_name_table->length
 	        < SELECTOR_OFFSET )

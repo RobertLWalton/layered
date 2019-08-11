@@ -608,22 +608,41 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
     define bracket type "Y" [code]
         with parsing selectors [+ text]
         with group ajax
+    define bracket type "Z" [math]
+        with parsing selectors [code]
+        with implied subprefix {X: y = 5, z = hi there}
+        with line lexical master "DEFAULT"
+        with parsing options [end at indent]
+        with group paragraph
 ERROR: in lines ###-###: `with parsing options' not allowed for prefix
        unless prefix group is `paragraph'; options ignored:
-    define bracket type "Z" [math]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    define bracket type "Z1" [math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with implied subprefix {X: y = 5, z = hi there}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with lexical master "DEFAULT"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with line lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing options [end at indent]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    define bracket type "Z" [math]
+ERROR: in lines ###-###: `with line lexical master' not allowed for
+       prefix unless prefix group is `paragraph'; line lexical master
+       ignored:
+    define bracket type "Z1" [math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {X: y = 5, z = hi there}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with line lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing options [end at indent]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    define bracket type "Z1" [math]
         with parsing selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
-        with lexical master "DEFAULT"
+        with line lexical master "DEFAULT"
         with parsing options [end at indent]
     print bracket type ""
         block BLOCK1: bracket type "X" [code]
@@ -633,9 +652,15 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
                       with group ajax
         block BLOCK1: bracket type "Z" [math]
                       with parsing selectors [code]
+                      with parsing options [end at indent]
+                      with group paragraph
                       with implied subprefix
                       {X: y = "5", z = [< "hi" "there" >]||X}
-                      with lexical master "DEFAULT"
+                      with line lexical master "DEFAULT"
+        block BLOCK1: bracket type "Z1" [math]
+                      with parsing selectors [code]
+                      with implied subprefix
+                      {X: y = "5", z = [< "hi" "there" >]||X}
     print bracket type "X"
         block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]

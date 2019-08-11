@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  5 04:13:23 EDT 2019
+// Date:	Sat Aug 10 22:24:41 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -633,7 +633,6 @@ struct bracket_type_struct
     min::gen implied_subprefix_type;
         // This is just a cache of the .type of
 	// the implied prefix, or MISSING if none.
-    min::uns32 paragraph_lexical_master;
     min::uns32 line_lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
     ll::parser::reformatter reformatter;
@@ -673,7 +672,6 @@ void push_bracket_type
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
-	  min::uns32 paragraph_lexical_master,
 	  min::uns32 line_lexical_master,
 	      // May be ll::lexeme::MISSING_MASTER
 	  ll::parser::reformatter reformatter,

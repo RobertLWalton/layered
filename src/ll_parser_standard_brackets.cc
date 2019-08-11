@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 14:21:57 EDT 2019
+// Date:	Sat Aug 10 22:35:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -350,7 +350,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
 	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
 	  PAR::find_reformatter
 	      ( data_name,
 	        BRA::bracket_type_reformatter_stack ),
@@ -370,7 +369,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PARLEX::line,   // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
-	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  PAR::find_reformatter
 	      ( data_name,
@@ -397,7 +395,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PARLEX::paragraph,
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
-	  PAR::MISSING_MASTER,
 	  row_lexical_master,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
@@ -413,7 +410,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::MISSING(),
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
 	  bracketed_pass->bracket_type_table );
@@ -427,7 +423,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PARLEX::reset,
 	  min::MISSING(),
 	  min::MISSING(),
-	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
@@ -465,7 +460,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  implied_s_header,
 	  s,
 	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
 	  bracketed_pass->bracket_type_table );
@@ -488,7 +482,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  implied_s_header,
 	  s,
 	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
 	  bracketed_pass->bracket_type_table );
@@ -510,7 +503,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  PARLEX::paragraph,
 	  implied_s_header,
 	  s,
-	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
@@ -542,7 +534,6 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  min::MISSING(), // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type
-	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
 	  PAR::find_reformatter
 	      ( sentence,

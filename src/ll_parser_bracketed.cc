@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 14:17:13 EDT 2019
+// Date:	Sat Aug 10 22:33:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -597,7 +597,6 @@ void BRA::push_bracket_type
 	  min::gen group,
 	  min::gen implied_subprefix,
 	  min::gen implied_subprefix_type,
-	  min::uns32 paragraph_lexical_master,
 	  min::uns32 line_lexical_master,
 	  ll::parser::reformatter reformatter,
 	  ll::parser::reformatter_arguments
@@ -629,8 +628,6 @@ void BRA::push_bracket_type
         implied_subprefix;
     implied_subprefix_type_ref(bracket_type) =
         implied_subprefix_type;
-    bracket_type->paragraph_lexical_master =
-        paragraph_lexical_master;
     bracket_type->line_lexical_master =
         line_lexical_master;
     reformatter_ref(bracket_type) = reformatter;
@@ -2491,9 +2488,6 @@ PARSE_PREFIX_N_LIST:
 
 		BRA::line_data & line_data =
 		    line_variables->current;
-		line_data.paragraph_lexical_master =
-		    prefix_entry->
-		        paragraph_lexical_master;
 		line_data.line_lexical_master =
 		    prefix_entry->line_lexical_master;
 		line_data.selectors =
@@ -2576,7 +2570,8 @@ PARSE_PREFIX_N_LIST:
 		      indentation_implied_paragraph;
 		}
 
-		if (    prefix_entry->line_lexical_master
+		if (    prefix_entry->
+		            line_lexical_master
 		     != PAR::MISSING_MASTER
 		     &&
 		     prefix->type == PAR::PREFIX )
@@ -6283,8 +6278,7 @@ static min::gen bracketed_pass_command
 
 		COM::print_lexical_master
 		    ( parser,
-		      bracket_type->
-		          paragraph_lexical_master,
+		      PAR::MISSING_MASTER,
 		      bracket_type->
 		          line_lexical_master );
 
@@ -7077,12 +7071,24 @@ static min::gen bracketed_pass_command
 	    if ( COM::is_lexical_master
 	             ( vp, i, size ) )
 	    {
+		int j = i;
 	        if (    COM::get_lexical_master
 			   ( parser, vp, ppvec, i,
 			     paragraph_lexical_master,
 			     line_lexical_master )
 		     == min::ERROR() )
 		    return min::ERROR();
+		if (    paragraph_lexical_master
+		     != PAR::MISSING_MASTER )
+		{
+		    min::phrase_position pos =
+		        { (& ppvec[j])->begin,
+			  (& ppvec[i-1])->end };
+		    return PAR::parse_error
+			( parser, pos,
+			  "paragraph lexical master"
+			  " may NOT be given" );
+		}
 	    }
 	    else if ( i < size )
 	    {
@@ -7202,6 +7208,19 @@ static min::gen bracketed_pass_command
 		  " for prefix unless prefix group is"
 		  " `paragraph'; options ignored" );
 
+	if ( line_lexical_master != PAR::MISSING_MASTER
+	     &&
+	     group != PARLEX::paragraph )
+	{
+	    PAR::parse_error
+		( parser, ppvec->position,
+		  "`with line lexical master' not"
+		  " allowed for prefix unless prefix"
+		  " group is `paragraph'; line lexical"
+		  " master ignored" );
+	    line_lexical_master = PAR::MISSING_MASTER;
+	}
+
 	BRA::push_bracket_type
 	    ( name[0], selectors,
 	      PAR::block_level ( parser ),
@@ -7210,7 +7229,6 @@ static min::gen bracketed_pass_command
 	      group,
 	      implied_subprefix,
 	      implied_subprefix_type,
-	      paragraph_lexical_master,
 	      line_lexical_master,
 	      reformatter,
 	      reformatter_arguments,

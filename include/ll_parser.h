@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 05:33:43 EDT 2019
+// Date:	Sat Aug 10 22:22:23 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -981,7 +981,6 @@ enum {
     EHEADER_OPT				= 1ull << 9,
     STICKY_OPT				= 1ull << 10,
     CONTINUING_OPT			= 1ull << 11,
-    RESET_OPT				= 1ull << 12,
 
     ALL_EA_OPT    = EAINDENT_OPT
 	          + EALEINDENT_OPT

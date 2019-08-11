@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 03:59:34 EDT 2019
+// Date:	Sat Aug 10 22:46:44 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -217,7 +217,13 @@ third line with indent 0
     define bracket type "Z" [math]
         with parsing selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
-        with lexical master "DEFAULT"
+        with line lexical master "DEFAULT"
+        with parsing options [end at indent]
+	with group paragraph
+    define bracket type "Z1" [math]
+        with parsing selectors [code]
+        with implied subprefix {X: y = 5, z = hi there}
+        with line lexical master "DEFAULT"
         with parsing options [end at indent]
     print bracket type ""
     print bracket type "X"

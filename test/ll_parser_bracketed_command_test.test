@@ -614,8 +614,8 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
         with line lexical master "DEFAULT"
         with parsing options [end at indent]
         with group paragraph
-ERROR: in lines ###-###: `with parsing options' not allowed for prefix
-       unless prefix group is `paragraph'; options ignored:
+ERROR: in lines ###-###: `with parsing options' not allowed for bracket
+       type unless group is `paragraph'; options ignored:
     define bracket type "Z1" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
@@ -627,7 +627,7 @@ ERROR: in lines ###-###: `with parsing options' not allowed for prefix
         with parsing options [end at indent]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in lines ###-###: `with line lexical master' not allowed for
-       prefix unless prefix group is `paragraph'; line lexical master
+       bracket type unless group is `paragraph'; line lexical master
        ignored:
     define bracket type "Z1" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -644,7 +644,72 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with implied subprefix {X: y = 5, z = hi there}
         with line lexical master "DEFAULT"
         with parsing options [end at indent]
+ERROR: in lines ###-###: `with parsing selectors' not allowed for
+       bracket type with group `reset'; selectors ignored:
+    define bracket type "R" [math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with group reset
+^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing options [end at indent]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {X: y = 5, z = hi there}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with line lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in lines ###-###: `with parsing options' not allowed for bracket
+       type unless group is `paragraph'; options ignored:
+    define bracket type "R" [math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with group reset
+^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing options [end at indent]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {X: y = 5, z = hi there}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with line lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in lines ###-###: `with implied subprefix' not allowed for
+       bracket type with group `reset'; implied subprefix ignored:
+    define bracket type "R" [math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with group reset
+^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing options [end at indent]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {X: y = 5, z = hi there}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with line lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in lines ###-###: `with line lexical master' not allowed for
+       bracket type unless group is `paragraph'; line lexical master
+       ignored:
+    define bracket type "R" [math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with group reset
+^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing selectors [code]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with parsing options [end at indent]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with implied subprefix {X: y = 5, z = hi there}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with line lexical master "DEFAULT"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    define bracket type "R" [math]
+        with group reset
+        with parsing selectors [code]
+        with parsing options [end at indent]
+        with implied subprefix {X: y = 5, z = hi there}
+        with line lexical master "DEFAULT"
     print bracket type ""
+        block BLOCK1: bracket type "R" [math]
+                      with group reset
         block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]
         block BLOCK1: bracket type "Y" [code]

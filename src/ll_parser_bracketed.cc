@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 22:33:53 EDT 2019
+// Date:	Sat Aug 10 23:18:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7192,21 +7192,51 @@ static min::gen bracketed_pass_command
 		( parser, ppvec[i-1],
 		  "unexpected stuff after" );
 
-	if ( group == PARLEX::paragraph )
+	if (    TAB::all_flags ( new_selectors ) != 0
+	     && group == PARLEX::reset )
 	{
-	    new_selectors.or_flags |=
-		new_options.or_flags;
-	    new_selectors.not_flags |=
-		new_options.not_flags;
-	    new_selectors.xor_flags |=
-		new_options.xor_flags;
+	    PAR::parse_error
+		( parser, ppvec->position,
+		  "`with parsing selectors' not allowed"
+		  " for bracket type with group"
+		  " `reset'; selectors ignored" );
+	    new_selectors = TAB::new_flags ( 0, 0, 0 );
 	}
-	else if ( TAB::all_flags ( new_options ) != 0 )
+
+	if (    TAB::all_flags ( new_options ) != 0
+	     && group != PARLEX::paragraph )
+	{
 	    PAR::parse_error
 		( parser, ppvec->position,
 		  "`with parsing options' not allowed"
-		  " for prefix unless prefix group is"
+		  " for bracket type unless group is"
 		  " `paragraph'; options ignored" );
+	    new_options = TAB::new_flags ( 0, 0, 0 );
+	}
+
+	if (    implied_subprefix != min::MISSING()
+	     && group == PARLEX::reset )
+	{
+	    PAR::parse_error
+		( parser, ppvec->position,
+		  "`with implied subprefix' not allowed"
+		  " for bracket type with group"
+		  " `reset'; implied subprefix ignored"
+		);
+	    implied_subprefix = min::MISSING();
+	}
+
+	if (    reformatter != min::NULL_STUB
+	     && group == PARLEX::reset )
+	{
+	    PAR::parse_error
+		( parser, ppvec->position,
+		  "`with ... reformatter' not allowed"
+		  " for bracket type with group"
+		  " `reset'; reformatter ignored"
+		);
+	    reformatter = min::NULL_STUB;
+	}
 
 	if ( line_lexical_master != PAR::MISSING_MASTER
 	     &&
@@ -7215,11 +7245,18 @@ static min::gen bracketed_pass_command
 	    PAR::parse_error
 		( parser, ppvec->position,
 		  "`with line lexical master' not"
-		  " allowed for prefix unless prefix"
+		  " allowed for bracket type unless"
 		  " group is `paragraph'; line lexical"
 		  " master ignored" );
 	    line_lexical_master = PAR::MISSING_MASTER;
 	}
+
+	new_selectors.or_flags |=
+	    new_options.or_flags;
+	new_selectors.not_flags |=
+	    new_options.not_flags;
+	new_selectors.xor_flags |=
+	    new_options.xor_flags;
 
 	BRA::push_bracket_type
 	    ( name[0], selectors,

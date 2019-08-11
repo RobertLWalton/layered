@@ -6919,15 +6919,17 @@ definition is looked up with the new selectors current line variable.
 
 If an isolated paragraph header is found, the header's bracket type
 definition modifies the current line variables selectors, options,
-line lexical master, and implied header.
+line lexical master, and implied header.  Since an isolated header
+must be on a logical line by itself, processing proceeds to the next
+logical line.
 
 If a reset header is found,\label{RESET-RULE}
 the selectors, options, and line variables are just restored
 to the values they were set to by the current indentation mark
 definition or top level definition.
 Then the reset header is
-deleted, and its line is treated as a blank line, so the next line is
-in paragraph beginning position.
+deleted, and its line is treated as a blank line, so the following
+logical line is in paragraph beginning position.
 
 \item
 If an explicit paragraph header sets
@@ -6947,7 +6949,7 @@ or to missing if the logical line is top level.
 \item
 
 The remainder of the logical line is then parsed.
-If the logical line is empty except for implied headers, the
+If the logical line is empty except for implied headers, any
 implied headers are deleted and the logical line is deleted.
 
 \end{enumerate}

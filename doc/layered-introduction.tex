@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 10, 2019
+August 11, 2019
  
 \end{center}
 
@@ -6813,20 +6813,21 @@ Logical line processing is as follows:
 
 \begin{enumerate}
 
+\item
+A sequence of logical lines whose first line (and only the first line)
+is a logical line prefixed by a paragraph header is collected into a
+headed paragraph.  Such a sequence ends (1) just before a logical
+line in paragraph beginning position if the \TT{options} current line
+variable does \underline{not} have the `\TT{continuing}' option, or
+(2) just before a logical line that begins with an explicit paragraph
+header, or (3) just before the end of the current indented paragraph
+or, at top level, the end of file.
+
 \item\label{CONTINUING-RULE}
-If the logical line is in paragraph beginning position and the
+If a logical line is in paragraph beginning position and the
 \TT{options} current line variable does not have the `\TT{continuing}'
 option, then the paragraph line variables are copied
 to the corresponding current line variables.
-
-If the logical line is in paragraph beginning position and is also
-preceeded by a sequence of logical lines prefixed by a
-paragraph header, the logical lines in this sequence (but not the
-current logical line) are collected into a paragraph
-headed by the paragraph header, unless the \TT{options} current line
-variable has the `\TT{continuing}' option \underline{and}
-the current logical line does \underline{not}
-begin with an explicit paragraph header.
 
 \item The parsing selectors, options, and lexical master used at the
 beginning of the logical line are set from the current line variables,
@@ -6849,13 +6850,13 @@ following options is present in the \TT{options} current line variable:
 \TT{enable header} \\
 \end{center}
 
-If the \TT{implied\_header} has the `\TT{paragraph}' group and the
-logical line is \underline{not} in paragraph beginning position,
-an error is announced and the \TT{implied\_\EOL header} is treated as missing.
-
 If the bracket type definition has the `\TT{paragraph}' group, the
 implied prefix is an implied paragraph header.  If it has the `\TT{line}' group,
 the implied prefix is an implied line header.
+
+If the \TT{implied\_header} has the `\TT{paragraph}' group and the
+logical line is \underline{not} in paragraph beginning position,
+an error is announced and the \TT{implied\_\EOL header} is treated as missing.
 
 A non-missing implied header is inserted at the beginning of the logical line.
 Then the parsing selectors and parsing options

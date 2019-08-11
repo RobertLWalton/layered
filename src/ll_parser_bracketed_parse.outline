@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 21:53:35 EDT 2019
+// Date:	Sun Aug 11 15:03:35 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,7 +83,6 @@
 //	          set parser lexical master to
 //	              lexical_master
 //
-//	       line_variables->at_paragraph_indent =
 //	       if    current->indent
 //	          == line_variables->paragraph_indent:
 //	           line_variables->
@@ -102,10 +101,6 @@
 //
 //	       move current to next token and delete
 //	            indent token
-//
-//	   else:
-//	       line_variables->at_paragraph_indent =
-//	           false
 //
 //	   selectors = line_variables->current.selectors
 //	       // Save selectors for compact_logical_

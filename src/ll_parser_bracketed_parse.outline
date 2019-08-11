@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_bracketed_parse.outline
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 17:16:31 EDT 2019
+// Date:	Sat Aug 10 21:53:35 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,10 +95,10 @@
 //	       else if   current->indent
 //	               > line_variables->
 //	                     paragraph_indent:
-//	           announce warning message that logical
-//	                    line begins at an indent
-//	                    that is greater than the
-//	                    current paragraph indent
+//	           announce warning: logical line begins
+//	                    at an indent that is greater
+//	                    than the current paragraph
+//	                    indent
 //
 //	       move current to next token and delete
 //	            indent token
@@ -639,10 +639,10 @@
 //               HEADERs or IMPLIED_PREFIXes, or if
 //               not line_variables->at_paragraph_
 //               beginning:
-//                 announce that prefix with `reset'
+//                 announce error: prefix with `reset'
 //                     group is not at beginning of
 //                     logical line in paragrah begin-
-//                     ning position
+//                     ning position; prefix ignored
 //                 delete prefix token
 //                 goto FINISH_PREFIX
 //            prefix->value_type = `reset'
@@ -1130,6 +1130,15 @@
 //
 //	           if group == `paragraph'
 //	                   and first_time:
+//	               if header_entry->
+//	                         line_lexical_master
+//	                         is not MISSING_MASTER:
+//	                   announce error: indentation
+//	                            mark implied header
+//	                            cannot be isolated
+//	                            header; implied
+//	                            header ignored
+//	                   break implied_header loop
 //	               set line_variables
 //	                   .indentation_paragraph
 //	                       .implied_header =
@@ -1138,15 +1147,6 @@
 //	                           header_entry
 //	                       .header_selectors =
 //	                           header_selectors
-//	               set line_variables.indentation_
-//	                                  implied_
-//	                                  paragraph
-//	                   .paragraph_lexical_master =
-//	                     header_entry->
-//	                       paragraph_lexical_master
-//	                   .line_lexical_master =
-//	                     header_entry->
-//	                       line_lexical_master
 //
 //	               implied_header =
 //	                   header_entry->
@@ -1179,7 +1179,7 @@
 //	               break implied_header loop
 //
 //	           else if first_time:
-//	               announce that indentation mark
+//	               announce error: indentation mark
 //	                   implied header does not have
 //	                   `paragraph' or `line' group;
 //	                   cannot begin indented lines;
@@ -1187,7 +1187,7 @@
 //	               break implied_header loop
 //	           else:
 //	               // Implied subprefix of paragraph
-//	               // header is OK.
+//	               // or line header is OK.
 //	               //
 //	               break implied_header loop
 //
@@ -1282,8 +1282,8 @@
 //     parser->at_paragraph_beginning = false
 //
 //     if bad_comment_position.begin is non-MISSING:
-//        announce comment after indent that begins
-//                 non-comment logical line
+//        announce warning: comment after indent that
+//                 begins non-comment logical line
 //        set bad_comment_position.begin = MISSING
 //
 //     if current token is quoted string:
@@ -1333,7 +1333,8 @@
 //                current to following token
 //        go to NEXT_TOKEN
 //
-//     if current token is PREFIX token:
+//     if current token is PREFIX or MAPPED_PREFIX
+//                         token:
 //
 //        prefix = current
 //        current = current->next
@@ -1865,9 +1866,8 @@
 //	               current->previous
 //
 //	       else:
-//	           announce typed attribute begin to be
-//	               a punctuation error that is
-//	               ignored
+//	           announce error: typed attribute begin
+//	               is a punctuation error; ignored
 //	           remove it
 //
 //             go to NEXT_TOKEN
@@ -1886,7 +1886,7 @@
 //                      typed attribute negator:
 //                 if previous typed key is typed
 //                             attribute negator:
-//                     announce that negator is being
+//                     announce error: negator is being
 //                              ignored
 //                 make_attribute_label
 //                     ( typed_data,
@@ -1909,8 +1909,8 @@
 //	               current->previous
 //
 //	       else:
-//	           announce typed attribute equal to be
-//	           a punctuation error that is ignored,
+//	           announce error: typed attribute equal
+//	           is a punctuation error that is ignored,
 //	           and remove it
 //
 //             go to NEXT_TOKEN
@@ -1937,9 +1937,9 @@
 //	           typed_data->start_previous =
 //	               current->previous
 //
-//	       else announce typed attribute separator
-//	            to be a a punctuation error that is
-//	            ignored, and remove it
+//	       else announce error: typed attribute
+//	            separator is a punctuation error
+//	            that is ignored, and remove it
 //
 //             go to NEXT_TOKEN
 //

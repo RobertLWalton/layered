@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 28 19:25:11 EST 2015
+// Date:	Fri Aug 23 04:54:18 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,6 +56,13 @@ OP::oper_pass PARSTD::init_oper
 
     oper_pass->selectors = code | math | data;
 
+    min::locatable_gen arrow
+        ( min::new_str_gen ( "<--" ) );
+    min::locatable_gen declare
+        ( min::new_str_gen ( "declare" ) );
+    min::locatable_gen colon
+        ( min::new_str_gen ( ":" ) );
+
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );
 
@@ -104,6 +111,30 @@ OP::oper_pass PARSTD::init_oper
 
     min::uns32 block_level =
         PAR::block_level ( parser );
+
+    OP::push_oper
+        ( arrow,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  0,
+	  PAR::find_reformatter
+	      ( declare,
+	        OP::reformatter_stack ),
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( colon,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX + OP::AFIX,
+	  0,
+	  min::NULL_STUB, min::NULL_STUB,
+	  oper_pass->oper_bracket_table );
+
     OP::push_oper
         ( comma,
 	  min::MISSING(),

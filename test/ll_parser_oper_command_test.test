@@ -736,7 +736,8 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
         with declare reformatter
     define operator bracket "{{" ... "}}" [code] afix
         with precedence 0
-    define operator indentation mark ":" [code] afix
+    define operator indentation mark ":" [code]
+        postfix afix
         with precedence 0
 ======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
                           .initiator = "("|<-- {|foo bar|} {|boo bat|}
@@ -959,8 +960,8 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
                         infix
                         with precedence 1000
                         with right associative reformatter
-        block standard: bracket ":" ... [$ MISSING $] [code]
-                        afix
+        block standard: bracket ":" [code]
+                        postfix afix
                         with precedence 0
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >] [code]
                         afix

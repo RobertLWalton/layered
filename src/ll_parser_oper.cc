@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 05:45:23 EDT 2019
+// Date:	Fri Aug 23 05:06:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1552,11 +1552,15 @@ void static print_op
 	    << "operator "
 	    << min::pgen_quote ( op->label );
     else if ( table_type == ::BRACKET )
+    {
 	parser->printer
 	    << "bracket "
-	    << min::pgen_quote ( op->label )
-	    << " ... "
-	    << min::pgen_quote ( op->terminator );
+	    << min::pgen_quote ( op->label );
+	if ( op->terminator != min::MISSING() )
+	    parser->printer
+		<< " ... "
+		<< min::pgen_quote ( op->terminator );
+    }
 
     parser->printer
 	<< " " << min::set_break;

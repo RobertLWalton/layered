@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 11, 2019
+August 23, 2019
  
 \end{center}
 
@@ -7102,6 +7102,9 @@ are defined by operator definitions that can be added to the
 parsing definition stack.  List separators, such as `\TT{,}', are treated
 as operators, and have operator definitions.
 
+\subsubsection{Operator Commands}
+\label{OPERATOR-COMMANDS}
+
 {\em Parser-operator-commands} modify and print
 the parsing definition stack:
 
@@ -7113,20 +7116,6 @@ the parsing definition stack:
     \end{tabular}
 \label{PARSER-OPERATOR-COMMAND}
 \end{indpar}
-
-\subsubsection{Operator Definitions}
-\label{OPERATOR-DEFINITION}
-
-An \key{operator definition} specifies for each operator the following:
-
-\begin{indpar}[1in]
-Name and Selectors \\
-Precedence \\
-Operator Flags \\
-Reformatter
-\end{indpar}
-
-The syntax of operator definitions is:
 
 \begin{indpar}[0.1in]
 \emkey{parser-operator-definition} \\
@@ -7174,6 +7163,27 @@ The syntax of operator definitions is:
 	\\[1ex]
 \emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
 \emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}
+\end{indpar}
+
+\begin{indpar}[0.1in]
+\emkey{parser-print-operator-command}%
+\label{PARSER-PRINT-OPERATOR-COMMAND}
+\\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmkey{print operator}{parser command}
+	  {\em partial-operator-name} \\
+    \end{tabular} \\[1ex]
+\emkey{partial-operator-name} ::= {\em quoted-key}
+\end{indpar}
+
+An \key{operator definition} specifies for each operator the following:
+
+\begin{indpar}[1in]
+Name and Selectors \\
+Precedence \\
+Operator Flags \\
+Reformatter
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
@@ -7279,30 +7289,15 @@ function.  For example, the `\TT{summation}' reformatter takes two
 arguments, `\TT{(} {\em plus-op}\TT{,} {\em minus-op} \TT{)}', which
 are usually `\TT{("+","-")}'.
 
-\subsubsection{The Print Operator Command}
-
-A {\em parser-print-operator-command} has the syntax:
-
-\begin{indpar}
-\emkey{parser-print-operator-command}%
-\label{PARSER-PRINT-OPERATOR-COMMAND}
-\\
-    \hspace*{0.2in}
-    \begin{tabular}[t]{rl}
-    ::= & \ttmkey{print operator}{parser command}
-	  {\em partial-name} \\
-    \end{tabular}
-\end{indpar}
-
-All operator symbol table entries are printed whose first name
-component includes the {\em partial-name}, where the first name
-component is one of
-\begin{indpar}
-\em
-simple-operator-name \\
-opening-bracket-name \\
-indentation-mark-name
-\end{indpar}
+A {\em parser-print-operator-command}
+prints all operator table entries whose
+{\em simple-operator-name},
+{\em opening-bracket-name}, or
+{\em indentation-mark-name}
+contains the {\em partial-operator-name}
+as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
+a {\em partial-operator-name} will print all operator
+symbol table entries.
 
 
 \subsubsection{Standard Operators}

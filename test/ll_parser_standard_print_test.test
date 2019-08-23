@@ -185,3 +185,59 @@
                         with group line
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
+    print operator ""
+        block standard: operator "," [data, code, math]
+                        nofix
+                        with precedence 4000
+                        with separator reformatter ( "," )
+        block standard: operator "<" [code, math]
+                        infix
+                        with precedence 15000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "=" [code, math]
+                        infix
+                        with precedence 9000
+                        with right associative reformatter
+        block standard: operator ">" [code, math]
+                        infix
+                        with precedence 15000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "!=" [code, math]
+                        infix
+                        with precedence 15000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "<--" [code, math]
+                        nofix
+                        with precedence 0
+                        with declare reformatter
+        block standard: operator "*=" [code, math]
+                        infix
+                        with precedence 9000
+                        with right associative reformatter
+        block standard: operator "+=" [code, math]
+                        infix
+                        with precedence 9000
+                        with right associative reformatter
+        block standard: operator "<=" [code, math]
+                        infix
+                        with precedence 15000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "==" [code, math]
+                        infix
+                        with precedence 15000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "-=" [code, math]
+                        infix
+                        with precedence 9000
+                        with right associative reformatter
+        block standard: operator ">=" [code, math]
+                        infix
+                        with precedence 15000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "/=" [code, math]
+                        infix
+                        with precedence 9000
+                        with right associative reformatter
+        block standard: bracket ":" [code, math]
+                        postfix afix
+                        with precedence 0

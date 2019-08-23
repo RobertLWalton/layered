@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 01:07:08 EST 2017
+// Date:	Fri Aug 23 05:29:01 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -210,7 +210,8 @@
         with declare reformatter
     define operator bracket "{{" ... "}}" [code] afix
         with precedence 0
-    define operator indentation mark ":" [code] afix
+    define operator indentation mark ":" [code]
+        postfix afix
         with precedence 0
 *PARSER* *TEST*:
     ( foo bar <-- boo bat {{ fee fie fo fum }} )

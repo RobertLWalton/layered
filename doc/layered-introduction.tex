@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 23, 2019
+August 25, 2019
  
 \end{center}
 
@@ -7157,7 +7157,8 @@ the parsing definition stack:
                     $|$ \ttmkey{nofix}{operator flag}
                     $|$ \ttmkey{afix}{operator flag}
 	\\[1ex]
-\emkey{precedence} ::= {\em sign-option} ~ {\em natural-number}
+\emkey{precedence} :::= {\em sign-option} {\em natural-number}
+	in the range [-1,000,000, +1,000,000]
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \TT{+} $|$ \TT{-}
 	\\[1ex]
@@ -7181,7 +7182,7 @@ An \key{operator definition} specifies for each operator the following:
 
 \begin{indpar}[1in]
 Name and Selectors \\
-Precedence \\
+Precedence [for infix and nofix operators] \\
 Operator Flags \\
 Reformatter
 \end{indpar}
@@ -7190,11 +7191,11 @@ A {\em simple-operator-name} is matched to lexemes in a subexpression
 in order to identify occurrences of the operator.
 The other forms of {\em operator-name} permit bracketed subexpressions
 with particular kinds of brackets to be parsed as if they were operators.
-Thus in `\TT{x[5]=0}' the bracketed subexpression
+Thus in `\TT{x[5] = 0}' the bracketed subexpression
 `\TT{[5]}' can be a postfix operator.  A subexpression
 bracketed by `\TT{\{ \}}' is used as an afix (see below) to the
-\TT{<-{}-} operator (as is a subexpression introduced by the `\TT{:}'
-indentation mark).
+\TT{<-{}-} operator, as is a subexpression introduced by the `\TT{:}'
+indentation mark.
 
 By abuse of language, the term `\key{operator}' is often used
 as a synonym for `{\em simple-operator-name}'.
@@ -7235,30 +7236,34 @@ and \underline{not} as
 \end{center}
 
 An\label{FIXITY-RULES}
-operator must be prefix, infix, postfix, nofix, or afix.
-A prefix operator may also be infix or postfix, but may not be afix.
-An infix operator may also be prefix or afix, but not postfix.
-An postfix operator may also be prefix or afix, but not infix.
-A nofix operator may afix, but not prefix, infix, or postfix.
+operator must be prefix, infix, postfix, or nofix.
+An operator may be any two of prefix, infix, and postfix, but
+not all three.  A non-prefix operator may be afix.
 
 This can be summarized in the following compatibility table:
 
 \begin{center}
-\begin{tabular}{|c|c|c|c|l}
-\cline{1-4}
-infix  & postfix & nofix & afix & \\
+\begin{tabular}{lc|c|c|c|c|}
+	& \multicolumn{5}{c}{is compatible with op} \\
+\cline{2-6}
+\multicolumn{1}{l|}{op} &
+prefix	& infix	& postfix & nofix & afix \\
 \hline
-yes    & yes     & no    & yes   &  \multicolumn{1}{|l|}{prefix} \\
-\cline{1-5}
-\multicolumn{1}{c|}{}
-       & no      & no    & yes   &  \multicolumn{1}{|l|}{infix} \\
-\cline{2-5}
-\multicolumn{2}{c|}{}
-                 & no    & yes   &  \multicolumn{1}{|l|}{postfix} \\
-\cline{3-5}
-\multicolumn{3}{c|}{}
-                         & yes   &  \multicolumn{1}{|l|}{nofix} \\
-\cline{4-5}
+\multicolumn{1}{|l|}{prefix} &
+	& yes	& yes	& no	& no	\\
+\hline
+\multicolumn{1}{|l|}{infix} &
+yes	&	& yes	& no	& yes	\\
+\hline
+\multicolumn{1}{|l|}{postfix} &
+yes	& yes	&	& no	& yes	\\
+\hline
+\multicolumn{1}{|l|}{nofix} &
+no	& no	& no	&	& yes	\\
+\hline
+\multicolumn{1}{|l|}{afix} &
+no	& yes	& yes	& yes	&	\\
+\hline
 \end{tabular}
 \end{center}
 
@@ -7270,19 +7275,23 @@ Implicit brackets are used to define subexpressions, so that all operators
 in a subexpression that are not in sub-subexpressions are of the same
 precedence.
 
+Prefix operators always have precedent +1,000,001 (second highest), and postfix
+operators always have precedence +1,000,002 (highest).  Infix and nofix
+operator have precedence given in the operator definition.
+
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
 reformat a subexpression whose first operator is the defined operator.
-For example, given the expression `\TT{-x+6*y}', the subexpression
-`\TT{6*y}' is extracted, and as its first operator is `\TT{*}',
+For example, given the expression `\TT{- x + 6 * y}', the subexpression
+`\TT{6 * y}' is extracted, and as its first operator is `\TT{*}',
 the reformatter for that operator is called and yields `\TT{* 6 y}'.
-Similarly the subexpression `\TT{-x}' is extracted but the reformatter
-for `\TT{-}' does not change `\TT{-x}'.
+Similarly the subexpression `\TT{- x}' is extracted but the reformatter
+for `\TT{-}' does not change `\TT{- x}'.
 Then the reformatter for `\TT{+}' is called
-with `\TT{[. -x .]+[. * 6 y .]}', since `\TT{+}' is the first operator in
+with `\TT{(- x) + (* 6 y)}' (where the parentheses are implied),
+since `\TT{+}' is the first operator in
 this subexpression \underline{after} subexpressions have been handled.
-This reformatter returns `\TT{+ [. -x .] [. * 6 y .]}'.  Here we have
-use parentheses \TT{[. .]} to indicate implicit parentheses.
+This reformatter returns `\TT{+ (- x) (* 6 y)}'.
 
 The optional {\em reformatter-arguments} are arguments to the reformatter
 function.  For example, the `\TT{summation}' reformatter takes two

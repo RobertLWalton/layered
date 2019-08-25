@@ -7298,6 +7298,11 @@ function.  For example, the `\TT{summation}' reformatter takes two
 arguments, `\TT{(} {\em plus-op}\TT{,} {\em minus-op} \TT{)}', which
 are usually `\TT{("+","-")}'.
 
+For an operator that is both prefix and infix, the same reformatter
+is called when the operator is prefix and when the operator is infix.
+Similarly for an operator that is both postfix and infix, or both
+prefix and postfix.
+
 A {\em parser-print-operator-command}
 prints all operator table entries whose
 {\em simple-operator-name},
@@ -7718,11 +7723,37 @@ which we call an `expression'
 and edits this input, changing it into a single token.
 To do this it performs the following steps:
 \begin{itemlist}[0.7in]
-\item[Step 1:] Identify subexpressions within the expression and run the
-operator parsing pass on these, converting them into a single
-\TT{BRACKETABLE} or lexeme token.
-\item[Step 2:] Identify operators within the expression and replace them
-with \TT{OPERATOR} tokens.
+\item[Step 1:] Identify operators within the expression and
+replace them with \TT{OPERATOR} tokens.
+
+This is done by a left to right scan of expression lexemes,
+choosing at each position the longest operator selected by
+the current parsing selectors, or skiping over the current
+lexeme if there is no operator.  Note that fixity of operators
+is ignored in the process.
+
+\item[Step 2:] Determine the fixity of operators that can be
+either prefix or infix, postfix or infix, or prefix or postfix,
+according to the rules:
+
+\begin{itemize}
+\item[(2A)]
+A sequence of operators at the beginning of the expression
+must have the form:
+\begin{center}
+\{ \em {nofix-operator}\PLUS{} \em{infix-operator} \}\STAR{}
+\em {nofix-operator}\STAR{} \em{prefix-operator}\STAR{}
+\end{center}
+where the infix operators have lower precedence than any nofix
+operators adjacent to them.
+\item[(2A)]
+A sequence of operators in the middle of the expression
+must have the form:
+\begin{center}
+TBD
+\end{center}
+\end{itemize}
+
 \item[Step 3:] If no operators were found in the expression,
 run any passes subsequent to the operator parsing pass on the expression,
 and then if the expression (after running the subsequent passes)

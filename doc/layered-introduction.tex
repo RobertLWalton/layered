@@ -7733,25 +7733,54 @@ lexeme if there is no operator.  Note that fixity of operators
 is ignored in the process.
 
 \item[Step 2:] Determine the fixity of operators that can be
-either prefix or infix, postfix or infix, or prefix or postfix,
-according to the rules:
+either prefix or infix, postfix or infix, or prefix or postfix.
+If there is a unique assignment of fixity according to the
+following rules, that assignment is used.  If there is no
+assignment, or more than one, the entire expression is
+deemed unparsable.  The rules are:
 
 \begin{itemize}
 \item[(2A)]
-A sequence of operators at the beginning of the expression
-must have the form:
-\begin{center}
-\{ \em {nofix-operator}\PLUS{} \em{infix-operator} \}\STAR{}
-\em {nofix-operator}\STAR{} \em{prefix-operator}\STAR{}
-\end{center}
-where the infix operators have lower precedence than any nofix
-operators adjacent to them.
-\item[(2A)]
-A sequence of operators in the middle of the expression
-must have the form:
-\begin{center}
-TBD
-\end{center}
+A prefix operator must be followed by a non-operator or another
+prefix operator.
+\item[(2B)]
+A prefix operator must be preceded by an infix operator, a nofix
+operator, a prefix operator, or the beginning of the expression.
+\item[(2C)]
+An infix operator must be followed by a non-operator, a prefix
+operator, or a nofix operator of greater priority than the
+infix operator.
+\item[(2D)]
+An infix operator must be preceded by a non-operator, a postfix
+operator, or a nonfix operator of greater priority than the
+infix operator.
+\item[(2E)]
+A postfix operator must be followed by an infix operator, a nofix
+operator, a postfix operator, or the end of the expression.
+\item[(2F)]
+A postfix operator must be preceded by a non-operator or another
+postfix operator.
+\end{itemize}
+
+If these rules are obeyed, then the following will be true:
+
+\begin{itemize}
+\item[(2G)]
+A nofix operator will be followed by a non-operator, a prefix
+operator, an infix operator of priority lower than the infix
+operator, or the end of the expression.
+\item[(2H)]
+A nofix operator will be preceded by a non-operator, a postfix
+operator, an infix operator of priority lower than the infix
+operator, or the beginning of the expression.
+\item[(2I)]
+A non-operator will be followed by a non-operator, a postfix
+operator, an infix operator, a nofix operator,
+or the end of the expression.
+\item[(2J)]
+A non-operator will be preceded by a non-operator, a prefix
+operator, an infix operator, a nofix operator,
+or the beginning of the expression.
 \end{itemize}
 
 \item[Step 3:] If no operators were found in the expression,

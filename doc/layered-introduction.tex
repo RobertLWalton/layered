@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 25, 2019
+August 26, 2019
  
 \end{center}
 
@@ -7721,18 +7721,44 @@ The operator parsing pass runs an
 algorithm that accepts as input a sequence of tokens
 which we call an `expression'
 and edits this input, changing it into a single token.
-To do this it performs the following steps:
+To do this it performs a left-to-right scan of the
+lexemes, performing the following steps at each position
+scanned:
 \begin{itemlist}[0.7in]
-\item[Step 1:] Identify operators within the expression and
+\item[Step 1:] Determine whether a sequence of lexemes
+beginning at the current position is an operator.  Only
+operators selected by the current parsing selectors are
+considered.  Longer operators are preferred over shorter
+operators, and amoung these operators defined later are
+preferred over operators defined earlier.
+
+Operator fixity is ignored unless the operator is
+afix.  If the operator is afix, a decision is made as to
+whether to keep the operator or effectively deselect
+is and look for other possible operators.  This decision
+is based solely on information accumulated from the scan
+before the operator: i.e., on the part of the expression
+to the left of the operator.  Details are below.
+
+If an operator is found, its lexemes are collected into
+an \TT{OPERATOR} token.  If no operator is found, the
+current position is moved one lexeme to the right.
+
+
+lexemes are an operator, choosing the longest operator
+if there are alternatives.
 replace them with \TT{OPERATOR} tokens.
 
-This is done by a left to right scan of expression lexemes,
-choosing at each position the longest operator selected by
-the current parsing selectors, or skiping over the current
-lexeme if there is no operator.  Note that fixity of operators
-is ignored in the process.
+\item[Step 2:] If an operator is found, determine its fixity.
+This determination is based on rules given below.  It is
+possible that the determination is ambiguous: e.g., the
+fixity could be infix or postfix.  If this is the case,
+each of the two possibilities corresponds to a different
+parse of the part of the expression to the left of the operator,
 
-\item[Step 2:] Determine the fixity of operators that can be
+TBD
+
+
 either prefix or infix, postfix or infix, or prefix or postfix.
 If there is a unique assignment of fixity according to the
 following rules, that assignment is used.  If there is no

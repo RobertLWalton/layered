@@ -1,3 +1,28 @@
+======= PARSER TEST: a b c
+======= line ##:
+    a b c
+    ^^^^^
+======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|AND
+                          {"": .operator = "<"|< a
+                               {"": .operator = "$"|$ 0 b|}|}
+                          {"": .operator = "<"|<
+                               {"": .operator = "$"|$ 0|} c|}|}
+======= line ##:
+    a < b < c
+    ^^^^^^^^^
+------- line ##:
+    a < b < c
+    ^^^^^
+------- line ##:
+    a < b < c
+        ^
+------- line ##:
+    a < b < c
+        ^^^^^
+------- line ##:
+    a < b < c
+        ^
 ======= PARSER TEST: [x (y) z {{u, v, w}} m (n (p))]
 ======= line ##:
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
@@ -80,9 +105,9 @@
 ======= PARSER TEST: {"": .operator = "AND", .terminator =
                           [< "}" "}" >], .initiator = [< "{" "{" >]|AND
                           {"": .operator = "<"|< x
-                               {"": .operator = "$"|$ 0 y|}|}
+                               {"": .operator = "$"|$ 1 y|}|}
                           {"": .operator = "<"|<
-                               {"": .operator = "$"|$ 0|} z|}|}
+                               {"": .operator = "$"|$ 1|} z|}|}
 ======= line ##:
     {{ x < y < z }}
     ^^^^^^^^^^^^^^^
@@ -118,9 +143,9 @@
                           .initiator = "["|= x
                           {"": .operator = "AND"|AND
                                {"": .operator = "<"|< w
-                                    {"": .operator = "$"|$ 1 y|}|}
+                                    {"": .operator = "$"|$ 2 y|}|}
                                {"": .operator = "<"|<
-                                    {"": .operator = "$"|$ 1|} z|}|}|}
+                                    {"": .operator = "$"|$ 2|} z|}|}|}
 ======= line ##:
     [ x = w < y < z ]
     ^^^^^^^^^^^^^^^^^

@@ -229,7 +229,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 26, 2019
+August 27, 2019
  
 \end{center}
 
@@ -7717,37 +7717,123 @@ and this reformatter:
 \label{OPERATOR-PARSER-ALGORITHM}
 
 
-The operator parsing pass runs an
-algorithm that accepts as input a sequence of tokens
+The operator parsing pass runs the \key{operator parsing algorithm}
+that accepts as input a sequence of tokens
 which we call an `expression'
-and edits this input, changing it into a single token.
+and edits this input, changing it into a single token
+if it contains any operators, or leaving it untouched
+if it contains no operators.
+
+\subsubsubsection{Algorithm Outline}
+
+The operator parsing algorithm runs a left to right scan which:
+\begin{enumerate}
+\item Identifies sequences of lexemes that are operators, and
+replaces each by a single operator token with the operator as
+its label.
+\item Determines the fixity of each operator, prefix, infix,
+postfix, or nofix.
+\item Identifies subexpressions using operator precedence,
+and turns each subexpression into a single BRACKATABLE
+token.
+\item If there are any operators, converts the remaining
+list of operators and non-operators into a single BRACKATABLE
+token which an \TT{.operator} attribute.
+\end{enumerate}
+
+The left-to-right scan always has a current position.
+
+\subsubsubsection{Operator Identification}
+
+Operator identification determines whether a sequence of lexemes
+beginning at the current position is an operator.  Only
+operators selected by the current parsing selectors are
+considered.  Longer operators are preferred over shorter
+operators, and among these, operators defined later are
+preferred over operators defined earlier.
+
+Operator fixity is ignored unless the operator is
+afix.  If the operator is afix, the operator table entry
+is ignored unless there is an operator to the left of
+the current position that has the same precedence as the
+afix operator, and there is no operator of lower precedence
+between that previous operator and the current position.
+Special considerations apply if the operator table entry
+is afix and there is an operator immediately
+before the current position that has ambiguous fixity:
+see \itemref{AFIX-OPERATORS-AND-FIXITY-DETERMINATION} below.
+
+If an operator is identified, its lexemes are collected into
+an \TT{OPERATOR} token.  If no operator is identified, the
+current position is moved one lexeme to the right.
+
+
+\subsubsubsection{Fixity Determination}
+
+Operator fixity is determined during the left to right scan
+using the following rules:
+
+\begin{itemize}
+\item[(A)]
+A prefix operator must be followed by a non-operator or another
+prefix operator.
+\item[(B)]
+A prefix operator must be preceded by an infix operator, a nofix
+operator, a prefix operator, or the beginning of the expression.
+\item[(C)]
+An infix operator must be followed by a non-operator, a prefix
+operator, or a nofix operator of greater priority than the
+infix operator.
+\item[(D)]
+An infix operator must be preceded by a non-operator, a postfix
+operator, or a nonfix operator of greater priority than the
+infix operator.
+\item[(E)]
+A postfix operator must be followed by an infix operator, a nofix
+operator, a postfix operator, or the end of the expression.
+\item[(F)]
+A postfix operator must be preceded by a non-operator or another
+postfix operator.
+\end{itemize}
+
+If these rules are obeyed, then the following will be true:
+
+\begin{itemize}
+\item[(G)]
+A nofix operator will be followed by a non-operator, a prefix
+operator, an infix operator of priority lower than the nofix
+operator, or the end of the expression.
+\item[(H)]
+A nofix operator will be preceded by a non-operator, a postfix
+operator, an infix operator of priority lower than the nofix
+operator, or the beginning of the expression.
+\item[(I)]
+A non-operator will be followed by a non-operator, a postfix
+operator, an infix operator, a nofix operator,
+or the end of the expression.
+\item[(J)]
+A non-operator will be preceded by a non-operator, a prefix
+operator, an infix operator, a nofix operator,
+or the beginning of the expression.
+\item[(K)]
+The beginning of expression is followed by a prefix operator,
+a nofix operator, or a non-operator.
+\item[(L)]
+The end of expression is preceded by a postfix operator,
+a nofix operator, or a non-operator.
+\end{itemize}
+
+
+\subsubsubsection{Afix Operators and Fixity Determination}
+\label{AFIX-OPERATORS-AND-FIXITY-DETERMINATION}
+
+
+\subsubsubsection{Old Stuff}
+
 To do this it performs a left-to-right scan of the
 lexemes, performing the following steps at each position
 scanned:
 \begin{itemlist}[0.7in]
-\item[Step 1:] Determine whether a sequence of lexemes
-beginning at the current position is an operator.  Only
-operators selected by the current parsing selectors are
-considered.  Longer operators are preferred over shorter
-operators, and amoung these operators defined later are
-preferred over operators defined earlier.
-
-Operator fixity is ignored unless the operator is
-afix.  If the operator is afix, a decision is made as to
-whether to keep the operator or effectively deselect
-is and look for other possible operators.  This decision
-is based solely on information accumulated from the scan
-before the operator: i.e., on the part of the expression
-to the left of the operator.  Details are below.
-
-If an operator is found, its lexemes are collected into
-an \TT{OPERATOR} token.  If no operator is found, the
-current position is moved one lexeme to the right.
-
-
-lexemes are an operator, choosing the longest operator
-if there are alternatives.
-replace them with \TT{OPERATOR} tokens.
 
 \item[Step 2:] If an operator is found, determine its fixity.
 This determination is based on rules given below.  It is
@@ -7764,50 +7850,6 @@ If there is a unique assignment of fixity according to the
 following rules, that assignment is used.  If there is no
 assignment, or more than one, the entire expression is
 deemed unparsable.  The rules are:
-
-\begin{itemize}
-\item[(2A)]
-A prefix operator must be followed by a non-operator or another
-prefix operator.
-\item[(2B)]
-A prefix operator must be preceded by an infix operator, a nofix
-operator, a prefix operator, or the beginning of the expression.
-\item[(2C)]
-An infix operator must be followed by a non-operator, a prefix
-operator, or a nofix operator of greater priority than the
-infix operator.
-\item[(2D)]
-An infix operator must be preceded by a non-operator, a postfix
-operator, or a nonfix operator of greater priority than the
-infix operator.
-\item[(2E)]
-A postfix operator must be followed by an infix operator, a nofix
-operator, a postfix operator, or the end of the expression.
-\item[(2F)]
-A postfix operator must be preceded by a non-operator or another
-postfix operator.
-\end{itemize}
-
-If these rules are obeyed, then the following will be true:
-
-\begin{itemize}
-\item[(2G)]
-A nofix operator will be followed by a non-operator, a prefix
-operator, an infix operator of priority lower than the infix
-operator, or the end of the expression.
-\item[(2H)]
-A nofix operator will be preceded by a non-operator, a postfix
-operator, an infix operator of priority lower than the infix
-operator, or the beginning of the expression.
-\item[(2I)]
-A non-operator will be followed by a non-operator, a postfix
-operator, an infix operator, a nofix operator,
-or the end of the expression.
-\item[(2J)]
-A non-operator will be preceded by a non-operator, a prefix
-operator, an infix operator, a nofix operator,
-or the beginning of the expression.
-\end{itemize}
 
 \item[Step 3:] If no operators were found in the expression,
 run any passes subsequent to the operator parsing pass on the expression,

@@ -10,6 +10,8 @@
 // for this data.
 
 *PARSER* *TEST*:
+    a b c
+    a < b < c
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
     (, x, y 4,, z,,)
     ( x = y += z )

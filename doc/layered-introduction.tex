@@ -7151,11 +7151,13 @@ the parsing definition stack:
 {\em simple-operator-name} ::= {\em quoted-key} \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
 {\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
-\emkey{operator-flag} ::= \ttmkey{prefix}{operator flag}
-                    $|$ \ttmkey{infix}{operator flag}
-                    $|$ \ttmkey{postfix}{operator flag}
-                    $|$ \ttmkey{nofix}{operator flag}
-                    $|$ \ttmkey{afix}{operator flag}
+\emkey{operator-flag} ::= {\em operator-fixity}
+                      $|$ \ttmkey{afix}{operator flag}
+	\\[1ex]
+\emkey{operator-fixity} ::= \ttmkey{prefix}{operator fixity}
+                        $|$ \ttmkey{infix}{operator fixity}
+                        $|$ \ttmkey{postfix}{operator fixity}
+                        $|$ \ttmkey{nofix}{operator fixity}
 	\\[1ex]
 \emkey{precedence} :::= {\em sign-option} {\em natural-number}
 	in the range [-1,000,000, +1,000,000]
@@ -7235,18 +7237,17 @@ and \underline{not} as
 \verb|(sum from X through Y) <-- (integer X, integer Y { ... })|
 \end{center}
 
-An\label{FIXITY-RULES}
-operator must be prefix, infix, postfix, or nofix.
+An operator must be prefix, infix, postfix, or nofix.
 An operator may be any two of prefix, infix, and postfix, but
-not all three.  A non-prefix operator may be afix.
+not all three.  An afix operator must be infix or nofix.
 
-This can be summarized in the following compatibility table:
+This can be expressed in the following compatibility table:
 
 \begin{center}
 \begin{tabular}{lc|c|c|c|c|}
-	& \multicolumn{5}{c}{is compatible with op} \\
+	& \multicolumn{5}{c}{is compatible with op-flag} \\
 \cline{2-6}
-\multicolumn{1}{l|}{op} &
+\multicolumn{1}{l|}{op-flag} &
 prefix	& infix	& postfix & nofix & afix \\
 \hline
 \multicolumn{1}{|l|}{prefix} &
@@ -7256,13 +7257,13 @@ prefix	& infix	& postfix & nofix & afix \\
 yes	&	& yes	& no	& yes	\\
 \hline
 \multicolumn{1}{|l|}{postfix} &
-yes	& yes	&	& no	& yes	\\
+yes	& yes	&	& no	& no	\\
 \hline
 \multicolumn{1}{|l|}{nofix} &
 no	& no	& no	&	& yes	\\
 \hline
 \multicolumn{1}{|l|}{afix} &
-no	& yes	& yes	& yes	&	\\
+no	& yes	& no	& yes	&	\\
 \hline
 \end{tabular}
 
@@ -7757,16 +7758,24 @@ considered.  Longer operators are preferred over shorter
 operators, and among these, operators defined later are
 preferred over operators defined earlier.
 
-Operator fixity is ignored unless the operator is
-afix.  If the operator is afix, the operator table entry
+If an operator definition has the afix flag, the definition
 is ignored unless there is an operator to the left of
 the current position that has the same precedence as the
-afix operator, and there is no operator of lower precedence
+afix definition, and there is no operator of lower precedence
 between that previous operator and the current position.
-Special considerations apply if the operator table entry
-is afix and there is an operator immediately
-before the current position that has ambiguous fixity:
-see \itemref{AFIX-OPERATORS-AND-FIXITY-DETERMINATION} below.
+In applying this rule, if there is an operator of ambiguous
+fixity immediately before the current position, the afix
+definition is ignored unless the ambiguous operator can be
+postfix, and if the ambiguous operator can be postfix, it
+is assumed to be postfix for the purposes of determining
+whether the afix definition is to be ignore (and will be
+forced to be postfix if the afix definition is not in fact
+ignored).
+See \itemref{AFIX-OPERATORS-AND-FIXITY-DETERMINATION} below
+for analysis.
+
+Except for special consideration involving the afix flag,
+operator fixity is ignored during operator identification.
 
 If an operator is identified, its lexemes are collected into
 an \TT{OPERATOR} token.  If no operator is identified, the
@@ -7774,6 +7783,14 @@ current position is moved one lexeme to the right.
 
 
 \subsubsubsection{Fixity Determination}
+
+An operator definition may have ambiguous fixity.  In
+particular, it may be
+\begin{center}
+prefix or infix \\
+prefix or postfix \\
+infix or postfix
+\end{center}
 
 Operator fixity is determined during the left to right scan
 using the following rules:
@@ -7828,6 +7845,17 @@ The end of expression is preceded by a postfix operator,
 a nofix operator, or a non-operator.
 \end{itemize}
 
+If there is more than one way of assigning operator fixity obeying
+the above rules, the expression is in error.  An example is the
+two operator sequence:
+\begin{center}
+\shortstack[c]{infix\\or\\postfix} ~~~ \shortstack[c]{infix\\or\\prefix}
+\end{center}
+which could be resolved as either `infix prefix' or `postfix infix'.
+
+If there is an operator immediately before the current position
+whose definition has ambiguous fixity, the fixity of that
+operator may be non-yet determined.
 
 \subsubsubsection{Afix Operators and Fixity Determination}
 \label{AFIX-OPERATORS-AND-FIXITY-DETERMINATION}

@@ -41,6 +41,8 @@
 \newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
 \newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
 
+\newcommand{\RULE}[2]{\item[#1]\newcommand{#2}{#1}}
+
 % Begin \tableofcontents surgery.
 
 \newcount\AtCatcode
@@ -7857,8 +7859,43 @@ If there is an operator immediately before the current position
 whose definition has ambiguous fixity, the fixity of that
 operator may be non-yet determined.
 
+At any time can be at most one operator with ambiguous fixity.
+
 \subsubsubsection{Afix Operators and Fixity Determination}
 \label{AFIX-OPERATORS-AND-FIXITY-DETERMINATION}
+
+TBD
+
+Note first that in order for an afix flagged operator definition
+to be not ignored, the current position cannot be immediately
+preceded by a prefix or infix operator.  The afix definition
+must be infix or nofix.  Neither fixity can be immediately preceded
+by a prefix operator.  Nofix can be immediately preceded by an infix
+operator of less precedence, but then an operator of less precedence
+would be between the current position and any preceding operator
+of precedence equal to the afix definition, so the definition
+would be ignored.
+
+So if the current position is preceded by an operator with
+ambiguous fixity, then the following are the possibilities:
+
+\begin{enumerate}
+\item
+The preceding operator has fixity `prefix or postfix'.
+Then the afix definition is ignored.
+\item
+The preceding operator has fixity `prefix or infix'.
+Then the afix definition is ignored.
+\item
+The preceding operator has fixity `postfix or prefix'.
+or `postfix or infix'.
+If the fixity is assumed to be postfix and there is
+a preceding operator of precedence equal to the afix definition,
+and no intervening operator of less precedence, then the afix
+operator is \underline{not} ignored.  Otherwise the afix
+definition is ignored.
+\end{enumerate}
+
 
 
 \subsubsubsection{Old Stuff}

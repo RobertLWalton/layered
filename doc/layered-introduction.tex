@@ -7763,21 +7763,17 @@ preferred over operators defined earlier.
 If an operator definition has the afix flag, the definition
 is ignored unless there is an operator to the left of
 the current position that has the same precedence as the
-afix definition, and there is no operator of lower precedence
+afix definition, and there is no \underline{non-ambiguous}
+operator of lower precedence
 between that previous operator and the current position.
-In applying this rule, if there is an operator of ambiguous
-fixity immediately before the current position, the afix
-definition is ignored unless the ambiguous operator can be
-postfix, and if the ambiguous operator can be postfix, it
-is assumed to be postfix for the purposes of determining
-whether the afix definition is to be ignore (and will be
-forced to be postfix if the afix definition is not in fact
-ignored).
-See \itemref{AFIX-OPERATORS-AND-FIXITY-DETERMINATION} below
-for analysis.
+See the end of \itemref{FIXITY-DETERMINATION} for a description
+of the possible ambiguous operators that may be before the current
+position.
 
-Except for special consideration involving the afix flag,
-operator fixity is ignored during operator identification.
+Operator fixity is ignored during operator identification except
+that determination of fixity during the left-to-right scan
+determines precedence that in turn affects which afix
+operator definitions are ignored.
 
 If an operator is identified, its lexemes are collected into
 an \TT{OPERATOR} token.  If no operator is identified, the
@@ -7785,6 +7781,7 @@ current position is moved one lexeme to the right.
 
 
 \subsubsubsection{Fixity Determination}
+\label{FIXITY-DETERMINATION}
 
 An operator definition may have ambiguous fixity.  In
 particular, it may be
@@ -7847,11 +7844,13 @@ The end of expression is preceded by a postfix operator,
 a nofix operator, or a non-operator.
 \end{itemize}
 
-The above rules lead to the fixity rewrite rules
-in figure \ref{FIXITY-REWRITE-RULES}.  In these
-`ambiguity-error' means there will be more than one
-way to assign fixity to the expression operators consistent
-with the above rules; `possibility-error'
+The above rules lead to the \key{fixity rewrite rules}
+in figure \ref{FIXITY-REWRITE-RULES} that determine the fixity
+of operators with ambiguous fixity.  In these `ambiguous'
+means an operator whose fixity cannot be determined by the above
+rules (along with any operators before it whose fixity has not
+been determined);
+`possibility-error'
 means there can be no way to assign fixity to the expression operators
 consistent with the above rules; and `unresolved' means the
 rewrite rule does not change anything (i.e., there is no
@@ -7867,10 +7866,10 @@ expression-begin & infix-or-prefix & expression-begin prefix \\
 non-operator & infix-or-prefix & non-operator infix \\
 prefix & infix-or-prefix & prefix prefix \\
 infix & infix-or-prefix & infix prefix \\
-postfix & infix-or-prefix & postfix prefix \\
-infix-or-prefix & infix-or-prefix & ambiguity error \\
-infix-or-postfix & infix-or-prefix & ambiguity error \\
-prefix-or-postfix & infix-or-prefix & ambiguity error \\
+postfix & infix-or-prefix & postfix infix \\
+infix-or-prefix & infix-or-prefix & ambiguous prefix \\
+infix-or-postfix & infix-or-prefix & unresolved \\
+prefix-or-postfix & infix-or-prefix & unresolved \\
 \hline
 expression-begin & infix-or-postfix & possibility-error \\
 non-operator & infix-or-postfix & unresolved \\
@@ -7886,15 +7885,22 @@ non-operator & prefix-or-postfix & non-operator postfix \\
 prefix & prefix-or-postfix & prefix prefix \\
 infix & prefix-or-postfix & infix prefix \\
 postfix & prefix-or-postfix & postfix postfix \\
-infix-or-prefix & prefix-or-postfix & ambiguity error \\
+infix-or-prefix & prefix-or-postfix & ambiguous prefix \\
 infix-or-postfix & prefix-or-postfix & unresolved \\
 prefix-or-postfix & prefix-or-postfix & unresolved \\
+\hline
+infix-or-prefix & non-operator & ambiguous non-operator \\
+infix-or-prefix & prefix & ambiguous prefix \\
+infix-or-prefix & infix & possibility error \\
+infix-or-prefix & postfix & possibility error \\
+infix-or-prefix & nofix & infix nofix \\
+infix-or-prefix & expression-end & possibility error \\
 \hline
 infix-or-postfix & non-operator & infix non-operator \\
 infix-or-postfix & prefix & infix prefix \\
 infix-or-postfix & infix & postfix infix \\
 infix-or-postfix & postfix & postfix postfix \\
-infix-or-postfix & nofix\H & ambiguity-error \\
+infix-or-postfix & nofix\H & ambiguous nofix \\
 infix-or-postfix & nofix\L & postfix nofix \\
 infix-or-postfix & expression-end & postfix expression-end \\
 \hline
@@ -7919,53 +7925,14 @@ position will have one of the forms:
 \ldots{} \\
 \ldots{} infix-or-prefix \\
 \ldots{} infix-or-postfix \\
-\ldots{} prefix-or-postfix\PLUS{} \\
-\ldots{} infix-or-postfix prefix-or-postfix\PLUS{} \\
+\ldots{} infix-or-postfix  infix-or-prefix \\
+\ldots{} infix-or-postfix\QMARK{} prefix-or-postfix\PLUS{} infix-or-prefix\QMARK{} \\
 \end{tabular}
 \end{center}
 
 where \ldots{}~denotes a sequence of non-operators and non-ambiguous
-operators.  An unbounded string of prefix-or-postfix operators
-will collapse into a string of all prefix operators
-or a string of all postfix operators before or at the end of the
-expression.
-
-\subsubsubsection{Afix Operators and Fixity Determination}
-\label{AFIX-OPERATORS-AND-FIXITY-DETERMINATION}
-
-TBD
-
-Note first that in order for an afix flagged operator definition
-to be not ignored, the current position cannot be immediately
-preceded by a prefix or infix operator.  The afix definition
-must be infix or nofix.  Neither fixity can be immediately preceded
-by a prefix operator.  Nofix can be immediately preceded by an infix
-operator of less precedence, but then an operator of less precedence
-would be between the current position and any preceding operator
-of precedence equal to the afix definition, so the definition
-would be ignored.
-
-So if the current position is preceded by an operator with
-ambiguous fixity, then the following are the possibilities:
-
-\begin{enumerate}
-\item
-The preceding operator has fixity `prefix or postfix'.
-Then the afix definition is ignored.
-\item
-The preceding operator has fixity `prefix or infix'.
-Then the afix definition is ignored.
-\item
-The preceding operator has fixity `postfix or prefix'.
-or `postfix or infix'.
-If the fixity is assumed to be postfix and there is
-a preceding operator of precedence equal to the afix definition,
-and no intervening operator of less precedence, then the afix
-operator is \underline{not} ignored.  Otherwise the afix
-definition is ignored.
-\end{enumerate}
-
-
+operators.  The end of expression will resolve any unresolved
+ambiguities.
 
 \subsubsubsection{Old Stuff}
 

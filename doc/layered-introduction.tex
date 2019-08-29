@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 28, 2019
+August 29, 2019
  
 \end{center}
 
@@ -7855,8 +7855,12 @@ means there can be no way to assign fixity to the expression operators
 consistent with the above rules; and `unresolved' means the
 rewrite rule does not change anything (i.e., there is no
 rewrite rule for the indicated case).
+Also nofix$^H$ means a nofix operator of precedence higher
+than the preceeding infix-or\ldots{} operator, and
+nofix$^L$ means a nofix operator of precedence equal to or lower
+than the preceeding infix-or\ldots{} operator.
 
-\begin{figure*}[!p]
+\begin{figure*}[!p] \small
 \begin{center}
 \renewcommand{\H}{$^H$}
 \renewcommand{\L}{$^L$}
@@ -7913,6 +7917,7 @@ prefix-or-postfix & expression-end & postfix expression-end \\
 \hline
 \end{tabular}
 \end{center}
+\vspace*{-3ex}
 \caption{Fixity Rewrite Rules}
 \label{FIXITY-REWRITE-RULES}
 \end{figure*}

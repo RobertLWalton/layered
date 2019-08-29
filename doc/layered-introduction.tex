@@ -7847,40 +7847,17 @@ The end of expression is preceded by a postfix operator,
 a nofix operator, or a non-operator.
 \end{itemize}
 
-If there is more than one way of assigning operator fixity obeying
-the above rules, the expression is in error.  An example is the
-two operator sequence:
-\begin{center}
-\shortstack[c]{infix\\or\\postfix} ~~~ \shortstack[c]{infix\\or\\prefix}
-\end{center}
-which could be resolved as either `infix prefix' or `postfix infix'.
-Here are some of the ways this ambiguity can be resolved:
+The above rules lead to the fixity rewrite rules
+in figure \ref{FIXITY-REWRITE-RULES}.  In these
+`ambiguity-error' means there will be more than one
+way to assign fixity to the expression operators consistent
+with the above rules; `possibility-error'
+means there can be no way to assign fixity to the expression operators
+consistent with the above rules; and `unresolved' means the
+rewrite rule does not change anything (i.e., there is no
+rewrite rule for the indicated case).
 
-\begin{itemize}
-\item If the two ambiguous operators are followed by a non-operator or
-a prefix operator, there will be two assigments of fixity to the
-two operators that obey the rules,
-and the expression has a parse error.
-\item If the two ambiguous operators are followed by an infix operator,
-a postfix operator,
-or a no-fix operator with precedence equal to or
-lower than the second ambiguous operator's infix possibility,
-it is not possible to assign fixity to the ambiguous operators without
-violating the rules,
-and the expression has a parse error.
-\item If the two ambiguous operators are followed by an nofix operator,
-with precedence higher than
-than the second ambiguous operator's infix possibility,
-the fixity assignment `postfix infix' is forced for the two ambiguous
-operators.
-\end{itemize}
-
-If there is an operator immediately before the current position
-whose definition has ambiguous fixity, the fixity of that
-operator may be non-yet determined.
-
-At any time can be at most one operator with ambiguous fixity.
-
+\begin{figure*}[!p]
 \begin{center}
 \renewcommand{\H}{$^H$}
 \renewcommand{\L}{$^L$}
@@ -7901,8 +7878,8 @@ prefix & infix-or-postfix & possibility-error \\
 infix & infix-or-postfix & possibility-error \\
 postfix & infix-or-postfix & unresolved \\
 infix-or-prefix & infix-or-postfix & possibility-error \\
-infix-or-postfix & infix-or-postfix & ambiguity error \\
-prefix-or-postfix & infix-or-postfix & ambiguity error \\
+infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
+prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 \hline
 expression-begin & prefix-or-postfix & expression-begin prefix \\
 non-operator & prefix-or-postfix & non-operator postfix \\
@@ -7919,15 +7896,39 @@ infix-or-postfix & infix & postfix infix \\
 infix-or-postfix & postfix & postfix postfix \\
 infix-or-postfix & nofix\H & ambiguity-error \\
 infix-or-postfix & nofix\L & postfix nofix \\
+infix-or-postfix & expression-end & postfix expression-end \\
 \hline
 prefix-or-postfix & non-operator & prefix non-operator \\
 prefix-or-postfix & prefix & prefix prefix \\
 prefix-or-postfix & infix & postfix infix \\
 prefix-or-postfix & postfix & postfix postfix \\
 prefix-or-postfix & nofix & postfix nofix \\
+prefix-or-postfix & expression-end & postfix expression-end \\
 \hline
 \end{tabular}
 \end{center}
+\caption{Fixity Rewrite Rules}
+\label{FIXITY-REWRITE-RULES}
+\end{figure*}
+
+These rewrite rules can be applied during a left-to-right scan.
+It can be proved that at any time, the tokens before the current
+position will have one of the forms:
+\begin{center}
+\begin{tabular}{r}
+\ldots{} \\
+\ldots{} infix-or-prefix \\
+\ldots{} infix-or-postfix \\
+\ldots{} prefix-or-postfix\PLUS{} \\
+\ldots{} infix-or-postfix prefix-or-postfix\PLUS{} \\
+\end{tabular}
+\end{center}
+
+where \ldots{}~denotes a sequence of non-operators and non-ambiguous
+operators.  An unbounded string of prefix-or-postfix operators
+will collapse into a string of all prefix operators
+or a string of all postfix operators before or at the end of the
+expression.
 
 \subsubsubsection{Afix Operators and Fixity Determination}
 \label{AFIX-OPERATORS-AND-FIXITY-DETERMINATION}

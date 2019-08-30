@@ -7741,19 +7741,36 @@ replaces each by a single \ttkey{OPERATOR} token with the operator as
 its label.
 \item Determines the fixity of each operator: prefix, infix,
 postfix, or nofix.
-\item Identifies subexpressions using operator precedence,
-and turns each subexpression into a single BRACKATABLE
-token that either has an \ttdkey{operator} attribute equal to
-the first operator in the subexpression, or is reformatted by
-a reformatter associated with this first operator.
-\item If there are any operators, converts the remaining
-list of operators and non-operators into a single BRACKATABLE
-token that either has an \ttdkey{operator} attribute equal to
-the first operator in the subexpression, or is reformatted by
-a reformatter associated with this first operator.
+\item Identifies subexpressions using operator precedence and fixity.
+Then processes each subexpression, innermost first, and lastly processes the
+entire expression as a subexpression.
 \end{enumerate}
 
+When the operator parsing pass processes a
+subexpression that contains one or more operators, the
+pass first calls the reformatter associated with the first operator
+in the subexpression, if any.  Then if the reformatter requests, or if
+there is no reformatter, the operator parsing pass
+compacts the tokens now in the subexpression into a single
+\TT{BRACKATABLE} token with the first operator as the value of
+the token value's \ttdkey{operator} attribute.
+
+When the operator parsing pass
+processes a subexpression that does \underline{not} contain an operator,
+the operator parsing pass runs subsequent parsing passes on the subexpression.
+Then if the subexpression has zero or more than one token, the operator
+parsing pass replaces
+the subexpression by a single \TT{BRACKATABLE} token with no attibutes
+(other than \TT{.position}).
+
+
 The left-to-right scan always has a current position.
+All operators to the left of the current position have been
+identified as per \itemref{OPERATOR-IDENTIFICATION},
+and most have had their fixity determined as per
+\itemref{FIXITY-DETERMINATION}.  Subexpression recognition
+is done after operators and fixity have been determined, and can be done
+by a second left-to-right scan.
 
 \subsubsubsection{Operator Identification}
 \label{OPERATOR-IDENTIFICATION}
@@ -7987,289 +8004,6 @@ where N is any, L is the lowest, and H is the highest precedence allowed \\
 an infix or nofix operator
 \end{tabular}
 \end{indpar}
-
-\subsubsubsection{Old Stuff}
-
-To do this it performs a left-to-right scan of the
-lexemes, performing the following steps at each position
-scanned:
-\begin{itemlist}[0.7in]
-
-\item[Step 2:] If an operator is found, determine its fixity.
-This determination is based on rules given below.  It is
-possible that the determination is ambiguous: e.g., the
-fixity could be infix or postfix.  If this is the case,
-each of the two possibilities corresponds to a different
-parse of the part of the expression to the left of the operator,
-
-TBD
-
-
-either prefix or infix, postfix or infix, or prefix or postfix.
-If there is a unique assignment of fixity according to the
-following rules, that assignment is used.  If there is no
-assignment, or more than one, the entire expression is
-deemed unparsable.  The rules are:
-
-\item[Step 3:] If no operators were found in the expression,
-run any passes subsequent to the operator parsing pass on the expression,
-and then if the expression (after running the subsequent passes)
-has zero or more than one
-token, replace the expression by a single \TT{BRACKETABLE} token listing the
-tokens of the expression.
-
-If operators were found in the expression,
-run the reformatter of the first operator
-in the expression.  This replaces the expression by a single
-\TT{BRACKETABLE} or lexeme token.
-If no reformatter is provided by the first operator, a default
-reformatter is run that replaces the expression by a single \TT{BRACKETABLE}
-token whose value has the operator label as its \TT{.operator} attribute.
-
-After this step the expression is always a single \TT{BRACKETABLE} or
-lexeme token.
-\end{itemlist}
-
-The token list at the point where Step 3 is about to execute
-obeys the following requirements:
-\begin{itemlist}[1.3in]
-\item[Requirement 1:] 
-All the \TT{OPERATOR} tokens in the token list are for operators
-with the same precedence.  Furthermore, if $P$ is this precedence, and
-$P'$ is the precedence of operators in an \TT{BRACKETABLE} token of the list,
-then either $P<P'$ or all of the following are true:
-\begin{itemize}
-\item[(a)] $P=P'$
-\item[(b)] The token list contains only two members, an operator and
-a \TT{BRACK\-ET\-ABLE} token operand.
-\item[(c)] Either the token list and the operand both begin with a prefix
-operator, or both end with a postfix operator.
-\end{itemize}
-\item[Requirement 2:] 
-The list does \underline{not} contain two consecutive non-\TT{OPERATOR} tokens.
-\item[Requirement 3:] 
-The first \TT{OPERATOR} token in the list is not afix.
-\item[Requirement 4:] 
-If the list contains a prefix \TT{OPERATOR} token, that is the first
-token in the list, and it is followed in the list by a
-non-\TT{OPERATOR} token.
-\item[Requirement 5:] 
-All infix \TT{OPERATOR} tokens in the list are both preceded by and
-followed by non-\TT{OPERATOR} tokens.
-\item[Requirement 6:] 
-If the list contains a postfix \TT{OPERATOR} token, that is the last
-token in the list, and it is preceded in the list by a
-non-\TT{OPERATOR} token.
-\end{itemlist}
-
-A single
-lexeme token output by a operator parsing pass may be
-thought of as the equivalent of one of the following:
-\begin{itemize}
-\item[(a)] If the token is not a quoted string, and therefore
-has a token value that is a MIN string, the token is equivalent to
-a single \TT{BRACKETABLE} token whose token value is a MIN object
-with no \TT{.separator} attribute whose only element is this MIN string.
-\item[(b)] If the token is a quoted string, the token is equivalent to
-a single \TT{BRACKETED} token whose token value
-is a MIN object with one element equal to the
-token value converted to a MIN string and with
-an \TT{.initiator} attribute equal to \TT{"}.
-\end{itemize}
-When a single lexeme token output from an operator parsing pass
-must be converted to an expression token, it is converted according
-to this equivalence.
-
-The operator parsing pass scans its input token list from
-left to right, recognizing operators, beginning non-explicitly
-bracketed subexpressions, and ending such subexpressions.
-At any point in the scan the pass obeys the
-following rules:
-\begin{itemlist}[0.7in]
-\item[Rule 1:] An afix operator is not recognized unless it
-is proceeded by an operator of equal precedence with no
-intervening operators of less precedence.
-\item[Rule 2:] A prefix operator of precedence $P'$
-must be preceded by the beginning of
-the entire token list, or by an operator
-of precedence less than $P'$,
-or by a prefix operator of precedence equal to $P'$,
-else the prefix operator is not recognized.
-\item[Rule 3:] An infix operator of precedence $P'$
-must be preceded by a non-operator,
-or by an operator of precedence greater than $P'$,
-else the infix operator is not recognized.
-\item[Rule 4:] A postfix operator of precedence $P'$
-must be preceded by a non-operator,
-or by an operator of precedence greater than $P'$,
-or by a postfix operator of precedence equal to $P'$,
-else the postfix operator is not recognized.
-\item[Rule 5:] A recognized prefix operator of precedence $P'$
-must be followed by a non-operator or by an operator
-of precedence greater than $P'$,
-or by a prefix operator of precedence equal to $P'$,
-else an `error operand' which is not an operator
-is inserted after the prefix operator
-and an error is announced.
-\item[Rule 6:] A recognized infix operator of precedence $P'$
-must be followed by a non-operator or by an operator
-of precedence greater than $P'$,
-else an `error operand' which is not an operator
-is inserted after the infix operator
-and an error is announced.
-\item[Rule 7:] A recognized postfix operator of precedence $P'$
-must be followed by the end of the entire token list,
-or by an operator of precedence less than $P'$,
-or by a postfix operator of precedence equal to $P'$,
-else an `error nofix operator' of precedence $P'-1$
-is inserted after the postfix operator and an error is announced.
-\item[Rule 8:] When an operator is found, a new subexpression
-with the precedence of the found operator is begin if one of
-the following is true:
-\begin{itemize}
-\item[(a)] There is no previous operator outside all ended subexpressions.
-\item[(b)] The found operator has higher precedence than the nearest
-previous operator outside all ended subexpressions.
-\item[(c)] The found operator is immediately preceded by a prefix
-operator of equal precedence to the found operator.
-\end{itemize}
-The new subexpression begins just after the nearest previous operator
-that is outside all ended subexpressions, if there is such an operator,
-or at the beginning of the entire list, otherwise.
-\item[Rule 9:] A subexpression is ended just before an operator
-which has precedence lower than the precedence of the subexpression,
-just before the end of the list, or just before an operator which
-has precedence equal to the precedence of the subexpression if that
-operator immediately follows a postfix operator.
-\item[Rule 10:] A subexpression 
-is replaced when it ends by a single BRACKETABLE whose
-elements are the values of the tokens in the subexpression, unless
-the subexpression contains just a single non-operator token.
-\end{itemlist}
-
-By simply by enforcing these rules the operator parser pass enforces
-the requirements listed above.
-
-During its left-to-right scan the operator parser pass maintains
-the following state:
-\begin{itemlist}[0.7in]
-\item[$C$:] A pointer to the current token, initialized to the
-first token in the input.
-\item[$N$:] A pointer to the next token after the subexpression
-being input, which may be an end-of-file token.  Not changed during
-the scan from its initial value.  Initially $C\neq N$.
-\item[$P$:] A stack of subexpression terminating precedences,
-initialized to a one element stack containing a precedence less
-than any legal operator precedence.  Whenever an operator is found,
-the top of this stack is set to the precedence of the operator
-(the stack may be pushed or popped before this is done).
-\item[$F$:] A stack of pointers to the first token in a subexpression,
-initialized to a one element stack containing a pointer to the first
-token in the input.  Whenever an operator is found, the top of this
-stack is set to point to the token after the operator (the stack
-may be pushed or popped before this is done).
-\item[$T$:] The type of the last operator found.  Valid only if
-$C=F$ (meaning $C$ equals the top of the $F$ stack, and so $C$
-points at the token after the operator).
-Can equal {\em prefix}, {\em postfix}, {\em nofix}, {\em infix}, or {\em none}.
-Initialized to {\em none}.
-\end{itemlist}
-
-In the following $F$ is used to denote either the stack $F$ or
-the top element of this stack.  Similarly $P$ is used to denote either the
-stack $P$ or the top element of this stack.
-
-The operator parser pass algorithm simply repeats the following
-steps in a loop:
-\begin{itemlist}[1.2in]
-\item[Loop Step 1:]
-If $C\neq N$, find an operator beginning at token $C$, if there is one.
-
-If $C=F$ (i.e., $C$ is at the beginning of the token list or just after
-an operator of precedence $P$),
-prefix operators of precedence less than $P$ are ignored,
-prefix operators of precedence equal to $P$ are ignored unless
-$T=\mbox{\em prefix}$,
-infix operators of precedence greater than or equal to $P$ are ignored,
-postfix operators of precedence greater than $P$ are ignored,
-postfix operators of precedence equal to $P$ are ignored unless
-$T=\mbox{\em postfix}$.
-
-If $C\neq F$ (i.e., a non-operator is just before $C$),
-prefix operators are ignored.
-
-Any afix operator whose precedence is not in the $P$ stack is ignored.
-
-Any operator whose selectors are disjoint from the current parser context
-selectors is ignored.
-
-Among all non-ignored operators, a longest
-is selected, and among all the longest, the one with the most recent
-operator definition is selected.
-
-If an operator was found, replace its tokens by a single
-OPERATOR token, point $C$ at that token.  Let $P'$ be the precedence
-of the found operator and $T'$ be its type.
-\item[Loop Step 2:]
-If $C=F$ and $T=\mbox{\em postfix}$
-(the token before $C$ is a postfix operator),
-$C\neq N$, and either no operator was find in Loop Step 1,
-or an operator was found and either $P'>P$
-or both $P'=P$ and $T'\not=\mbox{\em postfix}$,
-insert the error nofix operator of precedence
-equal to $P-1$ as a single
-OPERATOR token before $C$, set $C$ to point at it,
-set $P'=P-1$,
-announce an error, and continue (as if an operator were found in
-Loop Step 1).
-
-\item[Loop Step 3:]
-Else if $C\neq N$
-and no operator was find in Loop Step 1 or generated by Loop Step 2,
-re-point $C$ to the next token after $C$ and go to the next loop iteration.
-
-Note that if the iteration continues after this step,
-then either $C=N$ or an operator was found in Loop Step 1
-or generated in Loop Step 2.
-\item[Loop Step 4:]
-If $C=F$ and any of the following are true:
-\\[1ex]
-\hspace*{0.2in}
-\begin{tabular}{@{}l@{}}
-$T=\mbox{\em infix}$ and $C=N$ or $P'\leq P$, \\
-$T=\mbox{\em prefix}$ and $C=N$ or $P'<P$
-    or both $P'=P$ and $T'\not=\mbox{\em prefix}$
-\end{tabular}
-\\[1ex]
-then insert
-an new error operand lexeme token before $C$,
-set $F$ to this new token,
-announce an error, and then continue as if no error were found.
-\item[Loop Step 5:]
-If $C\not=F$,
-apply Step 3 above to the list of tokens beginning with
-$F$ and ending just before $C$.  This replaces this list of tokens
-by a single non-operator token.
-
-If $C=N$, pop the $P$ and $F$ stacks.  If these stacks are now
-empty, terminate the operator parser pass algorithm.  Otherwise
-repeat this loop step.
-
-Else if $P'<P$ or both $P'=P$ and $T=\mbox{\em postfix}$,
-pop the $P$ and $F$ stacks and repeat this loop step
-(cannot happen if the $P$ and $F$ stacks have only one entry as
-in that case $P$ is less than any possible $P'$).
-
-Else if $P'>P$ or both $P'=P$ and $T=\mbox{\em prefix}$,
-push $P'$ into the $P$ stack, and push a pointer to the
-next token after $C$ into the $F$ stack.
-
-Else if $P'=P$, set $F$ to point at the next token after $C$.
-
-\item[Loop Step 6:]
-Set $T=T'$,
-re-point $C$ to the token after $C$, and iterate the loop.
-\end{itemlist}
 
 \clearpage
 

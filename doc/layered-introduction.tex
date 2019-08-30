@@ -7743,10 +7743,14 @@ its label.
 postfix, or nofix.
 \item Identifies subexpressions using operator precedence,
 and turns each subexpression into a single BRACKATABLE
-token with an \ttdkey{operator} attribute.
+token that either has an \ttdkey{operator} attribute equal to
+the first operator in the subexpression, or is reformatted by
+a reformatter associated with this first operator.
 \item If there are any operators, converts the remaining
 list of operators and non-operators into a single BRACKATABLE
-token which has an \ttdkey{operator} attribute.
+token that either has an \ttdkey{operator} attribute equal to
+the first operator in the subexpression, or is reformatted by
+a reformatter associated with this first operator.
 \end{enumerate}
 
 The left-to-right scan always has a current position.
@@ -7755,8 +7759,9 @@ The left-to-right scan always has a current position.
 \label{OPERATOR-IDENTIFICATION}
 
 Operator identification determines whether a sequence of lexemes
-beginning at the current position is an operator.  Only
-operators selected by the current parsing selectors are
+beginning at the current position is an operator by looking up
+operator definitions.  Only
+operator definitions selected by the current parsing selectors are
 considered.  Longer operators are preferred over shorter
 operators, and among these, operators defined later are
 preferred over operators defined earlier.
@@ -7778,7 +7783,7 @@ operator definitions are ignored.
 
 If an operator is identified, its lexemes are collected into
 an \TT{OPERATOR} token.  If no operator is identified, the
-current position is moved one lexeme to the right.
+current position is moved one token to the right.
 
 
 \subsubsubsection{Fixity Determination}
@@ -7936,8 +7941,10 @@ position will have one of the forms:
 \end{center}
 
 where \ldots{}~denotes a sequence of non-operators and non-ambiguous
-operators.  The end of expression will resolve any unresolved
-ambiguities.
+operators.  The end of expression will resolve
+ambiguities at the end of the expression, but operators
+designated by the rewrite rules as `ambiguous' will remain
+ambiguous.
 
 \newpage
 
@@ -7963,13 +7970,13 @@ syntax:
 \\[0.5ex]
 \emkey{(H+1)-expression}
     \begin{tabular}[t]{@{}rl}
-    $|$ & {\em (H+2)-expression} \\
+    ::= & {\em (H+2)-expression} \\
     $|$ & {\em prefix-operator} {\em (H+1)-expression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{(H+2)-expression}
     \begin{tabular}[t]{@{}rl}
-    $|$ & {\em (H+3)-expression} \\
+    ::= & {\em (H+3)-expression} \\
     $|$ & {\em (H+2)-expression} {\em postfix-operator} \\
     \end{tabular}
 \\[0.5ex]

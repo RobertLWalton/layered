@@ -7385,35 +7385,40 @@ as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-operator-name} will print all operator
 symbol table entries.
 
+The standard operators are given in Figure~\ref{STANDARD-OPERATORS}.
 
-\subsubsection{Standard Operators}
-\label{STANDARD-OPERATORS}
-
-The standard operators are given on 
-\pagref{STANDARD-OPERATOR-LIST}.
+Operator reformatters are specified in \itemref{OPERATOR-REFORMATTERS}.
 
 \begin{figure*}[!p]
 \begin{center}
-\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\begin{tabular}{|rll@{\hspace*{2em}}l@{\hspace*{2em}}l|}
+\hline
 
 precedence & reformatter	& type	& operator	& meaning 
-\\[2ex]
+\\\hline
 0000	& \ttkey{declare}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
 	&			& \TT{afix}	& \ttkey{\{ ... \}} & block \\
-1000	& \TT{right}		& \TT{infix}	& \ttkey{=}	& assignment \\
+	&			& \TT{afix}	& \ttkey{:}         & block
+\\\hline
+1000	& \TT{right}		& \TT{nofix}	& \ttkey{=}	& assignment \\
      	& \TT{associative\ttindex{right associative}}
 				&          	& \ttkey{+=}	& increment \\
      	&               	&          	& \ttkey{-=}	& decrement \\
      	&               	&          	& \ttkey{*=}	& multiply by \\
-     	&               	&          	& \ttkey{/=}	& divide by \\
-2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{,}	& separator \\
+     	&               	&          	& \ttkey{/=}	& divide by
+\\\hline
+2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{,}	& separator
+\\\hline
 3000	& \ttkey{binary}	& \TT{nofix}	& \ttkey{BUT NOT}
 								& logical and
-								  not \\
-3100	& \ttkey{infix}		& \TT{infix}	& \ttkey{AND}	& logical and \\
-	&			&		& \ttkey{OR}	& logical or \\
-3100	& \ttkey{unary}		& \TT{prefix}	& \ttkey{NOT}	& logical not \\
-4000 	& \ttkey{infix and}	& \TT{infix}	& \ttkey{==}	& equal \\
+								  not
+\\\hline
+3100	& \ttkey{infix}		& \TT{nofix}	& \ttkey{AND}	& logical and \\
+	&			&		& \ttkey{OR}	& logical or
+\\\hline
+3100	& \ttkey{unary}		& \TT{nofix}	& \ttkey{NOT}	& logical not
+\\\hline
+4000 	& \ttkey{infix and}	& \TT{nofix}	& \ttkey{==}	& equal \\
 	&			&		& \ttkey{/=}  & not equal \\
 	&			&		& \ttkey{!=}	& ditto \\
 	&		      	&		& \ttkey{<}	& less than \\
@@ -7424,26 +7429,284 @@ precedence & reformatter	& type	& operator	& meaning
 									\\
 	&			&		& \TT{>=}	& greater than
 								  or equal \\
-	&			&		& \TT{=>}	& ditto \\
-5000	& \ttkey{sum}		& \TT{infix}	&  \TT{+}	& addition \\
-	&			&		& \TT{-}	& subtraction \\
-5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division \\
+	&			&		& \TT{=>}	& ditto
+\\\hline
+5000	& \ttkey{sum}		& \TT{infix}	& \TT{+}	& addition \\
+	&			&		& \TT{-}	& subtraction
+\\\hline
+5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division
+\\\hline
 5200	& \ttkey{infix}		& \TT{infix}	& \TT{*}
-							& multiplication \\
+							& multiplication
+\\\hline
 5300	& \ttkey{binary}	& \TT{infix}	& \TT{\textasciicircum}
-							& exponentiation \\
-10000	& 			& \TT{prefix}	&  \TT{-}	& minus \\
+							& exponentiation
+\\\hline
+H+1	& 			& \TT{prefix}	&  \TT{-}	& minus \\
 	& 			& \TT{prefix}	&  \TT{+}	& plus \\
 	& 			& \TT{prefix}	&  \TT{@}	& object
-	                                                          identifier \\
+	                                                          identifier
+\\\hline
 \end{tabular}
 \end{center}
-\label{STANDARD-OPERATOR-LIST}
+\caption{Standard Operators}
+\label{STANDARD-OPERATORS}
 \end{figure*}
 
+\subsubsection{The Operator Parsing Algorithm}
+\label{OPERATOR-PARSER-ALGORITHM}
 
-Below we describe the effects of standard operator reformatters.
-We use notation such as
+
+The operator parsing pass runs the \key{operator parsing algorithm}
+that accepts as input a sequence of tokens
+which we call an `expression'
+and edits this input, changing it into a single token
+if it contains any operators, or leaving it untouched
+if it contains no operators.
+
+\subsubsubsection{Algorithm Outline}
+
+The operator parsing algorithm runs a left to right scan which:
+\begin{enumerate}
+\item Identifies sequences of lexemes that are operators, and
+replaces each by a single \ttkey{OPERATOR} token with the operator as
+its label.
+\item Determines the fixity of each operator: prefix, infix,
+postfix, or nofix.
+\item Identifies subexpressions using operator precedence and fixity.
+Then processes each subexpression, innermost first, and lastly processes the
+entire expression as a subexpression.
+\end{enumerate}
+
+When the operator parsing pass processes a
+subexpression that contains one or more operators, the
+pass first calls the reformatter associated with the first operator
+in the subexpression, if any.  Then if the reformatter requests, or if
+there is no reformatter, the operator parsing pass
+compacts the tokens now in the subexpression into a single
+\TT{BRACKATABLE} token with the first operator as the value of
+the token value's \ttdkey{operator} attribute.
+
+When the operator parsing pass
+processes a subexpression that does \underline{not} contain an operator,
+the operator parsing pass runs subsequent parsing passes on the subexpression.
+Then if the subexpression has zero or more than one token, the operator
+parsing pass replaces
+the subexpression by a single \TT{BRACKATABLE} token with no attibutes
+(other than \TT{.position}).
+
+
+The left-to-right scan always has a current position.
+All operators to the left of the current position have been
+identified as per \itemref{OPERATOR-IDENTIFICATION},
+and most have had their fixity determined as per
+\itemref{FIXITY-DETERMINATION}.  Subexpression recognition
+is done after operators and fixity have been determined, and can be done
+by a second left-to-right scan.
+
+\subsubsubsection{Operator Identification}
+\label{OPERATOR-IDENTIFICATION}
+
+Operator identification determines whether a sequence of lexemes
+beginning at the current position is an operator by looking up
+operator definitions.  Only
+operator definitions selected by the current parsing selectors are
+considered.  Longer operators are preferred over shorter
+operators, and among these, operators defined later are
+preferred over operators defined earlier.
+
+If an operator definition has the afix flag, the definition
+is ignored unless there is an operator to the left of
+the current position that has the same precedence as the
+afix definition, and there is no \underline{non-ambiguous}
+operator of lower precedence
+between that previous operator and the current position.
+See the end of \itemref{FIXITY-DETERMINATION} for a description
+of the possible ambiguous operators that may be before the current
+position.
+
+Operator fixity is ignored during operator identification except
+that determination of fixity during the left-to-right scan
+determines precedence that in turn affects which afix
+operator definitions are ignored.
+
+If an operator is identified, its lexemes are collected into
+an \TT{OPERATOR} token.  If no operator is identified, the
+current position is moved one token to the right.
+
+
+\subsubsubsection{Fixity Determination}
+\label{FIXITY-DETERMINATION}
+
+An operator definition may have ambiguous fixity.  In
+particular, it may be
+\begin{center}
+prefix or infix \\
+prefix or postfix \\
+infix or postfix
+\end{center}
+
+Operator fixity is determined during the left to right scan
+using the following rules:
+
+\begin{itemize}
+\item[(A)]
+A prefix operator must be followed by a non-operator or another
+prefix operator.
+\item[(B)]
+A prefix operator must be preceded by an infix operator, a nofix
+operator, a prefix operator, or the beginning of the expression.
+\item[(C)]
+An infix operator must be followed by a non-operator, a prefix
+operator, or a nofix operator of greater priority than the
+infix operator.
+\item[(D)]
+An infix operator must be preceded by a non-operator, a postfix
+operator, or a nonfix operator of greater priority than the
+infix operator.
+\item[(E)]
+A postfix operator must be followed by an infix operator, a nofix
+operator, a postfix operator, or the end of the expression.
+\item[(F)]
+A postfix operator must be preceded by a non-operator or another
+postfix operator.
+\end{itemize}
+
+If these rules are obeyed, then the following will be true:
+
+\begin{itemize}
+\item[(G)]
+A nofix operator will be followed by a non-operator, a prefix
+operator, an infix operator of priority lower than the nofix
+operator, or the end of the expression.
+\item[(H)]
+A nofix operator will be preceded by a non-operator, a postfix
+operator, an infix operator of priority lower than the nofix
+operator, or the beginning of the expression.
+\item[(I)]
+A non-operator will be followed by a non-operator, a postfix
+operator, an infix operator, a nofix operator,
+or the end of the expression.
+\item[(J)]
+A non-operator will be preceded by a non-operator, a prefix
+operator, an infix operator, a nofix operator,
+or the beginning of the expression.
+\item[(K)]
+The beginning of expression is followed by a prefix operator,
+a nofix operator, or a non-operator.
+\item[(L)]
+The end of expression is preceded by a postfix operator,
+a nofix operator, or a non-operator.
+\end{itemize}
+
+The above rules lead to the \key{fixity rewrite rules}
+in figure \ref{FIXITY-REWRITE-RULES} that determine the fixity
+of operators with ambiguous fixity.  In these `ambiguous'
+means an operator whose fixity cannot be determined by the above
+rules (along with any operators before it whose fixity has not
+been determined);
+`possibility-error'
+means there can be no way to assign fixity to the expression operators
+consistent with the above rules; and `unresolved' means the
+rewrite rule does not change anything (i.e., there is no
+rewrite rule for the indicated case).
+Also nofix$^H$ means a nofix operator of precedence higher
+than the preceeding infix-or\ldots{} operator, and
+nofix$^L$ means a nofix operator of precedence equal to or lower
+than the preceeding infix-or\ldots{} operator.
+
+\begin{figure*}[!p] \small
+\begin{center}
+\renewcommand{\H}{$^H$}
+\renewcommand{\L}{$^L$}
+\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
+\hline
+expression-begin & infix-or-prefix & expression-begin prefix \\
+non-operator & infix-or-prefix & non-operator infix \\
+prefix & infix-or-prefix & prefix prefix \\
+infix & infix-or-prefix & infix prefix \\
+postfix & infix-or-prefix & postfix infix \\
+infix-or-prefix & infix-or-prefix & ambiguous prefix \\
+infix-or-postfix & infix-or-prefix & unresolved \\
+prefix-or-postfix & infix-or-prefix & unresolved \\
+\hline
+expression-begin & infix-or-postfix & possibility-error \\
+non-operator & infix-or-postfix & unresolved \\
+prefix & infix-or-postfix & possibility-error \\
+infix & infix-or-postfix & possibility-error \\
+postfix & infix-or-postfix & unresolved \\
+infix-or-prefix & infix-or-postfix & possibility-error \\
+infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
+prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
+\hline
+expression-begin & prefix-or-postfix & expression-begin prefix \\
+non-operator & prefix-or-postfix & non-operator postfix \\
+prefix & prefix-or-postfix & prefix prefix \\
+infix & prefix-or-postfix & infix prefix \\
+postfix & prefix-or-postfix & postfix postfix \\
+infix-or-prefix & prefix-or-postfix & ambiguous prefix \\
+infix-or-postfix & prefix-or-postfix & unresolved \\
+prefix-or-postfix & prefix-or-postfix & unresolved \\
+\hline
+infix-or-prefix & non-operator & ambiguous non-operator \\
+infix-or-prefix & prefix & ambiguous prefix \\
+infix-or-prefix & infix & possibility error \\
+infix-or-prefix & postfix & possibility error \\
+infix-or-prefix & nofix & infix nofix \\
+infix-or-prefix & expression-end & possibility error \\
+\hline
+infix-or-postfix & non-operator & infix non-operator \\
+infix-or-postfix & prefix & infix prefix \\
+infix-or-postfix & infix & postfix infix \\
+infix-or-postfix & postfix & postfix postfix \\
+infix-or-postfix & nofix\H & ambiguous nofix \\
+infix-or-postfix & nofix\L & postfix nofix \\
+infix-or-postfix & expression-end & postfix expression-end \\
+\hline
+prefix-or-postfix & non-operator & prefix non-operator \\
+prefix-or-postfix & prefix & prefix prefix \\
+prefix-or-postfix & infix & postfix infix \\
+prefix-or-postfix & postfix & postfix postfix \\
+prefix-or-postfix & nofix & postfix nofix \\
+prefix-or-postfix & expression-end & postfix expression-end \\
+\hline
+\end{tabular}
+\end{center}
+\vspace*{-3ex}
+\caption{Fixity Rewrite Rules}
+\label{FIXITY-REWRITE-RULES}
+\end{figure*}
+
+These rewrite rules can be applied during a left-to-right scan.
+It can be proved that at any time, the tokens before the current
+position will have one of the forms:
+\begin{center}
+\begin{tabular}{r}
+\ldots{} \\
+\ldots{} infix-or-postfix \\
+\ldots{} infix-or-postfix  infix-or-prefix \\
+\ldots{} infix-or-postfix\QMARK{} prefix-or-postfix\PLUS{} infix-or-prefix\QMARK{} \\
+\end{tabular}
+\end{center}
+
+where \ldots{}~denotes a sequence of non-operators and non-ambiguous
+operators.  The end of expression will resolve
+ambiguities at the end of the expression, but operators
+designated by the rewrite rules as `ambiguous' will remain
+ambiguous.
+
+\subsubsubsection{Subexpression Identification}
+\label{SUBEXPRESSION-IDENTIFICATION}
+
+After operators and their fixity have been determined, the
+expression is parsed into subexpressions according to the
+syntax given in \itemref{OPERATOR-EXPRESSION-SYNTAX}.
+
+\subsubsection{Operator Reformatters}
+\label{OPERATOR-REFORMATTERS}
+
+In describing the effects of operator reformatters
+we use notation such as
 
 \hspace*{2em}\begin{tabular}{lcl}
 \TT{x = y = z + w} & $\Longrightarrow$ & \TT{= x ( = y (+ x w))} \\
@@ -7528,7 +7791,8 @@ more than once.
 The {\em natural-numbers} in {\em temporaries} must be assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
-With these things in mind, the reformatters are:
+With the above in mind, the operator reformatters are:
+
 
 \begin{indpar}[1em]
 
@@ -7785,256 +8049,6 @@ and this reformatter:
 \end{indpar}
 
 
-\subsubsection{The Operator Parsing Algorithm}
-\label{OPERATOR-PARSER-ALGORITHM}
-
-
-The operator parsing pass runs the \key{operator parsing algorithm}
-that accepts as input a sequence of tokens
-which we call an `expression'
-and edits this input, changing it into a single token
-if it contains any operators, or leaving it untouched
-if it contains no operators.
-
-\subsubsubsection{Algorithm Outline}
-
-The operator parsing algorithm runs a left to right scan which:
-\begin{enumerate}
-\item Identifies sequences of lexemes that are operators, and
-replaces each by a single \ttkey{OPERATOR} token with the operator as
-its label.
-\item Determines the fixity of each operator: prefix, infix,
-postfix, or nofix.
-\item Identifies subexpressions using operator precedence and fixity.
-Then processes each subexpression, innermost first, and lastly processes the
-entire expression as a subexpression.
-\end{enumerate}
-
-When the operator parsing pass processes a
-subexpression that contains one or more operators, the
-pass first calls the reformatter associated with the first operator
-in the subexpression, if any.  Then if the reformatter requests, or if
-there is no reformatter, the operator parsing pass
-compacts the tokens now in the subexpression into a single
-\TT{BRACKATABLE} token with the first operator as the value of
-the token value's \ttdkey{operator} attribute.
-
-When the operator parsing pass
-processes a subexpression that does \underline{not} contain an operator,
-the operator parsing pass runs subsequent parsing passes on the subexpression.
-Then if the subexpression has zero or more than one token, the operator
-parsing pass replaces
-the subexpression by a single \TT{BRACKATABLE} token with no attibutes
-(other than \TT{.position}).
-
-
-The left-to-right scan always has a current position.
-All operators to the left of the current position have been
-identified as per \itemref{OPERATOR-IDENTIFICATION},
-and most have had their fixity determined as per
-\itemref{FIXITY-DETERMINATION}.  Subexpression recognition
-is done after operators and fixity have been determined, and can be done
-by a second left-to-right scan.
-
-\subsubsubsection{Operator Identification}
-\label{OPERATOR-IDENTIFICATION}
-
-Operator identification determines whether a sequence of lexemes
-beginning at the current position is an operator by looking up
-operator definitions.  Only
-operator definitions selected by the current parsing selectors are
-considered.  Longer operators are preferred over shorter
-operators, and among these, operators defined later are
-preferred over operators defined earlier.
-
-If an operator definition has the afix flag, the definition
-is ignored unless there is an operator to the left of
-the current position that has the same precedence as the
-afix definition, and there is no \underline{non-ambiguous}
-operator of lower precedence
-between that previous operator and the current position.
-See the end of \itemref{FIXITY-DETERMINATION} for a description
-of the possible ambiguous operators that may be before the current
-position.
-
-Operator fixity is ignored during operator identification except
-that determination of fixity during the left-to-right scan
-determines precedence that in turn affects which afix
-operator definitions are ignored.
-
-If an operator is identified, its lexemes are collected into
-an \TT{OPERATOR} token.  If no operator is identified, the
-current position is moved one token to the right.
-
-
-\subsubsubsection{Fixity Determination}
-\label{FIXITY-DETERMINATION}
-
-An operator definition may have ambiguous fixity.  In
-particular, it may be
-\begin{center}
-prefix or infix \\
-prefix or postfix \\
-infix or postfix
-\end{center}
-
-Operator fixity is determined during the left to right scan
-using the following rules:
-
-\begin{itemize}
-\item[(A)]
-A prefix operator must be followed by a non-operator or another
-prefix operator.
-\item[(B)]
-A prefix operator must be preceded by an infix operator, a nofix
-operator, a prefix operator, or the beginning of the expression.
-\item[(C)]
-An infix operator must be followed by a non-operator, a prefix
-operator, or a nofix operator of greater priority than the
-infix operator.
-\item[(D)]
-An infix operator must be preceded by a non-operator, a postfix
-operator, or a nonfix operator of greater priority than the
-infix operator.
-\item[(E)]
-A postfix operator must be followed by an infix operator, a nofix
-operator, a postfix operator, or the end of the expression.
-\item[(F)]
-A postfix operator must be preceded by a non-operator or another
-postfix operator.
-\end{itemize}
-
-If these rules are obeyed, then the following will be true:
-
-\begin{itemize}
-\item[(G)]
-A nofix operator will be followed by a non-operator, a prefix
-operator, an infix operator of priority lower than the nofix
-operator, or the end of the expression.
-\item[(H)]
-A nofix operator will be preceded by a non-operator, a postfix
-operator, an infix operator of priority lower than the nofix
-operator, or the beginning of the expression.
-\item[(I)]
-A non-operator will be followed by a non-operator, a postfix
-operator, an infix operator, a nofix operator,
-or the end of the expression.
-\item[(J)]
-A non-operator will be preceded by a non-operator, a prefix
-operator, an infix operator, a nofix operator,
-or the beginning of the expression.
-\item[(K)]
-The beginning of expression is followed by a prefix operator,
-a nofix operator, or a non-operator.
-\item[(L)]
-The end of expression is preceded by a postfix operator,
-a nofix operator, or a non-operator.
-\end{itemize}
-
-The above rules lead to the \key{fixity rewrite rules}
-in figure \ref{FIXITY-REWRITE-RULES} that determine the fixity
-of operators with ambiguous fixity.  In these `ambiguous'
-means an operator whose fixity cannot be determined by the above
-rules (along with any operators before it whose fixity has not
-been determined);
-`possibility-error'
-means there can be no way to assign fixity to the expression operators
-consistent with the above rules; and `unresolved' means the
-rewrite rule does not change anything (i.e., there is no
-rewrite rule for the indicated case).
-Also nofix$^H$ means a nofix operator of precedence higher
-than the preceeding infix-or\ldots{} operator, and
-nofix$^L$ means a nofix operator of precedence equal to or lower
-than the preceeding infix-or\ldots{} operator.
-
-\begin{figure*}[!p] \small
-\begin{center}
-\renewcommand{\H}{$^H$}
-\renewcommand{\L}{$^L$}
-\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
-\hline
-expression-begin & infix-or-prefix & expression-begin prefix \\
-non-operator & infix-or-prefix & non-operator infix \\
-prefix & infix-or-prefix & prefix prefix \\
-infix & infix-or-prefix & infix prefix \\
-postfix & infix-or-prefix & postfix infix \\
-infix-or-prefix & infix-or-prefix & ambiguous prefix \\
-infix-or-postfix & infix-or-prefix & unresolved \\
-prefix-or-postfix & infix-or-prefix & unresolved \\
-\hline
-expression-begin & infix-or-postfix & possibility-error \\
-non-operator & infix-or-postfix & unresolved \\
-prefix & infix-or-postfix & possibility-error \\
-infix & infix-or-postfix & possibility-error \\
-postfix & infix-or-postfix & unresolved \\
-infix-or-prefix & infix-or-postfix & possibility-error \\
-infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
-prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
-\hline
-expression-begin & prefix-or-postfix & expression-begin prefix \\
-non-operator & prefix-or-postfix & non-operator postfix \\
-prefix & prefix-or-postfix & prefix prefix \\
-infix & prefix-or-postfix & infix prefix \\
-postfix & prefix-or-postfix & postfix postfix \\
-infix-or-prefix & prefix-or-postfix & ambiguous prefix \\
-infix-or-postfix & prefix-or-postfix & unresolved \\
-prefix-or-postfix & prefix-or-postfix & unresolved \\
-\hline
-infix-or-prefix & non-operator & ambiguous non-operator \\
-infix-or-prefix & prefix & ambiguous prefix \\
-infix-or-prefix & infix & possibility error \\
-infix-or-prefix & postfix & possibility error \\
-infix-or-prefix & nofix & infix nofix \\
-infix-or-prefix & expression-end & possibility error \\
-\hline
-infix-or-postfix & non-operator & infix non-operator \\
-infix-or-postfix & prefix & infix prefix \\
-infix-or-postfix & infix & postfix infix \\
-infix-or-postfix & postfix & postfix postfix \\
-infix-or-postfix & nofix\H & ambiguous nofix \\
-infix-or-postfix & nofix\L & postfix nofix \\
-infix-or-postfix & expression-end & postfix expression-end \\
-\hline
-prefix-or-postfix & non-operator & prefix non-operator \\
-prefix-or-postfix & prefix & prefix prefix \\
-prefix-or-postfix & infix & postfix infix \\
-prefix-or-postfix & postfix & postfix postfix \\
-prefix-or-postfix & nofix & postfix nofix \\
-prefix-or-postfix & expression-end & postfix expression-end \\
-\hline
-\end{tabular}
-\end{center}
-\vspace*{-3ex}
-\caption{Fixity Rewrite Rules}
-\label{FIXITY-REWRITE-RULES}
-\end{figure*}
-
-These rewrite rules can be applied during a left-to-right scan.
-It can be proved that at any time, the tokens before the current
-position will have one of the forms:
-\begin{center}
-\begin{tabular}{r}
-\ldots{} \\
-\ldots{} infix-or-postfix \\
-\ldots{} infix-or-postfix  infix-or-prefix \\
-\ldots{} infix-or-postfix\QMARK{} prefix-or-postfix\PLUS{} infix-or-prefix\QMARK{} \\
-\end{tabular}
-\end{center}
-
-where \ldots{}~denotes a sequence of non-operators and non-ambiguous
-operators.  The end of expression will resolve
-ambiguities at the end of the expression, but operators
-designated by the rewrite rules as `ambiguous' will remain
-ambiguous.
-
-\newpage
-
-\subsubsubsection{Subexpression Identification}
-\label{SUBEXPRESSION-IDENTIFICATION}
-
-After operators and their fixity have been determined, the
-expression is parsed into subexpressions according to the
-syntax given in \itemref{OPERATOR-EXPRESSION-SYNTAX}.
 
 \clearpage
 

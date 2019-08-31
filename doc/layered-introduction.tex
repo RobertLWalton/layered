@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 29, 2019
+August 31, 2019
  
 \end{center}
 
@@ -7104,6 +7104,67 @@ are defined by operator definitions that can be added to the
 parsing definition stack.  List separators, such as `\TT{,}', are treated
 as operators, and have operator definitions.
 
+\subsubsection{Operator Expression Syntax}
+\label{OPERATOR-EXPRESSION-SYNTAX}
+
+The operator parsing pass identifies operators, assignes fixity
+(prefix, infix, postfix, and nofix) to the operators, and then
+uses the following syntax to identify subexpressions:
+
+\begin{indpar}
+\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\\[0.5ex]
+\emkey{N-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \{ {\em (N+1)-expression} $|$ {\em N-operator)} \}\PLUS{} \\
+        & where no two {\em (N+1)-expressions} may be adjacent \\ 
+        & and each {\em infix-N-operator} must be surrounded by
+	  {\em (N+1)-expressions} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{N-operator} ::= {\em nofix-N-operator} $|$ {\em infix-N-operator}
+\\[0.5ex]
+\emkey{(H+1)-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em (H+2)-expression} \\
+    $|$ & {\em prefix-operator} {\em (H+1)-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{(H+2)-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em (H+3)-expression} \\
+    $|$ & {\em (H+2)-expression} {\em postfix-operator} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{(H+3)-expression} ::= {\em non-operator}\PLUS{}
+\\[2.0ex]
+\hspace*{3em}\begin{tabular}{l}
+where N is any, L is the lowest, and H is the highest precedence allowed \\
+an infix or nofix operator
+\end{tabular}
+\end{indpar}
+
+Essentually the expression being parsed is organized into {\em P-expressions}
+where $P$ is the precedence of the {\em P-expression}.  For $P\ge H$,
+a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
+and infix and nofix operators of precedence $P$.
+The case $P=H+1$ is special: a {\em (H+1)-expression} is a sequence
+of zero or more prefix operators followed by a single {\em (H+1)-expression}.
+A {\em (H+2)-expression} is similarly just a {\em (H+3)-expression},
+which is an operand, followed by zero or more postfix operators.
+
+An infix operator must be surrounded by operands, but a nofix operator
+need not have adjacent operands.
+
+By choosing appropriate operator definition commands, one can build
+a reasonable expression syntax consisting of nothing but nofix operators,
+while using operator expression reformatters to check whether the
+operators in an expression have sufficient operands.  However, with
+nofix operators an operator cannot have different precedence when it
+is infix and when it is prefix.  An operator like `\TT{-}' can be
+specified as both infix and prefix, where the prefix operator has
+much higher precedence (H+1) than the infix operator.
+
 \subsubsection{Operator Commands}
 \label{OPERATOR-COMMANDS}
 
@@ -7161,8 +7222,11 @@ the parsing definition stack:
                         $|$ \ttmkey{postfix}{operator fixity}
                         $|$ \ttmkey{nofix}{operator fixity}
 	\\[1ex]
-\emkey{precedence} :::= {\em sign-option} {\em natural-number}
-	in the range [-1,000,000, +1,000,000]
+\emkey{precedence} \begin{tabular}[t]{rl}
+		   :::= & {\em sign-option} {\em natural-number}
+			  in the range [L, H] \\
+			& where L = -1,000,000 and H = +1,000,000 \\
+		    \end{tabular}
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \TT{+} $|$ \TT{-}
 	\\[1ex]
@@ -7970,40 +8034,7 @@ ambiguous.
 
 After operators and their fixity have been determined, the
 expression is parsed into subexpressions according to the
-syntax:
-
-\begin{indpar}
-\emkey{expression}\label{EXPRESSION} ::= {\em (L-1)-expression}
-\\[0.5ex]
-\emkey{N-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \{ {\em (N+1)-expression} $|$ {\em N-operator)} \}\PLUS{} \\
-        & where no two {\em (N+1)-expressions} may be adjacent \\ 
-        & and each {\em infix-N-operator} must be surrounded by
-	  {\em (N+1)-expressions} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{N-operator} ::= {\em nofix-N-operator} $|$ {\em infix-N-operator}
-\\[0.5ex]
-\emkey{(H+1)-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em (H+2)-expression} \\
-    $|$ & {\em prefix-operator} {\em (H+1)-expression} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{(H+2)-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em (H+3)-expression} \\
-    $|$ & {\em (H+2)-expression} {\em postfix-operator} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{(H+3)-expression} ::= {\em non-operator}\PLUS{}
-\\[2.0ex]
-\hspace*{3em}\begin{tabular}{l}
-where N is any, L is the lowest, and H is the highest precedence allowed \\
-an infix or nofix operator
-\end{tabular}
-\end{indpar}
+syntax given in \itemref{OPERATOR-EXPRESSION-SYNTAX}.
 
 \clearpage
 

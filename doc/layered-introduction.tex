@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 31, 2019
+September 2, 2019
  
 \end{center}
 
@@ -6972,9 +6972,13 @@ parser pass stack and parser selectors.
 The \key{parser pass stack} is a list of parser passes with a set of
 selectors associated with each pass.  A pass in this list is active
 if it has a selector in common with the parsing selectors computed
-by the bracketed subexpression recognition pass.  After the top level pass
-recognizes a subexpression, the active passes in the parser pass stack
-are run in the order that they appear in the stack.
+by the top level bracketed subexpression recognition pass.  Each pass
+calls the next active pass in the parser pass stack on subexpressions
+recognized by the calling pass.  For passes like the operator pass,
+this is done on subexpressions recognized by the pass which contain
+no operators, and after the called pass returns, the operator pass
+compacts any subexpression with zero or more than one token into
+a single \TT{PURELIST} token.
 
 The parsing selectors
 computed by the opening bracket of the bracketed subexpression
@@ -6984,7 +6988,7 @@ subexpression and also the activity
 of the parser definitions (i.e., parser symbol table entries)
 used by these parser passes.
 Note that only the brackets surrounding a bracketed subexpression
-can change the parsing selectors in the parser context; the operators
+can change the parsing selectors in the parser context; operators
 that bound implicit subexpressions cannot change these parsing selectors.
 
 The parser pass stack can be altered and inspected

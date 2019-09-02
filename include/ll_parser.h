@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 22:22:23 EDT 2019
+// Date:	Mon Sep  2 03:53:17 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1874,12 +1874,14 @@ bool set_attr_multivalue
 	  min::gen multivalue,
 	  unsigned option = NEW );
 
-// First, invokes the given pass, if that is not NULL_
-// STUB, on the expression consisting of the tokens
+// First, invokes the given pass using execute_pass_
+// parse on the expression consisting of the tokens
 // beginning with `first' and ending just before `next'.
+// If the pass argument is NULL_STUB, this has no
+// effect.
 //
 // Then replaces the expression tokens (which may have
-// been changed by the pass) by a resulting expression
+// been changed by the pass) by a single expression
 // token.  Adds the m attributes whose names and values
 // are given, and allows for the latter addition of n
 // attributes.  Sets the position of the new expression
@@ -1895,12 +1897,8 @@ bool set_attr_multivalue
 // MUST NOT include any .type, .initiator, or .termina-
 // tor attributes.
 //
-// Any token in the expression being output that has a
-// MISSING token value must be a non-natural number or
-// quoted string.  These are replaced by a subexpression
-// whose sole element is the token string of the token
-// as a string general value and whose .initiator is #
-// for a number or " for a quoted string.
+// Natural number and quoted string tokens in the
+// expression are converted as per convert_token.
 //
 // Space is allocated in the new object for the m
 // attributes, 1 .position attribute, and n attributes

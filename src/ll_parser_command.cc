@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 05:35:36 EDT 2019
+// Date:	Mon Sep  2 04:16:10 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -800,8 +800,9 @@ static min::gen execute_pass
     }
     else if ( vp[i0] == PARLEX::define )
     {
-        PAR::pass pass =
-	    PAR::find_on_pass_stack ( parser, name );
+        min::locatable_var<PAR::pass> pass
+	    ( PAR::find_on_pass_stack
+	           ( parser, name ) );
 	if ( pass == parser->pass_stack )
 	    return PAR::parse_error
 		( parser, name_pp,

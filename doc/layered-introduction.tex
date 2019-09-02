@@ -7060,8 +7060,9 @@ The \TT{parser define pass} statement sets the
 {\em parsing-selectors} of the named parser pass
 and installs that pass in the parser pass stack at the
 location specified.
-If the pass was previously on the stack, it is removed first
-and then re-installed.  The {\em parser-pass-name} and
+If the pass was previously on the stack, it is removed from the stack
+and then reinserted into the stack without altering any pass-specific
+symbol tables.  The {\em parser-pass-name} and
 {\em next-parser-pass-name} cannot be `\TT{top}'.
 Any {\em previous-parser-pass-name} or {\em next-parser-pass-name}
 given must name a pass already in the stack that is different from
@@ -7072,7 +7073,7 @@ parser pass from the stack, if it is in the stack, and does
 nothing otherwise.  The `\TT{top}' pass cannot be undefined.
 
 The \TT{parser undefine pass} statement destroys any symbol
-table associated with the pass being undefined.  First undefining and then
+tables associated with the pass being undefined.  First undefining and then
 redefining a pass effectively clears this symbol table.  Thus
 first undefining and then redefining the `\TT{operator}' pass
 clears the symbol table set by `\TT{parser define operator \ldots}'
@@ -7093,11 +7094,13 @@ The pass is responsible for calling the next pass down in the parser
 pass stack, and may edit the sublist before and/or after calling
 this next pass.
 
-The bracketed subexpression pass, also known as the `\TT{top}' pass,
-is the first pass called for each
+The bracketed subexpression recognition pass, also known as the `\TT{top}' pass,
+which is the first pass called for each
 top level input line, recognizes bracketed subexpressions,
-calls the next active lower pass for each bracketed subexpression,
-and then replaces the bracketed subexpression by a single MIN object.
+and for each recognized subexpression
+calls the next active lower pass for the token list of the subexpression
+and then replaces this token list, which may have been edited by
+the called lower pass, by a single MIN object.
 
 \subsection{The Operator Parsing Pass}
 \label{OPERATOR-PARSING-PASS}

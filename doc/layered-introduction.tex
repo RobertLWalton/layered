@@ -4176,7 +4176,7 @@ does not have any \TT{.type}, \TT{.initiator}, or \TT{.terminator}
 attribute.  Then when X is formed, the knowledge of the structure
 of X and the \TT{BRACKETABLE} or \TT{PURELIST} type of Y permit the two objects
 to be merged.%
-\label{MERGING-BRACKATABLE-TOKENS}
+\label{MERGING-BRACKETABLE-TOKENS}
 
 Consider the example:
 \begin{center}
@@ -7480,8 +7480,7 @@ The operator parsing pass runs the \key{operator parsing algorithm}
 that accepts as input a sequence of tokens
 which we call an `expression'
 and edits this input, changing it into a single token
-if it contains any operators, or leaving it untouched
-if it contains no operators.
+if it contains any operators.
 
 \subsubsubsection{Algorithm Outline}
 
@@ -7493,26 +7492,9 @@ its label.
 \item Determines the fixity of each operator: prefix, infix,
 postfix, or nofix.
 \item Identifies subexpressions using operator precedence and fixity.
-Then processes each subexpression, innermost first, and lastly processes the
+\item Processes each subexpression, innermost first, treating the
 entire expression as a subexpression.
 \end{enumerate}
-
-When the operator parsing pass processes a
-subexpression that contains one or more operators, the
-pass first calls the reformatter associated with the first operator
-in the subexpression, if any.  Then if the reformatter requests, or if
-there is no reformatter, the operator parsing pass
-compacts the tokens now in the subexpression into a single
-\TT{BRACKATABLE} token with the first operator as the value of
-the token value's \ttdkey{operator} attribute.
-
-When the operator parsing pass
-processes a subexpression that does \underline{not} contain an operator,
-the operator parsing pass runs subsequent parsing passes on the subexpression.
-Then if the subexpression has zero or more than one token, the operator
-parsing pass replaces
-the subexpression by a single \TT{BRACKATABLE} token with no attibutes
-(other than \TT{.position}).
 
 
 The left-to-right scan always has a current position.
@@ -7709,8 +7691,8 @@ position will have one of the forms:
 \end{center}
 
 where \ldots{}~denotes a sequence of non-operators and non-ambiguous
-operators.  The end of expression will resolve
-ambiguities at the end of the expression, but operators
+operators.  The expression-end will resolve
+ambiguities next to the end of the expression, but operators
 designated by the rewrite rules as `ambiguous' will remain
 ambiguous.
 
@@ -7720,6 +7702,46 @@ ambiguous.
 After operators and their fixity have been determined, the
 expression is parsed into subexpressions according to the
 syntax given in \itemref{OPERATOR-EXPRESSION-SYNTAX}.
+
+\subsubsubsection{Subexpression Processing}
+\label{SUBEXPRESSION-PROCESSING}
+
+If a subexpression contains one or more operators, the
+operator parsing pass first calls the reformatter associated
+with the first operator
+in the subexpression, if any.  Then if the reformatter requests, or if
+there is no reformatter, the operator parsing pass
+compacts the tokens now in the subexpression into a single
+\TT{BRACKETABLE} token with the first operator as the value of
+the token value's \ttdkey{operator} attribute.
+
+If a subexpression does \underline{not} contain an operator,
+the operator parsing pass runs subsequent parsing passes on the subexpression.
+Then if the subexpression has now zero or more than one token, the operator
+parsing pass replaces
+the subexpression by a single \TT{BRACKETABLE} token with no attibutes
+(other than \TT{.position}).
+
+The bracketed subexpression recognition pass may merge brackets
+into \TT{BRACKETABLE} tokens: see \pagref{MERGING-BRACKETABLE-TOKENS}.
+Thus given `\TT{(x,y)}', the `\TT{separator}'
+reformatter will return
+\begin{indpar}\begin{verbatim}
+@1 = x y {| .separator = "," |}
+\end{verbatim}\end{indpar}
+so without this merging the bracketed subexpression recognition
+pass would produce
+\begin{indpar}\begin{verbatim}
+@2 = @1 {| .initiator = "("; .terminator = ")" |}
+@1 = x y {| .separator = "," |}
+\end{verbatim}\end{indpar}
+but instead it produces
+\begin{indpar}\begin{verbatim}
+@3 = x y :|
+    .initiator = "("
+    .terminator = ")"
+    .separator = ","
+\end{verbatim}\end{indpar}
 
 \subsubsection{Operator Reformatters}
 \label{OPERATOR-REFORMATTERS}
@@ -7741,49 +7763,6 @@ merely written here to indicate sublists in the expression structure.
 Reformatters can detect parsing errors, such the fact that both
 operators in `\TT{x AND y OR z}' are not identical (when both are
 infix operators with the same precedence).
-
-Note that what would be parsing errors in some other parsing systems
-are not in this system.  For example,
-
-\hspace*{2em}\begin{tabular}{lcl}
-\TT{x AND AND y} & $\Longrightarrow$ & \TT{AND x (AND y)} \\
-\end{tabular}
-
-because the second \TT{AND} is not considered to be an operator and
-`\TT{AND y}' is considered to be a valid subexpression that might be
-a variable name.  If this does not name anything, a naming error should
-be detected, but this is not a parsing error.
-
-In some circumstances 
-the bracketed subexpression recognition pass merges the brackets
-it finds into a list returned by a reformatter.
-If the bracketed subexpression recognition pass
-would otherwise
-return a list (with \TT{.initiator} or \TT{.terminator}) that has a single
-element which is a list without an \TT{.initiator} or
-\TT{.terminator}, then instead of forming the outer list,
-the bracketed subexpression recognition
-pass copies its attributes to the inner list.
-
-Thus given `\TT{(x,y)}', the `\TT{separator}'
-reformatter will return
-\begin{indpar}\begin{verbatim}
-@1 = x y {| .separator = "," |}
-\end{verbatim}\end{indpar}
-so without this merging the bracketed subexpression recognition
-pass would produce
-\begin{indpar}\begin{verbatim}
-@2 = @1 {| .initiator = "("; .terminator = ")" |}
-@1 = x y {| .separator = "," |}
-\end{verbatim}\end{indpar}
-but instead it produces
-\begin{indpar}\begin{verbatim}
-@3 = x y :|
-    .initiator = "("
-    .terminator = ")"
-    .separator = ","
-\end{verbatim}\end{indpar}
-See \pagref{MERGING-BRACKATABLE-TOKENS} for more details.
 
 Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:
@@ -7807,7 +7786,7 @@ expression to refer to this value.  An example is
 Here the temporary has been used to avoid computing \TT{y + 3}
 more than once.
 
-The {\em natural-numbers} in {\em temporaries} must be assigned so no
+The {\em natural-numbers} in {\em temporaries} are assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
 With the above in mind, the operator reformatters are:

@@ -7419,8 +7419,10 @@ in \itemref{OPERATOR-REFORMATTERS}.
 precedence & reformatter	& type	& operator	& meaning 
 \\\hline
 0000	& \ttkey{declare}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
-	&			& \TT{afix}	& \ttkey{\{ ... \}} & block \\
-	&			& \TT{afix}	& \ttkey{:}         & block
+	&			& \TT{afix}	& \TT{bracket}  & block \\
+	&			& 		& \ttkey{~~"\{" ...~"\}"} & \\
+	&			& \TT{afix}	& \TT{indentation}  & block \\
+	&			& 		& \TT{~~mark} \ttkey{":"} & 
 \\\hline
 1000	& \TT{right}		& \TT{nofix}	& \ttkey{=}	& assignment \\
      	& \TT{associative\ttindex{right associative}}
@@ -7453,8 +7455,8 @@ precedence & reformatter	& type	& operator	& meaning
 								  or equal \\
 	&			&		& \TT{=>}	& ditto
 \\\hline
-5000	& \ttkey{sum}		& \TT{infix}	& \TT{+}	& addition \\
-	&			&		& \TT{-}	& subtraction
+5000	& \ttkey{sum}		& \TT{infix} and & \TT{+}	& addition \\
+	&			& \TT{~~prefix}	& \TT{-}	& subtraction
 \\\hline
 5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division
 \\\hline
@@ -7463,11 +7465,6 @@ precedence & reformatter	& type	& operator	& meaning
 \\\hline
 5300	& \ttkey{binary}	& \TT{infix}	& \TT{\textasciicircum}
 							& exponentiation
-\\\hline
-H+1	& 			& \TT{prefix}	&  \TT{-}	& minus \\
-	& 			& \TT{prefix}	&  \TT{+}	& plus \\
-	& 			& \TT{prefix}	&  \TT{@}	& object
-	                                                          identifier
 \\\hline
 \end{tabular}
 \end{center}

@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 2, 2019
+September 3, 2019
  
 \end{center}
 
@@ -2879,7 +2879,7 @@ for the current parser pass or context.
 Entries may be activated only when other entries are recognized
 in the current context, as when afix operators become active
 only after an associated non-afix operator is recognized in
-the same subexpression (see \pagref{AFIX-OPERATOR}).
+the same subexpression (see \pagref{AFIX-FLAG}).
 
 In the bracketed
 subexpression recognition pass matched labels may not span physical
@@ -7276,10 +7276,10 @@ By abuse of language, the term `\key{operator}' is often used
 as a synonym for `{\em simple-operator-name}'.
 
 Operators have \skey{operator flag}s that
-affect parsing of subexpressions of the operator.  The possible
-flags are `\TT{infix}', `\TT{prefix}', `\TT{postfix}',
-`\TT{nofix}', and `\TT{afix}'.  An operator must have at least
-one of these flags.
+affect parsing of subexpressions of the operator.  The fixity flags are
+`\TT{infix}', `\TT{prefix}', `\TT{postfix}', and `\TT{nofix}'.
+An operator must have at least one of these flags.
+In addition there is an `\TT{afix}' flag.
 
 An \ttkey{infix} operator must be between two non-empty operands,
 while a \ttkey{prefix} operator must precede a non-empty operand,
@@ -7289,19 +7289,32 @@ has no preceding operand.
 A postfix operator can only appear at then end of a subexpression and has
 no following operand.
 
-A \ttkey{nofix} operator is like an infix operator but may or may not be
+An infix operator may also be either prefix or postfix.
+An infix operator has the precedence given in the operator definition.
+A prefix operator always has precedence H+1, and a postfix operator
+always has precedence H+2.
+
+A \ttkey{nofix} operator may or may not be
 preceded or followed by operands.  It may appear at the beginning or ending of
 an expression, or two nofix operators may be consecutive in an expression.
+A nofix operator has the precedence given in the operator definition.
+A nofix operator may \underline{not} also be prefix or postfix.
 
-An \ttkey{afix} operator\label{AFIX-OPERATOR} must follow
-another operator that has the same precedence in a subexpression.
-Subexpressions bracketed by `\TT{\{ \}}'
-are standard afix operators with the same precedence
-as the \TT{<-{}-} operator, so that an expression such as:
+An operator with the `\ttkey{afix}' flag\label{AFIX-FLAG} must follow
+another operator that has the same precedence in a subexpression,
+and will be part of the subexpression containing that previous operator.
+There can be no operator of lower precedence between this previous
+operator and the afix operator.  Infix and nofix operators may be given
+the afix flag.  Prefix and postfix operators can\underline{not} be
+given the afix flag.
+
+As an example, standardly \TT{bracket "\{" ... "\}"} is a nofix
+operator with the afix flag and the same precedence as the
+as the \TT{"<-{}-"} operator.  Therefore the expression
 \begin{center}
 \verb|sum from X through Y <-- integer X, integer Y { ... }|
 \end{center}
-is parse as
+is parsed as
 \begin{center}
 \verb|(sum from X through Y) <-- (integer X, integer Y) { ... }|
 \end{center}
@@ -7312,7 +7325,8 @@ and \underline{not} as
 
 An operator must be prefix, infix, postfix, or nofix.
 An operator may be any two of prefix, infix, and postfix, but
-not all three.  An afix operator must be infix or nofix.
+not all three.  An afix operator must be infix or nofix,
+and not prefix or postfix.
 
 This can be expressed in the following compatibility table:
 
@@ -7394,7 +7408,8 @@ symbol table entries.
 
 The standard operators are given in Figure~\ref{STANDARD-OPERATORS}.
 
-Operator reformatters are specified in \itemref{OPERATOR-REFORMATTERS}.
+The possible operator reformatters are specified
+in \itemref{OPERATOR-REFORMATTERS}.
 
 \begin{figure*}[!p]
 \begin{center}

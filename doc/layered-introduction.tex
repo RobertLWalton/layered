@@ -7804,29 +7804,30 @@ With the above in mind, the operator reformatters are:
 
 
 \begin{indpar}[0.5em]
-May only be used with \TT{nofix} operators.
+May only be used with \TT{nofix} or \TT{infix} operators.
 
-There must be at least one operator, and all operator values must
+All operator values must
 be identical.  It is required that any two operands be separated by an operator,
 but operators my be consecutive and may begin or end the subexpression.
 
 Empty list operands are inserted to make all operators
 infix.  Then the operators are deleted, the resulting list of
-operands is given a \ttmkey{.separator}{produced by parsing}
-attribute with value of the {\em separator} argument to the reformatter,
-and this is returned as the result of the reformatting.  Examples
+operands is made into a \TT{BRACKETABLE} token with a MIN object value
+that has a \ttmkey{.separator}{produced by parsing}
+attribute whose value is the {\em separator} argument to the reformatter.
+Examples
 with `\TT{,}' as both the operator and the {\em separator} argument to the
 reformatter are:
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
 \TT{x , y} & $\Longrightarrow$ & \TT{x y}
-					& with \TT{.separator} \TT{","} \\
+					& with \TT{.separator ","} \\
 \TT{, y} & $\Longrightarrow$ & \TT{() y}
-					& with \TT{.separator} \TT{","} \\
+					& with \TT{.separator ","} \\
 \TT{x ,} & $\Longrightarrow$ & \TT{x ()}
-					& with \TT{.separator} \TT{","} \\
+					& with \TT{.separator ","} \\
 \TT{x ,, y} & $\Longrightarrow$ & \TT{x () y}
-					& with \TT{.separator} \TT{","} \\
+					& with \TT{.separator ","} \\
 \end{tabular}
 \end{indpar}
 
@@ -7835,8 +7836,7 @@ reformatter are:
 \ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \NBOP{\{\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{nofix}, \TT{prefix}, or \TT{infix} operators.
-
+May only be used with \TT{nofix} or \TT{infix} operators.
 
 All operators but the first must be bracketed subexpressions,
 and any operands must be just before or just after the first operator.
@@ -7885,11 +7885,11 @@ end up as `\TT{<-{}- x ( y \{ z \} )}'.
     \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{infix} operators.
+May only be used with \TT{nofix} and \TT{infix} operators.
 
-Therefore operands and operators alternate,
+Operands and operators must alternate,
 with the first and last subexpression
-elements being operands, and there is at least one operator.
+elements being operands.
 
 If there is only one operator, it is simply moved to the front.  If there
 are several, they are rewritten as one operator subexpressions so the
@@ -7906,7 +7906,7 @@ are all infix operators of the same precedence with this reformatter:
 \bigskip
 
 \ttmkey{unary}{reformatter}
-    \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{@}
+    \hfill \NBOP{NOT}
 
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix} or \TT{prefix} operators.
@@ -7938,7 +7938,7 @@ to the beginning of the expression.  Examples:
 \hspace*{2em}\begin{tabular}{lcl}
 \TT{x BUT NOT y} & $\Longrightarrow$ & \TT{BUT NOT x y} \\
 \TT{x / y} & $\Longrightarrow$ & \TT{/ x y} \\
-\TT{x \textasciicircum y} & $\Longrightarrow$ & \TT{\textasciicircum x y} \\
+\TT{x \textasciicircum{} y} & $\Longrightarrow$ & \TT{\textasciicircum{} x y} \\
 \TT{x / y / z} & $\Longrightarrow$ & error \\
 \TT{/ y} & $\Longrightarrow$ & error \\
 \TT{x /} & $\Longrightarrow$ & error \\
@@ -7954,10 +7954,10 @@ and \underline{not} two word elements of the subexpression.
 \ttmkey{infix}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{*}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{infix} operators.
+May only be used with \TT{nofix} or \TT{infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
-elements being operands, there must be at least one operator, and all
+elements being operands, and all
 operators must be the same.  The first operator is moved to the
 front of the subexpression, and the other operators are removed.
 Examples:
@@ -7972,6 +7972,7 @@ Examples:
 \TT{AND y AND z} & $\Longrightarrow$ & error \\
 \TT{x AND AND z} & $\Longrightarrow$ & error \\
 \TT{x AND y AND} & $\Longrightarrow$ & error \\
+\TT{x AND y OR z} & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 
@@ -7984,17 +7985,17 @@ Examples:
 	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{infix} operators.
+May only be used with \TT{nofix} or \TT{infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
-elements being operands, and there must be at least one operator.
+elements being operands.
 If there is only one operator, it is simply moved to the front.  Otherwise
 the expression is rewritten so the operators become two-argument functions
 whose values are combined by a multi-argument {\em and\_op} and whose
 shared operands are represented by temporaries (\pagref{TEMPORARY})
 to avoid computing an operand twice. 
 Examples in which \TT{<}, \TT{==}, \TT{!=}, and \TT{<=} all have
-the same precedence and this reformatter with {\em and\_op} being `\TT{AND}':
+the same precedence and this reformatter with {\em and\_op} being \TT{"AND"}:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \TT{x < y < z} & $\Longrightarrow$ &
@@ -8009,8 +8010,8 @@ the same precedence and this reformatter with {\em and\_op} being `\TT{AND}':
 
 Note that sequences of comparison operators are treated as they are
 in mathematics and not as they are in classical programming languages.
-E.g., \TT{x<y<z} means \TT{x<y AND y<z} and \underline{not}
-\TT{(x<y)<z}.
+E.g., \TT{x~<~y~<~z} means \TT{x~<~y AND y~<~z} and \underline{not}
+\TT{(x~<~y)~<~z}.
 \end{indpar}
 
 \bigskip
@@ -8019,25 +8020,32 @@ E.g., \TT{x<y<z} means \TT{x<y AND y<z} and \underline{not}
 			  \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{infix} operators.
+May only be used with \TT{nofix} or \TT{infix} operators.
 
 Operands and operators must alternate, with the last subexpression
-element being an oper\-and, and there must be at least one operator.
+element being an oper\-and.
 The operators must be either {\em plus\_op} or {\em minus\_op}.
 
-Every `{\em minus\_op} {\em operand}' is rewritten as
-`{\em plus\_op} \TT{(} {\em minus\_op} {\em operand} \TT{)}'.
-Then the first {\em plus\_op} is moved to the front and the other
+If the subexpression contains only two elements, it is not rewritten.
+In this case the subexpression must consists of an operator followed
+by an operand.
+
+Otherwise every `{\em minus\_op} {\em operand}' is rewritten as
+`{\em plus\_op} \TT{(} {\em minus\_op} {\em operand} \TT{)}', and
+then the first {\em plus\_op} is moved to the front and the other
 {\em plus\_op}'s are removed.
 
-For example, if {\em plus\_op} is `\TT{+}' and {\em minus\_op} is
-`\TT{-}' and both these operators are infix with the same precedence
-and this reformatter:
+For example, if {\em plus\_op} is \TT{"+"} and {\em minus\_op} is
+\TT{"-"} and both these operators are both infix and prefix with
+the same precedence and this reformatter:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \TT{x + y} & $\Longrightarrow$ & \TT{+ x y} \\
 \TT{x - y} & $\Longrightarrow$ & \TT{+ x (- y)} \\
 \TT{x - y + z - w} & $\Longrightarrow$ & \TT{+ x (- y) z (- w)} \\
+\TT{- x} & $\Longrightarrow$ & \TT{- x} \\
+\TT{- x + y} & $\Longrightarrow$ & \TT{+ (- x) y} \\
+\TT{+ x - y} & $\Longrightarrow$ & \TT{+ x (- y)} \\
 \end{tabular}
 
 \end{indpar}

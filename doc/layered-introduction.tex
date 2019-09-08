@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 3, 2019
+September 7, 2019
  
 \end{center}
 
@@ -6982,13 +6982,14 @@ a single \TT{PURELIST} token.
 
 The parsing selectors
 computed by the opening bracket of the bracketed subexpression
-are attached to that bracketed subexpression.
+become the parsing selectors while the subexpression is being parsed.
 These are used to determine activity of the parser passes run on the bracketed
 subexpression and also the activity
 of the parser definitions (i.e., parser symbol table entries)
 used by these parser passes.
 Note that only the brackets surrounding a bracketed subexpression
-can change the parsing selectors in the parser context; operators
+can change parsing selectors, and then can only change them within
+the bracketed subexpression.  Operators
 that bound implicit subexpressions cannot change these parsing selectors.
 
 The parser pass stack can be altered and inspected
@@ -7004,6 +7005,8 @@ by the following parser definitions:
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine pass}{parser command}
 	  {\em parser-pass-name} \\
+    $|$ & \ttmkey{define standard}{parser command}
+          {\em parser-pass-name}\QMARK{} \\
     $|$ & \ttmkey{print pass}{parser command}
     \end{tabular}
 \\[0.5ex]
@@ -7083,6 +7086,16 @@ may be used to change the `\TT{operator}' pass selectors or
 position in the pass stack without clearing the operator symbol
 table.
 
+Each pass has a standard set of definitions.  The
+The \TT{parser define standard} statement is equivalent to
+define statements for all the standard definitions of a pass.
+However this statement will put these definitions in the current
+parser block, and not necessarily in the `\TT{standard}' parser block.
+If no {\em parser-pass-name} is given, this statement issues all the
+non-pass-specific definitions that the `\TT{standard}' block would
+normally contain, including beginning a new `\TT{standard}' parser
+block.
+
 The \TT{parser print pass} statement prints the parser pass stack passes
 with their associated selectors.
 
@@ -7097,7 +7110,7 @@ this next pass.
 The bracketed subexpression recognition pass, also known as the `\TT{top}' pass,
 which is the first pass called for each
 top level input line, recognizes bracketed subexpressions,
-and for each recognized subexpression
+and for each recognized bracketed subexpression
 calls the next active lower pass for the token list of the subexpression
 and then replaces this token list, which may have been edited by
 the called lower pass, by a single MIN object.

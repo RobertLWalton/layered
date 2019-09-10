@@ -7128,9 +7128,9 @@ as operators, and have operator definitions.
 \label{OPERATOR-EXPRESSION-SYNTAX}
 
 The operator parsing pass identifies operators, assigns fixity
-(prefix, infix, postfix, and nofix) to the operators.  Operators
-are assigned precedence integers which are used to define
-expression syntax.
+(prefix, infix, postfix, and nofix) to the operators, and parses
+expressions using operator fixity and operator precedence.  Operator
+definitions assign precedence integers to operators.
 Infix and nofix operators have precedences in the range [L,H],
 where L = -1,000,000 and H = +1,000,000.  Prefix operators have
 precedence H+1, and postfix operators have precedence H+2.
@@ -7177,13 +7177,18 @@ where N is any precedence in the range [L,H]
 \end{indpar}
 
 Essentually the expression being parsed is organized into {\em P-expressions}
-where $P$ is the precedence of the {\em P-expression}.  For $P\ge H$,
+where $P$ is the precedence of the {\em P-expression}.  Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
-and infix and nofix operators of precedence $P$.
-The case $P=H+1$ is special: an {\em (H+1)-expression} is a sequence
-of zero or more prefix operators followed by a single {\em (H+2)-expression}.
-An {\em (H+2)-expression} is similarly just an {\em (H+3)-expression},
-which is an operand, followed by zero or more postfix operators.
+and operators of precedence $P$.
+An {\em (H+1)-expression}, while it can be thought of as a sequence
+of zero or more prefix operators followed by a single {\em (H+2)-expression},
+is parsed so as to execute the prefix operators from right to left, each
+with a single operand.
+Similarly, an {\em (H+2)-expression}, while it can be thought of as
+an {\em (H+3)-expression} followed by a sequence
+of zero or more postfix operators,
+is parsed so as to execute the postfix operators from left to right, each
+with a single operand.
 
 An infix operator must be surrounded by operands, but a nofix operator
 need not have adjacent operands.
@@ -7201,7 +7206,7 @@ much higher precedence (i.e., H+1) than the infix operator.
 \label{OPERATOR-COMMANDS}
 
 {\em Parser-operator-commands} modify and print
-the parsing definition stack:
+the operator parsing definition stack:
 
 \begin{indpar}[0.1in]
 \emkey{parser-operator-command}

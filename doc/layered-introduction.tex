@@ -7227,7 +7227,7 @@ the operator parsing definition stack:
 		{\em operator-name} ~ {\em parsing-selectors} \\
 		{\em operator-flag} ~ {\em operator-flag}\,\STAR{} \\
 		\end{tabular} \\
-	    \TT{with precedence} ~ {\em precedence} \\
+	    {}[ \TT{with precedence} ~ {\em precedence} ] \\
 	    {}[ \TT{with} ~ {\em reformatter-name} ~ \TT{reformatter}
 			  ~ {\em reformatter-arguments}\QMARK{} ] \\
 	    \end{tabular} \\
@@ -7238,7 +7238,7 @@ the operator parsing definition stack:
 		{\em operator-name} ~ {\em parsing-selectors} \\
 		{\em operator-flag} ~ {\em operator-flag}\,\STAR{} \\
 		\end{tabular} \\
-	    \TT{with precedence} ~ {\em precedence} \\
+	    {}[ \TT{with precedence} ~ {\em precedence} ] \\
 	    \end{tabular} \\
     \end{tabular}
 \\[1ex]
@@ -7298,18 +7298,24 @@ The other forms of {\em operator-name} permit bracketed subexpressions
 with particular kinds of brackets to be parsed as if they were operators.
 Thus in `\TT{x[5] = 0}' the bracketed subexpression
 `\TT{[5]}' can be a postfix operator.  A subexpression
-bracketed by `\TT{\{ \}}' is used as an afix (see below) to the
-\TT{<-{}-} operator, as is a subexpression introduced by the `\TT{:}'
+bracketed by `\TT{\{ \}}' is used as an afix operator (see below) to the
+\TT{<-{}-} operator, as is an indented paragraph introduced by the `\TT{:}'
 indentation mark.
 
-By abuse of language, the term `\key{operator}' is often used
-as a synonym for `{\em simple-operator-name}'.
+When a bracketed subexpression (e.g., \TT{\{\ldots\}}) is identified as
+an operator, only the opening bracket (e.g., `\TT{\{}') is checked.
+Since it is unusual for two defined brackets to have the same opening
+and different closings, this usually is inconsequential.
 
 Operators have \skey{operator flag}s that
 affect parsing of subexpressions of the operator.  The fixity flags are
 `\TT{infix}', `\TT{prefix}', `\TT{postfix}', and `\TT{nofix}'.
-An operator must have at least one of these flags.
-In addition there is an `\TT{afix}' flag.
+An operator definition must have at least one of these fixity flags.
+In addition there is an optional `\TT{afix}' flag, which in spite
+of its name is \underline{not} a fixity flag.
+
+The definition must have a {\em precedence} if and only if it is
+nofix or infix.
 
 An \ttkey{infix} operator must be between two non-empty operands,
 while a \ttkey{prefix} operator must precede a non-empty operand,
@@ -7328,14 +7334,15 @@ A \ttkey{nofix} operator may or may not be
 preceded or followed by operands.  It may appear at the beginning or ending of
 an expression, or two nofix operators may be consecutive in an expression.
 A nofix operator has the precedence given in the operator definition.
-A nofix operator may \underline{not} also be prefix or postfix.
+A nofix operator \underline{cannot} also be either prefix or postfix.
 
-An operator with the `\ttkey{afix}' flag\label{AFIX-FLAG} must follow
-another operator that has the same precedence in a subexpression,
+An operator whose definition has the `\ttkey{afix}' flag\label{AFIX-FLAG}
+must follow another operator that has the same precedence in a subexpression,
 and will be part of the subexpression containing that previous operator.
 There can be no operator of lower precedence between this previous
-operator and the afix operator.  Infix and nofix operators may be given
-the afix flag.  Prefix and postfix operators can\underline{not} be
+operator and the afix operator.  Infix and nofix operator definitions
+may be given
+the afix flag.  Prefix and postfix operator definitions \underline{cannot} be
 given the afix flag.
 
 As an example, standardly \TT{bracket "\{" ... "\}"} is a nofix
@@ -7358,7 +7365,15 @@ An operator may be any two of prefix, infix, and postfix, but
 not all three.  An afix operator must be infix or nofix,
 and not prefix or postfix.
 
-This can be expressed in the following compatibility table:
+There can be multiple operator definitions with the afix flag
+and the same {\em operator-name} but with different precedences
+that are all selected by the current parsing selectors.  The most
+recent definition will be used that has the same precedence
+as a previous operator in the expression with no intervening
+operator of lower precedence.
+
+The operator flag compatibility rules
+are expressed by the following table:
 
 \begin{center}
 \begin{tabular}{lc|c|c|c|c|}
@@ -7389,18 +7404,6 @@ An operator must be at least one of prefix, infix, postfix, or nofix.
 
 No operator can be all of prefix, infix, and postfix.
 \end{center}
-
-The {\em precedence} of an operator is an integer.  Precedence is used to
-determine which operators are inside and outside implicit brackets.
-Operators with higher precedence are placed inside the 
-implicit brackets that surround operands of operators of lower precedence.
-Implicit brackets are used to define subexpressions, so that all operators
-in a subexpression that are not in sub-subexpressions are of the same
-precedence.
-
-Prefix operators always have precedent +1,000,001 (second highest), and postfix
-operators always have precedence +1,000,002 (highest).  Infix and nofix
-operator have precedence given in the operator definition.
 
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
@@ -7547,19 +7550,26 @@ operators, and among these, operators defined later are
 preferred over operators defined earlier.
 
 If an operator definition has the afix flag, the definition
-is ignored unless there is an operator to the left of
-the current position that has the same precedence as the
-afix definition, and there is no \underline{non-ambiguous}
-operator of lower precedence
-between that previous operator and the current position.
-See the end of \itemref{FIXITY-DETERMINATION} for a description
-of the possible ambiguous operators that may be before the current
-position.
+is \underline{ignored} unless all of the following \underline{would} be true
+after insertion of the afix definition's operator
+and determination of fixity of any operators of ambiguous
+fixity preceeding the current position:
+\begin{itemize}
+\item[(1)] There is an operator preceeding the inserted operator
+that has the same precedence as the inserted operator.
+\item[(2)] There is no
+operator of lower precedence between this preceeding operator
+and the inserted operator.
+\item[(3)] The inserted
+operator has not interacted with operators immediately preceding
+the current position to cause an operator to
+have ambiguous fixity or a fixity possibility-error.
+\end{itemize}
+See \itemref{FIXITY-DETERMINATION} for a description of fixity rules.
 
-Operator fixity is ignored during operator identification except
-that determination of fixity during the left-to-right scan
-determines precedence that in turn affects which afix
-operator definitions are ignored.
+Aside from application when an afix definition operator is considered
+for insertion, operator definition fixity
+is ignored during operator identification.
 
 If an operator is identified, its lexemes are collected into
 an \TT{OPERATOR} token.  If no operator is identified, the
@@ -7631,7 +7641,7 @@ a nofix operator, or a non-operator.
 \end{itemize}
 
 The above rules lead to the \key{fixity rewrite rules}
-in figure \ref{FIXITY-REWRITE-RULES} that determine the fixity
+in Figure \ref{FIXITY-REWRITE-RULES} that determine the fixity
 of operators with ambiguous fixity.  In these `ambiguous'
 means an operator whose fixity cannot be determined by the above
 rules (along with any operators before it whose fixity has not

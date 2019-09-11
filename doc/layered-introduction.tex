@@ -7804,7 +7804,7 @@ which means that the lists they bracket have \underline{no}
 \TT{.initiator} or \TT{.terminator}, and the parentheses are
 merely written here to indicate sublists in the expression structure.
 
-Reformatters can detect parsing errors, such the fact that both
+Reformatters can detect parsing errors, such the fact that the two
 operators in `\TT{x AND y OR z}' are not identical (when both are
 infix operators with the same precedence).
 
@@ -7812,7 +7812,7 @@ Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
-\emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
+\emkey{temporary-definition} ::= {\em temporary} ~ {\em subexpression} \\[1ex]
 \emkey{temporary} ::= \TT{\$} {\em natural-number}
 \end{indpar}
 
@@ -7882,7 +7882,8 @@ reformatter are:
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix} or \TT{infix} operators.
 
-All operators but the first must be bracketed subexpressions,
+All operators but the first must be bracketed subexpressions
+or indented paragraphs,
 and any operands must be just before or just after the first operator.
 If the first operator is not preceded by an operand,
 an empty list is inserted as the preceding operand.
@@ -7890,12 +7891,10 @@ Similarly if first operator is not followed by an operand, an empty
 list is inserted as the following operand.
 Then the first operator is moved to the
 beginning of the expression and the remaining
-bracketed operators are converted to operands.
-Indented subexpressions are treated as bracketed subexpressions and
-may be bracketed operators.
+bracketed and indented paragraph operators are converted to operands.
 
 For example, if \TT{<-{}-} is a nofix operator with this reformatter, and
-\TT{\{ \}} bracketed subexpressions and \TT{:} indented subexpressions
+\TT{\{ \}} bracketed subexpressions and \TT{:} indented paragraphs
 are afix operators of the same precedence:
 
 \hspace*{2em}\begin{tabular}{lcl}
@@ -7963,7 +7962,6 @@ by an operand.  The subexpression is left unchanged.  Examples:
 \TT{x NOT} & $\Longrightarrow$ & error \\
 \TT{x NOT y} & $\Longrightarrow$ & error \\
 \TT{NOT NOT x} & $\Longrightarrow$ & error \\
-\TT{- x y} & $\Longrightarrow$ & error \\
 \end{tabular}
 \end{indpar}
 

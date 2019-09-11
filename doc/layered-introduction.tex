@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 10, 2019
+September 11, 2019
  
 \end{center}
 
@@ -7764,23 +7764,27 @@ the subexpression by a single \TT{BRACKETABLE} token with no attibutes
 
 The bracketed subexpression recognition pass may merge brackets
 into \TT{BRACKETABLE} tokens: see \pagref{MERGING-BRACKETABLE-TOKENS}.
-Thus given `\TT{(x,y)}', the `\TT{separator}'
-reformatter will return
+Thus given `\TT{(x, y)}', the `\TT{separator}' reformatter
+applied to `\TT{x, y}' will return
 \begin{indpar}\begin{verbatim}
-@1 = x y {| .separator = "," |}
+@1 = x y:
+         .separator = ","
 \end{verbatim}\end{indpar}
 so without this merging the bracketed subexpression recognition
 pass would produce
 \begin{indpar}\begin{verbatim}
-@2 = @1 {| .initiator = "("; .terminator = ")" |}
-@1 = x y {| .separator = "," |}
+@2 = @1:
+         .initiator = "("
+         .terminator = ")"
+@1 = x y:
+         .separator = ","
 \end{verbatim}\end{indpar}
 but instead it produces
 \begin{indpar}\begin{verbatim}
-@3 = x y :|
-    .initiator = "("
-    .terminator = ")"
-    .separator = ","
+@1 = x y :
+         .initiator = "("
+         .terminator = ")"
+         .separator = ","
 \end{verbatim}\end{indpar}
 
 \subsubsection{Operator Reformatters}

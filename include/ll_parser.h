@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  2 03:53:17 EDT 2019
+// Date:	Thu Sep 12 13:47:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -702,11 +702,15 @@ namespace pass_function {
 	      ll::parser::pass pass );
 
     // Function called (if not NULL) to execute a parser
-    // command, other than `parser begin/end block ...',
+    // command, other than `begin/end block ...',
     // that may require action by a pass.  Examples are
-    // `parser define/undefine ...'.  Vp[i0 ..] contains
+    // `define/undefine/print ...'.  Vp[i0 ..] contains
     // the command, vp[0 .. i0-1] is ignored, and ppvec
     // is the phrase position vector of vp.
+    //
+    // This pass does NOT have to recognize or process
+    // the command, which may be for another pass.  In
+    // this case min::FAILURE() is returned.
     //
     // Return min::SUCCESS() on success if the command
     // was not printed, ll::parser::PRINTED on success

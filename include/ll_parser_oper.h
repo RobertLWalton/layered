@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 22 03:25:12 EDT 2017
+// Date:	Tue Oct  1 14:58:00 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,6 +142,31 @@ struct oper_stack_struct
 typedef min::packed_vec_insptr< oper_stack_struct >
     oper_stack;
 
+// An oper_vec lists the operators in the current
+// expression in order, and is part of each oper_pass.
+// Each element corresponds to an operator in a
+// current expression, in the order that the operators
+// appear.
+//
+struct oper_vec_struct
+{
+    min::int32 precedence;
+    min::uns32 fixity;
+    min::uns32 work;
+};
+
+typedef min::packed_vec_insptr< oper_vec_struct >
+    oper_vec;
+ 
+// Return true iff a possible operator of given
+// precedence and fixity is allowed after the
+// operators to its left.  Updates oper_vec if
+// true is returned.
+//
+bool fixity_OK ( oper_vec v,
+                 min::int32 precedence,
+	         min::uns32 fixity );
+
 struct oper_pass_struct;
 typedef min::packed_struct_updptr<oper_pass_struct>
         oper_pass;
@@ -163,6 +188,8 @@ struct oper_pass_struct
 	// labels.
 
     const ll::parser::oper::oper_stack oper_stack;
+
+    const ll::parser::oper::oper_vec oper_vec;
 
     min::uns32 temporary_count;
         // Number of temporary variables created so far.
@@ -187,6 +214,8 @@ MIN_REF ( ll::parser::table::key_table,
           oper_bracket_table,
           ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
+          ll::parser::oper::oper_pass )
+MIN_REF ( ll::parser::oper::oper_vec, oper_vec,
           ll::parser::oper::oper_pass )
 
 // Return a new operator parser pass.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 05:06:32 EDT 2019
+// Date:	Tue Oct  1 14:59:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -129,6 +129,10 @@ static min::packed_vec< OP::oper_stack_struct >
     oper_stack_type
         ( "ll::parser::oper::oper_stack_type" );
 
+static min::packed_vec< OP::oper_vec_struct >
+    oper_vec_type
+        ( "ll::parser::oper::oper_vec_type" );
+
 static min::uns32 oper_pass_gen_disp[] =
 {
     min::DISP ( & OP::oper_pass_struct::name ),
@@ -143,6 +147,7 @@ static min::uns32 oper_pass_stub_disp[] =
     min::DISP ( & OP::oper_pass_struct
                     ::oper_bracket_table ),
     min::DISP ( & OP::oper_pass_struct::oper_stack ),
+    min::DISP ( & OP::oper_pass_struct::oper_vec ),
     min::DISP_END
 };
 

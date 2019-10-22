@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 11, 2019
+October 22, 2019
  
 \end{center}
 
@@ -7641,12 +7641,13 @@ a nofix operator, or a non-operator.
 \end{itemize}
 
 The above rules lead to the \key{fixity rewrite rules}
-in Figure \ref{FIXITY-REWRITE-RULES} that determine the fixity
+in Figures \ref{FIXITY-REWRITE-RULES-1} and \ref{FIXITY-REWRITE-RULES-2}
+that determine the fixity
 of operators with ambiguous fixity.  In these `ambiguous'
 means an operator whose fixity cannot be determined by the above
 rules (along with any operators before it whose fixity has not
 been determined);
-`possibility-error'
+`not-allowed'
 means there can be no way to assign fixity to the expression operators
 consistent with the above rules; and `unresolved' means the
 rewrite rule does not change anything (i.e., there is no
@@ -7656,10 +7657,8 @@ than the preceeding infix-or\ldots{} operator, and
 nofix$^L$ means a nofix operator of precedence equal to or lower
 than the preceeding infix-or\ldots{} operator.
 
-\begin{figure*}[!p] \small
+\begin{figure*}[!t]
 \begin{center}
-\renewcommand{\H}{$^H$}
-\renewcommand{\L}{$^L$}
 \begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
 \hline
 expression-begin & infix-or-prefix & expression-begin prefix \\
@@ -7671,12 +7670,12 @@ infix-or-prefix & infix-or-prefix & ambiguous prefix \\
 infix-or-postfix & infix-or-prefix & unresolved \\
 prefix-or-postfix & infix-or-prefix & unresolved \\
 \hline
-expression-begin & infix-or-postfix & possibility-error \\
+expression-begin & infix-or-postfix & not-allowed \\
 non-operator & infix-or-postfix & unresolved \\
-prefix & infix-or-postfix & possibility-error \\
-infix & infix-or-postfix & possibility-error \\
+prefix & infix-or-postfix & not-allowed \\
+infix & infix-or-postfix & not-allowed \\
 postfix & infix-or-postfix & unresolved \\
-infix-or-prefix & infix-or-postfix & possibility-error \\
+infix-or-prefix & infix-or-postfix & not-allowed \\
 infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 \hline
@@ -7689,19 +7688,33 @@ infix-or-prefix & prefix-or-postfix & ambiguous prefix \\
 infix-or-postfix & prefix-or-postfix & unresolved \\
 prefix-or-postfix & prefix-or-postfix & unresolved \\
 \hline
+\end{tabular}
+\end{center}
+\vspace*{-3ex}
+\caption{Fixity Rewrite Rules: Part 1 of 2}
+\label{FIXITY-REWRITE-RULES-1}
+\end{figure*}
+
+\begin{figure*}[!t]
+\newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
+\begin{center}
+\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
+\hline
 infix-or-prefix & non-operator & ambiguous non-operator \\
 infix-or-prefix & prefix & ambiguous prefix \\
-infix-or-prefix & infix & possibility error \\
-infix-or-prefix & postfix & possibility error \\
-infix-or-prefix & nofix & infix nofix \\
-infix-or-prefix & expression-end & possibility error \\
+infix-or-prefix & infix & not-allowed \\
+infix-or-prefix & postfix & not-allowed \\
+infix-or-prefix & nofix\SUP{H} & infix nofix \\
+infix-or-prefix & nofix\SUP{--H} & not-allowed \\
+infix-or-prefix & expression-end & not-allowed \\
 \hline
 infix-or-postfix & non-operator & infix non-operator \\
 infix-or-postfix & prefix & infix prefix \\
 infix-or-postfix & infix & postfix infix \\
 infix-or-postfix & postfix & postfix postfix \\
-infix-or-postfix & nofix\H & ambiguous nofix \\
-infix-or-postfix & nofix\L & postfix nofix \\
+infix-or-postfix & nofix\SUP{H,--A} & ambiguous nofix \\
+infix-or-postfix & nofix\SUP{H,A} & not-allowed \\
+infix-or-postfix & nofix\SUP{--H} & postfix nofix \\
 infix-or-postfix & expression-end & postfix expression-end \\
 \hline
 prefix-or-postfix & non-operator & prefix non-operator \\
@@ -7712,10 +7725,18 @@ prefix-or-postfix & nofix & postfix nofix \\
 prefix-or-postfix & expression-end & postfix expression-end \\
 \hline
 \end{tabular}
+\\[2ex]
+\begin{tabular}{rl}
+\SUP{H}  & means operator has higher precedence that preceeding operator\\[1ex]
+\SUP{--H} & means operator has precedence lower than or equal to precedence of
+           preceeding operator\\[1ex]
+\SUP{A}  & means operator is afix\\[1ex]
+\SUP{--A} & means operator is \underline{not} afix
+\end{tabular}
 \end{center}
 \vspace*{-3ex}
-\caption{Fixity Rewrite Rules}
-\label{FIXITY-REWRITE-RULES}
+\caption{Fixity Rewrite Rules: Part 2 of 2}
+\label{FIXITY-REWRITE-RULES-2}
 \end{figure*}
 
 These rewrite rules can be applied during a left-to-right scan.

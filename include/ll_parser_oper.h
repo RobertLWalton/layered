@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 08:04:13 EDT 2019
+// Date:	Tue Oct 22 15:22:31 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -172,7 +172,7 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 // or may be zero for a non-operator.  If true is
 // returned, operator is inserted at end of v and
 // ambiguities in previous operators are resolved as
-// possible.
+// much as possible.
 //
 // If fixity includes the AFIX flag, a check is
 // made that after ambiguous fixity resolution there

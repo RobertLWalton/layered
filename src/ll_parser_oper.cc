@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct  1 14:59:43 EDT 2019
+// Date:	Tue Oct 22 15:24:52 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Operator Table Entries
 //	Operator Parser Pass
+//	Operator Parsing Functions
 //	Operator Parse Function
 //	Operator Reformatters
 //	Operator Pass Command Function
@@ -264,6 +265,54 @@ PAR::pass OP::new_pass ( PAR::parser parser )
 
     return (PAR::pass) oper_pass;
 }
+
+// Operator Parsing Functions
+// -------- ------- ---------
+
+bool OP::fixity_OK ( OP::oper_vec v,
+	             min::uns32 fixity,
+		     min::int32 precedence )
+{
+    bool is_affix = ( fixity & OP::AFIX );
+    if ( is_affix )
+    {
+        fixity &= ~ OP::AFIX;
+	MIN_REQUIRE
+	    ( fixity & ( OP::INFIX | OP::NOFIX ) );
+    }
+
+    min::uns32 length = v->length;
+    OP::oper_vec_struct last;
+
+    if ( length == 0 )
+    {
+        if ( fixity == OP::INFIX ) return false;
+        if ( fixity == OP::POSTFIX ) return false;
+	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
+	goto OK;
+    }
+
+    last = v[length-1];
+
+    if ( last.fixity == 0 )
+    {
+        MIN_REQUIRE ( fixity != 0 );
+	if ( fixity == OP::PREFIX ) return false;
+	goto OK;
+    }
+    else if ( last.fixity == OP::PREFIX )
+    {
+        if ( fixity == 0 ) goto OK;
+	fixity &= ~ ( OP::INFIX | OP::POSTFIX | OP::NOFIX );
+	if ( fixity == 0 ) return false;
+	goto OK;
+    }
+
+OK:
+
+    return true;
+}
+
 
 // Operator Parse Function
 // -------- ----- --------

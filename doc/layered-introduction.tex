@@ -7641,8 +7641,9 @@ a nofix operator, or a non-operator.
 \end{itemize}
 
 The above rules lead to the \key{fixity rewrite rules}
-in Figures \ref{FIXITY-REWRITE-RULES-1} and \ref{FIXITY-REWRITE-RULES-2}
-that determine the fixity
+in Figures \ref{FIXITY-REWRITE-RULES-1},
+\ref{FIXITY-REWRITE-RULES-2}, and
+\ref{FIXITY-REWRITE-RULES-3} that determine the fixity
 of operators with ambiguous fixity.  In these `ambiguous'
 means an operator whose fixity cannot be determined by the above
 rules (along with any operators before it whose fixity has not
@@ -7657,7 +7658,51 @@ than the preceeding infix-or\ldots{} operator, and
 nofix$^L$ means a nofix operator of precedence equal to or lower
 than the preceeding infix-or\ldots{} operator.
 
-\begin{figure*}[!t]
+\begin{boxedfigure}[!t]
+\newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
+\begin{center}
+\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
+\hline
+expression-begin & prefix & expression-begin prefix \\
+expression-begin & infix & not-allowed \\
+expression-begin & postfix & not-allowed \\
+expression-begin & nofix & expression-begin nofix \\
+expression-begin & expression-end & expression-begin expression-end \\
+\hline
+non-operator & prefix & not-allowed \\
+non-operator & infix & non-operator infix \\
+non-operator & postfix & non-operator postfix \\
+non-operator & nofix & non-operator nofix \\
+non-operator & expression-end & non-operator expression-end \\
+\hline
+prefix & prefix & prefix prefix \\
+prefix & infix & not-allowed \\
+prefix & postfix & not-allowed \\
+prefix & nofix & not-allowed \\
+prefix & expression-end & not-allowed \\
+\hline
+infix & prefix & infix prefix \\
+infix & infix & not-allowed \\
+infix & postfix & not-allowed \\
+infix & nofix\SUP{H} & infix nofix \\
+infix & nofix\SUP{--H} & not-allowed \\
+infix & expression-end & not-allowed \\
+\hline
+postfix & prefix & not-allowed \\
+postfix & infix & postfix infix \\
+postfix & postfix & postfix postfix \\
+postfix & nofix & postfix nofix \\
+postfix & expression-end & postfix expression-end \\
+\hline
+\end{tabular}
+\end{center}
+\vspace*{-3ex}
+\caption{Fixity Rewrite Rules: Part 1 of 3}
+\label{FIXITY-REWRITE-RULES-1}
+\end{boxedfigure}
+
+\begin{boxedfigure}[!t]
+\newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
 \begin{center}
 \begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
 \hline
@@ -7666,6 +7711,8 @@ non-operator & infix-or-prefix & non-operator infix \\
 prefix & infix-or-prefix & prefix prefix \\
 infix & infix-or-prefix & infix prefix \\
 postfix & infix-or-prefix & postfix infix \\
+nofix\SUP{H} & infix-or-prefix & unresolved \\
+nofix\SUP{--H} & infix-or-prefix & nofix prefix \\
 infix-or-prefix & infix-or-prefix & ambiguous prefix \\
 infix-or-postfix & infix-or-prefix & unresolved \\
 prefix-or-postfix & infix-or-prefix & unresolved \\
@@ -7675,6 +7722,8 @@ non-operator & infix-or-postfix & unresolved \\
 prefix & infix-or-postfix & not-allowed \\
 infix & infix-or-postfix & not-allowed \\
 postfix & infix-or-postfix & unresolved \\
+nofix\SUP{H} & infix-or-postfix & nofix infix \\
+nofix\SUP{--H} & infix-or-postfix & not-allowed \\
 infix-or-prefix & infix-or-postfix & not-allowed \\
 infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
@@ -7684,18 +7733,26 @@ non-operator & prefix-or-postfix & non-operator postfix \\
 prefix & prefix-or-postfix & prefix prefix \\
 infix & prefix-or-postfix & infix prefix \\
 postfix & prefix-or-postfix & postfix postfix \\
+nofix & prefix-or-postfix & nofix prefix \\
 infix-or-prefix & prefix-or-postfix & ambiguous prefix \\
 infix-or-postfix & prefix-or-postfix & unresolved \\
 prefix-or-postfix & prefix-or-postfix & unresolved \\
 \hline
 \end{tabular}
+\\[2ex]
+\begin{tabular}{rl}
+\SUP{H}   & means operator has higher precedence than \\
+          & the precedence of the following operator\\[1ex]
+\SUP{--H} & means operator has precedence lower than or equal to \\
+          & the precedence of the following operator\\[1ex]
+\end{tabular}
 \end{center}
 \vspace*{-3ex}
-\caption{Fixity Rewrite Rules: Part 1 of 2}
-\label{FIXITY-REWRITE-RULES-1}
-\end{figure*}
+\caption{Fixity Rewrite Rules: Part 2 of 3}
+\label{FIXITY-REWRITE-RULES-2}
+\end{boxedfigure}
 
-\begin{figure*}[!t]
+\begin{boxedfigure}[!t]
 \newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
 \begin{center}
 \begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
@@ -7727,17 +7784,18 @@ prefix-or-postfix & expression-end & postfix expression-end \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{rl}
-\SUP{H}  & means operator has higher precedence that preceeding operator\\[1ex]
-\SUP{--H} & means operator has precedence lower than or equal to precedence of
-           preceeding operator\\[1ex]
+\SUP{H}   & means operator has higher precedence than \\
+          & the precedence of the preceding operator\\[1ex]
+\SUP{--H} & means operator has precedence lower than or equal to \\
+          & the precedence of the preceeding operator\\[1ex]
 \SUP{A}  & means operator is afix\\[1ex]
 \SUP{--A} & means operator is \underline{not} afix
 \end{tabular}
 \end{center}
 \vspace*{-3ex}
-\caption{Fixity Rewrite Rules: Part 2 of 2}
-\label{FIXITY-REWRITE-RULES-2}
-\end{figure*}
+\caption{Fixity Rewrite Rules: Part 3 of 3}
+\label{FIXITY-REWRITE-RULES-3}
+\end{boxedfigure}
 
 These rewrite rules can be applied during a left-to-right scan.
 It can be proved that at any time, the tokens before the current

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct  1 14:58:00 EDT 2019
+// Date:	Tue Oct 22 08:04:13 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,17 +142,25 @@ struct oper_stack_struct
 typedef min::packed_vec_insptr< oper_stack_struct >
     oper_stack;
 
-// An oper_vec lists the operators in the current
-// expression in order, and is part of each oper_pass.
-// Each element corresponds to an operator in a
-// current expression, in the order that the operators
-// appear.
+// An oper_vec lists the operators and non-operators in
+// the current expression in order, and is part of each
+// oper_pass.  Each element corresponds to an operator
+// or non-operator in a current expression, in the order
+// that these appear.  Note that non-operators are
+// single tokens not adjacent to other non-operators
+// (i.e., sequences of consecutive non-operator tokens
+// have been packaged into single tokens produced by
+// subsequent parser passes or by making them into
+// PURELIST tokens).
+//
+// Non-operators have 0 fixity.  The AFIX flag has
+// been removed from any operator fixity.  Precedence
+// is only meaningful for INFIX and NOFIX fixity.
 //
 struct oper_vec_struct
 {
-    min::int32 precedence;
     min::uns32 fixity;
-    min::uns32 work;
+    min::int32 precedence;
 };
 
 typedef min::packed_vec_insptr< oper_vec_struct >
@@ -160,12 +168,20 @@ typedef min::packed_vec_insptr< oper_vec_struct >
  
 // Return true iff a possible operator of given
 // precedence and fixity is allowed after the
-// operators to its left.  Updates oper_vec if
-// true is returned.
+// operators to its left.  Fixity may include AFIX flag,
+// or may be zero for a non-operator.  If true is
+// returned, operator is inserted at end of v and
+// ambiguities in previous operators are resolved as
+// possible.
+//
+// If fixity includes the AFIX flag, a check is
+// made that after ambiguous fixity resolution there
+// will be a previous operator of the same precedence
+// with no intevening operator of lower precedence.
 //
 bool fixity_OK ( oper_vec v,
-                 min::int32 precedence,
-	         min::uns32 fixity );
+	         min::uns32 fixity,
+		 min::int32 precedence );
 
 struct oper_pass_struct;
 typedef min::packed_struct_updptr<oper_pass_struct>

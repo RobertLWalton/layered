@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 22, 2019
+October 23, 2019
  
 \end{center}
 
@@ -7133,7 +7133,10 @@ expressions using operator fixity and operator precedence.  Operator
 definitions assign precedence integers to operators.
 Infix and nofix operators have precedences in the range [L,H],
 where L = -1,000,000 and H = +1,000,000.  Prefix operators have
-precedence H+1, and postfix operators have precedence H+2.
+precedence H+2, and postfix operators have precedence H+3.
+The precedence H+1 is reserved for the `error operator' that is
+a nofix operator
+inserted during parsing to `fix up' fixity errors (see \pagref{FIXITY-ERRORS}).
 
 Given this, expressions have the following syntax,
 where an {\em P-expression}
@@ -7157,19 +7160,19 @@ have precedence equal to or greater than P:
 \\[0.5ex]
 \emkey{infix-N-operator} ::= infix operator of precedence N
 \\[0.5ex]
-\emkey{(H+1)-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em (H+2)-expression} \\
-    $|$ & {\em prefix-operator} {\em (H+1)-expression} \\
-    \end{tabular}
-\\[0.5ex]
 \emkey{(H+2)-expression}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em (H+3)-expression} \\
-    $|$ & {\em (H+2)-expression} {\em postfix-operator} \\
+    $|$ & {\em prefix-operator} {\em (H+2)-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{(H+3)-expression} ::= {\em non-operator}\PLUS{}
+\emkey{(H+3)-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em (H+4)-expression} \\
+    $|$ & {\em (H+3)-expression} {\em postfix-operator} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{(H+4)-expression} ::= {\em non-operator}\PLUS{}
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
 where N is any precedence in the range [L,H]
@@ -7180,12 +7183,12 @@ Essentually the expression being parsed is organized into {\em P-expressions}
 where $P$ is the precedence of the {\em P-expression}.  Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
-An {\em (H+1)-expression}, while it can be thought of as a sequence
-of zero or more prefix operators followed by a single {\em (H+2)-expression},
+An {\em (H+2)-expression}, while it can be thought of as a sequence
+of zero or more prefix operators followed by a single {\em (H+3)-expression},
 is parsed so as to execute the prefix operators from right to left, each
 with a single operand.
-Similarly, an {\em (H+2)-expression}, while it can be thought of as
-an {\em (H+3)-expression} followed by a sequence
+Similarly, an {\em (H+3)-expression}, while it can be thought of as
+an {\em (H+4)-expression} followed by a sequence
 of zero or more postfix operators,
 is parsed so as to execute the postfix operators from left to right, each
 with a single operand.
@@ -7200,7 +7203,7 @@ operators in an expression have sufficient operands.  However, with
 nofix operators an operator cannot have different precedence when it
 is infix and when it is prefix.  An operator like `\TT{-}' can be
 specified as both infix and prefix, where the prefix operator has
-much higher precedence (i.e., H+1) than the infix operator.
+much higher precedence (i.e., H+2) than the infix operator.
 
 \subsubsection{Operator Commands}
 \label{OPERATOR-COMMANDS}
@@ -7327,8 +7330,8 @@ no following operand.
 
 An infix operator may also be either prefix or postfix.
 An infix operator has the precedence given in the operator definition.
-A prefix operator always has precedence H+1, and a postfix operator
-always has precedence H+2.
+A prefix operator always has precedence H+2, and a postfix operator
+always has precedence H+3.
 
 A \ttkey{nofix} operator may or may not be
 preceded or followed by operands.  It may appear at the beginning or ending of
@@ -7640,6 +7643,7 @@ The end of expression is preceded by a postfix operator,
 a nofix operator, or a non-operator.
 \end{itemize}
 
+\newcommand{\OPSUP}[1]{$^\textrm{\scriptsize #1}$}
 The above rules lead to the \key{fixity rewrite rules}
 in Figures \ref{FIXITY-REWRITE-RULES-1},
 \ref{FIXITY-REWRITE-RULES-2}, and
@@ -7653,48 +7657,47 @@ means there can be no way to assign fixity to the expression operators
 consistent with the above rules; and `unresolved' means the
 rewrite rule does not change anything (i.e., there is no
 rewrite rule for the indicated case).
-Also nofix$^H$ means a nofix operator of precedence higher
-than the preceeding infix-or\ldots{} operator, and
-nofix$^L$ means a nofix operator of precedence equal to or lower
-than the preceeding infix-or\ldots{} operator.
+Also nofix\OPSUP{H} means a nofix operator of precedence higher
+than the preceeding or following infix-or\ldots{} operator, and
+nofix\OPSUP{--H} means a nofix operator of precedence equal to or lower
+than the preceeding or following infix-or\ldots{} operator.
 
 \begin{figure}[!p]
-\newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
 \centering
 \small
 \begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
 \hline
 expression-begin & non-operator & expression-begin non-operator \\
 expression-begin & prefix & expression-begin prefix \\
-expression-begin & infix & not-allowed\SUP{--O} \\
-expression-begin & postfix & not-allowed\SUP{--O} \\
+expression-begin & infix & not-allowed\OPSUP{--O} \\
+expression-begin & postfix & not-allowed\OPSUP{--O} \\
 expression-begin & nofix & expression-begin nofix \\
 expression-begin & expression-end & expression-begin expression-end \\
 \hline
 non-operator & non-operator & cannot-happen \\
-non-operator & prefix & not-allowed\SUP{O} \\
-non-operator & infix & non-operator infix\SUP{--O} \\
+non-operator & prefix & not-allowed\OPSUP{O} \\
+non-operator & infix & non-operator infix\OPSUP{--O} \\
 non-operator & postfix & non-operator postfix \\
 non-operator & nofix & non-operator nofix \\
 non-operator & expression-end & non-operator expression-end \\
 \hline
 prefix & non-operator & prefix non-operator \\
 prefix & prefix & prefix prefix \\
-prefix & infix & not-allowed\SUP{--O} \\
-prefix & postfix & not-allowed\SUP{--O} \\
-prefix & nofix & not-allowed\SUP{--O} \\
-prefix & expression-end & not-allowed\SUP{--O} \\
+prefix & infix & not-allowed\OPSUP{--O} \\
+prefix & postfix & not-allowed\OPSUP{--O} \\
+prefix & nofix & not-allowed\OPSUP{--O} \\
+prefix & expression-end & not-allowed\OPSUP{--O} \\
 \hline
 infix & non-operator & infix non-operator \\
 infix & prefix & infix prefix \\
-infix & infix & not-allowed\SUP{--O} \\
-infix & postfix & not-allowed\SUP{--O} \\
-infix & nofix\SUP{H} & infix nofix \\
-infix & nofix\SUP{--H} & not-allowed\SUP{--O} \\
-infix & expression-end & not-allowed\SUP{--O} \\
+infix & infix & not-allowed\OPSUP{--O} \\
+infix & postfix & not-allowed\OPSUP{--O} \\
+infix & nofix\OPSUP{H} & infix nofix \\
+infix & nofix\OPSUP{--H} & not-allowed\OPSUP{--O} \\
+infix & expression-end & not-allowed\OPSUP{--O} \\
 \hline
-postfix & non-operator & not-allowed\SUP{O} \\
-postfix & prefix & not-allowed\SUP{O} \\
+postfix & non-operator & not-allowed\OPSUP{O} \\
+postfix & prefix & not-allowed\OPSUP{O} \\
 postfix & infix & postfix infix \\
 postfix & postfix & postfix postfix \\
 postfix & nofix & postfix nofix \\
@@ -7702,18 +7705,18 @@ postfix & expression-end & postfix expression-end \\
 \hline
 nofix & non-operator & nofix non-operator \\
 nofix & prefix & nofix prefix \\
-nofix\SUP{H} & infix & nofix infix \\
-nofix\SUP{--H} & infix & not-allowed\SUP{--O} \\
-nofix & postfix & not-allowed\SUP{--O} \\
+nofix\OPSUP{H} & infix & nofix infix \\
+nofix\OPSUP{--H} & infix & not-allowed\OPSUP{--O} \\
+nofix & postfix & not-allowed\OPSUP{--O} \\
 nofix & nofix & nofix nofix \\
 nofix & expression-end & nofix expression-end \\
 \hline
 \end{tabular}
 \\[1ex]
 \begin{tabular}{rl}
-\SUP{H}   & means operator has higher precedence than \\
+\OPSUP{H}   & means operator has higher precedence than \\
           & the precedence of the following operator\\[1ex]
-\SUP{--H} & means operator has precedence lower than or equal to \\
+\OPSUP{--H} & means operator has precedence lower than or equal to \\
           & the precedence of the following operator\\[1ex]
 \end{tabular}
 \\
@@ -7722,7 +7725,6 @@ nofix & expression-end & nofix expression-end \\
 \end{figure}
 
 \begin{figure}[!p]
-\newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
 \centering
 \begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
 \hline
@@ -7731,20 +7733,20 @@ non-operator & infix-or-prefix & non-operator infix \\
 prefix & infix-or-prefix & prefix prefix \\
 infix & infix-or-prefix & infix prefix \\
 postfix & infix-or-prefix & postfix infix \\
-nofix\SUP{H} & infix-or-prefix & unresolved \\
-nofix\SUP{--H} & infix-or-prefix & nofix prefix \\
+nofix\OPSUP{H} & infix-or-prefix & unresolved \\
+nofix\OPSUP{--H} & infix-or-prefix & nofix prefix \\
 infix-or-prefix & infix-or-prefix & ambiguous prefix \\
 infix-or-postfix & infix-or-prefix & unresolved \\
 prefix-or-postfix & infix-or-prefix & unresolved \\
 \hline
-expression-begin & infix-or-postfix & not-allowed\SUP{--O} \\
+expression-begin & infix-or-postfix & not-allowed\OPSUP{--O} \\
 non-operator & infix-or-postfix & unresolved \\
-prefix & infix-or-postfix & not-allowed\SUP{--O} \\
-infix & infix-or-postfix & not-allowed\SUP{--O} \\
+prefix & infix-or-postfix & not-allowed\OPSUP{--O} \\
+infix & infix-or-postfix & not-allowed\OPSUP{--O} \\
 postfix & infix-or-postfix & unresolved \\
-nofix\SUP{H} & infix-or-postfix & nofix infix \\
-nofix\SUP{--H} & infix-or-postfix & not-allowed\SUP{--O} \\
-infix-or-prefix & infix-or-postfix & not-allowed\SUP{--O} \\
+nofix\OPSUP{H} & infix-or-postfix & nofix infix \\
+nofix\OPSUP{--H} & infix-or-postfix & not-allowed\OPSUP{--O} \\
+infix-or-prefix & infix-or-postfix & not-allowed\OPSUP{--O} \\
 infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 \hline
@@ -7761,9 +7763,9 @@ prefix-or-postfix & prefix-or-postfix & unresolved \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{rl}
-\SUP{H}   & means operator has higher precedence than \\
+\OPSUP{H}   & means operator has higher precedence than \\
           & the precedence of the following operator\\[1ex]
-\SUP{--H} & means operator has precedence lower than or equal to \\
+\OPSUP{--H} & means operator has precedence lower than or equal to \\
           & the precedence of the following operator\\[1ex]
 \end{tabular}
 \\
@@ -7772,25 +7774,24 @@ prefix-or-postfix & prefix-or-postfix & unresolved \\
 \end{figure}
 
 \begin{figure}[!p]
-\newcommand{\SUP}[1]{$^\textrm{\scriptsize #1}$}
 \centering
 \begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
 \hline
 infix-or-prefix & non-operator & ambiguous non-operator \\
 infix-or-prefix & prefix & ambiguous prefix \\
-infix-or-prefix & infix & not-allowed\SUP{--O} \\
-infix-or-prefix & postfix & not-allowed\SUP{--O} \\
-infix-or-prefix & nofix\SUP{H} & infix nofix \\
-infix-or-prefix & nofix\SUP{--H} & not-allowed\SUP{--O} \\
-infix-or-prefix & expression-end & not-allowed\SUP{--O} \\
+infix-or-prefix & infix & not-allowed\OPSUP{--O} \\
+infix-or-prefix & postfix & not-allowed\OPSUP{--O} \\
+infix-or-prefix & nofix\OPSUP{H} & infix nofix \\
+infix-or-prefix & nofix\OPSUP{--H} & not-allowed\OPSUP{--O} \\
+infix-or-prefix & expression-end & not-allowed\OPSUP{--O} \\
 \hline
 infix-or-postfix & non-operator & infix non-operator \\
 infix-or-postfix & prefix & infix prefix \\
 infix-or-postfix & infix & postfix infix \\
 infix-or-postfix & postfix & postfix postfix \\
-infix-or-postfix & nofix\SUP{H,--A} & ambiguous nofix \\
-infix-or-postfix & nofix\SUP{H,A} & not-allowed \\
-infix-or-postfix & nofix\SUP{--H} & postfix nofix \\
+infix-or-postfix & nofix\OPSUP{H,--A} & ambiguous nofix \\
+infix-or-postfix & nofix\OPSUP{H,A} & not-allowed \\
+infix-or-postfix & nofix\OPSUP{--H} & postfix nofix \\
 infix-or-postfix & expression-end & postfix expression-end \\
 \hline
 prefix-or-postfix & non-operator & prefix non-operator \\
@@ -7803,14 +7804,14 @@ prefix-or-postfix & expression-end & postfix expression-end \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{rl}
-\SUP{H}   & means operator has higher precedence than \\
+\OPSUP{H}   & means operator has higher precedence than \\
           & the precedence of the preceding operator\\[0.5ex]
-\SUP{--H} & means operator has precedence lower than or equal to \\
+\OPSUP{--H} & means operator has precedence lower than or equal to \\
           & the precedence of the preceeding operator\\[0.5ex]
-\SUP{A}  & means operator is afix\\[0.5ex]
-\SUP{--A} & means operator is \underline{not} afix \\[0.5ex]
-\SUP{O} & means fix by inserting nofix operator (see text) \\[0.5ex]
-\SUP{--O} & means fix by inserting non-operator (see text)
+\OPSUP{A}  & means operator is afix\\[0.5ex]
+\OPSUP{--A} & means operator is \underline{not} afix \\[0.5ex]
+\OPSUP{O} & means fix by inserting nofix operator (see text) \\[0.5ex]
+\OPSUP{--O} & means fix by inserting non-operator (see text)
 \end{tabular}
 \\
 \caption{Fixity Rewrite Rules: Part 3 of 3}
@@ -7834,6 +7835,31 @@ operators.  The expression-end will resolve
 ambiguities next to the end of the expression, but operators
 designated by the rewrite rules as `ambiguous' will remain
 ambiguous.
+
+Fixity that remains ambiguous after fixity rules have been applied
+is `fixed up' by applying the following rewrites while issuing
+error messages for the ambiguous operators:
+
+\begin{center}
+\begin{tabular}{r@{~~~$\Longrightarrow$~~~}l}
+infix-or-postfix & infix \\
+infix-or-prefix  & prefix \\
+prefix-or-postfix & prefix
+\end{tabular}
+\end{center}
+
+These rewrites are arbitrary in the sense that they
+are prefix preferring whereas an alternative set of postfix
+preferring rules will also work.
+
+\label{FIXITY-ERRORS}
+Rules that are `not-allowed' are `fixed up' during fixity
+determination as follows.  An \key{error operator} is
+inserted before every not-allowed non-operator or prefix
+operator (as indicated by \OPSUP{O}),
+and an \key{error non-operator} is inserted before
+any non-allowed non-prefix operator (as indicated by \OPSUP{--O}).
+The error operator is nofix with H+1 precedence.
 
 \subsubsubsection{Subexpression Identification}
 \label{SUBEXPRESSION-IDENTIFICATION}

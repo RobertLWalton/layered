@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 15:22:31 EDT 2019
+// Date:	Wed Oct 23 04:51:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -178,6 +178,24 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 // made that after ambiguous fixity resolution there
 // will be a previous operator of the same precedence
 // with no intevening operator of lower precedence.
+//
+// Fixity that remains ambiguous after the fixity rules
+// are applied is left as ambiguous in v.  The second
+// pass can issue error messages and simply convert
+//
+// 	infix-or-postfix   ===>  infix
+// 	prefix-or-postfix  ===>  prefix
+// 	infix-or-prefix    ===>  prefix
+//
+// Expression-end can be handled by calling this
+// function with NOFIX and NO_PRECEDENCE.  If true
+// is returned, the last element of v must be popped.
+//
+// A return of false can be `fixed' by pushing an error
+// NOFIX operator before a non-operator or prefix
+// operator and pushing an error non-operator before
+// anything else.  An error NOFIX operator should have
+// precedence above the highest normal precedence.
 //
 bool fixity_OK ( oper_vec v,
 	         min::uns32 fixity,

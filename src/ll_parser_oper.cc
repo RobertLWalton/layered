@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 22:05:43 EDT 2019
+// Date:	Wed Oct 23 03:47:27 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -331,7 +331,6 @@ bool OP::fixity_OK ( OP::oper_vec v,
     }
     else if ( last.fixity == OP::NOFIX )
     {
-// TBD
         if ( fixity == 0 ) goto OK;
         if ( fixity == OP::POSTFIX ) return false;
 	fixity &= ~ OP::POSTFIX;
@@ -353,11 +352,23 @@ bool OP::fixity_OK ( OP::oper_vec v,
         if (    fixity == OP::NOFIX
 	     && last.precedence >= precedence )
 	    return false;
-        if ( fixity == ( OP::INFIX | OP::PREFIX ) )
-	    fixity = OP::PREFIX;
-        else if (    fixity
-	          == ( OP::POSTFIX | OP::PREFIX ) )
-	    fixity = OP::PREFIX;
+	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
+
+	if ( fixity == OP::NOFIX )
+	{
+	    last.fixity = OP::INFIX;
+	    v[length-1] = last;
+	    for ( min::uns32 i = length - 1; i > 0; )
+	    {
+	        last = v[--i];
+		if ( ! ( last.fixity & OP::POSTFIX ) )
+		    break;
+		if ( last.fixity == OP::POSTFIX )
+		    break;
+		last.fixity = OP::POSTFIX;
+		v[i] = last;
+	    }
+	}
 	goto OK;
     }
     else if (    last.fixity
@@ -367,13 +378,69 @@ bool OP::fixity_OK ( OP::oper_vec v,
 	     && fixity == OP::NOFIX
 	     && last.precedence < precedence )
 	    return false;
+	if (    fixity == ( OP::INFIX | OP::POSTFIX )
+	     || fixity == OP::INFIX
+	     || fixity == OP::POSTFIX
+	     || ( fixity == OP::NOFIX
+	          &&
+		  last.precedence >= precedence ) )
+	{
+	    last.fixity = OP::POSTFIX;
+	    v[length-1] = last;
+	}
+	else if (    fixity == 0
+	          || fixity == OP::PREFIX )
+	{
+	    last.fixity = OP::INFIX;
+	    v[length-1] = last;
+	}
 	goto OK;
     }
     else if (    last.fixity
               == ( OP::PREFIX | OP::POSTFIX ) )
+    {
+        if (    fixity == ( OP::INFIX | OP::POSTFIX )
+	     || fixity == OP::INFIX
+	     || fixity == OP::POSTFIX
+	     || fixity == OP::NOFIX )
+	{
+	    last.fixity = OP::POSTFIX;
+	    v[length-1] = last;
+	    for ( min::uns32 i = length - 1; i > 0; )
+	    {
+	        last = v[--i];
+		if ( ! ( last.fixity & OP::POSTFIX ) )
+		    break;
+		if ( last.fixity == OP::POSTFIX )
+		    break;
+		last.fixity = OP::POSTFIX;
+		v[i] = last;
+	    }
+	}
+	else if (    fixity == 0
+	          || fixity == OP::PREFIX )
+	{
+	    last.fixity = OP::PREFIX;
+	    v[length-1] = last;
+	    for ( min::uns32 i = length - 1; i > 0; )
+	    {
+	        last = v[--i];
+		if ( ! ( last.fixity & OP::POSTFIX ) )
+		    break;
+		last.fixity &= ~ OP::POSTFIX;
+		if ( last.fixity == 0 ) break;
+		v[i] = last;
+	    }
+	}
 	goto OK;
+    }
 
 OK:
+    // Come here when we are going to return true with
+    // fixity the final fixity of the new element.
+    //
+    OP::oper_vec_struct next = { fixity, precedence };
+    min::push ( v ) = next;
 
     return true;
 }

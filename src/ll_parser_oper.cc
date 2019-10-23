@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 21:16:04 EDT 2019
+// Date:	Tue Oct 22 22:05:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -273,8 +273,8 @@ bool OP::fixity_OK ( OP::oper_vec v,
 	             min::uns32 fixity,
 		     min::int32 precedence )
 {
-    bool is_affix = ( fixity & OP::AFIX );
-    if ( is_affix )
+    bool is_afix = ( fixity & OP::AFIX );
+    if ( is_afix )
     {
         fixity &= ~ OP::AFIX;
 	MIN_REQUIRE
@@ -300,6 +300,7 @@ bool OP::fixity_OK ( OP::oper_vec v,
     {
         MIN_REQUIRE ( fixity != 0 );
 	if ( fixity == OP::PREFIX ) return false;
+	fixity &= ~ OP::PREFIX;
 	goto OK;
     }
     else if ( last.fixity == OP::PREFIX )
@@ -325,14 +326,19 @@ bool OP::fixity_OK ( OP::oper_vec v,
     {
         if ( fixity == 0 ) return false;
         if ( fixity == OP::PREFIX ) return false;
+	fixity &= ~ OP::PREFIX;
 	goto OK;
     }
     else if ( last.fixity == OP::NOFIX )
     {
+// TBD
+        if ( fixity == 0 ) goto OK;
         if ( fixity == OP::POSTFIX ) return false;
-        if (    fixity == OP::INFIX
+	fixity &= ~ OP::POSTFIX;
+        if (    ( fixity & OP::INFIX )
 	     && last.precedence <= precedence )
-	    return false;
+	    fixity &= ~ OP::INFIX;
+	if ( fixity == 0 ) return false;
 	goto OK;
     }
     else if (    last.fixity
@@ -354,6 +360,18 @@ bool OP::fixity_OK ( OP::oper_vec v,
 	    fixity = OP::PREFIX;
 	goto OK;
     }
+    else if (    last.fixity
+              == ( OP::INFIX | OP::POSTFIX ) )
+    {
+        if (    is_afix
+	     && fixity == OP::NOFIX
+	     && last.precedence < precedence )
+	    return false;
+	goto OK;
+    }
+    else if (    last.fixity
+              == ( OP::PREFIX | OP::POSTFIX ) )
+	goto OK;
 
 OK:
 

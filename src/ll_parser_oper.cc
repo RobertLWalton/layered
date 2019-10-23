@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 20:05:38 EDT 2019
+// Date:	Tue Oct 22 20:48:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -319,6 +319,20 @@ bool OP::fixity_OK ( OP::oper_vec v,
 	     && last.precedence <= precedence )
 	    return false;
 	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
+	goto OK;
+    }
+    else if ( last.fixity == OP::POSTFIX )
+    {
+        if ( fixity == 0 ) return false;
+        if ( fixity == OP::PREFIX ) return false;
+	goto OK;
+    }
+    else if ( last.fixity == OP::NOFIX )
+    {
+        if ( fixity == OP::POSTFIX ) return false;
+        if (    fixity == OP::INFIX
+	     && last.precedence <= precedence )
+	    return false;
 	goto OK;
     }
 

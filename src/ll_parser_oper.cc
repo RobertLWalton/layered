@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 23 03:47:27 EDT 2019
+// Date:	Wed Oct 23 06:17:45 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -269,6 +269,26 @@ PAR::pass OP::new_pass ( PAR::parser parser )
 // Operator Parsing Functions
 // -------- ------- ---------
 
+bool afix_OK ( OP::oper_vec v,
+	       min::int32 precedence )
+{
+    for ( min::uns32 i = v->length; i > 0; )
+    {
+	OP::oper_vec_struct last = v[--i];
+	if (    last.fixity == OP::INFIX
+	     || last.fixity == OP::NOFIX
+	     ||    last.fixity
+	        == ( OP::INFIX | OP::PREFIX ) )
+	{
+	    if ( precedence == last.precedence )
+	        return true;
+	    if ( precedence > last.precedence )
+	        return false;
+	}
+    }
+    return false;
+}
+        
 bool OP::fixity_OK ( OP::oper_vec v,
 	             min::uns32 fixity,
 		     min::int32 precedence )
@@ -439,6 +459,8 @@ OK:
     // Come here when we are going to return true with
     // fixity the final fixity of the new element.
     //
+    if ( is_afix && ! afix_OK ( v, precedence ) )
+	return false;
     OP::oper_vec_struct next = { fixity, precedence };
     min::push ( v ) = next;
 

@@ -7853,12 +7853,18 @@ are prefix preferring whereas an alternative set of postfix
 preferring rules will also work.
 
 \label{FIXITY-ERRORS}
-Rules that are `not-allowed' are `fixed up' during fixity
-determination as follows.  An \key{error operator} is
+If an afix operator invokes a rule that is `not-allowed',
+the afix operator table entry is ignored, as if it were not in the
+operator table.
+Other operators or non-operators that invoke
+not-allowed rules are `fixed up' by inserting an error
+operator or error non-operator before the invoking operator
+or non-operator during fixity determination.
+An \key{error operator} is
 inserted before every not-allowed non-operator or prefix
 operator (as indicated by \OPSUP{O}),
 and an \key{error non-operator} is inserted before
-any non-allowed non-prefix operator (as indicated by \OPSUP{--O}).
+every non-allowed non-prefix operator (as indicated by \OPSUP{--O}).
 The error operator is nofix with H+1 precedence.
 
 \subsubsubsection{Subexpression Identification}

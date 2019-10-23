@@ -7666,35 +7666,35 @@ than the preceeding infix-or\ldots{} operator.
 \hline
 expression-begin & non-operator & expression-begin non-operator \\
 expression-begin & prefix & expression-begin prefix \\
-expression-begin & infix & not-allowed \\
-expression-begin & postfix & not-allowed \\
+expression-begin & infix & not-allowed\SUP{--O} \\
+expression-begin & postfix & not-allowed\SUP{--O} \\
 expression-begin & nofix & expression-begin nofix \\
 expression-begin & expression-end & expression-begin expression-end \\
 \hline
 non-operator & non-operator & cannot-happen \\
-non-operator & prefix & not-allowed \\
-non-operator & infix & non-operator infix \\
+non-operator & prefix & not-allowed\SUP{O} \\
+non-operator & infix & non-operator infix\SUP{--O} \\
 non-operator & postfix & non-operator postfix \\
 non-operator & nofix & non-operator nofix \\
 non-operator & expression-end & non-operator expression-end \\
 \hline
 prefix & non-operator & prefix non-operator \\
 prefix & prefix & prefix prefix \\
-prefix & infix & not-allowed \\
-prefix & postfix & not-allowed \\
-prefix & nofix & not-allowed \\
-prefix & expression-end & not-allowed \\
+prefix & infix & not-allowed\SUP{--O} \\
+prefix & postfix & not-allowed\SUP{--O} \\
+prefix & nofix & not-allowed\SUP{--O} \\
+prefix & expression-end & not-allowed\SUP{--O} \\
 \hline
 infix & non-operator & infix non-operator \\
 infix & prefix & infix prefix \\
-infix & infix & not-allowed \\
-infix & postfix & not-allowed \\
+infix & infix & not-allowed\SUP{--O} \\
+infix & postfix & not-allowed\SUP{--O} \\
 infix & nofix\SUP{H} & infix nofix \\
-infix & nofix\SUP{--H} & not-allowed \\
-infix & expression-end & not-allowed \\
+infix & nofix\SUP{--H} & not-allowed\SUP{--O} \\
+infix & expression-end & not-allowed\SUP{--O} \\
 \hline
-postfix & non-operator & not-allowed \\
-postfix & prefix & not-allowed \\
+postfix & non-operator & not-allowed\SUP{O} \\
+postfix & prefix & not-allowed\SUP{O} \\
 postfix & infix & postfix infix \\
 postfix & postfix & postfix postfix \\
 postfix & nofix & postfix nofix \\
@@ -7703,8 +7703,8 @@ postfix & expression-end & postfix expression-end \\
 nofix & non-operator & nofix non-operator \\
 nofix & prefix & nofix prefix \\
 nofix\SUP{H} & infix & nofix infix \\
-nofix\SUP{--H} & infix & not-allowed \\
-nofix & postfix & not-allowed \\
+nofix\SUP{--H} & infix & not-allowed\SUP{--O} \\
+nofix & postfix & not-allowed\SUP{--O} \\
 nofix & nofix & nofix nofix \\
 nofix & expression-end & nofix expression-end \\
 \hline
@@ -7737,14 +7737,14 @@ infix-or-prefix & infix-or-prefix & ambiguous prefix \\
 infix-or-postfix & infix-or-prefix & unresolved \\
 prefix-or-postfix & infix-or-prefix & unresolved \\
 \hline
-expression-begin & infix-or-postfix & not-allowed \\
+expression-begin & infix-or-postfix & not-allowed\SUP{--O} \\
 non-operator & infix-or-postfix & unresolved \\
-prefix & infix-or-postfix & not-allowed \\
-infix & infix-or-postfix & not-allowed \\
+prefix & infix-or-postfix & not-allowed\SUP{--O} \\
+infix & infix-or-postfix & not-allowed\SUP{--O} \\
 postfix & infix-or-postfix & unresolved \\
 nofix\SUP{H} & infix-or-postfix & nofix infix \\
-nofix\SUP{--H} & infix-or-postfix & not-allowed \\
-infix-or-prefix & infix-or-postfix & not-allowed \\
+nofix\SUP{--H} & infix-or-postfix & not-allowed\SUP{--O} \\
+infix-or-prefix & infix-or-postfix & not-allowed\SUP{--O} \\
 infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
 \hline
@@ -7778,11 +7778,11 @@ prefix-or-postfix & prefix-or-postfix & unresolved \\
 \hline
 infix-or-prefix & non-operator & ambiguous non-operator \\
 infix-or-prefix & prefix & ambiguous prefix \\
-infix-or-prefix & infix & not-allowed \\
-infix-or-prefix & postfix & not-allowed \\
+infix-or-prefix & infix & not-allowed\SUP{--O} \\
+infix-or-prefix & postfix & not-allowed\SUP{--O} \\
 infix-or-prefix & nofix\SUP{H} & infix nofix \\
-infix-or-prefix & nofix\SUP{--H} & not-allowed \\
-infix-or-prefix & expression-end & not-allowed \\
+infix-or-prefix & nofix\SUP{--H} & not-allowed\SUP{--O} \\
+infix-or-prefix & expression-end & not-allowed\SUP{--O} \\
 \hline
 infix-or-postfix & non-operator & infix non-operator \\
 infix-or-postfix & prefix & infix prefix \\
@@ -7804,11 +7804,13 @@ prefix-or-postfix & expression-end & postfix expression-end \\
 \\[2ex]
 \begin{tabular}{rl}
 \SUP{H}   & means operator has higher precedence than \\
-          & the precedence of the preceding operator\\[1ex]
+          & the precedence of the preceding operator\\[0.5ex]
 \SUP{--H} & means operator has precedence lower than or equal to \\
-          & the precedence of the preceeding operator\\[1ex]
-\SUP{A}  & means operator is afix\\[1ex]
-\SUP{--A} & means operator is \underline{not} afix
+          & the precedence of the preceeding operator\\[0.5ex]
+\SUP{A}  & means operator is afix\\[0.5ex]
+\SUP{--A} & means operator is \underline{not} afix \\[0.5ex]
+\SUP{O} & means fix by inserting nofix operator (see text) \\[0.5ex]
+\SUP{--O} & means fix by inserting non-operator (see text)
 \end{tabular}
 \\
 \caption{Fixity Rewrite Rules: Part 3 of 3}

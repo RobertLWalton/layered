@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 23, 2019
+October 24, 2019
  
 \end{center}
 
@@ -7134,9 +7134,10 @@ definitions assign precedence integers to operators.
 Infix and nofix operators have precedences in the range [L,H],
 where L = -1,000,000 and H = +1,000,000.  Prefix operators have
 precedence H+2, and postfix operators have precedence H+3.
-The precedence H+1 is reserved for the `error operator' that is
-a nofix operator
-inserted during parsing to `fix up' fixity errors (see \pagref{FIXITY-ERRORS}).
+The precedence H+1 is reserved for the `error operator' which is
+a nofix operator inserted during parsing to `fix up' errors found
+while computing fixity so parsing can continue
+(see \pagref{FIXITY-ERRORS}).
 
 Given this, expressions have the following syntax,
 where an {\em P-expression}
@@ -7175,7 +7176,7 @@ have precedence equal to or greater than P:
 \emkey{(H+4)-expression} ::= {\em non-operator}\PLUS{}
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
-where N is any precedence in the range [L,H]
+where N is any precedence in the range [L,H+1]
 \end{tabular}
 \end{indpar}
 
@@ -7196,7 +7197,7 @@ with a single operand.
 An infix operator must be surrounded by operands, but a nofix operator
 need not have adjacent operands.
 
-By choosing appropriate operator definition commands, one can build
+By choosing appropriate operator definitions, one can build
 a reasonable expression syntax consisting of nothing but nofix operators,
 while using operator expression reformatters to check whether the
 operators in an expression have sufficient operands.  However, with
@@ -7331,7 +7332,8 @@ no following operand.
 An infix operator may also be either prefix or postfix.
 An infix operator has the precedence given in the operator definition.
 A prefix operator always has precedence H+2, and a postfix operator
-always has precedence H+3.
+always has precedence H+3.  An operator may be both prefix and postfix,
+but no operator may be all three of infix, prefix, and postfix.
 
 A \ttkey{nofix} operator may or may not be
 preceded or followed by operands.  It may appear at the beginning or ending of
@@ -7515,21 +7517,31 @@ precedence & reformatter	& type	& operator	& meaning
 The operator parsing pass runs the \key{operator parsing algorithm}
 that accepts as input a sequence of tokens
 which we call an `expression'
-and edits this input, changing it into a single token
-if it contains any operators.
+and edits this input, changing it into a single \TT{BRACKETABLE} token
+if it contains any operators, and calling subsequent passes on the
+expression if it does not contain any operators.
 
 \subsubsubsection{Algorithm Outline}
 
 The operator parsing algorithm runs a left to right scan which:
 \begin{enumerate}
-\item Identifies sequences of lexemes that are operators, and
-replaces each by a single \ttkey{OPERATOR} token with the operator as
-its label.
+\item Identifies sequences of tokens that are operators, and
+replaces each by a single \ttkey{OPERATOR} token.
+\item Identifies maximal non-empty sequences of tokens between \TT{OPERATOR}
+tokens, calls subsequence passes on each, and if these do not
+turn the sequence into a single token, packages the sequence into
+a single \TT{PURELIST} token.  The result is a single `non-operator'
+token.
 \item Determines the fixity of each operator: prefix, infix,
 postfix, or nofix.
 \item Identifies subexpressions using operator precedence and fixity.
 \item Processes each subexpression, innermost first, treating the
-entire expression as a subexpression.
+entire expression as a subexpression.  For each subexpression,
+the reformatter of the first operator in the expression is called.
+If there is no reformatter, or the reformatter chooses not to
+collect the expression into a single \TT{BRACKETABLE} token, then
+the expression is made into a single \TT{BRACKETABLE} token
+with the first operator as it \TT{.operator} attribute.
 \end{enumerate}
 
 
@@ -7539,7 +7551,7 @@ identified as per \itemref{OPERATOR-IDENTIFICATION},
 and most have had their fixity determined as per
 \itemref{FIXITY-DETERMINATION}.  Subexpression recognition
 is done after operators and fixity have been determined, and can be done
-by a second left-to-right scan.
+most simply by a second left-to-right scan.
 
 \subsubsubsection{Operator Identification}
 \label{OPERATOR-IDENTIFICATION}
@@ -7566,7 +7578,7 @@ and the inserted operator.
 \item[(3)] The inserted
 operator has not interacted with operators immediately preceding
 the current position to cause an operator to
-have ambiguous fixity or a fixity possibility-error.
+have ambiguous fixity or a fixity not-allowed error.
 \end{itemize}
 See \itemref{FIXITY-DETERMINATION} for a description of fixity rules.
 
@@ -7578,6 +7590,18 @@ If an operator is identified, its lexemes are collected into
 an \TT{OPERATOR} token.  If no operator is identified, the
 current position is moved one token to the right.
 
+When an operator is identified, the non-\TT{OPERATOR}
+tokens between it and the preceeding operator, or expression beginning
+if there is no preceeding operator,
+are treated as an operator-free subexpression.
+This is a `\key{non-operator subexpression}' if it is not empty.
+For each non-operator subexpression
+(including the whole expression if it has no operators),
+the next pass is called, and if that does not make the subexpession
+into a single token, the subexpression is made into a single
+\TT{PURELIST} token.  Thus each non-operator subexpression
+is replaced by a single non-operator token.  Note that by construction,
+two non-operator tokens cannot be next to each other.
 
 \subsubsubsection{Fixity Determination}
 \label{FIXITY-DETERMINATION}
@@ -7602,11 +7626,11 @@ A prefix operator must be preceded by an infix operator, a nofix
 operator, a prefix operator, or the beginning of the expression.
 \item[(C)]
 An infix operator must be followed by a non-operator, a prefix
-operator, or a nofix operator of greater priority than the
+operator, or a nofix operator of greater precedence than the
 infix operator.
 \item[(D)]
 An infix operator must be preceded by a non-operator, a postfix
-operator, or a nonfix operator of greater priority than the
+operator, or a nonfix operator of greater precedence than the
 infix operator.
 \item[(E)]
 A postfix operator must be followed by an infix operator, a nofix
@@ -7616,31 +7640,33 @@ A postfix operator must be preceded by a non-operator or another
 postfix operator.
 \end{itemize}
 
+Recall that two non-operators next to each other.
+
 If these rules are obeyed, then the following will be true:
 
 \begin{itemize}
 \item[(G)]
 A nofix operator will be followed by a non-operator, a prefix
-operator, an infix operator of priority lower than the nofix
-operator, or the end of the expression.
+operator, an infix operator of precedence lower than the nofix
+operator, a nofix operator, or the end of the expression.
 \item[(H)]
 A nofix operator will be preceded by a non-operator, a postfix
-operator, an infix operator of priority lower than the nofix
-operator, or the beginning of the expression.
+operator, an infix operator of precedence lower than the nofix
+operator, a nofix operator, or the beginning of the expression.
 \item[(I)]
-A non-operator will be followed by a non-operator, a postfix
+A non-operator will be followed by a postfix
 operator, an infix operator, a nofix operator,
 or the end of the expression.
 \item[(J)]
-A non-operator will be preceded by a non-operator, a prefix
+A non-operator will be preceded by a prefix
 operator, an infix operator, a nofix operator,
 or the beginning of the expression.
 \item[(K)]
 The beginning of expression is followed by a prefix operator,
-a nofix operator, or a non-operator.
+a nofix operator, a non-operator, or the end of the expression.
 \item[(L)]
 The end of expression is preceded by a postfix operator,
-a nofix operator, or a non-operator.
+a nofix operator, a non-operator, or the beginning of expression.
 \end{itemize}
 
 \newcommand{\OPSUP}[1]{$^\textrm{\scriptsize #1}$}
@@ -7648,15 +7674,15 @@ The above rules lead to the \key{fixity rewrite rules}
 in Figures \ref{FIXITY-REWRITE-RULES-1},
 \ref{FIXITY-REWRITE-RULES-2}, and
 \ref{FIXITY-REWRITE-RULES-3} that determine the fixity
-of operators with ambiguous fixity.  In these `ambiguous'
+of operators with ambiguous fixity (e.g., operators that
+are infix-or-prefix).  In these rules `ambiguous'
 means an operator whose fixity cannot be determined by the above
 rules (along with any operators before it whose fixity has not
 been determined);
 `not-allowed'
 means there can be no way to assign fixity to the expression operators
 consistent with the above rules; and `unresolved' means the
-rewrite rule does not change anything (i.e., there is no
-rewrite rule for the indicated case).
+rewrite rule does not change anything.
 Also nofix\OPSUP{H} means a nofix operator of precedence higher
 than the preceeding or following infix-or\ldots{} operator, and
 nofix\OPSUP{--H} means a nofix operator of precedence equal to or lower
@@ -7676,7 +7702,7 @@ expression-begin & expression-end & expression-begin expression-end \\
 \hline
 non-operator & non-operator & cannot-happen \\
 non-operator & prefix & not-allowed\OPSUP{O} \\
-non-operator & infix & non-operator infix\OPSUP{--O} \\
+non-operator & infix & non-operator infix \\
 non-operator & postfix & non-operator postfix \\
 non-operator & nofix & non-operator nofix \\
 non-operator & expression-end & non-operator expression-end \\
@@ -7848,7 +7874,8 @@ prefix-or-postfix & prefix
 \end{tabular}
 \end{center}
 
-These rewrites are arbitrary in the sense that they
+These rewrites allow parsing to continue.
+They are arbitrary in the sense that they
 are prefix preferring whereas an alternative set of postfix
 preferring rules will also work.
 

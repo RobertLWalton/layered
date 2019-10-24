@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 23 06:17:45 EDT 2019
+// Date:	Thu Oct 24 01:12:20 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -306,11 +306,9 @@ bool OP::fixity_OK ( OP::oper_vec v,
 
     if ( length == 0 )
     {
-        if ( fixity == OP::INFIX ) return false;
-        if ( fixity == OP::POSTFIX ) return false;
-        if ( fixity == ( OP::INFIX | OP::POSTFIX ) )
-	    return false;
+        if ( fixity == 0 ) goto OK;
 	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
+	if ( fixity == 0 ) return false;
 	goto OK;
     }
 
@@ -319,8 +317,8 @@ bool OP::fixity_OK ( OP::oper_vec v,
     if ( last.fixity == 0 )
     {
         MIN_REQUIRE ( fixity != 0 );
-	if ( fixity == OP::PREFIX ) return false;
 	fixity &= ~ OP::PREFIX;
+	if ( fixity == 0 ) return false;
 	goto OK;
     }
     else if ( last.fixity == OP::PREFIX )
@@ -332,27 +330,23 @@ bool OP::fixity_OK ( OP::oper_vec v,
     }
     else if ( last.fixity == OP::INFIX )
     {
-        if ( fixity == OP::INFIX ) return false;
-        if ( fixity == OP::POSTFIX ) return false;
-        if ( fixity == ( OP::INFIX | OP::POSTFIX ) )
-	    return false;
+        if ( fixity == 0 ) goto OK;
         if (    fixity == OP::NOFIX
-	     && last.precedence <= precedence )
+	     && last.precedence >= precedence )
 	    return false;
 	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
+	if ( fixity == 0 ) return false;
 	goto OK;
     }
     else if ( last.fixity == OP::POSTFIX )
     {
-        if ( fixity == 0 ) return false;
-        if ( fixity == OP::PREFIX ) return false;
 	fixity &= ~ OP::PREFIX;
+        if ( fixity == 0 ) return false;
 	goto OK;
     }
     else if ( last.fixity == OP::NOFIX )
     {
         if ( fixity == 0 ) goto OK;
-        if ( fixity == OP::POSTFIX ) return false;
 	fixity &= ~ OP::POSTFIX;
         if (    ( fixity & OP::INFIX )
 	     && last.precedence <= precedence )
@@ -363,16 +357,12 @@ bool OP::fixity_OK ( OP::oper_vec v,
     else if (    last.fixity
               == ( OP::INFIX | OP::PREFIX ) )
     {
-        if ( fixity == ( OP::INFIX | OP::POSTFIX ) )
-	    return false;
-        if ( fixity == OP::INFIX )
-	    return false;
-        if ( fixity == OP::POSTFIX )
-	    return false;
+        if ( fixity == 0 ) goto OK;
         if (    fixity == OP::NOFIX
 	     && last.precedence >= precedence )
 	    return false;
 	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
+	if ( fixity == 0 ) return false;
 
 	if ( fixity == OP::NOFIX )
 	{
@@ -398,9 +388,11 @@ bool OP::fixity_OK ( OP::oper_vec v,
 	     && fixity == OP::NOFIX
 	     && last.precedence < precedence )
 	    return false;
-	if (    fixity == ( OP::INFIX | OP::POSTFIX )
-	     || fixity == OP::INFIX
-	     || fixity == OP::POSTFIX
+	    // last.fixity would be ambiguous
+
+	if (       (   fixity
+	             & ~ ( OP::INFIX | OP::POSTFIX ) )
+		== 0
 	     || ( fixity == OP::NOFIX
 	          &&
 		  last.precedence >= precedence ) )
@@ -419,9 +411,9 @@ bool OP::fixity_OK ( OP::oper_vec v,
     else if (    last.fixity
               == ( OP::PREFIX | OP::POSTFIX ) )
     {
-        if (    fixity == ( OP::INFIX | OP::POSTFIX )
-	     || fixity == OP::INFIX
-	     || fixity == OP::POSTFIX
+	if (       (   fixity
+	             & ~ ( OP::INFIX | OP::POSTFIX ) )
+		== 0
 	     || fixity == OP::NOFIX )
 	{
 	    last.fixity = OP::POSTFIX;

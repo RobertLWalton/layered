@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 22:22:53 EDT 2019
+// Date:	Sat Oct 26 01:54:01 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2354,15 +2354,22 @@ void PAR::compact
     PAR::execute_pass_parse
 	 ( parser, pass, selectors, first, next );
 
-    if ( first->next == next
-         &&
-	 ( ( first->type == PAR::BRACKETABLE
+    if ( first->next == next && m == 0 )
+    {
+	if ( ( 1 << first->type )
+	     & LEXSTD::convert_mask )
+	    PAR::convert_token ( first );
+        first->position = position;
+    }
+    else if ( first->next == next
+              &&
+	      ( ( first->type == PAR::BRACKETABLE
+	          &&
+	          type == PAR::BRACKETING )
+	        ||
+	        first->type == PAR::PURELIST )
 	     &&
-	     type == PAR::BRACKETING )
-	   ||
-	   first->type == PAR::PURELIST )
-	&&
-	m != 0 )
+	     m != 0 )
     {
 	min::obj_vec_insptr vp ( first->value );
 	min::attr_insptr ap ( vp );

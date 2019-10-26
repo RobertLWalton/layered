@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 24 01:12:20 EDT 2019
+// Date:	Fri Oct 25 18:49:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -461,6 +461,447 @@ OK:
 
 
 // Operator Parse Function
+// -------- ----- --------
+
+# ifdef NONE_SUCH
+
+static void oper_parse_pass_1 ( PAR::parser parser,
+		                OP::oper_pass pass,
+		                TAB::flags selectors,
+		                PAR::token & first,
+		                PAR::token next,
+				TAB::flags trace_flags )
+{
+    OP::oper_vec vec = oper_pass->oper_vec;
+
+    // We add to the vector but leave alone what is
+    // already in the vector so this function can be
+    // called recursively.
+    //
+    min::unsptr initial_length = vec->length;
+
+    PAR::token current = first;
+    PAR::token non_op_first = min::NULL_STUB;
+    while ( current != next )
+    {
+
+	// Find operator if possible.
+	//
+	TAB::root root = MIN::NULL_STUB;
+	OP::oper oper;
+	bool OK;
+	min::uns32 fixity;
+	min::int32 precedence;
+	bool bracketed =
+	    ( current->type == PAR::BRACKETED );
+	    
+	if ( bracketed )
+	{
+	    if ( min::is_name
+		     ( current->value_type ) )
+		root = TAB::find
+		    ( current->value_type,
+		      OP::OPER,
+		      selectors,
+		      oper_pass->
+			  oper_bracket_table );
+
+	    while ( root != min::NULL_STUB )
+	    {
+		if ( root->selectors & selectors )
+		{
+		    oper = (OP::oper) root;
+		    fixity = oper->flags;
+		    precedence = oper->precedence;
+		    OK = OP::fixity_OK
+			( vec, fixity, precedence );
+		    if ( ( fixity & OP::AFIX ) == 0
+			 ||
+			 OK )
+			break;
+		}
+		root = root->next;
+	    }
+	}
+	else
+	{
+	    TAB::key_prefix key_prefix;
+	    TAB::next_current = current;
+	    root = PAR::find_entry
+		( parser, next_current, key_prefix,
+		  selectors, oper_pass->oper_table,
+		  next );
+
+	    while ( root != min::NULL_STUB )
+	    {
+		oper = (OP::oper) root;
+		fixity = oper->flags;
+		precedence = oper->precedence;
+		OK = OP::fixity_OK
+		    ( vec, fixity, precedence );
+		if ( ( fixity & OP::AFIX ) == 0
+		     ||
+		     OK )
+		    break;
+		root = PAR::find_next_entry
+		    ( parser, next_current,
+			      key_prefix,
+			      selectors, root );
+
+	    }
+
+	    if ( root != min::NULL_STUB )
+	    {
+	        while ( current->next != next_current )
+		    PAR::free
+			( PAR::remove
+			      ( PAR::first_ref (parser),
+				next_current->
+				    previous ) );
+		value_ref ( current ) = root->label;
+	    }
+	}
+
+	if ( root == min::NULL_STUB )
+	{
+	    if ( non_op_first == min::NULL_STUB )
+	    {
+	        non_op_first = current;
+		OK = OP::fixity_OK ( vec, 0, 0 );
+		if ( ! OK )
+		{
+		    PAR::token t =
+			PAR::new_token ( OP::OPERATOR );
+		    value_ref ( t ) = OP::error_op;
+		    OK = OP::fixity_OK
+		       ( vec, OP::error_op_fixity,
+			      OP::error_op_precedence );
+		}
+	    }
+	    current = current->next;
+	    if ( current != next );
+		continue;
+	}
+
+	if ( non_op_first != min::NULL_STUB )
+	{
+	    
+	}
+	if ( root == min::NULL_STUB ) continue;
+
+	current->type = PAR::OPERATOR;
+
+	TBD
+
+
+	    // Make OPERATOR token if an operator was
+	    // found.  Note that next_current ends up
+	    // pointing after the OPERATOR token and
+	    // current is left intact and points at the
+	    // new OPERATOR token.  If no operator was
+	    // found, current == next_current.
+	    //
+	    if ( oper != min::NULL_STUB )
+	    {
+	        if ( bracketed )
+		{
+		    current->type = PAR::OPERATOR;
+		    next_current = current->next;
+		}
+		else
+		{
+		    current->position.end =
+			next_current->previous
+				    ->position.end;
+		    while (    current
+			    != next_current->previous )
+			PAR::free
+			    ( PAR::remove
+				  ( PAR::first_ref
+				             (parser),
+				    next_current->
+					previous ) );
+		    current->type = PAR::OPERATOR;
+		    PAR::value_ref ( current ) =
+			oper->label;
+		}
+
+		if ( trace_flags & PAR::TRACE_KEYS )
+		{
+		    parser->printer
+			<< min::bom
+			<< min::adjust_indent ( 7 )
+			<< "OPERATOR "
+			<< min::pgen_quote
+			       ( current->value )
+			<< " found; "
+			<< min::pline_numbers
+			       ( parser->input_file,
+				 current->position )
+			<< ":" << min::eom;
+		    min::print_phrase_lines
+			( parser->printer,
+			  parser->input_file,
+			  current->position );
+		}
+	    }
+	}
+
+	min::int32 oper_precedence = OP::NO_PRECEDENCE;
+	    // Effective operator precedence.
+	min::uns32 oper_flags = 0;
+	    // Effective operator flags.
+
+	// Insert ERROR'OPERATOR token just before
+	// current position if bad token (e.g.,
+	// operand or operator with too high a
+	// precedence) found after a postfix operator.
+	//
+	// Also compute oper_precedence and oper_flags.
+	//
+	if ( current == D.first
+	     &&
+	     last_oper_flags & OP::POSTFIX
+	     &&
+	     current != next
+	     &&
+	     ( oper == min::NULL_STUB
+	       ||
+	       oper->precedence > D.precedence
+	       ||
+	       ( oper->precedence == D.precedence
+	         &&
+		    ( oper->flags & OP::POSTFIX )
+		 == 0 ) ) )
+	{
+	    next_current = current;
+	    PAR::put_error_operator_before
+	        ( parser, next_current );
+	    current = next_current->previous;
+	    oper_precedence = D.precedence - 1;
+	    D.first = current;
+
+	    parse_error ( parser, current->position,
+	                  "",
+	                  min::printf_op<200>
+			      ( "missing operator of"
+			        " precedence %d"
+				" inserted",
+				oper_precedence ) );
+	}
+	else if ( oper != min::NULL_STUB )
+	{
+	    oper_precedence = oper->precedence;
+	    oper_flags = oper->flags;
+	}
+
+	// If no operator found and not at end of
+	// expression, move to next token and loop.
+	//
+	if ( current == next_current
+	     &&
+	     current != next )
+	{
+	    current = current->next;
+	    continue;
+	}
+
+	// Insert ERROR'OPERAND token just before
+	// current if bad token (e.g., operator with too
+	// low a precedence) found after infix or prefix
+	// operator.
+	//
+	if ( current == D.first
+	     &&
+	     ( ( last_oper_flags & OP::INFIX
+	         &&
+		 ( current == next
+		   ||
+		   oper_precedence <= D.precedence )
+	       )
+	       ||
+	       ( last_oper_flags & OP::PREFIX
+	         &&
+		 ( current == next
+		   ||
+		   oper_precedence < D.precedence
+		   ||
+	           ( oper_precedence == D.precedence
+	             &&
+		        ( oper_flags & OP::PREFIX )
+		     == 0 )
+		 )
+	       )
+	     )
+	   )
+	{
+	    PAR::put_error_operand_after
+	        ( parser, current->previous );
+	    D.first = current->previous;
+
+	    PAR::parse_error
+	        ( parser, D.first->position,
+		  "missing operand inserted" );
+	}
+
+	// Close previous subexpressions until
+	// D.precedence < oper_precedence or
+	// D.precedence == oper_precedence and last
+	// operator is postfix or current == next.
+	// If current == next and oper_stack->length
+	// == initial_length return to caller.
+	//
+	OP::oper first_oper = min::NULL_STUB;
+	while ( true )
+	{
+	    if ( current != D.first )
+	    {
+		min::phrase_position position;
+		position.begin =
+		    D.first->position.begin;
+		position.end =
+		    current->previous->position.end;
+
+		TAB::flags reformatter_trace_flags =
+		       oper_stack->length
+		    != initial_length ?
+		    trace_flags : 0;
+
+		if ( first_oper != min::NULL_STUB )
+		{
+		    PAR::attr attr
+			( PARLEX::dot_oper,
+			  first_oper->label );
+
+		    if (    first_oper->reformatter
+		         == min::NULL_STUB
+			 ||
+			 ( * first_oper
+			       ->reformatter
+			       ->reformatter_function )
+			     ( parser, pass, selectors,
+			       D.first, current,
+			       position, min::MISSING(),
+			       reformatter_trace_flags,
+			       (TAB::root) first_oper )
+		       )
+			PAR::compact
+			    ( parser, pass->next,
+			      selectors,
+			      D.first, current,
+			      position,
+			      reformatter_trace_flags,
+			      PAR::BRACKETABLE,
+			      1, & attr );
+		}
+		else
+		{
+		    PAR::execute_pass_parse
+			 ( parser, pass->next,
+			   selectors,
+			   D.first, current );
+
+		    if ( D.first->next != current )
+		    {
+			min::phrase_position position;
+			position.begin =
+			    D.first->position.begin;
+			position.end =
+			    current->previous
+			           ->position.end;
+			PAR::compact
+			    ( parser, min::NULL_STUB,
+			      selectors,
+			      D.first, current,
+			      position,
+			      reformatter_trace_flags,
+			      PAR::BRACKETABLE );
+		    }
+		}
+	    }
+
+	    if ( current == next )
+	    {
+		if (    oper_stack->length
+		     == initial_length )
+		{
+		    first = D.first;
+		    return;
+		}
+		first_oper = D.first_oper;
+		D = min::pop ( oper_stack );
+	    }
+	    else if ( oper_precedence < D.precedence
+	              ||
+		      ( oper_precedence == D.precedence
+		        &&
+		        last_oper_flags & OP::POSTFIX )
+		    )
+
+	    {
+		first_oper = D.first_oper;
+	        D = min::pop ( oper_stack );
+	    }
+	    else break;
+	}
+
+	// Start new subexpression if oper_precedence
+	// > D.precedence or oper_precedence ==
+	// D.precedence, last operator was prefix,
+	// and last operator is previous token.
+	//
+	if ( oper_precedence > D.precedence
+	     ||
+	     ( oper_precedence == D.precedence
+	       &&
+	       last_oper_flags & OP::PREFIX
+	       &&
+	          current->previous->type
+	       == PAR::OPERATOR ) )
+	{
+	    min::push ( oper_stack ) = D;
+	    D.precedence = oper_precedence;
+	    D.first_oper = oper;
+	}
+
+	D.first = next_current;
+	last_oper_flags = oper_flags;
+	current = next_current;
+    }
+}
+
+static void oper_parse_X ( PAR::parser parser,
+		           PAR::pass pass,
+		           TAB::flags selectors,
+		           PAR::token & first,
+		           PAR::token next )
+{
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    TAB::flags trace_flags = parser->trace_flags;
+    if ( trace_flags & oper_pass->trace_subexpressions )
+    {
+	trace_flags &=
+	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	    + PAR::TRACE_SUBEXPRESSION_DETAILS
+	    + PAR::TRACE_SUBEXPRESSION_LINES
+	    + PAR::TRACE_KEYS;
+	if ( trace_flags == 0 )
+	    trace_flags =
+	        PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+    }
+    else
+        trace_flags = 0;
+
+    oper_parse_pass_1
+	( parser, oper_pass, selectors, first, next.
+	  trace_flags );
+}
+
+# endif // NONE_SUCH
+
+
+// Operator Parse Function (old)
 // -------- ----- --------
 
 // Return true iff the argument is a precedence in the

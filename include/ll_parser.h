@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 12 13:47:53 EDT 2019
+// Date:	Fri Oct 25 19:48:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1901,16 +1901,29 @@ bool set_attr_multivalue
 // MUST NOT include any .type, .initiator, or .termina-
 // tor attributes.
 //
+// If the type argument is BRACKETING, the m attributes
+// can only include .type, .initiator, and/or .termina-
+// tor attributes.
+//
 // Natural number and quoted string tokens in the
 // expression are converted as per convert_token.
 //
-// Space is allocated in the new object for the m
-// attributes, 1 .position attribute, and n attributes
-// to be added later.
+// If after invoking the given pass and applying
+// convert_token, there is only one element and
+// m == 0, the position of the token is set to the
+// position argument and the token is returned as is,
+// without making an expression containing it.
+//
+// Otherwise a new object is created with space for the
+// one element per expression token, the m attributes,
+// one .position attribute, and n attributes to be added
+// later.  The .position of the new object is set from
+// the position argument and the positions of its
+// element tokens.
 //
 // The type argument is changed to PURELIST if m == 0
 // and otherwise to BRACKETED if the type argument is
-// as BRACKETING.
+// BRACKETING.
 //
 // An exception to the above is made if the tokens to
 // be put in the new expression consist of just a single
@@ -1922,10 +1935,6 @@ bool set_attr_multivalue
 // token, whose type is changed to BRACKETED.  The
 // positions of this token and of its MIN object value
 // are also reset to the position argument.
-//
-// If the type argument is BRACKETING, the m attributes
-// can only include .type, .initiator, and/or .termina-
-// tor attributes.
 //
 // The trace_subexpression function is called with the
 // final output subexpression token to process any

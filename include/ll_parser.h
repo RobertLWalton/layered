@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 25 19:48:53 EDT 2019
+// Date:	Sat Oct 26 02:45:28 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1758,7 +1758,9 @@ void put_empty_after
 	  ll::parser::token t );
 
 // Ditto but put ERROR'OPERAND or ERROR'OPERATOR before
-// or after.
+// or after.  For ERROR'OPERATOR the token type is set
+// to PAR::OPERATOR, and for ERROR'OPERAND the token
+// type is set to LEXSTD::word_t.
 //
 void put_error_operand_before
 	( ll::parser::parser parser,

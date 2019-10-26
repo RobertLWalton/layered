@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 23 04:51:57 EDT 2019
+// Date:	Sat Oct 26 03:28:39 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -161,6 +161,10 @@ struct oper_vec_struct
 {
     min::uns32 fixity;
     min::int32 precedence;
+    oper op;
+        // Is not visible to gc.  Used only for
+	// reformatter, and may be NULL_STUB if not
+	// operator or operator has no reformatter.
 };
 
 typedef min::packed_vec_insptr< oper_vec_struct >
@@ -199,7 +203,8 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 //
 bool fixity_OK ( oper_vec v,
 	         min::uns32 fixity,
-		 min::int32 precedence );
+		 min::int32 precedence,
+		 oper op = min::NULL_STUB );
 
 struct oper_pass_struct;
 typedef min::packed_struct_updptr<oper_pass_struct>

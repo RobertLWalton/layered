@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 25 18:49:40 EDT 2019
+// Date:	Sat Oct 26 03:28:51 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -291,7 +291,8 @@ bool afix_OK ( OP::oper_vec v,
         
 bool OP::fixity_OK ( OP::oper_vec v,
 	             min::uns32 fixity,
-		     min::int32 precedence )
+		     min::int32 precedence,
+		     OP::oper op )
 {
     bool is_afix = ( fixity & OP::AFIX );
     if ( is_afix )
@@ -453,7 +454,8 @@ OK:
     //
     if ( is_afix && ! afix_OK ( v, precedence ) )
 	return false;
-    OP::oper_vec_struct next = { fixity, precedence };
+    OP::oper_vec_struct next =
+        { fixity, precedence, op };
     min::push ( v ) = next;
 
     return true;
@@ -464,6 +466,69 @@ OK:
 // -------- ----- --------
 
 # ifdef NONE_SUCH
+
+static void put_error_operator_before
+	( ll::parser::parser parser,
+	  ll::parser::token t,
+          OP::oper_vec vec );
+{
+    PAR::token token = new_token ( PAR::OPERATOR );
+    put_before ( PAR::first_ref(parser), t, token );
+    PAR::value_ref ( token ) = PARLEX::error_operator;
+
+    min::phrase_position position =
+        { t->position.begin, t->position.begin };
+    token->position = position;
+
+    PAR::parse_error
+	( parser, t->position,
+	  "",
+	  min::printf_op<200>
+	      ( "missing operator; nofix error operator"
+		" of precedence %d inserted",
+	        OP::op_high_precedence + 1 );
+
+    bool OK = OP::fixity_OK
+	( vec, OP::NOFIX,
+	       OP::op_high_precedence + 1 );
+
+    MIN_REQUIRE ( OK );
+
+}
+
+void OP::put_error_operand_before
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( LEXSTD::word_t );
+    put_before ( PAR::first_ref(parser), t, token );
+    PAR::value_ref ( token ) = PARLEX::error_operand;
+
+    min::phrase_position position =
+        { t->position.begin, t->position.begin };
+    token->position = position;
+
+    PAR::parse_error
+	( parser, t->position,
+	  "missing operand; error operand inserted" );
+}
+
+void OP::put_error_operand_after
+	( ll::parser::parser parser,
+	  ll::parser::token t )
+{
+    PAR::token token = new_token ( LEXSTD::word_t );
+    put_after ( PAR::first_ref(parser), t, token );
+    PAR::value_ref ( token ) = PARLEX::error_operand;
+
+    min::phrase_position position =
+        { t->position.end, t->position.end };
+    token->position = position;
+
+    PAR::parse_error
+	( parser, t->position,
+	  "missing operand; error operand inserted" );
+}
 
 static void oper_parse_pass_1 ( PAR::parser parser,
 		                OP::oper_pass pass,
@@ -570,12 +635,11 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		OK = OP::fixity_OK ( vec, 0, 0 );
 		if ( ! OK )
 		{
-		    PAR::token t =
-			PAR::new_token ( OP::OPERATOR );
-		    value_ref ( t ) = OP::error_op;
-		    OK = OP::fixity_OK
-		       ( vec, OP::error_op_fixity,
-			      OP::error_op_precedence );
+		    PAR::put_error_operator_before
+		        ( PAR::first_ref ( parser ),
+		          current, vec );
+		    OK = OP::fixity_OK ( vec, 0, 0 );
+		    MIN_REQUIRE ( OK );
 		}
 	    }
 	    current = current->next;
@@ -585,164 +649,42 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 
 	if ( non_op_first != min::NULL_STUB )
 	{
-	    
+	    PAR::compact ( parser, pass->next,
+			   selectors,
+			   non_op_first, current,
+			   position,
+			   trace_flags,
+			   PAR::BRACKETABLE );
 	}
 	if ( root == min::NULL_STUB ) continue;
 
 	current->type = PAR::OPERATOR;
 
+	if ( ! OK )
+	{
+	    if ( fixity == OP::PREFIX )
+		    PAR::put_error_operator_before
+		        ( PAR::first_ref ( parser ),
+		          current, vec );
+	    else
+	    {
+	        MIN_REQUIRE
+		    ( ! ( fixity & OP::PREFIX ) );
+		PAR::put_error_operand_before
+		    ( PAR::first_ref ( parser ),
+		      current );
+		OK = OP::fixity_OK ( vec, 0, 0 );
+		MIN_REQUIRE ( OK );
+	    }
+
+	    OK = OP::fixity_OK
+		     ( vec, fixity, precedence );
+	    MIN_REQUIRE ( OK );
+	}
+
 	TBD
 
 
-	    // Make OPERATOR token if an operator was
-	    // found.  Note that next_current ends up
-	    // pointing after the OPERATOR token and
-	    // current is left intact and points at the
-	    // new OPERATOR token.  If no operator was
-	    // found, current == next_current.
-	    //
-	    if ( oper != min::NULL_STUB )
-	    {
-	        if ( bracketed )
-		{
-		    current->type = PAR::OPERATOR;
-		    next_current = current->next;
-		}
-		else
-		{
-		    current->position.end =
-			next_current->previous
-				    ->position.end;
-		    while (    current
-			    != next_current->previous )
-			PAR::free
-			    ( PAR::remove
-				  ( PAR::first_ref
-				             (parser),
-				    next_current->
-					previous ) );
-		    current->type = PAR::OPERATOR;
-		    PAR::value_ref ( current ) =
-			oper->label;
-		}
-
-		if ( trace_flags & PAR::TRACE_KEYS )
-		{
-		    parser->printer
-			<< min::bom
-			<< min::adjust_indent ( 7 )
-			<< "OPERATOR "
-			<< min::pgen_quote
-			       ( current->value )
-			<< " found; "
-			<< min::pline_numbers
-			       ( parser->input_file,
-				 current->position )
-			<< ":" << min::eom;
-		    min::print_phrase_lines
-			( parser->printer,
-			  parser->input_file,
-			  current->position );
-		}
-	    }
-	}
-
-	min::int32 oper_precedence = OP::NO_PRECEDENCE;
-	    // Effective operator precedence.
-	min::uns32 oper_flags = 0;
-	    // Effective operator flags.
-
-	// Insert ERROR'OPERATOR token just before
-	// current position if bad token (e.g.,
-	// operand or operator with too high a
-	// precedence) found after a postfix operator.
-	//
-	// Also compute oper_precedence and oper_flags.
-	//
-	if ( current == D.first
-	     &&
-	     last_oper_flags & OP::POSTFIX
-	     &&
-	     current != next
-	     &&
-	     ( oper == min::NULL_STUB
-	       ||
-	       oper->precedence > D.precedence
-	       ||
-	       ( oper->precedence == D.precedence
-	         &&
-		    ( oper->flags & OP::POSTFIX )
-		 == 0 ) ) )
-	{
-	    next_current = current;
-	    PAR::put_error_operator_before
-	        ( parser, next_current );
-	    current = next_current->previous;
-	    oper_precedence = D.precedence - 1;
-	    D.first = current;
-
-	    parse_error ( parser, current->position,
-	                  "",
-	                  min::printf_op<200>
-			      ( "missing operator of"
-			        " precedence %d"
-				" inserted",
-				oper_precedence ) );
-	}
-	else if ( oper != min::NULL_STUB )
-	{
-	    oper_precedence = oper->precedence;
-	    oper_flags = oper->flags;
-	}
-
-	// If no operator found and not at end of
-	// expression, move to next token and loop.
-	//
-	if ( current == next_current
-	     &&
-	     current != next )
-	{
-	    current = current->next;
-	    continue;
-	}
-
-	// Insert ERROR'OPERAND token just before
-	// current if bad token (e.g., operator with too
-	// low a precedence) found after infix or prefix
-	// operator.
-	//
-	if ( current == D.first
-	     &&
-	     ( ( last_oper_flags & OP::INFIX
-	         &&
-		 ( current == next
-		   ||
-		   oper_precedence <= D.precedence )
-	       )
-	       ||
-	       ( last_oper_flags & OP::PREFIX
-	         &&
-		 ( current == next
-		   ||
-		   oper_precedence < D.precedence
-		   ||
-	           ( oper_precedence == D.precedence
-	             &&
-		        ( oper_flags & OP::PREFIX )
-		     == 0 )
-		 )
-	       )
-	     )
-	   )
-	{
-	    PAR::put_error_operand_after
-	        ( parser, current->previous );
-	    D.first = current->previous;
-
-	    PAR::parse_error
-	        ( parser, D.first->position,
-		  "missing operand inserted" );
-	}
 
 	// Close previous subexpressions until
 	// D.precedence < oper_precedence or

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 03:28:51 EDT 2019
+// Date:	Sat Oct 26 05:12:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -535,16 +535,9 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		                TAB::flags selectors,
 		                PAR::token & first,
 		                PAR::token next,
+				OP::oper_vec vec,
 				TAB::flags trace_flags )
 {
-    OP::oper_vec vec = oper_pass->oper_vec;
-
-    // We add to the vector but leave alone what is
-    // already in the vector so this function can be
-    // called recursively.
-    //
-    min::unsptr initial_length = vec->length;
-
     PAR::token current = first;
     PAR::token non_op_first = min::NULL_STUB;
     while ( current != next )
@@ -553,10 +546,17 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	// Find operator if possible.
 	//
 	TAB::root root = MIN::NULL_STUB;
+
+        // If root != NULL_STUB, oper equals root,
+	// fixity and precedence are oper's parameters,
+	// and OK is the result of calling fixity_OK for
+	// oper.
+	//
 	OP::oper oper;
-	bool OK;
 	min::uns32 fixity;
 	min::int32 precedence;
+	bool OK;
+
 	bool bracketed =
 	    ( current->type == PAR::BRACKETED );
 	    
@@ -579,7 +579,8 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		    fixity = oper->flags;
 		    precedence = oper->precedence;
 		    OK = OP::fixity_OK
-			( vec, fixity, precedence );
+			( vec, fixity, precedence,
+			       oper );
 		    if ( ( fixity & OP::AFIX ) == 0
 			 ||
 			 OK )
@@ -603,7 +604,8 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		fixity = oper->flags;
 		precedence = oper->precedence;
 		OK = OP::fixity_OK
-		    ( vec, fixity, precedence );
+		    ( vec, fixity, precedenc,
+		           oper );
 		if ( ( fixity & OP::AFIX ) == 0
 		     ||
 		     OK )
@@ -678,11 +680,38 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	    }
 
 	    OK = OP::fixity_OK
-		     ( vec, fixity, precedence );
+		     ( vec, fixity, precedence,
+		            oper );
 	    MIN_REQUIRE ( OK );
 	}
 
-	TBD
+	current = current->next;
+	if ( current == next )
+	{
+	    OK = OP::fixity_OK
+	              ( vec, OP::NOFIX,
+	                OP::op_low_precedence - 1 );
+	    if ( ! OK )
+	    {
+		PAR::put_error_operand_before
+		    ( PAR::first_ref ( parser ),
+		      current );
+		OK = OP::fixity_OK ( vec, 0, 0 );
+		MIN_REQUIRE ( OK );
+	    }
+	}
+    }
+}
+
+static void oper_parse_pass_2 ( PAR::parser parser,
+		                OP::oper_pass pass,
+		                TAB::flags selectors,
+		                PAR::token & first,
+		                PAR::token next,
+				OP::oper_vec vec,
+				TAB::flags trace_flags )
+{
+
 
 
 
@@ -835,9 +864,22 @@ static void oper_parse_X ( PAR::parser parser,
     else
         trace_flags = 0;
 
+    // We add to the vector but leave alone what is
+    // already in the vector so this function can be
+    // called recursively.
+    //
+    OP::oper_vec vec = oper_pass->oper_vec;
+    min::unsptr initial_length = vec->length;
+
     oper_parse_pass_1
-	( parser, oper_pass, selectors, first, next.
-	  trace_flags );
+	( parser, oper_pass, selectors, first, next,
+	  vec, trace_flags );
+    oper_parse_pass_2
+	( parser, oper_pass, selectors, first, next,
+	  vec, trace_flags );
+
+    min::pop ( vec, vec->length - initial_length );
+
 }
 
 # endif // NONE_SUCH

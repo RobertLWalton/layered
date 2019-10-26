@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 05:12:12 EDT 2019
+// Date:	Sat Oct 26 09:58:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -709,18 +709,92 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 		                PAR::token & first,
 		                PAR::token next,
 				OP::oper_vec vec,
+				min::unsptr vec_origin,
 				TAB::flags trace_flags )
 {
 
+    // We add to the stack but leave alone what is
+    // already in the stack so this function can be
+    // called recursively.
+    //
+    min::unsptr stack_origin = oper_stack->length;
 
+    // Data that is pushed to oper_stack.  D is in
+    // effect the top of the stack.
+    //
+    OP::oper_stack_struct D;
+    D.first = first;
+    D.precedence = OP::op_low_precedence - 1;
+    D.first_oper = min::NULL_STUB;
 
+    min::uns32 last_oper_flags = 0;
+        // Flags of the last operator seen in the
+	// expression.
+
+    PAR::token current = D.first;
+    min::uns32 index = vec_origin;
+    while ( true )
+    {
+        OP::oper_vec_struct v;
+	if ( current != next )
+	    v = vec[index++];
+	else
+	{
+	    v.precedence = OP::op_low_precedence - 1;
+	    v.fixity = OP::NOFIX;
+	    v.op = min::NULL_STUB;
+	}
+	    
+	if ( v.fixity == 0 )
+	{
+	    current = current->next;
+	    continue;
+	}
+	else
+	if ( v.fixity == ( OP::INFIX | OP::PREFIX ) )
+	{
+	    PAR::parse_error
+		( parser, current->position,
+		  "infix-or-prefix operator ",
+		  min::pgen_quote ( current->value ),
+		  " is ambiguous; prefix assumed" );
+	    v.fixity = OP::PREFIX;
+	    v.precedence = OP::op_high_precedence + 2;
+	}
+	else
+	if ( v.fixity == ( OP::INFIX | OP::POSTFIX ) )
+	{
+	    PAR::parse_error
+		( parser, current->position,
+		  "infix-or-postfix operator ",
+		  min::pgen_quote ( current->value ),
+		  " is ambiguous; infix assumed" );
+	    v.fixity = OP::INFIX;
+	}
+	else
+	if ( v.fixity == ( OP::PREFIX | OP::POSTFIX ) )
+	{
+	    PAR::parse_error
+		( parser, current->position,
+		  "prefix-or-postfix operator ",
+		  min::pgen_quote ( current->value ),
+		  " is ambiguous; prefix assumed" );
+	    v.fixity = OP::PREFIX;
+	    v.precedence = OP::op_high_precedence + 2;
+	}
+	else if ( fixity == OP::PREFIX )
+	    v.precedence = OP::op_high_precedence + 2;
+	else if ( fixity == OP::POSTFIX )
+	    v.precedence = OP::op_high_precedence + 3;
+
+	TBD
 
 	// Close previous subexpressions until
 	// D.precedence < oper_precedence or
 	// D.precedence == oper_precedence and last
 	// operator is postfix or current == next.
 	// If current == next and oper_stack->length
-	// == initial_length return to caller.
+	// == stack_origin return to caller.
 	//
 	OP::oper first_oper = min::NULL_STUB;
 	while ( true )
@@ -735,7 +809,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 
 		TAB::flags reformatter_trace_flags =
 		       oper_stack->length
-		    != initial_length ?
+		    != stack_origin ?
 		    trace_flags : 0;
 
 		if ( first_oper != min::NULL_STUB )
@@ -794,7 +868,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	    if ( current == next )
 	    {
 		if (    oper_stack->length
-		     == initial_length )
+		     == stack_origin )
 		{
 		    first = D.first;
 		    return;
@@ -869,16 +943,16 @@ static void oper_parse_X ( PAR::parser parser,
     // called recursively.
     //
     OP::oper_vec vec = oper_pass->oper_vec;
-    min::unsptr initial_length = vec->length;
+    min::unsptr vec_origin = vec->length;
 
     oper_parse_pass_1
 	( parser, oper_pass, selectors, first, next,
 	  vec, trace_flags );
     oper_parse_pass_2
 	( parser, oper_pass, selectors, first, next,
-	  vec, trace_flags );
+	  vec, vec_origin, trace_flags );
 
-    min::pop ( vec, vec->length - initial_length );
+    min::pop ( vec, vec->length - vec_origin );
 
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 09:58:40 EDT 2019
+// Date:	Sun Oct 27 02:05:22 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -703,6 +703,42 @@ static void oper_parse_pass_1 ( PAR::parser parser,
     }
 }
 
+void compact_expression ( PAR::parser parser
+			  TAB::flags selectors,
+			  PAR::token & first,
+			  PAR::token next,
+			  OP::oper oper,
+			  TAB::flags trace_flags )
+{
+    min::phrase_position position;
+    position.begin =
+	first->position.begin;
+    position.end =
+	next->previous->position.end;
+
+    PAR::attr attr ( PARLEX::dot_oper, oper->label );
+
+    if ( oper->reformatter == min::NULL_STUB
+	 ||
+	 ( * oper
+	       ->reformatter
+	       ->reformatter_function )
+	     ( parser, min::NULL_STUB, selectors,
+	       first, next,
+	       position, oper->reformatter_args,
+	       trace_flags,
+	       (TAB::root) oper )
+       )
+	PAR::compact
+	    ( parser, min::NULL_STUB,
+	      selectors,
+	      first, current,
+	      position,
+	      trace_flags,
+	      PAR::BRACKETABLE,
+	      1, & attr );
+}
+
 static void oper_parse_pass_2 ( PAR::parser parser,
 		                OP::oper_pass pass,
 		                TAB::flags selectors,
@@ -787,16 +823,26 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	else if ( fixity == OP::POSTFIX )
 	    v.precedence = OP::op_high_precedence + 3;
 
-	TBD
+	if ( fixity == OP::POSTFIX )
+	{
+	    MIN::REQUIRE ( D.first->next == current );
+	    current = current->next;
+	    TAB::flags compact_trace_flags =
+	        D.first != first || current != next ?
+		trace_flags : 0;
+	        
+	    compact_expression ( parser
+				 selectors,
+				 D.first,
+				 current,
+				 v.op,
+				 compact_trace_flags )
+	    continue;
+	}
 
-	// Close previous subexpressions until
-	// D.precedence < oper_precedence or
-	// D.precedence == oper_precedence and last
-	// operator is postfix or current == next.
-	// If current == next and oper_stack->length
-	// == stack_origin return to caller.
+	// Close previous subexpressions as long as
+	// D.precedence > v.precedence.
 	//
-	OP::oper first_oper = min::NULL_STUB;
 	while ( true )
 	{
 	    if ( current != D.first )

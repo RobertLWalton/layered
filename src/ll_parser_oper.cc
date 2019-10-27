@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 27 02:05:22 EDT 2019
+// Date:	Sun Oct 27 02:22:04 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -831,134 +831,41 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	        D.first != first || current != next ?
 		trace_flags : 0;
 	        
-	    compact_expression ( parser
-				 selectors,
-				 D.first,
-				 current,
-				 v.op,
-				 compact_trace_flags )
+	    compact_expression
+	        ( parser, selectors, D.first, current,
+		  v.op, compact_trace_flags )
 	    continue;
 	}
 
 	// Close previous subexpressions as long as
 	// D.precedence > v.precedence.
 	//
-	while ( true )
+	while ( D.precedence > v.precedence )
 	{
-	    if ( current != D.first )
-	    {
-		min::phrase_position position;
-		position.begin =
-		    D.first->position.begin;
-		position.end =
-		    current->previous->position.end;
-
-		TAB::flags reformatter_trace_flags =
-		       oper_stack->length
-		    != stack_origin ?
-		    trace_flags : 0;
-
-		if ( first_oper != min::NULL_STUB )
-		{
-		    PAR::attr attr
-			( PARLEX::dot_oper,
-			  first_oper->label );
-
-		    if (    first_oper->reformatter
-		         == min::NULL_STUB
-			 ||
-			 ( * first_oper
-			       ->reformatter
-			       ->reformatter_function )
-			     ( parser, pass, selectors,
-			       D.first, current,
-			       position, min::MISSING(),
-			       reformatter_trace_flags,
-			       (TAB::root) first_oper )
-		       )
-			PAR::compact
-			    ( parser, pass->next,
-			      selectors,
-			      D.first, current,
-			      position,
-			      reformatter_trace_flags,
-			      PAR::BRACKETABLE,
-			      1, & attr );
-		}
-		else
-		{
-		    PAR::execute_pass_parse
-			 ( parser, pass->next,
-			   selectors,
-			   D.first, current );
-
-		    if ( D.first->next != current )
-		    {
-			min::phrase_position position;
-			position.begin =
-			    D.first->position.begin;
-			position.end =
-			    current->previous
-			           ->position.end;
-			PAR::compact
-			    ( parser, min::NULL_STUB,
-			      selectors,
-			      D.first, current,
-			      position,
-			      reformatter_trace_flags,
-			      PAR::BRACKETABLE );
-		    }
-		}
-	    }
-
-	    if ( current == next )
-	    {
-		if (    oper_stack->length
-		     == stack_origin )
-		{
-		    first = D.first;
-		    return;
-		}
-		first_oper = D.first_oper;
-		D = min::pop ( oper_stack );
-	    }
-	    else if ( oper_precedence < D.precedence
-	              ||
-		      ( oper_precedence == D.precedence
-		        &&
-		        last_oper_flags & OP::POSTFIX )
-		    )
-
-	    {
-		first_oper = D.first_oper;
-	        D = min::pop ( oper_stack );
-	    }
-	    else break;
+	    OP::oper oper = D.first_oper;
+	    MIN::REQUIRE ( oper != min::NULL_STUB );
+	    D = min::pop ( oper_stack );
+	    TAB::flags compact_trace_flags =
+	        D.first != first || current != next ?
+		trace_flags : 0;
+	    compact_expression
+	        ( parser, selectors, D.first, current,
+		  oper, compact_trace_flags );
 	}
 
-	// Start new subexpression if oper_precedence
-	// > D.precedence or oper_precedence ==
-	// D.precedence, last operator was prefix,
-	// and last operator is previous token.
-	//
-	if ( oper_precedence > D.precedence
-	     ||
-	     ( oper_precedence == D.precedence
-	       &&
-	       last_oper_flags & OP::PREFIX
-	       &&
-	          current->previous->type
-	       == PAR::OPERATOR ) )
+	if ( current == next ) break;
+
+	if ( D.precedence < v.precedence )
 	{
 	    min::push ( oper_stack ) = D;
-	    D.precedence = oper_precedence;
-	    D.first_oper = oper;
+	    D.precedence = v.precedence;
+	    D.first_oper = v.op;
 	}
-
-	D.first = next_current;
-	last_oper_flags = oper_flags;
-	current = next_current;
+	current = current->next;
+	D.first = current;
     }
+
+    first = D.first;
 }
 
 static void oper_parse_X ( PAR::parser parser,

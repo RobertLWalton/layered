@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 28 11:53:35 EDT 2019
+// Date:	Mon Oct 28 15:11:36 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -325,7 +325,8 @@ bool OP::fixity_OK ( OP::oper_vec v,
     else if ( last.fixity == OP::PREFIX )
     {
         if ( fixity == 0 ) goto OK;
-	fixity &= ~ ( OP::INFIX | OP::POSTFIX | OP::NOFIX );
+	fixity &=
+	    ~ ( OP::INFIX | OP::POSTFIX | OP::NOFIX );
 	if ( fixity == 0 ) return false;
 	goto OK;
     }
@@ -762,6 +763,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
     // already in the stack so this function can be
     // called recursively.
     //
+    OP::oper_stack oper_stack = oper_pass->oper_stack;
     min::unsptr stack_origin = oper_stack->length;
 
     // Data that is pushed to oper_stack.  D is in
@@ -771,10 +773,6 @@ static void oper_parse_pass_2 ( PAR::parser parser,
     D.first = first;
     D.precedence = OP::op_low_precedence - 1;
     D.first_oper = min::NULL_STUB;
-
-    min::uns32 last_oper_flags = 0;
-        // Flags of the last operator seen in the
-	// expression.
 
     PAR::token current = D.first;
     min::uns32 index = vec_origin;
@@ -803,6 +801,8 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 		  "infix-or-prefix operator ",
 		  min::pgen_quote ( current->value ),
 		  " is ambiguous; prefix assumed" );
+	    MIN_REQUIRE
+	        ( min::is_name ( current->value ) );
 	    v.fixity = OP::PREFIX;
 	    v.precedence = OP::op_high_precedence + 2;
 	}
@@ -814,6 +814,8 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 		  "infix-or-postfix operator ",
 		  min::pgen_quote ( current->value ),
 		  " is ambiguous; infix assumed" );
+	    MIN_REQUIRE
+	        ( min::is_name ( current->value ) );
 	    v.fixity = OP::INFIX;
 	}
 	else
@@ -824,6 +826,8 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 		  "prefix-or-postfix operator ",
 		  min::pgen_quote ( current->value ),
 		  " is ambiguous; prefix assumed" );
+	    MIN_REQUIRE
+	        ( min::is_name ( current->value ) );
 	    v.fixity = OP::PREFIX;
 	    v.precedence = OP::op_high_precedence + 2;
 	}
@@ -873,6 +877,8 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	current = current->next;
 	D.first = current;
     }
+
+    MIN_REQUIRE (stack_origin == oper_stack->length );
 
     first = D.first;
 }

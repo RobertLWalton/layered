@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 03:28:39 EDT 2019
+// Date:	Mon Oct 28 11:25:21 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -205,6 +205,17 @@ bool fixity_OK ( oper_vec v,
 	         min::uns32 fixity,
 		 min::int32 precedence,
 		 oper op = min::NULL_STUB );
+
+// Insert a token with name ERROR'OPERAND and type
+// word_t before/after token t.  Call parse_error with
+// missing operand error message.
+//
+void put_error_operand_before
+    ( ll::parser::parser parser,
+      ll::parser::token t );
+void put_error_operand_after
+    ( ll::parser::parser parser,
+      ll::parser::token t );
 
 struct oper_pass_struct;
 typedef min::packed_struct_updptr<oper_pass_struct>

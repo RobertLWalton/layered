@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 27 02:22:04 EDT 2019
+// Date:	Mon Oct 28 11:53:35 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -549,8 +549,10 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 
         // If root != NULL_STUB, oper equals root,
 	// fixity and precedence are oper's parameters,
-	// and OK is the result of calling fixity_OK for
-	// oper.
+	// OK is the result of calling fixity_OK for
+	// oper, and current points at the token that
+	// is the OPERATOR (after its type is changed
+	// to OPERATOR).
 	//
 	OP::oper oper;
 	min::uns32 fixity;
@@ -619,6 +621,9 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 
 	    if ( root != min::NULL_STUB )
 	    {
+		// Don't change current which may ==
+		// first.
+		//
 	        while ( current->next != next_current )
 		    PAR::free
 			( PAR::remove
@@ -638,8 +643,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		if ( ! OK )
 		{
 		    PAR::put_error_operator_before
-		        ( PAR::first_ref ( parser ),
-		          current, vec );
+		        ( parser, current, vec );
 		    OK = OP::fixity_OK ( vec, 0, 0 );
 		    MIN_REQUIRE ( OK );
 		}
@@ -649,14 +653,26 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		continue;
 	}
 
-	if ( non_op_first != min::NULL_STUB )
+	if ( non_op_first != min::NULL_STUB
+	     &&
+	     ( non_op_first != first
+	       ||
+	       current != next ) )
 	{
+	    min::phrase_position position =
+	        { non_op_first->position.begin,
+		  current->previous->position.end };
+
+	    bool is_first = ( non_op_first == first );
+
 	    PAR::compact ( parser, pass->next,
 			   selectors,
 			   non_op_first, current,
 			   position,
 			   trace_flags,
 			   PAR::BRACKETABLE );
+
+	    if ( is_first ) first = non_op_first;
 	}
 	if ( root == min::NULL_STUB ) continue;
 
@@ -666,15 +682,13 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	{
 	    if ( fixity == OP::PREFIX )
 		    PAR::put_error_operator_before
-		        ( PAR::first_ref ( parser ),
-		          current, vec );
+		        ( parser, current, vec );
 	    else
 	    {
 	        MIN_REQUIRE
 		    ( ! ( fixity & OP::PREFIX ) );
 		PAR::put_error_operand_before
-		    ( PAR::first_ref ( parser ),
-		      current );
+		    ( parser, current );
 		OK = OP::fixity_OK ( vec, 0, 0 );
 		MIN_REQUIRE ( OK );
 	    }
@@ -686,20 +700,17 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	}
 
 	current = current->next;
-	if ( current == next )
-	{
-	    OK = OP::fixity_OK
-	              ( vec, OP::NOFIX,
-	                OP::op_low_precedence - 1 );
-	    if ( ! OK )
-	    {
-		PAR::put_error_operand_before
-		    ( PAR::first_ref ( parser ),
-		      current );
-		OK = OP::fixity_OK ( vec, 0, 0 );
-		MIN_REQUIRE ( OK );
-	    }
-	}
+    }
+
+    bool OK = OP::fixity_OK
+		  ( vec, OP::NOFIX,
+		    OP::op_low_precedence - 1 );
+    if ( ! OK )
+    {
+	PAR::put_error_operand_before
+	    ( parser, current );
+	OK = OP::fixity_OK ( vec, 0, 0 );
+	MIN_REQUIRE ( OK );
     }
 }
 
@@ -710,11 +721,9 @@ void compact_expression ( PAR::parser parser
 			  OP::oper oper,
 			  TAB::flags trace_flags )
 {
-    min::phrase_position position;
-    position.begin =
-	first->position.begin;
-    position.end =
-	next->previous->position.end;
+    min::phrase_position position =
+        { first->position.begin,
+	  next->previous->position.end };
 
     PAR::attr attr ( PARLEX::dot_oper, oper->label );
 
@@ -732,7 +741,7 @@ void compact_expression ( PAR::parser parser
 	PAR::compact
 	    ( parser, min::NULL_STUB,
 	      selectors,
-	      first, current,
+	      first, next,
 	      position,
 	      trace_flags,
 	      PAR::BRACKETABLE,

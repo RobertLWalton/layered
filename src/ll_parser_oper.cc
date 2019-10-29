@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 02:55:39 EDT 2019
+// Date:	Tue Oct 29 11:59:34 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -463,7 +463,6 @@ OK:
     min::push ( v ) = next;
 
     return true;
-std::cout << op->label << " " << precedence << " " << fixity << std::endl;
 }
 
 
@@ -553,8 +552,6 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
     PAR::token non_op_first = min::NULL_STUB;
     while ( current != next )
     {
-std::cout << "PROCESSING " << current->value << std::endl;
-
 	// Find operator if possible.
 	//
 	TAB::root root = min::NULL_STUB;
@@ -683,13 +680,12 @@ std::cout << "PROCESSING " << current->value << std::endl;
 			   PAR::BRACKETABLE );
 
 	    if ( is_first ) first = non_op_first;
+	    non_op_first = min::NULL_STUB;
 	}
 
 	if ( root == min::NULL_STUB ) continue;
 
 	current->type = PAR::OPERATOR;
-
-std::cout << "OPERATOR " << current->value << std::endl;
 
 	if ( ! OK )
 	{
@@ -730,6 +726,7 @@ std::cout << "OPERATOR " << current->value << std::endl;
 }
 
 void compact_expression ( PAR::parser parser,
+			  OP::oper_pass oper_pass,
 			  TAB::flags selectors,
 			  PAR::token & first,
 			  PAR::token next,
@@ -747,7 +744,7 @@ void compact_expression ( PAR::parser parser,
 	 ( * oper
 	       ->reformatter
 	       ->reformatter_function )
-	     ( parser, min::NULL_STUB, selectors,
+	     ( parser, (PAR::pass) oper_pass, selectors,
 	       first, next,
 	       position, min::MISSING(),
 	       trace_flags,
@@ -801,8 +798,6 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	    v.fixity = OP::NOFIX;
 	    v.op = min::NULL_STUB;
 	}
-std::cout << "FOUND " << v.fixity << " " << v.precedence
-          << " DPRECEDENCE = " << D.precedence << std::endl;
 
 	if ( v.fixity == 0 )
 	{
@@ -861,7 +856,8 @@ std::cout << "FOUND " << v.fixity << " " << v.precedence
 		trace_flags : 0;
 	        
 	    compact_expression
-	        ( parser, selectors, D.first, current,
+	        ( parser, oper_pass, selectors,
+		  D.first, current,
 		  v.op, compact_trace_flags );
 	    continue;
 	}
@@ -878,7 +874,8 @@ std::cout << "FOUND " << v.fixity << " " << v.precedence
 	        D.first != first || current != next ?
 		trace_flags : 0;
 	    compact_expression
-	        ( parser, selectors, D.first, current,
+	        ( parser, oper_pass, selectors,
+		  D.first, current,
 		  oper, compact_trace_flags );
 	}
 
@@ -893,9 +890,6 @@ std::cout << "FOUND " << v.fixity << " " << v.precedence
 	current = current->next;
 	D.first = current;
     }
-
-std::cout << "DONE " << vec->length << " - " << vec_origin << std::endl;
-
 
     MIN_REQUIRE (stack_origin == oper_stack->length );
 

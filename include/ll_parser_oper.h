@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 28 11:25:21 EDT 2019
+// Date:	Mon Oct 28 19:58:21 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -119,6 +119,12 @@ void push_oper
 
 // Operator Pass
 // -------- ----
+
+// Highest and lowest precedence of defined infix or
+// nofix operators:
+//
+extern min::int32 op_high_precedence;
+extern min::int32 op_low_precedence;
 
 // An oper_stack is part of each oper_pass.
 //

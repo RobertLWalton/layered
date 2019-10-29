@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 28 15:11:36 EDT 2019
+// Date:	Mon Oct 28 19:56:10 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -466,12 +466,15 @@ OK:
 // Operator Parse Function
 // -------- ----- --------
 
-# ifdef NONE_SUCH
+# ifndef NONE_SUCH
+
+min::int32 OP::op_high_precedence = +1e6;
+min::int32 OP::op_low_precedence  = -1e6;
 
 static void put_error_operator_before
 	( ll::parser::parser parser,
 	  ll::parser::token t,
-          OP::oper_vec vec );
+          OP::oper_vec vec )
 {
     PAR::token token = new_token ( PAR::OPERATOR );
     put_before ( PAR::first_ref(parser), t, token );
@@ -487,7 +490,7 @@ static void put_error_operator_before
 	  min::printf_op<200>
 	      ( "missing operator; nofix error operator"
 		" of precedence %d inserted",
-	        OP::op_high_precedence + 1 );
+	        OP::op_high_precedence + 1 ) );
 
     bool OK = OP::fixity_OK
 	( vec, OP::NOFIX,
@@ -519,7 +522,8 @@ void OP::put_error_operand_after
 	  ll::parser::token t )
 {
     PAR::token token = new_token ( LEXSTD::word_t );
-    put_after ( PAR::first_ref(parser), t, token );
+    PAR::put_before
+        ( PAR::first_ref(parser), t->next, token );
     PAR::value_ref ( token ) = PARLEX::error_operand;
 
     min::phrase_position position =
@@ -532,7 +536,7 @@ void OP::put_error_operand_after
 }
 
 static void oper_parse_pass_1 ( PAR::parser parser,
-		                OP::oper_pass pass,
+		                OP::oper_pass oper_pass,
 		                TAB::flags selectors,
 		                PAR::token & first,
 		                PAR::token next,
@@ -546,7 +550,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 
 	// Find operator if possible.
 	//
-	TAB::root root = MIN::NULL_STUB;
+	TAB::root root = min::NULL_STUB;
 
         // If root != NULL_STUB, oper equals root,
 	// fixity and precedence are oper's parameters,
@@ -595,7 +599,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	else
 	{
 	    TAB::key_prefix key_prefix;
-	    TAB::next_current = current;
+	    PAR::token next_current = current;
 	    root = PAR::find_entry
 		( parser, next_current, key_prefix,
 		  selectors, oper_pass->oper_table,
@@ -607,7 +611,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		fixity = oper->flags;
 		precedence = oper->precedence;
 		OK = OP::fixity_OK
-		    ( vec, fixity, precedenc,
+		    ( vec, fixity, precedence,
 		           oper );
 		if ( ( fixity & OP::AFIX ) == 0
 		     ||
@@ -643,7 +647,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		OK = OP::fixity_OK ( vec, 0, 0 );
 		if ( ! OK )
 		{
-		    PAR::put_error_operator_before
+		    put_error_operator_before
 		        ( parser, current, vec );
 		    OK = OP::fixity_OK ( vec, 0, 0 );
 		    MIN_REQUIRE ( OK );
@@ -666,7 +670,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 
 	    bool is_first = ( non_op_first == first );
 
-	    PAR::compact ( parser, pass->next,
+	    PAR::compact ( parser, oper_pass->next,
 			   selectors,
 			   non_op_first, current,
 			   position,
@@ -682,7 +686,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	if ( ! OK )
 	{
 	    if ( fixity == OP::PREFIX )
-		    PAR::put_error_operator_before
+		    put_error_operator_before
 		        ( parser, current, vec );
 	    else
 	    {
@@ -715,7 +719,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
     }
 }
 
-void compact_expression ( PAR::parser parser
+void compact_expression ( PAR::parser parser,
 			  TAB::flags selectors,
 			  PAR::token & first,
 			  PAR::token next,
@@ -735,7 +739,7 @@ void compact_expression ( PAR::parser parser
 	       ->reformatter_function )
 	     ( parser, min::NULL_STUB, selectors,
 	       first, next,
-	       position, oper->reformatter_args,
+	       position, min::MISSING(),
 	       trace_flags,
 	       (TAB::root) oper )
        )
@@ -750,7 +754,7 @@ void compact_expression ( PAR::parser parser
 }
 
 static void oper_parse_pass_2 ( PAR::parser parser,
-		                OP::oper_pass pass,
+		                OP::oper_pass oper_pass,
 		                TAB::flags selectors,
 		                PAR::token & first,
 		                PAR::token next,
@@ -831,14 +835,14 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	    v.fixity = OP::PREFIX;
 	    v.precedence = OP::op_high_precedence + 2;
 	}
-	else if ( fixity == OP::PREFIX )
+	else if ( v.fixity == OP::PREFIX )
 	    v.precedence = OP::op_high_precedence + 2;
-	else if ( fixity == OP::POSTFIX )
+	else if ( v.fixity == OP::POSTFIX )
 	    v.precedence = OP::op_high_precedence + 3;
 
-	if ( fixity == OP::POSTFIX )
+	if ( v.fixity == OP::POSTFIX )
 	{
-	    MIN::REQUIRE ( D.first->next == current );
+	    MIN_REQUIRE ( D.first->next == current );
 	    current = current->next;
 	    TAB::flags compact_trace_flags =
 	        D.first != first || current != next ?
@@ -846,7 +850,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	        
 	    compact_expression
 	        ( parser, selectors, D.first, current,
-		  v.op, compact_trace_flags )
+		  v.op, compact_trace_flags );
 	    continue;
 	}
 
@@ -856,7 +860,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	while ( D.precedence > v.precedence )
 	{
 	    OP::oper oper = D.first_oper;
-	    MIN::REQUIRE ( oper != min::NULL_STUB );
+	    MIN_REQUIRE ( oper != min::NULL_STUB );
 	    D = min::pop ( oper_stack );
 	    TAB::flags compact_trace_flags =
 	        D.first != first || current != next ?

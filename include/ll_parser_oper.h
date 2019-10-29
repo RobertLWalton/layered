@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 28 19:58:21 EDT 2019
+// Date:	Tue Oct 29 02:55:51 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -243,9 +243,9 @@ struct oper_pass_struct
 	// operators.  The .initiators are the root
 	// labels.
 
-    const ll::parser::oper::oper_stack oper_stack;
-
     const ll::parser::oper::oper_vec oper_vec;
+
+    const ll::parser::oper::oper_stack oper_stack;
 
     min::uns32 temporary_count;
         // Number of temporary variables created so far.
@@ -269,9 +269,9 @@ MIN_REF ( ll::parser::table::key_table, oper_table,
 MIN_REF ( ll::parser::table::key_table,
           oper_bracket_table,
           ll::parser::oper::oper_pass )
-MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
-          ll::parser::oper::oper_pass )
 MIN_REF ( ll::parser::oper::oper_vec, oper_vec,
+          ll::parser::oper::oper_pass )
+MIN_REF ( ll::parser::oper::oper_stack, oper_stack,
           ll::parser::oper::oper_pass )
 
 // Return a new operator parser pass.

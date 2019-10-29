@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 28 19:56:10 EDT 2019
+// Date:	Tue Oct 29 02:55:39 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -254,6 +254,9 @@ PAR::pass OP::new_pass ( PAR::parser parser )
     OP::oper_bracket_table_ref ( oper_pass ) =
         TAB::create_key_table ( 256 );
 
+    OP::oper_vec_ref ( oper_pass ) =
+	::oper_vec_type.new_stub ( 100 );
+
     OP::oper_stack_ref ( oper_pass ) =
 	::oper_stack_type.new_stub ( 100 );
 
@@ -460,6 +463,7 @@ OK:
     min::push ( v ) = next;
 
     return true;
+std::cout << op->label << " " << precedence << " " << fixity << std::endl;
 }
 
 
@@ -535,7 +539,9 @@ void OP::put_error_operand_after
 	  "missing operand; error operand inserted" );
 }
 
-static void oper_parse_pass_1 ( PAR::parser parser,
+// Returns true if operator found, false otherwise.
+//
+static bool oper_parse_pass_1 ( PAR::parser parser,
 		                OP::oper_pass oper_pass,
 		                TAB::flags selectors,
 		                PAR::token & first,
@@ -547,6 +553,7 @@ static void oper_parse_pass_1 ( PAR::parser parser,
     PAR::token non_op_first = min::NULL_STUB;
     while ( current != next )
     {
+std::cout << "PROCESSING " << current->value << std::endl;
 
 	// Find operator if possible.
 	//
@@ -654,18 +661,16 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 		}
 	    }
 	    current = current->next;
-	    if ( current != next );
+	    if ( current != next )
 		continue;
+	    else if ( non_op_first == first )
+	        return false;
 	}
 
-	if ( non_op_first != min::NULL_STUB
-	     &&
-	     ( non_op_first != first
-	       ||
-	       current != next ) )
+	if ( non_op_first != min::NULL_STUB )
 	{
 	    min::phrase_position position =
-	        { non_op_first->position.begin,
+		{ non_op_first->position.begin,
 		  current->previous->position.end };
 
 	    bool is_first = ( non_op_first == first );
@@ -679,9 +684,12 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 
 	    if ( is_first ) first = non_op_first;
 	}
+
 	if ( root == min::NULL_STUB ) continue;
 
 	current->type = PAR::OPERATOR;
+
+std::cout << "OPERATOR " << current->value << std::endl;
 
 	if ( ! OK )
 	{
@@ -717,6 +725,8 @@ static void oper_parse_pass_1 ( PAR::parser parser,
 	OK = OP::fixity_OK ( vec, 0, 0 );
 	MIN_REQUIRE ( OK );
     }
+
+    return true;
 }
 
 void compact_expression ( PAR::parser parser,
@@ -791,7 +801,9 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	    v.fixity = OP::NOFIX;
 	    v.op = min::NULL_STUB;
 	}
-	    
+std::cout << "FOUND " << v.fixity << " " << v.precedence
+          << " DPRECEDENCE = " << D.precedence << std::endl;
+
 	if ( v.fixity == 0 )
 	{
 	    current = current->next;
@@ -882,16 +894,19 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	D.first = current;
     }
 
+std::cout << "DONE " << vec->length << " - " << vec_origin << std::endl;
+
+
     MIN_REQUIRE (stack_origin == oper_stack->length );
 
     first = D.first;
 }
 
-static void oper_parse_X ( PAR::parser parser,
-		           PAR::pass pass,
-		           TAB::flags selectors,
-		           PAR::token & first,
-		           PAR::token next )
+static void oper_parse ( PAR::parser parser,
+		         PAR::pass pass,
+		         TAB::flags selectors,
+		         PAR::token & first,
+		         PAR::token next )
 {
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
@@ -917,12 +932,13 @@ static void oper_parse_X ( PAR::parser parser,
     OP::oper_vec vec = oper_pass->oper_vec;
     min::unsptr vec_origin = vec->length;
 
-    oper_parse_pass_1
+    bool op_found = oper_parse_pass_1
 	( parser, oper_pass, selectors, first, next,
 	  vec, trace_flags );
-    oper_parse_pass_2
-	( parser, oper_pass, selectors, first, next,
-	  vec, vec_origin, trace_flags );
+    if ( op_found )
+	oper_parse_pass_2
+	    ( parser, oper_pass, selectors, first, next,
+	      vec, vec_origin, trace_flags );
 
     min::pop ( vec, vec->length - vec_origin );
 
@@ -951,7 +967,7 @@ inline bool check_precedence
     return false;
 }
 
-static void oper_parse ( PAR::parser parser,
+static void oper_parse_X ( PAR::parser parser,
 		         PAR::pass pass,
 		         TAB::flags selectors,
 		         PAR::token & first,
@@ -1450,7 +1466,7 @@ static bool separator_reformatter_function
 	  op->reformatter_arguments[0] );
 
     PAR::compact
-        ( parser, pass->next, selectors,
+        ( parser, min::NULL_STUB, selectors,
 	  first, next, position,
 	  trace_flags, PAR::BRACKETABLE,
 	  1, & separator_attr );
@@ -1603,7 +1619,7 @@ static bool right_associative_reformatter_function
 	PAR::attr oper_attr
 	    ( PARLEX::dot_oper, oper->value );
 	PAR::compact
-	    ( parser, pass->next, selectors,
+	    ( parser, min::NULL_STUB, selectors,
 	      t, next, subposition,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
@@ -1970,7 +1986,7 @@ static bool infix_and_reformatter_function
 	    t = operand2->next;
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
-		( parser, pass->next, selectors,
+		( parser, min::NULL_STUB, selectors,
 		  operand2, t, position2,
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
@@ -1978,7 +1994,7 @@ static bool infix_and_reformatter_function
 	    // Compact next-operand1 = ( $ T )
 	    //
 	    PAR::compact
-		( parser, pass->next, selectors,
+		( parser, min::NULL_STUB, selectors,
 		  t, t->next->next, position2,
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
@@ -1999,7 +2015,7 @@ static bool infix_and_reformatter_function
 	PAR::attr oper_attr
 	    ( PARLEX::dot_oper, op->value );
 	PAR::compact
-	    ( parser, pass->next, selectors,
+	    ( parser, min::NULL_STUB, selectors,
 	      op, next_operand1, position1,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
@@ -2030,7 +2046,7 @@ static bool infix_and_reformatter_function
 	PAR::attr oper_attr
 	    ( PARLEX::dot_oper, and_op );
 	PAR::compact
-	    ( parser, pass->next, selectors,
+	    ( parser, min::NULL_STUB, selectors,
 	      first, next, position,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
@@ -2106,7 +2122,7 @@ static bool sum_reformatter_function
 	    PAR::attr oper_attr
 		( PARLEX::dot_oper, minus_op );
 	    PAR::compact
-		( parser, pass->next, selectors,
+		( parser, min::NULL_STUB, selectors,
 		  t, t->next->next, position,
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );

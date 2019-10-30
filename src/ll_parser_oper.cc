@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 19:57:30 EDT 2019
+// Date:	Tue Oct 29 20:39:23 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -939,7 +939,8 @@ static void oper_parse ( PAR::parser parser,
 	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
 	    + PAR::TRACE_SUBEXPRESSION_DETAILS
 	    + PAR::TRACE_SUBEXPRESSION_LINES
-	    + PAR::TRACE_KEYS;
+	    + PAR::TRACE_KEYS
+	    + oper_pass->trace_fixity;
 	if ( trace_flags == 0 )
 	    trace_flags =
 	        PAR::TRACE_SUBEXPRESSION_ELEMENTS;
@@ -964,10 +965,6 @@ static void oper_parse ( PAR::parser parser,
 	    min::phrase_position position =
 		{ first->position.begin,
 		  next->previous->position.end };
-	    min::print_phrase_lines
-		( parser->printer,
-		  parser->input_file,
-		  position );
 
 	    parser->printer
 		<< min::bom
@@ -983,19 +980,26 @@ static void oper_parse ( PAR::parser parser,
 		parser->printer << " ";
 	        OP::oper_vec_struct v = vec[index++];
 		if ( v.fixity & OP::PREFIX )
-		    parser->printer << "+PREFIX";
+		    parser->printer << "+PRE";
 		if ( v.fixity & OP::INFIX )
 		    parser->printer
-		        << "+INFIX(" << v.precedence
+		        << "+IN(" << v.precedence
 			<< ")";
 		if ( v.fixity & OP::POSTFIX )
-		    parser->printer << "+POSTFIX";
+		    parser->printer << "+POST";
 		if ( v.fixity & OP::NOFIX )
 		    parser->printer
-		        << "+NOFIX(" << v.precedence
+		        << "+NO(" << v.precedence
 			<< ")";
+		if ( v.fixity == 0 )
+		    parser->printer << "-";
 	    }
 	    parser->printer << min::eom;
+
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  position );
 	}
 
 	oper_parse_pass_2

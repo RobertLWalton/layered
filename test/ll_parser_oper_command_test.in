@@ -15,8 +15,8 @@
     define pass operator [code, math] after top
     print pass
     trace [+ parser commands, + warnings ]
-    trace [+ subexpression elements,
-           + subexpression lines ]
+    trace [- subexpression elements,
+           - subexpression lines ]
     trace [+ operator subexpressions, + operator fixity]
     print selector ""
     print operator ""

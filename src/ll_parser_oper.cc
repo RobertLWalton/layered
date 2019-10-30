@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 20:39:23 EDT 2019
+// Date:	Tue Oct 29 20:57:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -519,7 +519,7 @@ void OP::put_error_operand_before
     token->position = position;
 
     PAR::parse_error
-	( parser, t->position,
+	( parser, token->position,
 	  "missing operand; error operand inserted" );
 }
 
@@ -537,7 +537,7 @@ void OP::put_error_operand_after
     token->position = position;
 
     PAR::parse_error
-	( parser, t->position,
+	( parser, token->position,
 	  "missing operand; error operand inserted" );
 }
 
@@ -658,7 +658,7 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 		OK = OP::fixity_OK ( vec, 0, 0 );
 		if ( ! OK )
 		{
-		    put_error_operator_before
+		    ::put_error_operator_before
 		        ( parser, current, vec );
 		    OK = OP::fixity_OK ( vec, 0, 0 );
 		    MIN_REQUIRE ( OK );
@@ -718,13 +718,13 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 	if ( ! OK )
 	{
 	    if ( fixity == OP::PREFIX )
-		    put_error_operator_before
+		    ::put_error_operator_before
 		        ( parser, current, vec );
 	    else
 	    {
 	        MIN_REQUIRE
 		    ( ! ( fixity & OP::PREFIX ) );
-		PAR::put_error_operand_before
+		OP::put_error_operand_before
 		    ( parser, current );
 		OK = OP::fixity_OK ( vec, 0, 0 );
 		MIN_REQUIRE ( OK );
@@ -744,7 +744,7 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 		    OP::op_low_precedence - 1 );
     if ( ! OK )
     {
-	PAR::put_error_operand_before
+	OP::put_error_operand_before
 	    ( parser, current );
 	OK = OP::fixity_OK ( vec, 0, 0 );
 	MIN_REQUIRE ( OK );
@@ -1325,7 +1325,7 @@ static void oper_parse_X ( PAR::parser parser,
 	     )
 	   )
 	{
-	    PAR::put_error_operand_after
+	    OP::put_error_operand_after
 	        ( parser, current->previous );
 	    D.first = current->previous;
 
@@ -1755,7 +1755,7 @@ static bool unary_reformatter_function
 	      min::pgen_quote ( t->value ),
 	      "; inserted ERROR'OPERAND" );
 
-	PAR::put_error_operand_after ( parser, t );
+	OP::put_error_operand_after ( parser, t );
 	t = t->next;
     }
 
@@ -1816,7 +1816,7 @@ static bool binary_reformatter_function
 	      min::pgen_quote ( t->value ),
 	      "; inserted ERROR'OPERAND" );
 
-	PAR::put_error_operand_before ( parser, t );
+	OP::put_error_operand_before ( parser, t );
 	first = t->previous;
     }
     else
@@ -1842,7 +1842,7 @@ static bool binary_reformatter_function
 	      min::pgen_quote ( t->value ),
 	      "; inserted ERROR'OPERAND" );
 
-	PAR::put_error_operand_after ( parser, t );
+	OP::put_error_operand_after ( parser, t );
 	t = t->next;
     }
 

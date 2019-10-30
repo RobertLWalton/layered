@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 04:54:18 EDT 2019
+// Date:	Wed Oct 30 04:15:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,11 +93,6 @@ OP::oper_pass PARSTD::init_oper
         ( min::new_str_gen ( "AND" ) );
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
-        separator_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( separator_arguments ) = comma;
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
         and_arguments
 	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
     min::push ( and_arguments ) = and_op;
@@ -145,7 +140,7 @@ OP::oper_pass PARSTD::init_oper
 	  PAR::find_reformatter
 	      ( separator,
 	        OP::reformatter_stack ),
-	  separator_arguments,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper

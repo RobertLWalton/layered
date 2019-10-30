@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 19:58:18 EDT 2019
+// Date:	Wed Oct 30 04:24:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,7 +36,10 @@ namespace lexeme {
 	infix,		// infix
 	postfix,	// postfix
 	afix,		// afix
-	nofix;		// nofix
+	nofix,		// nofix
+	error_operator,	// ERROR'OPERATOR
+	error_operand,	// ERROR'OPERAND
+	error_separator;// ERROR'SEPARATOR
 }
 
 extern min::locatable_var<ll::parser::reformatter>

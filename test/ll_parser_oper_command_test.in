@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 05:29:01 EDT 2019
+// Date:	Wed Oct 30 04:42:10 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -15,9 +15,9 @@
     define pass operator [code, math] after top
     print pass
     trace [+ parser commands, + warnings ]
-    trace [- subexpression elements,
-           - subexpression lines ]
-    trace [+ operator subexpressions, + operator fixity]
+    trace [+ subexpression elements,
+           + subexpression lines ]
+    trace [- operator subexpressions, - operator fixity]
     print selector ""
     print operator ""
 
@@ -97,11 +97,18 @@
 *PARSER*:
     define operator "," [code, math] nofix
         with precedence 2000
-        with separator reformatter ( "," )
+        with separator reformatter
+    begin block BLOCK1
+    define operator "..." [code, math] nofix
+        with precedence 2000
+        with separator reformatter
 *PARSER* *TEST*:
     (x, y1, z w,, 3,)
+    (,, x,, y,,,)
+    (x, y... z)
 
 *PARSER*:
+    end block BLOCK1
     define operator "BUT NOT" [code, math] infix
         with precedence 3000
         with binary reformatter

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 01:54:01 EDT 2019
+// Date:	Wed Oct 30 04:24:44 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,8 +83,6 @@ min::locatable_gen PARLEX::header;
 min::locatable_gen PARLEX::line;
 min::locatable_gen PARLEX::paragraph;
 min::locatable_gen PARLEX::standard;
-min::locatable_gen PARLEX::error_operator;
-min::locatable_gen PARLEX::error_operand;
 min::locatable_gen PARLEX::test;
 min::locatable_gen PARLEX::begin;
 min::locatable_gen PARLEX::end;
@@ -227,11 +225,6 @@ static void initialize ( void )
         min::new_str_gen ( "paragraph" );
     PARLEX::standard =
         min::new_str_gen ( "standard" );
-
-    PARLEX::error_operator =
-        min::new_str_gen ( "ERROR'OPERATOR" );
-    PARLEX::error_operand =
-        min::new_str_gen ( "ERROR'OPERAND" );
 
     PARLEX::test = min::new_str_gen ( "test" );
     PARLEX::begin = min::new_str_gen ( "begin" );
@@ -1773,60 +1766,6 @@ void PAR::put_empty_after
     min::locate ( ap, min::dot_position );
     min::set ( ap, min::new_stub_gen ( pos ) );
     min::set_flag ( ap, min::standard_attr_hide_flag );
-}
-
-void PAR::put_error_operand_before
-	( ll::parser::parser parser,
-	  ll::parser::token t )
-{
-    PAR::token token = new_token ( LEXSTD::word_t );
-    put_before ( PAR::first_ref(parser), t, token );
-    PAR::value_ref ( token ) = PARLEX::error_operand;
-
-    min::phrase_position position =
-        { t->position.begin, t->position.begin };
-    token->position = position;
-}
-
-void PAR::put_error_operand_after
-	( ll::parser::parser parser,
-	  ll::parser::token t )
-{
-    PAR::token token = new_token ( LEXSTD::word_t );
-    put_before ( PAR::first_ref(parser), t->next,
-                                         token );
-    PAR::value_ref ( token ) = PARLEX::error_operand;
-
-    min::phrase_position position =
-        { t->position.end, t->position.end };
-    token->position = position;
-}
-
-void PAR::put_error_operator_before
-	( ll::parser::parser parser,
-	  ll::parser::token t )
-{
-    PAR::token token = new_token ( PAR::OPERATOR );
-    put_before ( PAR::first_ref(parser), t, token );
-    PAR::value_ref ( token ) = PARLEX::error_operator;
-
-    min::phrase_position position =
-        { t->position.begin, t->position.begin };
-    token->position = position;
-}
-
-void PAR::put_error_operator_after
-	( ll::parser::parser parser,
-	  ll::parser::token t )
-{
-    PAR::token token = new_token ( PAR::OPERATOR );
-    put_before ( PAR::first_ref(parser), t->next,
-                                         token );
-    PAR::value_ref ( token ) = PARLEX::error_operator;
-
-    min::phrase_position position =
-        { t->position.end, t->position.end };
-    token->position = position;
 }
 
 bool PAR::set_attr_flags

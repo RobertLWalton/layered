@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 02:45:28 EDT 2019
+// Date:	Wed Oct 30 04:23:26 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,8 +94,6 @@ namespace ll { namespace parser {
 	    line,		// line
 	    paragraph,		// paragraph
 	    standard,		// standard
-	    error_operator,	// ERROR'OPERATOR
-	    error_operand,	// ERROR'OPERAND
 	    define,		// define
 	    undefine,		// undefine
 	    test,		// test
@@ -1756,25 +1754,6 @@ void put_empty_before
 void put_empty_after
 	( ll::parser::parser parser,
 	  ll::parser::token t );
-
-// Ditto but put ERROR'OPERAND or ERROR'OPERATOR before
-// or after.  For ERROR'OPERATOR the token type is set
-// to PAR::OPERATOR, and for ERROR'OPERAND the token
-// type is set to LEXSTD::word_t.
-//
-void put_error_operand_before
-	( ll::parser::parser parser,
-	  ll::parser::token t );
-void put_error_operand_after
-	( ll::parser::parser parser,
-	  ll::parser::token t );
-void put_error_operator_before
-	( ll::parser::parser parser,
-	  ll::parser::token t );
-void put_error_operator_after
-	( ll::parser::parser parser,
-	  ll::parser::token t );
-
 
 // Options for set_attr_...
 //

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 20:57:40 EDT 2019
+// Date:	Wed Oct 30 04:11:37 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,9 @@ min::locatable_gen OPLEX::infix;
 min::locatable_gen OPLEX::postfix;
 min::locatable_gen OPLEX::afix;
 min::locatable_gen OPLEX::nofix;
+min::locatable_gen OPLEX::error_operator;
+min::locatable_gen OPLEX::error_operand;
+min::locatable_gen OPLEX::error_separator;
 static min::locatable_gen operator_subexpressions;
 static min::locatable_gen operator_fixity;
 static min::locatable_gen oper;
@@ -48,6 +51,7 @@ static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen precedence;
+
 
 static void initialize ( void )
 {
@@ -58,6 +62,12 @@ static void initialize ( void )
     OPLEX::postfix = min::new_str_gen ( "postfix" );
     OPLEX::afix    = min::new_str_gen ( "afix" );
     OPLEX::nofix   = min::new_str_gen ( "nofix" );
+    OPLEX::error_operator =
+        min::new_str_gen ( "ERROR'OPERATOR" );
+    OPLEX::error_operand =
+        min::new_str_gen ( "ERROR'OPERAND" );
+    OPLEX::error_separator =
+        min::new_str_gen ( "ERROR'SEPARATOR" );
 
     ::operator_subexpressions =
         min::new_lab_gen
@@ -472,8 +482,6 @@ OK:
 // Operator Parse Function
 // -------- ----- --------
 
-# ifndef NONE_SUCH
-
 min::int32 OP::op_high_precedence = +1e6;
 min::int32 OP::op_low_precedence  = -1e6;
 
@@ -484,7 +492,7 @@ static void put_error_operator_before
 {
     PAR::token token = new_token ( PAR::OPERATOR );
     put_before ( PAR::first_ref(parser), t, token );
-    PAR::value_ref ( token ) = PARLEX::error_operator;
+    PAR::value_ref ( token ) = OPLEX::error_operator;
 
     min::phrase_position position =
         { t->position.begin, t->position.begin };
@@ -512,7 +520,7 @@ void OP::put_error_operand_before
 {
     PAR::token token = new_token ( LEXSTD::word_t );
     put_before ( PAR::first_ref(parser), t, token );
-    PAR::value_ref ( token ) = PARLEX::error_operand;
+    PAR::value_ref ( token ) = OPLEX::error_operand;
 
     min::phrase_position position =
         { t->position.begin, t->position.begin };
@@ -530,7 +538,7 @@ void OP::put_error_operand_after
     PAR::token token = new_token ( LEXSTD::word_t );
     PAR::put_before
         ( PAR::first_ref(parser), t->next, token );
-    PAR::value_ref ( token ) = PARLEX::error_operand;
+    PAR::value_ref ( token ) = OPLEX::error_operand;
 
     min::phrase_position position =
         { t->position.end, t->position.end };
@@ -1012,11 +1020,13 @@ static void oper_parse ( PAR::parser parser,
 
 }
 
-# endif // NONE_SUCH
 
 
 // Operator Parse Function (old)
 // -------- ----- --------
+
+# ifdef NONE_SUCH
+
 
 // Return true iff the argument is a precedence in the
 // oper_stack.
@@ -1459,6 +1469,8 @@ static void oper_parse_X ( PAR::parser parser,
 	current = next_current;
     }
 }
+
+# endif // NONE_SUCH
 
 // Operator Reformatters
 // -------- ------------
@@ -1480,12 +1492,16 @@ static bool separator_reformatter_function
         // Equivalent meaning: the last token was an
 	// operand.
     min::gen separator = min::NONE();
+    min::phrase_position separator_position;
     for ( PAR::token t = first; t != next; )
     {
         if ( t->type == PAR::OPERATOR )
 	{
 	    if ( separator == min::NONE() )
+	    {
 	        separator = t->value;
+		separator_position = t->position;
+	    }
 	    else if ( separator != t->value )
 	        PAR::parse_error
 		    ( parser, t->position,
@@ -1505,7 +1521,8 @@ static bool separator_reformatter_function
 	    {
 	        // We need to do this before removing
 		// operator as we need operator
-		// position.
+		// position, which will be copied to
+		// the empty token.
 		//
 		PAR::put_empty_after ( parser, t );
 	    }
@@ -1520,18 +1537,28 @@ static bool separator_reformatter_function
 	    MIN_ASSERT ( ! separator_should_be_next,
 	                 "separator expected but"
 			 " operand found" );
-	        // Two operands should never be in
-		// next to each other.
+	        // Two operands should never be next to
+		// each other.
 	    separator_should_be_next = true;
 	    t = t->next;
 	}
     }
 
-    OP::oper op = (OP::oper) entry;
+    if ( ! min::is_name ( separator ) )
+    {
+	PAR::parse_error
+	    ( parser, separator_position,
+	      "separator ",
+	      min::pgen_quote ( separator ),
+	      " is not a name; changed to ",
+	      min::pgen_quote
+	          ( OPLEX::error_separator ) );
+	separator = OPLEX::error_separator;
+    }
 
     PAR::attr separator_attr
         ( min::dot_separator,
-	  op->reformatter_arguments[0] );
+	  separator );
 
     PAR::compact
         ( parser, min::NULL_STUB, selectors,
@@ -2223,7 +2250,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     PAR::push_reformatter
-        ( separator, OP::NOFIX, 1, 1,
+        ( separator, OP::NOFIX + OP::INFIX, 0, 0,
 	  ::separator_reformatter_function,
 	  OP::reformatter_stack );
     min::locatable_gen declare

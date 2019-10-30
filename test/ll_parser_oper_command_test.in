@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 04:42:10 EDT 2019
+// Date:	Wed Oct 30 12:22:05 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -164,10 +164,10 @@
     ( x < y <= z > w != p q =< u v )
 
 *PARSER*:
-    define operator "+" [code, math] infix
+    define operator "+" [code, math] infix prefix
         with precedence 5000
         with sum reformatter ( "+", "-" )
-    define operator "-" [code, math] infix
+    define operator "-" [code, math] infix prefix
         with precedence 5000
         with sum reformatter ( "+", "-" )
 *PARSER* *TEST*:

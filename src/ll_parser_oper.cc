@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 08:23:56 EDT 2019
+// Date:	Wed Oct 30 12:21:00 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1713,9 +1713,8 @@ static bool right_associative_reformatter_function
 {
     MIN_REQUIRE ( first != next );
 
-    // As operators must be infix, operands and
-    // operators must alternate with operands first and
-    // last.
+    // As operators must be infix, operands and opera-
+    // tors must alternate with operands first and last.
 
     // Work from end to beginning taking 3 tokens at a
     // time and rewriting them into a subexpression.
@@ -1909,33 +1908,68 @@ static bool infix_reformatter_function
     // last.  All operators must be the same; the first
     // is moved to the front and the others deleted.
 
-    // Remove all operators but first, and check that
-    // they are the same as first operator.
+    // Make sure first element is not an operator.
     //
-    MIN_ASSERT ( first->next->type == PAR::OPERATOR,
-                 "second element is not operator" );
-    for ( PAR::token t = first->next->next;
-          t->next != next; t = t->next )
+    if ( first->type == PAR::OPERATOR )
     {
-        MIN_ASSERT ( t->next->type == PAR::OPERATOR,
-	             "operator expected but operand"
+        OP::put_error_operand_before ( parser, first );
+	first = first->previous;
+    }
+
+    // As first element is not an operator, and as two
+    // non-operators cannot be consecutive, first->next
+    // must be an operator.
+    //
+    MIN_ASSERT (    first->next != next
+                 && first->next->type == PAR::OPERATOR,
+                 "second element is not operator" );
+ 
+    // Remove all operators but first, check that they
+    // alternate with operators in the expression, and
+    // check that they are the same as first operator.
+    //
+    PAR::token t = first->next->next;
+    while ( true )
+    {
+        // We should be at non-operator.
+	//
+	if ( t == next || t->type == PAR::OPERATOR )
+	{
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
+	    t = t->previous;  // the ERROR'OPERAND
+	}
+
+	t = t->next;
+	if ( t == next ) break;
+
+	// We must be at operator (as non-operators
+	// cannot be consecutive).
+	//
+	MIN_ASSERT ( t->type == PAR::OPERATOR,
+		     "operator expected but operand"
 		     " found" );
 
-	if ( t->next->value != first->next->value )
+	if ( t->value != first->next->value )
 	    PAR::parse_error
 	        ( parser, position,
-		  "wrong operator ",
-		  min::pgen_quote ( t->next->value ),
-		  " changed to ",
+		  "operator ",
+		  min::pgen_quote ( t->value ),
+		  " should equal ",
 		  min::pgen_quote
 		      ( first->next->value ),
 		  "; all operators"
 		  " must be the same in this"
-		  " subexpression" );
+		  " subexpression; operator ",
+		  min::pgen_quote ( t->value ),
+		  " changed to ",
+		  min::pgen_quote
+		      ( first->next->value ) );
 
+	t = t->next;
         PAR::free
 	    ( PAR::remove
-		  ( PAR::first_ref(parser), t->next ) );
+		  ( PAR::first_ref(parser), t->previous ) );
     }
 
     // Move first operator (second element) to head of
@@ -2282,7 +2316,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen sum
         ( min::new_str_gen ( "sum" ) );
     PAR::push_reformatter
-        ( sum, OP::INFIX, 2, 2,
+        ( sum, OP::INFIX + OP::PREFIX, 2, 2,
 	  ::sum_reformatter_function,
 	  OP::reformatter_stack );
 }

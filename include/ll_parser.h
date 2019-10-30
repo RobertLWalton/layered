@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 04:23:26 EDT 2019
+// Date:	Wed Oct 30 13:49:10 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1497,7 +1497,7 @@ struct reformatter_struct
 	// pass, these are operator flags (PREFIX,
 	// INFIX, etc.) such that an operator may not
 	// associate with a reformatter that does not
-	// have one of the operator's flags.
+	// have all of the operator's flags.
     min::uns32 minimum_arguments, maximum_arguments;
         // Minimum and maximum number of arguments.
     ll::parser::reformatter_function

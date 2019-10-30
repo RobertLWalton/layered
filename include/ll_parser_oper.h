@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 04:24:02 EDT 2019
+// Date:	Wed Oct 30 08:23:46 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -225,6 +225,24 @@ void put_error_operand_before
 void put_error_operand_after
     ( ll::parser::parser parser,
       ll::parser::token t );
+
+// Delete t and return token after t.  Call parse_error
+// with message
+// 	"message [pgen_quote(t->value)]; deleted".
+//
+ll::parser::token delete_bad_token
+    ( ll::parser::parser parser,
+      ll::parser::token t,
+      const char * message );
+
+// If t != next, delete tokens from t to next->previous
+// and call parse_error about extra stuff at end of
+// expression.  Return `next'.
+//
+ll::parser::token delete_extra_stuff
+    ( ll::parser::parser parser,
+      ll::parser::token t,
+      ll::parser::token next );
 
 struct oper_pass_struct;
 typedef min::packed_struct_updptr<oper_pass_struct>

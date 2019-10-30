@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 24, 2019
+October 30, 2019
  
 \end{center}
 
@@ -8001,34 +8001,37 @@ With the above in mind, the operator reformatters are:
 
 \bigskip
 
-\ttmkey{separator}{reformatter} \TT{(} {\em separator} \TT{)}
+\ttmkey{separator}{reformatter}
 \hfill \OP{;} ~~~ \OP{,}
 
 
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix} or \TT{infix} operators.
 
-All operator values must
-be identical.  It is required that any two operands be separated by an operator,
+All operator values must be identical, must be MIN names,
+and will become the \TT{.separator} attribute of the
+expression.
+
+It is required that any two operands be separated by an operator,
 but operators my be consecutive and may begin or end the subexpression.
 
 Empty list operands are inserted to make all operators
-infix.  Then the operators are deleted, the resulting list of
+infix (if some are originally nofix).
+Then the operators are deleted, the resulting list of
 operands is made into a \TT{BRACKETABLE} token with a MIN object value
 that has a \ttmkey{.separator}{produced by parsing}
-attribute whose value is the {\em separator} argument to the reformatter.
+attribute whose value is the first operator.
 Examples
-with `\TT{,}' as both the operator and the {\em separator} argument to the
-reformatter are:
+with `\TT{,}' as operator are:
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
 \TT{x , y} & $\Longrightarrow$ & \TT{x y}
 					& with \TT{.separator ","} \\
-\TT{, y} & $\Longrightarrow$ & \TT{() y}
+\TT{, y} & $\Longrightarrow$ & \TT{\{\} y}
 					& with \TT{.separator ","} \\
-\TT{x ,} & $\Longrightarrow$ & \TT{x ()}
+\TT{x ,} & $\Longrightarrow$ & \TT{x \{\}}
 					& with \TT{.separator ","} \\
-\TT{x ,, y} & $\Longrightarrow$ & \TT{x () y}
+\TT{x ,, y} & $\Longrightarrow$ & \TT{x \{\} y}
 					& with \TT{.separator ","} \\
 \end{tabular}
 \end{indpar}

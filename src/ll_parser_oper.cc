@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 04:11:37 EDT 2019
+// Date:	Wed Oct 30 08:23:56 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -547,6 +547,50 @@ void OP::put_error_operand_after
     PAR::parse_error
 	( parser, token->position,
 	  "missing operand; error operand inserted" );
+}
+
+PAR::token OP::delete_bad_token
+	( ll::parser::parser parser,
+	  ll::parser::token t,
+	  const char * message )
+{
+    PAR::parse_error
+	( parser, t->position, message,
+	  min::pgen_quote ( t->value ),
+	  "; deleted" );
+
+    t = t->next;
+    PAR::free
+	( PAR::remove
+	      ( PAR::first_ref ( parser ),
+		t->previous ) );
+    return t;
+}
+
+PAR::token OP::delete_extra_stuff
+	( ll::parser::parser parser,
+	  ll::parser::token t,
+	  ll::parser::token next )
+{
+    min::phrase_position position =
+	{ t->position.begin,
+	  next->previous->position.end };
+
+    PAR::parse_error
+	( parser, position,
+	  "extra stuff at end of"
+	   " expression; deleted" );
+
+    while ( t != next )
+    {
+	t = t->next;
+	PAR::free
+	    ( PAR::remove
+		  ( PAR::first_ref ( parser ),
+		    t->previous ) );
+    }
+
+    return next;
 }
 
 // Returns true if operator found, false otherwise.
@@ -1737,77 +1781,35 @@ static bool unary_reformatter_function
 	  TAB::root entry )
 {
 
-    while ( first->type != PAR::OPERATOR )
-    {
-	MIN_ASSERT ( first != next,
-	             "unexpected expression end" );
-
-	PAR::parse_error
-	    ( parser, first->position,
-	      "expected an operator and got ",
-	      min::pgen_quote ( first->value ),
-	      "; deleted" );
-
-	first = first->next;
-	PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref ( parser ),
-		    first->previous ) );
-    }
+    while (    first != next
+            && first->type != PAR::OPERATOR )
+        first = OP::delete_bad_token
+	    ( parser, first, "expected an operator"
+			     " and found an operand " );
+    MIN_ASSERT ( first != next,
+		 "expression must have an operator" );
 
     PAR::token t = first->next;
 
     while ( t != next && t->type == PAR::OPERATOR )
-    {
-	PAR::parse_error
-	    ( parser, t->position,
-	      "expected an operand and got ",
-	      min::pgen_quote ( t->value ),
-	      "; deleted" );
-
-	t = t->next;
-	PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref ( parser ),
-		    t->previous ) );
-    }
+        t = OP::delete_bad_token
+	        ( parser, t,
+		  "expected an operand and found an"
+		  " operator " );
 
     if ( t == next )
     {
 	t = t->previous;
 
-	PAR::parse_error
-	    ( parser, t->position,
-	      "expected an operand after ",
-	      min::pgen_quote ( t->value ),
-	      "; inserted ERROR'OPERAND" );
-
 	OP::put_error_operand_after ( parser, t );
 	t = t->next;
     }
+    t = t->next;
 
     // Delete extra stuff from end of list.
     //
-    t = t->next;
     if ( t != next )
-    {
-        min::phrase_position position =
-	    { t->position.begin,
-	      next->previous->position.end };
-	PAR::parse_error
-	    ( parser, position,
-	      "extra stuff at end of unary"
-	       " expression; deleted" );
-
-	while ( t != next )
-	{
-	    t = t->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref ( parser ),
-			t->previous ) );
-	}
-    }
+        t = OP::delete_extra_stuff ( parser, t, next );
 
     return true;
 }
@@ -1837,41 +1839,45 @@ static bool binary_reformatter_function
     //
     if ( t->type == PAR::OPERATOR )
     {
-	PAR::parse_error
-	    ( parser, t->position,
-	      "expected operand before ",
-	      min::pgen_quote ( t->value ),
-	      "; inserted ERROR'OPERAND" );
-
 	OP::put_error_operand_before ( parser, t );
 	first = t->previous;
     }
     else
         t = t->next;
 
-    // Second element must be operator.
+    // Ensure that next element is an operator.
     //
-    MIN_ASSERT
-	( t != next && t->type == PAR::OPERATOR,
-	  "second element is missing or not operator" );
+    while ( t != next && t->type != PAR::OPERATOR )
+        t = OP::delete_bad_token
+	        ( parser, t, "expected an operator"
+		             " and found an operand " );
 
+    MIN_ASSERT
+	( t != next,
+	  "expression must have an operator" );
     t = t->next;
 
-    // Ensure third element is operand.
+    // Ensure that next element is an operand.
     //
-    if ( t == next || t->type == PAR::OPERATOR )
+    while ( t != next && t->type == PAR::OPERATOR )
+        t = OP::delete_bad_token
+	        ( parser, t,
+		  "expected an operand and found an"
+		  " operator " );
+
+    if ( t == next )
     {
 	t = t->previous;
-
-	PAR::parse_error
-	    ( parser, t->position,
-	      "expected operand after ",
-	      min::pgen_quote ( t->value ),
-	      "; inserted ERROR'OPERAND" );
 
 	OP::put_error_operand_after ( parser, t );
 	t = t->next;
     }
+    t = t->next;
+
+    // We should be at end of expression.
+    //
+    if ( t != next )
+        t = OP::delete_extra_stuff ( parser, t, next );
 
     // Move second element to head of list.
     //
@@ -1881,29 +1887,6 @@ static bool binary_reformatter_function
     PAR::put_before ( PAR::first_ref ( parser ),
 		      first, oper );
     first = oper;
-
-    // Delete extra stuff from end of list.
-    //
-    t = t->next;
-    if ( t != next )
-    {
-        min::phrase_position position =
-	    { t->position.begin,
-	      next->previous->position.end };
-	PAR::parse_error
-	    ( parser, position,
-	      "extra stuff at end of binary"
-	       " expression; deleted" );
-
-	while ( t != next )
-	{
-	    t = t->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref ( parser ),
-			t->previous ) );
-	}
-    }
 
     return true;
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 02:55:51 EDT 2019
+// Date:	Tue Oct 29 19:58:18 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -255,6 +255,10 @@ struct oper_pass_struct
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `operator subexpressions'
 	// that traces operator subexpressions.
+    ll::parser::table::flags trace_fixity;
+        // Trace flag named `operator fixity' that
+	// traces operator fixity, if operator sub-
+	// expressions are being traced.
 
 };
 

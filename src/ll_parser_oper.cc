@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 11:59:34 EDT 2019
+// Date:	Tue Oct 29 19:57:30 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,7 @@ min::locatable_gen OPLEX::postfix;
 min::locatable_gen OPLEX::afix;
 min::locatable_gen OPLEX::nofix;
 static min::locatable_gen operator_subexpressions;
+static min::locatable_gen operator_fixity;
 static min::locatable_gen oper;
 static min::locatable_gen bracket;
 static min::locatable_gen indentation;
@@ -61,6 +62,9 @@ static void initialize ( void )
     ::operator_subexpressions =
         min::new_lab_gen
 	    ( "operator", "subexpressions" );
+    ::operator_fixity =
+        min::new_lab_gen
+	    ( "operator", "fixity" );
     ::oper = min::new_str_gen ( "operator" );
     ::bracket = min::new_str_gen ( "bracket" );
     ::indentation = min::new_str_gen ( "indentation" );
@@ -172,8 +176,15 @@ static void oper_pass_place
 	  ::operator_subexpressions );
     MIN_REQUIRE
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
-    
     oper_pass->trace_subexpressions =
+        1ull << index;
+
+    index = TAB::find_name
+        ( parser->trace_flag_name_table,
+	  ::operator_fixity );
+    MIN_REQUIRE
+      ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
+    oper_pass->trace_fixity =
         1ull << index;
 }
 
@@ -305,18 +316,10 @@ bool OP::fixity_OK ( OP::oper_vec v,
 	    ( fixity & ( OP::INFIX | OP::NOFIX ) );
     }
 
+
     min::uns32 length = v->length;
-    OP::oper_vec_struct last;
-
-    if ( length == 0 )
-    {
-        if ( fixity == 0 ) goto OK;
-	fixity &= ~ ( OP::INFIX | OP::POSTFIX );
-	if ( fixity == 0 ) return false;
-	goto OK;
-    }
-
-    last = v[length-1];
+    MIN_REQUIRE ( length >= 1 );
+    OP::oper_vec_struct last = v[length-1];
 
     if ( last.fixity == 0 )
     {
@@ -548,6 +551,10 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 				OP::oper_vec vec,
 				TAB::flags trace_flags )
 {
+    OP::oper_vec_struct end_op =
+        { OP::NOFIX, OP::op_low_precedence - 1,
+	             min::NULL_STUB };
+    min::push ( vec ) = end_op;
     PAR::token current = first;
     PAR::token non_op_first = min::NULL_STUB;
     while ( current != next )
@@ -687,6 +694,27 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 
 	current->type = PAR::OPERATOR;
 
+	if ( trace_flags & PAR::TRACE_KEYS )
+	{
+	    min::gen label = current->value;
+	    if ( ! min::is_name ( label ) )
+	        label = current->value_type;
+	    parser->printer
+		<< min::bom
+		<< min::adjust_indent ( 7 )
+		<< "OPERATOR "
+		<< min::pgen_quote ( label )
+		<< " found; "
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 current->position )
+		<< ":" << min::eom;
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  current->position );
+	}
+
 	if ( ! OK )
 	{
 	    if ( fixity == OP::PREFIX )
@@ -786,7 +814,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
     D.first_oper = min::NULL_STUB;
 
     PAR::token current = D.first;
-    min::uns32 index = vec_origin;
+    min::uns32 index = vec_origin + 1;
     while ( true )
     {
         OP::oper_vec_struct v;
@@ -930,9 +958,51 @@ static void oper_parse ( PAR::parser parser,
 	( parser, oper_pass, selectors, first, next,
 	  vec, trace_flags );
     if ( op_found )
+    {
+	if ( trace_flags & oper_pass->trace_fixity )
+	{
+	    min::phrase_position position =
+		{ first->position.begin,
+		  next->previous->position.end };
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file,
+		  position );
+
+	    parser->printer
+		<< min::bom
+		<< min::adjust_indent ( 4 )
+		<< min::pline_numbers
+		       ( parser->input_file,
+			 position )
+		<< ":";
+
+	    min::uns32 index = vec_origin;
+	    while ( index < vec->length )
+	    {
+		parser->printer << " ";
+	        OP::oper_vec_struct v = vec[index++];
+		if ( v.fixity & OP::PREFIX )
+		    parser->printer << "+PREFIX";
+		if ( v.fixity & OP::INFIX )
+		    parser->printer
+		        << "+INFIX(" << v.precedence
+			<< ")";
+		if ( v.fixity & OP::POSTFIX )
+		    parser->printer << "+POSTFIX";
+		if ( v.fixity & OP::NOFIX )
+		    parser->printer
+		        << "+NOFIX(" << v.precedence
+			<< ")";
+	    }
+	    parser->printer << min::eom;
+	}
+
 	oper_parse_pass_2
 	    ( parser, oper_pass, selectors, first, next,
 	      vec, vec_origin, trace_flags );
+    }
+
 
     min::pop ( vec, vec->length - vec_origin );
 

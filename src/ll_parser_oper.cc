@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 12:21:00 EDT 2019
+// Date:	Thu Oct 31 19:40:13 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,6 +106,8 @@ static min::packed_struct_with_base
 	        ::oper_gen_disp,
 	        ::oper_stub_disp );
 const min::uns32 & OP::OPER = ::oper_type.subtype;
+
+min::locatable_var<OP::oper> OP::error_oper;
 
 void OP::push_oper
 	( min::gen oper_label,
@@ -948,7 +950,6 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 	while ( D.precedence > v.precedence )
 	{
 	    OP::oper oper = D.first_oper;
-	    MIN_REQUIRE ( oper != min::NULL_STUB );
 	    D = min::pop ( oper_stack );
 	    TAB::flags compact_trace_flags =
 	        D.first != first || current != next ?
@@ -2179,32 +2180,53 @@ static bool sum_reformatter_function
 	  TAB::root entry )
 {
     MIN_REQUIRE ( first != next );
-    MIN_ASSERT ( first->type != PAR::OPERATOR,
-                 "first element should be operand" );
-    MIN_ASSERT ( first->next != next,
-                 "unexpected expression end" );
 
     OP::oper op = (OP::oper) entry;
 
     min::gen plus_op = op->reformatter_arguments[0];
     min::gen minus_op = op->reformatter_arguments[1];
 
-    // As operators must be infix, operands and opera-
-    // tors must alternate with operands first and last.
-    // The operators must be plus_op and minus_op.
-
-    // Replace every `plus_op x' by `x' and every
-    // `minus_op x' by `(minus_op x)'.
+    // Operators and operands must alternate with an
+    // operand at the end.  If there are only two
+    // elements, the first must be an operator and
+    // the second an operand, and nothing is done.
     //
-    for ( PAR::token t = first->next; t != next; )
+    if ( first->type == PAR::OPERATOR )
     {
-        MIN_ASSERT ( t->type == PAR::OPERATOR,
-	             "operator expected but operand"
-		     " found" );
-        MIN_ASSERT ( t->next != next,
-		     "unexpected expression end" );
+        if ( first->next == next )
+	{
+	    OP::put_error_operand_after
+	        ( parser, first );
+	    return true;
+	}
+	else if ( first->next->type == PAR::OPERATOR )
+	    OP::put_error_operand_before
+	        ( parser, first->next );
+	else if ( first->next->next == next )
+	    return true;
+    }
+    
+    // Otherwise replace every `plus_op x' by `x' and
+    // every `minus_op x' by `(minus_op x)'.
+    //
+    PAR::token t = first;
+    if ( t->type != PAR::OPERATOR )
+        t = t->next;
+    MIN_ASSERT ( t->type == PAR::OPERATOR,
+		 "expression must have an operator" );
+		 // Since two consecutive operands is
+		 // impossible and there must be some
+		 // operator if there is a reformatter.
+    while ( t != next )
+    {
+        MIN_REQUIRE ( t->type == PAR::OPERATOR);
+
+	if (    t->next == next
+	     || t->next->type == PAR::OPERATOR )
+	    OP::put_error_operand_after ( parser, t );
 
 	min::gen op = t->value;
+	bool t_is_first = ( t == first );
 	if ( op != minus_op )
 	{
 	    if ( op != plus_op )
@@ -2239,6 +2261,8 @@ static bool sum_reformatter_function
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
 	}
+
+	if ( t_is_first ) first = t;
 
 	t = t->next;
     }

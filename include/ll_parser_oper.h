@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 08:23:46 EDT 2019
+// Date:	Thu Oct 31 21:17:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,6 +101,8 @@ MIN_REF ( ll::parser::reformatter, reformatter,
 MIN_REF ( ll::parser::reformatter_arguments,
           reformatter_arguments,
 	  ll::parser::oper::oper )
+
+extern min::locatable_var<oper> error_oper;
 
 // Create an operator definition entry with given
 // label, terminator (MISSING except for oper_bracket_

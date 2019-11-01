@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 31 19:40:13 EDT 2019
+// Date:	Fri Nov  1 02:00:47 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,7 @@ static min::locatable_gen mark;
 static min::locatable_gen precedence;
 
 
+static void init_error_oper ( void );
 static void initialize ( void )
 {
     OPLEX::dollar  = min::new_str_gen ( "$" );
@@ -80,6 +81,8 @@ static void initialize ( void )
     ::indentation = min::new_str_gen ( "indentation" );
     ::mark = min::new_str_gen ( "mark" );
     ::precedence = min::new_str_gen ( "precedence" );
+
+    ::init_error_oper();
 
     PAR::push_new_pass ( ::oper, OP::new_pass );
 }
@@ -137,6 +140,22 @@ void OP::push_oper
 	reformatter_arguments;
 
     TAB::push ( oper_table, (TAB::root) oper );
+}
+
+static void init_error_oper ( void )
+{
+    OP::error_oper = ::oper_type.new_stub();
+    label_ref(OP::error_oper) = OPLEX::error_operator;
+    terminator_ref(OP::error_oper) = min::MISSING();
+    OP::error_oper->selectors = 0;
+    OP::error_oper->block_level = 0;
+    OP::error_oper->position = PAR::top_level_position;
+    OP::error_oper->flags = OP::NOFIX;
+    OP::error_oper->precedence =
+        OP::op_high_precedence + 1;
+    reformatter_ref(OP::error_oper) = min::NULL_STUB;
+    reformatter_arguments_ref(OP::error_oper) =
+        min::NULL_STUB;
 }
 
 // Operator Parser Pass
@@ -510,7 +529,8 @@ static void put_error_operator_before
 
     bool OK = OP::fixity_OK
 	( vec, OP::NOFIX,
-	       OP::op_high_precedence + 1 );
+	       OP::op_high_precedence + 1,
+	       OP::error_oper );
 
     MIN_REQUIRE ( OK );
 
@@ -1970,7 +1990,8 @@ static bool infix_reformatter_function
 	t = t->next;
         PAR::free
 	    ( PAR::remove
-		  ( PAR::first_ref(parser), t->previous ) );
+		  ( PAR::first_ref(parser),
+		    t->previous ) );
     }
 
     // Move first operator (second element) to head of

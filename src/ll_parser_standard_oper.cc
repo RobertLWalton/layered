@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 04:15:24 EDT 2019
+// Date:	Fri Nov  1 15:22:53 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,7 +125,7 @@ OP::oper_pass PARSTD::init_oper
 	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
-	  OP::POSTFIX + OP::AFIX,
+	  OP::NOFIX + OP::AFIX,
 	  0,
 	  min::NULL_STUB, min::NULL_STUB,
 	  oper_pass->oper_bracket_table );

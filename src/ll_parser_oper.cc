@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  1 02:00:47 EDT 2019
+// Date:	Fri Nov  1 12:17:07 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2722,13 +2722,29 @@ static min::gen oper_pass_command
 	    ( parser, oper_flags_position,
 	      "operator flags nofix and postfix"
 	      " are incompatible" );
-    if ( ( oper_flags & OP::INFIX )
+    if ( ( oper_flags & OP::AFIX )
+          &&
+	 ( oper_flags & OP::PREFIX ) )
+	return PAR::parse_error
+	    ( parser, oper_flags_position,
+	      "operator flags afix and prefix"
+	      " are incompatible" );
+    if ( ( oper_flags & OP::AFIX )
           &&
 	 ( oper_flags & OP::POSTFIX ) )
 	return PAR::parse_error
 	    ( parser, oper_flags_position,
-	      "operator flags infix and postfix"
+	      "operator flags afix and postfix"
 	      " are incompatible" );
+    if ( ( oper_flags & OP::PREFIX )
+          &&
+	 ( oper_flags & OP::INFIX )
+          &&
+	 ( oper_flags & OP::POSTFIX ) )
+	return PAR::parse_error
+	    ( parser, oper_flags_position,
+	      "operator cannot be prefix, infix, AND"
+	      " postfix, all three" );
 
     min::int32 precedence;
     bool precedence_found = false;

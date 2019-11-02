@@ -28,6 +28,7 @@
     trace [+ parser commands, + warnings ]
     trace [+ subexpression elements,
            + subexpression lines ]
+    trace [- operator subexpressions, - operator fixity]
     print selector ""
         block standard: data paragraph
         block standard: text
@@ -204,7 +205,14 @@ ERROR: in line ##: expected operator flags after:
 *PARSER*:
     define operator "," [code, math] nofix
         with precedence 2000
-        with separator reformatter ( "," )
+        with separator reformatter
+    begin block BLOCK1
+    define operator "..." [code, math] nofix
+        with precedence 2000
+        with separator reformatter
+ERROR: in line ###: wrong separator "..." changed to ",":
+    (x, y... z)
+         ^^^
 ======= PARSER TEST: (x, y1, {|z w|}, {}, 3, {})
 ======= line ###:
     (x, y1, z w,, 3,)
@@ -221,8 +229,41 @@ ERROR: in line ##: expected operator flags after:
 ------- line ###:
     (x, y1, z w,, 3,)
                     ^
+======= PARSER TEST: ({}, {}, x, {}, y, {}, {}, {})
+======= line ###:
+    (,, x,, y,,,)
+    ^^^^^^^^^^^^^
+------- line ###:
+    (,, x,, y,,,)
+    ^^^^^^^^^^^^^
+------- line ###:
+    (,, x,, y,,,)
+     ^
+------- line ###:
+    (,, x,, y,,,)
+      ^
+------- line ###:
+    (,, x,, y,,,)
+          ^
+------- line ###:
+    (,, x,, y,,,)
+              ^
+------- line ###:
+    (,, x,, y,,,)
+               ^
+------- line ###:
+    (,, x,, y,,,)
+                ^
+======= PARSER TEST: (x, y, z)
+======= line ###:
+    (x, y... z)
+    ^^^^^^^^^^^
+------- line ###:
+    (x, y... z)
+    ^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
+    end block BLOCK1
     define operator "BUT NOT" [code, math] infix
         with precedence 3000
         with binary reformatter
@@ -235,33 +276,40 @@ ERROR: in line ##: expected operator flags after:
     define operator "NOT" [code, math] nofix
         with precedence 3100
         with unary reformatter
-ERROR: in line ###: wrong operator "OR" changed to "AND"; all operators
-       must be the same in this subexpression:
+ERROR: in line ###: operator "OR" should equal "AND"; all operators must
+       be the same in this subexpression; operator "OR" changed to
+       "AND":
     (x OR y BUT NOT z AND w OR p)
                     ^^^^^^^^^^^^
-ERROR: in line ###: expected an operator and got "x"; deleted:
+ERROR: in line ###: expected an operator and found an operand "x";
+       deleted:
     (x NOT y)
      ^
-ERROR: in line ###: extra stuff at end of unary expression; deleted:
+ERROR: in line ###: extra stuff at end of expression; deleted:
     (NOT x AND y)
            ^^^^^
-ERROR: in line ###: missing operand inserted:
+ERROR: in line ###: missing operand; error operand inserted:
     (x AND NOT y)
-          ^
-ERROR: in line ###: wrong operator "NOT" changed to "AND"; all operators
-       must be the same in this subexpression:
+           ^
+ERROR: in line ###: operator "NOT" should equal "AND"; all operators
+       must be the same in this subexpression; operator "NOT" changed to
+       "AND":
     (x AND NOT y)
      ^^^^^^^^^^^
-ERROR: in line ###: expected an operand and got "NOT"; deleted:
+ERROR: in line ###: missing operand; error operand inserted:
+    (x AND AND y)
+           ^
+ERROR: in line ###: expected an operand and found an operator "NOT";
+       deleted:
     (NOT NOT x y)
          ^^^
-ERROR: in line ###: expected an operand and got "NOT"; deleted:
+ERROR: in line ###: expected an operand and found an operator "NOT";
+       deleted:
     (NOT NOT)
          ^^^
-ERROR: in line ###: expected an operand after "NOT"; inserted
-       ERROR'OPERAND:
+ERROR: in line ###: missing operand; error operand inserted:
     (NOT NOT)
-     ^^^
+        ^
 ======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
                           ")", .initiator = "("|[< BUT NOT >]
                           {"": .operator = "OR"|OR x y|}
@@ -330,16 +378,13 @@ ERROR: in line ###: expected an operand after "NOT"; inserted
     (x AND NOT y)
     ^^^^^^^^^^^^^
 ======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND x {|AND y|}|}
+                          .initiator = "("|AND x ERROR'OPERAND y|}
 ======= line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
-------- line ###:
-    (x AND AND y)
-           ^^^^^
 ======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
                           .initiator = "("|NOT {|x y|}|}
 ======= line ###:
@@ -456,10 +501,10 @@ ERROR: in line ###: expected an operand after "NOT"; inserted
                                ^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    define operator "+" [code, math] infix
+    define operator "+" [code, math] infix prefix
         with precedence 5000
         with sum reformatter ( "+", "-" )
-    define operator "-" [code, math] infix
+    define operator "-" [code, math] infix prefix
         with precedence 5000
         with sum reformatter ( "+", "-" )
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
@@ -483,8 +528,8 @@ ERROR: in line ###: expected an operand after "NOT"; inserted
     ( x + y - z + w - v - u )
                         ^^^
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+ {|- x|} y
-                          {"": .operator = "-"|- z|}|}
+                          .initiator = "("|+ {"": .operator = "-"|- x|}
+                          y {"": .operator = "-"|- z|}|}
 ======= line ###:
     ( - x + y - z )
     ^^^^^^^^^^^^^^^
@@ -536,7 +581,7 @@ ERROR: in line ###: expected an operand after "NOT"; inserted
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter
-ERROR: in line ###: extra stuff at end of binary expression; deleted:
+ERROR: in line ###: extra stuff at end of expression; deleted:
     ( x / y / z )
             ^^^
 ======= PARSER TEST: {"": .operator = "/", .terminator = ")",
@@ -595,10 +640,6 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
                       ^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    define operator "+" [code, math] prefix
-        with precedence 10000
-    define operator "-" [code, math] prefix
-        with precedence 10000
     define operator "@" [code, math] prefix
         with precedence 10000
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
@@ -734,10 +775,11 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
     define operator "<--" [code] nofix
         with precedence 0
         with declare reformatter
-    define operator bracket "{{" ... "}}" [code] afix
+    define operator bracket "{{" ... "}}" [code]
+        nofix afix
         with precedence 0
     define operator indentation mark ":" [code]
-        postfix afix
+        nofix afix
         with precedence 0
 ======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
                           .initiator = "("|<-- {|foo bar|} {|boo bat|}
@@ -850,21 +892,15 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
                         with precedence 5200
                         with infix reformatter
         block standard: operator "+" [code, math]
-                        prefix
-                        with precedence 10000
-        block standard: operator "+" [code, math]
-                        infix
+                        prefix infix
                         with precedence 5000
                         with sum reformatter ( "+", "-" )
         block standard: operator "," [code, math]
                         nofix
                         with precedence 2000
-                        with separator reformatter ( "," )
+                        with separator reformatter
         block standard: operator "-" [code, math]
-                        prefix
-                        with precedence 10000
-        block standard: operator "-" [code, math]
-                        infix
+                        prefix infix
                         with precedence 5000
                         with sum reformatter ( "+", "-" )
         block standard: operator "/" [code, math]
@@ -961,8 +997,8 @@ ERROR: in line ###: extra stuff at end of binary expression; deleted:
                         with precedence 1000
                         with right associative reformatter
         block standard: bracket ":" [code]
-                        postfix afix
+                        nofix afix
                         with precedence 0
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >] [code]
-                        afix
+                        nofix afix
                         with precedence 0

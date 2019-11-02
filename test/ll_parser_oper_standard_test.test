@@ -167,7 +167,7 @@
 ------- line ##:
     [ x = w < y < z ]
               ^
-======= PARSER TEST: {t: f = (m ";" n ";" p), e, no d, b = (a, b, c)|1 2
+======= PARSER TEST: {t: no d, e, f = (m ";" n ";" p), b = (a, b, c)|1 2
                          3|t}
 ======= line ##:
     {t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}

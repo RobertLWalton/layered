@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 12:22:05 EDT 2019
+// Date:	Fri Nov  1 21:38:05 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -191,10 +191,6 @@
     ( x ^ 2 * y ^ 2 / y * z )
 
 *PARSER*:
-    define operator "+" [code, math] prefix
-        with precedence 10000
-    define operator "-" [code, math] prefix
-        with precedence 10000
     define operator "@" [code, math] prefix
         with precedence 10000
 *PARSER* *TEST*:
@@ -216,10 +212,11 @@
     define operator "<--" [code] nofix
         with precedence 0
         with declare reformatter
-    define operator bracket "{{" ... "}}" [code] afix
+    define operator bracket "{{" ... "}}" [code]
+        nofix afix
         with precedence 0
     define operator indentation mark ":" [code]
-        postfix afix
+        nofix afix
         with precedence 0
 *PARSER* *TEST*:
     ( foo bar <-- boo bat {{ fee fie fo fum }} )

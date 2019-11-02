@@ -29,7 +29,8 @@
         [ + warnings, - parser input, - parser output,
           - parser commands, - subexpression elements,
           - subexpression details, - subexpression lines, - keys,
-          - bracketed subexpressions, - operator subexpressions ]
+          - bracketed subexpressions, - operator subexpressions,
+          - operator fixity ]
     print ID character
         block standard: "@"
         block TOP LEVEL: disabled
@@ -192,7 +193,7 @@
         block standard: operator "," [data, code, math]
                         nofix
                         with precedence 4000
-                        with separator reformatter ( "," )
+                        with separator reformatter
         block standard: operator "<" [code, math]
                         infix
                         with precedence 15000
@@ -242,5 +243,5 @@
                         with precedence 9000
                         with right associative reformatter
         block standard: bracket ":" [code, math]
-                        postfix afix
+                        nofix afix
                         with precedence 0

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  1 20:32:01 EDT 2019
+// Date:	Sat Nov  2 02:09:34 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -892,14 +892,7 @@ static void oper_parse_pass_2 ( PAR::parser parser,
     while ( true )
     {
         OP::oper_vec_struct v;
-	if ( current != next )
-	    v = vec[index++];
-	else
-	{
-	    v.precedence = OP::op_low_precedence - 1;
-	    v.fixity = OP::NOFIX;
-	    v.op = min::NULL_STUB;
-	}
+	v = vec[index++];
 
 	if ( v.fixity == 0 )
 	{
@@ -982,7 +975,9 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 
 	if ( current == next ) break;
 
-	if ( D.precedence < v.precedence )
+	if ( D.precedence < v.precedence
+	     ||
+	     v.fixity == OP::PREFIX )
 	{
 	    min::push ( oper_stack ) = D;
 	    D.precedence = v.precedence;

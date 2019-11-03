@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  2 02:09:34 EDT 2019
+// Date:	Sun Nov  3 01:55:05 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1111,6 +1111,19 @@ static bool separator_reformatter_function
 	    {
 	        separator = t->value;
 		separator_position = t->position;
+
+		if ( ! min::is_name ( separator ) )
+		{
+		    PAR::parse_error
+			( parser, separator_position,
+			  "separator ",
+			  min::pgen_quote ( separator ),
+			  " is not a name; changed to ",
+			  min::pgen_quote
+			      ( OPLEX::error_separator )
+			);
+		    separator = OPLEX::error_separator;
+		}
 	    }
 	    else if ( separator != t->value )
 	        PAR::parse_error
@@ -1152,18 +1165,6 @@ static bool separator_reformatter_function
 	    separator_should_be_next = true;
 	    t = t->next;
 	}
-    }
-
-    if ( ! min::is_name ( separator ) )
-    {
-	PAR::parse_error
-	    ( parser, separator_position,
-	      "separator ",
-	      min::pgen_quote ( separator ),
-	      " is not a name; changed to ",
-	      min::pgen_quote
-	          ( OPLEX::error_separator ) );
-	separator = OPLEX::error_separator;
     }
 
     PAR::attr separator_attr
@@ -1864,7 +1865,7 @@ static void reformatter_stack_initialize ( void )
         ( min::new_str_gen ( "declare" ) );
     PAR::push_reformatter
         ( declare,
-	  OP::NOFIX + OP::PREFIX + OP::INFIX, 0, 0,
+	  OP::NOFIX + OP::INFIX, 0, 0,
 	  ::declare_reformatter_function,
 	  OP::reformatter_stack );
 

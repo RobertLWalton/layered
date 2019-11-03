@@ -61,6 +61,7 @@
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
                          with label reformatter
+        block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
         block standard: bracket "(" ... ")" [data, code, math, text]
@@ -242,6 +243,9 @@
                         infix
                         with precedence 9000
                         with right associative reformatter
+        block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
+                        nofix afix
+                        with precedence 0
         block standard: bracket ":" [code, math]
                         nofix afix
                         with precedence 0

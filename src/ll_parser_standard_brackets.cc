@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 22:35:02 EDT 2019
+// Date:	Sun Nov  3 02:22:49 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,6 +110,11 @@ void PARSTD::init_brackets ( PAR::parser parser )
     min::locatable_gen angle_closing_square
         ( min::new_lab_gen ( ">", "]" ) );
 
+    min::locatable_gen opening_brace_dollar
+        ( min::new_lab_gen ( "{", "$" ) );
+    min::locatable_gen dollar_closing_brace
+        ( min::new_lab_gen ( "$", "}" ) );
+
     min::locatable_gen opening_square_dollar
         ( min::new_lab_gen ( "[", "$" ) );
     min::locatable_gen dollar_closing_square
@@ -201,6 +206,14 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),
 	  min::NULL_STUB,
+	  bracketed_pass->bracket_table );
+    BRA::push_brackets
+        ( opening_brace_dollar,
+          dollar_closing_brace,
+	  code,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark

@@ -775,7 +775,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
     define operator "<--" [code] nofix
         with precedence 0
         with declare reformatter
-    define operator bracket "{{" ... "}}" [code]
+    define operator bracket "{$" ... "$}" [code]
         nofix afix
         with precedence 0
     define operator indentation mark ":" [code]
@@ -783,57 +783,57 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         with precedence 0
 ======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
                           .initiator = "("|<-- {|foo bar|} {|boo bat|}
-                          {{fee fie fo fum}}|}
+                          {$ fee fie fo fum $}|}
 ======= line ###:
-    ( foo bar <-- boo bat {{ fee fie fo fum }} )
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {{ fee fie fo fum }} )
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {{ fee fie fo fum }} )
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
       ^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {{ fee fie fo fum }} )
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
                   ^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {{ fee fie fo fum }} )
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
                           ^^^^^^^^^^^^^^^^^^^^
 ======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
                           .initiator = "("|<-- {|foo bar|} {}
-                          {{fee fie fo fum}}|}
+                          {$ fee fie fo fum $}|}
 ======= line ###:
-    ( foo bar <-- {{ fee fie fo fum }} )
+    ( foo bar <-- {$ fee fie fo fum $} )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- {{ fee fie fo fum }} )
+    ( foo bar <-- {$ fee fie fo fum $} )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- {{ fee fie fo fum }} )
+    ( foo bar <-- {$ fee fie fo fum $} )
       ^^^^^^^
 ------- line ###:
-    ( foo bar <-- {{ fee fie fo fum }} )
+    ( foo bar <-- {$ fee fie fo fum $} )
                  ^
 ------- line ###:
-    ( foo bar <-- {{ fee fie fo fum }} )
+    ( foo bar <-- {$ fee fie fo fum $} )
                   ^^^^^^^^^^^^^^^^^^^^
 ======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
                           .initiator = "("|<-- {} {|boo bat|}
-                          {{fee fie fo fum}}|}
+                          {$ fee fie fo fum $}|}
 ======= line ###:
-    ( <-- boo bat {{ fee fie fo fum }} )
+    ( <-- boo bat {$ fee fie fo fum $} )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( <-- boo bat {{ fee fie fo fum }} )
+    ( <-- boo bat {$ fee fie fo fum $} )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( <-- boo bat {{ fee fie fo fum }} )
+    ( <-- boo bat {$ fee fie fo fum $} )
       ^
 ------- line ###:
-    ( <-- boo bat {{ fee fie fo fum }} )
+    ( <-- boo bat {$ fee fie fo fum $} )
           ^^^^^^^
 ------- line ###:
-    ( <-- boo bat {{ fee fie fo fum }} )
+    ( <-- boo bat {$ fee fie fo fum $} )
                   ^^^^^^^^^^^^^^^^^^^^
 ======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
                           .initiator = "("|<-- {|foo bar|} {}|}
@@ -996,9 +996,9 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         infix
                         with precedence 1000
                         with right associative reformatter
-        block standard: bracket ":" [code]
+        block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
                         nofix afix
                         with precedence 0
-        block standard: bracket [< "{" "{" >] ... [< "}" "}" >] [code]
+        block standard: bracket ":" [code]
                         nofix afix
                         with precedence 0

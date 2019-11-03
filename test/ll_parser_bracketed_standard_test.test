@@ -3908,6 +3908,7 @@ BRACKETED EXPRESSION:
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
                          with label reformatter
+        block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
         block standard: bracket "(" ... ")" [data, code, math, text]

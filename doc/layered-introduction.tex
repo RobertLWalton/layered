@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 30, 2019
+November 3, 2019
  
 \end{center}
 
@@ -4628,6 +4628,7 @@ adds the definitions:
      define bracket "[" ... "]" [code, math, text, data]
      define bracket "{{" ... "}}" [code, math, text]
          with parsing selectors [ + math, - code, - text]
+     define bracket "{$" ... "$}" [code]
      define bracket "`" ... "'" [code, math, text, data]
          with parsing selectors
               [ + atom, - code, - math, - text, - data]
@@ -8009,7 +8010,7 @@ With the above in mind, the operator reformatters are:
 May only be used with \TT{nofix} or \TT{infix} operators.
 
 All operator values must be identical, must be MIN names,
-and will become the \TT{.separator} attribute of the
+and will become the \TT{.sepa\-rator} attribute of the
 expression.
 
 It is required that any two operands be separated by an operator,
@@ -8038,7 +8039,7 @@ with `\TT{,}' as operator are:
 
 \bigskip
 
-\ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \NBOP{\{\}} ~~~ \OP{:}
+\ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \OP{\{\$~\$\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 May only be used with \TT{nofix} or \TT{infix} operators.
@@ -8055,13 +8056,13 @@ beginning of the expression and the remaining
 bracketed and indented paragraph operators are converted to operands.
 
 For example, if \TT{<-{}-} is a nofix operator with this reformatter, and
-\TT{\{ \}} bracketed subexpressions and \TT{:} indented paragraphs
-are afix operators of the same precedence:
+\TT{\{\$~\$\}} bracketed subexpressions and \TT{:} indented paragraphs
+are afix + nofix operators of the same precedence:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\TT{x <-{}- y \{ z \}} & $\Longrightarrow$ & \TT{<-{}- x y \{ z \}} \\
-\TT{x <-{}- \{ z \}} & $\Longrightarrow$ & \TT{<-{}- x () \{ z \}} \\
-\TT{<-{}- y \{ z \}} & $\Longrightarrow$ & \TT{<-{}- () y \{ z \}} \\
+\TT{x <-{}- y \{\$ z \$\}} & $\Longrightarrow$ & \TT{<-{}- x y \{\$ z\$ \}} \\
+\TT{x <-{}- \{\$ z \$\}} & $\Longrightarrow$ & \TT{<-{}- x () \{\$ z \$\}} \\
+\TT{<-{}- y \{\$ z \$\}} & $\Longrightarrow$ & \TT{<-{}- () y \{\$ z \$\}} \\
 \TT{x <-{}-} & $\Longrightarrow$ & \TT{<-{}- x ()}
 \\[1ex]
 \begin{tabular}{@{}l@{}}
@@ -8075,10 +8076,10 @@ are afix operators of the same precedence:
 \end{tabular}
 \end{tabular}
 
-Note that because \TT{\{ \}} bracketed subexpressions are afix operators
+Note that because \TT{\{\$ \$\}} bracketed subexpressions are afix operators
 with same precedence as \TT{<-{}-},
-`\TT{x <-{}- y \{ z \}}' does \underline{not}
-end up as `\TT{<-{}- x ( y \{ z \} )}'.
+`\TT{x <-{}- y \{\$ z \$\}}' does \underline{not}
+end up as `\TT{<-{}- x ( y \{\$ z \$\} )}'.
 
 \end{indpar}
 
@@ -8223,7 +8224,7 @@ E.g., \TT{x~<~y~<~z} means \TT{x~<~y AND y~<~z} and \underline{not}
 			  \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{nofix} or \TT{infix} operators.
+May only be used with \TT{nofix}, \TT{infix}, or \TT{prefix} operators.
 
 Operands and operators must alternate, with the last subexpression
 element being an oper\-and.

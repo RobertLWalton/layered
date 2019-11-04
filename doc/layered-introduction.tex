@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 3, 2019
+November 4, 2019
  
 \end{center}
 
@@ -8042,7 +8042,7 @@ with `\TT{,}' as operator are:
 \ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \OP{\{\$~\$\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{nofix} or \TT{infix} operators.
+May only be used with \TT{nofix}, \TT{infix}, or \TT{prefix} operators.
 
 All operators but the first must be bracketed subexpressions
 or indented paragraphs,
@@ -8054,6 +8054,9 @@ list is inserted as the following operand.
 Then the first operator is moved to the
 beginning of the expression and the remaining
 bracketed and indented paragraph operators are converted to operands.
+
+The bracketed or indented paragraph operators should be both
+afix and nofix.
 
 For example, if \TT{<-{}-} is a nofix operator with this reformatter, and
 \TT{\{\$~\$\}} bracketed subexpressions and \TT{:} indented paragraphs
@@ -8090,7 +8093,7 @@ end up as `\TT{<-{}- x ( y \{\$ z \$\} )}'.
     \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{nofix} and \TT{infix} operators.
+May only be used with \TT{infix} operators.
 
 Operands and operators must alternate,
 with the first and last subexpression
@@ -8189,7 +8192,7 @@ Examples:
 	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
-May only be used with \TT{nofix} or \TT{infix} operators.
+May only be used with \TT{infix} operators.
 
 Operands and operators must alternate, with the first and last subexpression
 elements being operands.

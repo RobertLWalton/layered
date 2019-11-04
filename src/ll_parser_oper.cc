@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  3 01:55:05 EST 2019
+// Date:	Mon Nov  4 02:50:45 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1242,7 +1242,7 @@ static bool declare_reformatter_function
     {
         if ( t->type != PAR::OPERATOR
 	     ||
-	     ! min::is_obj ( t->value ) )
+	     min::is_name ( t->value ) )
 	{
 	    PAR::parse_error
 	        ( parser, t->position,
@@ -1492,7 +1492,7 @@ static bool infix_reformatter_function
                  "second element is not operator" );
  
     // Remove all operators but first, check that they
-    // alternate with operators in the expression, and
+    // alternate with operands in the expression, and
     // check that they are the same as first operator.
     //
     PAR::token t = first->next->next;
@@ -1627,7 +1627,7 @@ static bool infix_and_reformatter_function
 	        { operand2->position.begin,
 	          operand2->position.begin };
 	    PAR::token t =
-	        PAR::new_token ( LEXSTD::separator_t );
+	        PAR::new_token ( LEXSTD::word_t );
 	    PAR::put_before
 		( first_ref(parser), operand2, t );
 	    PAR::value_ref ( t ) = OPLEX::dollar;
@@ -1865,7 +1865,7 @@ static void reformatter_stack_initialize ( void )
         ( min::new_str_gen ( "declare" ) );
     PAR::push_reformatter
         ( declare,
-	  OP::NOFIX + OP::INFIX, 0, 0,
+	  OP::NOFIX + OP::INFIX + OP::PREFIX, 0, 0,
 	  ::declare_reformatter_function,
 	  OP::reformatter_stack );
 

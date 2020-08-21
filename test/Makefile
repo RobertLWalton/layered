@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jun  8 14:00:06 EDT 2019
+# Date:		Fri Aug 21 03:45:34 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -136,6 +136,7 @@ test:		${TESTS:=.test}
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
+	    -e '/^[ \t]*<..*>  *<..*>  *<..*>$D/d' \
             < $*.out > $*.test
 
 %.diff:	%.out
@@ -166,6 +167,7 @@ test:		${TESTS:=.test}
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
+	    -e '/^[ \t]*<..*>  *<..*>  *<..*>$D/d' \
             < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
 
 %.out:	%

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  2 04:16:10 EDT 2019
+// Date:	Sat Nov 28 01:51:49 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1460,7 +1460,7 @@ static min::gen execute_ID_character
 	min::Uchar ID_character = parser->ID_character;
 	for ( min::uns32 i =
 		  parser->block_stack->length;
-	      0 <= i; -- i )
+	      ; -- i )
 	{
 	    min::gen block_name =
 		( i == 0 ?

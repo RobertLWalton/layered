@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 23:18:57 EDT 2019
+// Date:	Sat Nov 28 01:51:00 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1287,7 +1287,7 @@ static void make_label
 	         &&
 		 allow_sublabels )
 	        break;
-
+	     // falls through
 	default:
 	    PAR::parse_error
 	        ( parser, t->position,
@@ -5506,7 +5506,7 @@ static min::gen bracketed_pass_command
 	    for ( min::uns32 i =
 	              bracketed_pass->
 		          block_stack->length;
-		  0 <= i; -- i )
+		  ; -- i )
 	    {
 	        min::gen block_name =
 		    ( i == 0 ?
@@ -5578,7 +5578,7 @@ static min::gen bracketed_pass_command
 	    for ( min::uns32 i =
 	              bracketed_pass->
 		          block_stack->length;
-		  0 <= i; -- i )
+		  ; -- i )
 	    {
 	        min::gen block_name =
 		    ( i == 0 ?
@@ -5668,7 +5668,7 @@ static min::gen bracketed_pass_command
 	    for ( min::uns32 i =
 	              bracketed_pass->
 		          block_stack->length;
-		  0 <= i; -- i )
+		  ; -- i )
 	    {
 	        min::gen block_name =
 		    ( i == 0 ?

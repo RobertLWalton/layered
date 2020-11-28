@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 31 21:17:24 EDT 2019
+// Date:	Sat Nov 28 01:31:28 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,7 @@
 # define LL_PARSER_OPER_H
 
 # include <ll_parser.h>
+# include <climits>
 
 // As `operator' is a C++ keyword, we use `oper'
 // instead.
@@ -61,7 +62,7 @@ enum oper_flags
     ALLFIX	= PREFIX | INFIX | POSTFIX
                 | NOFIX | AFIX
 };
-const min::int32 NO_PRECEDENCE = -1 << 31;
+const min::int32 NO_PRECEDENCE = INT_MIN;
     // Value less than any allowed precedence.
 
 struct oper_struct;

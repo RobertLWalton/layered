@@ -1,0 +1,14 @@
+liblayered.a
+ll_lexeme_ndl.o
+ll_lexeme.o
+ll_lexeme_standard.cc
+ll_lexeme_standard.o
+ll_parser_bracketed.o
+ll_parser_command.o
+ll_parser.o
+ll_parser_oper.o
+ll_parser_standard_brackets.o
+ll_parser_standard_input.o
+ll_parser_standard.o
+ll_parser_standard_oper.o
+ll_parser_table.o

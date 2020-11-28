@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 02:48:53 EDT 2019
+// Date:	Sat Nov 28 01:33:04 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -337,9 +337,10 @@ SCAN_NEXT_LEXEME:
 			  token->value );
 		    break;
 		}
-		// else fall through
+		// else falls through
 	    }
 	}
+	// falls through
 	case LEXSTD::word_t:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:

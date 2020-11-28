@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 15 05:19:47 EST 2017
+// Date:	Sat Nov 28 01:16:45 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -899,6 +899,7 @@ static void default_erroneous_atom_announce
 	    << " " << LEX::pline_numbers
 	                  ( scanner, first, next );
 
+	// Falls through.
     case NO_LINE_NUMBERS:
 	scanner->printer << ":" << min::eol;
 

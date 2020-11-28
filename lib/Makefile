@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Nov 28 00:58:57 EST 2020
+# Date:		Sat Nov 28 02:22:28 EST 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -14,7 +14,7 @@ MIN = ~/min
 
 MAKE = make --no-print-directory
 
-all:
+layered-all:
 	@${MAKE} -C ${MIN}/lib
 	@${MAKE} liblayered.a
 

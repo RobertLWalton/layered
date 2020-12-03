@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Nov 28 02:22:28 EST 2020
+# Date:		Thu Dec  3 02:27:22 EST 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -43,7 +43,8 @@ LEXEME_H =	${MIN_H} \
 
 LEXEME_O =	ll_lexeme.o \
 		ll_lexeme_ndl.o \
-		ll_lexeme_standard.o
+		ll_lexeme_standard.o \
+		ll_lexeme_test.o
 
 PARSER_O =	ll_parser.o \
 		ll_parser_table.o \

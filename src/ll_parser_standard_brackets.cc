@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  3 02:22:49 EST 2019
+// Date:	Sat Dec  5 02:44:31 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -465,7 +465,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  + code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( EAPBREAK_OPT + EALTINDENT_OPT + text,
+	      (   EAPBREAK_OPT + EALTINDENT_OPT
+	        + ETPREFIX_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),
@@ -487,7 +488,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      (   EAPBREAK_OPT + EALTINDENT_OPT
-	        + STICKY_OPT + text,
+	        + ETPREFIX_OPT + STICKY_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data, 0 ),

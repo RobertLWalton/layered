@@ -39,7 +39,7 @@ BRACKETED EXPRESSION:
        {s: .terminator = "."|an add-on|s}
        {s: .terminator = ";"|A phrase|s}
        {s: .terminator = "?"|and a question|s}|p}
-ERROR: in line ##: non-comments after reset prefix; ignored:
+ERROR: in line ##: non-comments after isolated header; ignored:
 {***}And an unrecognized line.
      ^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:

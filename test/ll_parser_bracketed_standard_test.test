@@ -6780,7 +6780,7 @@ BRACKETED EXPRESSION:
     line ###:
 line #
 ^^^^^^
-ERROR: in line ###: non-comments after reset prefix; ignored:
+ERROR: in line ###: non-comments after isolated header; ignored:
 {***}line #
      ^^^^^^
 BRACKETED EXPRESSION:
@@ -6979,7 +6979,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^
     paragraph.
 ^^^^^^^^^^^^^^
-ERROR: in line ###: non-comments after reset prefix; ignored:
+ERROR: in line ###: non-comments after isolated header; ignored:
        And another code line.
        ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:

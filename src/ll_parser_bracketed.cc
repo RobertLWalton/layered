@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 28 01:51:00 EST 2020
+// Date:	Mon Dec  7 05:11:17 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -915,7 +915,7 @@ bool BRA::parse_paragraph_element
 		PAR::set_lexical_master
 		    ( lexical_master, parser );
 
-	    // This ensure_name MUST be after the
+	    // This ensure_next MUST be after the
 	    // lexical masters are reset.
 	    //
 	    PAR::ensure_next ( parser, current );
@@ -965,7 +965,7 @@ bool BRA::parse_paragraph_element
 	PAR::token first =
 	    line_variables->previous->next;
 
-	// Here to handle reset header.
+	// Here to handle isolated header.
 	//
 	if ( separator_found == BRA::ISOLATED_HEADER )
 	{
@@ -973,6 +973,9 @@ bool BRA::parse_paragraph_element
 
 	    if ( first->value_type == PARLEX::reset )
 	    {
+	        // Reset line variables as per reset
+		// header.
+		//
 		line_variables->paragraph =
 		    line_variables->
 		        indentation_paragraph;
@@ -981,15 +984,6 @@ bool BRA::parse_paragraph_element
 			indentation_implied_paragraph;
 		line_variables->current =
 		    line_variables->paragraph;
-
-		// Remove reset header.
-		//
-		PAR::free
-		    ( PAR::remove
-			  ( first_ref(parser),
-			    current->previous ) );
-
-		parser->at_paragraph_beginning = true;
 	    }
 
 	    // Remove following tokens till end of
@@ -1085,23 +1079,38 @@ bool BRA::parse_paragraph_element
 	    if ( bad_phrase.begin )
 		PAR::parse_error
 		    ( parser, bad_phrase,
-		      "non-comments after reset prefix;"
-		      " ignored" );
+		      "non-comments after isolated"
+		      " header; ignored" );
 
-	    if (    line_variables->last_paragraph
-		 == min::NULL_STUB )
-	        continue;
-	    else
+	    if ( first->value_type == PARLEX::reset )
 	    {
-		BRA::compact_paragraph
-		    ( parser,
-		      line_variables->last_paragraph,
-		      current,
-		      trace_flags );
-		line_variables->last_paragraph
-		    = min::NULL_STUB;
-		return false;
+		// Remove reset header.
+		//
+		PAR::free
+		    ( PAR::remove
+			  ( first_ref(parser),
+			    current->previous ) );
+
+		parser->at_paragraph_beginning = true;
+
+		if (    line_variables->last_paragraph
+		     == min::NULL_STUB )
+		    continue;
+		else
+		{
+		    BRA::compact_paragraph
+			( parser,
+			  line_variables->last_paragraph,
+			  current,
+			  trace_flags );
+		    line_variables->last_paragraph
+			= min::NULL_STUB;
+		    return false;
+		}
 	    }
+
+	    // If not reset header, but instead
+	    // isolated paragraph header, fall through.
 	}
 
 	line_variables->at_paragraph_end =
@@ -2071,10 +2080,10 @@ PREFIX_FOUND:
 		// If t != prefix, then we have been
 		// called to scan the prefix-n-list of
 		// an implied prefix.  In this case when
-		// we return BRA::ISOLATED_PREFIX, the
+		// we return BRA::ISOLATED_HEADER, the
 		// caller will see this and delete the
 		// implied prefix or header and return
-		// BRA::ISOLATED_PREFIX to its caller,
+		// BRA::ISOLATED_HEADER to its caller,
 		// etc.  We CANNOT delete implied pre-
 		// fixes here.
 

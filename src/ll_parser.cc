@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 04:24:44 EDT 2019
+// Date:	Sat Dec 12 17:59:10 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2421,18 +2421,24 @@ void PAR::internal::trace_subexpression
 {
     parser->printer
 	<< min::bol << min::save_indent
-	<< min::adjust_indent ( 4 )
-	<< ( token->type == PAR::BRACKETED ?
-	     "BRACKETED EXPRESSION: " :
-	     token->type == PAR::BRACKETABLE ?
-	     "BRACKETABLE EXPRESSION: " :
-	     token->type == PAR::DERIVED ?
-	     "DERIVED EXPRESSION: " :
-	     token->type == PAR::PREFIX ?
-	     "PREFIX EXPRESSION: " :
-	     token->type == PAR::PURELIST ?
-	     "PURELIST EXPRESSION: " :
-	     "(UNKNOWN TYPE) EXPRESSION: " );
+	<< min::adjust_indent ( 4 );
+    if ( token->type <= LEXSTD::MAX_TYPE )
+        parser->printer
+	     << LEXSTD::type_names[token->type]
+	     << " LEXEME: ";
+    else
+        parser->printer
+	    << ( token->type == PAR::BRACKETED ?
+		 "BRACKETED EXPRESSION: " :
+		 token->type == PAR::BRACKETABLE ?
+		 "BRACKETABLE EXPRESSION: " :
+		 token->type == PAR::DERIVED ?
+		 "DERIVED EXPRESSION: " :
+		 token->type == PAR::PREFIX ?
+		 "PREFIX EXPRESSION: " :
+		 token->type == PAR::PURELIST ?
+		 "PURELIST EXPRESSION: " :
+		 "(UNKNOWN TYPE) EXPRESSION: " );
 
     if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_ELEMENTS )

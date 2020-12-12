@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 11 23:58:33 EST 2020
+// Date:	Sat Dec 12 01:31:21 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -343,6 +343,73 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  4000, infix_and_reformatter,
 	  and_arguments,
+	  oper_pass->oper_table );
+
+    min::locatable_gen plus
+        ( min::new_str_gen ( "+" ) );
+    min::locatable_gen minus
+        ( min::new_str_gen ( "-" ) );
+    min::locatable_gen divide
+        ( min::new_str_gen ( "/" ) );
+    min::locatable_gen multiply
+        ( min::new_str_gen ( "*" ) );
+    min::locatable_gen exponent
+        ( min::new_str_gen ( "^" ) );
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        sum_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
+    min::push ( sum_arguments ) = plus;
+    min::push ( sum_arguments ) = minus;
+
+    OP::push_oper
+        ( plus,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::INFIX,
+	  5000, sum_reformatter,
+	  sum_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( minus,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::INFIX,
+	  5000, sum_reformatter,
+	  sum_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( divide,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5100, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( multiply,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5200, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( exponent,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5300, binary_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     return oper_pass;

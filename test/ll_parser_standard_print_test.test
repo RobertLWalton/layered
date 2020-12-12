@@ -193,10 +193,26 @@
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
     print operator ""
+        block standard: operator "*" [data, code, math]
+                        infix
+                        with precedence 5200
+                        with infix reformatter
+        block standard: operator "+" [data, code, math]
+                        prefix infix
+                        with precedence 5000
+                        with sum reformatter ( "+", "-" )
         block standard: operator "," [data, code, math]
                         nofix
                         with precedence 2000
                         with separator reformatter
+        block standard: operator "-" [data, code, math]
+                        prefix infix
+                        with precedence 5000
+                        with sum reformatter ( "+", "-" )
+        block standard: operator "/" [data, code, math]
+                        infix
+                        with precedence 5100
+                        with binary reformatter
         block standard: operator "<" [code, math]
                         infix
                         with precedence 4000
@@ -213,6 +229,10 @@
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
+        block standard: operator "^" [data, code, math]
+                        infix
+                        with precedence 5300
+                        with binary reformatter
         block standard: operator "NOT" [data, code, math]
                         nofix
                         with precedence 3100

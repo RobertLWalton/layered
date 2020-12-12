@@ -233,4 +233,78 @@
 ------- line ##:
     {X: Y = {* A, B, C *} | 1 2 3 |}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+ a b
+                          {"": .operator = "-"|- c|}|}
+======= line ##:
+    a + b - c
+    ^^^^^^^^^
+------- line ##:
+    a + b - c
+          ^^^
+======= PARSER TEST: {"": .operator = "-", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|- a|}
+======= line ##:
+    - a
+    ^^^
+======= PARSER TEST: {"": .operator = "-", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+
+                          {"": .operator = "+"|+ a|}
+                          {"": .operator = "-"|- b|}
+                          {"": .operator = "-"|- c|}|}
+======= line ##:
+    + a - b - c
+    ^^^^^^^^^^^
+------- line ##:
+    + a - b - c
+    ^^^
+------- line ##:
+    + a - b - c
+        ^^^
+------- line ##:
+    + a - b - c
+            ^^^
+======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+ a
+                          {"": .operator = "*"|* b c|} d|}
+======= line ##:
+    a + b * c + d
+    ^^^^^^^^^^^^^
+------- line ##:
+    a + b * c + d
+        ^^^^^
+======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+ a
+                          {"": .operator = "/"|/
+                               {"": .operator = "*"|* b c|}
+                               {"": .operator = "*"|* d e|}|} f|}
+======= line ##:
+    a + b * c / d * e + f
+    ^^^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    a + b * c / d * e + f
+        ^^^^^^^^^^^^^
+------- line ##:
+    a + b * c / d * e + f
+        ^^^^^
+------- line ##:
+    a + b * c / d * e + f
+                ^^^^^
+======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+ a
+                          {"": .operator = "*"|* b
+                               {"": .operator = "^"|^ e d|}
+                               {"": .operator = "^"|^ f g|}|}|}
+======= line ##:
+    a + b * e ^ d * f ^ g
+    ^^^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    a + b * e ^ d * f ^ g
+        ^^^^^^^^^^^^^^^^^
+------- line ##:
+    a + b * e ^ d * f ^ g
+            ^^^^^
+------- line ##:
+    a + b * e ^ d * f ^ g
+                    ^^^^^
 ======= END PARSER TEST(S)

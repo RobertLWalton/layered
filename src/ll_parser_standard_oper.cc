@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 12 01:31:21 EST 2020
+// Date:	Sat Dec 12 01:50:53 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -211,7 +211,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( comma,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  2000, separator_reformatter,
@@ -230,7 +230,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( but_not_op,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  3000, binary_reformatter,
@@ -240,7 +240,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( and_op,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  3100, infix_reformatter,
@@ -250,7 +250,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( or_op,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  3100, infix_reformatter,
@@ -260,7 +260,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( not_op,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  3100, unary_reformatter,
@@ -365,7 +365,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( plus,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::INFIX,
 	  5000, sum_reformatter,
@@ -375,7 +375,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( minus,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::INFIX,
 	  5000, sum_reformatter,
@@ -385,7 +385,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( divide,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5100, binary_reformatter,
@@ -395,7 +395,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( multiply,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5200, infix_reformatter,
@@ -405,7 +405,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( exponent,
 	  min::MISSING(),
-	  code + math + data,
+	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5300, binary_reformatter,

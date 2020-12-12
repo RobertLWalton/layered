@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  3 02:39:46 EST 2019
+// Date:	Fri Dec 11 23:58:33 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,10 +56,54 @@ OP::oper_pass PARSTD::init_oper
 
     oper_pass->selectors = code | math | data;
 
-    min::locatable_gen arrow
-        ( min::new_str_gen ( "<--" ) );
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
+    min::locatable_gen right_associative
+        ( min::new_lab_gen ( "right", "associative" ) );
+    min::locatable_gen separator
+        ( min::new_str_gen ( "separator" ) );
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+    min::locatable_gen infix_and
+        ( min::new_lab_gen ( "infix", "and" ) );
+    min::locatable_gen sum
+        ( min::new_str_gen ( "sum" ) );
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+
+    PAR::reformatter declare_reformatter =
+        PAR::find_reformatter
+	    ( declare, OP::reformatter_stack );
+    PAR::reformatter right_associative_reformatter =
+        PAR::find_reformatter
+	    ( right_associative,
+	      OP::reformatter_stack );
+    PAR::reformatter separator_reformatter =
+        PAR::find_reformatter
+	    ( separator, OP::reformatter_stack );
+    PAR::reformatter infix_reformatter =
+        PAR::find_reformatter
+	    ( infix, OP::reformatter_stack );
+    PAR::reformatter unary_reformatter =
+        PAR::find_reformatter
+	    ( unary, OP::reformatter_stack );
+    PAR::reformatter infix_and_reformatter =
+        PAR::find_reformatter
+	    ( infix_and, OP::reformatter_stack );
+    PAR::reformatter sum_reformatter =
+        PAR::find_reformatter
+	    ( sum, OP::reformatter_stack );
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
+
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen arrow
+        ( min::new_str_gen ( "<--" ) );
     min::locatable_gen colon
         ( min::new_str_gen ( ":" ) );
     min::locatable_gen opening_brace_dollar
@@ -67,60 +111,13 @@ OP::oper_pass PARSTD::init_oper
     min::locatable_gen dollar_closing_brace
         ( min::new_lab_gen ( "$", "}" ) );
 
-    min::locatable_gen comma
-        ( min::new_str_gen ( "," ) );
-
-    min::locatable_gen equal
-        ( min::new_str_gen ( "=" ) );
-    min::locatable_gen plus_equal
-        ( min::new_str_gen ( "+=" ) );
-    min::locatable_gen minus_equal
-        ( min::new_str_gen ( "-=" ) );
-    min::locatable_gen times_equal
-        ( min::new_str_gen ( "*=" ) );
-    min::locatable_gen divide_equal
-        ( min::new_str_gen ( "/=" ) );
-
-    min::locatable_gen equal_equal
-        ( min::new_str_gen ( "==" ) );
-    min::locatable_gen less_equal
-        ( min::new_str_gen ( "<=" ) );
-    min::locatable_gen greater_equal
-        ( min::new_str_gen ( ">=" ) );
-    min::locatable_gen not_equal
-        ( min::new_str_gen ( "!=" ) );
-    min::locatable_gen greater_than
-        ( min::new_str_gen ( ">" ) );
-    min::locatable_gen less_than
-        ( min::new_str_gen ( "<" ) );
-    min::locatable_gen and_op
-        ( min::new_str_gen ( "AND" ) );
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        and_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( and_arguments ) = and_op;
-
-    min::locatable_gen infix_and
-        ( min::new_lab_gen ( "infix", "and" ) );
-    min::locatable_gen right_associative
-        ( min::new_lab_gen ( "right", "associative" ) );
-    min::locatable_gen separator
-        ( min::new_str_gen ( "separator" ) );
-
-    min::uns32 block_level =
-        PAR::block_level ( parser );
-
     OP::push_oper
         ( arrow,
 	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
-	  0,
-	  PAR::find_reformatter
-	      ( declare,
-	        OP::reformatter_stack ),
+	  0, declare_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -144,18 +141,16 @@ OP::oper_pass PARSTD::init_oper
 	  min::NULL_STUB, min::NULL_STUB,
 	  oper_pass->oper_bracket_table );
 
-    OP::push_oper
-        ( comma,
-	  min::MISSING(),
-	  code + math + data,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX,
-	  4000,
-	  PAR::find_reformatter
-	      ( separator,
-	        OP::reformatter_stack ),
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
+    min::locatable_gen equal
+        ( min::new_str_gen ( "=" ) );
+    min::locatable_gen plus_equal
+        ( min::new_str_gen ( "+=" ) );
+    min::locatable_gen minus_equal
+        ( min::new_str_gen ( "-=" ) );
+    min::locatable_gen times_equal
+        ( min::new_str_gen ( "*=" ) );
+    min::locatable_gen divide_equal
+        ( min::new_str_gen ( "/=" ) );
 
     OP::push_oper
         ( equal,
@@ -163,7 +158,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  9000,
+	  1000,
 	  PAR::find_reformatter
 	      ( right_associative,
 	        OP::reformatter_stack ),
@@ -176,10 +171,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  9000,
-	  PAR::find_reformatter
-	      ( right_associative,
-	        OP::reformatter_stack ),
+	  1000, right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -189,10 +181,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  9000,
-	  PAR::find_reformatter
-	      ( right_associative,
-	        OP::reformatter_stack ),
+	  1000, right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -202,10 +191,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  9000,
-	  PAR::find_reformatter
-	      ( right_associative,
-	        OP::reformatter_stack ),
+	  1000, right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -215,12 +201,89 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  9000,
-	  PAR::find_reformatter
-	      ( right_associative,
-	        OP::reformatter_stack ),
+	  1000, right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
+
+    min::locatable_gen comma
+        ( min::new_str_gen ( "," ) );
+
+    OP::push_oper
+        ( comma,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  2000, separator_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    min::locatable_gen but_not_op
+        ( min::new_lab_gen ( "BUT", "NOT" ) );
+    min::locatable_gen and_op
+        ( min::new_str_gen ( "AND" ) );
+    min::locatable_gen or_op
+        ( min::new_str_gen ( "OR" ) );
+    min::locatable_gen not_op
+        ( min::new_str_gen ( "NOT" ) );
+
+    OP::push_oper
+        ( but_not_op,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  3000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( and_op,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  3100, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( or_op,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  3100, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( not_op,
+	  min::MISSING(),
+	  code + math + data,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  3100, unary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    min::locatable_gen equal_equal
+        ( min::new_str_gen ( "==" ) );
+    min::locatable_gen less_equal
+        ( min::new_str_gen ( "<=" ) );
+    min::locatable_gen greater_equal
+        ( min::new_str_gen ( ">=" ) );
+    min::locatable_gen not_equal
+        ( min::new_str_gen ( "!=" ) );
+    min::locatable_gen greater_than
+        ( min::new_str_gen ( ">" ) );
+    min::locatable_gen less_than
+        ( min::new_str_gen ( "<" ) );
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        and_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( and_arguments ) = and_op;
 
     OP::push_oper
         ( equal_equal,
@@ -228,10 +291,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  15000,
-	  PAR::find_reformatter
-	      ( infix_and,
-	        OP::reformatter_stack ),
+	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -241,10 +301,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  15000,
-	  PAR::find_reformatter
-	      ( infix_and,
-	        OP::reformatter_stack ),
+	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -254,10 +311,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  15000,
-	  PAR::find_reformatter
-	      ( infix_and,
-	        OP::reformatter_stack ),
+	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -267,10 +321,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  15000,
-	  PAR::find_reformatter
-	      ( infix_and,
-	        OP::reformatter_stack ),
+	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -280,10 +331,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  15000,
-	  PAR::find_reformatter
-	      ( infix_and,
-	        OP::reformatter_stack ),
+	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -293,10 +341,7 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  15000,
-	  PAR::find_reformatter
-	      ( infix_and,
-	        OP::reformatter_stack ),
+	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 

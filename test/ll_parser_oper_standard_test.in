@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 29 03:15:01 EDT 2019
+// Date:	Sat Dec 12 00:22:24 EST 2020
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,11 +12,15 @@
 *PARSER* *TEST*:
     a b c
     a < b < c
+    a b c <-- d e f :
+        xx yy
+	zz
+    a b c <-- d e f {$ xx yy zz $}
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
     (, x, y 4,, z,,)
     ( x = y += z )
     {{ x1 = y2 += z }}
-    {{ x1 = y2, z2 += z5 }}
+    {{ x1, x2 += z1, z2 }}
     {{ x < y < z }}
     [ x = ( y < z ) ]
     [ x = w < y < z ]

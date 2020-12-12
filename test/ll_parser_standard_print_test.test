@@ -195,55 +195,71 @@
     print operator ""
         block standard: operator "," [data, code, math]
                         nofix
-                        with precedence 4000
+                        with precedence 2000
                         with separator reformatter
         block standard: operator "<" [code, math]
                         infix
-                        with precedence 15000
+                        with precedence 4000
                         with infix and reformatter ( "AND" )
         block standard: operator "=" [code, math]
                         infix
-                        with precedence 9000
+                        with precedence 1000
                         with right associative reformatter
         block standard: operator ">" [code, math]
                         infix
-                        with precedence 15000
+                        with precedence 4000
                         with infix and reformatter ( "AND" )
         block standard: operator "!=" [code, math]
                         infix
-                        with precedence 15000
+                        with precedence 4000
                         with infix and reformatter ( "AND" )
+        block standard: operator "NOT" [data, code, math]
+                        nofix
+                        with precedence 3100
+                        with unary reformatter
         block standard: operator "<--" [code, math]
                         nofix
                         with precedence 0
                         with declare reformatter
+        block standard: operator [< "BUT" "NOT" >] [data, code, math]
+                        nofix
+                        with precedence 3000
+                        with binary reformatter
         block standard: operator "*=" [code, math]
                         infix
-                        with precedence 9000
+                        with precedence 1000
                         with right associative reformatter
         block standard: operator "+=" [code, math]
                         infix
-                        with precedence 9000
+                        with precedence 1000
                         with right associative reformatter
         block standard: operator "<=" [code, math]
                         infix
-                        with precedence 15000
+                        with precedence 4000
                         with infix and reformatter ( "AND" )
+        block standard: operator "AND" [data, code, math]
+                        nofix
+                        with precedence 3100
+                        with infix reformatter
         block standard: operator "==" [code, math]
                         infix
-                        with precedence 15000
+                        with precedence 4000
                         with infix and reformatter ( "AND" )
         block standard: operator "-=" [code, math]
                         infix
-                        with precedence 9000
+                        with precedence 1000
                         with right associative reformatter
         block standard: operator ">=" [code, math]
                         infix
-                        with precedence 15000
+                        with precedence 4000
                         with infix and reformatter ( "AND" )
+        block standard: operator "OR" [data, code, math]
+                        nofix
+                        with precedence 3100
+                        with infix reformatter
         block standard: operator "/=" [code, math]
                         infix
-                        with precedence 9000
+                        with precedence 1000
                         with right associative reformatter
         block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
                         nofix afix

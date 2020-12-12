@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 4, 2019
+December 12, 2020
  
 \end{center}
 
@@ -7454,12 +7454,13 @@ in \itemref{OPERATOR-REFORMATTERS}.
 \begin{center}
 \begin{tabular}{|rll@{\hspace*{2em}}l@{\hspace*{2em}}l|}
 \hline
-
-precedence & reformatter	& type	& operator	& meaning 
+prece-  &               &       &               & \\
+~dence  & reformatter	& type	& operator	& meaning 
 \\\hline
 0000	& \ttkey{declare}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
 	&			& \TT{afix}	& \TT{bracket}  & block \\
-	&			& 		& \ttkey{~~"\{" ...~"\}"} & \\
+	&			& 		& \ttkey{~~"\{\$" ...~"\$\}"}
+	                                        & \\
 	&			& \TT{afix}	& \TT{indentation}  & block \\
 	&			& 		& \TT{~~mark} \ttkey{":"} & 
 \\\hline

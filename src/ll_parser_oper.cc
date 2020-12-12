@@ -2,7 +2,8 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  4 02:50:45 EST 2019
+// Date:	Sat Dec 12 12:26:24 EST 2020
+//
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1172,7 +1173,7 @@ static bool separator_reformatter_function
 	  separator );
 
     PAR::compact
-        ( parser, min::NULL_STUB, selectors,
+        ( parser, pass->next, selectors,
 	  first, next, position,
 	  trace_flags, PAR::BRACKETABLE,
 	  1, & separator_attr );
@@ -1324,7 +1325,7 @@ static bool right_associative_reformatter_function
 	PAR::attr oper_attr
 	    ( PARLEX::dot_oper, oper->value );
 	PAR::compact
-	    ( parser, min::NULL_STUB, selectors,
+	    ( parser, pass->next, selectors,
 	      t, next, subposition,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
@@ -1666,7 +1667,7 @@ static bool infix_and_reformatter_function
 	    t = operand2->next;
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
-		( parser, min::NULL_STUB, selectors,
+		( parser, pass->next, selectors,
 		  operand2, t, position2,
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
@@ -1674,7 +1675,7 @@ static bool infix_and_reformatter_function
 	    // Compact next-operand1 = ( $ T )
 	    //
 	    PAR::compact
-		( parser, min::NULL_STUB, selectors,
+		( parser, pass->next, selectors,
 		  t, t->next->next, position2,
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
@@ -1695,7 +1696,7 @@ static bool infix_and_reformatter_function
 	PAR::attr oper_attr
 	    ( PARLEX::dot_oper, op->value );
 	PAR::compact
-	    ( parser, min::NULL_STUB, selectors,
+	    ( parser, pass->next, selectors,
 	      op, next_operand1, position1,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
@@ -1726,7 +1727,7 @@ static bool infix_and_reformatter_function
 	PAR::attr oper_attr
 	    ( PARLEX::dot_oper, and_op );
 	PAR::compact
-	    ( parser, min::NULL_STUB, selectors,
+	    ( parser, pass->next, selectors,
 	      first, next, position,
 	      trace_flags, PAR::BRACKETABLE,
 	      1, & oper_attr );
@@ -1823,7 +1824,7 @@ static bool sum_reformatter_function
 	    PAR::attr oper_attr
 		( PARLEX::dot_oper, minus_op );
 	    PAR::compact
-		( parser, min::NULL_STUB, selectors,
+		( parser, pass->next, selectors,
 		  t, t->next->next, position,
 		  trace_flags, PAR::BRACKETABLE,
 		  1, & oper_attr );
@@ -1838,7 +1839,7 @@ static bool sum_reformatter_function
     //
     min::phrase_position first_position =
 	{ first->position.begin,
-	  first->position.end };
+	  first->position.begin };
     PAR::token new_first =
 	PAR::new_token ( PAR::OPERATOR );
     PAR::put_before
@@ -1847,7 +1848,22 @@ static bool sum_reformatter_function
     new_first->position = first_position;
     first = new_first;
 
-    return true;
+    // return true does not work here for X - Y, as it
+    // sets the .operator of the entire expression to
+    // "-" from the input instead of "+" from the
+    // output.
+
+    // Compact.
+    //
+    PAR::attr oper_attr
+	( PARLEX::dot_oper, plus_op );
+    PAR::compact
+	( parser, pass->next, selectors,
+	  first, next, position,
+	  trace_flags, PAR::BRACKETABLE,
+	  1, & oper_attr );
+
+    return false;
 }
 
 min::locatable_var<PAR::reformatter>

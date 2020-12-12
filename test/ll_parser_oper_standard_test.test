@@ -247,7 +247,7 @@
 ======= line ##:
     - a
     ^^^
-======= PARSER TEST: {"": .operator = "-", .terminator = "<LF>",
+======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
                           .initiator = [$ LOGICAL_LINE $]|+
                           {"": .operator = "+"|+ a|}
                           {"": .operator = "-"|- b|}

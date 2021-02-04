@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 3, 2021
+February 4, 2021
  
 \end{center}
 
@@ -4467,7 +4467,8 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
     $|$ & \TT{(} {\em reformatter-argument}
           \{ \TT{,} {\em reformatter-argument} \}\STAR{} \TT{)} \\
     \end{tabular} \\
-\emkey{reformatter-argument} ::= {\em quoted-key} $|$ {\em simple-name}
+\emkey{reformatter-argument} ::= {\em empty}
+                             $|$ {\em quoted-key} $|$ {\em simple-name}
 			     $|$ {\em argument-sublist} \\
 \emkey{argument-sublist} ::= {\em reformatter-arguments}
 

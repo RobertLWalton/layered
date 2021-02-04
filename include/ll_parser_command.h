@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 22 03:51:26 EDT 2017
+// Date:	Thu Feb  4 06:37:57 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -155,9 +155,10 @@ inline min::gen get_lexical_master
 // error messages to parser->printer, increment i, and
 // return min::ERROR().
 //
-// An argument may be a simple name, a quoted name, or
-// a ()-parenthesized argument sublist.  Arguments are
-// separated by commas.  It is assumed that the
+// An argument may be empty, a simple name, a quoted
+// name, or a ()-parenthesized argument sublist.
+// Arguments are separated by commas.  An empty argument
+// denotes min:MISSING().  It is assumed that the
 // ()-bracketed subexpression does NOT have a
 // separator and any commas are simply elements of the
 // subexpression (ditto for argument sublists).

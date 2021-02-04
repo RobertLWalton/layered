@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 28 01:51:49 EST 2020
+// Date:	Thu Feb  4 06:39:25 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -153,7 +153,12 @@ min::gen COM::scan_args
     min::locatable_gen name;
     while ( j < s )
     {
-	if ( min::is_obj ( subvp[j] ) )
+	if ( subvp[j] == PARLEX::comma )
+	{
+	    min::push ( names ) = min::MISSING();
+	    goto NEXT_ARG;
+	}
+	else if ( min::is_obj ( subvp[j] ) )
 	{
 	    min::locatable_var
 		    < min::packed_vec_ptr<min::gen> >
@@ -201,7 +206,8 @@ NEXT_ARG:
 		return PAR::parse_error
 		    ( parser, ppvec[j-1],
 		      "expected `,' after" );
-	    ++ j;
+	    if ( ++ j == s )
+		min::push ( names ) = min::MISSING();
 	}
     }
 

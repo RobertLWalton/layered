@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  5 02:44:31 EST 2020
+// Date:	Fri Feb  5 08:21:44 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -534,7 +534,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         s_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 5 ) );
+	    ( min::gen_packed_vec_type.new_stub ( 6 ) );
+    min::push ( s_arguments ) = min::MISSING();
     min::push ( s_arguments ) = period;
     min::push ( s_arguments ) = question;
     min::push ( s_arguments ) = exclamation;

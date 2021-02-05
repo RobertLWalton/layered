@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 4, 2021
+February 5, 2021
  
 \end{center}
 
@@ -6284,12 +6284,13 @@ where
 If the {\em prefix-n-list} does not contain a {\em terminator},
 nothing is done.
 
-If the {\em sentence-prefix} is {\em empty} (i.e., missing)
+If {\em sentence-prefix} is {\em empty} (i.e., missing)
 and the {\em prefix-n-list} does not begin with a {\em prefix},
 nothing is done.
 
-Otherwise if the {\em sentence-prefix} is \underline{not} {\em empty}
-and the {\em prefix-n-list} does not begin with a {\em prefix},
+Otherwise if {\em sentence-prefix} is \underline{not} {\em empty}
+and the {\em prefix-n-list} does not begin with a {\em prefix} whose
+\TT{.type} equals {\em sentence-prefix},
 the {\em prefix} `\TT{\{}{\em sentence-prefix}\TT{\}}' is
 pre-pended to the {\em prefix-n-list} before the following is done.
 

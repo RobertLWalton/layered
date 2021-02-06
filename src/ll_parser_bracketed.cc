@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  5 08:20:27 EST 2021
+// Date:	Sat Feb  6 04:50:19 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4910,6 +4910,119 @@ static bool multivalue_reformatter_function
     return true;
 }
 
+static bool text_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    BRA::opening_bracket opening_bracket =
+	(BRA::opening_bracket) entry;
+    PAR::reformatter_arguments args =
+        opening_bracket->reformatter_arguments;
+
+    bool terminator_found = false;
+    for ( PAR::token t = first;
+          ! terminator_found && t != next;
+	  t = t->next )
+    {
+	if ( ! PAR::is_lexeme ( t->type ) )
+	    continue;
+	for ( min::unsptr i = 1;
+	      ! terminator_found && i < args->length;
+	      ++ i )
+	    terminator_found = ( args[i] != t->value );
+    }
+
+    if ( ! terminator_found )
+        return true;
+
+    min::gen prefix_type = min::MISSING();
+    if ( first->type == PAR::PREFIX
+         ||
+	 first->type == PAR::MAPPED_PREFIX
+	 ||
+	 first->type == PAR::IMPLIED_PREFIX
+	 ||
+	 first->type == PAR::IMPLIED_HEADER )
+    {
+	prefix_type = min::get ( first->value,
+		                 min::dot_type );
+    }
+
+    PAR::token prefix =
+	PAR::new_token ( PAR::PREFIX );
+    PAR::put_before
+	( PAR::first_ref(parser),
+	  first, prefix );
+    prefix->position.begin =
+	first->position.begin;
+    prefix->position.end =
+	first->position.begin;
+    PAR::value_ref(prefix) = args[0];
+
+    BRA::bracketed_pass bracketed_pass =
+	(BRA::bracketed_pass) parser->pass_stack;
+    TAB::key_table bracket_type_table =
+	bracketed_pass->bracket_type_table;
+    BRA::bracket_type prefix_entry =
+	(BRA::bracket_type)
+	TAB::find
+	    ( args[0],
+	      BRA::BRACKET_TYPE,
+	      selectors,
+	      bracket_type_table );
+    PAR::value_type_ref(prefix) =
+	min::new_stub_gen ( prefix_entry );
+
+    first = prefix;
+
+    TAB::flags prefix_selectors = selectors;
+    if ( prefix_entry != min::NULL_STUB )
+    {
+	prefix_selectors = selectors;
+	    TAB::modified_flags
+		( selectors,
+		  prefix_entry->parsing_selectors );
+
+	if (    prefix_entry->reformatter
+	     != min::NULL_STUB )
+	{
+	    min::phrase_position position =
+		{ prefix->position.begin,
+		  next->previous->position.end };
+
+	    if ( ! ( * prefix_entry->reformatter->
+			 reformatter_function )
+		       ( parser, pass,
+			 selectors,
+			 prefix, next, position,
+			 min::MISSING(),
+			 trace_flags,
+			 (TAB::root) prefix_entry )
+	       )
+
+		return true;
+	 }
+    }
+
+    BRA::compact_prefix_list
+	( parser, pass->next,
+	  prefix_selectors,
+	  prefix, next,
+	  min::MISSING_POSITION,
+	  min::MISSING(),
+	  trace_flags );
+
+    return true;
+
+}
+
 min::locatable_var<PAR::reformatter>
     BRA::untyped_reformatter_stack ( min::NULL_STUB );
 
@@ -4937,6 +5050,13 @@ static void untyped_reformatter_stack_initialize
     PAR::push_reformatter
         ( multivalue, 0, 1, 1,
 	  ::multivalue_reformatter_function,
+	  BRA::untyped_reformatter_stack );
+
+    min::locatable_gen text
+        ( min::new_str_gen ( "text" ) );
+    PAR::push_reformatter
+        ( text, 0, 1, 1000,
+	  ::text_reformatter_function,
 	  BRA::untyped_reformatter_stack );
 }
 static min::initializer untyped_reformatter_initializer

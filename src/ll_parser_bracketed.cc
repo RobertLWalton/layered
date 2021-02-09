@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  6 04:50:19 EST 2021
+// Date:	Tue Feb  9 01:04:22 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4942,19 +4942,6 @@ static bool text_reformatter_function
     if ( ! terminator_found )
         return true;
 
-    min::gen prefix_type = min::MISSING();
-    if ( first->type == PAR::PREFIX
-         ||
-	 first->type == PAR::MAPPED_PREFIX
-	 ||
-	 first->type == PAR::IMPLIED_PREFIX
-	 ||
-	 first->type == PAR::IMPLIED_HEADER )
-    {
-	prefix_type = min::get ( first->value,
-		                 min::dot_type );
-    }
-
     PAR::token prefix =
 	PAR::new_token ( PAR::PREFIX );
     PAR::put_before
@@ -4964,7 +4951,13 @@ static bool text_reformatter_function
 	first->position.begin;
     prefix->position.end =
 	first->position.begin;
-    PAR::value_ref(prefix) = args[0];
+
+    PAR::value_ref(prefix) = min::new_obj_gen ( 3, 1 );
+    min::obj_vec_insptr vp ( prefix->value );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, min::dot_type );
+    min::set ( ap, args[0] );
+    vp = min::NULL_STUB;
 
     BRA::bracketed_pass bracketed_pass =
 	(BRA::bracketed_pass) parser->pass_stack;
@@ -5012,9 +5005,9 @@ static bool text_reformatter_function
     }
 
     BRA::compact_prefix_list
-	( parser, pass->next,
+	( parser, pass,
 	  prefix_selectors,
-	  prefix, next,
+	  first, next,
 	  min::MISSING_POSITION,
 	  min::MISSING(),
 	  trace_flags );

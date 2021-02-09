@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 23:18:29 EDT 2019
+// Date:	Tue Feb  9 01:03:51 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -731,6 +731,28 @@ this-is-a-#
 this-is-a-~
     ~continued-~
     ~lexme
+
+*PARSER*:
+    trace [- parser output, - subexpression details]
+    end block BLOCK1
+
+*PARSER*:
+    begin block BLOCK1
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no parsing selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+    define bracket type "s" [text]
+        with group sentence
+    define bracket "``" ... "''" [code, text]
+        with text reformatter ("s", ".")
+    trace [+ parser output, + subexpression details]
+
+``Hello there.''
 
 *PARSER*:
     trace [- parser output, - subexpression details]

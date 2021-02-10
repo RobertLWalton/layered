@@ -20,7 +20,7 @@
         with implied subprefix {s}
     define bracket type "s" [text]
         with sentence reformatter
-            ( , ".", ";", ":", "?", "!" )
+            ( ".", ";", ":", "?", "!" )
     define bracket type "***" [TOP LEVEL, text]
         with group reset
     print bracket type ""
@@ -31,7 +31,7 @@
                  with group paragraph
                  with implied subprefix {s||s}
         block X: bracket type "s" [text]
-                 with sentence reformatter ( , ".", ";", ":", "?", "!" )
+                 with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "***" [TOP LEVEL, text]
                  with group reset
 BRACKETED EXPRESSION:

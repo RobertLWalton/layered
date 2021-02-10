@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  9 19:33:55 EST 2021
+// Date:	Wed Feb 10 01:27:31 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5481,19 +5481,10 @@ static bool sentence_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    PAR::reformatter_arguments args = min::NULL_STUB;
     BRA::bracket_type prefix_entry =
         (BRA::bracket_type) entry;
-    if ( prefix_entry != min::NULL_STUB )
-	args = prefix_entry->reformatter_arguments;
-    else
-    {
-	BRA::opening_bracket opening_bracket =
-	    (BRA::opening_bracket) entry;
-	MIN_REQUIRE
-	    ( opening_bracket != min::NULL_STUB );
-	args = opening_bracket->reformatter_arguments;
-    }
+    PAR::reformatter_arguments args =
+	prefix_entry->reformatter_arguments;
 
     bool terminator_found = false;
     for ( PAR::token t = first;
@@ -5502,7 +5493,7 @@ static bool sentence_reformatter_function
     {
 	if ( ! PAR::is_lexeme ( t->type ) )
 	    continue;
-	for ( min::unsptr i = 1;
+	for ( min::unsptr i = 0;
 	      ! terminator_found && i < args->length;
 	      ++ i )
 	    terminator_found = ( args[i] != t->value );
@@ -5510,53 +5501,6 @@ static bool sentence_reformatter_function
 
     if ( ! terminator_found )
         return true;
-
-    min::gen prefix_type = min::MISSING();
-    if ( first->type == PAR::PREFIX
-         ||
-	 first->type == PAR::MAPPED_PREFIX
-	 ||
-	 first->type == PAR::IMPLIED_PREFIX
-	 ||
-	 first->type == PAR::IMPLIED_HEADER )
-    {
-	prefix_type = min::get ( first->value,
-		                 min::dot_type );
-    }
-
-    if ( args[0] == min::MISSING() )
-    {
-        if ( prefix_type == min::MISSING() )
-	    return true;
-    }
-    else if ( prefix_type != args[0] )
-    {
-	PAR::token prefix =
-	    PAR::new_token ( PAR::PREFIX );
-	PAR::put_before
-	    ( PAR::first_ref(parser),
-	      first, prefix );
-	prefix->position.begin =
-	    first->position.begin;
-	prefix->position.end =
-	    first->position.begin;
-	PAR::value_ref(prefix) = args[0];
-
-	BRA::bracketed_pass bracketed_pass =
-	    (BRA::bracketed_pass) parser->pass_stack;
-	TAB::key_table bracket_type_table =
-	    bracketed_pass->bracket_type_table;
-	BRA::bracket_type prefix_entry =
-	    (BRA::bracket_type)
-	    TAB::find
-		( args[0],
-		  BRA::BRACKET_TYPE,
-		  selectors,
-		  bracket_type_table );
-	PAR::value_type_ref(prefix) =
-	    min::new_stub_gen ( prefix_entry );
-	first = prefix;
-    }
 
     for ( PAR::token t = first->next; t != next;
                                       t = t->next )

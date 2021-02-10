@@ -145,8 +145,8 @@
                         with group paragraph
                         with implied subprefix {s||s}
         block standard: bracket type "s" [text]
-                        with sentence reformatter ( , ".", "?", "!",
-                        ":", ";" )
+                        with sentence reformatter ( ".", "?", "!", ":",
+                        ";" )
         block standard: bracket type "quote" [TOP LEVEL, code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  5 08:23:33 EST 2021
+// Date:	Wed Feb 10 01:25:27 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -31,7 +31,7 @@
 	with implied subprefix {s}
     define bracket type "s" [text]
         with sentence reformatter
-	    ( , ".", ";", ":", "?", "!" )
+	    ( ".", ";", ":", "?", "!" )
     define bracket type "***" [TOP LEVEL, text]
 	with group reset
     print bracket type ""

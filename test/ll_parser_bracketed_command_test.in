@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  9 01:03:51 EST 2021
+// Date:	Wed Feb 10 00:32:52 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -749,10 +749,18 @@ this-is-a-~
     define bracket type "s" [text]
         with group sentence
     define bracket "``" ... "''" [code, text]
+	with parsing selectors [+ text, - code, - math]
         with text reformatter ("s", ".")
     trace [+ parser output, + subexpression details]
 
 ``Hello there.''
+
+*PARSER*:
+    define bracket type "s" [text]
+        with group sentence
+	with sentence reformatter ("s", ".")
+``Hello there.''
+``Hello there.  Goodbye there.''
 
 *PARSER*:
     trace [- parser output, - subexpression details]

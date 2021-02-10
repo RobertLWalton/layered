@@ -2113,3 +2113,66 @@ this-is-a-~
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+    define typed bracket "{" ... "|" ... "|" ... "}"
+        [code, text, math]
+        // no parsing selectors
+        with attribute selectors [data]
+        with attributes ":" ... "=" ... ","
+        with attribute negator "no"
+        with attribute flags initiator "["
+        with attribute multivalue initiator "{*"
+    define bracket type "s" [text]
+        with group sentence
+    define bracket "``" ... "''" [code, text]
+        with parsing selectors [+ text, - code, - math]
+        with text reformatter ("s", ".")
+    trace [+ parser output, + subexpression details]
+BRACKETED EXPRESSION:
+    ``{s|Hello there "."|s}''
+@@@ = ``{s|Hello there "."|s}'':
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
+    line ###:
+``Hello there.''
+^^^^^^^^^^^^^^^^
+*PARSER*:
+    define bracket type "s" [text]
+        with group sentence
+        with sentence reformatter ("s", ".")
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|Hello there|s}''
+@@@ = ``@@@'':
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
+@@@ = Hello there:
+          .terminator = "."
+          .position[H] = PACKED_VEC
+          .type = "s"
+    line ###:
+``Hello there.''
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|Hello there|s}
+      {s: .terminator = "."|Goodbye there|s}''
+@@@ = ``@@@ @@@'':
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
+@@@ = Hello there:
+          .terminator = "."
+          .position[H] = PACKED_VEC
+          .type = "s"
+@@@ = Goodbye there:
+          .terminator = "."
+          .position[H] = PACKED_VEC
+          .type = "s"
+    line ###:
+``Hello there.  Goodbye there.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    trace [- parser output, - subexpression details]
+    end block BLOCK1

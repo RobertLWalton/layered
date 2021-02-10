@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 12, 2020
+February 10, 2021
  
 \end{center}
 
@@ -4596,6 +4596,40 @@ The {\em separator} argument (e.g.~\TT{","}) must denote
 a single MIN string, and
 cannot denote a multi-component MIN label (this is purely a current
 implementation limitation).
+\end{indpar}
+
+\ttmkey{text}{reformatter} ~ \TT{(} {\em prefix}
+                                 \{ \TT{,} {\em quoted-terminator} \}\PLUS{}
+				 \TT{)}
+	\hfill e.g.:~\ttmkey{`{}`~'{}'}{reformatting}%
+	\label{TEXT-REFORMATTER}
+
+\begin{indpar}[0.5em]
+where 
+
+\begin{indpar}
+\emkey{prefix} ::= {\em simple-name} $|$ {\em quoted-key}
+	\hfill e.g.:~\ttmkey{s}{reformatting}
+\\[0.5ex]
+\emkey{quoted-terminator} :::= \TT{"}{\em terminator}\TT{"}
+\\[0.5ex]
+\emkey{terminator} :::= {\em mark} $|$ {\em separator}
+\end{indpar}
+
+If the {\em prefix-n-list} does not contain a {\em terminator} lexeme,
+nothing is done.  Note that if the {\em prefix-n-list} previously
+began with an explicit \TT{\{}{\em prefix}\TT{\}}, any {\em terminators}
+in that previous {\em prefix-n-list} would now be inside subexpressions,
+so this rule would apply and nothing would be done.
+
+\TT{\{}{\em prefix}\TT{\}} is
+pre-pended to the {\em prefix-n-list} and the new {\em prefix-n-list}
+is processed as if it had just been read.  In particular, any
+reformatter for {\em prefix} is called and if there is none
+the elements following the \TT{\{}{\em prefix}\TT{\}}
+are collected into a typed bracketted subexpression with
+\TT{.type} equal to {\em prefix}.
+
 \end{indpar}
 
 \end{indpar}

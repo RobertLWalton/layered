@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  9 01:04:22 EST 2021
+// Date:	Tue Feb  9 19:33:55 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4927,11 +4927,12 @@ static bool text_reformatter_function
         opening_bracket->reformatter_arguments;
 
     bool terminator_found = false;
-    for ( PAR::token t = first;
-          ! terminator_found && t != next;
-	  t = t->next )
-    {
-	if ( ! PAR::is_lexeme ( t->type ) )
+    min::uns32 size = 0;
+    for ( PAR::token t = first; t != next; t = t->next )
+    { 
+	++ size;
+	if (    terminator_found
+	     || ! PAR::is_lexeme ( t->type ) )
 	    continue;
 	for ( min::unsptr i = 1;
 	      ! terminator_found && i < args->length;
@@ -4955,8 +4956,19 @@ static bool text_reformatter_function
     PAR::value_ref(prefix) = min::new_obj_gen ( 3, 1 );
     min::obj_vec_insptr vp ( prefix->value );
     min::attr_insptr ap ( vp );
+
     min::locate ( ap, min::dot_type );
     min::set ( ap, args[0] );
+
+    min::locatable_var
+	    <min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file,
+		first->position, size );
+    min::locate ( ap, min::dot_position );
+    min::set ( ap, min::new_stub_gen ( pos ) );
+    min::set_flag ( ap, min::standard_attr_hide_flag );
+
     vp = min::NULL_STUB;
 
     BRA::bracketed_pass bracketed_pass =

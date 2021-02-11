@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 10 01:27:31 EST 2021
+// Date:	Thu Feb 11 02:40:31 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4937,7 +4937,7 @@ static bool text_reformatter_function
 	for ( min::unsptr i = 1;
 	      ! terminator_found && i < args->length;
 	      ++ i )
-	    terminator_found = ( args[i] != t->value );
+	    terminator_found = ( args[i] == t->value );
     }
 
     if ( ! terminator_found )
@@ -5496,7 +5496,7 @@ static bool sentence_reformatter_function
 	for ( min::unsptr i = 0;
 	      ! terminator_found && i < args->length;
 	      ++ i )
-	    terminator_found = ( args[i] != t->value );
+	    terminator_found = ( args[i] == t->value );
     }
 
     if ( ! terminator_found )

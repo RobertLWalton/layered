@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 10, 2021
+February 11, 2021
  
 \end{center}
 
@@ -4666,9 +4666,14 @@ adds the definitions:
      define bracket "`" ... "'" [code, math, text, data]
          with parsing selectors
               [ + atom, - code, - math, - text, - data]
-     define bracket "``" ... "''" [code, math, text, data]
+     define bracket "``" ... "''" [data]
          with parsing selectors
               [ + text, - code, - math, - data]
+     define bracket "``" ... "''" [code, math, text]
+         with parsing selectors
+              [ + text, - code, - math, - data]
+         with text reformatter
+                ( "s", ".", "?", "!", ":", ";" )
      define bracket "[<" ... ">]"
                     [code, math, text, data, atom]
          with parsing selectors [data]

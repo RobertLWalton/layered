@@ -50,7 +50,12 @@
         block standard: "#"
         block TOP LEVEL: disabled
     print bracket ""
-        block standard: bracket "``" ... "''" [data, code, math, text]
+        block standard: bracket "``" ... "''" [code, math, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with text reformatter ( "s", ".", ".", "?", "!",
+                        ":", ";" )
+        block standard: bracket "``" ... "''" [data]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
         block TOP LEVEL: bracket "``" ... "''" [data]

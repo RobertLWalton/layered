@@ -190,6 +190,7 @@
                         with line lexical master "ROW-CHECK"
         block standard: bracket type "row"
                         [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [- code, - math, - text]
                         with group line
         block standard: bracket type "data"
                         [TOP LEVEL, data, code, math, text]

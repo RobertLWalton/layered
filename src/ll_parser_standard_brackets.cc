@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 11 02:31:12 EST 2021
+// Date:	Fri Feb 12 06:39:49 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -452,7 +452,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
+	  TAB::new_flags ( 0, code + text + math, 0 ),
 	  PARLEX::line,
 	  min::MISSING(),
 	  min::MISSING(),

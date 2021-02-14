@@ -9,7 +9,7 @@
         block TOP LEVEL: TOP LEVEL
     print pass
         top
-        operator [data, code, math]
+        operator [code, math]
     print top level
         block standard:  selectors [TOP LEVEL, code]
                          options [end at le indent,
@@ -51,13 +51,9 @@
         block TOP LEVEL: disabled
     print bracket ""
         block standard: bracket "``" ... "''" [code, math, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- code, - math, + text]
                         with text reformatter ( "s", ".", ".", "?", "!",
                         ":", ";" )
-        block standard: bracket "``" ... "''" [data]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [data, atom, code, math, text]

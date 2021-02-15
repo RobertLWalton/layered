@@ -608,7 +608,7 @@ This tests selector changes --- <+ x +> <- y ->
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< x y hello 5.6 z >]
@@ -627,33 +627,28 @@ This is a label [< x y "hello" 5.6 z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "("
-     OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [atom] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED EXPRESSION:
-    (y)
-@@@ = y:
-          .terminator = ")"
-          .initiator = "("
-          .position[H] = PACKED_VEC
-    line ##:
-This is another label [< x ( y ) z >]
-                           ^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: not a legal label element `(y)'; ignored:
+WARNING: in line ##: name element "(" is a mark or separator and
+         therefore should be quoted:
 This is another label [< x ( y ) z >]
-                           ^^^^^
+                           ^
+WARNING: in line ##: name element ")" is a mark or separator and
+         therefore should be quoted:
+This is another label [< x ( y ) z >]
+                               ^
 DERIVED EXPRESSION:
-    [< x z >]
-@@@ = [< x z >]
+    [< x "(" y ")" z >]
+@@@ = [< x "(" y ")" z >]
     line ##:
 This is another label [< x ( y ) z >]
                       ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is another label [< x z >]
-@@@ = This is another label [< x z >]:
+    This is another label [< x "(" y ")" z >]
+@@@ = This is another label [< x "(" y ")" z >]:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
@@ -662,9 +657,9 @@ This is another label [< x ( y ) z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "<" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< 1 2 >]
@@ -672,9 +667,9 @@ DERIVED EXPRESSION:
     line ##:
     [< x [< 1 2 >] y [< a b >] >]
          ^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "<" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< a b >]
@@ -682,7 +677,7 @@ DERIVED EXPRESSION:
     line ##:
     [< x [< 1 2 >] y [< a b >] >]
                      ^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< x [< 1 2 >] y [< a b >] >]
@@ -1497,10 +1492,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {S: x = "A", y = "B", z = "C"|1 2 3 4|S}
-@@@@ = @@@:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+@@@ = @@@:
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     line ##:
 {S: x = A|1 2|y = B|3 4|z = C}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2800,7 +2795,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< hi there >]
@@ -2819,7 +2814,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     hi
@@ -2838,7 +2833,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< >]
@@ -2857,7 +2852,7 @@ BRACKETED EXPRESSION:
 ^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -2867,7 +2862,7 @@ DERIVED EXPRESSION:
     line ###:
 [< [$ MISSING $] >]
    ^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: not a legal label element `MISSING'; ignored:
 [< [$ MISSING $] >]
@@ -3903,11 +3898,12 @@ BRACKETED EXPRESSION:
                         ":", ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [data, atom, code, math, text]
-                        with parsing selectors [data]
+                        [code, math, text]
+                        with parsing selectors [atom]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
+                         with parsing selectors [atom]
                          with label reformatter
         block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
@@ -4924,7 +4920,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< 5 tomatoes >]

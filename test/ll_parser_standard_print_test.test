@@ -56,11 +56,12 @@
                         ":", ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [data, atom, code, math, text]
-                        with parsing selectors [data]
+                        [code, math, text]
+                        with parsing selectors [atom]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
+                         with parsing selectors [atom]
                          with label reformatter
         block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]

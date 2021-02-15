@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 11 02:40:31 EST 2021
+// Date:	Sun Feb 14 19:28:33 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1100,7 +1100,8 @@ bool BRA::parse_paragraph_element
 		{
 		    BRA::compact_paragraph
 			( parser,
-			  line_variables->last_paragraph,
+			  line_variables->
+			      last_paragraph,
 			  current,
 			  trace_flags );
 		    line_variables->last_paragraph

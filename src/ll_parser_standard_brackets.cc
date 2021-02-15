@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 18:12:35 EST 2021
+// Date:	Sun Feb 14 19:03:23 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -209,10 +209,10 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_square_angle,
           angle_closing_square,
-	  code + math + text + data + atom,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( data, PAR::COMMAND_SELECTORS ^ data,
+	      ( atom, PAR::COMMAND_SELECTORS ^ atom,
 	              0 ),
 	  PAR::find_reformatter
 	      ( label_name,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 15 04:01:13 EST 2021
+// Date:	Mon Feb 15 04:38:27 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -211,8 +211,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( atom, PAR::COMMAND_SELECTORS ^ atom,
-	              0 ),
+	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
 	  PAR::find_reformatter
 	      ( label_name,
 	        BRA::untyped_reformatter_stack ),
@@ -221,11 +220,10 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_square_dollar,
           dollar_closing_square,
-	  code + math + text + data + atom,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( data, PAR::COMMAND_SELECTORS ^ data,
-	              0 ),
+	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
 	  PAR::find_reformatter
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),
@@ -246,8 +244,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( PAR::DEFAULT_EA_OPT,
 	                     PAR::ALL_EA_OPT
-			   - PAR::DEFAULT_EA_OPT,
-			   0 ),
+			   - PAR::DEFAULT_EA_OPT ),
 	  min::MISSING(),
 	  paragraph_check,
 	  data_check,
@@ -275,8 +272,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( PAR::DEFAULT_EA_OPT,
 	                     PAR::ALL_EA_OPT
-			   - PAR::DEFAULT_EA_OPT,
-			   0 ),
+			   - PAR::DEFAULT_EA_OPT ),
 	  implied_p_header,
 	  paragraph_check,
 	  data_check,
@@ -292,8 +288,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
 	                     PAR::ALL_EA_OPT
 			   - PAR::DEFAULT_EA_OPT
 			   + COMMAND_SELECTORS
-			   - data,
-			   0 ),
+			   - data ),
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
@@ -400,9 +395,8 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( data + data_paragraph,
-	        PAR::COMMAND_SELECTORS ^ data
-		                       ^ data_paragraph,
-	        0 ),
+	          PAR::COMMAND_SELECTORS
+		^ data ^ data_paragraph ),
 	  PARLEX::line,   // group
 	  min::MISSING(), // implied_subprefix
 	  min::MISSING(), // implied_subprefix_type

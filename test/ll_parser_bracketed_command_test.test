@@ -14,6 +14,7 @@
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
+                         with parsing selectors [atom]
                          with special reformatter
     print indentation mark ""
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
@@ -96,6 +97,7 @@ ERROR: in line ##: expected quoted name after:
         block TOP LEVEL: bracket "[" ... "]" [data]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
+                         with parsing selectors [atom]
                          with special reformatter
     define indentation mark ":" ... ";"
                             [code, math, text]
@@ -388,6 +390,7 @@ WARNING: in line ###: undefine found no definition:
                                                 + operator 1]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
+                         with parsing selectors [atom]
                          with special reformatter
 ======= PARSER TEST: (```")"''')
 ======= line ###:

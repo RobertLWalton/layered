@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 19:03:23 EST 2021
+// Date:	Mon Feb 15 04:01:13 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -151,7 +151,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( PARLEX::left_parenthesis,
 	  PARLEX::right_parenthesis,
-	  code + math + text + data,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
@@ -159,7 +159,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( PARLEX::left_square,
           PARLEX::right_square,
-	  code + math + text + data,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
@@ -169,16 +169,16 @@ void PARSTD::init_brackets ( PAR::parser parser )
           closing_double_brace,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( math, code + text, 0 ),
+	  TAB::new_flags ( math, code + text ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
           closing_quote,
-	  code + math + text + data,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( atom, code + math + text + data, 0 ),
+	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
 
@@ -198,8 +198,7 @@ void PARSTD::init_brackets ( PAR::parser parser )
           closing_double_quote,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( text, code + math, 0 ),
+	  TAB::new_flags ( text, code + math ),
 	  PAR::find_reformatter
 	      ( text_name,
 	        BRA::untyped_reformatter_stack ),
@@ -443,7 +442,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	    PAR::TOP_LEVEL_SELECTOR
 	  + data + code + text + math,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, code + text + math, 0 ),
+	  TAB::new_flags ( 0, code + text + math ),
 	  PARLEX::line,
 	  min::MISSING(),
 	  min::MISSING(),
@@ -494,7 +493,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	        + ETPREFIX_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
-		+ code + math + data, 0 ),
+		+ code + math + data ),
 	  PARLEX::paragraph, // group
 	  implied_s_header,
 	  s,
@@ -516,7 +515,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	        + ETPREFIX_OPT + STICKY_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
-		+ code + math + data, 0 ),
+		+ code + math + data ),
 	  PARLEX::paragraph,
 	  implied_s_header,
 	  s,
@@ -538,7 +537,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 	        + STICKY_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
-		+ code + math + data, 0 ),
+		+ code + math + data ),
 	  PARLEX::paragraph,
 	  implied_s_header,
 	  s,

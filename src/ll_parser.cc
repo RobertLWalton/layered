@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 19:20:00 EST 2021
+// Date:	Mon Feb 15 04:05:30 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1000,7 +1000,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0, PAR::top_level_position,
 	      TAB::new_flags
 	          ( PAR::ATOM_SELECTOR,
-		    PAR::DATA_SELECTOR, 0 ),
+		      PAR::COMMAND_SELECTORS
+		    ^ PAR::ATOM_SELECTOR ),
 	      min::NULL_STUB, min::NULL_STUB,
 	      bracketed_pass->bracket_table );
 
@@ -1032,8 +1033,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( PAR::ATOM_SELECTOR,
 			         PAR::COMMAND_SELECTORS
-			       ^ PAR::ATOM_SELECTOR,
-			       0 ),
+			       ^ PAR::ATOM_SELECTOR ),
 	      PAR::find_reformatter
 		  ( label_name,
 		    BRA::untyped_reformatter_stack ),

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 15 04:38:27 EST 2021
+// Date:	Mon Feb 15 04:52:21 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -167,9 +167,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_double_brace,
           closing_double_brace,
-	  code + math + text,
+	  data + code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( math, code + text ),
+	  TAB::new_flags ( math, data + code + text ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
@@ -196,9 +196,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
     BRA::push_brackets
         ( opening_double_quote,
           closing_double_quote,
-	  code + math + text,
+	  data + code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( text, code + math ),
+	  TAB::new_flags ( text, data + code + math ),
 	  PAR::find_reformatter
 	      ( text_name,
 	        BRA::untyped_reformatter_stack ),

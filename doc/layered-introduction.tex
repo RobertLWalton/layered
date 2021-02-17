@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 11, 2021
+February 17, 2021
  
 \end{center}
 
@@ -2071,6 +2071,7 @@ A token has the following components:
         	          \ttmkey{BRACKETABLE}{token type} \\
         	          \ttmkey{PURELIST}{token type} \\
         	          \ttmkey{PREFIX}{token type} \\
+        	          \ttmkey{MAPPED\_PREFIX}{token type} \\
         	          \ttmkey{IMPLIED\_PREFIX}{token type} \\
         	          \ttmkey{IMPLIED\_HEADER}{token type} \\
         	          \ttmkey{DERIVED}{token type} \\[1ex]
@@ -2167,6 +2168,15 @@ A token has the following components:
 		  the \TT{value\_type} component of the token,
 		  but the token does \underline{not} have an \TT{.initiator}
 		  or \TT{.terminator}.
+\end{tabular}
+\\[1ex]
+\begin{tabular}{p{1in}p{4.5in}}
+		& A \TT{MAPPED\_PREFIX} token is a
+		  token that was created when when a mapped lexeme
+		  (see \itemref{MAPPED-LEXEMES})
+		  was mapped to a token that is a prefix.  I differs
+		  from a \TT{PREFIX} token only in that it cannot
+		  become an isolated header (see \itemref{ISOLATED-HEADERS}).
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2531,23 +2541,6 @@ the `\TT{paragraph}' group.
 \end{boxedfigure}
 
 \begin{boxedfigure}[!t]
-
-Paragraph Options Continued:
-
-\begin{indpar}
-
-\hspace*{-0.2in}\ttmkey{reset}{parser option} \\
-    A paragraph header with this option resets the line variables
-    (including the implied header) to their values at the beginning
-    of the current indented paragraph, or if outside an indented
-    paragraph, the values at the beginning of the file or after
-    the last `\TT{define top level}' parser command.  The paragraph
-    header is then deleted and not used to head a paragraph.
-    See \ref{RESET-RULE}, \pagref{RESET-RULE}.
-
-\end{indpar}
-
-\bigskip
 
 Option groups:
 
@@ -6083,8 +6076,9 @@ In an expression of the form:
 the {\em prefix-n}'s must all have the same group, but need not all
 have the same {\em bracket-type}.
 
-The groups `\TT{paragraph}' and `\TT{line}' are special:
-see \itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS}.
+The groups `\TT{paragraph}', `\TT{line}', and `\TT{reset}' are special:
+see \itemref{HEADED-LINES}, \itemref{HEADED-PARAGRAPHS},
+and \itemref{ISOLATED-HEADERS}.
 
 \hspace*{-0.2in}\ttmkey{implied subprefix}{in bracket type definition}%
 \label{IMPLIED-SUBPREFIX} \\
@@ -6677,15 +6671,17 @@ See \itemref{LINE-VARIABLES} for details.
 \subsubsection{Isolated Headers}
 \label{ISOLATED-HEADERS}
 
-An \key{isolated header} is paragraph header that resets the
-\TT{line lexical master} and is not a mapped header,
-or is a reset header.  A \key{mapped header} is an explicit header
-that was created at the beginning of a logical line
+An \key{isolated header} is a reset header, or
+is a paragraph header that resets the
+\TT{line lexical master} and is not an implied prefix or mapped prefix.
+A \key{mapped prefix} is an explicit prefix that was created 
 when a mapped lexeme was mapped to a prefix.
-A \key{reset header} is a prefix with the
-`\TT{reset}' group.  Isolated headers and mapped headers
+A \key{mapped header} is a mapped prefix that is a paragraph header.
+Isolated headers and mapped headers
 are the only headers that can reset the line lexical
 master to the value in the header's bracket type definition.
+A \key{reset header} is a prefix with the
+`\TT{reset}' group.
 
 An isolated header must appear at the
 beginning of a logical line and must be the only thing in its

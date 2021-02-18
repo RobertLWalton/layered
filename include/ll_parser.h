@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 13:49:10 EDT 2019
+// Date:	Thu Feb 18 00:43:51 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -226,6 +226,12 @@ struct token_struct
 	//	    .initiator, no .terminator, and
 	//	    no elements.  The MIN value may have
 	//	    other properties.
+	//
+	//	MAPPED_PREFIX
+	//	    A prefix token produced by mapping
+	//	    a lexeme.  Like PREFIX but cannot be
+	//	    an ISOLATED_HEADER (see ll_parser_
+	//	    bracketed.cc).
 	//
 	//	IMPLIED_PREFIX
 	//	    For use as implied subprefix separa-

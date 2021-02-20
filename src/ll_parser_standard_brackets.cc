@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 18 01:41:24 EST 2021
+// Date:	Sat Feb 20 01:13:18 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -478,8 +478,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 
     BRA::push_bracket_type
 	( section,
-	    PAR::TOP_LEVEL_SELECTOR
-	  + code + text,
+	  code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      (   EAPBREAK_OPT + EALTINDENT_OPT
@@ -500,8 +499,7 @@ void PARSTD::init_prefix ( PAR::parser parser )
 
     BRA::push_bracket_type
 	( p,
-	    PAR::TOP_LEVEL_SELECTOR
-	  + code + text,
+	  code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      (   EAPBREAK_OPT + EALTINDENT_OPT
@@ -522,12 +520,11 @@ void PARSTD::init_prefix ( PAR::parser parser )
 
     BRA::push_bracket_type
 	( quote_name,
-	    PAR::TOP_LEVEL_SELECTOR
-	  + code + text,
+	  code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      (   EAPBREAK_OPT + EALTINDENT_OPT
-	        + STICKY_OPT + text,
+	        + ETPREFIX_OPT + STICKY_OPT + text,
 	          EALEINDENT_OPT + EAINDENT_OPT
 		+ EALSEP_OPT + EAOCLOSING_OPT
 		+ code + math + data ),

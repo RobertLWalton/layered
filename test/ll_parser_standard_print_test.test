@@ -135,7 +135,7 @@
                          with attribute multivalue initiator [< "{" "*" >]
                          with prefix selectors []
     print bracket type ""
-        block standard: bracket type "p" [TOP LEVEL, code, text]
+        block standard: bracket type "p" [code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
                         with parsing options [- end at indent,
@@ -151,7 +151,7 @@
         block standard: bracket type "s" [text]
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
-        block standard: bracket type "quote" [TOP LEVEL, code, text]
+        block standard: bracket type "quote" [code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
                         with parsing options [- end at indent,
@@ -160,10 +160,11 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + enable table prefix,
                                               + sticky]
                         with group paragraph
                         with implied subprefix {s||s}
-        block standard: bracket type "section" [TOP LEVEL, code, text]
+        block standard: bracket type "section" [code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
                         with parsing options [- end at indent,

@@ -775,6 +775,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
     define operator "<--" [code] nofix
         with precedence 0
         with declare reformatter
+    define bracket "{$" ... "$}" [code]
     define operator bracket "{$" ... "$}" [code]
         nofix afix
         with precedence 0

@@ -23,56 +23,6 @@
 ------- line ##:
     a < b < c
         ^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<-- {|a b c|}
-                          {|d e f|}
-                          {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                               .initiator = ":"|
-                               {"": .terminator = "<LF>", .initiator =
-                                    [$ LOGICAL_LINE $]|xx yy|}
-                               {"": .terminator = "<LF>", .initiator =
-                                    [$ LOGICAL_LINE $]|zz|}|}|}
-======= lines ##-##:
-    a b c <-- d e f :
-    ^^^^^^^^^^^^^^^^^
-        xx yy
-^^^^^^^^^^^^^
-        zz
-^^^^^^^^^^
-------- line ##:
-    a b c <-- d e f :
-    ^^^^^
-------- line ##:
-    a b c <-- d e f :
-              ^^^^^
-------- lines ##-##:
-    a b c <-- d e f :
-                    ^
-        xx yy
-^^^^^^^^^^^^^
-        zz
-^^^^^^^^^^
-------- line ##:
-        xx yy
-        ^^^^^
-------- line ##:
-        zz
-        ^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<-- {|a b c|}
-                          {|d e f|} {$ xx yy zz $}|}
-======= line ##:
-    a b c <-- d e f {$ xx yy zz $}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    a b c <-- d e f {$ xx yy zz $}
-    ^^^^^
-------- line ##:
-    a b c <-- d e f {$ xx yy zz $}
-              ^^^^^
-------- line ##:
-    a b c <-- d e f {$ xx yy zz $}
-                    ^^^^^^^^^^^^^^
 ======= PARSER TEST: [x (y) z {{u, v, w}} m (n (p))]
 ======= line ##:
     [ x ( y ) z {{u, v, w}} m (n (p)) ]

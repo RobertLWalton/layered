@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 17, 2021
+February 20, 2021
  
 \end{center}
 
@@ -4638,11 +4638,13 @@ are included in the \TT{TOP LEVEL} parser block:
      define bracket "[" ... "]" [data]
      define bracket "{{" ... "}}" [data]
      define bracket "`" ... "'" [data]
-         with parsing selectors [ - data, + atom]
+         with parsing selectors [atom]
      define bracket "``" ... "''" [data]
      define bracket "[<" ... ">]" [data, atom]
+         with parsing selectors [atom]
          with label reformatter
      define bracket "[$" ... "$]" [data, atom]
+         with parsing selectors [atom]
          with special reformatter
      define bracket "{*" ... "*}" [data]
          with multivalue reformatter ( "," )
@@ -4651,29 +4653,23 @@ The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-     define bracket "(" ... ")" [code, math, text, data]
-     define bracket "[" ... "]" [code, math, text, data]
-     define bracket "{{" ... "}}" [code, math, text]
-         with parsing selectors [ + math, - code, - text]
-     define bracket "{$" ... "$}" [code]
-     define bracket "`" ... "'" [code, math, text, data]
+     define bracket "(" ... ")" [code, math, text]
+     define bracket "[" ... "]" [code, math, text]
+     define bracket "{{" ... "}}" [data, code, math, text]
          with parsing selectors
-              [ + atom, - code, - math, - text, - data]
-     define bracket "``" ... "''" [data]
-         with parsing selectors
-              [ + text, - code, - math, - data]
-     define bracket "``" ... "''" [code, math, text]
+              [ + math, - code, - text, - data]
+     define bracket "`" ... "'" [code, math, text]
+         with parsing selectors [atom]
+     define bracket "``" ... "''" [data, code, math, text]
          with parsing selectors
               [ + text, - code, - math, - data]
          with text reformatter
-                ( "s", ".", "?", "!", ":", ";" )
-     define bracket "[<" ... ">]"
-                    [code, math, text, data, atom]
-         with parsing selectors [data]
+              ( "s", ".", "?", "!", ":", ";" )
+     define bracket "[<" ... ">]" [code, math, text]
+         with parsing selectors [atom]
          with label reformatter
-     define bracket "[$" ... "$]"
-                    [code, math, text, data, atom]
-         with parsing selectors [data]
+     define bracket "[$" ... "$]" [code, math, text]
+         with parsing selectors [atom]
          with special reformatter
 \end{verbatim}\end{indpar}
 

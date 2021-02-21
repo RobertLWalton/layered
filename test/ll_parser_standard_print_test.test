@@ -240,10 +240,6 @@
                         nofix
                         with precedence 3100
                         with unary reformatter
-        block standard: operator "<--" [code, math]
-                        nofix
-                        with precedence 0
-                        with declare reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         nofix
                         with precedence 3000
@@ -284,9 +280,3 @@
                         infix
                         with precedence 1000
                         with right associative reformatter
-        block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
-                        nofix afix
-                        with precedence 0
-        block standard: bracket ":" [code, math]
-                        nofix afix
-                        with precedence 0

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 14 05:16:35 EST 2021
+// Date:	Sat Feb 20 20:40:34 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,8 +51,6 @@ OP::oper_pass PARSTD::init_oper
 
     oper_pass->selectors = code | math;
 
-    min::locatable_gen declare
-        ( min::new_str_gen ( "declare" ) );
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     min::locatable_gen separator
@@ -68,9 +66,6 @@ OP::oper_pass PARSTD::init_oper
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
 
-    PAR::reformatter declare_reformatter =
-        PAR::find_reformatter
-	    ( declare, OP::reformatter_stack );
     PAR::reformatter right_associative_reformatter =
         PAR::find_reformatter
 	    ( right_associative,
@@ -96,45 +91,6 @@ OP::oper_pass PARSTD::init_oper
 
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen arrow
-        ( min::new_str_gen ( "<--" ) );
-    min::locatable_gen colon
-        ( min::new_str_gen ( ":" ) );
-    min::locatable_gen opening_brace_dollar
-        ( min::new_lab_gen ( "{", "$" ) );
-    min::locatable_gen dollar_closing_brace
-        ( min::new_lab_gen ( "$", "}" ) );
-
-    OP::push_oper
-        ( arrow,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX,
-	  0, declare_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( colon,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::AFIX,
-	  0,
-	  min::NULL_STUB, min::NULL_STUB,
-	  oper_pass->oper_bracket_table );
-
-    OP::push_oper
-        ( opening_brace_dollar,
-	  dollar_closing_brace,
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::AFIX,
-	  0,
-	  min::NULL_STUB, min::NULL_STUB,
-	  oper_pass->oper_bracket_table );
 
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 23 18:53:02 EST 2021
+// Date:	Wed Feb 24 02:36:15 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -213,7 +213,7 @@ OP::oper_pass PARSTD::init_oper
 	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
-	  OP::NOFIX,
+	  OP::PREFIX,
 	  3100, unary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
@@ -329,8 +329,8 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence, sum_reformatter,
-	  sum_arguments,
+	  OP::prefix_precedence, unary_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -349,8 +349,8 @@ OP::oper_pass PARSTD::init_oper
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence, sum_reformatter,
-	  sum_arguments,
+	  OP::prefix_precedence, unary_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper

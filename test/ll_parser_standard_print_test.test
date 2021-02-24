@@ -201,7 +201,11 @@
                         with precedence 5200
                         with infix reformatter
         block standard: operator "+" [code, math]
-                        prefix infix
+                        prefix
+                        with precedence 999998
+                        with unary reformatter
+        block standard: operator "+" [code, math]
+                        infix
                         with precedence 5000
                         with sum reformatter ( "+", "-" )
         block standard: operator "," [code, math]
@@ -209,7 +213,11 @@
                         with precedence 2000
                         with separator reformatter
         block standard: operator "-" [code, math]
-                        prefix infix
+                        prefix
+                        with precedence 999998
+                        with unary reformatter
+        block standard: operator "-" [code, math]
+                        infix
                         with precedence 5000
                         with sum reformatter ( "+", "-" )
         block standard: operator "/" [code, math]
@@ -237,7 +245,7 @@
                         with precedence 5300
                         with binary reformatter
         block standard: operator "NOT" [code, math]
-                        nofix
+                        prefix
                         with precedence 3100
                         with unary reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 23 18:55:16 EST 2021
+// Date:	Wed Feb 24 02:11:53 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1899,20 +1899,34 @@ void static print_op
 	  parser );
 
     parser->printer << min::indent;
-    if ( op->flags & OP::PREFIX )
+    min::uns32 flags = op->flags &
+        ( OP::INITIAL + OP::LEFT + OP::RIGHT
+	              + OP::FINAL );
+    if ( flags == OP::PREFIX )
 	parser->printer << "prefix";
-    if ( op->flags & OP::INFIX )
-	parser->printer
-	    << min::space_if_after_indent
-	    << "infix";
-    if ( op->flags & OP::POSTFIX )
-	parser->printer
-	    << min::space_if_after_indent
-	    << "postfix";
-    if ( op->flags & OP::NOFIX )
-	parser->printer
-	    << min::space_if_after_indent
-	    << "nofix";
+    else if ( flags == OP::INFIX )
+	parser->printer << "infix";
+    else if ( flags == OP::POSTFIX )
+	parser->printer << "postfix";
+    else if ( flags == OP::NOFIX )
+	parser->printer << "nofix";
+    else
+    {
+	if ( op->flags & OP::INITIAL )
+	    parser->printer << "initial";
+	if ( op->flags & OP::LEFT )
+	    parser->printer
+		<< min::space_if_after_indent
+		<< "left";
+	if ( op->flags & OP::RIGHT )
+	    parser->printer
+		<< min::space_if_after_indent
+		<< "right";
+	if ( op->flags & OP::FINAL )
+	    parser->printer
+		<< min::space_if_after_indent
+		<< "final";
+    }
     if ( op->flags & OP::AFIX )
 	parser->printer
 	    << min::space_if_after_indent

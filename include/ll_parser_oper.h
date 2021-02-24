@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 28 01:31:28 EST 2020
+// Date:	Tue Feb 23 18:57:50 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,6 +38,7 @@ namespace lexeme {
 	postfix,	// postfix
 	afix,		// afix
 	nofix,		// nofix
+	end_operator,	// END'OPERATOR
 	error_operator,	// ERROR'OPERATOR
 	error_operand,	// ERROR'OPERAND
 	error_separator;// ERROR'SEPARATOR
@@ -54,13 +55,18 @@ extern min::locatable_var<ll::parser::reformatter>
 //
 enum oper_flags
 {
-    PREFIX	= ( 1 << 0 ),
-    INFIX	= ( 1 << 1 ),
-    POSTFIX	= ( 1 << 2 ),
-    NOFIX	= ( 1 << 3 ),
+    LEFT	= ( 1 << 0 ),
+    FINAL	= ( 1 << 1 ),
+    RIGHT	= ( 1 << 2 ),
+    INITIAL	= ( 1 << 3 ),
     AFIX	= ( 1 << 4 ),
-    ALLFIX	= PREFIX | INFIX | POSTFIX
-                | NOFIX | AFIX
+
+    PREFIX	= INITIAL + RIGHT,
+    INFIX	= LEFT + RIGHT,
+    POSTFIX	= FINAL + LEFT,
+    NOFIX	= 0,
+
+    ALLFIX	= LEFT | FINAL | RIGHT | INITIAL | AFIX
 };
 const min::int32 NO_PRECEDENCE = INT_MIN;
     // Value less than any allowed precedence.
@@ -103,6 +109,7 @@ MIN_REF ( ll::parser::reformatter_arguments,
           reformatter_arguments,
 	  ll::parser::oper::oper )
 
+extern min::locatable_var<oper> end_oper;
 extern min::locatable_var<oper> error_oper;
 
 // Create an operator definition entry with given
@@ -129,8 +136,10 @@ void push_oper
 // Highest and lowest precedence of defined infix or
 // nofix operators:
 //
-extern min::int32 op_high_precedence;
-extern min::int32 op_low_precedence;
+extern min::int32 high_precedence;
+extern min::int32 low_precedence;
+extern min::int32 prefix_precedence;
+extern min::int32 postfix_precedence;
 
 // An oper_stack is part of each oper_pass.
 //
@@ -214,8 +223,8 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 // precedence above the highest normal precedence.
 //
 bool fixity_OK ( oper_vec v,
-	         min::uns32 fixity,
-		 min::int32 precedence,
+	         min::uns32 fixity = 0,
+		 min::int32 precedence = 0,
 		 oper op = min::NULL_STUB );
 
 // Insert a token with name ERROR'OPERAND and type

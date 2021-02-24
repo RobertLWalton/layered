@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 20 20:40:34 EST 2021
+// Date:	Tue Feb 23 18:53:02 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -318,7 +318,27 @@ OP::oper_pass PARSTD::init_oper
 	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::INFIX,
+	  OP::INFIX,
+	  5000, sum_reformatter,
+	  sum_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( plus,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX,
+	  OP::prefix_precedence, sum_reformatter,
+	  sum_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( minus,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
 	  5000, sum_reformatter,
 	  sum_arguments,
 	  oper_pass->oper_table );
@@ -328,8 +348,8 @@ OP::oper_pass PARSTD::init_oper
 	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::INFIX,
-	  5000, sum_reformatter,
+	  OP::PREFIX,
+	  OP::prefix_precedence, sum_reformatter,
 	  sum_arguments,
 	  oper_pass->oper_table );
 

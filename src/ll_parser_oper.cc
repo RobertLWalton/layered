@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 24 02:11:53 EST 2021
+// Date:	Wed Feb 24 06:05:14 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,10 @@
 
 min::locatable_gen OPLEX::dollar;
 min::locatable_gen OPLEX::AND;
+min::locatable_gen OPLEX::initial;
+min::locatable_gen OPLEX::left;
+min::locatable_gen OPLEX::right;
+min::locatable_gen OPLEX::final;
 min::locatable_gen OPLEX::prefix;
 min::locatable_gen OPLEX::infix;
 min::locatable_gen OPLEX::postfix;
@@ -60,6 +64,10 @@ static void initialize ( void )
 {
     OPLEX::dollar  = min::new_str_gen ( "$" );
     OPLEX::AND     = min::new_str_gen ( "AND" );
+    OPLEX::initial  = min::new_str_gen ( "initial" );
+    OPLEX::left  = min::new_str_gen ( "left" );
+    OPLEX::right  = min::new_str_gen ( "right" );
+    OPLEX::final  = min::new_str_gen ( "final" );
     OPLEX::prefix  = min::new_str_gen ( "prefix" );
     OPLEX::infix   = min::new_str_gen ( "infix" );
     OPLEX::postfix = min::new_str_gen ( "postfix" );
@@ -2169,7 +2177,15 @@ static min::gen oper_pass_command
     while ( i < size )
     {
 	min::uns32 new_oper_flag;
-        if ( vp[i] == OPLEX::prefix )
+        if ( vp[i] == OPLEX::initial )
+	    new_oper_flag = OP::INITIAL;
+        else if ( vp[i] == OPLEX::left )
+	    new_oper_flag = OP::LEFT;
+        else if ( vp[i] == OPLEX::right )
+	    new_oper_flag = OP::RIGHT;
+        else if ( vp[i] == OPLEX::final )
+	    new_oper_flag = OP::FINAL;
+        else if ( vp[i] == OPLEX::prefix )
 	    new_oper_flag = OP::PREFIX;
         else if ( vp[i] == OPLEX::infix )
 	    new_oper_flag = OP::INFIX;
@@ -2192,61 +2208,29 @@ static min::gen oper_pass_command
 	++ i;
     }
 
-    if ( oper_flags == 0 )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected operator flags after" );
-
     oper_flags_position.end = (&ppvec[i-1])->end;
 
-    if ( ( oper_flags & OP::NOFIX )
+    if ( ( oper_flags & OP::INITIAL )
           &&
-	 ( oper_flags & OP::PREFIX ) )
+	 ( oper_flags & OP::LEFT ) )
 	return PAR::parse_error
 	    ( parser, oper_flags_position,
-	      "operator flags nofix and prefix"
+	      "operator flags initial and left"
 	      " are incompatible" );
-    if ( ( oper_flags & OP::NOFIX )
+    if ( ( oper_flags & OP::RIGHT )
           &&
-	 ( oper_flags & OP::INFIX ) )
+	 ( oper_flags & OP::FINAL ) )
 	return PAR::parse_error
 	    ( parser, oper_flags_position,
-	      "operator flags nofix and infix"
+	      "operator flags right and final"
 	      " are incompatible" );
-    if ( ( oper_flags & OP::NOFIX )
+    if ( ( oper_flags & OP::INITIAL )
           &&
-	 ( oper_flags & OP::POSTFIX ) )
+	 ( oper_flags & OP::AFIX ) )
 	return PAR::parse_error
 	    ( parser, oper_flags_position,
-	      "operator flags nofix and postfix"
+	      "operator flags initial and afix"
 	      " are incompatible" );
-    if ( oper_flags == OP::AFIX )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "afix operator must be infix or nofix" );
-    if ( ( oper_flags & OP::AFIX )
-          &&
-	 ( oper_flags & OP::PREFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator flags afix and prefix"
-	      " are incompatible" );
-    if ( ( oper_flags & OP::AFIX )
-          &&
-	 ( oper_flags & OP::POSTFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator flags afix and postfix"
-	      " are incompatible" );
-    if ( ( oper_flags & OP::PREFIX )
-          &&
-	 ( oper_flags & OP::INFIX )
-          &&
-	 ( oper_flags & OP::POSTFIX ) )
-	return PAR::parse_error
-	    ( parser, oper_flags_position,
-	      "operator cannot be prefix, infix, AND"
-	      " postfix, all three" );
 
     min::int32 precedence;
     bool precedence_found = false;

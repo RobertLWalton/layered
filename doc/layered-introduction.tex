@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 20, 2021
+February 25, 2021
  
 \end{center}
 
@@ -7157,17 +7157,27 @@ as operators, and have operator definitions.
 \subsubsection{Operator Expression Syntax}
 \label{OPERATOR-EXPRESSION-SYNTAX}
 
-The operator parsing pass identifies operators, assigns fixity
-(prefix, infix, postfix, and nofix) to the operators, and parses
-expressions using operator fixity and operator precedence.  Operator
-definitions assign precedence integers to operators.
-Infix and nofix operators have precedences in the range [L,H],
-where L = -1,000,000 and H = +1,000,000.  Prefix operators have
-precedence H+2, and postfix operators have precedence H+3.
-The precedence H+1 is reserved for the `error operator' which is
-a nofix operator inserted during parsing to `fix up' errors found
-while computing fixity so parsing can continue
-(see \pagref{FIXITY-ERRORS}).
+The operator parsing pass identifies operators, assigns flags
+to the operators that determine fixity (prefix, infix, postfix, etc.),
+and parses expressions using operator flags and operator precedence.
+Operator definitions assign precedence integers to operators.
+
+The operator flags {\tt initial}, {\tt left}, {\tt right}, {\tt final},
+and {\tt afix} are described in Figure~\ref{OPERATOR-FLAGS}.
+Flag groups are names used in operator definitions for sets of flags.
+For example, a {\tt prefix} operator is an operator with the
+{\tt initial} and {\tt right} flags, a {\tt postfix} operator
+is an operator with the {\tt left} and {\tt final} flags, and an
+{\tt infix} operator is an operator with the {\tt left} and {\tt right}
+flags.
+
+Operators have precedences in the range [L,H],
+where L = -1,000,000 and H = +1,000,000.  By convention,
+precedence H is reserved for post operators and precedence H-1 is
+reserved for prefix operators, but this is just convention and
+some prefix or postfix operators may have other precedences.
+The precedence L-1 is reserved for the `error operator' which is
+inserted during parsing to `fix up' errors found during parsing.
 
 Given this, expressions have the following syntax,
 where an {\em P-expression}
@@ -7175,66 +7185,114 @@ is an expression all of whose operators that are outside brackets
 have precedence equal to or greater than P:
 
 \begin{indpar}
-\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\emkey{expression}\label{EXPRESSION} ::= {\em (L-1)-expression}
 \\[0.5ex]
-\emkey{N-expression}
+\emkey{P-expression}
     \begin{tabular}[t]{@{}rl}
-    ::= & \{ {\em (N+1)-expression} $|$ {\em N-operator)} \}\PLUS{} \\
-        & where no two {\em (N+1)-expressions} may be adjacent \\ 
-        & and each {\em infix-N-operator} must be surrounded by
-	  {\em (N+1)-expressions} \\
+    ::= & {\em P-final-expression} \\
+        & {\em P-initial-operator} {\em P-expression}\QMARK{}
     \end{tabular}
 \\[0.5ex]
-\emkey{N-operator} ::= {\em nofix-N-operator} $|$ {\em infix-N-operator}
-\\[0.5ex]
-\emkey{nofix-N-operator} ::= nofix operator of precedence N
-\\[0.5ex]
-\emkey{infix-N-operator} ::= infix operator of precedence N
-\\[0.5ex]
-\emkey{(H+2)-expression}
+\emkey{P-final-expression}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em (H+3)-expression} \\
-    $|$ & {\em prefix-operator} {\em (H+2)-expression} \\
+    ::= & {\em P-middle-expression} \\
+        & {\em P-final-expression}\QMARK{} {\em P-final-operator}
     \end{tabular}
 \\[0.5ex]
-\emkey{(H+3)-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em (H+4)-expression} \\
-    $|$ & {\em (H+3)-expression} {\em postfix-operator} \\
-    \end{tabular}
+\emkey{P-middle-expression}
+    ::= \{ {\em (P+1)-expression} $|$ {\em P-middle-operator)} \}\PLUS{}
 \\[0.5ex]
-\emkey{(H+4)-expression} ::= {\em non-operator}\PLUS{}
+\emkey{(H+1)-expression} ::= {\em non-operator}\PLUS{}
+\\[0.5ex]
+\emkey{P-operator} ::= operator of precedence P
+\\[0.5ex]
+\emkey{P-initial-operator} ::= {\em P-operator} with {\tt initial} flag
+\\[0.5ex]
+\emkey{P-final-operator} ::= {\em P-operator} with {\tt final} flag
+\\[0.5ex]
+\emkey{P-middle-operator} ::= {\em P-operator} with \underline{neither}
+                              {\tt inital} nor {\tt final} flag
 \\[2.0ex]
-\hspace*{3em}\begin{tabular}{l}
-where N is any precedence in the range [L,H+1]
-\end{tabular}
+where in an {\em P-expression}: \\
+\hspace*{1em}\begin{tabular}[t]{l}
+       P is any precedence in the range [L-1,H+1]; \\
+       no two {\em (P+1)-expressions} may be adjacent; \\ 
+       each {\em P-operator} with a {\tt left} flag must be
+              preceeded by an {\em (P+1)-expression}; \\
+       each {\em P-operator} with a {\tt right} flag must be
+	  followed by an {\em (P+1)-expression}; \\
+       any operator with an {\tt afix} flag must not be the first
+           {\em P-operator} in an {\em P-expression}; \\
+       no operator may have both a {\tt initial} and a {\tt left} flag; \\
+       no operator may have both a {\tt right} and a {\tt final} flag; \\
+       no operator may have both a {\tt initial} and an {\tt afix} flag; \\
+       \end{tabular}
 \end{indpar}
 
 Essentually the expression being parsed is organized into {\em P-expressions}
 where $P$ is the precedence of the {\em P-expression}.  Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
-An {\em (H+2)-expression}, while it can be thought of as a sequence
-of zero or more prefix operators followed by a single {\em (H+3)-expression},
-is parsed so as to execute the prefix operators from right to left, each
-with a single operand.
-Similarly, an {\em (H+3)-expression}, while it can be thought of as
-an {\em (H+4)-expression} followed by a sequence
-of zero or more postfix operators,
-is parsed so as to execute the postfix operators from left to right, each
-with a single operand.
+If a {\em P-expression} begins with a {\em P-initial-operator},
+the entire {\em P-expression} after its initial operator is an operand
+of the initial operator.
+If a {\em P-expression} does \underline{not} beginning
+with a {\em P-initial-operator} ends with a {\em P-final-operator},
+the entire {\em P-expression} before its final operator is an operand
+of the final operator.
 
-An infix operator must be surrounded by operands, but a nofix operator
-need not have adjacent operands.
+\begin{boxedfigure}[!t]
 
-By choosing appropriate operator definitions, one can build
-a reasonable expression syntax consisting of nothing but nofix operators,
-while using operator expression reformatters to check whether the
-operators in an expression have sufficient operands.  However, with
-nofix operators an operator cannot have different precedence when it
-is infix and when it is prefix.  An operator like `\TT{-}' can be
-specified as both infix and prefix, where the prefix operator has
-much higher precedence (i.e., H+2) than the infix operator.
+Operator Flags:
+
+\begin{indpar}[0.4in]
+
+\hspace*{-0.2in}\ttmkey{initial}{operator flag} ~
+    Operator must be the first thing in any subexpression containing it.
+
+\hspace*{-0.2in}\ttmkey{left}{operator flag} ~
+    Operator must follow an operand (e.g., a non-operator or a
+    subexpression formed with operators of higher precedence).
+    That is, operator must have a left operand.
+
+\hspace*{-0.2in}\ttmkey{right}{operator flag} ~
+    Operator must precede an operand (e.g., a non-operator or a
+    subexpression formed with operators of higher precedence).
+    That is, operator must have a right operand.
+
+\hspace*{-0.2in}\ttmkey{final}{operator flag} ~
+    Operator must be the last thing in any subexpression containing it.
+
+\hspace*{-0.2in}\ttmkey{afix}{operator flag} ~
+    Operator must be preceeded in any subexpression containing it
+    by another operator of the same precedence.
+
+\end{indpar}
+
+Operator Groups:
+
+\begin{indpar}[0.4in]
+
+\hspace*{-0.2in}\ttmkey{prefix}{operator group} ~
+    The flags {\tt initial} and {\tt right}.
+
+\hspace*{-0.2in}\ttmkey{infix}{operator group} ~
+    The flags {\tt left} and {\tt right}.
+
+\hspace*{-0.2in}\ttmkey{postfix}{operator group} ~
+    The flags {\tt left} and {\tt final}.
+
+\hspace*{-0.2in}\ttmkey{nofix}{operator group} ~
+    No flags.
+
+
+\end{indpar}
+
+\bigskip
+
+\caption{\bf Operator Flags and Groups}
+\label{OPERATOR-FLAGS}
+\end{boxedfigure}
 
 \subsubsection{Operator Commands}
 \label{OPERATOR-COMMANDS}

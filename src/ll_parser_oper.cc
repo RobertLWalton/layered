@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 24 06:05:14 EST 2021
+// Date:	Wed Feb 24 21:02:39 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2274,6 +2274,12 @@ static min::gen oper_pass_command
 		      "expected precedence integer"
 		      " after" );
 	    precedence *= sign;
+	    if ( precedence < OP::low_precedence
+	         ||
+		 precedence > OP::high_precedence )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "precedence out of range" );
 	    precedence_found = true;
 	    ++ i;
 	    continue;
@@ -2303,6 +2309,7 @@ static min::gen oper_pass_command
 			  " name" );
 		}
 
+#ifdef TBD
 		min::uns32 illegal_flags =
 		        oper_flags
 		    & ~ reformatter->flags;
@@ -2331,6 +2338,7 @@ static min::gen oper_pass_command
 			      min::pgen_quote ( name ),
 			      buffer );
 		}
+#endif
 
 		i = j + 1;
 

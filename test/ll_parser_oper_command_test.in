@@ -2,7 +2,8 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 20 06:29:23 EST 2021
+// Date:	
+Wed Feb 24 14:45:37 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -51,27 +52,36 @@
 // Test erroneous defines and undefines
 //
 *PARSER*:
+    begin block BLOCK1
     define operator "+" [code, math] infix
         with binary reformatter
-    define operator "+" [code, math]
+    define operator "+" [code, math] xxfix
         with precedence 3000
-        with binary reformatter
-    define operator "+" [code, math] infix nofix
-        with precedence 3000
-        with binary reformatter
-    define operator "+" [code, math] nofix
-        with precedence 3000
-        with right associative reformatter
     define operator "+" [code, math] nofix
         with precedence 3000
         with none such reformatter
+    print operator ""
+    define operator "+" [code, math] nofix
+        with precedence 3000000
+        with binary reformatter
+
+    define operator "+" [code, math] infix
+        with binary reformatter
+        with precedence 3000
+    define operator "+" [code, math] nofix
+        with precedence 3000
     undefine operator "+" [code, math] infix
-    undefine operator "+" [code, math] infix
+    undefine operator "+" [code, math] 
         with precedence 3000
         with binary reformatter
-    undefine operator "+" [code, math]
+    undefine operator "+" [code, math] prefix
+        with precedence 3000
+    undefine operator "+" [code, math] infix
+        with precedence 2000
+    undefine operator "+" [code, math] infix
         with precedence 3000
     print operator ""
+    end block BLOCK1
 
 // Operators are introduced lowest precedence first
 
@@ -118,8 +128,8 @@
     define operator "OR" [code, math] infix
         with precedence 3100
         with infix reformatter
-    define operator "NOT" [code, math] nofix
-        with precedence 3100
+    define operator "NOT" [code, math] prefix
+        with precedence 3200
         with unary reformatter
 *PARSER* *TEST*:
     (x OR y BUT NOT z AND w)

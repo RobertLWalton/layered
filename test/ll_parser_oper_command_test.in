@@ -2,8 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	
-Wed Feb 24 14:45:37 EST 2021
+// Date:	Thu Feb 25 02:41:14 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -174,10 +173,16 @@ Wed Feb 24 14:45:37 EST 2021
     ( x < y <= z > w != p q =< u v )
 
 *PARSER*:
-    define operator "+" [code, math] infix prefix
+    define operator "+" [code, math] prefix
+        with precedence 999999
+        with unary reformatter
+    define operator "+" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
-    define operator "-" [code, math] infix prefix
+    define operator "-" [code, math] prefix
+        with precedence 999999
+        with unary reformatter
+    define operator "-" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
 *PARSER* *TEST*:
@@ -202,7 +207,7 @@ Wed Feb 24 14:45:37 EST 2021
 
 *PARSER*:
     define operator "@" [code, math] prefix
-        with precedence 10000
+        with precedence 999999
 *PARSER* *TEST*:
     ( - x + y - z )
     ( p * - x + y - z )
@@ -211,9 +216,9 @@ Wed Feb 24 14:45:37 EST 2021
 
 *PARSER*:
     define operator "++" [code, math] postfix
-        with precedence 10001
+        with precedence 1000000
     define operator "--" [code, math] postfix
-        with precedence 10001
+        with precedence 1000000
 *PARSER* *TEST*:
     ( x ++ + y - z -- )
     ( x y ++ -- ++ -- )

@@ -120,41 +120,61 @@
     ^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
+    begin block BLOCK1
 ERROR: in line ##: expected `with precedence ...' after:
         with binary reformatter
                     ^^^^^^^^^^^
-ERROR: in line ##: expected operator flags after:
-    define operator "+" [code, math]
+ERROR: in line ##: expected `with' after:
+    define operator "+" [code, math] xxfix
                         ^^^^^^^^^^^^
-ERROR: in line ##: operator flags nofix and infix are incompatible:
-    define operator "+" [code, math] infix nofix
-                                     ^^^^^^^^^^^
-ERROR: in lines ##-##: [< "right" "associative" >] reformatter
-       incompatible with nofix operator flag(s):
-    define operator "+" [code, math] nofix
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with precedence 3000
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with right associative reformatter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ##: undefined reformatter name:
         with none such reformatter
              ^^^^^^^^^^^^^^^^^^^^^
+    print operator ""
+        nothing found
+ERROR: in line ##: precedence out of range:
+        with precedence 3000000
+                        ^^^^^^^
+    define operator "+" [code, math] infix
+        with binary reformatter
+        with precedence 3000
+    define operator "+" [code, math] nofix
+        with precedence 3000
 ERROR: in line ##: expected `with precedence ...' after:
     undefine operator "+" [code, math] infix
                                        ^^^^^
 ERROR: in lines ##-##: did NOT expect `with ... reformatter':
-    undefine operator "+" [code, math] infix
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    undefine operator "+" [code, math]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with precedence 3000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with binary reformatter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ##: expected operator flags after:
-    undefine operator "+" [code, math]
-                          ^^^^^^^^^^^^
+WARNING: in lines ##-##: undefine found no definition:
+    undefine operator "+" [code, math] prefix
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with precedence 3000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    undefine operator "+" [code, math] prefix
+        with precedence 3000
+WARNING: in lines ##-##: undefine found no definition:
+    undefine operator "+" [code, math] infix
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        with precedence 2000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    undefine operator "+" [code, math] infix
+        with precedence 2000
+    undefine operator "+" [code, math] infix
+        with precedence 3000
     print operator ""
-        nothing found
+        block BLOCK1: operator "+" [code, math]
+                      nofix
+                      with precedence 3000
+        block BLOCK1: operator "+" []
+                      infix
+                      with precedence 3000
+                      with binary reformatter
+    end block BLOCK1
 *PARSER*:
     define operator "=" [code, math] infix
         with precedence 1000
@@ -177,28 +197,28 @@ ERROR: in line ##: expected operator flags after:
                                {"": .operator = "*="|*= {|z w|}
                                     {"": .operator = "="|= {|p q r|}
                                          {|t v|}|}|}|}|}
-======= line ##:
+======= line ###:
     (x = y += z w *= p q r = t v)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
          ^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
               ^^^^^^^^^^^^^^^^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
               ^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
                      ^^^^^^^^^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
                      ^^^^^
-------- line ##:
+------- line ###:
     (x = y += z w *= p q r = t v)
                              ^^^
 ======= END PARSER TEST(S)
@@ -273,43 +293,17 @@ ERROR: in line ###: wrong separator "..." changed to ",":
     define operator "OR" [code, math] infix
         with precedence 3100
         with infix reformatter
-    define operator "NOT" [code, math] nofix
-        with precedence 3100
+    define operator "NOT" [code, math] prefix
+        with precedence 3200
         with unary reformatter
 ERROR: in line ###: operator "OR" should equal "AND"; all operators must
        be the same in this subexpression; operator "OR" changed to
        "AND":
     (x OR y BUT NOT z AND w OR p)
                     ^^^^^^^^^^^^
-ERROR: in line ###: expected an operator and found an operand "x";
-       deleted:
-    (x NOT y)
-     ^
-ERROR: in line ###: extra stuff at end of expression; deleted:
-    (NOT x AND y)
-           ^^^^^
-ERROR: in line ###: missing operand; error operand inserted:
-    (x AND NOT y)
-           ^
-ERROR: in line ###: operator "NOT" should equal "AND"; all operators
-       must be the same in this subexpression; operator "NOT" changed to
-       "AND":
-    (x AND NOT y)
-     ^^^^^^^^^^^
-ERROR: in line ###: missing operand; error operand inserted:
-    (x AND AND y)
-           ^
-ERROR: in line ###: expected an operand and found an operator "NOT";
-       deleted:
-    (NOT NOT x y)
-         ^^^
-ERROR: in line ###: expected an operand and found an operator "NOT";
-       deleted:
-    (NOT NOT)
-         ^^^
 ERROR: in line ###: missing operand; error operand inserted:
     (NOT NOT)
-        ^
+             ^
 ======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
                           ")", .initiator = "("|[< BUT NOT >]
                           {"": .operator = "OR"|OR x y|}
@@ -353,57 +347,75 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (NOT x y)
          ^^^
-======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT y|}
+======= PARSER TEST: (x NOT y)
 ======= line ###:
     (x NOT y)
     ^^^^^^^^^
 ------- line ###:
     (x NOT y)
     ^^^^^^^^^
-======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT x|}
+======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
+                          .initiator = "("|AND
+                          {"": .operator = "NOT"|NOT x|} y|}
 ======= line ###:
     (NOT x AND y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (NOT x AND y)
     ^^^^^^^^^^^^^
+------- line ###:
+    (NOT x AND y)
+     ^^^^^
 ======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND x ERROR'OPERAND y|}
+                          .initiator = "("|AND x
+                          {"": .operator = "NOT"|NOT y|}|}
 ======= line ###:
     (x AND NOT y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (x AND NOT y)
     ^^^^^^^^^^^^^
+------- line ###:
+    (x AND NOT y)
+           ^^^^^
 ======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND x ERROR'OPERAND y|}
+                          .initiator = "("|AND x {|AND y|}|}
 ======= line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
+------- line ###:
+    (x AND AND y)
+           ^^^^^
 ======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT {|x y|}|}
+                          .initiator = "("|NOT
+                          {"": .operator = "NOT"|NOT {|x y|}|}|}
 ======= line ###:
     (NOT NOT x y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (NOT NOT x y)
     ^^^^^^^^^^^^^
+------- line ###:
+    (NOT NOT x y)
+         ^^^^^^^
 ------- line ###:
     (NOT NOT x y)
              ^^^
 ======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT ERROR'OPERAND|}
+                          .initiator = "("|NOT
+                          {"": .operator = "NOT"|NOT ERROR'OPERAND|}|}
 ======= line ###:
     (NOT NOT)
     ^^^^^^^^^
 ------- line ###:
     (NOT NOT)
     ^^^^^^^^^
+------- line ###:
+    (NOT NOT)
+         ^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     define operator "==" [code, math] infix
@@ -501,10 +513,16 @@ ERROR: in line ###: missing operand; error operand inserted:
                                ^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    define operator "+" [code, math] infix prefix
+    define operator "+" [code, math] prefix
+        with precedence 999999
+        with unary reformatter
+    define operator "+" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
-    define operator "-" [code, math] infix prefix
+    define operator "-" [code, math] prefix
+        with precedence 999999
+        with unary reformatter
+    define operator "-" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
@@ -641,7 +659,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ======= END PARSER TEST(S)
 *PARSER*:
     define operator "@" [code, math] prefix
-        with precedence 10000
+        with precedence 999999
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
                           .initiator = "("|+ {"": .operator = "-"|- x|}
                           y {"": .operator = "-"|- z|}|}
@@ -723,9 +741,9 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ======= END PARSER TEST(S)
 *PARSER*:
     define operator "++" [code, math] postfix
-        with precedence 10001
+        with precedence 1000000
     define operator "--" [code, math] postfix
-        with precedence 10001
+        with precedence 1000000
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
                           .initiator = "("|+
                           {"": .operator = "++"|x ++|} y
@@ -893,17 +911,25 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with precedence 5200
                         with infix reformatter
         block standard: operator "+" [code, math]
-                        prefix infix
+                        infix
                         with precedence 5000
                         with sum reformatter ( "+", "-" )
+        block standard: operator "+" [code, math]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
         block standard: operator "," [code, math]
                         nofix
                         with precedence 2000
                         with separator reformatter
         block standard: operator "-" [code, math]
-                        prefix infix
+                        infix
                         with precedence 5000
                         with sum reformatter ( "+", "-" )
+        block standard: operator "-" [code, math]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
         block standard: operator "/" [code, math]
                         infix
                         with precedence 5100
@@ -922,7 +948,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with infix and reformatter ( "AND" )
         block standard: operator "@" [code, math]
                         prefix
-                        with precedence 10000
+                        with precedence 999999
         block standard: operator "!=" [code, math]
                         infix
                         with precedence 4000
@@ -932,8 +958,8 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with precedence 5300
                         with binary reformatter
         block standard: operator "NOT" [code, math]
-                        nofix
-                        with precedence 3100
+                        prefix
+                        with precedence 3200
                         with unary reformatter
         block standard: operator "<--" [code]
                         nofix
@@ -949,7 +975,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with right associative reformatter
         block standard: operator "++" [code, math]
                         postfix
-                        with precedence 10001
+                        with precedence 1000000
         block standard: operator "+=" [code, math]
                         infix
                         with precedence 1000
@@ -972,7 +998,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with infix and reformatter ( "AND" )
         block standard: operator "--" [code, math]
                         postfix
-                        with precedence 10001
+                        with precedence 1000000
         block standard: operator "=>" [code, math]
                         infix
                         with precedence 4000

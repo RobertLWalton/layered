@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 24 21:02:39 EST 2021
+// Date:	Thu Feb 25 02:44:32 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2197,13 +2197,6 @@ static min::gen oper_pass_command
 	    new_oper_flag = OP::NOFIX;
 	else break;
 
-	if ( oper_flags & new_oper_flag )
-	    return PAR::parse_error
-		( parser, ppvec[i],
-		  "operator flag ",
-		  min::pgen_quote ( vp[i] ),
-		  " appears twice" );
-
 	oper_flags |= new_oper_flag;
 	++ i;
     }
@@ -2308,37 +2301,6 @@ static min::gen oper_pass_command
 			  "undefined reformatter"
 			  " name" );
 		}
-
-#ifdef TBD
-		min::uns32 illegal_flags =
-		        oper_flags
-		    & ~ reformatter->flags;
-		if ( illegal_flags != 0 )
-		{
-		    char buffer[200];
-		    char * s = buffer;
-		    s += sprintf
-		        ( s, " reformatter"
-			     " incompatible with" );
-		    if ( illegal_flags & OP::PREFIX )
-		        s += sprintf ( s, " prefix" );
-		    if ( illegal_flags & OP::INFIX )
-		        s += sprintf ( s, " infix" );
-		    if ( illegal_flags & OP::POSTFIX )
-		        s += sprintf ( s, " postfix" );
-		    if ( illegal_flags & OP::NOFIX )
-		        s += sprintf ( s, " nofix" );
-		    if ( illegal_flags & OP::AFIX )
-		        s += sprintf ( s, " afix" );
-		    s += sprintf
-		        ( s, " operator flag(s)" );
-		    return PAR::parse_error
-			    ( parser, ppvec->position,
-			      "",
-			      min::pgen_quote ( name ),
-			      buffer );
-		}
-#endif
 
 		i = j + 1;
 

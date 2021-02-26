@@ -7241,6 +7241,24 @@ with a {\em P-initial-operator} ends with a {\em P-final-operator},
 the entire {\em P-expression} before its final operator is an operand
 of the final operator.
 
+Whether or not an operator is recognized is determined by the left
+context of the operator.  Thus in `{\tt x + + y}' the first {\tt +}
+is recognized as an infix operator because it is preceded by an operand,
+and the second {\tt +} is recognized as a prefix operator because it
+is preceded by another operator (the first {\tt +}) of lower precedence.
+However, in `{\tt x * * y}' the second {\tt *} is not recognized as
+an operator, because only infix {\tt *} is defined, and what is immediately
+to the left of the second {\tt *} is another operator (the first {\tt *})
+of equal precedence.  Thus the second {\tt *} is treated as a non-operator,
+(e.g., as if there were a variable named `{\tt * y}').
+
+A consequence of this is that while an operator may have both an
+infix and a prefix definition, it should not have both an infix and
+a postfix definition, as both infix and postfix operators both have the
+same left context (and in that context whichever was defined later will
+be selected).
+
+
 \begin{boxedfigure}[!t]
 
 Operator Flags:

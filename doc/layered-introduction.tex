@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 25, 2021
+February 26, 2021
  
 \end{center}
 
@@ -7544,14 +7544,7 @@ in \itemref{OPERATOR-REFORMATTERS}.
 prece-  &               &       &               & \\
 ~dence  & reformatter	& type	& operator	& meaning 
 \\\hline
-0000	& \ttkey{declare}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
-	&			& \TT{afix}	& \TT{bracket}  & block \\
-	&			& 		& \ttkey{~~"\{\$" ...~"\$\}"}
-	                                        & \\
-	&			& \TT{afix}	& \TT{indentation}  & block \\
-	&			& 		& \TT{~~mark} \ttkey{":"} & 
-\\\hline
-1000	& \TT{right}		& \TT{nofix}	& \ttkey{=}	& assignment \\
+1000	& \TT{right}		& \TT{infix}	& \ttkey{=}	& assignment \\
      	& \TT{associative\ttindex{right associative}}
 				&          	& \ttkey{+=}	& increment \\
      	&               	&          	& \ttkey{-=}	& decrement \\
@@ -7560,16 +7553,16 @@ prece-  &               &       &               & \\
 \\\hline
 2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{,}	& separator
 \\\hline
-3000	& \ttkey{binary}	& \TT{nofix}	& \ttkey{BUT NOT}
+3000	& \ttkey{binary}	& \TT{infix}	& \ttkey{BUT NOT}
 								& logical and
 								  not
 \\\hline
-3100	& \ttkey{infix}		& \TT{nofix}	& \ttkey{AND}	& logical and \\
+3100	& \ttkey{infix}		& \TT{infix}	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or
 \\\hline
-3100	& \ttkey{unary}		& \TT{nofix}	& \ttkey{NOT}	& logical not
+3200	& \ttkey{unary}		& \TT{prefix}	& \ttkey{NOT}	& logical not
 \\\hline
-4000 	& \ttkey{infix and}	& \TT{nofix}	& \ttkey{==}	& equal \\
+4000 	& \ttkey{infix and}	& \TT{infix}	& \ttkey{==}	& equal \\
 	&			&		& \ttkey{/=}  & not equal \\
 	&			&		& \ttkey{!=}	& ditto \\
 	&		      	&		& \ttkey{<}	& less than \\
@@ -7582,8 +7575,8 @@ prece-  &               &       &               & \\
 								  or equal \\
 	&			&		& \TT{=>}	& ditto
 \\\hline
-5000	& \ttkey{sum}		& \TT{infix} and & \TT{+}	& addition \\
-	&			& \TT{~~prefix}	& \TT{-}	& subtraction
+5000	& \ttkey{sum}		& \TT{infix}    & \TT{+}	& addition \\
+	&			& 		& \TT{-}	& subtraction
 \\\hline
 5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division
 \\\hline
@@ -7592,6 +7585,9 @@ prece-  &               &       &               & \\
 \\\hline
 5300	& \ttkey{binary}	& \TT{infix}	& \TT{\textasciicircum}
 							& exponentiation
+\\\hline
+H-1	& \ttkey{unary}		& \TT{prefix}   & \TT{+}	& no-op \\
+	&			& 		& \TT{-}	& negation
 \\\hline
 \end{tabular}
 \end{center}

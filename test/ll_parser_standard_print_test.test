@@ -246,10 +246,10 @@
                         with binary reformatter
         block standard: operator "NOT" [code, math]
                         prefix
-                        with precedence 3100
+                        with precedence 3200
                         with unary reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
-                        nofix
+                        infix
                         with precedence 3000
                         with binary reformatter
         block standard: operator "*=" [code, math]
@@ -265,7 +265,7 @@
                         with precedence 4000
                         with infix and reformatter ( "AND" )
         block standard: operator "AND" [code, math]
-                        nofix
+                        infix
                         with precedence 3100
                         with infix reformatter
         block standard: operator "==" [code, math]
@@ -281,7 +281,7 @@
                         with precedence 4000
                         with infix and reformatter ( "AND" )
         block standard: operator "OR" [code, math]
-                        nofix
+                        infix
                         with precedence 3100
                         with infix reformatter
         block standard: operator "/=" [code, math]

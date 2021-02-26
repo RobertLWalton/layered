@@ -1,3 +1,8 @@
+ERROR: in line ##: operator "OR" should equal "AND"; all operators must
+       be the same in this subexpression; operator "OR" changed to
+       "AND":
+    x AND y OR z
+    ^^^^^^^^^^^^
 ======= PARSER TEST: a b c
 ======= line ##:
     a b c
@@ -291,4 +296,53 @@
 ------- line ##:
     x * {|* y|}
         ^^^^^^^
+======= PARSER TEST: {"": .operator = "NOT", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|NOT
+                          {"": .operator = "NOT"|NOT x|}|}
+======= line ##:
+    NOT NOT x
+    ^^^^^^^^^
+------- line ##:
+    NOT NOT x
+        ^^^^^
+======= PARSER TEST: x NOT y
+======= line ##:
+    x NOT y
+    ^^^^^^^
+======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|AND x y z|}
+======= line ##:
+    x AND y AND z
+    ^^^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|AND x
+                          {"": .operator = "NOT"|NOT y|}
+                          {"": .operator = "NOT"|NOT z|}|}
+======= line ##:
+    x AND NOT y AND NOT z
+    ^^^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    x AND NOT y AND NOT z
+          ^^^^^
+------- line ##:
+    x AND NOT y AND NOT z
+                    ^^^^^
+======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
+                          "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                          [< BUT NOT >] {"": .operator = "AND"|AND x y|}
+                          {"": .operator = "OR"|OR z w v|}|}
+======= line ##:
+    x AND y BUT NOT z OR w OR v
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    x AND y BUT NOT z OR w OR v
+    ^^^^^^^
+------- line ##:
+    x AND y BUT NOT z OR w OR v
+                    ^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|AND x y z|}
+======= line ##:
+    x AND y OR z
+    ^^^^^^^^^^^^
 ======= END PARSER TEST(S)

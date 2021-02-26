@@ -266,6 +266,15 @@
 ------- line ##:
     x + + y
         ^^^
+======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+ x
+                          {"": .operator = "+"|+ y|}|}
+======= line ##:
+    x + {|+ y|}
+    ^^^^^^^^^^^
+------- line ##:
+    x + {|+ y|}
+        ^^^^^^^
 ======= PARSER TEST: {"": .operator = "*", .terminator = "<LF>",
                           .initiator = [$ LOGICAL_LINE $]|* x {|* y|}|}
 ======= line ##:
@@ -274,4 +283,12 @@
 ------- line ##:
     x * * y
         ^^^
+======= PARSER TEST: {"": .operator = "*", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|* x {|* y|}|}
+======= line ##:
+    x * {|* y|}
+    ^^^^^^^^^^^
+------- line ##:
+    x * {|* y|}
+        ^^^^^^^
 ======= END PARSER TEST(S)

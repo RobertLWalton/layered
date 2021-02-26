@@ -7825,3 +7825,21 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     end block BLOCK1
+BRACKETED EXPRESSION:
+    + x
+@@@@ = + x:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+    line ###:
+{|+ x|}
+^^^^^^^
+BRACKETED EXPRESSION:
+    {+ x +}
+@@@@ = {+ x +}:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+{+ x +}
+^^^^^^^

@@ -7258,6 +7258,13 @@ a postfix definition, as both infix and postfix operators both have the
 same left context (and in that context whichever was defined later will
 be selected).
 
+There can be multiple operator definitions with the afix flag
+and the same {\em operator-name} but with different precedences
+that are all selected by the current parsing selectors.  The most
+recent definition will be used that has the same precedence
+as a previous operator in the expression with no intervening
+operator of lower precedence.
+
 
 \begin{boxedfigure}[!t]
 
@@ -7287,7 +7294,7 @@ Operator Flags:
 
 \end{indpar}
 
-Operator Groups:
+Operator Flag Groups:
 
 \begin{indpar}[0.4in]
 
@@ -7308,7 +7315,7 @@ Operator Groups:
 
 \bigskip
 
-\caption{\bf Operator Flags and Groups}
+\caption{\bf Operator Flags and Flag Groups}
 \label{OPERATOR-FLAGS}
 \end{boxedfigure}
 
@@ -7337,7 +7344,7 @@ the operator parsing definition stack:
 		{\em operator-name} ~ {\em parsing-selectors} \\
 		{\em operator-flag} ~ {\em operator-flag}\,\STAR{} \\
 		\end{tabular} \\
-	    {}[ \TT{with precedence} ~ {\em precedence} ] \\
+	    \TT{with precedence} ~ {\em precedence} \\
 	    {}[ \TT{with} ~ {\em reformatter-name} ~ \TT{reformatter}
 			  ~ {\em reformatter-arguments}\QMARK{} ] \\
 	    \end{tabular} \\
@@ -7348,7 +7355,7 @@ the operator parsing definition stack:
 		{\em operator-name} ~ {\em parsing-selectors} \\
 		{\em operator-flag} ~ {\em operator-flag}\,\STAR{} \\
 		\end{tabular} \\
-	    {}[ \TT{with precedence} ~ {\em precedence} ] \\
+	    \TT{with precedence} ~ {\em precedence} \\
 	    \end{tabular} \\
     \end{tabular}
 \\[1ex]
@@ -7361,13 +7368,17 @@ the operator parsing definition stack:
 {\em simple-operator-name} ::= {\em quoted-key} \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
 {\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
-\emkey{operator-flag} ::= {\em operator-fixity}
+\emkey{operator-flag} ::= \ttmkey{initial}{operator flag}
+                      $|$ \ttmkey{left}{operator flag}
+                      $|$ \ttmkey{right}{operator flag}
+                      $|$ \ttmkey{final}{operator flag}
                       $|$ \ttmkey{afix}{operator flag}
+                      $|$ {\em operator-flag-group}
 	\\[1ex]
-\emkey{operator-fixity} ::= \ttmkey{prefix}{operator fixity}
-                        $|$ \ttmkey{infix}{operator fixity}
-                        $|$ \ttmkey{postfix}{operator fixity}
-                        $|$ \ttmkey{nofix}{operator fixity}
+\emkey{operator-flag-group} ::= \ttmkey{prefix}{operator flag group}
+                            $|$ \ttmkey{infix}{operator flag group}
+                            $|$ \ttmkey{postfix}{operator flag group}
+                            $|$ \ttmkey{nofix}{operator flag group}
 	\\[1ex]
 \emkey{precedence} \begin{tabular}[t]{rl}
 		   :::= & {\em sign-option} {\em natural-number}
@@ -7398,7 +7409,7 @@ An \key{operator definition} specifies for each operator the following:
 \begin{indpar}[1in]
 Name and Selectors \\
 Operator Flags \\
-Precedence [for infix and nofix operators] \\
+Precedence \\
 Reformatter
 \end{indpar}
 
@@ -7418,103 +7429,12 @@ Since it is unusual for two defined brackets to have the same opening
 and different closings, this usually is inconsequential.
 
 Operators have \skey{operator flag}s that
-affect parsing of subexpressions of the operator.  The fixity flags are
-`\TT{infix}', `\TT{prefix}', `\TT{postfix}', and `\TT{nofix}'.
-An operator definition must have at least one of these fixity flags.
-In addition there is an optional `\TT{afix}' flag, which in spite
-of its name is \underline{not} a fixity flag.
+affect parsing of subexpressions of the operator:
+see Figure~\ref{OPERATOR-FLAGS}.
+The actual flags are the union of those given in the definition.
+Thus `{\tt infix left}' is the same as `{\tt infix}'.
 
-The definition must have a {\em precedence} if and only if it is
-nofix or infix.
-
-An \ttkey{infix} operator must be between two non-empty operands,
-while a \ttkey{prefix} operator must precede a non-empty operand,
-and a \ttkey{postfix} operator must follow a non-empty operand.
-A prefix operator can only appear at the beginning of a subexpression and
-has no preceding operand.
-A postfix operator can only appear at then end of a subexpression and has
-no following operand.
-
-An infix operator may also be either prefix or postfix.
-An infix operator has the precedence given in the operator definition.
-A prefix operator always has precedence H+2, and a postfix operator
-always has precedence H+3.  An operator may be both prefix and postfix,
-but no operator may be all three of infix, prefix, and postfix.
-
-A \ttkey{nofix} operator may or may not be
-preceded or followed by operands.  It may appear at the beginning or ending of
-an expression, or two nofix operators may be consecutive in an expression.
-A nofix operator has the precedence given in the operator definition.
-A nofix operator \underline{cannot} also be either prefix or postfix.
-
-An operator whose definition has the `\ttkey{afix}' flag\label{AFIX-FLAG}
-must follow another operator that has the same precedence in a subexpression,
-and will be part of the subexpression containing that previous operator.
-There can be no operator of lower precedence between this previous
-operator and the afix operator.  Infix and nofix operator definitions
-may be given
-the afix flag.  Prefix and postfix operator definitions \underline{cannot} be
-given the afix flag.
-
-As an example, standardly \TT{bracket "\{" ... "\}"} is a nofix
-operator with the afix flag and the same precedence as the
-as the \TT{"<-{}-"} operator.  Therefore the expression
-\begin{center}
-\verb|sum from X through Y <-- integer X, integer Y { ... }|
-\end{center}
-is parsed as
-\begin{center}
-\verb|(sum from X through Y) <-- (integer X, integer Y) { ... }|
-\end{center}
-and \underline{not} as
-\begin{center}
-\verb|(sum from X through Y) <-- (integer X, integer Y { ... })|
-\end{center}
-
-An operator must be prefix, infix, postfix, or nofix.
-An operator may be any two of prefix, infix, and postfix, but
-not all three.  An afix operator must be infix or nofix,
-and not prefix or postfix.
-
-There can be multiple operator definitions with the afix flag
-and the same {\em operator-name} but with different precedences
-that are all selected by the current parsing selectors.  The most
-recent definition will be used that has the same precedence
-as a previous operator in the expression with no intervening
-operator of lower precedence.
-
-The operator flag compatibility rules
-are expressed by the following table:
-
-\begin{center}
-\begin{tabular}{lc|c|c|c|c|}
-	& \multicolumn{5}{c}{is compatible with op-flag} \\
-\cline{2-6}
-\multicolumn{1}{l|}{op-flag} &
-prefix	& infix	& postfix & nofix & afix \\
-\hline
-\multicolumn{1}{|l|}{prefix} &
-	& yes	& yes	& no	& no	\\
-\hline
-\multicolumn{1}{|l|}{infix} &
-yes	&	& yes	& no	& yes	\\
-\hline
-\multicolumn{1}{|l|}{postfix} &
-yes	& yes	&	& no	& no	\\
-\hline
-\multicolumn{1}{|l|}{nofix} &
-no	& no	& no	&	& yes	\\
-\hline
-\multicolumn{1}{|l|}{afix} &
-no	& yes	& no	& yes	&	\\
-\hline
-\end{tabular}
-
-\medskip
-An operator must be at least one of prefix, infix, postfix, or nofix.
-
-No operator can be all of prefix, infix, and postfix.
-\end{center}
+The definition must have a {\em precedence}.
 
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
@@ -7534,11 +7454,6 @@ The optional {\em reformatter-arguments} are arguments to the reformatter
 function.  For example, the `\TT{summation}' reformatter takes two
 arguments, `\TT{(} {\em plus-op}\TT{,} {\em minus-op} \TT{)}', which
 are usually `\TT{("+","-")}'.
-
-For an operator that is both prefix and infix, the same reformatter
-is called when the operator is prefix and when the operator is infix.
-Similarly for an operator that is both postfix and infix, or both
-prefix and postfix.
 
 A {\em parser-operator-print-command}
 prints all operator table entries whose

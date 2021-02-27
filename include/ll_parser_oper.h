@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 24 06:05:28 EST 2021
+// Date:	Sat Feb 27 03:57:13 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -178,13 +178,11 @@ typedef min::packed_vec_insptr< oper_stack_struct >
 // subsequent parser passes or by making them into
 // PURELIST tokens).
 //
-// Non-operators have 0 fixity.  The AFIX flag has
-// been removed from any operator fixity.  Precedence
-// is only meaningful for INFIX and NOFIX fixity.
+// Non-operators have min::NULL_STUB op.
 //
 struct oper_vec_struct
 {
-    min::uns32 fixity;
+    min::uns32 flags;
     min::int32 precedence;
     oper op;
         // Is not visible to gc.  Used only for
@@ -196,40 +194,15 @@ typedef min::packed_vec_insptr< oper_vec_struct >
     oper_vec;
  
 // Return true iff a possible operator of given
-// precedence and fixity is allowed after the
-// operators to its left.  Fixity may include AFIX flag,
-// or may be zero for a non-operator.  If true is
-// returned, operator is inserted at end of v and
-// ambiguities in previous operators are resolved as
-// much as possible.
+// precedence and flags is allowed after the
+// token to its left, or in the case of op ==
+// NULL_STUB, if a non-operator is allowed after the
+// token to its left.
 //
-// If fixity includes the AFIX flag, a check is
-// made that after ambiguous fixity resolution there
-// will be a previous operator of the same precedence
-// with no intevening operator of lower precedence.
-//
-// Fixity that remains ambiguous after the fixity rules
-// are applied is left as ambiguous in v.  The second
-// pass can issue error messages and simply convert
-//
-// 	infix-or-postfix   ===>  infix
-// 	prefix-or-postfix  ===>  prefix
-// 	infix-or-prefix    ===>  prefix
-//
-// Expression-end can be handled by calling this
-// function with NOFIX and NO_PRECEDENCE.  If true
-// is returned, the last element of v must be popped.
-//
-// A return of false can be `fixed' by pushing an error
-// NOFIX operator before a non-operator or prefix
-// operator and pushing an error non-operator before
-// anything else.  An error NOFIX operator should have
-// precedence above the highest normal precedence.
-//
-bool fixity_OK ( oper_vec v,
-	         min::uns32 fixity = 0,
-		 min::int32 precedence = 0,
-		 oper op = min::NULL_STUB );
+bool flags_OK ( oper_vec v,
+	        min::uns32 flags = 0,
+		min::int32 precedence = 0,
+		oper op = min::NULL_STUB );
 
 // Insert a token with name ERROR'OPERAND and type
 // word_t before/after token t.  Call parse_error with
@@ -292,10 +265,6 @@ struct oper_pass_struct
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `operator subexpressions'
 	// that traces operator subexpressions.
-    ll::parser::table::flags trace_fixity;
-        // Trace flag named `operator fixity' that
-	// traces operator fixity, if operator sub-
-	// expressions are being traced.
 
 };
 

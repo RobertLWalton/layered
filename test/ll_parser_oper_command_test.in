@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 25 02:41:14 EST 2021
+// Date:	Sat Feb 27 04:09:29 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -17,7 +17,7 @@
     trace [+ parser commands, + warnings ]
     trace [+ subexpression elements,
            + subexpression lines ]
-    trace [- operator subexpressions, - operator fixity]
+    trace [- operator subexpressions]
     print selector ""
     print operator ""
 

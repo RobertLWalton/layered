@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 26, 2021
+February 27, 2021
  
 \end{center}
 
@@ -7288,7 +7288,7 @@ Operator Flags:
 \hspace*{-0.2in}\ttmkey{final}{operator flag} ~
     Operator must be the last thing in any subexpression containing it.
 
-\hspace*{-0.2in}\ttmkey{afix}{operator flag} ~
+\hspace*{-0.2in}\ttmkey{afix}{operator flag}\label{AFIX-FLAG} ~
     Operator must be preceeded in any subexpression containing it
     by another operator of the same precedence.
 
@@ -7550,25 +7550,24 @@ tokens, calls subsequence passes on each, and if these do not
 turn the sequence into a single token, packages the sequence into
 a single \TT{PURELIST} token.  The result is a single `non-operator'
 token.
-\item Determines the fixity of each operator: prefix, infix,
-postfix, or nofix.
-\item Identifies subexpressions using operator precedence and fixity.
+\item Identifies subexpressions using operator precedence and flags.
 \item Processes each subexpression, innermost first, treating the
 entire expression as a subexpression.  For each subexpression,
 the reformatter of the first operator in the expression is called.
 If there is no reformatter, or the reformatter chooses not to
 collect the expression into a single \TT{BRACKETABLE} token, then
 the expression is made into a single \TT{BRACKETABLE} token
-with the first operator as it \TT{.operator} attribute.
+with the first operator as its \TT{.operator} attribute.
 \end{enumerate}
 
 
 The left-to-right scan always has a current position.
 All operators to the left of the current position have been
-identified as per \itemref{OPERATOR-IDENTIFICATION},
-and most have had their fixity determined as per
-\itemref{FIXITY-DETERMINATION}.  Subexpression recognition
-is done after operators and fixity have been determined, and can be done
+identified as per \itemref{OPERATOR-IDENTIFICATION}.
+All tokens between two identified operators have been collected
+into a single non-operator token.
+Subexpression recognition is done after operators
+and non-operators have been thus determined, and can be done
 most simply by a second left-to-right scan.
 
 \subsubsubsection{Operator Identification}
@@ -7582,35 +7581,84 @@ considered.  Longer operators are preferred over shorter
 operators, and among these, operators defined later are
 preferred over operators defined earlier.
 
-If an operator definition has the afix flag, the definition
-is \underline{ignored} unless all of the following \underline{would} be true
-after insertion of the afix definition's operator
-and determination of fixity of any operators of ambiguous
-fixity preceeding the current position:
+When an operator definition is selected, it is accepted or rejected
+according to its flags and the token immediately to its left, which
+may be an operator or non-operator token.  The flags of the operator
+definition and of any operator to its left determine whether the
+operator is accepted or rejected, according to the rules in
+Figure~\ref{OPERATOR-FLAG-RULES}.  If an operator is accepted,
+its is made into a single token and the search for an operator
+at the current position terminates.
+
+The ends of the whole expression are treated as if they were
+special operators with no flags and precedence L-2.
+
+\begin{boxedfigure}[!t]
+
+If an operator definition has the \ttkey{afix} flag,
+the definition
+is \underline{rejected} unless all of the following \underline{would} be true
+after insertion of the afix definition's operator:
 \begin{itemize}
 \item[(1)] There is an operator preceeding the inserted operator
 that has the same precedence as the inserted operator.
 \item[(2)] There is no
 operator of lower precedence between this preceeding operator
 and the inserted operator.
-\item[(3)] The inserted
-operator has not interacted with operators immediately preceding
-the current position to cause an operator to
-have ambiguous fixity or a fixity not-allowed error.
 \end{itemize}
-See \itemref{FIXITY-DETERMINATION} for a description of fixity rules.
 
-Aside from application when an afix definition operator is considered
-for insertion, operator definition fixity
-is ignored during operator identification.
+If an operator definition D of precedence Q is not rejected
+by the rule above,
+the first applicable entry in the following table is used
+to accept or reject the operator.
+The token immediately to the left of the current position
+is T, and if it is an operator, it has precedence P.
+
+\begin{center}
+\begin{tabular}{lllll}
+T Type		& T Flags
+			& D flags	& Condition	& Result
+\\\hline
+non-operator	&	& initial	&	& reject \\
+non-operator	&	& other	 	&	& accept
+\\[0.5ex]
+operator	& right & left		&	& reject \\
+operator	& right & initial	& P > Q	& reject \\
+operator	& right & initial	& P < Q	& accept \\
+operator	& right + initial
+			& initial	& P = Q	& accept \\
+operator	& right + other
+			& initial	& P = Q & reject \\
+operator	& right & other		& P < Q	& accept \\
+operator	& right & other		& P $\ge$ Q	& reject
+\\[0.5ex]
+operator	& final & initial	&	& reject \\
+operator	& final & left		& P > Q	& accept \\
+operator	& final & left		& P < Q	& reject \\
+operator	& final & left + final 	& P = Q	& accept \\
+operator	& final & left + other	& P = Q	& reject \\
+operator	& final & other		& P > Q	& accept \\
+operator	& final & other		& P $\le$ Q	& reject
+\\[0.5ex]
+operator	& other	 & initial	& P < Q	& accept \\
+operator	& other	 & initial	& P $\ge$ Q	& reject \\
+operator	& other	 & left		& P > Q	& accept \\
+operator	& other	 & left		& P $\le$ Q	& reject \\
+operator	& other	 & other	& 	& accept \\
+
+\end{tabular}
+\end{center}
+
+\caption{\bf Operator Flag Rules}
+\label{OPERATOR-FLAG-RULES}
+\end{boxedfigure}
 
 If an operator is identified, its lexemes are collected into
 an \TT{OPERATOR} token.  If no operator is identified, the
 current position is moved one token to the right.
 
 When an operator is identified, the non-\TT{OPERATOR}
-tokens between it and the preceeding operator, or expression beginning
-if there is no preceeding operator,
+tokens between it and the preceeding operator
 are treated as an operator-free subexpression.
 This is a `\key{non-operator subexpression}' if it is not empty.
 For each non-operator subexpression
@@ -7621,296 +7669,15 @@ into a single token, the subexpression is made into a single
 is replaced by a single non-operator token.  Note that by construction,
 two non-operator tokens cannot be next to each other.
 
-\subsubsubsection{Fixity Determination}
-\label{FIXITY-DETERMINATION}
+If no operator is identified at the current position, and the
+previous position contains an operator with the {\tt final}
+flag, it is a parsing error which is `fixed up' by inserting
+an \ttkey{ERROR'OPERATOR} of precedence L-1 and no flags
+before the current position.
 
-An operator definition may have ambiguous fixity.  In
-particular, it may be
-\begin{center}
-prefix or infix \\
-prefix or postfix \\
-infix or postfix
-\end{center}
-
-Operator fixity is determined during the left to right scan
-using the following rules:
-
-\begin{itemize}
-\item[(A)]
-A prefix operator must be followed by a non-operator or another
-prefix operator.
-\item[(B)]
-A prefix operator must be preceded by an infix operator, a nofix
-operator, a prefix operator, or the beginning of the expression.
-\item[(C)]
-An infix operator must be followed by a non-operator, a prefix
-operator, or a nofix operator of greater precedence than the
-infix operator.
-\item[(D)]
-An infix operator must be preceded by a non-operator, a postfix
-operator, or a nonfix operator of greater precedence than the
-infix operator.
-\item[(E)]
-A postfix operator must be followed by an infix operator, a nofix
-operator, a postfix operator, or the end of the expression.
-\item[(F)]
-A postfix operator must be preceded by a non-operator or another
-postfix operator.
-\end{itemize}
-
-Recall that two non-operators next to each other.
-
-If these rules are obeyed, then the following will be true:
-
-\begin{itemize}
-\item[(G)]
-A nofix operator will be followed by a non-operator, a prefix
-operator, an infix operator of precedence lower than the nofix
-operator, a nofix operator, or the end of the expression.
-\item[(H)]
-A nofix operator will be preceded by a non-operator, a postfix
-operator, an infix operator of precedence lower than the nofix
-operator, a nofix operator, or the beginning of the expression.
-\item[(I)]
-A non-operator will be followed by a postfix
-operator, an infix operator, a nofix operator,
-or the end of the expression.
-\item[(J)]
-A non-operator will be preceded by a prefix
-operator, an infix operator, a nofix operator,
-or the beginning of the expression.
-\item[(K)]
-The beginning of expression is followed by a prefix operator,
-a nofix operator, a non-operator, or the end of the expression.
-\item[(L)]
-The end of expression is preceded by a postfix operator,
-a nofix operator, a non-operator, or the beginning of expression.
-\end{itemize}
-
-\newcommand{\OPSUP}[1]{$^\textrm{\scriptsize #1}$}
-The above rules lead to the \key{fixity rewrite rules}
-in Figures \ref{FIXITY-REWRITE-RULES-1},
-\ref{FIXITY-REWRITE-RULES-2}, and
-\ref{FIXITY-REWRITE-RULES-3} that determine the fixity
-of operators with ambiguous fixity (e.g., operators that
-are infix-or-prefix).  In these rules `ambiguous'
-means an operator whose fixity cannot be determined by the above
-rules (along with any operators before it whose fixity has not
-been determined);
-`not-allowed'
-means there can be no way to assign fixity to the expression operators
-consistent with the above rules; and `unresolved' means the
-rewrite rule does not change anything.
-Also nofix\OPSUP{H} means a nofix operator of precedence higher
-than the preceeding or following infix-or\ldots{} operator, and
-nofix\OPSUP{--H} means a nofix operator of precedence equal to or lower
-than the preceeding or following infix-or\ldots{} operator.
-
-\begin{figure}[!p]
-\centering
-\small
-\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
-\hline
-expression-begin & non-operator & expression-begin non-operator \\
-expression-begin & prefix & expression-begin prefix \\
-expression-begin & infix & not-allowed\OPSUP{--O} \\
-expression-begin & postfix & not-allowed\OPSUP{--O} \\
-expression-begin & nofix & expression-begin nofix \\
-expression-begin & expression-end & expression-begin expression-end \\
-\hline
-non-operator & non-operator & cannot-happen \\
-non-operator & prefix & not-allowed\OPSUP{O} \\
-non-operator & infix & non-operator infix \\
-non-operator & postfix & non-operator postfix \\
-non-operator & nofix & non-operator nofix \\
-non-operator & expression-end & non-operator expression-end \\
-\hline
-prefix & non-operator & prefix non-operator \\
-prefix & prefix & prefix prefix \\
-prefix & infix & not-allowed\OPSUP{--O} \\
-prefix & postfix & not-allowed\OPSUP{--O} \\
-prefix & nofix & not-allowed\OPSUP{--O} \\
-prefix & expression-end & not-allowed\OPSUP{--O} \\
-\hline
-infix & non-operator & infix non-operator \\
-infix & prefix & infix prefix \\
-infix & infix & not-allowed\OPSUP{--O} \\
-infix & postfix & not-allowed\OPSUP{--O} \\
-infix & nofix\OPSUP{H} & infix nofix \\
-infix & nofix\OPSUP{--H} & not-allowed\OPSUP{--O} \\
-infix & expression-end & not-allowed\OPSUP{--O} \\
-\hline
-postfix & non-operator & not-allowed\OPSUP{O} \\
-postfix & prefix & not-allowed\OPSUP{O} \\
-postfix & infix & postfix infix \\
-postfix & postfix & postfix postfix \\
-postfix & nofix & postfix nofix \\
-postfix & expression-end & postfix expression-end \\
-\hline
-nofix & non-operator & nofix non-operator \\
-nofix & prefix & nofix prefix \\
-nofix\OPSUP{H} & infix & nofix infix \\
-nofix\OPSUP{--H} & infix & not-allowed\OPSUP{--O} \\
-nofix & postfix & not-allowed\OPSUP{--O} \\
-nofix & nofix & nofix nofix \\
-nofix & expression-end & nofix expression-end \\
-\hline
-\end{tabular}
-\\[1ex]
-\begin{tabular}{rl}
-\OPSUP{H}   & means operator has higher precedence than \\
-          & the precedence of the following operator\\[1ex]
-\OPSUP{--H} & means operator has precedence lower than or equal to \\
-          & the precedence of the following operator\\[1ex]
-\end{tabular}
-\\
-\caption{Fixity Rewrite Rules: Part 1 of 3}
-\label{FIXITY-REWRITE-RULES-1}
-\end{figure}
-
-\begin{figure}[!p]
-\centering
-\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
-\hline
-expression-begin & infix-or-prefix & expression-begin prefix \\
-non-operator & infix-or-prefix & non-operator infix \\
-prefix & infix-or-prefix & prefix prefix \\
-infix & infix-or-prefix & infix prefix \\
-postfix & infix-or-prefix & postfix infix \\
-nofix\OPSUP{H} & infix-or-prefix & unresolved \\
-nofix\OPSUP{--H} & infix-or-prefix & nofix prefix \\
-infix-or-prefix & infix-or-prefix & ambiguous prefix \\
-infix-or-postfix & infix-or-prefix & unresolved \\
-prefix-or-postfix & infix-or-prefix & unresolved \\
-\hline
-expression-begin & infix-or-postfix & not-allowed\OPSUP{--O} \\
-non-operator & infix-or-postfix & unresolved \\
-prefix & infix-or-postfix & not-allowed\OPSUP{--O} \\
-infix & infix-or-postfix & not-allowed\OPSUP{--O} \\
-postfix & infix-or-postfix & unresolved \\
-nofix\OPSUP{H} & infix-or-postfix & nofix infix \\
-nofix\OPSUP{--H} & infix-or-postfix & not-allowed\OPSUP{--O} \\
-infix-or-prefix & infix-or-postfix & not-allowed\OPSUP{--O} \\
-infix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
-prefix-or-postfix & infix-or-postfix & postfix infix-or-postfix \\
-\hline
-expression-begin & prefix-or-postfix & expression-begin prefix \\
-non-operator & prefix-or-postfix & non-operator postfix \\
-prefix & prefix-or-postfix & prefix prefix \\
-infix & prefix-or-postfix & infix prefix \\
-postfix & prefix-or-postfix & postfix postfix \\
-nofix & prefix-or-postfix & nofix prefix \\
-infix-or-prefix & prefix-or-postfix & ambiguous prefix \\
-infix-or-postfix & prefix-or-postfix & unresolved \\
-prefix-or-postfix & prefix-or-postfix & unresolved \\
-\hline
-\end{tabular}
-\\[2ex]
-\begin{tabular}{rl}
-\OPSUP{H}   & means operator has higher precedence than \\
-          & the precedence of the following operator\\[1ex]
-\OPSUP{--H} & means operator has precedence lower than or equal to \\
-          & the precedence of the following operator\\[1ex]
-\end{tabular}
-\\
-\caption{Fixity Rewrite Rules: Part 2 of 3}
-\label{FIXITY-REWRITE-RULES-2}
-\end{figure}
-
-\begin{figure}[!p]
-\centering
-\begin{tabular}{|r@{~~}l@{~~~$\Longrightarrow$~~~}l|}
-\hline
-infix-or-prefix & non-operator & ambiguous non-operator \\
-infix-or-prefix & prefix & ambiguous prefix \\
-infix-or-prefix & infix & not-allowed\OPSUP{--O} \\
-infix-or-prefix & postfix & not-allowed\OPSUP{--O} \\
-infix-or-prefix & nofix\OPSUP{H} & infix nofix \\
-infix-or-prefix & nofix\OPSUP{--H} & not-allowed\OPSUP{--O} \\
-infix-or-prefix & expression-end & not-allowed\OPSUP{--O} \\
-\hline
-infix-or-postfix & non-operator & infix non-operator \\
-infix-or-postfix & prefix & infix prefix \\
-infix-or-postfix & infix & postfix infix \\
-infix-or-postfix & postfix & postfix postfix \\
-infix-or-postfix & nofix\OPSUP{H,--A} & ambiguous nofix \\
-infix-or-postfix & nofix\OPSUP{H,A} & not-allowed \\
-infix-or-postfix & nofix\OPSUP{--H} & postfix nofix \\
-infix-or-postfix & expression-end & postfix expression-end \\
-\hline
-prefix-or-postfix & non-operator & prefix non-operator \\
-prefix-or-postfix & prefix & prefix prefix \\
-prefix-or-postfix & infix & postfix infix \\
-prefix-or-postfix & postfix & postfix postfix \\
-prefix-or-postfix & nofix & postfix nofix \\
-prefix-or-postfix & expression-end & postfix expression-end \\
-\hline
-\end{tabular}
-\\[2ex]
-\begin{tabular}{rl}
-\OPSUP{H}   & means operator has higher precedence than \\
-          & the precedence of the preceding operator\\[0.5ex]
-\OPSUP{--H} & means operator has precedence lower than or equal to \\
-          & the precedence of the preceeding operator\\[0.5ex]
-\OPSUP{A}  & means operator is afix\\[0.5ex]
-\OPSUP{--A} & means operator is \underline{not} afix \\[0.5ex]
-\OPSUP{O} & means fix by inserting nofix operator (see text) \\[0.5ex]
-\OPSUP{--O} & means fix by inserting non-operator (see text)
-\end{tabular}
-\\
-\caption{Fixity Rewrite Rules: Part 3 of 3}
-\label{FIXITY-REWRITE-RULES-3}
-\end{figure}
-
-These rewrite rules can be applied during a left-to-right scan.
-It can be proved that at any time, the tokens before the current
-position will have one of the forms:
-\begin{center}
-\begin{tabular}{r}
-\ldots{} \\
-\ldots{} infix-or-postfix \\
-\ldots{} infix-or-postfix  infix-or-prefix \\
-\ldots{} infix-or-postfix\QMARK{} prefix-or-postfix\PLUS{} infix-or-prefix\QMARK{} \\
-\end{tabular}
-\end{center}
-
-where \ldots{}~denotes a sequence of non-operators and non-ambiguous
-operators.  The expression-end will resolve
-ambiguities next to the end of the expression, but operators
-designated by the rewrite rules as `ambiguous' will remain
-ambiguous.
-
-Fixity that remains ambiguous after fixity rules have been applied
-is `fixed up' by applying the following rewrites while issuing
-error messages for the ambiguous operators:
-
-\begin{center}
-\begin{tabular}{r@{~~~$\Longrightarrow$~~~}l}
-infix-or-postfix & infix \\
-infix-or-prefix  & prefix \\
-prefix-or-postfix & prefix
-\end{tabular}
-\end{center}
-
-These rewrites allow parsing to continue.
-They are arbitrary in the sense that they
-are prefix preferring whereas an alternative set of postfix
-preferring rules will also work.
-
-\label{FIXITY-ERRORS}
-If an afix operator invokes a rule that is `not-allowed',
-the afix operator table entry is ignored, as if it were not in the
-operator table.
-Other operators or non-operators that invoke
-not-allowed rules are `fixed up' by inserting an error
-operator or error non-operator before the invoking operator
-or non-operator during fixity determination.
-An \key{error operator} is
-inserted before every not-allowed non-operator or prefix
-operator (as indicated by \OPSUP{O}),
-and an \key{error non-operator} is inserted before
-every non-allowed non-prefix operator (as indicated by \OPSUP{--O}).
-The error operator is nofix with H+1 precedence.
+If the whole expression ends with an operator that has the
+{\tt right} flag, it is a parsing error which is `fixed up'
+by inserting a non-operator \ttkey{ERROR'OPERAND} before the current position.
 
 \subsubsubsection{Subexpression Identification}
 \label{SUBEXPRESSION-IDENTIFICATION}

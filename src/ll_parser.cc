@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 15 04:39:59 EST 2021
+// Date:	Sun Feb 28 10:28:56 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,7 @@
 # define PARSTD ll::parser::standard
 
 min::locatable_gen PARLEX::top_level;
+min::locatable_gen PARLEX::line_level;
 min::locatable_gen PARLEX::top;
 min::locatable_gen PARLEX::level;
 min::locatable_gen PARLEX::dot_oper;
@@ -137,6 +138,8 @@ static void initialize ( void )
 {
     PARLEX::top_level
 	= min::new_lab_gen ( "TOP", "LEVEL" );
+    PARLEX::line_level
+	= min::new_lab_gen ( "LINE", "LEVEL" );
     PARLEX::top = min::new_str_gen ( "top" );
     PARLEX::level = min::new_str_gen ( "level" );
     PARLEX::dot_oper
@@ -820,6 +823,12 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PARLEX::top_level ) );
+
+	MIN_REQUIRE
+	    (    PAR::LINE_LEVEL_SELECTOR
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PARLEX::line_level ) );
 
 	MIN_REQUIRE
 	    (    PAR::DATA_SELECTOR

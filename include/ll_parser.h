@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 18 00:43:51 EST 2021
+// Date:	Sun Feb 28 10:29:33 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,7 @@ namespace ll { namespace parser {
 
 	extern min::locatable_gen
 	    top_level,		// TOP LEVEL
+	    line_level,		// LINE LEVEL
 	    top,		// top
 	    level,		// level
 	    dot_oper,		// .operator
@@ -1024,14 +1025,16 @@ enum {
     // Builtin selectors:
     //
     TOP_LEVEL_SELECTOR			= 1ull << 21,
-    DATA_SELECTOR			= 1ull << 22,
-    ATOM_SELECTOR			= 1ull << 23,
+    LINE_LEVEL_SELECTOR			= 1ull << 22,
+    DATA_SELECTOR			= 1ull << 23,
+    ATOM_SELECTOR			= 1ull << 24,
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR,
 
 
-    TOP_LEVEL_OFF_SELECTORS = TOP_LEVEL_SELECTOR,
+    TOP_LEVEL_OFF_SELECTORS = TOP_LEVEL_SELECTOR
+                            + LINE_LEVEL_SELECTOR,
     TOP_LEVEL_SELECTORS = COMMAND_SELECTORS
                         - TOP_LEVEL_OFF_SELECTORS,
     TOP_LEVEL_OPT = ALL_EA_OPT

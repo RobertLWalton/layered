@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 26 01:14:14 EST 2021
+// Date:	Sun Feb 28 10:53:45 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1808,6 +1808,7 @@ min::position BRA::parse_bracketed_subexpression
 
     if ( parsing_logical_line )
     {
+	selectors |= PAR::LINE_LEVEL_SELECTOR;
 	line_variables->previous = current->previous;
 	line_variables->at_paragraph_beginning =
 	      parser->at_paragraph_beginning;
@@ -1818,6 +1819,8 @@ min::position BRA::parse_bracketed_subexpression
 	    bad_comment_position.begin =
 	        current->position.begin;
     }
+    else
+	selectors &= ~ PAR::LINE_LEVEL_SELECTOR;
 
     TAB::flags trace_flags = parser->trace_flags;
     if (   trace_flags

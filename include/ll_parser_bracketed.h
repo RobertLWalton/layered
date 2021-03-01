@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 22:24:41 EDT 2019
+// Date:	Sun Feb 28 23:37:08 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,8 @@
 namespace ll { namespace parser { namespace bracketed {
 
 const ll::parser::table::flags BRACKET_OFF_SELECTORS =
-      ll::parser::TOP_LEVEL_SELECTOR;
+      ll::parser::TOP_LEVEL_SELECTOR
+    + ll::parser::LINE_LEVEL_SELECTOR;
 
 const ll::parser::table::flags BRACKET_SELECTORS =
       ll::parser::COMMAND_SELECTORS
@@ -51,9 +52,14 @@ const ll::parser::table::flags
       ll::parser::TOP_LEVEL_SELECTOR;
 
 const ll::parser::table::flags
+	    INDENTATION_MARK_ON_SELECTORS =
+      ll::parser::LINE_LEVEL_SELECTOR;
+
+const ll::parser::table::flags
 	    INDENTATION_MARK_SELECTORS =
       ll::parser::COMMAND_SELECTORS
-    - INDENTATION_MARK_OFF_SELECTORS;
+    - INDENTATION_MARK_OFF_SELECTORS
+    - INDENTATION_MARK_ON_SELECTORS;
 
 const ll::parser::table::flags INDENTATION_MARK_OPT =
       ll::parser::ALL_EA_OPT
@@ -61,7 +67,8 @@ const ll::parser::table::flags INDENTATION_MARK_OPT =
 
 const ll::parser::table::flags
 	    BRACKET_TYPE_OFF_SELECTORS =
-      ll::parser::TOP_LEVEL_SELECTOR;
+      ll::parser::TOP_LEVEL_SELECTOR
+    + ll::parser::LINE_LEVEL_SELECTOR;
 
 const ll::parser::table::flags BRACKET_TYPE_SELECTORS =
       ll::parser::COMMAND_SELECTORS

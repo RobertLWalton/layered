@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 15 07:04:55 EDT 2019
+// Date:	Mon Mar  1 00:23:52 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -107,7 +107,7 @@ int main ( int argc, const char * argv[] )
         ( colon, semicolon,
 	  TAB::ALL_FLAGS,
 	  0, pp,
-	  TAB::new_flags ( 32 ),
+	  TAB::new_flags ( 1ull<<32 ),
 	  min::MISSING(),
 	  LEX::MISSING,
 	  LEX::MISSING,
@@ -119,9 +119,11 @@ int main ( int argc, const char * argv[] )
 		    TAB::ALL_FLAGS,
 	            bracket_table ); 
 
-    ASSERT ( imark->parsing_selectors.or_flags == 32 );
+    ASSERT (    imark->parsing_selectors.or_flags
+             ==   (1ull<<32)
+	        + BRA::INDENTATION_MARK_ON_SELECTORS );
     ASSERT (    imark->parsing_selectors.not_flags
-             == PAR::TOP_LEVEL_SELECTOR );
+             == BRA::INDENTATION_MARK_OFF_SELECTORS );
     ASSERT ( imark->parsing_selectors.xor_flags == 0 );
 
     if ( failed_count > 0 )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 27 04:09:29 EST 2021
+// Date:	Sun Feb 28 15:20:55 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
     trace [- operator subexpressions]
     print selector ""
     print operator ""
+    print bracket ""
 
 // Test define and undefine
 //
@@ -224,24 +225,28 @@
     ( x y ++ -- ++ -- )
 
 *PARSER*:
-    define operator "<--" [code] nofix
+    define operator "<--" [code] nofix line
         with precedence 0
         with declare reformatter
     define bracket "{$" ... "$}" [code]
     define operator bracket "{$" ... "$}" [code]
-        nofix afix
+        nofix afix line
         with precedence 0
     define operator indentation mark ":" [code]
-        nofix afix
+        nofix afix line
         with precedence 0
 *PARSER* *TEST*:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-    ( foo bar <-- {$ fee fie fo fum $} )
-    ( <-- boo bat {$ fee fie fo fum $} )
-    ( foo bar <-- )
+    foo bar <-- boo bat {$ fee fie fo fum $}
+    foo bar <-- {$ fee fie fo fum $}
+    <-- boo bat {$ fee fie fo fum $}
+    foo bar <--
     foo bar <-- boo bat:
     	fee fie fo fum
 	he ha ho hum
+
+*PARSER* *TEST*:
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
+    foo bar <-- boo bat {$ fee fie fo fum $}
 
 *PARSER*:
     print operator ""

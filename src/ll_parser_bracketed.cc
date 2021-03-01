@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 28 10:53:45 EST 2021
+// Date:	Mon Mar  1 00:16:23 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -251,10 +251,15 @@ BRA::indentation_mark
     imark->parsing_selectors = parsing_selectors;
     imark->parsing_selectors.or_flags &= ~
         INDENTATION_MARK_OFF_SELECTORS;
+    imark->parsing_selectors.or_flags |=
+        INDENTATION_MARK_ON_SELECTORS;
+    imark->parsing_selectors.not_flags &= ~
+        INDENTATION_MARK_ON_SELECTORS;
     imark->parsing_selectors.not_flags |=
         INDENTATION_MARK_OFF_SELECTORS;
     imark->parsing_selectors.xor_flags &= ~
-        INDENTATION_MARK_OFF_SELECTORS;
+          INDENTATION_MARK_OFF_SELECTORS
+	+ INDENTATION_MARK_ON_SELECTORS;
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
         min::get ( implied_header, min::dot_type );
@@ -469,6 +474,9 @@ BRA::typed_opening
         (   BRA::BRACKET_OFF_SELECTORS
 	  + BRA::BRACKET_OFF_OPT );
     opening->attr_selectors = attr_selectors;
+    opening->attr_selectors &= ~
+        (   BRA::BRACKET_OFF_SELECTORS
+	  + PAR::ALL_OPT );
 
     reformatter_ref(opening) = min::NULL_STUB;
     reformatter_arguments_ref(opening) =
@@ -1808,7 +1816,6 @@ min::position BRA::parse_bracketed_subexpression
 
     if ( parsing_logical_line )
     {
-	selectors |= PAR::LINE_LEVEL_SELECTOR;
 	line_variables->previous = current->previous;
 	line_variables->at_paragraph_beginning =
 	      parser->at_paragraph_beginning;
@@ -1819,8 +1826,6 @@ min::position BRA::parse_bracketed_subexpression
 	    bad_comment_position.begin =
 	        current->position.begin;
     }
-    else
-	selectors &= ~ PAR::LINE_LEVEL_SELECTOR;
 
     TAB::flags trace_flags = parser->trace_flags;
     if (   trace_flags

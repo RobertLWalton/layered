@@ -41,6 +41,44 @@
         block TOP LEVEL: TOP LEVEL
     print operator ""
         nothing found
+    print bracket ""
+        block standard: bracket "``" ... "''" [data, code, math, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with text reformatter ( "s", ".", "?", "!", ":",
+                        ";" )
+        block TOP LEVEL: bracket "``" ... "''" [data]
+        block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
+                        [code, math, text]
+                        with parsing selectors [atom]
+                        with label reformatter
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
+                         [data, atom]
+                         with parsing selectors [atom]
+                         with label reformatter
+        block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                         with multivalue reformatter ( "," )
+        block standard: bracket "(" ... ")" [code, math, text]
+        block TOP LEVEL: bracket "(" ... ")" [data]
+        block standard: bracket "[" ... "]" [code, math, text]
+        block TOP LEVEL: bracket "[" ... "]" [data]
+        block standard: bracket "`" ... "'" [code, math, text]
+                        with parsing selectors [atom]
+        block TOP LEVEL: bracket "`" ... "'" [data]
+                         with parsing selectors [atom]
+        block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
+                        [data, code, math, text]
+                        with parsing selectors [- data, - code, + math,
+                                                - text]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
+                        [code, math, text]
+                        with parsing selectors [atom]
+                        with special reformatter
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
+                         [data, atom]
+                         with parsing selectors [atom]
+                         with special reformatter
 *PARSER*:
     begin block BLOCK1
 ======= PARSER TEST: (x / y ^ z w)
@@ -792,84 +830,73 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
       ^^^
 ======= END PARSER TEST(S)
 *PARSER*:
-    define operator "<--" [code] nofix
+    define operator "<--" [code] nofix line
         with precedence 0
         with declare reformatter
     define bracket "{$" ... "$}" [code]
     define operator bracket "{$" ... "$}" [code]
-        nofix afix
+        nofix afix line
         with precedence 0
     define operator indentation mark ":" [code]
-        nofix afix
+        nofix afix line
         with precedence 0
-======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
-                          .initiator = "("|<-- {|foo bar|} {|boo bat|}
-                          {$ fee fie fo fum $}|}
+======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|<--
+                          {|foo bar|} {|boo bat|} {$ fee fie fo fum $}|}
 ======= line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- boo bat {$ fee fie fo fum $}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- boo bat {$ fee fie fo fum $}
+    ^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-      ^^^^^^^
+    foo bar <-- boo bat {$ fee fie fo fum $}
+                ^^^^^^^
 ------- line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-                  ^^^^^^^
-------- line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-                          ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
-                          .initiator = "("|<-- {|foo bar|} {}
-                          {$ fee fie fo fum $}|}
+    foo bar <-- boo bat {$ fee fie fo fum $}
+                        ^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|<--
+                          {|foo bar|} {} {$ fee fie fo fum $}|}
 ======= line ###:
-    ( foo bar <-- {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- {$ fee fie fo fum $}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- {$ fee fie fo fum $}
+    ^^^^^^^
 ------- line ###:
-    ( foo bar <-- {$ fee fie fo fum $} )
-      ^^^^^^^
+    foo bar <-- {$ fee fie fo fum $}
+               ^
 ------- line ###:
-    ( foo bar <-- {$ fee fie fo fum $} )
-                 ^
-------- line ###:
-    ( foo bar <-- {$ fee fie fo fum $} )
-                  ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
-                          .initiator = "("|<-- {} {|boo bat|}
-                          {$ fee fie fo fum $}|}
+    foo bar <-- {$ fee fie fo fum $}
+                ^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|<-- {}
+                          {|boo bat|} {$ fee fie fo fum $}|}
 ======= line ###:
-    ( <-- boo bat {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    <-- boo bat {$ fee fie fo fum $}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    ( <-- boo bat {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    <-- boo bat {$ fee fie fo fum $}
+    ^
 ------- line ###:
-    ( <-- boo bat {$ fee fie fo fum $} )
-      ^
+    <-- boo bat {$ fee fie fo fum $}
+        ^^^^^^^
 ------- line ###:
-    ( <-- boo bat {$ fee fie fo fum $} )
-          ^^^^^^^
-------- line ###:
-    ( <-- boo bat {$ fee fie fo fum $} )
-                  ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = ")",
-                          .initiator = "("|<-- {|foo bar|} {}|}
+    <-- boo bat {$ fee fie fo fum $}
+                ^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|<--
+                          {|foo bar|} {}|}
 ======= line ###:
-    ( foo bar <-- )
-    ^^^^^^^^^^^^^^^
+    foo bar <--
+    ^^^^^^^^^^^
 ------- line ###:
-    ( foo bar <-- )
-    ^^^^^^^^^^^^^^^
+    foo bar <--
+    ^^^^^^^
 ------- line ###:
-    ( foo bar <-- )
-      ^^^^^^^
-------- line ###:
-    ( foo bar <-- )
-                 ^
+    foo bar <--
+               ^
 ======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
                           .initiator = [$ LOGICAL_LINE $]|<--
                           {|foo bar|} {|boo bat|}
@@ -905,6 +932,32 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
         he ha ho hum
         ^^^^^^^^^^^^
+======= END PARSER TEST(S)
+======= PARSER TEST: (foo bar <-- boo bat {$ fee fie fo fum $})
+======= line ###:
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    ( foo bar <-- boo bat {$ fee fie fo fum $} )
+                          ^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|<--
+                          {|foo bar|} {|boo bat|} {$ fee fie fo fum $}|}
+======= line ###:
+    foo bar <-- boo bat {$ fee fie fo fum $}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    foo bar <-- boo bat {$ fee fie fo fum $}
+    ^^^^^^^
+------- line ###:
+    foo bar <-- boo bat {$ fee fie fo fum $}
+                ^^^^^^^
+------- line ###:
+    foo bar <-- boo bat {$ fee fie fo fum $}
+                        ^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     print operator ""
@@ -964,7 +1017,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with precedence 3200
                         with unary reformatter
         block standard: operator "<--" [code]
-                        nofix
+                        nofix line
                         with precedence 0
                         with declare reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
@@ -1026,8 +1079,8 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         with precedence 1000
                         with right associative reformatter
         block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
-                        nofix afix
+                        nofix afix line
                         with precedence 0
         block standard: bracket ":" [code]
-                        nofix afix
+                        nofix afix line
                         with precedence 0

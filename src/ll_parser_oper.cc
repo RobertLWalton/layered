@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 27 03:57:29 EST 2021
+// Date:	Mon Mar  1 00:18:36 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,10 +40,11 @@ min::locatable_gen OPLEX::initial;
 min::locatable_gen OPLEX::left;
 min::locatable_gen OPLEX::right;
 min::locatable_gen OPLEX::final;
+min::locatable_gen OPLEX::afix;
+min::locatable_gen OPLEX::line;
 min::locatable_gen OPLEX::prefix;
 min::locatable_gen OPLEX::infix;
 min::locatable_gen OPLEX::postfix;
-min::locatable_gen OPLEX::afix;
 min::locatable_gen OPLEX::nofix;
 min::locatable_gen OPLEX::end_operator;
 min::locatable_gen OPLEX::error_operator;
@@ -67,10 +68,11 @@ static void initialize ( void )
     OPLEX::left  = min::new_str_gen ( "left" );
     OPLEX::right  = min::new_str_gen ( "right" );
     OPLEX::final  = min::new_str_gen ( "final" );
+    OPLEX::afix    = min::new_str_gen ( "afix" );
+    OPLEX::line    = min::new_str_gen ( "line" );
     OPLEX::prefix  = min::new_str_gen ( "prefix" );
     OPLEX::infix   = min::new_str_gen ( "infix" );
     OPLEX::postfix = min::new_str_gen ( "postfix" );
-    OPLEX::afix    = min::new_str_gen ( "afix" );
     OPLEX::nofix   = min::new_str_gen ( "nofix" );
     OPLEX::end_operator =
         min::new_str_gen ( "END'OPERATOR" );
@@ -577,6 +579,8 @@ min::printer operator <<
         p << ", FINAL";
     if ( op->flags & OP::AFIX )
         p << ", AFIX";
+    if ( op->flags & OP::LINE )
+        p << ", LINE";
     return p << "]";
 }
 
@@ -614,6 +618,8 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
     min::push ( vec ) = end_op;
     PAR::token current = first;
     PAR::token non_op_first = min::NULL_STUB;
+    bool is_line =
+        ( selectors & PAR::LINE_LEVEL_SELECTOR );
     while ( current != next )
     {
 	// Find operator if possible.
@@ -622,10 +628,10 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 
         // If root != NULL_STUB, oper equals root,
 	// flags and precedence are oper's parameters,
-	// OK is the result of calling flags_OK for
-	// oper, and current points at the token that
-	// is the OPERATOR (after its type is changed
-	// to OPERATOR).
+	// OK is the result of checking LINE flag and
+	// calling flags_OK for oper, and current points
+	// at the token that is the OPERATOR (after its
+	// type is changed to OPERATOR).
 	//
 	OP::oper oper;
 	min::uns32 flags;
@@ -653,9 +659,13 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 		    oper = (OP::oper) root;
 		    flags = oper->flags;
 		    precedence = oper->precedence;
-		    OK = OP::flags_OK
-			( vec, flags, precedence,
-			       oper );
+		    if (    ( flags & OP::LINE )
+		         && ! is_line )
+		        OK = false;
+		    else
+			OK = OP::flags_OK
+			    ( vec, flags, precedence,
+				   oper );
 		    if ( trace_flags & PAR::TRACE_KEYS )
 			trace_operator
 			    ( parser, current->position,
@@ -684,13 +694,17 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 		oper = (OP::oper) root;
 		flags = oper->flags;
 		precedence = oper->precedence;
-		OK = OP::flags_OK
-		    ( vec, flags, precedence,
-		           oper );
-		if ( OK ) break;
+		if (    ( flags & OP::LINE )
+		     && ! is_line )
+		    OK = false;
+		else
+		    OK = OP::flags_OK
+			( vec, flags, precedence,
+			       oper );
 		if ( trace_flags & PAR::TRACE_KEYS )
 		    trace_operator
 		        ( parser, pos, oper, OK );
+		if ( OK ) break;
 		root = PAR::find_next_entry
 		    ( parser, next_current,
 			      key_prefix,
@@ -933,6 +947,34 @@ static void oper_parse ( PAR::parser parser,
     }
     else
         trace_flags = 0;
+
+    if ( trace_flags & PAR::TRACE_KEYS )
+    {
+	min::phrase_position pos =
+	    { first->position.begin,
+	      next->previous->position.end };
+
+	parser->printer
+	    << min::bom
+	    << min::adjust_indent ( 4 )
+	    << "OPERATOR PASS ";
+        
+	COM::print_flags
+	    ( selectors, PAR::COMMAND_SELECTORS,
+	      parser->selector_name_table,
+	      parser );
+
+	parser->printer
+	    << " "
+	    << min::pline_numbers
+		   ( parser->input_file, pos )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      pos );
+
+    }
 
     // We add to the vector but leave alone what is
     // already in the vector so this function can be
@@ -1881,6 +1923,10 @@ void static print_op
 	parser->printer
 	    << min::space_if_after_indent
 	    << "afix";
+    if ( op->flags & OP::LINE )
+	parser->printer
+	    << min::space_if_after_indent
+	    << "line";
 
     parser->printer
 	<< min::indent
@@ -2127,14 +2173,16 @@ static min::gen oper_pass_command
 	    new_oper_flag = OP::RIGHT;
         else if ( vp[i] == OPLEX::final )
 	    new_oper_flag = OP::FINAL;
+        else if ( vp[i] == OPLEX::afix )
+	    new_oper_flag = OP::AFIX;
+        else if ( vp[i] == OPLEX::line )
+	    new_oper_flag = OP::LINE;
         else if ( vp[i] == OPLEX::prefix )
 	    new_oper_flag = OP::PREFIX;
         else if ( vp[i] == OPLEX::infix )
 	    new_oper_flag = OP::INFIX;
         else if ( vp[i] == OPLEX::postfix )
 	    new_oper_flag = OP::POSTFIX;
-        else if ( vp[i] == OPLEX::afix )
-	    new_oper_flag = OP::AFIX;
         else if ( vp[i] == OPLEX::nofix )
 	    new_oper_flag = OP::NOFIX;
 	else break;

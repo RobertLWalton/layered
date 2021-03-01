@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 27 03:57:13 EST 2021
+// Date:	Sun Feb 28 14:48:53 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,10 +37,11 @@ namespace lexeme {
 	left,		// left
 	right,		// right
 	final,		// final
+	afix,		// afix
+	line,		// line
 	prefix,		// prefix
 	infix,		// infix
 	postfix,	// postfix
-	afix,		// afix
 	nofix,		// nofix
 	end_operator,	// END'OPERATOR
 	error_operator,	// ERROR'OPERATOR
@@ -64,13 +65,15 @@ enum oper_flags
     RIGHT	= ( 1 << 2 ),
     INITIAL	= ( 1 << 3 ),
     AFIX	= ( 1 << 4 ),
+    LINE	= ( 1 << 5 ),
 
     PREFIX	= INITIAL + RIGHT,
     INFIX	= LEFT + RIGHT,
     POSTFIX	= FINAL + LEFT,
     NOFIX	= 0,
 
-    ALLFIX	= LEFT | FINAL | RIGHT | INITIAL | AFIX
+    ALLFIX	= LEFT | FINAL | RIGHT | INITIAL |
+                  AFIX | LINE
 };
 const min::int32 NO_PRECEDENCE = INT_MIN;
     // Value less than any allowed precedence.
@@ -197,7 +200,8 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 // precedence and flags is allowed after the
 // token to its left, or in the case of op ==
 // NULL_STUB, if a non-operator is allowed after the
-// token to its left.
+// token to its left.  The OP::LINE flag is NOT
+// checked.
 //
 bool flags_OK ( oper_vec v,
 	        min::uns32 flags = 0,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 28 10:28:56 EST 2021
+// Date:	Mon Mar  1 04:48:01 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -684,7 +684,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    min::line_gen_format;
 	parser->trace_flags = PAR::TRACE_WARNINGS;
 	parser->selectors = PAR::DEFAULT_OPT
-	                  + PAR::TOP_LEVEL_SELECTOR
+	                  + PAR::TOP_LEVEL_OFF_SELECTORS
 	                  + PAR::ALWAYS_SELECTOR;
 	parser->lexical_master =
 	parser->paragraph_lexical_master =
@@ -1143,7 +1143,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	min::line_gen_format;
     parser->trace_flags = PAR::TRACE_WARNINGS;
     parser->selectors = PAR::DEFAULT_OPT
-		      + PAR::TOP_LEVEL_SELECTOR
+		      + PAR::TOP_LEVEL_OFF_SELECTORS
 		      + PAR::ALWAYS_SELECTOR;
     parser->lexical_master =
     parser->paragraph_lexical_master =

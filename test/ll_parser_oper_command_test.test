@@ -11,13 +11,13 @@
     print pass
         top
     print top level
-        block standard:  selectors [TOP LEVEL, code]
+        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL]
+        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,

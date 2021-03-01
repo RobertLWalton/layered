@@ -23,7 +23,7 @@ ERROR: in line ##: extraneous stuff after:
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL]
+        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -132,7 +132,7 @@ INDENT: line ##:
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL]
+        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -149,7 +149,7 @@ INDENT: line ##:
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL]
+        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -165,7 +165,7 @@ INDENT: line ##:
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL]
+        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -225,7 +225,7 @@ INDENT: line ##:
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL]
+        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,

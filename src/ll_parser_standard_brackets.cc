@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 20 06:23:37 EST 2021
+// Date:	Mon Mar  1 04:59:15 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -134,8 +134,9 @@ void PARSTD::init_brackets ( PAR::parser parser )
         ( min::new_str_gen ( "s" ) );
 
     parser->selectors &= PAR::ALL_OPT;
-    parser->selectors |= code | PAR::TOP_LEVEL_SELECTOR
-                              | PAR::ALWAYS_SELECTOR;
+    parser->selectors |= code
+                      | PAR::TOP_LEVEL_OFF_SELECTORS
+		      | PAR::ALWAYS_SELECTOR;
 
     // In the following be sure parsing selectors
     // argument does nothing to ALWAYS_SELECTOR.

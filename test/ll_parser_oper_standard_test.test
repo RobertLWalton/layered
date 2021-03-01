@@ -69,110 +69,100 @@ ERROR: in line ##: operator "OR" should equal "AND"; all operators must
 ------- line ##:
     (, x, y 4,, z,,)
                    ^
-======= PARSER TEST: {"": .operator = "=", .terminator = ")",
-                          .initiator = "("|= x
+======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|= x
                           {"": .operator = "+="|+= y z|}|}
 ======= line ##:
-    ( x = y += z )
-    ^^^^^^^^^^^^^^
+    x = y += z
+    ^^^^^^^^^^
 ------- line ##:
-    ( x = y += z )
-    ^^^^^^^^^^^^^^
-------- line ##:
-    ( x = y += z )
-          ^^^^^^
-======= PARSER TEST: {"": .operator = "=", .terminator = [< "}" "}" >],
-                          .initiator = [< "{" "{" >]|= x1
-                          {"": .operator = "+="|+= y2 z|}|}
+    x = y += z
+        ^^^^^^
+======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|= w1
+                          {"": .operator = "+="|+= w2
+                               {"": .operator = "="|= w3
+                                    {"": .operator = "*="|*= w4 w5|}|}|}|}
 ======= line ##:
-    {{ x1 = y2 += z }}
-    ^^^^^^^^^^^^^^^^^^
+    w1 = w2 += w3 = w4 *= w5
+    ^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ##:
-    {{ x1 = y2 += z }}
-    ^^^^^^^^^^^^^^^^^^
+    w1 = w2 += w3 = w4 *= w5
+         ^^^^^^^^^^^^^^^^^^^
 ------- line ##:
-    {{ x1 = y2 += z }}
-            ^^^^^^^
-======= PARSER TEST: {"": .operator = "+=", .terminator = [< "}" "}" >],
-                          .initiator = [< "{" "{" >]|+= {|x1, x2|}
+    w1 = w2 += w3 = w4 *= w5
+               ^^^^^^^^^^^^^
+------- line ##:
+    w1 = w2 += w3 = w4 *= w5
+                    ^^^^^^^^
+======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+= {|x1, x2|}
                           {|z1, z2|}|}
 ======= line ##:
-    {{ x1, x2 += z1, z2 }}
-    ^^^^^^^^^^^^^^^^^^^^^^
+    x1, x2 += z1, z2
+    ^^^^^^^^^^^^^^^^
 ------- line ##:
-    {{ x1, x2 += z1, z2 }}
-    ^^^^^^^^^^^^^^^^^^^^^^
+    x1, x2 += z1, z2
+    ^^^^^^
 ------- line ##:
-    {{ x1, x2 += z1, z2 }}
-       ^^^^^^
-------- line ##:
-    {{ x1, x2 += z1, z2 }}
-                 ^^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator =
-                          [< "}" "}" >], .initiator = [< "{" "{" >]|AND
+    x1, x2 += z1, z2
+              ^^^^^^
+======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|AND
                           {"": .operator = "<"|< x
                                {"": .operator = "$"|$ 1 y|}|}
                           {"": .operator = "<"|<
                                {"": .operator = "$"|$ 1|} z|}|}
 ======= line ##:
-    {{ x < y < z }}
-    ^^^^^^^^^^^^^^^
+    x < y < z
+    ^^^^^^^^^
 ------- line ##:
-    {{ x < y < z }}
-    ^^^^^^^^^^^^^^^
+    x < y < z
+    ^^^^^
 ------- line ##:
-    {{ x < y < z }}
-       ^^^^^
+    x < y < z
+        ^
 ------- line ##:
-    {{ x < y < z }}
-           ^
+    x < y < z
+        ^^^^^
 ------- line ##:
-    {{ x < y < z }}
-           ^^^^^
-------- line ##:
-    {{ x < y < z }}
-           ^
-======= PARSER TEST: {"": .operator = "=", .terminator = "]",
-                          .initiator = "["|= x
+    x < y < z
+        ^
+======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|= x
                           {"": .operator = "<", .terminator = ")",
                                .initiator = "("|< y z|}|}
 ======= line ##:
-    [ x = ( y < z ) ]
-    ^^^^^^^^^^^^^^^^^
+    x = ( y < z )
+    ^^^^^^^^^^^^^
 ------- line ##:
-    [ x = ( y < z ) ]
-    ^^^^^^^^^^^^^^^^^
-------- line ##:
-    [ x = ( y < z ) ]
-          ^^^^^^^^^
-======= PARSER TEST: {"": .operator = "=", .terminator = "]",
-                          .initiator = "["|= x
+    x = ( y < z )
+        ^^^^^^^^^
+======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|= x
                           {"": .operator = "AND"|AND
                                {"": .operator = "<"|< w
                                     {"": .operator = "$"|$ 2 y|}|}
                                {"": .operator = "<"|<
                                     {"": .operator = "$"|$ 2|} z|}|}|}
 ======= line ##:
-    [ x = w < y < z ]
-    ^^^^^^^^^^^^^^^^^
+    x = w < y < z
+    ^^^^^^^^^^^^^
 ------- line ##:
-    [ x = w < y < z ]
-    ^^^^^^^^^^^^^^^^^
+    x = w < y < z
+        ^^^^^^^^^
 ------- line ##:
-    [ x = w < y < z ]
-          ^^^^^^^^^
+    x = w < y < z
+        ^^^^^
 ------- line ##:
-    [ x = w < y < z ]
-          ^^^^^
+    x = w < y < z
+            ^
 ------- line ##:
-    [ x = w < y < z ]
-              ^
+    x = w < y < z
+            ^^^^^
 ------- line ##:
-    [ x = w < y < z ]
-              ^^^^^
-------- line ##:
-    [ x = w < y < z ]
-              ^
+    x = w < y < z
+            ^
 ======= PARSER TEST: {t: no d, e, f = (m ";" n ";" p), b =
                          (a "," b "," c)|1 2 3|t}
 ======= line ##:

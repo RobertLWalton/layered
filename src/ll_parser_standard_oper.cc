@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 06:14:35 EST 2021
+// Date:	Mon Mar  1 06:28:49 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,9 +110,7 @@ OP::oper_pass PARSTD::init_oper
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000,
-	  PAR::find_reformatter
-	      ( right_associative,
-	        OP::reformatter_stack ),
+	  right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 

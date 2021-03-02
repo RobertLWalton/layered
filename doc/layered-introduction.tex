@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 27, 2021
+March 2, 2021
  
 \end{center}
 
@@ -2914,6 +2914,10 @@ The following parsing selectors are builtin:
     when indented paragraph logical lines or a bracketed
     subexpression is parsed.
 
+\hspace*{-0.2in}\ttmkey{LINE LEVEL}{line level selector} \\
+    This is always on when a logical line is parsed, and always off
+    when a bracketed subexpression is parsed.
+
 \hspace*{-0.2in}\ttmkey{data}{parser selector} \\
     This selects symbol table entries that parse raw data.
     It is used to enable symbol table entries that parse prefix
@@ -3102,7 +3106,8 @@ $|$ & \ttmkey{print top level}{parser command} \\
 \\[0.3ex]
 \emkey{top-level-selectors} ::=
     \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
+        or `\TT{LINE LEVEL}' selector
 	~~~ [\pagref{SELECTOR-SPEC}]
     \end{tabular}
 \\[0.3ex]
@@ -3219,7 +3224,8 @@ context.
 \label{PARSER-SELECTOR-COMMANDS}
 
 The only builtin selector names\label{SELECTOR-NAMES}
-are `\ttkey{TOP LEVEL}', `\ttkey{data}', and `\ttkey{atom}'.
+are `\ttkey{TOP LEVEL}', `\ttkey{LINE LEVEL}',
+`\ttkey{data}', and `\ttkey{atom}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \ttmkey{define selector}{parser command} ~ {\em selector}
@@ -3253,7 +3259,7 @@ and defines in it the selectors
     \ttkey{data paragraph}
 \end{center}
 The standard parser also sets the top level selector set to contain just
-`\TT{TOP LEVEL}' and `\TT{code}'.
+`\TT{TOP LEVEL}', `\TT{LINE LEVEL}', and `\TT{code}'.
 
 Thus the standard parser begins by executing the
 equivalent of
@@ -3304,12 +3310,15 @@ can be reset by the parser \ttkey{define top level} command
     \end{tabular}
 \end{center}
 
-The \TT{TOP LEVEL} selector\label{TOP-LEVEL-SELECTOR}
-is always set implicitly by this command, and is
-the only default selector if no `\TT{define top level}' commands
-are given.  So the \TT{TOP LEVEL} selector is always included in the
+The \TT{TOP LEVEL}\label{TOP-LEVEL-SELECTOR}
+and \TT{LINE LEVEL} selectors
+are always set implicitly by this command, and are
+the only default selectors if no `\TT{define top level}' commands
+are given.  So these selectors are always included in the
 top level selectors.  The \TT{TOP LEVEL} selector is also always cleared
-when indented paragraphs or bracketed subexpressions are being parsed.
+when indented paragraphs or bracketed subexpressions are being parsed,
+and the \TT{LINE LEVEL} selector is always cleared when
+bracketed subexpressions are being parsed.
 
 Either of the two lexical master parameters (\pagref{LEXICAL-MASTER-PARAMETERS})
 can be set by this command.
@@ -3346,8 +3355,8 @@ The top level definition
 \end{verbatim}\end{indpar}
 is included in the `\TT{standard}' parser block
 (\pagref{STANDARD-PARSING-BLOCK}).  Note that the
-\TT{TOP LEVEL} selector (\pagref{TOP-LEVEL-SELECTOR})
-is implicitly set by this command, and as the parsing
+\TT{TOP LEVEL} and \TT{LINE LEVEL} selectors (\pagref{TOP-LEVEL-SELECTOR})
+are implicitly set by this command, and as the parsing
 options are not changed, the `\TT{default}' options
 set when the parser was initialized remain in effect
 (\pagref{DEFAULT-OPTIONS}).
@@ -4437,7 +4446,8 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \\[0.5ex]
 \emkey{bracket-selectors}\label{BRACKET-SELECTORS} ::=
     \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
+        or `\TT{LINE LEVEL}' selector
 	~~~ [\pagref{SELECTOR-SPEC}]
     \end{tabular}
 \\[0.5ex]
@@ -4505,7 +4515,7 @@ selector set and options are saved in a stack.  Then if the
 bracket definition contains {\em bracket-selectors},
 a new selector set is computed by modifying the saved set
 according to the {\em bracket-selectors}.  Additionally
-the `\TT{TOP LEVEL}' selector is always turned off.
+the `\TT{TOP LEVEL}' and `\TT{LINE LEVEL}' selectors are always turned off.
 Similarly if the bracket definition contains {\em bracket-options},
 these are used to compute a new set of end-at options.
 Additionally the `\TT{end at line separator}',
@@ -4873,7 +4883,8 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \\[0.5ex]
 \emkey{indentation-mark-selectors} ::=
     \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
+        or `\TT{LINE LEVEL}' selector
 	~~~ [\pagref{SELECTOR-SPEC}]
     \end{tabular}
 \\[0.5ex]
@@ -4956,10 +4967,10 @@ to the {\em indentation-mark-options} in the indentation mark definition.
 The saved selector set and options
 are restored after the end of paragraph is recognized.
 The \TT{TOP LEVEL} selector is always turned off when parsing indented
-paragraph lines.
+paragraph lines, and the \TT{LINE LEVEL} selector is always turned on.
 Note that if no {\em new-selectors} are given, selectors
-other than \TT{TOP LEVEL}
-are not modified, if no {\em indentation-mark-options} 
+other than \TT{TOP LEVEL} and \TT{LINE LEVEL}
+are not modified, and if no {\em indentation-mark-options} 
 are given, options are not modified.
 
 A new set of line variables is computed for use in parsing the
@@ -5513,9 +5524,8 @@ which specifies
 `\TT{||}' to be by implication the {\em doubled-typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
 `\TT{text}' to be the sole definition selector \\
-`\TT{[- data, - TOP LEVEL]}' to be the {\em typed-parsing-selectors} \\
-~~~~~~here `\TT{- TOP LEVEL}' is implied. \\
-`\begin{tabular}[t]{l}
+`\TT{[- data] }' to be the {\em typed-parsing-selectors} \\
+`\begin{tabular}[t]{@{}l}
  \TT{[- end at outer closing, - end at line separator,} \\
  \TT{~- enable indented paragraph, - enable header]}' \\
  \end{tabular} \\
@@ -5694,7 +5704,7 @@ are the same as the context selectors
 modified by any parsing selectors
 found when the {\em bracket-type} is looked up in the
 bracket type table.
-Note, however, that `\TT{- TOP LEVEL}' is always
+Note, however, that `\TT{- TOP LEVEL}' and `\TT{- LINE LEVEL}' are always
 implied in {\em typed-parsing-selectors} and
 `\TT{- end at line separator}',
 `\TT{ - enable indented paragraph}', and
@@ -5980,7 +5990,8 @@ whose general syntax is:
 \\[0.5ex]
 \emkey{bracket-type-selectors} ::=
     \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}' selector
+    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
+        or `\TT{LINE LEVEL}' selector
 	~~~ [\pagref{SELECTOR-SPEC}]
     \end{tabular}
 \\[0.5ex]
@@ -6357,12 +6368,11 @@ The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define bracket type "table"
-                        [TOP LEVEL, data, code, math, text]
+    define bracket type "table" [code, text]
+           with parsing selectors [text]
            with group paragraph
            with line lexical master "ROW-CHECK"
-    define bracket type "row"
-                        [TOP LEVEL, data, code, math, text]
+    define bracket type "row" [text]
            with group line
     define bracket type "data"
                         [TOP LEVEL, data, code, math, text]
@@ -6376,7 +6386,7 @@ adds the definitions:
            with data reformatter ( "=", "no", "[", "{*" )
     define bracket type "***" [TOP LEVEL, code, text]
            with group reset
-    define bracket type "section" [TOP LEVEL, code, text]
+    define bracket type "section" [code, text]
            with group paragraph
            with parsing selectors [+ text,
                                    - code, - math, - data]
@@ -6387,7 +6397,7 @@ adds the definitions:
                                  - end at line separator,
                                  - end at outer closing]
            with implied subprefix {s}
-    define bracket type "p" [TOP LEVEL, code, text]
+    define bracket type "p" [code, text]
            with group paragraph
            with parsing selectors [+ text,
                                    - code, - math, - data]
@@ -6402,7 +6412,7 @@ adds the definitions:
     define bracket type "s" [text]
            with sentence reformatter
                 ( ".", "?", "!", ":", ";" )
-    define bracket type "quote" [TOP LEVEL, code, text]
+    define bracket type "quote" [code, text]
            with group paragraph
            with parsing selectors [+ text,
                                    - code, - math, - data]
@@ -6588,12 +6598,10 @@ The `\TT{standard}' parser block contains the definitions:
            with token value {table}
     define mapped lexeme "ROW" [TOP LEVEL]
            with token value {row}
-    define bracket type "table"
-                        [TOP LEVEL, data, code, math, text]
+    define bracket type "table" [code, text]
         with group paragraph
         with line lexical master "ROW-CHECK"
-    define bracket type "row"
-                        [TOP LEVEL, data, code, math, text]
+    define bracket type "row" [text]
         with group line
 \end{verbatim}\end{indpar}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 26 01:16:53 EST 2021
+// Date:	Tue Mar  2 03:09:54 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -253,6 +253,14 @@ the line after the outer paragraph
 ======================
 | this is a row |
 ======================
+
+This is a paragraph:
+
+    Containing a table.
+
+    =======================
+    | this is another row |
+    =======================
 
 @5 = A B C
 @6 = 1 2 3 :

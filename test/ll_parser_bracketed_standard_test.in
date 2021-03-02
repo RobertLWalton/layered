@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  2 03:09:54 EST 2021
+// Date:	Tue Mar  2 12:26:08 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -261,6 +261,12 @@ This is a paragraph:
     =======================
     | this is another row |
     =======================
+
+This is a bracketed expression (
+    ==============================
+    | containing yet another row |
+    ==============================
+    )
 
 @5 = A B C
 @6 = 1 2 3 :

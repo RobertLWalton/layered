@@ -6192,6 +6192,172 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^
 ======================
 ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED EXPRESSION:
+    Containing a table "."
+@@@@ = Containing a table ".":
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    Containing a table.
+    ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|=======================|row}
+@@@@ = =======================:
+           .position[H] = PACKED_VEC
+           .type = "row"
+    line ###:
+    =======================
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|=======================|row}|table}
+@@@@ = {row|=======================|row}:
+           .position[H] = PACKED_VEC
+           .type = "table"
+    line ###:
+    =======================
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [text] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED PARSER FOUND [text] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED EXPRESSION:
+    {row|"|" this is another row "|"|row}
+@@@@ = "|" this is another row "|":
+           .position[H] = PACKED_VEC
+           .type = "row"
+    line ###:
+    | this is another row |
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|=======================|row}
+@@@@ = =======================:
+           .position[H] = PACKED_VEC
+           .type = "row"
+    line ###:
+    =======================
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|=======================|row}
+           {row|"|" this is another row "|"|row}
+           {row|=======================|row}|table}
+@@@@ = {row|=======================|row}
+               {row|"|" this is another row "|"|row}
+               {row|=======================|row}:
+           .position[H] = PACKED_VEC
+           .type = "table"
+    lines ###-###:
+    =======================
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    | this is another row |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    =======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|@@@@
+         {table|{row|=======================|row}
+                {row|"|" this is another row "|"|row}
+                {row|=======================|row}|table}|}
+@@@@ = @@@@ {table|{row|=======================|row}
+                   {row|"|" this is another row "|"|row}
+                   {row|=======================|row}|table}:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+    lines ###-###:
+This is a paragraph:
+                   ^
+<BLANK-LINE>
+^
+    Containing a table.
+^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    =======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | this is another row |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    =======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a paragraph:
+        Containing a table "."
+        {table|{row|=======================|row}
+               {row|"|" this is another row "|"|row}
+               {row|=======================|row}|table}
+@@@@ = This is a paragraph @@@@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+This is a paragraph:
+^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    Containing a table.
+^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    =======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | this is another row |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    =======================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [code] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED PARSER FOUND [code] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED PARSER FOUND [code] SELECTED KEY ")"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+BRACKETED EXPRESSION:
+    (============================== "|" containing yet another row "|"
+     ==============================)
+@@@@ = ============================== "|" containing yet another row "|"
+               ==============================:
+           .terminator = ")"
+           .initiator = "("
+           .position[H] = PACKED_VEC
+    lines ###-###:
+This is a bracketed expression (
+                               ^
+    ==============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | containing yet another row |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ==============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+^^^^^
+BRACKETED EXPRESSION:
+    This is a bracketed expression
+        (============================== "|" containing yet another row
+         "|" ==============================)
+@@@@ = This is a bracketed expression
+               (============================== "|" containing yet
+                another row "|" ==============================):
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+This is a bracketed expression (
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ==============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | containing yet another row |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ==============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+^^^^^
 BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "="

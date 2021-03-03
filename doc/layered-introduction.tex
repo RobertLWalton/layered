@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 2, 2021
+March 3, 2021
  
 \end{center}
 
@@ -3717,15 +3717,20 @@ When the bracketed subexpression parser first sees a lexeme it
 creates a token for that lexeme, setting the token type to the
 lexical type of the lexeme.  The parser then looks this type
 up in the mapped lexeme symbol table, selecting entries active
-according to the current parser selectors.  If an entry is found,
+according to the top level parser selectors as set by
+\TT{define top level} (\pagref{DEFINE-TOP-LEVEL}) (these are
+\underline{not} the current parser selectors as modified by
+brackets and indentations).  If an entry is found,
 it is used to replace the token's type and value, and optionally
 to change the lexical master that will scan the next lexeme.
 
-If the mapped lexeme symbol table entry has no {\em token-value},
-the token which selected the entry is deleted, and not altered.
-If the entry has no {\em lexical-master-name}, the lexical master
+If the mapped lexeme symbol table entry
+has no {\em lexical-master-name}, the lexical master
 is not changed, which for standard lexical masters means the
 next lexeme will be scanned by the default lexical master.
+If the entry has no {\em token-value},
+the token which selected the entry is deleted, though the
+lexical master may still be changed.
 
 When a token value is changed by this process, the token is
 given a new token type computed from the new token value.%

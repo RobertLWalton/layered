@@ -7175,13 +7175,13 @@ to the operators that determine fixity (prefix, infix, postfix, etc.),
 and parses expressions using operator flags and operator precedence.
 Operator definitions assign precedence integers to operators.
 
-The operator flags {\tt initial}, {\tt left}, {\tt right}, {\tt final},
-and {\tt afix} are described in Figure~\ref{OPERATOR-FLAGS}.
+The operator flags \TT{initial}, \TT{left}, \TT{right}, \TT{final},
+\TT{afix}, and \TT{line} are described in Figure~\ref{OPERATOR-FLAGS}.
 Flag groups are names used in operator definitions for sets of flags.
-For example, a {\tt prefix} operator is an operator with the
-{\tt initial} and {\tt right} flags, a {\tt postfix} operator
-is an operator with the {\tt left} and {\tt final} flags, and an
-{\tt infix} operator is an operator with the {\tt left} and {\tt right}
+For example, a \TT{prefix} operator is an operator with the
+\TT{initial} and \TT{right} flags, a \TT{postfix} operator
+is an operator with the \TT{left} and \TT{final} flags, and an
+\TT{infix} operator is an operator with the \TT{left} and \TT{right}
 flags.
 
 Operators have precedences in the range [L,H],
@@ -7219,26 +7219,26 @@ have precedence equal to or greater than P:
 \\[0.5ex]
 \emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
-\emkey{P-initial-operator} ::= {\em P-operator} with {\tt initial} flag
+\emkey{P-initial-operator} ::= {\em P-operator} with \TT{initial} flag
 \\[0.5ex]
-\emkey{P-final-operator} ::= {\em P-operator} with {\tt final} flag
+\emkey{P-final-operator} ::= {\em P-operator} with \TT{final} flag
 \\[0.5ex]
 \emkey{P-middle-operator} ::= {\em P-operator} with \underline{neither}
-                              {\tt inital} nor {\tt final} flag
+                              \TT{inital} nor \TT{final} flag
 \\[2.0ex]
 where in an {\em P-expression}: \\
 \hspace*{1em}\begin{tabular}[t]{l}
        P is any precedence in the range [L-1,H+1]; \\
        no two {\em (P+1)-expressions} may be adjacent; \\ 
-       each {\em P-operator} with a {\tt left} flag must be
+       each {\em P-operator} with a \TT{left} flag must be
               preceeded by an {\em (P+1)-expression}; \\
-       each {\em P-operator} with a {\tt right} flag must be
+       each {\em P-operator} with a \TT{right} flag must be
 	  followed by an {\em (P+1)-expression}; \\
-       any operator with an {\tt afix} flag must not be the first
+       any operator with an \TT{afix} flag must not be the first
            {\em P-operator} in an {\em P-expression}; \\
-       no operator may have both a {\tt initial} and a {\tt left} flag; \\
-       no operator may have both a {\tt right} and a {\tt final} flag; \\
-       no operator may have both a {\tt initial} and an {\tt afix} flag; \\
+       no operator may have both a \TT{initial} and a \TT{left} flag; \\
+       no operator may have both a \TT{right} and a \TT{final} flag; \\
+       no operator may have both a \TT{initial} and an \TT{afix} flag; \\
        \end{tabular}
 \end{indpar}
 
@@ -7305,6 +7305,10 @@ Operator Flags:
     Operator must be preceeded in any subexpression containing it
     by another operator of the same precedence.
 
+\hspace*{-0.2in}\ttmkey{line}{operator flag}\label{LINE-FLAG} ~
+    Current parsing selectors must contain \TT{LINE LEVEL} in order
+    for the operator to be recognized.
+
 \end{indpar}
 
 Operator Flag Groups:
@@ -7312,13 +7316,13 @@ Operator Flag Groups:
 \begin{indpar}[0.4in]
 
 \hspace*{-0.2in}\ttmkey{prefix}{operator group} ~
-    The flags {\tt initial} and {\tt right}.
+    The flags \TT{initial} and \TT{right}.
 
 \hspace*{-0.2in}\ttmkey{infix}{operator group} ~
-    The flags {\tt left} and {\tt right}.
+    The flags \TT{left} and \TT{right}.
 
 \hspace*{-0.2in}\ttmkey{postfix}{operator group} ~
-    The flags {\tt left} and {\tt final}.
+    The flags \TT{left} and \TT{final}.
 
 \hspace*{-0.2in}\ttmkey{nofix}{operator group} ~
     No flags.
@@ -7386,6 +7390,7 @@ the operator parsing definition stack:
                       $|$ \ttmkey{right}{operator flag}
                       $|$ \ttmkey{final}{operator flag}
                       $|$ \ttmkey{afix}{operator flag}
+                      $|$ \ttmkey{line}{operator flag}
                       $|$ {\em operator-flag-group}
 	\\[1ex]
 \emkey{operator-flag-group} ::= \ttmkey{prefix}{operator flag group}
@@ -7445,7 +7450,7 @@ Operators have \skey{operator flag}s that
 affect parsing of subexpressions of the operator:
 see Figure~\ref{OPERATOR-FLAGS}.
 The actual flags are the union of those given in the definition.
-Thus `{\tt infix left}' is the same as `{\tt infix}'.
+Thus `\TT{infix left}' is the same as `\TT{infix}'.
 
 The definition must have a {\em precedence}.
 
@@ -7683,13 +7688,13 @@ is replaced by a single non-operator token.  Note that by construction,
 two non-operator tokens cannot be next to each other.
 
 If no operator is identified at the current position, and the
-previous position contains an operator with the {\tt final}
+previous position contains an operator with the \TT{final}
 flag, it is a parsing error which is `fixed up' by inserting
 an \ttkey{ERROR'OPERATOR} of precedence L-1 and no flags
 before the current position.
 
 If the whole expression ends with an operator that has the
-{\tt right} flag, it is a parsing error which is `fixed up'
+\TT{right} flag, it is a parsing error which is `fixed up'
 by inserting a non-operator \ttkey{ERROR'OPERAND} before the current position.
 
 \subsubsubsection{Subexpression Identification}

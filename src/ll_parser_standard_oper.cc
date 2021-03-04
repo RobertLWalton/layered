@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 06:28:49 EST 2021
+// Date:	Wed Mar  3 19:42:29 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,7 +106,18 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( equal,
 	  min::MISSING(),
-	  code + math,
+	  math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  1000,
+	  binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( equal,
+	  min::MISSING(),
+	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000,
@@ -117,7 +128,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( plus_equal,
 	  min::MISSING(),
-	  code + math,
+	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, right_associative_reformatter,
@@ -127,7 +138,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( minus_equal,
 	  min::MISSING(),
-	  code + math,
+	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, right_associative_reformatter,
@@ -137,7 +148,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( times_equal,
 	  min::MISSING(),
-	  code + math,
+	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, right_associative_reformatter,
@@ -147,7 +158,7 @@ OP::oper_pass PARSTD::init_oper
     OP::push_oper
         ( divide_equal,
 	  min::MISSING(),
-	  code + math,
+	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, right_associative_reformatter,

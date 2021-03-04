@@ -228,10 +228,14 @@
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
-        block standard: operator "=" [code, math]
+        block standard: operator "=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
+        block standard: operator "=" [math]
+                        infix
+                        with precedence 1000
+                        with binary reformatter
         block standard: operator ">" [code, math]
                         infix
                         with precedence 4000
@@ -252,11 +256,11 @@
                         infix
                         with precedence 3000
                         with binary reformatter
-        block standard: operator "*=" [code, math]
+        block standard: operator "*=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
-        block standard: operator "+=" [code, math]
+        block standard: operator "+=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
@@ -272,7 +276,7 @@
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
-        block standard: operator "-=" [code, math]
+        block standard: operator "-=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
@@ -284,7 +288,7 @@
                         infix
                         with precedence 3100
                         with infix reformatter
-        block standard: operator "/=" [code, math]
+        block standard: operator "/=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter

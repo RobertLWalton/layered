@@ -7490,55 +7490,60 @@ in \itemref{OPERATOR-REFORMATTERS}.
 
 \begin{figure*}[!p]
 \begin{center}
-\begin{tabular}{|rll@{\hspace*{2em}}l@{\hspace*{2em}}l|}
+\begin{tabular}{|l|rll@{\hspace*{2em}}l@{\hspace*{2em}}l|}
 \hline
-prece-  &               &       &               & \\
-~dence  & reformatter	& type	& operator	& meaning 
+selec-  & prece-  &             &       	&               & \\
+~tors   & ~dence  & reformatter	& flags		& operator	& meaning 
 \\\hline
-1000	& \TT{right}		& \TT{infix}	& \ttkey{=}	& assignment \\
-     	& \TT{associative\ttindex{right associative}}
-				&          	& \ttkey{+=}	& increment \\
-     	&               	&          	& \ttkey{-=}	& decrement \\
-     	&               	&          	& \ttkey{*=}	& multiply by \\
-     	&               	&          	& \ttkey{/=}	& divide by
+code    & 1000	& \TT{right}	& \TT{infix}	& \ttkey{=}	& assignment \\
+     	&	& \TT{associative}
+				& \TT{line}    	& \ttkey{+=}	& increment \\
+     	&	&            	&          	& \ttkey{-=}	& decrement \\
+     	&	&            	&          	& \ttkey{*=}	& multiply by \\
+     	&	&            	&          	& \ttkey{/=}	& divide by
 \\\hline
-2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{,}	& separator
+math    & 1000	& \TT{binary}	& \TT{infix}	& \ttkey{=}	& assignment
 \\\hline
-3000	& \ttkey{binary}	& \TT{infix}	& \ttkey{BUT NOT}
+code    & 2000	& \ttkey{separator}
+				& \TT{nofix}	& \ttkey{,}	& separator
+\\\cline{2-6}
+math    & 3000	& \ttkey{binary}
+				& \TT{infix}	& \ttkey{BUT NOT}
 								& logical and
 								  not
-\\\hline
-3100	& \ttkey{infix}		& \TT{infix}	& \ttkey{AND}	& logical and \\
-	&			&		& \ttkey{OR}	& logical or
-\\\hline
-3200	& \ttkey{unary}		& \TT{prefix}	& \ttkey{NOT}	& logical not
-\\\hline
-4000 	& \ttkey{infix and}	& \TT{infix}	& \ttkey{==}	& equal \\
-	&			&		& \ttkey{/=}  & not equal \\
-	&			&		& \ttkey{!=}	& ditto \\
-	&		      	&		& \ttkey{<}	& less than \\
-	&			&		& \ttkey{<=}	& less than or
+\\\cline{2-6}
+	& 3100	& \ttkey{infix}	& \TT{infix}	& \ttkey{AND}	& logical and \\
+	& 	&		&		& \ttkey{OR}	& logical or
+\\\cline{2-6}
+	& 3200	& \ttkey{unary}	& \TT{prefix}	& \ttkey{NOT}	& logical not
+\\\cline{2-6}
+	& 4000 	& \ttkey{infix and}
+				& \TT{infix}	& \ttkey{==}	& equal \\
+	& 	&		&		& \ttkey{/=}  & not equal \\
+	& 	&		&		& \ttkey{!=}	& ditto \\
+	& 	&	      	&		& \ttkey{<}	& less than \\
+	& 	&		&		& \ttkey{<=}	& less than or
 								  equal \\
-	&			&		& \TT{=<}	& ditto \\
-	&		      	&		& \TT{>}	& greater than
+	& 	&		&		& \TT{=<}	& ditto \\
+	& 	&	      	&		& \TT{>}	& greater than
 									\\
-	&			&		& \TT{>=}	& greater than
+	& 	&		&		& \TT{>=}	& greater than
 								  or equal \\
-	&			&		& \TT{=>}	& ditto
-\\\hline
-5000	& \ttkey{sum}		& \TT{infix}    & \TT{+}	& addition \\
-	&			& 		& \TT{-}	& subtraction
-\\\hline
-5100	& \ttkey{binary}	& \TT{infix}	& \TT{/}	& division
-\\\hline
-5200	& \ttkey{infix}		& \TT{infix}	& \TT{*}
+	& 	&		&		& \TT{=>}	& ditto
+\\\cline{2-6}
+	& 5000	& \ttkey{sum}	& \TT{infix}    & \TT{+}	& addition \\
+		& &		& 		& \TT{-}	& subtraction
+\\\cline{2-6}
+	& 5100	& \ttkey{binary} & \TT{infix}	& \TT{/}	& division
+\\\cline{2-6}
+	& 5200	& \ttkey{infix}	& \TT{infix}	& \TT{*}
 							& multiplication
-\\\hline
-5300	& \ttkey{binary}	& \TT{infix}	& \TT{\textasciicircum}
+\\\cline{2-6}
+	& 5300	& \ttkey{binary} & \TT{infix}	& \TT{\textasciicircum}
 							& exponentiation
-\\\hline
-H-1	& \ttkey{unary}		& \TT{prefix}   & \TT{+}	& no-op \\
-	&			& 		& \TT{-}	& negation
+\\\cline{2-6}
+	& H-1	& \ttkey{unary}	& \TT{prefix}   & \TT{+}	& no-op \\
+	&	&		& 		& \TT{-}	& negation
 \\\hline
 \end{tabular}
 \end{center}

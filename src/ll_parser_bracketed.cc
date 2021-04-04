@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 04:59:41 EST 2021
+// Date:	Sun Apr  4 17:14:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -853,6 +853,185 @@ PAR::pass BRA::new_pass ( PAR::parser parser )
 
 const min::position BRA::ISOLATED_HEADER =
     { 0xFFFFFFFF, 1 };
+
+void BRA::init_line_variables
+	( BRA::line_variables & line_variables,
+	  BRA::indentation_mark indentation_mark,
+	  PAR::parser parser,
+	  TAB::flags selectors,
+	  PAR::token & current )
+{
+    BRA::line_data & paragraph_data =
+	line_variables
+	    .indentation_paragraph;
+    BRA::line_data & implied_data =
+	line_variables
+	    .indentation_implied_paragraph;
+
+    paragraph_data.paragraph_lexical_master =
+    implied_data.paragraph_lexical_master =
+	indentation_mark->
+	    paragraph_lexical_master;
+    paragraph_data.line_lexical_master =
+    implied_data.line_lexical_master =
+	indentation_mark->line_lexical_master;
+    paragraph_data.selectors =
+    implied_data.selectors =
+	    selectors;
+    paragraph_data.implied_header =
+    implied_data.implied_header =
+	    min::MISSING();
+    paragraph_data.header_entry =
+    implied_data.header_entry =
+	    min::NULL_STUB;
+	    // Just for safety.
+
+    // If H = indentation_mark->
+    //            implied_header,
+    // we go through the following loop:
+    //     0 times if H is MISSING
+    //     1 times if H is paragraph header
+    //                with MISSING
+    //                implied_subprefix
+    //     1 times if H is line header
+    //     2 times if H is paragraph header
+    //                with non-MISSING
+    //                implied_subprefix
+    //                (should be a `line'
+    //                header)
+    //
+    min::gen implied_header =
+	indentation_mark->implied_header;
+    min::gen implied_header_type =
+	indentation_mark->implied_header_type;
+    TAB::flags header_selectors = selectors;
+    bool first_time = true;
+    while ( implied_header != min::MISSING() )
+    {
+	BRA::bracketed_pass bracketed_pass =
+	    (BRA::bracketed_pass) parser->pass_stack;
+	TAB::key_table bracket_type_table =
+	    bracketed_pass->bracket_type_table;
+	BRA::bracket_type header_entry =
+	    (BRA::bracket_type)
+	    TAB::find ( implied_header_type,
+			BRA::BRACKET_TYPE,
+			header_selectors,
+			bracket_type_table );
+	min::gen group = implied_header_type;
+	if ( header_entry != min::NULL_STUB )
+	{
+	    if ( header_entry->group != min::MISSING() )
+		group = header_entry->group;
+	    header_selectors =
+		TAB::modified_flags
+		    ( header_selectors,
+		      header_entry->parsing_selectors );
+	}
+
+	if ( group == PARLEX::paragraph && first_time )
+	{
+	    if (    header_entry->line_lexical_master
+		 != PAR::MISSING_MASTER )
+	    {
+		min::phrase_position pos =
+		    { current->position.end,
+		      current->position.end };
+		PAR::parse_error
+		  ( parser,
+		    pos,
+		    "indentation mark implied"
+		    " header of type `",
+		    min::pgen_never_quote
+		      ( implied_header_type
+		      ),
+		    "' cannot be isolated;"
+		    " implied header ignored" );
+		break;
+	    }
+
+	    paragraph_data.implied_header =
+		implied_header;
+	    paragraph_data.header_entry =
+		header_entry;
+	    paragraph_data.header_selectors
+		= header_selectors;
+
+	    first_time = false;
+	    implied_header =
+		header_entry->
+		    implied_subprefix;
+	    implied_header_type =
+		header_entry->implied_subprefix_type;
+	}
+	else if ( group == PARLEX::line )
+	{
+	    implied_data.implied_header =
+		    implied_header;
+	    implied_data.header_entry =
+		    header_entry;
+	    implied_data.header_selectors =
+		    header_selectors;
+
+	    if ( first_time )
+	    {
+	        paragraph_data.implied_header =
+		  implied_data.implied_header;
+	        paragraph_data.header_entry =
+		  implied_data.header_entry;
+	        paragraph_data.header_selectors =
+		  implied_data.header_selectors;
+	    }
+	    break;
+	}
+	else if ( first_time )
+	{
+	    min::phrase_position pos =
+		{ current->position.end,
+		  current->position.end };
+	    PAR::parse_error
+	      ( parser,
+		pos,
+		"indentation mark implied"
+		" header of type `",
+		min::pgen_never_quote
+		  ( implied_header_type
+		  ),
+		"' does not have"
+		" `paragraph' or `line'"
+		" group; cannot begin"
+		" indented lines;"
+		" ignored" );
+	    break;
+	}
+	else
+	{
+	    // Implied subprefix of paragraph
+	    // or line header is OK.
+	    // Do nothing with it.
+	    //
+	    break;
+	}
+    }
+
+    line_variables.paragraph =
+	line_variables.indentation_paragraph;
+    line_variables.implied_paragraph =
+	line_variables.indentation_implied_paragraph;
+
+    line_variables.paragraph_indent =
+	current->indent;
+    line_variables.line_sep =
+	indentation_mark->line_sep;
+    line_variables.at_paragraph_end = false;
+    line_variables.last_paragraph = min::NULL_STUB;
+    line_variables.current.selectors &= ~
+	PAR::CONTINUING_OPT;
+	// line_variables.current.selectors
+	// is replaced by line_variables.
+	// paragraph.selectors at beginning
+	// of loop.
+}
 
 bool BRA::parse_paragraph_element
 	( PAR::parser parser,

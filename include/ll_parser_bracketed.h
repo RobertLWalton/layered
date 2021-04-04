@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 28 23:37:08 EST 2021
+// Date:	Sun Apr  4 17:14:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1334,6 +1334,17 @@ min::position parse_bracketed_subexpression
 	  ll::parser::bracketed::line_variables
 	      * line_variables,
 	  bracket_stack * bracket_stack_p  = NULL );
+
+// TBD
+//
+void init_line_variables
+	( ll::parser::bracketed::line_variables
+	      & line_variables,
+	  ll::parser::bracketed::indentation_mark
+	        indentation_mark,
+	  ll::parser::parser parser,
+	  ll::parser::table::flags selectors,
+	  ll::parser::token & current );
 
 // This function calls parse_bracketed_subexpression
 // to parse logical lines, headed lines, and headed

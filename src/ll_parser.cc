@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 04:48:01 EST 2021
+// Date:	Mon Apr  5 01:34:22 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,7 @@ min::locatable_gen PARLEX::top_level;
 min::locatable_gen PARLEX::line_level;
 min::locatable_gen PARLEX::top;
 min::locatable_gen PARLEX::level;
+min::locatable_gen PARLEX::star_top_level_star;
 min::locatable_gen PARLEX::dot_oper;
 min::locatable_gen PARLEX::doublequote;
 min::locatable_gen PARLEX::number_sign;
@@ -142,6 +143,8 @@ static void initialize ( void )
 	= min::new_lab_gen ( "LINE", "LEVEL" );
     PARLEX::top = min::new_str_gen ( "top" );
     PARLEX::level = min::new_str_gen ( "level" );
+    PARLEX::star_top_level_star
+	= min::new_lab_gen ( "*TOP*", "*LEVEL*" );
     PARLEX::dot_oper
 	= min::new_str_gen ( ".operator" );
 
@@ -893,7 +896,8 @@ void PAR::init ( min::ref<PAR::parser> parser,
 
 	top_level_indentation_mark_ref(parser) =
 	    BRA::push_indentation_mark
-		( PARLEX::top_level, min::MISSING(),
+		( PARLEX::star_top_level_star,
+		  min::MISSING(),
 		  0, 0, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  min::MISSING(),

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 28 10:29:33 EST 2021
+// Date:	Mon Apr  5 01:34:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,7 @@ namespace ll { namespace parser {
 	    line_level,		// LINE LEVEL
 	    top,		// top
 	    level,		// level
+	    star_top_level_star, // *TOP* *LEVEL*
 	    dot_oper,		// .operator
 	    doublequote,	// "
 	    number_sign,	// #

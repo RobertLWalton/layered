@@ -204,7 +204,7 @@ INDENT: line ##:
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
+        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
 ======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
 ======= PARSER TEST: "`" a b c "[" $ MISSING $ "]" "[" < e f g "[" < h i

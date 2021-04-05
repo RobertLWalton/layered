@@ -3968,7 +3968,7 @@ BRACKETED EXPRESSION:
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
-        block TOP LEVEL: indentation mark [< "TOP" "LEVEL" >] []
+        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
                         // "||" is also allowed.

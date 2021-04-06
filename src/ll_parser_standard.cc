@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  6 02:12:41 EDT 2021
+// Date:	Tue Apr  6 10:36:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,7 @@ void PARSTD::init_block ( PAR::parser parser )
 
     BRA::push_indentation_mark
 	( PARLEX::star_top_level_star,
-	  min::MISSING(),
+	  PARLEX::semicolon,
 	  0, block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( code + PAR::DEFAULT_OPT,

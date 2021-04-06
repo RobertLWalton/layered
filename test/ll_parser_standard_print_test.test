@@ -120,7 +120,8 @@
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
-        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] []
+        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
+                        []
                         with parsing selectors [code]
                         with parsing options [end at le indent,
                                               end at line separator,

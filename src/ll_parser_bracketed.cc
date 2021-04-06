@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  5 00:50:24 EDT 2021
+// Date:	Mon Apr  5 21:27:44 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6331,7 +6331,7 @@ static min::gen bracketed_pass_command
 		if ( TAB::all_flags
 		         ( parsing_selectors )
 		     &
-		     PAR::ALL_EA_OPT )
+		     BRA::INDENTATION_MARK_OPT )
 		{
 		    parser->printer
 			<< min::indent
@@ -6339,7 +6339,7 @@ static min::gen bracketed_pass_command
 			   " options ";
 		    COM::print_new_flags
 			( parsing_selectors,
-			  PAR::ALL_EA_OPT,
+			  BRA::INDENTATION_MARK_OPT,
 			  parser->
 			      selector_name_table,
 			  parser, true );

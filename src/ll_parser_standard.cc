@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 05:34:45 EDT 2019
+// Date:	Tue Apr  6 02:12:41 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,11 +19,13 @@
 # include <ll_parser_table.h>
 # include <ll_parser.h>
 # include <ll_parser_standard.h>
+# include <ll_parser_bracketed.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
+# define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
 
 // Standard
@@ -39,16 +41,40 @@ void PARSTD::init_block ( PAR::parser parser )
 
     MIN_REQUIRE ( result == min::SUCCESS() );
 
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
 
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+
     parser->selectors &= PAR::ALL_OPT;
     parser->selectors |=
-          1ull << TAB::find_name
-	      ( parser->selector_name_table,
-	        code_name )
-	| PAR::TOP_LEVEL_SELECTOR
+          code
+	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
+
+    BRA::bracketed_pass bracketed_pass =
+	(BRA::bracketed_pass) parser->pass_stack;
+
+    BRA::push_indentation_mark
+	( PARLEX::star_top_level_star,
+	  min::MISSING(),
+	  0, block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( code + PAR::DEFAULT_OPT,
+		BRA::INDENTATION_MARK_SELECTORS
+		- code
+		+ PAR::ALL_OPT
+		- PAR::DEFAULT_OPT,
+		0 ),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  bracketed_pass->bracket_table );
 }
 
 void PARSTD::init_lexeme_map ( PAR::parser parser )

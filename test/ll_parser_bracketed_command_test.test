@@ -22,7 +22,20 @@
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
+        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                        with parsing selectors [code]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing,
+                                              enable indented paragraph,
+                                              enable header]
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
     print typed bracket ""
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
@@ -41,7 +54,7 @@ ERROR: in line ##: expected quoted name after:
     define bracket "[+" ...
                         ^^^
     print top level
-        block standard:  selectors [TOP LEVEL, code]
+        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
@@ -67,7 +80,7 @@ ERROR: in line ##: expected quoted name after:
         block TOP LEVEL: LINE LEVEL
         block TOP LEVEL: TOP LEVEL
     print top level
-        block standard:  selectors [TOP LEVEL, code]
+        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
@@ -104,9 +117,12 @@ ERROR: in line ##: expected quoted name after:
                             [code, math, text]
     print indentation mark ":"
         block standard: indentation mark ":" ... ";" [code, text, math]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"

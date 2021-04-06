@@ -90,20 +90,29 @@
     print indentation mark ""
         block standard: indentation mark ":" [data paragraph]
                         with parsing selectors [data]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
         block standard: indentation mark ":" [text]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
                         with implied header {p||p}
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
         block standard: indentation mark ":" ... ";" [code]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
@@ -111,7 +120,20 @@
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
+        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                        with parsing selectors [code]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing,
+                                              enable indented paragraph,
+                                              enable header]
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
     print indentation offset
         block standard: 2
         block TOP LEVEL: 2

@@ -17,7 +17,7 @@ ERROR: in line ##: extraneous stuff after:
         block TOP LEVEL: LINE LEVEL
         block TOP LEVEL: TOP LEVEL
     print top level
-        block standard:  selectors [TOP LEVEL, code]
+        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
@@ -126,7 +126,7 @@ INDENT: line ##:
           - bracketed subexpressions ]
 *PARSER*:
     print top level
-        block standard:  selectors [TOP LEVEL, code]
+        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
@@ -204,7 +204,20 @@ INDENT: line ##:
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
                          [TOP LEVEL]
                          with parsing selectors [data]
+        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                        with parsing selectors [code]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing,
+                                              enable indented paragraph,
+                                              enable header]
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
 ======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
 ======= PARSER TEST: "`" a b c "[" $ MISSING $ "]" "[" < e f g "[" < h i

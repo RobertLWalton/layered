@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  5 01:34:22 EDT 2021
+// Date:	Tue Apr  6 01:50:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -899,7 +899,12 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		( PARLEX::star_top_level_star,
 		  min::MISSING(),
 		  0, 0, PAR::top_level_position,
-		  TAB::new_flags ( 0, 0, 0 ),
+		  TAB::new_flags
+		      ( PAR::DEFAULT_OPT,
+		        BRA::INDENTATION_MARK_SELECTORS
+			+ PAR::ALL_OPT
+			- PAR::DEFAULT_OPT,
+		        0 ),
 		  min::MISSING(),
 		  PAR::MISSING_MASTER,
 		  PAR::MISSING_MASTER,

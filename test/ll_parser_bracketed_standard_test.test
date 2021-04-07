@@ -1,10 +1,9 @@
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY ";"
      OF SUBTYPE ll::parser::table::line_sep_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ";"
 BRACKETED EXPRESSION:
-    This is a line ";"
-@@ = This is a line ";":
-         .terminator = "<LF>"
+    This is a line;
+@@ = This is a line:
+         .terminator = ";"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
     line ##:
@@ -3985,6 +3984,8 @@ BRACKETED EXPRESSION:
                                               end at outer closing,
                                               enable indented paragraph,
                                               enable header]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
                          with parsing selectors []
                          with parsing options [end at le indent,

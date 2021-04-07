@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  5 21:27:44 EDT 2021
+// Date:	Tue Apr  6 16:12:01 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -859,6 +859,7 @@ void BRA::init_line_variables
 	  BRA::indentation_mark indentation_mark,
 	  PAR::parser parser,
 	  TAB::flags selectors,
+	  min::int32 indent,
 	  PAR::token & current )
 {
     BRA::line_data & paragraph_data =
@@ -1019,8 +1020,7 @@ void BRA::init_line_variables
     line_variables.implied_paragraph =
 	line_variables.indentation_implied_paragraph;
 
-    line_variables.paragraph_indent =
-	current->indent;
+    line_variables.paragraph_indent = indent;
     line_variables.line_sep =
 	indentation_mark->line_sep;
     line_variables.at_paragraph_end = false;
@@ -1030,7 +1030,7 @@ void BRA::init_line_variables
 	// line_variables.current.selectors
 	// is replaced by line_variables.
 	// paragraph.selectors at beginning
-	// of loop.
+	// of parse_paragraph_element loop.
 }
 
 bool BRA::parse_paragraph_element
@@ -3058,6 +3058,7 @@ NEXT_TOKEN:
 		  indentation_found,
 		  parser,
 		  new_selectors,
+		  current->indent,
 		  current );
 	    parser->at_paragraph_beginning = true;
 	    while ( true )

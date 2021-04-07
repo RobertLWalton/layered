@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr  4 17:14:25 EDT 2021
+// Date:	Tue Apr  6 16:33:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1344,6 +1344,7 @@ void init_line_variables
 	        indentation_mark,
 	  ll::parser::parser parser,
 	  ll::parser::table::flags selectors,
+	  min::int32 indent,
 	  ll::parser::token & current );
 
 // This function calls parse_bracketed_subexpression

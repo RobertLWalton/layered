@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  6 10:36:05 EDT 2021
+// Date:	Wed Apr  7 03:53:55 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,6 +57,11 @@ void PARSTD::init_block ( PAR::parser parser )
 	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
 
+    min::locatable_gen paragraph_check
+        ( min::new_str_gen ( "PARAGRAPH-CHECK" ) );
+    min::locatable_gen data_check
+        ( min::new_str_gen ( "DATA-CHECK" ) );
+
     BRA::bracketed_pass bracketed_pass =
 	(BRA::bracketed_pass) parser->pass_stack;
 
@@ -72,8 +77,10 @@ void PARSTD::init_block ( PAR::parser parser )
 		- PAR::DEFAULT_OPT,
 		0 ),
 	  min::MISSING(),
-	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
+          PAR::get_lexical_master
+	      ( paragraph_check, parser ),
+          PAR::get_lexical_master
+	      ( data_check, parser ),
 	  bracketed_pass->bracket_table );
 }
 

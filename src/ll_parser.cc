@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  6 01:50:12 EDT 2021
+// Date:	Tue Apr  6 16:33:43 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1242,6 +1242,67 @@ static void init_line_data
         line_variables.current;
 }
 
+static void init_line_variables
+        ( BRA::line_variables & line_variables,
+	  PAR::parser parser,
+	  PAR::token & current )
+{
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+    TAB::key_table bracket_table =
+        bracketed_pass->bracket_table;
+
+    TAB::key_prefix key_prefix =
+        TAB::find_key_prefix
+	    ( PARLEX::star_top_level_star,
+	      bracket_table );
+
+    TAB::root root = key_prefix->first;
+    while ( root != min::NULL_STUB )
+    {
+        if (    min::packed_subtype_of ( root )
+	     == BRA::INDENTATION_MARK )
+	    break;
+	root = root->next;
+    }
+    if ( root == min::NULL_STUB )
+    {
+        PAR::parse_error
+	    ( parser,
+	      current->position,
+	      "cannot find *TOP* *LEVEL* indentation"
+	      " mark definition" );
+        MIN_ABORT ( "aborting due to above errors" );
+    }
+    BRA::indentation_mark indentation_mark =
+        (BRA::indentation_mark) root;
+
+    TAB::flags selectors =
+        indentation_mark->parsing_selectors.or_flags;
+    selectors |= PAR::TOP_LEVEL_OFF_SELECTORS
+	       + PAR::ALWAYS_SELECTOR;
+
+    if ( current->type == LEXSTD::indent_t
+         &&
+	 current->indent != 0 )
+        PAR::parse_error
+	    ( parser,
+	      current->position,
+	      "current indentation is not zero; top"
+	      " level zero indentation assumed" );
+
+    BRA::init_line_variables
+        ( line_variables,
+	  indentation_mark,
+	  parser,
+	  selectors,
+	  0,
+	  current );
+
+    parser->at_paragraph_beginning = true;
+    parser->selectors = selectors;
+}
+
 inline bool operator ==
 	( const BRA::line_data & data1,
 	  const BRA::line_data & data2 )
@@ -1381,19 +1442,11 @@ void PAR::parse ( PAR::parser parser )
     // Top level loop.
     //
     BRA::line_variables line_variables;
-    ::init_line_data ( line_variables, parser );
-    line_variables.last_paragraph = min::NULL_STUB;
-    line_variables.paragraph_indent = 0;
-    line_variables.at_paragraph_end = false;
+    if ( current->type == LEXSTD::end_of_file_t )
+        goto END_PARSE;
+    ::init_line_variables
+        ( line_variables, parser, current );
 
-    parser->at_paragraph_beginning = true;
-    line_variables.line_sep =
-	parser->top_level_indentation_mark->line_sep;
-    line_variables.current.selectors &=
-        ~ PAR::CONTINUING_OPT;
-	// line_variables.current.selectors are replaced
-	// by line_variables.paragraph.selectors near
-	// beginning of loop.
     while ( true )
     {
         if (   parser->error_count
@@ -1479,6 +1532,8 @@ void PAR::parse ( PAR::parser parser )
 		    ( PAR::first_ref ( parser ),
 		      output ) );
     }
+
+END_PARSE:
 
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;

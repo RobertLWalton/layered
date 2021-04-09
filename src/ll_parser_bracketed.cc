@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  6 16:12:01 EDT 2021
+// Date:	Thu Apr  8 22:30:33 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -225,6 +225,23 @@ static min::packed_struct_with_base
 const min::uns32 & BRA::LINE_SEP =
     line_sep_type.subtype;
 
+BRA::line_sep
+    BRA::push_line_sep
+	( min::gen line_sep_label,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  TAB::key_table bracket_table )
+{
+    min::locatable_var<BRA::line_sep>
+	line_sep
+	( PAR::find ( line_sep_label,
+		      ::line_sep_type,
+		      block_level,
+		      position,
+		      bracket_table ) );
+    return line_sep;
+}
+
 BRA::indentation_mark
     BRA::push_indentation_mark
 	( min::gen mark_label,
@@ -269,16 +286,14 @@ BRA::indentation_mark
     TAB::push ( bracket_table, (TAB::root) imark );
 
     if ( separator_label != min::MISSING() )
-    {
-	min::locatable_var<BRA::line_sep>
-	    separator
-	    ( PAR::find ( separator_label,
-	                  ::line_sep_type,
-			  block_level,
-			  position,
-			  bracket_table ) );
-	line_sep_ref(imark) = separator;
-    }
+	line_sep_ref(imark) =
+	    BRA::push_line_sep
+	        ( separator_label,
+		  block_level,
+		  position,
+		  bracket_table );
+    else
+        line_sep_ref(imark) = min::NULL_STUB;
 
     return imark;
 }

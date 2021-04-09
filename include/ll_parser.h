@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  5 01:34:05 EDT 2021
+// Date:	Thu Apr  8 11:38:44 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -140,16 +140,6 @@ namespace ll { namespace parser {
     extern min::gen_format name_format;
 	// Same as min::default_gen_format except
 	// that {str,lab}_{pre,post}fix are all "".
-
-namespace bracketed {
-
-    // We this small piece of ll_parser_bracketed.h.
-    //
-    struct indentation_mark_struct;
-    typedef min::packed_struct_updptr
-		<indentation_mark_struct>
-	    indentation_mark;
-}
 
 } }
 

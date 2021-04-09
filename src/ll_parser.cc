@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  6 16:33:43 EDT 2021
+// Date:	Thu Apr  8 16:53:19 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1496,8 +1496,9 @@ void PAR::parse ( PAR::parser parser )
 			COM::parser_execute_command
 			    ( parser, vp[0] );
 
-			::init_line_data
-			    ( line_variables, parser );
+			::init_line_variables
+			    ( line_variables, parser,
+			      current );
 			trace_flags =
 			    ::output_trace_flags
 			        ( parser );
@@ -1593,11 +1594,34 @@ min::gen PAR::begin_block
                       name,
 		      parser->selector_name_table,
                       parser->undefined_stack,
+		      parser->top_level_indentation_mark,
 		      parser->paragraph_lexical_master,
 		      parser->line_lexical_master,
 		      parser->selectors,
 		      parser->trace_flags,
 		      parser->ID_character );
+
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
+
+    top_level_indentation_mark_ref(parser) =
+	BRA::push_indentation_mark
+	    ( PARLEX::star_top_level_star,
+	      imark->line_sep == min::NULL_STUB ?
+	          min::MISSING() :
+		  imark->line_sep->label,
+	      0,
+	      block_level, position,
+	      imark->parsing_selectors,
+	      imark->implied_header,
+	      imark->paragraph_lexical_master,
+	      imark->line_lexical_master,
+	      bracketed_pass->bracket_table );
 
     min::gen result = min::SUCCESS();
     for ( PAR::pass pass = parser->pass_stack;
@@ -1623,9 +1647,6 @@ min::gen PAR::end_block
 {
     min::uns32 block_level =
         PAR::block_level ( parser );
-    MIN_REQUIRE ( block_level > 0 );
-    min::ref<TAB::block_struct> b =
-        parser->block_stack[block_level-1];
 
     if ( block_level == 0 )
         return PAR::parse_error
@@ -1633,12 +1654,31 @@ min::gen PAR::end_block
 	      position,
 	      "not inside a block"
 	      " (no begin block to end)" );
-    else if ( name != (&b)->name )
+
+    min::ref<TAB::block_struct> b =
+        parser->block_stack[block_level-1];
+    if ( name != (&b)->name )
         return PAR::parse_error
 	    ( parser,
 	      position,
 	      "innermost block name does not match `",
 	      min::pgen_name ( name ), "'" );
+
+    min::gen result = min::SUCCESS();
+    for ( PAR::pass pass = parser->pass_stack;
+	  pass != NULL;
+	  pass = pass->next )
+    {
+	min::gen saved_result = result;
+	if ( pass->end_block != NULL )
+	    result = (* pass->end_block )
+		( parser, pass, position, name );
+	if ( saved_result == min::ERROR()
+	     ||
+	     result == min::FAILURE() )
+	    result = saved_result;
+    }
+
 
     while ( parser->selector_name_table->length
             >
@@ -1659,21 +1699,8 @@ min::gen PAR::end_block
                      block_level - 1,
                      collected_entries );
 
-    min::gen result = min::SUCCESS();
-    for ( PAR::pass pass = parser->pass_stack;
-	  pass != NULL;
-	  pass = pass->next )
-    {
-	min::gen saved_result = result;
-	if ( pass->end_block != NULL )
-	    result = (* pass->end_block )
-		( parser, pass, position, name );
-	if ( saved_result == min::ERROR()
-	     ||
-	     result == min::FAILURE() )
-	    result = saved_result;
-    }
-
+    top_level_indentation_mark_ref(parser) =
+        (&b)->saved_top_level_indentation_mark;
     parser->paragraph_lexical_master =
         (&b)->saved_paragraph_lexical_master;
     parser->line_lexical_master =

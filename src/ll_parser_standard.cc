@@ -41,9 +41,6 @@ void PARSTD::init_block ( PAR::parser parser )
 
     MIN_REQUIRE ( result == min::SUCCESS() );
 
-    min::uns32 block_level =
-        PAR::block_level ( parser );
-
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
 
@@ -62,26 +59,32 @@ void PARSTD::init_block ( PAR::parser parser )
     min::locatable_gen data_check
         ( min::new_str_gen ( "DATA-CHECK" ) );
 
-    BRA::bracketed_pass bracketed_pass =
-	(BRA::bracketed_pass) parser->pass_stack;
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
 
-    BRA::push_indentation_mark
-	( PARLEX::star_top_level_star,
-	  PARLEX::semicolon,
-	  0, block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( code + PAR::DEFAULT_OPT,
-		BRA::INDENTATION_MARK_SELECTORS
-		- code
-		+ PAR::ALL_OPT
-		- PAR::DEFAULT_OPT,
-		0 ),
-	  min::MISSING(),
+    BRA::bracketed_pass bracketed_pass =
+        (BRA::bracketed_pass) parser->pass_stack;
+    TAB::key_table bracket_table =
+        bracketed_pass->bracket_table;
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    line_sep_ref(imark) =
+	BRA::push_line_sep
+	    ( PARLEX::semicolon,
+	      block_level,
+	      PAR::top_level_position,
+	      bracket_table );
+
+    imark->parsing_selectors.or_flags |= code;
+    imark->parsing_selectors.not_flags &= ~ code;
+
+    imark->paragraph_lexical_master =
           PAR::get_lexical_master
-	      ( paragraph_check, parser ),
+	      ( paragraph_check, parser );
+    imark->line_lexical_master =
           PAR::get_lexical_master
-	      ( data_check, parser ),
-	  bracketed_pass->bracket_table );
+	      ( data_check, parser );
 }
 
 void PARSTD::init_lexeme_map ( PAR::parser parser )

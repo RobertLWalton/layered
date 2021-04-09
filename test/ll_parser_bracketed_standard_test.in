@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  2 12:26:08 EST 2021
+// Date:	Fri Apr  9 15:54:04 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -64,7 +64,7 @@ And these are nested labels
 *PARSER*:
     define top level
            with parsing options [ + enable prefix ]
-    print top level
+    print indentation mark "*TOP* *LEVEL*"
 
 This line contains a typed subexpression {x|1 2 3|}
 Another typed subexpression

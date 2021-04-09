@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 12:48:03 EDT 2019
+// Date:	Thu Apr  8 11:42:31 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,7 +27,20 @@
 
 # include <min.h>
 
-namespace ll { namespace parser { namespace table {
+namespace ll { namespace parser {
+
+namespace bracketed {
+
+    // We this small piece of ll_parser_bracketed.h
+    // is needed here.
+    //
+    struct indentation_mark_struct;
+    typedef min::packed_struct_updptr
+		<indentation_mark_struct>
+	    indentation_mark;
+}
+
+namespace table {
 
     using min::uns8;
     using min::uns16;
@@ -469,6 +482,10 @@ struct block_struct
 
     min::uns32 saved_undefined_stack_length;
         // Undefined_stack length when block begins.
+    
+    ll::parser::bracketed::indentation_mark
+        saved_top_level_indentation_mark;
+        // Top level indentation mark when block begins.
 
     min::uns32 saved_paragraph_lexical_master;
     min::uns32 saved_line_lexical_master;
@@ -503,6 +520,8 @@ inline void push_block
 	      selector_name_table,
 	  ll::parser::table::undefined_stack
 	      undefined_stack,
+	  ll::parser::bracketed::indentation_mark
+	      indentation_mark,
 	  min::uns32 paragraph_lexical_master,
 	  min::uns32 line_lexical_master,
 	  ll::parser::table::flags selectors,
@@ -513,12 +532,15 @@ inline void push_block
         { name,
 	  selector_name_table->length,
 	  undefined_stack->length,
+	  indentation_mark,
 	  paragraph_lexical_master,
 	  line_lexical_master,
 	  selectors, trace_flags, ID_character };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );
+    min::unprotected::acc_write_update
+        ( block_stack, indentation_mark );
 }
 
 // Lexeme Maps

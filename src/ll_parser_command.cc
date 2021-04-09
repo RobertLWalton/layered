@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  4 06:39:25 EST 2021
+// Date:	Fri Apr  9 16:58:15 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,11 +27,13 @@
 
 # include <ll_lexeme_standard.h>
 # include <ll_parser_command.h>
+# include <ll_parser_bracketed.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
+# define BRA ll::parser::bracketed
 # define COM ll::parser::command
 
 static min::locatable_gen exclusive_or;
@@ -1140,17 +1142,24 @@ static min::gen execute_top_level
 	    ( parser, ppvec[i-1],
 	      "expected `with' after" );
 
-    parser->selectors |= new_selectors.or_flags
-                      |  new_options.or_flags;
-    parser->selectors &= ~ (   new_selectors.not_flags
-                             | new_options.not_flags );
-    parser->selectors ^= new_selectors.xor_flags
-                      ^  new_options.xor_flags;
-    parser->selectors |= PAR::TOP_LEVEL_OFF_SELECTORS
-                      |  PAR::ALWAYS_SELECTOR;
-    parser->paragraph_lexical_master =
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
+    TAB::flags selectors =
+        imark->parsing_selectors.or_flags;
+    selectors |= new_selectors.or_flags
+              |  new_options.or_flags;
+    selectors &= ~ (   new_selectors.not_flags
+                     | new_options.not_flags );
+    selectors ^= new_selectors.xor_flags
+              ^  new_options.xor_flags;
+    imark->parsing_selectors.or_flags = selectors;
+    imark->parsing_selectors.not_flags = ~ selectors;
+    imark->parsing_selectors.not_flags &=
+          BRA::INDENTATION_MARK_SELECTORS
+	+ PAR::ALL_OPT;
+    imark->paragraph_lexical_master =
         paragraph_lexical_master;
-    parser->line_lexical_master =
+    imark->line_lexical_master =
         line_lexical_master;
 
     if ( i < size )

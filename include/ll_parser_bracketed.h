@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  6 16:33:25 EDT 2021
+// Date:	Thu Apr  8 22:29:53 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -222,6 +222,16 @@ MIN_REF ( ll::parser::table::root, next,
           ll::parser::bracketed::line_sep )
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::line_sep )
+
+
+// Push line_sep entry into bracket table.
+//
+ll::parser::bracketed::line_sep
+    push_line_sep
+	( min::gen line_sep_label,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  ll::parser::table::key_table bracket_table );
 
 // Push entry into bracket table.  The INDENTATION_
 // MARK_OFF_...  flags are set in parsing_selectors.not_

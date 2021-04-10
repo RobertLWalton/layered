@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 07:10:21 EDT 2021
+// Date:	Sat Apr 10 15:54:00 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,7 @@ namespace ll { namespace parser {
     namespace lexeme {
 
 	extern min::locatable_gen
+	    NONE,		// NONE
 	    top_level,		// TOP LEVEL
 	    line_level,		// LINE LEVEL
 	    top,		// top
@@ -93,6 +94,7 @@ namespace ll { namespace parser {
 	    atom,		// atom
 	    prefix,		// prefix
 	    header,		// header
+	    separator,		// separator
 	    line,		// line
 	    paragraph,		// paragraph
 	    standard,		// standard

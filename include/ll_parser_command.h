@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  4 06:37:57 EST 2021
+// Date:	Sat Apr 10 15:57:26 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,8 +52,8 @@ void misspell_warning
 	  min::gen should_be );
 
 // Executes:
-// 	    parser->printer << min::indent
-//                 << "with ... lexical master ...";
+//     parser->printer << min::indent << prefix
+//                     << "... lexical master ...";
 //
 // as necessary to output both lexical masters if
 // they are not PAR::MISSING_MASTER.
@@ -61,7 +61,8 @@ void misspell_warning
 void print_lexical_master
 	( ll::parser::parser parser,
 	  min::uns32 paragraph_master,
-	  min::uns32 line_master );
+	  min::uns32 line_master,
+	  const char * prefix = "with " );
 
 // Return true iff vp[i ...] is
 //

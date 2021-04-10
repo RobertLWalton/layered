@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  8 22:29:53 EDT 2021
+// Date:	Sat Apr 10 14:10:55 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -224,7 +224,12 @@ MIN_REF ( min::gen, label,
           ll::parser::bracketed::line_sep )
 
 
-// Push line_sep entry into bracket table.
+// Push line_sep entry into bracket table, or return
+// existing entry if one already exists.  These
+// entries have only the ALWAYS_SELECTOR selector
+// and there is not `define ...' or `undefine ...'
+// command for them.  However, and entry will be
+// removed when its containing parsing block ends.
 //
 ll::parser::bracketed::line_sep
     push_line_sep
@@ -1345,7 +1350,9 @@ min::position parse_bracketed_subexpression
 	      * line_variables,
 	  bracket_stack * bracket_stack_p  = NULL );
 
-// TBD
+// Initialize line variable given indentation mark,
+// selectors, and indent.  Current is used ONLY for
+// error message positions.
 //
 void init_line_variables
 	( ll::parser::bracketed::line_variables

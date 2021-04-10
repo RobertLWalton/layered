@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 01:55:42 EDT 2021
+// Date:	Sat Apr 10 16:25:47 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -140,3 +140,17 @@ ID 4 is @4
     print bracket type ""
     print mapped lexeme ""
     end block X
+
+*PARSER*:
+    print top level
+    define top level line separator ";"
+    print top level
+
+Hi there; Bye there
+Ho HO;
+
+*PARSER*:
+    define top level line separator NONE
+    print top level
+
+Hi there; Bye there

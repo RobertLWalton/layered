@@ -354,3 +354,52 @@ ID 4 is @@
         block X: mapped lexeme "DATA" [TOP LEVEL]
                  with token value {data||data}
     end block X
+*PARSER*:
+    print top level
+        block TOP LEVEL:  selectors [my selector]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing,
+                                   enable indented paragraph,
+                                   enable header]
+                          lexical master "DEFAULT"
+    define top level line separator ";"
+    print top level
+        block TOP LEVEL:  selectors [my selector]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing,
+                                   enable indented paragraph,
+                                   enable header]
+                          lexical master "DEFAULT"
+                          line separator ";"
+BRACKETED EXPRESSION:
+    Hi there;
+    line ###:
+Hi there; Bye there
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    Bye there
+    line ###:
+Hi there; Bye there
+          ^^^^^^^^^
+BRACKETED EXPRESSION:
+    Ho HO;
+    line ###:
+Ho HO;
+^^^^^^
+*PARSER*:
+    define top level line separator NONE
+    print top level
+        block TOP LEVEL:  selectors [my selector]
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing,
+                                   enable indented paragraph,
+                                   enable header]
+                          lexical master "DEFAULT"
+BRACKETED EXPRESSION:
+    Hi there ";" Bye there
+    line ###:
+Hi there; Bye there
+^^^^^^^^^^^^^^^^^^^

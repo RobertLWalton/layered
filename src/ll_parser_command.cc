@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 06:31:06 EDT 2021
+// Date:	Sat Apr 10 14:51:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,7 +58,8 @@ static min::initializer initializer ( ::initialize );
 void COM::print_lexical_master
 	( PAR::parser parser,
 	  min::uns32 paragraph_master,
-	  min::uns32 line_master )
+	  min::uns32 line_master,
+	  const char * prefix )
 {
     if ( paragraph_master != PAR::MISSING_MASTER
 	 &&
@@ -67,8 +68,8 @@ void COM::print_lexical_master
 	min::locatable_gen name
 	    ( PAR::get_master_name
 		  ( paragraph_master, parser ) );
-	parser->printer << min::indent
-	    << "with lexical master ";
+	parser->printer << min::indent << prefix
+	                << "lexical master ";
 	if ( name != min::MISSING() )
 	    parser->printer
 		<< min::pgen_quote ( name );
@@ -82,8 +83,9 @@ void COM::print_lexical_master
 	    min::locatable_gen name
 		( PAR::get_master_name
 		      ( paragraph_master, parser ) );
-	    parser->printer << min::indent
-		<< "with paragraph lexical master ";
+	    parser->printer << min::indent << prefix
+		            << "paragraph"
+			       " lexical master ";
 	    if ( name != min::MISSING() )
 		parser->printer
 		    << min::pgen_quote ( name );
@@ -95,8 +97,8 @@ void COM::print_lexical_master
 	    min::locatable_gen name
 		( PAR::get_master_name
 		      ( line_master, parser ) );
-	    parser->printer << min::indent
-		<< "with line lexical master ";
+	    parser->printer << min::indent << prefix
+	                    << "line lexical master ";
 	    if ( name != min::MISSING() )
 		parser->printer
 		    << min::pgen_quote ( name );
@@ -1045,7 +1047,13 @@ static min::gen execute_top_level
 	    COM::print_lexical_master
 	        ( parser,
 		  paragraph_lexical_master,
-		  line_lexical_master );
+		  line_lexical_master, " " );
+
+	    if ( imark->line_sep != min::NULL_STUB )
+		parser->printer << min::indent
+				<< " line separator "
+				<< imark->line_sep
+				        ->label;
 
 	    parser->printer << min::restore_indent;
 
@@ -1141,6 +1149,44 @@ static min::gen execute_top_level
 	      imark->parsing_selectors.or_flags
 	    | PAR::TOP_LEVEL_OFF_SELECTORS
 	    | PAR::ALWAYS_SELECTOR;
+    }
+    else if ( i+1 < size
+	      &&
+	      vp[i] == PARLEX::line
+              &&
+	      vp[i+1] == PARLEX::separator )
+    {
+	i += 2;
+	if ( i >= size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected line separator label"
+		  " after" );
+	else if ( vp[i] == PARLEX::NONE )
+	{
+	    ++ i;
+	    line_sep_ref(imark) = min::NULL_STUB;
+	}
+	else
+	{
+	    min::locatable_gen separator_label
+		( PAR::scan_quoted_string
+		      ( vp, i, parser ) );
+	    if ( separator_label == min::MISSING() )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected quoted line separator"
+		      " label after" );
+	    BRA::bracketed_pass bracketed_pass =
+		(BRA::bracketed_pass)
+		parser->pass_stack;
+	    line_sep_ref(imark) =
+		BRA::push_line_sep
+		    ( separator_label,
+		      PAR::block_level ( parser ),
+		      ppvec[i-1],
+		      bracketed_pass->bracket_table );
+	}
     }
     else if ( COM::is_lexical_master ( vp, i, size ) )
     {

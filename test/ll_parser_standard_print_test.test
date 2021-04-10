@@ -18,8 +18,9 @@
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
+                         paragraph lexical master "PARAGRAPH-CHECK"
+                         line lexical master "DATA-CHECK"
+                         line separator ";"
         block TOP LEVEL:  selectors []
                           options [end at le indent,
                                    end at line separator,

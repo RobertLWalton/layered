@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 07:11:21 EDT 2021
+// Date:	Sat Apr 10 15:54:30 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@
 # define COM ll::parser::command
 # define PARSTD ll::parser::standard
 
+min::locatable_gen PARLEX::NONE;
 min::locatable_gen PARLEX::top_level;
 min::locatable_gen PARLEX::line_level;
 min::locatable_gen PARLEX::top;
@@ -82,6 +83,7 @@ min::locatable_gen PARLEX::data;
 min::locatable_gen PARLEX::atom;
 min::locatable_gen PARLEX::prefix;
 min::locatable_gen PARLEX::header;
+min::locatable_gen PARLEX::separator;
 min::locatable_gen PARLEX::line;
 min::locatable_gen PARLEX::paragraph;
 min::locatable_gen PARLEX::standard;
@@ -137,6 +139,7 @@ static min::locatable_gen keys;
 
 static void initialize ( void )
 {
+    PARLEX::NONE = min::new_str_gen ( "NONE" );
     PARLEX::top_level
 	= min::new_lab_gen ( "TOP", "LEVEL" );
     PARLEX::line_level
@@ -226,6 +229,8 @@ static void initialize ( void )
     PARLEX::atom = min::new_str_gen ( "atom" );
     PARLEX::prefix = min::new_str_gen ( "prefix" );
     PARLEX::header = min::new_str_gen ( "header" );
+    PARLEX::separator =
+        min::new_str_gen ( "separator" );
     PARLEX::line = min::new_str_gen ( "line" );
     PARLEX::paragraph =
         min::new_str_gen ( "paragraph" );

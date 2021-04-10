@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  8 16:53:19 EDT 2021
+// Date:	Sat Apr 10 06:31:17 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -686,13 +686,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	parser->subexpression_gen_format =
 	    min::line_gen_format;
 	parser->trace_flags = PAR::TRACE_WARNINGS;
-	parser->selectors = PAR::DEFAULT_OPT
-	                  + PAR::TOP_LEVEL_OFF_SELECTORS
-	                  + PAR::ALWAYS_SELECTOR;
-	parser->lexical_master =
-	parser->paragraph_lexical_master =
-	parser->line_lexical_master =
-	    PAR::MISSING_MASTER;
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
@@ -909,6 +902,16 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		  PAR::MISSING_MASTER,
 		  PAR::MISSING_MASTER,
 		  bracketed_pass->bracket_table );
+
+	parser->selectors =
+	      parser->top_level_indentation_mark
+		    ->parsing_selectors.or_flags
+	    | PAR::TOP_LEVEL_OFF_SELECTORS
+	    | PAR::ALWAYS_SELECTOR;
+	parser->lexical_master =
+	parser->paragraph_lexical_master =
+	parser->line_lexical_master =
+	    PAR::MISSING_MASTER;
 
 	BRA::push_indentation_mark
 	    ( PARLEX::parser_colon,
@@ -1151,13 +1154,6 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     parser->subexpression_gen_format =
 	min::line_gen_format;
     parser->trace_flags = PAR::TRACE_WARNINGS;
-    parser->selectors = PAR::DEFAULT_OPT
-		      + PAR::TOP_LEVEL_OFF_SELECTORS
-		      + PAR::ALWAYS_SELECTOR;
-    parser->lexical_master =
-    parser->paragraph_lexical_master =
-    parser->line_lexical_master =
-        PAR::MISSING_MASTER;
 }
 
 void PAR::init_input_stream
@@ -1221,67 +1217,11 @@ void PAR::init_ostream
     min::init_ostream ( printer_ref(parser), out );
 }
 
-static void init_line_data
-        ( BRA::line_variables & line_variables,
-	  PAR::parser parser )
-{
-    BRA::line_data & line_data = line_variables.current;
-
-    line_data.paragraph_lexical_master =
-        parser->paragraph_lexical_master;
-    line_data.line_lexical_master =
-        parser->line_lexical_master;
-    line_data.selectors = parser->selectors;
-    line_data.implied_header = min::MISSING();
-    line_data.header_entry = min::NULL_STUB;
-        // Just for safety.
-    line_variables.paragraph =
-    line_variables.implied_paragraph =
-    line_variables.indentation_paragraph =
-    line_variables.indentation_implied_paragraph =
-        line_variables.current;
-}
-
 static void init_line_variables
         ( BRA::line_variables & line_variables,
 	  PAR::parser parser,
 	  PAR::token & current )
 {
-    BRA::bracketed_pass bracketed_pass =
-        (BRA::bracketed_pass) parser->pass_stack;
-    TAB::key_table bracket_table =
-        bracketed_pass->bracket_table;
-
-    TAB::key_prefix key_prefix =
-        TAB::find_key_prefix
-	    ( PARLEX::star_top_level_star,
-	      bracket_table );
-
-    TAB::root root = key_prefix->first;
-    while ( root != min::NULL_STUB )
-    {
-        if (    min::packed_subtype_of ( root )
-	     == BRA::INDENTATION_MARK )
-	    break;
-	root = root->next;
-    }
-    if ( root == min::NULL_STUB )
-    {
-        PAR::parse_error
-	    ( parser,
-	      current->position,
-	      "cannot find *TOP* *LEVEL* indentation"
-	      " mark definition" );
-        MIN_ABORT ( "aborting due to above errors" );
-    }
-    BRA::indentation_mark indentation_mark =
-        (BRA::indentation_mark) root;
-
-    TAB::flags selectors =
-        indentation_mark->parsing_selectors.or_flags;
-    selectors |= PAR::TOP_LEVEL_OFF_SELECTORS
-	       + PAR::ALWAYS_SELECTOR;
-
     if ( current->type == LEXSTD::indent_t
          &&
 	 current->indent != 0 )
@@ -1293,14 +1233,13 @@ static void init_line_variables
 
     BRA::init_line_variables
         ( line_variables,
-	  indentation_mark,
+	  parser->top_level_indentation_mark,
 	  parser,
-	  selectors,
+	  parser->selectors,
 	  0,
 	  current );
 
     parser->at_paragraph_beginning = true;
-    parser->selectors = selectors;
 }
 
 inline bool operator ==
@@ -1702,11 +1641,15 @@ min::gen PAR::end_block
 
     top_level_indentation_mark_ref(parser) =
         (&b)->saved_top_level_indentation_mark;
+    parser->selectors =
+	  parser->top_level_indentation_mark
+	        ->parsing_selectors.or_flags
+	| PAR::TOP_LEVEL_OFF_SELECTORS
+	| PAR::ALWAYS_SELECTOR;
     parser->paragraph_lexical_master =
         (&b)->saved_paragraph_lexical_master;
     parser->line_lexical_master =
         (&b)->saved_line_lexical_master;
-    parser->selectors = (&b)->saved_selectors;
     parser->trace_flags = (&b)->saved_trace_flags;
     parser->ID_character = (&b)->saved_ID_character;
 

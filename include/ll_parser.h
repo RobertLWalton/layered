@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  8 11:38:44 EDT 2021
+// Date:	Sat Apr 10 06:19:36 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1154,11 +1154,6 @@ struct parser_struct
             selector_group_name_table;
         // Selector name and group tables.
 
-    ll::parser::table::flags selectors;
-        // Top level lexical selectors to be copied to
-	// top level line variables when they are
-	// (re) initialized.
-
     min::uns32 paragraph_lexical_master;
     min::uns32 line_lexical_master;
         // Top level lexical masters to be copied to
@@ -1169,6 +1164,12 @@ struct parser_struct
 	    top_level_indentation_mark;
 	// Top level indentation mark for parse
 	// function.
+    ll::parser::table::flags selectors;
+        // Cache equal to
+	//     top_level_indentation_mark->
+	//         parsing_selectors.or_flags 
+	//   | TOP_LEVEL_OFF_SELECTORS
+	//   | ALWAYS_SELECTOR
 
     // Parser state:
     //

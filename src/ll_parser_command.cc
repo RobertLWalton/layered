@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  9 22:38:15 EDT 2021
+// Date:	Sat Apr 10 06:31:06 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1097,6 +1097,10 @@ static min::gen execute_top_level
 	imark->parsing_selectors.not_flags &=
 	      BRA::INDENTATION_MARK_SELECTORS
 	    + PAR::ALL_OPT;
+	parser->selectors =
+	      imark->parsing_selectors.or_flags
+	    | PAR::TOP_LEVEL_OFF_SELECTORS
+	    | PAR::ALWAYS_SELECTOR;
     }
     else if ( i+1 < size
 	      &&
@@ -1133,6 +1137,10 @@ static min::gen execute_top_level
 	imark->parsing_selectors.not_flags &=
 	      BRA::INDENTATION_MARK_SELECTORS
 	    + PAR::ALL_OPT;
+	parser->selectors =
+	      imark->parsing_selectors.or_flags
+	    | PAR::TOP_LEVEL_OFF_SELECTORS
+	    | PAR::ALWAYS_SELECTOR;
     }
     else if ( COM::is_lexical_master ( vp, i, size ) )
     {

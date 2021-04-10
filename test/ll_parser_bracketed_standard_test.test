@@ -713,19 +713,17 @@ BRACKETED EXPRESSION:
           .initiator = "["
           .position[H] = PACKED_VEC
     line ##:
-           with parsing options [ + enable prefix ]
-                                ^^^^^^^^^^^^^^^^^^^
+    define top level parsing options [ + enable prefix ]
+                                     ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    define top level with parsing options [+ enable prefix]
-@@@ = define top level with parsing options [+ enable prefix]:
+    define top level parsing options [+ enable prefix]
+@@@ = define top level parsing options [+ enable prefix]:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
-    lines ##-##:
-    define top level
-    ^^^^^^^^^^^^^^^^
-           with parsing options [ + enable prefix ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line ##:
+    define top level parsing options [ + enable prefix ]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     print indentation mark "*TOP* *LEVEL*"
 @@@ = print indentation mark "*TOP* *LEVEL*":
@@ -745,10 +743,8 @@ BRACKETED EXPRESSION:
     lines ##-##:
 *PARSER*:
 ^^^^^^^^^
-    define top level
-^^^^^^^^^^^^^^^^^^^^
-           with parsing options [ + enable prefix ]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    define top level parsing options [ + enable prefix ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     print indentation mark "*TOP* *LEVEL*"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
@@ -1851,7 +1847,7 @@ PURELIST EXPRESSION:
     {|1 2 3|}
 @@@@ = 1 2 3:
            .position[H] = PACKED_VEC
-    line ###:
+    line ##:
 {|1 2 3|""}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1860,7 +1856,7 @@ BRACKETED EXPRESSION:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
-    line ###:
+    line ##:
 {|1 2 3|""}
 ^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"

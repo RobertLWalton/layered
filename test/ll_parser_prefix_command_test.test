@@ -1,6 +1,7 @@
 *PARSER*:
     trace [+ parser output]
     define selector text
+    define selector code
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text]
         // no parsing selectors
@@ -11,6 +12,7 @@
         with attribute multivalue initiator "{*"
 *PARSER*:
     begin block X
+    define top level parsing selectors [code]
     define bracket type "p" [TOP LEVEL]
         with parsing options
              [end at paragraph break, sticky,
@@ -25,7 +27,7 @@
         with group reset
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
-                 with parsing selectors [- code, + text]
+                 with parsing selectors [+ text, - code]
                  with parsing options [end at paragraph break,
                                        enable table prefix, sticky]
                  with group paragraph

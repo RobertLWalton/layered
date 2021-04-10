@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  9 15:53:11 EDT 2021
+// Date:	Sat Apr 10 01:55:42 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -27,13 +27,7 @@
 
 *PARSER*:
     print indentation mark "*TOP* *LEVEL*"
-    define top level
-        with parsing selectors [data, my selector]
-        with parsing options [default options]
-    print indentation mark "*TOP* *LEVEL*"
-    define top level
-        with parsing selectors [code]
-        with parsing options [default options]
+    define top level parsing selectors [my selector]
     print indentation mark "*TOP* *LEVEL*"
     print bracket ""
     print typed bracket ""
@@ -44,8 +38,7 @@
     `a b c [$ MISSING $] [< e f g [< h i >] j >]'
 *PARSER*:
     begin block X
-    define top level
-        with parsing selectors [+ data]
+    define top level parsing selectors [+ data]
     print indentation mark "*TOP* *LEVEL*"
 *PARSER* *TEST*:
     [ x <+ y +> z {w|4|} m (n (p)) ]
@@ -75,8 +68,7 @@
     [ x <+ y +> z {w|4|} m (n (p)) ]
 *PARSER*:
     begin block X
-    define top level
-        with parsing selectors [+ data]
+    define top level parsing selectors [+ data]
 *PARSER* *TEST*:
     {x|{x} hi|}
 *PARSER*:
@@ -94,16 +86,15 @@
 
 *PARSER*:
     trace [+ parser output]
+    define top level lexical master DEFAULT
     begin block X
-    define top level
-        with lexical master DEFAULT
 
 @hello there
 
 *PARSER*:
-    define top level
-        with lexical master DATA-CHECK
-    define mapped lexeme "DATA" [code, data]
+    define top level parsing selectors [data]
+    define top level lexical master DATA-CHECK
+    define mapped lexeme "DATA" [data]
         with token value {data}
 
 @hello there
@@ -130,8 +121,7 @@
 *PARSER*:
     begin block X
     define ID character "@"
-    define top level
-        with lexical master DATA-CHECK
+    define top level lexical master DATA-CHECK
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}
     define bracket type "data" [TOP LEVEL]

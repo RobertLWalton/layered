@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  9 21:54:52 EDT 2021
+// Date:	Fri Apr  9 22:38:15 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -978,6 +978,9 @@ static min::gen execute_top_level
     if (    vp[i0] != PARLEX::define
          && vp[i0] != PARLEX::print )
 	return min::FAILURE();
+    if (    vp[i0+1] != PARLEX::top
+         || vp[i0+2] != PARLEX::level )
+	return min::FAILURE();
 
     min::uns32 i = i0 + 3;
 
@@ -1056,110 +1059,105 @@ static min::gen execute_top_level
 	return PAR::PRINTED;
     }
 
-    TAB::new_flags new_selectors;
-    TAB::new_flags new_options;
-	// Inited to zeroes.
+    BRA::indentation_mark imark =
+	parser->top_level_indentation_mark;
 
-    min::uns32 paragraph_lexical_master =
-        parser->paragraph_lexical_master;
-    min::uns32 line_lexical_master =
-        parser->line_lexical_master;
-
-    min::uns32 saved_i = i;
-    while ( i < size && vp[i] == PARLEX::with )
+    if ( i + 1 < size
+         &&
+	 vp[i] == PARLEX::parsing
+         &&
+	 vp[i+1] == PARLEX::selectors )
     {
-	++ i;
-	if ( i + 1 < size
-	     &&
-	     vp[i] == PARLEX::parsing
-	     &&
-	     vp[i+1] == PARLEX::selectors )
-	{
-	    i += 2;
-	    min::gen result;
-	    result = COM::scan_new_flags
-		( vp, i, new_selectors,
-		  PAR::TOP_LEVEL_SELECTORS,
-		  parser->selector_name_table,
-		  parser->selector_group_name_table,
-		  parser, true );
-	    if ( result == min::ERROR() )
-		return min::ERROR();
-	    else if ( result == min::FAILURE() )
-		return PAR::parse_error
-		    ( parser, ppvec[i-1],
-		      "expected bracketed selector"
-		      " (modifier) list after" );
-	    else MIN_REQUIRE
-	             ( result == min::SUCCESS() );
-	}
-	else
-	if ( i + 1 < size
-	     &&
-	     vp[i] == PARLEX::parsing
-	     &&
-	     vp[i+1] == PARLEX::options )
-	{
-	    i += 2;
-	    min::gen result;
-	    result = COM::scan_new_flags
-		( vp, i, new_options,
-		  PAR::TOP_LEVEL_OPT,
-		  parser->selector_name_table,
-		  parser->selector_group_name_table,
-		  parser, true );
-	    if ( result == min::ERROR() )
-		return min::ERROR();
-	    else if ( result == min::FAILURE() )
-		return PAR::parse_error
-		    ( parser, ppvec[i-1],
-		      "expected bracketed options"
-		      " (modifier) list after" );
-	    else MIN_REQUIRE
-	    	     ( result == min::SUCCESS() );
-	}
-	else
-	if ( COM::is_lexical_master
-		 ( vp, i, size ) )
-	{
-	    if (    COM::get_lexical_master
-		       ( parser, vp, ppvec, i,
-			 paragraph_lexical_master,
-			 line_lexical_master )
-		 == min::ERROR() )
-		return min::ERROR();
-	}
-	else
+	TAB::new_flags new_selectors;
+	i += 2;
+	min::gen result;
+	result = COM::scan_new_flags
+	    ( vp, i, new_selectors,
+	      PAR::TOP_LEVEL_SELECTORS,
+	      parser->selector_name_table,
+	      parser->selector_group_name_table,
+	      parser, true );
+	if ( result == min::ERROR() )
+	    return min::ERROR();
+	else if ( result == min::FAILURE() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
-		  "expected `parsing selectors'"
-		  " or `parsing options' after" );
-    }
+		  "expected bracketed selector"
+		  " (modifier) list after" );
+	else MIN_REQUIRE
+		 ( result == min::SUCCESS() );
 
-    if ( i == saved_i )
+	TAB::flags selectors =
+	    imark->parsing_selectors.or_flags;
+	selectors |= new_selectors.or_flags;
+	selectors &= ~ new_selectors.not_flags;
+	selectors ^= new_selectors.xor_flags;
+	imark->parsing_selectors.or_flags = selectors;
+	imark->parsing_selectors.not_flags = ~ selectors;
+	imark->parsing_selectors.not_flags &=
+	      BRA::INDENTATION_MARK_SELECTORS
+	    + PAR::ALL_OPT;
+    }
+    else if ( i+1 < size
+	      &&
+	      vp[i] == PARLEX::parsing
+              &&
+	      vp[i+1] == PARLEX::options )
+    {
+	TAB::new_flags new_options;
+	i += 2;
+	min::gen result;
+	result = COM::scan_new_flags
+	    ( vp, i, new_options,
+	      PAR::TOP_LEVEL_OPT,
+	      parser->selector_name_table,
+	      parser->selector_group_name_table,
+	      parser, true );
+	if ( result == min::ERROR() )
+	    return min::ERROR();
+	else if ( result == min::FAILURE() )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected bracketed options"
+		  " (modifier) list after" );
+	else MIN_REQUIRE
+		 ( result == min::SUCCESS() );
+
+	TAB::flags selectors =
+	    imark->parsing_selectors.or_flags;
+	selectors |= new_options.or_flags;
+	selectors &= ~ new_options.not_flags;
+	selectors ^= new_options.xor_flags;
+	imark->parsing_selectors.or_flags = selectors;
+	imark->parsing_selectors.not_flags = ~ selectors;
+	imark->parsing_selectors.not_flags &=
+	      BRA::INDENTATION_MARK_SELECTORS
+	    + PAR::ALL_OPT;
+    }
+    else if ( COM::is_lexical_master ( vp, i, size ) )
+    {
+	min::uns32 paragraph_lexical_master =
+	    imark->paragraph_lexical_master;
+	min::uns32 line_lexical_master =
+	    imark->line_lexical_master;
+	if (    COM::get_lexical_master
+		   ( parser, vp, ppvec, i,
+		     paragraph_lexical_master,
+		     line_lexical_master )
+	     == min::ERROR() )
+	    return min::ERROR();
+
+	imark->paragraph_lexical_master =
+	    paragraph_lexical_master;
+	imark->line_lexical_master =
+	    line_lexical_master;
+    }
+    else
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected `with' after" );
-
-    BRA::indentation_mark imark =
-        parser->top_level_indentation_mark;
-    TAB::flags selectors =
-        imark->parsing_selectors.or_flags;
-    selectors |= new_selectors.or_flags
-              |  new_options.or_flags;
-    selectors &= ~ (   new_selectors.not_flags
-                     | new_options.not_flags );
-    selectors ^= new_selectors.xor_flags
-              ^  new_options.xor_flags;
-    imark->parsing_selectors.or_flags = selectors;
-    imark->parsing_selectors.not_flags = ~ selectors;
-    imark->parsing_selectors.not_flags &=
-          BRA::INDENTATION_MARK_SELECTORS
-	+ PAR::ALL_OPT;
-    imark->paragraph_lexical_master =
-        paragraph_lexical_master;
-    imark->line_lexical_master =
-        line_lexical_master;
+	      "expected `parsing selectors'"
+	      " or `parsing options'"
+	      " or `... lexical master' after" );
 
     if ( i < size )
         return PAR::parse_error

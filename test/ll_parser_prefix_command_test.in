@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_prefix_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 10 01:25:27 EST 2021
+// Date:	Sat Apr 10 02:56:22 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 *PARSER*:
     trace [+ parser output]
     define selector text
+    define selector code
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text]
         // no parsing selectors
@@ -22,6 +23,7 @@
 
 *PARSER*:
     begin block X
+    define top level parsing selectors [code]
     define bracket type "p" [TOP LEVEL]
         with parsing options
 	     [end at paragraph break, sticky,

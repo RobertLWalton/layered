@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 10 00:32:52 EST 2021
+// Date:	Sat Apr 10 02:16:25 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -16,12 +16,13 @@
 *PARSER*:
     define bracket "[+"
     define bracket "[+" ...
-    print top level
+    print selector ""
     define selector text
     define selector code
     define selector math
     define selector operator 1
     print selector ""
+    define top level parsing selectors [code]
     print top level
 
     define quoted string concatenator "#"
@@ -97,6 +98,9 @@
 *PARSER* *TEST*:
     <* hi there C *>
 *PARSER*:
+    begin block BLOCK2
+    end block BLOCK1
+    end block BLOCK2
     end block BLOCK1
 
 *PARSER*:
@@ -667,8 +671,7 @@ And a last line.
 *PARSER*:
     define bracket type "x" [code]
         with implied subprefix {l1}
-    define top level
-           with parsing options [ + enable table prefix]
+    define top level parsing options [ + enable table prefix]
 
 {x} implied `l1' prefix in error
 {l1}{l2} a stray line
@@ -682,8 +685,7 @@ And a last line.
 
 *PARSER*:
     begin block BLOCK1
-    define top level
-           with parsing options
+    define top level parsing options
 	     [end at indent, enable indented paragraph]
     trace [+ parser output, + subexpression details]
 

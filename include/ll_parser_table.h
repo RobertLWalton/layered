@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  8 11:42:31 EDT 2021
+// Date:	Sat Apr 10 07:06:13 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -487,13 +487,6 @@ struct block_struct
         saved_top_level_indentation_mark;
         // Top level indentation mark when block begins.
 
-    min::uns32 saved_paragraph_lexical_master;
-    min::uns32 saved_line_lexical_master;
-        // Top level lexical masters when block begins.
-
-    ll::parser::table::flags saved_selectors;
-    	// Top level selectors when block begins.
-
     ll::parser::table::flags saved_trace_flags;
     	// Top level trace flags when block begins.
 
@@ -522,9 +515,6 @@ inline void push_block
 	      undefined_stack,
 	  ll::parser::bracketed::indentation_mark
 	      indentation_mark,
-	  min::uns32 paragraph_lexical_master,
-	  min::uns32 line_lexical_master,
-	  ll::parser::table::flags selectors,
 	  ll::parser::table::flags trace_flags,
 	  min::Uchar ID_character )
 {
@@ -533,9 +523,7 @@ inline void push_block
 	  selector_name_table->length,
 	  undefined_stack->length,
 	  indentation_mark,
-	  paragraph_lexical_master,
-	  line_lexical_master,
-	  selectors, trace_flags, ID_character };
+	  trace_flags, ID_character };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );

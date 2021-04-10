@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 06:19:36 EDT 2021
+// Date:	Sat Apr 10 07:10:21 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1153,12 +1153,6 @@ struct parser_struct
     const ll::parser::table::key_table
             selector_group_name_table;
         // Selector name and group tables.
-
-    min::uns32 paragraph_lexical_master;
-    min::uns32 line_lexical_master;
-        // Top level lexical masters to be copied to
-	// top level line variables when they are
-	// (re) initialized.
 
     const ll::parser::bracketed::indentation_mark
 	    top_level_indentation_mark;

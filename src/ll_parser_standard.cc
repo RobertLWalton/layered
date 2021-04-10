@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  7 03:53:55 EDT 2021
+// Date:	Sat Apr 10 07:11:34 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,14 +96,16 @@ void PARSTD::init_lexeme_map ( PAR::parser parser )
     min::init ( pos, parser->input_file,
 		PAR::top_level_position, 0 );
 
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
     min::locatable_gen paragraph_check
         ( min::new_str_gen ( "PARAGRAPH-CHECK" ) );
     min::locatable_gen data_check
         ( min::new_str_gen ( "DATA-CHECK" ) );
-    parser->paragraph_lexical_master =
+    imark->paragraph_lexical_master =
         PAR::get_lexical_master
 	    ( paragraph_check, parser );
-    parser->line_lexical_master =
+    imark->line_lexical_master =
         PAR::get_lexical_master
 	    ( data_check, parser );
 

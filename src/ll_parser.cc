@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 06:31:17 EDT 2021
+// Date:	Sat Apr 10 07:11:21 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -909,8 +909,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    | PAR::TOP_LEVEL_OFF_SELECTORS
 	    | PAR::ALWAYS_SELECTOR;
 	parser->lexical_master =
-	parser->paragraph_lexical_master =
-	parser->line_lexical_master =
 	    PAR::MISSING_MASTER;
 
 	BRA::push_indentation_mark
@@ -1535,9 +1533,6 @@ min::gen PAR::begin_block
                       parser->undefined_stack,
 		      parser->
 		          top_level_indentation_mark,
-		      parser->paragraph_lexical_master,
-		      parser->line_lexical_master,
-		      parser->selectors,
 		      parser->trace_flags,
 		      parser->ID_character );
 
@@ -1646,10 +1641,6 @@ min::gen PAR::end_block
 	        ->parsing_selectors.or_flags
 	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
-    parser->paragraph_lexical_master =
-        (&b)->saved_paragraph_lexical_master;
-    parser->line_lexical_master =
-        (&b)->saved_line_lexical_master;
     parser->trace_flags = (&b)->saved_trace_flags;
     parser->ID_character = (&b)->saved_ID_character;
 

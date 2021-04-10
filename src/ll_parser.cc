@@ -1594,7 +1594,8 @@ min::gen PAR::begin_block
                       name,
 		      parser->selector_name_table,
                       parser->undefined_stack,
-		      parser->top_level_indentation_mark,
+		      parser->
+		          top_level_indentation_mark,
 		      parser->paragraph_lexical_master,
 		      parser->line_lexical_master,
 		      parser->selectors,

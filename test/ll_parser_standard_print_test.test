@@ -12,7 +12,7 @@
         top
         operator [code, math]
     print top level
-        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
+        block standard:  selectors [code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
@@ -20,7 +20,7 @@
                                   enable header]
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
+        block TOP LEVEL:  selectors []
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,

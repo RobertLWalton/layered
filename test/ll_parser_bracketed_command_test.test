@@ -57,13 +57,15 @@ ERROR: in line ##: expected quoted name after:
     define bracket "[+" ...
                         ^^^
     print top level
-        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
+        block standard:  selectors [code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block TOP LEVEL:  selectors []
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -83,13 +85,15 @@ ERROR: in line ##: expected quoted name after:
         block TOP LEVEL: LINE LEVEL
         block TOP LEVEL: TOP LEVEL
     print top level
-        block standard:  selectors [TOP LEVEL, LINE LEVEL, code]
+        block standard:  selectors [code]
                          options [end at le indent,
                                   end at line separator,
                                   end at outer closing,
                                   enable indented paragraph,
                                   enable header]
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block TOP LEVEL:  selectors []
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,

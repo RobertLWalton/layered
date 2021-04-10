@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  9 16:58:15 EDT 2021
+// Date:	Fri Apr  9 21:54:52 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -995,15 +995,20 @@ static min::gen execute_top_level
 	    << min::bom << min::no_auto_break
 	    << min::set_indent ( indent + 4 );
 
-	TAB::flags flags = parser->selectors;
-	min::uns32 paragraph_lexical_master =
-	    parser->paragraph_lexical_master;
-	min::uns32 line_lexical_master =
-	    parser->line_lexical_master;
+	BRA::indentation_mark imark =
+	    parser->top_level_indentation_mark;
+
 	for ( min::uns32 i =
 		  parser->block_stack->length;
 	      ; -- i )
 	{
+	    TAB::flags flags =
+		imark->parsing_selectors.or_flags;
+	    min::uns32 paragraph_lexical_master =
+		imark->paragraph_lexical_master;
+	    min::uns32 line_lexical_master =
+		imark->line_lexical_master;
+
 	    min::gen block_name =
 		( i == 0 ?
 		  (min::gen) PARLEX::top_level :
@@ -1022,7 +1027,7 @@ static min::gen execute_top_level
 	                    << " selectors ";
 	    COM::print_flags
 		( flags,
-		  PAR::COMMAND_SELECTORS,
+		  BRA::INDENTATION_MARK_SELECTORS,
 		  parser->selector_name_table,
 		  parser );
 
@@ -1043,14 +1048,8 @@ static min::gen execute_top_level
 
 	    if ( i == 0 ) break;
 
-	    flags = (&parser->block_stack[i-1])
-			->saved_selectors;
-	    paragraph_lexical_master =
-	        (&parser->block_stack[i-1])
-		     ->saved_paragraph_lexical_master;
-	    line_lexical_master =
-	        (&parser->block_stack[i-1])
-		     ->saved_line_lexical_master;
+	    imark = (&parser->block_stack[i-1])
+		    ->saved_top_level_indentation_mark;
 	}
 
 	parser->printer << min::eom;

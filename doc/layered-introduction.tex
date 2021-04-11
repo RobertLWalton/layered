@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 3, 2021
+April 11, 2021
  
 \end{center}
 
@@ -3088,17 +3088,15 @@ physical line, and the indented logical lines that follow are
 \\[0.3ex]
 \emkey{parser-top-level-command} ::= \\
 \hspace*{0.3in}\begin{tabular}{rl}
-    & \TT{define}\ttmindex{define top level}{parser command}
+    & \ttmkey{define top level}{parser command}
       \label{DEFINE-TOP-LEVEL}
-      ~ \begin{tabular}[t]{@{}l@{}}
-       \TT{top level} \\{}
-       [ \TT{with parsing selectors} ~ {\em top-level-selectors} ] \\{}
-       [ \TT{with parsing options} ~ {\em top-level-options} ] \\{}
-       [ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
-	                  \begin{tabular}[t]{@{}l@{}}
-			  \TT{lexical master} \\
-			  {\em lexical-master-name} ] \\
-			  \end{tabular} \\
+       \TT{parsing selectors} ~ {\em top-level-selectors} \\
+$|$ & \TT{define top level parsing options} ~ {\em top-level-options} \\
+$|$ & \TT{define top level line separator} ~ {\em top-level-line-separator} \\
+$|$ & \TT{define top level} ~ 
+      \begin{tabular}[t]{@{}l@{}}
+      \{ \TT{paragraph} | \TT{line} \}\QMARK{} ~ \TT{lexical master} \\
+      {\em lexical-master-name} \\
       \end{tabular} \\
 $|$ & \ttmkey{print top level}{parser command} \\
    \end{tabular}
@@ -3117,6 +3115,8 @@ $|$ & \ttmkey{print top level}{parser command} \\
     and `\TT{enable \ldots}' options
 	~~~ [\pagref{OPTION-SPEC}]
     \end{tabular}
+\\[0.3ex]
+\emkey{top-level-line-separator} ::= {\em quoted-key} $|$ \TT{NONE}
 \\[0.3ex]
 \emkey{lexical-master-name}\label{LEXICAL-MASTER-NAME} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'
@@ -3220,6 +3220,16 @@ since \TT{end at paragraph break} is explicitly mentioned in this
 {\em parser-flag-modifier-list}, it is deleted from the set in this
 context.
 
+The \key{standard parser} begins by executing the equivalent of:%
+\label{STANDARD-PARSING-BLOCK}
+\begin{indpar}\begin{verbatim}
+*PARSER*:
+    begin block standard
+\end{verbatim}\end{indpar}
+
+Standard parser definitions can be
+canceled by an `\TT{end block standard}' parser command.
+
 \subsubsection{Parser Selector Commands}
 \label{PARSER-SELECTOR-COMMANDS}
 
@@ -3250,89 +3260,82 @@ Here a {\em partial-name} is a sequence of lexemes that is matched
 to any subsequence of lexemes in a selector name, not just an initial
 subsequence.  There is \underline{no} matching of partial lexemes.
 
-The \key{standard parser} creates a single initial parsing block
-named `\ttmkey{standard}{parsing block}'%
-\label{STANDARD-PARSING-BLOCK}
-and defines in it the selectors
-\begin{center}
-\ttkey{code} ~~~~~~~~~~ \ttkey{text} ~~~~~~~~~~ \ttkey{math} ~~~~~~~~~~
-    \ttkey{data paragraph}
-\end{center}
-The standard parser also sets the top level selector set to contain just
-`\TT{TOP LEVEL}', `\TT{LINE LEVEL}', and `\TT{code}'.
-
-Thus the standard parser begins by executing the
+Thus the standard parser executes the
 equivalent of
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    begin block standard
     define selector code
     define selector math
     define selector text
     define selector data paragraph
 \end{verbatim}\end{indpar}
 
-The end of a parser block erases the effects of any
-{\em parser-selector-commands} executed during the block.
-Thus the actions of the standard parser can be
-canceled by an `\TT{end block standard}' parser command.
-
 \subsubsection{Parser Top Level Commands}
 \label{PARSER-TOP-LEVEL-COMMANDS}
 
 \ikey{Top level parsing}{top level parsing}
-of a file recognizes paragraph lines as if the whole
-file were an indented paragraph
-and forms each logical line or headed
-paragraph into a MIN object.
-However,
-these are \underline{not} combined into a paragraph MIN object, but
-are instead processed as they are produced.  In particular, a logical
+of a file recognizes top level logical lines and headed paragraphs
+as if they were in
+an indented paragraph, called the \key{top level indented paragraph}.
+Each logical line or headed paragraph is formed into a MIN object
+which is processed as it is produced, and is not combined into a
+bigger object by the parser.
+
+In particular, a top level logical
 line that contains parser commands is parsed first, and then executed
 to change parser tables.  These changes are then in effect for
 parsing subsequent logical lines or headed paragraphs.
+Each \TT{begin block} command effectively creates a new top level
+indented paragraph and the corresponding \TT{end block} command terminates
+this paragraph.  After each logical line that contains parser commands,
+the top level indented paragraph of the innermost parsing block that
+has not ended is resumed.
 
-See \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS} for indented paragraph details.
+The parameters of the current top level indented paragraph can be modified
+by \ttkey{define top level} commands and printed by the \ttkey{print top level}
+command.
 
-The top level selectors, end-at options, and lexical masters
-can be reset by the parser \ttkey{define top level} command
-(\pagref{DEFINE-TOP-LEVEL}):
+Note that logical lines containing parser commands must be top level,
+and parameters of indented paragraphs that are not top level cannot
+be modified.
+
+The parsing selectors and parsing options
+in effect at the beginning of a top level logical line not inside
+a headed paragraph are those of the
+current top level indented paragraph, and can be modified or set by:
 \begin{center}
     \begin{tabular}[t]{l}
-    \ttmkey{define top level}{parser command} \\
-    \TT{~~~~}[ \TT{with parsing selectors} {\em selector-spec} ] \\
-    \TT{~~~~}[ \TT{with parsing options} {\em top-level-options} ] \\
-    \TT{~~~~}[ \TT{with~}\{ \TT{paragraph} | \TT{line} \}\QMARK{} \TT{~}%
-	                \begin{tabular}[t]{@{}l@{}}
-			\TT{lexical master} \\
-			{\em lexical-master-name} ] \\
-			\end{tabular} \\
+    \ttmkey{define top level}{parser command} ~
+    \TT{parsing selectors} {\em selector-spec} \\
+    \TT{define top level parsing options} ~ {\em top-level-options} \\
     \end{tabular}
 \end{center}
+as per Figure~\itemref{PARSER-COMMAND-SYNTAX-2}.
+Note that the selectors \TT{TOP LEVEL}\label{TOP-LEVEL-SELECTOR}
+and \TT{LINE LEVEL} are automatically set at the beginning of
+every such top level logical line, and cannot be set or modified
+by \TT{define top level} commands.
 
-The \TT{TOP LEVEL}\label{TOP-LEVEL-SELECTOR}
-and \TT{LINE LEVEL} selectors
-are always set implicitly by this command, and are
-the only default selectors if no `\TT{define top level}' commands
-are given.  So these selectors are always included in the
-top level selectors.  The \TT{TOP LEVEL} selector is also always cleared
+The \TT{TOP LEVEL} selector is automatically cleared
 when indented paragraphs or bracketed subexpressions are being parsed,
-and the \TT{LINE LEVEL} selector is always cleared when
+and the \TT{LINE LEVEL} selector is automatically cleared when
 bracketed subexpressions are being parsed.
 
 Either of the two lexical master parameters (\pagref{LEXICAL-MASTER-PARAMETERS})
-can be set by this command.
+can be set by the commands:
 \begin{center}
-\TT{with paragraph lexical master} {\em lexical-master-name}
+    \begin{tabular}[t]{l}
+    \TT{define top level paragraph lexical master} ~
+        {\em lexical-master-name} \\
+    \TT{define top level line lexical master} ~
+        {\em lexical-master-name} \\
+    \TT{define top level lexical master} ~
+        {\em lexical-master-name} \\
+    \end{tabular}
 \end{center}
-sets the paragraph lexical master,
-\begin{center}
-\TT{with line lexical master} {\em lexical-master-name}
-\end{center}
-sets the line lexical master, and
-\begin{center}
-\TT{with lexical master} {\em lexical-master-name}
-\end{center}
+The first command sets the paragraph lexical master,
+the second command sets the line lexical master, and
+and the third command
 sets both lexical master parameters to the same value.
 
 Top level implied headers are always missing and cannot be set.
@@ -3343,23 +3346,26 @@ The top level print command:
 \ttmkey{print top level}{parser command}
 \end{center}
 
-prints the top level selectors and lexical masters.
+prints the top level indented paragraph parameters.
 
-The top level definition
-\begin{indpar}\begin{verbatim}
+See \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS} for more
+indented paragraph parameter details.
+
+When the parser is initialized the top level
+indented paragraph has no parsing selectors
+or lexical masters and has the
+`\TT{default}' parsing options (\pagref{DEFAULT-OPTIONS}).
+
+The standard parser executes a \TT{begin block standard} parser
+command that introduces a new top level indented paragraph
+with its parameters modified by
+\begin{indpar}[0.1in]\begin{verbatim}
 *PARSER*:
-    define top level
-        with parsing selectors [code]
-        with paragraph lexical master "PARAGRAPH-CHECK"
-        with line lexical master "DATA-CHECK"
+    define top level parsing selectors [+ code]
+    define top level paragraph lexical master "PARAGRAPH-CHECK"
+    define top level line lexical master "DATA-CHECK"
 \end{verbatim}\end{indpar}
-is included in the `\TT{standard}' parser block
-(\pagref{STANDARD-PARSING-BLOCK}).  Note that the
-\TT{TOP LEVEL} and \TT{LINE LEVEL} selectors (\pagref{TOP-LEVEL-SELECTOR})
-are implicitly set by this command, and as the parsing
-options are not changed, the `\TT{default}' options
-set when the parser was initialized remain in effect
-(\pagref{DEFAULT-OPTIONS}).
+
 
 
 \subsubsection{Parser Trace Commands}

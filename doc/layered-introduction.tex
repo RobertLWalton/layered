@@ -2378,7 +2378,7 @@ and~\itemref{OPTION-NAMES-3}:
 \item Any indent token.
 \item The first indent token after any completely blank (non-comment) line.
 This is called a `\key{paragraph break}'.
-\item A line separator, e.g.~`\TT{;}'.
+\item A \key{line separator}, e.g.~`\TT{;}'.\label{LINE-SEPARATOR}
 \item The end of file.  An end of file always terminates a logical line,
 regardless of option settings.
 \end{itemize}
@@ -3338,6 +3338,19 @@ the second command sets the line lexical master, and
 and the third command
 sets both lexical master parameters to the same value.
 
+Indented paragraphs have optional line separators (\pagref{LINE-SEPARATOR}),
+and the line separator of the current top level indented paragraph can be
+set by:
+\begin{center}
+    \begin{tabular}[t]{l}
+    \ttmkey{define top level line separator}{parser command} ~
+           {\em quoted-key} \\
+    \TT{define top level line separator NONE} \\
+    \end{tabular}
+\end{center}
+The first command sets the line separator, and the second disables
+it.
+
 Top level implied headers are always missing and cannot be set.
 
 The top level print command:
@@ -3346,7 +3359,16 @@ The top level print command:
 \ttmkey{print top level}{parser command}
 \end{center}
 
-prints the top level indented paragraph parameters.
+prints the top level indented paragraph parameters for the
+the innermost current parsing block.  However, each extant
+parsing block has its own set of top level indented paragraph
+parameters, and these are stored in virtual indentation mark
+data structures that can be printed by:
+
+\begin{center}
+\ttmkey{print indentation mark "*TOP* *LEVEL*"}{parser command}
+\end{center}
+
 
 See \itemref{INDENTED-PARAGRAPH-SUBEXPRESSIONS} for more
 indented paragraph parameter details.

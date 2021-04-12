@@ -2172,3 +2172,12 @@ BRACKETED EXPRESSION:
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
+*PARSER*:
+ERROR: in line ###: (un)defining indentation mark named *TOP* *LEVEL* is
+       not permitted (name is reserved to system):
+    define indentation mark "*TOP* *LEVEL*" [code]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: (un)defining indentation mark named *TOP* *LEVEL* is
+       not permitted (name is reserved to system):
+    undefine indentation mark "*TOP* *LEVEL*" [code]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

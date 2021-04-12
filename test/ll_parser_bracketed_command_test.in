@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 02:16:25 EDT 2021
+// Date:	Mon Apr 12 01:50:13 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -767,3 +767,7 @@ this-is-a-~
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
+
+*PARSER*:
+    define indentation mark "*TOP* *LEVEL*" [code]
+    undefine indentation mark "*TOP* *LEVEL*" [code]

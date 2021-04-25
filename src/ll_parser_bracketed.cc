@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 11 21:32:49 EDT 2021
+// Date:	Sun Apr 25 02:55:18 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5194,11 +5194,11 @@ static bool data_reformatter_function
     min::unsptr fvpsize = min::size_of ( fvp );
 
     // If value has one element, ID_gen is preallocated,
-    // and there are no compacted prefix attributes
-    // other than .type and .position, then replace the
-    // value by its sole element and finish up.
+    // and there are no indented paragraph attributes,
+    // then replace the value by its sole element and
+    // finish up.
     //
-    if (    min::size_of ( fvp ) == 1
+    if (    fvpsize == 1
          && attributes == min::MISSING()
 	 && min::is_preallocated ( ID_gen ) )
     {
@@ -5272,7 +5272,6 @@ static bool data_reformatter_function
 	    min::obj_vec_ptr line ( paragraph[i] );
 	    min::phrase_position_vec lppvec =
 		min::position_of ( line );
-	    min::unsptr value_index;
 	    min::uns32 lsize = min::size_of ( line );
 
 	    if ( lsize == 0 ) continue;
@@ -5363,6 +5362,7 @@ static bool data_reformatter_function
 	    bool is_multivalue = false;
 	    min::locatable_gen reverse_name
 		( min::MISSING() );
+	    min::phrase_position pos;
 	    if ( j + 2 == lsize
 	         ||
 	    	 (    j + 2 < lsize
@@ -5374,7 +5374,7 @@ static bool data_reformatter_function
 		// is possible.
 		//
 		has_value = true;
-	        value_index = ++ j;
+		pos = lppvec[++j];
 		value = line[j++];
 		is_multivalue =
 		    (    min::get ( value,
@@ -5426,6 +5426,15 @@ static bool data_reformatter_function
 			  " line ignored" );
 		    continue;
 		}
+		pos = lppvec[saved_j];
+		pos.end = (~lppvec[j-1]).end;
+	    }
+	    else if ( j == lsize
+	              &&
+		      flags == min::MISSING() )
+	    {
+	        has_value = true;
+	        pos = lppvec->position;
 	    }
 
 	    if ( j < lsize )
@@ -5471,8 +5480,7 @@ static bool data_reformatter_function
 
 	    if ( ! is_multivalue )    
 		PAR::set_attr_value
-		    ( parser, idap, value,
-		      lppvec[value_index],
+		    ( parser, idap, value, pos,
 		      option );
 	    else
 		PAR::set_attr_multivalue

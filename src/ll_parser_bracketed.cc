@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 27 02:51:31 EDT 2021
+// Date:	Tue Apr 27 03:05:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5097,7 +5097,7 @@ min::locatable_var<PAR::reformatter>
         ( min::NULL_STUB );
 
 const unsigned NEW_SIGN = 0;
-const unsigned EQUALS_SIGN = 0;
+const unsigned EQUAL_SIGN = 0;
 const unsigned NEGATOR = 1;
 const unsigned FLAGS_OPENING = 2;
 const unsigned MULTIVALUE_OPENING = 3;
@@ -5291,7 +5291,7 @@ static bool data_reformatter_function
 	    }
 	    min::locatable_gen name
 		( PAR::scan_label
-		      ( line, j, args[EQUALS_SIGN] ) );
+		      ( line, j, args[EQUAL_SIGN] ) );
 	    if ( name == min::MISSING() )
 	    {
 		PAR::parse_error
@@ -5336,20 +5336,20 @@ static bool data_reformatter_function
 	    }
 
 	    if (    j < lsize && line[j]
-	         != args[EQUALS_SIGN] )
+	         != args[EQUAL_SIGN] )
 	    {
 		PAR::parse_error
 		    ( parser, lppvec[j],
 		      message,
 		      min::pgen_never_quote
-			  ( args[EQUALS_SIGN] ),
+			  ( args[EQUAL_SIGN] ),
 		      "' was expected but not"
 		      " found; line ignored" );
 		continue;
 	    }
 
 	    // Now if j < lsize, then
-	    // line[j] == args[EQUALS_SIGN];
+	    // line[j] == args[EQUAL_SIGN];
 	    // j == lsize is also possible.
 	    //
 	    if ( j + 1 == lsize )
@@ -5358,7 +5358,7 @@ static bool data_reformatter_function
 		    ( parser, lppvec[j],
 		      "after `",
 		      min::pgen_never_quote
-			  ( args[EQUALS_SIGN] ),
+			  ( args[EQUAL_SIGN] ),
 		      "' argument value was expected"
 		      " but not found; line ignored" );
 		continue;
@@ -5375,7 +5375,7 @@ static bool data_reformatter_function
 	    if ( j + 2 == lsize
 	         ||
 	    	 (    j + 2 < lsize
-	           && line[j+2] == args[EQUALS_SIGN] ) )
+	           && line[j+2] == args[EQUAL_SIGN] ) )
 	    {
 	        // Single token value, including
 		// possible multi-value bracketed
@@ -5393,10 +5393,10 @@ static bool data_reformatter_function
 		{
 		    // Double arrow attribute.  Syntax:
 		    //   name = value(s) = reverse_name
-		    // line[j] == args[EQUALS_SIGN].
+		    // line[j] == args[EQUAL_SIGN].
 		    //
 		    MIN_REQUIRE
-		      ( line[j] == args[EQUALS_SIGN] );
+		      ( line[j] == args[EQUAL_SIGN] );
 		    min::uns32 saved_j = j ++;
 		    reverse_name =
 			( PAR::scan_label ( line, j ) );
@@ -5408,7 +5408,7 @@ static bool data_reformatter_function
 			      "reverse attribute label"
 			      " after second `",
 			      min::pgen_never_quote
-				  ( args[EQUALS_SIGN] ),
+				  ( args[EQUAL_SIGN] ),
 			      "' was expected but not"
 			      " found; line ignored" );
 			continue;
@@ -5428,7 +5428,7 @@ static bool data_reformatter_function
 			( parser, lppvec[saved_j],
 			  "after `",
 			  min::pgen_never_quote
-			      ( args[EQUALS_SIGN] ),
+			      ( args[EQUAL_SIGN] ),
 			  "' attribute value (label or"
 			  " single bracketed"
 			  " subexpression) was"

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 27 09:56:46 EDT 2021
+// Date:	Tue Apr 27 14:12:35 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5125,25 +5125,19 @@ static bool data_reformatter_function
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
-    if ( first->next->next->value != args[NEW_SIGN] )
+    min::gen sign = first->next->next->value;
+    if ( sign == min::MISSING() )
         return true;
-    if ( min::is_obj ( first->next->value ) )
-    {
-        min::obj_vec_ptr tvp ( first->next->value );
-	if ( min::size_of ( tvp ) > 0 ) return true;
-	min::attr_ptr tap ( tvp );
-	min::attr_info info[1];
-	min::unsptr n =
-	    min::attr_info_of ( info, 1, tap, false );
-	if ( n > 1 ) return true;
-	if (    n == 1
-	     && info[0].name != min::dot_position )
-	    return true;
-    }
-    else
-    if ( first->next->type != PAR::DERIVED
-         ||
-	 ! min::is_preallocated ( first->next->value ) )
+    if (    sign != args[NEW_SIGN]
+         && sign != args[NEW_OR_SAME_SIGN]
+         && sign != args[ADD_TO_SET_SIGN]
+         && sign != args[ADD_TO_MULTISET_SIGN] )
+        return true;
+    if ( ! min::is_obj ( first->next->value )
+         &&
+         ! ( first->next->type == PAR::DERIVED
+             &&
+	     min::is_preallocated ( first->next->value ) ) )
         return true;
 
     // If prefix has attributes other than .type and
@@ -5165,6 +5159,20 @@ static bool data_reformatter_function
 	    if ( info[i].reverse_attr_count > 0 )
 	        return true;
         }
+    }
+
+    if ( min::is_obj ( first->next->value ) )
+    {
+        min::obj_vec_ptr tvp ( first->next->value );
+	if ( min::size_of ( tvp ) > 0 ) return true;
+	min::attr_ptr tap ( tvp );
+	min::attr_info info[1];
+	min::unsptr n =
+	    min::attr_info_of ( info, 1, tap, false );
+	if ( n > 1 ) return true;
+	if (    n == 1
+	     && info[0].name != min::dot_position )
+	    return true;
     }
 
     min::locatable_gen attributes ( min::MISSING() );

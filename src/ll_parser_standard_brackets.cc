@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 04:59:15 EST 2021
+// Date:	Tue Apr 27 14:05:34 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -351,7 +351,11 @@ void PARSTD::init_prefix ( PAR::parser parser )
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         data_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 4 ) );
+	    ( min::gen_packed_vec_type.new_stub ( 8 ) );
+    min::push ( data_arguments ) = PARLEX::equal;
+    min::push ( data_arguments ) = min::MISSING();
+    min::push ( data_arguments ) = min::MISSING();
+    min::push ( data_arguments ) = min::MISSING();
     min::push ( data_arguments ) = PARLEX::equal;
     min::push ( data_arguments ) = PARLEX::no;
     min::push ( data_arguments ) = PARLEX::left_square;

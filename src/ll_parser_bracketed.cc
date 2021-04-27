@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 27 03:05:12 EDT 2021
+// Date:	Tue Apr 27 09:56:46 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5097,11 +5097,14 @@ min::locatable_var<PAR::reformatter>
         ( min::NULL_STUB );
 
 const unsigned NEW_SIGN = 0;
-const unsigned EQUAL_SIGN = 0;
-const unsigned NEGATOR = 1;
-const unsigned FLAGS_OPENING = 2;
-const unsigned MULTIVALUE_OPENING = 3;
-const unsigned ARGS_LENGTH = 4;
+const unsigned NEW_OR_SAME_SIGN = 1;
+const unsigned ADD_TO_SET_SIGN = 2;
+const unsigned ADD_TO_MULTISET_SIGN = 3;
+const unsigned EQUAL_SIGN = 4;
+const unsigned NEGATOR = 5;
+const unsigned FLAGS_OPENING = 6;
+const unsigned MULTIVALUE_OPENING = 7;
+const unsigned ARGS_LENGTH = 8;
 
 static bool data_reformatter_function
         ( PAR::parser parser,
@@ -5600,7 +5603,7 @@ static void bracket_type_reformatter_stack_initialize
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( data_name, 0, 4, 4,
+        ( data_name, 0, 8, 8,
 	  ::data_reformatter_function,
 	  BRA::bracket_type_reformatter_stack );
 

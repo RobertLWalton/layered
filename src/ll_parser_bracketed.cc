@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 25 02:55:18 EDT 2021
+// Date:	Tue Apr 27 02:51:31 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5096,6 +5096,13 @@ min::locatable_var<PAR::reformatter>
     BRA::bracket_type_reformatter_stack
         ( min::NULL_STUB );
 
+const unsigned NEW_SIGN = 0;
+const unsigned EQUALS_SIGN = 0;
+const unsigned NEGATOR = 1;
+const unsigned FLAGS_OPENING = 2;
+const unsigned MULTIVALUE_OPENING = 3;
+const unsigned ARGS_LENGTH = 4;
+
 static bool data_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -5111,11 +5118,11 @@ static bool data_reformatter_function
         (BRA::bracket_type) entry;
     PAR::reformatter_arguments args =
         prefix_entry->reformatter_arguments;
-    MIN_REQUIRE ( args->length == 4 );
+    MIN_REQUIRE ( args->length == ARGS_LENGTH );
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
-    if ( first->next->next->value != args[0] )
+    if ( first->next->next->value != args[NEW_SIGN] )
         return true;
     if ( min::is_obj ( first->next->value ) )
     {
@@ -5277,14 +5284,14 @@ static bool data_reformatter_function
 	    if ( lsize == 0 ) continue;
 	    min::uns32 j = 0;
 	    bool has_negator = false;
-	    if ( line[0] == args[1] )
+	    if ( line[0] == args[NEGATOR] )
 	    {
 	        ++ j;
 		has_negator = true;
 	    }
 	    min::locatable_gen name
 		( PAR::scan_label
-		      ( line, j, args[0] ) );
+		      ( line, j, args[EQUALS_SIGN] ) );
 	    if ( name == min::MISSING() )
 	    {
 		PAR::parse_error
@@ -5319,7 +5326,8 @@ static bool data_reformatter_function
 		min::attr_ptr flagsap ( flagsvp );
 		min::locate
 		    ( flagsap, min::dot_initiator );
-		if ( min::get ( flagsap ) == args[2] )
+		if (    min::get ( flagsap )
+		     == args[FLAGS_OPENING] )
 		{
 		    flags = line[j++];
 		    message =
@@ -5327,21 +5335,22 @@ static bool data_reformatter_function
 		}
 	    }
 
-	    if ( j < lsize && line[j] != args[0] )
+	    if (    j < lsize && line[j]
+	         != args[EQUALS_SIGN] )
 	    {
 		PAR::parse_error
 		    ( parser, lppvec[j],
 		      message,
 		      min::pgen_never_quote
-			  ( args[0] ),
+			  ( args[EQUALS_SIGN] ),
 		      "' was expected but not"
 		      " found; line ignored" );
 		continue;
 	    }
 
-	    // Now if j < lsize, line[j] == args[0]
-	    // (e.g., "=").  j == lsize is also
-	    // possible.
+	    // Now if j < lsize, then
+	    // line[j] == args[EQUALS_SIGN];
+	    // j == lsize is also possible.
 	    //
 	    if ( j + 1 == lsize )
 	    {
@@ -5349,7 +5358,7 @@ static bool data_reformatter_function
 		    ( parser, lppvec[j],
 		      "after `",
 		      min::pgen_never_quote
-			  ( args[0] ),
+			  ( args[EQUALS_SIGN] ),
 		      "' argument value was expected"
 		      " but not found; line ignored" );
 		continue;
@@ -5366,7 +5375,7 @@ static bool data_reformatter_function
 	    if ( j + 2 == lsize
 	         ||
 	    	 (    j + 2 < lsize
-	           && line[j+2] == args[0] ) )
+	           && line[j+2] == args[EQUALS_SIGN] ) )
 	    {
 	        // Single token value, including
 		// possible multi-value bracketed
@@ -5379,14 +5388,15 @@ static bool data_reformatter_function
 		is_multivalue =
 		    (    min::get ( value,
 		                    min::dot_initiator )
-		      == args[3] );
+		      == args[MULTIVALUE_OPENING] );
 		if ( j < lsize )
 		{
 		    // Double arrow attribute.  Syntax:
 		    //   name = value(s) = reverse_name
-		    // line[j] == args[0] (second "=").
+		    // line[j] == args[EQUALS_SIGN].
 		    //
-		    MIN_REQUIRE ( line[j] == args[0] );
+		    MIN_REQUIRE
+		      ( line[j] == args[EQUALS_SIGN] );
 		    min::uns32 saved_j = j ++;
 		    reverse_name =
 			( PAR::scan_label ( line, j ) );
@@ -5398,7 +5408,7 @@ static bool data_reformatter_function
 			      "reverse attribute label"
 			      " after second `",
 			      min::pgen_never_quote
-				  ( args[0] ),
+				  ( args[EQUALS_SIGN] ),
 			      "' was expected but not"
 			      " found; line ignored" );
 			continue;
@@ -5418,7 +5428,7 @@ static bool data_reformatter_function
 			( parser, lppvec[saved_j],
 			  "after `",
 			  min::pgen_never_quote
-			      ( args[0] ),
+			      ( args[EQUALS_SIGN] ),
 			  "' attribute value (label or"
 			  " single bracketed"
 			  " subexpression) was"

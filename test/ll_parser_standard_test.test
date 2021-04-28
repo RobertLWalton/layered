@@ -1,0 +1,24 @@
+BRACKETED EXPRESSION:
+    ID 10 is {"": .operator = "+"|+ x y|}
+BRACKETED EXPRESSION:
+    ID 11 is {|x + y|}
+ERROR: in line ##: extra stuff at end of line; line ignored:
+        z = x * y
+              ^^^
+ERROR: in line ##: extra stuff at end of line; line ignored:
+        w = u - v
+              ^^^
+BRACKETED EXPRESSION:
+    ID 21 is {"": .operator = "*"|* x y|}
+BRACKETED EXPRESSION:
+    ID 22 is {"": .operator = "+"|+ u {"": .operator = "-"|- v|}|}
+BRACKETED EXPRESSION:
+    ID 23 is
+        {"": z = {"": .operator = "*"|* x y|}, w =
+             {"": .operator = "+"|+ u {"": .operator = "-"|- v|}|}|
+             {"": .operator = "+"|+ x y|}|}
+BRACKETED EXPRESSION:
+    ID 30 is
+        {|this is an indented paragraph
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+               "::"|{p|{s|with a line and a second line|s}|p}|}|}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 27 14:12:35 EDT 2021
+// Date:	Wed Apr 28 16:55:54 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5181,7 +5181,11 @@ static bool data_reformatter_function
         next->previous->position.end;
     if (    min::get ( next->previous->value,
 	               min::dot_terminator )
-	 == min::INDENTED_PARAGRAPH() )
+	 == min::INDENTED_PARAGRAPH()
+	 &&
+	    min::get ( next->previous->value,
+	               min::dot_initiator )
+	 == PARLEX::colon )
     {
         attributes = next->previous->value;
 	PAR::free ( PAR::remove ( first_ref(parser),

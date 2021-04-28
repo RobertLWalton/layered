@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Aug 21 04:33:42 EDT 2020
+# Date:		Wed Apr 28 14:08:20 EDT 2021
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -652,21 +652,21 @@ ll_parser_oper_command_test.out:	\
 	${RUNENV} \
 	    ll_parser_oper_command_test < $*.in > $*.out
 
-ll_parser_standard_print_test:		\
-	    ll_parser_standard_print_test.cc \
+ll_parser_standard_test:		\
+	    ll_parser_standard_test.cc \
 	    ${PARSER_O} \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -o $@ \
-	    ll_parser_standard_print_test.cc \
+	    ll_parser_standard_test.cc \
 	    ${PARSER_O}
 
 ll_parser_standard_print_test.out:	\
-	    ll_parser_standard_print_test \
+	    ll_parser_standard_test \
 	    ll_parser_standard_print_test.in
 	rm -f $*.out
-	${RUNENV} $* < \
+	${RUNENV} ll_parser_standard_test < \
 	    ll_parser_standard_print_test.in \
 	    > $*.out
 

@@ -43,3 +43,7 @@ ID 30 is @30
 
 *PARSER*:
     end block BLOCK1
+
+This is a line with an indented paragraph: // A comment
+    First line of indented paragraph.
+    Second line of indented paragraph.

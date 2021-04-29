@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 11, 2021
+April 29, 2021
  
 \end{center}
 
@@ -2693,7 +2693,8 @@ Paragraphs consist of sequences of logical lines, or in the case
 of some headed paragraphs, of a single logical line.
 
 An \key{indented paragraph} begins with an indentation mark at the
-end of a physical line, and is most frequently the last thing in the
+end of a physical line or just before a comment that ends a physical
+line, and is most frequently the last thing in the
 logical line to which this physical line belongs.  The indentation
 mark resets the \key{current indent}\label{CURRENT-INDENT}
 for the duration of the indented
@@ -3970,7 +3971,8 @@ Syntactically a {\em bracketed-subexpression} may take many forms:
 
 However, some of these forms can only be recognized in particular
 contexts, e.g., {\em indented-para\-graph-subexpressions} can only be
-recognized if their beginning indentation mark is at the end of a physical line.
+recognized if their beginning indentation mark is at the end of a physical line
+or just before a comment that ends a physical line.
 See the indicated sections for details.
 
 The parser commands specific to the bracketed subexpression recognizer
@@ -4749,7 +4751,8 @@ the logical after the outer paragraph
 
 An \key{indented paragraph subexpression}
 begins with an {\em indentation-mark} (e.g.~`\TT{:}')
-which must be at the end of a physical line.
+which must be at the end of a physical line or just before
+a comment that ends a physical line.
 This is followed by an \key{indented paragraph}
 consisting of zero or more non-empty
 (see \pagref{NON-EMPTY-PARAGRAPH-LINE-RULE})

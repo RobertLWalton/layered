@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 28 16:55:54 EDT 2021
+// Date:	Thu Apr 29 16:23:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,6 +66,7 @@ static min::locatable_gen concatenator;
 static min::locatable_gen middle_lexeme;
 static min::locatable_gen break_lexeme;
 static min::locatable_gen top;
+static min::locatable_gen four_colons;
 
 static void initialize ( void )
 {
@@ -99,6 +100,7 @@ static void initialize ( void )
     ::middle_lexeme = min::new_str_gen ( "middle" );
     ::break_lexeme = min::new_str_gen ( "break" );
     ::top = min::new_str_gen ( "top" );
+    ::four_colons = min::new_str_gen ( "::::" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -5161,43 +5163,56 @@ static bool data_reformatter_function
         }
     }
 
-    if ( min::is_obj ( first->next->value ) )
+    PAR::token attributes = next;
+    PAR::token current = next;
+    while ( true )
+    {
+	current = current->previous;
+	min::gen v = current->value;
+	if (    min::get ( v, min::dot_terminator )
+	     != min::INDENTED_PARAGRAPH()
+	     &&
+		min::get ( v, min::dot_initiator )
+	     != PARLEX::colon )
+	    break;
+	attributes = current;
+	current = current->previous;
+	if ( current == first->next->next )
+	    break;
+	v = current->value;
+	if ( v != args[NEW_SIGN]
+	     &&
+	     v != args[NEW_OR_SAME_SIGN]
+	     &&
+	     v != args[ADD_TO_SET_SIGN]
+	     &&
+	     v != args[ADD_TO_MULTISET_SIGN] )
+	    break;
+    }
+    PAR::token vector_end = attributes;
+    if ( vector_end->previous->value == ::four_colons )
+	vector_end = vector_end->previous;
+
+    if ( vector_end != first->next->next->next
+         &&
+	 min::is_obj ( first->next->value ) )
     {
         min::obj_vec_ptr tvp ( first->next->value );
-	if ( min::size_of ( tvp ) > 0 ) return true;
-	min::attr_ptr tap ( tvp );
-	min::attr_info info[1];
-	min::unsptr n =
-	    min::attr_info_of ( info, 1, tap, false );
-	if ( n > 1 ) return true;
-	if (    n == 1
-	     && info[0].name != min::dot_position )
+	if ( min::size_of ( tvp ) > 0 )
+	{
+	    PAR::parse_error
+		( parser, position,
+		  "attempt to add vector elements"
+		  " to an object that already has"
+		  " vector elements" );
 	    return true;
-    }
-
-    min::locatable_gen attributes ( min::MISSING() );
-    min::unsptr asize = 0;
-    min::position end_position =
-        next->previous->position.end;
-    if (    min::get ( next->previous->value,
-	               min::dot_terminator )
-	 == min::INDENTED_PARAGRAPH()
-	 &&
-	    min::get ( next->previous->value,
-	               min::dot_initiator )
-	 == PARLEX::colon )
-    {
-        attributes = next->previous->value;
-	PAR::free ( PAR::remove ( first_ref(parser),
-			          next->previous  ) );
-	min::obj_vec_ptr avp ( attributes );
-	    // Attributes must be an object else
-	    // min::get would have returned NONE.
-	asize = min::size_of ( avp );
+	}
     }
 
     min::phrase_position ID_position =
         first->next->position;
+    min::position end_position =
+        next->previous->position.end;
     min::locatable_gen ID_gen ( first->next->value );
 
     PAR::free ( PAR::remove ( first_ref(parser),
@@ -5206,11 +5221,9 @@ static bool data_reformatter_function
 			      first->next  ) );
 
     BRA::compact_prefix_list
-        ( parser, pass, selectors, first, next,
+        ( parser, pass, selectors, first, vector_end,
 	  min::MISSING_POSITION, min::MISSING(),
 	  trace_flags );
-        // Here we ignore the line_separator argument
-	// intentionally.
 
     min::obj_vec_ptr fvp ( first->value );
     min::unsptr fvpsize = min::size_of ( fvp );
@@ -5221,7 +5234,7 @@ static bool data_reformatter_function
     // finish up.
     //
     if (    fvpsize == 1
-         && attributes == min::MISSING()
+         && attributes == next
 	 && min::is_preallocated ( ID_gen ) )
     {
 	PAR::value_ref(first) = fvp[0];
@@ -5256,6 +5269,13 @@ static bool data_reformatter_function
 	return false;
     }
 
+    min::unsptr asize = 0;
+    if ( attributes != next )
+    {
+        min::obj_vec_ptr paragraph ( attributes->value);
+	asize = min::size_of ( paragraph );
+    }
+
     if ( min::is_preallocated ( ID_gen ) )
 	min::new_obj_gen
 	    ( ID_gen, 5 + fvpsize + 5 * asize,
@@ -5275,7 +5295,7 @@ static bool data_reformatter_function
     min::set_flag
         ( idap, min::standard_attr_hide_flag );
 
-    if ( attributes != min::MISSING() )
+    while ( attributes != next )
     {
         {
 	    first->position.end = end_position;
@@ -5285,7 +5305,8 @@ static bool data_reformatter_function
 	    insppvec->position.end = end_position;
 	}
 
-        min::obj_vec_ptr paragraph ( attributes );
+        min::obj_vec_ptr paragraph
+	    ( attributes->value );
 	for ( min::uns32 i = 0;
 	      i < min::size_of ( paragraph ); ++ i )
         {
@@ -5510,6 +5531,20 @@ static bool data_reformatter_function
 	    else
 		PAR::set_attr_multivalue
 		    ( parser, idap, value, option );
+	}
+	
+	attributes = attributes->next;
+	PAR::free
+	    ( PAR::remove ( first_ref(parser),
+			    attributes->previous ) );
+	if ( attributes != next )
+	{
+	    sign = attributes->value;
+	    attributes = attributes->next;
+	    PAR::free
+		( PAR::remove
+		      ( first_ref(parser),
+			attributes->previous ) );
 	}
     }
 

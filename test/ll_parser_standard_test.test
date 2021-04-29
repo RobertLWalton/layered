@@ -22,3 +22,7 @@ BRACKETED EXPRESSION:
         {|this is an indented paragraph
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                "::"|{p|{s|with a line and a second line|s}|p}|}|}
+BRACKETED EXPRESSION:
+    This is a line with an indented paragraph:
+        First line of indented paragraph "."
+        Second line of indented paragraph "."

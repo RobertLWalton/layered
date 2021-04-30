@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 15:54:00 EDT 2021
+// Date:	Fri Apr 30 15:57:41 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1754,7 +1754,7 @@ void put_empty_after
 
 // Options for set_attr_...
 //
-enum { NEW, NEW_OR_SAME, ADD };
+enum { NEW, NEW_OR_SAME, ADD_TO_SET, ADD_TO_MULTISET };
 
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `flags' designating attri-
@@ -1766,9 +1766,10 @@ enum { NEW, NEW_OR_SAME, ADD };
 // previous flags.  If option is NEW_OR_SAME, attribute
 // is required to either have no previous flags, or to
 // have a flags equal to the new flags (in which case
-// nothing is done).  If the option is ADD, each flag
-// is added to the existing set of attribute flags,
-// unless it is already in that set.
+// nothing is done).  If the option is ADD_TO_SET or
+// ADD_TO_MULTISET, each flag is added to the existing
+// set of attribute flags, unless it is already in that
+// set.
 //
 // If option requirements are not met, this function
 // does nothing but print an error message.  True is
@@ -1781,11 +1782,11 @@ bool set_attr_flags
 	( ll::parser::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen flags,
+	  unsigned option = NEW,
 	  const min::flag_parser * flag_parser
 	      = min::standard_attr_flag_parser,
 	  min::packed_vec_ptr<min::ustring> flag_names
-	      = min::standard_attr_flag_names,
-	  unsigned option = NEW );
+	      = min::standard_attr_flag_names );
 
 // Given an attribute pointer ap located at an attribute
 // and a bracketed expression `flags' designating attri-
@@ -1821,9 +1822,11 @@ bool test_attr_flags
 // a previous value.  If option is NEW_OR_SAME,
 // attribute is required to either have no previous
 // value, or to have a value equal to the new value (in
-// which case nothing is done).  If the option is ADD,
-// the value is added to the set of attribute values,
-// unless it is already in that set.
+// which case nothing is done).  If the option is
+// ADD_TO_SET, the value is added to the multiset of
+// attribute values, unless it is already in that
+// multiset.  If the option is ADD_TO_MULTISET, the
+// value is added to the multiset.
 //
 // If requirements are not met, this function does
 // nothing but print an error message.  True is returned
@@ -1846,9 +1849,12 @@ bool set_attr_value
 // SAME either there must be no previous values are the
 // value sets of multivalue and ap must be the same as
 // sets, with duplicates allowed for both `sets'.
-// Otherwise if option is ADD multivalues values are
-// added to set of ap values.  Returns true if no error
-// messages and false if error messages.
+// Otherwise if option is ADD_TO_SET, values in multi-
+// value not already in the multiset of ap values are
+// added to the multiset of ap values.  If the option
+// is ADD_TO_MULTISET, values in the multivalue are
+// added to the multiset of ap values.  Returns true
+// if no error messages and false if error messages.
 //
 bool set_attr_multivalue
 	( ll::parser::parser parser,

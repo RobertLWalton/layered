@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 30 14:32:26 EDT 2021
+// Date:	Fri Apr 30 16:12:48 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5518,7 +5518,7 @@ static bool data_reformatter_function
 	    {
 	        min::locate_reverse
 		    ( idap, reverse_name );
-		option = PAR::ADD;
+		option = PAR::ADD_TO_SET;
 	    }
 
 	    if ( ! is_multivalue )    

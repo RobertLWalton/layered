@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 15:54:30 EDT 2021
+// Date:	Fri Apr 30 16:12:08 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1817,16 +1817,17 @@ bool PAR::set_attr_flags
 	( PAR::parser parser,
 	  min::attr_insptr & ap,
 	  min::gen flags,
+	  unsigned option,
 	  const min::flag_parser * flag_parser,
-	  min::packed_vec_ptr<min::ustring> flag_names,
-	  unsigned option )
+	  min::packed_vec_ptr<min::ustring> flag_names )
 {
     min::obj_vec_ptr fvp ( flags );
     min::attr_ptr fap ( fvp );
     min::locate ( fap, min::dot_position );
     min::phrase_position_vec pos = min::get ( fap );
 
-    if ( option != PAR::ADD )
+    if (    option == PAR::NEW
+         || option == PAR::NEW_OR_SAME )
     {
         min::attr_info info;
 	min::attr_info_of ( info, ap, false );
@@ -2265,6 +2266,7 @@ bool PAR::set_attr_multivalue
 			    " not changed" ) );
 	    return false;
 	}
+	option = ADD_TO_MULTISET;
 	break;
     }
 
@@ -2274,7 +2276,7 @@ bool PAR::set_attr_multivalue
     {
         if ( ! PAR::set_attr_value
 	           ( parser, ap, min::attr ( vp, i ),
-		     pos[i], ADD ) )
+		     pos[i], option ) )
 	    result = false;
     }
     return result;
@@ -2301,7 +2303,7 @@ inline void set_attributes
 	{
 	    min::locate_reverse
 		( ap, attributes->reverse_name );
-	    option = PAR::ADD;
+	    option = PAR::ADD_TO_SET;
 	}
 
 	if (    attributes->value

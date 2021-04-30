@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 29 16:23:05 EDT 2021
+// Date:	Thu Apr 29 21:04:10 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5171,7 +5171,7 @@ static bool data_reformatter_function
 	min::gen v = current->value;
 	if (    min::get ( v, min::dot_terminator )
 	     != min::INDENTED_PARAGRAPH()
-	     &&
+	     ||
 		min::get ( v, min::dot_initiator )
 	     != PARLEX::colon )
 	    break;

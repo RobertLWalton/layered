@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 29 21:04:10 EDT 2021
+// Date:	Fri Apr 30 14:32:26 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5139,7 +5139,8 @@ static bool data_reformatter_function
          &&
          ! ( first->next->type == PAR::DERIVED
              &&
-	     min::is_preallocated ( first->next->value ) ) )
+	     min::is_preallocated
+	         ( first->next->value ) ) )
         return true;
 
     // If prefix has attributes other than .type and
@@ -5269,9 +5270,16 @@ static bool data_reformatter_function
 	return false;
     }
 
+    min::attr_ptr fap ( fvp );
+    locate ( fap, min::dot_position );
+    min::phrase_position_vec_insptr idppvec =
+	min::phrase_position_vec_insptr
+            ( min::get ( fap ) );
+
     min::unsptr asize = 0;
     if ( attributes != next )
     {
+	idppvec->position.end = end_position;
         min::obj_vec_ptr paragraph ( attributes->value);
 	asize = min::size_of ( paragraph );
     }
@@ -5285,11 +5293,8 @@ static bool data_reformatter_function
     for ( min::unsptr i = 0; i < fvpsize; ++ i )
 	min::attr_push ( idvp ) = fvp[i];
 
-    min::attr_ptr fap ( fvp );
+
     min::attr_insptr idap ( idvp );
-    locate ( fap, min::dot_position );
-    min::phrase_position_vec idppvec =
-        min::get ( fap );
     locate ( idap, min::dot_position );
     min::set ( idap, min::new_stub_gen ( idppvec ) );
     min::set_flag
@@ -5297,14 +5302,6 @@ static bool data_reformatter_function
 
     while ( attributes != next )
     {
-        {
-	    first->position.end = end_position;
-	    min::phrase_position_vec_insptr insppvec =
-		min::phrase_position_vec_insptr
-		    ( idppvec );
-	    insppvec->position.end = end_position;
-	}
-
         min::obj_vec_ptr paragraph
 	    ( attributes->value );
 	for ( min::uns32 i = 0;
@@ -5549,6 +5546,7 @@ static bool data_reformatter_function
     }
 
     PAR::value_ref(first) = ID_gen;
+    first->position.end = end_position;
     idvp = min::NULL_STUB;
     PAR::trace_subexpression
 	( parser, first, trace_flags );

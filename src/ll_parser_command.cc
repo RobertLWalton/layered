@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 14:51:05 EDT 2021
+// Date:	Fri Apr 30 14:35:53 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1100,8 +1100,10 @@ static min::gen execute_top_level
 	selectors |= new_selectors.or_flags;
 	selectors &= ~ new_selectors.not_flags;
 	selectors ^= new_selectors.xor_flags;
-	imark->parsing_selectors.or_flags = selectors;
-	imark->parsing_selectors.not_flags = ~ selectors;
+	imark->parsing_selectors.or_flags =
+	    selectors;
+	imark->parsing_selectors.not_flags =
+	    ~ selectors;
 	imark->parsing_selectors.not_flags &=
 	      BRA::INDENTATION_MARK_SELECTORS
 	    + PAR::ALL_OPT;
@@ -1140,8 +1142,10 @@ static min::gen execute_top_level
 	selectors |= new_options.or_flags;
 	selectors &= ~ new_options.not_flags;
 	selectors ^= new_options.xor_flags;
-	imark->parsing_selectors.or_flags = selectors;
-	imark->parsing_selectors.not_flags = ~ selectors;
+	imark->parsing_selectors.or_flags =
+	    selectors;
+	imark->parsing_selectors.not_flags =
+	    ~ selectors;
 	imark->parsing_selectors.not_flags &=
 	      BRA::INDENTATION_MARK_SELECTORS
 	    + PAR::ALL_OPT;

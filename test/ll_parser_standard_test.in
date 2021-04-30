@@ -44,6 +44,20 @@ ID 30 is @30
 *PARSER*:
     end block BLOCK1
 
+@35 = foo
+@36 = "fum"
+ID 35 is @35
+ID 36 is @36
+
+
 This is a line with an indented paragraph: // A comment
     First line of indented paragraph.
     Second line of indented paragraph.
+
+@40 = This is a code line ending in:
+	  An indented paragragraph; line one.
+	  Line two.
+      ::::    // Needed to allow indented paragraph to
+              // be an element of @40.
+
+ID 40 is @40

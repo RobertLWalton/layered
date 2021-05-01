@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  1 04:12:39 EDT 2021
+// Date:	Sat May  1 05:07:21 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2167,7 +2167,7 @@ bool PAR::set_attr_value
 		      "",
 		      min::pgen_quote ( name ),
 		      is_double_arrow ?
-		          " = ... = " : "",
+		          " <=> " : "",
 		      is_double_arrow ?
 		          min::pgen_quote
 			      ( reverse_name ) :
@@ -2184,7 +2184,7 @@ bool PAR::set_attr_value
 		      "",
 		      min::pgen_quote ( name ),
 		      is_double_arrow ?
-		          " = ... = " : "",
+		          " <=> " : "",
 		      is_double_arrow ?
 		          min::pgen_quote
 			      ( reverse_name ) :
@@ -2204,8 +2204,9 @@ bool PAR::set_attr_value
 }
 
 // Test whether value set pointed at by ap equals
-// element set of vp.  Allows duplicates in both `sets'.
-// NOT optimized for large sets.
+// element set of vp.  Allows duplicates in both `sets';
+// that is, the number of copies of a value must be
+// the same in both sets.  NOT optimized for large sets.
 //
 static bool same_multivalue
     ( min::attr_insptr & ap, min::obj_vec_ptr & vp,
@@ -2220,7 +2221,7 @@ static bool same_multivalue
     for ( min::unsptr i = 0; i < nap; ++ i )
         apfound[i] = false;
 
-    min::unsptr nvp = min::attr_size_of ( vp );
+    min::unsptr nvp = min::size_of ( vp );
     min::unsptr count = 0;
         // Number values elements found.
     for ( min::unsptr i = 0; i < nvp; ++ i )
@@ -2267,12 +2268,17 @@ bool PAR::set_attr_multivalue
 	    min::gen name = min::name_of ( ap );
 	    min::gen reverse_name =
 	        min::reverse_name_of ( ap );
+	    bool is_double_arrow =
+		( reverse_name != min::NONE() );
 	    parse_error ( parser, pos->position,
 			  "",
 			  min::pgen_quote ( name ),
-			  " <=> ",
-			  min::pgen_quote
-			      ( reverse_name ),
+			  is_double_arrow ?
+			      " <=> " : "",
+			  is_double_arrow ?
+			      min::pgen_quote
+				  ( reverse_name ) :
+			      min::pnop,
 			  ( option == NEW ?
 			    " already has value(s);"
 			    " old value(s) not"
@@ -2286,12 +2292,12 @@ bool PAR::set_attr_multivalue
 	break;
     }
 
-    min::unsptr n = min::attr_size_of ( vp );
+    min::unsptr n = min::size_of ( vp );
     bool result = true;
     for ( min::unsptr i = 0; i < n; ++ i )
     {
         if ( ! PAR::set_attr_value
-	           ( parser, ap, min::attr ( vp, i ),
+	           ( parser, ap, vp[i],
 		     pos[i], option ) )
 	    result = false;
     }

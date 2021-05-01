@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 30 16:12:08 EDT 2021
+// Date:	Sat May  1 04:12:39 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2126,8 +2126,9 @@ bool PAR::set_attr_value
 	  unsigned option )
 {
     bool is_legal = min::is_attr_legal ( value );
+    min::gen reverse_name = min::reverse_name_of ( ap );
     bool is_double_arrow =
-	( min::reverse_name_of ( ap ) != min::NONE() );
+	( reverse_name != min::NONE() );
     bool is_preallocated =
         min::is_preallocated ( value );
     if ( ! is_legal
@@ -2165,6 +2166,12 @@ bool PAR::set_attr_value
         parse_error ( parser, pos,
 		      "",
 		      min::pgen_quote ( name ),
+		      is_double_arrow ?
+		          " = ... = " : "",
+		      is_double_arrow ?
+		          min::pgen_quote
+			      ( reverse_name ) :
+			  min::pnop,
 		      " already has value(s);"
 		      " old value(s) not changed" );
 	return false;
@@ -2176,6 +2183,12 @@ bool PAR::set_attr_value
         parse_error ( parser, pos,
 		      "",
 		      min::pgen_quote ( name ),
+		      is_double_arrow ?
+		          " = ... = " : "",
+		      is_double_arrow ?
+		          min::pgen_quote
+			      ( reverse_name ) :
+			  min::pnop,
 		      " already has different value(s);"
 		      " old value(s) not changed" );
 	return false;
@@ -2183,7 +2196,10 @@ bool PAR::set_attr_value
     if ( is_double_arrow && is_preallocated )
 	::replace_value
 	    ( value, parser->input_file, pos );
-    min::add_to_set ( ap, value );
+    if ( option == ADD_TO_SET )
+	min::add_to_set ( ap, value );
+    else
+	min::add_to_multiset ( ap, value );
     return true;
 }
 

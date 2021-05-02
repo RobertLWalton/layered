@@ -7479,8 +7479,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
-@@@ = A:
-       ^
+@@@ += A:
+        ^
     ROOT = @@@ = LEAVES
 ^^^^^^^^^^^^^^^^^^^^^^^
     RIGHT = @@@ = LEFT
@@ -7493,8 +7493,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .type = "data"
     line ###:
-@@@ = A:
-^^^^^^^
+@@@ += A:
+^^^^^^^^
 BRACKETED EXPRESSION:
     {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@ = LEAVES|
          A|}
@@ -7513,8 +7513,8 @@ BRACKETED EXPRESSION:
            LEFT = @@@@ = RIGHT
            ROOT = @@@@ = LEAVES
     lines ###-###:
-@@@ = A:
-^^^^^^^^
+@@@ += A:
+^^^^^^^^^
     ROOT = @@@ = LEAVES
 ^^^^^^^^^^^^^^^^^^^^^^^
     RIGHT = @@@ = LEFT
@@ -7558,8 +7558,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
-@@@ = B:
-       ^
+@@@ += B:
+        ^
     ROOT = @@@ = LEAVES
 ^^^^^^^^^^^^^^^^^^^^^^^
     RIGHT = @@@ = LEFT
@@ -7572,8 +7572,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .type = "data"
     line ###:
-@@@ = B:
-^^^^^^^
+@@@ += B:
+^^^^^^^^
 BRACKETED EXPRESSION:
     {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@ = LEAVES|
          B|}
@@ -7583,8 +7583,8 @@ BRACKETED EXPRESSION:
            LEFT = @@@@ = RIGHT
            ROOT = @@@@ = LEAVES
     lines ###-###:
-@@@ = B:
-^^^^^^^^
+@@@ += B:
+^^^^^^^^^
     ROOT = @@@ = LEAVES
 ^^^^^^^^^^^^^^^^^^^^^^^
     RIGHT = @@@ = LEFT
@@ -7630,8 +7630,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
-@@@ = C:
-       ^
+@@@ += C:
+        ^
     ROOT = @@@ = LEAVES
 ^^^^^^^^^^^^^^^^^^^^^^^
     RIGHT = @@@ = LEFT
@@ -7644,8 +7644,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .type = "data"
     line ###:
-@@@ = C:
-^^^^^^^
+@@@ += C:
+^^^^^^^^
 BRACKETED EXPRESSION:
     {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@ = LEAVES|
          C|}
@@ -7655,8 +7655,8 @@ BRACKETED EXPRESSION:
            LEFT = @@@@ = RIGHT
            ROOT = @@@@ = LEAVES
     lines ###-###:
-@@@ = C:
-^^^^^^^^
+@@@ += C:
+^^^^^^^^^
     ROOT = @@@ = LEAVES
 ^^^^^^^^^^^^^^^^^^^^^^^
     RIGHT = @@@ = LEFT
@@ -7758,8 +7758,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .initiator = ":"
     lines ###-###:
-@@@ = ABC:
-         ^
+@@@ += ABC:
+          ^
     LEAVES[*,@]
 ^^^^^^^^^^^^^^^
     OTHER = {* 5, 6, 7 *}
@@ -7770,8 +7770,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            .type = "data"
     line ###:
-@@@ = ABC:
-^^^^^^^^^
+@@@ += ABC:
+^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT, OTHER =
          {* "7", "5", "6" *}|ABC|}
@@ -7780,8 +7780,8 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
            OTHER = {* "7", "5", "6" *}
     lines ###-###:
-@@@ = ABC:
-^^^^^^^^^^
+@@@ += ABC:
+^^^^^^^^^^^
     LEAVES[*,@]
 ^^^^^^^^^^^^^^^
     OTHER = {* 5, 6, 7 *}

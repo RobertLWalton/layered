@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 30 16:12:48 EDT 2021
+// Date:	Sat May  1 10:51:07 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5302,6 +5302,17 @@ static bool data_reformatter_function
 
     while ( attributes != next )
     {
+	unsigned option =
+	    ( sign == args[NEW_SIGN] ?
+	          PAR::NEW :
+	      sign == args[NEW_OR_SAME_SIGN] ?
+	          PAR::NEW_OR_SAME :
+	      sign == args[ADD_TO_SET_SIGN] ?
+	          PAR::ADD_TO_SET :
+	      sign == args[ADD_TO_MULTISET_SIGN] ?
+	          PAR::ADD_TO_MULTISET : 0xFF );
+	MIN_REQUIRE ( option != 0xFF );
+
         min::obj_vec_ptr paragraph
 	    ( attributes->value );
 	for ( min::uns32 i = 0;
@@ -5509,17 +5520,13 @@ static bool data_reformatter_function
 
 	    if ( flags != min::MISSING() )
 		PAR::set_attr_flags
-		    ( parser, idap, flags );
+		    ( parser, idap, flags, option );
 
 	    if ( ! has_value ) continue;
 
-	    unsigned option = PAR::NEW;
 	    if ( reverse_name != min::MISSING() )
-	    {
 	        min::locate_reverse
 		    ( idap, reverse_name );
-		option = PAR::ADD_TO_SET;
-	    }
 
 	    if ( ! is_multivalue )    
 		PAR::set_attr_value

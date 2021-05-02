@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 27 03:16:55 EDT 2021
+// Date:	Sat May  1 11:32:02 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -475,15 +475,15 @@ and a continuation of the outer paragraph.
     begin block BLOCK1
     trace [+ bracketed subexpressions]
 
-@21 = A:
+@21 += A:
     ROOT = @20 = LEAVES
     RIGHT = @22 = LEFT
     LEFT = @23 = RIGHT
-@22 = B:
+@22 += B:
     ROOT = @20 = LEAVES
     RIGHT = @23 = LEFT
     LEFT = @21 = RIGHT
-@23 = C:
+@23 += C:
     ROOT = @20 = LEAVES
     RIGHT = @21 = LEFT
     LEFT = @22 = RIGHT
@@ -492,7 +492,7 @@ ID 21 IS @21
 ID 22 IS @22
 ID 23 IS @23
 
-@20 = ABC:
+@20 += ABC:
     LEAVES[*,@]
     OTHER = {* 5, 6, 7 *}
 ID 20 IS NOW @20

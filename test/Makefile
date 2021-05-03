@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Apr 28 14:19:21 EDT 2021
+# Date:		Mon May  3 05:35:46 EDT 2021
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -47,6 +47,7 @@ PARSER_TESTS = ll_parser_input_test \
 	       ll_parser_oper_standard_test \
 	       ll_parser_oper_command_test \
 	       ll_parser_standard_test \
+	       ll_parser_standard_errors_test \
 	       ll_parser_standard_print_test
 
 TESTS = ${LEXEME_TESTS} ${PARSER_TESTS}
@@ -669,6 +670,14 @@ ll_parser_standard_test.out:	\
 	rm -f $*.out
 	${RUNENV} ll_parser_standard_test < \
 	    ll_parser_standard_test.in \
+	    > $*.out
+
+ll_parser_standard_errors_test.out:	\
+	    ll_parser_standard_test \
+	    ll_parser_standard_errors_test.in
+	rm -f $*.out
+	${RUNENV} ll_parser_standard_test < \
+	    ll_parser_standard_errors_test.in \
 	    > $*.out
 
 ll_parser_standard_print_test.out:	\

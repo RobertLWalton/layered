@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_errors_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  3 05:33:55 EDT 2021
+// Date:	Mon May  3 16:10:51 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,13 +12,9 @@
     trace [+ parser output]
 
 @1 =:
-	foo[_]
-@1 =:
 	foo[*]
 @1 =:
-	foo[/]
+	foo[:+-_!*]
 @1 ==:
-	foo[*]
-@1 ==:
-	foo[/]
+	foo[:_+!*/]
 ID 1 is @1

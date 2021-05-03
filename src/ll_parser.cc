@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  3 12:02:40 EDT 2021
+// Date:	Mon May  3 15:56:53 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1895,7 +1895,7 @@ bool PAR::set_attr_flags
 	    {
 		char buffer[tlen+200];
 		sprintf ( buffer,
-			  "bad flag(s) \"%s\" in ",
+			  "bad flag(s) `%s' in ",
 			  text_buffer );
 		parse_error ( parser, pos[i],
 			      buffer,
@@ -1994,7 +1994,7 @@ bool PAR::test_attr_flags
 	    {
 		char buffer[len+200];
 		sprintf ( buffer,
-			  "bad flag(s) \"%s\" in ",
+			  "bad flag(s) `%s' in ",
 			  text_buffer );
 		parse_error ( parser, pos[i],
 			      buffer,

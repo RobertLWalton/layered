@@ -1,0 +1,20 @@
+ERROR: in line ##: "foo" already has flag(s); old flag(s) not changed:
+        foo[:+-_!*]
+           ^^^^^^^^
+ERROR: in line ##: bad flag(s) `:_,!' in ":_+!*/"; bad flag(s) ignored:
+        foo[:_+!*/]
+            ^^^^^^
+ERROR: in line ##: flag `+' for label "foo" should be previously on but
+       is off:
+        foo[:_+!*/]
+            ^^^^^^
+ERROR: in line ##: flag `/' for label "foo" should be previously on but
+       is off:
+        foo[:_+!*/]
+            ^^^^^^
+ERROR: in line ##: "foo" already has different flag(s); old flag(s) not
+       changed:
+        foo[:_+!*/]
+           ^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 1 is {"": foo[*]||}

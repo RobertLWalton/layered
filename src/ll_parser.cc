@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  1 05:07:21 EDT 2021
+// Date:	Mon May  3 03:13:31 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1881,18 +1881,19 @@ bool PAR::set_attr_flags
 	if ( min::is_str ( flags_text ) )
 	{
 	    min::str_ptr sp ( flags_text );
-	    min::unsptr len = min::strlen ( sp );
-	    char text_buffer[len+1];
+	    min::unsptr tlen = min::strlen ( sp );
+	    char text_buffer[tlen+1];
 	    min::strcpy ( text_buffer, sp );
-	    min::uns32 flags[len];
-	    len = min::parse_flags
+	    min::uns32 flags[tlen];
+	    min::uns32 flen = min::parse_flags
 		( flags, text_buffer, flag_parser );
-	    for ( min::unsptr j = 0; j < len; ++ j )
+	    MIN_REQUIRE ( flen <= tlen );
+	    for ( min::unsptr j = 0; j < flen; ++ j )
 		min::set_flag ( ap, flags[j] );
 
 	    if ( text_buffer[0] != 0 )
 	    {
-		char buffer[len+200];
+		char buffer[tlen+200];
 		sprintf ( buffer,
 			  "bad flag(s) \"%s\" in ",
 			  text_buffer );
@@ -2176,8 +2177,11 @@ bool PAR::set_attr_value
 		      " old value(s) not changed" );
 	return false;
     }
-    if ( previous_value == value ) return true;
-    if ( option == NEW_OR_SAME )
+    if ( previous_value == value
+         &&
+	 option != ADD_TO_MULTISET )
+        return true;
+    else if ( option == NEW_OR_SAME )
     {
 	min::gen name = min::name_of ( ap );
         parse_error ( parser, pos,
@@ -2209,38 +2213,34 @@ bool PAR::set_attr_value
 // the same in both sets.  NOT optimized for large sets.
 //
 static bool same_multivalue
-    ( min::attr_insptr & ap, min::obj_vec_ptr & vp,
-      min::unsptr n = 100 )
+    ( min::attr_insptr & ap, min::obj_vec_ptr & vp )
 {
-    min::gen values[n];
-    min::unsptr nap = min::get ( values, n, ap );
-    if ( nap > n )
-        return same_multivalue ( ap, vp, nap );
+    min::unsptr nvp = min::size_of ( vp );
+    min::gen values[nvp];
+    min::unsptr nap = min::get ( values, nvp, ap );
+    if ( nap != nvp ) return false;
 
     bool apfound[nap];
     for ( min::unsptr i = 0; i < nap; ++ i )
         apfound[i] = false;
 
-    min::unsptr nvp = min::size_of ( vp );
-    min::unsptr count = 0;
-        // Number values elements found.
     for ( min::unsptr i = 0; i < nvp; ++ i )
     {
-	bool vpfound = false;
-        for ( min::unsptr j = 0; j < nap; ++ j )
+        min::unsptr j = 0;
+        for ( ; j < nap; ++ j )
 	{
 	    if ( values[j] == vp[i]
 	         &&
 		 ! apfound[j] )
 	    {
 	        apfound[j] = true;
-		++ count;
+		break;
 	    }
 	}
-	if ( ! vpfound ) return false;
+	if ( j == nap ) return false;
     }
 
-    return count == nap;
+    return true;
 }
 
 bool PAR::set_attr_multivalue

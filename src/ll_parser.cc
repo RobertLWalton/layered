@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  3 03:13:31 EDT 2021
+// Date:	Mon May  3 12:02:40 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2005,27 +2005,27 @@ bool PAR::test_attr_flags
 
 	    for ( min::unsptr j = 0; j < fvlen; ++ j )
 	    {
-	        min::unsptr k = fv[j] & min::VSIZE;
+	        min::unsptr k = fv[j] % min::VSIZE;
 		min::unsptr i = fv[j] / min::VSIZE;
 		min::unsgen dcc =
 		    min::control_code_of ( d[i] );
 		min::unsgen fcc =
 		    min::control_code_of ( f[i] );
-		if ( dcc & ( 1 << k ) )
+		if ( dcc & ( min::unsgen ( 1 ) << k ) )
 		    // duplicate flag; ignore
 		    continue;
 
-		dcc |= ( 1 << k );
+		dcc |= ( min::unsgen ( 1 ) << k );
 		d[i] = min::new_control_code_gen
 			    ( dcc );
 
-		if ( fcc & ( 1 << k ) ) 
+		if ( fcc & ( min::unsgen ( 1 ) << k ) ) 
 		{
 		    // Flag set correctly.  Turn off
 		    // in f to indicate flag has been
 		    // processed.
 		    //
-		    fcc &= ~ ( 1 << k );
+		    fcc &= ~ ( min::unsgen ( 1 ) << k );
 		    f[i] = min::new_control_code_gen
 				( fcc );
 		}
@@ -2045,16 +2045,12 @@ bool PAR::test_attr_flags
 				  min::pnop,
 				  buffer,
 				  min::pnop,
-				  "' in ",
-				  min::pgen_quote
-				      ( flags_text ),
-				  "should be previously"
-				  " on for label ",
+				  "' for label ",
 				  min::pgen_quote
 				      ( name ),
-				  " but is off;"
-				  " flag set" );
-		    min::set_flag ( ap, fv[j] );
+				  " should be"
+				  " previously on"
+				  " but is off" );
 		}
 	    }
 	}
@@ -2070,14 +2066,15 @@ bool PAR::test_attr_flags
 
     // Check for flags that are on but should be off.
     //
-    for ( min::unsptr i = 0; i < nf; ++ n )
+    for ( min::unsptr i = 0; i < nf; ++ i )
     {
         min::unsgen cc = min::control_code_of ( f[i] );
         if ( cc == 0 ) continue;
 
 	for ( unsigned k = 0; k < min::VSIZE; ++ k )
 	{
-	    if ( ( cc & ( 1 << k ) ) == 0 ) continue;
+	    if (    ( cc & ( min::unsgen ( 1 ) << k ) )
+	         == 0 ) continue;
 
 	    // Flag on for name when it should have been
 	    // off.
@@ -2097,7 +2094,7 @@ bool PAR::test_attr_flags
 			  "' for label ",
 			  min::pgen_quote ( name ),
 			  " should be previously off"
-			  " but is on; flag left on" );
+			  " but is on" );
 	}
     }
     return result;

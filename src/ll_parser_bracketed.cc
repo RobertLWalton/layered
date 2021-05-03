@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  1 10:51:07 EDT 2021
+// Date:	Mon May  3 11:55:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5506,17 +5506,6 @@ static bool data_reformatter_function
 	    min::locate ( idap, name );
 	    min::attr_info info;
 	    min::attr_info_of ( info, idap );
-	    if ( info.value_count > 0
-		 ||
-		 info.flag_count > 0 )
-	    {
-		PAR::parse_error
-		    ( parser, lppvec->position,
-		      "attribute has"
-		      " previously set value(s) or"
-		      " flags; line ignored" );
-		continue;
-	    }
 
 	    if ( flags != min::MISSING() )
 		PAR::set_attr_flags

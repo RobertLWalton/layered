@@ -16,7 +16,7 @@ ERROR: in line ##: "foo" already has different flag(s); old flag(s) not
        changed:
         foo[:_+!*/]
            ^^^^^^^^
-ERROR: in line ##: bad flags specifier `{X||X}'; ignored:
+ERROR: in line ##: bad flags specifier `{X}'; ignored:
         foo[{X}]
             ^^^
 ERROR: in line ##: flag `*' for label "foo" should be previously off but

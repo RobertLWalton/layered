@@ -244,7 +244,7 @@ INDENT: line ##:
 *PARSER*:
     begin block X
     define top level parsing selectors [+ data]
-======= PARSER TEST: {x|{x||x} hi|x}
+======= PARSER TEST: {x|{x} hi|x}
 ======= line ##:
     {x|{x} hi|}
     ^^^^^^^^^^^
@@ -268,7 +268,7 @@ ERROR: in line ##: `"foo"' does not name a lexeme type:
     print mapped lexeme ""
         block X: mapped lexeme "PREMATURE-END-OF-FILE" [data]
         block X: mapped lexeme "PREMATURE-END-OF-FILE" [data]
-                 with token value {p||p}
+                 with token value {p}
     end block X
     print mapped lexeme ""
         nothing found
@@ -287,12 +287,12 @@ BRACKETED EXPRESSION:
     define mapped lexeme "DATA" [data]
         with token value {data}
 BRACKETED EXPRESSION:
-    {data||data} @hello there
+    {data} @hello there
     line ###:
 @hello there
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data||data} @goodby there
+    {data} @goodby there
     line ###:
 @goodby there
 ^^^^^^^^^^^^^
@@ -353,7 +353,7 @@ ID 4 is @@
                  [< "{" "*" >] )
     print mapped lexeme ""
         block X: mapped lexeme "DATA" [TOP LEVEL]
-                 with token value {data||data}
+                 with token value {data}
     end block X
 *PARSER*:
     print top level

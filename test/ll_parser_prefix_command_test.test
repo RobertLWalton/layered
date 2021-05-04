@@ -31,7 +31,7 @@
                  with parsing options [end at paragraph break,
                                        enable table prefix, sticky]
                  with group paragraph
-                 with implied subprefix {s||s}
+                 with implied subprefix {s}
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "***" [TOP LEVEL, text]

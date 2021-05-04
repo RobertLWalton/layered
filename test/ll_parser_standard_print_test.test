@@ -37,13 +37,13 @@
         block TOP LEVEL: disabled
     print mapped lexeme ""
         block standard: mapped lexeme "DATA" [TOP LEVEL]
-                        with token value {data||data}
+                        with token value {data}
         block standard: mapped lexeme "RAW-DATA" [TOP LEVEL]
-                        with token value {raw data||raw data}
+                        with token value {raw data}
         block standard: mapped lexeme "TABLE" [TOP LEVEL]
-                        with token value {table||table}
+                        with token value {table}
         block standard: mapped lexeme "ROW" [TOP LEVEL]
-                        with token value {row||row}
+                        with token value {row}
     print middle break
         block standard: "#" "#"
         block TOP LEVEL: disabled
@@ -104,7 +104,7 @@
                                               - end at paragraph break,
                                               + end at line separator,
                                               + end at outer closing]
-                        with implied header {p||p}
+                        with implied header {p}
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
         block standard: indentation mark ":" ... ";" [code]
@@ -172,7 +172,7 @@
                                               + enable table prefix,
                                               + sticky]
                         with group paragraph
-                        with implied subprefix {s||s}
+                        with implied subprefix {s}
         block standard: bracket type "s" [text]
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
@@ -188,7 +188,7 @@
                                               + enable table prefix,
                                               + sticky]
                         with group paragraph
-                        with implied subprefix {s||s}
+                        with implied subprefix {s}
         block standard: bracket type "section" [code, text]
                         with parsing selectors [- data, - code, - math,
                                                 + text]
@@ -200,7 +200,7 @@
                                               - end at outer closing,
                                               + enable table prefix]
                         with group paragraph
-                        with implied subprefix {s||s}
+                        with implied subprefix {s}
         block standard: bracket type "***" [TOP LEVEL, code, text]
                         with group reset
         block standard: bracket type [< "raw" "data" >]

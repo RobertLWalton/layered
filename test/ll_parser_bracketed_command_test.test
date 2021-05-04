@@ -765,7 +765,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
 ------- line ###:
     T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @] | A B C |T}T2
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: ({T||T} A B C)
+======= PARSER TEST: ({T} A B C)
 ======= line ###:
     (T1{T}T1 A B C)
     ^^^^^^^^^^^^^^^
@@ -775,7 +775,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
 ------- line ###:
     (T1{T}T1 A B C)
      ^^^^^^^
-======= PARSER TEST: ({T||T} A B C)
+======= PARSER TEST: ({T} A B C)
 ======= line ###:
     (T2{T}T2 A B C)
     ^^^^^^^^^^^^^^^
@@ -1002,7 +1002,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
                       with parsing options [end at paragraph break,
                                             enable prefix]
                       with group paragraph
-                      with implied subprefix {S1||S1}
+                      with implied subprefix {S1}
         block BLOCK1: bracket type "P2" [text, code]
                       with parsing selectors [text]
                       with parsing options [end at paragraph break,
@@ -1014,18 +1014,18 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
                                             end at line separator,
                                             enable prefix]
                       with group paragraph
-                      with implied subprefix {L3||L3}
+                      with implied subprefix {L3}
         block BLOCK1: bracket type "P4" [text, code]
                       with parsing selectors [text]
                       with parsing options [+ enable prefix]
                       with group paragraph
-                      with implied subprefix {L4||L4}
+                      with implied subprefix {L4}
     print bracket type "P4"
         block BLOCK1: bracket type "P4" [text, code]
                       with parsing selectors [text]
                       with parsing options [+ enable prefix]
                       with group paragraph
-                      with implied subprefix {L4||L4}
+                      with implied subprefix {L4}
     print bracket type "P" // Should print nothing.
         nothing found
 ======= PARSER TEST: {P1|{S1|Hi there "."|S1} {S1|Bye "."|S1}
@@ -1408,7 +1408,7 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
                       with parsing options [+ enable prefix,
                                             + continuing]
                       with group paragraph
-                      with implied subprefix {l3||l3}
+                      with implied subprefix {l3}
 ======= PARSER TEST: this is the indented paragraph 6::
                          {p1|{l1|with a first line|l1}
                              {l1|and a second line with [HI THERE]
@@ -1555,19 +1555,19 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         block BLOCK1: bracket type "p1" [code]
                       with parsing options [+ enable prefix]
                       with group paragraph
-                      with implied subprefix {l1||l1}
+                      with implied subprefix {l1}
         block BLOCK1: bracket type "p2" [code]
                       with parsing options [+ enable prefix,
                                             + continuing]
                       with group paragraph
-                      with implied subprefix {l2||l2}
+                      with implied subprefix {l2}
         block BLOCK1: bracket type "p3" [code]
                       with parsing options [+ enable prefix,
                                             + continuing]
                       with group paragraph
     trace [+ parser output]
 BRACKETED EXPRESSION:
-    {p1||p1}
+    {p1}
     line ###:
 {p1}
 ^^^^

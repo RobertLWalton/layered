@@ -28,4 +28,4 @@ ERROR: in line ##: "foo" already has different flag(s); old flag(s) not
         foo[{X}]
            ^^^^^
 BRACKETED EXPRESSION:
-    ID 1 is {"": foo[*]||}
+    ID 1 is {"": foo[*]}

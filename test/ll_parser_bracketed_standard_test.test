@@ -476,11 +476,12 @@ BRACKETED EXPRESSION:
         Second line of second subparagraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This line contains two indented subparagraphs
-        : @@@ @@@ [$ INDENTED_PARAGRAPH $] and now the second
-        subparagraph:
-        First line of second subparagraph "."
-        Second line of second subparagraph "."
+    This line contains two indented subparagraphs:
+            First line of first subparagraph "."
+            Second line of first subparagraph "."
+        and now the second subparagraph:
+            First line of second subparagraph "."
+            Second line of second subparagraph "."
 @@@ = This line contains two indented subparagraphs @@@ and now the
               second subparagraph @@@:
           .terminator = "<LF>"

@@ -6305,8 +6305,8 @@ formatted in the same manner as an {\em attribute}
 in a {\em typed-bracketed-subexpression}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
-For each multiset of {\em single-attribute-values}
-given for a particular {\em attribute-label} in an {\em attribute-paragraph}
+Each multiset of {\em single-attribute-values}
+given for a particular {\em attribute-label} in an {\em attri\-bute-paragraph}
 modifies the corresponding multiset
 of {\em attribute-values} with the same {\em attribute-label} in
 the object identified by the {\em ID}.
@@ -6362,6 +6362,20 @@ and gives it the `{\tt husband = @1 = wife}' value so the line
 `{\tt husband = @1 = wife}' is redundant and can either be omitted or
 used with a {\tt +=} {\em add-to-set-sign}.
 
+The {\em element-list} differs in several ways from the
+attributes.  First, if it is given, the object must \underline{not} have
+any elements, and the {\em element-list} elements become the
+object elements, regardless of which {\em attribute-assignment}
+appears before the {\em element-list}.
+Second, the {\em element-list} is considered
+to be `given' if it is non-empty or if it is the empty list
+followed by `{\tt ::::}'.  Lastly, if the {\em element-list}
+ends in an indented paragraph, it must be followed by `{\tt ::::}'
+to indicate that the indented paragraph is not an {\em attribute-paragraph}.
+In any case, a `{\tt ::::}' appearing just before the first
+{\em attribute-paragraph} will not be considered to be an element
+and will be ignored.
+
 As a special case, if there is only one {\em element}, no
 {\em attribute-paragraphs},
 and {\em ID} is a preallocated stub,
@@ -6402,10 +6416,6 @@ preallocated stubs with their ID number and a counter equal to
 one plus the total number of dangling references.  This information
 can be used for finding
 dangling references in the input.
-
-Subexpression tokens recognized by this reformatter are deleted from the input
-and have no effect other than setting the {\em ID} to the
-desired value.
 
 \end{indpar}
 

@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 6, 2021
+May 7, 2021
  
 \end{center}
 
@@ -6233,8 +6233,8 @@ a headed logical line of the form:
 \TT{\{}{\em prefix}\TT{\}} {\em ID}
             \begin{tabular}[t]{l}
 	    {\em assignment-sign} ~ {\em element-list} \TT{::::}\QMARK{} \\
-	    \{ {\em indented-attributes}
-	       \{ {\em assignment-sign} {\em indented-attributes} \}\STAR{}
+	    \{ {\em attribute-paragraph}
+	       \{ {\em assignment-sign} {\em attribute-paragraph} \}\STAR{}
 	       \}\QMARK{}
 	    \end{tabular}
 \end{center}
@@ -6253,7 +6253,7 @@ where
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
-\emmkey{indented-attributes}{in \TT{data} reformatter} ::=
+\emmkey{attribute-paragraph}{in \TT{data} reformatter} ::=
     \begin{tabular}[t]{l}
     ~~~~~~~~~~\TT{:} {\em end-of-physical-line} \\
     {\em attribute-line}\STAR{} \\
@@ -6291,10 +6291,10 @@ The effect of reformatting is to delete the entire subexpression token list
 and to define or add to the object whose denoted by
 {\em ID}.  The object is given the
 elements given in the {\em element-list} and the attributes in the
-{\em indented-attributes}.
+{\em attribute-paragraph}.
 Before this reformatter
 is invoked,
-the {\em indented-attributes} are parsed
+the {\em attribute-paragraph} are parsed
 to become a MIN object
 with \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} \TT{.terminator},
 `\TT{:}' \TT{.initiator}, and logical
@@ -6305,9 +6305,65 @@ formatted in the same manner as an {\em attribute}
 in a {\em typed-bracketed-subexpression}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
-TBD
+For each multiset of {\em single-attribute-values}
+given for a particular {\em attribute-label} in an {\em attribute-paragraph}
+modifies the corresponding multiset
+of {\em attribute-values} with the same {\em attribute-label} in
+the object identified by the {\em ID}.
+Similarly for each given multiset of {\em double-attribute-values}
+and each given set of {\em attribute-flags}.
 
-As a special case, if there is only one {\em element}, no {\em attributes},
+Each {\em attribute-paragraph} is preceded
+by an {\em attribute-assignment} which specifies how the
+given values or flags modified the corresponding values or flags,
+as follows:
+
+
+\begin{indpar}
+
+\hspace*{-0.2in}\emmkey{new-sign}{in {\tt data} reformatter definition}\\
+The corresponding multisets of values or sets of flags
+\underline{must not} exist, and are set to the given multisets of values
+or sets of flags.
+
+\hspace*{-0.2in}\emmkey{new-or-same-sign}%
+    {in {\tt data} reformatter definition}\\
+The corresponding multisets of values or sets of flags
+may exist only if they are equal to the given multisets or sets.
+When a corresponding multiset or set does not exist,
+it is set to the given multiset or set.
+
+\hspace*{-0.2in}\emmkey{add-to-set-sign}%
+    {in {\tt data} reformatter definition}\\
+Each given value is added to its corresponding multiset of values if it is
+not already in that multiset, and each flag is added if it is not already
+in its corresponding set of flags.
+
+\hspace*{-0.2in}\emmkey{add-to-multiset-sign}%
+    {in {\tt data} reformatter definition}\\
+Each given value is added to its corresponding multiset of values,
+and each flag is added if it is not in its corresponding set of flags.
+
+\end{indpar}
+
+A simple example where the {\em new-sign} is `{\tt =}' and
+the {\em add-to-set-sign} is `{\tt +=}' is:
+\begin{indpar}[0.2in]\begin{verbatim}
+@1 =:
+    name = Jack
+    wife = @2 = husband
+@2 =:
+      name = Jill
+  +=:
+      husband = @1 = wife
+\end{verbatim}\end{indpar}
+Here the line `{\tt wife = @2 = husband}' creates object {\tt @2}
+and gives it the `{\tt husband = @1 = wife}' value so the line
+`{\tt husband = @1 = wife}' is redundant and can either be omitted or
+used with a {\tt +=} {\em add-to-set-sign}.
+
+As a special case, if there is only one {\em element}, no
+{\em attribute-paragraphs},
 and {\em ID} is a preallocated stub,
 then the only element becomes the value assigned to {\em ID}
 in place of the list containing just this element.
@@ -6338,10 +6394,6 @@ For example:
 \end{tabular}
 \end{center}
 
-Subexpression tokens recognized by this reformatter are deleted from the input
-and have no effect other than setting the {\em ID} to the
-desired value.
-
 Dangling references will
 \underline{not} cause garbage collection errors, but the \TT{data}
 reformatter will generate
@@ -6350,6 +6402,10 @@ preallocated stubs with their ID number and a counter equal to
 one plus the total number of dangling references.  This information
 can be used for finding
 dangling references in the input.
+
+Subexpression tokens recognized by this reformatter are deleted from the input
+and have no effect other than setting the {\em ID} to the
+desired value.
 
 \end{indpar}
 

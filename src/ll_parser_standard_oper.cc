@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  3 19:42:29 EST 2021
+// Date:	Sun May 16 16:08:00 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,10 +32,7 @@ OP::oper_pass PARSTD::init_oper
 	( PAR::parser parser,
 	  PAR::pass next )
 {
-    OP::oper_pass oper_pass =
-        (OP::oper_pass) OP::new_pass ( parser );
-
-    PAR::place_before ( parser, (PAR::pass) oper_pass );
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
 
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );

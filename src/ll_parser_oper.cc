@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 00:18:36 EST 2021
+// Date:	Sun May 16 15:32:51 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
+# include <ll_parser_standard.h>
 # include <ll_parser_command.h>
 # include <ll_parser_oper.h>
 # include <cstdio>
@@ -29,6 +30,7 @@
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
+# define PARSTD ll::parser::standard
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define OP ll::parser::oper
@@ -56,6 +58,7 @@ static min::locatable_gen bracket;
 static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen precedence;
+static min::locatable_gen operators;
 
 
 static void init_end_oper ( void );
@@ -91,6 +94,7 @@ static void initialize ( void )
     ::indentation = min::new_str_gen ( "indentation" );
     ::mark = min::new_str_gen ( "mark" );
     ::precedence = min::new_str_gen ( "precedence" );
+    ::operators = min::new_str_gen ( "operators" );
 
     ::init_end_oper();
     ::init_error_oper();
@@ -331,6 +335,22 @@ PAR::pass OP::new_pass ( PAR::parser parser )
     oper_pass->end_block = ::oper_pass_end_block;
 
     return (PAR::pass) oper_pass;
+}
+
+OP::oper_pass OP::init_oper
+	( PAR::parser parser,
+	  PAR::pass next )
+{
+    PAR::pass pass =
+        PAR::find_on_pass_stack ( parser, ::oper );
+    if ( pass != min::NULL_STUB )
+        return (OP::oper_pass) pass;
+
+    min::locatable_var<OP::oper_pass> oper_pass
+        ( (OP::oper_pass) OP::new_pass ( parser ) );
+    PAR::place_before
+        ( parser, (PAR::pass) oper_pass, next );
+    return oper_pass;
 }
 
 // Operator Parsing Functions
@@ -1986,6 +2006,38 @@ static min::gen oper_pass_command
 	// scan in the define/undefine expression.
 
     min::gen command = vp[i++];
+
+    if ( command == PARLEX::define
+         &&
+	 i < size
+	 &&
+	 vp[i] == PARLEX::standard )
+    {
+        i ++;
+	if ( i == size )
+	{
+	    PARSTD::init_oper ( parser );
+	    return min::SUCCESS();
+	}
+	min::locatable_gen name
+	    ( PAR::scan_simple_name
+	          ( vp, i, ::operators ) );
+	if ( i >= size
+	     ||
+	     vp[i] != ::operators )
+	    return min::FAILURE();
+	else if ( i + 1 != size )
+	    return PAR::parse_error
+	        ( parser, ppvec[i],
+		  "extra stuff after after" );
+
+        if ( name == min::MISSING() ) 
+	{
+	    PARSTD::init_oper ( parser );
+	    return min::SUCCESS();
+	}
+    }
+
 
     if ( command != PARLEX::define
          &&

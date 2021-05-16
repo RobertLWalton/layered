@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 14, 2021
+May 16, 2021
  
 \end{center}
 
@@ -7161,8 +7161,6 @@ by the following parser definitions:
 	  \end{tabular} \\
     $|$ & \ttmkey{undefine pass}{parser command}
 	  {\em parser-pass-name} \\
-    $|$ & \ttmkey{define standard}{parser command}
-          {\em parser-pass-name}\QMARK{} \\
     $|$ & \ttmkey{print pass}{parser command}
     \end{tabular}
 \\[0.5ex]
@@ -7241,16 +7239,6 @@ a `\TT{parser define pass operator \ldots}' statement
 may be used to change the `\TT{operator}' pass selectors or
 position in the pass stack without clearing the operator symbol
 table.
-
-Each pass has a standard set of definitions.  The
-The \TT{parser define standard} statement is equivalent to
-define statements for all the standard definitions of a pass.
-However this statement will put these definitions in the current
-parser block, and not necessarily in the `\TT{standard}' parser block.
-If no {\em parser-pass-name} is given, this statement issues all the
-non-pass-specific definitions that the `\TT{standard}' block would
-normally contain, including beginning a new `\TT{standard}' parser
-block.
 
 The \TT{parser print pass} statement prints the parser pass stack passes
 with their associated selectors.

@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 16, 2021
+May 17, 2021
  
 \end{center}
 
@@ -7591,57 +7591,71 @@ in \itemref{OPERATOR-REFORMATTERS}.
 
 \begin{figure*}[!p]
 \begin{center}
-\begin{tabular}{|l|rll@{\hspace*{2em}}l@{\hspace*{2em}}l|}
+\begin{tabular}{|l|r|ll@{\hspace*{1em}}l@{\hspace*{1em}}ll|}
 \hline
-selec-  & prece-  &             &       	&               & \\
-~tors   & ~dence  & reformatter	& flags		& operator	& meaning 
+selec-  & prece-  &             &            &            &            & \\
+~tors   & ~dence  & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-code    & 1000	& \TT{right}	& \TT{infix}	& \ttkey{=}	& assignment \\
-     	&	& \TT{associative}
-				& \TT{line}    	& \ttkey{+=}	& increment \\
-     	&	&            	&          	& \ttkey{-=}	& decrement \\
-     	&	&            	&          	& \ttkey{*=}	& multiply by \\
-     	&	&            	&          	& \ttkey{/=}	& divide by
+code    & 1000	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S \\
+     	&	&	        & \TT{line}  & \ttkey{+=} & increment  & A \\
+     	&	&            	&            & \ttkey{-=} & decrement  & A \\
+     	&	&            	&            & \ttkey{*=} & multiply by & A \\
+     	&	&            	&            & \ttkey{/=} & divide by  & A \\ 
+     	&	&            	&            & \ttkey{|=} & include    & B \\
+     	&	&            	&            & \ttkey{\&=} & mask      & B \\
+     	&	&            	&            & \ttkey{\textasciitilde=}
+	                                                  & exclude    & B  \\
+     	&	&            	&            & \ttkey{\textasciitilde
+	                                              \textasciitilde=}
+	                                                  & flip    & B 
 \\\hline
-math    & 1000	& \TT{binary}	& \TT{infix}	& \ttkey{=}	& assignment
+math    & 1000	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
 \\\hline
 code    & 2000	& \ttkey{separator}
-				& \TT{nofix}	& \ttkey{,}	& separator
-\\\cline{2-6}
+				& \TT{nofix} & \ttkey{,}  & separator  & S
+\\\cline{2-7}
 math    & 3000	& \ttkey{binary}
-				& \TT{infix}	& \ttkey{BUT NOT}
-								& logical and
-								  not
-\\\cline{2-6}
-	& 3100	& \ttkey{infix}	& \TT{infix}	& \ttkey{AND}	& logical and \\
-	& 	&		&		& \ttkey{OR}	& logical or
-\\\cline{2-6}
-	& 3200	& \ttkey{unary}	& \TT{prefix}	& \ttkey{NOT}	& logical not
-\\\cline{2-6}
+				& \TT{infix} & \ttkey{BUT NOT}
+							  & logical and not & L
+\\\cline{2-7}
+	& 3100	& \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and & L\\
+	& 	&		&	     & \ttkey{OR}  & logical or  & L
+\\\cline{2-7}
+	& 3200	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not & L
+\\\cline{2-7}
 	& 4000 	& \ttkey{infix and}
-				& \TT{infix}	& \ttkey{==}	& equal \\
-	& 	&		&		& \ttkey{!=}	& ditto \\
-	& 	&	      	&		& \ttkey{<}	& less than \\
-	& 	&		&		& \ttkey{<=}	& less than or
-								  equal \\
-	& 	&	      	&		& \TT{>}	& greater than
-									\\
-	& 	&		&		& \TT{>=}	& greater than
-								  or equal
-\\\cline{2-6}
-	& 5000	& \ttkey{sum}	& \TT{infix}    & \TT{+}	& addition \\
-		& &		& 		& \TT{-}	& subtraction
-\\\cline{2-6}
-	& 5100	& \ttkey{binary} & \TT{infix}	& \TT{/}	& division
-\\\cline{2-6}
-	& 5200	& \ttkey{infix}	& \TT{infix}	& \TT{*}
-							& multiplication
-\\\cline{2-6}
-	& 5300	& \ttkey{binary} & \TT{infix}	& \TT{\textasciicircum}
-							& exponentiation
-\\\cline{2-6}
-	& H-1	& \ttkey{unary}	& \TT{prefix}   & \TT{+}	& no-op \\
-	&	&		& 		& \TT{-}	& negation
+				& \TT{infix} & \ttkey{==} & equal      & P \\
+	& 	&		&	     & \ttkey{!=} & not equal  & P \\
+	& 	&	      	&	     & \ttkey{<}  & less than  & P \\
+	& 	&		&	     & \ttkey{<=} & less than or equal
+	                                                               & P \\
+	& 	&	      	&	     & \TT{>}	& greater than & P \\
+	& 	&		&	     & \TT{>=}	& greater than or equal
+	                                                               & P
+\\\cline{2-7}
+	& 5000	& \ttkey{sum}	& \TT{infix} & \TT{+}	& addition     & A \\
+	&	&		& 	     & \TT{-}	& subtraction  & A
+\\\cline{3-7}
+	&	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
+	&	&		& 	     & \TT{\&}	& binary and   & B \\
+	&	&		& 	     & \TT{\textasciitilde
+	                                           \textasciitilde}
+						        & binary exclusive or
+							               & B
+\\\cline{2-7}
+	& 5100	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
+\\\cline{2-7}
+	& 5200	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication & A
+\\\cline{2-7}
+	& 5300	& \ttkey{binary} & \TT{infix} & \TT{\textasciicircum}
+							& exponentiation & A
+\\\cline{2-7}
+	& H-1	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
+	&	&		& 	      & \TT{-}	& negation     & A 
+\\\cline{3-7}
+	&    	& \ttkey{unary}	& \TT{prefix} & \TT{\textasciitilde}
+	                                                & binary complement
+							               & B
 \\\hline
 \end{tabular}
 \end{center}
@@ -7651,7 +7665,6 @@ math    & 3000	& \ttkey{binary}
 
 \subsubsection{The Operator Parsing Algorithm}
 \label{OPERATOR-PARSER-ALGORITHM}
-
 
 The operator parsing pass runs the \key{operator parsing algorithm}
 that accepts as input a sequence of tokens

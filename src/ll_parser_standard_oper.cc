@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 17 16:51:51 EDT 2021
+// Date:	Mon May 17 17:08:50 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,6 +95,95 @@ OP::oper_pass PARSTD::init_assignment_operators
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  2000, separator_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    return oper_pass;
+}
+
+OP::oper_pass PARSTD::init_logical_operators
+	( PAR::parser parser,
+	  PAR::pass next )
+{
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, math_name );
+
+    oper_pass->selectors |= code | math;
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    PAR::reformatter infix_reformatter =
+        PAR::find_reformatter
+	    ( infix, OP::reformatter_stack );
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+    PAR::reformatter unary_reformatter =
+        PAR::find_reformatter
+	    ( unary, OP::reformatter_stack );
+
+    min::locatable_gen but_not_op
+        ( min::new_lab_gen ( "BUT", "NOT" ) );
+    min::locatable_gen and_op
+        ( min::new_str_gen ( "AND" ) );
+    min::locatable_gen or_op
+        ( min::new_str_gen ( "OR" ) );
+    min::locatable_gen not_op
+        ( min::new_str_gen ( "NOT" ) );
+
+    OP::push_oper
+        ( but_not_op,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  3000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( and_op,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  3100, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( or_op,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  3100, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( not_op,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX,
+	  3200, unary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -287,6 +376,7 @@ OP::oper_pass PARSTD::init_operators
 	  PAR::pass next )
 {
     PARSTD::init_assignment_operators ( parser );
+    PARSTD::init_logical_operators ( parser );
     PARSTD::init_arithmetic_operators ( parser );
 
     OP::oper_pass oper_pass = OP::init_oper ( parser );
@@ -305,79 +395,15 @@ OP::oper_pass PARSTD::init_operators
 
     oper_pass->selectors |= code | math;
 
-    min::locatable_gen infix
-        ( min::new_str_gen ( "infix" ) );
-    min::locatable_gen unary
-        ( min::new_str_gen ( "unary" ) );
     min::locatable_gen infix_and
         ( min::new_lab_gen ( "infix", "and" ) );
-    min::locatable_gen binary
-        ( min::new_str_gen ( "binary" ) );
 
-    PAR::reformatter infix_reformatter =
-        PAR::find_reformatter
-	    ( infix, OP::reformatter_stack );
-    PAR::reformatter unary_reformatter =
-        PAR::find_reformatter
-	    ( unary, OP::reformatter_stack );
     PAR::reformatter infix_and_reformatter =
         PAR::find_reformatter
 	    ( infix_and, OP::reformatter_stack );
-    PAR::reformatter binary_reformatter =
-        PAR::find_reformatter
-	    ( binary, OP::reformatter_stack );
 
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen but_not_op
-        ( min::new_lab_gen ( "BUT", "NOT" ) );
-    min::locatable_gen and_op
-        ( min::new_str_gen ( "AND" ) );
-    min::locatable_gen or_op
-        ( min::new_str_gen ( "OR" ) );
-    min::locatable_gen not_op
-        ( min::new_str_gen ( "NOT" ) );
-
-    OP::push_oper
-        ( but_not_op,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  3000, binary_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( and_op,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  3100, infix_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( or_op,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  3100, infix_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( not_op,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX,
-	  3200, unary_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
 
     min::locatable_gen equal_equal
         ( min::new_str_gen ( "==" ) );
@@ -391,6 +417,8 @@ OP::oper_pass PARSTD::init_operators
         ( min::new_str_gen ( ">" ) );
     min::locatable_gen less_than
         ( min::new_str_gen ( "<" ) );
+    min::locatable_gen and_op
+        ( min::new_str_gen ( "AND" ) );
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         and_arguments

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 16 16:08:00 EDT 2021
+// Date:	Mon May 17 16:51:51 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,6 +54,11 @@ OP::oper_pass PARSTD::init_assignment_operators
     PAR::reformatter binary_reformatter =
         PAR::find_reformatter
 	    ( binary, OP::reformatter_stack );
+    min::locatable_gen separator
+        ( min::new_str_gen ( "separator" ) );
+    PAR::reformatter separator_reformatter =
+        PAR::find_reformatter
+	    ( separator, OP::reformatter_stack );
 
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
@@ -80,14 +85,209 @@ OP::oper_pass PARSTD::init_assignment_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
+    min::locatable_gen comma
+        ( min::new_str_gen ( "," ) );
+
+    OP::push_oper
+        ( comma,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  2000, separator_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
     return oper_pass;
 }
 
-OP::oper_pass PARSTD::init_oper
+OP::oper_pass PARSTD::init_arithmetic_operators
+	( PAR::parser parser,
+	  PAR::pass next )
+{
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, math_name );
+
+    oper_pass->selectors |= code | math;
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    PAR::reformatter infix_reformatter =
+        PAR::find_reformatter
+	    ( infix, OP::reformatter_stack );
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+    PAR::reformatter unary_reformatter =
+        PAR::find_reformatter
+	    ( unary, OP::reformatter_stack );
+    min::locatable_gen sum
+        ( min::new_str_gen ( "sum" ) );
+    PAR::reformatter sum_reformatter =
+        PAR::find_reformatter
+	    ( sum, OP::reformatter_stack );
+
+    min::locatable_gen plus_equal
+        ( min::new_str_gen ( "+=" ) );
+    min::locatable_gen minus_equal
+        ( min::new_str_gen ( "-=" ) );
+    min::locatable_gen times_equal
+        ( min::new_str_gen ( "*=" ) );
+    min::locatable_gen divide_equal
+        ( min::new_str_gen ( "/=" ) );
+
+    OP::push_oper
+        ( plus_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( minus_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( times_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( divide_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    min::locatable_gen plus
+        ( min::new_str_gen ( "+" ) );
+    min::locatable_gen minus
+        ( min::new_str_gen ( "-" ) );
+    min::locatable_gen divide
+        ( min::new_str_gen ( "/" ) );
+    min::locatable_gen multiply
+        ( min::new_str_gen ( "*" ) );
+    min::locatable_gen exponent
+        ( min::new_str_gen ( "^" ) );
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        sum_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
+    min::push ( sum_arguments ) = plus;
+    min::push ( sum_arguments ) = minus;
+
+    OP::push_oper
+        ( plus,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5000, sum_reformatter,
+	  sum_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( plus,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX,
+	  OP::prefix_precedence, unary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( minus,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5000, sum_reformatter,
+	  sum_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( minus,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX,
+	  OP::prefix_precedence, unary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( divide,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5100, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( multiply,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5200, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( exponent,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5300, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    return oper_pass;
+}
+
+OP::oper_pass PARSTD::init_operators
 	( PAR::parser parser,
 	  PAR::pass next )
 {
     PARSTD::init_assignment_operators ( parser );
+    PARSTD::init_arithmetic_operators ( parser );
 
     OP::oper_pass oper_pass = OP::init_oper ( parser );
 
@@ -105,28 +305,15 @@ OP::oper_pass PARSTD::init_oper
 
     oper_pass->selectors |= code | math;
 
-    min::locatable_gen right_associative
-        ( min::new_lab_gen ( "right", "associative" ) );
-    min::locatable_gen separator
-        ( min::new_str_gen ( "separator" ) );
     min::locatable_gen infix
         ( min::new_str_gen ( "infix" ) );
     min::locatable_gen unary
         ( min::new_str_gen ( "unary" ) );
     min::locatable_gen infix_and
         ( min::new_lab_gen ( "infix", "and" ) );
-    min::locatable_gen sum
-        ( min::new_str_gen ( "sum" ) );
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
 
-    PAR::reformatter right_associative_reformatter =
-        PAR::find_reformatter
-	    ( right_associative,
-	      OP::reformatter_stack );
-    PAR::reformatter separator_reformatter =
-        PAR::find_reformatter
-	    ( separator, OP::reformatter_stack );
     PAR::reformatter infix_reformatter =
         PAR::find_reformatter
 	    ( infix, OP::reformatter_stack );
@@ -136,77 +323,12 @@ OP::oper_pass PARSTD::init_oper
     PAR::reformatter infix_and_reformatter =
         PAR::find_reformatter
 	    ( infix_and, OP::reformatter_stack );
-    PAR::reformatter sum_reformatter =
-        PAR::find_reformatter
-	    ( sum, OP::reformatter_stack );
     PAR::reformatter binary_reformatter =
         PAR::find_reformatter
 	    ( binary, OP::reformatter_stack );
 
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen plus_equal
-        ( min::new_str_gen ( "+=" ) );
-    min::locatable_gen minus_equal
-        ( min::new_str_gen ( "-=" ) );
-    min::locatable_gen times_equal
-        ( min::new_str_gen ( "*=" ) );
-    min::locatable_gen divide_equal
-        ( min::new_str_gen ( "/=" ) );
-
-    OP::push_oper
-        ( plus_equal,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000, right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( minus_equal,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000, right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( times_equal,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000, right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( divide_equal,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000, right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    min::locatable_gen comma
-        ( min::new_str_gen ( "," ) );
-
-    OP::push_oper
-        ( comma,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX,
-	  2000, separator_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
 
     min::locatable_gen but_not_op
         ( min::new_lab_gen ( "BUT", "NOT" ) );
@@ -333,93 +455,6 @@ OP::oper_pass PARSTD::init_oper
 	  OP::INFIX,
 	  4000, infix_and_reformatter,
 	  and_arguments,
-	  oper_pass->oper_table );
-
-    min::locatable_gen plus
-        ( min::new_str_gen ( "+" ) );
-    min::locatable_gen minus
-        ( min::new_str_gen ( "-" ) );
-    min::locatable_gen divide
-        ( min::new_str_gen ( "/" ) );
-    min::locatable_gen multiply
-        ( min::new_str_gen ( "*" ) );
-    min::locatable_gen exponent
-        ( min::new_str_gen ( "^" ) );
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        sum_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
-    min::push ( sum_arguments ) = plus;
-    min::push ( sum_arguments ) = minus;
-
-    OP::push_oper
-        ( plus,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  5000, sum_reformatter,
-	  sum_arguments,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( plus,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX,
-	  OP::prefix_precedence, unary_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( minus,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  5000, sum_reformatter,
-	  sum_arguments,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( minus,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX,
-	  OP::prefix_precedence, unary_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( divide,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  5100, binary_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( multiply,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  5200, infix_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( exponent,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  5300, binary_reformatter,
-	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     return oper_pass;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 23 05:51:24 EDT 2019
+// Date:	Mon May 17 16:51:38 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -255,12 +255,19 @@ void init_concatenator_character
 // -------- ------ ---------
 
 // Add an oper_pass to the parser and set its oper_table
-// to the standard operators.  Return the oper_pass.
+// to the standard operators of various classes.  Return
+// the oper_pass.
 //
-ll::parser::oper::oper_pass init_oper
+ll::parser::oper::oper_pass init_assignment_operators
     ( ll::parser::parser parser,
       ll::parser::pass next = NULL_STUB );
-ll::parser::oper::oper_pass init_assignment_operators
+ll::parser::oper::oper_pass init_arithmetic_operators
+    ( ll::parser::parser parser,
+      ll::parser::pass next = NULL_STUB );
+
+// Call the above for all passes.
+//
+ll::parser::oper::oper_pass init_operators
     ( ll::parser::parser parser,
       ll::parser::pass next = NULL_STUB );
 

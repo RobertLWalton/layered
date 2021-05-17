@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 16 15:32:51 EDT 2021
+// Date:	Mon May 17 17:00:28 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2016,7 +2016,7 @@ static min::gen oper_pass_command
         i ++;
 	if ( i == size )
 	{
-	    PARSTD::init_oper ( parser );
+	    PARSTD::init_operators ( parser );
 	    return min::SUCCESS();
 	}
 	min::locatable_gen name
@@ -2033,7 +2033,7 @@ static min::gen oper_pass_command
 
         if ( name == min::MISSING() ) 
 	{
-	    PARSTD::init_oper ( parser );
+	    PARSTD::init_operators ( parser );
 	    return min::SUCCESS();
 	}
     }

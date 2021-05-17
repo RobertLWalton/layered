@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  7 04:00:57 EDT 2021
+// Date:	Mon May 17 17:02:24 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@ int main ( int argc, const char * argv[] )
 	(BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;
     OP::oper_pass oper_pass =
-        PARSTD::init_oper ( PAR::default_parser );
+        PARSTD::init_operators ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
     PAR::init_ostream

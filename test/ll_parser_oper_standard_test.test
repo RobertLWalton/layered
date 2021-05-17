@@ -69,32 +69,36 @@ ERROR: in line ##: operator "OR" should equal "AND"; all operators must
 ------- line ##:
     (, x, y 4,, z,,)
                    ^
-======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= x
-                          {"": .operator = "+="|+= y z|}|}
+======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+= y z|}
 ======= line ##:
-    x = y += z
-    ^^^^^^^^^^
-------- line ##:
-    x = y += z
-        ^^^^^^
+    y += z
+    ^^^^^^
 ======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= w1
-                          {"": .operator = "+="|+= w2
-                               {"": .operator = "="|= w3
-                                    {"": .operator = "*="|*= w4 w5|}|}|}|}
+                          .initiator = [$ LOGICAL_LINE $]|= x y|}
 ======= line ##:
-    w1 = w2 += w3 = w4 *= w5
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    w1 = w2 += w3 = w4 *= w5
-         ^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    w1 = w2 += w3 = w4 *= w5
-               ^^^^^^^^^^^^^
-------- line ##:
-    w1 = w2 += w3 = w4 *= w5
-                    ^^^^^^^^
+    x = y
+    ^^^^^
+======= PARSER TEST: {"": .operator = "*=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|*= w4 w5|}
+======= line ##:
+    w4 *= w5
+    ^^^^^^^^
+======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|= w3 w4|}
+======= line ##:
+    w3 = w4
+    ^^^^^^^
+======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|+= w2 w3|}
+======= line ##:
+    w2 += w3
+    ^^^^^^^^
+======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
+                          .initiator = [$ LOGICAL_LINE $]|= w1 w2|}
+======= line ##:
+    w1 = w2
+    ^^^^^^^
 ======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
                           .initiator = [$ LOGICAL_LINE $]|+= {|x1, x2|}
                           {|z1, z2|}|}

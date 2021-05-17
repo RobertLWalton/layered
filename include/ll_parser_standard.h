@@ -260,6 +260,9 @@ void init_concatenator_character
 ll::parser::oper::oper_pass init_oper
     ( ll::parser::parser parser,
       ll::parser::pass next = NULL_STUB );
+ll::parser::oper::oper_pass init_assignment_operators
+    ( ll::parser::parser parser,
+      ll::parser::pass next = NULL_STUB );
 
 
 } } }

@@ -14,8 +14,12 @@
     a < b < c
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
     (, x, y 4,, z,,)
-    x = y += z
-    w1 = w2 += w3 = w4 *= w5 
+    y += z
+    x = y
+    w4 *= w5 
+    w3 = w4
+    w2 += w3
+    w1 = w2
     x1, x2 += z1, z2
     x < y < z
     x = ( y < z )

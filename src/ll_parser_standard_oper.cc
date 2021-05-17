@@ -28,10 +28,67 @@
 // Standard Operators
 // -------- ---------
 
+OP::oper_pass PARSTD::init_assignment_operators
+	( PAR::parser parser,
+	  PAR::pass next )
+{
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, math_name );
+
+    oper_pass->selectors |= code | math;
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
+
+    min::locatable_gen equal
+        ( min::new_str_gen ( "=" ) );
+
+    OP::push_oper
+        ( equal,
+	  min::MISSING(),
+	  math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  1000,
+	  binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000,
+	  binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    return oper_pass;
+}
+
 OP::oper_pass PARSTD::init_oper
 	( PAR::parser parser,
 	  PAR::pass next )
 {
+    PARSTD::init_assignment_operators ( parser );
+
     OP::oper_pass oper_pass = OP::init_oper ( parser );
 
     min::locatable_gen code_name
@@ -46,7 +103,7 @@ OP::oper_pass PARSTD::init_oper
         1ull << TAB::find_name
 	    ( parser->selector_name_table, math_name );
 
-    oper_pass->selectors = code | math;
+    oper_pass->selectors |= code | math;
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
@@ -89,8 +146,6 @@ OP::oper_pass PARSTD::init_oper
     min::uns32 block_level =
         PAR::block_level ( parser );
 
-    min::locatable_gen equal
-        ( min::new_str_gen ( "=" ) );
     min::locatable_gen plus_equal
         ( min::new_str_gen ( "+=" ) );
     min::locatable_gen minus_equal
@@ -99,28 +154,6 @@ OP::oper_pass PARSTD::init_oper
         ( min::new_str_gen ( "*=" ) );
     min::locatable_gen divide_equal
         ( min::new_str_gen ( "/=" ) );
-
-    OP::push_oper
-        ( equal,
-	  min::MISSING(),
-	  math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  1000,
-	  binary_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( equal,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000,
-	  right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
 
     OP::push_oper
         ( plus_equal,

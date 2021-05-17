@@ -7593,10 +7593,10 @@ in \itemref{OPERATOR-REFORMATTERS}.
 \begin{center}
 \begin{tabular}{|l|r|ll@{\hspace*{1em}}l@{\hspace*{1em}}ll|}
 \hline
-selec-  & prece-  &             &            &            &            & \\
-~tors   & ~dence  & reformatter	& flags	     & operator   & meaning    & class
+prece-  & selec-  &             &            &            &            & \\
+~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-code    & 1000	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S \\
+1000    & code	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S \\
      	&	&	        & \TT{line}  & \ttkey{+=} & increment  & A \\
      	&	&            	&            & \ttkey{-=} & decrement  & A \\
      	&	&            	&            & \ttkey{*=} & multiply by & A \\
@@ -7609,21 +7609,21 @@ code    & 1000	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S \\
 	                                              \textasciitilde=}
 	                                                  & flip    & B 
 \\\hline
-math    & 1000	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
+1000    & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
 \\\hline
-code    & 2000	& \ttkey{separator}
+2000    & code	& \ttkey{separator}
 				& \TT{nofix} & \ttkey{,}  & separator  & S
-\\\cline{2-7}
-math    & 3000	& \ttkey{binary}
+\\\cline{1-1}\cline{3-7}
+3000    & math	& \ttkey{binary}
 				& \TT{infix} & \ttkey{BUT NOT}
 							  & logical and not & L
-\\\cline{2-7}
-	& 3100	& \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and & L\\
+\\\cline{1-1}\cline{3-7}
+3100	&       & \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and & L\\
 	& 	&		&	     & \ttkey{OR}  & logical or  & L
-\\\cline{2-7}
-	& 3200	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not & L
-\\\cline{2-7}
-	& 4000 	& \ttkey{infix and}
+\\\cline{1-1}\cline{3-7}
+3200    &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not & L
+\\\cline{1-1}\cline{3-7}
+4000 	&	& \ttkey{infix and}
 				& \TT{infix} & \ttkey{==} & equal      & P \\
 	& 	&		&	     & \ttkey{!=} & not equal  & P \\
 	& 	&	      	&	     & \ttkey{<}  & less than  & P \\
@@ -7632,28 +7632,28 @@ math    & 3000	& \ttkey{binary}
 	& 	&	      	&	     & \TT{>}	& greater than & P \\
 	& 	&		&	     & \TT{>=}	& greater than or equal
 	                                                               & P
-\\\cline{2-7}
-	& 5000	& \ttkey{sum}	& \TT{infix} & \TT{+}	& addition     & A \\
+\\\cline{1-1}\cline{3-7}
+5000	&	& \ttkey{sum}	& \TT{infix} & \TT{+}	& addition     & A \\
 	&	&		& 	     & \TT{-}	& subtraction  & A
-\\\cline{3-7}
-	&	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
+\\\cline{2-7}
+	& code	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
 	&	&		& 	     & \TT{\&}	& binary and   & B \\
 	&	&		& 	     & \TT{\textasciitilde
 	                                           \textasciitilde}
 						        & binary exclusive or
 							               & B
-\\\cline{2-7}
-	& 5100	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
-\\\cline{2-7}
-	& 5200	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication & A
-\\\cline{2-7}
-	& 5300	& \ttkey{binary} & \TT{infix} & \TT{\textasciicircum}
+\\\hline
+5100	& code	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
+\\\cline{1-1}\cline{3-7}
+5200	& math	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication & A
+\\\cline{1-1}\cline{3-7}
+5300	&	& \ttkey{binary} & \TT{infix} & \TT{\textasciicircum}
 							& exponentiation & A
-\\\cline{2-7}
-	& H-1	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
+\\\cline{1-1}\cline{3-7}
+H-1	&	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
 	&	&		& 	      & \TT{-}	& negation     & A 
-\\\cline{3-7}
-	&    	& \ttkey{unary}	& \TT{prefix} & \TT{\textasciitilde}
+\\\cline{2-7}
+	& code 	& \ttkey{unary}	& \TT{prefix} & \TT{\textasciitilde}
 	                                                & binary complement
 							               & B
 \\\hline

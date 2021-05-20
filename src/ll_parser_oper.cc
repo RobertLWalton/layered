@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 20 10:58:36 EDT 2021
+// Date:	Thu May 20 11:29:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1343,7 +1343,8 @@ static bool control_reformatter_function
 
     PAR::token t = first->next;
 
-    if ( args[1] == ::has_condition )
+    if (    args->length >= 2
+         && args[1] == ::has_condition )
     {
 	while ( t != next && t->type == PAR::OPERATOR )
 	    t = OP::delete_bad_token
@@ -1944,7 +1945,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen control
         ( min::new_str_gen ( "control" ) );
     PAR::push_reformatter
-        ( control, 0, 0,
+        ( control, 1, 2,
 	  ::control_reformatter_function,
 	  OP::reformatter_stack );
 

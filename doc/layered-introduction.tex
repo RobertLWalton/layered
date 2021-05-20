@@ -7623,8 +7623,7 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{\&=} & mask      & B \\
      	&	&            	&            & \ttkey{\textasciitilde=}
 	                                                  & exclude    & B  \\
-     	&	&            	&            & \ttkey{\textasciitilde
-	                                              \textasciitilde=}
+     	&	&            	&            & \ttkey{\textasciitilde|=}
 	                                                  & flip    & B 
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
@@ -7669,8 +7668,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{2-7}
 	& code	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
 	&	&		& 	     & \TT{\&}	& binary and   & B \\
-	&	&		& 	     & \TT{\textasciitilde
-	                                           \textasciitilde}
+	&	&		& 	     & \TT{\textasciitilde|}
 						        & binary exclusive or
 							               & B
 \\\hline
@@ -7991,7 +7989,7 @@ with `\TT{,}' as operator are:
 					& with \TT{.separator ","} \\
 \TT{x ,} & $\Longrightarrow$ & \TT{x \{\}}
 					& with \TT{.separator ","} \\
-\TT{x ,, y} & $\Longrightarrow$ & \TT{x \{\} y}
+\TT{x , , y} & $\Longrightarrow$ & \TT{x \{\} y}
 					& with \TT{.separator ","} \\
 \end{tabular}
 \end{indpar}

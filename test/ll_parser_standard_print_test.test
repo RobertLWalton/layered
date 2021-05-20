@@ -250,6 +250,9 @@
                         infix
                         with precedence 5100
                         with binary reformatter
+        block standard: operator ":" [code]
+                        nofix afix line
+                        with precedence 0
         block standard: operator "<" [code, math]
                         infix
                         with precedence 4000
@@ -278,10 +281,34 @@
                         prefix
                         with precedence 3200
                         with unary reformatter
+        block standard: operator [< "else" "if" >] [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
+        block standard: operator "while" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
                         with precedence 3000
                         with binary reformatter
+        block standard: operator "if" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
+        block standard: operator "until" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
+        block standard: operator "else" [code]
+                        initial line
+                        with precedence 0
+                        with control reformatter ( ":" )
         block standard: operator "*=" [code]
                         infix line
                         with precedence 1000
@@ -318,3 +345,6 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: bracket ":" [code]
+                        postfix afix line
+                        with precedence 0

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  3 11:55:25 EDT 2021
+// Date:	Thu May 20 10:57:33 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5063,28 +5063,28 @@ static void untyped_reformatter_stack_initialize
     min::locatable_gen label
         ( min::new_str_gen ( "label" ) );
     PAR::push_reformatter
-        ( label, 0, 0, 0,
+        ( label, 0, 0,
 	  ::label_reformatter_function,
 	  BRA::untyped_reformatter_stack );
 
     min::locatable_gen special
         ( min::new_str_gen ( "special" ) );
     PAR::push_reformatter
-        ( special, 0, 0, 0,
+        ( special, 0, 0,
 	  ::special_reformatter_function,
 	  BRA::untyped_reformatter_stack );
 
     min::locatable_gen multivalue
         ( min::new_str_gen ( "multivalue" ) );
     PAR::push_reformatter
-        ( multivalue, 0, 1, 1,
+        ( multivalue, 1, 1,
 	  ::multivalue_reformatter_function,
 	  BRA::untyped_reformatter_stack );
 
     min::locatable_gen text
         ( min::new_str_gen ( "text" ) );
     PAR::push_reformatter
-        ( text, 0, 1, 1000,
+        ( text, 1, 1000,
 	  ::text_reformatter_function,
 	  BRA::untyped_reformatter_stack );
 }
@@ -5644,14 +5644,14 @@ static void bracket_type_reformatter_stack_initialize
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( data_name, 0, 8, 8,
+        ( data_name, 8, 8,
 	  ::data_reformatter_function,
 	  BRA::bracket_type_reformatter_stack );
 
     min::locatable_gen sentence_name
         ( min::new_str_gen ( "sentence" ) );
     PAR::push_reformatter
-        ( sentence_name, 0, 0, 1000,
+        ( sentence_name, 0, 1000,
 	  ::sentence_reformatter_function,
 	  BRA::bracket_type_reformatter_stack );
 }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 19 16:28:57 EDT 2021
+// Date:	Thu May 20 10:58:36 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,7 +59,7 @@ static min::locatable_gen indentation;
 static min::locatable_gen mark;
 static min::locatable_gen precedence;
 static min::locatable_gen operators;
-static min::locatable_gen has_operand;
+static min::locatable_gen has_condition;
 
 
 static void init_end_oper ( void );
@@ -96,8 +96,8 @@ static void initialize ( void )
     ::mark = min::new_str_gen ( "mark" );
     ::precedence = min::new_str_gen ( "precedence" );
     ::operators = min::new_str_gen ( "operators" );
-    ::has_operand = min::new_lab_gen
-        ( "has", "operand" );
+    ::has_condition = min::new_lab_gen
+        ( "has", "condition" );
 
     ::init_end_oper();
     ::init_error_oper();
@@ -1343,7 +1343,7 @@ static bool control_reformatter_function
 
     PAR::token t = first->next;
 
-    if ( args[1] == ::has_operand )
+    if ( args[1] == ::has_condition )
     {
 	while ( t != next && t->type == PAR::OPERATOR )
 	    t = OP::delete_bad_token
@@ -1917,63 +1917,62 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen separator
         ( min::new_str_gen ( "separator" ) );
     PAR::push_reformatter
-        ( separator, OP::NOFIX + OP::INFIX, 0, 0,
+        ( separator, 0, 0,
 	  ::separator_reformatter_function,
 	  OP::reformatter_stack );
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
     PAR::push_reformatter
-        ( declare,
-	  OP::NOFIX + OP::INFIX + OP::PREFIX, 0, 0,
+        ( declare, 0, 0,
 	  ::declare_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     PAR::push_reformatter
-        ( right_associative, OP::INFIX, 0, 0,
+        ( right_associative, 0, 0,
 	  ::right_associative_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen prefix
         ( min::new_str_gen ( "unary" ) );
     PAR::push_reformatter
-        ( prefix, OP::PREFIX + OP::NOFIX, 0, 0,
+        ( prefix, 0, 0,
 	  ::unary_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen control
         ( min::new_str_gen ( "control" ) );
     PAR::push_reformatter
-        ( control, OP::PREFIX, 0, 0,
+        ( control, 0, 0,
 	  ::control_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
     PAR::push_reformatter
-        ( binary, OP::INFIX + OP::NOFIX, 0, 0,
+        ( binary, 0, 0,
 	  ::binary_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen infix
         ( min::new_str_gen ( "infix" ) );
     PAR::push_reformatter
-        ( infix, OP::INFIX, 0, 0,
+        ( infix, 0, 0,
 	  ::infix_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen infix_and
         ( min::new_lab_gen ( "infix", "and" ) );
     PAR::push_reformatter
-        ( infix_and, OP::INFIX, 1, 1,
+        ( infix_and, 1, 1,
 	  ::infix_and_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen sum
         ( min::new_str_gen ( "sum" ) );
     PAR::push_reformatter
-        ( sum, OP::INFIX + OP::PREFIX, 2, 2,
+        ( sum, 2, 2,
 	  ::sum_reformatter_function,
 	  OP::reformatter_stack );
 }

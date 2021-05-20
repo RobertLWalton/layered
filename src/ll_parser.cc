@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 17 16:59:36 EDT 2021
+// Date:	Thu May 20 10:55:48 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1508,7 +1508,6 @@ const min::uns32 & PAR::REFORMATTER =
 
 void PAR::push_reformatter
     ( min::gen name,
-      min::uns32 flags,
       min::uns32 minimum_arguments,
       min::uns32 maximum_arguments,
       PAR::reformatter_function reformatter_function,
@@ -1518,7 +1517,6 @@ void PAR::push_reformatter
         ( ::reformatter_type.new_stub() );
     PAR::next_ref(r) = stack;
     PAR::name_ref(r) = name;
-    r->flags = flags;
     r->minimum_arguments = minimum_arguments;
     r->maximum_arguments = maximum_arguments;
     r->reformatter_function = reformatter_function;

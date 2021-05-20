@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 30 15:57:41 EDT 2021
+// Date:	Thu May 20 10:55:08 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1487,14 +1487,6 @@ struct reformatter_struct
 
     ll::parser::reformatter next;
     min::gen name;
-    min::uns32 flags;
-        // Used by some passes to check the legality
-	// of associating a reformatter with a bracket
-	// or operator or whatever.  For the operator
-	// pass, these are operator flags (PREFIX,
-	// INFIX, etc.) such that an operator may not
-	// associate with a reformatter that does not
-	// have all of the operator's flags.
     min::uns32 minimum_arguments, maximum_arguments;
         // Minimum and maximum number of arguments.
     ll::parser::reformatter_function
@@ -1526,7 +1518,6 @@ inline ll::parser::reformatter find_reformatter
 //
 void push_reformatter
     ( min::gen name,
-      min::uns32 flags,
       min::uns32 minimum_arguments, 
       min::uns32 maximum_arguments,
       ll::parser::reformatter_function

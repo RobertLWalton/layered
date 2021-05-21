@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 20, 2021
+May 21, 2021
  
 \end{center}
 
@@ -7958,6 +7958,36 @@ With the above in mind, the operator reformatters are:
 \newcommand{\NBOP}[1]{\ttmkey{#1}{reformatting}}
 
 \bigskip
+
+\ttmkey{control}{reformatter}
+\TT{(} {\em delimiter} \{ \TT{,} \ttkey{has condition} \}\QMARK{} \TT{)}
+\hfill \begin{tabular}[t]{l}
+       \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else} \\
+       \OP{while} ~~~~~ \OP{until} \\
+       \end{tabular}
+
+
+\begin{indpar}[0.5em]
+Typically used with \TT{prefix} \TT{line} operators
+(e.g., \TT{if} or \TT{while}).
+
+The expression must have one of the forms:
+
+\hspace*{2em} {\em op} {\em condition}\QMARK{} {\em delimiter} {\em statement}
+
+or
+
+\hspace*{2em}\begin{tabular}{l}
+             {\em op} {\em condition}\QMARK{} {\em delimiter} \\
+	     ~~~~~{\em statement}\STAR{}
+	     \end{tabular}
+
+The {\em delimiter} is typically \TT{:}.
+The {\em condition} expression must be present if and only if
+\TT{has condition} is a reformatter argument.  This is the case
+for \TT{if} and \TT{else if} but not for \TT{else}.
+
+\end{indpar}
 
 \ttmkey{separator}{reformatter}
 \hfill \OP{;} ~~~ \OP{,}

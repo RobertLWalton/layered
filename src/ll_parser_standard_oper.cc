@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 20 14:32:07 EDT 2021
+// Date:	Sat May 22 04:36:31 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 # define PARSTD ll::parser::standard
 # define TAB ll::parser::table
 # define OP ll::parser::oper
+# define OPLEX ll::parser::oper::lexeme
 
 // Standard Operators
 // -------- ---------
@@ -46,20 +47,17 @@ OP::oper_pass PARSTD::init_control_operators
 
     oper_pass->selectors |= code;
 
-    min::locatable_gen control
-        ( min::new_str_gen ( "control" ) );
     PAR::reformatter control_reformatter =
         PAR::find_reformatter
-	    ( control, OP::reformatter_stack );
+	    ( OPLEX::control, OP::reformatter_stack );
 
-    min::locatable_gen has_condition
-        ( min::new_lab_gen ( "has", "condition" ) );
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         condition_arguments
 	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
     min::push ( condition_arguments ) = PARLEX::colon;
-    min::push ( condition_arguments ) = has_condition;
+    min::push ( condition_arguments ) =
+        OPLEX::has_condition;
 
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >

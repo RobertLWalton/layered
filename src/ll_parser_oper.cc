@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 20 11:29:25 EDT 2021
+// Date:	Sat May 22 04:35:03 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,15 +52,20 @@ min::locatable_gen OPLEX::end_operator;
 min::locatable_gen OPLEX::error_operator;
 min::locatable_gen OPLEX::error_operand;
 min::locatable_gen OPLEX::error_separator;
-static min::locatable_gen operator_subexpressions;
-static min::locatable_gen oper;
-static min::locatable_gen bracket;
-static min::locatable_gen indentation;
-static min::locatable_gen mark;
-static min::locatable_gen precedence;
-static min::locatable_gen operators;
-static min::locatable_gen has_condition;
-
+min::locatable_gen OPLEX::operator_subexpressions;
+min::locatable_gen OPLEX::oper;
+min::locatable_gen OPLEX::bracket;
+min::locatable_gen OPLEX::indentation;
+min::locatable_gen OPLEX::mark;
+min::locatable_gen OPLEX::precedence;
+min::locatable_gen OPLEX::operators;
+min::locatable_gen OPLEX::has_condition;
+min::locatable_gen OPLEX::control;
+min::locatable_gen OPLEX::assignment;
+min::locatable_gen OPLEX::logical;
+min::locatable_gen OPLEX::comparison;
+min::locatable_gen OPLEX::arithmetic;
+min::locatable_gen OPLEX::bitwise;
 
 static void init_end_oper ( void );
 static void init_error_oper ( void );
@@ -87,22 +92,33 @@ static void initialize ( void )
     OPLEX::error_separator =
         min::new_str_gen ( "ERROR'SEPARATOR" );
 
-    ::operator_subexpressions =
+    OPLEX::operator_subexpressions =
         min::new_lab_gen
 	    ( "operator", "subexpressions" );
-    ::oper = min::new_str_gen ( "operator" );
-    ::bracket = min::new_str_gen ( "bracket" );
-    ::indentation = min::new_str_gen ( "indentation" );
-    ::mark = min::new_str_gen ( "mark" );
-    ::precedence = min::new_str_gen ( "precedence" );
-    ::operators = min::new_str_gen ( "operators" );
-    ::has_condition = min::new_lab_gen
-        ( "has", "condition" );
+    OPLEX::oper = min::new_str_gen ( "operator" );
+    OPLEX::bracket = min::new_str_gen ( "bracket" );
+    OPLEX::indentation =
+        min::new_str_gen ( "indentation" );
+    OPLEX::mark = min::new_str_gen ( "mark" );
+    OPLEX::precedence =
+        min::new_str_gen ( "precedence" );
+    OPLEX::operators = min::new_str_gen ( "operators" );
+    OPLEX::has_condition =
+        min::new_lab_gen ( "has", "condition" );
+    OPLEX::control = min::new_str_gen ( "control" );
+    OPLEX::assignment =
+        min::new_str_gen ( "assignment" );
+    OPLEX::logical = min::new_str_gen ( "logical" );
+    OPLEX::comparison =
+        min::new_str_gen ( "comparison" );
+    OPLEX::arithmetic =
+        min::new_str_gen ( "arithmetic" );
+    OPLEX::bitwise = min::new_str_gen ( "bitwise" );
 
     ::init_end_oper();
     ::init_error_oper();
 
-    PAR::push_new_pass ( ::oper, OP::new_pass );
+    PAR::push_new_pass ( OPLEX::oper, OP::new_pass );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -241,7 +257,7 @@ static void oper_pass_place
 
     int index = TAB::find_name
         ( parser->trace_flag_name_table,
-	  ::operator_subexpressions );
+	  OPLEX::operator_subexpressions );
     MIN_REQUIRE
       ( (unsigned) index < 8 * sizeof ( TAB::flags ) );
     oper_pass->trace_subexpressions =
@@ -317,7 +333,7 @@ PAR::pass OP::new_pass ( PAR::parser parser )
     min::locatable_var<OP::oper_pass> oper_pass
         ( ::oper_pass_type.new_stub() );
 
-    OP::name_ref ( oper_pass ) = ::oper;
+    OP::name_ref ( oper_pass ) = OPLEX::oper;
 
     OP::oper_table_ref ( oper_pass ) =
         TAB::create_key_table ( 1024 );
@@ -345,7 +361,7 @@ OP::oper_pass OP::init_oper
 	  PAR::pass next )
 {
     PAR::pass pass =
-        PAR::find_on_pass_stack ( parser, ::oper );
+        PAR::find_on_pass_stack ( parser, OPLEX::oper );
     if ( pass != min::NULL_STUB )
         return (OP::oper_pass) pass;
 
@@ -1344,7 +1360,7 @@ static bool control_reformatter_function
     PAR::token t = first->next;
 
     if (    args->length >= 2
-         && args[1] == ::has_condition )
+         && args[1] == OPLEX::has_condition )
     {
 	while ( t != next && t->type == PAR::OPERATOR )
 	    t = OP::delete_bad_token
@@ -2137,10 +2153,10 @@ static min::gen oper_pass_command
 	}
 	min::locatable_gen name
 	    ( PAR::scan_simple_name
-	          ( vp, i, ::operators ) );
+	          ( vp, i, OPLEX::operators ) );
 	if ( i >= size
 	     ||
-	     vp[i] != ::operators )
+	     vp[i] != OPLEX::operators )
 	    return min::FAILURE();
 	else if ( i + 1 != size )
 	    return PAR::parse_error
@@ -2162,21 +2178,21 @@ static min::gen oper_pass_command
 	 command != PARLEX::print )
         return min::FAILURE();
 
-    if ( i >= size || vp[i++] != ::oper )
+    if ( i >= size || vp[i++] != OPLEX::oper )
         return min::FAILURE();
 
     if ( i >= size || command == PARLEX::print )
         /* Do nothing. */;
-    else if ( vp[i] == ::bracket )
+    else if ( vp[i] == OPLEX::bracket )
     {
 	++ i;
 	bracket = true;
     }
-    else if ( vp[i] == ::indentation
+    else if ( vp[i] == OPLEX::indentation
               &&
 	      i + 1 < size
 	      &&
-	      vp[i+1] == ::mark )
+	      vp[i+1] == OPLEX::mark )
     {
         i += 2;
 	indentation_mark = true;
@@ -2394,7 +2410,7 @@ static min::gen oper_pass_command
 	++ i;
 	if ( i < size
 	     &&
-	     vp[i] == ::precedence )
+	     vp[i] == OPLEX::precedence )
 	{
 	    ++ i;
 	    int sign = +1;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 16 16:08:43 EDT 2021
+// Date:	Sat May 22 04:27:09 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,7 +46,22 @@ namespace lexeme {
 	end_operator,	// END'OPERATOR
 	error_operator,	// ERROR'OPERATOR
 	error_operand,	// ERROR'OPERAND
-	error_separator;// ERROR'SEPARATOR
+	error_separator,// ERROR'SEPARATOR
+        operator_subexpressions,
+	                // operator subexpressions
+        oper,           // operator
+        bracket,        // bracket
+        indentation,    // indentation
+        mark,           // mark
+        precedence,     // precedence
+        operators,      // operators
+        has_condition,  // has condition
+        control,        // control
+        assignment,     // assignment
+        logical,        // logical
+        comparison,     // comparison
+        arithmetic,     // arithmetic
+        bitwise;        // bitwise
 }
 
 extern min::locatable_var<ll::parser::reformatter>

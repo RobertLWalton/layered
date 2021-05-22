@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 22 04:35:03 EDT 2021
+// Date:	Sat May 22 13:35:51 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2151,6 +2151,7 @@ static min::gen oper_pass_command
 	    PARSTD::init_operators ( parser );
 	    return min::SUCCESS();
 	}
+	int i_save = i;
 	min::locatable_gen name
 	    ( PAR::scan_simple_name
 	          ( vp, i, OPLEX::operators ) );
@@ -2164,12 +2165,36 @@ static min::gen oper_pass_command
 		  "extra stuff after after" );
 
         if ( name == min::MISSING() ) 
-	{
 	    PARSTD::init_operators ( parser );
-	    return min::SUCCESS();
+	else if ( name == OPLEX::control )
+	    PARSTD::init_control_operators ( parser );
+	else if ( name == OPLEX::assignment )
+	    PARSTD::init_assignment_operators
+	        ( parser );
+	else if ( name == OPLEX::logical )
+	    PARSTD::init_logical_operators ( parser );
+	else if ( name == OPLEX::comparison )
+	    PARSTD::init_comparison_operators
+	        ( parser );
+	else if ( name == OPLEX::arithmetic )
+	    PARSTD::init_arithmetic_operators
+	        ( parser );
+	else if ( name == OPLEX::control )
+	    PARSTD::init_control_operators ( parser );
+	else
+	{
+	    min::phrase_position pos;
+	    pos.begin = (&ppvec[i_save])->begin;
+	    pos.end = (&ppvec[i-1])->end;
+	    return PAR::parse_error
+	        ( parser, pos,
+		  "undefined operator class `",
+		  min::pgen_never_quote ( vp[i_save] ),
+		  "...'" );
 	}
-    }
 
+	return min::SUCCESS();
+    }
 
     if ( command != PARLEX::define
          &&

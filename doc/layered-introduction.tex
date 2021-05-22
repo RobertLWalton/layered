@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 21, 2021
+May 22, 2021
  
 \end{center}
 
@@ -7584,11 +7584,52 @@ as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-operator-name} will print all operator
 symbol table entries.
 
+The possible operator reformatters are specified
+in \itemref{OPERATOR-REFORMATTERS}.
+
+\subsubsection{Standard Operators}
+\label{STANDARD-OPERATORS}
+
 The standard operators are given in Figures~\ref{STANDARD-OPERATORS-1}
 and~\ref{STANDARD-OPERATORS-2}.
 
-The possible operator reformatters are specified
-in \itemref{OPERATOR-REFORMATTERS}.
+The following parser commands can be used to define these standard operators.
+Each of these commands is equivalent to the given set of define commands.
+
+\TT{define standard operators} \hfill All Standard Operator Classes
+\begin{indpar}\begin{verbatim}
+define standard control operators
+define standard assignment operators
+define standard logical operators
+define standard comparison operators
+define standard arithmetic operators
+define standard bitwise operators
+\end{verbatim}\end{indpar}
+
+\TT{define standard control operators} \hfill Standard Operators of Class C
+\begin{indpar}\begin{verbatim}
+\end{verbatim}\end{indpar}
+
+\TT{define standard assignment operators} \hfill Standard Operators of Class S
+\begin{indpar}\begin{verbatim}
+\end{verbatim}\end{indpar}
+
+\TT{define standard logical operators} \hfill Standard Operators of Class L
+\begin{indpar}\begin{verbatim}
+\end{verbatim}\end{indpar}
+
+\TT{define standard comparison operators} \hfill Standard Operators of Class P
+\begin{indpar}\begin{verbatim}
+\end{verbatim}\end{indpar}
+
+\TT{define standard arithmetic operators} \hfill Standard Operators of Class A
+\begin{indpar}\begin{verbatim}
+\end{verbatim}\end{indpar}
+
+\TT{define standard bitwise operators} \hfill Standard Operators of Class B
+\begin{indpar}\begin{verbatim}
+\end{verbatim}\end{indpar}
+
 
 \begin{figure*}[!p]
 \begin{center}
@@ -7629,6 +7670,16 @@ prece-  & selec-  &             &            &            &            & \\
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
 \\\hline
 \end{tabular}
+
+\medskip
+
+\begin{tabular}{ll}
+class A & {\tt define standard \ttkey{arithmetic operators}} \\
+class B & {\tt define standard \ttkey{bitwise operators}} \\
+class C & {\tt define standard \ttkey{control operators}} \\
+class S & {\tt define standard \ttkey{assignment operators}} \\
+\end{tabular}
+
 \end{center}
 \caption{Standard Operators: Part 1}
 \label{STANDARD-OPERATORS-1}
@@ -7687,6 +7738,17 @@ H-1	&	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
 							               & B
 \\\hline
 \end{tabular}
+
+\medskip
+
+\begin{tabular}{ll}
+class A & {\tt define standard \ttkey{arithmetic operators}} \\
+class B & {\tt define standard \ttkey{bitwise operators}} \\
+class L & {\tt define standard \ttkey{logical operators}} \\
+class P & {\tt define standard \ttkey{comparison operators}} \\
+class S & {\tt define standard \ttkey{assignment operators}} \\
+\end{tabular}
+
 \end{center}
 \caption{Standard Operators: Part 2}
 \label{STANDARD-OPERATORS-2}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 22 04:36:31 EDT 2021
+// Date:	Sun May 23 13:18:57 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -618,6 +618,127 @@ OP::oper_pass PARSTD::init_arithmetic_operators
     return oper_pass;
 }
 
+
+OP::oper_pass PARSTD::init_bitwise_operators
+	( PAR::parser parser,
+	  PAR::pass next )
+{
+    OP::oper_pass oper_pass =
+        OP::init_oper ( parser, next );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    TAB::flags code =
+        1ull << TAB::find_name
+	    ( parser->selector_name_table, code_name );
+
+    oper_pass->selectors |= code;
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    PAR::reformatter infix_reformatter =
+        PAR::find_reformatter
+	    ( infix, OP::reformatter_stack );
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+    PAR::reformatter unary_reformatter =
+        PAR::find_reformatter
+	    ( unary, OP::reformatter_stack );
+
+    min::locatable_gen or_equal
+        ( min::new_str_gen ( "|=" ) );
+    min::locatable_gen and_equal
+        ( min::new_str_gen ( "&=" ) );
+    min::locatable_gen xor_equal
+        ( min::new_str_gen ( "~=" ) );
+
+    OP::push_oper
+        ( or_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( and_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( xor_equal,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    min::locatable_gen or_name
+        ( min::new_str_gen ( "|" ) );
+    min::locatable_gen and_name
+        ( min::new_str_gen ( "&" ) );
+    min::locatable_gen xor_name
+        ( min::new_str_gen ( "~" ) );
+
+    OP::push_oper
+        ( or_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5000, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( and_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5000, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( xor_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  5000, infix_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( xor_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX,
+	  OP::prefix_precedence, unary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    return oper_pass;
+}
+
 OP::oper_pass PARSTD::init_operators
 	( PAR::parser parser,
 	  PAR::pass next )
@@ -627,6 +748,7 @@ OP::oper_pass PARSTD::init_operators
     PARSTD::init_logical_operators ( parser, next );
     PARSTD::init_comparison_operators ( parser, next );
     PARSTD::init_arithmetic_operators ( parser, next );
+    PARSTD::init_bitwise_operators ( parser, next );
 
     return OP::init_oper ( parser, next );
 }

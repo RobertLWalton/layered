@@ -7623,6 +7623,7 @@ define operator "until" [code] prefix line
 define operator "else" [code] prefix line
        with precedence 0
        with control reformatter ( ":" )
+
 define operator ":" [code] afix line
        with precedence 0
 define operator indentation mark ":" [code]
@@ -7638,6 +7639,7 @@ define operator "=" [code] infix line
 define operator "=" [math] infix
        with precedence 1000
        with binary reformatter
+
 define operator "," [code, math] nofix
        with precedence 2000
        with separator reformatter
@@ -7648,12 +7650,14 @@ define operator "," [code, math] nofix
 define operator "BUT NOT" [code, math] infix
        with precedence 3000
        with binary reformatter
+
 define operator "AND" [code, math] infix
        with precedence 3100
        with infix reformatter
 define operator "OR" [code, math] infix
        with precedence 3100
        with infix reformatter
+
 define operator "NOT" [code, math] prefix
        with precedence 3200
        with unary reformatter
@@ -7695,18 +7699,13 @@ define operator "*=" [code] infix line
 define operator "/=" [code] infix line
        with precedence 1000
        with binary reformatter
+
 define operator "+" [code, math] infix
        with precedence 5000
        with sum reformatter ( "+", "-" )
-define operator "+" [code, math] prefix
-       with precedence 999999
-       with unary reformatter
 define operator "-" [code, math] infix
        with precedence 5000
        with sum reformatter ( "+", "-" )
-define operator "-" [code, math] prefix
-       with precedence 999999
-       with unary reformatter
 define operator "/" [code, math] infix
        with precedence 5100
        with binary reformatter
@@ -7716,10 +7715,40 @@ define operator "*" [code, math] infix
 define operator "^" [code, math] infix
        with precedence 5300
        with infix reformatter
+
+define operator "+" [code, math] prefix
+       with precedence 999999
+       with unary reformatter
+define operator "-" [code, math] prefix
+       with precedence 999999
+       with unary reformatter
 \end{verbatim}\end{indpar}
 
 \TT{define standard bitwise operators} \hfill Standard Operators of Class B
 \begin{indpar}\begin{verbatim}
+define operator "|=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "&=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "~=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+
+define operator "|" [code] infix
+       with precedence 5000
+       with infix reformatter
+define operator "&" [code] infix
+       with precedence 5000
+       with infix reformatter
+define operator "~" [code] infix
+       with precedence 5000
+       with infix reformatter
+
+define operator "~" [code] prefix
+       with precedence 999999
+       with unary reformatter
 \end{verbatim}\end{indpar}
 
 
@@ -7755,9 +7784,7 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{|=} & include    & B \\
      	&	&            	&            & \ttkey{\&=} & mask      & B \\
      	&	&            	&            & \ttkey{\textasciitilde=}
-	                                                  & exclude    & B  \\
-     	&	&            	&            & \ttkey{\textasciitilde|=}
-	                                                  & flip    & B 
+	                                                  & flip       & B
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
 \\\hline
@@ -7811,7 +7838,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{2-7}
 	& code	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
 	&	&		& 	     & \TT{\&}	& binary and   & B \\
-	&	&		& 	     & \TT{\textasciitilde|}
+	&	&		& 	     & \TT{\textasciitilde}
 						        & binary exclusive or
 							               & B
 \\\hline

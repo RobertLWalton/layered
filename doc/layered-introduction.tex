@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 22, 2021
+May 23, 2021
  
 \end{center}
 
@@ -7608,22 +7608,114 @@ define standard bitwise operators
 
 \TT{define standard control operators} \hfill Standard Operators of Class C
 \begin{indpar}\begin{verbatim}
+define operator "if" [code] prefix line
+       with precedence 0
+       with control reformatter ( ":", has condition )
+define operator "else if" [code] prefix line
+       with precedence 0
+       with control reformatter ( ":", has condition )
+define operator "while" [code] prefix line
+       with precedence 0
+       with control reformatter ( ":", has condition )
+define operator "until" [code] prefix line
+       with precedence 0
+       with control reformatter ( ":", has condition )
+define operator "else" [code] prefix line
+       with precedence 0
+       with control reformatter ( ":" )
+define operator ":" [code] afix line
+       with precedence 0
+define operator indentation mark ":" [code]
+       postfix afix line
+       with precedence 0
 \end{verbatim}\end{indpar}
 
 \TT{define standard assignment operators} \hfill Standard Operators of Class S
 \begin{indpar}\begin{verbatim}
+define operator "=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "=" [math] infix
+       with precedence 1000
+       with binary reformatter
+define operator "," [code, math] nofix
+       with precedence 2000
+       with separator reformatter
 \end{verbatim}\end{indpar}
 
 \TT{define standard logical operators} \hfill Standard Operators of Class L
 \begin{indpar}\begin{verbatim}
+define operator "BUT NOT" [code, math] infix
+       with precedence 3000
+       with binary reformatter
+define operator "AND" [code, math] infix
+       with precedence 3100
+       with infix reformatter
+define operator "OR" [code, math] infix
+       with precedence 3100
+       with infix reformatter
+define operator "NOT" [code, math] prefix
+       with precedence 3200
+       with unary reformatter
 \end{verbatim}\end{indpar}
 
 \TT{define standard comparison operators} \hfill Standard Operators of Class P
 \begin{indpar}\begin{verbatim}
+define operator "==" [code, math] infix
+       with precedence 4000
+       with infix and reformatter ( "AND" )
+define operator "<=" [code, math] infix
+       with precedence 4000
+       with infix and reformatter ( "AND" )
+define operator ">=" [code, math] infix
+       with precedence 4000
+       with infix and reformatter ( "AND" )
+define operator "!=" [code, math] infix
+       with precedence 4000
+       with infix and reformatter ( "AND" )
+define operator "<" [code, math] infix
+       with precedence 4000
+       with infix and reformatter ( "AND" )
+define operator ">" [code, math] infix
+       with precedence 4000
+       with infix and reformatter ( "AND" )
 \end{verbatim}\end{indpar}
 
 \TT{define standard arithmetic operators} \hfill Standard Operators of Class A
 \begin{indpar}\begin{verbatim}
+define operator "+=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "-=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "*=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "/=" [code] infix line
+       with precedence 1000
+       with binary reformatter
+define operator "+" [code, math] infix
+       with precedence 5000
+       with sum reformatter ( "+", "-" )
+define operator "+" [code, math] prefix
+       with precedence 999999
+       with unary reformatter
+define operator "-" [code, math] infix
+       with precedence 5000
+       with sum reformatter ( "+", "-" )
+define operator "-" [code, math] prefix
+       with precedence 999999
+       with unary reformatter
+define operator "/" [code, math] infix
+       with precedence 5100
+       with binary reformatter
+define operator "*" [code, math] infix
+       with precedence 5200
+       with infix reformatter
+define operator "^" [code, math] infix
+       with precedence 5300
+       with infix reformatter
 \end{verbatim}\end{indpar}
 
 \TT{define standard bitwise operators} \hfill Standard Operators of Class B

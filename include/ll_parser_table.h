@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 07:06:13 EDT 2021
+// Date:	Mon May 24 15:06:55 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -490,7 +490,7 @@ struct block_struct
     ll::parser::table::flags saved_trace_flags;
     	// Top level trace flags when block begins.
 
-    ll::parser::table::flags saved_ID_character;
+    min::Uchar saved_ID_character;
     	// ID_character when block begins.
 };
 

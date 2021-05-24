@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 23 10:28:12 EDT 2021
+// Date:	Mon May 24 15:53:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,6 +188,77 @@ extern min::locatable_var<ll::parser::input>
 //	    ll::parser::default_standard_erroneous_atom;
 //
 void init_input ( min::ref<ll::parser::parser> parser );
+
+// Standard Parser Components
+// -------- ------ ----------
+
+enum {
+    CODE		= 1 << 0,
+        // Create and enable `code' selector.
+    TEXT		= 1 << 1,
+        // Create and enable `text' selector.
+    MATH		= 1 << 2,
+        // Create and enable `math' selector.
+
+    BLOCK		= 1 << 3,
+        // Create begin block named `standard' and for
+	// it set the parser selectors to the first
+	// of the enabled selectors (in the order
+	// code, text, math, as above).
+
+    ID			= 1 << 4,
+        // Set ID character and lexeme map entries
+	// for DATA and RAW-DATA.
+    TABLE		= 1 << 5,
+        // Set lexeme map entries for TABLE and ROW.
+    BRACKET		= 1 << 6,
+        // Set standard bracket entries omitting
+	// DISabled CODE, TEXT, and MATH selectors.
+    INDENTATION		= 1 << 7,
+        // Set standard indentation mark entries
+	// omitting DISabled CODE, TEXT, and MATH
+	// selectors.
+    TYPE		= 1 << 8,
+        // Set standard bracket type entries for TEXT
+	// if TEXT enabled.
+    ALL_BRACKET		= ID
+                        + TABLE
+			+ BRACKET
+			+ INDENTATION
+			+ TYPE,
+	// Set all bracket related entries
+	// omitting DISabled CODE, TEXT, and MATH
+	// selectors.
+    CONTROL_OPERATOR	= 1 << 9,
+        // Set standard control operator entries
+	// omitting DISabled CODE and MATH selectors.
+    ASSIGNMENT_OPERATOR	= 1 << 10,
+        // Set standard assignment operator entries
+	// omitting DISabled CODE and MATH selectors.
+    LOGICAL_OPERATOR	= 1 << 11,
+        // Set standard logical operator entries
+	// omitting DISabled CODE and MATH selectors.
+    COMPARISON_OPERATOR	= 1 << 12,
+        // Set standard comparison operator entries
+	// omitting DISabled CODE and MATH selectors.
+    ARITHMETIC_OPERATOR	= 1 << 13,
+        // Set standard arithmetic operator entries
+	// omitting DISabled CODE and MATH selectors.
+    BITWISE_OPERATOR	= 1 << 14,
+        // Set standard bitwise operator entries
+	// omitting DISabled CODE and MATH selectors.
+    ALL_OPERATORS	= CONTROL_OPERATOR
+                        + ASSIGNMENT_OPERATOR
+                        + LOGICAL_OPERATOR
+                        + COMPARISON_OPERATOR
+                        + ARITHMETIC_OPERATOR
+                        + BITWISE_OPERATOR,
+        // Set all ..._OPERATOR entries.
+
+    ALL			= 0xFFFFFFFF
+        // Set all standard entries.
+
+};
 
 // Standard Parser Block
 // -------- ------ -----

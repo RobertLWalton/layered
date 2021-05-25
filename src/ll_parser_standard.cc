@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 07:11:34 EDT 2021
+// Date:	Tue May 25 04:59:35 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,167 @@
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
+
+static min::locatable_gen code;
+static min::locatable_gen text;
+static min::locatable_gen math;
+static min::locatable_gen block;
+static min::locatable_gen id;
+static min::locatable_gen table;
+static min::locatable_gen brackets;
+static min::locatable_gen indentation_marks;
+static min::locatable_gen bracket_types;
+static min::locatable_gen control_operators;
+static min::locatable_gen assignment_operators;
+static min::locatable_gen logical_operators;
+static min::locatable_gen comparison_operators;
+static min::locatable_gen arithmetic_operators;
+static min::locatable_gen bitwise_operators;
+static min::locatable_gen other_brackets;
+static min::locatable_gen other_operators;
+static min::locatable_gen all_other;
+
+min::locatable_var<ll::parser::table::name_table>
+    PARSTD::component_name_table;
+min::locatable_var<ll::parser::table::key_table>
+    PARSTD::component_group_name_table;
+
+static void initialize ( void )
+{
+    ::code = min::new_str_gen ( "code" );
+    ::text = min::new_str_gen ( "text" );
+    ::math = min::new_str_gen ( "math" );
+
+    ::block = min::new_str_gen ( "block" );
+    ::id = min::new_str_gen ( "id" );
+    ::table = min::new_str_gen ( "table" );
+
+    ::brackets = min::new_str_gen ( "brackets" );
+    ::indentation_marks =
+        min::new_lab_gen ( "indentation", "marks" );
+    ::bracket_types =
+        min::new_lab_gen ( "bracket", "types" );
+
+    ::control_operators =
+        min::new_lab_gen ( "control", "operators" );
+    ::assignment_operators =
+        min::new_lab_gen ( "assignment", "operators" );
+    ::logical_operators =
+        min::new_lab_gen ( "logical", "operators" );
+    ::comparison_operators =
+        min::new_lab_gen ( "comparison", "operators" );
+    ::arithmetic_operators =
+        min::new_lab_gen ( "arithmetic", "operators" );
+    ::bitwise_operators =
+        min::new_lab_gen ( "bitwise", "operators" );
+
+    ::other_brackets =
+        min::new_lab_gen ( "other", "brackets" );
+    ::other_operators =
+        min::new_lab_gen ( "other", "operators" );
+    ::all_other =
+        min::new_lab_gen ( "all", "other" );
+
+    TAB::init_name_table
+        ( PARSTD::component_name_table );
+
+    MIN_REQUIRE
+	(    PARSTD::CODE
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::code ) );
+    MIN_REQUIRE
+	(    PARSTD::TEXT
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::text ) );
+    MIN_REQUIRE
+	(    PARSTD::MATH
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::math ) );
+
+    MIN_REQUIRE
+	(    PARSTD::BLOCK
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::block ) );
+    MIN_REQUIRE
+	(    PARSTD::ID
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::id ) );
+    MIN_REQUIRE
+	(    PARSTD::TABLE
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::table ) );
+
+    MIN_REQUIRE
+	(    PARSTD::BRACKETS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::brackets ) );
+    MIN_REQUIRE
+	(    PARSTD::INDENTATION_MARKS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::indentation_marks ) );
+    MIN_REQUIRE
+	(    PARSTD::BRACKET_TYPES
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::bracket_types ) );
+
+    MIN_REQUIRE
+	(    PARSTD::CONTROL_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::control_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::ASSIGNMENT_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::assignment_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::LOGICAL_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::logical_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::COMPARISON_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::comparison_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::ARITHMETIC_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::arithmetic_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::BITWISE_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::bitwise_operators ) );
+
+    PARSTD::component_group_name_table =
+	TAB::create_key_table ( 32 );
+
+    TAB::push_root
+	( ::other_brackets, PARSTD::ALL_BRACKETS,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
+	( ::other_operators, PARSTD::ALL_OPERATORS,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
+	( ::all_other, PARSTD::ALL,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+}
+
+static min::initializer initializer ( ::initialize );
 
 // Standard
 // --------

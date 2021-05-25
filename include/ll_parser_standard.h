@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 24 15:53:12 EDT 2021
+// Date:	Tue May 25 03:23:42 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -193,72 +193,77 @@ void init_input ( min::ref<ll::parser::parser> parser );
 // -------- ------ ----------
 
 enum {
-    CODE		= 1 << 0,
+    CODE			= 1 << 0,
         // Create and enable `code' selector.
-    TEXT		= 1 << 1,
+    TEXT			= 1 << 1,
         // Create and enable `text' selector.
-    MATH		= 1 << 2,
+    MATH			= 1 << 2,
         // Create and enable `math' selector.
 
-    BLOCK		= 1 << 3,
+    BLOCK			= 1 << 3,
         // Create begin block named `standard' and for
 	// it set the parser selectors to the first
 	// of the enabled selectors (in the order
 	// code, text, math, as above).
 
-    ID			= 1 << 4,
+    ID				= 1 << 4,
         // Set ID character and lexeme map entries
 	// for DATA and RAW-DATA.
-    TABLE		= 1 << 5,
+    TABLE			= 1 << 5,
         // Set lexeme map entries for TABLE and ROW.
-    BRACKET		= 1 << 6,
+    BRACKETS			= 1 << 6,
         // Set standard bracket entries omitting
 	// DISabled CODE, TEXT, and MATH selectors.
-    INDENTATION		= 1 << 7,
+    INDENTATION_MARKS		= 1 << 7,
         // Set standard indentation mark entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.
-    TYPE		= 1 << 8,
+    BRACKET_TYPES		= 1 << 8,
         // Set standard bracket type entries for TEXT
 	// if TEXT enabled.
-    ALL_BRACKET		= ID
-                        + TABLE
-			+ BRACKET
-			+ INDENTATION
-			+ TYPE,
+    ALL_BRACKETS		= ID
+                        	+ TABLE
+				+ BRACKETS
+				+ INDENTATION_MARKS
+				+ BRACKET_TYPES,
 	// Set all bracket related entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.
-    CONTROL_OPERATOR	= 1 << 9,
+    CONTROL_OPERATORS		= 1 << 9,
         // Set standard control operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ASSIGNMENT_OPERATOR	= 1 << 10,
+    ASSIGNMENT_OPERATORS	= 1 << 10,
         // Set standard assignment operator entries
 	// omitting DISabled CODE and MATH selectors.
-    LOGICAL_OPERATOR	= 1 << 11,
+    LOGICAL_OPERATORS		= 1 << 11,
         // Set standard logical operator entries
 	// omitting DISabled CODE and MATH selectors.
-    COMPARISON_OPERATOR	= 1 << 12,
+    COMPARISON_OPERATORS	= 1 << 12,
         // Set standard comparison operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ARITHMETIC_OPERATOR	= 1 << 13,
+    ARITHMETIC_OPERATORS	= 1 << 13,
         // Set standard arithmetic operator entries
 	// omitting DISabled CODE and MATH selectors.
-    BITWISE_OPERATOR	= 1 << 14,
+    BITWISE_OPERATORS		= 1 << 14,
         // Set standard bitwise operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ALL_OPERATORS	= CONTROL_OPERATOR
-                        + ASSIGNMENT_OPERATOR
-                        + LOGICAL_OPERATOR
-                        + COMPARISON_OPERATOR
-                        + ARITHMETIC_OPERATOR
-                        + BITWISE_OPERATOR,
+    ALL_OPERATORS		= CONTROL_OPERATORS
+                        	+ ASSIGNMENT_OPERATORS
+                        	+ LOGICAL_OPERATORS
+                        	+ COMPARISON_OPERATORS
+                        	+ ARITHMETIC_OPERATORS
+                        	+ BITWISE_OPERATORS,
         // Set all ..._OPERATOR entries.
 
-    ALL			= 0xFFFFFFFF
+    ALL				= 0xFFFFFFFF
         // Set all standard entries.
 
 };
+
+extern min::locatable_var<ll::parser::table::name_table>
+    component_name_table;
+extern min::locatable_var<ll::parser::table::key_table>
+    component_group_name_table;
 
 // Standard Parser Block
 // -------- ------ -----

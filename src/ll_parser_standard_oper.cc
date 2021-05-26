@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 23 13:18:57 EDT 2021
+// Date:	Wed May 26 12:38:35 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,20 +30,16 @@
 // Standard Operators
 // -------- ---------
 
-OP::oper_pass PARSTD::init_control_operators
+static void define_control_operators
 	( PAR::parser parser,
-	  PAR::pass next )
+	  TAB::flags code,
+	  TAB::flags math )
 {
-    OP::oper_pass oper_pass =
-        OP::init_oper ( parser, next );
+    if ( code == 0 ) return;
+
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen code_name
-        ( min::new_str_gen ( "code" ) );
-    TAB::flags code =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, code_name );
 
     oper_pass->selectors |= code;
 
@@ -156,29 +152,16 @@ OP::oper_pass PARSTD::init_control_operators
 	  min::NULL_STUB,
 	  min::NULL_STUB,
 	  oper_pass->oper_bracket_table );
-
-    return oper_pass;
 }
 
-OP::oper_pass PARSTD::init_assignment_operators
+static void define_assignment_operators
 	( PAR::parser parser,
-	  PAR::pass next )
+	  TAB::flags code,
+	  TAB::flags math )
 {
-    OP::oper_pass oper_pass =
-        OP::init_oper ( parser, next );
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen code_name
-        ( min::new_str_gen ( "code" ) );
-    min::locatable_gen math_name
-        ( min::new_str_gen ( "math" ) );
-    TAB::flags code =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, code_name );
-    TAB::flags math =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, math_name );
 
     oper_pass->selectors |= code | math;
 
@@ -196,7 +179,7 @@ OP::oper_pass PARSTD::init_assignment_operators
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
 
-    OP::push_oper
+    if ( math ) OP::push_oper
         ( equal,
 	  min::MISSING(),
 	  math,
@@ -207,7 +190,7 @@ OP::oper_pass PARSTD::init_assignment_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
-    OP::push_oper
+    if ( code ) OP::push_oper
         ( equal,
 	  min::MISSING(),
 	  code,
@@ -230,29 +213,16 @@ OP::oper_pass PARSTD::init_assignment_operators
 	  2000, separator_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
-
-    return oper_pass;
 }
 
-OP::oper_pass PARSTD::init_logical_operators
+static void define_logical_operators
 	( PAR::parser parser,
-	  PAR::pass next )
+	  TAB::flags code,
+	  TAB::flags math )
 {
-    OP::oper_pass oper_pass =
-        OP::init_oper ( parser, next );
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen code_name
-        ( min::new_str_gen ( "code" ) );
-    min::locatable_gen math_name
-        ( min::new_str_gen ( "math" ) );
-    TAB::flags code =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, code_name );
-    TAB::flags math =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, math_name );
 
     oper_pass->selectors |= code | math;
 
@@ -320,29 +290,16 @@ OP::oper_pass PARSTD::init_logical_operators
 	  3200, unary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
-
-    return oper_pass;
 }
 
-OP::oper_pass PARSTD::init_comparison_operators
+static void define_comparison_operators
 	( PAR::parser parser,
-	  PAR::pass next )
+	  TAB::flags code,
+	  TAB::flags math )
 {
-    OP::oper_pass oper_pass =
-        OP::init_oper ( parser, next );
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen code_name
-        ( min::new_str_gen ( "code" ) );
-    min::locatable_gen math_name
-        ( min::new_str_gen ( "math" ) );
-    TAB::flags code =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, code_name );
-    TAB::flags math =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, math_name );
 
     oper_pass->selectors |= code | math;
 
@@ -431,30 +388,17 @@ OP::oper_pass PARSTD::init_comparison_operators
 	  4000, infix_and_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
-
-    return oper_pass;
 }
 
 
-OP::oper_pass PARSTD::init_arithmetic_operators
+static void define_arithmetic_operators
 	( PAR::parser parser,
-	  PAR::pass next )
+	  TAB::flags code,
+	  TAB::flags math )
 {
-    OP::oper_pass oper_pass =
-        OP::init_oper ( parser, next );
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen code_name
-        ( min::new_str_gen ( "code" ) );
-    min::locatable_gen math_name
-        ( min::new_str_gen ( "math" ) );
-    TAB::flags code =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, code_name );
-    TAB::flags math =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, math_name );
 
     oper_pass->selectors |= code | math;
 
@@ -488,7 +432,7 @@ OP::oper_pass PARSTD::init_arithmetic_operators
     min::locatable_gen divide_equal
         ( min::new_str_gen ( "/=" ) );
 
-    OP::push_oper
+    if ( code ) OP::push_oper
         ( plus_equal,
 	  min::MISSING(),
 	  code,
@@ -498,7 +442,7 @@ OP::oper_pass PARSTD::init_arithmetic_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
-    OP::push_oper
+    if ( code ) OP::push_oper
         ( minus_equal,
 	  min::MISSING(),
 	  code,
@@ -508,7 +452,7 @@ OP::oper_pass PARSTD::init_arithmetic_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
-    OP::push_oper
+    if ( code ) OP::push_oper
         ( times_equal,
 	  min::MISSING(),
 	  code,
@@ -518,7 +462,7 @@ OP::oper_pass PARSTD::init_arithmetic_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
-    OP::push_oper
+    if ( code ) OP::push_oper
         ( divide_equal,
 	  min::MISSING(),
 	  code,
@@ -614,25 +558,19 @@ OP::oper_pass PARSTD::init_arithmetic_operators
 	  5300, binary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
-
-    return oper_pass;
 }
 
 
-OP::oper_pass PARSTD::init_bitwise_operators
+static void define_bitwise_operators
 	( PAR::parser parser,
-	  PAR::pass next )
+	  TAB::flags code,
+	  TAB::flags math )
 {
-    OP::oper_pass oper_pass =
-        OP::init_oper ( parser, next );
+    if ( code == 0 ) return;
+
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
     min::uns32 block_level =
         PAR::block_level ( parser );
-
-    min::locatable_gen code_name
-        ( min::new_str_gen ( "code" ) );
-    TAB::flags code =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, code_name );
 
     oper_pass->selectors |= code;
 
@@ -735,20 +673,50 @@ OP::oper_pass PARSTD::init_bitwise_operators
 	  OP::prefix_precedence, unary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
-
-    return oper_pass;
 }
 
-OP::oper_pass PARSTD::init_operators
-	( PAR::parser parser,
-	  PAR::pass next )
+void PARSTD::define_operators
+	( PAR::parser parser, TAB::flags components )
 {
-    PARSTD::init_control_operators ( parser, next );
-    PARSTD::init_assignment_operators ( parser, next );
-    PARSTD::init_logical_operators ( parser, next );
-    PARSTD::init_comparison_operators ( parser, next );
-    PARSTD::init_arithmetic_operators ( parser, next );
-    PARSTD::init_bitwise_operators ( parser, next );
+    if ( ( components & PARSTD::ALL_OPERATORS ) == 0 )
+        return;   // Don't compute selectors.
 
-    return OP::init_oper ( parser, next );
+    TAB::flags code = 0;
+    if ( components & PARSTD::CODE )
+    {
+	min::locatable_gen code_name
+	    ( min::new_str_gen ( "code" ) );
+	code = 1ull << TAB::find_name
+		  ( parser->selector_name_table,
+		    code_name );
+    }
+    TAB::flags math = 0;
+    if ( components & PARSTD::MATH )
+    {
+	min::locatable_gen math_name
+	    ( min::new_str_gen ( "math" ) );
+	math = 1ull << TAB::find_name
+		  ( parser->selector_name_table,
+		    math_name );
+    }
+    if ( code == 0 && math == 0 ) return;
+
+    if ( components & PARSTD::CONTROL_OPERATORS )
+	::define_control_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::ASSIGNMENT_OPERATORS )
+	::define_assignment_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::LOGICAL_OPERATORS )
+	::define_logical_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::COMPARISON_OPERATORS )
+	::define_comparison_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::ARITHMETIC_OPERATORS )
+	::define_arithmetic_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::BITWISE_OPERATORS )
+	::define_bitwise_operators
+	    ( parser, code, math );
 }

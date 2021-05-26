@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 25 03:23:42 EDT 2021
+// Date:	Wed May 26 12:37:52 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -330,34 +330,16 @@ void init_concatenator_character
 // Standard Parser Operators
 // -------- ------ ---------
 
-// Add an oper_pass to the parser and set its oper_table
-// to the standard operators of various classes.  Return
-// the oper_pass.
+// Set the oper_pass tables to the standard operators
+// of various ..._OPERATOR components and the MATH and
+// CODE components.  Add math and code selectors if
+// needed and not present.  Add the oper_pass if needed
+// and not present.
 //
-ll::parser::oper::oper_pass init_control_operators
+void define_operators
     ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
-ll::parser::oper::oper_pass init_assignment_operators
-    ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
-ll::parser::oper::oper_pass init_logical_operators
-    ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
-ll::parser::oper::oper_pass init_comparison_operators
-    ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
-ll::parser::oper::oper_pass init_arithmetic_operators
-    ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
-ll::parser::oper::oper_pass init_bitwise_operators
-    ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
-
-// Call the above for all passes.
-//
-ll::parser::oper::oper_pass init_operators
-    ( ll::parser::parser parser,
-      ll::parser::pass next = NULL_STUB );
+      ll::parser::table::flags components =
+          MATH + CODE + ALL_OPERATORS );
 
 
 } } }

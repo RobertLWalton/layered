@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 20 10:55:48 EDT 2021
+// Date:	Wed May 26 12:45:59 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1105,7 +1105,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    PARSTD::init_ID_character ( parser );
 	    PARSTD::init_concatenator_character
 	    	( parser );
-	    PARSTD::init_operators ( parser );
+	    PARSTD::define_operators ( parser );
 	}
     }
 }

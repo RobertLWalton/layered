@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 22 13:35:51 EDT 2021
+// Date:	Wed May 26 13:59:34 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,11 +61,6 @@ min::locatable_gen OPLEX::precedence;
 min::locatable_gen OPLEX::operators;
 min::locatable_gen OPLEX::has_condition;
 min::locatable_gen OPLEX::control;
-min::locatable_gen OPLEX::assignment;
-min::locatable_gen OPLEX::logical;
-min::locatable_gen OPLEX::comparison;
-min::locatable_gen OPLEX::arithmetic;
-min::locatable_gen OPLEX::bitwise;
 
 static void init_end_oper ( void );
 static void init_error_oper ( void );
@@ -106,14 +101,6 @@ static void initialize ( void )
     OPLEX::has_condition =
         min::new_lab_gen ( "has", "condition" );
     OPLEX::control = min::new_str_gen ( "control" );
-    OPLEX::assignment =
-        min::new_str_gen ( "assignment" );
-    OPLEX::logical = min::new_str_gen ( "logical" );
-    OPLEX::comparison =
-        min::new_str_gen ( "comparison" );
-    OPLEX::arithmetic =
-        min::new_str_gen ( "arithmetic" );
-    OPLEX::bitwise = min::new_str_gen ( "bitwise" );
 
     ::init_end_oper();
     ::init_error_oper();
@@ -2138,63 +2125,6 @@ static min::gen oper_pass_command
 	// scan in the define/undefine expression.
 
     min::gen command = vp[i++];
-
-    if ( command == PARLEX::define
-         &&
-	 i < size
-	 &&
-	 vp[i] == PARLEX::standard )
-    {
-        i ++;
-	if ( i == size )
-	{
-	    PARSTD::init_operators ( parser );
-	    return min::SUCCESS();
-	}
-	int i_save = i;
-	min::locatable_gen name
-	    ( PAR::scan_simple_name
-	          ( vp, i, OPLEX::operators ) );
-	if ( i >= size
-	     ||
-	     vp[i] != OPLEX::operators )
-	    return min::FAILURE();
-	else if ( i + 1 != size )
-	    return PAR::parse_error
-	        ( parser, ppvec[i],
-		  "extra stuff after after" );
-
-        if ( name == min::MISSING() ) 
-	    PARSTD::init_operators ( parser );
-	else if ( name == OPLEX::control )
-	    PARSTD::init_control_operators ( parser );
-	else if ( name == OPLEX::assignment )
-	    PARSTD::init_assignment_operators
-	        ( parser );
-	else if ( name == OPLEX::logical )
-	    PARSTD::init_logical_operators ( parser );
-	else if ( name == OPLEX::comparison )
-	    PARSTD::init_comparison_operators
-	        ( parser );
-	else if ( name == OPLEX::arithmetic )
-	    PARSTD::init_arithmetic_operators
-	        ( parser );
-	else if ( name == OPLEX::control )
-	    PARSTD::init_control_operators ( parser );
-	else
-	{
-	    min::phrase_position pos;
-	    pos.begin = (&ppvec[i_save])->begin;
-	    pos.end = (&ppvec[i-1])->end;
-	    return PAR::parse_error
-	        ( parser, pos,
-		  "undefined operator class `",
-		  min::pgen_never_quote ( vp[i_save] ),
-		  "...'" );
-	}
-
-	return min::SUCCESS();
-    }
 
     if ( command != PARLEX::define
          &&

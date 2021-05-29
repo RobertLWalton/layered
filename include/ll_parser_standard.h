@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 26 12:37:52 EDT 2021
+// Date:	Sat May 29 16:33:27 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,12 +12,7 @@
 //
 //	Usage and Setup
 //	Standard Parser Input
-//	Standard Parser Block
-//	Standard Parser Lexeme Map
-//	Standard Parser Brackets
-//	Standard Prefixes
-//	Standard ID Character
-//	Standard Parser Operators
+//	Define Standard
 
 // Usage and Setup
 // ----- --- -----
@@ -201,50 +196,68 @@ enum {
         // Create and enable `math' selector.
 
     BLOCK			= 1 << 3,
-        // Create begin block named `standard' and for
-	// it set the parser selectors to the first
-	// of the enabled selectors (in the order
-	// code, text, math, as above).
+        // Create block named `standard'.
 
-    ID				= 1 << 4,
-        // Set ID character and lexeme map entries
-	// for DATA and RAW-DATA.
-    TABLE			= 1 << 5,
-        // Set lexeme map entries for TABLE and ROW.
-    BRACKETS			= 1 << 6,
+    TOP_LEVEL			= 1 << 4,
+        // Set top level selector to first enabled of
+	// CODE, TEXT, MATH.
+    CONCATENATOR                = 1 << 5,
+        // Set concatenator character to #.
+
+    ID				= 1 << 6,
+        // Set ID character to @ and lexeme map to
+	// map DATA and RAW-DATA lexemes.  Also
+	// causes BRACKET_TYPES below to define
+	// {data} and {raw data}, and top level
+	// lexical master to be set by TOP_LEVEL.
+    TABLE			= 1 << 7,
+        // Set lexeme map to map TABLE and ROW lexemes.
+	// Also causes BRACKET_TYPES below to define
+	// {table} and {row}, and top level
+	// lexical master to be set by TOP_LEVEL.
+
+    BRACKETS			= 1 << 8,
         // Set standard bracket entries omitting
 	// DISabled CODE, TEXT, and MATH selectors.
-    INDENTATION_MARKS		= 1 << 7,
+    INDENTATION_MARKS		= 1 << 9,
         // Set standard indentation mark entries
 	// omitting DISabled CODE, TEXT, and MATH
-	// selectors.
-    BRACKET_TYPES		= 1 << 8,
+	// selectors.  If ID but not TABLE use
+	// DATA-CHECK lexical master; TABLE but not
+	// ID use TABLE-CHECK lexical master;  if
+	// both ID and TABLE use PARAGRAPH-CHECK
+	// lexical master.
+    BRACKET_TYPES		= 1 << 10,
         // Set standard bracket type entries for TEXT
-	// if TEXT enabled.
-    ALL_BRACKETS		= ID
-                        	+ TABLE
-				+ BRACKETS
+	// if TEXT enabled, data if ID enabled, table
+	// if TABLE enabled.  If ID but not TABLE use
+	// DATA-CHECK lexical master; TABLE but not
+	// ID use TABLE-CHECK lexical master;  if
+	// both ID and TABLE use PARAGRAPH-CHECK
+	// lexical master.
+
+    ALL_BRACKETS		= BRACKETS
 				+ INDENTATION_MARKS
 				+ BRACKET_TYPES,
 	// Set all bracket related entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.
-    CONTROL_OPERATORS		= 1 << 9,
+    CONTROL_OPERATORS		= 1 << 11,
         // Set standard control operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ASSIGNMENT_OPERATORS	= 1 << 10,
+    ASSIGNMENT_OPERATORS	= 1 << 12,
         // Set standard assignment operator entries
 	// omitting DISabled CODE and MATH selectors.
-    LOGICAL_OPERATORS		= 1 << 11,
+    LOGICAL_OPERATORS		= 1 << 13,
         // Set standard logical operator entries
 	// omitting DISabled CODE and MATH selectors.
-    COMPARISON_OPERATORS	= 1 << 12,
+    COMPARISON_OPERATORS	= 1 << 14,
         // Set standard comparison operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ARITHMETIC_OPERATORS	= 1 << 13,
+    ARITHMETIC_OPERATORS	= 1 << 15,
         // Set standard arithmetic operator entries
 	// omitting DISabled CODE and MATH selectors.
-    BITWISE_OPERATORS		= 1 << 14,
+    BITWISE_OPERATORS		= 1 << 16,
         // Set standard bitwise operator entries
 	// omitting DISabled CODE and MATH selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS
@@ -265,70 +278,22 @@ extern min::locatable_var<ll::parser::table::name_table>
 extern min::locatable_var<ll::parser::table::key_table>
     component_group_name_table;
 
-// Standard Parser Block
-// -------- ------ -----
-
-// Begin the standard parser block and set
-// parser->selectors to the "code" selector.
-//
-void init_block ( ll::parser::parser parser );
-
-
-// Standard Parser Lexeme Map
-// -------- ------ ------ ---
-
-// Set parser->lexeme_map to map the standard set
-// of layered language special lexemes, and set
-// parser->{paragaph,line}_lexical_master to produce
-// these special lexemes at top level.
-//
-void init_lexeme_map ( ll::parser::parser parser );
-
-
-// Standard Parser Brackets
-// -------- ------ --------
+// Define Standard
+// ------ --------
 
 // Set the bracketed_pass->bracket_table for the
 // standard set of layered language brackets and
-// indentation marks.
-//
-// Set parser->selectors to `code + top level'.
+// indentation marks, and bracketed_pass->bracket_
+// type_table for standard bracket types.
 //
 // Note: bracketed_pass = parser->pass_stack, as it is
 // always the first pass in pass_stack.
 //
-void init_brackets ( ll::parser::parser parser );
-
-
-// Standard Prefixes
-// -------- --------
-
-// Set the bracketed_pass->bracket_table for the
-// standard set of layered language prefixes.
-//
-void init_prefix ( ll::parser::parser parser );
-
-// Standard ID Character
-// -------- -- ---------
-
-// Set the parser->ID_character to the standard ID
-// character.
-//
-void init_ID_character ( ll::parser::parser parser );
-
-// Standard Concatenator Character
-// -------- ------------ ---------
-
-// Set the bracketed_pass->string_concatenator and also
-// bracketed_pass->middle_break to the standard
-// concatenator character.
-//
-void init_concatenator_character
-	( ll::parser::parser parser );
-
-
-// Standard Parser Operators
-// -------- ------ ---------
+void define_brackets
+    ( ll::parser::parser parser,
+      ll::parser::table::flags components =
+            CODE + TEXT + MATH + ID + TABLE
+	  + ALL_BRACKETS );
 
 // Set the oper_pass tables to the standard operators
 // of various ..._OPERATOR components and the MATH and
@@ -341,6 +306,12 @@ void define_operators
       ll::parser::table::flags components =
           MATH + CODE + ALL_OPERATORS );
 
+// Define all standard parser components indicated in
+// the components argument.
+//
+void define_standard
+    ( ll::parser::parser parser,
+      ll::parser::table::flags components = ALL );
 
 } } }
 

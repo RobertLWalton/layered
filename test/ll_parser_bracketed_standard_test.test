@@ -3998,14 +3998,14 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     print bracket ""
-        block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+        block standard: bracket "``" ... "''" [data, code, text, math]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -4014,23 +4014,23 @@ BRACKETED EXPRESSION:
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
-        block standard: bracket "(" ... ")" [code, math, text]
+        block standard: bracket "(" ... ")" [code, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block standard: bracket "[" ... "]" [code, math, text]
+        block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, math, text]
+        block standard: bracket "`" ... "'" [code, text, math]
                         with parsing selectors [atom]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [data, code, math, text]
-                        with parsing selectors [- data, - code, + math,
-                                                - text]
+                        [data, code, text, math]
+                        with parsing selectors [- data, - code, - text,
+                                                + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket "<+" ... "+>" [math]
         block standard: bracket "<-" ... "->" [text]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
@@ -4091,7 +4091,7 @@ BRACKETED EXPRESSION:
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
                         // "||" is also allowed.
-                        [code, math, text]
+                        [code, text, math]
                         with attribute selectors [data]
                         with attributes ":" ... "=" ... ","
                         with attribute negator "no"

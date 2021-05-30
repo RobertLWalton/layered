@@ -1,8 +1,8 @@
 *PARSER*:
     print selector ""
         block standard: data paragraph
-        block standard: text
         block standard: math
+        block standard: text
         block standard: code
         block TOP LEVEL: atom
         block TOP LEVEL: data
@@ -51,14 +51,14 @@
         block standard: "#"
         block TOP LEVEL: disabled
     print bracket ""
-        block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+        block standard: bracket "``" ... "''" [data, code, text, math]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -67,21 +67,21 @@
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
-        block standard: bracket "(" ... ")" [code, math, text]
+        block standard: bracket "(" ... ")" [code, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block standard: bracket "[" ... "]" [code, math, text]
+        block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, math, text]
+        block standard: bracket "`" ... "'" [code, text, math]
                         with parsing selectors [atom]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [data, code, math, text]
-                        with parsing selectors [- data, - code, + math,
-                                                - text]
+                        [data, code, text, math]
+                        with parsing selectors [- data, - code, - text,
+                                                + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
@@ -144,7 +144,7 @@
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
                         // "||" is also allowed.
-                        [code, math, text]
+                        [code, text, math]
                         with attribute selectors [data]
                         with attributes ":" ... "=" ... ","
                         with attribute negator "no"
@@ -161,8 +161,8 @@
                          with prefix selectors []
     print bracket type ""
         block standard: bracket type "p" [code, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -177,8 +177,8 @@
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
         block standard: bracket type "quote" [code, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -190,8 +190,8 @@
                         with group paragraph
                         with implied subprefix {s}
         block standard: bracket type "section" [code, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -204,7 +204,7 @@
         block standard: bracket type "***" [TOP LEVEL, code, text]
                         with group reset
         block standard: bracket type [< "raw" "data" >]
-                        [TOP LEVEL, data, code, math, text]
+                        [TOP LEVEL, data, code, text, math]
                         with parsing selectors [data, data paragraph]
                         with group line
                         with data reformatter ( "=", "==", "+=", "++=",
@@ -216,7 +216,7 @@
         block standard: bracket type "row" [text]
                         with group line
         block standard: bracket type "data"
-                        [TOP LEVEL, data, code, math, text]
+                        [TOP LEVEL, data, code, text, math]
                         with parsing selectors [+ data paragraph]
                         with group line
                         with data reformatter ( "=", "==", "+=", "++=",

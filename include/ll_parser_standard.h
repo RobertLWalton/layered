@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 16:33:27 EDT 2021
+// Date:	Sat May 29 22:51:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -215,6 +215,15 @@ enum {
 	// Also causes BRACKET_TYPES below to define
 	// {table} and {row}, and top level
 	// lexical master to be set by TOP_LEVEL.
+
+    ALL_SETUP			= CODE
+    				+ TEXT
+    				+ MATH
+    				+ BLOCK
+    				+ TOP_LEVEL
+    				+ CONCATENATOR
+    				+ ID
+    				+ TABLE,
 
     BRACKETS			= 1 << 8,
         // Set standard bracket entries omitting

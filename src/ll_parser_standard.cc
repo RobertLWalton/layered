@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 16:33:56 EDT 2021
+// Date:	Sat May 29 22:52:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -247,13 +247,8 @@ static void define_top_level
         1ull << TAB::find_name
 	    ( parser->selector_name_table, name );
 
-	  TAB::new_flags ( PAR::DEFAULT_EA_OPT,
-	                     PAR::ALL_EA_OPT
-			   - PAR::DEFAULT_EA_OPT ),
-    imark->parsing_selectors.or_flags
-        = selector | PAR::DEFAULT_EA_OPT;
-    imark->parsing_selectors.not_flags =
-        ~ imark->parsing_selectors.or_flags;
+    imark->parsing_selectors.or_flags |= selector;
+    imark->parsing_selectors.not_flags &= ~ selector;
     parser->selectors =
           imark->parsing_selectors.or_flags
 	| PAR::TOP_LEVEL_OFF_SELECTORS

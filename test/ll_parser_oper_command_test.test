@@ -1,8 +1,8 @@
 *PARSER*:
     print selector ""
         block standard: data paragraph
-        block standard: text
         block standard: math
+        block standard: text
         block standard: code
         block TOP LEVEL: atom
         block TOP LEVEL: data
@@ -35,8 +35,8 @@
     trace [- operator subexpressions]
     print selector ""
         block standard: data paragraph
-        block standard: text
         block standard: math
+        block standard: text
         block standard: code
         block TOP LEVEL: atom
         block TOP LEVEL: data
@@ -45,14 +45,14 @@
     print operator ""
         nothing found
     print bracket ""
-        block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+        block standard: bracket "``" ... "''" [data, code, text, math]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -61,21 +61,21 @@
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
-        block standard: bracket "(" ... ")" [code, math, text]
+        block standard: bracket "(" ... ")" [code, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block standard: bracket "[" ... "]" [code, math, text]
+        block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, math, text]
+        block standard: bracket "`" ... "'" [code, text, math]
                         with parsing selectors [atom]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [data, code, math, text]
-                        with parsing selectors [- data, - code, + math,
-                                                - text]
+                        [data, code, text, math]
+                        with parsing selectors [- data, - code, - text,
+                                                + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 22:53:15 EDT 2021
+// Date:	Sun May 30 17:09:51 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,7 @@ int main ( int argc, const char * argv[] )
 
     PARSTD::define_standard
 	( PAR::default_parser, components );
+    PAR::default_parser->ID_character = min::NO_UCHAR;
 
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );

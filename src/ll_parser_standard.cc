@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 22:52:37 EDT 2021
+// Date:	Mon May 31 16:41:58 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,11 +31,12 @@
 static min::locatable_gen code;
 static min::locatable_gen text;
 static min::locatable_gen math;
+static min::locatable_gen id;
+static min::locatable_gen table;
 static min::locatable_gen block;
 static min::locatable_gen top_level;
 static min::locatable_gen concatenator;
-static min::locatable_gen id;
-static min::locatable_gen table;
+static min::locatable_gen lexeme_map;
 static min::locatable_gen brackets;
 static min::locatable_gen indentation_marks;
 static min::locatable_gen bracket_types;
@@ -45,8 +46,14 @@ static min::locatable_gen logical_operators;
 static min::locatable_gen comparison_operators;
 static min::locatable_gen arithmetic_operators;
 static min::locatable_gen bitwise_operators;
+static min::locatable_gen other_qualifiers;
+static min::locatable_gen all_qualifiers;
+static min::locatable_gen other_setup;
+static min::locatable_gen all_setup;
 static min::locatable_gen other_brackets;
+static min::locatable_gen all_brackets;
 static min::locatable_gen other_operators;
+static min::locatable_gen all_operators;
 static min::locatable_gen all_other;
 
 min::locatable_var<ll::parser::table::name_table>
@@ -59,15 +66,15 @@ static void initialize ( void )
     ::code = min::new_str_gen ( "code" );
     ::text = min::new_str_gen ( "text" );
     ::math = min::new_str_gen ( "math" );
+    ::id = min::new_str_gen ( "id" );
+    ::table = min::new_str_gen ( "table" );
 
     ::block = min::new_str_gen ( "block" );
 
     ::top_level = min::new_lab_gen ( "top", "level" );
     ::concatenator =
         min::new_str_gen ( "concatenator" );
-
-    ::id = min::new_str_gen ( "id" );
-    ::table = min::new_str_gen ( "table" );
+    ::lexeme_map = min::new_lab_gen ( "lexeme", "map" );
 
     ::brackets = min::new_str_gen ( "brackets" );
     ::indentation_marks =
@@ -88,10 +95,22 @@ static void initialize ( void )
     ::bitwise_operators =
         min::new_lab_gen ( "bitwise", "operators" );
 
+    ::other_qualifiers =
+        min::new_lab_gen ( "other", "qualifiers" );
+    ::all_qualifiers =
+        min::new_lab_gen ( "all", "qualifiers" );
+    ::other_setup =
+        min::new_lab_gen ( "other", "setup" );
+    ::all_setup =
+        min::new_lab_gen ( "all", "setup" );
     ::other_brackets =
         min::new_lab_gen ( "other", "brackets" );
+    ::all_brackets =
+        min::new_lab_gen ( "all", "brackets" );
     ::other_operators =
         min::new_lab_gen ( "other", "operators" );
+    ::all_operators =
+        min::new_lab_gen ( "all", "operators" );
     ::all_other =
         min::new_lab_gen ( "all", "other" );
 
@@ -115,10 +134,22 @@ static void initialize ( void )
 		    ::math ) );
 
     MIN_REQUIRE
+	(    PARSTD::ID
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::id ) );
+    MIN_REQUIRE
+	(    PARSTD::TABLE
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::table ) );
+
+    MIN_REQUIRE
 	(    PARSTD::BLOCK
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
 		    ::block ) );
+
     MIN_REQUIRE
 	(    PARSTD::TOP_LEVEL
 	  == 1ull << TAB::push_name
@@ -129,17 +160,11 @@ static void initialize ( void )
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
 		    ::concatenator ) );
-
     MIN_REQUIRE
-	(    PARSTD::ID
+	(    PARSTD::LEXEME_MAP
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
-		    ::id ) );
-    MIN_REQUIRE
-	(    PARSTD::TABLE
-	  == 1ull << TAB::push_name
-		  ( PARSTD::component_name_table,
-		    ::table ) );
+		    ::lexeme_map ) );
 
     MIN_REQUIRE
 	(    PARSTD::BRACKETS
@@ -192,11 +217,35 @@ static void initialize ( void )
 	TAB::create_key_table ( 32 );
 
     TAB::push_root
+	( ::other_qualifiers, PARSTD::ALL_QUALIFIERS,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
+	( ::all_qualifiers, PARSTD::ALL_QUALIFIERS,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
+	( ::other_setup, PARSTD::ALL_SETUP,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
+	( ::all_setup, PARSTD::ALL_SETUP,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
 	( ::other_brackets, PARSTD::ALL_BRACKETS,
 	  0, PAR::top_level_position,
 	  PARSTD::component_group_name_table );
     TAB::push_root
+	( ::all_brackets, PARSTD::ALL_BRACKETS,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
 	( ::other_operators, PARSTD::ALL_OPERATORS,
+	  0, PAR::top_level_position,
+	  PARSTD::component_group_name_table );
+    TAB::push_root
+	( ::all_operators, PARSTD::ALL_OPERATORS,
 	  0, PAR::top_level_position,
 	  PARSTD::component_group_name_table );
     TAB::push_root
@@ -268,6 +317,8 @@ static void define_top_level
 
     if ( components & PARSTD::ID )
     {
+	parser->ID_character = '@';
+
 	min::locatable_gen data_check
 	    ( min::new_str_gen ( "DATA-CHECK" ) );
 	imark->line_lexical_master =
@@ -454,9 +505,7 @@ void PARSTD::define_standard
         ::define_top_level ( parser, components );
     if ( components & PARSTD::CONCATENATOR )
         ::define_concatenator ( parser );
-    if ( components & PARSTD::ID )
-	parser->ID_character = '@';
-    if ( components & ( PARSTD::ID + PARSTD::TABLE ) )
+    if ( components & PARSTD::LEXEME_MAP )
 	::define_lexeme_map ( parser, components );
 
     PARSTD::define_brackets ( parser, components );

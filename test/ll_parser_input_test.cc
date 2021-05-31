@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 30 17:09:51 EDT 2021
+// Date:	Mon May 31 16:47:45 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,9 @@ int main ( int argc, const char * argv[] )
     while ( argc > 1 )
     {
         if ( strcmp ( argv[1], "-m" ) == 0 )
-	    components += PARSTD::ID + PARSTD::TABLE;
+	    components +=
+	          PARSTD::ID + PARSTD::TABLE
+		+ PARSTD::LEXEME_MAP;
 	else
 	{
 	    cout << "ERROR: BAD ARGUMENT " << argv[1]

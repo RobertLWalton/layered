@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 22:51:37 EDT 2021
+// Date:	Mon May 31 16:02:58 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -194,41 +194,43 @@ enum {
         // Create and enable `text' selector.
     MATH			= 1 << 2,
         // Create and enable `math' selector.
+    ID				= 1 << 3,
+        // Enable ID for TOP_LEVEL, LEXICAL_MAP,
+	// INDENTATION_MARKS, and BRACKET_TYPES
+	// below.
+    TABLE			= 1 << 4,
+        // Enable TABLE for TOP_LEVEL, LEXICAL_MAP,
+	// INDENTATION_MARKS, and BRACKET_TYPES
+	// below.
 
-    BLOCK			= 1 << 3,
-        // Create block named `standard'.
-
-    TOP_LEVEL			= 1 << 4,
-        // Set top level selector to first enabled of
-	// CODE, TEXT, MATH.
-    CONCATENATOR                = 1 << 5,
-        // Set concatenator character to #.
-
-    ID				= 1 << 6,
-        // Set ID character to @ and lexeme map to
-	// map DATA and RAW-DATA lexemes.  Also
-	// causes BRACKET_TYPES below to define
-	// {data} and {raw data}, and top level
-	// lexical master to be set by TOP_LEVEL.
-    TABLE			= 1 << 7,
-        // Set lexeme map to map TABLE and ROW lexemes.
-	// Also causes BRACKET_TYPES below to define
-	// {table} and {row}, and top level
-	// lexical master to be set by TOP_LEVEL.
-
-    ALL_SETUP			= CODE
+    ALL_QUALIFIERS		= CODE
     				+ TEXT
     				+ MATH
-    				+ BLOCK
-    				+ TOP_LEVEL
-    				+ CONCATENATOR
-    				+ ID
+				+ ID
     				+ TABLE,
 
-    BRACKETS			= 1 << 8,
+    BLOCK			= 1 << 5,
+        // Create block named `standard'.
+
+    TOP_LEVEL			= 1 << 6,
+        // Set top level selector to first enabled of
+	// CODE, TEXT, MATH; set top level lexical
+	// masters according to ID and TABLE; set
+	// ID character to @ if ID enabled.
+    CONCATENATOR                = 1 << 7,
+        // Set concatenator character to #.
+    LEXEME_MAP                  = 1 << 8,
+        // Set lexeme map according to ID and TABLE.
+
+    ALL_SETUP			= 
+    				+ TOP_LEVEL
+    				+ CONCATENATOR
+    				+ LEXEME_MAP,
+
+    BRACKETS			= 1 << 9,
         // Set standard bracket entries omitting
 	// DISabled CODE, TEXT, and MATH selectors.
-    INDENTATION_MARKS		= 1 << 9,
+    INDENTATION_MARKS		= 1 << 10,
         // Set standard indentation mark entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.  If ID but not TABLE use
@@ -236,7 +238,7 @@ enum {
 	// ID use TABLE-CHECK lexical master;  if
 	// both ID and TABLE use PARAGRAPH-CHECK
 	// lexical master.
-    BRACKET_TYPES		= 1 << 10,
+    BRACKET_TYPES		= 1 << 11,
         // Set standard bracket type entries for TEXT
 	// if TEXT enabled, data if ID enabled, table
 	// if TABLE enabled.  If ID but not TABLE use
@@ -251,22 +253,22 @@ enum {
 	// Set all bracket related entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.
-    CONTROL_OPERATORS		= 1 << 11,
+    CONTROL_OPERATORS		= 1 << 12,
         // Set standard control operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ASSIGNMENT_OPERATORS	= 1 << 12,
+    ASSIGNMENT_OPERATORS	= 1 << 13,
         // Set standard assignment operator entries
 	// omitting DISabled CODE and MATH selectors.
-    LOGICAL_OPERATORS		= 1 << 13,
+    LOGICAL_OPERATORS		= 1 << 14,
         // Set standard logical operator entries
 	// omitting DISabled CODE and MATH selectors.
-    COMPARISON_OPERATORS	= 1 << 14,
+    COMPARISON_OPERATORS	= 1 << 15,
         // Set standard comparison operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ARITHMETIC_OPERATORS	= 1 << 15,
+    ARITHMETIC_OPERATORS	= 1 << 16,
         // Set standard arithmetic operator entries
 	// omitting DISabled CODE and MATH selectors.
-    BITWISE_OPERATORS		= 1 << 16,
+    BITWISE_OPERATORS		= 1 << 17,
         // Set standard bitwise operator entries
 	// omitting DISabled CODE and MATH selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS

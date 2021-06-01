@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 25, 2021
+June 1, 2021
  
 \end{center}
 
@@ -3003,7 +3003,8 @@ physical line, and the indented logical lines that follow are
     $|$ & {\em parser-trace-command} \\
     $|$ & {\em parser-bracketed-command} &
     $|$ & {\em parser-pass-command} \\
-    $|$ & {\em parser-operator-command}
+    $|$ & {\em parser-operator-command} &
+    $|$ & {\em parser-standard-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.3ex]
@@ -3059,11 +3060,6 @@ physical line, and the indented logical lines that follow are
 \emkey{option-flags} ::= {\em parser-flag-list}
                           with only option names (\pagref{OPTION-NAMES})
 			  \label{OPTION-FLAGS}
-\\[0.0ex]
-\emkey{trace-flag} ::= {\em parser-flag} as per \pagref{TRACE-FLAGS}
-\\[0.0ex]
-\emkey{trace-flag-spec} ::= {\em parser-flag-spec} with only trace flag names
-			    (\pagref{TRACE-FLAGS})
 
 \caption{\bf Parser Command Syntax: Part I}
 \label{PARSER-COMMAND-SYNTAX-1}
@@ -3128,6 +3124,22 @@ $|$ & \ttmkey{print top level}{parser command} \\
     $|$ & \ttmkey{print trace}{parser print} \\
     \end{tabular}
 \label{PARSER-TRACE-COMMAND}
+\\[0.0ex]
+\emkey{trace-flag} ::= {\em parser-flag} as per \pagref{TRACE-FLAGS}
+\\[0.0ex]
+\emkey{trace-flag-spec} ::=
+    {\em parser-flag-spec} with only {\em trace-flag} names
+\\[0.3ex]
+\emkey{parser-standard-command}
+    ::= \ttmkey{define standard} ~~ {\em standard-flag-spec}\QMARK{}
+\\[0.0ex]
+\emkey{standard-flag} ::= {\em parser-flag} as per \pagref{STANDARD-FLAGS}
+\\[0.0ex]
+\emkey{standard-flag-spec} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em parser-flag-spec} with only {\em standard-flag} names \\
+    and no \TT{\textasciicircum} {\em parser-flag-op}
+    \end{tabular}
 
 \caption{\bf Parser Command Syntax: Part II}
 \label{PARSER-COMMAND-SYNTAX-2}
@@ -3221,7 +3233,124 @@ since \TT{end at paragraph break} is explicitly mentioned in this
 {\em parser-flag-modifier-list}, it is deleted from the set in this
 context.
 
-The \key{standard parser} begins by executing the equivalent of:%
+\subsubsection{Parser Standard Commands}
+\label{PARSER-STANDARD-COMMANDS}
+
+The {\em parser-standard-command}:
+\begin{center}
+\TT{define standard} ~~ {\em standard-flag-spec}\QMARK{}
+\end{center}
+executes builtin parser commands that together define the
+\key{standard parser}.  If the {\em standard-flag-spec}
+is omitted, all such commands are executed.  Otherwise
+only those selected by the {\em standard-flag-spec}
+are executed.
+
+\begin{boxedfigure}[!t]
+
+\begin{center}
+
+{\bf \large Standard Qualifiers}
+
+\medskip
+
+\begin{tabular}{rp{4.2in}}
+
+\ttmkey{code}{parser standard flag} &
+    Defines the `\TT{code}' selector and enables definitions using it.
+\\
+\ttmkey{text}{parser standard flag} &
+    Defines the `\TT{text}' selector and enables definitions using it.
+\\
+\ttmkey{math}{parser standard flag} &
+    Defines the `\TT{math}' selector and enables definitions using it.
+\\
+\ttmkey{id}{parser standard flag} &
+    Enables identifier definitions (e.g., `\TT{@}').
+\\
+\ttmkey{table}{parser standard flag} &
+    Enables table definitions (e.g., `\TT{\{table\}}').
+
+\end{tabular}
+
+\medskip
+
+{\bf \large Standard Components}
+
+\medskip
+
+\begin{tabular}{rp{3.8in}}
+
+\ttmkey{block}{parser standard flag} &
+    Executes a `\TT{begin block standard}' command
+    (\pagref{STANDARD-BLOCK}).
+\\
+\ttmkey{top level}{parser standard flag} &
+    Enables top level definitions
+    (\pagref{STANDARD-TOP-LEVEL}).
+\\
+\ttmkey{concatenator}{parser standard flag} &
+    Enables concatenator definitions
+    (\pagref{STANDARD-CONCATENATOR}) and
+    middle break definitions
+    (\pagref{STANDARD-MIDDLE-BREAK}).
+\\
+\ttmkey{lexeme map}{parser standard flag} &
+    Enables lexeme map definitions
+    (\pagref{STANDARD-LEXEME-MAP}).  [id,table]
+\\
+\ttmkey{brackets}{parser standard flag} &
+    Enables untyped bracket definitions
+    (\pagref{STANDARD-BRACKETS}).  \\
+    & [code,text,math]
+\\
+\ttmkey{indentation marks}{parser standard flag} &
+    Enables indentation mark definitions
+    (\pagref{STANDARD-INDENTATION-MARK}).
+\\
+\ttmkey{bracket types}{parser standard flag} &
+    Enables bracket type definitions
+    (\pagref{STANDARD-BRACKET-TYPES}).
+\\
+\ttmkey{control operators}{parser standard flag} &
+    Enables control operator definitions
+    (\pagref{STANDARD-CONTROL-OPERATORS}).  [code]
+\\
+\ttmkey{assignment operators}{parser standard flag} &
+    Enables assignment operator definitions
+    (\pagref{STANDARD-ASSIGNMENT-OPERATORS}). \\
+    & [code,math]
+\\
+\ttmkey{logical operators}{parser standard flag} &
+    Enables logical operator definitions
+    (\pagref{STANDARD-LOGICAL-OPERATORS}). \\
+    & [code,math]
+\\
+\ttmkey{comparison operators}{parser standard flag} &
+    Enables comparison operator definitions
+    (\pagref{STANDARD-COMPARISON-OPERATORS}). \\
+    & [code,math]
+\\
+\ttmkey{arithmetic operators}{parser standard flag} &
+    Enables arithmetic operator definitions
+    (\pagref{STANDARD-ARITHMETIC-OPERATORS}). \\
+    & [code,math]
+\\
+\ttmkey{bitwise operators}{parser standard flag} &
+    Enables bitwise operator definitions
+    (\pagref{STANDARD-BITWISE-OPERATORS}).  [code]
+\\
+\end{tabular}
+
+\end{center}
+
+\caption{\bf Parser Standard Flags}
+\label{STANDARD-FLAGS}
+\end{boxedfigure}
+
+
+TBD
+
 \label{STANDARD-PARSING-BLOCK}
 \begin{indpar}\begin{verbatim}
 *PARSER*:

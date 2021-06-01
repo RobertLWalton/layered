@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 30 14:35:53 EDT 2021
+// Date:	Tue Jun  1 05:38:23 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
 //	Execute Test
 //	Execute Trace
 //	Execute Block
+//	Execute Standard
 //	Execute Command
 
 // Usage and Setup
@@ -28,6 +29,7 @@
 # include <ll_lexeme_standard.h>
 # include <ll_parser_command.h>
 # include <ll_parser_bracketed.h>
+# include <ll_parser_standard.h>
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -35,12 +37,14 @@
 # define TAB ll::parser::table
 # define BRA ll::parser::bracketed
 # define COM ll::parser::command
+# define PARSTD ll::parser::standard
 
 static min::locatable_gen exclusive_or;
 static min::locatable_gen trace;
 static min::locatable_gen top;
 static min::locatable_gen token;
 static min::locatable_gen value;
+static min::locatable_gen standard;
 
 static void initialize ( void )
 {
@@ -49,6 +53,7 @@ static void initialize ( void )
     ::top = min::new_str_gen ( "top" );
     ::token = min::new_str_gen ( "token" );
     ::value = min::new_str_gen ( "value" );
+    ::standard = min::new_str_gen ( "standard" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -1831,6 +1836,45 @@ static min::gen execute_block
 		    ( parser, name, ppvec->position );
 }
 
+// Execute Standard
+// ------- --------
+
+static min::gen execute_standard
+	( min::obj_vec_ptr & vp, min::uns32 i0,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    if (    vp[i0] != PARLEX::define )
+	return min::FAILURE();
+
+    TAB::new_flags flags =
+        TAB::new_flags ( PARSTD::ALL );
+
+    if ( min::size_of ( vp ) != i0 + 2 )
+    {
+	i0 += 2;
+        min::gen r = COM::scan_new_flags
+	    ( vp, i0, flags, PARSTD::ALL,
+	      PARSTD::component_name_table,
+	      PARSTD::component_group_name_table,
+	      parser, true );
+	if ( r != min::SUCCESS() )
+	    return r;
+	if ( flags.xor_flags != 0 )
+	    return PAR::parse_error
+		( parser,
+		  ppvec[i0-1],
+		  "^ is NOT allowed in" );
+	if ( i0 != min::size_of ( vp ) )
+	    return PAR::parse_error
+		( parser,
+		  ppvec[i0-1],
+		  "extraneous stuff after" );
+    }
+    PARSTD::define_standard ( parser, flags.or_flags );
+    return min::SUCCESS();
+}
+
 // Execute Command
 // ------- -------
 
@@ -1926,6 +1970,11 @@ void COM::parser_execute_command
 		  &&
 		  vp[1] == ::trace )
 	    result = ::execute_trace
+			( vp, 0, ppvec, parser );
+	else if ( size >= 2
+	          &&
+	          vp[1] == ::standard )
+	    result = ::execute_standard
 			( vp, 0, ppvec, parser );
 
 	// As long as command is unrecognized (i.e.,

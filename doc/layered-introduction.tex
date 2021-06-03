@@ -3311,58 +3311,59 @@ canceled by an `\TT{end block standard}' parser command.
     & (\pagref{STANDARD-BLOCK}).
 \\
 \ttmkey{top level}{parser standard flag} &
-    Enables top level definitions
-    (\pagref{STANDARD-TOP-LEVEL-1}, \pagref{STANDARD-TOP-LEVEL-2}).
+    Executes top level definitions
+    (\pagref{STANDARD-TOP-LEVEL-1})
+    and ID character definitions (\pagref{STANDARD-TOP-LEVEL-2}).
 \\
 \ttmkey{concatenator}{parser standard flag} &
-    Enables concatenator definitions
-    (\pagref{STANDARD-CONCATENATOR}) and
+    Executes concatenator definitions
+    (\pagref{STANDARD-CONCATENATOR-1}) and
     middle break definitions
-    (\pagref{STANDARD-MIDDLE-BREAK}).
+    (\pagref{STANDARD-CONCATENATOR-2}).
 \\
 \ttmkey{lexeme map}{parser standard flag} &
-    Enables lexeme map definitions
+    Executes lexeme map definitions
     (\pagref{STANDARD-LEXEME-MAP}).  [id,table]
 \\
 \ttmkey{brackets}{parser standard flag} &
-    Enables untyped bracket definitions
+    Executes untyped bracket definitions
     (\pagref{STANDARD-BRACKETS}).  \\
     & [code,text,math]
 \\
 \ttmkey{indentation marks}{parser standard flag} &
-    Enables indentation mark definitions
+    Executes indentation mark definitions
     (\pagref{STANDARD-INDENTATION-MARK}).
 \\
 \ttmkey{bracket types}{parser standard flag} &
-    Enables bracket type definitions
+    Executes bracket type definitions
     (\pagref{STANDARD-BRACKET-TYPES}).
 \\
 \ttmkey{control operators}{parser standard flag} &
-    Enables control operator definitions
+    Executes control operator definitions
     (\pagref{STANDARD-CONTROL-OPERATORS}).  [code]
 \\
 \ttmkey{assignment operators}{parser standard flag} &
-    Enables assignment operator definitions
+    Executes assignment operator definitions
     (\pagref{STANDARD-ASSIGNMENT-OPERATORS}). \\
     & [code,math]
 \\
 \ttmkey{logical operators}{parser standard flag} &
-    Enables logical operator definitions
+    Executes logical operator definitions
     (\pagref{STANDARD-LOGICAL-OPERATORS}). \\
     & [code,math]
 \\
 \ttmkey{comparison operators}{parser standard flag} &
-    Enables comparison operator definitions
+    Executes comparison operator definitions
     (\pagref{STANDARD-COMPARISON-OPERATORS}). \\
     & [code,math]
 \\
 \ttmkey{arithmetic operators}{parser standard flag} &
-    Enables arithmetic operator definitions
+    Executes arithmetic operator definitions
     (\pagref{STANDARD-ARITHMETIC-OPERATORS}). \\
     & [code,math]
 \\
 \ttmkey{bitwise operators}{parser standard flag} &
-    Enables bitwise operator definitions
+    Executes bitwise operator definitions
     (\pagref{STANDARD-BITWISE-OPERATORS}).  [code]
 \\
 \end{tabular}
@@ -4242,13 +4243,12 @@ are never merged.
 The end of a parser block erases the effects of any
 {\em define-middle-break-commands} executed during the block.
 
-When a parser is initialized, the middle break is disabled. The
-`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
-the definition
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define middle break "#" ... "#"
-\end{verbatim}\end{indpar}
+When a parser is initialized, the middle break is disabled.
+The `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-1}
+standard component executes the parser command:
+\begin{center}
+\tt define middle break "\#" ... "\#"
+\end{center}
 
 \subsubsection{Quoted String Concatenation}
 \label{QUOTED-STRING-CONCATENATION}
@@ -4305,13 +4305,12 @@ needs to be placed between the strings.
 The end of a parser block erases the effects of any
 {\em define-quoted-string-concatenator-commands} executed during the block.
 
-When a parser is initialized, the quoted string concatenator is disabled. The
-`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
-the definition
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define quoted string concatenator "#"
-\end{verbatim}\end{indpar}
+When a parser is initialized, the quoted string concatenator is disabled.
+The `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-2}
+standard component executes the parser command:
+\begin{center}
+\tt define quoted string concatenator "\#"
+\end{center}
 
 \subsubsection{Bracketed Subexpression Parser Pass Input}
 \label{BRACKETED-SUBEXPRESSION-PARSER-PASS-INPUT}

@@ -3955,36 +3955,47 @@ headed paragraphs (\itemref{HEADED-PARAGRAPHS})
 and headed lines (\itemref{HEADED-LINES}).
 
 
-When a parser is initialized, no lexemes are mapped.  The
-lexeme mapping definitions
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define mapped lexeme "DATA" [TOP LEVEL]
-           with token value {data}
-    define mapped lexeme "RAW-DATA" [TOP LEVEL]
-           with token value {raw data}
-    define mapped lexeme "TABLE" [TOP LEVEL]
-           with token value {table}
-    define mapped lexeme "ROW" [TOP LEVEL]
-           with token value {row}
-\end{verbatim}\end{indpar}
-are included in the `\TT{standard}' parser block
-(\pagref{STANDARD-PARSING-BLOCK}).
-
-When a parser is initialized, its paragraph and
+When a parser is initialized, no lexemes are mapped,
+and the parser's paragraph and
 line top level lexical masters (\pagref{LEXICAL-MASTER-PARAMETERS})
 are both set to the \TT{DEFAULT} lexical master
-which does \underline{not} recognize special lexemes.  The
-`\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK}) contains
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define top level
-        with parsing selectors [code]
-        with paragraph lexical master "PARAGRAPH-CHECK"
-        with line lexical master "DATA-CHECK"
-\end{verbatim}\end{indpar}
-which sets the lexical masters as indicated so that the special
-lexemes above are recognized in certain contexts.
+which does \underline{not} recognize special lexemes.
+
+The `\ttkey{lexeme map}'\label{STANDARD-LEXEME-MAP} standard component executes
+the parser commands:
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+Parser Command				& Given Qualifiers
+\\\hline
+\tt define mapped lexeme "DATA" [TOP LEVEL]		& \tt + id \\
+\tt ~~~~~~~with token value \{data\} \\
+\tt define mapped lexeme "RAW-DATA" [TOP LEVEL]		& \tt + id \\
+\tt ~~~~~~~with token value \{raw data\} \\
+\tt define mapped lexeme "TABLE" [TOP LEVEL]		& \tt + table \\
+\tt ~~~~~~~with token value \{table\} \\
+\tt define mapped lexeme "ROW" [TOP LEVEL]		& \tt + table \\
+\tt ~~~~~~~with token value \{row\} \\
+\end{tabular}
+\end{center}
+
+The `\ttkey{top level}' standard component executes
+parser commands that include (see \pagref{STANDARD-TOP-LEVEL-1} and
+\pagref{STANDARD-TOP-LEVEL-2}):
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+Parser Command				& Given Qualifiers
+\\\hline
+\tt define top level paragraph lexical & \tt + id, + table \\
+\tt ~~~~~~~master "PARAGRAPH-CHECK" \\
+\tt define top level paragraph lexical & \tt - id, + table \\
+\tt ~~~~~~~master "TABLE-CHECK" \\
+\tt define top level paragraph lexical & \tt + id, - table \\
+\tt ~~~~~~~master "DATA-CHECK" \\
+\tt define top level line lexical & \tt + id \\
+\tt ~~~~~~~master "DATA-CHECK" \\
+\tt define ID character "@" 		& \tt + id \\
+\end{tabular}
+\end{center}
 
 \subsection{The Bracketed Subexpression Recognition Pass}
 \label{BRACKETED-SUBEXPRESSION-RECOGNITION-PASS}

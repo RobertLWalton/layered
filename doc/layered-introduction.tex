@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 1, 2021
+June 3, 2021
  
 \end{center}
 
@@ -2471,7 +2471,7 @@ Enable Options:\label{ENABLE-OPTIONS}
     This parser option allows indentation marks beginning an indented
     paragraph to be recognized (if they end a physical line).
 
-    This option is on by default at top level (else parsing commands
+    This option is on by default at top level (else parser commands
     could not be recognized).
     The option is automatically turned off inside a bracketed
     subexpression.
@@ -2901,7 +2901,7 @@ is recognized, and remain changed until the associated explicit closing
 bracket, end of indented paragraph, or end of prefix separator list
 is recognized.  The parser also has top level set of selectors
 used to begin parsing a top level logical line, and these top level
-selectors can be changed by parsing commands.
+selectors can be changed by parser commands.
 
 There are no other mechanisms for setting or changing the
 parsing selectors.
@@ -3246,6 +3246,28 @@ is omitted, all such commands are executed.  Otherwise
 only those selected by the {\em standard-flag-spec}
 are executed.
 
+The flags specified by the {\em standard-flag-spec}
+are called {\em standard-flags} and are defined in
+Figure~\ref{STANDARD-FLAGS}.  There are two kinds of
+flags: \smkey{component}s{standard} which execute
+parser commands, and \smkey{qualifier}s{standard} which
+modify the components.  In the Figure, the qualifiers
+that modify a component are listed in [] brackets after
+the component definition.  E.g., the {\tt math} qualifier
+modifies the actions of the {\tt brackets} component
+which defines standard untyped brackets.
+
+The `\ttkey{block}'\label{STANDARD-BLOCK} standard component executes
+the parser command:
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\tt begin block standard
+\end{tabular}
+\end{center}
+
+If this is used, standard parser definitions can be
+canceled by an `\TT{end block standard}' parser command.
+
 \begin{boxedfigure}[!t]
 
 \begin{center}
@@ -3257,13 +3279,16 @@ are executed.
 \begin{tabular}{rp{4.2in}}
 
 \ttmkey{code}{parser standard flag} &
-    Defines the `\TT{code}' selector and enables definitions using it.
+    Enables definitions using the `\TT{code}' selector.
+    (\pagref{STANDARD-SELECTORS}).
 \\
 \ttmkey{text}{parser standard flag} &
-    Defines the `\TT{text}' selector and enables definitions using it.
+    Enables definitions using the `\TT{text}' selector.
+    (\pagref{STANDARD-SELECTORS}).
 \\
 \ttmkey{math}{parser standard flag} &
-    Defines the `\TT{math}' selector and enables definitions using it.
+    Enables definitions using the `\TT{math}' selector.
+    (\pagref{STANDARD-SELECTORS}).
 \\
 \ttmkey{id}{parser standard flag} &
     Enables identifier definitions (e.g., `\TT{@}').
@@ -3279,15 +3304,15 @@ are executed.
 
 \medskip
 
-\begin{tabular}{rp{3.8in}}
+\begin{tabular}{rp{3.6in}}
 
 \ttmkey{block}{parser standard flag} &
-    Executes a `\TT{begin block standard}' command
-    (\pagref{STANDARD-BLOCK}).
+    Executes a `\TT{begin block standard}' command \\
+    & (\pagref{STANDARD-BLOCK}).
 \\
 \ttmkey{top level}{parser standard flag} &
     Enables top level definitions
-    (\pagref{STANDARD-TOP-LEVEL}).
+    (\pagref{STANDARD-TOP-LEVEL-1}, \pagref{STANDARD-TOP-LEVEL-2}).
 \\
 \ttmkey{concatenator}{parser standard flag} &
     Enables concatenator definitions
@@ -3349,17 +3374,6 @@ are executed.
 \end{boxedfigure}
 
 
-TBD
-
-\label{STANDARD-PARSING-BLOCK}
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    begin block standard
-\end{verbatim}\end{indpar}
-
-Standard parser definitions can be
-canceled by an `\TT{end block standard}' parser command.
-
 \subsubsection{Parser Selector Commands}
 \label{PARSER-SELECTOR-COMMANDS}
 
@@ -3390,15 +3404,18 @@ Here a {\em partial-name} is a sequence of lexemes that is matched
 to any subsequence of lexemes in a selector name, not just an initial
 subsequence.  There is \underline{no} matching of partial lexemes.
 
-Thus the standard parser executes the
-equivalent of
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define selector code
-    define selector math
-    define selector text
-    define selector data paragraph
-\end{verbatim}\end{indpar}
+Whenever one of the standard qualifiers `\TT{code}', `\TT{text}',
+or `\TT{math}' causes the corresponding selector to be used in a definition,
+the selector
+is created by the appropriate one of the parser commands:
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}\label{STANDARD-SELECTORS}
+\tt define selector code & If `\TT{code}' selector used. \\
+\tt define selector text & If `\TT{text}' selector used. \\
+\tt define selector math & If `\TT{math}' selector used. \\
+\end{tabular}
+\end{center}
 
 \subsubsection{Parser Top Level Commands}
 \label{PARSER-TOP-LEVEL-COMMANDS}
@@ -3508,16 +3525,31 @@ indented paragraph has no parsing selectors
 or lexical masters and has the
 `\TT{default}' parsing options (\pagref{DEFAULT-OPTIONS}).
 
-The standard parser executes a \TT{begin block standard} parser
-command that introduces a new top level indented paragraph
-with its parameters modified by
-\begin{indpar}[0.1in]\begin{verbatim}
-*PARSER*:
-    define top level parsing selectors [+ code]
-    define top level line separator ";"
-    define top level paragraph lexical master "PARAGRAPH-CHECK"
-    define top level line lexical master "DATA-CHECK"
-\end{verbatim}\end{indpar}
+The `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-1} standard component executes
+the parser commands:
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+Parser Command				& Given Qualifiers
+\\\hline
+\tt define top level parsing selectors  & \tt + code \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~[+ code] \\
+\tt define top level parsing selectors  & \tt - code, + text \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~[+ text] \\
+\tt define top level parsing selectors  & \tt - code, - text, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~[+ math]   & \tt ~~~~~~~~+ math \\
+\tt define top level parsing selectors  & \tt - code, - text, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~[+ data]   & \tt ~~~~~~~~- math \\
+\tt define top level line separator ";" & \tt + code \\
+\tt define top level paragraph lexical & \tt + id, + table \\
+\tt ~~~~~~~master "PARAGRAPH-CHECK" \\
+\tt define top level paragraph lexical & \tt - id, + table \\
+\tt ~~~~~~~master "TABLE-CHECK" \\
+\tt define top level paragraph lexical & \tt + id, - table \\
+\tt ~~~~~~~master "DATA-CHECK" \\
+\tt define top level line lexical & \tt + id \\
+\tt ~~~~~~~master "DATA-CHECK" \\
+\end{tabular}
+\end{center}
 
 
 
@@ -3740,15 +3772,16 @@ the values can initially be preallocated stubs that have identity but
 do not yet have any content.  In this last case, object content
 can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
 
-When a parser is initialized, the ID character is disabled.  The
-ID definition
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define ID character "@"
-\end{verbatim}\end{indpar}
-is included in the `\TT{standard}' parser block
-(\pagref{STANDARD-PARSING-BLOCK}).
-
+When a parser is initialized, the ID character is disabled.
+The `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-2} standard component executes
+the parser command:
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+Parser Command				& Given Qualifiers
+\\\hline
+\tt define ID character "@" 		& \tt + id \\
+\end{tabular}
+\end{center}
 
 \subsubsection{Mapped Lexemes}
 \label{MAPPED-LEXEMES}

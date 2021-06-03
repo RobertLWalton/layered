@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 31 16:41:58 EDT 2021
+// Date:	Wed Jun  2 16:59:35 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -303,17 +303,13 @@ static void define_top_level
 	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
 
-    line_sep_ref(imark) =
-	BRA::push_line_sep
-	    ( PARLEX::semicolon,
-	      block_level,
-	      PAR::top_level_position,
+    if ( components & PARSTD::CODE )
+	line_sep_ref(imark) =
+	    BRA::push_line_sep
+		( PARLEX::semicolon,
+		  block_level,
+		  PAR::top_level_position,
 	      bracket_table );
-
-    imark->paragraph_lexical_master =
-	  PAR::MISSING_MASTER;
-    imark->line_lexical_master =
-	  PAR::MISSING_MASTER;
 
     if ( components & PARSTD::ID )
     {

@@ -3314,6 +3314,7 @@ canceled by an `\TT{end block standard}' parser command.
     Executes top level definitions
     (\pagref{STANDARD-TOP-LEVEL-1})
     and ID character definitions (\pagref{STANDARD-TOP-LEVEL-2}).
+    [code,text,math,id,table]
 \\
 \ttmkey{concatenator}{parser standard flag} &
     Executes concatenator definitions
@@ -4867,29 +4868,44 @@ are included in the \TT{TOP LEVEL} parser block:
      define bracket "{*" ... "*}" [data]
          with multivalue reformatter ( "," )
 \end{verbatim}\end{indpar}
-The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
-adds the definitions:
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-     define bracket "(" ... ")" [code, math, text]
-     define bracket "[" ... "]" [code, math, text]
-     define bracket "{{" ... "}}" [data, code, math, text]
-         with parsing selectors
-              [ + math, - code, - text, - data]
-     define bracket "`" ... "'" [code, math, text]
-         with parsing selectors [atom]
-     define bracket "``" ... "''" [data, code, math, text]
-         with parsing selectors
-              [ + text, - code, - math, - data]
-         with text reformatter
-              ( "s", ".", "?", "!", ":", ";" )
-     define bracket "[<" ... ">]" [code, math, text]
-         with parsing selectors [atom]
-         with label reformatter
-     define bracket "[$" ... "$]" [code, math, text]
-         with parsing selectors [atom]
-         with special reformatter
-\end{verbatim}\end{indpar}
+
+The `\ttkey{brackets}'\label{STANDARD-BRACKETS} standard component executes
+the following parser commands:
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\multicolumn{2}{c}{All Commands Require at Least One of
+                   {\tt + code, + text, + math}} \\
+\multicolumn{2}{c}{Missing Selector Qualifiers are Deleted from Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          Other\\{\bf Required}\\Qualifiers}
+\\\hline
+\tt define bracket "(" ... ")" \\
+\tt ~~~~~~~[code, text, math] \\
+\tt define bracket "[" ... "]" \\
+\tt ~~~~~~~[code, text, math] \\
+\tt define bracket "`" ... "'" \\
+\tt ~~~~~~~[code, text, math] \\
+\tt define bracket "[<" ... ">]" \\
+\tt ~~~~~~~[code, text, math] \\
+\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with label reformatter \\
+\tt define bracket "[\$" ... "\$]" \\
+\tt ~~~~~~~[code, text, math] \\
+\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with special reformatter \\
+\tt define bracket "\{\{" ... "\}\}"    & \tt + math \\
+\tt ~~~~~~~[data, code, text, math] \\
+\tt ~~~~~~~with parsing selectors \\
+\tt ~~~~~~~~~~~~[+ math, - code, - text, - data] \\
+\tt define bracket "`{}`" ... "'{}'"    & \tt + text \\
+\tt ~~~~~~~[data, code, text, math] \\
+\tt ~~~~~~~with parsing selectors \\
+\tt ~~~~~~~~~~~~[+ text, - code, - math, - data] \\
+\tt ~~~~~~~with text reformatter \\
+\tt ~~~~~~~~~~~~( "s", ".", "?", "!", ":", ";" ) \\
+\end{tabular}
+\end{center}
 
 \subsubsection{Indented Paragraph Subexpressions}
 \label{INDENTED-PARAGRAPH-SUBEXPRESSIONS}

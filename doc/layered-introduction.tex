@@ -3407,18 +3407,41 @@ Here a {\em partial-name} is a sequence of lexemes that is matched
 to any subsequence of lexemes in a selector name, not just an initial
 subsequence.  There is \underline{no} matching of partial lexemes.
 
-Whenever one of the standard qualifiers `\TT{code}', `\TT{text}',
-or `\TT{math}' causes the corresponding selector to be used in a definition,
-the selector
-is created by the appropriate one of the parser commands:
-
 \begin{center}
+\begin{tabular}{l}
+{\bf Initial Parser Selector Commands}
+\\\hline
+\tt define selector TOP LEVEL \\
+\tt define selector LINE LEVEL \\
+\tt define selector data \\
+\tt define selector atom \\
+\end{tabular}
+\\[2ex]
+{\bf Standard Parser Selector Commands}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}\label{STANDARD-SELECTORS}
-\tt define selector code & If `\TT{code}' selector used. \\
-\tt define selector text & If `\TT{text}' selector used. \\
-\tt define selector math & If `\TT{math}' selector used. \\
+Parser Command				& Given
+\\\hline
+\tt define selector code & {\tt + code} qualifier and
+                           `\TT{code}' selector used \\
+\tt define selector text & {\tt + text} qualifier and
+                           `\TT{text}' selector used \\
+\tt define selector math & {\tt + math} qualifier and
+                           `\TT{math}' selector used \\
 \end{tabular}
 \end{center}
+
+If a selector qualifier (e.g. `{\tt + math}') is not given,
+the corresponding selector (e.g. `{\tt math}') will be automatically deleted
+from every standard parser command containing it, and if this makes
+the command meaningless, the command will be automatically ignored
+and not executed.  E.g., the command
+\begin{indpar}[0.1in]\begin{verbatim}
+define bracket "{{" ... "}}" [data, code, text, math]
+      with parsing selectors [ + math, - code, - text, - data]
+\end{verbatim}\end{indpar}
+will be ignored if the `{\tt + math}' standard qualifier was not given.
+
 
 \subsubsection{Parser Top Level Commands}
 \label{PARSER-TOP-LEVEL-COMMANDS}
@@ -3528,9 +3551,21 @@ indented paragraph has no parsing selectors
 or lexical masters and has the
 `\TT{default}' parsing options (\pagref{DEFAULT-OPTIONS}).
 
-The `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-1} standard component executes
-the parser commands:
 \begin{center}
+{\bf Initial Top Level Parser Commands}
+\\[1ex]
+\begin{tabular}{l}
+Parser Command
+\\\hline
+\tt define top level parsing selectors [data] \\
+\tt define top level parsing options [default end at options] \\
+\tt define top level line separator NONE \\
+\tt define top level lexical master "DEFAULT" \\
+\end{tabular}
+\\[2ex]
+{\bf Standard `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-1} Component
+     Parser Commands}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 Parser Command				& Given Qualifiers
 \\\hline
@@ -4084,7 +4119,6 @@ the input: \\
       attribute negators (e.g.~`\TT{not}'): &
       \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
       \end{tabular}
-\\[0.5ex]
 \\[1ex]
 Bracket Type Symbol Table. Contains information about bracket types:
 \itemref{BRACKET-TYPE-DEFINITIONS}

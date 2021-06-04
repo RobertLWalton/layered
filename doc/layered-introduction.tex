@@ -3328,12 +3328,13 @@ canceled by an `\TT{end block standard}' parser command.
 \\
 \ttmkey{brackets}{parser standard flag} &
     Executes untyped bracket definitions
-    (\pagref{STANDARD-BRACKETS}).  \\
-    & [code,text,math]
+    (\pagref{STANDARD-BRACKETS-1}) and
+    typed bracket defintions
+    (\pagref{STANDARD-BRACKETS-2}) [code,text,math]
 \\
 \ttmkey{indentation marks}{parser standard flag} &
     Executes indentation mark definitions
-    (\pagref{STANDARD-INDENTATION-MARK}).
+    (\pagref{STANDARD-INDENTATION-MARKS}).
 \\
 \ttmkey{bracket types}{parser standard flag} &
     Executes bracket type definitions
@@ -4869,7 +4870,7 @@ are included in the \TT{TOP LEVEL} parser block:
          with multivalue reformatter ( "," )
 \end{verbatim}\end{indpar}
 
-The `\ttkey{brackets}'\label{STANDARD-BRACKETS} standard component executes
+The `\ttkey{brackets}'\label{STANDARD-BRACKETS-1} standard component executes
 the following parser commands:
 \begin{center}
 \begin{tabular}{l@{\hspace*{0.5in}}l}
@@ -5219,26 +5220,47 @@ definitions are included in the \TT{TOP LEVEL} parser block:
     define indentation mark "*PARSER* *TEST*:" ... ";"
         [TOP LEVEL]
 \end{verbatim}\end{indpar}
-The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
-adds the definitions:
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-     define indentation mark ":" ... ";" [code]
-         with parsing options [+ default end at options,
-                               - non-default end at options]
-         with paragraph lexical master "PARAGRAPH-CHECK"
-         with line lexical master "DATA-CHECK"
-     define indentation mark ":" [text]
-         with parsing options [+ default end at options,
-                               - non-default end at options]
-         with paragraph lexical master "PARAGRAPH-CHECK"
-         with line lexical master "DATA-CHECK"
-         with implied header {p}
-     define indentation mark ":" [data paragraph]
-         with parsing selectors [data]
-         with parsing options [+ default end at options,
-                               - non-default end at options]
-\end{verbatim}\end{indpar}
+
+The `\ttkey{indentation marks}'\label{STANDARD-INDENTATION-MARKS}
+standard component executes the following parser commands:
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\multicolumn{2}{c}{For \ttkey{indentation marks} Standard Parser Component}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          Required\\Qualifiers}
+\\\hline
+\tt define indentation mark ":" ... ";" [code] & + code \\
+\tt ~~~~~~~with parsing options \\
+\tt ~~~~~~~~~~~~[default end at options] \\
+\tt ~~~~~~~with paragraph lexical master $P$ \\
+\tt ~~~~~~~with line lexical master $L$ \\
+\tt define indentation mark ":" ... ";" [text] & + text \\
+\tt ~~~~~~~with parsing options \\
+\tt ~~~~~~~~~~~~[default end at options] \\
+\tt ~~~~~~~with paragraph lexical master $P$ \\
+\tt ~~~~~~~with line lexical master $L$ \\
+\tt ~~~~~~~with implied header \{p\} \\
+\tt define indentation mark ":" ... ";" [data paragraph] \\
+\tt ~~~~~~~with parsing selectors [data] \\
+\tt ~~~~~~~with parsing options \\
+\tt ~~~~~~~~~~~~[default end at options] \\
+\end{tabular}
+\\[1ex]
+where
+\\[1ex]
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+$P$ = {\tt PARAGRAPH-CHECK} & if {\tt + id, + table} \\	
+$P$ = {\tt TABLE-CHECK} & if {\tt - id, + table} \\	
+$P$ = {\tt DATA-CHECK} & if {\tt + id, - table} \\	
+$P$ = inherit from context & if {\tt - id, - table} \\	
+$L$ = {\tt DATA-CHECK} & if {\tt + id} \\	
+$L$ = inherit from context & if {\tt - id} \\	
+\end{tabular}
+\\[1ex]
+`inherit from context' means that the \\
+`{\tt with ... lexical master ...}'~~line is omitted
+\end{center}
 
 \subsubsection{Typed Bracketed Subexpressions}
 \label{TYPED-BRACKETED-SUBEXPRESSIONS}
@@ -5913,17 +5935,37 @@ adds the definition:
         with attribute multivalue initiator "{*"
 \end{verbatim}\end{indpar}
 
-is included in the `\TT{standard}' parser block
-(\pagref{STANDARD-PARSING-BLOCK}).
+The `\ttkey{brackets}'\label{STANDARD-BRACKETS-2} standard component executes
+the following parser command:
+\begin{center}
+\begin{tabular}{l}
+\multicolumn{1}{c}{This Command Requires at Least One of
+                   {\tt + code, + text, + math}} \\
+\multicolumn{1}{c}{Missing Selector Qualifiers are Deleted from the Command}
+\\[1ex]
+\tt define typed bracket "\{" ... "|" ... "|" ... "\}" \\
+\tt ~~~~~~~[code, text, math] \\
+\tt ~~~~~~~// `||' abbreviates `| |' \\
+\tt ~~~~~~~// there are NO PARSING SELECTORS \\
+\tt ~~~~~~~// there are NO PARSING OPTIONS \\
+\tt ~~~~~~~with attribute selectors [data] \\
+\tt ~~~~~~~with attributes ":" ... "=" ... "," \\
+\tt ~~~~~~~with attribute negator "no" \\
+\tt ~~~~~~~with attribute flags initiator "[" \\
+\tt ~~~~~~~with attribute multivalue initiator "\{*" \\
+\end{tabular}
+\end{center}
 
-Since `\TT{with parsing options}'
-does not appear in either definition, the parsing options used
+When `\TT{with parsing options}'
+does not appear in a `{\tt define typed bracket ...}' command,
+the parsing options used
 to scan any {\em elements} are the same as the context options
 modified by any parsing options
 found when the {\em bracket-type} is looked up in the
 bracket type table.
-Similarly since
-`\TT{with parsing selectors}' does not appear in either definition,
+Similarly when
+`\TT{with parsing selectors}' does not appear in a
+`{\tt define typed bracket ...}' command,
 the parsing selectors used to scan {\em elements}
 are the same as the context selectors
 modified by any parsing selectors

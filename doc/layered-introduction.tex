@@ -3560,7 +3560,7 @@ Parser Command
 \tt define top level parsing selectors [data] \\
 \tt define top level parsing options [default end at options] \\
 \tt define top level line separator NONE \\
-\tt define top level lexical master "DEFAULT" \\
+\tt define top level lexical master DEFAULT \\
 \end{tabular}
 \\[2ex]
 {\bf Standard `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-1} Component
@@ -3579,13 +3579,13 @@ Parser Command				& Given Qualifiers
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~[+ data]   & \tt ~~~~~~~~- math \\
 \tt define top level line separator ";" & \tt + code \\
 \tt define top level paragraph lexical & \tt + id, + table \\
-\tt ~~~~~~~master "PARAGRAPH-CHECK" \\
+\tt ~~~~~~~master PARAGRAPH-CHECK \\
 \tt define top level paragraph lexical & \tt - id, + table \\
-\tt ~~~~~~~master "TABLE-CHECK" \\
+\tt ~~~~~~~master TABLE-CHECK \\
 \tt define top level paragraph lexical & \tt + id, - table \\
-\tt ~~~~~~~master "DATA-CHECK" \\
+\tt ~~~~~~~master DATA-CHECK \\
 \tt define top level line lexical & \tt + id \\
-\tt ~~~~~~~master "DATA-CHECK" \\
+\tt ~~~~~~~master DATA-CHECK \\
 \end{tabular}
 \end{center}
 
@@ -3810,14 +3810,20 @@ the values can initially be preallocated stubs that have identity but
 do not yet have any content.  In this last case, object content
 can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
 
-When a parser is initialized, the ID character is disabled.
-The `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-2} standard component executes
-the parser command:
 \begin{center}
+\begin{tabular}{l}
+\multicolumn{1}{c}{\bf Initial ID Character Parser Command}
+\\\hline
+\tt define ID character disabled \\
+\end{tabular}
+\\[2ex]
+{\bf Standard `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-2} Component
+     ID Character Parser Command}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 Parser Command				& Given Qualifiers
 \\\hline
-\tt define ID character "@" 		& \tt + id \\
+\tt define ID character "@"             & \tt + id \\
 \end{tabular}
 \end{center}
 
@@ -3900,7 +3906,8 @@ Typically mapped to the `\TT{\{raw data\}}' prefix separator.
 
 \ttmkey{TABLE}{special lexeme}
 \begin{indpar}
-Output by the \TT{PARAGRAPH-\EOL CHECK} lexical master
+Output by the \TT{PARAGRAPH-\EOL CHECK} and \TT{TABLE-\EOL CHECK}
+lexical masters
 when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
 `\TT{=====}'.
 Typically mapped to the `\TT{\{table\}}' prefix separator.
@@ -3926,12 +3933,15 @@ input.  The standard lexical masters are:
 Lexical Master Name	& Characters		& Lexical Type
 \\\hline
 \\[0.5ex]
-\TT{DATA-CHECK}		& \TT{@}		& \TT{DATA} \\
-			& \TT{!@}		& \TT{RAW-DATA} 
-\\[2ex]
 \TT{PARAGRAPH-CHECK}	& \TT{@}		& \TT{DATA} \\
 			& \TT{!@}		& \TT{RAW-DATA} \\
 			& \TT{-{}-{}-{}-{}-}	& \TT{TABLE} \\
+			& \TT{=====}		& \TT{TABLE}
+\\[2ex]
+\TT{DATA-CHECK}		& \TT{@}		& \TT{DATA} \\
+			& \TT{!@}		& \TT{RAW-DATA} 
+\\[2ex]
+\TT{TABLE-CHECK}	& \TT{-{}-{}-{}-{}-}	& \TT{TABLE} \\
 			& \TT{=====}		& \TT{TABLE}
 \\[2ex]
 \TT{ROW-CHECK}		& \TT{|}		& \TT{ROW} \\
@@ -3958,7 +3968,9 @@ If the mapped lexeme symbol table entry
 has no {\em lexical-master-name}, the lexical master
 is not changed, which for standard lexical masters means the
 next lexeme will be scanned by the default lexical master.
-If the entry has no {\em token-value},
+If the entry has no {\em token-value}
+(i.e., the entry's `{\tt define mapped lexeme ...}' command
+has no `{\tt with token value ...}' modifier),
 the token which selected the entry is deleted, though the
 lexical master may still be changed.
 
@@ -3999,9 +4011,10 @@ line top level lexical masters (\pagref{LEXICAL-MASTER-PARAMETERS})
 are both set to the \TT{DEFAULT} lexical master
 which does \underline{not} recognize special lexemes.
 
-The `\ttkey{lexeme map}'\label{STANDARD-LEXEME-MAP} standard component executes
-the parser commands:
 \begin{center}
+{\bf Standard `\ttkey{lexeme map}'\label{STANDARD-LEXEME-MAP} Component
+     Mapped Lexeme Parser Commands}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 Parser Command				& Given Qualifiers
 \\\hline
@@ -4014,23 +4027,22 @@ Parser Command				& Given Qualifiers
 \tt define mapped lexeme "ROW" [TOP LEVEL]		& \tt + table \\
 \tt ~~~~~~~with token value \{row\} \\
 \end{tabular}
-\end{center}
-
-The `\ttkey{top level}' standard component executes
-parser commands that include (see \pagref{STANDARD-TOP-LEVEL-1} and
-\pagref{STANDARD-TOP-LEVEL-2}):
-\begin{center}
+\\[2ex]
+{\bf Standard `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-2} Component
+     Parser Commands (as per \pagref{STANDARD-TOP-LEVEL-1} and
+                          \pagref{STANDARD-TOP-LEVEL-2}):}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 Parser Command				& Given Qualifiers
 \\\hline
 \tt define top level paragraph lexical & \tt + id, + table \\
-\tt ~~~~~~~master "PARAGRAPH-CHECK" \\
+\tt ~~~~~~~master PARAGRAPH-CHECK \\
 \tt define top level paragraph lexical & \tt - id, + table \\
-\tt ~~~~~~~master "TABLE-CHECK" \\
+\tt ~~~~~~~master TABLE-CHECK \\
 \tt define top level paragraph lexical & \tt + id, - table \\
-\tt ~~~~~~~master "DATA-CHECK" \\
+\tt ~~~~~~~master DATA-CHECK \\
 \tt define top level line lexical & \tt + id \\
-\tt ~~~~~~~master "DATA-CHECK" \\
+\tt ~~~~~~~master DATA-CHECK \\
 \tt define ID character "@" 		& \tt + id \\
 \end{tabular}
 \end{center}
@@ -4882,59 +4894,52 @@ are collected into a typed bracketted subexpression with
 \end{indpar}
 
 
-
-When a parser is initialized, the following
-definitions\label{UNTYPED-BRACKET-BULITINS}
-are included in the \TT{TOP LEVEL} parser block:
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-     define bracket "(" ... ")" [data]
-     define bracket "[" ... "]" [data]
-     define bracket "{{" ... "}}" [data]
-     define bracket "`" ... "'" [data]
-         with parsing selectors [atom]
-     define bracket "``" ... "''" [data]
-     define bracket "[<" ... ">]" [data, atom]
-         with parsing selectors [atom]
-         with label reformatter
-     define bracket "[$" ... "$]" [data, atom]
-         with parsing selectors [atom]
-         with special reformatter
-     define bracket "{*" ... "*}" [data]
-         with multivalue reformatter ( "," )
-\end{verbatim}\end{indpar}
-
-The `\ttkey{brackets}'\label{STANDARD-BRACKETS-1} standard component executes
-the following parser commands:
 \begin{center}
+\begin{tabular}{l}
+\multicolumn{1}{c}{\bf Initial Bracket Parser Commands}
+\\\hline
+\tt define bracket "(" ... ")" [data] \\
+\tt define bracket "[" ... "]" [data] \\
+\tt define bracket "{{" ... "}}" [data] \\
+\tt define bracket "`" ... "'" [data] \\
+\tt ~~~~~~~with parsing selectors [atom] \\
+\tt define bracket "``" ... "''" [data] \\
+\tt define bracket "[<" ... ">]" [data, atom] \\
+\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with label reformatter \\
+\tt define bracket "[$" ... "$]" [data, atom] \\
+\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with special reformatter \\
+\tt define bracket "{*" ... "*}" [data] \\
+\tt ~~~~~~~with multivalue reformatter ( "," ) \\
+\end{tabular}
+\\[2ex]
+{\bf Standard `\ttkey{brackets}'\label{STANDARD-BRACKETS-1} Component
+     Bracket Parser Commands}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \multicolumn{2}{c}{All Commands Require at Least One of
                    {\tt + code, + text, + math}} \\
-\multicolumn{2}{c}{Missing Selector Qualifiers are Deleted from Commands}
+\multicolumn{2}{c}{Selectors with Missing Qualifiers are Deleted from Commands}
 \\[1ex]
 Parser Command				& \shortstack{
                                           Other\\{\bf Required}\\Qualifiers}
 \\\hline
-\tt define bracket "(" ... ")" \\
-\tt ~~~~~~~[code, text, math] \\
-\tt define bracket "[" ... "]" \\
-\tt ~~~~~~~[code, text, math] \\
-\tt define bracket "`" ... "'" \\
-\tt ~~~~~~~[code, text, math] \\
-\tt define bracket "[<" ... ">]" \\
-\tt ~~~~~~~[code, text, math] \\
+\tt define bracket "(" ... ")" [code, text, math] \\
+\tt define bracket "[" ... "]" [code, text, math] \\
+\tt define bracket "`" ... "'" [code, text, math] \\
+\tt define bracket "[<" ... ">]" [code, text, math] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with label reformatter \\
-\tt define bracket "[\$" ... "\$]" \\
-\tt ~~~~~~~[code, text, math] \\
+\tt define bracket "[\$" ... "\$]" [code, text, math] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with special reformatter \\
 \tt define bracket "\{\{" ... "\}\}"    & \tt + math \\
-\tt ~~~~~~~[data, code, text, math] \\
+\tt ~~~~~~~~~~~~~~~[data, code, text, math] \\
 \tt ~~~~~~~with parsing selectors \\
 \tt ~~~~~~~~~~~~[+ math, - code, - text, - data] \\
 \tt define bracket "`{}`" ... "'{}'"    & \tt + text \\
-\tt ~~~~~~~[data, code, text, math] \\
+\tt ~~~~~~~~~~~~~~~[data, code, text, math] \\
 \tt ~~~~~~~with parsing selectors \\
 \tt ~~~~~~~~~~~~[+ text, - code, - math, - data] \\
 \tt ~~~~~~~with text reformatter \\
@@ -6753,7 +6758,7 @@ adds the definitions:
     define bracket type "table" [code, text]
            with parsing selectors [text]
            with group paragraph
-           with line lexical master "ROW-CHECK"
+           with line lexical master ROW-CHECK
     define bracket type "row" [text]
            with group line
     define bracket type "data"
@@ -6974,15 +6979,15 @@ The `\TT{standard}' parser block contains the definitions:
 *PARSER*:
     define top level
         with parsing selectors [code]
-        with paragraph lexical master "PARAGRAPH-CHECK"
-        with line lexical master "DATA-CHECK"
+        with paragraph lexical master PARAGRAPH-CHECK
+        with line lexical master DATA-CHECK
     define mapped lexeme "TABLE" [TOP LEVEL]
            with token value {table}
     define mapped lexeme "ROW" [TOP LEVEL]
            with token value {row}
     define bracket type "table" [code, text]
         with group paragraph
-        with line lexical master "ROW-CHECK"
+        with line lexical master ROW-CHECK
     define bracket type "row" [text]
         with group line
 \end{verbatim}\end{indpar}

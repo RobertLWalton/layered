@@ -5957,58 +5957,19 @@ as a (not necessarily initial) subsequence of lexemes.  Using \TT{""} as
 a {\em partial-typed-opening} will print all typed bracket
 symbol table entries.
 
-When a parser is initialized, the following
-definitions are included in the \TT{TOP LEVEL} parser block:
-\label{TOP-LEVEL-{}}
+The following is an example \TT{define typed bracket} command:
 \begin{indpar}\begin{verbatim}
-*PARSER*:
-    define typed bracket "{" ... "|" ... "|" ... "}" [data]
-        // `||' abbreviates `| |'
-        // there are NO PARSING SELECTORS
-        // there are NO PARSING OPTIONS
-        with attribute selectors [data]
-        with attributes ":" ... "=" ... ","
-        with attribute negator "no"
-        with attribute flags initiator "["
-        with attribute multivalue initiator "{*"
-        with prefix selectors []
+define typed bracket "\{" ... "|" ... "|" ... "\}"
+                     [code, text, math]
+       // `||' abbreviates `| |'
+       // there are NO PARSING SELECTORS
+       // there are NO PARSING OPTIONS
+       with attribute selectors [data]
+       with attributes ":" ... "=" ... ","
+       with attribute negator "no"
+       with attribute flags initiator "["
+       with attribute multivalue initiator "\{*"
 \end{verbatim}\end{indpar}
-The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
-adds the definition:
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define typed bracket "{" ... "|" ... "|" ... "}"
-                         [code, math, text]
-        // `||' abbreviates `| |'
-        // there are NO PARSING SELECTORS
-        // there are NO PARSING OPTIONS
-        with attribute selectors [data]
-        with attributes ":" ... "=" ... ","
-        with attribute negator "no"
-        with attribute flags initiator "["
-        with attribute multivalue initiator "{*"
-\end{verbatim}\end{indpar}
-
-The `\ttkey{brackets}'\label{STANDARD-BRACKETS-2} standard component executes
-the following parser command:
-\begin{center}
-\begin{tabular}{l}
-\multicolumn{1}{c}{This Command Requires at Least One of
-                   {\tt + code, + text, + math}} \\
-\multicolumn{1}{c}{Missing Selector Qualifiers are Deleted from the Command}
-\\[1ex]
-\tt define typed bracket "\{" ... "|" ... "|" ... "\}" \\
-\tt ~~~~~~~[code, text, math] \\
-\tt ~~~~~~~// `||' abbreviates `| |' \\
-\tt ~~~~~~~// there are NO PARSING SELECTORS \\
-\tt ~~~~~~~// there are NO PARSING OPTIONS \\
-\tt ~~~~~~~with attribute selectors [data] \\
-\tt ~~~~~~~with attributes ":" ... "=" ... "," \\
-\tt ~~~~~~~with attribute negator "no" \\
-\tt ~~~~~~~with attribute flags initiator "[" \\
-\tt ~~~~~~~with attribute multivalue initiator "\{*" \\
-\end{tabular}
-\end{center}
 
 When `\TT{with parsing options}'
 does not appear in a `{\tt define typed bracket ...}' command,
@@ -6061,6 +6022,44 @@ are all equivalent.
 
 These two syntactic extensions may become permanent or be
 redacted in the future.
+
+\begin{center}\label{TOP-LEVEL-{}}
+\begin{tabular}{l}
+\multicolumn{1}{c}{\bf Initial Typed Bracket Parser Command}
+\\\hline
+\tt define typed bracket "{" ... "|" ... "|" ... "}" [data] \\
+\tt ~~~~~~~// `||' abbreviates `| |' \\
+\tt ~~~~~~~// there are NO PARSING SELECTORS \\
+\tt ~~~~~~~// there are NO PARSING OPTIONS \\
+\tt ~~~~~~~with attribute selectors [data] \\
+\tt ~~~~~~~with attributes ":" ... "=" ... "," \\
+\tt ~~~~~~~with attribute negator "no" \\
+\tt ~~~~~~~with attribute flags initiator "[" \\
+\tt ~~~~~~~with attribute multivalue initiator "\{*" \\
+\tt ~~~~~~~with prefix selectors [] \\
+\end{tabular}
+\\[2ex]
+{\bf Standard `\ttkey{brackets}'\label{STANDARD-BRACKETS-2} Component
+     Typed Bracket Parser Command}
+\\[1ex]
+\begin{tabular}{l}
+\multicolumn{1}{c}{This Command Requires at Least One of
+                   {\tt + code, + text, + math}} \\
+\multicolumn{1}{c}{Selectors with Missing Qualifiers are Deleted
+                   from the Command}
+\\[1ex]
+\tt define typed bracket "\{" ... "|" ... "|" ... "\}" \\
+\tt ~~~~~~~~~~~~~~~~~~~~~[code, text, math] \\
+\tt ~~~~~~~// `||' abbreviates `| |' \\
+\tt ~~~~~~~// there are NO PARSING SELECTORS \\
+\tt ~~~~~~~// there are NO PARSING OPTIONS \\
+\tt ~~~~~~~with attribute selectors [data] \\
+\tt ~~~~~~~with attributes ":" ... "=" ... "," \\
+\tt ~~~~~~~with attribute negator "no" \\
+\tt ~~~~~~~with attribute flags initiator "[" \\
+\tt ~~~~~~~with attribute multivalue initiator "\{*" \\
+\end{tabular}
+\end{center}
 
 \subsubsection{Typed Prefix Separators}
 \label{TYPED-PREFIX-SEPARATORS}

@@ -6769,63 +6769,82 @@ The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
 adds the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define bracket type "table" [code, text]
-           with parsing selectors [text]
-           with group paragraph
-           with line lexical master ROW-CHECK
-    define bracket type "row" [text]
-           with group line
-    define bracket type "data"
-                        [TOP LEVEL, data, code, math, text]
-           with group line
-           with parsing selectors [+ data paragraph]
-           with data reformatter ( "=", "no", "[", "{*" )
-    define bracket type "raw data"
-                  [TOP LEVEL, data, code, math, text]
-           with group line
-           with parsing selectors [data, data paragraph]
-           with data reformatter ( "=", "no", "[", "{*" )
-    define bracket type "***" [TOP LEVEL, code, text]
-           with group reset
-    define bracket type "section" [code, text]
-           with group paragraph
-           with parsing selectors [+ text,
-                                   - code, - math, - data]
-           with parsing options [+ end at lt indent,
-                                 + end at paragraph break,
-                                 - end at indent,
-                                 - end at le indent,
-                                 - end at line separator,
-                                 - end at outer closing]
-           with implied subprefix {s}
-    define bracket type "p" [code, text]
-           with group paragraph
-           with parsing selectors [+ text,
-                                   - code, - math, - data]
-           with parsing options [+ sticky,
-                                 + end at lt indent,
-                                 + end at paragraph break,
-                                 - end at indent,
-                                 - end at le indent,
-                                 - end at line separator,
-                                 - end at outer closing]
-           with implied subprefix {s}
-    define bracket type "s" [text]
-           with sentence reformatter
-                ( ".", "?", "!", ":", ";" )
-    define bracket type "quote" [code, text]
-           with group paragraph
-           with parsing selectors [+ text,
-                                   - code, - math, - data]
-           with parsing options [+ sticky,
-                                 + end at lt indent,
-                                 + end at paragraph break,
-                                 - end at indent,
-                                 - end at le indent,
-                                 - end at line separator,
-                                 - end at outer closing]
-           with implied subprefix {s}
 \end{verbatim}\end{indpar}
+
+\begin{center}
+\begin{tabular}{l}
+\multicolumn{1}{c}
+{\bf Standard `\ttkey{bracket types}'\label{STANDARD-BRACKET-TYPES} Component
+     Bracket Type Parser Commands}
+\\[1ex]
+\multicolumn{1}{c}
+{Selectors with Missing Qualifiers are Deleted
+                   from the Commands}
+\\[1ex]
+\tt define bracket type "***" [TOP LEVEL, code, text] \\
+\tt ~~~~~~~with group reset \\
+\tt define bracket type "data" \\
+\tt ~~~~~~~~~~~~~~~[TOP LEVEL, data, code, math, text] \\
+\tt ~~~~~~~with group line \\
+\tt ~~~~~~~with parsing selectors [+ data paragraph] \\
+\tt ~~~~~~~with data reformatter ( "=", "no", "[", "\{*" ) \\
+\tt define bracket type "raw data" \\
+\tt ~~~~~~~~~~~~~~~[TOP LEVEL, data, code, math, text] \\
+\tt ~~~~~~~with group line \\
+\tt ~~~~~~~with parsing selectors [data, data paragraph] \\
+\tt ~~~~~~~with data reformatter ( "=", "no", "[", "\{*" ) \\
+\end{tabular}
+\\[2ex]
+\begin{tabular}{l}
+\multicolumn{1}{c}{The Following Commands Require {\tt + text}}
+\\[1ex]
+\tt define bracket type "table" [code, text] \\
+\tt ~~~~~~~with parsing selectors [text] \\
+\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with line lexical master ROW-CHECK \\
+\tt define bracket type "row" [text] \\
+\tt ~~~~~~~with group line \\
+\tt define bracket type "section" [code, text] \\
+\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with parsing selectors [+ text, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- code, - math, - data] \\
+\tt ~~~~~~~with parsing options [+ end at lt indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+ end at paragraph break, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at le indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at line separator, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at outer closing] \\
+\tt ~~~~~~~with implied subprefix {s} \\
+\tt define bracket type "p" [code, text] \\
+\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with parsing selectors [+ text, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- code, - math, - data] \\
+\tt ~~~~~~~with parsing options [+ sticky, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+ end at lt indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+ end at paragraph break, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at le indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at line separator, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at outer closing] \\
+\tt ~~~~~~~with implied subprefix {s} \\
+\tt define bracket type "s" [text] \\
+\tt ~~~~~~~with sentence reformatter \\
+\tt ~~~~~~~~~~~~( ".", "?", "!", ":", ";" ) \\
+\tt define bracket type "quote" [code, text] \\
+\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with parsing selectors [+ text, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- code, - math, - data] \\
+\tt ~~~~~~~with parsing options [+ sticky, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+ end at lt indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+ end at paragraph break, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at le indent, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at line separator, \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at outer closing] \\
+\tt ~~~~~~~with implied subprefix {s} \\
+\end{tabular}
+
+\end{center}
 
 
 \subsubsection{Headed Lines}

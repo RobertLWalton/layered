@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 3, 2021
+June 5, 2021
  
 \end{center}
 
@@ -3536,7 +3536,7 @@ prints the top level indented paragraph parameters for the
 the innermost current parsing block.  However, each extant
 parsing block has its own set of top level indented paragraph
 parameters, and these are stored in virtual indentation mark
-data structures that can be printed by:
+data definitions that can be printed by:
 
 \begin{center}
 \ttmkey{print indentation mark "*TOP* *LEVEL*"}{parser command}
@@ -4028,7 +4028,7 @@ Parser Command				& Given Qualifiers
 \tt ~~~~~~~with token value \{row\} \\
 \end{tabular}
 \\[2ex]
-{\bf Standard `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-2} Component
+{\bf Standard `\ttkey{top level}' Component
      Parser Commands (as per \pagref{STANDARD-TOP-LEVEL-1} and
                           \pagref{STANDARD-TOP-LEVEL-2}):}
 \\[1ex]
@@ -4894,7 +4894,7 @@ are collected into a typed bracketted subexpression with
 \end{indpar}
 
 
-\begin{center}
+\begin{center}\label{UNTYPED-BRACKET-BUILTINS}
 \begin{tabular}{l}
 \multicolumn{1}{c}{\bf Initial Bracket Parser Commands}
 \\\hline
@@ -5244,25 +5244,40 @@ The line variables include the paragraph line separator,
 implied header, and lexical masters, as given in
 the indentation mark definition (any of these may be missing).
 
-When a parser is initialized, the following
-definitions are included in the \TT{TOP LEVEL} parser block:
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-    define indentation offset 2
+There is a \TT{*TOP* *LEVEL*} indentation mark definition associated
+with each active parser block; the definition for the current parser
+block is the current \TT{*TOP* *LEVEL*} definition.
+The parameters of this current definition are the top level parameters that
+can be set and printed as per Section \itemref{PARSER-TOP-LEVEL-COMMANDS};
+these parameters govern top level parsing as if the top level were inside
+an indented paragraph with indentation \TT{0}.
 
-    define indentation mark "TOP LEVEL" []
-        // Indentation mark definition implicitly governing
-        // top level parsing.  May NOT be explicitly used
-        // or redefined.  Has NO line separator.
-    define indentation mark "*PARSER*:" ... ";" [TOP LEVEL]
-        with parsing selectors [data]
-    define indentation mark "*PARSER* *TEST*:" ... ";"
-        [TOP LEVEL]
-\end{verbatim}\end{indpar}
+When the parser is initialized, an initial \TT{TOP LEVEL} parser block
+is created with its associated \TT{*TOP* *LEVEL*} indentation mark definition.
+Each \TT{begin block ...} creates the \TT{*TOP* *LEVEL*} definition for
+its block by copying the current definition from the immediately
+containing parser block; the parameters of this new definition may
+then be reset by \TT{define top level ...} commands as per
+Section \itemref{PARSER-TOP-LEVEL-COMMANDS};
 
-The `\ttkey{indentation marks}'\label{STANDARD-INDENTATION-MARKS}
-standard component executes the following parser commands:
+Explicit \TT{*TOP* *LEVEL*} indentation mark definitions are not permitted,
+but the definitions can be printed by the \TT{print indentation mark ...}
+command.
+
 \begin{center}
+\begin{tabular}{l}
+\multicolumn{1}{c}{\bf Initial Indentation Mark Parser Commands}
+\\\hline
+\tt define indentation offset 2 \\
+\tt define indentation mark "*PARSER*:" ... ";" [TOP LEVEL] \\
+\tt ~~~~~~~with parsing selectors [data] \\
+\tt define indentation mark "*PARSER* *TEST*:" ... ";" \\
+\tt ~~~~~~~~~~~~~~~~~~~~~~~~[TOP LEVEL] \\
+\end{tabular}
+\\[2ex]
+{\bf Standard `\ttkey{indentation marks}'\label{STANDARD-INDENTATION-MARKS}
+     Component\\Indentation Mark Parser Commands}
+\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \multicolumn{2}{c}{For \ttkey{indentation marks} Standard Parser Component}
 \\[1ex]
@@ -6018,7 +6033,7 @@ implied in {\em typed-parsing-selectors} and
 {\em bracket-options}.
 
 The untyped bracket definitions for `\TT{[\ldots]}' and
-`\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BULITINS},
+`\TT{\{*\ldots*\}}' given on \pagref{UNTYPED-BRACKET-BUILTINS},
 all with the `\TT{data}' selector, are used to parse
 attribute flags and multivalue lists in any
 {\em typed-bracketed-subexpression} recognized by these definitions.

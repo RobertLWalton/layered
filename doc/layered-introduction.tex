@@ -3426,13 +3426,17 @@ subsequence.  There is \underline{no} matching of partial lexemes.
 Parser Command				& Given
 \\\hline
 \tt define selector code & {\tt + code} qualifier and
-                           `\TT{code}' selector used \\
+                           `\TT{code}' selector is used \\
 \tt define selector text & {\tt + text} qualifier and
-                           `\TT{text}' selector used \\
+                           `\TT{text}' selector is used \\
 \tt define selector math & {\tt + math} qualifier and
-                           `\TT{math}' selector used \\
+                           `\TT{math}' selector is used \\
 \end{tabular}
 \end{center}
+
+If a selector qualifier is given, but the selector is not used
+in any executed standard parser command, the selector will not
+be created.
 
 If a selector qualifier (e.g. `{\tt + math}') is not given,
 the corresponding selector (e.g. `{\tt math}') will be automatically deleted
@@ -4297,11 +4301,17 @@ are never merged.
 The end of a parser block erases the effects of any
 {\em define-middle-break-commands} executed during the block.
 
-When a parser is initialized, the middle break is disabled.
-The `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-1}
-standard component executes the parser command:
 \begin{center}
-\tt define middle break "\#" ... "\#"
+\begin{tabular}{c}
+\bf Initial Middle Break Parser Command
+\\[1ex]
+\tt define middle break disabled \\
+\\[2ex]
+\bf Standard `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-1} Component
+    Middle Break Parser Command
+\\[1ex]
+\tt define middle break "\#"
+\end{tabular}
 \end{center}
 
 \subsubsection{Quoted String Concatenation}
@@ -4359,11 +4369,17 @@ needs to be placed between the strings.
 The end of a parser block erases the effects of any
 {\em define-quoted-string-concatenator-commands} executed during the block.
 
-When a parser is initialized, the quoted string concatenator is disabled.
-The `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-2}
-standard component executes the parser command:
 \begin{center}
-\tt define quoted string concatenator "\#"
+\begin{tabular}{c}
+\bf Initial Quoted String Concatenator Parser Command
+\\[1ex]
+\tt define quoted-string-concatenator disabled \\
+\\[2ex]
+\bf Standard `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-2} Component
+    Quoted String Concatenator Parser Command
+\\[1ex]
+\tt define quoted-string-concatenator "\#"
+\end{tabular}
 \end{center}
 
 \subsubsection{Bracketed Subexpression Parser Pass Input}

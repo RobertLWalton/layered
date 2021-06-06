@@ -4936,16 +4936,18 @@ are collected into a typed bracketted subexpression with
 \tt ~~~~~~~with multivalue reformatter ( "," ) \\
 \end{tabular}
 \\[2ex]
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\multicolumn{2}{c}
 {\bf Standard `\ttkey{brackets}'\label{STANDARD-BRACKETS-1} Component
      Bracket Parser Commands}
 \\[1ex]
-\begin{tabular}{l@{\hspace*{0.5in}}l}
-\multicolumn{2}{c}{All Commands Require at Least One of
-                   {\tt + code, + text, + math}} \\
-\multicolumn{2}{c}{Selectors with Missing Qualifiers are Deleted from Commands}
+\multicolumn{2}{c}
+{All Commands Require at Least One of {\tt + code, + text, + math}} \\
+\multicolumn{2}{c}
+{Selectors with Missing Standard Qualifiers are Deleted from Commands}
 \\[1ex]
 Parser Command				& \shortstack{
-                                          Other\\{\bf Required}\\Qualifiers}
+                                          {\bf Required}\\Qualifiers}
 \\\hline
 \tt define bracket "(" ... ")" [code, text, math] \\
 \tt define bracket "[" ... "]" [code, text, math] \\
@@ -5297,14 +5299,15 @@ command.
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~[TOP LEVEL] \\
 \end{tabular}
 \\[2ex]
-{\bf Standard `\ttkey{indentation marks}'\label{STANDARD-INDENTATION-MARKS}
-     Component\\Indentation Mark Parser Commands}
-\\[1ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
-\multicolumn{2}{c}{For \ttkey{indentation marks} Standard Parser Component}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{indentation marks}'\label{STANDARD-INDENTATION-MARKS}
+     Component} \\
+\multicolumn{2}{c}
+{\bf Indentation Mark Parser Commands}
 \\[1ex]
 Parser Command				& \shortstack{
-                                          Required\\Qualifiers}
+                                          {\bf Required}\\Qualifiers}
 \\\hline
 \tt define indentation mark ":" ... ";" [code] & + code \\
 \tt ~~~~~~~with parsing options \\
@@ -6061,14 +6064,15 @@ redacted in the future.
 \tt ~~~~~~~with prefix selectors [] \\
 \end{tabular}
 \\[2ex]
+\begin{tabular}{l}
+\multicolumn{1}{c}
 {\bf Standard `\ttkey{brackets}'\label{STANDARD-BRACKETS-2} Component
      Typed Bracket Parser Command}
 \\[1ex]
-\begin{tabular}{l}
-\multicolumn{1}{c}{This Command Requires at Least One of
-                   {\tt + code, + text, + math}} \\
-\multicolumn{1}{c}{Selectors with Missing Qualifiers are Deleted
-                   from the Command}
+\multicolumn{1}{c}
+{This Command Requires at Least One of {\tt + code, + text, + math}} \\
+\multicolumn{1}{c}
+{Selectors with Missing Standard Qualifiers are Deleted from the Command}
 \\[1ex]
 \tt define typed bracket "\{" ... "|" ... "|" ... "\}" \\
 \tt ~~~~~~~~~~~~~~~~~~~~~[code, text, math] \\
@@ -6796,11 +6800,19 @@ adds the definitions:
 \begin{center}
 \begin{tabular}{l}
 \multicolumn{1}{c}
-{\bf Standard `\ttkey{bracket types}'\label{STANDARD-BRACKET-TYPES} Component
-     Bracket Type Parser Commands}
+{\bf Initial Bracket Type Parser Commands}
 \\[1ex]
 \multicolumn{1}{c}
-{Selectors with Missing Qualifiers are Deleted
+{(none)}
+\\[2ex]
+\multicolumn{1}{c}
+{\bf Standard `\ttkey{bracket types}'\label{STANDARD-BRACKET-TYPES} Component
+     Bracket Type Parser Commands} \\
+\multicolumn{1}{c}
+{\bf That Do NOT Require Any Standard Qualifier}
+\\[1ex]
+\multicolumn{1}{c}
+{Selectors with Missing Standard Qualifiers are Deleted
                    from the Commands}
 \\[1ex]
 \tt define bracket type "***" [TOP LEVEL, code, text] \\
@@ -6818,7 +6830,15 @@ adds the definitions:
 \end{tabular}
 \\[2ex]
 \begin{tabular}{l}
-\multicolumn{1}{c}{The Following Commands Require {\tt + text}}
+\multicolumn{1}{c}
+{\bf Standard `\ttkey{bracket types}'\label{STANDARD-BRACKET-TYPES} Component
+     Bracket Type Parser Commands} \\
+\multicolumn{1}{c}
+{\bf That REQUIRE the {\tt + text} Standard Qualifier}
+\\[1ex]
+\multicolumn{1}{c}
+{Selectors with Missing Standard Qualifiers are Deleted
+                   from the Commands}
 \\[1ex]
 \tt define bracket type "table" [code, text] \\
 \tt ~~~~~~~with parsing selectors [text] \\
@@ -7032,15 +7052,14 @@ indented paragraph.
 The `\TT{standard}' parser block contains the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
-    define top level
-        with parsing selectors [code]
-        with paragraph lexical master PARAGRAPH-CHECK
-        with line lexical master DATA-CHECK
+    define parsing selectors [+ code]
+    define top level paragraph lexical master PARAGRAPH-CHECK
     define mapped lexeme "TABLE" [TOP LEVEL]
            with token value {table}
     define mapped lexeme "ROW" [TOP LEVEL]
            with token value {row}
     define bracket type "table" [code, text]
+        with parsing selectors [text]
         with group paragraph
         with line lexical master ROW-CHECK
     define bracket type "row" [text]

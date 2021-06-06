@@ -3472,7 +3472,8 @@ the top level indented paragraph of the innermost parsing block that
 has not ended is resumed.
 
 The parameters of the current top level indented paragraph can be modified
-by \ttkey{define top level} commands and printed by the \ttkey{print top level}
+by \ttkey{define top level} commands
+and printed by the \ttkey{print top level}
 command.
 
 Note that logical lines containing parser commands must be top level,
@@ -3966,7 +3967,7 @@ creates a token for that lexeme, setting the token type to the
 lexical type of the lexeme.  The parser then looks this type
 up in the mapped lexeme symbol table, selecting entries active
 according to the top level parser selectors as set by
-\TT{define top level} (\pagref{DEFINE-TOP-LEVEL}) (these are
+\TT{define top level parsing selectors} (\pagref{DEFINE-TOP-LEVEL}) (these are
 \underline{not} the current parser selectors as modified by
 brackets and indentations).  If an entry is found,
 it is used to replace the token's type and value, and optionally
@@ -5281,7 +5282,7 @@ is created with its associated \TT{*TOP* *LEVEL*} indentation mark definition.
 Each \TT{begin block ...} creates the \TT{*TOP* *LEVEL*} definition for
 its block by copying the current definition from the immediately
 containing parser block; the parameters of this new definition may
-then be reset by \TT{define top level ...} commands as per
+then be reset by \TT{define top level} commands as per
 Section \itemref{PARSER-TOP-LEVEL-COMMANDS};
 
 Explicit \TT{*TOP* *LEVEL*} indentation mark definitions are not permitted,
@@ -6831,7 +6832,7 @@ adds the definitions:
 \\[2ex]
 \begin{tabular}{l}
 \multicolumn{1}{c}
-{\bf Standard `\ttkey{bracket types}'\label{STANDARD-BRACKET-TYPES} Component
+{\bf Standard `\ttkey{bracket types}' Component
      Bracket Type Parser Commands} \\
 \multicolumn{1}{c}
 {\bf That REQUIRE the {\tt + text} Standard Qualifier}
@@ -7120,7 +7121,7 @@ had been input and is
 
 
 At top level the paragraph and line lexical masters are
-set by the `\TT{define top level}' command, and the
+set by the `\TT{define top level}' commands, and the
 only way to get an implied header is to input a paragraph
 header with the `\TT{sticky}' option.  In contrast,
 an indented paragraph can begin with a paragraph and
@@ -7287,7 +7288,8 @@ headers is restricted: see \itemref{ISOLATED-HEADERS}.
     The \underline{top level} paragraph line variables, with the exception of
     the paragraph implied header, are the same as the
     parser selectors, options, and lexical masters, and can be changed
-    by the \TT{define top level} parser command (\pagref{DEFINE-TOP-LEVEL}).
+    by the \TT{define top level} parser commands
+    (\pagref{DEFINE-TOP-LEVEL}).
     The \underline{top level} paragraph implied header is normally missing, but
     may be changed by a `\TT{sticky}' paragraph header as indicated below.
 

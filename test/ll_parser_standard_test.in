@@ -44,6 +44,13 @@ ID 30 is @30
 *PARSER*:
     end block BLOCK1
 
+==================
+| xx |
+
+table in indented paragraph:
+    ==================
+    | yy |
+
 @35 = foo
 @36 = "fum"
 ID 35 is @35

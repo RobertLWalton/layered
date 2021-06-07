@@ -5300,7 +5300,7 @@ command.
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~[TOP LEVEL] \\
 \end{tabular}
 \\[2ex]
-\begin{tabular}{l@{\hspace*{0.5in}}l}
+\begin{tabular}{l@{\hspace*{0.3in}}l}
 \multicolumn{2}{c}
 {\bf Standard `\ttkey{indentation marks}'\label{STANDARD-INDENTATION-MARKS}
      Component} \\
@@ -6790,14 +6790,6 @@ of the {\em sentence}.
 
 \end{indpar}
 
-After a parser is initialized, it has \underline{no} bracket type
-definitions.
-The `\TT{standard}' parser block (\pagref{STANDARD-PARSING-BLOCK})
-adds the definitions:
-\begin{indpar}\begin{verbatim}
-*PARSER*:
-\end{verbatim}\end{indpar}
-
 \begin{center}
 \begin{tabular}{l}
 \multicolumn{1}{c}
@@ -7938,165 +7930,6 @@ in \itemref{OPERATOR-REFORMATTERS}.
 The standard operators are given in Figures~\ref{STANDARD-OPERATORS-1}
 and~\ref{STANDARD-OPERATORS-2}.
 
-The following parser commands can be used to define these standard operators.
-Each of these commands is equivalent to the given set of define commands.
-
-\TT{define standard operators} \hfill All Standard Operator Classes
-\begin{indpar}\begin{verbatim}
-define standard control operators
-define standard assignment operators
-define standard logical operators
-define standard comparison operators
-define standard arithmetic operators
-define standard bitwise operators
-\end{verbatim}\end{indpar}
-
-\TT{define standard control operators} \hfill Standard Operators of Class C
-\begin{indpar}\begin{verbatim}
-define operator "if" [code] prefix line
-       with precedence 0
-       with control reformatter ( ":", has condition )
-define operator "else if" [code] prefix line
-       with precedence 0
-       with control reformatter ( ":", has condition )
-define operator "while" [code] prefix line
-       with precedence 0
-       with control reformatter ( ":", has condition )
-define operator "until" [code] prefix line
-       with precedence 0
-       with control reformatter ( ":", has condition )
-define operator "else" [code] prefix line
-       with precedence 0
-       with control reformatter ( ":" )
-
-define operator ":" [code] afix line
-       with precedence 0
-define operator indentation mark ":" [code]
-       postfix afix line
-       with precedence 0
-\end{verbatim}\end{indpar}
-
-\TT{define standard assignment operators} \hfill Standard Operators of Class S
-\begin{indpar}\begin{verbatim}
-define operator "=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-define operator "=" [math] infix
-       with precedence 1000
-       with binary reformatter
-
-define operator "," [code, math] nofix
-       with precedence 2000
-       with separator reformatter
-\end{verbatim}\end{indpar}
-
-\TT{define standard logical operators} \hfill Standard Operators of Class L
-\begin{indpar}\begin{verbatim}
-define operator "BUT NOT" [code, math] infix
-       with precedence 3000
-       with binary reformatter
-
-define operator "AND" [code, math] infix
-       with precedence 3100
-       with infix reformatter
-define operator "OR" [code, math] infix
-       with precedence 3100
-       with infix reformatter
-
-define operator "NOT" [code, math] prefix
-       with precedence 3200
-       with unary reformatter
-\end{verbatim}\end{indpar}
-
-\TT{define standard comparison operators} \hfill Standard Operators of Class P
-\begin{indpar}\begin{verbatim}
-define operator "==" [code, math] infix
-       with precedence 4000
-       with infix and reformatter ( "AND" )
-define operator "<=" [code, math] infix
-       with precedence 4000
-       with infix and reformatter ( "AND" )
-define operator ">=" [code, math] infix
-       with precedence 4000
-       with infix and reformatter ( "AND" )
-define operator "!=" [code, math] infix
-       with precedence 4000
-       with infix and reformatter ( "AND" )
-define operator "<" [code, math] infix
-       with precedence 4000
-       with infix and reformatter ( "AND" )
-define operator ">" [code, math] infix
-       with precedence 4000
-       with infix and reformatter ( "AND" )
-\end{verbatim}\end{indpar}
-
-\TT{define standard arithmetic operators} \hfill Standard Operators of Class A
-\begin{indpar}\begin{verbatim}
-define operator "+=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-define operator "-=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-define operator "*=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-define operator "/=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-
-define operator "+" [code, math] infix
-       with precedence 5000
-       with sum reformatter ( "+", "-" )
-define operator "-" [code, math] infix
-       with precedence 5000
-       with sum reformatter ( "+", "-" )
-define operator "/" [code, math] infix
-       with precedence 5100
-       with binary reformatter
-define operator "*" [code, math] infix
-       with precedence 5200
-       with infix reformatter
-define operator "^" [code, math] infix
-       with precedence 5300
-       with infix reformatter
-
-define operator "+" [code, math] prefix
-       with precedence 999999
-       with unary reformatter
-define operator "-" [code, math] prefix
-       with precedence 999999
-       with unary reformatter
-\end{verbatim}\end{indpar}
-
-\TT{define standard bitwise operators} \hfill Standard Operators of Class B
-\begin{indpar}\begin{verbatim}
-define operator "|=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-define operator "&=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-define operator "~=" [code] infix line
-       with precedence 1000
-       with binary reformatter
-
-define operator "|" [code] infix
-       with precedence 5000
-       with infix reformatter
-define operator "&" [code] infix
-       with precedence 5000
-       with infix reformatter
-define operator "~" [code] infix
-       with precedence 5000
-       with infix reformatter
-
-define operator "~" [code] prefix
-       with precedence 999999
-       with unary reformatter
-\end{verbatim}\end{indpar}
-
-
 \begin{figure*}[!p]
 \begin{center}
 \begin{tabular}{|l|r|l|l@{\hspace*{1em}}|l@{\hspace*{1em}}|l|l|}
@@ -8138,10 +7971,12 @@ prece-  & selec-  &             &            &            &            & \\
 \medskip
 
 \begin{tabular}{ll}
-class A & {\tt define standard \ttkey{arithmetic operators}} \\
-class B & {\tt define standard \ttkey{bitwise operators}} \\
-class C & {\tt define standard \ttkey{control operators}} \\
-class S & {\tt define standard \ttkey{assignment operators}} \\
+Class & Standard Component
+\\\hline
+A: & \ttkey{arithmetic operators} \\
+B: & \ttkey{bitwise operators} \\
+C: & \ttkey{control operators} \\
+S: & \ttkey{assignment operators} \\
 \end{tabular}
 
 \end{center}
@@ -8206,17 +8041,233 @@ H-1	&	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
 \medskip
 
 \begin{tabular}{ll}
-class A & {\tt define standard \ttkey{arithmetic operators}} \\
-class B & {\tt define standard \ttkey{bitwise operators}} \\
-class L & {\tt define standard \ttkey{logical operators}} \\
-class P & {\tt define standard \ttkey{comparison operators}} \\
-class S & {\tt define standard \ttkey{assignment operators}} \\
+Class & Standard Component
+\\\hline
+A: & \ttkey{arithmetic operators} \\
+B: & \ttkey{bitwise operators} \\
+L: & \ttkey{logical operators} \\
+P: & \ttkey{comparison operators} \\
+S: & \ttkey{assignment operators} \\
 \end{tabular}
 
 \end{center}
 \caption{Standard Operators: Part 2}
 \label{STANDARD-OPERATORS-2}
 \end{figure*}
+
+\clearpage
+
+The following parser standard components
+(see \itemref{PARSER-STANDARD-COMMANDS})
+can be used to define these standard operators.
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{control operators}'\label{STANDARD-CONTROL-OPERATORS}
+     Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "if" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt define operator "else if" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt define operator "while" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt define operator "until" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt define operator "else" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":" ) \\
+\\[1ex]
+\tt define operator ":" [code] afix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt define operator indentation mark ":" [code] & {\tt + code} \\
+\tt ~~~~~~~postfix afix line \\
+\tt ~~~~~~~with precedence 0 \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{assignment operators}'
+     \label{STANDARD-ASSIGNMENT-OPERATORS} Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "=" [math] infix & {\tt + math} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter
+\\[1ex]
+\tt define operator "," [code, math] nofix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 2000 \\
+\tt ~~~~~~~with separator reformatter \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{logical operators}'
+     \label{STANDARD-LOGICAL-OPERATORS} Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "BUT NOT" [code, math] infix
+                                            & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with binary reformatter
+\\[1ex]
+\tt define operator "AND" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 3100 \\
+\tt ~~~~~~~with infix reformatter \\
+\tt define operator "OR" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 3100 \\
+\tt ~~~~~~~with infix reformatter
+\\[1ex]
+\tt define operator "NOT" [code, math] prefix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 3200 \\
+\tt ~~~~~~~with unary reformatter \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{comparison operators}'
+     \label{STANDARD-COMPARISON-OPERATORS} Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "==" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt define operator "<=" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt define operator ">=" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt define operator "!=" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt define operator "<" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt define operator ">" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{arithmetic operators}'
+     \label{STANDARD-ARITHMETIC-OPERATORS} Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "+=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "-=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "*=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "/=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter
+\\[1ex]
+\tt define operator "+" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with sum reformatter ( "+", "-" ) \\
+\tt define operator "-" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with sum reformatter ( "+", "-" ) \\
+\tt define operator "/" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 5100 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "*" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 5200 \\
+\tt ~~~~~~~with infix reformatter \\
+\tt define operator "\textasciicircum" [code, math] infix
+                                           & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 5300 \\
+\tt ~~~~~~~with infix reformatter
+\\[1ex]
+\tt define operator "+" [code, math] prefix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 999999 \\
+\tt ~~~~~~~with unary reformatter \\
+\tt define operator "-" [code, math] prefix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 999999 \\
+\tt ~~~~~~~with unary reformatter \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{bitwise operators}'
+     \label{STANDARD-BITWISE-OPERATORS} Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "|=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "\&=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "\~=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter
+\\[1ex]
+\tt define operator "|" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
+\tt define operator "\&" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
+\tt define operator "\~" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter
+\\[1ex]
+\tt define operator "\~" [code] prefix & {\tt + code} \\
+\tt ~~~~~~~with precedence 999999 \\
+\tt ~~~~~~~with unary reformatter \\
+\end{tabular}
+\end{center}
+
 
 \subsubsection{The Operator Parsing Algorithm}
 \label{OPERATOR-PARSER-ALGORITHM}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 28 16:58:10 EDT 2021
+// Date:	Mon Jun  7 13:34:54 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -43,13 +43,6 @@ ID 30 is @30
 
 *PARSER*:
     end block BLOCK1
-
-==================
-| xx |
-
-table in indented paragraph:
-    ==================
-    | yy |
 
 @35 = foo
 @36 = "fum"

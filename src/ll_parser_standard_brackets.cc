@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 16:34:10 EDT 2021
+// Date:	Mon Jun  7 13:30:52 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -614,8 +614,20 @@ static void define_bracket_types
 void PARSTD::define_brackets
 	( PAR::parser parser, TAB::flags components )
 {
+    TAB::flags needed = 0;
+        // Only needed selectors are defined, as
+	// unneeded selectors are never referenced.
+
+    if ( components & PARSTD::BRACKETS )
+	needed |= PARSTD::CODE + PARSTD::TEXT
+	                       + PARSTD::MATH;
+    if ( components & PARSTD::INDENTATION_MARKS )
+	needed |= PARSTD::CODE + PARSTD::TEXT;
+    if ( components & PARSTD::BRACKET_TYPES )
+	needed |= PARSTD::CODE + PARSTD::TEXT
+	                       + PARSTD::MATH;
     TAB::flags code = 0;
-    if ( components & PARSTD::CODE )
+    if ( needed & PARSTD::CODE )
     {
 	min::locatable_gen code_name
 	    ( min::new_str_gen ( "code" ) );
@@ -624,7 +636,7 @@ void PARSTD::define_brackets
 		    code_name );
     }
     TAB::flags text = 0;
-    if ( components & PARSTD::TEXT )
+    if ( needed & PARSTD::TEXT )
     {
 	min::locatable_gen text_name
 	    ( min::new_str_gen ( "text" ) );
@@ -633,7 +645,7 @@ void PARSTD::define_brackets
 		    text_name );
     }
     TAB::flags math = 0;
-    if ( components & PARSTD::MATH )
+    if ( needed & PARSTD::MATH )
     {
 	min::locatable_gen math_name
 	    ( min::new_str_gen ( "math" ) );

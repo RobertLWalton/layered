@@ -7080,7 +7080,7 @@ The `\TT{table}' prefix in turn has a definition which
 changes the line lexical master to \TT{ROW-CHECK}, and this
 is also used for the rest of the first line.  As none
 of the \TT{=}'s have been consumed by the \TT{TABLE} special
-lexeme, this last lexical master sees the first \TT{=} and
+lexeme, this \TT{ROW-CHECK} lexical master sees the first \TT{=} and
 outputs a \TT{ROW} special lexeme, which is mapped to a
 \TT{\{row\}} prefix.  After outputting the \TT{ROW} special
 lexeme, the \TT{ROW-CHECK} lexical master transfers to the
@@ -7088,7 +7088,8 @@ lexeme, the \TT{ROW-CHECK} lexical master transfers to the
 in the line.  Since neither special lexeme consumed any \TT{=}'s,
 the one normal lexeme in the line contains all the
 \TT{=}'s.  At the beginning of the next logical line, the
-top level line lexical master is installed, which is
+top level line lexical master defined by the paragraph header
+\TT{\{table\}} is installed, which is
 \TT{ROW-CHECK}.  The final result is the same as if
 \begin{indpar}\begin{verbatim}
 {table}{row}=============

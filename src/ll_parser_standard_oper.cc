@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 26 12:38:35 EDT 2021
+// Date:	Mon Jun  7 13:42:42 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -678,11 +678,22 @@ static void define_bitwise_operators
 void PARSTD::define_operators
 	( PAR::parser parser, TAB::flags components )
 {
-    if ( ( components & PARSTD::ALL_OPERATORS ) == 0 )
-        return;   // Don't compute selectors.
+    TAB::flags needed = 0;
+        // Only needed selectors are defined, as
+	// unneeded selectors are never referenced.
+
+    if ( components & (   PARSTD::CONTROL_OPERATORS
+                        + PARSTD::BITWISE_OPERATORS ) )
+	needed |= PARSTD::CODE;
+    if ( components & (   PARSTD::ASSIGNMENT_OPERATORS
+                        + PARSTD::LOGICAL_OPERATORS
+                        + PARSTD::COMPARISON_OPERATORS
+                        + PARSTD::ARITHMETIC_OPERATORS )
+       )
+	needed |= PARSTD::CODE + PARSTD::MATH;
 
     TAB::flags code = 0;
-    if ( components & PARSTD::CODE )
+    if ( needed & PARSTD::CODE )
     {
 	min::locatable_gen code_name
 	    ( min::new_str_gen ( "code" ) );
@@ -691,7 +702,7 @@ void PARSTD::define_operators
 		    code_name );
     }
     TAB::flags math = 0;
-    if ( components & PARSTD::MATH )
+    if ( needed & PARSTD::MATH )
     {
 	min::locatable_gen math_name
 	    ( min::new_str_gen ( "math" ) );

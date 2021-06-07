@@ -1905,7 +1905,8 @@ BRACKETED EXPRESSION:
 *PARSER*:
     define bracket type "x" [code]
         with implied subprefix {l1}
-    define top level parsing options [ + enable table prefix]
+    define top level parsing options
+           [ + enable table prefix]
 ERROR: in line ###: implied prefix separator of type `l1' has `line'
        group but is not at beginning of logical line or immediately
        after a prefix separator of `paragraph' group; ignored:

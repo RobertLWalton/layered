@@ -242,20 +242,20 @@ ERROR: in line ##: operator "OR" should equal "AND"; all operators must
 ======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
                           .initiator = [$ LOGICAL_LINE $]|+ a
                           {"": .operator = "*"|* b
-                               {"": .operator = "^"|^ e d|}
-                               {"": .operator = "^"|^ f g|}|}|}
+                               {"": .operator = "**"|** e d|}
+                               {"": .operator = "**"|** f g|}|}|}
 ======= line ##:
-    a + b * e ^ d * f ^ g
-    ^^^^^^^^^^^^^^^^^^^^^
+    a + b * e ** d * f ** g
+    ^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ##:
-    a + b * e ^ d * f ^ g
-        ^^^^^^^^^^^^^^^^^
+    a + b * e ** d * f ** g
+        ^^^^^^^^^^^^^^^^^^^
 ------- line ##:
-    a + b * e ^ d * f ^ g
-            ^^^^^
+    a + b * e ** d * f ** g
+            ^^^^^^
 ------- line ##:
-    a + b * e ^ d * f ^ g
-                    ^^^^^
+    a + b * e ** d * f ** g
+                     ^^^^^^
 ======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
                           .initiator = [$ LOGICAL_LINE $]|+ x
                           {"": .operator = "+"|+ y|}|}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  7 13:42:42 EDT 2021
+// Date:	Thu Jun 10 17:43:27 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -136,7 +136,7 @@ static void define_control_operators
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::AFIX + OP::LINE,
+	  OP::AFIX + OP::RIGHT + OP::LINE,
 	  0000,
 	  min::NULL_STUB,
 	  min::NULL_STUB,
@@ -481,7 +481,7 @@ static void define_arithmetic_operators
     min::locatable_gen multiply
         ( min::new_str_gen ( "*" ) );
     min::locatable_gen exponent
-        ( min::new_str_gen ( "^" ) );
+        ( min::new_str_gen ( "**" ) );
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
         sum_arguments
@@ -632,6 +632,8 @@ static void define_bitwise_operators
     min::locatable_gen and_name
         ( min::new_str_gen ( "&" ) );
     min::locatable_gen xor_name
+        ( min::new_str_gen ( "^" ) );
+    min::locatable_gen complement_name
         ( min::new_str_gen ( "~" ) );
 
     OP::push_oper
@@ -665,7 +667,7 @@ static void define_bitwise_operators
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( xor_name,
+        ( complement_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,

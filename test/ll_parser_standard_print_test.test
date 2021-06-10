@@ -255,7 +255,7 @@
                         with precedence 5100
                         with binary reformatter
         block standard: operator ":" [code]
-                        nofix afix line
+                        right afix line
                         with precedence 0
         block standard: operator "<" [code, math]
                         infix
@@ -277,10 +277,10 @@
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
-        block standard: operator "^" [code, math]
+        block standard: operator "^" [code]
                         infix
-                        with precedence 5300
-                        with binary reformatter
+                        with precedence 5000
+                        with infix reformatter
         block standard: operator "|" [code]
                         infix
                         with precedence 5000
@@ -289,10 +289,6 @@
                         prefix
                         with precedence 999999
                         with unary reformatter
-        block standard: operator "~" [code]
-                        infix
-                        with precedence 5000
-                        with infix reformatter
         block standard: operator "NOT" [code, math]
                         prefix
                         with precedence 3200
@@ -329,6 +325,10 @@
                         initial line
                         with precedence 0
                         with control reformatter ( ":" )
+        block standard: operator "**" [code, math]
+                        infix
+                        with precedence 5300
+                        with binary reformatter
         block standard: operator "*=" [code]
                         infix line
                         with precedence 1000

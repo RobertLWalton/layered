@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 5, 2021
+June 10, 2021
  
 \end{center}
 
@@ -6839,6 +6839,19 @@ of the {\em sentence}.
 \tt ~~~~~~~with line lexical master ROW-CHECK \\
 \tt define bracket type "row" [text] \\
 \tt ~~~~~~~with group line \\
+\end{tabular}
+\\[2ex]
+\begin{tabular}{l}
+\multicolumn{1}{c}
+{\bf Standard `\ttkey{bracket types}' Component
+     Bracket Type Parser Commands} \\
+\multicolumn{1}{c}
+{\bf That REQUIRE the {\tt + text} Standard Qualifier}
+\\[1ex]
+\multicolumn{1}{c}
+{Selectors with Missing Standard Qualifiers are Deleted
+                   from the Commands}
+\\[1ex]
 \tt define bracket type "section" [code, text] \\
 \tt ~~~~~~~with group paragraph \\
 \tt ~~~~~~~with parsing selectors [+ text, \\
@@ -7949,6 +7962,7 @@ prece-  & selec-  &             &            &            &            & \\
 	&	&		& \TT{line}  &            &            &
 \\\cline{3-7}
 	&	& none		& \TT{afix } & \ttkey{:}  &	       & C \\
+	&	&		& \TT{right} &            &            & \\
 	&	&		& \TT{line}  &            &            &
 \\\cline{4-7}
 	&	& 		& \TT{postfix } & \ttkey{:} indentation & & C \\
@@ -8019,7 +8033,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{2-7}
 	& code	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
 	&	&		& 	     & \TT{\&}	& binary and   & B \\
-	&	&		& 	     & \TT{\textasciitilde}
+	&	&		& 	     & \TT{\textasciicircum}
 						        & binary exclusive or
 							               & B
 \\\hline
@@ -8027,8 +8041,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{1-1}\cline{3-7}
 5200	& math	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication & A
 \\\cline{1-1}\cline{3-7}
-5300	&	& \ttkey{binary} & \TT{infix} & \TT{\textasciicircum}
-							& exponentiation & A
+5300	&	& \ttkey{binary} & \TT{infix} & \TT{**} & exponentiation & A
 \\\cline{1-1}\cline{3-7}
 H-1	&	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
 	&	&		& 	      & \TT{-}	& negation     & A 

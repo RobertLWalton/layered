@@ -7959,12 +7959,10 @@ prece-  & selec-  &             &            &            &            & \\
 	&	&		&	     & \ttkey{while} & loop    &
 \\\cline{5-5}
 	&	&		&	     & \ttkey{until} & &
-\\\cline{3-6}
-	&	& \TT{terminating}
-				& \TT{initial}
+\\\cline{4-6}
+	&	& 		& \TT{initial}
 					     & \ttkey{else} & terminating & \\
-	&	& \TT{control}
-			        & \TT{line}  &            & conditional &
+	&	& 		& \TT{line}  &            & conditional &
 \\\cline{3-6}
 	&	& (none)	& \TT{afix } & \ttkey{:}  &	       & \\
 	&	&		& \TT{right} &            &            & \\
@@ -8638,6 +8636,35 @@ that has a \ttmkey{.separator}{produced by parsing}
 attribute whose value is the first operator.
 Examples
 with `\TT{,}' as operator are:
+
+\hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
+\TT{x , y} & $\Longrightarrow$ & \TT{x y}
+					& with \TT{.separator ","} \\
+\TT{, y} & $\Longrightarrow$ & \TT{\{\} y}
+					& with \TT{.separator ","} \\
+\TT{x ,} & $\Longrightarrow$ & \TT{x \{\}}
+					& with \TT{.separator ","} \\
+\TT{x , , y} & $\Longrightarrow$ & \TT{x \{\} y}
+					& with \TT{.separator ","} \\
+\end{tabular}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{selector}{reformatter}
+\TT{(} {\em first-operator}\TT{,} {\em second-operator} \TT{)}
+\hfill \OP{if} ~~~ \OP{else}
+
+
+\begin{indpar}[0.5em]
+Typically used with \TT{infix} operators (e.g., \TT{if} and \TT{else}).
+
+Operators and operands must alternate, with the first and last
+subexpression elements being operands.
+
+There must be an even number of operators, the first two as given by
+the reformatter arguments, and all the operators must alternate between
+these two possibilities.
 
 \hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
 \TT{x , y} & $\Longrightarrow$ & \TT{x y}

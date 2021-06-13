@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  2 16:59:35 EDT 2021
+// Date:	Sun Jun 13 16:01:08 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,7 @@ static min::locatable_gen brackets;
 static min::locatable_gen indentation_marks;
 static min::locatable_gen bracket_types;
 static min::locatable_gen control_operators;
+static min::locatable_gen selection_operators;
 static min::locatable_gen assignment_operators;
 static min::locatable_gen logical_operators;
 static min::locatable_gen comparison_operators;
@@ -84,6 +85,8 @@ static void initialize ( void )
 
     ::control_operators =
         min::new_lab_gen ( "control", "operators" );
+    ::selection_operators =
+        min::new_lab_gen ( "selection", "operators" );
     ::assignment_operators =
         min::new_lab_gen ( "assignment", "operators" );
     ::logical_operators =
@@ -187,6 +190,11 @@ static void initialize ( void )
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
 		    ::control_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::SELECTION_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::selection_operators ) );
     MIN_REQUIRE
 	(    PARSTD::ASSIGNMENT_OPERATORS
 	  == 1ull << TAB::push_name

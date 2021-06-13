@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 31 16:02:58 EDT 2021
+// Date:	Sun Jun 13 15:58:38 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -256,22 +256,25 @@ enum {
     CONTROL_OPERATORS		= 1 << 12,
         // Set standard control operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ASSIGNMENT_OPERATORS	= 1 << 13,
+    SELECTION_OPERATORS		= 1 << 13,
+        // Set standard control operator entries
+    ASSIGNMENT_OPERATORS	= 1 << 14,
         // Set standard assignment operator entries
 	// omitting DISabled CODE and MATH selectors.
-    LOGICAL_OPERATORS		= 1 << 14,
+    LOGICAL_OPERATORS		= 1 << 15,
         // Set standard logical operator entries
 	// omitting DISabled CODE and MATH selectors.
-    COMPARISON_OPERATORS	= 1 << 15,
+    COMPARISON_OPERATORS	= 1 << 16,
         // Set standard comparison operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ARITHMETIC_OPERATORS	= 1 << 16,
+    ARITHMETIC_OPERATORS	= 1 << 17,
         // Set standard arithmetic operator entries
 	// omitting DISabled CODE and MATH selectors.
-    BITWISE_OPERATORS		= 1 << 17,
+    BITWISE_OPERATORS		= 1 << 18,
         // Set standard bitwise operator entries
 	// omitting DISabled CODE and MATH selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS
+                        	+ SELECTION_OPERATORS
                         	+ ASSIGNMENT_OPERATORS
                         	+ LOGICAL_OPERATORS
                         	+ COMPARISON_OPERATORS

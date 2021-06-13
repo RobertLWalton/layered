@@ -3341,8 +3341,8 @@ canceled by an `\TT{end block standard}' parser command.
     Executes bracket type definitions
     (\pagref{STANDARD-BRACKET-TYPES}).
 \\
-\ttmkey{conditional operators}{parser standard flag} &
-    Executes conditional operator definitions
+\ttmkey{control operators}{parser standard flag} &
+    Executes control operator definitions
     (\pagref{STANDARD-CONTROL-OPERATORS}).  [code]
 \\
 \ttmkey{assignment operators}{parser standard flag} &
@@ -7951,7 +7951,7 @@ and~\ref{STANDARD-OPERATORS-2}.
 prece-  & selec-  &             &            &            &            & \\
 ~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-0000    & code	& \TT{conditional}
+0000    & code	& \TT{control}
                                 & \TT{prefix} & \ttkey{if} & conditional & C
 \\\cline{5-5}
 	&	&		& \TT{line}  & \ttkey{else if} & & 
@@ -7963,7 +7963,7 @@ prece-  & selec-  &             &            &            &            & \\
 	&	& \TT{terminating}
 				& \TT{initial}
 					     & \ttkey{else} & terminating & \\
-	&	& \TT{conditional}
+	&	& \TT{control}
 			        & \TT{line}  &            & conditional &
 \\\cline{3-6}
 	&	& (none)	& \TT{afix } & \ttkey{:}  &	       & \\
@@ -8006,7 +8006,7 @@ Class & Standard Component
 \\\hline
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
-C: & \ttkey{conditional operators} \\
+C: & \ttkey{control operators} \\
 S: & \ttkey{assignment operators} \\
 \end{tabular}
 
@@ -8114,7 +8114,7 @@ can be used to define these standard operators.
 \begin{center}
 \begin{tabular}{l@{\hspace*{0.2in}}l}
 \multicolumn{2}{c}
-{\bf Standard `\ttkey{conditional operators}'\label{STANDARD-CONTROL-OPERATORS}
+{\bf Standard `\ttkey{control operators}'\label{STANDARD-CONTROL-OPERATORS}
      Component} \\
 \multicolumn{2}{c}
 {\bf Operator Definition Parser Commands}
@@ -8124,19 +8124,19 @@ Parser Command				& \shortstack{
 \\\hline
 \tt define operator "if" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "else if" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "while" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "until" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "else" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with conditional reformatter ( ":" ) \\
+\tt ~~~~~~~with control reformatter ( ":" ) \\
 \\[1ex]
 \tt define operator ":" [code] afix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
@@ -8586,7 +8586,7 @@ With the above in mind, the operator reformatters are:
 
 \bigskip
 
-\ttmkey{conditional}{reformatter}
+\ttmkey{control}{reformatter}
 \TT{(} {\em delimiter} \{ \TT{,} \ttkey{has condition} \}\QMARK{} \TT{)}
 \hfill \begin{tabular}[t]{l}
        \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else} \\

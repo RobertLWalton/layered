@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 10, 2021
+June 13, 2021
  
 \end{center}
 
@@ -3341,8 +3341,8 @@ canceled by an `\TT{end block standard}' parser command.
     Executes bracket type definitions
     (\pagref{STANDARD-BRACKET-TYPES}).
 \\
-\ttmkey{control operators}{parser standard flag} &
-    Executes control operator definitions
+\ttmkey{conditional operators}{parser standard flag} &
+    Executes conditional operator definitions
     (\pagref{STANDARD-CONTROL-OPERATORS}).  [code]
 \\
 \ttmkey{assignment operators}{parser standard flag} &
@@ -7951,33 +7951,49 @@ and~\ref{STANDARD-OPERATORS-2}.
 prece-  & selec-  &             &            &            &            & \\
 ~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-0000    & code	& \TT{control}	& \TT{prefix} & \ttkey{if} & conditional & C \\
-	&	&		& \TT{line}  & \ttkey{else if} & conditional
-								       & C \\
-	&	&		&	     & \ttkey{while} & loop    & C \\
-	&	&		&	     & \ttkey{until} & loop    & C
-\\\cline{3-7}
-	&	&		& \TT{initial}
-					     & \ttkey{else} & conditional & C \\
-	&	&		& \TT{line}  &            &            &
-\\\cline{3-7}
-	&	& none		& \TT{afix } & \ttkey{:}  &	       & C \\
+0000    & code	& \TT{conditional}
+                                & \TT{prefix} & \ttkey{if} & conditional & C
+\\\cline{5-5}
+	&	&		& \TT{line}  & \ttkey{else if} & & 
+\\\cline{5-6}
+	&	&		&	     & \ttkey{while} & loop    &
+\\\cline{5-5}
+	&	&		&	     & \ttkey{until} & &
+\\\cline{3-6}
+	&	& \TT{terminating}
+				& \TT{initial}
+					     & \ttkey{else} & terminating & \\
+	&	& \TT{conditional}
+			        & \TT{line}  &            & conditional &
+\\\cline{3-6}
+	&	& (none)	& \TT{afix } & \ttkey{:}  &	       & \\
 	&	&		& \TT{right} &            &            & \\
 	&	&		& \TT{line}  &            &            &
-\\\cline{4-7}
-	&	& 		& \TT{postfix } & \ttkey{:} indentation & & C \\
-	&	&		& \TT{afix}  & ~~~mark     &           & \\
+\\\cline{4-6}
+	&	& 		& \TT{afix } & \ttkey{:} indentation & & \\
+	&	&		& \TT{postfix}  & ~~~mark     &           & \\
 	&	&		& \TT{line}  &            &            &
 \\\cline{1-1}\cline{3-7}
-1000    &     	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S \\
-     	&	&	        & \TT{line}  & \ttkey{+=} & increment  & A \\
-     	&	&            	&            & \ttkey{-=} & decrement  & A \\
-     	&	&            	&            & \ttkey{*=} & multiply by & A \\
-     	&	&            	&            & \ttkey{/=} & divide by  & A \\ 
-     	&	&            	&            & \ttkey{|=} & include    & B \\
-     	&	&            	&            & \ttkey{\&=} & mask      & B \\
-     	&	&            	&            & \ttkey{\textasciitilde=}
-	                                                  & flip       & B
+1000    &     	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
+\\\cline{5-7}
+     	&	&	        & \TT{line}  & \ttkey{+=} & increment  & A
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{-=} & decrement  &
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{*=} & multiply by &
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{/=} & divide by  &
+\\\cline{5-7}
+     	&	&            	&            & \ttkey{|=} & include    & B
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{\&=} & mask      &
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{\textasciicircum=}
+	                                                  & flip       &
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{<{}<=} & shift left  &
+\\\cline{5-6}
+     	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
 \\\hline
@@ -7990,7 +8006,7 @@ Class & Standard Component
 \\\hline
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
-C: & \ttkey{control operators} \\
+C: & \ttkey{conditional operators} \\
 S: & \ttkey{assignment operators} \\
 \end{tabular}
 
@@ -8009,44 +8025,67 @@ prece-  & selec-  &             &            &            &            & \\
 2000    & code	& \ttkey{separator}
 				& \TT{nofix} & \ttkey{,}  & separator  & S
 \\\cline{1-1}\cline{3-7}
-3000    & math	& \ttkey{binary}
+3000    & math  & \ttkey{selector}
+				& \TT{infix} & \ttkey{if} & selector  & E
+\\\cline{4-5}
+        &       &               & \TT{afix}  & \ttkey{else} & & \\
+	&       &               & \TT{infix} &              & &
+\\\cline{1-1}\cline{3-7}
+4000    &     	& \ttkey{binary}
 				& \TT{infix} & \ttkey{BUT NOT}
 							  & logical and not & L
+\\\cline{1-1}\cline{3-6}
+4100	&       & \ttkey{same}	& \TT{infix} & \ttkey{AND} & logical and &
+\\\cline{5-6}
+	& 	&		&	     & \ttkey{OR}  & logical or  &
+\\\cline{1-1}\cline{3-6}
+4200    &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not &
 \\\cline{1-1}\cline{3-7}
-3100	&       & \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and & L\\
-	& 	&		&	     & \ttkey{OR}  & logical or  & L
-\\\cline{1-1}\cline{3-7}
-3200    &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not & L
-\\\cline{1-1}\cline{3-7}
-4000 	&	& \ttkey{infix and}
-				& \TT{infix} & \ttkey{==} & equal      & P \\
-	& 	&		&	     & \ttkey{!=} & not equal  & P \\
-	& 	&	      	&	     & \ttkey{<}  & less than  & P \\
+5000 	&	& (none)	& \TT{infix} & \ttkey{==} & equal      & P
+\\\cline{5-6}
+	& 	&		&	     & \ttkey{!=} & not equal  &
+\\\cline{5-6}
+	& 	&	      	&	     & \ttkey{<}  & less than  &
+\\\cline{5-6}
 	& 	&		&	     & \ttkey{<=} & less than or equal
-	                                                               & P \\
-	& 	&	      	&	     & \TT{>}	& greater than & P \\
+	                                                               &
+\\\cline{5-6}
+	& 	&	      	&	     & \TT{>}	& greater than &
+\\\cline{5-6}
 	& 	&		&	     & \TT{>=}	& greater than or equal
-	                                                               & P
-\\\cline{1-1}\cline{3-7}
-5000	&	& \ttkey{sum}	& \TT{infix} & \TT{+}	& addition     & A \\
-	&	&		& 	     & \TT{-}	& subtraction  & A
-\\\cline{2-7}
-	& code	& \ttkey{infix}	& \TT{infix} & \TT{|}	& binary or    & B \\
-	&	&		& 	     & \TT{\&}	& binary and   & B \\
+	                                                               &
+\\\hline
+6000	& code	& \ttkey{sum}	& \TT{infix} & \TT{+}	& addition     & A
+\\\cline{5-6}
+	&	&		& 	     & \TT{-}	& subtraction  &
+\\\cline{3-3}\cline{5-7}
+	&       & \ttkey{same}	&            & \TT{|}	& binary or    & B
+\\\cline{5-6}
+	&	&		& 	     & \TT{\&}	& binary and   &
+\\\cline{5-6}
 	&	&		& 	     & \TT{\textasciicircum}
 						        & binary exclusive or
-							               & B
-\\\hline
-5100	& code	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
-\\\cline{1-1}\cline{3-7}
-5200	& math	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication & A
-\\\cline{1-1}\cline{3-7}
-5300	&	& \ttkey{binary} & \TT{infix} & \TT{**} & exponentiation & A
-\\\cline{1-1}\cline{3-7}
-H-1	&	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        & A \\
-	&	&		& 	      & \TT{-}	& negation     & A 
-\\\cline{2-7}
-	& code 	& \ttkey{unary}	& \TT{prefix} & \TT{\textasciitilde}
+							               &
+\\\cline{3-3}\cline{5-6}
+        & 	& \ttkey{binary} &           & \TT{<{}<} & left shift &
+\\\cline{5-6}
+        &       &                &            & \TT{>{}>} & right shift &
+\\\cline{2-3}\cline{5-7}
+        & math	& (none)	&            & \TT{+}	& addition     & A
+\\\cline{5-6}
+	&	&		& 	     & \TT{-}	& subtraction  &
+\\\cline{1-6}
+6100	& code	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     &
+\\\cline{1-1}\cline{3-6}
+6200	& math	& \ttkey{same}	& \TT{infix} & \TT{*}   & multiplication &
+\\\cline{1-1}\cline{3-6}
+6300	&	& \ttkey{binary} & \TT{infix} & \TT{**} & exponentiation &
+\\\cline{1-1}\cline{3-6}
+H-1	& 	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        &
+\\\cline{5-6}
+	&       &		& 	      & \TT{-}	& negation     & 
+\\\cline{2-2}\cline{5-7}
+	& code 	&       	& 	      & \TT{\textasciitilde}
 	                                                & binary complement
 							               & B
 \\\hline
@@ -8059,6 +8098,7 @@ Class & Standard Component
 \\\hline
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
+E: & \ttkey{selector operators} \\
 L: & \ttkey{logical operators} \\
 P: & \ttkey{comparison operators} \\
 S: & \ttkey{assignment operators} \\
@@ -8078,7 +8118,7 @@ can be used to define these standard operators.
 \begin{center}
 \begin{tabular}{l@{\hspace*{0.2in}}l}
 \multicolumn{2}{c}
-{\bf Standard `\ttkey{control operators}'\label{STANDARD-CONTROL-OPERATORS}
+{\bf Standard `\ttkey{conditional operators}'\label{STANDARD-CONTROL-OPERATORS}
      Component} \\
 \multicolumn{2}{c}
 {\bf Operator Definition Parser Commands}
@@ -8088,19 +8128,19 @@ Parser Command				& \shortstack{
 \\\hline
 \tt define operator "if" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
 \tt define operator "else if" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
 \tt define operator "while" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
 \tt define operator "until" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt ~~~~~~~with conditional reformatter ( ":", has condition ) \\
 \tt define operator "else" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with control reformatter ( ":" ) \\
+\tt ~~~~~~~with conditional reformatter ( ":" ) \\
 \\[1ex]
 \tt define operator ":" [code] afix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
@@ -8550,7 +8590,7 @@ With the above in mind, the operator reformatters are:
 
 \bigskip
 
-\ttmkey{control}{reformatter}
+\ttmkey{conditional}{reformatter}
 \TT{(} {\em delimiter} \{ \TT{,} \ttkey{has condition} \}\QMARK{} \TT{)}
 \hfill \begin{tabular}[t]{l}
        \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else} \\

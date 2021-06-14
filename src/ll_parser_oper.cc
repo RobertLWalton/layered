@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 26 13:59:34 EDT 2021
+// Date:	Mon Jun 14 17:07:19 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1315,6 +1315,94 @@ static bool separator_reformatter_function
     return false;
 }
 
+static bool selector_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    MIN_REQUIRE ( first != next );
+
+    OP::oper op = (OP::oper) entry;
+
+    min::gen first_op = op->reformatter_arguments[0];
+    min::gen second_op = op->reformatter_arguments[1];
+
+    // Operators and operands must alternate with
+    // operands at the ends.  The operators must
+    // alternate between the first and second operator,
+    // with there being an even number of operators.
+    
+    PAR::token t = first;
+    bool even = true;
+    while ( true )
+    {
+	MIN_REQUIRE ( t != next );
+	if ( t->type == PAR::OPERATOR )
+	{
+	    OP::put_error_operand_before
+	        ( parser, t );
+	    if ( first == t ) first = t->previous;
+	}
+	else
+	{
+	    t = t->next;
+	    if ( t == next ) break;
+	}
+
+        MIN_REQUIRE ( t->type == PAR::OPERATOR);
+
+	min::gen op = t->value;
+	min::gen desired_op =
+	    even ? first_op : second_op;
+	if ( op != desired_op )
+	{
+	    PAR::parse_error
+		( parser, t->position,
+		  "wrong operator ",
+		  min::pgen_quote ( op ),
+		  " changed to ",
+		  min::pgen_quote ( desired_op ) );
+	    PAR::value_ref ( t ) = desired_op;
+	}
+
+	t = t->next;
+	if ( t == next )
+	{
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
+	    break;
+	}
+	even = ! even;
+    }
+
+    if ( ! even )
+    {
+	PAR::token token = new_token ( PAR::OPERATOR );
+	put_before ( PAR::first_ref(parser), t, token );
+	PAR::value_ref ( token ) = second_op;
+
+	min::phrase_position position =
+	    { t->position.begin, t->position.begin };
+	token->position = position;
+
+	PAR::parse_error
+	    ( parser, position,
+	      "missing operator ",
+	      min::pgen_quote ( second_op ),
+	      " inserted" );
+
+	OP::put_error_operand_before ( parser, t );
+    }
+
+    return true;
+}
+
 static bool right_associative_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1937,6 +2025,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( separator, 0, 0,
 	  ::separator_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen selector
+        ( min::new_str_gen ( "selector" ) );
+    PAR::push_reformatter
+        ( selector, 2, 2,
+	  ::selector_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen right_associative

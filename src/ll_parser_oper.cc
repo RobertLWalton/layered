@@ -1026,6 +1026,200 @@ static void oper_parse ( PAR::parser parser,
 // Operator Reformatters
 // -------- ------------
 
+static bool control_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    OP::oper op = (OP::oper) entry;
+    min::packed_vec_ptr<min::gen> args =
+	op->reformatter_arguments;
+
+    while (    first != next
+            && first->type != PAR::OPERATOR )
+        first = OP::delete_bad_token
+	    ( parser, first, "expected an operator"
+			     " and found an operand " );
+    MIN_ASSERT ( first != next,
+		 "expression must have an operator" );
+
+    PAR::token t = first->next;
+
+    if (    args->length >= 2
+         && args[1] == OPLEX::has_condition )
+    {
+	while ( t != next && t->type == PAR::OPERATOR )
+	    t = OP::delete_bad_token
+		    ( parser, t,
+		      "expected an operand and found an"
+		      " operator " );
+
+	if ( t == next )
+	{
+	    t = t->previous;
+
+	    OP::put_error_operand_after ( parser, t );
+	    t = t->next;
+	}
+	t = t->next;
+    }
+
+    while (    t != next
+            && t->type != PAR::OPERATOR )
+        first = OP::delete_bad_token
+	    ( parser, t, "expected an operator"
+			     " and found an operand " );
+
+    if ( t == next )
+    {
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected operator before expression"
+	      " end" );
+	return true;
+    }
+
+    if ( t->value == args[0] )
+    {
+	t = t->next;
+	while ( t != next && t->type == PAR::OPERATOR )
+	    t = OP::delete_bad_token
+		    ( parser, t,
+		      "expected an operand and found an"
+		      " operator " );
+
+	if ( t == next )
+	{
+	    PAR::parse_error
+		( parser, t->position,
+		  "expected operand before expression"
+		  " end" );
+	    return true;
+	}
+    }
+    else if ( ! min::is_obj ( t->value )
+              ||
+	         min::get ( t->value,
+		            min::dot_initiator )
+	      != args[0]
+              ||
+	         min::get ( t->value,
+		            min::dot_terminator )
+	      != min::LOGICAL_LINE() )
+    {
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected `",
+	      min::pgen_never_quote ( args[0] ),
+	      "' operator or indented paragraph;"
+	      " end; operator changed to error"
+	      " operator" );
+	PAR::value_ref ( t ) = OPLEX::error_operand;
+    }
+
+    t = t->next;
+
+    // Delete extra stuff from end of list.
+    //
+    if ( t != next )
+        t = OP::delete_extra_stuff ( parser, t, next );
+
+    return true;
+}
+
+static bool declare_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    MIN_REQUIRE ( first != next );
+
+    // We need to be careful to insert empty operands
+    // using put_empty_before/after the operator so
+    // the positions of the empty operands are correctly
+    // set to be just before or after the operator.
+
+    PAR::token t = first;
+
+    // Ensure first element is operand.
+    //
+    if ( t->type == PAR::OPERATOR )
+    {
+	PAR::put_empty_before ( parser, t );
+	first = t->previous;
+    }
+    else
+        t = t->next;
+
+    // Second element must be operator.
+    //
+    MIN_ASSERT
+	( t != next && t->type == PAR::OPERATOR,
+	  "second element is missing or not operator" );
+
+    t = t->next;
+
+    // Ensure third element is operand.
+    //
+    if ( t == next || t->type == PAR::OPERATOR )
+	PAR::put_empty_after ( parser, t->previous );
+    else
+        t = t->next;
+
+    // Move second element to head of list.
+    //
+    PAR::token oper =
+	PAR::remove ( PAR::first_ref ( parser ),
+		      first->next );
+    PAR::put_before ( PAR::first_ref ( parser ),
+		      first, oper );
+    first = oper;
+
+    // Check that remaining elements (other than first
+    // three) are bracketted operators and convert them
+    // to operands.
+    //
+    while ( t != next )
+    {
+        if ( t->type != PAR::OPERATOR
+	     ||
+	     min::is_name ( t->value ) )
+	{
+	    PAR::parse_error
+	        ( parser, t->position,
+		  "expected bracketed expression and"
+		  " got ",
+		  min::pgen_quote ( t->value ),
+		  "; deleted" );
+
+	    t = t->next;
+	    PAR::free
+	        ( PAR::remove
+		      ( PAR::first_ref ( parser ),
+		        t->previous ) );
+	}
+	else
+	{
+	    t->type = PAR::BRACKETED;
+	    t = t->next;
+	}
+    }
+
+    return true;
+}
+
 static bool separator_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1119,93 +1313,6 @@ static bool separator_reformatter_function
 	  1, & separator_attr );
 
     return false;
-}
-
-static bool declare_reformatter_function
-        ( PAR::parser parser,
-	  PAR::pass pass,
-	  TAB::flags selectors,
-	  PAR::token & first,
-	  PAR::token next,
-	  const min::phrase_position & position,
-	  min::gen line_separator,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
-{
-    MIN_REQUIRE ( first != next );
-
-    // We need to be careful to insert empty operands
-    // using put_empty_before/after the operator so
-    // the positions of the empty operands are correctly
-    // set to be just before or after the operator.
-
-    PAR::token t = first;
-
-    // Ensure first element is operand.
-    //
-    if ( t->type == PAR::OPERATOR )
-    {
-	PAR::put_empty_before ( parser, t );
-	first = t->previous;
-    }
-    else
-        t = t->next;
-
-    // Second element must be operator.
-    //
-    MIN_ASSERT
-	( t != next && t->type == PAR::OPERATOR,
-	  "second element is missing or not operator" );
-
-    t = t->next;
-
-    // Ensure third element is operand.
-    //
-    if ( t == next || t->type == PAR::OPERATOR )
-	PAR::put_empty_after ( parser, t->previous );
-    else
-        t = t->next;
-
-    // Move second element to head of list.
-    //
-    PAR::token oper =
-	PAR::remove ( PAR::first_ref ( parser ),
-		      first->next );
-    PAR::put_before ( PAR::first_ref ( parser ),
-		      first, oper );
-    first = oper;
-
-    // Check that remaining elements (other than first
-    // three) are bracketted operators and convert them
-    // to operands.
-    //
-    while ( t != next )
-    {
-        if ( t->type != PAR::OPERATOR
-	     ||
-	     min::is_name ( t->value ) )
-	{
-	    PAR::parse_error
-	        ( parser, t->position,
-		  "expected bracketed expression and"
-		  " got ",
-		  min::pgen_quote ( t->value ),
-		  "; deleted" );
-
-	    t = t->next;
-	    PAR::free
-	        ( PAR::remove
-		      ( PAR::first_ref ( parser ),
-		        t->previous ) );
-	}
-	else
-	{
-	    t->type = PAR::BRACKETED;
-	    t = t->next;
-	}
-    }
-
-    return true;
 }
 
 static bool right_associative_reformatter_function
@@ -1311,113 +1418,6 @@ static bool unary_reformatter_function
 	OP::put_error_operand_after ( parser, t );
 	t = t->next;
     }
-    t = t->next;
-
-    // Delete extra stuff from end of list.
-    //
-    if ( t != next )
-        t = OP::delete_extra_stuff ( parser, t, next );
-
-    return true;
-}
-
-static bool control_reformatter_function
-        ( PAR::parser parser,
-	  PAR::pass pass,
-	  TAB::flags selectors,
-	  PAR::token & first,
-	  PAR::token next,
-	  const min::phrase_position & position,
-	  min::gen line_separator,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
-{
-    OP::oper op = (OP::oper) entry;
-    min::packed_vec_ptr<min::gen> args =
-	op->reformatter_arguments;
-
-    while (    first != next
-            && first->type != PAR::OPERATOR )
-        first = OP::delete_bad_token
-	    ( parser, first, "expected an operator"
-			     " and found an operand " );
-    MIN_ASSERT ( first != next,
-		 "expression must have an operator" );
-
-    PAR::token t = first->next;
-
-    if (    args->length >= 2
-         && args[1] == OPLEX::has_condition )
-    {
-	while ( t != next && t->type == PAR::OPERATOR )
-	    t = OP::delete_bad_token
-		    ( parser, t,
-		      "expected an operand and found an"
-		      " operator " );
-
-	if ( t == next )
-	{
-	    t = t->previous;
-
-	    OP::put_error_operand_after ( parser, t );
-	    t = t->next;
-	}
-	t = t->next;
-    }
-
-    while (    t != next
-            && t->type != PAR::OPERATOR )
-        first = OP::delete_bad_token
-	    ( parser, t, "expected an operator"
-			     " and found an operand " );
-
-    if ( t == next )
-    {
-	PAR::parse_error
-	    ( parser, t->position,
-	      "expected operator before expression"
-	      " end" );
-	return true;
-    }
-
-    if ( t->value == args[0] )
-    {
-	t = t->next;
-	while ( t != next && t->type == PAR::OPERATOR )
-	    t = OP::delete_bad_token
-		    ( parser, t,
-		      "expected an operand and found an"
-		      " operator " );
-
-	if ( t == next )
-	{
-	    PAR::parse_error
-		( parser, t->position,
-		  "expected operand before expression"
-		  " end" );
-	    return true;
-	}
-    }
-    else if ( ! min::is_obj ( t->value )
-              ||
-	         min::get ( t->value,
-		            min::dot_initiator )
-	      != args[0]
-              ||
-	         min::get ( t->value,
-		            min::dot_terminator )
-	      != min::LOGICAL_LINE() )
-    {
-	PAR::parse_error
-	    ( parser, t->position,
-	      "expected `",
-	      min::pgen_never_quote ( args[0] ),
-	      "' operator or indented paragraph;"
-	      " end; operator changed to error"
-	      " operator" );
-	PAR::value_ref ( t ) = OPLEX::error_operand;
-    }
-
     t = t->next;
 
     // Delete extra stuff from end of list.
@@ -1918,17 +1918,25 @@ min::locatable_var<PAR::reformatter>
 
 static void reformatter_stack_initialize ( void )
 {
-    min::locatable_gen separator
-        ( min::new_str_gen ( "separator" ) );
+    min::locatable_gen control
+        ( min::new_str_gen ( "control" ) );
     PAR::push_reformatter
-        ( separator, 0, 0,
-	  ::separator_reformatter_function,
+        ( control, 1, 2,
+	  ::control_reformatter_function,
 	  OP::reformatter_stack );
+
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
     PAR::push_reformatter
         ( declare, 0, 0,
 	  ::declare_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen separator
+        ( min::new_str_gen ( "separator" ) );
+    PAR::push_reformatter
+        ( separator, 0, 0,
+	  ::separator_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen right_associative
@@ -1943,13 +1951,6 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( prefix, 0, 0,
 	  ::unary_reformatter_function,
-	  OP::reformatter_stack );
-
-    min::locatable_gen control
-        ( min::new_str_gen ( "control" ) );
-    PAR::push_reformatter
-        ( control, 1, 2,
-	  ::control_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen binary

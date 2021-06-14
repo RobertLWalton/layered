@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 13, 2021
+June 14, 2021
  
 \end{center}
 
@@ -8651,35 +8651,6 @@ with `\TT{,}' as operator are:
 
 \bigskip
 
-\ttmkey{selector}{reformatter}
-\TT{(} {\em first-operator}\TT{,} {\em second-operator} \TT{)}
-\hfill \OP{if} ~~~ \OP{else}
-
-
-\begin{indpar}[0.5em]
-Typically used with \TT{infix} operators (e.g., \TT{if} and \TT{else}).
-
-Operators and operands must alternate, with the first and last
-subexpression elements being operands.
-
-There must be an even number of operators, the first two as given by
-the reformatter arguments, and all the operators must alternate between
-these two possibilities.
-
-\hspace*{2em}\begin{tabular}{lcl@{~~~~~}l}
-\TT{x , y} & $\Longrightarrow$ & \TT{x y}
-					& with \TT{.separator ","} \\
-\TT{, y} & $\Longrightarrow$ & \TT{\{\} y}
-					& with \TT{.separator ","} \\
-\TT{x ,} & $\Longrightarrow$ & \TT{x \{\}}
-					& with \TT{.separator ","} \\
-\TT{x , , y} & $\Longrightarrow$ & \TT{x \{\} y}
-					& with \TT{.separator ","} \\
-\end{tabular}
-\end{indpar}
-
-\bigskip
-
 \ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \OP{\{\$~\$\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
@@ -8725,6 +8696,25 @@ Note that because \TT{\{\$ \$\}} bracketed subexpressions are afix operators
 with same precedence as \TT{<-{}-},
 `\TT{x <-{}- y \{\$ z \$\}}' does \underline{not}
 end up as `\TT{<-{}- x ( y \{\$ z \$\} )}'.
+
+\end{indpar}
+
+\bigskip
+
+\ttmkey{selector}{reformatter}
+\TT{(} {\em first-operator}\TT{,} {\em second-operator} \TT{)}
+\hfill \OP{if} ~~~ \OP{else}
+
+
+\begin{indpar}[0.5em]
+Typically used with \TT{infix} operators (e.g., \TT{if} and \TT{else}).
+
+Operators and operands must alternate, with the first and last
+subexpression elements being operands.
+
+There must be an even number of operators, the first two as given by
+the reformatter arguments, and all the operators must alternate between
+these two possibilities.
 
 \end{indpar}
 

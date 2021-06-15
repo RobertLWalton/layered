@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 16:15:21 EDT 2021
+// Date:	Tue Jun 15 16:51:58 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -836,8 +836,6 @@ void compact_expression ( PAR::parser parser,
         { first->position.begin,
 	  next->previous->position.end };
 
-    PAR::attr attr ( PARLEX::dot_oper, oper->label );
-
     if ( oper->reformatter == min::NULL_STUB
 	 ||
 	 ( * oper
@@ -855,8 +853,7 @@ void compact_expression ( PAR::parser parser,
 	      first, next,
 	      position,
 	      trace_flags,
-	      PAR::BRACKETABLE,
-	      1, & attr );
+	      PAR::BRACKETABLE );
 }
 
 static void oper_parse_pass_2 ( PAR::parser parser,
@@ -1759,23 +1756,19 @@ static bool infix_and_reformatter_function
 
 	    // Compact new operand2 = ( $ T operand2 ).
 	    //
-	    PAR::attr oper_attr
-		( PARLEX::dot_oper, OPLEX::dollar );
 	    t = operand2->next;
 	    operand2 = operand2->previous->previous;
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  operand2, t, position2,
-		  trace_flags, PAR::BRACKETABLE,
-		  1, & oper_attr );
+		  trace_flags, PAR::BRACKETABLE );
 
 	    // Compact next-operand1 = ( $ T )
 	    //
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  t, t->next->next, position2,
-		  trace_flags, PAR::BRACKETABLE,
-		  1, & oper_attr );
+		  trace_flags, PAR::BRACKETABLE );
 	}
 	else if ( ! insert_and ) position1 = position;
 
@@ -1790,13 +1783,10 @@ static bool infix_and_reformatter_function
 
 	// Compact ( op operand1 operand2 )
 	//
-	PAR::attr oper_attr
-	    ( PARLEX::dot_oper, op->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      op, next_operand1, position1,
-	      trace_flags, PAR::BRACKETABLE,
-	      1, & oper_attr );
+	      trace_flags, PAR::BRACKETABLE );
 	if ( is_first ) first = op;
 
 	operand1 = next_operand1;
@@ -1821,13 +1811,10 @@ static bool infix_and_reformatter_function
 
 	// Compact.
 	//
-	PAR::attr oper_attr
-	    ( PARLEX::dot_oper, and_op );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      first, next, position,
-	      trace_flags, PAR::BRACKETABLE,
-	      1, & oper_attr );
+	      trace_flags, PAR::BRACKETABLE );
     }
 
     return false;
@@ -1918,13 +1905,10 @@ static bool sum_reformatter_function
 	    min::phrase_position position =
 		{ t->position.begin,
 		  t->next->position.end };
-	    PAR::attr oper_attr
-		( PARLEX::dot_oper, minus_op );
 	    PAR::compact
 		( parser, pass->next, selectors,
 		  t, t->next->next, position,
-		  trace_flags, PAR::BRACKETABLE,
-		  1, & oper_attr );
+		  trace_flags, PAR::BRACKETABLE );
 	}
 
 	if ( t_is_first ) first = t;
@@ -1952,13 +1936,10 @@ static bool sum_reformatter_function
 
     // Compact.
     //
-    PAR::attr oper_attr
-	( PARLEX::dot_oper, plus_op );
     PAR::compact
 	( parser, pass->next, selectors,
 	  first, next, position,
-	  trace_flags, PAR::BRACKETABLE,
-	  1, & oper_attr );
+	  trace_flags, PAR::BRACKETABLE );
 
     return false;
 }

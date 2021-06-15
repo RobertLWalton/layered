@@ -5,12 +5,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ======= line ##:
     a b c
     ^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|AND
-                          {"": .operator = "<"|< a
-                               {"": .operator = "$"|$ 0 b|}|}
-                          {"": .operator = "<"|<
-                               {"": .operator = "$"|$ 0|} c|}|}
+======= PARSER TEST: AND {|< a {|$ 0 b|}|} {|< {|$ 0|} c|}
 ======= line ##:
     a < b < c
     ^^^^^^^^^
@@ -67,39 +62,31 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     (, x, y 4,, z,,)
                    ^
-======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+= y z|}
+======= PARSER TEST: += y z
 ======= line ##:
     y += z
     ^^^^^^
-======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= x y|}
+======= PARSER TEST: = x y
 ======= line ##:
     x = y
     ^^^^^
-======= PARSER TEST: {"": .operator = "*=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|*= w4 w5|}
+======= PARSER TEST: *= w4 w5
 ======= line ##:
     w4 *= w5
     ^^^^^^^^
-======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= w3 w4|}
+======= PARSER TEST: = w3 w4
 ======= line ##:
     w3 = w4
     ^^^^^^^
-======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+= w2 w3|}
+======= PARSER TEST: += w2 w3
 ======= line ##:
     w2 += w3
     ^^^^^^^^
-======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= w1 w2|}
+======= PARSER TEST: = w1 w2
 ======= line ##:
     w1 = w2
     ^^^^^^^
-======= PARSER TEST: {"": .operator = "+=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+= {|x1, x2|}
-                          {|z1, z2|}|}
+======= PARSER TEST: += {|x1, x2|} {|z1, z2|}
 ======= line ##:
     x1, x2 += z1, z2
     ^^^^^^^^^^^^^^^^
@@ -109,12 +96,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x1, x2 += z1, z2
               ^^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|AND
-                          {"": .operator = "<"|< x
-                               {"": .operator = "$"|$ 1 y|}|}
-                          {"": .operator = "<"|<
-                               {"": .operator = "$"|$ 1|} z|}|}
+======= PARSER TEST: AND {|< x {|$ 1 y|}|} {|< {|$ 1|} z|}
 ======= line ##:
     x < y < z
     ^^^^^^^^^
@@ -130,23 +112,14 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x < y < z
         ^
-======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= x
-                          {"": .operator = "<", .terminator = ")",
-                               .initiator = "("|< y z|}|}
+======= PARSER TEST: = x (< y z)
 ======= line ##:
     x = ( y < z )
     ^^^^^^^^^^^^^
 ------- line ##:
     x = ( y < z )
         ^^^^^^^^^
-======= PARSER TEST: {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= x
-                          {"": .operator = "AND"|AND
-                               {"": .operator = "<"|< w
-                                    {"": .operator = "$"|$ 2 y|}|}
-                               {"": .operator = "<"|<
-                                    {"": .operator = "$"|$ 2|} z|}|}|}
+======= PARSER TEST: = x {|AND {|< w {|$ 2 y|}|} {|< {|$ 2|} z|}|}
 ======= line ##:
     x = w < y < z
     ^^^^^^^^^^^^^
@@ -180,25 +153,18 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     {X: Y = {* A, B, C *} | 1 2 3 |}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+ a b
-                          {"": .operator = "-"|- c|}|}
+======= PARSER TEST: + a b {|- c|}
 ======= line ##:
     a + b - c
     ^^^^^^^^^
 ------- line ##:
     a + b - c
           ^^^
-======= PARSER TEST: {"": .operator = "-", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|- a|}
+======= PARSER TEST: - a
 ======= line ##:
     - a
     ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+
-                          {"": .operator = "+"|+ a|}
-                          {"": .operator = "-"|- b|}
-                          {"": .operator = "-"|- c|}|}
+======= PARSER TEST: + {|+ a|} {|- b|} {|- c|}
 ======= line ##:
     + a - b - c
     ^^^^^^^^^^^
@@ -211,20 +177,14 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     + a - b - c
             ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+ a
-                          {"": .operator = "*"|b * c|} d|}
+======= PARSER TEST: + a {|b * c|} d
 ======= line ##:
     a + b * c + d
     ^^^^^^^^^^^^^
 ------- line ##:
     a + b * c + d
         ^^^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+ a
-                          {"": .operator = "/"|/
-                               {"": .operator = "*"|b * c|}
-                               {"": .operator = "*"|d * e|}|} f|}
+======= PARSER TEST: + a {|/ {|b * c|} {|d * e|}|} f
 ======= line ##:
     a + b * c / d * e + f
     ^^^^^^^^^^^^^^^^^^^^^
@@ -237,11 +197,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     a + b * c / d * e + f
                 ^^^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+ a
-                          {"": .operator = "*"|b *
-                               {"": .operator = "**"|** e d|} *
-                               {"": .operator = "**"|** f g|}|}|}
+======= PARSER TEST: + a {|b * {|** e d|} * {|** f g|}|}
 ======= line ##:
     a + b * e ** d * f ** g
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -254,43 +210,35 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     a + b * e ** d * f ** g
                      ^^^^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+ x
-                          {"": .operator = "+"|+ y|}|}
+======= PARSER TEST: + x {|+ y|}
 ======= line ##:
     x + + y
     ^^^^^^^
 ------- line ##:
     x + + y
         ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|+ x
-                          {"": .operator = "+"|+ y|}|}
+======= PARSER TEST: + x {|+ y|}
 ======= line ##:
     x + {|+ y|}
     ^^^^^^^^^^^
 ------- line ##:
     x + {|+ y|}
         ^^^^^^^
-======= PARSER TEST: {"": .operator = "*", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|x * {|* y|}|}
+======= PARSER TEST: x * {|* y|}
 ======= line ##:
     x * * y
     ^^^^^^^
 ------- line ##:
     x * * y
         ^^^
-======= PARSER TEST: {"": .operator = "*", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|x * {|* y|}|}
+======= PARSER TEST: x * {|* y|}
 ======= line ##:
     x * {|* y|}
     ^^^^^^^^^^^
 ------- line ##:
     x * {|* y|}
         ^^^^^^^
-======= PARSER TEST: {"": .operator = "NOT", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|NOT
-                          {"": .operator = "NOT"|NOT x|}|}
+======= PARSER TEST: NOT {|NOT x|}
 ======= line ##:
     NOT NOT x
     ^^^^^^^^^
@@ -301,16 +249,11 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ======= line ##:
     x NOT y
     ^^^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|x AND y AND
-                          z|}
+======= PARSER TEST: x AND y AND z
 ======= line ##:
     x AND y AND z
     ^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|x AND
-                          {"": .operator = "NOT"|NOT y|} AND
-                          {"": .operator = "NOT"|NOT z|}|}
+======= PARSER TEST: x AND {|NOT y|} AND {|NOT z|}
 ======= line ##:
     x AND NOT y AND NOT z
     ^^^^^^^^^^^^^^^^^^^^^
@@ -320,10 +263,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x AND NOT y AND NOT z
                     ^^^^^
-======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
-                          "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                          [< BUT NOT >] {"": .operator = "AND"|x AND y|}
-                          {"": .operator = "OR"|z OR w OR v|}|}
+======= PARSER TEST: [< BUT NOT >] {|x AND y|} {|z OR w OR v|}
 ======= line ##:
     x AND y BUT NOT z OR w OR v
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -333,9 +273,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x AND y BUT NOT z OR w OR v
                     ^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|x AND y AND
-                          z|}
+======= PARSER TEST: x AND y AND z
 ======= line ##:
     x AND y OR z
     ^^^^^^^^^^^^

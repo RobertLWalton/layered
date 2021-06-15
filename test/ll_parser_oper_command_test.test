@@ -102,9 +102,7 @@
                       with binary reformatter
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-======= PARSER TEST: {"": .operator = "/", .terminator = ")",
-                          .initiator = "("|/ x
-                          {"": .operator = "^"|^ y {|z w|}|}|}
+======= PARSER TEST: (/ x {|^ y {|z w|}|})
 ======= line ##:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
@@ -135,8 +133,7 @@
                       infix
                       with precedence -100
                       with binary reformatter
-======= PARSER TEST: {"": .operator = "^", .terminator = ")",
-                          .initiator = "("|^ {|x / y|} {|z w|}|}
+======= PARSER TEST: (^ {|x / y|} {|z w|})
 ======= line ##:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
@@ -341,10 +338,7 @@ ERROR: in line ###: illegal operator "OR" after "AND" changed to "AND":
 ERROR: in line ###: missing operand; error operand inserted:
     (NOT NOT)
              ^
-======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
-                          ")", .initiator = "("|[< BUT NOT >]
-                          {"": .operator = "OR"|x OR y|}
-                          {"": .operator = "AND"|z AND w|}|}
+======= PARSER TEST: ([< BUT NOT >] {|x OR y|} {|z AND w|})
 ======= line ###:
     (x OR y BUT NOT z AND w)
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -357,10 +351,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x OR y BUT NOT z AND w)
                     ^^^^^^^
-======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
-                          ")", .initiator = "("|[< BUT NOT >]
-                          {"": .operator = "OR"|x OR y|}
-                          {"": .operator = "AND"|z AND w AND p|}|}
+======= PARSER TEST: ([< BUT NOT >] {|x OR y|} {|z AND w AND p|})
 ======= line ###:
     (x OR y BUT NOT z AND w OR p)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -373,8 +364,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x OR y BUT NOT z AND w OR p)
                     ^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT {|x y|}|}
+======= PARSER TEST: (NOT {|x y|})
 ======= line ###:
     (NOT x y)
     ^^^^^^^^^
@@ -391,9 +381,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x NOT y)
     ^^^^^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|
-                          {"": .operator = "NOT"|NOT x|} AND y|}
+======= PARSER TEST: ({|NOT x|} AND y)
 ======= line ###:
     (NOT x AND y)
     ^^^^^^^^^^^^^
@@ -403,9 +391,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (NOT x AND y)
      ^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|x AND
-                          {"": .operator = "NOT"|NOT y|}|}
+======= PARSER TEST: (x AND {|NOT y|})
 ======= line ###:
     (x AND NOT y)
     ^^^^^^^^^^^^^
@@ -415,8 +401,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x AND NOT y)
            ^^^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|x AND {|AND y|}|}
+======= PARSER TEST: (x AND {|AND y|})
 ======= line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
@@ -426,9 +411,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x AND AND y)
            ^^^^^
-======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT
-                          {"": .operator = "NOT"|NOT {|x y|}|}|}
+======= PARSER TEST: (NOT {|NOT {|x y|}|})
 ======= line ###:
     (NOT NOT x y)
     ^^^^^^^^^^^^^
@@ -441,9 +424,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (NOT NOT x y)
              ^^^
-======= PARSER TEST: {"": .operator = "NOT", .terminator = ")",
-                          .initiator = "("|NOT
-                          {"": .operator = "NOT"|NOT ERROR'OPERAND|}|}
+======= PARSER TEST: (NOT {|NOT ERROR'OPERAND|})
 ======= line ###:
     (NOT NOT)
     ^^^^^^^^^
@@ -482,21 +463,10 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "=>" [code, math] infix
         with precedence 4000
         with infix and reformatter ( "AND" )
-======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND
-                          {"": .operator = "<"|< x
-                               {"": .operator = "$"|$ 0 y|}|}
-                          {"": .operator = "<="|<=
-                               {"": .operator = "$"|$ 0|}
-                               {"": .operator = "$"|$ 1 z|}|}
-                          {"": .operator = ">"|>
-                               {"": .operator = "$"|$ 1|}
-                               {"": .operator = "$"|$ 2 w|}|}
-                          {"": .operator = "!="|!=
-                               {"": .operator = "$"|$ 2|}
-                               {"": .operator = "$"|$ 3 {|p q|}|}|}
-                          {"": .operator = "=<"|=<
-                               {"": .operator = "$"|$ 3|} {|u v|}|}|}
+======= PARSER TEST: (AND {|< x {|$ 0 y|}|} {|<= {|$ 0|} {|$ 1 z|}|}
+                      {|> {|$ 1|} {|$ 2 w|}|}
+                      {|!= {|$ 2|} {|$ 3 {|p q|}|}|}
+                      {|=< {|$ 3|} {|u v|}|})
 ======= line ###:
     ( x < y <= z > w != p q =< u v )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -562,11 +532,7 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "-" [code, math] infix
         with precedence 5000
         with sum reformatter ( "+", "-" )
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+ x y
-                          {"": .operator = "-"|- z|} w
-                          {"": .operator = "-"|- v|}
-                          {"": .operator = "-"|- u|}|}
+======= PARSER TEST: (+ x y {|- z|} w {|- v|} {|- u|})
 ======= line ###:
     ( x + y - z + w - v - u )
     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -582,9 +548,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     ( x + y - z + w - v - u )
                         ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+ {"": .operator = "-"|- x|}
-                          y {"": .operator = "-"|- z|}|}
+======= PARSER TEST: (+ {|- x|} y {|- z|})
 ======= line ###:
     ( - x + y - z )
     ^^^^^^^^^^^^^^^
@@ -597,13 +561,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     ( - x + y - z )
               ^^^
-======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND
-                          {"": .operator = "<"|< x
-                               {"": .operator = "$"|$ 4
-                                    {"": .operator = "+"|+ y 5|}|}|}
-                          {"": .operator = "<="|<=
-                               {"": .operator = "$"|$ 4|} z|}|}
+======= PARSER TEST: (AND {|< x {|$ 4 {|+ y 5|}|}|} {|<= {|$ 4|} z|})
 ======= line ###:
     ( x < y + 5 <= z )
     ^^^^^^^^^^^^^^^^^^
@@ -639,10 +597,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ERROR: in line ###: extra stuff at end of expression; deleted:
     ( x / y / z )
             ^^^
-======= PARSER TEST: {"": .operator = "/", .terminator = ")",
-                          .initiator = "("|/
-                          {"": .operator = "*"|x * y|}
-                          {"": .operator = "*"|{|z q|} * {|m p|}|}|}
+======= PARSER TEST: (/ {|x * y|} {|{|z q|} * {|m p|}|})
 ======= line ###:
     ( x * y / z q * m p )
     ^^^^^^^^^^^^^^^^^^^^^
@@ -661,20 +616,14 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( x * y / z q * m p )
                     ^^^
-======= PARSER TEST: {"": .operator = "/", .terminator = ")",
-                          .initiator = "("|/ x y|}
+======= PARSER TEST: (/ x y)
 ======= line ###:
     ( x / y / z )
     ^^^^^^^^^^^^^
 ------- line ###:
     ( x / y / z )
     ^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "/", .terminator = ")",
-                          .initiator = "("|/
-                          {"": .operator = "*"|
-                               {"": .operator = "^"|^ x 2|} *
-                               {"": .operator = "^"|^ y 2|}|}
-                          {"": .operator = "*"|y * z|}|}
+======= PARSER TEST: (/ {|{|^ x 2|} * {|^ y 2|}|} {|y * z|})
 ======= line ###:
     ( x ^ 2 * y ^ 2 / y * z )
     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -697,9 +646,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 *PARSER*:
     define operator "@" [code, math] prefix
         with precedence 999999
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+ {"": .operator = "-"|- x|}
-                          y {"": .operator = "-"|- z|}|}
+======= PARSER TEST: (+ {|- x|} y {|- z|})
 ======= line ###:
     ( - x + y - z )
     ^^^^^^^^^^^^^^^
@@ -712,11 +659,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( - x + y - z )
               ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+
-                          {"": .operator = "*"|p *
-                               {"": .operator = "-"|- x|}|} y
-                          {"": .operator = "-"|- z|}|}
+======= PARSER TEST: (+ {|p * {|- x|}|} y {|- z|})
 ======= line ###:
     ( p * - x + y - z )
     ^^^^^^^^^^^^^^^^^^^
@@ -732,11 +675,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( p * - x + y - z )
                   ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+ {"": .operator = "@"|@ x|}
-                          y
-                          {"": .operator = "-"|-
-                               {"": .operator = "@"|@ z|}|}|}
+======= PARSER TEST: (+ {|@ x|} y {|- {|@ z|}|})
 ======= line ###:
     ( @ x + y - @ z )
     ^^^^^^^^^^^^^^^^^
@@ -752,11 +691,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( @ x + y - @ z )
                 ^^^
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+
-                          {"": .operator = "-"|-
-                               {"": .operator = "+"|+
-                                    {"": .operator = "-"|- {|x y|}|}|}|}|}
+======= PARSER TEST: (+ {|- {|+ {|- {|x y|}|}|}|})
 ======= line ###:
     ( + - + - x y )
     ^^^^^^^^^^^^^^^
@@ -781,11 +716,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         with precedence 1000000
     define operator "--" [code, math] postfix
         with precedence 1000000
-======= PARSER TEST: {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+
-                          {"": .operator = "++"|x ++|} y
-                          {"": .operator = "-"|-
-                               {"": .operator = "--"|z --|}|}|}
+======= PARSER TEST: (+ {|x ++|} y {|- {|z --|}|})
 ======= line ###:
     ( x ++ + y - z -- )
     ^^^^^^^^^^^^^^^^^^^
@@ -801,12 +732,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( x ++ + y - z -- )
                  ^^^^
-======= PARSER TEST: {"": .operator = "--", .terminator = ")",
-                          .initiator = "("|
-                          {"": .operator = "++"|
-                               {"": .operator = "--"|
-                                    {"": .operator = "++"|{|x y|} ++|}
-                                    --|} ++|} --|}
+======= PARSER TEST: ({|{|{|{|x y|} ++|} --|} ++|} --)
 ======= line ###:
     ( x y ++ -- ++ -- )
     ^^^^^^^^^^^^^^^^^^^
@@ -837,9 +763,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
     define operator indentation mark ":" [code]
         nofix afix line
         with precedence 0
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<--
-                          {|foo bar|} {|boo bat|} {$ fee fie fo fum $}|}
+======= PARSER TEST: <-- {|foo bar|} {|boo bat|} {$ fee fie fo fum $}
 ======= line ###:
     foo bar <-- boo bat {$ fee fie fo fum $}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -852,9 +776,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     foo bar <-- boo bat {$ fee fie fo fum $}
                         ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<--
-                          {|foo bar|} {} {$ fee fie fo fum $}|}
+======= PARSER TEST: <-- {|foo bar|} {} {$ fee fie fo fum $}
 ======= line ###:
     foo bar <-- {$ fee fie fo fum $}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -867,9 +789,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     foo bar <-- {$ fee fie fo fum $}
                 ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<-- {}
-                          {|boo bat|} {$ fee fie fo fum $}|}
+======= PARSER TEST: <-- {} {|boo bat|} {$ fee fie fo fum $}
 ======= line ###:
     <-- boo bat {$ fee fie fo fum $}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -882,9 +802,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     <-- boo bat {$ fee fie fo fum $}
                 ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<--
-                          {|foo bar|} {}|}
+======= PARSER TEST: <-- {|foo bar|} {}
 ======= line ###:
     foo bar <--
     ^^^^^^^^^^^
@@ -894,15 +812,9 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     foo bar <--
                ^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<--
-                          {|foo bar|} {|boo bat|}
-                          {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                               .initiator = ":"|
-                               {"": .terminator = "<LF>", .initiator =
-                                    [$ LOGICAL_LINE $]|fee fie fo fum|}
-                               {"": .terminator = "<LF>", .initiator =
-                                    [$ LOGICAL_LINE $]|he ha ho hum|}|}|}
+======= PARSER TEST: <-- {|foo bar|} {|boo bat|}:
+                         fee fie fo fum
+                         he ha ho hum
 ======= lines ###-###:
     foo bar <-- boo bat:
     ^^^^^^^^^^^^^^^^^^^^
@@ -940,9 +852,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( foo bar <-- boo bat {$ fee fie fo fum $} )
                           ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {"": .operator = "<--", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|<--
-                          {|foo bar|} {|boo bat|} {$ fee fie fo fum $}|}
+======= PARSER TEST: <-- {|foo bar|} {|boo bat|} {$ fee fie fo fum $}
 ======= line ###:
     foo bar <-- boo bat {$ fee fie fo fum $}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

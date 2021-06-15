@@ -225,11 +225,11 @@
         block standard: operator "&" [code]
                         infix
                         with precedence 5000
-                        with infix reformatter
+                        with infix reformatter ( "&" )
         block standard: operator "*" [code, math]
                         infix
                         with precedence 5200
-                        with infix reformatter
+                        with infix reformatter ( "*" )
         block standard: operator "+" [code, math]
                         prefix
                         with precedence 999999
@@ -280,11 +280,11 @@
         block standard: operator "^" [code]
                         infix
                         with precedence 5000
-                        with infix reformatter
+                        with infix reformatter ( "^" )
         block standard: operator "|" [code]
                         infix
                         with precedence 5000
-                        with infix reformatter
+                        with infix reformatter ( "|" )
         block standard: operator "~" [code]
                         prefix
                         with precedence 999999
@@ -348,7 +348,7 @@
         block standard: operator "AND" [code, math]
                         infix
                         with precedence 3100
-                        with infix reformatter
+                        with infix reformatter ( "AND" )
         block standard: operator "~=" [code]
                         infix line
                         with precedence 1000
@@ -368,7 +368,7 @@
         block standard: operator "OR" [code, math]
                         infix
                         with precedence 3100
-                        with infix reformatter
+                        with infix reformatter ( "OR" )
         block standard: operator "/=" [code]
                         infix line
                         with precedence 1000

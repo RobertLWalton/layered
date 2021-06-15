@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 28 15:20:55 EST 2021
+// Date:	Tue Jun 15 16:09:28 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -124,10 +124,10 @@
         with binary reformatter
     define operator "AND" [code, math] infix
         with precedence 3100
-        with infix reformatter
+        with infix reformatter ( "AND" )
     define operator "OR" [code, math] infix
         with precedence 3100
-        with infix reformatter
+        with infix reformatter ( "OR" )
     define operator "NOT" [code, math] prefix
         with precedence 3200
         with unary reformatter
@@ -197,7 +197,7 @@
         with binary reformatter
     define operator "*" [code, math] infix
         with precedence 5200
-        with infix reformatter
+        with infix reformatter ( "*" )
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter

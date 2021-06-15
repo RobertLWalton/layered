@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 13:46:47 EDT 2021
+// Date:	Tue Jun 15 16:15:21 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1411,9 +1411,9 @@ static void op_check
 {
     MIN_REQUIRE ( first != next );
 
-    OP::oper op = (OP::oper) entry;
+    OP::oper oper = (OP::oper) entry;
     PAR::reformatter_arguments args =
-        op->reformatter_arguments;
+        oper->reformatter_arguments;
     if ( args == min::NULL_STUB ) return;
     min::uns32 length = args->length;
     if ( length == 0 ) return;
@@ -1432,9 +1432,11 @@ static void op_check
 	    ( parser, t->position,
 	      "illegal operator ",
 	      min::pgen_quote ( op ),
+	      " after ",
+	      min::pgen_quote ( oper->label ),
 	      " changed to ",
-	      min::pgen_quote ( args[0] ) );
-	PAR::value_ref ( t ) = args[0];
+	      min::pgen_quote ( oper->label ) );
+	PAR::value_ref ( t ) = oper->label;
     }
 }
 
@@ -1644,87 +1646,7 @@ static bool infix_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    MIN_REQUIRE ( first != next );
-
-    // As operators must be infix, operands and
-    // operators must alternate with operands first and
-    // last.  All operators must be the same; the first
-    // is moved to the front and the others deleted.
-
-    // Make sure first element is not an operator.
-    //
-    if ( first->type == PAR::OPERATOR )
-    {
-        OP::put_error_operand_before ( parser, first );
-	first = first->previous;
-    }
-
-    // As first element is not an operator, and as two
-    // non-operators cannot be consecutive, first->next
-    // must be an operator.
-    //
-    MIN_ASSERT (    first->next != next
-                 && first->next->type == PAR::OPERATOR,
-                 "second element is not operator" );
- 
-    // Remove all operators but first, check that they
-    // alternate with operands in the expression, and
-    // check that they are the same as first operator.
-    //
-    PAR::token t = first->next->next;
-    while ( true )
-    {
-        // We should be at non-operator.
-	//
-	if ( t == next || t->type == PAR::OPERATOR )
-	{
-	    OP::put_error_operand_after
-	        ( parser, t->previous );
-	    t = t->previous;  // the ERROR'OPERAND
-	}
-
-	t = t->next;
-	if ( t == next ) break;
-
-	// We must be at operator (as non-operators
-	// cannot be consecutive).
-	//
-	MIN_ASSERT ( t->type == PAR::OPERATOR,
-		     "operator expected but operand"
-		     " found" );
-
-	if ( t->value != first->next->value )
-	    PAR::parse_error
-	        ( parser, position,
-		  "operator ",
-		  min::pgen_quote ( t->value ),
-		  " should equal ",
-		  min::pgen_quote
-		      ( first->next->value ),
-		  "; all operators"
-		  " must be the same in this"
-		  " subexpression; operator ",
-		  min::pgen_quote ( t->value ),
-		  " changed to ",
-		  min::pgen_quote
-		      ( first->next->value ) );
-
-	t = t->next;
-        PAR::free
-	    ( PAR::remove
-		  ( PAR::first_ref(parser),
-		    t->previous ) );
-    }
-
-    // Move first operator (second element) to head of
-    // list.
-    //
-    PAR::put_before
-	( PAR::first_ref(parser), first,
-	  PAR::remove
-	      ( PAR::first_ref(parser), first->next ) );
-    first = first->previous;
-
+    op_check ( parser, first, next, entry );
     return true;
 }
 
@@ -2098,7 +2020,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen infix
         ( min::new_str_gen ( "infix" ) );
     PAR::push_reformatter
-        ( infix, 0, 0,
+        ( infix, 0, 1000,
 	  ::infix_reformatter_function,
 	  OP::reformatter_stack );
 

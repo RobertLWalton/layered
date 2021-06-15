@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 10 17:43:27 EDT 2021
+// Date:	Tue Jun 15 15:23:45 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -261,6 +261,12 @@ static void define_logical_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        and_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( and_arguments ) = and_op;
+
     OP::push_oper
         ( and_op,
 	  min::MISSING(),
@@ -268,8 +274,14 @@ static void define_logical_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  3100, infix_reformatter,
-	  min::NULL_STUB,
+	  and_arguments,
 	  oper_pass->oper_table );
+
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        or_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( or_arguments ) = or_op;
 
     OP::push_oper
         ( or_op,
@@ -278,7 +290,7 @@ static void define_logical_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  3100, infix_reformatter,
-	  min::NULL_STUB,
+	  or_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -539,6 +551,12 @@ static void define_arithmetic_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        multiply_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( multiply_arguments ) = multiply;
+
     OP::push_oper
         ( multiply,
 	  min::MISSING(),
@@ -546,7 +564,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5200, infix_reformatter,
-	  min::NULL_STUB,
+	  multiply_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -636,6 +654,12 @@ static void define_bitwise_operators
     min::locatable_gen complement_name
         ( min::new_str_gen ( "~" ) );
 
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        or_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( or_arguments ) = or_name;
+
     OP::push_oper
         ( or_name,
 	  min::MISSING(),
@@ -643,8 +667,14 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  or_arguments,
 	  oper_pass->oper_table );
+
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        and_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( and_arguments ) = and_name;
 
     OP::push_oper
         ( and_name,
@@ -653,8 +683,14 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  and_arguments,
 	  oper_pass->oper_table );
+
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        xor_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
+    min::push ( xor_arguments ) = xor_name;
 
     OP::push_oper
         ( xor_name,
@@ -663,7 +699,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  xor_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper

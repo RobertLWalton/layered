@@ -328,25 +328,23 @@ ERROR: in line ###: wrong separator "..." changed to ",":
         with binary reformatter
     define operator "AND" [code, math] infix
         with precedence 3100
-        with infix reformatter
+        with infix reformatter ( "AND" )
     define operator "OR" [code, math] infix
         with precedence 3100
-        with infix reformatter
+        with infix reformatter ( "OR" )
     define operator "NOT" [code, math] prefix
         with precedence 3200
         with unary reformatter
-ERROR: in line ###: operator "OR" should equal "AND"; all operators must
-       be the same in this subexpression; operator "OR" changed to
-       "AND":
+ERROR: in line ###: illegal operator "OR" after "AND" changed to "AND":
     (x OR y BUT NOT z AND w OR p)
-                    ^^^^^^^^^^^^
+                            ^^
 ERROR: in line ###: missing operand; error operand inserted:
     (NOT NOT)
              ^
 ======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
                           ")", .initiator = "("|[< BUT NOT >]
-                          {"": .operator = "OR"|OR x y|}
-                          {"": .operator = "AND"|AND z w|}|}
+                          {"": .operator = "OR"|x OR y|}
+                          {"": .operator = "AND"|z AND w|}|}
 ======= line ###:
     (x OR y BUT NOT z AND w)
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -361,8 +359,8 @@ ERROR: in line ###: missing operand; error operand inserted:
                     ^^^^^^^
 ======= PARSER TEST: {"": .operator = [< "BUT" "NOT" >], .terminator =
                           ")", .initiator = "("|[< BUT NOT >]
-                          {"": .operator = "OR"|OR x y|}
-                          {"": .operator = "AND"|AND z w p|}|}
+                          {"": .operator = "OR"|x OR y|}
+                          {"": .operator = "AND"|z AND w AND p|}|}
 ======= line ###:
     (x OR y BUT NOT z AND w OR p)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -394,8 +392,8 @@ ERROR: in line ###: missing operand; error operand inserted:
     (x NOT y)
     ^^^^^^^^^
 ======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND
-                          {"": .operator = "NOT"|NOT x|} y|}
+                          .initiator = "("|
+                          {"": .operator = "NOT"|NOT x|} AND y|}
 ======= line ###:
     (NOT x AND y)
     ^^^^^^^^^^^^^
@@ -406,7 +404,7 @@ ERROR: in line ###: missing operand; error operand inserted:
     (NOT x AND y)
      ^^^^^
 ======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND x
+                          .initiator = "("|x AND
                           {"": .operator = "NOT"|NOT y|}|}
 ======= line ###:
     (x AND NOT y)
@@ -418,7 +416,7 @@ ERROR: in line ###: missing operand; error operand inserted:
     (x AND NOT y)
            ^^^^^
 ======= PARSER TEST: {"": .operator = "AND", .terminator = ")",
-                          .initiator = "("|AND x {|AND y|}|}
+                          .initiator = "("|x AND {|AND y|}|}
 ======= line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
@@ -634,7 +632,7 @@ ERROR: in line ###: missing operand; error operand inserted:
         with binary reformatter
     define operator "*" [code, math] infix
         with precedence 5200
-        with infix reformatter
+        with infix reformatter ( "*" )
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter
@@ -643,8 +641,8 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
             ^^^
 ======= PARSER TEST: {"": .operator = "/", .terminator = ")",
                           .initiator = "("|/
-                          {"": .operator = "*"|* x y|}
-                          {"": .operator = "*"|* {|z q|} {|m p|}|}|}
+                          {"": .operator = "*"|x * y|}
+                          {"": .operator = "*"|{|z q|} * {|m p|}|}|}
 ======= line ###:
     ( x * y / z q * m p )
     ^^^^^^^^^^^^^^^^^^^^^
@@ -673,10 +671,10 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
     ^^^^^^^^^^^^^
 ======= PARSER TEST: {"": .operator = "/", .terminator = ")",
                           .initiator = "("|/
-                          {"": .operator = "*"|*
-                               {"": .operator = "^"|^ x 2|}
+                          {"": .operator = "*"|
+                               {"": .operator = "^"|^ x 2|} *
                                {"": .operator = "^"|^ y 2|}|}
-                          {"": .operator = "*"|* y z|}|}
+                          {"": .operator = "*"|y * z|}|}
 ======= line ###:
     ( x ^ 2 * y ^ 2 / y * z )
     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -716,7 +714,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
               ^^^
 ======= PARSER TEST: {"": .operator = "+", .terminator = ")",
                           .initiator = "("|+
-                          {"": .operator = "*"|* p
+                          {"": .operator = "*"|p *
                                {"": .operator = "-"|- x|}|} y
                           {"": .operator = "-"|- z|}|}
 ======= line ###:
@@ -963,7 +961,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         block standard: operator "*" [code, math]
                         infix
                         with precedence 5200
-                        with infix reformatter
+                        with infix reformatter ( "*" )
         block standard: operator "+" [code, math]
                         infix
                         with precedence 5000
@@ -1041,7 +1039,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         block standard: operator "AND" [code, math]
                         infix
                         with precedence 3100
-                        with infix reformatter
+                        with infix reformatter ( "AND" )
         block standard: operator "=<" [code, math]
                         infix
                         with precedence 4000
@@ -1068,7 +1066,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         block standard: operator "OR" [code, math]
                         infix
                         with precedence 3100
-                        with infix reformatter
+                        with infix reformatter ( "OR" )
         block standard: operator "/=" [code, math]
                         infix
                         with precedence 4000

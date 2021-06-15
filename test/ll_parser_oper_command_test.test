@@ -234,12 +234,8 @@ WARNING: in lines ##-##: undefine found no definition:
     define operator "/=" [code, math] infix
         with precedence 1000
         with right associative reformatter
-======= PARSER TEST: {"": .operator = "=", .terminator = ")",
-                          .initiator = "("|= x
-                          {"": .operator = "+="|+= y
-                               {"": .operator = "*="|*= {|z w|}
-                                    {"": .operator = "="|= {|p q r|}
-                                         {|t v|}|}|}|}|}
+======= PARSER TEST: (x =
+                      {|y += {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
 ======= line ###:
     (x = y += z w *= p q r = t v)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

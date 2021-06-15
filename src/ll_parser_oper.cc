@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 14 17:07:19 EDT 2021
+// Date:	Tue Jun 15 01:39:46 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1403,16 +1403,14 @@ static bool selector_reformatter_function
     return true;
 }
 
-static bool right_associative_reformatter_function
+static void associate_right
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
 	  PAR::token & first,
 	  PAR::token next,
 	  const min::phrase_position & position,
-	  min::gen line_separator,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
+	  TAB::flags trace_flags )
 {
     MIN_REQUIRE ( first != next );
 
@@ -1445,28 +1443,37 @@ static bool right_associative_reformatter_function
 	    { t->position.begin,
 	      t->next->next->position.end };
 
-	// Switch operator and first operand.
-	//
-	PAR::token oper =
-	    PAR::remove ( PAR::first_ref ( parser ),
-	                  t->next );
-	PAR::put_before ( PAR::first_ref ( parser ),
-	                  t, oper );
 	bool t_is_first = ( t == first );
-	t = t->previous;
-
 	if ( t_is_first ) subposition = position;
 
-	PAR::attr oper_attr
-	    ( PARLEX::dot_oper, oper->value );
 	PAR::compact
 	    ( parser, pass->next, selectors,
 	      t, next, subposition,
-	      trace_flags, PAR::BRACKETABLE,
-	      1, & oper_attr );
+	      trace_flags, PAR::BRACKETABLE );
 
 	if ( t_is_first ) first = t;
     }
+}
+
+static bool right_associative_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    associate_right
+        ( parser,
+	  pass,
+	  selectors,
+	  first,
+	  next,
+	  position,
+	  trace_flags );
 
     return false;
 }

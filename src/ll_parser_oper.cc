@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 16:51:58 EDT 2021
+// Date:	Tue Jun 15 17:27:24 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1619,15 +1619,6 @@ static bool binary_reformatter_function
     //
     if ( t != next )
         t = OP::delete_extra_stuff ( parser, t, next );
-
-    // Move second element to head of list.
-    //
-    PAR::token oper =
-	PAR::remove ( PAR::first_ref ( parser ),
-		      first->next );
-    PAR::put_before ( PAR::first_ref ( parser ),
-		      first, oper );
-    first = oper;
 
     return true;
 }

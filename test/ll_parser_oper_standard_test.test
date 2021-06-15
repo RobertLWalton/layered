@@ -62,31 +62,31 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     (, x, y 4,, z,,)
                    ^
-======= PARSER TEST: += y z
+======= PARSER TEST: y += z
 ======= line ##:
     y += z
     ^^^^^^
-======= PARSER TEST: = x y
+======= PARSER TEST: x = y
 ======= line ##:
     x = y
     ^^^^^
-======= PARSER TEST: *= w4 w5
+======= PARSER TEST: w4 *= w5
 ======= line ##:
     w4 *= w5
     ^^^^^^^^
-======= PARSER TEST: = w3 w4
+======= PARSER TEST: w3 = w4
 ======= line ##:
     w3 = w4
     ^^^^^^^
-======= PARSER TEST: += w2 w3
+======= PARSER TEST: w2 += w3
 ======= line ##:
     w2 += w3
     ^^^^^^^^
-======= PARSER TEST: = w1 w2
+======= PARSER TEST: w1 = w2
 ======= line ##:
     w1 = w2
     ^^^^^^^
-======= PARSER TEST: += {|x1, x2|} {|z1, z2|}
+======= PARSER TEST: {|x1, x2|} += {|z1, z2|}
 ======= line ##:
     x1, x2 += z1, z2
     ^^^^^^^^^^^^^^^^
@@ -112,14 +112,14 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x < y < z
         ^
-======= PARSER TEST: = x (< y z)
+======= PARSER TEST: x = (< y z)
 ======= line ##:
     x = ( y < z )
     ^^^^^^^^^^^^^
 ------- line ##:
     x = ( y < z )
         ^^^^^^^^^
-======= PARSER TEST: = x {|AND {|< w {|$ 2 y|}|} {|< {|$ 2|} z|}|}
+======= PARSER TEST: x = {|AND {|< w {|$ 2 y|}|} {|< {|$ 2|} z|}|}
 ======= line ##:
     x = w < y < z
     ^^^^^^^^^^^^^
@@ -184,7 +184,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     a + b * c + d
         ^^^^^
-======= PARSER TEST: + a {|/ {|b * c|} {|d * e|}|} f
+======= PARSER TEST: + a {|{|b * c|} / {|d * e|}|} f
 ======= line ##:
     a + b * c / d * e + f
     ^^^^^^^^^^^^^^^^^^^^^
@@ -197,7 +197,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     a + b * c / d * e + f
                 ^^^^^
-======= PARSER TEST: + a {|b * {|** e d|} * {|** f g|}|}
+======= PARSER TEST: + a {|b * {|e ** d|} * {|f ** g|}|}
 ======= line ##:
     a + b * e ** d * f ** g
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,7 +263,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x AND NOT y AND NOT z
                     ^^^^^
-======= PARSER TEST: [< BUT NOT >] {|x AND y|} {|z OR w OR v|}
+======= PARSER TEST: {|x AND y|} [< BUT NOT >] {|z OR w OR v|}
 ======= line ##:
     x AND y BUT NOT z OR w OR v
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^

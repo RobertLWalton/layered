@@ -102,7 +102,7 @@
                       with binary reformatter
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-======= PARSER TEST: (/ x {|^ y {|z w|}|})
+======= PARSER TEST: (x / {|y ^ {|z w|}|})
 ======= line ##:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
@@ -133,7 +133,7 @@
                       infix
                       with precedence -100
                       with binary reformatter
-======= PARSER TEST: (^ {|x / y|} {|z w|})
+======= PARSER TEST: ({|x / y|} ^ {|z w|})
 ======= line ##:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
@@ -338,7 +338,7 @@ ERROR: in line ###: illegal operator "OR" after "AND" changed to "AND":
 ERROR: in line ###: missing operand; error operand inserted:
     (NOT NOT)
              ^
-======= PARSER TEST: ([< BUT NOT >] {|x OR y|} {|z AND w|})
+======= PARSER TEST: ({|x OR y|} [< BUT NOT >] {|z AND w|})
 ======= line ###:
     (x OR y BUT NOT z AND w)
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -351,7 +351,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x OR y BUT NOT z AND w)
                     ^^^^^^^
-======= PARSER TEST: ([< BUT NOT >] {|x OR y|} {|z AND w AND p|})
+======= PARSER TEST: ({|x OR y|} [< BUT NOT >] {|z AND w AND p|})
 ======= line ###:
     (x OR y BUT NOT z AND w OR p)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -597,7 +597,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ERROR: in line ###: extra stuff at end of expression; deleted:
     ( x / y / z )
             ^^^
-======= PARSER TEST: (/ {|x * y|} {|{|z q|} * {|m p|}|})
+======= PARSER TEST: ({|x * y|} / {|{|z q|} * {|m p|}|})
 ======= line ###:
     ( x * y / z q * m p )
     ^^^^^^^^^^^^^^^^^^^^^
@@ -616,14 +616,14 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( x * y / z q * m p )
                     ^^^
-======= PARSER TEST: (/ x y)
+======= PARSER TEST: (x / y)
 ======= line ###:
     ( x / y / z )
     ^^^^^^^^^^^^^
 ------- line ###:
     ( x / y / z )
     ^^^^^^^^^^^^^
-======= PARSER TEST: (/ {|{|^ x 2|} * {|^ y 2|}|} {|y * z|})
+======= PARSER TEST: ({|{|x ^ 2|} * {|y ^ 2|}|} / {|y * z|})
 ======= line ###:
     ( x ^ 2 * y ^ 2 / y * z )
     ^^^^^^^^^^^^^^^^^^^^^^^^^

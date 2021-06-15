@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 01:39:46 EDT 2021
+// Date:	Tue Jun 15 13:46:47 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1403,6 +1403,41 @@ static bool selector_reformatter_function
     return true;
 }
 
+static void op_check
+        ( PAR::parser parser,
+	  PAR::token first,
+	  PAR::token next,
+	  TAB::root entry )
+{
+    MIN_REQUIRE ( first != next );
+
+    OP::oper op = (OP::oper) entry;
+    PAR::reformatter_arguments args =
+        op->reformatter_arguments;
+    if ( args == min::NULL_STUB ) return;
+    min::uns32 length = args->length;
+    if ( length == 0 ) return;
+    
+    for ( PAR::token t = first; t != next; t = t->next )
+    {
+	if ( t->type != PAR::OPERATOR ) continue;
+	bool found = false;
+	min::gen op = t->value;
+	for ( min::uns32 i = 0; ! found && i < length;
+	                        ++ i )
+	    found = ( args[i] == op );
+	if ( found ) continue;
+
+	PAR::parse_error
+	    ( parser, t->position,
+	      "illegal operator ",
+	      min::pgen_quote ( op ),
+	      " changed to ",
+	      min::pgen_quote ( args[0] ) );
+	PAR::value_ref ( t ) = args[0];
+    }
+}
+
 static void associate_right
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1466,14 +1501,12 @@ static bool right_associative_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
+
+    op_check ( parser, first, next, entry );
     associate_right
-        ( parser,
-	  pass,
-	  selectors,
-	  first,
-	  next,
-	  position,
-	  trace_flags );
+        ( parser, pass, selectors,
+	  first, next,
+	  position, trace_flags );
 
     return false;
 }

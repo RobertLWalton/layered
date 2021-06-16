@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-June 14, 2021
+June 16, 2021
  
 \end{center}
 
@@ -8720,26 +8720,67 @@ these two possibilities.
 
 \bigskip
 
-
-\ttmkey{right associative}{reformatter}
-    \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=} ~~~ \NBOP{*=} ~~~ \NBOP{/=}
+\ttmkey{infix}{reformatter} 
+    \{ \TT{(} {\em operator} \{ \TT{,} {\em operator} \}\STAR{} \TT{)}
+    \}\QMARK{}
+    \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{+}
+    ~ \NBOP{-} ~ \NBOP{|} ~ \NBOP{\&} ~ \NBOP{\textasciicircum} ~ \NBOP{*}
 
 \begin{indpar}[0.5em]
-Typically used with \TT{infix} operators.
+Should only be used with operators whose precedence contains only
+\TT{infix} operators.
 
-Operands and operators must alternate,
-with the first and last subexpression
-elements being operands.
+Requires all the operators in the expression to be listed as arguments
+to the reformatter.  But if the reformatter has no arguments, does
+nothing.
+\end{indpar}
 
-If there is only one operator, it is simply moved to the front.  If there
-are several, they are rewritten as one operator subexpressions so the
-rightmost executes first.  Thus if \TT{=}, \TT{+=}, and \TT{*=}
-are all infix operators of the same precedence with this reformatter:
+\bigskip
+
+
+\ttmkey{right associative}{reformatter}
+    \{ \TT{(} {\em operator} \{ \TT{,} {\em operator} \}\STAR{} \TT{)}
+    \}\QMARK{}
+
+\begin{indpar}[0.5em]
+Identical to the \TT{infix} reformatter, except after checking
+operators in the expression, rearranges the expression so that all operators
+are binary and the \underline{rightmost}
+operator is innermost (executed first).
+
+
+Thus if \TT{=}, \TT{+=}, and \TT{*=}
+are all infix operators of the same precedence with this reformatter
+and reformatter arguments {\tt ("=", "+=")}, then:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\TT{y = z} & $\Longrightarrow$ & \TT{= y z} \\
-\TT{x = y = z} & $\Longrightarrow$ & \TT{= x (= y z)} \\
-\TT{x += y *= z} & $\Longrightarrow$ & \TT{+= x (*= y z)} \\
+\TT{y = z} & $\Longrightarrow$ & \TT{y = z} \\
+\TT{x = y += z} & $\Longrightarrow$ & \TT{x = (y += z)} \\
+\TT{x = y *= z} & $\Longrightarrow$ & error
+\end{tabular}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{left associative}{reformatter}
+    \{ \TT{(} {\em operator} \{ \TT{,} {\em operator} \}\STAR{} \TT{)}
+    \}\QMARK{}
+
+\begin{indpar}[0.5em]
+Identical to the \TT{infix} reformatter, except after checking
+operators in the expression, rearranges the expression so that all operators
+are binary and the \underline{leftmost}
+operator is innermost (executed first).
+
+
+Thus if \TT{+}, \TT{-}, and \TT{++}
+are all infix operators of the same precedence with this reformatter
+and reformatter arguments {\tt ("+", "-")}, then:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\TT{y + z} & $\Longrightarrow$ & \TT{y + z} \\
+\TT{x + y - z} & $\Longrightarrow$ & \TT{(x + y) - z} \\
+\TT{x + y ++ z} & $\Longrightarrow$ & error
 \end{tabular}
 \end{indpar}
 
@@ -8783,105 +8824,6 @@ to the beginning of the expression.  Examples:
 Note that in these examples `\TT{BUT NOT}' is a single label element
 of the resulting subexpression,
 and \underline{not} two word elements of the subexpression.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{infix}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{*}
-
-\begin{indpar}[0.5em]
-Typically used with \TT{infix} operators.
-
-Operands and operators must alternate, with the first and last subexpression
-elements being operands, and all
-operators must be the same.  The first operator is moved to the
-front of the subexpression, and the other operators are removed.
-Examples:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\TT{x AND y} & $\Longrightarrow$ & \TT{AND x y} \\
-\TT{x AND y AND z} & $\Longrightarrow$ & \TT{AND x y z} \\
-\TT{x OR y} & $\Longrightarrow$ & \TT{OR x y} \\
-\TT{x OR y OR z} & $\Longrightarrow$ & \TT{OR x y z} \\
-\TT{x * y} & $\Longrightarrow$ & \TT{* x y} \\
-\TT{x * y * z} & $\Longrightarrow$ & \TT{* x y z} \\
-\TT{x AND y OR z} & $\Longrightarrow$ & error \\
-\end{tabular}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{infix and}{reformatter} \TT{(} {\em and\_op} \TT{)} \hfill
-	\NBOP{==} ~~~ \NBOP{<} ~~~ \NBOP{>} ~~~
-	\NBOP{/=} ~~~ \NBOP{!=} ~~~
-	\NBOP{=>} ~~~ \NBOP{>=} ~~~
-	\NBOP{=<} ~~~ \NBOP{<=}
-
-\begin{indpar}[0.5em]
-Typically used with \TT{infix} operators.
-
-Operands and operators must alternate, with the first and last subexpression
-elements being operands.
-If there is only one operator, it is simply moved to the front.  Otherwise
-the expression is rewritten so the operators become two-argument functions
-whose values are combined by a multi-argument {\em and\_op} and whose
-shared operands are represented by temporaries (\pagref{TEMPORARY})
-to avoid computing an operand twice. 
-Examples in which \TT{<}, \TT{==}, \TT{!=}, and \TT{<=} all have
-the same precedence and this reformatter with {\em and\_op} being \TT{"AND"}:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\TT{x < y < z} & $\Longrightarrow$ &
-    \TT{AND (< x (\$ 56 y)) (< (\$ 56) z))} \\[1ex]
-\TT{w == x != y <= z} & $\Longrightarrow$
-             & \begin{tabular}[t]{@{}l@{~}l@{}}
-	       \TT{AND} & \TT{(== w (\$ 57 x))} \\
-			  & \TT{(!= (\$ 57) (\$ 58 y))} \\
-			  & \TT{(<= (\$ 58) z)} \\
-	       \end{tabular}
-\end{tabular}
-
-Note that sequences of comparison operators are treated as they are
-in mathematics and not as they are in classical programming languages.
-E.g., \TT{x~<~y~<~z} means \TT{x~<~y AND y~<~z} and \underline{not}
-\TT{(x~<~y)~<~z}.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{sum}{reformatter} \TT{(} {\em plus\_op} {\em minus\_op} \TT{)}
-			  \hfill \NBOP{+} ~~~ \NBOP{-}
-
-\begin{indpar}[0.5em]
-Typically used with \TT{infix} operators.
-
-Operands and operators must alternate, with the last subexpression
-element being an oper\-and.
-The operators must be either {\em plus\_op} or {\em minus\_op}.
-
-If the subexpression contains only two elements, it is not rewritten.
-In this case the subexpression must consists of an operator followed
-by an operand.
-
-Otherwise every `{\em minus\_op} {\em operand}' is rewritten as
-`{\em plus\_op} \TT{(} {\em minus\_op} {\em operand} \TT{)}', where
-the subexpression {\em minus\_op} is treated as a prefix operator, and
-then the first {\em plus\_op} is moved to the front and the other
-{\em plus\_op}'s are removed.
-
-For example, if {\em plus\_op} is \TT{"+"} and {\em minus\_op} is
-\TT{"-"} and both these operators are both infix with
-the same precedence and this reformatter:
-
-\hspace*{2em}\begin{tabular}{lcl}
-\TT{x + y} & $\Longrightarrow$ & \TT{+ x y} \\
-\TT{x - y} & $\Longrightarrow$ & \TT{+ x (- y)} \\
-\TT{x - y + z - w} & $\Longrightarrow$ & \TT{+ x (- y) z (- w)} \\
-\TT{- x} & $\Longrightarrow$ & \TT{- x} \\
-\TT{- x + y} & $\Longrightarrow$ & \TT{+ (- x) y} \\
-\TT{+ x - y} & $\Longrightarrow$ & \TT{+ x (- y)} \\
-\end{tabular}
-
 \end{indpar}
 
 \bigskip

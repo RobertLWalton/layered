@@ -8615,7 +8615,7 @@ for \TT{if} and \TT{else if} but not for \TT{else}.
 \end{indpar}
 
 \ttmkey{separator}{reformatter}
-\hfill \OP{;} ~~~ \OP{,}
+\hfill \OP{,}
 
 
 \begin{indpar}[0.5em]
@@ -8730,9 +8730,12 @@ these two possibilities.
 Should only be used with operators whose precedence contains only
 \TT{infix} operators.
 
-Requires all the operators in the expression to be listed as arguments
+Checks that operands and operators alternate, and that the expression
+begins and ends with an operator.
+
+Checks that all the operators in the expression are listed as arguments
 to the reformatter.  But if the reformatter has no arguments, does
-nothing.
+\underline{not} check the operators.
 \end{indpar}
 
 \bigskip
@@ -8744,7 +8747,8 @@ nothing.
 
 \begin{indpar}[0.5em]
 Identical to the \TT{infix} reformatter, except after checking
-operators in the expression, rearranges the expression so that all operators
+the expression, inserts parentheses into the expression from
+right to left so that all operators
 are binary and the \underline{rightmost}
 operator is innermost (executed first).
 
@@ -8768,7 +8772,8 @@ and reformatter arguments {\tt ("=", "+=")}, then:
 
 \begin{indpar}[0.5em]
 Identical to the \TT{infix} reformatter, except after checking
-operators in the expression, rearranges the expression so that all operators
+the expression, inserts parentheses into the expression from left
+to right so that all operators
 are binary and the \underline{leftmost}
 operator is innermost (executed first).
 
@@ -8787,13 +8792,13 @@ and reformatter arguments {\tt ("+", "-")}, then:
 \bigskip
 
 \ttmkey{unary}{reformatter}
-    \hfill \NBOP{NOT}
+    \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{\textasciitilde}
 
 \begin{indpar}[0.5em]
 Tyically used with \TT{prefix} operators.
 
-The subexpression must have exactly two elements, an operator followed
-by an operand.  The subexpression is left unchanged.  Examples
+Checks that the subexpression has exactly two elements, an operator followed
+by an operand.  Examples
 where \TT{NOT} is a prefix operator:
 
 \hspace*{2em}\begin{tabular}{lcl}
@@ -8804,8 +8809,9 @@ where \TT{NOT} is a prefix operator:
 
 \bigskip
 
-\ttmkey{binary}{reformatter} \hfill \NBOP{BUT NOT} ~~~ \NBOP{/}
-					           ~~~ \NBOP{\textasciicircum}
+\ttmkey{binary}{reformatter}
+    \hfill \NBOP{=} ~~~ \NBOP{BUT NOT} ~~~ \NBOP{<{}<} ~~ \NBOP{>{}>}
+                          ~~~ \NBOP{/} ~~~ \NBOP{**}
 
 \begin{indpar}[0.5em]
 Typically used with \TT{infix} operators.

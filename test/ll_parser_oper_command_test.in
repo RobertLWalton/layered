@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 16:09:28 EDT 2021
+// Date:	Wed Jun 16 15:29:55 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -145,31 +145,31 @@
 *PARSER*:
     define operator "==" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator "/=" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator "!=" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator "<" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator "<=" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator "=<" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator ">" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator ">=" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
     define operator "=>" [code, math] infix
         with precedence 4000
-        with infix and reformatter ( "AND" )
+        with infix reformatter
 *PARSER* *TEST*:
     ( x < y <= z > w != p q =< u v )
 
@@ -179,13 +179,13 @@
         with unary reformatter
     define operator "+" [code, math] infix
         with precedence 5000
-        with sum reformatter ( "+", "-" )
+        with infix reformatter ( "+", "-" )
     define operator "-" [code, math] prefix
         with precedence 999999
         with unary reformatter
     define operator "-" [code, math] infix
         with precedence 5000
-        with sum reformatter ( "+", "-" )
+        with infix reformatter ( "+", "-" )
 *PARSER* *TEST*:
     ( x + y - z + w - v - u )
     ( - x + y - z )

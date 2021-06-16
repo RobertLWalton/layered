@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 17:27:24 EDT 2021
+// Date:	Wed Jun 16 15:20:06 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1437,6 +1437,55 @@ static void op_check
     }
 }
 
+static void associate_left
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  TAB::flags trace_flags )
+{
+    MIN_REQUIRE ( first != next );
+
+    // As operators must be infix, operands and opera-
+    // tors must alternate with operands first and last.
+
+    // Work from beginning to end taking 3 tokens at a
+    // time and rewriting them into a subexpression.
+    //
+    while ( first->next != next )
+    {
+        PAR::token t = first;
+	MIN_ASSERT ( t->type != PAR::OPERATOR,
+	             "operand expected but operator"
+		     " found" );
+        t = t->next;
+	MIN_ASSERT ( t != next,
+	             "premature expression end" );
+	MIN_ASSERT ( t->type == PAR::OPERATOR,
+	             "operator expected but operand"
+		     " found" );
+        t = t->next;
+	MIN_ASSERT ( t != next,
+	             "premature expression end" );
+	MIN_ASSERT ( t->type != PAR::OPERATOR,
+	             "operand expected but operator"
+		     " found" );
+
+        min::phrase_position subposition =
+	    { first->position.begin,
+	      t->position.end };
+
+	if ( t->next == next ) subposition = position;
+
+	PAR::compact
+	    ( parser, pass->next, selectors,
+	      first, t->next, subposition,
+	      trace_flags, PAR::BRACKETABLE );
+    }
+}
+
 static void associate_right
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1457,11 +1506,11 @@ static void associate_right
     while ( first->next != next )
     {
         PAR::token t = next->previous;
-	MIN_ASSERT ( t != first,
-	             "premature expression end" );
 	MIN_ASSERT ( t->type != PAR::OPERATOR,
 	             "operand expected but operator"
 		     " found" );
+	MIN_ASSERT ( t != first,
+	             "premature expression end" );
         t = t->previous;
 	MIN_ASSERT ( t->type == PAR::OPERATOR,
 	             "operator expected but operand"
@@ -1489,6 +1538,21 @@ static void associate_right
     }
 }
 
+static bool infix_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    op_check ( parser, first, next, entry );
+    return true;
+}
+
 static bool right_associative_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1503,6 +1567,27 @@ static bool right_associative_reformatter_function
 
     op_check ( parser, first, next, entry );
     associate_right
+        ( parser, pass, selectors,
+	  first, next,
+	  position, trace_flags );
+
+    return false;
+}
+
+static bool left_associative_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+
+    op_check ( parser, first, next, entry );
+    associate_left
         ( parser, pass, selectors,
 	  first, next,
 	  position, trace_flags );
@@ -1623,318 +1708,6 @@ static bool binary_reformatter_function
     return true;
 }
 
-static bool infix_reformatter_function
-        ( PAR::parser parser,
-	  PAR::pass pass,
-	  TAB::flags selectors,
-	  PAR::token & first,
-	  PAR::token next,
-	  const min::phrase_position & position,
-	  min::gen line_separator,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
-{
-    op_check ( parser, first, next, entry );
-    return true;
-}
-
-static bool infix_and_reformatter_function
-        ( PAR::parser parser,
-	  PAR::pass pass,
-	  TAB::flags selectors,
-	  PAR::token & first,
-	  PAR::token next,
-	  const min::phrase_position & position,
-	  min::gen line_separator,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
-{
-    MIN_REQUIRE ( first != next );
-
-    OP::oper_pass oper_pass = (OP::oper_pass) pass;
-
-    // As operators must be infix, operands and
-    // operators must alternate with operands first and
-    // last.
-
-    // Work from beginning to end replacing
-    //
-    //	   operand1 operator operand2
-    //
-    // by
-    //	   (operator operand1 operand2) next-operand1
-    //
-    // For the last operator, next-operand1 is omitted
-    // and operand2 is not assigned a temporary.  For
-    // all other cases final operand2 has the form
-    // ($ T operand) and next-operand1 has the form
-    // ($ T) where T is the next temporary variable
-    // number.
-    //
-    bool insert_and = false;
-        // True if AND is to be inserted.
-    for ( PAR::token operand1 = first;
-          operand1 != next ; )
-    {
-	MIN_ASSERT ( operand1->type != PAR::OPERATOR,
-	             "operand expected but operator"
-		     " found" );
-        PAR::token op = operand1->next;
-	MIN_ASSERT ( op != next,
-	             "unexpected expression end" );
-	MIN_ASSERT ( op->type == PAR::OPERATOR,
-	             "operator expected but operand"
-		     " found" );
-        PAR::token operand2 = op->next;
-	MIN_ASSERT ( operand2 != next,
-	             "unexpected expression end" );
-	MIN_ASSERT ( operand2->type != PAR::OPERATOR,
-	             "operand expected but operator"
-		     " found" );
-
-        min::phrase_position position1 =
-	    { operand1->position.begin,
-	      operand2->position.end };
-
-	// If not last operator, replace operand2 by
-	// ($ T operand2 ), compute next-operand1 to be
-	// ( $ T ), and insert it after operand2.
-	//
-	if ( operand2->next != next )
-	{
-	    insert_and = true;
-
-	    // Insert tokens for $ and T before
-	    // operand2.
-	    //
-	    min::phrase_position position2 =
-	        operand2->position;
-	    min::phrase_position before_position2 =
-	        { operand2->position.begin,
-	          operand2->position.begin };
-	    PAR::token t =
-	        PAR::new_token ( LEXSTD::word_t );
-	    PAR::put_before
-		( first_ref(parser), operand2, t );
-	    PAR::value_ref ( t ) = OPLEX::dollar;
-	    t->position = before_position2;
-
-	    t = PAR::new_token ( LEXSTD::natural_t  );
-	    PAR::put_before
-		( first_ref(parser), operand2, t );
-	    PAR::value_ref ( t ) =
-	        min::new_num_gen
-		    ( oper_pass->temporary_count ++ );
-	    t->position = before_position2;
-
-	    // Copy tokens for $ and T after operand2.
-	    //
-	    PAR::token t2 = operand2->previous;
-	    t = PAR::new_token ( t2->type );
-	    PAR::put_before
-		( first_ref(parser),
-		  operand2->next, t );
-	    PAR::value_ref ( t ) = t2->value;
-	    t->position = t2->position;
-
-	    t2 = operand2->previous->previous;
-	    t = PAR::new_token ( t2->type );
-	    PAR::put_before
-		( first_ref(parser),
-		  operand2->next, t );
-	    PAR::value_ref ( t ) = t2->value;
-	    t->position = t2->position;
-
-	    // Compact new operand2 = ( $ T operand2 ).
-	    //
-	    t = operand2->next;
-	    operand2 = operand2->previous->previous;
-	    PAR::compact
-		( parser, pass->next, selectors,
-		  operand2, t, position2,
-		  trace_flags, PAR::BRACKETABLE );
-
-	    // Compact next-operand1 = ( $ T )
-	    //
-	    PAR::compact
-		( parser, pass->next, selectors,
-		  t, t->next->next, position2,
-		  trace_flags, PAR::BRACKETABLE );
-	}
-	else if ( ! insert_and ) position1 = position;
-
-	bool is_first = ( operand1 == first );
-	PAR::token next_operand1 = operand2->next;
-
-	// Switch operator and first operand.
-	//
-	PAR::remove ( PAR::first_ref ( parser ), op );
-	PAR::put_before ( PAR::first_ref ( parser ),
-	                  operand1, op );
-
-	// Compact ( op operand1 operand2 )
-	//
-	PAR::compact
-	    ( parser, pass->next, selectors,
-	      op, next_operand1, position1,
-	      trace_flags, PAR::BRACKETABLE );
-	if ( is_first ) first = op;
-
-	operand1 = next_operand1;
-    }
-
-    OP::oper op = (OP::oper) entry;
-
-    if ( insert_and )
-    {
-        // More than one operator.  Insert and_op.
-	//
-        min::phrase_position first_position =
-	    { first->position.begin,
-	      first->position.begin };
-	min::gen and_op = op->reformatter_arguments[0];
-	PAR::token t =
-	    PAR::new_token ( PAR::OPERATOR  );
-	PAR::put_before ( first_ref(parser), first, t );
-	PAR::value_ref ( t ) = and_op;
-	t->position = first_position;
-	first = t;
-
-	// Compact.
-	//
-	PAR::compact
-	    ( parser, pass->next, selectors,
-	      first, next, position,
-	      trace_flags, PAR::BRACKETABLE );
-    }
-
-    return false;
-}
-
-static bool sum_reformatter_function
-        ( PAR::parser parser,
-	  PAR::pass pass,
-	  TAB::flags selectors,
-	  PAR::token & first,
-	  PAR::token next,
-	  const min::phrase_position & position,
-	  min::gen line_separator,
-	  TAB::flags trace_flags,
-	  TAB::root entry )
-{
-    MIN_REQUIRE ( first != next );
-
-    OP::oper op = (OP::oper) entry;
-
-    min::gen plus_op = op->reformatter_arguments[0];
-    min::gen minus_op = op->reformatter_arguments[1];
-
-    // Operators and operands must alternate with an
-    // operand at the end.  If there are only two
-    // elements, the first must be an operator and
-    // the second an operand, and nothing is done.
-    //
-    if ( first->type == PAR::OPERATOR )
-    {
-        if ( first->next == next )
-	{
-	    OP::put_error_operand_after
-	        ( parser, first );
-	    return true;
-	}
-	else if ( first->next->type == PAR::OPERATOR )
-	    OP::put_error_operand_before
-	        ( parser, first->next );
-	else if ( first->next->next == next )
-	    return true;
-    }
-    
-    // Otherwise replace every `plus_op x' by `x' and
-    // every `minus_op x' by `(minus_op x)'.
-    //
-    PAR::token t = first;
-    if ( t->type != PAR::OPERATOR )
-        t = t->next;
-    MIN_ASSERT ( t->type == PAR::OPERATOR,
-		 "expression must have an operator" );
-		 // Since two consecutive operands is
-		 // impossible and there must be some
-		 // operator if there is a reformatter.
-    while ( t != next )
-    {
-        MIN_REQUIRE ( t->type == PAR::OPERATOR);
-
-	if (    t->next == next
-	     || t->next->type == PAR::OPERATOR )
-	    OP::put_error_operand_after ( parser, t );
-
-	min::gen op = t->value;
-	bool t_is_first = ( t == first );
-	if ( op != minus_op )
-	{
-	    if ( op != plus_op )
-		PAR::parse_error
-		    ( parser, t->position,
-		      "wrong operator ",
-		      min::pgen_quote ( t->value ),
-		      " changed to ",
-		      min::pgen_quote ( plus_op ),
-		      "; all operators in this"
-		      " subexpression must be ",
-		      min::pgen_quote ( plus_op ),
-		      " or ",
-		      min::pgen_quote ( minus_op ) );
-
-	    t = t->next;
-	    PAR::free
-		( PAR::remove
-		      ( PAR::first_ref(parser),
-			t->previous ) );
-	}
-	else
-	{
-	    min::phrase_position position =
-		{ t->position.begin,
-		  t->next->position.end };
-	    PAR::compact
-		( parser, pass->next, selectors,
-		  t, t->next->next, position,
-		  trace_flags, PAR::BRACKETABLE );
-	}
-
-	if ( t_is_first ) first = t;
-
-	t = t->next;
-    }
-
-    // Put plus_op at beginning of subexpression.
-    //
-    min::phrase_position first_position =
-	{ first->position.begin,
-	  first->position.begin };
-    PAR::token new_first =
-	PAR::new_token ( PAR::OPERATOR );
-    PAR::put_before
-	( first_ref(parser), first, new_first );
-    PAR::value_ref ( new_first ) = plus_op;
-    new_first->position = first_position;
-    first = new_first;
-
-    // return true does not work here for X - Y, as it
-    // sets the .operator of the entire expression to
-    // "-" from the input instead of "+" from the
-    // output.
-
-    // Compact.
-    //
-    PAR::compact
-	( parser, pass->next, selectors,
-	  first, next, position,
-	  trace_flags, PAR::BRACKETABLE );
-
-    return false;
-}
-
 min::locatable_var<PAR::reformatter>
     OP::reformatter_stack ( min::NULL_STUB );
 
@@ -1968,11 +1741,25 @@ static void reformatter_stack_initialize ( void )
 	  ::selector_reformatter_function,
 	  OP::reformatter_stack );
 
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    PAR::push_reformatter
+        ( infix, 0, 1000,
+	  ::infix_reformatter_function,
+	  OP::reformatter_stack );
+
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
     PAR::push_reformatter
-        ( right_associative, 0, 0,
+        ( right_associative, 0, 1000,
 	  ::right_associative_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen left_associative
+        ( min::new_lab_gen ( "left", "associative" ) );
+    PAR::push_reformatter
+        ( left_associative, 0, 1000,
+	  ::left_associative_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen prefix
@@ -1987,27 +1774,6 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( binary, 0, 0,
 	  ::binary_reformatter_function,
-	  OP::reformatter_stack );
-
-    min::locatable_gen infix
-        ( min::new_str_gen ( "infix" ) );
-    PAR::push_reformatter
-        ( infix, 0, 1000,
-	  ::infix_reformatter_function,
-	  OP::reformatter_stack );
-
-    min::locatable_gen infix_and
-        ( min::new_lab_gen ( "infix", "and" ) );
-    PAR::push_reformatter
-        ( infix_and, 1, 1,
-	  ::infix_and_reformatter_function,
-	  OP::reformatter_stack );
-
-    min::locatable_gen sum
-        ( min::new_str_gen ( "sum" ) );
-    PAR::push_reformatter
-        ( sum, 2, 2,
-	  ::sum_reformatter_function,
 	  OP::reformatter_stack );
 }
 static min::initializer reformatter_initializer

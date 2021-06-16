@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 15:23:45 EDT 2021
+// Date:	Tue Jun 15 23:59:01 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -315,11 +315,11 @@ static void define_comparison_operators
 
     oper_pass->selectors |= code | math;
 
-    min::locatable_gen infix_and
-        ( min::new_lab_gen ( "infix", "and" ) );
-    PAR::reformatter infix_and_reformatter =
+    min::locatable_gen infix
+        ( min::new_str_gen ( "infix" ) );
+    PAR::reformatter infix_reformatter =
         PAR::find_reformatter
-	    ( infix_and, OP::reformatter_stack );
+	    ( infix, OP::reformatter_stack );
 
     min::locatable_gen equal_equal
         ( min::new_str_gen ( "==" ) );
@@ -333,13 +333,6 @@ static void define_comparison_operators
         ( min::new_str_gen ( ">" ) );
     min::locatable_gen less_than
         ( min::new_str_gen ( "<" ) );
-    min::locatable_gen and_op
-        ( min::new_str_gen ( "AND" ) );
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        and_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( and_arguments ) = and_op;
 
     OP::push_oper
         ( equal_equal,
@@ -347,8 +340,8 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_and_reformatter,
-	  and_arguments,
+	  4000, infix_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -357,8 +350,8 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_and_reformatter,
-	  and_arguments,
+	  4000, infix_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -367,8 +360,8 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_and_reformatter,
-	  and_arguments,
+	  4000, infix_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -377,8 +370,8 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_and_reformatter,
-	  and_arguments,
+	  4000, infix_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -387,8 +380,8 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_and_reformatter,
-	  and_arguments,
+	  4000, infix_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -397,8 +390,8 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_and_reformatter,
-	  and_arguments,
+	  4000, infix_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 }
 
@@ -429,11 +422,6 @@ static void define_arithmetic_operators
     PAR::reformatter unary_reformatter =
         PAR::find_reformatter
 	    ( unary, OP::reformatter_stack );
-    min::locatable_gen sum
-        ( min::new_str_gen ( "sum" ) );
-    PAR::reformatter sum_reformatter =
-        PAR::find_reformatter
-	    ( sum, OP::reformatter_stack );
 
     min::locatable_gen plus_equal
         ( min::new_str_gen ( "+=" ) );
@@ -496,10 +484,10 @@ static void define_arithmetic_operators
         ( min::new_str_gen ( "**" ) );
     min::locatable_var
     	    <min::packed_vec_insptr<min::gen> >
-        sum_arguments
+        plus_minus_arguments
 	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
-    min::push ( sum_arguments ) = plus;
-    min::push ( sum_arguments ) = minus;
+    min::push ( plus_minus_arguments ) = plus;
+    min::push ( plus_minus_arguments ) = minus;
 
     OP::push_oper
         ( plus,
@@ -507,8 +495,8 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, sum_reformatter,
-	  sum_arguments,
+	  5000, infix_reformatter,
+	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -527,8 +515,8 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, sum_reformatter,
-	  sum_arguments,
+	  5000, infix_reformatter,
+	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper

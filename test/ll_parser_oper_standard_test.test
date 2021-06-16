@@ -5,22 +5,10 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ======= line ##:
     a b c
     ^^^^^
-======= PARSER TEST: AND {|< a {|$ 0 b|}|} {|< {|$ 0|} c|}
+======= PARSER TEST: a < b < c
 ======= line ##:
     a < b < c
     ^^^^^^^^^
-------- line ##:
-    a < b < c
-    ^^^^^
-------- line ##:
-    a < b < c
-        ^
-------- line ##:
-    a < b < c
-        ^^^^^
-------- line ##:
-    a < b < c
-        ^
 ======= PARSER TEST: [x (y) z {{u, v, w}} m (n (p))]
 ======= line ##:
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
@@ -96,48 +84,24 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     x1, x2 += z1, z2
               ^^^^^^
-======= PARSER TEST: AND {|< x {|$ 1 y|}|} {|< {|$ 1|} z|}
+======= PARSER TEST: x < y < z
 ======= line ##:
     x < y < z
     ^^^^^^^^^
-------- line ##:
-    x < y < z
-    ^^^^^
-------- line ##:
-    x < y < z
-        ^
-------- line ##:
-    x < y < z
-        ^^^^^
-------- line ##:
-    x < y < z
-        ^
-======= PARSER TEST: x = (< y z)
+======= PARSER TEST: x = (y < z)
 ======= line ##:
     x = ( y < z )
     ^^^^^^^^^^^^^
 ------- line ##:
     x = ( y < z )
         ^^^^^^^^^
-======= PARSER TEST: x = {|AND {|< w {|$ 2 y|}|} {|< {|$ 2|} z|}|}
+======= PARSER TEST: x = {|w < y < z|}
 ======= line ##:
     x = w < y < z
     ^^^^^^^^^^^^^
 ------- line ##:
     x = w < y < z
         ^^^^^^^^^
-------- line ##:
-    x = w < y < z
-        ^^^^^
-------- line ##:
-    x = w < y < z
-            ^
-------- line ##:
-    x = w < y < z
-            ^^^^^
-------- line ##:
-    x = w < y < z
-            ^
 ======= PARSER TEST: {t: no d, e, f = (m ";" n ";" p), b =
                          (a "," b "," c)|1 2 3|t}
 ======= line ##:
@@ -153,38 +117,29 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     {X: Y = {* A, B, C *} | 1 2 3 |}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: + a b {|- c|}
+======= PARSER TEST: a + b - c
 ======= line ##:
     a + b - c
     ^^^^^^^^^
-------- line ##:
-    a + b - c
-          ^^^
 ======= PARSER TEST: - a
 ======= line ##:
     - a
     ^^^
-======= PARSER TEST: + {|+ a|} {|- b|} {|- c|}
+======= PARSER TEST: {|+ a|} - b - c
 ======= line ##:
     + a - b - c
     ^^^^^^^^^^^
 ------- line ##:
     + a - b - c
     ^^^
-------- line ##:
-    + a - b - c
-        ^^^
-------- line ##:
-    + a - b - c
-            ^^^
-======= PARSER TEST: + a {|b * c|} d
+======= PARSER TEST: a + {|b * c|} + d
 ======= line ##:
     a + b * c + d
     ^^^^^^^^^^^^^
 ------- line ##:
     a + b * c + d
         ^^^^^
-======= PARSER TEST: + a {|{|b * c|} / {|d * e|}|} f
+======= PARSER TEST: a + {|{|b * c|} / {|d * e|}|} + f
 ======= line ##:
     a + b * c / d * e + f
     ^^^^^^^^^^^^^^^^^^^^^
@@ -197,7 +152,7 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     a + b * c / d * e + f
                 ^^^^^
-======= PARSER TEST: + a {|b * {|e ** d|} * {|f ** g|}|}
+======= PARSER TEST: a + {|b * {|e ** d|} * {|f ** g|}|}
 ======= line ##:
     a + b * e ** d * f ** g
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -210,14 +165,14 @@ ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
 ------- line ##:
     a + b * e ** d * f ** g
                      ^^^^^^
-======= PARSER TEST: + x {|+ y|}
+======= PARSER TEST: x + {|+ y|}
 ======= line ##:
     x + + y
     ^^^^^^^
 ------- line ##:
     x + + y
         ^^^
-======= PARSER TEST: + x {|+ y|}
+======= PARSER TEST: x + {|+ y|}
 ======= line ##:
     x + {|+ y|}
     ^^^^^^^^^^^

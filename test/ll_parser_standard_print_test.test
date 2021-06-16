@@ -237,7 +237,7 @@
         block standard: operator "+" [code, math]
                         infix
                         with precedence 5000
-                        with sum reformatter ( "+", "-" )
+                        with infix reformatter ( "+", "-" )
         block standard: operator "," [code, math]
                         nofix
                         with precedence 2000
@@ -249,7 +249,7 @@
         block standard: operator "-" [code, math]
                         infix
                         with precedence 5000
-                        with sum reformatter ( "+", "-" )
+                        with infix reformatter ( "+", "-" )
         block standard: operator "/" [code, math]
                         infix
                         with precedence 5100
@@ -260,7 +260,7 @@
         block standard: operator "<" [code, math]
                         infix
                         with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with infix reformatter
         block standard: operator "=" [code]
                         infix line
                         with precedence 1000
@@ -272,11 +272,11 @@
         block standard: operator ">" [code, math]
                         infix
                         with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with infix reformatter
         block standard: operator "!=" [code, math]
                         infix
                         with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with infix reformatter
         block standard: operator "^" [code]
                         infix
                         with precedence 5000
@@ -344,7 +344,7 @@
         block standard: operator "<=" [code, math]
                         infix
                         with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with infix reformatter
         block standard: operator "AND" [code, math]
                         infix
                         with precedence 3100
@@ -356,7 +356,7 @@
         block standard: operator "==" [code, math]
                         infix
                         with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with infix reformatter
         block standard: operator "-=" [code]
                         infix line
                         with precedence 1000
@@ -364,7 +364,7 @@
         block standard: operator ">=" [code, math]
                         infix
                         with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with infix reformatter
         block standard: operator "OR" [code, math]
                         infix
                         with precedence 3100

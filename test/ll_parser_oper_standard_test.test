@@ -1,4 +1,5 @@
-ERROR: in line ##: illegal operator "OR" after "AND" changed to "AND":
+ERROR: in line ##: illegal operator "OR" in expression beginnning with
+       "AND"; changed to "AND":
     x AND y OR z
             ^^
 ======= PARSER TEST: a b c

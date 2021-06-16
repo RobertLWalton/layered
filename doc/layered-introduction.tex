@@ -8525,7 +8525,7 @@ In describing the effects of operator reformatters
 we use notation such as
 
 \hspace*{2em}\begin{tabular}{lcl}
-\TT{x = y = z + w} & $\Longrightarrow$ & \TT{= x ( = y (+ x w))} \\
+\TT{- x + y * z} & $\Longrightarrow$ & \TT{(- x) + (y * z)} \\
 \TT{x AND y OR z} & $\Longrightarrow$ & error
 \end{tabular}
 
@@ -8538,31 +8538,6 @@ merely written here to indicate sublists in the expression structure.
 Reformatters can detect parsing errors, such the fact that the two
 operators in `\TT{x AND y OR z}' are not identical (when both are
 infix operators with the same precedence).
-
-Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
-are introduced by reformatting.  The syntax involving temporaries is:
-
-\begin{indpar}
-\emkey{temporary-definition} ::= {\em temporary} ~ {\em subexpression} \\[1ex]
-\emkey{temporary} ::= \TT{\$} {\em natural-number}
-\end{indpar}
-
-During reformatting, a subexpression may be replaced by
-a {\em temporary-definition} containing the subexpression.  This
-defines the {\em temporary} as a name for the value of the subexpression.
-Then the {\em temporary} can be used in the reformatted
-expression to refer to this value.  An example is
-
-\begin{center}
-\TT{x == y + 3 == z} ~~~ $\Longrightarrow$ ~~~
-\TT{AND (== x (\$ 563 (+ y 3))) (== (\$ 563) z)}
-\end{center}
-
-Here the temporary has been used to avoid computing \TT{y + 3}
-more than once.
-
-The {\em natural-numbers} in {\em temporaries} are assigned so no
-two {\em temporary-definitions} ever have the same {\em temporary}.
 
 Note that many errors that one might expect to be handled by
 reformatters are not so-handled because the operators are not

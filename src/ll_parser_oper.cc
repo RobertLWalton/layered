@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 16 15:20:06 EDT 2021
+// Date:	Wed Jun 16 15:56:50 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1400,7 +1400,10 @@ static bool selector_reformatter_function
     return true;
 }
 
-static void op_check
+// Do checking for infix, right associative, and left
+// associative reformatters.
+//
+static void infix_check
         ( PAR::parser parser,
 	  PAR::token first,
 	  PAR::token next,
@@ -1411,29 +1414,57 @@ static void op_check
     OP::oper oper = (OP::oper) entry;
     PAR::reformatter_arguments args =
         oper->reformatter_arguments;
-    if ( args == min::NULL_STUB ) return;
-    min::uns32 length = args->length;
-    if ( length == 0 ) return;
+    min::uns32 length =
+        ( args == min::NULL_STUB ? 0 : args->length );
     
-    for ( PAR::token t = first; t != next; t = t->next )
+    PAR::token t = first;
+    while ( true )
     {
-	if ( t->type != PAR::OPERATOR ) continue;
+        if ( t == next )
+	{
+	    PAR::parse_error
+		( parser, t->previous->position,
+		  "operator should be infix" );
+	    OP::put_error_operand_before ( parser, t );
+	    return;
+	}
+	else if ( t->type == PAR::OPERATOR )
+	{
+	    PAR::parse_error
+		( parser, t->position,
+		  "operator should be infix" );
+	    OP::put_error_operand_before ( parser, t );
+	}
+	else
+	{
+	    t = t->next;
+	    if ( t == next ) return;
+	    MIN_ASSERT ( t->type == PAR::OPERATOR,
+			 "operator expected but operand"
+			 " found" );
+	}
+
+	t = t->next;
+
+	if ( length == 0 ) continue;
 	bool found = false;
-	min::gen op = t->value;
+	min::gen op = t->previous->value;
 	for ( min::uns32 i = 0; ! found && i < length;
 	                        ++ i )
 	    found = ( args[i] == op );
-	if ( found ) continue;
-
-	PAR::parse_error
-	    ( parser, t->position,
-	      "illegal operator ",
-	      min::pgen_quote ( op ),
-	      " after ",
-	      min::pgen_quote ( oper->label ),
-	      " changed to ",
-	      min::pgen_quote ( oper->label ) );
-	PAR::value_ref ( t ) = oper->label;
+	if ( ! found )
+	{
+	    PAR::parse_error
+		( parser, t->previous->position,
+		  "illegal operator ",
+		  min::pgen_quote ( op ),
+		  " in expression beginnning with ",
+		  min::pgen_quote ( oper->label ),
+		  "; changed to ",
+		  min::pgen_quote ( oper->label ) );
+	    PAR::value_ref ( t->previous ) =
+	        oper->label;
+	}
     }
 }
 
@@ -1549,7 +1580,7 @@ static bool infix_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    op_check ( parser, first, next, entry );
+    infix_check ( parser, first, next, entry );
     return true;
 }
 
@@ -1565,7 +1596,7 @@ static bool right_associative_reformatter_function
 	  TAB::root entry )
 {
 
-    op_check ( parser, first, next, entry );
+    infix_check ( parser, first, next, entry );
     associate_right
         ( parser, pass, selectors,
 	  first, next,
@@ -1586,7 +1617,7 @@ static bool left_associative_reformatter_function
 	  TAB::root entry )
 {
 
-    op_check ( parser, first, next, entry );
+    infix_check ( parser, first, next, entry );
     associate_left
         ( parser, pass, selectors,
 	  first, next,

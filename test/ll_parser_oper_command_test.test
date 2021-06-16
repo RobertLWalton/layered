@@ -332,7 +332,8 @@ ERROR: in line ###: wrong separator "..." changed to ",":
     define operator "NOT" [code, math] prefix
         with precedence 3200
         with unary reformatter
-ERROR: in line ###: illegal operator "OR" after "AND" changed to "AND":
+ERROR: in line ###: illegal operator "OR" in expression beginnning with
+       "AND"; changed to "AND":
     (x OR y BUT NOT z AND w OR p)
                             ^^
 ERROR: in line ###: missing operand; error operand inserted:

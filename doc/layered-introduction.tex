@@ -8025,8 +8025,8 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{1-1}\cline{3-7}
 3000    & math  & \ttkey{selector}
 				& \TT{infix} & \ttkey{if} & selector  & E
-\\\cline{4-5}
-        &       &               & \TT{afix}  & \ttkey{else} & & \\
+\\\cline{3-5}
+        &       & (none)        & \TT{afix}  & \ttkey{else} & & \\
 	&       &               & \TT{infix} &              & &
 \\\cline{1-1}\cline{3-7}
 4000    &     	& \ttkey{binary}
@@ -8171,6 +8171,28 @@ Parser Command				& \shortstack{
 \begin{center}
 \begin{tabular}{l@{\hspace*{0.2in}}l}
 \multicolumn{2}{c}
+{\bf Standard `\ttkey{selection operators}'
+     \label{STANDARD-SELECTION-OPERATORS} Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "if" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with selector reformatter \\
+\tt ~~~~~~~~~~~~( "if", "else" ) \\
+\\[1ex]
+\tt define operator "else" [code, math] afix infix
+					    & {\tt + code} or {\tt + math} \\
+\tt ~~~~~~~with precedence 3000
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
 {\bf Standard `\ttkey{logical operators}'
      \label{STANDARD-LOGICAL-OPERATORS} Component} \\
 \multicolumn{2}{c}
@@ -8181,18 +8203,18 @@ Parser Command				& \shortstack{
 \\\hline
 \tt define operator "BUT NOT" [code, math] infix
                                             & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with precedence 4000 \\
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "AND" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 3100 \\
-\tt ~~~~~~~with infix reformatter \\
+\tt ~~~~~~~with precedence 4100 \\
+\tt ~~~~~~~with infix reformatter ( "AND" ) \\
 \tt define operator "OR" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 3100 \\
-\tt ~~~~~~~with infix reformatter
+\tt ~~~~~~~with precedence 4100 \\
+\tt ~~~~~~~with infix reformatter ( "OR" )
 \\[1ex]
 \tt define operator "NOT" [code, math] prefix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 3200 \\
+\tt ~~~~~~~with precedence 4200 \\
 \tt ~~~~~~~with unary reformatter \\
 \end{tabular}
 \end{center}
@@ -8209,23 +8231,23 @@ Parser Command				& \shortstack{
                                           {\bf Required}\\Qualifiers}
 \\\hline
 \tt define operator "==" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
-\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
 \tt define operator "<=" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
-\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
 \tt define operator ">=" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
-\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
 \tt define operator "!=" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
-\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
 \tt define operator "<" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
-\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
 \tt define operator ">" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
-\tt ~~~~~~~with infix and reformatter ( "AND" ) \\
+\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with infix reformatter \\
 \end{tabular}
 \end{center}
 
@@ -8254,21 +8276,21 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "+" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
-\tt ~~~~~~~with sum reformatter ( "+", "-" ) \\
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with infix reformatter ( "+", "-" ) \\
 \tt define operator "-" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
-\tt ~~~~~~~with sum reformatter ( "+", "-" ) \\
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with infix reformatter ( "+", "-" ) \\
 \tt define operator "/" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5100 \\
+\tt ~~~~~~~with precedence 6100 \\
 \tt ~~~~~~~with binary reformatter \\
 \tt define operator "*" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5200 \\
-\tt ~~~~~~~with infix reformatter \\
-\tt define operator "\textasciicircum" [code, math] infix
+\tt ~~~~~~~with precedence 6200 \\
+\tt ~~~~~~~with infix reformatter ( "*" ) \\
+\tt define operator "**" [code, math] infix
                                            & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5300 \\
-\tt ~~~~~~~with infix reformatter
+\tt ~~~~~~~with precedence 6300 \\
+\tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "+" [code, math] prefix & {\tt + code} or {\tt + math} \\
 \tt ~~~~~~~with precedence 999999 \\
@@ -8296,21 +8318,34 @@ Parser Command				& \shortstack{
 \tt define operator "\&=" [code] infix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter \\
-\tt define operator "\~=" [code] infix line & {\tt + code} \\
+\tt define operator "\textasciicircum=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator "<{}<=" [code] infix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator ">{}>=" [code] infix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "|" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 5000 \\
-\tt ~~~~~~~with infix reformatter \\
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with infix reformatter ( "|" ) \\
 \tt define operator "\&" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 5000 \\
-\tt ~~~~~~~with infix reformatter \\
-\tt define operator "\~" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 5000 \\
-\tt ~~~~~~~with infix reformatter
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with infix reformatter ( "\&" ) \\
+\tt define operator "\textasciicircum" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with infix reformatter ( "\textasciicircum" )
 \\[1ex]
-\tt define operator "\~" [code] prefix & {\tt + code} \\
+\tt define operator "<{}<" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with binary reformatter \\
+\tt define operator ">{}>" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with binary reformatter
+\\[1ex]
+\tt define operator "\textasciitilde" [code] prefix & {\tt + code} \\
 \tt ~~~~~~~with precedence 999999 \\
 \tt ~~~~~~~with unary reformatter \\
 \end{tabular}

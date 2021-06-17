@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 03:03:16 EDT 2021
+// Date:	Thu Jun 17 11:39:16 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1132,8 +1132,6 @@ static bool control_reformatter_function
 	        ( parser, t, next );
 	    return true;
 	}
-
-	t = t->next;
     }
     else if (    min::get ( t->value,
 		            min::dot_terminator )

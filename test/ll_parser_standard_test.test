@@ -1,5 +1,5 @@
 BRACKETED EXPRESSION:
-    ID 10 is {"": .operator = "+"|+ x y|}
+    ID 10 is {|x + y|}
 BRACKETED EXPRESSION:
     ID 11 is {|x + y|}
 ERROR: in line ##: extra stuff at end of line; line ignored:
@@ -9,19 +9,20 @@ ERROR: in line ##: extra stuff at end of line; line ignored:
         w = u - v
               ^^^
 BRACKETED EXPRESSION:
-    ID 21 is {"": .operator = "*"|* x y|}
+    ID 21 is {|x * y|}
 BRACKETED EXPRESSION:
-    ID 22 is {"": .operator = "+"|+ u {"": .operator = "-"|- v|}|}
+    ID 22 is {|u - v|}
 BRACKETED EXPRESSION:
-    ID 23 is
-        {"": z = {"": .operator = "*"|* x y|}, w =
-             {"": .operator = "+"|+ u {"": .operator = "-"|- v|}|}|
-             {"": .operator = "+"|+ x y|}|}
+    ID 23 is {"": z = {|x * y|}, w = {|u - v|}|x + y|}
 BRACKETED EXPRESSION:
     ID 30 is
         {|this is an indented paragraph
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                "::"|{p|{s|with a line and a second line|s}|p}|}|}
+BRACKETED EXPRESSION:
+    ID 35 is foo
+BRACKETED EXPRESSION:
+    ID 36 is "fum"
 BRACKETED EXPRESSION:
     This is a line with an indented paragraph:
         First line of indented paragraph "."

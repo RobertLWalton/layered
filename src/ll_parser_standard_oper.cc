@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 15 23:59:01 EDT 2021
+// Date:	Thu Jun 17 16:14:19 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -215,6 +215,57 @@ static void define_assignment_operators
 	  oper_pass->oper_table );
 }
 
+static void define_selection_operators
+	( PAR::parser parser,
+	  TAB::flags code,
+	  TAB::flags math )
+{
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    oper_pass->selectors |= code | math;
+
+    min::locatable_gen selector
+        ( min::new_str_gen ( "selector" ) );
+    PAR::reformatter selector_reformatter =
+        PAR::find_reformatter
+	    ( selector, OP::reformatter_stack );
+
+    min::locatable_gen if_op
+        ( min::new_str_gen ( "if" ) );
+    min::locatable_gen else_op
+        ( min::new_str_gen ( "else" ) );
+
+    min::locatable_var
+    	    <min::packed_vec_insptr<min::gen> >
+        selector_arguments
+	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
+    min::push ( selector_arguments ) = if_op;
+    min::push ( selector_arguments ) = else_op;
+
+    OP::push_oper
+        ( if_op,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  3000, selector_reformatter,
+	  selector_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( else_op,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::AFIX + OP::INFIX,
+	  3000,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+}
+
 static void define_logical_operators
 	( PAR::parser parser,
 	  TAB::flags code,
@@ -257,7 +308,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  3000, binary_reformatter,
+	  4000, binary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -273,7 +324,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  3100, infix_reformatter,
+	  4100, infix_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -289,7 +340,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  3100, infix_reformatter,
+	  4100, infix_reformatter,
 	  or_arguments,
 	  oper_pass->oper_table );
 
@@ -299,7 +350,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  3200, unary_reformatter,
+	  4200, unary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 }
@@ -340,7 +391,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_reformatter,
+	  5000, infix_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -350,7 +401,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_reformatter,
+	  5000, infix_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -360,7 +411,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_reformatter,
+	  5000, infix_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -370,7 +421,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_reformatter,
+	  5000, infix_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -380,7 +431,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_reformatter,
+	  5000, infix_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -390,7 +441,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, infix_reformatter,
+	  5000, infix_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 }
@@ -495,7 +546,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  6000, infix_reformatter,
 	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
@@ -515,7 +566,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  6000, infix_reformatter,
 	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
@@ -535,7 +586,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5100, binary_reformatter,
+	  6100, binary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
@@ -551,7 +602,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5200, infix_reformatter,
+	  6200, infix_reformatter,
 	  multiply_arguments,
 	  oper_pass->oper_table );
 
@@ -561,7 +612,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5300, binary_reformatter,
+	  6300, binary_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 }
@@ -601,7 +652,11 @@ static void define_bitwise_operators
     min::locatable_gen and_equal
         ( min::new_str_gen ( "&=" ) );
     min::locatable_gen xor_equal
-        ( min::new_str_gen ( "~=" ) );
+        ( min::new_str_gen ( "^=" ) );
+    min::locatable_gen shift_left
+        ( min::new_str_gen ( "<<=" ) );
+    min::locatable_gen shift_right
+        ( min::new_str_gen ( ">>=" ) );
 
     OP::push_oper
         ( or_equal,
@@ -633,12 +688,36 @@ static void define_bitwise_operators
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
+    OP::push_oper
+        ( shift_left,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( shift_right,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
     min::locatable_gen or_name
         ( min::new_str_gen ( "|" ) );
     min::locatable_gen and_name
         ( min::new_str_gen ( "&" ) );
     min::locatable_gen xor_name
         ( min::new_str_gen ( "^" ) );
+    min::locatable_gen left_shift
+        ( min::new_str_gen ( "<<" ) );
+    min::locatable_gen right_shift
+        ( min::new_str_gen ( ">>" ) );
     min::locatable_gen complement_name
         ( min::new_str_gen ( "~" ) );
 
@@ -654,7 +733,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  6000, infix_reformatter,
 	  or_arguments,
 	  oper_pass->oper_table );
 
@@ -670,7 +749,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  6000, infix_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -686,8 +765,28 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  6000, infix_reformatter,
 	  xor_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( left_shift,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  6000, binary_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( right_shift,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  6000, binary_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -712,6 +811,7 @@ void PARSTD::define_operators
                         + PARSTD::BITWISE_OPERATORS ) )
 	needed |= PARSTD::CODE;
     if ( components & (   PARSTD::ASSIGNMENT_OPERATORS
+                        + PARSTD::SELECTION_OPERATORS
                         + PARSTD::LOGICAL_OPERATORS
                         + PARSTD::COMPARISON_OPERATORS
                         + PARSTD::ARITHMETIC_OPERATORS )
@@ -743,6 +843,9 @@ void PARSTD::define_operators
 	    ( parser, code, math );
     if ( components & PARSTD::ASSIGNMENT_OPERATORS )
 	::define_assignment_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::SELECTION_OPERATORS )
+	::define_selection_operators
 	    ( parser, code, math );
     if ( components & PARSTD::LOGICAL_OPERATORS )
 	::define_logical_operators

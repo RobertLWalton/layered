@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 22 12:33:13 EDT 2019
+// Date:	Fri Jun 18 04:08:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,7 @@ cc		LEXSTD::master_names[MAX_MASTER+1] =
 cc		    { "START",
 cc		      "DEFAULT",
 cc		      "DATA-CHECK",
+cc		      "TABLE-CHECK",
 cc		      "PARAGRAPH-CHECK",
 cc		      "ROW-CHECK" };
 cc
@@ -109,11 +110,13 @@ cc	    uns32 within_line;
 cc	    NDL::new_table ( within_line, MASTER, 1 );
 cc	    uns32 data_check;
 cc	    NDL::new_table ( data_check, MASTER, 2 );
+cc	    uns32 table_check;
+cc	    NDL::new_table ( table_check, MASTER, 3 );
 cc	    uns32 paragraph_check;
 cc	    NDL::new_table
-cc		( paragraph_check, MASTER, 3 );
+cc		( paragraph_check, MASTER, 4 );
 cc	    uns32 row_check;
-cc	    NDL::new_table ( row_check, MASTER, 4 );
+cc	    NDL::new_table ( row_check, MASTER, 5 );
 cc
 cc	    uns32 horizontal_space;
 cc	    NDL::new_table ( horizontal_space );
@@ -478,6 +481,58 @@ cc
 
 lex	   goto within line;
 lex	end data check master table;
+lex
+cc	    	   NDL::go ( within_line );
+cc
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin table check master table;
+lex
+cc	    NDL::begin_table ( table_check );
+cc
+
+lex	   "====="      keep 0
+lex	                output table
+lex	                goto row check;
+lex
+cc	           NDL::begin_dispatch ( "=" );
+cc	             NDL::begin_dispatch ( "=" );
+cc	               NDL::begin_dispatch ( "=" );
+cc	                 NDL::begin_dispatch ( "=" );
+cc	                   NDL::begin_dispatch ( "=" );
+cc		             NDL::keep ( 0 );
+cc		             NDL::output ( table_t );
+cc		             NDL::go ( row_check );
+cc		           NDL::end_dispatch();
+cc		         NDL::end_dispatch();
+cc		       NDL::end_dispatch();
+cc		     NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   "-----"      keep 0
+lex	                output table
+lex	                goto row check;
+lex
+cc	           NDL::begin_dispatch ( "-" );
+cc	             NDL::begin_dispatch ( "-" );
+cc	               NDL::begin_dispatch ( "-" );
+cc	                 NDL::begin_dispatch ( "-" );
+cc	                   NDL::begin_dispatch ( "-" );
+cc		             NDL::keep ( 0 );
+cc		             NDL::output ( table_t );
+cc		             NDL::go ( row_check );
+cc		           NDL::end_dispatch();
+cc		         NDL::end_dispatch();
+cc		       NDL::end_dispatch();
+cc		     NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+
+lex	   goto within line;
+lex	end table check master table;
 lex
 cc	    	   NDL::go ( within_line );
 cc

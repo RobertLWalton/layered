@@ -8997,6 +8997,20 @@ begin data check master table;
 end data check master table;
 
 
+begin table check master table;
+
+   "====="      keep 0
+                output table
+                goto row check;
+
+   "-----"      keep 0
+                output table
+                goto row check;
+
+   goto within line;
+end table check master table;
+
+
 begin paragraph check master table;
 
    "@"          keep 0
@@ -9025,11 +9039,11 @@ begin row check master table;
                 output row
                 goto within line;
 
-   "====="      keep 0
+   "="          keep 0
                 output row
                 goto within line;
 
-   "-----"      keep 0
+   "-"          keep 0
                 output row
                 goto within line;
 
@@ -9064,7 +9078,7 @@ begin within line master table;
 
    "<trailing><repeat><letter>"
                 output word
-                goto word or numeric;
+                goto goto finish middle;
    "<trailing><repeat><digit>"
                 output numeric
                 goto finish middle;
@@ -9074,7 +9088,7 @@ begin within line master table;
                 keep 0
                 goto separator;
 
-   "<letter>" output word goto word or numeric;
+   "<letter>" output word goto finish middle;
 
    "0" goto leading zero;
 
@@ -9169,33 +9183,11 @@ begin finish middle sublexeme table;
 end finish middle sublexeme table;
 
 
-begin word or numeric sublexeme table;
-    // Come here when letter found before
-    // digit in middle lexeme and `output word'
-    // has been executed.
-
-   "<sign><digit>"
-       output numeric goto finish middle;
-   "<sign>" accept;
-
-   "<middle>" accept;
-
-   "<trailing><repeat><sign><digit>"
-       output numeric goto finish middle;
-   "<trailing><repeat><sign>" accept;
-   "<trailing><repeat><middle>" accept;
-   "<trailing><repeat>"
-        keep 0 goto finish separators;
-
-   goto within line;
-end word or numeric sublexeme table;
-
-
 begin mark lexeme table;
     // Middle lexeme with no letter or digit yet
     // scanned.  Will be mark if none found.
 
-   "<letter>" output word goto word or numeric;
+   "<letter>" output word goto finish middle;
 
    "<digit>" output numeric goto finish middle;
 
@@ -9203,7 +9195,7 @@ begin mark lexeme table;
 
    "<trailing><repeat><letter>"
                 output word
-                goto word or numeric;
+                goto finish middle;
    "<trailing><repeat><digit>"
                 output numeric
                 goto finish middle;

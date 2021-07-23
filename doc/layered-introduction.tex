@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 18, 2021
+July 23, 2021
  
 \end{center}
 
@@ -7995,6 +7995,15 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
 \\\hline
+2000    & code	& \ttkey{separator}
+				& \TT{nofix} & \ttkey{,}  & separator  & S
+\\\cline{1-1}\cline{3-7}
+3000    & math  & \ttkey{selector}
+				& \TT{infix} & \ttkey{if} & selector  & E
+\\\cline{3-5}
+        &       & (none)        & \TT{afix}  & \ttkey{else} & & \\
+	&       &               & \TT{infix} &              & &
+\\\hline
 \end{tabular}
 
 \medskip
@@ -8005,6 +8014,7 @@ Class & Standard Component
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
 C: & \ttkey{control operators} \\
+E: & \ttkey{selection operators} \\
 S: & \ttkey{assignment operators} \\
 \end{tabular}
 
@@ -8020,20 +8030,11 @@ S: & \ttkey{assignment operators} \\
 prece-  & selec-  &             &            &            &            & \\
 ~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-2000    & code	& \ttkey{separator}
-				& \TT{nofix} & \ttkey{,}  & separator  & S
-\\\cline{1-1}\cline{3-7}
-3000    & math  & \ttkey{selector}
-				& \TT{infix} & \ttkey{if} & selector  & E
-\\\cline{3-5}
-        &       & (none)        & \TT{afix}  & \ttkey{else} & & \\
-	&       &               & \TT{infix} &              & &
-\\\cline{1-1}\cline{3-7}
-4000    &     	& \ttkey{binary}
+4000    & code 	& \ttkey{binary}
 				& \TT{infix} & \ttkey{BUT NOT}
 							  & logical and not & L
 \\\cline{1-1}\cline{3-6}
-4100	&       & \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and &
+4100	& math  & \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and &
 \\\cline{5-6}
 	& 	&		&	     & \ttkey{OR}  & logical or  &
 \\\cline{1-1}\cline{3-6}
@@ -8092,10 +8093,21 @@ Class & Standard Component
 \\\hline
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
-E: & \ttkey{selection operators} \\
 L: & \ttkey{logical operators} \\
-P: & \ttkey{comparison operators} \\
-S: & \ttkey{assignment operators} \\
+P: & \ttkey{comparison operators}
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{ll}
+Note: & All operators in an expression with \TT{infix}
+        \underline{reformatter} must be \\
+      & identical, except that \TT{+} and \TT{-}
+        are allowed in the same expression. \\
+      & E.g., \TT{AND} and \TT{OR} are not both
+        allowed in the same expression; \\
+      & and only one of \TT{|}, \TT{\&}, and \TT{\textasciicircum}
+        is allowed in an expression. \\
 \end{tabular}
 
 \end{center}

@@ -3891,7 +3891,7 @@ Entries in the mapped lexeme symbol table are managed by
 Special lexemes do not (usually) have any associated character string,
 but they do have their own unique lexeme type.  Although special
 lexemes indicate the presence of particular characters in the input,
-scanning a special lexeme (usually) does not consume these characters,
+scanning a special lexeme (usually) will not consume most of these characters,
 which will then appear in the non-special lexeme that follows the
 special lexeme.
 
@@ -3942,25 +3942,25 @@ single special lexeme, or if there is no special lexeme in the
 input.  The standard lexical masters are:
 
 \begin{center}
-\begin{tabular}{l@{\hspace{0.7in}}ll}
-			& Special Lexeme	& Special Lexeme \\
-Lexical Master Name	& Characters		& Lexical Type
+\begin{tabular}{l@{\hspace{0.4in}}lll}
+			& Special Lexeme	& Special Lexeme & Characters \\
+Lexical Master Name	& Trigger Characters	& Lexical Type   & Discarded
 \\\hline
 \\[0.5ex]
-\TT{PARAGRAPH-CHECK}	& \TT{@}		& \TT{DATA} \\
-			& \TT{!@}		& \TT{RAW-DATA} \\
-			& \TT{-{}-{}-{}-{}-}	& \TT{TABLE} \\
-			& \TT{=====}		& \TT{TABLE}
+\TT{PARAGRAPH-CHECK}	& \TT{@}		& \TT{DATA}	& none \\
+			& \TT{!@}		& \TT{RAW-DATA} & \TT{!} \\
+			& \TT{-{}-{}-{}-{}-}	& \TT{TABLE}	& none \\
+			& \TT{=====}		& \TT{TABLE}	& none
 \\[2ex]
-\TT{DATA-CHECK}		& \TT{@}		& \TT{DATA} \\
-			& \TT{!@}		& \TT{RAW-DATA} 
+\TT{DATA-CHECK}		& \TT{@}		& \TT{DATA}	& none \\
+			& \TT{!@}		& \TT{RAW-DATA} & \TT{!}
 \\[2ex]
-\TT{TABLE-CHECK}	& \TT{-{}-{}-{}-{}-}	& \TT{TABLE} \\
-			& \TT{=====}		& \TT{TABLE}
+\TT{TABLE-CHECK}	& \TT{-{}-{}-{}-{}-}	& \TT{TABLE}	& none \\
+			& \TT{=====}		& \TT{TABLE}	& none
 \\[2ex]
-\TT{ROW-CHECK}		& \TT{|}		& \TT{ROW} \\
-			& \TT{-}		& \TT{ROW} \\
-			& \TT{=}		& \TT{ROW}
+\TT{ROW-CHECK}		& \TT{|}		& \TT{ROW}	& none \\
+			& \TT{-}		& \TT{ROW}	& none \\
+			& \TT{=}		& \TT{ROW}	& none
 \\[2ex]
 \TT{DEFAULT}		& \multicolumn{2}{@{}l}{does not recognize any special lexemes}
 \end{tabular}

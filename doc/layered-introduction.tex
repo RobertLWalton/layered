@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 23, 2021
+August 23, 2021
  
 \end{center}
 
@@ -3903,6 +3903,7 @@ The standard special lexeme types:
 \begin{indpar}
 Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
 lexical masters when the next input character is `\TT{@}'.
+The `\TT{@}' becomes the first character of the next lexeme.
 Typically mapped to the `\TT{\{data\}}' prefix separator.
 \end{indpar}
 
@@ -3910,6 +3911,8 @@ Typically mapped to the `\TT{\{data\}}' prefix separator.
 \begin{indpar}
 Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
 lexical masters when the next 2 input characters are `\TT{!@}'.
+The `\TT{!}' is discarded and the `\TT{@}' becomes the
+first character of the next lexeme.
 Typically mapped to the `\TT{\{raw data\}}' prefix separator.
 \end{indpar}
 
@@ -3919,6 +3922,7 @@ Output by the \TT{PARAGRAPH-\EOL CHECK} and \TT{TABLE-\EOL CHECK}
 lexical masters
 when the next 5 input characters are either `\TT{-{}-{}-{}-{}-}' or
 `\TT{=====}'.
+The next input character becomes the first character of the next lexeme.
 Typically mapped to the `\TT{\{table\}}' prefix separator.
 \end{indpar}
 
@@ -3926,6 +3930,7 @@ Typically mapped to the `\TT{\{table\}}' prefix separator.
 \begin{indpar}
 Output by the \TT{ROW-\EOL CHECK} lexical master when the next
 input character is `\TT{|}', `\TT{-}', or `\TT{=}'.
+This next input character becomes the first character of the next lexeme.
 Typically mapped to the `\TT{\{row\}}' prefix separator.
 \end{indpar}
 

@@ -724,12 +724,12 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
                       with parsing options [end at indent]
                       with group paragraph
                       with implied subprefix
-                      {X: y = "5", z = [< "hi" "there" >]}
+                      {X: y = "5", z = [< hi there >]}
                       with line lexical master "DEFAULT"
         block BLOCK1: bracket type "Z1" [math]
                       with parsing selectors [code]
                       with implied subprefix
-                      {X: y = "5", z = [< "hi" "there" >]}
+                      {X: y = "5", z = [< hi there >]}
     print bracket type "X"
         block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]

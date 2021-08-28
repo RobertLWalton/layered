@@ -214,7 +214,7 @@ INDENT: line ##:
     trace [- subexpression lines]
     trace [+ subexpression details]
 ======= PARSER TEST:
-@@ = "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p ")" ")" "]":
+@@ = "[" x "<+" y "+>" z "{" w "|" "4" "|" "}" m "(" n "(" p ")" ")" "]":
          .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
@@ -223,7 +223,7 @@ INDENT: line ##:
     trace [+ subexpression elements]
 ======= PARSER TEST: "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p
                          ")" ")" "]"
-@@ = "[" x <+ y +> z "{" w "|" 4 "|" "}" m "(" n "(" p ")" ")" "]":
+@@ = "[" x "<+" y "+>" z "{" w "|" "4" "|" "}" m "(" n "(" p ")" ")" "]":
          .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]

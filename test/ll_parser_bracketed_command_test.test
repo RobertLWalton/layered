@@ -56,7 +56,7 @@ ERROR: in line ##: expected quoted name after:
     define selector math
     define selector operator 1
     print selector ""
-        block TOP LEVEL: operator 1
+        block TOP LEVEL: operator "1"
         block TOP LEVEL: math
         block TOP LEVEL: code
         block TOP LEVEL: text
@@ -116,9 +116,9 @@ ERROR: in line ##: expected `,' after:
         with parsing selectors
              [^ code, - math, + operator 1]
     print bracket "<+"
-        block TOP LEVEL: bracket "<+" ... "+>" [code, operator 1]
+        block TOP LEVEL: bracket "<+" ... "+>" [code, operator "1"]
                          with parsing selectors [^ code, - math,
-                                                 + operator 1]
+                                                 + operator "1"]
 *PARSER*:
     trace [ + subexpression lines,
             + subexpression elements]
@@ -385,9 +385,9 @@ WARNING: in line ###: undefine found no definition:
                       with parsing options []
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "<" "|" >] ... [< "|" ">" >] []
-        block TOP LEVEL: bracket "<+" ... "+>" [code, operator 1]
+        block TOP LEVEL: bracket "<+" ... "+>" [code, operator "1"]
                          with parsing selectors [^ code, - math,
-                                                 + operator 1]
+                                                 + operator "1"]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
                          with parsing selectors [atom]
@@ -2128,10 +2128,17 @@ this-is-a-~
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     ``{s|Hello there "."|s}''
-@@@ = ``{s|Hello there "."|s}'':
+@@@ = @@@:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
+@@@ = @@@:
+          .terminator = "''"
+          .initiator = "``"
+          .position[H] = PACKED_VEC
+@@@ = Hello there ".":
+          .position[H] = PACKED_VEC
+          .type = s
     line ###:
 ``Hello there.''
 ^^^^^^^^^^^^^^^^
@@ -2141,32 +2148,40 @@ BRACKETED EXPRESSION:
         with sentence reformatter ("s", ".")
 BRACKETED EXPRESSION:
     ``{s: .terminator = "."|Hello there|s}''
-@@@ = ``@@@'':
+@@@ = @@@:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
+@@@ = @@@:
+          .terminator = "''"
+          .initiator = "``"
+          .position[H] = PACKED_VEC
 @@@ = Hello there:
           .terminator = "."
           .position[H] = PACKED_VEC
-          .type = "s"
+          .type = s
     line ###:
 ``Hello there.''
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ``{s: .terminator = "."|Hello there|s}
       {s: .terminator = "."|Goodbye there|s}''
-@@@ = ``@@@ @@@'':
+@@@ = @@@:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
+@@@ = @@@ @@@:
+          .terminator = "''"
+          .initiator = "``"
+          .position[H] = PACKED_VEC
 @@@ = Hello there:
           .terminator = "."
           .position[H] = PACKED_VEC
-          .type = "s"
+          .type = s
 @@@ = Goodbye there:
           .terminator = "."
           .position[H] = PACKED_VEC
-          .type = "s"
+          .type = s
     line ###:
 ``Hello there.  Goodbye there.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -27,3 +27,14 @@ BRACKETED EXPRESSION:
     This is a line with an indented paragraph:
         First line of indented paragraph "."
         Second line of indented paragraph "."
+BRACKETED EXPRESSION:
+    "::::"
+BRACKETED EXPRESSION:
+    ID 40 is
+        {|This is a code line ending in
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {"": .terminator = "<LF>", .initiator =
+                    [$ LOGICAL_LINE $]|An indented paragragraph ";" line
+                    one "."|}
+               {"": .terminator = "<LF>", .initiator =
+                    [$ LOGICAL_LINE $]|Line two "."|}|}|}

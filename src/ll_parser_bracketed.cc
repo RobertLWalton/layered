@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 20 10:57:33 EDT 2021
+// Date:	Sun Aug 29 15:25:41 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1810,7 +1810,7 @@ inline void finish_value
     else
     {
 	::make_label
-	    ( parser, start, next );
+	    ( parser, start, next, true );
 	start->type = BRA::ATTR_VALUE;
     }
 }
@@ -3332,8 +3332,11 @@ NEXT_TOKEN:
 			                .begin_length,
 			 bracketed_pass->middle_break
 			                .end_length );
-	current->previous ->position.end =
+	current->previous->position.end =
 	    current->position.end;
+	if ( current->previous->type == LEXSTD::mark_t )
+	    current->previous->type = current->type;
+	    // Types must be mark, numeric, or word.
 	PAR::ensure_next ( parser, current );
 	current = current->next;
 	PAR::free
@@ -4902,10 +4905,14 @@ static bool multivalue_reformatter_function
 	{
 	    if ( start != t )
 	    {
-	        if (    start->next != t
-		     ||  ( 1 << start->type )
-		        & LEXSTD::convert_mask )
-		    ::make_label ( parser, start, t );
+	        if ( start->next != t )
+		    ::make_label
+		        ( parser, start, t, true );
+		else if (   ( 1 << start->type )
+		          & LEXSTD::convert_mask )
+		    start->type = PAR::DERIVED;
+		    // This keeps token from begin
+		    // converted.
 		++ count;
 	    }
 

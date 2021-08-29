@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  7 13:34:54 EDT 2021
+// Date:	Sun Aug 29 15:38:37 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -61,3 +61,11 @@ This is a line with an indented paragraph: // A comment
               // be an element of @40.
 
 ID 40 is @40
+
+
+@50 = {x: a = "quoted string", b = 53.91, c = yyy 53.91,
+          d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
+	  f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
+	  | "quoted string" 53.91 99 ; foo |x}
+
+ID 50 is @50

@@ -915,7 +915,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-    define typed bracket "A" ... "|" ... "|" ... "B"
+    define typed bracket "8" ... "|" ... "|" ... "9"
         [code, text, math, data]
         with parsing selectors [data]
         with attribute selectors [data, code]
@@ -925,32 +925,32 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with attribute multivalue initiator "{*"
 ======= PARSER TEST: [{my type: my attr = 99}]
 ======= line ###:
-    [A my type: my attr = 99 B]
+    [8 my type: my attr = 99 9]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    [A my type: my attr = 99 B]
+    [8 my type: my attr = 99 9]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    [A my type: my attr = 99 B]
+    [8 my type: my attr = 99 9]
      ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1
-======= PARSER TEST: [A my type ":" my attr = 99 B]
+======= PARSER TEST: [8 my type ":" my attr = 99 9]
 ======= line ###:
-    [A my type: my attr = 99 B]
+    [8 my type: my attr = 99 9]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    [A my type: my attr = 99 B]
+    [8 my type: my attr = 99 9]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     begin block BLOCK1
-    define bracket "[Z" ... "Z]" [code]
+    define bracket "[0" ... "0]" [code]
         with special reformatter
 ======= PARSER TEST: [$ LOGICAL_LINE $]
 ======= line ###:
-    [Z LOGICAL_LINE Z]
+    [0 LOGICAL_LINE 0]
     ^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:

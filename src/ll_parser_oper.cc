@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 06:38:36 EDT 2021
+// Date:	Mon Aug 30 13:29:19 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2021,26 +2021,8 @@ static min::gen oper_pass_command
 	// Scan a name.
 	//
 	name[number_of_names] =
-	    PAR::scan_name_string_label
+	    PAR::scan_quoted_key
 	        ( vp, i, parser,
-
-	            ( 1ull << LEXSTD::mark_t )
-	          + ( 1ull << LEXSTD::separator_t )
-	          + ( 1ull << LEXSTD::word_t )
-	          + ( 1ull << LEXSTD::natural_t ),
-
-		    ( 1ull << LEXSTD::
-			      horizontal_space_t )
-		  + ( 1ull << LEXSTD::
-		              indent_t )
-	          + ( 1ull << LEXSTD::
-		              premature_end_of_file_t )
-	          + ( 1ull << LEXSTD::start_of_file_t )
-	          + ( 1ull << LEXSTD::end_of_file_t ),
-
-	            ( 1ull << LEXSTD::
-		              premature_end_of_file_t )
-	          + ( 1ull << LEXSTD::end_of_file_t ),
 		  command == PARLEX::print );
 
 	if ( name[number_of_names] == min::ERROR() )

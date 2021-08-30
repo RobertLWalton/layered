@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 04:48:21 EDT 2021
+// Date:	Mon Aug 30 13:25:24 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2579,6 +2579,7 @@ min::gen PAR::scan_name_string_label
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
 	  min::uns64 end_types,
+	  min::uns64 number_types,
 	  bool empty_name_ok )
 {
     min::gen s = PAR::scan_quoted_string
@@ -2605,7 +2606,7 @@ min::gen PAR::scan_name_string_label
     return LEX::scan_name_string
 	( name_scanner_ref ( parser ),
 	  accepted_types, ignored_types, end_types,
-	  empty_name_ok );
+	  number_types, empty_name_ok );
 }
 
 min::gen PAR::scan_simple_name
@@ -2697,6 +2698,7 @@ min::gen PAR::scan_quoted_key
 	      PAR::QUOTED_KEY_SCAN_MASK,
 	      PAR::IGNORED_SCAN_MASK,
 	      PAR::END_SCAN_MASK,
+	      PAR::NUMBER_SCAN_MASK,
 	      empty_name_ok );
 
     if ( result != min::ERROR() ) return result;

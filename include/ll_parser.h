@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 04:47:30 EDT 2021
+// Date:	Mon Aug 30 13:21:08 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2045,6 +2045,9 @@ const min::uns64 END_SCAN_MASK =
       ( 1ull << ll::lexeme::standard
                           ::premature_end_of_file_t )
     + ( 1ull << ll::lexeme::standard::end_of_file_t );
+const min::uns64 NUMBER_SCAN_MASK =
+      ( 1ull << ll::lexeme::standard::natural_t )
+    + ( 1ull << ll::lexeme::standard::numeric_t );
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
@@ -2099,6 +2102,7 @@ min::gen scan_name_string_label
       min::uns64 accepted_types,
       min::uns64 ignored_types,
       min::uns64 end_types,
+      min::uns64 number_types,
       bool empty_name_ok = false );
 
 // Ditto with scan types set for quoted key.  In

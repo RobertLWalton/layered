@@ -109,7 +109,7 @@ MARK: "=": line ##:
 WORD: "data": line ##:
 @@@ = data 1
       ^^^^
-NATURAL: "1": line ##:
+NATURAL: 1: line ##:
 @@@ = data 1
            ^
 LINE-BREAK: line ##:
@@ -130,7 +130,7 @@ MARK: "=": line ##:
 WORD: "data": line ##:
 @@@ = data 2
       ^^^^
-NATURAL: "2": line ##:
+NATURAL: 2: line ##:
 @@@ = data 2
            ^
 LINE-BREAK: line ##:
@@ -172,7 +172,7 @@ SEPARATOR: "|": line ##:
 WORD: "row": line ##:
 | row 1
   ^^^
-NATURAL: "1": line ##:
+NATURAL: 1: line ##:
 | row 1
       ^
 LINE-BREAK: line ##:
@@ -202,7 +202,7 @@ MARK: "=": line ##:
 WORD: "data": line ##:
 @@@ = data 3
       ^^^^
-NATURAL: "3": line ##:
+NATURAL: 3: line ##:
 @@@ = data 3
            ^
 LINE-BREAK: line ##:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 29 15:25:41 EDT 2021
+// Date:	Mon Aug 30 04:49:02 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1494,6 +1494,7 @@ static void make_label
 	case LEXSTD::natural_t:
 	case LEXSTD::numeric_t:
 	case LEXSTD::quoted_string_t:
+	case PAR::NUMBER:
 	    break;
 
 	case PAR::DERIVED:
@@ -5774,19 +5775,26 @@ static min::gen bracketed_pass_command
 
 	else if ( i + 2 >= size
 	          ||
-		  ! min::strto
-	                ( bracketed_pass->
-			      indentation_offset,
-		          vp[i+2], 10 ) )
+		  ! min::is_num ( vp[i+2] ) )
 	    return PAR::parse_error
 		( parser, ppvec[i+1],
-		  "expected reasonable sized integer"
-		  " after" );
-
-	else if ( i + 3 < size )
-	    return PAR::parse_error
-		( parser, ppvec[i+2],
-		  "unexpected stuff after" );
+		  "expected integer after" );
+	else
+	{
+	    min::float64 f = min::float_of ( vp[i+2] );
+	    min::int64 i = (min::int64) f;
+	    if ( i != f || i < 0 ) 
+		return PAR::parse_error
+		    ( parser, ppvec[i+2],
+		      "expected reasonable sized"
+		      " integer" );
+	    if ( i + 3 < size )
+		return PAR::parse_error
+		    ( parser, ppvec[i+2],
+		      "unexpected stuff after" );
+	    bracketed_pass->indentation_offset =
+	        (min::int32) i;
+	}
 
 	return min::SUCCESS();
     }
@@ -5970,7 +5978,7 @@ static min::gen bracketed_pass_command
 		    ( vp, i, parser );
 	    if ( begin_name == min::MISSING()
 	         ||
-		 LEXSTD::lexical_type_of ( begin_name )
+		 PAR::lexical_type_of ( begin_name )
 		 != LEXSTD::mark_t )
 		return PAR::parse_error
 		    ( parser, ppvec[i],
@@ -5997,7 +6005,7 @@ static min::gen bracketed_pass_command
 		    ( vp, i, parser );
 	    if ( end_name == min::MISSING()
 	         ||
-		 LEXSTD::lexical_type_of ( end_name )
+		 PAR::lexical_type_of ( end_name )
 		 != LEXSTD::mark_t )
 		return PAR::parse_error
 		    ( parser, ppvec[i],

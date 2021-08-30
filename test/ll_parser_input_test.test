@@ -181,13 +181,13 @@ a.1.2.3..b...c e5f x7+y6(5z) 2018-may-02 2018/05/02
 INDENT: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
 ^
-NUMERIC: "12.3": line ##:
+NUMBER: 12.3: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
 ^^^^
-NUMERIC: ".4": line ##:
+NUMBER: 0.4: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
      ^^
-NATURAL: "5": line ##:
+NATURAL: 5: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
         ^
 SEPARATOR: ".": line ##:
@@ -196,13 +196,13 @@ SEPARATOR: ".": line ##:
 NUMERIC: "6/7": line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
            ^^^
-NATURAL: "2": line ##:
+NATURAL: 2: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
                ^
 SEPARATOR: "|": line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
                 ^
-NATURAL: "3": line ##:
+NATURAL: 3: line ##:
 12.3 .4 5. 6/7 2|3||4:5::6:A:B:
                  ^
 SEPARATOR: "||": line ##:
@@ -244,13 +244,13 @@ NUMERIC: "/3": line ##:
 NUMERIC: "6.34.56/": line ##:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
    ^^^^^^^^
-NATURAL: "3": line ##:
+NATURAL: 3: line ##:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
             ^
 SEPARATOR: ",": line ##:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
              ^
-NATURAL: "4": line ##:
+NATURAL: 4: line ##:
 /3 6.34.56/ 3, 4, ,5 ,6.7,8.9 '05 '1'2'3'4'
                ^
 SEPARATOR: ",": line ##:

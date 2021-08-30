@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 11:39:16 EDT 2021
+// Date:	Mon Aug 30 06:38:36 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2226,44 +2226,27 @@ static min::gen oper_pass_command
 	     vp[i] == OPLEX::precedence )
 	{
 	    ++ i;
-	    int sign = +1;
 	    if ( i >= size )
-		/* do nothing */;
-	    else if ( vp[i] == PARLEX::plus )
-		sign = +1, ++ i;
-	    else if ( vp[i] == PARLEX::minus )
-		sign = -1, ++ i;
-	    min::gen pg = min::MISSING();
-	    if ( i < size )
-	    {
-		if (    min::get
-		            ( vp[i], min::dot_type )
-		     == PARLEX::number_sign )
-		{
-		    min::obj_vec_ptr pvp = vp[i];
-		    if ( min::size_of ( pvp ) == 1 )
-		        pg = pvp[0];
-		}
-		else
-		    pg = vp[i];
-	    }
-	        
-	    if ( ! min::strto ( precedence, pg, 10 ) )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected precedence integer"
 		      " after" );
-	    precedence *= sign;
-	    if ( precedence < OP::low_precedence
-	         ||
-		 precedence > OP::high_precedence )
+	    min::float64 f = min::float_of ( vp[i] );
+	    min::int64 p = (min::int64) f;
+	    if ( p != f )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "precedence is not an integer" );
+	    if ( p < OP::low_precedence
+		 ||
+		 p > OP::high_precedence )
 		return PAR::parse_error
 		    ( parser, ppvec[i],
 		      "precedence out of range" );
+	    precedence = (min::int32) p;
 	    precedence_found = true;
 	    ++ i;
 	    continue;
-
 	}
 	else if ( i < size )
 	{

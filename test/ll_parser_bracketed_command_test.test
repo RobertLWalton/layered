@@ -56,7 +56,7 @@ ERROR: in line ##: expected quoted name after:
     define selector math
     define selector operator 1
     print selector ""
-        block TOP LEVEL: operator "1"
+        block TOP LEVEL: operator 1
         block TOP LEVEL: math
         block TOP LEVEL: code
         block TOP LEVEL: text
@@ -116,9 +116,9 @@ ERROR: in line ##: expected `,' after:
         with parsing selectors
              [^ code, - math, + operator 1]
     print bracket "<+"
-        block TOP LEVEL: bracket "<+" ... "+>" [code, operator "1"]
+        block TOP LEVEL: bracket "<+" ... "+>" [code, operator 1]
                          with parsing selectors [^ code, - math,
-                                                 + operator "1"]
+                                                 + operator 1]
 *PARSER*:
     trace [ + subexpression lines,
             + subexpression elements]
@@ -385,9 +385,9 @@ WARNING: in line ###: undefine found no definition:
                       with parsing options []
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block TOP LEVEL: bracket [< "<" "|" >] ... [< "|" ">" >] []
-        block TOP LEVEL: bracket "<+" ... "+>" [code, operator "1"]
+        block TOP LEVEL: bracket "<+" ... "+>" [code, operator 1]
                          with parsing selectors [^ code, - math,
-                                                 + operator "1"]
+                                                 + operator 1]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
                          with parsing selectors [atom]
@@ -724,12 +724,12 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
                       with parsing options [end at indent]
                       with group paragraph
                       with implied subprefix
-                      {X: y = "5", z = [< hi there >]}
+                      {X: y = 5, z = [< hi there >]}
                       with line lexical master "DEFAULT"
         block BLOCK1: bracket type "Z1" [math]
                       with parsing selectors [code]
                       with implied subprefix
-                      {X: y = "5", z = [< hi there >]}
+                      {X: y = 5, z = [< hi there >]}
     print bracket type "X"
         block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]
@@ -751,14 +751,14 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with attribute multivalue initiator "[@"
     define bracket "[@" ... "@]" [code]
         with multivalue reformatter ( "@" )
-======= PARSER TEST: {T: x = "5", y = "6"|A B C|T}
+======= PARSER TEST: {T: x = 5, y = 6|A B C|T}
 ======= line ###:
     T1{ T:: x == 5 # y == 6 | A B C |T}T1
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     T1{ T:: x == 5 # y == 6 | A B C |T}T1
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {T: x[+-] = "5", y = {* "6", "7" *}|A B C|T}
+======= PARSER TEST: {T: x[+-] = 5, y = {* 6, 7 *}|A B C|T}
 ======= line ###:
     T2{ T:: x(1,2) == 5 # y == [@ 6 @ 7 @] | A B C |T}T2
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -915,7 +915,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-    define typed bracket "8" ... "|" ... "|" ... "9"
+    define typed bracket "A" ... "|" ... "|" ... "B"
         [code, text, math, data]
         with parsing selectors [data]
         with attribute selectors [data, code]
@@ -923,34 +923,34 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with attribute negator "no"
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
-======= PARSER TEST: [{my type: my attr = "99"}]
+======= PARSER TEST: [{my type: my attr = 99}]
 ======= line ###:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
      ^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1
-======= PARSER TEST: [8 my type ":" my attr = 99 9]
+======= PARSER TEST: [A my type ":" my attr = 99 B]
 ======= line ###:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     begin block BLOCK1
-    define bracket "[0" ... "0]" [code]
+    define bracket "[Z" ... "Z]" [code]
         with special reformatter
 ======= PARSER TEST: [$ LOGICAL_LINE $]
 ======= line ###:
-    [0 LOGICAL_LINE 0]
+    [Z LOGICAL_LINE Z]
     ^^^^^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:

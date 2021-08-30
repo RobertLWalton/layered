@@ -21,8 +21,8 @@ BRACKETED EXPRESSION:
 This is a line containing a "quoted string".
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a large number 12345678901234567890 "."
-@@ = This is a line containing a large number "12345678901234567890" ".":
+    This is a line containing a large number 1.23456789012346e+19 "."
+@@ = This is a line containing a large number 1.23456789012346e+19 ".":
          .terminator = "<LF>"
          .position[H] = PACKED_VEC
          .initiator = [$ LOGICAL_LINE $]
@@ -62,7 +62,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     (x 5 "foo")
-@@ = x "5" @@:
+@@ = x 5 @@:
          .terminator = ")"
          .initiator = "("
          .position[H] = PACKED_VEC
@@ -733,13 +733,13 @@ BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< x y hello 5.6 z >]
-@@@ = [< x y hello "5.6" z >]
+@@@ = [< x y hello 5.6 z >]
     line ##:
 This is a label [< x y "hello" 5.6 z >]
                 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This is a label [< x y hello 5.6 z >]
-@@@ = This is a label [< x y hello "5.6" z >]:
+@@@ = This is a label [< x y hello 5.6 z >]:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
@@ -786,7 +786,7 @@ BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< 1 2 >]
-@@@ = [< "1" "2" >]
+@@@ = [< 1 2 >]
     line ##:
     [< x [< 1 2 >] y [< a b >] >]
          ^^^^^^^^^
@@ -804,13 +804,13 @@ BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< x [< 1 2 >] y [< a b >] >]
-@@@ = [< x [< "1" "2" >] y [< a b >] >]
+@@@ = [< x [< 1 2 >] y [< a b >] >]
     line ##:
     [< x [< 1 2 >] y [< a b >] >]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And these are nested labels [< x [< 1 2 >] y [< a b >] >]
-@@@ = And these are nested labels [< x [< "1" "2" >] y [< a b >] >]:
+@@@ = And these are nested labels [< x [< 1 2 >] y [< a b >] >]:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
@@ -903,7 +903,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {x|1 2 3|x}
-@@@ = "1" "2" "3":
+@@@ = 1 2 3:
           .type = x
           .position[H] = PACKED_VEC
     line ##:
@@ -937,19 +937,18 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {x: y = "6", z = [< b c "5" d >], w|1 2 3|x}
-@@@ = "1" "2" "3":
+    {x: y = 6, z = [< b c 5 d >], w|1 2 3|x}
+@@@ = 1 2 3:
           .type = x
-          y = "6"
-          z = [< b c "5" d >]
+          y = 6
+          z = [< b c 5 d >]
           w
           .position[H] = PACKED_VEC
     line ##:
     {x: w, y = 6, z = b c 5 d|1 2 3|}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    Another typed subexpression
-        {x: y = "6", z = [< b c "5" d >], w|1 2 3|x}
+    Another typed subexpression {x: y = 6, z = [< b c 5 d >], w|1 2 3|x}
 @@@ = Another typed subexpression @@@:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
@@ -978,11 +977,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {x: y = "6", z = [< b c "5" d >], w|1 2 3|x}
-@@@ = "1" "2" "3":
+    {x: y = 6, z = [< b c 5 d >], w|1 2 3|x}
+@@@ = 1 2 3:
           .type = x
-          y = "6"
-          z = [< b c "5" d >]
+          y = 6
+          z = [< b c 5 d >]
           w
           .position[H] = PACKED_VEC
     line ##:
@@ -990,7 +989,7 @@ BRACKETED EXPRESSION:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     Yet another typed subexpression
-        {x: y = "6", z = [< b c "5" d >], w|1 2 3|x}
+        {x: y = 6, z = [< b c 5 d >], w|1 2 3|x}
 @@@ = Yet another typed subexpression @@@:
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
@@ -1027,7 +1026,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     (1 2 3)
-@@@ = "1" "2" "3":
+@@@ = 1 2 3:
           .terminator = ")"
           .initiator = "("
           .position[H] = PACKED_VEC
@@ -1134,7 +1133,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     [5]
-@@@ = "5":
+@@@ = 5:
           .terminator = "]"
           .initiator = "["
           .position[H] = PACKED_VEC
@@ -1246,7 +1245,7 @@ ERROR: in line ##: missing `|'; inserted before:
         ^
 BRACKETED EXPRESSION:
     {W|1 2 3|W}
-@@@ = "1" "2" "3":
+@@@ = 1 2 3:
           .type = W
           .position[H] = PACKED_VEC
     line ##:
@@ -1278,7 +1277,7 @@ ERROR: in line ##: missing `|'; inserted before:
               ^
 BRACKETED EXPRESSION:
     {W: p = q|1 2 3|W}
-@@@ = "1" "2" "3":
+@@@ = 1 2 3:
           p = q
           .type = W
           .position[H] = PACKED_VEC
@@ -1434,7 +1433,7 @@ ERROR: in line ##: beginning type `P' != end type `'; end type ignored:
                       ^
 BRACKETED EXPRESSION:
     {P: f = F, g = G|1 2 3|P}
-@@@ = "1" "2" "3":
+@@@ = 1 2 3:
           .type = P
           f = F
           g = G
@@ -1471,7 +1470,7 @@ ERROR: in line ##: missing closing bracket `}' inserted before `)':
                 ^
 BRACKETED EXPRESSION:
     {M: f = F|1 2 3|M}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = M
            f = F
            .position[H] = PACKED_VEC
@@ -1517,7 +1516,7 @@ ERROR: in line ##: missing closing bracket `}' inserted before `)':
                       ^
 BRACKETED EXPRESSION:
     {N: f = F, g = G|1 2 3|N}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = N
            f = F
            g = G
@@ -1567,7 +1566,7 @@ ERROR: in line ##: missing closing bracket `}' inserted before `)':
                     ^
 BRACKETED EXPRESSION:
     {K: f = F|1 2 3|K}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = K
            f = F
            .position[H] = PACKED_VEC
@@ -1614,7 +1613,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {S: x = A, y = B, z = C|1 2 3 4|S}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            x = A
            .type = S
            y = B
@@ -1656,7 +1655,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: x = A, y = B, z = C|1 2 3 4|T}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            x = A
            .type = T
            y = B
@@ -1701,7 +1700,7 @@ ERROR: in line ##: beginning type `T' != end type `S'; end type ignored:
                                ^
 BRACKETED EXPRESSION:
     {T: x = A, y = B, z = C|1 2 3 4|T}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            x = A
            .type = T
            y = B
@@ -1742,7 +1741,7 @@ ERROR: in line ##: beginning type `' != end type `S'; end type ignored:
                        ^
 BRACKETED EXPRESSION:
     {"": y = B, z = C|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            y = B
            z = C
            .position[H] = PACKED_VEC
@@ -1776,7 +1775,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {"": y = B, z = C|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            y = B
            z = C
            .position[H] = PACKED_VEC
@@ -1808,7 +1807,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {"": y = B|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .position[H] = PACKED_VEC
            y = B
     line ##:
@@ -1839,7 +1838,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {S: y = B|1 2 3 4|S}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .type = S
            y = B
            .position[H] = PACKED_VEC
@@ -1871,7 +1870,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {"": y = B|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .position[H] = PACKED_VEC
            y = B
     line ###:
@@ -1900,7 +1899,7 @@ ERROR: in line ###: beginning type `X' != end type `Y'; end type
          ^
 BRACKETED EXPRESSION:
     {X|1 2 3|X}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = X
            .position[H] = PACKED_VEC
     line ###:
@@ -1928,14 +1927,14 @@ ERROR: in line ###: beginning type `' != end type `Y'; end type ignored:
         ^
 PURELIST EXPRESSION:
     {|1 2 3|}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .position[H] = PACKED_VEC
     line ###:
 {|1 2 3|Y}
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     1 2 3
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
@@ -1952,14 +1951,14 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PURELIST EXPRESSION:
     {|1 2 3|}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .position[H] = PACKED_VEC
     line ###:
 {""|1 2 3|""}
 ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     1 2 3
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
@@ -1976,14 +1975,14 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PURELIST EXPRESSION:
     {|1 2 3|}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .position[H] = PACKED_VEC
     line ###:
 {|1 2 3|""}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     1 2 3
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
@@ -2006,7 +2005,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {"": y = B|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .position[H] = PACKED_VEC
            y = B
     line ###:
@@ -2035,7 +2034,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {"": y = B|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .position[H] = PACKED_VEC
            y = B
     line ###:
@@ -2068,7 +2067,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {"": y = B, z = C|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            y = B
            z = C
            .position[H] = PACKED_VEC
@@ -2100,7 +2099,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: y = B, z = C|1 2 3 4|T}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .type = T
            y = B
            z = C
@@ -2137,7 +2136,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: no p, no q, y, z|1 2 3 4|T}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            no p
            .type = T
            no q
@@ -2172,7 +2171,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: no p, no q|1 2 3 4|T}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            no p
            .type = T
            no q
@@ -2210,17 +2209,17 @@ ERROR: in line ###: negator preceding attribute label that is followed
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: no p, q = "5"|1 2 3 4|T}
-@@@@ = "1" "2" "3" "4":
+    {T: no p, q = 5|1 2 3 4|T}
+@@@@ = 1 2 3 4:
            no p
            .type = T
-           q = "5"
+           q = 5
            .position[H] = PACKED_VEC
     line ###:
 {T: no p|1 2 3 4|no q = 5}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: no p, q = "5"|1 2 3 4|T}
+    {T: no p, q = 5|1 2 3 4|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2238,14 +2237,14 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PURELIST EXPRESSION:
     {|1 2 3 4|}
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .position[H] = PACKED_VEC
     line ###:
 {|1 2 3 4|}
 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     1 2 3 4
-@@@@ = "1" "2" "3" "4":
+@@@@ = 1 2 3 4:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
@@ -2288,7 +2287,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: x = hi|1 2 3|T}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            x = hi
            .type = T
            .position[H] = PACKED_VEC
@@ -2346,7 +2345,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: x = {* hi, there *}|1 2 3|T}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            x = {* hi, there *}
            .type = T
            .position[H] = PACKED_VEC
@@ -2436,7 +2435,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T: x = {* [C D], (A B), [< foo bar >] *}|1 2 3|T}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            x = {* @@@@, @@@@, [< foo bar >] *}
            .type = T
            .position[H] = PACKED_VEC
@@ -2497,7 +2496,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {T|1 2 3|T}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = T
            .position[H] = PACKED_VEC
     line ###:
@@ -2527,17 +2526,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ =:
            .type = T
-           m = "1"
-           n = "2"
+           m = 1
+           n = 2
            .position[H] = PACKED_VEC
     line ###:
 {T: m = 1| |n = 2}
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2558,17 +2557,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ =:
            .type = T
-           m = "1"
-           n = "2"
+           m = 1
+           n = 2
            .position[H] = PACKED_VEC
     line ###:
 {T: m = 1||n = 2}
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2591,17 +2590,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "||"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ =:
            .type = T
-           m = "1"
-           n = "2"
+           m = 1
+           n = 2
            .position[H] = PACKED_VEC
     line ###:
 {T: m = 1||n = 2||}
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2670,17 +2669,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ =:
            .type = T
-           m = "1"
-           n = "2"
+           m = 1
+           n = 2
            .position[H] = PACKED_VEC
     line ###:
 {T: m = 1 || n = 2: T }
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: m = "1", n = "2"}
+    {T: m = 1, n = 2}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2695,15 +2694,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": m = "1"}
+    {"": m = 1}
 @@@@ =:
            .position[H] = PACKED_VEC
-           m = "1"
+           m = 1
     line ###:
 {m = 1}
 ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": m = "1"}
+    {"": m = 1}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2727,16 +2726,16 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": m = "1", n = "2"}
+    {"": m = 1, n = 2}
 @@@@ =:
-           m = "1"
-           n = "2"
+           m = 1
+           n = 2
            .position[H] = PACKED_VEC
     line ###:
 {: m = 1, n = 2}
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": m = "1", n = "2"}
+    {"": m = 1, n = 2}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -2753,16 +2752,16 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": m, n = "2"}
+    {"": m, n = 2}
 @@@@ =:
            m
-           n = "2"
+           n = 2
            .position[H] = PACKED_VEC
     line ###:
 {m, n = 2}
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": m, n = "2"}
+    {"": m, n = 2}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3062,16 +3061,16 @@ DERIVED EXPRESSION:
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": x = "1", z = [$ MISSING $]}
+    {"": x = 1, z = [$ MISSING $]}
 @@@@ =:
-           x = "1"
+           x = 1
            z = [$ MISSING $]
            .position[H] = PACKED_VEC
     line ###:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1", z = [$ MISSING $]}
+    {"": x = 1, z = [$ MISSING $]}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3112,7 +3111,7 @@ ERROR: in line ###: not a legal object element value; `NONE'; ignored:
                    ^^^^^^^^^^
 BRACKETABLE EXPRESSION:
     {|1, 2|}
-@@@@ = "1" "2":
+@@@@ = 1 2:
            .separator = ","
            .position[H] = PACKED_VEC
     line ###:
@@ -3120,7 +3119,7 @@ BRACKETABLE EXPRESSION:
              ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {* 1, 2 *}
-@@@@ = "1" "2":
+@@@@ = 1 2:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
@@ -3145,17 +3144,17 @@ DERIVED EXPRESSION:
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": x = "1", y = {* "1", "2" *}, z = [$ MISSING $]}
+    {"": x = 1, y = {* 1, 2 *}, z = [$ MISSING $]}
 @@@@ =:
-           x = "1"
-           y = {* "1", "2" *}
+           x = 1
+           y = {* 1, 2 *}
            z = [$ MISSING $]
            .position[H] = PACKED_VEC
     line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1", y = {* "1", "2" *}, z = [$ MISSING $]}
+    {"": x = 1, y = {* 1, 2 *}, z = [$ MISSING $]}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3211,11 +3210,11 @@ ERROR: in line ###: empty attribute label; attribute ignored:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1", y "55" = "77", z "22" = "33"}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ =:
-           x = "1"
-           y "55" = "77"
-           z "22" = "33"
+           x = 1
+           z 22 = 33
+           y 55 = 77
            .position[H] = PACKED_VEC
     lines ###-###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
@@ -3223,7 +3222,7 @@ BRACKETED EXPRESSION:
          z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1", y "55" = "77", z "22" = "33"}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3255,17 +3254,17 @@ ERROR: in line ###: empty attribute label; attribute ignored:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
                     ^
 BRACKETED EXPRESSION:
-    {"": x = "1", y "55" = "77", z "22" = "33"}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ =:
-           x = "1"
-           y "55" = "77"
-           z "22" = "33"
+           x = 1
+           z 22 = 33
+           y 55 = 77
            .position[H] = PACKED_VEC
     line ###:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1", y "55" = "77", z "22" = "33"}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3328,16 +3327,16 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": x = "55", z[def] = "88"}
+    {"": x = 55, z[def] = 88}
 @@@@ =:
-           x = "55"
-           z[def] = "88"
+           x = 55
+           z[def] = 88
            .position[H] = PACKED_VEC
     line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "55", z[def] = "88"}
+    {"": x = 55, z[def] = 88}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3370,15 +3369,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": x = "1"}
+    {"": x = 1}
 @@@@ =:
-           x = "1"
+           x = 1
            .position[H] = PACKED_VEC
     line ###:
 {[$ NONE $]: x = 1}
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = "1"}
+    {"": x = 1}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -3435,7 +3434,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {Y|6 7|Y}
-@@@@ = "6" "7":
+@@@@ = 6 7:
            .type = Y
            .position[H] = PACKED_VEC
     line ###:
@@ -3471,7 +3470,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {W|2 3 4 5 ({Y|6 7|Y})|W}
-@@@@ = "2" "3" "4" "5" @@@@:
+@@@@ = 2 3 4 5 @@@@:
            .type = W
            .position[H] = PACKED_VEC
     line ###:
@@ -4335,17 +4334,17 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: my attribute = "5", my option|a b c|my type}
+    {my type: my attribute = 5, my option|a b c|my type}
 @@@@ = a b c:
            .type = [< my type >]
-           my attribute = "5"
+           my attribute = 5
            my option
            .position[H] = PACKED_VEC
     line ###:
 {my type: my attribute = 5, my option = TRUE| a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: my attribute = "5", my option|a b c|my type}
+    {my type: my attribute = 5, my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4370,11 +4369,11 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: no your option, my attribute = "5"|a b c|my type}
+    {my type: no your option, my attribute = 5|a b c|my type}
 @@@@ = a b c:
            .type = [< my type >]
            no your option
-           my attribute = "5"
+           my attribute = 5
            .position[H] = PACKED_VEC
     lines ###-###:
 {my type: my attribute = 5, your option = FALSE|
@@ -4382,7 +4381,7 @@ BRACKETED EXPRESSION:
     a b c |my type}
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: no your option, my attribute = "5"|a b c|my type}
+    {my type: no your option, my attribute = 5|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4409,11 +4408,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: no your option, my attribute = "5"|a b c|my type}
+    {my type: no your option, my attribute = 5|a b c|my type}
 @@@@ = a b c:
            .type = [< my type >]
            no your option
-           my attribute = "5"
+           my attribute = 5
            .position[H] = PACKED_VEC
     lines ###-###:
 {my type: my attribute = 5|
@@ -4421,7 +4420,7 @@ BRACKETED EXPRESSION:
     a b c |your option = FALSE: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: no your option, my attribute = "5"|a b c|my type}
+    {my type: no your option, my attribute = 5|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4446,17 +4445,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: my attribute = "5", my option|a b c|my type}
+    {my type: my attribute = 5, my option|a b c|my type}
 @@@@ = a b c:
            .type = [< my type >]
-           my attribute = "5"
+           my attribute = 5
            my option
            .position[H] = PACKED_VEC
     line ###:
 {my attribute = 5| a b c |my option = TRUE: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: my attribute = "5", my option|a b c|my type}
+    {my type: my attribute = 5, my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4477,9 +4476,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: attribute = "5", my option|a b c|my type}
+    {my type: attribute = 5, my option|a b c|my type}
 @@@@ = a b c:
-           attribute = "5"
+           attribute = 5
            .type = [< my type >]
            my option
            .position[H] = PACKED_VEC
@@ -4487,7 +4486,7 @@ BRACKETED EXPRESSION:
 {my type| a b c |attribute = 5, my option}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: attribute = "5", my option|a b c|my type}
+    {my type: attribute = 5, my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4510,9 +4509,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: attribute = "5", my option|a b c|my type}
+    {my type: attribute = 5, my option|a b c|my type}
 @@@@ = a b c:
-           attribute = "5"
+           attribute = 5
            .type = [< my type >]
            my option
            .position[H] = PACKED_VEC
@@ -4520,7 +4519,7 @@ BRACKETED EXPRESSION:
 {my type| a b c |attribute = 5, my option: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: attribute = "5", my option|a b c|my type}
+    {my type: attribute = 5, my option|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4547,16 +4546,16 @@ ERROR: in line ###: beginning type `' != end type `my type'; end type
 {| a b c |attribute = 5, my option: my type}
                                     ^^
 BRACKETED EXPRESSION:
-    {"": attribute = "5", my option|a b c|}
+    {"": attribute = 5, my option|a b c|}
 @@@@ = a b c:
-           attribute = "5"
+           attribute = 5
            my option
            .position[H] = PACKED_VEC
     line ###:
 {| a b c |attribute = 5, my option: my type}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": attribute = "5", my option|a b c|}
+    {"": attribute = 5, my option|a b c|}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4645,16 +4644,16 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": no your option, my attribute = "5"|a b c|}
+    {"": no your option, my attribute = 5|a b c|}
 @@@@ = a b c:
            no your option
-           my attribute = "5"
+           my attribute = 5
            .position[H] = PACKED_VEC
     line ###:
 {my attribute = 5, no your option|a b c|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": no your option, my attribute = "5"|a b c|}
+    {"": no your option, my attribute = 5|a b c|}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -4679,16 +4678,16 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {"": no your option, my attribute = "5"|a b c|}
+    {"": no your option, my attribute = 5|a b c|}
 @@@@ = a b c:
            no your option
-           my attribute = "5"
+           my attribute = 5
            .position[H] = PACKED_VEC
     line ###:
 {"": my attribute = 5, no your option|a b c|""}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": no your option, my attribute = "5"|a b c|}
+    {"": no your option, my attribute = 5|a b c|}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -5077,9 +5076,9 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: x = "5", y = "5"|a b c|my type}
+    {my type: x = 5, y = "5"|a b c|my type}
 @@@@ = a b c:
-           x = "5"
+           x = 5
            .type = [< my type >]
            y = "5"
            .position[H] = PACKED_VEC
@@ -5087,7 +5086,7 @@ BRACKETED EXPRESSION:
 {my type: x = 5, y = "5" | a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: x = "5", y = "5"|a b c|my type}
+    {my type: x = 5, y = "5"|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -5111,7 +5110,7 @@ BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< 5 tomatoes >]
-@@@@ = [< "5" tomatoes >]
+@@@@ = [< 5 tomatoes >]
     line ###:
 {my type: x = 5 tomatoes, y = [< 5 tomatoes >]
                               ^^^^^^^^^^^^^^^^
@@ -5122,12 +5121,11 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: x = [< "5" tomatoes >], y = [< "5" tomatoes >]|a b
-              c|my type}
+    {my type: x = [< 5 tomatoes >], y = [< 5 tomatoes >]|a b c|my type}
 @@@@ = a b c:
-           x = [< "5" tomatoes >]
+           x = [< 5 tomatoes >]
            .type = [< my type >]
-           y = [< "5" tomatoes >]
+           y = [< 5 tomatoes >]
            .position[H] = PACKED_VEC
     lines ###-###:
 {my type: x = 5 tomatoes, y = [< 5 tomatoes >]
@@ -5135,8 +5133,7 @@ BRACKETED EXPRESSION:
           | a b c |}
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: x = [< "5" tomatoes >], y = [< "5" tomatoes >]|a b
-              c|my type}
+    {my type: x = [< 5 tomatoes >], y = [< 5 tomatoes >]|a b c|my type}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -5307,7 +5304,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {+ 1 2 3 +}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = "+"
            .position[H] = PACKED_VEC
     line ###:
@@ -5332,7 +5329,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {+ 1 2 3 +}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = "+"
            .position[H] = PACKED_VEC
     line ###:
@@ -5353,7 +5350,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {< 1 2 3 >}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = [< "<" ">" >]
            .position[H] = PACKED_VEC
     line ###:
@@ -5378,7 +5375,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
     {< 1 2 3 >}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .type = [< "<" ">" >]
            .position[H] = PACKED_VEC
     line ###:
@@ -5415,25 +5412,25 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
-    {x: y[+Y] = "44"}
+    {x: y[+Y] = 44}
 @@@@ =:
            .type = x
-           y[+Y] = "44"
+           y[+Y] = 44
            .position[H] = PACKED_VEC
     line ###:
 {x: y[+Y] = 44}
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {x: y[+Y] = "44"}
+    {x: y[+Y] = 44}
 @@@@ =:
            .type = x
-           y[+Y] = "44"
+           y[+Y] = 44
            .position[H] = PACKED_VEC
     line ###:
 {x: y[+Y] = 44}
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {x: y[+Y] = "44"}
+    {x: y[+Y] = 44}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -5965,19 +5962,19 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = X Y Z:
-           d = "4"
+           d = 4
            .type = T
-           a = "1"
-           b = "2"
-           c = "3"
+           a = 1
+           b = 2
+           c = 3
            .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2, c = 3, d = 4 | X Y Z |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -6008,19 +6005,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = X Y Z:
-           d = "4"
+           d = 4
            .type = T
-           a = "1"
-           b = "2"
-           c = "3"
+           a = 1
+           b = 2
+           c = 3
            .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2, c = 3 | X Y Z | d = 4 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -6053,19 +6050,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = X Y Z:
-           d = "4"
+           d = 4
            .type = T
-           a = "1"
-           b = "2"
-           c = "3"
+           a = 1
+           b = 2
+           c = 3
            .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2 | X Y | c = 3 | Z | d = 4 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -6100,19 +6097,19 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = X Y Z:
-           d = "4"
+           d = 4
            .type = T
-           a = "1"
-           b = "2"
-           c = "3"
+           a = 1
+           b = 2
+           c = 3
            .position[H] = PACKED_VEC
     line ###:
 {T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -6149,19 +6146,19 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = X Y Z:
-           d = "4"
+           d = 4
            .type = T
-           a = "1"
-           b = "2"
-           c = "3"
+           a = 1
+           b = 2
+           c = 3
            .position[H] = PACKED_VEC
     line ###:
 {T: a = 1 | X | b = 2 | Y | c = 3, d = 4 | Z | }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: d = "4", a = "1", b = "2", c = "3"|X Y Z|T}
+    {T: d = 4, a = 1, b = 2, c = 3|X Y Z|T}
 @@@@ = @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
@@ -6777,7 +6774,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {data|1 2 3|data}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            .position[H] = PACKED_VEC
            .type = data
     line ###:
@@ -6787,7 +6784,7 @@ BRACKETED EXPRESSION:
     {"": moe = {* PREALLOCATED(2*8), {|A B C|}, PREALLOCATED(2*7) *},
          foo = P, fie = PREALLOCATED(2*8), fum = [< Q R T >], foe =
          PREALLOCATED(2*7), fee = {|A B C|}, mie = {* Z, X, Y *}|1 2 3|}
-@@@@ = "1" "2" "3":
+@@@@ = 1 2 3:
            moe = {* PREALLOCATED(2*8), @@@@, PREALLOCATED(2*7) *}
            foo = P
            fie = PREALLOCATED(2*8)
@@ -6871,7 +6868,7 @@ BRACKETED EXPRESSION:
         {"": moe = {* PREALLOCATED(3*8), {|A B C|}, (Z) *}, foo = P,
              fie = PREALLOCATED(3*8), fum = [< Q R T >], foe = (Z),
              fee = {|A B C|}, mie = {* Z, X, Y *}|1 2 3|}
-@@@@ = ID "6" is @@@@:
+@@@@ = ID 6 is @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -6880,7 +6877,7 @@ ID 6 is @@
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 8 is XYZ
-@@@@ = ID "8" is XYZ:
+@@@@ = ID 8 is XYZ:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -6947,7 +6944,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 9 is {|M N P|}
-@@@@ = ID "9" is @@@@:
+@@@@ = ID 9 is @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -6956,7 +6953,7 @@ ID 9 is @@
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 10 is PREALLOCATED(2*10)
-@@@@ = ID "10" is PREALLOCATED(2*10):
+@@@@ = ID 10 is PREALLOCATED(2*10):
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7076,13 +7073,13 @@ BRACKETED EXPRESSION:
            .type = itemize
            mark = "*"
            .position[H] = PACKED_VEC
-@@@@ = "1" chicken:
+@@@@ = 1 chicken:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon olive oil:
+@@@@ = 1 tablespoon olive oil:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon paprika:
+@@@@ = 1 tablespoon paprika:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7107,13 +7104,13 @@ BRACKETED EXPRESSION:
            .type = itemize
            mark = "*"
            .position[H] = PACKED_VEC
-@@@@ = "1" chicken:
+@@@@ = 1 chicken:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon olive oil:
+@@@@ = 1 tablespoon olive oil:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon paprika:
+@@@@ = 1 tablespoon paprika:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7134,13 +7131,13 @@ BRACKETED EXPRESSION:
            .type = itemize
            mark = "*"
            .position[H] = PACKED_VEC
-@@@@ = "1" chicken:
+@@@@ = 1 chicken:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon olive oil:
+@@@@ = 1 tablespoon olive oil:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon paprika:
+@@@@ = 1 tablespoon paprika:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7163,7 +7160,7 @@ a potato
 ^^^^^^^^
 BRACKETED EXPRESSION:
     1 tablespoon butter
-@@@@ = "1" tablespoon butter:
+@@@@ = 1 tablespoon butter:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7180,13 +7177,13 @@ BRACKETED EXPRESSION:
            .type = itemize
            mark = "*"
            .position[H] = PACKED_VEC
-@@@@ = "1" chicken:
+@@@@ = 1 chicken:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon olive oil:
+@@@@ = 1 tablespoon olive oil:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon paprika:
+@@@@ = 1 tablespoon paprika:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7211,7 +7208,7 @@ BRACKETED EXPRESSION:
 @@@@ = a potato:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon butter:
+@@@@ = 1 tablespoon butter:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7221,7 +7218,7 @@ a potato
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     line #
-@@@@ = line "1":
+@@@@ = line #:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7230,7 +7227,7 @@ line #
 ^^^^^^
 BRACKETED EXPRESSION:
     line #
-@@@@ = line "2":
+@@@@ = line #:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7251,19 +7248,19 @@ BRACKETED EXPRESSION:
            .type = itemize
            mark = "*"
            .position[H] = PACKED_VEC
-@@@@ = "1" chicken:
+@@@@ = 1 chicken:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon olive oil:
+@@@@ = 1 tablespoon olive oil:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon paprika:
+@@@@ = 1 tablespoon paprika:
            .type = item
            .position[H] = PACKED_VEC
 @@@@ = a potato:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon butter:
+@@@@ = 1 tablespoon butter:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7285,7 +7282,7 @@ a potato
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     line #
-@@@@ = line "4":
+@@@@ = line #:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7301,13 +7298,13 @@ BRACKETED EXPRESSION:
            .type = itemize
            mark = "*"
            .position[H] = PACKED_VEC
-@@@@ = "1" chicken:
+@@@@ = 1 chicken:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon olive oil:
+@@@@ = 1 tablespoon olive oil:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon paprika:
+@@@@ = 1 tablespoon paprika:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7330,7 +7327,7 @@ BRACKETED EXPRESSION:
 @@@@ = a potato:
            .type = item
            .position[H] = PACKED_VEC
-@@@@ = "1" tablespoon butter:
+@@@@ = 1 tablespoon butter:
            .type = item
            .position[H] = PACKED_VEC
     lines ###-###:
@@ -7349,19 +7346,19 @@ BRACKETED EXPRESSION:
 @@@@ = "=============":
            .position[H] = PACKED_VEC
            .type = row
-@@@@ = "|" "1" chicken "|":
+@@@@ = "|" 1 chicken "|":
            .position[H] = PACKED_VEC
            .type = row
 @@@@ = "=============":
            .position[H] = PACKED_VEC
            .type = row
-@@@@ = "|" "1" tablespoon olive oil "|":
+@@@@ = "|" 1 tablespoon olive oil "|":
            .position[H] = PACKED_VEC
            .type = row
 @@@@ = "-":
            .position[H] = PACKED_VEC
            .type = row
-@@@@ = "|" "1" tablespoon paprika:
+@@@@ = "|" 1 tablespoon paprika:
            .position[H] = PACKED_VEC
            .type = row
 @@@@ = "=":
@@ -7383,13 +7380,11 @@ BRACKETED EXPRESSION:
 =
 ^
 BRACKETED EXPRESSION:
-    {# -5 #} is a negative number
-@@@@ = @@@@ is a negative number:
+    -5 is a negative number
+@@@@ = -5 is a negative number:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-@@@@ = "-5":
-           .type = "#"
     line ###:
 -5 is a negative number
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -7511,11 +7506,11 @@ BRACKETED EXPRESSION:
 @@@@ = @@@@:
            .position[H] = PACKED_VEC
            .type = p
-@@@@ = This is subparagraph "1":
+@@@@ = This is subparagraph 1:
            .terminator = "."
            .position[H] = PACKED_VEC
            .type = s
-@@@@ = This is subparagraph "2":
+@@@@ = This is subparagraph 2:
            .terminator = "."
            .position[H] = PACKED_VEC
            .type = s
@@ -7561,19 +7556,19 @@ BRACKETED EXPRESSION:
 @@@@ = "=============":
            .position[H] = PACKED_VEC
            .type = row
-@@@@ = "|" "1" chicken "|":
+@@@@ = "|" 1 chicken "|":
            .position[H] = PACKED_VEC
            .type = row
 @@@@ = "=============":
            .position[H] = PACKED_VEC
            .type = row
-@@@@ = "|" "1" tablespoon olive oil "|":
+@@@@ = "|" 1 tablespoon olive oil "|":
            .position[H] = PACKED_VEC
            .type = row
 @@@@ = "-":
            .position[H] = PACKED_VEC
            .type = row
-@@@@ = "|" "1" tablespoon paprika:
+@@@@ = "|" 1 tablespoon paprika:
            .position[H] = PACKED_VEC
            .type = row
 @@@@ = "=":
@@ -7598,7 +7593,7 @@ BRACKETED EXPRESSION:
 ^^^^^
 BRACKETED EXPRESSION:
     < 99 >
-@@@@ = "99":
+@@@@ = 99:
            .terminator = ">"
            .initiator = "<"
            .position[H] = PACKED_VEC
@@ -7616,7 +7611,7 @@ BRACKETED EXPRESSION:
 ^^^^^^
 BRACKETED EXPRESSION:
     {@ < 99 > @}
-@@@@ = "<" "99" ">":
+@@@@ = "<" 99 ">":
            .type = "@"
            .position[H] = PACKED_VEC
     line ###:
@@ -7931,7 +7926,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 20 IS {"": LEAVES = {* @@@@, @@@@, @@@@ *} = ROOT}
-@@@@ = ID "20" IS @@@@:
+@@@@ = ID 20 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7942,7 +7937,7 @@ BRACKETED EXPRESSION:
     ID 21 IS
         {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
               = LEAVES|A|}
-@@@@ = ID "21" IS @@@@:
+@@@@ = ID 21 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7953,7 +7948,7 @@ BRACKETED EXPRESSION:
     ID 22 IS
         {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
               = LEAVES|B|}
-@@@@ = ID "22" IS @@@@:
+@@@@ = ID 22 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7964,7 +7959,7 @@ BRACKETED EXPRESSION:
     ID 23 IS
         {"": RIGHT = @@@@ = LEFT, LEFT = @@@@ = RIGHT, ROOT = @@@@
               = LEAVES|C|}
-@@@@ = ID "23" IS @@@@:
+@@@@ = ID 23 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -7991,7 +7986,7 @@ BRACKETED EXPRESSION:
     ^^^^^^^^^^^
 BRACKETABLE EXPRESSION:
     {|5, 6, 7|}
-@@@@ = "5" "6" "7":
+@@@@ = 5 6 7:
            .separator = ","
            .position[H] = PACKED_VEC
     line ###:
@@ -7999,7 +7994,7 @@ BRACKETABLE EXPRESSION:
             ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {* 5, 6, 7 *}
-@@@@ = "5" "6" "7":
+@@@@ = 5 6 7:
            .terminator = [< "*" "}" >]
            .initiator = [< "{" "*" >]
            .separator = ","
@@ -8043,11 +8038,11 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT, OTHER =
-         {* "7", "5", "6" *}|ABC|}
+         {* 7, 5, 6 *}|ABC|}
 @@@@ = ABC:
            LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT
            .position[H] = PACKED_VEC
-           OTHER = {* "7", "5", "6" *}
+           OTHER = {* 7, 5, 6 *}
     lines ###-###:
 @@@ += ABC:
 ^^^^^^^^^^^
@@ -8058,8 +8053,8 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     ID 20 IS NOW
         {"": LEAVES[*@] = {* @@@@, @@@@, @@@@ *} = ROOT, OTHER =
-             {* "7", "5", "6" *}|ABC|}
-@@@@ = ID "20" IS NOW @@@@:
+             {* 7, 5, 6 *}|ABC|}
+@@@@ = ID 20 IS NOW @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -8095,7 +8090,7 @@ BRACKETED EXPRESSION:
      ^^^
 BRACKETED EXPRESSION:
     Y [@] = 5
-@@@@ = Y @@@@ "=" "5":
+@@@@ = Y @@@@ "=" 5:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -8128,10 +8123,10 @@ BRACKETED EXPRESSION:
 @@@ = D:
 ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": X[*+/aZ], Y[@] = "5"|D|}
+    {"": X[*+/aZ], Y[@] = 5|D|}
 @@@@ = D:
            X[*+/aZ]
-           Y[@] = "5"
+           Y[@] = 5
            .position[H] = PACKED_VEC
     lines ###-###:
 @@@ = D:
@@ -8141,8 +8136,8 @@ BRACKETED EXPRESSION:
     Y[@] = 5
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ID 30 IS {"": X[*+/aZ], Y[@] = "5"|D|}
-@@@@ = ID "30" IS @@@@:
+    ID 30 IS {"": X[*+/aZ], Y[@] = 5|D|}
+@@@@ = ID 30 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -8231,7 +8226,7 @@ ID 40 IS [@@@]
          ^^^^^
 BRACKETED EXPRESSION:
     ID 40 IS [{X: hi[*] = {|A B C|}, to = @@@@ = from}]
-@@@@ = ID "40" IS @@@@:
+@@@@ = ID 40 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -8250,7 +8245,7 @@ ID 41 IS [@@@]
          ^^^^^
 BRACKETED EXPRESSION:
     ID 41 IS {"": .initiator = "[", .terminator = "]", from = @@@@ = to}
-@@@@ = ID "41" IS @@@@:
+@@@@ = ID 41 IS @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -8317,7 +8312,7 @@ BRACKETED EXPRESSION:
     trace [+ bracketed subexpressions]
 BRACKETED EXPRESSION:
     < 99 >
-@@@@ = "99":
+@@@@ = 99:
            .terminator = ">"
            .initiator = "<"
            .position[H] = PACKED_VEC
@@ -8326,7 +8321,7 @@ BRACKETED EXPRESSION:
 ^^^^^^
 BRACKETED EXPRESSION:
     < 99 > << 88 >>
-@@@@ = @@@@ "<<" "88" ">>":
+@@@@ = @@@@ "<<" 88 ">>":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -8335,7 +8330,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     << 88 >>
-@@@@ = "88":
+@@@@ = 88:
            .terminator = ">>"
            .initiator = "<<"
            .position[H] = PACKED_VEC
@@ -8344,7 +8339,7 @@ BRACKETED EXPRESSION:
            ^^^^^^^^
 BRACKETED EXPRESSION:
     {D|< 99 > << 88 >>|D}
-@@@@ = "<" "99" ">" @@@@:
+@@@@ = "<" 99 ">" @@@@:
            .type = D
            .position[H] = PACKED_VEC
     line ###:

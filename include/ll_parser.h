@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 20 10:55:08 EDT 2021
+// Date:	Mon Aug 30 04:47:30 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,6 +166,7 @@ enum // Token types (see below).
     IMPLIED_HEADER	= 0xFFFFFFF8,
     OPERATOR		= 0xFFFFFFF7,
     DERIVED		= 0xFFFFFFF6,
+    NUMBER		= 0xFFFFFFF5,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
@@ -1526,6 +1527,30 @@ void push_reformatter
 
 // Parser Functions
 // ------ ---------
+
+// Return the lexical type of a min::gen value according
+// to LEXSTD::lexical_type_of, except for numbers,
+// return natural_t if the min::gen value is an integer
+// >= 0, else return 0.
+//
+inline min::uns32 lexical_type_of ( min::gen g )
+{
+    if ( is_num ( g ) )
+    {
+	min::float64 f = min::float_of ( g );
+	min::int64 i = (min::int64) f;
+	if ( i >= 0 && i == f )
+	    return ll::lexeme::standard::natural_t;
+	else
+	    return 0;
+	    // We do not want to return
+	    // PAR::NUMBER as it would be
+	    // >= 32.
+    }
+    else
+        return ll::lexeme::standard
+	         ::lexical_type_of ( g );
+}
 
 // Compute new_flags that set the selectors to the
 // selectors argument, turning on these and the ALWAYS_

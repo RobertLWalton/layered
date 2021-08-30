@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 28 01:33:04 EST 2020
+// Date:	Sun Aug 29 21:57:39 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -341,10 +341,36 @@ SCAN_NEXT_LEXEME:
 	    }
 	}
 	// falls through
+	case LEXSTD::natural_t:
+	{
+	    // Numeric or natural.
+	    //
+	    value_ref(token) = min::new_str_gen
+	        ( min::begin_ptr_of
+		      ( translation_buffer ),
+		  translation_buffer->length );
+	    min::str_ptr sp ( token->value );
+	    min::float64 val;
+	    min::unsptr i = 0;
+	    min::strto ( val, sp, i );
+	    if ( i == strlen ( sp ) )
+	    {
+	        value_ref(token) =
+		    min::new_num_gen ( val );
+		min::int64 ival = (min::int64) val;
+		token->type =
+		    (    type == LEXSTD::natural_t
+		      && ival == val ) ?
+		    LEXSTD::natural_t :
+		    PAR::NUMBER;
+	    }
+	    else
+	        token->type = LEXSTD::numeric_t;
+	    break;
+	}
 	case LEXSTD::word_t:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
-	case LEXSTD::natural_t:
 	case LEXSTD::quoted_string_t:
 	{
 	    value_ref(token) = min::new_str_gen
@@ -369,7 +395,9 @@ SCAN_NEXT_LEXEME:
 	if ( trace )
 	{
 	    printer
-	        << LEXSTD::type_names[type]
+	        << ( token->type == PAR::NUMBER ?
+		     "NUMBER" :
+		     LEXSTD::type_names[type] )
 		<< ": ";
 	    if ( token->value != min::MISSING() )
 	        printer

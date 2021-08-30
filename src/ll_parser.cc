@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 16:46:22 EDT 2021
+// Date:	Mon Aug 30 04:48:21 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1670,8 +1670,10 @@ TAB::key_prefix PAR::find_key_prefix
 	    hash = min::strhash ( e );
 	else if ( min::is_num ( e ) )
 	{
-	    int v = min::int_of ( e );
-	    MIN_REQUIRE ( 0 <= v && v < (1<<28) );
+	    min::int64 v =
+	        (min::int64) min::float_of ( e );
+	    if ( v < 0 || (1ll<<28) < v )
+	        break;
 	    hash = min::numhash ( e );
 	}
 	else
@@ -2617,7 +2619,7 @@ min::gen PAR::scan_simple_name
     while ( i < s )
     {
 	min::uns32 t =
-	    LEXSTD::lexical_type_of ( vp[i] );
+	    PAR::lexical_type_of ( vp[i] );
 	if ( ( ( 1ull << t ) & accepted_types )
 	     &&
 	     vp[i] != end_value )
@@ -2670,7 +2672,7 @@ min::gen PAR::scan_label
 	else
 	{
 	    min::uns32 t =
-		LEXSTD::lexical_type_of ( vp[i] );
+		PAR::lexical_type_of ( vp[i] );
 	    if ( ( 1ull << t ) & accepted_types )
 	        elements[j++] = vp[i];
 	    else

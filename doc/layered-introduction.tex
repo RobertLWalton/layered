@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 23, 2021
+August 31, 2021
  
 \end{center}
 
@@ -2066,7 +2066,7 @@ A token has the following components:
 \ttmkey{type}{of token}
 		& One of: \hspace{0.5in}\begin{tabular}[t]{l}
         	          A lexeme type. \\
-        	          \ttmkey{OPERATOR}{token type} \\
+        	          \ttmkey{NUMBER}{token type} \\
         	          \ttmkey{BRACKETED}{token type} \\
         	          \ttmkey{BRACKETABLE}{token type} \\
         	          \ttmkey{PURELIST}{token type} \\
@@ -2074,25 +2074,53 @@ A token has the following components:
         	          \ttmkey{MAPPED\_PREFIX}{token type} \\
         	          \ttmkey{IMPLIED\_PREFIX}{token type} \\
         	          \ttmkey{IMPLIED\_HEADER}{token type} \\
-        	          \ttmkey{DERIVED}{token type} \\[1ex]
+        	          \ttmkey{DERIVED}{token type} \\
+        	          \ttmkey{OPERATOR}{token type} \\
 			  \end{tabular}
-\\[1ex]
-		& For a lexeme, the translation of the
-		  lexeme may be recorded in the token
-		  \TT{value} as a MIN string.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Standardly the token lexeme types are word, mark, separator,
-		  natural-number, and numeric
-		  whose tokens have a \TT{value} that is
-		  a MIN string equal to the lexeme characters,
-		  quoted string whose tokens
-		  have a \TT{value} equal
-		  to the lexeme translation string,
+		& For a lexeme, a translation of the
+		  lexeme may be recorded in the token
+		  \TT{value} as a MIN string or MIN number.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& Standardly word, mark, and separator lexeme type
+		  tokens have a \TT{value} that is
+		  the MIN string equal to the lexeme characters;
+		  quoted string lexeme type tokens
+		  have a \TT{value} that is the MIN string equal
+		  to the lexeme translation string;
 		  and comment, indent, line break, start of file,
-		  and end of file whose tokens have no \TT{value}.
-		  Standardly non-indent, non-line-break
+		  and end of file lexeme type tokens have
+		  \underline{no} \TT{value}.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+
+		  & Standardly, the lexeme characters of a
+		  natural or numeric lexeme are converted to
+		  a MIN number token \TT{value} using the POSIX {\tt strtod}
+		  function, if that conversion is possible.
+		  If the conversion is possible, and
+		  the translation string contains nothing but
+		  ASCII digits, and conversion by the POSIX
+		  {\tt strtoll} function is possible and gives equal results
+		  (i.e., the number fits into an IEEE double
+		  without losing any significant digits), the token
+		  is given the \TT{natural} lexeme type;
+		  otherwise if conversion to a MIN number is possible
+		  the token is given the \TT{NUMBER} type;
+		  lastly if conversion to a MIN number is \underline{not}
+		  possible the token is given the \TT{numeric}
+		  lexeme type and a \TT{value} that is the
+		  MIN string equal to the lexeme characters.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+
+		  & Standardly non-indent, non-line-break
 		  whitespace lexemes and erroneous lexemes
 		  (which are announced when read)
 		  are not translated into tokens.
@@ -7856,8 +7884,7 @@ the operator parsing definition stack:
                             $|$ \ttmkey{nofix}{operator flag group}
 	\\[1ex]
 \emkey{precedence} \begin{tabular}[t]{rl}
-		   :::= & {\em sign-option} {\em natural-number}
-			  in the range [L, H] \\
+		   :::= & {\em integer} in the range [L, H] \\
 			& where L = -1,000,000 and H = +1,000,000 \\
 		    \end{tabular}
 	\\[1ex]

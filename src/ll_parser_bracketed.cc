@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 04:49:02 EDT 2021
+// Date:	Mon Aug 30 21:35:01 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3300,7 +3300,9 @@ NEXT_TOKEN:
 
     // Process broken middle lexemes.
     //
-    if ( (   ( 1 << current->type )
+    if ( current->type < 32
+         &&
+	 (   ( 1 << current->type )
            & LEXSTD::middle_mask )
 	 &&
             bracketed_pass->middle_break.begin_length
@@ -3313,6 +3315,8 @@ NEXT_TOKEN:
 			      .begin_length )
 	 &&
 	 start_previous->next != current
+	 &&
+	 current->previous->type < 32
 	 &&
 	 (    ( 1 << current->previous->type )
             & LEXSTD::middle_mask )
@@ -3338,6 +3342,41 @@ NEXT_TOKEN:
 	if ( current->previous->type == LEXSTD::mark_t )
 	    current->previous->type = current->type;
 	    // Types must be mark, numeric, or word.
+
+        if (    current->previous->type
+	     == LEXSTD::numeric_t )
+	{
+	    min::str_ptr sp
+	        ( current->previous->value );
+	    min::float64 val;
+	    min::unsptr i = 0;
+	    min::strto ( val, sp, i );
+	    if ( i == strlen ( sp ) )
+	    {
+	        value_ref(current->previous) =
+		    min::new_num_gen ( val );
+		min::int64 ival = (min::int64) val;
+		if ( ival != val )
+		    current->previous->type =
+			PAR::NUMBER;
+		else
+		{
+		    current->previous->type =
+			LEXSTD::natural_t;
+		    const char * p = MUP::str_of ( sp );
+		    while ( * p )
+		    {
+		        if ( ! isdigit ( * p ++ ) )
+			{
+			    current->previous->type =
+				PAR::NUMBER;
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+
 	PAR::ensure_next ( parser, current );
 	current = current->next;
 	PAR::free

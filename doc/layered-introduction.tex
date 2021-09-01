@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 31, 2021
+September 1, 2021
  
 \end{center}
 
@@ -2099,7 +2099,7 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 
-		  & Standardly, the lexeme characters of a
+		& Standardly, the lexeme characters of a
 		  natural or numeric lexeme are converted to
 		  a MIN number token \TT{value} using the POSIX {\tt strtod}
 		  function, if that conversion is possible.
@@ -2119,8 +2119,18 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
+		& Note that {\tt strtod} cannot convert values too
+		  large to represent in a \underline{finite}
+		  MIN number (which is
+		  an IEEE 64-bit number), nor can it
+		  convert non-zero numbers too small to represent
+		  in a MIN number.  For example, it cannot convert
+		  {\tt 1e+500} or {\tt 1e-500}.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
 
-		  & Standardly non-indent, non-line-break
+		& Standardly non-indent, non-line-break
 		  whitespace lexemes and erroneous lexemes
 		  (which are announced when read)
 		  are not translated into tokens.

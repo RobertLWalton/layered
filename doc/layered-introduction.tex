@@ -6569,10 +6569,8 @@ a bracket type definition:
 
 \ttmkey{data}{reformatter}
         \TT{(} \begin{tabular}[t]{@{}l@{}}
-	       {\em new-sign}\TT{,}
-	       {\em new-or-same-sign}\TT{,}
-	       {\em add-to-set-sign}\TT{,}
-	       {\em add-to-multiset-sign}\TT{,} \\
+	       {\em assignment-sign}\TT{,}
+	       {\em attribute-initiator}\TT{,} \\
 	       {\em equal-sign}\TT{,} {\em negator}\TT{,} 
 	       {\em flags-opening}\TT{,} {\em multivalue-opening} \TT{)}
 	       \end{tabular}
@@ -6583,32 +6581,21 @@ a bracket type definition:
 The {\em prefix-n-list} must be a token list that could be represented by
 a headed logical line of the form:
 \begin{center}
-\TT{\{}{\em prefix}\TT{\}} {\em ID}
-            \begin{tabular}[t]{l}
-	    {\em assignment-sign} ~ {\em element-list} \TT{::::}\QMARK{} \\
-	    \{ {\em attribute-paragraph}
-	       \{ {\em assignment-sign} {\em attribute-paragraph} \}\STAR{}
-	       \}\QMARK{}
-	    \end{tabular}
+\TT{\{}{\em data-prefix}\TT{\}} ~ {\em ID} ~
+	    {\em assignment-sign} ~ {\em element-list} ~
+	    {\em attribute-paragraph}\QMARK{}
 \end{center}
 where
 \begin{indpar}
-\emkey{prefix} ::= the prefix, e.g., `\TT{data}'
+\emkey{data-prefix} ::= the prefix, e.g., `\TT{data}'
 \\[0.5ex]
 \emkey{ID} ::= see \pagref{ID}
-\\[0.5ex]
-\emkey{assignment-sign} \begin{tabular}[t]{rl}
-			::= & {\em new-sign} \\
-                        $|$ & {\em new-or-same-sign} \\
-                        $|$ & {\em add-to-set-sign} \\
-                        $|$ & {\em add-to-multiset-sign} \\
-			\end{tabular}
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
 \emmkey{attribute-paragraph}{in \TT{data} reformatter} ::=
     \begin{tabular}[t]{l}
-    ~~~~~~~~~~\TT{:} {\em end-of-physical-line} \\
+    ~~~~~~~~~~{\em attribute-initiator} ~ {\em end-of-physical-line} \\
     {\em attribute-line}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
@@ -6623,12 +6610,12 @@ where
 \end{indpar}
 
 The {\em ID} (first element) of the headed line must be either
-a preallocated stub or an object (that presumed to have replaced
-a preallocated stub and be identifier by an ID).
+a preallocated stub or an object (that is presumed to have replaced
+a preallocated stub and be identified by an ID).
 The {\em prefix} must not have any associated prefix attributes other than
 \TT{.type} or \TT{.position}.  If these requirements are not met, the
 \TT{data} reformatter takes no action, and the {\em prefix-n-list}
-beginning with the \TT{data} prefix
+beginning with the {\em data-prefix}
 is retained as is in the input.
 
 A subexpression of this form typically arrises when a logical line
@@ -6645,101 +6632,73 @@ and to define or add to the object whose denoted by
 {\em ID}.  The object is given the
 elements given in the {\em element-list} and the attributes in the
 {\em attribute-paragraph}.
+
 Before this reformatter
 is invoked,
-the {\em attribute-paragraph} are parsed
-to become a MIN object
-with \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} \TT{.terminator},
-`\TT{:}' \TT{.initiator}, and logical
-line elements.  This reformatter
+the {\em attribute-paragraph} is parsed
+becoming a MIN object
+{\em attribute-initiator} \TT{.ini\-tiator},
+\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} \TT{.ter\-min\-ator},
+and logical line elements.  This reformatter
 then further parses these logical lines
 using its reformatter arguments to treat each line as being
 formatted in the same manner as an {\em attribute}
 in a {\em typed-bracketed-subexpression}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
-Each multiset of {\em single-attribute-values}
+If {\em ID} is a preallocated stub, it is initialized to
+an object with no elements or attributes.  If {\em ID}
+is an object, the object must \underline{not} have
+{\em elements}, {\em single-attribute-values}, or
+{\em attribute-flags}.  The object \underline{may} have
+{\em double-attribute-values} (produced by data reformatter
+invocations creating the objects listed in the
+{\em double-attribute-values}).
+
+{\em Single-attribute-values} or {\em attribute-flags}
 given for a particular {\em attribute-label} in an {\em attri\-bute-paragraph}
-modifies the corresponding multiset
-of {\em attribute-values} with the same {\em attribute-label} in
+\underline{set} the corresponding
+{\em attribute-values} or {\em attribute-flags}
+with the same {\em attribute-label} in
 the object identified by the {\em ID}.
-Similarly for each given multiset of {\em double-attribute-values}
-and each given set of {\em attribute-flags}.
 
-Each {\em attribute-paragraph} is preceded
-by an {\em attribute-assignment} which specifies how the
-given values or flags modified the corresponding values or flags,
-as follows:
+{\em Double-attribute-values}
+given for a particular {\em attribute-label} and {\em reverse-attribute-label}
+in an {\em attri\-bute-paragraph}
+\underline{add to the set} of corresponding
+{\em double-attribute-values} with the same labels in
+the object identified by the {\em ID}.
+If a previous value matches a new value, the new value is not added
+(i.e., {\em double-attribute-values} are treated as sets and not
+multi-sets).
 
 
-\begin{indpar}
-
-\hspace*{-0.2in}\emmkey{new-sign}{in {\tt data} reformatter definition}\\
-The corresponding multisets of values or sets of flags
-\underline{must not} exist, and are set to the given multisets of values
-or sets of flags.
-
-\hspace*{-0.2in}\emmkey{new-or-same-sign}%
-    {in {\tt data} reformatter definition}\\
-The corresponding multisets of values or sets of flags
-may exist only if they are equal to the given multisets or sets.
-When a corresponding multiset or set does not exist,
-it is set to the given multiset or set.
-
-\hspace*{-0.2in}\emmkey{add-to-set-sign}%
-    {in {\tt data} reformatter definition}\\
-Each given value is added to its corresponding multiset of values if it is
-not already in that multiset, and each flag is added if it is not already
-in its corresponding set of flags.
-
-\hspace*{-0.2in}\emmkey{add-to-multiset-sign}%
-    {in {\tt data} reformatter definition}\\
-Each given value is added to its corresponding multiset of values,
-and each flag is added if it is not in its corresponding set of flags.
-
-\end{indpar}
-
-A simple example where the {\em new-sign} is `{\tt =}' and
-the {\em add-to-set-sign} is `{\tt +=}' is:
+A simple example involving {\em double-attribute-values} is:
 \begin{indpar}[0.2in]\begin{verbatim}
-@1 =:
+@1 ::=::
     name = Jack
     wife = @2 = husband
-@2 =:
-      name = Jill
-  +=:
-      husband = @1 = wife
+@2 ::=::
+    name = Jill
+    husband = @1 = wife
 \end{verbatim}\end{indpar}
 Here the line `{\tt wife = @2 = husband}' creates object {\tt @2}
-and gives it the `{\tt husband = @1 = wife}' value so the line
-`{\tt husband = @1 = wife}' is redundant and can either be omitted or
-used with a {\tt +=} {\em add-to-set-sign}.
-
-The {\em element-list} differs in several ways from the
-attributes.  First, if it is given, the object must \underline{not} have
-any elements, and the {\em element-list} elements become the
-object elements, regardless of which {\em attribute-assignment}
-appears before the {\em element-list}.
-Second, the {\em element-list} is considered
-to be `given' if it is non-empty or if it is the empty list
-followed by `{\tt ::::}'.  Lastly, if the {\em element-list}
-ends in an indented paragraph, it must be followed by `{\tt ::::}'
-to indicate that the indented paragraph is not an {\em attribute-paragraph}.
-In any case, a `{\tt ::::}' appearing just before the first
-{\em attribute-paragraph} will not be considered to be an element
-and will be ignored.
+and gives it the `{\tt husband = @1 = wife}' attribute so the line
+`{\tt husband = @1 = wife}' does nothing and is redundant.
 
 As a special case, if there is only one {\em element}, no
-{\em attribute-paragraphs},
+{\em attribute-paragraph},
 and {\em ID} is a preallocated stub,
 then the only element becomes the value assigned to {\em ID}
 in place of the list containing just this element.
 If this new value of {\em ID} is an object, the object replaces
 the preallocated stub, and previous references to {\em ID} will become
-references to the object.  However, if the new value is not an object,
+references to the object.  Similarly if the new value is a
+\underline{non-identifier} string, whether quoted or not.
+However, if the new value is not an object or non-identifier string,
 only future references to {\em ID} will be mapped to the new value,
 and previous references to the preallocated stub will continue to
-reference the untouched preallocated stub.  This this case the
+reference the untouched preallocated stub.  In this case the
 previous references are \key{dangling} and unusable.
 
 For example:
@@ -6769,6 +6728,12 @@ preallocated stubs with their ID number and a counter equal to
 one plus the total number of dangling references.  This information
 can be used for finding
 dangling references in the input.
+
+In the unusual case where the {\em element-list} ends in a
+paragraph with the same paragraph initiator as an
+{\em attribute-paragraph}, and there is no {\em attribute-paragraph},
+an empty {\em attribute-paragraph} must be added to make
+the {\em element-list} be as intended.
 
 \end{indpar}
 

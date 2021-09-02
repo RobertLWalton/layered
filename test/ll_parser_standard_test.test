@@ -48,3 +48,7 @@ BRACKETED EXPRESSION:
             [< ppp qqq >], a = "quoted string", "." = 99, f = ";",
             98.21 = hi, b = 53.91, g = [< [< m n >] p >], c =
             [< yyy 53.91 >]|"quoted string" 53.91 99 ";" foo|x}
+BRACKETED EXPRESSION:
+    ID 60 is {"": a = @@ = b, d = @@ = c}
+BRACKETED EXPRESSION:
+    ID 61 is {"": a = @@ = b}

@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 1, 2021
+September 2, 2021
  
 \end{center}
 
@@ -6628,7 +6628,7 @@ is mapped (\itemref{MAPPED-LEXEMES}) to the prefix of the
 above logical line, e.g., to \TT{\{data\}} or \TT{\{raw data\}}.
 
 The effect of reformatting is to delete the entire subexpression token list
-and to define or add to the object whose denoted by
+and to define or add to the object denoted by
 {\em ID}.  The object is given the
 elements given in the {\em element-list} and the attributes in the
 {\em attribute-paragraph}.
@@ -6636,10 +6636,10 @@ elements given in the {\em element-list} and the attributes in the
 Before this reformatter
 is invoked,
 the {\em attribute-paragraph} is parsed
-becoming a MIN object
-{\em attribute-initiator} \TT{.ini\-tiator},
-\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} \TT{.ter\-min\-ator},
-and logical line elements.  This reformatter
+becoming a MIN object with
+{\em attribute-initiator} as \TT{.ini\-tiator}, with
+\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as \TT{.ter\-min\-ator},
+and with logical line elements.  This reformatter
 then further parses these logical lines
 using its reformatter arguments to treat each line as being
 formatted in the same manner as an {\em attribute}
@@ -6653,7 +6653,7 @@ is an object, the object must \underline{not} have
 {\em attribute-flags}.  The object \underline{may} have
 {\em double-attribute-values} (produced by data reformatter
 invocations creating the objects listed in the
-{\em double-attribute-values}).
+{\em double-attribute-values}: see example just below).
 
 {\em Single-attribute-values} or {\em attribute-flags}
 given for a particular {\em attribute-label} in an {\em attri\-bute-paragraph}
@@ -6691,11 +6691,14 @@ As a special case, if there is only one {\em element}, no
 and {\em ID} is a preallocated stub,
 then the only element becomes the value assigned to {\em ID}
 in place of the list containing just this element.
-If this new value of {\em ID} is an object, the object replaces
+If this new value of {\em ID} is an object, a copy of the object replaces
 the preallocated stub, and previous references to {\em ID} will become
-references to the object.  Similarly if the new value is a
-\underline{non-identifier} string, whether quoted or not.
-However, if the new value is not an object or non-identifier string,
+references to this copy (but not to the object copied).
+Similarly if the new value is a quoted
+\underline{non-identifier} string the preallocated stub is replaced
+by a copy of the non-identifier string (without the quotes).
+
+However, if the new value is neither an object nor a non-identifier string,
 only future references to {\em ID} will be mapped to the new value,
 and previous references to the preallocated stub will continue to
 reference the untouched preallocated stub.  In this case the
@@ -6733,7 +6736,7 @@ In the unusual case where the {\em element-list} ends in a
 paragraph with the same paragraph initiator as an
 {\em attribute-paragraph}, and there is no {\em attribute-paragraph},
 an empty {\em attribute-paragraph} must be added to make
-the {\em element-list} be as intended.
+the {\em element-list} end as intended.
 
 \end{indpar}
 

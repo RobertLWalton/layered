@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 13:21:08 EDT 2021
+// Date:	Fri Sep  3 05:42:46 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,12 +166,21 @@ enum // Token types (see below).
     IMPLIED_HEADER	= 0xFFFFFFF8,
     OPERATOR		= 0xFFFFFFF7,
     DERIVED		= 0xFFFFFFF6,
-    NUMBER		= 0xFFFFFFF5,
 
     TEMPORARY_TT	= 0xFFFFF000,
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
       // by reformatters for temporary token types.
-    MAX_LEXEME		= 0x7FFFFFFF
+
+    NUMBER		= ll::lexeme::standard
+                            ::MAX_TYPE + 1,
+        // A natural that when converted to a MIN number
+	// does not fit exactly and is approximated
+	// in the MIN number, or a numeric that can be
+	// converted to a MIN number.  Defined thusly
+	// so value will be < 32 and can be returned
+	// by PAR::lexical_type_of.
+    MAX_LEXEME		= ll::lexeme::standard
+                            ::MAX_TYPE + 1
 };
 inline bool is_lexeme ( min::uns32 token_type )
 {
@@ -1531,7 +1540,7 @@ void push_reformatter
 // Return the lexical type of a min::gen value according
 // to LEXSTD::lexical_type_of, except for numbers,
 // return natural_t if the min::gen value is an integer
-// >= 0, else return 0.
+// >= 0, else return NUMBER.
 //
 inline min::uns32 lexical_type_of ( min::gen g )
 {
@@ -1542,10 +1551,7 @@ inline min::uns32 lexical_type_of ( min::gen g )
 	if ( i >= 0 && i == f )
 	    return ll::lexeme::standard::natural_t;
 	else
-	    return 0;
-	    // We do not want to return
-	    // PAR::NUMBER as it would be
-	    // >= 32.
+	    return ll::parser::NUMBER;
     }
     else
         return ll::lexeme::standard

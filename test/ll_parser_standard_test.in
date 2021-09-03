@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 03:00:44 EDT 2021
+// Date:	Fri Sep  3 05:55:06 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -81,4 +81,5 @@ ID 61 is @61
 @70 =:
     a = b 55.44
     c = @71 = d 77.33
+    e 22.99 = 5
 

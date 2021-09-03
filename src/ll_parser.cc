@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 13:25:24 EDT 2021
+// Date:	Fri Sep  3 05:50:59 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2628,7 +2628,8 @@ min::gen PAR::scan_simple_name
 	else
 	    break;
 	accepted_types |= 1ull << LEXSTD::natural_t
-	               |  1ull << LEXSTD::numeric_t;
+	               |  1ull << LEXSTD::numeric_t
+	               |  1ull << PAR::NUMBER;
     }
 
     if ( i == j ) return min::MISSING();
@@ -2648,7 +2649,8 @@ min::gen PAR::scan_label
     min::uns64 accepted_types =
           1ull << LEXSTD::word_t
 	| 1ull << LEXSTD::natural_t
-	| 1ull << LEXSTD::numeric_t;
+	| 1ull << LEXSTD::numeric_t
+	| 1ull << PAR::NUMBER;
 
     min::gen elements[s];
     min::uns32 j = 0;

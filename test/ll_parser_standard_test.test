@@ -28,8 +28,6 @@ BRACKETED EXPRESSION:
         First line of indented paragraph "."
         Second line of indented paragraph "."
 BRACKETED EXPRESSION:
-    "::::"
-BRACKETED EXPRESSION:
     ID 40 is
         {|This is a code line ending in
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|

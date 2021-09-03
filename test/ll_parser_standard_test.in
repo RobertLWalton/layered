@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 29 15:38:37 EDT 2021
+// Date:	Fri Sep  3 03:00:44 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -57,8 +57,8 @@ This is a line with an indented paragraph: // A comment
 @40 = This is a code line ending in:
 	  An indented paragragraph; line one.
 	  Line two.
-      ::::    // Needed to allow indented paragraph to
-              // be an element of @40.
+      :    // Needed to allow indented paragraph to
+           // be an element of @40.
 
 ID 40 is @40
 
@@ -77,4 +77,8 @@ ID 50 is @50
        c = @60 = d
 ID 60 is @60
 ID 61 is @61
+
+@70 =:
+    a = b 55.44
+    c = @71 = d 77.33
 

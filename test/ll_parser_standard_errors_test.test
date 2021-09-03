@@ -1,31 +1,17 @@
-ERROR: in line ##: "foo" already has flag(s); old flag(s) not changed:
+BRACKETED EXPRESSION:
+    ID 1 is {"": foo[*]}
+ERROR: in line ##: bad flag(s) `:,_!' in ":+-_!*"; bad flag(s) ignored:
         foo[:+-_!*]
-           ^^^^^^^^
+            ^^^^^^
+BRACKETED EXPRESSION:
+    ID 2 is {"": foo[*+-]}
 ERROR: in line ##: bad flag(s) `:_,!' in ":_+!*/"; bad flag(s) ignored:
         foo[:_+!*/]
             ^^^^^^
-ERROR: in line ##: flag `+' for label "foo" should be previously on but
-       is off:
-        foo[:_+!*/]
-            ^^^^^^
-ERROR: in line ##: flag `/' for label "foo" should be previously on but
-       is off:
-        foo[:_+!*/]
-            ^^^^^^
-ERROR: in line ##: "foo" already has different flag(s); old flag(s) not
-       changed:
-        foo[:_+!*/]
-           ^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 3 is {"": foo[*+/]}
 ERROR: in line ##: bad flags specifier `{X}'; ignored:
         foo[{X}]
             ^^^
-ERROR: in line ##: flag `*' for label "foo" should be previously off but
-       is on:
-        foo[{X}]
-           ^^^^^
-ERROR: in line ##: "foo" already has different flag(s); old flag(s) not
-       changed:
-        foo[{X}]
-           ^^^^^
 BRACKETED EXPRESSION:
-    ID 1 is {"": foo[*]}
+    ID 4 is {}

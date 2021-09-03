@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 05:18:13 EDT 2021
+// Date:	Fri Sep  3 02:59:23 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5139,15 +5139,13 @@ min::locatable_var<PAR::reformatter>
     BRA::bracket_type_reformatter_stack
         ( min::NULL_STUB );
 
-const unsigned NEW_SIGN = 0;
-const unsigned NEW_OR_SAME_SIGN = 1;
-const unsigned ADD_TO_SET_SIGN = 2;
-const unsigned ADD_TO_MULTISET_SIGN = 3;
-const unsigned EQUAL_SIGN = 4;
-const unsigned NEGATOR = 5;
-const unsigned FLAGS_OPENING = 6;
-const unsigned MULTIVALUE_OPENING = 7;
-const unsigned ARGS_LENGTH = 8;
+const unsigned ASSIGNMENT_SIGN = 0;
+const unsigned ATTRIBUTE_INITIATOR = 1;
+const unsigned EQUAL_SIGN = 2;
+const unsigned NEGATOR = 3;
+const unsigned FLAGS_OPENING = 4;
+const unsigned MULTIVALUE_OPENING = 5;
+const unsigned ARGS_LENGTH = 6;
 
 static bool data_reformatter_function
         ( PAR::parser parser,
@@ -5168,20 +5166,8 @@ static bool data_reformatter_function
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
-    min::gen sign = first->next->next->value;
-    if ( sign == min::MISSING() )
-        return true;
-    if (    sign != args[NEW_SIGN]
-         && sign != args[NEW_OR_SAME_SIGN]
-         && sign != args[ADD_TO_SET_SIGN]
-         && sign != args[ADD_TO_MULTISET_SIGN] )
-        return true;
-    if ( ! min::is_obj ( first->next->value )
-         &&
-         ! ( first->next->type == PAR::DERIVED
-             &&
-	     min::is_preallocated
-	         ( first->next->value ) ) )
+    if (    first->next->next->value
+         != args[ASSIGNMENT_SIGN] )
         return true;
 
     // If prefix has attributes other than .type and
@@ -5205,57 +5191,54 @@ static bool data_reformatter_function
         }
     }
 
-    PAR::token attributes = next;
-    PAR::token current = next;
-    while ( true )
+    min::locatable_gen ID_gen ( first->next->value );
+    if ( min::is_obj ( ID_gen ) )
     {
-	current = current->previous;
-	min::gen v = current->value;
-	if (    min::get ( v, min::dot_terminator )
-	     != min::INDENTED_PARAGRAPH()
-	     ||
-		min::get ( v, min::dot_initiator )
-	     != PARLEX::colon )
-	    break;
-	attributes = current;
-	current = current->previous;
-	if ( current == first->next->next )
-	    break;
-	v = current->value;
-	if ( v != args[NEW_SIGN]
-	     &&
-	     v != args[NEW_OR_SAME_SIGN]
-	     &&
-	     v != args[ADD_TO_SET_SIGN]
-	     &&
-	     v != args[ADD_TO_MULTISET_SIGN] )
-	    break;
-    }
-    PAR::token vector_end = attributes;
-    if ( vector_end->previous->value == ::four_colons )
-	vector_end = vector_end->previous;
-
-    if ( vector_end != first->next->next->next
-         &&
-	 min::is_obj ( first->next->value ) )
-    {
-        min::obj_vec_ptr tvp ( first->next->value );
-	if ( min::size_of ( tvp ) > 0 )
+        min::obj_vec_ptr ID_vp ( ID_gen );
+	if ( min::size_of ( ID_vp ) > 0 )
 	{
 	    PAR::parse_error
 		( parser, position,
-		  "attempt to add vector elements"
-		  " to an object that already has"
-		  " vector elements" );
+		  "ID references an object that already"
+		  " has single-attribute-values or"
+		  " attribute-flags" );
+	    return true;
+	}
+	min::attr_ptr ID_ap ( ID_vp );
+	min::attr_info info;
+	min::unsptr A = min::attr_info_of
+	    ( & info, 1, ID_ap, false );
+// TBD
+	if ( A > 0 && false )
+	{
+	    PAR::parse_error
+		( parser, position,
+		  "ID references an object that already"
+		  " has single-attribute-values or"
+		  " attribute-flags" );
 	    return true;
 	}
     }
+    else if ( ! ( first->next->type == PAR::DERIVED
+                  &&
+		  min::is_preallocated ( ID_gen  ) ) )
+        return true;
+
+    PAR::token vector_end = next;
+    min::gen v = next->previous->value;
+    if ( min::is_obj ( v )
+         &&
+	    min::get ( v, min::dot_terminator )
+	 == min::INDENTED_PARAGRAPH()
+	 &&
+	    min::get ( v, min::dot_initiator )
+	 == args[ATTRIBUTE_INITIATOR] )
+        vector_end = next->previous;
 
     min::phrase_position ID_position =
         first->next->position;
     min::position end_position =
         next->previous->position.end;
-    min::locatable_gen ID_gen ( first->next->value );
 
     PAR::free ( PAR::remove ( first_ref(parser),
 			      first->next  ) );
@@ -5276,7 +5259,7 @@ static bool data_reformatter_function
     // finish up.
     //
     if (    fvpsize == 1
-         && attributes == next
+         && vector_end == next
 	 && min::is_preallocated ( ID_gen ) )
     {
 	PAR::value_ref(first) = fvp[0];
@@ -5318,10 +5301,10 @@ static bool data_reformatter_function
             ( min::get ( fap ) );
 
     min::unsptr asize = 0;
-    if ( attributes != next )
+    if ( vector_end != next )
     {
 	idppvec->position.end = end_position;
-        min::obj_vec_ptr paragraph ( attributes->value);
+        min::obj_vec_ptr paragraph ( vector_end->value);
 	asize = min::size_of ( paragraph );
     }
 
@@ -5341,21 +5324,10 @@ static bool data_reformatter_function
     min::set_flag
         ( idap, min::standard_attr_hide_flag );
 
-    while ( attributes != next )
+    if ( vector_end != next )
     {
-	unsigned option =
-	    ( sign == args[NEW_SIGN] ?
-	          PAR::NEW :
-	      sign == args[NEW_OR_SAME_SIGN] ?
-	          PAR::NEW_OR_SAME :
-	      sign == args[ADD_TO_SET_SIGN] ?
-	          PAR::ADD_TO_SET :
-	      sign == args[ADD_TO_MULTISET_SIGN] ?
-	          PAR::ADD_TO_MULTISET : 0xFF );
-	MIN_REQUIRE ( option != 0xFF );
-
         min::obj_vec_ptr paragraph
-	    ( attributes->value );
+	    ( vector_end->value );
 	for ( min::uns32 i = 0;
 	      i < min::size_of ( paragraph ); ++ i )
         {
@@ -5420,8 +5392,8 @@ static bool data_reformatter_function
 		}
 	    }
 
-	    if (    j < lsize && line[j]
-	         != args[EQUAL_SIGN] )
+	    if (    j < lsize
+	         && line[j] != args[EQUAL_SIGN] )
 	    {
 		PAR::parse_error
 		    ( parser, lppvec[j],
@@ -5550,13 +5522,17 @@ static bool data_reformatter_function
 
 	    if ( flags != min::MISSING() )
 		PAR::set_attr_flags
-		    ( parser, idap, flags, option );
+		    ( parser, idap, flags );
 
 	    if ( ! has_value ) continue;
 
+	    unsigned option = PAR::NEW;
 	    if ( reverse_name != min::MISSING() )
+	    {
 	        min::locate_reverse
 		    ( idap, reverse_name );
+		option = PAR::ADD_TO_SET;
+	    }
 
 	    if ( ! is_multivalue )    
 		PAR::set_attr_value
@@ -5564,22 +5540,13 @@ static bool data_reformatter_function
 		      option );
 	    else
 		PAR::set_attr_multivalue
-		    ( parser, idap, value, option );
+		    ( parser, idap, value,
+		      option );
 	}
 	
-	attributes = attributes->next;
 	PAR::free
 	    ( PAR::remove ( first_ref(parser),
-			    attributes->previous ) );
-	if ( attributes != next )
-	{
-	    sign = attributes->value;
-	    attributes = attributes->next;
-	    PAR::free
-		( PAR::remove
-		      ( first_ref(parser),
-			attributes->previous ) );
-	}
+			    next->previous ) );
     }
 
     PAR::value_ref(first) = ID_gen;
@@ -5685,7 +5652,7 @@ static void bracket_type_reformatter_stack_initialize
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( data_name, 8, 8,
+        ( data_name, 6, 6,
 	  ::data_reformatter_function,
 	  BRA::bracket_type_reformatter_stack );
 

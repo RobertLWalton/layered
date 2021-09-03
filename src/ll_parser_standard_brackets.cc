@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  7 13:30:52 EDT 2021
+// Date:	Fri Sep  3 02:36:15 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -388,11 +388,9 @@ static void define_bracket_types
 		<min::packed_vec_insptr<min::gen> >
 	    data_arguments
 		( min::gen_packed_vec_type
-		           .new_stub ( 8 ) );
+		           .new_stub ( 6 ) );
 	min::push ( data_arguments ) = PARLEX::equal;
-	min::push ( data_arguments ) = equal_equal;
-	min::push ( data_arguments ) = plus_equal;
-	min::push ( data_arguments ) = plus_plus_equal;
+	min::push ( data_arguments ) = PARLEX::colon;
 	min::push ( data_arguments ) = PARLEX::equal;
 	min::push ( data_arguments ) = PARLEX::no;
 	min::push ( data_arguments ) =

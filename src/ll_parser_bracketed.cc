@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 02:59:23 EDT 2021
+// Date:	Sat Sep  4 10:52:53 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3356,18 +3356,14 @@ NEXT_TOKEN:
 	    {
 	        value_ref(current->previous) =
 		    min::new_num_gen ( val );
-		current->previous->type = PAR::NUMBER;
-		if ( isdigit ( sp[0] ) )
-		{
-		    min::int64 ival;
-		    i = 0;
-		    min::strto ( ival, sp, i );
-		    if ( i == length
-		         &&
-			 ival == val )
-			current->previous->type =
-			    LEXSTD::natural_t;
-		}
+		if (    0 <= val
+		     && val <= PAR::MAX_NATURAL
+		     && (min::int64) val == val )
+		    current->previous->type =
+			LEXSTD::natural_t;
+		else
+		    current->previous->type =
+		        PAR::NUMBER;
 	    }
 	}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 05:42:46 EDT 2021
+// Date:	Sat Sep  4 10:47:45 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -186,6 +186,12 @@ inline bool is_lexeme ( min::uns32 token_type )
 {
     return token_type <= MAX_LEXEME;
 }
+
+const min::float64 MAX_NATURAL = 1e15 - 1;
+    // A MIN number token value is a natural_t iff
+    // it encodes an integer in the range
+    // [0, MAX_NATURAL].
+
 struct token_struct
 {
     uns32 control;
@@ -1547,8 +1553,9 @@ inline min::uns32 lexical_type_of ( min::gen g )
     if ( is_num ( g ) )
     {
 	min::float64 f = min::float_of ( g );
-	min::int64 i = (min::int64) f;
-	if ( i >= 0 && i == f )
+	if ( 0 <= f && f <= MAX_NATURAL
+	     &&
+	     (min::int64) f == f )
 	    return ll::lexeme::standard::natural_t;
 	else
 	    return ll::parser::NUMBER;

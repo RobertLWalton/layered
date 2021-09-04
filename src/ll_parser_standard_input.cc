@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  1 05:02:08 EDT 2021
+// Date:	Sat Sep  4 10:48:20 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -358,17 +358,12 @@ SCAN_NEXT_LEXEME:
 	    {
 	        value_ref(token) =
 		    min::new_num_gen ( val );
-		token->type = PAR::NUMBER;
-		if ( type == LEXSTD::natural_t )
-		{
-		    min::int64 ival;
-		    i = 0;
-		    min::strto ( ival, sp, i );
-		    if ( i == length
-		         &&
-			 ival == val )
-			token->type = LEXSTD::natural_t;
-		}
+		if (    0 <= val
+		     && val <= PAR::MAX_NATURAL
+		     && (min::int64) val == val )
+		    token->type = LEXSTD::natural_t;
+		else
+		    token->type = PAR::NUMBER;
 	    }
 	    else
 	        token->type = LEXSTD::numeric_t;

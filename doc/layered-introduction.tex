@@ -2098,20 +2098,19 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-
 		& Standardly, the lexeme characters of a
-		  natural or numeric lexeme are converted to
+		  natural-number or numeric lexeme are converted to
 		  a MIN number token \TT{value} using the POSIX {\tt strtod}
 		  function, if that conversion is possible.
 		  If the conversion is possible, and
-		  the translation string contains nothing but
-		  ASCII digits, and conversion by the POSIX
-		  {\tt strtoll} function is possible and gives equal results
-		  (i.e., the number fits into an IEEE double
-		  without losing any significant digits), the token
-		  is given the \TT{natural} lexeme type;
+		  the resulting number is a non-negative integer exactly
+		  representable by no more than 15 digits, the token
+		  is given the \TT{natural-number} lexeme type;
 		  otherwise if conversion to a MIN number is possible
-		  the token is given the \TT{NUMBER} type;
+		  the token is given the \TT{NUMBER} type and
+		  is designated to be a \key{number lexeme} token
+		  (even though it is not a lexeme from the point of
+		  view of the lexical scanner);
 		  lastly if conversion to a MIN number is \underline{not}
 		  possible the token is given the \TT{numeric}
 		  lexeme type and a \TT{value} that is the
@@ -2119,13 +2118,28 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Note that {\tt strtod} cannot convert values too
-		  large to represent in a \underline{finite}
-		  MIN number (which is
-		  an IEEE 64-bit number), nor can it
-		  convert non-zero numbers too small to represent
-		  in a MIN number.  For example, it cannot convert
-		  {\tt 1e+500} or {\tt 1e-500}.
+		& Note that if the numeric value of the string of
+		  lexeme characters is too large (e.g., \TT{"1e+500"}),
+		  {\tt strtod} will
+		  return a MIN number value equal to plus or minus
+		  infinity, and if the value is non-zero but too small
+		  to be represented (e.g., \TT{"1e-500"}),
+		  {\tt strtod} will return \TT{0}.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& Note that natural-number and number lexemes have MIN number
+		  values that do not precisely represent the character
+		  string of the lexeme.  Thus \TT{"01"} and \TT{"1"}
+		  both have MIN number \TT{1} as a value, and
+		  \TT{"1e1"} and \TT{"10"} both have MIN number \TT{10}
+		  as a value.  Note all these examples, even
+		  \TT{"1e1"}, are natural-number lexemes and not number lexemes.
+		  This allows the lexical type of a lexeme to be
+		  determined from its value, which is necessary
+		  when scanning lexemes into names and labels after
+		  the lexemes are no longer tokens but have become
+		  vector elements.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2268,7 +2282,7 @@ A token has the following components:
 \begin{tabular}{p{1in}p{4.5in}}
 \ttmkey{value}{of token}
 		& The token \TT{value}, as described above.  This is
-		  a MIN string, label, special value, or object.
+		  a MIN string, number, label, special value, or object.
 		  For tokens that do not have \TT{value}'s, this is \TT{MISSING}
 		  (but for \TT{DERIVED} type tokens the token my have
 		  a \TT{value} that equals \TT{MISSING}).
@@ -2277,17 +2291,7 @@ A token has the following components:
                   this is the translation string of the lexeme,
 		  i.e., the string represented by the lexeme,
 		  and not the lexeme itself.
-\\[1ex]
-		& Note that natural-numbers and numerics
-		  have token \TT{value}'s that are MIN
-		  strings equal to their lexemes,
-		  and are \underline{not} MIN numbers.
-		  This allows very large number lexemes,
-		  and does not try to exploit the 1-1 correspondence
-		  between not-too-large natural-number lexemes and
-		  non-negative integral MIN numbers.  It means that
-		  equal natural numbers with differing numbers of
-		  leading zeros are different symbols (see \pagref{SYMBOL}).
+
 \end{tabular}
 \\[1ex]
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2851,7 +2855,7 @@ components:
 		& A non-empty
 		  sequence of `symbols' that identifies the definition.
 \\[1ex]
-		& A \key{symbol}\label{SYMBOL} is a MIN string equal to the
+		& A \key{symbol} is a MIN string equal to the
 		  lexeme string of a word, mark, separator,
 		  or natural-number lexeme.  Quoted string, numeric,
 		  and number lexemes are not symbols.
@@ -3049,9 +3053,11 @@ physical line, and the indented logical lines that follow are
 \emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em natural-number}
             \}\STAR{}
 \\[0.0ex]
-\emkey{key}\label{KEY}
-    ::= \{ {\em separator} $|$ {\em mark} $|$ {\em word}
-                           $|$ {\em natural-number} \}\PLUS{}
+\emkey{key}\label{KEY} ::= {\em symbol}\PLUS{}
+\\[0.0ex]
+\emkey{symbol}\label{SYMBOL}
+    ::= {\em separator} $|$ {\em mark} $|$ {\em word}
+                        $|$ {\em natural-number}
 \\[0.0ex]
 \emkey{quoted-key}\label{QUOTED-KEY}
     :::= \TT{"}{\em key}\TT{"}
@@ -5616,7 +5622,7 @@ The general syntax is:
 \\[0.5ex]
 \emkey{label-component} ::=
     \begin{tabular}[t]{@{}l}
-    {\em word} $|$ {\em natural-number}
+    {\em word} $|$ {\em natural-number} $|$ {\em number}
                $|$ {\em numeric} $|$ {\em quoted-string} \\
     but \underline{not} {\em mark} or {\em separator} \\
     \end{tabular}

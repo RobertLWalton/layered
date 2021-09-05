@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  4 15:12:31 EDT 2021
+// Date:	Sun Sep  5 15:07:18 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2144,10 +2144,17 @@ min::gen scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::gen end_value = min::NONE() );
 
-// Like scan_simple_name but accepts words, numbers,
-// numerics, and quoted strings as name components.
-// Replaces numerics and quoted strings by their values
-// (which are MIN strings).
+// Like scan_simple_name but accepts words, naturals,
+// numbers, numerics, and quoted strings as label
+// components.  Replaces numerics and quoted strings
+// by their values (which are MIN strings).
+//
+min::gen scan_value
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value = min::NONE() );
+
+// Like scan_value but requires label to begin
+// with a component that is not a natural or number.
 //
 min::gen scan_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,

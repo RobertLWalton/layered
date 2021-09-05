@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  4 15:21:14 EDT 2021
+// Date:	Sun Sep  5 15:27:02 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5470,11 +5470,11 @@ static bool data_reformatter_function
 	    }
 	    else if ( j + 2 < lsize )
 	    {
-	        // Multi-token value, i.e., a label.
+	        // Multi-token value, i.e., a MIN label.
 		//
 		has_value = true;
 		min::uns32 saved_j = j ++;
-		value = PAR::scan_label ( line, j );
+		value = PAR::scan_value ( line, j );
 		if ( value == min::MISSING() )
 		{
 		    PAR::parse_error

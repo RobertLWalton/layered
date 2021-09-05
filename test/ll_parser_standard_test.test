@@ -50,3 +50,21 @@ BRACKETED EXPRESSION:
     ID 60 is {"": a = @@ = b, d = @@ = c}
 BRACKETED EXPRESSION:
     ID 61 is {"": a = @@ = b}
+BRACKETED EXPRESSION:
+    ID 70 is {"": e 22.99 = 5, a = [< b 55.44 >], c = @@ = d 77.33}
+ERROR: in line ##: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    2 = X
+    ^^^^^
+ERROR: in line ##: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    6 = Z
+    ^^^^^
+ERROR: in line ##: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    7.1 = Q
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    ID 80 is
+        {"": "8.4.5" = P, F = [< 1 2 3 >], "4" = Y, G = [< M N P >]|A B
+             C D E|}

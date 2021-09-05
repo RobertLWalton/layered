@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  4 22:50:18 EDT 2021
+// Date:	Sun Sep  5 14:57:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2638,17 +2638,19 @@ min::gen PAR::scan_simple_name
     return min::new_lab_gen ( elements, i - j );
 }
 
-min::gen PAR::scan_label
+static min::gen scan_value_or_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value )
+	  min::gen end_value, bool is_value )
 {
     min::uns32 initial_i = i;
     min::uns32 s = min::size_of ( vp );
-    min::uns64 accepted_types =
-          1ull << LEXSTD::word_t
-	| 1ull << LEXSTD::natural_t
-	| 1ull << LEXSTD::numeric_t
-	| 1ull << PAR::NUMBER;
+    min::uns64 accepted_types = 1ull << LEXSTD::word_t;
+        // Quoted strings and numerics are always
+	// accepted; see below.
+    if ( is_value )
+	accepted_types |=
+	      1ull << LEXSTD::natural_t
+	    | 1ull << PAR::NUMBER;
 
     min::gen elements[s];
     min::uns32 j = 0;
@@ -2680,11 +2682,30 @@ min::gen PAR::scan_label
 	        break;
 	}
 	++ i;
+	accepted_types |=
+	      1ull << LEXSTD::natural_t
+	    | 1ull << PAR::NUMBER;
     }
 
     if ( i == initial_i ) return min::MISSING();
     else if ( i == initial_i + 1 ) return elements[0];
     return min::new_lab_gen ( elements, j );
+}
+
+min::gen PAR::scan_value
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value )
+{
+    return ::scan_value_or_label
+        ( vp, i, end_value, true );
+}
+
+min::gen PAR::scan_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value )
+{
+    return ::scan_value_or_label
+        ( vp, i, end_value, false );
 }
 
 min::gen PAR::scan_quoted_key

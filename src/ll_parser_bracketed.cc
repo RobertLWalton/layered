@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  4 10:52:53 EDT 2021
+// Date:	Sat Sep  4 15:21:14 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7177,6 +7177,7 @@ static min::gen bracketed_pass_command
 		      PAR::QUOTED_KEY_SCAN_MASK,
 		      PAR::IGNORED_SCAN_MASK,
 		      PAR::END_SCAN_MASK,
+		      PAR::NUMBER_SCAN_MASK,
 		      false ) );
 
 	    if ( ! min::is_str ( double_middle ) )

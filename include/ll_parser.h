@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  4 10:47:45 EDT 2021
+// Date:	Sat Sep  4 15:12:31 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2042,10 +2042,8 @@ bool is_prefix_separator ( min::gen v );
 // Scan type masks:
 //
 const min::uns64 QUOTED_KEY_SCAN_MASK =
-      ( 1ull << ll::lexeme::standard::mark_t )
-    + ( 1ull << ll::lexeme::standard::separator_t )
-    + ( 1ull << ll::lexeme::standard::word_t )
-    + ( 1ull << ll::lexeme::standard::natural_t );
+      ll::lexeme::standard::symbol_mask;
+      // Word, natural, mark, separator.
 const min::uns64 IGNORED_SCAN_MASK =
       ( 1ull << ll::lexeme::standard
                           ::horizontal_space_t )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  5 14:57:25 EDT 2021
+// Date:	Mon Sep  6 03:39:57 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1665,19 +1665,7 @@ TAB::key_prefix PAR::find_key_prefix
 	    break;
 
 	min::gen e = current->value;
-	uns32 hash;
-	if ( min::is_str ( e ) )
-	    hash = min::strhash ( e );
-	else if ( min::is_num ( e ) )
-	{
-	    min::int64 v =
-	        (min::int64) min::float_of ( e );
-	    if ( v < 0 || (1ll<<28) < v )
-	        break;
-	    hash = min::numhash ( e );
-	}
-	else
-	    MIN_ABORT ( "bad key element type" );
+	uns32 hash = min::hash ( e );
 
 	// Compute hash of this element's key prefix.
 	//

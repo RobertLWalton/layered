@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 5, 2021
+September 6, 2021
  
 \end{center}
 
@@ -2856,8 +2856,9 @@ components:
 		  sequence of `symbols' that identifies the definition.
 \\[1ex]
 		& A \key{symbol} is a MIN string equal to the
-		  lexeme string of a word, mark, separator,
-		  or natural-number lexeme.  Quoted string, numeric,
+		  lexeme string of a word, mark, or separator lexeme,
+		  or a MIN number that is the conversion of the lexeme
+		  string of a natural-number lexeme.  Quoted string, numeric,
 		  and number lexemes are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
@@ -2901,9 +2902,8 @@ that is part of a line (for the bracketed subexpression recognition pass)
 or subexpression (for other passes), and finds an active symbol table
 entry with a label whose symbols match an initial segment of the
 token sequence.  Only symbol tokens, with lexeme types word,
-mark, separator, or natural-number, can match label symbols.  These are just
-the token types that have values which are MIN strings equal to the
-translation strings of their lexemes, and it is these values that
+mark, separator, or natural-number, can match label symbols.
+These symbols
 are matched for equality with the table entry label symbols.
 When a match is found,
 the initial segment of tokens used in the match is called
@@ -4548,21 +4548,20 @@ whose \TT{.type} is \TT{"<Q>"} for a quoted string or \TT{\#} for
 a numeric, and whose single element is a MIN string equal to the
 the token \TT{value}.
 
-Note that natural-numbers, consisting of just decimal digits
-with no leading zeros, are not numeric lexemes, and have MIN string
-token values equal to the lexeme (the string of digits).  This allows
-arbitrarily long natural-numbers to be used in names.
+Note that natural-number token values are MIN numbers that
+are conversions of their lexeme string and not identical
+to this string.
 
 Thus for example, the parser input
 \begin{center}
-\tt \{| 98765432109876543210 "HELLO" 3.4 |\}
+\tt \{| 005 "HELLO" 3.4 |\}
 \end{center}
 produces a \TT{BRACKETED} token whose \TT{value} is a MIN object with
 \underline{no} attributes and with the three elements that
 can be represented as:
 \begin{center}
 \begin{tabular}{lll}
-\TT{98765432109876543210}	& MIN string	& from natural number token \\
+\TT{5}	                        & MIN number	& from natural number token \\
 \TT{\{"<Q>"| HELLO |\}}		& MIN object	& from quoted string token \\
 \TT{\{\# 3.4 \#\}} or \TT{\{"\#"| 3.4 |\}}
 				& MIN object	& from numeric token \\
@@ -4878,10 +4877,12 @@ represented by an {\em untyped-bracketed-subexpression}:
 
 \begin{indpar}[0.5em]
 Requires that the subexpression elements be {\em words},
-{\em natural-numbers}, {\em numerics}, {\em quoted-strings},
+{\em natural-numbers}, {\em numbers}, {\em numerics}, {\em quoted-strings},
 or MIN label values.
-The value of an element is taken to be the MIN string containing the
-element lexeme or the MIN label value of a non-lexeme element.
+The value of an element is taken to be the MIN string equal to the lexeme
+string, the MIN number converted from the lexeme's string
+(for {\em natural-numbers} and {\em numbers}),
+or the MIN label value of a non-lexeme element.
 
 The subexpression is converted to a \TT{DERIVED}
 token whose \TT{value} is the value of the single element
@@ -4907,7 +4908,7 @@ token whose \TT{value} is the special value named.
 
 \begin{indpar}[0.5em]
 Requires that the subexpression elements be {\em words},
-{\em natural-numbers}, {\em numerics}, {\em quoted-strings},
+{\em natural-numbers}, {\em numbers}, {\em numerics}, {\em quoted-strings},
 or equal to the
 {\em separator} argument (e.g.~\TT{","}).
 
@@ -5456,17 +5457,19 @@ at the end than it does at the beginning:
 \TT{\{my option|a b c|your option\}} \\
 \end{center}
 
-A type, attribute label, or attribute value may be a label,
+A type or attribute label may be a label,
 which is a sequence
-of one or more words, natural-numbers, numerics, and quoted strings, each
-representing a MIN string.  Note that marks and separators must be quoted.
+of one or more words, natural-numbers, numbers, numerics, and quoted strings,
+not beginning with a natural-number or number.
+Note that marks and separators must be quoted.
 If there is only
 one element in the sequence, the MIN string it represents is the
 label, but if there is more than one element, the elements
 are concatenated into a MIN label.
 
-Attribute values may alternatively be bracketed subexpressions.
-In this case, the attribute value is the bracketed subexpression,
+Attribute values are similar but may begin with a natural-number
+or number, and may alternatively be bracketed subexpressions.
+In this last case, the attribute value is the bracketed subexpression,
 with one exception.
 
 The exception is that when the brackets are `\TT{\{*~*\}}',
@@ -5474,8 +5477,9 @@ the comma
 separated elements of the bracketed subexpression are each a
 distinct value of the attribute, which has a multi-set of values.
 Elements must be single bracketed subexpressions,
-words, natural-numbers, numerics, and quoted strings that are made into
-MIN strings, or sequences of words, natural-numbers, numerics, and
+words, natural-numbers, numbers, numerics, or quoted strings that are made into
+MIN strings or MIN numbers,
+or sequences of words, natural-numbers, numbers, numerics, and
 quoted strings that are made into
 labels.  Missing elements, as indicated by the commas, are ignored,
 If there are no values, as in `\TT{\{* *\}}' or `\TT{\{* , *\}}',

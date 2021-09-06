@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 4, 2021
+September 5, 2021
  
 \end{center}
 
@@ -5618,7 +5618,8 @@ The general syntax is:
 		        {\em attribute-label} \\
 		  \end{tabular}
 \\[0.5ex]
-\emkey{label} ::= {\em label-component}\PLUS{}
+\emkey{label} ::= \{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string} \}
+                  ~ {\em label-component}\STAR{}
 \\[0.5ex]
 \emkey{label-component} ::=
     \begin{tabular}[t]{@{}l}
@@ -5689,7 +5690,8 @@ The general syntax is:
     (\pagref{MULTIVALUE-REFORMATTER})
     \end{tabular}
 \\[0.5ex]
-\emkey{value} ::= {\em label} $|$ {\em bracketed-subexpression}
+\emkey{value} ::= {\em label-component}\PLUS{}
+              $|$ {\em bracketed-subexpression}
 \\[0.5ex]
 \emkey{object-id} ::= \begin{tabular}[t]{l}
                       \ttmkey{@}{in object ID} {\em natural-number} \\

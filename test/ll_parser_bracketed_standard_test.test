@@ -1299,7 +1299,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: empty attribute label; attribute ignored:
+ERROR: in line ##: illegal attribute label `'; attribute ignored:
 {P:}
    ^
 PREFIX EXPRESSION:
@@ -1338,7 +1338,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ")"
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
 ({P2:)
      ^
-ERROR: in line ##: empty attribute label; attribute ignored:
+ERROR: in line ##: illegal attribute label `'; attribute ignored:
 ({P2:)
      ^
 PREFIX EXPRESSION:
@@ -1381,7 +1381,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ")"
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
 ({:)
    ^
-ERROR: in line ##: empty attribute label; attribute ignored:
+ERROR: in line ##: illegal attribute label `'; attribute ignored:
 ({:)
    ^
 PURELIST EXPRESSION:
@@ -3206,7 +3206,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ###: empty attribute label; attribute ignored:
+ERROR: in line ###: illegal attribute label `'; attribute ignored:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -3250,7 +3250,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ###: empty attribute label; attribute ignored:
+ERROR: in line ###: illegal attribute label `'; attribute ignored:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
                     ^
 BRACKETED EXPRESSION:

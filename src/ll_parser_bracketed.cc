@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  5 15:27:02 EDT 2021
+// Date:	Tue Sep  7 00:47:45 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1437,7 +1437,7 @@ bool BRA::parse_paragraph_element
 // namespace.
 
 // Given the token sequence from `first' to `next', make
-// a label containing these tokens.  Convert quoted
+// a MIN label containing these tokens.  Convert quoted
 // string tokens to strings.  Announce non-name compon-
 // ents as errors and ignore them.  If allow_sublabels
 // is false, also treat components that are themselves
@@ -1953,6 +1953,18 @@ inline bool at_end ( const char * s, min::gen g,
     min::uns32 m = strlen ( t );
     if ( m <= n ) return false;
     return strcmp ( t + m - n, s ) == 0;
+}
+
+// Check whether lab, which is a MIN label or a legal
+// component of a MIN label, is a LL Parser label.
+//
+inline bool is_label ( min::gen lab )
+{
+    if ( min::is_num ( lab ) ) return false;
+    min::lab_ptr labp ( lab );
+    if ( labp == min::NULL_STUB ) return true;
+    if ( min::lablen ( labp ) == 0 ) return false;
+    return ! min::is_num ( labp[0] );
 }
 
 min::position BRA::parse_bracketed_subexpression
@@ -3902,30 +3914,45 @@ NEXT_TOKEN:
 		{
 		    if ( t->type == BRA::TYPE )
 		    {
-			MIN_REQUIRE
-			 ( i < tdata.attr_count );
-			attributes[i].name =
-			    min::dot_type;
-			attributes[i].value =
-			    t->value;
-			attributes[i].value_pos =
-			    t->position;
-			type = t->value;
-			++ i;
-			skip = true;
-		    }
-		    else if (    t->type
-			      == BRA::ATTR_LABEL )
-		    {
-			if (    t->value
-			     == min::empty_lab )
+		        if ( ! ::is_label ( t->value ) )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "empty attribute"
-				  " label;"
-				  " attribute"
+				  "illegal type `", 
+				  min::pgen_never_quote
+				      ( t->value ),
+				  "'; type ignored" );
+			    skip = true;
+			}
+			else
+			{
+			    MIN_REQUIRE
+			     ( i < tdata.attr_count );
+			    attributes[i].name =
+				min::dot_type;
+			    attributes[i].value =
+				t->value;
+			    attributes[i].value_pos =
+				t->position;
+			    type = t->value;
+			    ++ i;
+			    skip = true;
+			}
+		    }
+		    else if (    t->type
+			      == BRA::ATTR_LABEL )
+		    {
+			if ( ! is_label ( t->value ) )
+			{
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "illegal attribute"
+				  " label `",
+				  min::pgen_never_quote
+				      ( t->value ),
+				  "'; attribute"
 				  " ignored" );
 			    skip = true;
 			}
@@ -3943,15 +3970,16 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_TRUE )
 		    {
-			if (    t->value
-			     == min::empty_lab )
+			if ( ! is_label ( t->value ) )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "empty attribute"
-				  " label;"
-				  " attribute"
+				  "illegal attribute"
+				  " label `",
+				  min::pgen_never_quote
+				      ( t->value ),
+				  "'; attribute"
 				  " ignored" );
 			    skip = true;
 			}
@@ -3973,15 +4001,16 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_FALSE )
 		    {
-			if (    t->value
-			     == min::empty_lab )
+			if ( ! is_label ( t->value ) )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "empty attribute"
-				  " label;"
-				  " attribute"
+				  "illegal attribute"
+				  " label `",
+				  min::pgen_never_quote
+				      ( t->value ),
+				  "'; attribute"
 				  " ignored" );
 			    skip = true;
 			}
@@ -4040,8 +4069,25 @@ NEXT_TOKEN:
 			    t->value;
 		    else if (    t->type
 			      == BRA::ATTR_REVERSE )
-			attributes[i-1].reverse_name =
-			    t->value;
+		    {
+			if ( ! is_label ( t->value ) )
+			{
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "illegal attribute"
+				  " label `",
+				  min::pgen_never_quote
+				      ( t->value ),
+				  "'; attribute"
+				  " ignored" );
+			    -- i;
+			}
+			else
+			    attributes[i-1]
+			        .reverse_name =
+				    t->value;
+		    }
 		}
 
 		min::uns32 token_type =

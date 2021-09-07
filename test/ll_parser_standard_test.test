@@ -40,12 +40,15 @@ WARNING: in line ##: name element "." is a mark or separator and
          therefore should be quoted:
           f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
                  ^
+ERROR: in line ##: illegal attribute label `98.21'; attribute ignored:
+          d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
+                                      ^^^^^
 BRACKETED EXPRESSION:
     ID 50 is
         {x: h = [< [< m n >] p >], "," = ":", d = ppp, e =
-            [< ppp qqq >], a = "quoted string", "." = 99, f = ";",
-            98.21 = hi, b = 53.91, g = [< [< m n >] p >], c =
-            [< yyy 53.91 >]|"quoted string" 53.91 99 ";" foo|x}
+            [< ppp qqq >], a = "quoted string", "." = 99, f = ";", b =
+            53.91, g = [< [< m n >] p >], c = [< yyy 53.91 >]|
+            "quoted string" 53.91 99 ";" foo|x}
 BRACKETED EXPRESSION:
     ID 60 is {"": a = @@ = b, d = @@ = c}
 BRACKETED EXPRESSION:

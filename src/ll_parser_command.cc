@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  1 05:38:23 EDT 2021
+// Date:	Wed Sep  8 14:55:32 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1532,7 +1532,8 @@ static min::gen execute_ID_character
 	    << min::bom << min::no_auto_break
 	    << min::set_indent ( indent + 4 );
 
-	min::Uchar ID_character = parser->ID_character;
+	min::Uchar ID_character =
+	    parser->id_map->ID_character;
 	for ( min::uns32 i =
 		  parser->block_stack->length;
 	      ; -- i )
@@ -1620,7 +1621,8 @@ static min::gen execute_ID_character
 	    ( parser, ppvec[i],
 	      "unexpected stuff after" );
 
-    parser->ID_character = ID_character;
+    * (min::Uchar *) & parser->id_map->ID_character =
+          ID_character;
 
     return min::SUCCESS();
 }

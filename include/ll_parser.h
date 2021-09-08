@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  5 15:07:18 EDT 2021
+// Date:	Wed Sep  8 14:53:11 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1112,17 +1112,9 @@ struct parser_struct
 
     const min::id_map id_map;
         // Map of input ID's (as in @ID) to stubs.
-
-    Uchar ID_character;
-        // Character used as the first character of a
-	// numeric ID lexeme which has the form:
 	//
-	//     ID_character digit+
-	//
-	// where the digit+ cannot have a leading 0.
-	//
-	// Equals min::NO_UCHAR if ID lexemes are
-	// disabled.
+	// id_map->ID_character equals min::NO_UCHAR
+	// if ID lexemes are disabled.
 
     const ll::parser::table::lexeme_map lexeme_map;
 	// lexeme_map[t] is the stack of lexeme map

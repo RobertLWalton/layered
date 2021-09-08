@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 16:51:12 EDT 2021
+// Date:	Wed Sep  8 14:56:23 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -321,7 +321,8 @@ static void define_top_level
 
     if ( components & PARSTD::ID )
     {
-	parser->ID_character = '@';
+	* (min::Uchar *) & parser->id_map
+	                         ->ID_character = '@';
 
 	min::locatable_gen data_check
 	    ( min::new_str_gen ( "DATA-CHECK" ) );

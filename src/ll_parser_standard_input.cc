@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  4 10:48:20 EDT 2021
+// Date:	Wed Sep  8 10:42:14 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,7 +166,8 @@ static min::uns32 input_add_tokens
     min::locatable_var<PAR::token> token;
     TAB::lexeme_map lexeme_map = parser->lexeme_map;
     min::uns32 lexeme_map_length = lexeme_map->length;
-    min::Uchar ID_character = parser->ID_character;
+    min::Uchar ID_character =
+        parser->id_map->ID_character;
     TAB::flags selectors = parser->selectors;
     while ( true )
     {

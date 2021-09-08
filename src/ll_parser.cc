@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  6 03:39:57 EDT 2021
+// Date:	Wed Sep  8 10:42:27 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -736,7 +736,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		        ::keys ) );
 
 	min::init ( id_map_ref ( parser ) );
-	parser->ID_character = min::NO_UCHAR;
+	* (min::Uchar *) & parser->id_map
+	                         ->ID_character =
+	    min::NO_UCHAR;
 
 	TAB::init_undefined_stack
 	    ( undefined_stack_ref(parser) );
@@ -1530,7 +1532,7 @@ min::gen PAR::begin_block
 		      parser->
 		          top_level_indentation_mark,
 		      parser->trace_flags,
-		      parser->ID_character );
+		      parser->id_map->ID_character );
 
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
@@ -1638,7 +1640,8 @@ min::gen PAR::end_block
 	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
     parser->trace_flags = (&b)->saved_trace_flags;
-    parser->ID_character = (&b)->saved_ID_character;
+    * (min::Uchar *) & parser->id_map->ID_character =
+        (&b)->saved_ID_character;
 
     min::pop ( parser->block_stack );
 

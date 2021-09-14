@@ -2,14 +2,12 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon May  3 05:35:46 EDT 2021
+# Date:		Thu Sep  9 04:54:53 EDT 2021
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
 # for this program.
 
-# We need the following to mask RCS lines
-#
 D = $$
 
 # The following locates the MIN source code.
@@ -27,6 +25,8 @@ WFLAGS = -Wall -Wno-char-subscripts
 # O3 is needed to inline functions.
 #
 OPTIMIZE = -O3
+
+DIFFOPT ?= -u
 
 LEXEME_TESTS = ll_lexeme_basic_test \
                ll_lexeme_standard_basic_test \
@@ -128,9 +128,6 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
-	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
-	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/^[ \t]*<..*>  *<..*>  *<..*>$D/d' \
             < $*.out > $*.test
 
@@ -159,11 +156,8 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
-	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
-	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/^[ \t]*<..*>  *<..*>  *<..*>$D/d' \
-            < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
+            < $*.out | diff ${DIFFOPT} $*.test -
 
 %.out:	%
 	rm -f $*.out

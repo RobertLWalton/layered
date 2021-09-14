@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 15:57:26 EDT 2021
+// Date:	Tue Sep 14 12:48:38 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -172,8 +172,7 @@ inline min::gen get_lexical_master
 //
 min::gen scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-          min::ref< min::packed_vec_ptr<min::gen> >
-	      arg_vec,
+          min::locatable_gen & args,
 	  ll::parser::parser parser );
 
 // If vp[i] is a []-bracketed subexpression, treat it

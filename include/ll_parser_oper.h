@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 26 13:17:36 EDT 2021
+// Date:	Tue Sep 14 13:35:14 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,8 +110,7 @@ struct oper_struct
 	// oper_table).
     ll::parser::reformatter reformatter;
     	// NULL_STUB if none.
-    const ll::parser::reformatter_arguments
-    	    reformatter_arguments;
+    min::gen reformatter_arguments;
         // Vector of arguments each a min string or
 	// label.  NULL_STUB if none.
 };
@@ -122,8 +121,7 @@ MIN_REF ( min::gen, label, ll::parser::oper::oper )
 MIN_REF ( min::gen, terminator, ll::parser::oper::oper )
 MIN_REF ( ll::parser::reformatter, reformatter,
           ll::parser::oper::oper )
-MIN_REF ( ll::parser::reformatter_arguments,
-          reformatter_arguments,
+MIN_REF ( min::gen, reformatter_arguments,
 	  ll::parser::oper::oper )
 
 extern min::locatable_var<oper> end_oper;
@@ -143,8 +141,7 @@ void push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
+	  min::gen reformatter_arguments,
 	  ll::parser::table::key_table oper_table );
 
 // Operator Pass

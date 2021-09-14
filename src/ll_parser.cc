@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 10:42:27 EDT 2021
+// Date:	Tue Sep 14 16:52:43 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -986,12 +986,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    ( min::new_str_gen ( "multivalue" ) );
 	min::locatable_gen comma
 	    ( min::new_str_gen ( "," ) );
-	min::locatable_var
-		<min::packed_vec_insptr<min::gen> >
-	    multivalue_arguments
-		( min::gen_packed_vec_type
-		      .new_stub ( 1 ) );
-	min::push ( multivalue_arguments ) = comma;
+	min::locatable_gen multivalue_arguments
+	    ( min::new_obj_gen ( 1 ) );
+	min::obj_vec_insptr mvvp
+	    ( multivalue_arguments );
+	min::attr_push ( mvvp ) = comma;
 
 	BRA::push_brackets
 	    ( PARLEX::left_parenthesis,
@@ -999,7 +998,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      min::NULL_STUB, min::NULL_STUB,
+	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -1007,7 +1006,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      min::NULL_STUB, min::NULL_STUB,
+	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -1016,7 +1015,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      min::NULL_STUB, min::NULL_STUB,
+	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -1028,7 +1027,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	          ( PAR::ATOM_SELECTOR,
 		      PAR::COMMAND_SELECTORS
 		    ^ PAR::ATOM_SELECTOR ),
-	      min::NULL_STUB, min::NULL_STUB,
+	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -1037,7 +1036,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      min::NULL_STUB, min::NULL_STUB,
+	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -1063,7 +1062,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::find_reformatter
 		  ( label_name,
 		    BRA::untyped_reformatter_stack ),
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_brackets
@@ -1077,7 +1076,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::find_reformatter
 		  ( special_name,
 		    BRA::untyped_reformatter_stack ),
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_table );
 
 	BRA::push_typed_brackets

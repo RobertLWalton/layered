@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 16:14:19 EDT 2021
+// Date:	Tue Sep 14 17:13:04 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,19 +47,16 @@ static void define_control_operators
         PAR::find_reformatter
 	    ( OPLEX::control, OP::reformatter_stack );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        condition_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
-    min::push ( condition_arguments ) = PARLEX::colon;
-    min::push ( condition_arguments ) =
-        OPLEX::has_condition;
+    min::locatable_gen condition_arguments
+	    ( min::new_obj_gen ( 2 ) );
+    min::obj_vec_insptr cavp ( condition_arguments );
+    min::attr_push ( cavp ) = PARLEX::colon;
+    min::attr_push ( cavp ) = OPLEX::has_condition;
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        else_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( else_arguments ) = PARLEX::colon;
+    min::locatable_gen else_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr eavp ( else_arguments );
+    min::attr_push ( eavp ) = PARLEX::colon;
 
     min::locatable_gen if_name
         ( min::new_str_gen ( "if" ) );
@@ -139,7 +136,7 @@ static void define_control_operators
 	  OP::AFIX + OP::RIGHT + OP::LINE,
 	  0000,
 	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -150,7 +147,7 @@ static void define_control_operators
 	  OP::POSTFIX + OP::AFIX + OP::LINE,
 	  0000,
 	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_bracket_table );
 }
 
@@ -187,7 +184,7 @@ static void define_assignment_operators
 	  OP::INFIX,
 	  1000,
 	  binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     if ( code ) OP::push_oper
@@ -198,7 +195,7 @@ static void define_assignment_operators
 	  OP::INFIX + OP::LINE,
 	  1000,
 	  binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     min::locatable_gen comma
@@ -211,7 +208,7 @@ static void define_assignment_operators
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX,
 	  2000, separator_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 
@@ -237,12 +234,11 @@ static void define_selection_operators
     min::locatable_gen else_op
         ( min::new_str_gen ( "else" ) );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        selector_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
-    min::push ( selector_arguments ) = if_op;
-    min::push ( selector_arguments ) = else_op;
+    min::locatable_gen selector_arguments
+	    ( min::new_obj_gen ( 2 ) );
+    min::obj_vec_insptr savp ( selector_arguments );
+    min::attr_push ( savp ) = if_op;
+    min::attr_push ( savp ) = else_op;
 
     OP::push_oper
         ( if_op,
@@ -262,7 +258,7 @@ static void define_selection_operators
 	  OP::AFIX + OP::INFIX,
 	  3000,
 	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 
@@ -309,14 +305,13 @@ static void define_logical_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  4000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        and_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( and_arguments ) = and_op;
+    min::locatable_gen and_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr aavp ( and_arguments );
+    min::attr_push ( aavp ) = and_op;
 
     OP::push_oper
         ( and_op,
@@ -328,11 +323,10 @@ static void define_logical_operators
 	  and_arguments,
 	  oper_pass->oper_table );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        or_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( or_arguments ) = or_op;
+    min::locatable_gen or_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr oavp ( or_arguments );
+    min::attr_push ( oavp ) = or_op;
 
     OP::push_oper
         ( or_op,
@@ -351,7 +345,7 @@ static void define_logical_operators
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
 	  4200, unary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 
@@ -392,7 +386,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -402,7 +396,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -412,7 +406,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -422,7 +416,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -432,7 +426,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -442,7 +436,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  5000, infix_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 
@@ -490,7 +484,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     if ( code ) OP::push_oper
@@ -500,7 +494,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     if ( code ) OP::push_oper
@@ -510,7 +504,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     if ( code ) OP::push_oper
@@ -520,7 +514,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     min::locatable_gen plus
@@ -533,12 +527,11 @@ static void define_arithmetic_operators
         ( min::new_str_gen ( "*" ) );
     min::locatable_gen exponent
         ( min::new_str_gen ( "**" ) );
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        plus_minus_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 2 ) );
-    min::push ( plus_minus_arguments ) = plus;
-    min::push ( plus_minus_arguments ) = minus;
+    min::locatable_gen plus_minus_arguments
+	    ( min::new_obj_gen ( 2 ) );
+    min::obj_vec_insptr pmavp ( plus_minus_arguments );
+    min::attr_push ( pmavp ) = plus;
+    min::attr_push ( pmavp ) = minus;
 
     OP::push_oper
         ( plus,
@@ -557,7 +550,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
 	  OP::prefix_precedence, unary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -577,7 +570,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
 	  OP::prefix_precedence, unary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -587,14 +580,13 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  6100, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        multiply_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( multiply_arguments ) = multiply;
+    min::locatable_gen multiply_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr mavp ( multiply_arguments );
+    min::attr_push ( mavp ) = multiply;
 
     OP::push_oper
         ( multiply,
@@ -613,7 +605,7 @@ static void define_arithmetic_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  6300, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 
@@ -665,7 +657,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -675,7 +667,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -685,7 +677,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -695,7 +687,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -705,7 +697,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     min::locatable_gen or_name
@@ -721,11 +713,10 @@ static void define_bitwise_operators
     min::locatable_gen complement_name
         ( min::new_str_gen ( "~" ) );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        or_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( or_arguments ) = or_name;
+    min::locatable_gen or_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr oavp ( or_arguments );
+    min::attr_push ( oavp ) = or_name;
 
     OP::push_oper
         ( or_name,
@@ -737,11 +728,10 @@ static void define_bitwise_operators
 	  or_arguments,
 	  oper_pass->oper_table );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        and_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( and_arguments ) = and_name;
+    min::locatable_gen and_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr aavp ( and_arguments );
+    min::attr_push ( aavp ) = and_name;
 
     OP::push_oper
         ( and_name,
@@ -753,11 +743,10 @@ static void define_bitwise_operators
 	  and_arguments,
 	  oper_pass->oper_table );
 
-    min::locatable_var
-    	    <min::packed_vec_insptr<min::gen> >
-        xor_arguments
-	    ( min::gen_packed_vec_type.new_stub ( 1 ) );
-    min::push ( xor_arguments ) = xor_name;
+    min::locatable_gen xor_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr xavp ( xor_arguments );
+    min::attr_push ( xavp ) = xor_name;
 
     OP::push_oper
         ( xor_name,
@@ -776,7 +765,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  6000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -786,7 +775,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  6000, binary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -796,7 +785,7 @@ static void define_bitwise_operators
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
 	  OP::prefix_precedence, unary_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep  7 00:47:45 EDT 2021
+// Date:	Tue Sep 14 06:57:28 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -117,11 +117,18 @@ static min::uns32 opening_bracket_stub_disp[] = {
                      ::reformatter_arguments ),
     min::DISP_END };
 
+min::uns32 opening_bracket_gen_disp[] = {
+    min::DISP ( & BRA::opening_bracket_struct
+                     ::label ),
+    min::DISP ( & BRA::opening_bracket_struct
+                     ::reformatter_arguments ),
+    min::DISP_END };
+
 static min::packed_struct_with_base
 	<BRA::opening_bracket_struct, TAB::root_struct>
     opening_bracket_type
 	( "ll::parser::table::opening_bracket_type",
-	  TAB::root_gen_disp,
+	  ::opening_bracket_gen_disp,
 	  ::opening_bracket_stub_disp );
 const min::uns32 & BRA::OPENING_BRACKET =
     opening_bracket_type.subtype;
@@ -148,8 +155,7 @@ BRA::opening_bracket
 	  const min::phrase_position & position,
 	  const TAB::new_flags & parsing_selectors,
 	  PAR::reformatter reformatter,
-	  PAR::reformatter_arguments
-	      reformatter_arguments,
+	  min::gen reformatter_arguments,
 	  TAB::key_table bracket_table )
 {
     MIN_REQUIRE
@@ -310,6 +316,8 @@ static min::uns32 typed_opening_gen_disp[] = {
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_attr_multivalue_initiator
 	      ),
+    min::DISP ( & BRA::typed_opening_struct
+                     ::reformatter_arguments ),
     min::DISP_END };
 
 static min::uns32 typed_opening_stub_disp[] = {
@@ -318,8 +326,6 @@ static min::uns32 typed_opening_stub_disp[] = {
                      ::closing_bracket ),
     min::DISP ( & BRA::typed_opening_struct
                      ::reformatter ),
-    min::DISP ( & BRA::typed_opening_struct
-                     ::reformatter_arguments ),
     min::DISP ( & BRA::typed_opening_struct
                      ::typed_middle ),
     min::DISP ( & BRA::typed_opening_struct
@@ -496,8 +502,7 @@ BRA::typed_opening
 	  + PAR::ALL_OPT );
 
     reformatter_ref(opening) = min::NULL_STUB;
-    reformatter_arguments_ref(opening) =
-        min::NULL_STUB;
+    reformatter_arguments_ref(opening) = min::MISSING();
 
     TAB::push ( bracket_table, (TAB::root) opening );
 
@@ -594,14 +599,14 @@ static min::uns32 bracket_type_gen_disp[] = {
                      ::implied_subprefix ),
     min::DISP ( & BRA::bracket_type_struct
                      ::implied_subprefix_type ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::reformatter_arguments ),
     min::DISP_END };
 
 static min::uns32 bracket_type_stub_disp[] = {
     min::DISP ( & BRA::bracket_type_struct::next ),
     min::DISP ( & BRA::bracket_type_struct
                      ::reformatter ),
-    min::DISP ( & BRA::bracket_type_struct
-                     ::reformatter_arguments ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -624,8 +629,7 @@ void BRA::push_bracket_type
 	  min::gen implied_subprefix_type,
 	  min::uns32 line_lexical_master,
 	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
+	  min::gen reformatter_arguments,
 	  TAB::key_table bracket_type_table )
 {
     MIN_REQUIRE
@@ -4969,8 +4973,10 @@ static bool multivalue_reformatter_function
 {
     BRA::opening_bracket opening_bracket =
         (BRA::opening_bracket) entry;
-    min::gen separator =
-        opening_bracket->reformatter_arguments[0];
+    min::obj_vec_ptr args
+        ( opening_bracket->reformatter_arguments );
+    MIN_REQUIRE ( min::size_of ( args ) == 1 );
+    min::gen separator = args[0];
 
     min::unsptr count = 0;
     PAR::token start = first;
@@ -5030,8 +5036,8 @@ static bool text_reformatter_function
 {
     BRA::opening_bracket opening_bracket =
 	(BRA::opening_bracket) entry;
-    PAR::reformatter_arguments args =
-        opening_bracket->reformatter_arguments;
+    min::obj_vec_ptr args
+        ( opening_bracket->reformatter_arguments );
 
     bool terminator_found = false;
     min::uns32 size = 0;
@@ -5042,7 +5048,8 @@ static bool text_reformatter_function
 	     || ! PAR::is_lexeme ( t->type ) )
 	    continue;
 	for ( min::unsptr i = 1;
-	      ! terminator_found && i < args->length;
+	         ! terminator_found
+	      && i < min::size_of ( args );
 	      ++ i )
 	    terminator_found = ( args[i] == t->value );
     }
@@ -5202,9 +5209,10 @@ static bool data_reformatter_function
 {
     BRA::bracket_type prefix_entry =
         (BRA::bracket_type) entry;
-    PAR::reformatter_arguments args =
-        prefix_entry->reformatter_arguments;
-    MIN_REQUIRE ( args->length == ARGS_LENGTH );
+    min::obj_vec_ptr args
+        ( prefix_entry->reformatter_arguments );
+    MIN_REQUIRE
+        ( min::size_of ( args ) == ARGS_LENGTH );
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
@@ -5617,8 +5625,9 @@ static bool sentence_reformatter_function
 {
     BRA::bracket_type prefix_entry =
         (BRA::bracket_type) entry;
-    PAR::reformatter_arguments args =
-	prefix_entry->reformatter_arguments;
+    min::obj_vec_ptr args
+        ( prefix_entry->reformatter_arguments );
+    MIN_REQUIRE ( args != min::NULL_STUB );
 
     bool terminator_found = false;
     for ( PAR::token t = first;
@@ -5628,7 +5637,8 @@ static bool sentence_reformatter_function
 	if ( ! PAR::is_lexeme ( t->type ) )
 	    continue;
 	for ( min::unsptr i = 0;
-	      ! terminator_found && i < args->length;
+	         ! terminator_found
+	      && i < min::size_of ( args );
 	      ++ i )
 	    terminator_found = ( args[i] == t->value );
     }
@@ -5643,10 +5653,10 @@ static bool sentence_reformatter_function
 	    continue;
 
 	min::unsptr i = 0;
-	while (    i < args->length
+	while (    i < min::size_of ( args )
 	        && args[i] != t->value )
 	    ++ i;
-	if ( i >= args->length ) continue;
+	if ( i >= min::size_of ( args ) ) continue;
 
 	min::position separator_found =
 	    t->position.end;
@@ -6316,15 +6326,16 @@ static min::gen bracketed_pass_command
 				     reformatter->name )
 			<< " reformatter";
 
-		    min::packed_vec_ptr<min::gen> args =
-			opening_bracket->
-			    reformatter_arguments;
+		    min::obj_vec_ptr args
+			( opening_bracket->
+			      reformatter_arguments );
 		    if ( args != min::NULL_STUB )
 		    {
 			parser->printer
 			    << " ( " << min::set_break;
 			for ( min::uns32 i = 0;
-			      i < args->length; ++ i )
+			      i < min::size_of ( args );
+			      ++ i )
 			{
 			    if ( i != 0 )
 				parser->printer
@@ -6582,15 +6593,16 @@ static min::gen bracketed_pass_command
 			             reformatter->name )
 			<< " reformatter";
 
-		    min::packed_vec_ptr<min::gen> args =
-			bracket_type->
-			    reformatter_arguments;
+		    min::obj_vec_ptr args
+			( bracket_type->
+			      reformatter_arguments );
 		    if ( args != min::NULL_STUB )
 		    {
 			parser->printer
 			    << " ( " << min::set_break;
 			for ( min::uns32 i = 0;
-			      i < args->length; ++ i )
+			      i < min::size_of ( args );
+			      ++ i )
 			{
 			    if ( i != 0 )
 				parser->printer
@@ -6684,9 +6696,7 @@ static min::gen bracketed_pass_command
 	TAB::new_flags new_options;
 	    // Inited to zeroes.
 	PAR::reformatter reformatter = min::NULL_STUB;
-	min::locatable_var
-		< PAR::reformatter_arguments >
-	    reformatter_arguments ( min::NULL_STUB );
+	min::locatable_gen reformatter_arguments;
 	while ( i < size && vp[i] == PARLEX::with )
 	{
 	    ++ i;
@@ -6771,8 +6781,9 @@ static min::gen bracketed_pass_command
 			      parser );
 		    if ( name == min::ERROR() )
 			return min::ERROR();
-		    if (    reformatter_arguments
-			 == min::NULL_STUB )
+		    min::obj_vec_ptr args
+			( reformatter_arguments );
+		    if ( args == min::NULL_STUB )
 		    {
 			if (   reformatter->
 			           minimum_arguments
@@ -6788,19 +6799,17 @@ static min::gen bracketed_pass_command
 			position.end =
 			    (&ppvec[i-1])->end;
 
-			if (   reformatter_arguments->
-			           length
-			     < reformatter->
-				   minimum_arguments )
+			min::unsptr s =
+			    min::size_of ( args );
+			if ( s < reformatter->
+				     minimum_arguments )
 			    return PAR::parse_error
 				    ( parser, position,
 				      "too few"
 				      " reformatter"
 				      " arguments" );
-			if (   reformatter_arguments->
-			           length
-			     > reformatter->
-				   maximum_arguments )
+			if ( s > reformatter->
+				     maximum_arguments )
 			    return PAR::parse_error
 				    ( parser, position,
 				      "too many"
@@ -7266,9 +7275,7 @@ static min::gen bracketed_pass_command
 	min::uns32 line_lexical_master =
 	    PAR::MISSING_MASTER;
 	PAR::reformatter reformatter = min::NULL_STUB;
-	min::locatable_var
-		< PAR::reformatter_arguments >
-	    reformatter_arguments ( min::NULL_STUB );
+	min::locatable_gen reformatter_arguments;
 
 	while ( i < size && vp[i] == PARLEX::with )
 	{
@@ -7425,8 +7432,9 @@ static min::gen bracketed_pass_command
 			      parser );
 		    if ( name == min::ERROR() )
 			return min::ERROR();
-		    if (    reformatter_arguments
-			 == min::NULL_STUB )
+		    min::obj_vec_ptr args
+			( reformatter_arguments );
+		    if ( args == min::NULL_STUB )
 		    {
 			if (   reformatter->
 			           minimum_arguments
@@ -7442,19 +7450,17 @@ static min::gen bracketed_pass_command
 			position.end =
 			    (&ppvec[i-1])->end;
 
-			if (   reformatter_arguments->
-			           length
-			     < reformatter->
-				   minimum_arguments )
+			min::unsptr s =
+			    min::size_of ( args );
+			if ( s < reformatter->
+				     minimum_arguments )
 			    return PAR::parse_error
 				    ( parser, position,
 				      "too few"
 				      " reformatter"
 				      " arguments" );
-			if (   reformatter_arguments->
-			           length
-			     > reformatter->
-				   maximum_arguments )
+			if ( s > reformatter->
+				     maximum_arguments )
 			    return PAR::parse_error
 				    ( parser, position,
 				      "too many"

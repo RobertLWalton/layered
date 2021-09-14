@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 13:29:19 EDT 2021
+// Date:	Tue Sep 14 12:40:39 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,13 +115,13 @@ static min::initializer initializer ( ::initialize );
 static min::uns32 oper_gen_disp[] = {
     min::DISP ( & OP::oper_struct::label ),
     min::DISP ( & OP::oper_struct::terminator ),
+    min::DISP ( & OP::oper_struct
+                    ::reformatter_arguments ),
     min::DISP_END };
 
 static min::uns32 oper_stub_disp[] = {
     min::DISP ( & OP::oper_struct::next ),
     min::DISP ( & OP::oper_struct::reformatter ),
-    min::DISP ( & OP::oper_struct
-                    ::reformatter_arguments ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -143,8 +143,7 @@ void OP::push_oper
 	  min::uns32 flags,
 	  min::int32 precedence,
 	  PAR::reformatter reformatter,
-	  PAR::reformatter_arguments
-	       reformatter_arguments,
+	  min::gen reformatter_arguments,
 	  TAB::key_table oper_table )
 {
     min::locatable_var<OP::oper> oper
@@ -178,7 +177,7 @@ static void init_end_oper ( void )
         OP::low_precedence - 2;
     reformatter_ref(OP::end_oper) = min::NULL_STUB;
     reformatter_arguments_ref(OP::end_oper) =
-        min::NULL_STUB;
+        min::MISSING();
 }
 
 static void init_error_oper ( void )
@@ -195,7 +194,7 @@ static void init_error_oper ( void )
         OP::low_precedence - 1;
     reformatter_ref(OP::error_oper) = min::NULL_STUB;
     reformatter_arguments_ref(OP::error_oper) =
-        min::NULL_STUB;
+        min::MISSING();
 }
 
 // Operator Parser Pass
@@ -1035,8 +1034,8 @@ static bool control_reformatter_function
 	  TAB::root entry )
 {
     OP::oper op = (OP::oper) entry;
-    min::packed_vec_ptr<min::gen> args =
-	op->reformatter_arguments;
+    min::obj_vec_ptr args ( op->reformatter_arguments );
+    MIN_REQUIRE ( min::size_of ( args ) >= 1 );
 
     while (    first != next
             && first->type != PAR::OPERATOR )
@@ -1056,7 +1055,7 @@ static bool control_reformatter_function
 	return true;
     }
 
-    if (    args->length >= 2
+    if (    min::size_of ( args ) >= 2
          && args[1] == OPLEX::has_condition )
     {
 	if ( t->type == PAR::OPERATOR )
@@ -1357,9 +1356,10 @@ static bool selector_reformatter_function
     MIN_REQUIRE ( first != next );
 
     OP::oper op = (OP::oper) entry;
+    min::obj_vec_ptr args ( op->reformatter_arguments );
 
-    min::gen first_op = op->reformatter_arguments[0];
-    min::gen second_op = op->reformatter_arguments[1];
+    min::gen first_op = args[0];
+    min::gen second_op = args[1];
 
     // Operators and operands must alternate with
     // operands at the ends.  The operators must
@@ -1443,10 +1443,11 @@ static void infix_check
     MIN_REQUIRE ( first != next );
 
     OP::oper oper = (OP::oper) entry;
-    PAR::reformatter_arguments args =
-        oper->reformatter_arguments;
+    min::obj_vec_ptr args
+        ( oper->reformatter_arguments );
     min::uns32 length =
-        ( args == min::NULL_STUB ? 0 : args->length );
+        ( args == min::NULL_STUB ? 0 :
+	  min::size_of ( args ) );
     
     PAR::token t = first;
     while ( true )
@@ -1939,13 +1940,13 @@ void static print_op
 	           ( op->reformatter->name )
 	    << " reformatter";
 
-	min::packed_vec_ptr<min::gen> args =
-	    op->reformatter_arguments;
+	min::obj_vec_ptr args
+	    ( op->reformatter_arguments );
         if ( args != min::NULL_STUB )
 	{
 	    parser->printer << " ( " << min::set_break;
-	    for ( min::uns32 i = 0; i < args->length;
-	                            ++ i )
+	    for ( min::uns32 i = 0;
+	          i < min::size_of ( args ); ++ i )
 	    {
 		if ( i != 0 )
 		    parser->printer << ", "
@@ -2197,9 +2198,7 @@ static min::gen oper_pass_command
     min::int32 precedence;
     bool precedence_found = false;
     PAR::reformatter reformatter = min::NULL_STUB;
-    min::locatable_var
-    	    < PAR::reformatter_arguments >
-        reformatter_arguments ( min::NULL_STUB );
+    min::locatable_gen reformatter_arguments;
     while ( i < size && vp[i] == PARLEX::with )
     {
 	++ i;
@@ -2261,8 +2260,9 @@ static min::gen oper_pass_command
 		          parser );
 		if ( name == min::ERROR() )
 		    return min::ERROR();
-		if (    reformatter_arguments
-		     == min::NULL_STUB )
+		min::obj_vec_ptr args
+		    ( reformatter_arguments );
+		if ( args == min::NULL_STUB )
 		{
 		    if ( reformatter->minimum_arguments
 		         > 0 )
@@ -2276,16 +2276,17 @@ static min::gen oper_pass_command
 		{
 		    position.end = (&ppvec[i-1])->end;
 
-		    if (   reformatter_arguments->length
-			 < reformatter->
-			       minimum_arguments )
+		    min::unsptr s =
+		        min::size_of ( args );
+
+		    if ( s < reformatter->
+			         minimum_arguments )
 			return PAR::parse_error
 				( parser, position,
 				  "too few reformatter"
 				  " arguments" );
-		    if (   reformatter_arguments->length
-			 > reformatter->
-			       maximum_arguments )
+		    if ( s > reformatter->
+			         maximum_arguments )
 			return PAR::parse_error
 				( parser, position,
 				  "too many reformatter"

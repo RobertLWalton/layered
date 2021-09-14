@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 14:53:11 EDT 2021
+// Date:	Tue Sep 14 05:50:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1472,16 +1472,6 @@ typedef bool ( * reformatter_function )
     // For the bracketed pass, the list of tokens passed
     // to the reformatted does NOT include the brackets,
     // but the position does include them.
-
-typedef min::packed_vec_ptr<min::gen>
-	reformatter_arguments;
-    // Argument list for a reformatter.  Contained in
-    // the key table entry that specifies the
-    // reformatter.
-    //
-    // Arguments that are argument-sublists are
-    // represented as objects that just have elements
-    // and have no .initiator, .terminator, or .type.
 
 struct reformatter_struct;
 typedef min::packed_struct_updptr<reformatter_struct>

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 31 16:48:56 EDT 2021
+// Date:	Tue Sep 14 17:26:15 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,7 +91,7 @@ int main ( int argc, const char * argv[] )
 	  math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( openminus,
@@ -99,7 +99,7 @@ int main ( int argc, const char * argv[] )
 	  text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
     PAR::parse();
 }

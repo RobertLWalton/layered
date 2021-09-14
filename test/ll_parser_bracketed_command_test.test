@@ -1981,10 +1981,10 @@ BRACKETED EXPRESSION:
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     This is a logical line "."
-@@ = This is a logical line ".":
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := This is a logical line "."::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     line ###:
 This is a logical line.
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1994,19 +1994,19 @@ WARNING: in line ###: logical line begins at an indent that is greater
     ^
 BRACKETED EXPRESSION:
     And a second logical line "."
-@@ = And a second logical line ".":
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := And a second logical line "."::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     line ###:
     And a second logical line.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And a third logical line "."
-@@ = And a third logical line ".":
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := And a third logical line "."::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     line ###:
 And a third logical line.
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2021,10 +2021,10 @@ And a third logical line.
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     this-is-a-continued-lexme
-@@ = this-is-a-continued-lexme:
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := this-is-a-continued-lexme::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-#
 ^^^^^^^^^^^
@@ -2034,10 +2034,10 @@ this-is-a-#
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     this-is-a-~ ~continued-~ ~lexme
-@@ = this-is-a-~ ~continued-~ ~lexme:
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := this-is-a-~ ~continued-~ ~lexme::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
@@ -2052,10 +2052,10 @@ this-is-a-~
         block TOP LEVEL: "#" "#"
 BRACKETED EXPRESSION:
     this-is-a-# #continued-# #lexme
-@@ = this-is-a-# #continued-# #lexme:
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := this-is-a-# #continued-# #lexme::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-#
 ^^^^^^^^^^^
@@ -2065,10 +2065,10 @@ this-is-a-#
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     this-is-a-continued-lexme
-@@ = this-is-a-continued-lexme:
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := this-is-a-continued-lexme::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
@@ -2083,10 +2083,10 @@ this-is-a-~
         block TOP LEVEL: "#" "#"
 BRACKETED EXPRESSION:
     this-is-a-# #continued-# #lexme
-@@ = this-is-a-# #continued-# #lexme:
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := this-is-a-# #continued-# #lexme::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-#
 ^^^^^^^^^^^
@@ -2096,10 +2096,10 @@ this-is-a-#
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
     this-is-a-~ ~continued-~ ~lexme
-@@ = this-is-a-~ ~continued-~ ~lexme:
-         .terminator = "<LF>"
-         .position[H] = PACKED_VEC
-         .initiator = [$ LOGICAL_LINE $]
+@@ := this-is-a-~ ~continued-~ ~lexme::
+          .terminator = "<LF>"
+          .position[H] = PACKED_VEC
+          .initiator = [$ LOGICAL_LINE $]
     lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
@@ -2128,17 +2128,17 @@ this-is-a-~
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     ``{s|Hello there "."|s}''
-@@@ = @@@:
-          .terminator = "<LF>"
-          .position[H] = PACKED_VEC
-          .initiator = [$ LOGICAL_LINE $]
-@@@ = @@@:
-          .terminator = "''"
-          .initiator = "``"
-          .position[H] = PACKED_VEC
-@@@ = Hello there ".":
-          .position[H] = PACKED_VEC
-          .type = s
+@@@ := @@@::
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@ := @@@::
+           .terminator = "''"
+           .initiator = "``"
+           .position[H] = PACKED_VEC
+@@@ := Hello there "."::
+           .position[H] = PACKED_VEC
+           .type = s
     line ###:
 ``Hello there.''
 ^^^^^^^^^^^^^^^^
@@ -2148,40 +2148,40 @@ BRACKETED EXPRESSION:
         with sentence reformatter ("s", ".")
 BRACKETED EXPRESSION:
     ``{s: .terminator = "."|Hello there|s}''
-@@@ = @@@:
-          .terminator = "<LF>"
-          .position[H] = PACKED_VEC
-          .initiator = [$ LOGICAL_LINE $]
-@@@ = @@@:
-          .terminator = "''"
-          .initiator = "``"
-          .position[H] = PACKED_VEC
-@@@ = Hello there:
-          .terminator = "."
-          .position[H] = PACKED_VEC
-          .type = s
+@@@ := @@@::
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@ := @@@::
+           .terminator = "''"
+           .initiator = "``"
+           .position[H] = PACKED_VEC
+@@@ := Hello there::
+           .terminator = "."
+           .position[H] = PACKED_VEC
+           .type = s
     line ###:
 ``Hello there.''
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ``{s: .terminator = "."|Hello there|s}
       {s: .terminator = "."|Goodbye there|s}''
-@@@ = @@@:
-          .terminator = "<LF>"
-          .position[H] = PACKED_VEC
-          .initiator = [$ LOGICAL_LINE $]
-@@@ = @@@ @@@:
-          .terminator = "''"
-          .initiator = "``"
-          .position[H] = PACKED_VEC
-@@@ = Hello there:
-          .terminator = "."
-          .position[H] = PACKED_VEC
-          .type = s
-@@@ = Goodbye there:
-          .terminator = "."
-          .position[H] = PACKED_VEC
-          .type = s
+@@@ := @@@::
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@ := @@@ @@@::
+           .terminator = "''"
+           .initiator = "``"
+           .position[H] = PACKED_VEC
+@@@ := Hello there::
+           .terminator = "."
+           .position[H] = PACKED_VEC
+           .type = s
+@@@ := Goodbye there::
+           .terminator = "."
+           .position[H] = PACKED_VEC
+           .type = s
     line ###:
 ``Hello there.  Goodbye there.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

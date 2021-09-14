@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 02:36:15 EDT 2021
+// Date:	Tue Sep 14 17:05:33 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,7 +104,7 @@ static void define_brackets
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( PARLEX::left_square,
@@ -112,7 +112,7 @@ static void define_brackets
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_quote,
@@ -121,7 +121,7 @@ static void define_brackets
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_square_angle,
@@ -133,7 +133,7 @@ static void define_brackets
 	  PAR::find_reformatter
 	      ( label_name,
 	        BRA::untyped_reformatter_stack ),
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  bracketed_pass->bracket_table );
     BRA::push_brackets
         ( opening_square_dollar,
@@ -145,7 +145,7 @@ static void define_brackets
 	  PAR::find_reformatter
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets
@@ -171,7 +171,7 @@ static void define_brackets
 	  data + code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( math, data + code + text ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     if ( text )
@@ -187,18 +187,15 @@ static void define_brackets
 	min::locatable_gen s
 	    ( min::new_str_gen ( "s" ) );
 
-	min::locatable_var
-		<min::packed_vec_insptr<min::gen> >
-	    text_arguments
-		( min::gen_packed_vec_type
-		         .new_stub ( 6 ) );
-	min::push ( text_arguments ) = s;
-	min::push ( text_arguments ) = period;
-	min::push ( text_arguments ) = question;
-	min::push ( text_arguments ) = exclamation;
-	min::push ( text_arguments ) = PARLEX::colon;
-	min::push ( text_arguments ) =
-	    PARLEX::semicolon;
+	min::locatable_gen text_arguments
+		( min::new_obj_gen ( 6 ) );
+	min::obj_vec_insptr tavp ( text_arguments );
+	min::attr_push ( tavp ) = s;
+	min::attr_push ( tavp ) = period;
+	min::attr_push ( tavp ) = question;
+	min::attr_push ( tavp ) = exclamation;
+	min::attr_push ( tavp ) = PARLEX::colon;
+	min::attr_push ( tavp ) = PARLEX::semicolon;
 	BRA::push_brackets
 	    ( opening_double_quote,
 	      closing_double_quote,
@@ -351,7 +348,7 @@ static void define_bracket_types
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen data_name
@@ -384,20 +381,17 @@ static void define_bracket_types
 	min::locatable_gen plus_plus_equal
 	    ( min::new_str_gen ( "++=" ) );
 
-	min::locatable_var
-		<min::packed_vec_insptr<min::gen> >
-	    data_arguments
-		( min::gen_packed_vec_type
-		           .new_stub ( 6 ) );
-	min::push ( data_arguments ) = PARLEX::equal;
-	min::push ( data_arguments ) = PARLEX::colon;
-	min::push ( data_arguments ) = PARLEX::equal;
-	min::push ( data_arguments ) = PARLEX::no;
-	min::push ( data_arguments ) =
-	    PARLEX::left_square;
+	min::locatable_gen data_arguments
+		( min::new_obj_gen ( 6 ) );
+	min::obj_vec_insptr davp ( data_arguments );
+	min::attr_push ( davp ) = PARLEX::equal;
+	min::attr_push ( davp ) = PARLEX::colon;
+	min::attr_push ( davp ) = PARLEX::equal;
+	min::attr_push ( davp ) = PARLEX::no;
+	min::attr_push ( davp ) = PARLEX::left_square;
 	min::locatable_gen left_curly_star
 	    ( min::new_lab_gen ( "{", "*" ) );
-	min::push ( data_arguments ) = left_curly_star;
+	min::attr_push ( davp ) = left_curly_star;
 
 	BRA::push_bracket_type
 	    ( data_name,
@@ -462,7 +456,7 @@ static void define_bracket_types
 	      min::MISSING(), // implied_subprefix_type
 	      row_check,
 	      min::NULL_STUB,
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_type_table );
 
 	BRA::push_bracket_type
@@ -475,7 +469,7 @@ static void define_bracket_types
 	      min::MISSING(),
 	      PAR::MISSING_MASTER,
 	      min::NULL_STUB,
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_type_table );
     }
 
@@ -517,7 +511,7 @@ static void define_bracket_types
 	      s,
 	      PAR::MISSING_MASTER,
 	      min::NULL_STUB,
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_type_table );
 
 	min::locatable_gen p
@@ -542,7 +536,7 @@ static void define_bracket_types
 	      s,
 	      PAR::MISSING_MASTER,
 	      min::NULL_STUB,
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_type_table );
 
 	min::locatable_gen quote_name
@@ -567,7 +561,7 @@ static void define_bracket_types
 	      s,
 	      PAR::MISSING_MASTER,
 	      min::NULL_STUB,
-	      min::NULL_STUB,
+	      min::MISSING(),
 	      bracketed_pass->bracket_type_table );
 
 	min::locatable_gen sentence
@@ -579,16 +573,14 @@ static void define_bracket_types
 	min::locatable_gen exclamation
 	    ( min::new_str_gen ( "!" ) );
 
-	min::locatable_var
-		<min::packed_vec_insptr<min::gen> >
-	    s_arguments
-		( min::gen_packed_vec_type
-		            .new_stub ( 5 ) );
-	min::push ( s_arguments ) = period;
-	min::push ( s_arguments ) = question;
-	min::push ( s_arguments ) = exclamation;
-	min::push ( s_arguments ) = PARLEX::colon;
-	min::push ( s_arguments ) = PARLEX::semicolon;
+	min::locatable_gen s_arguments
+		( min::new_obj_gen ( 5 ) );
+	min::obj_vec_insptr savp ( s_arguments );
+	min::attr_push ( savp ) = period;
+	min::attr_push ( savp ) = question;
+	min::attr_push ( savp ) = exclamation;
+	min::attr_push ( savp ) = PARLEX::colon;
+	min::attr_push ( savp ) = PARLEX::semicolon;
 
 	BRA::push_bracket_type
 	    ( s, text,

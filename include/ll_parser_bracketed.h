@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 10 14:10:55 EDT 2021
+// Date:	Tue Sep 14 12:48:59 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -111,10 +111,9 @@ struct opening_bracket_struct :
 	// opening bracket.
 
     const ll::parser::reformatter reformatter;
-    const ll::parser::reformatter_arguments
-        reformatter_arguments;
-	// Reformater and its arguments, or (both) NULL_
-	// STUB if none.
+    const min::gen reformatter_arguments;
+	// Reformatter and its arguments, or NULL_STUB
+	// and MISSING if none.
 };
 struct closing_bracket_struct : 
 	public ll::parser::table::root_struct
@@ -132,7 +131,7 @@ MIN_REF ( ll::parser::bracketed::closing_bracket,
 MIN_REF ( ll::parser::reformatter,
           reformatter,
           ll::parser::bracketed::opening_bracket )
-MIN_REF ( ll::parser::reformatter_arguments,
+MIN_REF ( min::gen,
           reformatter_arguments,
           ll::parser::bracketed::opening_bracket )
 
@@ -155,8 +154,7 @@ ll::parser::bracketed::opening_bracket
 	  const ll::parser::table::new_flags
 	      & parsing_selectors,
 	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
+	  min::gen reformatter_arguments,
 	  ll::parser::table::key_table bracket_table );
 
 extern min::locatable_var<ll::parser::reformatter>
@@ -415,8 +413,7 @@ MIN_REF ( min::gen, label,
 MIN_REF ( ll::parser::reformatter,
           reformatter,
           ll::parser::bracketed::typed_opening )
-MIN_REF ( ll::parser::reformatter_arguments,
-          reformatter_arguments,
+MIN_REF ( min::gen, reformatter_arguments,
           ll::parser::bracketed::typed_opening )
 MIN_REF ( ll::parser::bracketed::typed_middle,
           typed_middle,
@@ -658,10 +655,9 @@ struct bracket_type_struct
     min::uns32 line_lexical_master;
         // ll::lexeme::MISSING_MASTER if missing.
     ll::parser::reformatter reformatter;
-    ll::parser::reformatter_arguments
-	    reformatter_arguments;
-	// Reformater and its arguments, or (both) NULL_
-	// STUB if none.
+    min::gen reformatter_arguments;
+	// Reformatter and its arguments, or NULL_STUB
+	// and MISSING if none.
 };
 
 MIN_REF ( ll::parser::table::root, next,
@@ -676,8 +672,7 @@ MIN_REF ( min::gen, implied_subprefix_type,
           ll::parser::bracketed::bracket_type )
 MIN_REF ( ll::parser::reformatter, reformatter,
           ll::parser::bracketed::bracket_type )
-MIN_REF ( ll::parser::reformatter_arguments,
-	  reformatter_arguments,
+MIN_REF ( min::gen, reformatter_arguments,
           ll::parser::bracketed::bracket_type )
 
 // Push entry into bracket type table.  The TOP_LEVEL_
@@ -697,8 +692,7 @@ void push_bracket_type
 	  min::uns32 line_lexical_master,
 	      // May be ll::lexeme::MISSING_MASTER
 	  ll::parser::reformatter reformatter,
-	  ll::parser::reformatter_arguments
-	      reformatter_arguments,
+	  min::gen reformatter_arguments,
 	  ll::parser::table::key_table
 	      bracket_type_table );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 14:55:32 EDT 2021
+// Date:	Tue Sep 14 15:27:10 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -114,8 +114,7 @@ void COM::print_lexical_master
 }
 min::gen COM::scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,
-          min::ref< min::packed_vec_ptr<min::gen> >
-	      arg_vec,
+	  min::locatable_gen & args,
 	  ll::parser::parser parser )
 {
     if ( i >= min::size_of ( vp ) )
@@ -145,17 +144,15 @@ min::gen COM::scan_args
 
     ++ i;
 
-    min::packed_vec_insptr<min::gen> names =
-        (const min::stub *)
-	(min::packed_vec_ptr<min::gen>) arg_vec;
-    if ( names == min::NULL_STUB )
+    min::obj_vec_insptr argsvp ( args );
+    if ( argsvp == min::NULL_STUB )
     {
-	names = 
-	    min::gen_packed_vec_type.new_stub ( 10 );
-	arg_vec = names;
+	args = min::new_obj_gen ( 10 );
+	argsvp = args;
     }
     else
-        min::pop ( names, arg_vec->length );
+        min::attr_pop
+	    ( argsvp, min::size_of ( argsvp ) );
     
     min::uns32 s = min::size_of ( subvp );
     min::uns32 j = 0;
@@ -164,34 +161,21 @@ min::gen COM::scan_args
     {
 	if ( subvp[j] == PARLEX::comma )
 	{
-	    min::push ( names ) = min::MISSING();
+	    min::attr_push ( argsvp ) = min::MISSING();
+	    ++ j;
 	    goto NEXT_ARG;
 	}
 	else if ( min::is_obj ( subvp[j] ) )
 	{
-	    min::locatable_var
-		    < min::packed_vec_ptr<min::gen> >
-	        elements ( min::NULL_STUB );
 	    min::gen result =
 	        COM::scan_args
-		    ( subvp, j, elements, parser );
+		    ( subvp, j, name, parser );
 	    if ( result == min::ERROR() )
 	        return min::ERROR();
 	    else if ( result == min::SUCCESS() )
 	    {
-		min::locatable_gen arglist
-		    ( min::new_obj_gen
-		         ( elements->length ) );
-		min::obj_vec_insptr argvp  ( arglist );
-		MIN_STACK_COPY
-		    ( min::gen, argcopy,
-		      elements->length,
-		      min::begin_ptr_of ( elements )
-		    );
-		min::attr_push
-		    ( argvp,
-		      elements->length, argcopy );
-		min::push ( names ) = arglist;
+		min::attr_push ( argsvp ) = name;
+		++ j;
 		goto NEXT_ARG;
 	    }
 	    // else if result == min::FAILURE()
@@ -204,7 +188,7 @@ min::gen COM::scan_args
 	    if ( name == min::ERROR() )
 	        return min::ERROR();
 
-	    min::push ( names ) = name;
+	    min::attr_push ( argsvp ) = name;
 	}
 
 NEXT_ARG:
@@ -216,7 +200,8 @@ NEXT_ARG:
 		    ( parser, ppvec[j-1],
 		      "expected `,' after" );
 	    if ( ++ j == s )
-		min::push ( names ) = min::MISSING();
+		min::attr_push ( argsvp ) =
+		    min::MISSING();
 	}
     }
 

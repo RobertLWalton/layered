@@ -149,7 +149,7 @@ inline min::gen get_lexical_master
 
 // If vp[i] is a ()-bracketed subexpression, treat it
 // as an argument list, store the specified set of
-// arguments in the arg_vec vector, increment i, and
+// arguments in an args vector, increment i, and
 // return min::SUCCESS().  If it is not a ()-bracketed
 // subexpression, just return min::FAILURE().  If it is
 // a ()-bracketed subexpression with an error, print
@@ -164,11 +164,12 @@ inline min::gen get_lexical_master
 // separator and any commas are simply elements of the
 // subexpression (ditto for argument sublists).
 //
-// If min::FAILURE() is not returned, arg_vec is created
+// If min::FAILURE() is not returned, args is created
 // if it does not exist, emptied if it does exists, and
 // then any successfully scanned arguments are pushed
-// into it.  If min::ERROR() is returned, arg_vec is
-// undefined.
+// into it.  Args and argument sublists are pure vectors
+// with no attributes other than vector elements.  If
+// min::ERROR() is returned, args is undefined.
 //
 min::gen scan_args
 	( min::obj_vec_ptr & vp, min::uns32 & i,

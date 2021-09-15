@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 13:35:14 EDT 2021
+// Date:	Wed Sep 15 04:24:23 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -109,10 +109,9 @@ struct oper_struct
 	// entry as no terminator (as do entries in the
 	// oper_table).
     ll::parser::reformatter reformatter;
-    	// NULL_STUB if none.
     min::gen reformatter_arguments;
-        // Vector of arguments each a min string or
-	// label.  NULL_STUB if none.
+        // Reformatter and its arguments, or NULL_STUB
+	// and MISSING if none.
 };
 
 MIN_REF ( ll::parser::table::root, next,

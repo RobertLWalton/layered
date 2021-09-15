@@ -231,7 +231,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 6, 2021
+September 15, 2021
  
 \end{center}
 
@@ -3831,7 +3831,10 @@ The specific form of an ID is:
 The {\em ID-number} identifies the particular object or long
 string that is pointed at.
 
-The {\em ID-character} is a parser parameter that can be defined
+The {\em ID-character} is a parser parameter.  It and another
+parser parameter called the \emkey{ID-assignment}\label{ID-ASSIGNMENT}
+(see the \TT{data} reformatter: \pagref{DATA-REFORMATTER})
+can be defined
 or printed by:
 \begin{indpar}[0.1in]
 \emkey{parser-ID-character-command}%
@@ -3839,7 +3842,9 @@ or printed by:
 \hspace*{3em} \begin{tabular}{rl}
               ::= & \ttmkey{define ID character}{parser command}
 			  ~ {\em ID-character-representative} \\
-              $|$ & \ttmkey{print ID character}{parser command} \\
+              $|$ & \ttmkey{define ID assignment}{parser command}
+	                  ~ {\em ID-assignment} \\
+              $|$ & \ttmkey{print ID}{parser command} \\
 	      \end{tabular}
 \\[0.5ex]
 \emkey{ID-character-representative} ::=
@@ -3847,6 +3852,8 @@ or printed by:
 \\[0.5ex]
 \emkey{quoted-character} ::=
     {\em quoted-string} with exactly one {\em character-representative}.
+\\[0.5ex]
+\emkey{ID-assignment} ::= {\em quoted-key}
 \end{indpar}
 
 An {\em ID} is recognized on input when its token is being constructed,
@@ -3867,6 +3874,7 @@ can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
 \multicolumn{1}{c}{\bf Initial ID Character Parser Command}
 \\[1ex]
 \tt define ID character disabled \\
+\tt define ID assignment ":=" \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
@@ -3877,6 +3885,7 @@ can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
 Parser Command				& {\bf Required} Qualifier
 \\\hline
 \tt define ID character "@"             & \tt + id \\
+\tt define ID assignment ":="		& \tt + id \\
 \end{tabular}
 \end{center}
 
@@ -6573,6 +6582,9 @@ See \itemref{ISOLATED-HEADERS} and \itemref{LINE-VARIABLES} for details.
 
 \end{indpar}
 
+\subsubsubsection{Bracket Type Reformatters}
+\label{BRACKET-TYPE-REFORMATTERS}
+
 The following reformatters may be used to change the MIN value
 represented by a {\em prefix-n-list} headed by a prefix with
 a bracket type definition:
@@ -6580,16 +6592,21 @@ a bracket type definition:
 \begin{indpar}
 
 \ttmkey{data}{reformatter}
-        \TT{(} \begin{tabular}[t]{@{}l@{}}
-	       {\em assignment-sign}\TT{,}
-	       {\em attribute-initiator}\TT{,} \\
-	       {\em equal-sign}\TT{,} {\em negator}\TT{,} 
+        \TT{(}
+	       {\em attribute-initiators}\TT{,}
+	       {\em equal-sign}\TT{,} {\em negator}\TT{,}
 	       {\em flags-opening}\TT{,} {\em multivalue-opening} \TT{)}
-	       \end{tabular}
 	\label{DATA-REFORMATTER}
 
-
 \begin{indpar}[0.5em]
+where
+
+\begin{indpar}[0.5in]
+\emkey{attribute-initiators} ::= \TT{()} $|$
+    \TT{(} {\em attribute-initiator}
+	   \{ \TT{,} {\em attribute-initiator} \}\STAR{} \TT{)}
+\end{indpar}
+
 The {\em prefix-n-list} must be a token list that could be represented by
 a headed logical line of the form:
 \begin{center}
@@ -6602,6 +6619,10 @@ where
 \emkey{data-prefix} ::= the prefix, e.g., `\TT{data}'
 \\[0.5ex]
 \emkey{ID} ::= see \pagref{ID}
+\\[0.5ex]
+\emkey{assignment-sign} ::= {\em ID-assigment}
+\\[0.5ex]
+{\em ID-assignment} ::= see \pagref{ID-ASSIGNMENT}
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
@@ -6651,7 +6672,10 @@ the {\em attribute-paragraph} is parsed
 becoming a MIN object with
 {\em attribute-initiator} as \TT{.ini\-tiator}, with
 \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as \TT{.ter\-min\-ator},
-and with logical line elements.  This reformatter
+and with logical line elements.  Different
+{\em attribute-initiators} may be chosen to control how this
+paragraph is parsed.
+This reformatter
 then further parses these logical lines
 using its reformatter arguments to treat each line as being
 formatted in the same manner as an {\em attribute}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 02:43:17 EDT 2021
+// Date:	Thu Sep 16 21:30:54 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -112,11 +112,11 @@
     define ID character disabled
     begin block Z
     define ID character "$"
-    print ID character
+    print ID
     end block Z
     end block Y
     end block X
-    print ID character
+    print ID
 
 *PARSER*:
     begin block X

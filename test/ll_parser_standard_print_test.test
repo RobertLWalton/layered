@@ -32,9 +32,9 @@
           - parser commands, - subexpression elements,
           - subexpression details, - subexpression lines, - keys,
           - bracketed subexpressions, - operator subexpressions ]
-    print ID character
-        block standard: "@"
-        block TOP LEVEL: disabled
+    print ID
+        block standard: ID character `@'; ID assignment `:='
+        block TOP LEVEL: ID character disabled; ID assignment `:='
     print mapped lexeme ""
         block standard: mapped lexeme "DATA" [TOP LEVEL]
                         with token value {data}

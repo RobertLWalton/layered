@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 24 15:06:55 EDT 2021
+// Date:	Thu Sep 16 21:21:48 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -492,6 +492,8 @@ struct block_struct
 
     min::Uchar saved_ID_character;
     	// ID_character when block begins.
+
+    min::gen saved_ID_assignment;
 };
 
 typedef min::packed_vec_insptr
@@ -516,19 +518,23 @@ inline void push_block
 	  ll::parser::bracketed::indentation_mark
 	      indentation_mark,
 	  ll::parser::table::flags trace_flags,
-	  min::Uchar ID_character )
+	  min::Uchar ID_character,
+	  min::gen ID_assignment )
 {
     ll::parser::table::block_struct b =
         { name,
 	  selector_name_table->length,
 	  undefined_stack->length,
 	  indentation_mark,
-	  trace_flags, ID_character };
+	  trace_flags, ID_character,
+	  ID_assignment };
     min::push ( block_stack ) = b;
     min::unprotected::acc_write_update
         ( block_stack, name );
     min::unprotected::acc_write_update
         ( block_stack, indentation_mark );
+    min::unprotected::acc_write_update
+        ( block_stack, ID_assignment );
 }
 
 // Lexeme Maps

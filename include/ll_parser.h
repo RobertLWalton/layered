@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 05:50:37 EDT 2021
+// Date:	Thu Sep 16 16:02:01 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -135,7 +135,8 @@ namespace ll { namespace parser {
 	    parser_colon,   	// *PARSER*:
 	    parser_test_colon,	// *PARSER* *TEST*:
 	    ID,			// ID
-	    character;		// character
+	    character,		// character
+	    assignment;		// assignment
 
     }
 

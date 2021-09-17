@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 16:52:43 EDT 2021
+// Date:	Thu Sep 16 21:24:31 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,6 +125,7 @@ min::locatable_gen PARLEX::parser_colon;
 min::locatable_gen PARLEX::parser_test_colon;
 min::locatable_gen PARLEX::ID;
 min::locatable_gen PARLEX::character;
+min::locatable_gen PARLEX::assignment;
 
 min::locatable_gen PAR::PRINTED;
 
@@ -283,6 +284,8 @@ static void initialize ( void )
     PARLEX::ID = min::new_str_gen ( "ID" );
     PARLEX::character =
         min::new_str_gen ( "character" );
+    PARLEX::assignment =
+        min::new_str_gen ( "assignment" );
 
     PAR::PRINTED = min::new_special_gen ( 0 );
 
@@ -1531,7 +1534,8 @@ min::gen PAR::begin_block
 		      parser->
 		          top_level_indentation_mark,
 		      parser->trace_flags,
-		      parser->id_map->ID_character );
+		      parser->id_map->ID_character,
+		      parser->id_map->ID_assign );
 
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
@@ -1641,6 +1645,8 @@ min::gen PAR::end_block
     parser->trace_flags = (&b)->saved_trace_flags;
     * (min::Uchar *) & parser->id_map->ID_character =
         (&b)->saved_ID_character;
+    min::ID_assign_ref ( parser->id_map ) =
+        (&b)->saved_ID_assignment;
 
     min::pop ( parser->block_stack );
 

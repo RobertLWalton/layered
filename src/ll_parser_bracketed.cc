@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 15 04:53:33 EDT 2021
+// Date:	Fri Sep 17 15:12:43 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5186,13 +5186,12 @@ min::locatable_var<PAR::reformatter>
     BRA::bracket_type_reformatter_stack
         ( min::NULL_STUB );
 
-const unsigned ASSIGNMENT_SIGN = 0;
-const unsigned ATTRIBUTE_INITIATOR = 1;
-const unsigned EQUAL_SIGN = 2;
-const unsigned NEGATOR = 3;
-const unsigned FLAGS_OPENING = 4;
-const unsigned MULTIVALUE_OPENING = 5;
-const unsigned ARGS_LENGTH = 6;
+const unsigned INITIATORS = 0;
+const unsigned EQUAL_SIGN = 1;
+const unsigned NEGATOR = 2;
+const unsigned FLAGS_OPENING = 3;
+const unsigned MULTIVALUE_OPENING = 4;
+const unsigned ARGS_LENGTH = 5;
 
 static bool data_reformatter_function
         ( PAR::parser parser,
@@ -5205,6 +5204,8 @@ static bool data_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
+    if ( parser->id_map == min::NULL_STUB )
+        return true;
     BRA::bracket_type prefix_entry =
         (BRA::bracket_type) entry;
     min::obj_vec_ptr args
@@ -5215,7 +5216,7 @@ static bool data_reformatter_function
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
     if (    first->next->next->value
-         != args[ASSIGNMENT_SIGN] )
+         != parser->id_map->ID_assign )
         return true;
 
     // If prefix has attributes other than .type and
@@ -5280,7 +5281,7 @@ static bool data_reformatter_function
 	 == min::INDENTED_PARAGRAPH()
 	 &&
 	    min::get ( v, min::dot_initiator )
-	 == args[ATTRIBUTE_INITIATOR] )
+	 == args[INITIATORS] )
         vector_end = next->previous;
 
     min::phrase_position ID_position =
@@ -5702,7 +5703,7 @@ static void bracket_type_reformatter_stack_initialize
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
     PAR::push_reformatter
-        ( data_name, 6, 6,
+        ( data_name, 5, 5,
 	  ::data_reformatter_function,
 	  BRA::bracket_type_reformatter_stack );
 

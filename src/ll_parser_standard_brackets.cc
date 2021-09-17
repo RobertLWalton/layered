@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 17:05:33 EDT 2021
+// Date:	Fri Sep 17 15:19:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -374,17 +374,10 @@ static void define_bracket_types
 
 	min::locatable_gen raw_data
 	    ( min::new_lab_gen ( "raw", "data" ) );
-	min::locatable_gen equal_equal
-	    ( min::new_str_gen ( "==" ) );
-	min::locatable_gen plus_equal
-	    ( min::new_str_gen ( "+=" ) );
-	min::locatable_gen plus_plus_equal
-	    ( min::new_str_gen ( "++=" ) );
 
 	min::locatable_gen data_arguments
-		( min::new_obj_gen ( 6 ) );
+		( min::new_obj_gen ( 5 ) );
 	min::obj_vec_insptr davp ( data_arguments );
-	min::attr_push ( davp ) = PARLEX::equal;
 	min::attr_push ( davp ) = PARLEX::colon;
 	min::attr_push ( davp ) = PARLEX::equal;
 	min::attr_push ( davp ) = PARLEX::no;

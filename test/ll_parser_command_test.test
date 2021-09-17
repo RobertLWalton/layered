@@ -306,14 +306,17 @@ BRACKETED EXPRESSION:
 *PARSER*:
     begin block X
     define ID character "@"
+    define ID assignment "="
     begin block Y
     define ID character disabled
+    define ID assignment ":="
     begin block Z
     define ID character "$"
+    define ID assignment "::="
     print ID
-        block Z: ID character `$'; ID assignment `:='
+        block Z: ID character `$'; ID assignment `::='
         block Y: ID character disabled; ID assignment `:='
-        block X: ID character `@'; ID assignment `:='
+        block X: ID character `@'; ID assignment `='
         block TOP LEVEL: ID character disabled; ID assignment `:='
     end block Z
     end block Y
@@ -323,6 +326,7 @@ BRACKETED EXPRESSION:
 *PARSER*:
     begin block X
     define ID character "@"
+    define ID assignment "::="
     define top level lexical master DATA-CHECK
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}
@@ -330,9 +334,9 @@ BRACKETED EXPRESSION:
         with parsing selectors [data]
         with group line
         with data reformatter
-             ( "=", ":", "=", "not", "[", "{*" )
+             ( ":", "=", "not", "[", "{*" )
 ERROR: in line ###: previous uses of ID exist and will be dangling:
-@@ = Jill
+@@ ::= Jill
 ^^
 BRACKETED EXPRESSION:
     ID 6 is {|PREALLOCATED(2*4) said `hello there Jack'|}
@@ -349,7 +353,7 @@ ID 4 is @@
         block X: bracket type "data" [TOP LEVEL]
                  with parsing selectors [data]
                  with group line
-                 with data reformatter ( "=", ":", "=", "not", "[",
+                 with data reformatter ( ":", "=", "not", "[",
                  [< "{" "*" >] )
     print mapped lexeme ""
         block X: mapped lexeme "DATA" [TOP LEVEL]

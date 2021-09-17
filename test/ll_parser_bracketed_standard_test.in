@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 02:50:51 EDT 2021
+// Date:	Fri Sep 17 15:48:50 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -273,8 +273,8 @@ This is a bracketed expression (
     ==============================
     )
 
-@5 = A B C
-@6 = 1 2 3 :
+@5 := A B C
+@6 := 1 2 3 :
 	foo = P
 	fum = Q R T
 	fee = @5
@@ -282,16 +282,16 @@ This is a bracketed expression (
 	fie = @8
 	mie = {* X, Y, Z *}
 	moe = {* @5, @7, @8 *}
-@7 = (Z)
-@8 = XYZ
+@7 := (Z)
+@8 := XYZ
 ID 6 is @6
 ID 8 is @8
 
 // Prefix reformatters are not applied to typed
 // bracketed subexpressions.
 //
-{data} @9 = M N P
-{data| @10 = A B C|}
+{data} @9 := M N P
+{data| @10 := A B C|}
 ID 9 is @9
 ID 10 is @10
 
@@ -475,15 +475,15 @@ and a continuation of the outer paragraph.
     begin block BLOCK1
     trace [+ bracketed subexpressions]
 
-@21 = A:
+@21 := A:
     ROOT = @20 = LEAVES
     RIGHT = @22 = LEFT
     LEFT = @23 = RIGHT
-@22 = B:
+@22 := B:
     ROOT = @20 = LEAVES
     RIGHT = @23 = LEFT
     LEFT = @21 = RIGHT
-@23 = C:
+@23 := C:
     ROOT = @20 = LEAVES
     RIGHT = @21 = LEFT
     LEFT = @22 = RIGHT
@@ -492,19 +492,19 @@ ID 21 IS @21
 ID 22 IS @22
 ID 23 IS @23
 
-@30 = ABC:
+@30 := ABC:
     LEAVES[*,@]
     OTHER = {* 5, 6, 7 *}
 ID 30 IS NOW @30
 
-@31 = D:
+@31 := D:
     X[aZ*+,/]
     Y[@] = 5
 
 ID 31 IS @31
 
-!@40 = {X: hi = @5, to = @41 = from, hi = 77,
-           hi[*], hi[@]}
+!@40 := {X: hi = @5, to = @41 = from, hi = 77,
+            hi[*], hi[@]}
 ID 40 IS [@40]
 ID 41 IS [@41]
 

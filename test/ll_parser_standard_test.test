@@ -38,11 +38,11 @@ BRACKETED EXPRESSION:
                     [$ LOGICAL_LINE $]|Line two "."|}|}|}
 WARNING: in line ##: name element "." is a mark or separator and
          therefore should be quoted:
-          f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
-                 ^
+           f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
+                  ^
 ERROR: in line ##: illegal attribute label `98.21'; attribute ignored:
-          d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
-                                      ^^^^^
+           d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
+                                       ^^^^^
 BRACKETED EXPRESSION:
     ID 50 is
         {x: h = [< [< m n >] p >], "," = ":", d = ppp, e =

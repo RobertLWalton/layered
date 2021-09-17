@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  5 15:25:53 EDT 2021
+// Date:	Fri Sep 17 15:46:35 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -11,18 +11,18 @@
 *PARSER*:
     trace [+ parser output]
 
-@10 = x + y
-!@11 = x + y
+@10 := x + y
+!@11 := x + y
 ID 10 is @10
 ID 11 is @11
 
-@20 = x + y:
+@20 := x + y:
 	z = x * y
 	w = u - v
 
-@21 = x * y
-@22 = u - v
-@23 = x + y:
+@21 := x * y
+@22 := u - v
+@23 := x + y:
 	z = @21
 	w = @22
 
@@ -35,17 +35,17 @@ ID 23 is @23
     define indentation mark "::" ... ";" [code]
         with implied header {p}
 
-@30 = this is an indented paragraph::
-	  with a line
-	  and a second line
+@30 := this is an indented paragraph::
+	   with a line
+	   and a second line
 
 ID 30 is @30
 
 *PARSER*:
     end block BLOCK1
 
-@35 = foo
-@36 = "fum"
+@35 := foo
+@36 := "fum"
 ID 35 is @35
 ID 36 is @36
 
@@ -54,37 +54,37 @@ This is a line with an indented paragraph: // A comment
     First line of indented paragraph.
     Second line of indented paragraph.
 
-@40 = This is a code line ending in:
-	  An indented paragragraph; line one.
-	  Line two.
-      :    // Needed to allow indented paragraph to
-           // be an element of @40.
+@40 := This is a code line ending in:
+	   An indented paragragraph; line one.
+	   Line two.
+       :    // Needed to allow indented paragraph to
+            // be an element of @40.
 
 ID 40 is @40
 
 
-@50 = {x: a = "quoted string", b = 53.91, c = yyy 53.91,
-          d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
-	  f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
-	  | "quoted string" 53.91 99 ; foo |x}
+@50 := {x: a = "quoted string", b = 53.91, c = yyy 53.91,
+           d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
+	   f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
+	   | "quoted string" 53.91 99 ; foo |x}
 
 ID 50 is @50
 
-@60 =:
+@60 :=:
        a = @62 = b
-@61 = @60
-@62 =:
+@61 := @60
+@62 :=:
        c = @60 = d
 ID 60 is @60
 ID 61 is @61
 
-@70 =:
+@70 :=:
     a = b 55.44
     c = @71 = d 77.33
     e 22.99 = 5
 ID 70 is @70
 
-@80 = A B C D E:
+@80 := A B C D E:
     2 = X
     "4" = Y
     6 = Z

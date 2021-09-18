@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 16 21:24:31 EDT 2021
+// Date:	Fri Sep 17 20:44:32 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,7 @@ min::locatable_gen PARLEX::left_curly;
 min::locatable_gen PARLEX::right_curly;
 min::locatable_gen PARLEX::comma;
 min::locatable_gen PARLEX::colon;
+min::locatable_gen PARLEX::double_colon;
 min::locatable_gen PARLEX::equal;
 min::locatable_gen PARLEX::vbar;
 min::locatable_gen PARLEX::eaindent;
@@ -165,6 +166,7 @@ static void initialize ( void )
     PARLEX::right_curly = min::new_str_gen ( "}" );
     PARLEX::comma = min::new_str_gen ( "," );
     PARLEX::colon = min::new_str_gen ( ":" );
+    PARLEX::double_colon = min::new_str_gen ( "::" );
     PARLEX::equal = min::new_str_gen ( "=" );
     PARLEX::vbar = min::new_str_gen ( "|" );
 

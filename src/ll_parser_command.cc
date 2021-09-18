@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 16 16:23:14 EDT 2021
+// Date:	Fri Sep 17 21:02:48 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -175,7 +175,6 @@ min::gen COM::scan_args
 	    else if ( result == min::SUCCESS() )
 	    {
 		min::attr_push ( argsvp ) = name;
-		++ j;
 		goto NEXT_ARG;
 	    }
 	    // else if result == min::FAILURE()
@@ -1604,13 +1603,15 @@ static min::gen execute_ID
 		      " unicode character" );
 	    char buffer[21];
 	    min::strcpy ( buffer, sp );
-	    const char * p = buffer, * endp = buffer + slen;
-	    ID_character = min::utf8_to_unicode ( p, endp );
+	    const char * p = buffer,
+	               * endp = buffer + slen;
+	    ID_character =
+	        min::utf8_to_unicode ( p, endp );
 	    if ( ID_character == min::NO_UCHAR )
 		return PAR::parse_error
 		    ( parser, ppvec[i],
-		      "quoted string contains incomplete"
-		      " UTF-8 character" );
+		      "quoted string contains"
+		      " incomplete UTF-8 character" );
 	    if ( * p != 0 )
 		return PAR::parse_error
 		    ( parser, ppvec[i],

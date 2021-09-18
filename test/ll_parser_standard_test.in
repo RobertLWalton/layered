@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 17 15:46:35 EDT 2021
+// Date:	Fri Sep 17 20:58:25 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -38,6 +38,8 @@ ID 23 is @23
 @30 := this is an indented paragraph::
 	   with a line
 	   and a second line
+       ::   // Needed to allow indented paragraph to
+            // be an element of @30.
 
 ID 30 is @30
 

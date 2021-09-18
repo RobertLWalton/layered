@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 17 15:12:43 EDT 2021
+// Date:	Fri Sep 17 20:40:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5278,11 +5278,23 @@ static bool data_reformatter_function
     if ( min::is_obj ( v )
          &&
 	    min::get ( v, min::dot_terminator )
-	 == min::INDENTED_PARAGRAPH()
-	 &&
-	    min::get ( v, min::dot_initiator )
-	 == args[INITIATORS] )
-        vector_end = next->previous;
+	 == min::INDENTED_PARAGRAPH() )
+    {
+	min::gen initiator =
+	    min::get ( v, min::dot_initiator );
+	min::obj_vec_ptr ip = args[INITIATORS];
+	MIN_REQUIRE ( ip != min::NULL_STUB );
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( ip );
+	      ++ i )
+	{
+	    if ( ip[i] == initiator )
+	    {
+		vector_end = next->previous;
+		break;
+	    }
+	}
+    }
 
     min::phrase_position ID_position =
         first->next->position;

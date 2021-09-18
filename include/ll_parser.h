@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 16 16:02:01 EDT 2021
+// Date:	Fri Sep 17 20:45:03 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,6 +59,7 @@ namespace ll { namespace parser {
 	    right_curly,    	// {
 	    comma,		// ,
 	    colon,		// :
+	    double_colon,	// ::
 	    equal,		// =
 	    vbar,		// |
 	    eaindent,		// end at indent

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 10:42:14 EDT 2021
+// Date:	Sat Sep 18 22:19:35 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -315,12 +315,12 @@ SCAN_NEXT_LEXEME:
 		    min::id_map id_map = parser->id_map;
 
 		    min::gen value =
-		        min::get ( id_map, ID );
+		        min::map_get ( id_map, ID );
 		    if ( value == min::NONE() )
 		    {
 			PAR::value_ref(token) =
 			  min::new_preallocated_gen(ID);
-			min::put
+			min::map_set
 			    ( id_map, ID,
 			      token->value );
 		    }

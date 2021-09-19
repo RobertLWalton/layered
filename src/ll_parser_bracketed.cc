@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 17 20:40:12 EDT 2021
+// Date:	Sat Sep 18 22:18:46 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5337,8 +5337,6 @@ static bool data_reformatter_function
 	    min::id_map map = parser->id_map;
 	    MIN_REQUIRE ( ID < map->length );
 	    MIN_REQUIRE ( map[ID] == ID_gen );
-	    MIN_REQUIRE
-		( map->hash_table == min::NULL_STUB );
 	    if (    min::count_of_preallocated
 	                ( ID_gen )
 		 != 1 )
@@ -5346,7 +5344,7 @@ static bool data_reformatter_function
 		    ( parser, ID_position,
 		      "previous uses of ID exist and"
 		      " will be dangling" );
-	    min::put ( map, ID, first->value );
+	    min::map_set ( map, ID, first->value );
 	}
 
 	first = first->next;

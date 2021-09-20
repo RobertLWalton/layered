@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 18 22:19:35 EDT 2021
+// Date:	Mon Sep 20 03:34:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -148,6 +148,18 @@ static void erroneous_atom_announce
 
 // Add Tokens
 // --- ------
+//
+inline bool is_letter ( min::Uchar c )
+{
+    if ( 'A' <= c && c <= 'Z' ) return true;
+    if ( 'a' <= c && c <= 'z' ) return true;
+    return false;
+}
+inline bool is_digit ( min::Uchar c )
+{
+    if ( '0' <= c && c <= '9' ) return true;
+    return false;
+}
 static min::uns32 input_add_tokens
 	( PAR::parser parser, PAR::input input )
 {
@@ -169,6 +181,7 @@ static min::uns32 input_add_tokens
     min::Uchar ID_character =
         parser->id_map->ID_character;
     TAB::flags selectors = parser->selectors;
+    min::locatable_gen symbol;
     while ( true )
     {
 
@@ -291,9 +304,7 @@ SCAN_NEXT_LEXEME:
 	         &&    translation_buffer[0]
 		    == ID_character
 		 &&
-		 ( translation_buffer[1] != '0'
-		   ||
-		   length == 2 ) )
+		 translation_buffer[1] != '0' )
 	    {
 	        min::uns32 ID = 0;
 		min::uns32 i = 1;
@@ -370,7 +381,6 @@ SCAN_NEXT_LEXEME:
 	        token->type = LEXSTD::numeric_t;
 	    break;
 	}
-	case LEXSTD::word_t:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
 	case LEXSTD::quoted_string_t:
@@ -379,6 +389,65 @@ SCAN_NEXT_LEXEME:
 	        ( min::begin_ptr_of
 		      ( translation_buffer ),
 		  translation_buffer->length );
+	    break;
+	}
+	case LEXSTD::word_t:
+	{
+	    min::uns32 length =
+	        translation_buffer->length;
+	    value_ref(token) = min::new_str_gen
+	        ( min::begin_ptr_of
+		      ( translation_buffer ),
+		  length );
+	    if (    length >= 3
+	         &&    translation_buffer[0]
+		    == ID_character
+	         &&    translation_buffer[length-1]
+		    == ID_character
+	         && is_letter ( translation_buffer[1] )
+	       )
+	    {
+		min::uns32 i;
+		for ( i = 2; i < length-1; ++ i )
+		{
+		    min::Uchar c =
+			translation_buffer[i];
+		    if ( is_letter ( c ) ) continue;
+		    if ( is_digit ( c ) ) continue;
+		    break;
+		}
+		if ( i == length-1 )
+		{
+		    // word token has the right format.
+		    //
+		    min::id_map id_map = parser->id_map;
+		    symbol = token->value;
+		        // Made locatable.
+
+		    min::gen value =
+		        min::map_get ( id_map, symbol );
+		    if ( value == min::NONE() )
+		    {
+			PAR::value_ref(token) =
+			  min::new_preallocated_gen(0);
+			min::map_set
+			    ( id_map, symbol,
+			      token->value );
+		    }
+		    else
+		    {
+			PAR::value_ref(token) = value;
+			if ( min::is_preallocated
+			         ( value ) )
+			    min::increment_preallocated
+			         ( value );
+		    }
+
+		    token->type = PAR::find_token_type
+		    	( PAR::value_type_ref(token),
+			  token->value );
+		}
+	    }
 	    break;
 	}
 	case LEXSTD::comment_t:

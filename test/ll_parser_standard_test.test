@@ -71,3 +71,33 @@ BRACKETED EXPRESSION:
     ID 80 is
         {"": "8.4.5" = P, F = [< 1 2 3 >], "4" = Y, G = [< M N P >]|A B
              C D E|}
+BRACKETED EXPRESSION:
+    ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
+BRACKETED EXPRESSION:
+    ID Y is {"": previous = @@ = next, name = Y, next = @@ = previous}
+@@ :=::
+          .position[H] = PACKED_VEC
+          b = @@ = a
+          c = @@ = d
+@@ :=::
+          .position[H] = PACKED_VEC
+          d 77.33 = @@ = c
+@@ :=::
+          previous = @@ = next
+          .position[H] = PACKED_VEC
+          name = Y
+          next = @@ = previous
+@@ :=::
+          name = X
+          next = @@ = previous
+          previous = @@ = next
+          .position[H] = PACKED_VEC
+@@ :=::
+          a = @@ = b
+          .position[H] = PACKED_VEC
+          d = @@ = c
+@@ :=::
+          .position[H] = PACKED_VEC
+          e 22.99 = 5
+          a = [< b 55.44 >]
+          c = @@ = d 77.33

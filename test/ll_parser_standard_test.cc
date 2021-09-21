@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_print_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 23 20:53:27 EDT 2019
+// Date:	Tue Sep 21 01:56:26 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,5 +25,7 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cout );
 
     PAR::parse();
+
+    min::print_id_map ( PAR::default_parser->printer );
 }
 

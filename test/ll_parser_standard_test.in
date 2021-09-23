@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 21 01:48:46 EDT 2021
+// Date:	Thu Sep 23 11:42:56 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -96,11 +96,11 @@ ID 70 is @70
     G = M N P
 ID 80 is @80
 
-@X@ :=:
-    next = @Y@ = previous
+@<X> :=:
+    next = @<Y> = previous
     name = X
-@Y@ :=:
-    next = @X@ = previous
+@<Y> :=:
+    next = @<X> = previous
     name = Y
-ID X is @X@
-ID Y is @Y@
+ID X is @<X>
+ID Y is @<Y>

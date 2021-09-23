@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 20 03:34:12 EDT 2021
+// Date:	Thu Sep 23 11:41:03 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -399,16 +399,18 @@ SCAN_NEXT_LEXEME:
 	        ( min::begin_ptr_of
 		      ( translation_buffer ),
 		  length );
-	    if (    length >= 3
+	    if (    length >= 4
 	         &&    translation_buffer[0]
 		    == ID_character
+	         &&    translation_buffer[1]
+		    == '<'
 	         &&    translation_buffer[length-1]
-		    == ID_character
-	         && is_letter ( translation_buffer[1] )
+		    == '>'
+	         && is_letter ( translation_buffer[2] )
 	       )
 	    {
 		min::uns32 i;
-		for ( i = 2; i < length-1; ++ i )
+		for ( i = 3; i < length-1; ++ i )
 		{
 		    min::Uchar c =
 			translation_buffer[i];

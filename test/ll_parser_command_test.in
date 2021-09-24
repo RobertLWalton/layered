@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 17 20:48:50 EDT 2021
+// Date:	Fri Sep 24 04:46:28 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -89,7 +89,7 @@
     define top level lexical master DEFAULT
     begin block X
 
-@hello there
+@<hello> <there>
 
 *PARSER*:
     define top level parsing selectors [data]
@@ -97,13 +97,13 @@
     define mapped lexeme "DATA" [data]
         with token value {data}
 
-@hello there
-@goodby there
+@<hello> <there>
+@<goodby> <there>
 
 *PARSER*:
     end block X
 
-@hello there
+@<hello> <there>
 
 *PARSER*:
     begin block X

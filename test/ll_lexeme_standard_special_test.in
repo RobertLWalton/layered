@@ -3,24 +3,24 @@
 //
 // File:	ll_lexeme_standard_special_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  7 03:30:53 EDT 2017
+// Date:	Fri Sep 24 04:37:44 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-@Unrecognized
-!@Unrecognized <DATA-CHECK>
-@Recognized
-@Recognized
-!@Recognized <MISSING_MASTER>
-@Unrecognized
-!@Unrecognized
+@1 Unrecognized
+!@1 Unrecognized <DATA-CHECK>
+@1 Recognized
+@<X> Recognized
+!@1 Recognized <MISSING_MASTER>
+@1 Unrecognized
+!@1 Unrecognized
 
 -----Unrecognized
 =====Unrecognized <PARAGRAPH-CHECK>
-@Recognized
-!@Recognized
+@<X> Recognized
+!@<X> Recognized
 -----Recognized
 =====Recognized <MISSING_MASTER>
 -----Unrecognized
@@ -29,8 +29,8 @@
 -----Unrecognized
 =====Unrecognized
 |    Unrecognized <ROW-CHECK>
-@Unrecognized
-!@Unrecognized
+@<X> Unrecognized
+!@<X> Unrecognized
 -----Recognized
 =====Recognized
 |    Recognized <MISSING_MASTER>

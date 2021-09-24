@@ -6322,46 +6322,46 @@ BRACKETED EXPRESSION:
   but this {x} is
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|@ this is some data|data}
-@@@@ := "@" this is some data::
+    {data|@<> this is some data|data}
+@@@@ := "@<>" this is some data::
             .position[H] = PACKED_VEC
             .type = data
     line ###:
-@ this is some data
-^^^^^^^^^^^^^^^^^^^
+@<> this is some data
+^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|@ this is some data|data}
-@@@@ := "@" this is some data::
+    {data|@<> this is some data|data}
+@@@@ := "@<>" this is some data::
             .position[H] = PACKED_VEC
             .type = data
     line ###:
-@ this is some data
-^^^^^^^^^^^^^^^^^^^
+@<> this is some data
+^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|@ this is some raw data|raw data}
-@@@@ := "@" this is some raw data::
+    {raw data|@<> this is some raw data|raw data}
+@@@@ := "@<>" this is some raw data::
             .position[H] = PACKED_VEC
             .type = [< raw data >]
     line ###:
-!@ this is some raw data
-^^^^^^^^^^^^^^^^^^^^^^^^
+!@<> this is some raw data
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|@ this is some raw data|raw data}
-@@@@ := "@" this is some raw data::
+    {raw data|@<> this is some raw data|raw data}
+@@@@ := "@<>" this is some raw data::
             .position[H] = PACKED_VEC
             .type = [< raw data >]
     line ###:
-!@ this is some raw data
-^^^^^^^^^^^^^^^^^^^^^^^^
+!@<> this is some raw data
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    !!@ this is something else
-@@@@ := "!!@" this is something else::
+    !!@<> this is something else
+@@@@ := "!!@<>" this is something else::
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
     line ###:
-!!@ this is something else
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+!!@<> this is something else
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {row|======================|row}
 @@@@ := "======================"::

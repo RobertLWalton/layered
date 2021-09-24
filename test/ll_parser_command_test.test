@@ -277,32 +277,32 @@ ERROR: in line ##: `"foo"' does not name a lexeme type:
     define top level lexical master DEFAULT
     begin block X
 BRACKETED EXPRESSION:
-    @hello there
+    @<hello> <there>
     line ##:
-@hello there
-^^^^^^^^^^^^
+@<hello> <there>
+^^^^^^^^^^^^^^^^
 *PARSER*:
     define top level parsing selectors [data]
     define top level lexical master DATA-CHECK
     define mapped lexeme "DATA" [data]
         with token value {data}
 BRACKETED EXPRESSION:
-    {data} @hello there
+    {data} @<hello> <there>
     line ###:
-@hello there
-^^^^^^^^^^^^
+@<hello> <there>
+^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data} @goodby there
+    {data} @<goodby> <there>
     line ###:
-@goodby there
-^^^^^^^^^^^^^
+@<goodby> <there>
+^^^^^^^^^^^^^^^^^
 *PARSER*:
     end block X
 BRACKETED EXPRESSION:
-    @hello there
+    @<hello> <there>
     line ###:
-@hello there
-^^^^^^^^^^^^
+@<hello> <there>
+^^^^^^^^^^^^^^^^
 *PARSER*:
     begin block X
     define ID character "@"

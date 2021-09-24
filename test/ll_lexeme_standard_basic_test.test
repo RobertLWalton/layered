@@ -185,13 +185,39 @@
             Max CType: 1
             Ctype Map Size: 65
             @
+                #####: KEEP(0), OUTPUT(13), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 65
+            @
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 65
+            1-9 <
+                #####: KEEP(0), OUTPUT(13), GOTO(####)
+                Dispatcher ID: #####
+            @
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 61
+            1-9 <
                 #####: KEEP(1), OUTPUT(14), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 65
+            @
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 65
             @
-                #####: KEEP(0), OUTPUT(13), GOTO(####)
                 Dispatcher ID: #####
             !
                 Dispatcher ID: #####
@@ -260,7 +286,34 @@
             Max CType: 1
             Ctype Map Size: 65
             @
+                #####: KEEP(0), OUTPUT(13), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 65
+            @
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 65
+            1-9 <
+                #####: KEEP(0), OUTPUT(13), GOTO(####)
+                Dispatcher ID: #####
+            @
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 61
+            1-9 <
                 #####: KEEP(1), OUTPUT(14), GOTO(####)
+                Dispatcher ID: #####
+  ########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 65
+            @
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -314,7 +367,6 @@
             Max CType: 4
             Ctype Map Size: 65
             @
-                #####: KEEP(0), OUTPUT(13), GOTO(####)
                 Dispatcher ID: #####
             !
                 Dispatcher ID: #####
@@ -531,7 +583,7 @@
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
@@ -543,16 +595,10 @@
             <VT>-<CR>
                 #####: ACCEPT
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
-            Max CType: 0
-            Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
  #########: DISPATCHER
@@ -561,7 +607,13 @@
  #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
             Max CType: 6
             Ctype Map Size: 64
             ! [repeat(INFINITY)]

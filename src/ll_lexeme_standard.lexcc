@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 18 04:08:05 EDT 2021
+// Date:	Fri Sep 24 03:19:59 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -455,27 +455,51 @@ lex
 cc	    NDL::begin_table ( data_check );
 cc
 
-lex	   "@"          keep 0
+lex	   "@" "1-9"    keep 0
+lex	                output data
+lex	                goto within line;
+lex	   "@<"         keep 0
+lex	                output data
+lex	                goto within line;
+lex	   "@@@@"       keep 0
 lex	                output data
 lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "@" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( data_t );
-cc		       NDL::go ( within_line );
+cc	    	       NDL::begin_dispatch
+cc	                       ( "123456789<" );
+cc		           NDL::keep ( 0 );
+cc		           NDL::output ( data_t );
+cc		           NDL::go ( within_line );
+cc		       NDL::end_dispatch();
+cc		       NDL::begin_dispatch ( "@" );
+cc		         NDL::begin_dispatch ( "@" );
+cc		           NDL::begin_dispatch ( "@" );
+cc		             NDL::keep ( 0 );
+cc		             NDL::output ( data_t );
+cc		             NDL::go ( within_line );
+cc		           NDL::end_dispatch();
+cc		         NDL::end_dispatch();
+cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "!@"         keep 1
+lex	   "!@" "1-9"   keep 1
+lex	                output raw data
+lex	                goto within line;
+lex	   "!@<"        keep 1
 lex	                output raw data
 lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "!" );
-cc	               NDL::begin_dispatch ( "@" );
-cc		           NDL::keep ( 1 );
-cc		           NDL::output ( raw_data_t );
-cc		           NDL::go ( within_line );
+cc	             NDL::begin_dispatch ( "@" );
+cc	               NDL::begin_dispatch
+cc		              ( "123456789<" );
+cc		         NDL::keep ( 1 );
+cc		         NDL::output ( raw_data_t );
+cc		         NDL::go ( within_line );
 cc		       NDL::end_dispatch();
+cc		     NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
@@ -545,27 +569,51 @@ lex
 cc	    NDL::begin_table ( paragraph_check );
 cc
 
-lex	   "@"          keep 0
+lex	   "@" "1-9"    keep 0
+lex	                output data
+lex	                goto within line;
+lex	   "@<"         keep 0
+lex	                output data
+lex	                goto within line;
+lex	   "@@@@"       keep 0
 lex	                output data
 lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "@" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( data_t );
-cc		       NDL::go ( within_line );
+cc	    	       NDL::begin_dispatch
+cc	                       ( "123456789<" );
+cc		           NDL::keep ( 0 );
+cc		           NDL::output ( data_t );
+cc		           NDL::go ( within_line );
+cc		       NDL::end_dispatch();
+cc		       NDL::begin_dispatch ( "@" );
+cc		         NDL::begin_dispatch ( "@" );
+cc		           NDL::begin_dispatch ( "@" );
+cc		             NDL::keep ( 0 );
+cc		             NDL::output ( data_t );
+cc		             NDL::go ( within_line );
+cc		           NDL::end_dispatch();
+cc		         NDL::end_dispatch();
+cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "!@"         keep 1
+lex	   "!@" "1-9"   keep 1
+lex	                output raw data
+lex	                goto within line;
+lex	   "!@<"        keep 1
 lex	                output raw data
 lex	                goto within line;
 lex
 cc	           NDL::begin_dispatch ( "!" );
-cc	               NDL::begin_dispatch ( "@" );
-cc		           NDL::keep ( 1 );
-cc		           NDL::output ( raw_data_t );
-cc		           NDL::go ( within_line );
+cc	             NDL::begin_dispatch ( "@" );
+cc	               NDL::begin_dispatch
+cc		              ( "123456789<" );
+cc		         NDL::keep ( 1 );
+cc		         NDL::output ( raw_data_t );
+cc		         NDL::go ( within_line );
 cc		       NDL::end_dispatch();
+cc		     NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 

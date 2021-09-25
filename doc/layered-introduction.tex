@@ -9,6 +9,10 @@
 \usepackage[T1]{fontenc}
 \usepackage{times}
 \usepackage{makeidx}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily
+}
 % \usepackage{pictex} (obsolete? not available under CentOS 7)
 \usepackage{upquote} % (imported to local directory
                      % ; not available under CentOS 7)
@@ -231,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 15, 2021
+September 25, 2021
  
 \end{center}
 
@@ -3955,17 +3959,21 @@ The standard special lexeme types:
 \ttmkey{DATA}{special lexeme}
 \begin{indpar}
 Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
-lexical masters when the next input character is `\TT{@}'.
-The `\TT{@}' becomes the first character of the next lexeme.
+lexical masters when the next input characters are
+`\TT{@{\em D}}', `\TT{@<}', or `\TT{@@@@}', where {\em D}
+is a non-zero ASCII digit.
+The recognized input characters become the first characters of the next lexeme.
 Typically mapped to the `\TT{\{data\}}' prefix separator.
 \end{indpar}
 
 \ttmkey{RAW-DATA}{special lexeme}
 \begin{indpar}
 Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
-lexical masters when the next 2 input characters are `\TT{!@}'.
-The `\TT{!}' is discarded and the `\TT{@}' becomes the
-first character of the next lexeme.
+lexical masters when the next input characters are
+`\TT{!@{\em D}}' or `\TT{!@<}'.
+The `\TT{!}' is discarded and the other recognized input
+characters become the
+first characters of the next lexeme.
 Typically mapped to the `\TT{\{raw data\}}' prefix separator.
 \end{indpar}
 
@@ -3992,7 +4000,8 @@ Typically mapped to the `\TT{\{row\}}' prefix separator.
 The standard lexical masters that recognize special lexemes all
 branch to the standard \TT{DEFAULT} lexical master after finding a
 single special lexeme, or if there is no special lexeme in the
-input.  The standard lexical masters are:
+input.  The standard lexical masters are as follows, where
+{\em D} is a non-zero ASCII digit:
 
 \begin{center}
 \begin{tabular}{l@{\hspace{0.4in}}lll}
@@ -4000,13 +4009,17 @@ input.  The standard lexical masters are:
 Lexical Master Name	& Trigger Characters	& Lexical Type   & Discarded
 \\\hline
 \\[0.5ex]
-\TT{PARAGRAPH-CHECK}	& \TT{@}		& \TT{DATA}	& none \\
-			& \TT{!@}		& \TT{RAW-DATA} & \TT{!} \\
+\TT{PARAGRAPH-CHECK}	& \TT{@{\em D}} ~~~ \TT{@<} ~~~ \TT{@@@}
+						& \TT{DATA}	& none \\
+			& \TT{!@{\em D}} ~~~ \TT{!@<}
+						& \TT{RAW-DATA} & \TT{!} \\
 			& \TT{-{}-{}-{}-{}-}	& \TT{TABLE}	& none \\
 			& \TT{=====}		& \TT{TABLE}	& none
 \\[2ex]
-\TT{DATA-CHECK}		& \TT{@}		& \TT{DATA}	& none \\
-			& \TT{!@}		& \TT{RAW-DATA} & \TT{!}
+\TT{DATA-CHECK}		& \TT{@{\em D}} ~~~ \TT{@<} ~~~ \TT{@@@}
+						& \TT{DATA}	& none \\
+			& \TT{!@{\em D}} ~~~ \TT{!@<}
+						& \TT{RAW-DATA} & \TT{!} \\
 \\[2ex]
 \TT{TABLE-CHECK}	& \TT{-{}-{}-{}-{}-}	& \TT{TABLE}	& none \\
 			& \TT{=====}		& \TT{TABLE}	& none
@@ -5707,9 +5720,14 @@ The general syntax is:
               $|$ {\em bracketed-subexpression}
 \\[0.5ex]
 \emkey{object-id} ::= \begin{tabular}[t]{l}
-                      \ttmkey{@}{in object ID} {\em natural-number} \\
+                      \ttmkey{@}{in object ID} {\em ID-number}
+		      $|$ \TT{@<}{\em ID-symbol}\TT{>} \\
 		      This is a special kind of {\em label}.
 		      \end{tabular}
+\\[0.5ex]
+\emkey{ID-number} :::= {\em non-zero-ASCII-digit} ~ {\em ASCII-digit}\STAR{}
+\\[0.5ex]
+\emkey{ID-symbol} :::= {\em ASCII-letter} ~ {\em ASCII-letter-or-digit}\STAR{}
 \\[2ex]
 Most of the following are defined by the {\em parser-typed-bracket-command}
     (\pagref{PARSER-TYPED-BRACKET-COMMAND}):
@@ -6711,10 +6729,10 @@ multi-sets).
 
 A simple example involving {\em double-attribute-values} is:
 \begin{indpar}[0.2in]\begin{verbatim}
-@1 ::=::
+@1 :=::
     name = Jack
     wife = @2 = husband
-@2 ::=::
+@2 :=::
     name = Jill
     husband = @1 = wife
 \end{verbatim}\end{indpar}
@@ -6743,18 +6761,18 @@ previous references are \key{dangling} and unusable.
 For example:
 \begin{center}
 \begin{tabular}{lrl}
-\TT{@5 = Bill}      & sets \TT{@5} to  & the MIN string `\TT{Bill}' \\
+\TT{@5 := Bill}     & sets \TT{@5} to  & the MIN string `\TT{Bill}' \\
                     & instead of       & the list whose only element is
 		    					`\TT{Bill}' \\
 		    &  & previous uses of \TT{@5} are dangling
 \\[1ex]
-\TT{@5 = ( a b c )} & sets \TT{@5} to & ( a b c ) \\
+\TT{@5 := ( a b c )} & sets \TT{@5} to & ( a b c ) \\
                     & instead of      & \TT{\{| ( a b c ) |\}}
 \\[1ex]
-\TT{@5 = \{| a b c |\}} & sets \TT{@5} to & \TT{\{| a b c |\}} \\
+\TT{@5 := \{| a b c |\}} & sets \TT{@5} to & \TT{\{| a b c |\}} \\
                     & instead of      & \TT{\{| \{| a b c |\} |\}}
 \\[1ex]
-\TT{@5 = a b c}     & sets \TT{@5} to  & \TT{\{| a b c |\}} \\
+\TT{@5 := a b c}    & sets \TT{@5} to  & \TT{\{| a b c |\}} \\
 		    & \multicolumn{2}{l}{which is NOT a special case}
 \end{tabular}
 \end{center}
@@ -8591,21 +8609,21 @@ into \TT{BRACKETABLE} tokens: see \pagref{MERGING-BRACKETABLE-TOKENS}.
 Thus given `\TT{(x, y)}', the `\TT{separator}' reformatter
 applied to `\TT{x, y}' will return
 \begin{indpar}\begin{verbatim}
-@1 = x y:
+@1 := x y::
          .separator = ","
 \end{verbatim}\end{indpar}
 so without this merging the bracketed subexpression recognition
 pass would produce
 \begin{indpar}\begin{verbatim}
-@2 = @1:
+@2 := @1::
          .initiator = "("
          .terminator = ")"
-@1 = x y:
+@1 := x y::
          .separator = ","
 \end{verbatim}\end{indpar}
 but instead it produces
 \begin{indpar}\begin{verbatim}
-@1 = x y :
+@1 := x y::
          .initiator = "("
          .terminator = ")"
          .separator = ","
@@ -8914,451 +8932,7 @@ and \underline{not} two word elements of the subexpression.
 \label{STANDARD-LEXICAL-PROGRAM}
 
 \begin{indpar}
-\begin{verbatim}
-// This file was automatically generated from
-// ll_lexeme_standard.lexcc.
-
-
-begin standard lexical program;
-
-"<horizontal>" = "<UNICODE-CATEGORY-Zs>"
-               | "<HT>";
-
-"<misplaced-horizontal>" =
-          "<horizontal>"
-        & ~ "<SP>";
-
-"<vertical>" = "<CR>" | "<VT>" | "<FF>"
-
-"<graphic>" = "<UNICODE-CATEGORY-L>"
-            | "<UNICODE-CATEGORY-M>"
-            | "<UNICODE-CATEGORY-N>"
-            | "<UNICODE-CATEGORY-P>"
-            | "<UNICODE-CATEGORY-S>"
-
-"<control>" = "<UNICODE-CATEGORY-C>"
-            | "<UNICODE-CATEGORY-Z>"
-
-"<illegal-control>" = "<control>"
-                    & ~ "<horizontal>"
-                    & ~ "<vertical>"
-                    & ~ "<LF>"
-
-"<isolated-separator>"
-        = "<UNICODE-CATEGORY-Ps>"
-        | "<UNICODE-CATEGORY-Pi>"
-        | "<UNICODE-CATEGORY-Pe>"
-        | "<UNICODE-CATEGORY-Pf>"
-
-"<repeating-separator>" = "|"
-
-"<separator>"
-        = "<isolated-separator>"
-        | "<repeating-separator>"
-
-"<leading>"
-        = "`"
-        | "<0A1>"  // Inverted !
-        | "<0BF>"  // Inverted ?
-
-"<trailing>"
-        = "'" | "!" | "?" | "." | ":"
-        | "," | ";"
-
-"<letter>" = "<UNICODE-CATEGORY-L>"
-
-"<sign>" = "+" | "-"
-
-"<digit>" = "<UNICODE-CATEGORY-Nd>"
-
-"<non-decimal-digit>" = "<digit> & ~ "0-9"
-
-"<mark>" = (   "<UNICODE-CATEGORY-P>"
-             | "<UNICODE-CATEGORY-S>"
-             | "<UNICODE-CATEGORY-M>"
-             | "<UNICODE-CATEGORY-N>" )
-         & ~ "<digit>"
-         & ~ "<separator>"
-         & ~ "<Q>"
-
-"<middle>" =   "<graphic>"
-           & ~ "<trailing>"
-           & ~ "<separator>"
-           & ~ "<Q>"
-
-"<mark-middle>" = "<mark>" & ~ "<trailing>"
-
-"<directly-quotable>" = (     "<graphic>"
-                          & ~ "<"
-                          & ~ "<Q>" )
-                      | "<SP>"
-
-"<escape>" = "A-Z" | "0-9"
-
-
-begin start file master table;
-   output start file goto begin line
-end start file master table;
-
-
-begin begin line master table;
-
-   "<horizontal><repeat><graphic>"
-                keep 1
-                output indent
-                goto horizontal space
-   "<horizontal><repeat>"
-                output horizontal space
-
-   "<graphic>"
-        keep 0
-        output indent
-        goto within line
-
-   "<LF>" goto line break
-
-   "<vertical><repeat><LF>" goto line break
-   "<vertical><repeat>"
-                output misplaced vertical
-
-   "<illegal-control><repeat>"
-        output illegal control
-
-   "<others><repeat>"
-        error unrecognized character
-
-   output premature end of file goto end of file
-        // End of file not following a line
-        // break
-end begin line master table;
-
-
-begin horizontal space sublexeme table;
-
-   "<horizontal>" accept;
-
-   goto within line;
-end horizontal space sublexeme table;
-
-
-begin data check master table;
-
-   "@"          keep 0
-                output data
-                goto within line;
-
-   "!@"         keep 1
-                output raw data
-                goto within line;
-
-   goto within line;
-end data check master table;
-
-
-begin table check master table;
-
-   "====="      keep 0
-                output table
-                goto row check;
-
-   "-----"      keep 0
-                output table
-                goto row check;
-
-   goto within line;
-end table check master table;
-
-
-begin paragraph check master table;
-
-   "@"          keep 0
-                output data
-                goto within line;
-
-   "!@"         keep 1
-                output raw data
-                goto within line;
-
-   "====="      keep 0
-                output table
-                goto row check;
-
-   "-----"      keep 0
-                output table
-                goto row check;
-
-   goto within line;
-end paragraph check master table;
-
-
-begin row check master table;
-
-   "|"          keep 0
-                output row
-                goto within line;
-
-   "="          keep 0
-                output row
-                goto within line;
-
-   "-"          keep 0
-                output row
-                goto within line;
-
-   goto within line;
-end row check master table;
-
-
-begin within line master table;
-
-   "//" goto comment;
-   "/"  goto mark;
-
-   "<horizontal><repeat>"
-        output horizontal space;
-
-   "<LF>" goto line break
-
-   "<vertical><repeat><LF>" goto line break
-   "<vertical><repeat>"
-                output misplaced vertical
-
-   "<illegal-control><repeat>"
-        output illegal control
-
-   "<isolated-separator>" output separator;
-   "|<repeat>" output separator;
-   "`<repeat>" output separator;
-   "<0A1><repeat>" output separator;
-        // Inverted !
-   "<0BF><repeat>" output separator;
-        // Inverted ?
-
-   "<trailing><repeat><letter>"
-                output word
-                goto goto finish middle;
-   "<trailing><repeat><digit>"
-                output numeric
-                goto finish middle;
-   "<trailing><repeat><mark-middle>"
-                goto mark
-   "<trailing><repeat>"
-                keep 0
-                goto separator;
-
-   "<letter>" output word goto finish middle;
-
-   "0" goto leading zero;
-
-   "1-9" goto natural;
-
-   "<non-decimal-digit>" output numeric
-                         goto finish middle;
-
-   "<mark-middle>" goto mark;
-
-   "<Q>" translate to "" goto quoted string;
-
-   "<others><repeat>"
-        error unrecognized character
-
-   output premature end of file goto end of file
-        // End of file not following a line
-        // break
-end within line master table;
-
-
-// The below tables are entered from the master
-// table with the first atom scanned, unless
-// otherwise indicated.
-
-begin comment lexeme table;
-
-   "<graphic>" accept
-   "<horizontal>" accept
-
-   "<LF>" keep 0 goto within line
-   "<vertical><repeat><LF>" keep 0
-                            goto within line
-   "<vertical><repeat>"
-        error mispaced vertical
-   "<illegal-control><repeat>"
-        error illegal control
-   "<others><repeat>"
-        error unrecognized character
-   goto within line
-      // which will output premature end of file
-end comment lexeme table;
-
-
-begin line break lexeme table;
-
-   "<vertical>" accept;
-
-   "<others>" keep 0 goto begin line
-
-    goto end of file
-end line break lexeme table;
-
-
-begin separator lexeme table;
-    // First atom is not scanned; next lexeme
-    // must be a trailing separator if it has
-    // the syntax of such.
-
-   "!<repeat>" goto finish separators
-   "?<repeat>" goto finish separators
-   ".<repeat>" goto finish separators
-   ":<repeat>" goto finish separators
-   "'<repeat>" goto finish separators
-   "," goto finish separators
-   ";" goto finish separators
-
-   output NONE goto within line;
-end separator lexeme table;
-
-
-begin finish separators master table;
-    // Come here to end lexeme when next lexeme
-    // must be a trailing separator if it has
-    // the syntax of such.
-
-   goto separator;
-end finish separators master table;
-
-
-begin finish middle sublexeme table;
-    // Come here when type of middle lexeme has
-    // been set by an `output' instruction.
-
-   "<middle>" accept;
-
-   "<trailing><repeat><middle>" accept;
-   "<trailing><repeat>"
-        keep 0 goto finish separators;
-
-   goto within line;
-end finish middle sublexeme table;
-
-
-begin mark lexeme table;
-    // Middle lexeme with no letter or digit yet
-    // scanned.  Will be mark if none found.
-
-   "<letter>" output word goto finish middle;
-
-   "<digit>" output numeric goto finish middle;
-
-   "<mark-middle>" accept;
-
-   "<trailing><repeat><letter>"
-                output word
-                goto finish middle;
-   "<trailing><repeat><digit>"
-                output numeric
-                goto finish middle;
-   "<trailing><repeat><mark-middle>" accept;
-   "<trailing><repeat>"
-        keep 0 goto finish separators;
-
-   goto within line;
-end mark lexeme table;
-
-
-begin leading zero sublexeme table;
-
-   "<middle>"
-        output numeric goto finish middle
-   "<trailing><repeat><middle>"
-        output numeric goto finish middle;
-   "<trailing><repeat>"
-        output natural keep 0
-        goto finish separators
-
-   output natural goto within line;
-end leading zero sublexeme table;
-
-
-begin natural lexeme table;
-
-   "0-9" accept;
-
-   "<non-decimal-digit>" output numeric
-                         goto finish middle;
-   "<letter>"          output numeric
-                       goto finish middle;
-   "<mark-middle>"     output numeric
-                       goto finish middle;
-
-   "<trailing><repeat><middle>"
-        output numeric goto finish middle;
-   "<trailing><repeat>"
-        keep 0 goto finish separators;
-
-   goto within line;
-end natural lexeme table;
-
-
-begin quoted string lexeme table;
-
-    "<Q>" translate to "" goto within line;
-            // End quoted string.
-
-    "<" "<0-9>" ">"
-        translate hex 1 1
-    "<" "<0-9><escape><repeat>" ">"
-        translate hex 1 1
-        else error unrecognized escape
-             translate to "<UUC>"
-    "<" "<A-Z>" ">"
-             translate name 1 1
-        else error unrecognized escape
-             translate to "<UUC>"
-    "<" "<A-Z><escape><repeat>" ">"
-           translate name 1 1
-        else error unrecognized escape
-             translate to "<UUC>"
-    "<"
-        accept;
-
-
-    "<directly-quotable>" accept;
-
-   "<LF>"
-        keep 0 goto premature end of string
-   "<vertical><repeat><LF>"
-        keep 0 goto premature end of string
-   "<vertical><repeat>"
-        error mispaced vertical
-    "<misplaced-horizontal><repeat>"
-        error misplaced horizontal
-   "<illegal-control><repeat>"
-        error illegal control
-   "<others><repeat>"
-        error unrecognized character
-
-    goto premature end of string;
-end quoted string lexeme table;
-
-
-begin premature end of string master table;
-
-    output premature end of string
-    goto within line;
-end premature end of string master table;
-
-
-begin end of file master table;
-    output end of file goto stop
-end end of file master table;
-
-
-begin stop master table;
-end stop master table;
-
-
-end standard lexical program;
-\end{verbatim}
+\lstinputlisting{../test/ll_lexeme_standard.lex}
 \end{indpar}
 
 \newpage
@@ -9366,858 +8940,9 @@ end standard lexical program;
 \section{C++ Lexical Program}
 \label{C++-LEXICAL-PROGRAM}
 
-\begin{indpar}\begin{verbatim}
-// This file was automatically generated from
-// ll_lexeme_c++.lexcc.
-
-begin c++ lexical program;
-
-// Before this lexical program is used the input
-// should be preprocessed to
-//
-//    (1) Replace trigraph sequences.
-//    (2) Eliminate carriage-returns next to a
-//        newline (others become misplaced)
-//    (3) Eliminate sequences of the form:
-//        backslash newline
-//
-// After this lexical program is used the output
-// should be post-processed to
-//
-//    (4) Perform C/C++ macro preprocessing
-//        (macro expansion).
-//    (5) Delete whitespace and newlines.
-//    (6) Concatenate adjacent quoted strings
-//        of the same character type (ordinary,
-//        u, U, or L).
-
-"<digit>" = "0-9";
-
-"<non-zero-digit>" = "1-9";
-
-"<oct-digit>" = "0-7";
-
-"<hex-digit>" = "0-9" | "a-f" | "A-F";
-
-"<ascii-letter>" = "a-z" | "A-Z";
-
-"<letter>" = "<UNICODE-CATEGORY-L>"
-
-"<non-ascii-letter>" =   "<letter>"
-                     & ~ <ascii-letter>
-
-"<ascii-character>" =   "<00-3F>"
-
-// <non-spacing-combining-char> ::=
-//         "<UNICODE-CATEGORY-Mn>"
-
-// Universal characters are only permitted in
-// identifiers, character literals, and string
-// literals.  In identifiers they must represent
-// non-ASCII-letters or non-ASCII combining
-// characters, and the latter cannot be the
-// initial character of an identifier.
-
-"<identifier-non-digit>" = "_" | "<letter>";
-
-"<identifier-char>" =
-      "<identifier-non-digit>"
-    | "<digit>"
-    | "<non-spacing-combining_char>"
-
-"<non-ascii-identifier-char>" =
-      "<identifier-char>" & ~ <ascii-char>
-
-// Because `u', `U', or `L' can start a char-
-// acter or string literal, we must define:
-//
-"<u_U_L>" = "u" | "U" | "L";
-"<identifier-non-literal>" =
-          "<identifier-non-digit>"
-        & ~ "<u_U_L>";
-
-"<whitespace-char>" =
-    " " | "<HT>" | "<VT>" | "<FF>";
-    // newline is treated separately
-
-
-// The following can begin an operator or punc-
-// tuation mark.
-//
-// / not followed by / or * and . not followed
-// by <digit> are handled separately.
-//
-"<op-char>" = "#" | "<" | ">" | ":" | "%" |
-            | "?" | "+" | "-" | "*" | "="
-            | "^" | "&" | "|" | "~" | "!" | ","
-            | "(" | ")" | "[" | "]" | "{" | "}"
-            | ";";
-
-"<sign>" = "+" | "-" ;
-
-"<u_U>" = "u" | "U" ;
-
-
-// C/C++ preprocessing is hereafter abbreviated
-// as `pp'.
-
-// Alternative operators that are not identi-
-// fiers are translated.  E.g., <: becomes [ in
-// the lexeme translation.
-
-// C++ punctuation are treated as `operators'.
-
-// Pp numbers are divided into 5 categories
-// (note that a `suffix' is an identifier):
-//
-//      decimal integer
-//          nothing but digits not beginning
-//          with 0, with an optional suffix
-//      octal integer
-//          nothing but octal digits beginning
-//          with 0, with an optional suffix
-//      hexadecimal integer
-//          nothing but hexadecimal digits
-//          refaced by 0x or 0X, with an
-//          optional suffix
-//      float
-//          legal floating point #'s, with an
-//          optional suffix
-//      pp number
-//          all other pp numbers
-
-// Because of pp control lines, lexical scanning
-// is slightly context dependent.  There are
-// several contexts, each corresponding to a
-// different master table:
-//
-//    initial master
-//        Used in line beginning situations to
-//        recognize the # token that introduces
-//        a pp control line.
-//    pp beginning master
-//        Used to scan the beginning of a pp
-//        control line after the # has been
-//        scanned but before anything else is
-//        scanned.
-//    pp include master
-//        Used to scan the pp-header token in a
-//        #include line after #include has been
-//        scanned.
-//    normal master
-//        Used to scan a non pp control line or
-//        the rest of a pp control line after
-//        any #include header.
-//
-// The whitespace lexeme types are:
-//
-//    newline
-//        a single <NL>
-//    horizontal-space
-//        sequence of "<whitespace-char>"s
-//        (excludes <NL>'s)
-//    comment
-//        "/*" comment (including /* and */)
-//        "//" comment (including // but not
-//                      ending newline)
-//
-// This allows line feeds to be used to end pp
-// control lines.
-
-
-// Characters that are not part of legal lexemes
-// and which are outside character literal ''s
-// and and quoted string literal ""s are made
-// into error lexemes that can separate other
-// lexemes in exactly the same way that white-
-// space can.
-//
-// Note that ## cannot be used to move charac-
-// ters inside a character or string literal ''
-// or "".  Also, we do NOT allow ## to append a
-// combining character to another character.
-// Therefore ## cannot be used to create a legal
-// pp token by concatenating a legal pp token
-// with a stray character that is not part of a
-// legal pp token.  Thus we can treat all stay
-// characters as errors, instead of making them
-// into pp tokens.
-
-// Characters that are part of erroneous atoms
-// INSIDE character literal ''s or quoted string
-// ""s are announced as part of an erroneous
-// atom which is translated to "" and ignored as
-// if it did not appear at all in the input.
-
-begin initial master table;
-
-    "<whitespace-char>" call whitespace;
-
-    // We only need handle /*...*/ comments
-    // because only these can occur INSIDE
-    // a pp directive line.
-    //
-    "/*" call "/*" comment;
-
-    "#" output operator goto pp beginning;
-    "##" output operator goto normal;
-
-    "%:" translate to "#" output operator
-         goto pp beginning;
-    "%:%:" translate to "##" output operator
-           goto normal;
-
-    goto normal;
-
-end initial master table;
-
-
-begin pp beginning master table;
-
-    "<whitespace-char>" call whitespace;
-
-    // We only need handle /*...*/ comments
-    // because only these can occur inside
-    // pp directive line.
-    //
-    "/*" call "/*" comment;
-
-    // "include" identifier must be followed by
-    // one of the following for a header to be
-    // recognized:
-    //
-    //     <whitespace-char>
-    //     /* comment
-    //     <...> header
-    //     "..." header
-    //
-    "include<whitespace-char>"
-        keep 7 output identifier
-        goto pp include;
-    "include/"
-        keep 7 output identifier
-        goto pp include;
-    "include<"
-        keep 7 output identifier
-        goto pp include;
-    "include<Q>"
-        keep 7 output identifier
-        goto pp include;
-
-    goto normal;
-
-end pp beginning master table;
-
-begin pp include master table;
-
-    "<whitespace-char>" call whitespace;
-
-    // We only need handle /*...*/ comments
-    // because only these can occur inside
-    // pp directive line.
-    //
-    "/*" call "/*" comment;
-
-    "<" translate to ""
-        goto bracketed header name;
-
-    "<Q>" translate to ""
-        goto quoted header name;
-
-    goto normal;
-
-end pp include master table;
-
-
-begin premature newline master table;
-
-    output premature newline goto normal;
-
-end premature newline master table;
-
-
-begin premature end of file master table;
-
-    output premature end of file goto initial;
-
-end premature end of file master table;
-
-begin whitespace lexeme table;
-
-    "<whitespace-char>" accept;
-
-    return;
-
-end whitespace lexeme table;
-
-
-begin "/*" comment lexeme table;
-
-    "*/" return;
-    "*" accept;
-
-    "<other>" accept;
-
-    translate_to "*/"
-    goto premature end of file;
-
-end "/*" comment lexeme table;
-
-
-begin "//" comment lexeme table;
-
-    "<NL>" keep 0 return;
-
-    "<other>" accept;
-
-    goto premature end of file;
-
-end "//" comment lexeme table;
-
-
-begin bracketed header name lexeme table;
-
-    ">" translate to "" goto normal;
-
-    "<NL>"
-        keep 0 goto premature newline;
-
-    "<other>" accept;
-
-    goto premature end of file;
-
-end bracketed header name lexeme table;
-
-
-// Quoted header names are not the same as
-// quoted strings, and cannot have escape
-// sequences.
-//
-begin quoted header name lexeme table;
-
-    "<Q>" translate to "" goto normal;
-
-    "<NL>"
-        keep 0 goto premature newline;
-
-    "<other>" accept;
-
-    goto premature end of file;
-
-end quoted header name lexeme table;
-
-
-begin normal master table;
-
-    "<whitespace-char>" call whitespace;
-
-    "/*" call "/*" comment;
-    "//" call "//" comment;
-    "/" match operator output operator
-        // match should always succeed
-
-    "<op-char>"
-        match operator output operator
-        // match should always succeed
-
-    "<identifier-non-literal>"
-        call identifier;
-        // Also see "u/U/L..." etc. below.
-
-    "u'" translate to ""
-         output u char literal
-         call char literal;
-    "u<Q>" translate to ""
-           output u string literal
-           call string literal;
-    "u"  call identifier;
-
-    "U'" translate to ""
-         output U char literal
-         call char literal;
-    "U<Q>" translate to ""
-           output U string literal
-           call string literal;
-    "U"  call identifier;
-
-    "L'" translate to ""
-         output L char literal
-         call char literal;
-    "L<Q>" translate to ""
-           output L string literal
-           call string literal;
-    "L"  call identifier;
-
-    "\<u_U>" match universal char
-             require <non-ascii-letter>
-             call identifier
-        else match universal char
-             require "<ascii-char>"
-             output ascii universal char
-        else match universal char
-             output misplaced universal char
-        else match short universal char
-             output universal char
-             // Match should always succeed.
-    "\" output misplaced char
-
-    "<non-zero-digit>" call decimal integer;
-
-    "0x" call hexadecimal integer;
-    "0X" call hexadecimal integer;
-    "0" call octal integer;
-
-    ".<digit>" call fraction;
-    "." match operator output operator
-        // match should always succeed
-
-    "'" translate to ""
-        output char literal
-        call char literal;
-
-    "<Q>" translate to ""
-          output string literal
-          call string literal;
-
-    "<NL>" output newline goto initial;
-
-    "<other>" output misplaced char;
-
-    output end of file;
-
-end normal master table;
-
-
-begin operator atom table;
-
-    "("; ")"; "["; "]"; "{"; "}"; ";"; ","; "?";
-    "~";
-
-    "#";
-    "##";
-
-    "<:" translate to "[";
-    "<%"; translate to "{";
-    "<<="; "<<"; "<";
-
-    ">>="; ">>"; ">";
-
-    ":>" translate to "]";
-    "::"; ":";
-
-    "%>" translate to "}";
-    "%:%:" translate to "##";
-    "%:" translate to "#";
-    "%="; "%";
-
-    "..."; ".*"; ".";
-
-    "++"; "+="; "+";
-
-    "->*"; "->"; "--"; "-="; "-";
-
-    "*="; "*";
-    "/="; "/";
-    "^="; "^";
-    "!="; "!";
-    "=="; "=";
-
-    "&&"; "&="; "&";
-
-    "||"; "|="; "|";
-
-    fail;
-
-end operator atom table;
-
-
-begin identifier lexeme table;
-
-    "<identifier-non-digit>" accept;
-    "<digit>" accept;
-
-    "\<u_U>" match universal char
-             require "<non-ascii-letter>"
-        else keep 0 return
-
-    return;
-
-end identifier lexeme table;
-
-"<e_E> = "e" | "E";
-"<identifier-non-digit-except-eE>" =
-    "<identifier-non-digit>" & ~ "<e_E>";
-
-
-begin decimal integer lexeme table;
-
-    "<digit>" accept;
-
-    "." goto fraction;
-
-    "<e_E><sign><digit>" goto exponent;
-    "<e_E><sign>" goto pp number;
-    "<e_E><digit>" goto exponent;
-    "<identifier-non-digit>" goto suffix;
-
-    "\"      match universal char
-             require "<non-ascii-letter>"
-             goto suffix
-        else keep 0 return
-
-    return;
-
-end decimal integer lexeme table;
-
-
-begin octal integer lexeme table;
-
-    "<oct-digit>" accept;
-
-    "8" goto float integer;
-    "9" goto float integer;
-
-    "." goto fraction;
-
-    "<e_E><sign><digit>" goto exponent;
-    "<e_E><sign>" goto pp number;
-    "<e_E><digit>" goto exponent;
-    "<identifier-non-digit>" goto suffix;
-
-    "\"      match universal char
-             require "<non-ascii-letter>"
-             goto suffix
-        else keep 0 return
-
-    return;
-
-end octal integer lexeme table;
-
-"<identifier-non-hex-digit>" =
-    "<identifier-non-digit>" & ~ "<hex-digit>";
-
-
-begin hexadecimal integer lexeme table;
-
-    "<hex-digit>" accept;
-
-    "<identifier-non-hex-digit>" goto suffix;
-
-    "\"      match universal char
-             require "<non-ascii-letter>"
-             goto suffix
-        else keep 0 return
-
-    return;
-
-end hexadecimal integer lexeme table;
-
-
-// integer began with 0 and then included a
-// non-octal digit.
-//
-begin float integer lexeme table;
-
-    "<digit>" accept;
-
-    "." goto fraction;
-
-    "<e_E><sign><digit>" goto exponent;
-    "<e_E><sign>" goto pp number;
-    "<e_E><digit>" goto exponent;
-    "<identifier-non-digit>" goto pp number;
-
-    "\"      match universal char
-             require "<non-ascii-letter>"
-             goto pp_number
-        else keep 0 goto pp number
-
-    goto pp number;
-
-end float integer lexeme table;
-
-
-// Come here to process suffix at end of integer
-// or float lexeme.  Similar to identifier but
-// changes lexeme type to pp number when certain
-// character sequences are encountered.
-//
-begin suffix sublexeme table;
-
-    "<identifier-non-digit-except-eE>" accept;
-    "<digit>" accept;
-
-    "<e_E><sign>" goto pp number;
-    "<e_E>" accept;
-
-    "." goto pp number;
-
-    "\<u_U>" match universal char
-             require
-                 "<non-ascii-identifier-char>"
-             else keep 0 return;
-
-    return;
-
-end suffix sublexeme table;
-
-begin pp number lexeme table;
-
-    "<identifier-non-digit-except-eE>" accept;
-    "<digit>" accept;
-
-    "<e_E><sign>" accept;
-    "<e_E>" accept;
-
-    "." accept;
-
-    "\<u_U>" match universal char
-             require
-                 "<non-ascii-identifier-char>"
-             else keep 0 return;
-
-    return;
-
-end pp number lexeme table;
-
-
-begin fraction lexeme table;
-
-    "<digit>" accept;
-
-    "." goto pp number;
-
-    "<e_E><sign><digit>" goto exponent;
-    "<e_E><digit>" goto exponent;
-    "<e_E><sign>" goto pp number;
-    "<identifier-non-digit>" goto suffix;
-
-    "\<u_U>" match universal char
-             require "<non-ascii-letter>"
-             goto suffix
-             else keep 0 return;
-
-    return;
-
-end fraction lexeme table;
-
-
-begin exponent lexeme table;
-
-    "<digit>" accept;
-
-    "." goto pp number;
-
-    "<e_E><sign>" goto pp number;
-    "<identifier-non-digit>" goto suffix;
-
-    "\<u_U>" match universal char
-             require "<non-ascii-letter>"
-             goto suffix
-             else keep 0 return;
-
-    return;
-
-end exponent lexeme table;
-
-
-begin char literal sublexeme table;
-
-    "'" translate to "" return;
-
-    "<NL>" keep 0 goto premature newline
-
-    "\" match escaped char
-        // match should always succeed
-
-    "<other>" accept
-
-    goto premature end of file
-
-end char literal sublexeme table;
-
-
-begin string literal sublexeme table;
-
-    "<Q>" translate to "" return;
-
-    "<NL>" keep 0 goto premature newline
-
-    "\" match escaped char
-        // match should always succeed
-
-    "<other>" accept
-
-    goto premature end of file
-
-end string literal sublexeme table;
-
-
-// This atom table is used when the next atom
-// begins with \ and is in a character or string
-// literal.  This atom table always succeeds,
-// but may produce an erroneous atom with ""
-// translation.
-//
-// We allow only a maximum of 8 hexadecimal
-// digits after \x; 9 digits is an error.  The
-// C++ standard permits any number of hexa-
-// decimal digits.
-//
-begin escaped char atom table;
-
-    "\n" translate to "<NL>";
-
-    "\t" translate to "<HT>";
-
-    "\v" translate to "<VT>";
-
-    "\b" translate to "<BS>";
-
-    "\r" translate to "<CR>";
-
-    "\f" translate to "<FF>";
-
-    "\a" translate to "<BEL>";
-
-    "\\" translate to "\";
-
-    "\?" translate to "?";
-
-    "\<Q>" translate to "<Q>";
-
-    "\'" translate to "'";
-
-    "\<oct-digit><oct-digit><oct-digit>"
-        translate oct 1 0;
-    "\<oct-digit><oct-digit>"
-        translate oct 1 0;
-    "\<oct-digit>"
-        translate oct 1 0;
-
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit>"
-        error too long hex escape
-        translate to "";
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit><hex-digit>"
-      "<hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit><hex-digit>"
-        translate hex 2 0;
-    "\x<hex-digit>"
-        translate hex 2 0;
-    "\x" error ill formed escape
-        translate to "";
-
-    "\<u_U>" match universal char
-        else match short universal char
-             error short universal char
-             translate to "";
-             // This should always succeed
-
-"\<NL>" keep 1
-        error ill formed escape
-        translate to "";
-
-"\<other>" error ill formed escape
-           translate to "";
-
-"\" error ill formed escape
-    translate to "";
-    // In case \ followed by end of file
-
-// This table should always succeed.
-
-end escaped char atom table;
-
-
-// This atom table is called when the next
-// atom begins with \U or \u.  If the atom
-// has the correct number of hexadecimal
-// digits after the \U or \u, it is recognized
-// and translated.
-//
-begin universal char atom table;
-
-    "\U<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-        translate hex 2 0;
-
-    "\u<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-        translate hex 2 0;
-
-    fail;
-
-end universal char atom table;
-
-
-// This atom table is called when the next
-// atom begins with \U or \u but there are too
-// few hexadecimal digits following.  An atom
-// is always recognized but is NOT translated.
-//
-begin short universal char atom table;
-
-    "\U<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit>";
-    "\U<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>";
-    "\U<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>"
-      "<hex-digit>";
-    "\U<hex-digit><hex-digit>"
-      "<hex-digit><hex-digit>";
-    "\U<hex-digit><hex-digit>"
-      "<hex-digit>";
-    "\U<hex-digit><hex-digit>";
-    "\U<hex-digit>";
-    "\U";
-
-    "\u<hex-digit><hex-digit>"
-      "<hex-digit>";
-    "\u<hex-digit><hex-digit>";
-    "\u<hex-digit>";
-    "\u";
-
-    // The above should always succeed.
-
-end short universal char atom table;
-
-
-end c++ lexical program;
-
-\end{verbatim}\end{indpar}
-
+\begin{indpar}
+\lstinputlisting{../test/ll_lexeme_c++.lex}
+\end{indpar}
 
 \bibliographystyle{plain}
 \bibliography{layered-introduction}

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 25, 2021
+September 26, 2021
  
 \end{center}
 
@@ -3808,32 +3808,93 @@ stub, and a mapped lexeme may be mapped to a MIN object.
 \subsubsection{IDs}
 \label{IDS}
 
-A numeric lexeme that consists of an {\em ID-character}
-followed by digits with no leading zeros denotes an `\key{ID}'
-that points to an object or a long string.  In the case of an object,
-the object may not yet be defined, and is represented by
-a `\key{preallocated stub}' that will be filled in later.
-A string must have been previously defined.
-
-The specific form of an ID is:
+An \key{ID} is a kind of variable with a \TT{min::gen} value.
+The syntax of an ID is:
 
 \begin{indpar}
 
-\emmkey{ID}{in \TT{data} reformatter}\label{ID} :::=
-    {\em ID-character} ~ {\em ID-number}
+\emkey{ID}\label{ID} ::= {\em numeric-ID} $|$ {\em symbolic-ID}
 \\[0.5ex]
-\emmkey{ID-character}{in \TT{data} reformatter}\label{ID-CHARACTER} ::=
+\emkey{numeric-ID} :::= {\em ID-character} ~ {\em ID-number}
+\\[0.5ex]
+\emkey{symbolic-ID} :::= {\em ID-character} ~ {\em ID-symbol}
+\\[0.5ex]
+\emkey{ID-character}\label{ID-CHARACTER} ::=
     \begin{tabular}[t]{l}
     a unicode character that is a parser parameter (see below); \\
-    it must be a non-digit that can begin a numeric
+    it must be a non-digit, non-letter that can begin a numeric
+    or word
     \end{tabular}
 \\[0.5ex]
-\emkey{ID-number} ::= {\em non-zero-digit} ~ {\em digit}\STAR{}
+\emkey{ID-number} :::= {\em non-zero-ASCII-digit} ~ {\em ASCII-digit}\STAR{}
+\\[0.5ex]
+\emkey{ID-symbol} :::= ~ \TT{<} ~ {\em ASCII-letter} ~
+                       {\em ASCII-letter-or-digit}\STAR{} ~ \TT{>}
 
 \end{indpar}
 
-The {\em ID-number} identifies the particular object or long
-string that is pointed at.
+An ID can be used before it is defined if it refers to
+an object or a long string.  When this is done, the ID
+is given a value that is a `\key{preallocated stub}'
+that will be filled in later.  If an ID is given a \TT{min::gen}
+value that is \underline{not} an object or long string,
+the ID must be defined before it is used (otherwise any use
+before the definition will become \key{dangling}).
+
+The \TT{data} reformatter (\pagref{DATA-REFORMATTER}) is
+used to define input IDs.  Printer formatting is used to
+define output IDs.  The same format is used for input and
+output definitions.  {\em Numeric-IDs} can be used for either input
+or output, but {\em symbolic-IDs} can only be used for input.
+
+When {\em numeric-IDs} are being used for output, their {\em ID-numbers}
+are assigned automatically by the printer being used (each parser
+has an associated printer).  You can
+just output an object with a format that allows the object to
+be represented by a {\em numeric-ID}, and if the object has
+been previously assigned as the value of a {\em numeric-ID}, that will
+be output instead of the object, whereas if the object has never
+been assigned as the value of a {\em numeric-ID}, a new
+{\em numeric-ID} will be created to point
+to the object and output that instead of the object.  Separately
+you can command the printer to output definitions of all the
+{\em numeric-IDs} which it has created in this manner.
+
+For each printer there is a one-to-one correspondence between
+objects whose {\em numeric-IDs} have been output and the objects,
+so no object is ever referenced by two distinct {\em numeric-IDs}.
+Each printer has an \key{ID map} which maintains this one-to-one
+correspondence.
+
+When {\em numeric-IDs} are being used for input, they are
+defined relative to the lexeme scanner being used, and their
+definitions must be in the input
+(these definitions will be processed
+by the \TT{data} reformatter: \pagref{DATA-REFORMATTER}).
+However a {\em numeric-ID}
+may be used in the input before its definition is input if
+the {\em numeric-ID} references an object or long string.
+An input {\em numeric-ID}
+may be defined to have the same value as another input
+{\em numeric-ID}.
+
+{\em Numeric-IDs} once defined cannot be redefined.
+
+{\em Symbolic-IDs} can be used for input after the same manner
+that {\em numeric-IDs} are used for input.  But unlike
+{\em numeric-IDs}, the symbolic ID table for a scanner can
+be completely cleared by inputting the mark `\TT{@@@@}'
+at the beginning of line.  This allows {\em symbolic-IDs} to be
+reused.
+
+On input there are two separate ID maps, one for {\em numeric-IDs} and
+one for {\em symbolic-IDs}.  Only the latter may be cleared.
+
+An {\em ID} is recognized on input when its token is being constructed,
+and its token value, which would normally be its lexeme string,
+is replaced by its ID value, which is looked up in the parser's scanner's
+ID map.  If there is no previous value, a preallocated
+stub (see above) is created and assigned as the value.
 
 The {\em ID-character} is a parser parameter.  It and another
 parser parameter called the \emkey{ID-assignment}\label{ID-ASSIGNMENT}
@@ -3860,19 +3921,6 @@ or printed by:
 \emkey{ID-assignment} ::= {\em quoted-key}
 \end{indpar}
 
-An {\em ID} is recognized on input when its token is being constructed,
-and its token value, which would normally be its lexeme string,
-is replaced by its ID value, which is looked up in the parser's
-\mkey{ID map}{of parser}.  If there is no previous value, a preallocated
-stub is created and assigned as the value.
-
-The ID map used to map IDs is defined separately for
-each input stream of tokens.  {\em IDs} must be mapped to values before
-they are used, although in the case of objects, which have stubs,
-the values can initially be preallocated stubs that have identity but
-do not yet have any content.  In this last case, object content
-can be assigned by the \TT{data} reformatter: see \pagref{DATA-REFORMATTER}.
-
 \begin{center}
 \begin{tabular}{l}
 \multicolumn{1}{c}{\bf Initial ID Character Parser Command}
@@ -3892,6 +3940,14 @@ Parser Command				& {\bf Required} Qualifier
 \tt define ID assignment ":="		& \tt + id \\
 \end{tabular}
 \end{center}
+
+However, the {\em ID-character} `\TT{@}' is also built into the part of the
+input lexical scanner that generates the special lexemes
+\TT{DATA} and \TT{RAW-DATA}, which in turn are mapped
+(\itemref{MAPPED-LEXEMES}) to prefixes that invoke the
+\TT{data} reformatter (\pagref{DATA-REFORMATTER}),
+so changing the {\em ID-character} will not work well for input unless
+the lexical scanner is also changed.
 
 \subsubsection{Mapped Lexemes}
 \label{MAPPED-LEXEMES}

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 26, 2021
+September 29, 2021
  
 \end{center}
 
@@ -2817,7 +2817,8 @@ There are also two `\mkey{lexical master}{in line variables}'
 parameters, which when not missing specify the
 lexical master used to scan logical line lexemes
 (see \pagref{LEXICAL-MASTER}).
-This scan can introduce special lexemes at the beginning of the
+This scan can introduce \skey{special lexeme}s\label{SPECIAL-LEXEME}
+at the beginning of the
 logical line that are based on
 the first characters in the logical line,
 and these lexemes can be mapped to paragraph or line headers
@@ -3823,7 +3824,9 @@ The syntax of an ID is:
     \begin{tabular}[t]{l}
     a unicode character that is a parser parameter (see below); \\
     it must be a non-digit, non-letter that can begin a numeric
-    or word
+    or word \\
+    should be `\TT{@}' unless the lexical analyser is changed:
+    see \pagref{SPECIAL-LEXEME}
     \end{tabular}
 \\[0.5ex]
 \emkey{ID-number} :::= {\em non-zero-ASCII-digit} ~ {\em ASCII-digit}\STAR{}
@@ -3883,8 +3886,10 @@ may be defined to have the same value as another input
 {\em Symbolic-IDs} can be used for input after the same manner
 that {\em numeric-IDs} are used for input.  But unlike
 {\em numeric-IDs}, the symbolic ID table for a scanner can
-be completely cleared by inputting the mark `\TT{@@@@}'
-at the beginning of line.  This allows {\em symbolic-IDs} to be
+be completely cleared, e.g., by inputting the mark `\TT{@@@@}'
+at the beginning of line as per
+\pagref{DATA-SPECIAL-LEXEME}\label{CLEAR-SYMBOLIC-TABLE}.
+This allows {\em symbolic-IDs} to be
 reused.
 
 On input there are two separate ID maps, one for {\em numeric-IDs} and
@@ -4012,7 +4017,7 @@ The standard special lexeme types:
 
 \begin{indpar}
 
-\ttmkey{DATA}{special lexeme}
+\ttmkey{DATA}{special lexeme}\label{DATA-SPECIAL-LEXEME}
 \begin{indpar}
 Output by the \TT{DATA-\EOL CHECK} and \TT{PARAGRAPH-\EOL CHECK}
 lexical masters when the next input characters are
@@ -6666,10 +6671,13 @@ a bracket type definition:
 \begin{indpar}
 
 \ttmkey{data}{reformatter}
-        \TT{(}
+        \TT{(} \begin{tabular}[t]{@{}l}
+	       {\em clear-sign}\TT{,}
+	       {\em assign-sign}\TT{,} \\
 	       {\em attribute-initiators}\TT{,}
 	       {\em equal-sign}\TT{,} {\em negator}\TT{,}
 	       {\em flags-opening}\TT{,} {\em multivalue-opening} \TT{)}
+	       \end{tabular}
 	\label{DATA-REFORMATTER}
 
 \begin{indpar}[0.5em]
@@ -6685,18 +6693,18 @@ The {\em prefix-n-list} must be a token list that could be represented by
 a headed logical line of the form:
 \begin{center}
 \TT{\{}{\em data-prefix}\TT{\}} ~ {\em ID} ~
-	    {\em assignment-sign} ~ {\em element-list} ~
+	    {\em assign-sign} ~ {\em element-list} ~
 	    {\em attribute-paragraph}\QMARK{}
+\end{center}
+or
+\begin{center}
+\TT{\{}{\em data-prefix}\TT{\}} ~ {\em clear-sign}
 \end{center}
 where
 \begin{indpar}
 \emkey{data-prefix} ::= the prefix, e.g., `\TT{data}'
 \\[0.5ex]
 \emkey{ID} ::= see \pagref{ID}
-\\[0.5ex]
-\emkey{assignment-sign} ::= {\em ID-assigment}
-\\[0.5ex]
-{\em ID-assignment} ::= see \pagref{ID-ASSIGNMENT}
 \\[0.5ex]
 \emkey{element-list} ::= see \pagref{ELEMENT-LIST}
 \\[0.5ex]
@@ -6716,7 +6724,19 @@ where
 \end{indpar}
 \end{indpar}
 
-The {\em ID} (first element) of the headed line must be either
+A subexpression of one of these forms typically arises from a logical line
+that begins with an {\em ID} or {\em clear-sign}.
+For such a line a special lexeme with a special
+lexeme type and empty character string is prefaced
+to the line, and the type of this special lexeme
+is mapped (\itemref{MAPPED-LEXEMES}) to the prefix of the
+subexpression, e.g., to \TT{\{data\}} or \TT{\{raw data\}}.
+
+In order for this to work with the standard lexical program,
+the {\em ID-character} must be `\TT{@}' and the {\em clear-sign}
+must be `\TT{@@@@}'.
+
+An {\em ID} must be either
 a preallocated stub or an object (that is presumed to have replaced
 a preallocated stub and be identified by an ID).
 The {\em prefix} must not have any associated prefix attributes other than
@@ -6725,24 +6745,20 @@ The {\em prefix} must not have any associated prefix attributes other than
 beginning with the {\em data-prefix}
 is retained as is in the input.
 
-A subexpression of this form typically arrises when a logical line
-that begins with an {\em ID} ( a lexeme consisting of an
-{\em ID-character}  immediately followed by a {\em natural-number};
-see \pagref{ID-CHARACTER}) causes a special lexeme with a special
-lexeme type and empty character string to be prefaced
-to the line, and the type of this special lexeme
-is mapped (\itemref{MAPPED-LEXEMES}) to the prefix of the
-above logical line, e.g., to \TT{\{data\}} or \TT{\{raw data\}}.
-
 The effect of reformatting is to delete the entire subexpression token list
-and to define or add to the object denoted by
-{\em ID}.  The object is given the
-elements given in the {\em element-list} and the attributes in the
+and either to clear the symbolic ID table or to
+define or add to the datum denoted by {\em ID}.  If {\em ID} denotes
+an object, the object is given
+elements from the {\em element-list} and attributes from the
 {\em attribute-paragraph}.
+
+An expression containing the {\em clear-sign} just clears the symbolic
+ID table: see \pagref{CLEAR-SYMBOLIC-TABLE}.
+
 
 Before this reformatter
 is invoked,
-the {\em attribute-paragraph} is parsed
+any {\em attribute-paragraph} is parsed
 becoming a MIN object with
 {\em attribute-initiator} as \TT{.ini\-tiator}, with
 \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as \TT{.ter\-min\-ator},

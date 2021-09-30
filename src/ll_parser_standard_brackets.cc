@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 17 20:47:53 EDT 2021
+// Date:	Thu Sep 30 04:43:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -382,8 +382,14 @@ static void define_bracket_types
 	min::attr_push ( divp ) = PARLEX::double_colon;
 
 	min::locatable_gen data_arguments
-		( min::new_obj_gen ( 5 ) );
+		( min::new_obj_gen ( 7 ) );
 	min::obj_vec_insptr davp ( data_arguments );
+	min::locatable_gen clear_sign
+	    ( min::new_str_gen ( "@@@@" ) );
+	min::attr_push ( davp ) = clear_sign;
+	min::locatable_gen assign_sign
+	    ( min::new_str_gen ( ":=" ) );
+	min::attr_push ( davp ) = assign_sign;
 	min::attr_push ( davp ) = data_initiators;
 	min::attr_push ( davp ) = PARLEX::equal;
 	min::attr_push ( davp ) = PARLEX::no;

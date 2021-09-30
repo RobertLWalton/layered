@@ -334,7 +334,8 @@ BRACKETED EXPRESSION:
         with parsing selectors [data]
         with group line
         with data reformatter
-             ( ( ":" ), "=", "not", "[", "{*" )
+             ( "@@@@", ":=",
+               ( ":" ), "=", "not", "[", "{*" )
 ERROR: in line ###: previous uses of ID exist and will be dangling:
 @@ ::= Jill
 ^^
@@ -353,8 +354,8 @@ ID 4 is @@
         block X: bracket type "data" [TOP LEVEL]
                  with parsing selectors [data]
                  with group line
-                 with data reformatter ( {|":"|}, "=", "not", "[",
-                 [< "{" "*" >] )
+                 with data reformatter ( "@@@@", ":=", {|":"|}, "=",
+                 "not", "[", [< "{" "*" >] )
     print mapped lexeme ""
         block X: mapped lexeme "DATA" [TOP LEVEL]
                  with token value {data}

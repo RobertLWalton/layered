@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 24 04:46:28 EDT 2021
+// Date:	Thu Sep 30 04:44:32 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -132,7 +132,8 @@
         with parsing selectors [data]
 	with group line
 	with data reformatter
-	     ( ( ":" ), "=", "not", "[", "{*" )
+	     ( "@@@@", ":=",
+	       ( ":" ), "=", "not", "[", "{*" )
 
 @5 ::= Jack
 @3 ::= `hello there @5'

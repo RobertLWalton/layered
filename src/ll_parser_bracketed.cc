@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 30 04:36:08 EDT 2021
+// Date:	Thu Sep 30 05:11:46 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5217,8 +5217,7 @@ static bool data_reformatter_function
     MIN_REQUIRE ( first != next );
     if ( first->next == next ) return true;
     if ( first->next->next == next ) return true;
-    if (    first->next->next->value
-         != parser->id_map->ID_assign )
+    if ( first->next->next->value != args[ASSIGN_SIGN] )
         return true;
 
     // If prefix has attributes other than .type and

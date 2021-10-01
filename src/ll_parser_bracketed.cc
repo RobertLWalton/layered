@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 30 05:11:46 EDT 2021
+// Date:	Fri Oct  1 03:47:30 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5215,10 +5215,6 @@ static bool data_reformatter_function
     MIN_REQUIRE
         ( min::size_of ( args ) == ARGS_LENGTH );
     MIN_REQUIRE ( first != next );
-    if ( first->next == next ) return true;
-    if ( first->next->next == next ) return true;
-    if ( first->next->next->value != args[ASSIGN_SIGN] )
-        return true;
 
     // If prefix has attributes other than .type and
     // .position, return true.
@@ -5241,6 +5237,11 @@ static bool data_reformatter_function
         }
     }
 
+    if ( first->next == next ) return true;
+    if ( first->next->next == next ) return true;
+    if ( first->next->next->value != args[ASSIGN_SIGN] )
+        return true;
+
     min::locatable_gen ID_gen ( first->next->value );
     if ( min::is_obj ( ID_gen ) )
     {
@@ -5250,22 +5251,24 @@ static bool data_reformatter_function
 	    PAR::parse_error
 		( parser, position,
 		  "ID references an object that already"
-		  " has single-attribute-values or"
-		  " attribute-flags" );
+		  " has elements" );
 	    return true;
 	}
 	min::attr_ptr ID_ap ( ID_vp );
 	min::attr_info info;
 	min::unsptr A = min::attr_info_of
 	    ( & info, 1, ID_ap, false );
-// TBD
-	if ( A > 0 && false )
+	if ( A > 1
+	     ||
+	     (    A == 1
+	       && info.name != min::dot_position ) )
 	{
 	    PAR::parse_error
 		( parser, position,
 		  "ID references an object that already"
 		  " has single-attribute-values or"
-		  " attribute-flags" );
+		  " attribute-flags, other than for"
+		  " .position" );
 	    return true;
 	}
     }

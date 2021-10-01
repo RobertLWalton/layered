@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct  1 03:47:30 EDT 2021
+// Date:	Fri Oct  1 14:48:10 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5195,6 +5195,20 @@ const unsigned FLAGS_OPENING = 5;
 const unsigned MULTIVALUE_OPENING = 6;
 const unsigned ARGS_LENGTH = 7;
 
+inline bool delete_subexpression
+        ( PAR::parser parser,
+	  PAR::token & first, PAR::token next )
+{
+    do {
+	first = first->next;
+	PAR::free
+	    ( PAR::remove ( PAR::first_ref(parser),
+			    first->previous ) );
+    } while ( first != next );
+
+    return false;
+        
+}
 static bool data_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -5252,7 +5266,8 @@ static bool data_reformatter_function
 		( parser, position,
 		  "ID references an object that already"
 		  " has elements" );
-	    return true;
+	    return delete_subexpression
+	        ( parser, first, next );
 	}
 	min::attr_ptr ID_ap ( ID_vp );
 	min::attr_info info;
@@ -5269,7 +5284,8 @@ static bool data_reformatter_function
 		  " has single-attribute-values or"
 		  " attribute-flags, other than for"
 		  " .position" );
-	    return true;
+	    return delete_subexpression
+	        ( parser, first, next );
 	}
     }
     else if ( ! ( first->next->type == PAR::DERIVED
@@ -5618,11 +5634,7 @@ static bool data_reformatter_function
     PAR::trace_subexpression
 	( parser, first, trace_flags );
 
-    first = first->next;
-    PAR::free ( PAR::remove ( first_ref(parser),
-			      first->previous ) );
-
-    return false;
+    return delete_subexpression ( parser, first, next );
 }
 
 static bool sentence_reformatter_function

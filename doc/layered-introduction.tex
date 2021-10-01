@@ -6755,12 +6755,21 @@ If {\em ID} denotes
 an object, the object is given
 elements from the {\em element-list} and attributes from the
 {\em attribute-paragraph}.
-If there is an error in the second form, the subexpression will
-be deleted but no action other than announcing the error will
-be taken.
 
 An subexpression containing the {\em clear-sign} just clears the symbolic
 ID table: see \pagref{CLEAR-SYMBOLIC-TABLE}.
+
+If {\em ID} is a preallocated stub, it is initialized to
+an object with no elements or attributes.  If {\em ID}
+is an object, the object must \underline{not} have
+{\em elements}, {\em single-attribute-values}, or
+{\em attribute-flags}, except that it can have a
+\TT{.position} attribute with its flags.  The object \underline{may} have
+{\em double-attribute-values} (produced by data reformatter
+invocations creating the objects listed in the
+{\em double-attribute-values}: see example just below).
+If these rules are violated, an error is announced and the
+subexpression is deleted.
 
 In a subexpression containing an {\em ID}
 any {\em attribute-paragraph} before this reformatter is invoked to
@@ -6776,16 +6785,6 @@ using its reformatter arguments to treat each line as being
 formatted in the same manner as an {\em attribute}
 in a {\em typed-bracketed-subexpression}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
-
-If {\em ID} is a preallocated stub, it is initialized to
-an object with no elements or attributes.  If {\em ID}
-is an object, the object must \underline{not} have
-{\em elements}, {\em single-attribute-values}, or
-{\em attribute-flags}, except that it can have a
-\TT{.position} attribute with its flags.  The object \underline{may} have
-{\em double-attribute-values} (produced by data reformatter
-invocations creating the objects listed in the
-{\em double-attribute-values}: see example just below).
 
 {\em Single-attribute-values} or {\em attribute-flags}
 given for a particular {\em attribute-label} in an {\em attri\-bute-paragraph}
@@ -6803,6 +6802,9 @@ the object identified by the {\em ID}.
 If a previous value matches a new value, the new value is not added
 (i.e., {\em double-attribute-values} are treated as sets and not
 multi-sets).
+
+If there is an error in an attribute logical line, the error is
+announced and that logical line is ignored.
 
 
 A simple example involving {\em double-attribute-values} is:
@@ -6833,8 +6835,8 @@ by a copy of the non-identifier string (without the quotes).
 However, if the new value is neither an object nor a non-identifier string,
 only future references to {\em ID} will be mapped to the new value,
 and previous references to the preallocated stub will continue to
-reference the untouched preallocated stub.  In this case the
-previous references are \key{dangling} and unusable.
+reference the untouched preallocated stub.  In this case an error
+is announced and the previous references are left \key{dangling} and unusable.
 
 For example:
 \begin{center}

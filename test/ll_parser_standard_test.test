@@ -75,6 +75,17 @@ BRACKETED EXPRESSION:
     ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
 BRACKETED EXPRESSION:
     ID Y is {"": previous = @@ = next, name = Y, next = @@ = previous}
+ERROR: in line ###: ID references an object that already has
+       single-attribute-values or attribute-flags, other than for
+       .position; definition ignored:
+@<X> := hi there @<Z>
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID X is {|hi there (m + n)|}
+BRACKETED EXPRESSION:
+    ID Y is (m + n)
+BRACKETED EXPRESSION:
+    ID Z is PREALLOCATED(1*0)
 @@ :=::
           .position[H] = PACKED_VEC
           b = @@ = a

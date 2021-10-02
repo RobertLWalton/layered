@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 23 11:42:56 EDT 2021
+// Date:	Sat Oct  2 15:47:02 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -104,3 +104,10 @@ ID 80 is @80
     name = Y
 ID X is @<X>
 ID Y is @<Y>
+@<X> := hi there @<Z>
+@@@@
+@<X> := hi there @<Y>
+@<Y> := (m + n)
+ID X is @<X>
+ID Y is @<Y>
+ID Z is @<Z>

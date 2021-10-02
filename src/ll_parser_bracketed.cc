@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct  1 14:48:10 EDT 2021
+// Date:	Sat Oct  2 15:50:04 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5252,6 +5252,13 @@ static bool data_reformatter_function
     }
 
     if ( first->next == next ) return true;
+    if ( first->next->value == args[CLEAR_SIGN] )
+    {
+	if ( first->next->next != next ) return true;
+	min::map_clear_input ( parser->id_map );
+	return delete_subexpression
+	    ( parser, first, next );
+    }
     if ( first->next->next == next ) return true;
     if ( first->next->next->value != args[ASSIGN_SIGN] )
         return true;
@@ -5265,7 +5272,7 @@ static bool data_reformatter_function
 	    PAR::parse_error
 		( parser, position,
 		  "ID references an object that already"
-		  " has elements" );
+		  " has elements; definition ignored" );
 	    return delete_subexpression
 	        ( parser, first, next );
 	}
@@ -5283,7 +5290,7 @@ static bool data_reformatter_function
 		  "ID references an object that already"
 		  " has single-attribute-values or"
 		  " attribute-flags, other than for"
-		  " .position" );
+		  " .position; definition ignored" );
 	    return delete_subexpression
 	        ( parser, first, next );
 	}

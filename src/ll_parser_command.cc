@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 17 21:02:48 EDT 2021
+// Date:	Sat Oct  2 02:57:55 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1504,8 +1504,6 @@ static min::gen execute_ID
 
     min::Uchar ID_character =
 	parser->id_map->ID_character;
-    min::locatable_gen ID_assignment =
-	( parser->id_map->ID_assign );
 
     if ( command == PARLEX::print )
     {
@@ -1544,22 +1542,12 @@ static min::gen execute_ID
 		    << "`"
 		    << min::punicode ( ID_character )
 		    << "'";
-	    parser->printer << "; ID assignment ";
-	    if ( ID_assignment == min::MISSING() )
-		parser->printer << "disabled";
-	    else
-		parser->printer
-		    << "`"
-		    << min::pgen_never_quote
-		           ( ID_assignment )
-		    << "'";
 
 	    if ( i == 0 ) break;
 
 	    TAB::block_struct b =
 		parser->block_stack[i-1];
 	    ID_character = b.saved_ID_character;
-	    ID_assignment = b.saved_ID_assignment;
 	}
 
 	parser->printer << min::eom;
@@ -1572,8 +1560,7 @@ static min::gen execute_ID
     else if ( i + 1 >= size )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected `character ...' or"
-	      " `assignment ...' after" );
+	      "expected `character ...' after" );
 
     if ( vp[i] == PARLEX::character )
     {
@@ -1620,24 +1607,10 @@ static min::gen execute_ID
 	}
 	++ i;
     }
-    else if ( vp[i] == PARLEX::assignment )
-    {
-        ++ i;
-	ID_assignment = PAR::scan_quoted_key
-			   ( vp, i, parser );
-
-	if ( ID_assignment == min::ERROR() )
-	    return min::ERROR();
-	else if ( ID_assignment == min::MISSING() )
-	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected quoted key after" );
-    }
     else
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected `character' or"
-	      " `assignment' after" );
+	      "expected `character' after" );
 
     if ( i < size )
 	return PAR::parse_error
@@ -1646,8 +1619,6 @@ static min::gen execute_ID
 
     * (min::Uchar *) & parser->id_map->ID_character =
           ID_character;
-    ID_assign_ref ( parser->id_map ) =
-          ID_assignment;
 
     return min::SUCCESS();
 }

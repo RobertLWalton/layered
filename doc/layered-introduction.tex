@@ -3901,9 +3901,7 @@ is replaced by its ID value, which is looked up in the parser's scanner's
 ID map.  If there is no previous value, a preallocated
 stub (see above) is created and assigned as the value.
 
-The {\em ID-character} is a parser parameter.  It and another
-parser parameter called the \emkey{ID-assignment}\label{ID-ASSIGNMENT}
-(see the \TT{data} reformatter: \pagref{DATA-REFORMATTER})
+The {\em ID-character} is a parser parameter that
 can be defined
 or printed by:
 \begin{indpar}[0.1in]
@@ -3912,8 +3910,6 @@ or printed by:
 \hspace*{3em} \begin{tabular}{rl}
               ::= & \ttmkey{define ID character}{parser command}
 			  ~ {\em ID-character-representative} \\
-              $|$ & \ttmkey{define ID assignment}{parser command}
-	                  ~ {\em ID-assignment} \\
               $|$ & \ttmkey{print ID}{parser command} \\
 	      \end{tabular}
 \\[0.5ex]
@@ -3922,8 +3918,6 @@ or printed by:
 \\[0.5ex]
 \emkey{quoted-character} ::=
     {\em quoted-string} with exactly one {\em character-representative}.
-\\[0.5ex]
-\emkey{ID-assignment} ::= {\em quoted-key}
 \end{indpar}
 
 \begin{center}
@@ -3931,7 +3925,6 @@ or printed by:
 \multicolumn{1}{c}{\bf Initial ID Character Parser Command}
 \\[1ex]
 \tt define ID character disabled \\
-\tt define ID assignment ":=" \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
@@ -3942,7 +3935,6 @@ or printed by:
 Parser Command				& {\bf Required} Qualifier
 \\\hline
 \tt define ID character "@"             & \tt + id \\
-\tt define ID assignment ":="		& \tt + id \\
 \end{tabular}
 \end{center}
 
@@ -6804,7 +6796,8 @@ If a previous value matches a new value, the new value is not added
 multi-sets).
 
 If there is an error in an attribute logical line, the error is
-announced and that logical line is ignored.
+announced and the announcement indicates that the logical line
+or the flags in it or the value in it is being ignored.
 
 
 A simple example involving {\em double-attribute-values} is:

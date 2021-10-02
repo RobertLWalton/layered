@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 30 05:10:08 EDT 2021
+// Date:	Sat Oct  2 03:06:45 EDT 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -108,13 +108,10 @@
 *PARSER*:
     begin block X
     define ID character "@"
-    define ID assignment "="
     begin block Y
     define ID character disabled
-    define ID assignment ":="
     begin block Z
     define ID character "$"
-    define ID assignment "::="
     print ID
     end block Z
     end block Y
@@ -124,7 +121,6 @@
 *PARSER*:
     begin block X
     define ID character "@"
-    define ID assignment "::="
     define top level lexical master DATA-CHECK
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}

@@ -306,27 +306,23 @@ BRACKETED EXPRESSION:
 *PARSER*:
     begin block X
     define ID character "@"
-    define ID assignment "="
     begin block Y
     define ID character disabled
-    define ID assignment ":="
     begin block Z
     define ID character "$"
-    define ID assignment "::="
     print ID
-        block Z: ID character `$'; ID assignment `::='
-        block Y: ID character disabled; ID assignment `:='
-        block X: ID character `@'; ID assignment `='
-        block TOP LEVEL: ID character disabled; ID assignment `:='
+        block Z: ID character `$'
+        block Y: ID character disabled
+        block X: ID character `@'
+        block TOP LEVEL: ID character disabled
     end block Z
     end block Y
     end block X
     print ID
-        block TOP LEVEL: ID character disabled; ID assignment `:='
+        block TOP LEVEL: ID character disabled
 *PARSER*:
     begin block X
     define ID character "@"
-    define ID assignment "::="
     define top level lexical master DATA-CHECK
     define mapped lexeme "DATA" [TOP LEVEL]
         with token value {data}

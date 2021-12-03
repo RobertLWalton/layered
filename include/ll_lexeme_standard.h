@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 29 15:24:24 EDT 2021
+// Date:	Fri Dec  3 06:14:38 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -100,7 +100,8 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 quoted_string_t			= 5;
 
     const uns32 convert_mask =
-        ( 1 << numeric_t ) + ( 1 << quoted_string_t );
+        // NONE_SUCH ( 1 << numeric_t ) + ( 1 << quoted_string_t );
+        ( 1 << quoted_string_t );
 	// Lexemes standardly converted to expressions
 	// of the form {" ... "} or {# ... #}.
 

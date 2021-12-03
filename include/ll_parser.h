@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 03:00:34 EDT 2021
+// Date:	Fri Dec  3 06:14:50 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1532,6 +1532,7 @@ void push_reformatter
 //
 inline min::uns32 lexical_type_of ( min::gen g )
 {
+#   ifdef NONE_SUCH
     if ( is_num ( g ) )
     {
 	min::float64 f = min::float_of ( g );
@@ -1543,6 +1544,7 @@ inline min::uns32 lexical_type_of ( min::gen g )
 	    return ll::parser::NUMBER;
     }
     else
+#   endif // NONE_SUCH
         return ll::lexeme::standard
 	         ::lexical_type_of ( g );
 }
@@ -2039,8 +2041,12 @@ const min::uns64 END_SCAN_MASK =
                           ::premature_end_of_file_t )
     + ( 1ull << ll::lexeme::standard::end_of_file_t );
 const min::uns64 NUMBER_SCAN_MASK =
+#ifdef NONE_SUCH
       ( 1ull << ll::lexeme::standard::natural_t )
     + ( 1ull << ll::lexeme::standard::numeric_t );
+#else // NONE_SUCH
+    0;
+#endif // NONE_SUCH
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the

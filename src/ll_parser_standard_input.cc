@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 23 11:41:03 EDT 2021
+// Date:	Fri Dec  3 06:13:32 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -354,6 +354,7 @@ SCAN_NEXT_LEXEME:
 	}
 	// falls through
 	case LEXSTD::natural_t:
+#	ifdef NONE_SUCH
 	{
 	    // Numeric or natural.
 	    //
@@ -381,6 +382,7 @@ SCAN_NEXT_LEXEME:
 	        token->type = LEXSTD::numeric_t;
 	    break;
 	}
+#	endif // NONE_SUCH
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
 	case LEXSTD::quoted_string_t:

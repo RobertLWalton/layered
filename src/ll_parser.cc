@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 03:00:15 EDT 2021
+// Date:	Fri Dec  3 06:11:56 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2637,12 +2637,12 @@ static min::gen scan_value_or_label
     min::uns32 initial_i = i;
     min::uns32 s = min::size_of ( vp );
     min::uns64 accepted_types = 1ull << LEXSTD::word_t;
-        // Quoted strings and numerics are always
-	// accepted; see below.
+        // Quoted strings are always accepted;
+	// see below.
     if ( is_value )
 	accepted_types |=
 	      1ull << LEXSTD::natural_t
-	    | 1ull << PAR::NUMBER;
+	    | 1ull << LEXSTD::numeric_t;
 
     min::gen elements[s];
     min::uns32 j = 0;
@@ -2658,9 +2658,7 @@ static min::gen scan_value_or_label
 	    min::attr_ptr eap ( evp );
 	    min::locate ( eap, min::dot_type );
 	    min::gen type = min::get ( eap );
-	    if ( type != PARLEX::doublequote
-	         &&
-		 type != PARLEX::number_sign )
+	    if ( type != PARLEX::doublequote )
 	        break;
 	    elements[j++] = evp[0];
 	}
@@ -2676,7 +2674,7 @@ static min::gen scan_value_or_label
 	++ i;
 	accepted_types |=
 	      1ull << LEXSTD::natural_t
-	    | 1ull << PAR::NUMBER;
+	    | 1ull << LEXSTD::numeric_t;
     }
 
     if ( i == initial_i ) return min::MISSING();

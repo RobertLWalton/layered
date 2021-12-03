@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 24 04:48:27 EDT 2021
+// Date:	Fri Dec  3 02:05:17 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -534,3 +534,11 @@ test paragraph::
 
 {|+ x|}
 {+ x +}
+
+@50 := A "B" C:
+     x = Z
+     y = "Z"
+     z = X Y "Z"
+ID 50 IS [@50]
+
+{my type: x = X, y = "Y"|A "B" C|}

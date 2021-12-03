@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 15:50:04 EDT 2021
+// Date:	Fri Dec  3 05:57:04 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1780,34 +1780,34 @@ inline void finish_value
 	start->position = pos;
 	PAR::value_ref(start) = min::NONE();
     }
-    else if ( start->next == next
-	      &&
-	      ! (   ( 1 << start->type )
-		  & LEXSTD::convert_mask ) )
+    else if ( start->next == next )
     {
 	min::gen initiator =
 	    typed_data
 		->typed_opening
 		->typed_attr_multivalue_initiator;
-	start->type =
-	    ( start->value_type == initiator
-	      &&
-	      initiator != min::MISSING() ?
-	      BRA::ATTR_MULTIVALUE :
-	      BRA::ATTR_VALUE );
-
-	if ( start->type == BRA::ATTR_VALUE
+	if ( start->value_type == initiator
 	     &&
-	     ! min::is_attr_legal ( start->value ) )
+	     initiator != min::MISSING() )
+	    start->type = BRA::ATTR_MULTIVALUE;
+	else
 	{
-	    PAR::parse_error
-	      ( parser,
-		start->position,
-		"not a legal attribute value `",
-		min::pgen_never_quote
-		    ( start->value ),
-		"'; attribute ignored" );
-	    PAR::value_ref(start) = min::NONE();
+	    if ( ! min::is_attr_legal ( start->value ) )
+	    {
+		PAR::parse_error
+		  ( parser,
+		    start->position,
+		    "not a legal attribute value `",
+		    min::pgen_never_quote
+			( start->value ),
+		    "'; attribute ignored" );
+		PAR::value_ref(start) = min::NONE();
+	    }
+	    else if (   ( 1 << start->type )
+		      & LEXSTD::convert_mask )
+		PAR::convert_token ( start );
+
+	    start->type = BRA::ATTR_VALUE;
 	}
     }
     else
@@ -1962,11 +1962,31 @@ inline bool at_end ( const char * s, min::gen g,
 //
 inline bool is_label ( min::gen lab )
 {
-    if ( min::is_num ( lab ) ) return false;
+    min::uns64 ok_types =
+          ( 1ull << LEXSTD::word_t )
+	| ( 1ull << LEXSTD::separator_t )
+	| ( 1ull << LEXSTD::mark_t );
+    if ( min::is_str ( lab ) )
+    {
+        min::uns32 type = PAR::lexical_type_of ( lab );
+	return ( ( ( 1ull << type ) & ok_types ) != 0 );
+    }
     min::lab_ptr labp ( lab );
-    if ( labp == min::NULL_STUB ) return true;
-    if ( min::lablen ( labp ) == 0 ) return false;
-    return ! min::is_num ( labp[0] );
+    if ( labp == min::NULL_STUB ) return false;
+    min::uns32 length = min::lablen ( labp );
+    if ( length == 0 ) return false;
+    for ( min::uns32 i = 0; i < length; ++ i )
+    {
+	if ( ! min::is_str ( labp[i] ) )
+	    return false;
+        min::uns32 type =
+	    PAR::lexical_type_of ( labp[i] );
+	if ( ( ( 1ull << type ) & ok_types ) == 0 )
+	    return false;
+	ok_types |= ( 1ull << LEXSTD::natural_t )
+	          | ( 1ull << LEXSTD::numeric_t );
+    }
+    return true;
 }
 
 min::position BRA::parse_bracketed_subexpression
@@ -5435,7 +5455,9 @@ static bool data_reformatter_function
 	    min::locatable_gen name
 		( PAR::scan_label
 		      ( line, j, args[EQUAL_SIGN] ) );
-	    if ( name == min::MISSING() )
+	    if ( name == min::MISSING()
+	         ||
+		 ! ::is_label ( name ) )
 	    {
 		PAR::parse_error
 		    ( parser, lppvec->position,
@@ -5857,14 +5879,19 @@ static min::gen bracketed_pass_command
 	else if ( command != PARLEX::define )
 	    return min::FAILURE();
 
+#	ifdef NON_SUCH
 	else if ( i + 2 >= size
 	          ||
 		  ! min::is_num ( vp[i+2] ) )
+#	else // NON_SUCH
+	else if ( i + 2 >= size )
+#	endif // NON_SUCH
 	    return PAR::parse_error
 		( parser, ppvec[i+1],
 		  "expected integer after" );
 	else
 	{
+#	    ifdef NON_SUCH
 	    min::float64 f = min::float_of ( vp[i+2] );
 	    min::int64 i = (min::int64) f;
 	    if ( i != f || i < 0 ) 
@@ -5872,12 +5899,24 @@ static min::gen bracketed_pass_command
 		    ( parser, ppvec[i+2],
 		      "expected reasonable sized"
 		      " integer" );
+#	    else // NON_SUCH
+	    min::int64 offset;
+	    if ( ! min::strto ( offset, vp[i+2], 10 )
+	         ||
+		 offset < 0
+		 ||
+		 offset > 100 )
+		return PAR::parse_error
+		    ( parser, ppvec[i+2],
+		      "expected reasonable sized"
+		      " integer" );
+#	    endif // NON_SUCH
 	    if ( i + 3 < size )
 		return PAR::parse_error
 		    ( parser, ppvec[i+2],
 		      "unexpected stuff after" );
 	    bracketed_pass->indentation_offset =
-	        (min::int32) i;
+	        (min::int32) offset;
 	}
 
 	return min::SUCCESS();

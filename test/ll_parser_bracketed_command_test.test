@@ -177,7 +177,7 @@ ERROR: in line ##: expected `,' after:
                     ^^^^^^^^^^^^^^^^^
 ======= PARSER TEST: this is a paragraph +:
                          line #
-                         line {# 2a #} "::" line {# 2b #}; line {# 2c #}
+                         line #a "::" line #b; line #c
                          last line
 ======= lines ##-##:
     this is a paragraph +:
@@ -205,16 +205,7 @@ ERROR: in line ##: expected `,' after:
         ^^^^^^^^^^^^^^^^^^
 ------- line ##:
         line #a:: line #b; line #c
-             ^^
-------- line ##:
-        line #a:: line #b; line #c
-                       ^^
-------- line ##:
-        line #a:: line #b; line #c
                            ^^^^^^^
-------- line ##:
-        line #a:: line #b; line #c
-                                ^^
 ------- line ##:
         last line
         ^^^^^^^^^
@@ -223,7 +214,7 @@ ERROR: in line ##: expected `,' after:
     define indentation mark "+:" ... "::" [code]
 ======= PARSER TEST: this is a paragraph+:
                          line #
-                         line {# 2a #}:: line {# 2b #} ";" line {# 2c #}
+                         line #a:: line #b ";" line #c
                          last line
 ======= lines ##-##:
     this is a paragraph +:
@@ -251,16 +242,7 @@ ERROR: in line ##: expected `,' after:
         ^^^^^^^^^
 ------- line ##:
         line #a:: line #b; line #c
-             ^^
-------- line ##:
-        line #a:: line #b; line #c
                   ^^^^^^^^^^^^^^^^
-------- line ##:
-        line #a:: line #b; line #c
-                       ^^
-------- line ##:
-        line #a:: line #b; line #c
-                                ^^
 ------- line ##:
         last line
         ^^^^^^^^^

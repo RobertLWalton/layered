@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 12:40:39 EDT 2021
+// Date:	Fri Dec  3 06:13:16 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2212,12 +2212,20 @@ static min::gen oper_pass_command
 		    ( parser, ppvec[i-1],
 		      "expected precedence integer"
 		      " after" );
+#	    ifdef NONE_SUCH
 	    min::float64 f = min::float_of ( vp[i] );
 	    min::int64 p = (min::int64) f;
 	    if ( p != f )
 		return PAR::parse_error
 		    ( parser, ppvec[i],
 		      "precedence is not an integer" );
+#	    else // NONE_SUCH
+	    min::int64 p;
+	    if ( ! min::strto ( p, vp[i], 0 ) )
+		return PAR::parse_error
+		    ( parser, ppvec[i],
+		      "precedence is not an integer" );
+#	    endif // NONE_SUCH
 	    if ( p < OP::low_precedence
 		 ||
 		 p > OP::high_precedence )

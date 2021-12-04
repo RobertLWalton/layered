@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 13:19:34 EDT 2021
+// Date:	Fri Dec  3 23:48:58 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1377,12 +1377,7 @@ namespace ll { namespace lexeme {
     // A lexeme being included as a label element is
     // represented as a min::gen value by converting
     // the lexeme translation string to a MIN string
-    // value.  Then if the type of the lexeme is in
-    // number_types, an attempt is made to convert the
-    // string to a min::float64 value.  If this
-    // succeeds, the MIN string is replaced by a 
-    // MIN number equal to the min::float64 value.
-    // Otherwise the MIN string is left as is.
+    // value.
     //
     // Scanner initialization is the responsiblity of
     // the caller.  Typically the scanner is initialized
@@ -1400,7 +1395,6 @@ namespace ll { namespace lexeme {
 	      min::uns64 accepted_types,
 	      min::uns64 ignored_types,
 	      min::uns64 end_types,
-	      min::uns64 number_types,
 	      bool empty_name_ok = false );
 } }
 

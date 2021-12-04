@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 13:35:31 EDT 2021
+// Date:	Sat Dec  4 00:03:47 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,9 +27,6 @@ const min::uns64 ignored_types =
 const min::uns64 end_types =
       ( 1ull << LEXSTD::end_of_file_t )
     + ( 1ull << LEXSTD::premature_end_of_file_t );
-const min::uns64 number_types =
-      ( 1ull << LEXSTD::natural_t )
-    + ( 1ull << LEXSTD::numeric_t );
 
 static void test_string ( const char * s )
 {
@@ -48,8 +45,7 @@ static void test_string ( const char * s )
     	( LEX::default_scanner,
 	  ::accepted_types,
 	  ::ignored_types,
-	  ::end_types,
-	  ::number_types );
+	  ::end_types );
     printer << "    VALUE: "
             << min::pgen
 	           ( value,

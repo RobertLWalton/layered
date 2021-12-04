@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 05:57:04 EST 2021
+// Date:	Fri Dec  3 23:54:09 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1496,7 +1496,6 @@ static void make_label
 	case LEXSTD::natural_t:
 	case LEXSTD::numeric_t:
 	case LEXSTD::quoted_string_t:
-	case PAR::NUMBER:
 	    break;
 
 	case PAR::DERIVED:
@@ -3376,30 +3375,6 @@ NEXT_TOKEN:
 	if ( current->previous->type == LEXSTD::mark_t )
 	    current->previous->type = current->type;
 	    // Types must be mark, numeric, or word.
-
-        if (    current->previous->type
-	     == LEXSTD::numeric_t )
-	{
-	    min::str_ptr sp
-	        ( current->previous->value );
-	    min::unsptr length = strlen ( sp );
-	    min::float64 val;
-	    min::unsptr i = 0;
-	    min::strto ( val, sp, i );
-	    if ( i == length )
-	    {
-	        value_ref(current->previous) =
-		    min::new_num_gen ( val );
-		if (    0 <= val
-		     && val <= PAR::MAX_NATURAL
-		     && (min::int64) val == val )
-		    current->previous->type =
-			LEXSTD::natural_t;
-		else
-		    current->previous->type =
-		        PAR::NUMBER;
-	    }
-	}
 
 	PAR::ensure_next ( parser, current );
 	current = current->next;
@@ -5879,27 +5854,12 @@ static min::gen bracketed_pass_command
 	else if ( command != PARLEX::define )
 	    return min::FAILURE();
 
-#	ifdef NON_SUCH
-	else if ( i + 2 >= size
-	          ||
-		  ! min::is_num ( vp[i+2] ) )
-#	else // NON_SUCH
 	else if ( i + 2 >= size )
-#	endif // NON_SUCH
 	    return PAR::parse_error
 		( parser, ppvec[i+1],
 		  "expected integer after" );
 	else
 	{
-#	    ifdef NON_SUCH
-	    min::float64 f = min::float_of ( vp[i+2] );
-	    min::int64 i = (min::int64) f;
-	    if ( i != f || i < 0 ) 
-		return PAR::parse_error
-		    ( parser, ppvec[i+2],
-		      "expected reasonable sized"
-		      " integer" );
-#	    else // NON_SUCH
 	    min::int64 offset;
 	    if ( ! min::strto ( offset, vp[i+2], 10 )
 	         ||
@@ -5910,7 +5870,7 @@ static min::gen bracketed_pass_command
 		    ( parser, ppvec[i+2],
 		      "expected reasonable sized"
 		      " integer" );
-#	    endif // NON_SUCH
+
 	    if ( i + 3 < size )
 		return PAR::parse_error
 		    ( parser, ppvec[i+2],
@@ -7303,7 +7263,6 @@ static min::gen bracketed_pass_command
 		      PAR::QUOTED_KEY_SCAN_MASK,
 		      PAR::IGNORED_SCAN_MASK,
 		      PAR::END_SCAN_MASK,
-		      PAR::NUMBER_SCAN_MASK,
 		      false ) );
 
 	    if ( ! min::is_str ( double_middle ) )

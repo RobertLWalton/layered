@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 06:11:20 EST 2021
+// Date:	Fri Dec  3 23:52:13 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3177,7 +3177,6 @@ static min::gen scan_name_string_next_element
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
 	  min::uns64 end_types,
-	  min::uns64 number_types,
 	  bool empty_name_ok,
 	  ::scan_name_string_var * previous = NULL,
 	  min::uns32 count = 0 )
@@ -3255,18 +3254,6 @@ static min::gen scan_name_string_next_element
 	          ( scanner->translation_buffer ),
 	      scanner->translation_buffer->length );
 
-#ifdef NONE_SUCH
-    if ( flag & number_types )
-    {
-        min::str_ptr sp ( var.element );
-	min::float64 val;
-	min::unsptr i = 0;
-	min::strto ( val, sp, i );
-	if ( i == strlen ( sp ) )
-	    var.element = min::new_num_gen ( val );
-    }
-#endif
-
     if ( flag & end_types )
         return ::scan_name_string_make_label
 	    ( & var, count );
@@ -3276,7 +3263,6 @@ static min::gen scan_name_string_next_element
 	      accepted_types,
 	      ignored_types,
 	      end_types,
-	      number_types,
 	      empty_name_ok,
 	      & var, count );
 }
@@ -3286,7 +3272,6 @@ min::gen LEX::scan_name_string
 	  min::uns64 accepted_types,
 	  min::uns64 ignored_types,
 	  min::uns64 end_types,
-	  min::uns64 number_types,
 	  bool empty_name_ok )
 {
 
@@ -3297,5 +3282,5 @@ min::gen LEX::scan_name_string
     return ::scan_name_string_next_element
         ( scanner,
 	  accepted_types, ignored_types, end_types,
-	  number_types, empty_name_ok );
+	  empty_name_ok );
 }

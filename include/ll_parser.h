@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 06:14:50 EST 2021
+// Date:	Fri Dec  3 23:48:04 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -171,16 +171,8 @@ enum // Token types (see below).
       // TEMPORARY_TT + n for 0 <= n < 63 may be used
       // by reformatters for temporary token types.
 
-    NUMBER		= ll::lexeme::standard
-                            ::MAX_TYPE + 1,
-        // A natural that when converted to a MIN number
-	// does not fit exactly and is approximated
-	// in the MIN number, or a numeric that can be
-	// converted to a MIN number.  Defined thusly
-	// so value will be < 32 and can be returned
-	// by PAR::lexical_type_of.
     MAX_LEXEME		= ll::lexeme::standard
-                            ::MAX_TYPE + 1
+                            ::MAX_TYPE
 };
 inline bool is_lexeme ( min::uns32 token_type )
 {
@@ -1526,27 +1518,14 @@ void push_reformatter
 // ------ ---------
 
 // Return the lexical type of a min::gen value according
-// to LEXSTD::lexical_type_of, except for numbers,
-// return natural_t if the min::gen value is an integer
-// >= 0, else return NUMBER.
+// to LEXSTD::lexical_type_of.  This function permits
+// modification of the result, but currently there is
+// no such modification.
 //
 inline min::uns32 lexical_type_of ( min::gen g )
 {
-#   ifdef NONE_SUCH
-    if ( is_num ( g ) )
-    {
-	min::float64 f = min::float_of ( g );
-	if ( 0 <= f && f <= MAX_NATURAL
-	     &&
-	     (min::int64) f == f )
-	    return ll::lexeme::standard::natural_t;
-	else
-	    return ll::parser::NUMBER;
-    }
-    else
-#   endif // NONE_SUCH
-        return ll::lexeme::standard
-	         ::lexical_type_of ( g );
+    return ll::lexeme::standard
+	     ::lexical_type_of ( g );
 }
 
 // Compute new_flags that set the selectors to the
@@ -2040,13 +2019,6 @@ const min::uns64 END_SCAN_MASK =
       ( 1ull << ll::lexeme::standard
                           ::premature_end_of_file_t )
     + ( 1ull << ll::lexeme::standard::end_of_file_t );
-const min::uns64 NUMBER_SCAN_MASK =
-#ifdef NONE_SUCH
-      ( 1ull << ll::lexeme::standard::natural_t )
-    + ( 1ull << ll::lexeme::standard::numeric_t );
-#else // NONE_SUCH
-    0;
-#endif // NONE_SUCH
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
@@ -2101,7 +2073,6 @@ min::gen scan_name_string_label
       min::uns64 accepted_types,
       min::uns64 ignored_types,
       min::uns64 end_types,
-      min::uns64 number_types,
       bool empty_name_ok = false );
 
 // Ditto with scan types set for quoted key.  In

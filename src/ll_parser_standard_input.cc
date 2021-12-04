@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 06:13:32 EST 2021
+// Date:	Fri Dec  3 23:56:45 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -354,35 +354,6 @@ SCAN_NEXT_LEXEME:
 	}
 	// falls through
 	case LEXSTD::natural_t:
-#	ifdef NONE_SUCH
-	{
-	    // Numeric or natural.
-	    //
-	    value_ref(token) = min::new_str_gen
-	        ( min::begin_ptr_of
-		      ( translation_buffer ),
-		  translation_buffer->length );
-	    min::str_ptr sp ( token->value );
-	    min::unsptr length = strlen ( sp );
-	    min::float64 val;
-	    min::unsptr i = 0;
-	    min::strto ( val, sp, i );
-	    if ( i == length )
-	    {
-	        value_ref(token) =
-		    min::new_num_gen ( val );
-		if (    0 <= val
-		     && val <= PAR::MAX_NATURAL
-		     && (min::int64) val == val )
-		    token->type = LEXSTD::natural_t;
-		else
-		    token->type = PAR::NUMBER;
-	    }
-	    else
-	        token->type = LEXSTD::numeric_t;
-	    break;
-	}
-#	endif // NONE_SUCH
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
 	case LEXSTD::quoted_string_t:
@@ -470,9 +441,7 @@ SCAN_NEXT_LEXEME:
 	if ( trace )
 	{
 	    printer
-	        << ( token->type == PAR::NUMBER ?
-		     "NUMBER" :
-		     LEXSTD::type_names[type] )
+	        << LEXSTD::type_names[type]
 		<< ": ";
 	    if ( token->value != min::MISSING() )
 	        printer

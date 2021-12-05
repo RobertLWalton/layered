@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 00:47:19 EST 2021
+// Date:	Sun Dec  5 02:12:35 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -259,6 +259,9 @@ cc	    const char * Letter = "L";
 cc
 
 lex	"<sign>" = "+" | "-"
+lex
+
+lex	"<exponent-indicator>" = "e" | "E"
 lex
 
 lex	"<digit>" = "<UNICODE-CATEGORY-Nd>"
@@ -846,6 +849,8 @@ cc		       NDL::go ( separator );
 cc		   NDL::end_dispatch();
 cc
 
+lex	   "Nan" goto numeric word;
+lex	   "Inf" goto numeric word;
 lex	   "<letter>" output word goto finish middle;
 lex
 cc	    	   NDL::begin_dispatch ( );
@@ -880,6 +885,10 @@ cc		      NDL::go ( finish_middle );
 cc	    	   NDL::end_dispatch();
 cc
 
+lex	   "<sign><0-9>" goto integer part;
+lex	   "<sign>.<0-9>" goto fractional part;
+lex	   "<sign>NaN" goto numeric word;
+lex	   "<sign>Inf" goto numeric word;
 lex	   "<mark-middle>" goto mark;
 lex
 cc	    	   NDL::begin_dispatch();
@@ -1128,6 +1137,21 @@ cc	    NDL::end_table();
 cc
 
 lex
+lex	begin numeric word lexeme table;
+lex	    // One of sign? Nan or sign? Inf scanned.
+lex
+
+lex	   "<middle>" output word goto finish middle;
+lex	   "<trailing><repeat><middle>"
+lex	               output word
+lex	               goto finish middle;
+lex
+
+lex	   goto within line;
+lex	end numeric word lexeme table;
+lex
+
+lex
 lex	begin mark lexeme table;
 lex	    // Middle lexeme with no letter or digit yet
 lex	    // scanned.  Will be mark if none found.
@@ -1301,6 +1325,80 @@ cc	    	   NDL::go ( within_line );
 cc
 cc	    NDL::end_table();
 cc
+
+lex
+lex	begin integer part sublexeme table;
+lex	    // sign? digit scanned.
+lex
+
+lex	   "<0-9>" accept;
+lex
+
+lex	   ".<0-9>" goto fraction part;
+lex
+
+lex	   "<exponent-indicator><0-9>"
+lex	               goto exponent part;
+lex	   "<exponent-indicator><sign><0-9>"
+lex	               goto exponent part;
+lex
+
+lex	   "<middle>" output numeric goto finish middle;
+lex	   "<trailing><repeat><middle>"
+lex	               output numeric
+lex	               goto finish middle;
+lex
+
+lex	   output number;
+lex	   goto within line;
+lex	end integer part sublexeme table;
+lex
+
+lex
+lex	begin fraction part sublexeme table;
+lex	    // `. digit' scanned with prefix compatible
+lex	    // with a number.
+lex
+
+lex	   "<0-9>" accept;
+lex
+
+lex	   "<exponent-indicator><0-9>"
+lex	               goto exponent part;
+lex	   "<exponent-indicator><sign><0-9>"
+lex	               goto exponent part;
+lex
+
+lex	   "<middle>" output numeric goto finish middle;
+lex	   "<trailing><repeat><middle>"
+lex	               output numeric
+lex	               goto finish middle;
+lex
+
+lex	   output number;
+lex	   goto within line;
+lex	end fraction part sublexeme table;
+lex
+
+lex
+lex	begin exponent part sublexeme table;
+lex	    // `{e|E} sign? digit' scanned with prefix
+lex	    // compatible with a number.
+lex
+
+lex	   "<0-9>" accept;
+lex
+
+lex	   "<middle>" output numeric goto finish middle;
+lex	   "<trailing><repeat><middle>"
+lex	               output numeric
+lex	               goto finish middle;
+lex
+
+lex	   output number;
+lex	   goto within line;
+lex	end exponent part sublexeme table;
+lex
 
 lex
 lex	begin quoted string lexeme table;

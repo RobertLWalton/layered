@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 00:46:49 EST 2021
+// Date:	Sun Dec  5 01:07:01 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -116,10 +116,9 @@ namespace ll { namespace lexeme { namespace standard {
     const uns32 quoted_string_t			= 7;
 
     const uns32 convert_mask =
-        // NONE_SUCH ( 1 << numeric_t ) + ( 1 << quoted_string_t );
         ( 1 << quoted_string_t );
 	// Lexemes standardly converted to expressions
-	// of the form {" ... "} or {# ... #}.
+	// of the form {" ... "}.
 
     const uns32 separator_t			= 8;
         // Includes leading and trailing separators.

@@ -1493,7 +1493,9 @@ static void make_label
 		  " therefore should be quoted" );
 
 	case LEXSTD::word_t:
+	case LEXSTD::numeric_word_t:
 	case LEXSTD::natural_t:
+	case LEXSTD::number_t:
 	case LEXSTD::numeric_t:
 	case LEXSTD::quoted_string_t:
 	    break;

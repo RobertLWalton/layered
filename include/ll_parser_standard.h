@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 16:49:42 EDT 2021
+// Date:	Sun Dec  5 01:04:16 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,19 +64,26 @@ extern min::locatable_var<ll::parser::input>
 //	word_t
 //	mark_t
 //	separator_t
-//	natural_t
-//
-// These are called `symbol tokens'.  Other tokens have
-// min::MISSING() token values.
-//
-// Tokens with the following types have PAR::string
-// token strings equal to their lexeme's translation
-// character strings:
-//
 //	numeric_t
+//
 //	quoted_string_t
 //
-// Other tokens have min::NULL_STUB token strings.
+// The first four types are called `symbol tokens', and
+// the last type is called a `quoted string token'.
+//
+// Tokens with the following lexeme types have min::gen
+// token values equal to the min::strto conversion of
+// the lexeme's translation character string to a
+// min::float64:
+//
+//	numeric_word_t
+//	natural_t
+//	number_t
+//
+// These are called `number tokens'.
+//
+// Other lexical tokens have min::MISSING() token
+// values.
 //
 // Tokens with the following types do NOT have their
 // lexeme's translation strings recorded in the token:

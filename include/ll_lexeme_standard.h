@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 06:14:38 EST 2021
+// Date:	Sun Dec  5 00:46:49 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,14 +79,30 @@ namespace ll { namespace lexeme { namespace standard {
 
     const uns32 word_t				= 1;
         // Middle lexeme containing a letter before any
-	// digit.
-    const uns32 natural_t			= 2;
+	// digit, but not a numeric_word_t.
+    const uns32 numeric_word_t			= 2;
+        // One of:
+	//     sign? NaN
+	//     sign? Inf
+    const uns32 natural_t			= 3;
         // Sequence of digits 0..9 not beginning with
 	// 0 unless the sequence contains only 1 digit.
-    const uns32 numeric_t			= 3;
+    const uns32 number_t			= 4;
+        // One of:
+	//   sign? integer fraction? exponent?
+	//   sign? fraction exponent?
+	// where
+	//   integer :::= digit+
+	//   fraction :::= . digit+ 
+	//   exponent :::= {e|E} sign? digit+
+	// (i.e., all floats allowed by C/C++ except
+	// `digit+ .'.)
+	//
+	// but not a natural_t.
+    const uns32 numeric_t			= 5;
         // Middle lexeme containing a digit before
-	// any letter, and not a natural number.
-    const uns32 mark_t				= 4;
+	// any letter, and not natural_t or number_t.
+    const uns32 mark_t				= 6;
         // Middle lexeme not containing a letter or
 	// a digit.
 
@@ -97,7 +113,7 @@ namespace ll { namespace lexeme { namespace standard {
 	// broken middle lexemes.  natural_t
 	// cannot be a broken part.
 
-    const uns32 quoted_string_t			= 5;
+    const uns32 quoted_string_t			= 7;
 
     const uns32 convert_mask =
         // NONE_SUCH ( 1 << numeric_t ) + ( 1 << quoted_string_t );
@@ -105,7 +121,7 @@ namespace ll { namespace lexeme { namespace standard {
 	// Lexemes standardly converted to expressions
 	// of the form {" ... "} or {# ... #}.
 
-    const uns32 separator_t			= 6;
+    const uns32 separator_t			= 8;
         // Includes leading and trailing separators.
 
     const uns32 symbol_mask =
@@ -114,16 +130,16 @@ namespace ll { namespace lexeme { namespace standard {
 	// Lexemes that are `symbols' for parser
 	// symbol tables.
 
-    const uns32 comment_t			= 7;
+    const uns32 comment_t			= 9;
         // `//' in lexeme beginning position followed
 	// by graphic and horizontal space characters.
-    const uns32 horizontal_space_t		= 8;
+    const uns32 horizontal_space_t		= 10;
         // Sequence of horizontal space chracters
 	// (characters in category Zs characters and
 	// horizontal tabs).  May not be empty.  Also
 	// the lexeme must not be in the following
 	// category.
-    const uns32 indent_t			= 9;
+    const uns32 indent_t			= 11;
 	// Ditto, but just before the first graphic
 	// character on a line that contains a graphic
 	// character.  There is always one of these
@@ -132,35 +148,35 @@ namespace ll { namespace lexeme { namespace standard {
 	// the lexeme table to be switched just before
 	// the first graphic character on the line.
 	// Also may be empty.
-    const uns32 line_break_t			= 10;
+    const uns32 line_break_t			= 12;
         // Sequence of carriage returns, line feeds,
 	// vertical tabs, and form feeds containing
 	// at least one line feed.
-    const uns32 start_of_file_t			= 11;
+    const uns32 start_of_file_t			= 13;
         // Virtual 0-length lexeme at start of file.
-    const uns32 end_of_file_t			= 12;
+    const uns32 end_of_file_t			= 14;
         // Virtual 0-length lexeme at end of file.
 
     // Special lexemes:
     //
-    const uns32 data_t				= 13;
+    const uns32 data_t				= 15;
         // @ at begining of line.
-    const uns32 raw_data_t			= 14;
+    const uns32 raw_data_t			= 16;
         // !@ at begining of line.
-    const uns32 table_t				= 15;
+    const uns32 table_t				= 17;
         // ----- or ===== at beginning of line.
-    const uns32 row_t				= 16;
+    const uns32 row_t				= 18;
         // |, -----, or ===== at beginning of line.
 
     // Erroneous Lexeme Types:
     //
-    const uns32 premature_end_of_string_t	= 17;
+    const uns32 premature_end_of_string_t	= 19;
         // A line break or end of file was encountered
 	// in a quoted string.  The quoted string is
 	// ended as if by ", and this 0-length lexeme
 	// is output just before the line break or
 	// end of file.
-    const uns32 premature_end_of_file_t		= 18;
+    const uns32 premature_end_of_file_t		= 20;
         // End of file not following a line break.
 	// Includes case of empty input.  This 0-length
 	// lexeme is output just before the end of file
@@ -179,32 +195,32 @@ namespace ll { namespace lexeme { namespace standard {
     //     as erroneous atoms in effect allows them
     //     in comments and quoted strings.
     //
-    const uns32 misplaced_vertical_t		= 19;
+    const uns32 misplaced_vertical_t		= 21;
         // Sequence of carriage returns, vertical tabs,
 	// and form feeds that does not abutt a line
 	// feed.
-    const uns32 illegal_control_t		= 20;
+    const uns32 illegal_control_t		= 22;
         // Sequence of control characters that are not
 	// legal in any lexeme.
-    const uns32 unrecognized_character_t	= 21;
+    const uns32 unrecognized_character_t	= 23;
         // Sequence of unrecognized characters
 	// (characters with no recognized general
 	// category) that are not legal in any lexeme.
 
     // Erroneous Atom Types:
     //
-    const uns32 unrecognized_escape_t		= 22;
+    const uns32 unrecognized_escape_t		= 24;
         // Any unrecognized <...> sequence in a quoted
 	// string where ... is all upper case letters
 	// and digits.  Translated to <UUC>.
-    const uns32 misplaced_horizontal_t		= 23;
+    const uns32 misplaced_horizontal_t		= 25;
         // A sequence of horizontal characters other
 	// than single space in a quoted string.
 	// Translated to itself.  Such a sequence is
 	// legal and not erroneous if it is part of a
 	// horizontal space or comment lexeme.
 
-    const unsigned MAX_TYPE = 23;
+    const unsigned MAX_TYPE = 25;
 
     extern const char * const type_names[MAX_TYPE+1];
 

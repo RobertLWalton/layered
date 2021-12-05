@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 24 03:19:59 EDT 2021
+// Date:	Sun Dec  5 00:47:19 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,9 @@ cc		LEXSTD::type_names[MAX_TYPE+1] = {
 cc
 cc	    NULL,
 cc	    "WORD",
+cc	    "NUMERIC-WORD",
 cc	    "NATURAL",
+cc	    "NUMBER",
 cc	    "NUMERIC",
 cc	    "MARK",
 cc	    "QUOTED-STRING",
@@ -86,7 +88,7 @@ cc	    "UNRECOGNIZED-ESCAPE",
 cc	    "MISPLACED-HORIZONTAL" };
 cc
 cc	const char * LEXSTD::type_codes =
-cc	    "?wn#mqschibfeDRTOSFVCUEH";
+cc	    "?wWnN#mqschibfeDRTOSFVCUEH";
 cc
 cc	void LEXSTD::init_standard_program
 cc		( void )

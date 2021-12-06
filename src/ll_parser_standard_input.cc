@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:56:45 EST 2021
+// Date:	Sun Dec  5 19:00:53 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -353,7 +353,6 @@ SCAN_NEXT_LEXEME:
 	    }
 	}
 	// falls through
-	case LEXSTD::natural_t:
 	case LEXSTD::mark_t:
 	case LEXSTD::separator_t:
 	case LEXSTD::quoted_string_t:
@@ -362,6 +361,38 @@ SCAN_NEXT_LEXEME:
 	        ( min::begin_ptr_of
 		      ( translation_buffer ),
 		  translation_buffer->length );
+
+	    break;
+	}
+	case LEXSTD::natural_t:
+	case LEXSTD::number_t:
+	case LEXSTD::numeric_word_t:
+	{
+	    value_ref(token) = min::new_str_gen
+	        ( min::begin_ptr_of
+		      ( translation_buffer ),
+		  translation_buffer->length );
+
+	    min::float64 v;
+	    if ( ! min::strto ( v, token->value ) )
+	    {
+		printer
+		    << min::bom
+		    << min::set_indent ( 7 )
+		    << "ERROR: failed to convert"
+			     " to number; "
+		    << LEX::pline_numbers
+			   ( scanner, first, next )
+		    << ":" << min::eom;
+		LEX::print_phrase_lines
+		    ( printer, scanner, first, next );
+
+		++ parser->error_count;
+	    }
+	    else
+		value_ref(token) =
+		    min::new_num_gen ( v );
+
 	    break;
 	}
 	case LEXSTD::word_t:

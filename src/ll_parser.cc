@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 01:10:02 EST 2021
+// Date:	Sun Dec  5 18:58:43 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2674,6 +2674,7 @@ static min::gen scan_value_or_label
 	++ i;
 	accepted_types |=
 	      1ull << LEXSTD::natural_t
+	    | 1ull << LEXSTD::number_t
 	    | 1ull << LEXSTD::numeric_t;
     }
 

@@ -21,8 +21,8 @@ BRACKETED EXPRESSION:
 This is a line containing a "quoted string".
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is a line containing a large number 12345678901234567890 "."
-@@ := This is a line containing a large number 12345678901234567890 "."::
+    This is a line containing a large number 1.23456789012346e+19 "."
+@@ := This is a line containing a large number 1.23456789012346e+19 "."::
           .terminator = "<LF>"
           .position[H] = PACKED_VEC
           .initiator = [$ LOGICAL_LINE $]
@@ -3208,11 +3208,11 @@ ERROR: in line ###: illegal attribute label `'; attribute ignored:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = 1, y 55 = 77, z 22 = 33}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ :=::
             x = 1
-            y 55 = 77
             z 22 = 33
+            y 55 = 77
             .position[H] = PACKED_VEC
     lines ###-###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
@@ -3220,7 +3220,7 @@ BRACKETED EXPRESSION:
          z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = 1, y 55 = 77, z 22 = 33}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ := @@@@::
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
@@ -3252,17 +3252,17 @@ ERROR: in line ###: illegal attribute label `'; attribute ignored:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
                     ^
 BRACKETED EXPRESSION:
-    {"": x = 1, y 55 = 77, z 22 = 33}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ :=::
             x = 1
-            y 55 = 77
             z 22 = 33
+            y 55 = 77
             .position[H] = PACKED_VEC
     line ###:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = 1, y 55 = 77, z 22 = 33}
+    {"": x = 1, z 22 = 33, y 55 = 77}
 @@@@ := @@@@::
             .terminator = "<LF>"
             .position[H] = PACKED_VEC

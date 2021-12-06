@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 13:37:24 EDT 2021
+// Date:	Sun Dec  5 18:57:44 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -297,7 +297,7 @@ third line with indent 0
 
 *PARSER*:
     begin block BLOCK1
-    define typed bracket "8" ... "|" ... "|" ... "9"
+    define typed bracket "A" ... "|" ... "|" ... "B"
         [code, text, math, data]
         with parsing selectors [data]
         with attribute selectors [data, code]
@@ -306,18 +306,18 @@ third line with indent 0
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
 *PARSER* *TEST*:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
 *PARSER*:
     end block BLOCK1
 *PARSER* *TEST*:
-    [8 my type: my attr = 99 9]
+    [A my type: my attr = 99 B]
 
 *PARSER*:
     begin block BLOCK1
-    define bracket "[0" ... "0]" [code]
+    define bracket "[A" ... "A]" [code]
         with special reformatter
 *PARSER* *TEST*:
-    [0 LOGICAL_LINE 0]
+    [A LOGICAL_LINE A]
 *PARSER*:
     end block BLOCK1
 

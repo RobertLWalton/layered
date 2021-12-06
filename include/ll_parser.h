@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:48:04 EST 2021
+// Date:	Sun Dec  5 19:01:43 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 # include <ll_lexeme.h>
 # include <ll_lexeme_standard.h>
 # include <ll_parser_table.h>
+# include <cmath>
 
 namespace ll { namespace parser {
 
@@ -1518,14 +1519,25 @@ void push_reformatter
 // ------ ---------
 
 // Return the lexical type of a min::gen value according
-// to LEXSTD::lexical_type_of.  This function permits
-// modification of the result, but currently there is
-// no such modification.
+// to ll::lexeme::standard::lexical_type_of, unless
+// g is a number.
 //
 inline min::uns32 lexical_type_of ( min::gen g )
 {
-    return ll::lexeme::standard
-	     ::lexical_type_of ( g );
+    if ( min::is_num ( g ) )
+    {
+        min::float64 f = min::float_of ( g );
+        min::float64 i;
+	if ( ! std::isfinite ( f ) )
+	    return ll::lexeme::standard::numeric_t;
+	else if ( modf ( f, & i ) == 0.0 )
+	    return ll::lexeme::standard::natural_t;
+	else
+	    return ll::lexeme::standard::number_t;
+    }
+    else
+	return ll::lexeme::standard
+		 ::lexical_type_of ( g );
 }
 
 // Compute new_flags that set the selectors to the

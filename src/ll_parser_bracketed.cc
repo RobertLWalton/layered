@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:54:09 EST 2021
+// Date:	Sun Dec  5 18:58:54 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1978,13 +1978,12 @@ inline bool is_label ( min::gen lab )
     if ( length == 0 ) return false;
     for ( min::uns32 i = 0; i < length; ++ i )
     {
-	if ( ! min::is_str ( labp[i] ) )
-	    return false;
         min::uns32 type =
 	    PAR::lexical_type_of ( labp[i] );
 	if ( ( ( 1ull << type ) & ok_types ) == 0 )
 	    return false;
 	ok_types |= ( 1ull << LEXSTD::natural_t )
+	          | ( 1ull << LEXSTD::number_t )
 	          | ( 1ull << LEXSTD::numeric_t );
     }
     return true;
@@ -5862,17 +5861,23 @@ static min::gen bracketed_pass_command
 		  "expected integer after" );
 	else
 	{
-	    min::int64 offset;
-	    if ( ! min::strto ( offset, vp[i+2], 10 )
-	         ||
-		 offset < 0
-		 ||
-		 offset > 100 )
+	    if ( ! min::is_num ( vp[i+2] ) )
 		return PAR::parse_error
 		    ( parser, ppvec[i+2],
-		      "expected reasonable sized"
-		      " integer" );
-
+		      "expected integer" );
+	    min::float64 offset =
+	        min::float_of ( vp[i+2] );
+	    if ( ! std::isfinite ( offset )
+	         ||
+		 offset < 1
+		 ||
+		 offset > 100
+		 ||
+		 (min::int32) offset != offset )
+		return PAR::parse_error
+		    ( parser, ppvec[i+2],
+		      "expected integer in range"
+		      " [1,100]" );
 	    if ( i + 3 < size )
 		return PAR::parse_error
 		    ( parser, ppvec[i+2],

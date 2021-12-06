@@ -582,13 +582,13 @@
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
                 #####: ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 14
             <NUL>-<LF> <SO>-<30000>

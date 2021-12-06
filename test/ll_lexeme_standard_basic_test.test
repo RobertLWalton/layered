@@ -78,6 +78,10 @@
             Dispatcher ID: #####
             #####: GOTO(####)
    #######: TABLE
+            Mode: NUMERIC-WORD
+            Dispatcher ID: #####
+            #####: GOTO(####)
+   #######: TABLE
             Mode: NONE
             Dispatcher ID: #####
             #####: OUTPUT(3), GOTO(####)
@@ -85,6 +89,18 @@
             Mode: NATURAL
             Dispatcher ID: #####
             #####: GOTO(####)
+   #######: TABLE
+            Mode: NONE
+            Dispatcher ID: #####
+            #####: OUTPUT(4), GOTO(####)
+   #######: TABLE
+            Mode: NONE
+            Dispatcher ID: #####
+            #####: OUTPUT(4), GOTO(####)
+   #######: TABLE
+            Mode: NONE
+            Dispatcher ID: #####
+            #####: OUTPUT(4), GOTO(####)
    #######: TABLE
             Mode: MARK
             Dispatcher ID: #####
@@ -103,15 +119,15 @@
             #####: GOTO(####)
    #######: TABLE
             Mode: MASTER
-            Dispatcher ID: #####
-            #####: OUTPUT(19), GOTO(####)
+            Dispatcher ID: ######
+            ######: OUTPUT(19), GOTO(####)
    #######: TABLE
             Mode: MASTER
-            Dispatcher ID: #####
-            #####: OUTPUT(14), GOTO(####)
+            Dispatcher ID: ######
+            ######: OUTPUT(14), GOTO(####)
    #######: TABLE
             Mode: MASTER
-            Dispatcher ID: #####
+            Dispatcher ID: ######
    #######: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
@@ -169,14 +185,14 @@
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
                 ####: OUTPUT(22)
                 Dispatcher ID: ####
-   #######: DISPATCHER
+  ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 539
-                ####: ACCEPT
-                Dispatcher ID: ####
+                #####: ACCEPT
+                Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
@@ -561,7 +577,7 @@
   ########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
-  ########: DISPATCHER
+ #########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
   ########: DISPATCHER
@@ -660,7 +676,28 @@
                 #####: ACCEPT
                 Dispatcher ID: #####
             ! ' , . :-; ? [repeat(INFINITY)]
-                #####: KEEP(0), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 1081
+            #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(1), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 1081
+            #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(1), GOTO(####)
+                Dispatcher ID: #####
+            ! ' , . :-; ? [repeat(INFINITY)]
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0
@@ -709,7 +746,6 @@
                 #####: ACCEPT
                 Dispatcher ID: #####
             ! ' , . :-; ? [repeat(INFINITY)]
-                #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0
@@ -732,7 +768,6 @@
                 #####: OUTPUT(5), GOTO(####)
                 Dispatcher ID: #####
             ! ' , . :-; ? [repeat(INFINITY)]
-                #####: KEEP(0), OUTPUT(3), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0
@@ -761,7 +796,145 @@
                 #####: OUTPUT(5), GOTO(####)
                 Dispatcher ID: #####
             ! ' , . :-; ? [repeat(INFINITY)]
-                #####: KEEP(0), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 58
+            0-9
+                #####: GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 58
+            0-9
+                #####: GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 58
+            0-9
+                #####: GOTO(####)
+                Dispatcher ID: #####
+            + -
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 1081
+            #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(5), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 5
+            Ctype Map Size: 1081
+            0-9
+                #####: ACCEPT
+                Dispatcher ID: #####
+            .
+                Dispatcher ID: #####
+            E e
+                Dispatcher ID: #####
+            #-& *-+ - / <-> @-D F-Z \ ^-d f-z ~ <0A1>-<0AA> <0AC>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(5), GOTO(####)
+                Dispatcher ID: #####
+            ! ' , :-; ? [repeat(INFINITY)]
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 58
+            0-9
+                #####: GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 2
+            Ctype Map Size: 58
+            0-9
+                #####: GOTO(####)
+                Dispatcher ID: #####
+            + -
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 1081
+            #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(5), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 4
+            Ctype Map Size: 1081
+            0-9
+                #####: ACCEPT
+                Dispatcher ID: #####
+            E e
+                Dispatcher ID: #####
+            #-& *-+ - / <-> @-D F-Z \ ^-d f-z ~ <0A1>-<0AA> <0AC>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(5), GOTO(####)
+                Dispatcher ID: #####
+            ! ' , . :-; ? [repeat(INFINITY)]
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 0
+            Ctype Map Size: 0
+ #########: DISPATCHER
+            Max CType: 1
+            Ctype Map Size: 1081
+            #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(5), GOTO(####)
+                Dispatcher ID: #####
+ #########: DISPATCHER
+            Max CType: 3
+            Ctype Map Size: 1081
+            0-9
+                #####: ACCEPT
+                Dispatcher ID: #####
+            #-& *-+ - / <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
+            <2F800>-<2FA1D>
+                #####: OUTPUT(5), GOTO(####)
+                Dispatcher ID: #####
+            ! ' , . :-; ? [repeat(INFINITY)]
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 0
@@ -868,13 +1041,13 @@
             <1BCA0>-<1BCA3> <1D173>-<1D17A> [repeat(INFINITY)]
                 #####: ERRONEOUS_ATOM(22)
                 Dispatcher ID: #####
- #########: DISPATCHER
+##########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
- #########: DISPATCHER
+##########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
- #########: DISPATCHER
+##########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
 START-OF-FILE 0(0)0: <empty>

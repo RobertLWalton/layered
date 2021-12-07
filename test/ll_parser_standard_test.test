@@ -54,7 +54,7 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     ID 61 is {"": a = @@ = b}
 BRACKETED EXPRESSION:
-    ID 70 is {"": a = [< b 55.44 >], e 22.99 = 5, c = @@ = d 77.33}
+    ID 70 is {"": e 22.99 = 5, a = [< b 55.44 >], c = @@ = d 77.33}
 ERROR: in line ##: line does not begin with a (possibly negated)
        attribute label; line ignored:
     2 = X
@@ -97,8 +97,8 @@ BRACKETED EXPRESSION:
           b = @@ = a
           c = @@ = d
 @@ :=::
-          d 77.33 = @@ = c
           .position[H] = PACKED_VEC
+          d 77.33 = @@ = c
 @@ :=::
           previous = @@ = next
           .position[H] = PACKED_VEC
@@ -115,6 +115,6 @@ BRACKETED EXPRESSION:
           d = @@ = c
 @@ :=::
           .position[H] = PACKED_VEC
-          a = [< b 55.44 >]
           e 22.99 = 5
+          a = [< b 55.44 >]
           c = @@ = d 77.33

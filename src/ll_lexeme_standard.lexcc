@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  6 07:03:03 EST 2021
+// Date:	Tue Dec  7 05:03:13 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -114,6 +114,8 @@ cc	    uns32 begin_line;
 cc	    NDL::new_table ( begin_line, MASTER );
 cc	    uns32 within_line;
 cc	    NDL::new_table ( within_line, MASTER, 1 );
+cc	    uns32 test_trailing;
+cc	    NDL::new_table ( test_trailing );
 cc	    uns32 data_check;
 cc	    NDL::new_table ( data_check, MASTER, 2 );
 cc	    uns32 table_check;
@@ -831,40 +833,20 @@ cc		   NDL::output ( separator_t );
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<trailing><repeat><letter>"
-lex	                output word
-lex	                goto goto finish middle;
-lex	    "<trailing><repeat><digit>"
-lex	                output numeric
-lex	                goto finish middle;
-lex	    "<trailing><repeat><mark-middle>"
-lex	                goto mark
-lex	    "<trailing><repeat>"
-lex	                keep 0
-lex	                goto separator;
+lex	    ".<0-9>" goto fraction part;
+lex	    "." keep 0 goto test trailing;
+lex	    "<trailing>" keep 0 goto test trailing;
 lex
-cc		NDL::begin_dispatch ( trailing );
-cc		   NDL::REPEAT();
-cc
-cc		   NDL::begin_dispatch();
-cc		      NDL::add_category ( Letter );
-cc		      NDL::output ( word_t );
-cc		      NDL::go ( finish_middle );
+cc		NDL::begin_dispatch ( "." );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( fraction_part );
 cc		   NDL::end_dispatch();
-cc
-cc		   NDL::begin_dispatch();
-cc		      NDL::add_category ( Digit );
-cc		      NDL::output ( numeric_t );
-cc		      NDL::go ( finish_middle );
-cc		   NDL::end_dispatch();
-cc
-cc		   NDL::begin_dispatch();
-cc		      MARK_MIDDLE;
-cc		      NDL::go ( mark );
-cc		   NDL::end_dispatch();
-cc
 cc		   NDL::keep ( 0 );
-cc		   NDL::go ( separator );
+cc		   NDL::go ( test_trailing );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( test_trailing );
 cc		NDL::end_dispatch();
 cc
 
@@ -989,6 +971,58 @@ cc		NDL::go ( end_of_file );
 cc
 
 lex	end within line master table;
+lex
+cc	    NDL::end_table();
+cc
+
+lex
+lex	begin test trailing sublexeme table;
+lex	    // First atom of the lexeme has not been
+lex	    // scanned but is known to begin with a
+lex	    // trailing character.
+lex
+cc	    NDL::begin_table ( test_trailing );
+cc
+
+lex	    "<trailing><repeat><letter>"
+lex	                output word
+lex	                goto goto finish middle;
+lex	    "<trailing><repeat><digit>"
+lex	                output numeric
+lex	                goto finish middle;
+lex	    "<trailing><repeat><mark-middle>"
+lex	                goto mark
+lex	    "<trailing><repeat>"
+lex	                keep 0
+lex	                goto separator;
+lex
+cc		NDL::begin_dispatch ( trailing );
+cc		   // This dispatch always succeeds.
+cc		   NDL::REPEAT();
+cc
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_category ( Letter );
+cc		      NDL::output ( word_t );
+cc		      NDL::go ( finish_middle );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_category ( Digit );
+cc		      NDL::output ( numeric_t );
+cc		      NDL::go ( finish_middle );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::begin_dispatch();
+cc		      MARK_MIDDLE;
+cc		      NDL::go ( mark );
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( separator );
+cc		NDL::end_dispatch();
+cc
+
+lex	end test trailing sublexeme table;
 lex
 cc	    NDL::end_table();
 cc

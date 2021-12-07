@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  6 01:38:52 EST 2021
+// Date:	Mon Dec  6 07:03:03 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,10 @@ cc	using namespace LEXSTD;
 cc
 cc	const min::Uchar UUC[1] =
 cc	    { min::UNKNOWN_UCHAR };
+cc
+cc	# define UNREC_ESC_T unrecognized_escape_t
+cc	    // Needed to keep line length <= 56
+cc
 
 // Program Construction
 // ------- ------------
@@ -277,9 +281,6 @@ lex	"<digit>" = "<UNICODE-CATEGORY-Nd>"
 lex
 cc	    const char * Digit = "Nd";
 cc
-
-lex	"<non-decimal-digit>" = "<digit> & ~ "0-9"
-lex
 
 lex	"<mark>" = (   "<UNICODE-CATEGORY-P>"
 lex	             | "<UNICODE-CATEGORY-S>"
@@ -601,9 +602,9 @@ lex	   "@@@@"       keep 0
 lex	                output data
 lex	                goto within line;
 lex
-cc	           NDL::begin_dispatch ( "@" );
-cc	    	       NDL::begin_dispatch
-cc	                       ( "123456789<" );
+cc		   NDL::begin_dispatch ( "@" );
+cc		       NDL::begin_dispatch
+cc		               ( "123456789<" );
 cc		           NDL::keep ( 0 );
 cc		           NDL::output ( data_t );
 cc		           NDL::go ( within_line );
@@ -627,9 +628,9 @@ lex	   "!@<"        keep 1
 lex	                output raw data
 lex	                goto within line;
 lex
-cc	           NDL::begin_dispatch ( "!" );
-cc	             NDL::begin_dispatch ( "@" );
-cc	               NDL::begin_dispatch
+cc		   NDL::begin_dispatch ( "!" );
+cc		     NDL::begin_dispatch ( "@" );
+cc		       NDL::begin_dispatch
 cc		              ( "123456789<" );
 cc		         NDL::keep ( 1 );
 cc		         NDL::output ( raw_data_t );
@@ -643,11 +644,11 @@ lex	   "====="      keep 0
 lex	                output table
 lex	                goto row check;
 lex
-cc	           NDL::begin_dispatch ( "=" );
-cc	             NDL::begin_dispatch ( "=" );
-cc	               NDL::begin_dispatch ( "=" );
-cc	                 NDL::begin_dispatch ( "=" );
-cc	                   NDL::begin_dispatch ( "=" );
+cc		   NDL::begin_dispatch ( "=" );
+cc		     NDL::begin_dispatch ( "=" );
+cc		       NDL::begin_dispatch ( "=" );
+cc		         NDL::begin_dispatch ( "=" );
+cc		           NDL::begin_dispatch ( "=" );
 cc		             NDL::keep ( 0 );
 cc		             NDL::output ( table_t );
 cc		             NDL::go ( row_check );
@@ -662,11 +663,11 @@ lex	   "-----"      keep 0
 lex	                output table
 lex	                goto row check;
 lex
-cc	           NDL::begin_dispatch ( "-" );
-cc	             NDL::begin_dispatch ( "-" );
-cc	               NDL::begin_dispatch ( "-" );
-cc	                 NDL::begin_dispatch ( "-" );
-cc	                   NDL::begin_dispatch ( "-" );
+cc		   NDL::begin_dispatch ( "-" );
+cc		     NDL::begin_dispatch ( "-" );
+cc		       NDL::begin_dispatch ( "-" );
+cc		         NDL::begin_dispatch ( "-" );
+cc		           NDL::begin_dispatch ( "-" );
 cc		             NDL::keep ( 0 );
 cc		             NDL::output ( table_t );
 cc		             NDL::go ( row_check );
@@ -679,7 +680,7 @@ cc
 
 lex	   goto within line;
 lex
-cc	    	   NDL::go ( within_line );
+cc		NDL::go ( within_line );
 cc
 
 lex	end paragraph check master table;
@@ -697,38 +698,38 @@ lex	   "|"          keep 0
 lex	                output row
 lex	                goto within line;
 lex
-cc	           NDL::begin_dispatch ( "|" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( row_t );
-cc		       NDL::go ( within_line );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "|" );
+cc		   NDL::keep ( 0 );
+cc		   NDL::output ( row_t );
+cc		   NDL::go ( within_line );
+cc		NDL::end_dispatch();
 cc
 
 lex	   "="          keep 0
 lex	                output row
 lex	                goto within line;
 lex
-cc	           NDL::begin_dispatch ( "=" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( row_t );
-cc		       NDL::go ( within_line );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "=" );
+cc		   NDL::keep ( 0 );
+cc		   NDL::output ( row_t );
+cc		   NDL::go ( within_line );
+cc		NDL::end_dispatch();
 cc
 
 lex	   "-"          keep 0
 lex	                output row
 lex	                goto within line;
 lex
-cc	           NDL::begin_dispatch ( "-" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::output ( row_t );
-cc		       NDL::go ( within_line );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "-" );
+cc		   NDL::keep ( 0 );
+cc		   NDL::output ( row_t );
+cc		   NDL::go ( within_line );
+cc		NDL::end_dispatch();
 cc
 
 lex	   goto within line;
 lex
-cc	    	   NDL::go ( within_line );
+cc		NDL::go ( within_line );
 cc
 
 lex	end row check master table;
@@ -745,204 +746,246 @@ cc
 lex	   "//" goto comment;
 lex	   "/"  goto mark;
 lex
+cc		NDL::begin_dispatch ( "/" );
 cc		   NDL::begin_dispatch ( "/" );
-cc		      NDL::begin_dispatch ( "/" );
-cc			 NDL::go ( comment );
-cc		      NDL::end_dispatch();
-cc
-cc		      NDL::go ( mark );
+cc		      NDL::go ( comment );
 cc		   NDL::end_dispatch();
 cc
+cc		   NDL::go ( mark );
+cc		NDL::end_dispatch();
+cc
 
-lex	   "<horizontal><repeat>"
+lex	    "<horizontal><repeat>"
 lex	        output horizontal space;
 lex
-cc		   NDL::begin_dispatch ( "\t" );
-cc		      NDL::add_category ( "Zs" );
-cc		      NDL::REPEAT();
-cc		      NDL::output
-cc			    ( horizontal_space_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "\t" );
+cc		   NDL::add_category ( "Zs" );
+cc		   NDL::REPEAT();
+cc		   NDL::output ( horizontal_space_t );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<LF>" goto line break
+lex	    "<LF>" goto line break
 lex
+cc		NDL::begin_dispatch ( "\n" );
+cc		   NDL::go ( line_break );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<vertical><repeat><LF>" goto line break
+lex	    "<vertical><repeat>"
+lex	                output misplaced vertical
+lex
+cc		NDL::begin_dispatch ( vertical );
+cc		   NDL::REPEAT();
 cc		   NDL::begin_dispatch ( "\n" );
 cc		      NDL::go ( line_break );
 cc		   NDL::end_dispatch();
+cc		   NDL::output ( misplaced_vertical_t );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<vertical><repeat><LF>" goto line break
-lex	   "<vertical><repeat>"
-lex	                output misplaced vertical
-lex
-cc		   NDL::begin_dispatch ( vertical );
-cc		      NDL::REPEAT();
-cc		      NDL::begin_dispatch ( "\n" );
-cc		         NDL::go ( line_break );
-cc		      NDL::end_dispatch();
-cc		      NDL::output
-cc		            ( misplaced_vertical_t );
-cc		   NDL::end_dispatch();
-cc
-
-lex	   "<illegal-control><repeat>"
+lex	    "<illegal-control><repeat>"
 lex	        output illegal control
 lex
-cc		   NDL::begin_dispatch(); 
-cc		      ILLEGAL_CONTROL;
-cc		      NDL::REPEAT();
-cc		      NDL::output
-cc			  ( illegal_control_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch(); 
+cc		   ILLEGAL_CONTROL;
+cc		   NDL::REPEAT();
+cc		   NDL::output ( illegal_control_t );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<isolated-separator>" output separator;
-lex	   "|<repeat>" output separator;
-lex	   "`<repeat>" output separator;
-lex	   "<0A1><repeat>" output separator;
+lex	    "<isolated-separator>" output separator;
+lex	    "|<repeat>" output separator;
+lex	    "`<repeat>" output separator;
+lex	    "<0A1><repeat>" output separator;
 lex	        // Inverted !
-lex	   "<0BF><repeat>" output separator;
+lex	    "<0BF><repeat>" output separator;
 lex	        // Inverted ?
 lex
-cc	    	   NDL::begin_dispatch();
-cc		      ISOLATED_SEPARATOR;
-cc		      NDL::output ( separator_t );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   ISOLATED_SEPARATOR;
+cc		   NDL::output ( separator_t );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( "|" );
-cc		      NDL::REPEAT();
-cc		      NDL::output ( separator_t );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "|" );
+cc		   NDL::REPEAT();
+cc		   NDL::output ( separator_t );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( "`" );
-cc		      NDL::REPEAT();
-cc		      NDL::output ( separator_t );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "`" );
+cc		   NDL::REPEAT();
+cc		   NDL::output ( separator_t );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch();
-cc		      NDL::add_char ( 0xA1 );
-cc		      NDL::REPEAT();
-cc		      NDL::output ( separator_t );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   NDL::add_char ( 0xA1 );
+cc		   NDL::REPEAT();
+cc		   NDL::output ( separator_t );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch();
-cc		      NDL::add_char ( 0xBF );
-cc		      NDL::REPEAT();
-cc		      NDL::output ( separator_t );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   NDL::add_char ( 0xBF );
+cc		   NDL::REPEAT();
+cc		   NDL::output ( separator_t );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<trailing><repeat><letter>"
+lex	    "<trailing><repeat><letter>"
 lex	                output word
 lex	                goto goto finish middle;
-lex	   "<trailing><repeat><digit>"
+lex	    "<trailing><repeat><digit>"
 lex	                output numeric
 lex	                goto finish middle;
-lex	   "<trailing><repeat><mark-middle>"
+lex	    "<trailing><repeat><mark-middle>"
 lex	                goto mark
-lex	   "<trailing><repeat>"
+lex	    "<trailing><repeat>"
 lex	                keep 0
 lex	                goto separator;
 lex
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
+cc		NDL::begin_dispatch ( trailing );
+cc		   NDL::REPEAT();
 cc
-cc	               NDL::begin_dispatch();
-cc		           NDL::add_category ( Letter );
-cc		           NDL::output ( word_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
-cc
-cc	               NDL::begin_dispatch();
-cc		           NDL::add_category ( Digit );
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
-cc
-cc	               NDL::begin_dispatch();
-cc		           MARK_MIDDLE;
-cc		           NDL::go ( mark );
-cc		       NDL::end_dispatch();
-cc
-cc		       NDL::keep ( 0 );
-cc		       NDL::go ( separator );
-cc		   NDL::end_dispatch();
-cc
-
-lex	   "Nan" goto numeric word;
-lex	   "Inf" goto numeric word;
-lex	   "<letter>" output word goto finish middle;
-lex
-cc	    	   NDL::begin_dispatch ( );
-cc		      NDL::add_category ( "L" );
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_category ( Letter );
 cc		      NDL::output ( word_t );
 cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
+cc		   NDL::end_dispatch();
 cc
-
-lex	   "0" goto leading zero;
-lex
-cc	    	   NDL::begin_dispatch ( "0" );
-cc		      NDL::go ( leading_zero );
-cc	    	   NDL::end_dispatch();
-cc
-
-lex	   "1-9" goto natural;
-lex
-cc	    	   NDL::begin_dispatch ( "123456789" );
-cc		      NDL::go ( natural );
-cc	    	   NDL::end_dispatch();
-cc
-
-lex	   "<non-decimal-digit>" output numeric
-lex	                         goto finish middle;
-lex
-cc	    	   NDL::begin_dispatch();
+cc		   NDL::begin_dispatch();
 cc		      NDL::add_category ( Digit );
-cc		      NDL::sub_chars ( "0123456789" );
 cc		      NDL::output ( numeric_t );
 cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
+cc		   NDL::end_dispatch();
 cc
-
-lex	   "<sign><0-9>" goto integer part;
-lex	   "<sign>.<0-9>" goto fractional part;
-lex	   "<sign>NaN" goto numeric word;
-lex	   "<sign>Inf" goto numeric word;
-lex	   "<mark-middle>" goto mark;
-lex
-cc	    	   NDL::begin_dispatch();
+cc		   NDL::begin_dispatch();
 cc		      MARK_MIDDLE;
 cc		      NDL::go ( mark );
-cc	    	   NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( separator );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<Q>" translate to "" goto quoted string;
+lex	    "NaN" goto numeric word;
+lex	    "N" output word goto finish middle;
+lex	    "Inf" goto numeric word;
+lex	    "I" output word goto finish middle;
+lex	    "<letter>" output word goto finish middle;
 lex
-cc	    	   NDL::begin_dispatch ( "\"" );
-cc		      NDL::translate_to ( "" );
-cc		      NDL::go ( quoted_string );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "N" );
+cc		   NDL::begin_dispatch ( "a" );
+cc		      NDL::begin_dispatch ( "N" );
+cc		         NDL::go ( numeric_word );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::output ( word_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "I" );
+cc		   NDL::begin_dispatch ( "n" );
+cc		      NDL::begin_dispatch ( "f" );
+cc		         NDL::go ( numeric_word );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::output ( word_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( );
+cc		   NDL::add_category ( "L" );
+cc		   NDL::output ( word_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<others><repeat>"
+lex	    "0" goto leading zero;
+lex
+cc		NDL::begin_dispatch ( "0" );
+cc		   NDL::go ( leading_zero );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<1-9>" goto natural;
+lex
+cc		NDL::begin_dispatch ( "123456789" );
+cc		   NDL::go ( natural );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<digit>" output numeric goto finish middle;
+lex
+cc		NDL::begin_dispatch();
+cc		   NDL::add_category ( Digit );
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<sign><0-9>" goto integer part;
+lex	    "<sign>.<0-9>" goto fraction part;
+lex	    "<sign>NaN" goto numeric word;
+lex	    "<sign>Inf" goto numeric word;
+lex	    "<sign>" goto mark;
+lex	    "<mark-middle>" goto mark;
+lex
+cc		NDL::begin_dispatch ( "+-" );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( integer_part );
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( "." );
+cc		      NDL::begin_dispatch
+cc		            ( "0123456789" );
+cc		         NDL::go ( fraction_part );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( "N" );
+cc		      NDL::begin_dispatch ( "a" );
+cc		         NDL::begin_dispatch ( "N" );
+cc		            NDL::go ( numeric_word );
+cc		         NDL::end_dispatch();
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( "I" );
+cc		      NDL::begin_dispatch ( "n" );
+cc		         NDL::begin_dispatch ( "f" );
+cc		            NDL::go ( numeric_word );
+cc		         NDL::end_dispatch();
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::go ( mark );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   MARK_MIDDLE;
+cc		   NDL::go ( mark );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<Q>" translate to "" goto quoted string;
+lex
+cc		NDL::begin_dispatch ( "\"" );
+cc		   NDL::translate_to ( "" );
+cc		   NDL::go ( quoted_string );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<others><repeat>"
 lex	        error unrecognized character
 lex
-cc	    	   NDL::begin_dispatch ( OTHERS );
-cc		      NDL::REPEAT();
-cc		      NDL::output
-cc			( unrecognized_character_t );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( OTHERS );
+cc		   NDL::REPEAT();
+cc		   NDL::output
+cc		      ( unrecognized_character_t );
+cc		NDL::end_dispatch();
 cc
 
-lex	   output premature end of file goto end of file
+lex	    output premature end of file
+lex	    goto end of file
 lex	        // End of file not following a line
 lex	        // break
 lex
-cc		   NDL::output
-cc			( premature_end_of_file_t );
-cc		   NDL::go ( end_of_file );
+cc		NDL::output ( premature_end_of_file_t );
+cc		NDL::go ( end_of_file );
 cc
 
 lex	end within line master table;
@@ -960,58 +1003,58 @@ lex
 cc	    NDL::begin_table ( comment );
 cc
 
-lex	   "<graphic>" accept
-lex	   "<horizontal>" accept
+lex	    "<graphic>" accept
+lex	    "<horizontal>" accept
 lex
-cc		   NDL::begin_dispatch ( "\t" );
-cc		       GRAPHIC;
-cc		       NDL::add_category ( "Zs" );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "\t" );
+cc		   GRAPHIC;
+cc		   NDL::add_category ( "Zs" );
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<LF>" keep 0 goto within line
-lex	   "<vertical><repeat><LF>" keep 0
-lex	                            goto within line
-lex	   "<vertical><repeat>"
+lex	    "<LF>" keep 0 goto within line
+lex	    "<vertical><repeat><LF>" keep 0
+lex	                             goto within line
+lex	    "<vertical><repeat>"
 lex	        error mispaced vertical
-lex	   "<illegal-control><repeat>"
+lex	    "<illegal-control><repeat>"
 lex	        error illegal control
-lex	   "<others><repeat>"
+lex	    "<others><repeat>"
 lex	        error unrecognized character
+cc		NDL::begin_dispatch ( "\n" );
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( within_line );
+cc		NDL::end_dispatch();
+cc
+cc		NDL::begin_dispatch ( vertical );
+cc		   NDL::REPEAT();
 cc		   NDL::begin_dispatch ( "\n" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::go ( within_line );
+cc		      NDL::keep ( 0 );
+cc		      NDL::go ( within_line );
 cc		   NDL::end_dispatch();
+cc		   NDL::erroneous_atom
+cc		      ( misplaced_vertical_t );
+cc		NDL::end_dispatch();
 cc
-cc		   NDL::begin_dispatch ( vertical );
-cc		       NDL::REPEAT();
-cc		       NDL::begin_dispatch ( "\n" );
-cc		           NDL::keep ( 0 );
-cc		           NDL::go ( within_line );
-cc		       NDL::end_dispatch();
-cc		       NDL::erroneous_atom
-cc			   ( misplaced_vertical_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   ILLEGAL_CONTROL;
+cc		   NDL::REPEAT();
+cc		   NDL::erroneous_atom
+cc		      ( illegal_control_t );
+cc		NDL::end_dispatch();
 cc
-cc		   NDL::begin_dispatch();
-cc		       ILLEGAL_CONTROL;
-cc		       NDL::REPEAT();
-cc		       NDL::erroneous_atom
-cc			   ( illegal_control_t );
-cc		   NDL::end_dispatch();
-cc
-cc		   NDL::begin_dispatch ( OTHERS );
-cc		       NDL::REPEAT();
-cc		       NDL::erroneous_atom
-cc			   ( unrecognized_character_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( OTHERS );
+cc		   NDL::REPEAT();
+cc		   NDL::erroneous_atom
+cc		      ( unrecognized_character_t );
+cc		NDL::end_dispatch();
 cc
 
-lex	   goto within line
-lex	      // which will output premature end of file
+lex	    goto within line
+lex	    // which will output premature end of file
 lex
-cc	           NDL::go ( within_line );
+cc		NDL::go ( within_line );
 cc
 
 lex	end comment lexeme table;
@@ -1025,24 +1068,24 @@ lex
 cc	    NDL::begin_table ( line_break );
 cc
 
-lex	   "<vertical>" accept;
+lex	    "<vertical>" accept;
 lex
-cc	           NDL::begin_dispatch ( vertical );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( vertical );
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<others>" keep 0 goto begin line
+lex	    "<others>" keep 0 goto begin line
 lex
-cc	           NDL::begin_dispatch ( OTHERS );
-cc		       NDL::keep ( 0 );
-cc	    	       NDL::go ( begin_line );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( OTHERS );
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( begin_line );
+cc		NDL::end_dispatch();
 cc
 
 lex	    goto end of file
 lex
-cc	        NDL::go ( end_of_file );
+cc		NDL::go ( end_of_file );
 cc
 
 lex	end line break lexeme table;
@@ -1059,48 +1102,48 @@ lex
 cc	    NDL::begin_table ( separator );
 cc
 
-lex	   "!<repeat>" goto finish separators
-lex	   "?<repeat>" goto finish separators
-lex	   ".<repeat>" goto finish separators
-lex	   ":<repeat>" goto finish separators
-lex	   "'<repeat>" goto finish separators
-lex	   "," goto finish separators
-lex	   ";" goto finish separators
+lex	    "!<repeat>" goto finish separators
+lex	    "?<repeat>" goto finish separators
+lex	    ".<repeat>" goto finish separators
+lex	    ":<repeat>" goto finish separators
+lex	    "'<repeat>" goto finish separators
+lex	    "," goto finish separators
+lex	    ";" goto finish separators
 lex
-cc	    	   NDL::begin_dispatch ( "!");
-cc		      NDL::REPEAT();
-cc		      NDL::go ( finish_separators );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "!");
+cc		   NDL::REPEAT();
+cc		   NDL::go ( finish_separators );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( "?");
-cc		      NDL::REPEAT();
-cc		      NDL::go ( finish_separators );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "?");
+cc		   NDL::REPEAT();
+cc		   NDL::go ( finish_separators );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( ".");
-cc		      NDL::REPEAT();
-cc		      NDL::go ( finish_separators );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( ".");
+cc		   NDL::REPEAT();
+cc		   NDL::go ( finish_separators );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( ":");
-cc		      NDL::REPEAT();
-cc		      NDL::go ( finish_separators );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( ":");
+cc		   NDL::REPEAT();
+cc		   NDL::go ( finish_separators );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( "'");
-cc		      NDL::REPEAT();
-cc		      NDL::go ( finish_separators );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "'");
+cc		   NDL::REPEAT();
+cc		   NDL::go ( finish_separators );
+cc		NDL::end_dispatch();
 cc
-cc	    	   NDL::begin_dispatch ( ",;");
-cc		      NDL::go ( finish_separators );
-cc	    	   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( ",;");
+cc		   NDL::go ( finish_separators );
+cc		NDL::end_dispatch();
 cc
 
-lex	   output NONE goto within line;
+lex	    output NONE goto within line;
 lex
-cc	    	   NDL::output ( NONE );
-cc	    	   NDL::go ( within_line );
+cc		NDL::output ( NONE );
+cc		NDL::go ( within_line );
 cc
 
 lex	end separator lexeme table;
@@ -1117,9 +1160,9 @@ lex
 cc	    NDL::begin_table ( finish_separators );
 cc
 
-lex	   goto separator;
+lex	    goto separator;
 lex
-cc	    	   NDL::go ( separator );
+cc		NDL::go ( separator );
 cc
 
 lex	end finish separators master table;
@@ -1135,29 +1178,28 @@ lex
 cc	    NDL::begin_table ( finish_middle );
 cc
 
-lex	   "<middle>" accept;
+lex	    "<middle>" accept;
 lex
-cc	           NDL::begin_dispatch();
-cc		       MIDDLE;
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
 cc		   NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<trailing><repeat><middle>" accept;
+lex	    "<trailing><repeat><middle>" accept;
 lex
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc
-cc		           NDL::accept();
-cc		       NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		   NDL::REPEAT();
+cc		      NDL::begin_dispatch();
+cc		         MIDDLE;
+cc		         NDL::accept();
 cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
 lex	   goto within line;
 lex
-cc	    	   NDL::go ( within_line );
+cc		NDL::go ( within_line );
 cc
 
 lex	end finish middle sublexeme table;
@@ -1172,31 +1214,30 @@ lex
 cc	    NDL::begin_table ( numeric_word );
 cc
 
-lex	   "<middle>" output word goto finish middle;
-lex	   "<trailing><repeat><middle>"
+lex	    "<middle>" output word goto finish middle;
+lex	    "<trailing><repeat><middle>"
 lex	               output word
 lex	               goto finish middle;
 lex
-cc	    	   NDL::begin_dispatch();
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
+cc		   NDL::output ( word_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc
+cc		NDL::begin_dispatch ( trailing );
+cc		   NDL::REPEAT();
+cc		   NDL::begin_dispatch();
 cc		      MIDDLE;
 cc		      NDL::output ( word_t );
 cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc
-cc		           NDL::output ( word_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
-lex	   goto within line;
+lex	    goto within line;
 lex
-cc	    	   NDL::go ( within_line );
+cc		NDL::go ( within_line );
 cc
 
 lex	end numeric word lexeme table;
@@ -1212,71 +1253,67 @@ lex
 cc	    NDL::begin_table ( mark );
 cc
 
-lex	   "<letter>" output word goto finish middle;
+lex	    "<letter>" output word goto finish middle;
 lex
-cc	           NDL::begin_dispatch();
-cc		       NDL::add_category ( Letter );
-cc		       NDL::output ( word_t );
-cc		       NDL::go ( finish_middle );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   NDL::add_category ( Letter );
+cc		   NDL::output ( word_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<digit>" output numeric goto finish middle;
+lex	    "<digit>" output numeric goto finish middle;
 lex
-cc	           NDL::begin_dispatch();
-cc		       NDL::add_category ( Digit );
-cc		       NDL::output ( numeric_t );
-cc		       NDL::go ( finish_middle );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   NDL::add_category ( Digit );
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<mark-middle>" accept;
+lex	    "<mark-middle>" accept;
 lex
-cc	           NDL::begin_dispatch();
-cc		       MARK_MIDDLE;
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   MARK_MIDDLE;
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<trailing><repeat><letter>"
+lex	    "<trailing><repeat><letter>"
 lex	                output word
 lex	                goto finish middle;
-lex	   "<trailing><repeat><digit>"
+lex	    "<trailing><repeat><digit>"
 lex	                output numeric
 lex	                goto finish middle;
-lex	   "<trailing><repeat><mark-middle>" accept;
+lex	    "<trailing><repeat><mark-middle>" accept;
 lex
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc
-cc	               NDL::begin_dispatch();
-cc		           NDL::add_category ( Letter );
-cc		           NDL::output ( word_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
-cc
-cc	               NDL::begin_dispatch();
-cc		           NDL::add_category ( Digit );
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
-cc
-cc	               NDL::begin_dispatch();
-cc		           MARK_MIDDLE;
-cc		           NDL::accept();
-cc		       NDL::end_dispatch();
-cc
+cc		NDL::begin_dispatch ( trailing );
+cc		   NDL::REPEAT();
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_category ( Letter );
+cc		      NDL::output ( word_t );
+cc		      NDL::go ( finish_middle );
 cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_category ( Digit );
+cc		      NDL::output ( numeric_t );
+cc		      NDL::go ( finish_middle );
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch();
+cc		      MARK_MIDDLE;
+cc		      NDL::accept();
+cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
-lex	   goto within line;
+lex	    goto within line;
 lex
-cc	    	   NDL::go ( within_line );
+cc		NDL::go ( within_line );
 cc
 
 lex	end mark lexeme table;
 lex
-cc	    NDL::end_table();
+cc	   NDL::end_table();
 cc
 
 lex
@@ -1285,31 +1322,33 @@ lex
 cc	    NDL::begin_table ( leading_zero );
 cc
 
-lex	   "<middle>"
-lex	        output numeric goto finish middle
-lex	   "<trailing><repeat><middle>"
-lex	        output numeric goto finish middle;
+lex	    "<middle>"
+lex	        keep 0 goto integer part
+lex	        // Includes second digit.
+lex	        // Includes exponent.
+lex	    "<trailing><repeat><middle>"
+lex	        keep 0 goto integer part
+lex	        // Includes fraction.
 lex
-cc	    	   NDL::begin_dispatch();
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( integer_part );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		   NDL::REPEAT();
+cc		   NDL::begin_dispatch();
 cc		      MIDDLE;
-cc		      NDL::output ( numeric_t );
-cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
+cc		      NDL::keep ( 0 );
+cc		      NDL::go ( integer_part );
 cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
-lex	   output natural goto within line;
+lex	    output natural goto within line;
 lex
-cc	    	   NDL::output ( natural_t );
-cc	    	   NDL::go ( within_line );
+cc		NDL::output ( natural_t );
+cc		NDL::go ( within_line );
 cc
 
 lex	end leading zero sublexeme table;
@@ -1323,46 +1362,86 @@ lex
 cc	    NDL::begin_table ( natural );
 cc
 
-lex	   "0-9" accept;
+lex	    "<0-9>" accept;
 lex
-cc	           NDL::begin_dispatch ( "0123456789" );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "0123456789" );
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<non-decimal-digit>" output numeric
-lex	                         goto finish middle;
-lex	   "<letter>"          output numeric
-lex	                       goto finish middle;
-lex	   "<mark-middle>"     output numeric
-lex	                       goto finish middle;
-lex
-cc	    	   NDL::begin_dispatch();
-cc		      NDL::add_category ( Letter );
-cc		      NDL::add_category ( Digit );
-cc		      NDL::sub_chars ( "0123456789" );
-cc		      MARK_MIDDLE;
-cc		      NDL::output ( numeric_t );
-cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
-cc
-
-lex	   "<trailing><repeat><middle>"
+lex	    ".<0-9>" goto fraction part;
+lex	    ".<middle>"
+lex	        output numeric goto finish middle;
+lex	    ".<trailing><middle>"
 lex	        output numeric goto finish middle;
 lex
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "." );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( fraction_part );
 cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch();
+cc		      MIDDLE;
+cc		      NDL::output ( numeric_t );
+cc		      NDL::go ( finish_middle );
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( trailing );
+cc		      NDL::REPEAT();
+cc		      NDL::begin_dispatch();
+cc		         MIDDLE;
+cc		         NDL::output ( numeric_t );
+cc		         NDL::go ( finish_middle );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
-lex	   goto within line;
+lex	    "<exponent-indicator><0-9>"
+lex	               goto exponent part;
+lex	    "<exponent-indicator><sign><0-9>"
+lex	               goto exponent part;
+lex	    "<exponent-indicator>"
+lex	               output numeric
+lex	               goto finish middle;
 lex
-cc	    	   NDL::go ( within_line );
+cc		NDL::begin_dispatch ( "eE" );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( exponent_part );
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( "+-" );
+cc		      NDL::begin_dispatch
+cc		            ( "0123456789" );
+cc		         NDL::go ( exponent_part );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<middle>" output numeric
+lex	               goto finish middle;
+lex	    "<trailing><repeat><middle>"
+lex	               output numeric
+lex	               goto finish middle;
+lex
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		    NDL::REPEAT();
+cc		    NDL::begin_dispatch();
+cc		       MIDDLE;
+cc		       NDL::output ( numeric_t );
+cc		       NDL::go ( finish_middle );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+
+lex	    goto within line;
+lex
+cc		NDL::go ( within_line );
 cc
 
 lex	end natural lexeme table;
@@ -1372,73 +1451,94 @@ cc
 
 lex
 lex	begin integer part sublexeme table;
-lex	    // sign? digit scanned.
+lex	    // sign digit or 0 plus middle lexeme
+lex	    // continuation scanned
 lex
 cc	    NDL::begin_table ( integer_part );
 cc
 
-lex	   "<0-9>" accept;
+lex	    "<0-9>" accept;
 lex
-cc	           NDL::begin_dispatch ( "0123456789" );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "0123456789" );
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   ".<0-9>" goto fraction part;
+lex	    ".<0-9>" goto fraction part;
+lex	    ".<middle>"
+lex	        output numeric goto finish middle;
+lex	    ".<trailing><middle>"
+lex	        output numeric goto finish middle;
 lex
-cc		   NDL::begin_dispatch ( "." );
-cc		       NDL::begin_dispatch
-cc	                       ( "0123456789" );
-cc		           NDL::go ( fraction_part );
-cc		       NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "." );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( fraction_part );
 cc		   NDL::end_dispatch();
-cc
-
-lex	   "<exponent-indicator><0-9>"
-lex	               goto exponent part;
-lex	   "<exponent-indicator><sign><0-9>"
-lex	               goto exponent part;
-lex
-cc		   NDL::begin_dispatch ( "eE" );
-cc		       NDL::begin_dispatch
-cc	                       ( "0123456789" );
-cc		           NDL::go ( exponent_part );
-cc		       NDL::end_dispatch();
-cc		       NDL::begin_dispatch ( "+-" );
-cc		           NDL::begin_dispatch
-cc	                       ( "0123456789" );
-cc		               NDL::go ( exponent_part );
-cc		           NDL::end_dispatch();
-cc		       NDL::end_dispatch();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   "<middle>" output numeric goto finish middle;
-lex	   "<trailing><repeat><middle>"
-lex	               output numeric
-lex	               goto finish middle;
-lex
-cc	    	   NDL::begin_dispatch();
+cc		   NDL::begin_dispatch();
 cc		      MIDDLE;
 cc		      NDL::output ( numeric_t );
 cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( trailing );
+cc		      NDL::REPEAT();
+cc		      NDL::begin_dispatch();
+cc		         MIDDLE;
+cc		         NDL::output ( numeric_t );
+cc		         NDL::go ( finish_middle );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
-lex	   output number;
-lex	   goto within line;
+lex	    "<exponent-indicator><0-9>"
+lex	               goto exponent part;
+lex	    "<exponent-indicator><sign><0-9>"
+lex	               goto exponent part;
+lex	    "<exponent-indicator>"
+lex	               output numeric
+lex	               goto finish middle;
 lex
-cc	    	   NDL::output ( number_t );
-cc	    	   NDL::go ( within_line );
+cc		NDL::begin_dispatch ( "eE" );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( exponent_part );
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( "+-" );
+cc		      NDL::begin_dispatch
+cc		            ( "0123456789" );
+cc		         NDL::go ( exponent_part );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<middle>" output numeric
+lex	               goto finish middle;
+lex	    "<trailing><repeat><middle>"
+lex	               output numeric
+lex	               goto finish middle;
+lex
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		    NDL::REPEAT();
+cc		    NDL::begin_dispatch();
+cc		       MIDDLE;
+cc		       NDL::output ( numeric_t );
+cc		       NDL::go ( finish_middle );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
+cc
+
+lex	    output number
+lex	    goto within line;
+lex
+cc		NDL::output ( number_t );
+cc		NDL::go ( within_line );
 cc
 
 lex	end integer part sublexeme table;
@@ -1454,58 +1554,62 @@ lex
 cc	    NDL::begin_table ( fraction_part );
 cc
 
-lex	   "<0-9>" accept;
+lex	    "<0-9>" accept;
 lex
-cc	           NDL::begin_dispatch ( "0123456789" );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "0123456789" );
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<exponent-indicator><0-9>"
+lex	    "<exponent-indicator><0-9>"
 lex	               goto exponent part;
-lex	   "<exponent-indicator><sign><0-9>"
+lex	    "<exponent-indicator><sign><0-9>"
 lex	               goto exponent part;
-lex
-cc		   NDL::begin_dispatch ( "eE" );
-cc		       NDL::begin_dispatch
-cc	                       ( "0123456789" );
-cc		           NDL::go ( exponent_part );
-cc		       NDL::end_dispatch();
-cc		       NDL::begin_dispatch ( "+-" );
-cc		           NDL::begin_dispatch
-cc	                       ( "0123456789" );
-cc		               NDL::go ( exponent_part );
-cc		           NDL::end_dispatch();
-cc		       NDL::end_dispatch();
-cc		   NDL::end_dispatch();
-cc
-
-lex	   "<middle>" output numeric goto finish middle;
-lex	   "<trailing><repeat><middle>"
+lex	    "<exponent-indicator>"
 lex	               output numeric
 lex	               goto finish middle;
 lex
-cc	    	   NDL::begin_dispatch();
-cc		      MIDDLE;
-cc		      NDL::output ( numeric_t );
-cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "eE" );
+cc		   NDL::begin_dispatch ( "0123456789" );
+cc		      NDL::go ( exponent_part );
 cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch ( "+-" );
+cc		      NDL::begin_dispatch
+cc		            ( "0123456789" );
+cc		         NDL::go ( exponent_part );
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc
+
+lex	    "<middle>" output numeric
+lex	               goto finish middle;
+lex	    "<trailing><repeat><middle>"
+lex	               output numeric
+lex	               goto finish middle;
+lex
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		    NDL::REPEAT();
+cc		    NDL::begin_dispatch();
+cc		       MIDDLE;
+cc		       NDL::output ( numeric_t );
+cc		       NDL::go ( finish_middle );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
 lex	   output number;
 lex	   goto within line;
 lex
-cc	    	   NDL::output ( number_t );
-cc	    	   NDL::go ( within_line );
+cc		NDL::output ( number_t );
+cc		NDL::go ( within_line );
 cc
 
 lex	end fraction part sublexeme table;
@@ -1521,39 +1625,39 @@ lex
 cc	    NDL::begin_table ( exponent_part );
 cc
 
-lex	   "<0-9>" accept;
+lex	    "<0-9>" accept;
 lex
-cc	           NDL::begin_dispatch ( "0123456789" );
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "0123456789" );
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<middle>" output numeric goto finish middle;
-lex	   "<trailing><repeat><middle>"
+lex	    "<middle>" output numeric
+lex	               goto finish middle;
+lex	    "<trailing><repeat><middle>"
 lex	               output numeric
 lex	               goto finish middle;
 lex
-cc	    	   NDL::begin_dispatch();
-cc		      MIDDLE;
-cc		      NDL::output ( numeric_t );
-cc		      NDL::go ( finish_middle );
-cc	    	   NDL::end_dispatch();
-cc
-cc	           NDL::begin_dispatch ( trailing );
-cc	    	       NDL::REPEAT();
-cc	               NDL::begin_dispatch();
-cc		           MIDDLE;
-cc		           NDL::output ( numeric_t );
-cc		           NDL::go ( finish_middle );
-cc		       NDL::end_dispatch();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   MIDDLE;
+cc		   NDL::output ( numeric_t );
+cc		   NDL::go ( finish_middle );
+cc		NDL::end_dispatch();
+cc		NDL::begin_dispatch ( trailing );
+cc		    NDL::REPEAT();
+cc		    NDL::begin_dispatch();
+cc		       MIDDLE;
+cc		       NDL::output ( numeric_t );
+cc		       NDL::go ( finish_middle );
+cc		    NDL::end_dispatch();
+cc		NDL::end_dispatch();
 cc
 
 lex	   output number;
 lex	   goto within line;
 lex
-cc	    	   NDL::output ( number_t );
-cc	    	   NDL::go ( within_line );
+cc		NDL::output ( number_t );
+cc		NDL::go ( within_line );
 cc
 
 lex	end exponent part sublexeme table;
@@ -1570,10 +1674,10 @@ cc
 lex	    "<Q>" translate to "" goto within line;
 lex	            // End quoted string.
 lex
-cc	           NDL::begin_dispatch ( "\"" );
-cc		      NDL::translate_to ( "" );
-cc		      NDL::go ( within_line );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "\"" );
+cc		   NDL::translate_to ( "" );
+cc		   NDL::go ( within_line );
+cc		NDL::end_dispatch();
 cc
 
 lex	    "<" "<0-9>" ">"
@@ -1594,118 +1698,112 @@ lex	    "<"
 lex	        accept;
 lex
 lex
-cc	       NDL::begin_dispatch ( "<" );
-cc	    	 NDL::begin_dispatch();
-cc		   NDL::add_chars ( "0123456789" );
-cc
-cc	    	   NDL::begin_dispatch ( ">" );
-cc	             NDL::translate_hex ( 1, 1 );
-cc	           NDL::end_dispatch();
-cc
-cc	    	   NDL::begin_dispatch ( escape );
-cc	    	     NDL::REPEAT();
-cc	    	     NDL::begin_dispatch ( ">" );
-cc	                  NDL::translate_hex ( 1, 1 );
-cc		       NDL::ELSE();
-cc			  NDL::erroneous_atom
-cc			   ( unrecognized_escape_t );
-cc			  NDL::translate_to ( 1, UUC );
-cc	             NDL::end_dispatch();
-cc
-cc	           NDL::end_dispatch();
-cc	         NDL::end_dispatch();
-cc
-cc	    	 NDL::begin_dispatch();
-cc		   NDL::add_chars
-cc		     ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
-cc
-cc	    	   NDL::begin_dispatch ( ">" );
-cc	                NDL::translate_name ( 1, 1 );
-cc		     NDL::ELSE();
-cc			NDL::erroneous_atom
-cc			      ( unrecognized_escape_t );
-cc			NDL::translate_to ( 1, UUC );
-cc	           NDL::end_dispatch();
-cc
-cc	    	   NDL::begin_dispatch ( escape );
-cc	    	     NDL::REPEAT();
-cc	    	     NDL::begin_dispatch ( ">" );
-cc	                  NDL::translate_name ( 1, 1 );
-cc		       NDL::ELSE();
-cc			  NDL::erroneous_atom
-cc			      ( unrecognized_escape_t );
-cc			  NDL::translate_to ( 1, UUC );
-cc	             NDL::end_dispatch();
-cc
-cc	           NDL::end_dispatch();
-cc	         NDL::end_dispatch();
-cc
-cc		 NDL::accept();
-cc	       NDL::end_dispatch();
+cc		NDL::begin_dispatch ( "<" );
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_chars ( "0123456789" );
+cc		      NDL::begin_dispatch ( ">" );
+cc		         NDL::translate_hex ( 1, 1 );
+cc		      NDL::end_dispatch();
+cc		      NDL::begin_dispatch ( escape );
+cc		         NDL::REPEAT();
+cc		         NDL::begin_dispatch ( ">" );
+cc		            NDL::translate_hex ( 1, 1 );
+cc		            NDL::ELSE();
+cc		            NDL::erroneous_atom
+cc		               ( UNREC_ESC_T );
+cc		            NDL::translate_to
+cc		               ( 1, UUC );
+cc		         NDL::end_dispatch();
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::begin_dispatch();
+cc		      NDL::add_chars
+cc		       ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+cc		      NDL::begin_dispatch ( ">" );
+cc		           NDL::translate_name ( 1, 1 );
+cc		           NDL::ELSE();
+cc		           NDL::erroneous_atom
+cc		              ( UNREC_ESC_T );
+cc		           NDL::translate_to ( 1, UUC );
+cc		      NDL::end_dispatch();
+cc		      NDL::begin_dispatch ( escape );
+cc		          NDL::REPEAT();
+cc		          NDL::begin_dispatch ( ">" );
+cc		             NDL::translate_name
+cc		                ( 1, 1 );
+cc		             NDL::ELSE();
+cc		             NDL::erroneous_atom
+cc		                 ( UNREC_ESC_T );
+cc		             NDL::translate_to
+cc		                ( 1, UUC );
+cc		          NDL::end_dispatch();
+cc		      NDL::end_dispatch();
+cc		   NDL::end_dispatch();
+cc		   NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
 lex	    "<directly-quotable>" accept;
 lex
-cc	           NDL::begin_dispatch();
-cc		       DIRECTLY_QUOTABLE;
-cc		       NDL::accept();
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		    DIRECTLY_QUOTABLE;
+cc		    NDL::accept();
+cc		NDL::end_dispatch();
 cc
 
-lex	   "<LF>"
+lex	    "<LF>"
 lex	        keep 0 goto premature end of string
-lex	   "<vertical><repeat><LF>"
+lex	    "<vertical><repeat><LF>"
 lex	        keep 0 goto premature end of string
-lex	   "<vertical><repeat>"
+lex	    "<vertical><repeat>"
 lex	        error mispaced vertical
 lex	    "<misplaced-horizontal><repeat>"
 lex	        error misplaced horizontal
-lex	   "<illegal-control><repeat>"
+lex	    "<illegal-control><repeat>"
 lex	        error illegal control
-lex	   "<others><repeat>"
+lex	    "<others><repeat>"
 lex	        error unrecognized character
 lex
+cc		NDL::begin_dispatch ( "\n" );
+cc		   NDL::keep ( 0 );
+cc		   NDL::go ( premature_end_of_string );
+cc		NDL::end_dispatch();
+cc
+cc		NDL::begin_dispatch ( vertical );
+cc		   NDL::REPEAT();
 cc		   NDL::begin_dispatch ( "\n" );
-cc		       NDL::keep ( 0 );
-cc		       NDL::go
-cc			   ( premature_end_of_string );
+cc		      NDL::keep ( 0 );
+cc		      NDL::go
+cc		         ( premature_end_of_string );
 cc		   NDL::end_dispatch();
+cc		   NDL::erroneous_atom
+cc		      ( misplaced_vertical_t );
+cc		NDL::end_dispatch();
 cc
-cc		   NDL::begin_dispatch ( vertical );
-cc		       NDL::REPEAT();
-cc		       NDL::begin_dispatch ( "\n" );
-cc		           NDL::keep ( 0 );
-cc		           NDL::go
-cc			    ( premature_end_of_string );
-cc		       NDL::end_dispatch();
-cc		       NDL::erroneous_atom
-cc			   ( misplaced_vertical_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   MISPLACED_HORIZONTAL;
+cc		   NDL::REPEAT();
+cc		   NDL::erroneous_atom
+cc		      ( misplaced_horizontal_t );
+cc		NDL::end_dispatch();
 cc
-cc	           NDL::begin_dispatch();
-cc		       MISPLACED_HORIZONTAL;
-cc		       NDL::REPEAT();
-cc		       NDL::erroneous_atom
-cc			   ( misplaced_horizontal_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch();
+cc		   ILLEGAL_CONTROL;
+cc		   NDL::REPEAT();
+cc		   NDL::erroneous_atom
+cc		      ( illegal_control_t );
+cc		NDL::end_dispatch();
 cc
-cc		   NDL::begin_dispatch();
-cc		       ILLEGAL_CONTROL;
-cc		       NDL::REPEAT();
-cc		       NDL::erroneous_atom
-cc			   ( illegal_control_t );
-cc		   NDL::end_dispatch();
-cc
-cc		   NDL::begin_dispatch ( OTHERS );
-cc		       NDL::REPEAT();
-cc		       NDL::erroneous_atom
-cc			   ( unrecognized_character_t );
-cc		   NDL::end_dispatch();
+cc		NDL::begin_dispatch ( OTHERS );
+cc		   NDL::REPEAT();
+cc		   NDL::erroneous_atom
+cc		      ( unrecognized_character_t );
+cc		NDL::end_dispatch();
 cc
 
 lex	    goto premature end of string;
 lex
-cc		    NDL::go ( premature_end_of_string );
+cc		NDL::go ( premature_end_of_string );
 cc
 
 lex	end quoted string lexeme table;
@@ -1717,14 +1815,14 @@ lex
 lex	begin premature end of string master table;
 lex
 cc	    NDL::begin_table
-cc		( premature_end_of_string );
+cc	       ( premature_end_of_string );
 cc
 
 lex	    output premature end of string
 lex	    goto within line;
 lex
-cc	        NDL::output
-cc		    ( premature_end_of_string_t );
+cc		NDL::output
+cc		   ( premature_end_of_string_t );
 cc		NDL::go ( within_line );
 cc
 
@@ -1739,8 +1837,8 @@ lex	    output end of file goto stop
 lex	end end of file master table;
 lex
 cc	    NDL::begin_table ( end_of_file );
-cc	        NDL::output ( end_of_file_t );
-cc	        NDL::go ( stop );
+cc		NDL::output ( end_of_file_t );
+cc		NDL::go ( stop );
 cc
 cc	    NDL::end_table();
 cc
@@ -1758,5 +1856,5 @@ lex	end standard lexical program;
 cc	    NDL::end_program();
 cc
 cc	    LEXSTD::default_program =
-cc		LEX::default_program;
+cc	        LEX::default_program;
 cc	}

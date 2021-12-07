@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 05:03:13 EST 2021
+// Date:	Tue Dec  7 18:24:40 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -329,7 +329,7 @@ cc	           NDL::sub_chars ( "<\"" ); \
 cc	           NDL::add_chars ( " " )
 cc
 
-lex	"<escape>" = "A-Z" | "0-9"
+lex	"<escape>" = "[A-Z]" | "[0-9]"
 lex
 cc	    const char * escape =
 cc	        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -476,7 +476,7 @@ lex
 cc	    NDL::begin_table ( data_check );
 cc
 
-lex	   "@" "1-9"    keep 0
+lex	   "@[1-9]"     keep 0
 lex	                output data
 lex	                goto within line;
 lex	   "@<"         keep 0
@@ -505,7 +505,7 @@ cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "!@" "1-9"   keep 1
+lex	   "!@[1-9]"    keep 1
 lex	                output raw data
 lex	                goto within line;
 lex	   "!@<"        keep 1
@@ -594,7 +594,7 @@ lex
 cc	    NDL::begin_table ( paragraph_check );
 cc
 
-lex	   "@" "1-9"    keep 0
+lex	   "@[1-9]"     keep 0
 lex	                output data
 lex	                goto within line;
 lex	   "@<"         keep 0
@@ -623,7 +623,7 @@ cc		       NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc
 
-lex	   "!@" "1-9"   keep 1
+lex	   "!@[1-9]"    keep 1
 lex	                output raw data
 lex	                goto within line;
 lex	   "!@<"        keep 1
@@ -833,7 +833,7 @@ cc		   NDL::output ( separator_t );
 cc		NDL::end_dispatch();
 cc
 
-lex	    ".<0-9>" goto fraction part;
+lex	    ".[0-9]" goto fraction part;
 lex	    "." keep 0 goto test trailing;
 lex	    "<trailing>" keep 0 goto test trailing;
 lex
@@ -888,7 +888,7 @@ cc		   NDL::go ( leading_zero );
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<1-9>" goto natural;
+lex	    "[1-9]" goto natural;
 lex
 cc		NDL::begin_dispatch ( "123456789" );
 cc		   NDL::go ( natural );
@@ -904,8 +904,8 @@ cc		   NDL::go ( finish_middle );
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<sign><0-9>" goto integer part;
-lex	    "<sign>.<0-9>" goto fraction part;
+lex	    "<sign>[0-9]" goto integer part;
+lex	    "<sign>.[0-9]" goto fraction part;
 lex	    "<sign>NaN" goto numeric word;
 lex	    "<sign>Inf" goto numeric word;
 lex	    "<sign>" goto mark;
@@ -1396,14 +1396,14 @@ lex
 cc	    NDL::begin_table ( natural );
 cc
 
-lex	    "<0-9>" accept;
+lex	    "[0-9]" accept;
 lex
 cc		NDL::begin_dispatch ( "0123456789" );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
 
-lex	    ".<0-9>" goto fraction part;
+lex	    ".[0-9]" goto fraction part;
 lex	    ".<middle>"
 lex	        output numeric goto finish middle;
 lex	    ".<trailing><middle>"
@@ -1429,9 +1429,9 @@ cc		   NDL::end_dispatch();
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<exponent-indicator><0-9>"
+lex	    "<exponent-indicator>[0-9]"
 lex	               goto exponent part;
-lex	    "<exponent-indicator><sign><0-9>"
+lex	    "<exponent-indicator><sign>[0-9]"
 lex	               goto exponent part;
 lex	    "<exponent-indicator>"
 lex	               output numeric
@@ -1491,14 +1491,14 @@ lex
 cc	    NDL::begin_table ( integer_part );
 cc
 
-lex	    "<0-9>" accept;
+lex	    "[0-9]" accept;
 lex
 cc		NDL::begin_dispatch ( "0123456789" );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
 
-lex	    ".<0-9>" goto fraction part;
+lex	    ".[0-9]" goto fraction part;
 lex	    ".<middle>"
 lex	        output numeric goto finish middle;
 lex	    ".<trailing><middle>"
@@ -1524,9 +1524,9 @@ cc		   NDL::end_dispatch();
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<exponent-indicator><0-9>"
+lex	    "<exponent-indicator>[0-9]"
 lex	               goto exponent part;
-lex	    "<exponent-indicator><sign><0-9>"
+lex	    "<exponent-indicator><sign>[0-9]"
 lex	               goto exponent part;
 lex	    "<exponent-indicator>"
 lex	               output numeric
@@ -1588,16 +1588,16 @@ lex
 cc	    NDL::begin_table ( fraction_part );
 cc
 
-lex	    "<0-9>" accept;
+lex	    "[0-9]" accept;
 lex
 cc		NDL::begin_dispatch ( "0123456789" );
 cc		   NDL::accept();
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<exponent-indicator><0-9>"
+lex	    "<exponent-indicator>[0-9]"
 lex	               goto exponent part;
-lex	    "<exponent-indicator><sign><0-9>"
+lex	    "<exponent-indicator><sign>[0-9]"
 lex	               goto exponent part;
 lex	    "<exponent-indicator>"
 lex	               output numeric
@@ -1659,7 +1659,7 @@ lex
 cc	    NDL::begin_table ( exponent_part );
 cc
 
-lex	    "<0-9>" accept;
+lex	    "[0-9]" accept;
 lex
 cc		NDL::begin_dispatch ( "0123456789" );
 cc		   NDL::accept();
@@ -1714,17 +1714,17 @@ cc		   NDL::go ( within_line );
 cc		NDL::end_dispatch();
 cc
 
-lex	    "<" "<0-9>" ">"
+lex	    "<" "[0-9]" ">"
 lex	        translate hex 1 1
-lex	    "<" "<0-9><escape><repeat>" ">"
+lex	    "<" "[0-9]<escape><repeat>" ">"
 lex	        translate hex 1 1
 lex	        else error unrecognized escape
 lex	             translate to "<UUC>"
-lex	    "<" "<A-Z>" ">"
+lex	    "<" "[A-Z]" ">"
 lex	             translate name 1 1
 lex	        else error unrecognized escape
 lex	             translate to "<UUC>"
-lex	    "<" "<A-Z><escape><repeat>" ">"
+lex	    "<" "[A-Z]<escape><repeat>" ">"
 lex	           translate name 1 1
 lex	        else error unrecognized escape
 lex	             translate to "<UUC>"

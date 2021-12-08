@@ -1027,16 +1027,16 @@ a form feed.
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
 \end{tabular}
 
-Note: The C/C++ numbers convertable to IEEE double precision
-are just the {\em numeric-word}, {\em natural}, and {\em number} lexemes,
-except the lexemes cannot end in a {\em decimal-point} and the
-{\em numeric-words} are case sensitive.
-
 
 \end{indpar}
 \caption{Lexeme Program Lexemes}
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{boxedfigure}
+
+C/C++ numbers convertable to IEEE double precision
+are just the {\em numeric-word}, {\em natural}, and {\em number} lexemes,
+except the lexemes cannot end in a {\em decimal-point} and
+{\em numeric-words} are case sensitive.
 
 The definition of a {\em middle-lexeme} is unusual: it is what is left over
 after removing {\em leading-separators} and {\em trailing-separators}
@@ -2112,7 +2112,6 @@ A token has the following components:
 \ttmkey{type}{of token}
 		& One of: \hspace{0.5in}\begin{tabular}[t]{l}
         	          A lexeme type. \\
-        	          \ttmkey{NUMBER}{token type} \\
         	          \ttmkey{BRACKETED}{token type} \\
         	          \ttmkey{BRACKETABLE}{token type} \\
         	          \ttmkey{PURELIST}{token type} \\
@@ -2132,9 +2131,13 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Standardly word, mark, and separator lexeme type
+		& Standardly word, mark, separator, and numeric lexeme type
 		  tokens have a \TT{value} that is
 		  the MIN string equal to the lexeme characters;
+		  numeric-word, natural, and number lexeme type
+		  tokens have a \TT{value} that is the lexeme
+		  characters converted by {\tt strtod}
+		  to a MIN number (which is an IEEE double precision number);
 		  quoted string lexeme type tokens
 		  have a \TT{value} that is the MIN string equal
 		  to the lexeme translation string;
@@ -2144,48 +2147,10 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Standardly, the lexeme characters of a
-		  natural or number lexeme are converted to
-		  a MIN number token \TT{value} using the POSIX {\tt strtod}
-		  function, if that conversion is possible.
-		  If the conversion is possible, and
-		  the resulting number is a non-negative integer exactly
-		  representable by no more than 15 digits, the token
-		  is given the \TT{natural} lexeme type;
-		  otherwise if conversion to a MIN number is possible
-		  the token is given the \TT{NUMBER} type and
-		  is designated to be a \key{number lexeme} token
-		  (even though it is not a lexeme from the point of
-		  view of the lexical scanner);
-		  lastly if conversion to a MIN number is \underline{not}
-		  possible the token is given the \TT{numeric}
-		  lexeme type and a \TT{value} that is the
-		  MIN string equal to the lexeme characters.
-\end{tabular}
-\\[1ex]  
-\begin{tabular}{p{1in}p{4.5in}}
-		& Note that if the numeric value of the string of
-		  lexeme characters is too large (e.g., \TT{"1e+500"}),
-		  {\tt strtod} will
-		  return a MIN number value equal to plus or minus
-		  infinity, and if the value is non-zero but too small
-		  to be represented (e.g., \TT{"1e-500"}),
-		  {\tt strtod} will return \TT{0}.
-\end{tabular}
-\\[1ex]  
-\begin{tabular}{p{1in}p{4.5in}}
-		& Note that natural and number lexemes have MIN number
-		  values that do not precisely represent the character
-		  string of the lexeme.  Thus \TT{"01"} and \TT{"1"}
-		  both have MIN number \TT{1} as a value, and
-		  \TT{"1e1"} and \TT{"10"} both have MIN number \TT{10}
-		  as a value.  Note all these examples, even
-		  \TT{"1e1"}, are natural lexemes and not number lexemes.
-		  This allows the lexical type of a lexeme to be
-		  determined from its value, which is necessary
-		  when scanning lexemes into names and labels after
-		  the lexemes are no longer tokens but have become
-		  vector elements.
+		& Note that lexemes with a MIN number value may not
+		  reproduce the lexeme characters when printed.
+		  For example, the lexeme {\tt 1e+300} will be stored
+		  as plus infinity and print as {\tt Inf}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}

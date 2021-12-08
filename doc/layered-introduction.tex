@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 7, 2021
+December 8, 2021
  
 \end{center}
 
@@ -918,9 +918,10 @@ a form feed.
 
 \emkey{lexeme}
         \begin{tabular}[t]{rl}
-	::= & {\em word} $|$ {\em mark} $|$ {\em number} $|$
-	      {\em separator} $|$ {\em quoted-string} $|$ {\em indent} \\
-	$|$ & {\em line-break} $|$
+	::= & {\em numeric-word} $|$ {\em word} $|$
+	      {\em natural} $|$ {\em number} $|$ {\em numeric} \\
+	$|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
+	$|$ & {\em indent} $|${\em line-break} $|$
 	      {\em comment} $|$ {\em end-of-file}
 	\end{tabular}
 \label{LEXEME}
@@ -972,28 +973,65 @@ a form feed.
 	or ending with a {\em trailing-separator-character} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{number} ::=
-    {\em middle-lexeme} with a {\em digit} before any {\em letter}
+\emkey{numeric-word} :::= {\em sign}\QMARK{} \ttkey{NaN}
+                      $|$ {\em sign}\QMARK{} \ttkey{Inf}
 \\[0.5ex]
-\emkey{natural-number}\label{NATURAL-NUMBER}
+\emkey{word} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em letter} before any {\em digit} \\
+		  and is not a {\em numeric-word}
+		  \end{tabular}
+\\[0.5ex]
+\emkey{natural}\label{NATURAL}
 	:::= {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
 \\[0.5ex]
-\emkey{numeric}\label{NUMERIC} :::=
-    {\em number} that is not a {\em natural-number}
+\emkey{number}\label{NUMBER}
+	\begin{tabular}[t]{@{}rl@{}}
+	:::= & {\em sign}\QMARK{} {\em integer-part}
+	                          {\em exponent-part}\QMARK{}
+	     (that is not a {\em natural}) \\
+	 $|$ & {\em sign}\QMARK{} {\em integer-part}\QMARK{}
+	                          {\em fraction-part}
+				  {\em exponent-part}\QMARK{} \\
+	\end{tabular}
 \\[0.5ex]
-\emkey{word} :::= {\em middle-lexeme} containing a {\em letter} that is not
-                  a {\em number}
+\emkey{numeric} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em digit} before any {\em letter} \\
+		  and is not a {\em natural} or {\em number}
+		  \end{tabular}
 \\[0.5ex]
-\emkey{mark}\label{MARK} :::= {\em middle-lexeme} that is
-                              not a {\em word} or {\em number}
+\emkey{integer-part} :::= {\em decimal-digit}\PLUS{}
 \\[0.5ex]
+\emkey{fraction-part} :::= \TT{.} {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
+                           {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
+\emkey{sign} :::= \TT{+} $|$ \TT{-}
+&
+\emkey{exponent-indicator} :::= \TT{e} $|$ \TT{E}
+\end{tabular}
+\\[0.5ex]
+\emkey{mark}\label{MARK} :::= {\em middle-lexeme} not containing a
+                              {\em letter} or a {\em digit}
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
 {\em indent} ::= see \pagref{INDENT}
-\\[0.5ex]
+&
 {\em line-break} ::= see \pagref{LINE-BREAK}
 \\[0.5ex]
 {\em comment} ::= see \pagref{COMMENT}
-\\[0.5ex]
+&
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
+\end{tabular}
+
+Note: The C/C++ numbers convertable to IEEE double precision
+are just the {\em numeric-word}, {\em natural}, and {\em number} lexemes,
+except the lexemes cannot end in a {\em decimal-point} and the
+{\em numeric-words} are case sensitive.
+
 
 \end{indpar}
 \caption{Lexeme Program Lexemes}
@@ -1045,10 +1083,10 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
 \begin{indpar}
 \emkey{name} ::= 
         \begin{tabular}[t]{l}
-	\{ {\em word} $|$ {\em natural-number}
+	\{ {\em word} $|$ {\em natural}
 	              $|$ {\em quoted-string} \}\STAR{} \\
 	{\em word} \\
-	\{ {\em word} $|$ {\em natural-number} $|$ {\em quoted-string} \}\STAR{}
+	\{ {\em word} $|$ {\em natural} $|$ {\em quoted-string} \}\STAR{}
 	\end{tabular}
 \\[0.3ex]
 \emkey{lexical-program} ::=
@@ -1171,14 +1209,14 @@ and~\itemref{LEXEME-PROGRAM-SYNTAX-2}.
         \begin{tabular}[t]{@{}rl@{}}
 	::= & \TT{accept} \\
 	$|$ & \TT{match} ~ {\em atom-table-name} \\
-	$|$ & \TT{keep} ~ {\em natural-number} \\
+	$|$ & \TT{keep} ~ {\em natural} \\
 	$|$ & \TT{translate to} ~ {\em translation-string} \\
 	$|$ & \TT{translate hex} ~
-			{\em natural-number} ~ {\em natural-number} \\
+			{\em natural} ~ {\em natural} \\
 	$|$ & \TT{translate oct} ~
-			{\em natural-number} ~ {\em natural-number} \\
+			{\em natural} ~ {\em natural} \\
 	$|$ & \TT{translate name} ~
-			{\em natural-number} ~ {\em natural-number} \\
+			{\em natural} ~ {\em natural} \\
 	$|$ & \TT{require} ~ {\em atom-pattern} \\
 	$|$ & \TT{error} ~ {\em type-name} \\
 	$|$ & \TT{output} ~ {\em type-name} \\
@@ -2107,13 +2145,13 @@ A token has the following components:
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
 		& Standardly, the lexeme characters of a
-		  natural-number or numeric lexeme are converted to
+		  natural or number lexeme are converted to
 		  a MIN number token \TT{value} using the POSIX {\tt strtod}
 		  function, if that conversion is possible.
 		  If the conversion is possible, and
 		  the resulting number is a non-negative integer exactly
 		  representable by no more than 15 digits, the token
-		  is given the \TT{natural-number} lexeme type;
+		  is given the \TT{natural} lexeme type;
 		  otherwise if conversion to a MIN number is possible
 		  the token is given the \TT{NUMBER} type and
 		  is designated to be a \key{number lexeme} token
@@ -2136,13 +2174,13 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Note that natural-number and number lexemes have MIN number
+		& Note that natural and number lexemes have MIN number
 		  values that do not precisely represent the character
 		  string of the lexeme.  Thus \TT{"01"} and \TT{"1"}
 		  both have MIN number \TT{1} as a value, and
 		  \TT{"1e1"} and \TT{"10"} both have MIN number \TT{10}
 		  as a value.  Note all these examples, even
-		  \TT{"1e1"}, are natural-number lexemes and not number lexemes.
+		  \TT{"1e1"}, are natural lexemes and not number lexemes.
 		  This allows the lexical type of a lexeme to be
 		  determined from its value, which is necessary
 		  when scanning lexemes into names and labels after
@@ -2867,7 +2905,7 @@ components:
 		& A \key{symbol} is a MIN string equal to the
 		  lexeme string of a word, mark, or separator lexeme,
 		  or a MIN number that is the conversion of the lexeme
-		  string of a natural-number lexeme.  Quoted string, numeric,
+		  string of a natural lexeme.  Quoted string, numeric,
 		  and number lexemes are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
@@ -2911,7 +2949,7 @@ that is part of a line (for the bracketed subexpression recognition pass)
 or subexpression (for other passes), and finds an active symbol table
 entry with a label whose symbols match an initial segment of the
 token sequence.  Only symbol tokens, with lexeme types word,
-mark, separator, or natural-number, can match label symbols.
+mark, separator, or natural, can match label symbols.
 These symbols
 are matched for equality with the table entry label symbols.
 When a match is found,
@@ -3059,14 +3097,14 @@ physical line, and the indented logical lines that follow are
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.3ex]
-\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em natural-number}
+\emkey{simple-name} ::= {\em word} \{ {\em word} $|$ {\em natural}
             \}\STAR{}
 \\[0.0ex]
 \emkey{key}\label{KEY} ::= {\em symbol}\PLUS{}
 \\[0.0ex]
 \emkey{symbol}\label{SYMBOL}
     ::= {\em separator} $|$ {\em mark} $|$ {\em word}
-                        $|$ {\em natural-number}
+                        $|$ {\em natural}
 \\[0.0ex]
 \emkey{quoted-key}\label{QUOTED-KEY}
     :::= \TT{"}{\em key}\TT{"}
@@ -3208,10 +3246,10 @@ use parser commands to alter the way that input is parsed if only
 the `\TT{data}' selector is present.
 
 Parser commands make use of {\em simple-names} that are just a {\em word}
-optionally followed by a sequence of {\em words} and/or {\em natural-numbers}.
+optionally followed by a sequence of {\em words} and/or {\em naturals}.
 Parser commands also make use of
 {\em quoted-keys}, that are arbitrary sequences of {\em word},
-{\em mark}, {\em separator}, and {\em natural-number} lexemes enclosed
+{\em mark}, {\em separator}, and {\em natural} lexemes enclosed
 in quotation marks to form a {\em quoted-string} lexeme.
 This embedding of lexemes in a {\em quoted-string} lexeme
 serves to keep the embedded lexemes from being given a special
@@ -4627,7 +4665,7 @@ whose \TT{.type} is \TT{"<Q>"} for a quoted string or \TT{\#} for
 a numeric, and whose single element is a MIN string equal to the
 the token \TT{value}.
 
-Note that natural-number token values are MIN numbers that
+Note that natural token values are MIN numbers that
 are conversions of their lexeme string and not identical
 to this string.
 
@@ -4640,7 +4678,7 @@ produces a \TT{BRACKETED} token whose \TT{value} is a MIN object with
 can be represented as:
 \begin{center}
 \begin{tabular}{lll}
-\TT{5}	                        & MIN number	& from natural number token \\
+\TT{5}	                        & MIN number	& from natural token \\
 \TT{\{"<Q>"| HELLO |\}}		& MIN object	& from quoted string token \\
 \TT{\{\# 3.4 \#\}} or \TT{\{"\#"| 3.4 |\}}
 				& MIN object	& from numeric token \\
@@ -4956,11 +4994,11 @@ represented by an {\em untyped-bracketed-subexpression}:
 
 \begin{indpar}[0.5em]
 Requires that the subexpression elements be {\em words},
-{\em natural-numbers}, {\em numbers}, {\em numerics}, {\em quoted-strings},
+{\em naturals}, {\em numbers}, {\em numerics}, {\em quoted-strings},
 or MIN label values.
 The value of an element is taken to be the MIN string equal to the lexeme
 string, the MIN number converted from the lexeme's string
-(for {\em natural-numbers} and {\em numbers}),
+(for {\em naturals} and {\em numbers}),
 or the MIN label value of a non-lexeme element.
 
 The subexpression is converted to a \TT{DERIVED}
@@ -4987,7 +5025,7 @@ token whose \TT{value} is the special value named.
 
 \begin{indpar}[0.5em]
 Requires that the subexpression elements be {\em words},
-{\em natural-numbers}, {\em numbers}, {\em numerics}, {\em quoted-strings},
+{\em naturals}, {\em numbers}, {\em numerics}, {\em quoted-strings},
 or equal to the
 {\em separator} argument (e.g.~\TT{","}).
 
@@ -5538,15 +5576,15 @@ at the end than it does at the beginning:
 
 A type or attribute label may be a label,
 which is a sequence
-of one or more words, natural-numbers, numbers, numerics, and quoted strings,
-not beginning with a natural-number or number.
+of one or more words, naturals, numbers, numerics, and quoted strings,
+not beginning with a natural or number.
 Note that marks and separators must be quoted.
 If there is only
 one element in the sequence, the MIN string it represents is the
 label, but if there is more than one element, the elements
 are concatenated into a MIN label.
 
-Attribute values are similar but may begin with a natural-number
+Attribute values are similar but may begin with a natural
 or number, and may alternatively be bracketed subexpressions.
 In this last case, the attribute value is the bracketed subexpression,
 with one exception.
@@ -5556,9 +5594,9 @@ the comma
 separated elements of the bracketed subexpression are each a
 distinct value of the attribute, which has a multi-set of values.
 Elements must be single bracketed subexpressions,
-words, natural-numbers, numbers, numerics, or quoted strings that are made into
+words, naturals, numbers, numerics, or quoted strings that are made into
 MIN strings or MIN numbers,
-or sequences of words, natural-numbers, numbers, numerics, and
+or sequences of words, naturals, numbers, numerics, and
 quoted strings that are made into
 labels.  Missing elements, as indicated by the commas, are ignored,
 If there are no values, as in `\TT{\{* *\}}' or `\TT{\{* , *\}}',
@@ -5706,7 +5744,7 @@ The general syntax is:
 \\[0.5ex]
 \emkey{label-component} ::=
     \begin{tabular}[t]{@{}l}
-    {\em word} $|$ {\em natural-number} $|$ {\em number}
+    {\em word} $|$ {\em natural} $|$ {\em number}
                $|$ {\em numeric} $|$ {\em quoted-string} \\
     but \underline{not} {\em mark} or {\em separator} \\
     \end{tabular}
@@ -5745,7 +5783,7 @@ The general syntax is:
     $|$ & {\em attribute-flag-index} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{attribute-flag-index} ::= {\em natural-number}
+\emkey{attribute-flag-index} ::= {\em natural}
 \\[0.5ex]
 \emkey{single-attribute-values} ::= {\em value }
                                 $|$ {\em single-attribute-multivalue}

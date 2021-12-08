@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 1, 2021
+December 7, 2021
  
 \end{center}
 
@@ -1317,12 +1317,20 @@ expression is just a single {\em character-representative} in quotes,
 which denotes
 the character set containing only the quoted character.  Examples:
 \TT{"0"} and \TT{"+"}.
-The next simplest is two {\em character-representatives}
-separated by a hyphen (\TT{-}) denoting the character set consisting
-of all characters in the range from the first to the second of the two
-characters.  Examples: \TT{"0-9"} and \TT{"A-Z"}.  The characters
-are ordered according to their 32 bit unsigned UNICODE value, and the
-second of the two characters must not be smaller than the first.
+The next simplest is a list of {\em character-representatives}
+in \TT{[~]} brackets.  This represents the character set consisting
+of the characters represented in the list.  Examples each representing
+a set of 2 characters:
+\TT{"[+-]"}, \TT{"[eE]"}, \TT{"[<LF><CR>]"}.
+Within the list the
+hyphen (\TT{-}) is special when it is between two
+{\em character-representatives}.  In this case it represents all
+the characters whose character codes are between those of the
+two characters represented on either side of the hyphen.
+Examples: \TT{"[0-9]"} and \TT{"[A-Z]"}.  The characters
+are ordered according to their 32 bit unsigned UNICODE value, and when
+a hypen is used between two characters, the first must have a smaller
+code than the second.
 
 A {\em character-representative} is a representative of a single UNICODE
 character that can be used inside quotes (\TT{"}).
@@ -1349,9 +1357,10 @@ following rules:
 The \TT{|}, \TT{\&}, and \TT{\textasciitilde} operators and can be used to take
 unions, intersections, and complements of character sets.  The complement
 is relative to the universe of all 32 bit unsigned integer UNICODE
-character codes.  Thus \TT{\textasciitilde "b-y"}
+character codes.  Thus: \\
+\centerline{\TT{\textasciitilde "[b-y]"}
 denotes the same character set as
-\TT{"<0>-a"\,|\,"z-<0FFFFFFFF>"}.
+\TT{"[<0>-a]"\,|\,"[z-<0FFFFFFFF>]"}.}
 
 Parentheses may be used in {\em character-pattern-expressions} as is
 normal in algebraic expressions.
@@ -1362,13 +1371,13 @@ takes precedence over the other.  This is done to prevent ambiguity.
 Some example {\em character-pattern-definitions} are:
 
 \begin{indpar}[0.05in]\begin{verbatim}
-"<hex-digit>" = "0-9" | "a-f" | "A-F";
+"<hex-digit>" = "[0-9a-fA-F]";
 "<letter>" = "<UNICODE-L>";
 "<non-line-break-char>" = ~ "<LF>" & ~ "<VT>" & ~ "<FF>";
-"<quotable-char>" = "<020>-<07E>" & ~ "<Q>";
+"<quotable-char>" = "[<020>-<07E>]" & ~ "<Q>";
 "<whitespace-char>" = " " | "<LF>" | "<VT>" | "<FF>" | "<HT>";
 "<source-character>" =
-    ( "<020>-<07E>" & ~ "$" & ~ "@" & ~ "`" )
+    ( "[<020>-<07E>]" & ~ "$" & ~ "@" & ~ "`" )
     | "<whitespace-char>";
 \end{verbatim}\end{indpar}
 
@@ -1450,19 +1459,9 @@ This can be of more than cosmetic use, as in the case of the two atom patterns
 The first of these patterns matches the 4 characters `\TT{<}', `\TT{L}',
 `\TT{F}', and `\TT{>}', while the second pattern
 matches a single line-feed character.
-
-
-The special character pattern name
-\TT{<{others}>}%
-\index{others@{\tt <others>}}%
-\label{<OTHERS>}
-can be used in an atom pattern to match any character not otherwise
-matched.  More specifically, in the atom pattern
-\TT{"}$P$\TT{<others>}$Q$\TT{"},
-the pattern name \TT{<others>} matches any characters not matched by
-any other character pattern $C$ that is in some atom pattern of the form
-\TT{"}$PCR$\TT{"} in the same lexical table.
-There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
+Similarly \TT{"[<digit>]"} represents a single character wheras
+\TT{"["} \TT{"<digit>"} \TT{"]"} represents a sequence of three
+characters.
 
 The special character pattern name
 \TT{<{repeat}>}%
@@ -1496,25 +1495,30 @@ For example, the pattern
 string \TT{XXX} will match \TT{X<repeat>} leaving nothing to match
 the final \TT{X} in the pattern.
 
-If {\em atom-patterns} of two distinct {\em lexical-table-entries}
-in the same {\em lexical-table} have the forms 
-\TT{"}$PC_1Q_1$\TT{"} and \TT{"}$PC_2Q_2$\TT{"} with a common
-prefix $P$ where
-$C_1$ and $C_2$ are \underline{distinct}
-character pattern names or character representatives
-and $Q_1$ and $Q_2$ are either both non-empty or both empty subpatterns,
-then the character sets of $C_1$ and $C_2$ \underline{must}
-be disjoint.  This permits a deterministic finite automaton that
-recognizes the atoms of the lexical table to be easily constructed.
+The order of {\em atom-patterns}
+in a {\em lexical-table} is significant.  If the pattern
+\TT{"}$PC_1Q_1$\TT{"} is followed in the table by
+\TT{"}$PC_2Q_2$\TT{"} and $C_1$ and $C_2$ are not syntactically
+identical as {\em character-patterns}, then $C_2$ is effectively
+replaced by $C_2$ \TT{\&} \TT{\textasciitilde} $C_1$.
+That is, the characters in the set denoted by $C_1$ are in effect removed
+from the characters in the set $C_2$.  Here $P$, $Q_1$, and $Q_2$
+are arbitrary and may be empty.
 
-However it is permissible for
-a sequence of characters that matches one pattern to have a proper
-initial segment that matches another pattern; in this case the
-longer pattern takes precedence.  This is why it is acceptable for
-just one of $Q_1$ or $Q_2$ in the previous paragraph to be non-empty.
 
-The order of {\em lexical-table-entries}
-in a {\em lexical-table} is not significant.
+The special character pattern name
+\TT{<{others}>}%
+\index{others@{\tt <others>}}%
+\label{<OTHERS>}
+can be used in an atom pattern to match any character, which by
+the previous paragraph means any character not previously matched.
+For example, if \TT{"}$P$\TT{<others>}$Q$\TT{"} follows
+\TT{"}$PC_1Q_1$\TT{"},
+\TT{"}$PC_2Q_2$\TT{"},
+and \TT{"}$PC_3Q_3$\TT{"},
+in a {\em lexical-table}, \TT{<others>} will
+match any character not matched by $C_1$, $C_2$, or $C_3$.
+There are several examples of this on \pagref{EXAMPLE-LEXEME-PROGRAM}.
 
 The atom pattern \TT{""} which would recognize zero length atoms is
 \underline{not} permitted, but the {\em default-instruction-group} at the

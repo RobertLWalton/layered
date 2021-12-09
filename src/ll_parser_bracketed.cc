@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 18:58:54 EST 2021
+// Date:	Wed Dec  8 23:55:13 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1493,7 +1493,6 @@ static void make_label
 		  " therefore should be quoted" );
 
 	case LEXSTD::word_t:
-	case LEXSTD::numeric_word_t:
 	case LEXSTD::natural_t:
 	case LEXSTD::number_t:
 	case LEXSTD::numeric_t:

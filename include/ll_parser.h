@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 19:01:43 EST 2021
+// Date:	Wed Dec  8 23:53:09 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1529,7 +1529,8 @@ inline min::uns32 lexical_type_of ( min::gen g )
         min::float64 f = min::float_of ( g );
         min::float64 i;
 	if ( ! std::isfinite ( f ) )
-	    return ll::lexeme::standard::numeric_t;
+	    return ll::lexeme::standard
+	             ::numeric_word_t;
 	else if ( modf ( f, & i ) == 0.0 )
 	    return ll::lexeme::standard::natural_t;
 	else
@@ -2018,7 +2019,8 @@ bool is_prefix_separator ( min::gen v );
 //
 const min::uns64 QUOTED_KEY_SCAN_MASK =
       ll::lexeme::standard::symbol_mask;
-      // Word, natural, mark, separator.
+      // Word, numeric, natural, number, mark,
+      // separator.
 const min::uns64 IGNORED_SCAN_MASK =
       ( 1ull << ll::lexeme::standard
                           ::horizontal_space_t )

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 01:07:01 EST 2021
+// Date:	Wed Dec  8 23:51:59 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -124,7 +124,8 @@ namespace ll { namespace lexeme { namespace standard {
         // Includes leading and trailing separators.
 
     const uns32 symbol_mask =
-          ( 1 << word_t ) + ( 1 << natural_t )
+          ( 1 << word_t ) + ( 1 << numeric_t )
+	+ ( 1 << natural_t ) + ( 1 << number_t )
 	+ ( 1 << mark_t ) + ( 1 << separator_t );
 	// Lexemes that are `symbols' for parser
 	// symbol tables.

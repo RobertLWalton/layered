@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 8, 2021
+December 9, 2021
  
 \end{center}
 
@@ -2867,19 +2867,18 @@ components:
 		& A non-empty
 		  sequence of `symbols' that identifies the definition.
 \\[1ex]
-		& A \key{symbol} is a MIN string equal to the
-		  lexeme string of a word, mark, or separator lexeme,
-		  or a MIN number that is the conversion of the lexeme
-		  string of a natural lexeme.  Quoted string, numeric,
-		  and number lexemes are not symbols.
+		& A \key{symbol} is a MIN string representing
+		  a work, mark, or separator; or the MIN number
+		  representing a natural or number.   MIN values
+		  representing quoted string or numeric-word lexemes
+		  are not symbols.
 \\[1ex]
 		& Labels are symbol table `\skey{key}s', that is, they
 		  are what is looked up in a symbol table.
 \\[1ex]
 		& If a label has just one symbol, it is represented by
-		  a MIN string.  Otherwise it is represented by
-		  a MIN label whose elements are MIN strings
-		  equal to the symbols.
+		  the symbol.  Otherwise it is represented by
+		  a MIN label whose elements are the symbols.
 \end{tabular}
 
 \begin{tabular}{p{1in}p{4.5in}}
@@ -2913,8 +2912,8 @@ Lookup in a parser symbol table takes as input a token sequence
 that is part of a line (for the bracketed subexpression recognition pass)
 or subexpression (for other passes), and finds an active symbol table
 entry with a label whose symbols match an initial segment of the
-token sequence.  Only symbol tokens, with lexeme types word,
-mark, separator, or natural, can match label symbols.
+token sequence.  Only symbol tokens, with lexeme types word, numeric,
+mark, separator, natural, or number, can match label symbols.
 These symbols
 are matched for equality with the table entry label symbols.
 When a match is found,

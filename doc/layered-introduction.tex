@@ -1035,10 +1035,11 @@ a form feed.
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
-C/C++ numbers convertable to IEEE double precision
-are just the {\em numeric-word}, {\em natural}, and {\em number} lexemes,
-except the lexemes cannot end in a {\em decimal-point} and
-{\em numeric-words} are case sensitive.
+A {\em numeric-word}, {\em natural}, or {\em number} lexeme
+is a C/C++ constant representing an IEEE double precision number.
+Conversely, a C/C++ constant representing an IEEE double precision number
+and not ending in a {\em decimal-point}
+is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
 
 The definition of a {\em middle-lexeme} is unusual: it is what is left over
 after removing {\em leading-separators} and {\em trailing-separators}
@@ -2149,14 +2150,15 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& The lexeme type of the token is modified in
-		  the following cases.  If the token type is
-		  a natural or number and the token value is
-		  an infinity,
-		  the token type is set to \TT{numeric-word}.
-		  If the token type is natural and the token
-		  value is outside the range $[0,10^{15})$,
-		  the token type is set to \TT{number}.
+		& The lexeme type of the token is modified as
+		  follows if the type is natural or number and
+		  thus the value is a MIN number.
+		  If the MIN number is an infinity, the token
+		  type is set to \TT{numeric-word}.
+		  If the MIN number is an integer in the range
+		  $[0,10^{15})$, the token type is set to
+		  \TT{natural}.
+		  Otherwise the token type is set to \TT{number}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}

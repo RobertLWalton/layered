@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 00:41:49 EST 2021
+// Date:	Thu Dec  9 11:21:44 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -396,9 +396,12 @@ SCAN_NEXT_LEXEME:
 
 		if ( ! std::isfinite ( v ) )
 		    type = LEXSTD::numeric_word_t;
+		else if ( PAR::is_natural ( v ) )
+		    type = LEXSTD::natural_t;
 		else
-		if ( v < 0 || v > PAR::MAX_NATURAL )
 		    type = LEXSTD::number_t;
+
+		token->type = type;
 	    }
 
 	    break;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 19:00:53 EST 2021
+// Date:	Thu Dec  9 00:41:49 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -390,8 +390,16 @@ SCAN_NEXT_LEXEME:
 		++ parser->error_count;
 	    }
 	    else
+	    {
 		value_ref(token) =
 		    min::new_num_gen ( v );
+
+		if ( ! std::isfinite ( v ) )
+		    type = LEXSTD::numeric_word_t;
+		else
+		if ( v < 0 || v > PAR::MAX_NATURAL )
+		    type = LEXSTD::number_t;
+	    }
 
 	    break;
 	}

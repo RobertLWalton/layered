@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 23:53:09 EST 2021
+// Date:	Thu Dec  9 00:36:41 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1531,7 +1531,9 @@ inline min::uns32 lexical_type_of ( min::gen g )
 	if ( ! std::isfinite ( f ) )
 	    return ll::lexeme::standard
 	             ::numeric_word_t;
-	else if ( modf ( f, & i ) == 0.0 )
+	else if ( 0 <= f && f <= MAX_NATURAL
+	          &&
+		  modf ( f, & i ) == 0.0 )
 	    return ll::lexeme::standard::natural_t;
 	else
 	    return ll::lexeme::standard::number_t;

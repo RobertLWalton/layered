@@ -2147,10 +2147,14 @@ A token has the following components:
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}
-		& Note that lexemes with a MIN number value may not
-		  reproduce the lexeme characters when printed.
-		  For example, the lexeme {\tt 1e+300} will be stored
-		  as plus infinity and print as {\tt Inf}.
+		& The lexeme type of the token is modified in
+		  the following cases.  If the token type is
+		  a natural or number and the token value is
+		  an infinity,
+		  the token type is set to \TT{numeric-word}.
+		  If the token type is natural and the token
+		  value is outside the range $[0,10^{15})$,
+		  the token type is set to \TT{number}.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}

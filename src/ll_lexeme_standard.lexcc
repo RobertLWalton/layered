@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 18:24:40 EST 2021
+// Date:	Thu Dec  9 00:55:16 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -850,24 +850,24 @@ cc		   NDL::go ( test_trailing );
 cc		NDL::end_dispatch();
 cc
 
-lex	    "NaN" goto numeric word;
-lex	    "N" output word goto finish middle;
-lex	    "Inf" goto numeric word;
-lex	    "I" output word goto finish middle;
+lex	    "[Nn][Aa][Nn]" goto numeric word;
+lex	    "[Nn]" output word goto finish middle;
+lex	    "[Ii][Nn][Ff]" goto numeric word;
+lex	    "[Ii]" output word goto finish middle;
 lex	    "<letter>" output word goto finish middle;
 lex
-cc		NDL::begin_dispatch ( "N" );
-cc		   NDL::begin_dispatch ( "a" );
-cc		      NDL::begin_dispatch ( "N" );
+cc		NDL::begin_dispatch ( "Nn" );
+cc		   NDL::begin_dispatch ( "Aa" );
+cc		      NDL::begin_dispatch ( "Nn" );
 cc		         NDL::go ( numeric_word );
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
 cc		   NDL::output ( word_t );
 cc		   NDL::go ( finish_middle );
 cc		NDL::end_dispatch();
-cc		NDL::begin_dispatch ( "I" );
-cc		   NDL::begin_dispatch ( "n" );
-cc		      NDL::begin_dispatch ( "f" );
+cc		NDL::begin_dispatch ( "Ii" );
+cc		   NDL::begin_dispatch ( "Nn" );
+cc		      NDL::begin_dispatch ( "Ff" );
 cc		         NDL::go ( numeric_word );
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();

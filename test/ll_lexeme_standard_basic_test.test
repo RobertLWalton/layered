@@ -475,14 +475,14 @@
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 79
-            N
+            Ctype Map Size: 111
+            N n
                 #####: GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 98
-            a
+            A a
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -490,13 +490,13 @@
   ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 103
-            f
+            F f
                 #####: GOTO(####)
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 1
             Ctype Map Size: 111
-            n
+            N n
                 Dispatcher ID: #####
   ########: DISPATCHER
             Max CType: 0
@@ -615,13 +615,13 @@
             ! ' , :-; ?
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
-            N
+            N n
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
-            I
+            I i
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
-            A-H J-M O-Z a-z <0AA> <0B5> <0BA> <0C0>-<0D6> <0D8>-<0F6>
+            A-H J-M O-Z a-h j-m o-z <0AA> <0B5> <0BA> <0C0>-<0D6>
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
             0
@@ -1067,7 +1067,7 @@
                 Dispatcher ID: #####
             + -
                 Dispatcher ID: #####
- #########: DISPATCHER
+##########: DISPATCHER
             Max CType: 0
             Ctype Map Size: 0
 ##########: DISPATCHER
@@ -1092,7 +1092,7 @@
             #-& *-+ - / <-> @-D F-Z \ ^-d f-z ~ <0A1>-<0AA> <0AC>
             <2F800>-<2FA1D>
                 #####: OUTPUT(5), GOTO(####)
-                Dispatcher ID: #####
+                Dispatcher ID: ######
             ! ' , . :-; ? [repeat(INFINITY)]
                 Dispatcher ID: ######
 ##########: DISPATCHER

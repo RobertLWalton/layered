@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.lexcc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 00:55:16 EST 2021
+// Date:	Thu Dec  9 13:27:11 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -906,8 +906,8 @@ cc
 
 lex	    "<sign>[0-9]" goto integer part;
 lex	    "<sign>.[0-9]" goto fraction part;
-lex	    "<sign>NaN" goto numeric word;
-lex	    "<sign>Inf" goto numeric word;
+lex	    "<sign>[Nn][Aa][Nn]" goto numeric word;
+lex	    "<sign>[Ii][Nn][Ff]" goto numeric word;
 lex	    "<sign>" goto mark;
 lex	    "<mark-middle>" goto mark;
 lex
@@ -921,16 +921,16 @@ cc		            ( "0123456789" );
 cc		         NDL::go ( fraction_part );
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
-cc		   NDL::begin_dispatch ( "N" );
-cc		      NDL::begin_dispatch ( "a" );
-cc		         NDL::begin_dispatch ( "N" );
+cc		   NDL::begin_dispatch ( "Nn" );
+cc		      NDL::begin_dispatch ( "Aa" );
+cc		         NDL::begin_dispatch ( "Nn" );
 cc		            NDL::go ( numeric_word );
 cc		         NDL::end_dispatch();
 cc		      NDL::end_dispatch();
 cc		   NDL::end_dispatch();
-cc		   NDL::begin_dispatch ( "I" );
-cc		      NDL::begin_dispatch ( "n" );
-cc		         NDL::begin_dispatch ( "f" );
+cc		   NDL::begin_dispatch ( "Ii" );
+cc		      NDL::begin_dispatch ( "Nn" );
+cc		         NDL::begin_dispatch ( "Ff" );
 cc		            NDL::go ( numeric_word );
 cc		         NDL::end_dispatch();
 cc		      NDL::end_dispatch();

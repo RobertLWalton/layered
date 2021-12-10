@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 18:58:43 EST 2021
+// Date:	Fri Dec 10 03:17:59 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2629,21 +2629,45 @@ min::gen PAR::scan_simple_name
     return min::new_lab_gen ( elements, i - j );
 }
 
-static min::gen scan_value_or_label
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value, bool is_value )
+// If v is a quoted string return its string value.
+// otherwise return min::NONE().
+//
+inline min::gen quoted_string_value ( min::gen v )
 {
-    min::uns32 initial_i = i;
-    min::uns32 s = min::size_of ( vp );
-    min::uns64 accepted_types = 1ull << LEXSTD::word_t;
-        // Quoted strings are always accepted;
-	// see below.
-    if ( is_value )
-	accepted_types |=
-	      1ull << LEXSTD::natural_t
-	    | 1ull << LEXSTD::number_t
-	    | 1ull << LEXSTD::numeric_t;
+    min::obj_vec_ptr vp ( v );
+    if ( min::size_of ( vp ) != 1 ) return min::NONE();
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, min::dot_type );
+    min::gen type = min::get ( ap );
+    if ( type != PARLEX::doublequote )
+        return min::NONE();
+    else
+        return vp[0];
+}
 
+min::gen PAR::scan_value
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value )
+{
+    min::uns32 s = min::size_of ( vp );
+
+    // For values, handle case where value is an
+    // a single expression (or number).
+    //
+    if ( ( i + 1 == s
+	   ||
+	   ( i + 1 < s
+	     &&
+	     vp[i+1] == end_value ) )
+	 &&
+	 ! min::is_str ( vp[i] ) )
+	       // This excludes marks and separators.
+    {
+        min::gen v = quoted_string_value ( vp[i] );
+	return ( v == min::NONE() ? vp[i] : v );
+    }
+
+    min::uns32 initial_i = i;
     min::gen elements[s];
     min::uns32 j = 0;
 
@@ -2651,16 +2675,53 @@ static min::gen scan_value_or_label
     {
 	if ( vp[i] == end_value )
 	    break;
-	else if ( min::is_obj ( vp[i] ) )
+	min::gen v = ::quoted_string_value ( vp[i] );
+	if ( v != min::NONE() )
 	{
-	    min::obj_vec_ptr evp ( vp[i] );
-	    if ( min::size_of ( evp ) != 1 ) break;
-	    min::attr_ptr eap ( evp );
-	    min::locate ( eap, min::dot_type );
-	    min::gen type = min::get ( eap );
-	    if ( type != PARLEX::doublequote )
+	    if ( (   PAR::VALUE_COMPONENT_MASK
+	           & PAR::QUOTED_STRING_MASK ) == 0 )
 	        break;
-	    elements[j++] = evp[0];
+	    elements[j++] = v;
+	}
+	else
+	{
+	    min::uns32 t =
+		PAR::lexical_type_of ( vp[i] );
+	    if (   ( 1ull << t )
+	         & PAR::VALUE_COMPONENT_MASK )
+	        elements[j++] = vp[i];
+	    else
+	        break;
+	}
+	++ i;
+    }
+
+    if ( i == initial_i ) return min::MISSING();
+    else if ( i == initial_i + 1 ) return elements[0];
+    return min::new_lab_gen ( elements, j );
+}
+
+min::gen PAR::scan_label
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value )
+{
+    min::uns32 initial_i = i;
+    min::uns32 s = min::size_of ( vp );
+    min::uns64 accepted_types = PAR::LABEL_HEADER_MASK;
+    min::gen elements[s];
+    min::uns32 j = 0;
+
+    while ( i < s )
+    {
+	if ( vp[i] == end_value )
+	    break;
+	min::gen v = ::quoted_string_value ( vp[i] );
+	if ( v != min::NONE() )
+	{
+	    if ( (   accepted_types
+	           & PAR::QUOTED_STRING_MASK ) == 0 )
+	        break;
+	    elements[j++] = v;
 	}
 	else
 	{
@@ -2672,31 +2733,12 @@ static min::gen scan_value_or_label
 	        break;
 	}
 	++ i;
-	accepted_types |=
-	      1ull << LEXSTD::natural_t
-	    | 1ull << LEXSTD::number_t
-	    | 1ull << LEXSTD::numeric_t;
+	accepted_types = PAR::LABEL_COMPONENT_MASK;
     }
 
     if ( i == initial_i ) return min::MISSING();
     else if ( i == initial_i + 1 ) return elements[0];
     return min::new_lab_gen ( elements, j );
-}
-
-min::gen PAR::scan_value
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value )
-{
-    return ::scan_value_or_label
-        ( vp, i, end_value, true );
-}
-
-min::gen PAR::scan_label
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value )
-{
-    return ::scan_value_or_label
-        ( vp, i, end_value, false );
 }
 
 min::gen PAR::scan_quoted_key

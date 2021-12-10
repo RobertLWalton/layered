@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  9 11:16:18 EST 2021
+// Date:	Fri Dec 10 03:10:09 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2043,6 +2043,27 @@ const min::uns64 END_SCAN_MASK =
                           ::premature_end_of_file_t )
     + ( 1ull << ll::lexeme::standard::end_of_file_t );
 
+// Other type masks:
+//
+const min::uns64 LABEL_HEADER_MASK =
+      ( 1ull << ll::lexeme::standard::word_t )
+    + ( 1ull << ll::lexeme::standard::numeric_t )
+    + ( 1ull << ll::lexeme::standard::quoted_string_t );
+const min::uns64 LABEL_COMPONENT_MASK =
+      ( 1ull << ll::lexeme::standard::word_t )
+    + ( 1ull << ll::lexeme::standard::numeric_t )
+    + ( 1ull << ll::lexeme::standard::quoted_string_t )
+    + ( 1ull << ll::lexeme::standard::natural_t )
+    + ( 1ull << ll::lexeme::standard::number_t );
+const min::uns64 VALUE_COMPONENT_MASK =
+      ( 1ull << ll::lexeme::standard::word_t )
+    + ( 1ull << ll::lexeme::standard::numeric_t )
+    + ( 1ull << ll::lexeme::standard::quoted_string_t )
+    + ( 1ull << ll::lexeme::standard::natural_t )
+    + ( 1ull << ll::lexeme::standard::number_t );
+const min::uns64 QUOTED_STRING_MASK =
+      ( 1ull << ll::lexeme::standard::quoted_string_t );
+
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
 // object attribute vector, then if the element is
@@ -2113,7 +2134,7 @@ min::gen scan_quoted_key
 // expression, and an index i of an element in the
 // vector, then if vp[i] is a word not equal to
 // end_value, increment i until i >= size of vp or vp[i]
-// is not a word or number or is equal to end_value.
+// is not a word or natural or is equal to end_value.
 //
 // If i has been incremented at least once, make and
 // return a label from the elements scanned over.  If
@@ -2126,17 +2147,26 @@ min::gen scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::gen end_value = min::NONE() );
 
-// Like scan_simple_name but accepts words, naturals,
-// numbers, numerics, and quoted strings as label
-// components.  Replaces numerics and quoted strings
-// by their values (which are MIN strings).
+// Like scan_simple_name but accepts vector elements
+// whose types are in VALUE_COMPONENT_MASK.  In
+// addition, if there is exactly one vector element
+// scanned, returns that if it is not a string or
+// quoted string.
+//
+// Replaces quoted strings by their values (which are
+// MIN strings).
 //
 min::gen scan_value
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  min::gen end_value = min::NONE() );
 
-// Like scan_value but requires label to begin
-// with a component that is not a natural or number.
+// Like scan_simple_name but accepts vector elements
+// whose types are in LABEL_COMPONENT_MASK.  In addition
+// the first component must have a type in LABEL_HEADER_
+// MASK.
+//
+// Replaces quoted strings by their values (which are
+// MIN strings).
 //
 min::gen scan_label
 	( min::obj_vec_ptr & vp, min::uns32 & i,

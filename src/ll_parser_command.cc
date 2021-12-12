@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 02:57:55 EDT 2021
+// Date:	Sun Dec 12 01:12:21 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -325,7 +325,7 @@ static bool scan_flag
     min::uns32 ibegin = i;
     min::locatable_gen flag_name
         ( PAR::scan_simple_name ( vp, i ) );
-    if ( flag_name == min::MISSING() )
+    if ( flag_name == min::NONE() )
     {
 	PAR::parse_error
 	    ( parser,
@@ -670,7 +670,7 @@ static min::gen execute_pass
     {
 	min::uns32 begini = i;
 	name = PAR::scan_simple_name ( vp, i );
-	if ( name == min::MISSING() )
+	if ( name == min::NONE() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected simple name after" );
@@ -709,7 +709,7 @@ static min::gen execute_pass
 	    ++ i;
 	    min::uns32 begini = i;
 	    name2 = PAR::scan_simple_name ( vp, i );
-	    if ( name2 == min::MISSING() )
+	    if ( name2 == min::NONE() )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
 		      "expected simple name after" );
@@ -852,7 +852,7 @@ static min::gen execute_selectors
     if ( vp[i0] == PARLEX::define )
     {
 	name = PAR::scan_simple_name ( vp, i );
-	if ( name == min::MISSING() )
+	if ( name == min::NONE() )
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "expected simple name after" );
@@ -1811,7 +1811,7 @@ static min::gen execute_block
     min::uns32 i = i0 + 2;
     min::locatable_gen name
         ( PAR::scan_simple_name ( vp, i ) );
-    if ( name == min::MISSING() )
+    if ( name == min::NONE() )
     {
 	min::phrase_position p0 = ppvec[i0];
 	min::phrase_position p1 = ppvec[i0+1];

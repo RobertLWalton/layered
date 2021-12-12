@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 19:00:10 EST 2021
+// Date:	Sun Dec 12 01:13:20 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2238,7 +2238,8 @@ static min::gen oper_pass_command
 	    min::locatable_gen name
 	      ( PAR::scan_simple_name
 	          ( vp, j, PARLEX::reformatter ) );
-	    if (    j < size
+	    if (    name != min::NONE()
+	         && j < size
 		 && vp[j] == PARLEX::reformatter )
 	    {
 		min::phrase_position position =

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 23:55:13 EST 2021
+// Date:	Sun Dec 12 01:09:37 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6791,7 +6791,8 @@ static min::gen bracketed_pass_command
 		  ( PAR::scan_simple_name
 			( vp, j,
 			  PARLEX::reformatter ) );
-		if (    j < size
+		if (    name != min::NONE()
+		     && j < size
 		     &&    vp[j]
 		        == PARLEX::reformatter )
 		{
@@ -7440,7 +7441,8 @@ static min::gen bracketed_pass_command
 		  ( PAR::scan_simple_name
 			( vp, j,
 			  PARLEX::reformatter ) );
-		if (    j < size
+		if (    name != min::NONE()
+		     && j < size
 		     &&    vp[j]
 		        == PARLEX::reformatter )
 		{

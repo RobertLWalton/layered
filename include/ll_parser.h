@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 10 03:10:09 EST 2021
+// Date:	Sun Dec 12 01:09:00 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2141,10 +2141,47 @@ min::gen scan_quoted_key
 // there is only 1 element, return just that element.
 // If there is more than one, return the MIN label
 // containing the elements.  If there are no elements,
-// return min::MISSING().
+// return min::NONE().
 //
 min::gen scan_simple_name
 	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  min::gen end_value = min::NONE() );
+
+// Mode values for scan_label_or_value and
+// make_label_or_value.
+//
+enum scan_mode {
+    LABEL_MODE		= 1 << 0,
+        // First label component must be selected in
+	// LABEL_HEADER_MASK.  Rest must be selected
+	// in LABEL_COMPONENT_MASK.
+    VALUE_MODE		= 1 << 1,
+        // All label components must be selected in
+	// VALUE_COMPONENT_MASK.
+    DATA_MODE		= 1 << 2
+        // All legal label components are accepted,
+	// namely strings, numbers, and sublabels.
+};
+
+// Given an object vector pointer vp pointing at an
+// expression, and an index i of an element in the
+// vector, then repetatively increment i if vp[i] is not
+// an object other than a quoted string and is not equal
+// to end_value.
+//
+// Discard any vp[i] that is not selected according to
+// the mode while printing an error message.
+//
+// If there are any discarded elements, or no elements,
+// return min::NONE().
+//
+// Otherwise if there is only one element, return it,
+// but if there is more than one, return the MIN label
+// containing the elements.
+//
+min::gen scan_label_or_value_name
+	( min::obj_vec_ptr & vp, min::uns32 & i,
+	  ll::parser::scan_mode mode,
 	  min::gen end_value = min::NONE() );
 
 // Like scan_simple_name but accepts vector elements

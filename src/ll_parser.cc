@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 02:45:06 EST 2021
+// Date:	Sun Dec 12 07:01:58 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2650,6 +2650,7 @@ min::gen PAR::scan_label_or_value
 	  min::obj_vec_ptr & vp, min::uns32 & i,
 	  PAR::scan_mode mode, min::gen end_value )
 {
+    MIN_REQUIRE ( mode != PAR::DATA_MODE );
     min::uns32 s = min::size_of ( vp );
     min::uns64 accepted_types =
 	( mode == PAR::LABEL_MODE ?
@@ -2682,6 +2683,7 @@ min::gen PAR::scan_label_or_value
 	    else
 	        v = min::NONE();
 	}
+
 	if ( v == min::NONE() )
 	{
 	    min::phrase_position_vec posvec =
@@ -2702,9 +2704,133 @@ min::gen PAR::scan_label_or_value
 	    accepted_types = PAR::LABEL_COMPONENT_MASK;
     }
 
-    if ( j == 0 || errors_found ) return min::NONE();
+    if ( errors_found ) return min::NONE();
+    else if ( j == 0 )
+    {
+	min::phrase_position_vec posvec =
+	    min::position_of ( vp );
+	PAR::parse_error
+	    ( parser, posvec[i],
+	      mode == PAR::LABEL_MODE ?
+		  "empty label after" :
+		  "empty value after" );
+	return min::NONE();
+    }
     else if ( j == 1 ) return elements[0];
     return min::new_lab_gen ( elements, j );
+}
+
+bool PAR::make_label_or_value
+    ( PAR::parser parser,
+      PAR::token & first,
+      PAR::token next,
+      PAR::scan_mode mode )
+{
+    min::unsptr count = 0;
+    min::phrase_position position =
+        { first->position.begin,
+	  first->position.begin };
+        // For the empty label case first == next so
+	// this is the position just before next.
+    min::uns64 accepted_types =
+	( mode == PAR::LABEL_MODE ?
+	  PAR::LABEL_HEADER_MASK :
+	  PAR::VALUE_COMPONENT_MASK );
+
+    for ( PAR::token t = first; t != next;
+          ++ count, t = t->next )
+    {
+	position.end = t->position.end;
+
+	if ( mode == PAR::DATA_MODE )
+	{
+	    min::gen v = t->value;
+	    if ( ! min::is_str ( v )
+	         &&
+		 ! min::is_num ( v )
+		 &&
+		 ! min::is_lab ( v ) )
+	    {
+		t->type = PAR::DERIVED;
+		value_ref(t) = min::NONE();
+	    }
+	}
+	else
+	if (    ( ( 1ull << t->type ) & accepted_types )
+	     == 0 )
+	{
+	    t->type = PAR::DERIVED;
+	    value_ref(t) = min::NONE();
+	}
+
+	if ( mode == PAR::LABEL_MODE )
+	    accepted_types = PAR::LABEL_COMPONENT_MASK;
+    }
+
+    if ( count == 0 )
+    {
+	first = PAR::new_token ( PAR::DERIVED );
+	first->position = position;
+	put_before ( PAR::first_ref(parser),
+	             next, first );
+	PAR::value_ref(first) = min::empty_lab;
+	if ( mode == PAR::DATA_MODE )
+	    return true;
+	else
+	{
+	    PAR::parse_error
+		( parser, position,
+		  mode == PAR::LABEL_MODE ?
+		      "empty label" :
+		      "empty value" );
+	    PAR::value_ref(first) = min::NONE();
+	    return false;
+	}
+    }
+
+    min::gen vec[count];
+    min::unsptr i = 0;
+    bool error_found = false;
+    for ( PAR::token t = first; t != next; t = t->next )
+    {
+	if ( t->value != min::NONE() )
+	    vec[i++] = t->value;
+	else
+	{
+	    PAR::parse_error
+	        ( parser, t->position,
+		  mode == PAR::VALUE_MODE ?
+		  "not a legal value element `" :
+		  "not a legal label element `",
+		  min::pgen_never_quote ( t->value ),
+		  "'; ignored" );
+	    error_found = true;
+	}
+    }
+
+    if ( i == 0 )
+	PAR::value_ref(first) = min::empty_lab;
+    else if ( i == 1 )
+	PAR::value_ref(first) = vec[0];
+    else
+	PAR::value_ref(first) =
+	    min::new_lab_gen ( vec, i );
+
+    // Don't deallocate tokens until their values
+    // have been put in the gc protected first->value.
+    //
+    for ( PAR::token t = first->next; t != next; )
+    {
+	t = t->next;
+	PAR::free
+	    ( PAR::remove
+		( first_ref(parser),
+		  t->previous ) );
+    }
+
+    first->type = PAR::DERIVED;
+    first->position = position;
+    return ! error_found;
 }
 
 min::gen PAR::scan_value

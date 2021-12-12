@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 02:44:21 EST 2021
+// Date:	Sun Dec 12 07:01:29 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2172,7 +2172,8 @@ enum scan_mode {
 // Discard any vp[i] that is not selected according to
 // the mode while printing an error message.
 //
-// If there are any discarded elements, or no elements,
+// If there are no elements, print an error message and
+// return NONE().   If there are discarded elements,
 // return min::NONE().
 //
 // Otherwise if there is only one element, return it,
@@ -2193,27 +2194,30 @@ min::gen scan_label_or_value
 // is more than one token.  Announce tokens not selected
 // by mode as errors and ignore them.
 //
-// All tokens but the first are removed, and the type
-// of the first token is set to DERIVED, the value of
-// this token is set as described below, and the
-// position of this first token is set to include all
-// the tokens that made the label.
+// All tokens but the first are removed, the type of the
+// first token is set to DERIVED, and its value is set
+// to the first non-ignored token value if there is just
+// one such, or to a MIN label containing all the
+// non-ignored token values otherwise (including the
+// case of an empty MIN label if all token values are
+// ignored).
 //
 // If `first' == `next' (and therefore the result is
 // empty), a new first token is made and inserted before
 // `next', and the `first' argument is updated to point
 // at the new token, and the new token position is set
-// to the empty string just before `next'.  This is the
-// only case where `first' is updated.
+// to the empty string just before `next', and the new
+// token value is set to the empty MIN label.  This is
+// the only case where `first' is updated.
 //
-// If there are errors or no tokens, false is returned
-// and the first token value is set to min::NONE().
-// Otherwise true is returned, and if there is more than
-// one token, the first token value is set to the MIN
-// label made of the components (if there is only one
-// token the first value is left as is).
+// It is an error if there are no tokens and the mode is
+// not DATA_MODE, in whic case an error message is
+// printed.
 //
-min::gen make_label_or_value
+// True is returned if there are no errors, and false is
+// returned if there are errors.
+//
+bool make_label_or_value
 	( ll::parser::parser parser,
 	  ll::parser::token & first,
 	  ll::parser::token next,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 01:11:01 EST 2021
+// Date:	Sun Dec 12 02:45:06 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2643,6 +2643,68 @@ inline min::gen quoted_string_value ( min::gen v )
         return min::NONE();
     else
         return vp[0];
+}
+
+min::gen PAR::scan_label_or_value
+	( PAR::parser parser,
+	  min::obj_vec_ptr & vp, min::uns32 & i,
+	  PAR::scan_mode mode, min::gen end_value )
+{
+    min::uns32 s = min::size_of ( vp );
+    min::uns64 accepted_types =
+	( mode == PAR::LABEL_MODE ?
+	  PAR::LABEL_HEADER_MASK :
+	  PAR::VALUE_COMPONENT_MASK );
+    min::gen elements[s];
+    min::uns32 j = 0;
+    bool errors_found = false;
+    min::gen v;
+    while ( i < s )
+    {
+	if ( vp[i] == end_value )
+	    break;
+	if ( min::is_obj ( vp[i] ) )
+	{
+	    v = ::quoted_string_value ( vp[i] );
+	    if ( v == min::NONE() )
+	        break;
+	    else
+	    if ( (   accepted_types
+		   & PAR::QUOTED_STRING_MASK ) == 0 )
+		v = min::NONE();
+	}
+	else
+	{
+	    min::uns32 t =
+		PAR::lexical_type_of ( vp[i] );
+	    if ( ( 1ull << t ) & accepted_types )
+	        v = vp[i];
+	    else
+	        v = min::NONE();
+	}
+	if ( v == min::NONE() )
+	{
+	    min::phrase_position_vec posvec =
+		min::position_of ( vp );
+	    PAR::parse_error
+	        ( parser, posvec[i],
+		  mode == PAR::LABEL_MODE ?
+		      "not a legal label element `" :
+		      "not a legal value element `",
+		  min::pgen_never_quote ( v ),
+		  "'; ignored" );
+	    errors_found = true;
+	}
+	else
+	    elements[j++] = v;
+	++ i;
+	if ( mode == PAR::LABEL_MODE )
+	    accepted_types = PAR::LABEL_COMPONENT_MASK;
+    }
+
+    if ( j == 0 || errors_found ) return min::NONE();
+    else if ( j == 1 ) return elements[0];
+    return min::new_lab_gen ( elements, j );
 }
 
 min::gen PAR::scan_value

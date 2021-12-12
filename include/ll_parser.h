@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 01:52:40 EST 2021
+// Date:	Sun Dec 12 02:44:21 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2151,14 +2151,14 @@ min::gen scan_simple_name
 // make_label_or_value.
 //
 enum scan_mode {
-    LABEL_MODE		= 1 << 0,
+    LABEL_MODE		= 1,
         // First label component must be selected in
 	// LABEL_HEADER_MASK.  Rest must be selected
 	// in LABEL_COMPONENT_MASK.
-    VALUE_MODE		= 1 << 1,
+    VALUE_MODE		= 2,
         // All label components must be selected in
 	// VALUE_COMPONENT_MASK.
-    DATA_MODE		= 1 << 2
+    DATA_MODE		= 3
         // All legal label components are accepted,
 	// namely strings, numbers, and sublabels.
 };
@@ -2179,8 +2179,12 @@ enum scan_mode {
 // but if there is more than one, return the MIN label
 // containing the elements.
 //
+// DATA_MODE is NOT supported.  Parser is only used to
+// print error messages.
+//
 min::gen scan_label_or_value
-	( min::obj_vec_ptr & vp, min::uns32 & i,
+	( ll::parser::parser parser,
+	  min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::scan_mode mode,
 	  min::gen end_value = min::NONE() );
 

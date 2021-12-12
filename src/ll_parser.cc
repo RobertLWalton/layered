@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 07:01:58 EST 2021
+// Date:	Sun Dec 12 13:10:34 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2660,6 +2660,7 @@ min::gen PAR::scan_label_or_value
     min::uns32 j = 0;
     bool errors_found = false;
     min::gen v;
+    min::uns32 initial_i = i;
     while ( i < s )
     {
 	if ( vp[i] == end_value )
@@ -2690,11 +2691,14 @@ min::gen PAR::scan_label_or_value
 		min::position_of ( vp );
 	    PAR::parse_error
 	        ( parser, posvec[i],
-		  mode == PAR::LABEL_MODE ?
-		      "not a legal label element `" :
-		      "not a legal value element `",
-		  min::pgen_never_quote ( v ),
-		  "'; ignored" );
+		  mode == PAR::VALUE_MODE ?
+		  "not a legal value element `" :
+		  i == initial_i ?
+		  "not a legal label initial"
+		  " element `" :
+		  "not a legal label element `",
+		  min::pgen_never_quote ( vp[i] ),
+		  "'" );
 	    errors_found = true;
 	}
 	else
@@ -2801,6 +2805,9 @@ bool PAR::make_label_or_value
 	        ( parser, t->position,
 		  mode == PAR::VALUE_MODE ?
 		  "not a legal value element `" :
+		  t == first ?
+		  "not a legal label initial"
+		  " element `" :
 		  "not a legal label element `",
 		  min::pgen_never_quote ( t->value ),
 		  "'; ignored" );

@@ -2,12 +2,22 @@ BRACKETED EXPRESSION:
     ID 10 is {|x + y|}
 BRACKETED EXPRESSION:
     ID 11 is {|x + y|}
-ERROR: in line ##: extra stuff at end of line; line ignored:
+ERROR: in line ##: not a legal value element `*':
         z = x * y
-              ^^^
-ERROR: in line ##: extra stuff at end of line; line ignored:
+              ^
+ERROR: in line ##: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+        z = x * y
+          ^
+ERROR: in line ##: not a legal value element `-':
         w = u - v
-              ^^^
+              ^
+ERROR: in line ##: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+        w = u - v
+          ^
+BRACKETED EXPRESSION:
+    ID 20 is {"": b = [< c "/" d >]|x + y|}
 BRACKETED EXPRESSION:
     ID 21 is {|x * y|}
 BRACKETED EXPRESSION:
@@ -55,28 +65,38 @@ BRACKETED EXPRESSION:
     ID 61 is {"": a = @@ = b}
 BRACKETED EXPRESSION:
     ID 70 is {"": e 22.99 = 5, a = [< b 55.44 >], c = @@ = d 77.33}
+ERROR: in line ##: not a legal label initial element `2':
+    2 = X
+    ^
 ERROR: in line ##: line does not begin with a (possibly negated)
        attribute label; line ignored:
     2 = X
     ^^^^^
-ERROR: in line ##: line does not begin with a (possibly negated)
-       attribute label; line ignored:
-    "4" = Y
-    ^^^^^^^
+ERROR: in line ##: not a legal label initial element `6':
+    6 = Z
+    ^
 ERROR: in line ##: line does not begin with a (possibly negated)
        attribute label; line ignored:
     6 = Z
     ^^^^^
+ERROR: in line ##: not a legal label initial element `7.1':
+    7.1 = Q
+    ^^^
 ERROR: in line ##: line does not begin with a (possibly negated)
        attribute label; line ignored:
     7.1 = Q
     ^^^^^^^
-ERROR: in line ##: line does not begin with a (possibly negated)
-       attribute label; line ignored:
-    8.4.5 = P
-    ^^^^^^^^^
+ERROR: in line ###: not a legal label initial element `1':
+    K = @@@ = 1 L
+              ^
+ERROR: in line ###: reverse attribute label after second `=' was
+       expected but not found; line ignored:
+    K = @@@ = 1 L
+            ^
 BRACKETED EXPRESSION:
-    ID 80 is {"": F = [< 1 2 3 >], G = [< M N P >]|A B C D E|}
+    ID 80 is
+        {"": F = [< 1 2 3 >], G = [< M N P >], H = @@ = J, 8.4.5 = P,
+             4 = Y|A B C D E|}
 BRACKETED EXPRESSION:
     ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
 BRACKETED EXPRESSION:
@@ -100,6 +120,12 @@ BRACKETED EXPRESSION:
           .position[H] = PACKED_VEC
           d 77.33 = @@ = c
 @@ :=::
+          .position[H] = PACKED_VEC
+          J = @@ = H
+          e 22.99 = 5
+          a = [< b 55.44 >]
+          c = @@ = d 77.33
+@@ :=::
           previous = @@ = next
           .position[H] = PACKED_VEC
           name = Y
@@ -113,8 +139,10 @@ BRACKETED EXPRESSION:
           a = @@ = b
           .position[H] = PACKED_VEC
           d = @@ = c
-@@ :=::
+@@ := A B C D E::
+          F = [< 1 2 3 >]
+          G = [< M N P >]
+          H = @@ = J
+          8.4.5 = P
+          4 = Y
           .position[H] = PACKED_VEC
-          e 22.99 = 5
-          a = [< b 55.44 >]
-          c = @@ = d 77.33

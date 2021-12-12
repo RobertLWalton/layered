@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 01:09:37 EST 2021
+// Date:	Sun Dec 12 13:27:40 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5428,11 +5428,11 @@ static bool data_reformatter_function
 		has_negator = true;
 	    }
 	    min::locatable_gen name
-		( PAR::scan_label
-		      ( line, j, args[EQUAL_SIGN] ) );
-	    if ( name == min::MISSING()
-	         ||
-		 ! ::is_label ( name ) )
+		( PAR::scan_label_or_value
+		      ( parser, line, j,
+		        PAR::LABEL_MODE,
+		        args[EQUAL_SIGN] ) );
+	    if ( name == min::NONE() )
 	    {
 		PAR::parse_error
 		    ( parser, lppvec->position,
@@ -5539,9 +5539,11 @@ static bool data_reformatter_function
 		      ( line[j] == args[EQUAL_SIGN] );
 		    min::uns32 saved_j = j ++;
 		    reverse_name =
-			( PAR::scan_label ( line, j ) );
+			( PAR::scan_label_or_value
+			      ( parser, line, j,
+			        PAR::LABEL_MODE ) );
 		    if (    reverse_name
-		         == min::MISSING() )
+		         == min::NONE() )
 		    {
 			PAR::parse_error
 			    ( parser, lppvec[saved_j],
@@ -5561,8 +5563,10 @@ static bool data_reformatter_function
 		//
 		has_value = true;
 		min::uns32 saved_j = j ++;
-		value = PAR::scan_value ( line, j );
-		if ( value == min::MISSING() )
+		value = PAR::scan_label_or_value
+		    ( parser, line, j,
+		      PAR::VALUE_MODE );
+		if ( value == min::NONE() )
 		{
 		    PAR::parse_error
 			( parser, lppvec[saved_j],

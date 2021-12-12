@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 15:47:02 EDT 2021
+// Date:	Sun Dec 12 17:52:15 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -19,6 +19,9 @@ ID 11 is @11
 @20 := x + y:
 	z = x * y
 	w = u - v
+	b = c "/" d
+
+ID 20 is @20
 
 @21 := x * y
 @22 := u - v
@@ -94,6 +97,8 @@ ID 70 is @70
     8.4.5 = P
     F = 1 2 3
     G = M N P
+    H = @70 = J
+    K = @60 = 1 L
 ID 80 is @80
 
 @<X> :=:

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 01:09:00 EST 2021
+// Date:	Sun Dec 12 01:52:40 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2179,10 +2179,41 @@ enum scan_mode {
 // but if there is more than one, return the MIN label
 // containing the elements.
 //
-min::gen scan_label_or_value_name
+min::gen scan_label_or_value
 	( min::obj_vec_ptr & vp, min::uns32 & i,
 	  ll::parser::scan_mode mode,
 	  min::gen end_value = min::NONE() );
+
+// Given the token sequence from `first' to `next', make
+// a MIN label containing these tokens' values if there
+// is more than one token.  Announce tokens not selected
+// by mode as errors and ignore them.
+//
+// All tokens but the first are removed, and the type
+// of the first token is set to DERIVED, the value of
+// this token is set as described below, and the
+// position of this first token is set to include all
+// the tokens that made the label.
+//
+// If `first' == `next' (and therefore the result is
+// empty), a new first token is made and inserted before
+// `next', and the `first' argument is updated to point
+// at the new token, and the new token position is set
+// to the empty string just before `next'.  This is the
+// only case where `first' is updated.
+//
+// If there are errors or no tokens, false is returned
+// and the first token value is set to min::NONE().
+// Otherwise true is returned, and if there is more than
+// one token, the first token value is set to the MIN
+// label made of the components (if there is only one
+// token the first value is left as is).
+//
+min::gen make_label_or_value
+	( ll::parser::parser parser,
+	  ll::parser::token & first,
+	  ll::parser::token next,
+	  ll::parser::scan_mode mode );
 
 // Like scan_simple_name but accepts vector elements
 // whose types are in VALUE_COMPONENT_MASK.  In

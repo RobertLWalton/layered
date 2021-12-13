@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 13:10:34 EST 2021
+// Date:	Sun Dec 12 23:52:24 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2740,12 +2740,16 @@ bool PAR::make_label_or_value
 	( mode == PAR::LABEL_MODE ?
 	  PAR::LABEL_HEADER_MASK :
 	  PAR::VALUE_COMPONENT_MASK );
+    min::uns32 errors = 0;
 
+    // Count tokens and announce errors.
+    //
     for ( PAR::token t = first; t != next;
           ++ count, t = t->next )
     {
 	position.end = t->position.end;
 
+	bool error_found = false;
 	if ( mode == PAR::DATA_MODE )
 	{
 	    min::gen v = t->value;
@@ -2754,17 +2758,28 @@ bool PAR::make_label_or_value
 		 ! min::is_num ( v )
 		 &&
 		 ! min::is_lab ( v ) )
-	    {
-		t->type = PAR::DERIVED;
-		value_ref(t) = min::NONE();
-	    }
+	        error_found = true;
 	}
 	else
 	if (    ( ( 1ull << t->type ) & accepted_types )
 	     == 0 )
+	    error_found = true;
+
+	if ( error_found )
 	{
-	    t->type = PAR::DERIVED;
-	    value_ref(t) = min::NONE();
+	    PAR::parse_error
+	        ( parser, t->position,
+		  mode == PAR::DATA_MODE ?
+		  "not a legal label element `" :
+		  mode == PAR::VALUE_MODE ?
+		  "not a legal value element `" :
+		  t == first ?
+		  "not a legal label initial"
+		  " element `" :
+		  "not a legal label element `",
+		  min::pgen_never_quote ( t->value ),
+		  "'" );
+	    ++ errors;
 	}
 
 	if ( mode == PAR::LABEL_MODE )
@@ -2773,13 +2788,16 @@ bool PAR::make_label_or_value
 
     if ( count == 0 )
     {
+        MIN_REQUIRE ( errors == 0 );
 	first = PAR::new_token ( PAR::DERIVED );
 	first->position = position;
 	put_before ( PAR::first_ref(parser),
 	             next, first );
-	PAR::value_ref(first) = min::empty_lab;
 	if ( mode == PAR::DATA_MODE )
+	{
+	    PAR::value_ref(first) = min::empty_lab;
 	    return true;
+	}
 	else
 	{
 	    PAR::parse_error
@@ -2792,36 +2810,18 @@ bool PAR::make_label_or_value
 	}
     }
 
-    min::gen vec[count];
-    min::unsptr i = 0;
-    bool error_found = false;
-    for ( PAR::token t = first; t != next; t = t->next )
+    if ( errors != 0 )
+	PAR::value_ref(first) = min::NONE();
+    else if ( count >= 2 )
     {
-	if ( t->value != min::NONE() )
-	    vec[i++] = t->value;
-	else
-	{
-	    PAR::parse_error
-	        ( parser, t->position,
-		  mode == PAR::VALUE_MODE ?
-		  "not a legal value element `" :
-		  t == first ?
-		  "not a legal label initial"
-		  " element `" :
-		  "not a legal label element `",
-		  min::pgen_never_quote ( t->value ),
-		  "'; ignored" );
-	    error_found = true;
-	}
-    }
-
-    if ( i == 0 )
-	PAR::value_ref(first) = min::empty_lab;
-    else if ( i == 1 )
-	PAR::value_ref(first) = vec[0];
-    else
+	min::gen vec[count];
+	min::unsptr i = 0;
+	for ( PAR::token t = first; t != next;
+	                            t = t->next )
+		vec[i++] = t->value;
 	PAR::value_ref(first) =
 	    min::new_lab_gen ( vec, i );
+    }
 
     // Don't deallocate tokens until their values
     // have been put in the gc protected first->value.
@@ -2837,7 +2837,7 @@ bool PAR::make_label_or_value
 
     first->type = PAR::DERIVED;
     first->position = position;
-    return ! error_found;
+    return ( errors == 0 );
 }
 
 min::gen PAR::scan_value

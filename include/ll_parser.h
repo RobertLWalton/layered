@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 07:01:29 EST 2021
+// Date:	Sun Dec 12 23:48:52 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2192,30 +2192,33 @@ min::gen scan_label_or_value
 // Given the token sequence from `first' to `next', make
 // a MIN label containing these tokens' values if there
 // is more than one token.  Announce tokens not selected
-// by mode as errors and ignore them.
-//
-// All tokens but the first are removed, the type of the
-// first token is set to DERIVED, and its value is set
-// to the first non-ignored token value if there is just
-// one such, or to a MIN label containing all the
-// non-ignored token values otherwise (including the
-// case of an empty MIN label if all token values are
-// ignored).
+// by mode as errors.
 //
 // If `first' == `next' (and therefore the result is
 // empty), a new first token is made and inserted before
 // `next', and the `first' argument is updated to point
-// at the new token, and the new token position is set
-// to the empty string just before `next', and the new
-// token value is set to the empty MIN label.  This is
-// the only case where `first' is updated.
+// at the new token, the type of the new token is set
+// to DERIVED, and the new token position is set to the
+// empty string just before `next'.  If the mode is
+// DATA_MODE, the token value is set to the empty MIN
+// label.  Otherwise an error is announced and the token
+// value is set to min::NONE().  This is the only case
+// where `first' is updated.
 //
-// It is an error if there are no tokens and the mode is
-// not DATA_MODE, in whic case an error message is
-// printed.
+// Otherwise all tokens but the first are removed, the
+// type of the first token is set to DERIVED, and its
+// position is set to include the positions of all the
+// tokens.  If there are errors, the value of the first
+// token is set to min::NONE().  If there are no errors
+// and there is only one token, the value of first and
+// only token is left alone.  If there are no errors and
+// there is more than one token, the value of the first
+// token is set to a MIN label containing all the token
+// values.
 //
 // True is returned if there are no errors, and false is
-// returned if there are errors.
+// returned if there are errors.  The first token value
+// is set to min::NONE() iff there are errors.
 //
 bool make_label_or_value
 	( ll::parser::parser parser,

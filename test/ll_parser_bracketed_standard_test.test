@@ -754,12 +754,10 @@ BRACKETED PARSER FOUND [atom] SELECTED KEY ")"
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
 BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-WARNING: in line ##: name element "(" is a mark or separator and
-         therefore should be quoted:
+WARNING: in line ##: separator should be quoted:
 This is another label [< x ( y ) z >]
                            ^
-WARNING: in line ##: name element ")" is a mark or separator and
-         therefore should be quoted:
+WARNING: in line ##: separator should be quoted:
 This is another label [< x ( y ) z >]
                                ^
 DERIVED EXPRESSION:
@@ -3002,18 +3000,22 @@ DERIVED EXPRESSION:
    ^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ###: not a legal label element `MISSING'; ignored:
+ERROR: in line ###: not a legal label element `MISSING':
 [< [$ MISSING $] >]
    ^^^^^^^^^^^^^
+ERROR: in line ###: evaluated to ERROR special value because of error(s)
+       in label elements:
+[< [$ MISSING $] >]
+^^^^^^^^^^^^^^^^^^^
 DERIVED EXPRESSION:
-    [< >]
-@@@@ := [< >]
+    [$ ERROR $]
+@@@@ := [$ ERROR $]
     line ###:
 [< [$ MISSING $] >]
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    [< >]
-@@@@ := [< >]::
+    [$ ERROR $]
+@@@@ := [$ ERROR $]::
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]

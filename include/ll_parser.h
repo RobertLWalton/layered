@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 23:48:52 EST 2021
+// Date:	Mon Dec 13 05:14:25 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2196,9 +2196,9 @@ min::gen scan_label_or_value
 //
 // If `first' == `next' (and therefore the result is
 // empty), a new first token is made and inserted before
-// `next', and the `first' argument is updated to point
-// at the new token, the type of the new token is set
-// to DERIVED, and the new token position is set to the
+// `next', the `first' argument is updated to point at
+// the new token, the type of the new token is set to
+// DERIVED, and the new token position is set to the
 // empty string just before `next'.  If the mode is
 // DATA_MODE, the token value is set to the empty MIN
 // label.  Otherwise an error is announced and the token

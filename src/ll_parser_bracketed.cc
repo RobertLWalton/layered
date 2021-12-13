@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 13:27:40 EST 2021
+// Date:	Mon Dec 13 05:20:01 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4870,7 +4870,15 @@ static bool label_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    ::make_label ( parser, first, next, true );
+    if ( ! PAR::make_label_or_value
+               ( parser, first, next, PAR::DATA_MODE ) )
+    {
+	PAR::value_ref(first) = min::ERROR();
+        PAR::parse_error
+	    ( parser, position,
+	      "evaluated to ERROR special value because"
+	      " of error(s) in label elements" );
+    }
     first->position = position;
 
     PAR::trace_subexpression

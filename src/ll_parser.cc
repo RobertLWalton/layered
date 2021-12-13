@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 23:52:24 EST 2021
+// Date:	Mon Dec 13 05:11:25 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2730,7 +2730,6 @@ bool PAR::make_label_or_value
       PAR::token next,
       PAR::scan_mode mode )
 {
-    min::unsptr count = 0;
     min::phrase_position position =
         { first->position.begin,
 	  first->position.begin };
@@ -2740,6 +2739,7 @@ bool PAR::make_label_or_value
 	( mode == PAR::LABEL_MODE ?
 	  PAR::LABEL_HEADER_MASK :
 	  PAR::VALUE_COMPONENT_MASK );
+    min::unsptr count = 0;
     min::uns32 errors = 0;
 
     // Count tokens and announce errors.
@@ -2759,6 +2759,14 @@ bool PAR::make_label_or_value
 		 &&
 		 ! min::is_lab ( v ) )
 	        error_found = true;
+	    else if ( t->type == LEXSTD::mark_t )
+		PAR::parse_warn
+		    ( parser, t->position,
+		      "mark should be quoted" );
+	    else if ( t->type == LEXSTD::separator_t )
+		PAR::parse_warn
+		    ( parser, t->position,
+		      "separator should be quoted" );
 	}
 	else
 	if (    ( ( 1ull << t->type ) & accepted_types )

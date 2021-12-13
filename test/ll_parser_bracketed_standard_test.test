@@ -3358,10 +3358,10 @@ DERIVED EXPRESSION:
  ^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-ERROR: in line ###: not a legal label element `NONE'; ignored:
+ERROR: in line ###: not a legal label initial element `NONE':
 {[$ NONE $]: x = 1}
  ^^^^^^^^^^
-ERROR: in line ###: empty type label; "" assumed:
+ERROR: in line ###: bad type label; "" assumed:
 {[$ NONE $]: x = 1}
  ^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "="

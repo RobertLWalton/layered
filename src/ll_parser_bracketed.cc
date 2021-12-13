@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 05:20:01 EST 2021
+// Date:	Mon Dec 13 10:56:12 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1639,14 +1639,15 @@ inline void make_type_label
     }
     else
     {
-        ::make_label ( parser, start, next );
+        PAR::make_label_or_value
+	    ( parser, start, next, PAR::LABEL_MODE );
 	type = start->value;
-	if ( type == min::empty_lab )
+	if ( type == min::NONE() )
 	{
 	    type = min::empty_str;
 	    PAR::parse_error
 		( parser, pos,
-		  "empty type label; \"\" assumed" );
+		  "bad type label; \"\" assumed" );
 	}
     }
 

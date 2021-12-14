@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 23:52:08 EST 2021
+// Date:	Tue Dec 14 01:38:34 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,7 +66,7 @@ static min::locatable_gen concatenator;
 static min::locatable_gen middle_lexeme;
 static min::locatable_gen break_lexeme;
 static min::locatable_gen top;
-static min::locatable_gen four_colons;
+static min::locatable_gen SPECIAL;
 
 static void initialize ( void )
 {
@@ -100,7 +100,7 @@ static void initialize ( void )
     ::middle_lexeme = min::new_str_gen ( "middle" );
     ::break_lexeme = min::new_str_gen ( "break" );
     ::top = min::new_str_gen ( "top" );
-    ::four_colons = min::new_str_gen ( "::::" );
+    ::SPECIAL = min::new_str_gen ( "SPECIAL" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -4866,7 +4866,7 @@ static bool label_reformatter_function
 // string elements instead of min::ustring elements.
 //
 //    if v = MUP::new_special_gen ( i )
-//    then ::special_names[0xFFFFFF - i] is name of v
+//    then ::special_names[0x1000000 - i] is name of v
 //
 static min::locatable_var
            <min::packed_vec_ptr<min::gen> >
@@ -4881,7 +4881,10 @@ static void special_names_initialize ( void )
 	gnames
 	( min::gen_packed_vec_type.new_stub ( 10 ) );
     ::special_names = gnames;
-    for ( unsigned i = 0; i < unames->length; ++ i )
+    min::push ( gnames ) = min::NONE();
+        // For unames[0] which is never used.
+    for ( unsigned i = 1; i < unames->length; ++ i )
+        // Skip unames[0].
     {
 	min::locatable_gen n =
 	    min::new_str_gen
@@ -4904,30 +4907,55 @@ static bool special_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    ::make_label ( parser, first, next );
+    PAR::make_label_or_value
+        ( parser, first, next, PAR::LABEL_MODE );
 
     unsigned i;
-    for ( i = 0; i < ::special_names->length; ++ i )
+    for ( i = 1; i < ::special_names->length; ++ i )
     {
         if ( first->value == ::special_names[i] )
 	    break;
     }
 
     if ( i < ::special_names->length )
+    {
         value_ref(first) = MUP::new_special_gen
-			       ( 0xFFFFFF - i );
+			       ( 0x1000000 - i );
+	goto DONE;
+    }
     else
     {
-	PAR::parse_error
-	    ( parser, first->position,
-	      "subexpression ",
-	      min::pgen_quote ( first->value ),
-	      " unrecognized special name;"
-	      " changed to ERROR" );
+        min::lab_ptr labp ( first->value );
+	if ( labp == min::NULL_STUB
+	     ||
+	     min::lablen ( labp ) != 2
+	     ||
+	     labp[0] != ::SPECIAL
+	     ||
+	     ! min::is_num ( labp[1] ) )
+	    goto ERROR;
 
-	value_ref(first) = min::ERROR();
+	min::float64 f = min::float_of ( labp[1] );
+	if (    f < -0x1000000 || f >= 0x1000000
+	     || (int) f != f )
+	    goto ERROR;
+	int i = (int) f;
+	if ( i < 0 ) i += 0x1000000;
+        value_ref(first) = MUP::new_special_gen ( i );
+	goto DONE;
     }
+	        
+ERROR:
+    PAR::parse_error
+	( parser, first->position,
+	  "subexpression ",
+	  min::pgen_quote ( first->value ),
+	  " unrecognized special name;"
+	  " changed to ERROR" );
 
+    value_ref(first) = min::ERROR();
+
+DONE:
     first->position = position;
 
     PAR::trace_subexpression

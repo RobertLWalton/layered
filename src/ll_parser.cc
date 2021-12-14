@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 06:02:08 EST 2021
+// Date:	Tue Dec 14 07:00:34 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2779,10 +2779,12 @@ bool PAR::make_label_or_value
 		    PAR::parse_warn
 			( parser, t->position,
 			  "mark should be quoted" );
-		else if ( t->type == LEXSTD::separator_t )
+		else
+		if ( t->type == LEXSTD::separator_t )
 		    PAR::parse_warn
 			( parser, t->position,
-			  "separator should be quoted" );
+			  "separator should be"
+			  " quoted" );
 		else
 		    error_found = true;
 	    }

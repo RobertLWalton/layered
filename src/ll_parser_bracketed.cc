@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 06:03:25 EST 2021
+// Date:	Tue Dec 14 06:14:12 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4763,7 +4763,7 @@ static void special_names_initialize ( void )
 	gnames
 	( min::gen_packed_vec_type.new_stub ( 10 ) );
     ::special_names = gnames;
-    min::push ( gnames ) = min::NONE();
+    min::push ( gnames ) = min::UNUSED();
         // For unames[0] which is never used.
     for ( unsigned i = 1; i < unames->length; ++ i )
         // Skip unames[0].

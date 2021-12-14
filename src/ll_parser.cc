@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 23:52:49 EST 2021
+// Date:	Tue Dec 14 06:02:08 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2863,102 +2863,6 @@ bool PAR::make_label_or_value
     first->type = PAR::DERIVED;
     first->position = position;
     return ( errors == 0 );
-}
-
-min::gen PAR::scan_value
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value )
-{
-    min::uns32 s = min::size_of ( vp );
-
-    // For values, handle case where value is an
-    // a single expression (or number).
-    //
-    if ( ( i + 1 == s
-	   ||
-	   ( i + 1 < s
-	     &&
-	     vp[i+1] == end_value ) )
-	 &&
-	 ! min::is_str ( vp[i] ) )
-	       // This excludes marks and separators.
-    {
-        min::gen v = quoted_string_value ( vp[i] );
-	return ( v == min::NONE() ? vp[i] : v );
-    }
-
-    min::uns32 initial_i = i;
-    min::gen elements[s];
-    min::uns32 j = 0;
-
-    while ( i < s )
-    {
-	if ( vp[i] == end_value )
-	    break;
-	min::gen v = ::quoted_string_value ( vp[i] );
-	if ( v != min::NONE() )
-	{
-	    if ( (   PAR::VALUE_COMPONENT_MASK
-	           & PAR::QUOTED_STRING_MASK ) == 0 )
-	        break;
-	    elements[j++] = v;
-	}
-	else
-	{
-	    min::uns32 t =
-		PAR::lexical_type_of ( vp[i] );
-	    if (   ( 1ull << t )
-	         & PAR::VALUE_COMPONENT_MASK )
-	        elements[j++] = vp[i];
-	    else
-	        break;
-	}
-	++ i;
-    }
-
-    if ( i == initial_i ) return min::MISSING();
-    else if ( i == initial_i + 1 ) return elements[0];
-    return min::new_lab_gen ( elements, j );
-}
-
-min::gen PAR::scan_label
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value )
-{
-    min::uns32 initial_i = i;
-    min::uns32 s = min::size_of ( vp );
-    min::uns64 accepted_types = PAR::LABEL_HEADER_MASK;
-    min::gen elements[s];
-    min::uns32 j = 0;
-
-    while ( i < s )
-    {
-	if ( vp[i] == end_value )
-	    break;
-	min::gen v = ::quoted_string_value ( vp[i] );
-	if ( v != min::NONE() )
-	{
-	    if ( (   accepted_types
-	           & PAR::QUOTED_STRING_MASK ) == 0 )
-	        break;
-	    elements[j++] = v;
-	}
-	else
-	{
-	    min::uns32 t =
-		PAR::lexical_type_of ( vp[i] );
-	    if ( ( 1ull << t ) & accepted_types )
-	        elements[j++] = vp[i];
-	    else
-	        break;
-	}
-	++ i;
-	accepted_types = PAR::LABEL_COMPONENT_MASK;
-    }
-
-    if ( i == initial_i ) return min::MISSING();
-    else if ( i == initial_i + 1 ) return elements[0];
-    return min::new_lab_gen ( elements, j );
 }
 
 min::gen PAR::scan_quoted_key

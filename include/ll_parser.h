@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 05:14:25 EST 2021
+// Date:	Tue Dec 14 06:02:24 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2225,31 +2225,6 @@ bool make_label_or_value
 	  ll::parser::token & first,
 	  ll::parser::token next,
 	  ll::parser::scan_mode mode );
-
-// Like scan_simple_name but accepts vector elements
-// whose types are in VALUE_COMPONENT_MASK.  In
-// addition, if there is exactly one vector element
-// scanned, returns that if it is not a string or
-// quoted string.
-//
-// Replaces quoted strings by their values (which are
-// MIN strings).
-//
-min::gen scan_value
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value = min::NONE() );
-
-// Like scan_simple_name but accepts vector elements
-// whose types are in LABEL_COMPONENT_MASK.  In addition
-// the first component must have a type in LABEL_HEADER_
-// MASK.
-//
-// Replaces quoted strings by their values (which are
-// MIN strings).
-//
-min::gen scan_label
-	( min::obj_vec_ptr & vp, min::uns32 & i,
-	  min::gen end_value = min::NONE() );
 
 // If vp[i] is a quoted string, scan it as per scan_
 // quoted_key and increment i by 1.  Otherwise call

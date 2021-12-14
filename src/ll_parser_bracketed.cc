@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 01:38:34 EST 2021
+// Date:	Tue Dec 14 06:03:25 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1433,134 +1433,16 @@ bool BRA::parse_paragraph_element
 	}
     }
 }
-
-// The following are all static or inline; if any are
-// useful elsewhere they can be put in the PAR
-// namespace.
-
-// Given the token sequence from `first' to `next', make
-// a MIN label containing these tokens.  Convert quoted
-// string tokens to strings.  Announce non-name compon-
-// ents as errors and ignore them.  If allow_sublabels
-// is false, also treat components that are themselves
-// labels as errors.
-//
-// If there are 0 non-erroneous label components, make
-// an empty label, and if there is exactly 1 component,
-// use the value of that component as the label, rather
-// than making a label.
-//
-// All tokens but the first are removed, and the type
-// of the first token is set to DERIVED, the label is
-// returned as the value of the first token, and the
-// position of this first token is set to include all
-// the tokens that made the label.
-//
-// If `first' == `next' (and therefore the label is
-// empty), a new first token is made and inserted before
-// `next', and the `first' argument is updated to point
-// at the new token, and the new token position is set
-// to the empty string just before `next'.  This is the
-// only case where `first' is updated.
-//
-static void make_label
-    ( PAR::parser parser,
-      PAR::token & first,
-      PAR::token next,
-      bool allow_sublabels = false )
-{
-    min::unsptr count = 0;
-    min::phrase_position position =
-        { first->position.begin,
-	  first->position.begin };
-        // For the empty label case first == next so
-	// this is the position just before next.
-
-    for ( PAR::token t = first; t != next;
-          ++ count, t = t->next )
-    {
-	position.end = t->position.end;
-
-	switch ( t->type )
-	{
-	case LEXSTD::mark_t:
-	case LEXSTD::separator_t:
-	    PAR::parse_warn
-	        ( parser, t->position,
-		  "name element ",
-		  min::pgen_quote ( t->value ),
-		  " is a mark or separator and"
-		  " therefore should be quoted" );
-
-	case LEXSTD::word_t:
-	case LEXSTD::natural_t:
-	case LEXSTD::number_t:
-	case LEXSTD::numeric_t:
-	case LEXSTD::quoted_string_t:
-	    break;
-
-	case PAR::DERIVED:
-	    if ( min::is_lab ( t->value ) 
-	         &&
-		 allow_sublabels )
-	        break;
-	     // falls through
-	default:
-	    PAR::parse_error
-	        ( parser, t->position,
-		  "not a legal label element `",
-		  min::pgen_never_quote ( t->value ),
-		  "'; ignored" );
-
-	    t->type = PAR::DERIVED;
-	    value_ref(t) = min::NONE();
-	}
-    }
-
-    if ( count == 0 )
-    {
-	first = PAR::new_token ( PAR::DERIVED );
-	first->position = position;
-	put_before ( PAR::first_ref(parser),
-	             next, first );
-	PAR::value_ref(first) = min::empty_lab;
-	return;
-    }
-
-    min::gen vec[count];
-    min::unsptr i = 0;
-    for ( PAR::token t = first; t != next; t = t->next )
-    {
-	if ( t->value != min::NONE() )
-	    vec[i++] = t->value;
-    }
-    if ( i == 1 )
-	PAR::value_ref(first) = vec[0];
-    else
-	PAR::value_ref(first) =
-	    min::new_lab_gen ( vec, i );
-
-    // Don't deallocate tokens until their values
-    // have been put in gc protected label.
-    //
-    for ( PAR::token t = first->next; t != next; )
-    {
-	t = t->next;
-	PAR::free
-	    ( PAR::remove
-		( first_ref(parser),
-		  t->previous ) );
-    }
-
-    first->type = PAR::DERIVED;
-    first->position = position;
-}
 
 // Parse Bracketed Subexpression Function
 // ----- --------- ------------- --------
 
 // See ll_parser_bracketed_parse.outline for an outline
 // of the parse_bracketed_subexpression function.
+
+// The following are all static or inline; if any are
+// useful elsewhere they can be put in the PAR
+// namespace.
 
 // Announce `missing <message>' error with position
 // just before current.

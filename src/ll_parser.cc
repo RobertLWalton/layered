@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 10:42:36 EST 2021
+// Date:	Mon Dec 13 23:52:49 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2389,8 +2389,8 @@ void PAR::compact
 		<min::phrase_position_vec_insptr>
 	    pos;
 
-	// Count tokens.  Also replace non-natural
-	// numbers and quoted strings by subexpressions.
+	// Count tokens.  Also replace and quoted
+	// strings by subexpressions.
 	//
 	min::uns32 t = 0;
 	for ( PAR::token current = first;

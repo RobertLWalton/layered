@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 13 10:56:12 EST 2021
+// Date:	Mon Dec 13 23:52:08 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1746,7 +1746,8 @@ inline void make_attribute_label
 	next->type = BRA::ATTR_FLAGS;
     }
 
-    ::make_label ( parser, start, next );
+    PAR::make_label_or_value
+        ( parser, start, next, PAR::LABEL_MODE );
     start->type = BRA::ATTR_LABEL;
 
     if ( typed_data->attributes == min::NULL_STUB )
@@ -1764,24 +1765,7 @@ inline void finish_value
 	  PAR::token next )
 {
     PAR::token start = typed_data->start_previous->next;
-    if ( start == next )
-    {
-	missing_error ( parser, next,
-			"attribute value;"
-			" attribute ignored" );
-	start = PAR::new_token ( BRA::ATTR_VALUE );
-	put_before ( PAR::first_ref(parser),
-		     next, start );
-	// Position needed to determine end of
-	// typed bracketed expression.
-	min::phrase_position pos =
-	    { typed_data->end_position,
-	      typed_data->end_position };
-	    // Position recorded by ATTR_EQUAL.
-	start->position = pos;
-	PAR::value_ref(start) = min::NONE();
-    }
-    else if ( start->next == next )
+    if ( start->next == next )
     {
 	min::gen initiator =
 	    typed_data
@@ -1813,8 +1797,8 @@ inline void finish_value
     }
     else
     {
-	::make_label
-	    ( parser, start, next, true );
+	PAR::make_label_or_value
+	    ( parser, start, next, PAR::VALUE_MODE );
 	start->type = BRA::ATTR_VALUE;
     }
 }
@@ -1870,7 +1854,9 @@ inline void finish_attribute
 	     ||
 	     t == BRA::ATTR_MULTIVALUE )
 	{
-	    ::make_label ( parser, start, next );
+	    PAR::make_label_or_value
+	        ( parser, start, next,
+		  PAR::LABEL_MODE );
 	    start->type = BRA::ATTR_REVERSE;
 	}
 	else
@@ -3941,16 +3927,13 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_LABEL )
 		    {
-			if ( ! is_label ( t->value ) )
+			if ( t->value == min::NONE() )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "illegal attribute"
-				  " label `",
-				  min::pgen_never_quote
-				      ( t->value ),
-				  "'; attribute"
+				  "bad attribute"
+				  " label; attribute"
 				  " ignored" );
 			    skip = true;
 			}
@@ -3968,16 +3951,13 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_TRUE )
 		    {
-			if ( ! is_label ( t->value ) )
+			if ( t->value == min::NONE() )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "illegal attribute"
-				  " label `",
-				  min::pgen_never_quote
-				      ( t->value ),
-				  "'; attribute"
+				  "bad attribute"
+				  " label; attribute"
 				  " ignored" );
 			    skip = true;
 			}
@@ -3999,16 +3979,13 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_FALSE )
 		    {
-			if ( ! is_label ( t->value ) )
+			if ( t->value == min::NONE() )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "illegal attribute"
-				  " label `",
-				  min::pgen_never_quote
-				      ( t->value ),
-				  "'; attribute"
+				  "bad attribute"
+				  " label; attribute"
 				  " ignored" );
 			    skip = true;
 			}
@@ -4032,15 +4009,14 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_VALUE )
 		    {
-			// min::is_attr_legal
-			//     ( t->value )
-			// checked when token made
-			// and if false token value
-			// replaced by NONE.
-			//
-			if (    t->value
-			     == min::NONE() )
+			if ( t->value == min::NONE() )
 			{
+			    PAR::parse_error
+				( parser,
+				  t->position,
+				  "bad attribute"
+				  " value; attribute"
+				  " ignored" );
 			    -- i;
 			    skip = true;
 			}
@@ -4068,16 +4044,14 @@ NEXT_TOKEN:
 		    else if (    t->type
 			      == BRA::ATTR_REVERSE )
 		    {
-			if ( ! is_label ( t->value ) )
+			if ( t->value == min::NONE() )
 			{
 			    PAR::parse_error
 				( parser,
 				  t->position,
-				  "illegal attribute"
-				  " label `",
-				  min::pgen_never_quote
-				      ( t->value ),
-				  "'; attribute"
+				  "bad attribute"
+				  " reverse label;"
+				  " attribute"
 				  " ignored" );
 			    -- i;
 			}
@@ -4990,8 +4964,9 @@ static bool multivalue_reformatter_function
 	    if ( start != t )
 	    {
 	        if ( start->next != t )
-		    ::make_label
-		        ( parser, start, t, true );
+		    PAR::make_label_or_value
+		        ( parser, start, t,
+			  PAR::VALUE_MODE );
 		else if (   ( 1 << start->type )
 		          & LEXSTD::convert_mask )
 		    start->type = PAR::DERIVED;

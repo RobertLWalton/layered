@@ -1295,7 +1295,10 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: illegal attribute label `'; attribute ignored:
+ERROR: in line ##: empty label:
+{P:}
+   ^
+ERROR: in line ##: bad attribute label; attribute ignored:
 {P:}
    ^
 PREFIX EXPRESSION:
@@ -1331,10 +1334,13 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED PARSER FOUND [data] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ##: empty label:
+({P2:)
+     ^
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
 ({P2:)
      ^
-ERROR: in line ##: illegal attribute label `'; attribute ignored:
+ERROR: in line ##: bad attribute label; attribute ignored:
 ({P2:)
      ^
 PREFIX EXPRESSION:
@@ -1374,10 +1380,13 @@ ERROR: in line ##: missing type; "" assumed:
   ^
 BRACKETED PARSER FOUND [data] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ##: empty label:
+({:)
+   ^
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
 ({:)
    ^
-ERROR: in line ##: illegal attribute label `'; attribute ignored:
+ERROR: in line ##: bad attribute label; attribute ignored:
 ({:)
    ^
 PURELIST EXPRESSION:
@@ -1554,10 +1563,13 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ##: missing attribute value; attribute ignored:
+ERROR: in line ##: empty value:
 ({K: f = F|1 2 3|g =)
                     ^
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
+({K: f = F|1 2 3|g =)
+                    ^
+ERROR: in line ##: bad attribute value; attribute ignored:
 ({K: f = F|1 2 3|g =)
                     ^
 BRACKETED EXPRESSION:
@@ -3060,6 +3072,9 @@ DERIVED EXPRESSION:
                              ^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ###: bad attribute value; attribute ignored:
+{ x = 1, y = [$ NONE $], z = [$ MISSING $] }
+             ^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": x = 1, z = [$ MISSING $]}
 @@@@ :=::
@@ -3180,7 +3195,7 @@ DERIVED EXPRESSION:
            ^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-ERROR: in line ###: not a legal label element `NONE'; ignored:
+ERROR: in line ###: not a legal label element `NONE':
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
            ^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
@@ -3197,7 +3212,7 @@ DERIVED EXPRESSION:
                                ^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-ERROR: in line ###: not a legal label element `MISSING'; ignored:
+ERROR: in line ###: not a legal label initial element `MISSING':
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
@@ -3206,15 +3221,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ###: illegal attribute label `'; attribute ignored:
+ERROR: in line ###: bad attribute label; attribute ignored:
+{ x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
+         ^^^^^^^^^^^^^^^
+ERROR: in line ###: bad attribute label; attribute ignored:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = 1, z 22 = 33, y 55 = 77}
+    {"": x = 1, z 22 = 33}
 @@@@ :=::
             x = 1
             z 22 = 33
-            y 55 = 77
             .position[H] = PACKED_VEC
     lines ###-###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
@@ -3222,7 +3239,7 @@ BRACKETED EXPRESSION:
          z 22 = 33 }
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = 1, z 22 = 33, y 55 = 77}
+    {"": x = 1, z 22 = 33}
 @@@@ := @@@@::
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
@@ -3244,13 +3261,16 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
+ERROR: in line ###: empty label:
+{ x = 1, y 55 = 77, = 11, z 22 = 33 }
+                    ^
 BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-ERROR: in line ###: illegal attribute label `'; attribute ignored:
+ERROR: in line ###: bad attribute label; attribute ignored:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
                     ^
 BRACKETED EXPRESSION:
@@ -3326,6 +3346,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
+ERROR: in line ###: bad attribute value; attribute ignored:
+{ x = 55, y[abc] = [$ NONE $], z[def] = 88 }
+                   ^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": x = 55, z[def] = 88}
 @@@@ :=::
@@ -8452,3 +8475,39 @@ BRACKETED EXPRESSION:
     line ###:
 {my type: x = X, y = "Y"|A "B" C|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: not a legal label initial element `5':
+{my type: x = @@@ = y, b = @@@ = 5 c}
+                                 ^
+ERROR: in line ###: bad attribute reverse label; attribute ignored:
+{my type: x = @@@ = y, b = @@@ = 5 c}
+                                 ^^^
+BRACKETED EXPRESSION:
+    {my type: x = @@@@ = y}
+@@@@ := @@@@::
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+@@@@ :=::
+            x = @@@@ = y
+            .type = [< my type >]
+            .position[H] = PACKED_VEC
+    line ###:
+{my type: x = @@@ = y, b = @@@ = 5 c}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WARNING: in line ###: mark should be quoted:
+{my type: x = {* a b, c d e, f, 1 g, h + *}}
+                                       ^
+BRACKETED EXPRESSION:
+    {my type: x =
+              {* [< h "+" >], [< 1 g >], f, [< a b >], [< c d e >] *}}
+@@@@ := @@@@::
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+@@@@ :=::
+            x = {* [< h "+" >], [< 1 g >], f, [< a b >], [< c d e >] *}
+            .type = [< my type >]
+            .position[H] = PACKED_VEC
+    line ###:
+{my type: x = {* a b, c d e, f, 1 g, h + *}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

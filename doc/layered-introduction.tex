@@ -266,12 +266,12 @@ Another idea, from which the term `Layered' originally derives,
 is to create a compatible set of three programming languages,
 low level, middle level, and high level, based on the principals:
 
-\key{Type Checking Segregation Hypothesis}~~~~ A strongly typed
-general purpose computer efficient language is impossible.
+\key{Type Checking Segregation Hypothesis}~~~~ A strongly typed-checked
+general-purpose computer-efficient language is impossible.
 What is possible is
-to segregate code into small inline library functions that are not
-type checkable, while code that uses these functions is
-strongly type checkable.
+to segregate code non-type-checkable code into small inline library functions
+with code that uses these functions being
+strongly type-checked.
 
 \key{Interpreted Language Efficiency Hypothesis}~~~~ An interpreted
 programming language is more efficient for the programmer than a
@@ -281,18 +281,19 @@ computer system can be written in a interpretive language if it is
 integrated with a compiled language.
 
 So given this the low level language would segregate code into
-small inline library functions that are not type checkable, while
-code that uses these functions would be type checked.  The middle
-level language would add and extensive library to this low level
+small inline library functions that are not type-checkable, while
+code that uses these functions would be type-checked.  The middle
+level language would add an extensive library to this low level
 language and integrate parts of this library into the syntax.
-The high level language would add an integrated interpretive language
+The high level language would add an interpretive language
 integrated with the middle level language.
 
-However there are other agendas for the layered langauges.  One
+However there are other agendas for the layered languages.  One
 is to build an interpretive language that integrates the tools
-a non-professional programmer might used in dayly life.  This
+a non-professional programmer might used in daily life.  This
 means integrating a classic programming language with a text
-processing langauge, a spreadsheet-like language, etc.
+processing language, a spreadsheet-like language, a mathematics
+language, etc.
 
 Given all this, this manual describes the lexical scanner,
 parser, symbol table, etc. shared by the various `\skey{layered language}s'.
@@ -552,7 +553,7 @@ character}'.  Alternatively a single atom may be reported as an
 error of a given type without interrupting the normal operation
 of the scanner.  For example, if \TT{<H>} appears in a quoted
 string, it may be reported as an erroneous atom of type
-`\TT{unrecognized escape}'.  Asside from error reporting,
+`\TT{unrecognized escape}'.  Aside from error reporting,
 this atom will be processed
 normally; it might, for example, be omitted from the lexeme
 translation or be represented in that translation by the Unicode
@@ -1371,7 +1372,7 @@ the characters whose character codes are between those of the
 two characters represented on either side of the hyphen.
 Examples: \TT{"[0-9]"} and \TT{"[A-Z]"}.  The characters
 are ordered according to their 32 bit unsigned UNICODE value, and when
-a hypen is used between two characters, the first must have a smaller
+a hyphen is used between two characters, the first must have a smaller
 code than the second.
 
 A {\em character-representative} is a representative of a single UNICODE
@@ -1501,7 +1502,7 @@ This can be of more than cosmetic use, as in the case of the two atom patterns
 The first of these patterns matches the 4 characters `\TT{<}', `\TT{L}',
 `\TT{F}', and `\TT{>}', while the second pattern
 matches a single line-feed character.
-Similarly \TT{"[<digit>]"} represents a single character wheras
+Similarly \TT{"[<digit>]"} represents a single character whereas
 \TT{"["} \TT{"<digit>"} \TT{"]"} represents a sequence of three
 characters.
 
@@ -1620,7 +1621,7 @@ indicate this, the instruction may be written as if it had a single
 `\TT{accept}' instruction component.  If this component is present
 in an {\em instruction}, no other {\em instruction-components}
 may be present in the {\em instruction}.  Omitting the {\em instruction-group}
-of a {\em lexical-table-entry} is the same as writting `\TT{accept}' for
+of a {\em lexical-table-entry} is the same as writing `\TT{accept}' for
 the {\em instruction-group}.
 
 \subsubsubsection{Match Instruction Components and Atom Tables}
@@ -2776,7 +2777,7 @@ indent (first non-blank, non-comment line with smaller indent),
 or with an end of file.
 
 Top level parsing behaves as if input were in an indented paragraph
-with \TT{0} paragraph indent and a fictious indentation mark named
+with \TT{0} paragraph indent and a fictitious indentation mark named
 `\TT{TOP LEVEL}'.
 
 A logical line that begins after an indent (i.e., does not begin
@@ -3395,7 +3396,7 @@ canceled by an `\TT{end block standard}' parser command.
 \ttmkey{brackets}{parser standard flag} &
     Executes untyped bracket definitions
     (\pagref{STANDARD-BRACKETS-1}) and
-    typed bracket defintions
+    typed bracket definitions
     (\pagref{STANDARD-BRACKETS-2}) [code,text,math]
 \\
 \ttmkey{indentation marks}{parser standard flag} &
@@ -3841,7 +3842,7 @@ The syntax of an ID is:
     a unicode character that is a parser parameter (see below); \\
     it must be a non-digit, non-letter that can begin a numeric
     or word \\
-    should be `\TT{@}' unless the lexical analyser is changed:
+    should be `\TT{@}' unless the lexical analyzer is changed:
     see \pagref{SPECIAL-LEXEME}
     \end{tabular}
 \\[0.5ex]
@@ -6167,7 +6168,7 @@ Note, however, that `\TT{- TOP LEVEL}' and `\TT{- LINE LEVEL}' are always
 implied in {\em typed-parsing-selectors} and
 `\TT{- end at line separator}',
 `\TT{ - enable indented paragraph}', and
-`\TT{ - enable header}' are always impled for
+`\TT{ - enable header}' are always implied for
 {\em bracket-options}.
 
 The untyped bracket definitions for `\TT{[\ldots]}' and
@@ -6529,7 +6530,7 @@ are parsed using the parsing selectors as they were at the beginning
 subexpression (the context selectors of the subexpression) as modified by any
 {\em bracket-type-selectors} found in a bracket type definition of
 the {\em bracket-type} of the subexpression, if a bracket type definition is
-found.  If no defintion is found, the {\em typed-parsing-selectors} of the
+found.  If no definition is found, the {\em typed-parsing-selectors} of the
 {\em parser-typed-bracket-command} for the {\em typed-opening} are used:
 see \pagref{TYPED-PARSING-SELECTORS-USE}.
 
@@ -6596,7 +6597,7 @@ Thus the effect is to insert the {\em implied-prefix} after the
 {\em prefix-n} unless the logical line or bracketed expression
 containing the {\em prefix-n-list} ends immediately after the {\em prefix-n} or
 unless an explicit prefix whose group is that
-of a preceeding prefix (including the {\em implied-prefix}) follows
+of a preceding prefix (including the {\em implied-prefix}) follows
 the {\em prefix-n} in the input.  However, there is one difference
 if there is an explicit prefix, and this is that the selectors
 used to parse the explicit prefix and find any associated bracket type
@@ -7830,14 +7831,14 @@ have precedence equal to or greater than P:
 \emkey{P-final-operator} ::= {\em P-operator} with \TT{final} flag
 \\[0.5ex]
 \emkey{P-middle-operator} ::= {\em P-operator} with \underline{neither}
-                              \TT{inital} nor \TT{final} flag
+                              \TT{initial} nor \TT{final} flag
 \\[2.0ex]
 where in an {\em P-expression}: \\
 \hspace*{1em}\begin{tabular}[t]{l}
        P is any precedence in the range [L-1,H+1]; \\
        no two {\em (P+1)-expressions} may be adjacent; \\ 
        each {\em P-operator} with a \TT{left} flag must be
-              preceeded by an {\em (P+1)-expression}; \\
+              preceded by an {\em (P+1)-expression}; \\
        each {\em P-operator} with a \TT{right} flag must be
 	  followed by an {\em (P+1)-expression}; \\
        any operator with an \TT{afix} flag must not be the first
@@ -7848,7 +7849,7 @@ where in an {\em P-expression}: \\
        \end{tabular}
 \end{indpar}
 
-Essentually the expression being parsed is organized into {\em P-expressions}
+Essentially the expression being parsed is organized into {\em P-expressions}
 where $P$ is the precedence of the {\em P-expression}.  Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
@@ -7908,7 +7909,7 @@ Operator Flags:
     Operator must be the last thing in any subexpression containing it.
 
 \hspace*{-0.2in}\ttmkey{afix}{operator flag}\label{AFIX-FLAG} ~
-    Operator must be preceeded in any subexpression containing it
+    Operator must be preceded in any subexpression containing it
     by another operator of the same precedence.
 
 \hspace*{-0.2in}\ttmkey{line}{operator flag}\label{LINE-FLAG} ~
@@ -8588,10 +8589,10 @@ the definition
 is \underline{rejected} unless all of the following \underline{would} be true
 after insertion of the afix definition's operator:
 \begin{itemize}
-\item[(1)] There is an operator preceeding the inserted operator
+\item[(1)] There is an operator preceding the inserted operator
 that has the same precedence as the inserted operator.
 \item[(2)] There is no
-operator of lower precedence between this preceeding operator
+operator of lower precedence between this preceding operator
 and the inserted operator.
 \end{itemize}
 
@@ -8646,12 +8647,12 @@ an \TT{OPERATOR} token.  If no operator is identified, the
 current position is moved one token to the right.
 
 When an operator is identified, the non-\TT{OPERATOR}
-tokens between it and the preceeding operator
+tokens between it and the preceding operator
 are treated as an operator-free subexpression.
 This is a `\key{non-operator subexpression}' if it is not empty.
 For each non-operator subexpression
 (including the whole expression if it has no operators),
-the next pass is called, and if that does not make the subexpession
+the next pass is called, and if that does not make the subexpression
 into a single token, the subexpression is made into a single
 \TT{PURELIST} token.  Thus each non-operator subexpression
 is replaced by a single non-operator token.  Note that by construction,
@@ -8690,7 +8691,7 @@ If a subexpression does \underline{not} contain an operator,
 the operator parsing pass runs subsequent parsing passes on the subexpression.
 Then if the subexpression has now zero or more than one token, the operator
 parsing pass replaces
-the subexpression by a single \TT{BRACKETABLE} token with no attibutes
+the subexpression by a single \TT{BRACKETABLE} token with no attributes
 (other than \TT{.position}).
 
 The bracketed subexpression recognition pass may merge brackets
@@ -8829,7 +8830,7 @@ with `\TT{,}' as operator are:
 \ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \OP{\{\$~\$\}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
-Typcally used with a \TT{nofix} operator (e.g., \TT{<-{}-}) with
+Typically used with a \TT{nofix} operator (e.g., \TT{<-{}-}) with
 \TT{final} \TT{afix} operators following (e.g., \TT{\{\$~\$\}} or \TT{:}).
 
 All operators but the first must be bracketed subexpressions
@@ -8970,7 +8971,7 @@ and reformatter arguments {\tt ("+", "-")}, then:
     \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{\textasciitilde}
 
 \begin{indpar}[0.5em]
-Tyically used with \TT{prefix} operators.
+Typically used with \TT{prefix} operators.
 
 Checks that the subexpression has exactly two elements, an operator followed
 by an operand.  Examples

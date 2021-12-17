@@ -226,16 +226,15 @@
 \begin{center}
 
 {\Large
-Introduction to \\[0.5ex]
 The Layered Programming Languages \\[0.5ex]
-(Draft 1a)}
+(Draft 1)}
 
 \medskip
 
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 14, 2021
+December 17, 2021
  
 \end{center}
 
@@ -245,32 +244,10 @@ December 14, 2021
 
 \newpage
 
-\section{Overview}
+\section{Motivation}
 
-This introduces the Layered Programming Languages:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~~~~~}p{5.0in}}
-\key{L}	& The Lower Language, or L-Language. \\
-	& A C level language with facilities for writing
-	  C++ like libraries and strongly type checking their
-	  usage but not their implementation.
-\\[1ex]
-\key{M}	& The Middle Language, or M-Language. \\
-	& The L-Language plus libraries.
-\\[1ex]
-\key{H}	& The Higher Language, or H-Language. \\
-	& An interpreted/compiled language extending the
-	  M-language to something comparable to LISP and TCL.
-\end{tabular}
-\end{center}
-
-This document gives a brief tutorial introduction for each
-of these languages, and then specifies the common syntax
-shared by all three languages.
-
-There are a few fundamental principals that inform the design
-of these languages:
+The layered languages are ideally a set of compatible computer languages.
+Some guiding principals are:
 
 \begin{indpar}
 \key{Syntax Hypothesis}~~~~ People reason syntactically
@@ -278,24 +255,48 @@ rather than semantically, so language syntax is very important,
 and the ability to extend syntax to support
 new library functionality is very important.
 
-\key{Type Checking Segregation Hypothesis}~~~~ A strongly typed
-completely capable language is impossible.  What is possible is
-to segregate code into small inline library functions that are not
-type checkable, while code that uses these functions is
-strongly type checkable.
-
 \key{Distributed Modularity}~~~~ 
-Enhancements made by non-communicating users can be fit together
+Enhancements made by non-communicating users should fit together
 without too much labor.\footnote{Solutions like using regular
 expressions for lexical analysis and LL parsers do not appear to
 meet this criteria.}
 \end{indpar}
 
-\section{Tutorial Introduction to the L-Language}
+Another idea, from which the term `Layered' originally derives,
+is to create a compatible set of three programming languages,
+low level, middle level, and high level, based on the principals:
 
-\section{Tutorial Introduction to the M-Language}
+\key{Type Checking Segregation Hypothesis}~~~~ A strongly typed
+general purpose computer efficient language is impossible.
+What is possible is
+to segregate code into small inline library functions that are not
+type checkable, while code that uses these functions is
+strongly type checkable.
 
-\section{Tutorial Introduction to the H-Language}
+\key{Interpreted Language Efficiency Hypothesis}~~~~ An interpreted
+programming language is more efficient for the programmer than a
+compiled language, perhaps because of quicker testing turnaround and 
+more capable logging features.  The majority of code in a typical
+computer system can be written in a interpretive language if it is
+integrated with a compiled language.
+
+So given this the low level language would segregate code into
+small inline library functions that are not type checkable, while
+code that uses these functions would be type checked.  The middle
+level language would add and extensive library to this low level
+language and integrate parts of this library into the syntax.
+The high level language would add an integrated interpretive language
+integrated with the middle level language.
+
+However there are other agendas for the layered langauges.  One
+is to build an interpretive language that integrates the tools
+a non-professional programmer might used in dayly life.  This
+means integrating a classic programming language with a text
+processing langauge, a spreadsheet-like language, etc.
+
+Given all this, this manual describes the lexical scanner,
+parser, symbol table, etc. shared by the various `\skey{layered language}s'.
+
 
 \section{Lexical Scanning}
 

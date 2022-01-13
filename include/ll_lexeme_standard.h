@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 23:51:59 EST 2021
+// Date:	Thu Jan 13 07:07:39 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -111,7 +111,7 @@ namespace ll { namespace lexeme { namespace standard {
 	+ ( 1 << numeric_t ) + ( 1 << mark_t );
 	// Middle lexemes that can be parts of
 	// broken middle lexemes.  natural_t
-	// cannot be a broken part.
+	// and number_t cannot be a broken part.
 
     const uns32 quoted_string_t			= 7;
 

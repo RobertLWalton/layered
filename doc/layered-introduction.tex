@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 17, 2021
+January 13, 2022
  
 \end{center}
 
@@ -987,16 +987,23 @@ a form feed.
 		  \end{tabular}
 \\[0.5ex]
 \emkey{natural}\label{NATURAL}
-	:::= {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
+	\begin{tabular}[t]{@{}rl@{}}
+	:::= & {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$
+	       \TT{0} \\
+	\multicolumn{2}{l}{[but lexical type may be changed;
+	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
+	\end{tabular}
 \\[0.5ex]
 \emkey{number}\label{NUMBER}
 	\begin{tabular}[t]{@{}rl@{}}
 	:::= & {\em sign}\QMARK{} {\em integer-part}
 	                          {\em exponent-part}\QMARK{}
-	     (that is not a {\em natural}) \\
+	     [that is not a {\em natural}] \\
 	 $|$ & {\em sign}\QMARK{} {\em integer-part}\QMARK{}
 	                          {\em fraction-part}
 				  {\em exponent-part}\QMARK{} \\
+	\multicolumn{2}{l}{[but lexical type may be changed;
+	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
 	\end{tabular}
 \\[0.5ex]
 \emkey{numeric} :::= {\em middle-lexeme}
@@ -1037,12 +1044,6 @@ a form feed.
 \label{LEXEME-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
-A {\em numeric-word}, {\em natural}, or {\em number} lexeme
-is a C/C++ constant representing an IEEE double precision number.
-Conversely, a C/C++ constant representing an IEEE double precision number
-and not ending in a {\em decimal-point}
-is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
-
 The definition of a {\em middle-lexeme} is unusual: it is what is left over
 after removing {\em leading-separators} and {\em trailing-separators}
 from a {\em lexical-item}.  The lexical scan first scans a
@@ -1067,7 +1068,8 @@ the right to left removal of {\em trailing-separators} from a
 as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
-It is possible to break a {\em middle-lexeme} across lines by
+It is possible to break {\em words}, {\em numerics}, and {\em marks}
+across lines by
 adding \TT{\#} to the end of the first part and separately
 to the beginning of the second part.  The two parts will be
 concatenated after deleting these \TT{\#}'s.  Thus
@@ -1079,6 +1081,30 @@ is equivalent to
 \begin{indpar}\begin{verbatim}
 This is a continued-middle-lexeme.
 \end{verbatim}\end{indpar}
+However, {\em naturals}, {\em numbers}, and {\em numeric-words}
+cannot be broken into parts.
+
+A {\em numeric-word}, {\em natural}, or {\em number} lexeme
+is a C/C++ constant, and 
+conversely a C/C++ constant representing decimal number
+and not ending in a {\em decimal-point} or representing an
+IEEE floating point special value (e.g., {\tt NaN} or {\tt Inf})
+is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
+All these lexemes are given an IEEE double precision number value
+after the manner of C/C++, and then their lexical type is changed
+as follows:
+\begin{itemize}\label{LEXEME-TYPE-CONVERSION}
+\item If the value is \underline{not} a finite number, the
+new type is {\em numeric-word}.  For example, this applies to {\tt 1e500}
+which converts to the same value as {\tt +inf}.
+\item If the value is an integer in the range $[0,10^{15})$ the new
+type is {\em natural}.
+For example, this applies to {\tt 1e3}
+which converts to the same value as {\tt 1000}.
+\item Otherwise the new type is {\em number}.
+For example, this applies to {\tt 10000000000}
+which converts to the same value as {\tt 1e10}.
+\end{itemize}
 
 The syntax of a lexical program is specified in
 Figures~\itemref{LEXEME-PROGRAM-SYNTAX-1}

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 13, 2022
+January 14, 2022
  
 \end{center}
 
@@ -750,6 +750,10 @@ do have an \mkey{indent}{of indent lexeme}, which is the indent of
 the graphic character after the indent lexeme.
 The \mkey{indent}{of character} of a character is the number
 of columns that precede the character in the character's physical line.
+{\em Control-characters} other than {\em horizontal-space-characters}
+take zero columns, as do characters of classes \TT{Mn} (combining-marks)
+and \TT{Me} (ending marks).  All other characters take one column,
+except for tabs, that are set every 8 columns.
 Indent lexemes are used to form logical lines and blocks
 (\pagref{LOGICAL-LINE} and \itemref{LOGICAL-LINES}).
 
@@ -763,7 +767,7 @@ One kind of {\em vertical-space} is given special distinction:
 
 This is the {\em line-break} lexeme.
 
-A non-{\em indent}, non-{\em line-break} {\em white-space}, such as occurs
+Non-{\em indent}, non-{\em line-break} {\em white-space}, such as occurs
 in the middle of text or code outside comments, is discarded and not treated
 as a lexeme.  Such {\em white-space} may be used to separate lexemes.
 
@@ -876,6 +880,19 @@ that is \underline{not} a comment line to begin with a {\em comment}.
 {\em Comments} can otherwise be included at any non-beginning position in any
 logical line.
 
+A special {\em character-representative} can consist of
+a UNICODE character name surrounded by angle brackets.  Examples are
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
+\tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
+represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
+the `\key{unknown UNICODE character}' which in turn is used to represent
+illegal UTF-8 character encodings.
+
+A special {\em character-representative} can also consist of
+a hexadecimal UNICODE character code, which must begin with a digit.
+Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
+a form feed.
+
 The Bracketed Subexpression Recognition Pass merges
 \ikey{quoted string lexemes}{quoted strings!concatenated}
 separated by one or two `\TT{\#}' marks
@@ -900,19 +917,6 @@ between the merged and unmerged versions.  \TT{"<" \# "LF" \# ">"} is
 quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
-
-A special {\em character-representative} can consist of
-a UNICODE character name surrounded by angle brackets.  Examples are
-\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
-\tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
-represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
-the `\key{unknown UNICODE character}' which in turn is used to represent
-illegal UTF-8 character encodings.
-
-A special {\em character-representative} can also consist of
-a hexadecimal UNICODE character code, which must begin with a digit.
-Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
-a form feed.
 
 
 \begin{boxedfigure}[!p]
@@ -1105,6 +1109,9 @@ which converts to the same value as {\tt 1000}.
 For example, this applies to {\tt 10000000000}
 which converts to the same value as {\tt 1e10}.
 \end{itemize}
+
+In contrast, a {\em numeric} represents a character string and in this
+is like a {\em word}.
 
 The syntax of a lexical program is specified in
 Figures~\itemref{LEXEME-PROGRAM-SYNTAX-1}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 06:02:24 EST 2021
+// Date:	Wed Jul  6 16:36:18 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1312,13 +1312,15 @@ extern min::phrase_position top_level_position;
 // being placed immediately after the bracketed pass
 // in the parser pass stack.
 //
-// When the parser is created, if define_standard is
-// true, a `standard' parser block is begun with the
-// standard brackets, operators, etc.  Setting define_
-// standard to false is used only for testing.
+// When the parser is created, if standard_components is
+// not zero, ll::parser::standard::init_input is called
+// and ll::parser::standard::define_standard is then
+// called with standard_components as an argument.
 //
 void init ( min::ref<ll::parser::parser> parser,
-            bool define_standard = true );
+            ll::parser::table::flags
+	        standard_components =
+		    ll::parser::table::ALL_FLAGS );
 
 // This `reset' function restores parser parameters to
 // the values they had when the parser was first

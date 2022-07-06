@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 15:29:11 EDT 2021
+// Date:	Wed Jul  6 16:44:26 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,7 +26,7 @@ using std::endl;
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
-    PAR::init ( PAR::default_parser, false );
+    PAR::init ( PAR::default_parser, 0 );
     PARSTD::init_input ( PAR::default_parser );
 
     TAB::flags components =

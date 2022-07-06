@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 29 17:20:24 EDT 2021
+// Date:	Wed Jul  6 16:45:23 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,7 +24,7 @@ int main ( int argc, const char * argv[] )
 {
     min::initialize();
 
-    PAR::init ( PAR::default_parser, false );
+    PAR::init ( PAR::default_parser, 0 );
     PARSTD::init_input ( PAR::default_parser );
     PARSTD::define_standard
         ( PAR::default_parser,

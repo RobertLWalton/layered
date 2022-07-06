@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 07:00:34 EST 2021
+// Date:	Wed Jul  6 16:36:43 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -674,7 +674,7 @@ static min::packed_struct<PAR::parser_struct>
 min::locatable_var<PAR::parser> PAR::default_parser;
 
 void PAR::init ( min::ref<PAR::parser> parser,
-                 bool define_standard )
+                 TAB::flags standard_components )
 {
     if ( parser == NULL_STUB )
     {
@@ -1098,10 +1098,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      0,
 	      bracketed_pass->bracket_table );
 
-	if ( define_standard )
+	if ( standard_components != 0 )
 	{
 	    PARSTD::init_input ( parser );
-	    PARSTD::define_standard ( parser );
+	    PARSTD::define_standard
+	        ( parser, standard_components );
 	}
     }
 }

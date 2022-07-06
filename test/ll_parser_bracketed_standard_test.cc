@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 17:26:15 EDT 2021
+// Date:	Wed Jul  6 16:43:17 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,7 +23,7 @@ using std::cout;
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
-    PAR::init ( PAR::default_parser, false );
+    PAR::init ( PAR::default_parser, 0 );
         // We cannot use `true' to init standard
 	// parser as this would also init standard
 	// operators.

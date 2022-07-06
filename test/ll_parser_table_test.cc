@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 17:26:32 EDT 2021
+// Date:	Wed Jul  6 16:48:13 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,7 +45,7 @@ unsigned failed_count = 0;
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
-    PAR::init ( PAR::default_parser, false );
+    PAR::init ( PAR::default_parser, 0 );
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 01:04:16 EST 2021
+// Date:	Wed Jul  6 16:56:11 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,7 +177,7 @@ extern min::locatable_var<ll::parser::input>
 // creates ll::parser::default_standard_erroneous_atom/
 // input and executes:
 //
-//	ll::parser::init ( parser );
+//	ll::parser::init ( parser, 0 );
 //	ll::lexeme::standard::init_standard_program();
 //	ll::lexeme::init_program
 //		( ll::parser::scanner_ref(parser),

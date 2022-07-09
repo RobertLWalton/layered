@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 17:13:04 EDT 2021
+// Date:	Sat Jul  9 13:44:21 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -246,7 +246,7 @@ static void define_selection_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  3000, selector_reformatter,
+	  10000, selector_reformatter,
 	  selector_arguments,
 	  oper_pass->oper_table );
 
@@ -256,7 +256,7 @@ static void define_selection_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::AFIX + OP::INFIX,
-	  3000,
+	  10000,
 	  min::NULL_STUB,
 	  min::MISSING(),
 	  oper_pass->oper_table );
@@ -304,7 +304,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4000, binary_reformatter,
+	  11000, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -319,7 +319,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4100, infix_reformatter,
+	  11100, infix_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -334,7 +334,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  4100, infix_reformatter,
+	  11100, infix_reformatter,
 	  or_arguments,
 	  oper_pass->oper_table );
 
@@ -344,7 +344,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  4200, unary_reformatter,
+	  11200, unary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }
@@ -385,7 +385,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  12000, infix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -395,7 +395,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  12000, infix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -405,7 +405,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  12000, infix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -415,7 +415,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  12000, infix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -425,7 +425,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  12000, infix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -435,7 +435,7 @@ static void define_comparison_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  5000, infix_reformatter,
+	  12000, infix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }
@@ -539,7 +539,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, infix_reformatter,
+	  13000, infix_reformatter,
 	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
@@ -559,7 +559,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, infix_reformatter,
+	  13000, infix_reformatter,
 	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
@@ -579,7 +579,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6100, binary_reformatter,
+	  13100, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -594,7 +594,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6200, infix_reformatter,
+	  13200, infix_reformatter,
 	  multiply_arguments,
 	  oper_pass->oper_table );
 
@@ -604,7 +604,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6300, binary_reformatter,
+	  13300, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }
@@ -724,7 +724,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, infix_reformatter,
+	  13000, infix_reformatter,
 	  or_arguments,
 	  oper_pass->oper_table );
 
@@ -739,7 +739,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, infix_reformatter,
+	  13000, infix_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -754,7 +754,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, infix_reformatter,
+	  13000, infix_reformatter,
 	  xor_arguments,
 	  oper_pass->oper_table );
 
@@ -764,7 +764,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, binary_reformatter,
+	  13000, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -774,7 +774,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  6000, binary_reformatter,
+	  13000, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 

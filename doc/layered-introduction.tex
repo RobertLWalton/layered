@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 14, 2022
+July 9, 2022
  
 \end{center}
 
@@ -8181,15 +8181,10 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
-\\\hline
+\\\cline{1-6}
 2000    & code	& \ttkey{separator}
-				& \TT{nofix} & \ttkey{,}  & separator  & S
-\\\cline{1-1}\cline{3-7}
-3000    & math  & \ttkey{selector}
-				& \TT{infix} & \ttkey{if} & selector  & E
-\\\cline{3-5}
-        &       & (none)        & \TT{afix}  & \ttkey{else} & & \\
-	&       &               & \TT{infix} &              & &
+				& \TT{nofix} & \ttkey{,}  & separator  & \\
+	& math	&		&	     &		  &	       &
 \\\hline
 \end{tabular}
 
@@ -8201,7 +8196,6 @@ Class & Standard Component
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
 C: & \ttkey{control operators} \\
-E: & \ttkey{selection operators} \\
 S: & \ttkey{assignment operators} \\
 \end{tabular}
 
@@ -8217,17 +8211,23 @@ S: & \ttkey{assignment operators} \\
 prece-  & selec-  &             &            &            &            & \\
 ~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-4000    & code 	& \ttkey{binary}
+10000   & code  & \ttkey{selector}
+				& \TT{infix} & \ttkey{if} & selector  & E
+\\\cline{3-5}
+        & math  & (none)        & \TT{afix}  & \ttkey{else} & & \\
+	&       &               & \TT{infix} &              & &
+\\\cline{1-1}\cline{3-7}
+11000   & 	& \ttkey{binary}
 				& \TT{infix} & \ttkey{BUT NOT}
 							  & logical and not & L
 \\\cline{1-1}\cline{3-6}
-4100	& math  & \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and &
+11100	&	& \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and &
 \\\cline{5-6}
 	& 	&		&	     & \ttkey{OR}  & logical or  &
 \\\cline{1-1}\cline{3-6}
-4200    &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not &
+11200   &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not &
 \\\cline{1-1}\cline{3-7}
-5000 	&	& (none)	& \TT{infix} & \ttkey{==} & equal      & P
+12000 	&	& (none)	& \TT{infix} & \ttkey{==} & equal      & P
 \\\cline{5-6}
 	& 	&		&	     & \ttkey{!=} & not equal  &
 \\\cline{5-6}
@@ -8241,7 +8241,7 @@ prece-  & selec-  &             &            &            &            & \\
 	& 	&		&	     & \TT{>=}	& greater than or equal
 	                                                               &
 \\\cline{1-1}\cline{3-7}
-6000	&       & \ttkey{infix}	& \TT{infix} & \TT{+}	& addition     & A
+13000	&       & \ttkey{infix}	& \TT{infix} & \TT{+}	& addition     & A
 \\\cline{5-6}
 	&	&		& 	     & \TT{-}	& subtraction  &
 \\\cline{2-3}\cline{5-7}
@@ -8257,11 +8257,11 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{5-6}
         &       &                &            & \TT{>{}>} & right shift &
 \\\hline
-6100	& code	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
+13100	& code	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
 \\\cline{1-1}\cline{3-6}
-6200	& math	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication &
+13200	& math	& \ttkey{infix}	& \TT{infix} & \TT{*}   & multiplication &
 \\\cline{1-1}\cline{3-6}
-6300	&	& \ttkey{binary} & \TT{infix} & \TT{**} & exponentiation &
+13300	&	& \ttkey{binary} & \TT{infix} & \TT{**} & exponentiation &
 \\\cline{1-1}\cline{3-6}
 H-1	& 	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        &
 \\\cline{5-6}
@@ -8280,6 +8280,7 @@ Class & Standard Component
 \\\hline
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
+E: & \ttkey{selection operators} \\
 L: & \ttkey{logical operators} \\
 P: & \ttkey{comparison operators}
 \end{tabular}
@@ -8379,13 +8380,13 @@ Parser Command				& \shortstack{
                                           {\bf Required}\\Qualifiers}
 \\\hline
 \tt define operator "if" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with precedence 10000 \\
 \tt ~~~~~~~with selector reformatter \\
 \tt ~~~~~~~~~~~~( "if", "else" ) \\
 \\[1ex]
 \tt define operator "else" [code, math] afix infix
 					    & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 3000
+\tt ~~~~~~~with precedence 10000
 \end{tabular}
 \end{center}
 
@@ -8402,18 +8403,18 @@ Parser Command				& \shortstack{
 \\\hline
 \tt define operator "BUT NOT" [code, math] infix
                                             & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4000 \\
+\tt ~~~~~~~with precedence 11000 \\
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "AND" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4100 \\
+\tt ~~~~~~~with precedence 11100 \\
 \tt ~~~~~~~with infix reformatter ( "AND" ) \\
 \tt define operator "OR" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4100 \\
+\tt ~~~~~~~with precedence 11100 \\
 \tt ~~~~~~~with infix reformatter ( "OR" )
 \\[1ex]
 \tt define operator "NOT" [code, math] prefix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 4200 \\
+\tt ~~~~~~~with precedence 11200 \\
 \tt ~~~~~~~with unary reformatter \\
 \end{tabular}
 \end{center}
@@ -8430,22 +8431,22 @@ Parser Command				& \shortstack{
                                           {\bf Required}\\Qualifiers}
 \\\hline
 \tt define operator "==" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with precedence 12000 \\
 \tt ~~~~~~~with infix reformatter \\
 \tt define operator "<=" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with precedence 12000 \\
 \tt ~~~~~~~with infix reformatter \\
 \tt define operator ">=" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with precedence 12000 \\
 \tt ~~~~~~~with infix reformatter \\
 \tt define operator "!=" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with precedence 12000 \\
 \tt ~~~~~~~with infix reformatter \\
 \tt define operator "<" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with precedence 12000 \\
 \tt ~~~~~~~with infix reformatter \\
 \tt define operator ">" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 5000 \\
+\tt ~~~~~~~with precedence 12000 \\
 \tt ~~~~~~~with infix reformatter \\
 \end{tabular}
 \end{center}
@@ -8475,20 +8476,20 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "+" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with infix reformatter ( "+", "-" ) \\
 \tt define operator "-" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with infix reformatter ( "+", "-" ) \\
 \tt define operator "/" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 6100 \\
+\tt ~~~~~~~with precedence 13100 \\
 \tt ~~~~~~~with binary reformatter \\
 \tt define operator "*" [code, math] infix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 6200 \\
+\tt ~~~~~~~with precedence 13200 \\
 \tt ~~~~~~~with infix reformatter ( "*" ) \\
 \tt define operator "**" [code, math] infix
                                            & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 6300 \\
+\tt ~~~~~~~with precedence 13300 \\
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "+" [code, math] prefix & {\tt + code} or {\tt + math} \\
@@ -8528,20 +8529,20 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "|" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with infix reformatter ( "|" ) \\
 \tt define operator "\&" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with infix reformatter ( "\&" ) \\
 \tt define operator "\textasciicircum" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with infix reformatter ( "\textasciicircum" )
 \\[1ex]
 \tt define operator "<{}<" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with binary reformatter \\
 \tt define operator ">{}>" [code] infix & {\tt + code} \\
-\tt ~~~~~~~with precedence 6000 \\
+\tt ~~~~~~~with precedence 13000 \\
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "\textasciitilde" [code] prefix & {\tt + code} \\

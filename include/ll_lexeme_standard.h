@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 13 07:07:39 EST 2022
+// Date:	Sun Jul 10 15:57:15 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,11 +115,6 @@ namespace ll { namespace lexeme { namespace standard {
 
     const uns32 quoted_string_t			= 7;
 
-    const uns32 convert_mask =
-        ( 1 << quoted_string_t );
-	// Lexemes standardly converted to expressions
-	// of the form {" ... "}.
-
     const uns32 separator_t			= 8;
         // Includes leading and trailing separators.
 
@@ -226,6 +221,20 @@ namespace ll { namespace lexeme { namespace standard {
 
     extern const char * type_codes;
         // Type codes for ll::lexeme::test_input.
+
+    const uns32 convert_mask =
+        ( 1 << quoted_string_t );
+	// Lexemes standardly converted to expressions
+	// of the form {" ... "}.
+
+    // Return true iff type is of lexeme to be converted
+    // as per convert_mask.
+    //
+    inline bool must_convert ( uns32 type )
+    {
+        if ( type > MAX_TYPE ) return false;
+	return ( 1 << type ) & convert_mask;
+    }
 
     // Given a min::gen string that encodes a standard
     // lexeme, returns the type of the lexeme.  Here

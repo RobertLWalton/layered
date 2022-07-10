@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 06:14:12 EST 2021
+// Date:	Sun Jul 10 16:01:08 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1670,8 +1670,8 @@ inline void finish_value
 		    "'; attribute ignored" );
 		PAR::value_ref(start) = min::NONE();
 	    }
-	    else if (   ( 1 << start->type )
-		      & LEXSTD::convert_mask )
+	    else if ( LEXSTD::must_convert
+			  ( start->type ) )
 		PAR::convert_token ( start );
 
 	    start->type = BRA::ATTR_VALUE;
@@ -4678,8 +4678,8 @@ void BRA::compact_prefix_list
 
 	while ( current != next )
 	{
-	    if (   ( 1 << current->type )
-		 & LEXSTD::convert_mask )
+	    if ( LEXSTD::must_convert
+	             ( current->type ) )
 		PAR::convert_token ( current );
 
 	    if ( min::is_attr_legal ( current->value ) )
@@ -4877,8 +4877,8 @@ static bool multivalue_reformatter_function
 		    PAR::make_label_or_value
 		        ( parser, start, t,
 			  PAR::VALUE_MODE );
-		else if (   ( 1 << start->type )
-		          & LEXSTD::convert_mask )
+	        else if ( LEXSTD::must_convert
+			      ( start->type ) )
 		    start->type = PAR::DERIVED;
 		    // This keeps token from begin
 		    // converted.

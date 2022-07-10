@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:36:43 EDT 2022
+// Date:	Sun Jul 10 15:56:31 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2347,8 +2347,7 @@ void PAR::compact
 
     if ( first->next == next && m == 0 )
     {
-	if ( ( 1 << first->type )
-	     & LEXSTD::convert_mask )
+	if ( LEXSTD::must_convert ( first->type ) )
 	    PAR::convert_token ( first );
         first->position = position;
     }
@@ -2398,8 +2397,8 @@ void PAR::compact
 	      current != next;
 	      ++ t, current = current->next )
 	{
-	    if ( ( 1 << current->type )
-	         & LEXSTD::convert_mask )
+	    if ( LEXSTD::must_convert
+	             ( current->type ) )
 		PAR::convert_token ( current );
 	}
 

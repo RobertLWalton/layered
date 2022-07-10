@@ -6,11 +6,20 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
 ======= line ##:
     a b c
     ^^^^^
-======= PARSER TEST: a < b < c
+======= PARSER TEST: {|a|} < {|b|} < {|c|}
 ======= line ##:
     a < b < c
     ^^^^^^^^^
-======= PARSER TEST: [x (y) z {{u, v, w}} m (n (p))]
+------- line ##:
+    a < b < c
+    ^
+------- line ##:
+    a < b < c
+        ^
+------- line ##:
+    a < b < c
+            ^
+======= PARSER TEST: [x (y) z {{{|u|}, {|v|}, {|w|}}} m (n (p))]
 ======= line ##:
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25,11 +34,20 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
                 ^^^^^^^^^^^
 ------- line ##:
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
+                  ^
+------- line ##:
+    [ x ( y ) z {{u, v, w}} m (n (p)) ]
+                     ^
+------- line ##:
+    [ x ( y ) z {{u, v, w}} m (n (p)) ]
+                        ^
+------- line ##:
+    [ x ( y ) z {{u, v, w}} m (n (p)) ]
                               ^^^^^^^
 ------- line ##:
     [ x ( y ) z {{u, v, w}} m (n (p)) ]
                                  ^^^
-======= PARSER TEST: ({}, x, {|y 4|}, {}, z, {}, {})
+======= PARSER TEST: ({}, {|x|}, {|y 4|}, {}, {|z|}, {}, {})
 ======= line ##:
     (, x, y 4,, z,,)
     ^^^^^^^^^^^^^^^^
@@ -41,41 +59,83 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
      ^
 ------- line ##:
     (, x, y 4,, z,,)
+       ^
+------- line ##:
+    (, x, y 4,, z,,)
           ^^^
 ------- line ##:
     (, x, y 4,, z,,)
               ^
 ------- line ##:
     (, x, y 4,, z,,)
+                ^
+------- line ##:
+    (, x, y 4,, z,,)
                   ^
 ------- line ##:
     (, x, y 4,, z,,)
                    ^
-======= PARSER TEST: y += z
+======= PARSER TEST: {|y|} += {|z|}
 ======= line ##:
     y += z
     ^^^^^^
-======= PARSER TEST: x = y
+------- line ##:
+    y += z
+    ^
+------- line ##:
+    y += z
+         ^
+======= PARSER TEST: {|x|} = {|y|}
 ======= line ##:
     x = y
     ^^^^^
-======= PARSER TEST: w4 *= w5
+------- line ##:
+    x = y
+    ^
+------- line ##:
+    x = y
+        ^
+======= PARSER TEST: {|w4|} *= {|w5|}
 ======= line ##:
     w4 *= w5
     ^^^^^^^^
-======= PARSER TEST: w3 = w4
+------- line ##:
+    w4 *= w5
+    ^^
+------- line ##:
+    w4 *= w5
+          ^^
+======= PARSER TEST: {|w3|} = {|w4|}
 ======= line ##:
     w3 = w4
     ^^^^^^^
-======= PARSER TEST: w2 += w3
+------- line ##:
+    w3 = w4
+    ^^
+------- line ##:
+    w3 = w4
+         ^^
+======= PARSER TEST: {|w2|} += {|w3|}
 ======= line ##:
     w2 += w3
     ^^^^^^^^
-======= PARSER TEST: w1 = w2
+------- line ##:
+    w2 += w3
+    ^^
+------- line ##:
+    w2 += w3
+          ^^
+======= PARSER TEST: {|w1|} = {|w2|}
 ======= line ##:
     w1 = w2
     ^^^^^^^
-======= PARSER TEST: {|x1, x2|} += {|z1, z2|}
+------- line ##:
+    w1 = w2
+    ^^
+------- line ##:
+    w1 = w2
+         ^^
+======= PARSER TEST: {|{|x1|}, {|x2|}|} += {|{|z1|}, {|z2|}|}
 ======= line ##:
     x1, x2 += z1, z2
     ^^^^^^^^^^^^^^^^
@@ -84,25 +144,67 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
     ^^^^^^
 ------- line ##:
     x1, x2 += z1, z2
+    ^^
+------- line ##:
+    x1, x2 += z1, z2
+        ^^
+------- line ##:
+    x1, x2 += z1, z2
               ^^^^^^
-======= PARSER TEST: x < y < z
+------- line ##:
+    x1, x2 += z1, z2
+              ^^
+------- line ##:
+    x1, x2 += z1, z2
+                  ^^
+======= PARSER TEST: {|x|} < {|y|} < {|z|}
 ======= line ##:
     x < y < z
     ^^^^^^^^^
-======= PARSER TEST: x = (y < z)
+------- line ##:
+    x < y < z
+    ^
+------- line ##:
+    x < y < z
+        ^
+------- line ##:
+    x < y < z
+            ^
+======= PARSER TEST: {|x|} = ({|y|} < {|z|})
 ======= line ##:
     x = ( y < z )
     ^^^^^^^^^^^^^
 ------- line ##:
     x = ( y < z )
+    ^
+------- line ##:
+    x = ( y < z )
         ^^^^^^^^^
-======= PARSER TEST: x = {|w < y < z|}
+------- line ##:
+    x = ( y < z )
+          ^
+------- line ##:
+    x = ( y < z )
+              ^
+======= PARSER TEST: {|x|} = {|{|w|} < {|y|} < {|z|}|}
 ======= line ##:
     x = w < y < z
     ^^^^^^^^^^^^^
 ------- line ##:
     x = w < y < z
+    ^
+------- line ##:
+    x = w < y < z
         ^^^^^^^^^
+------- line ##:
+    x = w < y < z
+        ^
+------- line ##:
+    x = w < y < z
+            ^
+------- line ##:
+    x = w < y < z
+                ^
 ======= PARSER TEST: {t: no d, e, f = (m ";" n ";" p), b =
                          (a "," b "," c)|1 2 3|t}
 ======= line ##:
@@ -118,32 +220,69 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
 ------- line ##:
     {X: Y = {* A, B, C *} | 1 2 3 |}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: a + b - c
+======= PARSER TEST: {|a|} + {|b|} - {|c|}
 ======= line ##:
     a + b - c
     ^^^^^^^^^
-======= PARSER TEST: - a
+------- line ##:
+    a + b - c
+    ^
+------- line ##:
+    a + b - c
+        ^
+------- line ##:
+    a + b - c
+            ^
+======= PARSER TEST: - {|a|}
 ======= line ##:
     - a
     ^^^
-======= PARSER TEST: {|+ a|} - b - c
+------- line ##:
+    - a
+      ^
+======= PARSER TEST: {|+ {|a|}|} - {|b|} - {|c|}
 ======= line ##:
     + a - b - c
     ^^^^^^^^^^^
 ------- line ##:
     + a - b - c
     ^^^
-======= PARSER TEST: a + {|b * c|} + d
+------- line ##:
+    + a - b - c
+      ^
+------- line ##:
+    + a - b - c
+          ^
+------- line ##:
+    + a - b - c
+              ^
+======= PARSER TEST: {|a|} + {|{|b|} * {|c|}|} + {|d|}
 ======= line ##:
     a + b * c + d
     ^^^^^^^^^^^^^
 ------- line ##:
     a + b * c + d
+    ^
+------- line ##:
+    a + b * c + d
         ^^^^^
-======= PARSER TEST: a + {|{|b * c|} / {|d * e|}|} + f
+------- line ##:
+    a + b * c + d
+        ^
+------- line ##:
+    a + b * c + d
+            ^
+------- line ##:
+    a + b * c + d
+                ^
+======= PARSER TEST: {|a|} + {|{|{|b|} * {|c|}|} / {|{|d|} * {|e|}|}|} +
+                         {|f|}
 ======= line ##:
     a + b * c / d * e + f
     ^^^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    a + b * c / d * e + f
+    ^
 ------- line ##:
     a + b * c / d * e + f
         ^^^^^^^^^^^^^
@@ -152,74 +291,149 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
         ^^^^^
 ------- line ##:
     a + b * c / d * e + f
+        ^
+------- line ##:
+    a + b * c / d * e + f
+            ^
+------- line ##:
+    a + b * c / d * e + f
                 ^^^^^
-======= PARSER TEST: a + {|b * {|e ** d|} * {|f ** g|}|}
+------- line ##:
+    a + b * c / d * e + f
+                ^
+------- line ##:
+    a + b * c / d * e + f
+                    ^
+------- line ##:
+    a + b * c / d * e + f
+                        ^
+======= PARSER TEST: {|a|} +
+                         {|{|b|} * {|{|e|} ** {|d|}|} *
+                           {|{|f|} ** {|g|}|}|}
 ======= line ##:
     a + b * e ** d * f ** g
     ^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ##:
     a + b * e ** d * f ** g
+    ^
+------- line ##:
+    a + b * e ** d * f ** g
         ^^^^^^^^^^^^^^^^^^^
+------- line ##:
+    a + b * e ** d * f ** g
+        ^
 ------- line ##:
     a + b * e ** d * f ** g
             ^^^^^^
 ------- line ##:
     a + b * e ** d * f ** g
+            ^
+------- line ##:
+    a + b * e ** d * f ** g
+                 ^
+------- line ##:
+    a + b * e ** d * f ** g
                      ^^^^^^
-======= PARSER TEST: x + {|+ y|}
+------- line ##:
+    a + b * e ** d * f ** g
+                     ^
+------- line ##:
+    a + b * e ** d * f ** g
+                          ^
+======= PARSER TEST: {|x|} + {|+ {|y|}|}
 ======= line ##:
     x + + y
     ^^^^^^^
 ------- line ##:
     x + + y
+    ^
+------- line ##:
+    x + + y
         ^^^
-======= PARSER TEST: x + {|+ y|}
+------- line ##:
+    x + + y
+          ^
+======= PARSER TEST: {|x|} + {|+ {|y|}|}
 ======= line ##:
     x + {|+ y|}
     ^^^^^^^^^^^
 ------- line ##:
     x + {|+ y|}
+    ^
+------- line ##:
+    x + {|+ y|}
         ^^^^^^^
-======= PARSER TEST: x * {|* y|}
+------- line ##:
+    x + {|+ y|}
+            ^
+======= PARSER TEST: {|x|} * {|* y|}
 ======= line ##:
     x * * y
     ^^^^^^^
 ------- line ##:
     x * * y
+    ^
+------- line ##:
+    x * * y
         ^^^
-======= PARSER TEST: x * {|* y|}
+======= PARSER TEST: {|x|} * {|* y|}
 ======= line ##:
     x * {|* y|}
     ^^^^^^^^^^^
 ------- line ##:
     x * {|* y|}
+    ^
+------- line ##:
+    x * {|* y|}
         ^^^^^^^
-======= PARSER TEST: NOT {|NOT x|}
+======= PARSER TEST: NOT {|NOT {|x|}|}
 ======= line ##:
     NOT NOT x
     ^^^^^^^^^
 ------- line ##:
     NOT NOT x
         ^^^^^
+------- line ##:
+    NOT NOT x
+            ^
 ======= PARSER TEST: x NOT y
 ======= line ##:
     x NOT y
     ^^^^^^^
-======= PARSER TEST: x AND y AND z
+======= PARSER TEST: {|x|} AND {|y|} AND {|z|}
 ======= line ##:
     x AND y AND z
     ^^^^^^^^^^^^^
-======= PARSER TEST: x AND {|NOT y|} AND {|NOT z|}
+------- line ##:
+    x AND y AND z
+    ^
+------- line ##:
+    x AND y AND z
+          ^
+------- line ##:
+    x AND y AND z
+                ^
+======= PARSER TEST: {|x|} AND {|NOT {|y|}|} AND {|NOT {|z|}|}
 ======= line ##:
     x AND NOT y AND NOT z
     ^^^^^^^^^^^^^^^^^^^^^
 ------- line ##:
     x AND NOT y AND NOT z
+    ^
+------- line ##:
+    x AND NOT y AND NOT z
           ^^^^^
 ------- line ##:
     x AND NOT y AND NOT z
+              ^
+------- line ##:
+    x AND NOT y AND NOT z
                     ^^^^^
-======= PARSER TEST: {|x AND y|} [< BUT NOT >] {|z OR w OR v|}
+------- line ##:
+    x AND NOT y AND NOT z
+                        ^
+======= PARSER TEST: {|{|x|} AND {|y|}|} [< BUT NOT >]
+                         {|{|z|} OR {|w|} OR {|v|}|}
 ======= line ##:
     x AND y BUT NOT z OR w OR v
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -228,9 +442,33 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
     ^^^^^^^
 ------- line ##:
     x AND y BUT NOT z OR w OR v
+    ^
+------- line ##:
+    x AND y BUT NOT z OR w OR v
+          ^
+------- line ##:
+    x AND y BUT NOT z OR w OR v
                     ^^^^^^^^^^^
-======= PARSER TEST: x AND y AND z
+------- line ##:
+    x AND y BUT NOT z OR w OR v
+                    ^
+------- line ##:
+    x AND y BUT NOT z OR w OR v
+                         ^
+------- line ##:
+    x AND y BUT NOT z OR w OR v
+                              ^
+======= PARSER TEST: {|x|} AND {|y|} AND {|z|}
 ======= line ##:
     x AND y OR z
     ^^^^^^^^^^^^
+------- line ##:
+    x AND y OR z
+    ^
+------- line ##:
+    x AND y OR z
+          ^
+------- line ##:
+    x AND y OR z
+               ^
 ======= END PARSER TEST(S)

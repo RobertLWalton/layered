@@ -1,5 +1,5 @@
 BRACKETED EXPRESSION:
-    ID 10 is {|x + y|}
+    ID 10 is {|{|x|} + {|y|}|}
 BRACKETED EXPRESSION:
     ID 11 is {|x + y|}
 ERROR: in line ##: not a legal value element `*':
@@ -17,13 +17,15 @@ ERROR: in line ##: after `=' attribute value (label or single bracketed
         w = u - v
           ^
 BRACKETED EXPRESSION:
-    ID 20 is {"": b = [< c "/" d >]|x + y|}
+    ID 20 is {"": b = [< c "/" d >]|{|x|} + {|y|}|}
 BRACKETED EXPRESSION:
-    ID 21 is {|x * y|}
+    ID 21 is {|{|x|} * {|y|}|}
 BRACKETED EXPRESSION:
-    ID 22 is {|u - v|}
+    ID 22 is {|{|u|} - {|v|}|}
 BRACKETED EXPRESSION:
-    ID 23 is {"": z = {|x * y|}, w = {|u - v|}|x + y|}
+    ID 23 is
+        {"": z = {|{|x|} * {|y|}|}, w = {|{|u|} - {|v|}|}|{|x|} +
+             {|y|}|}
 BRACKETED EXPRESSION:
     ID 30 is
         {|this is an indented paragraph
@@ -115,9 +117,9 @@ ERROR: in line ###: ID references an object that already has
 @<X> := hi there @<Z>
 ^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ID X is {|hi there (m + n)|}
+    ID X is {|hi there ({|m|} + {|n|})|}
 BRACKETED EXPRESSION:
-    ID Y is (m + n)
+    ID Y is ({|m|} + {|n|})
 BRACKETED EXPRESSION:
     ID Z is PREALLOCATED(1*0)
 @@ :=::

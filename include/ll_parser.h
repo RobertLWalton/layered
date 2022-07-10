@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:36:18 EDT 2022
+// Date:	Sun Jul 10 16:46:28 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1890,12 +1890,11 @@ bool set_attr_multivalue
 // are given, and allows for the latter addition of n
 // attributes.  Sets the position of the new expression
 // token from the given argument.  The resulting
-// expression token is in first == next->previous.
-// Its type is given in the type argument, and must
-// be either BRACKETED, or BRACKETABLE.  The type argu-
-// ment can also be BRACKETING as a special case: see
-// below.  Note that the type argument should never be
-// PURELIST.
+// expression token is in first == next->previous.  Its
+// type is nominally given in the type argument, which
+// should be either BRACKETED, or BRACKETABLE.  However,
+// as special cases, the type argument can also be
+// BRACKETING or PURELIST: see below.
 //
 // If the type argument is BRACKETABLE, the m attributes
 // MUST NOT include any .type, .initiator, or .termina-
@@ -1903,16 +1902,21 @@ bool set_attr_multivalue
 //
 // If the type argument is BRACKETING, the m attributes
 // can only include .type, .initiator, and/or .termina-
-// tor attributes.
+// tor attributes.  The resulting expression is
+// BRACKETED if m != 0 and PURELIST if m == 0.
+//
+// If the type argument is PURELIST, m == 0 is required,
+// and the resulting expression is PURELIST.
 //
 // Natural number and quoted string tokens in the
 // expression are converted as per convert_token.
 //
 // If after invoking the given pass and applying
-// convert_token, there is only one element and
-// m == 0, the position of the token is set to the
-// position argument and the token is returned as is,
-// without making an expression containing it.
+// convert_token, there is only one element, m == 0,
+// and the type argument is NOT PURELIST, the position
+// of the token is set to the position argument and the
+// token is returned as is, without making an expression
+// containing it.
 //
 // Otherwise a new object is created with space for the
 // one element per expression token, the m attributes,
@@ -1921,9 +1925,10 @@ bool set_attr_multivalue
 // the position argument and the positions of its
 // element tokens.
 //
-// The type argument is changed to PURELIST if m == 0
-// and otherwise to BRACKETED if the type argument is
-// BRACKETING.
+// The type of the resulting expression is set to
+// PURELIST if m == 0, BRACKETED if the type argument is
+// BRACKETING and m != 0, and the type argument other-
+// wise.
 //
 // An exception to the above is made if the tokens to
 // be put in the new expression consist of just a single

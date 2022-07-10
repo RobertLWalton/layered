@@ -102,7 +102,7 @@
                       with binary reformatter
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-======= PARSER TEST: (x / {|y ^ {|z w|}|})
+======= PARSER TEST: ({|x|} / {|{|y|} ^ {|z w|}|})
 ======= line ##:
     ( x / y ^ z w )
     ^^^^^^^^^^^^^^^
@@ -111,7 +111,13 @@
     ^^^^^^^^^^^^^^^
 ------- line ##:
     ( x / y ^ z w )
+      ^
+------- line ##:
+    ( x / y ^ z w )
           ^^^^^^^
+------- line ##:
+    ( x / y ^ z w )
+          ^
 ------- line ##:
     ( x / y ^ z w )
               ^^^
@@ -231,8 +237,9 @@ WARNING: in lines ##-##: undefine found no definition:
     define operator "/=" [code, math] infix
         with precedence 1000
         with right associative reformatter
-======= PARSER TEST: (x =
-                      {|y += {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
+======= PARSER TEST: ({|x|} =
+                      {|{|y|} +=
+                        {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
 ======= line ###:
     (x = y += z w *= p q r = t v)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -241,7 +248,13 @@ WARNING: in lines ##-##: undefine found no definition:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     (x = y += z w *= p q r = t v)
+     ^
+------- line ###:
+    (x = y += z w *= p q r = t v)
          ^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    (x = y += z w *= p q r = t v)
+         ^
 ------- line ###:
     (x = y += z w *= p q r = t v)
               ^^^^^^^^^^^^^^^^^^
@@ -269,7 +282,7 @@ WARNING: in lines ##-##: undefine found no definition:
 ERROR: in line ###: wrong separator "..." changed to ",":
     (x, y... z)
          ^^^
-======= PARSER TEST: (x, y1, {|z w|}, {}, 3, {})
+======= PARSER TEST: ({|x|}, {|y1|}, {|z w|}, {}, {|3|}, {})
 ======= line ###:
     (x, y1, z w,, 3,)
     ^^^^^^^^^^^^^^^^^
@@ -278,14 +291,23 @@ ERROR: in line ###: wrong separator "..." changed to ",":
     ^^^^^^^^^^^^^^^^^
 ------- line ###:
     (x, y1, z w,, 3,)
+     ^
+------- line ###:
+    (x, y1, z w,, 3,)
+        ^^
+------- line ###:
+    (x, y1, z w,, 3,)
             ^^^
 ------- line ###:
     (x, y1, z w,, 3,)
                 ^
 ------- line ###:
     (x, y1, z w,, 3,)
+                  ^
+------- line ###:
+    (x, y1, z w,, 3,)
                     ^
-======= PARSER TEST: ({}, {}, x, {}, y, {}, {}, {})
+======= PARSER TEST: ({}, {}, {|x|}, {}, {|y|}, {}, {}, {})
 ======= line ###:
     (,, x,, y,,,)
     ^^^^^^^^^^^^^
@@ -300,7 +322,13 @@ ERROR: in line ###: wrong separator "..." changed to ",":
       ^
 ------- line ###:
     (,, x,, y,,,)
+        ^
+------- line ###:
+    (,, x,, y,,,)
           ^
+------- line ###:
+    (,, x,, y,,,)
+            ^
 ------- line ###:
     (,, x,, y,,,)
               ^
@@ -310,13 +338,22 @@ ERROR: in line ###: wrong separator "..." changed to ",":
 ------- line ###:
     (,, x,, y,,,)
                 ^
-======= PARSER TEST: (x, y, z)
+======= PARSER TEST: ({|x|}, {|y|}, {|z|})
 ======= line ###:
     (x, y... z)
     ^^^^^^^^^^^
 ------- line ###:
     (x, y... z)
     ^^^^^^^^^^^
+------- line ###:
+    (x, y... z)
+     ^
+------- line ###:
+    (x, y... z)
+        ^
+------- line ###:
+    (x, y... z)
+             ^
 ======= END PARSER TEST(S)
 *PARSER*:
     end block BLOCK1
@@ -339,7 +376,8 @@ ERROR: in line ###: illegal operator "OR" in expression beginnning with
 ERROR: in line ###: missing operand; error operand inserted:
     (NOT NOT)
              ^
-======= PARSER TEST: ({|x OR y|} [< BUT NOT >] {|z AND w|})
+======= PARSER TEST: ({|{|x|} OR {|y|}|} [< BUT NOT >]
+                      {|{|z|} AND {|w|}|})
 ======= line ###:
     (x OR y BUT NOT z AND w)
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -349,10 +387,23 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x OR y BUT NOT z AND w)
      ^^^^^^
+------- line ###:
+    (x OR y BUT NOT z AND w)
+     ^
+------- line ###:
+    (x OR y BUT NOT z AND w)
+          ^
 ------- line ###:
     (x OR y BUT NOT z AND w)
                     ^^^^^^^
-======= PARSER TEST: ({|x OR y|} [< BUT NOT >] {|z AND w AND p|})
+------- line ###:
+    (x OR y BUT NOT z AND w)
+                    ^
+------- line ###:
+    (x OR y BUT NOT z AND w)
+                          ^
+======= PARSER TEST: ({|{|x|} OR {|y|}|} [< BUT NOT >]
+                      {|{|z|} AND {|w|} AND {|p|}|})
 ======= line ###:
     (x OR y BUT NOT z AND w OR p)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -364,7 +415,22 @@ ERROR: in line ###: missing operand; error operand inserted:
      ^^^^^^
 ------- line ###:
     (x OR y BUT NOT z AND w OR p)
+     ^
+------- line ###:
+    (x OR y BUT NOT z AND w OR p)
+          ^
+------- line ###:
+    (x OR y BUT NOT z AND w OR p)
                     ^^^^^^^^^^^^
+------- line ###:
+    (x OR y BUT NOT z AND w OR p)
+                    ^
+------- line ###:
+    (x OR y BUT NOT z AND w OR p)
+                          ^
+------- line ###:
+    (x OR y BUT NOT z AND w OR p)
+                               ^
 ======= PARSER TEST: (NOT {|x y|})
 ======= line ###:
     (NOT x y)
@@ -382,7 +448,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (x NOT y)
     ^^^^^^^^^
-======= PARSER TEST: ({|NOT x|} AND y)
+======= PARSER TEST: ({|NOT {|x|}|} AND {|y|})
 ======= line ###:
     (NOT x AND y)
     ^^^^^^^^^^^^^
@@ -392,23 +458,38 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     (NOT x AND y)
      ^^^^^
-======= PARSER TEST: (x AND {|NOT y|})
+------- line ###:
+    (NOT x AND y)
+         ^
+------- line ###:
+    (NOT x AND y)
+               ^
+======= PARSER TEST: ({|x|} AND {|NOT {|y|}|})
 ======= line ###:
     (x AND NOT y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (x AND NOT y)
     ^^^^^^^^^^^^^
+------- line ###:
+    (x AND NOT y)
+     ^
 ------- line ###:
     (x AND NOT y)
            ^^^^^
-======= PARSER TEST: (x AND {|AND y|})
+------- line ###:
+    (x AND NOT y)
+               ^
+======= PARSER TEST: ({|x|} AND {|AND y|})
 ======= line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
 ------- line ###:
     (x AND AND y)
     ^^^^^^^^^^^^^
+------- line ###:
+    (x AND AND y)
+     ^
 ------- line ###:
     (x AND AND y)
            ^^^^^
@@ -464,13 +545,26 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "=>" [code, math] infix
         with precedence 4000
         with infix reformatter
-======= PARSER TEST: (x < y <= z > w != {|p q|} =< {|u v|})
+======= PARSER TEST: ({|x|} < {|y|} <= {|z|} > {|w|} != {|p q|} =<
+                      {|u v|})
 ======= line ###:
     ( x < y <= z > w != p q =< u v )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     ( x < y <= z > w != p q =< u v )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    ( x < y <= z > w != p q =< u v )
+      ^
+------- line ###:
+    ( x < y <= z > w != p q =< u v )
+          ^
+------- line ###:
+    ( x < y <= z > w != p q =< u v )
+               ^
+------- line ###:
+    ( x < y <= z > w != p q =< u v )
+                   ^
 ------- line ###:
     ( x < y <= z > w != p q =< u v )
                         ^^^
@@ -491,14 +585,32 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "-" [code, math] infix
         with precedence 5000
         with infix reformatter ( "+", "-" )
-======= PARSER TEST: (x + y - z + w - v - u)
+======= PARSER TEST: ({|x|} + {|y|} - {|z|} + {|w|} - {|v|} - {|u|})
 ======= line ###:
     ( x + y - z + w - v - u )
     ^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
     ( x + y - z + w - v - u )
     ^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: ({|- x|} + y - z)
+------- line ###:
+    ( x + y - z + w - v - u )
+      ^
+------- line ###:
+    ( x + y - z + w - v - u )
+          ^
+------- line ###:
+    ( x + y - z + w - v - u )
+              ^
+------- line ###:
+    ( x + y - z + w - v - u )
+                  ^
+------- line ###:
+    ( x + y - z + w - v - u )
+                      ^
+------- line ###:
+    ( x + y - z + w - v - u )
+                          ^
+======= PARSER TEST: ({|- {|x|}|} + {|y|} - {|z|})
 ======= line ###:
     ( - x + y - z )
     ^^^^^^^^^^^^^^^
@@ -508,7 +620,16 @@ ERROR: in line ###: missing operand; error operand inserted:
 ------- line ###:
     ( - x + y - z )
       ^^^
-======= PARSER TEST: (x < {|y + 5|} <= z)
+------- line ###:
+    ( - x + y - z )
+        ^
+------- line ###:
+    ( - x + y - z )
+            ^
+------- line ###:
+    ( - x + y - z )
+                ^
+======= PARSER TEST: ({|x|} < {|{|y|} + {|5|}|} <= {|z|})
 ======= line ###:
     ( x < y + 5 <= z )
     ^^^^^^^^^^^^^^^^^^
@@ -517,7 +638,19 @@ ERROR: in line ###: missing operand; error operand inserted:
     ^^^^^^^^^^^^^^^^^^
 ------- line ###:
     ( x < y + 5 <= z )
+      ^
+------- line ###:
+    ( x < y + 5 <= z )
           ^^^^^
+------- line ###:
+    ( x < y + 5 <= z )
+          ^
+------- line ###:
+    ( x < y + 5 <= z )
+              ^
+------- line ###:
+    ( x < y + 5 <= z )
+                   ^
 ======= END PARSER TEST(S)
 *PARSER*:
     define operator "/" [code, math] infix
@@ -532,7 +665,7 @@ ERROR: in line ###: missing operand; error operand inserted:
 ERROR: in line ###: extra stuff at end of expression; deleted:
     ( x / y / z )
             ^^^
-======= PARSER TEST: ({|x * y|} / {|{|z q|} * {|m p|}|})
+======= PARSER TEST: ({|{|x|} * {|y|}|} / {|{|z q|} * {|m p|}|})
 ======= line ###:
     ( x * y / z q * m p )
     ^^^^^^^^^^^^^^^^^^^^^
@@ -544,6 +677,12 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
       ^^^^^
 ------- line ###:
     ( x * y / z q * m p )
+      ^
+------- line ###:
+    ( x * y / z q * m p )
+          ^
+------- line ###:
+    ( x * y / z q * m p )
               ^^^^^^^^^
 ------- line ###:
     ( x * y / z q * m p )
@@ -551,14 +690,21 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( x * y / z q * m p )
                     ^^^
-======= PARSER TEST: (x / y)
+======= PARSER TEST: ({|x|} / {|y|})
 ======= line ###:
     ( x / y / z )
     ^^^^^^^^^^^^^
 ------- line ###:
     ( x / y / z )
     ^^^^^^^^^^^^^
-======= PARSER TEST: ({|{|x ^ 2|} * {|y ^ 2|}|} / {|y * z|})
+------- line ###:
+    ( x / y / z )
+      ^
+------- line ###:
+    ( x / y / z )
+          ^
+======= PARSER TEST: ({|{|{|x|} ^ {|2|}|} * {|{|y|} ^ {|2|}|}|} /
+                      {|{|y|} * {|z|}|})
 ======= line ###:
     ( x ^ 2 * y ^ 2 / y * z )
     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -573,15 +719,33 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
       ^^^^^
 ------- line ###:
     ( x ^ 2 * y ^ 2 / y * z )
+      ^
+------- line ###:
+    ( x ^ 2 * y ^ 2 / y * z )
+          ^
+------- line ###:
+    ( x ^ 2 * y ^ 2 / y * z )
               ^^^^^
 ------- line ###:
     ( x ^ 2 * y ^ 2 / y * z )
+              ^
+------- line ###:
+    ( x ^ 2 * y ^ 2 / y * z )
+                  ^
+------- line ###:
+    ( x ^ 2 * y ^ 2 / y * z )
                       ^^^^^
+------- line ###:
+    ( x ^ 2 * y ^ 2 / y * z )
+                      ^
+------- line ###:
+    ( x ^ 2 * y ^ 2 / y * z )
+                          ^
 ======= END PARSER TEST(S)
 *PARSER*:
     define operator "@" [code, math] prefix
         with precedence 999999
-======= PARSER TEST: ({|- x|} + y - z)
+======= PARSER TEST: ({|- {|x|}|} + {|y|} - {|z|})
 ======= line ###:
     ( - x + y - z )
     ^^^^^^^^^^^^^^^
@@ -591,7 +755,16 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     ( - x + y - z )
       ^^^
-======= PARSER TEST: ({|p * {|- x|}|} + y - z)
+------- line ###:
+    ( - x + y - z )
+        ^
+------- line ###:
+    ( - x + y - z )
+            ^
+------- line ###:
+    ( - x + y - z )
+                ^
+======= PARSER TEST: ({|{|p|} * {|- {|x|}|}|} + {|y|} - {|z|})
 ======= line ###:
     ( p * - x + y - z )
     ^^^^^^^^^^^^^^^^^^^
@@ -603,8 +776,20 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
       ^^^^^^^
 ------- line ###:
     ( p * - x + y - z )
+      ^
+------- line ###:
+    ( p * - x + y - z )
           ^^^
-======= PARSER TEST: ({|@ x|} + y - {|@ z|})
+------- line ###:
+    ( p * - x + y - z )
+            ^
+------- line ###:
+    ( p * - x + y - z )
+                ^
+------- line ###:
+    ( p * - x + y - z )
+                    ^
+======= PARSER TEST: ({|@ {|x|}|} + {|y|} - {|@ {|z|}|})
 ======= line ###:
     ( @ x + y - @ z )
     ^^^^^^^^^^^^^^^^^
@@ -616,7 +801,16 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
       ^^^
 ------- line ###:
     ( @ x + y - @ z )
+        ^
+------- line ###:
+    ( @ x + y - @ z )
+            ^
+------- line ###:
+    ( @ x + y - @ z )
                 ^^^
+------- line ###:
+    ( @ x + y - @ z )
+                  ^
 ======= PARSER TEST: (+ {|- {|+ {|- {|x y|}|}|}|})
 ======= line ###:
     ( + - + - x y )
@@ -642,7 +836,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         with precedence 1000000
     define operator "--" [code, math] postfix
         with precedence 1000000
-======= PARSER TEST: ({|x ++|} + y - {|z --|})
+======= PARSER TEST: ({|{|x|} ++|} + {|y|} - {|{|z|} --|})
 ======= line ###:
     ( x ++ + y - z -- )
     ^^^^^^^^^^^^^^^^^^^
@@ -654,7 +848,16 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
       ^^^^
 ------- line ###:
     ( x ++ + y - z -- )
+      ^
+------- line ###:
+    ( x ++ + y - z -- )
+             ^
+------- line ###:
+    ( x ++ + y - z -- )
                  ^^^^
+------- line ###:
+    ( x ++ + y - z -- )
+                 ^
 ======= PARSER TEST: ({|{|{|{|x y|} ++|} --|} ++|} --)
 ======= line ###:
     ( x y ++ -- ++ -- )

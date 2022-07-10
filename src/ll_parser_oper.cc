@@ -783,12 +783,24 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 
 	    bool is_first = ( non_op_first == first );
 
+	    min::uns32 type = non_op_first->type;
+	    if ( non_op_first->next != current
+	         ||
+		 type == PAR::BRACKETED
+	         ||
+		 type == PAR::BRACKETABLE
+		 ||
+		 type == PAR::PURELIST )
+		type = PAR::BRACKETED;
+	    else
+		type = PAR::PURELIST;
+	        
 	    PAR::compact ( parser, oper_pass->next,
 			   selectors,
 			   non_op_first, current,
 			   position,
 			   trace_flags,
-			   PAR::BRACKETABLE );
+			   type );
 
 	    if ( is_first ) first = non_op_first;
 	    non_op_first = min::NULL_STUB;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 10 15:56:31 EDT 2022
+// Date:	Sun Jul 10 16:07:04 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2345,7 +2345,8 @@ void PAR::compact
     PAR::execute_pass_parse
 	 ( parser, pass, selectors, first, next );
 
-    if ( first->next == next && m == 0 )
+    if ( first->next == next && m == 0
+                             && type != PAR::PURELIST )
     {
 	if ( LEXSTD::must_convert ( first->type ) )
 	    PAR::convert_token ( first );

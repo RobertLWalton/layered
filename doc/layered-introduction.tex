@@ -8589,7 +8589,8 @@ The operator parsing algorithm runs a left to right scan which:
 replaces each by a single \ttkey{OPERATOR} token.
 \item Identifies maximal non-empty sequences of tokens between \TT{OPERATOR}
 tokens, calls subsequence passes on each, and if these do not
-turn the sequence into a single token, packages the sequence into
+turn the sequence into a single token that is \TT{BRACKETTED},
+\TT{BRACKETABLE}, or \TT{PURELIST}, packages the sequence into
 a single \TT{PURELIST} token.  The result is a single `non-operator'
 token.
 \item Identifies subexpressions using operator precedence and flags.
@@ -8598,8 +8599,9 @@ entire expression as a subexpression.  For each subexpression,
 the reformatter of the first operator in the expression is called.
 If there is no reformatter, or the reformatter chooses not to
 collect the expression into a single \TT{BRACKETABLE} token, then
-the expression is made into a single \TT{BRACKETABLE} token
-with the first operator as its \TT{.operator} attribute.
+the expression is made into a single \TT{PURELIST} token unless
+the expression is already a single token of \TT{BRACKETED},
+\TT{BRACKTABLE}, or \TT{PURELIST} type.
 \end{enumerate}
 
 

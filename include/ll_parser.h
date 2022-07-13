@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 10 16:46:28 EDT 2022
+// Date:	Wed Jul 13 16:27:39 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1460,19 +1460,19 @@ typedef bool ( * reformatter_function )
     // generally MISSING for other reformatters.
     //
     // If true is returned, the caller of the function
-    // will immediately call ll:: parser::compact (even
-    // if first->next == next).  For the operator pass,
-    // this call makes a BRACKETABLE token with no
-    // syntax attributes, but with the given `position'
-    // as the .position attribute and with the value
-    // of the original first operator token as the
-    // .operator attribute.  For the bracketed pass,
-    // this call is a BRACKETING call that makes a
-    // BRACKETED token with the brackets as .initiator
-    // and .terminator, but with NO .type attribute.  In
-    // all cases parser, pass->next, selectors, first,
-    // next, position, and trace_flags are passed to the
-    // `compact' function.
+    // may call ll::parser::compact.  The bracket pass
+    // has the brackets surrounding the subexpression
+    // that the reformatter declined to reformat, and
+    // calls compact with a BRACKETING parameter and
+    // .initiator and .terminator attributes.  The
+    // operator pass calls compact to enclose the sub-
+    // expression in a new PURELIST, unless the sub-
+    // expression consists of a single BRACKETED,
+    // BRACKTABLE, or PURELIST token, in which case
+    // compact is not called and nothing is done to the
+    // single token.  In all cases parser, pass->next,
+    // selectors, first, next, position, and trace_flags
+    // are passed to the `compact' function.
     //
     // For the bracketed pass, the list of tokens passed
     // to the reformatted does NOT include the brackets,

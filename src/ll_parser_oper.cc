@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 01:13:20 EST 2021
+// Date:	Wed Jul 13 15:52:36 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -627,6 +627,51 @@ void trace_operator ( PAR::parser parser,
 	  pos );
 }
 
+void compact_expression ( PAR::parser parser,
+			  OP::oper_pass oper_pass,
+			  TAB::flags selectors,
+			  PAR::token & first,
+			  PAR::token next,
+			  OP::oper oper,
+			  TAB::flags trace_flags )
+{
+    min::phrase_position position =
+        { first->position.begin,
+	  next->previous->position.end };
+
+    if ( oper != min::NULL_STUB
+         &&
+         oper->reformatter != min::NULL_STUB
+	 &&
+	 ! ( * oper->reformatter
+	           ->reformatter_function )
+	       ( parser, (PAR::pass) oper_pass,
+                 selectors,
+	         first, next,
+	         position, min::MISSING(),
+	         trace_flags,
+	         (TAB::root) oper )
+       )
+	return;
+
+    if ( first->next == next
+         &&
+         ( first->type == PAR::BRACKETED
+           ||
+           first->type == PAR::BRACKETABLE
+           ||
+           first->type == PAR::PURELIST ) )
+	return;
+
+    PAR::compact
+	( parser, oper_pass->next,
+	  selectors,
+	  first, next,
+	  position,
+	  trace_flags,
+	  PAR::PURELIST );
+}
+
 // Returns true if operator found, false otherwise.
 //
 static bool oper_parse_pass_1 ( PAR::parser parser,
@@ -777,30 +822,12 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 
 	if ( non_op_first != min::NULL_STUB )
 	{
-	    min::phrase_position position =
-		{ non_op_first->position.begin,
-		  current->previous->position.end };
-
 	    bool is_first = ( non_op_first == first );
 
-	    min::uns32 type = non_op_first->type;
-	    if ( non_op_first->next != current
-	         ||
-		 type == PAR::BRACKETED
-	         ||
-		 type == PAR::BRACKETABLE
-		 ||
-		 type == PAR::PURELIST )
-		type = PAR::BRACKETED;
-	    else
-		type = PAR::PURELIST;
-	        
-	    PAR::compact ( parser, oper_pass->next,
-			   selectors,
-			   non_op_first, current,
-			   position,
-			   trace_flags,
-			   type );
+	    compact_expression
+	        ( parser, oper_pass, selectors,
+		  non_op_first, current,
+		  min::NULL_STUB, trace_flags );
 
 	    if ( is_first ) first = non_op_first;
 	    non_op_first = min::NULL_STUB;
@@ -833,38 +860,6 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
     }
 
     return true;
-}
-
-void compact_expression ( PAR::parser parser,
-			  OP::oper_pass oper_pass,
-			  TAB::flags selectors,
-			  PAR::token & first,
-			  PAR::token next,
-			  OP::oper oper,
-			  TAB::flags trace_flags )
-{
-    min::phrase_position position =
-        { first->position.begin,
-	  next->previous->position.end };
-
-    if ( oper->reformatter == min::NULL_STUB
-	 ||
-	 ( * oper
-	       ->reformatter
-	       ->reformatter_function )
-	     ( parser, (PAR::pass) oper_pass, selectors,
-	       first, next,
-	       position, min::MISSING(),
-	       trace_flags,
-	       (TAB::root) oper )
-       )
-	PAR::compact
-	    ( parser, min::NULL_STUB,
-	      selectors,
-	      first, next,
-	      position,
-	      trace_flags,
-	      PAR::BRACKETABLE );
 }
 
 static void oper_parse_pass_2 ( PAR::parser parser,

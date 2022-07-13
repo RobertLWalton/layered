@@ -8601,7 +8601,7 @@ If there is no reformatter, or the reformatter chooses not to
 collect the expression into a single \TT{BRACKETABLE} token, then
 the expression is made into a single \TT{PURELIST} token unless
 the expression is already a single token of \TT{BRACKETED},
-\TT{BRACKTABLE}, or \TT{PURELIST} type.
+\TT{BRACKETABLE}, or \TT{PURELIST} type.
 \end{enumerate}
 
 
@@ -8707,8 +8707,10 @@ are treated as an operator-free subexpression.
 This is a `\key{non-operator subexpression}' if it is not empty.
 For each non-operator subexpression
 (including the whole expression if it has no operators),
-the next pass is called, and if that does not make the subexpression
-into a single token, the subexpression is made into a single
+if it is a single token of \TT{BRACKETED}, \TT{BRACKETABLE}, or
+\TT{PURLIST} type, it is left alone.  Otherwise
+the next pass is called, and
+then the subexpression is made into a single
 \TT{PURELIST} token.  Thus each non-operator subexpression
 is replaced by a single non-operator token.  Note that by construction,
 two non-operator tokens cannot be next to each other.
@@ -8723,31 +8725,23 @@ If the whole expression ends with an operator that has the
 \TT{right} flag, it is a parsing error which is `fixed up'
 by inserting a non-operator \ttkey{ERROR'OPERAND} before the current position.
 
-\subsubsubsection{Subexpression Identification}
-\label{SUBEXPRESSION-IDENTIFICATION}
+\subsubsubsection{Subexpression Processing}
+\label{SUBEXPRESSION-PROCESSING}
 
 After operators and their fixity have been determined, the
 expression is parsed into subexpressions according to the
 syntax given in \itemref{OPERATOR-EXPRESSION-SYNTAX}.
-
-\subsubsubsection{Subexpression Processing}
-\label{SUBEXPRESSION-PROCESSING}
+At this point, all operators in a subexpression have the
+same precedence, and all non-operators are single tokens
+of \TT{BRACKETED}, \TT{BRACKETABLE}, or \TT{PURLIST} type.
 
 If a subexpression contains one or more operators, the
 operator parsing pass first calls the reformatter associated
 with the first operator
 in the subexpression, if any.  Then if the reformatter requests, or if
-there is no reformatter, the operator parsing pass
-compacts the tokens now in the subexpression into a single
-\TT{BRACKETABLE} token with the first operator as the value of
-the token value's \ttdkey{operator} attribute.
-
-If a subexpression does \underline{not} contain an operator,
-the operator parsing pass runs subsequent parsing passes on the subexpression.
-Then if the subexpression has now zero or more than one token, the operator
-parsing pass replaces
-the subexpression by a single \TT{BRACKETABLE} token with no attributes
-(other than \TT{.position}).
+there is no reformatter, and if the subexpression does not consist
+of a single \TT{BRACKETED}, \TT{BRACKETABLE}, or \TT{PURLIST} token,
+the subexpression is compacted into a single \TT{PURELIST} token.
 
 The bracketed subexpression recognition pass may merge brackets
 into \TT{BRACKETABLE} tokens: see \pagref{MERGING-BRACKETABLE-TOKENS}.

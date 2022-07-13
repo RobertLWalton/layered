@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 9, 2022
+July 13, 2022
  
 \end{center}
 
@@ -7810,10 +7810,11 @@ as operators, and have operator definitions.
 \subsubsection{Operator Expression Syntax}
 \label{OPERATOR-EXPRESSION-SYNTAX}
 
-The operator parsing pass identifies operators, assigns flags
-to the operators that determine fixity (prefix, infix, postfix, etc.),
-and parses expressions using operator flags and operator precedence.
-Operator definitions assign precedence integers to operators.
+The operator parsing pass identifies operators
+and parses expressions using operator flags 
+and operator precedence.
+Operator definitions assign flags (prefix, infix, postfix, etc.)
+and integer precedences to operators.
 
 The operator flags \TT{initial}, \TT{left}, \TT{right}, \TT{final},
 \TT{afix}, and \TT{line} are described in Figure~\ref{OPERATOR-FLAGS}.
@@ -7826,7 +7827,7 @@ flags.
 
 Operators have precedences in the range [L,H],
 where L = -1,000,000 and H = +1,000,000.  By convention,
-precedence H is reserved for post operators and precedence H-1 is
+precedence H is reserved for postfix operators and precedence H-1 is
 reserved for prefix operators, but this is just convention and
 some prefix or postfix operators may have other precedences.
 The precedence L-1 is reserved for the `error operator' which is
@@ -7843,13 +7844,13 @@ have precedence equal to or greater than P:
 \emkey{P-expression}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em P-final-expression} \\
-        & {\em P-initial-operator} {\em P-expression}\QMARK{}
+    $|$ & {\em P-initial-operator} {\em P-expression}\QMARK{}
     \end{tabular}
 \\[0.5ex]
 \emkey{P-final-expression}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em P-middle-expression} \\
-        & {\em P-final-expression}\QMARK{} {\em P-final-operator}
+    $|$ & {\em P-final-expression}\QMARK{} {\em P-final-operator}
     \end{tabular}
 \\[0.5ex]
 \emkey{P-middle-expression}
@@ -8022,9 +8023,11 @@ the operator parsing definition stack:
 		    $|$ & \TT{indentation mark} ~ {\em indentation-mark-name}
 		    \end{tabular}
 \\[1ex]
-{\em simple-operator-name} ::= {\em quoted-key} \\[1ex]
-{\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
-{\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
+{\em simple-operator-name} ::= {\em quoted-key} \\
+{\em quoted-key} ::= see \pagref{QUOTED-KEY} \\
+{\em bracket-name} ::= see \pagref{BRACKET-NAME} \\
+{\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME}
+\\[1ex]
 \emkey{operator-flag} ::= \ttmkey{initial}{operator flag}
                       $|$ \ttmkey{left}{operator flag}
                       $|$ \ttmkey{right}{operator flag}
@@ -8042,8 +8045,6 @@ the operator parsing definition stack:
 		   :::= & {\em integer} in the range [L, H] \\
 			& where L = -1,000,000 and H = +1,000,000 \\
 		    \end{tabular}
-	\\[1ex]
-\emkey{sign-option} ::= {\em empty} $|$ \TT{+} $|$ \TT{-}
 	\\[1ex]
 \emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
 \emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}

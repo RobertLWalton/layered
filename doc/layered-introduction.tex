@@ -8076,13 +8076,25 @@ in order to identify occurrences of the operator.
 The other forms of {\em operator-name} permit bracketed subexpressions
 with particular kinds of brackets to be parsed as if they were operators.
 Thus in `\TT{x[5] = 0}' the bracketed subexpression
-`\TT{[5]}' can be a postfix operator.  A subexpression
-bracketed by `\TT{\{ \}}' is used as an afix operator (see below) to the
-\TT{<-{}-} operator, as is an indented paragraph introduced by the `\TT{:}'
-indentation mark.
+`\TT{[5]}' can be a postfix operator, and in:
+\begin{indpar}\begin{verbatim}
+int y:
+    if x == 0:
+        y = 5
+    else:
+        y = 6
+\end{verbatim}\end{indpar}
+the indented paragraph:
+\begin{indpar}\begin{verbatim}
+             :
+        y = 5
+\end{verbatim}\end{indpar}
+introduced by the indentation mark `\TT{:}'
+can be an afix operator which with the prefix `\TT{if}' operator
+brackets the {\em conditional-expression} `\TT{x == 0}'.
 
-When a bracketed subexpression (e.g., \TT{\{\ldots\}}) is identified as
-an operator, only the opening bracket (e.g., `\TT{\{}') is checked.
+When a bracketed subexpression (e.g., \TT{[\ldots]}) is identified as
+an operator, only the opening bracket (e.g., `\TT{[}') is checked.
 Since it is unusual for two defined brackets to have the same opening
 and different closings, this usually is inconsequential.
 
@@ -8097,16 +8109,22 @@ The definition must have a {\em precedence}.
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
 reformat a subexpression whose first operator is the defined operator.
-For example, given the expression `\TT{- x + 6 * y}', the subexpression
-`\TT{6 * y}' is extracted, and as its first operator is `\TT{*}',
-the reformatter for that operator is called and yields `\TT{* 6 y}'.
-Similarly the subexpression `\TT{- x}' is extracted but the reformatter
-for `\TT{-}' does not change `\TT{- x}'.
-Then the reformatter for `\TT{+}' is called
-with `\TT{(- x) + (* 6 y)}' (where the parentheses are implied),
-since `\TT{+}' is the first operator in
-this subexpression \underline{after} subexpressions have been handled.
-This reformatter returns `\TT{+ (- x) (* 6 y)}'.
+For example, given the subexpression `\TT{(x, y, z)}', the bracket
+parser recoginizes the `\TT{(~)}' brackets and calls the operator
+parser on the subexpression `\TT{x, y, z}'.  The operator parser
+recoginizes the `\TT{,}' operator and calls its reformatter
+which changes this subexpression to the BRACKETABLE
+expression `\TT{\{|x y z| .separator = ","\}}'.  The bracket parser,
+seeing that this subexpression is BRACKETABLE, adds the `\TT{(~)}'
+brackets to it, making: \\
+\centerline{\tt \{|x y z| .separator = ",",
+                          .initiator = "(",
+			  .terminator = ")"\}}
+
+However, most reformatters do not actually reformat: they just check
+for errors.  Thus for `\TT{x / y}' the binary reformatter for `\TT{/}'
+does nothing, but for `\TT{x / y / z}' it announces an error because
+`\TT{/}' appears in a subexpression with more than one operator.
 
 The optional {\em reformatter-arguments} are arguments to the reformatter
 function.  For example, the `\TT{summation}' reformatter takes two

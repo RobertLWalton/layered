@@ -8885,51 +8885,55 @@ with `\TT{,}' as operator are:
 
 \bigskip
 
-\ttmkey{declare}{reformatter} \hfill \NBOP{<-{}-} ~~~ \OP{\{\$~\$\}} ~~~ \OP{:}
+\ttmkey{declare}{reformatter}
+\TT{(} {\em second-operator} \TT{)}
+\hfill \NBOP{<-{}-} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 Typically used with a \TT{nofix} operator (e.g., \TT{<-{}-}) with
-\TT{final} \TT{afix} operators following (e.g., \TT{\{\$~\$\}} or \TT{:}).
+\TT{final} \TT{afix} operator following (e.g. \TT{:}).
 
-All operators but the first must be bracketed subexpressions
-or indented paragraphs,
-and any operands must be just before or just after the first operator.
-If the first operator is not preceded by an operand,
-an empty list is inserted as the preceding operand.
-Similarly if first operator is not followed by an operand, an empty
-list is inserted as the following operand.
-Then the first operator is moved to the
-beginning of the expression and the remaining
-bracketed and indented paragraph operators are converted to operands.
+If the expression does not begin with a non-operator, an empty
+list \TT{\{\}} is inserted at the beginning of the expression.
+If what is now the third token of the expression does not
+exist or is an operator, an empty list \TT{\{\}} is inserted
+as the third token.  If a fourth token now exists, it is checked
+to be sure it equals the {\em second-operator} reformatter argument
+followed by an operand
+followed by the end of the expression, or it is an indented paragraph
+whose {\em indentation-mark} equals the {\em second-operand} reformatter
+argument.
 
-The bracketed or indented paragraph operators should be both
-afix and nofix.
-
-For example, if \TT{<-{}-} is a nofix operator with this reformatter, and
-\TT{\{\$~\$\}} bracketed subexpressions and \TT{:} indented paragraphs
-are afix + nofix operators of the same precedence:
+For example, if \TT{<-{}-} is a nofix operator with this reformatter having
+\TT{:} as its {\em second-operator}, and if the mark \TT{:}~is an afix operator
+with the same precedence, and if the {\em indentation-mark} \TT{:} is similarly
+an afix operator with the same precedence:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\TT{x <-{}- y \{\$ z \$\}} & $\Longrightarrow$ & \TT{<-{}- x y \{\$ z\$ \}} \\
-\TT{x <-{}- \{\$ z \$\}} & $\Longrightarrow$ & \TT{<-{}- x () \{\$ z \$\}} \\
-\TT{<-{}- y \{\$ z \$\}} & $\Longrightarrow$ & \TT{<-{}- () y \{\$ z \$\}} \\
-\TT{x <-{}-} & $\Longrightarrow$ & \TT{<-{}- x ()}
+\TT{x <-{}- y :~a b c} & $\Longrightarrow$
+                       & \TT{x <-{}- y :~(a b c)} \\
+\TT{x <-{}- :~a b c } & $\Longrightarrow$
+                      & \TT{x <-{}- \{\} :~(a b c)} \\
+\TT{<-{}- y :~a b c } & $\Longrightarrow$
+                      & \TT{\{\} <-{}- y :~(a b c)} \\
+\TT{x <-{}-}          & $\Longrightarrow$
+                      & \TT{x <-{}- \{\}}
 \\[1ex]
 \begin{tabular}{@{}l@{}}
 \TT{x~<-{}-~u v w:} \\
-\TT{~~~~~~z}
+\TT{~~~~~~a b c}
 \end{tabular}
 & $\Longrightarrow$ &
 \begin{tabular}{@{}l@{}}
-\TT{<-{}- x ( u v w ):} \\
-\TT{~~~~z}
+\TT{x <-{}- ( u v w ):} \\
+\TT{~~~~a b c}
 \end{tabular}
 \end{tabular}
 
-Note that because \TT{\{\$ \$\}} bracketed subexpressions are afix operators
+Because \TT{:} is an afix operator
 with same precedence as \TT{<-{}-},
-`\TT{x <-{}- y \{\$ z \$\}}' does \underline{not}
-end up as `\TT{<-{}- x ( y \{\$ z \$\} )}'.
+`\TT{x <-{}- y :~a b c}' does \underline{not}
+end up as `\TT{x <-{}- x ( y :~a b c )}'.
 
 \end{indpar}
 

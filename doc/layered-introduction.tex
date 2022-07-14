@@ -8985,7 +8985,7 @@ to the reformatter.  But if the reformatter has no arguments, does
 
 \begin{indpar}[0.5em]
 Identical to the \TT{infix} reformatter, except after checking
-the expression, inserts parentheses into the expression from
+the expression, inserts implied brackets into the expression from
 right to left so that all operators
 are binary and the \underline{rightmost}
 operator is innermost (executed first).
@@ -9010,7 +9010,7 @@ and reformatter arguments {\tt ("=", "+=")}, then:
 
 \begin{indpar}[0.5em]
 Identical to the \TT{infix} reformatter, except after checking
-the expression, inserts parentheses into the expression from left
+the expression, inserts implied brackets into the expression from left
 to right so that all operators
 are binary and the \underline{leftmost}
 operator is innermost (executed first).
@@ -9037,11 +9037,12 @@ Typically used with \TT{prefix} operators.
 
 Checks that the subexpression has exactly two elements, an operator followed
 by an operand.  Examples
-where \TT{NOT} is a prefix operator:
+where \TT{NOT} is a prefix operator with this reformatter:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \TT{NOT x} & $\Longrightarrow$ & \TT{NOT x} \\
 \TT{NOT NOT x} & $\Longrightarrow$ & \TT{NOT (NOT x)} \\
+\TT{NOT} & $\Longrightarrow$ & \TT{NOT ERROR'OPERAND} \\
 \end{tabular}
 \end{indpar}
 

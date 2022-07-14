@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 13 15:52:36 EDT 2022
+// Date:	Thu Jul 14 16:00:34 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1125,7 +1125,8 @@ static bool control_reformatter_function
 	    PAR::parse_error
 		( parser, t->previous->position,
 		  "expected statement after" );
-	    OP::put_error_operand_before ( parser, t );
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
 	    return true;
 	}
 	else if ( t->type == PAR::OPERATOR )
@@ -1236,7 +1237,8 @@ static bool declare_reformatter_function
 	    PAR::parse_error
 		( parser, t->previous->position,
 		  "expected statement after" );
-	    OP::put_error_operand_before ( parser, t );
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
 	    return true;
 	}
 	else if ( t->type == PAR::OPERATOR )
@@ -1404,8 +1406,7 @@ static bool selector_reformatter_function
 	MIN_REQUIRE ( t != next );
 	if ( t->type == PAR::OPERATOR )
 	{
-	    OP::put_error_operand_before
-	        ( parser, t );
+	    OP::put_error_operand_before ( parser, t );
 	    if ( first == t ) first = t->previous;
 	}
 	else
@@ -1456,7 +1457,8 @@ static bool selector_reformatter_function
 	      min::pgen_quote ( second_op ),
 	      " inserted" );
 
-	OP::put_error_operand_before ( parser, t );
+	OP::put_error_operand_after
+	    ( parser, token );
     }
 
     return true;
@@ -1488,7 +1490,8 @@ static void infix_check
 	    PAR::parse_error
 		( parser, t->previous->position,
 		  "operator should be infix" );
-	    OP::put_error_operand_before ( parser, t );
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
 	    return;
 	}
 	else if ( t->type == PAR::OPERATOR )
@@ -1720,9 +1723,7 @@ static bool unary_reformatter_function
     if ( t == next )
     {
 	t = t->previous;
-
 	OP::put_error_operand_after ( parser, t );
-	t = t->next;
     }
     t = t->next;
 

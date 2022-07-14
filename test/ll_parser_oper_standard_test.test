@@ -1,3 +1,6 @@
+ERROR: in line ##: missing operand; error operand inserted:
+    (NOT)
+         ^
 ERROR: in line ##: illegal operator "OR" in expression beginnning with
        "AND"; changed to "AND":
     x AND y OR z
@@ -400,6 +403,13 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
 ======= line ##:
     x NOT y
     ^^^^^^^
+======= PARSER TEST: (NOT ERROR'OPERAND)
+======= line ##:
+    (NOT)
+    ^^^^^
+------- line ##:
+    (NOT)
+    ^^^^^
 ======= PARSER TEST: {|x|} AND {|y|} AND {|z|}
 ======= line ##:
     x AND y AND z

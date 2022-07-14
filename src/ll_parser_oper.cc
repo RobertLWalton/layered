@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 14 16:00:34 EDT 2022
+// Date:	Thu Jul 14 16:21:37 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1721,11 +1721,10 @@ static bool unary_reformatter_function
 		  " operator " );
 
     if ( t == next )
-    {
-	t = t->previous;
-	OP::put_error_operand_after ( parser, t );
-    }
-    t = t->next;
+	OP::put_error_operand_after
+	    ( parser, t->previous );
+    else
+	t = t->next;
 
     // Delete extra stuff from end of list.
     //
@@ -1787,13 +1786,10 @@ static bool binary_reformatter_function
 		  " operator " );
 
     if ( t == next )
-    {
-	t = t->previous;
-
-	OP::put_error_operand_after ( parser, t );
+	OP::put_error_operand_after
+	    ( parser, t->previous );
+    else
 	t = t->next;
-    }
-    t = t->next;
 
     // We should be at end of expression.
     //

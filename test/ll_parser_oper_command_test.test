@@ -881,54 +881,53 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 *PARSER*:
     define operator "<--" [code] nofix line
         with precedence 0
-        with declare reformatter
-    define bracket "{$" ... "$}" [code]
-    define operator bracket "{$" ... "$}" [code]
-        nofix afix line
+        with declare reformatter ( ":" )
+    define operator ":" [code]
+        right afix line
         with precedence 0
     define operator indentation mark ":" [code]
         nofix afix line
         with precedence 0
-======= PARSER TEST: <-- {|foo bar|} {|boo bat|} {$ fee fie fo fum $}
+======= PARSER TEST: {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
 ======= line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- boo bat : fee fie fo fum
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
+    foo bar <-- boo bat : fee fie fo fum
     ^^^^^^^
 ------- line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
+    foo bar <-- boo bat : fee fie fo fum
                 ^^^^^^^
 ------- line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
-                        ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: <-- {|foo bar|} {} {$ fee fie fo fum $}
+    foo bar <-- boo bat : fee fie fo fum
+                          ^^^^^^^^^^^^^^
+======= PARSER TEST: {|foo bar|} <-- {} ":" {|fee fie fo fum|}
 ======= line ###:
-    foo bar <-- {$ fee fie fo fum $}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- : fee fie fo fum
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    foo bar <-- {$ fee fie fo fum $}
+    foo bar <-- : fee fie fo fum
     ^^^^^^^
 ------- line ###:
-    foo bar <-- {$ fee fie fo fum $}
+    foo bar <-- : fee fie fo fum
                ^
 ------- line ###:
-    foo bar <-- {$ fee fie fo fum $}
-                ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: <-- {} {|boo bat|} {$ fee fie fo fum $}
+    foo bar <-- : fee fie fo fum
+                  ^^^^^^^^^^^^^^
+======= PARSER TEST: {} <-- {|boo bat|} ":" {|fee fie fo fum|}
 ======= line ###:
-    <-- boo bat {$ fee fie fo fum $}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    <-- boo bat : fee fie fo fum
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    <-- boo bat {$ fee fie fo fum $}
+    <-- boo bat : fee fie fo fum
     ^
 ------- line ###:
-    <-- boo bat {$ fee fie fo fum $}
+    <-- boo bat : fee fie fo fum
         ^^^^^^^
 ------- line ###:
-    <-- boo bat {$ fee fie fo fum $}
-                ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: <-- {|foo bar|} {}
+    <-- boo bat : fee fie fo fum
+                  ^^^^^^^^^^^^^^
+======= PARSER TEST: {|foo bar|} <-- {}
 ======= line ###:
     foo bar <--
     ^^^^^^^^^^^
@@ -938,7 +937,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
 ------- line ###:
     foo bar <--
                ^
-======= PARSER TEST: <-- {|foo bar|} {|boo bat|}:
+======= PARSER TEST: {|foo bar|} <-- {|boo bat|}:
                          fee fie fo fum
                          he ha ho hum
 ======= lines ###-###:
@@ -968,29 +967,26 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         he ha ho hum
         ^^^^^^^^^^^^
 ======= END PARSER TEST(S)
-======= PARSER TEST: (foo bar <-- boo bat {$ fee fie fo fum $})
+======= PARSER TEST: (foo bar <-- boo bat ":" fee fie fo fum)
 ======= line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( foo bar <-- boo bat {$ fee fie fo fum $} )
-                          ^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: <-- {|foo bar|} {|boo bat|} {$ fee fie fo fum $}
-======= line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
+    ( foo bar <-- boo bat : fee fie fo fum )
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------- line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
+    ( foo bar <-- boo bat : fee fie fo fum )
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+======= PARSER TEST: {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
+======= line ###:
+    foo bar <-- boo bat : fee fie fo fum
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+    foo bar <-- boo bat : fee fie fo fum
     ^^^^^^^
 ------- line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
+    foo bar <-- boo bat : fee fie fo fum
                 ^^^^^^^
 ------- line ###:
-    foo bar <-- boo bat {$ fee fie fo fum $}
-                        ^^^^^^^^^^^^^^^^^^^^
+    foo bar <-- boo bat : fee fie fo fum
+                          ^^^^^^^^^^^^^^
 ======= END PARSER TEST(S)
 *PARSER*:
     print operator ""
@@ -1022,6 +1018,9 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         infix
                         with precedence 5100
                         with binary reformatter
+        block standard: operator ":" [code]
+                        right afix line
+                        with precedence 0
         block standard: operator "<" [code, math]
                         infix
                         with precedence 4000
@@ -1052,7 +1051,7 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
         block standard: operator "<--" [code]
                         nofix line
                         with precedence 0
-                        with declare reformatter
+                        with declare reformatter ( ":" )
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
                         with precedence 3000
@@ -1111,9 +1110,6 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
                         infix
                         with precedence 1000
                         with right associative reformatter
-        block standard: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
-                        nofix afix line
-                        with precedence 0
         block standard: bracket ":" [code]
                         nofix afix line
                         with precedence 0

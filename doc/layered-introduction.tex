@@ -8803,7 +8803,7 @@ infix operators with the same precedence).
 
 Note that many errors that one might expect to be handled by
 reformatters are not so-handled because the operators are not
-recognized.  For example, no operator are recognized in:
+recognized.  For example, no operators are recognized in:
 \begin{center}
 \begin{tabular}{l@{~~~~~~~~~~}l}
 \TT{x NOT y}	& \TT{NOT} is not in prefix position \\
@@ -8823,15 +8823,12 @@ With the above in mind, the operator reformatters are:
 
 \ttmkey{control}{reformatter}
 \TT{(} {\em delimiter} \{ \TT{,} \ttkey{has condition} \}\QMARK{} \TT{)}
-\hfill \begin{tabular}[t]{l}
-       \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else} \\
-       \OP{while} ~~~~~ \OP{until} \\
-       \end{tabular}
+\hfill \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else} \\
 
 
 \begin{indpar}[0.5em]
 Typically used with \TT{prefix} \TT{line} operators
-(e.g., \TT{if} or \TT{while}).
+(e.g., \TT{if}).
 
 The expression must have one of the forms:
 

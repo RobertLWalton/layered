@@ -1178,6 +1178,9 @@ static bool declare_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
+    OP::oper op = (OP::oper) entry;
+    min::obj_vec_ptr args ( op->reformatter_arguments );
+
     MIN_REQUIRE ( first != next );
 
     // We need to be careful to insert empty operands
@@ -1212,44 +1215,65 @@ static bool declare_reformatter_function
     else
         t = t->next;
 
-    // Move second element to head of list.
-    //
-    PAR::token oper =
-	PAR::remove ( PAR::first_ref ( parser ),
-		      first->next );
-    PAR::put_before ( PAR::first_ref ( parser ),
-		      first, oper );
-    first = oper;
+    if ( t == next ) return true; 
 
-    // Check that remaining elements (other than first
-    // three) are bracketted operators and convert them
-    // to operands.
+    // Fourth element must be operator.
     //
-    while ( t != next )
+    MIN_ASSERT
+	( t != next && t->type == PAR::OPERATOR,
+	  "fourth element is missing or not operator" );
+
+    // Check that the fourth element is either args[0]
+    // followed by one operand or is an indented
+    // paragraph with indentation mark args[0] that
+    // ends the expression.
+    //
+    if ( t->value == args[0] )
     {
-        if ( t->type != PAR::OPERATOR
-	     ||
-	     min::is_name ( t->value ) )
+	t = t->next;
+	if ( t == next )
 	{
 	    PAR::parse_error
-	        ( parser, t->position,
-		  "expected bracketed expression and"
-		  " got ",
-		  min::pgen_quote ( t->value ),
-		  "; deleted" );
-
-	    t = t->next;
-	    PAR::free
-	        ( PAR::remove
-		      ( PAR::first_ref ( parser ),
-		        t->previous ) );
+		( parser, t->previous->position,
+		  "expected statement after" );
+	    OP::put_error_operand_before ( parser, t );
+	    return true;
 	}
-	else
+	else if ( t->type == PAR::OPERATOR )
 	{
-	    t->type = PAR::BRACKETED;
-	    t = t->next;
+	    PAR::parse_error
+		( parser, t->position,
+		  "expected an operand and found an"
+		  " operator" );
+            t = OP::delete_extra_stuff
+	        ( parser, t, next );
+	    return true;
 	}
     }
+    else if (    min::get ( t->value,
+		            min::dot_terminator )
+	      != min::INDENTED_PARAGRAPH()
+	      ||
+                 min::get ( t->value,
+		            min::dot_initiator )
+	      != args[0] )
+    {
+	PAR::parse_error
+	    ( parser, t->position,
+	      "expected `",
+	      min::pgen_never_quote ( args[0] ),
+	      "' operator or indented paragraph but"
+	      " found different operator" );
+	t = OP::delete_extra_stuff ( parser, t, next );
+	return true;
+    }
+
+    t = t->next;
+
+    // Delete extra stuff from end of list.
+    //
+    if ( t != next )
+        t = OP::delete_extra_stuff ( parser, t, next );
 
     return true;
 }
@@ -1793,7 +1817,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
     PAR::push_reformatter
-        ( declare, 0, 0,
+        ( declare, 1, 1,
 	  ::declare_reformatter_function,
 	  OP::reformatter_stack );
 

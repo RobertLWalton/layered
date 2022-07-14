@@ -9056,13 +9056,13 @@ where \TT{NOT} is a prefix operator with this reformatter:
 Typically used with \TT{infix} operators.
 
 The subexpression must have exactly three elements, an operand
-followed by an operator followed by an operand.  The operator is moved
-to the beginning of the expression.  Examples:
+followed by an operator followed by an operand.
+Examples:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\TT{x BUT NOT y} & $\Longrightarrow$ & \TT{[< BUT NOT >] x y} \\
-\TT{x / y} & $\Longrightarrow$ & \TT{/ x y} \\
-\TT{x \textasciicircum{} y} & $\Longrightarrow$ & \TT{\textasciicircum{} x y} \\
+\TT{x BUT NOT y} & $\Longrightarrow$ & \TT{x [< BUT NOT >] y} \\
+\TT{x / y} & $\Longrightarrow$ & \TT{x / y} \\
+\TT{x \textasciicircum{} y} & $\Longrightarrow$ & \TT{x \textasciicircum{} y} \\
 \TT{x / y / z} & $\Longrightarrow$ & error \\
 \end{tabular}
 

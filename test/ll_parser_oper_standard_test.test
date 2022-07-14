@@ -1,3 +1,6 @@
+ERROR: in line ##: extra stuff at end of expression; deleted:
+    x / y / z
+          ^^^
 ERROR: in line ##: missing operand; error operand inserted:
     (NOT)
          ^
@@ -389,6 +392,26 @@ ERROR: in line ##: illegal operator "OR" in expression beginnning with
 ------- line ##:
     x * {|* y|}
         ^^^^^^^
+======= PARSER TEST: {|x|} / {|y|}
+======= line ##:
+    x / y
+    ^^^^^
+------- line ##:
+    x / y
+    ^
+------- line ##:
+    x / y
+        ^
+======= PARSER TEST: {|x|} / {|y|}
+======= line ##:
+    x / y / z
+    ^^^^^^^^^
+------- line ##:
+    x / y / z
+    ^
+------- line ##:
+    x / y / z
+        ^
 ======= PARSER TEST: NOT {|NOT {|x|}|}
 ======= line ##:
     NOT NOT x

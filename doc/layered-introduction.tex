@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 13, 2022
+July 14, 2022
  
 \end{center}
 
@@ -2194,6 +2194,18 @@ A token has the following components:
 		  $[0,10^{15})$, the token type is set to
 		  \TT{natural}.
 		  Otherwise the token type is set to \TT{number}.
+\end{tabular}
+\\[1ex]  
+\begin{tabular}{p{1in}p{4.5in}}
+		& Standardly a quoted string token value is converted
+		  from a MIN string to an object having the MIN string
+		  as its only element and \TT{<Q>} as its \TT{.type}.
+		  This conversion is delayed until
+		  the converted version of the token value is
+		  needed, as when it must be copied to into
+		  an object representing an expression.
+		  Usually the quoted string token itself is discarded
+		  immediately after its value has been used.
 \end{tabular}
 \\[1ex]  
 \begin{tabular}{p{1in}p{4.5in}}

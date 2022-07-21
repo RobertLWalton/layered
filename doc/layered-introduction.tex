@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 14, 2022
+July 21, 2022
  
 \end{center}
 
@@ -8159,8 +8159,9 @@ in \itemref{OPERATOR-REFORMATTERS}.
 \subsubsection{Standard Operators}
 \label{STANDARD-OPERATORS}
 
-The standard operators are given in Figures~\ref{STANDARD-OPERATORS-1}
-and~\ref{STANDARD-OPERATORS-2}.
+The standard operators are given in Figures~\ref{STANDARD-OPERATORS-1},
+\ref{STANDARD-OPERATORS-2},
+and~\ref{STANDARD-OPERATORS-3}.
 
 \begin{figure*}[!p]
 \begin{center}
@@ -8173,19 +8174,15 @@ prece-  & selec-  &             &            &            &            & \\
                                 & \TT{prefix} & \ttkey{if} & conditional & C
 \\\cline{5-5}
 	&	&		& \TT{line}  & \ttkey{else if} & & 
-\\\cline{5-6}
-	&	&		&	     & \ttkey{while} & loop    &
-\\\cline{5-5}
-	&	&		&	     & \ttkey{until} & &
 \\\cline{4-6}
 	&	& 		& \TT{initial}
 					     & \ttkey{else} & terminating & \\
 	&	& 		& \TT{line}  &            & conditional &
 \\\cline{3-6}
-	&	& (none)	& \TT{afix } & \ttkey{:}  &	       & \\
-	&	&		& \TT{right} &            &            & \\
+	&	& (none)	& \TT{afix } & \ttkey{:}  & conditional & \\
+	&	&		& \TT{right} &            & modifier   & \\
 	&	&		& \TT{line}  &            &            &
-\\\cline{4-6}
+\\\cline{4-5}
 	&	& 		& \TT{afix } & \ttkey{:} indentation & & \\
 	&	&		& \TT{postfix}  & ~~~mark     &           & \\
 	&	&		& \TT{line}  &            &            &
@@ -8212,10 +8209,13 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
-\\\cline{1-6}
-2000    & code	& \ttkey{separator}
-				& \TT{nofix} & \ttkey{,}  & separator  & \\
-	& math	&		&	     &		  &	       &
+\\\cline{2-5}
+	& code	& \TT{postfix}	& \TT{postfix } & \ttkey{:} indentation & & \\
+	&	&		& \TT{line}     & ~~~mark               & &
+\\\cline{3-6}
+	&       & (none)	& \TT{afix } & \ttkey{:} indentation
+	                                                   & assignment & \\
+	&	&		& \TT{line}  & ~~~mark     & modifier  &
 \\\hline
 \end{tabular}
 
@@ -8233,6 +8233,45 @@ S: & \ttkey{assignment operators} \\
 \end{center}
 \caption{Standard Operators: Part 1}
 \label{STANDARD-OPERATORS-1}
+\end{figure*}
+
+\begin{figure*}[!p]
+\begin{center}
+\begin{tabular}{|l|r|l|l@{\hspace*{1em}}|l@{\hspace*{1em}}|l|l|}
+\hline
+prece-  & selec-  &             &            &            &            & \\
+~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
+\\\hline
+2000    & code	& \ttkey{separator}
+				& \TT{nofix} & \ttkey{,}  & separator  & S \\
+	& math	&		&	     &		  &	       &
+\\\hline
+3000	& code	& \ttkey{iterator}
+				& \TT{prefix} & \ttkey{do} & iterator & I
+\\\cline{5-5}
+	&	&		& \TT{line}  & \ttkey{while} & &
+\\\cline{5-5}
+	&	&		&	     & \ttkey{until} & &
+\\\cline{5-5}
+	&	&		&	     & \ttkey{loop} & &
+\\\cline{3-6}
+	&	& (none)	& \TT{afix}  & \ttkey{times} & \TT{loop} & \\
+	&	&		& \TT{line}  & 		     & modifier  &
+\\\hline
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{ll}
+Class & Standard Component
+\\\hline
+S: & \ttkey{assignment operators} \\
+I: & \ttkey{iterator operators} \\
+\end{tabular}
+
+\end{center}
+\caption{Standard Operators: Part 2}
+\label{STANDARD-OPERATORS-2}
 \end{figure*}
 
 \begin{figure*}[!p]
@@ -8330,8 +8369,8 @@ Note: & All operators in an expression with \TT{infix}
 \end{tabular}
 
 \end{center}
-\caption{Standard Operators: Part 2}
-\label{STANDARD-OPERATORS-2}
+\caption{Standard Operators: Part 3}
+\label{STANDARD-OPERATORS-3}
 \end{figure*}
 
 \clearpage
@@ -8823,7 +8862,7 @@ With the above in mind, the operator reformatters are:
 
 \ttmkey{control}{reformatter}
 \TT{(} {\em delimiter} \{ \TT{,} \ttkey{has condition} \}\QMARK{} \TT{)}
-\hfill \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else} \\
+\hfill \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else}
 
 
 \begin{indpar}[0.5em]

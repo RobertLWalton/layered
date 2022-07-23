@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 15 04:24:23 EDT 2021
+// Date:	Sat Jul 23 15:23:03 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,7 +56,9 @@ namespace lexeme {
         precedence,     // precedence
         operators,      // operators
         has_condition,  // has condition
-        control;        // control
+        control,        // control
+        iteration,      // iteration
+        times;		// times
 }
 
 extern min::locatable_var<ll::parser::reformatter>

@@ -3456,6 +3456,10 @@ canceled by an `\TT{end block standard}' parser command.
     Executes control operator definitions
     (\pagref{STANDARD-CONTROL-OPERATORS}).  [code]
 \\
+\ttmkey{iteration operators}{parser standard flag} &
+    Executes iteration operator definitions
+    (\pagref{STANDARD-ITERATION-OPERATORS}).  [code]
+\\
 \ttmkey{assignment operators}{parser standard flag} &
     Executes assignment operator definitions
     (\pagref{STANDARD-ASSIGNMENT-OPERATORS}). \\
@@ -8243,16 +8247,18 @@ prece-  & selec-  &             &            &            &            & \\
 				& \TT{nofix} & \ttkey{,}  & separator  & S \\
 	& math	&		&	     &		  &	       &
 \\\hline
-3000	& code	& \ttkey{iterator}
+3000	& code	& \ttkey{unary}
 				& \TT{prefix} & \ttkey{do} & iterator & I
 \\\cline{5-5}
 	&	&		& \TT{line}  & \ttkey{while} & &
 \\\cline{5-5}
 	&	&		&	     & \ttkey{until} & &
+\\\cline{3-3}\cline{5-5}
+	&	& \ttkey{iteration}	&	     & \ttkey{exactly} & &
 \\\cline{5-5}
-	&	&		&	     & \ttkey{loop} & &
+	&	&		&	     & \ttkey{at most} & &
 \\\cline{3-6}
-	&	& (none)	& \TT{afix}  & \ttkey{times} & \TT{loop} & \\
+	&	& (none)	& \TT{afix}  & \ttkey{times} & iterator & \\
 	&	&		& \TT{line}  & 		     & modifier  &
 \\\hline
 \end{tabular}
@@ -8263,7 +8269,7 @@ prece-  & selec-  &             &            &            &            & \\
 Class & Standard Component
 \\\hline
 S: & \ttkey{assignment operators} \\
-I: & \ttkey{iterator operators} \\
+I: & \ttkey{iteration operators} \\
 \end{tabular}
 
 \end{center}
@@ -8412,6 +8418,39 @@ Parser Command				& \shortstack{
 \end{center}
 
 \begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{iteration operators}'\label{STANDARD-ITERATION-OPERATORS}
+     Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          {\bf Required}\\Qualifiers}
+\\\hline
+\tt define operator "do" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with unary reformatter \\
+\tt define operator "while" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with unary reformatter \\
+\tt define operator "until" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with unary reformatter
+\\[1ex]
+\tt define operator "exactly" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with iteration reformatter ( "times" ) \\
+\tt define operator "at most" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000 \\
+\tt ~~~~~~~with iteration reformatter ( "times" )
+\\[1ex]
+\tt define operator "times" [code] afix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000 \\
+\end{tabular}
+\end{center}
+
+\begin{center}
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \multicolumn{2}{c}
 {\bf Standard `\ttkey{assignment operators}'
@@ -8428,6 +8467,10 @@ Parser Command				& \shortstack{
 \tt define operator "=" [math] infix & {\tt + math} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter
+\\[1ex]
+\tt define operator indentation mark ":" [code] & {\tt + code} \\
+\tt ~~~~~~~postfix afix line \\
+\tt ~~~~~~~with precedence 1000 \\
 \\[1ex]
 \tt define operator "," [code, math] nofix & {\tt + code} or {\tt + math} \\
 \tt ~~~~~~~with precedence 2000 \\

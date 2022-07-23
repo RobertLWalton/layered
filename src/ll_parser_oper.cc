@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 14 16:21:37 EDT 2022
+// Date:	Sat Jul 23 15:23:21 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,6 +61,8 @@ min::locatable_gen OPLEX::precedence;
 min::locatable_gen OPLEX::operators;
 min::locatable_gen OPLEX::has_condition;
 min::locatable_gen OPLEX::control;
+min::locatable_gen OPLEX::iteration;
+min::locatable_gen OPLEX::times;
 
 static void init_end_oper ( void );
 static void init_error_oper ( void );
@@ -101,6 +103,8 @@ static void initialize ( void )
     OPLEX::has_condition =
         min::new_lab_gen ( "has", "condition" );
     OPLEX::control = min::new_str_gen ( "control" );
+    OPLEX::iteration = min::new_str_gen ( "iteration" );
+    OPLEX::times = min::new_str_gen ( "times" );
 
     ::init_end_oper();
     ::init_error_oper();
@@ -1168,6 +1172,68 @@ static bool control_reformatter_function
     return true;
 }
 
+static bool iteration_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    OP::oper op = (OP::oper) entry;
+    min::obj_vec_ptr args ( op->reformatter_arguments );
+    MIN_REQUIRE ( min::size_of ( args ) == 1 );
+
+    while (    first != next
+            && first->type != PAR::OPERATOR )
+        first = OP::delete_bad_token
+	    ( parser, first, "expected an operator"
+			     " and found an operand " );
+    MIN_ASSERT ( first != next,
+		 "expression must have an operator" );
+
+    PAR::token t = first->next;
+
+    while ( t != next && t->type == PAR::OPERATOR )
+        t = OP::delete_bad_token
+	        ( parser, t,
+		  "expected an operand and found an"
+		  " operator " );
+    MIN_ASSERT ( t != next,
+		 "expression must have an operand" );
+
+    t = t->next;
+
+    while ( t != next && t->type != PAR::OPERATOR )
+        t = OP::delete_bad_token
+	    ( parser, t, "expected an operator"
+			 " and found an operand " );
+    MIN_ASSERT ( t != next,
+		 "expression must end with"
+		 " an operator" );
+
+    if ( t->value != args[0] )
+    {
+	PAR::parse_error
+	    ( parser, t->position,
+	      "this operator has been changed to ",
+	      min::pgen_quote ( args[0] ) );
+	PAR::value_ref ( t ) = args[0];
+    }
+
+    t = t->next;
+
+    // Delete extra stuff from end of list.
+    //
+    if ( t != next )
+        t = OP::delete_extra_stuff ( parser, t, next );
+
+    return true;
+}
+
 static bool declare_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1809,6 +1875,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( control, 1, 2,
 	  ::control_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen iteration
+        ( min::new_str_gen ( "iteration" ) );
+    PAR::push_reformatter
+        ( iteration, 1, 1,
+	  ::iteration_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen declare

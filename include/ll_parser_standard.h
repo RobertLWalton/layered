@@ -263,25 +263,29 @@ enum {
     CONTROL_OPERATORS		= 1 << 12,
         // Set standard control operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ASSIGNMENT_OPERATORS	= 1 << 13,
+    ITERATION_OPERATORS		= 1 << 13,
+        // Set standard iteration operator entries
+	// omitting DISabled CODE selectors.
+    ASSIGNMENT_OPERATORS	= 1 << 14,
         // Set standard assignment operator entries
 	// omitting DISabled CODE and MATH selectors.
-    SELECTION_OPERATORS		= 1 << 14,
+    SELECTION_OPERATORS		= 1 << 15,
         // Set standard selector operator entries
 	// omitting DISabled CODE and MATH selectors.
-    LOGICAL_OPERATORS		= 1 << 15,
+    LOGICAL_OPERATORS		= 1 << 16,
         // Set standard logical operator entries
 	// omitting DISabled CODE and MATH selectors.
-    COMPARISON_OPERATORS	= 1 << 16,
+    COMPARISON_OPERATORS	= 1 << 17,
         // Set standard comparison operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ARITHMETIC_OPERATORS	= 1 << 17,
+    ARITHMETIC_OPERATORS	= 1 << 18,
         // Set standard arithmetic operator entries
 	// omitting DISabled CODE and MATH selectors.
-    BITWISE_OPERATORS		= 1 << 18,
+    BITWISE_OPERATORS		= 1 << 19,
         // Set standard bitwise operator entries
 	// omitting DISabled CODE and MATH selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS
+                        	+ ITERATION_OPERATORS
                         	+ ASSIGNMENT_OPERATORS
                         	+ SELECTION_OPERATORS
                         	+ LOGICAL_OPERATORS

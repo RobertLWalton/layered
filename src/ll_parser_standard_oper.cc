@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 23 12:47:47 EDT 2022
+// Date:	Sat Jul 23 16:44:25 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -86,34 +86,6 @@ static void define_control_operators
 	  condition_arguments,
 	  oper_pass->oper_table );
 
-    min::locatable_gen while_name
-        ( min::new_str_gen ( "while" ) );
-
-    OP::push_oper
-        ( while_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0000,
-	  control_reformatter,
-	  condition_arguments,
-	  oper_pass->oper_table );
-
-    min::locatable_gen until_name
-        ( min::new_str_gen ( "until" ) );
-
-    OP::push_oper
-        ( until_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0000,
-	  control_reformatter,
-	  condition_arguments,
-	  oper_pass->oper_table );
-
     min::locatable_gen else_name
         ( min::new_str_gen ( "else" ) );
 
@@ -149,6 +121,112 @@ static void define_control_operators
 	  min::NULL_STUB,
 	  min::MISSING(),
 	  oper_pass->oper_bracket_table );
+}
+
+static void define_iteration_operators
+	( PAR::parser parser,
+	  TAB::flags code,
+	  TAB::flags math )
+{
+    if ( code == 0 ) return;
+
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    oper_pass->selectors |= code;
+
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+    PAR::reformatter unary_reformatter =
+        PAR::find_reformatter
+	    ( unary, OP::reformatter_stack );
+    PAR::reformatter iteration_reformatter =
+        PAR::find_reformatter
+	    ( OPLEX::iteration, OP::reformatter_stack );
+
+    min::locatable_gen iteration_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr iavp ( iteration_arguments );
+    min::attr_push ( iavp ) = OPLEX::times;
+
+    min::locatable_gen do_name
+        ( min::new_str_gen ( "do" ) );
+    min::locatable_gen while_name
+        ( min::new_str_gen ( "while" ) );
+    min::locatable_gen until_name
+        ( min::new_str_gen ( "until" ) );
+    min::locatable_gen exactly
+        ( min::new_str_gen ( "exactly" ) );
+    min::locatable_gen at_most
+        ( min::new_lab_gen ( "at", "most" ) );
+
+    OP::push_oper
+        ( do_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  3000,
+	  unary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( while_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  3000,
+	  unary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( until_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  3000,
+	  unary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( exactly,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  3000,
+	  iteration_reformatter,
+	  iteration_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( at_most,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  3000,
+	  iteration_reformatter,
+	  iteration_arguments,
+	  oper_pass->oper_table );
+
+
+    OP::push_oper
+        ( OPLEX::times,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::AFIX + OP::LINE,
+	  3000,
+	  min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_table );
 }
 
 static void define_assignment_operators
@@ -201,7 +279,7 @@ static void define_assignment_operators
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );
 
-    OP::push_oper
+    if ( code ) OP::push_oper
         ( PARLEX::colon,
 	  min::MISSING(),
 	  code,
@@ -808,6 +886,7 @@ void PARSTD::define_operators
 	// unneeded selectors are never referenced.
 
     if ( components & (   PARSTD::CONTROL_OPERATORS
+                        + PARSTD::ITERATION_OPERATORS
                         + PARSTD::BITWISE_OPERATORS ) )
 	needed |= PARSTD::CODE;
     if ( components & (   PARSTD::ASSIGNMENT_OPERATORS
@@ -840,6 +919,9 @@ void PARSTD::define_operators
 
     if ( components & PARSTD::CONTROL_OPERATORS )
 	::define_control_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::ITERATION_OPERATORS )
+	::define_iteration_operators
 	    ( parser, code, math );
     if ( components & PARSTD::ASSIGNMENT_OPERATORS )
 	::define_assignment_operators

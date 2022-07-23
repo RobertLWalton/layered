@@ -293,6 +293,10 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator "do" [code]
+                        prefix line
+                        with precedence 3000
+                        with unary reformatter
         block standard: operator "NOT" [code, math]
                         prefix
                         with precedence 11200
@@ -302,6 +306,10 @@
                         with precedence 0
                         with control reformatter ( ":",
                         [< "has" "condition" >] )
+        block standard: operator "exactly" [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( "times" )
         block standard: operator "<<=" [code]
                         infix line
                         with precedence 1000
@@ -312,13 +320,15 @@
                         with binary reformatter
         block standard: operator "while" [code]
                         prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
+                        with precedence 3000
+                        with unary reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
                         with precedence 11000
                         with binary reformatter
+        block standard: operator "times" [code]
+                        nofix afix line
+                        with precedence 3000
         block standard: operator "if" [code, math]
                         infix
                         with precedence 10000
@@ -330,9 +340,8 @@
                         [< "has" "condition" >] )
         block standard: operator "until" [code]
                         prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
+                        with precedence 3000
+                        with unary reformatter
         block standard: operator "else" [code, math]
                         infix afix
                         with precedence 10000
@@ -352,6 +361,10 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator [< "at" "most" >] [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( "times" )
         block standard: operator "+=" [code]
                         infix line
                         with precedence 1000
@@ -396,6 +409,9 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: bracket ":" [code]
+                        nofix afix line
+                        with precedence 1000
         block standard: bracket ":" [code]
                         postfix afix line
                         with precedence 0

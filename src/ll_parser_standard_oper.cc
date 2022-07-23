@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  9 13:44:21 EDT 2022
+// Date:	Sat Jul 23 12:47:47 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -200,6 +200,17 @@ static void define_assignment_operators
 
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );
+
+    OP::push_oper
+        ( PARLEX::colon,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::AFIX + OP::LINE,
+	  1000,
+	  min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_bracket_table );
 
     OP::push_oper
         ( comma,

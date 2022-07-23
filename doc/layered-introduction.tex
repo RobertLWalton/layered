@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 21, 2022
+July 23, 2022
  
 \end{center}
 
@@ -8209,11 +8209,8 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
-\\\cline{2-5}
-	& code	& \TT{postfix}	& \TT{postfix } & \ttkey{:} indentation & & \\
-	&	&		& \TT{line}     & ~~~mark               & &
-\\\cline{3-6}
-	&       & (none)	& \TT{afix } & \ttkey{:} indentation
+\\\cline{2-6}
+	& code  & (none)	& \TT{afix } & \ttkey{:} indentation
 	                                                   & assignment & \\
 	&	&		& \TT{line}  & ~~~mark     & modifier  &
 \\\hline
@@ -9025,9 +9022,9 @@ to the reformatter.  But if the reformatter has no arguments, does
 \begin{indpar}[0.5em]
 Identical to the \TT{infix} reformatter, except after checking
 the expression, inserts implied brackets into the expression from
-right to left so that all operators
-are binary and the \underline{rightmost}
-operator is innermost (executed first).
+right to left making all operators
+binary with the \underline{rightmost}
+operator innermost (executed first).
 
 
 Thus if \TT{=}, \TT{+=}, and \TT{*=}
@@ -9050,9 +9047,9 @@ and reformatter arguments {\tt ("=", "+=")}, then:
 \begin{indpar}[0.5em]
 Identical to the \TT{infix} reformatter, except after checking
 the expression, inserts implied brackets into the expression from left
-to right so that all operators
-are binary and the \underline{leftmost}
-operator is innermost (executed first).
+to right making all operators
+binary with the \underline{leftmost}
+operator innermost (executed first).
 
 
 Thus if \TT{+}, \TT{-}, and \TT{++}

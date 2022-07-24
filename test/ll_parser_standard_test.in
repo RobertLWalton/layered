@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 17:52:15 EST 2021
+// Date:	Sun Jul 24 16:53:28 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -54,10 +54,6 @@ ID 30 is @30
 ID 35 is @35
 ID 36 is @36
 
-
-This is a line with an indented paragraph: // A comment
-    First line of indented paragraph.
-    Second line of indented paragraph.
 
 @40 := This is a code line ending in:
 	   An indented paragragraph; line one.
@@ -116,3 +112,18 @@ ID Y is @<Y>
 ID X is @<X>
 ID Y is @<Y>
 ID Z is @<Z>
+
+*PARSER*:
+    begin block BLOCK2
+    trace [+ subexpression elements,
+           + subexpression details,
+           + subexpression lines ]
+
+This is a line with an indented paragraph: // A comment
+    First line of indented paragraph.
+    Second line of indented paragraph.
+
+x + y
+
+*PARSER*:
+    end block BLOCK2

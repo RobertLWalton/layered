@@ -36,10 +36,6 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     ID 36 is "fum"
 BRACKETED EXPRESSION:
-    This is a line with an indented paragraph:
-        First line of indented paragraph "."
-        Second line of indented paragraph "."
-BRACKETED EXPRESSION:
     ID 40 is
         {|This is a code line ending in
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
@@ -71,6 +67,14 @@ BRACKETED EXPRESSION:
             foo|x}
 BRACKETED EXPRESSION:
     ID 60 is {"": a = @@ = b, d = @@ = c}
+@@ :=::
+          .position[H] = PACKED_VEC
+          b = @@ = a
+          c = @@ = d
+@@ :=::
+          a = @@ = b
+          .position[H] = PACKED_VEC
+          d = @@ = c
 BRACKETED EXPRESSION:
     ID 61 is {"": a = @@ = b}
 BRACKETED EXPRESSION:
@@ -96,19 +100,45 @@ ERROR: in line ##: line does not begin with a (possibly negated)
        attribute label; line ignored:
     7.1 = Q
     ^^^^^^^
-ERROR: in line ###: not a legal label initial element `1':
+ERROR: in line ##: not a legal label initial element `1':
     K = @@@ = 1 L
               ^
-ERROR: in line ###: reverse attribute label after second `=' was
-       expected but not found; line ignored:
+ERROR: in line ##: reverse attribute label after second `=' was expected
+       but not found; line ignored:
     K = @@@ = 1 L
             ^
+@@ :=::
+          .position[H] = PACKED_VEC
+          d 77.33 = @@ = c
+@@ :=::
+          .position[H] = PACKED_VEC
+          J = @@ = H
+          e 22.99 = 5
+          a = [< b 55.44 >]
+          c = @@ = d 77.33
+@@ := A B C D E::
+          F = [< 1 2 3 >]
+          G = [< M N P >]
+          H = @@ = J
+          8.4.5 = P
+          4 = Y
+          .position[H] = PACKED_VEC
 BRACKETED EXPRESSION:
     ID 80 is
         {"": F = [< 1 2 3 >], G = [< M N P >], H = @@ = J, 8.4.5 = P,
              4 = Y|A B C D E|}
 BRACKETED EXPRESSION:
     ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
+@@ :=::
+          previous = @@ = next
+          .position[H] = PACKED_VEC
+          name = Y
+          next = @@ = previous
+@@ :=::
+          name = X
+          next = @@ = previous
+          previous = @@ = next
+          .position[H] = PACKED_VEC
 BRACKETED EXPRESSION:
     ID Y is {"": previous = @@ = next, name = Y, next = @@ = previous}
 ERROR: in line ###: ID references an object that already has
@@ -122,37 +152,43 @@ BRACKETED EXPRESSION:
     ID Y is ({|m|} + {|n|})
 BRACKETED EXPRESSION:
     ID Z is PREALLOCATED(1*0)
-@@ :=::
+BRACKETED EXPRESSION:
+    This is a line with an indented paragraph:
+        First line of indented paragraph "."
+        Second line of indented paragraph "."
+@@ := This is a line with an indented paragraph @@::
+          .terminator = "<LF>"
           .position[H] = PACKED_VEC
-          b = @@ = a
-          c = @@ = d
-@@ :=::
+          .initiator = [$ LOGICAL_LINE $]
+@@ := @@@ @@@::
+          .terminator = [$ INDENTED_PARAGRAPH $]
           .position[H] = PACKED_VEC
-          d 77.33 = @@ = c
-@@ :=::
-          .position[H] = PACKED_VEC
-          J = @@ = H
-          e 22.99 = 5
-          a = [< b 55.44 >]
-          c = @@ = d 77.33
-@@ :=::
-          previous = @@ = next
-          .position[H] = PACKED_VEC
-          name = Y
-          next = @@ = previous
-@@ :=::
-          name = X
-          next = @@ = previous
-          previous = @@ = next
-          .position[H] = PACKED_VEC
-@@ :=::
-          a = @@ = b
-          .position[H] = PACKED_VEC
-          d = @@ = c
-@@ := A B C D E::
-          F = [< 1 2 3 >]
-          G = [< M N P >]
-          H = @@ = J
-          8.4.5 = P
-          4 = Y
-          .position[H] = PACKED_VEC
+          .initiator = ":"
+@@@ := First line of indented paragraph "."::
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+@@@ := Second line of indented paragraph "."::
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    lines ###-###:
+This is a line with an indented paragraph: // A comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    First line of indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Second line of indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} + {|y|}
+@@@ := @@@ "+" @@@::
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+@@@ := x::
+           .position[H] = PACKED_VEC
+@@@ := y::
+           .position[H] = PACKED_VEC
+    line ###:
+x + y
+^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 10 16:07:04 EDT 2022
+// Date:	Sun Jul 24 17:12:41 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2472,6 +2472,7 @@ void PAR::internal::trace_subexpression
 	  min::uns32 trace_flags )
 {
     parser->printer
+	<< min::flush_id_map
 	<< min::bol << min::save_indent
 	<< min::adjust_indent ( 4 );
     if ( token->type <= LEXSTD::MAX_TYPE )
@@ -2505,7 +2506,8 @@ void PAR::internal::trace_subexpression
 
     if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_DETAILS )
-	print_mapped ( parser->printer, token->value );
+	print_mapped ( parser->printer, token->value )
+	    << min::flush_id_map;
 
     if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_LINES )

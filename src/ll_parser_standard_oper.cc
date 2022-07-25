@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 23 16:44:25 EDT 2022
+// Date:	Sun Jul 24 21:58:08 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -156,8 +156,8 @@ static void define_iteration_operators
         ( min::new_str_gen ( "while" ) );
     min::locatable_gen until_name
         ( min::new_str_gen ( "until" ) );
-    min::locatable_gen exactly
-        ( min::new_str_gen ( "exactly" ) );
+    min::locatable_gen repeat
+        ( min::new_str_gen ( "repeat" ) );
     min::locatable_gen at_most
         ( min::new_lab_gen ( "at", "most" ) );
 
@@ -195,7 +195,7 @@ static void define_iteration_operators
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( exactly,
+        ( repeat,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 23, 2022
+July 24, 2022
  
 \end{center}
 
@@ -8254,7 +8254,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{5-5}
 	&	&		&	     & \ttkey{until} & &
 \\\cline{3-3}\cline{5-5}
-	&	& \ttkey{iteration}	&	     & \ttkey{exactly} & &
+	&	& \ttkey{iteration}	&    & \ttkey{repeat} & &
 \\\cline{5-5}
 	&	&		&	     & \ttkey{at most} & &
 \\\cline{3-6}
@@ -8438,7 +8438,7 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with precedence 3000 \\
 \tt ~~~~~~~with unary reformatter
 \\[1ex]
-\tt define operator "exactly" [code] prefix line & {\tt + code} \\
+\tt define operator "repeat" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
 \tt ~~~~~~~with iteration reformatter ( "times" ) \\
 \tt define operator "at most" [code] prefix line & {\tt + code} \\
@@ -8963,6 +8963,24 @@ with `\TT{,}' as operator are:
 \end{indpar}
 
 \bigskip
+
+\ttmkey{iteration}{reformatter}
+\TT{(} {\em second-operator} \TT{)}
+\hfill \NBOP{repeat} ~~~ \OP{at most} ~~~ \OP{times}
+
+\begin{indpar}[0.5em]
+
+Typically used with a \TT{prefix} operator (e.g., \TT{repeat}) and a
+second \TT{afix} operator (e.g. \TT{times}).
+
+The expression must have the form `{\em operator} {\em operand} {\em operator}'
+with the second {\em operator} being equal to the reformatter argument
+(e.g., \TT{times}).
+
+\end{indpar}
+
+\bigskip
+
 
 \ttmkey{declare}{reformatter}
 \TT{(} {\em second-operator} \TT{)}

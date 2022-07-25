@@ -306,10 +306,6 @@
                         with precedence 0
                         with control reformatter ( ":",
                         [< "has" "condition" >] )
-        block standard: operator "exactly" [code]
-                        prefix line
-                        with precedence 3000
-                        with iteration reformatter ( "times" )
         block standard: operator "<<=" [code]
                         infix line
                         with precedence 1000
@@ -381,6 +377,10 @@
                         infix
                         with precedence 11100
                         with infix reformatter ( "AND" )
+        block standard: operator "repeat" [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( "times" )
         block standard: operator "==" [code, math]
                         infix
                         with precedence 12000

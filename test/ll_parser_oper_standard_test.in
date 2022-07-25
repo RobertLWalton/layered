@@ -9,40 +9,38 @@
 // domain; they make no warranty and accept no liability
 // for this data.
 
-*PARSER* *TEST*:
-    a b c
-    a < b < c
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-    (, x, y 4,, z,,)
-    y += z
-    x = y
-    w4 *= w5 
-    w3 = w4
-    w2 += w3
-    w1 = w2
-    x1, x2 += z1, z2
-    x < y < z
-    x = ( y < z )
-    x = w < y < z
-    {t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
-    {X: Y = {* A, B, C *} | 1 2 3 |}
-    a + b - c
-    - a
-    + a - b - c
-    a + b * c + d
-    a + b * c / d * e + f
-    a + b * e ** d * f ** g
-    x + + y
-    x + {|+ y|}
-    x * * y
-    x * {|* y|}
-    x / y
-    x / y / z
-    NOT NOT x
-    x NOT y
-    (NOT)
-    x AND y AND z
-    x AND NOT y AND NOT z
-    x AND y BUT NOT z OR w OR v
-    x AND y OR z
-
+a b c
+a < b < c
+[ x ( y ) z {{u, v, w}} m (n (p)) ]
+(, x, y 4,, z,,)
+y += z
+x = y
+w4 *= w5 
+w3 = w4
+w2 += w3
+w1 = w2
+x1, x2 += z1, z2
+x < y < z
+x = ( y < z )
+x = w < y < z
+{t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
+{X: Y = {* A, B, C *} | 1 2 3 |}
+a + b - c
+- a
++ a - b - c
+a + b * c + d
+a + b * c / d * e + f
+a + b * e ** d * f ** g
+x + + y
+x + {|+ y|}
+x * * y
+x * {|* y|}
+x / y
+x / y / z
+NOT NOT x
+x NOT y
+(NOT)
+x AND y AND z
+x AND NOT y AND NOT z
+x AND y BUT NOT z OR w OR v
+x AND y OR z

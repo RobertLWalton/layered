@@ -1,507 +1,185 @@
+BRACKETED EXPRESSION:
+    a b c
+    line ##:
+a b c
+^^^^^
+BRACKETED EXPRESSION:
+    {|a|} < {|b|} < {|c|}
+    line ##:
+a < b < c
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    [x (y) z {{{|u|}, {|v|}, {|w|}}} m (n (p))]
+    line ##:
+[ x ( y ) z {{u, v, w}} m (n (p)) ]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({}, {|x|}, {|y 4|}, {}, {|z|}, {}, {})
+    line ##:
+(, x, y 4,, z,,)
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|y|} += {|z|}
+    line ##:
+y += z
+^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} = {|y|}
+    line ##:
+x = y
+^^^^^
+BRACKETED EXPRESSION:
+    {|w4|} *= {|w5|}
+    line ##:
+w4 *= w5
+^^^^^^^^
+BRACKETED EXPRESSION:
+    {|w3|} = {|w4|}
+    line ##:
+w3 = w4
+^^^^^^^
+BRACKETED EXPRESSION:
+    {|w2|} += {|w3|}
+    line ##:
+w2 += w3
+^^^^^^^^
+BRACKETED EXPRESSION:
+    {|w1|} = {|w2|}
+    line ##:
+w1 = w2
+^^^^^^^
+BRACKETED EXPRESSION:
+    {|{|x1|}, {|x2|}|} += {|{|z1|}, {|z2|}|}
+    line ##:
+x1, x2 += z1, z2
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} < {|y|} < {|z|}
+    line ##:
+x < y < z
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} = ({|y|} < {|z|})
+    line ##:
+x = ( y < z )
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} = {|{|w|} < {|y|} < {|z|}|}
+    line ##:
+x = w < y < z
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {t: no d, e, f = (m ";" n ";" p), b = (a "," b "," c)|1 2 3|t}
+    line ##:
+{t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {X: Y = {* C, A, B *}|1 2 3|X}
+    line ##:
+{X: Y = {* A, B, C *} | 1 2 3 |}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|a|} + {|b|} - {|c|}
+    line ##:
+a + b - c
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    - {|a|}
+    line ##:
+- a
+^^^
+BRACKETED EXPRESSION:
+    {|+ {|a|}|} - {|b|} - {|c|}
+    line ##:
++ a - b - c
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|a|} + {|{|b|} * {|c|}|} + {|d|}
+    line ##:
+a + b * c + d
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|a|} + {|{|{|b|} * {|c|}|} / {|{|d|} * {|e|}|}|} + {|f|}
+    line ##:
+a + b * c / d * e + f
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|a|} + {|{|b|} * {|{|e|} ** {|d|}|} * {|{|f|} ** {|g|}|}|}
+    line ##:
+a + b * e ** d * f ** g
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} + {|+ {|y|}|}
+    line ##:
+x + + y
+^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} + {|+ {|y|}|}
+    line ##:
+x + {|+ y|}
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} * {|* y|}
+    line ##:
+x * * y
+^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} * {|* y|}
+    line ##:
+x * {|* y|}
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} / {|y|}
+    line ##:
+x / y
+^^^^^
 ERROR: in line ##: extra stuff at end of expression; deleted:
-    x / y / z
-          ^^^
+x / y / z
+      ^^^
+BRACKETED EXPRESSION:
+    {|x|} / {|y|}
+    line ##:
+x / y / z
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    NOT {|NOT {|x|}|}
+    line ##:
+NOT NOT x
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    x NOT y
+    line ##:
+x NOT y
+^^^^^^^
 ERROR: in line ##: missing operand; error operand inserted:
-    (NOT)
-         ^
+(NOT)
+     ^
+BRACKETED EXPRESSION:
+    (NOT ERROR'OPERAND)
+    line ##:
+(NOT)
+^^^^^
+BRACKETED EXPRESSION:
+    {|x|} AND {|y|} AND {|z|}
+    line ##:
+x AND y AND z
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} AND {|NOT {|y|}|} AND {|NOT {|z|}|}
+    line ##:
+x AND NOT y AND NOT z
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|{|x|} AND {|y|}|} [< BUT NOT >] {|{|z|} OR {|w|} OR {|v|}|}
+    line ##:
+x AND y BUT NOT z OR w OR v
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ##: illegal operator "OR" in expression beginnning with
        "AND"; changed to "AND":
-    x AND y OR z
-            ^^
-======= PARSER TEST: a b c
-======= line ##:
-    a b c
-    ^^^^^
-======= PARSER TEST: {|a|} < {|b|} < {|c|}
-======= line ##:
-    a < b < c
-    ^^^^^^^^^
-------- line ##:
-    a < b < c
-    ^
-------- line ##:
-    a < b < c
-        ^
-------- line ##:
-    a < b < c
-            ^
-======= PARSER TEST: [x (y) z {{{|u|}, {|v|}, {|w|}}} m (n (p))]
-======= line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-        ^^^^^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-                ^^^^^^^^^^^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-                  ^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-                     ^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-                        ^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-                              ^^^^^^^
-------- line ##:
-    [ x ( y ) z {{u, v, w}} m (n (p)) ]
-                                 ^^^
-======= PARSER TEST: ({}, {|x|}, {|y 4|}, {}, {|z|}, {}, {})
-======= line ##:
-    (, x, y 4,, z,,)
-    ^^^^^^^^^^^^^^^^
-------- line ##:
-    (, x, y 4,, z,,)
-    ^^^^^^^^^^^^^^^^
-------- line ##:
-    (, x, y 4,, z,,)
-     ^
-------- line ##:
-    (, x, y 4,, z,,)
-       ^
-------- line ##:
-    (, x, y 4,, z,,)
-          ^^^
-------- line ##:
-    (, x, y 4,, z,,)
-              ^
-------- line ##:
-    (, x, y 4,, z,,)
-                ^
-------- line ##:
-    (, x, y 4,, z,,)
-                  ^
-------- line ##:
-    (, x, y 4,, z,,)
-                   ^
-======= PARSER TEST: {|y|} += {|z|}
-======= line ##:
-    y += z
-    ^^^^^^
-------- line ##:
-    y += z
-    ^
-------- line ##:
-    y += z
-         ^
-======= PARSER TEST: {|x|} = {|y|}
-======= line ##:
-    x = y
-    ^^^^^
-------- line ##:
-    x = y
-    ^
-------- line ##:
-    x = y
-        ^
-======= PARSER TEST: {|w4|} *= {|w5|}
-======= line ##:
-    w4 *= w5
-    ^^^^^^^^
-------- line ##:
-    w4 *= w5
-    ^^
-------- line ##:
-    w4 *= w5
-          ^^
-======= PARSER TEST: {|w3|} = {|w4|}
-======= line ##:
-    w3 = w4
-    ^^^^^^^
-------- line ##:
-    w3 = w4
-    ^^
-------- line ##:
-    w3 = w4
-         ^^
-======= PARSER TEST: {|w2|} += {|w3|}
-======= line ##:
-    w2 += w3
-    ^^^^^^^^
-------- line ##:
-    w2 += w3
-    ^^
-------- line ##:
-    w2 += w3
-          ^^
-======= PARSER TEST: {|w1|} = {|w2|}
-======= line ##:
-    w1 = w2
-    ^^^^^^^
-------- line ##:
-    w1 = w2
-    ^^
-------- line ##:
-    w1 = w2
-         ^^
-======= PARSER TEST: {|{|x1|}, {|x2|}|} += {|{|z1|}, {|z2|}|}
-======= line ##:
-    x1, x2 += z1, z2
-    ^^^^^^^^^^^^^^^^
-------- line ##:
-    x1, x2 += z1, z2
-    ^^^^^^
-------- line ##:
-    x1, x2 += z1, z2
-    ^^
-------- line ##:
-    x1, x2 += z1, z2
+x AND y OR z
         ^^
-------- line ##:
-    x1, x2 += z1, z2
-              ^^^^^^
-------- line ##:
-    x1, x2 += z1, z2
-              ^^
-------- line ##:
-    x1, x2 += z1, z2
-                  ^^
-======= PARSER TEST: {|x|} < {|y|} < {|z|}
-======= line ##:
-    x < y < z
-    ^^^^^^^^^
-------- line ##:
-    x < y < z
-    ^
-------- line ##:
-    x < y < z
-        ^
-------- line ##:
-    x < y < z
-            ^
-======= PARSER TEST: {|x|} = ({|y|} < {|z|})
-======= line ##:
-    x = ( y < z )
-    ^^^^^^^^^^^^^
-------- line ##:
-    x = ( y < z )
-    ^
-------- line ##:
-    x = ( y < z )
-        ^^^^^^^^^
-------- line ##:
-    x = ( y < z )
-          ^
-------- line ##:
-    x = ( y < z )
-              ^
-======= PARSER TEST: {|x|} = {|{|w|} < {|y|} < {|z|}|}
-======= line ##:
-    x = w < y < z
-    ^^^^^^^^^^^^^
-------- line ##:
-    x = w < y < z
-    ^
-------- line ##:
-    x = w < y < z
-        ^^^^^^^^^
-------- line ##:
-    x = w < y < z
-        ^
-------- line ##:
-    x = w < y < z
-            ^
-------- line ##:
-    x = w < y < z
-                ^
-======= PARSER TEST: {t: no d, e, f = (m ";" n ";" p), b =
-                         (a "," b "," c)|1 2 3|t}
-======= line ##:
-    {t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    {t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {X: Y = {* C, A, B *}|1 2 3|X}
-======= line ##:
-    {X: Y = {* A, B, C *} | 1 2 3 |}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    {X: Y = {* A, B, C *} | 1 2 3 |}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {|a|} + {|b|} - {|c|}
-======= line ##:
-    a + b - c
-    ^^^^^^^^^
-------- line ##:
-    a + b - c
-    ^
-------- line ##:
-    a + b - c
-        ^
-------- line ##:
-    a + b - c
-            ^
-======= PARSER TEST: - {|a|}
-======= line ##:
-    - a
-    ^^^
-------- line ##:
-    - a
-      ^
-======= PARSER TEST: {|+ {|a|}|} - {|b|} - {|c|}
-======= line ##:
-    + a - b - c
-    ^^^^^^^^^^^
-------- line ##:
-    + a - b - c
-    ^^^
-------- line ##:
-    + a - b - c
-      ^
-------- line ##:
-    + a - b - c
-          ^
-------- line ##:
-    + a - b - c
-              ^
-======= PARSER TEST: {|a|} + {|{|b|} * {|c|}|} + {|d|}
-======= line ##:
-    a + b * c + d
-    ^^^^^^^^^^^^^
-------- line ##:
-    a + b * c + d
-    ^
-------- line ##:
-    a + b * c + d
-        ^^^^^
-------- line ##:
-    a + b * c + d
-        ^
-------- line ##:
-    a + b * c + d
-            ^
-------- line ##:
-    a + b * c + d
-                ^
-======= PARSER TEST: {|a|} + {|{|{|b|} * {|c|}|} / {|{|d|} * {|e|}|}|} +
-                         {|f|}
-======= line ##:
-    a + b * c / d * e + f
-    ^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    a + b * c / d * e + f
-    ^
-------- line ##:
-    a + b * c / d * e + f
-        ^^^^^^^^^^^^^
-------- line ##:
-    a + b * c / d * e + f
-        ^^^^^
-------- line ##:
-    a + b * c / d * e + f
-        ^
-------- line ##:
-    a + b * c / d * e + f
-            ^
-------- line ##:
-    a + b * c / d * e + f
-                ^^^^^
-------- line ##:
-    a + b * c / d * e + f
-                ^
-------- line ##:
-    a + b * c / d * e + f
-                    ^
-------- line ##:
-    a + b * c / d * e + f
-                        ^
-======= PARSER TEST: {|a|} +
-                         {|{|b|} * {|{|e|} ** {|d|}|} *
-                           {|{|f|} ** {|g|}|}|}
-======= line ##:
-    a + b * e ** d * f ** g
-    ^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    a + b * e ** d * f ** g
-    ^
-------- line ##:
-    a + b * e ** d * f ** g
-        ^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    a + b * e ** d * f ** g
-        ^
-------- line ##:
-    a + b * e ** d * f ** g
-            ^^^^^^
-------- line ##:
-    a + b * e ** d * f ** g
-            ^
-------- line ##:
-    a + b * e ** d * f ** g
-                 ^
-------- line ##:
-    a + b * e ** d * f ** g
-                     ^^^^^^
-------- line ##:
-    a + b * e ** d * f ** g
-                     ^
-------- line ##:
-    a + b * e ** d * f ** g
-                          ^
-======= PARSER TEST: {|x|} + {|+ {|y|}|}
-======= line ##:
-    x + + y
-    ^^^^^^^
-------- line ##:
-    x + + y
-    ^
-------- line ##:
-    x + + y
-        ^^^
-------- line ##:
-    x + + y
-          ^
-======= PARSER TEST: {|x|} + {|+ {|y|}|}
-======= line ##:
-    x + {|+ y|}
-    ^^^^^^^^^^^
-------- line ##:
-    x + {|+ y|}
-    ^
-------- line ##:
-    x + {|+ y|}
-        ^^^^^^^
-------- line ##:
-    x + {|+ y|}
-            ^
-======= PARSER TEST: {|x|} * {|* y|}
-======= line ##:
-    x * * y
-    ^^^^^^^
-------- line ##:
-    x * * y
-    ^
-------- line ##:
-    x * * y
-        ^^^
-======= PARSER TEST: {|x|} * {|* y|}
-======= line ##:
-    x * {|* y|}
-    ^^^^^^^^^^^
-------- line ##:
-    x * {|* y|}
-    ^
-------- line ##:
-    x * {|* y|}
-        ^^^^^^^
-======= PARSER TEST: {|x|} / {|y|}
-======= line ##:
-    x / y
-    ^^^^^
-------- line ##:
-    x / y
-    ^
-------- line ##:
-    x / y
-        ^
-======= PARSER TEST: {|x|} / {|y|}
-======= line ##:
-    x / y / z
-    ^^^^^^^^^
-------- line ##:
-    x / y / z
-    ^
-------- line ##:
-    x / y / z
-        ^
-======= PARSER TEST: NOT {|NOT {|x|}|}
-======= line ##:
-    NOT NOT x
-    ^^^^^^^^^
-------- line ##:
-    NOT NOT x
-        ^^^^^
-------- line ##:
-    NOT NOT x
-            ^
-======= PARSER TEST: x NOT y
-======= line ##:
-    x NOT y
-    ^^^^^^^
-======= PARSER TEST: (NOT ERROR'OPERAND)
-======= line ##:
-    (NOT)
-    ^^^^^
-------- line ##:
-    (NOT)
-    ^^^^^
-======= PARSER TEST: {|x|} AND {|y|} AND {|z|}
-======= line ##:
-    x AND y AND z
-    ^^^^^^^^^^^^^
-------- line ##:
-    x AND y AND z
-    ^
-------- line ##:
-    x AND y AND z
-          ^
-------- line ##:
-    x AND y AND z
-                ^
-======= PARSER TEST: {|x|} AND {|NOT {|y|}|} AND {|NOT {|z|}|}
-======= line ##:
-    x AND NOT y AND NOT z
-    ^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    x AND NOT y AND NOT z
-    ^
-------- line ##:
-    x AND NOT y AND NOT z
-          ^^^^^
-------- line ##:
-    x AND NOT y AND NOT z
-              ^
-------- line ##:
-    x AND NOT y AND NOT z
-                    ^^^^^
-------- line ##:
-    x AND NOT y AND NOT z
-                        ^
-======= PARSER TEST: {|{|x|} AND {|y|}|} [< BUT NOT >]
-                         {|{|z|} OR {|w|} OR {|v|}|}
-======= line ##:
-    x AND y BUT NOT z OR w OR v
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-    ^^^^^^^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-    ^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-          ^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-                    ^^^^^^^^^^^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-                    ^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-                         ^
-------- line ##:
-    x AND y BUT NOT z OR w OR v
-                              ^
-======= PARSER TEST: {|x|} AND {|y|} AND {|z|}
-======= line ##:
-    x AND y OR z
-    ^^^^^^^^^^^^
-------- line ##:
-    x AND y OR z
-    ^
-------- line ##:
-    x AND y OR z
-          ^
-------- line ##:
-    x AND y OR z
-               ^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    {|x|} AND {|y|} AND {|z|}
+    line ##:
+x AND y OR z
+^^^^^^^^^^^^

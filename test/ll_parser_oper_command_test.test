@@ -30,7 +30,8 @@
         top
         operator [code, math]
     trace [+ parser commands, + warnings ]
-    trace [+ subexpression elements,
+    trace [+ parser output,
+           + subexpression elements,
            + subexpression lines ]
     trace [- operator subexpressions]
     print selector ""
@@ -84,14 +85,11 @@
                          with special reformatter
 *PARSER*:
     begin block BLOCK1
-======= PARSER TEST: (x / y ^ z w)
-======= line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    (x / y ^ z w)
+    line ##:
+( x / y ^ z w )
+^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "/" [code, math] infix
         with binary reformatter with precedence -100
@@ -102,26 +100,11 @@
                       with binary reformatter
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-======= PARSER TEST: ({|x|} / {|{|y|} ^ {|z w|}|})
-======= line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-      ^
-------- line ##:
-    ( x / y ^ z w )
-          ^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-          ^
-------- line ##:
-    ( x / y ^ z w )
-              ^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|x|} / {|{|y|} ^ {|z w|}|})
+    line ##:
+( x / y ^ z w )
+^^^^^^^^^^^^^^^
 *PARSER*:
     print operator ""
         block BLOCK1: operator "/" [code, math]
@@ -139,32 +122,20 @@
                       infix
                       with precedence -100
                       with binary reformatter
-======= PARSER TEST: ({|x / y|} ^ {|z w|})
-======= line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-      ^^^^^
-------- line ##:
-    ( x / y ^ z w )
-              ^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|x / y|} ^ {|z w|})
+    line ##:
+( x / y ^ z w )
+^^^^^^^^^^^^^^^
 *PARSER*:
     end block BLOCK1
     print operator ""
         nothing found
-======= PARSER TEST: (x / y ^ z w)
-======= line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-------- line ##:
-    ( x / y ^ z w )
-    ^^^^^^^^^^^^^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    (x / y ^ z w)
+    line ##:
+( x / y ^ z w )
+^^^^^^^^^^^^^^^
 *PARSER*:
     begin block BLOCK1
 ERROR: in line ##: expected `with precedence ...' after:
@@ -237,40 +208,11 @@ WARNING: in lines ##-##: undefine found no definition:
     define operator "/=" [code, math] infix
         with precedence 1000
         with right associative reformatter
-======= PARSER TEST: ({|x|} =
-                      {|{|y|} +=
-                        {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
-======= line ###:
-    (x = y += z w *= p q r = t v)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-     ^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-         ^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-         ^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-              ^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-              ^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-                     ^^^^^^^^^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-                     ^^^^^
-------- line ###:
-    (x = y += z w *= p q r = t v)
-                             ^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|x|} = {|{|y|} += {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
+    line ###:
+(x = y += z w *= p q r = t v)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "," [code, math] nofix
         with precedence 2000
@@ -279,82 +221,24 @@ WARNING: in lines ##-##: undefine found no definition:
     define operator "..." [code, math] nofix
         with precedence 2000
         with separator reformatter
+BRACKETED EXPRESSION:
+    ({|x|}, {|y1|}, {|z w|}, {}, {|3|}, {})
+    line ###:
+(x, y1, z w,, 3,)
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({}, {}, {|x|}, {}, {|y|}, {}, {}, {})
+    line ###:
+(,, x,, y,,,)
+^^^^^^^^^^^^^
 ERROR: in line ###: wrong separator "..." changed to ",":
-    (x, y... z)
-         ^^^
-======= PARSER TEST: ({|x|}, {|y1|}, {|z w|}, {}, {|3|}, {})
-======= line ###:
-    (x, y1, z w,, 3,)
-    ^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x, y1, z w,, 3,)
-    ^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x, y1, z w,, 3,)
-     ^
-------- line ###:
-    (x, y1, z w,, 3,)
-        ^^
-------- line ###:
-    (x, y1, z w,, 3,)
-            ^^^
-------- line ###:
-    (x, y1, z w,, 3,)
-                ^
-------- line ###:
-    (x, y1, z w,, 3,)
-                  ^
-------- line ###:
-    (x, y1, z w,, 3,)
-                    ^
-======= PARSER TEST: ({}, {}, {|x|}, {}, {|y|}, {}, {}, {})
-======= line ###:
-    (,, x,, y,,,)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (,, x,, y,,,)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (,, x,, y,,,)
-     ^
-------- line ###:
-    (,, x,, y,,,)
-      ^
-------- line ###:
-    (,, x,, y,,,)
-        ^
-------- line ###:
-    (,, x,, y,,,)
-          ^
-------- line ###:
-    (,, x,, y,,,)
-            ^
-------- line ###:
-    (,, x,, y,,,)
-              ^
-------- line ###:
-    (,, x,, y,,,)
-               ^
-------- line ###:
-    (,, x,, y,,,)
-                ^
-======= PARSER TEST: ({|x|}, {|y|}, {|z|})
-======= line ###:
-    (x, y... z)
-    ^^^^^^^^^^^
-------- line ###:
-    (x, y... z)
-    ^^^^^^^^^^^
-------- line ###:
-    (x, y... z)
-     ^
-------- line ###:
-    (x, y... z)
-        ^
-------- line ###:
-    (x, y... z)
-             ^
-======= END PARSER TEST(S)
+(x, y... z)
+     ^^^
+BRACKETED EXPRESSION:
+    ({|x|}, {|y|}, {|z|})
+    line ###:
+(x, y... z)
+^^^^^^^^^^^
 *PARSER*:
     end block BLOCK1
     define operator "BUT NOT" [code, math] infix
@@ -369,154 +253,58 @@ ERROR: in line ###: wrong separator "..." changed to ",":
     define operator "NOT" [code, math] prefix
         with precedence 3200
         with unary reformatter
+BRACKETED EXPRESSION:
+    ({|{|x|} OR {|y|}|} [< BUT NOT >] {|{|z|} AND {|w|}|})
+    line ###:
+(x OR y BUT NOT z AND w)
+^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: illegal operator "OR" in expression beginnning with
        "AND"; changed to "AND":
-    (x OR y BUT NOT z AND w OR p)
-                            ^^
+(x OR y BUT NOT z AND w OR p)
+                        ^^
+BRACKETED EXPRESSION:
+    ({|{|x|} OR {|y|}|} [< BUT NOT >] {|{|z|} AND {|w|} AND {|p|}|})
+    line ###:
+(x OR y BUT NOT z AND w OR p)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (NOT {|x y|})
+    line ###:
+(NOT x y)
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    (x NOT y)
+    line ###:
+(x NOT y)
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|NOT {|x|}|} AND {|y|})
+    line ###:
+(NOT x AND y)
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|x|} AND {|NOT {|y|}|})
+    line ###:
+(x AND NOT y)
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|x|} AND {|AND y|})
+    line ###:
+(x AND AND y)
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (NOT {|NOT {|x y|}|})
+    line ###:
+(NOT NOT x y)
+^^^^^^^^^^^^^
 ERROR: in line ###: missing operand; error operand inserted:
-    (NOT NOT)
-             ^
-======= PARSER TEST: ({|{|x|} OR {|y|}|} [< BUT NOT >]
-                      {|{|z|} AND {|w|}|})
-======= line ###:
-    (x OR y BUT NOT z AND w)
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-     ^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-     ^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-          ^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-                    ^^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-                    ^
-------- line ###:
-    (x OR y BUT NOT z AND w)
-                          ^
-======= PARSER TEST: ({|{|x|} OR {|y|}|} [< BUT NOT >]
-                      {|{|z|} AND {|w|} AND {|p|}|})
-======= line ###:
-    (x OR y BUT NOT z AND w OR p)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-     ^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-     ^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-          ^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-                    ^^^^^^^^^^^^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-                    ^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-                          ^
-------- line ###:
-    (x OR y BUT NOT z AND w OR p)
-                               ^
-======= PARSER TEST: (NOT {|x y|})
-======= line ###:
-    (NOT x y)
-    ^^^^^^^^^
-------- line ###:
-    (NOT x y)
-    ^^^^^^^^^
-------- line ###:
-    (NOT x y)
-         ^^^
-======= PARSER TEST: (x NOT y)
-======= line ###:
-    (x NOT y)
-    ^^^^^^^^^
-------- line ###:
-    (x NOT y)
-    ^^^^^^^^^
-======= PARSER TEST: ({|NOT {|x|}|} AND {|y|})
-======= line ###:
-    (NOT x AND y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (NOT x AND y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (NOT x AND y)
-     ^^^^^
-------- line ###:
-    (NOT x AND y)
+(NOT NOT)
          ^
-------- line ###:
-    (NOT x AND y)
-               ^
-======= PARSER TEST: ({|x|} AND {|NOT {|y|}|})
-======= line ###:
-    (x AND NOT y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (x AND NOT y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (x AND NOT y)
-     ^
-------- line ###:
-    (x AND NOT y)
-           ^^^^^
-------- line ###:
-    (x AND NOT y)
-               ^
-======= PARSER TEST: ({|x|} AND {|AND y|})
-======= line ###:
-    (x AND AND y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (x AND AND y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (x AND AND y)
-     ^
-------- line ###:
-    (x AND AND y)
-           ^^^^^
-======= PARSER TEST: (NOT {|NOT {|x y|}|})
-======= line ###:
-    (NOT NOT x y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (NOT NOT x y)
-    ^^^^^^^^^^^^^
-------- line ###:
-    (NOT NOT x y)
-         ^^^^^^^
-------- line ###:
-    (NOT NOT x y)
-             ^^^
-======= PARSER TEST: (NOT {|NOT ERROR'OPERAND|})
-======= line ###:
-    (NOT NOT)
-    ^^^^^^^^^
-------- line ###:
-    (NOT NOT)
-    ^^^^^^^^^
-------- line ###:
-    (NOT NOT)
-         ^^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    (NOT {|NOT ERROR'OPERAND|})
+    line ###:
+(NOT NOT)
+^^^^^^^^^
 *PARSER*:
     define operator "==" [code, math] infix
         with precedence 4000
@@ -545,33 +333,11 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "=>" [code, math] infix
         with precedence 4000
         with infix reformatter
-======= PARSER TEST: ({|x|} < {|y|} <= {|z|} > {|w|} != {|p q|} =<
-                      {|u v|})
-======= line ###:
-    ( x < y <= z > w != p q =< u v )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-      ^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-          ^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-               ^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-                   ^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-                        ^^^
-------- line ###:
-    ( x < y <= z > w != p q =< u v )
-                               ^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|x|} < {|y|} <= {|z|} > {|w|} != {|p q|} =< {|u v|})
+    line ###:
+( x < y <= z > w != p q =< u v )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "+" [code, math] prefix
         with precedence 999999
@@ -585,73 +351,21 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "-" [code, math] infix
         with precedence 5000
         with infix reformatter ( "+", "-" )
-======= PARSER TEST: ({|x|} + {|y|} - {|z|} + {|w|} - {|v|} - {|u|})
-======= line ###:
-    ( x + y - z + w - v - u )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x + y - z + w - v - u )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x + y - z + w - v - u )
-      ^
-------- line ###:
-    ( x + y - z + w - v - u )
-          ^
-------- line ###:
-    ( x + y - z + w - v - u )
-              ^
-------- line ###:
-    ( x + y - z + w - v - u )
-                  ^
-------- line ###:
-    ( x + y - z + w - v - u )
-                      ^
-------- line ###:
-    ( x + y - z + w - v - u )
-                          ^
-======= PARSER TEST: ({|- {|x|}|} + {|y|} - {|z|})
-======= line ###:
-    ( - x + y - z )
-    ^^^^^^^^^^^^^^^
-------- line ###:
-    ( - x + y - z )
-    ^^^^^^^^^^^^^^^
-------- line ###:
-    ( - x + y - z )
-      ^^^
-------- line ###:
-    ( - x + y - z )
-        ^
-------- line ###:
-    ( - x + y - z )
-            ^
-------- line ###:
-    ( - x + y - z )
-                ^
-======= PARSER TEST: ({|x|} < {|{|y|} + {|5|}|} <= {|z|})
-======= line ###:
-    ( x < y + 5 <= z )
-    ^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x < y + 5 <= z )
-    ^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x < y + 5 <= z )
-      ^
-------- line ###:
-    ( x < y + 5 <= z )
-          ^^^^^
-------- line ###:
-    ( x < y + 5 <= z )
-          ^
-------- line ###:
-    ( x < y + 5 <= z )
-              ^
-------- line ###:
-    ( x < y + 5 <= z )
-                   ^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|x|} + {|y|} - {|z|} + {|w|} - {|v|} - {|u|})
+    line ###:
+( x + y - z + w - v - u )
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|- {|x|}|} + {|y|} - {|z|})
+    line ###:
+( - x + y - z )
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|x|} < {|{|y|} + {|5|}|} <= {|z|})
+    line ###:
+( x < y + 5 <= z )
+^^^^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "/" [code, math] infix
         with precedence 5100
@@ -662,222 +376,62 @@ ERROR: in line ###: missing operand; error operand inserted:
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter
+BRACKETED EXPRESSION:
+    ({|{|x|} * {|y|}|} / {|{|z q|} * {|m p|}|})
+    line ###:
+( x * y / z q * m p )
+^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: extra stuff at end of expression; deleted:
-    ( x / y / z )
-            ^^^
-======= PARSER TEST: ({|{|x|} * {|y|}|} / {|{|z q|} * {|m p|}|})
-======= line ###:
-    ( x * y / z q * m p )
-    ^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x * y / z q * m p )
-    ^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x * y / z q * m p )
-      ^^^^^
-------- line ###:
-    ( x * y / z q * m p )
-      ^
-------- line ###:
-    ( x * y / z q * m p )
-          ^
-------- line ###:
-    ( x * y / z q * m p )
-              ^^^^^^^^^
-------- line ###:
-    ( x * y / z q * m p )
-              ^^^
-------- line ###:
-    ( x * y / z q * m p )
-                    ^^^
-======= PARSER TEST: ({|x|} / {|y|})
-======= line ###:
-    ( x / y / z )
-    ^^^^^^^^^^^^^
-------- line ###:
-    ( x / y / z )
-    ^^^^^^^^^^^^^
-------- line ###:
-    ( x / y / z )
-      ^
-------- line ###:
-    ( x / y / z )
-          ^
-======= PARSER TEST: ({|{|{|x|} ^ {|2|}|} * {|{|y|} ^ {|2|}|}|} /
-                      {|{|y|} * {|z|}|})
-======= line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-      ^^^^^^^^^^^^^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-      ^^^^^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-      ^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-          ^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-              ^^^^^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-              ^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-                  ^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-                      ^^^^^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-                      ^
-------- line ###:
-    ( x ^ 2 * y ^ 2 / y * z )
-                          ^
-======= END PARSER TEST(S)
+( x / y / z )
+        ^^^
+BRACKETED EXPRESSION:
+    ({|x|} / {|y|})
+    line ###:
+( x / y / z )
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|{|{|x|} ^ {|2|}|} * {|{|y|} ^ {|2|}|}|} / {|{|y|} * {|z|}|})
+    line ###:
+( x ^ 2 * y ^ 2 / y * z )
+^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "@" [code, math] prefix
         with precedence 999999
-======= PARSER TEST: ({|- {|x|}|} + {|y|} - {|z|})
-======= line ###:
-    ( - x + y - z )
-    ^^^^^^^^^^^^^^^
-------- line ###:
-    ( - x + y - z )
-    ^^^^^^^^^^^^^^^
-------- line ###:
-    ( - x + y - z )
-      ^^^
-------- line ###:
-    ( - x + y - z )
-        ^
-------- line ###:
-    ( - x + y - z )
-            ^
-------- line ###:
-    ( - x + y - z )
-                ^
-======= PARSER TEST: ({|{|p|} * {|- {|x|}|}|} + {|y|} - {|z|})
-======= line ###:
-    ( p * - x + y - z )
-    ^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( p * - x + y - z )
-    ^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( p * - x + y - z )
-      ^^^^^^^
-------- line ###:
-    ( p * - x + y - z )
-      ^
-------- line ###:
-    ( p * - x + y - z )
-          ^^^
-------- line ###:
-    ( p * - x + y - z )
-            ^
-------- line ###:
-    ( p * - x + y - z )
-                ^
-------- line ###:
-    ( p * - x + y - z )
-                    ^
-======= PARSER TEST: ({|@ {|x|}|} + {|y|} - {|@ {|z|}|})
-======= line ###:
-    ( @ x + y - @ z )
-    ^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( @ x + y - @ z )
-    ^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( @ x + y - @ z )
-      ^^^
-------- line ###:
-    ( @ x + y - @ z )
-        ^
-------- line ###:
-    ( @ x + y - @ z )
-            ^
-------- line ###:
-    ( @ x + y - @ z )
-                ^^^
-------- line ###:
-    ( @ x + y - @ z )
-                  ^
-======= PARSER TEST: (+ {|- {|+ {|- {|x y|}|}|}|})
-======= line ###:
-    ( + - + - x y )
-    ^^^^^^^^^^^^^^^
-------- line ###:
-    ( + - + - x y )
-    ^^^^^^^^^^^^^^^
-------- line ###:
-    ( + - + - x y )
-        ^^^^^^^^^
-------- line ###:
-    ( + - + - x y )
-          ^^^^^^^
-------- line ###:
-    ( + - + - x y )
-            ^^^^^
-------- line ###:
-    ( + - + - x y )
-              ^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|- {|x|}|} + {|y|} - {|z|})
+    line ###:
+( - x + y - z )
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|{|p|} * {|- {|x|}|}|} + {|y|} - {|z|})
+    line ###:
+( p * - x + y - z )
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|@ {|x|}|} + {|y|} - {|@ {|z|}|})
+    line ###:
+( @ x + y - @ z )
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (+ {|- {|+ {|- {|x y|}|}|}|})
+    line ###:
+( + - + - x y )
+^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "++" [code, math] postfix
         with precedence 1000000
     define operator "--" [code, math] postfix
         with precedence 1000000
-======= PARSER TEST: ({|{|x|} ++|} + {|y|} - {|{|z|} --|})
-======= line ###:
-    ( x ++ + y - z -- )
-    ^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x ++ + y - z -- )
-    ^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x ++ + y - z -- )
-      ^^^^
-------- line ###:
-    ( x ++ + y - z -- )
-      ^
-------- line ###:
-    ( x ++ + y - z -- )
-             ^
-------- line ###:
-    ( x ++ + y - z -- )
-                 ^^^^
-------- line ###:
-    ( x ++ + y - z -- )
-                 ^
-======= PARSER TEST: ({|{|{|{|x y|} ++|} --|} ++|} --)
-======= line ###:
-    ( x y ++ -- ++ -- )
-    ^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x y ++ -- ++ -- )
-    ^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( x y ++ -- ++ -- )
-      ^^^^^^^^^^^^
-------- line ###:
-    ( x y ++ -- ++ -- )
-      ^^^^^^^^^
-------- line ###:
-    ( x y ++ -- ++ -- )
-      ^^^^^^
-------- line ###:
-    ( x y ++ -- ++ -- )
-      ^^^
-======= END PARSER TEST(S)
+BRACKETED EXPRESSION:
+    ({|{|x|} ++|} + {|y|} - {|{|z|} --|})
+    line ###:
+( x ++ + y - z -- )
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|{|{|{|x y|} ++|} --|} ++|} --)
+    line ###:
+( x y ++ -- ++ -- )
+^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     define operator "<--" [code] nofix line
         with precedence 0
@@ -888,106 +442,47 @@ ERROR: in line ###: extra stuff at end of expression; deleted:
     define operator indentation mark ":" [code]
         nofix afix line
         with precedence 0
-======= PARSER TEST: {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
-======= line ###:
-    foo bar <-- boo bat : fee fie fo fum
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    foo bar <-- boo bat : fee fie fo fum
-    ^^^^^^^
-------- line ###:
-    foo bar <-- boo bat : fee fie fo fum
-                ^^^^^^^
-------- line ###:
-    foo bar <-- boo bat : fee fie fo fum
-                          ^^^^^^^^^^^^^^
-======= PARSER TEST: {|foo bar|} <-- {} ":" {|fee fie fo fum|}
-======= line ###:
-    foo bar <-- : fee fie fo fum
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    foo bar <-- : fee fie fo fum
-    ^^^^^^^
-------- line ###:
-    foo bar <-- : fee fie fo fum
-               ^
-------- line ###:
-    foo bar <-- : fee fie fo fum
-                  ^^^^^^^^^^^^^^
-======= PARSER TEST: {} <-- {|boo bat|} ":" {|fee fie fo fum|}
-======= line ###:
-    <-- boo bat : fee fie fo fum
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    <-- boo bat : fee fie fo fum
-    ^
-------- line ###:
-    <-- boo bat : fee fie fo fum
-        ^^^^^^^
-------- line ###:
-    <-- boo bat : fee fie fo fum
-                  ^^^^^^^^^^^^^^
-======= PARSER TEST: {|foo bar|} <-- {}
-======= line ###:
-    foo bar <--
-    ^^^^^^^^^^^
-------- line ###:
-    foo bar <--
-    ^^^^^^^
-------- line ###:
-    foo bar <--
-               ^
-======= PARSER TEST: {|foo bar|} <-- {|boo bat|}:
-                         fee fie fo fum
-                         he ha ho hum
-======= lines ###-###:
-    foo bar <-- boo bat:
-    ^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
+    line ###:
+foo bar <-- boo bat : fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|foo bar|} <-- {} ":" {|fee fie fo fum|}
+    line ###:
+foo bar <-- : fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {} <-- {|boo bat|} ":" {|fee fie fo fum|}
+    line ###:
+<-- boo bat : fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|foo bar|} <-- {}
+    line ###:
+foo bar <--
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|foo bar|} <-- {|boo bat|}:
         fee fie fo fum
-^^^^^^^^^^^^^^^^^^^^^^
         he ha ho hum
+    lines ###-###:
+foo bar <-- boo bat:
 ^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    foo bar <-- boo bat:
-    ^^^^^^^
-------- line ###:
-    foo bar <-- boo bat:
-                ^^^^^^^
-------- lines ###-###:
-    foo bar <-- boo bat:
-                       ^
-        fee fie fo fum
-^^^^^^^^^^^^^^^^^^^^^^
-        he ha ho hum
-^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-        fee fie fo fum
-        ^^^^^^^^^^^^^^
-------- line ###:
-        he ha ho hum
-        ^^^^^^^^^^^^
-======= END PARSER TEST(S)
-======= PARSER TEST: (foo bar <-- boo bat ":" fee fie fo fum)
-======= line ###:
-    ( foo bar <-- boo bat : fee fie fo fum )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    ( foo bar <-- boo bat : fee fie fo fum )
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-======= PARSER TEST: {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
-======= line ###:
-    foo bar <-- boo bat : fee fie fo fum
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-------- line ###:
-    foo bar <-- boo bat : fee fie fo fum
-    ^^^^^^^
-------- line ###:
-    foo bar <-- boo bat : fee fie fo fum
-                ^^^^^^^
-------- line ###:
-    foo bar <-- boo bat : fee fie fo fum
-                          ^^^^^^^^^^^^^^
-======= END PARSER TEST(S)
+    fee fie fo fum
+^^^^^^^^^^^^^^^^^^
+    he ha ho hum
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (foo bar <-- boo bat ":" fee fie fo fum)
+    line ###:
+( foo bar <-- boo bat : fee fie fo fum )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
+    line ###:
+foo bar <-- boo bat : fee fie fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     print operator ""
         block standard: operator "*" [code, math]

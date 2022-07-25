@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 14 03:37:19 EDT 2022
+// Date:	Mon Jul 25 13:07:38 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -15,7 +15,8 @@
     define pass operator [code, math] after top
     print pass
     trace [+ parser commands, + warnings ]
-    trace [+ subexpression elements,
+    trace [+ parser output,
+           + subexpression elements,
            + subexpression lines ]
     trace [- operator subexpressions]
     print selector ""
@@ -26,28 +27,31 @@
 //
 *PARSER*:
     begin block BLOCK1
-*PARSER* *TEST*:
-    ( x / y ^ z w )
+
+( x / y ^ z w )
+
 *PARSER*:
     define operator "/" [code, math] infix
         with binary reformatter with precedence -100
     print operator "/"
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-*PARSER* *TEST*:
-    ( x / y ^ z w )
+
+( x / y ^ z w )
+
 *PARSER*:
     print operator ""
     undefine operator "/" [code, math] infix
         with precedence -100
     print operator "/"
-*PARSER* *TEST*:
-    ( x / y ^ z w )
+
+( x / y ^ z w )
+
 *PARSER*:
     end block BLOCK1
     print operator ""
-*PARSER* *TEST*:
-    ( x / y ^ z w )
+
+( x / y ^ z w )
 
 // Test erroneous defines and undefines
 //
@@ -101,8 +105,8 @@
     define operator "/=" [code, math] infix
         with precedence 1000
         with right associative reformatter
-*PARSER* *TEST*:
-    (x = y += z w *= p q r = t v)
+
+(x = y += z w *= p q r = t v)
 
 *PARSER*:
     define operator "," [code, math] nofix
@@ -112,10 +116,10 @@
     define operator "..." [code, math] nofix
         with precedence 2000
         with separator reformatter
-*PARSER* *TEST*:
-    (x, y1, z w,, 3,)
-    (,, x,, y,,,)
-    (x, y... z)
+
+(x, y1, z w,, 3,)
+(,, x,, y,,,)
+(x, y... z)
 
 *PARSER*:
     end block BLOCK1
@@ -131,16 +135,16 @@
     define operator "NOT" [code, math] prefix
         with precedence 3200
         with unary reformatter
-*PARSER* *TEST*:
-    (x OR y BUT NOT z AND w)
-    (x OR y BUT NOT z AND w OR p)
-    (NOT x y)
-    (x NOT y)
-    (NOT x AND y)
-    (x AND NOT y)
-    (x AND AND y)
-    (NOT NOT x y)
-    (NOT NOT)
+
+(x OR y BUT NOT z AND w)
+(x OR y BUT NOT z AND w OR p)
+(NOT x y)
+(x NOT y)
+(NOT x AND y)
+(x AND NOT y)
+(x AND AND y)
+(NOT NOT x y)
+(NOT NOT)
 
 *PARSER*:
     define operator "==" [code, math] infix
@@ -170,8 +174,8 @@
     define operator "=>" [code, math] infix
         with precedence 4000
         with infix reformatter
-*PARSER* *TEST*:
-    ( x < y <= z > w != p q =< u v )
+
+( x < y <= z > w != p q =< u v )
 
 *PARSER*:
     define operator "+" [code, math] prefix
@@ -186,10 +190,10 @@
     define operator "-" [code, math] infix
         with precedence 5000
         with infix reformatter ( "+", "-" )
-*PARSER* *TEST*:
-    ( x + y - z + w - v - u )
-    ( - x + y - z )
-    ( x < y + 5 <= z )
+
+( x + y - z + w - v - u )
+( - x + y - z )
+( x < y + 5 <= z )
 
 *PARSER*:
     define operator "/" [code, math] infix
@@ -201,28 +205,28 @@
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter
-*PARSER* *TEST*:
-    ( x * y / z q * m p )
-    ( x / y / z )
-    ( x ^ 2 * y ^ 2 / y * z )
+
+( x * y / z q * m p )
+( x / y / z )
+( x ^ 2 * y ^ 2 / y * z )
 
 *PARSER*:
     define operator "@" [code, math] prefix
         with precedence 999999
-*PARSER* *TEST*:
-    ( - x + y - z )
-    ( p * - x + y - z )
-    ( @ x + y - @ z )
-    ( + - + - x y )
+
+( - x + y - z )
+( p * - x + y - z )
+( @ x + y - @ z )
+( + - + - x y )
 
 *PARSER*:
     define operator "++" [code, math] postfix
         with precedence 1000000
     define operator "--" [code, math] postfix
         with precedence 1000000
-*PARSER* *TEST*:
-    ( x ++ + y - z -- )
-    ( x y ++ -- ++ -- )
+
+( x ++ + y - z -- )
+( x y ++ -- ++ -- )
 
 *PARSER*:
     define operator "<--" [code] nofix line
@@ -234,18 +238,17 @@
     define operator indentation mark ":" [code]
         nofix afix line
         with precedence 0
-*PARSER* *TEST*:
-    foo bar <-- boo bat : fee fie fo fum
-    foo bar <-- : fee fie fo fum
-    <-- boo bat : fee fie fo fum
-    foo bar <--
-    foo bar <-- boo bat:
-    	fee fie fo fum
-	he ha ho hum
 
-*PARSER* *TEST*:
-    ( foo bar <-- boo bat : fee fie fo fum )
-    foo bar <-- boo bat : fee fie fo fum
+foo bar <-- boo bat : fee fie fo fum
+foo bar <-- : fee fie fo fum
+<-- boo bat : fee fie fo fum
+foo bar <--
+foo bar <-- boo bat:
+    fee fie fo fum
+    he ha ho hum
+
+( foo bar <-- boo bat : fee fie fo fum )
+foo bar <-- boo bat : fee fie fo fum
 
 *PARSER*:
     print operator ""

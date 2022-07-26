@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 24, 2022
+July 26, 2022
  
 \end{center}
 
@@ -8213,10 +8213,13 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
-\\\cline{2-6}
-	& code  & (none)	& \TT{afix } & \ttkey{:} indentation
-	                                                   & assignment & \\
-	&	&		& \TT{line}  & ~~~mark     & modifier  &
+\\\cline{2-5}
+	& code  & (none)	& \TT{prefix } & \ttkey{:} indentation
+	                                                   &           & \\
+	&	&		& \TT{line}  & ~~~mark     &           &
+\\\cline{4-4}\cline{6-6}
+	&       &       	& \TT{afix } &             & assignment & \\
+	&	&		& \TT{line}  &             & modifier  &
 \\\hline
 \end{tabular}
 
@@ -8469,7 +8472,11 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator indentation mark ":" [code] & {\tt + code} \\
-\tt ~~~~~~~postfix afix line \\
+\tt ~~~~~~~postfix line \\
+\tt ~~~~~~~with precedence 1000 \\
+\\[1ex]
+\tt define operator indentation mark ":" [code] & {\tt + code} \\
+\tt ~~~~~~~afix line \\
 \tt ~~~~~~~with precedence 1000 \\
 \\[1ex]
 \tt define operator "," [code, math] nofix & {\tt + code} or {\tt + math} \\

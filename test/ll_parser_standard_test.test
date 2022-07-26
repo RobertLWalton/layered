@@ -153,26 +153,37 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     ID Z is PREALLOCATED(1*0)
 BRACKETED EXPRESSION:
-    This is a line with an indented paragraph:
-        First line of indented paragraph "."
-        Second line of indented paragraph "."
-@@ := This is a line with an indented paragraph @@::
-          .terminator = "<LF>"
+    {quote|{s|This is a line with an indented paragraph
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {p|{s: .terminator = "."|First line of indented
+                          paragraph|s}
+                      {s: .terminator = "."|Second line of indented
+                          paragraph|s}|p}|}|s}|quote}
+@@ := @@::
+          .type = quote
           .position[H] = PACKED_VEC
-          .initiator = [$ LOGICAL_LINE $]
-@@ := @@@ @@@::
-          .terminator = [$ INDENTED_PARAGRAPH $]
+@@ := This is a line with an indented paragraph @@@::
           .position[H] = PACKED_VEC
-          .initiator = ":"
-@@@ := First line of indented paragraph "."::
-           .terminator = "<LF>"
+          .type = s
+@@@ := @@@::
+           .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-@@@ := Second line of indented paragraph "."::
-           .terminator = "<LF>"
+           .initiator = ":"
+@@@ := @@@ @@@::
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .type = p
+@@@ := First line of indented paragraph::
+           .terminator = "."
+           .position[H] = PACKED_VEC
+           .type = s
+@@@ := Second line of indented paragraph::
+           .terminator = "."
+           .position[H] = PACKED_VEC
+           .type = s
     lines ###-###:
+{quote}
+^^^^^^^
 This is a line with an indented paragraph: // A comment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     First line of indented paragraph.

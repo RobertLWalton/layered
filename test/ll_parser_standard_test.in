@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 24 16:53:28 EDT 2022
+// Date:	Tue Jul 26 02:55:56 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -119,9 +119,12 @@ ID Z is @<Z>
            + subexpression details,
            + subexpression lines ]
 
+{quote}
 This is a line with an indented paragraph: // A comment
     First line of indented paragraph.
     Second line of indented paragraph.
+
+{***}
 
 x + y
 

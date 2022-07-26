@@ -183,3 +183,11 @@ BRACKETED EXPRESSION:
     line ##:
 x AND y OR z
 ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|while {|{|x|} == {|y|}|}|}:
+        {|a|} + {|b|}
+    lines ##-##:
+while x == y:
+^^^^^^^^^^^^^
+    a + b
+^^^^^^^^^

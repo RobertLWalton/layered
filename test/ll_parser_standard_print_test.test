@@ -410,6 +410,9 @@
                         with precedence 1000
                         with binary reformatter
         block standard: bracket ":" [code]
+                        postfix line
+                        with precedence 1000
+        block standard: bracket ":" [code]
                         nofix afix line
                         with precedence 1000
         block standard: bracket ":" [code]

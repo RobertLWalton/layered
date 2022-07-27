@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 10 16:01:08 EDT 2022
+// Date:	Wed Jul 27 16:36:55 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5923,7 +5923,7 @@ static min::gen bracketed_pass_command
 		        ( parser->printer,
 			  middle_break.begin,
 			  min::quote_all_str_format );
-		    parser->printer << " ";
+		    parser->printer << " ... ";
 		    min::print_cstring
 		        ( parser->printer,
 			  middle_break.end,

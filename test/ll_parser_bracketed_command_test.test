@@ -77,7 +77,7 @@ ERROR: in line ##: expected quoted name after:
     print quoted string concatenator
         block TOP LEVEL: "#"
     print middle break
-        block TOP LEVEL: "#" "#"
+        block TOP LEVEL: "#" ... "#"
     define bracket "(" ... ")" [code, math, text]
     define bracket "[" ... "]" [code, math, text]
     print bracket "["
@@ -1998,8 +1998,8 @@ And a third logical line.
 *PARSER*:
     begin block BLOCK1
     print middle break
-        block BLOCK1: "#" "#"
-        block TOP LEVEL: "#" "#"
+        block BLOCK1: "#" ... "#"
+        block TOP LEVEL: "#" ... "#"
     trace [+ parser output, + subexpression details]
 BRACKETED EXPRESSION:
     this-is-a-continued-lexme
@@ -2030,8 +2030,8 @@ this-is-a-~
 *PARSER*:
     define middle break "~" ... "~"
     print middle break
-        block BLOCK1: "~" "~"
-        block TOP LEVEL: "#" "#"
+        block BLOCK1: "~" ... "~"
+        block TOP LEVEL: "#" ... "#"
 BRACKETED EXPRESSION:
     this-is-a-# #continued-# #lexme
 @@ := this-is-a-# #continued-# #lexme::
@@ -2062,7 +2062,7 @@ this-is-a-~
     define middle break disabled
     print middle break
         block BLOCK1: disabled
-        block TOP LEVEL: "#" "#"
+        block TOP LEVEL: "#" ... "#"
 BRACKETED EXPRESSION:
     this-is-a-# #continued-# #lexme
 @@ := this-is-a-# #continued-# #lexme::

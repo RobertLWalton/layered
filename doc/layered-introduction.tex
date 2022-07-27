@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-July 26, 2022
+July 27, 2022
  
 \end{center}
 
@@ -3998,7 +3998,7 @@ or printed by:
 {\bf Standard `\ttkey{top level}'\label{STANDARD-TOP-LEVEL-2} Component
      ID Character Parser Command}
 \\[1ex]
-Parser Command				& {\bf Required} Qualifier
+Parser Command				& Given Qualifiers
 \\\hline
 \tt define ID character "@"             & \tt + id \\
 \end{tabular}
@@ -4497,11 +4497,16 @@ The end of a parser block erases the effects of any
 \bf Initial Middle Break Parser Command
 \\[1ex]
 \tt define middle break disabled \\
+\end{tabular}
 \\[2ex]
-\bf Standard `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-1} Component
-    Middle Break Parser Command
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-1} Component
+     Middle Break Parser Command}
 \\[1ex]
-\tt define middle break "\#"
+Parser Command				& Given Qualifiers
+\\\hline
+\tt define middle break "\#" ... "\#'			& \tt + concatenator
 \end{tabular}
 \end{center}
 
@@ -4565,11 +4570,16 @@ The end of a parser block erases the effects of any
 \bf Initial Quoted String Concatenator Parser Command
 \\[1ex]
 \tt define quoted-string-concatenator disabled \\
+\end{tabular}
 \\[2ex]
-\bf Standard `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-2} Component
-    Quoted String Concatenator Parser Command
+\begin{tabular}{l@{\hspace*{0.5in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{concatenator}'\label{STANDARD-CONCATENATOR-2} Component
+     Quoted String Concatenator Parser Command}
 \\[1ex]
-\tt define quoted-string-concatenator "\#"
+Parser Command				& Given Qualifiers
+\\\hline
+\tt define quoted-string-concatenator "\#"	& \tt + concatenator
 \end{tabular}
 \end{center}
 

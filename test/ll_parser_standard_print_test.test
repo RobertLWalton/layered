@@ -45,7 +45,7 @@
         block standard: mapped lexeme "ROW" [TOP LEVEL]
                         with token value {row}
     print middle break
-        block standard: "#" "#"
+        block standard: "#" ... "#"
         block TOP LEVEL: disabled
     print quoted string concatenator
         block standard: "#"

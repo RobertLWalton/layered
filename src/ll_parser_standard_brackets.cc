@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 30 04:43:25 EDT 2021
+// Date:	Wed Jul 27 17:11:48 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -610,8 +610,9 @@ void PARSTD::define_brackets
 	( PAR::parser parser, TAB::flags components )
 {
     TAB::flags needed = 0;
-        // Only needed selectors are defined, as
-	// unneeded selectors are never referenced.
+        // Only needed selectors listed in components
+	// are defined, as unneeded selectors are never
+	// referenced.
 
     if ( components & PARSTD::BRACKETS )
 	needed |= PARSTD::CODE + PARSTD::TEXT
@@ -621,6 +622,8 @@ void PARSTD::define_brackets
     if ( components & PARSTD::BRACKET_TYPES )
 	needed |= PARSTD::CODE + PARSTD::TEXT
 	                       + PARSTD::MATH;
+    needed &= components;
+
     TAB::flags code = 0;
     if ( needed & PARSTD::CODE )
     {

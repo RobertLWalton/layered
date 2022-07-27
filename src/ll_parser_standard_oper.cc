@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 26 02:44:53 EDT 2022
+// Date:	Wed Jul 27 17:14:41 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -893,8 +893,9 @@ void PARSTD::define_operators
 	( PAR::parser parser, TAB::flags components )
 {
     TAB::flags needed = 0;
-        // Only needed selectors are defined, as
-	// unneeded selectors are never referenced.
+        // Only needed selectors listed in components
+	// are defined, as unneeded selectors are never
+	// referenced.
 
     if ( components & (   PARSTD::CONTROL_OPERATORS
                         + PARSTD::ITERATION_OPERATORS
@@ -907,6 +908,8 @@ void PARSTD::define_operators
                         + PARSTD::ARITHMETIC_OPERATORS )
        )
 	needed |= PARSTD::CODE + PARSTD::MATH;
+
+    needed &= components;
 
     TAB::flags code = 0;
     if ( needed & PARSTD::CODE )

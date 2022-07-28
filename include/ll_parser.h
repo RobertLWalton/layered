@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 13 16:27:39 EDT 2022
+// Date:	Thu Jul 28 17:17:00 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1573,6 +1573,20 @@ inline ll::parser::table::new_flags parsing_options
     return ll::parser::table::new_flags
         ( options, ll::parser::ALL_OPT & ~ options, 0 );
 }
+
+// Get and set parser selectors and options in
+// parser->top_level_indentation_mark.  Selectors or
+// options not in TOP_LEVEL_SELECTORS or TOP_LEVEL_OPT
+// are masked out and ignored.
+//
+// Note: options are included in the returned
+// selectors value or selectors argument.
+//
+ll::parser::table::flags get_selectors
+	( ll::parser::parser parser = default_parser );
+void set_selectors
+        ( ll::parser::table::flags selectors,
+	  ll::parser::parser parser = default_parser );
 
 // Get and set parser->lexical_master.  Note the lexical
 // master gotten is the last one set by ll::parser::set_

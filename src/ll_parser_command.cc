@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 12 01:12:21 EST 2021
+// Date:	Thu Jul 28 17:52:48 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1085,21 +1085,11 @@ static min::gen execute_top_level
 		 ( result == min::SUCCESS() );
 
 	TAB::flags selectors =
-	    imark->parsing_selectors.or_flags;
+	    PAR::get_selectors ( parser );
 	selectors |= new_selectors.or_flags;
 	selectors &= ~ new_selectors.not_flags;
 	selectors ^= new_selectors.xor_flags;
-	imark->parsing_selectors.or_flags =
-	    selectors;
-	imark->parsing_selectors.not_flags =
-	    ~ selectors;
-	imark->parsing_selectors.not_flags &=
-	      BRA::INDENTATION_MARK_SELECTORS
-	    + PAR::ALL_OPT;
-	parser->selectors =
-	      imark->parsing_selectors.or_flags
-	    | PAR::TOP_LEVEL_OFF_SELECTORS
-	    | PAR::ALWAYS_SELECTOR;
+	PAR::set_selectors ( selectors, parser );
     }
     else if ( i+1 < size
 	      &&
@@ -1127,21 +1117,11 @@ static min::gen execute_top_level
 		 ( result == min::SUCCESS() );
 
 	TAB::flags selectors =
-	    imark->parsing_selectors.or_flags;
+	    PAR::get_selectors ( parser );
 	selectors |= new_options.or_flags;
 	selectors &= ~ new_options.not_flags;
 	selectors ^= new_options.xor_flags;
-	imark->parsing_selectors.or_flags =
-	    selectors;
-	imark->parsing_selectors.not_flags =
-	    ~ selectors;
-	imark->parsing_selectors.not_flags &=
-	      BRA::INDENTATION_MARK_SELECTORS
-	    + PAR::ALL_OPT;
-	parser->selectors =
-	      imark->parsing_selectors.or_flags
-	    | PAR::TOP_LEVEL_OFF_SELECTORS
-	    | PAR::ALWAYS_SELECTOR;
+	PAR::set_selectors ( selectors, parser );
     }
     else if ( i+1 < size
 	      &&

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 24 17:12:41 EDT 2022
+// Date:	Thu Jul 28 17:26:40 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1648,6 +1648,31 @@ min::gen PAR::end_block
     min::pop ( parser->block_stack );
 
     return result;
+}
+
+TAB::flags PAR::get_selectors ( PAR::parser parser )
+{
+    return parser->selectors
+           & (   PAR::TOP_LEVEL_SELECTORS
+	       + PAR::TOP_LEVEL_OPT );
+}
+
+void PAR::set_selectors
+        ( TAB::flags selectors, PAR::parser parser )
+{
+    selectors &= PAR::TOP_LEVEL_SELECTORS
+               + PAR::TOP_LEVEL_OPT;
+
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
+    imark->parsing_selectors.or_flags = selectors;
+    imark->parsing_selectors.not_flags = ~ selectors;
+    imark->parsing_selectors.not_flags &=
+	  PAR::TOP_LEVEL_SELECTORS + PAR::TOP_LEVEL_OPT;
+    parser->selectors =
+	  selectors
+	| PAR::TOP_LEVEL_OFF_SELECTORS
+	| PAR::ALWAYS_SELECTOR;
 }
 
 TAB::key_prefix PAR::find_key_prefix

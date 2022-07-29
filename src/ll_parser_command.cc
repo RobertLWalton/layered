@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 28 17:52:48 EDT 2022
+// Date:	Fri Jul 29 16:15:23 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1138,7 +1138,8 @@ static min::gen execute_top_level
 	else if ( vp[i] == PARLEX::NONE )
 	{
 	    ++ i;
-	    line_sep_ref(imark) = min::NULL_STUB;
+	    PAR::set_line_separator
+	        ( min::MISSING(), parser );
 	}
 	else
 	{
@@ -1150,15 +1151,8 @@ static min::gen execute_top_level
 		    ( parser, ppvec[i-1],
 		      "expected quoted line separator"
 		      " label after" );
-	    BRA::bracketed_pass bracketed_pass =
-		(BRA::bracketed_pass)
-		parser->pass_stack;
-	    line_sep_ref(imark) =
-		BRA::push_line_sep
-		    ( separator_label,
-		      PAR::block_level ( parser ),
-		      ppvec[i-1],
-		      bracketed_pass->bracket_table );
+	    PAR::set_line_separator
+	        ( separator_label, parser );
 	}
     }
     else if ( COM::is_lexical_master ( vp, i, size ) )

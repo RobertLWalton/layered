@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 28 17:17:00 EDT 2022
+// Date:	Fri Jul 29 15:58:43 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1586,6 +1586,16 @@ ll::parser::table::flags get_selectors
 	( ll::parser::parser parser = default_parser );
 void set_selectors
         ( ll::parser::table::flags selectors,
+	  ll::parser::parser parser = default_parser );
+
+// Get and set line separator in parser->top_level_
+// indentation_mark.  Value is min::gen string, which
+// is min::MISSING() if no line separator.
+//
+min::gen get_line_separator
+	( ll::parser::parser parser = default_parser );
+void set_line_separator
+        ( min::gen line_separator,
 	  ll::parser::parser parser = default_parser );
 
 // Get and set parser->lexical_master.  Note the lexical

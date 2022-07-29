@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 28 17:26:40 EDT 2022
+// Date:	Fri Jul 29 12:38:46 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1673,6 +1673,38 @@ void PAR::set_selectors
 	  selectors
 	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
+}
+
+min::gen PAR::get_line_separator ( PAR::parser parser )
+{
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
+    if ( imark->line_sep == min::NULL_STUB )
+        return min::MISSING();
+    else
+        return imark->line_sep->label;
+}
+
+void PAR::set_line_separator
+	( min::gen line_separator, PAR::parser parser )
+{
+    BRA::indentation_mark imark =
+        parser->top_level_indentation_mark;
+
+    if ( line_separator == min::MISSING() )
+	line_sep_ref(imark) = min::NULL_STUB;
+    else
+    {
+	BRA::bracketed_pass bracketed_pass =
+	    (BRA::bracketed_pass)
+	    parser->pass_stack;
+	line_sep_ref(imark) =
+	    BRA::push_line_sep
+		( line_separator,
+		  PAR::block_level ( parser ),
+		  PAR::top_level_position,
+		  bracketed_pass->bracket_table );
+    }
 }
 
 TAB::key_prefix PAR::find_key_prefix

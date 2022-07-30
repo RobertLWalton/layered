@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 29 12:38:46 EDT 2022
+// Date:	Sat Jul 30 11:00:28 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2633,8 +2633,7 @@ min::gen PAR::scan_name_string_label
 	  min::uns64 end_types,
 	  bool empty_name_ok )
 {
-    min::gen s = PAR::scan_quoted_string
-        ( vp, i, parser );
+    min::gen s = PAR::scan_quoted_string ( vp, i );
     if ( s == min::MISSING() )
         return min::MISSING();
     min::str_ptr sp = s;

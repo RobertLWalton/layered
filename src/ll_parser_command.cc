@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 29 16:15:23 EDT 2022
+// Date:	Sat Jul 30 10:59:58 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1144,8 +1144,7 @@ static min::gen execute_top_level
 	else
 	{
 	    min::locatable_gen separator_label
-		( PAR::scan_quoted_string
-		      ( vp, i, parser ) );
+		( PAR::scan_quoted_string ( vp, i ) );
 	    if ( separator_label == min::MISSING() )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 27 16:36:55 EDT 2022
+// Date:	Sat Jul 30 10:59:02 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5961,8 +5961,7 @@ static min::gen bracketed_pass_command
 	else
 	{
 	    min::gen begin_name =
-	        PAR::scan_quoted_string
-		    ( vp, i, parser );
+	        PAR::scan_quoted_string ( vp, i );
 	    if ( begin_name == min::MISSING()
 	         ||
 		 PAR::lexical_type_of ( begin_name )
@@ -5988,8 +5987,7 @@ static min::gen bracketed_pass_command
 		      "expected ... after" );
 	    ++ i;
 	    min::gen end_name =
-	        PAR::scan_quoted_string
-		    ( vp, i, parser );
+	        PAR::scan_quoted_string ( vp, i );
 	    if ( end_name == min::MISSING()
 	         ||
 		 PAR::lexical_type_of ( end_name )

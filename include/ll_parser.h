@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 29 15:58:43 EDT 2022
+// Date:	Sat Jul 30 11:01:11 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2107,8 +2107,7 @@ const min::uns64 QUOTED_STRING_MASK =
 // min::MISSING().
 //
 inline min::gen scan_quoted_string
-    ( min::obj_vec_ptr & vp, min::uns32 & i,
-      ll::parser::parser parser )
+    ( min::obj_vec_ptr & vp, min::uns32 & i )
 {
     if ( i >= min::size_of ( vp ) )
             return min::MISSING();

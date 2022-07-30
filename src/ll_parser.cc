@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 11:00:28 EDT 2022
+// Date:	Sat Jul 30 13:57:38 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,6 @@ min::locatable_gen PARLEX::top;
 min::locatable_gen PARLEX::level;
 min::locatable_gen PARLEX::star_top_level_star;
 min::locatable_gen PARLEX::dot_oper;
-min::locatable_gen PARLEX::doublequote;
 min::locatable_gen PARLEX::number_sign;
 min::locatable_gen PARLEX::new_line;
 min::locatable_gen PARLEX::semicolon;
@@ -152,7 +151,6 @@ static void initialize ( void )
     PARLEX::dot_oper
 	= min::new_str_gen ( ".operator" );
 
-    PARLEX::doublequote = min::new_str_gen ( "\"" );
     PARLEX::number_sign = min::new_str_gen ( "#" );
     PARLEX::new_line = min::new_str_gen ( "\n" );
     PARLEX::semicolon = min::new_str_gen ( ";" );
@@ -1911,14 +1909,9 @@ bool PAR::set_attr_flags
 	min::gen flags_text = fvp[i];
 	if ( min::is_obj ( flags_text ) )
 	{
-	    min::obj_vec_ptr tvp ( flags_text );
-	    min::attr_ptr tap ( tvp );
-	    min::locate ( tap, min::dot_type );
-	    min::gen type = get ( tap );
-	    if ( type == min::doublequote
-		 ||
-		 type == min::number_sign )
-		flags_text = tvp[0];
+	    min::gen s =
+	        quoted_string_value ( flags_text );
+	    if ( s != min::NONE() ) flags_text = s;
 	}
 
 	if ( min::is_str ( flags_text ) )
@@ -2013,14 +2006,9 @@ bool PAR::test_attr_flags
 	min::gen flags_text = vp[i];
 	if ( min::is_obj ( flags_text ) )
 	{
-	    min::obj_vec_ptr fvp ( flags_text );
-	    min::attr_ptr fap ( fvp );
-	    min::locate ( fap, min::dot_type );
-	    min::gen type = get ( fap );
-	    if ( type == min::doublequote
-		 ||
-		 type == min::number_sign )
-		flags_text = fvp[0];
+	    min::gen s =
+	        quoted_string_value ( flags_text );
+	    if ( s != min::NONE() ) flags_text = s;
 	}
 
 	if ( min::is_str ( flags_text ) )
@@ -2688,22 +2676,6 @@ min::gen PAR::scan_simple_name
     return min::new_lab_gen ( elements, i - j );
 }
 
-// If v is a quoted string return its string value.
-// otherwise return min::NONE().
-//
-inline min::gen quoted_string_value ( min::gen v )
-{
-    min::obj_vec_ptr vp ( v );
-    if ( min::size_of ( vp ) != 1 ) return min::NONE();
-    min::attr_ptr ap ( vp );
-    min::locate ( ap, min::dot_type );
-    min::gen type = min::get ( ap );
-    if ( type != PARLEX::doublequote )
-        return min::NONE();
-    else
-        return vp[0];
-}
-
 min::gen PAR::scan_label_or_value
 	( PAR::parser parser,
 	  min::obj_vec_ptr & vp, min::uns32 & i,
@@ -2726,7 +2698,7 @@ min::gen PAR::scan_label_or_value
 	    break;
 	if ( min::is_obj ( vp[i] ) )
 	{
-	    v = ::quoted_string_value ( vp[i] );
+	    v = PAR::quoted_string_value ( vp[i] );
 	    if ( v == min::NONE() )
 	        break;
 	    else
@@ -2990,7 +2962,7 @@ void PAR::convert_token ( PAR::token token )
     min::locatable_gen value ( token->value );
 
     if ( token->type == LEXSTD::quoted_string_t )
-	type = PARLEX::doublequote;
+	type = min::doublequote;
     else
     {
 	MIN_REQUIRE

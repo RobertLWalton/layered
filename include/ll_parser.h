@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 11:01:11 EDT 2022
+// Date:	Sat Jul 30 13:57:15 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,7 +48,6 @@ namespace ll { namespace parser {
 	    level,		// level
 	    star_top_level_star, // *TOP* *LEVEL*
 	    dot_oper,		// .operator
-	    doublequote,	// "
 	    number_sign,	// #
 	    new_line,		// \n
 	    semicolon,		// ;
@@ -2095,6 +2094,20 @@ const min::uns64 VALUE_COMPONENT_MASK =
 const min::uns64 QUOTED_STRING_MASK =
       ( 1ull << ll::lexeme::standard::quoted_string_t );
 
+// If v is a quoted string, return its string value.
+// Otherwise return min::NONE().
+//
+inline min::gen quoted_string_value ( min::gen v )
+{
+    if (    min::get ( v, min::dot_type )
+	 != min::doublequote )
+	return min::NONE();
+    min::obj_vec_ptr vp = v;
+    if ( min::size_of ( vp ) != 1 )
+	return min::NONE();
+    return vp[0];
+}
+
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
 // object attribute vector, then if the element is
@@ -2110,16 +2123,12 @@ inline min::gen scan_quoted_string
     ( min::obj_vec_ptr & vp, min::uns32 & i )
 {
     if ( i >= min::size_of ( vp ) )
-            return min::MISSING();
-    min::gen element = vp[i];
-    if (    min::get ( element, min::dot_type )
-	 != ll::parser::lexeme::doublequote )
 	return min::MISSING();
-    min::obj_vec_ptr ep = element;
-    if ( min::size_of ( ep ) != 1 )
-	return min::MISSING();
+    min::gen s = quoted_string_value ( vp[i] );
+    if ( s == min::NONE() )
+        return min::MISSING();
     ++ i;
-    return ep[0];
+    return s;
 }
 
 // Given an object vector pointer vp pointing at an

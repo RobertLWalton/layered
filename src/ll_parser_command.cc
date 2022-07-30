@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 10:59:58 EDT 2022
+// Date:	Sat Jul 30 11:09:31 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1542,23 +1542,18 @@ static min::gen execute_ID
 	    ID_character = min::NO_UCHAR;
 	else
 	{
-	    if (    min::get ( vp[i], min::dot_type )
-		 != PARLEX::doublequote )
+	    min::gen c =
+	        PAR::scan_quoted_string ( vp, i );
+	    if ( c == min::MISSING() )
 		return PAR::parse_error
 		    ( parser, ppvec[i],
 		      "expected quoted string" );
 
-	    min::obj_vec_ptr svp = vp[i];
-	    if ( min::size_of ( svp ) != 1 )
-		return PAR::parse_error
-		    ( parser, ppvec[i],
-		      "expected quoted string" );
-
-	    min::str_ptr sp = svp[0];
+	    min::str_ptr sp = c;
 	    min::unsptr slen = min::strlen ( sp );
 	    if ( slen > 20 )
 		return PAR::parse_error
-		    ( parser, ppvec[i],
+		    ( parser, ppvec[i-1],
 		      "quoted string must have ONLY ONE"
 		      " unicode character" );
 	    char buffer[21];
@@ -1569,12 +1564,12 @@ static min::gen execute_ID
 	        min::utf8_to_unicode ( p, endp );
 	    if ( ID_character == min::NO_UCHAR )
 		return PAR::parse_error
-		    ( parser, ppvec[i],
+		    ( parser, ppvec[i-1],
 		      "quoted string contains"
 		      " incomplete UTF-8 character" );
 	    if ( * p != 0 )
 		return PAR::parse_error
-		    ( parser, ppvec[i],
+		    ( parser, ppvec[i-1],
 		      "quoted string must have ONLY ONE"
 		      " unicode character" );
 	}

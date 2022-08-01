@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 25 22:10:19 EDT 2022
+// Date:	Mon Aug  1 18:16:13 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -47,3 +47,5 @@ x AND y OR z
 
 while x == y:
     a + b
+x, y = while z:
+    c = a + b

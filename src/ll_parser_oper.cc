@@ -1172,6 +1172,85 @@ static bool control_reformatter_function
     return true;
 }
 
+static bool assignment_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    OP::oper op = (OP::oper) entry;
+    min::obj_vec_ptr args ( op->reformatter_arguments );
+    MIN_REQUIRE ( min::size_of ( args ) == 1 );
+
+    PAR::token t = first;
+
+    // Ensure first element is operand.
+    //
+    if ( t->type == PAR::OPERATOR )
+    {
+	OP::put_error_operand_before ( parser, t );
+	first = t->previous;
+    }
+    else
+        t = t->next;
+
+    // Ensure that next element is an operator.
+    //
+    while ( t != next && t->type != PAR::OPERATOR )
+        t = OP::delete_bad_token
+	        ( parser, t, "expected an operator"
+		             " and found an operand " );
+    MIN_ASSERT
+	( t != next,
+	  "expression must have an operator" );
+    t = t->next;
+
+    if ( t == next )
+	OP::put_error_operand_after
+	    ( parser, t->previous );
+    else if ( t->type != PAR::OPERATOR )
+        t = t->next;
+
+    while (    t != next
+	    && t->type != PAR::OPERATOR )
+	first = OP::delete_bad_token
+	    ( parser, t, "expected an operator"
+			 " and found an operand " );
+    if ( t != next )
+    {
+        MIN_REQUIRE ( t->type == PAR::OPERATOR );
+
+        if (    min::get ( t->value,
+		           min::dot_terminator )
+	     != min::INDENTED_PARAGRAPH()
+	     ||
+                min::get ( t->value,
+		           min::dot_initiator )
+	     != args[0] )
+
+	    PAR::parse_error
+		( parser, t->position,
+		  "expected `",
+		  min::pgen_never_quote ( args[0] ),
+		  "' indented paragraph but"
+		  " found different operator" );
+
+	t = t->next;
+    }
+
+    // Delete extra stuff from end of list.
+    //
+    if ( t != next )
+        t = OP::delete_extra_stuff ( parser, t, next );
+
+    return true;
+}
+
 static bool iteration_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1419,10 +1498,8 @@ static bool separator_reformatter_function
 	else
 	{
 	    MIN_ASSERT ( ! separator_should_be_next,
-	                 "separator expected but"
-			 " operand found" );
-	        // Two operands should never be next to
-		// each other.
+			 "two operands in a row"
+			 " found" );
 	    separator_should_be_next = true;
 	    t = t->next;
 	}
@@ -1535,7 +1612,7 @@ static bool selector_reformatter_function
 //
 static void infix_check
         ( PAR::parser parser,
-	  PAR::token first,
+	  PAR::token & first,
 	  PAR::token next,
 	  TAB::root entry )
 {
@@ -1551,6 +1628,8 @@ static void infix_check
     PAR::token t = first;
     while ( true )
     {
+        // Operand expected.
+
         if ( t == next )
 	{
 	    PAR::parse_error
@@ -1566,15 +1645,18 @@ static void infix_check
 		( parser, t->position,
 		  "operator should be infix" );
 	    OP::put_error_operand_before ( parser, t );
+	    if ( t == first ) first = t->previous;
 	}
 	else
 	{
 	    t = t->next;
 	    if ( t == next ) return;
 	    MIN_ASSERT ( t->type == PAR::OPERATOR,
-			 "operator expected but operand"
+			 "two operands in a row"
 			 " found" );
 	}
+
+	MIN_REQUIRE ( t->type == PAR::OPERATOR );
 
 	t = t->next;
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  2 03:37:53 EDT 2022
+// Date:	Tue Aug  2 10:33:06 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1048,102 +1048,73 @@ static bool control_reformatter_function
     min::obj_vec_ptr args ( op->reformatter_arguments );
     MIN_REQUIRE ( min::size_of ( args ) >= 1 );
 
-    while (    first != next
-            && first->type != PAR::OPERATOR )
+    MIN_REQUIRE ( first != next );
+
+    if ( first->type != PAR::OPERATOR )
         first = OP::delete_bad_token
 	    ( parser, first, "expected an operator"
 			     " and found an operand " );
-    MIN_ASSERT ( first != next,
+
+    MIN_ASSERT (    first != next
+                 && first->type == PAR::OPERATOR,
 		 "expression must have an operator" );
 
     PAR::token t = first->next;
+
+    if (    min::size_of ( args ) >= 2
+         && args[1] == OPLEX::has_condition )
+    {
+
+	if ( t == next || t->type == PAR::OPERATOR )
+	    OP::put_error_operand_after
+		( parser, t->previous );
+	else
+	    t = t->next;
+    }
+    else if ( t != next && t->type != PAR::OPERATOR )
+        t = OP::delete_bad_token
+	    ( parser, t, "expected an operator"
+			 " and found an operand " );
 
     if ( t == next )
     {
 	PAR::parse_error
 	    ( parser, t->previous->position,
-	      "expression ends prematurely after" );
+	      "operator `",
+	      min::pgen_never_quote ( args[0] ),
+	      "' inserted after" );
+	PAR::token token = new_token ( PAR::OPERATOR );
+	put_before ( PAR::first_ref(parser), t, token );
+	PAR::value_ref ( token ) = args[0];
+	OP::put_error_operand_after
+	    ( parser, t->previous );
 	return true;
-    }
-
-    if (    min::size_of ( args ) >= 2
-         && args[1] == OPLEX::has_condition )
-    {
-	if ( t->type == PAR::OPERATOR )
-	    OP::put_error_operand_before ( parser, t );
-	else
-	{
-	    t = t->next;
-	    if ( t == next )
-	    {
-		PAR::parse_error
-		    ( parser, t->previous->position,
-		      "expression ends prematurely"
-		      " after" );
-		return true;
-	    }
-	    MIN_ASSERT ( t->type == PAR::OPERATOR,
-	                 "expected an operator and"
-			 " found an operand" );
-	}
-    }
-    else if ( t->type != PAR::OPERATOR )
-    {
-        t = OP::delete_bad_token
-	    ( parser, t, "expected an operator"
-			     " and found an operand " );
-	if ( t == next )
-	{
-	    PAR::parse_error
-		( parser, t->previous->position,
-		  "expression ends prematurely"
-		  " after" );
-	    return true;
-	}
-	MIN_ASSERT ( t->type == PAR::OPERATOR,
-		     "expected an operator and"
-		     " found an operand" );
-    }
-
-    if ( ! min::is_obj ( t->value )
-         &&
-	 t->value != args[0] )
-    {
-        PAR::parse_error
-	    ( parser, t->previous->position,
-	      "expected `",
-	      min::pgen_never_quote ( args[0] ),
-	      "' operator but found `",
-	      min::pgen_never_quote ( t->value ),
-	      "' operator; operator changed to `",
-	      min::pgen_never_quote ( args[0] ),
-	      "' operator" );
-	PAR::value_ref ( t ) = args[0];
     }
 
     if ( t->value == args[0] )
     {
 	t = t->next;
+
 	if ( t == next )
-	{
-	    PAR::parse_error
-		( parser, t->previous->position,
-		  "expected statement after" );
 	    OP::put_error_operand_after
-	        ( parser, t->previous );
-	    return true;
-	}
+		( parser, t->previous );
+
 	else if ( t->type == PAR::OPERATOR )
 	{
 	    PAR::parse_error
-		( parser, t->position,
-		  "expected an operand and found an"
-		  " operator" );
+		( parser, t->previous->position,
+		  "expected statement but found"
+		  " operator after" );
             t = OP::delete_extra_stuff
 	        ( parser, t, next );
-	    return true;
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
 	}
+
+	else
+	    t = t->next;
     }
+
     else if (    min::get ( t->value,
 		            min::dot_terminator )
 	      != min::INDENTED_PARAGRAPH()
@@ -1151,20 +1122,15 @@ static bool control_reformatter_function
                  min::get ( t->value,
 		            min::dot_initiator )
 	      != args[0] )
-    {
 	PAR::parse_error
 	    ( parser, t->position,
 	      "expected `",
 	      min::pgen_never_quote ( args[0] ),
 	      "' operator or indented paragraph but"
 	      " found different operator" );
-	t = OP::delete_extra_stuff ( parser, t, next );
-	OP::put_error_operand_after
-	    ( parser, t->previous );
-	return true;
-    }
 
-    t = t->next;
+    else
+	t = t->next;
 
     // Delete extra stuff from end of list.
     //

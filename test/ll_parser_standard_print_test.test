@@ -264,7 +264,7 @@
         block standard: operator "=" [code]
                         infix line
                         with precedence 1000
-                        with binary reformatter
+                        with assignment reformatter ( ":" )
         block standard: operator "=" [math]
                         infix
                         with precedence 1000

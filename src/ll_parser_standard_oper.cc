@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 27 17:14:41 EDT 2022
+// Date:	Tue Aug  2 14:08:23 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -240,6 +240,11 @@ static void define_assignment_operators
 
     oper_pass->selectors |= code | math;
 
+    min::locatable_gen assignment
+        ( min::new_str_gen ( "assignment" ) );
+    PAR::reformatter assignment_reformatter =
+        PAR::find_reformatter
+	    ( assignment, OP::reformatter_stack );
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
     PAR::reformatter binary_reformatter =
@@ -250,6 +255,11 @@ static void define_assignment_operators
     PAR::reformatter separator_reformatter =
         PAR::find_reformatter
 	    ( separator, OP::reformatter_stack );
+
+    min::locatable_gen assignment_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr cavp ( assignment_arguments );
+    min::attr_push ( cavp ) = PARLEX::colon;
 
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
@@ -272,8 +282,8 @@ static void define_assignment_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000,
-	  binary_reformatter,
-	  min::MISSING(),
+	  assignment_reformatter,
+	  assignment_arguments,
 	  oper_pass->oper_table );
 
     if ( code ) OP::push_oper

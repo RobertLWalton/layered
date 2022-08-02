@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  2 02:41:42 EDT 2022
+// Date:	Tue Aug  2 03:06:54 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1283,34 +1283,49 @@ static bool iteration_reformatter_function
 
     PAR::token t = first->next;
 
-    while ( t != next && t->type == PAR::OPERATOR )
-        t = OP::delete_bad_token
-	        ( parser, t,
-		  "expected an operand and found an"
-		  " operator " );
-    MIN_ASSERT ( t != next,
-		 "expression must have an operand" );
-
-    t = t->next;
-
-    while ( t != next && t->type != PAR::OPERATOR )
-        t = OP::delete_bad_token
-	    ( parser, t, "expected an operator"
-			 " and found an operand " );
-    MIN_ASSERT ( t != next,
-		 "expression must end with"
-		 " an operator" );
-
-    if ( t->value != args[0] )
+    if ( t == next || t->type == PAR::OPERATOR )
     {
 	PAR::parse_error
-	    ( parser, t->position,
-	      "this operator has been changed to ",
-	      min::pgen_quote ( args[0] ) );
-	PAR::value_ref ( t ) = args[0];
+	    ( parser, t->previous->position,
+	      "expected operand after" );
+	OP::put_error_operand_after
+	    ( parser, t->previous );
     }
+    else
+        t = t->next;
 
-    t = t->next;
+    if ( t == next )
+    {
+	PAR::token token = new_token ( PAR::OPERATOR );
+	put_before ( PAR::first_ref(parser), t, token );
+	PAR::value_ref ( token ) = args[0];
+
+	min::phrase_position position =
+	    { t->position.begin, t->position.begin };
+	token->position = position;
+
+	PAR::parse_error
+	    ( parser, position,
+	      "missing operator `",
+	      min::pgen_quote ( args[0] ),
+	      "' inserted" );
+    }
+    else
+    {
+	MIN_ASSERT ( t->type == PAR::OPERATOR,
+		     "two operands in a row found" );
+
+	if ( t->value != args[0] )
+	{
+	    PAR::parse_error
+		( parser, t->position,
+		  "this operator has been changed to ",
+		  min::pgen_quote ( args[0] ) );
+	    PAR::value_ref ( t ) = args[0];
+	}
+
+	t = t->next;
+    }
 
     // Delete extra stuff from end of list.
     //
@@ -1608,9 +1623,9 @@ static bool selector_reformatter_function
 
 	PAR::parse_error
 	    ( parser, position,
-	      "missing operator ",
+	      "missing operator `",
 	      min::pgen_quote ( second_op ),
-	      " inserted" );
+	      "' inserted" );
 
 	OP::put_error_operand_after
 	    ( parser, token );

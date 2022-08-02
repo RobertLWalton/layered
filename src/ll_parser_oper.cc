@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 23 15:23:21 EDT 2022
+// Date:	Tue Aug  2 02:41:42 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1159,6 +1159,8 @@ static bool control_reformatter_function
 	      "' operator or indented paragraph but"
 	      " found different operator" );
 	t = OP::delete_extra_stuff ( parser, t, next );
+	OP::put_error_operand_after
+	    ( parser, t->previous );
 	return true;
     }
 
@@ -1233,12 +1235,17 @@ static bool assignment_reformatter_function
 		           min::dot_initiator )
 	     != args[0] )
 
+	{
 	    PAR::parse_error
 		( parser, t->position,
 		  "expected `",
 		  min::pgen_never_quote ( args[0] ),
 		  "' indented paragraph but"
 		  " found different operator" );
+	    t = OP::delete_extra_stuff ( parser, t, next );
+	    OP::put_error_operand_after
+		( parser, t->previous );
+	}
 
 	t = t->next;
     }
@@ -1350,7 +1357,7 @@ static bool declare_reformatter_function
     //
     MIN_ASSERT
 	( t != next && t->type == PAR::OPERATOR,
-	  "second element is missing or not operator" );
+	  "expression must have an operator" );
 
     t = t->next;
 
@@ -1363,13 +1370,14 @@ static bool declare_reformatter_function
 
     if ( t == next ) return true; 
 
-    // Fourth element must be operator.
-    //
-    MIN_ASSERT
-	( t != next && t->type == PAR::OPERATOR,
-	  "fourth element is missing or not operator" );
+    while ( t != next && t->type != PAR::OPERATOR )
+        t = OP::delete_bad_token
+	    ( parser, t, "expected an operator"
+			 " and found an operand " );
 
-    // Check that the fourth element is either args[0]
+    if ( t == next ) return true; 
+
+    // Check that the operator is either args[0]
     // followed by one operand or is an indented
     // paragraph with indentation mark args[0] that
     // ends the expression.
@@ -1394,6 +1402,8 @@ static bool declare_reformatter_function
 		  " operator" );
             t = OP::delete_extra_stuff
 	        ( parser, t, next );
+	    OP::put_error_operand_after
+	        ( parser, t->previous );
 	    return true;
 	}
     }
@@ -1412,6 +1422,8 @@ static bool declare_reformatter_function
 	      "' operator or indented paragraph but"
 	      " found different operator" );
 	t = OP::delete_extra_stuff ( parser, t, next );
+	OP::put_error_operand_after
+	    ( parser, t->previous );
 	return true;
     }
 

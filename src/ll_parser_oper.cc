@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  2 03:06:54 EDT 2022
+// Date:	Tue Aug  2 03:37:53 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1201,15 +1201,10 @@ static bool assignment_reformatter_function
     else
         t = t->next;
 
-    // Ensure that next element is an operator.
-    //
-    while ( t != next && t->type != PAR::OPERATOR )
-        t = OP::delete_bad_token
-	        ( parser, t, "expected an operator"
-		             " and found an operand " );
     MIN_ASSERT
-	( t != next,
+	( t != next && t->type == PAR::OPERATOR,
 	  "expression must have an operator" );
+
     t = t->next;
 
     if ( t == next )
@@ -1218,14 +1213,10 @@ static bool assignment_reformatter_function
     else if ( t->type != PAR::OPERATOR )
         t = t->next;
 
-    while (    t != next
-	    && t->type != PAR::OPERATOR )
-	first = OP::delete_bad_token
-	    ( parser, t, "expected an operator"
-			 " and found an operand " );
     if ( t != next )
     {
-        MIN_REQUIRE ( t->type == PAR::OPERATOR );
+	MIN_ASSERT ( t->type == PAR::OPERATOR,
+		     "two operands in a row found" );
 
         if (    min::get ( t->value,
 		           min::dot_terminator )
@@ -1246,8 +1237,8 @@ static bool assignment_reformatter_function
 	    OP::put_error_operand_after
 		( parser, t->previous );
 	}
-
-	t = t->next;
+	else
+	    t = t->next;
     }
 
     // Delete extra stuff from end of list.
@@ -1984,6 +1975,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( control, 1, 2,
 	  ::control_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen assignment
+        ( min::new_str_gen ( "assignment" ) );
+    PAR::push_reformatter
+        ( assignment, 1, 1,
+	  ::assignment_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen iteration

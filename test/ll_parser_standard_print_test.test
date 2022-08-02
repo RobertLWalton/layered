@@ -262,7 +262,7 @@
                         with precedence 12000
                         with infix reformatter
         block standard: operator "=" [code]
-                        infix line
+                        left line
                         with precedence 1000
                         with assignment reformatter ( ":" )
         block standard: operator "=" [math]

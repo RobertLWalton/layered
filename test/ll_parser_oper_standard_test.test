@@ -246,3 +246,14 @@ until z == x, at most 10 times:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|{|next x|}, {|y|}|} =:
+        {|y|} = {|x|}
+        {|next x|} += {|1|}
+    lines ##-##:
+next x, y =:
+^^^^^^^^^^^^
+    y = x
+^^^^^^^^^
+    next x += 1
+^^^^^^^^^^^^^^^

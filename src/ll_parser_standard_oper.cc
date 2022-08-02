@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  2 14:08:23 EDT 2022
+// Date:	Tue Aug  2 17:15:12 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -280,7 +280,7 @@ static void define_assignment_operators
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
+	  OP::LEFT + OP::LINE,
 	  1000,
 	  assignment_reformatter,
 	  assignment_arguments,

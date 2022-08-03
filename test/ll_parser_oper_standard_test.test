@@ -257,3 +257,42 @@ next x, y =:
 ^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    if {|{|x|} == {|y|}|} ":" {|foo ({|a|}, {|b|})|}
+    line ##:
+if x == y: foo ( a, b )
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    if {|{|w|} == {|v|}|}:
+        {|c|} = {|{|d|} + {|e|}|}
+    lines ##-##:
+if w == v:
+^^^^^^^^^^
+    c = d + e
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [< else if >] {|{|x|} != {|y|}|} ":" {|foo ({|a|}, {|b|})|}
+    line ##:
+else if x != y: foo ( a, b )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [< else if >] {|{|w|} != {|v|}|}:
+        {|c|} = {|{|d|} + {|e|}|}
+    lines ##-##:
+else if w != v:
+^^^^^^^^^^^^^^^
+    c = d + e
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    else ":" {|foo ({|a|}, {|b|})|}
+    line ##:
+else: foo ( a, b )
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    else:
+        {|c|} = {|{|d|} + {|e|}|}
+    lines ##-##:
+else:
+^^^^^
+    c = d + e
+^^^^^^^^^^^^^

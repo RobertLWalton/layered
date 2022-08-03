@@ -65,4 +65,12 @@ next x, y =:
     y = x
     next x += 1
 
-    
+if x == y: foo ( a, b )
+if w == v:
+    c = d + e
+else if x != y: foo ( a, b )
+else if w != v:
+    c = d + e
+else: foo ( a, b )
+else:
+    c = d + e

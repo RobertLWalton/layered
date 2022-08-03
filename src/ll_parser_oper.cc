@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  2 10:33:06 EDT 2022
+// Date:	Wed Aug  3 17:52:53 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1087,7 +1087,7 @@ static bool control_reformatter_function
 	put_before ( PAR::first_ref(parser), t, token );
 	PAR::value_ref ( token ) = args[0];
 	OP::put_error_operand_after
-	    ( parser, t->previous );
+	    ( parser, token->previous );
 	return true;
     }
 

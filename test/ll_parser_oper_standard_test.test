@@ -258,6 +258,17 @@ next x, y =:
     next x += 1
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
+    {|{|next x|}, {|y|}|}:
+        {|y|} = {|x|}
+        {|next x|} += {|1|}
+    lines ##-##:
+next x, y:
+^^^^^^^^^^
+    y = x
+^^^^^^^^^
+    next x += 1
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     if {|{|x|} == {|y|}|} ":" {|foo ({|a|}, {|b|})|}
     line ##:
 if x == y: foo ( a, b )

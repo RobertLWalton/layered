@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 2, 2022
+August 4, 2022
  
 \end{center}
 
@@ -8198,8 +8198,10 @@ prece-  & selec-  &             &            &            &            & \\
 	&	&		& \TT{line}  &            &            &
 \\\cline{4-5}
 	&	& 		& \TT{afix } & \ttkey{:} indentation & & \\
-	&	&		& \TT{postfix}  & ~~~mark     &           & \\
-	&	&		& \TT{line}  &            &            &
+	&	&		& \TT{line}  & ~~~mark     &           &
+\\\cline{4-4}\cline{6-6}
+	&	& 		& \TT{postfix } &          & assignment  & \\
+	&	&		& \TT{line}  &             & or loop     &
 \\\cline{1-1}\cline{3-7}
 1000    &     	& \TT{assignment} & \TT{left} & \ttkey{=}  & assignment & S \\
         &       &               & \TT{line}  &            &            &
@@ -8224,13 +8226,10 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
-\\\cline{2-5}
-	& code  & (none)	& \TT{postfix } & \ttkey{:} indentation
-	                                                   &           & \\
-	&	&		& \TT{line}  & ~~~mark     &           &
-\\\cline{4-4}\cline{6-6}
-	&       &       	& \TT{afix } &             & assignment & \\
-	&	&		& \TT{line}  &             & modifier  &
+\\\cline{2-6}
+	& code  & (none)	& \TT{afix } & \ttkey{:} indentation
+	                                                   & assignment & \\
+	&	&		& \TT{line}  & ~~~mark     & modifier   &
 \\\hline
 \end{tabular}
 
@@ -8426,7 +8425,10 @@ Parser Command				& \shortstack{
 \tt define operator ":" [code] afix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt define operator indentation mark ":" [code] & {\tt + code} \\
-\tt ~~~~~~~postfix afix line \\
+\tt ~~~~~~~afix line \\
+\tt ~~~~~~~with precedence 0 \\
+\tt define operator indentation mark ":" [code] & {\tt + code} \\
+\tt ~~~~~~~postfix line \\
 \tt ~~~~~~~with precedence 0 \\
 \end{tabular}
 \end{center}

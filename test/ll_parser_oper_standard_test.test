@@ -54,6 +54,13 @@ BRACKETED EXPRESSION:
 x1, x2 += z1, z2
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
+    {|x|} =
+        {|{|y|} + {|{|z|} * {|{|w|} << {|q|}|}|} +
+          {|{|u|} * {|{|v|} ** {|p|}|}|}|}
+    line ##:
+x = y + z * w << q + u * v ** p
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     {|x|} < {|y|} < {|z|}
     line ##:
 x < y < z

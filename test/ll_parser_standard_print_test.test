@@ -367,7 +367,7 @@
                         with binary reformatter
         block standard: operator "<<" [code]
                         infix
-                        with precedence 13000
+                        with precedence 13300
                         with binary reformatter
         block standard: operator "<=" [code, math]
                         infix
@@ -399,7 +399,7 @@
                         with infix reformatter
         block standard: operator ">>" [code]
                         infix
-                        with precedence 13000
+                        with precedence 13300
                         with binary reformatter
         block standard: operator "OR" [code, math]
                         infix

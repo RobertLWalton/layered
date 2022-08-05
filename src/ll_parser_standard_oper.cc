@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  3 18:14:07 EDT 2022
+// Date:	Thu Aug  4 21:50:44 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -874,7 +874,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, binary_reformatter,
+	  13300, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -884,7 +884,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, binary_reformatter,
+	  13300, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 

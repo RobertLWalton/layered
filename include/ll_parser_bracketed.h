@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  6 01:15:14 EDT 2022
+// Date:	Sat Aug  6 18:15:31 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -665,11 +665,8 @@ MIN_REF ( ll::parser::reformatter, reformatter,
 MIN_REF ( min::gen, reformatter_arguments,
           ll::parser::bracketed::bracket_type )
 
-// Push entry into bracket type table.  Each BRACKET_
-// OFF_SELECTORS  flag is set in parsing_selectors
-// .not_flags unless it is set in parsing_selectors
-// .{or,xor}_flags.  Note that BRACKET_OFF_OPT is NOT
-// used.
+// Push entry into bracket type table.  The parsing_
+// selectors are used as given.
 //
 void push_bracket_type
 	( min::gen bracket_type_label,

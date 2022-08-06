@@ -37,7 +37,7 @@ BRACKETED EXPRESSION:
     ID 36 is "fum"
 BRACKETED EXPRESSION:
     ID 40 is
-        {|This is a code line ending in
+        {|{|This is a code line ending in|}
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
                {"": .terminator = "<LF>", .initiator =
                     [$ LOGICAL_LINE $]|An indented paragragraph ";" line

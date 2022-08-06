@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 5, 2022
+August 6, 2022
  
 \end{center}
 
@@ -3019,13 +3019,13 @@ The following parsing selectors are builtin:
 \begin{indpar}[0.5in]
 
 \hspace*{-0.2in}\ttmkey{TOP LEVEL}{top level selector} \\
-    This is always on when a top level logical line is parsed, and always off
-    when indented paragraph logical lines or a bracketed
+    This is always on when a top level logical line is parsed, and off
+    by default when indented paragraph logical lines or a bracketed
     subexpression is parsed.
 
 \hspace*{-0.2in}\ttmkey{LINE LEVEL}{line level selector} \\
-    This is always on when a logical line is parsed, and always off
-    when a bracketed subexpression is parsed.
+    This is always on when a logical line is parsed, and off
+    by default when a bracketed subexpression is parsed.
 
 \hspace*{-0.2in}\ttmkey{data}{parser selector} \\
     This selects symbol table entries that parse raw data.
@@ -3612,9 +3612,9 @@ and \TT{LINE LEVEL} are automatically set at the beginning of
 every such top level logical line, and cannot be set or modified
 by \TT{define top level} commands.
 
-The \TT{TOP LEVEL} selector is automatically cleared
+By default the \TT{TOP LEVEL} selector is cleared
 when indented paragraphs or bracketed subexpressions are being parsed,
-and the \TT{LINE LEVEL} selector is automatically cleared when
+and the \TT{LINE LEVEL} selector is cleared by default when
 bracketed subexpressions are being parsed.
 
 Either of the two lexical master parameters (\pagref{LEXICAL-MASTER-PARAMETERS})
@@ -4923,20 +4923,24 @@ The general syntax of {\em parser-untyped-bracket-commands} is:
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{bracket-selectors}\label{BRACKET-SELECTORS} ::=
-    \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
-        or `\TT{LINE LEVEL}' selector
-	~~~ [\pagref{SELECTOR-SPEC}]
+    \begin{tabular}[t]{p{4.5in}}
+    {\em selector-spec} ~~~~~~~ [\pagref{SELECTOR-SPEC}] \\
+    {}[Unless explicitly mentioned in {\em selector-spec},
+       `\TT{TOP LEVEL}'
+       and `\TT{LINE LEVEL}' are
+       automatically added as `\TT{-}' selectors]
     \end{tabular}
 \\[0.5ex]
 \emkey{bracket-options}\label{BRACKET-OPTIONS} ::=
     \begin{tabular}[t]{p{4.5in}}
     \raggedright
-    {\em option-spec} with only `\TT{end at \ldots}' options
-    other than `\TT{end at line separator}' and
-    `\TT{enable \ldots}' options other than
-    `\TT{enable indented paragraph}' and `\TT{enable header}'
-	~~~ [\pagref{OPTION-SPEC}]
+    {\em option-spec} ~~~~~~~ [\pagref{OPTION-SPEC}] \\
+    with only `\TT{end at \ldots}' options and
+    `\TT{enable \ldots}' options \\
+    {}[Unless explicitly mentioned in {\em option-spec},
+    `\TT{end at line separator}', `\TT{enable indented paragraph},
+    and `\TT{enable header}' are
+       automatically added as `\TT{-}' options]
     \end{tabular}
 \\[0.5ex]
 \emkey{reformatter-name}\label{REFORMATTER-NAME} ::=
@@ -4992,13 +4996,14 @@ When an {\em opening-bracket} is recognized, the current parser
 selector set and options are saved in a stack.  Then if the
 bracket definition contains {\em bracket-selectors},
 a new selector set is computed by modifying the saved set
-according to the {\em bracket-selectors}.  Additionally
-the `\TT{TOP LEVEL}' and `\TT{LINE LEVEL}' selectors are always turned off.
+according to the {\em bracket-selectors}.
+The `\TT{TOP LEVEL}' and `\TT{LINE LEVEL}' selectors are turned off
+by default.
 Similarly if the bracket definition contains {\em bracket-options},
 these are used to compute a new set of end-at options.
-Additionally the `\TT{end at line separator}',
+By default the `\TT{end at line separator}',
 `\TT{enable indented paragraph}', and `\TT{enable header}' options
-are always turned off.
+are turned off.
 The saved selector set and options are restored after the {\em closing-bracket}
 is recognized.  However {\em closing-bracket}
 recognition does not depend
@@ -5373,10 +5378,14 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
 \emkey{indentation-mark-selectors} ::=
-    \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
-        or `\TT{LINE LEVEL}' selector
-	~~~ [\pagref{SELECTOR-SPEC}]
+    {\em selector-spec} ~~~~~~~ [\pagref{SELECTOR-SPEC}] \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{p{5.0in}}
+    {}[Unless they are explicitly mentioned in {\em selector-spec},
+       `\TT{LINE LEVEL}' is
+       automatically added as a `\TT{+}' selector
+       and `\TT{TOP LEVEL}' is
+       automatically added as a `\TT{-}' selector]
     \end{tabular}
 \\[0.5ex]
 \emkey{indentation-mark-options} ::=
@@ -5457,8 +5466,8 @@ and modifying the saved options according
 to the {\em indentation-mark-options} in the indentation mark definition.
 The saved selector set and options
 are restored after the end of paragraph is recognized.
-The \TT{TOP LEVEL} selector is always turned off when parsing indented
-paragraph lines, and the \TT{LINE LEVEL} selector is always turned on.
+The \TT{TOP LEVEL} selector is turned off by default when parsing indented
+paragraph lines, and the \TT{LINE LEVEL} selector is turned on by default.
 Note that if no {\em new-selectors} are given, selectors
 other than \TT{TOP LEVEL} and \TT{LINE LEVEL}
 are not modified, and if no {\em indentation-mark-options} 
@@ -5476,7 +5485,10 @@ block is the current \TT{*TOP* *LEVEL*} definition.
 The parameters of this current definition are the top level parameters that
 can be set and printed as per Section \itemref{PARSER-TOP-LEVEL-COMMANDS};
 these parameters govern top level parsing as if the top level were inside
-an indented paragraph with indentation \TT{0}.
+an indented paragraph with indentation \TT{0}.  However, when the
+parsing selectors for a \TT{*TOP* *LEVEL*} indentation mark are
+printed, the \TT{TOP LEVEL} and \TT{LINE LEVEL} selectors are omitted,
+even though both are forced on a the beginning of each logical line.
 
 When the parser is initialized, an initial \TT{TOP LEVEL} parser block
 is created with its associated \TT{*TOP* *LEVEL*} indentation mark definition.
@@ -6012,12 +6024,12 @@ using the context selectors.
 If an entry is found, the selectors and options used to scan
 the {\em elements} are computed by modifying the context selectors
 and options according to the
-{\em typed-parsing-selectors} and {\em bracket-options} in the
+{\em bracket-selectors} and {\em bracket-options} in the
 found entry.
 If no entry is found, the selectors and options used to scan
 the {\em elements} are computed by modifying the context selectors
 and options according to the
-{\em typed-parsing-selectors} and {\em bracket-options}
+{\em bracket-selectors} and {\em bracket-options}
 associated with the {\em typed-opening} by the
 \TT{parser define typed bracket} command (see below).
 
@@ -6062,7 +6074,7 @@ which specifies
 `\TT{||}' to be by implication the {\em doubled-typed-middle} \\
 `\TT{\}}' to be a {\em typed-closing} \\
 `\TT{text}' to be the sole definition selector \\
-`\TT{[- data] }' to be the {\em typed-parsing-selectors} \\
+`\TT{[- data] }' to be the {\em bracket-selectors} \\
 `\begin{tabular}[t]{@{}l}
  \TT{[- end at outer closing, - end at line separator,} \\
  \TT{~- enable indented paragraph, - enable header]}' \\
@@ -6111,7 +6123,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 	  \TT{typed bracket} ~ {\em typed-bracket-name}
 	                     ~ {\em parsing-selectors} \\
 	  {}[ \TT{with parsing selectors} ~
-	      {\em typed-parsing-selectors} ] \\
+	      {\em bracket-selectors} ] \\
 	  {}[ \TT{with attribute selectors} ~
 	      {\em typed-attribute-selectors} ] \\
 	  {}[ \TT{with parsing options} ~
@@ -6155,8 +6167,7 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{typed-parsing-selectors} ::= {\em bracket-selectors}
-	~ [\pagref{BRACKET-SELECTORS}]
+\emkey{bracket-selectors} ::= see \pagref{BRACKET-SELECTORS}
 \\[0.5ex]
 \emkey{bracket-options} ::= see \pagref{BRACKET-OPTIONS}
 \\[0.5ex]
@@ -6223,11 +6234,11 @@ are the same as the context selectors
 modified by any parsing selectors
 found when the {\em bracket-type} is looked up in the
 bracket type table.
-Note, however, that `\TT{- TOP LEVEL}' and `\TT{- LINE LEVEL}' are always
-implied in {\em typed-parsing-selectors} and
+Note, however, that `\TT{- TOP LEVEL}' and `\TT{- LINE LEVEL}' are
+implied by default in {\em bracket-selectors}, and
 `\TT{- end at line separator}',
 `\TT{ - enable indented paragraph}', and
-`\TT{ - enable header}' are always implied for
+`\TT{ - enable header}' are always implied by default in
 {\em bracket-options}.
 
 The untyped bracket definitions for `\TT{[\ldots]}' and
@@ -6546,12 +6557,8 @@ whose general syntax is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{bracket-type-selectors} ::=
-    \begin{tabular}[t]{l}
-    {\em selector-spec} without any `\TT{TOP LEVEL}'  \\
-        or `\TT{LINE LEVEL}' selector
-	~~~ [\pagref{SELECTOR-SPEC}]
-    \end{tabular}
+\emkey{bracket-type-selectors} ::= 
+    {\em selector-spec} ~~~ [\pagref{SELECTOR-SPEC}]
 \\[0.5ex]
 \emkey{bracket-type-group} ::= {\em quoted-key}
                      $|$ {\em simple-name} not containing `\TT{with}'
@@ -6589,7 +6596,7 @@ are parsed using the parsing selectors as they were at the beginning
 subexpression (the context selectors of the subexpression) as modified by any
 {\em bracket-type-selectors} found in a bracket type definition of
 the {\em bracket-type} of the subexpression, if a bracket type definition is
-found.  If no definition is found, the {\em typed-parsing-selectors} of the
+found.  If no definition is found, the {\em bracket-selectors} of the
 {\em parser-typed-bracket-command} for the {\em typed-opening} are used:
 see \pagref{TYPED-PARSING-SELECTORS-USE}.
 

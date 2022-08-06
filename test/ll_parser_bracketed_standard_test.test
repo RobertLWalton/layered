@@ -6611,7 +6611,8 @@ BRACKETED EXPRESSION:
     line ###:
 @@ := A B C
 ^^^^^^^^^^^
-BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY ":"
+BRACKETED PARSER FOUND
+    [TOP LEVEL, LINE LEVEL, code, data paragraph] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
@@ -6828,7 +6829,8 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         moe = {* @@, @@, @@ *}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "("
+BRACKETED PARSER FOUND
+    [TOP LEVEL, LINE LEVEL, code, data paragraph] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -6927,7 +6929,8 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [code, data paragraph] SELECTED KEY "|"
+BRACKETED PARSER FOUND
+    [TOP LEVEL, LINE LEVEL, code, data paragraph] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type

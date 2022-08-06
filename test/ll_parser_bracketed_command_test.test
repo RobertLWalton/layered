@@ -66,7 +66,7 @@ ERROR: in line ##: expected quoted name after:
         block TOP LEVEL: TOP LEVEL
     define top level parsing selectors [code]
     print top level
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL, code]
+        block TOP LEVEL:  selectors [code]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,

@@ -875,8 +875,7 @@ BRACKETED EXPRESSION:
     print indentation mark "*TOP* *LEVEL*"
         block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
                         []
-                        with parsing selectors [TOP LEVEL, LINE LEVEL,
-                                                code]
+                        with parsing selectors [code]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing,
@@ -4144,8 +4143,7 @@ BRACKETED EXPRESSION:
                          with parsing selectors [data]
         block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
                         []
-                        with parsing selectors [TOP LEVEL, LINE LEVEL,
-                                                code]
+                        with parsing selectors [code]
                         with parsing options [end at le indent,
                                               end at line separator,
                                               end at outer closing,

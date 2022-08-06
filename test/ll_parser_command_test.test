@@ -129,8 +129,7 @@ INDENT: line ##:
     define top level parsing selectors [my selector]
     print indentation mark "*TOP* *LEVEL*"
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
-                         with parsing selectors [TOP LEVEL, LINE LEVEL,
-                                                 my selector]
+                         with parsing selectors [my selector]
                          with parsing options [end at le indent,
                                                end at line separator,
                                                end at outer closing,
@@ -170,8 +169,7 @@ INDENT: line ##:
                          [TOP LEVEL]
                          with parsing selectors [data]
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
-                         with parsing selectors [TOP LEVEL, LINE LEVEL,
-                                                 my selector]
+                         with parsing selectors [my selector]
                          with parsing options [end at le indent,
                                                end at line separator,
                                                end at outer closing,
@@ -187,16 +185,14 @@ INDENT: line ##:
     define top level parsing selectors [+ data]
     print indentation mark "*TOP* *LEVEL*"
         block X: indentation mark [< "*TOP*" "*LEVEL*" >] []
-                 with parsing selectors [TOP LEVEL, LINE LEVEL, data,
-                                         my selector]
+                 with parsing selectors [data, my selector]
                  with parsing options [end at le indent,
                                        end at line separator,
                                        end at outer closing,
                                        enable indented paragraph,
                                        enable header]
         block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
-                         with parsing selectors [TOP LEVEL, LINE LEVEL,
-                                                 my selector]
+                         with parsing selectors [my selector]
                          with parsing options [end at le indent,
                                                end at line separator,
                                                end at outer closing,
@@ -362,7 +358,7 @@ ID 4 is @@
     end block X
 *PARSER*:
     print top level
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL, my selector]
+        block TOP LEVEL:  selectors [my selector]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -371,7 +367,7 @@ ID 4 is @@
                           lexical master "DEFAULT"
     define top level line separator ";"
     print top level
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL, my selector]
+        block TOP LEVEL:  selectors [my selector]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,
@@ -397,7 +393,7 @@ Ho HO;
 *PARSER*:
     define top level line separator NONE
     print top level
-        block TOP LEVEL:  selectors [TOP LEVEL, LINE LEVEL, my selector]
+        block TOP LEVEL:  selectors [my selector]
                           options [end at le indent,
                                    end at line separator,
                                    end at outer closing,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 10:59:02 EDT 2022
+// Date:	Sat Aug  6 14:50:11 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -174,15 +174,12 @@ BRA::opening_bracket
     opening->position = position;
 
     opening->parsing_selectors = parsing_selectors;
-    opening->parsing_selectors.or_flags &= ~
-        (   BRA::BRACKET_OFF_SELECTORS
-	  + BRA::BRACKET_OFF_OPT );
-    opening->parsing_selectors.not_flags |=
-        (   BRA::BRACKET_OFF_SELECTORS
-	  + BRA::BRACKET_OFF_OPT );
-    opening->parsing_selectors.xor_flags &= ~
-        (   BRA::BRACKET_OFF_SELECTORS
-	  + BRA::BRACKET_OFF_OPT );
+    TAB::flags off_flags =
+          BRA::BRACKET_OFF_SELECTORS
+	+ BRA::BRACKET_OFF_OPT;
+    off_flags &= ~ opening->parsing_selectors.or_flags;
+    off_flags &= ~ opening->parsing_selectors.xor_flags;
+    opening->parsing_selectors.not_flags |= off_flags;
 
     reformatter_ref(opening) = reformatter;
     reformatter_arguments_ref(opening) =
@@ -272,17 +269,17 @@ BRA::indentation_mark
     imark->block_level = block_level;
     imark->position = position;
     imark->parsing_selectors = parsing_selectors;
-    imark->parsing_selectors.or_flags &= ~
-        INDENTATION_MARK_OFF_SELECTORS;
-    imark->parsing_selectors.or_flags |=
-        INDENTATION_MARK_ON_SELECTORS;
-    imark->parsing_selectors.not_flags &= ~
-        INDENTATION_MARK_ON_SELECTORS;
-    imark->parsing_selectors.not_flags |=
-        INDENTATION_MARK_OFF_SELECTORS;
-    imark->parsing_selectors.xor_flags &= ~
-          INDENTATION_MARK_OFF_SELECTORS
-	+ INDENTATION_MARK_ON_SELECTORS;
+    TAB::flags off_flags =
+          BRA::INDENTATION_MARK_OFF_SELECTORS;
+    off_flags &= ~ imark->parsing_selectors.or_flags;
+    off_flags &= ~ imark->parsing_selectors.xor_flags;
+    imark->parsing_selectors.not_flags |= off_flags;
+    TAB::flags on_flags =
+          BRA::INDENTATION_MARK_ON_SELECTORS;
+    on_flags &= ~ imark->parsing_selectors.not_flags;
+    on_flags &= ~ imark->parsing_selectors.xor_flags;
+    imark->parsing_selectors.or_flags |= on_flags;
+
     implied_header_ref(imark) = implied_header;
     implied_header_type_ref(imark) =
         min::get ( implied_header, min::dot_type );
@@ -485,15 +482,13 @@ BRA::typed_opening
     closing_bracket_ref(opening) = closing;
 
     opening->parsing_selectors = parsing_selectors;
-    opening->parsing_selectors.or_flags &= ~
-        (   BRA::BRACKET_OFF_SELECTORS
-	  + BRA::BRACKET_OFF_OPT );
-    opening->parsing_selectors.not_flags |=
-        (   BRA::BRACKET_OFF_SELECTORS
-	  + BRA::BRACKET_OFF_OPT );
-    opening->parsing_selectors.xor_flags &= ~
-        (   BRA::BRACKET_OFF_SELECTORS
-	  + BRA::BRACKET_OFF_OPT );
+    TAB::flags off_flags =
+            BRA::BRACKET_OFF_SELECTORS
+	  + BRA::BRACKET_OFF_OPT;
+    off_flags &= ~ opening->parsing_selectors.or_flags;
+    off_flags &= ~ opening->parsing_selectors.xor_flags;
+    opening->parsing_selectors.not_flags |= off_flags;
+
     opening->attr_selectors = attr_selectors;
     opening->attr_selectors &= ~
         (   BRA::BRACKET_OFF_SELECTORS
@@ -643,12 +638,14 @@ void BRA::push_bracket_type
     bracket_type->position = position;
     bracket_type->parsing_selectors = parsing_selectors;
 
-    bracket_type->parsing_selectors.or_flags &= ~
-        BRA::BRACKET_TYPE_OFF_SELECTORS;
+    TAB::flags off_flags =
+          BRA::BRACKET_OFF_SELECTORS;
+    off_flags &=
+        ~ bracket_type->parsing_selectors.or_flags;
+    off_flags &=
+        ~ bracket_type->parsing_selectors.xor_flags;
     bracket_type->parsing_selectors.not_flags |=
-        BRA::BRACKET_TYPE_OFF_SELECTORS;
-    bracket_type->parsing_selectors.xor_flags &= ~
-        BRA::BRACKET_TYPE_OFF_SELECTORS;
+        off_flags;
 
     group_ref(bracket_type) = group;
     implied_subprefix_ref(bracket_type) =
@@ -6214,8 +6211,15 @@ static min::gen bracketed_pass_command
 		TAB::new_flags parsing_selectors =
 		    opening_bracket->parsing_selectors;
 
-		if ( TAB::all_flags
-		         ( parsing_selectors )
+		TAB::flags all_flags =
+		    TAB::all_flags
+		         ( parsing_selectors,
+			   0,
+			   BRA::BRACKET_OFF_SELECTORS
+			   +
+			   BRA::BRACKET_OFF_OPT );
+
+		if ( all_flags
 		     &
 		     BRA::BRACKET_SELECTORS )
 		{
@@ -6226,12 +6230,12 @@ static min::gen bracketed_pass_command
 		    COM::print_new_flags
 			( parsing_selectors,
 			  BRA::BRACKET_SELECTORS,
+			  0, BRA::BRACKET_OFF_SELECTORS,
 			  parser->selector_name_table,
 			  parser, true );
 		}
 
-		if ( TAB::all_flags
-		         ( parsing_selectors )
+		if ( all_flags
 		     &
 		     BRA::BRACKET_OPT )
 		{
@@ -6242,6 +6246,7 @@ static min::gen bracketed_pass_command
 		    COM::print_new_flags
 			( parsing_selectors,
 			  BRA::BRACKET_OPT,
+			  0, BRA::BRACKET_OFF_OPT,
 			  parser->selector_name_table,
 			  parser, true );
 		}
@@ -6389,8 +6394,15 @@ static min::gen bracketed_pass_command
 		TAB::new_flags parsing_selectors =
 		    indentation_mark->parsing_selectors;
 
-		if ( TAB::all_flags
-			( parsing_selectors )
+		TAB::flags all_flags =
+		  TAB::all_flags
+		    ( parsing_selectors,
+		      BRA::
+		       INDENTATION_MARK_ON_SELECTORS,
+		      BRA::
+		       INDENTATION_MARK_OFF_SELECTORS );
+
+		if ( all_flags
 		     &
 		     BRA::INDENTATION_MARK_SELECTORS )
 		{
@@ -6399,16 +6411,19 @@ static min::gen bracketed_pass_command
 			<< "with parsing"
 			   " selectors ";
 		    COM::print_new_flags
-			( parsing_selectors,
-			  BRA::
-			    INDENTATION_MARK_SELECTORS,
-			  parser->
-			      selector_name_table,
-			  parser, true );
+		      ( parsing_selectors,
+			BRA::
+			  INDENTATION_MARK_SELECTORS,
+			BRA::
+			  INDENTATION_MARK_ON_SELECTORS,
+			BRA::
+			 INDENTATION_MARK_OFF_SELECTORS,
+			parser->
+			  selector_name_table,
+			parser, true );
 		}
 
-		if ( TAB::all_flags
-		         ( parsing_selectors )
+		if ( all_flags
 		     &
 		     BRA::INDENTATION_MARK_OPT )
 		{
@@ -6419,6 +6434,7 @@ static min::gen bracketed_pass_command
 		    COM::print_new_flags
 			( parsing_selectors,
 			  BRA::INDENTATION_MARK_OPT,
+			  0,0,
 			  parser->
 			      selector_name_table,
 			  parser, true );
@@ -6462,24 +6478,30 @@ static min::gen bracketed_pass_command
 		TAB::new_flags parsing_selectors =
 		    bracket_type->parsing_selectors;
 
-		if ( TAB::all_flags
-		         ( parsing_selectors )
+		TAB::flags all_flags =
+		  TAB::all_flags
+		    ( parsing_selectors,
+		      0,
+		      BRA::BRACKET_OFF_SELECTORS );
+
+		if ( all_flags
 		     &
-		     BRA::BRACKET_TYPE_SELECTORS )
+		     BRA::BRACKET_SELECTORS )
 		{
 		    parser->printer
 		        << min::indent
 			<< "with parsing"
 			   " selectors ";
 		    COM::print_new_flags
-			( parsing_selectors,
-			  BRA::BRACKET_TYPE_SELECTORS,
-			  parser->selector_name_table,
-			  parser, true );
+		      ( parsing_selectors,
+			BRA::BRACKET_SELECTORS,
+			0,
+			BRA::BRACKET_OFF_SELECTORS,
+			parser->selector_name_table,
+			parser, true );
 		}
 
-		if ( TAB::all_flags
-		         ( parsing_selectors )
+		if ( all_flags
 		     &
 		     BRA::BRACKET_TYPE_OPT )
 		{
@@ -6490,6 +6512,7 @@ static min::gen bracketed_pass_command
 		    COM::print_new_flags
 			( parsing_selectors,
 			  BRA::BRACKET_TYPE_OPT,
+			  0, 0,
 			  parser->selector_name_table,
 			  parser, true );
 		}

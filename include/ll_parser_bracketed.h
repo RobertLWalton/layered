@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 12:48:59 EDT 2021
+// Date:	Sat Aug  6 01:15:14 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,8 +34,7 @@ const ll::parser::table::flags BRACKET_OFF_SELECTORS =
     + ll::parser::LINE_LEVEL_SELECTOR;
 
 const ll::parser::table::flags BRACKET_SELECTORS =
-      ll::parser::COMMAND_SELECTORS
-    - BRACKET_OFF_SELECTORS;
+      ll::parser::COMMAND_SELECTORS;
 
 const ll::parser::table::flags BRACKET_OFF_OPT =
       ll::parser::EALSEP_OPT
@@ -44,8 +43,7 @@ const ll::parser::table::flags BRACKET_OFF_OPT =
 
 const ll::parser::table::flags BRACKET_OPT =
       ll::parser::ALL_EA_OPT
-    + ll::parser::ALL_ENABLE_OPT
-    - BRACKET_OFF_OPT;
+    + ll::parser::ALL_ENABLE_OPT;
 
 const ll::parser::table::flags
 	    INDENTATION_MARK_OFF_SELECTORS =
@@ -57,25 +55,15 @@ const ll::parser::table::flags
 
 const ll::parser::table::flags
 	    INDENTATION_MARK_SELECTORS =
-      ll::parser::COMMAND_SELECTORS
-    - INDENTATION_MARK_OFF_SELECTORS
-    - INDENTATION_MARK_ON_SELECTORS;
+      ll::parser::COMMAND_SELECTORS;
 
 const ll::parser::table::flags INDENTATION_MARK_OPT =
       ll::parser::ALL_EA_OPT
     + ll::parser::ALL_ENABLE_OPT;
 
-const ll::parser::table::flags
-	    BRACKET_TYPE_OFF_SELECTORS =
-      ll::parser::TOP_LEVEL_SELECTOR
-    + ll::parser::LINE_LEVEL_SELECTOR;
-
-const ll::parser::table::flags BRACKET_TYPE_SELECTORS =
-      ll::parser::COMMAND_SELECTORS
-    - BRACKET_TYPE_OFF_SELECTORS;
-
 const ll::parser::table::flags BRACKET_TYPE_OPT =
       ll::parser::ALL_OPT;
+      // Includes STICKY and CONTINUING.
 
 
 // Untyped Brackets
@@ -140,9 +128,9 @@ MIN_REF ( ll::parser::table::root, next,
 MIN_REF ( min::gen, label,
           ll::parser::bracketed::closing_bracket )
 
-// Push entry into bracket table.  The BRACKET_OFF_...
-// flags are set in parsing_selectors.not_flags and
-// cleared from parsing_selectors.{or,xor}_flags.
+// Push entry into bracket table.  Each BRACKET_OFF_...
+// flag is set in parsing_selectors.not_flags unless
+// it is set in parsing_selectors.{or,xor}_flags.
 //
 ll::parser::bracketed::opening_bracket
     push_brackets
@@ -236,10 +224,12 @@ ll::parser::bracketed::line_sep
 	  const min::phrase_position & position,
 	  ll::parser::table::key_table bracket_table );
 
-// Push entry into bracket table.  The INDENTATION_
-// MARK_OFF_...  flags are set in parsing_selectors.not_
-// flags and cleared from parsing_selectors.{or,xor}_
-// flags.
+// Push entry into bracket table.  Each INDENTATION_
+// MARK_OFF_...  flag is set in parsing_selectors.not_
+// flags unless it is set in parsing_selectors.{or,xor}_
+// flags.  Each INDENTATION_MARK_ON_...  flag is set in
+// parsing_selectors.or_flags unless it is set in
+// parsing_selectors.{not,xor}_flags.
 //
 ll::parser::bracketed::indentation_mark
     push_indentation_mark
@@ -476,9 +466,9 @@ MIN_REF ( min::gen, label,
           ll::parser::bracketed
 	            ::typed_attr_negator )
 
-// Push entry into bracket table.  The BRACKET_OFF_...
-// flags are set in parsing_selectors.not_flags and
-// cleared from parsing_selectors.{or,xor}_flags.
+// Push entry into bracket table.  Each BRACKET_TYPE_
+// OFF_...  flag is set in parsing_selectors.not_flags
+// unless it is set in parsing_selectors.{or,xor}_flags.
 //
 ll::parser::bracketed::typed_opening
     push_typed_brackets
@@ -675,9 +665,11 @@ MIN_REF ( ll::parser::reformatter, reformatter,
 MIN_REF ( min::gen, reformatter_arguments,
           ll::parser::bracketed::bracket_type )
 
-// Push entry into bracket type table.  The TOP_LEVEL_
-// SELECTOR is set in parsing_selectors.not_flags and
-// cleared from parsing_selectors.{or,xor}_flags.
+// Push entry into bracket type table.  Each BRACKET_
+// OFF_SELECTORS  flag is set in parsing_selectors
+// .not_flags unless it is set in parsing_selectors
+// .{or,xor}_flags.  Note that BRACKET_OFF_OPT is NOT
+// used.
 //
 void push_bracket_type
 	( min::gen bracket_type_label,

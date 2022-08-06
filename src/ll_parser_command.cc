@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 11:09:31 EDT 2022
+// Date:	Sat Aug  6 14:50:25 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -544,6 +544,8 @@ min::gen COM::scan_new_flags
 void COM::print_new_flags
 	( const TAB::new_flags & new_flags,
 	  TAB::flags allowed_flags,
+	  TAB::flags on_flags,
+	  TAB::flags off_flags,
 	  TAB::name_table name_table,
 	  PAR::parser parser,
 	  bool allow_flag_list )
@@ -575,6 +577,11 @@ void COM::print_new_flags
 	    ( is_flag_list ?
 	        nf.not_flags | ~ allowed_flags :
 	        ~ all_flags );
+	if ( ! is_flag_list )
+	{
+	    suppress |= nf.or_flags & on_flags;
+	    suppress |= nf.not_flags & off_flags;
+	}
 
 	bool first = true;
 	for ( min::unsptr i = 0;
@@ -621,7 +628,7 @@ void COM::print_flags
     new_flags.not_flags = ~ flags;
     new_flags.xor_flags = 0;
     COM::print_new_flags
-        ( new_flags, allowed_flags,
+        ( new_flags, allowed_flags, 0, 0,
 	  name_table, parser, true );
 } 
 

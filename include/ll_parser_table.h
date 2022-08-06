@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 02:59:37 EDT 2021
+// Date:	Sat Aug  6 05:15:17 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,10 +85,12 @@ struct new_flags
 const flags ALL_FLAGS = (flags) -1ll;
 
 inline ll::parser::table::flags all_flags
-    ( const ll::parser::table::new_flags & new_flags )
+    ( const ll::parser::table::new_flags & new_flags,
+      const ll::parser::table::flags & on_flags = 0,
+      const ll::parser::table::flags & off_flags = 0 )
 {
-    return   new_flags.or_flags
-           | new_flags.not_flags
+    return   ( new_flags.or_flags & ~ on_flags )
+           | ( new_flags.not_flags & ~ off_flags )
            | new_flags.xor_flags;
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 13:57:38 EDT 2022
+// Date:	Sat Aug  6 14:49:53 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1664,6 +1664,8 @@ void PAR::set_selectors
     BRA::indentation_mark imark =
         parser->top_level_indentation_mark;
     imark->parsing_selectors.or_flags = selectors;
+    imark->parsing_selectors.or_flags |=
+	PAR::TOP_LEVEL_OFF_SELECTORS;
     imark->parsing_selectors.not_flags = ~ selectors;
     imark->parsing_selectors.not_flags &=
 	  PAR::TOP_LEVEL_SELECTORS + PAR::TOP_LEVEL_OPT;

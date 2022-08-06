@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 14 12:48:38 EDT 2021
+// Date:	Sat Aug  6 14:48:49 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -240,10 +240,16 @@ min::gen scan_new_flags
 // and
 //     xor_flags & allowed_flags == 0,
 //
+// If a flag list is not being printed, + F is
+// suppressed if F is in on_flags, and - F is suppressed
+// if F is in of_flags.
+//
 void print_new_flags
 	( const ll::parser::table::new_flags
 	    & new_flags,
 	  ll::parser::table::flags allowed_flags,
+	  ll::parser::table::flags on_flags,
+	  ll::parser::table::flags off_flags,
 	  ll::parser::table::name_table name_table,
 	  ll::parser::parser parser,
 	  bool allow_flag_list = false );

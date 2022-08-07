@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 6, 2022
+August 7, 2022
  
 \end{center}
 
@@ -3021,11 +3021,14 @@ The following parsing selectors are builtin:
 \hspace*{-0.2in}\ttmkey{TOP LEVEL}{top level selector} \\
     This is always on when a top level logical line is parsed, and off
     by default when indented paragraph logical lines or a bracketed
-    subexpression is parsed.
+    subexpression is parsed.  While the default may be overridden,
+    great care should be used in doing so.
 
 \hspace*{-0.2in}\ttmkey{LINE LEVEL}{line level selector} \\
     This is always on when a logical line is parsed, and off
     by default when a bracketed subexpression is parsed.
+    While the default may be overridden, great care should
+    be used in doing so.
 
 \hspace*{-0.2in}\ttmkey{data}{parser selector} \\
     This selects symbol table entries that parse raw data.
@@ -3615,7 +3618,8 @@ by \TT{define top level} commands.
 By default the \TT{TOP LEVEL} selector is cleared
 when indented paragraphs or bracketed subexpressions are being parsed,
 and the \TT{LINE LEVEL} selector is cleared by default when
-bracketed subexpressions are being parsed.
+bracketed subexpressions are being parsed.  While these defaults
+may be overridden, great care must be taken in doing so.
 
 Either of the two lexical master parameters (\pagref{LEXICAL-MASTER-PARAMETERS})
 can be set by the commands:

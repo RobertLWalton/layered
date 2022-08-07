@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  3 17:52:53 EDT 2022
+// Date:	Sun Aug  7 17:18:07 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1199,7 +1199,8 @@ static bool assignment_reformatter_function
 		  min::pgen_never_quote ( args[0] ),
 		  "' indented paragraph but"
 		  " found different operator" );
-	    t = OP::delete_extra_stuff ( parser, t, next );
+	    t = OP::delete_extra_stuff
+		( parser, t, next );
 	    OP::put_error_operand_after
 		( parser, t->previous );
 	}

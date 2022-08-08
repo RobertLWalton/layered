@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  4 21:50:44 EDT 2022
+// Date:	Mon Aug  8 13:34:11 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -267,11 +267,6 @@ static void define_assignment_operators
         PAR::find_reformatter
 	    ( separator, OP::reformatter_stack );
 
-    min::locatable_gen assignment_arguments
-	    ( min::new_obj_gen ( 1 ) );
-    min::obj_vec_insptr cavp ( assignment_arguments );
-    min::attr_push ( cavp ) = PARLEX::colon;
-
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
 
@@ -294,19 +289,8 @@ static void define_assignment_operators
 	  OP::LEFT + OP::LINE,
 	  1000,
 	  assignment_reformatter,
-	  assignment_arguments,
+	  min::MISSING(),
 	  oper_pass->oper_table );
-
-    if ( code ) OP::push_oper
-        ( PARLEX::colon,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::AFIX + OP::LINE,
-	  1000,
-	  min::NULL_STUB,
-	  min::MISSING(),
-	  oper_pass->oper_bracket_table );
 
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );

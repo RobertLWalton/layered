@@ -199,7 +199,7 @@ while x == y:
     a + b
 ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {|{|x|}, {|y|}|} = {|while {|z|}|}:
+    {|{|{|x|}, {|y|}|} = {|while {|z|}|}|}:
         {|c|} = {|{|a|} + {|b|}|}
     lines ##-##:
 x, y = while z:
@@ -215,8 +215,8 @@ while x == y, until v != w:
     p(q) = x[v]
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {|{|a|}, {|b|}|} =
-        {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}:
+    {|{|{|a|}, {|b|}|} =
+      {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}|}:
         {|foo (b) fum (c)|} = {|{|p|}, {|q|}|}
     lines ##-##:
 a, b = while x == y, until v != w:
@@ -224,7 +224,7 @@ a, b = while x == y, until v != w:
     foo (b) fum(c) = p, q
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {|{|next x|}, {|next y|}, {|next z|}|} =:
+    {|{|{|next x|}, {|next y|}, {|next z|}|} =|}:
         {|next x|} += {|1|}
         {|next y|} += {|1|}
         {|next z|} += {|1|}
@@ -254,7 +254,7 @@ until z == x, at most 10 times:
     next x += 1
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {|{|next x|}, {|y|}|} =:
+    {|{|{|next x|}, {|y|}|} =|}:
         {|y|} = {|x|}
         {|next x|} += {|1|}
     lines ##-##:

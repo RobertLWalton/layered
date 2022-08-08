@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  7 17:18:07 EDT 2022
+// Date:	Mon Aug  8 13:35:10 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1151,9 +1151,7 @@ static bool assignment_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-    OP::oper op = (OP::oper) entry;
-    min::obj_vec_ptr args ( op->reformatter_arguments );
-    MIN_REQUIRE ( min::size_of ( args ) == 1 );
+    MIN_REQUIRE ( first != next );
 
     PAR::token t = first;
 
@@ -1174,39 +1172,12 @@ static bool assignment_reformatter_function
     t = t->next;
 
     if ( t == next )
+	return true;
+    else if ( t->type == PAR::OPERATOR )
 	OP::put_error_operand_after
 	    ( parser, t->previous );
-    else if ( t->type != PAR::OPERATOR )
-        t = t->next;
-
-    if ( t != next )
-    {
-	MIN_ASSERT ( t->type == PAR::OPERATOR,
-		     "two operands in a row found" );
-
-        if (    min::get ( t->value,
-		           min::dot_terminator )
-	     != min::INDENTED_PARAGRAPH()
-	     ||
-                min::get ( t->value,
-		           min::dot_initiator )
-	     != args[0] )
-
-	{
-	    PAR::parse_error
-		( parser, t->position,
-		  "expected `",
-		  min::pgen_never_quote ( args[0] ),
-		  "' indented paragraph but"
-		  " found different operator" );
-	    t = OP::delete_extra_stuff
-		( parser, t, next );
-	    OP::put_error_operand_after
-		( parser, t->previous );
-	}
-	else
-	    t = t->next;
-    }
+    else
+	t = t->next;
 
     // Delete extra stuff from end of list.
     //
@@ -1947,7 +1918,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen assignment
         ( min::new_str_gen ( "assignment" ) );
     PAR::push_reformatter
-        ( assignment, 1, 1,
+        ( assignment, 0, 0,
 	  ::assignment_reformatter_function,
 	  OP::reformatter_stack );
 

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 7, 2022
+August 8, 2022
  
 \end{center}
 
@@ -8237,10 +8237,6 @@ prece-  & selec-  &             &            &            &            & \\
      	&	&            	&            & \ttkey{>{}>=} & shift right  &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
-\\\cline{2-6}
-	& code  & (none)	& \TT{afix } & \ttkey{:} indentation
-	                                                   & assignment & \\
-	&	&		& \TT{line}  & ~~~mark     & modifier   &
 \\\hline
 \end{tabular}
 
@@ -8959,7 +8955,6 @@ for \TT{if} and \TT{else if} but not for \TT{else}.
 \end{indpar}
 
 \ttmkey{assignment}{reformatter}
-\TT{(} {\em delimiter} \TT{)}
 \hfill \OP{=}
 
 
@@ -8967,21 +8962,9 @@ for \TT{if} and \TT{else if} but not for \TT{else}.
 Typically used with line assignment operator
 (e.g., \TT{=}).
 
-The expression must have one of the forms:
-
-\hspace*{2em} {\em operand} {\em op} {\em operand}
-
-or
-
-\hspace*{2em}\begin{tabular}{l}
-             {\em operand} {\em op} {\em operand}\QMARK{} {\em delimiter} \\
-	     ~~~~~{\em statement}\STAR{}
-	     \end{tabular}
-
-The {\em delimiter} is typically \TT{:}.  The second {\em operand}
-is a typically list of {\em expressions}.  In the first form these
-are typically evaluated for their values, and in the second form they are
-typically iteration operator {\em expressions}.
+The expression must be postfix or binary.  Specifically, it must
+consist of an operand followed by the operator followed
+by an \underline{optional} operand.
 
 \end{indpar}
 

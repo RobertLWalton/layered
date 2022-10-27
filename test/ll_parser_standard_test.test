@@ -67,11 +67,11 @@ BRACKETED EXPRESSION:
             foo|x}
 BRACKETED EXPRESSION:
     ID 60 is {"": a = @@ = b, d = @@ = c}
-@@ :=::
+@@ :=:
           .position[H] = PACKED_VEC
           b = @@ = a
           c = @@ = d
-@@ :=::
+@@ :=:
           a = @@ = b
           .position[H] = PACKED_VEC
           d = @@ = c
@@ -107,16 +107,16 @@ ERROR: in line ##: reverse attribute label after second `=' was expected
        but not found; line ignored:
     K = @@@ = 1 L
             ^
-@@ :=::
+@@ :=:
           .position[H] = PACKED_VEC
           d 77.33 = @@ = c
-@@ :=::
+@@ :=:
           .position[H] = PACKED_VEC
           J = @@ = H
           e 22.99 = 5
           a = [< b 55.44 >]
           c = @@ = d 77.33
-@@ := A B C D E::
+@@ := A B C D E:
           F = [< 1 2 3 >]
           G = [< M N P >]
           H = @@ = J
@@ -129,12 +129,12 @@ BRACKETED EXPRESSION:
              4 = Y|A B C D E|}
 BRACKETED EXPRESSION:
     ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
-@@ :=::
+@@ :=:
           previous = @@ = next
           .position[H] = PACKED_VEC
           name = Y
           next = @@ = previous
-@@ :=::
+@@ :=:
           name = X
           next = @@ = previous
           previous = @@ = next
@@ -160,24 +160,24 @@ BRACKETED EXPRESSION:
                           paragraph|s}
                       {s: .terminator = "."|Second line of indented
                           paragraph|s}|p}|}|s}|quote}
-@@ := @@::
+@@ := @@:
           .type = quote
           .position[H] = PACKED_VEC
-@@ := This is a line with an indented paragraph @@@::
+@@ := This is a line with an indented paragraph @@@:
           .position[H] = PACKED_VEC
           .type = s
-@@@ := @@@::
+@@@ := @@@:
            .terminator = [$ INDENTED_PARAGRAPH $]
            .position[H] = PACKED_VEC
            .initiator = ":"
-@@@ := @@@ @@@::
+@@@ := @@@ @@@:
            .position[H] = PACKED_VEC
            .type = p
-@@@ := First line of indented paragraph::
+@@@ := First line of indented paragraph:
            .terminator = "."
            .position[H] = PACKED_VEC
            .type = s
-@@@ := Second line of indented paragraph::
+@@@ := Second line of indented paragraph:
            .terminator = "."
            .position[H] = PACKED_VEC
            .type = s
@@ -192,13 +192,13 @@ This is a line with an indented paragraph: // A comment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {|x|} + {|y|}
-@@@ := @@@ "+" @@@::
+@@@ := @@@ "+" @@@:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
-@@@ := x::
+@@@ := x:
            .position[H] = PACKED_VEC
-@@@ := y::
+@@@ := y:
            .position[H] = PACKED_VEC
     line ###:
 x + y

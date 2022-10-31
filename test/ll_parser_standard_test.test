@@ -203,3 +203,83 @@ BRACKETED EXPRESSION:
     line ###:
 x + y
 ^^^^^
+BRACKETED EXPRESSION:
+    {data|{|PREALLOCATED(1*90)|} = (A B C)|data}
+!@@@ := @@@ "=" @@@:
+            .position[H] = PACKED_VEC
+            .type = data
+!@@@ := PREALLOCATED(1*90):
+            .position[H] = PACKED_VEC
+!@@@ := A B C:
+            .terminator = ")"
+            .initiator = "("
+            .position[H] = PACKED_VEC
+    line ###:
+@@@ = (A B C)
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|{|PREALLOCATED(1*91)|} = ({|A|}, {|B|}, {|C|})|data}
+!@@@ := @@@ "=" @@@:
+            .position[H] = PACKED_VEC
+            .type = data
+!@@@ := PREALLOCATED(1*91):
+            .position[H] = PACKED_VEC
+!@@@ := @@@ @@@ @@@:
+            .terminator = ")"
+            .initiator = "("
+            .separator = ","
+            .position[H] = PACKED_VEC
+!@@@ := A:
+            .position[H] = PACKED_VEC
+!@@@ := B:
+            .position[H] = PACKED_VEC
+!@@@ := C:
+            .position[H] = PACKED_VEC
+    line ###:
+@@@ = (A, B, C)
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|{|PREALLOCATED(1*92)|} = [{|A|}, {|B|}, {|C|}]|data}
+!@@@ := @@@ "=" @@@:
+            .position[H] = PACKED_VEC
+            .type = data
+!@@@ := PREALLOCATED(1*92):
+            .position[H] = PACKED_VEC
+!@@@ := @@@ @@@ @@@:
+            .terminator = "]"
+            .initiator = "["
+            .separator = ","
+            .position[H] = PACKED_VEC
+!@@@ := A:
+            .position[H] = PACKED_VEC
+!@@@ := B:
+            .position[H] = PACKED_VEC
+!@@@ := C:
+            .position[H] = PACKED_VEC
+    line ###:
+@@@ = [A, B, C]
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|PREALLOCATED(1*93) = (A "," B "," C)|raw data}
+!@@@ := PREALLOCATED(1*93) "=" @@@:
+            .position[H] = PACKED_VEC
+            .type = [< raw data >]
+!@@@ := A "," B "," C:
+            .terminator = ")"
+            .initiator = "("
+            .position[H] = PACKED_VEC
+    line ###:
+!@@@ = (A, B, C)
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|PREALLOCATED(1*94) = [A "," B "," C]|raw data}
+!@@@ := PREALLOCATED(1*94) "=" @@@:
+            .position[H] = PACKED_VEC
+            .type = [< raw data >]
+!@@@ := A "," B "," C:
+            .terminator = "]"
+            .initiator = "["
+            .position[H] = PACKED_VEC
+    line ###:
+!@@@ = [A, B, C]
+^^^^^^^^^^^^^^^^

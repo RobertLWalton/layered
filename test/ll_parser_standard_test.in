@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 26 02:55:56 EDT 2022
+// Date:	Mon Oct 31 02:37:15 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -127,6 +127,12 @@ This is a line with an indented paragraph: // A comment
 {***}
 
 x + y
+
+@90 = (A B C)
+@91 = (A, B, C)
+@92 = [A, B, C]
+!@93 = (A, B, C)
+!@94 = [A, B, C]
 
 *PARSER*:
     end block BLOCK2

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 30 13:57:15 EDT 2022
+// Date:	Mon Oct 31 07:07:25 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2095,17 +2095,32 @@ const min::uns64 QUOTED_STRING_MASK =
       ( 1ull << ll::lexeme::standard::quoted_string_t );
 
 // If v is a quoted string, return its string value.
-// Otherwise return min::NONE().
+// Otherwise return min::NONE().  String may be hidden
+// inside a pure list of one element.
 //
 inline min::gen quoted_string_value ( min::gen v )
 {
-    if (    min::get ( v, min::dot_type )
-	 != min::doublequote )
-	return min::NONE();
-    min::obj_vec_ptr vp = v;
-    if ( min::size_of ( vp ) != 1 )
-	return min::NONE();
-    return vp[0];
+    int depth = 0;
+    while ( min::is_obj ( v ) )
+    {
+        depth += 1;
+	if ( depth > 2 ) return min::NONE();
+	min::attr_info info[2];
+	min::obj_vec_ptr vp ( v );
+	if ( min::size_of ( vp ) != 1 )
+	    return min::NONE();
+	min::attr_ptr ap ( vp );
+	int c = attr_info_of ( info, 2, ap );
+	if ( c == 0 ) continue;
+
+	if ( c > 1 ) return min::NONE();
+	if ( info[0].name != min::dot_type )
+	    return min::NONE();
+	if ( info[0].value != min::doublequote )
+	    return min::NONE();
+	return vp[0];
+    }
+    return min::NONE();
 }
 
 // Given an object vector pointer vp pointing at an

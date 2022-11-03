@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-August 8, 2022
+November 3, 2022
  
 \end{center}
 
@@ -3562,8 +3562,8 @@ from every standard parser command containing it, and if this makes
 the command meaningless, the command will be automatically ignored
 and not executed.  E.g., the command
 \begin{indpar}[0.1in]\begin{verbatim}
-define bracket "{{" ... "}}" [data, code, text, math]
-      with parsing selectors [ + math, - code, - text, - data]
+define bracket "{{" ... "}}" [code, text, math]
+      with parsing selectors [ + math, - code, - text ]
 \end{verbatim}\end{indpar}
 will be ignored if the `{\tt + math}' standard qualifier was not given.
 
@@ -5170,9 +5170,9 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with special reformatter \\
 \tt define bracket "\{\{" ... "\}\}"    & \tt + math \\
-\tt ~~~~~~~~~~~~~~~[data, code, text, math] \\
+\tt ~~~~~~~~~~~~~~~[code, text, math] \\
 \tt ~~~~~~~with parsing selectors \\
-\tt ~~~~~~~~~~~~[+ math, - code, - text, - data] \\
+\tt ~~~~~~~~~~~~[+ math, - code, - text] \\
 \tt define bracket "`{}`" ... "'{}'"    & \tt + text \\
 \tt ~~~~~~~~~~~~~~~[data, code, text, math] \\
 \tt ~~~~~~~with parsing selectors \\

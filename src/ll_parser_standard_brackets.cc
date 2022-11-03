@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 27 17:11:48 EDT 2022
+// Date:	Thu Nov  3 03:49:53 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,9 +168,9 @@ static void define_brackets
     if ( math ) BRA::push_brackets
         ( opening_double_brace,
           closing_double_brace,
-	  data + code + math + text,
+	  code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( math, data + code + text ),
+	  TAB::new_flags ( math, code + text ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 

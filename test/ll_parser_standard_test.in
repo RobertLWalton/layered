@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 02:37:15 EDT 2022
+// Date:	Sat Nov  5 02:49:51 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -128,11 +128,29 @@ This is a line with an indented paragraph: // A comment
 
 x + y
 
-@90 = (A B C)
-@91 = (A, B, C)
-@92 = [A, B, C]
-!@93 = (A, B, C)
-!@94 = [A, B, C]
+@90 := (A B C)
+COOKED ID 90 is @90
+@91 := (A, B, C)
+COOKED ID 91 is @91
+@92 := [A, B, C]
+COOKED ID 92 is @92
+!@93 := (A, B, C)
+RAW ID 94 is @94
+!@94 := [A, B, C]
+RAW ID 94 is @94
+
+@100 := {x: u = foo "+" fee|1 2 3|}
+ID 100 is @100
+@101 := {x: u = {|foo "+" fee|}|1 2 3|}
+ID 101 is @101
+@102 := {x: u = foo + fee|1 2 3|}
+ID 102 is @102
+
+@110 := 1 2 3:
+    x = foo "+" fee
+    y = foo + fee
+    z = {|foo "+" fee|}
+ID 110 is @110
 
 *PARSER*:
     end block BLOCK2

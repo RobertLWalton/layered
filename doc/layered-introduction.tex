@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 3, 2022
+November 5, 2022
  
 \end{center}
 
@@ -6889,10 +6889,10 @@ or the flags in it or the value in it is being ignored.
 
 A simple example involving {\em double-attribute-values} is:
 \begin{indpar}[0.2in]\begin{verbatim}
-@1 :=::
+@1 :=:
     name = Jack
     wife = @2 = husband
-@2 :=::
+@2 :=:
     name = Jill
     husband = @1 = wife
 \end{verbatim}\end{indpar}
@@ -6942,7 +6942,8 @@ Dangling references will
 reformatter will generate
 a parser error message.  Dangling references print as
 preallocated stubs with their ID number and a counter equal to
-one plus the total number of dangling references.  This information
+one plus the total number of dangling references with that ID number.
+This information
 can be used for finding
 dangling references in the input.
 

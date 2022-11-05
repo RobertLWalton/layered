@@ -204,26 +204,24 @@ BRACKETED EXPRESSION:
 x + y
 ^^^^^
 BRACKETED EXPRESSION:
-    {data|{|PREALLOCATED(1*90)|} = (A B C)|data}
-!@@@ := @@@ "=" @@@:
+    COOKED ID 90 is (A B C)
+!@@@ := COOKED ID 90 is @@@:
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .type = data
-!@@@ := PREALLOCATED(1*90):
-            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
 !@@@ := A B C:
             .terminator = ")"
             .initiator = "("
             .position[H] = PACKED_VEC
     line ###:
-@@@ = (A B C)
-^^^^^^^^^^^^^
+COOKED ID 90 is @@@
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|{|PREALLOCATED(1*91)|} = ({|A|}, {|B|}, {|C|})|data}
-!@@@ := @@@ "=" @@@:
+    COOKED ID 91 is ({|A|}, {|B|}, {|C|})
+!@@@ := COOKED ID 91 is @@@:
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .type = data
-!@@@ := PREALLOCATED(1*91):
-            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
 !@@@ := @@@ @@@ @@@:
             .terminator = ")"
             .initiator = "("
@@ -236,15 +234,14 @@ BRACKETED EXPRESSION:
 !@@@ := C:
             .position[H] = PACKED_VEC
     line ###:
-@@@ = (A, B, C)
-^^^^^^^^^^^^^^^
+COOKED ID 91 is @@@
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|{|PREALLOCATED(1*92)|} = [{|A|}, {|B|}, {|C|}]|data}
-!@@@ := @@@ "=" @@@:
+    COOKED ID 92 is [{|A|}, {|B|}, {|C|}]
+!@@@ := COOKED ID 92 is @@@:
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .type = data
-!@@@ := PREALLOCATED(1*92):
-            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
 !@@@ := @@@ @@@ @@@:
             .terminator = "]"
             .initiator = "["
@@ -257,29 +254,97 @@ BRACKETED EXPRESSION:
 !@@@ := C:
             .position[H] = PACKED_VEC
     line ###:
-@@@ = [A, B, C]
-^^^^^^^^^^^^^^^
+COOKED ID 92 is @@@
+^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|PREALLOCATED(1*93) = (A "," B "," C)|raw data}
-!@@@ := PREALLOCATED(1*93) "=" @@@:
+    RAW ID 94 is PREALLOCATED(1*94)
+!@@@ := RAW ID 94 is PREALLOCATED(1*94):
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .type = [< raw data >]
-!@@@ := A "," B "," C:
-            .terminator = ")"
-            .initiator = "("
-            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
     line ###:
-!@@@ = (A, B, C)
+RAW ID 94 is @@@
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|PREALLOCATED(1*94) = [A "," B "," C]|raw data}
-!@@@ := PREALLOCATED(1*94) "=" @@@:
+    RAW ID 94 is [A "," B "," C]
+!@@@ := RAW ID 94 is @@@:
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .type = [< raw data >]
+            .initiator = [$ LOGICAL_LINE $]
 !@@@ := A "," B "," C:
             .terminator = "]"
             .initiator = "["
             .position[H] = PACKED_VEC
     line ###:
-!@@@ = [A, B, C]
+RAW ID 94 is @@@
 ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 100 is {x: u = [< foo "+" fee >]|1 2 3|x}
+!@@@ := ID 100 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := 1 2 3:
+            .type = x
+            u = [< foo "+" fee >]
+            .position[H] = PACKED_VEC
+    line ###:
+ID 100 is @@@@
+^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 101 is {x: u = {|foo "+" fee|}|1 2 3|x}
+!@@@ := ID 101 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := 1 2 3:
+            .type = x
+            u = @@@
+            .position[H] = PACKED_VEC
+!@@@ := foo @@@ fee:
+            .position[H] = PACKED_VEC
+!@@@ := "+":
+            .type = "<Q>"
+    line ###:
+ID 101 is @@@@
+^^^^^^^^^^^^^^
+WARNING: in line ###: mark should be quoted:
+@@@@ := {x: u = foo + fee|1 2 3|}
+                    ^
+BRACKETED EXPRESSION:
+    ID 102 is {x: u = [< foo "+" fee >]|1 2 3|x}
+!@@@ := ID 102 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := 1 2 3:
+            .type = x
+            u = [< foo "+" fee >]
+            .position[H] = PACKED_VEC
+    line ###:
+ID 102 is @@@@
+^^^^^^^^^^^^^^
+ERROR: in line ###: not a legal value element `+':
+    y = foo + fee
+            ^
+ERROR: in line ###: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+    y = foo + fee
+      ^
+BRACKETED EXPRESSION:
+    ID 110 is {"": x = [< foo "+" fee >], z = {|foo "+" fee|}|1 2 3|}
+!@@@ := ID 110 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := 1 2 3:
+            x = [< foo "+" fee >]
+            z = @@@
+            .position[H] = PACKED_VEC
+!@@@ := foo @@@ fee:
+            .position[H] = PACKED_VEC
+!@@@ := "+":
+            .type = "<Q>"
+    line ###:
+ID 110 is @@@@
+^^^^^^^^^^^^^^

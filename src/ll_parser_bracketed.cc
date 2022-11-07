@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  6 17:49:49 EDT 2022
+// Date:	Mon Nov  7 13:33:29 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1658,9 +1658,6 @@ inline void finish_value
 		    "'; attribute ignored" );
 		PAR::value_ref(start) = min::NONE();
 	    }
-	    else if ( LEXSTD::must_convert
-			  ( start->type ) )
-		PAR::convert_token ( start );
 
 	    start->type = BRA::ATTR_VALUE;
 	}

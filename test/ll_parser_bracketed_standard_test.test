@@ -5100,19 +5100,17 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: x = 5, y = "5"|a b c|my type}
+    {my type: x = 5, y = 5|a b c|my type}
 !@@@@ := a b c:
              x = 5
              .type = [< my type >]
-             y = @@@@
+             y = 5
              .position[H] = PACKED_VEC
-!@@@@ := 5:
-             .type = "<Q>"
     line ###:
 {my type: x = 5, y = "5" | a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: x = 5, y = "5"|a b c|my type}
+    {my type: x = 5, y = 5|a b c|my type}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
@@ -7081,7 +7079,7 @@ BRACKETED EXPRESSION:
 !@@@@ := @@@@ @@@@ @@@@:
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := 1 chicken:
              .type = item
@@ -7092,8 +7090,6 @@ BRACKETED EXPRESSION:
 !@@@@ := 1 tablespoon paprika:
              .type = item
              .position[H] = PACKED_VEC
-!@@@@ := "*":
-             .type = "<Q>"
     lines ###-###:
 {itemize: indent = 5em, mark = "*"}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -7114,7 +7110,7 @@ BRACKETED EXPRESSION:
 !@@@@ := @@@@ @@@@ @@@@:
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := 1 chicken:
              .type = item
@@ -7125,8 +7121,6 @@ BRACKETED EXPRESSION:
 !@@@@ := 1 tablespoon paprika:
              .type = item
              .position[H] = PACKED_VEC
-!@@@@ := "*":
-             .type = "<Q>"
     lines ###-###:
 {itemize: indent = 5em, mark = "*"|
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -7143,7 +7137,7 @@ BRACKETED EXPRESSION:
 !@@@@ := @@@@ @@@@ @@@@:
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := 1 chicken:
              .type = item
@@ -7154,8 +7148,6 @@ BRACKETED EXPRESSION:
 !@@@@ := 1 tablespoon paprika:
              .type = item
              .position[H] = PACKED_VEC
-!@@@@ := "*":
-             .type = "<Q>"
     lines ###-###:
 {itemize: indent = 5em, mark = "*"}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -7184,14 +7176,14 @@ BRACKETED EXPRESSION:
 1 tablespoon butter
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {itemize: label = "STICKY", indent = 5em, mark = "*"|
+    {itemize: label = STICKY, indent = 5em, mark = "*"|
               {item|1 chicken|item} {item|1 tablespoon olive oil|item}
               {item|1 tablespoon paprika|item}|itemize}
 !@@@@ := @@@@ @@@@ @@@@:
-             label = @@@@
+             label = STICKY
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := 1 chicken:
              .type = item
@@ -7202,10 +7194,6 @@ BRACKETED EXPRESSION:
 !@@@@ := 1 tablespoon paprika:
              .type = item
              .position[H] = PACKED_VEC
-!@@@@ := STICKY:
-             .type = "<Q>"
-!@@@@ := "*":
-             .type = "<Q>"
     lines ###-###:
 {itemize: indent = 5em, mark = "*", label = "STICKY"}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -7216,14 +7204,14 @@ BRACKETED EXPRESSION:
 1 tablespoon paprika
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {itemize: label = "STICKY", indent = 5em, mark = "*"|
+    {itemize: label = STICKY, indent = 5em, mark = "*"|
               {item|a potato|item}
               {item|1 tablespoon butter|item}|itemize}
 !@@@@ := @@@@ @@@@:
-             label = @@@@
+             label = STICKY
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := a potato:
              .type = item
@@ -7258,15 +7246,15 @@ ERROR: in line ###: non-comments after isolated header; ignored:
 {***}line #
      ^^^^^^
 BRACKETED EXPRESSION:
-    {itemize: label = "CONTINUING", indent = 5em, mark = "*"|
+    {itemize: label = CONTINUING, indent = 5em, mark = "*"|
               {item|1 chicken|item} {item|1 tablespoon olive oil|item}
               {item|1 tablespoon paprika|item} {item|a potato|item}
               {item|1 tablespoon butter|item}|itemize}
 !@@@@ := @@@@ @@@@ @@@@ @@@@ @@@@:
-             label = @@@@
+             label = CONTINUING
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := 1 chicken:
              .type = item
@@ -7283,10 +7271,6 @@ BRACKETED EXPRESSION:
 !@@@@ := 1 tablespoon butter:
              .type = item
              .position[H] = PACKED_VEC
-!@@@@ := CONTINUING:
-             .type = "<Q>"
-!@@@@ := "*":
-             .type = "<Q>"
     lines ###-###:
 {itemize: indent = 5em, mark = "*",
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -7320,7 +7304,7 @@ BRACKETED EXPRESSION:
 !@@@@ := @@@@ @@@@ @@@@:
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := 1 chicken:
              .type = item
@@ -7331,8 +7315,6 @@ BRACKETED EXPRESSION:
 !@@@@ := 1 tablespoon paprika:
              .type = item
              .position[H] = PACKED_VEC
-!@@@@ := "*":
-             .type = "<Q>"
     lines ###-###:
 {itemize: indent = 5em, mark = "*"}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -7348,7 +7330,7 @@ BRACKETED EXPRESSION:
 !@@@@ := @@@@ @@@@:
              indent = 5em
              .type = itemize
-             mark = @@@@
+             mark = "*"
              .position[H] = PACKED_VEC
 !@@@@ := a potato:
              .type = item
@@ -8462,7 +8444,7 @@ BRACKETED EXPRESSION:
 ID 50 IS [@@@]
 ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: x = X, y = "Y"|A "B" C|my type}
+    {my type: x = X, y = Y|A "B" C|my type}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
@@ -8470,11 +8452,9 @@ BRACKETED EXPRESSION:
 !@@@@ := A @@@@ C:
              x = X
              .type = [< my type >]
-             y = @@@@
+             y = Y
              .position[H] = PACKED_VEC
 !@@@@ := B:
-             .type = "<Q>"
-!@@@@ := Y:
              .type = "<Q>"
     line ###:
 {my type: x = X, y = "Y"|A "B" C|}

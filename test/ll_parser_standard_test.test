@@ -61,7 +61,7 @@ ERROR: in line ##: bad attribute value; attribute ignored:
                               ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 50 is
-        {x: h = [< [< m n >] p >], "," = ":", d = "ppp", e =
+        {x: h = [< [< m n >] p >], "," = ":", d = ppp, e =
             [< ppp qqq >], a = "quoted string", "." = 99, f = ";", b =
             53.91, c = [< yyy 53.91 >]|"quoted string" 53.91 99 ";"
             foo|x}
@@ -347,4 +347,109 @@ BRACKETED EXPRESSION:
             .type = "<Q>"
     line ###:
 ID 110 is @@@@
+^^^^^^^^^^^^^^
+ERROR: in line ###: not a legal label initial element `8':
+    8 = hi
+    ^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    8 = hi
+    ^^^^^^
+ERROR: in line ###: not a legal label initial element `9':
+    9 b = ho
+    ^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    9 b = ho
+    ^^^^^^^^
+ERROR: in line ###: not a legal label initial element `5.4':
+    5.4 c = he
+    ^^^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    5.4 c = he
+    ^^^^^^^^^^
+ERROR: in line ###: not a legal label element `nan':
+    x nan = hmm
+      ^^^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    x nan = hmm
+    ^^^^^^^^^^^
+ERROR: in line ###: not a legal value element `nan':
+    z = Q nan
+          ^^^
+ERROR: in line ###: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+    z = Q nan
+      ^
+ERROR: in line ###: not a legal value element `++':
+    q = M ++
+          ^^
+ERROR: in line ###: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+    q = M ++
+      ^
+BRACKETED EXPRESSION:
+    ID 120 is
+        {"": y = nan, 6e = "ha", s = {* x, x *}, t = ",", u = ",", 5d =
+             ha, w = "++"|A B C D E|}
+!@@@ := ID 120 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := A B C D E:
+            y = nan
+            .position[H] = PACKED_VEC
+            6e = @@@
+            s = {* x, x *}
+            t = @@@
+            u = ","
+            5d = ha
+            w = "++"
+!@@@ := ha:
+            .type = "<Q>"
+!@@@ := ",":
+            .type = "<Q>"
+    line ###:
+ID 120 is @@@@
+^^^^^^^^^^^^^^
+WARNING: in line ###: mark should be quoted:
+        t = +, u = "+", q = M ++,
+                              ^^
+BRACKETED EXPRESSION:
+    {data|{|PREALLOCATED(1*121)|} =
+          {T: p = {* "/", "hi there", "+" *}, t = "+", x = [< z z >],
+              q = [< M "++" >], u = "+", y = z, z = z, s = {* x, x *}}|data}
+!@@@ := @@@ "=" @@@:
+            .position[H] = PACKED_VEC
+            .type = data
+!@@@ := PREALLOCATED(1*121):
+            .position[H] = PACKED_VEC
+!@@@ :=:
+            p = {* "/", "hi there", "+" *}
+            t = "+"
+            x = [< z z >]
+            .type = T
+            q = [< M "++" >]
+            u = "+"
+            y = z
+            z = z
+            s = {* x, x *}
+            .position[H] = PACKED_VEC
+    lines ###-###:
+@@@@ = {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        t = +, u = "+", q = M ++,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        p = {* "hi there", "+", / *} ||}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 121 is PREALLOCATED(2*121)
+!@@@ := ID 121 is PREALLOCATED(2*121):
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+    line ###:
+ID 121 is @@@@
 ^^^^^^^^^^^^^^

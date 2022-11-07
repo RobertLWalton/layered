@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  5 02:49:51 EDT 2022
+// Date:	Mon Nov  7 05:32:10 EST 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -151,6 +151,27 @@ ID 102 is @102
     y = foo + fee
     z = {|foo "+" fee|}
 ID 110 is @110
+
+@120 := A B C D E:
+    8 = hi
+    9 b = ho
+    5.4 c = he
+    5d = ha
+    6e = "ha"
+    x nan = hmm
+    y = nan
+    z = Q nan
+    w = ++
+    u = ,
+    t = ","
+    s = {* x, "x" *}
+    q = M ++
+ID 120 is @120
+
+@121 = {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},
+        t = +, u = "+", q = M ++,
+	p = {* "hi there", "+", / *} ||}
+ID 121 is @121
 
 *PARSER*:
     end block BLOCK2

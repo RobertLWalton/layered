@@ -393,12 +393,13 @@ ERROR: in line ###: after `=' attribute value (label or single bracketed
 BRACKETED EXPRESSION:
     ID 120 is
         {"": j = -5.4, k = "-5.4", 5d = ha, s = {* x, x *}, t = ",", u =
-             ",", w = "++", y = nan, 6e = "ha"|A B C D E|}
+             ",", w = "++", y = nan, 6e = "ha"|A "B" C D E "+99" "+ +"
+             "nan" nan|}
 !@@@ := ID 120 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
-!@@@ := A B C D E:
+!@@@ := A @@@ C D E @@@ @@@ @@@ nan:
             j = -5.4
             k = @@@
             .position[H] = PACKED_VEC
@@ -409,7 +410,15 @@ BRACKETED EXPRESSION:
             w = "++"
             y = nan
             6e = @@@
-!@@@ := -5.4:
+!@@@ := B:
+            .type = "<Q>"
+!@@@ := "+99":
+            .type = "<Q>"
+!@@@ := "+ +":
+            .type = "<Q>"
+!@@@ := "nan":
+            .type = "<Q>"
+!@@@ := "-5.4":
             .type = "<Q>"
 !@@@ := ",":
             .type = "<Q>"

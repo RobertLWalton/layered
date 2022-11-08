@@ -5100,17 +5100,17 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "|"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {my type: x = 5, y = 5|a b c|my type}
+    {my type: x = 5, y = "5"|a b c|my type}
 !@@@@ := a b c:
              x = 5
              .type = [< my type >]
-             y = 5
+             y = "5"
              .position[H] = PACKED_VEC
     line ###:
 {my type: x = 5, y = "5" | a b c |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {my type: x = 5, y = 5|a b c|my type}
+    {my type: x = 5, y = "5"|a b c|my type}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC

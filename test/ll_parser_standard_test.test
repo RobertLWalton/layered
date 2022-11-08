@@ -121,12 +121,12 @@ ERROR: in line ##: reverse attribute label after second `=' was expected
            G = [< M N P >]
            H = @@ = J
            8.4.5 = P
-           4 = Y
+           "4" = Y
            .position[H] = PACKED_VEC
 BRACKETED EXPRESSION:
     ID 80 is
         {"": F = [< 1 2 3 >], G = [< M N P >], H = @@ = J, 8.4.5 = P,
-             4 = Y|A B C D E|}
+             "4" = Y|A B C D E|}
 BRACKETED EXPRESSION:
     ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
 !@@ :=:
@@ -392,24 +392,28 @@ ERROR: in line ###: after `=' attribute value (label or single bracketed
       ^
 BRACKETED EXPRESSION:
     ID 120 is
-        {"": y = nan, 6e = "ha", s = {* x, x *}, t = ",", u = ",", 5d =
-             ha, w = "++"|A B C D E|}
+        {"": j = -5.4, k = "-5.4", 5d = ha, s = {* x, x *}, t = ",", u =
+             ",", w = "++", y = nan, 6e = "ha"|A B C D E|}
 !@@@ := ID 120 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
 !@@@ := A B C D E:
-            y = nan
+            j = -5.4
+            k = @@@
             .position[H] = PACKED_VEC
-            6e = @@@
+            5d = ha
             s = {* x, x *}
             t = @@@
             u = ","
-            5d = ha
             w = "++"
-!@@@ := ha:
+            y = nan
+            6e = @@@
+!@@@ := -5.4:
             .type = "<Q>"
 !@@@ := ",":
+            .type = "<Q>"
+!@@@ := ha:
             .type = "<Q>"
     line ###:
 ID 120 is @@@@

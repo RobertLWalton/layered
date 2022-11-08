@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 05:32:10 EST 2022
+// Date:	Tue Nov  8 03:40:07 EST 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -166,6 +166,8 @@ ID 110 is @110
     t = ","
     s = {* x, "x" *}
     q = M ++
+    k = "-5.4"
+    j = -5.4
 ID 120 is @120
 
 @121 = {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},

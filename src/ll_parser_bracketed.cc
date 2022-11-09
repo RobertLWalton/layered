@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 13:33:29 EST 2022
+// Date:	Wed Nov  9 01:46:23 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5408,6 +5408,11 @@ static bool data_reformatter_function
 		    (    min::get ( value,
 		                    min::dot_initiator )
 		      == args[MULTIVALUE_OPENING] );
+
+		min::gen v =
+		    PAR::quoted_string_value ( value );
+		if ( v != min::NONE() ) value = v;
+
 		if ( j < lsize )
 		{
 		    // Double arrow attribute.  Syntax:

@@ -8423,7 +8423,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^
 BRACKETED EXPRESSION:
     ID 50 IS
-        {"": x = Z, y = "Z", z = [< X Y Z >], .terminator = "]",
+        {"": x = Z, y = Z, z = [< X Y Z >], .terminator = "]",
              .initiator = "["|A "B" C|}
 !@@@@ := ID 50 IS @@@@:
              .terminator = "<LF>"
@@ -8431,14 +8431,12 @@ BRACKETED EXPRESSION:
              .initiator = [$ LOGICAL_LINE $]
 !@@@@ := A @@@@ C:
              x = Z
-             y = @@@@
+             y = Z
              z = [< X Y Z >]
              .terminator = "]"
              .position[H] = PACKED_VEC
              .initiator = "["
 !@@@@ := B:
-             .type = "<Q>"
-!@@@@ := Z:
              .type = "<Q>"
     line ###:
 ID 50 IS [@@@]

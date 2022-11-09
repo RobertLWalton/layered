@@ -390,26 +390,41 @@ ERROR: in line ###: after `=' attribute value (label or single bracketed
        subexpression) was expected but none found; line ignored:
     q = M ++
       ^
+ERROR: in line ###: empty label before:
+    {|P Q|} = pq
+    ^^^^^^^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    {|P Q|} = pq
+    ^^^^^^^^^^^^
+ERROR: in line ###: not a legal label initial element `+':
+    + = 9
+    ^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    + = 9
+    ^^^^^
 BRACKETED EXPRESSION:
     ID 120 is
-        {"": j = -5.4, k = "-5.4", 5d = ha, s = {* x, x *}, t = ",", u =
-             ",", w = "++", y = nan, 6e = "ha"|A "B" C D E "+99" "+ +"
-             "nan" nan|}
+        {"": y = nan, 6e = ha, 5d = ha, j = -5.4, k = "-5.4", G =
+             {|L M N|}, s = {* x, x *}, t = ",", u = ",", w = "++"|A "B"
+             C D E "+99" "+ +" "nan" nan|}
 !@@@ := ID 120 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
 !@@@ := A @@@ C D E @@@ @@@ @@@ nan:
-            j = -5.4
-            k = @@@
-            .position[H] = PACKED_VEC
+            y = nan
+            6e = ha
             5d = ha
+            .position[H] = PACKED_VEC
+            j = -5.4
+            k = "-5.4"
+            G = @@@
             s = {* x, x *}
-            t = @@@
+            t = ","
             u = ","
             w = "++"
-            y = nan
-            6e = @@@
 !@@@ := B:
             .type = "<Q>"
 !@@@ := "+99":
@@ -418,22 +433,25 @@ BRACKETED EXPRESSION:
             .type = "<Q>"
 !@@@ := "nan":
             .type = "<Q>"
-!@@@ := "-5.4":
-            .type = "<Q>"
-!@@@ := ",":
-            .type = "<Q>"
-!@@@ := ha:
-            .type = "<Q>"
+!@@@ := L M N:
+            .position[H] = PACKED_VEC
     line ###:
 ID 120 is @@@@
 ^^^^^^^^^^^^^^
 WARNING: in line ###: mark should be quoted:
         t = +, u = "+", q = M ++,
                               ^^
+ERROR: in line ###: not a legal label initial element `{|P Q|}':
+        {|P Q|} = pq||, G = {|L M N|}}
+        ^^^^^^^
+ERROR: in line ###: bad attribute label; attribute ignored:
+        {|P Q|} = pq||, G = {|L M N|}}
+        ^^^^^^^
 BRACKETED EXPRESSION:
     {data|{|PREALLOCATED(1*121)|} =
           {T: p = {* "/", "hi there", "+" *}, t = "+", x = [< z z >],
-              q = [< M "++" >], u = "+", y = z, z = z, s = {* x, x *}}|data}
+              q = [< M "++" >], u = "+", y = z, z = z, G = {|L M N|},
+              s = {* x, x *}}|data}
 !@@@ := @@@ "=" @@@:
             .position[H] = PACKED_VEC
             .type = data
@@ -448,15 +466,20 @@ BRACKETED EXPRESSION:
             u = "+"
             y = z
             z = z
+            G = @@@
             s = {* x, x *}
+            .position[H] = PACKED_VEC
+!@@@ := L M N:
             .position[H] = PACKED_VEC
     lines ###-###:
 @@@@ = {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         t = +, u = "+", q = M ++,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        p = {* "hi there", "+", / *} ||}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        p = {* "hi there", "+", / *},
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        {|P Q|} = pq||, G = {|L M N|}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 121 is PREALLOCATED(2*121)
 !@@@ := ID 121 is PREALLOCATED(2*121):

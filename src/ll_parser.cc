@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  6 16:03:48 EDT 2022
+// Date:	Wed Nov  9 01:57:53 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2755,8 +2755,8 @@ min::gen PAR::scan_label_or_value
 	PAR::parse_error
 	    ( parser, posvec[i],
 	      mode == PAR::LABEL_MODE ?
-		  "empty label after" :
-		  "empty value after" );
+		  "empty label before" :
+		  "empty value before" );
 	return min::NONE();
     }
     else if ( j == 1 ) return elements[0];
@@ -2807,6 +2807,8 @@ bool PAR::make_label_or_value
 		    ( parser, t->position,
 		      "separator should be quoted" );
 	}
+	else if ( t->type > PAR::MAX_LEXEME )
+	    error_found = true;
 	else
 	if (    ( ( 1ull << t->type ) & accepted_types )
 	     == 0 )

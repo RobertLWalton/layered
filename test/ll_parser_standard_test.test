@@ -369,20 +369,6 @@ ERROR: in line ###: line does not begin with a (possibly negated)
        attribute label; line ignored:
     5.4 c = he
     ^^^^^^^^^^
-ERROR: in line ###: not a legal label element `nan':
-    x nan = hmm
-      ^^^
-ERROR: in line ###: line does not begin with a (possibly negated)
-       attribute label; line ignored:
-    x nan = hmm
-    ^^^^^^^^^^^
-ERROR: in line ###: not a legal value element `nan':
-    z = Q nan
-          ^^^
-ERROR: in line ###: after `=' attribute value (label or single bracketed
-       subexpression) was expected but none found; line ignored:
-    z = Q nan
-      ^
 ERROR: in line ###: not a legal value element `++':
     q = M ++
           ^^
@@ -406,15 +392,17 @@ ERROR: in line ###: line does not begin with a (possibly negated)
     ^^^^^
 BRACKETED EXPRESSION:
     ID 120 is
-        {"": y = nan, 6e = ha, 5d = ha, j = -5.4, k = "-5.4", G =
-             {|L M N|}, s = {* x, x *}, t = ",", u = ",", w = "++"|A "B"
-             C D E "+99" "+ +" "nan" nan|}
+        {"": y = nan, z = [< Q nan >], x nan = hmm, 6e = ha, 5d = ha,
+             j = -5.4, k = "-5.4", G = {|L M N|}, s = {* x, x *}, t =
+             ",", u = ",", w = "++"|A "B" C D E "+99" "+ +" "nan" nan|}
 !@@@ := ID 120 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
 !@@@ := A @@@ C D E @@@ @@@ @@@ nan:
             y = nan
+            z = [< Q nan >]
+            x nan = hmm
             6e = ha
             5d = ha
             .position[H] = PACKED_VEC

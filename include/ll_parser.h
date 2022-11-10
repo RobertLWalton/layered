@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 07:07:25 EDT 2022
+// Date:	Thu Nov 10 02:24:40 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2084,13 +2084,15 @@ const min::uns64 LABEL_COMPONENT_MASK =
     + ( 1ull << ll::lexeme::standard::numeric_t )
     + ( 1ull << ll::lexeme::standard::quoted_string_t )
     + ( 1ull << ll::lexeme::standard::natural_t )
-    + ( 1ull << ll::lexeme::standard::number_t );
+    + ( 1ull << ll::lexeme::standard::number_t )
+    + ( 1ull << ll::lexeme::standard::numeric_word_t );
 const min::uns64 VALUE_COMPONENT_MASK =
       ( 1ull << ll::lexeme::standard::word_t )
     + ( 1ull << ll::lexeme::standard::numeric_t )
     + ( 1ull << ll::lexeme::standard::quoted_string_t )
     + ( 1ull << ll::lexeme::standard::natural_t )
-    + ( 1ull << ll::lexeme::standard::number_t );
+    + ( 1ull << ll::lexeme::standard::number_t )
+    + ( 1ull << ll::lexeme::standard::numeric_word_t );
 const min::uns64 QUOTED_STRING_MASK =
       ( 1ull << ll::lexeme::standard::quoted_string_t );
 

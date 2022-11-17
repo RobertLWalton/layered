@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:55:10 EDT 2022
+// Date:	Thu Nov 17 02:44:45 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -351,6 +351,145 @@ SCAN_NEXT_LEXEME:
 		}
 		// else falls through
 	    }
+	    else if ( false ) // TBD
+	    {
+		min::unsptr digits_before_comma = 0;
+		bool comma_found = false;
+
+	        char buffer[length+1];
+		char * p = buffer;
+		min::unsptr i = 0;
+		min::Uchar c = translation_buffer[i++];
+		    // There must be at least one
+		    // character in translation_buffer.
+
+		if ( c == '+' || c == '-' )
+		{
+		    * p ++ = (char) c;
+		    if ( i == length ) goto NOT_NUMBER;
+		    c = translation_buffer[i++];
+		}
+
+		// Scan integer part, the part that can
+		// contain commas.
+		//
+		while ( true )
+		{
+		    if ( '0' <= c && c <= '9' )
+		    {
+			* p ++ = (char) c;
+		        ++ digits_before_comma;
+			if ( i == length ) break;
+			c = translation_buffer[i++];
+		    }
+		    else if ( c == ',' )
+		    {
+		        if ( comma_found )
+			{
+			    if (    digits_before_comma
+			         != 3 )
+			        goto NOT_NUMBER;
+			}
+			else
+			{
+			    if (    digits_before_comma
+			         == 0
+				 ||
+				    digits_before_comma
+				 > 3 )
+			        goto NOT_NUMBER;
+			    comma_found = true;
+			}
+			digits_before_comma = 0;
+			if ( i == length )
+			    goto NOT_NUMBER;
+			c = translation_buffer[i++];
+			continue;
+		    }
+		    else break;
+		}
+
+		if ( ! comma_found
+		     ||
+		     digits_before_comma != 3 )
+		    goto NOT_NUMBER;
+		    // If no comma and lexeme is
+		    // numeric, it must actually be
+		    // numeric.
+
+		if ( i == length ) c = 0;
+
+		// Scan fraction.
+		//
+		if ( c == '.' )
+		{
+		    if ( i == length ) goto NOT_NUMBER;
+		    * p ++ = (char) c;
+		    while ( i != length )
+		    {
+			c = translation_buffer[i++];
+			if ( c < '0' || c > '9' )
+			    break;
+			* p ++ = (char) c;
+		    }
+		    if ( i == length ) c = 0;
+		    else c = translation_buffer[i++];
+		}
+
+		// Scan exponent.
+		//
+		if ( c == 'e' || c == 'E' )
+		{
+		    * p ++ = (char) c;
+		    if ( i == length ) goto NOT_NUMBER;
+		    c = translation_buffer[i++];
+
+		    if ( c == '+' || c == '-' )
+		    {
+			* p ++ = (char) c;
+			if ( i == length )
+			    goto NOT_NUMBER;
+			c = translation_buffer[i++];
+		    }
+
+		    while ( '0' <= c && c <= '9' )
+		    {
+			* p ++ = (char) c;
+			if ( i == length ) break;
+			c = translation_buffer[i++];
+		    }
+		}
+
+		if ( i != length ) goto NOT_NUMBER;
+
+		{
+		    * p = 0;
+		    char * q;
+
+		    double v = std::strtod
+		        ( buffer, & q );
+		    MIN_ASSERT
+			( q == p, "numeric to number"
+			          " scan error" );
+
+		    value_ref(token) =
+			min::new_num_gen ( v );
+
+		    if ( ! std::isfinite ( v ) )
+			type = LEXSTD::numeric_word_t;
+		    else if ( PAR::is_natural ( v ) )
+			type = LEXSTD::natural_t;
+		    else
+			type = LEXSTD::number_t;
+
+		    token->type = type;
+		}
+
+		break;
+
+		NOT_NUMBER: ; // fall through
+	    }
+	    // else falls through
 	}
 	// falls through
 	case LEXSTD::mark_t:

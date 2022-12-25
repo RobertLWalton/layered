@@ -27,6 +27,9 @@
                                    end at outer closing,
                                    enable indented paragraph,
                                    enable header]
+    print input
+        [ - enable integer commas, - enable fraction commas,
+          + enable numeric words, + enable naturals ]
     print trace
         [ + warnings, - parser input, - parser output,
           - parser commands, - subexpression elements,

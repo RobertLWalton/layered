@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_print_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 16 21:31:13 EDT 2021
+// Date:	Sun Dec 25 06:17:56 EST 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
     print selector ""
     print pass
     print top level
+    print input
     print trace
     print ID
     print mapped lexeme ""

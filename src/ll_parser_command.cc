@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  6 14:50:25 EDT 2022
+// Date:	Sun Dec 25 06:16:42 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,7 @@
 # define PARSTD ll::parser::standard
 
 static min::locatable_gen exclusive_or;
+static min::locatable_gen input;
 static min::locatable_gen trace;
 static min::locatable_gen top;
 static min::locatable_gen token;
@@ -49,6 +50,7 @@ static min::locatable_gen standard;
 static void initialize ( void )
 {
     ::exclusive_or = min::new_str_gen ( "^" );
+    ::input = min::new_str_gen ( "input" );
     ::trace = min::new_str_gen ( "trace" );
     ::top = min::new_str_gen ( "top" );
     ::token = min::new_str_gen ( "token" );
@@ -1705,6 +1707,72 @@ void COM::parser_test_execute_command
 	<< "======= END PARSER TEST(S)" << min::eol;
 }
 
+// Execute Input
+// ------- -----
+
+static min::gen execute_input
+	( min::obj_vec_ptr & vp, min::uns32 i0,
+          min::phrase_position_vec ppvec,
+	  PAR::parser parser )
+{
+    if ( vp[i0] == PARLEX::print )
+    {
+
+	TAB::name_table t =
+	    parser->input_flag_name_table;
+
+        min::uns32 indent =
+	    COM::print_command ( parser, ppvec );
+	parser->printer
+	    << min::bom << min::no_auto_break
+	    << min::set_indent ( indent + 4 )
+	    << min::indent
+	    << "["
+	    << min::adjust_indent ( 2 )
+	    << min::indent;
+
+	TAB::flags input_flags = parser->input_flags;
+	for ( unsigned j = 0; j < t->length; ++ j )
+	{
+	    if ( j > 0 ) parser->printer << ", ";
+
+	    parser->printer
+		<< min::set_break
+	        << ( ( input_flags & ( 1ull << j ) ) ?
+		   	"+ " : "- " )
+		<< min::pgen_name ( t[j] );
+	}
+	parser->printer << " ]" << min::eom;
+
+        if ( min::size_of ( vp ) > i0 + 2 )
+	    return PAR::parse_error
+	        ( parser, ppvec[i0 + 1],
+		  "extraneous stuff after" );
+
+	return PAR::PRINTED;
+    }
+
+    TAB::new_flags new_flags;
+    min::uns32 i = i0 + 1;
+    min::gen result = COM::scan_new_flags
+        ( vp, i, new_flags, TAB::ALL_FLAGS,
+	  parser->input_flag_name_table,
+	  min::NULL_STUB,
+	  parser, true );
+    if ( result == min::ERROR() )
+        return min::ERROR();
+    else if ( result == min::FAILURE() )
+        return PAR::parse_error
+	    ( parser, ppvec[i0],
+	      "expected bracketed flag (modifier) list"
+	      " after" );
+
+    parser->input_flags |= new_flags.or_flags;
+    parser->input_flags &= ~ new_flags.not_flags;
+    parser->input_flags ^= new_flags.xor_flags;
+    return min::SUCCESS();
+}
+
 // Execute Trace
 // ------- -----
 
@@ -1927,6 +1995,20 @@ void COM::parser_execute_command
 		  &&
 		  vp[1] == PARLEX::ID )
 	    result = ::execute_ID
+			( vp, 0, ppvec, parser );
+	else if ( vp[0] == ::input
+		  &&
+		  ( size == 1
+		    ||
+		    min::is_obj ( vp[1] ) ) )
+	    result = ::execute_input
+			( vp, 0, ppvec, parser );
+	else if ( size >= 2
+		  &&
+		  vp[0] == PARLEX::print
+		  &&
+		  vp[1] == ::input )
+	    result = ::execute_input
 			( vp, 0, ppvec, parser );
 	else if ( vp[0] == ::trace
 		  &&

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 18:32:30 EST 2022
+// Date:	Sun Dec 25 00:40:00 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -929,7 +929,8 @@ void push_new_pass ( min::gen name,
 namespace ll { namespace parser {
 
 enum {
-    // Parser input flags.
+    // Parser input flags.  These are builtin and have
+    // compiled offsets in parser->input_flags.
 
     ENABLE_INTEGER_COMMAS		= 1ull << 0,
         // Enable a numeric lexeme to have the format
@@ -1126,6 +1127,9 @@ struct parser_struct
 	// passes.  Set to NULL_STUB when parser is
 	// created.
 
+    ll::parser::table::flags input_flags;
+        // Parser input flags: see above.
+
     ll::parser::table::flags trace_flags;
         // Parser trace flags: see above.  Tracing is
 	// done to parser->printer.
@@ -1135,6 +1139,10 @@ struct parser_struct
 	// when the TRACE_SUBEXPRESSIONS_ELEMENTS flag
 	// is in trace_flags.  Defaults to min::line_
 	// gen_format.
+
+    const ll::parser::table::name_table
+    	    input_flag_name_table;
+        // Input flag names.
 
     const ll::parser::table::name_table
     	    trace_flag_name_table;
@@ -1303,6 +1311,9 @@ MIN_REF ( ll::parser::input, input,
 MIN_REF ( ll::parser::output, output,
           ll::parser::parser )
 MIN_REF ( ll::parser::pass, pass_stack,
+          ll::parser::parser )
+MIN_REF ( ll::parser::table::name_table,
+		input_flag_name_table,
           ll::parser::parser )
 MIN_REF ( ll::parser::table::name_table,
 		trace_flag_name_table,

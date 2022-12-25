@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  9 01:57:53 EST 2022
+// Date:	Sun Dec 25 00:36:39 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -136,6 +136,10 @@ static min::locatable_gen subexpression_elements;
 static min::locatable_gen subexpression_details;
 static min::locatable_gen subexpression_lines;
 static min::locatable_gen keys;
+static min::locatable_gen enable_integer_commas;
+static min::locatable_gen enable_fraction_commas;
+static min::locatable_gen enable_numeric_words;
+static min::locatable_gen enable_naturals;
 
 static void initialize ( void )
 {
@@ -303,6 +307,18 @@ static void initialize ( void )
         min::new_lab_gen
 	    ( "subexpression", "lines" );
     ::keys = min::new_str_gen ( "keys" );
+    ::enable_integer_commas =
+        min::new_lab_gen
+	    ( "enable", "integer", "commas" );
+    ::enable_fraction_commas =
+        min::new_lab_gen
+	    ( "enable", "fraction", "commas" );
+    ::enable_numeric_words =
+        min::new_lab_gen
+	    ( "enable", "numeric", "words" );
+    ::enable_naturals =
+        min::new_lab_gen
+	    ( "enable", "naturals" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -646,6 +662,8 @@ static min::uns32 parser_stub_disp[] =
     min::DISP ( & PAR::parser_struct::output ),
     min::DISP ( & PAR::parser_struct::pass_stack ),
     min::DISP ( & PAR::parser_struct
+                     ::input_flag_name_table ),
+    min::DISP ( & PAR::parser_struct
                      ::trace_flag_name_table ),
     min::DISP ( & PAR::parser_struct::scanner ),
     min::DISP ( & PAR::parser_struct::id_map ),
@@ -690,7 +708,31 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	    min::MISSING_POSITION;
 	parser->subexpression_gen_format =
 	    min::line_gen_format;
+	parser->input_flags = PAR::INPUT_DEFAULTS;
 	parser->trace_flags = PAR::TRACE_WARNINGS;
+
+	TAB::init_name_table
+	    ( input_flag_name_table_ref(parser) );
+	MIN_REQUIRE
+	    (    PAR::ENABLE_INTEGER_COMMAS
+	      == 1ull << TAB::push_name
+	              ( parser->input_flag_name_table,
+		        ::enable_integer_commas ) );
+	MIN_REQUIRE
+	    (    PAR::ENABLE_FRACTION_COMMAS
+	      == 1ull << TAB::push_name
+	              ( parser->input_flag_name_table,
+		        ::enable_fraction_commas ) );
+	MIN_REQUIRE
+	    (    PAR::ENABLE_NUMERIC_WORDS
+	      == 1ull << TAB::push_name
+	              ( parser->input_flag_name_table,
+		        ::enable_numeric_words ) );
+	MIN_REQUIRE
+	    (    PAR::ENABLE_NATURALS
+	      == 1ull << TAB::push_name
+	              ( parser->input_flag_name_table,
+		        ::enable_naturals ) );
 
 	TAB::init_name_table
 	    ( trace_flag_name_table_ref(parser) );
@@ -1151,6 +1193,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 	min::MISSING_POSITION;
     parser->subexpression_gen_format =
 	min::line_gen_format;
+    parser->input_flags = PAR::INPUT_DEFAULTS;
     parser->trace_flags = PAR::TRACE_WARNINGS;
 }
 
@@ -1531,6 +1574,7 @@ min::gen PAR::begin_block
                       parser->undefined_stack,
 		      parser->
 		          top_level_indentation_mark,
+		      parser->input_flags,
 		      parser->trace_flags,
 		      parser->id_map->ID_character );
 
@@ -1639,6 +1683,7 @@ min::gen PAR::end_block
 	        ->parsing_selectors.or_flags
 	| PAR::TOP_LEVEL_OFF_SELECTORS
 	| PAR::ALWAYS_SELECTOR;
+    parser->input_flags = (&b)->saved_input_flags;
     parser->trace_flags = (&b)->saved_trace_flags;
     * (min::Uchar *) & parser->id_map->ID_character =
         (&b)->saved_ID_character;

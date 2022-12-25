@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 02:24:40 EST 2022
+// Date:	Sat Dec 24 18:32:30 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -927,6 +927,47 @@ void push_new_pass ( min::gen name,
 // ------
 
 namespace ll { namespace parser {
+
+enum {
+    // Parser input flags.
+
+    ENABLE_INTEGER_COMMAS		= 1ull << 0,
+        // Enable a numeric lexeme to have the format
+	// of a C++ number with commas in the integer
+	// part every 3 digits from the decimal point,
+	// or if no point, from the end.  Such a lexeme
+	// is translated into a number, natural, or
+	// numeric-word lexeme.
+
+    ENABLE_FRACTION_COMMAS		= 1ull << 1,
+        // Enable a numeric lexeme to have the format
+	// of a C++ number with commas in the fraction
+	// part every 3 digits from the decimal point.
+	// Such a lexeme is translated into a number,
+	// natural, or numeric-word lexeme.
+
+    // Either or both of ENABLE_..._COMMAS may be set.
+
+    ENABLE_NUMERIC_WORDS		= 1ull << 2,
+        // Enable number, natural, or numeric-word
+	// lexemes whose values are infinities or
+	// NaNs to be retyped as numeric-word lexemes.
+	// Otherwise they are retyped as number lexemes.
+
+    ENABLE_NATURALS			= 1ull << 3,
+        // Enable number, natural, or numeric-word
+	// lexemes whose values are integers in the
+	// range [0,10**9) to be retyped as natural
+	// lexemes.  Otherwise they are retyped as
+	// number lexemes.
+	//
+	// A natural lexeme whose value is >= 10**9
+	// is always retyped as a number lexeme.
+
+    INPUT_DEFAULTS = ENABLE_NUMERIC_WORDS
+                   + ENABLE_NATURALS
+};
+
 
 enum {
     // Built in trace flags that have compiled offsets

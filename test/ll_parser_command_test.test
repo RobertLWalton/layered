@@ -357,7 +357,13 @@ ID 4 is @@
                  with token value {data}
     end block X
 *PARSER*:
+    begin block X
     print top level
+        block X:  selectors [my selector]
+                  options [end at le indent, end at line separator,
+                           end at outer closing,
+                           enable indented paragraph, enable header]
+                  lexical master "DEFAULT"
         block TOP LEVEL:  selectors [my selector]
                           options [end at le indent,
                                    end at line separator,
@@ -367,6 +373,12 @@ ID 4 is @@
                           lexical master "DEFAULT"
     define top level line separator ";"
     print top level
+        block X:  selectors [my selector]
+                  options [end at le indent, end at line separator,
+                           end at outer closing,
+                           enable indented paragraph, enable header]
+                  lexical master "DEFAULT"
+                  line separator ";"
         block TOP LEVEL:  selectors [my selector]
                           options [end at le indent,
                                    end at line separator,
@@ -374,7 +386,6 @@ ID 4 is @@
                                    enable indented paragraph,
                                    enable header]
                           lexical master "DEFAULT"
-                          line separator ";"
 BRACKETED EXPRESSION:
     Hi there;
     line ###:
@@ -393,6 +404,11 @@ Ho HO;
 *PARSER*:
     define top level line separator NONE
     print top level
+        block X:  selectors [my selector]
+                  options [end at le indent, end at line separator,
+                           end at outer closing,
+                           enable indented paragraph, enable header]
+                  lexical master "DEFAULT"
         block TOP LEVEL:  selectors [my selector]
                           options [end at le indent,
                                    end at line separator,
@@ -405,3 +421,279 @@ BRACKETED EXPRESSION:
     line ###:
 Hi there; Bye there
 ^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    end block X
+*PARSER*:
+    begin block X
+    trace [+ parser input, - parser output]
+    print input
+        [ - enable integer commas, - enable fraction commas,
+          + enable numeric words, + enable naturals ]
+NUMERIC-WORD: nan: line ###:
+NaN
+^^^
+LINE-BREAK: line ###:
+NaN
+   ^
+INDENT: line ###:
+123
+^
+NATURAL: 123: line ###:
+123
+^^^
+LINE-BREAK: line ###:
+123
+   ^
+INDENT: line ###:
+1,234
+^
+NUMERIC: "1,234": line ###:
+1,234
+^^^^^
+LINE-BREAK: line ###:
+1,234
+     ^
+INDENT: line ###:
+1,234.5678
+^
+NUMERIC: "1,234.5678": line ###:
+1,234.5678
+^^^^^^^^^^
+LINE-BREAK: line ###:
+1,234.5678
+          ^
+INDENT: line ###:
+0.123,4
+^
+NUMERIC: "0.123,4": line ###:
+0.123,4
+^^^^^^^
+LINE-BREAK: line ###:
+0.123,4
+       ^
+INDENT: line ###:
+1,234.567,8
+^
+NUMERIC: "1,234.567,8": line ###:
+1,234.567,8
+^^^^^^^^^^^
+LINE-BREAK: line ###:
+1,234.567,8
+           ^
+LINE-BREAK: line ###:
+<BLANK-LINE>
+^
+INDENT: line ###:
+*PARSER*:
+^
+WORD: "*PARSER*": line ###:
+*PARSER*:
+^^^^^^^^
+SEPARATOR: ":": line ###:
+*PARSER*:
+        ^
+LINE-BREAK: line ###:
+*PARSER*:
+         ^
+INDENT: line ###:
+    input [- enable numeric words,
+^^^^
+WORD: "input": line ###:
+    input [- enable numeric words,
+    ^^^^^
+SEPARATOR: "[": line ###:
+    input [- enable numeric words,
+          ^
+MARK: "-": line ###:
+    input [- enable numeric words,
+           ^
+WORD: "enable": line ###:
+    input [- enable numeric words,
+             ^^^^^^
+WORD: "numeric": line ###:
+    input [- enable numeric words,
+                    ^^^^^^^
+WORD: "words": line ###:
+    input [- enable numeric words,
+                            ^^^^^
+SEPARATOR: ",": line ###:
+    input [- enable numeric words,
+                                 ^
+LINE-BREAK: line ###:
+    input [- enable numeric words,
+                                  ^
+INDENT: line ###:
+           - enable naturals,
+^^^^^^^^^^^
+MARK: "-": line ###:
+           - enable naturals,
+           ^
+WORD: "enable": line ###:
+           - enable naturals,
+             ^^^^^^
+WORD: "naturals": line ###:
+           - enable naturals,
+                    ^^^^^^^^
+SEPARATOR: ",": line ###:
+           - enable naturals,
+                            ^
+LINE-BREAK: line ###:
+           - enable naturals,
+                             ^
+INDENT: line ###:
+           + enable integer commas,
+^^^^^^^^^^^
+MARK: "+": line ###:
+           + enable integer commas,
+           ^
+WORD: "enable": line ###:
+           + enable integer commas,
+             ^^^^^^
+WORD: "integer": line ###:
+           + enable integer commas,
+                    ^^^^^^^
+WORD: "commas": line ###:
+           + enable integer commas,
+                            ^^^^^^
+SEPARATOR: ",": line ###:
+           + enable integer commas,
+                                  ^
+LINE-BREAK: line ###:
+           + enable integer commas,
+                                   ^
+INDENT: line ###:
+           + enable fraction commas]
+^^^^^^^^^^^
+MARK: "+": line ###:
+           + enable fraction commas]
+           ^
+WORD: "enable": line ###:
+           + enable fraction commas]
+             ^^^^^^
+WORD: "fraction": line ###:
+           + enable fraction commas]
+                    ^^^^^^^^
+WORD: "commas": line ###:
+           + enable fraction commas]
+                             ^^^^^^
+SEPARATOR: "]": line ###:
+           + enable fraction commas]
+                                   ^
+LINE-BREAK: line ###:
+           + enable fraction commas]
+                                    ^
+INDENT: line ###:
+    print input
+^^^^
+WORD: "print": line ###:
+    print input
+    ^^^^^
+WORD: "input": line ###:
+    print input
+          ^^^^^
+LINE-BREAK: line ###:
+    print input
+               ^
+LINE-BREAK: line ###:
+<BLANK-LINE>
+^
+INDENT: line ###:
+NaN
+^
+*PARSER*:
+    input [- enable numeric words,
+           - enable naturals,
+           + enable integer commas,
+           + enable fraction commas]
+    print input
+        [ + enable integer commas, + enable fraction commas,
+          - enable numeric words, - enable naturals ]
+NUMBER: nan: line ###:
+NaN
+^^^
+LINE-BREAK: line ###:
+NaN
+   ^
+INDENT: line ###:
+123
+^
+NUMBER: 123: line ###:
+123
+^^^
+LINE-BREAK: line ###:
+123
+   ^
+INDENT: line ###:
+1,234
+^
+NUMBER: 1234: line ###:
+1,234
+^^^^^
+LINE-BREAK: line ###:
+1,234
+     ^
+INDENT: line ###:
+1,234.5678
+^
+NUMBER: 1234.5678: line ###:
+1,234.5678
+^^^^^^^^^^
+LINE-BREAK: line ###:
+1,234.5678
+          ^
+INDENT: line ###:
+0.123,4
+^
+NUMBER: 0.1234: line ###:
+0.123,4
+^^^^^^^
+LINE-BREAK: line ###:
+0.123,4
+       ^
+INDENT: line ###:
+1,234.567,8
+^
+NUMBER: 1234.5678: line ###:
+1,234.567,8
+^^^^^^^^^^^
+LINE-BREAK: line ###:
+1,234.567,8
+           ^
+LINE-BREAK: line ###:
+<BLANK-LINE>
+^
+LINE-BREAK: line ###:
+<BLANK-LINE>
+^
+INDENT: line ###:
+*PARSER*:
+^
+WORD: "*PARSER*": line ###:
+*PARSER*:
+^^^^^^^^
+SEPARATOR: ":": line ###:
+*PARSER*:
+        ^
+LINE-BREAK: line ###:
+*PARSER*:
+         ^
+INDENT: line ###:
+    end block X
+^^^^
+WORD: "end": line ###:
+    end block X
+    ^^^
+WORD: "block": line ###:
+    end block X
+        ^^^^^
+WORD: "X": line ###:
+    end block X
+              ^
+LINE-BREAK: line ###:
+    end block X
+               ^
+END-OF-FILE: line ###:
+<END-OF-FILE>
+^
+*PARSER*:
+    end block X

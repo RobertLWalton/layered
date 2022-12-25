@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  2 03:06:45 EDT 2021
+// Date:	Sun Dec 25 06:58:46 EST 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -144,6 +144,7 @@ ID 4 is @4
     end block X
 
 *PARSER*:
+    begin block X
     print top level
     define top level line separator ";"
     print top level
@@ -156,3 +157,36 @@ Ho HO;
     print top level
 
 Hi there; Bye there
+
+*PARSER*:
+    end block X
+
+*PARSER*:
+    begin block X
+    trace [+ parser input, - parser output]
+    print input
+
+NaN
+123
+1,234
+1,234.5678
+0.123,4
+1,234.567,8
+
+*PARSER*:
+    input [- enable numeric words,
+           - enable naturals,
+           + enable integer commas,
+	   + enable fraction commas]
+    print input
+
+NaN
+123
+1,234
+1,234.5678
+0.123,4
+1,234.567,8
+
+
+*PARSER*:
+    end block X

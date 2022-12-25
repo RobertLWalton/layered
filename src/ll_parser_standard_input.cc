@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 17 02:44:45 EST 2022
+// Date:	Sun Dec 25 06:37:21 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -351,8 +351,20 @@ SCAN_NEXT_LEXEME:
 		}
 		// else falls through
 	    }
-	    else if ( false ) // TBD
+	    else if ( parser->input_flags
+	    	      &
+		      ( PAR::ENABLE_INTEGER_COMMAS
+		        |
+			PAR::ENABLE_FRACTION_COMMAS ) )
 	    {
+	        bool integer_commas_ok =
+		    ( parser->input_flags
+		      &
+		      PAR::ENABLE_INTEGER_COMMAS );
+	        bool fraction_commas_ok =
+		    ( parser->input_flags
+		      &
+		      PAR::ENABLE_FRACTION_COMMAS );
 		min::unsptr digits_before_comma = 0;
 		bool comma_found = false;
 
@@ -370,8 +382,7 @@ SCAN_NEXT_LEXEME:
 		    c = translation_buffer[i++];
 		}
 
-		// Scan integer part, the part that can
-		// contain commas.
+		// Scan integer part.
 		//
 		while ( true )
 		{
@@ -379,7 +390,11 @@ SCAN_NEXT_LEXEME:
 		    {
 			* p ++ = (char) c;
 		        ++ digits_before_comma;
-			if ( i == length ) break;
+			if ( i == length )
+			{
+			    c = 0;
+			    break;
+			}
 			c = translation_buffer[i++];
 		    }
 		    else if ( c == ',' )
@@ -392,6 +407,8 @@ SCAN_NEXT_LEXEME:
 			}
 			else
 			{
+			    if ( ! integer_commas_ok )
+			        goto NOT_NUMBER;
 			    if (    digits_before_comma
 			         == 0
 				 ||
@@ -409,31 +426,54 @@ SCAN_NEXT_LEXEME:
 		    else break;
 		}
 
-		if ( ! comma_found
-		     ||
+		if ( comma_found
+		     &&
 		     digits_before_comma != 3 )
 		    goto NOT_NUMBER;
-		    // If no comma and lexeme is
-		    // numeric, it must actually be
-		    // numeric.
-
-		if ( i == length ) c = 0;
 
 		// Scan fraction.
 		//
 		if ( c == '.' )
 		{
-		    if ( i == length ) goto NOT_NUMBER;
-		    * p ++ = (char) c;
-		    while ( i != length )
+		  * p ++ = (char) c;
+		  if ( i == length ) goto NOT_NUMBER;
+		  c = translation_buffer[i++];
+		  comma_found = false;
+		  digits_before_comma = 0;
+		  while ( true )
+		  {
+		    if ( '0' <= c && c <= '9' )
 		    {
-			c = translation_buffer[i++];
-			if ( c < '0' || c > '9' )
-			    break;
 			* p ++ = (char) c;
+			++ digits_before_comma;
+			if ( i == length )
+			{
+			    c = 0;
+			    break;
+			}
+			c = translation_buffer[i++];
 		    }
-		    if ( i == length ) c = 0;
-		    else c = translation_buffer[i++];
+		    else if ( c == ',' )
+		    {
+			if ( ! fraction_commas_ok )
+			    goto NOT_NUMBER;
+			if (    digits_before_comma
+			     != 3 )
+			    goto NOT_NUMBER;
+			comma_found = true;
+			digits_before_comma = 0;
+			if ( i == length )
+			    goto NOT_NUMBER;
+			c = translation_buffer[i++];
+		    }
+		    else break;
+		  }
+		  if ( digits_before_comma == 0
+		       ||
+		       ( comma_found
+			 &&
+			 digits_before_comma > 3 ) )
+		      goto NOT_NUMBER;
 		}
 
 		// Scan exponent.
@@ -455,12 +495,16 @@ SCAN_NEXT_LEXEME:
 		    while ( '0' <= c && c <= '9' )
 		    {
 			* p ++ = (char) c;
-			if ( i == length ) break;
+			if ( i == length )
+			{
+			    c = 0;
+			    break;
+			}
 			c = translation_buffer[i++];
 		    }
 		}
 
-		if ( i != length ) goto NOT_NUMBER;
+		if ( c != 0 ) goto NOT_NUMBER;
 
 		{
 		    * p = 0;
@@ -475,10 +519,20 @@ SCAN_NEXT_LEXEME:
 		    value_ref(token) =
 			min::new_num_gen ( v );
 
+		    TAB::flags flags =
+		        parser->input_flags;
 		    if ( ! std::isfinite ( v ) )
-			type = LEXSTD::numeric_word_t;
+			type =
+			  ( flags &
+			    PAR::ENABLE_NUMERIC_WORDS ?
+			    LEXSTD::numeric_word_t :
+			    LEXSTD::number_t );
 		    else if ( PAR::is_natural ( v ) )
-			type = LEXSTD::natural_t;
+			type =
+			  ( flags &
+			    PAR::ENABLE_NATURALS ?
+			    LEXSTD::natural_t :
+			    LEXSTD::number_t );
 		    else
 			type = LEXSTD::number_t;
 
@@ -533,10 +587,19 @@ SCAN_NEXT_LEXEME:
 		value_ref(token) =
 		    min::new_num_gen ( v );
 
+		TAB::flags flags = parser->input_flags;
 		if ( ! std::isfinite ( v ) )
-		    type = LEXSTD::numeric_word_t;
+		    type =
+		      ( flags &
+			PAR::ENABLE_NUMERIC_WORDS ?
+			LEXSTD::numeric_word_t :
+			LEXSTD::number_t );
 		else if ( PAR::is_natural ( v ) )
-		    type = LEXSTD::natural_t;
+		    type =
+		      ( flags &
+			PAR::ENABLE_NATURALS ?
+			LEXSTD::natural_t :
+			LEXSTD::number_t );
 		else
 		    type = LEXSTD::number_t;
 

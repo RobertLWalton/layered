@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-November 10, 2022
+December 26, 2022
  
 \end{center}
 
@@ -3109,13 +3109,14 @@ physical line, and the indented logical lines that follow are
 \emkey{parser-command}
     \begin{tabular}[t]{@{}rlrl@{}}
     ::= & {\em parser-block-command} &
-    $|$ & {\em parser-selector-command} \\
+    $|$ & {\em parser-input-command} \\
     $|$ & {\em parser-top-level-command} &
     $|$ & {\em parser-trace-command} \\
     $|$ & {\em parser-bracketed-command} &
     $|$ & {\em parser-pass-command} \\
     $|$ & {\em parser-operator-command} &
     $|$ & {\em parser-standard-command} \\
+    $|$ & {\em parser-selector-command} \\
     \end{tabular}
 \label{PARSER-COMMAND}
 \\[0.3ex]
@@ -3231,6 +3232,18 @@ $|$ & \ttmkey{print top level}{parser command} \\
 \\[0.3ex]
 \emkey{lexical-master-name}\label{LEXICAL-MASTER-NAME} ::= {\em quoted-key}
                     $|$ {\em simple-name} not containing `\TT{with}'
+\\[0.3ex]
+\emkey{parser-input-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \ttmkey{input}{parser command} ~ {\em input-flag-spec} \\
+    $|$ & \ttmkey{print input}{parser print} \\
+    \end{tabular}
+\label{PARSER-INPUT-COMMAND}
+\\[0.0ex]
+\emkey{input-flag} ::= {\em parser-flag} as per \pagref{INPUT-FLAGS}
+\\[0.0ex]
+\emkey{input-flag-spec} ::=
+    {\em parser-flag-spec} with only {\em input-flag} names
 \\[0.3ex]
 \emkey{parser-trace-command}
     \begin{tabular}[t]{@{}rl@{}}
@@ -3718,6 +3731,75 @@ Parser Command				& Given Qualifiers
 
 
 
+\subsubsection{Parser Input Commands}
+\label{PARSER-INPUT-COMMANDS}
+
+The current set of
+\skey{parsing input flag}s\index{input flag!parser}\index{flag!parsing input}
+may be given or modified by the {\em parser-input-command}:
+\begin{center}
+    \ttmkey{input}{parser command} ~ {\em input-flag-spec}
+\end{center}
+Input flags modify how the parser inputs lexemes.
+The input flag names are builtin and are listed
+in Figure~\itemref{INPUT-FLAGS}.
+
+When a parser is initialized, its \TT{enable numeric words} 
+and \TT{enable naturals} flags are set, and
+all the other input flags are cleared.
+
+\begin{boxedfigure}[!t]
+
+\begin{indpar}[0.4in]
+\hspace*{-0.2in}\ttmkey{enable numeric words}{parsing input flag} ~
+    Any {\em numeric-word}, {\em natural}, or {\em number} lexeme
+    whose value is a \TT{NaN} or infinity is retyped as a
+    {\em numeric word} if this flag is set.  If cleared, the lexeme
+    is retyped as a {\em number}.
+
+\hspace*{-0.2in}\ttmkey{enable naturals}{parsing input flag} ~
+    Any {\em numeric-word}, {\em natural}, or {\em number} lexeme
+    whose value is an integer in the range $[0,10^9)$  is retyped as a
+    {\em natural} if this flag is set.  If cleared, the lexeme
+    is retyped as a {\em number}.
+
+\hspace*{-0.2in}\ttmkey{enable integer commas}{parsing input flag}
+    If set, commas are allowed every 3 digits in the integer part
+    of a numeric lexeme formatted as a C++ number not ending in `\TT{.}'.
+    See \pagref{COMMAS-IN-NUMERICS}.
+
+\hspace*{-0.2in}\ttmkey{enable fraction commas}{parsing input flag}
+    If set, commas are allowed every 3 digits in the fraction part
+    of a numeric lexeme formatted as a C++ number not ending in `\TT{.}'.
+    See \pagref{COMMAS-IN-NUMERICS}.
+
+\end{indpar}
+
+\bigskip
+
+\caption{\bf Parsing Input Flags}
+\label{INPUT-FLAGS}
+\end{boxedfigure}
+
+A numeric containing commas\label{COMMAS-IN-NUMERICS}
+that has the format of a C++ number
+not ending in `\TT{.}' is made into a number lexeme by removing the
+commas provided the commas are allowed as per the \TT{enable integer commas}
+and \TT{enable fraction commas} input flags.
+
+
+The print command:
+\begin{center}
+    \ttmkey{print input}{parser command}
+\end{center}
+prints the state of the current parser input flags.
+
+The end of a parser block erases the effects of any
+{\em parser-input-commands} executed during the block.
+
+\newpage
+
+
 \subsubsection{Parser Trace Commands}
 \label{PARSER-TRACE-COMMANDS}
 
@@ -3734,7 +3816,7 @@ in Figure~\itemref{TRACE-FLAGS}.
 When a parser is initialized, its \TT{warnings} flag is set, and
 all its other trace flags are cleared.
 
-\begin{boxedfigure}[!p]
+\begin{boxedfigure}[!b]
 
 \begin{indpar}[0.4in]
 \hspace*{-0.2in}\ttmkey{warnings}{parsing trace flag} ~

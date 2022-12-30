@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 26, 2022
+December 30, 2022
  
 \end{center}
 
@@ -5213,19 +5213,19 @@ are collected into a typed bracketted subexpression with
 \begin{tabular}{l}
 \multicolumn{1}{c}{\bf Initial Bracket Parser Commands}
 \\\hline
-\tt define bracket "(" ... ")" [data] \\
-\tt define bracket "[" ... "]" [data] \\
-\tt define bracket "{{" ... "}}" [data] \\
-\tt define bracket "`" ... "'" [data] \\
+\tt define bracket "(" \ldots~")" [data] \\
+\tt define bracket "[" \ldots~"]" [data] \\
+\tt define bracket "{{" \ldots~"}}" [data] \\
+\tt define bracket "`" \ldots~"'" [data] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
-\tt define bracket "``" ... "''" [data] \\
-\tt define bracket "[<" ... ">]" [data, atom] \\
+\tt define bracket "``" \ldots~"''" [data] \\
+\tt define bracket "[<" \ldots~">]" [data, atom] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with label reformatter \\
-\tt define bracket "[$" ... "$]" [data, atom] \\
+\tt define bracket "[\$" \ldots~"\$]" [data, atom] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with special reformatter \\
-\tt define bracket "{*" ... "*}" [data] \\
+\tt define bracket "{*" \ldots~"*}" [data] \\
 \tt ~~~~~~~with multivalue reformatter ( "," ) \\
 \end{tabular}
 \\[2ex]
@@ -5242,20 +5242,20 @@ are collected into a typed bracketted subexpression with
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
-\tt define bracket "(" ... ")" [code, text, math] \\
-\tt define bracket "[" ... "]" [code, text, math] \\
-\tt define bracket "`" ... "'" [code, text, math] \\
-\tt define bracket "[<" ... ">]" [code, text, math] \\
+\tt define bracket "(" \ldots~")" [code, text, math] \\
+\tt define bracket "[" \ldots~"]" [code, text, math] \\
+\tt define bracket "`" \ldots~"'" [code, text, math] \\
+\tt define bracket "[<" \ldots~">]" [code, text, math] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with label reformatter \\
-\tt define bracket "[\$" ... "\$]" [code, text, math] \\
+\tt define bracket "[\$" \ldots~"\$]" [code, text, math] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with special reformatter \\
-\tt define bracket "\{\{" ... "\}\}"    & \tt + math \\
+\tt define bracket "\{\{" \ldots~"\}\}"    & \tt + math \\
 \tt ~~~~~~~~~~~~~~~[code, text, math] \\
 \tt ~~~~~~~with parsing selectors \\
 \tt ~~~~~~~~~~~~[+ math, - code, - text] \\
-\tt define bracket "`{}`" ... "'{}'"    & \tt + text \\
+\tt define bracket "`{}`" \ldots~"'{}'"    & \tt + text \\
 \tt ~~~~~~~~~~~~~~~[data, code, text, math] \\
 \tt ~~~~~~~with parsing selectors \\
 \tt ~~~~~~~~~~~~[+ text, - code, - math, - data] \\

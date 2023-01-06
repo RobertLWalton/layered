@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  9 01:46:23 EST 2022
+// Date:	Fri Jan  6 01:08:22 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5488,21 +5488,47 @@ static bool data_reformatter_function
 	    }
 
 	    min::locate ( idap, name );
-	    min::attr_info info;
-	    min::attr_info_of ( info, idap );
 
 	    if ( flags != min::MISSING() )
 		PAR::set_attr_flags
-		    ( parser, idap, flags );
+		    ( parser, idap, flags,
+		      PAR::NEW_OR_SAME );
 
 	    if ( ! has_value ) continue;
 
-	    unsigned option = PAR::NEW;
+	    unsigned option;
 	    if ( reverse_name != min::MISSING() )
 	    {
 	        min::locate_reverse
 		    ( idap, reverse_name );
 		option = PAR::ADD_TO_SET;
+	    }
+	    else
+	    {
+		// M is flag 37 + 13 = 50
+		// S is flag 37 + 19 = 56
+		#define MI ( 50 / min::VSIZE )
+		#define MO ( 50 % min::VSIZE )
+		#define SI ( 56 / min::VSIZE )
+		#define SO ( 56 % min::VSIZE )
+		min::gen flag_vector[3];
+		unsigned c = min::get_flags
+		    ( flag_vector, 3, idap );
+		if ( c > MI
+		     &&
+		     (   MUP::value_of
+		             ( flag_vector[MI] )
+		       & ( min::unsgen ( 1 ) << MO ) ) )
+		    option = PAR::ADD_TO_MULTISET;
+		else if ( c > SI
+		          &&
+		          (   MUP::value_of
+			          ( flag_vector[MI] )
+			    & (    min::unsgen ( 1 )
+			        << SO ) ) )
+		    option = PAR::ADD_TO_SET;
+		else
+		    option = PAR::NEW_OR_SAME;
 	    }
 
 	    if ( ! is_multivalue )    

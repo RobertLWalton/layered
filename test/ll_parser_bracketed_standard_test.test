@@ -8493,3 +8493,69 @@ BRACKETED EXPRESSION:
     line ###:
 {my type: x = {* a b, c d e, f, 1 g, h + *}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: "x" already has different value(s); old value(s) not
+       changed:
+    x = B
+        ^
+BRACKETED EXPRESSION:
+    ID 60 IS
+        {"": x = A, y[S] = {* P, O, N *}, .terminator = "]",
+             .initiator = "["}
+!@@@@ := ID 60 IS @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ :=:
+             .position[H] = PACKED_VEC
+             x = A
+             y[S] = {* P, O, N *}
+             .terminator = "]"
+             .initiator = "["
+    line ###:
+ID 60 IS [@@@]
+^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 70 IS
+        {"": x[M] = {* C, B, B, A, A, A *}, .terminator = "]",
+             .initiator = "["}
+!@@@@ := ID 70 IS @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ :=:
+             .position[H] = PACKED_VEC
+             x[M] = {* C, B, B, A, A, A *}
+             .terminator = "]"
+             .initiator = "["
+    line ###:
+ID 70 IS [@@@]
+^^^^^^^^^^^^^^
+ERROR: in line ###: flag `S' for label "z" should be previously on but
+       is off:
+    z[S]
+      ^
+ERROR: in line ###: flag `M' for label "z" should be previously off but
+       is on:
+    z[S]
+     ^^^
+ERROR: in line ###: "z" already has different flag(s); old flag(s) not
+       changed:
+    z[S]
+     ^^^
+BRACKETED EXPRESSION:
+    ID 80 IS
+        {"": .terminator = "]", x[S] = {* C, B, A *}, z[M], .initiator =
+             "["}
+!@@@@ := ID 80 IS @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ :=:
+             .terminator = "]"
+             x[S] = {* C, B, A *}
+             z[M]
+             .position[H] = PACKED_VEC
+             .initiator = "["
+    line ###:
+ID 80 IS [@@@]
+^^^^^^^^^^^^^^

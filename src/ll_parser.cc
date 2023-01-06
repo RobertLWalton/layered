@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 00:36:39 EST 2022
+// Date:	Fri Jan  6 06:01:30 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2089,28 +2089,28 @@ bool PAR::test_attr_flags
 
 	    for ( min::unsptr j = 0; j < fvlen; ++ j )
 	    {
-	        min::unsptr k = fv[j] % min::VSIZE;
-		min::unsptr i = fv[j] / min::VSIZE;
+	        min::unsptr ko = fv[j] % min::VSIZE;
+		min::unsptr ki = fv[j] / min::VSIZE;
 		min::unsgen dcc =
-		    min::control_code_of ( d[i] );
+		    min::control_code_of ( d[ki] );
 		min::unsgen fcc =
-		    min::control_code_of ( f[i] );
-		if ( dcc & ( min::unsgen ( 1 ) << k ) )
+		    min::control_code_of ( f[ki] );
+		if ( dcc & ( min::unsgen ( 1 ) << ko ) )
 		    // duplicate flag; ignore
 		    continue;
 
-		dcc |= ( min::unsgen ( 1 ) << k );
-		d[i] = min::new_control_code_gen
+		dcc |= ( min::unsgen ( 1 ) << ko );
+		d[ki] = min::new_control_code_gen
 			    ( dcc );
 
-		if ( fcc & ( min::unsgen ( 1 ) << k ) ) 
+		if ( fcc & ( min::unsgen ( 1 ) << ko ) ) 
 		{
 		    // Flag set correctly.  Turn off
 		    // in f to indicate flag has been
 		    // processed.
 		    //
-		    fcc &= ~ ( min::unsgen ( 1 ) << k );
-		    f[i] = min::new_control_code_gen
+		    fcc &= ~ ( min::unsgen ( 1 ) << ko );
+		    f[ki] = min::new_control_code_gen
 				( fcc );
 		}
 		else

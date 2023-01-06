@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  6 06:01:30 EST 2023
+// Date:	Fri Jan  6 06:30:31 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2398,15 +2398,43 @@ inline void set_attributes
 	if ( attributes->flags != min::MISSING() )
 	    PAR::set_attr_flags
 		( parser, ap,
-		  attributes->flags );
+		  attributes->flags,
+		  PAR::NEW_OR_SAME );
 
-	unsigned option = PAR::NEW;
+	unsigned option;
 	if (    attributes->reverse_name
 	     != min::MISSING() )
 	{
 	    min::locate_reverse
 		( ap, attributes->reverse_name );
 	    option = PAR::ADD_TO_SET;
+	}
+	else
+	{
+	    // M is flag 37 + 13 = 50
+	    // S is flag 37 + 19 = 56
+	    #define MI ( 50 / min::VSIZE )
+	    #define MO ( 50 % min::VSIZE )
+	    #define SI ( 56 / min::VSIZE )
+	    #define SO ( 56 % min::VSIZE )
+	    min::gen flag_vector[3];
+	    unsigned c = min::get_flags
+		( flag_vector, 3, ap );
+	    if ( c > MI
+		 &&
+		 (   MUP::value_of
+			 ( flag_vector[MI] )
+		   & ( min::unsgen ( 1 ) << MO ) ) )
+		option = PAR::ADD_TO_MULTISET;
+	    else if ( c > SI
+		      &&
+		      (   MUP::value_of
+			      ( flag_vector[MI] )
+			& (    min::unsgen ( 1 )
+			    << SO ) ) )
+		option = PAR::ADD_TO_SET;
+	    else
+		option = PAR::NEW_OR_SAME;
 	}
 
 	if (    attributes->value

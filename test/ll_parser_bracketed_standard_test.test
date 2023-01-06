@@ -8168,10 +8168,20 @@ BRACKETED EXPRESSION:
     line ###:
             hi[*], hi[@]}
                      ^^^
-ERROR: in line ###: "hi" already has value(s); old value(s) not changed:
+ERROR: in line ###: "hi" already has different value(s); old value(s)
+       not changed:
 !@@@ := {X: hi = @@, to = @@@ = from, hi = 77,
                                            ^^
-ERROR: in line ###: "hi" already has flag(s); old flag(s) not changed:
+ERROR: in line ###: flag `@' for label "hi" should be previously on but
+       is off:
+            hi[*], hi[@]}
+                      ^
+ERROR: in line ###: flag `*' for label "hi" should be previously off but
+       is on:
+            hi[*], hi[@]}
+                     ^^^
+ERROR: in line ###: "hi" already has different flag(s); old flag(s) not
+       changed:
             hi[*], hi[@]}
                      ^^^
 BRACKETED EXPRESSION:

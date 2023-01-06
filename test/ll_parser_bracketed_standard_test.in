@@ -557,6 +557,9 @@ ID 50 IS [@50]
     y = N
 ID 60 IS [@60]
 
+{my type: x = A, x = A, x = B,
+          y[S] = N, y = O, y = P, y = N }
+
 @70 :=:
     x[M]
     x = A
@@ -566,6 +569,10 @@ ID 60 IS [@60]
     x = B
     x = C
 ID 70 IS [@70]
+
+{my type: x[M], x = A, x = A, x = A,
+                x = B, x = B,
+		x = C }
 
 @80 :=:
     x[S]
@@ -579,3 +586,6 @@ ID 70 IS [@70]
     z[S]
 ID 80 IS [@80]
 
+{my type: x[S], x = A, x = A, x = A,
+                x = B, x = B,
+		x[S] = C, z[M], z[S] }

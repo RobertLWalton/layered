@@ -8524,6 +8524,26 @@ BRACKETED EXPRESSION:
     line ###:
 ID 60 IS [@@@]
 ^^^^^^^^^^^^^^
+ERROR: in line ###: "x" already has different value(s); old value(s) not
+       changed:
+{my type: x = A, x = A, x = B,
+                            ^
+BRACKETED EXPRESSION:
+    {my type: x = A, y[S] = {* P, O, N *}}
+!@@@@ := @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ :=:
+             x = A
+             .type = [< my type >]
+             y[S] = {* P, O, N *}
+             .position[H] = PACKED_VEC
+    lines ###-###:
+{my type: x = A, x = A, x = B,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          y[S] = N, y = O, y = P, y = N }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 70 IS
         {"": x[M] = {* C, B, B, A, A, A *}, .terminator = "]",
@@ -8540,6 +8560,23 @@ BRACKETED EXPRESSION:
     line ###:
 ID 70 IS [@@@]
 ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {my type: x[M] = {* C, B, B, A, A, A *}}
+!@@@@ := @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ :=:
+             x[M] = {* C, B, B, A, A, A *}
+             .type = [< my type >]
+             .position[H] = PACKED_VEC
+    lines ###-###:
+{my type: x[M], x = A, x = A, x = A,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                x = B, x = B,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                x = C }
+^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: flag `S' for label "z" should be previously on but
        is off:
     z[S]
@@ -8569,3 +8606,33 @@ BRACKETED EXPRESSION:
     line ###:
 ID 80 IS [@@@]
 ^^^^^^^^^^^^^^
+ERROR: in line ###: flag `S' for label "z" should be previously on but
+       is off:
+                x[S] = C, z[M], z[S] }
+                                  ^
+ERROR: in line ###: flag `M' for label "z" should be previously off but
+       is on:
+                x[S] = C, z[M], z[S] }
+                                 ^^^
+ERROR: in line ###: "z" already has different flag(s); old flag(s) not
+       changed:
+                x[S] = C, z[M], z[S] }
+                                 ^^^
+BRACKETED EXPRESSION:
+    {my type: x[S] = {* C, B, A *}, z[M]}
+!@@@@ := @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ :=:
+             x[S] = {* C, B, A *}
+             .type = [< my type >]
+             z[M]
+             .position[H] = PACKED_VEC
+    lines ###-###:
+{my type: x[S], x = A, x = A, x = A,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                x = B, x = B,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                x[S] = C, z[M], z[S] }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

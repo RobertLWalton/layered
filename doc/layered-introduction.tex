@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 31, 2022
+January 9, 2022
  
 \end{center}
 
@@ -5727,15 +5727,16 @@ at the end than it does at the beginning:
 
 A type or attribute label may be a label,
 which is a sequence
-of one or more words, naturals, numbers, numerics, and quoted strings,
-not beginning with a natural or number.
+of one or more words, naturals, numeric-words, numbers,
+numerics, and quoted strings,
+not beginning with a natural, numeric-word, or number.
 Note that marks and separators must be quoted.
 If there is only
 one element in the sequence, the MIN string it represents is the
 label, but if there is more than one element, the elements
 are concatenated into a MIN label.
 
-Attribute values are similar but may begin with a natural
+Attribute values are similar but may begin with a natural, numeric-word,
 or number, and may alternatively be bracketed subexpressions.
 In this last case, the attribute value is the bracketed subexpression,
 with one exception.
@@ -5745,9 +5746,10 @@ the comma
 separated elements of the bracketed subexpression are each a
 distinct value of the attribute, which has a multi-set of values.
 Elements must be single bracketed subexpressions,
-words, naturals, numbers, numerics, or quoted strings that are made into
+words, naturals, numeric-words, numbers, numerics, or quoted strings
+that are made into
 MIN strings or MIN numbers,
-or sequences of words, naturals, numbers, numerics, and
+or sequences of words, naturals, numeric-words, numbers, numerics, and
 quoted strings that are made into
 labels.  Missing elements, as indicated by the commas, are ignored,
 If there are no values, as in `\TT{\{* *\}}' or `\TT{\{* , *\}}',
@@ -5769,13 +5771,13 @@ a single lexeme `\TT{||}'.
 `\TT{\{||\}}' can be collapsed into `\TT{\{\}}'.
 
 If the type is
-a single {\em mark} lexeme and there are no attributes,
+a single {\em mark} and there are no attributes,
 the `\TT{|}'s surrounding
 the elements may be omitted, in which case the {\em mark} is not
 quoted, but the {\em mark} must appear both before and after the elements.
 Similarly if the type is a label consisting of two \underline{distinct}
-{\em mark}
-lexemes, and there are no attributes, the `\TT{|}'s may be
+{\em marks},
+and there are no attributes, the `\TT{|}'s may be
 omitted with the two unquoted {\em marks} being placed before and
 after the elements, respectively.
 Except in these cases, type and attribute labels
@@ -5816,8 +5818,14 @@ can also be used.  Some examples are:
 \end{center}
 
 The 64 flag characters listed above are associated with flag
-indices \TT{0} through \TT{63} in order: `\TT{*}' is associated
-with index \TT{0} and `\TT{Z}' with index \TT{63}.
+indices \TT{0} through \TT{63} in order:
+\begin{center}
+\begin{tabular}{r@{~have respective indices~}l}
+\TT{*+-/@\&\#=\$\%<>} & 0~\ldots{}~11 \\
+\TT{a\ldots{}z} & 12~\ldots{}~37 \\
+\TT{A\ldots{}Z} & 38~\ldots{}~63 \\
+\end{tabular}
+\end{center}
 Thus `\TT{[+Y]}', `\TT{[1,~Y]}', `\TT{[+,~62]}', and `\TT{[62,~1]}'
 are equivalent as attribute flag specifiers.
 

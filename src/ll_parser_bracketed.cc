@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  6 01:08:22 EST 2023
+// Date:	Mon Jan  9 06:46:19 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5538,7 +5538,7 @@ static bool data_reformatter_function
 	    else
 		PAR::set_attr_multivalue
 		    ( parser, idap, value,
-		      option );
+		      PAR::ADD_TO_MULTISET );
 	}
 	
 	PAR::free

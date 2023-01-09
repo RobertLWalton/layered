@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  6 06:30:31 EST 2023
+// Date:	Mon Jan  9 06:47:03 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2450,7 +2450,7 @@ inline void set_attributes
 	    PAR::set_attr_multivalue
 		( parser, ap,
 		  attributes->multivalue,
-		  option );
+		  PAR::ADD_TO_MULTISET );
 
 	++ attributes;
     }

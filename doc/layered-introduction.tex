@@ -5872,7 +5872,7 @@ attributes.
 An \ttkey{M}\index{M-flag} on an {\em attribute-label} specifies that
 the single attribute with that label has a multi-set of values.  Any
 attribute representation adds to this multi-set, so that, for example,
-a MIN object created by inputing:
+a MIN object created by inputting:
 \begin{center}
 \TT{\{my type: x[M] = 1, x = 2, x = 2, x = 3, x = 3, x = 3 ||\}}
 \end{center}
@@ -5884,18 +5884,19 @@ will output as
 An \ttkey{S}\index{S-flag} on an {\em attribute-label} specifies that
 the single attribute with that label has a (non-multi) set of values.  Any
 attribute representation adds to this set, so that, for example,
-a MIN object created by inputing:
+a MIN object created by inputting:
 \begin{center}
 \TT{\{my type: x[S] = 1, x = 2, x = 2, x = 3, x = 3, x = 3 ||\}}
 \end{center}
 will output as
 \begin{center}
-\TT{\{my type: x[M] = \{* 1, 2, 3 *\} ||\}}
+\TT{\{my type: x[S] = \{* 1, 2, 3 *\} ||\}}
 \end{center}
 
 The \TT{M} and \TT{S} flags only affect single attributes.  An \TT{M}
 flag overrides and \TT{S} flag.  All double
-attributes input as sets of values, and not multi-sets.
+attributes are input as sets of values, and are not multi-sets and
+not limited to a single value.
 
 If an {\em attribute-label} has neither an \TT{M} or \TT{S} flag,
 it can have at most one value.  Thus the input:

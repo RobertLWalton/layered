@@ -5829,8 +5829,95 @@ indices \TT{0} through \TT{63} in order:
 Thus `\TT{[+Y]}', `\TT{[1,~Y]}', `\TT{[+,~62]}', and `\TT{[62,~1]}'
 are equivalent as attribute flag specifiers.
 
+MIN object have two types of attribues: \skey{single attribute}s
+and \skey{double attribute}s.  Single attributes have an attribute label
+and a multi-set of attribute values.  Double attributes have both
+a (forward) attribute label and a \key{reverse attribute label}
+and a multi-set of values that must be pointers to objects
+(represented by object IDs: see \itemref{IDS}).
 
-The general syntax is:
+Single attributes are represented within a typed bracketed subexpression
+by:
+\begin{center}
+\begin{tabular}{cl}
+{\em attribute-label} \TT{=} {\em value} & [single value]\\
+or \\
+{\em attribute-label} \TT{=} \TT{\{*} {\em value}\TT{,} \ldots{} \TT{*\}}
+    & [multiple value] \\
+\end{tabular}
+\end{center}
+Double attributes are represented within a typed bracketed subexpression
+by:
+\begin{center}
+\begin{tabular}{cl}
+{\em attribute-label} \TT{=} {\em ID}
+    \TT{=} {\em reverse-attribute-label} & [single value] \\
+or \\
+{\em attribute-label} \TT{=} \TT{\{*} {\em ID}\TT{,} \ldots{} \TT{*\}}
+    \TT{=} {\em reverse-attribute-label} & [multiple value] \\
+\end{tabular}
+\end{center}
+
+A single {\em attribute-label} may be shared by one single attribute
+and many distinct double attributes
+(with distinct {\em reverse-attribute-labels}).  Flags are attached to an {\em attribute-label} and are shared
+among any single attribute and all double attributes with
+that {\em attribute-label}.  Some flags affect only single attributes
+and some affect only double attributes and some affect both.
+
+An \ttkey{H}\index{H-flag} on an {\em attribute-label} prevents all attributes
+with that label from printing, and in this sense \skey{hide}s these
+attributes.
+
+An \ttkey{M}\index{M-flag} on an {\em attribute-label} specifies that
+the single attribute with that label has a multi-set of values.  Any
+attribute representation adds to this multi-set, so that, for example,
+a MIN object created by inputing:
+\begin{center}
+\TT{\{my type: x[M] = 1, x = 2, x = 2, x = 3, x = 3, x = 3 ||\}}
+\end{center}
+will output as
+\begin{center}
+\TT{\{my type: x[M] = \{* 1, 2, 2, 3, 3, 3 *\} ||\}}
+\end{center}
+
+An \ttkey{S}\index{S-flag} on an {\em attribute-label} specifies that
+the single attribute with that label has a (non-multi) set of values.  Any
+attribute representation adds to this set, so that, for example,
+a MIN object created by inputing:
+\begin{center}
+\TT{\{my type: x[S] = 1, x = 2, x = 2, x = 3, x = 3, x = 3 ||\}}
+\end{center}
+will output as
+\begin{center}
+\TT{\{my type: x[M] = \{* 1, 2, 3 *\} ||\}}
+\end{center}
+
+The \TT{M} and \TT{S} flags only affect single attributes.  An \TT{M}
+flag overrides and \TT{S} flag.  All double
+attributes input as sets of values, and not multi-sets.
+
+If an {\em attribute-label} has neither an \TT{M} or \TT{S} flag,
+it can have at most one value.  Thus the input:
+\begin{center}
+\TT{\{my type: x = 1, x = 2 ||\}}
+\end{center}
+is in error and the \TT{x = 2} will be mentioned in an error message
+and otherwise ignored.
+
+There is an exception to the above, in that when a multiple value
+is provided for either a single or double attribute, the values
+in it are added to the attribute values as if the attribute were
+a multi-set.  Thus the MIN object created by the input:
+\begin{center}
+\TT{\{my type: x = 1, x = \{* 2, 2, 3, 3, 3 *\} ||\}}
+\end{center}
+will output as
+\begin{center}
+\TT{\{my type: x = \{* 1, 2, 2, 3, 3, 3 *\} ||\}}
+\end{center}
+
+The general syntax of a typed bracketed subexpression is:
 
 \begin{indpar}[0.1in]
 \emkey{typed-bracketed-subexpression} \\

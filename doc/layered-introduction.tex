@@ -6033,8 +6033,10 @@ The general syntax of a typed bracketed subexpression is:
 \\[0.5ex]
 \emkey{attribute-flag-index} ::= {\em natural}
 \\[0.5ex]
-\emkey{single-attribute-values} ::= {\em value }
+\emkey{single-attribute-values} ::= {\em single-attribute-single-value }
                                 $|$ {\em single-attribute-multivalue}
+\\[0.5ex]
+\emkey{single-attribute-single-value} ::= {\em value }
 \\[0.5ex]
 \emkey{single-attribute-multivalue} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{@{}l}
@@ -6119,11 +6121,10 @@ flags and does \underline{not} set any attribute values
 For a given {\em attribute-label}, at most one {\em attribute} containing
 {\em attribute-flags} may appear.
 \item
-For a given {\em attribute-label}, at most one {\em attribute} containing
-{\em single-attribute-values} may appear.
-\item
-For a given {\em attribute-label} and {\em reverse-attribute-label},
-at most one {\em attribute} containing both labels may appear.
+For a given {\em attribute-label}, at most one {\em attribute} containing a
+{\em single-attribute-single-value} may appear, unless the
+{\em attribute-label} has been given the \TT{M} or \TT{S} flag by the
+given {\em attribute} or a preceding {\em attribute}.
 \end{enumerate}
 \end{indpar}
 

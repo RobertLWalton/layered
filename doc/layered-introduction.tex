@@ -5757,7 +5757,7 @@ the attribute is not set.
 
 Some examples of attribute values are:
 \begin{center}
-\TT{\{my type: x = 5, y = "5" |} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my type: x = hello, y = "hello" |} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{my type: x = 5 tomatoes, y = [< 5 tomatoes >] |}
     ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{my type: x = \{* A, B *\}, y = \{* , "A",{}, B, *\} |}
@@ -5918,6 +5918,30 @@ will output as
 \TT{\{my type: x = \{* 1, 2, 2, 3, 3, 3 *\} ||\}}
 \end{center}
 
+The current implementation supports two syntactic extensions of
+the above.  First, more than 2 \TT{|}'s may be used to switch
+back and forth between attribute scanning and element scanning,
+so that:
+\begin{center}
+\TT{\{T: a = 1, b = 2, c = 3, d = 4 | X Y Z | \}} \\
+\TT{\{T: a = 1, b = 2, c = 3 | X Y Z | d = 4 \}} \\
+\TT{\{T: a = 1, b = 2 | X Y | c = 3 | Z | d = 4 \}} \\
+\TT{\{T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | \}} \\
+\TT{\{T| X | a = 1, b = 2 | Y | c = 3, d = 4 | Z | \}} \\
+\end{center}
+are all equivalent.  Second, in {\em attribute-flags}, commas
+do not have to be followed by whitespace, so that:
+\begin{center}
+\TT{\{T: a[PQ@*+,85,203] | X Y Z | \}} \\
+\TT{\{T: a[PQ@*+, 85, 203] | X Y Z | \}} \\
+\TT{\{T: a[203,P,Q,@,85,*,+] | X Y Z | \}} \\
+\TT{\{T: a[203,P, Q,@,85, *,+] | X Y Z | \}} \\
+\end{center}
+are all equivalent.
+
+These two syntactic extensions may become permanent or be
+redacted in the future.
+
 The general syntax of a typed bracketed subexpression is:
 
 \begin{indpar}[0.1in]
@@ -6064,7 +6088,7 @@ The general syntax of a typed bracketed subexpression is:
 \emkey{value} ::= {\em label-component}\PLUS{}
               $|$ {\em bracketed-subexpression}
 \\[0.5ex]
-\emkey{object-id} ::= \begin{tabular}[t]{l}
+\emkey{object-id} :::= \begin{tabular}[t]{l}
                       \ttmkey{@}{in object ID} {\em ID-number}
 		      $|$ \TT{@<}{\em ID-symbol}\TT{>} \\
 		      This is a special kind of {\em label}.
@@ -6148,12 +6172,14 @@ input text of the {\em typed-bracketed-subexpression} and the
 positions of each of its {\em elements}.
 
 A {\em typed-bracketed-subexpression} with {\em bracket-type-marks}
-has just \TT{.type} and \TT{.position}
+(e.g., \TT{+}) has just \TT{.type} and \TT{.position}
 attributes, and no other attributes.  The \TT{.type}
 is never missing.  If the beginning and ending
-{\em bracket-type-marks} are identical, the {\em bracket-type}
+{\em bracket-type-marks} are identical (e.g., \TT{\{+\ldots+\}}),
+the {\em bracket-type}
 is just a MIN string equal to these {\em bracket-type-marks},
-but if the two {\em bracket-type-marks} are \underline{not} identical,
+but if the two {\em bracket-type-marks} are \underline{not} identical
+(e.g., \TT{\{<\ldots>\}}),
 the {\em bracket-type} is the MIN label whose first element is
 {\em bracket-type-mark-1} and whose second element is
 {\em bracket-type-mark-2}.
@@ -6449,30 +6475,6 @@ The untyped bracket definitions for `\TT{[\ldots]}' and
 all with the `\TT{data}' selector, are used to parse
 attribute flags and multivalue lists in any
 {\em typed-bracketed-subexpression} recognized by these definitions.
-
-The current implementation supports two syntactic extensions of
-the above.  First, more than 2 \TT{|}'s may be used to switch
-back and forth between attribute scanning and element scanning,
-so that:
-\begin{center}
-\TT{\{T: a = 1, b = 2, c = 3, d = 4 | X Y Z | \}} \\
-\TT{\{T: a = 1, b = 2, c = 3 | X Y Z | d = 4 \}} \\
-\TT{\{T: a = 1, b = 2 | X Y | c = 3 | Z | d = 4 \}} \\
-\TT{\{T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | \}} \\
-\TT{\{T| X | a = 1, b = 2 | Y | c = 3, d = 4 | Z | \}} \\
-\end{center}
-are all equivalent.  Second, in {\em attribute-flags}, commas
-do not have to be followed by whitespace, so that:
-\begin{center}
-\TT{\{T: a[PQ@*+,85,203] | X Y Z | \}} \\
-\TT{\{T: a[PQ@*+, 85, 203] | X Y Z | \}} \\
-\TT{\{T: a[203,P,Q,@,85,*,+] | X Y Z | \}} \\
-\TT{\{T: a[203,P, Q,@,85, *,+] | X Y Z | \}} \\
-\end{center}
-are all equivalent.
-
-These two syntactic extensions may become permanent or be
-redacted in the future.
 
 \begin{center}\label{TOP-LEVEL-{}}
 \begin{tabular}{l}

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 9, 2022
+January 14, 2022
  
 \end{center}
 
@@ -6172,7 +6172,7 @@ input text of the {\em typed-bracketed-subexpression} and the
 positions of each of its {\em elements}.
 
 A {\em typed-bracketed-subexpression} with {\em bracket-type-marks}
-(e.g., \TT{+}) has just \TT{.type} and \TT{.position}
+(e.g., \TT{+}) has just \TT{.type} and \TT{.pos\-i\-tion}
 attributes, and no other attributes.  The \TT{.type}
 is never missing.  If the beginning and ending
 {\em bracket-type-marks} are identical (e.g., \TT{\{+\ldots+\}}),
@@ -7004,7 +7004,8 @@ where
 \end{indpar}
 \end{indpar}
 
-A subexpression of one of these forms typically arises from a logical line
+A {\em prefix-n-list} of one of the above forms
+typically arises from a logical line
 that begins with an {\em ID} or {\em clear-sign}.
 For such a line a special lexeme with a special
 lexeme type and empty character string is prefaced
@@ -7051,39 +7052,24 @@ invocations creating the objects listed in the
 If these rules are violated, an error is announced and the
 subexpression is deleted.
 
-In a subexpression containing an {\em ID}
-any {\em attribute-paragraph} before this reformatter is invoked to
-become a MIN object with
+Before this reformatter is invoked, the {\em prefix-n-list} is parsed
+and any {\em attribute-paragraph} will become a MIN object with
 {\em attribute-initiator} as \TT{.ini\-tiator}, with
-\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()} as \TT{.ter\-min\-ator},
+\TT{min::\EOL IN\-DENT\-ED\_\EOL PARAGRAPH()} as \TT{.ter\-min\-ator},
 and with logical line elements.  Different
 {\em attribute-initiators} may be chosen to control how this
 paragraph is parsed: e.g., are operators recognized or not.
 This reformatter
-then further parses these logical lines
+then further processes these logical lines in order
 using its reformatter arguments to treat each line as being
 formatted in the same manner as an {\em attribute}
 in a {\em typed-bracketed-subexpression}
 (see \pagref{TYPED-BRACKETED-SUBEXPRESSION}).
 
-{\em Single-attribute-values} or {\em attribute-flags}
-given for a particular {\em attribute-label} in an {\em attri\-bute-paragraph}
-\underline{set} the corresponding
-{\em attribute-values} or {\em attribute-flags}
-with the same {\em attribute-label} in
-the object identified by the {\em ID}.
-
-{\em Double-attribute-values}
-given for a particular {\em attribute-label} and {\em reverse-attribute-label}
-in an {\em attri\-bute-paragraph}
-\underline{add to the set} of corresponding
-{\em double-attribute-values} with the same labels in
-the object identified by the {\em ID}.
-If a previous value matches a new value, the new value is not added
-(i.e., {\em double-attribute-values} are treated as sets and not
-multi-sets).
-
-If there is an error in an attribute logical line, the error is
+When it is processed, an {\em attribute-line} sets attribute flags and
+values exactly as it would were it an {\em attribute}
+in a {\em typed-bracketed-subexpression}.
+If there is an error, the error is
 announced and the announcement indicates that the logical line
 or the flags in it or the value in it is being ignored.
 
@@ -7099,35 +7085,25 @@ A simple example involving {\em double-attribute-values} is:
 \end{verbatim}\end{indpar}
 Here the line `{\tt wife = @2 = husband}' creates object {\tt @2}
 and gives it the `{\tt husband = @1 = wife}' attribute so the line
-`{\tt husband = @1 = wife}' does nothing and is redundant.
+`{\tt husband = @1 = wife}' does nothing and is redundant (as double
+attribute values are sets and not multisets).
 
-As a special case, if there is only one {\em element}, no
-{\em attribute-paragraph},
-and {\em ID} is a preallocated stub,
-then the only element becomes the value assigned to {\em ID}
-in place of the list containing just this element.
-If this new value of {\em ID} is an object, a copy of the object replaces
-the preallocated stub, and previous references to {\em ID} will become
-references to this copy (but not to the object copied).
-Similarly if the new value is a quoted
-\underline{non-identifier} string the preallocated stub is replaced
-by a copy of the non-identifier string (without the quotes).
-
-However, if the new value is neither an object nor a non-identifier string,
-only future references to {\em ID} will be mapped to the new value,
-and previous references to the preallocated stub will continue to
-reference the untouched preallocated stub.  In this case an error
-is announced and the previous references are left \key{dangling} and unusable.
+As a special case, if there is only one {\em element} which is an object,
+there is no {\em attribute-paragraph},
+and the {\em ID} is a preallocated stub,
+then all that is done is to copy the only element
+to the {\em ID} preallocated stub.
+After the copying, the element and the {\em ID} are distinct but
+equal objects.  Previous references to {\em ID} will become
+references to the copy but not to the {\em element} copied.
 
 For example:
 \begin{center}
 \begin{tabular}{lrl}
-\TT{@5 := Bill}     & sets \TT{@5} to  & the MIN string `\TT{Bill}' \\
-                    & instead of       & the list whose only element is
-		    					`\TT{Bill}' \\
-		    &  & previous uses of \TT{@5} are dangling
+\TT{@5 := Bill}     & sets \TT{@5} to  & \TT{\{| Bill |\}} \\
+		    & \multicolumn{2}{l}{which is NOT a special case}
 \\[1ex]
-\TT{@5 := ( a b c )} & sets \TT{@5} to & ( a b c ) \\
+\TT{@5 := ( a b c )} & sets \TT{@5} to & \TT{( a b c )} \\
                     & instead of      & \TT{\{| ( a b c ) |\}}
 \\[1ex]
 \TT{@5 := \{| a b c |\}} & sets \TT{@5} to & \TT{\{| a b c |\}} \\
@@ -7138,21 +7114,14 @@ For example:
 \end{tabular}
 \end{center}
 
-Dangling references will
-\underline{not} cause garbage collection errors, but the \TT{data}
-reformatter will generate
-a parser error message.  Dangling references print as
-preallocated stubs with their ID number and a counter equal to
-one plus the total number of dangling references with that ID number.
-This information
-can be used for finding
-dangling references in the input.
-
 In the unusual case where the {\em element-list} ends in a
 paragraph with the same paragraph initiator as an
 {\em attribute-paragraph}, and there is no {\em attribute-paragraph},
 an empty {\em attribute-paragraph} must be added to make
 the {\em element-list} end as intended.
+Also, the parse of the logical lines in the paragraph
+at the end of the {\em element-list} will only recognize brackets,
+and never operators.
 
 \end{indpar}
 

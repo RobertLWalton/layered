@@ -332,16 +332,13 @@ BRACKETED EXPRESSION:
         with data reformatter
              ( "@@@@", "::=",
                ( ":" ), "=", "not", "[", "{*" )
-ERROR: in line ###: previous uses of ID exist and will be dangling:
-@@ ::= Jill
-^^
 BRACKETED EXPRESSION:
-    ID 6 is {|PREALLOCATED(2*4) said `hello there Jack'|}
+    ID 6 is {|{|Jill|} said `hello there {|Jack|}'|}
     line ###:
 ID 6 is @@
 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ID 4 is Jill
+    ID 4 is {|Jill|}
     line ###:
 ID 4 is @@
 ^^^^^^^^^^

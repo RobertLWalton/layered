@@ -32,7 +32,7 @@ BRACKETED EXPRESSION:
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                "::"|{p|{s|with a line and a second line|s}|p}|}|}
 BRACKETED EXPRESSION:
-    ID 35 is foo
+    ID 35 is {|foo|}
 BRACKETED EXPRESSION:
     ID 36 is "fum"
 BRACKETED EXPRESSION:

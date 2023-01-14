@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  9 06:46:19 EST 2023
+// Date:	Sat Jan 14 02:46:37 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5197,8 +5197,6 @@ static bool data_reformatter_function
 	}
     }
 
-    min::phrase_position ID_position =
-        first->next->position;
     min::position end_position =
         next->previous->position.end;
 
@@ -5222,31 +5220,15 @@ static bool data_reformatter_function
     //
     if (    fvpsize == 1
          && vector_end == next
-	 && min::is_preallocated ( ID_gen ) )
+	 && min::is_preallocated ( ID_gen )
+	 && min::is_obj ( fvp[0] ) )
     {
 	PAR::value_ref(first) = fvp[0];
 	fvp = min::NULL_STUB;
 	PAR::trace_subexpression
 	    ( parser, first, trace_flags );
 
-	if ( min::is_obj ( first->value ) )
-	    min::copy ( ID_gen, first->value, 0 );
-	else
-	{
-	    min::uns32 ID =
-		min::id_of_preallocated ( ID_gen );
-	    min::id_map map = parser->id_map;
-	    MIN_REQUIRE ( ID < map->length );
-	    MIN_REQUIRE ( map[ID] == ID_gen );
-	    if (    min::count_of_preallocated
-	                ( ID_gen )
-		 != 1 )
-		PAR::parse_error
-		    ( parser, ID_position,
-		      "previous uses of ID exist and"
-		      " will be dangling" );
-	    min::map_set ( map, ID, first->value );
-	}
+	min::copy ( ID_gen, first->value, 0 );
 
 	first = first->next;
 	PAR::free ( PAR::remove ( first_ref(parser),

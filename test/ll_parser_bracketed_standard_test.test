@@ -8634,3 +8634,47 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 x[S] = C, z[M], z[S] }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: not a legal label element `MISSING':
+    v = [< X [$ MISSING $]>]
+             ^^^^^^^^^^^^^
+ERROR: in line ###: evaluated to ERROR special value because of error(s)
+       in label elements:
+    v = [< X [$ MISSING $]>]
+        ^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ###: not a legal value element `A B C':
+    z = X [< A "B" C >]
+          ^^^^^^^^^^^^^
+ERROR: in line ###: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+    z = X [< A "B" C >]
+      ^
+ERROR: in line ###: not a legal value element `MISSING':
+    u = X [$ MISSING $]
+          ^^^^^^^^^^^^^
+ERROR: in line ###: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+    u = X [$ MISSING $]
+      ^
+BRACKETED EXPRESSION:
+    ID 90 IS
+        {"": s = [$ MISSING $], v = [$ ERROR $], w =
+             [< X [< A B C >] >], x = [< A B C >], y = [< A B C >],
+             .terminator = "]", .initiator = "["|A "B" C|}
+!@@@@ := ID 90 IS @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+!@@@@ := A @@@@ C:
+             s = [$ MISSING $]
+             .position[H] = PACKED_VEC
+             v = [$ ERROR $]
+             w = [< X [< A B C >] >]
+             x = [< A B C >]
+             y = [< A B C >]
+             .terminator = "]"
+             .initiator = "["
+!@@@@ := B:
+             .type = "<Q>"
+    line ###:
+ID 90 IS [@@@]
+^^^^^^^^^^^^^^

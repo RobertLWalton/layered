@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  6 05:45:04 EST 2023
+// Date:	Sat Jan 14 21:28:20 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -589,3 +589,13 @@ ID 80 IS [@80]
 {my type: x[S], x = A, x = A, x = A,
                 x = B, x = B,
 		x[S] = C, z[M], z[S] }
+
+!@90 := A "B" C:
+    x = A "B" C
+    y = [< A "B" C >]
+    z = X [< A "B" C >]
+    w = [< X [< A "B" C >]>]
+    u = X [$ MISSING $]
+    v = [< X [$ MISSING $]>]
+    s = [$ MISSING $]
+ID 90 IS [@90]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 14 02:46:37 EST 2023
+// Date:	Thu Jan 19 03:30:14 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5213,10 +5213,10 @@ static bool data_reformatter_function
     min::obj_vec_ptr fvp ( first->value );
     min::unsptr fvpsize = min::size_of ( fvp );
 
-    // If value has one element, ID_gen is preallocated,
-    // and there are no indented paragraph attributes,
-    // then replace the value by its sole element and
-    // finish up.
+    // If value has one element that is an object,
+    // ID_gen is preallocated, and there are no indented
+    // paragraph attributes, then replace the value by
+    // its sole element and finish up.
     //
     if (    fvpsize == 1
          && vector_end == next

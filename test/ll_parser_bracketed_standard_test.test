@@ -4071,9 +4071,8 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     print bracket ""
-        block standard: bracket "``" ... "''" [data, code, text, math]
-                        with parsing selectors [- data, - code, + text,
-                                                - math]
+        block standard: bracket "``" ... "''" [code, text, math]
+                        with parsing selectors [- code, + text, - math]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]

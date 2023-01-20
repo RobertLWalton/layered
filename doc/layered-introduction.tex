@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 15, 2022
+January 20, 2022
  
 \end{center}
 
@@ -5270,14 +5270,12 @@ Parser Command				& \shortstack{
 \tt define bracket "[\$" \ldots~"\$]" [code, text, math] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with special reformatter \\
-\tt define bracket "\{\{" \ldots~"\}\}"    & \tt + math \\
-\tt ~~~~~~~~~~~~~~~[code, text, math] \\
+\tt define bracket "\{\{" \ldots~"\}\}" [code, text, math]   & \tt + math \\
 \tt ~~~~~~~with parsing selectors \\
 \tt ~~~~~~~~~~~~[+ math, - code, - text] \\
-\tt define bracket "`{}`" \ldots~"'{}'"    & \tt + text \\
-\tt ~~~~~~~~~~~~~~~[data, code, text, math] \\
+\tt define bracket "`{}`" \ldots~"'{}'" [code, text, math]   & \tt + text \\
 \tt ~~~~~~~with parsing selectors \\
-\tt ~~~~~~~~~~~~[+ text, - code, - math, - data] \\
+\tt ~~~~~~~~~~~~[+ text, - code, - math] \\
 \tt ~~~~~~~with text reformatter \\
 \tt ~~~~~~~~~~~~( "s", ".", "?", "!", ":", ";" ) \\
 \end{tabular}

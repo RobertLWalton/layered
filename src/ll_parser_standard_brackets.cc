@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 20 04:37:55 EST 2023
+// Date:	Thu Jan 26 02:49:37 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -201,7 +201,8 @@ static void define_brackets
 	      closing_double_quote,
 	      code + math + text,
 	      block_level, PAR::top_level_position,
-	      TAB::new_flags ( text, code + math ),
+	      TAB::new_flags ( text + PAR::ETPREFIX_OPT,
+	                       code + math ),
 	      PAR::find_reformatter
 		  ( text_name,
 		    BRA::untyped_reformatter_stack ),

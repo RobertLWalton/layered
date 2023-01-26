@@ -5238,7 +5238,7 @@ are collected into a typed bracketted subexpression with
 \tt define bracket "[" \ldots~"]" [data] \\
 \tt define bracket "{{" \ldots~"}}" [data] \\
 \tt define bracket "`" \ldots~"'" [data] \\
-\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with parsing selectors [data] \\
 \tt define bracket "``" \ldots~"''" [data] \\
 \tt define bracket "[<" \ldots~">]" [data, atom] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
@@ -5266,6 +5266,7 @@ Parser Command				& \shortstack{
 \tt define bracket "(" \ldots~")" [code, text, math] \\
 \tt define bracket "[" \ldots~"]" [code, text, math] \\
 \tt define bracket "`" \ldots~"'" [code, text, math] \\
+\tt ~~~~~~~with parsing selectors [text] \\
 \tt define bracket "[<" \ldots~">]" [code, text, math] \\
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with label reformatter \\

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 04:40:12 EST 2023
+// Date:	Thu Jan 26 07:32:12 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,7 +120,7 @@ static void define_brackets
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
+	      ( text, PAR::COMMAND_SELECTORS ^ text ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
     BRA::push_brackets

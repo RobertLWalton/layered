@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 04:38:48 EST 2023
+// Date:	Thu Jan 26 07:31:19 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1066,9 +1066,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags
-	          ( PAR::ATOM_SELECTOR,
+	          ( PAR::DATA_SELECTOR,
 		      PAR::COMMAND_SELECTORS
-		    ^ PAR::ATOM_SELECTOR ),
+		    ^ PAR::DATA_SELECTOR ),
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 

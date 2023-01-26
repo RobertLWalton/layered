@@ -97,14 +97,23 @@ BRACKETED EXPRESSION:
               ^^^^^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY "}"
+BRACKETED PARSER FOUND [text] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
-BRACKETED PARSER FOUND [atom] SELECTED KEY "'"
+PREFIX EXPRESSION:
+    {p}
+!@@@ :=:
+            .type = p
+            .position[H] = PACKED_VEC
+    line ##:
+     (x + y z {{p q}} + `{p}' - [ g h ]).
+                         ^^^
+BRACKETED PARSER FOUND [text] SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    `"{" p "}"'
-!@@@ := "{" p "}":
+    `{p}'
+!@@@ := @@@:
             .terminator = "'"
             .initiator = "`"
             .position[H] = PACKED_VEC
@@ -127,7 +136,7 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    (x + y z {{p q}} + `"{" p "}"' - [g h])
+    (x + y z {{p q}} + `{p}' - [g h])
 !@@@ := x "+" y z @@@ "+" @@@ "-" @@@:
             .terminator = ")"
             .initiator = "("
@@ -137,7 +146,7 @@ BRACKETED EXPRESSION:
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This line contains more subsubexpressions
-        (x + y z {{p q}} + `"{" p "}"' - [g h]) "."
+        (x + y z {{p q}} + `{p}' - [g h]) "."
 !@@@ := This line contains more subsubexpressions @@@ ".":
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
@@ -1404,10 +1413,10 @@ BRACKETED EXPRESSION:
 ^^^^
 BRACKETED EXPRESSION:
     {P}
-!@@@ := @@@:
-            .terminator = "<LF>"
-            .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+!@@@@ := @@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
     line ##:
 {P:}
 ^^^^
@@ -4176,9 +4185,9 @@ BRACKETED EXPRESSION:
         block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block standard: bracket "`" ... "'" [code, text, math]
-                        with parsing selectors [atom]
+                        with parsing selectors [text]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [atom]
+                         with parsing selectors [data]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                         [code, text, math]
                         with parsing selectors [- code, - text, + math]
@@ -6304,14 +6313,31 @@ ERROR: in line ###: prefix separator of type `x' not at beginning of
                 ^^^
 BRACKETED PARSER FOUND [LINE LEVEL, code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY "}"
+BRACKETED PARSER FOUND [text] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY "}"
-BRACKETED PARSER FOUND [atom] SELECTED KEY "'"
+PREFIX EXPRESSION:
+    {x}
+!@@@@ :=:
+             .type = x
+             .position[H] = PACKED_VEC
+    line ###:
+         the outer `{x}'
+                    ^^^
+BRACKETED PARSER FOUND [text] SELECTED KEY "'"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    `"{" x "}"'
-!@@@@ := "{" x "}":
+    {x}
+!@@@@ :=:
+             .type = x
+             .position[H] = PACKED_VEC
+    line ###:
+         the outer `{x}'
+                    ^^^
+BRACKETED EXPRESSION:
+    `{x}'
+!@@@@ := @@@@:
              .terminator = "'"
              .initiator = "`"
              .position[H] = PACKED_VEC
@@ -6320,7 +6346,7 @@ BRACKETED EXPRESSION:
                    ^^^^^
 BRACKETED EXPRESSION:
     with an indented paragraph that has an unrecognized because it is
-        not in the same logical line as the outer `"{" x "}"'
+        not in the same logical line as the outer `{x}'
 !@@@@
     := with an indented paragraph that has an unrecognized because it is
                not in the same logical line as the outer @@@@:
@@ -6340,7 +6366,7 @@ BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|with
               an indented paragraph that has an unrecognized because it
-              is not in the same logical line as the outer `"{" x "}"'|}|}
+              is not in the same logical line as the outer `{x}'|}|}
 !@@@@ := @@@@:
              .terminator = [$ INDENTED_PARAGRAPH $]
              .position[H] = PACKED_VEC
@@ -6374,7 +6400,7 @@ BRACKETED EXPRESSION:
             {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                  with an indented paragraph that has an unrecognized
                  because it is not in the same logical line as the outer
-                 `"{" x "}"'|}|} but this|x}
+                 `{x}'|}|} but this|x}
 !@@@@ := this is a line @@@@ but this:
              .type = x
              .position[H] = PACKED_VEC
@@ -6405,7 +6431,7 @@ BRACKETED EXPRESSION:
             {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                  with an indented paragraph that has an unrecognized
                  because it is not in the same logical line as the outer
-                 `"{" x "}"'|}|} but this|x} {x|is|x}
+                 `{x}'|}|} but this|x} {x|is|x}
 !@@@@ := @@@@ @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC

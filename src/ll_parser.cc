@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  9 06:47:03 EST 2023
+// Date:	Thu Jan 26 04:38:48 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1112,9 +1112,9 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      dollar_closing_square,
 	      PAR::DATA_SELECTOR + PAR::ATOM_SELECTOR,
 	      0, PAR::top_level_position,
-	      TAB::new_flags ( PAR::ATOM_SELECTOR,
+	      TAB::new_flags ( PAR::DATA_SELECTOR,
 			         PAR::COMMAND_SELECTORS
-			       ^ PAR::ATOM_SELECTOR ),
+			       ^ PAR::DATA_SELECTOR ),
 	      PAR::find_reformatter
 		  ( special_name,
 		    BRA::untyped_reformatter_stack ),

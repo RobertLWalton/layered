@@ -76,11 +76,11 @@
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [code, text, math]
-                        with parsing selectors [atom]
+                        with parsing selectors [data]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [atom]
+                         with parsing selectors [data]
                          with special reformatter
 *PARSER*:
     begin block BLOCK1

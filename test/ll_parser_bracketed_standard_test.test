@@ -2962,7 +2962,7 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ MISSING $]
@@ -2982,7 +2982,7 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ INDENTED_PARAGRAPH $]
@@ -3002,7 +3002,7 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: subexpression "FOOBAR" unrecognized special name;
        changed to ERROR:
@@ -3088,7 +3088,7 @@ BRACKETED PARSER FOUND
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [atom] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ MISSING $]
@@ -3130,7 +3130,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ NONE $]
@@ -3148,7 +3148,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ MISSING $]
@@ -3194,7 +3194,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ","
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ NONE $]
@@ -3234,7 +3234,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ MISSING $]
@@ -3271,7 +3271,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ NONE $]
@@ -3288,7 +3288,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ MISSING $]
@@ -3401,7 +3401,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ NONE $]
@@ -3457,7 +3457,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ NONE $]
@@ -3875,7 +3875,7 @@ PREFIX EXPRESSION:
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [$ NONE $]
@@ -4187,11 +4187,11 @@ BRACKETED EXPRESSION:
         block standard: bracket "<-" ... "->" [text]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [code, text, math]
-                        with parsing selectors [atom]
+                        with parsing selectors [data]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [atom]
+                         with parsing selectors [data]
                          with special reformatter
     print indentation mark ""
         block standard: indentation mark ":" [data paragraph]

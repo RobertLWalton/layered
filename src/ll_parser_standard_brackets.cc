@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 02:49:37 EST 2023
+// Date:	Thu Jan 26 04:40:12 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -141,7 +141,7 @@ static void define_brackets
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
+	      ( data, PAR::COMMAND_SELECTORS ^ data ),
 	  PAR::find_reformatter
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),

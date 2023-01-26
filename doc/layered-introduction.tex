@@ -5244,7 +5244,7 @@ are collected into a typed bracketted subexpression with
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with label reformatter \\
 \tt define bracket "[\$" \ldots~"\$]" [data, atom] \\
-\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with special reformatter \\
 \tt define bracket "{*" \ldots~"*}" [data] \\
 \tt ~~~~~~~with multivalue reformatter ( "," ) \\
@@ -5270,7 +5270,7 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with parsing selectors [atom] \\
 \tt ~~~~~~~with label reformatter \\
 \tt define bracket "[\$" \ldots~"\$]" [code, text, math] \\
-\tt ~~~~~~~with parsing selectors [atom] \\
+\tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with special reformatter \\
 \tt define bracket "\{\{" \ldots~"\}\}" [code, text, math]   & \tt + math \\
 \tt ~~~~~~~with parsing selectors \\

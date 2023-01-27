@@ -3050,12 +3050,6 @@ The following parsing selectors are builtin:
     separators and the type/attribute parts of typed
     brackets.
 
-\hspace*{-0.2in}\ttmkey{atom}{parser selector} \\
-    This selects only the symbol table entries that parse
-    labels and special values (e.g., \TT{[<~>]} and \TT{[\$~\$]}).
-    It is used to enable labels and special values to appear in
-    a list of lexemes.
-
 \end{indpar}
 
 One selector group is also defined:
@@ -3532,7 +3526,7 @@ canceled by an `\TT{end block standard}' parser command.
 
 The only builtin selector names\label{SELECTOR-NAMES}
 are `\ttkey{TOP LEVEL}', `\ttkey{LINE LEVEL}',
-`\ttkey{data}', and `\ttkey{atom}'.
+and `\ttkey{data}'.
 Other selector names must be defined by the {\em parser-selector-command}:
 \begin{center}
     \ttmkey{define selector}{parser command} ~ {\em selector}
@@ -3565,7 +3559,6 @@ subsequence.  There is \underline{no} matching of partial lexemes.
 \tt define selector TOP LEVEL \\
 \tt define selector LINE LEVEL \\
 \tt define selector data \\
-\tt define selector atom \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{l@{\hspace*{0.5in}}l}
@@ -5239,14 +5232,14 @@ are collected into a typed bracketted subexpression with
 \\\hline
 \tt define bracket "(" \ldots~")" [data] \\
 \tt define bracket "[" \ldots~"]" [data] \\
-\tt define bracket "{{" \ldots~"}}" [data] \\
+\tt define bracket "\{\{" \ldots~"\}\}" [data] \\
 \tt define bracket "`" \ldots~"'" [data] \\
 \tt ~~~~~~~with parsing selectors [data] \\
 \tt define bracket "``" \ldots~"''" [data] \\
-\tt define bracket "[<" \ldots~">]" [data, atom] \\
-\tt ~~~~~~~with parsing selectors [atom] \\
+\tt define bracket "[<" \ldots~">]" [data] \\
+\tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with label reformatter \\
-\tt define bracket "[\$" \ldots~"\$]" [data, atom] \\
+\tt define bracket "[\$" \ldots~"\$]" [data] \\
 \tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with special reformatter \\
 \tt define bracket "{*" \ldots~"*}" [data] \\

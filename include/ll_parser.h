@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 19:33:18 EST 2023
+// Date:	Thu Jan 26 23:44:21 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1080,7 +1080,6 @@ enum {
     TOP_LEVEL_SELECTOR			= 1ull << 21,
     LINE_LEVEL_SELECTOR			= 1ull << 22,
     DATA_SELECTOR			= 1ull << 23,
-    ATOM_SELECTOR			= 1ull << 24,
 
     COMMAND_SELECTORS = ALL_SELECTORS
                       - ALWAYS_SELECTOR,

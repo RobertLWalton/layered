@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 07:31:19 EST 2023
+// Date:	Thu Jan 26 23:44:54 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -881,12 +881,6 @@ void PAR::init ( min::ref<PAR::parser> parser,
 		      ( parser->selector_name_table,
 			PARLEX::data ) );
 
-	MIN_REQUIRE
-	    (    PAR::ATOM_SELECTOR
-	      == 1ull << TAB::push_name
-		      ( parser->selector_name_table,
-			PARLEX::atom ) );
-
 	PAR::selector_group_name_table_ref(parser) =
 	    TAB::create_key_table ( 32 );
 
@@ -1096,11 +1090,11 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	BRA::push_brackets
 	    ( opening_square_angle,
 	      angle_closing_square,
-	      PAR::DATA_SELECTOR + PAR::ATOM_SELECTOR,
+	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
-	      TAB::new_flags ( PAR::ATOM_SELECTOR,
+	      TAB::new_flags ( PAR::DATA_SELECTOR,
 			         PAR::COMMAND_SELECTORS
-			       ^ PAR::ATOM_SELECTOR ),
+			       ^ PAR::DATA_SELECTOR ),
 	      PAR::find_reformatter
 		  ( label_name,
 		    BRA::untyped_reformatter_stack ),
@@ -1110,7 +1104,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	BRA::push_brackets
 	    ( opening_square_dollar,
 	      dollar_closing_square,
-	      PAR::DATA_SELECTOR + PAR::ATOM_SELECTOR,
+	      PAR::DATA_SELECTOR,
 	      0, PAR::top_level_position,
 	      TAB::new_flags ( PAR::DATA_SELECTOR,
 			         PAR::COMMAND_SELECTORS

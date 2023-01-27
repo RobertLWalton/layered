@@ -4174,9 +4174,8 @@ BRACKETED EXPRESSION:
                         [code, label, text, math]
                         with parsing selectors [label]
                         with label reformatter
-        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
-                         [data, atom]
-                         with parsing selectors [atom]
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+                         with parsing selectors [data]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
@@ -4198,8 +4197,7 @@ BRACKETED EXPRESSION:
                         [code, label, text, math]
                         with parsing selectors [data]
                         with special reformatter
-        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
-                         [data, atom]
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
                          with special reformatter
     print indentation mark ""
@@ -5223,7 +5221,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [atom] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 DERIVED EXPRESSION:
     [< 5 tomatoes >]

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 23 16:43:30 EDT 2022
+// Date:	Thu Jan 26 18:55:18 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,6 +28,7 @@
 # define BRA ll::parser::bracketed
 # define PARSTD ll::parser::standard
 
+static min::locatable_gen label;
 static min::locatable_gen code;
 static min::locatable_gen text;
 static min::locatable_gen math;
@@ -65,6 +66,7 @@ min::locatable_var<ll::parser::table::key_table>
 
 static void initialize ( void )
 {
+    ::label = min::new_str_gen ( "label" );
     ::code = min::new_str_gen ( "code" );
     ::text = min::new_str_gen ( "text" );
     ::math = min::new_str_gen ( "math" );
@@ -122,6 +124,12 @@ static void initialize ( void )
 
     TAB::init_name_table
         ( PARSTD::component_name_table );
+
+    MIN_REQUIRE
+	(    PARSTD::LABEL
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::label ) );
 
     MIN_REQUIRE
 	(    PARSTD::CODE

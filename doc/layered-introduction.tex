@@ -3420,6 +3420,10 @@ canceled by an `\TT{end block standard}' parser command.
 
 \begin{tabular}{rp{4.2in}}
 
+\ttmkey{label}{parser standard flag} &
+    Enables definitions using the `\TT{label}' selector.
+    (\pagref{STANDARD-SELECTORS}).
+\\
 \ttmkey{code}{parser standard flag} &
     Enables definitions using the `\TT{code}' selector.
     (\pagref{STANDARD-SELECTORS}).
@@ -3568,26 +3572,25 @@ subsequence.  There is \underline{no} matching of partial lexemes.
 \multicolumn{2}{c}
 {\bf Standard Parser Selector Commands\label{STANDARD-SELECTORS}}
 \\[1ex]
-Parser Command				& Given
+Parser Command				& Given Standard Qualifier
 \\\hline
-\tt define selector code & {\tt + code} qualifier and
-                           `\TT{code}' selector is used \\
-\tt define selector text & {\tt + text} qualifier and
-                           `\TT{text}' selector is used \\
-\tt define selector math & {\tt + math} qualifier and
-                           `\TT{math}' selector is used \\
+\tt define selector label & \tt + label \\
+\tt define selector code  & \tt + code \\
+\tt define selector text  & \tt + text \\
+\tt define selector math  & \tt + math \\
 \end{tabular}
 \end{center}
-
-If a selector qualifier is given, but the selector is not used
-in any executed standard parser command, the selector will not
-be created.
 
 If a selector qualifier (e.g. `{\tt + math}') is not given,
 the corresponding selector (e.g. `{\tt math}') will be automatically deleted
 from every standard parser command containing it, and if this makes
 the command meaningless, the command will be automatically ignored
 and not executed.  E.g., the command
+\begin{indpar}[0.1in]\begin{verbatim}
+define bracket "(" ... ")" [code, text, math]
+\end{verbatim}\end{indpar}
+will be ignored if none of the `{\tt + code}', `{\tt + text}', or `{\tt + math}'
+standard qualifiers are given, and the command
 \begin{indpar}[0.1in]\begin{verbatim}
 define bracket "{{" ... "}}" [code, text, math]
       with parsing selectors [ + math, - code, - text ]
@@ -5250,27 +5253,27 @@ are collected into a typed bracketted subexpression with
 \tt ~~~~~~~with multivalue reformatter ( "," ) \\
 \end{tabular}
 \\[2ex]
-\begin{tabular}{l@{\hspace*{0.5in}}l}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
 \multicolumn{2}{c}
 {\bf Standard `\ttkey{brackets}'\label{STANDARD-BRACKETS-1} Component
      Bracket Parser Commands}
 \\[1ex]
 \multicolumn{2}{c}
-{All Commands Require at Least One of {\tt + code, + text, + math}} \\
+{Selectors with Missing Standard Qualifiers are Deleted from Commands} \\
 \multicolumn{2}{c}
-{Selectors with Missing Standard Qualifiers are Deleted from Commands}
+{Commands with no Selectors Left are Not Issued}
 \\[1ex]
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
 \tt define bracket "(" \ldots~")" [code, text, math] \\
 \tt define bracket "[" \ldots~"]" [code, text, math] \\
-\tt define bracket "`" \ldots~"'" [code, text, math] \\
+\tt define bracket "`" \ldots~"'" [code, text, math]	     & \tt + text \\
 \tt ~~~~~~~with parsing selectors [text] \\
-\tt define bracket "[<" \ldots~">]" [code, text, math] \\
-\tt ~~~~~~~with parsing selectors [atom] \\
+\tt define bracket "[<" \ldots~">]" [label, code, text, math] & \tt + label \\
+\tt ~~~~~~~with parsing selectors [label] \\
 \tt ~~~~~~~with label reformatter \\
-\tt define bracket "[\$" \ldots~"\$]" [code, text, math] \\
+\tt define bracket "[\$" \ldots~"\$]" [label, code, text, math] \\
 \tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with special reformatter \\
 \tt define bracket "\{\{" \ldots~"\}\}" [code, text, math]   & \tt + math \\

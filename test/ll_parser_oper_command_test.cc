@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:45:23 EDT 2022
+// Date:	Thu Jan 26 22:30:49 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,7 +28,8 @@ int main ( int argc, const char * argv[] )
     PARSTD::init_input ( PAR::default_parser );
     PARSTD::define_standard
         ( PAR::default_parser,
-	    PARSTD::CODE + PARSTD::TEXT + PARSTD::MATH
+	    PARSTD::LABEL + PARSTD::CODE
+	  + PARSTD::TEXT + PARSTD::MATH
 	  + PARSTD::BLOCK + PARSTD::TOP_LEVEL
 	  + PARSTD::CONCATENATOR
 	  + PARSTD::ID + PARSTD::TABLE

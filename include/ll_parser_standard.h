@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:56:11 EDT 2022
+// Date:	Thu Jan 26 18:52:54 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,38 +195,41 @@ void init_input ( min::ref<ll::parser::parser> parser );
 // -------- ------ ----------
 
 enum {
-    CODE			= 1 << 0,
+    LABEL			= 1 << 0,
+        // Create and enable `label' selector.
+    CODE			= 1 << 1,
         // Create and enable `code' selector.
-    TEXT			= 1 << 1,
+    TEXT			= 1 << 2,
         // Create and enable `text' selector.
-    MATH			= 1 << 2,
+    MATH			= 1 << 3,
         // Create and enable `math' selector.
-    ID				= 1 << 3,
+    ID				= 1 << 4,
         // Enable ID for TOP_LEVEL, LEXICAL_MAP,
 	// INDENTATION_MARKS, and BRACKET_TYPES
 	// below.
-    TABLE			= 1 << 4,
+    TABLE			= 1 << 5,
         // Enable TABLE for TOP_LEVEL, LEXICAL_MAP,
 	// INDENTATION_MARKS, and BRACKET_TYPES
 	// below.
 
-    ALL_QUALIFIERS		= CODE
+    ALL_QUALIFIERS		= LABEL
+    				+ CODE
     				+ TEXT
     				+ MATH
 				+ ID
     				+ TABLE,
 
-    BLOCK			= 1 << 5,
+    BLOCK			= 1 << 6,
         // Create block named `standard'.
 
-    TOP_LEVEL			= 1 << 6,
+    TOP_LEVEL			= 1 << 7,
         // Set top level selector to first enabled of
 	// CODE, TEXT, MATH; set top level lexical
 	// masters according to ID and TABLE; set
 	// ID character to @ if ID enabled.
-    CONCATENATOR                = 1 << 7,
+    CONCATENATOR                = 1 << 8,
         // Set concatenator character to #.
-    LEXEME_MAP                  = 1 << 8,
+    LEXEME_MAP                  = 1 << 9,
         // Set lexeme map according to ID and TABLE.
 
     ALL_SETUP			= 
@@ -234,10 +237,10 @@ enum {
     				+ CONCATENATOR
     				+ LEXEME_MAP,
 
-    BRACKETS			= 1 << 9,
+    BRACKETS			= 1 << 10,
         // Set standard bracket entries omitting
 	// DISabled CODE, TEXT, and MATH selectors.
-    INDENTATION_MARKS		= 1 << 10,
+    INDENTATION_MARKS		= 1 << 11,
         // Set standard indentation mark entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.  If ID but not TABLE use
@@ -245,7 +248,7 @@ enum {
 	// ID use TABLE-CHECK lexical master;  if
 	// both ID and TABLE use PARAGRAPH-CHECK
 	// lexical master.
-    BRACKET_TYPES		= 1 << 11,
+    BRACKET_TYPES		= 1 << 12,
         // Set standard bracket type entries for TEXT
 	// if TEXT enabled, data if ID enabled, table
 	// if TABLE enabled.  If ID but not TABLE use
@@ -260,28 +263,28 @@ enum {
 	// Set all bracket related entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.
-    CONTROL_OPERATORS		= 1 << 12,
+    CONTROL_OPERATORS		= 1 << 13,
         // Set standard control operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ITERATION_OPERATORS		= 1 << 13,
+    ITERATION_OPERATORS		= 1 << 14,
         // Set standard iteration operator entries
 	// omitting DISabled CODE selectors.
-    ASSIGNMENT_OPERATORS	= 1 << 14,
+    ASSIGNMENT_OPERATORS	= 1 << 15,
         // Set standard assignment operator entries
 	// omitting DISabled CODE and MATH selectors.
-    SELECTION_OPERATORS		= 1 << 15,
+    SELECTION_OPERATORS		= 1 << 16,
         // Set standard selector operator entries
 	// omitting DISabled CODE and MATH selectors.
-    LOGICAL_OPERATORS		= 1 << 16,
+    LOGICAL_OPERATORS		= 1 << 17,
         // Set standard logical operator entries
 	// omitting DISabled CODE and MATH selectors.
-    COMPARISON_OPERATORS	= 1 << 17,
+    COMPARISON_OPERATORS	= 1 << 18,
         // Set standard comparison operator entries
 	// omitting DISabled CODE and MATH selectors.
-    ARITHMETIC_OPERATORS	= 1 << 18,
+    ARITHMETIC_OPERATORS	= 1 << 19,
         // Set standard arithmetic operator entries
 	// omitting DISabled CODE and MATH selectors.
-    BITWISE_OPERATORS		= 1 << 19,
+    BITWISE_OPERATORS		= 1 << 20,
         // Set standard bitwise operator entries
 	// omitting DISabled CODE and MATH selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS

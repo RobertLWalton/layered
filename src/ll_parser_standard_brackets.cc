@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 07:32:12 EST 2023
+// Date:	Thu Jan 26 22:13:13 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,7 @@
 static void define_brackets
 	( PAR::parser parser,
 	  TAB::flags components,
+	  TAB::flags label,
 	  TAB::flags code,
 	  TAB::flags text,
 	  TAB::flags math )
@@ -56,9 +57,6 @@ static void define_brackets
     TAB::flags data =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, data_name );
-    TAB::flags atom =
-        1ull << TAB::find_name
-	    ( parser->selector_name_table, atom_name );
 
     min::locatable_gen opening_double_brace
         ( min::new_lab_gen ( "{", "{" ) );
@@ -99,6 +97,37 @@ static void define_brackets
     // Use COMMAND_SELECTORS instead of ALL_SELECTORS.
 
     BRA::push_brackets
+        ( opening_square_dollar,
+          dollar_closing_square,
+	  label + code + math + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( data, PAR::COMMAND_SELECTORS ^ data ),
+	  PAR::find_reformatter
+	      ( special_name,
+	        BRA::untyped_reformatter_stack ),
+	  min::MISSING(),
+	  bracketed_pass->bracket_table );
+
+    if ( label )
+    {
+	BRA::push_brackets
+	    ( opening_square_angle,
+	      angle_closing_square,
+	      label + code + math + text,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags
+		  ( label, PAR::COMMAND_SELECTORS ^ label ),
+	      PAR::find_reformatter
+		  ( label_name,
+		    BRA::untyped_reformatter_stack ),
+	      min::MISSING(),
+	      bracketed_pass->bracket_table );
+    }
+
+    if ( code + text + math == 0 ) return;
+
+    BRA::push_brackets
         ( PARLEX::left_parenthesis,
 	  PARLEX::right_parenthesis,
 	  code + math + text,
@@ -113,39 +142,6 @@ static void define_brackets
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::MISSING(),
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
-        ( opening_quote,
-          closing_quote,
-	  code + math + text,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( text, PAR::COMMAND_SELECTORS ^ text ),
-	  min::NULL_STUB, min::MISSING(),
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
-        ( opening_square_angle,
-          angle_closing_square,
-	  code + math + text,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( atom, PAR::COMMAND_SELECTORS ^ atom ),
-	  PAR::find_reformatter
-	      ( label_name,
-	        BRA::untyped_reformatter_stack ),
-	  min::MISSING(),
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
-        ( opening_square_dollar,
-          dollar_closing_square,
-	  code + math + text,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( data, PAR::COMMAND_SELECTORS ^ data ),
-	  PAR::find_reformatter
-	      ( special_name,
-	        BRA::untyped_reformatter_stack ),
-	  min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets
@@ -176,6 +172,16 @@ static void define_brackets
 
     if ( text )
     {
+	BRA::push_brackets
+	    ( opening_quote,
+	      closing_quote,
+	      code + math + text,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags
+		  ( text, PAR::COMMAND_SELECTORS ^ text ),
+	      min::NULL_STUB, min::MISSING(),
+	      bracketed_pass->bracket_table );
+
 	min::locatable_gen text_name
 	    ( min::new_str_gen ( "text" ) );
 	min::locatable_gen period
@@ -214,6 +220,7 @@ static void define_brackets
 static void define_indentation_marks
 	( PAR::parser parser,
 	  TAB::flags components,
+	  TAB::flags label,
 	  TAB::flags code,
 	  TAB::flags text,
 	  TAB::flags math )
@@ -325,6 +332,7 @@ static void define_indentation_marks
 static void define_bracket_types
 	( PAR::parser parser,
 	  TAB::flags components,
+	  TAB::flags label,
 	  TAB::flags code,
 	  TAB::flags text,
 	  TAB::flags math )
@@ -615,8 +623,8 @@ void PARSTD::define_brackets
 	// referenced.
 
     if ( components & PARSTD::BRACKETS )
-	needed |= PARSTD::CODE + PARSTD::TEXT
-	                       + PARSTD::MATH;
+	needed |= PARSTD::LABEL + PARSTD::CODE
+	        + PARSTD::TEXT + PARSTD::MATH;
     if ( components & PARSTD::INDENTATION_MARKS )
 	needed |= PARSTD::CODE + PARSTD::TEXT;
     if ( components & PARSTD::BRACKET_TYPES )
@@ -624,6 +632,15 @@ void PARSTD::define_brackets
 	                       + PARSTD::MATH;
     needed &= components;
 
+    TAB::flags label = 0;
+    if ( needed & PARSTD::LABEL )
+    {
+	min::locatable_gen label_name
+	    ( min::new_str_gen ( "label" ) );
+        label = 1ull << TAB::find_name
+		  ( parser->selector_name_table,
+		    label_name );
+    }
     TAB::flags code = 0;
     if ( needed & PARSTD::CODE )
     {
@@ -652,15 +669,18 @@ void PARSTD::define_brackets
 		    math_name );
     }
 
-    if ( code + text + math == 0 ) return;
+    if ( label + code + text + math == 0 ) return;
 
     if ( components & PARSTD::BRACKETS )
 	::define_brackets
-	    ( parser, components, code, text, math );
+	    ( parser, components,
+	      label, code, text, math );
     if ( components & PARSTD::INDENTATION_MARKS )
 	::define_indentation_marks
-	    ( parser, components, code, text, math );
+	    ( parser, components,
+	      label, code, text, math );
     if ( components & PARSTD::BRACKET_TYPES )
 	::define_bracket_types
-	    ( parser, components, code, text, math );
+	    ( parser, components,
+	      label, code, text, math );
 }

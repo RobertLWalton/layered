@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 02:54:41 EST 2023
+// Date:	Tue Feb  7 00:56:24 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -70,6 +70,10 @@ And these are nested labels
 This is a sentence.
 and ``This is a sentence.''
 lastly ``{s}This is a sentence.''
+and another ``{s: i}This is a sentence.''
+and one more ``{s}First sentence. {s: i}Second sentence.''
+and a last one ``{s}First sentence. {s: i}Second sentence.
+                                          Third sentence.''
 
 *PARSER*:
     define top level parsing options [ + enable prefix ]

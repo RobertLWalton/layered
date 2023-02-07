@@ -427,24 +427,23 @@ BRACKETED EXPRESSION:
 ID 120 is @@@@
 ^^^^^^^^^^^^^^
 WARNING: in line ###: mark should be quoted:
-        t = +, u = "+", q = M ++,
-                              ^^
+         t = +, u = "+", q = M ++,
+                               ^^
 ERROR: in line ###: not a legal label initial element `{|P Q|}':
-        {|P Q|} = pq||, G = {|L M N|}}
-        ^^^^^^^
+         {|P Q|} = pq||, G = {|L M N|}}
+         ^^^^^^^
 ERROR: in line ###: bad attribute label; attribute ignored:
-        {|P Q|} = pq||, G = {|L M N|}}
-        ^^^^^^^
+         {|P Q|} = pq||, G = {|L M N|}}
+         ^^^^^^^
 BRACKETED EXPRESSION:
-    {data|{|PREALLOCATED(1*121)|} =
-          {T: p = {* "/", "hi there", "+" *}, t = "+", x = [< z z >],
-              q = [< M "++" >], u = "+", y = z, z = z, G = {|L M N|},
-              s = {* x, x *}}|data}
-!@@@ := @@@ "=" @@@:
+    ID 121 is
+        {T: p = {* "/", "hi there", "+" *}, t = "+", x = [< z z >], q =
+            [< M "++" >], u = "+", y = z, z = z, G = {|L M N|}, s =
+            {* x, x *}}
+!@@@ := ID 121 is @@@:
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .type = data
-!@@@ := PREALLOCATED(1*121):
-            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
 !@@@ :=:
             p = {* "/", "hi there", "+" *}
             t = "+"
@@ -459,21 +458,6 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := L M N:
             .position[H] = PACKED_VEC
-    lines ###-###:
-@@@@ = {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        t = +, u = "+", q = M ++,
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        p = {* "hi there", "+", / *},
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        {|P Q|} = pq||, G = {|L M N|}}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ID 121 is PREALLOCATED(2*121)
-!@@@ := ID 121 is PREALLOCATED(2*121):
-            .terminator = "<LF>"
-            .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
     line ###:
 ID 121 is @@@@
 ^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  9 02:00:23 EST 2022
+// Date:	Tue Feb  7 02:09:24 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -173,10 +173,10 @@ ID 110 is @110
     + = 9
 ID 120 is @120
 
-@121 = {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},
-        t = +, u = "+", q = M ++,
-	p = {* "hi there", "+", / *},
-	{|P Q|} = pq||, G = {|L M N|}}
+@121 := {"T": y = "z", z = z, x = "z" z, s = {* x, "x" *},
+         t = +, u = "+", q = M ++,
+	 p = {* "hi there", "+", / *},
+	 {|P Q|} = pq||, G = {|L M N|}}
 ID 121 is @121
 
 *PARSER*:

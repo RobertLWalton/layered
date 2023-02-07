@@ -3958,7 +3958,7 @@ NEXT_TOKEN:
 		    ( first == elements );
 		PAR::compact
 		    ( parser, bracketed_pass->next,
-		      new_selectors,
+		      tdata.element_selectors,
 		      elements, next, position,
 		      trace_flags,
 		      token_type,

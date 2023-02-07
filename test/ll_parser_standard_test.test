@@ -461,3 +461,35 @@ BRACKETED EXPRESSION:
     line ###:
 ID 121 is @@@@
 ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 130 is {|{|X|} + {|{|5|} * {|Y|}|}|}
+!@@@ := ID 130 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := @@@ "+" @@@:
+            .position[H] = PACKED_VEC
+!@@@ := X:
+            .position[H] = PACKED_VEC
+!@@@ := @@@ "*" @@@:
+            .position[H] = PACKED_VEC
+!@@@ := 5:
+            .position[H] = PACKED_VEC
+!@@@ := Y:
+            .position[H] = PACKED_VEC
+    line ###:
+ID 130 is @@@@
+^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 131 is `X + 5 * Y'
+!@@@ := ID 131 is @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := X "+" 5 "*" Y:
+            .terminator = "'"
+            .initiator = "`"
+            .position[H] = PACKED_VEC
+    line ###:
+ID 131 is @@@@
+^^^^^^^^^^^^^^

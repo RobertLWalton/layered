@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 22:13:13 EST 2023
+// Date:	Thu Feb  9 19:36:17 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -380,9 +380,6 @@ static void define_bracket_types
 		( parser->selector_name_table,
 	      data_paragraph_name );
 
-	min::locatable_gen raw_data
-	    ( min::new_lab_gen ( "raw", "data" ) );
-
 	min::locatable_gen data_initiators
 		( min::new_obj_gen ( 2 ) );
 	min::obj_vec_insptr divp ( data_initiators );
@@ -406,8 +403,10 @@ static void define_bracket_types
 	    ( min::new_lab_gen ( "{", "*" ) );
 	min::attr_push ( davp ) = left_curly_star;
 
+	min::locatable_gen data_type_name
+	    ( min::new_str_gen ( "*DATA*" ) );
 	BRA::push_bracket_type
-	    ( data_name,
+	    ( data_type_name,
 		PAR::TOP_LEVEL_SELECTOR
 	      + data + code + text + math,
 	      block_level, PAR::top_level_position,
@@ -422,8 +421,10 @@ static void define_bracket_types
 	      data_arguments,
 	      bracketed_pass->bracket_type_table );
 
+	min::locatable_gen raw_data_type_name
+	    ( min::new_lab_gen ( "*RAW*", "*DATA*" ) );
 	BRA::push_bracket_type
-	    ( raw_data,
+	    ( raw_data_type_name,
 		PAR::TOP_LEVEL_SELECTOR
 	      + data + code + text + math,
 	      block_level, PAR::top_level_position,

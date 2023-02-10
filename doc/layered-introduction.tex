@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 26, 2022
+February 9, 2022
  
 \end{center}
 
@@ -4120,7 +4120,7 @@ own special lexeme type which allows a token with this type to be
 mapped by the `\key{mapped lexeme symbol table}' to a token with
 a different type and value.  For example, a token with special
 lexeme type \TT{DATA} can be mapped to a \TT{PREFIX} type token
-with value `\TT{\{data\}}'.
+with value `\TT{\{*DATA*\}}'.
 
 Entries in the mapped lexeme symbol table are managed by
 {\em parser-mapped-lexeme-commands}:
@@ -4182,7 +4182,7 @@ lexical masters when the next input characters are
 `\TT{@{\em D}}', `\TT{@<}', or `\TT{@@@@}', where {\em D}
 is a non-zero ASCII digit.
 The recognized input characters become the first characters of the next lexeme.
-Typically mapped to the `\TT{\{data\}}' prefix separator.
+Typically mapped to the `\TT{\{*DATA*\}}' prefix separator.
 \end{indpar}
 
 \ttmkey{RAW-DATA}{special lexeme}
@@ -4193,7 +4193,7 @@ lexical masters when the next input characters are
 The `\TT{!}' is discarded and the other recognized input
 characters become the
 first characters of the next lexeme.
-Typically mapped to the `\TT{\{raw data\}}' prefix separator.
+Typically mapped to the `\TT{\{*RAW* *DATA*\}}' prefix separator.
 \end{indpar}
 
 \ttmkey{TABLE}{special lexeme}
@@ -4319,9 +4319,9 @@ which does \underline{not} recognize special lexemes.
 Parser Command				& Given Qualifiers
 \\\hline
 \tt define mapped lexeme "DATA" [TOP LEVEL]		& \tt + id \\
-\tt ~~~~~~~with token value \{data\} \\
+\tt ~~~~~~~with token value \{*DATA*\} \\
 \tt define mapped lexeme "RAW-DATA" [TOP LEVEL]		& \tt + id \\
-\tt ~~~~~~~with token value \{raw data\} \\
+\tt ~~~~~~~with token value \{*RAW* *DATA*\} \\
 \tt define mapped lexeme "TABLE" [TOP LEVEL]		& \tt + table \\
 \tt ~~~~~~~with token value \{table\} \\
 \tt define mapped lexeme "ROW" [TOP LEVEL]		& \tt + table \\
@@ -6981,7 +6981,7 @@ or
 \end{center}
 where
 \begin{indpar}
-\emkey{data-prefix} ::= the prefix, e.g., `\TT{data}'
+\emkey{data-prefix} ::= the prefix, e.g., `\TT{*DATA*}'
 \\[0.5ex]
 \emkey{ID} ::= see \pagref{ID}
 \\[0.5ex]
@@ -7010,7 +7010,7 @@ For such a line a special lexeme with a special
 lexeme type and empty character string is prefaced
 to the line, and the type of this special lexeme
 is mapped (\itemref{MAPPED-LEXEMES}) to the prefix of the
-subexpression, e.g., to \TT{\{data\}} or \TT{\{raw data\}}.
+subexpression, e.g., to \TT{\{*DATA*\}} or \TT{\{*RAW* *DATA*\}}.
 
 In order for this to work with the standard lexical program,
 the {\em ID-character} (\pagref{ID-CHARACTER})
@@ -7205,12 +7205,12 @@ of the {\em sentence}.
 \\[1ex]
 \tt define bracket type "***" [TOP LEVEL, code, text] \\
 \tt ~~~~~~~with group reset \\
-\tt define bracket type "data" \\
+\tt define bracket type "*DATA*" \\
 \tt ~~~~~~~~~~~~~~~[TOP LEVEL, data, code, math, text] \\
 \tt ~~~~~~~with group line \\
 \tt ~~~~~~~with parsing selectors [+ data paragraph] \\
 \tt ~~~~~~~with data reformatter ( "=", "no", "[", "\{*" ) \\
-\tt define bracket type "raw data" \\
+\tt define bracket type "*RAW* *DATA*" \\
 \tt ~~~~~~~~~~~~~~~[TOP LEVEL, data, code, math, text] \\
 \tt ~~~~~~~with group line \\
 \tt ~~~~~~~with parsing selectors [data, data paragraph] \\

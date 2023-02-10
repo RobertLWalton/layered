@@ -97,7 +97,7 @@ LINE-BREAK: line ##:
 INDENT: line ##:
 @@@ = data 1
 ^
-DATA: {data}: line ##:
+DATA: {*DATA*}: line ##:
 @@@ = data 1
 ^
 NUMERIC: "@@@": line ##:
@@ -118,7 +118,7 @@ LINE-BREAK: line ##:
 INDENT: line ##:
 @@@ = data 2
 ^
-DATA: {data}: line ##:
+DATA: {*DATA*}: line ##:
 @@@ = data 2
 ^
 NUMERIC: "@@@": line ##:
@@ -190,7 +190,7 @@ LINE-BREAK: line ##:
 INDENT: line ##:
 @@@ = data 3
 ^
-DATA: {data}: line ##:
+DATA: {*DATA*}: line ##:
 @@@ = data 3
 ^
 NUMERIC: "@@@": line ##:

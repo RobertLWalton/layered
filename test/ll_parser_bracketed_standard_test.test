@@ -6655,34 +6655,34 @@ BRACKETED EXPRESSION:
   but this {x} is
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|@<> this is some data|data}
+    {*DATA*|@<> this is some data|*DATA*}
 !@@@@ := "@<>" this is some data:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @<> this is some data
 ^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|@<> this is some data|data}
+    {*DATA*|@<> this is some data|*DATA*}
 !@@@@ := "@<>" this is some data:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @<> this is some data
 ^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|@<> this is some raw data|raw data}
+    {*RAW* *DATA*|@<> this is some raw data|*RAW* *DATA*}
 !@@@@ := "@<>" this is some raw data:
              .position[H] = PACKED_VEC
-             .type = [< raw data >]
+             .type = [< *RAW* *DATA* >]
     line ###:
 !@<> this is some raw data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|@<> this is some raw data|raw data}
+    {*RAW* *DATA*|@<> this is some raw data|*RAW* *DATA*}
 !@@@@ := "@<>" this is some raw data:
              .position[H] = PACKED_VEC
-             .type = [< raw data >]
+             .type = [< *RAW* *DATA* >]
     line ###:
 !@<> this is some raw data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -6911,10 +6911,10 @@ This is a bracketed expression (
     )
 ^^^^^
 BRACKETED EXPRESSION:
-    {data|A B C|data}
+    {*DATA*|A B C|*DATA*}
 !@@@@ := A B C:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@ := A B C
 ^^^^^^^^^^^
@@ -7106,10 +7106,10 @@ BRACKETED EXPRESSION:
         moe = {* @@, @@, @@ *}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|1 2 3|data}
+    {*DATA*|1 2 3|*DATA*}
 !@@@@ := 1 2 3:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@ := 1 2 3 :
 ^^^^^^^^^^^
@@ -7158,10 +7158,10 @@ BRACKETED EXPRESSION:
 @@ := (Z)
       ^^^
 BRACKETED EXPRESSION:
-    {data|(Z)|data}
+    {*DATA*|(Z)|*DATA*}
 !@@@@ := @@@@:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@ := (Z)
 ^^^^^^^^^
@@ -7175,10 +7175,10 @@ BRACKETED EXPRESSION:
 @@ := (Z)
 ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|XYZ|data}
+    {*DATA*|XYZ|*DATA*}
 !@@@@ := XYZ:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@ := XYZ
 ^^^^^^^^^
@@ -7215,28 +7215,28 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 PREFIX EXPRESSION:
-    {data}
+    {*DATA*}
 !@@@@ :=:
-             .type = data
+             .type = *DATA*
              .position[H] = PACKED_VEC
     line ###:
-{data} @@ := M N P
-^^^^^^
+{*DATA*} @@ := M N P
+^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|M N P|data}
+    {*DATA*|M N P|*DATA*}
 !@@@@ := M N P:
-             .type = data
+             .type = *DATA*
              .position[H] = PACKED_VEC
     line ###:
-{data} @@ := M N P
-^^^^^^^^^^^^^^^^^^
+{*DATA*} @@ := M N P
+^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {|M N P|}
 !@@@@ := M N P:
              .position[H] = PACKED_VEC
     line ###:
-{data} @@ := M N P
-^^^^^^^^^^^^^^^^^^
+{*DATA*} @@ := M N P
+^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "|"
@@ -7247,22 +7247,22 @@ BRACKETED PARSER FOUND
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {data|PREALLOCATED(1*10) := A B C|data}
+    {*DATA*|PREALLOCATED(1*10) := A B C|*DATA*}
 !@@@@ := PREALLOCATED(1*10) ":=" A B C:
-             .type = data
+             .type = *DATA*
              .position[H] = PACKED_VEC
     line ###:
-{data| @@@ := A B C|}
-^^^^^^^^^^^^^^^^^^^^^
+{*DATA*| @@@ := A B C|}
+^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|PREALLOCATED(1*10) := A B C|data}
+    {*DATA*|PREALLOCATED(1*10) := A B C|*DATA*}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
              .initiator = [$ LOGICAL_LINE $]
     line ###:
-{data| @@@ := A B C|}
-^^^^^^^^^^^^^^^^^^^^^
+{*DATA*| @@@ := A B C|}
+^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ID 9 is {|M N P|}
 !@@@@ := ID 9 is @@@@:
@@ -8055,10 +8055,10 @@ BRACKETED EXPRESSION:
     LEFT = @@@ = RIGHT
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|A|data}
+    {*DATA*|A|*DATA*}
 !@@@@ := A:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@@ := A:
 ^^^^^^^^
@@ -8141,10 +8141,10 @@ BRACKETED EXPRESSION:
     LEFT = @@@ = RIGHT
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|B|data}
+    {*DATA*|B|*DATA*}
 !@@@@ := B:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@@ := B:
 ^^^^^^^^
@@ -8222,10 +8222,10 @@ BRACKETED EXPRESSION:
     LEFT = @@@ = RIGHT
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|C|data}
+    {*DATA*|C|*DATA*}
 !@@@@ := C:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@@ := C:
 ^^^^^^^^
@@ -8351,10 +8351,10 @@ BRACKETED EXPRESSION:
     OTHER = {* 5, 6, 7 *}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|ABC|data}
+    {*DATA*|ABC|*DATA*}
 !@@@@ := ABC:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@@ := ABC:
 ^^^^^^^^^^
@@ -8434,10 +8434,10 @@ BRACKETED EXPRESSION:
     Y[@] = 5
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {data|D|data}
+    {*DATA*|D|*DATA*}
 !@@@@ := D:
              .position[H] = PACKED_VEC
-             .type = data
+             .type = *DATA*
     line ###:
 @@@ := D:
 ^^^^^^^^
@@ -8513,10 +8513,10 @@ BRACKETED EXPRESSION:
             hi[*], hi[@]}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data|{X: hi[*] = {|A B C|}, to = @@@@ = from}|raw data}
+    {*RAW* *DATA*|{X: hi[*] = {|A B C|}, to = @@@@ = from}|*RAW* *DATA*}
 !@@@@ := @@@@:
              .position[H] = PACKED_VEC
-             .type = [< raw data >]
+             .type = [< *RAW* *DATA* >]
     lines ###-###:
 !@@@ := {X: hi = @@, to = @@@ = from, hi = 77,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

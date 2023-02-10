@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 18:55:18 EST 2023
+// Date:	Thu Feb  9 19:30:05 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -394,6 +394,8 @@ static void define_lexeme_map
 
     if ( components & PARSTD::ID )
     {
+	min::locatable_gen data_name
+	    ( min::new_str_gen ( "*DATA*" ) );
 	min::gen data_t_name =
 	    LEX::lexeme_type_name
 		( LEXSTD::data_t, parser->scanner );
@@ -403,7 +405,7 @@ static void define_lexeme_map
 	    min::obj_vec_insptr vp ( data_value );
 	    min::attr_insptr ap ( vp );
 	    min::locate ( ap, min::dot_type );
-	    min::set ( ap, PARLEX::data );
+	    min::set ( ap, data_name );
 	    min::locate ( ap, min::dot_position );
 	    min::set ( ap, min::new_stub_gen ( pos ) );
 	    min::set_flag
@@ -418,12 +420,12 @@ static void define_lexeme_map
 	      PAR::top_level_position,
 	      data_value,
 	      PAR::MAPPED_PREFIX,
-	      PARLEX::data,
+	      data_name,
 	      PAR::MISSING_MASTER,
 	      parser->lexeme_map );
 
-	min::locatable_gen raw_data
-	    ( min::new_lab_gen ( "raw", "data" ) );
+	min::locatable_gen raw_data_name
+	    ( min::new_lab_gen ( "*RAW*", "*DATA*" ) );
 	min::gen raw_data_t_name =
 	    LEX::lexeme_type_name
 		( LEXSTD::raw_data_t, parser->scanner );
@@ -433,7 +435,7 @@ static void define_lexeme_map
 	    min::obj_vec_insptr vp ( raw_data_value );
 	    min::attr_insptr ap ( vp );
 	    min::locate ( ap, min::dot_type );
-	    min::set ( ap, raw_data );
+	    min::set ( ap, raw_data_name );
 	    min::locate ( ap, min::dot_position );
 	    min::set ( ap, min::new_stub_gen ( pos ) );
 	    min::set_flag
@@ -448,7 +450,7 @@ static void define_lexeme_map
 	      PAR::top_level_position,
 	      raw_data_value,
 	      PAR::MAPPED_PREFIX,
-	      raw_data,
+	      raw_data_name,
 	      PAR::MISSING_MASTER,
 	      parser->lexeme_map );
     }

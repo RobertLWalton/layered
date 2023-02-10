@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 00:56:24 EST 2023
+// Date:	Thu Feb  9 19:40:06 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -298,8 +298,8 @@ ID 8 is @8
 // Prefix reformatters are not applied to typed
 // bracketed subexpressions.
 //
-{data} @9 := M N P
-{data| @10 := A B C|}
+{*DATA*} @9 := M N P
+{*DATA*| @10 := A B C|}
 ID 9 is @9
 ID 10 is @10
 

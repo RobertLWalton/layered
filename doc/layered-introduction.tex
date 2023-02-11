@@ -178,6 +178,7 @@
 
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
+\newcommand{\pagnote}[1]{$^{p\pageref{#1}}$}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
@@ -234,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 9, 2022
+February 11, 2022
  
 \end{center}
 
@@ -4469,7 +4470,7 @@ may be changed by an indentation mark
 Syntactically a {\em bracketed-subexpression} may take many forms:
 
 \begin{indpar}[0.1in]
-\emkey{bracketed-subexpression}
+\emkey{bracketed-subexpression}\label{BRACKETED-SUBEXPRESSION}
     \begin{tabular}[t]{@{}rll@{}}
     ::= & {\em untyped-bracketed-subexpression}
         & see \itemref{UNTYPED-BRACKETED-SUBEXPRESSIONS} \\
@@ -6579,12 +6580,10 @@ if in addition the following are true:
 \begin{enumerate}
 \setcounter{enumi}{\value{PREFIX-COUNTER}}
 \item\label{TYPED-PREFIX-SELECTORS-USE}
-The subexpression context selectors (\pagref{CONTEXT-SELECTORS})
-and the {\em typed-prefix-selectors} (\pagref{TYPED-PREFIX-SELECTORS})
-associated with the {\em typed-opening} by the
-{\em parser-typed-bracket-command} have at least one selector flag in
-common (the {\em typed-prefix-selectors} default to all selectors on,
-so this requirement is met by default).
+The {\em typed-prefix-separator} is \underline{not} inside a
+{\em typed-bracketed-expression}\pagnote{TYPED-BRACKETED-SUBEXPRESSION}
+(it may be inside a
+{\em bracketed-expression}\pagnote{BRACKETED-SUBEXPRESSION}).
 \item At least one of the following is true:
 \begin{enumerate}
 \item The `\TT{enable prefix}' option is set in the context options.

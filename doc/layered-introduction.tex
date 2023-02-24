@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 9, 2022
+February 24, 2022
  
 \end{center}
 
@@ -6447,23 +6447,27 @@ define typed bracket "\{" ... "|" ... "|" ... "\}"
        with attribute multivalue initiator "\{*"
 \end{verbatim}\end{indpar}
 
-When `\TT{with parsing options}'
-does not appear in a `{\tt define typed bracket ...}' command,
-the parsing options used
-to scan any {\em elements} are the same as the context options
-modified by any parsing options
+The parsing options used
+to scan the {\em element-list} are the context options
+modified by any `\TT{with parsing options}' {\em bracket-options}
+in the `{\tt define typed bracket ...}' command.
+Any parsing options
+found when the {\em bracket-type} is looked up in the
+bracket type table are ignored.
+
+The parsing selectors used
+to scan the {\em element-list} are the context selectors
+modified by any `\TT{with parsing selectors}' {\em bracket-selectors}
+in the `{\tt define typed bracket ...}' command,
+further modified by the any parsing selectors
 found when the {\em bracket-type} is looked up in the
 bracket type table.
-Similarly when
-`\TT{with parsing selectors}' does not appear in a
-`{\tt define typed bracket ...}' command,
-the parsing selectors used to scan {\em elements}
-are the same as the context selectors
-modified by any parsing selectors
+Parsing selectors
 found when the {\em bracket-type} is looked up in the
-bracket type table.
+bracket type table are \underline{not} ignored.
+
 Note, however, that `\TT{- TOP LEVEL}' and `\TT{- LINE LEVEL}' are
-implied by default in {\em bracket-selectors}, and
+implied by default in {\em bracket-selectors}, while
 `\TT{- end at line separator}',
 `\TT{ - enable indented paragraph}', and
 `\TT{ - enable header}' are always implied by default in

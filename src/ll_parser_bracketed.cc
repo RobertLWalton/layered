@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 02:13:16 EST 2023
+// Date:	Fri Feb 24 03:15:10 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1556,6 +1556,9 @@ inline void make_type_label
 	    start = min::NULL_STUB;
 	        // To prevent deletion of start.
 
+	    // Adjust selectors but not options in
+	    // typed_data->element_selectors.
+	    //
 	    BRA::bracketed_pass bracketed_pass =
 		(BRA::bracketed_pass)
 		parser->pass_stack;
@@ -1570,10 +1573,16 @@ inline void make_type_label
 		      bracket_type_table );
 	    if ( bracket_type != min::NULL_STUB )
 		typed_data->element_selectors =
-		    TAB::modified_flags
+		    ( PAR::ALL_SELECTORS 
+		      &
+		      TAB::modified_flags
 		        ( typed_data->context_selectors,
 			  bracket_type->
-			      parsing_selectors );
+			      parsing_selectors ) )
+		    |
+		    ( ~ PAR::ALL_SELECTORS
+		      &
+		      typed_data->element_selectors );
 	}
     }
 
@@ -3303,7 +3312,8 @@ NEXT_TOKEN:
 		current->type = BRA::TYPE;
 		++ typed_data->attr_count;
 
-		// Adjust typed_data->element_selectors
+		// Adjust selectors but not options in
+		// typed_data->element_selectors.
 		//
 		TAB::key_table bracket_type_table =
 		    bracketed_pass->bracket_type_table;
@@ -3316,11 +3326,18 @@ NEXT_TOKEN:
 			  bracket_type_table );
 		if ( bracket_type != min::NULL_STUB )
 		    typed_data->element_selectors =
-		        TAB::modified_flags
+			( PAR::ALL_SELECTORS 
+			  &
+			  TAB::modified_flags
 			    ( typed_data->
 			          context_selectors,
 			      bracket_type->
-			            parsing_selectors );
+				  parsing_selectors ) )
+			|
+			( ~ PAR::ALL_SELECTORS
+			  &
+			  typed_data->
+			      element_selectors );
 
 		selectors =
 		    typed_data->element_selectors;

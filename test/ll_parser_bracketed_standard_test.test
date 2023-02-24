@@ -4267,6 +4267,10 @@ PREFIX EXPRESSION:
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
+ERROR: in line ###: prefix separator of type `X' in typed bracketed
+       subexpression; ignored:
+{T: A = {Y|hi|}|{X} ho|B = {Z}}
+                ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="
@@ -4289,8 +4293,8 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: A = {Y|hi|Y}, B = {Z}|{X} ho|T}
-!@@@@ := @@@@ ho:
+    {T: A = {Y|hi|Y}, B = {Z}|ho|T}
+!@@@@ := ho:
              .type = T
              A = @@@@
              B = @@@@
@@ -4299,7 +4303,7 @@ BRACKETED EXPRESSION:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: A = {Y|hi|Y}, B = {Z}|{X} ho|T}
+    {T: A = {Y|hi|Y}, B = {Z}|ho|T}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC

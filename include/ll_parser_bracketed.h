@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  6 18:15:31 EDT 2022
+// Date:	Wed Feb 15 00:25:13 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1363,7 +1363,11 @@ void init_line_variables
 // CONTINUING_OPT flag in line_variables->current
 // .selectors must be cleared.  Also current->previous
 // should be saved so it can be used to determined
-// whether a token was returned by this function.
+// whether a token was returned by this function:
+// if previous = current->previous is saved before
+// this function is called and previous->next ==
+// current after this function is called, then this
+// function did NOT return a token.
 //
 // When this function parses a logical line, it compacts
 // it with a call to compact_logical_line.

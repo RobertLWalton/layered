@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 11 04:08:51 EST 2023
+// Date:	Tue Feb  7 02:13:16 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3396,19 +3396,6 @@ NEXT_TOKEN:
 		tdata.context_selectors = selectors;
 		tdata.element_selectors =
 		    new_selectors;
-
-		// Prohibit prefixes inside
-		// typed-bracketed-subexpressions.
-		//
-		tdata.context_selectors &=
-		    ~ ( PAR::EPREFIX_OPT +
-		        PAR::ETPREFIX_OPT +
-		        PAR::EHEADER_OPT );
-		tdata.element_selectors &=
-		    ~ ( PAR::EPREFIX_OPT +
-		        PAR::ETPREFIX_OPT +
-		        PAR::EHEADER_OPT );
-
 		tdata.middle_count = 0;
 		tdata.attr_count = 0;
 		tdata.start_previous =

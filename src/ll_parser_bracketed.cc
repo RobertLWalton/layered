@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 24 03:15:10 EST 2023
+// Date:	Sun Feb 26 08:03:21 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -902,11 +902,18 @@ void BRA::init_line_variables
     //                with MISSING
     //                implied_subprefix
     //     1 times if H is line header
+    //                with MISSING
+    //                implied_subprefix
     //     2 times if H is paragraph header
     //                with non-MISSING
     //                implied_subprefix
-    //                (should be a `line'
-    //                header)
+    //                (which must not have
+    //                 paragraph group)
+    //     2 times if H is line header
+    //                with non-MISSING
+    //                implied_subprefix
+    //                (which must not have
+    //                 line or paragraph group)
     //
     min::gen implied_header =
 	indentation_mark->implied_header;
@@ -914,6 +921,10 @@ void BRA::init_line_variables
 	indentation_mark->implied_header_type;
     TAB::flags header_selectors = selectors;
     bool first_time = true;
+    bool first_is_paragraph = false;
+    min::phrase_position pos =
+	{ current->position.end,
+	  current->position.end };
     while ( implied_header != min::MISSING() )
     {
 	BRA::bracketed_pass bracketed_pass =
@@ -937,14 +948,14 @@ void BRA::init_line_variables
 		      header_entry->parsing_selectors );
 	}
 
-	if ( group == PARLEX::paragraph && first_time )
+	if ( group == PARLEX::paragraph )
 	{
+	    if ( first_time ) first_is_paragraph = true;
+	    else              goto BAD_SUBPREFIX;
+
 	    if (    header_entry->line_lexical_master
 		 != PAR::MISSING_MASTER )
 	    {
-		min::phrase_position pos =
-		    { current->position.end,
-		      current->position.end };
 		PAR::parse_error
 		  ( parser,
 		    pos,
@@ -990,21 +1001,20 @@ void BRA::init_line_variables
 	        paragraph_data.header_selectors =
 		  implied_data.header_selectors;
 	    }
+	    else if ( ! first_is_paragraph )
+	        goto BAD_SUBPREFIX;
+
 	    break;
 	}
 	else if ( first_time )
 	{
-	    min::phrase_position pos =
-		{ current->position.end,
-		  current->position.end };
 	    PAR::parse_error
 	      ( parser,
 		pos,
 		"indentation mark implied"
 		" header of type `",
 		min::pgen_never_quote
-		  ( implied_header_type
-		  ),
+		  ( implied_header_type ),
 		"' does not have"
 		" `paragraph' or `line'"
 		" group; cannot begin"
@@ -1014,12 +1024,42 @@ void BRA::init_line_variables
 	}
 	else
 	{
-	    // Implied subprefix of paragraph
-	    // or line header is OK.
+	    // Implied subprefix that is not a
+	    // paragraph or line header is OK.
 	    // Do nothing with it.
 	    //
 	    break;
 	}
+
+	continue;
+
+    BAD_SUBPREFIX:
+	{
+	    PAR::parse_error
+	      ( parser,
+		pos,
+		"indentation mark implied"
+		" header of type `",
+		min::pgen_never_quote
+		  ( indentation_mark->
+		        implied_header_type
+		  ),
+		"' has subprefix that is of"
+		" `paragraph' or `line'"
+		" group; implied header"
+		" ignored" );
+
+	    paragraph_data.implied_header =
+	    implied_data.implied_header =
+		    min::MISSING();
+	    paragraph_data.header_entry =
+	    implied_data.header_entry =
+		    min::NULL_STUB;
+		    // Just for safety.
+
+	    break;
+	}
+
     }
 
     line_variables.paragraph =

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 15 00:25:13 EST 2023
+// Date:	Sun Feb 26 08:02:40 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1231,7 +1231,9 @@ struct line_variables
     // beginning position.  Reset by explicit paragraph
     // header (copied from indentation_paragraph if the
     // explicit paragraph header does NOT have STICKY
-    // flag).
+    // flag).  If implied_header is not MISSING, header_
+    // entry must exist and have 'paragraph' or 'line'
+    // group.
     //
     line_data paragraph;
 
@@ -1239,7 +1241,10 @@ struct line_variables
     // implied paragraph header is inserted at beginning
     // of a logical line.  This data can be derived from
     // the paragraph line data above, and is therefore
-    // a cache of that.
+    // a cache of that.  If header_entry exists, it may
+    // not have 'paragraph' group, and may only have
+    // 'line' group if paragraph line_data above has
+    // header_entry with 'paragraph' group.
     //
     line_data implied_paragraph;
 

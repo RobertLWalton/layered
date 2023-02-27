@@ -1881,8 +1881,9 @@ BRACKETED EXPRESSION:
         with implied subprefix {l1}
     define top level parsing options
            [ + enable table prefix]
-ERROR: in line ###: prefix of of type `x does NOT have `paragraph' group
-       but has implied subprefix with `line' group; subprefix ignored:
+ERROR: in line ###: prefix of of type `x' does NOT have `paragraph'
+       group but has implied subprefix with `line' group; subprefix
+       ignored:
 {x} implied `l1' prefix in error
     ^
 BRACKETED EXPRESSION:
@@ -1899,8 +1900,9 @@ BRACKETED EXPRESSION:
     line ###:
 {l1}{l2} a stray line
 ^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ###: prefix of of type `x does NOT have `paragraph' group
-       but has implied subprefix with `line' group; subprefix ignored:
+ERROR: in line ###: prefix of of type `x' does NOT have `paragraph'
+       group but has implied subprefix with `line' group; subprefix
+       ignored:
 {x}{l2} another stray line
    ^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'

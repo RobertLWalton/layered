@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 03:44:19 EST 2023
+// Date:	Mon Feb 27 04:26:09 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1997,14 +1997,18 @@ min::position BRA::parse_bracketed_subexpression
     min::gen prefix_group;
     TAB::flags prefix_selectors;
 
+    // Insert implied prefix if there is any and go to
+    // PARSE_PREFIX_N_LIST; else go to NEXT_TOKEN.
+
+    if ( ( selectors & PAR::EPREFIX_OPT ) == 0
+	  &&
+	  ( selectors & PAR::ETPREFIX_OPT ) == 0
+	  &&
+	  ( selectors & PAR::EHEADER_OPT ) == 0 )
+	goto NEXT_TOKEN;
+
     if ( parsing_logical_line )
     {
-	if ( ( selectors & PAR::EPREFIX_OPT ) == 0
-	      &&
-	      ( selectors & PAR::ETPREFIX_OPT ) == 0
-	      &&
-	      ( selectors & PAR::EHEADER_OPT ) == 0 )
-	    goto NEXT_TOKEN;
 
 	BRA::line_data & line_data =
 	    line_variables->current;
@@ -2103,6 +2107,13 @@ min::position BRA::parse_bracketed_subexpression
 		  selectors,
 		  bracket_type_table );
 
+	min::phrase_position pp =
+	    { current->position.begin,
+	      current->position.begin };
+	min::gen parent_type =
+	    min::get ( bracket_stack_p->prefix->value,
+		       min::dot_type );
+
 	if ( prefix_entry != min::NULL_STUB )
 	{
 	    if ( prefix_entry->group != min::MISSING() )
@@ -2116,19 +2127,13 @@ min::position BRA::parse_bracketed_subexpression
 
 	    if ( prefix_group == PARLEX::paragraph )
 	    {
-		min::phrase_position pp =
-		    { current->position.begin,
-		      current->position.begin };
-		min::gen type =
-		    min::get ( bracket_stack_p->prefix
-		                              ->value,
-			       min::dot_type );
 		PAR::parse_error
 		  ( parser,
 		    pp,
 		    "prefix of of type `",
-		    min::pgen_never_quote ( type ),
-		    " has implied subprefix with"
+		    min::pgen_never_quote
+		        ( parent_type ),
+		    "' has implied subprefix with"
 		    " `paragraph' group; subprefix"
 		    " ignored"
 		  );
@@ -2139,20 +2144,13 @@ min::position BRA::parse_bracketed_subexpression
 	    {
 		if ( p->group != PARLEX::paragraph )
 		{
-		    min::phrase_position pp =
-			{ current->position.begin,
-			  current->position.begin };
-		    min::gen type =
-			min::get ( bracket_stack_p
-			               ->prefix
-				       ->value,
-				   min::dot_type );
 		    PAR::parse_error
 		      ( parser,
 			pp,
 			"prefix of of type `",
-			min::pgen_never_quote ( type ),
-			" does NOT have `paragraph'"
+			min::pgen_never_quote
+			    ( parent_type ),
+			"' does NOT have `paragraph'"
 			" group but has implied"
 			" subprefix with `line' group;"
 			" subprefix ignored"
@@ -2173,6 +2171,35 @@ min::position BRA::parse_bracketed_subexpression
 	else // No prefix_entry
 	if ( ( selectors & PAR::EPREFIX_OPT ) == 0 )
 	    goto NEXT_TOKEN;
+
+	for ( BRA::bracket_stack * q =
+		     bracket_stack_p;
+
+	      q != NULL
+	      &&
+	      q->prefix != min::NULL_STUB;
+
+	      q = q->previous )
+	{
+	    if ( q->prefix_group == prefix_group )
+	    {
+		PAR::parse_error
+		  ( parser,
+		    pp,
+		    "prefix of of type `",
+		    min::pgen_never_quote
+		        ( parent_type ),
+		    "' has implied subprefix with the"
+		    " same group `",
+		    min::pgen_never_quote
+		        ( prefix_group ),
+		    " ' as a preceeding prefix inside"
+		    " brackets; subprefix ignored"
+		  );
+
+		goto NEXT_TOKEN;
+	    }
+	}
 
 	prefix = PAR::new_token ( token_type );
 	PAR::put_before

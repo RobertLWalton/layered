@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 08:03:21 EST 2023
+// Date:	Mon Feb 27 03:44:19 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2077,53 +2077,115 @@ min::position BRA::parse_bracketed_subexpression
 	    (BRA::bracket_type)
 	    min::stub_of
 	        ( bracket_stack_p->prefix->value_type );
+	    // Set to NULL_STUB if value_type is not
+	    // a pointer to a bracket_type.
+
 	if ( p == min::NULL_STUB )
 	    goto NEXT_TOKEN;
 	if ( p->implied_subprefix == min::MISSING() )
 	    goto NEXT_TOKEN;
 
-	prefix = PAR::new_token
-		     ( PAR::IMPLIED_PREFIX );
+	prefix_type = p->implied_subprefix_type;
+
+	prefix_group = prefix_type;
+	prefix_selectors = selectors;
+	min::gen prefix_value_type = prefix_type;
+	uns32 token_type = PAR::IMPLIED_PREFIX;
+	    // These may be changed below.
+
+	TAB::key_table bracket_type_table =
+	    bracketed_pass->bracket_type_table;
+	prefix_entry =
+	    (BRA::bracket_type)
+	    TAB::find
+		( prefix_type,
+		  BRA::BRACKET_TYPE,
+		  selectors,
+		  bracket_type_table );
+
+	if ( prefix_entry != min::NULL_STUB )
+	{
+	    if ( prefix_entry->group != min::MISSING() )
+		prefix_group = prefix_entry->group;
+	    prefix_value_type =
+	        min::new_stub_gen ( prefix_entry );
+	    prefix_selectors =
+	        TAB::modified_flags
+		    ( selectors,
+		      prefix_entry->parsing_selectors );
+
+	    if ( prefix_group == PARLEX::paragraph )
+	    {
+		min::phrase_position pp =
+		    { current->position.begin,
+		      current->position.begin };
+		min::gen type =
+		    min::get ( bracket_stack_p->prefix
+		                              ->value,
+			       min::dot_type );
+		PAR::parse_error
+		  ( parser,
+		    pp,
+		    "prefix of of type `",
+		    min::pgen_never_quote ( type ),
+		    " has implied subprefix with"
+		    " `paragraph' group; subprefix"
+		    " ignored"
+		  );
+
+		goto NEXT_TOKEN;
+	    }
+	    else if ( prefix_group == PARLEX::line )
+	    {
+		if ( p->group != PARLEX::paragraph )
+		{
+		    min::phrase_position pp =
+			{ current->position.begin,
+			  current->position.begin };
+		    min::gen type =
+			min::get ( bracket_stack_p
+			               ->prefix
+				       ->value,
+				   min::dot_type );
+		    PAR::parse_error
+		      ( parser,
+			pp,
+			"prefix of of type `",
+			min::pgen_never_quote ( type ),
+			" does NOT have `paragraph'"
+			" group but has implied"
+			" subprefix with `line' group;"
+			" subprefix ignored"
+		      );
+
+		      goto NEXT_TOKEN;
+		}
+
+		token_type = PAR::IMPLIED_HEADER;
+	    }
+	    else
+	    if ( ( selectors & PAR::EPREFIX_OPT ) == 0
+	         &&
+	         ( selectors & PAR::ETPREFIX_OPT ) == 0
+	       )
+	        goto NEXT_TOKEN;
+	}
+	else // No prefix_entry
+	if ( ( selectors & PAR::EPREFIX_OPT ) == 0 )
+	    goto NEXT_TOKEN;
+
+	prefix = PAR::new_token ( token_type );
 	PAR::put_before
 	    ( PAR::first_ref(parser),
 	      current, prefix );
 	PAR::value_ref(prefix) = p->implied_subprefix;
-	PAR::value_type_ref(prefix) =
-	      p->implied_subprefix_type;
-	      // We go to PREFIX_FOUND which will
-	      // convert type to prefix entry
-	      // if possible.
+	PAR::value_type_ref(prefix) = prefix_value_type;
 	prefix->position.begin =
 	    current->position.begin;
 	prefix->position.end =
 	    current->position.begin;
 
-	if ( p->group == PARLEX::paragraph )
-	{
-	    // See if implied_subprefix group is
-	    // `line' and change IMPLIED_PREFIX to
-	    // IMPLIED_HEADER if it is.
-	    //
-	    TAB::key_table bracket_type_table =
-		bracketed_pass->bracket_type_table;
-	    BRA::bracket_type implied_subprefix_entry =
-		(BRA::bracket_type)
-		TAB::find
-		    ( p->implied_subprefix_type,
-		      BRA::BRACKET_TYPE,
-		      selectors,
-		      bracket_type_table );
-
-	    if (    implied_subprefix_entry
-	         != min::NULL_STUB
-	         &&
-	            implied_subprefix_entry->group
-	         == PARLEX::line )
-		prefix->type = PAR::IMPLIED_HEADER;
-	}
-
-	separator_found = min::MISSING_POSITION;
-	premature_closing = false;
+	goto PARSE_PREFIX_N_LIST;
     }
 
     // Above code either jumps to NEXT_TOKEN or

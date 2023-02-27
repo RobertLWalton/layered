@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 06:57:06 EST 2023
+// Date:	Mon Feb 27 12:17:55 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2267,8 +2267,10 @@ EXPLICIT_PREFIX_FOUND:
 	prefix_group = prefix_type;
 	if ( prefix_entry != min::NULL_STUB )
 	{
+	    if ( prefix_entry->group != min::MISSING() )
+	        prefix_group = prefix_entry->group;
 
-	    if ( prefix_entry->group == PARLEX::reset )
+	    if ( prefix_group == PARLEX::reset )
 	    {
 		MIN_REQUIRE
 		    ( prefix->next == current );
@@ -2321,9 +2323,6 @@ EXPLICIT_PREFIX_FOUND:
 		return BRA::ISOLATED_HEADER;
 	    }
 
-	    if ( prefix_entry->group != min::MISSING() )
-		prefix_group = prefix_entry->group;
-
 	    if ( ( selectors & PAR::ETPREFIX_OPT )
 	         ||
 		 ( selectors & PAR::EPREFIX_OPT )
@@ -2338,14 +2337,6 @@ EXPLICIT_PREFIX_FOUND:
 		    min::new_stub_gen ( prefix_entry );
 	    }
 	    else
-	    if ( prefix->type == PAR::IMPLIED_PREFIX
-		 ||
-		 prefix->type == PAR::IMPLIED_HEADER )
-	    {
-	        prefix = min::NULL_STUB;
-		goto FINISH_PREFIX;
-	    }
-	    else
 	    {
 		prefix->type = PAR::BRACKETED;
 	        if ( premature_closing )
@@ -2358,21 +2349,11 @@ EXPLICIT_PREFIX_FOUND:
 	else
 	if ( ( selectors & PAR::EPREFIX_OPT ) == 0 )
 	{
-	    if ( prefix->type == PAR::IMPLIED_PREFIX
-		 ||
-		 prefix->type == PAR::IMPLIED_HEADER )
-	    {
-	        prefix = min::NULL_STUB;
-		goto FINISH_PREFIX;
-	    }
+	    prefix->type = PAR::BRACKETED;
+	    if ( premature_closing )
+		return separator_found;
 	    else
-	    {
-		prefix->type = PAR::BRACKETED;
-	        if ( premature_closing )
-		    return separator_found;
-		else
-		    goto NEXT_TOKEN;
-	    }
+		goto NEXT_TOKEN;
 	}
 
 	for ( BRA::bracket_stack * p =

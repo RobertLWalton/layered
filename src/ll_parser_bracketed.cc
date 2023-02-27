@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 04:26:09 EST 2023
+// Date:	Mon Feb 27 06:57:06 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1977,14 +1977,16 @@ min::position BRA::parse_bracketed_subexpression
         trace_flags = 0;
 
     // For descriptions of the following variables, see
-    // PREFIX_FOUND or PARSE_PREFIX_N_LIST below.
+    // EXPLICIT_PREFIX_FOUND or PARSE_PREFIX_N_LIST
+    // below.
 
-    // Variables input to both PREFIX_FOUND and
+    // Variables input to both EXPLICIT_PREFIX_FOUND and
     // PARSE_PREFIX_N_LIST code blocks.
     //
     PAR::token prefix;
 
-    // Variables input to PREFIX_FOUND code block.
+    // Variables input to EXPLICIT_PREFIX_FOUND code
+    // block.
     //
     min::position separator_found;
     bool premature_closing;
@@ -2215,19 +2217,14 @@ min::position BRA::parse_bracketed_subexpression
 	goto PARSE_PREFIX_N_LIST;
     }
 
-    // Above code either jumps to NEXT_TOKEN or
-    // creates implied prefix and jumps to
-    // PARSE_PREFIX_N_LIST for implied prefixes created
-    // by line variables or comes here for implied
-    // prefixes NOT create by line variables.
+    // Above code either jumps to NEXT_TOKEN or creates
+    // implied prefix and jumps to PARSE_PREFIX_N_LIST.
 
-PREFIX_FOUND:
+EXPLICIT_PREFIX_FOUND:
 
     MIN_REQUIRE
         (    prefix->type == PAR::PREFIX
-          || prefix->type == PAR::MAPPED_PREFIX
-          || prefix->type == PAR::IMPLIED_PREFIX
-	  || prefix->type == PAR::IMPLIED_HEADER );
+          || prefix->type == PAR::MAPPED_PREFIX );
 
     // Input variables:
     //
@@ -3389,7 +3386,7 @@ NEXT_TOKEN:
 	separator_found = min::MISSING_POSITION;
 	premature_closing = false;
 
-	goto PREFIX_FOUND;
+	goto EXPLICIT_PREFIX_FOUND;
     }
 
     // If lookup key in bracket table.
@@ -4139,7 +4136,7 @@ NEXT_TOKEN:
 		    premature_closing =
 			(    cstack.closing_next
 			  == cstack.closing_first );
-		    goto PREFIX_FOUND;
+		    goto EXPLICIT_PREFIX_FOUND;
 		}
 	    }
 

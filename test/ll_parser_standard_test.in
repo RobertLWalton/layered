@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 02:20:42 EST 2023
+// Date:	Tue Feb 28 11:43:06 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -186,3 +186,14 @@ ID 131 is @131
 
 *PARSER*:
     end block BLOCK2
+
+@140 := ``{s} This is a sentence.''
+@141 := {a: b = ``{s} This is a sentence.''}
+@142 := {a|{s} This is a sentence.|}
+@143 := {a|``{s} This is a sentence.''|}
+@144 := {a: b = ``{s: .terminator = "."|This is a sentence|}''}
+ID 140 is @140
+ID 141 is @141
+ID 142 is @142
+ID 143 is @143
+ID 144 is @144

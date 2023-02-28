@@ -492,3 +492,13 @@ BRACKETED EXPRESSION:
     line ###:
 ID 131 is @@@@
 ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID 140 is ``{s: .terminator = "."|This is a sentence|s}''
+BRACKETED EXPRESSION:
+    ID 141 is {a: b = ``{s} This is a sentence "."''}
+BRACKETED EXPRESSION:
+    ID 142 is {a|{s} This is a sentence "."|a}
+BRACKETED EXPRESSION:
+    ID 143 is {a|``{s: .terminator = "."|This is a sentence|s}''|a}
+BRACKETED EXPRESSION:
+    ID 144 is {a: b = ``{s: .terminator = "."|This is a sentence|s}''}

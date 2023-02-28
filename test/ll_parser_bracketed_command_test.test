@@ -1254,7 +1254,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
         with group line
 ERROR: in line ###: explicit prefix separator of type `p2' has
        `paragraph' group but is not at beginning of a logical line that
-       is in paragraph beginning position; ignored:
+       is in paragraph beginning position; prefix unrecognized:
         {p2} and a fourth subparagraph started
         ^^^^
 ======= PARSER TEST: this is the indented paragraph 5::
@@ -1265,7 +1265,7 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
                              {l2|with a second line of its own|l2}|p2}
                          {p1|{l1|and a third subparagraph|l1}
                              {l1|with a second line of its own|l1}
-                             {l1|and a fourth subparagraph started
+                             {l1|{p2} and a fourth subparagraph started
                                  without in a previous blank line|l1}
                              {l1|with a second line of its own|l1}|p1}
 ======= lines ###-###:
@@ -1365,6 +1365,9 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
              without in a previous blank line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------- line ###:
+        {p2} and a fourth subparagraph started
+        ^^^^
 ------- line ###:
         with a second line of its own
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1838,11 +1841,12 @@ BRACKETED EXPRESSION:
 with one extra line.
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'
-       group but is not at the beginning of a logical line; ignored:
+       group but is not at the beginning of a logical line; prefix
+       unrecognized:
 {l1} This is a line {l2} and continuation.
                     ^^^^
 BRACKETED EXPRESSION:
-    {l1|This is a line and continuation "."|l1}
+    {l1|This is a line {l2} and continuation "."|l1}
     line ###:
 {l1} This is a line {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1868,11 +1872,11 @@ And a last line.
 ^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
        `paragraph' group but is not at the beginning of a logical line;
-       ignored:
+       prefix unrecognized:
 {p} This is a paragraph {p} and continuation.
                         ^^^
 BRACKETED EXPRESSION:
-    {p|{l1|This is a paragraph and continuation "."|l1}|p}
+    {p|{l1|This is a paragraph {p} and continuation "."|l1}|p}
     line ###:
 {p} This is a paragraph {p} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1892,11 +1896,12 @@ BRACKETED EXPRESSION:
 {x} implied `l1' prefix in error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'
-       group but is not at the beginning of a logical line; ignored:
+       group but is not at the beginning of a logical line; prefix
+       unrecognized:
 {l1}{l2} a stray line
     ^^^^
 BRACKETED EXPRESSION:
-    {l1|a stray line|l1}
+    {l1|{l2} a stray line|l1}
     line ###:
 {l1}{l2} a stray line
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1907,44 +1912,46 @@ ERROR: in line ###: prefix of of type `x' does NOT have `paragraph'
    ^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'
        group but is not at beginning of logical line or immediately
-       after a prefix separator of `paragraph' group; ignored:
+       after a prefix separator of `paragraph' group; prefix
+       unrecognized:
 {x}{l2} another stray line
    ^^^^
 BRACKETED EXPRESSION:
-    {x|another stray line|x}
+    {x|{l2} another stray line|x}
     line ###:
 {x}{l2} another stray line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `l2' has `line'
        group but is not at beginning of logical line or immediately
-       after a prefix separator of `paragraph' group; ignored:
+       after a prefix separator of `paragraph' group; prefix
+       unrecognized:
 ({l2} a third stray)
  ^^^^
 BRACKETED EXPRESSION:
-    (a third stray)
+    ({l2} a third stray)
     line ###:
 ({l2} a third stray)
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
        `paragraph' group but is not at beginning of a logical line that
-       is in paragraph beginning position; ignored:
+       is in paragraph beginning position; prefix unrecognized:
 ({p} a fourth stray)
  ^^^
 BRACKETED EXPRESSION:
-    (a fourth stray)
+    ({p} a fourth stray)
     line ###:
 ({p} a fourth stray)
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
        `paragraph' group but is not at beginning of a logical line that
-       is in paragraph beginning position; ignored:
+       is in paragraph beginning position; prefix unrecognized:
 {p} and a fifth stray
 ^^^
 BRACKETED EXPRESSION:
-    and a fifth stray
+    {p} and a fifth stray
     line ###:
 {p} and a fifth stray
-    ^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     trace [- parser output]
     end block BLOCK1

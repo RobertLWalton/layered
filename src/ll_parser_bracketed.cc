@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 12:17:55 EST 2023
+// Date:	Tue Feb 28 00:32:20 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2252,8 +2252,6 @@ EXPLICIT_PREFIX_FOUND:
 	              ||
 		      premature_closing );
 
-	PAR::token prefix_next = prefix->next;
-
 	TAB::key_table bracket_type_table =
 	    bracketed_pass->bracket_type_table;
 	prefix_type = prefix->value_type;
@@ -2301,9 +2299,10 @@ EXPLICIT_PREFIX_FOUND:
 			    ( prefix_type ),
 			"' not at beginning of logical"
 			" line in paragraph beginning"
-			" position; ignored" 
+			" position;"
+			" prefix unrecognized" 
 		      );
-		    prefix = min::NULL_STUB;
+		    prefix->type = PAR::BRACKETED;
 		    goto FINISH_PREFIX;
 		}
 
@@ -2339,10 +2338,7 @@ EXPLICIT_PREFIX_FOUND:
 	    else
 	    {
 		prefix->type = PAR::BRACKETED;
-	        if ( premature_closing )
-		    return separator_found;
-		else
-		    goto NEXT_TOKEN;
+		goto FINISH_PREFIX;
 	    }
 
 	}
@@ -2367,31 +2363,11 @@ EXPLICIT_PREFIX_FOUND:
 	{
 	    if ( p->prefix_group == prefix_group )
 	    {
-		if (    prefix->type
-		     == PAR::IMPLIED_PREFIX )
-		{
-		    PAR::parse_error
-		      ( parser,
-			prefix->position,
-			"implied prefix separator"
-			" of type `",
-			min::pgen_never_quote
-			    ( prefix_type ),
-			"' has group of"
-			" previous active prefix"
-			" separator; not inserted"
-		      );
-		    prefix = min::NULL_STUB;
-		    goto FINISH_PREFIX;
-		}
 		if ( (    prefix_group
 		       == PARLEX::paragraph
 		       ||
 		          prefix_group
-		       == PARLEX::line )
-		     &&
-		        prefix->type
-		     != PAR::IMPLIED_HEADER )
+		       == PARLEX::line ) )
 		{
 		    PAR::token t = p->prefix;
 		    while (    t->type
@@ -2414,9 +2390,9 @@ EXPLICIT_PREFIX_FOUND:
 				( prefix_group ),
 			    "' group but is not at the"
 			    " beginning of a logical"
-			    " line; ignored"
+			    " line; prefix unrecognized"
 			  );
-			prefix = min::NULL_STUB;
+			prefix->type = PAR::BRACKETED;
 			goto FINISH_PREFIX;
 		    }
 		}
@@ -2482,9 +2458,9 @@ EXPLICIT_PREFIX_FOUND:
 		min::pgen_never_quote
 		    ( prefix_type ),
 		"' in typed bracketed"
-		" subexpression; ignored"
+		" subexpression; prefix unrecognized"
 	      );
-	    prefix = min::NULL_STUB;
+	    prefix->type = PAR::BRACKETED;
 	}
 	else
 	if ( prefix_group == PARLEX::paragraph )
@@ -2502,9 +2478,10 @@ EXPLICIT_PREFIX_FOUND:
 		    min::pgen_never_quote
 			( prefix_type ),
 		    "' that is not an implied header"
-		    " has `paragraph' group; ignored"
+		    " has `paragraph' group;"
+		    " prefix unrecognized"
 		  );
-		prefix = min::NULL_STUB;
+		prefix->type = PAR::BRACKETED;
 	    }
 	    else
 	    if (    line_variables->previous->next
@@ -2523,9 +2500,10 @@ EXPLICIT_PREFIX_FOUND:
 		    "' has `paragraph' group but is"
 		    " not at beginning of a logical"
 		    " line that is in paragraph"
-		    " beginning position; ignored"
+		    " beginning position;"
+		    " prefix unrecognized"
 		  );
-		prefix = min::NULL_STUB;
+		prefix->type = PAR::BRACKETED;
 	    }
 
 	}
@@ -2559,9 +2537,9 @@ EXPLICIT_PREFIX_FOUND:
 		" beginning of logical line or"
 		" immediately after a prefix"
 		" separator of `paragraph' group;"
-		" ignored"
+		" prefix unrecognized"
 	      );
-	    prefix = min::NULL_STUB;
+	    prefix->type = PAR::BRACKETED;
 	}
 	else
 	if ( start_previous->next != prefix )
@@ -2576,32 +2554,22 @@ EXPLICIT_PREFIX_FOUND:
 		" subexpression and does not"
 		" continue subexpression started by"
 		" another prefix with the same type"
-		" or group; ignored"
+		" or group; prefix unrecognized"
 	      );
-	    prefix = min::NULL_STUB;
+	    prefix->type = PAR::BRACKETED;
 	}
 
 FINISH_PREFIX:
 
-	if ( prefix == min::NULL_STUB )
-	    PAR::free
-		( PAR::remove
-		    ( first_ref(parser),
-		      prefix_next->previous ) );
-
 	if ( premature_closing )
 	{
-	    // Found a closing bracket
-	    // that is not ours or
-	    // logical line end.
-	    // Kick to caller.
+	    // Found a closing bracket that is not ours
+	    // or logical line end.  Kick to caller.
 	    //
-	    if ( prefix != min::NULL_STUB )
-		prefix->type = PAR::BRACKETED;
 	    return separator_found;
 	}
 
-	if ( prefix == min::NULL_STUB )
+	if ( prefix->type == PAR::BRACKETED )
 	    goto NEXT_TOKEN;
 
 	prefix_selectors = selectors;

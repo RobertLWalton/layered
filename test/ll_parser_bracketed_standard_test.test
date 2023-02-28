@@ -3738,7 +3738,7 @@ PREFIX EXPRESSION:
          ^^^
 ERROR: in line ###: prefix separator of type `X' not at beginning of
        subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
+       another prefix with the same type or group; prefix unrecognized:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
          ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "("
@@ -3788,21 +3788,21 @@ PREFIX EXPRESSION:
                            ^^^
 ERROR: in line ###: prefix separator of type `Z' not at beginning of
        subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
+       another prefix with the same type or group; prefix unrecognized:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
                            ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {W|2 3 4 5 ({Y|6 7|Y})|W}
-!@@@@ := 2 3 4 5 @@@@:
+    {W|2 3 {X} 4 5 ({Y|6 7|Y}) {Z}|W}
+!@@@@ := 2 3 @@@@ 4 5 @@@@ @@@@:
              .type = W
              .position[H] = PACKED_VEC
     line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
- ^^^^^^^^^^^^^^^^^^^^^^^^^
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ({W|2 3 4 5 ({Y|6 7|Y})|W})
+    ({W|2 3 {X} 4 5 ({Y|6 7|Y}) {Z}|W})
 !@@@@ := @@@@:
              .terminator = ")"
              .initiator = "("
@@ -3811,7 +3811,7 @@ BRACKETED EXPRESSION:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ({W|2 3 4 5 ({Y|6 7|Y})|W})
+    ({W|2 3 {X} 4 5 ({Y|6 7|Y}) {Z}|W})
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
@@ -4268,7 +4268,7 @@ PREFIX EXPRESSION:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
 ERROR: in line ###: prefix separator of type `X' in typed bracketed
-       subexpression; ignored:
+       subexpression; prefix unrecognized:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
@@ -4293,8 +4293,8 @@ BRACKETED EXPRESSION:
 BRACKETED PARSER FOUND [data] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED EXPRESSION:
-    {T: A = {Y|hi|Y}, B = {Z}|ho|T}
-!@@@@ := ho:
+    {T: A = {Y|hi|Y}, B = {Z}|{X} ho|T}
+!@@@@ := @@@@ ho:
              .type = T
              A = @@@@
              B = @@@@
@@ -4303,7 +4303,7 @@ BRACKETED EXPRESSION:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {T: A = {Y|hi|Y}, B = {Z}|ho|T}
+    {T: A = {Y|hi|Y}, B = {Z}|{X} ho|T}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
@@ -6513,7 +6513,7 @@ PREFIX EXPRESSION:
                 ^^^
 ERROR: in line ###: prefix separator of type `x' not at beginning of
        subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
+       another prefix with the same type or group; prefix unrecognized:
          has an {x} unrecognized because it
                 ^^^
 BRACKETED PARSER FOUND [LINE LEVEL, code] SELECTED KEY "`"
@@ -6550,11 +6550,11 @@ BRACKETED EXPRESSION:
          the outer `{x}'
                    ^^^^^
 BRACKETED EXPRESSION:
-    with an indented paragraph that has an unrecognized because it is
-        not in the same logical line as the outer `{x}'
+    with an indented paragraph that has an {x} unrecognized because it
+        is not in the same logical line as the outer `{x}'
 !@@@@
-    := with an indented paragraph that has an unrecognized because it is
-               not in the same logical line as the outer @@@@:
+    := with an indented paragraph that has an @@@@ unrecognized because
+               it is not in the same logical line as the outer @@@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
@@ -6570,8 +6570,8 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|with
-              an indented paragraph that has an unrecognized because it
-              is not in the same logical line as the outer `{x}'|}|}
+              an indented paragraph that has an {x} unrecognized because
+              it is not in the same logical line as the outer `{x}'|}|}
 !@@@@ := @@@@:
              .terminator = [$ INDENTED_PARAGRAPH $]
              .position[H] = PACKED_VEC
@@ -6603,7 +6603,7 @@ BRACKETED EXPRESSION:
     {x|this is a line
        {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
             {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                 with an indented paragraph that has an unrecognized
+                 with an indented paragraph that has an {x} unrecognized
                  because it is not in the same logical line as the outer
                  `{x}'|}|} but this|x}
 !@@@@ := this is a line @@@@ but this:
@@ -6634,7 +6634,7 @@ BRACKETED EXPRESSION:
     {x|this is a line
        {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
             {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                 with an indented paragraph that has an unrecognized
+                 with an indented paragraph that has an {x} unrecognized
                  because it is not in the same logical line as the outer
                  `{x}'|}|} but this|x} {x|is|x}
 !@@@@ := @@@@ @@@@:
@@ -7325,13 +7325,13 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: prefix separator of type `foo' not at beginning of
        subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
+       another prefix with the same type or group; prefix unrecognized:
 {foo} sentence.
 ^^^^^
 BRACKETED EXPRESSION:
     {p|{s: .terminator = "."|This is a sentence|s}
        {s: .terminator = "."|And another|s}
-       {s: .terminator = "."|And yet another sentence|s}|p}
+       {s: .terminator = "."|And yet another {foo} sentence|s}|p}
 !@@@@ := @@@@ @@@@ @@@@:
              .type = p
              .position[H] = PACKED_VEC
@@ -7343,9 +7343,12 @@ BRACKETED EXPRESSION:
              .terminator = "."
              .type = s
              .position[H] = PACKED_VEC
-!@@@@ := And yet another sentence:
+!@@@@ := And yet another @@@@ sentence:
              .terminator = "."
              .type = s
+             .position[H] = PACKED_VEC
+!@@@@ :=:
+             .type = foo
              .position[H] = PACKED_VEC
     lines ###-###:
 {p} {s} This is a sentence. {s}
@@ -7356,12 +7359,12 @@ And another.  {s} And yet another
 ^^^^^^^^^^^^^^^
 ERROR: in line ###: prefix separator of type `foo' not at beginning of
        subexpression and does not continue subexpression started by
-       another prefix with the same type or group; ignored:
+       another prefix with the same type or group; prefix unrecognized:
     {foo} sentence.
     ^^^^^
 BRACKETED EXPRESSION:
     {P|{S|This is a sentence "."|S} {S|And another "."|S}
-       {S|And yet another sentence "."|S}|P}
+       {S|And yet another {foo} sentence "."|S}|P}
 !@@@@ := @@@@:
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
@@ -7375,8 +7378,11 @@ BRACKETED EXPRESSION:
 !@@@@ := And another ".":
              .type = S
              .position[H] = PACKED_VEC
-!@@@@ := And yet another sentence ".":
+!@@@@ := And yet another @@@@ sentence ".":
              .type = S
+             .position[H] = PACKED_VEC
+!@@@@ :=:
+             .type = foo
              .position[H] = PACKED_VEC
     lines ###-###:
 {P} {S} This is a sentence. {S}

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 24, 2022
+February 28, 2022
  
 \end{center}
 
@@ -4938,15 +4938,20 @@ The general syntax is:
     $|$ & see \pagref{PREFIX-0-LIST}
     \end{tabular}
 \\[0.5ex]
-\emkey{simple-element-list} ::= {\em element}\STAR{}
-\label{SIMPLE-ELEMENT-LIST}
+\emkey{simple-element-list}\label{SIMPLE-ELEMENT-LIST}
+    ::= {\em element}\STAR{}
 \\[0.5ex]
 \emkey{element}
     \begin{tabular}[t]{rl}
     ::= & {\em word} $|$ {\em numeric} $|$ {\em number} $|$ {\em natural} $|$
           {\em numeric-word} \\
     $|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
-    $|$ & {\em untyped-bracketed-subexpression} \\
+    $|$ & {\em simple-bracketed-subexpression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{simple-bracketed-subexpression}\label{SIMPLE-BRACKETED-SUBEXPRESSION}
+    \begin{tabular}[t]{rl}
+    ::= & {\em untyped-bracketed-subexpression} \\
     $|$ & {\em typed-bracketed-subexpression} \\
     $|$ & {\em typed-prefix-separator} that is not a prefix:
           see \pagref{PREFIX-0-LIST} \\
@@ -5961,12 +5966,12 @@ The general syntax of a typed bracketed subexpression is:
 \\[0.5ex]
 \emkey{typed-elements}
 	\begin{tabular}[t]{@{}rl}
-	::= & {\em typed-middle}~~~{\em element-list}~~~%
+	::= & {\em typed-middle}~~~{\em simple-element-list}~~~%
 	      {\em typed-middle} \\
 	$|$ & {\em doubled-typed-middle}
 	\end{tabular}
 \\[0.5ex]
-\emkey{element-list} ::= see \pagref{ELEMENT-LIST}
+\emkey{simple-element-list} ::= see \pagref{SIMPLE-ELEMENT-LIST}
 \\[0.5ex]
 \emkey{opening-type-and-attributes}\label{OPENING-TYPE-AND-ATTRIBUTES}
 	\begin{tabular}[t]{@{}rl}
@@ -6085,7 +6090,10 @@ The general syntax of a typed bracketed subexpression is:
     \end{tabular}
 \\[0.5ex]
 \emkey{value} ::= {\em label-component}\PLUS{}
-              $|$ {\em bracketed-subexpression}
+              $|$ {\em simple-bracketed-subexpression}
+\\[0.5ex]
+{\em simple-bracketed-subexpression} ::=
+    see \pagref{SIMPLE-BRACKETED-SUBEXPRESSION}
 \\[0.5ex]
 \emkey{object-id} :::= \begin{tabular}[t]{l}
                       \ttmkey{@}{in object ID} {\em ID-number}
@@ -6148,6 +6156,10 @@ For a given {\em attribute-label}, at most one {\em attribute} containing a
 {\em single-attribute-single-value} may appear, unless the
 {\em attribute-label} has been given the \TT{M} or \TT{S} flag by the
 given {\em attribute} or a preceding {\em attribute}.
+\item
+{\em Typed-prefix-separators} are \underline{not} recognized as prefixes
+anywhere outside brackets in a {\em type-bracketed-expression}.  Instead
+they are recognized as objects with attributes but no vector elements.
 \end{enumerate}
 \end{indpar}
 
@@ -6611,7 +6623,7 @@ Otherwise it becomes a \TT{BRACKETED} token by itself
 that \underline{cannot} head a {\em prefix-N-list}, but which can
 be a {\em prefix-N-list} {\em element}.
 
-{\em Prefixes} are used to form {\em prefix-N-lists}.%
+{\em Prefixes} are used to form \emkey{prefix-N-lists}.%
 \label{PREFIX-0-LIST}
 The following is an example in which the entire text is a single
 logical line, in spite of the lack of indentation of continuation

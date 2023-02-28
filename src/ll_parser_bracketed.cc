@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 28 00:32:20 EST 2023
+// Date:	Tue Feb 28 11:53:35 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2254,6 +2254,17 @@ EXPLICIT_PREFIX_FOUND:
 
 	TAB::key_table bracket_type_table =
 	    bracketed_pass->bracket_type_table;
+
+	if ( typed_data != NULL )
+	{
+	    // Prefixes are not recognized inside a
+	    // typed data expression except perhaps
+	    // inside brackets within that expression.
+	    //
+	    prefix->type = PAR::BRACKETED;
+	    goto FINISH_PREFIX;
+	}
+
 	prefix_type = prefix->value_type;
 	MIN_REQUIRE ( min::is_name ( prefix_type ) );
 	prefix_entry =
@@ -2346,10 +2357,7 @@ EXPLICIT_PREFIX_FOUND:
 	if ( ( selectors & PAR::EPREFIX_OPT ) == 0 )
 	{
 	    prefix->type = PAR::BRACKETED;
-	    if ( premature_closing )
-		return separator_found;
-	    else
-		goto NEXT_TOKEN;
+	    goto FINISH_PREFIX;
 	}
 
 	for ( BRA::bracket_stack * p =
@@ -2449,20 +2457,6 @@ EXPLICIT_PREFIX_FOUND:
 	    return separator_found;
 	}
 
-	if ( typed_data != NULL )
-	{
-	    PAR::parse_error
-	      ( parser,
-		prefix->position,
-		"prefix separator of type `",
-		min::pgen_never_quote
-		    ( prefix_type ),
-		"' in typed bracketed"
-		" subexpression; prefix unrecognized"
-	      );
-	    prefix->type = PAR::BRACKETED;
-	}
-	else
 	if ( prefix_group == PARLEX::paragraph )
 	{
 	    if (    prefix->type

@@ -4267,10 +4267,6 @@ PREFIX EXPRESSION:
     line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                 ^^^
-ERROR: in line ###: prefix separator of type `X' in typed bracketed
-       subexpression; prefix unrecognized:
-{T: A = {Y|hi|}|{X} ho|B = {Z}}
-                ^^^
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="

@@ -502,3 +502,10 @@ BRACKETED EXPRESSION:
     ID 143 is {a|``{s: .terminator = "."|This is a sentence|s}''|a}
 BRACKETED EXPRESSION:
     ID 144 is {a: b = ``{s: .terminator = "."|This is a sentence|s}''}
+ERROR: in line ###: missing `|'; inserted before:
+@@@@ := {row| "|" error | b "||" c "|"|}
+                                       ^
+BRACKETED EXPRESSION:
+    ID 150 is {row|"|" a "|" b "||" c "|"|row}
+BRACKETED EXPRESSION:
+    ID 151 is {row: b "||" c "|"|"|" error|row}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 28 11:53:35 EST 2023
+// Date:	Wed Mar  1 02:37:21 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -631,6 +631,12 @@ void BRA::push_bracket_type
 
     min::locatable_var<BRA::bracket_type> bracket_type
         ( ::bracket_type_type.new_stub() );
+
+    MIN_REQUIRE ( group == PARLEX::paragraph
+                  ||
+		  ( TAB::all_flags ( parsing_selectors )
+		    &
+		    PAR::ALL_OPT ) == 0 );
 
     label_ref(bracket_type) = bracket_type_label;
     bracket_type->selectors = selectors;

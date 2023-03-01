@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 28, 2022
+March 1, 2023
  
 \end{center}
 
@@ -6261,22 +6261,26 @@ When a {\em bracket-type-label} is encountered, it is looked up in the
 bracket type definition table (\itemref{BRACKET-TYPE-DEFINITIONS})
 using the context selectors.
 \label{TYPED-PARSING-SELECTORS-USE}
-If an entry is found, the selectors and options used to scan
+If an entry is found, the selectors used to scan
 the {\em elements} are computed by modifying the context selectors
-and options according to the
-{\em bracket-selectors} and {\em bracket-options} in the
+according to the {\em bracket-selectors} in the
 found entry.
-If no entry is found, the selectors and options used to scan
+If no entry is found, the selectors used to scan
 the {\em elements} are computed by modifying the context selectors
-and options according to the
-{\em bracket-selectors} and {\em bracket-options}
+according to the {\em bracket-selectors}
+associated with the {\em typed-opening} by the
+\TT{parser define typed bracket} command (see below).
+
+In either case, the options used to scan
+the {\em elements} are computed by modifying the context options
+according to the {\em bracket-options}
 associated with the {\em typed-opening} by the
 \TT{parser define typed bracket} command (see below).
 
 A {\em bracket-type-mark} is also looked up in the
 bracket type table when it is encountered, and
 any entry found is used to modify the context selectors
-and options used to scan {\em elements} of its
+used to scan {\em elements} of its
 {\em typed-bracketed-subexpression}.  When an initial
 {\em bracket-type-mark-1} is not the same as the final
 {\em bracket-type-mark-2}, and the two are combined into

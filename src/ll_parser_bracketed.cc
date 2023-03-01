@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  1 02:37:21 EST 2023
+// Date:	Wed Mar  1 15:33:50 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -634,9 +634,12 @@ void BRA::push_bracket_type
 
     MIN_REQUIRE ( group == PARLEX::paragraph
                   ||
-		  ( TAB::all_flags ( parsing_selectors )
-		    &
-		    PAR::ALL_OPT ) == 0 );
+		  ( ( TAB::all_flags
+		          ( parsing_selectors )
+		      &
+		      (   PAR::ALL_OPT
+		        - PAR::ALL_ENABLE_OPT ) )
+		     == 0 ) );
 
     label_ref(bracket_type) = bracket_type_label;
     bracket_type->selectors = selectors;
@@ -6957,7 +6960,8 @@ static min::gen bracketed_pass_command
 		min::gen result =
 		    COM::scan_new_flags
 			( vp, i, new_options,
-			  PAR::ALL_EA_OPT,
+			    PAR::ALL_EA_OPT
+			  + PAR::ALL_ENABLE_OPT,
 	                  parser->selector_name_table,
 			  parser->
 			    selector_group_name_table,

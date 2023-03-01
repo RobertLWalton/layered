@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 23:44:21 EST 2023
+// Date:	Wed Mar  1 13:02:20 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1053,6 +1053,10 @@ enum {
 
     ALL_ENABLE_OPT = EIPARAGRAPH_OPT
 	           + EPREFIX_OPT
+		   + ETPREFIX_OPT
+		   + EHEADER_OPT,
+
+    ALL_PREFIX_OPT = EPREFIX_OPT
 		   + ETPREFIX_OPT
 		   + EHEADER_OPT,
 

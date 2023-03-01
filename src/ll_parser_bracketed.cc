@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  1 15:33:50 EST 2023
+// Date:	Wed Mar  1 16:08:59 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7563,14 +7563,19 @@ static min::gen bracketed_pass_command
 	    new_selectors = TAB::new_flags ( 0, 0, 0 );
 	}
 
-	if (    TAB::all_flags ( new_options ) != 0
+	if (    ( ( TAB::all_flags ( new_options )
+	            &
+		    (   PAR::ALL_OPT
+		      - PAR::ALL_ENABLE_OPT ) )
+		  != 0 )
 	     && group != PARLEX::paragraph )
 	{
 	    PAR::parse_error
 		( parser, ppvec->position,
-		  "`with parsing options' not allowed"
-		  " for bracket type unless group is"
-		  " `paragraph'; options ignored" );
+		  "`only `enable ...' parsing options'"
+		  " are allowed for bracket type unless"
+		  " group is `paragraph';"
+		  " options ignored" );
 	    new_options = TAB::new_flags ( 0, 0, 0 );
 	}
 

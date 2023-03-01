@@ -6411,9 +6411,9 @@ The general syntax of {\em parser-typed-bracket-commands} is:
 \\[0.5ex]
 \emkey{quoted-key} ::= see \pagref{QUOTED-KEY}
 \\[0.5ex]
-\emkey{bracket-selectors} ::= see \pagref{BRACKET-SELECTORS}
+{\em bracket-selectors} ::= see \pagref{BRACKET-SELECTORS}
 \\[0.5ex]
-\emkey{bracket-options} ::= see \pagref{BRACKET-OPTIONS}
+{\em bracket-options} ::= see \pagref{BRACKET-OPTIONS}
 \\[0.5ex]
 \emkey{typed-attribute-selectors} ::= {\em selector-flags}
 	~ [\pagref{SELECTOR-FLAGS}]
@@ -6794,7 +6794,11 @@ whose general syntax is:
                     $|$ {\em simple-name} not containing `\TT{with}'
 \\[0.5ex]
 \emkey{bracket-type-options} ::=
-    {\em option-spec} ~~~ [\pagref{OPTION-SPEC}]
+    \begin{tabular}[t]{p{4in}}
+    {\em option-spec} restricted to `\TT{enable \ldots}' options \\
+    if {\em bracket-type-group} is \underline{not} `\TT{paragraph}', \\
+    else unrestricted \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{reformatter-name} ::= see \pagref{REFORMATTER-NAME} \\
 \emkey{reformatter-arguments} ::= see \pagref{REFORMATTER-ARGUMENTS}
@@ -6943,12 +6947,16 @@ parser block is given a suitable typed bracket definition for
 (\pagref{TOP-LEVEL-{}}).
 
 \hspace*{-0.2in}\ttmkey{parsing options}{in bracket type definition}\\
-`\TT{with parsing options}' is only permitted for prefixes that
-have the `\TT{paragraph}' group.  The {\em bracket-type-options} are
-used to set the current parsing options and the
-\TT{op\-tions} current line variable when an explicit
-paragraph header begins a paragraph:
-see \itemref{EXPLICIT-HEADER-PARSING}.
+`\TT{with parsing options}' is restricted to modifying
+`\TT{enable} \ldots' options unless the bracket type
+has the `\TT{paragraph}' group.
+
+The {\em bracket-type-options} are \underline{not} used when the
+type of a {\em typed-bracketed-subexpression} has the bracket type.
+
+The {\em bracket-type-options} \underline{are} used to set the options
+at the beginning of the {\em prefix-(n+1)-list} following a
+{\em prefix-n} that has the bracket type.
 
 \hspace*{-0.2in}\ttmkey{line lexical master}{in bracket type definition}\\
 `\TT{with line lexical master}' is only permitted for prefixes that

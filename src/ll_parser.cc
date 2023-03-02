@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 23:44:54 EST 2023
+// Date:	Thu Mar  2 03:47:39 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,7 +68,6 @@ min::locatable_gen PARLEX::eprefix;
 min::locatable_gen PARLEX::etprefix;
 min::locatable_gen PARLEX::eheader;
 min::locatable_gen PARLEX::sticky;
-min::locatable_gen PARLEX::reset;
 min::locatable_gen PARLEX::continuing;
 min::locatable_gen PARLEX::default_opt;
 min::locatable_gen PARLEX::other_ea_opt;
@@ -84,8 +83,9 @@ min::locatable_gen PARLEX::atom;
 min::locatable_gen PARLEX::prefix;
 min::locatable_gen PARLEX::header;
 min::locatable_gen PARLEX::separator;
-min::locatable_gen PARLEX::line;
-min::locatable_gen PARLEX::paragraph;
+min::locatable_gen PARLEX::LINE;
+min::locatable_gen PARLEX::PARAGRAPH;
+min::locatable_gen PARLEX::RESET;
 min::locatable_gen PARLEX::standard;
 min::locatable_gen PARLEX::test;
 min::locatable_gen PARLEX::begin;
@@ -102,6 +102,8 @@ min::locatable_gen PARLEX::selectors;
 min::locatable_gen PARLEX::options;
 min::locatable_gen PARLEX::group;
 min::locatable_gen PARLEX::lexical;
+min::locatable_gen PARLEX::line;
+min::locatable_gen PARLEX::paragraph;
 min::locatable_gen PARLEX::master;
 min::locatable_gen PARLEX::implied;
 min::locatable_gen PARLEX::subprefix;
@@ -201,7 +203,6 @@ static void initialize ( void )
     PARLEX::eheader =
     	min::new_lab_gen ( "enable", "header" );
     PARLEX::sticky = min::new_str_gen ( "sticky" );
-    PARLEX::reset = min::new_str_gen ( "reset" );
     PARLEX::continuing =
         min::new_str_gen ( "continuing" );
 
@@ -235,9 +236,10 @@ static void initialize ( void )
     PARLEX::header = min::new_str_gen ( "header" );
     PARLEX::separator =
         min::new_str_gen ( "separator" );
-    PARLEX::line = min::new_str_gen ( "line" );
-    PARLEX::paragraph =
-        min::new_str_gen ( "paragraph" );
+    PARLEX::LINE = min::new_str_gen ( "*LINE*" );
+    PARLEX::PARAGRAPH =
+        min::new_str_gen ( "*PARAGRAPH*" );
+    PARLEX::RESET = min::new_str_gen ( "*RESET*" );
     PARLEX::standard =
         min::new_str_gen ( "standard" );
 
@@ -257,6 +259,9 @@ static void initialize ( void )
     PARLEX::options = min::new_str_gen ( "options" );
     PARLEX::group = min::new_str_gen ( "group" );
     PARLEX::lexical = min::new_str_gen ( "lexical" );
+    PARLEX::line = min::new_str_gen ( "line" );
+    PARLEX::paragraph =
+        min::new_str_gen ( "paragraph" );
     PARLEX::master = min::new_str_gen ( "master" );
     PARLEX::implied = min::new_str_gen ( "implied" );
     PARLEX::subprefix =

@@ -8636,7 +8636,7 @@ BRACKETED EXPRESSION:
     define bracket "<<" ... ">>" [data]
     define bracket type "D" [code]
            with parsing selectors [data]
-           with group line
+           with group *LINE*
     define indentation mark "::" [code]
            with parsing selectors [code]
            with implied header {D}

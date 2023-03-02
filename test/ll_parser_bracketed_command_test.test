@@ -591,7 +591,7 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
         with implied subprefix {X: y = 5, z = hi there}
         with line lexical master "DEFAULT"
         with parsing options [end at indent]
-        with group paragraph
+        with group *PARAGRAPH*
 ERROR: in lines ###-###: `only `enable ...' parsing options' are allowed
        for bracket type unless group is `paragraph'; options ignored:
     define bracket type "Z1" [math]
@@ -626,8 +626,8 @@ ERROR: in lines ###-###: `with parsing selectors' not allowed for
        bracket type with group `reset'; selectors ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with group reset
-^^^^^^^^^^^^^^^^^^^^^^^^
+        with group *RESET*
+^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing options [end at indent]
@@ -640,8 +640,8 @@ ERROR: in lines ###-###: `only `enable ...' parsing options' are allowed
        for bracket type unless group is `paragraph'; options ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with group reset
-^^^^^^^^^^^^^^^^^^^^^^^^
+        with group *RESET*
+^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing options [end at indent]
@@ -654,8 +654,8 @@ ERROR: in lines ###-###: `with implied subprefix' not allowed for
        bracket type with group `reset'; implied subprefix ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with group reset
-^^^^^^^^^^^^^^^^^^^^^^^^
+        with group *RESET*
+^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing options [end at indent]
@@ -669,8 +669,8 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
        ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        with group reset
-^^^^^^^^^^^^^^^^^^^^^^^^
+        with group *RESET*
+^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing options [end at indent]
@@ -680,14 +680,14 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with line lexical master "DEFAULT"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     define bracket type "R" [math]
-        with group reset
+        with group *RESET*
         with parsing selectors [code]
         with parsing options [end at indent]
         with implied subprefix {X: y = 5, z = hi there}
         with line lexical master "DEFAULT"
     print bracket type ""
         block BLOCK1: bracket type "R" [math]
-                      with group reset
+                      with group *RESET*
         block BLOCK1: bracket type "X" [code]
                       with parsing selectors [code, math]
         block BLOCK1: bracket type "Y" [code]
@@ -696,7 +696,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         block BLOCK1: bracket type "Z" [math]
                       with parsing selectors [code]
                       with parsing options [end at indent]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix
                       {X: y = 5, z = [< hi there >]}
                       with line lexical master "DEFAULT"
@@ -933,31 +933,31 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
     begin block BLOCK1
     define bracket type "P1" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {S1}
         with parsing options [end at paragraph break,
                               enable prefix]
     define bracket type "P2" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [end at paragraph break,
                               enable prefix]
     define bracket type "P3" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {L3}
         with parsing options [end at paragraph break,
                               end at line separator,
                               enable prefix]
     define bracket type "L3" [text]
-        with group line
+        with group *LINE*
     define bracket type "P4" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {L4}
         with parsing options [+ enable prefix]
     define bracket type "L4" [text]
-        with group line
+        with group *LINE*
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
         // no parsing selectors
@@ -968,37 +968,37 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with attribute multivalue initiator "{*"
     print bracket type ""
         block BLOCK1: bracket type "L3" [text]
-                      with group line
+                      with group *LINE*
         block BLOCK1: bracket type "L4" [text]
-                      with group line
+                      with group *LINE*
         block BLOCK1: bracket type "P1" [text, code]
                       with parsing selectors [text]
                       with parsing options [end at paragraph break,
                                             enable prefix]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {S1}
         block BLOCK1: bracket type "P2" [text, code]
                       with parsing selectors [text]
                       with parsing options [end at paragraph break,
                                             enable prefix]
-                      with group paragraph
+                      with group *PARAGRAPH*
         block BLOCK1: bracket type "P3" [text, code]
                       with parsing selectors [text]
                       with parsing options [end at paragraph break,
                                             end at line separator,
                                             enable prefix]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {L3}
         block BLOCK1: bracket type "P4" [text, code]
                       with parsing selectors [text]
                       with parsing options [+ enable prefix]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {L4}
     print bracket type "P4"
         block BLOCK1: bracket type "P4" [text, code]
                       with parsing selectors [text]
                       with parsing options [+ enable prefix]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {L4}
     print bracket type "P" // Should print nothing.
         nothing found
@@ -1119,7 +1119,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
 ======= END PARSER TEST(S)
 *PARSER*:
     define bracket type "p" [code]
-        with group paragraph
+        with group *PARAGRAPH*
 ======= PARSER TEST: this is the indented paragraph 2::
                          {p|{"": .terminator = "<LF>", .initiator =
                                  [$ LOGICAL_LINE $]|with one line|}|p}
@@ -1142,7 +1142,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
 ======= END PARSER TEST(S)
 *PARSER*:
     define bracket type "p" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l}
 ======= PARSER TEST: this is the indented paragraph 3::
@@ -1182,7 +1182,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
 ======= END PARSER TEST(S)
 *PARSER*:
     define bracket type "l" [code]
-        with group line
+        with group *LINE*
 ======= PARSER TEST: this is the indented paragraph 4::
                          {p|{l|with a first line|l}
                             {l|and a second line|l}
@@ -1241,17 +1241,17 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "p2" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
 ERROR: in line ###: explicit prefix separator of type `p2' has
        `paragraph' group but is not at beginning of a logical line that
        is in paragraph beginning position; prefix unrecognized:
@@ -1374,17 +1374,17 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
 ======= END PARSER TEST(S)
 *PARSER*:
     define bracket type "p3" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {l3}
         with parsing options
              [+ continuing, + enable prefix]
     define bracket type "l3" [code]
-        with group line
+        with group *LINE*
     print bracket type "p3"
         block BLOCK1: bracket type "p3" [code]
                       with parsing options [+ enable prefix,
                                             + continuing]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {l3}
 ======= PARSER TEST: this is the indented paragraph 6::
                          {p1|{l1|with a first line|l1}
@@ -1508,40 +1508,40 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "p2" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {l2}
         with parsing options
              [+ continuing, + enable prefix]
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
     define bracket type "p3" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options
              [+ continuing, + enable prefix]
     print bracket type ""
         block BLOCK1: bracket type "l1" [code]
-                      with group line
+                      with group *LINE*
         block BLOCK1: bracket type "l2" [code]
-                      with group line
+                      with group *LINE*
         block BLOCK1: bracket type "p1" [code]
                       with parsing options [+ enable prefix]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {l1}
         block BLOCK1: bracket type "p2" [code]
                       with parsing options [+ enable prefix,
                                             + continuing]
-                      with group paragraph
+                      with group *PARAGRAPH*
                       with implied subprefix {l2}
         block BLOCK1: bracket type "p3" [code]
                       with parsing options [+ enable prefix,
                                             + continuing]
-                      with group paragraph
+                      with group *PARAGRAPH*
     trace [+ parser output]
 BRACKETED EXPRESSION:
     {p1}
@@ -1628,22 +1628,22 @@ and another line outside the fifth paragraph
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "p2" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ sticky, + enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
     define bracket type "p3" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ sticky, + enable prefix]
     define bracket type "***" [code]
-        with group reset
+        with group *RESET*
     trace [+ parser output]
 BRACKETED EXPRESSION:
     this is paragraph 1
@@ -1803,13 +1803,13 @@ and code line #
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
     trace [+ parser output]
 BRACKETED EXPRESSION:
     {l1|this is a line|l1}
@@ -1840,7 +1840,7 @@ BRACKETED EXPRESSION:
     line ###:
 with one extra line.
 ^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ###: explicit prefix separator of type `l2' has `line'
+ERROR: in line ###: explicit prefix separator of type `l2' has `*LINE*'
        group but is not at the beginning of a logical line; prefix
        unrecognized:
 {l1} This is a line {l2} and continuation.
@@ -1871,8 +1871,8 @@ BRACKETED EXPRESSION:
 And a last line.
 ^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
-       `paragraph' group but is not at the beginning of a logical line;
-       prefix unrecognized:
+       `*PARAGRAPH*' group but is not at the beginning of a logical
+       line; prefix unrecognized:
 {p} This is a paragraph {p} and continuation.
                         ^^^
 BRACKETED EXPRESSION:
@@ -1895,7 +1895,7 @@ BRACKETED EXPRESSION:
     line ###:
 {x} implied `l1' prefix in error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ###: explicit prefix separator of type `l2' has `line'
+ERROR: in line ###: explicit prefix separator of type `l2' has `*LINE*'
        group but is not at the beginning of a logical line; prefix
        unrecognized:
 {l1}{l2} a stray line

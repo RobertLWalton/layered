@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  5 18:57:44 EST 2021
+// Date:	Thu Mar  2 03:55:48 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -223,14 +223,14 @@ third line with indent 0
         with implied subprefix {X: y = 5, z = hi there}
         with line lexical master "DEFAULT"
         with parsing options [end at indent]
-	with group paragraph
+	with group *PARAGRAPH*
     define bracket type "Z1" [math]
         with parsing selectors [code]
         with implied subprefix {X: y = 5, z = hi there}
         with line lexical master "DEFAULT"
         with parsing options [end at indent]
     define bracket type "R" [math]
-	with group reset
+	with group *RESET*
         with parsing selectors [code]
         with parsing options [end at indent]
         with implied subprefix {X: y = 5, z = hi there}
@@ -325,31 +325,31 @@ third line with indent 0
     begin block BLOCK1
     define bracket type "P1" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {S1}
         with parsing options [end at paragraph break,
 	                      enable prefix]
     define bracket type "P2" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [end at paragraph break,
 	                      enable prefix]
     define bracket type "P3" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {L3}
         with parsing options [end at paragraph break,
 	                      end at line separator,
 			      enable prefix]
     define bracket type "L3" [text]
-        with group line
+        with group *LINE*
     define bracket type "P4" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {L4}
         with parsing options [+ enable prefix]
     define bracket type "L4" [text]
-        with group line
+        with group *LINE*
     define typed bracket "{" ... "|" ... "|" ... "}"
         [code, text, math]
         // no parsing selectors
@@ -396,13 +396,13 @@ third line with indent 0
         with one line
 *PARSER*:
     define bracket type "p" [code]
-        with group paragraph
+        with group *PARAGRAPH*
 *PARSER* *TEST*:
     this is the indented paragraph 2::
 	with one line
 *PARSER*:
     define bracket type "p" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l}
 *PARSER* *TEST*:
@@ -411,7 +411,7 @@ third line with indent 0
 	and a second line
 *PARSER*:
     define bracket type "l" [code]
-        with group line
+        with group *LINE*
 *PARSER* *TEST*:
     this is the indented paragraph 4::
 	with a first line
@@ -433,17 +433,17 @@ third line with indent 0
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "p2" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
 *PARSER* *TEST*:
     this is the indented paragraph 5::
 	with a first line
@@ -460,12 +460,12 @@ third line with indent 0
 
 *PARSER*:
     define bracket type "p3" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {l3}
         with parsing options
 	     [+ continuing, + enable prefix]
     define bracket type "l3" [code]
-        with group line
+        with group *LINE*
     print bracket type "p3"
 *PARSER* *TEST*:
     this is the indented paragraph 6::
@@ -494,20 +494,20 @@ third line with indent 0
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "p2" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {l2}
         with parsing options
 	     [+ continuing, + enable prefix]
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
     define bracket type "p3" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options
 	     [+ continuing, + enable prefix]
     print bracket type ""
@@ -555,22 +555,22 @@ and another line outside the fifth paragraph
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p1" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "p2" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ sticky, + enable prefix]
         with implied subprefix {l2}
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
     define bracket type "p3" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ sticky, + enable prefix]
     define bracket type "***" [code]
-        with group reset
+        with group *RESET*
     trace [+ parser output]
 this is paragraph 1
 and another line
@@ -642,13 +642,13 @@ this is a test line
         with attribute flags initiator "["
         with attribute multivalue initiator "{*"
     define bracket type "p" [code]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing options [+ enable prefix]
         with implied subprefix {l1}
     define bracket type "l1" [code]
-        with group line
+        with group *LINE*
     define bracket type "l2" [code]
-        with group line
+        with group *LINE*
     trace [+ parser output]
 {l1} this is a line
 

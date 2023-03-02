@@ -2123,13 +2123,13 @@ These are converted to typed bracketed subexpressions.
 
 \item Headed lines, that are logical lines which begin with
 a `line header' that is
-a typed prefix separator that has the `\TT{line}' prefix group.
+a typed prefix separator that has the `\TT{*LINE*}' prefix group.
 The line header may be implied.
 Headed lines are converted to typed bracketed subexpressions.
 
 \item Headed paragraphs, that are groups of logical lines
 that begin with a `paragraph header' that is
-a typed prefix separator that has the `\TT{paragraph}' prefix group.
+a typed prefix separator that has the `\TT{*PARAGRAPH*}' prefix group.
 The paragraph header may be implied.
 These are converted to typed bracketed subexpressions.
 
@@ -2332,7 +2332,7 @@ A token has the following components:
 		  possibly after other header tokens.  A header
 		  is a prefix whose {\em bracket-\EOL type-\EOL group}
 		  (a.k.a., prefix group) is
-		  either `\TT{paragraph}' or `\TT{line}.
+		  either `\TT{*PARAGRAPH*}' or `\TT{*LINE*}.
                   See \itemref{LINE-VARIABLES} and
 		  \itemref{BRACKET-TYPE-DEFINITIONS}.
 \end{tabular}
@@ -2388,7 +2388,7 @@ A token has the following components:
 		  from a headed line or headed paragraph
 		  (\itemref{HEADED-LINES} and \itemref{HEADED-PARAGRAPHS})
 		  and has a \TT{.type}
-		  with either the `\TT{paragraph}' or `\TT{line}'
+		  with either the `\TT{*PARAGRAPH*}' or `\TT{*LINE*}'
 		  prefix group, the value of this prefix group.
 		  For a \TT{PREFIX} token, the \TT{.type} of the token
 		  \TT{value} if there is one.  Otherwise \TT{MISSING}.
@@ -2600,7 +2600,7 @@ Enable Options:\label{ENABLE-OPTIONS}
 
 \hspace*{-0.2in}\ttmkey{enable header}{parser option} \\
     This parser option allows {\em typed-prefix-separators} that
-    have the \TT{paragraph} or \TT{line} group, and therefore
+    have the \TT{*PARAGRAPH*} or \TT{*LINE*} group, and therefore
     can be line or paragraph headers (see \itemref{HEADED-LINES}
     and \itemref{HEADED-PARAGRAPHS}).
 
@@ -2633,7 +2633,7 @@ Paragraph Options:\label{PARAGRAPH-OPTIONS}
 \bigskip
 
 The following options apply only to bracket type table entries with
-the `\TT{paragraph}' group.
+the `\TT{*PARAGRAPH*}' group.
 
 \begin{indpar}
 
@@ -2862,8 +2862,8 @@ paragraph.
 The type of the paragraph header, \TT{p} in this example, must 
 appear in the parser's \key{bracket type table}
 (\itemref{BRACKET-TYPE-DEFINITIONS}),
-and be marked there as a paragraph header (i.e., must have the `\TT{paragraph}'
-group).
+and be marked there as a paragraph header
+(i.e., must have the `\TT{*PARAGRAPH*}' group).
 
 A paragraph header must appear at the
 beginning of a logical line that is 
@@ -5508,7 +5508,7 @@ The general syntax of {\em parser-indentation-mark-commands} is:
 \emkey{header} ::= \begin{tabular}[t]{l}
                    {\em typed-prefix-separator}
                        (\pagref{TYPED-PREFIX-SEPARATOR}) \\
-		   with `\TT{paragraph}' or `\TT{line}' group
+		   with `\TT{*PARAGRAPH*}' or `\TT{*LINE*}' group
 		       (\itemref{HEADED-LINES}, \itemref{HEADED-PARAGRAPHS}) \\
 		   \end{tabular}
 \\[0.5ex]
@@ -6611,7 +6611,7 @@ so this requirement is met by default).
 \item The `\TT{enable table prefix}' option is set in the context options
       and a bracket table entry was found for the {\em bracket-type}.
 \item The `\TT{enable header}' option is set in the context options
-      and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
+      and a bracket table entry with `\TT{*PARAGRAPH*}' or `\TT{*LINE*}'
       group was found for the {\em bracket-type}.
 \end{enumerate}
 \end{enumerate}
@@ -6796,7 +6796,7 @@ whose general syntax is:
 \emkey{bracket-type-options} ::=
     \begin{tabular}[t]{p{4in}}
     {\em option-spec} restricted to `\TT{enable \ldots}' options \\
-    if {\em bracket-type-group} is \underline{not} `\TT{paragraph}', \\
+    if {\em bracket-type-group} is \underline{not} `\TT{*PARAGRAPH*}', \\
     else unrestricted \\
     \end{tabular}
 \\[0.5ex]
@@ -6869,7 +6869,7 @@ In an expression of the form:
 the {\em prefix-n}'s must all have the same group, but need not all
 have the same {\em bracket-type}.
 
-The groups `\TT{paragraph}', `\TT{line}', and `\TT{reset}' are special:
+The groups `\TT{*PARAGRAPH*}', `\TT{*LINE*}', and `\TT{*RESET*}' are special:
 see \itemref{HEADED-LINES}, \itemref{HEADED-PARAGRAPHS},
 and \itemref{ISOLATED-HEADERS}.
 
@@ -6910,7 +6910,7 @@ parsing selectors and parsing options
 to produce $SO_3$ (if no bracket type table entry
 was found, $SO_3$ equals $SO_1$).
 Note that prefix options are only affected if the {\em prefix-m}'s have
-the \TT{paragraph} group, as only bracket type table entries with that
+the \TT{*PARAGRAPH*} group, as only bracket type table entries with that
 group can have parsing options.
 
 The {\em implied-prefix} of the bracket type definition will also be
@@ -6923,7 +6923,7 @@ is to be inserted:
       and a bracket table entry was found for the {\em bracket-type} of
       the {\em implied-prefix}.
 \item The `\TT{enable header}' option is set in the context options
-      and a bracket table entry with `\TT{paragraph}' or `\TT{line}'
+      and a bracket table entry with `\TT{*PARAGRAPH*}' or `\TT{*LINE*}'
       group was found for the {\em bracket-type} of
       the {\em implied-prefix}.
 \end{enumerate}
@@ -6944,7 +6944,7 @@ parser block is given a suitable typed bracket definition for
 \hspace*{-0.2in}\ttmkey{parsing options}{in bracket type definition}\\
 `\TT{with parsing options}' is restricted to modifying
 `\TT{enable} \ldots' options unless the bracket type
-has the `\TT{paragraph}' group.
+has the `\TT{*PARAGRAPH*}' group.
 
 The {\em bracket-type-options} are \underline{not} used when the
 type of a {\em typed-bracketed-subexpression} has the bracket type.
@@ -6957,7 +6957,7 @@ the {\em prefix-n}.
 
 \hspace*{-0.2in}\ttmkey{line lexical master}{in bracket type definition}\\
 `\TT{with line lexical master}' is only permitted for prefixes that
-have the `\TT{para\-graph}' group.  
+have the `\TT{*PARA\-GRAPH*}' group.  
 This parameter may be non-missing only for isolated paragraph headers
 and mapped paragraph headers, and
 is used to set the corresponding current line variable.
@@ -7229,15 +7229,15 @@ of the {\em sentence}.
                    from the Commands}
 \\[1ex]
 \tt define bracket type "***" [TOP LEVEL, code, text] \\
-\tt ~~~~~~~with group reset \\
+\tt ~~~~~~~with group *RESET* \\
 \tt define bracket type "*DATA*" \\
 \tt ~~~~~~~~~~~~~~~[TOP LEVEL, data, code, math, text] \\
-\tt ~~~~~~~with group line \\
+\tt ~~~~~~~with group *LINE* \\
 \tt ~~~~~~~with parsing selectors [+ data paragraph] \\
 \tt ~~~~~~~with data reformatter ( "=", "no", "[", "\{*" ) \\
 \tt define bracket type "*RAW* *DATA*" \\
 \tt ~~~~~~~~~~~~~~~[TOP LEVEL, data, code, math, text] \\
-\tt ~~~~~~~with group line \\
+\tt ~~~~~~~with group *LINE* \\
 \tt ~~~~~~~with parsing selectors [data, data paragraph] \\
 \tt ~~~~~~~with data reformatter ( "=", "no", "[", "\{*" ) \\
 \end{tabular}
@@ -7255,10 +7255,10 @@ of the {\em sentence}.
 \\[1ex]
 \tt define bracket type "table" [code, text] \\
 \tt ~~~~~~~with parsing selectors [text] \\
-\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with group *PARAGRAPH* \\
 \tt ~~~~~~~with line lexical master ROW-CHECK \\
 \tt define bracket type "row" [text] \\
-\tt ~~~~~~~with group line \\
+\tt ~~~~~~~with group *LINE* \\
 \end{tabular}
 \\[2ex]
 \begin{tabular}{l}
@@ -7273,7 +7273,7 @@ of the {\em sentence}.
                    from the Commands}
 \\[1ex]
 \tt define bracket type "section" [code, text] \\
-\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with group *PARAGRAPH* \\
 \tt ~~~~~~~with parsing selectors [+ text, \\
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- code, - math, - data] \\
 \tt ~~~~~~~with parsing options [+ end at lt indent, \\
@@ -7284,7 +7284,7 @@ of the {\em sentence}.
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- end at outer closing] \\
 \tt ~~~~~~~with implied subprefix {s} \\
 \tt define bracket type "p" [code, text] \\
-\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with group *PARAGRAPH* \\
 \tt ~~~~~~~with parsing selectors [+ text, \\
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- code, - math, - data] \\
 \tt ~~~~~~~with parsing options [+ sticky, \\
@@ -7299,7 +7299,7 @@ of the {\em sentence}.
 \tt ~~~~~~~with sentence reformatter \\
 \tt ~~~~~~~~~~~~( ".", "?", "!", ":", ";" ) \\
 \tt define bracket type "quote" [code, text] \\
-\tt ~~~~~~~with group paragraph \\
+\tt ~~~~~~~with group *PARAGRAPH* \\
 \tt ~~~~~~~with parsing selectors [+ text, \\
 \tt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~- code, - math, - data] \\
 \tt ~~~~~~~with parsing options [+ sticky, \\
@@ -7319,7 +7319,7 @@ of the {\em sentence}.
 \label{HEADED-LINES}
 
 A `\key{line header}' is a typed prefix separator that has
-the `\TT{line}' group.  Line headers may only
+the `\TT{*LINE*}' group.  Line headers may only
 appear at the beginning of a logical line, or immediately
 after a paragraph header, which itself must begin a logical
 line: see \itemref{HEADED-PARAGRAPHS}.
@@ -7350,7 +7350,7 @@ equal to the special value \TT{min::\EOL LOGICAL\_\EOL LINE()}.
 \label{HEADED-PARAGRAPHS}
 
 A `\key{paragraph header}' is a typed prefix separator that has
-the `\TT{paragraph}' group.  Paragraph headers may only
+the `\TT{*PARAGRAPH*}' group.  Paragraph headers may only
 appear at the beginning of a logical line in paragraph beginning position,
 that is, following a blank
 line or the beginning of an indented paragraph or file (where
@@ -7381,9 +7381,9 @@ As an example, suppose the parser is given the definitions.
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define bracket type "itemize" [code, text]
-        with group paragraph
+        with group *PARAGRAPH*
     define bracket type "item" [code, text]
-        with group line
+        with group *LINE*
 \end{verbatim}\end{indpar}
 Then when given the input (with `\TT{code}' or `\TT{text}'
 a top level parsing selector):
@@ -7406,10 +7406,10 @@ Now suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define bracket type "itemize" [code, text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {item}
     define bracket type "item" [code, text]
-        with group line
+        with group *LINE*
 \end{verbatim}\end{indpar}
 with a `\TT{implied subprefix}'.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
@@ -7424,11 +7424,11 @@ Next suppose the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define bracket type "itemize" [code, text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {item}
         with parsing options [+ sticky]
     define bracket type "item" [code, text]
-        with group line
+        with group *LINE*
 \end{verbatim}\end{indpar}
 with a `\TT{sticky}' option.  Then when given given the input:
 \begin{indpar}\begin{verbatim}
@@ -7453,11 +7453,11 @@ If instead the parser is given the definitions:
 \begin{indpar}\begin{verbatim}
 *PARSER*:
     define bracket type "itemize" [code, text]
-        with group paragraph
+        with group *PARAGRAPH*
         with implied subprefix {item}
         with parsing options [+ continuing]
     define bracket type "item" [code, text]
-        with group line
+        with group *LINE*
 \end{verbatim}\end{indpar}
 with a `\TT{continuing}' option, then when given the above input
 the parser would produce the single MIN object:
@@ -7486,10 +7486,10 @@ The `\TT{standard}' parser block contains the definitions:
            with token value {row}
     define bracket type "table" [code, text]
         with parsing selectors [text]
-        with group paragraph
+        with group *PARAGRAPH*
         with line lexical master ROW-CHECK
     define bracket type "row" [text]
-        with group line
+        with group *LINE*
 \end{verbatim}\end{indpar}
 
 To see how these definitions work, consider the example:
@@ -7571,7 +7571,7 @@ Isolated headers and mapped headers
 are the only headers that can reset the line lexical
 master to the value in the header's bracket type definition.
 A \key{reset header} is a prefix with the
-`\TT{reset}' group.
+`\TT{*RESET*}' group.
 
 An isolated header must appear at the
 beginning of a logical line and must be the only thing in its
@@ -7650,7 +7650,7 @@ While parsing a logical line the parser uses the line variables:
 
     A non-missing implied header must have a bracket type
     definition selected by the \TT{selec\-tors} line variable that
-    has either the `\TT{paragraph}' or `\TT{line}' group.
+    has either the `\TT{*PARAGRAPH*}' or `\TT{*LINE*}' group.
 
     Modifications to selectors and options made by an implied
     header should be chosen so that they do not affect the parsing
@@ -7770,8 +7770,8 @@ current line variables.
 If the \TT{implied\_header} current line variable value is not missing,
 the bracket type definition for this is looked up (using selectors now
 equal to the \TT{selectors} current line variable).
-The bracket type definition must exist and have either the `\TT{paragraph}' or
-`\TT{line}' group.  Note that an isolated header cannot be implied.
+The bracket type definition must exist and have either the `\TT{*PARAGRAPH*}' or
+`\TT{*LINE*}' group.  Note that an isolated header cannot be implied.
 
 The \TT{implied\_header} is treated as missing unless one of the
 following options is present in the \TT{options} current line variable:
@@ -7781,11 +7781,12 @@ following options is present in the \TT{options} current line variable:
 \TT{enable header} \\
 \end{center}
 
-If the bracket type definition has the `\TT{paragraph}' group, the
-implied prefix is an implied paragraph header.  If it has the `\TT{line}' group,
+If the bracket type definition has the `\TT{*PARAGRAPH*}' group, the
+implied prefix is an implied paragraph header.
+If it has the `\TT{*LINE*}' group,
 the implied prefix is an implied line header.
 
-If the \TT{implied\_header} has the `\TT{paragraph}' group and the
+If the \TT{implied\_header} has the `\TT{*PARAGRAPH*}' group and the
 logical line is \underline{not} in paragraph beginning position,
 an error is announced and the \TT{implied\_\EOL header} is treated as missing.
 
@@ -7793,12 +7794,12 @@ A non-missing implied header is inserted at the beginning of the logical line.
 Then the parsing selectors and parsing options
 in its bracket type definition are used to
 modify the current selectors and options.
-In addition, if the implied header has `\TT{paragraph}' group,
+In addition, if the implied header has `\TT{*PARAGRAPH*}' group,
 the new selectors and options are stored in the current line
 variable selectors and options, and
 the implied subprefix of the bracket type definition is stored in
 the current line variable implied header variable if it has the
-`\TT{line}' group when its bracket type is looked up with the
+`\TT{*LINE*}' group when its bracket type is looked up with the
 new selectors current line variable value (this implied subprefix
 will also be inserted after the implied paragraph header in its
 logical line).
@@ -7811,7 +7812,7 @@ in paragraph beginning position).
 
 The first part of the rest of the logical line is then parsed.
 If it begins with a prefix that has a bracket type definition with either
-the `\TT{paragraph}', `\TT{line}', or `\TT{reset}' group,
+the `\TT{*PARAGRAPH*}', `\TT{*LINE*}', or `\TT{*RESET*}' group,
 then that is an explicit paragraph, line, or reset header.
 
 If an explicit paragraph or reset
@@ -7843,7 +7844,7 @@ header with a non-missing line lexical master, the current line variable
 line lexical master.
 Here the implied header is copied from the explicit header's bracket type
 definition only if the explicit header is a paragraph header and the
-implied header has the `\TT{line}' group when its bracket type
+implied header has the `\TT{*LINE*}' group when its bracket type
 definition is looked up with the new selectors current line variable.
 
 If an isolated paragraph header is found, the header's bracket type

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  1 12:53:19 EST 2023
+// Date:	Thu Mar  2 04:15:40 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -351,7 +351,7 @@ static void define_bracket_types
 	  + code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  PARLEX::reset,
+	  PARLEX::RESET,
 	  min::MISSING(),
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
@@ -413,7 +413,7 @@ static void define_bracket_types
 	      TAB::new_flags
 	          ( data_paragraph,
 		    PAR::ALL_PREFIX_OPT ),
-	      PARLEX::line,   // group
+	      PARLEX::LINE,   // group
 	      min::MISSING(), // implied_subprefix
 	      min::MISSING(), // implied_subprefix_type
 	      PAR::MISSING_MASTER,
@@ -435,7 +435,7 @@ static void define_bracket_types
 		      (   PAR::COMMAND_SELECTORS
 		        ^ data ^ data_paragraph )
 		     + PAR::ALL_PREFIX_OPT ),
-	      PARLEX::line,   // group
+	      PARLEX::LINE,   // group
 	      min::MISSING(), // implied_subprefix
 	      min::MISSING(), // implied_subprefix_type
 	      PAR::MISSING_MASTER,
@@ -468,7 +468,7 @@ static void define_bracket_types
 	      TAB::new_flags
 		  ( text,
 		    PAR::COMMAND_SELECTORS ^ text ),
-	      PARLEX::paragraph,
+	      PARLEX::PARAGRAPH,
 	      min::MISSING(), // implied_subprefix
 	      min::MISSING(), // implied_subprefix_type
 	      row_check,
@@ -481,7 +481,7 @@ static void define_bracket_types
 	      text,
 	      block_level, PAR::top_level_position,
 	      TAB::new_flags ( 0, 0, 0 ),
-	      PARLEX::line,
+	      PARLEX::LINE,
 	      min::MISSING(),
 	      min::MISSING(),
 	      PAR::MISSING_MASTER,
@@ -523,7 +523,7 @@ static void define_bracket_types
 		    + PAR::EALSEP_OPT
 		    + PAR::EAOCLOSING_OPT
 		    + code + math + data ),
-	      PARLEX::paragraph, // group
+	      PARLEX::PARAGRAPH, // group
 	      implied_s_header,
 	      s,
 	      PAR::MISSING_MASTER,
@@ -548,7 +548,7 @@ static void define_bracket_types
 		    + PAR::EALSEP_OPT
 		    + PAR::EAOCLOSING_OPT
 		    + code + math + data ),
-	      PARLEX::paragraph,
+	      PARLEX::PARAGRAPH,
 	      implied_s_header,
 	      s,
 	      PAR::MISSING_MASTER,
@@ -573,7 +573,7 @@ static void define_bracket_types
 		    + PAR::EALSEP_OPT
 		    + PAR::EAOCLOSING_OPT
 		    + code + math + data ),
-	      PARLEX::paragraph,
+	      PARLEX::PARAGRAPH,
 	      implied_s_header,
 	      s,
 	      PAR::MISSING_MASTER,

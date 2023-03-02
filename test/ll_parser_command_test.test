@@ -324,7 +324,7 @@ BRACKETED EXPRESSION:
         with token value {data}
     define bracket type "data" [TOP LEVEL]
         with parsing selectors [data]
-        with group line
+        with group *LINE*
         with data reformatter
              ( "@@@@", "::=",
                ( ":" ), "=", "not", "[", "{*" )
@@ -342,7 +342,7 @@ ID 4 is @@
     print bracket type ""
         block X: bracket type "data" [TOP LEVEL]
                  with parsing selectors [data]
-                 with group line
+                 with group *LINE*
                  with data reformatter ( "@@@@", "::=", {|":"|}, "=",
                  "not", "[", [< "{" "*" >] )
     print mapped lexeme ""

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 19:40:06 EST 2023
+// Date:	Thu Mar  2 03:54:06 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -320,9 +320,9 @@ And another.  {s} And yet another
 *PARSER*:
     begin block BLOCK1
     define bracket type "itemize" [code, text]
-    	with group paragraph
+    	with group *PARAGRAPH*
     define bracket type "item" [code, text]
-    	with group line
+    	with group *LINE*
 
 {itemize: indent = 5em, mark = "*"}
 {item} 1 chicken
@@ -338,10 +338,10 @@ And another.  {s} And yet another
     end block BLOCK1
     begin block BLOCK1
     define bracket type "itemize" [code, text]
-    	with group paragraph
+    	with group *PARAGRAPH*
 	with implied subprefix {item}
     define bracket type "item" [code, text]
-    	with group line
+    	with group *LINE*
 
 {itemize: indent = 5em, mark = "*"}
 1 chicken
@@ -355,11 +355,11 @@ a potato
     end block BLOCK1
     begin block BLOCK1
     define bracket type "itemize" [code, text]
-    	with group paragraph
+    	with group *PARAGRAPH*
 	with implied subprefix {item}
 	with parsing options [+ sticky]
     define bracket type "item" [code, text]
-    	with group line
+    	with group *LINE*
 
 {itemize: indent = 5em, mark = "*", label = "STICKY"}
 1 chicken
@@ -378,11 +378,11 @@ line 2
     end block BLOCK1
     begin block BLOCK1
     define bracket type "itemize" [code, text]
-    	with group paragraph
+    	with group *PARAGRAPH*
 	with implied subprefix {item}
 	with parsing options [+ continuing]
     define bracket type "item" [code, text]
-    	with group line
+    	with group *LINE*
 
 {itemize: indent = 5em, mark = "*",
           label = "CONTINUING"}
@@ -401,11 +401,11 @@ line 4
     end block BLOCK1
     begin block BLOCK1
     define bracket type "itemize" [code, text]
-    	with group paragraph
+    	with group *PARAGRAPH*
 	with implied subprefix {item}
 	with parsing options [+ sticky]
     define bracket type "item" [code, text]
-    	with group line
+    	with group *LINE*
 
 {itemize: indent = 5em, mark = "*"}
 {item} 1 chicken
@@ -526,7 +526,7 @@ ID 41 IS [@41]
     define bracket "<<" ... ">>" [data]
     define bracket type "D" [code]
            with parsing selectors [data]
-	   with group line
+	   with group *LINE*
     define indentation mark "::" [code]
            with parsing selectors [code]
 	   with implied header {D}

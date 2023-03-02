@@ -17,25 +17,25 @@
         with parsing options
              [end at paragraph break, sticky,
               enable table prefix]
-        with group paragraph
+        with group *PARAGRAPH*
         with parsing selectors [+ text, - code]
         with implied subprefix {s}
     define bracket type "s" [text]
         with sentence reformatter
             ( ".", ";", ":", "?", "!" )
     define bracket type "***" [TOP LEVEL, text]
-        with group reset
+        with group *RESET*
     print bracket type ""
         block X: bracket type "p" [TOP LEVEL]
                  with parsing selectors [+ text, - code]
                  with parsing options [end at paragraph break,
                                        enable table prefix, sticky]
-                 with group paragraph
+                 with group *PARAGRAPH*
                  with implied subprefix {s}
         block X: bracket type "s" [text]
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "***" [TOP LEVEL, text]
-                 with group reset
+                 with group *RESET*
 BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
        {s: .terminator = "."|an add-on|s}

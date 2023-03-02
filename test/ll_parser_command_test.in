@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 06:58:46 EST 2022
+// Date:	Thu Mar  2 03:52:36 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -126,7 +126,7 @@
         with token value {data}
     define bracket type "data" [TOP LEVEL]
         with parsing selectors [data]
-	with group line
+	with group *LINE*
 	with data reformatter
 	     ( "@@@@", "::=",
 	       ( ":" ), "=", "not", "[", "{*" )

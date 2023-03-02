@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  1 13:02:20 EST 2023
+// Date:	Thu Mar  2 03:50:54 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,7 +75,6 @@ namespace ll { namespace parser {
 	    etprefix,		// enable table prefix
 	    eheader,		// enable header
 	    sticky,		// sticky
-	    reset,		// reset
 	    continuing,		// continuing
 	    default_opt,	// default options
 	    other_ea_opt,	// other end at options
@@ -96,8 +95,9 @@ namespace ll { namespace parser {
 	    prefix,		// prefix
 	    header,		// header
 	    separator,		// separator
-	    line,		// line
-	    paragraph,		// paragraph
+	    LINE,		// *LINE*
+	    PARAGRAPH,		// *PARAGRAPH*
+	    RESET,		// *RESET*
 	    standard,		// standard
 	    define,		// define
 	    undefine,		// undefine
@@ -114,6 +114,8 @@ namespace ll { namespace parser {
 	    options,		// options
 	    group,		// group
 	    lexical,		// lexical
+	    line,		// line
+	    paragraph,		// paragraph
 	    master,		// master
 	    implied,		// implied
 	    subprefix,		// subprefix
@@ -288,8 +290,8 @@ struct token_struct
     const min::gen value_type;
         // For a BRACKETED token, the .initiator of its
 	// MIN value, if any, or the prefix group of its
-	// .type, if that is `line', `paragraph', or
-	// `reset'.
+	// .type, if that is `*LINE*', `*PARAGRAPH*', or
+	// `*RESET*'.
 	//
 	// For a PREFIX, IMPLIED_PREFIX, or IMPLIED_
 	// HEADER token, the prefix table entry of the

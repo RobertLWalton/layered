@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  1 16:08:59 EST 2023
+// Date:	Thu Mar  2 03:44:15 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -632,7 +632,7 @@ void BRA::push_bracket_type
     min::locatable_var<BRA::bracket_type> bracket_type
         ( ::bracket_type_type.new_stub() );
 
-    MIN_REQUIRE ( group == PARLEX::paragraph
+    MIN_REQUIRE ( group == PARLEX::PARAGRAPH
                   ||
 		  ( ( TAB::all_flags
 		          ( parsing_selectors )
@@ -957,7 +957,7 @@ void BRA::init_line_variables
 		      header_entry->parsing_selectors );
 	}
 
-	if ( group == PARLEX::paragraph )
+	if ( group == PARLEX::PARAGRAPH )
 	{
 	    if ( first_time ) first_is_paragraph = true;
 	    else              goto BAD_SUBPREFIX;
@@ -992,7 +992,7 @@ void BRA::init_line_variables
 	    implied_header_type =
 		header_entry->implied_subprefix_type;
 	}
-	else if ( group == PARLEX::line )
+	else if ( group == PARLEX::LINE )
 	{
 	    implied_data.implied_header =
 		    implied_header;
@@ -1105,7 +1105,7 @@ bool BRA::parse_paragraph_element
 	  ( current == line_variables->last_paragraph );
 	MIN_REQUIRE
 	  (    current->value_type
-	    == PARLEX::paragraph );
+	    == PARLEX::PARAGRAPH );
 
 	MIN_REQUIRE ( current->next != parser->first );
         current = current->next;
@@ -1214,7 +1214,7 @@ bool BRA::parse_paragraph_element
 	{
 	    MIN_REQUIRE ( first->next == current );
 
-	    if ( first->value_type == PARLEX::reset )
+	    if ( first->value_type == PARLEX::RESET )
 	    {
 	        // Reset line variables as per reset
 		// header.
@@ -1325,7 +1325,7 @@ bool BRA::parse_paragraph_element
 		      "non-comments after isolated"
 		      " header; ignored" );
 
-	    if ( first->value_type == PARLEX::reset )
+	    if ( first->value_type == PARLEX::RESET )
 	    {
 		// Remove reset header.
 		//
@@ -1401,10 +1401,10 @@ bool BRA::parse_paragraph_element
 	if ( first->next != current
 	     ||
 	     (    first->value_type
-	       != PARLEX::paragraph
+	       != PARLEX::PARAGRAPH
 	       &&
 		  first->value_type
-	       != PARLEX::line ) )
+	       != PARLEX::LINE ) )
 	{
 	    BRA::compact_logical_line
 		( parser, parser->pass_stack->next,
@@ -1419,7 +1419,7 @@ bool BRA::parse_paragraph_element
 	// Compact prefix paragraph if necessary.
 	//
 	if (    first->value_type
-	     == PARLEX::paragraph )
+	     == PARLEX::PARAGRAPH )
 	{
 	    if ( line_variables->last_paragraph
 		 != min::NULL_STUB )
@@ -2036,11 +2036,11 @@ min::position BRA::parse_bracketed_subexpression
 	    ( prefix_entry != min::NULL_STUB );
 	prefix_group = prefix_entry->group;
 	MIN_REQUIRE
-	    ( prefix_group == PARLEX::paragraph
+	    ( prefix_group == PARLEX::PARAGRAPH
 	      ||
-	      prefix_group == PARLEX::line );
+	      prefix_group == PARLEX::LINE );
 
-	if ( prefix_group == PARLEX::paragraph )
+	if ( prefix_group == PARLEX::PARAGRAPH )
 	{
 	    if ( ! line_variables->
 	               at_paragraph_beginning )
@@ -2136,7 +2136,7 @@ min::position BRA::parse_bracketed_subexpression
 		    ( selectors,
 		      prefix_entry->parsing_selectors );
 
-	    if ( prefix_group == PARLEX::paragraph )
+	    if ( prefix_group == PARLEX::PARAGRAPH )
 	    {
 		PAR::parse_error
 		  ( parser,
@@ -2151,9 +2151,9 @@ min::position BRA::parse_bracketed_subexpression
 
 		goto NEXT_TOKEN;
 	    }
-	    else if ( prefix_group == PARLEX::line )
+	    else if ( prefix_group == PARLEX::LINE )
 	    {
-		if ( p->group != PARLEX::paragraph )
+		if ( p->group != PARLEX::PARAGRAPH )
 		{
 		    PAR::parse_error
 		      ( parser,
@@ -2288,7 +2288,7 @@ EXPLICIT_PREFIX_FOUND:
 	    if ( prefix_entry->group != min::MISSING() )
 	        prefix_group = prefix_entry->group;
 
-	    if ( prefix_group == PARLEX::reset )
+	    if ( prefix_group == PARLEX::RESET )
 	    {
 		MIN_REQUIRE
 		    ( prefix->next == current );
@@ -2338,7 +2338,7 @@ EXPLICIT_PREFIX_FOUND:
 
 		prefix->type = PAR::BRACKETED;
 		PAR::value_type_ref(prefix) =
-		    PARLEX::reset;
+		    PARLEX::RESET;
 		return BRA::ISOLATED_HEADER;
 	    }
 
@@ -2346,9 +2346,9 @@ EXPLICIT_PREFIX_FOUND:
 	         ||
 		 ( selectors & PAR::EPREFIX_OPT )
 		 ||
-		 ( ( prefix_group == PARLEX::paragraph
+		 ( ( prefix_group == PARLEX::PARAGRAPH
 		     ||
-		     prefix_group == PARLEX::line )
+		     prefix_group == PARLEX::LINE )
 		   &&
 		   ( selectors & PAR::EHEADER_OPT ) ) )
 	    {
@@ -2381,10 +2381,10 @@ EXPLICIT_PREFIX_FOUND:
 	    if ( p->prefix_group == prefix_group )
 	    {
 		if ( (    prefix_group
-		       == PARLEX::paragraph
+		       == PARLEX::PARAGRAPH
 		       ||
 		          prefix_group
-		       == PARLEX::line ) )
+		       == PARLEX::LINE ) )
 		{
 		    PAR::token t = p->prefix;
 		    while (    t->type
@@ -2443,7 +2443,7 @@ EXPLICIT_PREFIX_FOUND:
 	// To enforce this, this code must immediately
 	// follow the above code.
 	//
-	if ( prefix_group == PARLEX::paragraph
+	if ( prefix_group == PARLEX::PARAGRAPH
 	     &&
 	     line_variables->at_paragraph_beginning
 	     &&
@@ -2457,7 +2457,7 @@ EXPLICIT_PREFIX_FOUND:
 	     bracket_stack_p != NULL
 	     &&
 		bracket_stack_p->prefix_group
-	     == PARLEX::line )
+	     == PARLEX::LINE )
 	{
 	    bracket_stack_p->closing_first =
 		prefix;
@@ -2466,7 +2466,7 @@ EXPLICIT_PREFIX_FOUND:
 	    return separator_found;
 	}
 
-	if ( prefix_group == PARLEX::paragraph )
+	if ( prefix_group == PARLEX::PARAGRAPH )
 	{
 	    if (    prefix->type
 		 == PAR::IMPLIED_PREFIX )
@@ -2511,7 +2511,7 @@ EXPLICIT_PREFIX_FOUND:
 
 	}
 	else
-	if ( prefix_group == PARLEX::line
+	if ( prefix_group == PARLEX::LINE
 	     &&
 		line_variables->previous->next
 	     != prefix
@@ -2519,7 +2519,7 @@ EXPLICIT_PREFIX_FOUND:
 	     ( bracket_stack_p == NULL
 	       ||
 		  bracket_stack_p->prefix_group
-	       != PARLEX::paragraph ) )
+	       != PARLEX::PARAGRAPH ) )
 	{
 	    PAR::parse_error
 	      ( parser,
@@ -2621,7 +2621,7 @@ PARSE_PREFIX_N_LIST:
 	while ( true )
 	{
 	    if (    prefix_group
-		 == PARLEX::paragraph
+		 == PARLEX::PARAGRAPH
 		 &&
 		    prefix->type
 		 != PAR::IMPLIED_HEADER )
@@ -2709,7 +2709,7 @@ PARSE_PREFIX_N_LIST:
 			 != min::NULL_STUB
 			 &&
 			    header_entry->group
-			 == PARLEX::line )
+			 == PARLEX::LINE )
 		    {
 			line_data.implied_header =
 			    implied_header;
@@ -2767,7 +2767,7 @@ PARSE_PREFIX_N_LIST:
 		{
 		    prefix->type = PAR::BRACKETED;
 		    PAR::value_type_ref(prefix) =
-		        PARLEX::paragraph;
+		        PARLEX::PARAGRAPH;
 		    return BRA::ISOLATED_HEADER;
 		}
 	    }
@@ -2812,7 +2812,7 @@ PARSE_PREFIX_N_LIST:
 		      ||
 		         prefix->type
 		      == PAR::IMPLIED_HEADER )
-		 && ( prefix_group != PARLEX::line
+		 && ( prefix_group != PARLEX::LINE
 		      ||
 		      ! separator_found ) )
 	    {
@@ -2823,7 +2823,7 @@ PARSE_PREFIX_N_LIST:
 	    }
 
 	    if (    prefix_group
-		 == PARLEX::paragraph
+		 == PARLEX::PARAGRAPH
 		 &&
 		 ( ( prefix_selectors
 		     &
@@ -2837,7 +2837,7 @@ PARSE_PREFIX_N_LIST:
 		 ( prefix->next->next != next
 		   ||
 		      prefix->next->value_type
-		   != PARLEX::line ) )
+		   != PARLEX::LINE ) )
 	    {
 		PAR::token first = prefix->next;
 		BRA::compact_logical_line
@@ -2850,9 +2850,9 @@ PARSE_PREFIX_N_LIST:
 		      trace_flags );
 	    }
 
-	    if ( prefix_group == PARLEX::line
+	    if ( prefix_group == PARLEX::LINE
 		 ||
-		 prefix_group == PARLEX::paragraph )
+		 prefix_group == PARLEX::PARAGRAPH )
 		PAR::value_type_ref ( prefix ) =
 		    prefix_group;
 	    else
@@ -2891,7 +2891,7 @@ PARSE_PREFIX_N_LIST:
 		 ( parser, bracketed_pass->next,
 		   prefix_selectors,
 		   prefix, next,
-		   prefix_group == PARLEX::line ?
+		   prefix_group == PARLEX::LINE ?
 		       separator_found :
 		       min::MISSING_POSITION,
 		      line_variables->line_sep
@@ -4603,7 +4603,7 @@ void BRA::compact_paragraph
 	  TAB::flags trace_flags )
 {
     MIN_REQUIRE
-        ( first->value_type == PARLEX::paragraph );
+        ( first->value_type == PARLEX::PARAGRAPH );
     if ( first->next == next ) return;
 
     min::phrase_position position =
@@ -4632,7 +4632,7 @@ void BRA::compact_paragraph
 	        ( current->type != PAR::PREFIX
 		  &&
 		  current->type != PAR::MAPPED_PREFIX );
-	    if ( current->value_type == PARLEX::line
+	    if ( current->value_type == PARLEX::LINE
 		 ||
 		    current->value_type
 		 == min::LOGICAL_LINE()
@@ -7553,7 +7553,7 @@ static min::gen bracketed_pass_command
 		  "unexpected stuff after" );
 
 	if (    TAB::all_flags ( new_selectors ) != 0
-	     && group == PARLEX::reset )
+	     && group == PARLEX::RESET )
 	{
 	    PAR::parse_error
 		( parser, ppvec->position,
@@ -7568,7 +7568,7 @@ static min::gen bracketed_pass_command
 		    (   PAR::ALL_OPT
 		      - PAR::ALL_ENABLE_OPT ) )
 		  != 0 )
-	     && group != PARLEX::paragraph )
+	     && group != PARLEX::PARAGRAPH )
 	{
 	    PAR::parse_error
 		( parser, ppvec->position,
@@ -7580,7 +7580,7 @@ static min::gen bracketed_pass_command
 	}
 
 	if (    implied_subprefix != min::MISSING()
-	     && group == PARLEX::reset )
+	     && group == PARLEX::RESET )
 	{
 	    PAR::parse_error
 		( parser, ppvec->position,
@@ -7592,7 +7592,7 @@ static min::gen bracketed_pass_command
 	}
 
 	if (    reformatter != min::NULL_STUB
-	     && group == PARLEX::reset )
+	     && group == PARLEX::RESET )
 	{
 	    PAR::parse_error
 		( parser, ppvec->position,
@@ -7605,7 +7605,7 @@ static min::gen bracketed_pass_command
 
 	if ( line_lexical_master != PAR::MISSING_MASTER
 	     &&
-	     group != PARLEX::paragraph )
+	     group != PARLEX::PARAGRAPH )
 	{
 	    PAR::parse_error
 		( parser, ppvec->position,

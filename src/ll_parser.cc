@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  2 03:47:39 EST 2023
+// Date:	Fri Mar  3 20:04:41 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2102,13 +2102,15 @@ bool PAR::test_attr_flags
 		d[ki] = min::new_control_code_gen
 			    ( dcc );
 
-		if ( fcc & ( min::unsgen ( 1 ) << ko ) ) 
+		if (   fcc
+		     & ( min::unsgen ( 1 ) << ko ) ) 
 		{
 		    // Flag set correctly.  Turn off
 		    // in f to indicate flag has been
 		    // processed.
 		    //
-		    fcc &= ~ ( min::unsgen ( 1 ) << ko );
+		    fcc &=
+		        ~ ( min::unsgen ( 1 ) << ko );
 		    f[ki] = min::new_control_code_gen
 				( fcc );
 		}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar  3 19:52:46 EST 2023
+// Date:	Fri Mar  3 20:06:52 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -117,7 +117,8 @@ static void define_brackets
 	      label + code + math + text,
 	      block_level, PAR::top_level_position,
 	      TAB::new_flags
-		  ( label, PAR::COMMAND_SELECTORS ^ label ),
+		  ( label,
+		    PAR::COMMAND_SELECTORS ^ label ),
 	      PAR::find_reformatter
 		  ( label_name,
 		    BRA::untyped_reformatter_stack ),
@@ -178,7 +179,8 @@ static void define_brackets
 	      code + math + text,
 	      block_level, PAR::top_level_position,
 	      TAB::new_flags
-		  ( text, PAR::COMMAND_SELECTORS ^ text ),
+		  ( text,
+		    PAR::COMMAND_SELECTORS ^ text ),
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 

@@ -593,7 +593,7 @@ ERROR: in line ###: missing closing bracket `)' inserted at end of
         with parsing options [end at indent]
         with group *PARAGRAPH*
 ERROR: in lines ###-###: `only `enable ...' parsing options' are allowed
-       for bracket type unless group is `paragraph'; options ignored:
+       for bracket type unless group is *PARAGRAPH*; options ignored:
     define bracket type "Z1" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with parsing selectors [code]
@@ -605,7 +605,7 @@ ERROR: in lines ###-###: `only `enable ...' parsing options' are allowed
         with parsing options [end at indent]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in lines ###-###: `with line lexical master' not allowed for
-       bracket type unless group is `paragraph'; line lexical master
+       bracket type unless group is *PARAGRAPH*; line lexical master
        ignored:
     define bracket type "Z1" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -623,7 +623,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
         with line lexical master "DEFAULT"
         with parsing options [end at indent]
 ERROR: in lines ###-###: `with parsing selectors' not allowed for
-       bracket type with group `reset'; selectors ignored:
+       bracket type with group *RESET*; selectors ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with group *RESET*
@@ -637,7 +637,7 @@ ERROR: in lines ###-###: `with parsing selectors' not allowed for
         with line lexical master "DEFAULT"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in lines ###-###: `only `enable ...' parsing options' are allowed
-       for bracket type unless group is `paragraph'; options ignored:
+       for bracket type unless group is *PARAGRAPH*; options ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with group *RESET*
@@ -651,7 +651,7 @@ ERROR: in lines ###-###: `only `enable ...' parsing options' are allowed
         with line lexical master "DEFAULT"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in lines ###-###: `with implied subprefix' not allowed for
-       bracket type with group `reset'; implied subprefix ignored:
+       bracket type with group *RESET*; implied subprefix ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with group *RESET*
@@ -665,7 +665,7 @@ ERROR: in lines ###-###: `with implied subprefix' not allowed for
         with line lexical master "DEFAULT"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ERROR: in lines ###-###: `with line lexical master' not allowed for
-       bracket type unless group is `paragraph'; line lexical master
+       bracket type unless group is *PARAGRAPH*; line lexical master
        ignored:
     define bracket type "R" [math]
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1097,7 +1097,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
     define indentation mark "::" ... ";" [code]
         with implied header {p}
 ERROR: in line ###: indentation mark implied header of type `p' does not
-       have `paragraph' or `line' group; cannot begin indented lines;
+       have *PARAGRAPH* or *LINE* group; cannot begin indented lines;
        ignored:
         with one line
         ^
@@ -1253,7 +1253,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
     define bracket type "l2" [code]
         with group *LINE*
 ERROR: in line ###: explicit prefix separator of type `p2' has
-       `paragraph' group but is not at beginning of a logical line that
+       *PARAGRAPH* group but is not at beginning of a logical line that
        is in paragraph beginning position; prefix unrecognized:
         {p2} and a fourth subparagraph started
         ^^^^
@@ -1885,8 +1885,8 @@ BRACKETED EXPRESSION:
         with implied subprefix {l1}
     define top level parsing options
            [ + enable table prefix]
-ERROR: in line ###: prefix of of type `x' does NOT have `paragraph'
-       group but has implied subprefix with `line' group; subprefix
+ERROR: in line ###: prefix of of type `x' does NOT have *PARAGRAPH*
+       group but has implied subprefix with *LINE* group; subprefix
        ignored:
 {x} implied `l1' prefix in error
     ^
@@ -1905,14 +1905,14 @@ BRACKETED EXPRESSION:
     line ###:
 {l1}{l2} a stray line
 ^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ###: prefix of of type `x' does NOT have `paragraph'
-       group but has implied subprefix with `line' group; subprefix
+ERROR: in line ###: prefix of of type `x' does NOT have *PARAGRAPH*
+       group but has implied subprefix with *LINE* group; subprefix
        ignored:
 {x}{l2} another stray line
    ^
-ERROR: in line ###: explicit prefix separator of type `l2' has `line'
+ERROR: in line ###: explicit prefix separator of type `l2' has *LINE*
        group but is not at beginning of logical line or immediately
-       after a prefix separator of `paragraph' group; prefix
+       after a prefix separator of *PARAGRAPH* group; prefix
        unrecognized:
 {x}{l2} another stray line
    ^^^^
@@ -1921,9 +1921,9 @@ BRACKETED EXPRESSION:
     line ###:
 {x}{l2} another stray line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ###: explicit prefix separator of type `l2' has `line'
+ERROR: in line ###: explicit prefix separator of type `l2' has *LINE*
        group but is not at beginning of logical line or immediately
-       after a prefix separator of `paragraph' group; prefix
+       after a prefix separator of *PARAGRAPH* group; prefix
        unrecognized:
 ({l2} a third stray)
  ^^^^
@@ -1933,7 +1933,7 @@ BRACKETED EXPRESSION:
 ({l2} a third stray)
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
-       `paragraph' group but is not at beginning of a logical line that
+       *PARAGRAPH* group but is not at beginning of a logical line that
        is in paragraph beginning position; prefix unrecognized:
 ({p} a fourth stray)
  ^^^
@@ -1943,7 +1943,7 @@ BRACKETED EXPRESSION:
 ({p} a fourth stray)
 ^^^^^^^^^^^^^^^^^^^^
 ERROR: in line ###: explicit prefix separator of type `p' has
-       `paragraph' group but is not at beginning of a logical line that
+       *PARAGRAPH* group but is not at beginning of a logical line that
        is in paragraph beginning position; prefix unrecognized:
 {p} and a fifth stray
 ^^^

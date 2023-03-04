@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  2 03:44:15 EST 2023
+// Date:	Fri Mar  3 20:01:35 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1025,7 +1025,7 @@ void BRA::init_line_variables
 		min::pgen_never_quote
 		  ( implied_header_type ),
 		"' does not have"
-		" `paragraph' or `line'"
+		" *PARAGRAPH* or *LINE*"
 		" group; cannot begin"
 		" indented lines;"
 		" ignored" );
@@ -1054,7 +1054,7 @@ void BRA::init_line_variables
 		        implied_header_type
 		  ),
 		"' has subprefix that is of"
-		" `paragraph' or `line'"
+		" *PARAGRAPH* or *LINE*"
 		" group; implied header"
 		" ignored" );
 
@@ -1395,7 +1395,7 @@ bool BRA::parse_paragraph_element
 
         // If subexpression is not a single element
 	// subexpression whose one element has prefix
-	// group `paragraph' or `line', compact it as
+	// group *PARAGRAPH* or *LINE*, compact it as
 	// a logical line.
 	//
 	if ( first->next != current
@@ -2145,7 +2145,7 @@ min::position BRA::parse_bracketed_subexpression
 		    min::pgen_never_quote
 		        ( parent_type ),
 		    "' has implied subprefix with"
-		    " `paragraph' group; subprefix"
+		    " *PARAGRAPH* group; subprefix"
 		    " ignored"
 		  );
 
@@ -2161,9 +2161,9 @@ min::position BRA::parse_bracketed_subexpression
 			"prefix of of type `",
 			min::pgen_never_quote
 			    ( parent_type ),
-			"' does NOT have `paragraph'"
+			"' does NOT have *PARAGRAPH*"
 			" group but has implied"
-			" subprefix with `line' group;"
+			" subprefix with *LINE* group;"
 			" subprefix ignored"
 		      );
 
@@ -2481,7 +2481,7 @@ EXPLICIT_PREFIX_FOUND:
 		    min::pgen_never_quote
 			( prefix_type ),
 		    "' that is not an implied header"
-		    " has `paragraph' group;"
+		    " has *PARAGRAPH* group;"
 		    " prefix unrecognized"
 		  );
 		prefix->type = PAR::BRACKETED;
@@ -2500,7 +2500,7 @@ EXPLICIT_PREFIX_FOUND:
 		    " type `",
 		    min::pgen_never_quote
 			( prefix_type ),
-		    "' has `paragraph' group but is"
+		    "' has *PARAGRAPH* group but is"
 		    " not at beginning of a logical"
 		    " line that is in paragraph"
 		    " beginning position;"
@@ -2536,10 +2536,10 @@ EXPLICIT_PREFIX_FOUND:
 		" of type `",
 		min::pgen_never_quote
 		    ( prefix_type ),
-		"' has `line' group but is not at"
+		"' has *LINE* group but is not at"
 		" beginning of logical line or"
 		" immediately after a prefix"
-		" separator of `paragraph' group;"
+		" separator of *PARAGRAPH* group;"
 		" prefix unrecognized"
 	      );
 	    prefix->type = PAR::BRACKETED;
@@ -4648,7 +4648,7 @@ void BRA::compact_paragraph
 		      min::pgen_never_quote
 			  ( current->value ),
 		      "' does not have LOGICAL_LINE"
-		      " .initiator or .type with `line'"
+		      " .initiator or .type with *LINE*"
 		      " group; ignored" );
 
 	    current = current->next;
@@ -7559,7 +7559,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec->position,
 		  "`with parsing selectors' not allowed"
 		  " for bracket type with group"
-		  " `reset'; selectors ignored" );
+		  " *RESET*; selectors ignored" );
 	    new_selectors = TAB::new_flags ( 0, 0, 0 );
 	}
 
@@ -7574,7 +7574,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec->position,
 		  "`only `enable ...' parsing options'"
 		  " are allowed for bracket type unless"
-		  " group is `paragraph';"
+		  " group is *PARAGRAPH*;"
 		  " options ignored" );
 	    new_options = TAB::new_flags ( 0, 0, 0 );
 	}
@@ -7586,7 +7586,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec->position,
 		  "`with implied subprefix' not allowed"
 		  " for bracket type with group"
-		  " `reset'; implied subprefix ignored"
+		  " *RESET*; implied subprefix ignored"
 		);
 	    implied_subprefix = min::MISSING();
 	}
@@ -7598,7 +7598,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec->position,
 		  "`with ... reformatter' not allowed"
 		  " for bracket type with group"
-		  " `reset'; reformatter ignored"
+		  " *RESET*; reformatter ignored"
 		);
 	    reformatter = min::NULL_STUB;
 	}
@@ -7611,7 +7611,7 @@ static min::gen bracketed_pass_command
 		( parser, ppvec->position,
 		  "`with line lexical master' not"
 		  " allowed for bracket type unless"
-		  " group is `paragraph'; line lexical"
+		  " group is *PARAGRAPH*; line lexical"
 		  " master ignored" );
 	    line_lexical_master = PAR::MISSING_MASTER;
 	}

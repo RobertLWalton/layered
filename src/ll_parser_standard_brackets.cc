@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  2 04:15:40 EST 2023
+// Date:	Fri Mar  3 19:52:46 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -591,13 +591,11 @@ static void define_bracket_types
 	    ( min::new_str_gen ( "!" ) );
 
 	min::locatable_gen s_arguments
-		( min::new_obj_gen ( 5 ) );
+		( min::new_obj_gen ( 3 ) );
 	min::obj_vec_insptr savp ( s_arguments );
 	min::attr_push ( savp ) = period;
 	min::attr_push ( savp ) = question;
 	min::attr_push ( savp ) = exclamation;
-	min::attr_push ( savp ) = PARLEX::colon;
-	min::attr_push ( savp ) = PARLEX::semicolon;
 
 	BRA::push_bracket_type
 	    ( s, text,

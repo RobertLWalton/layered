@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar  3 20:06:52 EST 2023
+// Date:	Fri Mar 10 03:48:30 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -469,7 +469,8 @@ static void define_bracket_types
 	      block_level, PAR::top_level_position,
 	      TAB::new_flags
 		  ( text,
-		    PAR::COMMAND_SELECTORS ^ text ),
+		      ( PAR::COMMAND_SELECTORS ^ text )
+		    + PAR::EALSEP_OPT ),
 	      PARLEX::PARAGRAPH,
 	      min::MISSING(), // implied_subprefix
 	      min::MISSING(), // implied_subprefix_type

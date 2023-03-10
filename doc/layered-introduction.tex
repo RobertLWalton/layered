@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 3, 2023
+March 10, 2023
  
 \end{center}
 
@@ -7486,6 +7486,7 @@ The `\TT{standard}' parser block contains the definitions:
            with token value {row}
     define bracket type "table" [code, text]
         with parsing selectors [text]
+        with parsing options [- end at line separator]
         with group *PARAGRAPH*
         with line lexical master ROW-CHECK
     define bracket type "row" [text]

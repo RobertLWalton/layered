@@ -7752,6 +7752,8 @@ BRACKETED EXPRESSION:
              .position[H] = PACKED_VEC
              .type = s
     lines ###-###:
+{p}
+^^^
 This is the second
 ^^^^^^^^^^^^^^^^^^
 paragraph.  Which has several
@@ -7786,24 +7788,54 @@ WARNING: in line ###: logical line begins at an indent that is greater
     {quote}
     ^
 BRACKETED EXPRESSION:
-    {quote|{s: .terminator = "."|This is a fouth paragraph|s}|quote}
+    {quote|{s: .terminator = "."|This is a fourth paragraph|s}|quote}
 !@@@@ := @@@@:
              .type = quote
              .position[H] = PACKED_VEC
-!@@@@ := This is a fouth paragraph:
+!@@@@ := This is a fourth paragraph:
              .terminator = "."
              .position[H] = PACKED_VEC
              .type = s
     lines ###-###:
     {quote}
     ^^^^^^^
-    This is a fouth
-^^^^^^^^^^^^^^^^^^^
+    This is a fourth
+^^^^^^^^^^^^^^^^^^^^
     paragraph.
 ^^^^^^^^^^^^^^
-ERROR: in line ###: non-comments after isolated header; ignored:
-       And another code line.
-       ^^^^^^^^^^^^^^^^^^^^^^
+WARNING: in line ###: logical line begins at an indent that is greater
+         than the current paragraph indent:
+    {quote}
+    ^
+BRACKETED EXPRESSION:
+    {quote|{s: .terminator = "."|And another quoted line|s}|quote}
+!@@@@ := @@@@:
+             .type = quote
+             .position[H] = PACKED_VEC
+!@@@@ := And another quoted line:
+             .terminator = "."
+             .position[H] = PACKED_VEC
+             .type = s
+    lines ###-###:
+    {quote}
+    ^^^^^^^
+    // A comment with causes no warning message.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       And another quoted line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WARNING: in line ###: logical line begins at an indent that is greater
+         than the current paragraph indent:
+    And now a code line.
+    ^
+BRACKETED EXPRESSION:
+    And now a code line "."
+!@@@@ := And now a code line ".":
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = [$ LOGICAL_LINE $]
+    line ###:
+    And now a code line.
+    ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {p|{s: .terminator = "."|This is a paragraph with a subparagraph
            {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =

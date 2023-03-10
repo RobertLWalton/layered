@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  2 03:54:06 EST 2023
+// Date:	Fri Mar 10 13:17:31 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -310,8 +310,6 @@ ID 10 is @10
 And another.  {s} And yet another
 {foo} sentence.
 
-{***}
-
 {P} {S} This is a sentence. {S}
     And another.  {S} And yet another
     {foo} sentence.
@@ -430,22 +428,25 @@ a potato
 {p}
 This is the first paragraph.
 
+{p}
 This is the second
 paragraph.  Which has several
 sentences.
 
-{***}
 This is a code line.
 
 {p}This is the
 third paragraph.
 
     {quote}
-    This is a fouth
+    This is a fourth
     paragraph.
 
-{***} // A comment with no warning.
-       And another code line.
+    {quote}
+    // A comment with causes no warning message.
+       And another quoted line.
+
+    And now a code line.
 
 {p}This is a paragraph with a subparagraph:
 
@@ -464,8 +465,6 @@ and a continuation of the outer paragraph.
     -
     | 1 tablespoon paprika
     =
-
-{***}
 
 *PARSER*:
     end block BLOCK1

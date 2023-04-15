@@ -3,7 +3,7 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  4 21:55:46 EDT 2022
+// Date:	Sat Apr 15 06:08:29 EDT 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -78,3 +78,5 @@ else if w != v:
 else: foo ( a, b )
 else:
     c = d + e
+
+(a, {|b c|}, d, "e f", g)

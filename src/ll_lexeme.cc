@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:52:13 EST 2021
+// Date:	Mon May 15 04:15:53 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -905,7 +905,7 @@ static void default_erroneous_atom_announce
 
 	LEX::print_phrase_lines
 	    ( scanner->printer, scanner, first, next,
-	      '^', NULL, NULL, NULL );
+	      '^' );
 	break;
 
     default:
@@ -2416,17 +2416,13 @@ void LEX::print_phrase_lines
 	  LEX::scanner scanner,
 	  min::uns32 first,
 	  min::uns32 next,
-	  char mark,
-	  const char * blank_line,
-	  const char * end_of_file,
-	  const char * unavailable_line )
+	  char mark )
 {
     min::phrase_position position =
         LEX::phrase_position ( scanner, first, next );
 
     min::print_phrase_lines
-        ( printer, scanner->input_file, position, mark,
-	  blank_line, end_of_file, unavailable_line );
+        ( printer, scanner->input_file, position, mark );
 }
 
 // Printing Programs
@@ -3241,7 +3237,7 @@ static min::gen scan_name_string_next_element
 	    << min::eol;
 	LEX::print_phrase_lines
 	    ( scanner->printer, scanner, first, next,
-	      '^', NULL, NULL, NULL );
+	      '^' );
         return min::ERROR();
     }
 

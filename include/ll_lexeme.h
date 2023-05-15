@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  3 23:48:58 EST 2021
+// Date:	Mon May 15 04:16:56 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1265,13 +1265,7 @@ namespace ll { namespace lexeme {
 	    ( min::printer,
 	      ll::lexeme::scanner scanner,
 	      uns32 first, uns32 next,
-	      char mark = '^',
-	      const char * blank_line =
-	          "<BLANK-LINE>",
-	      const char * end_of_file =
-	          "<END-OF-FILE>",
-	      const char * unavailable_line =
-	          "<UNAVALABLE-LINE>" );
+	      char mark = '^' );
 
     // Print a representation of the program to the
     // printer.  There are two output formats: cooked

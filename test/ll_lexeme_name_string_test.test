@@ -13,7 +13,7 @@ ERROR: empty name string
     VALUE: [$ ERROR $]
 TESTING "<+<SP>foo<SP>+>"
 ERROR: Lexeme of illegal type (WORD) in name string:
-<+<SP>foo<SP>+>
+<+<SP>foo<SP>+><END-OF-FILE>
       ^^^
     VALUE: [$ ERROR $]
 TESTING "<+<SP><LF><SP>+>"
@@ -23,11 +23,11 @@ ERROR: Lexeme of illegal type (LINE-BREAK) in name string:
     VALUE: [$ ERROR $]
 TESTING "<+<SP><SOH><SP>+>"
 ERROR: Lexeme of illegal type (ILLEGAL-CONTROL) in name string:
-<+<SP><SOH><SP>+>
+<+<SP><SOH><SP>+><END-OF-FILE>
       ^^^^^
     VALUE: [$ ERROR $]
 TESTING ""<FOO>"
 ERRONEOUS ATOM: UNRECOGNIZED-ESCAPE:
-"<FOO>
+"<FOO><END-OF-FILE>
  ^^^^^
     VALUE: [$ ERROR $]

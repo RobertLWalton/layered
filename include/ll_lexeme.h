@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 04:16:56 EDT 2023
+// Date:	Wed May 24 07:17:25 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1007,29 +1007,33 @@ namespace ll { namespace lexeme {
     bool init_input_named_file
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      min::gen file_name,
-	      uns32 line_display = 0,
+	      const min::line_format * line_format =
+	                               NULL,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      std::istream & istream,
-	      uns32 line_display = 0,
+	      const min::line_format * line_format =
+	                               NULL,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
 	    ( min::ref<ll::lexeme::scanner> scanner,
 	      min::ptr<const char> data,
-	      uns32 line_display = 0,
+	      const min::line_format * line_format =
+	                               NULL,
 	      uns32 spool_lines = min::ALL_LINES );
 
     void init_input
 	    ( min::ref<ll::lexeme::scanner> scanner,
-	      uns32 line_display = 0,
+	      const min::line_format * line_format =
+	                               NULL,
 	      uns32 spool_lines = min::ALL_LINES );
 
-    void init_line_display
+    void init_line_format
 	    ( min::ref<ll::lexeme::scanner> scanner,
-	      uns32 line_display );
+	      const min::line_format * line_format );
 
     void init_spool_lines
 	    ( min::ref<ll::lexeme::scanner> scanner,
@@ -1264,8 +1268,7 @@ namespace ll { namespace lexeme {
     void print_phrase_lines
 	    ( min::printer,
 	      ll::lexeme::scanner scanner,
-	      uns32 first, uns32 next,
-	      char mark = '^' );
+	      uns32 first, uns32 next );
 
     // Print a representation of the program to the
     // printer.  There are two output formats: cooked
@@ -1378,8 +1381,8 @@ namespace ll { namespace lexeme {
     // with a program and printer, and if desired an
     // initial_table and/or a trace.  Then init_input_
     // string is called to define the string to be
-    // scanned, and init_line_display may be called to
-    // initialize line display for error messages.  If
+    // scanned, and init_line_format may be called to
+    // initialize line format for error messages.  If
     // the erroneous_atom closure is not initialized,
     // this function gives it the default value with
     // NO_LINE_NUMBERS mode.

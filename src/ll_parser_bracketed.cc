@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar  3 20:01:35 EST 2023
+// Date:	Tue May 23 07:35:57 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7278,7 +7278,7 @@ static min::gen bracketed_pass_command
 	    LEX::init_input_string
 		( name_scanner_ref ( parser ),
 		  min::new_ptr ( buffer ),
-		  parser->input_file->line_display );
+		  parser->input_file->line_format );
 
 	    double_middle =
 		( LEX::scan_name_string

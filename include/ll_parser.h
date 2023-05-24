@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  2 03:50:54 EST 2023
+// Date:	Tue May 23 07:34:55 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1388,14 +1388,14 @@ void reset ( min::ref<ll::parser::parser> parser );
 // Some parameters are copied to both parser and any
 // scanner that exists for the parser.
 //
-inline void init_line_display
+inline void init_line_format
 	( min::ref<ll::parser::parser> parser,
-	  min::uns32 line_display )
+	  const min::line_format * line_format )
 {
     init ( parser );
-    min::init_line_display
+    min::init_line_format
         ( input_file_ref(parser),
-	  line_display );
+	  line_format );
 }
 inline void init_printer
 	( min::ref<ll::parser::parser> parser,
@@ -1434,22 +1434,22 @@ inline void init_lexeme_map
 void init_input_stream
 	( min::ref<ll::parser::parser> parser,
 	  std::istream & istream,
-	  min::uns32 line_display = 0,
+	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_file
 	( min::ref<ll::parser::parser> parser,
 	  min::file ifile,
-	  min::uns32 line_display = 0,
+	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 bool init_input_named_file
 	( min::ref<ll::parser::parser> parser,
 	  min::gen file_name,
-	  min::uns32 line_display = 0,
+	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 void init_input_string
 	( min::ref<ll::parser::parser> parser,
 	  min::ptr<const char> data,
-	  min::uns32 line_display = 0,
+	  const min::line_format * line_format = NULL,
 	  min::uns32 spool_lines = min::ALL_LINES );
 
 // The following initialize the parser and then call

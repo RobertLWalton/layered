@@ -3,7 +3,7 @@
 //
 // File:	ll_lexeme_alternate_basic_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 19 15:44:38 EDT 2015
+// Date:	Wed May 24 07:10:16 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,8 +36,7 @@ int main ( int argc, const char * argv[] )
     			LEXSTD::default_program );
     LEX::init_input_stream
         ( LEX::default_scanner,
-	  std::cin,
-	  min::DISPLAY_PICTURE );
+	  std::cin );
     if ( argc > 1 )
         LEX::default_scanner->trace = LEX::TRACE;
     LEX::default_scanner->printer

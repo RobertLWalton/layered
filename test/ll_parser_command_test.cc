@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:43:54 EDT 2022
+// Date:	Wed May 24 07:14:41 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,15 +19,16 @@ using std::cout;
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
+
     PAR::init ( PAR::default_parser, 0 );
     PARSTD::init_input ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
-    PAR::init_line_display
+    PAR::init_line_format
         ( PAR::default_parser,
-	  min::DISPLAY_PICTURE );
+	  min::picture_line_format );
     PAR::default_parser->trace_flags |=
         PAR::TRACE_PARSER_COMMANDS;
 

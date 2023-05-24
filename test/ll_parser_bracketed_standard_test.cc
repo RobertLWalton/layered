@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:43:17 EDT 2022
+// Date:	Tue May 23 07:38:19 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,9 +36,11 @@ int main ( int argc, const char * argv[] )
 	  + PARSTD::ALL_BRACKETS );
 
     PAR::init_input_stream
-        ( PAR::default_parser, std::cin );
+        ( PAR::default_parser, std::cin,
+	  min::marked_line_format );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
+
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass)
 	PAR::default_parser->pass_stack;
@@ -56,9 +58,6 @@ int main ( int argc, const char * argv[] )
 	PAR::TRACE_KEYS
 	+
 	PAR::TRACE_PARSER_OUTPUT;
-    PAR::init_line_display
-        ( PAR::default_parser,
-	    min::DISPLAY_PICTURE );
 
     min::locatable_gen math_name
         ( min::new_str_gen ( "math" ) );

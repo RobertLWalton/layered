@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 06:16:42 EST 2022
+// Date:	Wed May 24 05:37:38 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -643,14 +643,16 @@ min::uns32 COM::print_command
     {
 	min::print_phrase_lines
 	    ( parser->printer, parser->input_file,
-	      parser->message_header, 0 );
+	      parser->message_header,
+	      min::standard_line_format );
 	parser->message_header.begin =
 	    min::MISSING_POSITION;
     }
 
     return min::print_phrase_lines
 	( parser->printer,
-	  ppvec->file, ppvec->position, 0 );
+	  ppvec->file, ppvec->position,
+	  min::standard_line_format );
 }
 
 // Execute Pass

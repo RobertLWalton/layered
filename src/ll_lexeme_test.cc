@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  6 15:13:02 EDT 2017
+// Date:	Wed May 24 07:19:15 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -200,7 +200,6 @@ static void set_codes
 	    min::print_line_column
 		( scanner->input_file,
 		  begin_pos,
-		  scanner->input_file->line_display,
 		  print_format );
 	uns32 end_column =
 	    begin_pos.line < end_pos.line ?
@@ -208,7 +207,6 @@ static void set_codes
 	    min::print_line_column
 		( scanner->input_file,
 		  end_pos,
-		  scanner->input_file->line_display,
 		  print_format );
 
 	// Handle zero length lexeme.  This may be

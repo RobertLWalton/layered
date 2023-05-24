@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  4 00:03:47 EST 2021
+// Date:	Tue May 23 05:40:15 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,6 +28,10 @@ const min::uns64 end_types =
       ( 1ull << LEXSTD::end_of_file_t )
     + ( 1ull << LEXSTD::premature_end_of_file_t );
 
+static min::line_format marked_line_format =
+    * min::marked_line_format;
+    // Gets DISPLAY_NON_GRAPHIC below in main.
+
 static void test_string ( const char * s )
 {
     min::printer printer =
@@ -40,7 +44,7 @@ static void test_string ( const char * s )
     LEX::init_input_string
     	( LEX::default_scanner,
 	  min::new_ptr ( s ),
-	  min::DISPLAY_NON_GRAPHIC );
+	  & ::marked_line_format );
     min::gen value = LEX::scan_name_string
     	( LEX::default_scanner,
 	  ::accepted_types,
@@ -56,6 +60,10 @@ static void test_string ( const char * s )
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
+
+    ::marked_line_format.op_flags |=
+        min::DISPLAY_NON_GRAPHIC;
+
     LEX::init_ostream
 	    ( LEX::default_scanner, std::cout )
         << min::ascii;

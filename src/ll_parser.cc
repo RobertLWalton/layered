@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar  3 20:04:41 EST 2023
+// Date:	Wed May 24 05:23:21 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1199,53 +1199,53 @@ void PAR::reset ( min::ref<PAR::parser> parser )
 void PAR::init_input_stream
 	( min::ref<PAR::parser> parser,
 	  std::istream & in,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
     init ( parser );
 
     min::init_input_stream
         ( input_file_ref(parser),
-	  in, line_display, spool_lines );
+	  in, line_format, spool_lines );
 }
 
 void PAR::init_input_file
 	( min::ref<PAR::parser> parser,
 	  min::file ifile,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
     init ( parser );
 
     min::init_input_file
         ( input_file_ref(parser),
-	  ifile, line_display, spool_lines );
+	  ifile, line_format, spool_lines );
 }
 
 bool PAR::init_input_named_file
 	( min::ref<PAR::parser> parser,
 	  min::gen file_name,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
     init ( parser );
 
     return min::init_input_named_file
         ( input_file_ref(parser),
-	  file_name, line_display, spool_lines );
+	  file_name, line_format, spool_lines );
 }
 
 void PAR::init_input_string
 	( min::ref<PAR::parser> parser,
 	  min::ptr<const char> data,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
     init ( parser );
 
     min::init_input_string
         ( input_file_ref(parser),
-	  data, line_display, spool_lines );
+	  data, line_format, spool_lines );
 }
 
 void PAR::init_ostream
@@ -2721,7 +2721,7 @@ min::gen PAR::scan_name_string_label
     LEX::init_input_string
 	( name_scanner_ref ( parser ),
 	  min::begin_ptr_of ( sp ),
-	  parser->input_file->line_display );
+	  parser->input_file->line_format );
 
     return LEX::scan_name_string
 	( name_scanner_ref ( parser ),
@@ -3085,7 +3085,8 @@ min::gen PAR::parse_error
     {
 	min::print_phrase_lines
 	    ( parser->printer, parser->input_file,
-	      parser->message_header, 0 );
+	      parser->message_header,
+	      min::standard_line_format );
 	parser->message_header.begin =
 	    min::MISSING_POSITION;
     }
@@ -3131,7 +3132,8 @@ void PAR::parse_warn
     {
 	min::print_phrase_lines
 	    ( parser->printer, parser->input_file,
-	      parser->message_header, 0 );
+	      parser->message_header,
+	      min::standard_line_format );
 	parser->message_header.begin =
 	    min::MISSING_POSITION;
     }

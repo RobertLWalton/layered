@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 04:15:53 EDT 2023
+// Date:	Tue May 23 05:34:14 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -904,8 +904,7 @@ static void default_erroneous_atom_announce
 	scanner->printer << ":" << min::eol;
 
 	LEX::print_phrase_lines
-	    ( scanner->printer, scanner, first, next,
-	      '^' );
+	    ( scanner->printer, scanner, first, next );
 	break;
 
     default:
@@ -1112,7 +1111,7 @@ void LEX::init_printer
 bool LEX::init_input_named_file
 	( min::ref<LEX::scanner> scanner,
 	  min::gen file_name,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 	  
 {
@@ -1120,52 +1119,52 @@ bool LEX::init_input_named_file
     return min::init_input_named_file
 	( input_file_ref(scanner),
 	  file_name,
-	  line_display,
+	  line_format,
 	  spool_lines );
 }
 
 void LEX::init_input_stream
 	( min::ref<LEX::scanner> scanner,
 	  std::istream & istream,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  uns32 spool_lines )
 {
     init ( scanner );
     min::init_input_stream
 	( input_file_ref(scanner),
-	  istream, line_display, spool_lines );
+	  istream, line_format, spool_lines );
 }
 
 void LEX::init_input_string
 	( min::ref<LEX::scanner> scanner,
 	  min::ptr<const char> data,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  uns32 spool_lines )
 {
     init ( scanner );
     min::init_input_string
 	( input_file_ref(scanner),
-	  data, line_display, spool_lines );
+	  data, line_format, spool_lines );
 }
 
 void LEX::init_input
 	( min::ref<LEX::scanner> scanner,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  uns32 spool_lines )
 {
     init ( scanner );
     min::init_input
         ( input_file_ref(scanner),
-	  line_display, spool_lines );
+	  line_format, spool_lines );
 }
 
-void LEX::init_line_display
+void LEX::init_line_format
 	( min::ref<LEX::scanner> scanner,
-	  min::uns32 line_display )
+	  const min::line_format * line_format )
 {
     init ( scanner );
-    min::init_line_display
-	( input_file_ref(scanner), line_display );
+    min::init_line_format
+	( input_file_ref(scanner), line_format );
 }
 
 min::printer LEX::init_ostream
@@ -2415,14 +2414,13 @@ void LEX::print_phrase_lines
 	( min::printer printer,
 	  LEX::scanner scanner,
 	  min::uns32 first,
-	  min::uns32 next,
-	  char mark )
+	  min::uns32 next )
 {
     min::phrase_position position =
         LEX::phrase_position ( scanner, first, next );
 
     min::print_phrase_lines
-        ( printer, scanner->input_file, position, mark );
+        ( printer, scanner->input_file, position );
 }
 
 // Printing Programs
@@ -3236,8 +3234,7 @@ static min::gen scan_name_string_next_element
 	    << ") in name string:"
 	    << min::eol;
 	LEX::print_phrase_lines
-	    ( scanner->printer, scanner, first, next,
-	      '^' );
+	    ( scanner->printer, scanner, first, next );
         return min::ERROR();
     }
 

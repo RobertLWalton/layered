@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_input_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  6 16:44:26 EDT 2022
+// Date:	Wed May 24 07:16:38 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@ using std::endl;
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
+
     PAR::init ( PAR::default_parser, 0 );
     PARSTD::init_input ( PAR::default_parser );
 
@@ -61,8 +62,8 @@ int main ( int argc, const char * argv[] )
 		( min::graphic_only_display_control );
     PAR::default_parser->trace_flags |=
         PAR::TRACE_PARSER_INPUT;
-    PAR::init_line_display
+    PAR::init_line_format
         ( PAR::default_parser,
-	  min::DISPLAY_PICTURE );
+	  min::picture_line_format );
     PAR::parse();
 }

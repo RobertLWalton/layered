@@ -139,7 +139,7 @@
             Ctype Map Size: 0
    #######: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             !-~ <0A1>-<0AC> <0AE>-<377> <37A>-<37F> <384>-<38A> <38C>
             <2F800>-<2FA1D>
                 ####: KEEP(1), OUTPUT(11), GOTO(####)
@@ -167,7 +167,7 @@
             Ctype Map Size: 0
    #######: DISPATCHER
             Max CType: 5
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             <2CEB1>-<2EBDF> <2EBE1>-<2F7FF>
             <2FA1E>-<30000> [repeat(INFINITY)]
                 ####: OUTPUT(23)
@@ -193,7 +193,7 @@
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 539
+            Ctype Map Size: 541
                 #####: ACCEPT
                 Dispatcher ID: #####
   ########: DISPATCHER
@@ -573,7 +573,7 @@
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 21
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             <2CEB1>-<2EBDF> <2EBE1>-<2F7FF>
             <2FA1E>-<30000> [repeat(INFINITY)]
                 #####: OUTPUT(23)
@@ -654,7 +654,7 @@
             Ctype Map Size: 0
   ########: DISPATCHER
             Max CType: 3
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             A-Z a-z <0AA> <0B5> <0BA> <0C0>-<0D6> <0D8>-<0F6>
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
@@ -695,7 +695,7 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 4
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             <2CEB1>-<2EBDF> <2EBE1>-<2F7FF>
             <2FA1E>-<30000> [repeat(INFINITY)]
                 #####: ERRONEOUS_ATOM(23)
@@ -776,14 +776,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: ACCEPT
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: ACCEPT
@@ -798,14 +798,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: OUTPUT(1), GOTO(####)
@@ -832,7 +832,7 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 3
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             A-Z a-z <0AA> <0B5> <0BA> <0C0>-<0D6> <0D8>-<0F6>
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
@@ -846,7 +846,7 @@
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 4
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             A-Z a-z <0AA> <0B5> <0BA> <0C0>-<0D6> <0D8>-<0F6>
                 #####: OUTPUT(1), GOTO(####)
                 Dispatcher ID: #####
@@ -868,14 +868,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: KEEP(0), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 2
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: KEEP(0), GOTO(####)
@@ -896,14 +896,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: OUTPUT(5), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 3
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             0-9
                 #####: GOTO(####)
                 Dispatcher ID: #####
@@ -941,14 +941,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: OUTPUT(5), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 5
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             0-9
                 #####: ACCEPT
                 Dispatcher ID: #####
@@ -977,14 +977,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: OUTPUT(5), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 3
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             0-9
                 #####: GOTO(####)
                 Dispatcher ID: #####
@@ -1022,14 +1022,14 @@
             Ctype Map Size: 0
  #########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 #####: OUTPUT(5), GOTO(####)
                 Dispatcher ID: #####
  #########: DISPATCHER
             Max CType: 5
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             0-9
                 #####: ACCEPT
                 Dispatcher ID: #####
@@ -1059,7 +1059,7 @@
             0-9
                 #####: GOTO(####)
                 Dispatcher ID: #####
- #########: DISPATCHER
+##########: DISPATCHER
             Max CType: 2
             Ctype Map Size: 58
             0-9
@@ -1075,20 +1075,20 @@
             Ctype Map Size: 0
 ##########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 ######: OUTPUT(5), GOTO(####)
                 Dispatcher ID: ######
 ##########: DISPATCHER
             Max CType: 4
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             0-9
                 #####: ACCEPT
                 Dispatcher ID: #####
             E e
                 #####: OUTPUT(5), GOTO(####)
-                Dispatcher ID: #####
+                Dispatcher ID: ######
             #-& *-+ - / <-> @-D F-Z \ ^-d f-z ~ <0A1>-<0AA> <0AC>
             <2F800>-<2FA1D>
                 ######: OUTPUT(5), GOTO(####)
@@ -1106,14 +1106,14 @@
             Ctype Map Size: 0
 ##########: DISPATCHER
             Max CType: 1
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             #-& *-+ - /-9 <-> @-Z \ ^-z ~ <0A1>-<0AA> <0AC> <0AE>-<0BA>
             <2F800>-<2FA1D>
                 ######: OUTPUT(5), GOTO(####)
                 Dispatcher ID: ######
 ##########: DISPATCHER
             Max CType: 3
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             0-9
                 ######: ACCEPT
                 Dispatcher ID: ######
@@ -1202,7 +1202,7 @@
             Ctype Map Size: 0
 ##########: DISPATCHER
             Max CType: 7
-            Ctype Map Size: 1081
+            Ctype Map Size: 1087
             <2CEB1>-<2EBDF> <2EBE1>-<2F7FF>
             <2FA1E>-<30000> [repeat(INFINITY)]
                 ######: ERRONEOUS_ATOM(23)

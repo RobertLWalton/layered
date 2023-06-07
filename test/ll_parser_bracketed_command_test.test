@@ -1276,13 +1276,13 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         and a second line with [HI THERE] embedded
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         {p2}and a second subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         and a third subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
@@ -1301,13 +1301,13 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         and a second line with [HI THERE] embedded
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         {p2}and a second subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         and a third subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
@@ -1404,19 +1404,19 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         and a second line with [HI THERE] embedded
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         {p3}and a second subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         and a third line after a blank line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         and a fourth line
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         {p2} and a third subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
@@ -1429,19 +1429,19 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         and a second line with [HI THERE] embedded
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         {p3}and a second subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         and a third line after a blank line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         and a fourth line
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         {p2} and a third subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         with a second line of its own
@@ -1466,7 +1466,7 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
         with a second line of its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         and a third line after a blank line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         and a fourth line
@@ -1569,7 +1569,7 @@ BRACKETED EXPRESSION:
 and a line
 ^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 and another line outside the second paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1597,7 +1597,7 @@ BRACKETED EXPRESSION:
 and a line
 ^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 and another line outside the fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:

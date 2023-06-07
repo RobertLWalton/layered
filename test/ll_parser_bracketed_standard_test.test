@@ -6821,11 +6821,11 @@ BRACKETED EXPRESSION:
 This is a paragraph:
                    ^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
     Containing a table.
 ^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
     =======================
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     | this is another row |
@@ -6846,11 +6846,11 @@ BRACKETED EXPRESSION:
 This is a paragraph:
 ^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
     Containing a table.
 ^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
     =======================
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     | this is another row |
@@ -7598,7 +7598,7 @@ BRACKETED EXPRESSION:
 1 tablespoon paprika
 ^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 a potato
 ^^^^^^^^
 1 tablespoon butter
@@ -7874,13 +7874,13 @@ BRACKETED EXPRESSION:
 {p}This is a paragraph with a subparagraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         This is
 ^^^^^^^^^^^^^^^^
         subparagraph 1.
 ^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
         This is subparagraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 2.

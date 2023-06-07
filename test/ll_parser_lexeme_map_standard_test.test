@@ -93,7 +93,7 @@ LINE-BREAK: line ##:
                  ^
 LINE-BREAK: line ##:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ##:
 @@@ = data 1
 ^
@@ -147,7 +147,7 @@ LINE-BREAK: line ##:
           ^
 LINE-BREAK: line ##:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ##:
 ----------
 ^

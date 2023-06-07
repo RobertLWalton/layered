@@ -104,7 +104,7 @@ LINE-BREAK: line ##:
                ^
 LINE-BREAK: line ##:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ##:
 *PARSER*:
 ^
@@ -475,7 +475,7 @@ LINE-BREAK: line ###:
            ^
 LINE-BREAK: line ###:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ###:
 *PARSER*:
 ^
@@ -589,7 +589,7 @@ LINE-BREAK: line ###:
                ^
 LINE-BREAK: line ###:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ###:
 NaN
 ^
@@ -654,10 +654,10 @@ LINE-BREAK: line ###:
            ^
 LINE-BREAK: line ###:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 LINE-BREAK: line ###:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ###:
 *PARSER*:
 ^

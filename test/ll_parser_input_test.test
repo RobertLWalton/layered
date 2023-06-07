@@ -84,7 +84,7 @@ LINE-BREAK: line #:
                  ^
 LINE-BREAK: line ##:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ##:
 abc 3.4+z (x,y)
 ^
@@ -612,7 +612,7 @@ LINE-BREAK: line ##:
                      ^
 LINE-BREAK: line ##:
 <BLANK-LINE>
-^
+^^^^^^^^^^^^
 INDENT: line ##:
 // blank line with spaces follows
 ^
@@ -624,7 +624,7 @@ LINE-BREAK: line ##:
                                  ^
 LINE-BREAK: line ##:
 <BLANK-LINE>
-     ^
+     ^^^^^^^
 INDENT: line ##:
 "premature end of line follows
 ^

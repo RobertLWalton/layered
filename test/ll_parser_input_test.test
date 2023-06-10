@@ -623,8 +623,8 @@ LINE-BREAK: line ##:
 // blank line with spaces follows
                                  ^
 LINE-BREAK: line ##:
-<BLANK-LINE>
-     ^^^^^^^
+     <BLANK-LINE>
+     ^^^^^^^^^^^^
 INDENT: line ##:
 "premature end of line follows
 ^

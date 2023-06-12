@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 12 03:37:02 EDT 2023
+// Date:	Mon Jun 12 17:48:18 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2598,11 +2598,31 @@ void PAR::internal::trace_subexpression
 	  PAR::token token,
 	  min::uns32 trace_flags )
 {
+    const min::line_format * line_format =
+        parser->input_file->line_format;
+    if ( line_format == NULL )
+	line_format =
+	    parser->printer->print_format.line_format;
+    bool html_trace_lines =
+        (   parser->printer->print_format.op_flags
+	  & min::OUTPUT_HTML )
+	&&
+	line_format->line_table_class != NULL
+	&&
+        (   trace_flags
+	 & PAR::TRACE_SUBEXPRESSION_LINES );
+
     parser->printer
 	<< min::flush_id_map
 	<< min::bol << min::save_indent
-	<< min::place_indent ( 4 )
-	<< "=== ";
+	<< min::place_indent ( 4 );
+
+    if ( html_trace_lines )
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file, token->position );
+    else
+	parser->printer << "=== ";
 
     if ( token->type <= LEXSTD::MAX_TYPE )
         parser->printer
@@ -2625,14 +2645,18 @@ void PAR::internal::trace_subexpression
     if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_LINES )
     {
-	parser->printer
-	    << min::pline_numbers
-		( parser->input_file,
-		  token->position )
-	    << ":" << min::eol;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file, token->position );
+	if ( ! html_trace_lines
+	     ||
+	     line_format->line_number_class == NULL )
+	    parser->printer
+		<< min::pline_numbers
+		    ( parser->input_file,
+		      token->position )
+		<< ":" << min::eol;
+	if ( ! html_trace_lines )
+	    min::print_phrase_lines
+		( parser->printer,
+		  parser->input_file, token->position );
     }
 
     if (   trace_flags

@@ -1,234 +1,189 @@
-BRACKETED EXPRESSION:
-    a b c
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 a b c
 ^^^^^
-BRACKETED EXPRESSION:
-    {|a|} < {|b|} < {|c|}
-    line ##:
+    a b c
+=== BRACKETED EXPRESSION: line ##:
 a < b < c
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    [x (y) z {{{|u|}, {|v|}, {|w|}}} m (n (p))]
-    line ##:
+    {|a|} < {|b|} < {|c|}
+=== BRACKETED EXPRESSION: line ##:
 [ x ( y ) z {{u, v, w}} m (n (p)) ]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({}, {|x|}, {|y 4|}, {}, {|z|}, {}, {})
-    line ##:
+    [x (y) z {{{|u|}, {|v|}, {|w|}}} m (n (p))]
+=== BRACKETED EXPRESSION: line ##:
 (, x, y 4,, z,,)
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|y|} += {|z|}
-    line ##:
+    ({}, {|x|}, {|y 4|}, {}, {|z|}, {}, {})
+=== BRACKETED EXPRESSION: line ##:
 y += z
 ^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} = {|y|}
-    line ##:
+    {|y|} += {|z|}
+=== BRACKETED EXPRESSION: line ##:
 x = y
 ^^^^^
-BRACKETED EXPRESSION:
-    {|w4|} *= {|w5|}
-    line ##:
+    {|x|} = {|y|}
+=== BRACKETED EXPRESSION: line ##:
 w4 *= w5
 ^^^^^^^^
-BRACKETED EXPRESSION:
-    {|w3|} = {|w4|}
-    line ##:
+    {|w4|} *= {|w5|}
+=== BRACKETED EXPRESSION: line ##:
 w3 = w4
 ^^^^^^^
-BRACKETED EXPRESSION:
-    {|w2|} += {|w3|}
-    line ##:
+    {|w3|} = {|w4|}
+=== BRACKETED EXPRESSION: line ##:
 w2 += w3
 ^^^^^^^^
-BRACKETED EXPRESSION:
-    {|w1|} = {|w2|}
-    line ##:
+    {|w2|} += {|w3|}
+=== BRACKETED EXPRESSION: line ##:
 w1 = w2
 ^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|x1|}, {|x2|}|} += {|{|z1|}, {|z2|}|}
-    line ##:
+    {|w1|} = {|w2|}
+=== BRACKETED EXPRESSION: line ##:
 x1, x2 += z1, z2
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+    {|{|x1|}, {|x2|}|} += {|{|z1|}, {|z2|}|}
+=== BRACKETED EXPRESSION: line ##:
+x = y + z * w << q + u * v ** p
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|x|} =
         {|{|y|} + {|{|z|} * {|{|w|} << {|q|}|}|} +
           {|{|u|} * {|{|v|} ** {|p|}|}|}|}
-    line ##:
-x = y + z * w << q + u * v ** p
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} < {|y|} < {|z|}
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 x < y < z
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} = ({|y|} < {|z|})
-    line ##:
+    {|x|} < {|y|} < {|z|}
+=== BRACKETED EXPRESSION: line ##:
 x = ( y < z )
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} = {|{|w|} < {|y|} < {|z|}|}
-    line ##:
+    {|x|} = ({|y|} < {|z|})
+=== BRACKETED EXPRESSION: line ##:
 x = w < y < z
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {t: no d, e, f = (m ";" n ";" p), b = (a "," b "," c)|1 2 3|t}
-    line ##:
+    {|x|} = {|{|w|} < {|y|} < {|z|}|}
+=== BRACKETED EXPRESSION: line ##:
 {t|1 2 3|b = (a, b, c), no d, e, f = (m; n; p): t}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {X: Y = {* C, A, B *}|1 2 3|X}
-    line ##:
+    {t: no d, e, f = (m ";" n ";" p), b = (a "," b "," c)|1 2 3|t}
+=== BRACKETED EXPRESSION: line ##:
 {X: Y = {* A, B, C *} | 1 2 3 |}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|a|} + {|b|} - {|c|}
-    line ##:
+    {X: Y = {* C, A, B *}|1 2 3|X}
+=== BRACKETED EXPRESSION: line ##:
 a + b - c
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    - {|a|}
-    line ##:
+    {|a|} + {|b|} - {|c|}
+=== BRACKETED EXPRESSION: line ##:
 - a
 ^^^
-BRACKETED EXPRESSION:
-    {|+ {|a|}|} - {|b|} - {|c|}
-    line ##:
+    - {|a|}
+=== BRACKETED EXPRESSION: line ##:
 + a - b - c
 ^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|a|} + {|{|b|} * {|c|}|} + {|d|}
-    line ##:
+    {|+ {|a|}|} - {|b|} - {|c|}
+=== BRACKETED EXPRESSION: line ##:
 a + b * c + d
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|a|} + {|{|{|b|} * {|c|}|} / {|{|d|} * {|e|}|}|} + {|f|}
-    line ##:
+    {|a|} + {|{|b|} * {|c|}|} + {|d|}
+=== BRACKETED EXPRESSION: line ##:
 a + b * c / d * e + f
 ^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|a|} + {|{|b|} * {|{|e|} ** {|d|}|} * {|{|f|} ** {|g|}|}|}
-    line ##:
+    {|a|} + {|{|{|b|} * {|c|}|} / {|{|d|} * {|e|}|}|} + {|f|}
+=== BRACKETED EXPRESSION: line ##:
 a + b * e ** d * f ** g
 ^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} + {|+ {|y|}|}
-    line ##:
+    {|a|} + {|{|b|} * {|{|e|} ** {|d|}|} * {|{|f|} ** {|g|}|}|}
+=== BRACKETED EXPRESSION: line ##:
 x + + y
 ^^^^^^^
-BRACKETED EXPRESSION:
     {|x|} + {|+ {|y|}|}
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 x + {|+ y|}
 ^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} * {|* y|}
-    line ##:
+    {|x|} + {|+ {|y|}|}
+=== BRACKETED EXPRESSION: line ##:
 x * * y
 ^^^^^^^
-BRACKETED EXPRESSION:
     {|x|} * {|* y|}
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 x * {|* y|}
 ^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} / {|y|}
-    line ##:
+    {|x|} * {|* y|}
+=== BRACKETED EXPRESSION: line ##:
 x / y
 ^^^^^
+    {|x|} / {|y|}
 ERROR: in line ##: extra stuff at end of expression; deleted:
 x / y / z
       ^^^
-BRACKETED EXPRESSION:
-    {|x|} / {|y|}
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 x / y / z
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    NOT {|NOT {|x|}|}
-    line ##:
+    {|x|} / {|y|}
+=== BRACKETED EXPRESSION: line ##:
 NOT NOT x
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    x NOT y
-    line ##:
+    NOT {|NOT {|x|}|}
+=== BRACKETED EXPRESSION: line ##:
 x NOT y
 ^^^^^^^
+    x NOT y
 ERROR: in line ##: missing operand; error operand inserted:
 (NOT)
      ^
-BRACKETED EXPRESSION:
-    (NOT ERROR'OPERAND)
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 (NOT)
 ^^^^^
-BRACKETED EXPRESSION:
-    {|x|} AND {|y|} AND {|z|}
-    line ##:
+    (NOT ERROR'OPERAND)
+=== BRACKETED EXPRESSION: line ##:
 x AND y AND z
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|x|} AND {|NOT {|y|}|} AND {|NOT {|z|}|}
-    line ##:
+    {|x|} AND {|y|} AND {|z|}
+=== BRACKETED EXPRESSION: line ##:
 x AND NOT y AND NOT z
 ^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|x|} AND {|y|}|} [< BUT NOT >] {|{|z|} OR {|w|} OR {|v|}|}
-    line ##:
+    {|x|} AND {|NOT {|y|}|} AND {|NOT {|z|}|}
+=== BRACKETED EXPRESSION: line ##:
 x AND y BUT NOT z OR w OR v
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {|{|x|} AND {|y|}|} [< BUT NOT >] {|{|z|} OR {|w|} OR {|v|}|}
 ERROR: in line ##: illegal operator "OR" in expression beginnning with
        "AND"; changed to "AND":
 x AND y OR z
         ^^
-BRACKETED EXPRESSION:
-    {|x|} AND {|y|} AND {|z|}
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 x AND y OR z
 ^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|while {|{|x|} == {|y|}|}|}:
-        {|a|} + {|b|}
-    lines ##-##:
+    {|x|} AND {|y|} AND {|z|}
+=== BRACKETED EXPRESSION: lines ##-##:
 while x == y:
 ^^^^^^^^^^^^^
     a + b
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|{|x|}, {|y|}|} = {|while {|z|}|}|}:
-        {|c|} = {|{|a|} + {|b|}|}
-    lines ##-##:
+    {|while {|{|x|} == {|y|}|}|}:
+        {|a|} + {|b|}
+=== BRACKETED EXPRESSION: lines ##-##:
 x, y = while z:
 ^^^^^^^^^^^^^^^
     c = a + b
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}:
-        {|p (q)|} = {|x [v]|}
-    lines ##-##:
+    {|{|{|x|}, {|y|}|} = {|while {|z|}|}|}:
+        {|c|} = {|{|a|} + {|b|}|}
+=== BRACKETED EXPRESSION: lines ##-##:
 while x == y, until v != w:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     p(q) = x[v]
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|{|a|}, {|b|}|} =
-      {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}|}:
-        {|foo (b) fum (c)|} = {|{|p|}, {|q|}|}
-    lines ##-##:
+    {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}:
+        {|p (q)|} = {|x [v]|}
+=== BRACKETED EXPRESSION: lines ##-##:
 a, b = while x == y, until v != w:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     foo (b) fum(c) = p, q
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|{|next x|}, {|next y|}, {|next z|}|} =|}:
-        {|next x|} += {|1|}
-        {|next y|} += {|1|}
-        {|next z|} += {|1|}
-    lines ##-##:
+    {|{|{|a|}, {|b|}|} =
+      {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}|}:
+        {|foo (b) fum (c)|} = {|{|p|}, {|q|}|}
+=== BRACKETED EXPRESSION: lines ##-##:
 next x, next y, next z =:
 ^^^^^^^^^^^^^^^^^^^^^^^^^
     next x += 1
@@ -237,85 +192,78 @@ next x, next y, next z =:
 ^^^^^^^^^^^^^^^
     next z += 1
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|repeat {|5|} times|}:
+    {|{|{|next x|}, {|next y|}, {|next z|}|} =|}:
         {|next x|} += {|1|}
-    lines ##-##:
+        {|next y|} += {|1|}
+        {|next z|} += {|1|}
+=== BRACKETED EXPRESSION: lines ##-##:
 repeat 5 times:
 ^^^^^^^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|until {|{|z|} == {|x|}|}|}, {|[< at most >] {|10|} times|}|}:
+    {|repeat {|5|} times|}:
         {|next x|} += {|1|}
-    lines ##-##:
+=== BRACKETED EXPRESSION: lines ##-##:
 until z == x, at most 10 times:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|{|next x|}, {|y|}|} =|}:
-        {|y|} = {|x|}
+    {|{|until {|{|z|} == {|x|}|}|}, {|[< at most >] {|10|} times|}|}:
         {|next x|} += {|1|}
-    lines ##-##:
+=== BRACKETED EXPRESSION: lines ##-##:
 next x, y =:
 ^^^^^^^^^^^^
     y = x
 ^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|{|next x|}, {|y|}|}:
+    {|{|{|next x|}, {|y|}|} =|}:
         {|y|} = {|x|}
         {|next x|} += {|1|}
-    lines ##-##:
+=== BRACKETED EXPRESSION: lines ##-##:
 next x, y:
 ^^^^^^^^^^
     y = x
 ^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    if {|{|x|} == {|y|}|} ":" {|foo ({|a|}, {|b|})|}
-    line ##:
+    {|{|next x|}, {|y|}|}:
+        {|y|} = {|x|}
+        {|next x|} += {|1|}
+=== BRACKETED EXPRESSION: line ##:
 if x == y: foo ( a, b )
 ^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    if {|{|w|} == {|v|}|}:
-        {|c|} = {|{|d|} + {|e|}|}
-    lines ##-##:
+    if {|{|x|} == {|y|}|} ":" {|foo ({|a|}, {|b|})|}
+=== BRACKETED EXPRESSION: lines ##-##:
 if w == v:
 ^^^^^^^^^^
     c = d + e
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [< else if >] {|{|x|} != {|y|}|} ":" {|foo ({|a|}, {|b|})|}
-    line ##:
+    if {|{|w|} == {|v|}|}:
+        {|c|} = {|{|d|} + {|e|}|}
+=== BRACKETED EXPRESSION: line ##:
 else if x != y: foo ( a, b )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [< else if >] {|{|w|} != {|v|}|}:
-        {|c|} = {|{|d|} + {|e|}|}
-    lines ##-##:
+    [< else if >] {|{|x|} != {|y|}|} ":" {|foo ({|a|}, {|b|})|}
+=== BRACKETED EXPRESSION: lines ##-##:
 else if w != v:
 ^^^^^^^^^^^^^^^
     c = d + e
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    else ":" {|foo ({|a|}, {|b|})|}
-    line ##:
+    [< else if >] {|{|w|} != {|v|}|}:
+        {|c|} = {|{|d|} + {|e|}|}
+=== BRACKETED EXPRESSION: line ##:
 else: foo ( a, b )
 ^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    else:
-        {|c|} = {|{|d|} + {|e|}|}
-    lines ##-##:
+    else ":" {|foo ({|a|}, {|b|})|}
+=== BRACKETED EXPRESSION: lines ##-##:
 else:
 ^^^^^
     c = d + e
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|a|}, {|b c|}, {|d|}, {|"e f"|}, {|g|})
-    line ##:
+    else:
+        {|c|} = {|{|d|} + {|e|}|}
+=== BRACKETED EXPRESSION: line ##:
 (a, {|b c|}, d, "e f", g)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ({|a|}, {|b c|}, {|d|}, {|"e f"|}, {|g|})

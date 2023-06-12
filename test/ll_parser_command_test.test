@@ -272,33 +272,29 @@ ERROR: in line ##: `"foo"' does not name a lexeme type:
     trace [+ parser output]
     define top level lexical master DEFAULT
     begin block X
-BRACKETED EXPRESSION:
-    @<hello> <there>
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 @<hello> <there>
 ^^^^^^^^^^^^^^^^
+    @<hello> <there>
 *PARSER*:
     define top level parsing selectors [data]
     define top level lexical master DATA-CHECK
     define mapped lexeme "DATA" [data]
         with token value {data}
-BRACKETED EXPRESSION:
-    {data} @<hello> <there>
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 @<hello> <there>
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {data} @<goodby> <there>
-    line ###:
+    {data} @<hello> <there>
+=== BRACKETED EXPRESSION: line ###:
 @<goodby> <there>
 ^^^^^^^^^^^^^^^^^
+    {data} @<goodby> <there>
 *PARSER*:
     end block X
-BRACKETED EXPRESSION:
-    @<hello> <there>
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 @<hello> <there>
 ^^^^^^^^^^^^^^^^
+    @<hello> <there>
 *PARSER*:
     begin block X
     define ID character "@"
@@ -328,16 +324,14 @@ BRACKETED EXPRESSION:
         with data reformatter
              ( "@@@@", "::=",
                ( ":" ), "=", "not", "[", "{*" )
-BRACKETED EXPRESSION:
-    ID 6 is {|{|Jill|} said `hello there {|Jack|}'|}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ID 6 is @@
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ID 4 is {|Jill|}
-    line ###:
+    ID 6 is {|{|Jill|} said `hello there {|Jack|}'|}
+=== BRACKETED EXPRESSION: line ###:
 ID 4 is @@
 ^^^^^^^^^^
+    ID 4 is {|Jill|}
 *PARSER*:
     print bracket type ""
         block X: bracket type "data" [TOP LEVEL]
@@ -379,21 +373,18 @@ ID 4 is @@
                                    enable indented paragraph,
                                    enable header]
                           lexical master "DEFAULT"
-BRACKETED EXPRESSION:
-    Hi there;
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 Hi there; Bye there
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    Bye there
-    line ###:
+    Hi there;
+=== BRACKETED EXPRESSION: line ###:
 Hi there; Bye there
           ^^^^^^^^^
-BRACKETED EXPRESSION:
-    Ho HO;
-    line ###:
+    Bye there
+=== BRACKETED EXPRESSION: line ###:
 Ho HO;
 ^^^^^^
+    Ho HO;
 *PARSER*:
     define top level line separator NONE
     print top level
@@ -409,11 +400,10 @@ Ho HO;
                                    enable indented paragraph,
                                    enable header]
                           lexical master "DEFAULT"
-BRACKETED EXPRESSION:
-    Hi there ";" Bye there
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 Hi there; Bye there
 ^^^^^^^^^^^^^^^^^^^
+    Hi there ";" Bye there
 *PARSER*:
     end block X
 *PARSER*:

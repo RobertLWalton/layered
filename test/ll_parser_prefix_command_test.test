@@ -36,7 +36,7 @@
                  with sentence reformatter ( ".", ";", ":", "?", "!" )
         block X: bracket type "***" [TOP LEVEL, text]
                  with group *RESET*
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     {p|{s: .terminator = ":"|This is a sentence|s}
        {s: .terminator = "."|an add-on|s}
        {s: .terminator = ";"|A phrase|s}

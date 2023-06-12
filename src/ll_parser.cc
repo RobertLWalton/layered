@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 24 05:23:21 EDT 2023
+// Date:	Mon Jun 12 03:37:02 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2601,7 +2601,9 @@ void PAR::internal::trace_subexpression
     parser->printer
 	<< min::flush_id_map
 	<< min::bol << min::save_indent
-	<< min::adjust_indent ( 4 );
+	<< min::place_indent ( 4 )
+	<< "=== ";
+
     if ( token->type <= LEXSTD::MAX_TYPE )
         parser->printer
 	     << LEXSTD::type_names[token->type]
@@ -2621,6 +2623,19 @@ void PAR::internal::trace_subexpression
 		 "(UNKNOWN TYPE) EXPRESSION: " );
 
     if (   trace_flags
+	 & PAR::TRACE_SUBEXPRESSION_LINES )
+    {
+	parser->printer
+	    << min::pline_numbers
+		( parser->input_file,
+		  token->position )
+	    << ":" << min::eol;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file, token->position );
+    }
+
+    if (   trace_flags
 	 & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	parser->printer
 	    << min::indent
@@ -2635,20 +2650,6 @@ void PAR::internal::trace_subexpression
 	 & PAR::TRACE_SUBEXPRESSION_DETAILS )
 	print_mapped ( parser->printer, token->value )
 	    << min::flush_id_map;
-
-    if (   trace_flags
-	 & PAR::TRACE_SUBEXPRESSION_LINES )
-    {
-	parser->printer
-	    << min::spaces_if_before_indent
-	    << min::pline_numbers
-		( parser->input_file,
-		  token->position )
-	    << ":" << min::eol;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file, token->position );
-    }
 
     parser->printer << min::restore_indent;
 }

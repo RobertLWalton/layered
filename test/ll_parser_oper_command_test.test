@@ -82,11 +82,10 @@
                          with special reformatter
 *PARSER*:
     begin block BLOCK1
-BRACKETED EXPRESSION:
-    (x / y ^ z w)
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 ( x / y ^ z w )
 ^^^^^^^^^^^^^^^
+    (x / y ^ z w)
 *PARSER*:
     define operator "/" [code, math] infix
         with binary reformatter with precedence -100
@@ -97,11 +96,10 @@ BRACKETED EXPRESSION:
                       with binary reformatter
     define operator "^" [code, math] infix
         with binary reformatter with precedence +100
-BRACKETED EXPRESSION:
-    ({|x|} / {|{|y|} ^ {|z w|}|})
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 ( x / y ^ z w )
 ^^^^^^^^^^^^^^^
+    ({|x|} / {|{|y|} ^ {|z w|}|})
 *PARSER*:
     print operator ""
         block BLOCK1: operator "/" [code, math]
@@ -119,20 +117,18 @@ BRACKETED EXPRESSION:
                       infix
                       with precedence -100
                       with binary reformatter
-BRACKETED EXPRESSION:
-    ({|x / y|} ^ {|z w|})
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 ( x / y ^ z w )
 ^^^^^^^^^^^^^^^
+    ({|x / y|} ^ {|z w|})
 *PARSER*:
     end block BLOCK1
     print operator ""
         nothing found
-BRACKETED EXPRESSION:
-    (x / y ^ z w)
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 ( x / y ^ z w )
 ^^^^^^^^^^^^^^^
+    (x / y ^ z w)
 *PARSER*:
     begin block BLOCK1
 ERROR: in line ##: expected `with precedence ...' after:
@@ -205,11 +201,10 @@ WARNING: in lines ##-##: undefine found no definition:
     define operator "/=" [code, math] infix
         with precedence 1000
         with right associative reformatter
-BRACKETED EXPRESSION:
-    ({|x|} = {|{|y|} += {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 (x = y += z w *= p q r = t v)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ({|x|} = {|{|y|} += {|{|z w|} *= {|{|p q r|} = {|t v|}|}|}|})
 *PARSER*:
     define operator "," [code, math] nofix
         with precedence 2000
@@ -218,24 +213,21 @@ BRACKETED EXPRESSION:
     define operator "..." [code, math] nofix
         with precedence 2000
         with separator reformatter
-BRACKETED EXPRESSION:
-    ({|x|}, {|y1|}, {|z w|}, {}, {|3|}, {})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 (x, y1, z w,, 3,)
 ^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({}, {}, {|x|}, {}, {|y|}, {}, {}, {})
-    line ###:
+    ({|x|}, {|y1|}, {|z w|}, {}, {|3|}, {})
+=== BRACKETED EXPRESSION: line ###:
 (,, x,, y,,,)
 ^^^^^^^^^^^^^
+    ({}, {}, {|x|}, {}, {|y|}, {}, {}, {})
 ERROR: in line ###: wrong separator "..." changed to ",":
 (x, y... z)
      ^^^
-BRACKETED EXPRESSION:
-    ({|x|}, {|y|}, {|z|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 (x, y... z)
 ^^^^^^^^^^^
+    ({|x|}, {|y|}, {|z|})
 *PARSER*:
     end block BLOCK1
     define operator "BUT NOT" [code, math] infix
@@ -250,58 +242,49 @@ BRACKETED EXPRESSION:
     define operator "NOT" [code, math] prefix
         with precedence 3200
         with unary reformatter
-BRACKETED EXPRESSION:
-    ({|{|x|} OR {|y|}|} [< BUT NOT >] {|{|z|} AND {|w|}|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 (x OR y BUT NOT z AND w)
 ^^^^^^^^^^^^^^^^^^^^^^^^
+    ({|{|x|} OR {|y|}|} [< BUT NOT >] {|{|z|} AND {|w|}|})
 ERROR: in line ###: illegal operator "OR" in expression beginnning with
        "AND"; changed to "AND":
 (x OR y BUT NOT z AND w OR p)
                         ^^
-BRACKETED EXPRESSION:
-    ({|{|x|} OR {|y|}|} [< BUT NOT >] {|{|z|} AND {|w|} AND {|p|}|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 (x OR y BUT NOT z AND w OR p)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    (NOT {|x y|})
-    line ###:
+    ({|{|x|} OR {|y|}|} [< BUT NOT >] {|{|z|} AND {|w|} AND {|p|}|})
+=== BRACKETED EXPRESSION: line ###:
 (NOT x y)
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    (x NOT y)
-    line ###:
+    (NOT {|x y|})
+=== BRACKETED EXPRESSION: line ###:
 (x NOT y)
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|NOT {|x|}|} AND {|y|})
-    line ###:
+    (x NOT y)
+=== BRACKETED EXPRESSION: line ###:
 (NOT x AND y)
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|x|} AND {|NOT {|y|}|})
-    line ###:
+    ({|NOT {|x|}|} AND {|y|})
+=== BRACKETED EXPRESSION: line ###:
 (x AND NOT y)
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|x|} AND {|AND y|})
-    line ###:
+    ({|x|} AND {|NOT {|y|}|})
+=== BRACKETED EXPRESSION: line ###:
 (x AND AND y)
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    (NOT {|NOT {|x y|}|})
-    line ###:
+    ({|x|} AND {|AND y|})
+=== BRACKETED EXPRESSION: line ###:
 (NOT NOT x y)
 ^^^^^^^^^^^^^
+    (NOT {|NOT {|x y|}|})
 ERROR: in line ###: missing operand; error operand inserted:
 (NOT NOT)
          ^
-BRACKETED EXPRESSION:
-    (NOT {|NOT ERROR'OPERAND|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 (NOT NOT)
 ^^^^^^^^^
+    (NOT {|NOT ERROR'OPERAND|})
 *PARSER*:
     define operator "==" [code, math] infix
         with precedence 4000
@@ -330,11 +313,10 @@ BRACKETED EXPRESSION:
     define operator "=>" [code, math] infix
         with precedence 4000
         with infix reformatter
-BRACKETED EXPRESSION:
-    ({|x|} < {|y|} <= {|z|} > {|w|} != {|p q|} =< {|u v|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ( x < y <= z > w != p q =< u v )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ({|x|} < {|y|} <= {|z|} > {|w|} != {|p q|} =< {|u v|})
 *PARSER*:
     define operator "+" [code, math] prefix
         with precedence 999999
@@ -348,21 +330,18 @@ BRACKETED EXPRESSION:
     define operator "-" [code, math] infix
         with precedence 5000
         with infix reformatter ( "+", "-" )
-BRACKETED EXPRESSION:
-    ({|x|} + {|y|} - {|z|} + {|w|} - {|v|} - {|u|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ( x + y - z + w - v - u )
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|- {|x|}|} + {|y|} - {|z|})
-    line ###:
+    ({|x|} + {|y|} - {|z|} + {|w|} - {|v|} - {|u|})
+=== BRACKETED EXPRESSION: line ###:
 ( - x + y - z )
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|x|} < {|{|y|} + {|5|}|} <= {|z|})
-    line ###:
+    ({|- {|x|}|} + {|y|} - {|z|})
+=== BRACKETED EXPRESSION: line ###:
 ( x < y + 5 <= z )
 ^^^^^^^^^^^^^^^^^^
+    ({|x|} < {|{|y|} + {|5|}|} <= {|z|})
 *PARSER*:
     define operator "/" [code, math] infix
         with precedence 5100
@@ -373,62 +352,53 @@ BRACKETED EXPRESSION:
     define operator "^" [code, math] infix
         with precedence 5300
         with binary reformatter
-BRACKETED EXPRESSION:
-    ({|{|x|} * {|y|}|} / {|{|z q|} * {|m p|}|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ( x * y / z q * m p )
 ^^^^^^^^^^^^^^^^^^^^^
+    ({|{|x|} * {|y|}|} / {|{|z q|} * {|m p|}|})
 ERROR: in line ###: extra stuff at end of expression; deleted:
 ( x / y / z )
         ^^^
-BRACKETED EXPRESSION:
-    ({|x|} / {|y|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ( x / y / z )
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|{|{|x|} ^ {|2|}|} * {|{|y|} ^ {|2|}|}|} / {|{|y|} * {|z|}|})
-    line ###:
+    ({|x|} / {|y|})
+=== BRACKETED EXPRESSION: line ###:
 ( x ^ 2 * y ^ 2 / y * z )
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ({|{|{|x|} ^ {|2|}|} * {|{|y|} ^ {|2|}|}|} / {|{|y|} * {|z|}|})
 *PARSER*:
     define operator "@" [code, math] prefix
         with precedence 999999
-BRACKETED EXPRESSION:
-    ({|- {|x|}|} + {|y|} - {|z|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ( - x + y - z )
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|{|p|} * {|- {|x|}|}|} + {|y|} - {|z|})
-    line ###:
+    ({|- {|x|}|} + {|y|} - {|z|})
+=== BRACKETED EXPRESSION: line ###:
 ( p * - x + y - z )
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|@ {|x|}|} + {|y|} - {|@ {|z|}|})
-    line ###:
+    ({|{|p|} * {|- {|x|}|}|} + {|y|} - {|z|})
+=== BRACKETED EXPRESSION: line ###:
 ( @ x + y - @ z )
 ^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    (+ {|- {|+ {|- {|x y|}|}|}|})
-    line ###:
+    ({|@ {|x|}|} + {|y|} - {|@ {|z|}|})
+=== BRACKETED EXPRESSION: line ###:
 ( + - + - x y )
 ^^^^^^^^^^^^^^^
+    (+ {|- {|+ {|- {|x y|}|}|}|})
 *PARSER*:
     define operator "++" [code, math] postfix
         with precedence 1000000
     define operator "--" [code, math] postfix
         with precedence 1000000
-BRACKETED EXPRESSION:
-    ({|{|x|} ++|} + {|y|} - {|{|z|} --|})
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ( x ++ + y - z -- )
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    ({|{|{|{|x y|} ++|} --|} ++|} --)
-    line ###:
+    ({|{|x|} ++|} + {|y|} - {|{|z|} --|})
+=== BRACKETED EXPRESSION: line ###:
 ( x y ++ -- ++ -- )
 ^^^^^^^^^^^^^^^^^^^
+    ({|{|{|{|x y|} ++|} --|} ++|} --)
 *PARSER*:
     define operator "<--" [code] nofix line
         with precedence 0
@@ -439,47 +409,40 @@ BRACKETED EXPRESSION:
     define operator indentation mark ":" [code]
         nofix afix line
         with precedence 0
-BRACKETED EXPRESSION:
-    {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 foo bar <-- boo bat : fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|foo bar|} <-- {} ":" {|fee fie fo fum|}
-    line ###:
+    {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
+=== BRACKETED EXPRESSION: line ###:
 foo bar <-- : fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {} <-- {|boo bat|} ":" {|fee fie fo fum|}
-    line ###:
+    {|foo bar|} <-- {} ":" {|fee fie fo fum|}
+=== BRACKETED EXPRESSION: line ###:
 <-- boo bat : fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|foo bar|} <-- {}
-    line ###:
+    {} <-- {|boo bat|} ":" {|fee fie fo fum|}
+=== BRACKETED EXPRESSION: line ###:
 foo bar <--
 ^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|foo bar|} <-- {|boo bat|}:
-        fee fie fo fum
-        he ha ho hum
-    lines ###-###:
+    {|foo bar|} <-- {}
+=== BRACKETED EXPRESSION: lines ###-###:
 foo bar <-- boo bat:
 ^^^^^^^^^^^^^^^^^^^^
     fee fie fo fum
 ^^^^^^^^^^^^^^^^^^
     he ha ho hum
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    (foo bar <-- boo bat ":" fee fie fo fum)
-    line ###:
+    {|foo bar|} <-- {|boo bat|}:
+        fee fie fo fum
+        he ha ho hum
+=== BRACKETED EXPRESSION: line ###:
 ( foo bar <-- boo bat : fee fie fo fum )
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
-    line ###:
+    (foo bar <-- boo bat ":" fee fie fo fum)
+=== BRACKETED EXPRESSION: line ###:
 foo bar <-- boo bat : fee fie fo fum
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {|foo bar|} <-- {|boo bat|} ":" {|fee fie fo fum|}
 *PARSER*:
     print operator ""
         block standard: operator "*" [code, math]

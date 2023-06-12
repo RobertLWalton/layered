@@ -538,17 +538,17 @@ WARNING: in line ###: lexeme indent 2 too near paragraph indent 0:
 WARNING: in line ###: lexeme indent 1 too near paragraph indent 0:
  line with indent 1
  ^
-BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 first line with indent 0
 ^^^^^^^^^^^^^^^^^^^^^^^^
  line with indent 1
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 second line with indent 0
 ^^^^^^^^^^^^^^^^^^^^^^^^^
   line with indent 2
 ^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 third line with indent 0
 ^^^^^^^^^^^^^^^^^^^^^^^^
     line with indent 4
@@ -1543,27 +1543,21 @@ ERROR: in line ###: explicit prefix separator of type `p2' has
                                             + continuing]
                       with group *PARAGRAPH*
     trace [+ parser output]
-BRACKETED EXPRESSION:
-    {p1}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {p1}
 ^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is a first paragraph|l1} {l1|and a line|l1}|p1}
-    lines ###-###:
+    {p1}
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1} this is a first paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 and a line
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line outside the first paragraph
-    line ###:
+    {p1|{l1|this is a first paragraph|l1} {l1|and a line|l1}|p1}
+=== BRACKETED EXPRESSION: line ###:
 and another line outside the first paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p2|{l2|this is a second paragraph|l2} {l2|and a line|l2}
-        {l2|and another line outside the second paragraph|l2}|p2}
-    lines ###-###:
+    and another line outside the first paragraph
+=== BRACKETED EXPRESSION: lines ###-###:
 {p2} this is a second paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 and a line
@@ -1572,26 +1566,19 @@ and a line
 ^^^^^^^^^^^^
 and another line outside the second paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is a third paragraph|l1} {l1|and a line|l1}|p1}
-    lines ###-###:
+    {p2|{l2|this is a second paragraph|l2} {l2|and a line|l2}
+        {l2|and another line outside the second paragraph|l2}|p2}
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1} this is a third paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 and a line
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line outside the third paragraph
-    line ###:
+    {p1|{l1|this is a third paragraph|l1} {l1|and a line|l1}|p1}
+=== BRACKETED EXPRESSION: line ###:
 and another line outside the third paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is a fourth paragraph|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and a
-             line|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
-             another line outside the fourth paragraph|}|p3}
-    lines ###-###:
+    and another line outside the third paragraph
+=== BRACKETED EXPRESSION: lines ###-###:
 {p3} this is a fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 and a line
@@ -1600,20 +1587,24 @@ and a line
 ^^^^^^^^^^^^
 and another line outside the fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is a fifth paragraph|l1} {l1|and a line|l1}|p1}
-    lines ###-###:
+    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
+             is a fourth paragraph|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and a
+             line|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+             another line outside the fourth paragraph|}|p3}
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1}
 ^^^^
 this is a fifth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 and a line
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line outside the fifth paragraph
-    line ###:
+    {p1|{l1|this is a fifth paragraph|l1} {l1|and a line|l1}|p1}
+=== BRACKETED EXPRESSION: line ###:
 and another line outside the fifth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    and another line outside the fifth paragraph
 *PARSER*:
     trace [- parser output]
     end block BLOCK1
@@ -1645,150 +1636,128 @@ and another line outside the fifth paragraph
     define bracket type "***" [code]
         with group *RESET*
     trace [+ parser output]
-BRACKETED EXPRESSION:
-    this is paragraph 1
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 this is paragraph 1
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line
-    line ###:
+    this is paragraph 1
+=== BRACKETED EXPRESSION: line ###:
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 2|l1} {l1|and another line|l1}|p1}
-    lines ###-###:
+    and another line
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1} this is paragraph 2
 ^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this is paragraph 3
-    line ###:
+    {p1|{l1|this is paragraph 2|l1} {l1|and another line|l1}|p1}
+=== BRACKETED EXPRESSION: line ###:
 this is paragraph 3
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line
-    line ###:
+    this is paragraph 3
+=== BRACKETED EXPRESSION: line ###:
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p2|{l2|this is paragraph 4|l2} {l2|and another line|l2}|p2}
-    lines ###-###:
+    and another line
+=== BRACKETED EXPRESSION: lines ###-###:
 {p2} this is paragraph 4
 ^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p2|{l2|this is paragraph 5|l2} {l2|and another line|l2}|p2}
-    lines ###-###:
+    {p2|{l2|this is paragraph 4|l2} {l2|and another line|l2}|p2}
+=== BRACKETED EXPRESSION: lines ###-###:
 this is paragraph 5
 ^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 6|l1} {l1|and another line|l1}|p1}
-    lines ###-###:
+    {p2|{l2|this is paragraph 5|l2} {l2|and another line|l2}|p2}
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1} this is paragraph 6
 ^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this is paragraph 7
-    line ###:
+    {p1|{l1|this is paragraph 6|l1} {l1|and another line|l1}|p1}
+=== BRACKETED EXPRESSION: line ###:
 this is paragraph 7
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line
-    line ###:
+    this is paragraph 7
+=== BRACKETED EXPRESSION: line ###:
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 8|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
-             another line|}|p3}
-    lines ###-###:
+    and another line
+=== BRACKETED EXPRESSION: lines ###-###:
 {p3} this is paragraph 8
 ^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 9|}
+             is paragraph 8|}
         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
              another line|}|p3}
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this is paragraph 9
 ^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this is code line #
-    line ###:
+    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
+             is paragraph 9|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+             another line|}|p3}
+=== BRACKETED EXPRESSION: line ###:
 this is code line #
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and code line #
-    line ###:
+    this is code line #
+=== BRACKETED EXPRESSION: line ###:
 and code line #
 ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 10|l1} {l1|and another line|l1}|p1}
-    lines ###-###:
+    and code line #
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1} this is paragraph 10
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p1|{l1|this is paragraph 11|l1} {l1|and another line|l1}|p1}
-    lines ###-###:
+    {p1|{l1|this is paragraph 10|l1} {l1|and another line|l1}|p1}
+=== BRACKETED EXPRESSION: lines ###-###:
 {p1}
 ^^^^
 this is paragraph 11
 ^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this is paragraph 12
-    line ###:
+    {p1|{l1|this is paragraph 11|l1} {l1|and another line|l1}|p1}
+=== BRACKETED EXPRESSION: line ###:
 this is paragraph 12
 ^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and another line
-    line ###:
+    this is paragraph 12
+=== BRACKETED EXPRESSION: line ###:
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 13|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
-             another line|}|p3}
-    lines ###-###:
+    and another line
+=== BRACKETED EXPRESSION: lines ###-###:
 {p3} this is paragraph 13
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 14|}
+             is paragraph 13|}
         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
              another line|}|p3}
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this is paragraph 14
 ^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this is code line #
-    line ###:
+    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
+             is paragraph 14|}
+        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+             another line|}|p3}
+=== BRACKETED EXPRESSION: line ###:
 this is code line #
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    and code line #
-    line ###:
+    this is code line #
+=== BRACKETED EXPRESSION: line ###:
 and code line #
 ^^^^^^^^^^^^^^^
+    and code line #
 *PARSER*:
     trace [- parser output]
     end block BLOCK1
@@ -1811,17 +1780,11 @@ and code line #
     define bracket type "l2" [code]
         with group *LINE*
     trace [+ parser output]
-BRACKETED EXPRESSION:
-    {l1|this is a line|l1}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {l1} this is a line
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{l1|this is a paragraph line|l1}
-       {l1|and a second paragraph line|l1}
-       {l2|and a third paragraph line|l2}
-       {l1|and a fourth paragraph line|l1}|p}
-    lines ###-###:
+    {l1|this is a line|l1}
+=== BRACKETED EXPRESSION: lines ###-###:
 {p} this is a paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 and a second paragraph line
@@ -1830,56 +1793,52 @@ and a second paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 and a fourth paragraph line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    And another paragraph
-    line ###:
+    {p|{l1|this is a paragraph line|l1}
+       {l1|and a second paragraph line|l1}
+       {l2|and a third paragraph line|l2}
+       {l1|and a fourth paragraph line|l1}|p}
+=== BRACKETED EXPRESSION: line ###:
 And another paragraph
 ^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    with one extra line "."
-    line ###:
+    And another paragraph
+=== BRACKETED EXPRESSION: line ###:
 with one extra line.
 ^^^^^^^^^^^^^^^^^^^^
+    with one extra line "."
 ERROR: in line ###: explicit prefix separator of type `l2' has `*LINE*'
        group but is not at the beginning of a logical line; prefix
        unrecognized:
 {l1} This is a line {l2} and continuation.
                     ^^^^
-BRACKETED EXPRESSION:
-    {l1|This is a line {l2} and continuation "."|l1}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {l1} This is a line {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|This is a line|l1}
-    line ###:
+    {l1|This is a line {l2} and continuation "."|l1}
+=== BRACKETED EXPRESSION: line ###:
 {l1} This is a line
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l2|and continuation "."|l2}
-    line ###:
+    {l1|This is a line|l1}
+=== BRACKETED EXPRESSION: line ###:
 {l2} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {l1|And another line "."|l1}
-    line ###:
+    {l2|and continuation "."|l2}
+=== BRACKETED EXPRESSION: line ###:
 {l1} And another line.
 ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    And a last line "."
-    line ###:
+    {l1|And another line "."|l1}
+=== BRACKETED EXPRESSION: line ###:
 And a last line.
 ^^^^^^^^^^^^^^^^
+    And a last line "."
 ERROR: in line ###: explicit prefix separator of type `p' has
        `*PARAGRAPH*' group but is not at the beginning of a logical
        line; prefix unrecognized:
 {p} This is a paragraph {p} and continuation.
                         ^^^
-BRACKETED EXPRESSION:
-    {p|{l1|This is a paragraph {p} and continuation "."|l1}|p}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {p} This is a paragraph {p} and continuation.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{l1|This is a paragraph {p} and continuation "."|l1}|p}
 *PARSER*:
     define bracket type "x" [code]
         with implied subprefix {l1}
@@ -1890,21 +1849,19 @@ ERROR: in line ###: prefix of of type `x' does NOT have *PARAGRAPH*
        ignored:
 {x} implied `l1' prefix in error
     ^
-BRACKETED EXPRESSION:
-    {x|implied "`" l1 "'" prefix in error|x}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {x} implied `l1' prefix in error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {x|implied "`" l1 "'" prefix in error|x}
 ERROR: in line ###: explicit prefix separator of type `l2' has `*LINE*'
        group but is not at the beginning of a logical line; prefix
        unrecognized:
 {l1}{l2} a stray line
     ^^^^
-BRACKETED EXPRESSION:
-    {l1|{l2} a stray line|l1}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {l1}{l2} a stray line
 ^^^^^^^^^^^^^^^^^^^^^
+    {l1|{l2} a stray line|l1}
 ERROR: in line ###: prefix of of type `x' does NOT have *PARAGRAPH*
        group but has implied subprefix with *LINE* group; subprefix
        ignored:
@@ -1916,42 +1873,38 @@ ERROR: in line ###: explicit prefix separator of type `l2' has *LINE*
        unrecognized:
 {x}{l2} another stray line
    ^^^^
-BRACKETED EXPRESSION:
-    {x|{l2} another stray line|x}
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {x}{l2} another stray line
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {x|{l2} another stray line|x}
 ERROR: in line ###: explicit prefix separator of type `l2' has *LINE*
        group but is not at beginning of logical line or immediately
        after a prefix separator of *PARAGRAPH* group; prefix
        unrecognized:
 ({l2} a third stray)
  ^^^^
-BRACKETED EXPRESSION:
-    ({l2} a third stray)
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ({l2} a third stray)
 ^^^^^^^^^^^^^^^^^^^^
+    ({l2} a third stray)
 ERROR: in line ###: explicit prefix separator of type `p' has
        *PARAGRAPH* group but is not at beginning of a logical line that
        is in paragraph beginning position; prefix unrecognized:
 ({p} a fourth stray)
  ^^^
-BRACKETED EXPRESSION:
-    ({p} a fourth stray)
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 ({p} a fourth stray)
 ^^^^^^^^^^^^^^^^^^^^
+    ({p} a fourth stray)
 ERROR: in line ###: explicit prefix separator of type `p' has
        *PARAGRAPH* group but is not at beginning of a logical line that
        is in paragraph beginning position; prefix unrecognized:
 {p} and a fifth stray
 ^^^
-BRACKETED EXPRESSION:
-    {p} and a fifth stray
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 {p} and a fifth stray
 ^^^^^^^^^^^^^^^^^^^^^
+    {p} and a fifth stray
 *PARSER*:
     trace [- parser output]
     end block BLOCK1
@@ -1960,37 +1913,34 @@ BRACKETED EXPRESSION:
     define top level parsing options
              [end at indent, enable indented paragraph]
     trace [+ parser output, + subexpression details]
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+This is a logical line.
+^^^^^^^^^^^^^^^^^^^^^^^
     This is a logical line "."
 !@@ := This is a logical line ".":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ###:
-This is a logical line.
-^^^^^^^^^^^^^^^^^^^^^^^
 WARNING: in line ###: logical line begins at an indent that is greater
          than the current paragraph indent:
     And a second logical line.
     ^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+    And a second logical line.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
     And a second logical line "."
 !@@ := And a second logical line ".":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ###:
-    And a second logical line.
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+And a third logical line.
+^^^^^^^^^^^^^^^^^^^^^^^^^
     And a third logical line "."
 !@@ := And a third logical line ".":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ###:
-And a third logical line.
-^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
@@ -2000,94 +1950,88 @@ And a third logical line.
         block BLOCK1: "#" ... "#"
         block TOP LEVEL: "#" ... "#"
     trace [+ parser output, + subexpression details]
-BRACKETED EXPRESSION:
-    this-is-a-continued-lexme
-!@@ := this-is-a-continued-lexme:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this-is-a-#
 ^^^^^^^^^^^
     #continued-#
 ^^^^^^^^^^^^^^^^
     #lexme
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this-is-a-~ ~continued-~ ~lexme
-!@@ := this-is-a-~ ~continued-~ ~lexme:
+    this-is-a-continued-lexme
+!@@ := this-is-a-continued-lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
     ~continued-~
 ^^^^^^^^^^^^^^^^
     ~lexme
 ^^^^^^^^^^
+    this-is-a-~ ~continued-~ ~lexme
+!@@ := this-is-a-~ ~continued-~ ~lexme:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
 *PARSER*:
     define middle break "~" ... "~"
     print middle break
         block BLOCK1: "~" ... "~"
         block TOP LEVEL: "#" ... "#"
-BRACKETED EXPRESSION:
-    this-is-a-# #continued-# #lexme
-!@@ := this-is-a-# #continued-# #lexme:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this-is-a-#
 ^^^^^^^^^^^
     #continued-#
 ^^^^^^^^^^^^^^^^
     #lexme
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
+    this-is-a-# #continued-# #lexme
+!@@ := this-is-a-# #continued-# #lexme:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+=== BRACKETED EXPRESSION: lines ###-###:
+this-is-a-~
+^^^^^^^^^^^
+    ~continued-~
+^^^^^^^^^^^^^^^^
+    ~lexme
+^^^^^^^^^^
     this-is-a-continued-lexme
 !@@ := this-is-a-continued-lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
-this-is-a-~
-^^^^^^^^^^^
-    ~continued-~
-^^^^^^^^^^^^^^^^
-    ~lexme
-^^^^^^^^^^
 *PARSER*:
     define middle break disabled
     print middle break
         block BLOCK1: disabled
         block TOP LEVEL: "#" ... "#"
-BRACKETED EXPRESSION:
-    this-is-a-# #continued-# #lexme
-!@@ := this-is-a-# #continued-# #lexme:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this-is-a-#
 ^^^^^^^^^^^
     #continued-#
 ^^^^^^^^^^^^^^^^
     #lexme
 ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    this-is-a-~ ~continued-~ ~lexme
-!@@ := this-is-a-~ ~continued-~ ~lexme:
+    this-is-a-# #continued-# #lexme
+!@@ := this-is-a-# #continued-# #lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    lines ###-###:
+=== BRACKETED EXPRESSION: lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
     ~continued-~
 ^^^^^^^^^^^^^^^^
     ~lexme
 ^^^^^^^^^^
+    this-is-a-~ ~continued-~ ~lexme
+!@@ := this-is-a-~ ~continued-~ ~lexme:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
@@ -2107,7 +2051,9 @@ this-is-a-~
         with parsing selectors [+ text, - code, - math]
         with text reformatter ("s", ".")
     trace [+ parser output, + subexpression details]
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+``Hello there.''
+^^^^^^^^^^^^^^^^
     ``{s|Hello there "."|s}''
 !@@@ := @@@:
             .terminator = "<LF>"
@@ -2120,14 +2066,13 @@ BRACKETED EXPRESSION:
 !@@@ := Hello there ".":
             .position[H] = PACKED_VEC
             .type = s
-    line ###:
-``Hello there.''
-^^^^^^^^^^^^^^^^
 *PARSER*:
     define bracket type "s" [text]
         with group sentence
         with sentence reformatter ("s", ".")
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+``Hello there.''
+^^^^^^^^^^^^^^^^
     ``{s: .terminator = "."|Hello there|s}''
 !@@@ := @@@:
             .terminator = "<LF>"
@@ -2141,10 +2086,9 @@ BRACKETED EXPRESSION:
             .terminator = "."
             .position[H] = PACKED_VEC
             .type = s
-    line ###:
-``Hello there.''
-^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+``Hello there.  Goodbye there.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``{s: .terminator = "."|Hello there|s}
       {s: .terminator = "."|Goodbye there|s}''
 !@@@ := @@@:
@@ -2163,9 +2107,6 @@ BRACKETED EXPRESSION:
             .terminator = "."
             .position[H] = PACKED_VEC
             .type = s
-    line ###:
-``Hello there.  Goodbye there.''
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1

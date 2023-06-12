@@ -1,17 +1,17 @@
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 1 is {"": foo[*]}
 ERROR: in line ##: bad flag(s) `:,_!' in ":+-_!*"; bad flag(s) ignored:
         foo[:+-_!*]
             ^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 2 is {"": foo[*+-]}
 ERROR: in line ##: bad flag(s) `:_,!' in ":_+!*/"; bad flag(s) ignored:
         foo[:_+!*/]
             ^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 3 is {"": foo[*+/]}
 ERROR: in line ##: bad flags specifier `{X}'; ignored:
         foo[{X}]
             ^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 4 is {}

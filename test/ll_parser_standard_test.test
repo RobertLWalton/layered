@@ -1,6 +1,6 @@
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 10 is {|{|x|} + {|y|}|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 11 is {|x + y|}
 ERROR: in line ##: not a legal value element `*':
         z = x * y
@@ -16,26 +16,26 @@ ERROR: in line ##: after `=' attribute value (label or single bracketed
        subexpression) was expected but none found; line ignored:
         w = u - v
           ^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 20 is {"": b = [< c "/" d >]|{|x|} + {|y|}|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 21 is {|{|x|} * {|y|}|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 22 is {|{|u|} - {|v|}|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 23 is
         {"": z = {|{|x|} * {|y|}|}, w = {|{|u|} - {|v|}|}|{|x|} +
              {|y|}|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 30 is
         {|this is an indented paragraph
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                "::"|{p|{s|with a line and a second line|s}|p}|}|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 35 is {|foo|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 36 is "fum"
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 40 is
         {|{|This is a code line ending in|}
           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
@@ -59,13 +59,13 @@ ERROR: in line ##: bad attribute label; attribute ignored:
 ERROR: in line ##: bad attribute value; attribute ignored:
            f = ;, . = 99, g = [< m n >] p, h = [< [< m n >] p >]
                               ^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 50 is
         {x: h = [< [< m n >] p >], "," = ":", d = ppp, e =
             [< ppp qqq >], a = "quoted string", "." = 99, f = ";", b =
             53.91, c = [< yyy 53.91 >]|"quoted string" 53.91 99 ";"
             foo|x}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 60 is {"": a = @@ = b, d = @@ = c}
 !@@ :=:
            .position[H] = PACKED_VEC
@@ -75,9 +75,9 @@ BRACKETED EXPRESSION:
            a = @@ = b
            .position[H] = PACKED_VEC
            d = @@ = c
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 61 is {"": a = @@ = b}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 70 is {"": e 22.99 = 5, a = [< b 55.44 >], c = @@ = d 77.33}
 ERROR: in line ##: not a legal label initial element `2':
     2 = X
@@ -123,11 +123,11 @@ ERROR: in line ##: reverse attribute label after second `=' was expected
            8.4.5 = P
            "4" = Y
            .position[H] = PACKED_VEC
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 80 is
         {"": F = [< 1 2 3 >], G = [< M N P >], H = @@ = J, 8.4.5 = P,
              "4" = Y|A B C D E|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID X is {"": name = X, next = @@ = previous, previous = @@ = next}
 !@@ :=:
            previous = @@ = next
@@ -139,20 +139,28 @@ BRACKETED EXPRESSION:
            next = @@ = previous
            previous = @@ = next
            .position[H] = PACKED_VEC
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID Y is {"": previous = @@ = next, name = Y, next = @@ = previous}
 ERROR: in line ###: ID references an object that already has
        single-attribute-values or attribute-flags, other than for
        .position; definition ignored:
 @<X> := hi there @<Z>
 ^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID X is {|hi there ({|m|} + {|n|})|}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID Y is ({|m|} + {|n|})
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID Z is PREALLOCATED(1*0)
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: lines ###-###:
+{quote}
+^^^^^^^
+This is a line with an indented paragraph: // A comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    First line of indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Second line of indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {quote|{s|This is a line with an indented paragraph
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
@@ -181,16 +189,9 @@ BRACKETED EXPRESSION:
             .terminator = "."
             .position[H] = PACKED_VEC
             .type = s
-    lines ###-###:
-{quote}
-^^^^^^^
-This is a line with an indented paragraph: // A comment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    First line of indented paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Second line of indented paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+x + y
+^^^^^
     {|x|} + {|y|}
 !@@@ := @@@ "+" @@@:
             .terminator = "<LF>"
@@ -200,10 +201,9 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := y:
             .position[H] = PACKED_VEC
-    line ###:
-x + y
-^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+COOKED ID 90 is @@@
+^^^^^^^^^^^^^^^^^^^
     COOKED ID 90 is (A B C)
 !@@@ := COOKED ID 90 is @@@:
             .terminator = "<LF>"
@@ -213,10 +213,9 @@ BRACKETED EXPRESSION:
             .terminator = ")"
             .initiator = "("
             .position[H] = PACKED_VEC
-    line ###:
-COOKED ID 90 is @@@
+=== BRACKETED EXPRESSION: line ###:
+COOKED ID 91 is @@@
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     COOKED ID 91 is ({|A|}, {|B|}, {|C|})
 !@@@ := COOKED ID 91 is @@@:
             .terminator = "<LF>"
@@ -233,10 +232,9 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := C:
             .position[H] = PACKED_VEC
-    line ###:
-COOKED ID 91 is @@@
+=== BRACKETED EXPRESSION: line ###:
+COOKED ID 92 is @@@
 ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     COOKED ID 92 is [{|A|}, {|B|}, {|C|}]
 !@@@ := COOKED ID 92 is @@@:
             .terminator = "<LF>"
@@ -253,19 +251,17 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := C:
             .position[H] = PACKED_VEC
-    line ###:
-COOKED ID 92 is @@@
-^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+RAW ID 94 is @@@
+^^^^^^^^^^^^^^^^
     RAW ID 94 is PREALLOCATED(1*94)
 !@@@ := RAW ID 94 is PREALLOCATED(1*94):
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
-    line ###:
+=== BRACKETED EXPRESSION: line ###:
 RAW ID 94 is @@@
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     RAW ID 94 is [A "," B "," C]
 !@@@ := RAW ID 94 is @@@:
             .terminator = "<LF>"
@@ -275,10 +271,9 @@ BRACKETED EXPRESSION:
             .terminator = "]"
             .initiator = "["
             .position[H] = PACKED_VEC
-    line ###:
-RAW ID 94 is @@@
-^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+ID 100 is @@@@
+^^^^^^^^^^^^^^
     ID 100 is {x: u = [< foo "+" fee >]|1 2 3|x}
 !@@@ := ID 100 is @@@:
             .terminator = "<LF>"
@@ -288,10 +283,9 @@ BRACKETED EXPRESSION:
             .type = x
             u = [< foo "+" fee >]
             .position[H] = PACKED_VEC
-    line ###:
-ID 100 is @@@@
+=== BRACKETED EXPRESSION: line ###:
+ID 101 is @@@@
 ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     ID 101 is {x: u = {|foo "+" fee|}|1 2 3|x}
 !@@@ := ID 101 is @@@:
             .terminator = "<LF>"
@@ -305,13 +299,12 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := "+":
             .type = "<Q>"
-    line ###:
-ID 101 is @@@@
-^^^^^^^^^^^^^^
 WARNING: in line ###: mark should be quoted:
 @@@@ := {x: u = foo + fee|1 2 3|}
                     ^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+ID 102 is @@@@
+^^^^^^^^^^^^^^
     ID 102 is {x: u = [< foo "+" fee >]|1 2 3|x}
 !@@@ := ID 102 is @@@:
             .terminator = "<LF>"
@@ -321,9 +314,6 @@ BRACKETED EXPRESSION:
             .type = x
             u = [< foo "+" fee >]
             .position[H] = PACKED_VEC
-    line ###:
-ID 102 is @@@@
-^^^^^^^^^^^^^^
 ERROR: in line ###: not a legal value element `+':
     y = foo + fee
             ^
@@ -331,7 +321,9 @@ ERROR: in line ###: after `=' attribute value (label or single bracketed
        subexpression) was expected but none found; line ignored:
     y = foo + fee
       ^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+ID 110 is @@@@
+^^^^^^^^^^^^^^
     ID 110 is {"": x = [< foo "+" fee >], z = {|foo "+" fee|}|1 2 3|}
 !@@@ := ID 110 is @@@:
             .terminator = "<LF>"
@@ -345,9 +337,6 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := "+":
             .type = "<Q>"
-    line ###:
-ID 110 is @@@@
-^^^^^^^^^^^^^^
 ERROR: in line ###: not a legal label initial element `8':
     8 = hi
     ^
@@ -390,7 +379,9 @@ ERROR: in line ###: line does not begin with a (possibly negated)
        attribute label; line ignored:
     + = 9
     ^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+ID 120 is @@@@
+^^^^^^^^^^^^^^
     ID 120 is
         {"": y = nan, z = [< Q nan >], x nan = hmm, 6e = ha, 5d = ha,
              j = -5.4, k = "-5.4", G = {|L M N|}, s = {* x, x *}, t =
@@ -423,9 +414,6 @@ BRACKETED EXPRESSION:
             .type = "<Q>"
 !@@@ := L M N:
             .position[H] = PACKED_VEC
-    line ###:
-ID 120 is @@@@
-^^^^^^^^^^^^^^
 WARNING: in line ###: mark should be quoted:
          t = +, u = "+", q = M ++,
                                ^^
@@ -435,7 +423,9 @@ ERROR: in line ###: not a legal label initial element `{|P Q|}':
 ERROR: in line ###: bad attribute label; attribute ignored:
          {|P Q|} = pq||, G = {|L M N|}}
          ^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ###:
+ID 121 is @@@@
+^^^^^^^^^^^^^^
     ID 121 is
         {T: p = {* "/", "hi there", "+" *}, t = "+", x = [< z z >], q =
             [< M "++" >], u = "+", y = z, z = z, G = {|L M N|}, s =
@@ -458,10 +448,9 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := L M N:
             .position[H] = PACKED_VEC
-    line ###:
-ID 121 is @@@@
+=== BRACKETED EXPRESSION: line ###:
+ID 130 is @@@@
 ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     ID 130 is {|{|X|} + {|{|5|} * {|Y|}|}|}
 !@@@ := ID 130 is @@@:
             .terminator = "<LF>"
@@ -477,10 +466,9 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := Y:
             .position[H] = PACKED_VEC
-    line ###:
-ID 130 is @@@@
+=== BRACKETED EXPRESSION: line ###:
+ID 131 is @@@@
 ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     ID 131 is {p|X + 5 * Y|p}
 !@@@ := ID 131 is @@@:
             .terminator = "<LF>"
@@ -489,23 +477,20 @@ BRACKETED EXPRESSION:
 !@@@ := X "+" 5 "*" Y:
             .type = p
             .position[H] = PACKED_VEC
-    line ###:
-ID 131 is @@@@
-^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 140 is ``{s: .terminator = "."|This is a sentence|s}''
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 141 is {a: b = ``{s} This is a sentence "."''}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 142 is {a|{s} This is a sentence "."|a}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 143 is {a|``{s: .terminator = "."|This is a sentence|s}''|a}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 144 is {a: b = ``{s: .terminator = "."|This is a sentence|s}''}
 ERROR: in line ###: missing `|'; inserted before:
 @@@@ := {row| "|" error | b "||" c "|"|}
                                        ^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 150 is {row|"|" a "|" b "||" c "|"|row}
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION:
     ID 151 is {row: b "||" c "|"|"|" error|row}

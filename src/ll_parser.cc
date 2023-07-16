@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 12 17:48:18 EDT 2023
+// Date:	Tue Jun 13 04:20:29 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1381,8 +1381,8 @@ void PAR::parse ( PAR::parser parser )
 	    ( parser, parser->input );
     if (    parser->output != NULL_STUB
          && parser->output->init != NULL)
-	( * parser->input->init )
-	    ( parser, parser->input );
+	( * parser->output->init )
+	    ( parser, parser->output );
 
     for ( PAR::pass pass = parser->pass_stack;
     	  pass != min::NULL_STUB;

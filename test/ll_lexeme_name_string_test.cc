@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_name_string_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 05:40:15 EDT 2023
+// Date:	Sun Aug 27 00:43:02 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,8 +37,9 @@ static void test_string ( const char * s )
     min::printer printer =
         LEX::default_scanner->printer;
     printer
-        << "TESTING \""
         << min::bom
+        << "TESTING \""
+	<< min::place_indent ( 0 ) 
 	<< min::ascii << min::graphic_only
 	<< s << "\"" << min::eom;
     LEX::init_input_string

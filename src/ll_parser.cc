@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 13 04:20:29 EDT 2023
+// Date:	Sun Aug 27 00:41:16 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2663,7 +2663,8 @@ void PAR::internal::trace_subexpression
 	 & PAR::TRACE_SUBEXPRESSION_ELEMENTS )
 	parser->printer
 	    << min::indent
-	    << min::bom
+	    << min::save_indent
+	    << min::save_print_format
 	    << min::adjust_indent ( 4 )
 	    << min::set_gen_format
 	       ( parser->subexpression_gen_format )

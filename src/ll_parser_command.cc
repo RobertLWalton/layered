@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_command.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  7 04:13:44 EDT 2023
+// Date:	Sun Aug 27 00:13:44 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1695,8 +1695,9 @@ void COM::parser_test_execute_command
 
 	    parser->printer
 		<< min::bol
-		<< "======= "
 		<< min::bom
+		<< min::set_indent ( 8 )
+		<< "======= "
 		<< min::pline_numbers
 		       ( ppvec->file, ppvec[i] )
 		<< ":" << min::eom;

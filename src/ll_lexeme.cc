@@ -2467,7 +2467,8 @@ static uns32 print_instruction
     if ( ID == 0 ) return 0;
 
     min::uns32 indent = printer->column;
-    printer << min::bom
+    printer << min::save_indent
+	    << min::save_print_format
 	    << min::no_auto_break;
 
     min::ptr<instruction_header> ihp =
@@ -2795,7 +2796,8 @@ static uns32 print_cooked_dispatcher
 {
     if ( ID == 0 ) return 0;
 
-    printer << min::bom
+    printer << min::save_indent
+	    << min::save_print_format
 	    << min::no_auto_break;
 
     printer << "DISPATCHER" << min::eol;

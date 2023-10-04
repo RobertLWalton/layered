@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct  3 20:54:22 EDT 2023
+// Date:	Wed Oct  4 15:43:17 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,7 +33,9 @@ const MAX_CONSECUTIVE_ARG_LISTS = 4;
 namespace lexeme {
 
     extern min::locatable_gen
-    	xxx;		// xxx
+    	primary,		// primary
+	primary_subexpressions;	// primary
+				//   subexpressions
 }
 
 

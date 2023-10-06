@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct  4 15:43:17 EDT 2023
+// Date:	Fri Oct  6 07:11:59 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 //	Usage and Setup
 //	Primary Table Entries
 //	Primary Pass
+//	Primary Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -215,8 +216,6 @@ void push_func
 // Primary Pass
 // ------- ----
 
-TBD
-
 struct primary_pass_struct;
 typedef min::packed_struct_updptr<primary_pass_struct>
         primary_pass;
@@ -258,6 +257,32 @@ ll::parser::pass new_pass ( ll::parser::parser parser );
 ll::parser::primary::primary_pass init_primary
     ( ll::parser::parser parser,
       ll::parser::pass next = NULL_STUB );
+
+// Primary Functions
+// ------- ---------
+
+// Given an object vector pointer vp pointing at an
+// expression, and an index i of an element in the
+// vector, then if vp[i] is as exists, is a string
+// or number, and has ll::parser_lexical_type in
+// initial_types, scan a name and return it.
+// Otherwise return min::NONE().
+//
+// In the first case accept vp[i] as a name element
+// and increment i.  Then as long as vp[i] is a string
+// or number and has ll::parser::lexical_type in
+// following_types, continue accepting vp[i] as a name
+// element and incrementing i.
+//
+// If the returned name has a single element, string or
+// number, return the element.  Otherwise return a label
+// containing the name elements.
+//
+min::gen scan_name
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser,
+      min::uns64 initial_types,
+      min::uns64 following_types );
 
 } } }
 

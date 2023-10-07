@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct  6 07:11:59 EDT 2023
+// Date:	Sat Oct  7 06:04:38 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -273,6 +273,11 @@ ll::parser::primary::primary_pass init_primary
 // or number and has ll::parser::lexical_type in
 // following_types, continue accepting vp[i] as a name
 // element and incrementing i.
+//
+// If a quoted string is encountered, scan the string
+// for lexemes, and if there is exactly one, use it
+// instead of the quoted string.  Otherwise return
+// min::ERROR().
 //
 // If the returned name has a single element, string or
 // number, return the element.  Otherwise return a label

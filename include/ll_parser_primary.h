@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct  7 06:04:38 EDT 2023
+// Date:	Sun Oct  8 20:41:16 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,8 +35,10 @@ namespace lexeme {
 
     extern min::locatable_gen
     	primary,		// primary
-	primary_subexpressions;	// primary
+	primary_subexpressions,	// primary
 				//   subexpressions
+	variable,		// variable,
+	function;		// function
 }
 
 
@@ -59,16 +61,19 @@ struct var_struct
     min::int32 depth; // Nesting depth within level.
 
     min::int32 location;  // Offset in stack.
-    mex::module module;   // Module contining location
-    			  // if variable global, or
-			  // min::NULL_STUB if local.
+    min::gen module;      // Module containing location.
+    			  // For testing, this is a
+			  // MIN string.  For compiling,
+			  // it is a mex::module or
+			  // similar converted to a
+			  // min::gen.
 };
 
 MIN_REF ( min::gen, label,
           ll::parser::primary::var )
 MIN_REF ( parser::table::root, next,
           ll::parser::primary::var )
-MIN_REF ( mex::module, module,
+MIN_REF ( min::gen, module,
           ll::parser::primary::var )
 
 // Create a variable definition entry with given
@@ -83,7 +88,7 @@ void push_var
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
-	  mex::module module,
+	  min::gen module,
 	  ll::parser::table::key_table primary_table );
 
 // Function Definition.
@@ -135,9 +140,12 @@ struct func_struct
 
     min::int32 location;  // Offset in module code
     			  // vector.
-    mex::module module;   // Module contining location
-    			  // if function global, or
-			  // min::NULL_STUB if local.
+    min::gen module;      // Module containing location.
+    			  // For testing, this is a
+			  // MIN string.  For compiling,
+			  // it is a mex::module or
+			  // similar converted to a
+			  // min::gen.
     ll::parser::table::key_table term_table;
     			  // See term_struc below.
     ll::parser::primary::arg_list_descriptions
@@ -154,9 +162,9 @@ MIN_REF ( min::gen, label,
           ll::parser::primary::func )
 MIN_REF ( parser::table::root, next,
           ll::parser::primary::func )
-MIN_REF ( mex::module, module,
+MIN_REF ( min::gen, module,
           ll::parser::primary::func )
-MIN_REF ( ll::parser::tabke::key_table, term_table,
+MIN_REF ( ll::parser::table::key_table, term_table,
           ll::parser::primary::func )
 
 // Create a function definition entry with given
@@ -172,7 +180,7 @@ void push_func
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
-	  mex::module module,
+	  min::gen module,
 	  ll::parser::primary::arg_list_descriptions
 	      initial_arg_lists,
 	  ll::parser::primary::arg_list_descriptions
@@ -206,7 +214,7 @@ MIN_REF ( parser::table::root, next,
 // and push it into the given term_table.  Selectors
 // and block level are not relevant.
 //
-void push_func
+void push_func_term
 	( min::gen func_label,
 	  const min::phrase_position & position,
 	  ll::parser::primary::arg_list_descriptions

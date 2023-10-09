@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct  4 14:42:42 EDT 2023
+// Date:	Sun Oct  8 20:49:54 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,8 @@
 
 min::locatable_gen PRIMLEX::primary;
 min::locatable_gen PRIMLEX::primary_subexpressions;
+min::locatable_gen PRIMLEX::variable;
+min::locatable_gen PRIMLEX::function;
 
 static void initialize ( void )
 {
@@ -44,6 +46,8 @@ static void initialize ( void )
     PRIMLEX::primary_subexpressions =
         min::new_lab_gen
 	    ( "primary", "subexpressions" );
+    PRIMLEX::variable = min::new_str_gen ( "variable" );
+    PRIMLEX::function = min::new_str_gen ( "function" );
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -345,6 +349,22 @@ static min::gen primary_pass_command
 
     	return PAR::PRINTED;
     }
+
+    if ( i >= size )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected `variable' or `function'"
+	      " after" );
+    min::gen type = vp[i++];
+    if ( type != PRIMLEX::variable
+         &&
+	 type != PRIMLEX::function )
+	return PAR::parse_error
+	    ( parser, ppvec[i-2],
+	      "expected `variable' or `function'"
+	      " after" );
+
+    // TBD
 
     // Scan selectors.
     //

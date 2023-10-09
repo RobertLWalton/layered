@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct  8 20:49:54 EDT 2023
+// Date:	Mon Oct  9 04:18:17 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -350,21 +350,41 @@ static min::gen primary_pass_command
     	return PAR::PRINTED;
     }
 
-    if ( i >= size )
+    if ( i >= size
+         ||
+	 ( vp[i] != PRIMLEX::variable
+	   &&
+	   vp[i] != PRIMLEX::variable ) )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected `variable' or `function'"
 	      " after" );
     min::gen type = vp[i++];
-    if ( type != PRIMLEX::variable
-         &&
-	 type != PRIMLEX::function )
-	return PAR::parse_error
-	    ( parser, ppvec[i-2],
-	      "expected `variable' or `function'"
-	      " after" );
 
-    // TBD
+    if ( i >= size
+         ||
+	    LEXSTD::lexical_type_of ( vp[i] )
+	 != LEXSTD::word_t )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected module name (a word)"
+	      " after" );
+    min::gen module = vp[i++];
+
+    if ( i >= size
+         ||
+	    PAR::lexical_type_of ( vp[i] )
+	 != LEXSTD::natural_t
+	 ||
+	    min::direct_float_of ( vp[i] )
+	 >= (1ull << 32 ) )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected integer in range"
+	      " [0,2^32) after" );
+    min::uns32 location =
+	    (min::uns32)
+	    min::direct_float_of ( vp[i] );
 
     // Scan selectors.
     //

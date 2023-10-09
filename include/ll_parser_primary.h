@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct  8 20:41:16 EDT 2023
+// Date:	Mon Oct  9 08:15:07 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -271,31 +271,54 @@ ll::parser::primary::primary_pass init_primary
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the
-// vector, then if vp[i] is as exists, is a string
-// or number, and has ll::parser_lexical_type in
-// initial_types, scan a name and return it.
+// vector, then if vp[i] is exists, is a string,
+// number, or quoted string, and passes the lexical
+// type test defined below, scan a name and return it.
 // Otherwise return min::NONE().
 //
 // In the first case accept vp[i] as a name element
-// and increment i.  Then as long as vp[i] is a string
-// or number and has ll::parser::lexical_type in
-// following_types, continue accepting vp[i] as a name
-// element and incrementing i.
+// and increment i.  Then as long as vp[i] is a string,
+// number, or quoted string passing the lexical type
+// test defined below, continue accepting vp[i] as a
+// name element and incrementing i.
 //
-// If a quoted string is encountered, scan the string
-// for lexemes, and if there is exactly one, use it
-// instead of the quoted string.  Otherwise return
-// min::ERROR().
+// The lexical type test is defined as follows.  Let
+// XXX_types be initial_types for the first element of
+// the name, and following_types for subsequent
+// elements.  Then the test is as follows:
+//
+//   If vp[i] is NOT a quoted string:
+//     The test is passed iff the lexical type of vp[i]
+//     is in both XXX_types and outside_quotes_types.
+//
+//   If vp[i] IS a quoted string and quoted_string_t is
+//   NOT in XXX_types:
+//     vp[i] is scanned for lexemes.  The test fails if
+//     there are 0 or more than one lexeme.  Otherwise
+//     the type of the one lexeme L is tested and the
+//     test is passed iff the lexical type of L is in
+//     both inside_quotes_types and XXX_types.  If the
+//     test is passed, L (and NOT vp[i]) is accepted as
+//     the next name element.
+//
+//   If vp[i] IS a quoted string and quoted_string_t IS
+//   in XXX_types:
+//      The test is passed and the string quoted is
+//      accepted as the next name element.
 //
 // If the returned name has a single element, string or
 // number, return the element.  Otherwise return a label
 // containing the name elements.
 //
+const min::uns64 ALL_TYPES = (min::uns64) -1ll;
 min::gen scan_name
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
       min::uns64 initial_types,
-      min::uns64 following_types );
+      min::uns64 following_types,
+      min::uns64 outside_quotes_types,
+      min::uns64 inside_quotes_types );
+
 
 } } }
 

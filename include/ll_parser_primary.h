@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct  9 08:15:07 EDT 2023
+// Date:	Tue Oct 10 01:45:59 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,7 +38,9 @@ namespace lexeme {
 	primary_subexpressions,	// primary
 				//   subexpressions
 	variable,		// variable,
-	function;		// function
+	function,		// function
+	location,		// location
+	module;			// module
 }
 
 

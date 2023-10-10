@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  8 13:35:10 EDT 2022
+// Date:	Tue Oct 10 01:34:24 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 # include <ll_parser_command.h>
 # include <ll_parser_oper.h>
 # include <cstdio>
+# define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -2356,13 +2357,10 @@ static min::gen oper_pass_command
 	    if ( i >= size )
 		return PAR::parse_error
 		    ( parser, ppvec[i-1],
-		      "expected precedence integer"
+		      "expected precedence"
 		      " after" );
-	    if ( ! min::is_num ( vp[i] ) )
-		return PAR::parse_error
-		    ( parser, ppvec[i],
-		      "precedence is not an integer" );
-	    min::int64 p = min::float_of ( vp[i] );
+	    min::float64 p =
+	        MUP::direct_float_of ( vp[i] );
 	    if ( ! std::isfinite ( p )
 	         ||
 	         p < OP::low_precedence
@@ -2372,7 +2370,8 @@ static min::gen oper_pass_command
 		 (min::int32) p != p )
 		return PAR::parse_error
 		    ( parser, ppvec[i],
-		      "precedence out of range" );
+		      "precedence is not an integer"
+		      " in range" );
 	    precedence = (min::int32) p;
 	    precedence_found = true;
 	    ++ i;

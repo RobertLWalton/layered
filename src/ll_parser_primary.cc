@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct  9 23:32:40 EDT 2023
+// Date:	Tue Oct 10 01:28:16 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 # include <ll_parser_command.h>
 # include <ll_parser_oper.h>
 # include <cstdio>
+# define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -39,6 +40,8 @@ min::locatable_gen PRIMLEX::primary;
 min::locatable_gen PRIMLEX::primary_subexpressions;
 min::locatable_gen PRIMLEX::variable;
 min::locatable_gen PRIMLEX::function;
+min::locatable_gen PRIMLEX::location;
+min::locatable_gen PRIMLEX::module;
 static min::locatable_gen opening_double_quote;  / ``
 
 static void initialize ( void )
@@ -49,6 +52,8 @@ static void initialize ( void )
 	    ( "primary", "subexpressions" );
     PRIMLEX::variable = min::new_str_gen ( "variable" );
     PRIMLEX::function = min::new_str_gen ( "function" );
+    PRIMLEX::location = min::new_str_gen ( "location" );
+    PRIMLEX::module = min::new_str_gen ( "module" );
     ::opening_double_quote = min::new_str_gen ( "``" );
 
     PAR::push_new_pass
@@ -392,25 +397,71 @@ static min::gen primary_pass_command
 	      " after" );
     else MIN_REQUIRE ( sresult == min::SUCCESS() );
 
-
     if ( command == PARLEX::define )
     {
-	// TBD
 
-	if ( i >= size
-	     ||
-		PAR::lexical_type_of ( vp[i] )
-	     != LEXSTD::natural_t
-	     ||
-		min::direct_float_of ( vp[i] )
-	     >= (1ull << 32 ) )
+	min::uns32 location = 0;
+	min::locatable_gen module ( min::MISSING() );
+	while ( i < size && vp[i] == PARLEX::with )
+	{
+	    ++ i;
+	    if ( i < size
+		 &&
+		 vp[i] == PRIMLEX::location )
+	    {
+		++ i;
+		if ( i >= size )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected location integer"
+			  " after" );
+		min::float64 p =
+		    MUP::direct_float_of ( vp[i] );
+		if ( ! std::isfinite ( p )
+		     ||
+		     p < 0
+		     ||
+		     p > ( 1ull << 32 )
+		     ||
+		     (min::uns32) p != p )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "location is not an integer"
+			  " in range [0,2^32)" );
+		location = (min::uns32) p;
+		++ i;
+		continue;
+	    }
+	    if ( i < size
+		 &&
+		 vp[i] == PRIMLEX::module )
+	    {
+		++ i;
+		if ( i >= size )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected module name"
+			  " after" );
+		if ( ! min::is_str ( vp[i] ) )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "module name is not a"
+			  " string" );
+		module = vp[i];
+		++ i;
+		continue;
+	    }
+
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
-		  "expected integer in range"
-		  " [0,2^32) after" );
-	min::uns32 location =
-		(min::uns32)
-		min::direct_float_of ( vp[i] );
+		  "expected `location' or"
+		  " `module' after" );
+
+	}
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "extra stuff after" );
     }
 
     else // if ( command == PARLEX::undefine )

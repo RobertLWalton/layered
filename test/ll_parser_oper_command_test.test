@@ -142,7 +142,7 @@ ERROR: in line ##: undefined reformatter name:
              ^^^^^^^^^^^^^^^^^^^^^
     print operator ""
         nothing found
-ERROR: in line ##: precedence out of range:
+ERROR: in line ##: precedence is not an integer in range:
         with precedence 3000000
                         ^^^^^^^
     define operator "+" [code, math] infix

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 07:35:57 EDT 2023
+// Date:	Tue Oct 10 06:35:03 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4898,7 +4898,8 @@ static bool special_reformatter_function
 	    goto ERROR;
 
 	min::float64 f = min::float_of ( labp[1] );
-	if (    f < -0x1000000 || f >= 0x1000000
+	if (    ! std::isfinite ( f )
+	     || f < -0x1000000 || f >= 0x1000000
 	     || (int) f != f )
 	    goto ERROR;
 	int i = (int) f;

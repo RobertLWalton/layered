@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct  9 04:18:17 EDT 2023
+// Date:	Mon Oct  9 23:32:40 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,7 @@ min::locatable_gen PRIMLEX::primary;
 min::locatable_gen PRIMLEX::primary_subexpressions;
 min::locatable_gen PRIMLEX::variable;
 min::locatable_gen PRIMLEX::function;
+static min::locatable_gen opening_double_quote;  / ``
 
 static void initialize ( void )
 {
@@ -48,6 +49,7 @@ static void initialize ( void )
 	    ( "primary", "subexpressions" );
     PRIMLEX::variable = min::new_str_gen ( "variable" );
     PRIMLEX::function = min::new_str_gen ( "function" );
+    ::opening_double_quote = min::new_str_gen ( "``" );
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -363,28 +365,15 @@ static min::gen primary_pass_command
 
     if ( i >= size
          ||
-	    LEXSTD::lexical_type_of ( vp[i] )
-	 != LEXSTD::word_t )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected module name (a word)"
-	      " after" );
-    min::gen module = vp[i++];
-
-    if ( i >= size
-         ||
-	    PAR::lexical_type_of ( vp[i] )
-	 != LEXSTD::natural_t
+	 ! min::is_obj ( vp[i] )
 	 ||
-	    min::direct_float_of ( vp[i] )
-	 >= (1ull << 32 ) )
+	 min::get ( vp[i], min::dot_initializer )
+	 ! = ::opening_double_quote )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected integer in range"
-	      " [0,2^32) after" );
-    min::uns32 location =
-	    (min::uns32)
-	    min::direct_float_of ( vp[i] );
+	      "expected ``...'' quoted expression"
+	      " after" );
+    min::gen name = vp[i++];
 
     // Scan selectors.
     //
@@ -407,6 +396,21 @@ static min::gen primary_pass_command
     if ( command == PARLEX::define )
     {
 	// TBD
+
+	if ( i >= size
+	     ||
+		PAR::lexical_type_of ( vp[i] )
+	     != LEXSTD::natural_t
+	     ||
+		min::direct_float_of ( vp[i] )
+	     >= (1ull << 32 ) )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected integer in range"
+		  " [0,2^32) after" );
+	min::uns32 location =
+		(min::uns32)
+		min::direct_float_of ( vp[i] );
     }
 
     else // if ( command == PARLEX::undefine )
@@ -465,4 +469,3 @@ static min::gen primary_pass_command
 
     return min::SUCCESS();
 }
-

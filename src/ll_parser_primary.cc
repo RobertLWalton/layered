@@ -462,10 +462,16 @@ static min::gen primary_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "extra stuff after" );
+
+	// TBD
     }
 
     else // if ( command == PARLEX::undefine )
     {
+	if ( i < size )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "extra stuff after" );
 	// TBD
 
 	TAB::key_prefix key_prefix =

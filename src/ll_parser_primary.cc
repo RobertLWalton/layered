@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 10 01:28:16 EDT 2023
+// Date:	Thu Oct 12 07:43:35 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,8 @@ min::locatable_gen PRIMLEX::variable;
 min::locatable_gen PRIMLEX::function;
 min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
+min::locatable_gen PRIMLEX::parentheses;
+min::locatable_gen PRIMLEX::square_brackets;
 static min::locatable_gen opening_double_quote;  / ``
 
 static void initialize ( void )
@@ -54,6 +56,8 @@ static void initialize ( void )
     PRIMLEX::function = min::new_str_gen ( "function" );
     PRIMLEX::location = min::new_str_gen ( "location" );
     PRIMLEX::module = min::new_str_gen ( "module" );
+    PRIMLEX::parentheses = min::new_str_gen ( "()" );
+    PRIMLEX::square_brackets = min::new_str_gen ( "[]" );
     ::opening_double_quote = min::new_str_gen ( "``" );
 
     PAR::push_new_pass
@@ -361,7 +365,7 @@ static min::gen primary_pass_command
          ||
 	 ( vp[i] != PRIMLEX::variable
 	   &&
-	   vp[i] != PRIMLEX::variable ) )
+	   vp[i] != PRIMLEX::function ) )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected `variable' or `function'"
@@ -378,7 +382,71 @@ static min::gen primary_pass_command
 	    ( parser, ppvec[i-1],
 	      "expected ``...'' quoted expression"
 	      " after" );
-    min::gen name = vp[i++];
+    min::gen prototype = vp[i++];
+    min::locatable_gen name;
+    {
+        min::obj_vec_ptr pvp = prototype;
+	min::uns32 s = min::size_of ( pvp );
+	min::uns32 j = 0;
+	if ( s == 0 )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "``...'' quoted expression is"
+		  " empty" );
+
+	min::phrase_position_vec pppvec =
+	    min::get ( prototype, min::dot_position );
+	if ( pppvec == min::NULL_STUB )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "``...'' quoted expression has"
+		  " no phrase position vector" );
+	    
+	if ( type == PRIMLEX::variable )
+	{
+	    name = PRIM::scan_var_name
+	    	( pvp, j, parser );
+	    if ( j != s )
+		return PAR::parse_error
+		    ( parser, pppvec[j],
+		      "is not a variable name"
+		      " component, in ``...''" );
+	}
+	else // type == PRIMLEX::function
+	{
+	    min::gen name_buffer[s];
+	    min::uns32 k = 0;
+	    while ( j < s
+	            &&
+		    min::is_obj ( pvp[j] )
+		    &&
+		       PAR::quoted_string_value
+		           ( pvp[j] )
+		    == min::NONE() )
+	    {
+	        min::gen initializer =
+		    min::get ( pvp[j],
+		               min::dot_initializer );
+		if (    initializer
+		     == PAR::left_parenthesis )
+		    name_buffer[k++] =
+		        PRIMLEX::parentheses;
+		else
+		if ( initializer == PAR::left_square )
+		    name_buffer[k++] =
+		        PRIMLEX::square_brackets;
+		else
+		    return PAR::parse_error
+			( parser, pppvec[j],
+			  "is not a valid function"
+			  " prototype component,"
+			  " in ``...''" );
+	    }
+	    if ( j < s )
+	    {
+	    }
+	}
+    }
 
     // Scan selectors.
     //

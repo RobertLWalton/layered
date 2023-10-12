@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 10 01:45:59 EDT 2023
+// Date:	Thu Oct 12 06:36:35 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,7 +40,9 @@ namespace lexeme {
 	variable,		// variable,
 	function,		// function
 	location,		// location
-	module;			// module
+	module,			// module
+	parentheses,		// ()
+	square_brackets;	// []
 }
 
 
@@ -278,16 +280,16 @@ ll::parser::primary::primary_pass init_primary
 // type test defined below, scan a name and return it.
 // Otherwise return min::NONE().
 //
-// In the first case accept vp[i] as a name element
+// In the first case accept vp[i] as a name component
 // and increment i.  Then as long as vp[i] is a string,
 // number, or quoted string passing the lexical type
 // test defined below, continue accepting vp[i] as a
-// name element and incrementing i.
+// name component and incrementing i.
 //
 // The lexical type test is defined as follows.  Let
-// XXX_types be initial_types for the first element of
+// XXX_types be initial_types for the first component of
 // the name, and following_types for subsequent
-// elements.  Then the test is as follows:
+// components.  Then the test is as follows:
 //
 //   If vp[i] is NOT a quoted string:
 //     The test is passed iff the lexical type of vp[i]
@@ -301,16 +303,16 @@ ll::parser::primary::primary_pass init_primary
 //     test is passed iff the lexical type of L is in
 //     both inside_quotes_types and XXX_types.  If the
 //     test is passed, L (and NOT vp[i]) is accepted as
-//     the next name element.
+//     the next name component.
 //
 //   If vp[i] IS a quoted string and quoted_string_t IS
 //   in XXX_types:
 //      The test is passed and the string quoted is
-//      accepted as the next name element.
+//      accepted as the next name component.
 //
-// If the returned name has a single element, string or
-// number, return the element.  Otherwise return a label
-// containing the name elements.
+// If the returned name has a single component, string
+// or number, return the element.  Otherwise return a
+// label containing the name components.
 //
 const min::uns64 ALL_TYPES = (min::uns64) -1ll;
 min::gen scan_name
@@ -320,6 +322,42 @@ min::gen scan_name
       min::uns64 following_types,
       min::uns64 outside_quotes_types,
       min::uns64 inside_quotes_types );
+
+// Types specific to a variable name, and an inline
+// function to call scan_name with these types.
+//
+extern min::uns64 var_initial_types;
+extern min::uns64 var_following_types;
+extern min::uns64 var_outside_quotes_types;
+extern min::uns64 var_inside_quotes_types;
+inline min::gen scan_var_name
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser )
+{
+    return scan_name ( vp, i, parser,
+                       var_initial_types,
+		       var_following_types,
+		       var_outside_quotes_types,
+		       var_inside_quotes_types );
+}
+
+// Types specific to a function term name, and an inline
+// function to call scan_name with these types.
+//
+extern min::uns64 func_term_initial_types;
+extern min::uns64 func_term_following_types;
+extern min::uns64 func_term_outside_quotes_types;
+extern min::uns64 func_term_inside_quotes_types;
+inline min::gen scan_func_term_name
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser )
+{
+    return scan_name ( vp, i, parser,
+                       func_term_initial_types,
+		       func_term_following_types,
+		       func_term_outside_quotes_types,
+		       func_term_inside_quotes_types );
+}
 
 
 } } }

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 12 07:43:35 EDT 2023
+// Date:	Fri Oct 13 04:20:03 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,10 +21,8 @@
 // ----- --- -----
 
 # include <ll_lexeme_standard.h>
-# include <ll_parser_standard.h>
+# include <ll_parser_primary.h>
 # include <ll_parser_command.h>
-# include <ll_parser_oper.h>
-# include <cstdio>
 # define MUP min::unprotected
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
@@ -44,7 +42,7 @@ min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
-static min::locatable_gen opening_double_quote;  / ``
+static min::locatable_gen opening_double_quote;  // ``
 
 static void initialize ( void )
 {
@@ -65,8 +63,8 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
-// Operator Table Entries
-// -------- ----- -------
+// Primary Table Entries
+// ------- ----- -------
 
 static min::uns32 var_gen_disp[] = {
     min::DISP ( & PRIM::var_struct::label ),
@@ -82,9 +80,9 @@ static min::packed_struct_with_base
     var_type ( "ll::parser::primary::var_type",
 	        ::var_gen_disp,
 	        ::var_stub_disp );
-const min::uns32 & PRIM::PRIMARY = ::var_type.subtype;
+const min::uns32 & PRIM::VAR = ::var_type.subtype;
 
-void OP::push_var
+void PRIM::push_var
 	( min::gen var_label,
 	  TAB::flags selectors,
 	  min::uns32 block_level,
@@ -92,7 +90,7 @@ void OP::push_var
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
-	  mex::module module,
+	  min::gen module,
 	  TAB::key_table primary_table )
 {
     min::locatable_var<PRIM::var> var
@@ -113,11 +111,35 @@ void OP::push_var
 // Primary Parser Pass
 // ------- ------ ----
 
+static min::uns32 primary_pass_gen_disp[] =
+{
+    min::DISP ( & PRIM::primary_pass_struct::name ),
+    min::DISP_END
+};
+
+static min::uns32 primary_pass_stub_disp[] =
+{
+    min::DISP ( & PRIM::primary_pass_struct::parser ),
+    min::DISP ( & PRIM::primary_pass_struct::next ),
+    min::DISP ( & PRIM::primary_pass_struct
+                      ::primary_table ),
+    min::DISP_END
+};
+
+static min::packed_struct_with_base
+	<PRIM::primary_pass_struct, PAR::pass_struct>
+    primary_pass_type
+        ( "ll::parser::primary::primary_pass_type",
+	  ::primary_pass_gen_disp,
+	  ::primary_pass_stub_disp );
+const min::uns32 & PRIM::PRIMARY_PASS =
+    ::primary_pass_type.subtype;
+
 static void primary_pass_place
 	( PAR::parser parser,
 	  PAR::pass pass )
 {
-    PRIM::primary_pass oper_pass =
+    PRIM::primary_pass primary_pass =
         (PRIM::primary_pass) pass;
 
     int index = TAB::find_name
@@ -315,7 +337,7 @@ static min::gen primary_pass_command
     {
 	min::locatable_gen name
 	    ( PAR::scan_quoted_key
-	        ( vp, i, parser, tru ) );
+	        ( vp, i, parser, true ) );
 
 	if ( name == min::ERROR() )
 	    return min::ERROR();
@@ -376,8 +398,8 @@ static min::gen primary_pass_command
          ||
 	 ! min::is_obj ( vp[i] )
 	 ||
-	 min::get ( vp[i], min::dot_initializer )
-	 ! = ::opening_double_quote )
+	    min::get ( vp[i], min::dot_initiator )
+	 != ::opening_double_quote )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
 	      "expected ``...'' quoted expression"
@@ -415,6 +437,7 @@ static min::gen primary_pass_command
 	else // type == PRIMLEX::function
 	{
 	    min::gen name_buffer[s];
+	    min::locatable_gen n;
 	    min::uns32 k = 0;
 	    while ( j < s
 	            &&
@@ -424,15 +447,15 @@ static min::gen primary_pass_command
 		           ( pvp[j] )
 		    == min::NONE() )
 	    {
-	        min::gen initializer =
+	        min::gen initiator =
 		    min::get ( pvp[j],
-		               min::dot_initializer );
-		if (    initializer
-		     == PAR::left_parenthesis )
+		               min::dot_initiator );
+		if (    initiator
+		     == PARLEX::left_parenthesis )
 		    name_buffer[k++] =
 		        PRIMLEX::parentheses;
 		else
-		if ( initializer == PAR::left_square )
+		if ( initiator == PARLEX::left_square )
 		    name_buffer[k++] =
 		        PRIMLEX::square_brackets;
 		else
@@ -442,9 +465,54 @@ static min::gen primary_pass_command
 			  " prototype component,"
 			  " in ``...''" );
 	    }
-	    if ( j < s )
+	    if ( k > PRIM::MAX_CONSECUTIVE_ARG_LISTS )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "too many initial argument lists"
+		      " in ``...'' quoted expression" );
+
+	    if ( j >= s )
 	    {
+	        if ( k != 2
+		     ||
+		        name_buffer[0]
+		     != PRIMLEX::parentheses
+		     ||
+		        name_buffer[1]
+		     != PRIMLEX::square_brackets )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      " ``...'' quoted expression"
+		      " contains only argument lists"
+		      " and is not of the form"
+		      " ``()[]''" );
 	    }
+	    else // j < s
+	    {
+	        n = PRIM::scan_func_term_name
+			( pvp, j, parser );
+		if ( min::is_str ( n ) )
+		    name_buffer[k++] = n;
+		else
+		{
+		    min::lab_ptr labp ( n );
+		    MIN_REQUIRE
+		        ( labp != min::NULL_STUB );
+		    min::uns32 llen =
+		        min::lablen ( labp );
+		    if ( llen == 0 )
+			return PAR::parse_error
+			    ( parser, pppvec[j],
+			      "is not a valid function"
+			      " term component or"
+			      " argument list"
+			      " in ``...''" );
+		    for ( min::uns32 m = 0;
+		          m < llen; ++ m )
+		        name_buffer[k++] = labp[m];
+		}
+	    }
+	    name = min::new_lab_gen ( name_buffer, k );
 	}
     }
 
@@ -544,10 +612,8 @@ static min::gen primary_pass_command
 
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
-	        ( name[0],
-	          bracket || indentation_mark ?
-		      oper_pass->oper_bracket_table :
-		      oper_pass->oper_table );
+	        ( name,
+		  primary_pass->primary_table );
 
 	min::uns32 count = 0;
 
@@ -559,20 +625,6 @@ static min::gen primary_pass_command
 	    if (    ( root->selectors & selectors )
 		 == 0 )
 		continue;
-
-	    min::uns32 subtype =
-		min::packed_subtype_of ( root );
-
-	    if ( subtype != OP::OPER )
-		continue;
-
-	    OP::oper oper = (OP::oper) root;
-	    if ( oper->precedence != precedence )
-	        continue;
-	    if ( oper->flags != oper_flags )
-	        continue;
-	    if ( oper->terminator != name[1] )
-	        continue;
 
 	    TAB::push_undefined
 	        ( parser->undefined_stack,

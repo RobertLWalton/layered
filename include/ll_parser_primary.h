@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 12 06:36:35 EDT 2023
+// Date:	Fri Oct 13 04:20:15 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,12 +21,12 @@
 # ifndef LL_PARSER_PRIMARY_H
 # define LL_PARSER_PRIMARY_H
 
-# include <mex.h>
 # include <ll_parser.h>
+# include <ll_parser_table.h>
 
 namespace ll { namespace parser { namespace primary {
 
-const MAX_CONSECUTIVE_ARG_LISTS = 4;
+const unsigned MAX_CONSECUTIVE_ARG_LISTS = 4;
     // Maximum number of argument lists that may appear
     // consecutively in a function call or pattern
     // term.
@@ -75,7 +75,7 @@ struct var_struct
 
 MIN_REF ( min::gen, label,
           ll::parser::primary::var )
-MIN_REF ( parser::table::root, next,
+MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::var )
 MIN_REF ( min::gen, module,
           ll::parser::primary::var )
@@ -131,9 +131,6 @@ struct arg_list_description
         // True if [] list, false if () list.
 };
 
-typedef arg_list_description[MAX_CONSECUTIVE_ARG_LISTS]
-    arg_list_descriptions;
-
 struct func_struct
     : public ll::parser::table::root_struct
 {
@@ -152,19 +149,19 @@ struct func_struct
 			  // min::gen.
     ll::parser::table::key_table term_table;
     			  // See term_struc below.
-    ll::parser::primary::arg_list_descriptions
-         initial_arg_lists;
+    ll::parser::primary::arg_list_description
+         initial_arg_lists[MAX_CONSECUTIVE_ARG_LISTS];
 	 // For arg lists preceeding first function-
 	 // term-name.
-    ll::parser::primary::arg_list_descriptions
-         following_arg_lists;
+    ll::parser::primary::arg_list_description
+         following_arg_lists[MAX_CONSECUTIVE_ARG_LISTS];
 	 // For arg lists following first function-
 	 // term-name.
 };
 
 MIN_REF ( min::gen, label,
           ll::parser::primary::func )
-MIN_REF ( parser::table::root, next,
+MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::func )
 MIN_REF ( min::gen, module,
           ll::parser::primary::func )
@@ -185,10 +182,12 @@ void push_func
 	  min::uns32 depth,
 	  min::uns32 location,
 	  min::gen module,
-	  ll::parser::primary::arg_list_descriptions
-	      initial_arg_lists,
-	  ll::parser::primary::arg_list_descriptions
-	      following_arg_lists,
+	  ll::parser::primary::arg_list_description
+	      initial_arg_lists
+		  [MAX_CONSECUTIVE_ARG_LISTS],
+	  ll::parser::primary::arg_list_description
+	      following_arg_list
+		  [MAX_CONSECUTIVE_ARG_LISTS],
 	  ll::parser::table::key_table primary_table );
 
 // Prototype Function Term Definition.
@@ -202,15 +201,15 @@ extern const uns32 & FUNC_TERM;
 struct func_term_struct
     : public ll::parser::table::root_struct
 {
-    ll::parser::primary::arg_list_descriptions
-        arg_lists;
+    ll::parser::primary::arg_list_description
+        arg_lists[MAX_CONSECUTIVE_ARG_LISTS];
     bool is_bool;
         // True iff term is a boolean term.
 };
 
 MIN_REF ( min::gen, label,
           ll::parser::primary::func_term )
-MIN_REF ( parser::table::root, next,
+MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::func_term )
 
 // Create a function term definition entry with given
@@ -221,8 +220,8 @@ MIN_REF ( parser::table::root, next,
 void push_func_term
 	( min::gen func_label,
 	  const min::phrase_position & position,
-	  ll::parser::primary::arg_list_descriptions
-	      arg_lists,
+	  ll::parser::primary::arg_list_description
+	      arg_lists[MAX_CONSECUTIVE_ARG_LISTS],
 	  ll::parser::table::key_table term_table );
 
 // Primary Pass

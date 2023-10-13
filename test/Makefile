@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Sep  9 04:54:53 EDT 2021
+# Date:		Fri Oct 13 04:27:15 EDT 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -511,6 +511,18 @@ ll_parser_standard_oper.o:	\
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_standard_oper.cc
+
+ll_parser_primary.o:	\
+	${LEXEME_H} \
+	../include/ll_parser.h \
+	../include/ll_parser_table.h \
+	../include/ll_parser_primary.h \
+	../include/ll_parser_command.h \
+	../src/ll_parser_primary.cc \
+	Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_parser_primary.cc
 
 ll_parser_command.o:	\
 	${LEXEME_H} \

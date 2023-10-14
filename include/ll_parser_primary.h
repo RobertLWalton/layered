@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 13 04:20:15 EDT 2023
+// Date:	Sat Oct 14 07:24:58 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -82,9 +82,9 @@ MIN_REF ( min::gen, module,
 
 // Create a variable definition entry with given
 // label, selectors, lexical level, depth, location,
-// and module, and push it into the given primary_table.
+// and module, and return it.
 //
-void push_var
+ll::parser::primary::var create_var
 	( min::gen var_label,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
@@ -92,16 +92,22 @@ void push_var
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
-	  min::gen module,
-	  ll::parser::table::key_table primary_table );
+	  min::gen module );
 
 // Function Definition.
 //
 struct func_struct;
-typedef min::packed_vec_updptr<min::gen,func_struct>
+struct arg_struct;
+struct arg_list_struct;
+typedef min::packed_vec_updptr<arg_struct,func_struct>
 	func;
+typedef min::packed_vec_updptr<arg_list_struct>
+	arg_lists;
 extern const uns32 & FUNC;
-    // Subtype of min::packed_vec<func_struct>.
+    // Subtype of min::packed_vec<arg_struct,
+    //                            func_struct>.
+extern const uns32 & ARG_LISTS;
+    // Subtype of min::packed_vec<arg_list_struct>.
 
 // The output of parsing a function call is a reformat
 // of the call that contains a function location
@@ -111,16 +117,28 @@ extern const uns32 & FUNC;
 // The argument vector elements correspond to the
 // prototype arguments in left to right order.  A `func'
 // is a prototype vector for the argument vector that
-// contains the min::gen default value of each argument
-// (or NONE() if there is no default).
+// contains an arg_struct for each argument.
 //
-// `func' also contains descriptions of the argument
-// lists preceeding the initial function-term-name and
-// immediately following that name, and a term-table
-// that maps the remaining function-term-names onto
-// argument list descriptions.
+// `func' also contains a vector that has an
+// arg_list_struct for each argument list of the
+// prototype.  This includes lists preceeding the
+// initial function-term-name and immediately following
+// that name.
+//
+// Lastly `func' also contains a term-table that maps
+// the non-initial function-term-names onto arg_lists.
 
-struct arg_list_description
+struct arg_struct
+    // Argument descriptor.
+{
+    const min::gen name;
+        // Name of argument variable, or NONE if
+	// not relevant.
+    const min::gen default_value;
+        // Default value of argument, or NONE if none.
+};
+struct arg_list_struct
+    // Argument list descriptor.
 {
     min::uns32 number_of_args;
     	// Number of arguments in the list.
@@ -141,22 +159,27 @@ struct func_struct
 
     min::int32 location;  // Offset in module code
     			  // vector.
-    min::gen module;      // Module containing location.
+    const min::gen module;// Module containing location.
     			  // For testing, this is a
 			  // MIN string.  For compiling,
 			  // it is a mex::module or
 			  // similar converted to a
 			  // min::gen.
-    ll::parser::table::key_table term_table;
+    const ll::parser::primary::arg_lists arg_lists;
+        // Argument list descriptions in prototype
+	// order.
+    const ll::parser::table::key_table term_table;
     			  // See term_struc below.
-    ll::parser::primary::arg_list_description
-         initial_arg_lists[MAX_CONSECUTIVE_ARG_LISTS];
-	 // For arg lists preceeding first function-
-	 // term-name.
-    ll::parser::primary::arg_list_description
-         following_arg_lists[MAX_CONSECUTIVE_ARG_LISTS];
-	 // For arg lists following first function-
-	 // term-name.
+    min::uns32 number_initial_arg_lists;
+        // Number of argument lists before the first
+	// term name in prototype.  If N>0, the list
+	// descriptions are arg_lists[0] thru
+	// arg_lists[N-1].
+    min::uns32 number_following_arg_lists;
+        // Number of argument lists immediately
+	// following the first term name in prototype.
+	// If M>0 the list descriptions are
+	// arg_lists[N] thru arg_lists[N+M-1].
 };
 
 MIN_REF ( min::gen, label,
@@ -165,15 +188,19 @@ MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::func )
 MIN_REF ( min::gen, module,
           ll::parser::primary::func )
+MIN_REF ( ll::parser::primary::arg_lists, arg_lists,
+          ll::parser::primary::func )
 MIN_REF ( ll::parser::table::key_table, term_table,
           ll::parser::primary::func )
 
 // Create a function definition entry with given
 // label, selectors, lexical level, depth, location,
-// module, intitial_arg_lists, and following_arg_
-// lists, and push it into the given primary_table.
+// module, number of initial/following arg lists,
+// and return it.  Arg_lists vector and term_table
+// are created and initialized as empty.  Term_table_
+// size must be a power of 2.
 //
-void push_func
+ll::parser::primary::func create_func
 	( min::gen func_label,
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
@@ -182,13 +209,9 @@ void push_func
 	  min::uns32 depth,
 	  min::uns32 location,
 	  min::gen module,
-	  ll::parser::primary::arg_list_description
-	      initial_arg_lists
-		  [MAX_CONSECUTIVE_ARG_LISTS],
-	  ll::parser::primary::arg_list_description
-	      following_arg_list
-		  [MAX_CONSECUTIVE_ARG_LISTS],
-	  ll::parser::table::key_table primary_table );
+	  min::uns32 number_initial_arg_lists,
+	  min::uns32 number_following_arg_lists,
+	  min::uns32 term_table_size = 32 );
 
 // Prototype Function Term Definition.
 //
@@ -201,8 +224,12 @@ extern const uns32 & FUNC_TERM;
 struct func_term_struct
     : public ll::parser::table::root_struct
 {
-    ll::parser::primary::arg_list_description
-        arg_lists[MAX_CONSECUTIVE_ARG_LISTS];
+    min::uns32 first_arg_list,
+               number_arg_lists;
+        // Argument list descriptions are in function
+	// arg_lists[F] through arg_lists[F+N-1], where
+	// F is first_arg_list and N is number_arg_
+	// lists.
     bool is_bool;
         // True iff term is a boolean term.
 };
@@ -219,9 +246,9 @@ MIN_REF ( ll::parser::table::root, next,
 //
 void push_func_term
 	( min::gen func_label,
-	  const min::phrase_position & position,
-	  ll::parser::primary::arg_list_description
-	      arg_lists[MAX_CONSECUTIVE_ARG_LISTS],
+	  min::uns32 first_arg_list,
+	  min::uns32 number_arg_lists,
+	  bool is_bool,
 	  ll::parser::table::key_table term_table );
 
 // Primary Pass

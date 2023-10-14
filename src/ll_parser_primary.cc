@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 13 04:20:03 EDT 2023
+// Date:	Sat Oct 14 03:44:37 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -82,7 +82,7 @@ static min::packed_struct_with_base
 	        ::var_stub_disp );
 const min::uns32 & PRIM::VAR = ::var_type.subtype;
 
-void PRIM::push_var
+PRIM::var PRIM::create_var
 	( min::gen var_label,
 	  TAB::flags selectors,
 	  min::uns32 block_level,
@@ -90,8 +90,7 @@ void PRIM::push_var
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
-	  min::gen module,
-	  TAB::key_table primary_table )
+	  min::gen module )
 {
     min::locatable_var<PRIM::var> var
         ( ::var_type.new_stub() );
@@ -105,7 +104,58 @@ void PRIM::push_var
     var->location = location;
     module_ref(var) = module;
 
-    TAB::push ( primary_table, (TAB::root) var );
+    return var;
+}
+
+static min::uns32 func_gen_disp[] = {
+    min::DISP ( & PRIM::func_struct::label ),
+    min::DISP ( & PRIM::func_struct::arg_lists ),
+    min::DISP ( & PRIM::func_struct::term_table ),
+    min::DISP_END };
+
+static min::uns32 func_stub_disp[] = {
+    min::DISP ( & PRIM::func_struct::next ),
+    min::DISP ( & PRIM::func_struct::module ),
+    min::DISP_END };
+
+static min::uns32 arg_gen_disp[] = {
+    min::DISP ( & PRIM::arg_struct::name ),
+    min::DISP ( & PRIM::arg_struct::default_value ),
+    min::DISP_END };
+
+static min::packed_vec_with_base
+	<PRIM::arg_struct, PRIM::func_struct,
+	                   TAB::root_struct>
+    func_type ( "ll::parser::primary::func_type",
+	        ::arg_gen_disp,
+	        NULL,
+	        ::func_gen_disp,
+	        ::func_stub_disp );
+const min::uns32 & PRIM::FUNC = ::func_type.subtype;
+
+PRIM::func PRIM::create_func
+	( min::gen func_label,
+	  TAB::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  min::uns32 level,
+	  min::uns32 depth,
+	  min::uns32 location,
+	  min::gen module )
+{
+    min::locatable_var<PRIM::func> func
+        ( ::func_type.new_stub() );
+
+    label_ref(func) = func_label;
+    func->selectors = selectors;
+    func->block_level = block_level;
+    func->position = position;
+    func->level = level;
+    func->depth = depth;
+    func->location = location;
+    module_ref(func) = module;
+
+    return func;
 }
 
 // Primary Parser Pass

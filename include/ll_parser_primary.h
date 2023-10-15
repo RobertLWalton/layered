@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 14 07:24:58 EDT 2023
+// Date:	Sun Oct 15 01:43:23 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,11 +25,6 @@
 # include <ll_parser_table.h>
 
 namespace ll { namespace parser { namespace primary {
-
-const unsigned MAX_CONSECUTIVE_ARG_LISTS = 4;
-    // Maximum number of argument lists that may appear
-    // consecutively in a function call or pattern
-    // term.
 
 namespace lexeme {
 
@@ -58,6 +53,7 @@ extern const uns32 & VAR;
 
 struct var_struct
     : public ll::parser::table::root_struct
+    // Variable Description.
 {
     // Packed_struct subtype is VAR.
 
@@ -65,12 +61,11 @@ struct var_struct
     min::int32 depth; // Nesting depth within level.
 
     min::int32 location;  // Offset in stack.
-    min::gen module;      // Module containing location.
-    			  // For testing, this is a
-			  // MIN string.  For compiling,
-			  // it is a mex::module or
-			  // similar converted to a
-			  // min::gen.
+    const min::gen module;
+        // Module containing location.  For testing,
+	// this is a MIN string.  For compiling, it is
+        // a mex::module or similar converted to a
+        // min::gen.
 };
 
 MIN_REF ( min::gen, label,
@@ -99,10 +94,12 @@ ll::parser::primary::var create_var
 struct func_struct;
 struct arg_struct;
 struct arg_list_struct;
+
 typedef min::packed_vec_updptr<arg_struct,func_struct>
 	func;
 typedef min::packed_vec_updptr<arg_list_struct>
 	arg_lists;
+
 extern const uns32 & FUNC;
     // Subtype of min::packed_vec<arg_struct,
     //                            func_struct>.
@@ -121,9 +118,9 @@ extern const uns32 & ARG_LISTS;
 //
 // `func' also contains a vector that has an
 // arg_list_struct for each argument list of the
-// prototype.  This includes lists preceeding the
-// initial function-term-name and immediately following
-// that name.
+// prototype, in left to right order.  This includes
+// lists preceeding the initial function-term-name and
+// immediately following that name.
 //
 // Lastly `func' also contains a term-table that maps
 // the non-initial function-term-names onto arg_lists.
@@ -151,6 +148,7 @@ struct arg_list_struct
 
 struct func_struct
     : public ll::parser::table::root_struct
+    // Function Description
 {
     // Packed_vec subtype is FUNC.
 
@@ -159,17 +157,18 @@ struct func_struct
 
     min::int32 location;  // Offset in module code
     			  // vector.
-    const min::gen module;// Module containing location.
-    			  // For testing, this is a
-			  // MIN string.  For compiling,
-			  // it is a mex::module or
-			  // similar converted to a
-			  // min::gen.
+    const min::gen module;
+        // Module containing location.  For testing,
+	// this is a MIN string.  For compiling, it is
+	// a mex::module or similar converted to a
+	// min::gen.
+
     const ll::parser::primary::arg_lists arg_lists;
         // Argument list descriptions in prototype
 	// order.
     const ll::parser::table::key_table term_table;
-    			  // See term_struc below.
+    	// See term_struc below.
+
     min::uns32 number_initial_arg_lists;
         // Number of argument lists before the first
 	// term name in prototype.  If N>0, the list
@@ -223,6 +222,7 @@ extern const uns32 & FUNC_TERM;
 
 struct func_term_struct
     : public ll::parser::table::root_struct
+    // Function Term Description
 {
     min::uns32 first_arg_list,
                number_arg_lists;
@@ -231,7 +231,8 @@ struct func_term_struct
 	// F is first_arg_list and N is number_arg_
 	// lists.
     bool is_bool;
-        // True iff term is a boolean term.
+        // True iff term is a boolean term.  Then
+	// number_of_argument_lists == 1 required.
 };
 
 MIN_REF ( min::gen, label,
@@ -241,15 +242,16 @@ MIN_REF ( ll::parser::table::root, next,
 
 // Create a function term definition entry with given
 // label, arg_list_descriptions, and is_bool value, 
-// and push it into the given term_table.  Selectors
-// and block level are not relevant.
+// and push it into the term_table of the given func.
+// Selectors and block level are not relevant.
 //
 void push_func_term
-	( min::gen func_label,
+	( min::gen func_term_label,
+	  const min::phrase_position & position,
 	  min::uns32 first_arg_list,
 	  min::uns32 number_arg_lists,
 	  bool is_bool,
-	  ll::parser::table::key_table term_table );
+	  ll::parser::primary::func func );
 
 // Primary Pass
 // ------- ----

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 14 03:44:37 EDT 2023
+// Date:	Sun Oct 15 01:47:42 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,7 +55,8 @@ static void initialize ( void )
     PRIMLEX::location = min::new_str_gen ( "location" );
     PRIMLEX::module = min::new_str_gen ( "module" );
     PRIMLEX::parentheses = min::new_str_gen ( "()" );
-    PRIMLEX::square_brackets = min::new_str_gen ( "[]" );
+    PRIMLEX::square_brackets =
+        min::new_str_gen ( "[]" );
     ::opening_double_quote = min::new_str_gen ( "``" );
 
     PAR::push_new_pass
@@ -68,11 +69,11 @@ static min::initializer initializer ( ::initialize );
 
 static min::uns32 var_gen_disp[] = {
     min::DISP ( & PRIM::var_struct::label ),
+    min::DISP ( & PRIM::var_struct::module ),
     min::DISP_END };
 
 static min::uns32 var_stub_disp[] = {
     min::DISP ( & PRIM::var_struct::next ),
-    min::DISP ( & PRIM::var_struct::module ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -99,6 +100,7 @@ PRIM::var PRIM::create_var
     var->selectors = selectors;
     var->block_level = block_level;
     var->position = position;
+
     var->level = level;
     var->depth = depth;
     var->location = location;
@@ -109,13 +111,13 @@ PRIM::var PRIM::create_var
 
 static min::uns32 func_gen_disp[] = {
     min::DISP ( & PRIM::func_struct::label ),
-    min::DISP ( & PRIM::func_struct::arg_lists ),
-    min::DISP ( & PRIM::func_struct::term_table ),
+    min::DISP ( & PRIM::func_struct::module ),
     min::DISP_END };
 
 static min::uns32 func_stub_disp[] = {
     min::DISP ( & PRIM::func_struct::next ),
-    min::DISP ( & PRIM::func_struct::module ),
+    min::DISP ( & PRIM::func_struct::arg_lists ),
+    min::DISP ( & PRIM::func_struct::term_table ),
     min::DISP_END };
 
 static min::uns32 arg_gen_disp[] = {
@@ -133,6 +135,12 @@ static min::packed_vec_with_base
 	        ::func_stub_disp );
 const min::uns32 & PRIM::FUNC = ::func_type.subtype;
 
+static min::packed_vec <PRIM::arg_list_struct>
+    arg_lists_type
+        ( "ll::parser::primary::arg_lists_type" );
+const min::uns32 & PRIM::ARG_LISTS =
+    ::arg_lists_type.subtype;
+
 PRIM::func PRIM::create_func
 	( min::gen func_label,
 	  TAB::flags selectors,
@@ -141,7 +149,10 @@ PRIM::func PRIM::create_func
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
-	  min::gen module )
+	  min::gen module,
+	  min::uns32 number_initial_arg_lists,
+	  min::uns32 number_following_arg_lists,
+	  min::uns32 term_table_size )
 {
     min::locatable_var<PRIM::func> func
         ( ::func_type.new_stub() );
@@ -150,12 +161,66 @@ PRIM::func PRIM::create_func
     func->selectors = selectors;
     func->block_level = block_level;
     func->position = position;
+
     func->level = level;
     func->depth = depth;
     func->location = location;
     module_ref(func) = module;
 
+    PRIM::arg_lists_ref(func) =
+        (PRIM::arg_lists) ::arg_lists_type.new_stub();
+    PRIM::term_table_ref(func) =
+        TAB::create_key_table ( term_table_size );
+
+    func->number_initial_arg_lists =
+        number_initial_arg_lists;
+    func->number_following_arg_lists =
+        number_following_arg_lists;
+
     return func;
+}
+
+static min::uns32 func_term_gen_disp[] = {
+    min::DISP ( & PRIM::func_struct::label ),
+    min::DISP_END };
+
+static min::uns32 func_term_stub_disp[] = {
+    min::DISP ( & PRIM::func_struct::next ),
+    min::DISP_END };
+
+static min::packed_struct_with_base
+	<PRIM::func_term_struct, TAB::root_struct>
+    func_term_type
+        ( "ll::parser::primary::func_term_type",
+	  ::func_term_gen_disp,
+	  ::func_term_stub_disp );
+const min::uns32 & PRIM::FUNC_TERM =
+    ::func_term_type.subtype;
+
+void PRIM::push_func_term
+    ( min::gen func_term_label,
+      const min::phrase_position & position,
+      min::uns32 first_arg_list,
+      min::uns32 number_arg_lists,
+      bool is_bool,
+      PRIM::func func )
+{
+    min::locatable_var<PRIM::func_term> func_term
+        ( ::func_term_type.new_stub() );
+
+    label_ref(func_term) = func_term_label;
+    func_term->selectors = PAR::ALL_SELECTORS;
+    func_term->block_level = 0;
+    func_term->position = position;
+
+    func_term->first_arg_list =
+        first_arg_list;
+    func_term->number_arg_lists =
+        number_arg_lists;
+    func_term->is_bool = is_bool;
+
+    TAB::push
+        ( func->term_table, (TAB::root) func_term );
 }
 
 // Primary Parser Pass
@@ -280,12 +345,14 @@ PRIM::primary_pass PRIM::init_primary
 	  PAR::pass next )
 {
     PAR::pass pass =
-        PAR::find_on_pass_stack ( parser, PRIMLEX::primary );
+        PAR::find_on_pass_stack
+	    ( parser, PRIMLEX::primary );
     if ( pass != min::NULL_STUB )
         return (PRIM::primary_pass) pass;
 
     min::locatable_var<PRIM::primary_pass> primary_pass
-        ( (PRIM::primary_pass) PRIM::new_pass ( parser ) );
+        ( (PRIM::primary_pass)
+	  PRIM::new_pass ( parser ) );
     PAR::place_before
         ( parser, (PAR::pass) primary_pass, next );
     return primary_pass;
@@ -363,7 +430,8 @@ static min::gen primary_pass_command
 	  min::obj_vec_ptr & vp, min::uns32 i0,
           min::phrase_position_vec ppvec )
 {
-    PRIM::primary_pass primary_pass = (PRIM::primary_pass) pass;
+    PRIM::primary_pass primary_pass =
+        (PRIM::primary_pass) pass;
 
     min::uns32 size = min::size_of ( vp );
 
@@ -515,11 +583,6 @@ static min::gen primary_pass_command
 			  " prototype component,"
 			  " in ``...''" );
 	    }
-	    if ( k > PRIM::MAX_CONSECUTIVE_ARG_LISTS )
-		return PAR::parse_error
-		    ( parser, ppvec[i-1],
-		      "too many initial argument lists"
-		      " in ``...'' quoted expression" );
 
 	    if ( j >= s )
 	    {

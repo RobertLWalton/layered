@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 15 01:43:23 EDT 2023
+// Date:	Sun Oct 15 03:11:08 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,16 +95,20 @@ struct func_struct;
 struct arg_struct;
 struct arg_list_struct;
 
-typedef min::packed_vec_updptr<arg_struct,func_struct>
-	func;
-typedef min::packed_vec_updptr<arg_list_struct>
+typedef min::packed_vec_insptr<arg_struct>
+	args;
+typedef min::packed_vec_insptr<arg_list_struct>
 	arg_lists;
+typedef min::packed_struct_updptr<func_struct>
+	func;
 
+extern const uns32 & ARGS;
+    // Subtype of min::packed_vec<args_struct>.
+extern const uns32 & ARG_LISTS;
+    // Subtype of min::packed_vec<arg_lists_struct>.
 extern const uns32 & FUNC;
     // Subtype of min::packed_vec<arg_struct,
     //                            func_struct>.
-extern const uns32 & ARG_LISTS;
-    // Subtype of min::packed_vec<arg_list_struct>.
 
 // The output of parsing a function call is a reformat
 // of the call that contains a function location
@@ -128,10 +132,10 @@ extern const uns32 & ARG_LISTS;
 struct arg_struct
     // Argument descriptor.
 {
-    const min::gen name;
+    min::gen name;
         // Name of argument variable, or NONE if
 	// not relevant.
-    const min::gen default_value;
+    min::gen default_value;
         // Default value of argument, or NONE if none.
 };
 struct arg_list_struct
@@ -163,6 +167,8 @@ struct func_struct
 	// a mex::module or similar converted to a
 	// min::gen.
 
+    const ll::parser::primary::args args;
+        // Argument descriptions in prototype order.
     const ll::parser::primary::arg_lists arg_lists;
         // Argument list descriptions in prototype
 	// order.
@@ -187,6 +193,8 @@ MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::func )
 MIN_REF ( min::gen, module,
           ll::parser::primary::func )
+MIN_REF ( ll::parser::primary::args, args,
+          ll::parser::primary::func )
 MIN_REF ( ll::parser::primary::arg_lists, arg_lists,
           ll::parser::primary::func )
 MIN_REF ( ll::parser::table::key_table, term_table,
@@ -195,9 +203,9 @@ MIN_REF ( ll::parser::table::key_table, term_table,
 // Create a function definition entry with given
 // label, selectors, lexical level, depth, location,
 // module, number of initial/following arg lists,
-// and return it.  Arg_lists vector and term_table
-// are created and initialized as empty.  Term_table_
-// size must be a power of 2.
+// and return it.  Args and arg_lists vectors and
+// term_table are created and initialized as empty.
+// Term_table_size must be a power of 2.
 //
 ll::parser::primary::func create_func
 	( min::gen func_label,
@@ -211,6 +219,23 @@ ll::parser::primary::func create_func
 	  min::uns32 number_initial_arg_lists,
 	  min::uns32 number_following_arg_lists,
 	  min::uns32 term_table_size = 32 );
+
+// Push a new argument description into the args vector
+// of a func.
+//
+inline void push_arg
+    ( min::gen name,
+      min::gen default_value,
+      ll::parser::primary::func func )
+{
+    ll::parser::primary::arg_struct arg =
+        { name, default_value };
+    min::push(func->args) = arg;
+    min::unprotected::acc_write_update
+        ( func->args, name );
+    min::unprotected::acc_write_update
+        ( func->args, default_value );
+}
 
 // Prototype Function Term Definition.
 //

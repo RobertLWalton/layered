@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 15 01:47:42 EDT 2023
+// Date:	Sun Oct 15 03:15:54 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,20 +120,21 @@ static min::uns32 func_stub_disp[] = {
     min::DISP ( & PRIM::func_struct::term_table ),
     min::DISP_END };
 
+static min::packed_struct_with_base
+	<PRIM::func_struct, TAB::root_struct>
+    func_type ( "ll::parser::primary::func_type",
+	        ::func_gen_disp,
+	        ::func_stub_disp );
+const min::uns32 & PRIM::FUNC = ::func_type.subtype;
+
 static min::uns32 arg_gen_disp[] = {
     min::DISP ( & PRIM::arg_struct::name ),
     min::DISP ( & PRIM::arg_struct::default_value ),
     min::DISP_END };
 
-static min::packed_vec_with_base
-	<PRIM::arg_struct, PRIM::func_struct,
-	                   TAB::root_struct>
-    func_type ( "ll::parser::primary::func_type",
-	        ::arg_gen_disp,
-	        NULL,
-	        ::func_gen_disp,
-	        ::func_stub_disp );
-const min::uns32 & PRIM::FUNC = ::func_type.subtype;
+static min::packed_vec <PRIM::arg_struct>
+    args_type ( "ll::parser::primary::args_type" );
+const min::uns32 & PRIM::ARGS = ::args_type.subtype;
 
 static min::packed_vec <PRIM::arg_list_struct>
     arg_lists_type
@@ -167,6 +168,8 @@ PRIM::func PRIM::create_func
     func->location = location;
     module_ref(func) = module;
 
+    PRIM::args_ref(func) =
+        (PRIM::args) ::args_type.new_stub();
     PRIM::arg_lists_ref(func) =
         (PRIM::arg_lists) ::arg_lists_type.new_stub();
     PRIM::term_table_ref(func) =

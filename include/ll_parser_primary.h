@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 15 03:11:08 EDT 2023
+// Date:	Mon Oct 16 00:48:46 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -412,6 +412,39 @@ inline min::gen scan_func_term_name
 		       func_term_inside_quotes_types );
 }
 
+// Similar to scan_name but scans a `func' name that
+// consists of argument list tokens followed by a
+// function term name (scanned by scan_func_term_name).
+// The argument list tokens are the MIN strings "()"
+// for a parenthesized argument list and "[]" for a
+// square bracketted argument list.  This function is
+// intended for scanning function prototypes that begin
+// with zero or more argument lists followed by an
+// optional function term name.
+//
+min::gen scan_func_name
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser );
+
+// Can function prototype and store results in func.
+// Return func.  A prototype argument with a default
+// value must be of the form
+//
+// 	{|<var-name>|} <default-op> {|<default-value>|}
+//
+// where default-op is a MIN string.  Without a default
+// value, the argument may be a variable name or be
+// empty.
+//
+// A bool function term must be of the above form with
+// default value equal to bool_value.
+//
+ll::parser::primary::func scan_func_prototype
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser,
+      ll::parser::primary::func func,
+      min::gen default_op,
+      min::gen bool_value );
 
 } } }
 

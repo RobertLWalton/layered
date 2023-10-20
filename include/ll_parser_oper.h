@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 23 15:23:03 EDT 2022
+// Date:	Fri Oct 20 02:41:13 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -161,7 +161,7 @@ extern min::int32 postfix_precedence;
 struct oper_stack_struct
 {
     // Save of various operator parser variables.
-    // None of these saved values are ACC locatable.
+    // Members are not ACC locatable.
     //
     min::int32 precedence;
     ll::parser::token first;
@@ -182,23 +182,33 @@ typedef min::packed_vec_insptr< oper_stack_struct >
 // the current expression in order, and is part of each
 // oper_pass.  Each element corresponds to an operator
 // or non-operator in a current expression, in the order
-// that these appear.  Note that non-operators are
-// single tokens not adjacent to other non-operators
-// (i.e., sequences of consecutive non-operator tokens
-// have been packaged into single tokens produced by
-// subsequent parser passes or by making them into
-// PURELIST tokens).
+// that these appear.
 //
-// Non-operators have min::NULL_STUB op.
+// Oper_parser_pass_1 builds the oper_vec but does NOT
+// change tokens.  It considers each operator or non-
+// operator to be a sequence of token.  Oper_parser_
+// pass_2 packages each operator or non-operator into
+// a single token.  If the expression is not a
+// declaration, subsequence passes are run on non-
+// operators, and if the result is more than one token,
+// the tokens are packages into a single PURELIST token.
+// If the expression is a declaration, non-operators
+// that are not single tokens are packaged into a single
+// PURELIST token, but no subsequence passes are run.
+//
+// Non-operators cannot be adjacent to one another.
 //
 struct oper_vec_struct
 {
-    min::uns32 flags;
-    min::int32 precedence;
-    oper op;
-        // Is not visible to gc.  Used only for
-	// reformatter, and may be NULL_STUB if not
-	// operator or operator has no reformatter.
+    // Members are not ACC locatable.
+
+    ll::parser::token first;
+        // First token of operator or non-operator.
+	// Set by oper_parser_pass_1 and used only by
+	// oper_parser_pass_2.
+    oper op;	// NULL_STUB for non-operator.
+    min::uns32 flags;		// Only for operators.
+    min::int32 precedence;	// Only for operators.
 };
 
 typedef min::packed_vec_insptr< oper_vec_struct >
@@ -212,9 +222,10 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 // checked.
 //
 bool flags_OK ( oper_vec v,
+		ll::parser::token first,
+		oper op = min::NULL_STUB,
 	        min::uns32 flags = 0,
-		min::int32 precedence = 0,
-		oper op = min::NULL_STUB );
+		min::int32 precedence = 0 );
 
 // Insert a token with name ERROR'OPERAND and type
 // word_t before/after token t.  Call parse_error with

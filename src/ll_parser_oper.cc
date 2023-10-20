@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 10 01:34:24 EDT 2023
+// Date:	Fri Oct 20 03:07:44 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -384,9 +384,10 @@ bool afix_OK ( OP::oper_vec v,
 }
         
 bool OP::flags_OK ( OP::oper_vec v,
+		    PAR::token first,
+		    OP::oper op,
 	            min::uns32 flags,
-		    min::int32 precedence,
-		    OP::oper op )
+		    min::int32 precedence )
 {
     min::uns32 length = v->length;
     MIN_REQUIRE ( length >= 1 );
@@ -468,7 +469,7 @@ OK:
          && ! afix_OK ( v, precedence ) )
 	return false;
     OP::oper_vec_struct next =
-        { flags, precedence, op };
+        { first, op, flags, precedence };
     min::push ( v ) = next;
 
     return true;
@@ -485,8 +486,7 @@ min::int32 OP::postfix_precedence  = +1e6;
 
 static void put_error_operator_before
 	( ll::parser::parser parser,
-	  ll::parser::token t,
-          OP::oper_vec vec )
+	  ll::parser::token t )
 {
     PAR::token token = new_token ( PAR::OPERATOR );
     put_before ( PAR::first_ref(parser), t, token );
@@ -503,14 +503,6 @@ static void put_error_operator_before
 	      ( "missing operator; nofix error operator"
 		" of precedence %d inserted",
 	        OP::low_precedence - 1 ) );
-
-    bool OK = OP::flags_OK
-	( vec, OP::NOFIX,
-	       OP::low_precedence - 1,
-	       OP::error_oper );
-
-    MIN_REQUIRE ( OK );
-
 }
 
 void OP::put_error_operand_before
@@ -688,8 +680,8 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 				TAB::flags trace_flags )
 {
     OP::oper_vec_struct end_op =
-        { OP::NOFIX, OP::low_precedence - 2,
-	             OP::end_oper };
+        { first, OP::end_oper,
+	         OP::NOFIX, OP::low_precedence - 2 };
     min::push ( vec ) = end_op;
     PAR::token current = first;
     PAR::token non_op_first = min::NULL_STUB;
@@ -708,6 +700,7 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 	// at the token that is the OPERATOR (after its
 	// type is changed to OPERATOR).
 	//
+	PAR::token f = current;
 	OP::oper oper;
 	min::uns32 flags;
 	min::int32 precedence;
@@ -739,8 +732,8 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 		        OK = false;
 		    else
 			OK = OP::flags_OK
-			    ( vec, flags, precedence,
-				   oper );
+			    ( vec, f, oper,
+			           flags, precedence );
 		    if ( trace_flags & PAR::TRACE_KEYS )
 			trace_operator
 			    ( parser, current->position,
@@ -774,34 +767,26 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 		    OK = false;
 		else
 		    OK = OP::flags_OK
-			( vec, flags, precedence,
-			       oper );
+			( vec, f, oper,
+			       flags, precedence );
+
+		pos.end = next_current->previous
+		                      ->position.end;
 		if ( trace_flags & PAR::TRACE_KEYS )
 		    trace_operator
 		        ( parser, pos, oper, OK );
-		if ( OK ) break;
+
+		if ( OK )
+		{
+		    current = next_current->previous;
+		    break;
+		}
 		root = PAR::find_next_entry
 		    ( parser, next_current,
 			      key_prefix,
 			      selectors, root );
-		pos.end = next_current->previous
-		                      ->position.end;
 	    }
 
-	    if ( root != min::NULL_STUB )
-	    {
-		// Delete tokens in operator except
-		// for the first, which is at current,
-		// and may == first.
-		//
-	        while ( current->next != next_current )
-		    PAR::free
-			( PAR::remove
-			      ( PAR::first_ref (parser),
-				next_current->
-				    previous ) );
-		value_ref ( current ) = root->label;
-	    }
 	}
 
 	if ( root == min::NULL_STUB )
@@ -809,12 +794,17 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 	    if ( non_op_first == min::NULL_STUB )
 	    {
 	        non_op_first = current;
-		OK = OP::flags_OK ( vec );
+		OK = OP::flags_OK ( vec, f );
 		if ( ! OK )
 		{
-		    ::put_error_operator_before
-		        ( parser, current, vec );
-		    OK = OP::flags_OK ( vec );
+		    OK = OP::flags_OK
+			( vec, f, OP::error_oper,
+			       OP::NOFIX,
+			       OP::low_precedence - 1 );
+		    MIN_REQUIRE ( OK );
+
+		    OK = OP::flags_OK
+		        ( vec, f );
 		    MIN_REQUIRE ( OK );
 		}
 	    }
@@ -824,43 +814,27 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 	    else if ( non_op_first == first )
 	        return false;
 	}
-
-	if ( non_op_first != min::NULL_STUB )
+	else
 	{
-	    bool is_first = ( non_op_first == first );
+	    MIN_REQUIRE ( OK );
 
-	    compact_expression
-	        ( parser, oper_pass, selectors,
-		  non_op_first, current,
-		  min::NULL_STUB, trace_flags );
-
-	    if ( is_first ) first = non_op_first;
 	    non_op_first = min::NULL_STUB;
+	    current = current->next;
 	}
-
-	if ( root == min::NULL_STUB ) continue;
-
-	MIN_REQUIRE ( OK );
-
-	current->type = PAR::OPERATOR;
-
-	current = current->next;
     }
 
     bool OK = OP::flags_OK
-		  ( vec, OP::NOFIX,
-		    OP::low_precedence - 2,
-		    OP::end_oper );
+		  ( vec, current, OP::end_oper,
+		         OP::NOFIX,
+			 OP::low_precedence - 2 );
     if ( ! OK )
     {
-	OP::put_error_operand_before
-	    ( parser, current );
-	OK = OP::flags_OK ( vec );
+	OK = OP::flags_OK ( vec, current );
 	MIN_REQUIRE ( OK );
         OK = OP::flags_OK
-	      ( vec, OP::NOFIX,
-		OP::low_precedence - 2,
-		OP::end_oper );
+	      ( vec, current, OP::end_oper,
+	             OP::NOFIX,
+		     OP::low_precedence - 2 );
 	MIN_REQUIRE ( OK );
     }
 
@@ -868,6 +842,66 @@ static bool oper_parse_pass_1 ( PAR::parser parser,
 }
 
 static void oper_parse_pass_2 ( PAR::parser parser,
+		                OP::oper_pass oper_pass,
+		                TAB::flags selectors,
+		                PAR::token & first,
+		                PAR::token next,
+				OP::oper_vec vec,
+				min::unsptr vec_origin,
+				TAB::flags trace_flags )
+{
+    min::uns32 index = vec_origin + 1;
+    while ( index + 1 < vec->length )
+    {
+        OP::oper_vec_struct v;
+	v = vec[index++];
+	PAR::token f = v.first;
+	PAR::token n = (vec + index)->first;
+
+	min::phrase_position pos =
+	    { f->position.begin,
+	      n->previous->position.end };
+
+	if ( v.op == min::NULL_STUB )
+	{
+	    if ( f == n )
+		OP::put_error_operand_before
+		    ( parser, n );
+	    else
+	    {
+		bool is_first = ( f == first );
+		compact_expression
+		    ( parser, oper_pass, selectors,
+		      f, n,
+		      min::NULL_STUB, trace_flags );
+
+		if ( is_first ) first = f;
+	    }
+	    continue;
+	}
+	else
+	{
+	    if ( f == n )
+		::put_error_operator_before
+		    ( parser, n );
+	    else
+	    {
+	        while ( f->next != n )
+		    PAR::free
+			( PAR::remove
+			      ( PAR::first_ref (parser),
+				n->previous ) );
+	    }
+
+	    if ( f->type != PAR::BRACKETED )
+		value_ref ( f ) = v.op->label;
+	    f->type = PAR::OPERATOR;
+	}
+	f->position = pos;
+    }
+}
+
+static void oper_parse_pass_3 ( PAR::parser parser,
 		                OP::oper_pass oper_pass,
 		                TAB::flags selectors,
 		                PAR::token & first,
@@ -1021,9 +1055,14 @@ static void oper_parse ( PAR::parser parser,
 	( parser, oper_pass, selectors, first, next,
 	  vec, trace_flags );
     if ( op_found )
+    {
 	oper_parse_pass_2
 	    ( parser, oper_pass, selectors, first, next,
 	      vec, vec_origin, trace_flags );
+	oper_parse_pass_3
+	    ( parser, oper_pass, selectors, first, next,
+	      vec, vec_origin, trace_flags );
+    }
 
     min::pop ( vec, vec->length - vec_origin );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 16 00:48:46 EDT 2023
+// Date:	Thu Oct 26 01:49:51 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -367,6 +367,9 @@ ll::parser::primary::primary_pass init_primary
 // or number, return the element.  Otherwise return a
 // label containing the name components.
 //
+// If no name components are found, i is not incremented
+// and MISSING is returned.
+//
 const min::uns64 ALL_TYPES = (min::uns64) -1ll;
 min::gen scan_name
     ( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -412,21 +415,7 @@ inline min::gen scan_func_term_name
 		       func_term_inside_quotes_types );
 }
 
-// Similar to scan_name but scans a `func' name that
-// consists of argument list tokens followed by a
-// function term name (scanned by scan_func_term_name).
-// The argument list tokens are the MIN strings "()"
-// for a parenthesized argument list and "[]" for a
-// square bracketted argument list.  This function is
-// intended for scanning function prototypes that begin
-// with zero or more argument lists followed by an
-// optional function term name.
-//
-min::gen scan_func_name
-    ( min::obj_vec_ptr & vp, min::uns32 & i,
-      ll::parser::parser parser );
-
-// Can function prototype and store results in func.
+// Scan function prototype and store results in func.
 // Return func.  A prototype argument with a default
 // value must be of the form
 //
@@ -436,13 +425,37 @@ min::gen scan_func_name
 // value, the argument may be a variable name or be
 // empty.
 //
+// The variable names are stored in `variables' in the
+// order than they appear in the prototype.  If
+// variables is NULL_STUB, it will be created.  If
+// no variables are found, `variables' will be created
+// but will be empty.  If no function prototype is
+// found, `variables' will not be created.
+//
 // A bool function term must be of the above form with
 // default value equal to bool_value.
 //
+// The function name is returned in func_name.  The
+// function name consists of argument list tokens
+// followed by a function term name.  The argument list
+// tokens are the MIN strings "()" for a parenthesized
+// argument list and "[]" for a square bracketted
+// argument list.  The function name is a MIN label
+// or if that would have just one element, a MIN string
+// equal to that element.
+//
+// If no function prototype is found, i is not
+// incremented and NULL_STUB is returned.  If an
+// error is encountered, scanning stops early and
+// i points at the vp element that cannot be part of
+// the function prototype.
+//
+typedef min::packed_vec_insptr<min::gen>
+    variables_vector;
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
-      ll::parser::primary::func func,
+      min::ref<variables_vector> variables,
       min::gen default_op,
       min::gen bool_value );
 

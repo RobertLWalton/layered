@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 26 03:03:51 EDT 2023
+// Date:	Thu Oct 26 08:41:31 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -415,9 +415,14 @@ inline min::gen scan_func_term_name
 		       func_term_inside_quotes_types );
 }
 
-// Scan function prototype and store results in func.
-// Return func.  A prototype argument with a default
-// value must be of the form
+// Scan function prototype and store results in a func
+// which is returned.  Specifically vp is scanned
+// beginning with vp[i], i is incremented during the
+// scan, and i == vp.length at the end of the scan if
+// there are no errors.
+//
+// A prototype argument with a default value must be of
+// the form
 //
 // 	{|<var-name>|} <default-op> {|<default-value>|}
 //
@@ -459,6 +464,44 @@ ll::parser::primary::func scan_func_prototype
       min::ref<variables_vector> variables,
       min::gen default_op,
       min::gen bool_value );
+
+
+// Scan a reference expression prototype and return
+// the primary_table entry found, either a var if a
+// variable is found or a func if a function call is
+// found.
+//
+// Specifically vp is scanned beginning with vp[i] and i
+// is incremented during the scan.  The scan stops when
+// the next vector element cannot be part of the
+// variable name or function call.
+//
+// True is returned if a primary_table entry was found,
+// and false otherwise.
+//
+// The first call to this function for a particular vp
+// and i should have key_prefix == NULL_STUB.  If after
+// returning, the result is unsatisfactory because the
+// next vp[i] is not a suitable subsequent vector
+// element, the result can be rejected and the next
+// primary_table entry can be found by re-calling this
+// function with i, root, and key_prefix left as they
+// were set by the last call.  This function can be
+// re-called in this manner until it returns false.
+//
+// Note that selectors in primary_table entries are
+// ignored.
+//
+typedef min::packed_vec_insptr<min::gen>
+    arguments_vector;
+extern min::locatable_gen TRUE, FALSE;
+bool scan_ref_expression
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser,
+      ll::parser::table::root & root,
+      ll::parser::table::key_prefix & key_prefix,
+      min::ref<arguments_vector> arguments,
+      ll::parser::table::key_table primary_table );
 
 } } }
 

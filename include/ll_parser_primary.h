@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 26 01:49:51 EDT 2023
+// Date:	Thu Oct 26 03:03:51 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -425,15 +425,15 @@ inline min::gen scan_func_term_name
 // value, the argument may be a variable name or be
 // empty.
 //
+// A bool function term must be of the above form with
+// default value equal to bool_value.
+//
 // The variable names are stored in `variables' in the
 // order than they appear in the prototype.  If
 // variables is NULL_STUB, it will be created.  If
 // no variables are found, `variables' will be created
 // but will be empty.  If no function prototype is
 // found, `variables' will not be created.
-//
-// A bool function term must be of the above form with
-// default value equal to bool_value.
 //
 // The function name is returned in func_name.  The
 // function name consists of argument list tokens
@@ -442,19 +442,20 @@ inline min::gen scan_func_term_name
 // argument list and "[]" for a square bracketted
 // argument list.  The function name is a MIN label
 // or if that would have just one element, a MIN string
-// equal to that element.
+// equal to that element.  It cannot be an empty label,
+// and cannot be just "()".
 //
-// If no function prototype is found, i is not
-// incremented and NULL_STUB is returned.  If an
-// error is encountered, scanning stops early and
-// i points at the vp element that cannot be part of
-// the function prototype.
+// It is assumed that vp contains a function prototype
+// ending at the end of vp.  If a defective prototype is
+// found, parse_error is called one or more times, and
+// NULL_STUB is returned.
 //
 typedef min::packed_vec_insptr<min::gen>
     variables_vector;
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
+      min::ref<min::gen> func_name,
       min::ref<variables_vector> variables,
       min::gen default_op,
       min::gen bool_value );

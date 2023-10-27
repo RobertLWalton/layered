@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 15 03:15:54 EDT 2023
+// Date:	Fri Oct 27 02:55:35 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,11 +24,8 @@
 # include <ll_parser_primary.h>
 # include <ll_parser_command.h>
 # define MUP min::unprotected
-# define LEX ll::lexeme
-# define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
-# define PARSTD ll::parser::standard
 # define TAB ll::parser::table
 # define COM ll::parser::command
 # define PRIM ll::parser::primary
@@ -42,6 +39,7 @@ min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
+
 static min::locatable_gen opening_double_quote;  // ``
 
 static void initialize ( void )
@@ -96,7 +94,7 @@ PRIM::var PRIM::create_var
     min::locatable_var<PRIM::var> var
         ( ::var_type.new_stub() );
 
-    label_ref(var) = var_label;
+    PRIM::label_ref(var) = var_label;
     var->selectors = selectors;
     var->block_level = block_level;
     var->position = position;
@@ -104,7 +102,7 @@ PRIM::var PRIM::create_var
     var->level = level;
     var->depth = depth;
     var->location = location;
-    module_ref(var) = module;
+    PRIM::module_ref(var) = module;
 
     return var;
 }
@@ -116,6 +114,7 @@ static min::uns32 func_gen_disp[] = {
 
 static min::uns32 func_stub_disp[] = {
     min::DISP ( & PRIM::func_struct::next ),
+    min::DISP ( & PRIM::func_struct::args ),
     min::DISP ( & PRIM::func_struct::arg_lists ),
     min::DISP ( & PRIM::func_struct::term_table ),
     min::DISP_END };
@@ -133,7 +132,8 @@ static min::uns32 arg_gen_disp[] = {
     min::DISP_END };
 
 static min::packed_vec <PRIM::arg_struct>
-    args_type ( "ll::parser::primary::args_type" );
+    args_type ( "ll::parser::primary::args_type",
+                ::arg_gen_disp );
 const min::uns32 & PRIM::ARGS = ::args_type.subtype;
 
 static min::packed_vec <PRIM::arg_list_struct>
@@ -158,7 +158,7 @@ PRIM::func PRIM::create_func
     min::locatable_var<PRIM::func> func
         ( ::func_type.new_stub() );
 
-    label_ref(func) = func_label;
+    PRIM::label_ref(func) = func_label;
     func->selectors = selectors;
     func->block_level = block_level;
     func->position = position;
@@ -166,7 +166,7 @@ PRIM::func PRIM::create_func
     func->level = level;
     func->depth = depth;
     func->location = location;
-    module_ref(func) = module;
+    PRIM::module_ref(func) = module;
 
     PRIM::args_ref(func) =
         (PRIM::args) ::args_type.new_stub();
@@ -211,7 +211,7 @@ void PRIM::push_func_term
     min::locatable_var<PRIM::func_term> func_term
         ( ::func_term_type.new_stub() );
 
-    label_ref(func_term) = func_term_label;
+    PRIM::label_ref(func_term) = func_term_label;
     func_term->selectors = PAR::ALL_SELECTORS;
     func_term->block_level = 0;
     func_term->position = position;

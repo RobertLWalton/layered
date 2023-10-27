@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 26 08:41:31 EDT 2023
+// Date:	Fri Oct 27 03:30:20 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -107,8 +107,8 @@ extern const uns32 & ARGS;
 extern const uns32 & ARG_LISTS;
     // Subtype of min::packed_vec<arg_lists_struct>.
 extern const uns32 & FUNC;
-    // Subtype of min::packed_vec<arg_struct,
-    //                            func_struct>.
+    // Subtype of min::packed_struct_with_base
+    //        <func_struct, TAB::root_struct>.
 
 // The output of parsing a function call is a reformat
 // of the call that contains a function location
@@ -117,23 +117,25 @@ extern const uns32 & FUNC;
 //
 // The argument vector elements correspond to the
 // prototype arguments in left to right order.  A `func'
-// is a prototype vector for the argument vector that
-// contains an arg_struct for each argument.
+// contains an argument description (arg_struct) vector
+// whose elements correspond to the argument vector.
 //
-// `func' also contains a vector that has an
-// arg_list_struct for each argument list of the
-// prototype, in left to right order.  This includes
-// lists preceeding the initial function-term-name and
-// immediately following that name.
+// `func' also contains an argument list description
+// (arg_list_struct) vector that has an element for each
+// argument list of the prototype, in left to right
+// order.  This includes lists preceeding the initial
+// function-term-name and immediately following that
+// name.
 //
 // Lastly `func' also contains a term-table that maps
-// the non-initial function-term-names onto arg_lists.
+// the non-initial function-term-names onto sequences
+// of argument list descriptions.
 
 struct arg_struct
     // Argument descriptor.
 {
     min::gen name;
-        // Name of argument variable, or NONE if
+        // Name of argument variable, or MISSING if
 	// not relevant.
     min::gen default_value;
         // Default value of argument, or NONE if none.
@@ -154,7 +156,7 @@ struct func_struct
     : public ll::parser::table::root_struct
     // Function Description
 {
-    // Packed_vec subtype is FUNC.
+    // Packed_struct subtype is FUNC.
 
     min::uns32 level; // Lexical level.
     min::int32 depth; // Nesting depth within level.
@@ -257,7 +259,7 @@ struct func_term_struct
 	// lists.
     bool is_bool;
         // True iff term is a boolean term.  Then
-	// number_of_argument_lists == 1 required.
+	// number_of_argument_lists == 1 is required.
 };
 
 MIN_REF ( min::gen, label,

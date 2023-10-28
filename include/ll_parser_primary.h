@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 27 03:30:20 EDT 2023
+// Date:	Sat Oct 28 05:31:12 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -459,13 +459,15 @@ inline min::gen scan_func_term_name
 //
 typedef min::packed_vec_insptr<min::gen>
     variables_vector;
+extern min::locatable_gen func_default_op;
+extern min::locatable_gen func_bool_value;
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
       min::ref<min::gen> func_name,
       min::ref<variables_vector> variables,
-      min::gen default_op,
-      min::gen bool_value );
+      min::gen default_op = func_default_op,
+      min::gen bool_value = func_bool_value );
 
 
 // Scan a reference expression prototype and return

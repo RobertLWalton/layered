@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 29 00:45:08 EDT 2023
+// Date:	Sun Oct 29 02:43:37 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -482,7 +482,7 @@ static min::gen primary_pass_command
     min::obj_vec_ptr nvp = vp[i];
     min::uns32 ni = 0;
 
-    if ( type == PRIMLEX::variable )
+    if ( type == PRIMLEX::function )
     {
 	min::locatable_var<PRIM::variables_vector>
 	    variables;
@@ -490,7 +490,7 @@ static min::gen primary_pass_command
 	           ( nvp, ni, parser, name, variables,
 		     true );
     }
-    else
+    else // type == PRIMLEX::variable
         name = PRIM::scan_var_name
 	    ( nvp, ni, parser );
 
@@ -535,14 +535,66 @@ static min::gen primary_pass_command
 		TAB::root root = primary_it.next();
 		if ( root == min::NULL_STUB ) break;
 
-		// TBD
-
 		if ( min::is_subsequence
 			 ( name, root->label ) < 0 )
 		    continue;
 
-		// TBD
+		PRIM::var var = (PRIM::var) root;
+		PRIM::func func = (PRIM::func) root;
 
+		if ( type == PRIMLEX::variable )
+		{
+		    if ( var == min::NULL_STUB )
+			continue;
+
+		    min::gen block_name =
+			PAR::block_name
+			    ( parser,
+			      var->block_level );
+		      parser->printer
+			      << min::indent
+			      << "block "
+			      << min::pgen_name
+			             ( block_name )
+			      << ": "
+			      << min::save_indent
+			      << "variable "
+			      << min::pgen_quote
+			          ( var->label )
+			      << " " << min::set_break;
+		      COM::print_flags
+			  ( var->selectors,
+			    PAR::COMMAND_SELECTORS,
+			    parser->selector_name_table,
+			    parser );
+		}
+		else // type == PRIMLEX::function
+		{
+		    if ( func == min::NULL_STUB )
+			continue;
+		    min::gen block_name =
+			PAR::block_name
+			    ( parser,
+			      func->block_level );
+		      parser->printer
+			      << min::indent
+			      << "block "
+			      << min::pgen_name
+			             ( block_name )
+			      << ": "
+			      << min::save_indent
+			      << "function "
+			      << min::pgen_quote
+			          ( func->label )
+			      << " " << min::set_break;
+		      COM::print_flags
+			  ( var->selectors,
+			    PAR::COMMAND_SELECTORS,
+			    parser->selector_name_table,
+			    parser );
+		}
+
+		parser->printer << min::restore_indent;
 		++ count;
 	    }
 	}

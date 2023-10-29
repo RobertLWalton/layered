@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 28 05:31:12 EDT 2023
+// Date:	Sun Oct 29 01:23:15 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -432,7 +432,8 @@ inline min::gen scan_func_term_name
 // value, the argument may be a variable name or be
 // empty.
 //
-// A bool function term must be of the above form with
+// A bool function term must be have a single argument
+// list with a single element the above form that has
 // default value equal to bool_value.
 //
 // The variable names are stored in `variables' in the
@@ -445,17 +446,26 @@ inline min::gen scan_func_term_name
 // The function name is returned in func_name.  The
 // function name consists of argument list tokens
 // followed by a function term name.  The argument list
-// tokens are the MIN strings "()" for a parenthesized
-// argument list and "[]" for a square bracketted
+// tokens are the MIN strings "::P" for a parenthesized
+// argument list and "::S" for a square bracketted
 // argument list.  The function name is a MIN label
 // or if that would have just one element, a MIN string
 // equal to that element.  It cannot be an empty label,
-// and cannot be just "()".
+// and cannot be just "::P".
 //
 // It is assumed that vp contains a function prototype
 // ending at the end of vp.  If a defective prototype is
 // found, parse_error is called one or more times, and
 // NULL_STUB is returned.
+//
+// Name_only signifies that only func_name is to be
+// returned and modifies the above as follows.  An empty
+// label is returned as min::NONE(), a label that is
+// just "::P" is allowed, the prototype may end before
+// the end of vp, the form of arguments given above is
+// not checked (e.g., () or (,) or [a + b] are allowed),
+// the return func is NULL_STUB, and there are no error
+// messages.
 //
 typedef min::packed_vec_insptr<min::gen>
     variables_vector;
@@ -466,6 +476,7 @@ ll::parser::primary::func scan_func_prototype
       ll::parser::parser parser,
       min::ref<min::gen> func_name,
       min::ref<variables_vector> variables,
+      bool name_only = false,
       min::gen default_op = func_default_op,
       min::gen bool_value = func_bool_value );
 

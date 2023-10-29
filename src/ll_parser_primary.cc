@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 28 05:40:44 EDT 2023
+// Date:	Sun Oct 29 00:45:08 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -468,45 +468,55 @@ static min::gen primary_pass_command
     min::locatable_gen name;
     min::locatable_var<PRIM::func> func;
 
-    if ( type == PRIMLEX::function
-         &&
-	 command == PARLEX::define )
+    if ( i >= size
+	 ||
+	 ! min::is_obj ( vp[i] )
+	 ||
+	    min::get ( vp[i], min::dot_initiator )
+	 != ::opening_double_quote )
+	return PAR::parse_error
+	    ( parser, ppvec[i-1],
+	      "expected ``...'' quoted expression"
+	      " after" );
+
+    min::obj_vec_ptr nvp = vp[i];
+    min::uns32 ni = 0;
+
+    if ( type == PRIMLEX::variable )
     {
-	if ( i >= size
-	     ||
-	     ! min::is_obj ( vp[i] )
-	     ||
-		min::get ( vp[i], min::dot_initiator )
-	     != ::opening_double_quote )
-	    return PAR::parse_error
-		( parser, ppvec[i-1],
-		  "expected ``...'' quoted expression"
-		  " after" );
-	min::gen prototype = vp[i++];
 	min::locatable_var<PRIM::variables_vector>
 	    variables;
-	min::obj_vec_ptr nvp = prototype;
-	min::uns32 ni = 0;
 	func = PRIM::scan_func_prototype
-	           ( nvp, ni, parser, name, variables );
-	if ( func == min::NULL_STUB )
-	    return min::ERROR();
+	           ( nvp, ni, parser, name, variables,
+		     true );
     }
     else
-    {
-	name = PAR::scan_quoted_key
-	           ( vp, i, parser, true );
+        name = PRIM::scan_var_name
+	    ( nvp, ni, parser );
 
-	if ( name == min::ERROR() )
-	    return min::ERROR();
-	else if ( name == min::MISSING() )
-	    return PAR::parse_error
-	        ( parser, ppvec[i-1],
-		  "expected quoted name after" );
+    if ( ni < min::size_of ( nvp ) )
+    {
+	min::phrase_position_vec nppvec =
+	    min::get ( vp[i], min::dot_position );
+	return PAR::parse_error
+	    ( parser, nppvec[ni],
+	      "illegal name component" );
     }
+    else if ( name == min::NONE()
+              &&
+	      command != PARLEX::print )
+	return PAR::parse_error
+	    ( parser, ppvec[i],
+	      "``...'' quoted expression is empty" );
+
 
     if ( command == PARLEX::print )
     {
+	if ( name == min::NONE() )
+	{
+	    min::gen labbuf[1];
+	    name = new_lab_gen ( labbuf, 0 );
+	}
 
 	min::uns32 indent =
 	    COM::print_command ( parser, ppvec );

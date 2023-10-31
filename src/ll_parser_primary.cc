@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 29 02:43:37 EDT 2023
+// Date:	Mon Oct 30 20:25:26 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -542,57 +542,53 @@ static min::gen primary_pass_command
 		PRIM::var var = (PRIM::var) root;
 		PRIM::func func = (PRIM::func) root;
 
+		const char * type_name;
+		min::uns32 location;
+		min::gen module;
+
 		if ( type == PRIMLEX::variable )
 		{
 		    if ( var == min::NULL_STUB )
 			continue;
-
-		    min::gen block_name =
-			PAR::block_name
-			    ( parser,
-			      var->block_level );
-		      parser->printer
-			      << min::indent
-			      << "block "
-			      << min::pgen_name
-			             ( block_name )
-			      << ": "
-			      << min::save_indent
-			      << "variable "
-			      << min::pgen_quote
-			          ( var->label )
-			      << " " << min::set_break;
-		      COM::print_flags
-			  ( var->selectors,
-			    PAR::COMMAND_SELECTORS,
-			    parser->selector_name_table,
-			    parser );
+		    type_name = "variable";
+		    location = var->location;
+		    module = var->module;
 		}
 		else // type == PRIMLEX::function
 		{
 		    if ( func == min::NULL_STUB )
 			continue;
-		    min::gen block_name =
-			PAR::block_name
-			    ( parser,
-			      func->block_level );
-		      parser->printer
-			      << min::indent
-			      << "block "
-			      << min::pgen_name
-			             ( block_name )
-			      << ": "
-			      << min::save_indent
-			      << "function "
-			      << min::pgen_quote
-			          ( func->label )
-			      << " " << min::set_break;
-		      COM::print_flags
-			  ( var->selectors,
-			    PAR::COMMAND_SELECTORS,
-			    parser->selector_name_table,
-			    parser );
+		    type_name = "function";
+		    location = func->location;
+		    module = func->module;
 		}
+
+		min::gen block_name =
+		    PAR::block_name
+			( parser,
+			  root->block_level );
+	        parser->printer
+		        << min::indent
+		        << "block "
+		        << min::pgen_name
+			       ( block_name )
+		        << ": "
+		        << min::save_indent
+		        << type_name << " "
+		        << min::pgen_quote
+			    ( root->label )
+		        << " " << min::set_break;
+	        COM::print_flags
+		    ( root->selectors,
+		      PAR::COMMAND_SELECTORS,
+		      parser->selector_name_table,
+		      parser );
+	        parser->printer
+		        << min::indent
+			<< "with location "
+			<< location
+			<< " in module "
+			<< min::pgen ( module );
 
 		parser->printer << min::restore_indent;
 		++ count;

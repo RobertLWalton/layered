@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 29 01:23:15 EDT 2023
+// Date:	Mon Oct 30 21:19:45 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,9 +58,9 @@ struct var_struct
     // Packed_struct subtype is VAR.
 
     min::uns32 level; // Lexical level.
-    min::int32 depth; // Nesting depth within level.
+    min::uns32 depth; // Nesting depth within level.
 
-    min::int32 location;  // Offset in stack.
+    min::uns32 location;  // Offset in stack.
     const min::gen module;
         // Module containing location.  For testing,
 	// this is a MIN string.  For compiling, it is
@@ -159,9 +159,9 @@ struct func_struct
     // Packed_struct subtype is FUNC.
 
     min::uns32 level; // Lexical level.
-    min::int32 depth; // Nesting depth within level.
+    min::uns32 depth; // Nesting depth within level.
 
-    min::int32 location;  // Offset in module code
+    min::uns32 location;  // Offset in module code
     			  // vector.
     const min::gen module;
         // Module containing location.  For testing,

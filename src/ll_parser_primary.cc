@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 30 20:25:26 EDT 2023
+// Date:	Tue Oct 31 03:28:55 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,8 @@ min::locatable_gen PRIMLEX::primary;
 min::locatable_gen PRIMLEX::primary_subexpressions;
 min::locatable_gen PRIMLEX::variable;
 min::locatable_gen PRIMLEX::function;
+min::locatable_gen PRIMLEX::level;
+min::locatable_gen PRIMLEX::depth;
 min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
@@ -50,6 +52,8 @@ static void initialize ( void )
 	    ( "primary", "subexpressions" );
     PRIMLEX::variable = min::new_str_gen ( "variable" );
     PRIMLEX::function = min::new_str_gen ( "function" );
+    PRIMLEX::level = min::new_str_gen ( "level" );
+    PRIMLEX::depth = min::new_str_gen ( "depth" );
     PRIMLEX::location = min::new_str_gen ( "location" );
     PRIMLEX::module = min::new_str_gen ( "module" );
     PRIMLEX::parentheses = min::new_str_gen ( "()" );
@@ -466,7 +470,6 @@ static min::gen primary_pass_command
     min::gen type = vp[i++];
 
     min::locatable_gen name;
-    min::locatable_var<PRIM::func> func;
 
     if ( i >= size
 	 ||
@@ -481,43 +484,46 @@ static min::gen primary_pass_command
 
     min::obj_vec_ptr nvp = vp[i];
     min::uns32 ni = 0;
+    min::phrase_position_vec nppvec =
+	min::get ( vp[i], min::dot_position );
+    ++ i;
 
     if ( type == PRIMLEX::function )
     {
 	min::locatable_var<PRIM::variables_vector>
 	    variables;
-	func = PRIM::scan_func_prototype
+	PRIM::scan_func_prototype
 	           ( nvp, ni, parser, name, variables,
 		     true );
     }
     else // type == PRIMLEX::variable
+    {
         name = PRIM::scan_var_name
 	    ( nvp, ni, parser );
 
-    if ( ni < min::size_of ( nvp ) )
-    {
-	min::phrase_position_vec nppvec =
-	    min::get ( vp[i], min::dot_position );
-	return PAR::parse_error
-	    ( parser, nppvec[ni],
-	      "illegal name component" );
+	if ( ni < min::size_of ( nvp ) )
+	    return PAR::parse_error
+		( parser, nppvec[ni],
+		  "illegal name component" );
     }
-    else if ( name == min::NONE()
-              &&
-	      command != PARLEX::print )
-	return PAR::parse_error
-	    ( parser, ppvec[i],
-	      "``...'' quoted expression is empty" );
 
-
-    if ( command == PARLEX::print )
+    if ( name == min::NONE() )
     {
-	if ( name == min::NONE() )
+        if ( command == PARLEX::print )
 	{
 	    min::gen labbuf[1];
 	    name = new_lab_gen ( labbuf, 0 );
 	}
+	else
+	    return PAR::parse_error
+		( parser, ppvec[i],
+		  "``...'' quoted expression is"
+		  " empty" );
+    }
 
+
+    if ( command == PARLEX::print )
+    {
 	min::uns32 indent =
 	    COM::print_command ( parser, ppvec );
 
@@ -575,7 +581,7 @@ static min::gen primary_pass_command
 		        << ": "
 		        << min::save_indent
 		        << type_name << " "
-		        << min::pgen_quote
+		        << min::pgen_name
 			    ( root->label )
 		        << " " << min::set_break;
 	        COM::print_flags
@@ -622,12 +628,67 @@ static min::gen primary_pass_command
 
     if ( command == PARLEX::define )
     {
-
+	min::uns32 level = 0;
+	min::uns32 depth = 0;
 	min::uns32 location = 0;
 	min::locatable_gen module ( min::MISSING() );
 	while ( i < size && vp[i] == PARLEX::with )
 	{
 	    ++ i;
+	    if ( i < size
+		 &&
+		 vp[i] == PRIMLEX::level )
+	    {
+		++ i;
+		if ( i >= size )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected level integer"
+			  " after" );
+		min::float64 p =
+		    MUP::direct_float_of ( vp[i] );
+		if ( ! std::isfinite ( p )
+		     ||
+		     p < 0
+		     ||
+		     p > ( 1ull << 32 )
+		     ||
+		     (min::uns32) p != p )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "level is not an integer"
+			  " in range [0,2^32)" );
+		level = (min::uns32) p;
+		++ i;
+		continue;
+	    }
+	    if ( i < size
+		 &&
+		 vp[i] == PRIMLEX::depth )
+	    {
+		++ i;
+		if ( i >= size )
+		    return PAR::parse_error
+			( parser, ppvec[i-1],
+			  "expected depth integer"
+			  " after" );
+		min::float64 p =
+		    MUP::direct_float_of ( vp[i] );
+		if ( ! std::isfinite ( p )
+		     ||
+		     p < 0
+		     ||
+		     p > ( 1ull << 32 )
+		     ||
+		     (min::uns32) p != p )
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "depth is not an integer"
+			  " in range [0,2^32)" );
+		depth = (min::uns32) p;
+		++ i;
+		continue;
+	    }
 	    if ( i < size
 		 &&
 		 vp[i] == PRIMLEX::location )
@@ -686,7 +747,31 @@ static min::gen primary_pass_command
 		( parser, ppvec[i-1],
 		  "extra stuff after" );
 
-	// TBD
+	min::uns32 block_level =
+	    PAR::block_level ( parser );
+
+	if ( type == PRIMLEX::function )
+	{
+	    min::locatable_var<PRIM::variables_vector>
+		variables;
+	    ni = 0;
+	    min::locatable_var<PRIM::func> func =
+		PRIM::scan_func_prototype
+		  ( nvp, ni, parser, name, variables );
+	    // TBD
+	}
+	else
+	{
+	    min::locatable_var<PRIM::var> var =
+	        PRIM::create_var
+		    ( name, selectors, block_level,
+		      nppvec->position,
+		      level, depth,
+		      location, module );
+	    TAB::push
+	        ( primary_pass->primary_table,
+		  (TAB::root) var );
+	}
     }
 
     else // if ( command == PARLEX::undefine )

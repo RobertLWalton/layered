@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 30 21:19:45 EDT 2023
+// Date:	Tue Oct 31 05:23:09 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,8 @@ namespace lexeme {
 				//   subexpressions
 	variable,		// variable,
 	function,		// function
+	level,			// level
+	depth,			// depth
 	location,		// location
 	module,			// module
 	parentheses,		// ()
@@ -464,8 +466,8 @@ inline min::gen scan_func_term_name
 // just "::P" is allowed, the prototype may end before
 // the end of vp, the form of arguments given above is
 // not checked (e.g., () or (,) or [a + b] are allowed),
-// the return func is NULL_STUB, and there are no error
-// messages.
+// variables is not set, the return func is NULL_STUB,
+// and there are no error messages.
 //
 typedef min::packed_vec_insptr<min::gen>
     variables_vector;

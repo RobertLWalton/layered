@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 31 03:28:55 EDT 2023
+// Date:	Wed Nov  1 04:17:19 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -492,9 +492,8 @@ static min::gen primary_pass_command
     {
 	min::locatable_var<PRIM::variables_vector>
 	    variables;
-	PRIM::scan_func_prototype
-	           ( nvp, ni, parser, name, variables,
-		     true );
+	name = PRIM::scan_func_label
+	    ( nvp, ni, parser );
     }
     else // type == PRIMLEX::variable
     {
@@ -757,7 +756,11 @@ static min::gen primary_pass_command
 	    ni = 0;
 	    min::locatable_var<PRIM::func> func =
 		PRIM::scan_func_prototype
-		  ( nvp, ni, parser, name, variables );
+		  ( nvp, ni, parser, variables,
+		    selectors, block_level,
+		    nppvec->position,
+		    level, depth,
+		    location, module );
 	    // TBD
 	}
 	else

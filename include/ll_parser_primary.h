@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 31 05:23:09 EDT 2023
+// Date:	Wed Nov  1 03:54:45 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -419,6 +419,27 @@ inline min::gen scan_func_term_name
 		       func_term_inside_quotes_types );
 }
 
+// Scan function label.  vp[i] should be the beginning
+// of a function prototype that may include () and []
+// argument lists before the first function term name.
+// The scan stops at the end of vp or at the first
+// element that cannot be part of a function prototype.
+//
+// Specifically, a (...) at the beginning of the scan
+// produces the MIN string ";;P" in the label, and a
+// [...] produces a ";;S".  These are followed by the
+// first function term in the prototype.
+//
+// The contents of (...) and [...] are NOT checked.
+// Partial labels are allowed, but the empty label
+// returns min::NONE().  A label with one element is
+// returned as that element, and labels with more
+// elements are returned as MIN labels.
+//
+min::gen scan_func_label
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      ll::parser::parser parser );
+
 // Scan function prototype and store results in a func
 // which is returned.  Specifically vp is scanned
 // beginning with vp[i], i is incremented during the
@@ -442,45 +463,35 @@ inline min::gen scan_func_term_name
 // order than they appear in the prototype.  If
 // variables is NULL_STUB, it will be created.  If
 // no variables are found, `variables' will be created
-// but will be empty.  If no function prototype is
-// found, `variables' will not be created.
-//
-// The function name is returned in func_name.  The
-// function name consists of argument list tokens
-// followed by a function term name.  The argument list
-// tokens are the MIN strings "::P" for a parenthesized
-// argument list and "::S" for a square bracketted
-// argument list.  The function name is a MIN label
-// or if that would have just one element, a MIN string
-// equal to that element.  It cannot be an empty label,
-// and cannot be just "::P".
+// but will be empty.
 //
 // It is assumed that vp contains a function prototype
 // ending at the end of vp.  If a defective prototype is
 // found, parse_error is called one or more times, and
 // NULL_STUB is returned.
 //
-// Name_only signifies that only func_name is to be
-// returned and modifies the above as follows.  An empty
-// label is returned as min::NONE(), a label that is
-// just "::P" is allowed, the prototype may end before
-// the end of vp, the form of arguments given above is
-// not checked (e.g., () or (,) or [a + b] are allowed),
-// variables is not set, the return func is NULL_STUB,
-// and there are no error messages.
-//
 typedef min::packed_vec_insptr<min::gen>
     variables_vector;
+
 extern min::locatable_gen func_default_op;
 extern min::locatable_gen func_bool_value;
+extern min::uns32 func_term_table_size;
+
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
-      min::ref<min::gen> func_name,
       min::ref<variables_vector> variables,
-      bool name_only = false,
+      ll::parser::table::flags selectors,
+      min::uns32 block_level,
+      const min::phrase_position & position,
+      min::uns32 level,
+      min::uns32 depth,
+      min::uns32 location,
+      min::gen module,
       min::gen default_op = func_default_op,
-      min::gen bool_value = func_bool_value );
+      min::gen bool_value = func_bool_value,
+      min::uns32 term_table_size =
+          func_term_table_size );
 
 
 // Scan a reference expression prototype and return

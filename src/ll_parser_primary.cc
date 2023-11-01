@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  1 04:17:19 EDT 2023
+// Date:	Wed Nov  1 04:56:02 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -761,7 +761,11 @@ static min::gen primary_pass_command
 		    nppvec->position,
 		    level, depth,
 		    location, module );
-	    // TBD
+	    if ( func == min::NULL_STUB )
+	        return min::ERROR();
+	    TAB::push
+	        ( primary_pass->primary_table,
+		  (TAB::root) func );
 	}
 	else
 	{
@@ -783,8 +787,6 @@ static min::gen primary_pass_command
 	    return PAR::parse_error
 		( parser, ppvec[i-1],
 		  "extra stuff after" );
-	// TBD
-
 	TAB::key_prefix key_prefix =
 	    TAB::find_key_prefix
 	        ( name,
@@ -797,6 +799,13 @@ static min::gen primary_pass_command
 	      root != min::NULL_STUB;
 	      root = root->next )
 	{
+	    PRIM::var var = (PRIM::var) root;
+	    PRIM::func func = (PRIM::func) root;
+	    if ( type == PRIMLEX::variable ?
+	         var == min::NULL_STUB :
+	         func == min::NULL_STUB )
+	        continue;
+	        
 	    if (    ( root->selectors & selectors )
 		 == 0 )
 		continue;

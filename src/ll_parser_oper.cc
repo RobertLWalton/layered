@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 20 03:07:44 EDT 2023
+// Date:	Thu Nov  2 04:56:10 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1063,6 +1063,10 @@ static void oper_parse ( PAR::parser parser,
 	    ( parser, oper_pass, selectors, first, next,
 	      vec, vec_origin, trace_flags );
     }
+    else
+	execute_pass_parse
+	    ( parser, oper_pass->next, selectors,
+                      first, next );
 
     min::pop ( vec, vec->length - vec_origin );
 

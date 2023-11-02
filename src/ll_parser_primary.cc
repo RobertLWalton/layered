@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  1 04:56:02 EDT 2023
+// Date:	Wed Nov  1 23:52:02 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -379,53 +379,11 @@ static void primary_parse ( PAR::parser parser,
 		            PAR::token & first,
 		            PAR::token next )
 {
-    PRIM::primary_pass primary_pass =
-	(PRIM::primary_pass) pass;
-
-    TAB::flags trace_flags = parser->trace_flags;
-    if (   trace_flags
-         & primary_pass->trace_subexpressions )
-    {
-	trace_flags &=
-	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
-	    + PAR::TRACE_SUBEXPRESSION_DETAILS
-	    + PAR::TRACE_SUBEXPRESSION_LINES
-	    + PAR::TRACE_KEYS;
-	if ( trace_flags == 0 )
-	    trace_flags =
-	        PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-    }
-    else
-        trace_flags = 0;
-
-    if ( trace_flags & PAR::TRACE_KEYS )
-    {
-	min::phrase_position pos =
-	    { first->position.begin,
-	      next->previous->position.end };
-
-	parser->printer
-	    << min::bom
-	    << min::adjust_indent ( 4 )
-	    << "PRIMARY PASS ";
-        
-	COM::print_flags
-	    ( selectors, PAR::COMMAND_SELECTORS,
-	      parser->selector_name_table,
-	      parser );
-
-	parser->printer
-	    << " "
-	    << min::pline_numbers
-		   ( parser->input_file, pos )
-	    << ":" << min::eom;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      pos );
-
-    }
-
+    //  Everything is done in the Primary Parsing
+    //  Functions.
+    //
+    PAR::execute_pass_parse
+        ( parser, pass, selectors, first, next );
 }
 
 // Primary Pass Command Function

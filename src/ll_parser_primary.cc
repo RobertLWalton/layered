@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  1 23:52:02 EDT 2023
+// Date:	Fri Nov  3 02:29:59 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -368,6 +368,78 @@ PRIM::primary_pass PRIM::init_primary
 // Primary Parsing Functions
 // ------- ------- ---------
 
+min::gen PRIM::scan_name
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      PAR::parser parser,
+      min::uns64 initial_types,
+      min::uns64 following_types,
+      min::uns64 outside_quotes_types,
+      min::uns64 inside_quotes_types )
+{
+    // TBD
+    return min::MISSING();
+}
+
+// TBD
+//
+min::uns64 PRIM::var_initial_types;
+min::uns64 PRIM::var_following_types;
+min::uns64 PRIM::var_outside_quotes_types;
+min::uns64 PRIM::var_inside_quotes_types;
+min::uns64 PRIM::func_term_initial_types;
+min::uns64 PRIM::func_term_following_types;
+min::uns64 PRIM::func_term_outside_quotes_types;
+min::uns64 PRIM::func_term_inside_quotes_types;
+
+min::gen PRIM::scan_func_label
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      PAR::parser parser )
+{
+    // TBD
+    return min::MISSING();
+}
+
+//TBD
+//
+min::locatable_gen PRIM::func_default_op;
+min::locatable_gen PRIM::func_bool_value;
+min::uns32 PRIM::func_term_table_size;
+
+PRIM::func PRIM::scan_func_prototype
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      PAR::parser parser,
+      min::ref<variables_vector> variables,
+      TAB::flags selectors,
+      min::uns32 block_level,
+      const min::phrase_position & position,
+      min::uns32 level,
+      min::uns32 depth,
+      min::uns32 location,
+      min::gen module,
+      min::gen default_op,
+      min::gen bool_value,
+      min::uns32 term_table_size )
+{
+    // TBD
+    return min::NULL_STUB;
+}
+
+// TBD
+//
+min::locatable_gen PRIM::TRUE;
+min::locatable_gen PRIM::FALSE;
+bool PRIM::scan_ref_expression
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      PAR::parser parser,
+      TAB::root & root,
+      TAB::key_prefix & key_prefix,
+      min::ref<arguments_vector> arguments,
+      TAB::key_table primary_table )
+{
+    // TBD
+    return false;
+}
+
 
 
 // Primary Parse Function
@@ -380,7 +452,9 @@ static void primary_parse ( PAR::parser parser,
 		            PAR::token next )
 {
     //  Everything is done in the Primary Parsing
-    //  Functions.
+    //  Functions.  Ideally the primary pass would
+    //  have all-zero selectors, but just in case
+    //  the following will do.
     //
     PAR::execute_pass_parse
         ( parser, pass, selectors, first, next );

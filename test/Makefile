@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Oct 15 03:09:02 EDT 2023
+# Date:		Fri Nov  3 02:14:48 EDT 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -84,10 +84,12 @@ PARSER_O =	${LEXEME_O} \
 		ll_parser_command.o \
 		ll_parser_bracketed.o \
 		ll_parser_oper.o \
+		ll_parser_primary.o \
 		ll_parser_standard.o \
 		ll_parser_standard_input.o \
 		ll_parser_standard_brackets.o \
-		ll_parser_standard_oper.o
+		ll_parser_standard_oper.o \
+		ll_parser_standard_primary.o
 
 .SECONDARY:	${TESTS:=.out}
 
@@ -525,6 +527,17 @@ ll_parser_primary.o:	\
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
 	    -c ../src/ll_parser_primary.cc
+
+ll_parser_standard_primary.o:	\
+	${LEXEME_H} \
+	../include/ll_parser.h \
+	../include/ll_parser_standard.h \
+	../include/ll_parser_primary.h \
+	../src/ll_parser_standard_primary.cc \
+	Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include -I ${MIN}/include \
+	    -c ../src/ll_parser_standard_primary.cc
 
 ll_parser_command.o:	\
 	${LEXEME_H} \

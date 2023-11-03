@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 26 18:52:54 EST 2023
+// Date:	Fri Nov  3 02:00:53 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -297,6 +297,12 @@ enum {
                         	+ BITWISE_OPERATORS,
         // Set all ..._OPERATOR entries.
 
+    PRIMARY_PARSING		= 1 << 21,
+        // Install primary pass which does no parsing
+	// itself but which does provide tables for
+	// the primary parsing functions (see
+	// ll_parser_primary.h).
+
     ALL				= 0xFFFFFFFF
         // Set all standard entries.
 
@@ -334,6 +340,14 @@ void define_operators
     ( ll::parser::parser parser,
       ll::parser::table::flags components =
           MATH + CODE + ALL_OPERATORS );
+
+// Define primary pass, thus providing tables for
+// primary parsing functions (ll_parser_primary.h),
+//
+void define_primary
+    ( ll::parser::parser parser,
+      ll::parser::table::flags components =
+          PRIMARY_PARSING );
 
 // Define all standard parser components indicated in
 // the components argument.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 19:30:05 EST 2023
+// Date:	Fri Nov  3 02:10:17 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -533,4 +533,5 @@ void PARSTD::define_standard
 
     PARSTD::define_brackets ( parser, components );
     PARSTD::define_operators ( parser, components );
+    PARSTD::define_primary ( parser, components );
 }

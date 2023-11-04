@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 07:34:55 EDT 2023
+// Date:	Sat Nov  4 03:29:07 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1587,8 +1587,13 @@ void push_reformatter
 // ------ ---------
 
 // Return the lexical type of a min::gen value according
-// to ll::lexeme::standard::lexical_type_of, unless
-// g is a number.
+// to ll::lexeme::standard::lexical_type_of, except:
+//
+//     If g is a number, return numeric_word_t if not
+//     finite, natural_t if is_natural, and number_t
+//     otherwise.
+//
+//     If g is not a number or string, return 0.
 //
 inline min::uns32 lexical_type_of ( min::gen g )
 {
@@ -1603,9 +1608,11 @@ inline min::uns32 lexical_type_of ( min::gen g )
 	else
 	    return ll::lexeme::standard::number_t;
     }
-    else
+    else if ( min::is_str ( g ) )
 	return ll::lexeme::standard
 		 ::lexical_type_of ( g );
+    else
+        return 0;
 }
 
 // Compute new_flags that set the selectors to the

@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  3 20:12:46 EDT 2023
+// Date:	Sat Nov  4 03:33:14 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,6 +77,8 @@ namespace ll { namespace lexeme { namespace standard {
     // positions.  They cannot be in separators or other
     // non-middle lexemes.
 
+    const uns32 not_a_lexeme_t			= 0;
+        // For values that are not lexemes.
     const uns32 word_t				= 1;
         // Middle lexeme containing a letter before any
 	// digit, but not a numeric_word_t.

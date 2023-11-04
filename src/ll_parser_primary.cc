@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  3 02:29:59 EDT 2023
+// Date:	Sat Nov  4 03:18:09 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,6 +24,7 @@
 # include <ll_parser_primary.h>
 # include <ll_parser_command.h>
 # define MUP min::unprotected
+# define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
@@ -376,8 +377,34 @@ min::gen PRIM::scan_name
       min::uns64 outside_quotes_types,
       min::uns64 inside_quotes_types )
 {
-    // TBD
-    return min::MISSING();
+    MIN_REQUIRE
+        (   (   ( initial_types | following_types )
+              & (1ull << LEXSTD::not_a_lexeme_t ) )
+	  == 0 );
+
+    min::uns32 s = min::size_of ( vp );
+    min::gen labbuf[s - i];
+    min::uns32 j = 0;
+    min::uns64 types = initial_types;
+    while ( i < s )
+    {
+	min::uns64 quotes_types = outside_quotes_types;
+        min::gen c = vp[i];
+	if ( min::is_obj ( c ) )
+	{
+	    c = PAR::quoted_string_value ( c );
+	    quotes_types = inside_quotes_types;
+	}
+	min::uns64 t =
+	    ( 1ull << PAR::lexical_type_of ( c ) );
+	if ( ( t & types & quotes_types ) == 0 )
+	    break;
+	labbuf[j++] = vp[i++];
+	types = following_types;
+    }
+    if ( j == 0 ) return min::NONE();
+    else if ( j == 1 ) return labbuf[0];
+    else return min::new_lab_gen ( labbuf, j );
 }
 
 // TBD

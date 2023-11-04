@@ -2,7 +2,7 @@
 //
 // File:	ll_lexeme_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 10 15:57:15 EDT 2022
+// Date:	Fri Nov  3 20:12:46 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -237,17 +237,16 @@ namespace ll { namespace lexeme { namespace standard {
     }
 
     // Given a min::gen string that encodes a standard
-    // lexeme, returns the type of the lexeme.  Here
-    // only words, naturals, numerics, marks, and
-    // separators can be encoded as strings, and for
-    // the purposes of this function, quoted strings,
-    // comments, horizontal space, line breaks, and
-    // end of files cannot be encoded as min::gen
-    // strings.
+    // lexeme, returns the type of the lexeme.  Returns
+    // word_t, numeric_t, mark_t, separator_t, or 0.
+    // Strings acceptable to strtod return 0, as do
+    // strings containing quotes, control characters,
+    // and separator characters, unless the entire
+    // string is a separator lexeme (for which
+    // separator_t is returned).
     //
     // Given a min::gen value that is not a string,
-    // or is a string that cannot be a word, natural,
-    // numeric, mark, or separator, returns 0.
+    // returns 0.
     //
     inline uns32 lexical_type_of ( min::gen g )
     {
@@ -270,12 +269,10 @@ namespace ll { namespace lexeme { namespace standard {
 		      ( buffer ) );
 
 	if ( str_class & min::NEEDS_QUOTES )
+	    // Includes strings acceptable to strtod.
 	    return 0;
 	else if ( str_class & min::IS_LETTER )
 	    return word_t;
-	else if ( str_class & min::IS_NATURAL )
-	    return natural_t;
-	    // Needs to be BEFORE numeric test.
 	else if ( str_class & min::IS_DIGIT )
 	    return numeric_t;
 	else if ( str_class & (   min::IS_LEADING

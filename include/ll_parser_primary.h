@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  1 03:54:45 EDT 2023
+// Date:	Sat Nov  4 02:45:19 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -343,36 +343,31 @@ ll::parser::primary::primary_pass init_primary
 // test defined below, continue accepting vp[i] as a
 // name component and incrementing i.
 //
-// The lexical type test is defined as follows.  Let
-// XXX_types be initial_types for the first component of
-// the name, and following_types for subsequent
-// components.  Then the test is as follows:
+// The lexical type of a number is number_t, natural_t,
+// or numeric_word_t.  The lexical type of a string is
+// word_t, numeric_t, mark_t, separator_t, or other.
+// Strings containing multiple lexemes have other type.
+// A quoted string vp element is treated the same as a
+// string vp element.
 //
-//   If vp[i] is NOT a quoted string:
-//     The test is passed iff the lexical type of vp[i]
-//     is in both XXX_types and outside_quotes_types.
+// Let XXX_types be initial_types for the first
+// component of the name, and following_types for
+// subsequent components.  Then the lexical type test
+// is as follows:
 //
-//   If vp[i] IS a quoted string and quoted_string_t is
-//   NOT in XXX_types:
-//     vp[i] is scanned for lexemes.  The test fails if
-//     there are 0 or more than one lexeme.  Otherwise
-//     the type of the one lexeme L is tested and the
-//     test is passed iff the lexical type of L is in
-//     both inside_quotes_types and XXX_types.  If the
-//     test is passed, L (and NOT vp[i]) is accepted as
-//     the next name component.
+//   A string or quoted string whose lexical type is
+//     other always fails the test.
 //
-//   If vp[i] IS a quoted string and quoted_string_t IS
-//   in XXX_types:
-//      The test is passed and the string quoted is
-//      accepted as the next name component.
+//   A number or string that is not quoted passes the
+//     test is its type is in both both XXX_types and
+//     outside_quotes_types.
+//
+//   A quoted string passes the test is its type is in
+//     both both XXX_types and inside_quotes_types.
 //
 // If the returned name has a single component, string
 // or number, return the element.  Otherwise return a
 // label containing the name components.
-//
-// If no name components are found, i is not incremented
-// and MISSING is returned.
 //
 const min::uns64 ALL_TYPES = (min::uns64) -1ll;
 min::gen scan_name

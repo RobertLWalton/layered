@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 02:45:19 EDT 2023
+// Date:	Sat Nov  4 04:26:29 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,8 +38,8 @@ namespace lexeme {
 	depth,			// depth
 	location,		// location
 	module,			// module
-	parentheses,		// ()
-	square_brackets;	// []
+	parentheses,		// ;;P
+	square_brackets;	// ;;S
 }
 
 

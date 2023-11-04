@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 03:18:09 EDT 2023
+// Date:	Sat Nov  4 04:17:58 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,9 +57,9 @@ static void initialize ( void )
     PRIMLEX::depth = min::new_str_gen ( "depth" );
     PRIMLEX::location = min::new_str_gen ( "location" );
     PRIMLEX::module = min::new_str_gen ( "module" );
-    PRIMLEX::parentheses = min::new_str_gen ( "()" );
+    PRIMLEX::parentheses = min::new_str_gen ( ";;P" );
     PRIMLEX::square_brackets =
-        min::new_str_gen ( "[]" );
+        min::new_str_gen ( ";;S" );
     ::opening_double_quote = min::new_str_gen ( "``" );
 
     PAR::push_new_pass
@@ -407,23 +407,66 @@ min::gen PRIM::scan_name
     else return min::new_lab_gen ( labbuf, j );
 }
 
-// TBD
-//
-min::uns64 PRIM::var_initial_types;
-min::uns64 PRIM::var_following_types;
-min::uns64 PRIM::var_outside_quotes_types;
-min::uns64 PRIM::var_inside_quotes_types;
-min::uns64 PRIM::func_term_initial_types;
-min::uns64 PRIM::func_term_following_types;
-min::uns64 PRIM::func_term_outside_quotes_types;
-min::uns64 PRIM::func_term_inside_quotes_types;
+min::uns64 PRIM::var_initial_types =
+    LEXSTD::word_t;
+min::uns64 PRIM::var_following_types =
+    LEXSTD::word_t + LEXSTD::natural_t;
+min::uns64 PRIM::var_outside_quotes_types =
+    LEXSTD::word_t + LEXSTD::natural_t;
+min::uns64 PRIM::var_inside_quotes_types =
+    0;
+min::uns64 PRIM::func_term_initial_types =
+    LEXSTD::word_t + LEXSTD::mark_t
+                   + LEXSTD::separator_t;
+min::uns64 PRIM::func_term_following_types =
+    LEXSTD::word_t + LEXSTD::mark_t
+                   + LEXSTD::separator_t
+		   + LEXSTD::natural_t;
+min::uns64 PRIM::func_term_outside_quotes_types =
+    LEXSTD::word_t + LEXSTD::natural_t;
+min::uns64 PRIM::func_term_inside_quotes_types =
+    LEXSTD::mark_t + LEXSTD::separator_t;
 
 min::gen PRIM::scan_func_label
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser )
 {
-    // TBD
-    return min::MISSING();
+    min::uns32 s = min::size_of(vp);
+    min::gen labbuf[s - i];
+    min::uns32 j = 0;
+    for ( ; i < s && min::is_obj(vp[i]); ++ i )
+    {
+        min::gen initiator =
+	    min::get ( vp[i], min::dot_initiator );
+	if ( initiator == PARLEX::left_parenthesis )
+	    labbuf[j++] = PRIMLEX::parentheses;
+	else
+	if ( initiator == PARLEX::left_square )
+	    labbuf[j++] = PRIMLEX::square_brackets;
+	else
+	    break;
+    }
+    min::locatable_gen term
+        ( PRIM::scan_func_term_name ( vp, i, parser ) );
+    if ( j == 0 ) return term;
+
+    if ( term != min::NONE() )
+    {
+	min::lab_ptr labp = term;
+	if ( labp != min::NULL_STUB )
+	{
+	    min::uns32 len = min::lablen ( labp );
+	    for ( min::uns32 k = 0; k < len; )
+	        labbuf[j++] = labp[k++];
+	}
+	else
+	    labbuf[j++] = term;
+    }
+    else
+        labbuf[j++] = term;
+
+    if ( j == 1 ) return labbuf[0];
+    else return min::new_lab_gen ( labbuf, j );
 }
 
 //TBD

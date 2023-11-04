@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 04:26:29 EDT 2023
+// Date:	Sat Nov  4 06:48:29 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,7 +39,8 @@ namespace lexeme {
 	location,		// location
 	module,			// module
 	parentheses,		// ;;P
-	square_brackets;	// ;;S
+	square_brackets,	// ;;S
+	TRUE;			// TRUE
 }
 
 
@@ -454,12 +455,6 @@ min::gen scan_func_label
 // list with a single element the above form that has
 // default value equal to bool_value.
 //
-// The variable names are stored in `variables' in the
-// order than they appear in the prototype.  If
-// variables is NULL_STUB, it will be created.  If
-// no variables are found, `variables' will be created
-// but will be empty.
-//
 // It is assumed that vp contains a function prototype
 // ending at the end of vp.  If a defective prototype is
 // found, parse_error is called one or more times, and
@@ -475,7 +470,6 @@ extern min::uns32 func_term_table_size;
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
-      min::ref<variables_vector> variables,
       ll::parser::table::flags selectors,
       min::uns32 block_level,
       const min::phrase_position & position,
@@ -517,7 +511,6 @@ ll::parser::primary::func scan_func_prototype
 //
 typedef min::packed_vec_insptr<min::gen>
     arguments_vector;
-extern min::locatable_gen TRUE, FALSE;
 bool scan_ref_expression
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,

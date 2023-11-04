@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 04:17:58 EDT 2023
+// Date:	Sat Nov  4 06:39:04 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,7 @@ min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
+min::locatable_gen PRIMLEX::TRUE;
 
 static min::locatable_gen opening_double_quote;  // ``
 
@@ -60,7 +61,11 @@ static void initialize ( void )
     PRIMLEX::parentheses = min::new_str_gen ( ";;P" );
     PRIMLEX::square_brackets =
         min::new_str_gen ( ";;S" );
+    PRIMLEX::TRUE = min::new_str_gen ( "TRUE" );
     ::opening_double_quote = min::new_str_gen ( "``" );
+
+    PRIM::func_default_op = PRIMLEX::TRUE;
+    PRIM::func_bool_value = min::new_str_gen ( "?=" );
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -469,16 +474,15 @@ min::gen PRIM::scan_func_label
     else return min::new_lab_gen ( labbuf, j );
 }
 
-//TBD
-//
-min::locatable_gen PRIM::func_default_op;
-min::locatable_gen PRIM::func_bool_value;
-min::uns32 PRIM::func_term_table_size;
+min::locatable_gen PRIM::func_default_op; // ?=
+min::locatable_gen PRIM::func_bool_value; // TRUE
+    // See initialize function.
+
+min::uns32 PRIM::func_term_table_size = 32;
 
 PRIM::func PRIM::scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser,
-      min::ref<variables_vector> variables,
       TAB::flags selectors,
       min::uns32 block_level,
       const min::phrase_position & position,
@@ -496,8 +500,6 @@ PRIM::func PRIM::scan_func_prototype
 
 // TBD
 //
-min::locatable_gen PRIM::TRUE;
-min::locatable_gen PRIM::FALSE;
 bool PRIM::scan_ref_expression
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser,
@@ -592,8 +594,6 @@ static min::gen primary_pass_command
 
     if ( type == PRIMLEX::function )
     {
-	min::locatable_var<PRIM::variables_vector>
-	    variables;
 	name = PRIM::scan_func_label
 	    ( nvp, ni, parser );
     }
@@ -853,12 +853,10 @@ static min::gen primary_pass_command
 
 	if ( type == PRIMLEX::function )
 	{
-	    min::locatable_var<PRIM::variables_vector>
-		variables;
 	    ni = 0;
 	    min::locatable_var<PRIM::func> func =
 		PRIM::scan_func_prototype
-		  ( nvp, ni, parser, variables,
+		  ( nvp, ni, parser,
 		    selectors, block_level,
 		    nppvec->position,
 		    level, depth,

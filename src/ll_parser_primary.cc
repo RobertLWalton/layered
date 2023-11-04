@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 06:39:04 EDT 2023
+// Date:	Sat Nov  4 16:54:25 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -153,22 +153,18 @@ const min::uns32 & PRIM::ARG_LISTS =
     ::arg_lists_type.subtype;
 
 PRIM::func PRIM::create_func
-	( min::gen func_label,
-	  TAB::flags selectors,
+	( TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
 	  min::gen module,
-	  min::uns32 number_initial_arg_lists,
-	  min::uns32 number_following_arg_lists,
 	  min::uns32 term_table_size )
 {
     min::locatable_var<PRIM::func> func
         ( ::func_type.new_stub() );
 
-    PRIM::label_ref(func) = func_label;
     func->selectors = selectors;
     func->block_level = block_level;
     func->position = position;
@@ -184,11 +180,6 @@ PRIM::func PRIM::create_func
         (PRIM::arg_lists) ::arg_lists_type.new_stub();
     PRIM::term_table_ref(func) =
         TAB::create_key_table ( term_table_size );
-
-    func->number_initial_arg_lists =
-        number_initial_arg_lists;
-    func->number_following_arg_lists =
-        number_following_arg_lists;
 
     return func;
 }
@@ -482,10 +473,10 @@ min::uns32 PRIM::func_term_table_size = 32;
 
 PRIM::func PRIM::scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
+      min::phrase_position_vec ppvec,
       PAR::parser parser,
       TAB::flags selectors,
       min::uns32 block_level,
-      const min::phrase_position & position,
       min::uns32 level,
       min::uns32 depth,
       min::uns32 location,
@@ -494,7 +485,55 @@ PRIM::func PRIM::scan_func_prototype
       min::gen bool_value,
       min::uns32 term_table_size )
 {
-    // TBD
+    min::uns32 s = min::size_of ( vp );
+    MIN_REQUIRE ( i < s );
+    min::phrase_position p0 = ppvec[i];
+    min::phrase_position p1 = ppvec[s-1];
+    min::phrase_position pos = {p0.begin, p1.end }; 
+    min::locatable_var<PRIM::func> func
+        ( PRIM::create_func
+	      ( selectors, block_level, pos,
+	        level, depth,
+		location, module,
+		term_table_size ) );
+    min::gen labbuf[s-i];
+    min::uns32 j = 0;  // Indexes labbuf.
+    enum state { BEFORE_FIRST_TERM, AFTER_FIRST_TERM,
+                                    AFTER_SECOND_TERM };
+    state st = BEFORE_FIRST_TERM;
+    while ( i < s )
+    {
+	// Scan argument lists.
+	//
+        while ( min::is_obj ( vp[i] ) )
+	{
+	    min::gen initiator =
+	        min::get ( vp[i], min::dot_initiator );
+	    if ( initiator == min::NONE() )
+	        break;
+	    if ( st == BEFORE_FIRST_TERM )
+	    {
+		if (    initiator
+		     == PARLEX::left_parenthesis )
+		    labbuf[j++] = PRIMLEX::parentheses;
+		else
+		if (    initiator
+		     == PARLEX::left_square )
+		    labbuf[j++] =
+		        PRIMLEX::square_brackets;
+		else
+		{
+		    return PAR::parse_error
+			( parser, ppvec[i],
+			  "not a function prototype"
+			  " component; ignored" );
+		    ++ i;
+		    continue;
+		}
+
+	    }
+	}
+    }
     return min::NULL_STUB;
 }
 
@@ -856,9 +895,8 @@ static min::gen primary_pass_command
 	    ni = 0;
 	    min::locatable_var<PRIM::func> func =
 		PRIM::scan_func_prototype
-		  ( nvp, ni, parser,
+		  ( nvp, ni, nppvec, parser,
 		    selectors, block_level,
-		    nppvec->position,
 		    level, depth,
 		    location, module );
 	    if ( func == min::NULL_STUB )

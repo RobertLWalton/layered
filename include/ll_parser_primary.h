@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 06:48:29 EDT 2023
+// Date:	Sat Nov  4 17:36:50 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -213,16 +213,13 @@ MIN_REF ( ll::parser::table::key_table, term_table,
 // Term_table_size must be a power of 2.
 //
 ll::parser::primary::func create_func
-	( min::gen func_label,
-	  ll::parser::table::flags selectors,
+	( ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  min::uns32 level,
 	  min::uns32 depth,
 	  min::uns32 location,
 	  min::gen module,
-	  min::uns32 number_initial_arg_lists,
-	  min::uns32 number_following_arg_lists,
 	  min::uns32 term_table_size = 32 );
 
 // Push a new argument description into the args vector
@@ -469,10 +466,10 @@ extern min::uns32 func_term_table_size;
 
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
+      min::phrase_position_vec ppvec,
       ll::parser::parser parser,
       ll::parser::table::flags selectors,
       min::uns32 block_level,
-      const min::phrase_position & position,
       min::uns32 level,
       min::uns32 depth,
       min::uns32 location,

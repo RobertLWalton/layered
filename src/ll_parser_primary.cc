@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 21:12:54 EDT 2023
+// Date:	Sun Nov  5 04:59:14 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -367,7 +367,6 @@ PRIM::primary_pass PRIM::init_primary
 
 min::gen PRIM::scan_name
     ( min::obj_vec_ptr & vp, min::uns32 & i,
-      PAR::parser parser,
       min::uns64 initial_types,
       min::uns64 following_types,
       min::uns64 outside_quotes_types,
@@ -443,7 +442,7 @@ min::gen PRIM::scan_func_label
 	    break;
     }
     min::locatable_gen term
-        ( PRIM::scan_func_term_name ( vp, i, parser ) );
+        ( PRIM::scan_func_term_name ( vp, i ) );
     if ( j == 0 ) return term;
 
     if ( term != min::NONE() )
@@ -470,6 +469,76 @@ min::locatable_gen PRIM::func_bool_value; // TRUE
     // See initialize function.
 
 min::uns32 PRIM::func_term_table_size = 32;
+
+inline min::uns32 process_arg
+    ( PRIM::func func, min::gen arg,
+      const min::phrase_position & pos,
+      min::gen default_op,
+      PAR::parser parser )
+{
+    min::uns32 errors = 0;
+    min::obj_vec_ptr avp = arg;
+    if ( avp == min::NULL_STUB )
+    {
+	PAR::parse_error
+	    ( parser, pos,
+	      "bad argument; argument ignored" );
+	return 1;
+    }
+    min::uns32 asize = min::size_of ( avp );
+    min::locatable_gen name, default_value;
+    if ( asize == 3 && avp[1] == default_op )
+    {
+	name = avp[0];
+	default_value = avp[2];
+    }
+    else
+    {
+	name = arg;
+	default_value = min::NONE();
+    }
+    if ( min::is_str ( name ) )
+    {
+        min::uns64 t =
+	    ( 1ull << PAR::lexical_type_of ( name ) );
+	if (   ( t & PRIM::var_initial_types
+	           & PRIM::var_outside_quotes_types )
+	     == 0 )
+	{
+	    PAR::parse_error
+		( parser, pos,
+		  "bad argument name; name ignored" );
+	    name = min::NONE();
+	    ++ errors;
+	}
+    }
+    else if ( ! min::is_obj ( name ) )
+    {
+	PAR::parse_error
+	    ( parser, pos,
+	      "bad argument name; name ignored" );
+	name = min::NONE();
+	++ errors;
+    }
+    else
+    {
+        min::obj_vec_ptr nvp = name;
+	min::uns32 ni = 0;
+	name = PRIM::scan_var_name ( nvp, ni );
+	if ( ni < min::size_of ( nvp ) )
+	{
+	    PAR::parse_error
+		( parser, pos,
+		  "bad argument name; name ignored" );
+	    name = min::NONE();
+	    ++ errors;
+	}
+    }
+
+    PRIM::push_arg ( name, default_value, func );
+
+    return errors;
+}
 
 PRIM::func PRIM::scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -535,45 +604,33 @@ PRIM::func PRIM::scan_func_prototype
 		    labbuf[j++] =
 		        PRIMLEX::square_brackets;
 	    }
-	    min::obj_vec_ptr avp = vp[i];
-	    min::uns32 as = min::size_of ( avp );
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );
 	    if ( sep == min::NONE() )
 	    {
-		min::locatable_gen name, default_value;
-	        if ( as == 3 && avp[1] == default_op )
-		{
-		    name = avp[0];
-		    default_value = avp[2];
-		}
-		else
-		{
-		    name = vp[i];
-		    default_value = min::NONE();
-		}
-		if ( min::is_str ( name ) )
-		{
-		    // TBD
-		}
-		else if ( ! min::is_obj ( name ) )
-		{
-		    PAR::parse_error
-			( parser, ppvec[i],  // TBD ppvec
-			  "bad name; ignored" );
-		    name = min::NONE();
-		    ++ errors;
-		}
+	        errors += ::process_arg
+		    ( func, vp[i], ppvec[i],
+		      default_op, parser );
 	    }
 	    else
-	    for ( min::uns32 k = 0; k < as; ++ k )
 	    {
+		min::obj_vec_ptr alvp = vp[i];
+	        min::uns32 alsize =
+		    min::size_of ( alvp );
+		min::phrase_position_vec alppvec =
+		    min::get
+		        ( vp[i], min::dot_position );
+
+		for ( min::uns32 k = 0; k < alsize;
+		                        ++ k )
+		    errors += ::process_arg
+			( func, alvp[k], alppvec[k],
+			  default_op, parser );
 	    }
 	}
 
 	min::locatable_gen term_label
-	    ( PRIM::scan_func_term_name
-	        ( vp, i, parser ) );
+	    ( PRIM::scan_func_term_name ( vp, i ) );
 
 	if ( st == BEFORE_FIRST_TERM )
 	{
@@ -635,7 +692,8 @@ PRIM::func PRIM::scan_func_prototype
 		    for ( min::uns32 k = 0; k < len; )
 			labbuf[j++] = labp[k++];
 		    min::locatable_gen label
-			( min::new_lab_gen ( labbuf, j ) );
+			( min::new_lab_gen
+			      ( labbuf, j ) );
 		    PRIM::label_ref(func) = label;
 		}
 		else
@@ -766,8 +824,7 @@ static min::gen primary_pass_command
     }
     else // type == PRIMLEX::variable
     {
-        name = PRIM::scan_var_name
-	    ( nvp, ni, parser );
+        name = PRIM::scan_var_name ( nvp, ni );
 
 	if ( ni < min::size_of ( nvp ) )
 	    return PAR::parse_error

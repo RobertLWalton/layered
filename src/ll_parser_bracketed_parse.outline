@@ -1905,8 +1905,8 @@
 //
 //	       else:
 //	           announce error: typed attribute equal
-//	           is a punctuation error that is ignored,
-//	           and remove it
+//	           is a punctuation error that is
+//	           ignored, and remove it
 //
 //             go to NEXT_TOKEN
 //

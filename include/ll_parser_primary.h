@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 17:36:50 EDT 2023
+// Date:	Sun Nov  5 05:00:24 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -370,7 +370,6 @@ ll::parser::primary::primary_pass init_primary
 const min::uns64 ALL_TYPES = (min::uns64) -1ll;
 min::gen scan_name
     ( min::obj_vec_ptr & vp, min::uns32 & i,
-      ll::parser::parser parser,
       min::uns64 initial_types,
       min::uns64 following_types,
       min::uns64 outside_quotes_types,
@@ -384,10 +383,9 @@ extern min::uns64 var_following_types;
 extern min::uns64 var_outside_quotes_types;
 extern min::uns64 var_inside_quotes_types;
 inline min::gen scan_var_name
-    ( min::obj_vec_ptr & vp, min::uns32 & i,
-      ll::parser::parser parser )
+    ( min::obj_vec_ptr & vp, min::uns32 & i )
 {
-    return scan_name ( vp, i, parser,
+    return scan_name ( vp, i,
                        var_initial_types,
 		       var_following_types,
 		       var_outside_quotes_types,
@@ -402,10 +400,9 @@ extern min::uns64 func_term_following_types;
 extern min::uns64 func_term_outside_quotes_types;
 extern min::uns64 func_term_inside_quotes_types;
 inline min::gen scan_func_term_name
-    ( min::obj_vec_ptr & vp, min::uns32 & i,
-      ll::parser::parser parser )
+    ( min::obj_vec_ptr & vp, min::uns32 & i )
 {
-    return scan_name ( vp, i, parser,
+    return scan_name ( vp, i,
                        func_term_initial_types,
 		       func_term_following_types,
 		       func_term_outside_quotes_types,

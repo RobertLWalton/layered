@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 21:05:09 EDT 2023
+// Date:	Sat Nov  4 21:12:54 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -513,30 +513,59 @@ PRIM::func PRIM::scan_func_prototype
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
 	    if ( initiator == min::NONE() )
-	        break;
+	        break;  // May be quoted string.
+	    if ( initiator != PARLEX::left_parenthesis
+	         &&
+		 initiator != PARLEX::left_square )
+	    {
+		PAR::parse_error
+		    ( parser, ppvec[i],
+		      "not a function prototype"
+		      " component; ignored" );
+		++ errors;
+		++ i;
+		continue;
+	    }
 	    if ( st == BEFORE_FIRST_TERM )
 	    {
 		if (    initiator
 		     == PARLEX::left_parenthesis )
 		    labbuf[j++] = PRIMLEX::parentheses;
-		else
-		if (    initiator
-		     == PARLEX::left_square )
+		else // == PARLEX::left_square
 		    labbuf[j++] =
 		        PRIMLEX::square_brackets;
-		else
-		{
-		    PAR::parse_error
-			( parser, ppvec[i],
-			  "not a function prototype"
-			  " component; ignored" );
-	            ++ errors;
-		    ++ i;
-		    continue;
-		}
 	    }
 	    min::obj_vec_ptr avp = vp[i];
 	    min::uns32 as = min::size_of ( avp );
+	    min::gen sep =
+	        min::get ( vp[i], min::dot_separator );
+	    if ( sep == min::NONE() )
+	    {
+		min::locatable_gen name, default_value;
+	        if ( as == 3 && avp[1] == default_op )
+		{
+		    name = avp[0];
+		    default_value = avp[2];
+		}
+		else
+		{
+		    name = vp[i];
+		    default_value = min::NONE();
+		}
+		if ( min::is_str ( name ) )
+		{
+		    // TBD
+		}
+		else if ( ! min::is_obj ( name ) )
+		{
+		    PAR::parse_error
+			( parser, ppvec[i],  // TBD ppvec
+			  "bad name; ignored" );
+		    name = min::NONE();
+		    ++ errors;
+		}
+	    }
+	    else
 	    for ( min::uns32 k = 0; k < as; ++ k )
 	    {
 	    }

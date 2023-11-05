@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 16:54:25 EDT 2023
+// Date:	Sat Nov  4 21:05:09 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -498,13 +498,16 @@ PRIM::func PRIM::scan_func_prototype
 		term_table_size ) );
     min::gen labbuf[s-i];
     min::uns32 j = 0;  // Indexes labbuf.
+    min::locatable_var<PRIM::func_term> func_term;
     enum state { BEFORE_FIRST_TERM, AFTER_FIRST_TERM,
                                     AFTER_SECOND_TERM };
     state st = BEFORE_FIRST_TERM;
+    min::uns32 errors = 0;
     while ( i < s )
     {
 	// Scan argument lists.
 	//
+	min::uns32 number_arg_lists = 0;
         while ( min::is_obj ( vp[i] ) )
 	{
 	    min::gen initiator =
@@ -523,18 +526,114 @@ PRIM::func PRIM::scan_func_prototype
 		        PRIMLEX::square_brackets;
 		else
 		{
-		    return PAR::parse_error
+		    PAR::parse_error
 			( parser, ppvec[i],
 			  "not a function prototype"
 			  " component; ignored" );
+	            ++ errors;
 		    ++ i;
 		    continue;
 		}
-
+	    }
+	    min::obj_vec_ptr avp = vp[i];
+	    min::uns32 as = min::size_of ( avp );
+	    for ( min::uns32 k = 0; k < as; ++ k )
+	    {
 	    }
 	}
+
+	min::locatable_gen term_label
+	    ( PRIM::scan_func_term_name
+	        ( vp, i, parser ) );
+
+	if ( st == BEFORE_FIRST_TERM )
+	{
+	    func->number_initial_arg_lists =
+	        number_arg_lists;
+	    if ( term_label == min::NONE() )
+	    {
+	        if ( j < 1 )
+		{
+		    PAR::parse_error
+			( parser, pos,
+			  "function prototype"
+			  " not found" );
+		    return min::NULL_STUB;
+		}
+		else
+	        if ( j < 2 )
+		{
+		    PAR::parse_error
+			( parser, pos,
+			  "function prototype"
+			  " must have at least"
+			  " 2 argument lists"
+			  " or a function term" );
+		    return min::NULL_STUB;
+		}
+		else
+	        if (    labbuf[j-1]
+		     != PRIMLEX::square_brackets )
+		{
+		    PAR::parse_error
+			( parser, pos,
+			  "function prototype"
+			  " with no function term"
+			  " must end with a []"
+			  " argument list" );
+		    return min::NULL_STUB;
+		}
+		else
+		if ( errors > 0 )
+		    return min::NULL_STUB;
+
+		min::locatable_gen label
+		    ( min::new_lab_gen ( labbuf, j ) );
+		PRIM::label_ref(func) = label;
+		func->number_following_arg_lists = 0;
+		return func;
+	    }
+	    else
+	    if ( number_arg_lists == 0 )
+	        PRIM::label_ref(func) = term_label;
+	    else
+	    {
+		min::lab_ptr labp = term_label;
+		if ( labp != min::NULL_STUB )
+		{
+		    min::uns32 len =
+		        min::lablen ( labp );
+		    for ( min::uns32 k = 0; k < len; )
+			labbuf[j++] = labp[k++];
+		    min::locatable_gen label
+			( min::new_lab_gen ( labbuf, j ) );
+		    PRIM::label_ref(func) = label;
+		}
+		else
+		    labbuf[j++] = term_label;
+	    }
+	    st = AFTER_FIRST_TERM;
+	}
+	else
+	if ( st == AFTER_FIRST_TERM )
+	    func->number_following_arg_lists =
+	        number_arg_lists;
+	else
+	{
+	    // st == AFTER_SECOND_TERM
+	    //
+	    func_term->number_arg_lists =
+	        number_arg_lists;
+	    TAB::push
+	        ( func->term_table,
+		  (TAB::root) func_term );
+	}
     }
-    return min::NULL_STUB;
+
+    if ( errors > 0 )
+	return min::NULL_STUB;
+    else
+        return func;
 }
 
 // TBD

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 04:59:14 EST 2023
+// Date:	Sun Nov  5 07:08:23 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -579,13 +579,18 @@ PRIM::func PRIM::scan_func_prototype
 	min::uns32 number_arg_lists = 0;
         while ( min::is_obj ( vp[i] ) )
 	{
+	    PRIM::arg_list_struct arg_list;
+	    arg_list.first = func->args->length;
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
 	    if ( initiator == min::NONE() )
 	        break;  // May be quoted string.
-	    if ( initiator != PARLEX::left_parenthesis
-	         &&
-		 initiator != PARLEX::left_square )
+	    if ( initiator != PARLEX::left_parenthesis )
+	        arg_list.is_square = false;
+	    else
+	    if ( initiator != PARLEX::left_square )
+	        arg_list.is_square = true;
+	    else
 	    {
 		PAR::parse_error
 		    ( parser, ppvec[i],
@@ -597,12 +602,10 @@ PRIM::func PRIM::scan_func_prototype
 	    }
 	    if ( st == BEFORE_FIRST_TERM )
 	    {
-		if (    initiator
-		     == PARLEX::left_parenthesis )
-		    labbuf[j++] = PRIMLEX::parentheses;
-		else // == PARLEX::left_square
-		    labbuf[j++] =
-		        PRIMLEX::square_brackets;
+		labbuf[j++] =
+		    ( arg_list.is_square ?
+		      PRIMLEX::square_brackets :
+		      PRIMLEX::parentheses );
 	    }
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );
@@ -627,6 +630,8 @@ PRIM::func PRIM::scan_func_prototype
 			( func, alvp[k], alppvec[k],
 			  default_op, parser );
 	    }
+	    arg_list.number_of_args = 
+	        func->args->length - arg_list.first;
 	}
 
 	min::locatable_gen term_label

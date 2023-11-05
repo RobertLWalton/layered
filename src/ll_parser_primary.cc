@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 07:08:23 EST 2023
+// Date:	Sun Nov  5 11:47:18 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -576,7 +576,9 @@ PRIM::func PRIM::scan_func_prototype
     {
 	// Scan argument lists.
 	//
-	min::uns32 number_arg_lists = 0;
+	min::uns32 first_arg_list =
+	    func->arg_lists->length;
+	bool is_bool = false;
         while ( min::is_obj ( vp[i] ) )
 	{
 	    PRIM::arg_list_struct arg_list;
@@ -614,6 +616,17 @@ PRIM::func PRIM::scan_func_prototype
 	        errors += ::process_arg
 		    ( func, vp[i], ppvec[i],
 		      default_op, parser );
+		if (    func->arg_lists->length
+		     == first_arg_list
+		     &&
+		        arg_list.first + 1
+		     == func->args->length
+		     &&
+		        (   func->args
+			  + arg_list.first )->
+			      default_value
+                     == bool_value )
+		    is_bool = true;
 	    }
 	    else
 	    {
@@ -632,7 +645,14 @@ PRIM::func PRIM::scan_func_prototype
 	    }
 	    arg_list.number_of_args = 
 	        func->args->length - arg_list.first;
+	    if ( arg_list.number_of_args != 1 )
+	        is_bool = false;
+	    min::push(func->arg_lists) = arg_list;
 	}
+	min::uns32 number_arg_lists =
+	    func->arg_lists->length - first_arg_list;
+	if ( number_arg_lists != 1 )
+	    is_bool = false;
 
 	min::locatable_gen term_label
 	    ( PRIM::scan_func_term_name ( vp, i ) );
@@ -707,18 +727,29 @@ PRIM::func PRIM::scan_func_prototype
 	    st = AFTER_FIRST_TERM;
 	}
 	else
-	if ( st == AFTER_FIRST_TERM )
-	    func->number_following_arg_lists =
-	        number_arg_lists;
-	else
 	{
-	    // st == AFTER_SECOND_TERM
-	    //
-	    func_term->number_arg_lists =
-	        number_arg_lists;
-	    TAB::push
-	        ( func->term_table,
-		  (TAB::root) func_term );
+	    if ( st == AFTER_FIRST_TERM )
+		func->number_following_arg_lists =
+		    number_arg_lists;
+	    else
+	    {
+		// st == AFTER_SECOND_TERM
+		//
+		func_term->first_arg_list =
+		    first_arg_list;
+		func_term->number_arg_lists =
+		    number_arg_lists;
+		func_term->is_bool = is_bool;
+		TAB::push
+		    ( func->term_table,
+		      (TAB::root) func_term );
+	    }
+	    if ( term_label == min::NONE() )
+	        break;
+
+    	    func_term = ::func_term_type.new_stub();
+	    // TBD
+
 	}
     }
 

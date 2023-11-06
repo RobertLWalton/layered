@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  4 03:29:07 EDT 2023
+// Date:	Mon Nov  6 08:57:36 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2177,6 +2177,24 @@ inline min::gen quoted_string_value ( min::gen v )
     if ( info[0].value != min::doublequote )
 	return min::NONE();
     return vp[0];
+}
+
+// If v is a purelist (an object with no labels except
+// dot_position, return true.  Otherwise return false.
+//
+inline bool is_purelist ( min::gen v )
+{
+    if ( ! min::is_obj ( v ) ) return false;
+    min::attr_info info[2];
+    min::obj_vec_ptr vp ( v );
+    min::attr_ptr ap ( vp );
+    int c = attr_info_of ( info, 2, ap );
+    if ( c == 0 ) return true;
+    else if ( c > 1 ) return false;
+    if ( info[0].name != min::dot_position )
+	return false;
+    else
+        return true;
 }
 
 // Given an object vector pointer vp pointing at an

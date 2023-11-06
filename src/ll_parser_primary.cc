@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  6 06:12:22 EST 2023
+// Date:	Mon Nov  6 08:58:24 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -787,6 +787,11 @@ static TAB::key_prefix find_key_prefix
 		if (    initiator
 		     == PARLEX::left_square )
 		    e = PRIMLEX::square_brackets;
+		else
+		if ( initiator == min::NONE()
+		     &&
+		     PAR::is_purelist ( vp[i] ) )
+		    e = PRIMLEX::parentheses;
 		else
 		    break;
 	    }

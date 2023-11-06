@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 11:47:18 EST 2023
+// Date:	Sun Nov  5 19:32:00 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -748,8 +748,8 @@ PRIM::func PRIM::scan_func_prototype
 	        break;
 
     	    func_term = ::func_term_type.new_stub();
-	    // TBD
-
+	    PRIM::label_ref(func_term) = term_label;
+	    func_term->selectors = PAR::ALL_SELECTORS;
 	}
     }
 
@@ -757,6 +757,67 @@ PRIM::func PRIM::scan_func_prototype
 	return min::NULL_STUB;
     else
         return func;
+}
+
+
+static TAB::key_prefix find_key_prefix
+    ( min::obj_vec_ptr & vp, min::uns32 & i,
+      TAB::key_table key_table )
+{
+    min::uns32 phash = min::labhash_initial;
+    min::uns32 tab_len = key_table->length;
+    min::uns32 mask = tab_len - 1;
+    MIN_REQUIRE ( ( tab_len & mask ) == 0 );
+    TAB::key_prefix previous = min::NULL_STUB;
+    while ( true )
+    {
+        min::gen e = vp[i];
+	if ( min::is_obj ( e ) )
+	{
+	    e = PAR::quoted_string_value ( e );
+	    if ( e == min::NONE() )
+	    {
+	        min::gen initiator =
+		    min::get
+		        ( vp[i], min::dot_initiator );
+		if (    initiator
+		     == PARLEX::left_parenthesis )
+		    e = PRIMLEX::parentheses;
+		else
+		if (    initiator
+		     == PARLEX::left_square )
+		    e = PRIMLEX::square_brackets;
+		else
+		    break;
+	    }
+	}
+	if (    ! min::is_str ( e )
+	     && ! min::is_num ( e ) )
+	    break;
+	min::uns32 hash = min::hash ( e );
+
+	// Compute hash of this elements key prefix.
+	//
+	phash = min::labhash ( phash, hash );
+	if ( previous != min::NULL_STUB ) hash = phash;
+
+	// Locate key prefix.
+	//
+	TAB::key_prefix key_prefix =
+	    key_table[hash & mask];
+	while ( key_prefix != min::NULL_STUB )
+	{
+	    if ( key_prefix->key_element == e
+	         &&
+		 key_prefix->previous == previous )
+		break;
+	    key_prefix = key_prefix->next;
+	}
+	if ( key_prefix == min::NULL_STUB ) break;
+	previous = key_prefix;
+    }
+
+    return previous;
 }
 
 // TBD

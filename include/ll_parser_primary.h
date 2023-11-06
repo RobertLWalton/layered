@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 05:00:24 EST 2023
+// Date:	Mon Nov  6 04:51:54 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -508,6 +508,7 @@ typedef min::packed_vec_insptr<min::gen>
 bool scan_ref_expression
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
+      ll::parser::table::flags selectors,
       ll::parser::table::root & root,
       ll::parser::table::key_prefix & key_prefix,
       min::ref<arguments_vector> arguments,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  5 19:32:00 EST 2023
+// Date:	Mon Nov  6 04:52:17 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -825,6 +825,7 @@ static TAB::key_prefix find_key_prefix
 bool PRIM::scan_ref_expression
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser,
+      TAB::flags selectors,
       TAB::root & root,
       TAB::key_prefix & key_prefix,
       min::ref<arguments_vector> arguments,

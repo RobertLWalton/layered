@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  6 04:52:17 EST 2023
+// Date:	Mon Nov  6 06:12:22 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -831,8 +831,43 @@ bool PRIM::scan_ref_expression
       min::ref<arguments_vector> arguments,
       TAB::key_table primary_table )
 {
-    // TBD
-    return false;
+    if ( key_prefix == min::NULL_STUB )
+    {
+    	for ( key_prefix =
+	          ::find_key_prefix
+		      ( vp, i, primary_table );
+	      key_prefix != min::NULL_STUB;
+	      key_prefix = key_prefix->previous, -- i );
+	if ( key_prefix != min::NULL_STUB )
+	for ( root = key_prefix->first;
+	      root != min::NULL_STUB;
+	      root = root->next )
+	{
+	    if ( root->selectors & selectors )
+		return true;
+	}
+	return false;
+    }
+    else
+    {
+        MIN_REQUIRE ( root != min::NULL_STUB );
+        while ( true )
+	{
+	    root = root->next;
+	    while ( root == min::NULL_STUB )
+	    {
+	        key_prefix = key_prefix->previous;
+		-- i;
+		if ( key_prefix == min::NULL_STUB )
+		    return false;
+		root = key_prefix->first;
+	    }
+
+	    if ( root->selectors & selectors )
+	        return true;
+	}
+	MIN_REQUIRE ( false ); // Should not come here.
+    }
 }
 
 

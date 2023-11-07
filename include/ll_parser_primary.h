@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 05:20:19 EST 2023
+// Date:	Tue Nov  7 15:28:01 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -407,12 +407,14 @@ inline min::gen scan_func_term_name
 // of a function prototype that may include () and []
 // argument lists before the first function term name.
 // The scan stops at the end of vp or at the first
-// element that cannot be part of a function prototype.
+// element after initial argument lists that cannot be
+// part of a function term name.
 //
 // Specifically, a (...) at the beginning of the scan
 // produces the MIN string ";;P" in the label, and a
 // [...] produces a ";;S".  These are followed by the
-// first function term in the prototype.
+// first function term name in the prototype, if there
+// is one.
 //
 // The contents of (...) and [...] are NOT checked.
 // Partial labels are allowed, but the empty label
@@ -426,9 +428,10 @@ min::gen scan_func_label
 
 // Scan function prototype and store results in a func
 // which is returned.  Specifically vp is scanned
-// beginning with vp[i], i is incremented during the
-// scan, and i == vp.length at the end of the scan if
-// there are no errors.
+// beginning with vp[i] and i is incremented during the
+// scan.  The scan ends when vp ends or when the next
+// vp element after an argument list is neither an
+// argument list of a function term name component.
 //
 // A prototype argument with a default value must be of
 // the form
@@ -440,16 +443,13 @@ min::gen scan_func_label
 // empty.
 //
 // A bool function term must be have a single argument
-// list with a single element the above form that has
-// default value equal to bool_value.
+// list containing a single argument of the above form
+// that has its default value equal to bool_value.
 //
 // It is assumed that vp contains a function prototype
-// ending at the end of vp.  If a defective prototype is
-// found, parse_error is called one or more times, and
-// NULL_STUB is returned.
-//
-typedef min::packed_vec_insptr<min::gen>
-    variables_vector;
+// ending as indicated above.  If a defective prototype
+// is found, parse_error is called one or more times,
+// and NULL_STUB is returned (i is then undefined).
 
 extern min::locatable_gen func_default_op;
 extern min::locatable_gen func_bool_value;
@@ -457,7 +457,7 @@ extern min::uns32 func_term_table_size;
 
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
-      min::phrase_position_vec ppvec,
+      min::phrase_position_vec ppvec, // of vp
       ll::parser::parser parser,
       ll::parser::table::flags selectors,
       min::uns32 block_level,
@@ -471,8 +471,8 @@ ll::parser::primary::func scan_func_prototype
           func_term_table_size );
 
 
-// Scan a reference expression prototype and return
-// the primary_table entry found, either a var if a
+// Scan a reference expression and return the
+// primary_table entry found, either a var if a
 // variable is found or a func if a function call is
 // found.
 //
@@ -485,27 +485,34 @@ ll::parser::primary::func scan_func_prototype
 // and false otherwise.
 //
 // The first call to this function for a particular vp
-// and i should have key_prefix == NULL_STUB.  If after
+// and i should have key_prefix = NULL_STUB.  If after
 // returning, the result is unsatisfactory because the
 // next vp[i] is not a suitable subsequent vector
 // element, the result can be rejected and the next
 // primary_table entry can be found by re-calling this
 // function with i, root, and key_prefix left as they
 // were set by the last call.  This function can be
-// re-called in this manner until it returns false.
+// re-called in this manner until the result is
+// satisfactory or the function returns false.
 //
-// Note that selectors in primary_table entries are
-// ignored.
+// If func is returned, the call argument expressions
+// are returned in argument_vector, in left to right
+// prototype order.  This vector will NOT have any
+// elements with value NONE: all arguments must be
+// provided or defaulted.  A prototype that would
+// produce an arguments vector with a NONE element
+// is automatically rejected just as if it had the
+// wrong selectors.
 //
 typedef min::packed_vec_insptr<min::gen>
-    arguments_vector;
+    argument_vector;
 bool scan_ref_expression
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
       ll::parser::table::flags selectors,
       ll::parser::table::root & root,
       ll::parser::table::key_prefix & key_prefix,
-      min::ref<arguments_vector> arguments,
+      min::ref<argument_vector> argument_vector,
       ll::parser::table::key_table primary_table );
 
 } } }

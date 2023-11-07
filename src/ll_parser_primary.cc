@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 05:20:42 EST 2023
+// Date:	Tue Nov  7 15:24:56 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -816,7 +816,7 @@ bool PRIM::scan_ref_expression
       TAB::flags selectors,
       TAB::root & root,
       TAB::key_prefix & key_prefix,
-      min::ref<arguments_vector> arguments,
+      min::ref<argument_vector> argument_vector,
       TAB::key_table primary_table )
 {
     if ( key_prefix == min::NULL_STUB )

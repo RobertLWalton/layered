@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 15:24:56 EST 2023
+// Date:	Tue Nov  7 18:22:04 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -365,7 +365,7 @@ min::gen PRIM::scan_name
     min::gen labbuf[s - i];
     min::uns32 j = 0;
     min::uns64 types = initial_types;
-    while ( i < s )
+    for ( ; i < s; ++i )
     {
 	min::uns64 quotes_types = outside_quotes_types;
         min::gen c = vp[i];
@@ -378,7 +378,7 @@ min::gen PRIM::scan_name
 	    ( 1ull << PAR::lexical_type_of ( c ) );
 	if ( ( t & types & quotes_types ) == 0 )
 	    break;
-	labbuf[j++] = vp[i++];
+	labbuf[j++] = c;
 	types = following_types;
     }
     if ( j == 0 ) return min::NONE();
@@ -387,24 +387,30 @@ min::gen PRIM::scan_name
 }
 
 min::uns64 PRIM::var_initial_types =
-    LEXSTD::word_t;
+    (1ull << LEXSTD::word_t);
 min::uns64 PRIM::var_following_types =
-    LEXSTD::word_t + LEXSTD::natural_t;
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::var_outside_quotes_types =
-    LEXSTD::word_t + LEXSTD::natural_t;
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::var_inside_quotes_types =
     0;
 min::uns64 PRIM::func_term_initial_types =
-    LEXSTD::word_t + LEXSTD::mark_t
-                   + LEXSTD::separator_t;
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t);
 min::uns64 PRIM::func_term_following_types =
-    LEXSTD::word_t + LEXSTD::mark_t
-                   + LEXSTD::separator_t
-		   + LEXSTD::natural_t;
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t)
+    + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::func_term_outside_quotes_types =
-    LEXSTD::word_t + LEXSTD::natural_t;
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::func_term_inside_quotes_types =
-    LEXSTD::mark_t + LEXSTD::separator_t;
+      (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t);
 
 min::gen PRIM::scan_func_label
     ( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -441,8 +447,6 @@ min::gen PRIM::scan_func_label
 	else
 	    labbuf[j++] = term;
     }
-    else
-        labbuf[j++] = term;
 
     if ( j == 1 ) return labbuf[0];
     else return min::new_lab_gen ( labbuf, j );
@@ -540,15 +544,13 @@ PRIM::func PRIM::scan_func_prototype
 {
     min::uns32 s = min::size_of ( vp );
     MIN_REQUIRE ( i < s );
-    min::phrase_position p0 = ppvec[i];
-    min::phrase_position p1 = ppvec[s-1];
-    min::phrase_position pos = {p0.begin, p1.end }; 
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
-	      ( selectors, block_level, pos,
+	      ( selectors, block_level, ppvec[i],
 	        level, depth,
 		location, module,
 		term_table_size ) );
+	// func->position.end is reset below.
     min::gen labbuf[s-i];
     min::uns32 j = 0;  // Indexes labbuf.
     min::locatable_var<PRIM::func_term> func_term;
@@ -571,21 +573,13 @@ PRIM::func PRIM::scan_func_prototype
 	        min::get ( vp[i], min::dot_initiator );
 	    if ( initiator == min::NONE() )
 	        break;  // May be quoted string.
-	    if ( initiator != PARLEX::left_parenthesis )
+	    if ( initiator == PARLEX::left_parenthesis )
 	        arg_list.is_square = false;
 	    else
-	    if ( initiator != PARLEX::left_square )
+	    if ( initiator == PARLEX::left_square )
 	        arg_list.is_square = true;
 	    else
-	    {
-		PAR::parse_error
-		    ( parser, ppvec[i],
-		      "not a function prototype"
-		      " component; ignored" );
-		++ errors;
-		++ i;
-		continue;
-	    }
+	        break;  // May be : paragraph.
 	    if ( st == BEFORE_FIRST_TERM )
 	    {
 		labbuf[j++] =
@@ -650,16 +644,18 @@ PRIM::func PRIM::scan_func_prototype
 	        if ( j < 1 )
 		{
 		    PAR::parse_error
-			( parser, pos,
+			( parser, func->position,
 			  "function prototype"
 			  " not found" );
 		    return min::NULL_STUB;
 		}
-		else
+		func->position.end =
+		    ( ppvec + (i-1))->end;
+
 	        if ( j < 2 )
 		{
 		    PAR::parse_error
-			( parser, pos,
+			( parser, func->position,
 			  "function prototype"
 			  " must have at least"
 			  " 2 argument lists"
@@ -671,7 +667,7 @@ PRIM::func PRIM::scan_func_prototype
 		     != PRIMLEX::square_brackets )
 		{
 		    PAR::parse_error
-			( parser, pos,
+			( parser, func->position,
 			  "function prototype"
 			  " with no function term"
 			  " must end with a []"

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  6 08:58:24 EST 2023
+// Date:	Tue Nov  7 05:20:42 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,7 +42,6 @@ min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
-min::locatable_gen PRIMLEX::TRUE;
 
 static min::locatable_gen opening_double_quote;  // ``
 
@@ -61,11 +60,10 @@ static void initialize ( void )
     PRIMLEX::parentheses = min::new_str_gen ( ";;P" );
     PRIMLEX::square_brackets =
         min::new_str_gen ( ";;S" );
-    PRIMLEX::TRUE = min::new_str_gen ( "TRUE" );
     ::opening_double_quote = min::new_str_gen ( "``" );
 
-    PRIM::func_default_op = PRIMLEX::TRUE;
-    PRIM::func_bool_value = min::new_str_gen ( "?=" );
+    PRIM::func_default_op = min::new_str_gen ( "?=" );
+    PRIM::func_bool_value = min::new_str_gen ( "TRUE" );
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -201,13 +199,8 @@ static min::packed_struct_with_base
 const min::uns32 & PRIM::FUNC_TERM =
     ::func_term_type.subtype;
 
-void PRIM::push_func_term
-    ( min::gen func_term_label,
-      const min::phrase_position & position,
-      min::uns32 first_arg_list,
-      min::uns32 number_arg_lists,
-      bool is_bool,
-      PRIM::func func )
+PRIM::func_term PRIM::create_func_term
+    ( min::gen func_term_label )
 {
     min::locatable_var<PRIM::func_term> func_term
         ( ::func_term_type.new_stub() );
@@ -215,16 +208,7 @@ void PRIM::push_func_term
     PRIM::label_ref(func_term) = func_term_label;
     func_term->selectors = PAR::ALL_SELECTORS;
     func_term->block_level = 0;
-    func_term->position = position;
-
-    func_term->first_arg_list =
-        first_arg_list;
-    func_term->number_arg_lists =
-        number_arg_lists;
-    func_term->is_bool = is_bool;
-
-    TAB::push
-        ( func->term_table, (TAB::root) func_term );
+    return func_term;
 }
 
 // Primary Parser Pass
@@ -508,7 +492,7 @@ inline min::uns32 process_arg
 	    PAR::parse_error
 		( parser, pos,
 		  "bad argument name; name ignored" );
-	    name = min::NONE();
+	    name = min::MISSING();
 	    ++ errors;
 	}
     }
@@ -517,7 +501,7 @@ inline min::uns32 process_arg
 	PAR::parse_error
 	    ( parser, pos,
 	      "bad argument name; name ignored" );
-	name = min::NONE();
+	name = min::MISSING();
 	++ errors;
     }
     else
@@ -530,7 +514,7 @@ inline min::uns32 process_arg
 	    PAR::parse_error
 		( parser, pos,
 		  "bad argument name; name ignored" );
-	    name = min::NONE();
+	    name = min::MISSING();
 	    ++ errors;
 	}
     }
@@ -747,9 +731,8 @@ PRIM::func PRIM::scan_func_prototype
 	    if ( term_label == min::NONE() )
 	        break;
 
-    	    func_term = ::func_term_type.new_stub();
-	    PRIM::label_ref(func_term) = term_label;
-	    func_term->selectors = PAR::ALL_SELECTORS;
+    	    func_term =
+	        PRIM::create_func_term ( term_label );
 	}
     }
 

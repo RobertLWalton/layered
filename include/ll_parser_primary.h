@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  6 04:51:54 EST 2023
+// Date:	Tue Nov  7 05:20:19 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,8 +39,7 @@ namespace lexeme {
 	location,		// location
 	module,			// module
 	parentheses,		// ;;P
-	square_brackets,	// ;;S
-	TRUE;			// TRUE
+	square_brackets;	// ;;S
 }
 
 
@@ -139,7 +138,7 @@ struct arg_struct
 {
     min::gen name;
         // Name of argument variable, or MISSING if
-	// not relevant.
+	// not available due to error.
     min::gen default_value;
         // Default value of argument, or NONE if none.
 };
@@ -178,7 +177,7 @@ struct func_struct
         // Argument list descriptions in prototype
 	// order.
     const ll::parser::table::key_table term_table;
-    	// See term_struc below.
+    	// See funct_term_struc below.
 
     min::uns32 number_initial_arg_lists;
         // Number of argument lists before the first
@@ -207,10 +206,10 @@ MIN_REF ( ll::parser::table::key_table, term_table,
 
 // Create a function definition entry with given
 // label, selectors, lexical level, depth, location,
-// module, number of initial/following arg lists,
-// and return it.  Args and arg_lists vectors and
-// term_table are created and initialized as empty.
-// Term_table_size must be a power of 2.
+// module, and term table size and return it.  Args
+// and arg_lists vectors and term_table are created
+// and initialized as empty.  Term_table_size must
+// be a power of 2.
 //
 ll::parser::primary::func create_func
 	( ll::parser::table::flags selectors,
@@ -220,7 +219,7 @@ ll::parser::primary::func create_func
 	  min::uns32 depth,
 	  min::uns32 location,
 	  min::gen module,
-	  min::uns32 term_table_size = 32 );
+	  min::uns32 term_table_size );
 
 // Push a new argument description into the args vector
 // of a func.
@@ -268,17 +267,12 @@ MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::func_term )
 
 // Create a function term definition entry with given
-// label, arg_list_descriptions, and is_bool value, 
-// and push it into the term_table of the given func.
-// Selectors and block level are not relevant.
+// label.  Selectors are set to PAR::ALL_SELECTORS.
+// Position, first_arg_list, number_arg_lists, is_bool
+// must be set later.
 //
-void push_func_term
-	( min::gen func_term_label,
-	  const min::phrase_position & position,
-	  min::uns32 first_arg_list,
-	  min::uns32 number_arg_lists,
-	  bool is_bool,
-	  ll::parser::primary::func func );
+ll::parser::primary::func_term create_func_term
+	( min::gen func_term_label );
 
 // Primary Pass
 // ------- ----
@@ -345,8 +339,8 @@ ll::parser::primary::primary_pass init_primary
 // or numeric_word_t.  The lexical type of a string is
 // word_t, numeric_t, mark_t, separator_t, or other.
 // Strings containing multiple lexemes have other type.
-// A quoted string vp element is treated the same as a
-// string vp element.
+// A quoted string vp element is treated as a string vp
+// element.
 //
 // Let XXX_types be initial_types for the first
 // component of the name, and following_types for

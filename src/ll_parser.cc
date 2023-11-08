@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 27 00:41:16 EDT 2023
+// Date:	Tue Nov  7 20:37:43 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1821,7 +1821,6 @@ TAB::root PAR::find_entry
           key_prefix != NULL_STUB;
 	  key_prefix = key_prefix->previous,
 	  current = current->previous )
-    if ( key_prefix != NULL_STUB )
     for ( TAB::root root = key_prefix->first;
 	  root != NULL_STUB;
 	  root = root->next )

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 20:25:00 EST 2023
+// Date:	Wed Nov  8 06:49:00 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -808,8 +808,6 @@ static TAB::key_prefix find_key_prefix
     return previous;
 }
 
-// TBD
-//
 bool PRIM::scan_ref_expression
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser,
@@ -819,24 +817,27 @@ bool PRIM::scan_ref_expression
       min::ref<argument_vector> argument_vector,
       TAB::key_table primary_table )
 {
+    min::uns32 original_i = i;
+
     if ( key_prefix == min::NULL_STUB )
     {
     	for ( key_prefix =
 	          ::find_key_prefix
 		      ( vp, i, primary_table );
 	      key_prefix != min::NULL_STUB;
-	      key_prefix = key_prefix->previous, -- i );
-	if ( key_prefix != min::NULL_STUB )
+	      key_prefix = key_prefix->previous, -- i )
 	for ( root = key_prefix->first;
 	      root != min::NULL_STUB;
 	      root = root->next )
 	{
 	    if ( root->selectors & selectors )
-		return true;
+		goto CHECK_TYPE;
 	}
 	return false;
     }
-    else
+
+RETRY:
+
     {
         MIN_REQUIRE ( root != min::NULL_STUB );
         while ( true )
@@ -852,10 +853,21 @@ bool PRIM::scan_ref_expression
 	    }
 
 	    if ( root->selectors & selectors )
-	        return true;
+	        goto CHECK_TYPE;
 	}
 	MIN_REQUIRE ( false ); // Should not come here.
     }
+
+CHECK_TYPE:
+
+    PRIM::func func = (PRIM::func) root;
+    if ( func == min::NULL_STUB )  // var found
+        return true;
+
+
+    // TBD
+    //
+    return true;
 }
 
 

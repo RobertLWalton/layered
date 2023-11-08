@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 18:22:04 EST 2023
+// Date:	Tue Nov  7 20:25:00 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -632,6 +632,7 @@ PRIM::func PRIM::scan_func_prototype
 	if ( number_arg_lists != 1 )
 	    is_bool = false;
 
+	min::uns32 term_begin = i;
 	min::locatable_gen term_label
 	    ( PRIM::scan_func_term_name ( vp, i ) );
 
@@ -684,7 +685,7 @@ PRIM::func PRIM::scan_func_prototype
 		func->number_following_arg_lists = 0;
 		return func;
 	    }
-	    else
+	    else // term_label != NONE
 	    if ( number_arg_lists == 0 )
 	        PRIM::label_ref(func) = term_label;
 	    else
@@ -696,13 +697,13 @@ PRIM::func PRIM::scan_func_prototype
 		        min::lablen ( labp );
 		    for ( min::uns32 k = 0; k < len; )
 			labbuf[j++] = labp[k++];
-		    min::locatable_gen label
-			( min::new_lab_gen
-			      ( labbuf, j ) );
-		    PRIM::label_ref(func) = label;
 		}
 		else
 		    labbuf[j++] = term_label;
+
+		min::locatable_gen label
+		    ( min::new_lab_gen ( labbuf, j ) );
+		PRIM::label_ref(func) = label;
 	    }
 	    st = AFTER_FIRST_TERM;
 	}
@@ -720,6 +721,8 @@ PRIM::func PRIM::scan_func_prototype
 		func_term->number_arg_lists =
 		    number_arg_lists;
 		func_term->is_bool = is_bool;
+		func_term->position.end =
+		    (ppvec + (term_begin-1))->end;
 		TAB::push
 		    ( func->term_table,
 		      (TAB::root) func_term );
@@ -729,6 +732,7 @@ PRIM::func PRIM::scan_func_prototype
 
     	    func_term =
 	        PRIM::create_func_term ( term_label );
+	    func_term->position = ppvec[term_begin];
 	}
     }
 

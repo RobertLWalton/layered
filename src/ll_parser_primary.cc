@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  8 06:49:00 EST 2023
+// Date:	Fri Nov 10 11:42:00 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -808,14 +808,20 @@ static TAB::key_prefix find_key_prefix
     return previous;
 }
 
-bool PRIM::scan_ref_expression
+min::uns64 PRIM::ref_inside_quotes_types =
+      (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t);
+
+
+bool PRIM::scan_ref
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser,
       TAB::flags selectors,
       TAB::root & root,
       TAB::key_prefix & key_prefix,
       min::ref<argument_vector> argument_vector,
-      TAB::key_table primary_table )
+      TAB::key_table primary_table,
+      min::uns64 inside_quotes_types )
 {
     min::uns32 original_i = i;
 

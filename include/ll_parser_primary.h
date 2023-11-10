@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 15:28:01 EST 2023
+// Date:	Fri Nov 10 11:41:22 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -506,14 +506,18 @@ ll::parser::primary::func scan_func_prototype
 //
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;
-bool scan_ref_expression
+extern min::uns64 ref_inside_quotes_types;
+bool scan_ref
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
       ll::parser::table::flags selectors,
       ll::parser::table::root & root,
       ll::parser::table::key_prefix & key_prefix,
       min::ref<argument_vector> argument_vector,
-      ll::parser::table::key_table primary_table );
+      ll::parser::table::key_table primary_table,
+      min::uns64 inside_quotes_types =
+          ll::parser::primary
+	            ::ref_inside_quotes_types );
 
 } } }
 

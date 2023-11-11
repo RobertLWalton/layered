@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 10 11:42:00 EST 2023
+// Date:	Sat Nov 11 08:32:34 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -881,10 +881,83 @@ CHECK_TYPE:
     if ( func == min::NULL_STUB )  // var found
         return true;
 
+    min::uns32 after_first = i;
+    i = original_i;
+    bool first = true;
+    min::uns32 j = 0;
+    min::uns32 jend =
+        j + func->number_initial_arg_lists;
+    while ( true )
+    {
+        for ( ; j < jend; ++ j )
+	{
+	    PRIM::arg_list_struct arg_list =
+	        func->arg_lists[j];
+	    min::gen initiator =
+		min::get ( vp[i], min::dot_initiator );
+	    if ( initiator == min::NONE() )
+	    {
+	        if ( arg_list.is_square )
+		    goto REJECT;
+		else if ( ! PAR::is_purelist ( vp[i] ) )
+		{
+		    if ( first ) goto REJECT;
+		    else continue;
+		}
+	    }
+
+	    else if (    initiator 
+		      == PARLEX::left_parenthesis )
+	    {
+	        if ( arg_list.is_square )
+		{
+		    if ( first ) goto REJECT;
+		    else continue;
+		}
+	    }
+	    else if (    initiator 
+		      == PARLEX::left_parenthesis )
+	    {
+	        if ( arg_list.is_square )
+		    goto REJECT;
+	    }
+
+	    // Process actual argument list.
+	    //
+	    min::obj_vec_ptr avp = vp[i];
+	    if (    min::get ( vp[i],
+	                       min::dot_separator )
+		 == min::NONE() )
+	    {
+		// TBD
+	    }
+	    else
+	    {
+		// TBD
+	    }
+	}
+
+
+	if ( first )
+	{
+	    if (      i !=
+	           original_i
+		 + func->number_initial_arg_lists )
+	        goto REJECT;
+	    i = after_first;
+	    jend = j + func->number_initial_arg_lists;
+	    continue;
+	}
+    }
+
 
     // TBD
     //
     return true;
+
+REJECT:
+    i = after_first;
+    goto RETRY;
 }
 
 

@@ -745,7 +745,8 @@ PRIM::func PRIM::scan_func_prototype
 
 static TAB::key_prefix find_key_prefix
     ( min::obj_vec_ptr & vp, min::uns32 & i,
-      TAB::key_table key_table )
+      TAB::key_table key_table,
+      min::uns64 inside_quotes_types )
 {
     min::uns32 phash = min::labhash_initial;
     min::uns32 tab_len = key_table->length;
@@ -758,7 +759,16 @@ static TAB::key_prefix find_key_prefix
 	if ( min::is_obj ( e ) )
 	{
 	    e = PAR::quoted_string_value ( e );
-	    if ( e == min::NONE() )
+	    if ( e != min::NONE() )
+	    {
+	        min::uns64 t =
+		    (    1ull
+		      << LEXSTD::
+		             lexical_type_of ( e ) );
+		if ( ( t & inside_quotes_types ) == 0 )
+		    break;
+	    }
+	    else
 	    {
 	        min::gen initiator =
 		    min::get
@@ -829,7 +839,8 @@ bool PRIM::scan_ref
     {
     	for ( key_prefix =
 	          ::find_key_prefix
-		      ( vp, i, primary_table );
+		      ( vp, i, primary_table,
+		        inside_quotes_types );
 	      key_prefix != min::NULL_STUB;
 	      key_prefix = key_prefix->previous, -- i )
 	for ( root = key_prefix->first;

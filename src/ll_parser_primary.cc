@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 12 02:19:38 EST 2023
+// Date:	Sun Nov 12 04:27:06 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -883,6 +883,7 @@ CHECK_TYPE:
 
     min::uns32 after_first = i;
     i = original_i;
+    min::uns32 iend = min::size_of ( vp );
     bool first = true;
     min::uns32 j = 0;
     min::uns32 jend =
@@ -967,8 +968,19 @@ CHECK_TYPE:
 	        goto REJECT;
 	    i = after_first;
 	    jend = j + func->number_initial_arg_lists;
+	    first = false;
 	    continue;
 	}
+
+	if ( i >= iend ) break;
+
+	key_prefix = min::NULL_STUB;
+    	key_prefix = ::find_key_prefix
+		      ( vp, i, func->term_table,
+		        inside_quotes_types );
+
+	// TBD
+
     }
 
 

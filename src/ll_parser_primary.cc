@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 11 08:32:34 EST 2023
+// Date:	Sun Nov 12 02:19:38 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -887,6 +887,9 @@ CHECK_TYPE:
     min::uns32 j = 0;
     min::uns32 jend =
         j + func->number_initial_arg_lists;
+    min::gen args[func->args->length];
+    for ( uns32 k = 0; k < func->args->length; ++ k )
+        args[k] = min::NONE();
     while ( true )
     {
         for ( ; j < jend; ++ j )
@@ -895,45 +898,63 @@ CHECK_TYPE:
 	        func->arg_lists[j];
 	    min::gen initiator =
 		min::get ( vp[i], min::dot_initiator );
-	    if ( initiator == min::NONE() )
-	    {
-	        if ( arg_list.is_square )
-		    goto REJECT;
-		else if ( ! PAR::is_purelist ( vp[i] ) )
-		{
-		    if ( first ) goto REJECT;
-		    else continue;
-		}
-	    }
 
-	    else if (    initiator 
-		      == PARLEX::left_parenthesis )
-	    {
-	        if ( arg_list.is_square )
-		{
-		    if ( first ) goto REJECT;
-		    else continue;
-		}
-	    }
-	    else if (    initiator 
-		      == PARLEX::left_parenthesis )
+	    if (    initiator 
+		 == PARLEX::left_parenthesis )
 	    {
 	        if ( arg_list.is_square )
 		    goto REJECT;
+	    }
+	    else if (    initiator 
+		      == PARLEX::left_square )
+	    {
+	        if ( ! arg_list.is_square )
+		{
+		    if ( first ) goto REJECT;
+		    continue;
+		}
+	    }
+	    else if ( PAR::is_purelist ( vp[i] ) )
+	    {
+	        if ( arg_list.is_square )
+		    goto REJECT;
+	    }
+	    else
+	    {
+	        if ( arg_list.is_square ) goto REJECT;
+		if ( first ) goto REJECT;
+		continue;
 	    }
 
 	    // Process actual argument list.
 	    //
 	    min::obj_vec_ptr avp = vp[i];
+	    min::uns32 s = min::size_of ( avp );
 	    if (    min::get ( vp[i],
 	                       min::dot_separator )
 		 == min::NONE() )
 	    {
-		// TBD
+	        if ( s == 0 )
+		{
+		    if ( first ) goto REJECT;
+		    continue;
+		}
+		if (    args[arg_list.first]
+		     != min::NONE() )
+		    goto REJECT; // TBD
+		args[arg_list.first] = vp[i];
 	    }
 	    else
 	    {
-		// TBD
+	        if ( s > arg_list.number_of_args )
+		    goto REJECT;
+		for ( min::uns32 k = 0; k < s; ++ k )
+		{
+		    if (    args[arg_list.first + k]
+		         != min::NONE() )
+			goto REJECT; // TBD
+		    args[arg_list.first+k] = avp[k];
+		}
 	    }
 	}
 

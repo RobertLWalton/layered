@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 12 04:27:06 EST 2023
+// Date:	Sun Nov 12 18:40:01 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -974,13 +974,19 @@ CHECK_TYPE:
 
 	if ( i >= iend ) break;
 
-	key_prefix = min::NULL_STUB;
-    	key_prefix = ::find_key_prefix
+    	TAB::key_prefix kp = ::find_key_prefix
 		      ( vp, i, func->term_table,
 		        inside_quotes_types );
 
-	// TBD
+	if ( kp == min::NULL_STUB )
+	    goto REJECT;
 
+	PRIM::func_term func_term =
+	    (PRIM::func_term) kp->first;
+	MIN_REQUIRE ( func_term != min::NULL_STUB );
+
+	j = func_term->first_arg_list;
+	jend = j + func_term->number_arg_lists;
     }
 
 

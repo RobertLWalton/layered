@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 10 11:41:22 EST 2023
+// Date:	Mon Nov 13 06:02:03 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -444,7 +444,9 @@ min::gen scan_func_label
 //
 // A bool function term must be have a single argument
 // list containing a single argument of the above form
-// that has its default value equal to bool_value.
+// that has its default value equal to one of the
+// elements of bool_values (which is a MIN label of zero
+// or elements).
 //
 // It is assumed that vp contains a function prototype
 // ending as indicated above.  If a defective prototype
@@ -452,7 +454,7 @@ min::gen scan_func_label
 // and NULL_STUB is returned (i is then undefined).
 
 extern min::locatable_gen func_default_op;
-extern min::locatable_gen func_bool_value;
+extern min::locatable_gen func_bool_values;
 extern min::uns32 func_term_table_size;
 
 ll::parser::primary::func scan_func_prototype
@@ -466,7 +468,7 @@ ll::parser::primary::func scan_func_prototype
       min::uns32 location,
       min::gen module,
       min::gen default_op = func_default_op,
-      min::gen bool_value = func_bool_value,
+      min::gen bool_values = func_bool_values,
       min::uns32 term_table_size =
           func_term_table_size );
 

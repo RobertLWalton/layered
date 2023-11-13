@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 03:41:34 EST 2023
+// Date:	Mon Nov 13 06:04:37 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,7 +63,8 @@ static void initialize ( void )
     ::opening_double_quote = min::new_str_gen ( "``" );
 
     PRIM::func_default_op = min::new_str_gen ( "?=" );
-    PRIM::func_bool_value = min::new_str_gen ( "TRUE" );
+    PRIM::func_bool_values =
+        min::new_lab_gen ( "TRUE", "FALSE" );
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -452,9 +453,9 @@ min::gen PRIM::scan_func_label
     else return min::new_lab_gen ( labbuf, j );
 }
 
-min::locatable_gen PRIM::func_default_op; // ?=
-min::locatable_gen PRIM::func_bool_value; // TRUE
-    // See initialize function.
+min::locatable_gen PRIM::func_default_op;  // ?=
+min::locatable_gen PRIM::func_bool_values; // TRUE,
+    // See initialize function.            //   FALSE
 
 min::uns32 PRIM::func_term_table_size = 32;
 
@@ -539,7 +540,7 @@ PRIM::func PRIM::scan_func_prototype
       min::uns32 location,
       min::gen module,
       min::gen default_op,
-      min::gen bool_value,
+      min::gen bool_values,
       min::uns32 term_table_size )
 {
     min::uns32 s = min::size_of ( vp );
@@ -600,10 +601,12 @@ PRIM::func PRIM::scan_func_prototype
 		        arg_list.first + 1
 		     == func->args->length
 		     &&
-		        (   func->args
-			  + arg_list.first )->
-			      default_value
-                     == bool_value )
+		        min::labfind
+		            ( (   func->args
+			        + arg_list.first )->
+			            default_value,
+		     	      bool_values )
+		    >= 0 )
 		    is_bool = true;
 	    }
 	    else

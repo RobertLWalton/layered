@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 12 20:38:09 EST 2023
+// Date:	Mon Nov 13 03:41:34 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -723,9 +723,25 @@ PRIM::func PRIM::scan_func_prototype
 		func_term->is_bool = is_bool;
 		func_term->position.end =
 		    (ppvec + (term_begin-1))->end;
-		TAB::push
-		    ( func->term_table,
-		      (TAB::root) func_term );
+		if (    TAB::find_key_prefix
+		            ( func_term->label,
+			      func->term_table )
+		     == min::NULL_STUB )
+		    TAB::push
+			( func->term_table,
+			  (TAB::root) func_term );
+		else
+		{
+		    PAR::parse_error
+			( parser, func->position,
+			  "function prototype has more"
+			  " than one function term"
+			  " named `",
+			  min::pgen_name
+			      ( func_term->label ),
+			  "'" );
+		    ++ errors;
+		}
 	    }
 	    if ( term_label == min::NONE() )
 	        break;

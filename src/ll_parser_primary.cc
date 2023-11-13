@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 12 18:40:01 EST 2023
+// Date:	Sun Nov 12 20:38:09 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -989,9 +989,34 @@ CHECK_TYPE:
 	jend = j + func_term->number_arg_lists;
     }
 
+    for ( min::uns32 k = 0; k < func->args->length;
+                            ++ k )
+    {
+        if ( args[k] == min::NONE() )
+	{
+	    args[k] = (func->args+k)->default_value;
+	    if ( args[k] == min::NONE() )
+	        goto REJECT;
+	}
+    }
 
-    // TBD
-    //
+    if ( argument_vector == min::NULL_STUB )
+        argument_vector = (PRIM::argument_vector)
+	    min::gen_packed_vec_type.new_stub
+	        ( func->args->length );
+
+    {
+	PRIM::argument_vector av = argument_vector;
+	    // Get rid of min::ref.
+	min::pop ( av, av->length );
+
+	for ( min::uns32 k = 0; k < func->args->length;
+				++ k )
+	    min::push(av) = args[k];
+		// Push one at a time to update
+		// gc flags properly.
+    }
+
     return true;
 
 REJECT:

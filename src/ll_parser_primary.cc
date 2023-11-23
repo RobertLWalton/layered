@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 06:04:37 EST 2023
+// Date:	Thu Nov 23 04:01:19 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1117,10 +1117,11 @@ static min::gen primary_pass_command
 	      "expected ``...'' quoted expression"
 	      " after" );
 
-    min::obj_vec_ptr nvp = vp[i];
-    min::uns32 ni = 0;
     min::phrase_position_vec nppvec =
 	min::get ( vp[i], min::dot_position );
+	// Must get before creating nvp.
+    min::obj_vec_ptr nvp = vp[i];
+    min::uns32 ni = 0;
     ++ i;
 
     if ( type == PRIMLEX::function )
@@ -1211,10 +1212,10 @@ static min::gen primary_pass_command
 			       ( block_name )
 		        << ": "
 		        << min::save_indent
-		        << type_name << " "
+		        << type_name << " ``"
 		        << min::pgen_name
 			    ( root->label )
-		        << " " << min::set_break;
+		        << "'' " << min::set_break;
 	        COM::print_flags
 		    ( root->selectors,
 		      PAR::COMMAND_SELECTORS,

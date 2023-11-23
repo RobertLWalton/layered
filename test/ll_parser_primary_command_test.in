@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 22 06:43:38 EST 2023
+// Date:	Thu Nov 23 03:59:37 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,7 +12,5 @@
     print selector ""
     print pass
     trace [+ parser commands, + warnings ]
-    trace [+ parser output,
-           + subexpression elements,
-           + subexpression lines ]
-    trace [- operator subexpressions]
+    define primary variable ``X Y 1'' [code]
+    print primary variable ``''

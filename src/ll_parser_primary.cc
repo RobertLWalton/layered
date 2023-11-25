@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 23 04:01:19 EST 2023
+// Date:	Sat Nov 25 03:58:34 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,7 +43,8 @@ min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
 
-static min::locatable_gen opening_double_quote;  // ``
+static min::locatable_gen opening_double_quote; // ``
+static min::locatable_gen test;  		// test
 
 static void initialize ( void )
 {
@@ -61,6 +62,7 @@ static void initialize ( void )
     PRIMLEX::square_brackets =
         min::new_str_gen ( ";;S" );
     ::opening_double_quote = min::new_str_gen ( "``" );
+    ::test = min::new_str_gen ( "test" );
 
     PRIM::func_default_op = min::new_str_gen ( "?=" );
     PRIM::func_bool_values =
@@ -1087,24 +1089,28 @@ static min::gen primary_pass_command
          &&
 	 command != PARLEX::undefine
          &&
+	 command != ::test
+         &&
 	 command != PARLEX::print )
         return min::FAILURE();
 
     if ( i >= size || vp[i++] != PRIMLEX::primary )
         return min::FAILURE();
 
-    if ( i >= size
-         ||
-	 ( vp[i] != PRIMLEX::variable
-	   &&
-	   vp[i] != PRIMLEX::function ) )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected `variable' or `function'"
-	      " after" );
-    min::gen type = vp[i++];
-
-    min::locatable_gen name;
+    min::gen type = min::MISSING();
+    if ( command != ::test )
+    {
+	if ( i >= size
+	     ||
+	     ( vp[i] != PRIMLEX::variable
+	       &&
+	       vp[i] != PRIMLEX::function ) )
+	    return PAR::parse_error
+		( parser, ppvec[i-1],
+		  "expected `variable' or `function'"
+		  " after" );
+	type = vp[i++];
+    }
 
     if ( i >= size
 	 ||
@@ -1124,12 +1130,13 @@ static min::gen primary_pass_command
     min::uns32 ni = 0;
     ++ i;
 
+    min::locatable_gen name = min::MISSING();
     if ( type == PRIMLEX::function )
     {
 	name = PRIM::scan_func_label
 	    ( nvp, ni, parser );
     }
-    else // type == PRIMLEX::variable
+    else if ( type == PRIMLEX::variable )
     {
         name = PRIM::scan_var_name ( nvp, ni );
 
@@ -1411,7 +1418,7 @@ static min::gen primary_pass_command
 	}
     }
 
-    else // if ( command == PARLEX::undefine )
+    else if ( command == PARLEX::undefine )
     {
 	if ( i < size )
 	    return PAR::parse_error
@@ -1456,6 +1463,10 @@ static min::gen primary_pass_command
 		( parser, ppvec->position,
 		  "undefine cancelled more than one"
 		  " definition" );
+    }
+    else // if ( command == ::test )
+    {
+        // TBD
     }
 
     return min::SUCCESS();

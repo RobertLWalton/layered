@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 25 03:58:34 EST 2023
+// Date:	Sat Nov 25 05:08:18 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1466,7 +1466,19 @@ static min::gen primary_pass_command
     }
     else // if ( command == ::test )
     {
-        // TBD
+        TAB::root root = min::NULL_STUB;
+        TAB::key_prefix key_prefix = min::NULL_STUB;
+	min::locatable_var<PRIM::argument_vector>
+	    argument_vector ( min::NULL_STUB );
+	if ( ! PRIM::scan_ref
+		   ( nvp, ni, parser, selectors,
+		     root, key_prefix, argument_vector,
+		     primary_pass->primary_table ) )
+	    PAR::parse_error
+		( parser, nppvec->position,
+		  "no definition found" );
+
+	// TBD
     }
 
     return min::SUCCESS();

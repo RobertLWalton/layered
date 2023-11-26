@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 25 05:08:18 EST 2023
+// Date:	Sun Nov 26 04:55:59 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -774,7 +774,8 @@ static TAB::key_prefix find_key_prefix
     min::uns32 mask = tab_len - 1;
     MIN_REQUIRE ( ( tab_len & mask ) == 0 );
     TAB::key_prefix previous = min::NULL_STUB;
-    while ( true )
+    min::uns32 size = min::size_of ( vp );
+    while ( i < size )
     {
         min::gen e = vp[i];
 	if ( min::is_obj ( e ) )
@@ -834,6 +835,7 @@ static TAB::key_prefix find_key_prefix
 	}
 	if ( key_prefix == min::NULL_STUB ) break;
 	previous = key_prefix;
+	++ i;
     }
 
     return previous;
@@ -1466,6 +1468,13 @@ static min::gen primary_pass_command
     }
     else // if ( command == ::test )
     {
+	min::uns32 indent =
+	    COM::print_command ( parser, ppvec );
+
+	parser->printer
+	    << min::bom << min::no_auto_break
+	    << min::set_indent ( indent + 4 );
+
         TAB::root root = min::NULL_STUB;
         TAB::key_prefix key_prefix = min::NULL_STUB;
 	min::locatable_var<PRIM::argument_vector>
@@ -1477,8 +1486,28 @@ static min::gen primary_pass_command
 	    PAR::parse_error
 		( parser, nppvec->position,
 		  "no definition found" );
+	else
+	{
+	    PRIM::var var = (PRIM::var) root;
+	    PRIM::func func = (PRIM::func) root;
 
-	// TBD
+	    if ( var != min::NULL_STUB )
+	        parser->printer << min::indent
+		    << "variable ``"
+		    << min::pgen_name ( root->label)
+		    << "'' "
+		    << min::pgen ( var->module )
+		    << " "
+		    << var->location;
+	    else if ( func != min::NULL_STUB )
+	    {
+	    }
+	    else MIN_REQUIRE ( ! "don't come here" );
+	}
+
+	parser->printer << min::eom;
+	return PAR::PRINTED;
+	    // Suppresses printing command again.
     }
 
     return min::SUCCESS();

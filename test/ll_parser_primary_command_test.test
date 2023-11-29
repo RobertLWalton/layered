@@ -27,3 +27,14 @@
 ERROR: in line ##: no definition found:
     test primary ``X Y'' [code]
                  ^^^^^^^
+    define primary variable ``X Y'' [code]
+           with module M with location 200
+    test primary ``X Y 1 FOO'' [code]
+                   ^^^^^
+        found variable ``X Y 1'' M 100
+    test primary ``X Y'' [code]
+                   ^^^
+        found variable ``X Y'' M 200
+ERROR: in line ##: no definition found:
+    test primary ``X'' [code]
+                 ^^^^^

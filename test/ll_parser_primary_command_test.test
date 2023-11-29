@@ -13,11 +13,13 @@
         operator [code, math]
         primary []
     trace [+ parser commands, + warnings ]
+*PARSER*:
+    begin block BLOCK1
     define primary variable ``X Y 1'' [code]
            with module M with location 100
     print primary variable ``''
-        block standard: variable ``X Y 1'' [code]
-                        with location 100 in module M
+        block BLOCK1: variable ``X Y 1'' [code]
+                      with location 100 in module M
     test primary ``X Y 1'' [code]
                    ^^^^^
         found variable ``X Y 1'' M 100
@@ -38,3 +40,11 @@ ERROR: in line ##: no definition found:
 ERROR: in line ##: no definition found:
     test primary ``X'' [code]
                  ^^^^^
+    print primary variable ``''
+        block BLOCK1: variable ``X Y 1'' [code]
+                      with location 100 in module M
+        block BLOCK1: variable ``X Y'' [code]
+                      with location 200 in module M
+    end block BLOCK1
+    print primary variable ``''
+        nothing found

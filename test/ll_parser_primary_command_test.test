@@ -48,3 +48,10 @@ ERROR: in line ##: no definition found:
     end block BLOCK1
     print primary variable ``''
         nothing found
+*PARSER*:
+    begin block BLOCK1
+    define primary function ``(X) "+" (Y)'' [code]
+    print primary function ``''
+        block BLOCK1: function ``;;P "+"'' [code]
+                      with location 0 in module [$ MISSING $]
+    end block BLOCK1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 28 21:34:37 EST 2023
+// Date:	Wed Nov 29 02:58:07 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -486,6 +486,7 @@ inline min::uns32 process_arg
     else
     {
 	name = arg;
+        avp = min::NULL_STUB;
 	default_value = min::NONE();
     }
     if ( min::is_str ( name ) )
@@ -568,7 +569,7 @@ PRIM::func PRIM::scan_func_prototype
 	min::uns32 first_arg_list =
 	    func->arg_lists->length;
 	bool is_bool = false;
-        while ( min::is_obj ( vp[i] ) )
+        while ( i < s && min::is_obj ( vp[i] ) )
 	{
 	    PRIM::arg_list_struct arg_list;
 	    arg_list.first = func->args->length;
@@ -631,6 +632,7 @@ PRIM::func PRIM::scan_func_prototype
 	    if ( arg_list.number_of_args != 1 )
 	        is_bool = false;
 	    min::push(func->arg_lists) = arg_list;
+	    ++ i;
 	}
 	min::uns32 number_arg_lists =
 	    func->arg_lists->length - first_arg_list;

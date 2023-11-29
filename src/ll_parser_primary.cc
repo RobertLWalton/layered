@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 29 02:58:07 EST 2023
+// Date:	Wed Nov 29 07:22:02 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1224,9 +1224,77 @@ static min::gen primary_pass_command
 			       ( block_name )
 		        << ": "
 		        << min::save_indent
-		        << type_name << " ``"
-		        << min::pgen_name
-			    ( root->label )
+		        << type_name << " ``";
+
+		if ( type == PRIMLEX::variable )
+		    parser->printer << min::pgen_name
+		        ( root->label );
+		else // type == PRIMLEX::function
+		{
+		    min::uns32 j = 0;
+		    min::uns32 jend =
+		        func->number_initial_arg_lists;
+		    bool initial = true;
+		    while ( true )
+		    {
+		        // Print arg lists.
+			//
+			for ( ; j < jend; ++ j )
+			{
+			    PRIM::arg_list_struct
+			        arg_list =
+				    func->arg_lists[j];
+			    min::uns32 k =
+			        arg_list.first;
+			    min::uns32 kend =
+			        k + arg_list
+				      .number_of_args;
+			    parser->printer <<
+			        ( arg_list.is_square ?
+				  "[" : "(" );
+			    for ( ; k < kend; ++ k )
+			    {
+			        PRIM::arg_struct arg =
+				    func->args[k];
+				parser->printer
+				    << min::pgen_name
+				        ( arg.name );
+				min::gen dv =
+				    arg.default_value;
+				min::gen dop =
+				    PRIM::
+				      func_default_op;
+				if ( dv != min::NONE() )
+				    parser->printer
+				        << " " << dop
+					<< " " << dv;
+				if ( k + 1 < kend )
+				    parser->printer
+				        << ", ";
+			    }
+			    parser->printer <<
+			        ( arg_list.is_square ?
+				  "]" : ")" );
+			}
+
+			// Print next function term.
+			//
+			if ( initial )
+			{
+			    initial = false;
+			    parser->printer // TBD
+			        << min::pgen_name
+				    ( root->label );
+			    j = jend;
+			    jend = j + func->
+			     number_following_arg_lists;
+			}
+			else
+			    break;  // TBD
+		    }
+		}
+
+		parser->printer
 		        << "'' " << min::set_break;
 	        COM::print_flags
 		    ( root->selectors,

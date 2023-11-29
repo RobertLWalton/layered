@@ -19,4 +19,11 @@
         block standard: variable ``X Y 1'' [code]
                         with location 100 in module M
     test primary ``X Y 1'' [code]
-        variable ``X Y 1'' M 100
+                   ^^^^^
+        found variable ``X Y 1'' M 100
+    test primary ``X Y 1 FOO'' [code]
+                   ^^^^^
+        found variable ``X Y 1'' M 100
+ERROR: in line ##: no definition found:
+    test primary ``X Y'' [code]
+                 ^^^^^^^

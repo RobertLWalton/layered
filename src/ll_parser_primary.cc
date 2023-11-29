@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 04:55:59 EST 2023
+// Date:	Tue Nov 28 21:34:37 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1129,6 +1129,7 @@ static min::gen primary_pass_command
 	min::get ( vp[i], min::dot_position );
 	// Must get before creating nvp.
     min::obj_vec_ptr nvp = vp[i];
+    min::uns32 nsize = min::size_of ( nvp );
     min::uns32 ni = 0;
     ++ i;
 
@@ -1142,7 +1143,7 @@ static min::gen primary_pass_command
     {
         name = PRIM::scan_var_name ( nvp, ni );
 
-	if ( ni < min::size_of ( nvp ) )
+	if ( ni < nsize )
 	    return PAR::parse_error
 		( parser, nppvec[ni],
 		  "illegal name component" );
@@ -1468,42 +1469,54 @@ static min::gen primary_pass_command
     }
     else // if ( command == ::test )
     {
-	min::uns32 indent =
-	    COM::print_command ( parser, ppvec );
-
-	parser->printer
-	    << min::bom << min::no_auto_break
-	    << min::set_indent ( indent + 4 );
-
         TAB::root root = min::NULL_STUB;
         TAB::key_prefix key_prefix = min::NULL_STUB;
 	min::locatable_var<PRIM::argument_vector>
 	    argument_vector ( min::NULL_STUB );
+	if ( ni >= nsize )
+	    return PAR::parse_error
+		( parser, nppvec->position,
+		  "expression empty" );
+
+	min::phrase_position pos = nppvec[ni];
 	if ( ! PRIM::scan_ref
 		   ( nvp, ni, parser, selectors,
-		     root, key_prefix, argument_vector,
+		     root, key_prefix,
+		     argument_vector,
 		     primary_pass->primary_table ) )
-	    PAR::parse_error
+	    return PAR::parse_error
 		( parser, nppvec->position,
 		  "no definition found" );
-	else
-	{
-	    PRIM::var var = (PRIM::var) root;
-	    PRIM::func func = (PRIM::func) root;
+	pos.end = (& nppvec[ni-1])->end;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      pos );
 
-	    if ( var != min::NULL_STUB )
-	        parser->printer << min::indent
-		    << "variable ``"
-		    << min::pgen_name ( root->label)
-		    << "'' "
-		    << min::pgen ( var->module )
-		    << " "
-		    << var->location;
-	    else if ( func != min::NULL_STUB )
-	    {
-	    }
-	    else MIN_REQUIRE ( ! "don't come here" );
+        min::uns32 indent = min::print_line_column
+	    ( ppvec->file, ppvec->position.begin,
+	      parser->printer->print_format,
+	      min::standard_line_format );
+	parser->printer
+	    << min::bom
+	    << min::set_indent ( indent + 4 )
+	    << min::indent;
+
+	PRIM::var var = (PRIM::var) root;
+	PRIM::func func = (PRIM::func) root;
+
+	if ( var != min::NULL_STUB )
+	    parser->printer
+		<< "found variable ``"
+		<< min::pgen_name ( root->label)
+		<< "'' "
+		<< min::pgen ( var->module )
+		<< " "
+		<< var->location;
+	else if ( func != min::NULL_STUB )
+	{
 	}
+	else MIN_REQUIRE ( ! "don't come here" );
 
 	parser->printer << min::eom;
 	return PAR::PRINTED;

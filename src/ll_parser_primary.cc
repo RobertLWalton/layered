@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 30 00:38:23 EST 2023
+// Date:	Thu Nov 30 01:02:05 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -208,12 +208,12 @@ const min::uns32 & PRIM::FUNC_TERM =
     ::func_term_type.subtype;
 
 PRIM::func_term PRIM::create_func_term
-    ( min::gen func_term_label )
+    ( min::gen func_term_name )
 {
     min::locatable_var<PRIM::func_term> func_term
         ( ::func_term_type.new_stub() );
 
-    PRIM::label_ref(func_term) = func_term_label;
+    PRIM::label_ref(func_term) = func_term_name;
     func_term->selectors = PAR::ALL_SELECTORS;
     func_term->block_level = 0;
     return func_term;
@@ -566,6 +566,7 @@ PRIM::func PRIM::scan_func_prototype
     enum state { BEFORE_FIRST_TERM, AFTER_FIRST_TERM,
                                     AFTER_SECOND_TERM };
     state st = BEFORE_FIRST_TERM;
+    min::locatable_gen term_name ( min::NONE() );
     min::uns32 errors = 0;
     while ( i < s )
     {
@@ -576,23 +577,23 @@ PRIM::func PRIM::scan_func_prototype
 	bool is_bool = false;
         while ( i < s && min::is_obj ( vp[i] ) )
 	{
-	    PRIM::arg_list_struct arg_list;
-	    arg_list.first = func->args->length;
+	    min::uns32 first = func->args->length;
+	    bool is_square;
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
 	    if ( initiator == min::NONE() )
 	        break;  // May be quoted string.
 	    if ( initiator == PARLEX::left_parenthesis )
-	        arg_list.is_square = false;
+	        is_square = false;
 	    else
 	    if ( initiator == PARLEX::left_square )
-	        arg_list.is_square = true;
+	        is_square = true;
 	    else
 	        break;  // May be : paragraph.
 	    if ( st == BEFORE_FIRST_TERM )
 	    {
 		labbuf[j++] =
-		    ( arg_list.is_square ?
+		    ( is_square ?
 		      PRIMLEX::square_brackets :
 		      PRIMLEX::parentheses );
 	    }
@@ -606,12 +607,12 @@ PRIM::func PRIM::scan_func_prototype
 		if (    func->arg_lists->length
 		     == first_arg_list
 		     &&
-		        arg_list.first + 1
+		        first + 1
 		     == func->args->length
 		     &&
 		        min::labfind
 		            ( (   func->args
-			        + arg_list.first )->
+			        + first )->
 			            default_value,
 		     	      bool_values )
 		    >= 0 )
@@ -632,11 +633,13 @@ PRIM::func PRIM::scan_func_prototype
 			( func, alvp[k], alppvec[k],
 			  default_op, parser );
 	    }
-	    arg_list.number_of_args = 
-	        func->args->length - arg_list.first;
-	    if ( arg_list.number_of_args != 1 )
+	    min::uns32 number_of_args = 
+	        func->args->length - first;
+	    if ( number_of_args != 1 )
 	        is_bool = false;
-	    min::push(func->arg_lists) = arg_list;
+	    PRIM::push_arg_list
+	        ( term_name, number_of_args, first,
+		  is_square, func );
 	    ++ i;
 	}
 	min::uns32 number_arg_lists =
@@ -645,14 +648,13 @@ PRIM::func PRIM::scan_func_prototype
 	    is_bool = false;
 
 	min::uns32 term_begin = i;
-	min::locatable_gen term_label
-	    ( PRIM::scan_func_term_name ( vp, i ) );
+	term_name = PRIM::scan_func_term_name ( vp, i );
 
 	if ( st == BEFORE_FIRST_TERM )
 	{
 	    func->number_initial_arg_lists =
 	        number_arg_lists;
-	    if ( term_label == min::NONE() )
+	    if ( term_name == min::NONE() )
 	    {
 	        if ( j < 1 )
 		{
@@ -697,12 +699,12 @@ PRIM::func PRIM::scan_func_prototype
 		func->number_following_arg_lists = 0;
 		return func;
 	    }
-	    else // term_label != NONE
+	    else // term_name != NONE
 	    if ( number_arg_lists == 0 )
-	        PRIM::label_ref(func) = term_label;
+	        PRIM::label_ref(func) = term_name;
 	    else
 	    {
-		min::lab_ptr labp = term_label;
+		min::lab_ptr labp = term_name;
 		if ( labp != min::NULL_STUB )
 		{
 		    min::uns32 len =
@@ -711,7 +713,7 @@ PRIM::func PRIM::scan_func_prototype
 			labbuf[j++] = labp[k++];
 		}
 		else
-		    labbuf[j++] = term_label;
+		    labbuf[j++] = term_name;
 
 		min::locatable_gen label
 		    ( min::new_lab_gen ( labbuf, j ) );
@@ -755,11 +757,11 @@ PRIM::func PRIM::scan_func_prototype
 		    ++ errors;
 		}
 	    }
-	    if ( term_label == min::NONE() )
+	    if ( term_name == min::NONE() )
 	        break;
 
     	    func_term =
-	        PRIM::create_func_term ( term_label );
+	        PRIM::create_func_term ( term_name );
 	    func_term->position = ppvec[term_begin];
 	}
     }
@@ -1236,64 +1238,18 @@ static min::gen primary_pass_command
 		        ( root->label );
 		else // type == PRIMLEX::function
 		{
-		    // Construct first function term
-		    // name in locatable_gen.
-		    //
-		    min::locatable_gen name
-		        ( func->label );
-		    min::uns32 num =
-		        func->number_initial_arg_lists;
-		    if ( num > 0 )
-		    {
-		        min::uns32 lablen =
-			    min::lablen ( name );
-			min::gen label[lablen];
-			min::labncpy
-			    ( label, name, lablen );
-			name = min::new_lab_gen
-			    ( label + num,
-			      lablen - num );
-		    }
-
-		    // Construct labels vector.
-		    // Labels[i] is the function-term-
-		    // name printed before argument list
-		    // func->arg_lists[i].  It is NONE
-		    // if no name is to be printed
-		    // before the argument list.
-		    //
 		    min::uns32 len =
 		        func->arg_lists->length;
-		    min::gen labels[len];
-		    for ( min::uns32 j = 0; j < len;
-		                            ++ j )
-		        labels[j] = min::NONE();
-		    labels[num] = name;
-		    TAB::key_table_iterator it
-		        ( func->term_table );
-		    while ( true )
-		    {
-			TAB::root root = it.next();
-			if ( root == min::NULL_STUB )
-			    break;
-
-			PRIM::func_term term =
-			    (PRIM::func_term) root;
-			MIN_REQUIRE
-			    ( term != min::NULL_STUB );
-			min::uns32 first =
-			    term->first_arg_list;
-			MIN_REQUIRE ( first < len );
-			labels[first] = term->label;
-		    }
-
 		    for ( min::uns32 j = 0; j < len;
 		                            ++ j )
 		    {
-		        if ( labels[j] != min::NONE() )
+		        min::gen term_name =
+			    (& func->arg_lists[j])->
+			        term_name;
+		        if ( term_name != min::NONE() )
 			    parser->printer
 			        << min::pgen_name
-				    ( labels[j] );
+				    ( term_name );
 
 			PRIM::arg_list_struct
 			    arg_list =

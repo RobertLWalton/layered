@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 30 04:21:53 EST 2023
+// Date:	Thu Nov 30 04:47:38 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -990,6 +990,7 @@ CHECK_TYPE:
 		    args[arg_list.first+k] = avp[k];
 		}
 	    }
+	    ++ i;
 	}
 
 
@@ -1000,7 +1001,7 @@ CHECK_TYPE:
 		 + func->number_initial_arg_lists )
 	        goto REJECT;
 	    i = after_first;
-	    jend = j + func->number_initial_arg_lists;
+	    jend = j + func->number_following_arg_lists;
 	    first = false;
 	    continue;
 	}

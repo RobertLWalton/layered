@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 29 23:52:17 EST 2023
+// Date:	Thu Nov 30 00:38:23 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -147,9 +147,14 @@ static min::packed_vec <PRIM::arg_struct>
                 ::arg_gen_disp );
 const min::uns32 & PRIM::ARGS = ::args_type.subtype;
 
+static min::uns32 arg_list_gen_disp[] = {
+    min::DISP ( & PRIM::arg_list_struct::term_name ),
+    min::DISP_END };
+
 static min::packed_vec <PRIM::arg_list_struct>
     arg_lists_type
-        ( "ll::parser::primary::arg_lists_type" );
+        ( "ll::parser::primary::arg_lists_type",
+	  ::arg_list_gen_disp );
 const min::uns32 & PRIM::ARG_LISTS =
     ::arg_lists_type.subtype;
 

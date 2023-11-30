@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 06:02:03 EST 2023
+// Date:	Thu Nov 30 00:20:19 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -145,6 +145,10 @@ struct arg_struct
 struct arg_list_struct
     // Argument list descriptor.
 {
+    min::gen term_name;
+        // Term name to be printed just before argument
+	// list when printing prototype or call,
+	// or min::NONE() if none.
     min::uns32 number_of_args;
     	// Number of arguments in the list.
     min::uns32 first;
@@ -236,6 +240,23 @@ inline void push_arg
         ( func->args, name );
     min::unprotected::acc_write_update
         ( func->args, default_value );
+}
+
+// Push a new argument list description into the
+// arg_lists vector of a func.
+//
+inline void push_arg_list
+    ( min::gen term_name,
+      min::uns32 number_of_args,
+      min::uns32 first,
+      bool is_square,
+      ll::parser::primary::func func )
+{
+    ll::parser::primary::arg_list_struct arg_list =
+        { term_name, number_of_args, first, is_square };
+    min::push(func->arg_lists) = arg_list;
+    min::unprotected::acc_write_update
+        ( func->arg_lists, term_name );
 }
 
 // Prototype Function Term Definition.

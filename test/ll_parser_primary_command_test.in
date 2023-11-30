@@ -34,4 +34,5 @@
     begin block BLOCK1
     define primary function ``(X) "+" (Y)'' [code]
     print primary function ``''
+    test primary ``(A)+(B)'' [code]
     end block BLOCK1

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 30 04:06:07 EST 2023
+// Date:	Thu Nov 30 04:21:53 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -961,11 +961,12 @@ CHECK_TYPE:
 
 	    // Process actual argument list.
 	    //
+	    min::gen sep =
+	        min::get ( vp[i], min::dot_separator );
+		// Get before creating avp.
 	    min::obj_vec_ptr avp = vp[i];
 	    min::uns32 s = min::size_of ( avp );
-	    if (    min::get ( vp[i],
-	                       min::dot_separator )
-		 == min::NONE() )
+	    if ( sep == min::NONE() )
 	    {
 	        if ( s == 0 )
 		{

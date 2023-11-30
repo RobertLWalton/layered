@@ -52,6 +52,18 @@ ERROR: in line ##: no definition found:
     begin block BLOCK1
     define primary function ``(X) "+" (Y)'' [code]
     print primary function ``''
-        block BLOCK1: function ``;;P "+"'' [code]
+        block BLOCK1: function ``(X)"+"(Y)'' [code]
                       with location 0 in module [$ MISSING $]
+    test primary ``(A)+(B)'' [code]
+                   ^^^^^^^
+        (A)"+"(B)
+ERROR: in line ##: no definition found:
+    test primary ``{|A|}+(B)'' [code]
+                 ^^^^^^^^^^^^^
+    test primary ``{|A 1|}+(B)'' [code]
+                   ^^^^^^^^^^^
+        {|A 1|}"+"(B)
+ERROR: in line ##: no definition found:
+    test primary ``(A)+(B)+(C)'' [code]
+                 ^^^^^^^^^^^^^^^
     end block BLOCK1

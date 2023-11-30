@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 30 01:02:05 EST 2023
+// Date:	Thu Nov 30 04:06:07 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1243,17 +1243,15 @@ static min::gen primary_pass_command
 		    for ( min::uns32 j = 0; j < len;
 		                            ++ j )
 		    {
-		        min::gen term_name =
-			    (& func->arg_lists[j])->
-			        term_name;
-		        if ( term_name != min::NONE() )
-			    parser->printer
-			        << min::pgen_name
-				    ( term_name );
-
 			PRIM::arg_list_struct
 			    arg_list =
 				func->arg_lists[j];
+			if (    arg_list.term_name
+			     != min::NONE() )
+			    parser->printer
+			        << min::pgen_name
+				    ( arg_list
+				        .term_name );
 			min::uns32 k =
 			    arg_list.first;
 			min::uns32 kend =
@@ -1579,6 +1577,22 @@ static min::gen primary_pass_command
 		<< var->location;
 	else if ( func != min::NULL_STUB )
 	{
+	    min::uns32 len = func->arg_lists->length;
+	    for ( min::uns32 j = 0; j < len; ++ j )
+	    {
+		PRIM::arg_list_struct arg_list =
+			func->arg_lists[j];
+		if ( arg_list.term_name != min::NONE() )
+		    parser->printer
+			<< min::pgen_name
+			    ( arg_list.term_name );
+		min::uns32 k = arg_list.first;
+		min::uns32 kend =
+		    k + arg_list.number_of_args;
+		for ( ; k < kend; ++ k )
+		    parser->printer << min::pgen
+		        ( argument_vector[k] );
+	    }
 	}
 	else MIN_REQUIRE ( ! "don't come here" );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 29 07:22:02 EST 2023
+// Date:	Wed Nov 29 23:52:17 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1231,66 +1231,99 @@ static min::gen primary_pass_command
 		        ( root->label );
 		else // type == PRIMLEX::function
 		{
-		    min::uns32 j = 0;
-		    min::uns32 jend =
+		    // Construct first function term
+		    // name in locatable_gen.
+		    //
+		    min::locatable_gen name
+		        ( func->label );
+		    min::uns32 num =
 		        func->number_initial_arg_lists;
-		    bool initial = true;
+		    if ( num > 0 )
+		    {
+		        min::uns32 lablen =
+			    min::lablen ( name );
+			min::gen label[lablen];
+			min::labncpy
+			    ( label, name, lablen );
+			name = min::new_lab_gen
+			    ( label + num,
+			      lablen - num );
+		    }
+
+		    // Construct labels vector.
+		    // Labels[i] is the function-term-
+		    // name printed before argument list
+		    // func->arg_lists[i].  It is NONE
+		    // if no name is to be printed
+		    // before the argument list.
+		    //
+		    min::uns32 len =
+		        func->arg_lists->length;
+		    min::gen labels[len];
+		    for ( min::uns32 j = 0; j < len;
+		                            ++ j )
+		        labels[j] = min::NONE();
+		    labels[num] = name;
+		    TAB::key_table_iterator it
+		        ( func->term_table );
 		    while ( true )
 		    {
-		        // Print arg lists.
-			//
-			for ( ; j < jend; ++ j )
-			{
-			    PRIM::arg_list_struct
-			        arg_list =
-				    func->arg_lists[j];
-			    min::uns32 k =
-			        arg_list.first;
-			    min::uns32 kend =
-			        k + arg_list
-				      .number_of_args;
-			    parser->printer <<
-			        ( arg_list.is_square ?
-				  "[" : "(" );
-			    for ( ; k < kend; ++ k )
-			    {
-			        PRIM::arg_struct arg =
-				    func->args[k];
-				parser->printer
-				    << min::pgen_name
-				        ( arg.name );
-				min::gen dv =
-				    arg.default_value;
-				min::gen dop =
-				    PRIM::
-				      func_default_op;
-				if ( dv != min::NONE() )
-				    parser->printer
-				        << " " << dop
-					<< " " << dv;
-				if ( k + 1 < kend )
-				    parser->printer
-				        << ", ";
-			    }
-			    parser->printer <<
-			        ( arg_list.is_square ?
-				  "]" : ")" );
-			}
+			TAB::root root = it.next();
+			if ( root == min::NULL_STUB )
+			    break;
 
-			// Print next function term.
-			//
-			if ( initial )
-			{
-			    initial = false;
-			    parser->printer // TBD
+			PRIM::func_term term =
+			    (PRIM::func_term) root;
+			MIN_REQUIRE
+			    ( term != min::NULL_STUB );
+			min::uns32 first =
+			    term->first_arg_list;
+			MIN_REQUIRE ( first < len );
+			labels[first] = term->label;
+		    }
+
+		    for ( min::uns32 j = 0; j < len;
+		                            ++ j )
+		    {
+		        if ( labels[j] != min::NONE() )
+			    parser->printer
 			        << min::pgen_name
-				    ( root->label );
-			    j = jend;
-			    jend = j + func->
-			     number_following_arg_lists;
+				    ( labels[j] );
+
+			PRIM::arg_list_struct
+			    arg_list =
+				func->arg_lists[j];
+			min::uns32 k =
+			    arg_list.first;
+			min::uns32 kend =
+			    k + arg_list
+				  .number_of_args;
+			parser->printer <<
+			    ( arg_list.is_square ?
+			      "[" : "(" );
+			for ( ; k < kend; ++ k )
+			{
+			    PRIM::arg_struct arg =
+				func->args[k];
+			    parser->printer
+				<< min::pgen_name
+				    ( arg.name );
+			    min::gen dv =
+				arg.default_value;
+			    min::gen dop =
+				PRIM::
+				  func_default_op;
+			    if ( dv != min::NONE() )
+				parser->printer
+				    << " " << dop
+				    << " " << dv;
+			    if ( k + 1 < kend )
+				parser->printer
+				    << ", ";
 			}
-			else
-			    break;  // TBD
+			parser->printer <<
+			    ( arg_list.is_square ?
+			      "]" : ")" );
 		    }
 		}
 

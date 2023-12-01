@@ -2942,6 +2942,30 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED PARSER FOUND [code] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+=== PURELIST EXPRESSION: line ###:
+{|"STRING"|}
+^^^^^^^^^^^^
+    {|"STRING"|}
+!@@@@ := @@@@:
+             .position[H] = PACKED_VEC
+!@@@@ := STRING:
+             .type = "<Q>"
+=== BRACKETED EXPRESSION: line ###:
+{|"STRING"|}
+^^^^^^^^^^^^
+    "STRING"
+!@@@@ := @@@@:
+             .terminator = "<LF>"
+             .initiator = [$ LOGICAL_LINE $]
+             .position[H] = PACKED_VEC
+BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
+     OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [data] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 BRACKETED PARSER FOUND [data] SELECTED KEY "="

@@ -4412,14 +4412,37 @@ The bracketed subexpression recognition pass recognizes:
     \itemref{QUOTED-STRING-CONCATENATION}
 \end{indpar}
 
-The bracketed pass replaces purelists whose only element is a
-bracketed expression by that element.  For example, if \TT{(\ldots)} and
-\TT{[\ldots]} are brackets, then
-\begin{center}
+When a bracketed subexpression has a single element that is also
+a bracketed expression, the bracketed expression parser merges
+the two bracketed subexpressions in the following cases:
+\begin{itemize}
+\item The outer subexpression has no attributes (it is a \key{purelist}).
+\item The outer subexpression has only \TT{.initiator}, \TT{.terminator},
+or \TT{.type} attributes and the inner subexpression does not have any
+of these.  (Note that this applies when the outer subexpression is a
+logical line and the inner subexpression is a purelist.)
+\end{itemize}
+
+For example, if we assume that \TT{(\ldots)} and \TT{[\ldots]} are brackets
+and \TT{\{|\ldots|\}} are purelist brackets, then
+\begin{center}\label{EXAMPLE-PURELIST-MERGE}
+\tt
 \begin{tabular}{rcl}
-\TT{\{|(X)|\}} & is replaced by & \TT{(X)} \\
-\TT{\{|[X]|\}} & is replaced by & \TT{[X]} \\
-\TT{\{|\{|X|\}|\}} & is replaced by & \TT{\{|X|\}} \\
+\{|(X)|\} & \rm is replaced by  & (X) \\
+\{|[X]|\} & \rm is replaced by  & [X] \\
+\{|\{|X|\}|\} & \rm is replaced by  & \{|X|\} \\
+\end{tabular}
+\end{center}
+and (see example on \pagref{EXAMPLE-BRACKETABLE-MERGE})
+\begin{center}
+\tt
+(~\{"":~.separator = ","|X Y Z|\}~) \\
+{\rm is replaced by}  \\
+\begin{tabular}{ll}
+(\{"": & .separator = ",", \\
+           & .initiator = "(", \\
+           & .terminator = ")"| \\
+           & X Y Z|\}
 \end{tabular}
 \end{center}
 
@@ -4774,7 +4797,7 @@ of X and the \TT{BRACKETABLE} or \TT{PURELIST} type of Y permit the two objects
 to be merged.%
 \label{MERGING-BRACKETABLE-TOKENS}
 
-Consider the example:
+Consider the example:\label{EXAMPLE-BRACKETABLE-MERGE}
 \begin{center}
 \tt ( x, y 5, 8, w, p )
 \end{center}
@@ -4804,6 +4827,12 @@ and the above rule merges the attributes into Y to get
       \end{tabular}
 \end{center}
 as the \TT{value} of a \TT{BRACKETED} token.
+
+Similarly if purelist X has just one element that is a BRACKETED,
+BRACKETABLE, or PURE\-LIST token Y, X is replace by Y
+(see example on \pagref{EXAMPLE-PURELIST-MERGE}).  Note that this does
+\underline{not} apply when the token Y is a quoted string, even though
+when X is made Y will be converted to a MIN object.
 
 In the process of forming a MIN object, some tokens must be converted to
 object elements.  The MIN values of these tokens become the object elements,

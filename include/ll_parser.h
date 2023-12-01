@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  6 08:57:36 EST 2023
+// Date:	Fri Dec  1 01:34:09 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1522,13 +1522,10 @@ typedef bool ( * reformatter_function )
     // calls compact with a BRACKETING parameter and
     // .initiator and .terminator attributes.  The
     // operator pass calls compact to enclose the sub-
-    // expression in a new PURELIST, unless the sub-
-    // expression consists of a single BRACKETED,
-    // BRACKTABLE, or PURELIST token, in which case
-    // compact is not called and nothing is done to the
-    // single token.  In all cases parser, pass->next,
-    // selectors, first, next, position, and trace_flags
-    // are passed to the `compact' function.
+    // expression in a new PURELIST.  In all cases
+    // parser, pass->next, selectors, first, next,
+    // position, and trace_flags are passed to the
+    // `compact' function.
     //
     // For the bracketed pass, the list of tokens passed
     // to the reformatted does NOT include the brackets,
@@ -1979,9 +1976,9 @@ bool set_attr_multivalue
 // token from the given argument.  The resulting
 // expression token is in first == next->previous.  Its
 // type is nominally given in the type argument, which
-// should be either BRACKETED, or BRACKETABLE.  However,
-// as special cases, the type argument can also be
-// BRACKETING or PURELIST: see below.
+// should be BRACKETED, BRACKETABLE, or PURELIST.
+// However, as special cases, the type argument can also
+// be BRACKETING: see below.
 //
 // If the type argument is BRACKETABLE, the m attributes
 // MUST NOT include any .type, .initiator, or .termina-
@@ -1998,19 +1995,19 @@ bool set_attr_multivalue
 // Natural number and quoted string tokens in the
 // expression are converted as per convert_token.
 //
-// If after invoking the given pass and applying
-// convert_token, there is only one element, m == 0,
-// and the type argument is NOT PURELIST, the position
-// of the token is set to the position argument and the
-// token is returned as is, without making an expression
-// containing it.
+// If after invoking the given pass m == 0 and there is
+// only one element of BRACKETED, BRACKETABLE, or
+// PURELIST type, the position of the token is set to
+// the position argument and the token is returned as
+// is, without making an expression containing it.
 //
 // Otherwise a new object is created with space for the
 // one element per expression token, the m attributes,
 // one .position attribute, and n attributes to be added
 // later.  The .position of the new object is set from
 // the position argument and the positions of its
-// element tokens.
+// element tokens.  Convert_token is applied to any
+// elements that satisfy LEXSTD::must_convert.
 //
 // The type of the resulting expression is set to
 // PURELIST if m == 0, BRACKETED if the type argument is

@@ -57,9 +57,9 @@ ERROR: in line ##: no definition found:
     test primary ``(A)+(B)'' [code]
                    ^^^^^^^
         (A)"+"(B)
-ERROR: in line ##: no definition found:
     test primary ``{|A|}+(B)'' [code]
-                 ^^^^^^^^^^^^^
+                   ^^^^^^^^^
+        {|A|}"+"(B)
     test primary ``{|A 1|}+(B)'' [code]
                    ^^^^^^^^^^^
         {|A 1|}"+"(B)

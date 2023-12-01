@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  2 04:56:10 EDT 2023
+// Date:	Fri Dec  1 01:29:57 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -649,15 +649,6 @@ void compact_expression ( PAR::parser parser,
 	         trace_flags,
 	         (TAB::root) oper )
        )
-	return;
-
-    if ( first->next == next
-         &&
-         ( first->type == PAR::BRACKETED
-           ||
-           first->type == PAR::BRACKETABLE
-           ||
-           first->type == PAR::PURELIST ) )
 	return;
 
     PAR::compact

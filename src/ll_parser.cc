@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 20:37:43 EST 2023
+// Date:	Fri Dec  1 01:48:20 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2471,11 +2471,14 @@ void PAR::compact
     PAR::execute_pass_parse
 	 ( parser, pass, selectors, first, next );
 
-    if ( first->next == next && m == 0
-                             && type != PAR::PURELIST )
+    if (    first->next == next
+         && m == 0
+	 && ( first->type == PAR::PURELIST
+	      ||
+	      first->type == PAR::BRACKETED
+	      ||
+	      first->type == PAR::BRACKETABLE ) )
     {
-	if ( LEXSTD::must_convert ( first->type ) )
-	    PAR::convert_token ( first );
         first->position = position;
     }
     else if ( first->next == next
@@ -2506,6 +2509,9 @@ void PAR::compact
     {
 	if ( m == 0 )
 	    type = PAR::PURELIST;
+	else if ( type == PAR::PURELIST )
+	    MIN_REQUIRE ( ! "attempt to make a PURELIST"
+	                    " with attributes" );
         else if ( type == PAR::BRACKETING )
 	    type = PAR::BRACKETED;
 

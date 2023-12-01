@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 00:42:29 EST 2023
+// Date:	Fri Dec  1 05:46:09 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -640,6 +640,7 @@ PRIM::func PRIM::scan_func_prototype
 	    PRIM::push_arg_list
 	        ( term_name, number_of_args, first,
 		  is_square, func );
+	    term_name = min::NONE();
 	    ++ i;
 	}
 	min::uns32 number_arg_lists =

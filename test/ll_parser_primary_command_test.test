@@ -70,3 +70,26 @@ ERROR: in line ##: no definition found:
     test primary ``(A)+'' [code]
                  ^^^^^^^^
     end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+    define primary function ``F (X) ({|Y|}?={|Z|})'' [code]
+    print primary function ``''
+        block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
+                      with location 0 in module [$ MISSING $]
+    test primary ``F (A) (B)'' [code]
+                   ^^^^^^^^^
+        F(A)(B)
+    test primary ``F (A)'' [code]
+                   ^^^^^
+        F(A){|Z|}
+ERROR: in line ##: no definition found:
+    test primary ``F'' [code]
+                 ^^^^^
+    end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+    define primary function ``F (X) G ({|Y|}?={|Q|}) H (Z)'' [code]
+    print primary function ``''
+        block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
+                      with location 0 in module [$ MISSING $]
+    end block BLOCK1

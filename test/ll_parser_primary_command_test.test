@@ -66,4 +66,7 @@ ERROR: in line ##: no definition found:
 ERROR: in line ##: no definition found:
     test primary ``(A)+(B)+(C)'' [code]
                  ^^^^^^^^^^^^^^^
+ERROR: in line ##: no definition found:
+    test primary ``(A)+'' [code]
+                 ^^^^^^^^
     end block BLOCK1

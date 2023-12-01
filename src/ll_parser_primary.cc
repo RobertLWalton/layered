@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 30 04:47:38 EST 2023
+// Date:	Fri Dec  1 00:42:29 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -929,6 +929,12 @@ CHECK_TYPE:
 	{
 	    PRIM::arg_list_struct arg_list =
 	        func->arg_lists[j];
+	    if ( i >= iend )
+	    {
+	        if ( arg_list.is_square )
+		    goto REJECT;
+		continue;
+	    }
 	    min::gen initiator =
 		min::get ( vp[i], min::dot_initiator );
 

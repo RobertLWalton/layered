@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 05:47:57 EST 2023
+// Date:	Fri Dec  1 12:36:29 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -54,8 +54,8 @@
     begin block BLOCK1
     define primary function ``F (X) G ({|Y|}?={|Q|}) H (Z)'' [code]
     print primary function ``''
-    // test primary ``F (A) G (B) H ( C )'' [code]
-    // test primary ``F (A) H (B) G ( C )'' [code]
-    // test primary ``F (A) H (B)'' [code]
-    // test primary ``F (A) G (B)'' [code]
+    test primary ``F (A) G (B) H ( C )'' [code]
+    test primary ``F (A) H (B) G ( C )'' [code]
+    test primary ``F (A) H (B)'' [code]
+    test primary ``F (A) G (B)'' [code]
     end block BLOCK1

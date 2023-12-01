@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 05:46:09 EST 2023
+// Date:	Fri Dec  1 12:36:12 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -725,8 +725,11 @@ PRIM::func PRIM::scan_func_prototype
 	else
 	{
 	    if ( st == AFTER_FIRST_TERM )
+	    {
 		func->number_following_arg_lists =
 		    number_arg_lists;
+		st = AFTER_SECOND_TERM;
+	    }
 	    else
 	    {
 		// st == AFTER_SECOND_TERM

@@ -92,4 +92,16 @@ ERROR: in line ##: no definition found:
     print primary function ``''
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
                       with location 0 in module [$ MISSING $]
+    test primary ``F (A) G (B) H ( C )'' [code]
+                   ^^^^^^^^^^^^^^^^^^^
+        F(A)G(B)H(C)
+    test primary ``F (A) H (B) G ( C )'' [code]
+                   ^^^^^^^^^^^^^^^^^^^
+        F(A)G(C)H(B)
+    test primary ``F (A) H (B)'' [code]
+                   ^^^^^^^^^^^
+        F(A)G{|Q|}H(B)
+ERROR: in line ##: no definition found:
+    test primary ``F (A) G (B)'' [code]
+                 ^^^^^^^^^^^^^^^
     end block BLOCK1

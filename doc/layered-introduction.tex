@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 10, 2023
+December 1, 2023
  
 \end{center}
 
@@ -2115,7 +2115,9 @@ indentation mark is the file beginning and which ends at the file end.
 such as `\TT{(}' and `\TT{)}'.
 
 \item Typed bracketed subexpressions bounded by typed brackets
-such as `\TT{\{b|}' and `\TT{|b\}}'.
+such as `\TT{\{b|}' and `\TT{|b\}}'.  These also include typeless
+bracketed subexpressions (purelists) bounded by
+`\TT{\{|}' and `\TT{|\}}'.
 
 \item Typed separated subexpressions that are introduced by 
 `typed prefix separators' such as `\TT{\{s\}}'.
@@ -4371,7 +4373,9 @@ The bracketed subexpression recognition pass recognizes:
 \\[0.5ex]
 \hspace*{-0.2in}typed brackets (e.g.~`\TT{\{b|}' and `\TT{|b\}}')
     and typed bracketed subexpressions, which must be inside logical lines:
-    \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}
+    \itemref{TYPED-BRACKETED-SUBEXPRESSIONS}.  These also included typeless
+    bracketed subexpressions (purelists) bounded by
+    `\TT{\{|}' and `\TT{|\}}'.
 \\[0.5ex]
 \hspace*{-0.2in}typed prefix separators (e.g.~`\TT{\{p\}}')
     and prefix lists that are lists of subexpressions between
@@ -4407,6 +4411,17 @@ The bracketed subexpression recognition pass recognizes:
     whose parts need to be merged together:
     \itemref{QUOTED-STRING-CONCATENATION}
 \end{indpar}
+
+The bracketed pass replaces purelists whose only element is a
+bracketed expression by that element.  For example, if \TT{(\ldots)} and
+\TT{[\ldots]} are brackets, then
+\begin{center}
+\begin{tabular}{rcl}
+\TT{\{|(X)|\}} & is replaced by & \TT{(X)} \\
+\TT{\{|[X]|\}} & is replaced by & \TT{[X]} \\
+\TT{\{|\{|X|\}|\}} & is replaced by & \TT{\{|X|\}} \\
+\end{tabular}
+\end{center}
 
 The bracketed parser pass has three symbol tables:
 \begin{indpar}[0.3in]

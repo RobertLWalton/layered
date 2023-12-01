@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 10 13:17:31 EST 2023
+// Date:	Fri Dec  1 02:24:43 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -128,6 +128,11 @@ And one more {t| |b["A", 201,202, [5]]: t}
 {T: m = 1||n = 2||}
 {| |}
 {||}
+{|{||}|}
+{|{|X|}|}
+{|(X)|}
+{|[X]|}
+{|{{X}}|}
 {T: m = 1 || n = 2: T }
 {m = 1}
 {: m = 1, n = 2}

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 00:11:17 EST 2023
+// Date:	Sat Dec  2 01:31:13 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -618,7 +618,7 @@ PRIM::func PRIM::scan_func_prototype
 		    >= 0 )
 		    is_bool = true;
 	    }
-	    else
+	    else // sep != NONE
 	    {
 		min::phrase_position_vec alppvec =
 		    min::get
@@ -629,12 +629,39 @@ PRIM::func PRIM::scan_func_prototype
 	        min::uns32 alsize =
 		    min::size_of ( alvp );
 
-		for ( min::uns32 k = 0; k < alsize;
-		                        ++ k )
+		for ( min::uns32 k = 0;
+		      k < alsize; ++ k )
 		    errors += ::process_arg
 			( func, alvp[k], alppvec[k],
 			  default_op, parser );
+
+		bool default_found = false;
+		for ( min::uns32 k = 0;
+		      k < alsize; ++ k )
+		{
+		    PRIM::arg_struct arg =
+		        func->args[first+k];
+		    if (    arg.default_value
+		         == min::NONE() )
+		    {
+		        if ( default_found )
+			{
+			    PAR::parse_error
+			        ( parser,
+				  alppvec[k],
+				  "argment with NO"
+				  " default found"
+				  " AFTER argument with"
+				  " default" );
+			    ++ errors;
+			    break;
+			}
+		    }
+		    else
+		        default_found = true;
+		}
 	    }
+
 	    min::uns32 number_of_args = 
 	        func->args->length - first;
 	    if ( number_of_args != 1 )

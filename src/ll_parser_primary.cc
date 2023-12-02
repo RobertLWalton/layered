@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 05:37:12 EST 2023
+// Date:	Sat Dec  2 06:34:13 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -950,6 +950,8 @@ CHECK_TYPE:
     i = original_i;
     min::uns32 iend = min::size_of ( vp );
     bool first = true;
+    min::gen negator = min::NONE();
+    bool is_bool = false;
     min::uns32 j = 0;
     min::uns32 jend =
         j + func->number_initial_arg_lists;
@@ -958,10 +960,13 @@ CHECK_TYPE:
         args[k] = min::NONE();
     while ( true )
     {
+        bool arg_list_found = true;
+	PRIM::arg_list_struct arg_list;
+	    // For an is_bool term this will be the
+	    // one and only arg_list;
         for ( ; j < jend; ++ j )
 	{
-	    PRIM::arg_list_struct arg_list =
-	        func->arg_lists[j];
+	    arg_list = func->arg_lists[j];
 	    if ( i >= iend )
 	    {
 	        if ( arg_list.is_square )
@@ -1000,6 +1005,7 @@ CHECK_TYPE:
 
 	    // Process actual argument list.
 	    //
+	    arg_list_found = true;
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );
 		// Get before creating avp.
@@ -1032,6 +1038,18 @@ CHECK_TYPE:
 	    ++ i;
 	}
 
+	if ( is_bool && ! arg_list_found )
+	{
+	    min::lab_ptr labp = negators;
+	    MIN_REQUIRE ( min::lablen ( labp ) == 2 );
+	    args[arg_list.first] =
+	        ( negator != min::NONE() ?
+		  labp[1] : labp[0] );
+	}
+	else if ( negator != min::NONE() )
+	{
+	    goto REJECT; // TBD
+	}
 
 	if ( first )
 	{
@@ -1047,6 +1065,13 @@ CHECK_TYPE:
 
 	if ( i >= iend ) break;
 
+	if ( min::labfind ( vp[i], negators ) >= 0 )
+	{
+	    negator = vp[i++];
+	    if ( i >= iend )
+		goto REJECT; // TBD
+	}
+
     	TAB::key_prefix kp = ::find_key_prefix
 		      ( vp, i, func->term_table,
 		        inside_quotes_types );
@@ -1057,6 +1082,9 @@ CHECK_TYPE:
 	PRIM::func_term func_term =
 	    (PRIM::func_term) kp->first;
 	MIN_REQUIRE ( func_term != min::NULL_STUB );
+	is_bool = func_term->is_bool;
+	if ( negator != min::NONE() && ! is_bool )
+	    goto REJECT; // TBD
 
 	j = func_term->first_arg_list;
 	jend = j + func_term->number_arg_lists;

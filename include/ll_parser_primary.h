@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 30 00:20:19 EST 2023
+// Date:	Sat Dec  2 05:38:05 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -447,6 +447,19 @@ min::gen scan_func_label
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser );
 
+extern min::locatable_gen func_default_op;
+    // Operator separating variable name from default
+    // value.  Defaults to `?='.
+extern min::locatable_gen func_bool_values;
+    // MIN label listing boolean values.  The first
+    // is the false value and the second is the
+    // true value.   Defaults to [< FALSE TRUE >].
+extern min::locatable_gen func_negators;
+    // MIN label listing function call negators.
+    // Defaults to [< no NO not NOT >].
+extern min::uns32 func_term_table_size;
+    // Size of func term_table.  Defaults to 16.
+
 // Scan function prototype and store results in a func
 // which is returned.  Specifically vp is scanned
 // beginning with vp[i] and i is incremented during the
@@ -473,10 +486,6 @@ min::gen scan_func_label
 // ending as indicated above.  If a defective prototype
 // is found, parse_error is called one or more times,
 // and NULL_STUB is returned (i is then undefined).
-
-extern min::locatable_gen func_default_op;
-extern min::locatable_gen func_bool_values;
-extern min::uns32 func_term_table_size;
 
 ll::parser::primary::func scan_func_prototype
     ( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -529,7 +538,6 @@ ll::parser::primary::func scan_func_prototype
 //
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;
-extern min::uns64 ref_inside_quotes_types;
 bool scan_ref
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       ll::parser::parser parser,
@@ -538,9 +546,10 @@ bool scan_ref
       ll::parser::table::key_prefix & key_prefix,
       min::ref<argument_vector> argument_vector,
       ll::parser::table::key_table primary_table,
+      min::gen bool_values = func_bool_values,
+      min::gen negators = func_negators,
       min::uns64 inside_quotes_types =
-          ll::parser::primary
-	            ::ref_inside_quotes_types );
+	  func_term_inside_quotes_types );
 
 } } }
 

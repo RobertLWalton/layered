@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 01:31:13 EST 2023
+// Date:	Sat Dec  2 05:37:12 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,8 @@ static void initialize ( void )
     PRIM::func_default_op = min::new_str_gen ( "?=" );
     PRIM::func_bool_values =
         min::new_lab_gen ( "TRUE", "FALSE" );
+    PRIM::func_negators =
+        min::new_lab_gen ( "no", "NO", "not", "NOT" );
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -460,11 +462,12 @@ min::gen PRIM::scan_func_label
     else return min::new_lab_gen ( labbuf, j );
 }
 
-min::locatable_gen PRIM::func_default_op;  // ?=
-min::locatable_gen PRIM::func_bool_values; // TRUE,
-    // See initialize function.            //   FALSE
+min::locatable_gen PRIM::func_default_op;
+min::locatable_gen PRIM::func_bool_values;
+min::locatable_gen PRIM::func_negators;
+    // See initialize function.
 
-min::uns32 PRIM::func_term_table_size = 32;
+min::uns32 PRIM::func_term_table_size = 16;
 
 inline min::uns32 process_arg
     ( PRIM::func func, min::gen arg,
@@ -883,11 +886,6 @@ static TAB::key_prefix find_key_prefix
     return previous;
 }
 
-min::uns64 PRIM::ref_inside_quotes_types =
-      (1ull << LEXSTD::mark_t)
-    + (1ull << LEXSTD::separator_t);
-
-
 bool PRIM::scan_ref
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       PAR::parser parser,
@@ -896,6 +894,8 @@ bool PRIM::scan_ref
       TAB::key_prefix & key_prefix,
       min::ref<argument_vector> argument_vector,
       TAB::key_table primary_table,
+      min::gen bool_values,
+      min::gen negators,
       min::uns64 inside_quotes_types )
 {
     min::uns32 original_i = i;

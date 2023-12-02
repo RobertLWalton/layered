@@ -121,3 +121,10 @@ ERROR: in lines ##-##: no definition found:
                .terminator = ")"|{|B1|} {|B2|}|}''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+ERROR: in line ###: argment with NO default found AFTER argument with
+       default:
+               {|Z1|} {|{|Z2|} ?= {|D2|}|} {|Z3|}|}''
+                                           ^^^^^^
+    end block BLOCK1

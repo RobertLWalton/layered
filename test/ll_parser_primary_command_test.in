@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 00:20:36 EST 2023
+// Date:	Sat Dec  2 01:59:56 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -92,4 +92,17 @@
 	       .initiator = "(",
 	       .terminator = ")"|{|B1|} {|B2|}|}''
 	  [code]
+    end block BLOCK1
+
+*PARSER*:
+    begin block BLOCK1
+    define primary function
+       ``{"": .separator = ",",
+	      .initiator = "(",
+	      .terminator = ")"|{|X1|} {|X2|}|} F
+	 {"": .separator = ",",
+	      .initiator = "(",
+	      .terminator = ")"|
+	       {|Z1|} {|{|Z2|} ?= {|D2|}|} {|Z3|}|}''
+	 [code]
     end block BLOCK1

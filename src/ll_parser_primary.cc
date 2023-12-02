@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 12:36:12 EST 2023
+// Date:	Sat Dec  2 00:11:17 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -620,12 +620,14 @@ PRIM::func PRIM::scan_func_prototype
 	    }
 	    else
 	    {
-		min::obj_vec_ptr alvp = vp[i];
-	        min::uns32 alsize =
-		    min::size_of ( alvp );
 		min::phrase_position_vec alppvec =
 		    min::get
 		        ( vp[i], min::dot_position );
+			// Get must be before making
+			// alvp.
+		min::obj_vec_ptr alvp = vp[i];
+	        min::uns32 alsize =
+		    min::size_of ( alvp );
 
 		for ( min::uns32 k = 0; k < alsize;
 		                        ++ k )
@@ -1552,7 +1554,6 @@ static min::gen primary_pass_command
 		( parser, nppvec->position,
 		  "expression empty" );
 
-	min::phrase_position pos = nppvec[ni];
 	if ( ! PRIM::scan_ref
 		   ( nvp, ni, parser, selectors,
 		     root, key_prefix,
@@ -1561,34 +1562,42 @@ static min::gen primary_pass_command
 	    return PAR::parse_error
 		( parser, nppvec->position,
 		  "no definition found" );
-	pos.end = (& nppvec[ni-1])->end;
-	min::print_phrase_lines
-	    ( parser->printer,
-	      parser->input_file,
-	      pos );
 
         min::uns32 indent = min::print_line_column
 	    ( ppvec->file, ppvec->position.begin,
 	      parser->printer->print_format,
 	      min::standard_line_format );
 	parser->printer
-	    << min::bom
+	    << min::bom << min::set_indent ( indent )
+	    << min::indent
 	    << min::set_indent ( indent + 4 )
-	    << min::indent;
+	    << "test primary: ";
+	for ( min::uns32 j = 0; j < nsize; ++ j )
+	    parser->printer
+	        << min::space_if_after_indent
+		<< min::pgen ( nvp[j] );
+	parser->printer
+	    << min::set_indent ( indent );
 
 	PRIM::var var = (PRIM::var) root;
 	PRIM::func func = (PRIM::func) root;
 
 	if ( var != min::NULL_STUB )
 	    parser->printer
-		<< "found variable ``"
+		<< min::indent
+		<< min::set_indent ( indent + 4 )
+		<< "found variable: "
 		<< min::pgen_name ( root->label)
-		<< "'' "
+		<< " ===> "
 		<< min::pgen ( var->module )
 		<< " "
 		<< var->location;
 	else if ( func != min::NULL_STUB )
 	{
+	    parser->printer
+		<< min::indent
+		<< min::set_indent ( indent + 4 )
+		<< "found function: ";
 	    min::uns32 len = func->arg_lists->length;
 	    for ( min::uns32 j = 0; j < len; ++ j )
 	    {
@@ -1596,15 +1605,23 @@ static min::gen primary_pass_command
 			func->arg_lists[j];
 		if ( arg_list.term_name != min::NONE() )
 		    parser->printer
+		        << min::space_if_after_indent
 			<< min::pgen_name
 			    ( arg_list.term_name );
 		min::uns32 k = arg_list.first;
 		min::uns32 kend =
 		    k + arg_list.number_of_args;
 		for ( ; k < kend; ++ k )
-		    parser->printer << min::pgen
-		        ( argument_vector[k] );
+		    parser->printer
+		        << min::space_if_after_indent
+		        << min::pgen
+			       ( argument_vector[k] );
 	    }
+	    parser->printer
+		<< " ===> "
+		<< min::pgen ( func->module )
+		<< " "
+		<< func->location;
 	}
 	else MIN_REQUIRE ( ! "don't come here" );
 

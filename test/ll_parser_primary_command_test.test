@@ -20,23 +20,19 @@
     print primary variable ``''
         block BLOCK1: variable ``X Y 1'' [code]
                       with location 100 in module M
-    test primary ``X Y 1'' [code]
-                   ^^^^^
-        found variable ``X Y 1'' M 100
-    test primary ``X Y 1 FOO'' [code]
-                   ^^^^^
-        found variable ``X Y 1'' M 100
+    test primary:  X Y 1
+    found variable: X Y 1 ===> M 100
+    test primary:  X Y 1 FOO
+    found variable: X Y 1 ===> M 100
 ERROR: in line ##: no definition found:
     test primary ``X Y'' [code]
                  ^^^^^^^
     define primary variable ``X Y'' [code]
            with module M with location 200
-    test primary ``X Y 1 FOO'' [code]
-                   ^^^^^
-        found variable ``X Y 1'' M 100
-    test primary ``X Y'' [code]
-                   ^^^
-        found variable ``X Y'' M 200
+    test primary:  X Y 1 FOO
+    found variable: X Y 1 ===> M 100
+    test primary:  X Y
+    found variable: X Y ===> M 200
 ERROR: in line ##: no definition found:
     test primary ``X'' [code]
                  ^^^^^
@@ -54,15 +50,12 @@ ERROR: in line ##: no definition found:
     print primary function ``''
         block BLOCK1: function ``(X)"+"(Y)'' [code]
                       with location 0 in module [$ MISSING $]
-    test primary ``(A)+(B)'' [code]
-                   ^^^^^^^
-        (A)"+"(B)
-    test primary ``{|A|}+(B)'' [code]
-                   ^^^^^^^^^
-        {|A|}"+"(B)
-    test primary ``{|A 1|}+(B)'' [code]
-                   ^^^^^^^^^^^
-        {|A 1|}"+"(B)
+    test primary:  (A) + (B)
+    found function:  (A) "+" (B) ===> [$ MISSING $] 0
+    test primary:  {|A|} + (B)
+    found function:  {|A|} "+" (B) ===> [$ MISSING $] 0
+    test primary:  {|A 1|} + (B)
+    found function:  {|A 1|} "+" (B) ===> [$ MISSING $] 0
 ERROR: in line ##: no definition found:
     test primary ``(A)+(B)+(C)'' [code]
                  ^^^^^^^^^^^^^^^
@@ -76,12 +69,10 @@ ERROR: in line ##: no definition found:
     print primary function ``''
         block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
                       with location 0 in module [$ MISSING $]
-    test primary ``F (A) (B)'' [code]
-                   ^^^^^^^^^
-        F(A)(B)
-    test primary ``F (A)'' [code]
-                   ^^^^^
-        F(A){|Z|}
+    test primary:  F (A) (B)
+    found function:  F (A) (B) ===> [$ MISSING $] 0
+    test primary:  F (A)
+    found function:  F (A) {|Z|} ===> [$ MISSING $] 0
 ERROR: in line ##: no definition found:
     test primary ``F'' [code]
                  ^^^^^
@@ -92,16 +83,41 @@ ERROR: in line ##: no definition found:
     print primary function ``''
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
                       with location 0 in module [$ MISSING $]
-    test primary ``F (A) G (B) H ( C )'' [code]
-                   ^^^^^^^^^^^^^^^^^^^
-        F(A)G(B)H(C)
-    test primary ``F (A) H (B) G ( C )'' [code]
-                   ^^^^^^^^^^^^^^^^^^^
-        F(A)G(C)H(B)
-    test primary ``F (A) H (B)'' [code]
-                   ^^^^^^^^^^^
-        F(A)G{|Q|}H(B)
+    test primary:  F (A) G (B) H (C)
+    found function:  F (A) G (B) H (C) ===> [$ MISSING $] 0
+    test primary:  F (A) H (B) G (C)
+    found function:  F (A) G (C) H (B) ===> [$ MISSING $] 0
+    test primary:  F (A) H (B)
+    found function:  F (A) G {|Q|} H (B) ===> [$ MISSING $] 0
 ERROR: in line ##: no definition found:
     test primary ``F (A) G (B)'' [code]
                  ^^^^^^^^^^^^^^^
+    end block BLOCK1
+*PARSER*:
+    begin block BLOCK1
+    define primary function
+       ``{"": .separator = ",",
+              .initiator = "(",
+              .terminator = ")"|{|X1|} {|X2|}|} F
+         {"": .separator = ",",
+              .initiator = "(",
+              .terminator = ")"|
+               {|Z1|} {|{|Z2|} ?= {|D2|}|}|}''
+         [code]
+    print primary function ``''
+        block BLOCK1: function ``(X1, X2)F(Z1, Z2 ?= {|D2|})'' [code]
+                      with location 0 in module [$ MISSING $]
+    test primary:  ({|A1|}, {|A2|}) F ({|B1|}, {|B2|})
+    found function:  {|A1|} {|A2|} F {|B1|} {|B2|} ===> [$ MISSING $] 0
+    test primary:  ({|A1|}, {|A2|}) F (B)
+    found function:  {|A1|} {|A2|} F (B) {|D2|} ===> [$ MISSING $] 0
+ERROR: in lines ##-##: no definition found:
+        ``(A) F
+        ^^^^^^^
+          {"": .separator = ",",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .initiator = "(",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .terminator = ")"|{|B1|} {|B2|}|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     end block BLOCK1

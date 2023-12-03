@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 21:23:55 EST 2023
+// Date:	Sun Dec  3 01:50:51 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1149,6 +1149,46 @@ static void primary_parse ( PAR::parser parser,
 // Primary Pass Command Function
 // ------- ---- ------- --------
 
+// Print representation of function.  If default_op is
+// NONE, do not print default values even if they exist.
+//
+static void print_func
+	( PRIM::func func, PAR::parser parser,
+	  min::gen default_op = min::NONE() ) 
+{
+    min::uns32 len = func->arg_lists->length;
+    for ( min::uns32 j = 0; j < len; ++ j )
+    {
+	PRIM::arg_list_struct
+	    arg_list = func->arg_lists[j];
+
+	if ( arg_list.term_name != min::NONE() )
+	    parser->printer << min::pgen_name
+	        ( arg_list.term_name );
+
+	min::uns32 k = arg_list.first;
+	min::uns32 kend = k + arg_list.number_of_args;
+	parser->printer
+	    << ( arg_list.is_square ?  "[" : "(" );
+	for ( ; k < kend; ++ k )
+	{
+	    PRIM::arg_struct arg = func->args[k];
+	    parser->printer
+	        << min::pgen_name ( arg.name );
+	    if ( default_op != min::NONE()
+	         &&
+		 arg.default_value != min::NONE() )
+		parser->printer
+		    << " " << default_op
+		    << " " << arg.default_value;
+	    if ( k + 1 < kend )
+		parser->printer << ", ";
+	}
+	parser->printer <<
+	    ( arg_list.is_square ?  "]" : ")" );
+    }
+}
+
 static min::gen primary_pass_command
 	( PAR::parser parser,
 	  PAR::pass pass,
@@ -1307,54 +1347,9 @@ static min::gen primary_pass_command
 		    parser->printer << min::pgen_name
 		        ( root->label );
 		else // type == PRIMLEX::function
-		{
-		    min::uns32 len =
-		        func->arg_lists->length;
-		    for ( min::uns32 j = 0; j < len;
-		                            ++ j )
-		    {
-			PRIM::arg_list_struct
-			    arg_list =
-				func->arg_lists[j];
-			if (    arg_list.term_name
-			     != min::NONE() )
-			    parser->printer
-			        << min::pgen_name
-				    ( arg_list
-				        .term_name );
-			min::uns32 k =
-			    arg_list.first;
-			min::uns32 kend =
-			    k + arg_list
-				  .number_of_args;
-			parser->printer <<
-			    ( arg_list.is_square ?
-			      "[" : "(" );
-			for ( ; k < kend; ++ k )
-			{
-			    PRIM::arg_struct arg =
-				func->args[k];
-			    parser->printer
-				<< min::pgen_name
-				    ( arg.name );
-			    min::gen dv =
-				arg.default_value;
-			    min::gen dop =
-				PRIM::
-				  func_default_op;
-			    if ( dv != min::NONE() )
-				parser->printer
-				    << " " << dop
-				    << " " << dv;
-			    if ( k + 1 < kend )
-				parser->printer
-				    << ", ";
-			}
-			parser->printer <<
-			    ( arg_list.is_square ?
-			      "]" : ")" );
-		    }
-		}
+		    ::print_func
+		        ( func, parser,
+			  PRIM::func_default_op );
 
 		parser->printer
 		        << "'' " << min::set_break;

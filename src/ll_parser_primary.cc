@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 06:34:13 EST 2023
+// Date:	Sat Dec  2 21:23:55 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -888,6 +888,7 @@ static TAB::key_prefix find_key_prefix
 
 bool PRIM::scan_ref
     ( min::obj_vec_ptr & vp, min::uns32 & i,
+      min::phrase_position_vec ppvec,
       PAR::parser parser,
       TAB::flags selectors,
       TAB::root & root,
@@ -1610,7 +1611,7 @@ static min::gen primary_pass_command
 		  "expression empty" );
 
 	if ( ! PRIM::scan_ref
-		   ( nvp, ni, parser, selectors,
+		   ( nvp, ni, nppvec, parser, selectors,
 		     root, key_prefix,
 		     argument_vector,
 		     primary_pass->primary_table ) )

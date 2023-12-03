@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 01:50:51 EST 2023
+// Date:	Sun Dec  3 02:42:36 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -358,6 +358,73 @@ PRIM::primary_pass PRIM::init_primary
 
 // Primary Parsing Functions
 // ------- ------- ---------
+
+// Print representation of function.  If default_op is
+// NONE, do not print default values even if they exist.
+//
+static void print_func
+	( PRIM::func func, PAR::parser parser,
+	  min::gen default_op = min::NONE() ) 
+{
+    min::uns32 len = func->arg_lists->length;
+    for ( min::uns32 j = 0; j < len; ++ j )
+    {
+	PRIM::arg_list_struct
+	    arg_list = func->arg_lists[j];
+
+	if ( arg_list.term_name != min::NONE() )
+	    parser->printer << min::pgen_name
+	        ( arg_list.term_name );
+
+	min::uns32 k = arg_list.first;
+	min::uns32 kend = k + arg_list.number_of_args;
+	parser->printer
+	    << ( arg_list.is_square ?  "[" : "(" );
+	for ( ; k < kend; ++ k )
+	{
+	    PRIM::arg_struct arg = func->args[k];
+	    parser->printer
+	        << min::pgen_name ( arg.name );
+	    if ( default_op != min::NONE()
+	         &&
+		 arg.default_value != min::NONE() )
+		parser->printer
+		    << " " << default_op
+		    << " " << arg.default_value;
+	    if ( k + 1 < kend )
+		parser->printer << ", ";
+	}
+	parser->printer <<
+	    ( arg_list.is_square ?  "]" : ")" );
+    }
+}
+
+// Print scan_ref rejection message.
+//
+static void print_reject
+	( PAR::parser parser,
+	  PRIM::func func,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3,
+	  const min::op & message4,
+	  const char * message5,
+	  const min::op & message6,
+	  const char * message7,
+	  const min::op & message8,
+	  const char * message9 )
+{
+    parser->printer << min::bol << min::bom
+                    << min::set_indent ( 11 )
+	            << "REJECTING: ";
+    ::print_func ( func, parser );
+    parser->printer << min::indent
+		    << message1 << message2
+		    << message3 << message4
+		    << message5 << message6
+		    << message7 << message8
+		    << message9 << min::eom;
+}
 
 min::gen PRIM::scan_name
     ( min::obj_vec_ptr & vp, min::uns32 & i,
@@ -1148,46 +1215,6 @@ static void primary_parse ( PAR::parser parser,
 
 // Primary Pass Command Function
 // ------- ---- ------- --------
-
-// Print representation of function.  If default_op is
-// NONE, do not print default values even if they exist.
-//
-static void print_func
-	( PRIM::func func, PAR::parser parser,
-	  min::gen default_op = min::NONE() ) 
-{
-    min::uns32 len = func->arg_lists->length;
-    for ( min::uns32 j = 0; j < len; ++ j )
-    {
-	PRIM::arg_list_struct
-	    arg_list = func->arg_lists[j];
-
-	if ( arg_list.term_name != min::NONE() )
-	    parser->printer << min::pgen_name
-	        ( arg_list.term_name );
-
-	min::uns32 k = arg_list.first;
-	min::uns32 kend = k + arg_list.number_of_args;
-	parser->printer
-	    << ( arg_list.is_square ?  "[" : "(" );
-	for ( ; k < kend; ++ k )
-	{
-	    PRIM::arg_struct arg = func->args[k];
-	    parser->printer
-	        << min::pgen_name ( arg.name );
-	    if ( default_op != min::NONE()
-	         &&
-		 arg.default_value != min::NONE() )
-		parser->printer
-		    << " " << default_op
-		    << " " << arg.default_value;
-	    if ( k + 1 < kend )
-		parser->printer << ", ";
-	}
-	parser->printer <<
-	    ( arg_list.is_square ?  "]" : ")" );
-    }
-}
 
 static min::gen primary_pass_command
 	( PAR::parser parser,

@@ -56,9 +56,13 @@ ERROR: in line ##: no definition found:
     found function:  {|A|} "+" (B) ===> [$ MISSING $] 0
     test primary:  {|A 1|} + (B)
     found function:  {|A 1|} "+" (B) ===> [$ MISSING $] 0
+REJECTING: (X)"+"(Y)
+           function term name expected after (B) but none found
 ERROR: in line ##: no definition found:
     test primary ``(A)+(B)+(C)'' [code]
                  ^^^^^^^^^^^^^^^
+REJECTING: (X)"+"(Y)
+           prototype variable Y was not given a value
 ERROR: in line ##: no definition found:
     test primary ``(A)+'' [code]
                  ^^^^^^^^
@@ -72,8 +76,8 @@ ERROR: in line ##: no definition found:
     test primary:  F [A]
     found function:  F [A] ===> [$ MISSING $] 0
 REJECTING: F[X]
-           [...] bracketed argument list expected but end of expression
-           found
+           [...] bracketed argument list expected but end of reference
+           expression found
 ERROR: in line ##: no definition found:
     test primary ``F'' [code]
                  ^^^^^
@@ -88,6 +92,8 @@ ERROR: in line ##: no definition found:
     found function:  F (A) (B) ===> [$ MISSING $] 0
     test primary:  F (A)
     found function:  F (A) {|Z|} ===> [$ MISSING $] 0
+REJECTING: F(X)(Y)
+           prototype variable X was not given a value
 ERROR: in line ##: no definition found:
     test primary ``F'' [code]
                  ^^^^^
@@ -104,9 +110,31 @@ ERROR: in line ##: no definition found:
     found function:  F (A) G (C) H (B) ===> [$ MISSING $] 0
     test primary:  F (A) H (B)
     found function:  F (A) G {|Q|} H (B) ===> [$ MISSING $] 0
+REJECTING: F(X)G(Y)H(Z)
+           prototype variable Z was not given a value
 ERROR: in line ##: no definition found:
     test primary ``F (A) G (B)'' [code]
                  ^^^^^^^^^^^^^^^
+REJECTING: F(X)G(Y)H(Z)
+           prototype variable Z given two values
+ERROR: in line ##: no definition found:
+    test primary ``F (A) H (B) G ( C ) H (D )'' [code]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+REJECTING: F(X)G(Y)H(Z)
+           argument list for function term H is too long
+ERROR: in lines ##-##: no definition found:
+    test primary ``F (A)
+                 ^^^^^^^
+                   H {"": .separator = ",",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          .initiator = "(",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          .terminator = ")"|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          {|B1|} {|B2|}|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   '' [code]
+^^^^^^^^^^^^^^^^^^^^^
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
@@ -126,7 +154,9 @@ ERROR: in line ##: no definition found:
     found function:  {|A1|} {|A2|} F {|B1|} {|B2|} ===> [$ MISSING $] 0
     test primary:  ({|A1|}, {|A2|}) F (B)
     found function:  {|A1|} {|A2|} F (B) {|D2|} ===> [$ MISSING $] 0
-ERROR: in lines ##-###: no definition found:
+REJECTING: (X1, X2)F(Z1, Z2)
+           prototype variable X2 was not given a value
+ERROR: in lines ###-###: no definition found:
         ``(A) F
         ^^^^^^^
           {"": .separator = ",",
@@ -135,6 +165,42 @@ ERROR: in lines ##-###: no definition found:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                .terminator = ")"|{|B1|} {|B2|}|}''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+REJECTING: (X1, X2)F(Z1, Z2)
+           argument list before first function term name is too long
+ERROR: in lines ###-###: no definition found:
+        ``{"": .separator = ",",
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+               .initiator = "(",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .terminator = ")"|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               {|A1|} {|A2|} {|A3|}|} F
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          {"": .separator = ",",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .initiator = "(",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .terminator = ")"|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               {|B1|} {|B2|}|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+REJECTING: (X1, X2)F(Z1, Z2)
+           argument list just after first function term name is too long
+ERROR: in lines ###-###: no definition found:
+        ``{"": .separator = ",",
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+               .initiator = "(",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .terminator = ")"|{|A1|} {|A2|}|} F
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          {"": .separator = ",",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .initiator = "(",
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               .terminator = ")"|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               {|B1|} {|B2|} {|B3|}|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1

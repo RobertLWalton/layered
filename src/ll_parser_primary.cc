@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 03:08:36 EST 2023
+// Date:	Sun Dec  3 07:00:36 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1027,8 +1027,11 @@ CHECK_TYPE:
     min::gen args[func->args->length];
     for ( uns32 k = 0; k < func->args->length; ++ k )
         args[k] = min::NONE();
+    PRIM::func_term func_term = min::NULL_STUB;
     while ( true )
     {
+#       define TERM ( func_term == min::NULL_STUB ? \
+                      min::NONE() : func_term->label )
         bool arg_list_found = true;
 	PRIM::arg_list_struct arg_list;
 	    // For an is_bool term this will be the
@@ -1036,6 +1039,8 @@ CHECK_TYPE:
         for ( ; j < jend; ++ j )
 	{
 	    arg_list = func->arg_lists[j];
+#	    define VAR(k) min::pgen_name \
+                ( (func->args + k)->name )
 	    if ( i >= iend )
 	    {
 	        if ( arg_list.is_square )
@@ -1045,7 +1050,8 @@ CHECK_TYPE:
 			    ( parser, func,
 			      "[...] bracketed argument"
 			      " list expected but end"
-			      " of expression found" );
+			      " of reference expression"
+			      " found" );
 		    goto REJECT;
 		}
 		continue;
@@ -1057,26 +1063,78 @@ CHECK_TYPE:
 		 == PARLEX::left_parenthesis )
 	    {
 	        if ( arg_list.is_square )
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "[...] bracketed argument"
+			      " list expected but (...)"
+			      " bracketed argument list"
+			      " found" );
 		    goto REJECT;
+		}
 	    }
 	    else if (    initiator 
 		      == PARLEX::left_square )
 	    {
 	        if ( ! arg_list.is_square )
 		{
-		    if ( first ) goto REJECT;
+		    if ( first )
+		    {
+			if ( print_rejections )
+			    ::print_reject
+				( parser, func,
+				  "unexpected [...]"
+				  " bracketed argument"
+				  " list found but"
+				  " (...) argument"
+				  " list expected"
+				  " before first"
+				  " function-term" );
+			goto REJECT;
+		    }
 		    continue;
 		}
 	    }
 	    else if ( PAR::is_purelist ( vp[i] ) )
 	    {
 	        if ( arg_list.is_square )
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "[...] bracketed argument"
+			      " list expected but"
+			      " implicitly bracketed"
+			      " argument list found" );
 		    goto REJECT;
+		}
 	    }
 	    else
 	    {
-	        if ( arg_list.is_square ) goto REJECT;
-		if ( first ) goto REJECT;
+	        if ( arg_list.is_square )
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "[...] bracketed argument"
+			      " list expected but"
+			      " no argument list"
+			      " found" );
+		    goto REJECT;
+		}
+		if ( first )
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "(...) bracketed argument"
+			      " list expected before"
+			      " first function-term but"
+			      " no argument list"
+			      " found" );
+		    goto REJECT;
+		}
 		continue;
 	    }
 
@@ -1092,27 +1150,78 @@ CHECK_TYPE:
 	    {
 	        if ( s == 0 )
 		{
-		    if ( first ) goto REJECT;
+		    if ( first )
+		    {
+			if ( print_rejections )
+			    ::print_reject
+				( parser, func,
+				  "empty argument list"
+				  " found before first"
+				  " function-term" );
+			goto REJECT;
+		    }
 		    continue;
 		}
 		if (    args[arg_list.first]
 		     != min::NONE() )
-		    goto REJECT; // TBD
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "prototype variable ",
+			      VAR ( arg_list.first ),
+			      " given two values" );
+		    goto REJECT;
+		}
 		args[arg_list.first] = vp[i];
 	    }
 	    else
 	    {
 	        if ( s > arg_list.number_of_args )
+		{
+		    if ( ! print_rejections )
+		        /* Do nothing */;
+		    else if ( TERM != min::NONE() )
+			::print_reject
+			    ( parser, func,
+			      "argument list for"
+			      " function term ",
+			      min::pgen_name ( TERM ),
+			      " is too long" );
+		    else if ( first )
+			::print_reject
+			    ( parser, func,
+			      "argument list before"
+			      " first function term"
+			      " name is too long" );
+		    else
+			::print_reject
+			    ( parser, func,
+			      "argument list just after"
+			      " first function term"
+			      " name is too long" );
 		    goto REJECT;
+		}
 		for ( min::uns32 k = 0; k < s; ++ k )
 		{
 		    if (    args[arg_list.first + k]
 		         != min::NONE() )
-			goto REJECT; // TBD
+		    {
+			if ( print_rejections )
+			    ::print_reject
+				( parser, func,
+				  "prototype variable ",
+				  VAR (   arg_list.first
+					+ k ),
+				  " given two values" );
+			goto REJECT;
+		    }
 		    args[arg_list.first+k] = avp[k];
 		}
 	    }
 	    ++ i;
+
+#	    undef VAR
 	}
 
 	if ( is_bool && ! arg_list_found )
@@ -1125,15 +1234,24 @@ CHECK_TYPE:
 	}
 	else if ( negator != min::NONE() )
 	{
-	    goto REJECT; // TBD
+	    if ( print_rejections )
+		::print_reject
+		    ( parser, func,
+		      "bool term ",
+		      min::pgen_name ( TERM ),
+		      " has BOTH negator and"
+		      " argument list" );
+	    goto REJECT;
 	}
 
 	if ( first )
 	{
-	    if (      i !=
-	           original_i
-		 + func->number_initial_arg_lists )
-	        goto REJECT;
+	    MIN_ASSERT
+	        ( i == original_i
+		     + func->number_initial_arg_lists,
+		  "number of argument lists before"
+		  " first function term does not match"
+		  " func->label" );
 	    i = after_first;
 	    jend = j + func->number_following_arg_lists;
 	    first = false;
@@ -1146,7 +1264,15 @@ CHECK_TYPE:
 	{
 	    negator = vp[i++];
 	    if ( i >= iend )
-		goto REJECT; // TBD
+	    {
+		if ( print_rejections )
+		    ::print_reject
+			( parser, func,
+			  "negator found just before"
+			  " end of reference"
+			  " expression" );
+		goto REJECT;
+	    }
 	}
 
     	TAB::key_prefix kp = ::find_key_prefix
@@ -1154,17 +1280,35 @@ CHECK_TYPE:
 		        inside_quotes_types );
 
 	if ( kp == min::NULL_STUB )
+	{
+	    if ( print_rejections )
+		::print_reject
+		    ( parser, func,
+		      "function term name expected"
+		      " after ",
+		      min::pgen ( vp[i-1] ),
+		      " but none found" );
 	    goto REJECT;
+	}
 
-	PRIM::func_term func_term =
-	    (PRIM::func_term) kp->first;
+	func_term = (PRIM::func_term) kp->first;
 	MIN_REQUIRE ( func_term != min::NULL_STUB );
 	is_bool = func_term->is_bool;
 	if ( negator != min::NONE() && ! is_bool )
-	    goto REJECT; // TBD
+	{
+	    if ( print_rejections )
+		::print_reject
+		    ( parser, func,
+		      "non-boolean function term ",
+		      min::pgen_name ( TERM ),
+		      " proceeded by a negator" );
+	    goto REJECT;
+	}
 
 	j = func_term->first_arg_list;
 	jend = j + func_term->number_arg_lists;
+
+#       undef TERM
     }
 
     for ( min::uns32 k = 0; k < func->args->length;
@@ -1172,9 +1316,18 @@ CHECK_TYPE:
     {
         if ( args[k] == min::NONE() )
 	{
-	    args[k] = (func->args+k)->default_value;
+	    PRIM::arg_struct arg = func->args[k];
+	    args[k] = arg.default_value;
 	    if ( args[k] == min::NONE() )
-	        goto REJECT;
+	    {
+		if ( print_rejections )
+		    ::print_reject
+			( parser, func,
+			  "prototype variable ",
+			  min::pgen_name ( arg.name ),
+			  " was not given a value" );
+		goto REJECT;
+	    }
 	}
     }
 

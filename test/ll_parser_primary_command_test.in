@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 03:17:01 EST 2023
+// Date:	Sun Dec  3 07:32:51 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -66,6 +66,13 @@
     test primary ``F (A) H (B) G ( C )'' [code]
     test primary ``F (A) H (B)'' [code]
     test primary ``F (A) G (B)'' [code]
+    test primary ``F (A) H (B) G ( C ) H (D )'' [code]
+    test primary ``F (A)
+                   H {"": .separator = ",",
+	                  .initiator = "(",
+	                  .terminator = ")"|
+			  {|B1|} {|B2|}|}
+		   '' [code]
     end block BLOCK1
 
 *PARSER*:
@@ -99,6 +106,25 @@
 	  {"": .separator = ",",
 	       .initiator = "(",
 	       .terminator = ")"|{|B1|} {|B2|}|}''
+	  [code]
+    test primary
+        ``{"": .separator = ",",
+	       .initiator = "(",
+	       .terminator = ")"|
+	       {|A1|} {|A2|} {|A3|}|} F
+	  {"": .separator = ",",
+	       .initiator = "(",
+	       .terminator = ")"|
+	       {|B1|} {|B2|}|}''
+	  [code]
+    test primary
+        ``{"": .separator = ",",
+	       .initiator = "(",
+	       .terminator = ")"|{|A1|} {|A2|}|} F
+	  {"": .separator = ",",
+	       .initiator = "(",
+	       .terminator = ")"|
+	       {|B1|} {|B2|} {|B3|}|}''
 	  [code]
     end block BLOCK1
 

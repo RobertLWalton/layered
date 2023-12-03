@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 21:37:43 EST 2023
+// Date:	Sun Dec  3 03:06:02 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -536,6 +536,10 @@ ll::parser::primary::func scan_func_prototype
 // is automatically rejected just as if it had the
 // wrong selectors.
 //
+// If print_rejections is true, rejection of a function
+// prototype because of argument structure causes a
+// REJECT: ... message to be printed.
+//
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;
 bool scan_ref
@@ -547,6 +551,7 @@ bool scan_ref
       ll::parser::table::key_prefix & key_prefix,
       min::ref<argument_vector> argument_vector,
       ll::parser::table::key_table primary_table,
+      bool print_rejections = false,
       min::gen bool_values = func_bool_values,
       min::gen negators = func_negators,
       min::uns64 inside_quotes_types =

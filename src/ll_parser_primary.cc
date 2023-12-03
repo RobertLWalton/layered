@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 02:42:36 EST 2023
+// Date:	Sun Dec  3 03:08:36 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -405,14 +405,14 @@ static void print_reject
 	( PAR::parser parser,
 	  PRIM::func func,
 	  const char * message1,
-	  const min::op & message2,
-	  const char * message3,
-	  const min::op & message4,
-	  const char * message5,
-	  const min::op & message6,
-	  const char * message7,
-	  const min::op & message8,
-	  const char * message9 )
+	  const min::op & message2 = min::pnop,
+	  const char * message3 = "",
+	  const min::op & message4 = min::pnop,
+	  const char * message5 = "",
+	  const min::op & message6 = min::pnop,
+	  const char * message7 = "",
+	  const min::op & message8 = min::pnop,
+	  const char * message9 = "" )
 {
     parser->printer << min::bol << min::bom
                     << min::set_indent ( 11 )
@@ -962,6 +962,7 @@ bool PRIM::scan_ref
       TAB::key_prefix & key_prefix,
       min::ref<argument_vector> argument_vector,
       TAB::key_table primary_table,
+      bool print_rejections,
       min::gen bool_values,
       min::gen negators,
       min::uns64 inside_quotes_types )
@@ -1038,7 +1039,15 @@ CHECK_TYPE:
 	    if ( i >= iend )
 	    {
 	        if ( arg_list.is_square )
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "[...] bracketed argument"
+			      " list expected but end"
+			      " of expression found" );
 		    goto REJECT;
+		}
 		continue;
 	    }
 	    min::gen initiator =
@@ -1636,7 +1645,8 @@ static min::gen primary_pass_command
 		   ( nvp, ni, nppvec, parser, selectors,
 		     root, key_prefix,
 		     argument_vector,
-		     primary_pass->primary_table ) )
+		     primary_pass->primary_table,
+		     true ) )
 	    return PAR::parse_error
 		( parser, nppvec->position,
 		  "no definition found" );

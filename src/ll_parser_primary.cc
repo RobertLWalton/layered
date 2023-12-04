@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 07:00:36 EST 2023
+// Date:	Sun Dec  3 19:04:23 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,11 @@ min::locatable_gen PRIMLEX::square_brackets;
 static min::locatable_gen opening_double_quote; // ``
 static min::locatable_gen test;  		// test
 
+static min::locatable_gen func_bool_expression[2];
+    // Locatable purelists whose only element is
+    // the corresponding element of func_bool_values.
+    // Placed here because they must be locatable.
+
 static void initialize ( void )
 {
     PRIMLEX::primary = min::new_str_gen ( "primary" );
@@ -65,10 +70,21 @@ static void initialize ( void )
     ::test = min::new_str_gen ( "test" );
 
     PRIM::func_default_op = min::new_str_gen ( "?=" );
+
     PRIM::func_bool_values =
-        min::new_lab_gen ( "TRUE", "FALSE" );
+        min::new_lab_gen ( "FALSE", "TRUE" );
     PRIM::func_negators =
         min::new_lab_gen ( "no", "NO", "not", "NOT" );
+
+    min::lab_ptr lp = PRIM::func_bool_values;
+    min::obj_vec_insptr vp;
+    for ( min::uns32 i = 0; i < 2; ++ i )
+    {
+	::func_bool_expression[i] =
+	    min::new_obj_gen ( 1 );
+	vp = ::func_bool_expression[i];
+	min::attr_push ( vp ) = lp[i];
+    }
 
     PAR::push_new_pass
         ( PRIMLEX::primary, PRIM::new_pass );
@@ -678,15 +694,20 @@ PRIM::func PRIM::scan_func_prototype
 		     == first_arg_list
 		     &&
 		        first + 1
-		     == func->args->length
-		     &&
-		        min::labfind
-		            ( (   func->args
-			        + first )->
-			            default_value,
-		     	      bool_values )
-		    >= 0 )
-		    is_bool = true;
+		     == func->args->length )
+		{
+		    min::obj_vec_ptr dvp =
+			(func->args + first)->
+			    default_value;
+		    if ( dvp != min::NULL_STUB
+		         &&
+			 min::size_of ( dvp ) == 1
+			 &&
+		            min::labfind
+		                ( dvp[0], bool_values )
+		         >= 0 )
+			is_bool = true;
+		}
 	    }
 	    else // sep != NONE
 	    {
@@ -1032,7 +1053,7 @@ CHECK_TYPE:
     {
 #       define TERM ( func_term == min::NULL_STUB ? \
                       min::NONE() : func_term->label )
-        bool arg_list_found = true;
+        bool arg_list_found = false;
 	PRIM::arg_list_struct arg_list;
 	    // For an is_bool term this will be the
 	    // one and only arg_list;
@@ -1226,11 +1247,10 @@ CHECK_TYPE:
 
 	if ( is_bool && ! arg_list_found )
 	{
-	    min::lab_ptr labp = negators;
-	    MIN_REQUIRE ( min::lablen ( labp ) == 2 );
+	    min::uns32 k =
+	        ( negator != min::NONE() ? 0 : 1 );
 	    args[arg_list.first] =
-	        ( negator != min::NONE() ?
-		  labp[1] : labp[0] );
+	        ::func_bool_expression[k];
 	}
 	else if ( negator != min::NONE() )
 	{
@@ -1274,6 +1294,7 @@ CHECK_TYPE:
 		goto REJECT;
 	    }
 	}
+	else negator = min::NONE();
 
     	TAB::key_prefix kp = ::find_key_prefix
 		      ( vp, i, func->term_table,

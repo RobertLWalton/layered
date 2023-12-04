@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 07:32:51 EST 2023
+// Date:	Sun Dec  3 19:17:39 EST 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -139,4 +139,26 @@
 	      .terminator = ")"|
 	       {|Z1|} {|{|Z2|} ?= {|D2|}|} {|Z3|}|}''
 	 [code]
+    end block BLOCK1
+
+*PARSER*:
+    begin block BLOCK1
+    define primary function ``(A) F (B) G (C)'' [code]
+    define primary function ``(A) F (B)'' [code]
+    test primary ``(X) F (Y)'' [code]
+    test primary ``(X) F (Y) G(Z)'' [code]
+    end block BLOCK1
+
+*PARSER*:
+    begin block BLOCK1
+    define primary function
+        ``F1 (A) G ({|B|} ?= {|TRUE|})'' [code]
+    test primary ``F1 (Y)'' [code]
+    test primary ``F1 (Y) NOT G'' [code]
+    test primary ``F1 (Y) G'' [code]
+    define primary function
+        ``F2 (A) G ({|B|} ?= {|FALSE|})'' [code]
+    test primary ``F2 (Y)'' [code]
+    test primary ``F2 (Y) NOT G'' [code]
+    test primary ``F2 (Y) G'' [code]
     end block BLOCK1

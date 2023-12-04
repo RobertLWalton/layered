@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 19:04:23 EST 2023
+// Date:	Mon Dec  4 01:16:51 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1075,6 +1075,17 @@ CHECK_TYPE:
 			      " found" );
 		    goto REJECT;
 		}
+		else if ( first )
+		{
+		    if ( print_rejections )
+			::print_reject
+			    ( parser, func,
+			      "(...) bracketed argument"
+			      " list expected but end"
+			      " of reference expression"
+			      " found" );
+		    goto REJECT;
+		}
 		continue;
 	    }
 	    min::gen initiator =
@@ -1090,7 +1101,9 @@ CHECK_TYPE:
 			    ( parser, func,
 			      "[...] bracketed argument"
 			      " list expected but (...)"
-			      " bracketed argument list"
+			      " bracketed argument"
+			      " list ",
+			      min::pgen ( vp[i] ),
 			      " found" );
 		    goto REJECT;
 		}
@@ -1105,13 +1118,13 @@ CHECK_TYPE:
 			if ( print_rejections )
 			    ::print_reject
 				( parser, func,
-				  "unexpected [...]"
-				  " bracketed argument"
-				  " list found but"
-				  " (...) argument"
-				  " list expected"
-				  " before first"
-				  " function-term" );
+				  "(...) argument list"
+				  " expected before"
+				  " first term but"
+				  " [...] bracketed"
+				  " argument list ",
+				  min::pgen ( vp[i] ),
+				  " found" );
 			goto REJECT;
 		    }
 		    continue;
@@ -1127,7 +1140,9 @@ CHECK_TYPE:
 			      "[...] bracketed argument"
 			      " list expected but"
 			      " implicitly bracketed"
-			      " argument list found" );
+			      " argument list ",
+			      min::pgen ( vp[i] ),
+			      " found" );
 		    goto REJECT;
 		}
 	    }
@@ -1140,7 +1155,8 @@ CHECK_TYPE:
 			    ( parser, func,
 			      "[...] bracketed argument"
 			      " list expected but"
-			      " no argument list"
+			      " non-argument list ",
+			      min::pgen ( vp[i] ),
 			      " found" );
 		    goto REJECT;
 		}
@@ -1152,7 +1168,8 @@ CHECK_TYPE:
 			      "(...) bracketed argument"
 			      " list expected before"
 			      " first function-term but"
-			      " no argument list"
+			      " non-argument list ",
+			      min::pgen ( vp[i] ),
 			      " found" );
 		    goto REJECT;
 		}
@@ -1200,27 +1217,33 @@ CHECK_TYPE:
 	    {
 	        if ( s > arg_list.number_of_args )
 		{
+		    avp = min::NULL_STUB;
 		    if ( ! print_rejections )
 		        /* Do nothing */;
 		    else if ( TERM != min::NONE() )
 			::print_reject
 			    ( parser, func,
-			      "argument list for"
-			      " function term ",
+			      "argument list ",
+			      min::pgen ( vp[i] ),
+			      " for function term ",
 			      min::pgen_name ( TERM ),
 			      " is too long" );
 		    else if ( first )
 			::print_reject
 			    ( parser, func,
-			      "argument list before"
-			      " first function term"
-			      " name is too long" );
+			      "argument list ",
+			      min::pgen ( vp[i] ),
+			      " before first function"
+			      " term name is too"
+			      " long" );
 		    else
 			::print_reject
 			    ( parser, func,
-			      "argument list just after"
-			      " first function term"
-			      " name is too long" );
+			      "argument list ",
+			      min::pgen ( vp[i] ),
+			      " just after first"
+			      " function term name"
+			      " is too long" );
 		    goto REJECT;
 		}
 		for ( min::uns32 k = 0; k < s; ++ k )
@@ -1305,8 +1328,10 @@ CHECK_TYPE:
 	    if ( print_rejections )
 		::print_reject
 		    ( parser, func,
-		      "function term name expected"
-		      " after ",
+		      "function term name that begins"
+		      " with ",
+		      min::pgen ( vp[i] ),
+		      " expected just after ",
 		      min::pgen ( vp[i-1] ),
 		      " but none found" );
 	    goto REJECT;
@@ -1815,16 +1840,6 @@ static min::gen primary_pass_command
 		( parser, nppvec->position,
 		  "expression empty" );
 
-	if ( ! PRIM::scan_ref
-		   ( nvp, ni, nppvec, parser, selectors,
-		     root, key_prefix,
-		     argument_vector,
-		     primary_pass->primary_table,
-		     true ) )
-	    return PAR::parse_error
-		( parser, nppvec->position,
-		  "no definition found" );
-
         min::uns32 indent = min::print_line_column
 	    ( ppvec->file, ppvec->position.begin,
 	      parser->printer->print_format,
@@ -1841,6 +1856,13 @@ static min::gen primary_pass_command
 	parser->printer
 	    << min::set_indent ( indent );
 
+	PRIM::scan_ref
+	    ( nvp, ni, nppvec, parser, selectors,
+	      root, key_prefix,
+	      argument_vector,
+	      primary_pass->primary_table,
+	      true );
+
 	PRIM::var var = (PRIM::var) root;
 	PRIM::func func = (PRIM::func) root;
 
@@ -1848,7 +1870,7 @@ static min::gen primary_pass_command
 	    parser->printer
 		<< min::indent
 		<< min::set_indent ( indent + 4 )
-		<< "found variable: "
+		<< "-- found variable: "
 		<< min::pgen_name ( root->label)
 		<< " ===> "
 		<< min::pgen ( var->module )
@@ -1859,7 +1881,7 @@ static min::gen primary_pass_command
 	    parser->printer
 		<< min::indent
 		<< min::set_indent ( indent + 4 )
-		<< "found function: ";
+		<< "-- found function: ";
 	    min::uns32 len = func->arg_lists->length;
 	    for ( min::uns32 j = 0; j < len; ++ j )
 	    {
@@ -1885,7 +1907,10 @@ static min::gen primary_pass_command
 		<< " "
 		<< func->location;
 	}
-	else MIN_REQUIRE ( ! "don't come here" );
+	else 
+	    parser->printer
+		<< min::indent
+		<< "-- no definition found";
 
 	parser->printer << min::eom;
 	return PAR::PRINTED;

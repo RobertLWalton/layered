@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Oct 15 03:09:02 EDT 2023
+# Date:		Wed Dec 13 06:26:05 UTC 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -163,7 +163,7 @@ test:		${TESTS:=.test}
 
 %.out:	%
 	rm -f $*.out
-	${RUNENV} $* > $*.out
+	${RUNENV} ./$* > $*.out
 
 %.lex:	../src/%.lexcc Makefile
 	sed -n \
@@ -254,14 +254,14 @@ ll_lexeme_standard_basic_test.out:		\
 	    ll_lexeme_standard_basic_test \
 	    ll_lexeme_standard_test.in
 	rm -f $*.out
-	${RUNENV} $* -p < ll_lexeme_standard_test.in \
-	             > $*.out
+	${RUNENV} ./$* -p < ll_lexeme_standard_test.in \
+	               > $*.out
 
 ll_lexeme_standard_special_test.out:		\
 	    ll_lexeme_standard_basic_test \
 	    ll_lexeme_standard_special_test.in
 	rm -f $*.out
-	${RUNENV} ll_lexeme_standard_basic_test \
+	${RUNENV} ./ll_lexeme_standard_basic_test \
 	    < ll_lexeme_standard_special_test.in \
 	    > $*.out
 
@@ -281,8 +281,8 @@ ll_lexeme_standard_test.out:		\
 	    ll_lexeme_standard_test \
 	    ll_lexeme_standard_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_standard_test.in \
-	             > $*.out
+	${RUNENV} ./$* < ll_lexeme_standard_test.in \
+	               > $*.out
 
 ll_lexeme_alternate.lex:	\
 		../src/ll_lexeme_alternate.lexcc
@@ -315,8 +315,8 @@ ll_lexeme_alternate_basic_test.out:		\
 	    ll_lexeme_alternate_basic_test \
 	    ll_lexeme_alternate_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_alternate_test.in \
-	             > $*.out
+	${RUNENV} ./$* < ll_lexeme_alternate_test.in \
+	               > $*.out
 
 ll_lexeme_alternate_test:		\
 		ll_lexeme_alternate_test.cc \
@@ -334,8 +334,8 @@ ll_lexeme_alternate_test.out:		\
 	    ll_lexeme_alternate_test \
 	    ll_lexeme_alternate_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_alternate_test.in \
-	             > $*.out
+	${RUNENV} ./$* < ll_lexeme_alternate_test.in \
+	               > $*.out
 
 ll_lexeme_name_string_test:		\
 		ll_lexeme_name_string_test.cc \
@@ -352,7 +352,7 @@ ll_lexeme_name_string_test:		\
 ll_lexeme_name_string_test.out:		\
 	    ll_lexeme_name_string_test
 	rm -f $*.out
-	${RUNENV} $* > $*.out
+	${RUNENV} ./$* > $*.out
 
 ll_lexeme_c++.lex:	\
 		../src/ll_lexeme_c++.lexcc
@@ -393,8 +393,8 @@ ll_lexeme_c++_basic_test.out:		\
 	    ll_lexeme_c++_basic_test \
 	    ll_lexeme_c++_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_c++_test.in \
-	             > $*.out
+	${RUNENV} ./$* < ll_lexeme_c++_test.in \
+	               > $*.out
 
 ll_lexeme_c++_test:		\
 		ll_lexeme_c++_test.cc \
@@ -418,8 +418,8 @@ ll_lexeme_c++_test.out:		\
 	    ll_lexeme_c++_test \
 	    ll_lexeme_c++_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_c++_test.in \
-	             > $*.out
+	${RUNENV} ./$* < ll_lexeme_c++_test.in \
+	               > $*.out
 
 ll_parser.o:	\
 	${LEXEME_H} \
@@ -552,14 +552,14 @@ ll_parser_input_test.out:		\
 	    ll_parser_input_test \
 	    ll_lexeme_standard_test.in
 	rm -f $*.out
-	${RUNENV} $* < ll_lexeme_standard_test.in \
-	             > $*.out
+	${RUNENV} ./$* < ll_lexeme_standard_test.in \
+	               > $*.out
 
 ll_parser_lexeme_map_standard_test.out:		\
 	    ll_parser_input_test \
 	    ll_parser_lexeme_map_standard_test.in
 	rm -f $*.out
-	${RUNENV} ll_parser_input_test -m \
+	${RUNENV} ./ll_parser_input_test -m \
 	    < ll_parser_lexeme_map_standard_test.in \
 	    > $*.out
 
@@ -576,7 +576,7 @@ ll_parser_table_test:		\
 ll_parser_table_test.out:		\
 	    ll_parser_table_test
 	rm -f $*.out
-	${RUNENV} $* > $*.out
+	${RUNENV} ./$* > $*.out
 
 ll_parser_bracketed_standard_test:		\
 	    ll_parser_bracketed_standard_test.cc \
@@ -592,7 +592,7 @@ ll_parser_bracketed_standard_test.out:	\
 	    ll_parser_bracketed_standard_test \
 	    ll_parser_bracketed_standard_test.in
 	rm -f $*.out
-	${RUNENV} $* < \
+	${RUNENV} ./$* < \
 	    ll_parser_bracketed_standard_test.in \
 	    > $*.out
 
@@ -611,14 +611,14 @@ ll_parser_command_test.out:	\
 	    ll_parser_command_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_command_test < $*.in > $*.out
+	    ./ll_parser_command_test < $*.in > $*.out
 
 ll_parser_bracketed_command_test.out:	\
 	    ll_parser_command_test \
 	    ll_parser_bracketed_command_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_command_test \
+	    ./ll_parser_command_test \
 		< $*.in > $*.out
 
 ll_parser_prefix_command_test.out:	\
@@ -626,7 +626,7 @@ ll_parser_prefix_command_test.out:	\
 	    ll_parser_prefix_command_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_command_test < $*.in > $*.out
+	    ./ll_parser_command_test < $*.in > $*.out
 
 ll_parser_oper_standard_test:		\
 	    ll_parser_oper_standard_test.cc \
@@ -643,7 +643,8 @@ ll_parser_oper_standard_test.out:	\
 	    ll_parser_oper_standard_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_oper_standard_test < $*.in > $*.out
+	    ./ll_parser_oper_standard_test \
+		< $*.in > $*.out
 
 ll_parser_oper_command_test:		\
 	    ll_parser_oper_command_test.cc \
@@ -660,7 +661,8 @@ ll_parser_oper_command_test.out:	\
 	    ll_parser_oper_command_test.in
 	rm -f $*.out
 	${RUNENV} \
-	    ll_parser_oper_command_test < $*.in > $*.out
+	    ./ll_parser_oper_command_test \
+                < $*.in > $*.out
 
 ll_parser_standard_test:		\
 	    ll_parser_standard_test.cc \
@@ -676,7 +678,7 @@ ll_parser_standard_test.out:	\
 	    ll_parser_standard_test \
 	    ll_parser_standard_test.in
 	rm -f $*.out
-	${RUNENV} ll_parser_standard_test < \
+	${RUNENV} ./ll_parser_standard_test < \
 	    ll_parser_standard_test.in \
 	    > $*.out
 
@@ -684,7 +686,7 @@ ll_parser_standard_errors_test.out:	\
 	    ll_parser_standard_test \
 	    ll_parser_standard_errors_test.in
 	rm -f $*.out
-	${RUNENV} ll_parser_standard_test < \
+	${RUNENV} ./ll_parser_standard_test < \
 	    ll_parser_standard_errors_test.in \
 	    > $*.out
 
@@ -692,7 +694,7 @@ ll_parser_standard_print_test.out:	\
 	    ll_parser_standard_test \
 	    ll_parser_standard_print_test.in
 	rm -f $*.out
-	${RUNENV} ll_parser_standard_test < \
+	${RUNENV} ./ll_parser_standard_test < \
 	    ll_parser_standard_print_test.in \
 	    > $*.out
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 01:48:20 EST 2023
+// Date:	Thu Jan  4 23:19:19 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3122,7 +3122,13 @@ min::gen PAR::parse_error
 	    min::MISSING_POSITION;
     }
 
-    parser->printer << min::bol << min::bom
+    bool html =   parser->printer->print_format.op_flags
+	        & min::OUTPUT_HTML;
+
+    parser->printer << min::bol;
+    if ( html ) min::tag(parser->printer)
+	            << "<div class='error'>";
+    parser->printer << min::bom
                     << min::set_indent ( 7 )
 	            << "ERROR: in "
 		    << min::pline_numbers
@@ -3132,7 +3138,10 @@ min::gen PAR::parse_error
 		    << message3 << message4
 		    << message5 << message6
 		    << message7 << message8
-		    << message9 << ":" << min::eom;
+		    << message9 << ":";
+    if ( html ) min::tag(parser->printer) << "</div>";
+    parser->printer << min::eom;
+
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
     ++ parser->error_count;
@@ -3169,7 +3178,13 @@ void PAR::parse_warn
 	    min::MISSING_POSITION;
     }
 
-    parser->printer << min::bol << min::bom
+    bool html =   parser->printer->print_format.op_flags
+	        & min::OUTPUT_HTML;
+
+    parser->printer << min::bol;
+    if ( html ) min::tag(parser->printer)
+	            << "<div class='warn'>";
+    parser->printer << min::bom
                     << min::set_indent ( 9 )
 	            << "WARNING: in "
 		    << min::pline_numbers
@@ -3179,7 +3194,10 @@ void PAR::parse_warn
 		    << message3 << message4
 		    << message5 << message6
 		    << message7 << message8
-		    << message9 << ":" << min::eom;
+		    << message9 << ":";
+    if ( html ) min::tag(parser->printer) << "</div>";
+    parser->printer << min::eom;
+
     min::print_phrase_lines
         ( parser->printer, parser->input_file, pp );
 }

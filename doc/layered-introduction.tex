@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 1, 2023
+January 25, 2024
  
 \end{center}
 
@@ -8117,20 +8117,25 @@ have precedence equal to or greater than P:
 \begin{indpar}
 \emkey{expression}\label{EXPRESSION} ::= {\em (L-1)-expression}
 \\[0.5ex]
-\emkey{P-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em P-final-expression} \\
-    $|$ & {\em P-initial-operator} {\em P-expression}\QMARK{}
+\emkey{P-expression} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em P-initial-operators}\QMARK{} \\
+    \{ {\em (P+1)-expression} $|$ {\em P-middle-operator)} \}\PLUS{} \\
+    {\em P-final-operators}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{P-final-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em P-middle-expression} \\
-    $|$ & {\em P-final-expression}\QMARK{} {\em P-final-operator}
+\emkey{P-basic-expression} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em P-initial-operator}\QMARK{} \\
+    \{ {\em (P+1)-expression} $|$ {\em P-middle-operator)} \}\PLUS{} \\
+    {\em P-final-operator}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{P-middle-expression}
-    ::= \{ {\em (P+1)-expression} $|$ {\em P-middle-operator)} \}\PLUS{}
+\emkey{P-initial-operators} ::= {\em P-prefix-operator}\STAR{}
+				{\em P-initial-operator}
+\\[0.5ex]
+\emkey{P-final-operators} ::= {\em P-final-operator}
+				{\em P-postfix-operator}\STAR{}
 \\[0.5ex]
 \emkey{(H+1)-expression} ::= {\em non-operator}\PLUS{}
 \\[0.5ex]
@@ -8142,20 +8147,37 @@ have precedence equal to or greater than P:
 \\[0.5ex]
 \emkey{P-middle-operator} ::= {\em P-operator} with \underline{neither}
                               \TT{initial} nor \TT{final} flag
+\\[0.5ex]
+\emkey{P-prefix-operator} ::= {\em P-operator} with \underline{both}
+                              the \TT{initial} and \TT{right} flags
+\\[0.5ex]
+\emkey{P-postfix-operator} ::= {\em P-operator} with \underline{both}
+                               the \TT{final} and \TT{left} flags
 \\[2.0ex]
-where in an {\em P-expression}: \\
+where in a {\em P-expression}: \\
 \hspace*{1em}\begin{tabular}[t]{l}
        P is any precedence in the range [L-1,H]; \\
        no two {\em (P+1)-expressions} may be adjacent; \\ 
        each {\em P-operator} with a \TT{left} flag must be
-              preceded by an {\em (P+1)-expression}; \\
+              preceded by a {\em (P+1)-expression}; \\
        each {\em P-operator} with a \TT{right} flag must be
-	  followed by an {\em (P+1)-expression}; \\
+	  followed by a {\em (P+1)-expression}; \\
        any operator with an \TT{afix} flag must not be the first
-           {\em P-operator} in an {\em P-expression}; \\
+           {\em P-operator} in a {\em P-expression}; \\
        no operator may have both a \TT{initial} and a \TT{left} flag; \\
        no operator may have both a \TT{right} and a \TT{final} flag; \\
        no operator may have both a \TT{initial} and an \TT{afix} flag; \\
+       if there is more than one operator in a
+           {\em P-expression-initial-operators}, \\
+       ~~~~~~~~implicit `\TT{(}' left parentheses are inserted between
+                                 operators \\
+       if there is more than one operator in a
+           {\em P-expression-final-operators}, \\
+       ~~~~~~~~implicit `\TT{)}' right parentheses are inserted between
+                                 operators \\
+       if the implicit parentheses are not balanced, implicit parentheses \\
+       ~~~~~~~~are inserted at the beginning or end to balance the
+               implicit parentheses
        \end{tabular}
 \end{indpar}
 
@@ -8163,13 +8185,12 @@ Essentially the expression being parsed is organized into {\em P-expressions}
 where $P$ is the precedence of the {\em P-expression}.  Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
-If a {\em P-expression} begins with a {\em P-initial-operator},
-the entire {\em P-expression} after its initial operator is an operand
-of the initial operator.
-If a {\em P-expression} does \underline{not} beginning
-with a {\em P-initial-operator} ends with a {\em P-final-operator},
-the entire {\em P-expression} before its final operator is an operand
-of the final operator.
+If a {\em P-expression} is not a {\em P-basic-expression}, implicit
+parentheses are inserted to make the {\em P-expression} into a
+{\em P-basic-expression} that contains a subexpression that is
+also a {\em P-basic-expression}.  As an example of this, if `{\tt -}'
+is a prefix operator, `{\tt - - x}' is converted to the equivalent
+of `{\tt - (- x)}'.
 
 Whether or not an operator is recognized is determined by the left
 context of the operator.  Thus in `{\tt x + + y}' the first {\tt +}

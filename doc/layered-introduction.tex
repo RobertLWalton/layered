@@ -8163,21 +8163,22 @@ where in a {\em P-expression}: \\
        each {\em P-operator} with a \TT{right} flag must be
 	  followed by a {\em (P+1)-expression}; \\
        any operator with an \TT{afix} flag must not be the first
-           {\em P-operator} in a {\em P-expression}; \\
+           {\em P-operator} \\
+       ~~~~~~~~in a {\em P-expression}; \\
        no operator may have both a \TT{initial} and a \TT{left} flag; \\
        no operator may have both a \TT{right} and a \TT{final} flag; \\
        no operator may have both a \TT{initial} and an \TT{afix} flag; \\
        if there is more than one operator in a
            {\em P-expression-initial-operators}, \\
        ~~~~~~~~implicit `\TT{(}' left parentheses are inserted between
-                                 operators \\
+                                 operators; \\
        if there is more than one operator in a
            {\em P-expression-final-operators}, \\
        ~~~~~~~~implicit `\TT{)}' right parentheses are inserted between
-                                 operators \\
+                                 operators; \\
        if the implicit parentheses are not balanced, implicit parentheses \\
        ~~~~~~~~are inserted at the beginning or end to balance the
-               implicit parentheses
+               implicit parentheses;
        \end{tabular}
 \end{indpar}
 

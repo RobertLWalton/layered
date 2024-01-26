@@ -186,6 +186,68 @@ WARNING: in lines ##-##: undefine found no definition:
                       with binary reformatter
     end block BLOCK1
 *PARSER*:
+    begin block BLOCK1
+    define operator "+" [code, math] prefix
+        with precedence 3000
+    define operator "-" [code, math] initial
+        with precedence 3000
+    define operator "+" [code, math] infix
+        with precedence 3000
+    define operator "++" [code, math] postfix
+        with precedence 3000
+    define operator "--" [code, math] final
+        with precedence 3000
+=== BRACKETED EXPRESSION: line ###:
++ + x + y
+^^^^^^^^^
+    + {|+ {|x|} + {|y|}|}
+=== BRACKETED EXPRESSION: line ###:
++ + x + y ++
+^^^^^^^^^^^^
+    + {|+ {|x|} + {|y|} ++|}
+=== BRACKETED EXPRESSION: line ###:
++ + x + y ++ ++
+^^^^^^^^^^^^^^^
+    + {|+ {|x|} + {|y|} ++|} ++
+=== BRACKETED EXPRESSION: line ###:
++ x + y ++ ++
+^^^^^^^^^^^^^
+    {|+ {|x|} + {|y|} ++|} ++
+=== BRACKETED EXPRESSION: line ###:
+x + y ++ ++
+^^^^^^^^^^^
+    {|{|x|} + {|y|} ++|} ++
+=== BRACKETED EXPRESSION: line ###:
++ + + x + y
+^^^^^^^^^^^
+    + {|+ {|+ {|x|} + {|y|}|}|}
+=== BRACKETED EXPRESSION: line ###:
+x + y ++ ++ ++
+^^^^^^^^^^^^^^
+    {|{|{|x|} + {|y|} ++|} ++|} ++
+=== BRACKETED EXPRESSION: line ###:
++ - x + y -- ++
+^^^^^^^^^^^^^^^
+    + {|- {|x|} + {|y|} --|} ++
+=== BRACKETED EXPRESSION: line ###:
++ + - x + y -- ++ ++
+^^^^^^^^^^^^^^^^^^^^
+    + {|+ {|- {|x|} + {|y|} --|} ++|} ++
+ERROR: in line ###: missing operator; nofix error operator of precedence
+       -1000001 inserted:
++ - - x + y -- -- ++
+               ^^
+=== BRACKETED EXPRESSION: line ###:
++ - - x + y -- -- ++
+^^^^^^^^^^^^^^^^^^^^
+    {|+ {|- {|- x|} + {|y|} --|}|} ERROR'OPERATOR {|{|--|} ++|}
+=== BRACKETED EXPRESSION: line ###:
++ + + x + y ++ ++ ++
+^^^^^^^^^^^^^^^^^^^^
+    + {|+ {|+ {|x|} + {|y|} ++|} ++|} ++
+*PARSER*:
+    end block BLOCK1
+*PARSER*:
     define operator "=" [code, math] infix
         with precedence 1000
         with right associative reformatter

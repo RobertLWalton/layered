@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 01:29:57 EST 2023
+// Date:	Fri Jan 26 03:25:14 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -882,11 +882,11 @@ static void oper_parse_pass_2 ( PAR::parser parser,
 			( PAR::remove
 			      ( PAR::first_ref (parser),
 				n->previous ) );
-	    }
 
-	    if ( f->type != PAR::BRACKETED )
-		value_ref ( f ) = v.op->label;
-	    f->type = PAR::OPERATOR;
+	        if ( f->type != PAR::BRACKETED )
+		    value_ref ( f ) = v.op->label;
+	        f->type = PAR::OPERATOR;
+	    }
 	}
 	f->position = pos;
     }

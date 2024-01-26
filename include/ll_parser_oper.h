@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 20 02:41:13 EDT 2023
+// Date:	Fri Jan 26 01:28:41 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -219,7 +219,10 @@ typedef min::packed_vec_insptr< oper_vec_struct >
 // token to its left, or in the case of op ==
 // NULL_STUB, if a non-operator is allowed after the
 // token to its left.  The OP::LINE flag is NOT
-// checked.
+// checked.  Return false otherwise.
+//
+// If true is returned, push an entry with first,
+// op, flags, and precedence into v.
 //
 bool flags_OK ( oper_vec v,
 		ll::parser::token first,

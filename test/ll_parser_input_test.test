@@ -328,7 +328,7 @@ NUMERIC: "<89>": line ##:
 QUOTED-STRING: "'": line ##:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                   ^^
-ERROR: string ended by line break or end of file; line ##:
+ERROR: in line ##: string ended by line break or end of file:
 .foo /foo ..foo .= 3/x x/3 3.x x.3// comment <89> "'
                                                     ^
 LINE-BREAK: line ##:
@@ -460,19 +460,19 @@ control A␁B␂C␃
 WORD: "A": line ##:
 control A␁B␂C␃
         ^
-ERROR: illegal control character sequence; line ##:
+ERROR: in line ##: illegal control character sequence:
 control A␁B␂C␃
          ^
 WORD: "B": line ##:
 control A␁B␂C␃
           ^
-ERROR: illegal control character sequence; line ##:
+ERROR: in line ##: illegal control character sequence:
 control A␁B␂C␃
            ^
 WORD: "C": line ##:
 control A␁B␂C␃
             ^
-ERROR: illegal control character sequence; line ##:
+ERROR: in line ##: illegal control character sequence:
 control A␁B␂C␃
              ^
 LINE-BREAK: line ##:
@@ -574,7 +574,8 @@ misplaced space ␌ here and ␍ here
 WORD: "space": line ##:
 misplaced space ␌ here and ␍ here
           ^^^^^
-ERROR: vertical control character sequence with no line feed; line ##:
+ERROR: in line ##: vertical control character sequence with no line
+       feed:
 misplaced space ␌ here and ␍ here
                 ^
 WORD: "here": line ##:
@@ -583,7 +584,8 @@ misplaced space ␌ here and ␍ here
 WORD: "and": line ##:
 misplaced space ␌ here and ␍ here
                        ^^^
-ERROR: vertical control character sequence with no line feed; line ##:
+ERROR: in line ##: vertical control character sequence with no line
+       feed:
 misplaced space ␌ here and ␍ here
                            ^
 WORD: "here": line ##:
@@ -631,7 +633,7 @@ INDENT: line ##:
 QUOTED-STRING: "premature␣end␣of␣line␣follows": line ##:
 "premature end of line follows
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: string ended by line break or end of file; line ##:
+ERROR: in line ##: string ended by line break or end of file:
 "premature end of line follows
                               ^
 LINE-BREAK: line ##:
@@ -643,10 +645,10 @@ INDENT: line ##:
 QUOTED-STRING: "premature␣end␣of␣file␣follows": line ##:
 "premature end of file follows<END-OF-FILE>
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: string ended by line break or end of file; line ##:
+ERROR: in line ##: string ended by line break or end of file:
 "premature end of file follows<END-OF-FILE>
                               ^
-ERROR: end of file not preceeded by a line break; line ##:
+ERROR: in line ##: end of file not preceeded by a line break:
 "premature end of file follows<END-OF-FILE>
                               ^
 END-OF-FILE: line ##:

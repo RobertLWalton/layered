@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_input.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 06:37:21 EST 2022
+// Date:	Mon Apr  8 16:12:29 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -203,42 +203,33 @@ SCAN_NEXT_LEXEME:
 	    continue;
 
 	case LEXSTD::premature_end_of_string_t:
-	    message = "ERROR: string ended by"
-	              " line break or end of file; ";
+	    message = "string ended by"
+	              " line break or end of file";
 	    break;
 	case LEXSTD::premature_end_of_file_t:
-	    message = "ERROR: end of file not preceeded"
-	              " by a line break; ";
+	    message = "end of file not preceeded"
+	              " by a line break";
 	    break;
 	case LEXSTD::misplaced_vertical_t:
-	    message = "ERROR: vertical control"
+	    message = "vertical control"
 	              " character sequence with no line"
-		      " feed; ";
+		      " feed";
 	    break;
 	case LEXSTD::illegal_control_t:
-	    message = "ERROR: illegal control character"
-	              " sequence; ";
+	    message = "illegal control character"
+	              " sequence";
 	    break;
 	case LEXSTD::unrecognized_character_t:
-	    message = "ERROR: unrecognized character"
-	              " sequence; ";
+	    message = "unrecognized character"
+	              " sequence";
 	    break;
 	}
 
 	if ( message != NULL )
 	{
-	    printer
-		<< min::bom
-		<< min::set_indent ( 7 )
-		<< message
-		<< LEX::pline_numbers
-		       ( scanner, first, next )
-		<< ":" << min::eom;
-	    LEX::print_phrase_lines
-	        ( printer, scanner, first, next );
-
-	    ++ parser->error_count;
-
+	    min::phrase_position position =
+		LEX::phrase_position ( scanner, first, next );
+	    PAR::parse_error ( parser, position, message );
 	    continue;
 	}
 

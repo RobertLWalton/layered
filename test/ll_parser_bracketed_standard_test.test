@@ -91,7 +91,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
      (x + y z {{p q}} + `{p}' - [ g h ]).
@@ -706,27 +706,37 @@ This is a label [< x y "hello" 5.6 z >]
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [label] SELECTED KEY "("
+     OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-BRACKETED SUBEXPRESSION PARSER REJECTED KEY ")"
+=== BRACKETED EXPRESSION: line ##:
+This is another label [< x ( y ) z >]
+                           ^^^^^
+    (y)
+!@@@ := y:
+            .terminator = ")"
+            .initiator = "("
+            .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [label] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
-WARNING: in line ##: separator should be quoted:
+ERROR: in line ##: not a legal label element `(y)':
 This is another label [< x ( y ) z >]
-                           ^
-WARNING: in line ##: separator should be quoted:
+                           ^^^^^
+ERROR: in line ##: evaluated to ERROR special value because of error(s)
+       in label elements:
 This is another label [< x ( y ) z >]
-                               ^
+                      ^^^^^^^^^^^^^^^
 === DERIVED EXPRESSION: line ##:
 This is another label [< x ( y ) z >]
                       ^^^^^^^^^^^^^^^
-    [< x "(" y ")" z >]
-!@@@ := [< x "(" y ")" z >]
+    [$ ERROR $]
+!@@@ := [$ ERROR $]
 === BRACKETED EXPRESSION: line ##:
 This is another label [< x ( y ) z >]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    This is another label [< x "(" y ")" z >]
-!@@@ := This is another label [< x "(" y ")" z >]:
+    This is another label [$ ERROR $]
+!@@@ := This is another label [$ ERROR $]:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
@@ -808,7 +818,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "``"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
 lastly ``{s}This is a sentence.''
@@ -847,9 +857,9 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "``"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
 and another ``{s: i}This is a sentence.''
@@ -890,7 +900,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "``"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
 and one more ``{s}First sentence. {s: i}Second sentence.''
@@ -901,9 +911,9 @@ and one more ``{s}First sentence. {s: i}Second sentence.''
             .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
 and one more ``{s}First sentence. {s: i}Second sentence.''
@@ -955,7 +965,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "``"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
 and a last one ``{s}First sentence. {s: i}Second sentence.
@@ -966,9 +976,9 @@ and a last one ``{s}First sentence. {s: i}Second sentence.
             .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ##:
 and a last one ``{s}First sentence. {s: i}Second sentence.
@@ -1105,11 +1115,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
                                                enable header]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
 This line contains a typed subexpression {x|1 2 3|}
@@ -1128,21 +1138,21 @@ This line contains a typed subexpression {x|1 2 3|}
             .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
     {x: w, y = 6, z = b c 5 d|1 2 3|}
@@ -1166,21 +1176,21 @@ Another typed subexpression
             .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
     {x: w, z = b c 5 d|1 2 3|y = 6 : x}
@@ -1205,13 +1215,13 @@ Yet another typed subexpression
             .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
 And another- {t| x y z |b[ABC_,200] = (1 2 3),
@@ -1221,11 +1231,11 @@ And another- {t| x y z |b[ABC_,200] = (1 2 3),
             .terminator = "]"
             .initiator = "["
             .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "("
+BRACKETED PARSER FOUND [label] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
 And another- {t| x y z |b[ABC_,200] = (1 2 3),
@@ -1235,11 +1245,11 @@ And another- {t| x y z |b[ABC_,200] = (1 2 3),
             .terminator = ")"
             .initiator = "("
             .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
                        c[+] = FALSE, d[-] = TRUE,
@@ -1249,13 +1259,13 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
             .terminator = "]"
             .initiator = "["
             .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
                        c[+] = FALSE, d[-] = TRUE,
@@ -1265,17 +1275,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
             .terminator = "]"
             .initiator = "["
             .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: bad flag(s) `_' in "ABC_,200"; bad flag(s) ignored:
 And another- {t| x y z |b[ABC_,200] = (1 2 3),
@@ -1313,45 +1323,45 @@ And another- {t| x y z |b[ABC_,200] = (1 2 3),
             .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [code] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [code] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [code] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
 And one more {t| |b["A", 201,202, [5]]: t}
                                   ^^^
     [5]
-!@@@ := 5:
-            .terminator = "]"
-            .initiator = "["
-            .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+!@@@@ := 5:
+             .terminator = "]"
+             .initiator = "["
+             .position[H] = PACKED_VEC
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ##:
 And one more {t| |b["A", 201,202, [5]]: t}
                    ^^^^^^^^^^^^^^^^^^^
     ["A" "," 201,202 "," [5]]
-!@@@@ := @@@@ "," 201,202 "," @@@:
+!@@@@ := @@@@ "," 201,202 "," @@@@:
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
 !@@@@ := A:
              .type = "<Q>"
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: bad flags specifier `[5]'; ignored:
 And one more {t| |b["A", 201,202, [5]]: t}
@@ -1374,7 +1384,7 @@ And one more {t| |b["A", 201,202, [5]]: t}
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ##:
 {}
@@ -1394,7 +1404,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: missing closing bracket `}' inserted before `)':
 ({)
@@ -1423,7 +1433,7 @@ ERROR: in line ##: missing closing bracket `}' inserted before `)':
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -1447,13 +1457,13 @@ ERROR: in line ##: missing `|'; inserted before:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -1478,9 +1488,9 @@ ERROR: in line ##: missing `|'; inserted before:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: empty label:
 {P:}
@@ -1514,9 +1524,9 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: empty label:
 ({P2:)
@@ -1554,12 +1564,12 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 ERROR: in line ##: missing type; "" assumed:
 ({:)
   ^
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: empty label:
 ({:)
@@ -1594,19 +1604,19 @@ ERROR: in line ##: bad attribute label; attribute ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ##: missing type; "" assumed:
 {P: f = F|1 2 3|g = G:}
@@ -1635,11 +1645,11 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
@@ -1677,17 +1687,17 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: missing closing bracket `}' inserted before `)':
 ({N: f = F|1 2 3|g = G)
@@ -1721,17 +1731,17 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: empty value:
 ({K: f = F|1 2 3|g =)
@@ -1768,23 +1778,23 @@ ERROR: in line ###: bad attribute value; attribute ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {S: x = A|1 2|y = B|3 4|z = C}
@@ -1806,25 +1816,25 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = A|1 2|y = B|3 4|z = C: T}
@@ -1846,25 +1856,25 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `T' != end type `S'; end type
        ignored:
@@ -1890,21 +1900,21 @@ ERROR: in line ###: beginning type `T' != end type `S'; end type
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `' != end type `S'; end type ignored:
 {|1 2|y = B|3 4|z = C: S}
@@ -1927,19 +1937,19 @@ ERROR: in line ###: beginning type `' != end type `S'; end type ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {|1 2|y = B|3 4|z = C}
@@ -1959,17 +1969,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {|1 2|y = B|3 4|}
@@ -1988,17 +1998,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {S|1 2|y = B|3 4|S}
@@ -2018,17 +2028,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {|1 2|y = B|3 4|""}
@@ -2047,11 +2057,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `X' != end type `Y'; end type
        ignored:
@@ -2074,11 +2084,11 @@ ERROR: in line ###: beginning type `X' != end type `Y'; end type
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `' != end type `Y'; end type ignored:
 {|1 2 3|Y}
@@ -2099,11 +2109,11 @@ ERROR: in line ###: beginning type `' != end type `Y'; end type ignored:
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {""|1 2 3|""}
@@ -2121,11 +2131,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|1 2 3|""}
@@ -2143,17 +2153,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {""|1 2|y = B|3 4|""}
@@ -2172,15 +2182,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {"": y = B|1 2 3 4|}
@@ -2199,19 +2209,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {"": y = B|1 2 3 4|z = C: ""}
@@ -2231,17 +2241,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: y = B|1 2 3 4|z = C}
@@ -2262,21 +2272,21 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: y, no p|1 2 3 4|no q, z}
@@ -2299,17 +2309,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: no p|1 2 3 4|no q}
@@ -2330,23 +2340,23 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 ERROR: in line ###: negator preceding attribute label that is followed
        by `='; negator ignored:
 {T: no p|1 2 3 4|no q = 5}
                  ^^
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: no p|1 2 3 4|no q = 5}
@@ -2367,11 +2377,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|1 2 3 4|}
@@ -2389,13 +2399,13 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {T: x = {* "hi" *}|1 2 3|}
@@ -2413,11 +2423,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = {* "hi" *}|1 2 3|}
@@ -2437,19 +2447,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {T: x = {* "hi",, there *}|1 2 3|}
@@ -2467,11 +2477,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = {* "hi",, there *}|1 2 3|}
@@ -2491,15 +2501,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "("
+BRACKETED PARSER FOUND [label] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ")"
+BRACKETED PARSER FOUND [label] SELECTED KEY ")"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
@@ -2509,21 +2519,21 @@ BRACKETED PARSER FOUND [data] SELECTED KEY ")"
              .terminator = ")"
              .initiator = "("
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
@@ -2533,7 +2543,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
@@ -2551,11 +2561,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = {* (A B), foo bar,,, [C D] *}|1 2 3|}
@@ -2575,22 +2585,22 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {T: x = {* ,,, *}|1 2 3|}
@@ -2608,11 +2618,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: x = {* ,,, *}|1 2 3|}
@@ -2631,17 +2641,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: m = 1| |n = 2}
@@ -2662,15 +2672,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: m = 1||n = 2}
@@ -2691,17 +2701,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: m = 1||n = 2||}
@@ -2722,11 +2732,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {| |}
@@ -2744,9 +2754,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {||}
@@ -2764,13 +2774,13 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|{||}|}
@@ -2780,7 +2790,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|{||}|}
@@ -2798,15 +2808,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|{|X|}|}
@@ -2816,7 +2826,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|{|X|}|}
@@ -2834,7 +2844,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
@@ -2850,7 +2860,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {|(X)|}
@@ -2870,7 +2880,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
@@ -2886,7 +2896,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "]"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {|[X]|}
@@ -2906,7 +2916,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY [< "{" "{" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
@@ -2922,7 +2932,7 @@ BRACKETED PARSER FOUND [math] SELECTED KEY [< "}" "}" >]
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {|{{X}}|}
@@ -2942,11 +2952,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|"STRING"|}
@@ -2966,17 +2976,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: m = 1 || n = 2: T }
@@ -2997,9 +3007,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {m = 1}
@@ -3018,18 +3028,18 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 ERROR: in line ###: missing type; "" assumed:
 {: m = 1, n = 2}
  ^
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {: m = 1, n = 2}
@@ -3049,11 +3059,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {m, n = 2}
@@ -3161,7 +3171,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 [$ MISSING $]
@@ -3179,7 +3189,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 [$ INDENTED_PARAGRAPH $]
@@ -3197,7 +3207,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: subexpression "FOOBAR" unrecognized special name;
        changed to ERROR:
@@ -3207,7 +3217,7 @@ ERROR: in line ###: subexpression "FOOBAR" unrecognized special name;
 [$ FOOBAR $]
 ^^^^^^^^^^^^
     [$ ERROR $]
-!@@@@ := [$ ERROR $]
+!@@@ := [$ ERROR $]
 === BRACKETED EXPRESSION: line ###:
 [$ FOOBAR $]
 ^^^^^^^^^^^^
@@ -3275,7 +3285,7 @@ BRACKETED PARSER FOUND
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 [< [$ MISSING $] >]
@@ -3295,7 +3305,7 @@ ERROR: in line ###: evaluated to ERROR special value because of error(s)
 [< [$ MISSING $] >]
 ^^^^^^^^^^^^^^^^^^^
     [$ ERROR $]
-!@@@@ := [$ ERROR $]
+!@@@ := [$ ERROR $]
 === BRACKETED EXPRESSION: line ###:
 [< [$ MISSING $] >]
 ^^^^^^^^^^^^^^^^^^^
@@ -3306,39 +3316,39 @@ ERROR: in line ###: evaluated to ERROR special value because of error(s)
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
              ^^^^^^^^^^
     [$ NONE $]
 !@@ := [$ NONE $]
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 ERROR: in line ###: not a legal attribute value `NONE'; attribute
        ignored:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
              ^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
                              ^^^^^^^^^^^^^
     [$ MISSING $]
 !@@@@ := [$ MISSING $]
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: bad attribute value; attribute ignored:
 { x = 1, y = [$ NONE $], z = [$ MISSING $] }
@@ -3361,30 +3371,30 @@ ERROR: in line ###: bad attribute value; attribute ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
                    ^^^^^^^^^^
     [$ NONE $]
 !@@ := [$ NONE $]
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: not a legal object element value; `NONE'; ignored:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
@@ -3405,20 +3415,20 @@ ERROR: in line ###: not a legal object element value; `NONE'; ignored:
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
                                          ^^^^^^^^^^^^^
     [$ MISSING $]
 !@@@@ := [$ MISSING $]
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 { x = 1, y = {* 1, [$ NONE $], 2 *}, z = [$ MISSING $] }
@@ -3439,45 +3449,45 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
            ^^^^^^^^^^
     [$ NONE $]
 !@@ := [$ NONE $]
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 ERROR: in line ###: not a legal label element `NONE':
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
            ^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
     [$ MISSING $]
 !@@@@ := [$ MISSING $]
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 ERROR: in line ###: not a legal label initial element `MISSING':
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
                                ^^^^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: bad attribute label; attribute ignored:
 { x = 1, y [$ NONE $] 55 = 77, [$ MISSING $] = 11,
@@ -3507,24 +3517,24 @@ ERROR: in line ###: bad attribute label; attribute ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
 ERROR: in line ###: empty label:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
                     ^
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: bad attribute label; attribute ignored:
 { x = 1, y 55 = 77, = 11, z 22 = 33 }
@@ -3548,13 +3558,13 @@ ERROR: in line ###: bad attribute label; attribute ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
@@ -3564,26 +3574,26 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
                    ^^^^^^^^^^
     [$ NONE $]
 !@@ := [$ NONE $]
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 ERROR: in line ###: not a legal attribute value `NONE'; attribute
        ignored:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
                    ^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
@@ -3593,9 +3603,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: bad attribute value; attribute ignored:
 { x = 55, y[abc] = [$ NONE $], z[def] = 88 }
@@ -3618,16 +3628,16 @@ ERROR: in line ###: bad attribute value; attribute ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "$" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 {[$ NONE $]: x = 1}
  ^^^^^^^^^^
     [$ NONE $]
 !@@ := [$ NONE $]
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
 ERROR: in line ###: not a legal label initial element `NONE':
 {[$ NONE $]: x = 1}
@@ -3635,9 +3645,9 @@ ERROR: in line ###: not a legal label initial element `NONE':
 ERROR: in line ###: bad type label; "" assumed:
 {[$ NONE $]: x = 1}
  ^^^^^^^^^^
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {[$ NONE $]: x = 1}
@@ -3658,7 +3668,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
@@ -3669,7 +3679,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
@@ -3687,7 +3697,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
@@ -3715,7 +3725,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 ({W} 2 3 {X} 4 5 ({Y} 6 7) {Z})
@@ -3756,7 +3766,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
@@ -3767,7 +3777,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
@@ -3785,7 +3795,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
@@ -3796,7 +3806,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
@@ -3814,7 +3824,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c {X}{Y} d e {Y} f g {X} h k
@@ -3854,7 +3864,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c
@@ -3880,7 +3890,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X}{Y} f g
@@ -3891,7 +3901,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X}{Y} f g
@@ -3924,7 +3934,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} h k
@@ -3950,7 +3960,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} a b c
@@ -3976,7 +3986,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X}{Y} f [$ NONE $] g
@@ -3987,7 +3997,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X}{Y} f [$ NONE $] g
@@ -3999,7 +4009,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code] SELECTED KEY [< "[" "$" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "$" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "$" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 {X}{Y} f [$ NONE $] g
@@ -4033,7 +4043,7 @@ ERROR: in line ###: not a legal object element value; `NONE'; ignored:
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {X} h k
@@ -4094,7 +4104,7 @@ ERROR: in line ###: missing closing bracket `} }' inserted at end of
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
@@ -4110,7 +4120,7 @@ BRACKETED PARSER FOUND [code] SELECTED KEY ")"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T|(X) ho|}
@@ -4129,17 +4139,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "{"
+BRACKETED PARSER FOUND [label] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
@@ -4148,11 +4158,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
 !@@@@ := hi:
              .type = Y
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
@@ -4163,23 +4173,23 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "{"
+BRACKETED PARSER FOUND [label] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "}" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "}" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY [< "}" "}" >]
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
-=== BRACKETED EXPRESSION: line ###:
+=== PREFIX EXPRESSION: line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
                            ^^^
     {Z}
 !@@@@ :=:
              .type = Z
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: A = {Y|hi|}|{X} ho|B = {Z}}
@@ -4254,8 +4264,9 @@ BRACKETED PARSER FOUND
              .initiator = [< *PARSER* ":" >]
 *PARSER*:
     print bracket ""
-        block standard: bracket "``" ... "''" [code, text, math]
-                        with parsing selectors [- code, + text, - math]
+        block standard: bracket "``" ... "''" [code, label, text, math]
+                        with parsing selectors [- code, - label, + text,
+                                                - math]
                         with parsing options [+ enable table prefix]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
@@ -4267,25 +4278,31 @@ BRACKETED PARSER FOUND
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
                          with parsing selectors [data]
                          with label reformatter
+        block standard: bracket [< "{" "*" >] ... [< "*" "}" >] [label]
+                        with multivalue reformatter ( "," )
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
-        block standard: bracket "(" ... ")" [code, text, math]
+        block standard: bracket "(" ... ")" [code, label, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block standard: bracket "[" ... "]" [code, text, math]
+        block standard: bracket "[" ... "]" [code, label, text, math]
+                        with parsing selectors [+ code, - label, - text,
+                                                - math]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, text, math]
-                        with parsing selectors [text]
+        block standard: bracket "`" ... "'" [code, label, text, math]
+                        with parsing selectors [- code, - label, + text,
+                                                - math]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [data]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [code, text, math]
-                        with parsing selectors [- code, - text, + math]
+                        [code, label, text, math]
+                        with parsing selectors [- code, - label, - text,
+                                                + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket "<+" ... "+>" [math]
         block standard: bracket "<-" ... "->" [text]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [code, label, text, math]
-                        with parsing selectors [data]
+                        with parsing selectors [label]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
@@ -4344,8 +4361,8 @@ BRACKETED PARSER FOUND
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
                         // "||" is also allowed.
-                        [code, text, math]
-                        with attribute selectors [data]
+                        [code, label, text, math]
+                        with attribute selectors [label]
                         with attributes ":" ... "=" ... ","
                         with attribute negator "no"
                         with attribute flags initiator "["
@@ -4394,11 +4411,11 @@ This is a continued-middle-#
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type|a b c|}
@@ -4417,11 +4434,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `' != end type `my type'; end type
        ignored:
@@ -4443,11 +4460,11 @@ ERROR: in line ###: beginning type `' != end type `my type'; end type
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type|a b c|my type}
@@ -4466,9 +4483,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type||}
@@ -4487,9 +4504,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `' != end type `my type'; end type
        ignored:
@@ -4511,19 +4528,19 @@ ERROR: in line ###: beginning type `' != end type `my type'; end type
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type: my attribute = 5, my option = TRUE| a b c |}
@@ -4544,19 +4561,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: lines ###-###:
 {my type: my attribute = 5, your option = FALSE|
@@ -4581,19 +4598,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: lines ###-###:
 {my type: my attribute = 5|
@@ -4618,17 +4635,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my attribute = 5| a b c |my option = TRUE: my type}
@@ -4649,15 +4666,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type| a b c |attribute = 5, my option}
@@ -4678,17 +4695,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type| a b c |attribute = 5, my option: my type}
@@ -4709,17 +4726,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `' != end type `my type'; end type
        ignored:
@@ -4743,11 +4760,11 @@ ERROR: in line ###: beginning type `' != end type `my type'; end type
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {|a b c|}
@@ -4765,9 +4782,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {||}
@@ -4785,7 +4802,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PURELIST EXPRESSION: line ###:
 {}
@@ -4803,17 +4820,17 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my attribute = 5, no your option|a b c|}
@@ -4833,19 +4850,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {"": my attribute = 5, no your option|a b c|""}
@@ -4884,13 +4901,13 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my option| a b c |no your option}
@@ -4910,15 +4927,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my option: no your option| a b c |}
@@ -4938,15 +4955,15 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my option: your option = FALSE| a b c |}
@@ -4966,13 +4983,13 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {no your option| a b c |my option}
@@ -4992,11 +5009,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: beginning type `my option' != end type `your
        option'; end type ignored:
@@ -5064,17 +5081,17 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {my attribute = {* a b c, d e, f *} ||}
@@ -5092,9 +5109,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my attribute = {* a b c, d e, f *} ||}
@@ -5113,11 +5130,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {my attribute = {* *} ||}
@@ -5135,9 +5152,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my attribute = {* *} ||}
@@ -5155,14 +5172,14 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {my attribute = {* , *} ||}
@@ -5180,9 +5197,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "||"
+BRACKETED PARSER FOUND [label] SELECTED KEY "||"
      OF SUBTYPE ll::parser::table::typed_double_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my attribute = {* , *} ||}
@@ -5200,19 +5217,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type: x = 5, y = "5" | a b c |}
@@ -5233,28 +5250,28 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "[" "<" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "[" "<" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< ">" "]" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< ">" "]" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === DERIVED EXPRESSION: line ###:
 {my type: x = 5 tomatoes, y = [< 5 tomatoes >]
                               ^^^^^^^^^^^^^^^^
     [< 5 tomatoes >]
 !@@@@ := [< 5 tomatoes >]
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: lines ###-###:
 {my type: x = 5 tomatoes, y = [< 5 tomatoes >]
@@ -5279,16 +5296,16 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
@@ -5306,25 +5323,25 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
@@ -5342,11 +5359,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: lines ###-###:
 {my type: x = {* A, B *}, y = {* , "A",, B, *}
@@ -5371,19 +5388,19 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "{" "*" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "{" "*" >]
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
+BRACKETED PARSER FOUND [label] SELECTED KEY [< "*" "}" >]
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETABLE EXPRESSION: line ###:
 {my type: y = {* ,, *} | a b c |}
@@ -5401,11 +5418,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY [< "*" "}" >]
              .initiator = [< "{" "*" >]
              .separator = ","
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {my type: y = {* ,, *} | a b c |}
@@ -5443,11 +5460,11 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {"+"| 1 2 3 |"+"}
@@ -5485,11 +5502,11 @@ BRACKETED PARSER FOUND [code] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {"<" ">"| 1 2 3 |"<" ">"}
@@ -5508,11 +5525,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {x: y[+Y] = 44}
@@ -5522,9 +5539,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {x: y[+Y] = 44}
@@ -5552,11 +5569,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {x: y[1,Y]}
@@ -5566,7 +5583,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {x: y[1,Y]}
@@ -5594,11 +5611,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {x: y[+,62], no y}
@@ -5608,11 +5625,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "no"
+BRACKETED PARSER FOUND [label] SELECTED KEY "no"
      OF SUBTYPE ll::parser::table::typed_attr_negator_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {x: y[+,62], no y}
@@ -5640,11 +5657,11 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "["
+BRACKETED PARSER FOUND [label] SELECTED KEY "["
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "]"
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {x: y[62,1], y}
@@ -5654,9 +5671,9 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "]"
              .terminator = "]"
              .initiator = "["
              .position[H] = PACKED_VEC
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {x: y[62,1], y}
@@ -5684,22 +5701,22 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "("
+BRACKETED PARSER FOUND [label] SELECTED KEY "("
      OF SUBTYPE ll::parser::table::opening_bracket_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY ","
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 ERROR: in line ###: missing closing bracket `)' inserted before `}':
 {x: y = (z + w, v| m n |}
@@ -6016,27 +6033,27 @@ the line after the outer paragraph
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: a = 1, b = 2, c = 3, d = 4 | X Y Z |}
@@ -6059,25 +6076,25 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: a = 1, b = 2, c = 3 | X Y Z | d = 4 }
@@ -6100,27 +6117,27 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: a = 1, b = 2 | X Y | c = 3 | Z | d = 4 }
@@ -6143,29 +6160,29 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: a = 1, b = 2 | X Y | c = 3, d = 4 | Z | }
@@ -6188,31 +6205,31 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ":"
+BRACKETED PARSER FOUND [label] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::typed_attr_begin_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY ","
+BRACKETED PARSER FOUND [label] SELECTED KEY ","
      OF SUBTYPE ll::parser::table::typed_attr_sep_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "="
+BRACKETED PARSER FOUND [label] SELECTED KEY "="
      OF SUBTYPE ll::parser::table::typed_attr_equal_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND [code] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {T: a = 1 | X | b = 2 | Y | c = 3, d = 4 | Z | }
@@ -6235,7 +6252,7 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {x} this is a line:
@@ -6248,7 +6265,7 @@ BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 BRACKETED PARSER FOUND [LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
          has an {x} unrecognized because it
@@ -6266,7 +6283,7 @@ BRACKETED PARSER FOUND [LINE LEVEL, code] SELECTED KEY "`"
      OF SUBTYPE ll::parser::table::opening_bracket_type
 BRACKETED PARSER FOUND [text] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
          the outer `{x}'
@@ -6330,7 +6347,7 @@ BRACKETED PARSER FOUND [text] SELECTED KEY "'"
              .initiator = ":"
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
   but this {x} is
@@ -6906,7 +6923,7 @@ ID 8 is @@
              .initiator = [$ LOGICAL_LINE $]
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === PREFIX EXPRESSION: line ###:
 {*DATA*} @@ := M N P
@@ -6930,12 +6947,12 @@ BRACKETED PARSER FOUND [data] SELECTED KEY "}"
              .position[H] = PACKED_VEC
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "|"
+BRACKETED PARSER FOUND [label] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
 BRACKETED PARSER FOUND
     [TOP LEVEL, LINE LEVEL, code, data paragraph] SELECTED KEY "|"
      OF SUBTYPE ll::parser::table::typed_middle_type
-BRACKETED PARSER FOUND [data] SELECTED KEY "}"
+BRACKETED PARSER FOUND [label] SELECTED KEY "}"
      OF SUBTYPE ll::parser::table::closing_bracket_type
 === BRACKETED EXPRESSION: line ###:
 {*DATA*| @@@ := A B C|}

@@ -480,7 +480,7 @@ ID 131 is @@@@
 === BRACKETED EXPRESSION:
     ID 140 is ``{s: .terminator = "."|This is a sentence|s}''
 === BRACKETED EXPRESSION:
-    ID 141 is {a: b = ``{s} This is a sentence "."''}
+    ID 141 is {a: b = ``{s: .terminator = "."|This is a sentence|s}''}
 === BRACKETED EXPRESSION:
     ID 142 is {a|{s} This is a sentence "."|a}
 === BRACKETED EXPRESSION:

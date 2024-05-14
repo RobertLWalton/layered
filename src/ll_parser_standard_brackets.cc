@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 10 13:13:40 EST 2023
+// Date:	Tue May 14 03:28:57 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,8 @@ static void define_brackets
 	  TAB::flags text,
 	  TAB::flags math )
 {
+    if ( code + text + math + label == 0 ) return;
+
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
     min::uns32 block_level =
@@ -57,6 +59,7 @@ static void define_brackets
     TAB::flags data =
         1ull << TAB::find_name
 	    ( parser->selector_name_table, data_name );
+    TAB::flags label_or_data = ( label ? label : data );
 
     min::locatable_gen opening_double_brace
         ( min::new_lab_gen ( "{", "{" ) );
@@ -83,18 +86,31 @@ static void define_brackets
     min::locatable_gen dollar_closing_square
         ( min::new_lab_gen ( "$", "]" ) );
 
+    min::locatable_gen left_curly_star
+        ( min::new_lab_gen ( "{", "*" ) );
+    min::locatable_gen star_right_curly
+        ( min::new_lab_gen ( "*", "}" ) );
+
     min::locatable_gen no
         ( min::new_str_gen ( "no" ) );
-
-    min::locatable_gen opening_brace_star
-        ( min::new_lab_gen ( "{", "*" ) );
 
     min::locatable_gen double_vbar
         ( min::new_str_gen ( "||" ) );
 
+    min::locatable_gen multivalue
+	( min::new_str_gen ( "multivalue" ) );
+    min::locatable_gen comma
+	( min::new_str_gen ( "," ) );
+    min::locatable_gen multivalue_arguments
+	( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr mvvp
+	( multivalue_arguments );
+    min::attr_push ( mvvp ) = comma;
+
     // In the following be sure parsing selectors
     // argument does nothing to ALWAYS_SELECTOR.
     // Use COMMAND_SELECTORS instead of ALL_SELECTORS.
+
 
     BRA::push_brackets
         ( opening_square_dollar,
@@ -102,7 +118,8 @@ static void define_brackets
 	  label + code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( data, PAR::COMMAND_SELECTORS ^ data ),
+	      ( label_or_data,
+	        PAR::COMMAND_SELECTORS ^ label_or_data ),
 	  PAR::find_reformatter
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),
@@ -124,50 +141,71 @@ static void define_brackets
 		    BRA::untyped_reformatter_stack ),
 	      min::MISSING(),
 	      bracketed_pass->bracket_table );
+
+	BRA::push_brackets
+	    ( left_curly_star,
+	      star_right_curly,
+	      label,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      PAR::find_reformatter
+		  ( multivalue,
+		    BRA::untyped_reformatter_stack ),
+	      multivalue_arguments,
+	      bracketed_pass->bracket_table );
     }
 
-    if ( code + text + math == 0 ) return;
-
     BRA::push_brackets
-        ( PARLEX::left_parenthesis,
+	( PARLEX::left_parenthesis,
 	  PARLEX::right_parenthesis,
-	  code + math + text,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::MISSING(),
-	  bracketed_pass->bracket_table );
-    BRA::push_brackets
-        ( PARLEX::left_square,
-          PARLEX::right_square,
-	  code + math + text,
+	  label + code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     BRA::push_typed_brackets
-        ( PARLEX::left_curly,
+	( PARLEX::left_curly,
 	  PARLEX::vbar,
 	  double_vbar,
 	  PARLEX::right_curly,
-	  code + math + text,
+	  label + code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  data,
+	  label_or_data,
 	  PARLEX::colon, PARLEX::equal, PARLEX::comma,
 	  PARLEX::no,
 	  PARLEX::left_square,
 	  min::standard_attr_flag_parser,
-	  opening_brace_star,
+	  left_curly_star,
 	  PAR::ALL_SELECTORS,
 	  bracketed_pass->bracket_table );
+
+    if ( code )
+	BRA::push_brackets
+	    ( PARLEX::left_square,
+	      PARLEX::right_square,
+	      label + code + math + text,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags ( code, label + math + text ),
+	      min::NULL_STUB, min::MISSING(),
+	      bracketed_pass->bracket_table );
+    else
+	BRA::push_brackets
+	    ( PARLEX::left_square,
+	      PARLEX::right_square,
+	      label + math + text,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags ( 0, 0, 0 ),
+	      min::NULL_STUB, min::MISSING(),
+	      bracketed_pass->bracket_table );
 
     if ( math ) BRA::push_brackets
         ( opening_double_brace,
           closing_double_brace,
-	  code + math + text,
+	  label + code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( math, code + text ),
+	  TAB::new_flags ( math, label + code + text ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
@@ -176,11 +214,9 @@ static void define_brackets
 	BRA::push_brackets
 	    ( opening_quote,
 	      closing_quote,
-	      code + math + text,
+	      label + code + math + text,
 	      block_level, PAR::top_level_position,
-	      TAB::new_flags
-		  ( text,
-		    PAR::COMMAND_SELECTORS ^ text ),
+	      TAB::new_flags ( text, label + code + math ),
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
@@ -207,10 +243,10 @@ static void define_brackets
 	BRA::push_brackets
 	    ( opening_double_quote,
 	      closing_double_quote,
-	      code + math + text,
+	      label + code + math + text,
 	      block_level, PAR::top_level_position,
 	      TAB::new_flags ( text + PAR::ETPREFIX_OPT,
-	                       code + math ),
+	                       label + code + math ),
 	      PAR::find_reformatter
 		  ( text_name,
 		    BRA::untyped_reformatter_stack ),

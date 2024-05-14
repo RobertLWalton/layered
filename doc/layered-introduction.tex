@@ -5320,6 +5320,9 @@ Parser Command				& \shortstack{
 \tt define bracket "[<" \ldots~">]" [label, code, text, math] & \tt + label \\
 \tt ~~~~~~~with parsing selectors [label] \\
 \tt ~~~~~~~with label reformatter \\
+\tt define bracket "[<" \ldots~">]" [code, text, math]	      & \tt - label \\
+\tt ~~~~~~~with parsing selectors [data] \\
+\tt ~~~~~~~with label reformatter \\
 \tt define bracket "[\$" \ldots~"\$]" [label, code, text, math]
                                                               & \tt + label \\
 \tt ~~~~~~~with parsing selectors [label] \\
@@ -6569,17 +6572,31 @@ attribute flags and multivalue lists in any
 \tt ~~~~~~~with prefix selectors [] \\
 \end{tabular}
 \\[2ex]
-\begin{tabular}{l}
-\multicolumn{1}{c}
+\begin{tabular}{l@{\hspace*{0.4in}}l}
+\multicolumn{2}{c}
 {\bf Standard `\ttkey{brackets}'\label{STANDARD-BRACKETS-2} Component
      Typed Bracket Parser Command}
 \\[1ex]
-\multicolumn{1}{c}
-{This Command Requires at Least One of {\tt + code, + text, + math}} \\
-\multicolumn{1}{c}
+\multicolumn{2}{c}
+{This Command Requires at Least One of {\tt + label, + code, + text, + math}} \\
+\multicolumn{2}{c}
 {Selectors with Missing Standard Qualifiers are Deleted from the Command}
 \\[1ex]
-\tt define typed bracket "\{" ... "|" ... "|" ... "\}" \\
+Parser Command				& \shortstack{
+                                          Given\\Qualifiers}
+\\\hline
+\tt define typed bracket "\{" ...~"|" ...~"|" ...~"\}"   & \tt + label \\
+\tt ~~~~~~~~~~~~~~~~~~~~~[label, code, text, math] \\
+\tt ~~~~~~~// `||' abbreviates `| |' \\
+\tt ~~~~~~~// there are NO PARSING SELECTORS \\
+\tt ~~~~~~~// there are NO PARSING OPTIONS \\
+\tt ~~~~~~~with attribute selectors [label] \\
+\tt ~~~~~~~with attributes ":" ... "=" ... "," \\
+\tt ~~~~~~~with attribute negator "no" \\
+\tt ~~~~~~~with attribute flags initiator "[" \\
+\tt ~~~~~~~with attribute multivalue initiator "\{*" \\
+\\[1ex]
+\tt define typed bracket "\{" ...~"|" ...~"|" ...~"\}" & \tt - label \\
 \tt ~~~~~~~~~~~~~~~~~~~~~[code, text, math] \\
 \tt ~~~~~~~// `||' abbreviates `| |' \\
 \tt ~~~~~~~// there are NO PARSING SELECTORS \\

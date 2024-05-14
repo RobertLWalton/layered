@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-January 25, 2024
+May 14, 2024
  
 \end{center}
 
@@ -5291,7 +5291,7 @@ are collected into a typed bracketted subexpression with
 \tt define bracket "[\$" \ldots~"\$]" [data] \\
 \tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with special reformatter \\
-\tt define bracket "{*" \ldots~"*}" [data] \\
+\tt define bracket "\{*" \ldots~"*\}" [data] \\
 \tt ~~~~~~~with multivalue reformatter ( "," ) \\
 \end{tabular}
 \\[2ex]
@@ -5308,22 +5308,36 @@ are collected into a typed bracketted subexpression with
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
-\tt define bracket "(" \ldots~")" [code, text, math] \\
-\tt define bracket "[" \ldots~"]" [code, text, math] \\
-\tt define bracket "`" \ldots~"'" [code, text, math]	     & \tt + text \\
-\tt ~~~~~~~with parsing selectors [text] \\
+\tt define bracket "(" \ldots~")" [label, code, text, math] \\
+\tt define bracket "[" \ldots~"]" [label, code, text, math]
+						              & \tt + code \\
+\tt ~~~~~~~with parsing selectors \\
+\tt ~~~~~~~~~~~~[+ code, - label, - math, - text] \\
+\tt define bracket "`" \ldots~"'" [label, code, text, math]
+						              & \tt + text \\
+\tt ~~~~~~~with parsing selectors \\
+\tt ~~~~~~~~~~~~[+ text, - label, - code, - math] \\
 \tt define bracket "[<" \ldots~">]" [label, code, text, math] & \tt + label \\
 \tt ~~~~~~~with parsing selectors [label] \\
 \tt ~~~~~~~with label reformatter \\
-\tt define bracket "[\$" \ldots~"\$]" [label, code, text, math] \\
+\tt define bracket "[\$" \ldots~"\$]" [label, code, text, math]
+                                                              & \tt + label \\
+\tt ~~~~~~~with parsing selectors [label] \\
+\tt ~~~~~~~with special reformatter \\
+\tt define bracket "[\$" \ldots~"\$]" [code, text, math]
+                                                              & \tt - label \\
 \tt ~~~~~~~with parsing selectors [data] \\
 \tt ~~~~~~~with special reformatter \\
-\tt define bracket "\{\{" \ldots~"\}\}" [code, text, math]   & \tt + math \\
+\tt define bracket "\{\{" \ldots~"\}\}" [label, code, text, math]
+                                                              & \tt + math \\
 \tt ~~~~~~~with parsing selectors \\
-\tt ~~~~~~~~~~~~[+ math, - code, - text] \\
-\tt define bracket "`{}`" \ldots~"'{}'" [code, text, math]   & \tt + text \\
+\tt ~~~~~~~~~~~~[+ math, - label, - code, - text] \\
+\tt define bracket "\{*" \ldots~"*\}" [label]		& \tt + label \\
+\tt ~~~~~~~with multivalue reformatter ( "," ) \\
+\tt define bracket "`{}`" \ldots~"'{}'" [label, code, text, math]
+							     & \tt + text \\
 \tt ~~~~~~~with parsing selectors \\
-\tt ~~~~~~~~~~~~[+ text, - code, - math] \\
+\tt ~~~~~~~~~~~~[+ text, - label, - code, - math] \\
 \tt ~~~~~~~with parsing options \\
 \tt ~~~~~~~~~~~~[+ enable table prefix] \\
 \tt ~~~~~~~with text reformatter \\

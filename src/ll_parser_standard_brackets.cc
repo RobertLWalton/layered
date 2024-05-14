@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 03:28:57 EDT 2024
+// Date:	Tue May 14 04:26:45 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,22 +126,21 @@ static void define_brackets
 	  min::MISSING(),
 	  bracketed_pass->bracket_table );
 
-    if ( label )
-    {
-	BRA::push_brackets
-	    ( opening_square_angle,
-	      angle_closing_square,
-	      label + code + math + text,
-	      block_level, PAR::top_level_position,
-	      TAB::new_flags
-		  ( label,
-		    PAR::COMMAND_SELECTORS ^ label ),
-	      PAR::find_reformatter
-		  ( label_name,
-		    BRA::untyped_reformatter_stack ),
-	      min::MISSING(),
-	      bracketed_pass->bracket_table );
+    BRA::push_brackets
+	( opening_square_angle,
+	  angle_closing_square,
+	  label + code + math + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( label_or_data,
+		PAR::COMMAND_SELECTORS ^ label_or_data ),
+	  PAR::find_reformatter
+	      ( label_name,
+		BRA::untyped_reformatter_stack ),
+	  min::MISSING(),
+	  bracketed_pass->bracket_table );
 
+    if ( label )
 	BRA::push_brackets
 	    ( left_curly_star,
 	      star_right_curly,
@@ -153,7 +152,6 @@ static void define_brackets
 		    BRA::untyped_reformatter_stack ),
 	      multivalue_arguments,
 	      bracketed_pass->bracket_table );
-    }
 
     BRA::push_brackets
 	( PARLEX::left_parenthesis,

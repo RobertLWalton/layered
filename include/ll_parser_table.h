@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 20 21:18:13 EDT 2024
+// Date:	Fri Jun 21 04:58:25 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -184,7 +184,7 @@ struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>
         key_prefix;
 
-// All hash table entries begin with a root.
+// All key table entries begin with a root.
 //
 struct root_struct;
 typedef min::packed_struct_updptr<root_struct>
@@ -196,8 +196,18 @@ struct root_struct
     	// Packed structure control word.
 	//
     uns32 block_level;
-        // Parser block_level at time symbol was
-	// defined.
+        // Parser block_level at time entry was
+	// defined.  For a key table used for
+	// primaries:
+	//     ( lexical-level << 16 ) + depth
+	//
+	// When an entry is added to a key table,
+	// its block_level must NOT BE LESS than
+	// the block_level of any entry already
+	// in the table.  Thus when entries are
+	// removed in reverse order of their addition
+	// the block_levels of the removed entries
+	// will be non-increasing.
 
     const ll::parser::table::root next;
         // Next entry in the stack with the same key.
@@ -205,21 +215,18 @@ struct root_struct
 
     const ll::parser::table::key_prefix last;
         // Save of the value of key_table->last when
-	// this root is pushed into the key_table.  Used
-	// to remove roots in the reverse order in which
-	// they are pushed.
+	// this entry is pushed into the key_table.
+	// Used to remove entries in the reverse order
+	// in which they were added (a.k.a., `pushed').
 
     ll::parser::table::flags selectors;
         // Selector bits.
     const min::gen label;
-        // Label of hash table entry.  A sequence of one
-	// or more symbols, where a symbol is a min::gen
-	// string value encoding the translation string
-	// of a word, mark, separator, or natural number
-	// lexeme (i.e., the value of a symbol token).
+        // Label of key table entry.  A MIN label whose
+	// elements are the symbols of entry's key.
 	//
 	// The `label' is also called the `key' of a
-	// hash table entry.
+	// key table entry.
     min::phrase_position position;
         // Definition position.
 };
@@ -235,25 +242,33 @@ MIN_REF ( min::gen, label,
 // --- ------
 
 // A key table maps keys, which are labels (see Roots
-// above), to stacks of hash entries.  A key is a
+// above), to lists of key table entries.  A key is a
 // sequence of one or more symbols, each represented
-// in the key table by a min::gen string value and in
-// the input by a symbol token whose value is a min::gen
-// string.
+// in the key table by a min::gen string value or
+// min::gen number value and in the input by a symbol
+// token whose value is a min::gen string or min::gen
+// number.  The list of entries for a key is in most
+// recently added (to the key table) first order.
+//
+// The entire key table is also itself a stack, in the
+// sense that entries can be removed in reverse order
+// from that in which they were added.
 //
 // A key prefix is an initial segment of a key, viewing
-// the key as a list of key elements.
+// the key as a list of symbols.
 //
 // A key table more specifically takes a key prefix and
 // finds a key_prefix structure whose key is the key
 // prefix.  The key_prefix structure points at the list
-// of hash table entries whose labels equal the key of
+// of key table entries whose labels equal the key of
 // the key prefix structure, if there are such entries.
+// The entries are in most recently added (to the key
+// table) first order.
 //
-// Thus if there is a hash table entry with label
+// Thus if there is a key table entry with label
 // [A B C], there will be key_prefix structures with
 // keys A, [A B], and [A B C], but only the last
-// necessarily points at a non-empty list of hash table
+// necessarily points at a non-empty list of key table
 // entries, which would consist of all entries with
 // label [A B C].
 //
@@ -283,11 +298,12 @@ struct key_prefix_struct
         // Number of other key_prefixes in this key
 	// table whose previous value equals this key
 	// prefix.  This key_prefix can be garbage
-	// collected when this == 0 and first ==
-	// NULL_STUB.
+	// collected when its reference_count == 0 and
+	// its first == NULL_STUB.
 
     const min::gen key_element;
         // Last element of the key of this key prefix.
+	// Either a MIN string or a MIN number.
     const ll::parser::table::key_prefix previous;
         // Entry for key prefix whose key consists of
 	// all the key elements of this prefix but the
@@ -295,12 +311,17 @@ struct key_prefix_struct
 	// of this key prefix has only one element).
 
     const ll::parser::table::key_prefix next;
-        // Next key prefix in hash list.
+        // Next key prefix in the key prefix's hash
+	// list.  A key table is a vector of key
+	// prefix hash lists, with the hash of a
+	// key prefix's key determining the vector
+	// index of the key prefix's hash list.
 
     const ll::parser::table::root first;
-        // First hash table entry whose label equals
+        // First key table entry whose label equals
 	// the key of this key prefix, or NULL_STUB
-	// if none.
+	// if none.  The keys are in most recently
+	// added first order.
 };
 
 MIN_REF ( min::gen, key_element,
@@ -315,6 +336,9 @@ MIN_REF ( ll::parser::table::key_prefix, next,
 // A key table is just a vector of key_prefix values.
 // The `length' of this vector MUST BE a power of two.
 //
+// The table also records the key_prefix of the last
+// key table entry to be added to the table.
+//
 struct key_table_header;
 typedef min::packed_vec_insptr
 	    <ll::parser::table::key_prefix,
@@ -328,7 +352,13 @@ struct key_table_header
     const ll::parser::table::key_prefix last;
         // The last key_prefix in the table into which
 	// an element was pushed.  Key_table->last->next
-	// is the last element pushed.
+	// is the last key table entry added to the
+	// table.
+	//
+	// When an entry is added to the table, this
+	// value as it was just before the addition is
+	// saved in the entry, and when an entry is
+	// removed, the value saved is restored.
 };
 MIN_REF ( ll::parser::table::key_prefix, last,
           ll::parser::table::key_table )
@@ -344,14 +374,18 @@ ll::parser::table::key_table create_key_table
 // If none and `create' is false, return NULL_STUB.
 //
 // Also garbage collects any key_prefix found with
-// 0 reference_count and NULL_STUB `first'.
+// 0 reference_count and NULL_STUB `first'.  Garbage
+// collection is done here because this function must
+// traverse the key's hash list from the beginning
+// and can easily delete a key prefix from that list
+// if the key prefix is garbage.
 //
 ll::parser::table::key_prefix find_key_prefix
 	( min::gen key,
 	  ll::parser::table::key_table key_table,
 	  bool create = false );
 
-// Return the first key table hash entry with the given
+// Return the first key table entry with the given
 // key, subtype, and a selector in common with the
 // selectors argument, or NULL_STUB if there is none.
 //
@@ -361,16 +395,17 @@ ll::parser::table::root find
 	  ll::parser::table::flags selectors,
 	  ll::parser::table::key_table key_table );
 
-// Push the given key table hash entry into to the top
-// of the key table stack for key = entry->label.
+// Push (a.k.a `add') the given key table entry into
+// the key table.
 //
 void push ( ll::parser::table::key_table key_table,
             ll::parser::table::root entry );
 
-// Push a pure root into a key table.  Used to map
-// keys to selectors (as for the group name table).
-// Usually subtypes of root are pushed by the code
-// that defines the subtype.
+// Create a pure entry (a root that as no extension)
+// and push it into a key table.
+//
+// Used to map keys to selectors (as for the group name
+// table).
 //
 ll::parser::table::root
     push_root
@@ -390,8 +425,8 @@ ll::parser::table::root
 // newly added entry has a block_level at least as
 // great as any entry in the table at the time of the
 // addition, so entry block levels can only decrease
-// when entries are removed in most recently added
-// first order.
+// when entries are repeatedly removed from the top
+// of the key table stack.
 //
 // Actual garbage collection of key prefixes is done by
 // find_key_prefix.
@@ -402,11 +437,14 @@ void end_block
 	  uns64 & collected_key_prefixes,
 	  uns64 & collected_entries );
 
-// Iterator that finds all the root entries in a
-// key_table.  Must be created in a stack frame.
-// Assumes that the key table is not changed or
-// garbage collected while the iterator is in use
-// (but it may be compacted).
+// Iterator that finds all the entries in a key_table.
+// Must be created in a stack frame.  Assumes that the
+// key table is not changed or garbage collected while
+// the iterator is in use (but it may be compacted).
+//
+// The iterator iterates first over key prefixes and
+// then over entries with the same key prefix.  It does
+// NOT present entries in key table stack order.
 //
 struct key_table_iterator
 {
@@ -424,9 +462,9 @@ struct key_table_iterator
 	// >= key_table->length if no more elements
 	// to use.
 
-    // Return next root in table, and update iterator to
-    // point at the root following that.  Returns min::
-    // NULL_STUB if no more roots.
+    // Return next entry in table, and update iterator
+    // to point at the entry following that.  Returns
+    // min::NULL_STUB if no more entries.
     //
     ll::parser::table::root next ( void )
     {

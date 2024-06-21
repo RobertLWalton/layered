@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 20 21:19:56 EDT 2024
+// Date:	Fri Jun 21 05:27:26 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -256,6 +256,11 @@ TAB::root TAB::find
 void TAB::push
         ( TAB::key_table key_table, TAB::root entry )
 {
+    MIN_REQUIRE ( key_table->last == NULL_STUB
+                  ||
+		     key_table->last->first->block_level
+		  <= entry->block_level );
+
     min::gen key = entry->label;
     TAB::key_prefix kprefix =
         find_key_prefix ( key, key_table, true );

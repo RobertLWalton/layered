@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec  4 01:16:51 EST 2023
+// Date:	Thu Jun 20 21:19:46 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -316,7 +316,7 @@ static min::gen primary_pass_end_block
         PAR::block_level ( parser );
     MIN_REQUIRE ( block_level > 0 );
     TAB::end_block
-        ( primary_table, block_level - 1,
+        ( primary_table, block_level,
 	  collected_key_prefixes, collected_entries );
 
     return min::SUCCESS();

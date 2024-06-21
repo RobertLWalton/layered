@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 00:39:08 EST 2022
+// Date:	Thu Jun 20 21:18:13 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -178,6 +178,12 @@ inline min::gen pop_name
 // Roots
 // -----
 
+// Key prefix forward reference.
+//
+struct key_prefix_struct;
+typedef min::packed_struct_updptr<key_prefix_struct>
+        key_prefix;
+
 // All hash table entries begin with a root.
 //
 struct root_struct;
@@ -196,6 +202,13 @@ struct root_struct
     const ll::parser::table::root next;
         // Next entry in the stack with the same key.
 	// NULL_STUB if no next entry.
+
+    const ll::parser::table::key_prefix last;
+        // Save of the value of key_table->last when
+	// this root is pushed into the key_table.  Used
+	// to remove roots in the reverse order in which
+	// they are pushed.
+
     ll::parser::table::flags selectors;
         // Selector bits.
     const min::gen label;
@@ -212,6 +225,8 @@ struct root_struct
 };
 
 MIN_REF ( ll::parser::table::root, next,
+          ll::parser::table::root )
+MIN_REF ( ll::parser::table::key_prefix, last,
           ll::parser::table::root )
 MIN_REF ( min::gen, label,
           ll::parser::table::root )
@@ -300,8 +315,23 @@ MIN_REF ( ll::parser::table::key_prefix, next,
 // A key table is just a vector of key_prefix values.
 // The `length' of this vector MUST BE a power of two.
 //
+struct key_table_header;
 typedef min::packed_vec_insptr
-	    <ll::parser::table::key_prefix> key_table;
+	    <ll::parser::table::key_prefix,
+	     ll::parser::table::key_table_header>
+    key_table;
+struct key_table_header
+{
+    const min::uns32 control;
+    const min::uns32 length;
+    const min::uns32 max_length;
+    const ll::parser::table::key_prefix last;
+        // The last key_prefix in the table into which
+	// an element was pushed.  Key_table->last->next
+	// is the last element pushed.
+};
+MIN_REF ( ll::parser::table::key_prefix, last,
+          ll::parser::table::key_table )
 
 // Create a key table of given length which MUST BE a
 // power of two.
@@ -312,6 +342,9 @@ ll::parser::table::key_table create_key_table
 // Return the key table key_prefix with the given key.
 // If none and `create' is true, create the key_prefix.
 // If none and `create' is false, return NULL_STUB.
+//
+// Also garbage collects any key_prefix found with
+// 0 reference_count and NULL_STUB `first'.
 //
 ll::parser::table::key_prefix find_key_prefix
 	( min::gen key,
@@ -347,10 +380,21 @@ ll::parser::table::root
 	  const min::phrase_position & position,
 	  ll::parser::table::key_table key_table );
 
-// Remove from the key table all hash entries that have
-// entry block_level > block_level argument.  Return the
-// numbers of hash entries and key prefixes that were
+// Remove from the key_table all entries that have
+// entry->block_level >= block_level argument.  Return
+// the numbers of entries and key prefixes that were
 // `garbage collected', i.e., removed from table.
+//
+// Removal of entries is done one entry at a time most
+// recently added entry first.  It is assumed that any
+// newly added entry has a block_level at least as
+// great as any entry in the table at the time of the
+// addition, so entry block levels can only decrease
+// when entries are removed in most recently added
+// first order.
+//
+// Actual garbage collection of key prefixes is done by
+// find_key_prefix.
 //
 void end_block
 	( ll::parser::table::key_table key_table,
@@ -592,7 +636,7 @@ void push_lexeme_map_entry
 	  ll::parser::table::lexeme_map lexeme_map );
 
 // Remove from the lexeme map all entries that have
-// entry block_level > block_level argument.  Add the
+// entry block_level >= block_level argument.  Add the
 // number of entries that were removed from the table
 // to collected_entries.  Undefined stack must be
 // processed before this function is called.

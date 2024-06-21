@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 15 03:50:26 EDT 2017
+// Date:	Thu Jun 20 21:19:56 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,7 @@ min::uns32 TAB::root_gen_disp[] = {
 
 static min::uns32 root_stub_disp[] = {
     min::DISP ( & TAB::root_struct::next ),
+    min::DISP ( & TAB::root_struct::last ),
     min::DISP_END };
 
 static min::packed_struct<TAB::root_struct>
@@ -81,13 +82,19 @@ static min::packed_struct<TAB::key_prefix_struct>
 	  ::key_prefix_gen_disp,
 	  ::key_prefix_stub_disp );
 
-static min::uns32 table_stub_disp[] = {
+static min::uns32 key_table_element_stub_disp[] = {
     0, min::DISP_END };
 
-static min::packed_vec<TAB::key_prefix>
+static min::uns32 key_table_header_stub_disp[] = {
+    min::DISP ( & TAB::key_table_header::last ),
+    min::DISP_END };
+
+static min::packed_vec<TAB::key_prefix,
+                       TAB::key_table_header>
     key_table_type
         ( "ll::parser::table::key_table_type",
-	   NULL, ::table_stub_disp );
+	   NULL, ::key_table_element_stub_disp,
+	   NULL, ::key_table_header_stub_disp );
 
 TAB::key_table TAB::create_key_table ( uns32 length )
 {
@@ -99,6 +106,7 @@ TAB::key_table TAB::create_key_table ( uns32 length )
 
     TAB::key_table key_table =
         ::key_table_type.new_stub ( length );
+    TAB::last_ref(key_table) = NULL_STUB;
     for ( uns32 i = 0; i < length; ++ i )
 	min::push ( key_table ) = NULL_STUB;
     return key_table;
@@ -168,16 +176,30 @@ TAB::key_prefix TAB::find_key_prefix
 	// current == NULL_STUB and `last' is last
 	// key prefix in hash list.
 	//
+	min::uns32 j = hash & mask;
 	TAB::key_prefix last = NULL_STUB;
-	TAB::key_prefix current =
-	    key_table[hash & mask];
+	TAB::key_prefix current = key_table[j];
 	while ( current != NULL_STUB )
 	{
-	    if ( current->key_element == e
-	         &&
-		 current->previous == previous )
-	        break;
-	    last = current;
+	    if ( current->first != NULL_STUB
+	         ||
+		 current->reference_count != 0 )
+	    {
+		if ( current->key_element == e
+		     &&
+		     current->previous == previous )
+		    break;
+		last = current;
+	    }
+	    else
+	    {
+	        // Garbage collect current.
+		//
+	        if ( last == NULL_STUB )
+		    key_table[j] = current->next;
+		else
+		     next_ref(last) = current->next;
+	    }
 	    current = current->next;
 	}
 	if ( current != NULL_STUB )
@@ -195,7 +217,7 @@ TAB::key_prefix TAB::find_key_prefix
 	TAB::key_prefix kprefix =
 	    ::key_prefix_type.new_stub();
 	if ( last == NULL_STUB )
-	    key_table[hash & mask] = kprefix;
+	    key_table[j] = kprefix;
 	else
 	    next_ref(last) = kprefix;
 	key_element_ref(kprefix) = e;
@@ -239,6 +261,8 @@ void TAB::push
         find_key_prefix ( key, key_table, true );
     next_ref(entry) = kprefix->first;
     first_ref(kprefix) = entry;
+    last_ref(entry) = key_table->last;
+    last_ref(key_table) = kprefix;
 }
 
 TAB::root TAB::push_root
@@ -265,64 +289,34 @@ void TAB::end_block
     collected_key_prefixes = 0;
     collected_entries = 0;
 
-    for ( min::uns32 i = 0; i < key_table->length;
-                            ++ i )
-    for ( TAB::key_prefix key_prefix = key_table[i];
-          key_prefix != NULL_STUB;
-	  key_prefix = key_prefix->next )
+    TAB::key_prefix last = key_table->last;
+    while ( last != NULL_STUB )
     {
-        TAB::root root = key_prefix->first;
-	while ( root != NULL_STUB )
-	{
-	    if ( root->block_level <= block_level )
-	        break;
-	    ++ collected_entries;
-	    first_ref ( key_prefix ) = root =
-	        root->next;
-	}
+        TAB::root root = last->first;
+        MIN_REQUIRE ( root != NULL_STUB );
+        if ( root->block_level < block_level )
+	    break;
+	++ collected_entries;
+	first_ref(last) = root->next;
 
-	// Decrement reference counts.
-	//
-	TAB::key_prefix collectible = key_prefix;
-	while ( collectible->first == NULL_STUB
+	while ( last->first == NULL_STUB
 	        &&
-	        collectible->reference_count == 0 )
+		last->reference_count == 0 )
 	{
 	    ++ collected_key_prefixes;
-	    collectible = collectible->previous;
+	    last = last->previous;
 
-	    if ( collectible == NULL_STUB ) break;
+	    if ( last == NULL_STUB ) break;
 
-	    -- collectible->reference_count;
+	    -- last->reference_count;
+
+	    // Actual garbage collection of key prefixes
+	    // with 0 reference_count and NULL_STUB
+	    // first is done by find_key_prefix.
 	}
+	last = root->last;
     }
-
-    if ( collected_key_prefixes > 0 )
-    for ( min::uns32 i = 0; i < key_table->length;
-                            ++ i )
-    {
-        TAB::key_prefix previous = NULL_STUB;
-	for ( TAB::key_prefix current = key_table[i];
-	      current != NULL_STUB;
-	      current = current->next )
-	{
-	    if ( current->reference_count == 0
-	         &&
-		 current->first == NULL_STUB )
-	    {
-	        // Collect current.
-		//
-		if ( previous == NULL_STUB )
-		    key_table[i] = current->next;
-		else
-		    next_ref ( previous ) =
-		        current->next;
-	    }
-	    else
-	        previous = current;
-		    // Do NOT collect current.
-	}
-    }
+    last_ref(key_table) = last;
 }
 
 // Undefineds
@@ -456,7 +450,7 @@ void TAB::end_block
         for ( TAB::root e = lexeme_map[i];
 	      e != min::NULL_STUB
 	      &&
-	      e->block_level > block_level;
+	      e->block_level >= block_level;
 	      e = e->next )
 	{
 	    lexeme_map[i] = e->next;

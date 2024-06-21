@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 26 03:25:14 EST 2024
+// Date:	Thu Jun 20 21:19:36 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -298,10 +298,10 @@ static min::gen oper_pass_end_block
         PAR::block_level ( parser );
     MIN_REQUIRE ( block_level > 0 );
     TAB::end_block
-        ( oper_table, block_level - 1,
+        ( oper_table, block_level,
 	  collected_key_prefixes, collected_entries );
     TAB::end_block
-        ( oper_bracket_table, block_level - 1,
+        ( oper_bracket_table, block_level,
 	  collected_key_prefixes, collected_entries );
 
     return min::SUCCESS();

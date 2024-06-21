@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  4 23:19:19 EST 2024
+// Date:	Thu Jun 20 21:19:15 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1166,7 +1166,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     }
 
     min::uns64 collected_entries = 0;
-    TAB::end_block ( parser->lexeme_map, -1,
+    TAB::end_block ( parser->lexeme_map, 0,
                      collected_entries );
 
     min::pop ( parser->block_stack,
@@ -1672,7 +1672,7 @@ min::gen PAR::end_block
 
     min::uns64 collected_entries = 0;
     TAB::end_block ( parser->lexeme_map,
-                     block_level - 1,
+                     block_level,
                      collected_entries );
 
     top_level_indentation_mark_ref(parser) =

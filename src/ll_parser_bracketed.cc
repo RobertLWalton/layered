@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 10 06:35:03 EDT 2023
+// Date:	Thu Jun 20 21:19:25 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -808,10 +808,10 @@ static min::gen bracketed_pass_end_block
     MIN_REQUIRE ( block_level > 0 );
 
     TAB::end_block
-        ( bracket_table, block_level - 1,
+        ( bracket_table, block_level,
 	  collected_key_prefixes, collected_entries );
     TAB::end_block
-        ( bracket_type_table, block_level - 1,
+        ( bracket_type_table, block_level,
 	  collected_key_prefixes, collected_entries );
 
     BRA::block_struct b =

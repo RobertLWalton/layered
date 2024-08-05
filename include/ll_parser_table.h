@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 21 04:58:25 EDT 2024
+// Date:	Sun Aug  4 10:14:17 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -414,6 +414,35 @@ ll::parser::table::root
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
 	  ll::parser::table::key_table key_table );
+
+// Return the root at the top of ta key_table stack,
+// or return NULL_STUB if the table is empty.
+//
+inline ll::parser::table::root
+    top ( ll::parser::table::key_table key_table )
+{
+    ll::parser::table::key_prefix key_prefix =
+        key_table->last;
+    if ( key_prefix == min::NULL_STUB )
+        return min::NULL_STUB;
+    else
+        return key_prefix->first;
+}
+
+// Pop the most recent root entry from the key_table.
+// Key_table must NOT be empty.
+//
+inline void pop ( ll::parser::table::key_table key_table )
+{
+    ll::parser::table::key_prefix key_prefix =
+        key_table->last;
+    MIN_REQUIRE ( key_prefix != min::NULL_STUB );
+    ll::parser::table::root root = key_prefix->first;
+    ll::parser::table::last_ref(key_table) =
+    	root->last;
+    ll::parser::table::first_ref(key_prefix) =
+        root->next;
+}
 
 // Remove from the key_table all entries that have
 // entry->block_level >= block_level argument.  Return

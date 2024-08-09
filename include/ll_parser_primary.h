@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 03:06:02 EST 2023
+// Date:	Fri Aug  9 04:22:36 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,15 +53,17 @@ typedef min::packed_struct_updptr<var_struct> var;
 extern const uns32 & VAR;
     // Subtype of min::packed_struct<var_struct>.
 
+enum var_flags {
+    WRITTABLE_VAR	= ( 1 << 0 ),
+    NEXT_VAR		= ( 1 << 1 )
+};
 struct var_struct
     : public ll::parser::table::root_struct
     // Variable Description.
 {
     // Packed_struct subtype is VAR.
 
-    min::uns32 level; // Lexical level.
-    min::uns32 depth; // Nesting depth within level.
-
+    min::uns32 flags;     // Variable flags.
     min::uns32 location;  // Offset in stack.
     const min::gen module;
         // Module containing location.  For testing,
@@ -81,15 +83,17 @@ MIN_REF ( min::gen, module,
 // label, selectors, lexical level, depth, location,
 // and module, and return it.
 //
-ll::parser::primary::var create_var
+ll::parser::primary::var push_var
 	( min::gen var_label,
 	  ll::parser::table::flags selectors,
-	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  min::uns32 level,
-	  min::uns32 depth,
+	  min::uns16 level,
+	  min::uns16 depth,
+	  min::uns32 flags,
 	  min::uns32 location,
-	  min::gen module );
+	  min::gen module,
+	  ll::parser::table::key_table
+	  	symbol_table );
 
 // Function Definition.
 //

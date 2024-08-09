@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 20 21:19:46 EDT 2024
+// Date:	Fri Aug  9 04:21:44 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,29 +110,31 @@ static min::packed_struct_with_base
 	        ::var_stub_disp );
 const min::uns32 & PRIM::VAR = ::var_type.subtype;
 
-PRIM::var PRIM::create_var
+PRIM::var PRIM::push_var
 	( min::gen var_label,
 	  TAB::flags selectors,
-	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  min::uns32 level,
-	  min::uns32 depth,
+	  min::uns16 level,
+	  min::uns16 depth,
+	  min::uns32 flags,
 	  min::uns32 location,
-	  min::gen module )
+	  min::gen module,
+	  TAB::key_table symbol_table )
 {
     min::locatable_var<PRIM::var> var
         ( ::var_type.new_stub() );
 
     PRIM::label_ref(var) = var_label;
     var->selectors = selectors;
-    var->block_level = block_level;
+    var->block_level = ( (min::uns32) level << 16 )
+    		     + depth;
     var->position = position;
 
-    var->level = level;
-    var->depth = depth;
+    var->flags = flags;
     var->location = location;
     PRIM::module_ref(var) = module;
 
+    TAB::push ( symbol_table, (TAB::root) var );
     return var;
 }
 
@@ -1641,60 +1643,6 @@ static min::gen primary_pass_command
 	    ++ i;
 	    if ( i < size
 		 &&
-		 vp[i] == PRIMLEX::level )
-	    {
-		++ i;
-		if ( i >= size )
-		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "expected level integer"
-			  " after" );
-		min::float64 p =
-		    MUP::direct_float_of ( vp[i] );
-		if ( ! std::isfinite ( p )
-		     ||
-		     p < 0
-		     ||
-		     p > ( 1ull << 32 )
-		     ||
-		     (min::uns32) p != p )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "level is not an integer"
-			  " in range [0,2^32)" );
-		level = (min::uns32) p;
-		++ i;
-		continue;
-	    }
-	    if ( i < size
-		 &&
-		 vp[i] == PRIMLEX::depth )
-	    {
-		++ i;
-		if ( i >= size )
-		    return PAR::parse_error
-			( parser, ppvec[i-1],
-			  "expected depth integer"
-			  " after" );
-		min::float64 p =
-		    MUP::direct_float_of ( vp[i] );
-		if ( ! std::isfinite ( p )
-		     ||
-		     p < 0
-		     ||
-		     p > ( 1ull << 32 )
-		     ||
-		     (min::uns32) p != p )
-		    return PAR::parse_error
-			( parser, ppvec[i],
-			  "depth is not an integer"
-			  " in range [0,2^32)" );
-		depth = (min::uns32) p;
-		++ i;
-		continue;
-	    }
-	    if ( i < size
-		 &&
 		 vp[i] == PRIMLEX::location )
 	    {
 		++ i;
@@ -1770,17 +1718,11 @@ static min::gen primary_pass_command
 		  (TAB::root) func );
 	}
 	else
-	{
-	    min::locatable_var<PRIM::var> var =
-	        PRIM::create_var
-		    ( name, selectors, block_level,
-		      nppvec->position,
-		      level, depth,
-		      location, module );
-	    TAB::push
-	        ( primary_pass->primary_table,
-		  (TAB::root) var );
-	}
+	    PRIM::push_var
+		    ( name, selectors, nppvec->position,
+		      level, block_level,
+		      0, location, module,
+		      primary_pass->primary_table );
     }
 
     else if ( command == PARLEX::undefine )

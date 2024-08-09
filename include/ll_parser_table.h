@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  4 10:14:17 PM EDT 2024
+// Date:	Fri Aug  9 04:22:06 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -415,7 +415,7 @@ ll::parser::table::root
 	  const min::phrase_position & position,
 	  ll::parser::table::key_table key_table );
 
-// Return the root at the top of ta key_table stack,
+// Return the root at the top of the key_table stack,
 // or return NULL_STUB if the table is empty.
 //
 inline ll::parser::table::root
@@ -432,7 +432,8 @@ inline ll::parser::table::root
 // Pop the most recent root entry from the key_table.
 // Key_table must NOT be empty.
 //
-inline void pop ( ll::parser::table::key_table key_table )
+inline void pop
+	( ll::parser::table::key_table key_table )
 {
     ll::parser::table::key_prefix key_prefix =
         key_table->last;
@@ -443,6 +444,23 @@ inline void pop ( ll::parser::table::key_table key_table )
     ll::parser::table::first_ref(key_prefix) =
         root->next;
 }
+
+// Return the root that is just before the root argument
+// in its key_table stack, or return NULL_STUB if the
+// root argument is at the bottom of the stack.
+//
+inline ll::parser::table::root previous
+	( ll::parser::table::root root )
+{
+    ll::parser::table::key_prefix key_prefix =
+        root->last;
+    if ( key_prefix == min::NULL_STUB )
+    	return min::NULL_STUB;
+    ll::parser::table::root result = key_prefix->first;
+    MIN_REQUIRE ( result != min::NULL_STUB );
+    return result;
+}
+    
 
 // Remove from the key_table all entries that have
 // entry->block_level >= block_level argument.  Return

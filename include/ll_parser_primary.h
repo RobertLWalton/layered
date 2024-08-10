@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 04:22:36 PM EDT 2024
+// Date:	Sat Aug 10 17:08:13 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,7 +54,7 @@ extern const uns32 & VAR;
     // Subtype of min::packed_struct<var_struct>.
 
 enum var_flags {
-    WRITTABLE_VAR	= ( 1 << 0 ),
+    WRITABLE_VAR	= ( 1 << 0 ),
     NEXT_VAR		= ( 1 << 1 )
 };
 struct var_struct

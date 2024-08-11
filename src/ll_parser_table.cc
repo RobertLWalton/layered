@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 21 05:27:26 EDT 2024
+// Date:	Sun Aug 11 01:52:36 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -229,28 +229,6 @@ TAB::key_prefix TAB::find_key_prefix
     }
 
     return previous;
-}
-
-TAB::root TAB::find
-	( min::gen key,
-	  min::uns32 subtype,
-	  TAB::flags selectors,
-	  TAB::key_table key_table )
-{
-    TAB::key_prefix key_prefix =
-        TAB::find_key_prefix ( key, key_table );
-    if ( key_prefix == NULL_STUB ) return NULL_STUB;
-
-    for ( TAB::root root = key_prefix->first;
-          root != NULL_STUB; root = root->next )
-    {
-        if ( ( root->selectors & selectors ) != 0
-	     &&
-	        min::packed_subtype_of ( root )
-	     == subtype )
-	    return root;
-    }
-    return NULL_STUB;
 }
 
 void TAB::push

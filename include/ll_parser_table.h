@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 04:22:06 PM EDT 2024
+// Date:	Sun Aug 11 01:51:56 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -389,11 +389,51 @@ ll::parser::table::key_prefix find_key_prefix
 // key, subtype, and a selector in common with the
 // selectors argument, or NULL_STUB if there is none.
 //
-ll::parser::table::root find
+inline ll::parser::table::root find
 	( min::gen key,
 	  min::uns32 subtype,
 	  ll::parser::table::flags selectors,
-	  ll::parser::table::key_table key_table );
+	  ll::parser::table::key_table key_table )
+{
+    ll::parser::table::key_prefix key_prefix =
+        ll::parser::table::find_key_prefix
+	    ( key, key_table );
+    if ( key_prefix == NULL_STUB ) return NULL_STUB;
+
+    for ( ll::parser::table::root root =
+    		key_prefix->first;
+          root != NULL_STUB; root = root->next )
+    {
+        if ( ( root->selectors & selectors ) != 0
+	     &&
+	        min::packed_subtype_of ( root )
+	     == subtype )
+	    return root;
+    }
+    return NULL_STUB;
+}
+
+// Return the first entry after the root that has the
+// given subtype and a selector in common with the
+// selectors argument, in the list of all entries with
+// the same key and key_table as the root, or return
+// NULL_STUB if there is no such entry.
+//
+inline ll::parser::table::root find_next
+	( ll::parser::table::root root,
+	  min::uns32 subtype,
+	  ll::parser::table::flags selectors )
+{
+    while ( ( root = root->next ) != NULL_STUB )
+    {
+        if ( ( root->selectors & selectors ) != 0
+	     &&
+	        min::packed_subtype_of ( root )
+	     == subtype )
+	    return root;
+    }
+    return NULL_STUB;
+}
 
 // Push (a.k.a `add') the given key table entry into
 // the key table.

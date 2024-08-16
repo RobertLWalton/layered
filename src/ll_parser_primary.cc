@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 16 05:56:08 AM EDT 2024
+// Date:	Fri Aug 16 04:34:51 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -210,12 +210,65 @@ PRIM::func PRIM::create_func
     return func;
 }
 
+PRIM::func PRIM::push_op_func
+	( min::gen op_name,
+	  min::uns32 op_type,
+	  TAB::flags selectors,
+	  const min::phrase_position & position,
+	  min::uns16 level,
+	  min::uns16 depth,
+	  min::uns32 location,
+	  TAB::key_table symbol_table,
+	  min::uns32 flags )
+{
+    min::locatable_var<PRIM::func> func
+        ( PRIM::create_func
+	    ( selectors, position, level, depth,
+	      flags, location, min::NONE(), 0 ) );
+    min::locatable_gen X
+        ( min::new_str_gen ( "X" ) );
+    min::locatable_gen Y
+        ( min::new_str_gen ( "Y" ) );
+    if (    op_type == PRIM::PREFIX
+         || op_type == PRIM::INFIX )
+    {
+        PRIM::push_arg ( X, min::NONE(), func );
+	PRIM::push_arg_list
+	    ( min::NONE(), 1, 0, false, func );
+	func->number_initial_arg_lists = 1;
+    }
+
+    if (    op_type == PRIM::POSTFIX
+         || op_type == PRIM::INFIX )
+    {
+        PRIM::push_arg ( Y, min::NONE(), func );
+	PRIM::push_arg_list
+	    ( min::NONE(),
+	      1, func->number_initial_arg_lists,
+	      false, func );
+	func->number_following_arg_lists = 1;
+
+	min::gen labv[2] =
+	    { PRIMLEX::parentheses, op_name };
+	PRIM::label_ref(func) =
+	    min::new_lab_gen ( labv, 2 );
+    }
+    else
+    {
+        MIN_REQUIRE ( op_type == PRIM::PREFIX );
+	PRIM::label_ref(func) = op_name;
+    }
+
+    TAB::push ( symbol_table, (TAB::root) func );
+    return func;
+}
+
 static min::uns32 func_term_gen_disp[] = {
-    min::DISP ( & PRIM::func_struct::label ),
+    min::DISP ( & PRIM::func_term_struct::label ),
     min::DISP_END };
 
 static min::uns32 func_term_stub_disp[] = {
-    min::DISP ( & PRIM::func_struct::next ),
+    min::DISP ( & PRIM::func_term_struct::next ),
     min::DISP_END };
 
 static min::packed_struct_with_base

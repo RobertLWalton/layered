@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 16 05:44:13 AM EDT 2024
+// Date:	Fri Aug 16 03:49:35 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -234,6 +234,27 @@ ll::parser::primary::func create_func
 	  min::uns32 location,
 	  min::gen module,
 	  min::uns32 term_table_size );
+
+// Push into a symbol_table a func describing a prefix,
+// infix, or postfix operator with given op_name whose
+// location specifies a builtin instruction.
+//
+enum op_type {
+    PREFIX	= 1,
+    INFIX	= 2,
+    POSTFIX	= 3
+};
+//
+ll::parser::primary::func push_op_func
+	( min::gen op_name,
+	  min::uns32 op_type,
+	  ll::parser::table::flags selectors,
+	  const min::phrase_position & position,
+	  min::uns16 level,
+	  min::uns16 depth,
+	  min::uns32 location,
+	  ll::parser::table::key_table symbol_table,
+	  min::uns32 flags = BUILTIN_INSTRUCTION );
 
 // Push a new argument description into the args vector
 // of a func.

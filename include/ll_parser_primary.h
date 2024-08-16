@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 17:08:13 EDT 2024
+// Date:	Fri Aug 16 04:46:16 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -162,22 +162,27 @@ struct arg_list_struct
         // True if [] list, false if () list.
 };
 
+enum func_flags {
+    BUILTIN_INSTRUCTION	= ( 1 << 0 )
+};
+
 struct func_struct
     : public ll::parser::table::root_struct
     // Function Description
 {
     // Packed_struct subtype is FUNC.
+    //
+    // root->block_level is set to
+    //     (lexical_level << 16) + depth
 
-    min::uns32 level; // Lexical level.
-    min::uns32 depth; // Nesting depth within level.
-
-    min::uns32 location;  // Offset in module code
-    			  // vector.
+    min::uns32 flags;	  // Function flags.
+    min::uns32 location;  // Offset in module or
+    			  // instruction table.
     const min::gen module;
         // Module containing location.  For testing,
 	// this is a MIN string.  For compiling, it is
 	// a mex::module or similar converted to a
-	// min::gen.
+	// min::gen, or NONE for BUILTIN_INSTRUCTIONs.
 
     const ll::parser::primary::args args;
         // Argument descriptions in prototype order.
@@ -213,18 +218,19 @@ MIN_REF ( ll::parser::table::key_table, term_table,
           ll::parser::primary::func )
 
 // Create a function definition entry with given
-// label, selectors, lexical level, depth, location,
-// module, and term table size and return it.  Args
-// and arg_lists vectors and term_table are created
-// and initialized as empty.  Term_table_size must
-// be a power of 2.
+// selectors, position, lexical level, depth, flags,
+// location, module, and term table size and return it.
+// Args and arg_lists vectors and term_table are created
+// and initialized as empty, and number_of_{initial,
+// following}_arg_lists are set to 0.  Term_table_size
+// must be a power of 2.
 //
 ll::parser::primary::func create_func
 	( ll::parser::table::flags selectors,
-	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  min::uns32 level,
-	  min::uns32 depth,
+	  min::uns16 level,
+	  min::uns16 depth,
+	  min::uns32 flags,
 	  min::uns32 location,
 	  min::gen module,
 	  min::uns32 term_table_size );
@@ -496,9 +502,9 @@ ll::parser::primary::func scan_func_prototype
       min::phrase_position_vec ppvec, // of vp
       ll::parser::parser parser,
       ll::parser::table::flags selectors,
-      min::uns32 block_level,
-      min::uns32 level,
-      min::uns32 depth,
+      min::uns16 level,
+      min::uns16 depth,
+      min::uns32 flags,
       min::uns32 location,
       min::gen module,
       min::gen default_op = func_default_op,

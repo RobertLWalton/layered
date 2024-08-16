@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 04:21:44 PM EDT 2024
+// Date:	Fri Aug 16 04:50:08 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -180,10 +180,10 @@ const min::uns32 & PRIM::ARG_LISTS =
 
 PRIM::func PRIM::create_func
 	( TAB::flags selectors,
-	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  min::uns32 level,
-	  min::uns32 depth,
+	  min::uns16 level,
+	  min::uns16 depth,
+	  min::uns32 flags,
 	  min::uns32 location,
 	  min::gen module,
 	  min::uns32 term_table_size )
@@ -192,11 +192,11 @@ PRIM::func PRIM::create_func
         ( ::func_type.new_stub() );
 
     func->selectors = selectors;
-    func->block_level = block_level;
+    func->block_level = ( (min::uns32) level << 16 )
+    		      + depth;
     func->position = position;
 
-    func->level = level;
-    func->depth = depth;
+    func->flags = flags;
     func->location = location;
     PRIM::module_ref(func) = module;
 
@@ -630,9 +630,9 @@ PRIM::func PRIM::scan_func_prototype
       min::phrase_position_vec ppvec,
       PAR::parser parser,
       TAB::flags selectors,
-      min::uns32 block_level,
-      min::uns32 level,
-      min::uns32 depth,
+      min::uns16 level,
+      min::uns16 depth,
+      min::uns32 flags,
       min::uns32 location,
       min::gen module,
       min::gen default_op,
@@ -643,9 +643,9 @@ PRIM::func PRIM::scan_func_prototype
     MIN_REQUIRE ( i < s );
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
-	      ( selectors, block_level, ppvec[i],
+	      ( selectors, ppvec[i],
 	        level, depth,
-		location, module,
+		flags, location, module,
 		term_table_size ) );
 	// func->position.end is reset below.
     min::gen labbuf[s-i];
@@ -1634,8 +1634,6 @@ static min::gen primary_pass_command
 
     if ( command == PARLEX::define )
     {
-	min::uns32 level = 0;
-	min::uns32 depth = 0;
 	min::uns32 location = 0;
 	min::locatable_gen module ( min::MISSING() );
 	while ( i < size && vp[i] == PARLEX::with )
@@ -1708,9 +1706,9 @@ static min::gen primary_pass_command
 	    min::locatable_var<PRIM::func> func =
 		PRIM::scan_func_prototype
 		  ( nvp, ni, nppvec, parser,
-		    selectors, block_level,
-		    level, depth,
-		    location, module );
+		    selectors,
+		    0, block_level,
+		    0, location, module );
 	    if ( func == min::NULL_STUB )
 	        return min::ERROR();
 	    TAB::push
@@ -1720,7 +1718,7 @@ static min::gen primary_pass_command
 	else
 	    PRIM::push_var
 		    ( name, selectors, nppvec->position,
-		      level, block_level,
+		      0, block_level,
 		      0, location, module,
 		      primary_pass->primary_table );
     }

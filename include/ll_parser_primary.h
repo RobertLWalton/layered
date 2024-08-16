@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 16 04:46:16 AM EDT 2024
+// Date:	Fri Aug 16 05:44:13 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -513,10 +513,9 @@ ll::parser::primary::func scan_func_prototype
           func_term_table_size );
 
 
-// Scan a reference expression and return the
-// primary_table entry found, either a var if a
-// variable is found or a func if a function call is
-// found.
+// Scan a primary expression and return the symbol_table
+// entry found, either a var if a variable is found or a
+// func if a function call is found.
 //
 // Specifically vp is scanned beginning with vp[i] and i
 // is incremented during the scan.  The scan stops when
@@ -546,26 +545,37 @@ ll::parser::primary::func scan_func_prototype
 // is automatically rejected just as if it had the
 // wrong selectors.
 //
+// This function treats quoted string elements of vp
+// as if they were MIN strings.  Should they not be
+// legal in a variable or function term name, they will
+// not be found in the symbol table.
+//
+// Quoted_i is set to the smallest i value for which
+// vp[i] is a quoted string, or to the size of vp if
+// there is no quoted string.  It can be used, for
+// example, to reject variable names containing a quoted
+// string.  Like i, it must be left untouched when
+// re-calling this function.
+//
 // If print_rejections is true, rejection of a function
 // prototype because of argument structure causes a
 // REJECT: ... message to be printed.
 //
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;
-bool scan_ref
+bool scan_primary
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       min::phrase_position_vec ppvec, // of vp
       ll::parser::parser parser,
       ll::parser::table::flags selectors,
-      ll::parser::table::root & root,
       ll::parser::table::key_prefix & key_prefix,
+      ll::parser::table::root & root,
+      min::uns32 & quoted_i,
       min::ref<argument_vector> argument_vector,
-      ll::parser::table::key_table primary_table,
+      ll::parser::table::key_table symbol_table,
       bool print_rejections = false,
       min::gen bool_values = func_bool_values,
-      min::gen negators = func_negators,
-      min::uns64 inside_quotes_types =
-	  func_term_inside_quotes_types );
+      min::gen negators = func_negators );
 
 } } }
 

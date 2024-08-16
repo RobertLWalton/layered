@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 16 04:50:08 AM EDT 2024
+// Date:	Fri Aug 16 05:56:08 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -417,7 +417,7 @@ static void print_func
     }
 }
 
-// Print scan_ref rejection message.
+// Print scan_primary rejection message.
 //
 static void print_reject
 	( PAR::parser parser,
@@ -901,11 +901,11 @@ PRIM::func PRIM::scan_func_prototype
 
 static TAB::key_prefix find_key_prefix
     ( min::obj_vec_ptr & vp, min::uns32 & i,
-      TAB::key_table key_table,
-      min::uns64 inside_quotes_types )
+      min::uns32 & quoted_i,
+      TAB::key_table symbol_table )
 {
     min::uns32 phash = min::labhash_initial;
-    min::uns32 tab_len = key_table->length;
+    min::uns32 tab_len = symbol_table->length;
     min::uns32 mask = tab_len - 1;
     MIN_REQUIRE ( ( tab_len & mask ) == 0 );
     TAB::key_prefix previous = min::NULL_STUB;
@@ -918,12 +918,7 @@ static TAB::key_prefix find_key_prefix
 	    e = PAR::quoted_string_value ( e );
 	    if ( e != min::NONE() )
 	    {
-	        min::uns64 t =
-		    (    1ull
-		      << LEXSTD::
-		             lexical_type_of ( e ) );
-		if ( ( t & inside_quotes_types ) == 0 )
-		    break;
+		if ( i < quoted_i ) quoted_i = i;
 	    }
 	    else
 	    {
@@ -959,7 +954,7 @@ static TAB::key_prefix find_key_prefix
 	// Locate key prefix.
 	//
 	TAB::key_prefix key_prefix =
-	    key_table[hash & mask];
+	    symbol_table[hash & mask];
 	while ( key_prefix != min::NULL_STUB )
 	{
 	    if ( key_prefix->key_element == e
@@ -976,28 +971,29 @@ static TAB::key_prefix find_key_prefix
     return previous;
 }
 
-bool PRIM::scan_ref
+bool PRIM::scan_primary
     ( min::obj_vec_ptr & vp, min::uns32 & i,
       min::phrase_position_vec ppvec,
       PAR::parser parser,
       TAB::flags selectors,
-      TAB::root & root,
       TAB::key_prefix & key_prefix,
+      TAB::root & root,
+      min::uns32 & quoted_i,
       min::ref<argument_vector> argument_vector,
-      TAB::key_table primary_table,
+      TAB::key_table symbol_table,
       bool print_rejections,
       min::gen bool_values,
-      min::gen negators,
-      min::uns64 inside_quotes_types )
+      min::gen negators )
 {
     min::uns32 original_i = i;
+    min::uns32 iend = min::size_of ( vp );
 
     if ( key_prefix == min::NULL_STUB )
     {
+        quoted_i = iend;
     	for ( key_prefix =
 	          ::find_key_prefix
-		      ( vp, i, primary_table,
-		        inside_quotes_types );
+		      ( vp, i, quoted_i, symbol_table );
 	      key_prefix != min::NULL_STUB;
 	      key_prefix = key_prefix->previous, -- i )
 	for ( root = key_prefix->first;
@@ -1040,7 +1036,6 @@ CHECK_TYPE:
 
     min::uns32 after_first = i;
     i = original_i;
-    min::uns32 iend = min::size_of ( vp );
     bool first = true;
     min::gen negator = min::NONE();
     bool is_bool = false;
@@ -1185,10 +1180,10 @@ CHECK_TYPE:
 	        min::get ( vp[i], min::dot_separator );
 		// Get before creating avp.
 	    min::obj_vec_ptr avp = vp[i];
-	    min::uns32 s = min::size_of ( avp );
+	    min::uns32 as = min::size_of ( avp );
 	    if ( sep == min::NONE() )
 	    {
-	        if ( s == 0 )
+	        if ( as == 0 )
 		{
 		    if ( first )
 		    {
@@ -1217,7 +1212,7 @@ CHECK_TYPE:
 	    }
 	    else
 	    {
-	        if ( s > arg_list.number_of_args )
+	        if ( as > arg_list.number_of_args )
 		{
 		    avp = min::NULL_STUB;
 		    if ( ! print_rejections )
@@ -1248,7 +1243,7 @@ CHECK_TYPE:
 			      " is too long" );
 		    goto REJECT;
 		}
-		for ( min::uns32 k = 0; k < s; ++ k )
+		for ( min::uns32 k = 0; k < as; ++ k )
 		{
 		    if (    args[arg_list.first + k]
 		         != min::NONE() )
@@ -1321,9 +1316,9 @@ CHECK_TYPE:
 	}
 	else negator = min::NONE();
 
+	min::uns32 quoted_ai = iend;  // Ignored.
     	TAB::key_prefix kp = ::find_key_prefix
-		      ( vp, i, func->term_table,
-		        inside_quotes_types );
+	    ( vp, i, quoted_ai, func->term_table );
 
 	if ( kp == min::NULL_STUB )
 	{
@@ -1796,9 +1791,10 @@ static min::gen primary_pass_command
 	parser->printer
 	    << min::set_indent ( indent );
 
-	PRIM::scan_ref
+	min::uns32 quoted_i;
+	PRIM::scan_primary
 	    ( nvp, ni, nppvec, parser, selectors,
-	      root, key_prefix,
+	      key_prefix, root, quoted_i,
 	      argument_vector,
 	      primary_pass->primary_table,
 	      true );

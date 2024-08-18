@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 16 04:34:51 PM EDT 2024
+// Date:	Sun Aug 18 07:06:50 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1378,12 +1378,12 @@ CHECK_TYPE:
 	    if ( print_rejections )
 		::print_reject
 		    ( parser, func,
-		      "function term name that begins"
-		      " with ",
-		      min::pgen ( vp[i] ),
-		      " expected just after ",
+		      "expected function term just"
+		      " after ",
 		      min::pgen ( vp[i-1] ),
-		      " but none found" );
+		      " but found ",
+		      min::pgen ( vp[i] ),
+		      " instead" );
 	    goto REJECT;
 	}
 

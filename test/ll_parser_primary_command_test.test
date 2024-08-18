@@ -56,8 +56,7 @@
     -- found function:  {|A 1|} "+" (B) ===> [$ MISSING $] 0
     test primary:  (A) + (B) + (C)
 REJECTING: (X)"+"(Y)
-           function term name that begins with + expected just after (B)
-           but none found
+           expected function term just after (B) but found + instead
     -- no definition found
     test primary:  (A) +
 REJECTING: (X)"+"(Y)
@@ -168,8 +167,7 @@ ERROR: in line ###: argment with NO default found AFTER argument with
     -- found function:  (X) F (Y) ===> [$ MISSING $] 0
     test primary:  (X) F (Y) G (Z)
 REJECTING: (A)F(B)
-           function term name that begins with G expected just after (Y)
-           but none found
+           expected function term just after (Y) but found G instead
     -- found function:  (X) F (Y) G (Z) ===> [$ MISSING $] 0
     end block BLOCK1
 *PARSER*:

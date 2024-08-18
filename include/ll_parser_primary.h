@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 16 03:49:35 PM EDT 2024
+// Date:	Sun Aug 18 07:14:42 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -539,9 +539,11 @@ ll::parser::primary::func scan_func_prototype
 // func if a function call is found.
 //
 // Specifically vp is scanned beginning with vp[i] and i
-// is incremented during the scan.  The scan stops when
-// the next vector element cannot be part of the
-// variable name or function call.
+// is incremented during the scan.  For variables, the
+// scan stops when the next vector element cannot be
+// part of variable's name.  For function calls, the
+// call prototype match fails if the call does not end
+// at the end of vp.
 //
 // True is returned if a primary_table entry was found,
 // and false otherwise.

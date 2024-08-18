@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  8 13:34:11 EDT 2022
+// Date:	Sun Aug 18 07:24:48 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -551,11 +551,12 @@ static void define_arithmetic_operators
     PAR::reformatter binary_reformatter =
         PAR::find_reformatter
 	    ( binary, OP::reformatter_stack );
-    min::locatable_gen infix
-        ( min::new_str_gen ( "infix" ) );
-    PAR::reformatter infix_reformatter =
+    min::locatable_gen left_associative
+        ( min::new_lab_gen ( "left", "associative" ) );
+    PAR::reformatter left_associative_reformatter =
         PAR::find_reformatter
-	    ( infix, OP::reformatter_stack );
+	    ( left_associative,
+	      OP::reformatter_stack );
     min::locatable_gen unary
         ( min::new_str_gen ( "unary" ) );
     PAR::reformatter unary_reformatter =
@@ -633,7 +634,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, infix_reformatter,
+	  13000, left_associative_reformatter,
 	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
@@ -653,7 +654,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, infix_reformatter,
+	  13000, left_associative_reformatter,
 	  plus_minus_arguments,
 	  oper_pass->oper_table );
 
@@ -688,7 +689,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13200, infix_reformatter,
+	  13200, left_associative_reformatter,
 	  multiply_arguments,
 	  oper_pass->oper_table );
 
@@ -722,11 +723,12 @@ static void define_bitwise_operators
     PAR::reformatter binary_reformatter =
         PAR::find_reformatter
 	    ( binary, OP::reformatter_stack );
-    min::locatable_gen infix
-        ( min::new_str_gen ( "infix" ) );
-    PAR::reformatter infix_reformatter =
+    min::locatable_gen left_associative
+        ( min::new_lab_gen ( "left", "associative" ) );
+    PAR::reformatter left_associative_reformatter =
         PAR::find_reformatter
-	    ( infix, OP::reformatter_stack );
+	    ( left_associative,
+	      OP::reformatter_stack );
     min::locatable_gen unary
         ( min::new_str_gen ( "unary" ) );
     PAR::reformatter unary_reformatter =
@@ -818,7 +820,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, infix_reformatter,
+	  13000, left_associative_reformatter,
 	  or_arguments,
 	  oper_pass->oper_table );
 
@@ -833,7 +835,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, infix_reformatter,
+	  13000, left_associative_reformatter,
 	  and_arguments,
 	  oper_pass->oper_table );
 
@@ -848,7 +850,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  13000, infix_reformatter,
+	  13000, left_associative_reformatter,
 	  xor_arguments,
 	  oper_pass->oper_table );
 

@@ -228,8 +228,10 @@ SCAN_NEXT_LEXEME:
 	if ( message != NULL )
 	{
 	    min::phrase_position position =
-		LEX::phrase_position ( scanner, first, next );
-	    PAR::parse_error ( parser, position, message );
+		LEX::phrase_position
+		    ( scanner, first, next );
+	    PAR::parse_error
+	        ( parser, position, message );
 	    continue;
 	}
 

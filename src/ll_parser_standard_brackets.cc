@@ -119,7 +119,8 @@ static void define_brackets
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( label_or_data,
-	        PAR::COMMAND_SELECTORS ^ label_or_data ),
+	          PAR::COMMAND_SELECTORS
+		^ label_or_data ),
 	  PAR::find_reformatter
 	      ( special_name,
 	        BRA::untyped_reformatter_stack ),
@@ -133,7 +134,8 @@ static void define_brackets
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( label_or_data,
-		PAR::COMMAND_SELECTORS ^ label_or_data ),
+		  PAR::COMMAND_SELECTORS
+		^ label_or_data ),
 	  PAR::find_reformatter
 	      ( label_name,
 		BRA::untyped_reformatter_stack ),
@@ -185,7 +187,8 @@ static void define_brackets
 	      PARLEX::right_square,
 	      label + code + math + text,
 	      block_level, PAR::top_level_position,
-	      TAB::new_flags ( code, label + math + text ),
+	      TAB::new_flags
+	          ( code, label + math + text ),
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
     else
@@ -214,7 +217,8 @@ static void define_brackets
 	      closing_quote,
 	      label + code + math + text,
 	      block_level, PAR::top_level_position,
-	      TAB::new_flags ( text, label + code + math ),
+	      TAB::new_flags
+	          ( text, label + code + math ),
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 

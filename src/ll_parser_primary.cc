@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 18 07:06:50 AM EDT 2024
+// Date:	Wed Aug 21 08:46:55 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1098,6 +1098,8 @@ CHECK_TYPE:
     min::gen args[func->args->length];
     for ( uns32 k = 0; k < func->args->length; ++ k )
         args[k] = min::NONE();
+    min::uns32 number_args = func->args->length;
+        // Will be shortened for operator calls.
     PRIM::func_term func_term = min::NULL_STUB;
     while ( true )
     {
@@ -1346,6 +1348,13 @@ CHECK_TYPE:
 		  " first function term does not match"
 		  " func->label" );
 	    i = after_first;
+	    if ( ( func->flags & PRIM::OPERATOR_CALL )
+	         && quoted_i >= after_first )
+	    {
+	        number_args =
+		    func->number_initial_arg_lists;
+	        break;
+	    }
 	    jend = j + func->number_following_arg_lists;
 	    first = false;
 	    continue;
@@ -1407,8 +1416,7 @@ CHECK_TYPE:
 #       undef TERM
     }
 
-    for ( min::uns32 k = 0; k < func->args->length;
-                            ++ k )
+    for ( min::uns32 k = 0; k < number_args; ++ k )
     {
         if ( args[k] == min::NONE() )
 	{
@@ -1430,15 +1438,14 @@ CHECK_TYPE:
     if ( argument_vector == min::NULL_STUB )
         argument_vector = (PRIM::argument_vector)
 	    min::gen_packed_vec_type.new_stub
-	        ( func->args->length );
+	        ( number_args );
 
     {
 	PRIM::argument_vector av = argument_vector;
 	    // Get rid of min::ref.
 	min::pop ( av, av->length );
 
-	for ( min::uns32 k = 0; k < func->args->length;
-				++ k )
+	for ( min::uns32 k = 0; k < number_args; ++ k )
 	    min::push(av) = args[k];
 		// Push one at a time to update
 		// gc flags properly.

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 18 07:14:42 AM EDT 2024
+// Date:	Wed Aug 21 02:58:41 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -163,7 +163,8 @@ struct arg_list_struct
 };
 
 enum func_flags {
-    BUILTIN_INSTRUCTION	= ( 1 << 0 )
+    BUILTIN_INSTRUCTION		= ( 1 << 0 ),
+    OPERATOR_CALL		= ( 1 << 1 )
 };
 
 struct func_struct
@@ -548,6 +549,33 @@ ll::parser::primary::func scan_func_prototype
 // True is returned if a primary_table entry was found,
 // and false otherwise.
 //
+// In addition to standard function calls, this function
+// supports `operator calls'.  An operator call is an
+// expression containing only one variety of operator
+// outside bracketed subexpressions.  An operator
+// variety is a set of operators with the same prece-
+// dence, most commonly a set containing a single
+// operator such as { * }, but also including some
+// varieties that contain multiple operators, such as
+// { +, - } and { <, >, <=, >=, ==, != }.
+//
+// When an operator call is scanned, a func is returned
+// as soon as the first function-term (first operator)
+// in the expression is recognized, and the rest of the
+// expression is NOT scanned.  To qualify as an operator
+// call, the first operator in the expression must NOT
+// be quoted and must have the OPERATOR_CALL flag.
+//
+// Parser reformatters must be used to ensure that
+// operator calls in fact have only operators of the
+// same variety outside bracketed subexpressions.
+// Alternatively, parser reformatters can be used to
+// reformat operator calls so that they can be processed
+// as ordinary calls: e.g., reformat x + y + z to
+// {| x + y |} + z.  In this case there will will be
+// no operator calls and the OPERATOR_CALL flag will be
+// unused.
+//
 // The first call to this function for a particular vp
 // and i should have key_prefix = NULL_STUB.  If after
 // returning, the result is unsatisfactory because the
@@ -567,6 +595,10 @@ ll::parser::primary::func scan_func_prototype
 // produce an arguments vector with a NONE element
 // is automatically rejected just as if it had the
 // wrong selectors.
+//
+// However, for operator calls, only argument
+// expressions before the first function term (first
+// operator) are returned.
 //
 // This function treats quoted string elements of vp
 // as if they were MIN strings.  Should they not be

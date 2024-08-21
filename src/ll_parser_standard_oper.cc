@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  8 13:34:11 EDT 2022
+// Date:	Wed Aug 21 02:03:38 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -473,6 +473,16 @@ static void define_comparison_operators
     min::locatable_gen less_than
         ( min::new_str_gen ( "<" ) );
 
+    min::locatable_gen comparison_arguments
+	    ( min::new_obj_gen ( 6 ) );
+    min::obj_vec_insptr cavp ( comparison_arguments );
+    min::attr_push ( cavp ) = equal_equal;
+    min::attr_push ( cavp ) = less_equal;
+    min::attr_push ( cavp ) = greater_equal;
+    min::attr_push ( cavp ) = not_equal;
+    min::attr_push ( cavp ) = greater_than;
+    min::attr_push ( cavp ) = less_than;
+
     OP::push_oper
         ( equal_equal,
 	  min::MISSING(),
@@ -480,7 +490,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  12000, infix_reformatter,
-	  min::MISSING(),
+	  comparison_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -490,7 +500,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  12000, infix_reformatter,
-	  min::MISSING(),
+	  comparison_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -500,7 +510,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  12000, infix_reformatter,
-	  min::MISSING(),
+	  comparison_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -510,7 +520,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  12000, infix_reformatter,
-	  min::MISSING(),
+	  comparison_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -520,7 +530,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  12000, infix_reformatter,
-	  min::MISSING(),
+	  comparison_arguments,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -530,7 +540,7 @@ static void define_comparison_operators
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  12000, infix_reformatter,
-	  min::MISSING(),
+	  comparison_arguments,
 	  oper_pass->oper_table );
 }
 

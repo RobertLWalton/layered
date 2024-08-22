@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 21 02:58:41 AM EDT 2024
+// Date:	Thu Aug 22 05:24:48 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -253,9 +253,26 @@ ll::parser::primary::func push_op_func
 	  const min::phrase_position & position,
 	  min::uns16 level,
 	  min::uns16 depth,
-	  min::uns32 location,
 	  ll::parser::table::key_table symbol_table,
-	  min::uns32 flags = BUILTIN_INSTRUCTION );
+	  min::uns32 flags = BUILTIN_INSTRUCTION,
+	  min::uns32 location = 0 );
+
+// Ditto but for top level with ALL_SELECTORS and
+// no location.
+//
+inline void push_op_func
+	( min::gen op_name,
+	  min::uns32 op_type,
+	  ll::parser::table::key_table symbol_table,
+	  min::uns32 flags = BUILTIN_INSTRUCTION )
+{
+    push_op_func
+    	( op_name, op_type,
+	  ll::parser::ALL_SELECTORS,
+	  ll::parser::top_level_position,
+	  0, 0,
+	  symbol_table, flags );
+}
 
 // Push a new argument description into the args vector
 // of a func.

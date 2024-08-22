@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 11 01:52:36 PM EDT 2024
+// Date:	Thu Aug 22 05:50:32 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -98,6 +98,8 @@ static min::packed_vec<TAB::key_prefix,
 
 TAB::key_table TAB::create_key_table ( uns32 length )
 {
+    if ( length == 0 ) return min::NULL_STUB;
+
     // Check for power of two.
     //
     MIN_ASSERT ( ( length & ( length - 1 ) ) == 0,
@@ -116,6 +118,8 @@ TAB::key_prefix TAB::find_key_prefix
 	( min::gen key, TAB::key_table key_table,
 	  bool create )
 {
+    if ( key_table == min::NULL_STUB )
+        return min::NULL_STUB;
 
     // Set len to the number of elements in the key and
     // element[] to the vector of key elements.

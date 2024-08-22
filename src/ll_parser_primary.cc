@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 21 08:46:55 AM EDT 2024
+// Date:	Thu Aug 22 05:59:41 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -217,9 +217,9 @@ PRIM::func PRIM::push_op_func
 	  const min::phrase_position & position,
 	  min::uns16 level,
 	  min::uns16 depth,
-	  min::uns32 location,
 	  TAB::key_table symbol_table,
-	  min::uns32 flags )
+	  min::uns32 flags,
+	  min::uns32 location )
 {
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
@@ -957,6 +957,9 @@ static TAB::key_prefix find_key_prefix
       min::uns32 & quoted_i,
       TAB::key_table symbol_table )
 {
+    if ( symbol_table == min::NULL_STUB )
+        return min::NULL_STUB;
+
     min::uns32 phash = min::labhash_initial;
     min::uns32 tab_len = symbol_table->length;
     min::uns32 mask = tab_len - 1;

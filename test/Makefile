@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Dec 20 05:59:51 EST 2023
+# Date:		Thu Aug 22 05:33:13 AM EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -10,9 +10,10 @@
 
 D = $$
 
-# The following locates the MIN source code.
+# The following locates the MIN and MEX source code.
 #
 MIN = ~/min
+MEX = ~/mex
 
 # The following turns on MIN debugging.
 #
@@ -58,6 +59,8 @@ TESTS = ${LEXEME_TESTS} ${PARSER_TESTS}
 MIN_H =	${MIN}/lib/libmin.a
 
 MIN_O =	${MIN}/lib/libmin.a
+
+MEX_H = ${MEX}/lib/libmex.a
 
 LEXEME_H =	${MIN_H} \
 		../include/ll_lexeme_standard.h \
@@ -531,6 +534,7 @@ ll_parser_primary.o:	\
 
 ll_parser_standard_primary.o:	\
 	${LEXEME_H} \
+	${MEX_H} \
 	../include/ll_parser.h \
 	../include/ll_parser_standard.h \
 	../include/ll_parser_primary.h \
@@ -538,6 +542,7 @@ ll_parser_standard_primary.o:	\
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
+	    -I ${MEX}/include \
 	    -c ../src/ll_parser_standard_primary.cc
 
 ll_parser_command.o:	\

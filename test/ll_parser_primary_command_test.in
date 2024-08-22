@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 19:17:39 EST 2023
+// Date:	Thu Aug 22 04:45:47 PM EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,7 @@
 
 *PARSER*:
     begin block BLOCK1
-    define primary function ``(X) "+" (Y)'' [code]
+    define primary function ``(A1) "+" (A2)'' [code]
     print primary function ``''
     test primary ``(A)+(B)'' [code]
     test primary ``{|A|}+(B)'' [code]

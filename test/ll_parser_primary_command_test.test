@@ -18,8 +18,8 @@
     define primary variable ``X Y 1'' [code]
            with module M with location 100
     print primary variable ``''
-        block BLOCK1: variable ``X Y 1'' [code]
-                      with location 100 in module M
+        block BLOCK1: variable ``X Y 1'' [code] with location 100
+                      in module M
     test primary:  X Y 1
     -- found variable: X Y 1 ===> M 100
     test primary:  X Y 1 FOO
@@ -35,19 +35,19 @@
     test primary:  X
     -- no definition found
     print primary variable ``''
-        block BLOCK1: variable ``X Y 1'' [code]
-                      with location 100 in module M
-        block BLOCK1: variable ``X Y'' [code]
-                      with location 200 in module M
+        block BLOCK1: variable ``X Y 1'' [code] with location 100
+                      in module M
+        block BLOCK1: variable ``X Y'' [code] with location 200
+                      in module M
     end block BLOCK1
     print primary variable ``''
         nothing found
 *PARSER*:
     begin block BLOCK1
-    define primary function ``(X) "+" (Y)'' [code]
+    define primary function ``(A1) "+" (A2)'' [code]
     print primary function ``''
-        block BLOCK1: function ``(X)"+"(Y)'' [code]
-                      with location 0 in module [$ MISSING $]
+        block BLOCK1: function ``(A1)"+"(A2)'' [code]
+        block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
     test primary:  (A) + (B)
     -- found function:  (A) "+" (B) ===> [$ MISSING $] 0
     test primary:  {|A|} + (B)
@@ -55,20 +55,20 @@
     test primary:  {|A 1|} + (B)
     -- found function:  {|A 1|} "+" (B) ===> [$ MISSING $] 0
     test primary:  (A) + (B) + (C)
-REJECTING: (X)"+"(Y)
+REJECTING: (A1)"+"(A2)
            expected function term just after (B) but found + instead
-    -- no definition found
+    -- found function:  (A) ===> [$ MISSING $] 0
     test primary:  (A) +
-REJECTING: (X)"+"(Y)
-           prototype variable Y was not given a value
-    -- no definition found
+REJECTING: (A1)"+"(A2)
+           prototype variable A2 was not given a value
+    -- found function:  (A) ===> [$ MISSING $] 0
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
     define primary function ``F [X]'' [code]
     print primary function ``''
         block BLOCK1: function ``F[X]'' [code]
-                      with location 0 in module [$ MISSING $]
+        block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
     test primary:  F [A]
     -- found function:  F [A] ===> [$ MISSING $] 0
     test primary:  F
@@ -82,7 +82,7 @@ REJECTING: F[X]
     define primary function ``F (X) ({|Y|}?={|Z|})'' [code]
     print primary function ``''
         block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
-                      with location 0 in module [$ MISSING $]
+        block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
     test primary:  F (A) (B)
     -- found function:  F (A) (B) ===> [$ MISSING $] 0
     test primary:  F (A)
@@ -97,7 +97,7 @@ REJECTING: F(X)(Y)
     define primary function ``F (X) G ({|Y|}?={|Q|}) H (Z)'' [code]
     print primary function ``''
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
-                      with location 0 in module [$ MISSING $]
+        block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
     test primary:  F (A) G (B) H (C)
     -- found function:  F (A) G (B) H (C) ===> [$ MISSING $] 0
     test primary:  F (A) H (B) G (C)
@@ -130,8 +130,8 @@ REJECTING: F(X)G(Y)H(Z)
                {|Z1|} {|{|Z2|} ?= {|D2|}|}|}''
          [code]
     print primary function ``''
+        block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block BLOCK1: function ``(X1, X2)F(Z1, Z2 ?= {|D2|})'' [code]
-                      with location 0 in module [$ MISSING $]
     test primary:  ({|A1|}, {|A2|}) F ({|B1|}, {|B2|})
     -- found function:  {|A1|} {|A2|} F {|B1|} {|B2|}
         ===> [$ MISSING $] 0

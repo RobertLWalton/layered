@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 22 05:59:41 AM EDT 2024
+// Date:	Thu Aug 22 03:28:49 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -224,7 +224,7 @@ PRIM::func PRIM::push_op_func
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
 	    ( selectors, position, level, depth,
-	      flags, location, min::NONE(), 0 ) );
+	      flags, location, min::MISSING(), 0 ) );
     min::locatable_gen X
         ( min::new_str_gen ( "X" ) );
     min::locatable_gen Y
@@ -243,7 +243,7 @@ PRIM::func PRIM::push_op_func
     {
         PRIM::push_arg ( Y, min::NONE(), func );
 	PRIM::push_arg_list
-	    ( min::NONE(),
+	    ( op_name,
 	      1, func->number_initial_arg_lists,
 	      false, func );
 	func->number_following_arg_lists = 1;
@@ -1605,6 +1605,7 @@ static min::gen primary_pass_command
 		PRIM::func func = (PRIM::func) root;
 
 		const char * type_name;
+		min::uns32 flags;
 		min::uns32 location;
 		min::gen module;
 
@@ -1613,16 +1614,18 @@ static min::gen primary_pass_command
 		    if ( var == min::NULL_STUB )
 			continue;
 		    type_name = "variable";
-		    location = var->location;
-		    module = var->module;
+		    flags     = var->flags;
+		    location  = var->location;
+		    module    = var->module;
 		}
 		else // type == PRIMLEX::function
 		{
 		    if ( func == min::NULL_STUB )
 			continue;
 		    type_name = "function";
-		    location = func->location;
-		    module = func->module;
+		    flags     = func->flags;
+		    location  = func->location;
+		    module    = func->module;
 		}
 
 		min::gen block_name =
@@ -1646,18 +1649,33 @@ static min::gen primary_pass_command
 		        ( func, parser,
 			  PRIM::func_default_op );
 
-		parser->printer
-		        << "'' " << min::set_break;
-	        COM::print_flags
-		    ( root->selectors,
-		      PAR::COMMAND_SELECTORS,
-		      parser->selector_name_table,
-		      parser );
-	        parser->printer
-		        << min::indent
+		parser->printer << "''";
+		if (    (   root->selectors
+		          & PAR::ALL_SELECTORS )
+		     != PAR::ALL_SELECTORS )
+		{
+		    parser->printer
+			    << " " << min::set_break;
+		    COM::print_flags
+			( root->selectors,
+			  PAR::COMMAND_SELECTORS,
+			  parser->selector_name_table,
+			  parser );
+		}
+		if ( flags != 0 )
+		    parser->printer
+			<< " " << min::set_break
+			<< "with flags "
+			<< min::puns ( flags, "%8X" );
+		if ( location != 0 )
+		    parser->printer
+			<< " " << min::set_break
 			<< "with location "
-			<< location
-			<< " in module "
+			<< location;
+		if ( module != min::MISSING() )
+		    parser->printer
+			<< " " << min::set_break
+			<< "in module "
 			<< min::pgen ( module );
 
 		parser->printer << min::restore_indent;
@@ -1882,6 +1900,8 @@ static min::gen primary_pass_command
 		<< min::set_indent ( indent + 4 )
 		<< "-- found function: ";
 	    min::uns32 len = func->arg_lists->length;
+	    if ( func->flags & PRIM::OPERATOR_CALL )
+	        len = func->number_initial_arg_lists;
 	    for ( min::uns32 j = 0; j < len; ++ j )
 	    {
 		PRIM::arg_list_struct arg_list =

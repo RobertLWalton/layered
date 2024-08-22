@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  3 01:47:36 EDT 2023
+// Date:	Thu Aug 22 04:51:56 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,7 @@ static void define_arithmetic_operators
 	    +
 	    ( (min::uns32) mex::SUB << 16 )
 	    +
-	    PRIM::BUILTIN_INSTRUCTION ) );
+	    PRIM::OPERATOR_CALL ) );
 }
 
 void PARSTD::define_primary

@@ -2,15 +2,16 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Dec 20 05:12:25 EST 2023
+# Date:		Thu Aug 22 06:03:53 AM EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
 # for this program.
 
-# The following locates MIN.
+# The following locates MIN and MEX.
 #
 MIN = ~/min
+MEX = ~/mex
 
 MAKE = make --no-print-directory
 
@@ -36,6 +37,8 @@ WFLAGS = -Wall -Wextra \
 
 
 MIN_H =	${MIN}/lib/libmin.a
+
+MEX_H =	${MEX}/lib/libmex.a
 
 LEXEME_H =	${MIN_H} \
 		../include/ll_lexeme_standard.h \
@@ -216,6 +219,7 @@ ll_parser_primary.o:	\
 	    -c ../src/ll_parser_primary.cc
 
 ll_parser_standard_primary.o:	\
+	${MEX_H} \
 	${LEXEME_H} \
 	../include/ll_parser.h \
 	../include/ll_parser_table.h \
@@ -225,6 +229,7 @@ ll_parser_standard_primary.o:	\
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include -I ${MIN}/include \
+	    -I ${MEX}/include \
 	    -c ../src/ll_parser_standard_primary.cc
 
 ll_parser_command.o:	\

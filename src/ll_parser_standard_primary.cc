@@ -1,8 +1,8 @@
 // Layered Languages Standard Primary Parser
 //
-// File:	ll_parser_standard_standard.cc
+// File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 22 04:51:56 PM EDT 2024
+// Date:	Fri Aug 23 04:17:52 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,7 +36,11 @@ static void define_arithmetic_operators
         ( min::new_str_gen ( "+" ) );
     min::locatable_gen minus
         ( min::new_str_gen ( "-" ) );
-	  
+    min::locatable_gen times
+        ( min::new_str_gen ( "*" ) );
+    min::locatable_gen divide
+        ( min::new_str_gen ( "/" ) );
+
     PRIM::push_op_func
         ( plus, PRIM::INFIX,
 	  symbol_table,
@@ -45,6 +49,36 @@ static void define_arithmetic_operators
 	    ( (min::uns32) mex::SUB << 16 )
 	    +
 	    PRIM::OPERATOR_CALL ) );
+
+    PRIM::push_op_func
+        ( minus, PRIM::INFIX,
+	  symbol_table,
+	  ( ( (min::uns32) mex::SUB << 24 )
+	    +
+	    ( (min::uns32) mex::ADD << 16 )
+	    +
+	    PRIM::OPERATOR_CALL ) );
+
+    PRIM::push_op_func
+        ( minus, PRIM::PREFIX,
+	  symbol_table,
+	  ( ( (min::uns32) mex::NEG << 24 )
+	    +
+	    PRIM::BUILTIN_FUNCTION ) );
+
+    PRIM::push_op_func
+        ( times, PRIM::INFIX,
+	  symbol_table,
+	  ( ( (min::uns32) mex::MUL << 24 )
+	    +
+	    PRIM::OPERATOR_CALL ) );
+
+    PRIM::push_op_func
+        ( divide, PRIM::INFIX,
+	  symbol_table,
+	  ( ( (min::uns32) mex::DIV << 24 )
+	    +
+	    PRIM::BUILTIN_FUNCTION ) );
 }
 
 void PARSTD::define_primary

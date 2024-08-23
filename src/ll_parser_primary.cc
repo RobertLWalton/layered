@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 22 03:28:49 PM EDT 2024
+// Date:	Fri Aug 23 04:44:04 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -229,29 +229,34 @@ PRIM::func PRIM::push_op_func
         ( min::new_str_gen ( "X" ) );
     min::locatable_gen Y
         ( min::new_str_gen ( "Y" ) );
-    if (    op_type == PRIM::PREFIX
+    if (    op_type == PRIM::POSTFIX
          || op_type == PRIM::INFIX )
     {
+        // Argument before operator.
+	//
         PRIM::push_arg ( X, min::NONE(), func );
 	PRIM::push_arg_list
 	    ( min::NONE(), 1, 0, false, func );
 	func->number_initial_arg_lists = 1;
-    }
 
-    if (    op_type == PRIM::POSTFIX
+	min::gen labv[2] =
+	    { PRIMLEX::parentheses, op_name };
+	PRIM::label_ref(func) =
+	    min::new_lab_gen ( labv, 2 );
+    }
+    else
+	PRIM::label_ref(func) = op_name;
+
+    if (    op_type == PRIM::PREFIX
          || op_type == PRIM::INFIX )
     {
+        // Argument after operator
         PRIM::push_arg ( Y, min::NONE(), func );
 	PRIM::push_arg_list
 	    ( op_name,
 	      1, func->number_initial_arg_lists,
 	      false, func );
 	func->number_following_arg_lists = 1;
-
-	min::gen labv[2] =
-	    { PRIMLEX::parentheses, op_name };
-	PRIM::label_ref(func) =
-	    min::new_lab_gen ( labv, 2 );
     }
     else
     {
@@ -1884,6 +1889,7 @@ static min::gen primary_pass_command
 	PRIM::func func = (PRIM::func) root;
 
 	if ( var != min::NULL_STUB )
+	{
 	    parser->printer
 		<< min::indent
 		<< min::set_indent ( indent + 4 )
@@ -1893,6 +1899,11 @@ static min::gen primary_pass_command
 		<< min::pgen ( var->module )
 		<< " "
 		<< var->location;
+	    if ( var->flags != 0 )
+		parser->printer
+		    << " "
+		    << min::puns ( var->flags, "%8X" );
+	}
 	else if ( func != min::NULL_STUB )
 	{
 	    parser->printer
@@ -1925,6 +1936,10 @@ static min::gen primary_pass_command
 		<< min::pgen ( func->module )
 		<< " "
 		<< func->location;
+	    if ( func->flags != 0 )
+		parser->printer
+		    << " "
+		    << min::puns ( func->flags, "%8X" );
 	}
 	else 
 	    parser->printer

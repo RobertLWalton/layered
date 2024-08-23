@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 22 05:24:48 AM EDT 2024
+// Date:	Fri Aug 23 04:13:30 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -163,7 +163,7 @@ struct arg_list_struct
 };
 
 enum func_flags {
-    BUILTIN_INSTRUCTION		= ( 1 << 0 ),
+    BUILTIN_FUNCTION		= ( 1 << 0 ),
     OPERATOR_CALL		= ( 1 << 1 )
 };
 
@@ -183,7 +183,8 @@ struct func_struct
         // Module containing location.  For testing,
 	// this is a MIN string.  For compiling, it is
 	// a mex::module or similar converted to a
-	// min::gen, or NONE for BUILTIN_INSTRUCTIONs.
+	// min::gen, or NONE for BUILTIN_FUNCTION or
+	// OPERATOR_CALL.
 
     const ll::parser::primary::args args;
         // Argument descriptions in prototype order.
@@ -254,7 +255,7 @@ ll::parser::primary::func push_op_func
 	  min::uns16 level,
 	  min::uns16 depth,
 	  ll::parser::table::key_table symbol_table,
-	  min::uns32 flags = BUILTIN_INSTRUCTION,
+	  min::uns32 flags = BUILTIN_FUNCTION,
 	  min::uns32 location = 0 );
 
 // Ditto but for top level with ALL_SELECTORS and
@@ -264,7 +265,7 @@ inline void push_op_func
 	( min::gen op_name,
 	  min::uns32 op_type,
 	  ll::parser::table::key_table symbol_table,
-	  min::uns32 flags = BUILTIN_INSTRUCTION )
+	  min::uns32 flags = BUILTIN_FUNCTION )
 {
     push_op_func
     	( op_name, op_type,

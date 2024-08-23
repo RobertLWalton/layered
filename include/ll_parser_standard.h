@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  3 02:00:53 EDT 2023
+// Date:	Fri Aug 23 03:34:37 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -302,6 +302,12 @@ enum {
 	// itself but which does provide tables for
 	// the primary parsing functions (see
 	// ll_parser_primary.h).
+    PRIMARY_OPERATORS		= 1 << 22,
+        // Set operator entries using MEX instruction
+	// codes in primary symbol table according to
+	// the ..._OPERATORS flags (e.g., this flag and
+	// ARITHMETIC_OPERATORS sets the symbol_table
+	// entries for arithmetic operators).
 
     ALL				= 0xFFFFFFFF
         // Set all standard entries.

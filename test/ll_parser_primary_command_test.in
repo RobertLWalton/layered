@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 22 04:45:47 PM EDT 2024
+// Date:	Fri Aug 23 04:20:41 AM EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,11 @@
     test primary ``{|A 1|}+(B)'' [code]
     test primary ``(A)+(B)+(C)'' [code]
     test primary ``(A)+'' [code]
+    test primary ``(A)+(B)-(C)'' [code]
+    test primary ``(A)-(B)+(C)'' [code]
+    test primary ``(A)*(B)*(C)'' [code]
+    test primary ``(A)/(B)'' [code]
+    test primary ``-(A)'' [code]
     end block BLOCK1
 
 *PARSER*:

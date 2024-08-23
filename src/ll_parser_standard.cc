@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  3 02:10:17 EDT 2023
+// Date:	Fri Aug 23 03:39:04 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,8 @@ static min::locatable_gen logical_operators;
 static min::locatable_gen comparison_operators;
 static min::locatable_gen arithmetic_operators;
 static min::locatable_gen bitwise_operators;
+static min::locatable_gen primary_parsing;
+static min::locatable_gen primary_operators;
 static min::locatable_gen other_qualifiers;
 static min::locatable_gen all_qualifiers;
 static min::locatable_gen other_setup;
@@ -102,6 +104,11 @@ static void initialize ( void )
         min::new_lab_gen ( "arithmetic", "operators" );
     ::bitwise_operators =
         min::new_lab_gen ( "bitwise", "operators" );
+
+    ::primary_parsing =
+        min::new_lab_gen ( "primary", "parsing" );
+    ::primary_operators =
+        min::new_lab_gen ( "primary", "operators" );
 
     ::other_qualifiers =
         min::new_lab_gen ( "other", "qualifiers" );
@@ -236,6 +243,16 @@ static void initialize ( void )
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
 		    ::bitwise_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::PRIMARY_PARSING
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::primary_parsing ) );
+    MIN_REQUIRE
+	(    PARSTD::PRIMARY_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::primary_operators ) );
 
     PARSTD::component_group_name_table =
 	TAB::create_key_table ( 32 );

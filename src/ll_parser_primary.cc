@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 04:44:04 AM EDT 2024
+// Date:	Sat Aug 24 04:59:02 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -210,59 +210,85 @@ PRIM::func PRIM::create_func
     return func;
 }
 
-PRIM::func PRIM::push_op_func
+PRIM::func PRIM::push_infix_op
 	( min::gen op_name,
-	  min::uns32 op_type,
-	  TAB::flags selectors,
-	  const min::phrase_position & position,
-	  min::uns16 level,
-	  min::uns16 depth,
 	  TAB::key_table symbol_table,
-	  min::uns32 flags,
-	  min::uns32 location )
+	  min::uns8 op_code_1,
+	  min::uns8 op_code_2 )
 {
+    min::uns32 flags =
+    	( ( (min::uns32) op_code_1 << 24 )
+	  +
+    	  ( (min::uns32) op_code_2 << 16 )
+	  +
+	  PRIM::OPERATOR_CALL );
+
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
-	    ( selectors, position, level, depth,
-	      flags, location, min::MISSING(), 0 ) );
+	    ( PAR::ALL_SELECTORS,
+	      PAR::top_level_position, 0, 0,
+	      flags, 0, min::MISSING(), 0 ) );
+
+    min::gen labv[2] =
+	{ PRIMLEX::parentheses, op_name };
+    PRIM::label_ref(func) =
+	min::new_lab_gen ( labv, 2 );
+
     min::locatable_gen X
         ( min::new_str_gen ( "X" ) );
     min::locatable_gen Y
         ( min::new_str_gen ( "Y" ) );
-    if (    op_type == PRIM::POSTFIX
-         || op_type == PRIM::INFIX )
-    {
-        // Argument before operator.
-	//
-        PRIM::push_arg ( X, min::NONE(), func );
-	PRIM::push_arg_list
-	    ( min::NONE(), 1, 0, false, func );
-	func->number_initial_arg_lists = 1;
 
-	min::gen labv[2] =
-	    { PRIMLEX::parentheses, op_name };
-	PRIM::label_ref(func) =
-	    min::new_lab_gen ( labv, 2 );
-    }
-    else
-	PRIM::label_ref(func) = op_name;
+    // Argument before operator.
+    //
+    PRIM::push_arg ( X, min::NONE(), func );
+    PRIM::push_arg_list
+	( min::NONE(), 1, 0, false, func );
+    func->number_initial_arg_lists = 1;
 
-    if (    op_type == PRIM::PREFIX
-         || op_type == PRIM::INFIX )
+    // Argument after operator
+    PRIM::push_arg ( Y, min::NONE(), func );
+    PRIM::push_arg_list
+	( op_name, 1, 1, false, func );
+    func->number_following_arg_lists = 1;
+
+    TAB::push ( symbol_table, (TAB::root) func );
+    return func;
+}
+
+PRIM::func PRIM::push_builtin_func
+	( min::gen func_name,
+	  TAB::key_table symbol_table,
+	  min::uns8 op_code,
+	  min::uns32 number_of_arguments )
+{
+    min::uns32 flags =
+    	( ( (min::uns32) op_code << 24 )
+	  +
+	  PRIM::BUILTIN_FUNCTION );
+
+    min::locatable_var<PRIM::func> func
+        ( PRIM::create_func
+	    ( PAR::ALL_SELECTORS,
+	      PAR::top_level_position, 0, 0,
+	      flags, 0, min::MISSING(), 0 ) );
+
+    PRIM::label_ref(func) = func_name;
+
+    for ( min::uns32 i = 0;
+          i < number_of_arguments; ++ i )
     {
-        // Argument after operator
-        PRIM::push_arg ( Y, min::NONE(), func );
-	PRIM::push_arg_list
-	    ( op_name,
-	      1, func->number_initial_arg_lists,
-	      false, func );
-	func->number_following_arg_lists = 1;
+        char aname[10];
+	std::sprintf ( aname, "A%d", i );
+	min::locatable_gen A
+	    ( min::new_str_gen ( aname ) );
+
+	PRIM::push_arg ( A, min::NONE(), func );
     }
-    else
-    {
-        MIN_REQUIRE ( op_type == PRIM::PREFIX );
-	PRIM::label_ref(func) = op_name;
-    }
+    PRIM::push_arg_list
+	( func_name, number_of_arguments, 0,
+	  false, func );
+    func->number_following_arg_lists = 1;
 
     TAB::push ( symbol_table, (TAB::root) func );
     return func;

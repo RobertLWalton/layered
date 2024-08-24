@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 04:17:52 AM EDT 2024
+// Date:	Sat Aug 24 05:07:55 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,44 +41,19 @@ static void define_arithmetic_operators
     min::locatable_gen divide
         ( min::new_str_gen ( "/" ) );
 
-    PRIM::push_op_func
-        ( plus, PRIM::INFIX,
-	  symbol_table,
-	  ( ( (min::uns32) mex::ADD << 24 )
-	    +
-	    ( (min::uns32) mex::SUB << 16 )
-	    +
-	    PRIM::OPERATOR_CALL ) );
+    PRIM::push_infix_op
+        ( plus, symbol_table, mex::ADD, mex::SUB );
+    PRIM::push_infix_op
+        ( minus, symbol_table, mex::SUB, mex::ADD );
 
-    PRIM::push_op_func
-        ( minus, PRIM::INFIX,
-	  symbol_table,
-	  ( ( (min::uns32) mex::SUB << 24 )
-	    +
-	    ( (min::uns32) mex::ADD << 16 )
-	    +
-	    PRIM::OPERATOR_CALL ) );
+    PRIM::push_builtin_func
+        ( minus, symbol_table, mex::NEG );
 
-    PRIM::push_op_func
-        ( minus, PRIM::PREFIX,
-	  symbol_table,
-	  ( ( (min::uns32) mex::NEG << 24 )
-	    +
-	    PRIM::BUILTIN_FUNCTION ) );
+    PRIM::push_infix_op
+        ( times, symbol_table, mex::MUL );
 
-    PRIM::push_op_func
-        ( times, PRIM::INFIX,
-	  symbol_table,
-	  ( ( (min::uns32) mex::MUL << 24 )
-	    +
-	    PRIM::OPERATOR_CALL ) );
-
-    PRIM::push_op_func
-        ( divide, PRIM::INFIX,
-	  symbol_table,
-	  ( ( (min::uns32) mex::DIV << 24 )
-	    +
-	    PRIM::BUILTIN_FUNCTION ) );
+    PRIM::push_infix_op
+        ( divide, symbol_table, mex::DIV );
 }
 
 void PARSTD::define_primary

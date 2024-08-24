@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 04:13:30 AM EDT 2024
+// Date:	Sat Aug 24 04:59:18 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -237,43 +237,38 @@ ll::parser::primary::func create_func
 	  min::gen module,
 	  min::uns32 term_table_size );
 
-// Push into a symbol_table a func describing a prefix,
-// infix, or postfix operator with given op_name whose
-// location specifies a builtin instruction.
+// Push into a symbol_table a top level OPERATOR_CALL
+// func describing an infix operator with given
+// op_name and MEX instruction op_code.  If two
+// op_codes are given (e.g., for + and -), the first
+// (_1) is for the op_name, and the second (_2) is
+// for the alternate operator name (e.g., if op_name
+// is + op_code_1 is ADD and op_code_2 is SUB).
 //
-enum op_type {
-    PREFIX	= 1,
-    INFIX	= 2,
-    POSTFIX	= 3
-};
+// Level and depth are set to 0, position is set to
+// PAR::top_level_position, and selectors are set to
+// PAR::ALL_SELECTORS.
 //
-ll::parser::primary::func push_op_func
+ll::parser::primary::func push_infix_op
 	( min::gen op_name,
-	  min::uns32 op_type,
-	  ll::parser::table::flags selectors,
-	  const min::phrase_position & position,
-	  min::uns16 level,
-	  min::uns16 depth,
 	  ll::parser::table::key_table symbol_table,
-	  min::uns32 flags = BUILTIN_FUNCTION,
-	  min::uns32 location = 0 );
+	  min::uns8 op_code_1,
+	  min::uns8 op_code_2 = 0 );
 
-// Ditto but for top level with ALL_SELECTORS and
-// no location.
+// Push into a symbol_table a top level BUILTIN_FUNCTION
+// func describing a function operator with given
+// func_name, MEX instruction op_code, and number of
+// arguments.
 //
-inline void push_op_func
-	( min::gen op_name,
-	  min::uns32 op_type,
+// Level and depth are set to 0, position is set to
+// PAR::top_level_position, and selectors are set to
+// PAR::ALL_SELECTORS.
+//
+ll::parser::primary::func push_builtin_func
+	( min::gen func_name,
 	  ll::parser::table::key_table symbol_table,
-	  min::uns32 flags = BUILTIN_FUNCTION )
-{
-    push_op_func
-    	( op_name, op_type,
-	  ll::parser::ALL_SELECTORS,
-	  ll::parser::top_level_position,
-	  0, 0,
-	  symbol_table, flags );
-}
+	  min::uns8 op_code,
+	  min::uns32 number_arguments = 1 );
 
 // Push a new argument description into the args vector
 // of a func.

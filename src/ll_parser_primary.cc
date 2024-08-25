@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 24 04:59:02 PM EDT 2024
+// Date:	Sun Aug 25 03:10:00 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -214,14 +214,15 @@ PRIM::func PRIM::push_infix_op
 	( min::gen op_name,
 	  TAB::key_table symbol_table,
 	  min::uns8 op_code_1,
-	  min::uns8 op_code_2 )
+	  min::uns8 op_code_2,
+	  min::uns32 base_flags )
 {
     min::uns32 flags =
     	( ( (min::uns32) op_code_1 << 24 )
 	  +
     	  ( (min::uns32) op_code_2 << 16 )
 	  +
-	  PRIM::OPERATOR_CALL );
+	  base_flags );
 
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
@@ -260,12 +261,13 @@ PRIM::func PRIM::push_builtin_func
 	( min::gen func_name,
 	  TAB::key_table symbol_table,
 	  min::uns8 op_code,
-	  min::uns32 number_of_arguments )
+	  min::uns32 number_of_arguments,
+	  min::uns32 base_flags )
 {
     min::uns32 flags =
     	( ( (min::uns32) op_code << 24 )
 	  +
-	  PRIM::BUILTIN_FUNCTION );
+	  base_flags );
 
     min::locatable_var<PRIM::func> func
         ( PRIM::create_func
@@ -1382,7 +1384,9 @@ CHECK_TYPE:
 		  " first function term does not match"
 		  " func->label" );
 	    i = after_first;
-	    if ( ( func->flags & PRIM::OPERATOR_CALL )
+	    if ( (   func->flags
+	           & (   PRIM::OPERATOR_CALL
+		       | PRIM::LOGICAL_OPERATOR ) )
 	         && quoted_i >= after_first )
 	    {
 	        number_args =
@@ -1937,7 +1941,9 @@ static min::gen primary_pass_command
 		<< min::set_indent ( indent + 4 )
 		<< "-- found function: ";
 	    min::uns32 len = func->arg_lists->length;
-	    if ( func->flags & PRIM::OPERATOR_CALL )
+	    if ( func->flags
+	         & (   PRIM::OPERATOR_CALL
+		     | PRIM::LOGICAL_OPERATOR ) )
 	        len = func->number_initial_arg_lists;
 	    for ( min::uns32 j = 0; j < len; ++ j )
 	    {

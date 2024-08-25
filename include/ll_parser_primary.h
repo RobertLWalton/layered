@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 24 04:59:18 PM EDT 2024
+// Date:	Sun Aug 25 02:54:04 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -164,7 +164,15 @@ struct arg_list_struct
 
 enum func_flags {
     BUILTIN_FUNCTION		= ( 1 << 0 ),
-    OPERATOR_CALL		= ( 1 << 1 )
+    OPERATOR_CALL		= ( 1 << 1 ),
+    LOGICAL_OPERATOR		= ( 1 << 2 )
+};
+
+enum logical_op_codes {
+    COMPARE			= 1,
+    AND				= 2,
+    OR				= 3,
+    NOT				= 4
 };
 
 struct func_struct
@@ -253,7 +261,21 @@ ll::parser::primary::func push_infix_op
 	( min::gen op_name,
 	  ll::parser::table::key_table symbol_table,
 	  min::uns8 op_code_1,
-	  min::uns8 op_code_2 = 0 );
+	  min::uns8 op_code_2 = 0,
+	  min::uns32 base_flags =
+	      ll::parser::primary::OPERATOR_CALL );
+
+// Ditto but make LOGICAL_OP instead of OPERATOR_CALL.
+//
+inline ll::parser::primary::func push_logical_op
+	( min::gen op_name,
+	  ll::parser::table::key_table symbol_table,
+	  min::uns8 op_code )
+{
+    return ll::parser::primary::push_infix_op
+    	( op_name, symbol_table, op_code,
+	  0, ll::parser::primary::LOGICAL_OPERATOR );
+}
 
 // Push into a symbol_table a top level BUILTIN_FUNCTION
 // func describing a function operator with given
@@ -268,7 +290,24 @@ ll::parser::primary::func push_builtin_func
 	( min::gen func_name,
 	  ll::parser::table::key_table symbol_table,
 	  min::uns8 op_code,
-	  min::uns32 number_arguments = 1 );
+	  min::uns32 number_arguments = 1,
+	  min::uns32 base_flags =
+	      ll::parser::primary::BUILTIN_FUNCTION );
+
+// Ditto but make LOGICAL_OPERATOR instead of
+// BUILTIN_FUNCTION.
+//
+inline ll::parser::primary::func push_logical_func
+	( min::gen func_name,
+	  ll::parser::table::key_table symbol_table,
+	  min::uns8 op_code,
+	  min::uns32 number_arguments = 1 )
+{
+    return ll::parser::primary::push_builtin_func
+        ( func_name, symbol_table, op_code,
+	  number_arguments,
+	  ll::parser::primary::LOGICAL_OPERATOR );
+}
 
 // Push a new argument description into the args vector
 // of a func.

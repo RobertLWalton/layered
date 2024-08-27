@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 24 05:07:55 PM EDT 2024
+// Date:	Tue Aug 27 03:43:05 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,6 +56,70 @@ static void define_arithmetic_operators
         ( divide, symbol_table, mex::DIV );
 }
 
+static void define_comparison_operators
+	( TAB::key_table symbol_table )
+{
+    min::locatable_gen leq
+        ( min::new_str_gen ( "<=" ) );
+    min::locatable_gen lt
+        ( min::new_str_gen ( "<" ) );
+    min::locatable_gen geq
+        ( min::new_str_gen ( ">=" ) );
+    min::locatable_gen gt
+        ( min::new_str_gen ( ">" ) );
+    min::locatable_gen eq
+        ( min::new_str_gen ( "==" ) );
+    min::locatable_gen neq
+        ( min::new_str_gen ( "!=" ) );
+
+    PRIM::push_logical_op
+        ( leq, symbol_table, PRIM::COMPARE );
+    PRIM::push_logical_op
+        ( lt, symbol_table, PRIM::COMPARE );
+    PRIM::push_logical_op
+        ( geq, symbol_table, PRIM::COMPARE );
+    PRIM::push_logical_op
+        ( gt, symbol_table, PRIM::COMPARE );
+    PRIM::push_logical_op
+        ( eq, symbol_table, PRIM::COMPARE );
+    PRIM::push_logical_op
+        ( neq, symbol_table, PRIM::COMPARE );
+}
+
+static void define_selection_operators
+	( TAB::key_table symbol_table )
+{
+
+    min::locatable_gen if_op
+        ( min::new_str_gen ( "if" ) );
+
+    PRIM::push_logical_op
+        ( if_op, symbol_table, PRIM::IF );
+}
+
+static void define_logical_operators
+	( TAB::key_table symbol_table )
+{
+
+    min::locatable_gen but_not_op
+        ( min::new_lab_gen ( "BUT", "NOT" ) );
+    min::locatable_gen and_op
+        ( min::new_str_gen ( "AND" ) );
+    min::locatable_gen or_op
+        ( min::new_str_gen ( "OR" ) );
+    min::locatable_gen not_op
+        ( min::new_str_gen ( "NOT" ) );
+
+    PRIM::push_logical_op
+        ( but_not_op, symbol_table, PRIM::BUT_NOT );
+    PRIM::push_logical_op
+        ( and_op, symbol_table, PRIM::AND );
+    PRIM::push_logical_op
+        ( or_op, symbol_table, PRIM::OR );
+    PRIM::push_logical_func
+        ( not_op, symbol_table, PRIM::NOT );
+}
+
 void PARSTD::define_primary
 	( PAR::parser parser, TAB::flags components )
 {
@@ -68,5 +132,11 @@ void PARSTD::define_primary
 
     if ( components & PARSTD::ARITHMETIC_OPERATORS )
         ::define_arithmetic_operators ( symbol_table );
+    if ( components & PARSTD::COMPARISON_OPERATORS )
+        ::define_comparison_operators ( symbol_table );
+    if ( components & PARSTD::SELECTION_OPERATORS )
+        ::define_selection_operators ( symbol_table );
+    if ( components & PARSTD::LOGICAL_OPERATORS )
+        ::define_logical_operators ( symbol_table );
 }
 

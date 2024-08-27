@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 25 03:10:00 AM EDT 2024
+// Date:	Tue Aug 27 04:15:40 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -230,10 +230,14 @@ PRIM::func PRIM::push_infix_op
 	      PAR::top_level_position, 0, 0,
 	      flags, 0, min::MISSING(), 0 ) );
 
-    min::gen labv[2] =
+    min::gen labv[10] =
 	{ PRIMLEX::parentheses, op_name };
+    min::uns32 lablen = 2;
+    if ( min::is_lab ( op_name ) )
+        lablen = 1
+	       + min::labncpy ( labv + 1, op_name, 9 );
     PRIM::label_ref(func) =
-	min::new_lab_gen ( labv, 2 );
+	min::new_lab_gen ( labv, lablen );
 
     min::locatable_gen X
         ( min::new_str_gen ( "X" ) );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 25 02:54:04 AM EDT 2024
+// Date:	Tue Aug 27 03:45:09 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -172,7 +172,9 @@ enum logical_op_codes {
     COMPARE			= 1,
     AND				= 2,
     OR				= 3,
-    NOT				= 4
+    NOT				= 4,
+    BUT_NOT			= 5,
+    IF				= 6
 };
 
 struct func_struct

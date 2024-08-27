@@ -46,12 +46,23 @@
     begin block BLOCK1
     define primary function ``(A1) "+" (A2)'' [code]
     print primary function ``''
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 15000001
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block BLOCK1: function ``(A1)"+"(A2)'' [code]
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
         block TOP LEVEL: function ``(X)"/"(Y)'' with flags  9000002
+        block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
+        block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
     test primary:  (A) + (B)
     -- found function:  (A) "+" (B) ===> [$ MISSING $] 0
     test primary:  {|A|} + (B)
@@ -83,12 +94,23 @@ REJECTING: (A1)"+"(A2)
     begin block BLOCK1
     define primary function ``F [X]'' [code]
     print primary function ``''
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 15000001
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F[X]'' [code]
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
         block TOP LEVEL: function ``(X)"/"(Y)'' with flags  9000002
+        block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
+        block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
     test primary:  F [A]
     -- found function:  F [A] ===> [$ MISSING $] 0
     test primary:  F
@@ -101,12 +123,23 @@ REJECTING: F[X]
     begin block BLOCK1
     define primary function ``F (X) ({|Y|}?={|Z|})'' [code]
     print primary function ``''
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 15000001
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
         block TOP LEVEL: function ``(X)"/"(Y)'' with flags  9000002
+        block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
+        block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
     test primary:  F (A) (B)
     -- found function:  F (A) (B) ===> [$ MISSING $] 0
     test primary:  F (A)
@@ -120,12 +153,23 @@ REJECTING: F(X)(Y)
     begin block BLOCK1
     define primary function ``F (X) G ({|Y|}?={|Q|}) H (Z)'' [code]
     print primary function ``''
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 15000001
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
         block TOP LEVEL: function ``(X)"/"(Y)'' with flags  9000002
+        block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
+        block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
     test primary:  F (A) G (B) H (C)
     -- found function:  F (A) G (B) H (C) ===> [$ MISSING $] 0
     test primary:  F (A) H (B) G (C)
@@ -158,12 +202,23 @@ REJECTING: F(X)G(Y)H(Z)
                {|Z1|} {|{|Z2|} ?= {|D2|}|}|}''
          [code]
     print primary function ``''
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 15000001
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
         block TOP LEVEL: function ``(X)"/"(Y)'' with flags  9000002
+        block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
         block BLOCK1: function ``(X1, X2)F(Z1, Z2 ?= {|D2|})'' [code]
+        block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
+        block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
     test primary:  ({|A1|}, {|A2|}) F ({|B1|}, {|B2|})
     -- found function:  {|A1|} {|A2|} F {|B1|} {|B2|}
         ===> [$ MISSING $] 0

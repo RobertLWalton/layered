@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 11 01:51:56 PM EDT 2024
+// Date:	Thu Aug 29 04:39:01 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -244,10 +244,15 @@ MIN_REF ( min::gen, label,
 // A key table maps keys, which are labels (see Roots
 // above), to lists of key table entries.  A key is a
 // sequence of one or more symbols, each represented
-// in the key table by a min::gen string value or
-// min::gen number value and in the input by a symbol
-// token whose value is a min::gen string or min::gen
-// number.  The list of entries for a key is in most
+// in the key table by a min::gen string value, a
+// min::gen number value, or min::gen label value.  In
+// input a key is a symbol token whose value is a
+// min::gen string or min::gen number.  When used as
+// a symbol table, input can be a parsed expression
+// vector which can have string, number, or label
+// element (labels are used for multi-word operators).
+//
+// The list of entries for a key is in most
 // recently added (to the key table) first order.
 //
 // The entire key table is also itself a stack, in the
@@ -280,11 +285,11 @@ MIN_REF ( min::gen, label,
 //
 // The hash code of a key_prefix is the hash code of its
 // key.  More specifically, if the key has just one
-// element, which must necessarily be a symbol (i.e., a
-// min::gen string), the hash is the hash of that
-// element, and if the key has more than one element,
-// the hash is the hash as per min::labhash of the min::
-// gen label made from the key elements.
+// element, which must necessarily be a symbol, the hash
+// is the hash of that element, and if the key has more
+// than one element, the hash is the hash as per
+// min::labhash of the min::gen label made from the
+// key elements.
 //
 struct key_prefix_struct;
 typedef min::packed_struct_updptr<key_prefix_struct>

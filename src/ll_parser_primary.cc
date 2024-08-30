@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 04:40:16 PM EDT 2024
+// Date:	Thu Aug 29 09:27:12 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1030,8 +1030,7 @@ static TAB::key_prefix find_key_prefix
 		    break;
 	    }
 	}
-	if (    ! min::is_str ( e )
-	     && ! min::is_num ( e ) )
+	if ( ! min::is_name ( e ) )
 	    break;
 	min::uns32 hash = min::hash ( e );
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 09:27:12 PM EDT 2024
+// Date:	Wed Sep  4 02:36:53 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,7 +110,7 @@ static min::packed_struct_with_base
 	        ::var_stub_disp );
 const min::uns32 & PRIM::VAR = ::var_type.subtype;
 
-PRIM::var PRIM::push_var
+PRIM::var PRIM::create_var
 	( min::gen var_label,
 	  TAB::flags selectors,
 	  const min::phrase_position & position,
@@ -118,8 +118,7 @@ PRIM::var PRIM::push_var
 	  min::uns16 depth,
 	  min::uns32 flags,
 	  min::uns32 location,
-	  min::gen module,
-	  TAB::key_table symbol_table )
+	  min::gen module )
 {
     min::locatable_var<PRIM::var> var
         ( ::var_type.new_stub() );
@@ -134,7 +133,6 @@ PRIM::var PRIM::push_var
     var->location = location;
     PRIM::module_ref(var) = module;
 
-    TAB::push ( symbol_table, (TAB::root) var );
     return var;
 }
 
@@ -1826,11 +1824,15 @@ static min::gen primary_pass_command
 		  (TAB::root) func );
 	}
 	else
-	    PRIM::push_var
+	{
+	    min::locatable_var<PRIM::var> var
+	        ( PRIM::create_var
 		    ( name, selectors, nppvec->position,
 		      0, block_level,
-		      0, location, module,
-		      primary_pass->primary_table );
+		      0, location, module ) );
+	    PRIM::push_var
+	        ( primary_pass->primary_table, var );
+	}
     }
 
     else if ( command == PARLEX::undefine )

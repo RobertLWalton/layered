@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 27 03:45:09 AM EDT 2024
+// Date:	Wed Sep  4 02:36:02 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,7 +83,7 @@ MIN_REF ( min::gen, module,
 // label, selectors, lexical level, depth, location,
 // and module, and return it.
 //
-ll::parser::primary::var push_var
+ll::parser::primary::var create_var
 	( min::gen var_label,
 	  ll::parser::table::flags selectors,
 	  const min::phrase_position & position,
@@ -91,9 +91,17 @@ ll::parser::primary::var push_var
 	  min::uns16 depth,
 	  min::uns32 flags,
 	  min::uns32 location,
-	  min::gen module,
-	  ll::parser::table::key_table
-	  	symbol_table );
+	  min::gen module );
+
+// Push var into symbol table.
+//
+inline void push_var
+	( ll::parser::table::key_table symbol_table,
+	  ll::parser::primary::var var )
+{
+    ll::parser::table::push
+        ( symbol_table, (ll::parser::table::root) var );
+}
 
 // Function Definition.
 //

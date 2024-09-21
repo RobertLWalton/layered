@@ -169,20 +169,27 @@ x, y = while z:
     {|{|{|x|}, {|y|}|} = {|while {|z|}|}|}:
         {|c|} = {|{|a|} + {|b|}|}
 === BRACKETED EXPRESSION: lines ##-##:
-while x == y, until v != w:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+while x == y until v != w:
+^^^^^^^^^^^^^^^^^^^^^^^^^^
     p(q) = x[v]
 ^^^^^^^^^^^^^^^
-    {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}:
+    {|while {|{|x|} == {|y|}|} until {|{|v|} != {|w|}|}|}:
         {|p (q)|} = {|x [v]|}
 === BRACKETED EXPRESSION: lines ##-##:
-a, b = while x == y, until v != w:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+a, b = while x == y until v != w:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     foo (b) fum(c) = p, q
 ^^^^^^^^^^^^^^^^^^^^^^^^^
     {|{|{|a|}, {|b|}|} =
-      {|{|while {|{|x|} == {|y|}|}|}, {|until {|{|v|} != {|w|}|}|}|}|}:
+      {|while {|{|x|} == {|y|}|} until {|{|v|} != {|w|}|}|}|}:
         {|foo (b) fum (c)|} = {|{|p|}, {|q|}|}
+=== BRACKETED EXPRESSION: lines ##-##:
+do while x == y until v != w:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    mumble(55)
+^^^^^^^^^^^^^^
+    {|do while {|{|x|} == {|y|}|} until {|{|v|} != {|w|}|}|}:
+        mumble (55)
 === BRACKETED EXPRESSION: lines ##-##:
 next x, next y, next z =:
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -204,11 +211,11 @@ repeat 5 times:
     {|repeat {|5|} times|}:
         {|next x|} += {|1|}
 === BRACKETED EXPRESSION: lines ##-##:
-until z == x, at most 10 times:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+do inc until z == x at most 10 times:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     next x += 1
 ^^^^^^^^^^^^^^^
-    {|{|until {|{|z|} == {|x|}|}|}, {|[< at most >] {|10|} times|}|}:
+    {|do {|inc|} until {|{|z|} == {|x|}|} [< at most >] {|10|} times|}:
         {|next x|} += {|1|}
 === BRACKETED EXPRESSION: lines ##-##:
 next x, y =:

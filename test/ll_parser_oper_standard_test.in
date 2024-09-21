@@ -50,17 +50,19 @@ while x == y:
     a + b
 x, y = while z:
     c = a + b
-while x == y, until v != w:
+while x == y until v != w:
     p(q) = x[v]
-a, b = while x == y, until v != w:
+a, b = while x == y until v != w:
     foo (b) fum(c) = p, q
+do while x == y until v != w:
+    mumble(55)
 next x, next y, next z =:
     next x += 1
     next y += 1
     next z += 1
 repeat 5 times:
     next x += 1
-until z == x, at most 10 times:
+do inc until z == x at most 10 times:
     next x += 1
 next x, y =:
     y = x

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 14, 2024
+September 20, 2024
  
 \end{center}
 
@@ -8559,19 +8559,22 @@ prece-  & selec-  &             &            &            &            & \\
 				& \TT{nofix} & \ttkey{,}  & separator  & S \\
 	& math	&		&	     &		  &	       &
 \\\hline
-3000	& code	& \ttkey{unary}
-				& \TT{prefix} & \ttkey{do} & iterator & I
+3000	& code	& (none) 	& \TT{initial} & \ttkey{do} & iterator & I
 \\\cline{5-5}
-	&	&		& \TT{line}  & \ttkey{while} & &
+	&	&		& \TT{line}  & \ttkey{repeat} & &
+\\\cline{4-5}
+	&	&		& \TT{right} & \ttkey{while} & &
 \\\cline{5-5}
-	&	&		&	     & \ttkey{until} & &
-\\\cline{3-3}\cline{5-5}
-	&	& \ttkey{iteration}	&    & \ttkey{repeat} & &
+	&	&		& \TT{line}  & \ttkey{until} & &
+\\\cline{4-5}
+	&	&		& \TT{afix}  & \ttkey{exactly} & &
 \\\cline{5-5}
-	&	&		&	     & \ttkey{at most} & &
-\\\cline{3-6}
-	&	& (none)	& \TT{afix}  & \ttkey{times} & iterator & \\
-	&	&		& \TT{line}  & 		     & modifier  &
+	&	&		& \TT{right}  & \ttkey{at most} & & \\
+        &       &               & \TT{line}   &                 & &
+\\\cline{4-6}
+	&	& 		& \TT{afix}  & \ttkey{times} & iterator & \\
+	&	&		& \TT{left}  & 		     & modifier  & \\
+        &       &               & \TT{line}   &                 & &
 \\\hline
 \end{tabular}
 
@@ -8775,24 +8778,21 @@ Parser Command				& \shortstack{
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
-\tt define operator "do" [code] prefix line & {\tt + code} \\
+\tt define operator "do" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
-\tt ~~~~~~~with unary reformatter \\
-\tt define operator "while" [code] prefix line & {\tt + code} \\
+\tt define operator "repeat" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
-\tt ~~~~~~~with unary reformatter \\
-\tt define operator "until" [code] prefix line & {\tt + code} \\
+\tt define operator "while" [code] right line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
-\tt ~~~~~~~with unary reformatter
+\tt define operator "until" [code] right line & {\tt + code} \\
+\tt ~~~~~~~with precedence 3000
 \\[1ex]
-\tt define operator "repeat" [code] prefix line & {\tt + code} \\
+\tt define operator "exactly" [code] afix right line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
-\tt ~~~~~~~with iteration reformatter ( "times" ) \\
-\tt define operator "at most" [code] prefix line & {\tt + code} \\
+\tt define operator "at most" [code] afix right line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
-\tt ~~~~~~~with iteration reformatter ( "times" )
 \\[1ex]
-\tt define operator "times" [code] afix line & {\tt + code} \\
+\tt define operator "times" [code] afix left line & {\tt + code} \\
 \tt ~~~~~~~with precedence 3000 \\
 \end{tabular}
 \end{center}

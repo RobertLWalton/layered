@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-September 20, 2024
+October 21, 2024
  
 \end{center}
 
@@ -9453,7 +9453,7 @@ and reformatter arguments {\tt ("+", "-")}, then:
 
 \bigskip
 
-\ttmkey{unary}{reformatter}
+\ttmkey{unary prefix}{reformatter}
     \hfill \NBOP{NOT} ~~~ \NBOP{+} ~~~ \NBOP{-} ~~~ \NBOP{\textasciitilde}
 
 \begin{indpar}[0.5em]
@@ -9467,6 +9467,25 @@ where \TT{NOT} is a prefix operator with this reformatter:
 \TT{NOT x} & $\Longrightarrow$ & \TT{NOT x} \\
 \TT{NOT NOT x} & $\Longrightarrow$ & \TT{NOT (NOT x)} \\
 \TT{NOT} & $\Longrightarrow$ & \TT{NOT ERROR'OPERAND} \\
+\end{tabular}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{unary postfix}{reformatter}
+    \hfill \NBOP{is integer} ~~~ \NBOP{is finite} ~~~ \NBOP{is string}
+                             ~~~ \NBOP{is object}
+
+\begin{indpar}[0.5em]
+Typically used with \TT{postfix} operators.
+
+Checks that the subexpression has exactly two elements, an operand followed
+by an operator.  Examples
+where \TT{is integer} is a postfix operator with this reformatter:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\TT{x is integer} & $\Longrightarrow$ & \TT{x is integer} \\
+\TT{is integer} & $\Longrightarrow$ & \TT{ERROR'OPERAND is integer} \\
 \end{tabular}
 \end{indpar}
 

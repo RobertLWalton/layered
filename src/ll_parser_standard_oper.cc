@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 20 07:10:16 AM EDT 2024
+// Date:	Mon Oct 21 03:14:03 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -376,11 +376,11 @@ static void define_logical_operators
     PAR::reformatter infix_reformatter =
         PAR::find_reformatter
 	    ( infix, OP::reformatter_stack );
-    min::locatable_gen unary
-        ( min::new_str_gen ( "unary" ) );
-    PAR::reformatter unary_reformatter =
+    min::locatable_gen unary_prefix
+        ( min::new_lab_gen ( "unary", "prefix" ) );
+    PAR::reformatter unary_prefix_reformatter =
         PAR::find_reformatter
-	    ( unary, OP::reformatter_stack );
+	    ( unary_prefix, OP::reformatter_stack );
 
     min::locatable_gen but_not_op
         ( min::new_lab_gen ( "BUT", "NOT" ) );
@@ -437,7 +437,7 @@ static void define_logical_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  11200, unary_reformatter,
+	  11200, unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }
@@ -565,11 +565,11 @@ static void define_arithmetic_operators
     PAR::reformatter infix_reformatter =
         PAR::find_reformatter
 	    ( infix, OP::reformatter_stack );
-    min::locatable_gen unary
-        ( min::new_str_gen ( "unary" ) );
-    PAR::reformatter unary_reformatter =
+    min::locatable_gen unary_prefix
+        ( min::new_lab_gen ( "unary", "prefix" ) );
+    PAR::reformatter unary_prefix_reformatter =
         PAR::find_reformatter
-	    ( unary, OP::reformatter_stack );
+	    ( unary_prefix, OP::reformatter_stack );
 
     min::locatable_gen plus_equal
         ( min::new_str_gen ( "+=" ) );
@@ -652,7 +652,8 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence, unary_reformatter,
+	  OP::prefix_precedence,
+	  unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -672,7 +673,8 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence, unary_reformatter,
+	  OP::prefix_precedence,
+	  unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -736,11 +738,11 @@ static void define_bitwise_operators
     PAR::reformatter infix_reformatter =
         PAR::find_reformatter
 	    ( infix, OP::reformatter_stack );
-    min::locatable_gen unary
-        ( min::new_str_gen ( "unary" ) );
-    PAR::reformatter unary_reformatter =
+    min::locatable_gen unary_prefix
+        ( min::new_lab_gen ( "unary", "prefix" ) );
+    PAR::reformatter unary_prefix_reformatter =
         PAR::find_reformatter
-	    ( unary, OP::reformatter_stack );
+	    ( unary_prefix, OP::reformatter_stack );
 
     min::locatable_gen or_equal
         ( min::new_str_gen ( "|=" ) );
@@ -887,9 +889,58 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence, unary_reformatter,
+	  OP::prefix_precedence,
+	  unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
+}
+
+static void define_test_operators
+	( PAR::parser parser,
+	  TAB::flags code,
+	  TAB::flags math )
+{
+    if ( code == 0 ) return;
+
+    OP::oper_pass oper_pass = OP::init_oper ( parser );
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    oper_pass->selectors |= code;
+
+    min::locatable_gen unary_postfix
+        ( min::new_lab_gen ( "unary", "postfix" ) );
+    PAR::reformatter unary_postfix_reformatter =
+        PAR::find_reformatter
+	    ( unary_postfix, OP::reformatter_stack );
+
+    min::locatable_gen is_true_op
+        ( min::new_lab_gen ( "is", "true" ) );
+    min::locatable_gen is_false_op
+        ( min::new_lab_gen ( "is", "false" ) );
+    min::locatable_gen is_integer_op
+        ( min::new_lab_gen ( "is", "integer" ) );
+    min::locatable_gen is_finite_op
+        ( min::new_lab_gen ( "is", "finite" ) );
+    min::locatable_gen is_infinite_op
+        ( min::new_lab_gen ( "is", "infinite" ) );
+    min::locatable_gen is_number_op
+        ( min::new_lab_gen ( "is", "number" ) );
+    min::locatable_gen is_string_op
+        ( min::new_lab_gen ( "is", "string" ) );
+    min::locatable_gen is_object_op
+        ( min::new_lab_gen ( "is", "object" ) );
+
+    OP::push_oper
+        ( is_true_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+// TBD
 }
 
 void PARSTD::define_operators
@@ -902,7 +953,8 @@ void PARSTD::define_operators
 
     if ( components & (   PARSTD::CONTROL_OPERATORS
                         + PARSTD::ITERATION_OPERATORS
-                        + PARSTD::BITWISE_OPERATORS ) )
+                        + PARSTD::BITWISE_OPERATORS
+                        + PARSTD::TEST_OPERATORS ) )
 	needed |= PARSTD::CODE;
     if ( components & (   PARSTD::ASSIGNMENT_OPERATORS
                         + PARSTD::SELECTION_OPERATORS
@@ -957,5 +1009,8 @@ void PARSTD::define_operators
 	    ( parser, code, math );
     if ( components & PARSTD::BITWISE_OPERATORS )
 	::define_bitwise_operators
+	    ( parser, code, math );
+    if ( components & PARSTD::TEST_OPERATORS )
+	::define_test_operators
 	    ( parser, code, math );
 }

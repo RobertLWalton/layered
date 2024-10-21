@@ -310,7 +310,7 @@ ERROR: in line ###: wrong separator "..." changed to ",":
         with infix reformatter ( "OR" )
     define operator "NOT" [code, math] prefix
         with precedence 3200
-        with unary reformatter
+        with unary prefix reformatter
 === BRACKETED EXPRESSION: line ###:
 (x OR y BUT NOT z AND w)
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -389,13 +389,13 @@ ERROR: in line ###: missing operand; error operand inserted:
 *PARSER*:
     define operator "+" [code, math] prefix
         with precedence 999999
-        with unary reformatter
+        with unary prefix reformatter
     define operator "+" [code, math] infix
         with precedence 5000
         with infix reformatter ( "+", "-" )
     define operator "-" [code, math] prefix
         with precedence 999999
-        with unary reformatter
+        with unary prefix reformatter
     define operator "-" [code, math] infix
         with precedence 5000
         with infix reformatter ( "+", "-" )
@@ -525,7 +525,7 @@ foo bar <-- boo bat : fee fie fo fum
         block standard: operator "+" [code, math]
                         prefix
                         with precedence 999999
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator "," [code, math]
                         nofix
                         with precedence 2000
@@ -537,7 +537,7 @@ foo bar <-- boo bat : fee fie fo fum
         block standard: operator "-" [code, math]
                         prefix
                         with precedence 999999
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator "/" [code, math]
                         infix
                         with precedence 5100
@@ -571,7 +571,7 @@ foo bar <-- boo bat : fee fie fo fum
         block standard: operator "NOT" [code, math]
                         prefix
                         with precedence 3200
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator "<--" [code]
                         nofix line
                         with precedence 0

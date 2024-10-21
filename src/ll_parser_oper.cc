@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 20 21:19:36 EDT 2024
+// Date:	Mon Oct 21 04:24:14 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1831,7 +1831,7 @@ static bool left_associative_reformatter_function
     return false;
 }
 
-static bool unary_reformatter_function
+static bool unary_prefix_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
 	  TAB::flags selectors,
@@ -1842,33 +1842,77 @@ static bool unary_reformatter_function
 	  TAB::flags trace_flags,
 	  TAB::root entry )
 {
-
-    while (    first != next
-            && first->type != PAR::OPERATOR )
-        first = OP::delete_bad_token
-	    ( parser, first, "expected an operator"
-			     " and found an operand " );
     MIN_ASSERT ( first != next,
-		 "expression must have an operator" );
+                 "expression cannot be empty" );
+
+    while ( first != next
+	    &&
+	    first->type != PAR::OPERATOR )
+	first = OP::delete_bad_token
+	    ( parser, first,
+	      "expected an operator and found an"
+	      " operand " );
+
+    MIN_ASSERT ( first != next
+                 &&
+		 first->type == PAR::OPERATOR,
+		 "expression must have operator" );
 
     PAR::token t = first->next;
 
-    while ( t != next && t->type == PAR::OPERATOR )
-        t = OP::delete_bad_token
-	        ( parser, t,
-		  "expected an operand and found an"
-		  " operator " );
+    while ( t != next
+	    &&
+	    t->type == PAR::OPERATOR )
+    t = OP::delete_bad_token
+	( parser, t,
+	  "expected an operand and found an"
+	  " operator " );
 
     if ( t == next )
-	OP::put_error_operand_after
-	    ( parser, t->previous );
-    else
+	OP::put_error_operand_before ( parser, t );
+    else 
 	t = t->next;
 
     // Delete extra stuff from end of list.
     //
     if ( t != next )
-        t = OP::delete_extra_stuff ( parser, t, next );
+	t = OP::delete_extra_stuff ( parser, t, next );
+
+    return true;
+}
+
+static bool unary_postfix_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    MIN_ASSERT ( first != next,
+                 "expression cannot be empty" );
+
+    if ( first->type == PAR::OPERATOR )
+    {
+	OP::put_error_operand_before ( parser, first );
+	first = first->previous;
+    }
+
+    PAR::token t = first->next;
+
+    MIN_ASSERT ( t != next
+                 &&
+		 t->type == PAR::OPERATOR,
+                 "expression must have operator" );
+    t = t->next;
+
+    // Delete extra stuff from end of list.
+    //
+    if ( t != next )
+	t = OP::delete_extra_stuff ( parser, t, next );
 
     return true;
 }
@@ -2006,11 +2050,18 @@ static void reformatter_stack_initialize ( void )
 	  ::left_associative_reformatter_function,
 	  OP::reformatter_stack );
 
-    min::locatable_gen prefix
-        ( min::new_str_gen ( "unary" ) );
+    min::locatable_gen unary_prefix
+        ( min::new_lab_gen ( "unary", "prefix" ) );
     PAR::push_reformatter
-        ( prefix, 0, 0,
-	  ::unary_reformatter_function,
+        ( unary_prefix, 0, 0,
+	  ::unary_prefix_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen unary_postfix
+        ( min::new_lab_gen ( "unary", "postfix" ) );
+    PAR::push_reformatter
+        ( unary_postfix, 0, 0,
+	  ::unary_postfix_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen binary

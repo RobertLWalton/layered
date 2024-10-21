@@ -246,7 +246,7 @@
         block standard: operator "+" [code, math]
                         prefix
                         with precedence 999999
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator "+" [code, math]
                         infix
                         with precedence 13000
@@ -258,7 +258,7 @@
         block standard: operator "-" [code, math]
                         prefix
                         with precedence 999999
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator "-" [code, math]
                         infix
                         with precedence 13000
@@ -304,7 +304,7 @@
         block standard: operator "~" [code]
                         prefix
                         with precedence 999999
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator ">>=" [code]
                         infix line
                         with precedence 1000
@@ -315,7 +315,7 @@
         block standard: operator "NOT" [code, math]
                         prefix
                         with precedence 11200
-                        with unary reformatter
+                        with unary prefix reformatter
         block standard: operator [< "else" "if" >] [code]
                         prefix line
                         with precedence 0
@@ -409,6 +409,10 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator [< "is" "true" >] [code]
+                        postfix
+                        with precedence 13000
+                        with unary postfix reformatter
         block standard: operator ">=" [code, math]
                         infix
                         with precedence 12000

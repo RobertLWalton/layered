@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 27 03:43:05 AM EDT 2024
+// Date:	Mon Oct 21 02:00:35 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,18 +41,18 @@ static void define_arithmetic_operators
     min::locatable_gen divide
         ( min::new_str_gen ( "/" ) );
 
-    PRIM::push_infix_op
+    PRIM::push_value_op
         ( plus, symbol_table, mex::ADD, mex::SUB );
-    PRIM::push_infix_op
+    PRIM::push_value_op
         ( minus, symbol_table, mex::SUB, mex::ADD );
 
     PRIM::push_builtin_func
         ( minus, symbol_table, mex::NEG );
 
-    PRIM::push_infix_op
+    PRIM::push_value_op
         ( times, symbol_table, mex::MUL );
 
-    PRIM::push_infix_op
+    PRIM::push_value_op
         ( divide, symbol_table, mex::DIV );
 }
 

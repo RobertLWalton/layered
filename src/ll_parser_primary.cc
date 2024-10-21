@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  4 02:36:53 AM EDT 2024
+// Date:	Mon Oct 21 01:50:06 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -208,11 +208,12 @@ PRIM::func PRIM::create_func
     return func;
 }
 
-PRIM::func PRIM::push_infix_op
+PRIM::func PRIM::push_op
 	( min::gen op_name,
 	  TAB::key_table symbol_table,
 	  min::uns8 op_code_1,
 	  min::uns8 op_code_2,
+	  bool is_infix,
 	  min::uns32 base_flags )
 {
     min::uns32 flags =
@@ -245,11 +246,14 @@ PRIM::func PRIM::push_infix_op
 	( min::NONE(), 1, 0, false, func );
     func->number_initial_arg_lists = 1;
 
-    // Argument after operator
-    PRIM::push_arg ( Y, min::NONE(), func );
-    PRIM::push_arg_list
-	( op_name, 1, 1, false, func );
-    func->number_following_arg_lists = 1;
+    if ( is_infix )
+    {
+	// Argument after operator
+	PRIM::push_arg ( Y, min::NONE(), func );
+	PRIM::push_arg_list
+	    ( op_name, 1, 1, false, func );
+	func->number_following_arg_lists = 1;
+    }
 
     TAB::push ( symbol_table, (TAB::root) func );
     return func;
@@ -1382,7 +1386,7 @@ CHECK_TYPE:
 		  " func->label" );
 	    i = after_first;
 	    if ( (   func->flags
-	           & (   PRIM::OPERATOR_CALL
+	           & (   PRIM::VALUE_OPERATOR
 		       | PRIM::LOGICAL_OPERATOR ) )
 	         && quoted_i >= after_first )
 	    {
@@ -1943,7 +1947,7 @@ static min::gen primary_pass_command
 		<< "-- found function: ";
 	    min::uns32 len = func->arg_lists->length;
 	    if ( func->flags
-	         & (   PRIM::OPERATOR_CALL
+	         & (   PRIM::VALUE_OPERATOR
 		     | PRIM::LOGICAL_OPERATOR ) )
 	        len = func->number_initial_arg_lists;
 	    for ( min::uns32 j = 0; j < len; ++ j )

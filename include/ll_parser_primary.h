@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  4 02:36:02 AM EDT 2024
+// Date:	Mon Oct 21 01:50:22 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -172,7 +172,7 @@ struct arg_list_struct
 
 enum func_flags {
     BUILTIN_FUNCTION		= ( 1 << 0 ),
-    OPERATOR_CALL		= ( 1 << 1 ),
+    VALUE_OPERATOR		= ( 1 << 1 ),
     LOGICAL_OPERATOR		= ( 1 << 2 )
 };
 
@@ -182,7 +182,8 @@ enum logical_op_codes {
     OR				= 3,
     NOT				= 4,
     BUT_NOT			= 5,
-    IF				= 6
+    IF				= 6,
+    JMP				= 7
 };
 
 struct func_struct
@@ -202,7 +203,7 @@ struct func_struct
 	// this is a MIN string.  For compiling, it is
 	// a mex::module or similar converted to a
 	// min::gen, or NONE for BUILTIN_FUNCTION or
-	// OPERATOR_CALL.
+	// VALUE_OPERATOR or LOGICAL_OPERATOR.
 
     const ll::parser::primary::args args;
         // Argument descriptions in prototype order.
@@ -255,36 +256,63 @@ ll::parser::primary::func create_func
 	  min::gen module,
 	  min::uns32 term_table_size );
 
-// Push into a symbol_table a top level OPERATOR_CALL
-// func describing an infix operator with given
-// op_name and MEX instruction op_code.  If two
-// op_codes are given (e.g., for + and -), the first
-// (_1) is for the op_name, and the second (_2) is
-// for the alternate operator name (e.g., if op_name
-// is + op_code_1 is ADD and op_code_2 is SUB).
+// Push into a symbol_table a top level VALUE_OPERATOR
+// or LOGICAL_OPERATOR func describing an infix or
+// postfix operator with given op_name and op_codes.
 //
 // Level and depth are set to 0, position is set to
-// PAR::top_level_position, and selectors are set to
-// PAR::ALL_SELECTORS.
+// PAR::top_level_position, selectors are set to
+// PAR::ALL_SELECTORS, module is set to NONE.
 //
-ll::parser::primary::func push_infix_op
+ll::parser::primary::func push_op
+	( min::gen op_name,
+	  ll::parser::table::key_table symbol_table,
+	  min::uns8 op_code_1,
+	  min::uns8 op_code_2,
+	  bool is_infix,
+	  min::uns32 base_flags );
+
+// Ditto but make func an VALUE_OPERATOR and by default
+// make it infix.
+//
+// For infix operators, if two MEX op_codes are given
+// (e.g., for + and -), the first (_1) is for the
+// op_name, and the second (_2) is for the alternate
+// operator name (e.g., if op_name is + op_code_1 is ADD
+// and op_code_2 is SUB for -).
+//
+inline ll::parser::primary::func push_value_op
 	( min::gen op_name,
 	  ll::parser::table::key_table symbol_table,
 	  min::uns8 op_code_1,
 	  min::uns8 op_code_2 = 0,
-	  min::uns32 base_flags =
-	      ll::parser::primary::OPERATOR_CALL );
+	  bool is_infix = true )
+{
+    return ll::parser::primary::push_op
+    	( op_name, symbol_table,
+	  op_code_1, op_code_2, is_infix,
+	  ll::parser::primary::VALUE_OPERATOR );
+}
 
-// Ditto but make LOGICAL_OP instead of OPERATOR_CALL.
+// Ditto but make LOGICAL_OPERATOR instead of
+// VALUE_OPERATOR.
+//
+// For infix operators the first op_code (_1) is the 
+// logical_op_code and the second op_code is unused.
+// For JMP postfix operators, the first op code (_1) is
+// JMP and the second is the JMP... op code.
 //
 inline ll::parser::primary::func push_logical_op
 	( min::gen op_name,
 	  ll::parser::table::key_table symbol_table,
-	  min::uns8 op_code )
+	  min::uns8 op_code_1,
+	  min::uns8 op_code_2 = 0,
+	  bool is_infix = true )
 {
-    return ll::parser::primary::push_infix_op
-    	( op_name, symbol_table, op_code,
-	  0, ll::parser::primary::LOGICAL_OPERATOR );
+    return ll::parser::primary::push_op
+    	( op_name, symbol_table,
+	  op_code_1, op_code_2, is_infix,
+	  ll::parser::primary::LOGICAL_OPERATOR );
 }
 
 // Push into a symbol_table a top level BUILTIN_FUNCTION
@@ -626,7 +654,7 @@ ll::parser::primary::func scan_func_prototype
 // in the expression is recognized, and the rest of the
 // expression is NOT scanned.  To qualify as an operator
 // call, the first operator in the expression must NOT
-// be quoted and must have the OPERATOR_CALL flag.
+// be quoted and must have the VALUE_OPERATOR flag.
 //
 // Parser reformatters must be used to ensure that
 // operator calls in fact have only operators of the
@@ -635,7 +663,7 @@ ll::parser::primary::func scan_func_prototype
 // reformat operator calls so that they can be processed
 // as ordinary calls: e.g., reformat x + y + z to
 // {| x + y |} + z.  In this case there will will be
-// no operator calls and the OPERATOR_CALL flag will be
+// no operator calls and the VALUE_OPERATOR flag will be
 // unused.
 //
 // The first call to this function for a particular vp

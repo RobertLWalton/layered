@@ -80,21 +80,21 @@
     test primary:  (A) + (B) + (C)
 REJECTING: (A1)"+"(A2)
            expected function term just after (B) but found + instead
-    -- found function:  (A)"+" ===> [$ MISSING $] 0  1050002
+    -- found value op:  (A)"+" ===> [$ MISSING $] 0  1050002
     test primary:  (A) +
 REJECTING: (A1)"+"(A2)
            prototype variable A2 was not given a value
-    -- found function:  (A)"+" ===> [$ MISSING $] 0  1050002
+    -- found value op:  (A)"+" ===> [$ MISSING $] 0  1050002
     test primary:  (A) + (B) - (C)
 REJECTING: (A1)"+"(A2)
            expected function term just after (B) but found - instead
-    -- found function:  (A)"+" ===> [$ MISSING $] 0  1050002
+    -- found value op:  (A)"+" ===> [$ MISSING $] 0  1050002
     test primary:  (A) - (B) + (C)
-    -- found function:  (A)"-" ===> [$ MISSING $] 0  5010002
+    -- found value op:  (A)"-" ===> [$ MISSING $] 0  5010002
     test primary:  (A) * (B) * (C)
-    -- found function:  (A)"*" ===> [$ MISSING $] 0  3000002
+    -- found value op:  (A)"*" ===> [$ MISSING $] 0  3000002
     test primary:  (A) / (B)
-    -- found function:  (A)"/" ===> [$ MISSING $] 0  9000002
+    -- found value op:  (A)"/" ===> [$ MISSING $] 0  9000002
     test primary:  - (A)
     -- found function:  "-" (A) ===> [$ MISSING $] 0 19000001
     end block BLOCK1

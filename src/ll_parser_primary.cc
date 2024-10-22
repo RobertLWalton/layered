@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 03:37:52 AM EDT 2024
+// Date:	Tue Oct 22 04:35:33 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1951,10 +1951,15 @@ static min::gen primary_pass_command
 	}
 	else if ( func != min::NULL_STUB )
 	{
+	    min::uns32 flags = func->flags;
 	    parser->printer
 		<< min::indent
 		<< min::set_indent ( indent + 4 )
-		<< "-- found function: ";
+		<< ( flags & PRIM::VALUE_OPERATOR ?
+		     "-- found value op: " :
+		     flags & PRIM::LOGICAL_OPERATOR ?
+		     "-- found logical op: " :
+		     "-- found function: " );
 	    min::uns32 len = func->arg_lists->length;
 	    if ( func->flags
 	         & (   PRIM::VALUE_OPERATOR

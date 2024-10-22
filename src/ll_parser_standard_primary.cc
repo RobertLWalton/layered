@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 02:00:35 AM EDT 2024
+// Date:	Mon Oct 21 08:12:08 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -120,6 +120,53 @@ static void define_logical_operators
         ( not_op, symbol_table, PRIM::NOT );
 }
 
+static void define_test_operators
+	( TAB::key_table symbol_table )
+{
+
+    min::locatable_gen is_true_op
+        ( min::new_lab_gen ( "is", "true" ) );
+    min::locatable_gen is_false_op
+        ( min::new_lab_gen ( "is", "false" ) );
+    min::locatable_gen is_integer_op
+        ( min::new_lab_gen ( "is", "integer" ) );
+    min::locatable_gen is_finite_op
+        ( min::new_lab_gen ( "is", "finite" ) );
+    min::locatable_gen is_infinite_op
+        ( min::new_lab_gen ( "is", "infinite" ) );
+    min::locatable_gen is_number_op
+        ( min::new_lab_gen ( "is", "number" ) );
+    min::locatable_gen is_string_op
+        ( min::new_lab_gen ( "is", "string" ) );
+    min::locatable_gen is_object_op
+        ( min::new_lab_gen ( "is", "object" ) );
+
+    PRIM::push_logical_op
+        ( is_true_op, symbol_table,
+	  PRIM::JMP, mex::JMPTRUE, false );
+    PRIM::push_logical_op
+        ( is_false_op, symbol_table,
+	  PRIM::JMP, mex::JMPFALSE, false );
+    PRIM::push_logical_op
+        ( is_integer_op, symbol_table,
+	  PRIM::JMP, mex::JMPINT, false );
+    PRIM::push_logical_op
+        ( is_finite_op, symbol_table,
+	  PRIM::JMP, mex::JMPFIN, false );
+    PRIM::push_logical_op
+        ( is_infinite_op, symbol_table,
+	  PRIM::JMP, mex::JMPINF, false );
+    PRIM::push_logical_op
+        ( is_number_op, symbol_table,
+	  PRIM::JMP, mex::JMPNUM, false );
+    PRIM::push_logical_op
+        ( is_string_op, symbol_table,
+	  PRIM::JMP, mex::JMPSTR, false );
+    PRIM::push_logical_op
+        ( is_object_op, symbol_table,
+	  PRIM::JMP, mex::JMPOBJ, false );
+}
+
 void PARSTD::define_primary
 	( PAR::parser parser, TAB::flags components )
 {
@@ -138,5 +185,7 @@ void PARSTD::define_primary
         ::define_selection_operators ( symbol_table );
     if ( components & PARSTD::LOGICAL_OPERATORS )
         ::define_logical_operators ( symbol_table );
+    if ( components & PARSTD::TEST_OPERATORS )
+        ::define_test_operators ( symbol_table );
 }
 

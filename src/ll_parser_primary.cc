@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 01:50:06 AM EDT 2024
+// Date:	Tue Oct 22 03:37:52 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -502,6 +502,12 @@ static void print_func
 	}
 	parser->printer <<
 	    ( arg_list.is_square ?  "]" : ")" );
+    }
+    if ( len == func->number_initial_arg_lists )
+    {
+        min::lab_ptr lp = func->label;
+	parser->printer <<
+	    min::pgen_name ( lp[1] );
     }
 }
 
@@ -1913,7 +1919,7 @@ static min::gen primary_pass_command
 	    << min::set_indent ( indent );
 
 	min::uns32 quoted_i;
-	PRIM::scan_primary
+	bool found = PRIM::scan_primary
 	    ( nvp, ni, nppvec, parser, selectors,
 	      key_prefix, root, quoted_i,
 	      argument_vector,
@@ -1923,7 +1929,11 @@ static min::gen primary_pass_command
 	PRIM::var var = (PRIM::var) root;
 	PRIM::func func = (PRIM::func) root;
 
-	if ( var != min::NULL_STUB )
+	if ( ! found )
+	    parser->printer
+		<< min::indent
+		<< "-- no definition found";
+	else if ( var != min::NULL_STUB )
 	{
 	    parser->printer
 		<< min::indent
@@ -1968,6 +1978,12 @@ static min::gen primary_pass_command
 		        << min::pgen
 			       ( argument_vector[k] );
 	    }
+	    if ( len == func->number_initial_arg_lists )
+	    {
+		min::lab_ptr lp = func->label;
+		parser->printer <<
+		    min::pgen_name ( lp[1] );
+	    }
 	    parser->printer
 		<< " ===> "
 		<< min::pgen ( func->module )
@@ -1978,10 +1994,6 @@ static min::gen primary_pass_command
 		    << " "
 		    << min::puns ( func->flags, "%8X" );
 	}
-	else 
-	    parser->printer
-		<< min::indent
-		<< "-- no definition found";
 
 	parser->printer << min::eom;
 	return PAR::PRINTED;

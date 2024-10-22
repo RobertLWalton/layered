@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 03:14:03 AM EDT 2024
+// Date:	Mon Oct 21 08:05:43 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -940,7 +940,76 @@ static void define_test_operators
 	  13000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
-// TBD
+
+    OP::push_oper
+        ( is_false_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_integer_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_finite_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_infinite_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_number_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_string_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_object_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
 }
 
 void PARSTD::define_operators

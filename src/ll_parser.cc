@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 20 21:19:15 EDT 2024
+// Date:	Tue Oct 29 08:06:39 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -705,6 +705,7 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	parser->eof = false;
 	parser->finished_tokens = 0;
 	parser->at_paragraph_beginning = false;
+	parser->last_comment_end = { 0, 0 };
 	parser->error_count = 0;
 	parser->warning_count = 0;
 	parser->max_error_count = 100;
@@ -1184,6 +1185,7 @@ void PAR::reset ( min::ref<PAR::parser> parser )
     parser->eof = false;
     parser->finished_tokens = 0;
     parser->at_paragraph_beginning = false;
+    parser->last_comment_end = { 0, 0 };
     parser->error_count = 0;
     parser->warning_count = 0;
     parser->max_error_count = 100;

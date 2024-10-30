@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  1 01:34:09 EST 2023
+// Date:	Tue Oct 29 08:03:54 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1258,6 +1258,10 @@ struct parser_struct
 	//
 	// This value should only be used when at the
 	// beginning of a logical line.
+
+    min::position last_comment_end;
+        // Set to end position of last comment token
+	// deleted.
 
     uns64 error_count;
     uns64 warning_count;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 20 21:19:25 EDT 2024
+// Date:	Wed Oct 30 02:50:23 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1299,7 +1299,10 @@ bool BRA::parse_paragraph_element
 			    true;
 		}
 		else if (    current->type
-		          != LEXSTD::comment_t )
+		          == LEXSTD::comment_t )
+		    parser->last_comment_end =
+		        current->position.end;
+		else
 		{
 		    parser->at_paragraph_beginning =
 			false;
@@ -2979,6 +2982,10 @@ NEXT_TOKEN:
 	    // Record end in case we need it.
 	PAR::ensure_next ( parser, current );
 
+	if ( current->type == LEXSTD::comment_t )
+	    parser->last_comment_end =
+	        current->position.end;
+
 	min::uns32 previous_t = t;
 	current = current->next;
 	t = current->type;
@@ -4586,6 +4593,9 @@ void BRA::compact_logical_line
 	attributes[n++] =
 	    PAR::attr ( min::dot_terminator,
 			PARLEX::new_line );
+
+    if ( position.end < parser->last_comment_end )
+        position.end = parser->last_comment_end;
 
     PAR::compact
 	( parser, pass, selectors,

@@ -523,7 +523,9 @@ WARNING: in line ##: comment after indent that begins non-comment
    another line // Another legal comment
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        with some extra stuff  // Another legal comment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       // Another legal comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     another line with some extra stuff
 !@@@ := another line with some extra stuff:
             .terminator = "<LF>"
@@ -543,7 +545,7 @@ BRACKETED PARSER FOUND [LINE LEVEL, code] SELECTED KEY ";"
        and the second line of // that begins logical
        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        the pair               // line after a ';'
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     and the second line of the pair
 !@@@ := and the second line of the pair:
             .terminator = "<LF>"
@@ -569,7 +571,7 @@ Ditto:
        and the second line of // that begins logical
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        the pair               // line after a ';'
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|the
               line|}
@@ -603,7 +605,7 @@ Ditto:
        and the second line of // that begins logical
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        the pair               // line after a ';'
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Ditto:
         the line
         another line with some extra stuff

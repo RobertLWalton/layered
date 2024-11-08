@@ -347,10 +347,6 @@
         block standard: operator "while" [code]
                         right line
                         with precedence 3000
-        block standard: operator [< "is" "nan" >] [code]
-                        postfix
-                        with precedence 13000
-                        with unary postfix reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
                         with precedence 11000
@@ -462,6 +458,10 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator [< "is" "not" "a" "number" >] [code]
+                        postfix
+                        with precedence 13000
+                        with unary postfix reformatter
         block standard: bracket ":" [code]
                         nofix afix line
                         with precedence 0

@@ -336,6 +336,10 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator [< "is" "undefined" "number" >] [code]
+                        postfix
+                        with precedence 13000
+                        with unary postfix reformatter
         block standard: operator "&=" [code]
                         infix line
                         with precedence 1000
@@ -458,10 +462,6 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator [< "is" "not" "a" "number" >] [code]
-                        postfix
-                        with precedence 13000
-                        with unary postfix reformatter
         block standard: bracket ":" [code]
                         nofix afix line
                         with precedence 0

@@ -49,8 +49,6 @@
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
-        block TOP LEVEL: function ``(X)is not a number''
-                         with flags  7390004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block BLOCK1: function ``(A1)"+"(A2)'' [code]
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
@@ -62,6 +60,8 @@
         block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)is undefined number''
+                         with flags  7390004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
         block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
@@ -108,8 +108,6 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F[X]'' [code]
-        block TOP LEVEL: function ``(X)is not a number''
-                         with flags  7390004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
@@ -120,6 +118,8 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)is undefined number''
+                         with flags  7390004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
         block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
@@ -147,8 +147,6 @@ REJECTING: F[X]
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
-        block TOP LEVEL: function ``(X)is not a number''
-                         with flags  7390004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
@@ -159,6 +157,8 @@ REJECTING: F[X]
         block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)is undefined number''
+                         with flags  7390004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
         block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
@@ -187,8 +187,6 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
-        block TOP LEVEL: function ``(X)is not a number''
-                         with flags  7390004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
@@ -199,6 +197,8 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)is undefined number''
+                         with flags  7390004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
         block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
@@ -245,8 +245,6 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
-        block TOP LEVEL: function ``(X)is not a number''
-                         with flags  7390004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
         block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
         block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
@@ -258,6 +256,8 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
+        block TOP LEVEL: function ``(X)is undefined number''
+                         with flags  7390004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
         block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
         block TOP LEVEL: function ``(X)is false'' with flags  7350004

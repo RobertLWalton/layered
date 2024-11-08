@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 08:12:08 PM EDT 2024
+// Date:	Fri Nov  8 02:43:56 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -134,6 +134,8 @@ static void define_test_operators
         ( min::new_lab_gen ( "is", "finite" ) );
     min::locatable_gen is_infinite_op
         ( min::new_lab_gen ( "is", "infinite" ) );
+    min::locatable_gen is_nan_op
+        ( min::new_lab_gen ( "is", "nan" ) );
     min::locatable_gen is_number_op
         ( min::new_lab_gen ( "is", "number" ) );
     min::locatable_gen is_string_op
@@ -156,6 +158,9 @@ static void define_test_operators
     PRIM::push_logical_op
         ( is_infinite_op, symbol_table,
 	  PRIM::JMP, mex::JMPINF, false );
+    PRIM::push_logical_op
+        ( is_nan_op, symbol_table,
+	  PRIM::JMP, mex::JMPNAN, false );
     PRIM::push_logical_op
         ( is_number_op, symbol_table,
 	  PRIM::JMP, mex::JMPNUM, false );

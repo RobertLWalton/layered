@@ -57,7 +57,7 @@
         block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is string'' with flags  73A0004
+        block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
@@ -65,8 +65,8 @@
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
         block TOP LEVEL: function ``(X)is integer'' with flags  7360004
         block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
-        block TOP LEVEL: function ``(X)is object'' with flags  73B0004
-        block TOP LEVEL: function ``(X)is number'' with flags  7390004
+        block TOP LEVEL: function ``(X)is object'' with flags  73C0004
+        block TOP LEVEL: function ``(X)is number'' with flags  73A0004
         block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
@@ -113,7 +113,7 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is string'' with flags  73A0004
+        block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
@@ -121,8 +121,8 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
         block TOP LEVEL: function ``(X)is integer'' with flags  7360004
         block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
-        block TOP LEVEL: function ``(X)is object'' with flags  73B0004
-        block TOP LEVEL: function ``(X)is number'' with flags  7390004
+        block TOP LEVEL: function ``(X)is object'' with flags  73C0004
+        block TOP LEVEL: function ``(X)is number'' with flags  73A0004
         block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
@@ -150,7 +150,7 @@ REJECTING: F[X]
         block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is string'' with flags  73A0004
+        block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
@@ -158,8 +158,8 @@ REJECTING: F[X]
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
         block TOP LEVEL: function ``(X)is integer'' with flags  7360004
         block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
-        block TOP LEVEL: function ``(X)is object'' with flags  73B0004
-        block TOP LEVEL: function ``(X)is number'' with flags  7390004
+        block TOP LEVEL: function ``(X)is object'' with flags  73C0004
+        block TOP LEVEL: function ``(X)is number'' with flags  73A0004
         block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
@@ -188,7 +188,7 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is string'' with flags  73A0004
+        block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
@@ -196,8 +196,8 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
         block TOP LEVEL: function ``(X)is integer'' with flags  7360004
         block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
-        block TOP LEVEL: function ``(X)is object'' with flags  73B0004
-        block TOP LEVEL: function ``(X)is number'' with flags  7390004
+        block TOP LEVEL: function ``(X)is object'' with flags  73C0004
+        block TOP LEVEL: function ``(X)is number'' with flags  73A0004
         block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
@@ -245,7 +245,7 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
         block BLOCK1: function ``(X1, X2)F(Z1, Z2 ?= {|D2|})'' [code]
         block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is string'' with flags  73A0004
+        block TOP LEVEL: function ``(X)is string'' with flags  73B0004
         block TOP LEVEL: function ``(X)is infinite'' with flags  7380004
         block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is finite'' with flags  7370004
@@ -253,8 +253,8 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)is false'' with flags  7350004
         block TOP LEVEL: function ``(X)is integer'' with flags  7360004
         block TOP LEVEL: function ``(X)if(Y)'' with flags  6000004
-        block TOP LEVEL: function ``(X)is object'' with flags  73B0004
-        block TOP LEVEL: function ``(X)is number'' with flags  7390004
+        block TOP LEVEL: function ``(X)is object'' with flags  73C0004
+        block TOP LEVEL: function ``(X)is number'' with flags  73A0004
         block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004

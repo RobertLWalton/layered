@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  8 11:46:10 AM EST 2024
+// Date:	Sat Nov  9 03:19:16 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,8 @@ static void define_arithmetic_operators
         ( min::new_str_gen ( "*" ) );
     min::locatable_gen divide
         ( min::new_str_gen ( "/" ) );
+    min::locatable_gen exponent
+        ( min::new_str_gen ( "^" ) );
 
     PRIM::push_value_op
         ( plus, symbol_table, mex::ADD, mex::SUB );
@@ -54,6 +56,9 @@ static void define_arithmetic_operators
 
     PRIM::push_value_op
         ( divide, symbol_table, mex::DIV );
+
+    PRIM::push_value_op
+        ( exponent, symbol_table, mex::POW );
 }
 
 static void define_comparison_operators
@@ -91,7 +96,7 @@ static void define_selection_operators
 {
 
     min::locatable_gen if_op
-        ( min::new_str_gen ( "if" ) );
+        ( min::new_str_gen ( "IF" ) );
 
     PRIM::push_logical_op
         ( if_op, symbol_table, PRIM::IF );
@@ -194,4 +199,3 @@ void PARSTD::define_primary
     if ( components & PARSTD::TEST_OPERATORS )
         ::define_test_operators ( symbol_table );
 }
-

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  8 11:45:54 AM EST 2024
+// Date:	Sat Nov  9 03:01:48 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -323,9 +323,9 @@ static void define_selection_operators
 	    ( selector, OP::reformatter_stack );
 
     min::locatable_gen if_op
-        ( min::new_str_gen ( "if" ) );
+        ( min::new_str_gen ( "IF" ) );
     min::locatable_gen else_op
-        ( min::new_str_gen ( "else" ) );
+        ( min::new_str_gen ( "ELSE" ) );
 
     min::locatable_gen selector_arguments
 	    ( min::new_obj_gen ( 2 ) );
@@ -629,7 +629,7 @@ static void define_arithmetic_operators
     min::locatable_gen multiply
         ( min::new_str_gen ( "*" ) );
     min::locatable_gen exponent
-        ( min::new_str_gen ( "**" ) );
+        ( min::new_str_gen ( "^" ) );
     min::locatable_gen plus_minus_arguments
 	    ( min::new_obj_gen ( 2 ) );
     min::obj_vec_insptr pmavp ( plus_minus_arguments );
@@ -745,15 +745,15 @@ static void define_bitwise_operators
 	    ( unary_prefix, OP::reformatter_stack );
 
     min::locatable_gen or_equal
-        ( min::new_str_gen ( "|=" ) );
+        ( min::new_lab_gen ( "BOR", "=" ) );
     min::locatable_gen and_equal
-        ( min::new_str_gen ( "&=" ) );
+        ( min::new_lab_gen ( "BAND", "=" ) );
     min::locatable_gen xor_equal
-        ( min::new_str_gen ( "^=" ) );
+        ( min::new_lab_gen ( "BXOR", "=" ) );
     min::locatable_gen shift_left
-        ( min::new_str_gen ( "<<=" ) );
+        ( min::new_lab_gen ( "LSHIFT", "=" ) );
     min::locatable_gen shift_right
-        ( min::new_str_gen ( ">>=" ) );
+        ( min::new_lab_gen ( "RSHIFT", "=" ) );
 
     OP::push_oper
         ( or_equal,
@@ -806,17 +806,17 @@ static void define_bitwise_operators
 	  oper_pass->oper_table );
 
     min::locatable_gen or_name
-        ( min::new_str_gen ( "|" ) );
+        ( min::new_str_gen ( "BOR" ) );
     min::locatable_gen and_name
-        ( min::new_str_gen ( "&" ) );
+        ( min::new_str_gen ( "BAND" ) );
     min::locatable_gen xor_name
-        ( min::new_str_gen ( "^" ) );
+        ( min::new_str_gen ( "BXOR" ) );
     min::locatable_gen left_shift
-        ( min::new_str_gen ( "<<" ) );
+        ( min::new_str_gen ( "LSHIFT" ) );
     min::locatable_gen right_shift
-        ( min::new_str_gen ( ">>" ) );
+        ( min::new_str_gen ( "RSHIFT" ) );
     min::locatable_gen complement_name
-        ( min::new_str_gen ( "~" ) );
+        ( min::new_str_gen ( "BCOM" ) );
 
     min::locatable_gen or_arguments
 	    ( min::new_obj_gen ( 1 ) );

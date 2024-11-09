@@ -20,7 +20,7 @@ w3 = w4
 w2 += w3
 w1 = w2
 x1, x2 += z1, z2
-x = y + z * w << q + u * v ** p
+x = y + z * w LSHIFT q + u * v ^ p
 x < y < z
 x = ( y < z )
 x = w < y < z
@@ -31,7 +31,7 @@ a + b - c
 + a - b - c
 a + b * c + d
 a + b * c / d * e + f
-a + b * e ** d * f ** g
+a + b * e ^ d * f ^ g
 x + + y
 x + {|+ y|}
 x * * y

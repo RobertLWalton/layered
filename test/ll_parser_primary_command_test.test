@@ -47,6 +47,7 @@
     define primary function ``(A1) "+" (A2)'' [code]
     print primary function ``''
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
@@ -106,6 +107,7 @@ REJECTING: (A1)"+"(A2)
     define primary function ``F [X]'' [code]
     print primary function ``''
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F[X]'' [code]
@@ -146,6 +148,7 @@ REJECTING: F[X]
     define primary function ``F (X) ({|Y|}?={|Z|})'' [code]
     print primary function ``''
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
@@ -187,6 +190,7 @@ REJECTING: F(X)(Y)
     define primary function ``F (X) G ({|Y|}?={|Q|}) H (Z)'' [code]
     print primary function ``''
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
@@ -247,6 +251,7 @@ REJECTING: F(X)G(Y)H(Z)
          [code]
     print primary function ``''
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002

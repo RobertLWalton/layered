@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  9 03:19:16 AM EST 2024
+// Date:	Sun Nov 10 03:06:07 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,10 @@ static void define_arithmetic_operators
 
     PRIM::push_builtin_func
         ( minus, symbol_table, mex::NEG );
+
+    PRIM::push_builtin_func
+        ( plus, symbol_table, mex::ADDI );
+	// immedD assumed to be set to 0
 
     PRIM::push_value_op
         ( times, symbol_table, mex::MUL );

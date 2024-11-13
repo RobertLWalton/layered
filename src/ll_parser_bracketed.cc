@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 30 02:50:23 AM EDT 2024
+// Date:	Wed Nov 13 02:25:01 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3938,7 +3938,7 @@ NEXT_TOKEN:
 			    attributes[i].name =
 				t->value;
 			    attributes[i].value =
-				min::TRUE;
+				min::TRUE();
 			    attributes[i].value_pos =
 			        t->position;
 			    ++ i;
@@ -3966,7 +3966,7 @@ NEXT_TOKEN:
 			    attributes[i].name =
 				t->value;
 			    attributes[i].value =
-				min::FALSE;
+				min::FALSE();
 			    attributes[i].value_pos =
 			        t->position;
 			    ++ i;
@@ -5472,8 +5472,8 @@ static bool data_reformatter_function
 	    }
 
 	    min::locatable_gen value
-	        ( has_negator ? min::FALSE
-		              : min::TRUE );
+	        ( has_negator ? min::FALSE()
+		              : min::TRUE() );
 	    bool has_value = false;
 	    bool is_multivalue = false;
 	    min::locatable_gen reverse_name

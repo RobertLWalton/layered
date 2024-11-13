@@ -195,7 +195,7 @@ INDENT: line ##:
                                                enable indented paragraph,
                                                enable header]
 ======= PARSER TEST: [x <+ y +> z {w|4|w} m (n (p))]
-======= PARSER TEST: `a b c [$ MISSING $] [< e f g [< h i >] j >]'
+======= PARSER TEST: `a b c *MISSING* [< e f g [< h i >] j >]'
 ======= END PARSER TEST(S)
 *PARSER*:
     end block X
@@ -213,7 +213,7 @@ INDENT: line ##:
 !@@ := "[" x "<+" y "+>" z "{" w "|" 4 "|" "}" m "(" n "(" p ")" ")" "]":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 ======= END PARSER TEST(S)
 *PARSER*:
     trace [+ subexpression elements]
@@ -222,7 +222,7 @@ INDENT: line ##:
 !@@ := "[" x "<+" y "+>" z "{" w "|" 4 "|" "}" m "(" n "(" p ")" ")" "]":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 ======= END PARSER TEST(S)
 *PARSER*:
     trace [- subexpression details]

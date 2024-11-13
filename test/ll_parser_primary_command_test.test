@@ -76,31 +76,31 @@
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)is true'' with flags  7340004
     test primary:  (A) + (B)
-    -- found function:  (A) "+" (B) ===> [$ MISSING $] 0
+    -- found function:  (A) "+" (B) ===> *MISSING* 0
     test primary:  {|A|} + (B)
-    -- found function:  {|A|} "+" (B) ===> [$ MISSING $] 0
+    -- found function:  {|A|} "+" (B) ===> *MISSING* 0
     test primary:  {|A 1|} + (B)
-    -- found function:  {|A 1|} "+" (B) ===> [$ MISSING $] 0
+    -- found function:  {|A 1|} "+" (B) ===> *MISSING* 0
     test primary:  (A) + (B) + (C)
 REJECTING: (A1)"+"(A2)
            expected function term just after (B) but found + instead
-    -- found value op:  (A)"+" ===> [$ MISSING $] 0  1050002
+    -- found value op:  (A)"+" ===> *MISSING* 0  1050002
     test primary:  (A) +
 REJECTING: (A1)"+"(A2)
            prototype variable A2 was not given a value
-    -- found value op:  (A)"+" ===> [$ MISSING $] 0  1050002
+    -- found value op:  (A)"+" ===> *MISSING* 0  1050002
     test primary:  (A) + (B) - (C)
 REJECTING: (A1)"+"(A2)
            expected function term just after (B) but found - instead
-    -- found value op:  (A)"+" ===> [$ MISSING $] 0  1050002
+    -- found value op:  (A)"+" ===> *MISSING* 0  1050002
     test primary:  (A) - (B) + (C)
-    -- found value op:  (A)"-" ===> [$ MISSING $] 0  5010002
+    -- found value op:  (A)"-" ===> *MISSING* 0  5010002
     test primary:  (A) * (B) * (C)
-    -- found value op:  (A)"*" ===> [$ MISSING $] 0  3000002
+    -- found value op:  (A)"*" ===> *MISSING* 0  3000002
     test primary:  (A) / (B)
-    -- found value op:  (A)"/" ===> [$ MISSING $] 0  9000002
+    -- found value op:  (A)"/" ===> *MISSING* 0  9000002
     test primary:  - (A)
-    -- found function:  "-" (A) ===> [$ MISSING $] 0 19000001
+    -- found function:  "-" (A) ===> *MISSING* 0 19000001
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
@@ -136,7 +136,7 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)is true'' with flags  7340004
     test primary:  F [A]
-    -- found function:  F [A] ===> [$ MISSING $] 0
+    -- found function:  F [A] ===> *MISSING* 0
     test primary:  F
 REJECTING: F[X]
            [...] bracketed argument list expected but end of reference
@@ -177,9 +177,9 @@ REJECTING: F[X]
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)is true'' with flags  7340004
     test primary:  F (A) (B)
-    -- found function:  F (A) (B) ===> [$ MISSING $] 0
+    -- found function:  F (A) (B) ===> *MISSING* 0
     test primary:  F (A)
-    -- found function:  F (A) {|Z|} ===> [$ MISSING $] 0
+    -- found function:  F (A) {|Z|} ===> *MISSING* 0
     test primary:  F
 REJECTING: F(X)(Y)
            prototype variable X was not given a value
@@ -219,11 +219,11 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)is true'' with flags  7340004
     test primary:  F (A) G (B) H (C)
-    -- found function:  F (A) G (B) H (C) ===> [$ MISSING $] 0
+    -- found function:  F (A) G (B) H (C) ===> *MISSING* 0
     test primary:  F (A) H (B) G (C)
-    -- found function:  F (A) G (C) H (B) ===> [$ MISSING $] 0
+    -- found function:  F (A) G (C) H (B) ===> *MISSING* 0
     test primary:  F (A) H (B)
-    -- found function:  F (A) G {|Q|} H (B) ===> [$ MISSING $] 0
+    -- found function:  F (A) G {|Q|} H (B) ===> *MISSING* 0
     test primary:  F (A) G (B)
 REJECTING: F(X)G(Y)H(Z)
            prototype variable Z was not given a value
@@ -280,10 +280,9 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
         block TOP LEVEL: function ``(X)is true'' with flags  7340004
     test primary:  ({|A1|}, {|A2|}) F ({|B1|}, {|B2|})
-    -- found function:  {|A1|} {|A2|} F {|B1|} {|B2|}
-        ===> [$ MISSING $] 0
+    -- found function:  {|A1|} {|A2|} F {|B1|} {|B2|} ===> *MISSING* 0
     test primary:  ({|A1|}, {|A2|}) F (B)
-    -- found function:  {|A1|} {|A2|} F (B) {|D2|} ===> [$ MISSING $] 0
+    -- found function:  {|A1|} {|A2|} F (B) {|D2|} ===> *MISSING* 0
     test primary:  (A) F ({|B1|}, {|B2|})
 REJECTING: (X1, X2)F(Z1, Z2)
            prototype variable X2 was not given a value
@@ -311,28 +310,28 @@ ERROR: in line ###: argment with NO default found AFTER argument with
     define primary function ``(A) F (B) G (C)'' [code]
     define primary function ``(A) F (B)'' [code]
     test primary:  (X) F (Y)
-    -- found function:  (X) F (Y) ===> [$ MISSING $] 0
+    -- found function:  (X) F (Y) ===> *MISSING* 0
     test primary:  (X) F (Y) G (Z)
 REJECTING: (A)F(B)
            expected function term just after (Y) but found G instead
-    -- found function:  (X) F (Y) G (Z) ===> [$ MISSING $] 0
+    -- found function:  (X) F (Y) G (Z) ===> *MISSING* 0
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
     define primary function
         ``F1 (A) G ({|B|} ?= {|TRUE|})'' [code]
     test primary:  F1 (Y)
-    -- found function:  F1 (Y) G {|TRUE|} ===> [$ MISSING $] 0
+    -- found function:  F1 (Y) G {|TRUE|} ===> *MISSING* 0
     test primary:  F1 (Y) NOT G
-    -- found function:  F1 (Y) G {|FALSE|} ===> [$ MISSING $] 0
+    -- found function:  F1 (Y) G {|FALSE|} ===> *MISSING* 0
     test primary:  F1 (Y) G
-    -- found function:  F1 (Y) G {|TRUE|} ===> [$ MISSING $] 0
+    -- found function:  F1 (Y) G {|TRUE|} ===> *MISSING* 0
     define primary function
         ``F2 (A) G ({|B|} ?= {|FALSE|})'' [code]
     test primary:  F2 (Y)
-    -- found function:  F2 (Y) G {|FALSE|} ===> [$ MISSING $] 0
+    -- found function:  F2 (Y) G {|FALSE|} ===> *MISSING* 0
     test primary:  F2 (Y) NOT G
-    -- found function:  F2 (Y) G {|FALSE|} ===> [$ MISSING $] 0
+    -- found function:  F2 (Y) G {|FALSE|} ===> *MISSING* 0
     test primary:  F2 (Y) G
-    -- found function:  F2 (Y) G {|TRUE|} ===> [$ MISSING $] 0
+    -- found function:  F2 (Y) G {|TRUE|} ===> *MISSING* 0
     end block BLOCK1

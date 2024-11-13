@@ -29,8 +29,8 @@ ERROR: in line ##: after `=' attribute value (label or single bracketed
 === BRACKETED EXPRESSION:
     ID 30 is
         {|this is an indented paragraph
-          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-               "::"|{p|{s|with a line and a second line|s}|p}|}|}
+          {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = "::"|
+               {p|{s|with a line and a second line|s}|p}|}|}
 === BRACKETED EXPRESSION:
     ID 35 is {|foo|}
 === BRACKETED EXPRESSION:
@@ -38,12 +38,11 @@ ERROR: in line ##: after `=' attribute value (label or single bracketed
 === BRACKETED EXPRESSION:
     ID 40 is
         {|{|This is a code line ending in|}
-          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-               {"": .terminator = "<LF>", .initiator =
-                    [$ LOGICAL_LINE $]|An indented paragragraph ";" line
-                    one "."|}
-               {"": .terminator = "<LF>", .initiator =
-                    [$ LOGICAL_LINE $]|Line two "."|}|}|}
+          {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+               {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|An
+                    indented paragragraph ";" line one "."|}
+               {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+                    Line two "."|}|}|}
 ERROR: in line ##: not a legal label initial element `98.21':
            d = "ppp", e = "ppp" "qqq", 98.21 = hi, "," = ":",
                                        ^^^^^
@@ -162,8 +161,7 @@ This is a line with an indented paragraph: // A comment
     Second line of indented paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {quote|{s|This is a line with an indented paragraph
-              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-                   ":"|
+              {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
                    {p|{s: .terminator = "."|First line of indented
                           paragraph|s}
                       {s: .terminator = "."|Second line of indented
@@ -175,7 +173,7 @@ This is a line with an indented paragraph: // A comment
            .position[H] = PACKED_VEC
            .type = s
 !@@@ := @@@:
-            .terminator = [$ INDENTED_PARAGRAPH $]
+            .terminator = *INDENTED_PARAGRAPH*
             .position[H] = PACKED_VEC
             .initiator = ":"
 !@@@ := @@@ @@@:
@@ -195,7 +193,7 @@ x + y
     {|x|} + {|y|}
 !@@@ := @@@ "+" @@@:
             .terminator = "<LF>"
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
             .position[H] = PACKED_VEC
 !@@@ := x:
             .position[H] = PACKED_VEC
@@ -208,7 +206,7 @@ COOKED ID 90 is @@@
 !@@@ := COOKED ID 90 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := A B C:
             .terminator = ")"
             .initiator = "("
@@ -220,7 +218,7 @@ COOKED ID 91 is @@@
 !@@@ := COOKED ID 91 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := @@@ @@@ @@@:
             .terminator = ")"
             .initiator = "("
@@ -239,7 +237,7 @@ COOKED ID 92 is @@@
 !@@@ := COOKED ID 92 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := @@@ @@@ @@@:
             .terminator = "]"
             .initiator = "["
@@ -258,7 +256,7 @@ RAW ID 94 is @@@
 !@@@ := RAW ID 94 is PREALLOCATED(1*94):
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 === BRACKETED EXPRESSION: line ###:
 RAW ID 94 is @@@
 ^^^^^^^^^^^^^^^^
@@ -266,7 +264,7 @@ RAW ID 94 is @@@
 !@@@ := RAW ID 94 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := A "," B "," C:
             .terminator = "]"
             .initiator = "["
@@ -278,7 +276,7 @@ ID 100 is @@@@
 !@@@ := ID 100 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := 1 2 3:
             .type = x
             u = [< foo "+" fee >]
@@ -290,7 +288,7 @@ ID 101 is @@@@
 !@@@ := ID 101 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := 1 2 3:
             .type = x
             u = @@@
@@ -309,7 +307,7 @@ ID 102 is @@@@
 !@@@ := ID 102 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := 1 2 3:
             .type = x
             u = [< foo "+" fee >]
@@ -328,7 +326,7 @@ ID 110 is @@@@
 !@@@ := ID 110 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := 1 2 3:
             x = [< foo "+" fee >]
             z = @@@
@@ -389,7 +387,7 @@ ID 120 is @@@@
 !@@@ := ID 120 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := A @@@ C D E @@@ @@@ @@@ nan:
             y = nan
             z = [< Q nan >]
@@ -433,7 +431,7 @@ ID 121 is @@@@
 !@@@ := ID 121 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ :=:
             p = {* "/", "hi there", "+" *}
             t = "+"
@@ -455,7 +453,7 @@ ID 130 is @@@@
 !@@@ := ID 130 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := @@@ "+" @@@:
             .position[H] = PACKED_VEC
 !@@@ := X:
@@ -473,7 +471,7 @@ ID 131 is @@@@
 !@@@ := ID 131 is @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := X "+" 5 "*" Y:
             .type = p
             .position[H] = PACKED_VEC

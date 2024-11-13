@@ -490,7 +490,7 @@ matter what, even with a spurious ), until
 *PARSER*:
     define bracket "[?" ... "?]" [code]
         with special reformatter
-======= PARSER TEST: [$ MISSING $]
+======= PARSER TEST: *MISSING*
 ======= line ###:
     [? MISSING ?]
     ^^^^^^^^^^^^^
@@ -922,7 +922,7 @@ ERROR: in lines ###-###: `with line lexical master' not allowed for
     begin block BLOCK1
     define bracket "[A" ... "A]" [code]
         with special reformatter
-======= PARSER TEST: [$ LOGICAL_LINE $]
+======= PARSER TEST: *LOGICAL_LINE*
 ======= line ###:
     [A LOGICAL_LINE A]
     ^^^^^^^^^^^^^^^^^^
@@ -1122,7 +1122,7 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
         with group *PARAGRAPH*
 ======= PARSER TEST: this is the indented paragraph 2::
                          {p|{"": .terminator = "<LF>", .initiator =
-                                 [$ LOGICAL_LINE $]|with one line|}|p}
+                                 *LOGICAL_LINE*|with one line|}|p}
 ======= lines ###-###:
     this is the indented paragraph 2::
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1147,10 +1147,10 @@ ERROR: in line ###: indentation mark implied header of type `p' does not
         with implied subprefix {l}
 ======= PARSER TEST: this is the indented paragraph 3::
                          {p|{"": .terminator = "<LF>", .initiator =
-                                 [$ LOGICAL_LINE $]|
+                                 *LOGICAL_LINE*|
                                  {l|with a first line|l}|}
                             {"": .terminator = "<LF>", .initiator =
-                                 [$ LOGICAL_LINE $]|and a second line|}|p}
+                                 *LOGICAL_LINE*|and a second line|}|p}
 ======= lines ###-###:
     this is the indented paragraph 3::
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1587,11 +1587,11 @@ and a line
 ^^^^^^^^^^^^
 and another line outside the fourth paragraph
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is a fourth paragraph|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and a
+    {p3|{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is a
+             fourth paragraph|}
+        {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|and a
              line|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+        {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|and
              another line outside the fourth paragraph|}|p3}
 === BRACKETED EXPRESSION: lines ###-###:
 {p1}
@@ -1689,18 +1689,18 @@ and another line
 ^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 8|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+    {p3|{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+             paragraph 8|}
+        {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|and
              another line|}|p3}
 === BRACKETED EXPRESSION: lines ###-###:
 this is paragraph 9
 ^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 9|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+    {p3|{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+             paragraph 9|}
+        {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|and
              another line|}|p3}
 === BRACKETED EXPRESSION: line ###:
 this is code line #
@@ -1737,18 +1737,18 @@ and another line
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 13|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+    {p3|{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+             paragraph 13|}
+        {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|and
              another line|}|p3}
 === BRACKETED EXPRESSION: lines ###-###:
 this is paragraph 14
 ^^^^^^^^^^^^^^^^^^^^
 and another line
 ^^^^^^^^^^^^^^^^
-    {p3|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this
-             is paragraph 14|}
-        {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|and
+    {p3|{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+             paragraph 14|}
+        {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|and
              another line|}|p3}
 === BRACKETED EXPRESSION: line ###:
 this is code line #
@@ -1920,7 +1920,7 @@ This is a logical line.
 !@@ := This is a logical line ".":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 WARNING: in line ###: logical line begins at an indent that is greater
          than the current paragraph indent:
     And a second logical line.
@@ -1932,7 +1932,7 @@ WARNING: in line ###: logical line begins at an indent that is greater
 !@@ := And a second logical line ".":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 === BRACKETED EXPRESSION: line ###:
 And a third logical line.
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1940,7 +1940,7 @@ And a third logical line.
 !@@ := And a third logical line ".":
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
@@ -1961,7 +1961,7 @@ this-is-a-#
 !@@ := this-is-a-continued-lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 === BRACKETED EXPRESSION: lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
@@ -1973,7 +1973,7 @@ this-is-a-~
 !@@ := this-is-a-~ ~continued-~ ~lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 *PARSER*:
     define middle break "~" ... "~"
     print middle break
@@ -1990,7 +1990,7 @@ this-is-a-#
 !@@ := this-is-a-# #continued-# #lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 === BRACKETED EXPRESSION: lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
@@ -2002,7 +2002,7 @@ this-is-a-~
 !@@ := this-is-a-continued-lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 *PARSER*:
     define middle break disabled
     print middle break
@@ -2019,7 +2019,7 @@ this-is-a-#
 !@@ := this-is-a-# #continued-# #lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 === BRACKETED EXPRESSION: lines ###-###:
 this-is-a-~
 ^^^^^^^^^^^
@@ -2031,7 +2031,7 @@ this-is-a-~
 !@@ := this-is-a-~ ~continued-~ ~lexme:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
+           .initiator = *LOGICAL_LINE*
 *PARSER*:
     trace [- parser output, - subexpression details]
     end block BLOCK1
@@ -2058,7 +2058,7 @@ this-is-a-~
 !@@@ := @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := @@@:
             .terminator = "''"
             .initiator = "``"
@@ -2077,7 +2077,7 @@ this-is-a-~
 !@@@ := @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := @@@:
             .terminator = "''"
             .initiator = "``"
@@ -2094,7 +2094,7 @@ this-is-a-~
 !@@@ := @@@:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
+            .initiator = *LOGICAL_LINE*
 !@@@ := @@@ @@@:
             .terminator = "''"
             .initiator = "``"

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 10 03:06:07 AM EST 2024
+// Date:	Sat Nov 16 06:35:48 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -148,6 +148,8 @@ static void define_test_operators
 	      ( "is", "undefined", "number"  ) );
     min::locatable_gen is_number_op
         ( min::new_lab_gen ( "is", "number" ) );
+    min::locatable_gen is_truth_value_op
+        ( min::new_lab_gen ( "is", "truth", "value" ) );
     min::locatable_gen is_string_op
         ( min::new_lab_gen ( "is", "string" ) );
     min::locatable_gen is_object_op
@@ -174,6 +176,9 @@ static void define_test_operators
     PRIM::push_logical_op
         ( is_number_op, symbol_table,
 	  PRIM::JMP, mex::JMPNUM, false );
+    PRIM::push_logical_op
+        ( is_truth_value_op, symbol_table,
+	  PRIM::JMP, mex::JMPTRUTH, false );
     PRIM::push_logical_op
         ( is_string_op, symbol_table,
 	  PRIM::JMP, mex::JMPSTR, false );

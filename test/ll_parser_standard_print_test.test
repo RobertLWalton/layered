@@ -235,6 +235,10 @@
                         with data reformatter ( "@@@@", ":=",
                         {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
     print operator ""
+        block standard: operator [< "is" "truth" "value" >] [code]
+                        postfix
+                        with precedence 13000
+                        with unary postfix reformatter
         block standard: operator "*" [code, math]
                         infix
                         with precedence 13200

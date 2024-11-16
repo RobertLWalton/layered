@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  9 03:01:48 AM EST 2024
+// Date:	Sat Nov 16 06:46:21 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -929,6 +929,8 @@ static void define_test_operators
 	      ( "is", "undefined", "number" ) );
     min::locatable_gen is_number_op
         ( min::new_lab_gen ( "is", "number" ) );
+    min::locatable_gen is_truth_value_op
+        ( min::new_lab_gen ( "is", "truth", "value" ) );
     min::locatable_gen is_string_op
         ( min::new_lab_gen ( "is", "string" ) );
     min::locatable_gen is_object_op
@@ -996,6 +998,16 @@ static void define_test_operators
 
     OP::push_oper
         ( is_number_op,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX,
+	  13000, unary_postfix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( is_truth_value_op,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,

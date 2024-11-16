@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 02:25:01 AM EST 2024
+// Date:	Sat Nov 16 07:16:37 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3096,6 +3096,8 @@ NEXT_TOKEN:
 		  ( min::dot_terminator,
 		    min::INDENTED_PARAGRAPH() ) };
 
+	bool empty_paragraph = ( first == current );
+
 	PAR::compact
 	    ( parser, bracketed_pass->next,
 	      new_selectors,
@@ -3111,6 +3113,13 @@ NEXT_TOKEN:
 	//
 	MIN_REQUIRE
 	  ( ! BRA::is_closed ( bracket_stack_p ) );
+
+	if ( empty_paragraph )
+	{
+	    position.end = position.begin;
+	    PAR::parse_error
+	        ( parser, position, "empty paragraph" );
+	}
 
 	// Fall through to process indent or eof at
 	// current that is after indented paragraph.

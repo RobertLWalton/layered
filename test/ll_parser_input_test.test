@@ -403,6 +403,9 @@ a(b,c) d{e;f} g[h,i] ``foobar' fum'' *PARSER* *TEST*:
 INDENT: line ##:
 // form feed ␌
 ^
+ERROR: in line ##: empty paragraph:
+a(b,c) d{e;f} g[h,i] ``foobar' fum'' *PARSER* *TEST*:
+                                     ^
 COMMENT: line ##:
 // form feed ␌
 ^^^^^^^^^^^^^

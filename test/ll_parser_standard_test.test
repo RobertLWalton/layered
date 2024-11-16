@@ -26,6 +26,9 @@ ERROR: in line ##: after `=' attribute value (label or single bracketed
     ID 23 is
         {"": z = {|{|x|} * {|y|}|}, w = {|{|u|} - {|v|}|}|{|x|} +
              {|y|}|}
+ERROR: in line ##: empty paragraph:
+       ::   // Needed to allow indented paragraph to
+       ^
 === BRACKETED EXPRESSION:
     ID 30 is
         {|this is an indented paragraph
@@ -35,6 +38,9 @@ ERROR: in line ##: after `=' attribute value (label or single bracketed
     ID 35 is {|foo|}
 === BRACKETED EXPRESSION:
     ID 36 is "fum"
+ERROR: in line ##: empty paragraph:
+       :    // Needed to allow indented paragraph to
+       ^
 === BRACKETED EXPRESSION:
     ID 40 is
         {|{|This is a code line ending in|}

@@ -5887,6 +5887,9 @@ BRACKETED PARSER FOUND [LINE LEVEL, code] SELECTED KEY ":"
              .terminator = *INDENTED_PARAGRAPH*
              .position[H] = PACKED_VEC
              .initiator = ":"
+ERROR: in line ###: empty paragraph:
+    another inner paragraph, but one with zero lines:
+                                                    ^
 === BRACKETED EXPRESSION: line ###:
     another inner paragraph, but one with zero lines:
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

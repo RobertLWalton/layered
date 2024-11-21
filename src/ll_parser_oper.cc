@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 04:24:14 PM EDT 2024
+// Date:	Thu Nov 21 06:27:33 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1175,6 +1175,55 @@ static bool control_reformatter_function
     return true;
 }
 
+static bool exit_reformatter_function
+        ( PAR::parser parser,
+	  PAR::pass pass,
+	  TAB::flags selectors,
+	  PAR::token & first,
+	  PAR::token next,
+	  const min::phrase_position & position,
+	  min::gen line_separator,
+	  TAB::flags trace_flags,
+	  TAB::root entry )
+{
+    MIN_REQUIRE ( first != next );
+
+    PAR::token t = first;
+
+    while ( first != next
+	    &&
+	    first->type != PAR::OPERATOR )
+	first = OP::delete_bad_token
+	    ( parser, first,
+	      "expected an operator and found an"
+	      " operand " );
+
+    MIN_ASSERT ( first != next
+                 &&
+		 first->type == PAR::OPERATOR,
+		 "expression must have operator" );
+
+    while ( t != next
+	    &&
+	    t->type == PAR::OPERATOR )
+    t = OP::delete_bad_token
+	( parser, t,
+	  "expected an operand and found an"
+	  " operator " );
+
+    if ( t == next )
+	return true;
+    else 
+	t = t->next;
+
+    // Delete extra stuff from end of list.
+    //
+    if ( t != next )
+        t = OP::delete_extra_stuff ( parser, t, next );
+
+    return true;
+}
+
 static bool assignment_reformatter_function
         ( PAR::parser parser,
 	  PAR::pass pass,
@@ -1992,6 +2041,13 @@ static void reformatter_stack_initialize ( void )
     PAR::push_reformatter
         ( control, 1, 2,
 	  ::control_reformatter_function,
+	  OP::reformatter_stack );
+
+    min::locatable_gen exit_name
+        ( min::new_str_gen ( "exit" ) );
+    PAR::push_reformatter
+        ( exit_name, 0, 0,
+	  ::exit_reformatter_function,
 	  OP::reformatter_stack );
 
     min::locatable_gen assignment

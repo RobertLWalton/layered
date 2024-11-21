@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-October 21, 2024
+November 21, 2024
  
 \end{center}
 
@@ -8495,6 +8495,8 @@ prece-  & selec-  &             &            &            &            & \\
 	&	& 		& \TT{initial}
 					     & \ttkey{else} & terminating & \\
 	&	& 		& \TT{line}  &            & conditional &
+\\\cline{3-3}\cline{5-6}
+	&	& \TT{exit}	&            & \ttkey{exit} & exit block &
 \\\cline{3-6}
 	&	& (none)	& \TT{afix } & \ttkey{:}  & conditional & \\
 	&	&		& \TT{right} &            & modifier   & \\
@@ -8576,6 +8578,23 @@ prece-  & selec-  &             &            &            &            & \\
 	&	&		& \TT{left}  & 		     & modifier  & \\
         &       &               & \TT{line}   &                 & &
 \\\hline
+10000   & code  & \ttkey{selector}
+				& \TT{infix} & \ttkey{IF} & selector  & E
+\\\cline{3-5}
+        & math  & (none)        & \TT{afix}  & \ttkey{ELSE} & & \\
+	&       &               & \TT{infix} &              & &
+\\\cline{1-1}\cline{3-7}
+11000   & 	& \ttkey{binary}
+				& \TT{infix} & \ttkey{BUT NOT}
+							  & logical and not & L
+\\\cline{1-1}\cline{3-6}
+11100	&	& \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and &
+\\\cline{5-6}
+	& 	&		&	     & \ttkey{OR}  & logical or  &
+\\\cline{1-1}\cline{3-6}
+11200   &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not & \\
+        &	& \ttkey{prefix} &	     &		    &		  &
+\\\hline
 \end{tabular}
 
 \medskip
@@ -8585,6 +8604,8 @@ Class & Standard Component
 \\\hline
 S: & \ttkey{assignment operators} \\
 I: & \ttkey{iteration operators} \\
+E: & \ttkey{selection operators} \\
+L: & \ttkey{logical operators} \\
 \end{tabular}
 
 \end{center}
@@ -8599,23 +8620,30 @@ I: & \ttkey{iteration operators} \\
 prece-  & selec-  &             &            &            &            & \\
 ~dence  & ~tors & reformatter	& flags	     & operator   & meaning    & class
 \\\hline
-10000   & code  & \ttkey{selector}
-				& \TT{infix} & \ttkey{if} & selector  & E
-\\\cline{3-5}
-        & math  & (none)        & \TT{afix}  & \ttkey{else} & & \\
-	&       &               & \TT{infix} &              & &
-\\\cline{1-1}\cline{3-7}
-11000   & 	& \ttkey{binary}
-				& \TT{infix} & \ttkey{BUT NOT}
-							  & logical and not & L
-\\\cline{1-1}\cline{3-6}
-11100	&	& \ttkey{infix}	& \TT{infix} & \ttkey{AND} & logical and &
+12000 	& code	& \ttkey{unary}	& \TT{postfix} & \ttkey{is integer}
+					       & is integer      & T
 \\\cline{5-6}
-	& 	&		&	     & \ttkey{OR}  & logical or  &
-\\\cline{1-1}\cline{3-6}
-11200   &	& \ttkey{unary}	& \TT{prefix} & \ttkey{NOT} & logical not &
-\\\cline{1-1}\cline{3-7}
-12000 	&	& (none)	& \TT{infix} & \ttkey{==} & equal      & P
+	& math	& \ttkey{postfix} & & \ttkey{is finite} & is finite      &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is infinite} & is infinite      &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is undefined} & is undefined & \\
+	&       &		  & & \ttkey{number} & number &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is number} & is number      &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is true} & is true      &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is false} & is false      &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is truth} & is truth & \\
+	&       &		  & & \ttkey{value} & value &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is string} & is string      &
+\\\cline{5-6}
+	&       &                 & & \ttkey{is object} & is object      &
+\\\cline{3-7}
+	&	& (none)	& \TT{infix} & \ttkey{==} & equal      & P
 \\\cline{5-6}
 	& 	&		&	     & \ttkey{!=} & not equal  &
 \\\cline{5-6}
@@ -8666,10 +8694,9 @@ H-1	& code	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        &
 \begin{tabular}{ll}
 Class & Standard Component
 \\\hline
+T: & \ttkey{test operators} \\
 A: & \ttkey{arithmetic operators} \\
 B: & \ttkey{bitwise operators} \\
-E: & \ttkey{selection operators} \\
-L: & \ttkey{logical operators} \\
 P: & \ttkey{comparison operators}
 \end{tabular}
 
@@ -8717,8 +8744,11 @@ Parser Command				& \shortstack{
 \tt define operator "else" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with control reformatter ( ":" ) \\
+\tt define operator "exit" [code] initial line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with exit reformatter \\
 \\[1ex]
-\tt define operator ":" [code] afix line & {\tt + code} \\
+\tt define operator ":" [code] afix right line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt define operator indentation mark ":" [code] & {\tt + code} \\
 \tt ~~~~~~~afix line \\
@@ -8746,14 +8776,6 @@ Parser Command				& \shortstack{
 \tt define operator "=" [math] infix & {\tt + math} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter
-\\[1ex]
-\tt define operator indentation mark ":" [code] & {\tt + code} \\
-\tt ~~~~~~~postfix line \\
-\tt ~~~~~~~with precedence 1000 \\
-\\[1ex]
-\tt define operator indentation mark ":" [code] & {\tt + code} \\
-\tt ~~~~~~~afix line \\
-\tt ~~~~~~~with precedence 1000 \\
 \\[1ex]
 \tt define operator "," [code, math] nofix & {\tt + code} or {\tt + math} \\
 \tt ~~~~~~~with precedence 2000 \\
@@ -8802,12 +8824,12 @@ Parser Command				& \shortstack{
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
-\tt define operator "if" [code, math] infix & {\tt + code} or {\tt + math} \\
+\tt define operator "IF" [code, math] infix & {\tt + code} or {\tt + math} \\
 \tt ~~~~~~~with precedence 10000 \\
 \tt ~~~~~~~with selector reformatter \\
-\tt ~~~~~~~~~~~~( "if", "else" ) \\
+\tt ~~~~~~~~~~~~( "IF", "ELSE" ) \\
 \\[1ex]
-\tt define operator "else" [code, math] afix infix
+\tt define operator "ELSE" [code, math] afix infix
 					    & {\tt + code} or {\tt + math} \\
 \tt ~~~~~~~with precedence 10000
 \end{tabular}
@@ -8838,7 +8860,7 @@ Parser Command				& \shortstack{
 \\[1ex]
 \tt define operator "NOT" [code, math] prefix & {\tt + code} or {\tt + math} \\
 \tt ~~~~~~~with precedence 11200 \\
-\tt ~~~~~~~with unary reformatter \\
+\tt ~~~~~~~with unary prefix reformatter \\
 \end{tabular}
 \end{center}
 
@@ -9237,6 +9259,19 @@ The {\em delimiter} is typically \TT{:}.
 The {\em condition} expression must be present if and only if
 \TT{has condition} is a reformatter argument.  This is the case
 for \TT{if} and \TT{else if} but not for \TT{else}.
+
+\end{indpar}
+
+\ttmkey{exit}{reformatter}
+\hfill \OP{exit}
+
+
+\begin{indpar}[0.5em]
+Typically used with line exit operator
+(e.g., \TT{exit}).
+
+The expression must consist of an operator followed by
+an \underline{optional} operand.
 
 \end{indpar}
 

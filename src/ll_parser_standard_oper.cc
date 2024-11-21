@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 16 06:46:21 PM EST 2024
+// Date:	Thu Nov 21 09:14:51 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,13 @@ static void define_control_operators
     min::obj_vec_insptr eavp ( else_arguments );
     min::attr_push ( eavp ) = PARLEX::colon;
 
+    min::locatable_gen exit_name
+        ( min::new_str_gen ( "exit" ) );
+
+    PAR::reformatter exit_reformatter =
+        PAR::find_reformatter
+	    ( exit_name, OP::reformatter_stack );
+
     min::locatable_gen if_name
         ( min::new_str_gen ( "if" ) );
 
@@ -98,6 +105,17 @@ static void define_control_operators
 	  0000,
 	  control_reformatter,
 	  else_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( exit_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INITIAL + OP::LINE,
+	  0000,
+	  exit_reformatter,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -942,7 +960,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -952,7 +970,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -962,7 +980,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -972,7 +990,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -982,7 +1000,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -992,7 +1010,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -1002,7 +1020,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -1012,7 +1030,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -1022,7 +1040,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -1032,7 +1050,7 @@ static void define_test_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::POSTFIX,
-	  13000, unary_postfix_reformatter,
+	  12000, unary_postfix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }

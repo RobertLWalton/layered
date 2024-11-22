@@ -13,14 +13,14 @@ a b c
 a < b < c
 [ x ( y ) z {{u, v, w}} m (n (p)) ]
 (, x, y 4,, z,,)
-y += z
+y + = z
 x = y
-w4 *= w5 
+w4 * = w5 
 w3 = w4
-w2 += w3
+w2 + = w3
 w1 = w2
-x1, x2 += z1, z2
-x = y + z * w LSHIFT q + u * v ^ p
+x1, x2 + = z1, z2
+x = y + z * w << q + u * v ^ p
 x < y < z
 x = ( y < z )
 x = w < y < z
@@ -57,19 +57,19 @@ a, b = while x == y until v != w:
 do while x == y until v != w:
     mumble(55)
 next x, next y, next z =:
-    next x += 1
-    next y += 1
-    next z += 1
+    next x + = 1
+    next y + = 1
+    next z + = 1
 repeat 5 times:
-    next x += 1
+    next x + = 1
 do inc until z == x at most 10 times:
-    next x += 1
+    next x + = 1
 next x, y =:
     y = x
-    next x += 1
+    next x + = 1
 next x, y:
     y = x
-    next x += 1
+    next x + = 1
 
 if x == y: foo ( a, b )
 if w == v:

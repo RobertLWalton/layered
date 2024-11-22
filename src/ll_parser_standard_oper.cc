@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 09:14:51 AM EST 2024
+// Date:	Thu Nov 21 11:44:29 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -590,13 +590,17 @@ static void define_arithmetic_operators
 	    ( unary_prefix, OP::reformatter_stack );
 
     min::locatable_gen plus_equal
-        ( min::new_str_gen ( "+=" ) );
+        ( min::new_lab_gen ( "+", "=" ) );
     min::locatable_gen minus_equal
-        ( min::new_str_gen ( "-=" ) );
+        ( min::new_lab_gen ( "-", "=" ) );
     min::locatable_gen times_equal
-        ( min::new_str_gen ( "*=" ) );
+        ( min::new_lab_gen ( "*", "=" ) );
     min::locatable_gen divide_equal
-        ( min::new_str_gen ( "/=" ) );
+        ( min::new_lab_gen ( "/", "=" ) );
+    min::locatable_gen shift_left
+        ( min::new_lab_gen ( "<<", "=" ) );
+    min::locatable_gen shift_right
+        ( min::new_lab_gen ( ">>", "=" ) );
 
     if ( code ) OP::push_oper
         ( plus_equal,
@@ -638,6 +642,26 @@ static void define_arithmetic_operators
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
+    OP::push_oper
+        ( shift_left,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( shift_right,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  1000, binary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
     min::locatable_gen plus
         ( min::new_str_gen ( "+" ) );
     min::locatable_gen minus
@@ -648,6 +672,10 @@ static void define_arithmetic_operators
         ( min::new_str_gen ( "*" ) );
     min::locatable_gen exponent
         ( min::new_str_gen ( "^" ) );
+    min::locatable_gen left_shift
+        ( min::new_str_gen ( "<<" ) );
+    min::locatable_gen right_shift
+        ( min::new_str_gen ( ">>" ) );
     min::locatable_gen plus_minus_arguments
 	    ( min::new_obj_gen ( 2 ) );
     min::obj_vec_insptr pmavp ( plus_minus_arguments );
@@ -730,6 +758,26 @@ static void define_arithmetic_operators
 	  13300, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( left_shift,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  13300, binary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( right_shift,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  13300, binary_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
 }
 
 
@@ -763,15 +811,11 @@ static void define_bitwise_operators
 	    ( unary_prefix, OP::reformatter_stack );
 
     min::locatable_gen or_equal
-        ( min::new_lab_gen ( "BOR", "=" ) );
+        ( min::new_lab_gen ( "OR#", "=" ) );
     min::locatable_gen and_equal
-        ( min::new_lab_gen ( "BAND", "=" ) );
+        ( min::new_lab_gen ( "AND#", "=" ) );
     min::locatable_gen xor_equal
-        ( min::new_lab_gen ( "BXOR", "=" ) );
-    min::locatable_gen shift_left
-        ( min::new_lab_gen ( "LSHIFT", "=" ) );
-    min::locatable_gen shift_right
-        ( min::new_lab_gen ( "RSHIFT", "=" ) );
+        ( min::new_lab_gen ( "XOR#", "=" ) );
 
     OP::push_oper
         ( or_equal,
@@ -803,38 +847,14 @@ static void define_bitwise_operators
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
-    OP::push_oper
-        ( shift_left,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000, binary_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( shift_right,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX + OP::LINE,
-	  1000, binary_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-
     min::locatable_gen or_name
-        ( min::new_str_gen ( "BOR" ) );
+        ( min::new_str_gen ( "OR#" ) );
     min::locatable_gen and_name
-        ( min::new_str_gen ( "BAND" ) );
+        ( min::new_str_gen ( "AND#" ) );
     min::locatable_gen xor_name
-        ( min::new_str_gen ( "BXOR" ) );
-    min::locatable_gen left_shift
-        ( min::new_str_gen ( "LSHIFT" ) );
-    min::locatable_gen right_shift
-        ( min::new_str_gen ( "RSHIFT" ) );
+        ( min::new_str_gen ( "XOR#" ) );
     min::locatable_gen complement_name
-        ( min::new_str_gen ( "BCOM" ) );
+        ( min::new_str_gen ( "NOT#" ) );
 
     min::locatable_gen or_arguments
 	    ( min::new_obj_gen ( 1 ) );
@@ -879,26 +899,6 @@ static void define_bitwise_operators
 	  OP::INFIX,
 	  13000, infix_reformatter,
 	  xor_arguments,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( left_shift,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  13300, binary_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( right_shift,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  13300, binary_reformatter,
-	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper

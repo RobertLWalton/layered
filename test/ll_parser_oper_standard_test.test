@@ -15,38 +15,38 @@ a < b < c
 ^^^^^^^^^^^^^^^^
     ({}, {|x|}, {|y 4|}, {}, {|z|}, {}, {})
 === BRACKETED EXPRESSION: line ##:
-y += z
-^^^^^^
-    {|y|} += {|z|}
+y + = z
+^^^^^^^
+    {|y|} [< + = >] {|z|}
 === BRACKETED EXPRESSION: line ##:
 x = y
 ^^^^^
     {|x|} = {|y|}
 === BRACKETED EXPRESSION: line ##:
-w4 *= w5
-^^^^^^^^
-    {|w4|} *= {|w5|}
+w4 * = w5
+^^^^^^^^^
+    {|w4|} [< * = >] {|w5|}
 === BRACKETED EXPRESSION: line ##:
 w3 = w4
 ^^^^^^^
     {|w3|} = {|w4|}
 === BRACKETED EXPRESSION: line ##:
-w2 += w3
-^^^^^^^^
-    {|w2|} += {|w3|}
+w2 + = w3
+^^^^^^^^^
+    {|w2|} [< + = >] {|w3|}
 === BRACKETED EXPRESSION: line ##:
 w1 = w2
 ^^^^^^^
     {|w1|} = {|w2|}
 === BRACKETED EXPRESSION: line ##:
-x1, x2 += z1, z2
-^^^^^^^^^^^^^^^^
-    {|{|x1|}, {|x2|}|} += {|{|z1|}, {|z2|}|}
+x1, x2 + = z1, z2
+^^^^^^^^^^^^^^^^^
+    {|{|x1|}, {|x2|}|} [< + = >] {|{|z1|}, {|z2|}|}
 === BRACKETED EXPRESSION: line ##:
-x = y + z * w LSHIFT q + u * v ^ p
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+x = y + z * w << q + u * v ^ p
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|x|} =
-        {|{|y|} + {|{|z|} * {|{|w|} LSHIFT {|q|}|}|} +
+        {|{|y|} + {|{|z|} * {|{|w|} << {|q|}|}|} +
           {|{|u|} * {|{|v|} ^ {|p|}|}|}|}
 === BRACKETED EXPRESSION: line ##:
 x < y < z
@@ -193,50 +193,50 @@ do while x == y until v != w:
 === BRACKETED EXPRESSION: lines ##-##:
 next x, next y, next z =:
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-    next x += 1
-^^^^^^^^^^^^^^^
-    next y += 1
-^^^^^^^^^^^^^^^
-    next z += 1
-^^^^^^^^^^^^^^^
+    next x + = 1
+^^^^^^^^^^^^^^^^
+    next y + = 1
+^^^^^^^^^^^^^^^^
+    next z + = 1
+^^^^^^^^^^^^^^^^
     {|{|{|next x|}, {|next y|}, {|next z|}|} =|}:
-        {|next x|} += {|1|}
-        {|next y|} += {|1|}
-        {|next z|} += {|1|}
+        {|next x|} [< + = >] {|1|}
+        {|next y|} [< + = >] {|1|}
+        {|next z|} [< + = >] {|1|}
 === BRACKETED EXPRESSION: lines ##-##:
 repeat 5 times:
 ^^^^^^^^^^^^^^^
-    next x += 1
-^^^^^^^^^^^^^^^
+    next x + = 1
+^^^^^^^^^^^^^^^^
     {|repeat {|5|} times|}:
-        {|next x|} += {|1|}
+        {|next x|} [< + = >] {|1|}
 === BRACKETED EXPRESSION: lines ##-##:
 do inc until z == x at most 10 times:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    next x += 1
-^^^^^^^^^^^^^^^
+    next x + = 1
+^^^^^^^^^^^^^^^^
     {|do {|inc|} until {|{|z|} == {|x|}|} [< at most >] {|10|} times|}:
-        {|next x|} += {|1|}
+        {|next x|} [< + = >] {|1|}
 === BRACKETED EXPRESSION: lines ##-##:
 next x, y =:
 ^^^^^^^^^^^^
     y = x
 ^^^^^^^^^
-    next x += 1
-^^^^^^^^^^^^^^^
+    next x + = 1
+^^^^^^^^^^^^^^^^
     {|{|{|next x|}, {|y|}|} =|}:
         {|y|} = {|x|}
-        {|next x|} += {|1|}
+        {|next x|} [< + = >] {|1|}
 === BRACKETED EXPRESSION: lines ##-##:
 next x, y:
 ^^^^^^^^^^
     y = x
 ^^^^^^^^^
-    next x += 1
-^^^^^^^^^^^^^^^
+    next x + = 1
+^^^^^^^^^^^^^^^^
     {|{|next x|}, {|y|}|}:
         {|y|} = {|x|}
-        {|next x|} += {|1|}
+        {|next x|} [< + = >] {|1|}
 === BRACKETED EXPRESSION: line ##:
 if x == y: foo ( a, b )
 ^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 16 06:35:48 PM EST 2024
+// Date:	Fri Nov 22 07:51:05 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,8 @@
 // ------ -------- -------
 //
 static void define_arithmetic_operators
-	( TAB::key_table symbol_table )
+	( TAB::key_table symbol_table,
+	  min::gen modifying_ops )
 {
     min::locatable_gen plus
         ( min::new_str_gen ( "+" ) );
@@ -63,6 +64,29 @@ static void define_arithmetic_operators
 
     PRIM::push_value_op
         ( exponent, symbol_table, mex::POW );
+
+    min::locatable_gen plus_equal
+        ( min::new_lab_gen ( "+", "=" ) );
+    min::locatable_gen minus_equal
+        ( min::new_lab_gen ( "-", "=" ) );
+    min::locatable_gen times_equal
+        ( min::new_lab_gen ( "*", "=" ) );
+    min::locatable_gen divide_equal
+        ( min::new_lab_gen ( "/", "=" ) );
+
+    min::locatable_gen ADD
+        ( min::new_num_gen ( mex::ADD ) );
+    min::locatable_gen SUB
+        ( min::new_num_gen ( mex::SUB ) );
+    min::locatable_gen MUL
+        ( min::new_num_gen ( mex::MUL ) );
+    min::locatable_gen DIV
+        ( min::new_num_gen ( mex::DIV ) );
+    min::set ( modifying_ops, plus_equal, ADD );
+    min::set ( modifying_ops, minus_equal, SUB );
+    min::set ( modifying_ops, times_equal, MUL );
+    min::set ( modifying_ops, divide_equal, DIV );
+             
 }
 
 static void define_comparison_operators
@@ -196,9 +220,11 @@ void PARSTD::define_primary
     PRIM::primary_pass pass =
         PRIM::init_primary ( parser );
     TAB::key_table symbol_table = pass->primary_table;
+    min::gen modifying_ops = pass->modifying_ops;
 
     if ( components & PARSTD::ARITHMETIC_OPERATORS )
-        ::define_arithmetic_operators ( symbol_table );
+        ::define_arithmetic_operators
+	    ( symbol_table, modifying_ops );
     if ( components & PARSTD::COMPARISON_OPERATORS )
         ::define_comparison_operators ( symbol_table );
     if ( components & PARSTD::SELECTION_OPERATORS )

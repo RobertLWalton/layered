@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 01:50:22 AM EDT 2024
+// Date:	Fri Nov 22 07:16:04 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -435,6 +435,16 @@ struct primary_pass_struct
         primary_table;
 	// Table of primary keys.
 
+    const min::gen modifying_ops;
+        // min::get ( modifying_ops, op ) is the mex op
+	// code (e.g., mex::DIV ) of the instruction
+	// that combines the top two stack elements to
+	// implement a modifying assignment (e.g., /=).
+	// The topmost stack element is the rightside
+	// of the modifying assignment, and the next
+	// to topmost stack element is the left side
+	// (the value of the variable being modified).
+
     ll::parser::table::flags trace_subexpressions;
         // Trace flag named `primary subexpressions'
 	// that traces primary subexpressions.
@@ -448,6 +458,8 @@ MIN_REF ( ll::parser::parser, parser,
 MIN_REF ( ll::parser::pass, next,
           ll::parser::primary::primary_pass )
 MIN_REF ( ll::parser::table::key_table, primary_table,
+          ll::parser::primary::primary_pass )
+MIN_REF ( min::gen, modifying_ops,
           ll::parser::primary::primary_pass )
 
 // Return a new primary parser pass.

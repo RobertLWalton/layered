@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 04:35:33 AM EDT 2024
+// Date:	Fri Nov 22 07:16:53 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -333,6 +333,8 @@ PRIM::func_term PRIM::create_func_term
 static min::uns32 primary_pass_gen_disp[] =
 {
     min::DISP ( & PRIM::primary_pass_struct::name ),
+    min::DISP ( & PRIM::primary_pass_struct
+    		      ::modifying_ops ),
     min::DISP_END
 };
 
@@ -433,6 +435,9 @@ PAR::pass PRIM::new_pass ( PAR::parser parser )
 
     PRIM::primary_table_ref ( primary_pass ) =
         TAB::create_key_table ( 1024 );
+
+    PRIM::modifying_ops_ref ( primary_pass ) =
+        min::new_obj_gen ( 100, 50 );
 
     primary_pass->parser_command =
 	::primary_pass_command;
@@ -1628,6 +1633,13 @@ static min::gen primary_pass_command
 	parser->printer
 	    << min::bom << min::no_auto_break
 	    << min::set_indent ( indent + 4 );
+	if ( type == PRIMLEX::function )
+	    parser->printer
+		<< min::indent << "Modifying Ops: "
+		<< min::save_indent
+		<< min::pgen
+		       ( primary_pass->modifying_ops )
+		<< min::restore_indent;
 
 	int count = 0;
 

@@ -46,6 +46,8 @@
     begin block BLOCK1
     define primary function ``(A1) "+" (A2)'' [code]
     print primary function ``''
+        Modifying Ops: {"": "+" "=" = 1, "/" "=" = 9, "-" "=" = 5,
+                            "*" "=" = 3}
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
@@ -108,6 +110,8 @@ REJECTING: (A1)"+"(A2)
     begin block BLOCK1
     define primary function ``F [X]'' [code]
     print primary function ``''
+        Modifying Ops: {"": "+" "=" = 1, "/" "=" = 9, "-" "=" = 5,
+                            "*" "=" = 3}
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
@@ -151,6 +155,8 @@ REJECTING: F[X]
     begin block BLOCK1
     define primary function ``F (X) ({|Y|}?={|Z|})'' [code]
     print primary function ``''
+        Modifying Ops: {"": "+" "=" = 1, "/" "=" = 9, "-" "=" = 5,
+                            "*" "=" = 3}
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
@@ -195,6 +201,8 @@ REJECTING: F(X)(Y)
     begin block BLOCK1
     define primary function ``F (X) G ({|Y|}?={|Q|}) H (Z)'' [code]
     print primary function ``''
+        Modifying Ops: {"": "+" "=" = 1, "/" "=" = 9, "-" "=" = 5,
+                            "*" "=" = 3}
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001
@@ -258,6 +266,8 @@ REJECTING: F(X)G(Y)H(Z)
                {|Z1|} {|{|Z2|} ?= {|D2|}|}|}''
          [code]
     print primary function ``''
+        Modifying Ops: {"": "+" "=" = 1, "/" "=" = 9, "-" "=" = 5,
+                            "*" "=" = 3}
         block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 19000001

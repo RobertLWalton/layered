@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 07:51:05 PM EST 2024
+// Date:	Sun Nov 24 03:29:38 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,6 +43,10 @@ static void define_arithmetic_operators
         ( min::new_str_gen ( "/" ) );
     min::locatable_gen exponent
         ( min::new_str_gen ( "^" ) );
+    min::locatable_gen left_shift
+        ( min::new_str_gen ( "<<" ) );
+    min::locatable_gen right_shift
+        ( min::new_str_gen ( ">>" ) );
 
     PRIM::push_value_op
         ( plus, symbol_table, mex::ADD, mex::SUB );
@@ -65,6 +69,11 @@ static void define_arithmetic_operators
     PRIM::push_value_op
         ( exponent, symbol_table, mex::POW );
 
+    PRIM::push_value_op
+        ( left_shift, symbol_table, mex::LSH );
+    PRIM::push_value_op
+        ( right_shift, symbol_table, mex::RSH );
+
     min::locatable_gen plus_equal
         ( min::new_lab_gen ( "+", "=" ) );
     min::locatable_gen minus_equal
@@ -73,6 +82,10 @@ static void define_arithmetic_operators
         ( min::new_lab_gen ( "*", "=" ) );
     min::locatable_gen divide_equal
         ( min::new_lab_gen ( "/", "=" ) );
+    min::locatable_gen left_shift_equal
+        ( min::new_lab_gen ( "<<", "=" ) );
+    min::locatable_gen right_shift_equal
+        ( min::new_lab_gen ( ">>", "=" ) );
 
     min::locatable_gen ADD
         ( min::new_num_gen ( mex::ADD ) );
@@ -82,10 +95,16 @@ static void define_arithmetic_operators
         ( min::new_num_gen ( mex::MUL ) );
     min::locatable_gen DIV
         ( min::new_num_gen ( mex::DIV ) );
+    min::locatable_gen LSH
+        ( min::new_num_gen ( mex::LSH ) );
+    min::locatable_gen RSH
+        ( min::new_num_gen ( mex::RSH ) );
     min::set ( modifying_ops, plus_equal, ADD );
     min::set ( modifying_ops, minus_equal, SUB );
     min::set ( modifying_ops, times_equal, MUL );
     min::set ( modifying_ops, divide_equal, DIV );
+    min::set ( modifying_ops, left_shift_equal, LSH );
+    min::set ( modifying_ops, right_shift_equal, RSH );
              
 }
 

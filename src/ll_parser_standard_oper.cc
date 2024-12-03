@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 11:44:29 PM EST 2024
+// Date:	Tue Dec  3 12:54:15 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -109,6 +109,20 @@ static void define_control_operators
 
     OP::push_oper
         ( exit_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INITIAL + OP::LINE,
+	  0000,
+	  exit_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    min::locatable_gen continue_name
+        ( min::new_str_gen ( "continue" ) );
+
+    OP::push_oper
+        ( continue_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,

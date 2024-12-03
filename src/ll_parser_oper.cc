@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 06:27:33 AM EST 2024
+// Date:	Tue Dec  3 07:41:11 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1188,7 +1188,6 @@ static bool exit_reformatter_function
 {
     MIN_REQUIRE ( first != next );
 
-    PAR::token t = first;
 
     while ( first != next
 	    &&
@@ -1203,23 +1202,23 @@ static bool exit_reformatter_function
 		 first->type == PAR::OPERATOR,
 		 "expression must have operator" );
 
+    PAR::token t = first->next;
     while ( t != next
 	    &&
 	    t->type == PAR::OPERATOR )
-    t = OP::delete_bad_token
-	( parser, t,
-	  "expected an operand and found an"
-	  " operator " );
+	t = OP::delete_bad_token
+	    ( parser, t,
+	      "expected an operand and found an"
+	      " operator " );
 
     if ( t == next )
-	return true;
-    else 
-	t = t->next;
+	return true;  // No operand case.
 
-    // Delete extra stuff from end of list.
+    // Operand case.
     //
+    t = t->next;
     if ( t != next )
-        t = OP::delete_extra_stuff ( parser, t, next );
+	OP::delete_extra_stuff ( parser, t, next );
 
     return true;
 }

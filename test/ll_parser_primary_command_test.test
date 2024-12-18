@@ -22,13 +22,13 @@
                       in module M
     test primary:  X Y 1
     -- found variable: X Y 1 ===> M 100
-    test primary:  X Y 1 FOO
+    test primary:  X Y 1 [FOO]
     -- found variable: X Y 1 ===> M 100
     test primary:  X Y
     -- no definition found
     define primary variable ``X Y'' [code]
            with module M with location 200
-    test primary:  X Y 1 FOO
+    test primary:  X Y 1 [FOO]
     -- found variable: X Y 1 ===> M 100
     test primary:  X Y
     -- found variable: X Y ===> M 200

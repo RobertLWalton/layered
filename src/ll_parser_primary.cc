@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 07:16:53 PM EST 2024
+// Date:	Wed Dec 18 07:34:13 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1089,6 +1089,13 @@ bool PRIM::scan_primary
     min::uns32 original_i = i;
     min::uns32 iend = min::size_of ( vp );
 
+    if ( argument_vector == min::NULL_STUB )
+        argument_vector = (PRIM::argument_vector)
+	    min::gen_packed_vec_type.new_stub
+	        ( iend - i );
+    PRIM::argument_vector av = argument_vector;
+	// Get rid of min::ref.
+
     if ( key_prefix == min::NULL_STUB )
     {
         quoted_i = iend;
@@ -1108,6 +1115,8 @@ bool PRIM::scan_primary
     }
 
 RETRY:
+
+    min::pop ( av, av->length );
 
     {
         MIN_REQUIRE ( root != min::NULL_STUB );
@@ -1131,11 +1140,28 @@ RETRY:
 
 CHECK_TYPE:
 
-    PRIM::func func = (PRIM::func) root;
-    if ( func == min::NULL_STUB )  // var found
-        return true;
-
     min::uns32 after_first = i;
+
+    PRIM::func func = (PRIM::func) root;
+    if ( func == min::NULL_STUB )
+    {
+        // var found
+
+        while ( i < iend )
+	{
+	    if (    min::get
+	    		( vp[i], min::dot_initiator )
+		 == PARLEX::left_square )
+	        min::push(av) = vp[i++];
+	    else
+	    {
+		i = after_first;
+		goto RETRY;
+	    }
+	}
+        return true;
+    }
+
     i = original_i;
     bool first = true;
     min::gen negator = min::NONE();
@@ -1485,21 +1511,10 @@ CHECK_TYPE:
 	}
     }
 
-    if ( argument_vector == min::NULL_STUB )
-        argument_vector = (PRIM::argument_vector)
-	    min::gen_packed_vec_type.new_stub
-	        ( number_args );
-
-    {
-	PRIM::argument_vector av = argument_vector;
-	    // Get rid of min::ref.
-	min::pop ( av, av->length );
-
-	for ( min::uns32 k = 0; k < number_args; ++ k )
-	    min::push(av) = args[k];
-		// Push one at a time to update
-		// gc flags properly.
-    }
+    for ( min::uns32 k = 0; k < number_args; ++ k )
+	min::push(av) = args[k];
+	    // Push one at a time to update
+	    // gc flags properly.
 
     return true;
 

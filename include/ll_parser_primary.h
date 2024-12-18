@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 22 07:16:04 PM EST 2024
+// Date:	Wed Dec 18 07:46:09 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -643,13 +643,55 @@ ll::parser::primary::func scan_func_prototype
 //
 // Specifically vp is scanned beginning with vp[i] and i
 // is incremented during the scan.  For variables, the
-// scan stops when the next vector element cannot be
-// part of variable's name.  For function calls, the
-// call prototype match fails if the call does not end
-// at the end of vp.
+// scan fails if the expression scanned is not a
+// variable name followed by [] bracketed expressions.
+// For function calls, the can fails if the the call
+// prototype match fails.  In either case i must scan to
+// the end of vp, else the scan fails.
 //
 // True is returned if a primary_table entry was found,
 // and false otherwise.
+//
+// The first call to this function for a particular vp
+// and i should have key_prefix = NULL_STUB.  If after
+// returning, the result is unsatisfactory because the
+// next vp[i] is not a suitable subsequent vector
+// element, the result can be rejected and the next
+// primary_table entry can be found by re-calling this
+// function with i, root, and key_prefix left as they
+// were set by the last call.  This function can be
+// re-called in this manner until the result is
+// satisfactory or the function returns false.
+//
+// The argument_vector is always allocated if it is
+// initially NULL_STUB.  For variables, the [] bracketed
+// expressions following the variable name are returned
+// in order in argument_vector.
+//
+// For functions, the call argument expressions are
+// returned in the argument_vector, in left to right
+// prototype order.  This vector will NOT have any
+// elements with value NONE: all arguments must be
+// provided or defaulted.  A prototype that would
+// produce an arguments vector with a NONE element
+// is automatically rejected just as if it had the
+// wrong selectors.
+//
+// This function treats quoted string elements of vp
+// as if they were MIN strings.  Should they not be
+// legal in a variable or function term name, they will
+// not be found in the symbol table.
+//
+// Quoted_i is set to the smallest i value for which
+// vp[i] is a quoted string, or to the size of vp if
+// there is no quoted string.  It can be used, for
+// example, to reject variable names containing a quoted
+// string.  Like i, it must be left untouched when
+// re-calling this function.
+//
+// If print_rejections is true, rejection of a function
+// prototype because of argument structure causes a
+// REJECT: ... message to be printed.
 //
 // In addition to standard function calls, this function
 // supports `operator calls'.  An operator call is an
@@ -667,6 +709,9 @@ ll::parser::primary::func scan_func_prototype
 // expression is NOT scanned.  To qualify as an operator
 // call, the first operator in the expression must NOT
 // be quoted and must have the VALUE_OPERATOR flag.
+// Only argument expressions before the first function
+// term (first operator) are returned in the argument_
+// vector.
 //
 // Parser reformatters must be used to ensure that
 // operator calls in fact have only operators of the
@@ -677,46 +722,6 @@ ll::parser::primary::func scan_func_prototype
 // {| x + y |} + z.  In this case there will will be
 // no operator calls and the VALUE_OPERATOR flag will be
 // unused.
-//
-// The first call to this function for a particular vp
-// and i should have key_prefix = NULL_STUB.  If after
-// returning, the result is unsatisfactory because the
-// next vp[i] is not a suitable subsequent vector
-// element, the result can be rejected and the next
-// primary_table entry can be found by re-calling this
-// function with i, root, and key_prefix left as they
-// were set by the last call.  This function can be
-// re-called in this manner until the result is
-// satisfactory or the function returns false.
-//
-// If func is returned, the call argument expressions
-// are returned in argument_vector, in left to right
-// prototype order.  This vector will NOT have any
-// elements with value NONE: all arguments must be
-// provided or defaulted.  A prototype that would
-// produce an arguments vector with a NONE element
-// is automatically rejected just as if it had the
-// wrong selectors.
-//
-// However, for operator calls, only argument
-// expressions before the first function term (first
-// operator) are returned.
-//
-// This function treats quoted string elements of vp
-// as if they were MIN strings.  Should they not be
-// legal in a variable or function term name, they will
-// not be found in the symbol table.
-//
-// Quoted_i is set to the smallest i value for which
-// vp[i] is a quoted string, or to the size of vp if
-// there is no quoted string.  It can be used, for
-// example, to reject variable names containing a quoted
-// string.  Like i, it must be left untouched when
-// re-calling this function.
-//
-// If print_rejections is true, rejection of a function
-// prototype because of argument structure causes a
-// REJECT: ... message to be printed.
 //
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;

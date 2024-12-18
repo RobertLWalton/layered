@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 23 04:20:41 AM EDT 2024
+// Date:	Wed Dec 18 07:44:39 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -19,11 +19,11 @@
            with module M with location 100
     print primary variable ``''
     test primary ``X Y 1'' [code]
-    test primary ``X Y 1 FOO'' [code]
+    test primary ``X Y 1 [FOO]'' [code]
     test primary ``X Y'' [code]
     define primary variable ``X Y'' [code]
            with module M with location 200
-    test primary ``X Y 1 FOO'' [code]
+    test primary ``X Y 1 [FOO]'' [code]
     test primary ``X Y'' [code]
     test primary ``X'' [code]
     print primary variable ``''

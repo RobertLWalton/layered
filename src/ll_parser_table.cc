@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 09:01:20 AM EST 2024
+// Date:	Mon Dec 23 10:35:10 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -367,6 +367,9 @@ static min::uns32 lexeme_map_entry_gen_disp[] = {
 
 static min::uns32 lexeme_map_entry_stub_disp[] = {
     min::DISP ( & TAB::lexeme_map_entry_struct::next ),
+    min::DISP ( & TAB::lexeme_map_entry_struct
+                     ::previous ),
+    min::DISP ( & TAB::lexeme_map_entry_struct::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base

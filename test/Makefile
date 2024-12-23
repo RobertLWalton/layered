@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Aug 22 05:33:13 AM EDT 2024
+# Date:		Mon Dec 23 10:15:15 AM EST 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -536,6 +536,7 @@ ll_parser_standard_primary.o:	\
 	${LEXEME_H} \
 	${MEX_H} \
 	../include/ll_parser.h \
+	../include/ll_parser_table.h \
 	../include/ll_parser_standard.h \
 	../include/ll_parser_primary.h \
 	../src/ll_parser_standard_primary.cc \

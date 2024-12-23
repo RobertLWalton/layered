@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 18 07:34:13 AM EST 2024
+// Date:	Mon Dec 23 10:32:24 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,6 +101,8 @@ static min::uns32 var_gen_disp[] = {
 
 static min::uns32 var_stub_disp[] = {
     min::DISP ( & PRIM::var_struct::next ),
+    min::DISP ( & PRIM::var_struct::previous ),
+    min::DISP ( & PRIM::var_struct::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -143,6 +145,8 @@ static min::uns32 func_gen_disp[] = {
 
 static min::uns32 func_stub_disp[] = {
     min::DISP ( & PRIM::func_struct::next ),
+    min::DISP ( & PRIM::func_struct::previous ),
+    min::DISP ( & PRIM::func_struct::last ),
     min::DISP ( & PRIM::func_struct::args ),
     min::DISP ( & PRIM::func_struct::arg_lists ),
     min::DISP ( & PRIM::func_struct::term_table ),
@@ -304,6 +308,8 @@ static min::uns32 func_term_gen_disp[] = {
 
 static min::uns32 func_term_stub_disp[] = {
     min::DISP ( & PRIM::func_term_struct::next ),
+    min::DISP ( & PRIM::func_term_struct::previous ),
+    min::DISP ( & PRIM::func_term_struct::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base

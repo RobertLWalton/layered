@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  3 07:41:11 EST 2024
+// Date:	Mon Dec 23 10:22:20 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,6 +126,8 @@ static min::uns32 oper_gen_disp[] = {
 
 static min::uns32 oper_stub_disp[] = {
     min::DISP ( & OP::oper_struct::next ),
+    min::DISP ( & OP::oper_struct::previous ),
+    min::DISP ( & OP::oper_struct::last ),
     min::DISP ( & OP::oper_struct::reformatter ),
     min::DISP_END };
 

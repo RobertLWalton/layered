@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 16 07:16:37 AM EST 2024
+// Date:	Mon Dec 23 10:21:09 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,6 +110,9 @@ static min::initializer initializer ( ::initialize );
 static min::uns32 opening_bracket_stub_disp[] = {
     min::DISP ( & BRA::opening_bracket_struct::next ),
     min::DISP ( & BRA::opening_bracket_struct
+                     ::previous ),
+    min::DISP ( & BRA::opening_bracket_struct::last ),
+    min::DISP ( & BRA::opening_bracket_struct
                      ::closing_bracket ),
     min::DISP ( & BRA::opening_bracket_struct
                      ::reformatter ),
@@ -133,6 +136,9 @@ const min::uns32 & BRA::OPENING_BRACKET =
 
 static min::uns32 closing_bracket_stub_disp[] = {
     min::DISP ( & BRA::closing_bracket_struct::next ),
+    min::DISP ( & BRA::closing_bracket_struct
+                     ::previous ),
+    min::DISP ( & BRA::closing_bracket_struct::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -203,6 +209,9 @@ static min::uns32 indentation_mark_gen_disp[] = {
 static min::uns32 indentation_mark_stub_disp[] = {
     min::DISP ( & BRA::indentation_mark_struct::next ),
     min::DISP ( & BRA::indentation_mark_struct
+                     ::previous ),
+    min::DISP ( & BRA::indentation_mark_struct::last ),
+    min::DISP ( & BRA::indentation_mark_struct
                      ::line_sep ),
     min::DISP_END };
 
@@ -217,6 +226,8 @@ const min::uns32 & BRA::INDENTATION_MARK =
 
 static min::uns32 line_sep_stub_disp[] = {
     min::DISP ( & BRA::line_sep_struct::next ),
+    min::DISP ( & BRA::line_sep_struct::previous ),
+    min::DISP ( & BRA::line_sep_struct::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -317,6 +328,8 @@ static min::uns32 typed_opening_gen_disp[] = {
 
 static min::uns32 typed_opening_stub_disp[] = {
     min::DISP ( & BRA::typed_opening_struct::next ),
+    min::DISP ( & BRA::typed_opening_struct::previous ),
+    min::DISP ( & BRA::typed_opening_struct::last ),
     min::DISP ( & BRA::typed_opening_struct
                      ::closing_bracket ),
     min::DISP ( & BRA::typed_opening_struct
@@ -349,6 +362,8 @@ const min::uns32 & BRA::TYPED_OPENING =
 
 static min::uns32 typed_middle_stub_disp[] = {
     min::DISP ( & BRA::typed_middle_struct::next ),
+    min::DISP ( & BRA::typed_middle_struct::previous ),
+    min::DISP ( & BRA::typed_middle_struct::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -363,6 +378,10 @@ const min::uns32 & BRA::TYPED_MIDDLE =
 static min::uns32 typed_double_middle_stub_disp[] = {
     min::DISP ( & BRA::typed_double_middle_struct
                      ::next ),
+    min::DISP ( & BRA::typed_double_middle_struct
+                     ::previous ),
+    min::DISP ( & BRA::typed_double_middle_struct
+                     ::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -378,6 +397,10 @@ const min::uns32 & BRA::TYPED_DOUBLE_MIDDLE =
 static min::uns32 typed_attr_begin_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_begin_struct
                      ::next ),
+    min::DISP ( & BRA::typed_attr_begin_struct
+                     ::previous ),
+    min::DISP ( & BRA::typed_attr_begin_struct
+                     ::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -394,6 +417,10 @@ const min::uns32 & BRA::TYPED_ATTR_BEGIN =
 static min::uns32 typed_attr_equal_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_equal_struct
                      ::next ),
+    min::DISP ( & BRA::typed_attr_equal_struct
+                     ::previous ),
+    min::DISP ( & BRA::typed_attr_equal_struct
+                     ::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -411,6 +438,10 @@ static min::uns32
 	typed_attr_sep_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_sep_struct
                      ::next ),
+    min::DISP ( & BRA::typed_attr_sep_struct
+                     ::previous ),
+    min::DISP ( & BRA::typed_attr_sep_struct
+                     ::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -428,6 +459,10 @@ static min::uns32
 	typed_attr_negator_stub_disp[] = {
     min::DISP ( & BRA::typed_attr_negator_struct
                      ::next ),
+    min::DISP ( & BRA::typed_attr_negator_struct
+                     ::previous ),
+    min::DISP ( & BRA::typed_attr_negator_struct
+                     ::last ),
     min::DISP_END };
 
 static min::packed_struct_with_base
@@ -598,6 +633,10 @@ static min::uns32 bracket_type_gen_disp[] = {
 
 static min::uns32 bracket_type_stub_disp[] = {
     min::DISP ( & BRA::bracket_type_struct::next ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::previous ),
+    min::DISP ( & BRA::bracket_type_struct
+                     ::last ),
     min::DISP ( & BRA::bracket_type_struct
                      ::reformatter ),
     min::DISP_END };

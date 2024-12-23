@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 04:40:32 PM EDT 2024
+// Date:	Mon Dec 23 09:01:20 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,6 +56,7 @@ min::uns32 TAB::root_gen_disp[] = {
 static min::uns32 root_stub_disp[] = {
     min::DISP ( & TAB::root_struct::next ),
     min::DISP ( & TAB::root_struct::last ),
+    min::DISP ( & TAB::root_struct::previous ),
     min::DISP_END };
 
 static min::packed_struct<TAB::root_struct>
@@ -240,6 +241,12 @@ void TAB::push
     min::gen key = entry->label;
     TAB::key_prefix kprefix =
         find_key_prefix ( key, key_table, true );
+
+    TAB::key_prefix last = key_table->last;
+    previous_ref(entry) =
+        ( last == min::NULL_STUB ?
+	  (TAB::root) min::NULL_STUB : last->first );
+
     next_ref(entry) = kprefix->first;
     first_ref(kprefix) = entry;
     last_ref(entry) = key_table->last;

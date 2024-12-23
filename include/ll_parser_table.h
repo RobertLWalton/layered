@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_table.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 04:39:01 PM EDT 2024
+// Date:	Mon Dec 23 08:55:30 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -219,6 +219,12 @@ struct root_struct
 	// Used to remove entries in the reverse order
 	// in which they were added (a.k.a., `pushed').
 
+    const ll::parser::table::root previous;
+        // Last entry pushed into key_table before this
+	// entry was pushed.  Used to allow entries to
+	// be searched in reverse order to that in which
+	// they were added (a.k.a., `pushed').
+
     ll::parser::table::flags selectors;
         // Selector bits.
     const min::gen label;
@@ -234,6 +240,8 @@ struct root_struct
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::table::root )
 MIN_REF ( ll::parser::table::key_prefix, last,
+          ll::parser::table::root )
+MIN_REF ( ll::parser::table::root, previous,
           ll::parser::table::root )
 MIN_REF ( min::gen, label,
           ll::parser::table::root )
@@ -497,13 +505,7 @@ inline void pop
 inline ll::parser::table::root previous
 	( ll::parser::table::root root )
 {
-    ll::parser::table::key_prefix key_prefix =
-        root->last;
-    if ( key_prefix == min::NULL_STUB )
-    	return min::NULL_STUB;
-    ll::parser::table::root result = key_prefix->first;
-    MIN_REQUIRE ( result != min::NULL_STUB );
-    return result;
+    return root->previous;
 }
     
 

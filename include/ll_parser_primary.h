@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 18 07:46:09 AM EST 2024
+// Date:	Wed Jan 29 02:32:51 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -272,7 +272,7 @@ ll::parser::primary::func push_op
 	  bool is_infix,
 	  min::uns32 base_flags );
 
-// Ditto but make func an VALUE_OPERATOR and by default
+// Ditto but make func a VALUE_OPERATOR and by default
 // make it infix.
 //
 // For infix operators, if two MEX op_codes are given
@@ -645,7 +645,7 @@ ll::parser::primary::func scan_func_prototype
 // is incremented during the scan.  For variables, the
 // scan fails if the expression scanned is not a
 // variable name followed by [] bracketed expressions.
-// For function calls, the can fails if the the call
+// For function calls, the scan fails if the the call
 // prototype match fails.  In either case i must scan to
 // the end of vp, else the scan fails.
 //
@@ -708,10 +708,10 @@ ll::parser::primary::func scan_func_prototype
 // in the expression is recognized, and the rest of the
 // expression is NOT scanned.  To qualify as an operator
 // call, the first operator in the expression must NOT
-// be quoted and must have the VALUE_OPERATOR flag.
-// Only argument expressions before the first function
-// term (first operator) are returned in the argument_
-// vector.
+// be quoted and must have the VALUE_OPERATOR or
+// LOGICAL_OPERATOR flag.  Only argument expressions
+// before the first function term (first operator) are
+// returned in the argument_vector.
 //
 // Parser reformatters must be used to ensure that
 // operator calls in fact have only operators of the
@@ -720,8 +720,8 @@ ll::parser::primary::func scan_func_prototype
 // reformat operator calls so that they can be processed
 // as ordinary calls: e.g., reformat x + y + z to
 // {| x + y |} + z.  In this case there will will be
-// no operator calls and the VALUE_OPERATOR flag will be
-// unused.
+// no operator calls and the VALUE_OPERATOR and
+// LOGICAL_OPERATOR flags will be unused.
 //
 typedef min::packed_vec_insptr<min::gen>
     argument_vector;

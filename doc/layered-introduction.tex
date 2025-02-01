@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-December 3, 2024
+February 1, 2025
  
 \end{center}
 
@@ -9649,6 +9649,59 @@ and \underline{not} two word elements of the subexpression.
 
 \end{indpar}
 
+
+\section{Primaries}
+
+A primary is a parsed subexpression.  More specifically,
+a parsed subexpression is
+a sequence of lexemes and subexpressions encoded
+in a MIN vector object.  The vector object may or may not have
+an \TT{.initiator} and \TT{.terminator}.  Quoted string lexemes
+within the primary are represented by MIN objects with the
+\TT{"<Q>"} \TT{.type} and a single vector element that is a MIN string
+equal to the string represented by the lexeme.  Operators are
+represented by their label, which is either a simple MIN string,
+or is a MIN label (e.g., the MIN string \TT{+} or the MIN label \TT{[< + = >]}).
+
+The Layered Language package provides a C++ function \TT{scan\_primary}
+to scan primaries in order to find either:
+\begin{center}
+a variable name optionally followed by \TT{[~]} bracketed subexpressions \\
+or \\
+a function call
+\end{center}
+Before calling \TT{scan\_primary}, a compiler must deal with primaries
+whose only vector element is a number lexeme or quoted string lexeme,
+and with primaries whose \TT{.initiator} indicates special handling
+(e.g., `\TT{[}' in some contexts).
+Generally a primary with no \TT{.initiator} or with the `\TT{(}' or
+`\TT{LOGICAL\_LINE}' \TT{.inititator} does \underline{not} require
+special handling.
+
+The interface to the primary component of the layered language system 
+is mostly via the C++ \TT{ll::parser::primary} namespace (abbreviated
+by \TT{PRIM} in this section)
+and this interface is documented in the file
+\TT{ll\_parser\_primary.h}. 
+In this document section we describe the interface between \TT{PRIM}
+and the parser proper, e.g., we describe the syntax of variable
+names and function calls.
+
+\subsection{Primary Pass}
+
+The primary pass exists to provide two tables:
+\begin{center}
+\TT{primary\_table}, a symbol table containing variables and functions \\
+\TT{modifying\_ops}, a hash table listing modifying operations
+(e.g., \TT{[< + = >]})
+\end{center}
+
+The \key{primary table}, a.k.a.~the symbol table, stores
+\TT{PRIM::var} C++ objects representing variables and
+\TT{PRIM::func} C++ objects representing functions.
+
+A \TT{PRIM::var} object is identified by is label, a.k.a.~its
+variable name.
 
 
 \clearpage

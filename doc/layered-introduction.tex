@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 1, 2025
+February 2, 2025
  
 \end{center}
 
@@ -9711,8 +9711,9 @@ lookups are replaced before they become parts of element labels.
 A quoted string \TT{"$S$"} is replaced by $S$.
 A subexpression with \TT{.initiator} $I$ is replaced by the label
 \TT{[< $I$ subexp >]}, except that a subexpression with
-\underline{no} \TT{.initiator} is replaced by \TT{[< ( subexp >]}.
-A record is kept as to whether a quoted string appeard in a
+\underline{no} \TT{.initiator} is replaced by \TT{[< ( subexp >]}
+(as if the \TT{.initiator} were `\TT{(}').
+A record is kept as to whether a quoted string appeared in a
 particular lookup so that if quoted strings are not allowed
 (as in a variable name) the result of the lookup can be rejected
 (after a rejection a lookup can be continued to find the next
@@ -9723,7 +9724,7 @@ For a \TT{PRIM::var} object its variable name is its label.
 For a \TT{PRIM::func} object label is the primary vector
 elements that \underline{must} appear at the beginning of any call to
 the function, with replacements as indicated above.
-If a subexpression (i.e., argument list) is optionals (all its
+If a subexpression (i.e., argument list) is optional (all its
 arguments have default values), it and following lexemes and
 subexpressions that might be in the call are omitted from the label.
 

@@ -9699,9 +9699,37 @@ The primary pass exists to provide two tables:
 The \key{primary table}, a.k.a.~the symbol table, stores
 \TT{PRIM::var} C++ objects representing variables and
 \TT{PRIM::func} C++ objects representing functions.
+This symbol table has the same organization as other parser
+lookup tables, with each element having a label.  Element
+lookup involves matching a sequence of primary vector elements
+to an element label.  This differs from other parser table
+lookups in that primary vector elements are used instead
+of tokens.
 
-A \TT{PRIM::var} object is identified by is label, a.k.a.~its
-variable name.
+Some primary vector elements being scanned for symbol table
+lookups are replaced before they become parts of element labels.
+A quoted string \TT{"$S$"} is replaced by $S$.
+A subexpression with \TT{.initiator} $I$ is replaced by the label
+\TT{[< $I$ subexp >]}, except that a subexpression with
+\underline{no} \TT{.initiator} is replaced by \TT{[< ( subexp >]}.
+A record is kept as to whether a quoted string appeard in a
+particular lookup so that if quoted strings are not allowed
+(as in a variable name) the result of the lookup can be rejected
+(after a rejection a lookup can be continued to find the next
+possible result).
+
+For a \TT{PRIM::var} object its variable name is its label.
+
+For a \TT{PRIM::func} object label is the primary vector
+elements that \underline{must} appear at the beginning of any call to
+the function, with replacements as indicated above.
+If a subexpression (i.e., argument list) is optionals (all its
+arguments have default values), it and following lexemes and
+subexpressions that might be in the call are omitted from the label.
+
+Thus if \TT{\{| \{|x|\} "+" \{|5|\} |\}} is a primary that calls
+a function, the label of the function called would be: \\
+\centerline{\TT{[< [< ( subexp >] + [< ( subexp >] >]}}
 
 
 \clearpage

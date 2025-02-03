@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 2, 2025
+February 3, 2025
  
 \end{center}
 
@@ -9731,6 +9731,92 @@ subexpressions that might be in the call are omitted from the label.
 Thus if \TT{\{| \{|x|\} "+" \{|5|\} |\}} is a primary that calls
 a function, the label of the function called would be: \\
 \centerline{\TT{[< [< ( subexp >] + [< ( subexp >] >]}}
+
+Both \TT{PRIM::var} and \TT{PRIM::func} C++ object have the following
+members that can be used freely by the compiler to define the
+meaning of variables and functions:
+\begin{center}
+\begin{tabular}{ll}
+\TT{min::uns32} & \TT{flags} \\
+\TT{min::uns32} & \TT{location} \\
+\TT{min::gen}   & \TT{module} \\
+\end{tabular}
+\end{center}
+\TT{PRIM} defines some flags that are useful to some compilers,
+but these can be ignored by other compilers.
+
+\subsection{Primary Syntax}
+
+The syntax of the primaries recognized by \TT{PRIM} is:
+\begin{indpar}
+\emkey{primary} ::= \begin{tabular}[t]{l}
+		    {\em variable-primary} \\
+		    {\em function-call} \\
+		    \end{tabular}
+\\[0.5ex]
+\emkey{variable-primary} ::= {\em variable-name}
+			     {\em []-subexpression}\STAR{}
+\\[0.5ex]
+\emkey{function-call} \begin{tabular}[t]{rl}
+		      ::= & {\em argument-list}\STAR{}
+			    {\em function-term}\PLUS{} \\
+		      $|$ & {\em argument-list} {\em argument-list}\PLUS{}
+		      \end{tabular}
+\\[0.5ex]
+\emkey{function-term} ::= {\em function-term-name} {\em argument-list}\STAR{}
+\\[0.5ex]
+\emkey{variable-name} ::= {\em name-lexeme}\PLUS{}
+\\[0.5ex]
+\emkey{function-term-name} ::= {\em name-lexeme}\PLUS{}
+\\[0.5ex]
+\emkey{name-lexeme} \begin{tabular}[t]{rl}
+		    ::= & {\em number} $|$
+			  {\em natural} $|$
+			  {\em numeric-word} \\
+		    $|$ & {\em word} $|$
+			  {\em numeric} $|$
+			  {\em mark} $|$
+			  {\em separator} \\
+		    $|$ & {\em quoted-word} $|$
+			  {\em quoted-numeric} $|$
+			  {\em quoted-mark} $|$
+			  {\em quoted-separator}
+		    \end{tabular}
+\\[0.5ex]
+\emkey{argument-list} ::= {\em subexpression}
+\\[0.5ex]
+\emkey{subexpression} ::= \begin{tabular}[t]{l}
+                          a MIN object whose only allowed attributes are: \\
+			  ~~~ \TT{.initiator} ~~~ \TT{.terminator} ~~~
+			      \TT{.separator}
+			  \end{tabular}
+\\[0.5ex]
+\emkey{[]-subexpression} ::= \begin{tabular}[t]{l}
+                          a {\em subexpression} whose
+			  \TT{.initiator} and \TT{.terminator} \\
+			  are `\TT{[}' and `\TT{]}' respectively
+			  \end{tabular}
+
+\begin{enumerate}
+\item See Figure \itemref{LEXEME-PROGRAM-LEXEMES} for definitions of the
+different lexeme types (e.g., number, natural, word, etc.).
+\item
+A compiler may constrain the types of lexemes in a {\em variable-name}.
+The default is to allow only {\em words} and {\em naturals},
+and to require the first lexeme to \underline{not} be a {\em natural}.
+\item
+A compiler may constrain the types of lexemes in a {\em function-term-name}.
+The default is to allow only {\em words}, {\em naturals}, {\em marks},
+{\em separators}, {\em quoted-words}, {\em quoted-marks},
+and {\em quoted-separators},
+and to require the first lexeme to \underline{not} be a {\em natural}.
+
+
+\end{enumerate}
+
+\end{indpar}
+
+
 
 
 \clearpage

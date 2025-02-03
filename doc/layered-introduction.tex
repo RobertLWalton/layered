@@ -9747,7 +9747,7 @@ but these can be ignored by other compilers.
 
 \subsection{Primary Syntax}
 
-The syntax of the primaries recognized by \TT{PRIM} is:
+The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \begin{indpar}
 \emkey{primary} ::= \begin{tabular}[t]{l}
 		    {\em variable-primary} \\
@@ -9798,6 +9798,11 @@ The syntax of the primaries recognized by \TT{PRIM} is:
 			  \end{tabular}
 
 \begin{enumerate}
+\item The primary proper is a subexpression, i.e., an object,
+and the syntax given above is the syntax of the vector elements
+of that object.  For example, if `{\tt X 1}' is a {\em variable-name},
+the primary proper containing just this will be `{\tt \{| X 1 |\}}',
+or `{\tt ( X 1 )}', or `{\tt [X 1]}', or some similar subexpression.
 \item See Figure \itemref{LEXEME-PROGRAM-LEXEMES} for definitions of the
 different lexeme types (e.g., number, natural, word, etc.).
 \item
@@ -9810,6 +9815,13 @@ The default is to allow only {\em words}, {\em naturals}, {\em marks},
 {\em separators}, {\em quoted-words}, {\em quoted-marks},
 and {\em quoted-separators},
 and to require the first lexeme to \underline{not} be a {\em natural}.
+\item
+An operator in a primary is a MIN string if the operator has only one
+lexeme and a MIN label if the operator has more than one lexeme.
+\item
+Operator operands in a primary are {\em subexpressions} (i.e., objects).
+Since separators are operators, the vector elements of a {\em subexpression}
+with a \TT{.separator} are themselves {\em subexpressions}.
 
 
 \end{enumerate}

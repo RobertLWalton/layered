@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 3, 2025
+February 4, 2025
  
 \end{center}
 
@@ -9759,17 +9759,18 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \\[0.5ex]
 \emkey{function-call} \begin{tabular}[t]{rl}
 		      ::= & {\em argument-list}\STAR{}
-			    {\em function-term}\PLUS{} \\
+			    {\em call-term}\PLUS{} \\
 		      $|$ & {\em argument-list} {\em argument-list}\PLUS{}
 		      \end{tabular}
 \\[0.5ex]
-\emkey{function-term} ::= {\em function-term-name} {\em argument-list}\STAR{}
+\emkey{call-term} ::= {\em call-term-name} {\em argument-list}\STAR{}
 \\[0.5ex]
 \emkey{variable-name} ::= {\em name-lexeme}\PLUS{}
 \\[0.5ex]
-\emkey{function-term-name} ::= {\em name-lexeme}\PLUS{}
+\emkey{call-term-name} ::= {\em name-lexeme}\PLUS{}
 \\[0.5ex]
-\emkey{name-lexeme} \begin{tabular}[t]{rl}
+\emkey{name-lexeme}\label{NAME-LEXEME}
+                    \begin{tabular}[t]{rl}
 		    ::= & {\em number} $|$
 			  {\em natural} $|$
 			  {\em numeric-word} \\
@@ -9785,7 +9786,8 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \\[0.5ex]
 \emkey{argument-list} ::= {\em subexpression}
 \\[0.5ex]
-\emkey{subexpression} ::= \begin{tabular}[t]{l}
+\emkey{subexpression}\label{SUBEXPRESSION}
+                      ::= \begin{tabular}[t]{l}
                           a MIN object whose only allowed attributes are: \\
 			  ~~~ \TT{.initiator} ~~~ \TT{.terminator} ~~~
 			      \TT{.separator}
@@ -9810,7 +9812,7 @@ A compiler may constrain the types of lexemes in a {\em variable-name}.
 The default is to allow only {\em words} and {\em naturals},
 and to require the first lexeme to \underline{not} be a {\em natural}.
 \item
-A compiler may constrain the types of lexemes in a {\em function-term-name}.
+A compiler may constrain the types of lexemes in a {\em call-term-name}.
 The default is to allow only {\em words}, {\em naturals}, {\em marks},
 {\em separators}, {\em quoted-words}, {\em quoted-marks},
 and {\em quoted-separators},
@@ -9828,6 +9830,44 @@ with a \TT{.separator} are themselves {\em subexpressions}.
 
 \end{indpar}
 
+\TT{PRIM} provides the function \TT{PRIM::scan\_var} to scan
+a {\em variable-name} embedded in a primary subexpression.
+{\em call-term-names} are scanned by \TT{PRIM::scan\_primary},
+and the function \TT{PRIM::create\_var} to create a \TT{PRIM::var}
+given a {\em variable-name}.
+
+
+\subsection{Function Prototypes}
+
+A \TT{PRIM:func} encodes a \key{function prototype}.  The function
+defined by a \TT{PRIM::func} is called when its function prototype
+matches a primary that is a {\em function-call}.
+
+\TT{PRIM} provides the function \TT{PRIM::scan\_func\_prototype}
+that scans a subexpression containing a function prototype and
+from that creates a \TT{PRIM::func}.  The syntax of a function prototype
+is similar to that of a {\em function-call} with extra detail
+for argument lists:
+\begin{indpar}
+\emkey{function-prototype} \begin{tabular}[t]{rl}
+		      ::= & {\em prototype-arguments}\STAR{}
+			    {\em prototype-term}\PLUS{} \\
+		      $|$ & {\em prototype-arguments}
+		            {\em prototype-arguments}\PLUS{}
+		      \end{tabular}
+\\[0.5ex]
+\emkey{prototype-term} ::= {\em prototype-term-name}
+                           {\em prototype-argument-list}\STAR{}
+\\[0.5ex]
+\emkey{prototype-term-name} ::= {\em name-lexeme}\PLUS{}
+\\[0.5ex]
+\emkey{name-lexeme} ::= see \pagref{NAME-LEXEME}
+\\[0.5ex]
+\emkey{prototype-arguments} ::= {\em subexpression}  TBD
+\\[0.5ex]
+\emkey{subexpression} ::= see \pagref{SUBEXPRESSION}
+
+\end{indpar}
 
 
 

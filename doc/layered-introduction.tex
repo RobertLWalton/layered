@@ -9847,25 +9847,51 @@ matches a primary that is a {\em function-call}.
 that scans a subexpression containing a function prototype and
 from that creates a \TT{PRIM::func}.  The syntax of a function prototype
 is similar to that of a {\em function-call} with extra detail
-for argument lists:
+for argument lists.
+
+However, we give here the syntax of a {\em function-prototype}
+as it is \underline{before} parsing:
+
 \begin{indpar}
 \emkey{function-prototype} \begin{tabular}[t]{rl}
-		      ::= & {\em prototype-arguments}\STAR{}
+		      ::= & {\em prototype-argument-list}\STAR{}
 			    {\em prototype-term}\PLUS{} \\
-		      $|$ & {\em prototype-arguments}
-		            {\em prototype-arguments}\PLUS{}
+		      $|$ & {\em prototype-argument-list}
+		            {\em prototype-argument-list}\PLUS{}
 		      \end{tabular}
 \\[0.5ex]
 \emkey{prototype-term} ::= {\em prototype-term-name}
                            {\em prototype-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{prototype-term-name} ::= {\em name-lexeme}\PLUS{}
+\emkey{prototype-term-name} ::= \begin{tabular}[t]{@{}l}
+                                {\em name-lexeme}\PLUS{} excluding
+				(un-quoted) {\em marks} and {\em separators} \\
+				and not beginning with a {\em natural}
+				\end{tabular}
 \\[0.5ex]
 \emkey{name-lexeme} ::= see \pagref{NAME-LEXEME}
 \\[0.5ex]
-\emkey{prototype-arguments} ::= {\em subexpression}  TBD
+\emkey{prototype-argument-list} ::= \begin{tabular}[t]{@{}l}
+				like {\em ()-prototype-argument-list} but with
+				arbitrary \\
+				(non-missing)
+				\TT{.initiator} and \TT{.terminator}
+				\end{tabular}
 \\[0.5ex]
-\emkey{subexpression} ::= see \pagref{SUBEXPRESSION}
+\emkey{()-prototype-argument-list} ::=
+    \TT{(} {\em argument-descriptor}
+           \{ \TT{,} {\em argument-descriptor} \}\STAR{} \TT{)}
+\\[0.5ex]
+\emkey{argument-descriptor} ::= \begin{tabular}[t]{@{}l}
+				{\em variable-name}
+				\{ \TT{?=} {\em default-value} \}\QMARK{} \\
+				\TT{*bool*} {\em variable-name} \\
+				\TT{*list*} {\em variable-name} \\
+				\end{tabular}
+\\[0.5ex]
+\emkey{default-value} ::= {\em expression}
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
 
 \end{indpar}
 

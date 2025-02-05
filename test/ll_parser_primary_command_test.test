@@ -48,11 +48,17 @@
     print primary function ``''
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
-        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 1D000001
+        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)is true'' with flags  7390004
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is truth value''
                          with flags  7410004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
@@ -66,7 +72,6 @@
         block TOP LEVEL: function ``(X)"^"(Y)'' with flags 11000002
         block TOP LEVEL: function ``(X)is string'' with flags  7420004
         block TOP LEVEL: function ``(X)is infinite'' with flags  73E0004
-        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is undefined number''
                          with flags  73F0004
         block TOP LEVEL: function ``(X)is finite'' with flags  73D0004
@@ -76,11 +81,6 @@
         block TOP LEVEL: function ``(X)IF(Y)'' with flags  6000004
         block TOP LEVEL: function ``(X)is object'' with flags  7430004
         block TOP LEVEL: function ``(X)is number'' with flags  7400004
-        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
-        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
-        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is true'' with flags  7390004
     test primary:  (A) + (B)
     -- found function:  (A) "+" (B) ===> *MISSING* 0
     test primary:  {|A|} + (B)
@@ -114,12 +114,18 @@ REJECTING: (A1)"+"(A2)
     print primary function ``''
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
-        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 1D000001
-        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block BLOCK1: function ``F[X]'' [code]
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)is true'' with flags  7390004
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is truth value''
                          with flags  7410004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
@@ -132,7 +138,6 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``(X)"^"(Y)'' with flags 11000002
         block TOP LEVEL: function ``(X)is string'' with flags  7420004
         block TOP LEVEL: function ``(X)is infinite'' with flags  73E0004
-        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is undefined number''
                          with flags  73F0004
         block TOP LEVEL: function ``(X)is finite'' with flags  73D0004
@@ -142,16 +147,11 @@ REJECTING: (A1)"+"(A2)
         block TOP LEVEL: function ``(X)IF(Y)'' with flags  6000004
         block TOP LEVEL: function ``(X)is object'' with flags  7430004
         block TOP LEVEL: function ``(X)is number'' with flags  7400004
-        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
-        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
-        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is true'' with flags  7390004
     test primary:  F [A]
     -- found function:  F [A] ===> *MISSING* 0
     test primary:  F
 REJECTING: F[X]
-           [...] bracketed argument list expected but end of reference
+           "[" "]" bracketed argument list expected but end of reference
            expression found
     -- no definition found
     end block BLOCK1
@@ -161,12 +161,18 @@ REJECTING: F[X]
     print primary function ``''
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
-        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 1D000001
-        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block BLOCK1: function ``F(X)(Y ?= {|Z|})'' [code]
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)is true'' with flags  7390004
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is truth value''
                          with flags  7410004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
@@ -179,7 +185,6 @@ REJECTING: F[X]
         block TOP LEVEL: function ``(X)"^"(Y)'' with flags 11000002
         block TOP LEVEL: function ``(X)is string'' with flags  7420004
         block TOP LEVEL: function ``(X)is infinite'' with flags  73E0004
-        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is undefined number''
                          with flags  73F0004
         block TOP LEVEL: function ``(X)is finite'' with flags  73D0004
@@ -189,11 +194,6 @@ REJECTING: F[X]
         block TOP LEVEL: function ``(X)IF(Y)'' with flags  6000004
         block TOP LEVEL: function ``(X)is object'' with flags  7430004
         block TOP LEVEL: function ``(X)is number'' with flags  7400004
-        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
-        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
-        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is true'' with flags  7390004
     test primary:  F (A) (B)
     -- found function:  F (A) (B) ===> *MISSING* 0
     test primary:  F (A)
@@ -209,12 +209,18 @@ REJECTING: F(X)(Y)
     print primary function ``''
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
-        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 1D000001
-        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
         block BLOCK1: function ``F(X)G(Y ?= {|Q|})H(Z)'' [code]
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)is true'' with flags  7390004
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
+        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is truth value''
                          with flags  7410004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
@@ -227,7 +233,6 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``(X)"^"(Y)'' with flags 11000002
         block TOP LEVEL: function ``(X)is string'' with flags  7420004
         block TOP LEVEL: function ``(X)is infinite'' with flags  73E0004
-        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is undefined number''
                          with flags  73F0004
         block TOP LEVEL: function ``(X)is finite'' with flags  73D0004
@@ -237,11 +242,6 @@ REJECTING: F(X)(Y)
         block TOP LEVEL: function ``(X)IF(Y)'' with flags  6000004
         block TOP LEVEL: function ``(X)is object'' with flags  7430004
         block TOP LEVEL: function ``(X)is number'' with flags  7400004
-        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
-        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
-        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is true'' with flags  7390004
     test primary:  F (A) G (B) H (C)
     -- found function:  F (A) G (B) H (C) ===> *MISSING* 0
     test primary:  F (A) H (B) G (C)
@@ -276,11 +276,17 @@ REJECTING: F(X)G(Y)H(Z)
     print primary function ``''
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
-        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
         block TOP LEVEL: function ``"-"(A0)'' with flags 1D000001
+        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
+        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
+        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)is true'' with flags  7390004
+        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
+        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
         block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
+        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is truth value''
                          with flags  7410004
         block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
@@ -294,7 +300,6 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)"^"(Y)'' with flags 11000002
         block TOP LEVEL: function ``(X)is string'' with flags  7420004
         block TOP LEVEL: function ``(X)is infinite'' with flags  73E0004
-        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
         block TOP LEVEL: function ``(X)is undefined number''
                          with flags  73F0004
         block TOP LEVEL: function ``(X)is finite'' with flags  73D0004
@@ -304,11 +309,6 @@ REJECTING: F(X)G(Y)H(Z)
         block TOP LEVEL: function ``(X)IF(Y)'' with flags  6000004
         block TOP LEVEL: function ``(X)is object'' with flags  7430004
         block TOP LEVEL: function ``(X)is number'' with flags  7400004
-        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
-        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
-        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is true'' with flags  7390004
     test primary:  ({|A1|}, {|A2|}) F ({|B1|}, {|B2|})
     -- found function:  {|A1|} {|A2|} F {|B1|} {|B2|} ===> *MISSING* 0
     test primary:  ({|A1|}, {|A2|}) F (B)

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 10:32:24 AM EST 2024
+// Date:	Wed Feb  5 02:53:40 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,9 +63,10 @@ static void initialize ( void )
     PRIMLEX::depth = min::new_str_gen ( "depth" );
     PRIMLEX::location = min::new_str_gen ( "location" );
     PRIMLEX::module = min::new_str_gen ( "module" );
-    PRIMLEX::parentheses = min::new_str_gen ( ";;P" );
+    PRIMLEX::parentheses =
+        min::new_lab_gen ( "(", ")" );
     PRIMLEX::square_brackets =
-        min::new_str_gen ( ";;S" );
+        min::new_lab_gen ( "[", "]" );
     ::opening_double_quote = min::new_str_gen ( "``" );
     ::test = min::new_str_gen ( "test" );
 
@@ -171,6 +172,7 @@ const min::uns32 & PRIM::ARGS = ::args_type.subtype;
 
 static min::uns32 arg_list_gen_disp[] = {
     min::DISP ( & PRIM::arg_list_struct::term_name ),
+    min::DISP ( & PRIM::arg_list_struct::brackets ),
     min::DISP_END };
 
 static min::packed_vec <PRIM::arg_list_struct>
@@ -247,7 +249,8 @@ PRIM::func PRIM::push_op
     //
     PRIM::push_arg ( X, min::NONE(), func );
     PRIM::push_arg_list
-	( min::NONE(), 1, 0, false, func );
+	( min::NONE(), 1, 0, PRIMLEX::parentheses,
+	  func );
     func->number_initial_arg_lists = 1;
 
     if ( is_infix )
@@ -255,7 +258,8 @@ PRIM::func PRIM::push_op
 	// Argument after operator
 	PRIM::push_arg ( Y, min::NONE(), func );
 	PRIM::push_arg_list
-	    ( op_name, 1, 1, false, func );
+	    ( op_name, 1, 1, PRIMLEX::parentheses,
+	      func );
 	func->number_following_arg_lists = 1;
     }
 
@@ -295,7 +299,7 @@ PRIM::func PRIM::push_builtin_func
     }
     PRIM::push_arg_list
 	( func_name, number_of_arguments, 0,
-	  false, func );
+	  PRIMLEX::parentheses, func );
     func->number_following_arg_lists = 1;
 
     TAB::push ( symbol_table, (TAB::root) func );
@@ -495,8 +499,9 @@ static void print_func
 
 	min::uns32 k = arg_list.first;
 	min::uns32 kend = k + arg_list.number_of_args;
+	min::lab_ptr brackets = arg_list.brackets;
 	parser->printer
-	    << ( arg_list.is_square ?  "[" : "(" );
+	    << min::pgen_never_quote ( brackets[0] );
 	for ( ; k < kend; ++ k )
 	{
 	    PRIM::arg_struct arg = func->args[k];
@@ -511,8 +516,8 @@ static void print_func
 	    if ( k + 1 < kend )
 		parser->printer << ", ";
 	}
-	parser->printer <<
-	    ( arg_list.is_square ?  "]" : ")" );
+	parser->printer
+	    << min::pgen_never_quote ( brackets[1] );
     }
     if ( len == func->number_initial_arg_lists )
     {
@@ -771,25 +776,20 @@ PRIM::func PRIM::scan_func_prototype
         while ( i < s && min::is_obj ( vp[i] ) )
 	{
 	    min::uns32 first = func->args->length;
-	    bool is_square;
+	    min::locatable_gen brackets;
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
 	    if ( initiator == min::NONE() )
 	        break;  // May be quoted string.
 	    if ( initiator == PARLEX::left_parenthesis )
-	        is_square = false;
+	        brackets = PRIMLEX::parentheses;
 	    else
 	    if ( initiator == PARLEX::left_square )
-	        is_square = true;
+	        brackets = PRIMLEX::square_brackets;
 	    else
 	        break;  // May be : paragraph.
 	    if ( st == BEFORE_FIRST_TERM )
-	    {
-		labbuf[j++] =
-		    ( is_square ?
-		      PRIMLEX::square_brackets :
-		      PRIMLEX::parentheses );
-	    }
+		labbuf[j++] = brackets;
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );
 	    if ( sep == min::NONE() )
@@ -866,7 +866,7 @@ PRIM::func PRIM::scan_func_prototype
 	        is_bool = false;
 	    PRIM::push_arg_list
 	        ( term_name, number_of_args, first,
-		  is_square, func );
+		  brackets, func );
 	    term_name = min::NONE();
 	    ++ i;
 	}
@@ -1196,12 +1196,16 @@ CHECK_TYPE:
                 ( (func->args + k)->name )
 	    if ( i >= iend )
 	    {
-	        if ( arg_list.is_square )
+	        if (    arg_list.brackets
+		     != PRIMLEX::parentheses )
 		{
 		    if ( print_rejections )
 			::print_reject
 			    ( parser, func,
-			      "[...] bracketed argument"
+			      "",
+			      min::pgen_name
+				 ( arg_list.brackets ),
+			      " bracketed argument"
 			      " list expected but end"
 			      " of reference expression"
 			      " found" );
@@ -1212,7 +1216,7 @@ CHECK_TYPE:
 		    if ( print_rejections )
 			::print_reject
 			    ( parser, func,
-			      "(...) bracketed argument"
+			      "( ) bracketed argument"
 			      " list expected but end"
 			      " of reference expression"
 			      " found" );
@@ -1226,12 +1230,16 @@ CHECK_TYPE:
 	    if (    initiator 
 		 == PARLEX::left_parenthesis )
 	    {
-	        if ( arg_list.is_square )
+	        if (    arg_list.brackets
+		     != PRIMLEX::parentheses )
 		{
 		    if ( print_rejections )
 			::print_reject
 			    ( parser, func,
-			      "[...] bracketed argument"
+			      "",
+			      min::pgen_name
+				 ( arg_list.brackets ),
+			      " bracketed argument"
 			      " list expected but (...)"
 			      " bracketed argument"
 			      " list ",
@@ -1243,7 +1251,8 @@ CHECK_TYPE:
 	    else if (    initiator 
 		      == PARLEX::left_square )
 	    {
-	        if ( ! arg_list.is_square )
+	        if (    arg_list.brackets
+		     == PRIMLEX::parentheses )
 		{
 		    if ( first )
 		    {
@@ -1252,8 +1261,8 @@ CHECK_TYPE:
 				( parser, func,
 				  "(...) argument list"
 				  " expected before"
-				  " first term but"
-				  " [...] bracketed"
+				  " first term but "
+				  " non-()-bracketed "
 				  " argument list ",
 				  min::pgen ( vp[i] ),
 				  " found" );
@@ -1264,12 +1273,16 @@ CHECK_TYPE:
 	    }
 	    else if ( PAR::is_purelist ( vp[i] ) )
 	    {
-	        if ( arg_list.is_square )
+	        if (    arg_list.brackets
+		     != PRIMLEX::parentheses )
 		{
 		    if ( print_rejections )
 			::print_reject
 			    ( parser, func,
-			      "[...] bracketed argument"
+			      "",
+			      min::pgen_name
+				 ( arg_list.brackets ),
+			      " bracketed argument"
 			      " list expected but"
 			      " implicitly bracketed"
 			      " argument list ",
@@ -1280,12 +1293,16 @@ CHECK_TYPE:
 	    }
 	    else
 	    {
-	        if ( arg_list.is_square )
+	        if (    arg_list.brackets
+		     != PRIMLEX::parentheses )
 		{
 		    if ( print_rejections )
 			::print_reject
 			    ( parser, func,
-			      "[...] bracketed argument"
+			      "",
+			      min::pgen_name
+				 ( arg_list.brackets ),
+			      " bracketed argument"
 			      " list expected but"
 			      " non-argument list ",
 			      min::pgen ( vp[i] ),

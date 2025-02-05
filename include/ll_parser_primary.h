@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 29 02:32:51 AM EST 2025
+// Date:	Wed Feb  5 02:53:49 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,8 +38,8 @@ namespace lexeme {
 	depth,			// depth
 	location,		// location
 	module,			// module
-	parentheses,		// ;;P
-	square_brackets;	// ;;S
+	parentheses,		// [< ( ) >]
+	square_brackets;	// [< [ ] >]
 }
 
 
@@ -146,7 +146,8 @@ extern const uns32 & FUNC;
 // of argument list descriptions.
 
 struct arg_struct
-    // Argument descriptor.
+    // Argument descriptor.  This appears only as an
+    // element of a args vector.
 {
     min::gen name;
         // Name of argument variable, or MISSING if
@@ -155,7 +156,8 @@ struct arg_struct
         // Default value of argument, or NONE if none.
 };
 struct arg_list_struct
-    // Argument list descriptor.
+    // Argument list descriptor.  This appears only as
+    // an element of an arg_lists vector.
 {
     min::gen term_name;
         // Term name to be printed just before argument
@@ -166,8 +168,9 @@ struct arg_list_struct
     min::uns32 first;
         // Index of first argument in the argument
 	// vector.
-    bool is_square;
-        // True if [] list, false if () list.
+    min::gen brackets;
+        // [< ( ) >] for () or {| |} argument lists,
+        // [< [ ] >] for [] argument lists, etc.
 };
 
 enum func_flags {
@@ -371,14 +374,16 @@ inline void push_arg_list
     ( min::gen term_name,
       min::uns32 number_of_args,
       min::uns32 first,
-      bool is_square,
+      min::gen brackets,
       ll::parser::primary::func func )
 {
     ll::parser::primary::arg_list_struct arg_list =
-        { term_name, number_of_args, first, is_square };
+        { term_name, number_of_args, first, brackets };
     min::push(func->arg_lists) = arg_list;
     min::unprotected::acc_write_update
         ( func->arg_lists, term_name );
+    min::unprotected::acc_write_update
+        ( func->arg_lists, brackets );
 }
 
 // Prototype Function Term Definition.

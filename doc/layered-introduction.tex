@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 4, 2025
+February 6, 2025
  
 \end{center}
 
@@ -9706,13 +9706,23 @@ to an element label.  This differs from other parser table
 lookups in that primary vector elements are used instead
 of tokens.
 
+The symbol table also has a stack structure, allowing entries
+to be removed in reverse of the order in which they were added.
+
 Some primary vector elements being scanned for symbol table
 lookups are replaced before they become parts of element labels.
 A quoted string \TT{"$S$"} is replaced by $S$.
-A subexpression with \TT{.initiator} $I$ is replaced by the label
-\TT{[< $I$ subexp >]}, except that a subexpression with
-\underline{no} \TT{.initiator} is replaced by \TT{[< ( subexp >]}
+A subexpression with \TT{.initiator} $I$ and \TT{.terminator}
+$T$ is replaced by the label \TT{[< $I$ $T$ >]},
+except that a subexpression with
+\underline{no} \TT{.initiator} is replaced by \TT{[< "(" ")" >]}
 (as if the \TT{.initiator} were `\TT{(}').
+Optimizing assumptions are made by the actual \TT{PRIM} code that 
+a subexpression with no \TT{.initiator} has no \TT{.terminator},
+that a subexpression with \TT{"("} \TT{.initiator} has \TT{")"}
+\TT{.terminator}, and that a subexpression with \TT{"["}
+\TT{.initiator} has \TT{"]"} \TT{.terminator}.
+
 A record is kept as to whether a quoted string appeared in a
 particular lookup so that if quoted strings are not allowed
 (as in a variable name) the result of the lookup can be rejected
@@ -9721,12 +9731,14 @@ possible result).
 
 For a \TT{PRIM::var} object its variable name is its label.
 
-For a \TT{PRIM::func} object label is the primary vector
+For a \TT{PRIM::func} object its label is the primary vector
 elements that \underline{must} appear at the beginning of any call to
 the function, with replacements as indicated above.
 If a subexpression (i.e., argument list) is optional (all its
 arguments have default values), it and following lexemes and
 subexpressions that might be in the call are omitted from the label.
+However, a \TT{PRIM::func} label must not consist of just a single
+subexpression replacement.
 
 Thus if \TT{\{| \{|x|\} "+" \{|5|\} |\}} is a primary that calls
 a function, the label of the function called would be: \\
@@ -9744,6 +9756,10 @@ meaning of variables and functions:
 \end{center}
 \TT{PRIM} defines some flags that are useful to some compilers,
 but these can be ignored by other compilers.
+
+Both \TT{PRIM::var} and \TT{PRIM::func} C++ object also have a
+\TT{block\_level} member (common to all parser lookup tables)
+which encodes a \key{lexical level} and a \key{depth}.
 
 \subsection{Primary Syntax}
 
@@ -9808,6 +9824,12 @@ or `{\tt ( X 1 )}', or `{\tt [X 1]}', or some similar subexpression.
 \item See Figure \itemref{LEXEME-PROGRAM-LEXEMES} for definitions of the
 different lexeme types (e.g., number, natural, word, etc.).
 \item
+An unquoted {\em name-lexeme} is represented by a MIN string primary
+vector element.  A quoted {\em name-lexeme} is represented by a MIN object
+whose only attribute is a \TT{.type} attribute equal to \TT{"<Q>"} and
+whose only vector element is the string quoted (e.g., {\em word},
+{\em numeric}, {\em mark}, or {\em separator}).
+\item
 A compiler may constrain the types of lexemes in a {\em variable-name}.
 The default is to allow only {\em words} and {\em naturals},
 and to require the first lexeme to \underline{not} be a {\em natural}.
@@ -9831,11 +9853,11 @@ with a \TT{.separator} are themselves {\em subexpressions}.
 \end{indpar}
 
 \TT{PRIM} provides the function \TT{PRIM::scan\_var} to scan
-a {\em variable-name} embedded in a primary subexpression.
-{\em call-term-names} are scanned by \TT{PRIM::scan\_primary},
+a {\em variable-name} embedded in a primary subexpression,
 and the function \TT{PRIM::create\_var} to create a \TT{PRIM::var}
 given a {\em variable-name}.
 
+{\em Call-term-names} are scanned by \TT{PRIM::scan\_primary}.
 
 \subsection{Function Prototypes}
 
@@ -9892,6 +9914,24 @@ as it is \underline{before} parsing:
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
+
+\begin{enumerate}
+\item \TT{?=} must be an operator with a precedence just one notch higher
+than the \TT{,} operator.
+\item It is assumed that words beginning and ending with \TT{*} are
+reserved to the compiler and run-time system.
+\item If a prototype begins with a {\em prototype-argument-list},
+that list must begin with an {\em argu\-ment-declaration} that
+has no {\em default-value}, and the next thing in the prototype must
+be either another {\em prototype-argument-list} beginning with an
+{\em argument-declaration} that has no {\em default-value}, or
+a {\em prototype-term-name}.
+\item
+It is assumed that {\em default-values} will be evaluated in the
+context of the {\em function-call} that uses them, and \underline{not}
+in the context of the {\em function-prototype} that defines them
+(unlike C++).
+\end{enumerate}
 
 \end{indpar}
 

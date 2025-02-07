@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  5 02:53:49 AM EST 2025
+// Date:	Fri Feb  7 01:07:16 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,6 +168,8 @@ struct arg_list_struct
     min::uns32 first;
         // Index of first argument in the argument
 	// vector.
+    min::uns32 number_required_args;
+	// Number of arguments with no default.
     min::gen brackets;
         // [< ( ) >] for () or {| |} argument lists,
         // [< [ ] >] for [] argument lists, etc.
@@ -374,11 +376,13 @@ inline void push_arg_list
     ( min::gen term_name,
       min::uns32 number_of_args,
       min::uns32 first,
+      min::uns32 number_required_args,
       min::gen brackets,
       ll::parser::primary::func func )
 {
     ll::parser::primary::arg_list_struct arg_list =
-        { term_name, number_of_args, first, brackets };
+        { term_name, number_of_args, first,
+	  number_required_args, brackets };
     min::push(func->arg_lists) = arg_list;
     min::unprotected::acc_write_update
         ( func->arg_lists, term_name );
@@ -544,6 +548,23 @@ inline min::gen scan_var_name
 		       var_following_types,
 		       var_outside_quotes_types,
 		       var_inside_quotes_types );
+}
+
+// Types specific to a call term name, and an inline
+// function to call scan_name with these types.
+//
+extern min::uns64 call_term_initial_types;
+extern min::uns64 call_term_following_types;
+extern min::uns64 call_term_outside_quotes_types;
+extern min::uns64 call_term_inside_quotes_types;
+inline min::gen scan_call_term_name
+    ( min::obj_vec_ptr & vp, min::uns32 & i )
+{
+    return scan_name ( vp, i,
+                       call_term_initial_types,
+		       call_term_following_types,
+		       call_term_outside_quotes_types,
+		       call_term_inside_quotes_types );
 }
 
 // Types specific to a function term name, and an inline

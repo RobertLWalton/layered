@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 12:52:06 AM EST 2025
+// Date:	Fri Feb  7 05:38:32 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -250,7 +250,7 @@ PRIM::func PRIM::push_op
     //
     PRIM::push_arg ( X, min::NONE(), func );
     PRIM::push_arg_list
-	( min::NONE(), 1, 0, PRIMLEX::parentheses,
+	( min::NONE(), 1, 0, 1, PRIMLEX::parentheses,
 	  func );
     func->number_initial_arg_lists = 1;
 
@@ -259,7 +259,7 @@ PRIM::func PRIM::push_op
 	// Argument after operator
 	PRIM::push_arg ( Y, min::NONE(), func );
 	PRIM::push_arg_list
-	    ( op_name, 1, 1, PRIMLEX::parentheses,
+	    ( op_name, 1, 1, 1, PRIMLEX::parentheses,
 	      func );
 	func->number_following_arg_lists = 1;
     }
@@ -299,7 +299,7 @@ PRIM::func PRIM::push_builtin_func
 	PRIM::push_arg ( A, min::NONE(), func );
     }
     PRIM::push_arg_list
-	( func_name, number_of_arguments, 0,
+	( func_name, number_of_arguments, 0, 1,
 	  PRIMLEX::parentheses, func );
     func->number_following_arg_lists = 1;
 
@@ -602,6 +602,7 @@ min::uns64 PRIM::var_outside_quotes_types =
     + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::var_inside_quotes_types =
     0;
+
 min::uns64 PRIM::func_term_initial_types =
       (1ull << LEXSTD::word_t)
     + (1ull << LEXSTD::mark_t)
@@ -615,7 +616,27 @@ min::uns64 PRIM::func_term_outside_quotes_types =
       (1ull << LEXSTD::word_t)
     + (1ull << LEXSTD::natural_t);
 min::uns64 PRIM::func_term_inside_quotes_types =
-      (1ull << LEXSTD::mark_t)
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t);
+
+min::uns64 PRIM::call_term_initial_types =
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t);
+min::uns64 PRIM::call_term_following_types =
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t)
+    + (1ull << LEXSTD::natural_t);
+min::uns64 PRIM::call_term_outside_quotes_types =
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::natural_t)
+    + (1ull << LEXSTD::mark_t)
+    + (1ull << LEXSTD::separator_t);
+min::uns64 PRIM::call_term_inside_quotes_types =
+      (1ull << LEXSTD::word_t)
+    + (1ull << LEXSTD::mark_t)
     + (1ull << LEXSTD::separator_t);
 
 min::gen PRIM::scan_func_label
@@ -761,6 +782,9 @@ PRIM::func PRIM::scan_func_prototype
 	// func->position.end is reset below.
     min::gen labbuf[s-i];
     min::uns32 j = 0;  // Indexes labbuf.
+    bool label_done =  false;
+        // Set true by first omitable arg list
+	// or when state set to AFTER_SECOND_TERM.
     min::locatable_var<PRIM::func_term> func_term;
     enum state { BEFORE_FIRST_TERM, AFTER_FIRST_TERM,
                                     AFTER_SECOND_TERM };
@@ -777,6 +801,7 @@ PRIM::func PRIM::scan_func_prototype
         while ( i < s && min::is_obj ( vp[i] ) )
 	{
 	    min::uns32 first = func->args->length;
+	    min::uns32 number_required_args = 0;
 	    min::locatable_gen brackets;
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
@@ -789,8 +814,6 @@ PRIM::func PRIM::scan_func_prototype
 	        brackets = PRIMLEX::square_brackets;
 	    else
 	        break;  // May be : paragraph.
-	    if ( st == BEFORE_FIRST_TERM )
-		labbuf[j++] = brackets;
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );
 	    if ( sep == min::NONE() )
@@ -798,23 +821,30 @@ PRIM::func PRIM::scan_func_prototype
 	        errors += ::process_arg
 		    ( func, vp[i], ppvec[i],
 		      default_op, parser );
-		if (    func->arg_lists->length
-		     == first_arg_list
-		     &&
-		        first + 1
-		     == func->args->length )
+		if ( first + 1 == func->args->length )
 		{
+		    // Argument created without error.
+
 		    min::obj_vec_ptr dvp =
 			(func->args + first)->
 			    default_value;
-		    if ( dvp != min::NULL_STUB
-		         &&
-			 min::size_of ( dvp ) == 1
-			 &&
-		            min::labfind
-		                ( dvp[0], bool_values )
-		         >= 0 )
-			is_bool = true;
+		    if ( dvp != min::NULL_STUB )
+		    {
+		        // Argument has default value.
+
+			if (    func->arg_lists->length
+			     == first_arg_list
+		             &&
+			     min::size_of ( dvp ) == 1
+			     &&
+		                min::labfind
+		                   ( dvp[0],
+				     bool_values )
+		             >= 0 )
+			    is_bool = true;
+		    }
+		    else
+			number_required_args = 1;
 		}
 	    }
 	    else // sep != NONE
@@ -843,6 +873,7 @@ PRIM::func PRIM::scan_func_prototype
 		    if (    arg.default_value
 		         == min::NONE() )
 		    {
+		        ++ number_required_args;
 		        if ( default_found )
 			{
 			    PAR::parse_error
@@ -860,6 +891,13 @@ PRIM::func PRIM::scan_func_prototype
 		        default_found = true;
 		}
 	    }
+	    if ( number_required_args > 0 )
+	    {
+	        if ( ! label_done )
+		    labbuf[j++] = brackets;
+	    }
+	    else
+	        label_done = true;
 
 	    min::uns32 number_of_args = 
 	        func->args->length - first;
@@ -867,6 +905,7 @@ PRIM::func PRIM::scan_func_prototype
 	        is_bool = false;
 	    PRIM::push_arg_list
 	        ( term_name, number_of_args, first,
+		  number_required_args,
 		  brackets, func );
 	    term_name = min::NONE();
 	    ++ i;
@@ -907,31 +946,18 @@ PRIM::func PRIM::scan_func_prototype
 		    return min::NULL_STUB;
 		}
 		else
-	        if (    labbuf[j-1]
-		     != PRIMLEX::square_brackets )
-		{
-		    PAR::parse_error
-			( parser, func->position,
-			  "function prototype"
-			  " with no function term"
-			  " must end with a []"
-			  " argument list" );
-		    return min::NULL_STUB;
-		}
-		else
 		if ( errors > 0 )
 		    return min::NULL_STUB;
 
 		min::locatable_gen label
 		    ( min::new_lab_gen ( labbuf, j ) );
+		    // j must be at least 2;
 		PRIM::label_ref(func) = label;
 		func->number_following_arg_lists = 0;
 		return func;
 	    }
 	    else // term_name != NONE
-	    if ( number_arg_lists == 0 )
-	        PRIM::label_ref(func) = term_name;
-	    else
+	    if ( ! label_done )
 	    {
 		min::lab_ptr labp = term_name;
 		if ( labp != min::NULL_STUB )
@@ -943,10 +969,6 @@ PRIM::func PRIM::scan_func_prototype
 		}
 		else
 		    labbuf[j++] = term_name;
-
-		min::locatable_gen label
-		    ( min::new_lab_gen ( labbuf, j ) );
-		PRIM::label_ref(func) = label;
 	    }
 	    st = AFTER_FIRST_TERM;
 	}
@@ -957,6 +979,7 @@ PRIM::func PRIM::scan_func_prototype
 		func->number_following_arg_lists =
 		    number_arg_lists;
 		st = AFTER_SECOND_TERM;
+		label_done = true;
 	    }
 	    else
 	    {
@@ -997,6 +1020,13 @@ PRIM::func PRIM::scan_func_prototype
 	    func_term->position = ppvec[term_begin];
 	}
     }
+
+    min::locatable_gen label;
+    if ( j > 1 )
+	label = min::new_lab_gen ( labbuf, j );
+    else
+        label = labbuf[0];
+    PRIM::label_ref(func) = label;
 
     if ( errors > 0 )
 	return min::NULL_STUB;
@@ -1149,7 +1179,7 @@ RETRY:
 
 CHECK_TYPE:
 
-    min::uns32 after_first = i;
+    min::uns32 after_lookup = i;
 
     PRIM::func func = (PRIM::func) root;
     if ( func == min::NULL_STUB )
@@ -1164,8 +1194,10 @@ CHECK_TYPE:
 	        min::push(av) = vp[i++];
 	    else
 	    {
-		i = after_first;
+		i = after_lookup;
 		goto RETRY;
+		// Cannot go to REJECT because we
+		// will cross variable allocations.
 	    }
 	}
         return true;
@@ -1176,7 +1208,7 @@ CHECK_TYPE:
     if ( (   func->flags
 	   & (   PRIM::VALUE_OPERATOR
 	       | PRIM::LOGICAL_OPERATOR ) )
-	 && quoted_i >= after_first )
+	 && quoted_i >= after_lookup )
     {
         
 	min::push(av) = vp[i + 0];
@@ -1459,7 +1491,12 @@ CHECK_TYPE:
 		  "number of argument lists before"
 		  " first function term does not match"
 		  " func->label" );
-	    i = after_first;
+	    min::locatable_gen first_call_term_name
+	        ( PRIM::scan_call_term_name ( vp, i ) );
+	    MIN_ASSERT
+	        ( first_call_term_name != min::NONE(),
+		  "first call term name missing" );
+
 	    jend = j + func->number_following_arg_lists;
 	    first = false;
 	    continue;
@@ -1548,7 +1585,7 @@ CHECK_TYPE:
     return true;
 
 REJECT:
-    i = after_first;
+    i = after_lookup;
     goto RETRY;
 }
 

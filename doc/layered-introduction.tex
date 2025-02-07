@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 6, 2025
+February 7, 2025
  
 \end{center}
 
@@ -9783,7 +9783,7 @@ The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \\[0.5ex]
 \emkey{variable-name} ::= {\em name-lexeme}\PLUS{}
 \\[0.5ex]
-\emkey{call-term-name} ::= {\em name-lexeme}\PLUS{}
+\emkey{call-term-name}\label{CALL-TERM-NAME} ::= {\em name-lexeme}\PLUS{}
 \\[0.5ex]
 \emkey{name-lexeme}\label{NAME-LEXEME}
                     \begin{tabular}[t]{rl}
@@ -9885,13 +9885,11 @@ as it is \underline{before} parsing:
 \emkey{prototype-term} ::= {\em prototype-term-name}
                            {\em prototype-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{prototype-term-name} ::= \begin{tabular}[t]{@{}l}
-                                {\em name-lexeme}\PLUS{} excluding
-				(un-quoted) {\em marks} and {\em separators} \\
-				and not beginning with a {\em natural}
-				\end{tabular}
+\emkey{prototype-term-name} ::= {\em call-term-name}
+				excluding
+				un-quoted {\em marks} and {\em separators}
 \\[0.5ex]
-\emkey{name-lexeme} ::= see \pagref{NAME-LEXEME}
+\emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
 \\[0.5ex]
 \emkey{prototype-argument-list} ::= \begin{tabular}[t]{@{}l}
 				like {\em ()-prototype-argument-list} but with
@@ -9920,12 +9918,11 @@ as it is \underline{before} parsing:
 than the \TT{,} operator.
 \item It is assumed that words beginning and ending with \TT{*} are
 reserved to the compiler and run-time system.
-\item If a prototype begins with a {\em prototype-argument-list},
-that list must begin with an {\em argu\-ment-declaration} that
-has no {\em default-value}, and the next thing in the prototype must
-be either another {\em prototype-argument-list} beginning with an
-{\em argument-declaration} that has no {\em default-value}, or
-a {\em prototype-term-name}.
+\item A {\em prototype-argument-list} all of whose {\em argument-descriptors}
+have a {\em default-value} is called
+\mkey{omittable}{\em prototype-argument-list}.
+No {\em prototype-argument-list} that is before the first
+{\em prototype-term} is omittable.
 \item
 It is assumed that {\em default-values} will be evaluated in the
 context of the {\em function-call} that uses them, and \underline{not}

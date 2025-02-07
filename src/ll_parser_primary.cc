@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  5 02:53:40 AM EST 2025
+// Date:	Fri Feb  7 12:52:06 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,10 +235,11 @@ PRIM::func PRIM::push_op
 	      PAR::top_level_position, 0, 0,
 	      flags, 0, min::MISSING(), 0 ) );
 
-    min::gen labv[2] =
-	{ PRIMLEX::parentheses, op_name };
+    min::gen labv[3] =
+	{ PRIMLEX::parentheses, op_name,
+	  PRIMLEX::parentheses };
     PRIM::label_ref(func) =
-	min::new_lab_gen ( labv, 2 );
+	min::new_lab_gen ( labv, is_infix ? 3 : 2 );
 
     min::locatable_gen X
         ( min::new_str_gen ( "X" ) );
@@ -1099,8 +1100,10 @@ bool PRIM::scan_primary
         argument_vector = (PRIM::argument_vector)
 	    min::gen_packed_vec_type.new_stub
 	        ( iend - i );
+
     PRIM::argument_vector av = argument_vector;
 	// Get rid of min::ref.
+    min::pop ( av, av->length );
 
     if ( key_prefix == min::NULL_STUB )
     {
@@ -1169,6 +1172,18 @@ CHECK_TYPE:
     }
 
     i = original_i;
+
+    if ( (   func->flags
+	   & (   PRIM::VALUE_OPERATOR
+	       | PRIM::LOGICAL_OPERATOR ) )
+	 && quoted_i >= after_first )
+    {
+        
+	min::push(av) = vp[i + 0];
+	min::push(av) = vp[i + 2];
+        return func;
+    }
+
     bool first = true;
     min::gen negator = min::NONE();
     bool is_bool = false;
@@ -1445,15 +1460,6 @@ CHECK_TYPE:
 		  " first function term does not match"
 		  " func->label" );
 	    i = after_first;
-	    if ( (   func->flags
-	           & (   PRIM::VALUE_OPERATOR
-		       | PRIM::LOGICAL_OPERATOR ) )
-	         && quoted_i >= after_first )
-	    {
-	        number_args =
-		    func->number_initial_arg_lists;
-	        break;
-	    }
 	    jend = j + func->number_following_arg_lists;
 	    first = false;
 	    continue;
@@ -2011,10 +2017,6 @@ static min::gen primary_pass_command
 		     "-- found logical op: " :
 		     "-- found function: " );
 	    min::uns32 len = func->arg_lists->length;
-	    if ( func->flags
-	         & (   PRIM::VALUE_OPERATOR
-		     | PRIM::LOGICAL_OPERATOR ) )
-	        len = func->number_initial_arg_lists;
 	    for ( min::uns32 j = 0; j < len; ++ j )
 	    {
 		PRIM::arg_list_struct arg_list =

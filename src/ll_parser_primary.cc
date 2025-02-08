@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 07:15:09 PM EST 2025
+// Date:	Fri Feb  7 08:50:59 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -879,9 +879,8 @@ PRIM::func PRIM::scan_func_prototype
 		        ++ number_required_args;
 		        if ( default_found )
 			{
-			    PAR::parse_error
-			        ( parser,
-				  alppvec[k],
+			    PRIM::compile_error
+			        ( alppvec[k],
 				  "argment with NO"
 				  " default found"
 				  " AFTER argument with"
@@ -950,8 +949,8 @@ PRIM::func PRIM::scan_func_prototype
 	    {
 	        if ( j < 1 )
 		{
-		    PAR::parse_error
-			( parser, func->position,
+		    PRIM::compile_error
+			( func->position,
 			  "function prototype"
 			  " not found" );
 		    return min::NULL_STUB;
@@ -961,8 +960,8 @@ PRIM::func PRIM::scan_func_prototype
 
 	        if ( j < 2 )
 		{
-		    PAR::parse_error
-			( parser, func->position,
+		    PRIM::compile_error
+			( func->position,
 			  "function prototype"
 			  " must have at least"
 			  " 2 argument lists"
@@ -1025,8 +1024,8 @@ PRIM::func PRIM::scan_func_prototype
 			  (TAB::root) func_term );
 		else
 		{
-		    PAR::parse_error
-			( parser, func->position,
+		    PRIM::compile_error
+			( func->position,
 			  "function prototype has more"
 			  " than one function term"
 			  " named `",

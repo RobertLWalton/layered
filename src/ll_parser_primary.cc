@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 08:50:59 PM EST 2025
+// Date:	Sat Feb  8 05:10:52 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -801,6 +801,7 @@ PRIM::func PRIM::scan_func_prototype
 	min::uns32 first_arg_list =
 	    func->arg_lists->length;
 	bool is_bool = false;
+	min::uns32 first_arg_list_i = i;
         while ( i < s && min::is_obj ( vp[i] ) )
 	{
 	    min::uns32 first = func->args->length;
@@ -816,11 +817,24 @@ PRIM::func PRIM::scan_func_prototype
 	    if ( initiator == PARLEX::left_square )
 	        brackets = PRIMLEX::square_brackets;
 	    else
-	        break;  // May be : paragraph.
+	    {
+	        min::gen terminator =
+		    min::get ( vp[i],
+		               min::dot_terminator );
+		if (    terminator
+		     == min::INDENTED_PARAGRAPH() )
+		    break;
+		min::gen labv[2] =
+		    { initiator, terminator };
+		brackets = min::new_lab_gen ( labv, 2 );
+	    }
+
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );
 	    if ( sep == min::NONE() )
 	    {
+	        // There is only one argument.
+
 	        errors += ::process_arg
 		    ( func, vp[i], ppvec[i],
 		      default_op, parser );
@@ -852,6 +866,9 @@ PRIM::func PRIM::scan_func_prototype
 	    }
 	    else // sep != NONE
 	    {
+	        // Argument list has more than one
+		// argument.
+
 		min::phrase_position_vec alppvec =
 		    min::get
 		        ( vp[i], min::dot_position );
@@ -912,10 +929,12 @@ PRIM::func PRIM::scan_func_prototype
 	    term_name = min::NONE();
 	    ++ i;
 	}
+
 	min::uns32 number_arg_lists =
 	    func->arg_lists->length - first_arg_list;
 	if ( number_arg_lists != 1 )
 	    is_bool = false;
+
 	min::uns32 k1 = first_arg_list;
 	min::uns32 kend = first_arg_list
 	                + number_arg_lists;
@@ -933,8 +952,17 @@ PRIM::func PRIM::scan_func_prototype
 		     (~ & func->arg_lists[k2])->brackets
 		   )
 		{
-		    // TBD;
+		    PRIM::compile_error
+			( ppvec[  k1 - first_arg_list
+			        + first_arg_list_i],
+			  "omitable argument list"
+			  " SHADOWS later"
+			  " non-omittable argument"
+			  " list" );
+		    ++ errors;
+		    break;
 		}
+		++ k1;
 	    }
 	}
 
@@ -1235,7 +1263,8 @@ CHECK_TYPE:
     {
         
 	min::push(av) = vp[i + 0];
-	min::push(av) = vp[i + 2];
+	if ( i + 2 < iend )  // For unary postfix op.
+	    min::push(av) = vp[i + 2];
         return func;
     }
 

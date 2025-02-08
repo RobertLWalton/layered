@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 07:52:07 PM EST 2025
+// Date:	Sat Feb  8 05:12:43 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -244,7 +244,8 @@ void PARSTD::define_primary
     min::init ( PAR::printer_ref ( parser ) );
     min::init ( PAR::input_file_ref ( parser ) );
     min::init_printer
-        ( PAR::input_file_ref(parser), parser->printer );
+        ( PAR::input_file_ref(parser),
+	  parser->printer );
     mexcom::input_file = parser->input_file;
         // Printer and input_file will be attached to
 	// input and output streams or files later,

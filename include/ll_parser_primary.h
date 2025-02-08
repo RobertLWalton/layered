@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 01:07:16 AM EST 2025
+// Date:	Fri Feb  7 07:13:56 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -485,6 +485,59 @@ ll::parser::primary::primary_pass init_primary
 
 // Primary Functions
 // ------- ---------
+
+// Hooks for error messages.
+//
+typedef void ( * error_or_warn )
+	( const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2,
+	  const char * message3,
+	  const min::op & message4,
+	  const char * message5,
+	  const min::op & message6,
+	  const char * message7,
+	  const min::op & message8,
+	  const char * message9 );
+
+extern error_or_warn compile_error_function;
+extern error_or_warn compile_warn_function;
+
+inline void compile_error
+	( const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2 = min::pnop,
+	  const char * message3 = "",
+	  const min::op & message4 = min::pnop,
+	  const char * message5 = "",
+	  const min::op & message6 = min::pnop,
+	  const char * message7 = "",
+	  const min::op & message8 = min::pnop,
+	  const char * message9 = "" )
+{
+    ( * compile_error_function )
+        ( pp, message1, message2, message3, message4,
+              message5, message6, message7, message8,
+              message9 );
+}
+
+inline void compile_warn
+	( const min::phrase_position & pp,
+	  const char * message1,
+	  const min::op & message2 = min::pnop,
+	  const char * message3 = "",
+	  const min::op & message4 = min::pnop,
+	  const char * message5 = "",
+	  const min::op & message6 = min::pnop,
+	  const char * message7 = "",
+	  const min::op & message8 = min::pnop,
+	  const char * message9 = "" )
+{
+    ( * compile_warn_function )
+        ( pp, message1, message2, message3, message4,
+              message5, message6, message7, message8,
+              message9 );
+}
 
 // Given an object vector pointer vp pointing at an
 // expression, and an index i of an element in the

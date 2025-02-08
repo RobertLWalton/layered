@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 24 03:29:38 AM EST 2024
+// Date:	Fri Feb  7 07:14:19 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,6 +17,7 @@
 // ----- --- -----
 
 # include <mex.h>
+# include <mexcom.h>
 # include <ll_parser.h>
 # include <ll_parser_table.h>
 # include <ll_parser_standard.h>
@@ -235,6 +236,11 @@ void PARSTD::define_primary
 {
     if ( ! ( components & PARSTD::PRIMARY_PARSING ) )
         return;
+
+    PRIM::compile_error_function =
+        mexcom::compile_error;
+    PRIM::compile_warn_function =
+        mexcom::compile_warn;
 
     PRIM::primary_pass pass =
         PRIM::init_primary ( parser );

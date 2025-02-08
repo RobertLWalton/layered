@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 05:38:32 AM EST 2025
+// Date:	Fri Feb  7 07:15:09 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,9 @@
 # define COM ll::parser::command
 # define PRIM ll::parser::primary
 # define PRIMLEX ll::parser::primary::lexeme
+
+PRIM::error_or_warn PRIM::compile_error_function;
+PRIM::error_or_warn PRIM::compile_warn_function;
 
 min::locatable_gen PRIMLEX::primary;
 min::locatable_gen PRIMLEX::primary_subexpressions;
@@ -914,6 +917,27 @@ PRIM::func PRIM::scan_func_prototype
 	    func->arg_lists->length - first_arg_list;
 	if ( number_arg_lists != 1 )
 	    is_bool = false;
+	min::uns32 k1 = first_arg_list;
+	min::uns32 kend = first_arg_list
+	                + number_arg_lists;
+	for ( uns32 k2 = first_arg_list; k2 < kend;
+	                                 ++ k2 )
+	{
+	    if (    ( ~ & func->arg_lists[k2] )->
+	    	        number_required_args
+		 == 0 )
+	        continue;
+	    while ( k1 < k2 )
+	    {
+	        if ( (~ & func->arg_lists[k1])->brackets
+		     ==
+		     (~ & func->arg_lists[k2])->brackets
+		   )
+		{
+		    // TBD;
+		}
+	    }
+	}
 
 	min::uns32 term_begin = i;
 	term_name = PRIM::scan_func_term_name ( vp, i );

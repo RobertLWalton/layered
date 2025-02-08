@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Dec 23 10:15:15 AM EST 2024
+# Date:		Fri Feb  7 07:16:04 PM EST 2025
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -62,6 +62,8 @@ MIN_O =	${MIN}/lib/libmin.a
 
 MEX_H = ${MEX}/lib/libmex.a
 
+MEX_O = ${MEX}/lib/libmex.a
+
 LEXEME_H =	${MIN_H} \
 		../include/ll_lexeme_standard.h \
 		../include/ll_lexeme.h
@@ -93,7 +95,8 @@ PARSER_O =	${LEXEME_O} \
 		ll_parser_standard_input.o \
 		ll_parser_standard_brackets.o \
 		ll_parser_standard_oper.o \
-		ll_parser_standard_primary.o
+		ll_parser_standard_primary.o \
+		${MEX_O}  # must be last
 
 .SECONDARY:	${TESTS:=.out}
 

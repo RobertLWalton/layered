@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 05:10:52 AM EST 2025
+// Date:	Sat Feb  8 01:00:18 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -145,6 +145,7 @@ PRIM::var PRIM::create_var
 static min::uns32 func_gen_disp[] = {
     min::DISP ( & PRIM::func_struct::label ),
     min::DISP ( & PRIM::func_struct::module ),
+    min::DISP ( & PRIM::func_struct::first_term_name ),
     min::DISP_END };
 
 static min::uns32 func_stub_disp[] = {
@@ -207,6 +208,8 @@ PRIM::func PRIM::create_func
     func->location = location;
     PRIM::module_ref(func) = module;
 
+    PRIM::first_term_name_ref(func) = min::NONE();
+
     PRIM::args_ref(func) =
         (PRIM::args) ::args_type.new_stub();
     PRIM::arg_lists_ref(func) =
@@ -237,6 +240,7 @@ PRIM::func PRIM::push_op
 	    ( PAR::ALL_SELECTORS,
 	      PAR::top_level_position, 0, 0,
 	      flags, 0, min::MISSING(), 0 ) );
+    PRIM::first_term_name_ref(func) = op_name;
 
     min::gen labv[3] =
 	{ PRIMLEX::parentheses, op_name,
@@ -288,8 +292,19 @@ PRIM::func PRIM::push_builtin_func
 	    ( PAR::ALL_SELECTORS,
 	      PAR::top_level_position, 0, 0,
 	      flags, 0, min::MISSING(), 0 ) );
+    PRIM::first_term_name_ref(func) = func_name;
 
-    PRIM::label_ref(func) = func_name;
+    min::lab_ptr labp = func_name;
+    min::uns32 n = ( labp == min::NULL_STUB ? 1 :
+                     min::lablen ( labp ) );
+    min::gen labbuf[n+1];
+    if ( labp == min::NULL_STUB )
+        labbuf[0] = func_name;
+    else for ( min::uns32 i = 0; i < n; ++ i )
+        labbuf[i] = labp[i];
+    labbuf[n] = PRIMLEX::parentheses;
+    PRIM::label_ref(func) =
+        min::new_lab_gen ( labbuf, n + 1 );
 
     for ( min::uns32 i = 0;
           i < number_of_arguments; ++ i )
@@ -523,12 +538,11 @@ static void print_func
 	parser->printer
 	    << min::pgen_never_quote ( brackets[1] );
     }
-    if ( len == func->number_initial_arg_lists )
-    {
-        min::lab_ptr lp = func->label;
-	parser->printer <<
-	    min::pgen_name ( lp[1] );
-    }
+    if ( len == func->number_initial_arg_lists
+         &&
+	 func->first_term_name != min::NONE() )
+	parser->printer
+	    << min::pgen_name ( func->first_term_name );
 }
 
 // Print scan_primary rejection message.
@@ -697,13 +711,9 @@ inline min::uns32 process_arg
 {
     min::uns32 errors = 0;
     min::obj_vec_ptr avp = arg;
-    if ( avp == min::NULL_STUB )
-    {
-	PAR::parse_error
-	    ( parser, pos,
-	      "bad argument; argument ignored" );
-	return 1;
-    }
+    MIN_ASSERT ( avp != min::NULL_STUB,
+                 "argument to be processed"
+		 " must be an object" );
     min::uns32 asize = min::size_of ( avp );
     min::locatable_gen name, default_value;
     if ( asize == 3 && avp[1] == default_op )
@@ -717,42 +727,24 @@ inline min::uns32 process_arg
         avp = min::NULL_STUB;
 	default_value = min::NONE();
     }
-    if ( min::is_str ( name ) )
+
+    min::obj_vec_ptr nvp = name;
+    MIN_ASSERT ( nvp != min::NULL_STUB,
+                 "argument name to be scanned"
+		 " must be an object" );
+    min::uns32 ni = 0;
+    name = PRIM::scan_var_name ( nvp, ni );
+    if ( ni < min::size_of ( nvp ) )
     {
-        min::uns64 t =
-	    ( 1ull << PAR::lexical_type_of ( name ) );
-	if (   ( t & PRIM::var_initial_types
-	           & PRIM::var_outside_quotes_types )
-	     == 0 )
-	{
-	    PAR::parse_error
-		( parser, pos,
-		  "bad argument name; name ignored" );
-	    name = min::MISSING();
-	    ++ errors;
-	}
-    }
-    else if ( ! min::is_obj ( name ) )
-    {
-	PAR::parse_error
-	    ( parser, pos,
+	nvp = min::NULL_STUB;
+        min::phrase_position_vec ppv =
+	    ( min::phrase_position_vec )
+	    min::get ( name, min::dot_position );
+	PRIM::compile_error
+	    ( ppv->position,
 	      "bad argument name; name ignored" );
 	name = min::MISSING();
 	++ errors;
-    }
-    else
-    {
-        min::obj_vec_ptr nvp = name;
-	min::uns32 ni = 0;
-	name = PRIM::scan_var_name ( nvp, ni );
-	if ( ni < min::size_of ( nvp ) )
-	{
-	    PAR::parse_error
-		( parser, pos,
-		  "bad argument name; name ignored" );
-	    name = min::MISSING();
-	    ++ errors;
-	}
     }
 
     PRIM::push_arg ( name, default_value, func );
@@ -1008,18 +1000,23 @@ PRIM::func PRIM::scan_func_prototype
 		return func;
 	    }
 	    else // term_name != NONE
-	    if ( ! label_done )
 	    {
-		min::lab_ptr labp = term_name;
-		if ( labp != min::NULL_STUB )
+	        PRIM::first_term_name_ref(func) =
+		    term_name;
+		if ( ! label_done )
 		{
-		    min::uns32 len =
-		        min::lablen ( labp );
-		    for ( min::uns32 k = 0; k < len; )
-			labbuf[j++] = labp[k++];
+		    min::lab_ptr labp = term_name;
+		    if ( labp != min::NULL_STUB )
+		    {
+			min::uns32 len =
+			    min::lablen ( labp );
+			for ( min::uns32 k = 0;
+			      k < len; )
+			    labbuf[j++] = labp[k++];
+		    }
+		    else
+			labbuf[j++] = term_name;
 		}
-		else
-		    labbuf[j++] = term_name;
 	    }
 	    st = AFTER_FIRST_TERM;
 	}

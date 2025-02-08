@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  7 07:13:56 PM EST 2025
+// Date:	Sat Feb  8 12:59:11 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,8 +177,19 @@ struct arg_list_struct
 
 enum func_flags {
     BUILTIN_FUNCTION		= ( 1 << 0 ),
+        // For builtin functions and prefix unary
+	// operators.  Arguments returned by scan_
+	// primary in argument vector, and index i
+	// set at end of primary.
     VALUE_OPERATOR		= ( 1 << 1 ),
     LOGICAL_OPERATOR		= ( 1 << 2 )
+        // For builtin infix and postfix unary
+	// operators.  Arguments are NOT returned
+	// by scan_primary in argument vector,
+	// and index i is reset to the beginning
+	// of the primary.  The primary may have
+	// cascaded operators, such as A + B - C
+	// and X <= Y < Z.
 };
 
 enum logical_op_codes {
@@ -228,6 +239,11 @@ struct func_struct
 	// following the first term name in prototype.
 	// If M>0 the list descriptions are
 	// arg_lists[N] thru arg_lists[N+M-1].
+
+    const min::gen first_term_name;
+        // NONE if no first term.  Used for message
+	// printing, as first term name is also part
+	// of label.
 };
 
 MIN_REF ( min::gen, label,
@@ -241,6 +257,8 @@ MIN_REF ( ll::parser::primary::args, args,
 MIN_REF ( ll::parser::primary::arg_lists, arg_lists,
           ll::parser::primary::func )
 MIN_REF ( ll::parser::table::key_table, term_table,
+          ll::parser::primary::func )
+MIN_REF ( min::gen, first_term_name,
           ll::parser::primary::func )
 
 // Create a function definition entry with given

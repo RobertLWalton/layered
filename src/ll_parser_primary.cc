@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  9 02:43:53 AM EST 2025
+// Date:	Sun Feb  9 01:57:27 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1271,18 +1271,17 @@ CHECK_TYPE:
     min::uns32 j = 0;
     min::uns32 jend =
         j + func->number_initial_arg_lists;
-    min::gen args[func->args->length];
+    min::locatable_gen args[func->args->length];
     for ( uns32 k = 0; k < func->args->length; ++ k )
         args[k] = min::NONE();
     min::uns32 number_args = func->args->length;
         // Will be shortened for operator calls.
     PRIM::func_term func_term = min::NULL_STUB;
-    min::gen initiator, terminator;
-    min::lab_ptr bracketp;
     while ( true )
     {
 #       define TERM ( func_term == min::NULL_STUB ? \
-                      min::NONE() : func_term->label )
+                      func->first_term_name : \
+		      func_term->label )
         bool arg_list_found = false;
 	PRIM::arg_list_struct arg_list;
 	    // For an is_bool term this will be the
@@ -1435,14 +1434,6 @@ CHECK_TYPE:
 		    avp = min::NULL_STUB;
 		    if ( ! print_rejections )
 		        /* Do nothing */;
-		    else if ( TERM != min::NONE() )
-			::print_reject
-			    ( parser, func,
-			      "argument list ",
-			      min::pgen ( vp[i] ),
-			      " for function term ",
-			      min::pgen_name ( TERM ),
-			      " is too long" );
 		    else if ( first )
 			::print_reject
 			    ( parser, func,
@@ -1451,13 +1442,13 @@ CHECK_TYPE:
 			      " before first function"
 			      " term name is too"
 			      " long" );
-		    else
+		    else 
 			::print_reject
 			    ( parser, func,
 			      "argument list ",
 			      min::pgen ( vp[i] ),
-			      " just after first"
-			      " function term name"
+			      " for function term ",
+			      min::pgen_name ( TERM ),
 			      " is too long" );
 		    goto REJECT;
 		}
@@ -1532,8 +1523,7 @@ CHECK_TYPE:
 		    ::print_reject
 			( parser, func,
 			  "negator found just before"
-			  " end of reference"
-			  " expression" );
+			  " end of primary" );
 		goto REJECT;
 	    }
 	}

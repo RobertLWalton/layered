@@ -317,8 +317,8 @@ REJECTING: (X1, X2)F(Z1, Z2)
     -- no definition found
     test primary:  ({|A1|}, {|A2|}) F ({|B1|}, {|B2|}, {|B3|})
 REJECTING: (X1, X2)F(Z1, Z2)
-           argument list ({|B1|}, {|B2|}, {|B3|}) just after first
-           function term name is too long
+           argument list ({|B1|}, {|B2|}, {|B3|}) for function term F is
+           too long
     -- no definition found
     end block BLOCK1
 *PARSER*:

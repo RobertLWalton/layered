@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 01:00:18 PM EST 2025
+// Date:	Sun Feb  9 02:43:53 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1277,6 +1277,8 @@ CHECK_TYPE:
     min::uns32 number_args = func->args->length;
         // Will be shortened for operator calls.
     PRIM::func_term func_term = min::NULL_STUB;
+    min::gen initiator, terminator;
+    min::lab_ptr bracketp;
     while ( true )
     {
 #       define TERM ( func_term == min::NULL_STUB ? \
@@ -1291,138 +1293,106 @@ CHECK_TYPE:
 #	    define VAR(k) min::pgen_name \
                 ( (func->args + k)->name )
 	    if ( i >= iend )
-	    {
-	        if (    arg_list.brackets
-		     != PRIMLEX::parentheses )
-		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "",
-			      min::pgen_name
-				 ( arg_list.brackets ),
-			      " bracketed argument"
-			      " list expected but end"
-			      " of reference expression"
-			      " found" );
-		    goto REJECT;
-		}
-		else if ( first )
-		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "( ) bracketed argument"
-			      " list expected but end"
-			      " of reference expression"
-			      " found" );
-		    goto REJECT;
-		}
-		continue;
-	    }
-	    min::gen initiator =
-		min::get ( vp[i], min::dot_initiator );
+	        goto END_OF_PRIMARY;
 
-	    if (    initiator 
-		 == PARLEX::left_parenthesis )
 	    {
-	        if (    arg_list.brackets
-		     != PRIMLEX::parentheses )
+	        // Goto PURELIST_FOUND, END_OF_PRIMARY,
+		// MISMATCH_FOUND, or ACCEPT.
+		//
+	        min::lab_ptr lp = arg_list.brackets;
+		MIN_ASSERT ( lp != min::NULL_STUB
+		             &&
+			     min::lablen ( lp ) == 2,
+			     "bad arg_list.brackets");
+
+	        min::obj_vec_ptr evp = vp[i];
+		if ( evp == min::NULL_STUB )
+		    goto END_OF_PRIMARY;
+		min::attr_ptr eap = evp;
+		min::attr_info info[4];
+		min::unsptr c = min::attr_info_of
+		    ( info, 4, eap );
+		if ( c == 0 ) goto PURELIST_FOUND;
+		min::gen initiator = min::NONE();
+		min::gen terminator = min::NONE();
+		for ( min::uns32 k = 0; k < c; ++ k )
 		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "",
-			      min::pgen_name
-				 ( arg_list.brackets ),
-			      " bracketed argument"
-			      " list expected but (...)"
-			      " bracketed argument"
-			      " list ",
-			      min::pgen ( vp[i] ),
-			      " found" );
-		    goto REJECT;
-		}
-	    }
-	    else if (    initiator 
-		      == PARLEX::left_square )
-	    {
-	        if (    arg_list.brackets
-		     == PRIMLEX::parentheses )
-		{
-		    if ( first )
+		    if (    info[k].name
+		         == min::dot_position )
 		    {
-			if ( print_rejections )
-			    ::print_reject
-				( parser, func,
-				  "(...) argument list"
-				  " expected before"
-				  " first term but "
-				  " non-()-bracketed "
-				  " argument list ",
-				  min::pgen ( vp[i] ),
-				  " found" );
-			goto REJECT;
+			if ( c == 1 )
+			    goto PURELIST_FOUND;
+		        continue;
 		    }
-		    continue;
+		    else if (    info[k].name
+		              == min::dot_initiator )
+		        initiator = info[k].value;
+		    else if (    info[k].name
+		              == min::dot_terminator )
+		        terminator = info[k].value;
+		    else if (    info[k].name
+		              == min::dot_separator )
+			continue;
+		    else if (    info[k].name
+		              == min::dot_type )
+		        goto END_OF_PRIMARY;
+		    else
+		    {
+		        parser->printer
+			    << min::bol
+			    << "ILLEGAL ATTRIBUTE "
+			    << info[k].name
+			    << " WITH VALUE "
+			    << info[k].value
+			    << min::eol;
+		        MIN_ABORT
+			    ( "parsed object is"
+			      " not a subexpression"
+			      " (has illegal"
+			      " attribute)" );
+		    }
 		}
+		if ( initiator == lp[0]
+		     &&
+		     terminator == lp[1] )
+		    goto ACCEPT;
+		if (    terminator
+		     == min::INDENTED_PARAGRAPH() )
+		    goto END_OF_PRIMARY;
+		goto MISMATCH_FOUND;
 	    }
-	    else if ( PAR::is_purelist ( vp[i] ) )
-	    {
-	        if (    arg_list.brackets
-		     != PRIMLEX::parentheses )
-		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "",
-			      min::pgen_name
-				 ( arg_list.brackets ),
-			      " bracketed argument"
-			      " list expected but"
-			      " implicitly bracketed"
-			      " argument list ",
-			      min::pgen ( vp[i] ),
-			      " found" );
-		    goto REJECT;
-		}
-	    }
-	    else
-	    {
-	        if (    arg_list.brackets
-		     != PRIMLEX::parentheses )
-		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "",
-			      min::pgen_name
-				 ( arg_list.brackets ),
-			      " bracketed argument"
-			      " list expected but"
-			      " non-argument list ",
-			      min::pgen ( vp[i] ),
-			      " found" );
-		    goto REJECT;
-		}
-		if ( first )
-		{
-		    if ( print_rejections )
-			::print_reject
-			    ( parser, func,
-			      "(...) bracketed argument"
-			      " list expected before"
-			      " first function-term but"
-			      " non-argument list ",
-			      min::pgen ( vp[i] ),
-			      " found" );
-		    goto REJECT;
-		}
-		continue;
-	    }
+	END_OF_PRIMARY:
+	    if ( arg_list.number_required_args == 0 )
+	        continue;
+	    if ( print_rejections )
+		::print_reject
+		    ( parser, func, "",
+		      min::pgen_name
+			 ( arg_list.brackets ),
+		      " bracketed argument"
+		      " list expected but end"
+		      " of primary found" );
+	    goto REJECT;
+	PURELIST_FOUND:
+	    if (    arg_list.brackets
+	         == PRIMLEX::parentheses )
+	        goto ACCEPT;
+	MISMATCH_FOUND:
+	    if ( arg_list.number_required_args == 0 )
+	        continue;
+	    if ( print_rejections )
+		::print_reject
+		    ( parser, func, "",
+		      min::pgen_name
+			 ( arg_list.brackets ),
+		      " bracketed argument"
+		      " list expected but argument list"
+		      " with different brackets"
+		      " found" );
+	    goto REJECT;
 
-	    // Process actual argument list.
-	    //
+	ACCEPT: // Process actual argument list.
+
 	    arg_list_found = true;
 	    min::gen sep =
 	        min::get ( vp[i], min::dot_separator );

@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 7, 2025
+February 8, 2025
  
 \end{center}
 
@@ -9923,6 +9923,15 @@ have a {\em default-value} is called
 \mkey{omittable}{\em prototype-argument-list}.
 No {\em prototype-argument-list} that is before the first
 {\em prototype-term} is omittable.
+\item
+If there is an omittable {\em prototype-argument-list} in a {\em prototype-term}
+such that the next non-omittable {\em prototype-argument-list} in the
+same {\em prototype-term} has the
+\underline{same} brackets (e.g., \TT{(~)} or \TT{[~]}) as the omittable
+argument list,
+then the omittable argument list is said to be \key{shadowed}
+by the non-omittable argument list.  Such shadowing is \underline{not}
+allowed.
 \item
 It is assumed that {\em default-values} will be evaluated in the
 context of the {\em function-call} that uses them, and \underline{not}

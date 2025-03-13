@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-February 8, 2025
+March 13, 2025
  
 \end{center}
 
@@ -8133,10 +8133,7 @@ is an operator with the \TT{left} and \TT{final} flags, and an
 flags.
 
 Operators have precedences in the range [L,H],
-where L = -1,000,000 and H = +1,000,000.  By convention,
-precedence H is reserved for postfix operators and precedence H-1 is
-reserved for prefix operators, but this is just convention and
-some prefix or postfix operators may have other precedences.
+where L = -1,000,000 and H = +1,000,000.
 The precedence L-1 is reserved for the `error operator' which is
 inserted during parsing to `fix up' errors found during parsing.
 
@@ -8722,7 +8719,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{5-6}
         &       &                &            & \TT{>{}>} & right shift &
 \\\cline{1-2}\cline{3-6}
-H-1	& code	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        &
+100000	& code	& \ttkey{unary}	& \TT{prefix} & \TT{+}	& no-op        &
 \\\cline{5-6}
 	& math  &		& 	      & \TT{-}	& negation     & 
 \\\cline{2-2}\cline{5-7}
@@ -9047,10 +9044,10 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with binary reformatter
 \\[1ex]
 \tt define operator "+" [code, math] prefix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 999999 \\
+\tt ~~~~~~~with precedence 100000 \\
 \tt ~~~~~~~with unary reformatter \\
 \tt define operator "-" [code, math] prefix & {\tt + code} or {\tt + math} \\
-\tt ~~~~~~~with precedence 999999 \\
+\tt ~~~~~~~with precedence 100000 \\
 \tt ~~~~~~~with unary reformatter \\
 \end{tabular}
 \end{center}
@@ -9087,7 +9084,7 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with infix reformatter ( "XOR\#" )
 \\[1ex]
 \tt define operator "NOT\#" [code] prefix & {\tt + code} \\
-\tt ~~~~~~~with precedence 999999 \\
+\tt ~~~~~~~with precedence 100000 \\
 \tt ~~~~~~~with unary reformatter \\
 \end{tabular}
 \end{center}

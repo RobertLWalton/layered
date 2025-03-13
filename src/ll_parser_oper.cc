@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 10:22:20 AM EST 2024
+// Date:	Thu Mar 13 07:06:58 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -483,8 +483,6 @@ OK:
 
 min::int32 OP::high_precedence = +1e6;
 min::int32 OP::low_precedence  = -1e6;
-min::int32 OP::prefix_precedence  = +1e6 - 1;
-min::int32 OP::postfix_precedence  = +1e6;
 
 static void put_error_operator_before
 	( ll::parser::parser parser,

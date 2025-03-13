@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  3 12:54:15 AM EST 2024
+// Date:	Thu Mar 13 07:08:16 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -712,8 +712,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence,
-	  unary_prefix_reformatter,
+	  100000, unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -733,8 +732,7 @@ static void define_arithmetic_operators
 	  code + math,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence,
-	  unary_prefix_reformatter,
+	  100000, unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -921,8 +919,7 @@ static void define_bitwise_operators
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX,
-	  OP::prefix_precedence,
-	  unary_prefix_reformatter,
+	  100000, unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }

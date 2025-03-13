@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 26 01:28:41 EST 2024
+// Date:	Thu Mar 13 07:06:29 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -153,8 +153,6 @@ void push_oper
 //
 extern min::int32 high_precedence;
 extern min::int32 low_precedence;
-extern min::int32 prefix_precedence;
-extern min::int32 postfix_precedence;
 
 // An oper_stack is part of each oper_pass.
 //

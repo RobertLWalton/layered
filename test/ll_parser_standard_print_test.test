@@ -239,6 +239,10 @@
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
+        block standard: operator "XOR" [code]
+                        infix
+                        with precedence 13000
+                        with infix reformatter ( "XOR" )
         block standard: operator "*" [code, math]
                         infix
                         with precedence 13200
@@ -288,10 +292,6 @@
                         with precedence 12000
                         with infix reformatter ( "==", "<=", ">=", "!=",
                         ">", "<" )
-        block standard: operator [< "OR#" "=" >] [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
         block standard: operator "!=" [code, math]
                         infix
                         with precedence 12000
@@ -309,6 +309,10 @@
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
+        block standard: operator [< "IOR" "=" >] [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
         block standard: operator "do" [code]
                         initial line
                         with precedence 3000
@@ -316,10 +320,6 @@
                         prefix
                         with precedence 11200
                         with unary prefix reformatter
-        block standard: operator "OR#" [code]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "OR#" )
         block standard: operator [< "else" "if" >] [code]
                         prefix line
                         with precedence 0
@@ -344,13 +344,17 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block standard: operator "MASK" [code]
+                        infix
+                        with precedence 13000
+                        with infix reformatter ( "MASK" )
         block standard: operator "while" [code]
                         right line
                         with precedence 3000
-        block standard: operator [< "XOR#" "=" >] [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
+        block standard: operator "COMPL" [code]
+                        prefix
+                        with precedence 100000
+                        with unary prefix reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
                         with precedence 11000
@@ -397,10 +401,6 @@
         block standard: operator "ELSE" [code, math]
                         infix afix
                         with precedence 10000
-        block standard: operator "AND#" [code]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "AND#" )
         block standard: operator [< ">>" "=" >] [code]
                         infix line
                         with precedence 1000
@@ -416,10 +416,6 @@
         block standard: operator [< "at" "most" >] [code]
                         right afix line
                         with precedence 3000
-        block standard: operator "XOR#" [code]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "XOR#" )
         block standard: operator [< "-" "=" >] [code]
                         infix line
                         with precedence 1000
@@ -433,6 +429,10 @@
                         with precedence 12000
                         with infix reformatter ( "==", "<=", ">=", "!=",
                         ">", "<" )
+        block standard: operator [< "MASK" "=" >] [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
         block standard: operator "AND" [code, math]
                         infix
                         with precedence 11100
@@ -458,19 +458,19 @@
                         infix
                         with precedence 13300
                         with binary reformatter
+        block standard: operator "IOR" [code]
+                        infix
+                        with precedence 13000
+                        with infix reformatter ( "IOR" )
         block standard: operator "OR" [code, math]
                         infix
                         with precedence 11100
                         with infix reformatter ( "OR" )
-        block standard: operator "NOT#" [code]
-                        prefix
-                        with precedence 100000
-                        with unary prefix reformatter
-        block standard: operator [< "+" "=" >] [code]
+        block standard: operator [< "XOR" "=" >] [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator [< "AND#" "=" >] [code]
+        block standard: operator [< "+" "=" >] [code]
                         infix line
                         with precedence 1000
                         with binary reformatter

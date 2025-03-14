@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 13 07:08:16 AM EDT 2025
+// Date:	Fri Mar 14 03:49:27 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -822,15 +822,15 @@ static void define_bitwise_operators
         PAR::find_reformatter
 	    ( unary_prefix, OP::reformatter_stack );
 
-    min::locatable_gen or_equal
-        ( min::new_lab_gen ( "OR#", "=" ) );
-    min::locatable_gen and_equal
-        ( min::new_lab_gen ( "AND#", "=" ) );
+    min::locatable_gen ior_equal
+        ( min::new_lab_gen ( "IOR", "=" ) );
+    min::locatable_gen mask_equal
+        ( min::new_lab_gen ( "MASK", "=" ) );
     min::locatable_gen xor_equal
-        ( min::new_lab_gen ( "XOR#", "=" ) );
+        ( min::new_lab_gen ( "XOR", "=" ) );
 
     OP::push_oper
-        ( or_equal,
+        ( ior_equal,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
@@ -840,7 +840,7 @@ static void define_bitwise_operators
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( and_equal,
+        ( mask_equal,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
@@ -859,43 +859,43 @@ static void define_bitwise_operators
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
-    min::locatable_gen or_name
-        ( min::new_str_gen ( "OR#" ) );
-    min::locatable_gen and_name
-        ( min::new_str_gen ( "AND#" ) );
+    min::locatable_gen ior_name
+        ( min::new_str_gen ( "IOR" ) );
+    min::locatable_gen mask_name
+        ( min::new_str_gen ( "MASK" ) );
     min::locatable_gen xor_name
-        ( min::new_str_gen ( "XOR#" ) );
+        ( min::new_str_gen ( "XOR" ) );
     min::locatable_gen complement_name
-        ( min::new_str_gen ( "NOT#" ) );
+        ( min::new_str_gen ( "COMPL" ) );
 
-    min::locatable_gen or_arguments
+    min::locatable_gen ior_arguments
 	    ( min::new_obj_gen ( 1 ) );
-    min::obj_vec_insptr oavp ( or_arguments );
-    min::attr_push ( oavp ) = or_name;
+    min::obj_vec_insptr oavp ( ior_arguments );
+    min::attr_push ( oavp ) = ior_name;
 
     OP::push_oper
-        ( or_name,
+        ( ior_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  13000, infix_reformatter,
-	  or_arguments,
+	  ior_arguments,
 	  oper_pass->oper_table );
 
-    min::locatable_gen and_arguments
+    min::locatable_gen mask_arguments
 	    ( min::new_obj_gen ( 1 ) );
-    min::obj_vec_insptr aavp ( and_arguments );
-    min::attr_push ( aavp ) = and_name;
+    min::obj_vec_insptr aavp ( mask_arguments );
+    min::attr_push ( aavp ) = mask_name;
 
     OP::push_oper
-        ( and_name,
+        ( mask_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
 	  13000, infix_reformatter,
-	  and_arguments,
+	  mask_arguments,
 	  oper_pass->oper_table );
 
     min::locatable_gen xor_arguments

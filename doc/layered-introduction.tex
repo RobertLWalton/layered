@@ -234,7 +234,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 13, 2025
+March 14, 2025
  
 \end{center}
 
@@ -8523,11 +8523,11 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{5-6}
      	&	&            	&            & \ttkey{>{}> =} & shift right  &
 \\\cline{5-7}
-     	&	&            	&            & \ttkey{OR\# =} & include    & B
+     	&	&            	&            & \ttkey{IOR =} & include    & B
 \\\cline{5-6}
-     	&	&            	&            & \ttkey{AND\# =} & mask      &
+     	&	&            	&            & \ttkey{MASK =} & mask      &
 \\\cline{5-6}
-     	&	&            	&            & \ttkey{XOR\# =}
+     	&	&            	&            & \ttkey{XOR =}
 	                                                  & flip       &
 \\\cline{2-7}
         & math	& \TT{binary}	& \TT{infix} & \ttkey{=}  & assignment & S
@@ -8701,12 +8701,12 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{5-6}
 	& math  &		& 	     & \TT{-}	& subtraction  &
 \\\cline{2-3}\cline{5-7}
-	& code  & \ttkey{infix}	&            & \TT{OR\#} & binary or    & B
+	& code  & \ttkey{infix}	&            & \TT{IOR} & binary inclusive or
+	                                                               & B
 \\\cline{5-6}
-	&	&		& 	     & \TT{AND\#} & binary and   &
+	&	&		& 	     & \TT{MASK} & binary and   &
 \\\cline{5-6}
-	&	&		& 	     & \TT{XOR\#}
-						        & binary exclusive or
+	&	&		& 	     & \TT{XOR} & binary exclusive or
 							               &
 \\\hline
 13100	& code	& \ttkey{binary} & \TT{infix} & \TT{/}	& division     & A
@@ -8723,7 +8723,7 @@ prece-  & selec-  &             &            &            &            & \\
 \\\cline{5-6}
 	& math  &		& 	      & \TT{-}	& negation     & 
 \\\cline{2-2}\cline{5-7}
-	& code 	&       	& 	      & \TT{NOT\#}
+	& code 	&       	& 	      & \TT{COMP}
 	                                                & binary complement
 							               & B
 \\\hline
@@ -9063,27 +9063,27 @@ Parser Command				& \shortstack{
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
-\tt define operator "OR\# =" [code] infix line & {\tt + code} \\
+\tt define operator "IOR =" [code] infix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter \\
-\tt define operator "AND\# =" [code] infix line & {\tt + code} \\
+\tt define operator "MASK =" [code] infix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter \\
-\tt define operator "XOR\# =" [code] infix line & {\tt + code} \\
+\tt define operator "XOR =" [code] infix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 1000 \\
 \tt ~~~~~~~with binary reformatter \\
 \\[1ex]
-\tt define operator "OR\#" [code] infix & {\tt + code} \\
+\tt define operator "IOR" [code] infix & {\tt + code} \\
 \tt ~~~~~~~with precedence 13000 \\
-\tt ~~~~~~~with infix reformatter ( "OR\#" ) \\
-\tt define operator "AND\#" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with infix reformatter ( "IOR" ) \\
+\tt define operator "MASK" [code] infix & {\tt + code} \\
 \tt ~~~~~~~with precedence 13000 \\
-\tt ~~~~~~~with infix reformatter ( "AND\#" ) \\
-\tt define operator "XOR\#" [code] infix & {\tt + code} \\
+\tt ~~~~~~~with infix reformatter ( "MASK" ) \\
+\tt define operator "XOR" [code] infix & {\tt + code} \\
 \tt ~~~~~~~with precedence 13000 \\
-\tt ~~~~~~~with infix reformatter ( "XOR\#" )
+\tt ~~~~~~~with infix reformatter ( "XOR" )
 \\[1ex]
-\tt define operator "NOT\#" [code] prefix & {\tt + code} \\
+\tt define operator "COMP" [code] prefix & {\tt + code} \\
 \tt ~~~~~~~with precedence 100000 \\
 \tt ~~~~~~~with unary reformatter \\
 \end{tabular}

@@ -9789,16 +9789,21 @@ Parser Command				& \shortstack{
 
 \subsubsection{Primaries}
 
-A primary is a parsed subexpression.  More specifically,
-a parsed subexpression is
+A {\em primary} is a parsed subexpression without operators or
+separators.  More specifically,
+a parsed subexpression is represented as
 a sequence of lexemes and subexpressions encoded
-in a MIN vector object.  The vector object may or may not have
-an \TT{.initiator} and \TT{.terminator}.  Quoted string lexemes
-within the primary are represented by MIN objects with the
+in a MIN vector object.  For {\em primaries}, the
+vector object may or may not have
+an \TT{.initiator} and \TT{.terminator}, but will
+\underline{not} have a \TT{.separator}.  Quoted string lexemes
+within the primary vector object are represented by MIN objects with the
 \TT{"<Q>"} \TT{.type} and a single vector element that is a MIN string
-equal to the string represented by the lexeme.  Operators are
+equal to the string represented by the lexeme.  Operators and
+primary separators are
 represented by their label, which is either a simple MIN string,
-or is a MIN label (e.g., the MIN string \TT{+} or the MIN label \TT{[< + = >]}).
+or is a MIN label (e.g., the MIN strings `\TT{a}' or \TT{+}
+or the MIN label \TT{[< + = >]}).
 
 The Layered Language package provides a C++ function \TT{scan\_primary}
 to scan primaries in order to find either:
@@ -9824,14 +9829,7 @@ In this document section we describe the interface between \TT{PRIM}
 and the parser proper, e.g., we describe the syntax of variable
 names and function calls.
 
-\subsubsection{Primary Pass}
-
-The primary pass exists to provide two tables:
-\begin{center}
-\TT{primary\_table}, a symbol table containing variables and functions \\
-\TT{modifying\_ops}, a hash table listing modifying operations
-(e.g., \TT{[< + = >]})
-\end{center}
+\subsubsection{Primary Symbol Table}
 
 The \key{primary table}, a.k.a.~the symbol table, stores
 \TT{PRIM::var} C++ objects representing variables and

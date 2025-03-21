@@ -9791,12 +9791,15 @@ Parser Command				& \shortstack{
 
 A {\em primary} is a parsed subexpression without operators or
 separators.  More specifically,
-a parsed subexpression is represented as
+a parsed subexpression is output from the parser as
 a sequence of lexemes and subexpressions encoded
 in a MIN vector object.  For {\em primaries}, the
 vector object may or may not have
 an \TT{.initiator} and \TT{.terminator}, but will
-\underline{not} have a \TT{.separator}.  Quoted string lexemes
+\underline{not} have a \TT{.separator}.\footnote{
+Subexpressions of a primary with \TT{.initiator} and \TT{.terminator}
+may have a \TT{.separator}.}
+Quoted string lexemes
 within the primary vector object are represented by MIN objects with the
 \TT{"<Q>"} \TT{.type} and a single vector element that is a MIN string
 equal to the string represented by the lexeme.  Operators and
@@ -9831,7 +9834,8 @@ names and function calls.
 
 \subsubsection{Primary Symbol Table}
 
-The \key{primary table}, a.k.a.~the symbol table, stores
+The \key{primary table}, a.k.a.~the symbol table, is provided by the
+primary pass and stores
 \TT{PRIM::var} C++ objects representing variables and
 \TT{PRIM::func} C++ objects representing functions.
 This symbol table has the same organization as other parser

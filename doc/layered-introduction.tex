@@ -140,6 +140,7 @@
 
 \newcommand{\ttindex}[1]{\index{#1@\TT{#1}}}
 \newcommand{\ttmindex}[2]{\index{#1@\TT{#1}!#2}}
+\newcommand{\ttmlindex}[3]{\index{#1@\TT{#1}!#2@\TT{#2}!#3}}
 
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
@@ -234,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 14, 2025
+March 21, 2025
  
 \end{center}
 
@@ -9647,7 +9648,146 @@ and \underline{not} two word elements of the subexpression.
 \end{indpar}
 
 
-\section{Primaries}
+\subsection{The Primary Parsing Pass}
+
+The \key{primary parsing pass} uses primary separators
+to restructure {\em (H+1)-expressions} into a sequence of
+primaries and primary separators.
+Primary separators are defined by primary separator definitions
+that can be added to the primary parsing definition stack.
+
+\subsubsection{Primary Parsing}
+
+Primary parsing occurs after operator parsing and restructures
+{\em (H+1)-expressions} output by the operator parsing pass according to:
+\begin{indpar}
+\emkey{(H+1)-expression} \\
+\hspace{3em}\begin{tabular}[t]{rl}
+			::= & {\em primary} \\
+			$|$ & {\em initial-primary-separator} {\em primary}
+			      \{ {\em following-primary-separator}
+			         {\em primary} \}\STAR{}
+		    \end{tabular}
+\\[0.5ex]
+\emkey{primary} ::= {\em non-primary-separator}\PLUS{}
+\end{indpar}
+
+Here:
+\begin{itemize}
+\item An {\em (H+1)-expression} that does \underline{not} begin with a
+      {\em initial-primary-separator} is a {\em primary}.
+\item {\em Primary-separators} must be separated by {\em primaries}
+      which cannot be empty.
+\item A {\em following-primary-separator} must be enabled by a particular
+preceeding {\em initial-primary-separator}, else it is not recognized.
+For example, if `\TT{a}' and `\TT{the}' are {\em initial-primary-separators},
+the {\em following-primary-separator} `\TT{of}' may be recognized in an
+expression beginning with `\TT{the}' but not in one beginning
+with `\TT{a}'.
+\end{itemize}
+
+The primary parser begins by recognizing the {\em primary-separators}
+in an {\em (H+1)-expression} allowing empty {\em primaries}.
+Then the primary parser declares an error if it finds
+any empty {\em primaries}, and replaces empty primaries by an
+\TT{ERROR'OPERAND}.
+
+
+{\em Parser-primary-separator-commands} modify and print
+the primary separator parsing definition stack:
+
+\begin{indpar}[0.1in]
+\emkey{parser-primary-separator-command}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em parser-primary-separator-definition} \\
+    $|$ & {\em parser-primary-separator-print-command} \\
+    \end{tabular}
+\label{PARSER-PRIMARY-SEPARATOR-COMMAND}
+\end{indpar}
+
+\begin{indpar}[0.1in]
+\emkey{parser-primary-separator-definition} \\
+    \hspace*{0.2in}\begin{tabular}{rl}
+    ::= & \TT{define}\ttmindex{define primary separator}{parser command}
+	    \begin{tabular}[t]{@{}l@{}}
+	    \TT{primary separator} ~
+	        \begin{tabular}[t]{@{}l@{}}
+		{\em primary-separator-name} {\em parsing-selectors} \\
+		{\em primary-separator-flag} \\
+		\end{tabular} \\
+	    \TT{with group} ~ {\em primary-separator-group} \\
+	    \end{tabular} \\
+    $|$ & \TT{undefine}\ttmlindex{parser undefine}{primary separator}%
+                                 {parser command}
+	   ~\begin{tabular}[t]{@{}l@{}}
+	    \TT{primary separator} ~
+	        \begin{tabular}[t]{@{}l@{}}
+		{\em primary-separator-name} {\em parsing-selectors} \\
+		{\em primary-separator-flag} \\
+		\end{tabular} \\
+	    \TT{with group} ~ {\em primary-separator-group} \\
+	    \end{tabular} \\
+    \end{tabular}
+\\[1ex]
+{\em primary-separator-name} ::= {\em quoted-key} \\
+{\em primary-separator-group} ::= {\em quoted-key} \\
+{\em quoted-key} ::= see \pagref{QUOTED-KEY}
+\\[1ex]
+\emkey{primary-separator-flag}
+    ::= \ttmkey{initial}{primary separator flag}
+    $|$ \ttmkey{following}{primary separator flag}
+\end{indpar}
+
+\begin{indpar}[0.1in]
+\emkey{parser-primary-separator-print-command}%
+\label{PARSER-PRIMARY-SEPARATOR-PRINT-COMMAND}
+\\
+    \hspace*{0.2in}
+    \begin{tabular}[t]{rl}
+    ::= & \ttmkey{print primary separator}{parser command} ~
+	  {\em partial-primary-separator-name} \\
+    \end{tabular} \\[1ex]
+\emkey{partial-primary-separator-name} ::= {\em quoted-key}
+\end{indpar}
+
+
+The following parser standard component
+(see \itemref{PARSER-STANDARD-COMMANDS})
+can be used to define standard parsing separators:
+
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{parsing separators}'\label{STANDARD-PARSING-SEPARATORS}
+     Component} \\
+\multicolumn{2}{c}
+{\bf Parsing Separator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          Given\\Qualifiers}
+\\\hline
+\tt define primary separator "a" [code] initial & {\tt + code} \\
+\tt ~~~~~~~with group "a" \\
+\tt define primary separator "an" [code] initial & {\tt + code} \\
+\tt ~~~~~~~with group "a" \\
+\tt define primary separator "the" [code] initial & {\tt + code} \\
+\tt ~~~~~~~with group "the" \\
+\\[1ex]
+\tt define primary separator "of" [code] following & {\tt + code} \\
+\tt ~~~~~~~with group "the" \\
+\tt define primary separator "of the" [code] following & {\tt + code} \\
+\tt ~~~~~~~with group "the" \\
+\tt define primary separator "with" [code] following & {\tt + code} \\
+\tt ~~~~~~~with group "the" \\
+\end{tabular}
+\end{center}
+
+
+
+
+
+\subsubsection{Primaries}
 
 A primary is a parsed subexpression.  More specifically,
 a parsed subexpression is
@@ -9684,7 +9824,7 @@ In this document section we describe the interface between \TT{PRIM}
 and the parser proper, e.g., we describe the syntax of variable
 names and function calls.
 
-\subsection{Primary Pass}
+\subsubsection{Primary Pass}
 
 The primary pass exists to provide two tables:
 \begin{center}
@@ -9758,7 +9898,7 @@ Both \TT{PRIM::var} and \TT{PRIM::func} C++ object also have a
 \TT{block\_level} member (common to all parser lookup tables)
 which encodes a \key{lexical level} and a \key{depth}.
 
-\subsection{Primary Syntax}
+\subsubsection{Primary Syntax}
 
 The syntax of the vector elements of a primary recognized by \TT{PRIM} is:
 \begin{indpar}
@@ -9856,7 +9996,7 @@ given a {\em variable-name}.
 
 {\em Call-term-names} are scanned by \TT{PRIM::scan\_primary}.
 
-\subsection{Function Prototypes}
+\subsubsection{Function Prototypes}
 
 A \TT{PRIM:func} encodes a \key{function prototype}.  The function
 defined by a \TT{PRIM::func} is called when its function prototype

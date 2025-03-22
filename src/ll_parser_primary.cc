@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  9 01:57:27 PM EST 2025
+// Date:	Fri Mar 21 08:12:04 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,7 +46,6 @@ min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
 
-static min::locatable_gen opening_double_quote; // ``
 static min::locatable_gen test;  		// test
 
 static min::locatable_gen func_bool_expression[2];
@@ -70,7 +69,6 @@ static void initialize ( void )
         min::new_lab_gen ( "(", ")" );
     PRIMLEX::square_brackets =
         min::new_lab_gen ( "[", "]" );
-    ::opening_double_quote = min::new_str_gen ( "``" );
     ::test = min::new_str_gen ( "test" );
 
     PRIM::func_default_op = min::new_str_gen ( "?=" );
@@ -1670,10 +1668,10 @@ static min::gen primary_pass_command
 	 ! min::is_obj ( vp[i] )
 	 ||
 	    min::get ( vp[i], min::dot_initiator )
-	 != ::opening_double_quote )
+	 != PARLEX::left_parenthesis )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected ``...'' quoted expression"
+	      "expected (...) bracketed expression"
 	      " after" );
 
     min::phrase_position_vec nppvec =
@@ -1710,7 +1708,7 @@ static min::gen primary_pass_command
 	else
 	    return PAR::parse_error
 		( parser, ppvec[i],
-		  "``...'' quoted expression is"
+		  "(...) bracketed expression is"
 		  " empty" );
     }
 
@@ -1783,7 +1781,7 @@ static min::gen primary_pass_command
 			       ( block_name )
 		        << ": "
 		        << min::save_indent
-		        << type_name << " ``";
+		        << type_name << " (";
 
 		if ( type == PRIMLEX::variable )
 		    parser->printer << min::pgen_name
@@ -1793,7 +1791,7 @@ static min::gen primary_pass_command
 		        ( func, parser,
 			  PRIM::func_default_op );
 
-		parser->printer << "''";
+		parser->printer << ")";
 		if (    (   root->selectors
 		          & PAR::ALL_SELECTORS )
 		     != PAR::ALL_SELECTORS )

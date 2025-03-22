@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 21 08:12:04 PM EDT 2025
+// Date:	Sat Mar 22 03:03:47 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -370,6 +370,8 @@ static min::uns32 primary_pass_stub_disp[] =
     min::DISP ( & PRIM::primary_pass_struct::parser ),
     min::DISP ( & PRIM::primary_pass_struct::next ),
     min::DISP ( & PRIM::primary_pass_struct
+                      ::separator_table ),
+    min::DISP ( & PRIM::primary_pass_struct
                       ::primary_table ),
     min::DISP_END
 };
@@ -406,11 +408,18 @@ static void primary_pass_reset
     PRIM::primary_pass primary_pass =
         (PRIM::primary_pass) pass;
 
+    TAB::key_table separator_table =
+        primary_pass->separator_table;
+
     TAB::key_table primary_table =
         primary_pass->primary_table;
 
-    min::uns64 collected_entries,
-               collected_key_prefixes;
+    min::uns64 collected_entries = 0,
+               collected_key_prefixes = 0;
+
+    TAB::end_block
+        ( separator_table, 0,
+	  collected_key_prefixes, collected_entries );
 
     TAB::end_block
         ( primary_table, 0,
@@ -425,15 +434,20 @@ static min::gen primary_pass_end_block
 {
     PRIM::primary_pass primary_pass =
 	(PRIM::primary_pass) pass;
+    TAB::key_table separator_table =
+	primary_pass->separator_table;
     TAB::key_table primary_table =
 	primary_pass->primary_table;
 
-    min::uns64 collected_entries,
-               collected_key_prefixes;
+    min::uns64 collected_entries = 0,
+               collected_key_prefixes = 0;
 
     min::uns32 block_level =
         PAR::block_level ( parser );
     MIN_REQUIRE ( block_level > 0 );
+    TAB::end_block
+        ( separator_table, block_level,
+	  collected_key_prefixes, collected_entries );
     TAB::end_block
         ( primary_table, block_level,
 	  collected_key_prefixes, collected_entries );
@@ -459,6 +473,9 @@ PAR::pass PRIM::new_pass ( PAR::parser parser )
         ( ::primary_pass_type.new_stub() );
 
     PRIM::name_ref ( primary_pass ) = PRIMLEX::primary;
+
+    PRIM::separator_table_ref ( primary_pass ) =
+        TAB::create_key_table ( 256 );
 
     PRIM::primary_table_ref ( primary_pass ) =
         TAB::create_key_table ( 1024 );
@@ -726,6 +743,9 @@ inline min::uns32 process_arg
 	default_value = min::NONE();
     }
 
+    min::phrase_position_vec nppv =
+	( min::phrase_position_vec )
+	min::get ( name, min::dot_position );
     min::obj_vec_ptr nvp = name;
     MIN_ASSERT ( nvp != min::NULL_STUB,
                  "argument name to be scanned"
@@ -734,12 +754,8 @@ inline min::uns32 process_arg
     name = PRIM::scan_var_name ( nvp, ni );
     if ( ni < min::size_of ( nvp ) )
     {
-	nvp = min::NULL_STUB;
-        min::phrase_position_vec ppv =
-	    ( min::phrase_position_vec )
-	    min::get ( name, min::dot_position );
 	PRIM::compile_error
-	    ( ppv->position,
+	    ( nppv->position,
 	      "bad argument name; name ignored" );
 	name = min::MISSING();
 	++ errors;

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 04:26:45 EDT 2024
+// Date:	Sat Mar 22 08:55:15 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,6 +85,11 @@ static void define_brackets
         ( min::new_lab_gen ( "[", "$" ) );
     min::locatable_gen dollar_closing_square
         ( min::new_lab_gen ( "$", "]" ) );
+
+    min::locatable_gen opening_parenthesis_star
+        ( min::new_lab_gen ( "(", "*" ) );
+    min::locatable_gen star_closing_parenthesis
+        ( min::new_lab_gen ( "*", ")" ) );
 
     min::locatable_gen left_curly_star
         ( min::new_lab_gen ( "{", "*" ) );
@@ -182,6 +187,7 @@ static void define_brackets
 	  bracketed_pass->bracket_table );
 
     if ( code )
+    {
 	BRA::push_brackets
 	    ( PARLEX::left_square,
 	      PARLEX::right_square,
@@ -191,6 +197,17 @@ static void define_brackets
 	          ( code, label + math + text ),
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
+	BRA::push_brackets
+	    ( opening_parenthesis_star,
+	      star_closing_parenthesis,
+	      data + label + code + math + text,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags ( code,
+	                         PAR::COMMAND_SELECTORS
+			       ^ code ),
+	      min::NULL_STUB, min::MISSING(),
+	      bracketed_pass->bracket_table );
+    }
     else
 	BRA::push_brackets
 	    ( PARLEX::left_square,

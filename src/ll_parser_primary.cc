@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 22 03:03:47 AM EDT 2025
+// Date:	Sun Mar 23 02:20:13 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,6 +45,7 @@ min::locatable_gen PRIMLEX::location;
 min::locatable_gen PRIMLEX::module;
 min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
+static min::locatable_gen left_parenthesis_star;
 
 static min::locatable_gen test;  		// test
 
@@ -69,6 +70,8 @@ static void initialize ( void )
         min::new_lab_gen ( "(", ")" );
     PRIMLEX::square_brackets =
         min::new_lab_gen ( "[", "]" );
+    ::left_parenthesis_star =
+        min::new_lab_gen ( "(", "*" );
     ::test = min::new_str_gen ( "test" );
 
     PRIM::func_default_op = min::new_str_gen ( "?=" );
@@ -743,22 +746,41 @@ inline min::uns32 process_arg
 	default_value = min::NONE();
     }
 
-    min::phrase_position_vec nppv =
-	( min::phrase_position_vec )
-	min::get ( name, min::dot_position );
     min::obj_vec_ptr nvp = name;
-    MIN_ASSERT ( nvp != min::NULL_STUB,
-                 "argument name to be scanned"
-		 " must be an object" );
-    min::uns32 ni = 0;
-    name = PRIM::scan_var_name ( nvp, ni );
-    if ( ni < min::size_of ( nvp ) )
+    if ( nvp == min::NULL_STUB )
     {
+	avp = min::NULL_STUB;
+	min::phrase_position_vec nppv =
+	    ( min::phrase_position_vec )
+	    min::get ( arg,
+		       min::dot_position );
 	PRIM::compile_error
 	    ( nppv->position,
-	      "bad argument name; name ignored" );
+	      "bad argument name: ",
+	      min::pgen ( name ),
+	      "; name ignored" );
 	name = min::MISSING();
 	++ errors;
+    }
+    else
+    {
+	min::gen original_name = name;
+	min::uns32 ni = 0;
+	name = PRIM::scan_var_name ( nvp, ni );
+	if ( ni < min::size_of ( nvp ) )
+	{
+	    min::phrase_position_vec nppv =
+		( min::phrase_position_vec )
+		min::get ( original_name,
+		           min::dot_position );
+	    PRIM::compile_error
+		( nppv->position,
+		  "bad argument name: ",
+		  min::pgen ( original_name ),
+		  "; name ignored" );
+	    name = min::MISSING();
+	    ++ errors;
+	}
     }
 
     PRIM::push_arg ( name, default_value, func );
@@ -1684,10 +1706,10 @@ static min::gen primary_pass_command
 	 ! min::is_obj ( vp[i] )
 	 ||
 	    min::get ( vp[i], min::dot_initiator )
-	 != PARLEX::left_parenthesis )
+	 != ::left_parenthesis_star )
 	return PAR::parse_error
 	    ( parser, ppvec[i-1],
-	      "expected (...) bracketed expression"
+	      "expected (* ... *) bracketed expression"
 	      " after" );
 
     min::phrase_position_vec nppvec =
@@ -1724,7 +1746,7 @@ static min::gen primary_pass_command
 	else
 	    return PAR::parse_error
 		( parser, ppvec[i],
-		  "(...) bracketed expression is"
+		  "(* ... *) bracketed expression is"
 		  " empty" );
     }
 

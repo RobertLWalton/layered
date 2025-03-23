@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 14 03:49:27 AM EDT 2025
+// Date:	Sun Mar 23 03:15:53 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -300,6 +300,8 @@ static void define_assignment_operators
 
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
+    min::locatable_gen question_equal
+        ( min::new_str_gen ( "?=" ) );
 
     if ( math ) OP::push_oper
         ( equal,
@@ -312,16 +314,29 @@ static void define_assignment_operators
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
-    if ( code ) OP::push_oper
-        ( equal,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::LEFT + OP::LINE,
-	  1000,
-	  assignment_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
+    if ( code )
+    {
+        OP::push_oper
+	    ( equal,
+	      min::MISSING(),
+	      code,
+	      block_level, PAR::top_level_position,
+	      OP::LEFT + OP::LINE,
+	      1000,
+	      assignment_reformatter,
+	      min::MISSING(),
+	      oper_pass->oper_table );
+        OP::push_oper
+	    ( question_equal,
+	      min::MISSING(),
+	      code,
+	      block_level, PAR::top_level_position,
+	      OP::INFIX,
+	      3000,
+	      binary_reformatter,
+	      min::MISSING(),
+	      oper_pass->oper_table );
+    }
 
     min::locatable_gen comma
         ( min::new_str_gen ( "," ) );

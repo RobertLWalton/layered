@@ -80,6 +80,9 @@
                         with parsing selectors [- code, - label, - text,
                                                 + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block standard: bracket [< "(" "*" >] ... [< "*" ")" >]
+                        [data, code, label, text, math]
+                        with parsing selectors [code]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [code, label, text, math]
                         with parsing selectors [label]

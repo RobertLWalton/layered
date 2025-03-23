@@ -15,9 +15,9 @@
     trace [+ parser commands, + warnings ]
 *PARSER*:
     begin block BLOCK1
-    define primary variable (X Y 1) [code]
+    define primary variable (* X Y 1 *) [code]
            with module M with location 100
-    print primary variable ()
+    print primary variable (*  *)
         block BLOCK1: variable (X Y 1) [code] with location 100
                       in module M
     test primary:  X Y 1
@@ -26,7 +26,7 @@
     -- found variable: X Y 1 ===> M 100
     test primary:  X Y
     -- no definition found
-    define primary variable (X Y) [code]
+    define primary variable (* X Y *) [code]
            with module M with location 200
     test primary:  X Y 1 [FOO]
     -- found variable: X Y 1 ===> M 100
@@ -34,18 +34,18 @@
     -- found variable: X Y ===> M 200
     test primary:  X
     -- no definition found
-    print primary variable ()
+    print primary variable (*  *)
         block BLOCK1: variable (X Y 1) [code] with location 100
                       in module M
         block BLOCK1: variable (X Y) [code] with location 200
                       in module M
     end block BLOCK1
-    print primary variable ()
+    print primary variable (*  *)
         nothing found
 *PARSER*:
     begin block BLOCK1
-    define primary function ((A1) "+" (A2)) [code]
-    print primary function ()
+    define primary function (* (A1) "+" (A2) *) [code]
+    print primary function (*  *)
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
         block TOP LEVEL: function ((X)"*"(Y)) with flags  3000002
@@ -91,7 +91,7 @@
 REJECTING: (A1)"+"(A2)
            expected function term just after (B) but found + instead
     -- found value op:  (A) "+" (B) ===> *MISSING* 0  1050002
-    test primary:  (A) +
+    test primary:  (A) "+"
     -- no definition found
     test primary:  (A) + (B) - (C)
 REJECTING: (A1)"+"(A2)
@@ -108,8 +108,8 @@ REJECTING: (A1)"+"(A2)
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-    define primary function (F [X]) [code]
-    print primary function ()
+    define primary function (* F [X] *) [code]
+    print primary function (*  *)
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
         block TOP LEVEL: function ((X)"*"(Y)) with flags  3000002
@@ -152,8 +152,8 @@ REJECTING: (A1)"+"(A2)
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-    define primary function (F (X) ({|Y|}?={|Z|})) [code]
-    print primary function ()
+    define primary function (* F (X) (Y ?= Z) *) [code]
+    print primary function (*  *)
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
         block TOP LEVEL: function ((X)"*"(Y)) with flags  3000002
@@ -198,8 +198,8 @@ REJECTING: (A1)"+"(A2)
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-    define primary function (F (X) G ({|Y|}?={|Q|}) H (Z)) [code]
-    print primary function ()
+    define primary function (* F (X) G (Y ?= Q) H (Z) *) [code]
+    print primary function (*  *)
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
         block TOP LEVEL: function ((X)"*"(Y)) with flags  3000002
@@ -258,15 +258,8 @@ REJECTING: F(X)G(Y)H(Z)
 *PARSER*:
     begin block BLOCK1
     define primary function
-       ({"": .separator = ",",
-              .initiator = "(",
-              .terminator = ")"|{|X1|} {|X2|}|} F
-         {"": .separator = ",",
-              .initiator = "(",
-              .terminator = ")"|
-               {|Z1|} {|{|Z2|} ?= {|D2|}|}|})
-         [code]
-    print primary function ()
+       (* (X1, X2) F (Z1, Z2 ?= D2) *) [code]
+    print primary function (*  *)
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
         block TOP LEVEL: function ((X)"*"(Y)) with flags  3000002
@@ -323,15 +316,15 @@ REJECTING: (X1, X2)F(Z1, Z2)
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-ERROR: in line ###: argment with NO default found AFTER argument with
+ERROR: in line ##: argment with NO default found AFTER argument with
        default:
-               {|Z1|} {|{|Z2|} ?= {|D2|}|} {|Z3|}|})
-                                           ^^^^^^
+       (* (X1, X2) F (Z1, Z2 ?= D2, Z3) *) [code]
+                                    ^^
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-    define primary function ((A) F (B) G (C)) [code]
-    define primary function ((A) F (B)) [code]
+    define primary function (* (A) F (B) G (C) *) [code]
+    define primary function (* (A) F (B) *) [code]
     test primary:  (X) F (Y)
     -- found function:  (X) F (Y) ===> *MISSING* 0
     test primary:  (X) F (Y) G (Z)
@@ -342,7 +335,7 @@ REJECTING: (A)F(B)
 *PARSER*:
     begin block BLOCK1
     define primary function
-        (F1 (A) G ({|B|} ?= {|TRUE|})) [code]
+        (* F1 (A) G (B ?= TRUE) *) [code]
     test primary:  F1 (Y)
     -- found function:  F1 (Y) G {|TRUE|} ===> *MISSING* 0
     test primary:  F1 (Y) NOT G
@@ -350,7 +343,7 @@ REJECTING: (A)F(B)
     test primary:  F1 (Y) G
     -- found function:  F1 (Y) G {|TRUE|} ===> *MISSING* 0
     define primary function
-        (F2 (A) G ({|B|} ?= {|FALSE|})) [code]
+        (* F2 (A) G (B ?= FALSE) *) [code]
     test primary:  F2 (Y)
     -- found function:  F2 (Y) G {|FALSE|} ===> *MISSING* 0
     test primary:  F2 (Y) NOT G

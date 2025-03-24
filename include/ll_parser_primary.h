@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 22 02:49:09 AM EDT 2025
+// Date:	Mon Mar 24 05:49:34 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,6 +74,20 @@ MIN_REF ( min::gen, label,
           ll::parser::primary::separator )
 MIN_REF ( min::gen, group,
           ll::parser::primary::separator )
+
+// Create a separator definition entry with given
+// label, selectors, flags, and group, and
+// push it into the given separator_table.
+//
+void push_separator
+	( min::gen separator_label,
+	  ll::parser::table::flags selectors,
+	  min::uns32 block_level,
+	  const min::phrase_position & position,
+	  min::uns32 flags,
+	  min::gen group,
+	  ll::parser::table::key_table
+	      separator_table );
 
 // Primary Table Entries
 // ------- ----- -------

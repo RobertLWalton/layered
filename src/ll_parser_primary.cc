@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 24 05:58:44 AM EDT 2025
+// Date:	Mon Mar 24 08:23:53 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,7 +47,6 @@ min::locatable_gen PRIMLEX::parentheses;
 min::locatable_gen PRIMLEX::square_brackets;
 static min::locatable_gen left_parenthesis_star;
 static min::locatable_gen test;
-static min::locatable_gen initial;
 static min::locatable_gen following;
 
 
@@ -75,7 +74,6 @@ static void initialize ( void )
     ::left_parenthesis_star =
         min::new_lab_gen ( "(", "*" );
     ::test = min::new_str_gen ( "test" );
-    ::initial = min::new_str_gen ( "initial" );
     ::following = min::new_str_gen ( "following" );
 
     PRIM::func_default_op = min::new_str_gen ( "?=" );
@@ -105,7 +103,7 @@ static min::initializer initializer ( ::initialize );
 
 static min::uns32 separator_gen_disp[] = {
     min::DISP ( & PRIM::separator_struct::label ),
-    min::DISP ( & PRIM::separator_struct::group ),
+    min::DISP ( & PRIM::separator_struct::following ),
     min::DISP_END };
 
 static min::uns32 separator_stub_disp[] = {
@@ -128,8 +126,7 @@ void PRIM::push_separator
 	  TAB::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  min::uns32 flags,
-	  min::gen group,
+	  min::gen following,
 	  TAB::key_table separator_table )
 {
     min::locatable_var<PRIM::separator> separator
@@ -139,8 +136,7 @@ void PRIM::push_separator
     separator->selectors = selectors;
     separator->block_level = block_level;
     separator->position = position;
-    separator->flags = flags;
-    group_ref(group) = group;
+    following_ref(separator) = following;
 
     TAB::push
         ( separator_table, (TAB::root) separator );
@@ -2288,17 +2284,20 @@ static min::gen primary_separator_pass_command
 		      parser->selector_name_table,
 		      parser );
 
-		parser->printer << min::indent;
-		min::uns32 flags = sep->flags;
-		if ( flags == PRIM::INITIAL )
-		    parser->printer << "initial";
-		else if ( flags == PRIM::FOLLOWING )
-		    parser->printer << "following";
+		if ( sep->following != min::MISSING() )
+		{
+		    parser->printer
+			<< min::indent << "following";
 
-		parser->printer
-		    << min::indent
-		    << "with group "
-		    << min::pgen_name ( sep->group );
+		    min::lab_ptr lp = sep->following;
+		    min::uns32 lsize =
+		        min::lablen ( lp );
+		    for ( min::uns32 i = 0; i < lsize;
+		                            ++ i )
+			parser->printer
+			    << " "
+			    << min::pgen_name ( lp[i] );
+		}
 
 		parser->printer
 		    << min::restore_indent;
@@ -2333,61 +2332,31 @@ static min::gen primary_separator_pass_command
 	      " after" );
     else MIN_REQUIRE ( sresult == min::SUCCESS() );
 
-    // Scan separator flags.
+    // Scan following.
     //
-    min::uns32 separator_flags = 0;
-
-    min::phrase_position separator_flags_position;
-    separator_flags_position.begin = (&ppvec[i])->begin;
-
-    while ( i < size )
+    min::locatable_gen following ( min::MISSING() );
+    if ( i < size && vp[i] == ::following )
     {
-        if ( vp[i] == ::initial )
-	    separator_flags |= PRIM::INITIAL;
-        else if ( vp[i] == ::following )
-	    separator_flags |= PRIM::FOLLOWING;
-	else break;
-
-	++ i;
+        ++ i;
+	min::locatable_gen f[size - i];
+	min::uns32 j = 0;
+	while ( i < size )
+	{
+	    f[j] = PAR::scan_quoted_key
+			  ( vp, i, parser );
+	    if ( f[j] == min::ERROR() )
+		return min::ERROR();
+	    else if ( f[j] == min::MISSING() )
+		return PAR::parse_error
+		    ( parser, ppvec[i-1],
+		      "expected quoted name after" );
+	    ++ j;
+	}
+	min::gen labbuf[j];
+	for ( min::uns32 k = 0; k < j; ++ k )
+	    labbuf[k] = f[k];
+	following = min::new_lab_gen ( labbuf, j );
     }
-
-    separator_flags_position.end = (&ppvec[i-1])->end;
-
-    if ( ( separator_flags & PRIM::INITIAL )
-          &&
-	 ( separator_flags & PRIM::FOLLOWING ) )
-	return PAR::parse_error
-	    ( parser, separator_flags_position,
-	      "separator flags initial and left"
-	      " are incompatible" );
-    else if ( separator_flags == 0 )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected separator flag after" );
-
-    if ( i + 2 >= size
-         || vp[i] != PARLEX::with
-         || vp[i+1] != PARLEX::group )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected `with group ...' after" );
-    i += 2;
-
-    // Scan separator group.
-    //
-    min::locatable_gen group;
-
-    // Scan group.
-    //
-    group = PAR::scan_quoted_key
-	      ( vp, i, parser );
-
-    if ( group == min::ERROR() )
-	return min::ERROR();
-    else if ( group == min::MISSING() )
-	return PAR::parse_error
-	    ( parser, ppvec[i-1],
-	      "expected quoted group after" );
 
     if ( i < size )
 	return PAR::parse_error
@@ -2401,7 +2370,7 @@ static min::gen primary_separator_pass_command
 	      selectors,
 	      PAR::block_level ( parser ),
 	      ppvec->position,
-	      separator_flags, group,
+	      following,
 	      primary_pass->separator_table );
     }
 
@@ -2430,9 +2399,7 @@ static min::gen primary_separator_pass_command
 
 	    PRIM::separator sep =
 	        (PRIM::separator) root;
-	    if ( sep->group != group )
-	        continue;
-	    if ( sep->flags != separator_flags )
+	    if ( sep->following != following )
 	        continue;
 
 	    TAB::push_undefined

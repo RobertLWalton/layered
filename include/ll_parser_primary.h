@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 24 05:49:34 AM EDT 2025
+// Date:	Mon Mar 24 08:23:33 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,12 +47,6 @@ namespace lexeme {
 // Primary Separator Table Entries
 // ------- --------- ----- -------
 
-enum separator_flags
-{
-    INITIAL	= ( 1 << 0 ),
-    FOLLOWING	= ( 1 << 1 ),
-};
-
 struct separator_struct;
 typedef min::packed_struct_updptr<separator_struct>
 	separator;
@@ -64,15 +58,17 @@ struct separator_struct
 {
     // Packed_struct subtype is SEPARATOR.
 
-    min::uns32 flags;
-    const min::gen group;
+    const min::gen following;
+        // MIN label listing allowed immediately
+	// preceding separators, or MISSING if initial
+	// separator.
 };
 
 MIN_REF ( ll::parser::table::root, next,
           ll::parser::primary::separator )
 MIN_REF ( min::gen, label,
           ll::parser::primary::separator )
-MIN_REF ( min::gen, group,
+MIN_REF ( min::gen, following,
           ll::parser::primary::separator )
 
 // Create a separator definition entry with given
@@ -84,8 +80,7 @@ void push_separator
 	  ll::parser::table::flags selectors,
 	  min::uns32 block_level,
 	  const min::phrase_position & position,
-	  min::uns32 flags,
-	  min::gen group,
+	  min::gen following,
 	  ll::parser::table::key_table
 	      separator_table );
 

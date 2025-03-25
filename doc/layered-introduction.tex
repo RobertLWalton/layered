@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 21, 2025
+March 24, 2025
  
 \end{center}
 
@@ -9711,31 +9711,20 @@ the primary separator parsing definition stack:
     ::= & \TT{define}\ttmindex{define primary separator}{parser command}
 	    \begin{tabular}[t]{@{}l@{}}
 	    \TT{primary separator} ~
-	        \begin{tabular}[t]{@{}l@{}}
 		{\em primary-separator-name} {\em parsing-selectors} \\
-		{\em primary-separator-flag} \\
-		\end{tabular} \\
-	    \TT{with group} ~ {\em primary-separator-group} \\
+	    \{ \TT{following} ~ {\em primary-separator-name}\PLUS{} \}\QMARK{}
 	    \end{tabular} \\
     $|$ & \TT{undefine}\ttmlindex{parser undefine}{primary separator}%
                                  {parser command}
 	   ~\begin{tabular}[t]{@{}l@{}}
 	    \TT{primary separator} ~
-	        \begin{tabular}[t]{@{}l@{}}
 		{\em primary-separator-name} {\em parsing-selectors} \\
-		{\em primary-separator-flag} \\
-		\end{tabular} \\
-	    \TT{with group} ~ {\em primary-separator-group} \\
+	    \{ \TT{following} ~ {\em primary-separator-name}\PLUS{} \}\QMARK{}
 	    \end{tabular} \\
     \end{tabular}
 \\[1ex]
 {\em primary-separator-name} ::= {\em quoted-key} \\
-{\em primary-separator-group} ::= {\em quoted-key} \\
 {\em quoted-key} ::= see \pagref{QUOTED-KEY}
-\\[1ex]
-\emkey{primary-separator-flag}
-    ::= \ttmkey{initial}{primary separator flag}
-    $|$ \ttmkey{following}{primary separator flag}
 \end{indpar}
 
 \begin{indpar}[0.1in]
@@ -9768,18 +9757,17 @@ Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
 \tt define primary separator "a" [code] initial & {\tt + code} \\
-\tt ~~~~~~~with group "a" \\
 \tt define primary separator "an" [code] initial & {\tt + code} \\
-\tt ~~~~~~~with group "a" \\
 \tt define primary separator "the" [code] initial & {\tt + code} \\
-\tt ~~~~~~~with group "the" \\
 \\[1ex]
-\tt define primary separator "of" [code] following & {\tt + code} \\
-\tt ~~~~~~~with group "the" \\
-\tt define primary separator "of the" [code] following & {\tt + code} \\
-\tt ~~~~~~~with group "the" \\
-\tt define primary separator "with" [code] following & {\tt + code} \\
-\tt ~~~~~~~with group "the" \\
+\tt define primary separator "of" [code] & {\tt + code} \\
+\tt ~~~~~~~following "the" "of the" \\
+\tt define primary separator "of the" [code] & {\tt + code} \\
+\tt ~~~~~~~following "the" "of the" \\
+\tt define primary separator "with" [code] & {\tt + code} \\
+\tt ~~~~~~~following "the" \\
+\tt define primary separator "and" [code] & {\tt + code} \\
+\tt ~~~~~~~following "with" \\
 \end{tabular}
 \end{center}
 

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 24, 2025
+March 25, 2025
  
 \end{center}
 
@@ -9678,12 +9678,14 @@ Here:
       {\em initial-primary-separator} is a {\em primary}.
 \item {\em Primary-separators} must be separated by {\em primaries}
       which cannot be empty.
-\item A {\em following-primary-separator} must be enabled by a particular
-preceeding {\em initial-primary-separator}, else it is not recognized.
-For example, if `\TT{a}' and `\TT{the}' are {\em initial-primary-separators},
-the {\em following-primary-separator} `\TT{of}' may be recognized in an
-expression beginning with `\TT{the}' but not in one beginning
-with `\TT{a}'.
+\item A {\em following-primary-separator} must be enabled by a
+preceeding {\em primary-separator}, else it is not recognized.
+For example, in the {\em (H+1)-expression}: \\
+\centerline{\tt the cow with color brown and weight 475 lb}
+the following primary separator `\TT{with}' is enabled by the preceding
+initial primary separator `\TT{the}' and
+the following primary separator `\TT{and}' is enabled by the preceding
+following primary separator `\TT{with}'.
 \end{itemize}
 
 The primary parser begins by recognizing the {\em primary-separators}
@@ -9756,9 +9758,9 @@ can be used to define standard parsing separators:
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
-\tt define primary separator "a" [code] initial & {\tt + code} \\
-\tt define primary separator "an" [code] initial & {\tt + code} \\
-\tt define primary separator "the" [code] initial & {\tt + code} \\
+\tt define primary separator "a" [code] & {\tt + code} \\
+\tt define primary separator "an" [code] & {\tt + code} \\
+\tt define primary separator "the" [code] & {\tt + code} \\
 \\[1ex]
 \tt define primary separator "of" [code] & {\tt + code} \\
 \tt ~~~~~~~following "the" "of the" \\
@@ -9767,7 +9769,7 @@ Parser Command				& \shortstack{
 \tt define primary separator "with" [code] & {\tt + code} \\
 \tt ~~~~~~~following "the" \\
 \tt define primary separator "and" [code] & {\tt + code} \\
-\tt ~~~~~~~following "with" \\
+\tt ~~~~~~~following "with" "and"  \\
 \end{tabular}
 \end{center}
 

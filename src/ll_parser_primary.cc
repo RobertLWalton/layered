@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 24 08:23:53 PM EDT 2025
+// Date:	Tue Mar 25 01:41:59 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2296,7 +2296,8 @@ static min::gen primary_separator_pass_command
 		                            ++ i )
 			parser->printer
 			    << " "
-			    << min::pgen_name ( lp[i] );
+			    << min::pgen_quote
+			           ( lp[i] );
 		}
 
 		parser->printer

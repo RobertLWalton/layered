@@ -15,6 +15,22 @@
     trace [+ parser commands, + warnings ]
 *PARSER*:
     begin block BLOCK1
+    define primary separator "A" [code]
+    define primary separator "B" [code]
+           following "A"
+    define primary separator "C" [code]
+           following "A" "B" "C"
+    print primary separator ""
+        block BLOCK1: primary separator  "A" [code]
+        block BLOCK1: primary separator  "B" [code]
+                      following "A"
+        block BLOCK1: primary separator  "C" [code]
+                      following "A" "B" "C"
+    end block BLOCK1
+    print primary separator ""
+        nothing found
+*PARSER*:
+    begin block BLOCK1
     define primary variable (* X Y 1 *) [code]
            with module M with location 100
     print primary variable (*  *)
@@ -316,7 +332,7 @@ REJECTING: (X1, X2)F(Z1, Z2)
     end block BLOCK1
 *PARSER*:
     begin block BLOCK1
-ERROR: in line ##: argment with NO default found AFTER argument with
+ERROR: in line ###: argment with NO default found AFTER argument with
        default:
        (* (X1, X2) F (Z1, Z2 ?= D2, Z3) *) [code]
                                     ^^

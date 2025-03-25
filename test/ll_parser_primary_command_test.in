@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 23 03:48:23 AM EDT 2025
+// Date:	Tue Mar 25 01:40:05 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,17 @@
     print selector ""
     print pass
     trace [+ parser commands, + warnings ]
+
+*PARSER*:
+    begin block BLOCK1
+    define primary separator "A" [code]
+    define primary separator "B" [code]
+           following "A"
+    define primary separator "C" [code]
+           following "A" "B" "C"
+    print primary separator ""
+    end block BLOCK1
+    print primary separator ""
 
 *PARSER*:
     begin block BLOCK1

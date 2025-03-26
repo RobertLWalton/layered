@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-March 25, 2025
+March 26, 2025
  
 \end{center}
 
@@ -9681,19 +9681,12 @@ Here:
 \item A {\em following-primary-separator} must be enabled by a
 preceeding {\em primary-separator}, else it is not recognized.
 For example, in the {\em (H+1)-expression}: \\
-\centerline{\tt the cow with color brown and weight 475 lb}
+\hspace*{3em}{\tt the cow with color brown and weight 475 lb} \\
 the following primary separator `\TT{with}' is enabled by the preceding
 initial primary separator `\TT{the}' and
 the following primary separator `\TT{and}' is enabled by the preceding
 following primary separator `\TT{with}'.
 \end{itemize}
-
-The primary parser begins by recognizing the {\em primary-separators}
-in an {\em (H+1)-expression} allowing empty {\em primaries}.
-Then the primary parser declares an error if it finds
-any empty {\em primaries}, and replaces empty primaries by an
-\TT{ERROR'OPERAND}.
-
 
 {\em Parser-primary-separator-commands} modify and print
 the primary separator parsing definition stack:
@@ -9741,6 +9734,22 @@ the primary separator parsing definition stack:
 \emkey{partial-primary-separator-name} ::= {\em quoted-key}
 \end{indpar}
 
+A primary separator whose definition has no \TT{following} clause
+is \mkey{initial}{primary separator}.  
+A primary separator whose definition has a \TT{following} clause
+is \mkey{following}{primary separator}.
+
+\begin{itemize}
+\item An initial separator is only recognized if it is at the beginning
+of the {\em (H+1)-expression}.
+\item A following separator X is only recognized if it is preceeded by
+a {\em primary} that is preceded by primary separator Y and Y is in
+the \TT{following} clause list of X.
+\item A primary separator is not recognized if it immediately follows another
+primary separator in the {\em (H+1)-expression}.
+\item A primary separator is not recognized if it would be at the end of
+the {\em (H+1)-expression}.
+\end{itemize}
 
 The following parser standard component
 (see \itemref{PARSER-STANDARD-COMMANDS})
@@ -9758,6 +9767,7 @@ can be used to define standard parsing separators:
 Parser Command				& \shortstack{
                                           Given\\Qualifiers}
 \\\hline
+\tt define pass primary [code] after operator & {\tt + code} \\
 \tt define primary separator "a" [code] & {\tt + code} \\
 \tt define primary separator "an" [code] & {\tt + code} \\
 \tt define primary separator "the" [code] & {\tt + code} \\

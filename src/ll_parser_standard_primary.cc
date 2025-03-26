@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 05:12:43 AM EST 2025
+// Date:	Wed Mar 26 02:17:50 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -255,6 +255,13 @@ void PARSTD::define_primary
 
     PRIM::primary_pass pass =
         PRIM::init_primary ( parser );
+    min::locatable_gen code_name
+	( min::new_str_gen ( "code" ) );
+    TAB::flags code = 1ull << TAB::find_name
+	      ( parser->selector_name_table,
+		code_name );
+    pass->selectors = code;
+
     TAB::key_table symbol_table = pass->primary_table;
     min::gen modifying_ops = pass->modifying_ops;
 

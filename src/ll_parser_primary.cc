@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 25 01:41:59 AM EDT 2025
+// Date:	Wed Mar 26 02:02:42 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -571,7 +571,7 @@ PRIM::primary_pass PRIM::init_primary
 //
 static void print_func
 	( PRIM::func func, PAR::parser parser,
-	  min::gen default_op = min::NONE() ) 
+	  min::gen default_op = min::NONE() )
 {
     min::uns32 len = func->arg_lists->length;
     for ( min::uns32 j = 0; j < len; ++ j )
@@ -995,7 +995,7 @@ PRIM::func PRIM::scan_func_prototype
 	    else
 	        label_done = true;
 
-	    min::uns32 number_of_args = 
+	    min::uns32 number_of_args =
 	        func->args->length - first;
 	    if ( number_of_args != 1 )
 	        is_bool = false;
@@ -1343,7 +1343,7 @@ CHECK_TYPE:
 	       | PRIM::LOGICAL_OPERATOR ) )
 	 && quoted_i >= after_lookup )
     {
-        
+
 	min::push(av) = vp[i + 0];
 	if ( i + 2 < iend )  // For unary postfix op.
 	    min::push(av) = vp[i + 2];
@@ -1527,7 +1527,7 @@ CHECK_TYPE:
 			      " before first function"
 			      " term name is too"
 			      " long" );
-		    else 
+		    else
 			::print_reject
 			    ( parser, func,
 			      "argument list ",
@@ -1694,13 +1694,187 @@ static void primary_parse ( PAR::parser parser,
 		            PAR::token & first,
 		            PAR::token next )
 {
-    //  Everything is done in the Primary Parsing
-    //  Functions.  Ideally the primary pass would
-    //  have all-zero selectors, but just in case
-    //  the following will do.
-    //
-    PAR::execute_pass_parse
-        ( parser, pass, selectors, first, next );
+    PRIM::primary_pass primary_pass =
+        (PRIM::primary_pass) pass;
+
+    TAB::flags trace_flags = parser->trace_flags;
+    if (   trace_flags
+         & primary_pass->trace_subexpressions )
+    {
+	trace_flags &=
+	      PAR::TRACE_SUBEXPRESSION_ELEMENTS
+	    + PAR::TRACE_SUBEXPRESSION_DETAILS
+	    + PAR::TRACE_SUBEXPRESSION_LINES
+	    + PAR::TRACE_KEYS;
+	if ( trace_flags == 0 )
+	    trace_flags =
+	        PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+    }
+    else
+        trace_flags = 0;
+
+    if ( trace_flags & PAR::TRACE_KEYS )
+    {
+	min::phrase_position pos =
+	    { first->position.begin,
+	      next->previous->position.end };
+
+	parser->printer
+	    << min::bom
+	    << min::adjust_indent ( 4 )
+	    << "PRIMARY PASS ";
+
+	COM::print_flags
+	    ( selectors, PAR::COMMAND_SELECTORS,
+	      parser->selector_name_table,
+	      parser );
+
+	parser->printer
+	    << " "
+	    << min::pline_numbers
+		   ( parser->input_file, pos )
+	    << ":" << min::eom;
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      pos );
+    }
+
+    PAR::token current = first;
+    PAR::token last_separator = min::NULL_STUB;
+    while ( current != next )
+    {
+        TAB::root root = min::NULL_STUB;
+    	TAB::key_prefix key_prefix;
+	PAR::token next_current = current;
+	root = PAR::find_entry
+	    ( parser, next_current, key_prefix,
+	      selectors, primary_pass->separator_table,
+	      next );
+
+	min::phrase_position pos =
+	    { current->position.begin,
+	      next_current->previous->position.end };
+
+	while ( root != min::NULL_STUB )
+	{
+	    PRIM::separator sep =
+	        (PRIM::separator) root;
+	    MIN_REQUIRE ( sep != min::NULL_STUB );
+	    bool OK = true;
+	    if ( ( sep->selectors & selectors ) == 0 )
+	        OK = false;
+	    else if ( next_current == next )
+	        OK = false;
+		// separator would end expression
+	    else if ( sep->following == min::MISSING() )
+	        OK = ( current == first );
+		// true iff initial separator first
+	    else if ( last_separator == min::NULL_STUB )
+	        OK = false;
+		// following separator first
+	    else if (    min::labfind
+	                     ( last_separator->value,
+			       sep->following )
+		      == -1 )
+	        OK = false;
+
+	    if ( trace_flags & PAR::TRACE_KEYS )
+	    {
+		parser->printer
+		    << min::bom
+		    << min::adjust_indent ( 7 )
+		    << ( OK ? "ACCEPTED "
+		            : "REJECTED " )
+		    << "PRIMARY SEPARATOR "
+		    << min::pgen_quote ( sep->label )
+		    << "; "
+		    << min::pline_numbers
+			   ( parser->input_file, pos )
+		    << ":" << min::eom;
+		min::print_phrase_lines
+		    ( parser->printer,
+		      parser->input_file,
+		      pos );
+	    }
+
+	    if ( OK ) break;
+
+	    root = PAR::find_next_entry
+	        ( parser, next_current, key_prefix,
+		  selectors, root );
+	    pos.end =
+	        next_current->previous->position.end;
+	}
+
+	if ( root == min::NULL_STUB )
+	{
+	    if ( current == first )
+	    {
+	        // If no initial separator, then there
+		// are no separators.
+		//
+		PAR::execute_pass_parse
+		    ( parser, pass->next, selectors,
+		      first, next );
+		return;
+	    }
+
+	    current = current->next;
+	    continue;
+	}
+
+	if ( last_separator != min::NULL_STUB )
+	{
+	    // Compact operand.
+	    //
+	    min::phrase_position pos =
+	        { last_separator->position.begin,
+		  current->previous->position.end };
+
+	    PAR::token f = last_separator->next;
+
+	    PAR::compact
+		( parser, primary_pass->next,
+		  selectors,
+		  f, current,
+		  pos,
+		  trace_flags,
+		  PAR::PURELIST );
+	}
+
+	// Replace separator tokens by separator
+	// (calling it an OPERATOR token).
+	//
+	while ( current->next != next_current )
+	    PAR::free
+		( PAR::remove
+		      ( PAR::first_ref (parser),
+			next_current->previous ) );
+
+	value_ref ( current ) = root->label;
+	current->type = PAR::OPERATOR;
+
+	last_separator = current;
+	current = current->next;
+
+    }
+
+    {
+	min::phrase_position pos =
+	    { last_separator->position.begin,
+	      next->previous->position.end };
+
+	PAR::token f = last_separator->next;
+
+	PAR::compact
+	    ( parser, primary_pass->next,
+	      selectors,
+	      f, next,
+	      pos,
+	      trace_flags,
+	      PAR::PURELIST );
+    }
 }
 
 // Primary Pass Command Function
@@ -2056,7 +2230,7 @@ static min::gen primary_pass_command
 	         var == min::NULL_STUB :
 	         func == min::NULL_STUB )
 	        continue;
-	        
+
 	    if (    ( root->selectors & selectors )
 		 == 0 )
 		continue;

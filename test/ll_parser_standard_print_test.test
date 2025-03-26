@@ -11,7 +11,7 @@
     print pass
         top
         operator [code, math]
-        primary []
+        primary [code]
     print top level
         block standard:  selectors [code]
                          options [end at le indent,

@@ -1,7 +1,7 @@
 === BRACKETED EXPRESSION: line ##:
-a b c
+b c d
 ^^^^^
-    a b c
+    b c d
 === BRACKETED EXPRESSION: line ##:
 a < b < c
 ^^^^^^^^^

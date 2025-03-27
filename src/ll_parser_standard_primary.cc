@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 26 02:17:50 AM EDT 2025
+// Date:	Thu Mar 27 02:31:11 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,86 @@
 // Define Standard Primary
 // ------ -------- -------
 //
+static void define_primary_separators
+	( PAR::parser parser,
+	  TAB::key_table separator_table )
+{
+    min::uns32 block_level =
+
+    PAR::block_level ( parser );
+    min::locatable_gen code_name
+	( min::new_str_gen ( "code" ) );
+    TAB::flags code = 1ull << TAB::find_name
+	      ( parser->selector_name_table,
+		code_name );
+
+    min::locatable_gen a_name
+        ( min::new_str_gen ( "a" ) );
+    min::locatable_gen an_name
+        ( min::new_str_gen ( "an" ) );
+    min::locatable_gen the_name
+        ( min::new_str_gen ( "the" ) );
+
+    min::locatable_gen of_name
+        ( min::new_str_gen ( "of" ) );
+    min::locatable_gen of_the_name
+        ( min::new_lab_gen ( "of", "the" ) );
+    min::locatable_gen with_name
+        ( min::new_str_gen ( "with" ) );
+    min::locatable_gen and_name
+        ( min::new_str_gen ( "and" ) );
+
+    PRIM::push_separator
+        ( a_name, code, block_level,
+	  PAR::top_level_position,
+	  min::MISSING(),
+	  separator_table );
+
+    PRIM::push_separator
+        ( an_name, code, block_level,
+	  PAR::top_level_position,
+	  min::MISSING(),
+	  separator_table );
+
+    PRIM::push_separator
+        ( the_name, code, block_level,
+	  PAR::top_level_position,
+	  min::MISSING(),
+	  separator_table );
+
+    min::gen of_buf[2] = { the_name, of_the_name };
+    min::locatable_gen of_following
+        ( min::new_lab_gen ( of_buf, 2 ) );
+    PRIM::push_separator
+        ( of_name, code, block_level,
+	  PAR::top_level_position,
+	  of_following,
+	  separator_table );
+    PRIM::push_separator
+        ( of_the_name, code, block_level,
+	  PAR::top_level_position,
+	  of_following,
+	  separator_table );
+
+    min::gen with_buf[1] = { the_name };
+    min::locatable_gen with_following
+        ( min::new_lab_gen ( with_buf, 1 ) );
+    PRIM::push_separator
+        ( with_name, code, block_level,
+	  PAR::top_level_position,
+	  with_following,
+	  separator_table );
+
+    min::gen and_buf[2] = { with_name, and_name };
+    min::locatable_gen and_following
+        ( min::new_lab_gen ( and_buf, 2 ) );
+    PRIM::push_separator
+        ( and_name, code, block_level,
+	  PAR::top_level_position,
+	  and_following,
+	  separator_table );
+}
+
 static void define_arithmetic_operators
 	( TAB::key_table symbol_table,
 	  min::gen modifying_ops )
@@ -260,7 +340,15 @@ void PARSTD::define_primary
     TAB::flags code = 1ull << TAB::find_name
 	      ( parser->selector_name_table,
 		code_name );
-    pass->selectors = code;
+
+    if ( ( components & PARSTD::PRIMARY_SEPARATORS )
+         &&
+	 ( components & PARSTD::CODE ) )
+    {
+	pass->selectors = code;
+	::define_primary_separators
+	    ( parser, pass->separator_table );
+    }
 
     TAB::key_table symbol_table = pass->primary_table;
     min::gen modifying_ops = pass->modifying_ops;

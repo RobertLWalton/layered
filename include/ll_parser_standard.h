@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 21 02:38:19 AM EDT 2024
+// Date:	Thu Mar 27 02:06:48 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -302,11 +302,14 @@ enum {
         // Set all ..._OPERATOR entries.
 
     PRIMARY_PARSING		= 1 << 22,
-        // Install primary pass which does no parsing
-	// itself but which does provide tables for
-	// the primary parsing functions (see
+        // Install primary pass which provides tables
+	// for parsing primary separators and the
+	// primary parsing functions (see
 	// ll_parser_primary.h).
-    PRIMARY_OPERATORS		= 1 << 23,
+    PRIMARY_SEPARATORS		= 1 << 23,
+        // Set standard primary separator entries
+	// omitting DISabled CODE selectors.
+    PRIMARY_OPERATORS		= 1 << 24,
         // Set operator entries using MEX instruction
 	// codes in primary symbol table according to
 	// the ..._OPERATORS flags (e.g., this flag and

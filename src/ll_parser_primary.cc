@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 26 08:56:57 PM EDT 2025
+// Date:	Thu Mar 27 02:55:26 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2449,7 +2449,7 @@ static min::gen primary_separator_pass_command
 		    << ": " << min::save_indent;
 
 		parser->printer
-		    << "primary separator  "
+		    << "primary separator "
 		    << min::pgen_quote ( sep->label );
 
 		parser->printer

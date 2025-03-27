@@ -21,11 +21,22 @@
     define primary separator "C" [code]
            following "A" "B" "C"
     print primary separator ""
-        block BLOCK1: primary separator  "A" [code]
-        block BLOCK1: primary separator  "B" [code]
+        block BLOCK1: primary separator "A" [code]
+        block BLOCK1: primary separator "B" [code]
                       following "A"
-        block BLOCK1: primary separator  "C" [code]
+        block BLOCK1: primary separator "C" [code]
                       following "A" "B" "C"
+        block standard: primary separator "an" [code]
+        block standard: primary separator "and" [code]
+                        following "with" "and"
+        block standard: primary separator "a" [code]
+        block standard: primary separator "the" [code]
+        block standard: primary separator [< "of" "the" >] [code]
+                        following "the" [< "of" "the" >]
+        block standard: primary separator "with" [code]
+                        following "the"
+        block standard: primary separator "of" [code]
+                        following "the" [< "of" "the" >]
 ======= PARSER TEST: A {|first item|} B {|second item|} C {|third item|}
 ======= PARSER TEST: A {|first item|} C {|second item|} C {|third item|}
 ======= PARSER TEST: A {|first item|} B {|second item B third item|}
@@ -38,7 +49,17 @@
 *PARSER*:
     end block BLOCK1
     print primary separator ""
-        nothing found
+        block standard: primary separator "an" [code]
+        block standard: primary separator "and" [code]
+                        following "with" "and"
+        block standard: primary separator "a" [code]
+        block standard: primary separator "the" [code]
+        block standard: primary separator [< "of" "the" >] [code]
+                        following "the" [< "of" "the" >]
+        block standard: primary separator "with" [code]
+                        following "the"
+        block standard: primary separator "of" [code]
+                        following "the" [< "of" "the" >]
 *PARSER*:
     begin block BLOCK1
     define primary variable (* X Y 1 *) [code]

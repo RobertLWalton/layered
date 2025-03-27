@@ -3,13 +3,13 @@
 //
 // File:	ll_parser_oper_standard_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 15 06:08:29 EDT 2023
+// Date:	Thu Mar 27 02:53:35 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-a b c
+b c d
 a < b < c
 [ x ( y ) z {{u, v, w}} m (n (p)) ]
 (, x, y 4,, z,,)

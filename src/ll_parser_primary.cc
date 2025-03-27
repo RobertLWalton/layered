@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 26 02:02:42 AM EDT 2025
+// Date:	Wed Mar 26 08:56:57 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1857,6 +1857,9 @@ static void primary_parse ( PAR::parser parser,
 
 	last_separator = current;
 	current = current->next;
+	if ( current != next ) current = current->next;
+	    // A separator cannot be immediately after
+	    // a separator.
 
     }
 

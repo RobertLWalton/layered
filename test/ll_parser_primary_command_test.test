@@ -26,6 +26,16 @@
                       following "A"
         block BLOCK1: primary separator  "C" [code]
                       following "A" "B" "C"
+======= PARSER TEST: A {|first item|} B {|second item|} C {|third item|}
+======= PARSER TEST: A {|first item|} C {|second item|} C {|third item|}
+======= PARSER TEST: A {|first item|} B {|second item B third item|}
+======= PARSER TEST: B first item B second item C third item
+======= PARSER TEST: A {|first item|} B {|C second item|} C
+                         {|B third item|}
+======= PARSER TEST: A {|first item|} B {|C|}
+======= PARSER TEST: A {|first item B|}
+======= END PARSER TEST(S)
+*PARSER*:
     end block BLOCK1
     print primary separator ""
         nothing found

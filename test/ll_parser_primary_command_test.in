@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary_command_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 25 01:40:05 AM EDT 2025
+// Date:	Thu Mar 27 01:56:57 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,17 @@
     define primary separator "C" [code]
            following "A" "B" "C"
     print primary separator ""
+
+*PARSER* *TEST*:
+    A first item B second item C third item
+    A first item C second item C third item
+    A first item B second item B third item
+    B first item B second item C third item
+    A first item B C second item C B third item
+    A first item B C
+    A first item B
+
+*PARSER*:
     end block BLOCK1
     print primary separator ""
 

@@ -34,7 +34,7 @@
         block standard: primary separator [< "of" "the" >] [code]
                         following "the" [< "of" "the" >]
         block standard: primary separator "with" [code]
-                        following "the"
+                        following "the" [< "of" "the" >]
         block standard: primary separator "of" [code]
                         following "the" [< "of" "the" >]
 ======= PARSER TEST: A {|first item|} B {|second item|} C {|third item|}
@@ -57,7 +57,7 @@
         block standard: primary separator [< "of" "the" >] [code]
                         following "the" [< "of" "the" >]
         block standard: primary separator "with" [code]
-                        following "the"
+                        following "the" [< "of" "the" >]
         block standard: primary separator "of" [code]
                         following "the" [< "of" "the" >]
 *PARSER*:

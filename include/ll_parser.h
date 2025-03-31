@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 08:03:54 PM EDT 2024
+// Date:	Sun Mar 30 12:44:48 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -71,6 +71,10 @@ namespace ll { namespace parser {
 	    eaoclosing,		// end at outer closings
 	    eiparagraph,	// enable indented
 	    			//        paragraph
+	    aeparagraph,	// allow empty
+	    			//       paragraph
+	    aiparagraph,	// allow inside
+	    			//       paragraph
 	    eprefix,		// enable prefix
 	    etprefix,		// enable table prefix
 	    eheader,		// enable header
@@ -1040,11 +1044,13 @@ enum {
     EALSEP_OPT				= 1ull << 4,
     EAOCLOSING_OPT			= 1ull << 5,
     EIPARAGRAPH_OPT			= 1ull << 6,
-    EPREFIX_OPT				= 1ull << 7,
-    ETPREFIX_OPT			= 1ull << 8,
-    EHEADER_OPT				= 1ull << 9,
-    STICKY_OPT				= 1ull << 10,
-    CONTINUING_OPT			= 1ull << 11,
+    AEPARAGRAPH_OPT			= 1ull << 7,
+    AIPARAGRAPH_OPT			= 1ull << 8,
+    EPREFIX_OPT				= 1ull << 9,
+    ETPREFIX_OPT			= 1ull << 10,
+    EHEADER_OPT				= 1ull << 11,
+    STICKY_OPT				= 1ull << 12,
+    CONTINUING_OPT			= 1ull << 13,
 
     ALL_EA_OPT    = EAINDENT_OPT
 	          + EALEINDENT_OPT

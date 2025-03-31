@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 29 08:06:39 PM EDT 2024
+// Date:	Sun Mar 30 12:44:38 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,8 @@ min::locatable_gen PARLEX::eapbreak;
 min::locatable_gen PARLEX::ealsep;
 min::locatable_gen PARLEX::eaoclosing;
 min::locatable_gen PARLEX::eiparagraph;
+min::locatable_gen PARLEX::aeparagraph;
+min::locatable_gen PARLEX::aiparagraph;
 min::locatable_gen PARLEX::eprefix;
 min::locatable_gen PARLEX::etprefix;
 min::locatable_gen PARLEX::eheader;
@@ -194,6 +196,12 @@ static void initialize ( void )
     PARLEX::eiparagraph =
     	min::new_lab_gen
 	    ( "enable", "indented", "paragraph" );
+    PARLEX::aeparagraph =
+    	min::new_lab_gen
+	    ( "allow", "empty", "paragraph" );
+    PARLEX::aeparagraph =
+    	min::new_lab_gen
+	    ( "allow", "inside", "paragraph" );
     PARLEX::eprefix =
     	min::new_lab_gen
 	    ( "enable", "prefix" );
@@ -831,6 +839,16 @@ void PAR::init ( min::ref<PAR::parser> parser,
 	      == 1ull << TAB::push_name
 		      ( parser->selector_name_table,
 			PARLEX::eiparagraph ) );
+	MIN_REQUIRE
+	    (    PAR::AEPARAGRAPH_OPT
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PARLEX::aeparagraph ) );
+	MIN_REQUIRE
+	    (    PAR::AIPARAGRAPH_OPT
+	      == 1ull << TAB::push_name
+		      ( parser->selector_name_table,
+			PARLEX::aiparagraph ) );
 	MIN_REQUIRE
 	    (    PAR::EPREFIX_OPT
 	      == 1ull << TAB::push_name

@@ -432,6 +432,13 @@ This line contains two indented subparagraphs:
             .terminator = *INDENTED_PARAGRAPH*
             .position[H] = PACKED_VEC
             .initiator = ":"
+ERROR: in lines ##-##: paragraph inside (not at end) of logical line:
+This line contains two indented subparagraphs:
+                                             ^
+        First line of first subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Second line of first subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 === BRACKETED EXPRESSION: line ##:
@@ -6351,6 +6358,18 @@ BRACKETED PARSER FOUND [text] SELECTED KEY "'"
              .terminator = *INDENTED_PARAGRAPH*
              .position[H] = PACKED_VEC
              .initiator = ":"
+ERROR: in lines ###-###: paragraph inside (not at end) of headed
+       paragraph:
+{x} this is a line:
+                  ^
+    with an indented paragraph that
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         has an {x} unrecognized because it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         is not in the same logical line as
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         the outer `{x}'
+^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY "{"
      OF SUBTYPE ll::parser::table::typed_opening_type
 BRACKETED PARSER FOUND [label] SELECTED KEY "}"
@@ -7522,6 +7541,22 @@ WARNING: in line ###: logical line begins at an indent that is greater
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
              .initiator = *LOGICAL_LINE*
+ERROR: in lines ###-###: paragraph inside (not at end) of headed
+       paragraph:
+{p}This is a paragraph with a subparagraph:
+                                          ^
+<BLANK-LINE>
+^^^^^^^^^^^^
+        This is
+^^^^^^^^^^^^^^^^
+        subparagraph 1.
+^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+        This is subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                2.
+^^^^^^^^^^^^^^^^^^
 === BRACKETED EXPRESSION: lines ###-###:
 {p}This is a paragraph with a subparagraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

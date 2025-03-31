@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 10:21:09 AM EST 2024
+// Date:	Sun Mar 30 04:52:10 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1986,6 +1986,11 @@ min::position BRA::parse_bracketed_subexpression
 	// logical line and NOT a sub-subexpression
 	// inside a logical line.
 
+    PAR::token last_paragraph_found = min::NULL_STUB;
+        // Last paragraph found inside the current
+	// logical line, if we are parsing a logical
+	// line.
+
     min::phrase_position bad_comment_position =
         { min::MISSING_POSITION,
 	  min::MISSING_POSITION };
@@ -3148,12 +3153,16 @@ NEXT_TOKEN:
 	value_type_ref(first) =
 	    indentation_found->label;
 
+	last_paragraph_found = first;
+
 	// Temporary check.
 	//
 	MIN_REQUIRE
 	  ( ! BRA::is_closed ( bracket_stack_p ) );
 
-	if ( empty_paragraph )
+	if ( empty_paragraph
+	     &&
+	     ( selectors & PAR::AEPARAGRAPH_OPT ) == 0 )
 	{
 	    position.end = position.begin;
 	    PAR::parse_error
@@ -3217,6 +3226,23 @@ NEXT_TOKEN:
 	}
 
 	// Next is first part of continuation line.
+
+	if ( last_paragraph_found != min::NULL_STUB
+	     &&
+	     ( selectors & PAR::AIPARAGRAPH_OPT ) == 0 )
+	{
+	    PAR::parse_error
+	        ( parser,
+		  last_paragraph_found->position,
+		  "paragraph inside (not at end) of ",
+		  min::pnop,
+		  ( parsing_logical_line ?
+		    "logical line" :
+		    "headed paragraph" ) );
+	    last_paragraph_found = min::NULL_STUB;
+	        // Else we get multiple error messages.
+	}
+
 	// Remove indent and go to NEXT_TOKEN.
 	//
 	PAR::ensure_next ( parser, current );

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 31 03:49:58 PM EDT 2025
+// Date:	Tue Apr  1 03:10:12 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -239,26 +239,39 @@ static void define_brackets
 	      min::NULL_STUB, min::MISSING(),
 	      bracketed_pass->bracket_table );
 
-	min::locatable_gen text_name
-	    ( min::new_str_gen ( "text" ) );
-	min::locatable_gen period
-	    ( min::new_str_gen ( "." ) );
-	min::locatable_gen question
-	    ( min::new_str_gen ( "?" ) );
-	min::locatable_gen exclamation
-	    ( min::new_str_gen ( "!" ) );
-	min::locatable_gen s
-	    ( min::new_str_gen ( "s" ) );
-
 	min::locatable_gen text_arguments
-		( min::new_obj_gen ( 6 ) );
-	min::obj_vec_insptr tavp ( text_arguments );
-	min::attr_push ( tavp ) = s;
-	min::attr_push ( tavp ) = period;
-	min::attr_push ( tavp ) = question;
-	min::attr_push ( tavp ) = exclamation;
-	min::attr_push ( tavp ) = PARLEX::colon;
-	min::attr_push ( tavp ) = PARLEX::semicolon;
+	    ( min::MISSING() );
+	PAR::reformatter text_reformatter =
+	    min::NULL_STUB;
+
+	if ( components & PARSTD::SENTENCE )
+	{
+	    min::locatable_gen text_name
+		( min::new_str_gen ( "text" ) );
+	    text_reformatter =
+	        PAR::find_reformatter
+		    ( text_name,
+		      BRA::untyped_reformatter_stack );
+
+	    min::locatable_gen period
+		( min::new_str_gen ( "." ) );
+	    min::locatable_gen question
+		( min::new_str_gen ( "?" ) );
+	    min::locatable_gen exclamation
+		( min::new_str_gen ( "!" ) );
+	    min::locatable_gen s
+		( min::new_str_gen ( "s" ) );
+
+	    text_arguments = min::new_obj_gen ( 6 );
+	    min::obj_vec_insptr tavp ( text_arguments );
+	    min::attr_push ( tavp ) = s;
+	    min::attr_push ( tavp ) = period;
+	    min::attr_push ( tavp ) = question;
+	    min::attr_push ( tavp ) = exclamation;
+	    min::attr_push ( tavp ) = PARLEX::colon;
+	    min::attr_push ( tavp ) = PARLEX::semicolon;
+	}
+
 	BRA::push_brackets
 	    ( opening_double_quote,
 	      closing_double_quote,
@@ -266,9 +279,7 @@ static void define_brackets
 	      block_level, PAR::top_level_position,
 	      TAB::new_flags ( text + PAR::ETPREFIX_OPT,
 	                       label + code + math ),
-	      PAR::find_reformatter
-		  ( text_name,
-		    BRA::untyped_reformatter_stack ),
+	      text_reformatter,
 	      text_arguments,
 	      bracketed_pass->bracket_table );
     }
@@ -319,6 +330,41 @@ static void define_indentation_marks
 	  paragraph_check,
 	  data_check,
 	  bracketed_pass->bracket_table );
+
+    if ( text )
+    {
+	min::locatable_gen implied_p_header
+	    ( min::MISSING() );
+
+	if ( components & ( PARSTD::PARAGRAPH ) )
+	{
+	    implied_p_header =
+	        min::new_obj_gen ( 10, 1 );
+	    min::locatable_gen p
+		( min::new_str_gen ( "p" ) );
+	    min::obj_vec_insptr vp ( implied_p_header );
+	    min::attr_insptr ap ( vp );
+	    min::locate ( ap, min::dot_type );
+	    min::set ( ap, p );
+	    min::locate ( ap, min::dot_position );
+	    min::set ( ap, min::new_stub_gen ( pos ) );
+	    min::set_flag
+		( ap, min::standard_attr_hide_flag );
+	}
+
+
+	BRA::push_indentation_mark
+	    ( PARLEX::colon, min::MISSING(),
+	      text,
+	      block_level, PAR::top_level_position,
+	      TAB::new_flags ( PAR::DEFAULT_EA_OPT,
+				 PAR::ALL_EA_OPT
+			       - PAR::DEFAULT_EA_OPT ),
+	      implied_p_header,
+	      paragraph_check,
+	      data_check,
+	      bracketed_pass->bracket_table );
+    }
 
 
     // This must be the LAST indentation mark pushed.

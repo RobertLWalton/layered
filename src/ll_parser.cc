@@ -2,7 +2,7 @@
 //
 // File:	ll_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 30 12:44:38 PM EDT 2025
+// Date:	Tue Apr  1 03:57:38 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -199,7 +199,7 @@ static void initialize ( void )
     PARLEX::aeparagraph =
     	min::new_lab_gen
 	    ( "allow", "empty", "paragraph" );
-    PARLEX::aeparagraph =
+    PARLEX::aiparagraph =
     	min::new_lab_gen
 	    ( "allow", "inside", "paragraph" );
     PARLEX::eprefix =

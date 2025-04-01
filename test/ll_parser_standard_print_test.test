@@ -181,6 +181,7 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + allow inside paragraph,
                                               + enable table prefix]
                         with group *PARAGRAPH*
                         with implied subprefix {s}
@@ -195,6 +196,7 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + allow inside paragraph,
                                               + enable table prefix]
                         with group *PARAGRAPH*
                         with implied subprefix {s}
@@ -216,6 +218,7 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + allow inside paragraph,
                                               + enable table prefix]
                         with group *PARAGRAPH*
                         with implied subprefix {s}

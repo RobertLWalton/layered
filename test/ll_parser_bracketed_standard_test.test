@@ -7541,22 +7541,6 @@ WARNING: in line ###: logical line begins at an indent that is greater
              .terminator = "<LF>"
              .position[H] = PACKED_VEC
              .initiator = *LOGICAL_LINE*
-ERROR: in lines ###-###: paragraph inside (not at end) of headed
-       paragraph:
-{p}This is a paragraph with a subparagraph:
-                                          ^
-<BLANK-LINE>
-^^^^^^^^^^^^
-        This is
-^^^^^^^^^^^^^^^^
-        subparagraph 1.
-^^^^^^^^^^^^^^^^^^^^^^^
-<BLANK-LINE>
-^^^^^^^^^^^^
-        This is subparagraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                2.
-^^^^^^^^^^^^^^^^^^
 === BRACKETED EXPRESSION: lines ###-###:
 {p}This is a paragraph with a subparagraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

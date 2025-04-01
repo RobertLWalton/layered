@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  1 03:10:12 AM EDT 2025
+// Date:	Tue Apr  1 03:39:53 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -628,6 +628,7 @@ static void define_bracket_types
 		      (   PAR::EAPBREAK_OPT
 			+ PAR::EALTINDENT_OPT
 			+ PAR::ETPREFIX_OPT
+			+ PAR::AIPARAGRAPH_OPT
 			+ text,
 			  PAR::EALEINDENT_OPT
 			+ PAR::EAINDENT_OPT
@@ -652,7 +653,9 @@ static void define_bracket_types
 		  TAB::new_flags
 		      (   PAR::EAPBREAK_OPT
 			+ PAR::EALTINDENT_OPT
-			+ PAR::ETPREFIX_OPT + text,
+			+ PAR::ETPREFIX_OPT
+			+ PAR::AIPARAGRAPH_OPT
+			+ text,
 			  PAR::EALEINDENT_OPT
 			+ PAR::EAINDENT_OPT
 			+ PAR::EALSEP_OPT
@@ -677,6 +680,7 @@ static void define_bracket_types
 		      (   PAR::EAPBREAK_OPT
 			+ PAR::EALTINDENT_OPT
 			+ PAR::ETPREFIX_OPT
+			+ PAR::AIPARAGRAPH_OPT
 			+ text,
 			  PAR::EALEINDENT_OPT
 			+ PAR::EAINDENT_OPT

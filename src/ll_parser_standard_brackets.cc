@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 22 08:55:15 PM EDT 2025
+// Date:	Mon Mar 31 03:49:58 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -320,36 +320,6 @@ static void define_indentation_marks
 	  data_check,
 	  bracketed_pass->bracket_table );
 
-    if ( text )
-    {
-	min::locatable_gen p
-	    ( min::new_str_gen ( "p" ) );
-	min::locatable_gen implied_p_header
-	    ( min::new_obj_gen ( 10, 1 ) );
-	{
-	    min::obj_vec_insptr vp ( implied_p_header );
-	    min::attr_insptr ap ( vp );
-	    min::locate ( ap, min::dot_type );
-	    min::set ( ap, p );
-	    min::locate ( ap, min::dot_position );
-	    min::set ( ap, min::new_stub_gen ( pos ) );
-	    min::set_flag
-		( ap, min::standard_attr_hide_flag );
-	}
-
-
-	BRA::push_indentation_mark
-	    ( PARLEX::colon, min::MISSING(),
-	      text,
-	      block_level, PAR::top_level_position,
-	      TAB::new_flags ( PAR::DEFAULT_EA_OPT,
-				 PAR::ALL_EA_OPT
-			       - PAR::DEFAULT_EA_OPT ),
-	      implied_p_header,
-	      paragraph_check,
-	      data_check,
-	      bracketed_pass->bracket_table );
-    }
 
     // This must be the LAST indentation mark pushed.
     //
@@ -503,9 +473,7 @@ static void define_bracket_types
 	      bracketed_pass->bracket_type_table );
     }
 
-    if ( ( components & PARSTD::TABLE )
-         &&
-	 ( code | text ) )
+    if ( ( components & PARSTD::TABLE ) && text )
     {
 	min::locatable_gen table
 	    ( min::new_str_gen ( "table" ) );
@@ -550,11 +518,16 @@ static void define_bracket_types
 
     if ( text )
     {
-	min::locatable_gen s
-	    ( min::new_str_gen ( "s" ) );
+	min::locatable_gen s ( min::MISSING() );
 	min::locatable_gen implied_s_header
-	    ( min::new_obj_gen ( 10, 1 ) );
+	    ( min::MISSING() );
+
+	if ( components & PARSTD::SENTENCE )
 	{
+	    s = min::new_str_gen ( "s" );
+
+	    implied_s_header =
+	        min::new_obj_gen ( 10, 1 );
 	    min::obj_vec_insptr vp ( implied_s_header );
 	    min::attr_insptr ap ( vp );
 	    min::locate ( ap, min::dot_type );
@@ -563,111 +536,115 @@ static void define_bracket_types
 	    min::set ( ap, min::new_stub_gen ( pos ) );
 	    min::set_flag
 		( ap, min::standard_attr_hide_flag );
+
+	    min::locatable_gen sentence
+		( min::new_str_gen ( "sentence" ) );
+	    min::locatable_gen period
+		( min::new_str_gen ( "." ) );
+	    min::locatable_gen question
+		( min::new_str_gen ( "?" ) );
+	    min::locatable_gen exclamation
+		( min::new_str_gen ( "!" ) );
+
+	    min::locatable_gen s_arguments
+		    ( min::new_obj_gen ( 3 ) );
+	    min::obj_vec_insptr savp ( s_arguments );
+	    min::attr_push ( savp ) = period;
+	    min::attr_push ( savp ) = question;
+	    min::attr_push ( savp ) = exclamation;
+
+	    BRA::push_bracket_type
+		( s, text,
+		  block_level, PAR::top_level_position,
+		  TAB::new_flags ( 0, 0, 0 ),
+		  min::MISSING(), // group
+		  min::MISSING(), // implied_subprefix
+		  min::MISSING(), // implied_subprefix_type
+		  PAR::MISSING_MASTER,
+		  PAR::find_reformatter
+		    ( sentence,
+		      BRA::bracket_type_reformatter_stack ),
+		  s_arguments,
+		  bracketed_pass->bracket_type_table );
 	}
 
-	min::locatable_gen section
-	    ( min::new_str_gen ( "section" ) );
+	if ( components & PARSTD::PARAGRAPH )
+	{
 
-	BRA::push_bracket_type
-	    ( section,
-	      code + text,
-	      block_level, PAR::top_level_position,
-	      TAB::new_flags
-		  (   PAR::EAPBREAK_OPT
-		    + PAR::EALTINDENT_OPT
-		    + PAR::ETPREFIX_OPT + text,
-		      PAR::EALEINDENT_OPT
-		    + PAR::EAINDENT_OPT
-		    + PAR::EALSEP_OPT
-		    + PAR::EAOCLOSING_OPT
-		    + code + math + data ),
-	      PARLEX::PARAGRAPH, // group
-	      implied_s_header,
-	      s,
-	      PAR::MISSING_MASTER,
-	      min::NULL_STUB,
-	      min::MISSING(),
-	      bracketed_pass->bracket_type_table );
+	    min::locatable_gen p
+		( min::new_str_gen ( "p" ) );
 
-	min::locatable_gen p
-	    ( min::new_str_gen ( "p" ) );
+	    BRA::push_bracket_type
+		( p,
+		  code + text,
+		  block_level, PAR::top_level_position,
+		  TAB::new_flags
+		      (   PAR::EAPBREAK_OPT
+			+ PAR::EALTINDENT_OPT
+			+ PAR::ETPREFIX_OPT
+			+ text,
+			  PAR::EALEINDENT_OPT
+			+ PAR::EAINDENT_OPT
+			+ PAR::EALSEP_OPT
+			+ PAR::EAOCLOSING_OPT
+			+ code + math + data ),
+		  PARLEX::PARAGRAPH, // group
+		  implied_s_header,
+		  s,
+		  PAR::MISSING_MASTER,
+		  min::NULL_STUB,
+		  min::MISSING(),
+		  bracketed_pass->bracket_type_table );
 
-	BRA::push_bracket_type
-	    ( p,
-	      code + text,
-	      block_level, PAR::top_level_position,
-	      TAB::new_flags
-		  (   PAR::EAPBREAK_OPT
-		    + PAR::EALTINDENT_OPT
-		    + PAR::ETPREFIX_OPT
-		    + text,
-		      PAR::EALEINDENT_OPT
-		    + PAR::EAINDENT_OPT
-		    + PAR::EALSEP_OPT
-		    + PAR::EAOCLOSING_OPT
-		    + code + math + data ),
-	      PARLEX::PARAGRAPH,
-	      implied_s_header,
-	      s,
-	      PAR::MISSING_MASTER,
-	      min::NULL_STUB,
-	      min::MISSING(),
-	      bracketed_pass->bracket_type_table );
+	    min::locatable_gen section
+		( min::new_str_gen ( "section" ) );
 
-	min::locatable_gen quote_name
-	    ( min::new_str_gen ( "quote" ) );
+	    BRA::push_bracket_type
+		( section,
+		  code + text,
+		  block_level, PAR::top_level_position,
+		  TAB::new_flags
+		      (   PAR::EAPBREAK_OPT
+			+ PAR::EALTINDENT_OPT
+			+ PAR::ETPREFIX_OPT + text,
+			  PAR::EALEINDENT_OPT
+			+ PAR::EAINDENT_OPT
+			+ PAR::EALSEP_OPT
+			+ PAR::EAOCLOSING_OPT
+			+ code + math + data ),
+		  PARLEX::PARAGRAPH, // group
+		  implied_s_header,
+		  s,
+		  PAR::MISSING_MASTER,
+		  min::NULL_STUB,
+		  min::MISSING(),
+		  bracketed_pass->bracket_type_table );
 
-	BRA::push_bracket_type
-	    ( quote_name,
-	      code + text,
-	      block_level, PAR::top_level_position,
-	      TAB::new_flags
-		  (   PAR::EAPBREAK_OPT
-		    + PAR::EALTINDENT_OPT
-		    + PAR::ETPREFIX_OPT
-		    + text,
-		      PAR::EALEINDENT_OPT
-		    + PAR::EAINDENT_OPT
-		    + PAR::EALSEP_OPT
-		    + PAR::EAOCLOSING_OPT
-		    + code + math + data ),
-	      PARLEX::PARAGRAPH,
-	      implied_s_header,
-	      s,
-	      PAR::MISSING_MASTER,
-	      min::NULL_STUB,
-	      min::MISSING(),
-	      bracketed_pass->bracket_type_table );
+	    min::locatable_gen quote_name
+		( min::new_str_gen ( "quote" ) );
 
-	min::locatable_gen sentence
-	    ( min::new_str_gen ( "sentence" ) );
-	min::locatable_gen period
-	    ( min::new_str_gen ( "." ) );
-	min::locatable_gen question
-	    ( min::new_str_gen ( "?" ) );
-	min::locatable_gen exclamation
-	    ( min::new_str_gen ( "!" ) );
-
-	min::locatable_gen s_arguments
-		( min::new_obj_gen ( 3 ) );
-	min::obj_vec_insptr savp ( s_arguments );
-	min::attr_push ( savp ) = period;
-	min::attr_push ( savp ) = question;
-	min::attr_push ( savp ) = exclamation;
-
-	BRA::push_bracket_type
-	    ( s, text,
-	      block_level, PAR::top_level_position,
-	      TAB::new_flags ( 0, 0, 0 ),
-	      min::MISSING(), // group
-	      min::MISSING(), // implied_subprefix
-	      min::MISSING(), // implied_subprefix_type
-	      PAR::MISSING_MASTER,
-	      PAR::find_reformatter
-		( sentence,
-		  BRA::bracket_type_reformatter_stack ),
-	      s_arguments,
-	      bracketed_pass->bracket_type_table );
+	    BRA::push_bracket_type
+		( quote_name,
+		  code + text,
+		  block_level, PAR::top_level_position,
+		  TAB::new_flags
+		      (   PAR::EAPBREAK_OPT
+			+ PAR::EALTINDENT_OPT
+			+ PAR::ETPREFIX_OPT
+			+ text,
+			  PAR::EALEINDENT_OPT
+			+ PAR::EAINDENT_OPT
+			+ PAR::EALSEP_OPT
+			+ PAR::EAOCLOSING_OPT
+			+ code + math + data ),
+		  PARLEX::PARAGRAPH, // group
+		  implied_s_header,
+		  s,
+		  PAR::MISSING_MASTER,
+		  min::NULL_STUB,
+		  min::MISSING(),
+		  bracketed_pass->bracket_type_table );
+	}
     }
 }
 

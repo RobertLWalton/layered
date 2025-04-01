@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 27 02:06:48 AM EDT 2025
+// Date:	Mon Mar 31 08:10:53 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -213,11 +213,11 @@ enum {
 	// below.
 
     ALL_QUALIFIERS		= LABEL
-    				+ CODE
-    				+ TEXT
-    				+ MATH
-				+ ID
-    				+ TABLE,
+    				| CODE
+    				| TEXT
+    				| MATH
+				| ID
+    				| TABLE,
 
     BLOCK			= 1 << 6,
         // Create block named `standard'.
@@ -232,34 +232,32 @@ enum {
     LEXEME_MAP                  = 1 << 9,
         // Set lexeme map according to ID and TABLE.
 
-    ALL_SETUP			= 
-    				+ TOP_LEVEL
-    				+ CONCATENATOR
-    				+ LEXEME_MAP,
+    ALL_SETUP			= TOP_LEVEL
+    				| CONCATENATOR
+    				| LEXEME_MAP,
 
     BRACKETS			= 1 << 10,
         // Set standard bracket entries omitting
 	// DISabled CODE, TEXT, and MATH selectors.
-    INDENTATION_MARKS		= 1 << 11,
-        // Set standard indentation mark entries
-	// omitting DISabled CODE, TEXT, and MATH
-	// selectors.  If ID but not TABLE use
-	// DATA-CHECK lexical master; TABLE but not
-	// ID use TABLE-CHECK lexical master;  if
-	// both ID and TABLE use PARAGRAPH-CHECK
-	// lexical master.
-    BRACKET_TYPES		= 1 << 12,
-        // Set standard bracket type entries for TEXT
-	// if TEXT enabled, data if ID enabled, table
-	// if TABLE enabled.  If ID but not TABLE use
-	// DATA-CHECK lexical master; TABLE but not
-	// ID use TABLE-CHECK lexical master;  if
-	// both ID and TABLE use PARAGRAPH-CHECK
-	// lexical master.
+    PARAGRAPH			= 1 << 11,
+        // Set the {p}, {section}, {quote} entries
+	// if TEXT is selected.
+    SENTENCE			= 1 << 12,
+        // Set the {s} entry if TEXT is selected.
+
+    INDENTATION_MARKS		= CODE
+				| ID,
+
+    BRACKET_TYPES		= CODE
+    				| TEXT
+				| ID
+				| TABLE
+				| PARAGRAPH
+				| SENTENCE,
 
     ALL_BRACKETS		= BRACKETS
-				+ INDENTATION_MARKS
-				+ BRACKET_TYPES,
+				| INDENTATION_MARKS
+				| BRACKET_TYPES,
 	// Set all bracket related entries
 	// omitting DISabled CODE, TEXT, and MATH
 	// selectors.
@@ -291,14 +289,14 @@ enum {
         // Set standard test operator entries
 	// omitting DISabled CODE and MATH selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS
-                        	+ ITERATION_OPERATORS
-                        	+ ASSIGNMENT_OPERATORS
-                        	+ SELECTION_OPERATORS
-                        	+ LOGICAL_OPERATORS
-                        	+ COMPARISON_OPERATORS
-                        	+ ARITHMETIC_OPERATORS
-                        	+ BITWISE_OPERATORS
-                        	+ TEST_OPERATORS,
+                        	| ITERATION_OPERATORS
+                        	| ASSIGNMENT_OPERATORS
+                        	| SELECTION_OPERATORS
+                        	| LOGICAL_OPERATORS
+                        	| COMPARISON_OPERATORS
+                        	| ARITHMETIC_OPERATORS
+                        	| BITWISE_OPERATORS
+                        	| TEST_OPERATORS,
         // Set all ..._OPERATOR entries.
 
     PRIMARY_PARSING		= 1 << 22,

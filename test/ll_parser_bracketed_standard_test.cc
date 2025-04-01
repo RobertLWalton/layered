@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_bracketed_standard_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 07:38:19 EDT 2023
+// Date:	Mon Mar 31 08:13:31 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,9 +31,9 @@ int main ( int argc, const char * argv[] )
     PARSTD::define_standard
         ( PAR::default_parser,
 	    PARSTD::ALL_QUALIFIERS
-	  + PARSTD::BLOCK
-	  + PARSTD::ALL_SETUP
-	  + PARSTD::ALL_BRACKETS );
+	  | PARSTD::BLOCK
+	  | PARSTD::ALL_SETUP
+	  | PARSTD::ALL_BRACKETS );
 
     PAR::init_input_stream
         ( PAR::default_parser, std::cin,

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 27 02:08:00 AM EDT 2025
+// Date:	Mon Mar 31 04:05:30 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,8 +39,8 @@ static min::locatable_gen top_level;
 static min::locatable_gen concatenator;
 static min::locatable_gen lexeme_map;
 static min::locatable_gen brackets;
-static min::locatable_gen indentation_marks;
-static min::locatable_gen bracket_types;
+static min::locatable_gen paragraph;
+static min::locatable_gen sentence;
 static min::locatable_gen control_operators;
 static min::locatable_gen iteration_operators;
 static min::locatable_gen assignment_operators;
@@ -85,10 +85,8 @@ static void initialize ( void )
     ::lexeme_map = min::new_lab_gen ( "lexeme", "map" );
 
     ::brackets = min::new_str_gen ( "brackets" );
-    ::indentation_marks =
-        min::new_lab_gen ( "indentation", "marks" );
-    ::bracket_types =
-        min::new_lab_gen ( "bracket", "types" );
+    ::paragraph = min::new_str_gen ( "paragraph" );
+    ::sentence = min::new_str_gen ( "sentence" );
 
     ::control_operators =
         min::new_lab_gen ( "control", "operators" );
@@ -199,15 +197,15 @@ static void initialize ( void )
 		  ( PARSTD::component_name_table,
 		    ::brackets ) );
     MIN_REQUIRE
-	(    PARSTD::INDENTATION_MARKS
+	(    PARSTD::PARAGRAPH
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
-		    ::indentation_marks ) );
+		    ::paragraph ) );
     MIN_REQUIRE
-	(    PARSTD::BRACKET_TYPES
+	(    PARSTD::SENTENCE
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
-		    ::bracket_types ) );
+		    ::sentence ) );
 
     MIN_REQUIRE
 	(    PARSTD::CONTROL_OPERATORS

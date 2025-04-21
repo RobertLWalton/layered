@@ -6503,6 +6503,46 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 !@@@@ := "======================":
              .position[H] = PACKED_VEC
              .type = row
+BRACKETED PARSER FOUND [text] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+BRACKETED PARSER FOUND [text] SELECTED KEY "|"
+     OF SUBTYPE ll::parser::table::typed_middle_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
+=== BRACKETED EXPRESSION: lines ###-###:
+| and another
+^^^^^^^^^^^^^
+  row |
+^^^^^^^
+    {row|"|" and another row "|"|row}
+!@@@@ := "|" and another row "|":
+             .position[H] = PACKED_VEC
+             .type = row
+=== BRACKETED EXPRESSION: line ###:
+======================
+^^^^^^^^^^^^^^^^^^^^^^
+    {row|======================|row}
+!@@@@ := "======================":
+             .position[H] = PACKED_VEC
+             .type = row
+BRACKETED PARSER FOUND [text] SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::indentation_mark_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED PARSER FOUND [text] SELECTED KEY ":"
+     OF SUBTYPE ll::parser::table::typed_attr_begin_type
+BRACKETED SUBEXPRESSION PARSER REJECTED KEY ":"
+BRACKETED PARSER FOUND [text] SELECTED KEY "["
+     OF SUBTYPE ll::parser::table::opening_bracket_type
+BRACKETED PARSER FOUND [code] SELECTED KEY "]"
+     OF SUBTYPE ll::parser::table::closing_bracket_type
+=== BRACKETED EXPRESSION: line ###:
+B: [X + Y]  // This is a logical line
+   ^^^^^^^
+    [X + Y]
+!@@@@ := X "+" Y:
+             .terminator = "]"
+             .initiator = "["
+             .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ###-###:
 ======================
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -6510,12 +6550,28 @@ BRACKETED SUBEXPRESSION PARSER REJECTED KEY "|"
 ^^^^^^^^^^^^^^^^^
 ======================
 ^^^^^^^^^^^^^^^^^^^^^^
+| and another
+^^^^^^^^^^^^^
+  row |
+^^^^^^^
+======================
+^^^^^^^^^^^^^^^^^^^^^^
+B: [X + Y]  // This is a logical line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {table|{row|======================|row}
            {row|"|" this is a row "|"|row}
-           {row|======================|row}|table}
-!@@@@ := @@@@ @@@@ @@@@:
+           {row|======================|row}
+           {row|"|" and another row "|"|row}
+           {row|======================|row}
+           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|B ":"
+                [X + Y]|}|table}
+!@@@@ := @@@@ @@@@ @@@@ @@@@ @@@@ @@@@:
              .position[H] = PACKED_VEC
              .type = table
+!@@@@ := B ":" @@@@:
+             .terminator = "<LF>"
+             .position[H] = PACKED_VEC
+             .initiator = *LOGICAL_LINE*
 BRACKETED PARSER FOUND [TOP LEVEL, LINE LEVEL, code] SELECTED KEY ":"
      OF SUBTYPE ll::parser::table::indentation_mark_type
 === BRACKETED EXPRESSION: line ###:

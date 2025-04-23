@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_brackets.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  1 03:39:53 AM EDT 2025
+// Date:	Wed Apr 23 02:44:25 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -410,6 +410,9 @@ static void define_bracket_types
 	  TAB::flags text,
 	  TAB::flags math )
 {
+#   define bracket_type_rs \
+        bracket_type_reformatter_stack
+
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
     min::uns32 block_level =
@@ -492,7 +495,7 @@ static void define_bracket_types
 	      PAR::MISSING_MASTER,
 	      PAR::find_reformatter
 		( data_name,
-		  BRA::bracket_type_reformatter_stack ),
+		  BRA::bracket_type_rs ),
 	      data_arguments,
 	      bracketed_pass->bracket_type_table );
 
@@ -514,7 +517,7 @@ static void define_bracket_types
 	      PAR::MISSING_MASTER,
 	      PAR::find_reformatter
 		( data_name,
-		  BRA::bracket_type_reformatter_stack ),
+		  BRA::bracket_type_rs ),
 	      data_arguments,
 	      bracketed_pass->bracket_type_table );
     }
@@ -599,17 +602,19 @@ static void define_bracket_types
 	    min::attr_push ( savp ) = question;
 	    min::attr_push ( savp ) = exclamation;
 
+
 	    BRA::push_bracket_type
 		( s, text,
 		  block_level, PAR::top_level_position,
 		  TAB::new_flags ( 0, 0, 0 ),
 		  min::MISSING(), // group
 		  min::MISSING(), // implied_subprefix
-		  min::MISSING(), // implied_subprefix_type
+		  min::MISSING(),
+		      // implied_subprefix_type
 		  PAR::MISSING_MASTER,
 		  PAR::find_reformatter
 		    ( sentence,
-		      BRA::bracket_type_reformatter_stack ),
+		      BRA::bracket_type_rs ),
 		  s_arguments,
 		  bracketed_pass->bracket_type_table );
 	}
@@ -696,6 +701,7 @@ static void define_bracket_types
 		  bracketed_pass->bracket_type_table );
 	}
     }
+#   undef bracket_type_rs
 }
 
 // Define Standard Bracket Pass Components

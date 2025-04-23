@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 28 06:15:13 AM EDT 2025
+// Date:	Wed Apr 23 02:24:43 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,10 +91,14 @@ static void define_primary_separators
 	  of_following,
 	  separator_table );
 
+    min::gen with_buf[3] =
+        { a_name, the_name, of_the_name };
+    min::locatable_gen with_following
+        ( min::new_lab_gen ( with_buf, 3 ) );
     PRIM::push_separator
         ( with_name, code, block_level,
 	  PAR::top_level_position,
-	  of_following,
+	  with_following,
 	  separator_table );
 
     min::gen and_buf[2] = { with_name, and_name };

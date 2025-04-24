@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 13 07:06:58 AM EDT 2025
+// Date:	Thu Apr 24 02:43:23 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2427,7 +2427,8 @@ static min::gen oper_pass_command
     min::uns32 oper_flags = 0;
 
     min::phrase_position oper_flags_position;
-    oper_flags_position.begin = (&ppvec[i])->begin;
+    if ( i < size )
+	oper_flags_position.begin = (&ppvec[i])->begin;
 
     while ( i < size )
     {

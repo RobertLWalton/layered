@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 02:24:43 AM EDT 2025
+// Date:	Wed Apr 23 09:44:06 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,6 +47,8 @@ static void define_primary_separators
         ( min::new_str_gen ( "a" ) );
     min::locatable_gen an_name
         ( min::new_str_gen ( "an" ) );
+    min::locatable_gen every_name
+        ( min::new_str_gen ( "every" ) );
     min::locatable_gen the_name
         ( min::new_str_gen ( "the" ) );
 
@@ -58,6 +60,8 @@ static void define_primary_separators
         ( min::new_str_gen ( "with" ) );
     min::locatable_gen and_name
         ( min::new_str_gen ( "and" ) );
+    min::locatable_gen in_name
+        ( min::new_str_gen ( "in" ) );
 
     PRIM::push_separator
         ( a_name, code, block_level,
@@ -67,6 +71,12 @@ static void define_primary_separators
 
     PRIM::push_separator
         ( an_name, code, block_level,
+	  PAR::top_level_position,
+	  min::MISSING(),
+	  separator_table );
+
+    PRIM::push_separator
+        ( every_name, code, block_level,
 	  PAR::top_level_position,
 	  min::MISSING(),
 	  separator_table );
@@ -91,10 +101,10 @@ static void define_primary_separators
 	  of_following,
 	  separator_table );
 
-    min::gen with_buf[3] =
-        { a_name, the_name, of_the_name };
+    min::gen with_buf[4] =
+        { a_name, the_name, of_the_name, every_name };
     min::locatable_gen with_following
-        ( min::new_lab_gen ( with_buf, 3 ) );
+        ( min::new_lab_gen ( with_buf, 4 ) );
     PRIM::push_separator
         ( with_name, code, block_level,
 	  PAR::top_level_position,
@@ -108,6 +118,15 @@ static void define_primary_separators
         ( and_name, code, block_level,
 	  PAR::top_level_position,
 	  and_following,
+	  separator_table );
+
+    min::gen in_buf[1] = { every_name };
+    min::locatable_gen in_following
+        ( min::new_lab_gen ( in_buf, 1 ) );
+    PRIM::push_separator
+        ( in_name, code, block_level,
+	  PAR::top_level_position,
+	  in_following,
 	  separator_table );
 }
 

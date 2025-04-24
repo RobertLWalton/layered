@@ -9789,6 +9789,7 @@ Parser Command				& \shortstack{
 \tt define pass primary [code] after operator & {\tt + code} \\
 \tt define primary separator "a" [code] & {\tt + code} \\
 \tt define primary separator "an" [code] & {\tt + code} \\
+\tt define primary separator "every" [code] & {\tt + code} \\
 \tt define primary separator "the" [code] & {\tt + code} \\
 \\[1ex]
 \tt define primary separator "of" [code] & {\tt + code} \\
@@ -9796,9 +9797,11 @@ Parser Command				& \shortstack{
 \tt define primary separator "of the" [code] & {\tt + code} \\
 \tt ~~~~~~~following "the" "of the" \\
 \tt define primary separator "with" [code] & {\tt + code} \\
-\tt ~~~~~~~following "a" "the" "of the" \\
+\tt ~~~~~~~following "a" "the" "of the" "every" \\
 \tt define primary separator "and" [code] & {\tt + code} \\
 \tt ~~~~~~~following "with" "and"  \\
+\tt define primary separator "in" [code] & {\tt + code} \\
+\tt ~~~~~~~following "every"  \\
 \end{tabular}
 \end{center}
 

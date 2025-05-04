@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 31 04:05:30 PM EDT 2025
+// Date:	Sun May  4 05:12:26 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,7 @@ static min::locatable_gen comparison_operators;
 static min::locatable_gen arithmetic_operators;
 static min::locatable_gen bitwise_operators;
 static min::locatable_gen test_operators;
+static min::locatable_gen function_operators;
 static min::locatable_gen primary_parsing;
 static min::locatable_gen primary_separators;
 static min::locatable_gen primary_operators;
@@ -106,6 +107,8 @@ static void initialize ( void )
         min::new_lab_gen ( "bitwise", "operators" );
     ::test_operators =
         min::new_lab_gen ( "test", "operators" );
+    ::function_operators =
+        min::new_lab_gen ( "function", "operators" );
 
     ::primary_parsing =
         min::new_lab_gen ( "primary", "parsing" );
@@ -252,6 +255,11 @@ static void initialize ( void )
 	  == 1ull << TAB::push_name
 		  ( PARSTD::component_name_table,
 		    ::test_operators ) );
+    MIN_REQUIRE
+	(    PARSTD::FUNCTION_OPERATORS
+	  == 1ull << TAB::push_name
+		  ( PARSTD::component_name_table,
+		    ::function_operators ) );
     MIN_REQUIRE
 	(    PARSTD::PRIMARY_PARSING
 	  == 1ull << TAB::push_name

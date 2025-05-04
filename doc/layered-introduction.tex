@@ -3504,7 +3504,13 @@ canceled by an `\TT{end block standard}' parser command.
 \\
 \ttmkey{control operators}{parser standard flag} &
     Executes control operator definitions
-    (\pagref{STANDARD-CONTROL-OPERATORS}).  [code]
+    (\pagref{STANDARD-CONTROL-OPERATORS},
+     \pagref{STANDARD-FUNCTION-OR-CONTROL-OPERATORS}).  [code]
+\\
+\ttmkey{function operators}{parser standard flag} &
+    Executes function operator definitions
+    (\pagref{STANDARD-FUNCTION-OPERATORS},
+     \pagref{STANDARD-FUNCTION-OR-CONTROL-OPERATORS}).  [code]
 \\
 \ttmkey{iteration operators}{parser standard flag} &
     Executes iteration operator definitions
@@ -8509,29 +8515,32 @@ prece-  & selec-  &             &            &            &            & \\
                                 & \TT{prefix} & \ttkey{if} & conditional & C
 \\\cline{5-5}
 	&	&		& \TT{line}  & \ttkey{else if} & & 
-\\\cline{5-6}
-	&	&		&            & \ttkey{function} & function &  \\
+\\\cline{5-7}
+	&	&		&            & \ttkey{function} & function
+								&  F \\
 	&	&		&            &                  & declaration & 
-\\\cline{4-6}
+\\\cline{4-7}
 	&	& 		& \TT{initial}
-					     & \ttkey{else} & terminating & \\
+					     & \ttkey{else} & terminating
+					     		    & C \\
 	&	& 		& \TT{line}  &            & conditional &
 \\\cline{3-3}\cline{5-6}
 	&	& \TT{exit}	&            & \ttkey{exit} & exit block &
 \\\cline{5-6}
 	&	& 		&            & \ttkey{continue} & continue loop &
-\\\cline{5-6}
-	&	& 		&            & \ttkey{return} & function & \\
+\\\cline{5-7}
+	&	& 		&            & \ttkey{return} & function & F \\
 	&	& 		&            &                & return &
-\\\cline{3-6}
-	&	& (none)	& \TT{afix } & \ttkey{:}  & conditional & \\
+\\\cline{3-7}
+	&	& (none)	& \TT{afix } & \ttkey{:}  & conditional
+							  & F or C \\
 	&	&		& \TT{right} &            & modifier   & \\
 	&	&		& \TT{line}  &            &            &
 \\\cline{4-5}
 	&	& 		& \TT{afix } & \ttkey{:} indentation & & \\
 	&	&		& \TT{line}  & ~~~mark     &           &
-\\\cline{4-4}\cline{6-6}
-	&	& 		& \TT{postfix } &          & assignment  & \\
+\\\cline{4-4}\cline{6-7}
+	&	& 		& \TT{postfix } &          & assignment  & C \\
 	&	&		& \TT{line}  &             & or loop     &
 \\\cline{1-1}\cline{3-7}
 1000    &     	& \TT{assignment} & \TT{left} & \ttkey{=}  & assignment & S \\
@@ -8568,6 +8577,7 @@ Class & Standard Component
 A: & \TT{arithmetic operators} \\
 B: & \TT{bitwise operators} \\
 C: & \TT{control operators} \\
+F: & \TT{function operators} \\
 S: & \TT{assignment operators} \\
 \end{tabular}
 
@@ -8801,9 +8811,6 @@ Parser Command				& \shortstack{
 \tt define operator "else if" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with control reformatter ( ":", has condition ) \\
-\tt define operator "function" [code] prefix line & {\tt + code} \\
-\tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "else" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with control reformatter ( ":" ) \\
@@ -8813,17 +8820,49 @@ Parser Command				& \shortstack{
 \tt define operator "continue" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with exit reformatter \\
+\\[1ex]
+\tt define operator indentation mark ":" [code] & {\tt + code} \\
+\tt ~~~~~~~postfix line \\
+\tt ~~~~~~~with precedence 0 \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttkey{function operators}'\label{STANDARD-FUNCTION-OPERATORS}
+     Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
+\\[1ex]
+Parser Command				& \shortstack{
+                                          Given\\Qualifiers}
+\\\hline
+\tt define operator "function" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "return" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with exit reformatter \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.2in}}l}
+\multicolumn{2}{c}
+{\bf Standard `\ttlkey{function or control}{operators}'%
+    \label{STANDARD-FUNCTION-OR-CONTROL-OPERATORS}
+     Component} \\
+\multicolumn{2}{c}
+{\bf Operator Definition Parser Commands}
 \\[1ex]
+Parser Command				& \shortstack{
+                                          Given\\Qualifiers}
+\\\hline
 \tt define operator ":" [code] afix right line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt define operator indentation mark ":" [code] & {\tt + code} \\
 \tt ~~~~~~~afix line \\
-\tt ~~~~~~~with precedence 0 \\
-\tt define operator indentation mark ":" [code] & {\tt + code} \\
-\tt ~~~~~~~postfix line \\
 \tt ~~~~~~~with precedence 0 \\
 \end{tabular}
 \end{center}

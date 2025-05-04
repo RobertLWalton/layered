@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 23 03:15:53 AM EDT 2025
+// Date:	Sun May  4 07:50:42 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,6 +93,20 @@ static void define_control_operators
 	  condition_arguments,
 	  oper_pass->oper_table );
 
+    min::locatable_gen function_name
+        ( min::new_str_gen ( "function" ) );
+
+    OP::push_oper
+        ( function_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  0000,
+	  control_reformatter,
+	  condition_arguments,
+	  oper_pass->oper_table );
+
     min::locatable_gen else_name
         ( min::new_str_gen ( "else" ) );
 
@@ -123,6 +137,20 @@ static void define_control_operators
 
     OP::push_oper
         ( continue_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INITIAL + OP::LINE,
+	  0000,
+	  exit_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    min::locatable_gen return_name
+        ( min::new_str_gen ( "return" ) );
+
+    OP::push_oper
+        ( return_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,

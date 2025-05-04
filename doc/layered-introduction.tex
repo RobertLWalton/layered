@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 23, 2025
+May 4, 2025
  
 \end{center}
 
@@ -8509,6 +8509,9 @@ prece-  & selec-  &             &            &            &            & \\
                                 & \TT{prefix} & \ttkey{if} & conditional & C
 \\\cline{5-5}
 	&	&		& \TT{line}  & \ttkey{else if} & & 
+\\\cline{5-6}
+	&	&		&            & \ttkey{function} & function &  \\
+	&	&		&            &                  & declaration & 
 \\\cline{4-6}
 	&	& 		& \TT{initial}
 					     & \ttkey{else} & terminating & \\
@@ -8517,6 +8520,9 @@ prece-  & selec-  &             &            &            &            & \\
 	&	& \TT{exit}	&            & \ttkey{exit} & exit block &
 \\\cline{5-6}
 	&	& 		&            & \ttkey{continue} & continue loop &
+\\\cline{5-6}
+	&	& 		&            & \ttkey{return} & function & \\
+	&	& 		&            &                & return &
 \\\cline{3-6}
 	&	& (none)	& \TT{afix } & \ttkey{:}  & conditional & \\
 	&	&		& \TT{right} &            & modifier   & \\
@@ -8795,6 +8801,9 @@ Parser Command				& \shortstack{
 \tt define operator "else if" [code] prefix line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with control reformatter ( ":", has condition ) \\
+\tt define operator "function" [code] prefix line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with control reformatter ( ":", has condition ) \\
 \tt define operator "else" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with control reformatter ( ":" ) \\
@@ -8802,6 +8811,9 @@ Parser Command				& \shortstack{
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with exit reformatter \\
 \tt define operator "continue" [code] initial line & {\tt + code} \\
+\tt ~~~~~~~with precedence 0 \\
+\tt ~~~~~~~with exit reformatter \\
+\tt define operator "return" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with exit reformatter \\
 \\[1ex]

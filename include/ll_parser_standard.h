@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  4 05:10:40 AM EDT 2025
+// Date:	Mon Mar 31 08:10:53 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -288,9 +288,6 @@ enum {
     TEST_OPERATORS		= 1 << 21,
         // Set standard test operator entries
 	// omitting DISabled CODE and MATH selectors.
-    FUNCTION_OPERATORS		= 1 << 22,
-        // Set standard function operator entries
-	// omitting DISabled CODE selectors.
     ALL_OPERATORS		= CONTROL_OPERATORS
                         	| ITERATION_OPERATORS
                         	| ASSIGNMENT_OPERATORS
@@ -299,19 +296,18 @@ enum {
                         	| COMPARISON_OPERATORS
                         	| ARITHMETIC_OPERATORS
                         	| BITWISE_OPERATORS
-                        	| TEST_OPERATORS
-                        	| FUNCTION_OPERATORS,
+                        	| TEST_OPERATORS,
         // Set all ..._OPERATOR entries.
 
-    PRIMARY_PARSING		= 1 << 23,
+    PRIMARY_PARSING		= 1 << 22,
         // Install primary pass which provides tables
 	// for parsing primary separators and the
 	// primary parsing functions (see
 	// ll_parser_primary.h).
-    PRIMARY_SEPARATORS		= 1 << 24,
+    PRIMARY_SEPARATORS		= 1 << 23,
         // Set standard primary separator entries
 	// omitting DISabled CODE selectors.
-    PRIMARY_OPERATORS		= 1 << 25,
+    PRIMARY_OPERATORS		= 1 << 24,
         // Set operator entries using MEX instruction
 	// codes in primary symbol table according to
 	// the ..._OPERATORS flags (e.g., this flag and

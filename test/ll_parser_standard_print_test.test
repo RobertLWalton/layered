@@ -400,10 +400,6 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "return" [code]
-                        initial line
-                        with precedence 0
-                        with exit reformatter
         block standard: operator "else" [code]
                         initial line
                         with precedence 0
@@ -472,11 +468,6 @@
                         infix
                         with precedence 13000
                         with infix reformatter ( "IOR" )
-        block standard: operator "function" [code]
-                        prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
         block standard: operator "?=" [code]
                         infix
                         with precedence 3000

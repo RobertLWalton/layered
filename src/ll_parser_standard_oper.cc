@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  4 01:54:25 PM EDT 2025
+// Date:	Sun Mar 23 03:15:53 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -137,95 +137,22 @@ static void define_control_operators
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::POSTFIX + OP::LINE,
+	  OP::AFIX + OP::RIGHT + OP::LINE,
 	  0000,
 	  min::NULL_STUB,
 	  min::MISSING(),
-	  oper_pass->oper_bracket_table );
-}
-
-static void define_function_operators
-	( PAR::parser parser,
-	  TAB::flags code,
-	  TAB::flags math )
-{
-    if ( code == 0 ) return;
-
-    OP::oper_pass oper_pass = OP::init_oper ( parser );
-    min::uns32 block_level =
-        PAR::block_level ( parser );
-
-    oper_pass->selectors |= code;
-
-    PAR::reformatter control_reformatter =
-        PAR::find_reformatter
-	    ( OPLEX::control, OP::reformatter_stack );
-
-    min::locatable_gen condition_arguments
-	    ( min::new_obj_gen ( 2 ) );
-    min::obj_vec_insptr cavp ( condition_arguments );
-    min::attr_push ( cavp ) = PARLEX::colon;
-    min::attr_push ( cavp ) = OPLEX::has_condition;
-
-    min::locatable_gen exit_name
-        ( min::new_str_gen ( "exit" ) );
-
-    PAR::reformatter exit_reformatter =
-        PAR::find_reformatter
-	    ( exit_name, OP::reformatter_stack );
-
-    min::locatable_gen function_name
-        ( min::new_str_gen ( "function" ) );
-
-    OP::push_oper
-        ( function_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0000,
-	  control_reformatter,
-	  condition_arguments,
 	  oper_pass->oper_table );
-
-    min::locatable_gen return_name
-        ( min::new_str_gen ( "return" ) );
-
-    OP::push_oper
-        ( return_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INITIAL + OP::LINE,
-	  0000,
-	  exit_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-}
-
-static void define_function_or_control_operators
-	( PAR::parser parser,
-	  TAB::flags code,
-	  TAB::flags math )
-{
-    if ( code == 0 ) return;
-
-    OP::oper_pass oper_pass = OP::init_oper ( parser );
-    min::uns32 block_level =
-        PAR::block_level ( parser );
-
-    oper_pass->selectors |= code;
 
     OP::push_oper
         ( PARLEX::colon,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::AFIX + OP::RIGHT + OP::LINE,
+	  OP::POSTFIX + OP::LINE,
 	  0000,
 	  min::NULL_STUB,
 	  min::MISSING(),
-	  oper_pass->oper_table );
+	  oper_pass->oper_bracket_table );
 
     OP::push_oper
         ( PARLEX::colon,
@@ -1199,14 +1126,6 @@ void PARSTD::define_operators
 
     if ( components & PARSTD::CONTROL_OPERATORS )
 	::define_control_operators
-	    ( parser, code, math );
-    if ( components & PARSTD::FUNCTION_OPERATORS )
-	::define_function_operators
-	    ( parser, code, math );
-    if ( components & ( PARSTD::FUNCTION_OPERATORS
-                        |
-			PARSTD::CONTROL_OPERATORS ) )
-	::define_function_or_control_operators
 	    ( parser, code, math );
     if ( components & PARSTD::ITERATION_OPERATORS )
 	::define_iteration_operators

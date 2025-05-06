@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 13 07:06:29 AM EDT 2025
+// Date:	Tue May  6 03:52:50 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,7 +55,6 @@ namespace lexeme {
         mark,           // mark
         precedence,     // precedence
         operators,      // operators
-        has_condition,  // has condition
         control,        // control
         iteration,      // iteration
         times;		// times

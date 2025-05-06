@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 24 02:43:23 AM EDT 2025
+// Date:	Tue May  6 03:53:04 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,7 +60,6 @@ min::locatable_gen OPLEX::indentation;
 min::locatable_gen OPLEX::mark;
 min::locatable_gen OPLEX::precedence;
 min::locatable_gen OPLEX::operators;
-min::locatable_gen OPLEX::has_condition;
 min::locatable_gen OPLEX::control;
 min::locatable_gen OPLEX::iteration;
 min::locatable_gen OPLEX::times;
@@ -101,8 +100,6 @@ static void initialize ( void )
     OPLEX::precedence =
         min::new_str_gen ( "precedence" );
     OPLEX::operators = min::new_str_gen ( "operators" );
-    OPLEX::has_condition =
-        min::new_lab_gen ( "has", "condition" );
     OPLEX::control = min::new_str_gen ( "control" );
     OPLEX::iteration = min::new_str_gen ( "iteration" );
     OPLEX::times = min::new_str_gen ( "times" );
@@ -1081,7 +1078,8 @@ static bool control_reformatter_function
 {
     OP::oper op = (OP::oper) entry;
     min::obj_vec_ptr args ( op->reformatter_arguments );
-    MIN_REQUIRE ( min::size_of ( args ) >= 1 );
+    min::uns32 s = min::size_of ( args );
+    MIN_REQUIRE ( s >= 2 );
 
     MIN_REQUIRE ( first != next );
 
@@ -1092,12 +1090,12 @@ static bool control_reformatter_function
 
     MIN_ASSERT (    first != next
                  && first->type == PAR::OPERATOR,
-		 "expression must have an operator" );
+		 "expression must begin with"
+		 " an operator" );
 
     PAR::token t = first->next;
 
-    if (    min::size_of ( args ) >= 2
-         && args[1] == OPLEX::has_condition )
+    if ( args[0] == min::TRUE() )
     {
 
 	if ( t == next || t->type == PAR::OPERATOR )
@@ -1111,22 +1109,41 @@ static bool control_reformatter_function
 	    ( parser, t, "expected an operator"
 			 " and found an operand " );
 
+    min::uns32 i = 1;
+    for ( ; i < s - 1; ++ i )
+    {
+	if ( t == next ) break;
+
+	MIN_REQUIRE ( t->type == PAR::OPERATOR );
+	if ( t->value == args[i] )
+	{
+	    t = t->next;
+	    if ( t == next
+	         ||
+		 t->type == PAR::OPERATOR )
+		OP::put_error_operand_after
+		    ( parser, t->previous );
+	    else
+	        t = t->next;
+	}
+    }
+
     if ( t == next )
     {
 	PAR::parse_error
 	    ( parser, t->previous->position,
 	      "operator `",
-	      min::pgen_never_quote ( args[0] ),
+	      min::pgen_never_quote ( args[s-1] ),
 	      "' inserted after" );
 	PAR::token token = new_token ( PAR::OPERATOR );
 	put_before ( PAR::first_ref(parser), t, token );
-	PAR::value_ref ( token ) = args[0];
+	PAR::value_ref ( token ) = args[s-1];
 	OP::put_error_operand_after
 	    ( parser, token->previous );
 	return true;
     }
 
-    if ( t->value == args[0] )
+    if ( t->value == args[s-1] )
     {
 	t = t->next;
 
@@ -1138,8 +1155,8 @@ static bool control_reformatter_function
 	{
 	    PAR::parse_error
 		( parser, t->previous->position,
-		  "expected statement but found"
-		  " operator after" );
+		  "expected restricted statement but"
+		  " found operator after" );
             t = OP::delete_extra_stuff
 	        ( parser, t, next );
 	    OP::put_error_operand_after
@@ -1156,11 +1173,11 @@ static bool control_reformatter_function
 	      ||
                  min::get ( t->value,
 		            min::dot_initiator )
-	      != args[0] )
+	      != args[s-1] )
 	PAR::parse_error
 	    ( parser, t->position,
 	      "expected `",
-	      min::pgen_never_quote ( args[0] ),
+	      min::pgen_never_quote ( args[s-1] ),
 	      "' operator or indented paragraph but"
 	      " found different operator" );
 
@@ -2038,7 +2055,7 @@ static void reformatter_stack_initialize ( void )
     min::locatable_gen control
         ( min::new_str_gen ( "control" ) );
     PAR::push_reformatter
-        ( control, 1, 2,
+        ( control, 2, 1000,
 	  ::control_reformatter_function,
 	  OP::reformatter_stack );
 

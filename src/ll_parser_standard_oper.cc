@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_standard_oper.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 23 03:15:53 AM EDT 2025
+// Date:	Tue May  6 03:58:48 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,12 +50,13 @@ static void define_control_operators
     min::locatable_gen condition_arguments
 	    ( min::new_obj_gen ( 2 ) );
     min::obj_vec_insptr cavp ( condition_arguments );
+    min::attr_push ( cavp ) = min::TRUE();
     min::attr_push ( cavp ) = PARLEX::colon;
-    min::attr_push ( cavp ) = OPLEX::has_condition;
 
     min::locatable_gen else_arguments
-	    ( min::new_obj_gen ( 1 ) );
+	    ( min::new_obj_gen ( 2 ) );
     min::obj_vec_insptr eavp ( else_arguments );
+    min::attr_push ( eavp ) = min::FALSE();
     min::attr_push ( eavp ) = PARLEX::colon;
 
     min::locatable_gen exit_name

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-April 23, 2025
+May 6, 2025
  
 \end{center}
 
@@ -9349,8 +9349,9 @@ With the above in mind, the operator reformatters are:
 \bigskip
 
 \ttmkey{control}{reformatter}
-\TT{(} {\em delimiter} \{ \TT{,} \ttkey{has condition} \}\QMARK{} \TT{)}
-\hfill \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else}
+\TT{(} {\em condition-present} \{ \TT{,} \ttkey{afix-operator} \}\STAR{}
+       \TT{,} {\em delimiter} \TT{)} \\
+\hspace*{1in} \hfill \OP{if} ~~~~~ \OP{else if} ~~~~~ \OP{else}
 
 
 \begin{indpar}[0.5em]
@@ -9359,19 +9360,30 @@ Typically used with \TT{prefix} \TT{line} operators
 
 The expression must have one of the forms:
 
-\hspace*{2em} {\em op} {\em condition}\QMARK{} {\em delimiter} {\em statement}
+\hspace*{2em} {\em op} ~ {\em condition}\QMARK{}
+		       \{ {affix-operator} {\em operand} \}\STAR{}
+		       {\em delimiter} ~ {\em restricted-statement}
 
 or
 
 \hspace*{2em}\begin{tabular}{l}
-             {\em op} {\em condition}\QMARK{} {\em delimiter} \\
+             {\em op} ~ {\em condition}\QMARK{}
+	     \{ {affix-operator} {\em operand} \}\STAR{}
+	     {\em delimiter} \\
 	     ~~~~~{\em statement}\STAR{}
 	     \end{tabular}
 
-The {\em delimiter} is typically \TT{:}.
+The {\em delimiter} is typically \TT{:}.  A {\em restricted-statement}
+is an expression with no operators of precedence 0.
+
 The {\em condition} expression must be present if and only if
-\TT{has condition} is a reformatter argument.  This is the case
+{\em condition-present} is \TT{min::TRUE()}.  This is the case
 for \TT{if} and \TT{else if} but not for \TT{else}.
+{\em Affix-operators} given in the reformatter arguments can be omitted
+in the expression along with their following operands, but if given
+in the expression must appear in the same order as they appear in the
+reformatter arguments.
+
 
 \end{indpar}
 

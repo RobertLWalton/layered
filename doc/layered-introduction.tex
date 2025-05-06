@@ -8513,10 +8513,6 @@ prece-  & selec-  &             &            &            &            & \\
 	&	& 		& \TT{initial}
 					     & \ttkey{else} & terminating & \\
 	&	& 		& \TT{line}  &            & conditional &
-\\\cline{3-3}\cline{5-6}
-	&	& \TT{exit}	&            & \ttkey{exit} & exit block &
-\\\cline{5-6}
-	&	& 		&            & \ttkey{continue} & continue loop &
 \\\cline{3-6}
 	&	& (none)	& \TT{afix } & \ttkey{:}  & conditional & \\
 	&	&		& \TT{right} &            & modifier   & \\
@@ -8528,7 +8524,11 @@ prece-  & selec-  &             &            &            &            & \\
 	&	& 		& \TT{postfix } &          & assignment  & \\
 	&	&		& \TT{line}  &             & or loop     &
 \\\cline{1-1}\cline{3-7}
-1000    &     	& \TT{assignment} & \TT{left} & \ttkey{=}  & assignment & S \\
+1000	&	& \TT{exit}	& \TT{initial} & \ttkey{exit} & exit block & C
+\\\cline{5-6}
+	&	& 		& \TT{line}  & \ttkey{continue} & continue loop &
+\\\cline{3-7}
+        &     	& \TT{assignment} & \TT{left} & \ttkey{=}  & assignment & S \\
         &       &               & \TT{line}  &            &            &
 \\\cline{3-7}
      	&	& \TT{binary}   & \TT{infix} & \ttkey{+ =} & increment  & A
@@ -8798,12 +8798,6 @@ Parser Command				& \shortstack{
 \tt define operator "else" [code] initial line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
 \tt ~~~~~~~with control reformatter ( ":" ) \\
-\tt define operator "exit" [code] initial line & {\tt + code} \\
-\tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with exit reformatter \\
-\tt define operator "continue" [code] initial line & {\tt + code} \\
-\tt ~~~~~~~with precedence 0 \\
-\tt ~~~~~~~with exit reformatter \\
 \\[1ex]
 \tt define operator ":" [code] afix right line & {\tt + code} \\
 \tt ~~~~~~~with precedence 0 \\
@@ -8813,6 +8807,13 @@ Parser Command				& \shortstack{
 \tt define operator indentation mark ":" [code] & {\tt + code} \\
 \tt ~~~~~~~postfix line \\
 \tt ~~~~~~~with precedence 0 \\
+\\[1ex]
+\tt define operator "exit" [code] initial line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with exit reformatter \\
+\tt define operator "continue" [code] initial line & {\tt + code} \\
+\tt ~~~~~~~with precedence 1000 \\
+\tt ~~~~~~~with exit reformatter \\
 \end{tabular}
 \end{center}
 

@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  7 02:59:05 PM EDT 2025
+// Date:	Wed May  7 03:22:44 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -710,10 +710,10 @@ inline min::gen scan_func_term_name
 // part of a function term name.
 //
 // Specifically, a (...) at the beginning of the scan
-// produces the MIN string ";;P" in the label, and a
-// [...] produces a ";;S".  These are followed by the
-// first function term name in the prototype, if there
-// is one.
+// produces the MIN label [< "(" ")" >] in the scan
+// output, and a [...] produces a [< "[" "]" >].  These
+// are followed by the first function term name in the
+// prototype, if there is one.
 //
 // The contents of (...) and [...] are NOT checked.
 // Partial labels are allowed, but the empty label

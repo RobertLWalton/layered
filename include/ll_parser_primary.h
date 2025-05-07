@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 24 08:23:33 PM EDT 2025
+// Date:	Wed May  7 02:59:05 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -731,7 +731,7 @@ extern min::locatable_gen func_default_op;
 extern min::locatable_gen func_bool_values;
     // MIN label listing boolean values.  The first
     // is the false value and the second is the
-    // true value.   Defaults to [< FALSE TRUE >].
+    // true value.   Defaults to [< *FALSE* *TRUE* >].
 extern min::locatable_gen func_negators;
     // MIN label listing function call negators.
     // Defaults to [< no NO not NOT >].

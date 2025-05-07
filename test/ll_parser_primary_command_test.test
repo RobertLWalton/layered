@@ -388,19 +388,19 @@ REJECTING: (A)F(B)
 *PARSER*:
     begin block BLOCK1
     define primary function
-        (* F1 (A) G (B ?= TRUE) *) [code]
+        (* F1 (A) G (B ?= *TRUE*) *) [code]
     test primary:  F1 (Y)
-    -- found function:  F1 (Y) G {|TRUE|} ===> *MISSING* 0
+    -- found function:  F1 (Y) G {|*TRUE*|} ===> *MISSING* 0
     test primary:  F1 (Y) NOT G
-    -- found function:  F1 (Y) G {|FALSE|} ===> *MISSING* 0
+    -- found function:  F1 (Y) G {|*FALSE*|} ===> *MISSING* 0
     test primary:  F1 (Y) G
-    -- found function:  F1 (Y) G {|TRUE|} ===> *MISSING* 0
+    -- found function:  F1 (Y) G {|*TRUE*|} ===> *MISSING* 0
     define primary function
-        (* F2 (A) G (B ?= FALSE) *) [code]
+        (* F2 (A) G (B ?= *FALSE*) *) [code]
     test primary:  F2 (Y)
-    -- found function:  F2 (Y) G {|FALSE|} ===> *MISSING* 0
+    -- found function:  F2 (Y) G {|*FALSE*|} ===> *MISSING* 0
     test primary:  F2 (Y) NOT G
-    -- found function:  F2 (Y) G {|FALSE|} ===> *MISSING* 0
+    -- found function:  F2 (Y) G {|*FALSE*|} ===> *MISSING* 0
     test primary:  F2 (Y) G
-    -- found function:  F2 (Y) G {|TRUE|} ===> *MISSING* 0
+    -- found function:  F2 (Y) G {|*TRUE*|} ===> *MISSING* 0
     end block BLOCK1

@@ -235,7 +235,7 @@ The Layered Programming Languages \\[0.5ex]
 Robert L. Walton\footnote{This document is dedicated to the memory
 of Professor Thomas Cheatham of Harvard University.}
 
-May 6, 2025
+May 7, 2025
  
 \end{center}
 
@@ -5755,11 +5755,11 @@ where \ldots{} denotes a list of elements:
 \TT{\{my type|} ~~~\ldots~~~ \TT{|\}} \\
 \TT{\{my type|} ~~~\ldots~~~ \TT{|my type\}} \\
 \TT{\{my type||\}} \\
-\TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~ \TT{|\}} \\
-\TT{\{my type: my attribute = 5, your option = FALSE|} ~~~\ldots~~~
+\TT{\{my type: my attribute = 5, my option = *TRUE*|} ~~~\ldots~~~ \TT{|\}} \\
+\TT{\{my type: my attribute = 5, your option = *FALSE*|} ~~~\ldots~~~
     \TT{|my type\}} \\
 \TT{\{my type: my attribute = 5|} ~~~\ldots~~~
-    \TT{|my option = TRUE: my type\}} \\
+    \TT{|my option = *TRUE*: my type\}} \\
 \TT{\{my type|} ~~~\ldots~~~
     \TT{|my attribute = 5, my option\}} \\
 \TT{\{my type|} ~~~\ldots~~~
@@ -5772,19 +5772,22 @@ where \ldots{} denotes a list of elements:
 \TT{\{+} ~~~\ldots~~~ \TT{+\}} \\
 \end{center}
 
+Note: The symbol \TT{*TRUE*} evaluates to \TT{min::TRUE()} and this last
+prints as \TT{*TRUE*}.  Similarly for \TT{*FALSE*}.
+
 The basic form is
 \begin{center}
-\TT{\{my type: my attribute = 5, my option = TRUE|} ~~~\ldots~~~
+\TT{\{my type: my attribute = 5, my option = *TRUE*|} ~~~\ldots~~~
     \TT{|my type\}} \\
 \end{center}
 from which various parts can be omitted or moved.  Some or all of the
 attributes can be moved to the end.
-The attribute value `\TT{= TRUE}' can be omitted (as in
-`\TT{my option}'), and the attribute value `\TT{= FALSE}' can be represented
+The attribute value `\TT{= *TRUE*}' can be omitted (as in
+`\TT{my option}'), and the attribute value `\TT{= *FALSE*}' can be represented
 by omitting it and prefacing the attribute label with `\TT{no}'
 (as in `\TT{no your option}').
 The type can be omitted from the end unless it is preceded
-by a single attribute with omitted \TT{TRUE} value, as such an attribute
+by a single attribute with omitted \TT{*TRUE*} value, as such an attribute
 will be mistaken for the type
 (i.e., in \TT{\{X|\ldots|Y\}}, \TT{Y} is
 a type label and \underline{not} an attribute label, and it is an error
@@ -5799,7 +5802,7 @@ For example, the following are equivalent:
 \begin{center}
 \TT{\{my option|a b c|no your option\}} \\
 \TT{\{my option:~no your option|a b c|\}} \\
-\TT{\{my option:~your option = FALSE |a b c|\}}
+\TT{\{my option:~your option = *FALSE* |a b c|\}}
 \end{center}
 
 where `\TT{my option}' is the \TT{.type}, and \underline{not}
@@ -6220,11 +6223,11 @@ single {\em typed-bracketed-subexpression}:
 \begin{enumerate}
 \item
 An {\em attribute} that is just `{\em attribute-label}' is equivalent to: \\
-\hspace*{1in} {\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{TRUE}
+\hspace*{1in} {\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{*TRUE*}
 \item
 An {\em attribute} that is just
 `{\em typed-attribute-negator}~~~{\em attribute-label}' is equivalent to: \\
-\hspace*{1in}{\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{FALSE}
+\hspace*{1in}{\em attribute-label}~~~{\em typed-attribute-equal}~~~\TT{*FALSE*}
 \item
 An {\em attribute} that is just
 `{\em attribute-label}~~~{\em attribute-flags}' sets just the attribute
@@ -6640,8 +6643,8 @@ and no {\em elements}.
 Some examples are:
 \begin{center}
 \TT{\{my type\}} \\
-\TT{\{my type: my attribute = 5, my option = TRUE\}} \\
-\TT{\{my type: my attribute = 5, your option = FALSE\}} \\
+\TT{\{my type: my attribute = 5, my option = *TRUE*\}} \\
+\TT{\{my type: my attribute = 5, your option = *FALSE*\}} \\
 \TT{\{my type: my attribute = 5, my option\}} \\
 \TT{\{my type: my attribute = 5, not your option\}} \\
 \TT{\{+\}} \\

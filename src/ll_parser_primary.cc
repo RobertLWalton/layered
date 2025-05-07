@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 27 02:55:26 AM EDT 2025
+// Date:	Wed May  7 02:58:30 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,7 +79,7 @@ static void initialize ( void )
     PRIM::func_default_op = min::new_str_gen ( "?=" );
 
     PRIM::func_bool_values =
-        min::new_lab_gen ( "FALSE", "TRUE" );
+        min::new_lab_gen ( "*FALSE*", "*TRUE*" );
     PRIM::func_negators =
         min::new_lab_gen ( "no", "NO", "not", "NOT" );
 

@@ -9919,7 +9919,7 @@ subexpression replacement.
 
 Thus if \TT{\{| \{|x|\} "+" \{|5|\} |\}} is a primary that calls
 a function, the label of the function called would be: \\
-\centerline{\TT{[< [< ( subexp >] + [< ( subexp >] >]}}
+\centerline{\TT{[< [< "(" ")" >] "+" [< "(" ")" >] >]}}
 
 Both \TT{PRIM::var} and \TT{PRIM::func} C++ object have the following
 members that can be used freely by the compiler to define the

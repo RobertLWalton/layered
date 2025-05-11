@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  7 03:22:44 PM EDT 2025
+// Date:	Sun May 11 03:40:10 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -195,6 +195,9 @@ struct arg_struct
 	// not available due to error.
     min::gen default_value;
         // Default value of argument, or NONE if none.
+    min::phrase_position pp;
+        // Location of variable name in function
+	// prototype code.
 };
 struct arg_list_struct
     // Argument list descriptor.  This appears only as
@@ -214,6 +217,9 @@ struct arg_list_struct
     min::gen brackets;
         // [< ( ) >] for () or {| |} argument lists,
         // [< [ ] >] for [] argument lists, etc.
+    min::phrase_position pp;
+        // Location of argument list in function
+	// prototype code.
 };
 
 enum func_flags {
@@ -415,12 +421,14 @@ inline ll::parser::primary::func push_logical_func
 // of a func.
 //
 inline void push_arg
-    ( min::gen name,
+    ( ll::parser::primary::func func,
+      min::gen name,
       min::gen default_value,
-      ll::parser::primary::func func )
+      min::phrase_position pp =
+          ll::parser::top_level_position )
 {
     ll::parser::primary::arg_struct arg =
-        { name, default_value };
+        { name, default_value, pp };
     min::push(func->args) = arg;
     min::unprotected::acc_write_update
         ( func->args, name );
@@ -432,16 +440,18 @@ inline void push_arg
 // arg_lists vector of a func.
 //
 inline void push_arg_list
-    ( min::gen term_name,
+    ( ll::parser::primary::func func,
+      min::gen term_name,
       min::uns32 number_of_args,
       min::uns32 first,
       min::uns32 number_required_args,
       min::gen brackets,
-      ll::parser::primary::func func )
+      min::phrase_position pp =
+          ll::parser::top_level_position )
 {
     ll::parser::primary::arg_list_struct arg_list =
         { term_name, number_of_args, first,
-	  number_required_args, brackets };
+	  number_required_args, brackets, pp };
     min::push(func->arg_lists) = arg_list;
     min::unprotected::acc_write_update
         ( func->arg_lists, term_name );

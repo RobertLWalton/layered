@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  7 02:58:30 PM EDT 2025
+// Date:	Sun May 11 04:17:57 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -299,19 +299,19 @@ PRIM::func PRIM::push_op
 
     // Argument before operator.
     //
-    PRIM::push_arg ( X, min::NONE(), func );
+    PRIM::push_arg ( func, X, min::NONE() );
     PRIM::push_arg_list
-	( min::NONE(), 1, 0, 1, PRIMLEX::parentheses,
-	  func );
+	( func, min::NONE(), 1, 0, 1,
+	  PRIMLEX::parentheses );
     func->number_initial_arg_lists = 1;
 
     if ( is_infix )
     {
 	// Argument after operator
-	PRIM::push_arg ( Y, min::NONE(), func );
+	PRIM::push_arg ( func, Y, min::NONE() );
 	PRIM::push_arg_list
-	    ( op_name, 1, 1, 1, PRIMLEX::parentheses,
-	      func );
+	    ( func, op_name, 1, 1, 1,
+	      PRIMLEX::parentheses );
 	func->number_following_arg_lists = 1;
     }
 
@@ -358,11 +358,11 @@ PRIM::func PRIM::push_builtin_func
 	min::locatable_gen A
 	    ( min::new_str_gen ( aname ) );
 
-	PRIM::push_arg ( A, min::NONE(), func );
+	PRIM::push_arg ( func, A, min::NONE() );
     }
     PRIM::push_arg_list
-	( func_name, number_of_arguments, 0, 1,
-	  PRIMLEX::parentheses, func );
+	( func, func_name, number_of_arguments, 0, 1,
+	  PRIMLEX::parentheses );
     func->number_following_arg_lists = 1;
 
     TAB::push ( symbol_table, (TAB::root) func );
@@ -794,17 +794,19 @@ inline min::uns32 process_arg
         avp = min::NULL_STUB;
 	default_value = min::NONE();
     }
+    min::phrase_position pp =
+        min::MISSING_PHRASE_POSITION;
 
     min::obj_vec_ptr nvp = name;
     if ( nvp == min::NULL_STUB )
     {
 	avp = min::NULL_STUB;
 	min::phrase_position_vec nppv =
-	    ( min::phrase_position_vec )
 	    min::get ( arg,
 		       min::dot_position );
+	pp = nppv->position;
 	PRIM::compile_error
-	    ( nppv->position,
+	    ( pp,
 	      "bad argument name: ",
 	      min::pgen ( name ),
 	      "; name ignored" );
@@ -813,17 +815,22 @@ inline min::uns32 process_arg
     }
     else
     {
+	min::phrase_position_vec nppv;
+	{
+	    min::attr_ptr nap = nvp;
+	    min::locate ( nap, min::dot_position );
+	    min::phrase_position_vec nppv =
+		min::get ( nap );
+	    pp = nppv->position;
+	}
 	min::gen original_name = name;
 	min::uns32 ni = 0;
 	name = PRIM::scan_var_name ( nvp, ni );
 	if ( ni < min::size_of ( nvp ) )
 	{
-	    min::phrase_position_vec nppv =
-		( min::phrase_position_vec )
-		min::get ( original_name,
-		           min::dot_position );
+	    nvp = min::NULL_STUB;
 	    PRIM::compile_error
-		( nppv->position,
+		( pp,
 		  "bad argument name: ",
 		  min::pgen ( original_name ),
 		  "; name ignored" );
@@ -832,7 +839,7 @@ inline min::uns32 process_arg
 	}
     }
 
-    PRIM::push_arg ( name, default_value, func );
+    PRIM::push_arg ( func, name, default_value, pp );
 
     return errors;
 }
@@ -884,6 +891,8 @@ PRIM::func PRIM::scan_func_prototype
 	    min::uns32 first = func->args->length;
 	    min::uns32 number_required_args = 0;
 	    min::locatable_gen brackets;
+	    min::phrase_position_vec ppv =
+	        min::get ( vp[i], min::dot_position );
 	    min::gen initiator =
 	        min::get ( vp[i], min::dot_initiator );
 	    if ( initiator == min::NONE() )
@@ -1000,9 +1009,9 @@ PRIM::func PRIM::scan_func_prototype
 	    if ( number_of_args != 1 )
 	        is_bool = false;
 	    PRIM::push_arg_list
-	        ( term_name, number_of_args, first,
-		  number_required_args,
-		  brackets, func );
+	        ( func, term_name, number_of_args,
+		  first, number_required_args,
+		  brackets, ppv->position );
 	    term_name = min::NONE();
 	    ++ i;
 	}

@@ -10102,12 +10102,13 @@ No {\em prototype-argument-list} that is before the first
 {\em prototype-term} is omittable.
 \item
 If there is an omittable {\em prototype-argument-list} in a {\em prototype-term}
-such that the next non-omittable {\em prototype-argument-list} in the
-same {\em prototype-term} has the
+that is immediately followed by either a
+non-omittable {\em prototype-argument-list} with the
 \underline{same} brackets (e.g., \TT{(~)} or \TT{[~]}) as the omittable
 argument list,
-then the omittable argument list is said to be \key{shadowed}
-by the non-omittable argument list.  Such shadowing is \underline{not}
+or by an omittable {\em prototype-argument-list} with different brackets,
+then the omittable argument list is said to \key{shadow}
+the following argument list.  Such shadowing is \underline{not}
 allowed.
 \item
 It is assumed that {\em default-values} will be evaluated in the

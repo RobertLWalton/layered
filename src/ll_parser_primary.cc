@@ -2,7 +2,7 @@
 //
 // File:	ll_parser_primary.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 11 04:17:57 AM EDT 2025
+// Date:	Tue May 13 03:45:03 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1021,34 +1021,49 @@ PRIM::func PRIM::scan_func_prototype
 	if ( number_arg_lists != 1 )
 	    is_bool = false;
 
-	min::uns32 k1 = first_arg_list;
 	min::uns32 kend = first_arg_list
 	                + number_arg_lists;
-	for ( uns32 k2 = first_arg_list; k2 < kend;
-	                                 ++ k2 )
+	for ( uns32 k1 = first_arg_list; k1 + 1 < kend;
+	                                 ++ k1 )
 	{
-	    if (    ( ~ & func->arg_lists[k2] )->
+	    if (    ( ~ & func->arg_lists[k1] )->
 	    	        number_required_args
-		 == 0 )
+		 != 0 )
 	        continue;
-	    while ( k1 < k2 )
+	    min::uns32 k2 = k1 + 1;
+	    if ( (~ & func->arg_lists[k1])->brackets
+		 ==
+		 (~ & func->arg_lists[k2])->brackets
+	       )
 	    {
-	        if ( (~ & func->arg_lists[k1])->brackets
-		     ==
-		     (~ & func->arg_lists[k2])->brackets
-		   )
+		if (    (~ & func->arg_lists[k2])->
+			   number_required_args
+		     != 0 )
 		{
 		    PRIM::compile_error
 			( ppvec[  k1 - first_arg_list
-			        + first_arg_list_i],
+				+ first_arg_list_i],
 			  "omitable argument list"
-			  " SHADOWS later"
+			  " SHADOWS following"
 			  " non-omittable argument"
-			  " list" );
+			  " list with the same kind"
+			  " of brackets" );
 		    ++ errors;
-		    break;
 		}
-		++ k1;
+	    }
+	    else
+	    if (    ( ~ & func->arg_lists[k2] )->
+			number_required_args
+		 == 0 )
+	    {
+		PRIM::compile_error
+		    ( ppvec[  k1 - first_arg_list
+			    + first_arg_list_i],
+		      "omitable argument list"
+		      " SHADOWS following"
+		      " omittable argument"
+		      " list with different brackets" );
+		++ errors;
 	    }
 	}
 
